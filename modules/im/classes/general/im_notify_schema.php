@@ -43,7 +43,7 @@ class CIMNotifySchema
 				"NAME" => GetMessage('IM_NS_IM'),
 				"NOTIFY" => Array(
 					"message" => Array(
-						"NAME" => GetMessage('IM_NS_MESSAGE_NEW'),
+						"NAME" => GetMessage('IM_NS_MESSAGE_NEW_MSGVER_1'),
 						"PUSH" => 'Y',
 						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP)
 					),

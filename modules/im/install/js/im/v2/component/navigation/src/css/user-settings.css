@@ -22,10 +22,11 @@
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	padding: 24px 0;
+	padding-top: 24px;
 	background-color: var(--im-user-settings-popup__background-color);
 	box-sizing: border-box;
 	user-select: none;
+	overflow: hidden;
 }
 
 .bx-im-user-settings-popup__container * {
@@ -84,25 +85,22 @@
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	row-gap: 10px;
+	gap: 7px;
 	max-width: 220px;
-}
-
-.bx-im-user-settings-popup__button-panel_button {
-	margin-right: 7px;
-}
-
-.bx-im-user-settings-popup__button-panel_button:last-child {
-	margin-right: 0;
 }
 /* Header end */
 
 /* Content */
+.bx-im-user-settings-popup__content {
+	overflow: hidden scroll;
+	max-height: 328px;
+}
+
 .bx-im-user-settings-popup__list {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin: 0 8px;
+	margin: 0 8px 8px;
 }
 
 .bx-im-user-settings-popup__separator {
@@ -236,44 +234,16 @@
 }
 /* Content end */
 
-/* Back to old chat */
-.bx-im-user-settings-popup__old-chat {
-	display: flex;
-	align-items: center;
-	width: calc(100% - 32px);
-	height: 44px;
-	margin: 10px 16px 0;
-	padding: 12px 14px;
-	background-color: var(--im-user-settings-popup__background-color_old-chat);
-	border-radius: 10px;
-	cursor: pointer;
+.bx-im-user-settings-popup__container *::-webkit-scrollbar {
+	width: 6px;
 }
 
-.bx-im-user-settings-popup__old-chat:not(.--loading):hover {
-	background: var(--im-user-settings-popup__background-color_old-chat-hover);
+.bx-im-user-settings-popup__container *::-webkit-scrollbar-thumb {
+	background-color: transparent;
+	border-radius: 32px;
 }
 
-.bx-im-user-settings-popup__old-chat.--loading {
-	opacity: 0.6;
+.bx-im-user-settings-popup__container *:hover::-webkit-scrollbar-thumb {
+	background-color: rgb(82 92 105 / 20%);
+	border-radius: 32px;
 }
-
-.bx-im-user-settings-popup__old-chat.--loading .bx-im-user-settings-popup__list-item_icon.--arrow-left {
-	background-image: var(--ui-btn-clock-white);
-}
-
-.bx-im-user-settings-popup__old-chat .bx-im-user-settings-popup__list-item_icon {
-	opacity: 1;
-}
-
-.bx-im-user-settings-popup__old-chat .bx-im-user-settings-popup__old-chat_text {
-	max-width: calc(100% - 28px - 20px - 8px);
-	margin-left: 8px;
-	font: var(--im-font-size-sm)/var(--im-font-line-height-lg) var(--im-font-family-system);
-	font-weight: var(--im-font-weight-medium);
-	color: var(--im-user-settings-popup__font-color_old-chat);
-	text-overflow: ellipsis;
-	overflow: hidden;
-	white-space: nowrap;
-	cursor: pointer;
-}
-/* Back to old chat end */

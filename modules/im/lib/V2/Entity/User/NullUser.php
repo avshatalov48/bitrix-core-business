@@ -10,7 +10,7 @@ class NullUser extends User
 		return null;
 	}
 
-	public function isOnlineDataFilled(): bool
+	public function isOnlineDataFilled(bool $withStatus): bool
 	{
 		return true;
 	}

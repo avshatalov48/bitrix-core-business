@@ -69,6 +69,10 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 		{
 			$values = [$values];
 		}
+		if (empty($values))
+		{
+			return $this->markDrop();
+		}
 		switch ($this->type)
 		{
 			case Param::TYPE_INT_ARRAY:
@@ -204,7 +208,7 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 		}
 		else
 		{
-			$this['~'. $this->count()] = $param;
+			$this[] = $param;
 		}
 
 		$this->markChanged();
@@ -260,6 +264,11 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 		}
 
 		return $this;
+	}
+
+	public function isHidden(): bool
+	{
+		return Params::getType($this->name)['isHidden'] ?? false;
 	}
 
 	/**
@@ -354,6 +363,11 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 		return $this->type ?? Param::TYPE_STRING_ARRAY;
 	}
 
+	public function isValid(): Result
+	{
+		return new Result();
+	}
+
 	public function detectType(): self
 	{
 		if (!empty($this->name))
@@ -383,6 +397,10 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 		{
 			$this->isChanged = $state;
 		}
+		if ($this->isChanged)
+		{
+			$this->markedDrop = false;
+		}
 		return $this;
 	}
 
@@ -411,7 +429,20 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 	 */
 	public function isDeleted(): bool
 	{
-		return $this->markedDrop;
+		if ($this->markedDrop)
+		{
+			return true;
+		}
+
+		foreach ($this as $param)
+		{
+			if (!$param->isDeleted())
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 
@@ -436,4 +467,16 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 	}
 
 	//endregion
+
+	public function __clone()
+	{
+		foreach ($this as $key => $param)
+		{
+			$this[$key] = clone $param;
+			if ($this[$key] instanceof RegistryEntry)
+			{
+				$this->setRegistry($this);
+			}
+		}
+	}
 }

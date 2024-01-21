@@ -29,6 +29,7 @@
 		init: function()
 		{
 			this.on("click", this.onClick, this);
+			this.on("mouseover", this.onMouseOver, this);
 			this.contextDocument = document;
 		},
 
@@ -39,6 +40,12 @@
 
 			const res = this.contextDocument.execCommand(this.id);
 			BX.Landing.UI.Tool.ColorPicker.hideAll();
+		},
+
+		onMouseOver: function(event)
+		{
+			event.preventDefault();
+			event.stopPropagation();
 		},
 
 		/**

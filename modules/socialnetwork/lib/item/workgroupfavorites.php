@@ -16,6 +16,10 @@ Loc::loadMessages(__FILE__);
 
 class WorkgroupFavorites
 {
+	public const AVAILABLE_VALUES = [
+		'Y', 'N'
+	];
+
 	/**
 	 * Adds/deletes a worgroup GROUP_ID to/from a favorites list of a user USER_ID
 	 * @param array $params

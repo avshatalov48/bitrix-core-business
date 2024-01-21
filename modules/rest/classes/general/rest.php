@@ -19,6 +19,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Socialservices\Bitrix24Signer;
+use Bitrix\Rest\NonLoggedExceptionDecorator;
 
 class CRestServer
 {
@@ -150,14 +151,18 @@ class CRestServer
 		}
 		catch(Exception $e)
 		{
-			$this->error = $e;
-
-			if (!is_a($this->error, \Bitrix\Rest\RestException::class))
+			if ($e instanceof NonLoggedExceptionDecorator)
+			{
+				$e = RestException::initFromException($e->getOriginalException());
+			}
+			elseif (!($e instanceof RestException))
 			{
 				Main\Application::getInstance()->getExceptionHandler()->writeToLog($e);
 
-				$this->error = RestException::initFromException($this->error);
+				$e = RestException::initFromException($e);
 			}
+
+			$this->error = $e;
 
 			$ex = $APPLICATION->GetException();
 			if ($ex)

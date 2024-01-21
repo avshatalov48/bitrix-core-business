@@ -3,10 +3,11 @@ import { Store } from 'ui.vue3.vuex';
 
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
-import { RestMethod } from 'im.v2.const';
+import { RestMethod, Layout } from 'im.v2.const';
 import { runAction } from 'im.v2.lib.rest';
 import { MessageService } from 'im.v2.provider.service';
 import { UserManager } from 'im.v2.lib.user';
+import { LayoutManager } from 'im.v2.lib.layout';
 import { Utils } from 'im.v2.lib.utils';
 
 import { ChatDataExtractor } from '../chat-data-extractor';
@@ -69,38 +70,37 @@ export class LoadService
 			});
 	}
 
-	#requestChat(actionName: string, params: Object<string, any>): Promise
+	async #requestChat(actionName: string, params: Object<string, any>): Promise
 	{
 		const { dialogId } = params;
 		this.#markDialogAsLoading(dialogId);
 
-		return runAction(actionName, { data: params })
-			.then((result: ChatLoadRestResult) => {
-				return this.#updateModels(result);
-			})
-			.then((result?: { linesDialogId: string }) => {
-				if (Type.isStringFilled(result?.linesDialogId))
-				{
-					Messenger.openLines(result.linesDialogId);
-
-					return;
-				}
-
-				if (this.#isDialogLoadedMarkNeeded(actionName))
-				{
-					this.#markDialogAsLoaded(dialogId);
-				}
-			})
+		const actionResult = await runAction(actionName, { data: params })
 			.catch((error) => {
 				// eslint-disable-next-line no-console
 				console.error('ChatService: Load: error loading chat', error);
+				this.#markDialogAsNotLoaded(dialogId);
 				throw error;
 			});
+		const updateModelResult = await this.#updateModels(actionResult);
+		if (Type.isStringFilled(updateModelResult?.linesDialogId))
+		{
+			LayoutManager.getInstance().setLastOpenedElement(Layout.chat.name, '');
+
+			return Messenger.openLines(updateModelResult.linesDialogId);
+		}
+
+		if (this.#isDialogLoadedMarkNeeded(actionName))
+		{
+			return this.#markDialogAsLoaded(dialogId);
+		}
+
+		return true;
 	}
 
 	#markDialogAsLoading(dialogId: string)
 	{
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId,
 			fields: {
 				loading: true,
@@ -110,10 +110,20 @@ export class LoadService
 
 	#markDialogAsLoaded(dialogId: string): Promise
 	{
-		return this.#store.dispatch('dialogues/update', {
+		return this.#store.dispatch('chats/update', {
 			dialogId,
 			fields: {
 				inited: true,
+				loading: false,
+			},
+		});
+	}
+
+	#markDialogAsNotLoaded(dialogId: string): Promise
+	{
+		return this.#store.dispatch('chats/update', {
+			dialogId,
+			fields: {
 				loading: false,
 			},
 		});
@@ -132,7 +142,7 @@ export class LoadService
 			return Promise.resolve({ linesDialogId: extractor.getDialogId() });
 		}
 
-		const dialoguesPromise = this.#store.dispatch('dialogues/set', extractor.getChats());
+		const chatsPromise = this.#store.dispatch('chats/set', extractor.getChats());
 		const filesPromise = this.#store.dispatch('files/set', extractor.getFiles());
 
 		const userManager = new UserManager();
@@ -154,7 +164,7 @@ export class LoadService
 		]);
 
 		return Promise.all([
-			dialoguesPromise,
+			chatsPromise,
 			filesPromise,
 			usersPromise,
 			messagesPromise,

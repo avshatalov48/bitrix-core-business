@@ -15,7 +15,7 @@ export const UserStatusContent = {
 		UserStatusType: () => UserStatusType,
 		statusList(): string[]
 		{
-			return [UserStatusType.online, UserStatusType.break, UserStatusType.away, UserStatusType.dnd];
+			return [UserStatusType.online, UserStatusType.dnd];
 		}
 	},
 	methods:

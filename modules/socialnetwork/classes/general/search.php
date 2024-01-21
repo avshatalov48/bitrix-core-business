@@ -760,7 +760,7 @@ class CSocNetSearch
 				$key = $field . "_TYPE";
 				if (isset($CWikiParser))
 				{
-					$arFields[$field] = HTMLToTxt($CWikiParser->parseForSearch($arFields[$field]));
+					$arFields[$field] = HTMLToTxt($CWikiParser->parseForSearch($arFields[$field] ?? ''));
 				}
 				elseif (isset($arFields[$key]) && $arFields[$key] === "html")
 				{
@@ -804,7 +804,7 @@ class CSocNetSearch
 			"PARAM1" => CIBlock::GetArrayByID($IBLOCK_ID, "IBLOCK_TYPE_ID"),
 			"PARAM2" => $IBLOCK_ID,
 			"PARAM3" => $feature,
-			"TAGS" => $arFields["TAGS"],
+			"TAGS" => $arFields["TAGS"] ?? null,
 			"PERMISSIONS" => $arPermissions,
 			"PARAMS" => $arSearchIndexParams,
 		), true);

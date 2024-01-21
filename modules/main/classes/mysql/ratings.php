@@ -1,7 +1,5 @@
 <?php
 
-require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/ratings.php");
-
 IncludeModuleLangFile(__FILE__);
 
 class CRatings extends CAllRatings
@@ -19,13 +17,12 @@ class CRatings extends CAllRatings
 		$helper = $connection->getSqlHelper();
 
 		$ID = intval($ID);
-		$err_mess = (CRatings::err_mess())."<br>Function: BuildRating<br>Line: ";
 
 		$resRating = CRatings::GetByID($ID);
 		$arRating = $resRating->Fetch();
 		if ($arRating && $arRating['ACTIVE'] == 'Y')
 		{
-			$DB->Query("UPDATE b_rating SET CALCULATED = 'C' WHERE id = ".$ID, false, $err_mess.__LINE__);
+			$DB->Query("UPDATE b_rating SET CALCULATED = 'C' WHERE id = ".$ID);
 
 			// Insert new results
 			$sqlFunc = ($arRating['CALCULATION_METHOD'] == 'SUM') ? 'SUM' : 'AVG';
@@ -43,7 +40,7 @@ class CRatings extends CAllRatings
 				WHERE
 					RC.RATING_ID = ".$ID." and RR.ID IS NULL
 				GROUP BY RC.ENTITY_ID";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 
 			// Update current results
 			$strSql = $helper->prepareCorrelatedUpdate("b_rating_results", "RR", [
@@ -61,7 +58,7 @@ class CRatings extends CAllRatings
 					and	RR.ENTITY_ID = RCR.ENTITY_ID
 				"
 			);
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 
 			// Calculation position in rating
 			if ($arRating['POSITION'] == 'Y')
@@ -86,7 +83,7 @@ class CRatings extends CAllRatings
 						and	RR.ENTITY_ID = RP.ENTITY_ID
 					"
 				);
-				$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$res = $DB->Query($strSql);
 			}
 
 			// Insert new user rating prop
@@ -103,7 +100,7 @@ class CRatings extends CAllRatings
 					U.ACTIVE = 'Y' 
 					AND (CASE WHEN U.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N'
 					AND RU.ID IS NULL	";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			// authority calc
 			if ($arRating['AUTHORITY'] == 'Y')
 			{
@@ -164,7 +161,7 @@ class CRatings extends CAllRatings
 
 					$ratingCountVote = COption::GetOptionString("main", "rating_count_vote", 10);
 					$strSql =  "UPDATE b_rating_user SET VOTE_COUNT = 0, VOTE_WEIGHT =0 WHERE RATING_ID=".$ID;
-					$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+					$res = $DB->Query($strSql);
 					// default vote count + user authority
 					$strSql = $helper->prepareCorrelatedUpdate("b_rating_user", "RU", [
 							'VOTE_COUNT' => intval($ratingCountVote)." + RP.CURRENT_VALUE",
@@ -179,14 +176,14 @@ class CRatings extends CAllRatings
 							and	RU.ENTITY_ID = RP.ENTITY_ID
 						"
 					);
-					$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+					$res = $DB->Query($strSql);
 				}
 				else
 				{
 					// Depending on current authority set correct weight votes
 					// Depending on current authority set correct vote count
 					$strSql =  "UPDATE b_rating_user SET VOTE_COUNT = 0, VOTE_WEIGHT =0 WHERE RATING_ID=".$ID;
-					$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+					$res = $DB->Query($strSql);
 					$strSql = $helper->prepareCorrelatedUpdate("b_rating_user", "RU", [
 							'VOTE_COUNT' => 'RP.COUNT',
 							'VOTE_WEIGHT' => 'RP.WEIGHT',
@@ -205,13 +202,13 @@ class CRatings extends CAllRatings
 							and RU.ENTITY_ID = RP.ENTITY_ID
 						"
 					);
-					$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+					$res = $DB->Query($strSql);
 				}
 			}
 			global $CACHE_MANAGER;
 			$CACHE_MANAGER->CleanDir("b_rating_user");
 
-			$DB->Query("UPDATE b_rating SET CALCULATED = 'Y', LAST_CALCULATED = ".$DB->GetNowFunction()." WHERE id = ".$ID, false, $err_mess.__LINE__);
+			$DB->Query("UPDATE b_rating SET CALCULATED = 'Y', LAST_CALCULATED = ".$DB->GetNowFunction()." WHERE id = ".$ID);
 		}
 		return true;
 	}
@@ -280,7 +277,6 @@ class CRatings extends CAllRatings
 	public static function AddResults($arResults)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: AddComponentResults<br>Line: ";
 
 		// Only Mysql
 		$strSqlPrefix = "
@@ -296,14 +292,13 @@ class CRatings extends CAllRatings
 			$strSqlValues .= ",\n(".intval($arResult['RATING_ID']).", '".$DB->ForSql($arResult['ENTITY_TYPE_ID'])."', '".$DB->ForSql($arResult['ENTITY_ID'])."', '".$DB->ForSql($arResult['CURRENT_VALUE'])."', '".$DB->ForSql($arResult['PREVIOUS_VALUE'])."')";
 			if(mb_strlen($strSqlValues) > $maxValuesLen)
 			{
-				$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, $err_mess.__LINE__);
+				$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 				$strSqlValues = "";
 			}
 		}
 		if($strSqlValues <> '')
 		{
-			$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, $err_mess.__LINE__);
-			$strSqlValues = "";
+			$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 		}
 
 		return true;
@@ -313,7 +308,6 @@ class CRatings extends CAllRatings
 	public static function AddComponentResults($arComponentConfigs)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: AddComponentResults<br>Line: ";
 
 		if (!is_array($arComponentConfigs))
 			return false;
@@ -323,7 +317,7 @@ class CRatings extends CAllRatings
 			SET LAST_CALCULATED = ".$DB->GetNowFunction().",
 				NEXT_CALCULATION = '".date('Y-m-d H:i:s', time()+$arComponentConfigs['REFRESH_INTERVAL'])."'
 			WHERE RATING_ID = ".intval($arComponentConfigs['RATING_ID'])." AND COMPLEX_NAME = '".$DB->ForSql($arComponentConfigs['COMPLEX_NAME'])."'";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		return true;
 	}
@@ -332,11 +326,9 @@ class CRatings extends CAllRatings
 	{
 		global $DB, $stackCacheManager;
 
-		$err_mess = (CRatings::err_mess())."<br>Function: SetAuthorityRating<br>Line: ";
-
 		$ratingId = intval($ratingId);
 
-		$DB->Query("UPDATE b_rating SET AUTHORITY = CASE WHEN ID <> $ratingId THEN 'N' ELSE 'Y' END", false, $err_mess.__LINE__);
+		$DB->Query("UPDATE b_rating SET AUTHORITY = CASE WHEN ID <> $ratingId THEN 'N' ELSE 'Y' END");
 
 		COption::SetOptionString("main", "rating_authority_rating", $ratingId);
 
@@ -507,7 +499,9 @@ class CRatings extends CAllRatings
 			if(!array_key_exists($userId, $cacheAllowVote))
 			{
 				global $DB;
-				$arGroups = array();
+				$connection = \Bitrix\Main\Application::getConnection();
+				$helper = $connection->getSqlHelper();
+
 				$sVoteType = $arVoteParam['ENTITY_TYPE_ID'] == 'USER'? 'A': 'R';
 
 				$userVoteGroup = Array();
@@ -552,7 +546,7 @@ class CRatings extends CAllRatings
 						FROM b_rating_vote RV
 						WHERE RV.USER_ID = '.$userId.'
 						AND RV.CREATED > ' . $helper->addDaysToDateTime(-1);
-					$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+					$res = $DB->Query($strSql);
 					$countVote = $res->Fetch();
 					$cacheVoteSize = \Bitrix\Main\Application::getInstance()->getSession()['RATING_VOTE_COUNT'] = $countVote['VOTE'];
 
@@ -620,7 +614,7 @@ class CRatings extends CAllRatings
 				$ratingStartValue = COption::GetOptionString("main", "rating_start_authority", 3);
 
 			$strSql =  "UPDATE b_rating_user SET BONUS = $ratingStartValue WHERE RATING_ID IN (".implode(',', $arRatingList).")";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			$strSql =  "
 				UPDATE
 					b_rating_user RU,
@@ -636,13 +630,13 @@ class CRatings extends CAllRatings
 					RU.RATING_ID IN (".implode(',', $arRatingList).")
 				and	RU.ENTITY_ID = RP.ENTITY_ID
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 		}
 		else if (isset($arParams['DEFAULT_CONFIG_NEW_USER']) && $arParams['DEFAULT_CONFIG_NEW_USER'] == 'Y' && is_array($arRatingList) && !empty($arRatingList))
 		{
 			$ratingStartValue = COption::GetOptionString("main", "rating_start_authority", 3);
 			$strSql =  "UPDATE b_rating_user SET BONUS = ".$ratingStartValue." WHERE RATING_ID IN (".implode(',', $arRatingList).")";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 		}
 
 		return true;
@@ -651,7 +645,6 @@ class CRatings extends CAllRatings
 	public static function AutoAssignGroup($groupId, $authorityValueAdd, $authorityValueDelete)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: AutoAssignGroup<br>Line: ";
 
 		$groupId = intval($groupId);
 		if ($groupId == 0)
@@ -681,7 +674,7 @@ class CRatings extends CAllRatings
 				AND rr.CURRENT_VALUE < $ratingValueDelete
 			)
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		// add a group to all users who do not, but you need to add it
 		$strSql = "
@@ -695,7 +688,7 @@ class CRatings extends CAllRatings
 				rr.RATING_ID = $ratingId
 			and rr.CURRENT_VALUE >= $ratingValueAdd
 			and ug.USER_ID IS NULL";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		return true;
 	}
@@ -726,8 +719,8 @@ class CRatings extends CAllRatings
 				AND RV.ENTITY_TYPE_ID = '".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."'
 				and RV.ENTITY_ID =  ".intval($arParam['ENTITY_ID'])."
 				".self::getReactionFilterSQL($arParam, $bplus)."
-			GROUP BY U.ID, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.LOGIN, U.PERSONAL_PHOTO, RV.VALUE, RV.USER_ID,
-			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, ".$DB->quote("RANK")." DESC, RV_ID DESC": "".$DB->quote("RANK")." DESC, RV.VALUE DESC, RV_ID DESC");
+			GROUP BY U.ID, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.LOGIN, U.PERSONAL_PHOTO, RV.VALUE, RV.USER_ID
+			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, ".$DB->quote("RANK")." DESC, RV_ID DESC" : $DB->quote("RANK")." DESC, RV.VALUE DESC, RV_ID DESC");
 	}
 
 	public static function GetRatingVoteListSQLExtended($arParam, $bplus, $bIntranetInstalled)
@@ -753,7 +746,7 @@ class CRatings extends CAllRatings
 				and RV.ENTITY_ID =  ".intval($arParam['ENTITY_ID'])."
 				".self::getReactionFilterSQL($arParam, $bplus)."
 			GROUP BY U.ID, RV.VALUE, RV.USER_ID
-			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, ".$DB->quote("RANK")." DESC, RV_ID DESC": "".$DB->quote("RANK")." DESC, RV.VALUE DESC, RV_ID DESC");
+			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, ".$DB->quote("RANK")." DESC, RV_ID DESC" : $DB->quote("RANK")." DESC, RV.VALUE DESC, RV_ID DESC");
 	}
 
 	private static function getReactionFilterSQL($arParam, $bplus)

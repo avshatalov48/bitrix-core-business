@@ -7,6 +7,8 @@ module.exports = {
 	namespace: 'BX.UI',
 	adjustConfigPhp: false,
 	cssImages: {
-		type: 'inline'
-	}
+		type: 'inline',
+	},
+	browserslist: true,
+	transformClasses: true,
 };

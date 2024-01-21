@@ -1,6 +1,6 @@
-import {Core} from 'im.v2.application.core';
-import {Messenger as MessengerComponent} from 'im.v2.component.messenger';
-import {SidebarPullHandler} from 'im.v2.provider.pull';
+import { Core } from 'im.v2.application.core';
+import { Messenger as MessengerComponent } from 'im.v2.component.messenger';
+import { SidebarPullHandler } from 'im.v2.provider.pull';
 
 type MessengerApplicationParams = {
 	node?: string | HTMLElement
@@ -29,49 +29,26 @@ export class MessengerApplication
 
 		this.rootNode = this.params.node || document.createElement('div');
 
+		// eslint-disable-next-line promise/catch-or-return
 		this.initCore()
-			// .then(() => this.initComponent())
 			.then(() => this.initPullHandlers())
 			.then(() => this.initComplete())
 		;
 	}
 
-	initCore()
+	async initCore(): Promise
 	{
-		return new Promise((resolve) => {
-			Core.ready().then(controller => {
-				this.controller = controller;
-				Core.setApplicationData(this.params);
-				resolve();
-			});
-		});
+		Core.setApplicationData(this.params);
+		this.controller = await Core.ready();
+
+		return true;
 	}
 
-	initComponent(node)
+	initPullHandlers(): Promise
 	{
-		this.unmountComponent();
+		this.controller.pullClient.subscribe(new SidebarPullHandler());
 
-		return this.controller.createVue(this, {
-			name: 'Messenger',
-			el: node || this.rootNode,
-			components: {MessengerComponent},
-			template: `<MessengerComponent />`,
-		}).then(vue => {
-			this.vueInstance = vue;
-
-			return Promise.resolve();
-		});
-	}
-
-	unmountComponent()
-	{
-		if (!this.vueInstance)
-		{
-			return false;
-		}
-
-		this.bitrixVue.unmount();
-		this.vueInstance = null;
+		return Promise.resolve();
 	}
 
 	initComplete()
@@ -80,14 +57,32 @@ export class MessengerApplication
 		this.initPromiseResolver(this);
 	}
 
-	initPullHandlers()
+	async initComponent(node): Promise
 	{
-		this.controller.pullClient.subscribe(new SidebarPullHandler());
+		this.unmountComponent();
 
-		return Promise.resolve();
+		this.vueInstance = await this.controller.createVue(this, {
+			name: this.#applicationName,
+			el: node || this.rootNode,
+			components: { MessengerComponent },
+			template: '<MessengerComponent />',
+		});
+
+		return true;
 	}
 
-	ready()
+	unmountComponent()
+	{
+		if (!this.vueInstance)
+		{
+			return;
+		}
+
+		this.bitrixVue.unmount();
+		this.vueInstance = null;
+	}
+
+	ready(): Promise
 	{
 		if (this.inited)
 		{

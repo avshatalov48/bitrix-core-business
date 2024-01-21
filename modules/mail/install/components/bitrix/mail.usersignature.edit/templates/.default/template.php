@@ -72,6 +72,7 @@ $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pa
 				['id' => 'More',  'compact' => true, 'sort' => 400]
 			],
 			'content' => $arResult['signature'],
+			'isCopilotEnabled' => false,
 		]);
 		?>
 	</div>

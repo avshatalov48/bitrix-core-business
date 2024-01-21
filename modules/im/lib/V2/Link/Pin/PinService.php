@@ -12,6 +12,7 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Im\V2\Sync;
 
 class PinService
 {
@@ -38,6 +39,11 @@ class PinService
 		{
 			return $result->addErrors($saveParamResult->getErrors());
 		}
+
+		Sync\Logger::getInstance()->add(
+			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::PIN_MESSAGE_ENTITY, $pin->getId()),
+			fn () => Chat::getInstance($pin->getChatId())->getRelations()->getUserIds()
+		);
 
 		$this->sendMessageAboutPin($pin);
 
@@ -73,6 +79,11 @@ class PinService
 		{
 			return $result->addErrors($deleteParamResult->getErrors());
 		}
+
+		Sync\Logger::getInstance()->add(
+			new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::PIN_MESSAGE_ENTITY, $pin->getId()),
+			fn () => Chat::getInstance($pin->getChatId())->getRelations()->getUserIds()
+		);
 
 		Push::getInstance()
 			->setContext($this->context)

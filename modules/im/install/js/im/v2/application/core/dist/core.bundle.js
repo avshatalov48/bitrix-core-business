@@ -18,8 +18,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store = null;
 	    this.storeBuilder = null;
 	    this.prepareVariables();
-	    this.initStorage().then(() => this.initPullClient()).then(() => this.initComplete()).catch(error => {
-	      im_v2_lib_logger.Logger.error('Error initializing core controller', error);
+	    this.initRestClient();
+	  }
+	  start() {
+	    this.initStorage().then(() => this.initPull()).then(() => this.initComplete()).catch(error => {
+	      im_v2_lib_logger.Logger.error('Core: error starting core application', error);
 	    });
 	  }
 	  prepareVariables() {
@@ -32,48 +35,41 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.siteId = (_Loc$getMessage = main_core.Loc.getMessage('SITE_ID')) != null ? _Loc$getMessage : 's1';
 	    this.siteDir = (_Loc$getMessage2 = main_core.Loc.getMessage('SITE_DIR')) != null ? _Loc$getMessage2 : 's1';
 	    this.languageId = (_Loc$getMessage3 = main_core.Loc.getMessage('LANGUAGE_ID')) != null ? _Loc$getMessage3 : 'en';
-	    this.initPull();
-	    this.initRest();
+	  }
+	  initRestClient() {
+	    this.restInstance = BX.RestClient;
+	    this.restClient = BX.rest;
 	  }
 	  initStorage() {
-	    const builder = ui_vue3_vuex.Builder.init().addModel(im_v2_model.ApplicationModel.create()).addModel(im_v2_model.MessagesModel.create()).addModel(im_v2_model.DialoguesModel.create()).addModel(im_v2_model.FilesModel.create()).addModel(im_v2_model.UsersModel.create()).addModel(im_v2_model.RecentModel.create()).addModel(im_v2_model.NotificationsModel.create()).addModel(im_v2_model.SidebarModel.create()).addModel(im_v2_model.MarketModel.create());
+	    const builder = ui_vue3_vuex.Builder.init().addModel(im_v2_model.ApplicationModel.create()).addModel(im_v2_model.MessagesModel.create()).addModel(im_v2_model.ChatsModel.create()).addModel(im_v2_model.FilesModel.create()).addModel(im_v2_model.UsersModel.create()).addModel(im_v2_model.RecentModel.create()).addModel(im_v2_model.CountersModel.create()).addModel(im_v2_model.NotificationsModel.create()).addModel(im_v2_model.SidebarModel.create()).addModel(im_v2_model.MarketModel.create());
 	    return builder.build().then(result => {
 	      this.store = result.store;
 	      this.storeBuilder = result.builder;
-	      return Promise.resolve();
+	      return true;
 	    });
 	  }
-	  initPullClient() {
+	  initPull() {
+	    this.pullInstance = BX.PullClient;
+	    this.pullClient = BX.PULL;
 	    if (!this.pullClient) {
-	      return false;
+	      return Promise.reject(new Error('Core: error setting pull client'));
 	    }
 	    this.pullClient.subscribe(new im_v2_provider_pull.BasePullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.RecentPullHandler());
+	    this.pullClient.subscribe(new im_v2_provider_pull.CopilotRecentHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.NotificationPullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.NotifierPullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.LinesPullHandler());
+	    this.pullClient.subscribe(new im_v2_provider_pull.OnlinePullHandler());
 	    this.pullClient.subscribe({
 	      type: this.pullInstance.SubscriptionType.Status,
 	      callback: this.onPullStatusChange.bind(this)
-	    });
-	    this.pullClient.subscribe({
-	      type: this.pullInstance.SubscriptionType.Online,
-	      callback: this.onUsersOnlineChange.bind(this)
 	    });
 	    return Promise.resolve();
 	  }
 	  initComplete() {
 	    this.inited = true;
 	    this.initPromiseResolver(this);
-	  }
-	  initRest() {
-	    this.restInstance = rest_client.RestClient;
-	    this.restClient = rest_client.rest;
-	    return Promise.resolve();
-	  }
-	  initPull() {
-	    this.pullInstance = pull_client.PullClient;
-	    this.pullClient = pull_client.PULL;
 	  }
 	  /* endregion 01. Initialize and store data */
 
@@ -84,17 +80,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } else if (data.status === this.pullInstance.PullStatus.Offline) {
 	      this.offline = true;
 	    }
-	  }
-	  onUsersOnlineChange(data) {
-	    if (!['list', 'userStatus'].includes(data.command)) {
-	      return false;
-	    }
-	    Object.values(data.params.users).forEach(userInfo => {
-	      this.store.dispatch('users/update', {
-	        id: userInfo.id,
-	        fields: userInfo
-	      });
-	    });
 	  }
 	  /* endregion 02. Push & Pull */
 
@@ -119,11 +104,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      };
 	      const bitrixVue = ui_vue3.BitrixVue.createApp(initConfig);
 	      bitrixVue.config.errorHandler = function (err, vm, info) {
+	        // eslint-disable-next-line no-console
 	        console.error(err, info);
 	      };
 	      bitrixVue.config.warnHandler = function (warn, vm, trace) {
+	        // eslint-disable-next-line no-console
 	        console.warn(warn, trace);
 	      };
+	      // eslint-disable-next-line no-param-reassign
 	      application.bitrixVue = bitrixVue;
 	      bitrixVue.use(this.store).mount(initConfig.el);
 	    });
@@ -172,6 +160,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (this.inited) {
 	      return Promise.resolve(this);
 	    }
+	    Core.start();
 	    return this.initPromise;
 	  }
 

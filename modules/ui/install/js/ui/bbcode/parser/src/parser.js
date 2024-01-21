@@ -1,17 +1,43 @@
 import { Type } from 'main.core';
-import { RootNode } from './bbom/root-node';
-import { Node, type SpecialCharNode, type ContentNode } from './bbom/node';
-import { ElementNode } from './bbom/element-node';
-import { TextNode } from './bbom/text-node';
-import { NewLineNode } from './bbom/new-line-node';
-import { FragmentNode } from './bbom/fragment-node';
-import { TabNode } from './bbom/tab-node';
-import { TAB, NEW_LINE, SPECIAL_CHARS, LIST_ELEMENTS, LIST_ITEM_ELEMENTS } from './reference';
+import {
+	ModelFactory,
+	Tag,
+	Text,
+	typeof RootNode,
+	typeof ElementNode,
+	typeof TextNode,
+	type ContentNode,
+	type SpecialCharNode,
+} from 'ui.bbcode.model';
 
 const TAG_REGEX: RegExp = /\[(\/)?(\w+|\*)([\s\w./:=]+)?]/gs;
 
 class Parser
 {
+	factory: ModelFactory;
+
+	constructor(options: { factory: ModelFactory } = {})
+	{
+		if (options.factory)
+		{
+			this.setFactory(options.factory);
+		}
+		else
+		{
+			this.setFactory(new ModelFactory());
+		}
+	}
+
+	setFactory(factory: ModelFactory)
+	{
+		this.factory = factory;
+	}
+
+	getFactory(): ModelFactory
+	{
+		return this.factory;
+	}
+
 	static toLowerCase(value: string): string
 	{
 		if (Type.isStringFilled(value))
@@ -24,18 +50,20 @@ class Parser
 
 	parseText(text: string): Array<TextNode | SpecialCharNode>
 	{
+		const factory: ModelFactory = this.getFactory();
+
 		if (Type.isStringFilled(text))
 		{
 			return [...text]
 				.reduce((acc: Array<TextNode | SpecialCharNode>, symbol: string) => {
-					if (SPECIAL_CHARS.has(symbol))
+					if (Text.isSpecialCharContent(symbol))
 					{
 						acc.push(symbol);
 					}
 					else
 					{
 						const lastItem: string = acc.at(-1);
-						if (SPECIAL_CHARS.has(lastItem) || Type.isNil(lastItem))
+						if (Text.isSpecialCharContent(lastItem) || Type.isNil(lastItem))
 						{
 							acc.push(symbol);
 						}
@@ -48,17 +76,17 @@ class Parser
 					return acc;
 				}, [])
 				.map((fragment: string) => {
-					if (fragment === NEW_LINE)
+					if (Text.isNewLineContent(fragment))
 					{
-						return new NewLineNode();
+						return factory.createNewLineNode();
 					}
 
-					if (fragment === TAB)
+					if (Text.isTabContent(fragment))
 					{
-						return new TabNode();
+						return factory.createTabNode();
 					}
 
-					return new TextNode(fragment);
+					return factory.createTextNode({ content: fragment });
 				});
 		}
 
@@ -107,7 +135,8 @@ class Parser
 
 	parse(bbcode: string): RootNode
 	{
-		const result: RootNode = new RootNode();
+		const factory: ModelFactory = this.getFactory();
+		const result: RootNode = factory.createRootNode();
 		const stack: Array<ElementNode> = [];
 		let current: ?ElementNode = null;
 		let level: number = -1;
@@ -135,10 +164,10 @@ class Parser
 
 				if (
 					nextContent.includes(`[/${tagName}]`)
-					|| LIST_ITEM_ELEMENTS.has(lowerCaseTagName)
+					|| Tag.isListItem(lowerCaseTagName)
 				)
 				{
-					current = new ElementNode({
+					current = factory.createElementNode({
 						name: lowerCaseTagName,
 						value: attributes.value,
 						attributes: Object.fromEntries(attributes.attributes),
@@ -155,7 +184,7 @@ class Parser
 				}
 				else
 				{
-					current = new ElementNode({
+					current = factory.createElementNode({
 						name: lowerCaseTagName,
 						value: attributes.value,
 						attributes: Object.fromEntries(attributes.attributes),
@@ -170,17 +199,17 @@ class Parser
 
 				parent = stack[level - 1];
 
-				if (LIST_ELEMENTS.has(current.getName()))
+				if (Tag.isList(current.getName()))
 				{
-					if (parent && LIST_ELEMENTS.has(parent.getName()))
+					if (parent && Tag.isList(parent.getName()))
 					{
 						stack[level].appendChild(current);
 					}
 				}
 				else if (
 					parent
-					&& LIST_ELEMENTS.has(parent.getName())
-					&& !LIST_ITEM_ELEMENTS.has(current.getName())
+					&& Tag.isList(parent.getName())
+					&& !Tag.isListItem(current.getName())
 				)
 				{
 					const lastItem: ?ContentNode = parent.getChildren().at(-1);
@@ -196,7 +225,7 @@ class Parser
 
 				stack[level] = current;
 
-				if (LIST_ITEM_ELEMENTS.has(lowerCaseTagName) && level > -1)
+				if (Tag.isListItem(lowerCaseTagName) && level > -1)
 				{
 					level--;
 					current = level === -1 ? result : stack[level];
@@ -217,7 +246,7 @@ class Parser
 					parent = level === -1 ? result : stack[level];
 
 					const content: ?string = bbcode.slice(startIndex, nextTagIndex === -1 ? undefined : nextTagIndex);
-					if (LIST_ELEMENTS.has(parent.getName()))
+					if (Tag.isList(parent.getName()))
 					{
 						const lastItem: ?ContentNode = parent.getChildren().at(-1);
 						if (lastItem)
@@ -243,11 +272,4 @@ class Parser
 
 export {
 	Parser,
-	RootNode,
-	Node,
-	ElementNode,
-	TextNode,
-	NewLineNode,
-	FragmentNode,
-	TabNode,
 };

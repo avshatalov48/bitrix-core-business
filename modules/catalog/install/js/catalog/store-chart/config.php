@@ -21,6 +21,8 @@ return [
 		'main.popup',
 		'currency.currency-core',
 		'main.core',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 	'settings' => [

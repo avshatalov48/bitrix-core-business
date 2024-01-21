@@ -1,7 +1,9 @@
 ;(function() {
 
 	if (!!window.UCForm)
+	{
 		return;
+	}
 
 	var repo = {};
 	window.UCForm = function(formId)
@@ -195,23 +197,29 @@
 				else
 				{
 					text = origRes;
-					var haveWrittenText = author && author.gender ?
-						BX.message("MPL_HAVE_WRITTEN_"+author.gender) : BX.message("MPL_HAVE_WRITTEN");
-					if (this.getLHE().oEditor.GetViewMode() == "wysiwyg") // BB Codes
+					const haveWrittenText = author && author.gender
+						? BX.message("MPL_HAVE_WRITTEN_" + author.gender)
+						: BX.message("MPL_HAVE_WRITTEN")
+					;
+					if (this.getLHE().oEditor.GetViewMode() === "wysiwyg") // BB Codes
 					{
 						text = text.replace(/\n/g, "<br/>");
 						if (author)
 						{
 							if (author.id > 0)
 							{
-								author = '<span id="' + this.getLHE().oEditor.SetBxTag(false, {tag: "postuser", userId: author.id, userName: author.name}) +
-									'" class="bxhtmled-metion">' + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
+								author = '<span id="'
+									+ this.getLHE().oEditor.SetBxTag(false, {tag: "postuser", userId: author.id, userName: author.name})
+									+ '" class="bxhtmled-metion">'
+									+ author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;")
+									+ "</span>"
+								;
 							}
 							else
 							{
 								author = "<span>" + author.name.replace(/</gi, "&lt;").replace(/>/gi, "&gt;") + "</span>";
 							}
-							author = (author !== "" ? (author + haveWrittenText + "<br/>") : "");
+							author = (author !== "" ? (haveWrittenText.replace('#AUTHOR_NAME#', author) + "<br/>") : "");
 
 							text = author + text;
 						}
@@ -228,7 +236,7 @@
 							{
 								author = author.name;
 							}
-							author = (author !== "" ? (author + haveWrittenText + "\n") : "");
+							author = (author !== "" ? (haveWrittenText.replace('#AUTHOR_NAME#', author) + "\n") : "");
 							text = author + text;
 						}
 					}
@@ -238,7 +246,7 @@
 						// Here we take selected text via editor tools
 						// we don't use "res"
 						this.getLHE().oEditor.action.actions.quote.setExternalSelectionFromRange();
-						var extSel = this.getLHE().oEditor.action.actions.quote.getExternalSelection();
+						let extSel = this.getLHE().oEditor.action.actions.quote.getExternalSelection();
 
 						// removing container containing emoji
 						let tmpExtSel = BX.create('DIV', {html: extSel});
@@ -608,9 +616,18 @@
 					attrs : {
 						class: "feed-add-error"
 					},
-					html: '<span class="feed-add-info-text"><span class="feed-add-info-icon"></span>' + '<b>' + BX.message("FC_ERROR") + '</b><br />' + text + '</span>'
+					html: '<span class="feed-add-info-text">'
+							+ '<span class="feed-add-info-text-top">'
+								+ '<span class="feed-add-info-icon">'
+									+ '<div class="ui-icon-set --warning" style="--ui-icon-set__icon-size: 30px; --ui-icon-set__icon-color: var(--ui-color-palette-red-80);"></div>'
+								+ '</span>'
+								+ '<span class="feed-add-info-text-title">' + BX.message("FC_ERROR") + '</span>'
+							+ '</span>'
+							+ '<span class="feed-add-info-text-message">' + text + '</span>'
+						+ '</span>'
 				}),
-				node.firstChild);
+				node.firstChild
+			);
 
 			BX.show(node);
 		},
@@ -623,9 +640,23 @@
 			this.clearNotification(node, "feed-add-successfully");
 			BX.addClass(node, (!node.firstChild ? "feed-com-add-box-no-form" : "feed-com-add-box-header"));
 
-			node.insertBefore(BX.create("div", {attrs : {"class": "feed-add-successfully"},
-				html: '<span class="feed-add-info-text"><span class="feed-add-info-icon"></span>' + text + "</span>"}),
-				node.firstChild);
+			node.insertBefore(BX.create(
+				"div", {
+					attrs : {
+						class: "feed-add-successfully"
+					},
+					html: '<span class="feed-add-info-text">'
+							+ '<span class="feed-add-info-text-top">'
+								+ '<span class="feed-add-info-icon">'
+									+ '<div class="ui-icon-set --info-circle" style="--ui-icon-set__icon-size: 30px; --ui-icon-set__icon-color: var(--ui-color-palette-green-90);"></div>'
+								+ '</span>'
+								+ '<span class="feed-add-info-text-message">' + text +'</span>'
+							+ '</span>'
+						+ '</span>'
+				}),
+				node.firstChild
+			);
+
 			BX.addClass(node, "comment-deleted");
 			BX.show(node);
 		},

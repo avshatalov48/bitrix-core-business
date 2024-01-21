@@ -61,6 +61,10 @@
 	border-radius: var(--im-border-radius-xs);
 }
 
+.bx-im-settings-section-content__body + .bx-im-settings-section-content__body {
+	margin-top: 16px;
+}
+
 .bx-im-settings-section-content__block {
 	width: 100%;
 	padding: 8px 18px;

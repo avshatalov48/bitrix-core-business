@@ -19,15 +19,20 @@ export const EntityId = 'im-recent-v2';
 const ContextId = 'IM_CHAT_SEARCH';
 const SearchDialogId = 'search-experimental';
 
-export const getSearchConfig = (): EntitySelectorRequestConfig => {
+export const getSearchConfig = (findByParticipants: boolean = false): EntitySelectorRequestConfig => {
+	const entity = {
+		id: EntityId,
+		dynamicLoad: true,
+		dynamicSearch: true,
+		options: {
+			withChatByUsers: findByParticipants,
+		},
+	};
+
 	return {
 		dialog: {
 			entities: [
-				{
-					id: EntityId,
-					dynamicLoad: true,
-					dynamicSearch: true,
-				},
+				entity,
 			],
 			preselectedItems: [],
 			clearUnavailableItems: false,

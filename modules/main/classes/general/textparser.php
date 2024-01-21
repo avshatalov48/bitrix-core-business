@@ -186,12 +186,6 @@ class CTextParser
 		return \Bitrix\Main\Text\Encoding::convertEncoding($a, 'cp1251', SITE_CHARSET);
 	}
 
-	protected static function strpos($s, $a)
-	{
-		$a = self::chr($a);
-		return strpos($s, $a);
-	}
-
 	public function convertText($text)
 	{
 		if (!is_string($text) || $text == '')
@@ -422,31 +416,25 @@ class CTextParser
 			{
 				$schemes = $this->getAnchorSchemes();
 
+				$boundaries = [
+					'&lt;' => '&gt;',
+					'(' => ')', // doubtful
+					self::chr("“") => self::chr("”"),
+					self::chr("‘") => self::chr("’"),
+					self::chr("«") => self::chr("»"),
+				];
+
 				$patt = [];
-				if (strpos($text, '&lt;') !== false)
+				foreach ($boundaries as $start => $end)
 				{
-					$patt[] = "/(?<=\\&lt\\;)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=\\&gt\\;)/is" . BX_UTF_PCRE_MODIFIER;
+					if (str_contains($text, $start))
+					{
+						$patt[] = "/(?<=" . preg_quote($start) . ")(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=" . preg_quote($end) . ")/is" . BX_UTF_PCRE_MODIFIER;
+					}
 				}
 
-				$word_separator = str_replace('?', '', $this->wordSeparator);
-				if (self::strpos($text, '(') !== false)
-				{
-					$patt[] = "/(?<=\\()(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=\\))/is" . BX_UTF_PCRE_MODIFIER;
-				}
-				if (self::strpos($text, '“') !== false)
-				{
-					$patt[] = "/(?<=[" . self::chr("“") . "])(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[" . self::chr("”") . "])/is" . BX_UTF_PCRE_MODIFIER;
-				}
-				if (self::strpos($text, '‘') !== false)
-				{
-					$patt[] = "/(?<=[" . self::chr("‘") . "])(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[" . self::chr("’") . "])/is" . BX_UTF_PCRE_MODIFIER;
-				}
-				if (self::strpos($text, '«') !== false)
-				{
-					$patt[] = "/(?<=[" . self::chr("«") . "])(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[" . self::chr("»") . "])/is" . BX_UTF_PCRE_MODIFIER;
-				}
+				$patt[] = "/(?<=^|[" . $this->wordSeparator . "])(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[\\s\"{}]|&quot;|\$)/is" . BX_UTF_PCRE_MODIFIER;
 
-				$patt[] = "/(?<=^|[" . $word_separator . "]|\\s)(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[\\s'\"{}\\[\\]]|&quot;|\$)/is" . BX_UTF_PCRE_MODIFIER;
 				$text = preg_replace_callback($patt, [$this, 'preconvertUrl'], $text);
 			}
 		}
@@ -504,7 +492,7 @@ class CTextParser
 			|| ($this->allow['CLEAR_SMILES'] ?? '') == 'Y'
 		)
 		{
-			if (strpos($text, "<nosmile>") !== false)
+			if (str_contains($text, "<nosmile>"))
 			{
 				$text = preg_replace_callback(
 					"/<nosmile>(.*?)<\\/nosmile>/is" . BX_UTF_PCRE_MODIFIER,
@@ -559,7 +547,7 @@ class CTextParser
 				continue;
 			}
 
-			if (strpos($text, '<nomodify>') !== false)
+			if (str_contains($text, '<nomodify>'))
 			{
 				$text = preg_replace_callback(
 					"/<nomodify>(.*?)<\\/nomodify>/is" . BX_UTF_PCRE_MODIFIER,
@@ -817,7 +805,7 @@ class CTextParser
 			);
 		}
 
-		if (strpos($text, '<nomodify>') !== false)
+		if (str_contains($text, '<nomodify>'))
 		{
 			$text = preg_replace_callback(
 				"/<nomodify>(.*?)<\\/nomodify>/is" . BX_UTF_PCRE_MODIFIER,
@@ -1121,19 +1109,22 @@ class CTextParser
 				$text
 			);
 		}
-		$text = str_replace("&nbsp;", " ", $text);
-		$text = str_replace("&quot;", "\"", $text);
-		$text = str_replace("&#092;", "\\", $text);
-		$text = str_replace("&#036;", "\$", $text);
-		$text = str_replace("&#33;", "!", $text);
-		$text = str_replace("&#91;", "[", $text);
-		$text = str_replace("&#93;", "]", $text);
-		$text = str_replace("&#39;", "'", $text);
-		$text = str_replace("&lt;", "<", $text);
-		$text = str_replace("&gt;", ">", $text);
-		$text = str_replace("&nbsp;", " ", $text);
-		$text = str_replace("&#124;", '|', $text);
-		$text = str_replace("&amp;", "&", $text);
+
+		static $replacements = [
+			"&nbsp;" => " ",
+			"&quot;" => "\"",
+			"&#092;" => "\\",
+			"&#036;" => "\$",
+			"&#33;" => "!",
+			"&#91;" => "[",
+			"&#93;" => "]",
+			"&#39;" => "'",
+			"&lt;" => "<",
+			"&gt;" => ">",
+			"&#124;" => '|',
+			"&amp;" => "&",
+		];
+		$text = strtr($text, $replacements);
 
 		return $text;
 	}
@@ -1165,14 +1156,14 @@ class CTextParser
 		preg_match("/type=(YOUTUBE|RUTUBE|VIMEO|VK|FACEBOOK|INSTAGRAM)/is" . BX_UTF_PCRE_MODIFIER, $params, $provider);
 		preg_match("/mimetype='([^']+)'/is" . BX_UTF_PCRE_MODIFIER, $params, $type);
 
-		$width = intval($width[1]);
+		$width = intval($width[1] ?? 0);
 		$width = ($width > 0 ? $width : 400);
-		$height = intval($height[1]);
+		$height = intval($height[1] ?? 0);
 		$height = ($height > 0 ? $height : 300);
-		$preview = trim($preview[1]);
+		$preview = trim($preview[1] ?? '');
 		$preview = ($preview != '' ? $preview : '');
 		$provider = isset($provider[1])? mb_strtoupper(trim($provider[1])) : '';
-		$type = trim($type[1]);
+		$type = trim($type[1] ?? '');
 
 		$arFields = [
 			'PATH' => $path,
@@ -1470,8 +1461,8 @@ class CTextParser
 
 		preg_match("/width=([0-9]+)/is" . BX_UTF_PCRE_MODIFIER, $params, $width);
 		preg_match("/height=([0-9]+)/is" . BX_UTF_PCRE_MODIFIER, $params, $height);
-		$width = intval($width[1]);
-		$height = intval($height[1]);
+		$width = intval($width[1] ?? 0);
+		$height = intval($height[1] ?? 0);
 
 		$bErrorIMG = false;
 		if (!preg_match("/^(http|https|ftp|\\/)/i" . BX_UTF_PCRE_MODIFIER, $url))
@@ -1691,7 +1682,7 @@ class CTextParser
 						&& (int)$this->pathToUserEntityId > 0
 					)
 					{
-						$pathToUser .= (strpos($pathToUser, '?') === false ? '?' : '&') . 'entityType=' . $this->pathToUserEntityType . '&entityId=' . intval($this->pathToUserEntityId);
+						$pathToUser .= (!str_contains($pathToUser, '?') ? '?' : '&') . 'entityType=' . $this->pathToUserEntityType . '&entityId=' . intval($this->pathToUserEntityId);
 					}
 					break;
 				default:
@@ -2005,7 +1996,7 @@ class CTextParser
 
 	public function convertAnchor($matches)
 	{
-		return $this->convert_anchor_tag($matches[1], ($matches[2] != ''? $matches[2] : $matches[1]));
+		return $this->convert_anchor_tag($matches[1], (!empty($matches[2]) ? $matches[2] : $matches[1]));
 	}
 
 	public function convert_anchor_tag($url, $text)
@@ -2082,7 +2073,7 @@ class CTextParser
 		{
 			$url = $this->defended_tags(htmlspecialcharsbx($url, ENT_COMPAT, false));
 
-			if (strpos($text, "<\017") === false)
+			if (!str_contains($text, "<\017"))
 			{
 				// it could be "defended" tag inside URL code
 				$text = htmlspecialcharsbx($text, ENT_COMPAT, false);
@@ -2108,22 +2099,18 @@ class CTextParser
 
 	public function preconvertAnchor($matches)
 	{
-		return $this->pre_convert_anchor_tag($matches[1], $matches[2], $matches[0]);
+		return $this->pre_convert_anchor_tag($matches[1], $matches[2] ?? '', $matches[0] ?? '');
 	}
 
 	public function pre_convert_anchor_tag($url, $text = '', $str = '')
 	{
-		if (mb_stripos($str, '[url') !== 0)
+		if (stripos($str, '[url') !== 0)
 		{
 			$url = $str;
 		}
 		elseif ($text != '')
 		{
-			$word_separator = str_replace(["\\]", "\\[", "?"], "", $this->wordSeparator);
-			$text = preg_replace(
-				"/(?<=^|[" . $word_separator . "]|\\s)(?<!\\[nomodify]|<nomodify>)((" . $this->getAnchorSchemes() . "):\\/\\/[._:a-z0-9@-].*?)(?=[\\s'\"{}\\[\\]]|&quot;|\$)/is" . BX_UTF_PCRE_MODIFIER,
-				"\\1", $text
-			);
+			$url = str_replace(['[', ']'], ['%5B', '%5D'], $url);
 			$url = '[url=' . $url . ']' . $text . '[/url]';
 		}
 		else

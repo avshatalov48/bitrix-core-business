@@ -1,157 +1,157 @@
 <?php
-IncludeModuleLangFile(__FILE__);
 
-if(class_exists("pull")) return;
-
-class pull extends CModule
+if (class_exists("pull"))
 {
-	var $MODULE_ID = "pull";
-	var $MODULE_VERSION;
-	var $MODULE_VERSION_DATE;
-	var $MODULE_NAME;
-	var $MODULE_DESCRIPTION;
-	var $MODULE_GROUP_RIGHTS = "Y";
+	return;
+}
+
+use Bitrix\Main\Localization\Loc;
+
+class pull extends \CModule
+{
+	public $MODULE_ID = 'pull';
+	public $MODULE_GROUP_RIGHTS = 'Y';
+
+	private $errors = [];
 
 	public function __construct()
 	{
-		$arModuleVersion = array();
+		$arModuleVersion = [];
 
-		include(__DIR__.'/version.php');
+		include (__DIR__.'/version.php');
 
-		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
+		if (is_array($arModuleVersion) && array_key_exists('VERSION', $arModuleVersion))
 		{
-			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
-			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
+			$this->MODULE_VERSION = $arModuleVersion['VERSION'];
+			$this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
 		}
 
-		$this->MODULE_NAME = GetMessage("PULL_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("PULL_MODULE_DESCRIPTION");
+		$this->MODULE_NAME = Loc::getMessage('PULL_MODULE_NAME');
+		$this->MODULE_DESCRIPTION = Loc::getMessage('PULL_MODULE_DESCRIPTION');
 	}
 
-	function DoInstall()
+	public function DoInstall()
 	{
+		global $APPLICATION;
 		$this->InstallFiles();
 		$this->InstallDB();
-		$GLOBALS['APPLICATION']->IncludeAdminFile(GetMessage("PULL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/pull/install/step1.php");
+		$APPLICATION->IncludeAdminFile(Loc::getMessage('PULL_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/pull/install/step1.php');
 	}
 
-	function InstallDB()
+	public function InstallDB()
 	{
 		global $DB, $APPLICATION;
 		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
-		if (!$DB->TableExists('b_pull_stack'))
+		if (!$connection->isTableExists('b_pull_stack'))
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/pull/install/db/' . $connection->getType() . '/install.sql');
 		}
 
-		if($this->errors !== false)
+		if ($this->errors !== false)
 		{
-			$APPLICATION->ThrowException(implode("", $this->errors));
+			$APPLICATION->ThrowException(implode('', $this->errors));
 			return false;
 		}
 
-		RegisterModule("pull");
-		RegisterModuleDependences("main", "OnBeforeProlog", "main", "", "", 50, "/modules/pull/ajax_hit_before.php");
-		RegisterModuleDependences("main", "OnProlog", "main", "", "", 3, "/modules/pull/ajax_hit.php");
-		RegisterModuleDependences("main", "OnProlog", "pull", "CPullOptions", "OnProlog");
-		RegisterModuleDependences("main", "OnEpilog", "pull", "CPullOptions", "OnEpilog");
-		RegisterModuleDependences("main", "OnAfterEpilog", "pull", "\Bitrix\Pull\Event", "onAfterEpilog");
-		RegisterModuleDependences("main", "OnAfterEpilog", "pull", "CPullWatch", "DeferredSql");
-
-		RegisterModuleDependences("perfmon", "OnGetTableSchema", "pull", "CPullTableSchema", "OnGetTableSchema");
-		RegisterModuleDependences("main", "OnAfterRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
-		RegisterModuleDependences("main", "OnAfterUnRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
-		RegisterModuleDependences("socialnetwork", "OnSonetLogCounterClear", "pull", "\Bitrix\Pull\MobileCounter", "onSonetLogCounterClear");
+		\Bitrix\Main\ModuleManager::registerModule("pull");
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
+
+		$eventManager->registerEventHandlerCompatible("main", "OnBeforeProlog", "main", "", "", 50, "/modules/pull/ajax_hit_before.php");
+		$eventManager->registerEventHandlerCompatible("main", "OnProlog", "main", "", "", 3, "/modules/pull/ajax_hit.php");
+		$eventManager->registerEventHandlerCompatible("main", "OnProlog", "pull", "CPullOptions", "OnProlog");
+		$eventManager->registerEventHandlerCompatible("main", "OnEpilog", "pull", "CPullOptions", "OnEpilog");
+		$eventManager->registerEventHandlerCompatible("main", "OnAfterEpilog", "pull", "\Bitrix\Pull\Event", "onAfterEpilog");
+		$eventManager->registerEventHandlerCompatible("main", "OnAfterEpilog", "pull", "CPullWatch", "DeferredSql");
+
+		$eventManager->registerEventHandlerCompatible("perfmon", "OnGetTableSchema", "pull", "CPullTableSchema", "OnGetTableSchema");
+		$eventManager->registerEventHandlerCompatible("main", "OnAfterRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
+		$eventManager->registerEventHandlerCompatible("main", "OnAfterUnRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
+		$eventManager->registerEventHandlerCompatible("socialnetwork", "OnSonetLogCounterClear", "pull", "\Bitrix\Pull\MobileCounter", "onSonetLogCounterClear");
+
 		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'pull', '\Bitrix\Pull\Rest', 'onRestServiceBuildDescription');
 		$eventManager->registerEventHandler('rest', 'onRestCheckAuth', 'pull', '\Bitrix\Pull\Rest\GuestAuth', 'onRestCheckAuth');
 
-		CAgent::AddAgent("CPullOptions::ClearAgent();", "pull", "N", 30, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset()+30, "FULL"));
+		\CAgent::AddAgent("CPullOptions::ClearAgent();", "pull", "N", 30, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset()+30, "FULL"));
 
 		return true;
 	}
 
-	function InstallFiles()
+	public function InstallFiles()
 	{
-		if($_ENV['COMPUTERNAME']!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/pull/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/pull/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-		}
+		\CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/pull/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		\CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/pull/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+
 		return true;
 	}
 
-	function InstallEvents(){ return true; }
-
-	function DoUninstall()
+	public function DoUninstall()
 	{
-		global $DOCUMENT_ROOT, $APPLICATION, $step;
-		$step = intval($step);
-		if($step<2)
+		global $APPLICATION;
+
+		$step = (int)($_REQUEST['step'] ?? 1);
+		if ($step < 2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("PULL_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/pull/install/unstep1.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("PULL_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/pull/install/unstep1.php");
 		}
-		elseif($step==2)
+		elseif ($step == 2)
 		{
-			$this->UnInstallDB(array("savedata" => $_REQUEST["savedata"]));
+			$this->UnInstallDB(["savedata" => $_REQUEST["savedata"]]);
 			$this->UnInstallFiles();
-			$APPLICATION->IncludeAdminFile(GetMessage("PULL_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/pull/install/unstep2.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("PULL_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/pull/install/unstep2.php");
 		}
 	}
 
-	function UnInstallDB($arParams = Array())
+	public function UnInstallDB($arParams = [])
 	{
-		global $APPLICATION, $DB, $errors;
+		global $APPLICATION, $DB;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		if (!$arParams['savedata'])
+		{
 			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/".$connection->getType()."/uninstall.sql");
+		}
 
-		$arSQLErrors = Array();
-		if(is_array($this->errors))
+		$arSQLErrors = [];
+		if (is_array($this->errors))
+		{
 			$arSQLErrors = array_merge($arSQLErrors, $this->errors);
+		}
 
-		if(!empty($arSQLErrors))
+		if (!empty($arSQLErrors))
 		{
 			$this->errors = $arSQLErrors;
 			$APPLICATION->ThrowException(implode("", $arSQLErrors));
 			return false;
 		}
 
-		UnRegisterModuleDependences("main", "OnAfterRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
-		UnRegisterModuleDependences("main", "OnAfterUnRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
-		UnRegisterModuleDependences("perfmon", "OnGetTableSchema", "pull", "CPullTableSchema", "OnGetTableSchema");
-		UnRegisterModuleDependences("main", "OnProlog", "main", "", "", "/modules/pull/ajax_hit.php");
-		UnRegisterModuleDependences("main", "OnProlog", "pull", "CPullOptions", "OnProlog");
-		UnRegisterModuleDependences("main", "OnEpilog", "pull", "CPullOptions", "OnEpilog");
-		UnRegisterModuleDependences("main", "OnAfterEpilog", "pull", "\Bitrix\Pull\Event", "onAfterEpilog");
-		UnRegisterModuleDependences("main", "OnAfterEpilog", "pull", "CPullWatch", "DeferredSql");
-		UnRegisterModuleDependences("main", "OnBeforeProlog", "main", "", "", "/modules/pull/ajax_hit_before.php");
-		UnRegisterModuleDependences("socialnetwork", "OnSonetLogCounterClear", "pull", "\Bitrix\Pull\MobileCounter", "onSonetLogCounterClear");
-
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
+
+		$eventManager->unRegisterEventHandler("main", "OnAfterRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
+		$eventManager->unRegisterEventHandler("main", "OnAfterUnRegisterModule", "pull", "CPullOptions", "ClearCheckCache");
+		$eventManager->unRegisterEventHandler("perfmon", "OnGetTableSchema", "pull", "CPullTableSchema", "OnGetTableSchema");
+		$eventManager->unRegisterEventHandler("main", "OnProlog", "main", "", "", "/modules/pull/ajax_hit.php");
+		$eventManager->unRegisterEventHandler("main", "OnProlog", "pull", "CPullOptions", "OnProlog");
+		$eventManager->unRegisterEventHandler("main", "OnEpilog", "pull", "CPullOptions", "OnEpilog");
+		$eventManager->unRegisterEventHandler("main", "OnAfterEpilog", "pull", "\Bitrix\Pull\Event", "onAfterEpilog");
+		$eventManager->unRegisterEventHandler("main", "OnAfterEpilog", "pull", "CPullWatch", "DeferredSql");
+		$eventManager->unRegisterEventHandler("main", "OnBeforeProlog", "main", "", "", "/modules/pull/ajax_hit_before.php");
+		$eventManager->unRegisterEventHandler("socialnetwork", "OnSonetLogCounterClear", "pull", "\Bitrix\Pull\MobileCounter", "onSonetLogCounterClear");
+
 		$eventManager->unRegisterEventHandler('rest', 'OnRestServiceBuildDescription', 'pull', '\Bitrix\Pull\Rest', 'onRestServiceBuildDescription');
 		$eventManager->unRegisterEventHandler('rest', 'onRestCheckAuth', 'pull', '\Bitrix\Pull\Rest\GuestAuth', 'onRestCheckAuth');
 
-		UnRegisterModule("pull");
+		\Bitrix\Main\ModuleManager::unRegisterModule('pull');
 
 		return true;
 	}
-
-	function UnInstallFiles($arParams = array())
-	{
-		return true;
-	}
-
-	function UnInstallEvents(){ return true; }
 
 	public function migrateToBox()
 	{
-		COption::RemoveOption("pull");
+		\Bitrix\Main\Config\Option::delete("pull");
 	}
-
 }

@@ -33,6 +33,8 @@ final class ExcelExporter
 		$uri = new Uri($request->getRequestUri());
 		$uri->addParams([
 			self::REQUEST_PARAM_NAME => self::REQUEST_PARAM_VALUE,
+			// for disable composite
+            'ncc' => 1,
 		]);
 
 		$button = new BaseButton();

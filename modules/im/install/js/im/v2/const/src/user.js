@@ -21,3 +21,5 @@ export const UserRole = {
 	owner: 'owner',
 	none: 'none',
 };
+
+export const UserIdNetworkPrefix = 'network';

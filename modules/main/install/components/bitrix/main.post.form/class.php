@@ -6,9 +6,7 @@ use Bitrix\Main;
 
 /* @note To turn on Copilot in the main.post.form component, please, execute code:
 	\COption::SetOptionString('main', 'bitrix:main.post.form:Copilot', 'Y');
-	\COption::SetOptionString('main', 'bitrix:main.post.form:AIText', 'Y');
 	\COption::SetOptionString('main', 'bitrix:main.post.form:AIImage', 'Y');
-	\COption::SetOptionString('tasks', 'tasks_ai_text_available', 'N');
 	\COption::SetOptionString('tasks', 'tasks_ai_image_available', 'N');
 	\COption::SetOptionString('socialnetwork', 'ai_base_enabled', 'N');
 */
@@ -46,24 +44,14 @@ final class MainPostForm extends CBitrixComponent
 
 	private function prepareParams(&$arParams)
 	{
-		if($arParams["FORM_ID"] == '')
-			$arParams["FORM_ID"] = "POST_FORM_".RandString(3);
-		$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? \CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), "", $arParams["NAME_TEMPLATE"]);
-		$arParams['COPILOT_AVAILABLE'] = false;
-
-		if ($this->iaAIAvailable(true))
+		if (empty($arParams["FORM_ID"]))
 		{
-			if (
-				Main\Config\Option::get('main', 'bitrix:main.post.form:Copilot', 'N') === 'Y'
-				&& Main\Config\Option::get('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y'
-			)
-			{
-				$arParams['COPILOT_AVAILABLE'] = true;
-			}
-
-			$arParams["PARSER"][] = 'AIText';
+			$arParams["FORM_ID"] = "POST_FORM_".RandString(3);
 		}
-		if ($this->iaAIAvailable(false))
+		$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? \CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), "", $arParams["NAME_TEMPLATE"]);
+		$arParams['COPILOT_AVAILABLE'] = $this->isCopilotEnabled();
+
+		if ($this->iaAIAvailable())
 		{
 			$arParams["PARSER"][] = 'AIImage';
 		}
@@ -76,23 +64,39 @@ final class MainPostForm extends CBitrixComponent
 		$this->includeComponentTemplate();
 	}
 
-	private function iaAIAvailable(bool $isTextFor = true): bool
+	private function iaAIAvailable(): bool
 	{
 		if (!Main\Loader::includeModule('ai'))
 		{
 			return false;
 		}
 
-		$engine = AI\Engine::getByCategory('text', new AI\Context('main', ''));
+		$engine = AI\Engine::getByCategory('image', new AI\Context('main', ''));
 		if (is_null($engine))
 		{
 			return false;
 		}
-		if ($isTextFor)
-		{
-			return Main\Config\Option::get('main', 'bitrix:main.post.form:AIText', 'N') === 'Y';
-		}
 
 		return Main\Config\Option::get('main', 'bitrix:main.post.form:AIImage', 'N') === 'Y';
+	}
+
+	public function isCopilotEnabled(): bool
+	{
+		if (!Main\Loader::includeModule('ai'))
+		{
+			return false;
+		}
+
+		if (
+			!(Main\Config\Option::get('main', 'bitrix:main.post.form:Copilot', 'N') === 'Y')
+			|| !(Main\Config\Option::get('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y')
+		)
+		{
+			return false;
+		}
+
+		$engine = AI\Engine::getByCategory(AI\Engine::CATEGORIES['text'], AI\Context::getFake());
+
+		return !is_null($engine);
 	}
 }

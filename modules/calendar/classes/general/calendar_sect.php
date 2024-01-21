@@ -33,6 +33,9 @@ class CCalendarSect
 	public const OPERATION_EDIT = 'calendar_edit';
 	public const OPERATION_EDIT_SECTION = 'calendar_edit_section';
 	public const OPERATION_EDIT_ACCESS = 'calendar_edit_access';
+
+	public static $sendPush = true;
+
 	private static
 		$sections,
 		$Permissions = [],
@@ -1088,15 +1091,21 @@ class CCalendarSect
 
 		}
 
-		$pullUserId = (int) ($sectionFields['CREATED_BY'] ?? $userId);
-		Util::addPullEvent(
-			'edit_section',
-			$pullUserId,
-			[
-				'fields' => $sectionFields,
-				'newSection' => $isNewSection,
-			]
-		);
+		$pullUserId = (int)($sectionFields['CREATED_BY'] ?? $userId);
+		if (
+			$pullUserId
+			&& self::$sendPush
+		)
+		{
+			Util::addPullEvent(
+				'edit_section',
+				$pullUserId,
+				[
+					'fields' => $sectionFields,
+					'newSection' => $isNewSection,
+				]
+			);
+		}
 
 		return $id;
 	}
@@ -1144,7 +1153,10 @@ class CCalendarSect
 			}
 
 			$pullUserId = (int)$ev['CREATED_BY'] > 0 ? (int)$ev['CREATED_BY'] : CCalendar::GetCurUserId();
-			if ($pullUserId)
+			if (
+				$pullUserId
+				&& self::$sendPush
+			)
 			{
 				Bitrix\Calendar\Util::addPullEvent(
 					'delete_event',
@@ -1175,7 +1187,7 @@ class CCalendarSect
 		// Del from
 		$DB->Query("DELETE FROM b_calendar_section WHERE ID=".$id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		CCalendarEvent::DeleteEmpty();
+		CCalendarEvent::DeleteEmpty($id);
 		self::CleanAccessTable();
 		CCalendar::ClearCache(array('section_list', 'event_list'));
 
@@ -1185,7 +1197,10 @@ class CCalendarSect
 		}
 
 		$pullUserId = (int)$sectionFields['CREATED_BY'] > 0 ? (int)$sectionFields['CREATED_BY'] : CCalendar::GetCurUserId();
-		if ($pullUserId)
+		if (
+			$pullUserId
+			&& self::$sendPush
+		)
 		{
 			Util::addPullEvent(
 				'delete_section',

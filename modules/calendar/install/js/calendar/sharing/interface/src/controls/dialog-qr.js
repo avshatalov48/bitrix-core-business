@@ -1,4 +1,4 @@
-import {Tag, Loc, Runtime} from 'main.core';
+import { Tag, Loc, Runtime } from 'main.core';
 import { Popup } from 'main.popup';
 import { Loader } from 'main.loader';
 
@@ -96,9 +96,9 @@ export default class DialogQr
 			text: this.sharingUrl,
 			width: this.QRCODE_SIZE,
 			height: this.QRCODE_SIZE,
-			colorDark : this.QRCODE_COLOR_DARK,
-			colorLight : this.QRCODE_COLOR_LIGHT,
-			correctLevel : QRCode.CorrectLevel.H
+			colorDark: this.QRCODE_COLOR_DARK,
+			colorLight: this.QRCODE_COLOR_LIGHT,
+			correctLevel: QRCode.CorrectLevel.H,
 		});
 		await this.getLoader().hide();
 	}
@@ -128,6 +128,7 @@ export default class DialogQr
 	{
 		return this.getPopup().isShown();
 	}
+
 	close()
 	{
 		this.getPopup().close();
@@ -145,6 +146,6 @@ export default class DialogQr
 
 	getPhraseDependsOnContext(code: string)
 	{
-		return Loc.getMessage(code + '_' + this.#context.toUpperCase())
+		return Loc.getMessage(`${code}_${this.#context.toUpperCase()}`);
 	}
 }

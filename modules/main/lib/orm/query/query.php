@@ -223,7 +223,7 @@ class Query
 	protected static $last_query;
 
 	/** @var array Replaced field aliases */
-	protected $replaced_aliases;
+	protected $replaced_aliases = [];
 
 	/** @var array Replaced table aliases */
 	protected $replaced_taliases = [];
@@ -2127,9 +2127,24 @@ class Query
 	{
 		$sql = [];
 
+		$helper = $this->entity->getConnection()->getSqlHelper();
+		$aliasLength = (int) $helper->getAliasLength();
+
 		foreach ($this->select_chains as $chain)
 		{
-			$sql[] = $chain->getSqlDefinition(true);
+			$definition = $chain->getSqlDefinition();
+			$alias = $chain->getAlias();
+
+			if (strlen($alias) > $aliasLength)
+			{
+				// replace long aliases
+				$newAlias = 'FALIAS_'.count($this->replaced_aliases);
+				$this->replaced_aliases[$newAlias] = $alias;
+
+				$alias = $newAlias;
+			}
+
+			$sql[] = $definition . ' AS ' . $helper->quote($alias);
 		}
 
 		// empty select (or select forced primary only)
@@ -2368,7 +2383,15 @@ class Query
 			if (isset($this->select_chains[$chain->getAlias()]))
 			{
 				// optimization for fields that are in select already
-				$sqlDefinition = $connection->getSqlHelper()->quote($chain->getAlias());
+				$alias = $chain->getAlias();
+
+				if ($key = array_search($alias, $this->replaced_aliases))
+				{
+					// alias was replaced
+					$alias = $key;
+				}
+
+				$sqlDefinition = $connection->getSqlHelper()->quote($alias);
 			}
 			else
 			{
@@ -2468,9 +2491,6 @@ class Query
 		}
 
 		$query = join("\n", $build_parts);
-
-		list($query, $replaced) = $this->replaceSelectAliases($query);
-		$this->replaced_aliases = $replaced;
 
 		if ($this->limit > 0)
 		{
@@ -3633,6 +3653,7 @@ class Query
 	}
 
 	/**
+	 * @deprecated
 	 * @param $query
 	 *
 	 * @return array

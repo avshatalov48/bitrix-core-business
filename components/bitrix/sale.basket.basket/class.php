@@ -3264,15 +3264,44 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				if (!empty($arUsedValues))
 				{
+					$removeCodes = [];
 					$clearValues = [];
 					foreach (array_keys($arUsedValues) as $code)
 					{
 						if (count($arUsedValues[$code]) === 1 && $arUsedValues[$code][0] === '-')
+						{
+							$removeCodes[$code] = true;
 							continue;
+						}
 						$clearValues[$code] = $arUsedValues[$code];
 					}
 					$arUsedValues = $clearValues;
 					unset($clearValues);
+					if (
+						!empty($removeCodes)
+						&& !empty($item['PROPS'])
+						&& is_array($item['PROPS'])
+					)
+					{
+						$updateProps = false;
+						foreach (array_keys($item['PROPS']) as $propertyIndex)
+						{
+							$propertyCode = $item['PROPS'][$propertyIndex]['CODE'] ?? '';
+							if (isset($removeCodes[$propertyCode]))
+							{
+								$updateProps = true;
+								unset($item['PROPS'][$propertyIndex]);
+							}
+							unset($propertyCode);
+						}
+						unset($propertyIndex);
+						if ($updateProps)
+						{
+							$item['PROPS'] = array_values($item['PROPS']);
+						}
+						unset($updateProps);
+					}
+					unset($removeCodes);
 				}
 
 				if (!empty($arUsedValues))

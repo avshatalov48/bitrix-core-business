@@ -250,12 +250,12 @@ else
 				<input type="checkbox" id="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>" #COLLAPSED_MESSAGES_BLOCK_IS_COLLAPSED#>
 				<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>" data-bx-collapse-role="show">
 					<div class="post-comment-control-item">
-						<?=GetMessage("MPL_SHOW_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+						<?=GetMessage("MPL_SHOW_COLLAPSED_COMMENTS_MSGVER_1")?>
 					</div>
 				</label>
 				<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>" data-bx-collapse-role="hide">
 					<div class="post-comment-control-item">
-						<?=GetMessage("MPL_HIDE_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+						<?=GetMessage("MPL_HIDE_COLLAPSED_COMMENTS_MSGVER_1")?>
 					</div>
 				</label>
 				<div class="feed-com-collapsed-block">

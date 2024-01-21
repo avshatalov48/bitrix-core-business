@@ -87,6 +87,8 @@ abstract class OrderBuilder
 			->setRelatedProperties()
 			->setDiscounts() //?
 			->finalActions();
+
+		return $this;
 	}
 
 	public function setBasketBuilder(BasketBuilder $basketBuilder)
@@ -583,9 +585,9 @@ abstract class OrderBuilder
 
 			$responsibleId = $shipment->getField('RESPONSIBLE_ID');
 
-			if($item['RESPONSIBLE_ID'] != $responsibleId || empty($responsibleId))
+			if (($item['RESPONSIBLE_ID'] ?? null) !== $responsibleId || empty($responsibleId))
 			{
-				if(isset($item['RESPONSIBLE_ID']))
+				if (isset($item['RESPONSIBLE_ID']))
 				{
 					$shipmentFields['RESPONSIBLE_ID'] = $item['RESPONSIBLE_ID'];
 				}
@@ -594,7 +596,7 @@ abstract class OrderBuilder
 					$shipmentFields['RESPONSIBLE_ID'] = $this->order->getField('RESPONSIBLE_ID');
 				}
 
-				if(!empty($shipmentFields['RESPONSIBLE_ID']))
+				if (!empty($shipmentFields['RESPONSIBLE_ID']))
 				{
 					$shipmentFields['EMP_RESPONSIBLE_ID'] = $USER->getID();
 				}
@@ -1296,10 +1298,14 @@ abstract class OrderBuilder
 			if((int)$paymentData['PAY_SYSTEM_ID'] > 0)
 			{
 				$psService = PaySystem\Manager::getObjectById((int)$paymentData['PAY_SYSTEM_ID']);
+
+				$paymentData['PAY_SYSTEM_NAME'] = ($psService) ? $psService->getField('NAME') : '';
 			}
 
-			$paymentData['COMPANY_ID'] = (isset($paymentData['COMPANY_ID']) && intval($paymentData['COMPANY_ID']) > 0) ? intval($paymentData['COMPANY_ID']) : 0;
-			$paymentData['PAY_SYSTEM_NAME'] = ($psService) ? $psService->getField('NAME') : '';
+			if (isset($paymentData['COMPANY_ID']))
+			{
+				$paymentData['COMPANY_ID'] = (int)$paymentData['COMPANY_ID'];
+			}
 
 			if (isset($paymentData['PAID']))
 			{

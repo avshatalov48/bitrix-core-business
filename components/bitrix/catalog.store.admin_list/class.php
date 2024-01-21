@@ -287,10 +287,26 @@ class CatalogStoreAdminList extends CBitrixComponent
 					'action' => 'delete',
 					'storeId' => $item['ID'],
 				]);
+
+				$popupContent = CUtil::JSEscape(Loc::getMessage('STORE_LIST_ACTION_DELETE_POPUP_CONTENT'));
+				$popupButtonConfirmTitle = CUtil::JSEscape(Loc::getMessage('STORE_LIST_ACTION_DELETE_POPUP_BUTTON_CONFIRM'));
+				$popupButtonBackTitle = CUtil::JSEscape(Loc::getMessage('STORE_LIST_ACTION_DELETE_POPUP_BUTTON_BACK'));
+
 				$actions[] = [
 					'TITLE' => Loc::getMessage('STORE_LIST_ACTION_DELETE_TITLE'),
 					'TEXT' => Loc::getMessage('STORE_LIST_ACTION_DELETE_TEXT'),
-					'ONCLICK' => "if (confirm('" . CUtil::JSEscape(Loc::getMessage('STORE_LIST_ACTION_DELETE_CONFIRM')) . "')) BX.Main.gridManager.getInstanceById('{$gridId}').reloadTable('POST', $deletePostParams)",
+					'ONCLICK' => "
+						BX.UI.Dialogs.MessageBox.confirm(
+							'{$popupContent}', 
+							(messageBox) => {
+								messageBox.close();
+								BX.Main.gridManager.getInstanceById('{$gridId}').reloadTable('POST', {$deletePostParams});
+							},
+							'{$popupButtonConfirmTitle}', 
+							(messageBox) => messageBox.close(),
+							'{$popupButtonBackTitle}'
+						);
+					",
 				];
 			}
 			else

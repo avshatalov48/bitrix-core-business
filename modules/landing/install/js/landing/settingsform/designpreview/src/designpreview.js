@@ -4,6 +4,7 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 import 'ui.design-tokens';
 
 import './css/style.css';
+import 'main.polyfill.intersectionobserver';
 
 type Controls = {
 	theme: {
@@ -48,7 +49,7 @@ export class DesignPreview extends EventEmitter
 		this.phrase = phrase;
 		this.id = id;
 		this.options = options;
-		this.fontProxyUrl = window.fontsProxyUrl ?? 'fonts.googleapis.com';
+		window.fontsProxyUrl = window.fontsProxyUrl ?? 'fonts.googleapis.com';
 
 		this.initControls();
 		this.initLayout();
@@ -59,140 +60,194 @@ export class DesignPreview extends EventEmitter
 	initLayout()
 	{
 		this.createLayout();
-		this.styleNode = document.createElement("style");
+		this.styleNode = document.createElement('style');
 		Dom.append(this.styleNode, this.layout);
 		Dom.append(this.layout, this.form);
 
 		const paramsObserver = {
-			threshold: 1
-		}
+			threshold: 1,
+		};
 		const observer = new IntersectionObserver((entries) => {
-			entries.forEach(entry => {
+			entries.forEach((entry) => {
 				const availableHeight = document.documentElement.clientHeight - DesignPreview.HEIGHT_PAGE_TITLE_WRAP;
 				if (entry.target.getBoundingClientRect().height <= availableHeight)
 				{
-					if (entry.isIntersecting)
-					{
-						if (!this.hasOwnProperty('defaultIntersecting'))
-						{
-							this.defaultIntersecting = true;
-						}
-						if (this.defaultIntersecting)
-						{
-							this.unFixElement();
-						}
-					}
-					else
-					{
-						if (!this.hasOwnProperty('defaultIntersecting'))
-						{
-							this.defaultIntersecting = false;
-						}
-						if (this.defaultIntersecting)
-						{
-							this.fixElement();
-						}
-					}
+					this.toggleIntersectionState(entry);
 				}
-			})
-		}, paramsObserver)
+			});
+		}, paramsObserver);
 		observer.observe(this.layoutContent.parentNode);
+	}
+
+	toggleIntersectionState(entry)
+	{
+		if (entry.isIntersecting)
+		{
+			if (!('defaultIntersecting' in this))
+			{
+				this.defaultIntersecting = true;
+			}
+
+			if (this.defaultIntersecting)
+			{
+				this.unFixElement();
+			}
+		}
+		else
+		{
+			if (!('defaultIntersecting' in this))
+			{
+				this.defaultIntersecting = false;
+			}
+
+			if (this.defaultIntersecting)
+			{
+				this.fixElement();
+			}
+		}
 	}
 
 	initControls()
 	{
 		this.controls = {};
-		for (const group in this.options)
+		this.initOptions();
+
+		// parents and default
+		const controlsKeys = Object.keys(this.controls);
+		for (const group of controlsKeys)
 		{
-			if (!this.options.hasOwnProperty(group))
+			if (!(group in this.controls))
 			{
 				continue;
 			}
-			for (const key in this.options[group])
+
+			const keys = Object.keys(this.controls[group]);
+			for (const key of keys)
 			{
-				if (!this.options[group].hasOwnProperty(key))
+				if (!(key in this.controls[group]))
 				{
 					continue;
 				}
+
+				if (key !== 'use' && this.controls[group].use)
+				{
+					this.setupControls(group, key);
+				}
+			}
+		}
+
+		this.initSubscribes();
+
+		this.panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
+		Dom.append(this.panel.layout, document.body);
+
+		this.setupFontFields();
+	}
+
+	initOptions()
+	{
+		const optionKeys = Object.keys(this.options);
+		for (const group of optionKeys)
+		{
+			if (!(group in this.options))
+			{
+				continue;
+			}
+
+			const groupKeys = Object.keys(this.options[group]);
+			for (const key of groupKeys)
+			{
+				if (!(key in this.options[group]))
+				{
+					continue;
+				}
+
 				if (!this.controls[group])
 				{
 					this.controls[group] = {};
 				}
 
-				const control = new Control(this.options[group][key]['control']);
-				control.setChangeHandler(this.applyStyles.bind(this));
-				if (group === 'theme' && key !== 'use')
-				{
-					control.setClickHandler(this.applyStyles.bind(this));
-				}
-				if (group === 'background' && key === 'field')
-				{
-					control.setClickHandler(this.applyStyles.bind(this));
-				}
+				const control = new Control(this.options[group][key].control);
+				this.initControlHandlers(control, group, key);
 
 				this.controls[group][key] = control;
 			}
 		}
+	}
 
-		// parents and default
-		for (const group in this.controls)
+	initControlHandlers(control, group, key)
+	{
+		control.setChangeHandler(this.applyStyles.bind(this));
+		if (control.node && key === 'use')
 		{
-			if (!this.controls.hasOwnProperty(group))
-			{
-				continue;
-			}
-			for (const key in this.controls[group])
-			{
-				if (!this.controls[group].hasOwnProperty(key))
-				{
-					continue;
-				}
-				if (key !== 'use' && this.controls[group]['use'])
-				{
-					this.controls[group][key].setParent(this.controls[group]['use']);
-					if (this.options[group][key]['defaultValue'])
-					{
-						this.controls[group][key].setDefaultValue(this.options[group][key]['defaultValue']);
-					}
-				}
-			}
+			Event.bind(control.node.parentNode, 'click', this.onCheckboxClick.bind(this, group));
 		}
 
+		if (group === 'theme' && key !== 'use')
+		{
+			control.setClickHandler(this.applyStyles.bind(this));
+		}
+
+		if (group === 'background' && key === 'field')
+		{
+			control.setClickHandler(this.applyStyles.bind(this));
+		}
+	}
+
+	setupControls(group, key)
+	{
+		this.controls[group][key].setParent(this.controls[group].use);
+		if (this.options[group][key].defaultValue)
+		{
+			this.controls[group][key].setDefaultValue(this.options[group][key].defaultValue);
+		}
+	}
+
+	initSubscribes()
+	{
 		if (this.controls.theme.corporateColor.node)
 		{
 			this.controls.theme.corporateColor.node.subscribe('onSelectCustomColor', this.applyStyles.bind(this));
 		}
+
 		if (this.controls.background.image.node)
 		{
 			this.controls.background.image.node.subscribe('change', this.onApplyStyles.bind(this));
 		}
+
 		if (this.controls.typo.textColor.node)
 		{
 			EventEmitter.subscribe(this.controls.typo.textColor.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
 			EventEmitter.subscribe(this.controls.typo.textColor.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
 		}
+
 		if (this.controls.typo.hColor.node)
 		{
 			EventEmitter.subscribe(this.controls.typo.hColor.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
 			EventEmitter.subscribe(this.controls.typo.hColor.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
 		}
+
 		if (this.controls.background.color.node)
 		{
 			EventEmitter.subscribe(this.controls.background.color.node, 'BX.Landing.ColorPicker:onSelectColor', this.onApplyStyles.bind(this));
 			EventEmitter.subscribe(this.controls.background.color.node, 'BX.Landing.ColorPicker:onClearColorPicker', this.onApplyStyles.bind(this));
 		}
+	}
 
-		this.panel = BX.Landing.UI.Panel.GoogleFonts.getInstance();
-		Dom.append(this.panel.layout, document.body);
-
-		const fieldCode = this.controls.typo.textFont.node;
-		const fieldCodeH = this.controls.typo.hFont.node;
-		if (fieldCode && fieldCodeH)
+	setupFontFields()
+	{
+		if (this.controls.typo.textFont.node && this.controls.typo.hFont.node)
 		{
-			fieldCode.setAttribute("value", this.convertFont(fieldCode.value));
-			fieldCodeH.setAttribute("value", this.convertFont(fieldCodeH.value));
-			Event.bind(fieldCode, 'click', this.onCodeClick.bind(this));
-			Event.bind(fieldCodeH, 'click', this.onCodeClick.bind(this));
+			this.controls.typo.textFont.node.setAttribute(
+				'value',
+				this.convertFont(this.controls.typo.textFont.node.value),
+			);
+			this.controls.typo.hFont.node.setAttribute(
+				'value',
+				this.convertFont(this.controls.typo.hFont.node.value),
+			);
+			Event.bind(this.controls.typo.textFont.node, 'click', this.onCodeClick.bind(this));
+			Event.bind(this.controls.typo.hFont.node, 'click', this.onCodeClick.bind(this));
 		}
 	}
 
@@ -203,8 +258,10 @@ export class DesignPreview extends EventEmitter
 			context: window,
 		}).then((font) => {
 			const element = event.target;
-			element.setAttribute("value", font.family);
+			element.setAttribute('value', font.family);
 			this.onApplyStyles();
+		}).catch((error) => {
+			console.error(error);
 		});
 	}
 
@@ -216,240 +273,267 @@ export class DesignPreview extends EventEmitter
 	applyStyles()
 	{
 		this.styleNode.innerHTML = this.generateCss();
+		setTimeout(() => {
+			let layoutHeight = parseInt(window.getComputedStyle(this.layoutContent.parentNode).height, 10);
+			const formHeight = parseInt(window.getComputedStyle(this.form).height, 10);
+			if (layoutHeight > formHeight)
+			{
+				layoutHeight += 20;
+				BX.Dom.style(this.form, 'min-height', `${layoutHeight}px`);
+				const formSection = this.form.querySelector('.ui-form-section');
+				if (formSection)
+				{
+					BX.Dom.style(formSection, 'min-height', `${layoutHeight}px`);
+				}
+			}
+		}, 1000);
 	}
 
-	generateSelectorStart(className)
+	onCheckboxClick(group)
 	{
-		return '#' + className + ' {';
+		this.controls[group].use.node.check = !this.controls[group].use.node.checked;
+		this.applyStyles();
 	}
 
-	generateSelectorEnd(selector)
+	generateSelectorStart(className): string
 	{
-		return selector + ' }';
+		return `#${className} {`;
 	}
 
-	getCSSPart1(css)
+	generateSelectorEnd(selector): string
 	{
-		let colorPrimary;
+		return `${selector} }`;
+	}
+
+	getCSSPart1(css): string
+	{
+		let colorPrimary = '';
 		const setColors = this.controls.theme.baseColors.node;
-		let colorPickerElement;
+		let colorPickerElement = '';
 		if (this.controls.theme.corporateColor.node)
 		{
 			colorPickerElement = this.controls.theme.corporateColor.node.element;
 		}
 
-		let activeColorNode;
+		let activeColorNode = '';
 		if (setColors)
 		{
 			activeColorNode = setColors.querySelector('.active');
 		}
-		let isActiveColorPickerElement;
+		let isActiveColorPickerElement = '';
 		if (colorPickerElement)
 		{
-			isActiveColorPickerElement = Dom.hasClass(colorPickerElement, 'active')
+			isActiveColorPickerElement = Dom.hasClass(colorPickerElement, 'active');
 		}
 
 		if (activeColorNode)
 		{
 			colorPrimary = activeColorNode.dataset.value;
 		}
+
 		if (isActiveColorPickerElement)
 		{
 			colorPrimary = colorPickerElement.dataset.value;
 		}
-		//for 'design page', if use not checked, use color from 'design site'
-		if (this.controls.theme.use.node)
+
+		// for "design page", if you use the unchecked box, use the color from "design site"
+		if (this.controls.theme.use.node && this.controls.theme.use.node.check === false)
 		{
-			if (this.controls.theme.use.node.checked === false)
-			{
-				colorPrimary = this.controls.theme.corporateColor.defaultValue;
-			}
+			colorPrimary = this.controls.theme.corporateColor.defaultValue;
 		}
+
+		let preparedCss = css;
 		if (colorPrimary)
 		{
 			if (colorPrimary[0] !== '#')
 			{
-				colorPrimary = '#' + colorPrimary;
+				colorPrimary = `#${colorPrimary}`;
 			}
-			css += `--design-preview-primary: ${colorPrimary};`;
+			preparedCss += `--design-preview-primary: ${colorPrimary};`;
 		}
 
-		return css;
+		return preparedCss;
 	}
 
-	getCSSPart2(css)
+	getCSSPart2(css): string
 	{
-		let textColor;
-		let textFont;
-		let hFont;
-		let textSize;
-		let fontWeight;
-		let fontLineHeight;
-		let hColor;
-		let hWeight;
-		if (this.controls.typo.textColor.node)
-		{
-			textColor = this.controls.typo.textColor.node.input.value;
-		}
-		if (this.controls.typo.textFont.node)
-		{
-			textFont = this.controls.typo.textFont.node.value;
-		}
-		if (this.controls.typo.hFont.node)
-		{
-			hFont = this.controls.typo.hFont.node.value;
-		}
+		let textColor = this.getControlValue(
+			this.controls.typo.textColor.node,
+			this.controls.typo.textColor.node.input.value,
+		);
+		let textFont = this.getControlValue(
+			this.controls.typo.textFont.node,
+			this.controls.typo.textFont.node.value,
+		);
+		let hFont = this.getControlValue(
+			this.controls.typo.hFont.node,
+			this.controls.typo.hFont.node.value,
+		);
+		let fontWeight = this.getControlValue(
+			this.controls.typo.textWeight.node,
+			this.controls.typo.textWeight.node.value,
+		);
+		let fontLineHeight = this.getControlValue(
+			this.controls.typo.textLineHeight.node,
+			this.controls.typo.textLineHeight.node.value,
+		);
+		let hColor = this.getControlValue(
+			this.controls.typo.hColor.node,
+			this.controls.typo.hColor.node.input.value,
+		);
+		let hWeight = this.getControlValue(
+			this.controls.typo.hWeight.node,
+			this.controls.typo.hWeight.node.value,
+		);
+
+		let textSize = '';
 		if (this.controls.typo.textSize.node)
 		{
-			textSize = Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE) + 'px';
-		}
-		if (this.controls.typo.textWeight.node)
-		{
-			fontWeight = this.controls.typo.textWeight.node.value;
-		}
-		if (this.controls.typo.textLineHeight.node)
-		{
-			fontLineHeight = this.controls.typo.textLineHeight.node.value;
-		}
-		if (this.controls.typo.hColor.node)
-		{
-			hColor = this.controls.typo.hColor.node.input.value;
-		}
-		if (this.controls.typo.hWeight.node)
-		{
-			hWeight = this.controls.typo.hWeight.node.value;
+			textSize = `${Math.round(this.controls.typo.textSize.node.value * DesignPreview.DEFAULT_FONT_SIZE)}px`;
 		}
 
-		if (this.controls.typo.use.node)
+		if (this.controls.typo.use.node && this.controls.typo.use.node.check === false)
 		{
-			if (this.controls.typo.use.node.checked === false)
-			{
-				textColor = this.controls.typo.textColor.defaultValue;
-				textFont = this.controls.typo.textFont.defaultValue;
-				hFont = this.controls.typo.hFont.defaultValue;
-				textSize = Math.round(this.controls.typo.textSize.defaultValue
-					* DesignPreview.DEFAULT_FONT_SIZE) + 'px';
-				fontWeight = this.controls.typo.textWeight.defaultValue;
-				fontLineHeight = this.controls.typo.textLineHeight.defaultValue;
-				hColor = this.controls.typo.hColor.defaultValue;
-				hWeight = this.controls.typo.hWeight.defaultValue;
-			}
+			textColor = this.controls.typo.textColor.defaultValue;
+			textFont = this.controls.typo.textFont.defaultValue;
+			hFont = this.controls.typo.hFont.defaultValue;
+			textSize = `${Math.round(this.controls.typo.textSize.defaultValue
+					* DesignPreview.DEFAULT_FONT_SIZE)}px`;
+			fontWeight = this.controls.typo.textWeight.defaultValue;
+			fontLineHeight = this.controls.typo.textLineHeight.defaultValue;
+			hColor = this.controls.typo.hColor.defaultValue;
+			hWeight = this.controls.typo.hWeight.defaultValue;
 		}
 
-		if (textFont)
-		{
-			Dom.append(this.createFontLink(textFont), this.form);
-		}
-		if (hFont)
-		{
-			Dom.append(this.createFontLink(hFont), this.form);
-		}
+		this.appendFontLinks(textFont);
+		this.appendFontLinks(hFont);
 
-		css += `--design-preview-color: ${textColor};`;
-		css += `--design-preview-font-theme: ${textFont};`;
-		css += `--design-preview-font-size: ${textSize};`;
-		css += `--design-preview-font-weight: ${fontWeight};`;
-		css += `--design-preview-line-height: ${fontLineHeight};`;
+		let preparedCss = css;
+		preparedCss += `--design-preview-color: ${textColor};`;
+		preparedCss += `--design-preview-font-theme: ${textFont};`;
+		preparedCss += `--design-preview-font-size: ${textSize};`;
+		preparedCss += `--design-preview-font-weight: ${fontWeight};`;
+		preparedCss += `--design-preview-line-height: ${fontLineHeight};`;
 		if (hColor)
 		{
-			css += `--design-preview-color-h: ${hColor};`;
+			preparedCss += `--design-preview-color-h: ${hColor};`;
 		}
 		else
 		{
-			css += `--design-preview-color-h: ${textColor};`;
+			preparedCss += `--design-preview-color-h: ${textColor};`;
 		}
+
 		if (hWeight)
 		{
-			css += `--design-preview-font-weight-h: ${hWeight};`;
+			preparedCss += `--design-preview-font-weight-h: ${hWeight};`;
 		}
 		else
 		{
-			css += `--design-preview-font-weight-h: ${fontWeight};`;
+			preparedCss += `--design-preview-font-weight-h: ${fontWeight};`;
 		}
+
 		if (this.controls.typo.hFont.node)
 		{
-			css += `--design-preview-font-h-theme: ${hFont};`;
+			preparedCss += `--design-preview-font-h-theme: ${hFont};`;
 		}
 		else
 		{
-			css += `--design-preview-font-h-theme: ${textFont};`;
+			preparedCss += `--design-preview-font-h-theme: ${textFont};`;
 		}
 
-		return css;
+		return preparedCss;
 	}
 
-	createFontLink(font: string)
+	createFontLink(font: string): string
 	{
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
-		link.href = 'https://' + this.fontProxyUrl + '/css2?family=';
+		link.href = `https://${window.fontsProxyUrl}/css2?family=`;
 		link.href += font.replace(' ', '+');
 		link.href += ':wght@100;200;300;400;500;600;700;800;900';
 
 		return link;
 	}
 
-	getCSSPart3(css)
+	getControlValue(element, value): string
 	{
+		if (element)
+		{
+			return value;
+		}
+
+		return '';
+	}
+
+	appendFontLinks(font)
+	{
+		if (font)
+		{
+			Dom.append(this.createFontLink(font), this.form);
+		}
+	}
+
+	getCSSPart3(css): string
+	{
+		let preparedCss = css;
 		let bgColor = this.controls.background.color.node.input.value;
 		const bgFieldNode = this.controls.background.field.node;
 		const bgPictureElement = bgFieldNode.getElementsByClassName('landing-ui-field-image-hidden');
 		let bgPicture = bgPictureElement[0].getAttribute('src');
 		let bgPosition = this.controls.background.position.node.value;
 
-		if (this.controls.background.use.node.checked === true)
+		if (this.controls.background.use.node.check === true)
 		{
-			css += `--design-preview-bg: ${bgColor};`;
+			preparedCss += `--design-preview-bg: ${bgColor};`;
 		}
 		else
 		{
 			bgPicture = '';
-			if (this.controls.background.useSite)
+			if (this.controls.background.useSite && this.controls.background.useSite.defaultValue === 'Y')
 			{
-				if (this.controls.background.useSite.defaultValue === 'Y')
-				{
-					bgColor = this.controls.background.color.defaultValue;
-					bgPicture = this.controls.background.field.defaultValue;
-					bgPosition = this.controls.background.position.defaultValue;
-					css += `--design-preview-bg: ${bgColor};`;
-				}
+				bgColor = this.controls.background.color.defaultValue;
+				bgPicture = this.controls.background.field.defaultValue;
+				bgPosition = this.controls.background.position.defaultValue;
+				preparedCss += `--design-preview-bg: ${bgColor};`;
 			}
 		}
+
 		if (this.controls.background.position)
 		{
 			if (bgPosition === 'center')
 			{
-				css += `background-image: url(${bgPicture});`;
-				css += `background-attachment: scroll;`;
-				css += `background-position: center;`;
-				css += `background-repeat: no-repeat;`;
-				css += `background-size: cover;`;
+				preparedCss += `background-image: url(${bgPicture});`;
+				preparedCss += 'background-attachment: scroll;';
+				preparedCss += 'background-position: center;';
+				preparedCss += 'background-repeat: no-repeat;';
+				preparedCss += 'background-size: cover;';
 			}
+
 			if (bgPosition === 'repeat')
 			{
-				css += `background-image: url(${bgPicture});`;
-				css += `background-attachment: scroll;`;
-				css += `background-position: center;`;
-				css += `background-repeat: repeat;`;
-				css += `background-size: 50%;`;
+				preparedCss += `background-image: url(${bgPicture});`;
+				preparedCss += 'background-attachment: scroll;';
+				preparedCss += 'background-position: center;';
+				preparedCss += 'background-repeat: repeat;';
+				preparedCss += 'background-size: 50%;';
 			}
+
 			if (bgPosition === 'center_repeat_y')
 			{
-				css += `background-image: url(${bgPicture});`;
-				css += `background-attachment: scroll;`;
-				css += `background-position: top;`;
-				css += `background-repeat: repeat-y;`;
-				css += `background-size: 100%;`;
+				preparedCss += `background-image: url(${bgPicture});`;
+				preparedCss += 'background-attachment: scroll;';
+				preparedCss += 'background-position: top;';
+				preparedCss += 'background-repeat: repeat-y;';
+				preparedCss += 'background-size: 100%;';
 			}
 		}
 
-		return css;
+		return preparedCss;
 	}
 
-	generateCss()
+	generateCss(): string
 	{
-		let css;
-		css = this.generateSelectorStart(this.id);
+		let css = this.generateSelectorStart(this.id);
 		css = this.getCSSPart1(css);
 		css = this.getCSSPart2(css);
 		css = this.getCSSPart3(css);
@@ -479,35 +563,36 @@ export class DesignPreview extends EventEmitter
 		const positionFixedRight = bodyWidth - designFormPosition.right + paddingDesignForm;
 		if (designFormPosition.height > designPreviewPosition.height)
 		{
-			let fixedStyle;
-			fixedStyle = 'position: fixed; ';
+			let fixedStyle = 'position: fixed; ';
 			fixedStyle += 'top: 20px; ';
 			fixedStyle += 'margin-top: 0; ';
-			fixedStyle += 'right: '+ positionFixedRight + 'px;';
-			fixedStyle += 'max-width: '+ maxWidth + 'px;';
-			this.layoutContent.setAttribute("style", fixedStyle);
+			fixedStyle += `right: ${positionFixedRight}px;`;
+			fixedStyle += `max-width: ${maxWidth}px;`;
+			this.layoutContent.setAttribute('style', fixedStyle);
 		}
 	}
 
 	unFixElement()
 	{
-		this.layoutContent.setAttribute("style", '');
+		this.layoutContent.setAttribute('style', '');
 	}
 
-	convertFont(font)
+	convertFont(font): string
 	{
-		font = font.replace('g-font-', '');
-		font = font.replaceAll('-', ' ');
-		font = font.replace('ibm ', 'IBM ');
-		font = font.replace('pt ', 'PT ');
-		font = font.replace(/sc(?:(?![a-z]))/i, 'SC');
-		font = font.replace(/jp(?:(?![a-z]))/i, 'JP');
-		font = font.replace(/kr(?:(?![a-z]))/i, 'KR');
-		font = font.replace(/tc(?:(?![a-z]))/i, 'TC');
-		font = font.replace(/(^|\s)\S/g, function(firstSymbol) {
-			return firstSymbol.toUpperCase()
-		})
+		let convertFont = font;
+		convertFont = convertFont
+			.replace('g-font-', '')
+			.replaceAll('-', ' ')
+			.replace('ibm ', 'IBM ')
+			.replace('pt ', 'PT ')
+			.replace(/sc(?![a-z])/i, 'SC')
+			.replace(/jp(?![a-z])/i, 'JP')
+			.replace(/kr(?![a-z])/i, 'KR')
+			.replace(/tc(?![a-z])/i, 'TC')
+			.replaceAll(/(^|\s)\S/g, (firstSymbol) => {
+				return firstSymbol.toUpperCase();
+			});
 
-		return font;
+		return convertFont;
 	}
 }

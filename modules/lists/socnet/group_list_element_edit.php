@@ -1,10 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?php
 $pageId = "group_group_lists";
 include($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_menu.php");
 include($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_profile.php");
 ?>
-<?$APPLICATION->IncludeComponent("bitrix:lists.element.navchain", ".default", array(
+<?php $APPLICATION->IncludeComponent("bitrix:lists.element.navchain", ".default", array(
 	"IBLOCK_TYPE_ID" => COption::GetOptionString("lists", "socnet_iblock_type_id"),
 	"SOCNET_GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 	"ADD_NAVCHAIN_GROUP" => "Y",
@@ -16,7 +16,10 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork_group
 	),
 	$component
 );?>
-<?
+<?php
+
+$arResult['PATH_TO_GROUP_BIZPROC_WORKFLOW_DELETE'] = $arResult['PATH_TO_GROUP_BIZPROC_WORKFLOW_DELETE'] ?? '';
+
 $p = mb_strpos($arResult["PATH_TO_GROUP_BIZPROC_WORKFLOW_DELETE"], "?");
 if($p === false)
 	$ch = "?";

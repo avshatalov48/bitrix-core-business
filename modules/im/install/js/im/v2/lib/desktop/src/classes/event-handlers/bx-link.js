@@ -64,9 +64,21 @@ export class BxLinkHandler
 			{
 				void Messenger.openRecentSearch();
 			}
+			else if (command === DesktopBxLink.copilot)
+			{
+				void Messenger.openCopilot(params.dialogId);
+			}
+			else if (command === DesktopBxLink.settings)
+			{
+				void Messenger.openSettings({ onlyPanel: params.section });
+			}
 			else if (command === DesktopBxLink.timeManager)
 			{
 				BX.Timeman?.Monitor?.openReport();
+			}
+			else if (command === DesktopBxLink.openTab)
+			{
+				DesktopApi.setActiveTab();
 			}
 		});
 	}

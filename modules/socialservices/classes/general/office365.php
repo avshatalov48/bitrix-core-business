@@ -3,8 +3,8 @@ IncludeModuleLangFile(__FILE__);
 
 class CSocServOffice365OAuth extends CSocServAuth
 {
-	const ID = "Office365";
-	const CONTROLLER_URL = "https://www.bitrix24.ru/controller";
+	public const ID = "Office365";
+	public const CONTROLLER_URL = "https://www.bitrix24.ru/controller";
 
 	/** @var COffice365OAuthInterface null  */
 	protected $entityOAuth = null;
@@ -41,7 +41,9 @@ class CSocServOffice365OAuth extends CSocServAuth
 	{
 		$url = $this->getUrl('opener', null, $arParams);
 		if($arParams["FOR_INTRANET"])
-			return array("ON_CLICK" => 'onclick="BX.util.popup(\''.htmlspecialcharsbx(CUtil::JSEscape($url)).'\', 580, 400)"');
+		{
+			return array("ON_CLICK" => 'onclick="BX.util.popup(\'' . htmlspecialcharsbx(CUtil::JSEscape($url)) . '\', 580, 400)"');
+		}
 		return '<a href="javascript:void(0)" onclick="BX.util.popup(\''.htmlspecialcharsbx(CUtil::JSEscape($url)).'\', 580, 400)" class="bx-ss-button liveid-button"></a><span class="bx-spacer"></span><span>'.GetMessage("MAIN_OPTION_COMMENT").'</span>';
 	}
 
@@ -55,22 +57,38 @@ class CSocServOffice365OAuth extends CSocServAuth
 	{
 		global $APPLICATION;
 
+		$removeParams = [
+			'logout',
+			'auth_service_error',
+			'auth_service_id',
+			'backurl',
+			'serviceName',
+			'hitHash',
+		];
+
 		if(IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			$redirect_uri = self::CONTROLLER_URL."/redirect.php";
 			$state = $this->getEntityOAuth()->getRedirectUri()."?state=";
-			$backurl = urlencode($GLOBALS["APPLICATION"]->GetCurPageParam('check_key='.\CSocServAuthManager::getUniqueKey(), array("logout", "auth_service_error", "auth_service_id", "backurl"))).(isset($arParams['BACKURL']) ? '&redirect_url='.urlencode($arParams['BACKURL']) : '').'&mode='.$location;
+			$backurl = urlencode($GLOBALS["APPLICATION"]->GetCurPageParam('check_key='.\CSocServAuthManager::getUniqueKey(), $removeParams))
+				.(isset($arParams['BACKURL'])
+					? '&redirect_url='.urlencode($arParams['BACKURL'])
+					: '')
+				.'&mode='.$location;
 			$state .= urlencode(urlencode("backurl=".$backurl));
 		}
 		else
 		{
 			$backurl = $APPLICATION->GetCurPageParam(
 				'check_key='.\CSocServAuthManager::getUniqueKey(),
-				array("logout", "auth_service_error", "auth_service_id", "backurl")
+				$removeParams
 			);
 
 			$redirect_uri = $this->getEntityOAuth()->getRedirectUri();
-			$state = 'site_id='.SITE_ID.'&backurl='.urlencode($backurl).(isset($arParams['BACKURL']) ? '&redirect_url='.urlencode($arParams['BACKURL']) : '').'&mode='.$location;
+			$state = 'site_id='.SITE_ID.'&backurl='.urlencode($backurl)
+				.(isset($arParams['BACKURL'])
+					? '&redirect_url='.urlencode($arParams['BACKURL'])
+					: '').'&mode='.$location;
 		}
 
 		return $this->getEntityOAuth()->GetAuthUrl($redirect_uri, $state);
@@ -79,7 +97,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 	public function getStorageToken()
 	{
 		$accessToken = null;
-		$userId = intval($this->userId);
+		$userId = (int)$this->userId;
 		if($userId > 0)
 		{
 			$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
@@ -90,12 +108,16 @@ class CSocServOffice365OAuth extends CSocServAuth
 			{
 				$accessToken = $arOauth["OATOKEN"];
 
-				if(empty($accessToken) || ((intval($arOauth["OATOKEN_EXPIRES"]) > 0) && (intval($arOauth["OATOKEN_EXPIRES"] < intval(time())))))
+				if(empty($accessToken) || ((int)$arOauth["OATOKEN_EXPIRES"] && ((int)($arOauth["OATOKEN_EXPIRES"] < time()))))
 				{
 					if(isset($arOauth['REFRESH_TOKEN']))
+					{
 						$this->entityOAuth->getNewAccessToken($arOauth['REFRESH_TOKEN'], $userId, true);
+					}
 					if(($accessToken = $this->entityOAuth->getToken()) === false)
+					{
 						return null;
+					}
 				}
 			}
 		}
@@ -109,30 +131,30 @@ class CSocServOffice365OAuth extends CSocServAuth
 		$login = "Office365".$office365User['id'];
 		$uId = $office365User['id'];
 
-		if($office365User['givenName'] <> '')
+		if(!empty($office365User['givenName']))
 		{
 			$first_name = $office365User['givenName'];
 		}
 
-		if($office365User['surname'] <> '')
+		if(!empty($office365User['surname']))
 		{
 			$last_name = $office365User['surname'];
 		}
 
-		if($office365User['mail'] <> '')
+		if(!empty($office365User['mail']))
 		{
 			$email = $office365User['mail'];
 			$login = $office365User['mail'];
 		}
 
-		$arFields = array(
+		$arFields = [
 			'EXTERNAL_AUTH_ID' => self::ID,
 			'XML_ID' => $uId,
 			'LOGIN' => $login,
 			'EMAIL' => $email,
 			'NAME'=> $first_name,
 			'LAST_NAME'=> $last_name,
-		);
+		];
 
 		$arFields["PERSONAL_PHONE"] = $office365User["telephoneNumber"];
 
@@ -151,14 +173,14 @@ class CSocServOffice365OAuth extends CSocServAuth
 			$arFields["OATOKEN_EXPIRES"] = time() + $office365User['expires_in'];
 		}
 
-		if(SITE_ID <> '')
+		if(!empty(SITE_ID))
 		{
 			$arFields["SITE_ID"] = SITE_ID;
 		}
 
-		$arFields["PERMISSIONS"] = serialize(array(
+		$arFields["PERMISSIONS"] = serialize([
 			"tenant" => $office365User["tenant"],
-		));
+		]);
 
 		return $arFields;
 	}
@@ -172,7 +194,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 		$bProcessState = false;
 		$bSuccess = SOCSERV_AUTHORISATION_ERROR;
 
-		if(isset($_REQUEST["code"]) && $_REQUEST["code"] != '' && CSocServAuthManager::CheckUniqueKey())
+		if(!empty($_REQUEST["code"]) && CSocServAuthManager::CheckUniqueKey())
 		{
 			$this->getEntityOAuth()->setCode($_REQUEST["code"]);
 
@@ -181,7 +203,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 			if($this->getEntityOAuth()->GetAccessToken() !== false)
 			{
 				$office365User = $this->getEntityOAuth()->GetCurrentUser();
-				if(is_array($office365User) &&  ($office365User['id'] <> ''))
+				if(is_array($office365User) && !empty($office365User['id']))
 				{
 					$office365User["tenant"] = preg_replace("/^.*@/", "", $office365User["userPrincipalName"]);
 
@@ -189,12 +211,12 @@ class CSocServOffice365OAuth extends CSocServAuth
 					$tenantRestriction = self::GetOption("office365_tenant");
 					if(!empty($tenantRestriction))
 					{
-						$allowAuth = $office365User["tenant"] == $tenantRestriction;
+						$allowAuth = $office365User["tenant"] === $tenantRestriction;
 					}
 
 					if($allowAuth)
 					{
-						$arFields = self::prepareUser($office365User);
+						$arFields = $this->prepareUser($office365User);
 						$bSuccess = $this->AuthorizeUser($arFields);
 					}
 				}
@@ -206,8 +228,8 @@ class CSocServOffice365OAuth extends CSocServAuth
 			unset($_REQUEST["state"]);
 		}
 
-		$url = ($APPLICATION->GetCurDir() == "/login/") ? "" : $APPLICATION->GetCurDir();
-		$aRemove = array("logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset");
+		$url = ($APPLICATION->GetCurDir() === "/login/") ? "" : $APPLICATION->GetCurDir();
+		$aRemove = ["logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset"];
 
 		$mode = 'opener';
 		$addParams = true;
@@ -218,7 +240,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 			if(isset($arState['backurl']) || isset($arState['redirect_url']))
 			{
 				$url = !empty($arState['redirect_url']) ? $arState['redirect_url'] : $arState['backurl'];
-				if(mb_substr($url, 0, 1) !== "#")
+				if(!str_starts_with($url, "#"))
 				{
 					$parseUrl = parse_url($url);
 					$urlPath = $parseUrl["path"];
@@ -228,7 +250,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 					{
 						foreach($aRemove as $param)
 						{
-							if(mb_strpos($value, $param."=") === 0)
+							if(str_starts_with($value, $param . "="))
 							{
 								unset($arUrlQuery[$key]);
 								break;
@@ -262,28 +284,21 @@ class CSocServOffice365OAuth extends CSocServAuth
 				: $APPLICATION->GetCurPageParam(('auth_service_id='.self::ID.'&auth_service_error='.$bSuccess), $aRemove);
 		}
 
-		if($addParams && CModule::IncludeModule("socialnetwork") && mb_strpos($url, "current_fieldset=") === false)
-			$url = (preg_match("/\?/", $url)) ? $url."&current_fieldset=SOCSERV" : $url."?current_fieldset=SOCSERV";
+		if($addParams && CModule::IncludeModule("socialnetwork") && !str_contains($url, "current_fieldset="))
+		{
+			$url = (preg_match("/\?/", $url)) ? $url . "&current_fieldset=SOCSERV" : $url . "?current_fieldset=SOCSERV";
+		}
 
 		$url = CUtil::JSEscape($url);
 
-		if($addParams)
+		if ($bSuccess && $mode === self::MOBILE_MODE)
 		{
-			$location = ($mode == "opener") ? 'if(window.opener) window.opener.location = \''.$url.'\'; window.close();' : ' window.location = \''.$url.'\';';
+			$this->onAfterMobileAuth();
 		}
 		else
 		{
-			//fix for chrome
-			$location = ($mode == "opener") ? 'if(window.opener) window.opener.location = window.opener.location.href + \''.$url.'\'; window.close();' : ' window.location = window.location.href + \''.$url.'\';';
+			$this->onAfterWebAuth($addParams, $mode, $url);
 		}
-
-		$JSScript = '
-		<script type="text/javascript">
-		'.$location.'
-		</script>
-		';
-
-		echo $JSScript;
 
 		CMain::FinalActions();
 	}

@@ -1,9 +1,7 @@
 <?php
 namespace Bitrix\Pull\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
 
 /**
  * Class ChannelTable

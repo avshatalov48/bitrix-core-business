@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,calendar_roomsmanager,calendar_categorymanager,ui_icons_b24,calendar_entry,calendar_planner,ui_entitySelector,main_core_events,main_popup,calendar_controls,intranet_controlButton,main_core,calendar_util) {
+(function (exports,calendar_roomsmanager,calendar_categorymanager,ui_icons_b24,calendar_entry,ui_dialogs_messagebox,ui_buttons,calendar_planner,ui_entitySelector,main_core_events,main_popup,calendar_controls,intranet_controlButton,main_core,calendar_util) {
 	'use strict';
 
 	class TimeSelector {
@@ -992,10 +992,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  checkLocationAccessibility(params) {
 	    this.getLocationAccessibility(params.from, params.to).then(() => {
-	      let eventTsFrom;
-	      let eventTsTo;
-	      let fromTs = params.from.getTime();
-	      let toTs = params.to.getTime();
+	      const timezone = params.timezone && params.timezone !== '' ? params.timezone : calendar_util.Util.getUserSettings().timezoneName;
+	      const timezoneOffset = calendar_util.Util.getTimeZoneOffset(timezone) * 60 * 1000;
+	      const fromTs = new Date(params.from.getTime() + timezoneOffset).getTime();
+	      let toTs = new Date(params.to.getTime() + timezoneOffset).getTime();
 	      if (params.fullDay) {
 	        toTs += Location.DAY_LENGTH;
 	      }
@@ -1003,19 +1003,20 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        Location.locationList[index].reserved = false;
 	        let roomId = Location.locationList[index].ID;
 	        for (const date of this.datesRange) {
-	          if (main_core.Type.isUndefined(Location.accessibility[date][roomId])) {
+	          if (main_core.Type.isUndefined(Location.accessibility[date]) || !main_core.Type.isArrayFilled(Location.accessibility[date][roomId])) {
 	            continue;
 	          }
 	          for (const event of Location.accessibility[date][roomId]) {
 	            if (parseInt(event.PARENT_ID) === parseInt(params.currentEventId)) {
 	              continue;
 	            }
-	            eventTsFrom = calendar_util.Util.parseDate(event.DATE_FROM).getTime();
-	            eventTsTo = calendar_util.Util.parseDate(event.DATE_TO).getTime();
-	            if (event.DT_SKIP_TIME !== 'Y') {
-	              eventTsFrom -= event['~USER_OFFSET_FROM'] * 1000;
-	              eventTsTo -= event['~USER_OFFSET_TO'] * 1000;
-	            } else {
+	            let eventTimezoneOffset = 0;
+	            if (event.DT_SKIP_TIME === 'N') {
+	              eventTimezoneOffset = calendar_util.Util.getTimeZoneOffset(event.TZ_FROM) * 60 * 1000;
+	            }
+	            const eventTsFrom = new Date(calendar_util.Util.parseDate(event.DATE_FROM).getTime() + eventTimezoneOffset).getTime();
+	            let eventTsTo = new Date(calendar_util.Util.parseDate(event.DATE_TO).getTime() + eventTimezoneOffset).getTime();
+	            if (event.DT_SKIP_TIME === 'Y') {
 	              eventTsTo += Location.DAY_LENGTH;
 	            }
 	            if (eventTsFrom < toTs && eventTsTo > fromTs) {
@@ -1374,8 +1375,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return ('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
 	  }
 	  static getDatesRange(from, to) {
-	    let fromDate = new Date(from);
-	    let toDate = new Date(to);
+	    const fromDate = new Date(from.getTime() - calendar_util.Util.getDayLength());
+	    const toDate = new Date(to.getTime() + calendar_util.Util.getDayLength());
 	    let startDate = fromDate.setHours(0, 0, 0, 0);
 	    let finishDate = toDate.setHours(0, 0, 0, 0);
 	    let result = [];
@@ -2169,6 +2170,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      count: formElements['EVENT_RRULE[COUNT]'],
 	      until: formElements['EVENT_RRULE[UNTIL]']
 	    };
+	    this.viewMode = false;
 	    this.create();
 	  }
 	  create() {
@@ -2203,6 +2205,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	  }
 	  setValue(rrule = {}) {
+	    if (main_core.Type.isNil(rrule)) {
+	      rrule = {};
+	    }
 	    this.changeType(rrule.FREQ);
 	    this.DOM.interval.value = rrule.INTERVAL || 1;
 	    if (rrule.COUNT) {
@@ -2966,6 +2971,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
+	let _$6 = t => t,
+	  _t$6;
 	class ConfirmStatusDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -2975,35 +2982,31 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.id = 'confirm-status-dialog-' + Math.round(Math.random() * 10000);
 	  }
 	  show() {
-	    let content = main_core.Dom.create('DIV');
-	    this.dialog = new BX.PopupWindow(this.id, null, {
-	      overlay: {
-	        opacity: 10
-	      },
+	    this.dialog = new main_popup.Popup({
+	      id: this.id,
+	      titleBar: main_core.Loc.getMessage('EC_DECLINE_REC_EVENT'),
+	      content: this.getContent(),
+	      className: 'calendar__confirm-dialog',
+	      lightShadow: true,
+	      maxWidth: 700,
+	      minHeight: 120,
 	      autoHide: true,
 	      closeByEsc: true,
-	      zIndex: this.zIndex,
-	      offsetLeft: 0,
-	      offsetTop: 0,
 	      draggable: true,
-	      bindOnResize: false,
-	      titleBar: main_core.Loc.getMessage('EC_DECLINE_REC_EVENT'),
-	      closeIcon: {
-	        right: "12px",
-	        top: "10px"
+	      closeIcon: true,
+	      animation: 'fading-slide',
+	      contentBackground: "#fff",
+	      overlay: {
+	        opacity: 15
 	      },
-	      className: 'bxc-popup-window',
-	      buttons: [new BX.PopupWindowButtonLink({
-	        text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
-	        className: "popup-window-button-link-cancel",
-	        events: {
-	          click: this.close.bind(this)
-	        }
-	      })],
-	      content: content,
 	      cacheable: false
 	    });
-	    content.appendChild(new BX.PopupWindowButton({
+	    this.dialog.show();
+	  }
+	  getContent() {
+	    const thisEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      text: main_core.Loc.getMessage('EC_DECLINE_ONLY_THIS'),
 	      events: {
 	        click: () => {
@@ -3015,8 +3018,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }));
 	        }
 	      }
-	    }).buttonNode);
-	    content.appendChild(new BX.PopupWindowButton({
+	    });
+	    const nextEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      text: main_core.Loc.getMessage('EC_DECLINE_NEXT'),
 	      events: {
 	        click: () => {
@@ -3028,8 +3033,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }));
 	        }
 	      }
-	    }).buttonNode);
-	    content.appendChild(new BX.PopupWindowButton({
+	    });
+	    const allEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      text: main_core.Loc.getMessage('EC_DECLINE_ALL'),
 	      events: {
 	        click: () => {
@@ -3041,8 +3048,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }));
 	        }
 	      }
-	    }).buttonNode);
-	    this.dialog.show();
+	    });
+	    return main_core.Tag.render(_t$6 || (_t$6 = _$6`
+			<div class="calendar__confirm-dialog-content">
+				${0}
+				${0}
+				${0}
+			</div>
+		`), thisEventButton.render(), nextEventButton.render(), allEventButton.render());
 	  }
 	  close() {
 	    if (this.dialog) {
@@ -3058,6 +3071,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
+	let _$7 = t => t,
+	  _t$7;
 	class ConfirmEditDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -3067,36 +3082,30 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.id = 'confirm-edit-dialog-' + Math.round(Math.random() * 10000);
 	  }
 	  show() {
-	    let content = main_core.Dom.create('DIV');
-	    this.dialog = new BX.PopupWindow(this.id, null, {
-	      overlay: {
-	        opacity: 10
-	      },
+	    this.dialog = new main_popup.Popup({
+	      titleBar: main_core.Loc.getMessage('EC_EDIT_REC_EVENT'),
+	      content: this.getContent(),
+	      className: 'calendar__confirm-dialog',
+	      lightShadow: true,
+	      maxWidth: 700,
+	      minHeight: 120,
 	      autoHide: true,
 	      closeByEsc: true,
-	      zIndex: this.zIndex,
-	      offsetLeft: 0,
-	      offsetTop: 0,
 	      draggable: true,
-	      bindOnResize: false,
-	      titleBar: main_core.Loc.getMessage('EC_EDIT_REC_EVENT'),
-	      closeIcon: {
-	        right: "12px",
-	        top: "10px"
+	      closeIcon: true,
+	      animation: 'fading-slide',
+	      contentBackground: "#fff",
+	      overlay: {
+	        opacity: 15
 	      },
-	      className: 'bxc-popup-window',
-	      buttons: [new BX.PopupWindowButtonLink({
-	        text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
-	        className: "popup-window-button-link-cancel",
-	        events: {
-	          click: this.close.bind(this)
-	        }
-	      })],
-	      content: content,
-	      events: {},
 	      cacheable: false
 	    });
-	    content.appendChild(new BX.PopupWindowButton({
+	    this.dialog.show();
+	  }
+	  getContent() {
+	    const thisEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      text: main_core.Loc.getMessage('EC_REC_EV_ONLY_THIS_EVENT'),
 	      events: {
 	        click: () => {
@@ -3108,8 +3117,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          this.close();
 	        }
 	      }
-	    }).buttonNode);
-	    content.appendChild(new BX.PopupWindowButton({
+	    });
+	    const nextEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      text: main_core.Loc.getMessage('EC_REC_EV_NEXT'),
 	      events: {
 	        click: () => {
@@ -3121,8 +3132,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          this.close();
 	        }
 	      }
-	    }).buttonNode);
-	    content.appendChild(new BX.PopupWindowButton({
+	    });
+	    const allEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      text: main_core.Loc.getMessage('EC_REC_EV_ALL'),
 	      events: {
 	        click: () => {
@@ -3134,8 +3147,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          this.close();
 	        }
 	      }
-	    }).buttonNode);
-	    this.dialog.show();
+	    });
+	    return main_core.Tag.render(_t$7 || (_t$7 = _$7`
+			<div class="calendar__confirm-dialog-content">
+				${0}
+				${0}
+				${0}
+			</div>
+		`), thisEventButton.render(), nextEventButton.render(), allEventButton.render());
 	  }
 	  close() {
 	    if (this.dialog) {
@@ -3144,56 +3163,84 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	class ConfirmDeleteDialog extends PopupDialog {
+	let _$8 = t => t,
+	  _t$8;
+	class ConfirmDeleteDialog {
 	  constructor(params = {}) {
-	    super(params);
-	    this.title = BX.message('EC_DEL_REC_EVENT');
 	    this.entry = params.entry;
 	  }
+	  show() {
+	    this.dialog = new main_popup.Popup({
+	      titleBar: main_core.Loc.getMessage('EC_DEL_REC_EVENT'),
+	      content: this.getContent(),
+	      className: 'calendar__confirm-dialog',
+	      lightShadow: true,
+	      maxWidth: 700,
+	      minHeight: 120,
+	      autoHide: true,
+	      closeByEsc: true,
+	      draggable: true,
+	      closeIcon: true,
+	      animation: 'fading-slide',
+	      contentBackground: "#fff",
+	      overlay: {
+	        opacity: 15
+	      },
+	      cacheable: false
+	    });
+	    this.dialog.show();
+	  }
 	  getContent() {
-	    this.DOM.content = BX.create('DIV');
-	    this.DOM.content.appendChild(new BX.PopupWindowButton({
-	      text: BX.message('EC_REC_EV_ONLY_THIS_EVENT'),
+	    const thisEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
+	      text: main_core.Loc.getMessage('EC_REC_EV_ONLY_THIS_EVENT'),
 	      events: {
-	        click: function () {
+	        click: () => {
 	          this.entry.deleteThis();
 	          this.close();
-	        }.bind(this)
+	        }
 	      }
-	    }).buttonNode);
-	    this.DOM.content.appendChild(new BX.PopupWindowButton({
-	      text: BX.message('EC_REC_EV_NEXT'),
+	    });
+	    const nextEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
+	      text: main_core.Loc.getMessage('EC_REC_EV_NEXT'),
 	      events: {
-	        click: function () {
+	        click: () => {
 	          this.entry.deleteNext();
 	          this.close();
-	        }.bind(this)
+	        }
 	      }
-	    }).buttonNode);
-	    this.DOM.content.appendChild(new BX.PopupWindowButton({
-	      text: BX.message('EC_REC_EV_ALL'),
+	    });
+	    const allEventButton = new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.MEDIUM,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
+	      text: main_core.Loc.getMessage('EC_REC_EV_ALL'),
 	      events: {
-	        click: function () {
+	        click: () => {
 	          this.entry.deleteAll();
 	          this.close();
-	        }.bind(this)
+	        }
 	      }
-	    }).buttonNode);
-	    return this.DOM.content;
+	    });
+	    return main_core.Tag.render(_t$8 || (_t$8 = _$8`
+			<div class="calendar__confirm-dialog-content">
+				${0}
+				${0}
+				${0}
+			</div>
+		`), thisEventButton.render(), nextEventButton.render(), allEventButton.render());
 	  }
-	  getButtons() {
-	    return [new BX.PopupWindowButtonLink({
-	      text: BX.message('EC_SEC_SLIDER_CANCEL'),
-	      className: "popup-window-button-link-cancel",
-	      events: {
-	        click: this.close.bind(this)
-	      }
-	    })];
+	  close() {
+	    if (this.dialog) {
+	      this.dialog.close();
+	    }
 	  }
 	}
 
-	let _$6 = t => t,
-	  _t$6,
+	let _$9 = t => t,
+	  _t$9,
 	  _t2$6,
 	  _t3$5,
 	  _t4$5,
@@ -3233,31 +3280,31 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (this.inlineEditMode) {
 	        main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-view');
 	      }
-	      this.DOM.leftInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t$6 || (_t$6 = _$6`<div class="calendar-field-block calendar-field-block-left"></div>`)));
-	      this.DOM.fromDate = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t2$6 || (_t2$6 = _$6`
+	      this.DOM.leftInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t$9 || (_t$9 = _$9`<div class="calendar-field-block calendar-field-block-left"></div>`)));
+	      this.DOM.fromDate = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t2$6 || (_t2$6 = _$9`
 				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${0}px;"/>
 			`), this.DATE_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.fromDateText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t3$5 || (_t3$5 = _$6`<span class="calendar-field-value calendar-field-value-date"></span>`)));
+	        this.DOM.fromDateText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t3$5 || (_t3$5 = _$9`<span class="calendar-field-value calendar-field-value-date"></span>`)));
 	      }
-	      this.DOM.fromTime = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t4$5 || (_t4$5 = _$6`
+	      this.DOM.fromTime = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t4$5 || (_t4$5 = _$9`
 				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${0}px; max-width: ${0}px;"/>
 			`), this.TIME_INPUT_WIDTH, this.TIME_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t5$5 || (_t5$5 = _$6`<span class="calendar-field-value calendar-field-value-time"></span>`)));
+	        this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t5$5 || (_t5$5 = _$9`<span class="calendar-field-value calendar-field-value-time"></span>`)));
 	      }
-	      this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t6$3 || (_t6$3 = _$6`<div class="calendar-field-block calendar-field-block-between" />`)));
-	      this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t7$3 || (_t7$3 = _$6`<div class="calendar-field-block calendar-field-block-right"></div>`)));
-	      this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t8$2 || (_t8$2 = _$6`
+	      this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t6$3 || (_t6$3 = _$9`<div class="calendar-field-block calendar-field-block-between" />`)));
+	      this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t7$3 || (_t7$3 = _$9`<div class="calendar-field-block calendar-field-block-right"></div>`)));
+	      this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t8$2 || (_t8$2 = _$9`
 				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${0}px; max-width: ${0}px;"/>
 			`), this.TIME_INPUT_WIDTH, this.TIME_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.toTimeText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t9$1 || (_t9$1 = _$6`<span class="calendar-field-value calendar-field-value-time"></span>`)));
+	        this.DOM.toTimeText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t9$1 || (_t9$1 = _$9`<span class="calendar-field-value calendar-field-value-time"></span>`)));
 	      }
-	      this.DOM.toDate = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t10$1 || (_t10$1 = _$6`
+	      this.DOM.toDate = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t10$1 || (_t10$1 = _$9`
 				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${0}px;"/>`), this.DATE_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.toDateText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t11$1 || (_t11$1 = _$6`<span class="calendar-field-value calendar-field-value-date"></span>`)));
+	        this.DOM.toDateText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t11$1 || (_t11$1 = _$9`<span class="calendar-field-value calendar-field-value-date"></span>`)));
 	      }
 	      this.fromTimeControl = new TimeSelector({
 	        input: this.DOM.fromTime,
@@ -3267,13 +3314,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        input: this.DOM.toTime,
 	        onChangeCallback: this.handleTimeToChange.bind(this)
 	      });
-	      let fullDayWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t12 || (_t12 = _$6`
+	      let fullDayWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t12 || (_t12 = _$9`
 				<span class="calendar-event-full-day"></span>
 			`)));
-	      this.DOM.fullDay = fullDayWrap.appendChild(main_core.Tag.render(_t13 || (_t13 = _$6`
+	      this.DOM.fullDay = fullDayWrap.appendChild(main_core.Tag.render(_t13 || (_t13 = _$9`
 				<input value="Y" type="checkbox" id="{this.UID}"/>
 			`)));
-	      fullDayWrap.appendChild(main_core.Tag.render(_t14 || (_t14 = _$6`<label for="{this.UID}">${0}</label>`), main_core.Loc.getMessage('EC_ALL_DAY')));
+	      fullDayWrap.appendChild(main_core.Tag.render(_t14 || (_t14 = _$9`<label for="{this.UID}">${0}</label>`), main_core.Loc.getMessage('EC_ALL_DAY')));
 	    }
 
 	    //this.DOM.defTimezoneWrap = BX(this.UID + '_timezone_default_wrap');
@@ -3335,6 +3382,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	    this.value = value;
 	    this.handleFullDayChange();
+	    this.emit('onSetValue');
 	  }
 	  updateTimePeriod() {
 	    this.from = this.getFrom();
@@ -3393,6 +3441,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    main_core.Event.bind(this.DOM.toDate, 'change', this.handleDateToChange.bind(this));
 	    main_core.Event.bind(this.DOM.fromTime, 'input', this.handleTimeInput.bind(this));
 	    main_core.Event.bind(this.DOM.toTime, 'input', this.handleTimeInput.bind(this));
+	    main_core.Event.bind(this.DOM.fromTz, 'change', this.handleValueChange.bind(this));
+	    main_core.Event.bind(this.DOM.toTz, 'change', this.handleValueChange.bind(this));
 	    main_core.Event.bind(this.DOM.fullDay, 'click', () => {
 	      this.handleFullDayChange();
 	      this.handleValueChange();
@@ -3796,60 +3846,42 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  show(params = {}) {
 	    this.plural = params.users.length > 1;
-	    let i,
-	      userNames = [];
-	    for (i = 0; i < params.users.length; i++) {
-	      userNames.push(params.users[i].DISPLAY_NAME);
-	    }
-	    userNames = userNames.join(', ');
-	    let content = BX.create('DIV', {
-	      props: {
-	        className: 'calendar-busy-users-content-wrap'
-	      },
-	      html: '<div class="calendar-busy-users-content">' + BX.util.htmlspecialchars(this.plural ? main_core.Loc.getMessage('EC_BUSY_USERS_PLURAL').replace('#USER_LIST#', userNames) : main_core.Loc.getMessage('EC_BUSY_USERS_SINGLE').replace('#USER_NAME#', params.users[0].DISPLAY_NAME)) + '</div>'
+	    const userNames = [];
+	    params.users.forEach(user => {
+	      userNames.push(user.DISPLAY_NAME);
 	    });
-	    this.dialog = new BX.PopupWindow(this.id, null, {
-	      overlay: {
-	        opacity: 10
-	      },
-	      autoHide: true,
-	      closeByEsc: true,
-	      zIndex: this.zIndex,
-	      offsetLeft: 0,
-	      offsetTop: 0,
-	      draggable: true,
-	      bindOnResize: false,
-	      titleBar: main_core.Loc.getMessage('EC_BUSY_USERS_TITLE'),
-	      closeIcon: {
-	        right: "12px",
-	        top: "10px"
-	      },
-	      className: 'bxc-popup-window',
-	      // buttons: [
-	      // 	new BX.PopupWindowButtonLink({
-	      // 		text: Loc.getMessage('EC_BUSY_USERS_CLOSE'),
-	      // 		className: "popup-window-button-link-cancel",
-	      // 		events: {click : () => {
-	      // 			// if (this.calendar.editSlider)
-	      // 			// 	this.calendar.editSlider.close();
-	      //
-	      // 			this.close();
-	      // 		}
-	      // 		}
-	      // 	})
-	      // ],
-	      content: content,
-	      events: {}
+	    const userNamesPrepared = userNames.join(', ');
+	    const message = this.plural ? main_core.Loc.getMessage('EC_BUSY_USERS_PLURAL').replace('#USER_LIST#', userNamesPrepared) : main_core.Loc.getMessage('EC_BUSY_USERS_SINGLE').replace('#USER_NAME#', params.users[0].DISPLAY_NAME);
+	    this.dialog = new ui_dialogs_messagebox.MessageBox({
+	      title: main_core.Loc.getMessage('EC_BUSY_USERS_TITLE'),
+	      message: main_core.Text.encode(message),
+	      buttons: this.getButtons(),
+	      popupOptions: {
+	        autoHide: true,
+	        closeByEsc: true,
+	        draggable: false,
+	        closeIcon: true,
+	        maxWidth: 700,
+	        minHeight: 150,
+	        animation: 'fading-slide'
+	      }
 	    });
-	    content.appendChild(new BX.PopupWindowButton({
+	    this.dialog.show();
+	  }
+	  getButtons() {
+	    return [new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.SMALL,
+	      color: ui_buttons.ButtonColor.PRIMARY,
 	      text: main_core.Loc.getMessage('EC_BUSY_USERS_BACK2EDIT'),
 	      events: {
 	        click: () => {
+	          this.emit('onContinueEditing');
 	          this.close();
 	        }
 	      }
-	    }).buttonNode);
-	    content.appendChild(new BX.PopupWindowButton({
+	    }), new ui_buttons.Button({
+	      size: ui_buttons.ButtonSize.SMALL,
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      text: this.plural ? main_core.Loc.getMessage('EC_BUSY_USERS_EXCLUDE_PLURAL') : main_core.Loc.getMessage('EC_BUSY_USERS_EXCLUDE_SINGLE'),
 	      events: {
 	        click: () => {
@@ -3857,18 +3889,23 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          this.close();
 	        }
 	      }
-	    }).buttonNode);
-	    this.dialog.show();
+	    })];
 	  }
 	  close() {
 	    if (this.dialog) {
 	      this.dialog.close();
 	    }
 	  }
+	  isShown() {
+	    if (this.dialog) {
+	      return this.dialog.getPopupWindow().isShown();
+	    }
+	    return false;
+	  }
 	}
 
-	let _$7 = t => t,
-	  _t$7,
+	let _$a = t => t,
+	  _t$a,
 	  _t2$7,
 	  _t3$6;
 	class UserPlannerSelector extends main_core_events.EventEmitter {
@@ -3911,54 +3948,60 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.zIndex = params.zIndex || this.zIndex;
 	    this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 	    this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
+	    this.isEditableSharingEvent = !!params.isEditableSharingEvent;
+	    this.openEditFormCallback = params.openEditFormCallback;
 	    this.create();
 	  }
 	  create() {
 	    if (this.DOM.changeLink && !this.isReadOnly()) {
-	      main_core.Event.bind(this.DOM.changeLink, 'click', () => {
-	        if (!this.userSelectorDialog) {
-	          this.userSelectorDialog = new ui_entitySelector.Dialog({
-	            targetNode: this.DOM.changeLink,
-	            context: 'CALENDAR',
-	            preselectedItems: this.attendeesPreselectedItems,
-	            enableSearch: true,
-	            zIndex: this.zIndex + 10,
-	            events: {
-	              'Item:onSelect': this.handleUserSelectorChanges.bind(this),
-	              'Item:onDeselect': this.handleUserSelectorChanges.bind(this)
-	            },
-	            entities: [{
-	              id: 'user',
-	              options: {
-	                inviteGuestLink: true,
-	                emailUsers: true
+	      let clickAction;
+	      if (!this.isEditableSharingEvent) {
+	        clickAction = () => {
+	          if (!this.userSelectorDialog) {
+	            this.userSelectorDialog = new ui_entitySelector.Dialog({
+	              targetNode: this.DOM.changeLink,
+	              context: 'CALENDAR',
+	              preselectedItems: this.attendeesPreselectedItems,
+	              enableSearch: true,
+	              zIndex: this.zIndex + 10,
+	              events: {
+	                'Item:onSelect': this.handleUserSelectorChanges.bind(this),
+	                'Item:onDeselect': this.handleUserSelectorChanges.bind(this)
+	              },
+	              entities: [{
+	                id: 'user',
+	                options: {
+	                  inviteGuestLink: true,
+	                  emailUsers: true
+	                }
+	              }, {
+	                id: 'project'
+	              }, {
+	                id: 'department',
+	                options: {
+	                  selectMode: 'usersAndDepartments'
+	                }
+	              }, {
+	                id: 'meta-user',
+	                options: {
+	                  'all-users': true
+	                }
+	              }],
+	              searchTabOptions: {
+	                stubOptions: {
+	                  title: main_core.Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
+	                  subtitle: main_core.Loc.getMessage('EC_USER_DIALOG_404_SUBTITLE'),
+	                  icon: '/bitrix/images/calendar/search-email.svg',
+	                  iconOpacity: 100,
+	                  arrow: true
+	                }
 	              }
-	            }, {
-	              id: 'project'
-	            }, {
-	              id: 'department',
-	              options: {
-	                selectMode: 'usersAndDepartments'
-	              }
-	            }, {
-	              id: 'meta-user',
-	              options: {
-	                'all-users': true
-	              }
-	            }],
-	            searchTabOptions: {
-	              stubOptions: {
-	                title: main_core.Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
-	                subtitle: main_core.Loc.getMessage('EC_USER_DIALOG_404_SUBTITLE'),
-	                icon: '/bitrix/images/calendar/search-email.svg',
-	                iconOpacity: 100,
-	                arrow: true
-	              }
-	            }
-	          });
-	        }
-	        this.userSelectorDialog.show();
-	      });
+	            });
+	          }
+	          this.userSelectorDialog.show();
+	        };
+	        main_core.Event.bind(this.DOM.changeLink, 'click', clickAction);
+	      }
 	    }
 	    if (this.DOM.moreLink) {
 	      main_core.Event.bind(this.DOM.moreLink, 'click', this.showMoreAttendeesPopup.bind(this));
@@ -4016,7 +4059,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    if (this.entryId && this.entry && this.entry.data['PARENT_ID'] && (this.entry.data['EVENT_TYPE'] === '#shared#' || this.entry.data['EVENT_TYPE'] === '#shared_crm#') && this.entry.getCurrentStatus() !== false) {
 	      main_core.Dom.clean(this.DOM.videocallWrap);
 	      main_core.Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
-	      this.conferenceButton = main_core.Tag.render(_t$7 || (_t$7 = _$7`
+	      this.conferenceButton = main_core.Tag.render(_t$a || (_t$a = _$a`
 				<div class="calendar-text-link --gray">${0}</div>
 			`), main_core.Loc.getMessage('EC_CONFERENCE_START'));
 	      main_core.Event.bind(this.conferenceButton, 'click', this.handleVideoconferenceButtonClick.bind(this));
@@ -4088,6 +4131,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Dom.addClass(this.DOM.outerWrap, 'user-selector-edit-mode');
 	      this.planner.show();
 	      this.planner.showLoader();
+	      if (this.entry.isFullDay()) {
+	        this.planner.updateSelector(this.planner.currentFromDate, this.planner.currentToDate, true);
+	      }
 	    }
 	  }
 	  checkBusyTime() {
@@ -4265,9 +4311,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (user.SHARING_USER) {
 	        defaultAvatarClass += ' ui-icon-common-user-sharing';
 	      }
-	      imageNode = main_core.Tag.render(_t2$7 || (_t2$7 = _$7`<div title="${0}" class="ui-icon ${0}"><i></i></div>`), main_core.Text.encode(user.DISPLAY_NAME), defaultAvatarClass);
+	      imageNode = main_core.Tag.render(_t2$7 || (_t2$7 = _$a`<div title="${0}" class="ui-icon ${0}"><i></i></div>`), main_core.Text.encode(user.DISPLAY_NAME), defaultAvatarClass);
 	    } else {
-	      imageNode = main_core.Tag.render(_t3$6 || (_t3$6 = _$7`
+	      imageNode = main_core.Tag.render(_t3$6 || (_t3$6 = _$a`
 			<img
 				title="${0}"
 				class="calendar-member"
@@ -4390,6 +4436,33 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return null;
 	    });
 	  }
+	  setEditableSharingEventMode() {
+	    main_core.Dom.style(this.DOM.changeLink, 'display', 'inline-block');
+	    const clickAction = () => {
+	      if (main_core.Type.isFunction(this.openEditFormCallback())) {
+	        this.openEditFormCallback();
+	      }
+	    };
+	    main_core.Event.bind(this.DOM.changeLink, 'click', clickAction);
+	    if (this.attendeesPreselectedItems.length <= 2) {
+	      const hintPopup = new BX.PopupWindow('ui-hint-popup-' + +new Date(), this.DOM.changeLink, {
+	        darkMode: true,
+	        content: main_core.Loc.getMessage('EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'),
+	        angle: {
+	          position: 'top',
+	          offset: 50
+	        },
+	        autoHide: true,
+	        animation: {
+	          showClassName: "calendar-edit-sharing-events-feature-popup-animation-open",
+	          closeClassName: "calendar-edit-sharing-events-feature-popup-animation-close",
+	          closeAnimationType: "animation"
+	        }
+	      });
+	      setTimeout(() => hintPopup.show(), 500);
+	      setTimeout(() => hintPopup.close(), 5000);
+	    }
+	  }
 	}
 	UserPlannerSelector.VIEW_MODE = 'view';
 	UserPlannerSelector.EDIT_MODE = 'edit';
@@ -4465,8 +4538,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$8 = t => t,
-	  _t$8;
+	let _$b = t => t,
+	  _t$b;
 	class EmailSelectorControl extends main_core_events.EventEmitter {
 	  constructor(params) {
 	    super();
@@ -4475,7 +4548,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.setEventNamespace('BX.Calendar.Controls.EmailSelectorControl');
 	    this.DOM.select = params.selectNode;
 	    this.mailboxList = main_core.Type.isArray(params.mailboxList) ? params.mailboxList : [];
-	    this.DOM.componentWrap = this.DOM.select.parentNode.appendChild(main_core.Tag.render(_t$8 || (_t$8 = _$8`<div style="display: none;"></div>`)));
+	    this.DOM.componentWrap = this.DOM.select.parentNode.appendChild(main_core.Tag.render(_t$b || (_t$b = _$b`<div style="display: none;"></div>`)));
 	    this.allowAddNewEmail = params.allowAddNewEmail;
 	    this.checkValueDebounce = main_core.Runtime.debounce(this.checkValue, 50, this);
 	    this.create();
@@ -4577,8 +4650,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$9 = t => t,
-	  _t$9;
+	let _$c = t => t,
+	  _t$c;
 	class ConfirmedEmailDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -4590,7 +4663,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.id = 'confirm-email-dialog-' + Math.round(Math.random() * 10000);
 	  }
 	  show() {
-	    this.DOM.content = main_core.Tag.render(_t$9 || (_t$9 = _$9`<div>
+	    this.DOM.content = main_core.Tag.render(_t$c || (_t$c = _$c`<div>
 			<div class="calendar-confirm-email-text">${0}</div>
 			<div class="calendar-confirm-email-text"><a class="calendar-confirm-email-help-link" href="javascript:void(0);">${0}</a></div>
 			<div class="calendar-field-block">
@@ -4685,8 +4758,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$a = t => t,
-	  _t$a;
+	let _$d = t => t,
+	  _t$d;
 	class EmailLimitationDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -4708,7 +4781,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.text = main_core.Loc.getMessage('EC_EMAIL_LIMIT_DENY');
 	    }
 	    this.subText = main_core.Loc.getMessage('EC_EMAIL_LIMIT_SUBTEXT');
-	    this.DOM.content = main_core.Tag.render(_t$a || (_t$a = _$a`<div>
+	    this.DOM.content = main_core.Tag.render(_t$d || (_t$d = _$d`<div>
 			<div class="calendar-email-limit-text">${0}</div>
 			<div class="calendar-email-limit-subtext">${0}</div>
 		</div>`), this.text, this.subText);
@@ -4972,5 +5045,5 @@ this.BX.Calendar = this.BX.Calendar || {};
 	exports.AttendeesList = AttendeesList;
 	exports.IntranetButton = IntranetButton;
 
-}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX.Calendar,BX.Calendar,BX,BX.Calendar,BX.Calendar,BX.UI.EntitySelector,BX.Event,BX.Main,BX.Calendar.Controls,BX.Intranet,BX,BX.Calendar));
+}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX.Calendar,BX.Calendar,BX,BX.Calendar,BX.UI.Dialogs,BX.UI,BX.Calendar,BX.UI.EntitySelector,BX.Event,BX.Main,BX.Calendar.Controls,BX.Intranet,BX,BX.Calendar));
 //# sourceMappingURL=controls.bundle.js.map

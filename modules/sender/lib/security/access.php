@@ -198,7 +198,7 @@ class Access
 	}
 
 	/**
-	 * Return true if can modify letters.
+	 * Return true if user can modify letters.
 	 *
 	 * @return bool
 	 * @throws ArgumentException

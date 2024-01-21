@@ -43,9 +43,12 @@ $io = CBXVirtualIo::GetInstance();
 
 $bVarsFromForm = false;	// if 'true' - we will get content  and variables from form, if 'false' - from saved file
 $bSessIDRefresh = false;	// флаг, указывающий, нужно ли обновлять ид сессии на клиенте
-$editor_name = ($_REQUEST['editor_name'] ?? 'filesrc_pub');
+$editor_name = $_REQUEST['editor_name'] ?? 'filesrc_pub';
+$filename = $_REQUEST['filename'] ?? '';
+$new = $_REQUEST['new'] ?? '';
+$template = $_REQUEST['template'] ?? '';
 
-if (!empty($filename) && ($mess = CFileMan::CheckFileName($filename)) !== true)
+if ($filename != '' && ($mess = CFileMan::CheckFileName($filename)) !== true)
 {
 	$filename2 = $filename;
 	$filename = '';

@@ -681,6 +681,15 @@
 			this.data.DT_SKIP_TIME = this.data.SKIP_TIME ? 'Y' : 'N';
 		}
 
+		if (!BX.Type.isString(this.data.NAME))
+		{
+			this.data.NAME = BX.message('EC_DEFAULT_ENTRY_NAME');
+		}
+		else
+		{
+			this.data.NAME = this.data.NAME.replaceAll(/\r\n|\r|\n/g, ' ');
+		}
+
 		this.fullDay = data.DT_SKIP_TIME === 'Y';
 		this.parentId = data.PARENT_ID || 0;
 		this.accessibility = data.ACCESSIBILITY;
@@ -926,7 +935,7 @@
 
 		isLongWithTime: function()
 		{
-			return !this.fullDay && this.calendar.util.getDayCode(this.from) != this.calendar.util.getDayCode(this.to);
+			return !this.fullDay && this.calendar.util.getDayCode(this.from) !== this.calendar.util.getDayCode(this.to);
 		},
 
 		isExpired: function()

@@ -188,7 +188,7 @@ class Handler extends Http\Handler
 		{
 			$result = $body->write($data);
 		}
-		catch (\RuntimeException $e)
+		catch (\RuntimeException)
 		{
 			return false;
 		}

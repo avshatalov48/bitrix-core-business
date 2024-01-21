@@ -326,6 +326,10 @@ class CAllSQLWhere
 					$FIELD_NAME = $this->fields[$key]["FIELD_NAME"];
 					$FIELD_TYPE = $this->fields[$key]["FIELD_TYPE"];
 					//Handle joins logic
+					if (!isset($this->c_joins[$key]))
+					{
+						$this->c_joins[$key] = 0;
+					}
 					$this->c_joins[$key]++;
 					if(
 						(

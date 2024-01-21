@@ -83,9 +83,9 @@ class FactoryComponents
 	private function getStandardComponent(?array $properties): StandardObservance
 	{
 		return StandardObservance::createInstance()
-				->setTzOffsetTo($properties['tzoffsetto'])
-				->setTzOffsetFrom($properties['tzoffsetfrom'])
-				->setDtStart($properties['dtstart']);
+				->setTzOffsetTo($properties['tzoffsetto'] ?? null)
+				->setTzOffsetFrom($properties['tzoffsetfrom'] ?? null)
+				->setDtStart($properties['dtstart'] ?? null);
 	}
 
 	/**
@@ -95,9 +95,9 @@ class FactoryComponents
 	private function getDaylightComponent(?array $properties): DaylightObservance
 	{
 		return DaylightObservance::createInstance()
-			->setTzOffsetTo($properties['tzoffsetto'])
-			->setTzOffsetFrom($properties['tzoffsetfrom'])
-			->setDtStart($properties['dtstart']);
+			->setTzOffsetTo($properties['tzoffsetto'] ?? null)
+			->setTzOffsetFrom($properties['tzoffsetfrom'] ?? null)
+			->setDtStart($properties['dtstart'] ?? null);
 	}
 
 	/**
@@ -110,10 +110,10 @@ class FactoryComponents
 		/** @var ParserPropertyType[] $properties */
 		$name = isset($properties['name']) ? $properties['name']->getValue() : 'Outer Calendar';
 		return  (Calendar::createInstance($name))
-			->setMethod($properties['method'])
-			->setProdId($properties['prodid'])
-			->setCalScale($properties['calscale'])
-			->setVersion($properties['version'])
+			->setMethod($properties['method'] ?? null)
+			->setProdId($properties['prodid'] ?? null)
+			->setCalScale($properties['calscale'] ?? null)
+			->setVersion($properties['version'] ?? null)
 			->setSubComponents($subComponents);
 	}
 
@@ -131,23 +131,24 @@ class FactoryComponents
 			throw new IcalParserException("event identifier is not passed");
 		}
 		return (Event::createInstance($properties['uid']->getValue()))
-			->setStart($properties['dtstart'])
-			->setEnd($properties['dtend'])
-			->setDescription($properties['description'])
-			->setSummary($properties['summary'])
-			->setSequence($properties['sequence'])
-			->setCreated($properties['created'])
-			->setDTStamp($properties['dtstamp'])
-			->setLocation($properties['location'])
-			->setUrl($properties['url'])
-			->setRRule($properties['rrule'])
-			->setTransparent($properties['transp'])
-			->setCategories($properties['categories'])
-			->setOrganizer($properties['organizer'])
-			->setAttendees($properties['attendee'])
-			->setModified($properties['last-modified'])
-			->setStatus($properties['status'])
-			->setAttachment($properties['attach']);
+			->setStart($properties['dtstart'] ?? null)
+			->setEnd($properties['dtend'] ?? null)
+			->setDescription($properties['description'] ?? null)
+			->setSummary($properties['summary'] ?? null)
+			->setSequence($properties['sequence'] ?? null)
+			->setCreated($properties['created'] ?? null)
+			->setDTStamp($properties['dtstamp'] ?? null)
+			->setLocation($properties['location'] ?? null)
+			->setUrl($properties['url'] ?? null)
+			->setRRule($properties['rrule'] ?? null)
+			->setTransparent($properties['transp'] ?? null)
+			->setCategories($properties['categories'] ?? null)
+			->setOrganizer($properties['organizer'] ?? null)
+			->setAttendees($properties['attendee'] ?? null)
+			->setModified($properties['last-modified'] ?? null)
+			->setStatus($properties['status'] ?? null)
+			->setRecurrenceId($properties['recurrence-id'] ?? null)
+			->setAttachment($properties['attach'] ?? null);
 	}
 
 	/**
@@ -158,8 +159,8 @@ class FactoryComponents
 	private function getTimezoneComponent($properties, $subComponents): Timezone
 	{
 		return Timezone::createInstance()
-			->setTimezoneId($properties['tzid'])
-			->setTimezoneUrl($properties['tzurl'])
+			->setTimezoneId($properties['tzid'] ?? null)
+			->setTimezoneUrl($properties['tzurl'] ?? null)
 			->setSubComponents($subComponents);
 	}
 

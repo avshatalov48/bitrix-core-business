@@ -1,11 +1,16 @@
 <?php
 
+use Bitrix\Bizproc;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowDurationStatTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
 use Bitrix\Main;
 
 class CBPStateService extends CBPRuntimeService
 {
 	const COUNTERS_CACHE_TAG_PREFIX = 'b_bp_wfi_cnt_';
+
+	private array $cutDurationStatQueue = [];
 
 	public function setStateTitle($workflowId, $stateTitle)
 	{
@@ -134,8 +139,11 @@ class CBPStateService extends CBPRuntimeService
 			throw new Exception("workflowId");
 
 		$info = self::getWorkflowStateInfo($workflowId);
+
 		if (!empty($info['STARTED_BY']))
+		{
 			self::cleanRunningCountersCache($info['STARTED_BY']);
+		}
 
 		$DB->Query(
 			"DELETE FROM b_bp_workflow_permissions ".
@@ -146,6 +154,12 @@ class CBPStateService extends CBPRuntimeService
 			"DELETE FROM b_bp_workflow_state ".
 			"WHERE ID = '".$DB->ForSql($workflowId)."' "
 		);
+
+		$users = WorkflowUserTable::deleteByWorkflow($workflowId);
+		if ($users)
+		{
+			Bizproc\Integration\Push\WorkflowPush::pushDeleted($workflowId, $users);
+		}
 	}
 
 	public function deleteAllDocumentWorkflows($documentId)
@@ -168,8 +182,14 @@ class CBPStateService extends CBPRuntimeService
 			{
 				ExecuteModuleEventEx($event, array($workflowId, $status));
 			}
-			//Clean workflow subscriptions
+
+			// Clean workflow subscriptions
 			\Bitrix\Bizproc\SchedulerEventTable::deleteByWorkflow($workflowId);
+
+			if ($info)
+			{
+				$this->fillWorkflowDurationStat($info, $status);
+			}
 		}
 	}
 
@@ -343,13 +363,15 @@ class CBPStateService extends CBPRuntimeService
 		global $DB;
 
 		$workflowId = trim($workflowId);
-		if ($workflowId == '')
-			throw new Exception("workflowId");
+		if ($workflowId === '')
+		{
+			throw new Exception('workflowId');
+		}
 
 		$dbResult = $DB->Query(
 			"SELECT 
 				WS.ID, WS.STATE_TITLE, WS.MODULE_ID, WS.ENTITY, WS.DOCUMENT_ID, WI.STATUS, WS.STARTED_BY,
-				WS.WORKFLOW_TEMPLATE_ID, WT.NAME WORKFLOW_TEMPLATE_NAME ".
+				WS.WORKFLOW_TEMPLATE_ID, WT.NAME WORKFLOW_TEMPLATE_NAME, WS.STARTED ".
 			"FROM b_bp_workflow_state WS ".
 			"LEFT JOIN b_bp_workflow_instance WI ON (WS.ID = WI.ID) ".
 			"LEFT JOIN b_bp_workflow_template WT ON (WS.WORKFLOW_TEMPLATE_ID = WT.ID) ".
@@ -360,15 +382,16 @@ class CBPStateService extends CBPRuntimeService
 		$result = $dbResult->Fetch();
 		if ($result)
 		{
-			$state = array(
+			$state = [
 				'ID' => $result["ID"],
 				'WORKFLOW_TEMPLATE_ID' => $result['WORKFLOW_TEMPLATE_ID'],
 				'WORKFLOW_TEMPLATE_NAME' => $result['WORKFLOW_TEMPLATE_NAME'],
-				"STATE_TITLE" => $result["STATE_TITLE"],
-				"WORKFLOW_STATUS" => $result["STATUS"],
-				"DOCUMENT_ID" => array($result["MODULE_ID"], $result["ENTITY"], $result["DOCUMENT_ID"]),
-				"STARTED_BY" => $result["STARTED_BY"],
-			);
+				'STATE_TITLE' => $result['STATE_TITLE'],
+				'WORKFLOW_STATUS' => $result['STATUS'],
+				'DOCUMENT_ID' => [$result['MODULE_ID'], $result['ENTITY'], $result['DOCUMENT_ID']],
+				'STARTED_BY' => $result['STARTED_BY'],
+				'STARTED' => $result['STARTED'],
+			];
 		}
 
 		return $state;
@@ -474,7 +497,7 @@ class CBPStateService extends CBPRuntimeService
 		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		list($moduleId, $entity, $docId) = \CBPHelper::ParseDocumentId($documentId);
+		[$moduleId, $entity, $docId] = \CBPHelper::ParseDocumentId($documentId);
 
 		$connection->queryExecute(sprintf('DELETE P FROM b_bp_workflow_permissions P '
 			.'INNER JOIN b_bp_workflow_state S ON (P.WORKFLOW_ID = S.ID) '
@@ -755,6 +778,58 @@ class CBPStateService extends CBPRuntimeService
 		foreach ($users as $userId)
 		{
 			$cache->clean(self::COUNTERS_CACHE_TAG_PREFIX.$userId);
+		}
+	}
+
+	private function fillWorkflowDurationStat(array $workflowStateInfo, int $status)
+	{
+		$dateFormat = 'Y-m-d H:i:s';
+
+		if ($status === CBPWorkflowStatus::Completed && Main\Type\DateTime::isCorrect($workflowStateInfo['STARTED'], $dateFormat))
+		{
+			$templateId = (int)$workflowStateInfo['WORKFLOW_TEMPLATE_ID'];
+			$startedDate = new Main\Type\DateTime($workflowStateInfo['STARTED'], $dateFormat);
+
+			WorkflowDurationStatTable::add([
+				'WORKFLOW_ID' => (string)$workflowStateInfo['ID'],
+				'TEMPLATE_ID' => $templateId,
+				'DURATION' => (new Main\Type\DateTime())->getTimestamp() - $startedDate->getTimestamp(),
+			]);
+
+			$this->cutDurationStatQueue[$templateId] = true;
+			static $isAddedBackgroundJod = false;
+			if (!$isAddedBackgroundJod)
+			{
+				Main\Application::getInstance()->addBackgroundJob(
+					[$this, 'doBackgroundDurationStatCut'],
+					[],
+					Main\Application::JOB_PRIORITY_LOW - 10,
+				);
+				$isAddedBackgroundJod = true;
+			}
+		}
+	}
+
+	public function doBackgroundDurationStatCut()
+	{
+		global $DB;
+
+		$templateIds = array_keys($this->cutDurationStatQueue);
+		$this->cutDurationStatQueue = [];
+
+		foreach ($templateIds as $templateId)
+		{
+			$ids = WorkflowDurationStatTable::getOutdatedIds((int)$templateId);
+			if ($ids)
+			{
+				$DB->Query(
+					sprintf(
+						'DELETE FROM b_bp_workflow_duration_stat WHERE ID IN (%s)',
+						implode(',', $ids)
+					),
+					true
+				);
+			}
 		}
 	}
 }

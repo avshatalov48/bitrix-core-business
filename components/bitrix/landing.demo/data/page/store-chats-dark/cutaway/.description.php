@@ -22,7 +22,6 @@ return [
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-
 			'CSSBLOCK_USE' => 'Y',
 			'CSSBLOCK_CODE' => '.b24-widget-button-wrapper{display:none!important;}',
 		],
@@ -33,8 +32,6 @@ return [
 			1 => 'store-chats-dark/header',
 		],
 	],
-	
-	
 	'items' => [
 		'0' => [
 			'code' => '60.1.openlines_buttons',

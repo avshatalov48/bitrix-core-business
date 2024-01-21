@@ -2,19 +2,19 @@ import { Core } from 'im.v2.application.core';
 import { UserRole, RestMethod } from 'im.v2.const';
 import { runAction } from 'im.v2.lib.rest';
 
-import type { ImModelDialog } from 'im.v2.model';
+import type { ImModelChat } from 'im.v2.model';
 import type { PULL as Pull } from 'pull.client';
 
 const TAG_PREFIX = 'IM_PUBLIC_';
 
 export class PullWatchManager
 {
-	#dialog: ImModelDialog;
+	#dialog: ImModelChat;
 	#pullClient: Pull;
 
 	constructor(dialogId: string)
 	{
-		this.#dialog = Core.getStore().getters['dialogues/get'](dialogId);
+		this.#dialog = Core.getStore().getters['chats/get'](dialogId);
 		this.#pullClient = Core.getPullClient();
 	}
 
@@ -60,6 +60,6 @@ export class PullWatchManager
 
 	#isGuest(): boolean
 	{
-		return this.#dialog.role === UserRole.guest && this.#dialog.dialogId !== 'settings';
+		return this.#dialog?.role === UserRole.guest && this.#dialog?.dialogId !== 'settings';
 	}
 }

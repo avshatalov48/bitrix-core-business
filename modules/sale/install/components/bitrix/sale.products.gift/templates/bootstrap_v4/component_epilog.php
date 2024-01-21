@@ -29,7 +29,7 @@ if (!empty($templateData['TEMPLATE_LIBRARY']))
 	{
 		?>
 		<script>
-		  BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
+			BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
 		</script>
 		<?
 	}

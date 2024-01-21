@@ -13,15 +13,24 @@ Extension::load([
 
 global $APPLICATION;
 
-if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])): ?>
-<?php foreach($arResult['ERROR_MESSAGES'] as $error):?>
-	<div class="ui-alert ui-alert-danger" style="margin-bottom: 0px;">
-		<span class="ui-alert-message"><?= htmlspecialcharsbx($error) ?></span>
-	</div>
-<?php endforeach;?>
-<?php
+if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES']))
+{
+	$message = '';
+	foreach($arResult['ERROR_MESSAGES'] as $error)
+	{
+		$message .= htmlspecialcharsbx($error);
+	}
+
+	$APPLICATION->IncludeComponent(
+		'bitrix:ui.info.error',
+		'',
+		[
+			'TITLE' => $message,
+		]
+	);
+
 	return;
-endif;
+}
 
 $APPLICATION->SetTitle(\Bitrix\Main\Localization\Loc::getMessage('STORE_SALE_REPORT_PRODUCT_GRID_TITLE', ['#STORE_TITLE#' => $arResult['STORE_TITLE']]));
 

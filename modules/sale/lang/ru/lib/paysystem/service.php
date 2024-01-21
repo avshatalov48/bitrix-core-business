@@ -10,3 +10,4 @@ $MESS['SALE_PS_SERVICE_REQUEST_ERROR'] = 'Ошибка при получении
 $MESS["SALE_PS_SERVICE_ERROR_CONNECT_PS"] = "Ошибка подключения к платежной системе";
 $MESS["SALE_PS_SERVICE_ERROR_HOLD_IS_NOT_SUPPORTED"] = "Обработчик не поддерживает режим холдирования";
 $MESS["SALE_PS_SERVICE_ERROR_PARTIAL_CONFIRM_IS_NOT_SUPPORTED"] = "Обработчик не поддерживает режим холдирования с частичным подтверждением платежа";
+$MESS["SALE_PS_SERVICE_ERROR_ON_BEFORE_INITIATE_PAY"] = "Ошибка при попытке оплаты";

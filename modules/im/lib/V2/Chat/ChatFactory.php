@@ -12,6 +12,8 @@ class ChatFactory
 {
 	use ContextCustomer;
 
+	public const NON_CACHED_FIELDS = ['MESSAGE_COUNT', 'USER_COUNT', 'LAST_MESSAGE_ID'];
+
 	protected static self $instance;
 
 	private function __construct()
@@ -225,6 +227,10 @@ class ChatFactory
 				$chat = new CommentChat($params);
 				break;
 
+			case $type === Chat::IM_TYPE_COPILOT:
+				$chat = new CopilotChat($params);
+				break;
+
 			default:
 				$chat = new NullChat();
 				break;
@@ -381,7 +387,7 @@ class ChatFactory
 
 			if ($cachedChat !== false)
 			{
-				return $result->setResult($cachedChat);
+				return $result->setResult($this->filterNonCachedFields($cachedChat));
 			}
 
 			$chat = \Bitrix\Im\Model\ChatTable::getByPrimary((int)$params['CHAT_ID'])->fetch();
@@ -438,6 +444,16 @@ class ChatFactory
 		}
 
 		return $result;
+	}
+
+	private function filterNonCachedFields(array $chat): array
+	{
+		foreach (self::NON_CACHED_FIELDS as $key)
+		{
+			unset($chat[$key]);
+		}
+
+		return $chat;
 	}
 
 	//endregion
@@ -509,6 +525,9 @@ class ChatFactory
 					case Chat::IM_TYPE_OPEN_LINE:
 						$addResult = (new OpenLineChat())->add($params);
 						break;
+					case Chat::IM_TYPE_COPILOT:
+						$addResult = (new CopilotChat())->add($params);
+						break;
 					default:
 						$addResult->addError(new ChatError(ChatError::CREATION_ERROR));
 				}
@@ -543,7 +562,7 @@ class ChatFactory
 	{
 		$cacheSubDir = $id % 100;
 
-		return "/bx/imc/chatdata/4/{$cacheSubDir}/{$id}";
+		return "/bx/imc/chatdata/5/{$cacheSubDir}/{$id}";
 	}
 
 	//endregion

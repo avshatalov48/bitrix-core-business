@@ -9,7 +9,7 @@ namespace Bitrix\Perfmon\Sql;
 class Collection
 {
 	/** @var array[BaseObject]  */
-	private $list = array();
+	private $list = [];
 
 	/**
 	 * Add object into the tail of the collection.
@@ -49,7 +49,9 @@ class Collection
 		foreach ($this->list as $object)
 		{
 			if ($object->compareName($name) == 0)
+			{
 				return $object;
+			}
 		}
 		return null;
 	}
@@ -67,7 +69,9 @@ class Collection
 		foreach ($this->list as $i => $object)
 		{
 			if ($object->compareName($name) == 0)
+			{
 				return $i;
+			}
 		}
 		return null;
 	}
@@ -97,16 +101,16 @@ class Collection
 	 */
 	public function compare(Collection $targetList, $compareBody = true)
 	{
-		$difference = array();
+		$difference = [];
 		/** @var BaseObject $source */
 		foreach ($this->list as $source)
 		{
 			if (!$targetList->search($source->name))
 			{
-				$difference[] = array(
+				$difference[] = [
 					$source,
 					null,
-				);
+				];
 			}
 		}
 		/** @var BaseObject $target */
@@ -115,20 +119,20 @@ class Collection
 			$source = $this->search($target->name);
 			if (!$source)
 			{
-				$difference[] = array(
+				$difference[] = [
 					null,
 					$target,
-				);
+				];
 			}
 			elseif (
 				!$compareBody
 				|| $source->body !== $target->body
 			)
 			{
-				$difference[] = array(
+				$difference[] = [
 					$source,
 					$target,
-				);
+				];
 			}
 		}
 		return $difference;

@@ -87,8 +87,8 @@ abstract class EntityPropertyValue extends CollectableEntity
 				[
 					'select' => ['ID', 'NAME', 'VALUE', 'CODE', 'ORDER_PROPS_ID'],
 					'filter' => [
-						'ENTITY_ID' => $entity->getId(),
-						'ENTITY_TYPE' => static::getEntityType()
+						'=ENTITY_ID' => $entity->getId(),
+						'=ENTITY_TYPE' => static::getEntityType()
 					]
 				]
 			);
@@ -227,6 +227,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 					'@ENTITY_ID' => $tpLandingList,
 					'=ENTITY_TYPE' => OrderPropsRelationTable::ENTITY_TYPE_LANDING,
 				],
+				'cache' => ['ttl' => 86400],
 				'limit' => 1
 			]);
 
@@ -247,6 +248,7 @@ abstract class EntityPropertyValue extends CollectableEntity
 					'@ENTITY_ID' => $tpList,
 					'=ENTITY_TYPE' => OrderPropsRelationTable::ENTITY_TYPE_TRADING_PLATFORM
 				],
+				'cache' => ['ttl' => 86400],
 				'limit' => 1
 			]);
 

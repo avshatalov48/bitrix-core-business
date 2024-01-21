@@ -11,32 +11,30 @@ use Bitrix\Main\Loader;
 
 class UpdateStatus extends Base
 {
-	public function onAfterAction(Event $event)
+	public function onAfterAction(Event $event): void
 	{
 		$userId = (int)CurrentUser::get()->getId();
-		Application::getInstance()->addBackgroundJob(function () use ($userId) {
-			if (!$userId)
-			{
-				return false;
-			}
+		if (!$userId)
+		{
+			return;
+		}
 
-			\CIMContactList::SetOnline($userId);
+		\CIMContactList::SetOnline($userId);
 
-			if ($this->isMobile() && Loader::includeModule('mobile'))
-			{
-				\Bitrix\Mobile\User::setOnline($userId);
-			}
+		if ($this->isMobile() && Loader::includeModule('mobile'))
+		{
+			\Bitrix\Mobile\User::setOnline($userId);
+		}
 
-			if (!$this->isMobile())
-			{
-				\CIMStatus::Set($userId, Array('IDLE' => null));
-			}
+		if (!$this->isMobile())
+		{
+			\CIMStatus::Set($userId, Array('IDLE' => null));
+		}
 
-			if ($this->isDesktop())
-			{
-				\CIMMessenger::SetDesktopStatusOnline($userId);
-			}
-		});
+		if ($this->isDesktop())
+		{
+			\CIMMessenger::SetDesktopStatusOnline($userId);
+		}
 	}
 
 	private function isDesktop(): bool

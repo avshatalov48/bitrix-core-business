@@ -531,7 +531,10 @@ if ($APPLICATION->GetGroupRight("sale") == "W" || $discountView || $bViewAll)
 }
 /* Discounts End*/
 
-if ($boolStore || $bViewAll)
+if (
+	($boolStore || $bViewAll)
+	&& AccessController::getCurrent()->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS)
+)
 {
 	$arMenu = array(
 		"parent_menu" => "global_menu_store",

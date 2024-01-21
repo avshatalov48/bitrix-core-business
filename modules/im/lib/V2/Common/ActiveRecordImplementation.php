@@ -4,6 +4,8 @@ namespace Bitrix\Im\V2\Common;
 
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Entity;
+use Bitrix\Main\ORM\Fields\Relations\Relation;
 use Bitrix\Main\ORM\Objectify\EntityObject;
 use Bitrix\Im\Model\EO_Chat;
 use Bitrix\Im\Model\EO_Message;
@@ -11,6 +13,7 @@ use Bitrix\Im\Model\EO_MessageParam;
 use Bitrix\Im\V2\Error;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\RegistryEntry;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Implementation of the interface @see \Bitrix\Im\V2\ActiveRecord
@@ -196,28 +199,22 @@ trait ActiveRecordImplementation
 	protected function initByArray(array $source): Result
 	{
 		$result = new Result;
-		$fields = static::mirrorDataEntityFields();
+		$fieldsToFill = $source;
 
-		foreach ($fields as $offset => $field)
+		if ($this->hasPrimary($source))
 		{
-			if (isset($field['primary']))
+			[$ormFields, $fieldsToFill] = $this->separateFieldsOrmAndOther($source);
+			$result = $this->initByDataEntity(static::getDataClass()::getObjectClass()::wakeUp($ormFields));
+			if (!$result->isSuccess())
 			{
-				if (isset($source[$offset]))
-				{
-					/**
-					 * @var DataManager $dataClass
-					 * @var EntityObject $entityObjectClass
-					 */
-					$dataClass = static::getDataClass();
-					$entityObjectClass = $dataClass::getObjectClass();
-
-					return $this->initByDataEntity($entityObjectClass::wakeUp($source));
-				}
-				break;
+				return $result;
 			}
 		}
 
-		$this->fill($source);
+		if (!empty($fieldsToFill))
+		{
+			$this->fill($fieldsToFill);
+		}
 
 		if ($result->isSuccess() && $this->getPrimaryId())
 		{
@@ -225,6 +222,66 @@ trait ActiveRecordImplementation
 		}
 
 		return $result;
+	}
+
+	protected function hasPrimary(array $source): bool
+	{
+		$fields = static::mirrorDataEntityFields();
+
+		foreach ($source as $key => $value)
+		{
+			if (!isset($fields[$key]))
+			{
+				continue;
+			}
+
+			$field = isset($fields[$key]['alias']) ? $fields[$fields[$key]['alias']] : $fields[$key];
+
+			if (isset($field['primary']) && $field['primary'])
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	protected function separateFieldsOrmAndOther(array $source): array
+	{
+		$fields = static::mirrorDataEntityFields();
+		/** @var Entity $entity */
+		$entity = static::getDataClass()::getEntity();
+		$ormFields = [];
+		$otherFields = [];
+
+		foreach ($source as $key => $value)
+		{
+			if (!isset($fields[$key]))
+			{
+				continue;
+			}
+
+			$fieldName = $fields[$key]['alias'] ?? $key;
+
+			if ($entity->hasField($fieldName) && !($entity->getField($fieldName) instanceof Relation))
+			{
+				if (
+					$value !== null
+					&& $entity->getField($fieldName) instanceof \Bitrix\Main\ORM\Fields\DatetimeField
+					&& is_string($value)
+				)
+				{
+					$value = DateTime::tryParse($value) ?? DateTime::tryParse($value, 'Y-m-d H:i:s') ?? $value;
+				}
+				$ormFields[$fieldName] = $value;
+			}
+			else
+			{
+				$otherFields[$key] = $value;
+			}
+		}
+
+		return [$ormFields, $otherFields];
 	}
 
 	public function prepareFields(): Result
@@ -362,6 +419,10 @@ trait ActiveRecordImplementation
 		else
 		{
 			$this->isChanged = $state;
+		}
+		if ($this->isChanged)
+		{
+			$this->markedDrop = false;
 		}
 		return $this;
 	}

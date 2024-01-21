@@ -1,7 +1,6 @@
 <?php
 $MESS["MAIL_CLIENT_CONFIG_ACCESS"] = "Zugriffsrechte für Mailbox";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_ADD"] = "Hinzufügen";
-$MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT"] = "Geben Sie den Mitarbeitern die Zugriffsrechte für diese Mailbox, sodass sie die Nachrichten empfangen und darauf antworten können. Es ist ein einfacher Weg zu einer Plattform der gemeinsamen Arbeit für Ihre Vertriebsabteilung oder Ihr Helpdesk-Team.";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT_MSGVER_1"] = "Geben Sie den Mitarbeitern die Zugriffsrechte für diese Mailbox, sodass sie die Nachrichten empfangen und darauf antworten können. Es ist ein einfacher Weg zu einer Plattform der gemeinsamen Arbeit für Ihre Vertriebsabteilung oder Ihr Helpdesk-Team.";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_MORE"] = "Details";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CANCEL"] = "Abbrechen";
@@ -30,6 +29,8 @@ $MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_ERROR"] = "E-Mail ist nicht korrekt.
 $MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_SUCCESS"] = "E-Mail ist bestätigt.";
 $MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_TITLE_OFFICE365"] = "Bitte geben Sie die E-Mail-Adresse manuell ein (gemäß den Microsoft-Sicherheitsregeln)";
 $MESS["MAIL_CLIENT_CONFIG_EXT_SWITCH"] = "Erweiterte Einstellungen bearbeiten";
+$MESS["MAIL_CLIENT_CONFIG_ICAL_ACTIVE"] = "Termine zum Kalender automatisch hinzufügen";
+$MESS["MAIL_CLIENT_CONFIG_ICAL_OPTIONS"] = "Integration mit Kalender";
 $MESS["MAIL_CLIENT_CONFIG_IMAP"] = "Daten für Verbindung";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE"] = "Nachrichten für #AGE# holen";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_1"] = "1 Tag";
@@ -39,6 +40,8 @@ $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_60"] = "2 Monate";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_90"] = "3 Monate";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_I"] = "die ganze Zeit";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT"] = "Fehler der Authentifizierung. Stellen Sie bitte sicher, dass Ihre Login und Passwort korrekt sind.<br>Beachten Sie, dass Sie ein spezielles Integrationspasswort nutzen müssen, wenn Sie die Passwörter der Apps verwenden oder wenn die Zwei-Faktor-Authentifizierung aktiviert ist.";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH"] = "Authentifizierung auf dem externen Server für eingehende E-Mails ist fehlgeschlagen. Stellen Sie sicher, dass der Nutzer mit dieser E-Mail auf diesem Server existiert. Werden Ihre E-Mail-Konten von Ihrem Administrator verwaltet, sollten Sie sich an ihn wenden.";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH_SMTP"] = "Authentifizierung auf dem externen Server für ausgehende E-Mails ist fehlgeschlagen. Stellen Sie sicher, dass der E-Mail-Server das Senden von E-Mails über SMTP erlaubt, oder versuchen Sie es, die Option \"Über externes SMTP senden\" zu deaktivieren. Werden Ihre E-Mail-Konten von Ihrem Administrator verwaltet, sollten Sie sich an ihn wenden.";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS"] = "Ordner konfigurieren";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS_BTN_CANCEL"] = "Abbrechen";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS_BTN_SAVE"] = "Speichern";
@@ -106,4 +109,5 @@ In Ihrem aktuellen Tarif können #LIMIT# Mailboxen gemeinsam genutzt werden.";
 $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_TITLE"] = "Gemeinsam genutzte Mailboxen in Bitrix24";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM"] = "Soll das Mail-Konto deaktiviert werden?";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM_TEXT"] = "Möchten Sie dieses Mail-Konto wirklich löschen?";
-$MESS["MAIL_MAILBOX_TEMPORARY_ALERT_MSG_2"] = "Gmail-Integration ist vorübergehend nicht verfügbar. Der Service wird bald wieder verfügbar sein, wir bitten um Entschuldigung für etwaige Unannehmlichkeiten. In der Zwischenzeit können Sie einen anderen Mail-Service nutzen.";
+$MESS["MAIL_MAILBOX_SERVICE_NAME_IMAP"] = "E-Mail des Unternehmens";
+$MESS["MAIL_MAILBOX_SERVICE_NAME_YANDEX"] = "Yandex";

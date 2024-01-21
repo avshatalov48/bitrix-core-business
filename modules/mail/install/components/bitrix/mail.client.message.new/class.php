@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Mail;
+use Bitrix\Mail\Integration\AI;
 
 Loc::loadMessages(__DIR__ . '/../mail.client/class.php');
 
@@ -111,6 +112,7 @@ class CMailClientMessageNewComponent extends CBitrixComponent
 				return;
 			}
 
+			$message['ORIGINAL_SUBJECT'] = $message['SUBJECT'];
 			if (!empty($subjectPrefix))
 			{
 				$message['SUBJECT'] = preg_replace(
@@ -155,7 +157,13 @@ class CMailClientMessageNewComponent extends CBitrixComponent
 		$this->arResult['LAST_RCPT'] = Mail\Helper\Recipient::loadLastRcpt();
 
 		$this->arResult['EMAILS'] = array();//Mail\Helper\Recipient::loadMailContacts();
+		$this->arResult['COPILOT_PARAMS'] = self::prepareCopilotParams();
 
 		$this->includeComponentTemplate();
+	}
+
+	private static function prepareCopilotParams(): array
+	{
+		return AI\Settings::instance()->getMailCopilotParams(AI\Settings::MAIL_NEW_MESSAGE_CONTEXT_ID);
 	}
 }

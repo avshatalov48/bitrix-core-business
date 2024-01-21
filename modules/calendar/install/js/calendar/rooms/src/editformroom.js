@@ -159,7 +159,7 @@ export class EditFormRoom extends EditForm
 							<span class="calendar-list-slider-card-widget-title-text">
 								${Loc.getMessage('EC_SEC_SLIDER_SECTION_CAPACITY')}
 							</span>
-							<input type="number" class="calendar-field calendar-field-number" placeholder="0"/>
+							<input type="number" class="calendar-field calendar-field-number" placeholder="0" min="0" max="9999"/>
 						</div>
 					</div>
 				</div>

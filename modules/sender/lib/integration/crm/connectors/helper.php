@@ -376,11 +376,15 @@ class Helper
 		$column = $entityDbName ? 'CRM_ENTITY_ID' : 'ID';
 
 		$entityTypeName = $entityName ?? mb_strtoupper($query->getEntity()->getName());
+
+		$sqlHelper = Application::getConnection()->getSqlHelper();
+		$regexp = "'^imol\\\\|(" . implode('|', $codes) . ")'";
+
 		$filterImolSql = "SELECT FM.VALUE " .
 			"FROM b_crm_field_multi FM " .
 			"WHERE FM.ENTITY_ID = '$entityTypeName' AND FM.ELEMENT_ID = ?#.{$column} " .
 			"AND FM.TYPE_ID = 'IM' " .
-			"AND FM.VALUE NOT REGEXP '^imol\\\\|(" . implode('|', $codes) . ")' " .
+			"AND NOT {$sqlHelper->getRegexpOperator('FM.VALUE', $regexp)} " .
 			"ORDER BY FM.ID LIMIT 1";
 
 		return new SqlExpression($filterImolSql, $query->getInitAlias());

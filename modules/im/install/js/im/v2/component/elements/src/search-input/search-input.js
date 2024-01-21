@@ -1,4 +1,5 @@
 import { Utils } from 'im.v2.lib.utils';
+import { Spinner, SpinnerSize, SpinnerColor } from '../registry';
 
 import './search-input.css';
 
@@ -7,6 +8,9 @@ import type { JsonObject } from 'main.core';
 // @vue/component
 export const SearchInput = {
 	name: 'SearchInput',
+	components: {
+		Spinner,
+	},
 	props: {
 		placeholder: {
 			type: String,
@@ -19,6 +23,14 @@ export const SearchInput = {
 		withIcon: {
 			type: Boolean,
 			default: true,
+		},
+		withLoader: {
+			type: Boolean,
+			default: false,
+		},
+		isLoading: {
+			type: Boolean,
+			default: false,
 		},
 		delayForFocusOnStart: {
 			type: Number,
@@ -35,6 +47,8 @@ export const SearchInput = {
 	},
 	computed:
 	{
+		SpinnerSize: () => SpinnerSize,
+		SpinnerColor: () => SpinnerColor,
 		isEmptyQuery(): boolean
 		{
 			return this.query.length === 0;
@@ -124,7 +138,13 @@ export const SearchInput = {
 	},
 	template: `
 		<div class="bx-im-search-input__scope bx-im-search-input__container" :class="{'--has-focus': hasFocus}">
-			<div v-if="withIcon && !hasFocus" class="bx-im-search-input__search-icon"></div>
+			<div v-if="!isLoading" class="bx-im-search-input__search-icon"></div>
+			<Spinner 
+				v-if="withLoader && isLoading" 
+				:size="SpinnerSize.XXS" 
+				:color="SpinnerColor.grey" 
+				class="bx-im-search-input__loader"
+			/>
 			<input
 				@focus="onFocus"
 				@input="onInputUpdate"

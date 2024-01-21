@@ -1185,7 +1185,13 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	 */
 	protected function onAfterSave($isNew)
 	{
-		return;
+		if (
+			$this->getFields()->isChanged('DEDUCTED')
+			&& (!$isNew || $this->isShipped())
+		)
+		{
+			Internals\Catalog\Provider::changeProductBatchBalance($this);
+		}
 	}
 
 	/**

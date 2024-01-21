@@ -59,6 +59,8 @@ Loc::loadMessages(__FILE__);
 
 class SectionTable extends ORM\Data\DataManager
 {
+	private static array $oldValues = [];
+
 	/**
 	 * Returns DB table name for entity
 	 *
@@ -270,8 +272,23 @@ class SectionTable extends ORM\Data\DataManager
 		$section = $event->getParameter('object');
 
 		// save old fields
-		$oldValues = \CIBlockSection::GetList([], ["ID" => $section->getId(), "CHECK_PERMISSIONS" => "N"]);
-		$section->customData->set('RECOUNT_TREE_OLD_VALUES', $oldValues);
+		$row = static::getRow([
+			'select' => [
+				'ID',
+				'IBLOCK_ID',
+				'SORT',
+				'NAME',
+				'IBLOCK_SECTION_ID',
+				'LEFT_MARGIN',
+				'RIGHT_MARGIN',
+				'DEPTH_LEVEL',
+				'ACTIVE',
+			],
+			'filter' => [
+				'=ID' => $section->getId(),
+			],
+		]);
+		self::$oldValues = $row !== null ? $row : [];
 	}
 
 	public static function onAfterUpdate(Event $event)
@@ -284,7 +301,8 @@ class SectionTable extends ORM\Data\DataManager
 		\CIBlock::clearIblockTagCache($section->getIblockId());
 
 		// recount tree
-		\CIBlockSection::recountTreeAfterUpdate($section->collectValues(), $section->customData->get('RECOUNT_TREE_OLD_VALUES'));
+		\CIBlockSection::recountTreeAfterUpdate($section->collectValues(), self::$oldValues);
+		self::$oldValues = [];
 	}
 
 	public static function onDelete(Event $event)

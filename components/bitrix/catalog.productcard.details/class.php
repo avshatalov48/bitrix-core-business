@@ -13,6 +13,7 @@ use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Config\Feature;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\Restriction\ToolAvailabilityManager;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\Dependency;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
@@ -844,6 +845,7 @@ class CatalogProductDetailsComponent
 		$this->arResult['HIDDEN_FIELDS'] = $this->getForm()->getHiddenFields();
 		$this->arResult['IS_WITH_ORDERS_MODE'] = Loader::includeModule('crm') && \CCrmSaleHelper::isWithOrdersMode();
 		$this->arResult['IS_INVENTORY_MANAGEMENT_USED'] = UseStore::isUsed();
+		$this->arResult['IS_INVENTORY_MANAGEMENT_TOOL_ENABLED'] = ToolAvailabilityManager::getInstance()->checkInventoryManagementAvailability();
 
 		$this->arResult['CREATE_DOCUMENT_BUTTON'] = $this->getCreateDocumentButton();
 
@@ -888,15 +890,24 @@ class CatalogProductDetailsComponent
 			return null;
 		}
 
-		$row = reset($popupItems);
+		$mainButton = [
+			'text' => Loc::getMessage('CPD_CREATE_DOCUMENT_BUTTON'),
+		];
+
+		if (ToolAvailabilityManager::getInstance()->checkInventoryManagementAvailability())
+		{
+			$row = reset($popupItems);
+			$mainButton['link'] = $row['link'];
+		}
+		else
+		{
+			$mainButton['click'] = 'BX.Catalog.ProductCard.openInventoryManagementToolDisabledSlider';
+		}
 
 		return [
 			'PARAMS' => [
 				'className' => 'ui-btn-primary',
-				'mainButton' => [
-					'text' => Loc::getMessage('CPD_CREATE_DOCUMENT_BUTTON'),
-					'link' => $row['link'],
-				],
+				'mainButton' => $mainButton,
 			],
 			'POPUP_ITEMS' => $popupItems,
 		];
@@ -947,6 +958,8 @@ class CatalogProductDetailsComponent
 			];
 		}
 
+		$isInventoryManagementAvailable = ToolAvailabilityManager::getInstance()->checkInventoryManagementAvailability();
+
 		foreach ($documents as $item)
 		{
 			$type = $item['type'];
@@ -962,25 +975,35 @@ class CatalogProductDetailsComponent
 				continue;
 			}
 
-			if ($type === StoreDocumentTable::TYPE_SALES_ORDERS)
+			if ($isInventoryManagementAvailable)
 			{
-				$link = new Uri('/shop/documents/details/sales_order/0/?DOCUMENT_TYPE=W&inventoryManagementSource=product');
-				$link->addParams([
-					'preselectedProductId' => $productId,
-					'focusedTab' => 'tab_products',
-				]);
+				if ($type === StoreDocumentTable::TYPE_SALES_ORDERS)
+				{
+					$link = new Uri('/shop/documents/details/sales_order/0/?DOCUMENT_TYPE=W&inventoryManagementSource=product');
+					$link->addParams([
+						'preselectedProductId' => $productId,
+						'focusedTab' => 'tab_products',
+					]);
+				}
+				else
+				{
+					$link = (clone $baseLink)->addParams([
+						'DOCUMENT_TYPE' => $type,
+					]);
+				}
+
+				$result[] = [
+					'text' => $item['text'],
+					'link' => (string)$link,
+				];
 			}
 			else
 			{
-				$link = (clone $baseLink)->addParams([
-					'DOCUMENT_TYPE' => $type,
-				]);
+				$result[] = [
+					'text' => $item['text'],
+					'onclick' => 'showInventoryManagementToolDisabledSlider',
+				];
 			}
-
-			$result[] = [
-				'text' => $item['text'],
-				'link' => (string)$link,
-			];
 		}
 
 		return $result;
@@ -1491,9 +1514,17 @@ class CatalogProductDetailsComponent
 
 			foreach ($propertyFields[BaseForm::MORE_PHOTO] as $key => $propertyField)
 			{
-				if (is_numeric($propertyField['VALUE']))
+				if (is_array($propertyField))
 				{
-					$value = (int)$propertyField['VALUE'];
+					$currentValue = $propertyField['VALUE'] ?? null;
+				}
+				else
+				{
+					$currentValue = $propertyField;
+				}
+				if (is_numeric($currentValue))
+				{
+					$value = (int)$currentValue;
 
 					if ($value === $previewPicture)
 					{
@@ -1750,6 +1781,30 @@ class CatalogProductDetailsComponent
 				}
 			}
 		}
+	}
+
+	public function loadAction(): ?array
+	{
+		if ($this->checkModules()
+			&& $this->checkBasePermissions()
+			&& $this->checkRequiredParameters()
+		)
+		{
+			$product = $this->getProduct();
+			if ($product)
+			{
+				$result = [
+					'ENTITY_ID' => $product->getId(),
+					'ENTITY_DATA' => $this->getEntityDataForResponse(),
+					// special edition
+					'ENTITY_FIELDS' => $this->getForm()->getDescriptions(),
+				];
+
+				return $result;
+			}
+		}
+
+		return null;
 	}
 
 	public function saveAction()

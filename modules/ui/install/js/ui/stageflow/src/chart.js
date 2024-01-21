@@ -1,6 +1,6 @@
 import {Text, Dom, Tag, Type, Loc} from 'main.core';
 import {Stage} from "./stage";
-import "./style.css";
+import "./css/style.css";
 
 import {MenuManager, Popup, PopupManager} from 'main.popup';
 
@@ -277,6 +277,9 @@ export class Chart
 		{
 			return;
 		}
+
+		this.hoverStageId = stage.getId();
+
 		for(let [id, currentStage] of this.stages)
 		{
 			currentStage.addBackLight(stage.getColor());
@@ -285,6 +288,8 @@ export class Chart
 				break;
 			}
 		}
+
+		this.increaseStageWidthForNameVisibility(stage);
 	}
 
 	onStageMouseLeave(stage: Stage)
@@ -293,6 +298,12 @@ export class Chart
 		{
 			return;
 		}
+
+		Dom.style(stage.node, {
+			flexBasis: null,
+			flexGrow: null,
+		})
+
 		for(let [id, currentStage] of this.stages)
 		{
 			currentStage.removeBackLight();
@@ -608,5 +619,18 @@ export class Chart
 		{
 			return this.labels.finalStagePopupFail;
 		}
+	}
+
+	increaseStageWidthForNameVisibility(stage: Stage): void
+	{
+		if (!stage.isNameCropped())
+		{
+			return
+		}
+
+		Dom.style(stage.node, {
+			flexGrow: 0,
+			flexBasis: `${stage.getMinWidthForFullNameVisibility()}px`,
+		})
 	}
 }

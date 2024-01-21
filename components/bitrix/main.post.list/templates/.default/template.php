@@ -26,6 +26,7 @@ UI\Extension::load([
 	'ui.urlpreview',
 	'socialnetwork.livefeed',
 	'popup',
+	'ui.icon-set.main'
 ]);
 
 $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css");
@@ -176,22 +177,25 @@ else
 		{
 			ob_start();
 
-			if ($arParams["PREORDER"] == "Y")
+			if ($arParams["PREORDER"] === "Y")
 			{
 				?><div id="record-<?=$prefixNode?>-hidden" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?php
 			}
 			?><div class="feed-com-header"><?php
 
-				$navStringCaption = ($arParams["PREORDER"] == "Y" ? Loc::getMessage('BLOG_C_VIEW1') : Loc::getMessage('BLOG_C_VIEW2'));
+				$navStringCaption = $arParams["PREORDER"] === "Y"
+					? Loc::getMessage('BLOG_C_VIEW1_MSGVER_1', ['#COMMENTS_COUNT#' => $arResult["NAV_STRING_COUNT_MORE"]])
+					: Loc::getMessage('BLOG_C_VIEW2_MSGVER_1', ['#COMMENTS_COUNT#' => $arResult["NAV_STRING_COUNT_MORE"]])
+				;
 				?><a class="feed-com-all" href="<?=$arParams["NAV_STRING"]?>"<?php
 					?> id="<?= $prefixNode ?>_page_nav" <?php
 					?> bx-mpl-comments-count="<?= $arResult["NAV_STRING_COUNT_MORE"] ?>"<?php
 					?> data-slider-ignore-autobinding="true"><?php
-					?><?= $navStringCaption ?> <span class="feed-com-all-count"><?= $arResult["NAV_STRING_COUNT_MORE"] ?></span><i></i><?php
+					?><?= $navStringCaption ?><i></i><?php
 				?></a><?php
 				?><span class="feed-com-loader-informer" id="<?= $prefixNode ?>_page_nav_loader" style="display:none;"><?= Loc::getMessage('BLOG_C_LOADING')?></span><?php
 			?></div><?php
-			if ($arParams["PREORDER"] != "Y")
+			if ($arParams["PREORDER"] !== "Y")
 			{
 				?><div id="record-<?=$prefixNode?>-hidden" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?php
 			}
@@ -203,8 +207,8 @@ else
 		}
 	}
 	$tmp = reset($arParams["RECORDS"]);
-	?><div class="feed-com-corner<?=($arParams["NAV_STRING"] === "" && $tmp["NEW"] == "Y" ? " feed-post-block-yellow-corner" : "")?>"></div><?php
-	if ($arParams["PREORDER"] != "Y")
+	?><div class="feed-com-corner<?=($arParams["NAV_STRING"] === "" && $tmp["NEW"] === "Y" ? " feed-post-block-yellow-corner" : "")?>"></div><?php
+	if ($arParams["PREORDER"] !== "Y")
 	{
 		?><?= $arParams["NAV_STRING"] ?><?php
 	}
@@ -232,13 +236,13 @@ else
 			<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>"
 				data-bx-collapse-role="show">
 				<a class="feed-com-collapsed-btn">
-					<?= Loc::getMessage('MPL_SHOW_COLLAPSED_COMMENTS')?> (#COLLAPSED_MESSAGES_COUNT#)
+					<?= Loc::getMessage('MPL_SHOW_COLLAPSED_COMMENTS_MSGVER_1')?>
 				</a>
 			</label>
 			<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>"
 				data-bx-collapse-role="hide">
 				<a class="feed-com-collapsed-btn">
-					<?= Loc::getMessage('MPL_HIDE_COLLAPSED_COMMENTS')?> (#COLLAPSED_MESSAGES_COUNT#)
+					<?= Loc::getMessage('MPL_HIDE_COLLAPSED_COMMENTS_MSGVER_1')?>
 				</a>
 			</label>
 			<div class="feed-com-collapsed-block">
@@ -281,7 +285,7 @@ else
 
 		$res["AUTHOR"] = (is_array($res["AUTHOR"]) ? $res["AUTHOR"] : array());
 		$isMessageBlank = !(array_key_exists("POST_MESSAGE_TEXT", $res) && $res["POST_MESSAGE_TEXT"] !== null);
-		$collapsedMessagesBlockIsCollapsed = ($res["NEW"] == "Y" || $res["ID"] == $arParams["RESULT"] ? false : $collapsedMessagesBlockIsCollapsed);
+		$collapsedMessagesBlockIsCollapsed = ($res["NEW"] === "Y" || $res["ID"] == $arParams["RESULT"] ? false : $collapsedMessagesBlockIsCollapsed);
 		?><div id="record-<?=$arParams["ENTITY_XML_ID"]?>-<?=$res["ID"]?>-cover" <?php
 			?>bx-mpl-xml-id="<?=$arParams["ENTITY_XML_ID"]?>" <?php
 			?>bx-mpl-entity-id="<?=$res["ID"]?>" <?php

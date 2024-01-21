@@ -1,0 +1,3 @@
+<?php
+$MESS['SOCIALNETWORK_SPACES_SPACE_PIN'] = 'Закрепить';
+$MESS['SOCIALNETWORK_SPACES_SPACE_UNPIN'] = 'Открепить';

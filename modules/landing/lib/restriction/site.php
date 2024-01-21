@@ -156,7 +156,7 @@ class Site
 			foreach ($templatesLimits as $code => $templateLimit)
 			{
 				if (
-					$templates[$code]
+					isset($templates[$code])
 					&& $templates[$code] > $templateLimit
 				)
 				{

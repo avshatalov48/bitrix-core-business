@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_component_navigation,im_v2_component_list_container_recent,im_v2_component_list_container_openline,im_v2_component_content_chat,im_v2_component_content_createChat,im_v2_component_content_openlines,im_v2_component_content_notification,im_v2_component_content_market,im_v2_component_content_settings,im_v2_lib_logger,im_v2_lib_init,im_v2_const,im_v2_lib_call,im_v2_lib_theme,im_v2_lib_desktop) {
+(function (exports,im_v2_component_navigation,im_v2_component_list_container_recent,im_v2_component_list_container_openline,im_v2_component_content_chat,im_v2_component_content_createChat,im_v2_component_content_openlines,im_v2_component_content_notification,im_v2_component_content_market,im_v2_component_content_settings,im_v2_component_list_container_copilot,im_v2_component_content_copilot,im_v2_lib_logger,im_v2_lib_init,im_v2_const,im_v2_lib_call,im_v2_lib_theme,im_v2_lib_desktop,im_v2_lib_layout) {
 	'use strict';
 
 	// @vue/component
@@ -17,7 +17,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    OpenlinesContent: im_v2_component_content_openlines.OpenlinesContent,
 	    NotificationContent: im_v2_component_content_notification.NotificationContent,
 	    MarketContent: im_v2_component_content_market.MarketContent,
-	    SettingsContent: im_v2_component_content_settings.SettingsContent
+	    SettingsContent: im_v2_component_content_settings.SettingsContent,
+	    CopilotListContainer: im_v2_component_list_container_copilot.CopilotListContainer,
+	    CopilotContent: im_v2_component_content_copilot.CopilotContent
 	  },
 	  data() {
 	    return {
@@ -38,15 +40,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    entityId() {
 	      return this.layout.entityId;
-	    },
-	    currentDialog() {
-	      return this.$store.getters['dialogues/get'](this.entityId, true);
-	    },
-	    isChat() {
-	      return this.layout.name === im_v2_const.Layout.chat.name;
-	    },
-	    isNotification() {
-	      return this.layout.name === im_v2_const.Layout.notification.name;
 	    },
 	    isOpenline() {
 	      return this.layout.name === im_v2_const.Layout.openlines.name;
@@ -75,29 +68,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  created() {
 	    im_v2_lib_init.InitManager.start();
+	    im_v2_lib_layout.LayoutManager.init();
 	    im_v2_lib_logger.Logger.warn('MessengerRoot created');
-	  },
-	  mounted() {
-	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
+	    this.getLayoutManager().restoreLastLayout();
 	  },
 	  beforeUnmount() {
-	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
+	    this.getLayoutManager().destroy();
 	  },
 	  methods: {
 	    onNavigationClick({
 	      layoutName,
 	      layoutEntityId
 	    }) {
-	      let entityId = '';
-	      const isChatNext = layoutName === im_v2_const.Layout.chat.name;
-	      const isMarketNext = layoutName === im_v2_const.Layout.market.name;
-	      if (isChatNext) {
-	        entityId = this.previouslySelectedChat;
-	      } else if (isMarketNext) {
-	        entityId = layoutEntityId;
+	      let entityId = layoutEntityId;
+	      const lastOpenedElement = this.getLayoutManager().getLastOpenedElement(layoutName);
+	      if (lastOpenedElement) {
+	        entityId = lastOpenedElement;
 	      }
-	      this.$store.dispatch('application/setLayout', {
-	        layoutName,
+	      this.getLayoutManager().setLayout({
+	        name: layoutName,
 	        entityId
 	      });
 	    },
@@ -105,28 +94,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      layoutName,
 	      entityId
 	    }) {
-	      this.saveLastOpenedChat(entityId);
-	      this.$store.dispatch('application/setLayout', {
-	        layoutName,
+	      this.getLayoutManager().setLayout({
+	        name: layoutName,
 	        entityId
 	      });
 	    },
-	    onGoToMessageContext(event) {
-	      const {
-	        dialogId,
-	        messageId
-	      } = event.getData();
-	      if (this.currentDialog.dialogId === dialogId) {
-	        return;
-	      }
-	      this.$store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.chat.name,
-	        entityId: dialogId,
-	        contextId: messageId
-	      });
-	    },
-	    saveLastOpenedChat(dialogId) {
-	      this.previouslySelectedChat = dialogId || '';
+	    getLayoutManager() {
+	      return im_v2_lib_layout.LayoutManager.getInstance();
 	    }
 	  },
 	  template: `
@@ -156,5 +130,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Messenger = Messenger;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Event,BX.Messenger.v2.Component,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Component,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=messenger.bundle.js.map

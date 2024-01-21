@@ -29,7 +29,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "add",
 	    value: function add(node) {
-	      if (!!node && node instanceof BX.Landing.Node) {
+	      if (!!node && node instanceof BX.Landing.Node.Base) {
 	        babelHelpers.get(babelHelpers.getPrototypeOf(NodeCollection.prototype), "add", this).call(this, node);
 	      }
 	    }

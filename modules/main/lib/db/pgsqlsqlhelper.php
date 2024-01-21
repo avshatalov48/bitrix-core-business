@@ -138,7 +138,8 @@ class PgsqlSqlHelper extends SqlHelper
 			"GG",
 			"G",
 			"TT",
-			"T"
+			"T",
+			"W",
 		);
 		static $replace = array(
 			"FMMonth",
@@ -146,7 +147,8 @@ class PgsqlSqlHelper extends SqlHelper
 			"HH12",
 			"FMHH12",
 			"PM",
-			"PM"
+			"PM",
+			"D",
 		);
 
 		$format = str_replace($search, $replace, $format);
@@ -190,7 +192,7 @@ class PgsqlSqlHelper extends SqlHelper
 	 */
 	public function getSha1Function($field)
 	{
-		return "encode(digest(" . $field . "::bytea, 'sha1'), 'hex')";
+		return "encode(digest(replace(" . $field . ", '\\', '\\\\')::bytea, 'sha1'), 'hex')";
 	}
 
 	/**
@@ -412,26 +414,28 @@ class PgsqlSqlHelper extends SqlHelper
 			case 'bigserial':
 			case 'serial8':
 				return (new ORM\Fields\IntegerField($name))->configureSize(8);
-			case 'smallint':
-			case 'int2':
-			case 'smallserial':
-			case 'serial2':
-				return (new ORM\Fields\IntegerField($name))->configureSize(2);
 			case 'integer':
 			case 'int':
 			case 'int4':
 			case 'serial':
 			case 'serial4':
 				return (new ORM\Fields\IntegerField($name))->configureSize(4);
+			case 'smallint':
+			case 'int2':
+			case 'smallserial':
+			case 'serial2':
+				return (new ORM\Fields\IntegerField($name))->configureSize(2);
 			case 'double precision':
 			case 'float4':
 			case 'float8':
 			case 'numeric':
+			case 'decimal':
 			case 'real':
 				return new ORM\Fields\FloatField($name);
-			case 'time':
 			case 'timestamp':
+			case 'timestamp without time zone':
 			case 'timestamptz':
+			case 'timestamp with time zone':
 				return new ORM\Fields\DatetimeField($name);
 			case 'date':
 				return new ORM\Fields\DateField($name);
@@ -588,9 +592,38 @@ class PgsqlSqlHelper extends SqlHelper
 
 		$sql = 'INSERT INTO ' . $this->quote($tableName) . ' (' . implode(',', array_map([$this, 'quote'], $selectFields)) . ') ';
 		$sql .= $select;
-		$sql .= ' ON CONFLICT (' . implode(',', array_map([$this, 'quote'], $primaryFields)) . ') DO UPDATE SET (' . implode(', ', $updateColumns) . ') = (' . implode(', ', $updateValues) . ')';
+		$sql .= ' ON CONFLICT (' . implode(',', array_map([$this, 'quote'], $primaryFields)) . ') DO UPDATE SET ';
+		if (count($updateColumns) === 1)
+		{
+			$sql .=  $updateColumns[0] . ' = ' . $updateValues[0];
+		}
+		else
+		{
+			$sql .= ' (' . implode(', ', $updateColumns) . ') = (' . implode(', ', $updateValues) . ')';
+		}
 
 		return $sql;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function prepareDeleteLimit($tableName, array $primaryFields, $where, array $order, $limit)
+	{
+		$primaryColumns = [];
+		foreach ($primaryFields as $columnName)
+		{
+			$primaryColumns[] = $this->quote($columnName);
+		}
+		$sqlPrimary = implode(', ', $primaryColumns);
+
+		$orderColumns = [];
+		foreach ($order as $columnName => $sort)
+		{
+			$orderColumns[] = $this->quote($columnName) . ' ' . $sort;
+		}
+		$sqlOrder = $orderColumns ? ' ORDER BY ' . implode(', ', $orderColumns) : '';
+		return 'DELETE FROM ' . $this->quote($tableName) . ' WHERE (' . $sqlPrimary . ') IN (SELECT ' . $sqlPrimary . ' FROM ' . $this->quote($tableName) . ' WHERE ' . $where . $sqlOrder . ' LIMIT ' . intval($limit) . ')';
 	}
 
 	public function initRowNumber($variableName)
@@ -620,5 +653,13 @@ class PgsqlSqlHelper extends SqlHelper
 		$dml .= 'WHERE ' . $where . "\n";
 
 		return $dml;
+	}
+
+	protected function getOrderByField(string $field, array $values, callable $callback, bool $quote = true): string
+	{
+		$field = $quote ? $this->quote($field) : $field;
+		$values = implode(',', array_map($callback, $values));
+
+		return "array_position(ARRAY[{$values}], {$field})";
 	}
 }

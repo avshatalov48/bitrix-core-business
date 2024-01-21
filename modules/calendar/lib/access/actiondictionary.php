@@ -15,6 +15,7 @@ class ActionDictionary
 
 		ACTION_EVENT_ADD = 'event_add',
 		ACTION_EVENT_EDIT = 'event_edit',
+		ACTION_EVENT_DELETE = 'event_delete',
 		ACTION_EVENT_VIEW_FULL = 'event_view_full',
 		ACTION_EVENT_VIEW_COMMENTS = 'event_view_comments',
 		ACTION_EVENT_VIEW_TIME = 'event_view_time',

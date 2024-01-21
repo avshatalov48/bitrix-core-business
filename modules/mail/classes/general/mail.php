@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Mail\Helper\MailContact;
+use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Text\Emoji;
@@ -1728,6 +1729,7 @@ class CAllMailMessage
 				'isStrippedTags' => $isStrippedTagsToBody,
 				'isOriginalEmptyBody' => $isOriginalEmptyBody,
 			),
+			MailMessageTable::FIELD_SANITIZE_ON_VIEW => (int)($params[MailMessageTable::FIELD_SANITIZE_ON_VIEW] ?? 0)
 		);
 
 		if (
@@ -1867,12 +1869,37 @@ class CAllMailMessage
 
 			if ($message_body_html)
 			{
-				Ini::adjustPcreBacktrackLimit(strlen($message_body_html)*2);
+				if (isset($params[MailMessageTable::FIELD_SANITIZE_ON_VIEW])
+					&& $params[MailMessageTable::FIELD_SANITIZE_ON_VIEW])
+				{
+					$arFields['BODY_HTML'] = $message_body_html;
+				}
+				else
+				{
+					Ini::adjustPcreBacktrackLimit(strlen($message_body_html)*2);
 
-				$msg = array(
-					'html'        => $message_body_html,
-					'attachments' => array(),
-				);
+					$msg = array(
+						'html'        => $message_body_html,
+						'attachments' => array(),
+					);
+					foreach ($arMessageParts as $part)
+					{
+						if (!(is_array($part) && $part['ATTACHMENT-ID'] > 0))
+						{
+							continue;
+						}
+
+						$msg['attachments'][] = array(
+							'contentId' => $part['CONTENT-ID'],
+							'uniqueId'  => sprintf('attachment_%u', $part['ATTACHMENT-ID']),
+						);
+					}
+
+					$arFields['BODY_BB'] = \Bitrix\Mail\Message::parseMessage($msg);
+
+					$arFields['BODY_HTML'] = \Bitrix\Mail\Helper\Message::sanitizeHtml($message_body_html, true);
+				}
+
 				foreach ($arMessageParts as $part)
 				{
 					if (!(is_array($part) && $part['ATTACHMENT-ID'] > 0))
@@ -1880,31 +1907,12 @@ class CAllMailMessage
 						continue;
 					}
 
-					$msg['attachments'][] = array(
-						'contentId' => $part['CONTENT-ID'],
-						'uniqueId'  => sprintf('attachment_%u', $part['ATTACHMENT-ID']),
+					$arFields['BODY_HTML'] = \Bitrix\Mail\Helper\Message::replaceBodyInlineImgContentId(
+						(string)$arFields['BODY_HTML'],
+						(string)$part['CONTENT-ID'],
+						$part['ATTACHMENT-ID'],
 					);
 				}
-
-				$arFields['BODY_BB'] = \Bitrix\Mail\Message::parseMessage($msg);
-
-				$arFields['BODY_HTML'] = \Bitrix\Mail\Helper\Message::sanitizeHtml($message_body_html,false);
-
-				foreach ($arMessageParts as $part)
-				{
-					if (!(is_array($part) && $part['ATTACHMENT-ID'] > 0))
-					{
-						continue;
-					}
-
-					$arFields['BODY_HTML'] = preg_replace(
-						sprintf('/<img([^>]+)src\s*=\s*(\'|\")?\s*(http:\/\/cid:%s)\s*\2([^>]*)>/is', preg_quote($part['CONTENT-ID'], '/')),
-						sprintf('<img\1src="aid:%u"\4>', $part['ATTACHMENT-ID']),
-						$arFields['BODY_HTML']
-					);
-				}
-
-				$arFields['BODY_HTML'] = \Bitrix\Mail\Helper\Message::isolateMessageStyles($arFields['BODY_HTML']);
 
 				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']), $mailbox_id);
 			}
@@ -1954,10 +1962,12 @@ class CAllMailMessage
 
 				\Bitrix\Main\EventManager::getInstance()->removeEventHandler('mail', 'onBeforeUserFieldSave', $eventKey);
 
+				$icalAccess = isset($mailbox['OPTIONS']['ical_access']) && ($mailbox['OPTIONS']['ical_access'] === 'Y');
 				$event = new \Bitrix\Main\Event('mail', 'onMailMessageNew', [
-					'message'     => $arFields,
+					'message' => $arFields,
 					'attachments' => $arMessageParts,
-					'userId'      => isset($mailbox['USER_ID']) ? $mailbox['USER_ID'] : null,
+					'userId' => isset($mailbox['USER_ID']) ? $mailbox['USER_ID'] : null,
+					'icalAccess' => $icalAccess
 				]);
 				$event->send();
 

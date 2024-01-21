@@ -105,9 +105,12 @@ class RelationTable extends Entity\DataManager
 				'title' => Loc::getMessage('RELATION_ENTITY_UNREAD_ID_FIELD'),
 				'default' => 0
 			),
-			'LAST_SEND_ID' => array(
+			'LAST_SEND_ID' => array( /** @deprecated */
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('RELATION_ENTITY_LAST_SEND_ID_FIELD'),
+			),
+			'LAST_SEND_MESSAGE_ID' => array(
+				'data_type' => 'integer',
 			),
 			'LAST_FILE_ID' => array(
 				'data_type' => 'integer',

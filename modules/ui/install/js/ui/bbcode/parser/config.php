@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/parser.bundle.js',
 	'rel' => [
 		'main.core',
+		'ui.bbcode.model',
 	],
 	'skip_core' => false,
 ];

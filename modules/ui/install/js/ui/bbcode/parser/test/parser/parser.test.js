@@ -1,5 +1,5 @@
 import { Parser } from '../../src/parser';
-import { Node } from '../../src/bbom/node';
+import { Node } from 'ui.bbcode.model';
 
 const stripIndent = (source) => {
 	const lines = source.split('\n').slice(1, -1);

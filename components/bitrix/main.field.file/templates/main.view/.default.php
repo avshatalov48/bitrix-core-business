@@ -1,16 +1,28 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Text\HtmlFilter;
+
+/**
+ * @var array $arResult
+ */
 ?>
 
 <span class="fields file field-wrap">
 	<?php
 	foreach($arResult['value'] as $fileInfo)
 	{
+		$dataId = '';
+		if (isset($fileInfo['ID']))
+		{
+			$dataId = 'data-id="' . (int)$fileInfo['ID'] . '"';
+		}
 		?>
-		<span class="fields file field-item">
+		<span class="fields file field-item" <?= $dataId ?>>
 			<?php
 			if (!is_array($fileInfo))
 			{
@@ -45,12 +57,15 @@ use Bitrix\Main\Text\HtmlFilter;
 					$src = $fileInfo['SRC'];
 				}
 				?>
-				<a
-					href="<?= HtmlFilter::encode($src) ?>"
-					<?= ($arResult['targetBlank'] === 'Y' ? 'target="_blank"' : '') ?>
-				>
-					<?= HtmlFilter::encode($fileInfo['ORIGINAL_NAME']) ?>
-				</a> ( <?= \CFile::formatSize($fileInfo['FILE_SIZE']) ?>)
+				<span>
+					<a
+						href="<?= HtmlFilter::encode($src) ?>"
+						<?= ($arResult['targetBlank'] === 'Y' ? 'target="_blank"' : '') ?>
+					>
+						<?= HtmlFilter::encode($fileInfo['ORIGINAL_NAME']) ?>
+					</a>
+					(<?= \CFile::formatSize($fileInfo['FILE_SIZE']) ?>)
+				</span>
 			<?php
 			}
 			?>

@@ -9,7 +9,7 @@ use Bitrix\Iblock;
 
 class Element
 {
-	public static function renderSelector(array $property, array|int|null $values, array $config): string
+	public static function renderSelector(array $property, array|int|string|null $values, array $config): string
 	{
 		$rowId = trim((string)($config['ROW_ID'] ?? ''));
 		$fieldName = trim((string)($config['FIELD_NAME'] ?? ''));
@@ -47,13 +47,20 @@ class Element
 			$config['SEARCH_SUBTITLE'] = Loc::getMessage('IBLOCK_UI_INPUT_ELEMENT_SELECTOR_SEARCH_SUBTITLE');
 		}
 		// TODO: replace entityId value to constant
-		$config['ENTITY_ID'] = (string)($config['ENTITY_ID'] ?? 'iblock-element');
+		$config['ENTITY_ID'] = (string)($config['ENTITY_ID'] ?? 'iblock-property-element');
+
+		$config['CHANGE_EVENTS'] ??= [];
+		if (!is_array($config['CHANGE_EVENTS']))
+		{
+			$config['CHANGE_EVENTS'] = is_string($config['CHANGE_EVENTS']) ? [$config['CHANGE_EVENTS']] : [];
+		}
 
 		$config = \CUtil::PhpToJSObject(
 			[
 				'containerId' => $containerId,
 				'fieldName' => $fieldName . ($multiple ? '[]' : ''),
 				'multiple' => $multiple,
+				'collectionType' => 'int',
 				'selectedItems' => $values,
 				'iblockId' => (int)($property['LINK_IBLOCK_ID'] ?? 0),
 				'userType' => (string)($property['USER_TYPE'] ?? ''),
@@ -62,6 +69,7 @@ class Element
 					'title' => $config['SEARCH_TITLE'],
 					'subtitle' => $config['SEARCH_SUBTITLE'],
 				],
+				'changeEvents' => $config['CHANGE_EVENTS'],
 			],
 			false,
 			true,

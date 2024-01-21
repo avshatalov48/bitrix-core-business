@@ -5,15 +5,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Socialnetwork\Update\WorkgroupDeptSync;
 use Bitrix\Main\Grid\Panel;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Socialnetwork\Internals\Counter\CounterDictionary;
-use Bitrix\UI\Toolbar\ButtonLocation;
-use Bitrix\UI\Toolbar\Facade\Toolbar;
-use Bitrix\UI\Buttons;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -36,35 +32,15 @@ Extension::load([
 	'ui.fonts.opensans',
 ]);
 
-$toolbarId = mb_strtolower($arResult['GRID_ID']) . '_toolbar';
+if ($arParams['INCLUDE_TOOLBAR'])
+{
+	require_once __DIR__ . '/toolbar.php';
+}
 
-Toolbar::addFilter([
-	'GRID_ID' => $arResult['GRID_ID'],
-	'FILTER_ID' => $arResult['FILTER_ID'],
-	'FILTER' => $arResult['FILTER'],
-	'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
-	'RESET_TO_DEFAULT_MODE' => true,
-	'ENABLE_LIVE_SEARCH' => true,
-	'ENABLE_LABEL' => true,
-	'LAZY_LOAD' => [
-		'CONTROLLER' => [
-			'getList' => 'socialnetwork.filter.usertogroup.getlist',
-			'getField' => 'socialnetwork.filter.usertogroup.getfield',
-			'componentName' => 'socialnetwork.group.user.list',
-			'signedParameters' => ParameterSigner::signParameters('socialnetwork.group.user.list', [])
-		]
-	],
-	'CONFIG' => [
-		'AUTOFOCUS' => false,
-	],
-]);
-
-if (SITE_TEMPLATE_ID === 'bitrix24')
+if (SITE_TEMPLATE_ID === 'bitrix24' && $arParams['INCLUDE_COUNTERS_BELOW_TITLE'])
 {
 	$this->SetViewTarget('below_pagetitle');
 }
-
-$toolbarContainerNodeId = $toolbarId . '_container';
 
 $classList = [ 'sonet-group-user-list-toolbar-container' ];
 if ($arResult['GROUP_PERMS']['UserCanModifyGroup'])
@@ -94,56 +70,21 @@ if ($arResult['GROUP_PERMS']['UserCanModifyGroup'])
 	?>
 </div><?php
 
-if (SITE_TEMPLATE_ID === 'bitrix24')
+if (SITE_TEMPLATE_ID === 'bitrix24' && $arParams['INCLUDE_COUNTERS_BELOW_TITLE'])
 {
 	$this->EndViewTarget();
 }
 
-if (
-	isset($_REQUEST['IFRAME'])
-	&& $_REQUEST['IFRAME'] === 'Y'
-)
-{
-	Toolbar::deleteFavoriteStar();
-}
-
 if (SITE_TEMPLATE_ID === 'bitrix24')
 {
-	echo \Bitrix\Main\Update\Stepper::getHtml([ 'socialnetwork' => [ WorkgroupDeptSync::class ] ], Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_STEPPER_TITLE'));
-}
-
-if (!empty($arResult['TOOLBAR_BUTTONS']))
-{
-	foreach($arResult['TOOLBAR_BUTTONS'] as $button)
-	{
-		Toolbar::addButton([
-			'link' => $button['LINK'],
-			'color' => Buttons\Color::SUCCESS,
-			'text' => $button['TITLE'],
-			'click' => $button['CLICK'] ?? '',
-		], ButtonLocation::AFTER_TITLE);
-	}
+	echo \Bitrix\Main\Update\Stepper::getHtml(
+		[ 'socialnetwork' => [ WorkgroupDeptSync::class ] ],
+		Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_STEPPER_TITLE')
+	);
 }
 
 $gridContainerId = 'bx-sgul-' . $arResult['GRID_ID'] . '-container';
 
-$removeButton = [
-	'ICON' => '/bitrix/js/ui/actionpanel/images/ui_icon_actionpanel_remove.svg',
-	'TYPE' => Panel\Types::BUTTON,
-	'NAME' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_GROUP_ACTION_DELETE'),
-	'TEXT' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_GROUP_ACTION_DELETE'),
-	'VALUE' => 'delete',
-	'ONCHANGE' => [
-		[
-			'ACTION' => Panel\Actions::CALLBACK,
-			'DATA' => [
-				[
-					'JS' => "BX.Socialnetwork.WorkgroupUserList.Manager.getById('" . $arResult['GRID_ID'] . "').actionManagerInstance.groupDelete();",
-				],
-			],
-		],
-	],
-];
 
 ?><div class="bx-sgul-top-action-panel"></div><?php
 
@@ -171,7 +112,24 @@ $removeButton = [
 				'GROUPS' => [
 					[
 						'ITEMS' => [
-							$removeButton,
+							[
+								'ICON' => '/bitrix/js/ui/actionpanel/images/ui_icon_actionpanel_remove.svg',
+								'TYPE' => Panel\Types::BUTTON,
+								'NAME' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_GROUP_ACTION_DELETE'),
+								'TEXT' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_GROUP_ACTION_DELETE'),
+								'VALUE' => 'delete',
+								'ONCHANGE' => [
+									[
+										'ACTION' => Panel\Actions::CALLBACK,
+										'DATA' => [
+											[
+												'JS' => "BX.Socialnetwork.WorkgroupUserList.Manager.getById('"
+													. $arResult['GRID_ID'] . "').actionManagerInstance.groupDelete();",
+											],
+										],
+									],
+								],
+							]
 						],
 					],
 				]

@@ -190,7 +190,8 @@ export class EntryManager {
 					locationCapacity: options.locationCapacity || 0,
 					ownerId: options.ownerId,
 					userId: options.userId,
-					formDataValue: options.formDataValue || null
+					formDataValue: options.formDataValue || null,
+					jumpToControl: options.jumpToControl,
 				}
 			).show();
 		}
@@ -229,10 +230,6 @@ export class EntryManager {
 
 			const deleteHandler = () => {
 				const calendar = Util.getCalendarContext();
-				if (!calendar && !calendarContext)
-				{
-					return Util.getBX().reload();
-				}
 
 				if (calendar)
 				{

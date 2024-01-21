@@ -79,6 +79,11 @@ export class KeyChecker
 
 	#checkCombination(combination: string, exact: boolean = false): boolean
 	{
+		if (this.#event.isComposing)
+		{
+			return false;
+		}
+
 		if (!this.#checkModifiers(combination, exact))
 		{
 			return false;

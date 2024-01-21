@@ -22,6 +22,7 @@ return [
 		'im.v2.lib.desktop',
 		'im.v2.lib.promo',
 		'im.v2.lib.permission',
+		'im.v2.lib.update-state.manager',
 	],
 	'skip_core' => true,
 ];

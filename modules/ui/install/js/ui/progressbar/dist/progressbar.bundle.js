@@ -6,44 +6,39 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ProgressBarColor = function ProgressBarColor() {
-	  babelHelpers.classCallCheck(this, ProgressBarColor);
-	};
-	babelHelpers.defineProperty(ProgressBarColor, "NONE", "ui-progressbar-none");
-	babelHelpers.defineProperty(ProgressBarColor, "DANGER", "ui-progressbar-danger");
-	babelHelpers.defineProperty(ProgressBarColor, "SUCCESS", "ui-progressbar-success");
-	babelHelpers.defineProperty(ProgressBarColor, "PRIMARY", "ui-progressbar-primary");
-	babelHelpers.defineProperty(ProgressBarColor, "WARNING", "ui-progressbar-warning");
+	class ProgressBarColor {}
+	ProgressBarColor.NONE = "ui-progressbar-none";
+	ProgressBarColor.DANGER = "ui-progressbar-danger";
+	ProgressBarColor.SUCCESS = "ui-progressbar-success";
+	ProgressBarColor.PRIMARY = "ui-progressbar-primary";
+	ProgressBarColor.WARNING = "ui-progressbar-warning";
 
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ProgressBarSize = function ProgressBarSize() {
-	  babelHelpers.classCallCheck(this, ProgressBarSize);
-	};
-	babelHelpers.defineProperty(ProgressBarSize, "MEDIUM", "ui-progressbar-md");
-	babelHelpers.defineProperty(ProgressBarSize, "LARGE", "ui-progressbar-lg");
+	class ProgressBarSize {}
+	ProgressBarSize.MEDIUM = "ui-progressbar-md";
+	ProgressBarSize.LARGE = "ui-progressbar-lg";
 
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ProgressBarStatus = function ProgressBarStatus() {
-	  babelHelpers.classCallCheck(this, ProgressBarStatus);
-	};
-	babelHelpers.defineProperty(ProgressBarStatus, "COUNTER", "COUNTER");
-	babelHelpers.defineProperty(ProgressBarStatus, "PERCENT", "PERCENT");
-	babelHelpers.defineProperty(ProgressBarStatus, "NONE", "NONE");
+	class ProgressBarStatus {}
+	ProgressBarStatus.COUNTER = "COUNTER";
+	ProgressBarStatus.PERCENT = "PERCENT";
+	ProgressBarStatus.NONE = "NONE";
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
-	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var _setCustomColors = /*#__PURE__*/new WeakSet();
-	var ProgressBar = /*#__PURE__*/function () {
-	  function ProgressBar() {
-	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ProgressBarOptions;
-	    babelHelpers.classCallCheck(this, ProgressBar);
-	    _classPrivateMethodInitSpec(this, _setCustomColors);
+	let _ = t => t,
+	  _t,
+	  _t2,
+	  _t3,
+	  _t4;
+	var _setCustomColors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setCustomColors");
+	class ProgressBar {
+	  constructor(options = ProgressBarOptions) {
+	    Object.defineProperty(this, _setCustomColors, {
+	      value: _setCustomColors2
+	    });
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
 	    this.value = main_core.Type.isNumber(this.options.value) ? this.options.value : 0;
 	    this.maxValue = main_core.Type.isNumber(this.options.maxValue) ? this.options.maxValue : 100;
@@ -71,352 +66,313 @@ this.BX = this.BX || {};
 	  }
 
 	  //region Parameters
-	  babelHelpers.createClass(ProgressBar, [{
-	    key: "setValue",
-	    value: function setValue(value) {
-	      if (main_core.Type.isNumber(value)) {
-	        this.value = value > this.maxValue ? this.maxValue : value;
-	      }
-	      return this;
+	  setValue(value) {
+	    if (main_core.Type.isNumber(value)) {
+	      this.value = value > this.maxValue ? this.maxValue : value;
 	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      return this.value;
+	    return this;
+	  }
+	  getValue() {
+	    return this.value;
+	  }
+	  setMaxValue(value) {
+	    if (main_core.Type.isNumber(value)) {
+	      this.maxValue = value;
 	    }
-	  }, {
-	    key: "setMaxValue",
-	    value: function setMaxValue(value) {
-	      if (main_core.Type.isNumber(value)) {
-	        this.maxValue = value;
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "getMaxValue",
-	    value: function getMaxValue() {
-	      return this.maxValue;
-	    }
-	  }, {
-	    key: "finish",
-	    value: function finish() {
-	      this.update(this.maxValue);
-	    }
-	  }, {
-	    key: "isFinish",
-	    value: function isFinish() {
-	      return this.finished;
-	    }
-	  }, {
-	    key: "setColor",
-	    value: function setColor(color) {
-	      if (main_core.Type.isStringFilled(color)) {
-	        if (this.container === null) {
-	          this.createContainer();
-	        }
-	        main_core.Dom.removeClass(this.container, this.color);
-	        this.color = color;
-	        main_core.Dom.addClass(this.container, this.color);
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "setColorBar",
-	    value: function setColorBar(color) {
-	      if (main_core.Type.isStringFilled(color)) {
-	        this.colorBar = color;
-	        color = "--ui-current-bar-color:" + color + ";";
-	        _classPrivateMethodGet(this, _setCustomColors, _setCustomColors2).call(this, color);
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "setColorTrack",
-	    value: function setColorTrack(color) {
-	      if (main_core.Type.isStringFilled(color)) {
-	        this.colorTrack = color;
-	        this.setFill(true);
-	        color = "--ui-current-bar-bg-track-color:" + color + ";";
-	        _classPrivateMethodGet(this, _setCustomColors, _setCustomColors2).call(this, color);
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "setSize",
-	    value: function setSize(size) {
+	    return this;
+	  }
+	  getMaxValue() {
+	    return this.maxValue;
+	  }
+	  finish() {
+	    this.update(this.maxValue);
+	  }
+	  isFinish() {
+	    return this.finished;
+	  }
+	  setColor(color) {
+	    if (main_core.Type.isStringFilled(color)) {
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-	      if (main_core.Type.isStringFilled(size)) {
-	        main_core.Dom.removeClass(this.container, this.size);
-	        this.size = size;
-	        main_core.Dom.addClass(this.container, this.size);
-	      } else if (main_core.Type.isNumber(size)) {
-	        this.container.setAttribute('style', "--ui-current-bar-size:" + size + "px;");
-	        this.size = size;
-	      }
-	      return this;
+	      main_core.Dom.removeClass(this.container, this.color);
+	      this.color = color;
+	      main_core.Dom.addClass(this.container, this.color);
 	    }
-	  }, {
-	    key: "setFill",
-	    value: function setFill(fill) {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      if (fill) {
-	        main_core.Dom.addClass(this.container, "ui-progressbar-bg");
-	      } else {
-	        main_core.Dom.removeClass(this.container, "ui-progressbar-bg");
-	      }
-	      return this;
+	    return this;
+	  }
+	  setColorBar(color) {
+	    if (main_core.Type.isStringFilled(color)) {
+	      this.colorBar = color;
+	      color = "--ui-current-bar-color:" + color + ";";
+	      babelHelpers.classPrivateFieldLooseBase(this, _setCustomColors)[_setCustomColors](color);
 	    }
-	  }, {
-	    key: "setColumn",
-	    value: function setColumn(column) {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      if (column === true) {
-	        main_core.Dom.addClass(this.container, "ui-progressbar-column");
-	      } else {
-	        main_core.Dom.removeClass(this.container, "ui-progressbar-column");
-	      }
-	      return this;
-	    } //endregion
-	    //region Text
-	  }, {
-	    key: "setTextBefore",
-	    value: function setTextBefore(text) {
-	      if (main_core.Type.isStringFilled(text)) {
-	        this.textBefore = text;
-	        if (!this.textBeforeContainer) {
-	          this.createTextBefore(text);
-	        } else {
-	          main_core.Dom.adjust(this.textBeforeContainer, {
-	            html: text
-	          });
-	        }
-	      }
+	    return this;
+	  }
+	  setColorTrack(color) {
+	    if (main_core.Type.isStringFilled(color)) {
+	      this.colorTrack = color;
+	      this.setFill(true);
+	      color = "--ui-current-bar-bg-track-color:" + color + ";";
+	      babelHelpers.classPrivateFieldLooseBase(this, _setCustomColors)[_setCustomColors](color);
 	    }
-	  }, {
-	    key: "createTextBefore",
-	    value: function createTextBefore(text) {
-	      if (!this.textBeforeContainer && main_core.Type.isStringFilled(text)) {
-	        this.textBeforeContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-progressbar-text-before\">", "</div>\n\t\t\t"])), text);
-	      }
+	    return this;
+	  }
+	  setSize(size) {
+	    if (this.container === null) {
+	      this.createContainer();
 	    }
-	  }, {
-	    key: "getTextBefore",
-	    value: function getTextBefore() {
+	    if (main_core.Type.isStringFilled(size)) {
+	      main_core.Dom.removeClass(this.container, this.size);
+	      this.size = size;
+	      main_core.Dom.addClass(this.container, this.size);
+	    } else if (main_core.Type.isNumber(size)) {
+	      this.container.setAttribute('style', "--ui-current-bar-size:" + size + "px;");
+	      this.size = size;
+	    }
+	    return this;
+	  }
+	  setFill(fill) {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    if (fill) {
+	      main_core.Dom.addClass(this.container, "ui-progressbar-bg");
+	    } else {
+	      main_core.Dom.removeClass(this.container, "ui-progressbar-bg");
+	    }
+	    return this;
+	  }
+	  setColumn(column) {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    if (column === true) {
+	      main_core.Dom.addClass(this.container, "ui-progressbar-column");
+	    } else {
+	      main_core.Dom.removeClass(this.container, "ui-progressbar-column");
+	    }
+	    return this;
+	  }
+
+	  //endregion
+
+	  //region Text
+	  setTextBefore(text) {
+	    if (main_core.Type.isStringFilled(text)) {
+	      this.textBefore = text;
 	      if (!this.textBeforeContainer) {
-	        this.createTextBefore(this.textBefore);
-	      }
-	      return this.textBeforeContainer;
-	    }
-	  }, {
-	    key: "setTextAfter",
-	    value: function setTextAfter(text) {
-	      if (main_core.Type.isStringFilled(text)) {
-	        this.textAfter = text;
-	        if (!this.textAfterContainer) {
-	          this.createTextAfter(text);
-	        } else {
-	          main_core.Dom.adjust(this.textAfterContainer, {
-	            html: text
-	          });
-	        }
+	        this.createTextBefore(text);
+	      } else {
+	        main_core.Dom.adjust(this.textBeforeContainer, {
+	          html: text
+	        });
 	      }
 	    }
-	  }, {
-	    key: "createTextAfter",
-	    value: function createTextAfter(text) {
-	      if (!this.textAfterContainer && main_core.Type.isStringFilled(text)) {
-	        this.textAfterContainer = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-progressbar-text-after\">", "</div>\n\t\t\t"])), text);
-	      }
+	  }
+	  createTextBefore(text) {
+	    if (!this.textBeforeContainer && main_core.Type.isStringFilled(text)) {
+	      this.textBeforeContainer = main_core.Tag.render(_t || (_t = _`
+				<div class="ui-progressbar-text-before">${0}</div>
+			`), text);
 	    }
-	  }, {
-	    key: "getTextAfter",
-	    value: function getTextAfter() {
+	  }
+	  getTextBefore() {
+	    if (!this.textBeforeContainer) {
+	      this.createTextBefore(this.textBefore);
+	    }
+	    return this.textBeforeContainer;
+	  }
+	  setTextAfter(text) {
+	    if (main_core.Type.isStringFilled(text)) {
+	      this.textAfter = text;
 	      if (!this.textAfterContainer) {
-	        this.createTextAfter(this.textAfter);
+	        this.createTextAfter(text);
+	      } else {
+	        main_core.Dom.adjust(this.textAfterContainer, {
+	          html: text
+	        });
 	      }
-	      return this.textAfterContainer;
-	    } //endregion
-	    // region Status
-	  }, {
-	    key: "setStatus",
-	    value: function setStatus() {
+	    }
+	  }
+	  createTextAfter(text) {
+	    if (!this.textAfterContainer && main_core.Type.isStringFilled(text)) {
+	      this.textAfterContainer = main_core.Tag.render(_t2 || (_t2 = _`
+				<div class="ui-progressbar-text-after">${0}</div>
+			`), text);
+	    }
+	  }
+	  getTextAfter() {
+	    if (!this.textAfterContainer) {
+	      this.createTextAfter(this.textAfter);
+	    }
+	    return this.textAfterContainer;
+	  }
+
+	  //endregion
+
+	  // region Status
+	  setStatus() {
+	    if (this.getStatusType() === BX.UI.ProgressBar.Status.COUNTER) {
+	      main_core.Dom.adjust(this.status, {
+	        text: this.getStatusCounter()
+	      });
+	    } else if (this.getStatusType() === BX.UI.ProgressBar.Status.PERCENT) {
+	      main_core.Dom.adjust(this.status.firstChild, {
+	        text: this.getStatusPercent()
+	      });
+	    }
+	  }
+	  getStatus() {
+	    if (!this.status) {
 	      if (this.getStatusType() === BX.UI.ProgressBar.Status.COUNTER) {
-	        main_core.Dom.adjust(this.status, {
-	          text: this.getStatusCounter()
-	        });
+	        this.status = main_core.Tag.render(_t3 || (_t3 = _`
+					<div class="ui-progressbar-status">${0}</div>
+				`), this.getStatusCounter());
 	      } else if (this.getStatusType() === BX.UI.ProgressBar.Status.PERCENT) {
-	        main_core.Dom.adjust(this.status.firstChild, {
-	          text: this.getStatusPercent()
-	        });
-	      }
-	    }
-	  }, {
-	    key: "getStatus",
-	    value: function getStatus() {
-	      if (!this.status) {
-	        if (this.getStatusType() === BX.UI.ProgressBar.Status.COUNTER) {
-	          this.status = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-progressbar-status\">", "</div>\n\t\t\t\t"])), this.getStatusCounter());
-	        } else if (this.getStatusType() === BX.UI.ProgressBar.Status.PERCENT) {
-	          this.status = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-progressbar-status-percent\">\n\t\t\t\t\t\t<span class=\"ui-progressbar-status-percent-value\">", "</span>\n\t\t\t\t\t\t<span class=\"ui-progressbar-status-percent-sign\">%</span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getStatusPercent());
-	        } else {
-	          this.status = main_core.Dom.create("span", {});
-	        }
-	      }
-	      return this.status;
-	    }
-	  }, {
-	    key: "getStatusPercent",
-	    value: function getStatusPercent() {
-	      if (this.maxValue === 0) {
-	        return "0%";
-	      }
-	      this.statusPercent = Math.round(this.getValue() / (this.getMaxValue() / 100));
-	      if (this.statusPercent > 100) {
-	        this.statusPercent = 100;
-	      }
-	      return this.statusPercent;
-	    }
-	  }, {
-	    key: "getStatusCounter",
-	    value: function getStatusCounter() {
-	      if (Math.round(this.getValue()) > Math.round(this.getMaxValue())) {
-	        this.statusCounter = Math.round(this.getMaxValue()) + " / " + Math.round(this.getMaxValue());
+	        this.status = main_core.Tag.render(_t4 || (_t4 = _`
+					<div class="ui-progressbar-status-percent">
+						<span class="ui-progressbar-status-percent-value">${0}</span>
+						<span class="ui-progressbar-status-percent-sign">%</span>
+					</div>
+				`), this.getStatusPercent());
 	      } else {
-	        this.statusCounter = Math.round(this.getValue()) + " / " + Math.round(this.getMaxValue());
+	        this.status = main_core.Dom.create("span", {});
 	      }
-	      return this.statusCounter;
 	    }
-	  }, {
-	    key: "getStatusType",
-	    value: function getStatusType() {
-	      return this.statusType;
+	    return this.status;
+	  }
+	  getStatusPercent() {
+	    if (this.maxValue === 0) {
+	      return "0%";
 	    }
-	  }, {
-	    key: "setStatusType",
-	    value: function setStatusType(type) {
-	      if (main_core.Type.isStringFilled(type)) {
-	        this.statusType = type;
-	      }
-	    } //endregion
-	    // region ProgressBar
-	  }, {
-	    key: "createContainer",
-	    value: function createContainer() {
-	      if (this.container === null) {
-	        this.container = main_core.Dom.create("div", {
+	    this.statusPercent = Math.round(this.getValue() / (this.getMaxValue() / 100));
+	    if (this.statusPercent > 100) {
+	      this.statusPercent = 100;
+	    }
+	    return this.statusPercent;
+	  }
+	  getStatusCounter() {
+	    if (Math.round(this.getValue()) > Math.round(this.getMaxValue())) {
+	      this.statusCounter = Math.round(this.getMaxValue()) + " / " + Math.round(this.getMaxValue());
+	    } else {
+	      this.statusCounter = Math.round(this.getValue()) + " / " + Math.round(this.getMaxValue());
+	    }
+	    return this.statusCounter;
+	  }
+	  getStatusType() {
+	    return this.statusType;
+	  }
+	  setStatusType(type) {
+	    if (main_core.Type.isStringFilled(type)) {
+	      this.statusType = type;
+	    }
+	  }
+
+	  //endregion
+
+	  // region ProgressBar
+	  createContainer() {
+	    if (this.container === null) {
+	      this.container = main_core.Dom.create("div", {
+	        props: {
+	          className: "ui-progressbar"
+	        },
+	        children: [this.getTextAfter(), this.getTextBefore(), this.getStatus(), BX.create("div", {
 	          props: {
-	            className: "ui-progressbar"
+	            className: "ui-progressbar-track"
 	          },
-	          children: [this.getTextAfter(), this.getTextBefore(), this.getStatus(), BX.create("div", {
-	            props: {
-	              className: "ui-progressbar-track"
-	            },
-	            children: [this.getBar()]
-	          })]
-	        });
-	        this.setColor(this.color);
-	        this.setColumn(this.column);
-	        this.setSize(this.size);
-	        this.setFill(this.fill);
-	        this.setColorTrack(this.colorTrack);
-	        this.setColorBar(this.colorBar);
-	      }
+	          children: [this.getBar()]
+	        })]
+	      });
+	      this.setColor(this.color);
+	      this.setColumn(this.column);
+	      this.setSize(this.size);
+	      this.setFill(this.fill);
+	      this.setColorTrack(this.colorTrack);
+	      this.setColorBar(this.colorBar);
 	    }
-	  }, {
-	    key: "getBar",
-	    value: function getBar() {
-	      if (this.bar === null) {
-	        this.bar = main_core.Dom.create("div", {
-	          props: {
-	            className: "ui-progressbar-bar"
-	          },
-	          style: {
-	            width: "".concat(this.getStatusPercent(), "%")
-	          }
-	        });
-	      }
-	      return this.bar;
-	    }
-	  }, {
-	    key: "update",
-	    value: function update(value) {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      this.setValue(value);
-	      if (value >= this.maxValue) {
-	        setTimeout(function () {
-	          main_core.Dom.addClass(this.container, "ui-progressbar-finished");
-	        }.bind(this), 300);
-	        this.finished = true;
-	      } else {
-	        main_core.Dom.removeClass(this.container, "ui-progressbar-finished");
-	        this.finished = false;
-	      }
-	      this.setStatus();
-	      if (this.bar === null) {
-	        this.getBar();
-	      }
-	      main_core.Dom.adjust(this.bar, {
+	  }
+	  getBar() {
+	    if (this.bar === null) {
+	      this.bar = main_core.Dom.create("div", {
+	        props: {
+	          className: "ui-progressbar-bar"
+	        },
 	        style: {
-	          width: "".concat(this.getStatusPercent(), "%")
+	          width: `${this.getStatusPercent()}%`
 	        }
 	      });
-	    } //endregion
-	  }, {
-	    key: "getContainer",
-	    value: function getContainer() {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      return this.container;
 	    }
-	  }, {
-	    key: "renderTo",
-	    value: function renderTo(node) {
-	      if (main_core.Type.isDomNode(node)) {
-	        return node.appendChild(this.getContainer());
-	      }
-	      return null;
+	    return this.bar;
+	  }
+	  update(value) {
+	    if (this.container === null) {
+	      this.createContainer();
 	    }
-	  }, {
-	    key: "destroy",
-	    value: function destroy() {
-	      main_core.Dom.remove(this.container);
-	      this.container = null;
+	    this.setValue(value);
+	    if (value >= this.maxValue) {
+	      setTimeout(function () {
+	        main_core.Dom.addClass(this.container, "ui-progressbar-finished");
+	      }.bind(this), 300);
+	      this.finished = true;
+	    } else {
+	      main_core.Dom.removeClass(this.container, "ui-progressbar-finished");
 	      this.finished = false;
-	      this.textAfterContainer = null;
-	      this.textBeforeContainer = null;
-	      this.bar = null;
-	      for (var property in this) {
-	        if (this.hasOwnProperty(property)) {
-	          delete this[property];
-	        }
-	      }
-	      Object.setPrototypeOf(this, null);
 	    }
-	  }]);
-	  return ProgressBar;
-	}();
+	    this.setStatus();
+	    if (this.bar === null) {
+	      this.getBar();
+	    }
+	    main_core.Dom.adjust(this.bar, {
+	      style: {
+	        width: `${this.getStatusPercent()}%`
+	      }
+	    });
+	  }
+
+	  //endregion
+
+	  getContainer() {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    return this.container;
+	  }
+	  renderTo(node) {
+	    if (main_core.Type.isDomNode(node)) {
+	      return node.appendChild(this.getContainer());
+	    }
+	    return null;
+	  }
+	  destroy() {
+	    main_core.Dom.remove(this.container);
+	    this.container = null;
+	    this.finished = false;
+	    this.textAfterContainer = null;
+	    this.textBeforeContainer = null;
+	    this.bar = null;
+	    for (const property in this) {
+	      if (this.hasOwnProperty(property)) {
+	        delete this[property];
+	      }
+	    }
+	    Object.setPrototypeOf(this, null);
+	  }
+	}
 	function _setCustomColors2(value) {
 	  if (this.container === null) {
 	    this.createContainer();
 	  }
 	  this.setFill(false);
 	  this.setColor(BX.UI.ProgressBar.Color.NONE);
-	  var currentAttribute = this.container.getAttribute('style'),
+	  let currentAttribute = this.container.getAttribute('style'),
 	    customColorsValue = !currentAttribute ? value : currentAttribute + value;
 	  this.container.setAttribute('style', customColorsValue);
 	}
-	babelHelpers.defineProperty(ProgressBar, "Color", ProgressBarColor);
-	babelHelpers.defineProperty(ProgressBar, "Size", ProgressBarSize);
-	babelHelpers.defineProperty(ProgressBar, "Status", ProgressBarStatus);
+	ProgressBar.Color = ProgressBarColor;
+	ProgressBar.Size = ProgressBarSize;
+	ProgressBar.Status = ProgressBarStatus;
 
 	exports.ProgressBar = ProgressBar;
 

@@ -19,8 +19,8 @@ use Bitrix\Im\V2\Link\Task\TaskService;
 use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Relation;
-use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Im\V2\Result;
+use Bitrix\Im\V2\Sync;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -246,6 +246,13 @@ class DeleteService
 			'IS_DELETED' => 'Y'
 		]);
 		$this->message->save();
+		if (!$this->chat instanceof Chat\OpenLineChat)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::MESSAGE_ENTITY, $this->message->getId()),
+				fn () => $this->chat->getRelations()->getUserIds()
+			);
+		}
 
 		$this->sendPullMessage();
 
@@ -267,6 +274,13 @@ class DeleteService
 		$this->recountChat();
 		$this->sendPullMessage(true);
 		$this->message->delete();
+		if (!$this->chat instanceof Chat\OpenLineChat)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::COMPLETE_DELETE_EVENT, Sync\Event::MESSAGE_ENTITY, $this->message->getId()),
+				fn () => $this->chat->getRelations()->getUserIds()
+			);
+		}
 
 		return new Result();
 	}
@@ -602,15 +616,12 @@ class DeleteService
 	{
 		$this->lastMessageViewers ??= $this->chat->getLastMessageViewsByGroups();
 
-		foreach ($this->lastMessageViewers as $viewers)
+		if (isset($this->lastMessageViewers['USERS'][$userId]))
 		{
-			if (isset($viewers['USERS'][$userId]))
-			{
-				return Common::toJson($viewers['VIEW_INFO'] ?? []);
-			}
+			return Common::toJson($this->lastMessageViewers['FOR_VIEWERS'] ?? []);
 		}
 
-		return [];
+		return Common::toJson($this->lastMessageViewers['FOR_NOT_VIEWERS'] ?? []);
 	}
 
 	private function getPreviousMessageId(): int

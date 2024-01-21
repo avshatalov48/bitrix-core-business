@@ -246,7 +246,9 @@ class Event extends BasicComponent implements BuilderComponent
 					$attendee->getFullName(),
 					$attendee->getStatus(),
 					$attendee->getRole(),
-					$attendee->getCuType()
+					$attendee->getCuType(),
+					$attendee->getMailTo(),
+					$attendee->isRsvp()
 				);
 			}
 		}
@@ -267,7 +269,8 @@ class Event extends BasicComponent implements BuilderComponent
 			$organizer->getStatus(),
 			$organizer->getRole(),
 			$organizer->getCuType(),
-			$mailTo
+			$mailTo,
+			$organizer->isRsvp()
 		);
 
 		return $this;

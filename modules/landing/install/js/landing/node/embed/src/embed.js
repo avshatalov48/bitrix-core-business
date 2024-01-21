@@ -1,6 +1,6 @@
-import { Node } from 'landing.node';
+import { Base } from 'landing.node.base';
 
-export class Embed extends Node
+export class Embed extends Base
 {
 	constructor(options)
 	{

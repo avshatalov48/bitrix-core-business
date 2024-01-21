@@ -2,6 +2,10 @@
 
 namespace Bitrix\Socialnetwork\Internals\EventService;
 
+use Bitrix\Socialnetwork\Internals\EventService\Recepients\Recepient;
+use Bitrix\Socialnetwork\Internals\EventService\Recepients\RecepientCollection;
+use Bitrix\Socialnetwork\Internals\EventService\Recepients\SonetRightsRecepient;
+
 /**
  * Class Event
  *
@@ -10,182 +14,146 @@ namespace Bitrix\Socialnetwork\Internals\EventService;
 
 class Event
 {
-	/* @var string $type */
-	protected $type;
-	/* @var array $data */
-	protected $data = [];
+	protected int|null $eventId = null;
+	protected array $data = [];
 
-	/**
-	 * Event constructor.
-	 * @param string $type
-	 */
-	public function __construct(string $type = '')
+	public function __construct(
+		protected string $hitId,
+		protected string $type = ''
+	)
 	{
-		$this->type = $type;
+
 	}
 
-	/**
-	 * @param array $data
-	 * @return $this
-	 */
-	public function setData(array $data = []): self
+	public function setId(int $eventId): self
 	{
-		$this->data = $this->prepareData($data);
-		$this->collectOldData();
+		$this->eventId = $eventId;
 
 		return $this;
 	}
 
-	/**
-	 * @return string
-	 */
+	public function setData(array $data = []): self
+	{
+		$this->data = $this->prepareData($data);
+
+		return $this;
+	}
+
+	public function getId(): int|null
+	{
+		return $this->eventId;
+	}
+
 	public function getType(): string
 	{
 		return $this->type;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getData(): array
 	{
 		return $this->data;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getUserId(): int
 	{
-		$userId = 0;
-
-		switch ($this->type)
-		{
-			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
-			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$userId = (int) ($this->data['USER_ID'] ?? 0);
-				break;
-		}
-
-		return $userId;
+		return (int)($this->data['USER_ID'] ?? 0);
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getGroupId(): int
 	{
-		$groupId = 0;
-
-		switch ($this->type)
-		{
-			case EventDictionary::EVENT_WORKGROUP_ADD:
-			case EventDictionary::EVENT_WORKGROUP_BEFORE_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_DELETE:
-			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
-			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$groupId = (int) ($this->data['GROUP_ID'] ?? 0);
-				break;
-		}
-
-		return $groupId;
+		return (int)($this->data['GROUP_ID'] ?? 0);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getInitiatedByType(): string
+	public function getHash(): string
 	{
-		$initiatedByType = null;
-
-		switch ($this->type)
-		{
-			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
-			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$initiatedByType = $this->data['INITIATED_BY_TYPE'];
-				break;
-		}
-
-		return $initiatedByType;
+		return md5($this->hitId . $this->type . json_encode($this->data));
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getRelationKey(): string
-	{
-		$result = '';
-
-		switch ($this->type)
-		{
-			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
-			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$result = ($this->data['GROUP_ID'] ?? 0) . '_'. ($this->data['USER_ID'] ?? 0);
-				break;
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param array $data
-	 * @return array
-	 */
 	protected function prepareData(array $data = []): array
 	{
-		return [];
-	}
+		$validFields = [
+			'GROUP_ID',
+			'NAME',
+			'PROJECT_DATE_START',
+			'PROJECT_DATE_FINISH',
+			'IMAGE_ID',
+			'AVATAR_TYPE',
+			'OPENED',
+			'CLOSED',
+			'VISIBLE',
+			'PROJECT',
+			'KEYWORDS',
+			'USER_ID',
+			'TITLE',
+			'RECEPIENTS',
+			'SONET_LOG_ID',
+			'SONET_LOG_COMMENT_ID',
+			'FEATURE_ID',
+			'SPACE_ID',
+			'TYPE_ID',
+			'ENTITY_ID',
+		];
 
-	protected function getChanges($entityId): array
-	{
-		$oldFields = $this->getOldFields()[$entityId];
-		$newFields = $this->getNewFields()[$entityId];
-
-		$changes = [];
-
-		foreach ($newFields as $key => $value)
+		foreach ($data as $key => $row)
 		{
-			if (mb_strpos($key, '~') === 0)
+			if (!in_array($key, $validFields, true))
 			{
-				continue;
-			}
-
-			if (isset($oldFields[$key]) && $oldFields[$key] !== $value)
-			{
-				$changes[$key] = $value;
+				unset($data[$key]);
 			}
 		}
 
-		return $changes;
+		return $data;
 	}
 
-	protected function collectOldData(): void
+	public function getRecepients(): \Iterator
 	{
+		$eventType = $this->getType();
+		$data = $this->getData();
+
+		switch ($eventType)
+		{
+			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_VIEW:
+				return new RecepientCollection(...[new Recepient($data['USER_ID'])]);
+			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_ADD:
+			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_UPD:
+			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_DEL:
+			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_ADD:
+			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_UPD:
+			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_DEL:
+				return new SonetRightsRecepient($data['SONET_LOG_ID']);
+			default:
+				// in case recepient ids are defined
+				if (isset($data['RECEPIENTS']) && is_array($data['RECEPIENTS']))
+				{
+					$recepients = [];
+					foreach ($data['RECEPIENTS'] as $id)
+					{
+						$recepients[] = new Recepient($id);
+					}
+					return new RecepientCollection(...$recepients);
+				}
+
+				// in case there is one recepient
+				if (isset($data['USER_ID']))
+				{
+					return new RecepientCollection(...[new Recepient($data['USER_ID'])]);
+				}
+		}
+
+		return new RecepientCollection(...[]);
 	}
 
-	protected function collectNewData(): void
+	public function collectNewData(): void
 	{
+		return;
 	}
 
-	protected function setOldFields($oldFields): void
-	{
-	}
-
-	protected function getOldFields(): array
+	public function getOldFields(): array
 	{
 		return [];
 	}
 
-	protected function setNewFields($newFields): void
-	{
-	}
-
-	protected function getNewFields(): array
+	public function getNewFields(): array
 	{
 		return [];
 	}

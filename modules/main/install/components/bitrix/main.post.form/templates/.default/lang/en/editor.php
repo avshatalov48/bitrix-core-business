@@ -1,2 +1,2 @@
 <?php
-$MESS["MPF_COPILOT_BB_CODE"] = "Enable BB code mode";
+$MESS["MPF_COPILOT_BB_CODE"] = "Disable BB code mode";

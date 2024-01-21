@@ -189,6 +189,13 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 				'component' => $this,
 				'request' => $this->getRequest()
 			]);
+
+			if ($this->processorInstance->isSpace())
+			{
+				$this->processorInstance
+					->setUserId($this->arParams['SPACE_USER_ID'])
+					->setGroupId($this->arParams['GROUP_ID']);
+			}
 		}
 
 		return $this->processorInstance;
@@ -267,6 +274,8 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 
 		$params['SHOW_LOGIN'] = ($params['SHOW_LOGIN'] ?? 'Y');
 		$this->useLogin = ($params['SHOW_LOGIN'] !== 'N');
+
+		$params['CONTEXT'] = (is_string($params['CONTEXT'] ?? null) ? $params['CONTEXT'] : '');
 
 		$params['SHOW_UNREAD'] = ($USER->isAuthorized() && $params['LOG_ID'] <= 0 && $params['MODE'] !== 'LANDING' ? 'Y' : 'N');
 
@@ -622,6 +631,8 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 			$result['arLogTmpID'] = [];
 			return $returnResult;
 		}
+
+		$processorInstance->setListParamsKey('CHECK_RIGHTS', 'Y');
 
 		$res = \CSocNetLog::getList(
 			$processorInstance->getOrder(),

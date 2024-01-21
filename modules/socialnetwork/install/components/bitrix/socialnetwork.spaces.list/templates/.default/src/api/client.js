@@ -1,0 +1,99 @@
+import { ajax } from 'main.core';
+
+export type LoadSpacesFields = {
+	loadedSpacesCount: number,
+	mode: string,
+	searchString: string,
+};
+
+export type ReloadSpacesFields = {
+	mode: string,
+	selectedSpaceId: number,
+};
+
+export type SearchSpacesFields = {
+	loadedSpacesCount: number,
+	searchString: string,
+};
+
+export class Client
+{
+	static async loadSpaces(data: LoadSpacesFields): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'loadSpaces';
+
+		const response = await ajax.runComponentAction(componentName, actionName, {
+			mode: 'class',
+			data,
+		});
+
+		return response.data;
+	}
+
+	static async reloadSpaces(data: LoadSpacesFields): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'reloadSpaces';
+
+		const response = await ajax.runComponentAction(componentName, actionName, {
+			mode: 'class',
+			data,
+		});
+
+		return response.data;
+	}
+
+	static async searchSpaces(data: SearchSpacesFields): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'searchSpaces';
+
+		const response = await ajax.runComponentAction(componentName, actionName, {
+			mode: 'class',
+			data,
+		});
+
+		return response.data;
+	}
+
+	static async loadRecentSearchSpaces(): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'loadRecentSearchSpaces';
+
+		const response = await ajax.runComponentAction(componentName, actionName, { mode: 'class' });
+
+		return response.data;
+	}
+
+	static async addSpaceToRecentSearch(spaceId: number): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'addSpaceToRecentSearch';
+
+		const response = await ajax.runComponentAction(componentName, actionName, {
+			mode: 'class',
+			data: {
+				spaceId,
+			},
+		});
+
+		return response.data;
+	}
+
+	static async loadSpaceData(spaceId: number): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'loadSpaceData';
+
+		const response = await ajax.runComponentAction(componentName, actionName, {
+			mode: 'class',
+			data: {
+				spaceId,
+			},
+		});
+
+		return response.data;
+	}
+}

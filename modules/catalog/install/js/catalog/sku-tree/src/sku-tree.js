@@ -345,6 +345,7 @@ export class SkuTree extends EventEmitter
 							this.skuProperties.push(skuProperty);
 						}
 					}
+					EventEmitter.emit('BX.Catalog.SkuTree::onSkuLoaded', { id: this.id });
 				});
 		}
 

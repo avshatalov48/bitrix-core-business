@@ -30,9 +30,14 @@ $MESS['LANDING_HEADER_AND_BUTTONS_HEADERS_FORM_HIDE_SEPARATOR_FIELD_TITLE'] = '�
 $MESS['LANDING_HEADER_AND_BUTTONS_BUTTONS_FORM_TITLE'] = 'Кнопки';
 $MESS['LANDING_HEADER_AND_BUTTONS_BUTTONS_FORM_SEND_BUTTON_TITLE'] = 'Текст кнопки «Отправить»';
 
-$MESS['LANDING_HEADER_AND_BUTTONS_SHOW_SIGN'] = 'Показывать подпись';
-$MESS['LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN'] = 'Заряжено';
-$MESS['LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN_BY'] = 'Битрикс';
+$MESS['LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN_B_24'] = "
+	Показывать подпись
+	<span class='landing-ui-sign-container'>
+		<span class='landing-ui-sign'>Заряжено</span>
+		<span class='landing-ui-sign-in'>Битрикс</span>
+		<span class='landing-ui-sign-24'>24</span>
+	</span>"
+;
 
 $MESS['LANDING_HEADER_AND_BUTTONS_VARIABLE_NAME'] = 'Имя';
 $MESS['LANDING_HEADER_AND_BUTTONS_VARIABLE_LAST_NAME'] = 'Фамилия';
@@ -221,7 +226,17 @@ $MESS['LANDING_FORM_CALLBACK_WARNING_TEXT'] = 'Для использования
 
 $MESS['LANDING_FORM_EMBED_SHOW_SETTINGS_DESCRIPTION'] = 'Обратите внимание! Настройки применятся только после сохранения';
 $MESS['LANDING_FORM_ACTIONS_DELAY_TITLE'] = 'Пауза перед редиректом';
-$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM'] = 'сек.';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_0'] = '0 секунд';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_1'] = '1 секунда';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_2'] = '2 секунды';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_3'] = '3 секунды';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_4'] = '4 секунды';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_5'] = '5 секунд';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_6'] = '6 секунд';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_7'] = '7 секунд';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_8'] = '8 секунд';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_9'] = '9 секунд';
+$MESS['LANDING_FORM_ACTIONS_DELAY_ITEM_10'] = '10 секунд';
 
 $MESS['LANDING_SYNCHRONIZATION_POPUP_TITLE'] = 'Создание недостающих полей';
 $MESS['LANDING_SYNCHRONIZATION_POPUP_DESCRIPTION'] = 'В карточке {entityName} не хватает полей, в которые CRM-форма будет передавать данные.';
@@ -234,7 +249,7 @@ $MESS['LANDING_SYNCHRONIZATION_POPUP_OK_BUTTON_LABEL'] = 'Продолжить';
 $MESS['LANDING_CRM_ACCESS_ERROR_MESSAGE'] = 'Недостаточно прав на редактирование CRM-формы. Отправьте запрос на доступ администратору портала.';
 $MESS['LANDING_CRM_FORM_USER'] = 'Ответственный';
 $MESS['LANDING_CRM_FORM_LANGUAGE'] = 'Язык';
-$MESS['LANDING_CRM_FORM_ID'] = 'Идентификатор формы';
+$MESS['LANDING_CRM_FORM_ID_MSGVER_1'] = 'Идентификатор формы:';
 
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_HEADER'] = 'Модуль SEO не установлен';
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_FB_TEXT'] = 'Для корректной интеграции с «Facebook Lead Ads» необходимо установить модуль SEO';

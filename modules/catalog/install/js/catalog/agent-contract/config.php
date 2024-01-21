@@ -10,8 +10,7 @@ return [
 	'rel' => [
 		'main.core.events',
 		'main.core',
-		'main.popup',
-		'ui.buttons',
+		'ui.dialogs.messagebox',
 	],
 	'skip_core' => false,
 ];

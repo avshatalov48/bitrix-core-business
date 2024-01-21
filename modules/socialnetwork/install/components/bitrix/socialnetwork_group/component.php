@@ -17,6 +17,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Socialnetwork\Integration\Intranet\Settings;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -725,6 +726,20 @@ if ((int) ($arResult['VARIABLES']['group_id'] ?? 0) > 0)
 	}
 }
 
+if(!empty($arResult['groupFields']))
+{
+	$settings = new Settings();
+
+	$isProject = ($arResult['groupFields']['PROJECT'] ?? null) === 'Y';
+	$isScrum = ($arResult['groupFields']['SCRUM'] ?? null) === 'Y';
+	$isTaskContext = !empty($arVariables['task_id']) && !empty($arVariables['action']);
+	if (!$settings->isGroupAvailableByType($isProject, $isScrum) && !$isTaskContext)
+	{
+		$arResult['LIMIT_CODE'] = $settings->getGroupLimitCodeByType($isProject, $isScrum);
+		$this->includeComponentTemplate('tool-disabled');
+		return;
+	}
+}
 
 /********************************************************************
 				WebDav

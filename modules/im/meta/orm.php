@@ -131,6 +131,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Alias_Collection merge(?EO_Alias_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Alias_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\AliasTable */
@@ -463,6 +465,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_App_Collection merge(?EO_App_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_App_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\AppTable */
@@ -639,6 +643,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_AppLang_Collection merge(?EO_AppLang_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_AppLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\AppLangTable */
@@ -791,6 +797,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BlockUser_Collection merge(?EO_BlockUser_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BlockUser_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\BlockUserTable */
@@ -1135,6 +1143,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Bot_Collection merge(?EO_Bot_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Bot_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\BotTable */
@@ -1275,6 +1285,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BotChat_Collection merge(?EO_BotChat_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BotChat_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\BotChatTable */
@@ -1451,6 +1463,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_BotToken_Collection merge(?EO_BotToken_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_BotToken_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\BotTokenTable */
@@ -1723,6 +1737,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Call_Collection merge(?EO_Call_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Call_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\CallTable */
@@ -1917,6 +1933,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CallUser_Collection merge(?EO_CallUser_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CallUser_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\CallUserTable */
@@ -2396,6 +2414,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Chat_Collection merge(?EO_Chat_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Chat_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\ChatTable */
@@ -2536,6 +2556,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ChatIndex_Collection merge(?EO_ChatIndex_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ChatIndex_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\ChatIndexTable */
@@ -2739,6 +2761,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ChatPinnedMessage_Collection merge(?EO_ChatPinnedMessage_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ChatPinnedMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\ChatPinnedMessageTable */
@@ -2987,6 +3011,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Command_Collection merge(?EO_Command_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Command_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\CommandTable */
@@ -3151,6 +3177,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CommandLang_Collection merge(?EO_CommandLang_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CommandLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\CommandLangTable */
@@ -3352,6 +3380,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Conference_Collection merge(?EO_Conference_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Conference_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\ConferenceTable */
@@ -3486,6 +3516,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ConferenceUserRole_Collection merge(?EO_ConferenceUserRole_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ConferenceUserRole_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\ConferenceUserRoleTable */
@@ -3639,6 +3671,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ExternalAvatar_Collection merge(?EO_ExternalAvatar_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ExternalAvatar_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\ExternalAvatarTable */
@@ -3791,6 +3825,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_FileTemporary_Collection merge(?EO_FileTemporary_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_FileTemporary_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\FileTemporaryTable */
@@ -3981,6 +4017,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LastSearch_Collection merge(?EO_LastSearch_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LastSearch_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LastSearchTable */
@@ -4206,6 +4244,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkCalendar_Collection merge(?EO_LinkCalendar_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkCalendar_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkCalendarTable */
@@ -4336,6 +4376,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkCalendarIndex_Collection merge(?EO_LinkCalendarIndex_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkCalendarIndex_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkCalendarIndexTable */
@@ -4539,6 +4581,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkFavorite_Collection merge(?EO_LinkFavorite_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkFavorite_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkFavoriteTable */
@@ -4740,6 +4784,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkFile_Collection merge(?EO_LinkFile_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkFile_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkFileTable */
@@ -4943,6 +4989,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkPin_Collection merge(?EO_LinkPin_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkPin_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkPinTable */
@@ -5144,6 +5192,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkReminder_Collection merge(?EO_LinkReminder_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkReminder_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkReminderTable */
@@ -5359,6 +5409,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkTask_Collection merge(?EO_LinkTask_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkTask_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkTaskTable */
@@ -5611,6 +5663,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkUrl_Collection merge(?EO_LinkUrl_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkUrl_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkUrlTable */
@@ -5754,6 +5808,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LinkUrlIndex_Collection merge(?EO_LinkUrlIndex_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LinkUrlIndex_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\LinkUrlIndexTable */
@@ -5786,6 +5842,196 @@ namespace Bitrix\Im\Model {
 	 * @method \Bitrix\Im\Model\EO_LinkUrlIndex_Collection wakeUpCollection($rows)
 	 */
 	class EO_LinkUrlIndex_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Im\Model\LogTable:im\lib\model\log.php */
+namespace Bitrix\Im\Model {
+	/**
+	 * EO_Log
+	 * @see \Bitrix\Im\Model\LogTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Im\Model\EO_Log setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Im\Model\EO_Log setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Im\Model\EO_Log resetUserId()
+	 * @method \Bitrix\Im\Model\EO_Log unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Im\Model\EO_Log setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Im\Model\EO_Log resetEntityType()
+	 * @method \Bitrix\Im\Model\EO_Log unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Im\Model\EO_Log setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Im\Model\EO_Log resetEntityId()
+	 * @method \Bitrix\Im\Model\EO_Log unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \string getEvent()
+	 * @method \Bitrix\Im\Model\EO_Log setEvent(\string|\Bitrix\Main\DB\SqlExpression $event)
+	 * @method bool hasEvent()
+	 * @method bool isEventFilled()
+	 * @method bool isEventChanged()
+	 * @method \string remindActualEvent()
+	 * @method \string requireEvent()
+	 * @method \Bitrix\Im\Model\EO_Log resetEvent()
+	 * @method \Bitrix\Im\Model\EO_Log unsetEvent()
+	 * @method \string fillEvent()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Im\Model\EO_Log setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Im\Model\EO_Log resetDateCreate()
+	 * @method \Bitrix\Im\Model\EO_Log unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime getDateDelete()
+	 * @method \Bitrix\Im\Model\EO_Log setDateDelete(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateDelete)
+	 * @method bool hasDateDelete()
+	 * @method bool isDateDeleteFilled()
+	 * @method bool isDateDeleteChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateDelete()
+	 * @method \Bitrix\Main\Type\DateTime requireDateDelete()
+	 * @method \Bitrix\Im\Model\EO_Log resetDateDelete()
+	 * @method \Bitrix\Im\Model\EO_Log unsetDateDelete()
+	 * @method \Bitrix\Main\Type\DateTime fillDateDelete()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Im\Model\EO_Log set($fieldName, $value)
+	 * @method \Bitrix\Im\Model\EO_Log reset($fieldName)
+	 * @method \Bitrix\Im\Model\EO_Log unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Im\Model\EO_Log wakeUp($data)
+	 */
+	class EO_Log {
+		/* @var \Bitrix\Im\Model\LogTable */
+		static public $dataClass = '\Bitrix\Im\Model\LogTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Im\Model {
+	/**
+	 * EO_Log_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \string[] getEventList()
+	 * @method \string[] fillEvent()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateDeleteList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateDelete()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Im\Model\EO_Log $object)
+	 * @method bool has(\Bitrix\Im\Model\EO_Log $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Im\Model\EO_Log getByPrimary($primary)
+	 * @method \Bitrix\Im\Model\EO_Log[] getAll()
+	 * @method bool remove(\Bitrix\Im\Model\EO_Log $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Im\Model\EO_Log_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Im\Model\EO_Log current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_Log_Collection merge(?EO_Log_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_Log_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Im\Model\LogTable */
+		static public $dataClass = '\Bitrix\Im\Model\LogTable';
+	}
+}
+namespace Bitrix\Im\Model {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Log_Result exec()
+	 * @method \Bitrix\Im\Model\EO_Log fetchObject()
+	 * @method \Bitrix\Im\Model\EO_Log_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Log_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Im\Model\EO_Log fetchObject()
+	 * @method \Bitrix\Im\Model\EO_Log_Collection fetchCollection()
+	 */
+	class EO_Log_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Im\Model\EO_Log createObject($setDefaultValues = true)
+	 * @method \Bitrix\Im\Model\EO_Log_Collection createCollection()
+	 * @method \Bitrix\Im\Model\EO_Log wakeUpObject($row)
+	 * @method \Bitrix\Im\Model\EO_Log_Collection wakeUpCollection($rows)
+	 */
+	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Im\Model\MessageTable:im\lib\model\message.php */
 namespace Bitrix\Im\Model {
@@ -6128,6 +6374,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Message_Collection merge(?EO_Message_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Message_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\MessageTable */
@@ -6262,6 +6510,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_MessageIndex_Collection merge(?EO_MessageIndex_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_MessageIndex_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\MessageIndexTable */
@@ -6439,6 +6689,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_MessageParam_Collection merge(?EO_MessageParam_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_MessageParam_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\MessageParamTable */
@@ -6627,6 +6879,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_MessageUnread_Collection merge(?EO_MessageUnread_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_MessageUnread_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\MessageUnreadTable */
@@ -6767,6 +7021,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_MessageUuid_Collection merge(?EO_MessageUuid_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_MessageUuid_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\MessageUuidTable */
@@ -6931,6 +7187,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_MessageViewed_Collection merge(?EO_MessageViewed_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_MessageViewed_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\MessageViewedTable */
@@ -7083,6 +7341,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_NoRelationPermissionDisk_Collection merge(?EO_NoRelationPermissionDisk_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_NoRelationPermissionDisk_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\NoRelationPermissionDiskTable */
@@ -7223,6 +7483,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OptionAccess_Collection merge(?EO_OptionAccess_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OptionAccess_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\OptionAccessTable */
@@ -7423,6 +7685,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OptionGroup_Collection merge(?EO_OptionGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OptionGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\OptionGroupTable */
@@ -7557,6 +7821,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OptionState_Collection merge(?EO_OptionState_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OptionState_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\OptionStateTable */
@@ -7697,6 +7963,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_OptionUser_Collection merge(?EO_OptionUser_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_OptionUser_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\OptionUserTable */
@@ -7891,6 +8159,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Reaction_Collection merge(?EO_Reaction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Reaction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\ReactionTable */
@@ -8179,6 +8449,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Recent_Collection merge(?EO_Recent_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Recent_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\RecentTable */
@@ -8552,6 +8824,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Relation_Collection merge(?EO_Relation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Relation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\RelationTable */
@@ -8777,6 +9051,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Status_Collection merge(?EO_Status_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Status_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\StatusTable */
@@ -9673,6 +9949,8 @@ namespace Bitrix\Im\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_User_Collection merge(?EO_User_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_User_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Im\Model\UserTable */

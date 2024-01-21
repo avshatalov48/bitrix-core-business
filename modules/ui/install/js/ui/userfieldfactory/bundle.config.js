@@ -3,4 +3,5 @@ module.exports = {
 	output: './dist/userfieldfactory.bundle.js',
 	namespace: 'BX.UI.UserFieldFactory',
 	adjustConfigPhp: false,
+	browserslist: true,
 };

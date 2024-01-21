@@ -60,6 +60,7 @@ $MESS["BLOG_READ_M"] = "Я прочитал";
 $MESS["BLOG_USERS_ALREADY_READ"] = "уже подтвердили прочтение";
 $MESS["BLOG_READERS"] = "пользователей";
 $MESS["BLOG_POST_BUTTON_MORE"] = "Ещё";
+$MESS["BLOG_POST_BUTTON_COPILOT"] = "CoPilot";
 $MESS["BLOG_COMMENTS_ADD"] = "Комментировать";
 $MESS["MPF_DESTINATION_1"] = "Добавить сотрудников, группы или отделы";
 $MESS["MPF_DESTINATION_2"] = "Добавить еще";

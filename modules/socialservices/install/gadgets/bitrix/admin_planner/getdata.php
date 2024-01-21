@@ -1,25 +1,20 @@
-<?
+<?php
+
 define("STOP_STATISTICS", true);
 define("BX_SECURITY_SHOW_MESSAGE", true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 global $USER;
-$rnd = $_REQUEST["rnd"];
 
 __IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/getdata.php");
 
-if(!check_bitrix_sessid())
-	return;
+if(!check_bitrix_sessid() || !isset($_REQUEST['id']))
+{
+	CMain::FinalActions();
+}
 
-if(
-	!array_key_exists("GD_PLANNER_PARAMS", $_SESSION)
-	|| !array_key_exists($rnd, $_SESSION["GD_PLANNER_PARAMS"])
-	|| !is_array($_SESSION["GD_PLANNER_PARAMS"][$rnd])
-)
-	return;
-
-$arGadgetParams = $_SESSION["GD_PLANNER_PARAMS"][$rnd];
+$arGadgetParams = BXGadget::getGadgetSettings($_REQUEST['id'], $_REQUEST['params'] ?? []);
 
 CModule::IncludeModule('socialservices');
 
@@ -29,10 +24,10 @@ $domain = $portalURI = $arGadgetParams["PORTAL_URI"];
 
 ?>
 <div class="bx-gadgets-planner">
-	<?
+<?php
 if($clientId == '' || $clientSecret == '' || $portalURI == '')
 {
-	exit;
+	CMain::FinalActions();
 }
 
 $needAuthorize = false;
@@ -165,3 +160,5 @@ if($accessToken != '' && $domain != '' && !$needAuthorize)
 	}
 	?>
 </div>
+<?php
+CMain::FinalActions();

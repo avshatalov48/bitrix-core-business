@@ -5,12 +5,13 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\ErrorableImplementation;
+use Bitrix\Main\Localization\Loc;
 
 class Right implements Errorable
 {
 	use ErrorableImplementation;
 
-	const ACCESS_DENIED = "ACCESS_DENIED";
+	const ACCESS_DENIED = 'ACCESS_DENIED';
 
 	private $entityRight;
 	private $rightParam;
@@ -36,25 +37,35 @@ class Right implements Errorable
 	 *
 	 * @return bool
 	 */
-	public function checkPermission($entityMethod = "")
+	public function checkPermission($entityMethod = '')
 	{
 		if ($this->listsPermission < 0)
 		{
 			switch ($this->listsPermission)
 			{
 				case \CListPermissions::WRONG_IBLOCK_TYPE:
-					$this->errorCollection->setError(new Error("Invalid iblock type ID"), self::ACCESS_DENIED
+					$this->errorCollection->setError(
+						new Error(Loc::getMessage('LISTS_LIB_SECURITY_RIGHT_ERROR_WRONG_IBLOCK_TYPE')),
+						self::ACCESS_DENIED
 					);
 					break;
 				case \CListPermissions::WRONG_IBLOCK:
-					$this->errorCollection->setError(new Error("Invalid list ID"), self::ACCESS_DENIED
+					$this->errorCollection->setError(
+						new Error(Loc::getMessage('LISTS_LIB_SECURITY_RIGHT_ERROR_WRONG_IBLOCK')),
+						self::ACCESS_DENIED
 					);
 					break;
 				case \CListPermissions::LISTS_FOR_SONET_GROUP_DISABLED:
-					$this->errorCollection->setError(new Error("Lists for this group is disabled", self::ACCESS_DENIED));
+					$this->errorCollection->setError(
+						new Error(Loc::getMessage('LISTS_LIB_SECURITY_RIGHT_ERROR_SONET_GROUP_DISABLED'),
+							self::ACCESS_DENIED)
+					);
 					break;
 				default:
-					$this->errorCollection->setError(new Error("Access denied", self::ACCESS_DENIED));
+					$this->errorCollection->setError(
+						new Error(Loc::getMessage('LISTS_LIB_SECURITY_RIGHT_ERROR_ACCESS_DENIED'),
+							self::ACCESS_DENIED)
+					);
 					break;
 			}
 		}
@@ -65,12 +76,18 @@ class Right implements Errorable
 			{
 				if (!$this->entityRight->$entityMethod())
 				{
-					$this->errorCollection->setError(new Error("Access denied", self::ACCESS_DENIED));
+					$this->errorCollection->setError(
+						new Error(Loc::getMessage('LISTS_LIB_SECURITY_RIGHT_ERROR_ACCESS_DENIED'),
+							self::ACCESS_DENIED)
+					);
 				}
 			}
 			else
 			{
-				$this->errorCollection->setError(new Error("Access denied", self::ACCESS_DENIED));
+				$this->errorCollection->setError(
+					new Error(Loc::getMessage('LISTS_LIB_SECURITY_RIGHT_ERROR_ACCESS_DENIED'),
+						self::ACCESS_DENIED)
+				);
 			}
 		}
 
@@ -78,10 +95,8 @@ class Right implements Errorable
 		{
 			return false;
 		}
-		else
-		{
-			return true;
-		}
+
+		return true;
 	}
 
 	private function getListsPermission()
@@ -92,5 +107,10 @@ class Right implements Errorable
 			$this->rightParam->getIblockId(),
 			$this->rightParam->getSocnetGroupId()
 		);
+	}
+
+	public function getPermission(): int|string
+	{
+		return $this->listsPermission;
 	}
 }

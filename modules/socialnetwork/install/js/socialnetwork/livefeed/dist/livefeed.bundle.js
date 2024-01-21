@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_buttons,main_popup,main_core,main_core_events,tasks_result) {
+(function (exports,ui_buttons,socialnetwork_postForm,main_popup,main_core,main_core_events,tasks_result) {
 	'use strict';
 
 	var Utils = /*#__PURE__*/function () {
@@ -1602,6 +1602,24 @@ this.BX = this.BX || {};
 	    value: function getMenuId(ind) {
 	      return "post-menu-".concat(ind);
 	    }
+	  }, {
+	    key: "editSpacesPost",
+	    value: function editSpacesPost(postId, groupId) {
+	      if (main_core.Type.isUndefined(window.listPostForms)) {
+	        window.listPostForms = new Map();
+	      }
+	      if (window.listPostForms.has(postId)) {
+	        var postForm = window.listPostForms.get(postId);
+	        postForm.show();
+	      } else {
+	        var _postForm = new socialnetwork_postForm.PostForm({
+	          postId: postId,
+	          groupId: groupId
+	        });
+	        window.listPostForms.set(postId, _postForm);
+	        _postForm.show();
+	      }
+	    }
 	  }]);
 	  return Post$$1;
 	}();
@@ -2302,6 +2320,7 @@ this.BX = this.BX || {};
 	    this.blogCommentFormUID = '';
 	    this.signedParameters = '';
 	    this.componentName = '';
+	    this.context = '';
 	    this["class"] = {};
 	    main_core.Event.ready(function () {
 	      _this.init();
@@ -2328,6 +2347,7 @@ this.BX = this.BX || {};
 	      params = main_core.Type.isPlainObject(params) ? params : {};
 	      params.siteTemplateId = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID');
 	      params.assetsCheckSum = main_core.Loc.getMessage('sonetLAssetsCheckSum');
+	      params.context = main_core.Type.isStringFilled(params.context) ? params.context : this.context;
 	      this.loadStarted = true;
 	      Loader.showRefreshFade();
 	      MoreButton$$1.clearCommentsList();
@@ -2486,6 +2506,7 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isStringFilled(this.blogCommentFormUID)) {
 	        queryParams.blogCommentFormUID = this.blogCommentFormUID;
 	      }
+	      queryParams.context = this.context;
 	      var queryData = {
 	        c: this.getComponentName(),
 	        logajax: 'Y',
@@ -2619,6 +2640,11 @@ this.BX = this.BX || {};
 	      this.signedParameters = value;
 	    }
 	  }, {
+	    key: "setContext",
+	    value: function setContext(context) {
+	      this.context = context;
+	    }
+	  }, {
 	    key: "getSignedParameters",
 	    value: function getSignedParameters() {
 	      return this.signedParameters;
@@ -2650,7 +2676,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 	      this.scrollInitialized = true;
-	      document.addEventListener('scroll', this.onFeedScroll.bind(this));
+	      document.addEventListener('scroll', this.onFeedScroll.bind(this), true);
 	    }
 	  }, {
 	    key: "onFeedScroll",
@@ -2811,6 +2837,9 @@ this.BX = this.BX || {};
 	      }
 	      if (main_core.Type.isStringFilled(params.signedParameters)) {
 	        PageInstance.setSignedParameters(params.signedParameters);
+	      }
+	      if (main_core.Type.isStringFilled(params.context)) {
+	        PageInstance.setContext(params.context);
 	      }
 	      if (main_core.Type.isStringFilled(params.componentName)) {
 	        PageInstance.setComponentName(params.componentName);
@@ -3155,5 +3184,5 @@ this.BX = this.BX || {};
 	exports.ContentView = ContentView;
 	exports.CommentForm = CommentForm;
 
-}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.UI,BX.Main,BX,BX.Event,BX.Tasks));
+}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.UI,BX.Socialnetwork,BX.Main,BX,BX.Event,BX.Tasks));
 //# sourceMappingURL=livefeed.bundle.js.map

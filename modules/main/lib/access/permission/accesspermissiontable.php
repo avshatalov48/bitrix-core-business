@@ -95,19 +95,22 @@ abstract class AccessPermissionTable extends DataManager
 
 	protected static function updateChildPermission($primary, array $data)
 	{
+		$connection = static::getEntity()->getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$data = static::loadUpdateRow($primary, $data);
 		if ((int) $data['VALUE'] === PermissionDictionary::VALUE_YES)
 		{
 			return;
 		}
 		$sql = "
-			UPDATE `". static::getTableName() ."` 
+			UPDATE ". $helper->quote(static::getTableName()) ."
 			SET VALUE = ". PermissionDictionary::VALUE_NO ."
 			WHERE 
 				ROLE_ID = ". $data['ROLE_ID'] ."
 				AND PERMISSION_ID LIKE '". $data['PERMISSION_ID'] .".%' 
 		";
-		static::getEntity()->getConnection()->query($sql);
+		$connection->query($sql);
 	}
 
 	protected static function loadUpdateRow($primary, array $data)

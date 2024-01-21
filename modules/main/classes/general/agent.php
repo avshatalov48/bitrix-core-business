@@ -112,7 +112,7 @@ class CAllAgent
 				".$module."
 				AND  USER_ID".($user_id ? " = ".(int)$user_id : " IS NULL");
 
-		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query($strSql);
 	}
 
 	public static function Delete($id)
@@ -123,7 +123,7 @@ class CAllAgent
 		if ($id <= 0)
 			return false;
 
-		$DB->Query("DELETE FROM b_agent WHERE ID = ".$id, false, "FILE: ".__FILE__."<br>LINE: ");
+		$DB->Query("DELETE FROM b_agent WHERE ID = ".$id);
 
 		return true;
 	}
@@ -135,7 +135,7 @@ class CAllAgent
 		if ($module <> '')
 		{
 			$strSql = "DELETE FROM b_agent WHERE MODULE_ID='".$DB->ForSql($module,255)."'";
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 		}
 	}
 
@@ -160,7 +160,7 @@ class CAllAgent
 
 			$strUpdate = $DB->PrepareUpdate("b_agent", $arFields);
 			$strSql = "UPDATE b_agent SET ".$strUpdate." WHERE ID=".$ID;
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql);
 			return $res;
 		}
 
@@ -175,7 +175,6 @@ class CAllAgent
 	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = array())
 	{
 		global $DB;
-		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 
 		$arSqlSearch = array();
 		$arSqlOrder = array();
@@ -194,21 +193,18 @@ class CAllAgent
 			"SORT" => "A.SORT"
 		);
 
-		if(!is_array($arFilter))
-			$filter_keys = array();
-		else
-			$filter_keys = array_keys($arFilter);
-
-		for($i = 0, $n = count($filter_keys); $i < $n; $i++)
+		if (!is_array($arFilter))
 		{
-			$val = $arFilter[$filter_keys[$i]];
-			$key = strtoupper($filter_keys[$i]);
+			$arFilter = [];
+		}
+		foreach ($arFilter as $key => $val)
+		{
 			if ((string)$val == '')
 			{
 				continue;
 			}
 
-			switch($key)
+			switch(strtoupper($key))
 			{
 				case "ID":
 					$arSqlSearch[] = "A.ID=".(int)$val;
@@ -278,7 +274,7 @@ class CAllAgent
 		$strSql .= !empty($arSqlSearch) ? " WHERE ".implode(" AND ", $arSqlSearch) : "";
 		$strSql .= !empty($arSqlOrder) ? " ORDER BY ".implode(", ", $arSqlOrder) : "";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

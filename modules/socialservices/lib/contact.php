@@ -208,6 +208,8 @@ class ContactTable extends Main\Entity\DataManager
 		{
 			if(
 				count($contactsList) > 0
+				&& isset($contactsList[$owner["XML_ID"]])
+				&& is_array($contactsList[$owner["XML_ID"]])
 				&& count($contactsList[$owner["XML_ID"]]) > 0
 			)
 			{
@@ -216,6 +218,8 @@ class ContactTable extends Main\Entity\DataManager
 
 			if(
 				count($possibleContactsList) > 0
+				&& isset($possibleContactsList[$owner["XML_ID"]])
+				&& is_array($possibleContactsList[$owner["XML_ID"]])
 				&& count($possibleContactsList[$owner["XML_ID"]]) > 0
 			)
 			{
@@ -401,84 +405,6 @@ class ContactTable extends Main\Entity\DataManager
 
 	protected static function notifyJoin($contactId, array $contactInfo = null)
 	{
-		$network = new Network();
-		if($network->isOptionEnabled() && Main\Loader::includeModule('im'))
-		{
-			if($contactInfo === null)
-			{
-				$dbRes = static::getByPrimary($contactId);
-				$contactInfo = $dbRes->fetch();
-			}
-
-			if(!$contactInfo)
-			{
-				return false;
-			}
-
-			if(!isset($contactInfo["CONNECT"]))
-			{
-				$contactInfo["CONNECT"] = array();
-				$dbRes = ContactConnectTable::getList(array(
-					"order" => array("LAST_AUTHORIZE" => "ASC"),
-					"filter" => array(
-						"=CONTACT_ID" => $contactInfo["ID"],
-					),
-					"limit" => 1,
-					"select" => array(
-						"CONTACT_PROFILE_ID", "CONNECT_TYPE"
-					)
-				));
-				while($connect = $dbRes->fetch())
-				{
-					$contactInfo["CONNECT"][] = $connect;
-				}
-			}
-
-			if(count($contactInfo["CONNECT"]) > 0)
-			{
-				if(isset($contactInfo["CONTACT_PHOTO_RESIZED"]))
-				{
-					$contactInfo["CONTACT_PHOTO"] = $contactInfo["CONTACT_PHOTO_RESIZED"];
-				}
-
-				if($contactInfo["NOTIFY"] == ContactTable::NOTIFY)
-				{
-					$attach = new \CIMMessageParamAttach(null, \CIMMessageParamAttach::NORMAL);
-
-					$attachParams = array(
-						"NAME" => \CUser::FormatName(\CSite::GetNameFormat(), array(
-							"NAME" => $contactInfo["CONTACT_NAME"],
-							"LAST_NAME" => $contactInfo["CONTACT_LAST_NAME"]
-						), false, false),
-					);
-					if($contactInfo["CONTACT_PHOTO"])
-					{
-						$attachParams["AVATAR"] = $contactInfo["CONTACT_PHOTO"];
-					}
-					$attachParams["NETWORK_ID"] = static::getConnectId($contactInfo["CONNECT"][0]);
-
-					$attach->AddUser($attachParams);
-
-					$messageFields = array(
-						"TO_USER_ID" => $contactInfo["USER_ID"],
-						"FROM_USER_ID" => 0,
-						"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
-						"NOTIFY_MODULE" => "socialservices",
-						"NOTIFY_EVENT" => "contacts",
-						"NOTIFY_MESSAGE" => Loc::getMessage("SS_JOIN_NOTIFY"),
-						"NOTIFY_MESSAGE_OUT" => IM_MAIL_SKIP,
-						"ATTACH" => array($attach),
-					);
-
-					return \CIMNotify::Add($messageFields);
-				}
-				else
-				{
-					static::$notifyStack[] = $contactInfo;
-				}
-			}
-		}
-
 		return false;
 	}
 
@@ -541,139 +467,5 @@ class ContactTable extends Main\Entity\DataManager
 	 */
 	protected static function notifyPossible($userId)
 	{
-		$network = new Network();
-		if($network->isOptionEnabled() && Main\Loader::includeModule('im'))
-		{
-			$ts = time();
-			$alreadyShown = \CUserOptions::GetOption("socialservices", "possible_contacts", null, $userId);
-
-			if(
-				!is_array($alreadyShown)
-				|| $alreadyShown[static::POSSIBLE_RESET_TIME_KEY] < $ts - static::POSSIBLE_RESET_TIME
-			)
-			{
-				$alreadyShown = array();
-			}
-			else
-			{
-				$ts = $alreadyShown[static::POSSIBLE_RESET_TIME_KEY];
-				unset($alreadyShown[static::POSSIBLE_RESET_TIME_KEY]);
-			}
-
-			$dateLimit = new DateTime();
-			$dateLimit->add(static::POSSIBLE_LAST_AUTHORIZE_LIMIT);
-
-			$contactList = ContactConnectTable::getList(array(
-				'order' => array('LAST_AUTHORIZE' => 'DESC'),
-				'filter' => array(
-					'!=LINK_ID' => '',
-					'=CONNECT_TYPE' => ContactConnectTable::TYPE_PORTAL,
-					'>=LAST_AUTHORIZE' => $dateLimit,
-					'=LINK.USER_ID' => $userId,
-					'!=LINK.ID' => $alreadyShown,
-				),
-				'count_total' => true,
-				'group' => array('LINK_ID'),
-				'limit' => static::NOTIFY_POSSIBLE_COUNT,
-				'select' => array(
-					'LINK_ID', 'LINK_NAME' => 'LINK.LINK_NAME', 'LINK_LAST_NAME' => 'LINK.LINK_LAST_NAME', 'LINK_PICTURE' => 'LINK.LINK_PICTURE',
-				),
-			));
-
-			/*
-			$contactList = UserLinkTable::getList(array(
-				'order' => array("RND" => "ASC"),
-				'filter' => array(
-					'=USER_ID' => $userId,
-					'!=ID' => $alreadyShown,
-				),
-				'limit' => static::NOTIFY_POSSIBLE_COUNT,
-				'count_total' => true,
-				'group' => array("CONNECT.CONTACT_ID"), // Mistake? CONNECT.LINK_ID should be here
-				'runtime' => array(
-					new Entity\ExpressionField('RND', 'RAND()'),
-					new Entity\ReferenceField(
-						"CONNECT",
-						ContactConnectTable::getEntity(),
-						array(
-							"=ref.LINK_ID" => "this.ID",
-							"=ref.CONNECT_TYPE" => new Main\DB\SqlExpression(
-								'?', ContactConnectTable::TYPE_PORTAL
-							)
-						),
-						array("join_type"=>"inner")
-					),
-				)
-			));
-			*/
-
-			$count = $contactList->getCount();
-			if($count > 0)
-			{
-				$attach = new \CIMMessageParamAttach(null, \CIMMessageParamAttach::NORMAL);
-
-				while($contactInfo = $contactList->fetch())
-				{
-					$alreadyShown[] = $contactInfo["LINK_ID"];
-
-					// get all link portals, authorized during last week
-					$contactInfo["CONNECT"] = array();
-					$dbRes = ContactConnectTable::getList(array(
-						"order" => array("LAST_AUTHORIZE" => "DESC"),
-						"filter" => array(
-							"=LINK_ID" => $contactInfo["LINK_ID"],
-							">=LAST_AUTHORIZE" => $dateLimit,
-						),
-						"limit" => 1,
-						"select" => array(
-							"CONTACT_PROFILE_ID", "CONNECT_TYPE"
-						)
-					));
-					while($connect = $dbRes->fetch())
-					{
-						$contactInfo["CONNECT"][] = $connect;
-					}
-
-					if(count($contactInfo["CONNECT"]) > 0)
-					{
-						$attachParams = array(
-							"NAME" => \CUser::FormatName(\CSite::GetNameFormat(), array(
-								"NAME" => $contactInfo["LINK_NAME"],
-								"LAST_NAME" => $contactInfo["LINK_LAST_NAME"]
-							), false, false),
-						);
-						if($contactInfo["LINK_PICTURE"])
-						{
-							$attachParams["AVATAR"] = $contactInfo["LINK_PICTURE"];
-						}
-						$attachParams["NETWORK_ID"] = static::getConnectId($contactInfo["CONNECT"][0]);
-
-						$attach->AddUser($attachParams);
-					}
-				}
-/*
-				if($count > static::NOTIFY_POSSIBLE_COUNT)
-				{
-					$attach->AddHtml('<a href="'.str_replace("#USER_ID#", $userId, Option::get("intranet", "path_user", "/company/persona/user/#USER_ID#/")).'">'.Loc::getMessage("SS_JOIN_NOTIFY_MORE", array("#NUM#" => $count - static::NOTIFY_POSSIBLE_COUNT)).'</a>');
-				}
-*/
-				$messageFields = array(
-					"TO_USER_ID" => $userId,
-					"FROM_USER_ID" => 0,
-					"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
-					"NOTIFY_MODULE" => "socialservices",
-					"NOTIFY_EVENT" => "possible_contacts",
-					"NOTIFY_MESSAGE" => Loc::getMessage("SS_JOIN_NOTIFY_POSSIBLE"),
-					"NOTIFY_MESSAGE_OUT" => IM_MAIL_SKIP,
-					"ATTACH" => $attach,
-				);
-
-				\CIMNotify::Add($messageFields);
-
-			}
-
-			$alreadyShown[static::POSSIBLE_RESET_TIME_KEY] = $ts;
-			\CUserOptions::SetOption("socialservices", "possible_contacts", $alreadyShown, false, $userId);
-		}
 	}
 }

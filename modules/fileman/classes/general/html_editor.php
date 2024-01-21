@@ -393,16 +393,24 @@ class CHTMLEditor
 			]
 		;
 
-		$isCopilotEnabled = $this->isCopilotEnabled();
+		$arParams["copilotParams"]['invitationLineMode'] ??= 'lastLine';
+
+		$isCopilotEnabled = ($arParams['isCopilotEnabled'] ?? true)
+			&& ($arParams['isCopilotTextEnabledBySettings'] ?? true)
+			&& $this->isCopilotEnabled()
+		;
 		if (!$this->bAllowPhp && $isCopilotEnabled)
 		{
 			\Bitrix\Main\UI\Extension::load(['ai.copilot']);
 		}
 
-		$this->jsConfig = array(
+		$this->jsConfig = [
 			'id' => $this->id,
 			'isCopilotEnabled' => $isCopilotEnabled,
+			'isCopilotImageEnabledBySettings' => $arParams['isCopilotImageEnabledBySettings'] ?? true,
+			'isCopilotTextEnabledBySettings' => $arParams['isCopilotTextEnabledBySettings'] ?? true,
 			'copilotParams' => $arParams["copilotParams"],
+			'isMentionUnavailable' => $arParams['isMentionUnavailable'] ?? false,
 			'inputName' => $this->inputName,
 			'content' => $this->content,
 			'width' => $arParams['width'],
@@ -444,7 +452,7 @@ class CHTMLEditor
 			'linkDialogType' => $userSettings['link_dialog_type'],
 			'lazyLoad' => $arParams["lazyLoad"],
 			'siteId' => $siteId
-		);
+		];
 
 		if (($this->bAllowPhp || $arParams['limitPhpAccess']) && $arParams["showTaskbars"] !== false)
 		{
@@ -452,10 +460,14 @@ class CHTMLEditor
 		}
 
 		if (isset($arParams["initAutosave"]))
+		{
 			$this->jsConfig["initAutosave"] = $arParams["initAutosave"];
+		}
 
 		if (isset($arParams["uploadImagesFromClipboard"]))
+		{
 			$this->jsConfig["uploadImagesFromClipboard"] = $arParams["uploadImagesFromClipboard"];
+		}
 
 		if (isset($arParams["useFileDialogs"]))
 		{
@@ -467,54 +479,85 @@ class CHTMLEditor
 		}
 
 		if (isset($arParams["showTaskbars"]))
+		{
 			$this->jsConfig["showTaskbars"] = $arParams["showTaskbars"];
+		}
 
 		if (isset($arParams["showNodeNavi"]))
+		{
 			$this->jsConfig["showNodeNavi"] = $arParams["showNodeNavi"];
+		}
 
 		if (isset($arParams["controlsMap"]))
+		{
 			$this->jsConfig["controlsMap"] = $arParams["controlsMap"];
+		}
 
 		if (isset($arParams["arSmiles"]))
+		{
 			$this->jsConfig["smiles"] = $arParams["arSmiles"];
+		}
 
 		if (isset($arParams["arSmilesSet"]))
+		{
 			$this->jsConfig["smileSets"] = $arParams["arSmilesSet"];
+		}
 
 		if (isset($arParams["iframeCss"]))
+		{
 			$this->jsConfig["iframeCss"] = $arParams["iframeCss"];
-
+		}
 
 		if (isset($arParams["beforeUnloadMessage"]))
+		{
 			$this->jsConfig["beforeUnloadMessage"] = $arParams["beforeUnloadMessage"];
+		}
 
 		if (isset($arParams["setFocusAfterShow"]))
+		{
 			$this->jsConfig["setFocusAfterShow"] = $arParams["setFocusAfterShow"];
+		}
 
 		if (isset($arParams["relPath"]))
+		{
 			$this->jsConfig["relPath"] = $arParams["relPath"];
+		}
 
 		// autoresize
 		if (isset($arParams["autoResize"]))
 		{
 			$this->jsConfig["autoResize"] = $arParams["autoResize"];
 			if (isset($arParams['autoResizeOffset']))
+			{
 				$this->jsConfig['autoResizeOffset'] = $arParams['autoResizeOffset'];
+			}
 			if (isset($arParams['autoResizeMaxHeight']))
+			{
 				$this->jsConfig['autoResizeMaxHeight'] = $arParams['autoResizeMaxHeight'];
+			}
 			if (isset($arParams['autoResizeSaveSize']))
+			{
 				$this->jsConfig['autoResizeSaveSize'] = $arParams['autoResizeSaveSize'] !== false;
+			}
 		}
 
 		if (isset($arParams["minBodyWidth"]))
+		{
 			$this->jsConfig["minBodyWidth"] = $arParams["minBodyWidth"];
+		}
 		if (isset($arParams["minBodyHeight"]))
+		{
 			$this->jsConfig["minBodyHeight"] = $arParams["minBodyHeight"];
+		}
 		if (isset($arParams["normalBodyWidth"]))
+		{
 			$this->jsConfig["normalBodyWidth"] = $arParams["normalBodyWidth"];
+		}
 
 		if (isset($arParams['autoLink']))
+		{
 			$this->jsConfig['autoLink'] = $arParams['autoLink'];
+		}
 
 		return $arParams;
 	}

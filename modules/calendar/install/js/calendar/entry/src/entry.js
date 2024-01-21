@@ -1,6 +1,6 @@
-import {Util} from 'calendar.util';
-import {EntryManager} from "./entrymanager";
-import { Type } from 'main.core';
+import { Util } from 'calendar.util';
+import { EntryManager } from "./entrymanager";
+import { Type, Loc } from 'main.core';
 
 export {EntryManager};
 
@@ -35,6 +35,14 @@ export class Entry
 		if (!this.data.DT_SKIP_TIME)
 		{
 			this.data.DT_SKIP_TIME = this.data.SKIP_TIME ? 'Y' : 'N';
+		}
+		if (!Type.isString(this.data.NAME))
+		{
+			this.data.NAME = Loc.getMessage('CALENDAR_DEFAULT_ENTRY_NAME');
+		}
+		else
+		{
+			this.data.NAME = this.data.NAME.replaceAll(/\r\n|\r|\n/g, ' ');
 		}
 
 		this.fullDay = this.data.DT_SKIP_TIME === 'Y';

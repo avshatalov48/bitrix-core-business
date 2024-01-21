@@ -344,6 +344,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 					function(){ promise.fulfill(); },
 					0
 				);
+
 				return promise;
 			}
 
@@ -371,6 +372,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			).then(function(){ promise.fulfill(); });
 
 			this._isChanged = false;
+
 			return promise;
 		},
 		reset: function(forAllUsers)

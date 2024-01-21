@@ -84,6 +84,11 @@ abstract class AttachmentManager
 	 */
 	protected function prepareRecurrenceRule($rrule): ?RecurrenceRuleProperty
 	{
+		if (is_string($rrule))
+		{
+			$rrule = \CCalendarEvent::ParseRRULE($rrule);
+		}
+
 		return is_array($rrule)
 			? new RecurrenceRuleProperty($rrule)
 			: null;
@@ -134,51 +139,52 @@ abstract class AttachmentManager
 	 */
 	protected function getOrganizerMailTo(): string
 	{
-		if (Loader::includeModule('mail'))
+		if (!Loader::includeModule('mail'))
 		{
-			$boxes = \Bitrix\Mail\MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
-			$organizer = $this->event['ICAL_ORGANIZER'];
-			if ($organizer === null)
-			{
-				$user = Helper::getUserById($this->event['MEETING_HOST']);
-				$organizer = Attendee::createInstance(
-					$user['EMAIL'],
-					$user['NAME'],
-					$user['LAST_NAME'],
-					null,
-					null,
-					null,
-					$user['EMAIL']
-				);
-			}
-
-			foreach ($boxes as $box)
-			{
-				/** @var Attendee $organizer */
-				if ($box['EMAIL'] === $organizer->getMailTo())
-				{
-					return $organizer->getMailTo();
-				}
-			}
-
-			return $this->getReplyAddress();
+			return '';
 		}
+
+		$boxes = \Bitrix\Mail\MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
+		$organizer = $this->event['ICAL_ORGANIZER'];
+		if ($organizer === null)
+		{
+			$user = Helper::getUserById($this->event['MEETING_HOST']);
+			$organizer = Attendee::createInstance(
+				$user['EMAIL'],
+				$user['NAME'],
+				$user['LAST_NAME'],
+				null,
+				null,
+				null,
+				$user['EMAIL'],
+				false
+			);
+		}
+
+		foreach ($boxes as $box)
+		{
+			/** @var Attendee $organizer */
+			if ($box['EMAIL'] === $organizer->getMailTo())
+			{
+				return $organizer->getMailTo();
+			}
+		}
+
+		return $this->getReplyAddress();
+
 	}
 
 	protected function getReplyAddress(): string
 	{
-		if (Loader::includeModule('mail'))
-		{
-			[$replyTo, $backUrl] = User::getReplyTo(
-				SITE_ID,
-				$this->event['OWNER_ID'],
-				'ICAL_INVENT',
-				$this->event['PARENT_ID'],
-				SITE_ID
-			);
+		[$replyTo, $backUrl] = User::getReplyTo(
+			SITE_ID,
+			$this->event['OWNER_ID'],
+			'ICAL_INVENT',
+			$this->event['PARENT_ID'],
+			SITE_ID
+		);
 
-			return $replyTo;
-		}
+		return $replyTo;
 	}
 
 	/**

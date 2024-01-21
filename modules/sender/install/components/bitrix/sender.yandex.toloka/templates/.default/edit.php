@@ -24,8 +24,8 @@ $componentParameters = array(
 	'PATH_TO_CAMPAIGN_EDIT' => $arParams['PATH_TO_CAMPAIGN_EDIT'] ?? '',
 	'SHOW_CAMPAIGNS' => $arParams['SHOW_CAMPAIGNS'] ?? '',
 	'SET_TITLE' => 'Y',
-	'CAN_VIEW' => Security\Access::current()->canViewLetters(),
-	'CAN_EDIT' => Security\Access::current()->canModifyLetters(),
+	'CAN_VIEW' => Security\Access::current()->canViewRc(),
+	'CAN_EDIT' => Security\Access::current()->canModifyRc(),
 	'MESSAGE_CODE_LIST' => \Bitrix\Sender\Message\Factory::getTolokaMessageCodes()
 );
 

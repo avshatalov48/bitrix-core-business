@@ -8,7 +8,7 @@ if (!CModule::IncludeModule("fileman"))
 
 $possibleButtons = [
 	'Copilot' => [
-		'HTML' => '<i id="bx-b-copilot-'.$arParams['FORM_ID'].'"></i><span class="main-post-form-toolbar-button-copilot">'.GetMessage('MPF_COPILOT')."</span>",
+		'HTML' => '<i class="ui-icon-set --copilot-ai" id="bx-b-copilot-'.$arParams['FORM_ID'].'"></i><span class="main-post-form-toolbar-button-copilot">'.GetMessage('MPF_COPILOT')."</span>",
 		'ID' => 'copilot',
 	],
 	'UploadFile' => [ //Custom button

@@ -15,6 +15,7 @@ use Bitrix\Sale\Shipment;
 use Bitrix\Sale\ShipmentItem;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Address;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
+use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ClientRequirements;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Contact;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoint;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ShippingItem;
@@ -25,6 +26,7 @@ use Sale\Handlers\Delivery\YandexTaxi\Common\ReferralSourceBuilder;
 use Bitrix\Main\PhoneNumber;
 use Sale\Handlers\Delivery\YandexTaxi;
 use Bitrix\Location\Entity\Address\Field;
+use Sale\Handlers\Delivery\YandexTaxi\ServiceContainer;
 
 /**
  * Class ClaimBuilder
@@ -33,11 +35,11 @@ use Bitrix\Location\Entity\Address\Field;
  */
 final class ClaimBuilder
 {
-	private const SOURCE_ROUTE_POINT_ID = 1;
+	public const SOURCE_ROUTE_POINT_ID = 1;
 	private const SOURCE_ROUTE_POINT_VISIT_ORDER = 1;
 	private const SOURCE_ROUTE_POINT_TYPE = 'source';
 
-	private const DESTINATION_ROUTE_POINT_ID = 2;
+	public const DESTINATION_ROUTE_POINT_ID = 2;
 	private const DESTINATION_ROUTE_POINT_VISIT_ORDER = 2;
 	private const DESTINATION_ROUTE_POINT_TYPE = 'destination';
 
@@ -99,6 +101,7 @@ final class ClaimBuilder
 		}
 		/** @var Address $addressFrom */
 		$addressFrom = $addressFromResult->getData()['ADDRESS'];
+		$addressFrom->setId(self::SOURCE_ROUTE_POINT_ID);
 
 		$addressToResult = $this->buildAddressTo($shipment);
 		if (!$addressToResult->isSuccess())
@@ -107,6 +110,7 @@ final class ClaimBuilder
 		}
 		/** @var Address $addressFrom */
 		$addressTo = $addressToResult->getData()['ADDRESS'];
+		$addressTo->setId(self::DESTINATION_ROUTE_POINT_ID);
 
 		/**
 		 * General comment
@@ -120,7 +124,7 @@ final class ClaimBuilder
 			$claim->setComment($commentForDriver);
 		}
 
-		$buildClientReqResult = $this->buildClientRequirements($shipment);
+		$buildClientReqResult = $this->buildTransportClassification($shipment);
 		if (!$buildClientReqResult->isSuccess())
 		{
 			return $this->result->addErrors($buildClientReqResult->getErrors());
@@ -197,7 +201,7 @@ final class ClaimBuilder
 					->setCostCurrency((string)$basketItem->getCurrency())
 					->setQuantity((int)ceil($shipmentItem->getQuantity()))
 					->setPickupPoint(self::SOURCE_ROUTE_POINT_ID)
-					->setDroppofPoint(self::DESTINATION_ROUTE_POINT_ID)
+					->setDropoffPoint(self::DESTINATION_ROUTE_POINT_ID)
 			);
 		}
 
@@ -252,90 +256,65 @@ final class ClaimBuilder
 	}
 
 	/**
+	 * @param string $taxiClass
+	 * @return bool
+	 */
+	public static function isOffersCalculateMethod(string $taxiClass): bool
+	{
+		return (
+			in_array($taxiClass, ['express', 'cargo'])
+			&& ServiceContainer::getRegionFinder()->getCurrentRegion() === 'ru'
+		);
+	}
+
+	/**
 	 * @param Shipment $shipment
 	 * @return Result
 	 */
 	public function buildClientRequirements(Shipment $shipment): Result
 	{
+		$requirements = new ClientRequirements();
+
+		$result = $this->getTaxiClass($shipment);
+
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		$tariff = $result->getData()['tariff'];
+
+		$requirements->setTaxiClasses([$tariff['name']]);
+		$requirements->setSkipDoorToDoor(!$this->isDoorDeliveryRequired($shipment));
+
+		$options = $this->makeOptions($shipment, $tariff);
+		$requirements->setOptions($options);
+
+		$result->setData(['REQUIREMENTS' => $requirements]);
+
+		return $result;
+	}
+
+	/**
+	 * @param Shipment $shipment
+	 * @return Result
+	 */
+	public function buildTransportClassification(Shipment $shipment): Result
+	{
 		$requirements = new TransportClassification();
-		$result = new Result();
 
-		$deliveryService = $shipment->getDelivery();
-		if (!$deliveryService)
+		$result = $this->getTaxiClass($shipment);
+
+		if (!$result->isSuccess())
 		{
-			return $result->addError(
-				new Error(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_SERVICE_NOT_FOUND'))
-			);
+			return $result;
 		}
 
-		$deliveryServiceConfig = $deliveryService->getConfig();
-		if (!isset($deliveryServiceConfig['MAIN']['ITEMS']['PROFILE_TYPE']['VALUE']))
-		{
-			return $result->addError(
-				new Error(Loc::getMessage('SALE_YANDEX_TAXI_TARIFF_IS_NOT_SPECIFIED'))
-			);
-		}
-		$tariffCode = $deliveryServiceConfig['MAIN']['ITEMS']['PROFILE_TYPE']['VALUE'];
+		$tariff = $result->getData()['tariff'];
 
-		$tariff = null;
-		$availableTariffs = $this->tariffsRepository->getTariffs();
-		foreach ($availableTariffs as $availableTariff)
-		{
-			if ($availableTariff['name'] === $tariffCode)
-			{
-				$tariff = $availableTariff;
-				break;
-			}
-		}
+		$requirements->setTaxiClass($tariff['name']);
 
-		if (is_null($tariff))
-		{
-			return $result->addError(
-				new Error(Loc::getMessage('SALE_YANDEX_TAXI_TARIFF_HAS_NOT_BEEN_FOUND'))
-			);
-		}
-		$requirements->setTaxiClass($tariffCode);
-
-		$extraServiceValues = $this->getExtraServiceValues($shipment);
-		$options = [];
-		foreach ($tariff['supported_requirements'] as $supportedRequirement)
-		{
-			if ($supportedRequirement['type'] === 'multi_select')
-			{
-				foreach ($supportedRequirement['options'] as $srOption)
-				{
-					if (isset($extraServiceValues[$srOption['value']])
-						&& $extraServiceValues[$srOption['value']]['VALUE'] === 'Y'
-					)
-					{
-						if (!is_array($options[$supportedRequirement['name']]))
-						{
-							$options[$supportedRequirement['name']] = [];
-						}
-						$options[$supportedRequirement['name']][] = $srOption['value'];
-					}
-				}
-			}
-			elseif ($supportedRequirement['type'] === 'select')
-			{
-				if (isset($extraServiceValues[$supportedRequirement['name']])
-					&& !empty($extraServiceValues[$supportedRequirement['name']]['VALUE'])
-				)
-				{
-					foreach ($supportedRequirement['options'] as $srOption)
-					{
-						/**
-						 * Non-strict comparison is required
-						 */
-						if ($srOption['value'] == $extraServiceValues[$supportedRequirement['name']]['VALUE'])
-						{
-							$options[$supportedRequirement['name']] = $srOption['value'];
-							break;
-						}
-					}
-				}
-			}
-		}
+		$options = $this->makeOptions($shipment, $tariff);
 		$requirements->setOptions($options);
 
 		$result->setData(['REQUIREMENTS' => $requirements]);
@@ -521,6 +500,106 @@ final class ClaimBuilder
 	public function buildAddressTo(Shipment $shipment): Result
 	{
 		return $this->buildAddress($shipment, 'IS_ADDRESS_TO');
+	}
+
+	/**
+	 * @param Shipment $shipment
+	 * @return Result
+	 */
+	public function getTaxiClass(Shipment $shipment): Result
+	{
+		$result = new Result();
+
+		$deliveryService = $shipment->getDelivery();
+		if (!$deliveryService)
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_SERVICE_NOT_FOUND'))
+			);
+		}
+
+		$deliveryServiceConfig = $deliveryService->getConfig();
+		if (!isset($deliveryServiceConfig['MAIN']['ITEMS']['PROFILE_TYPE']['VALUE']))
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_TARIFF_IS_NOT_SPECIFIED'))
+			);
+		}
+		$tariffCode = $deliveryServiceConfig['MAIN']['ITEMS']['PROFILE_TYPE']['VALUE'];
+
+		$tariff = null;
+		$availableTariffs = $this->tariffsRepository->getTariffs();
+		foreach ($availableTariffs as $availableTariff)
+		{
+			if ($availableTariff['name'] === $tariffCode)
+			{
+				$tariff = $availableTariff;
+				break;
+			}
+		}
+
+		if (is_null($tariff))
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_YANDEX_TAXI_TARIFF_HAS_NOT_BEEN_FOUND'))
+			);
+		}
+
+		$result->setData(['tariff' => $tariff]);
+
+		return $result;
+	}
+
+	/**
+	 * @param Shipment $shipment
+	 * @param array $tariff
+	 * @return array
+	 */
+	private function makeOptions(Shipment $shipment, array $tariff): array
+	{
+		$extraServiceValues = $this->getExtraServiceValues($shipment);
+		$options = [];
+
+		foreach ($tariff['supported_requirements'] as $supportedRequirement)
+		{
+			if ($supportedRequirement['type'] === 'multi_select')
+			{
+				foreach ($supportedRequirement['options'] as $srOption)
+				{
+					if (isset($extraServiceValues[$srOption['value']])
+						&& $extraServiceValues[$srOption['value']]['VALUE'] === 'Y'
+					)
+					{
+						if (!is_array($options[$supportedRequirement['name']]))
+						{
+							$options[$supportedRequirement['name']] = [];
+						}
+						$options[$supportedRequirement['name']][] = $srOption['value'];
+					}
+				}
+			}
+			elseif ($supportedRequirement['type'] === 'select')
+			{
+				if (isset($extraServiceValues[$supportedRequirement['name']])
+					&& !empty($extraServiceValues[$supportedRequirement['name']]['VALUE'])
+				)
+				{
+					foreach ($supportedRequirement['options'] as $srOption)
+					{
+						/**
+						 * Non-strict comparison is required
+						 */
+						if ($srOption['value'] == $extraServiceValues[$supportedRequirement['name']]['VALUE'])
+						{
+							$options[$supportedRequirement['name']] = $srOption['value'];
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		return $options;
 	}
 
 	/**

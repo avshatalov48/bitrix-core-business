@@ -13,7 +13,8 @@ export class Planner extends EventEmitter
 		h : 'user-status-h',
 		y : 'user-status-y',
 		q : 'user-status-q',
-		n : 'user-status-n'
+		n : 'user-status-n',
+		tzAll: 'user-status-different-timezone',
 	};
 	scaleTypes = ['15min','30min','1hour', '2hour', '1day'];
 	savedScaleType = null;
@@ -23,13 +24,16 @@ export class Planner extends EventEmitter
 	EXPAND_DELAY = 2000; // ms
 	REBUILD_DELAY = 100;
 	maxTimelineSize = 300;
-	MIN_ENTRY_ROWS = 3;
+	initialMinEntryRows = 3;
+	MIN_ENTRY_ROWS = this.initialMinEntryRows;
 	MAX_ENTRY_ROWS = 300;
 	width = 700;
 	height = 84;
 	minWidth = 700;
 	minHeight = 84;
 	workTime = [8, 18];
+	warningHoursFrom = 9;
+	warningHoursTo = 18;
 	scrollStep = 10;
 	shown = false;
 	built = false;
@@ -55,8 +59,12 @@ export class Planner extends EventEmitter
 		this.userId = parseInt(params.userId || Loc.getMessage('USER_ID'));
 		this.DOM.wrap = params.wrap;
 		this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
+		this.userTimezone = Util.getUserSettings().timezoneName;
+		this.currentTimezone = Type.isStringFilled(params.entryTimezone) ? params.entryTimezone : this.userTimezone;
 
 		this.expandTimelineDebounce = Runtime.debounce(this.expandTimeline, this.EXPAND_DELAY, this);
+		this.showMoreUsersBind = this.showMoreUsers.bind(this);
+		this.hideMoreUsersBind = this.hideMoreUsers.bind(this);
 		this.setConfig(params);
 	}
 
@@ -212,16 +220,6 @@ export class Planner extends EventEmitter
 			this.height = this.minHeight = compactHeight;
 		}
 
-		// Select mode
-		if (params.selectEntriesMode !== undefined)
-		{
-			this.selectMode = !!params.selectEntriesMode;
-		}
-		else if (this.selectMode === undefined)
-		{
-			this.selectMode = false;
-		}
-
 		if (Type.isInteger(params.SCALE_OFFSET_BEFORE))
 		{
 			this.SCALE_OFFSET_BEFORE = parseInt(params.SCALE_OFFSET_BEFORE);
@@ -307,6 +305,16 @@ export class Planner extends EventEmitter
 
 		// Scale params
 		this.setScaleLimits(params.scaleDateFrom, params.scaleDateTo);
+
+		const warningTimeFrom = Util.config?.work_time_start ?? 9;
+		const warningTimeTo = Util.config?.work_time_end ?? 18;
+
+		const date = new Date().toDateString();
+		const warningDateFrom = new Date(`${date} ${`${warningTimeFrom}`.replace('.', ':')}:00`);
+		const warningDateTo = new Date(`${date} ${`${warningTimeTo}`.replace('.', ':')}:00`);
+
+		this.warningHoursFrom = this.getDateHours(warningDateFrom);
+		this.warningHoursTo = this.getDateHours(warningDateTo);
 	}
 
 	updateScaleLimitsFromEntry(from, to)
@@ -438,30 +446,46 @@ export class Planner extends EventEmitter
 
 	build()
 	{
-		if (!Type.isDomNode(this.DOM.wrap))
+		this.DOM.wrap.style.width = this.width + 'px';
+		this.DOM.wrap.append(this.render());
+
+		if (this.isLocked())
 		{
-			throw new TypeError("Wrap is not DOM node");
+			this.lock();
 		}
 
-		this.DOM.wrap.style.width = this.width + 'px';
+		this.built = true;
+		window.plannerr = this;
+	}
 
-		// Left part - list of users and other resources
-		let entriesListWidth = this.compactMode ? 0 : this.entriesListWidth;
+	render()
+	{
+		this.selector = this.createSelector();
 
-		// Timeline with accessibility information
-		this.DOM.mainWrap = this.DOM.wrap.appendChild(BX.create('DIV', {
-			props: {
-				className: 'calendar-planner-main-container calendar-planner-main-container-resource'
-			},
-			style: {
-				minHeight: this.minHeight + 'px',
-				height: this.height + 'px',
-				width: this.width + 'px'
-			}
-		}));
+		this.DOM.mainWrap = Tag.render`
+			<div
+				class="calendar-planner-main-container calendar-planner-main-container-resource"
+				style="
+					min-height: ${this.minHeight}px;
+					height: ${this.height}px;
+					width: ${this.width}px;
+				"
+			>
+				${this.renderEntriesOuterWrap()}
+				${this.renderTimelineFixedWrap()}
+				${this.renderSelectorPopup()}
+				${this.renderTimezoneNoticeCount()}
+				${this.selector.getTitleNode()}
+				${this.renderSettingsButton()}
+			</div>
+		`;
+
+		this.selector.DOM.timelineFixedWrap = this.DOM.timelineFixedWrap;
+		this.selector.DOM.timelineWrap = this.DOM.timelineVerticalConstraint;
 
 		if (!this.showEntryName)
 		{
+			this.DOM.entriesOuterWrap.style.width = '55px';
 			Dom.addClass(this.DOM.mainWrap, 'calendar-planner-entry-icons-only');
 		}
 
@@ -470,95 +494,17 @@ export class Planner extends EventEmitter
 			Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
 		}
 
-		this.DOM.entriesOuterWrap = this.DOM.mainWrap.appendChild(Tag.render`
-			<div class="calendar-planner-user-container" style="width: ${entriesListWidth}px; height: ${this.height}px;"></div>
-		`);
-
-		Util.preventSelection(this.DOM.entriesOuterWrap);
 		if (this.compactMode)
 		{
 			Dom.addClass(this.DOM.mainWrap, 'calendar-planner-compact');
-			this.DOM.entriesOuterWrap.style.display = 'none';
 		}
 
-		if (this.isOneDayScale())
-		{
-			Dom.addClass(this.DOM.entriesOuterWrap, 'calendar-planner-no-daytitle');
-		}
-		else
-		{
-			Dom.removeClass(this.DOM.entriesOuterWrap, 'calendar-planner-no-daytitle');
-		}
+		return this.DOM.mainWrap;
+	}
 
-		if (this.showEntiesHeader !== false)
-		{
-			this.DOM.entrieListHeader = this.DOM.entriesOuterWrap.appendChild(Tag.render`
-				<div class="calendar-planner-header"></div>
-			`)
-			.appendChild(Tag.render`
-				<div class="calendar-planner-general-info"></div>
-			`)
-			.appendChild(Tag.render`
-				<div class="calendar-planner-users-header"></div>
-			`);
-
-			this.entriesListTitleCounter = this.DOM.entrieListHeader.appendChild(Tag.render`
-				<span class="calendar-planner-users-item">
-					${Loc.getMessage('EC_PL_ATTENDEES_TITLE') + ' '}
-				</span>
-			`)
-			.appendChild(Tag.render`<span></span>`);
-		}
-
-		this.DOM.entrieListWrap = this.DOM.entriesOuterWrap.appendChild(Tag.render`
-			<div class="calendar-planner-user-container-inner"></div>
-		`);
-
-		// Fixed cont with specific width and height
-		this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(Tag.render`
-			<div class="calendar-planner-timeline-wrapper" style="height: ${this.height}px"></div>
-		`);
-
-		if (this.isLocked())
-		{
-			this.lock();
-		}
-
-		// overflow-y: hidden;
-		this.DOM.timelineVerticalConstraint = this.DOM.timelineFixedWrap.appendChild(Tag.render`
-			<div class="calendar-planner-timeline-constraint"></div>
-		`);
-
-		// Movable cont - used to move scale and data containers easy and at the same time
-		this.DOM.timelineInnerWrap = this.DOM.timelineVerticalConstraint.appendChild(Tag.render`
-			<div class="calendar-planner-timeline-inner-wrapper" data-bx-planner-meta="timeline"></div>
-		`);
-
-		// Scale container
-		this.DOM.timelineScaleWrap = this.DOM.timelineInnerWrap.appendChild(Tag.render`
-			<div class="calendar-planner-time"></div>
-		`);
-		Util.preventSelection(this.DOM.timelineScaleWrap);
-
-		// Accessibility container
-		this.DOM.timelineDataWrap = this.DOM.timelineInnerWrap.appendChild(Tag.render`
-			<div class="calendar-planner-timeline-container" style="height: ${this.height}px"></div>
-		`);
-		// Container with accessibility entries elements
-		this.DOM.accessibilityWrap = this.DOM.timelineDataWrap.appendChild(Tag.render`
-			<div class="calendar-planner-acc-wrap"></div>
-		`);
-
-		if (this.isTodayButtonEnabled())
-		{
-			this.DOM.timelineVerticalConstraint.addEventListener('scroll', this.updateTodayButtonVisibility.bind(this));
-		}
-
-		// Selector
-		this.selector = new Selector({
-			selectMode: this.selectMode,
-			timelineFixedWrap: this.DOM.timelineFixedWrap,
-			timelineWrap: this.DOM.timelineVerticalConstraint,
+	createSelector()
+	{
+		const selector = new Selector({
 			getPosByDate: this.getPosByDate.bind(this),
 			getDateByPos: this.getDateByPos.bind(this),
 			getEvents: this.getAllEvents.bind(this),
@@ -576,34 +522,254 @@ export class Planner extends EventEmitter
 			}},
 			getTimelineWidth: () => {
 				return parseInt(this.DOM.timelineInnerWrap.style.width)
-			}
+			},
 		});
-		this.DOM.timelineDataWrap.appendChild(this.selector.getWrap());
-		this.DOM.mainWrap.appendChild(this.selector.getTitleNode());
-		this.selector.subscribe('onChange', this.handleSelectorChanges.bind(this));
-		this.selector.subscribe('doCheckStatus', this.doCheckSelectorStatus.bind(this));
+		selector.subscribe('onChange', this.handleSelectorChanges.bind(this));
+		selector.subscribe('doCheckStatus', this.doCheckSelectorStatus.bind(this));
+		selector.subscribe('onBeginChange', this.onBeginChangeHandler.bind(this));
+		selector.subscribe('onStopAutoScroll', this.onStopAutoScrollHandler.bind(this));
+		selector.subscribe('onStartTransit', this.hideTimezoneNotice.bind(this));
 
-		if (this.selectMode)
+		return selector;
+	}
+
+	renderEntriesOuterWrap()
+	{
+		this.DOM.entriesOuterWrap = Tag.render`
+			<div
+				class="calendar-planner-user-container"
+				style="
+					width: ${this.entriesListWidth}px;
+					height: ${this.height}px;
+				"
+			>
+				${this.renderEntriesListHeader()}
+				${this.renderEntriesListWrap()}
+			</div>
+		`;
+
+		Util.preventSelection(this.DOM.entriesOuterWrap);
+		if (this.compactMode)
 		{
-			this.selectedEntriesWrap = this.DOM.mainWrap.appendChild(Tag.render`
-				<div class="calendar-planner-timeline-select-entries-wrap"></div>
-			`);
-
-			this.hoverRow = this.DOM.mainWrap.appendChild(Tag.render`
-				<div class="calendar-planner-timeline-hover-row" style="top: 0; width: ${parseInt(this.DOM.mainWrap.offsetWidth)}px"></div>
-			`);
-
-
-			Event.bind(document, 'mousemove', this.mouseMoveHandler.bind(this));
+			this.DOM.entriesOuterWrap.style.display = 'none';
 		}
 
-		if (!this.compactMode)
+		if (this.isOneDayScale())
 		{
-			this.DOM.settingsButton = this.DOM.mainWrap.appendChild(Tag.render`<div class="calendar-planner-settings-icon-container" title="${Loc.getMessage('EC_PL_SETTINGS_SCALE')}"><span class="calendar-planner-settings-title">${Loc.getMessage('EC_PL_SETTINGS_SCALE')}</span><span class="calendar-planner-settings-icon"></span></div>`);
-			Event.bind(this.DOM.settingsButton, 'click', () => this.showSettingsPopup());
+			Dom.addClass(this.DOM.entriesOuterWrap, 'calendar-planner-no-daytitle');
+		}
+		else
+		{
+			Dom.removeClass(this.DOM.entriesOuterWrap, 'calendar-planner-no-daytitle');
 		}
 
-		this.built = true;
+		return this.DOM.entriesOuterWrap;
+	}
+
+	renderEntriesListHeader()
+	{
+		if (!this.showEntiesHeader)
+		{
+			return '';
+		}
+
+		return Tag.render`
+			<div class="calendar-planner-header">
+				<div class="calendar-planner-general-info">
+					<div class="calendar-planner-users-header">
+						<span class="calendar-planner-users-item">
+							${Loc.getMessage('EC_PL_ATTENDEES_TITLE') + ' '}
+							${this.renderEntriesListTitleCounter()}
+						</span>
+					</div>
+				</div>
+			</div>
+		`;
+	}
+
+	renderEntriesListTitleCounter()
+	{
+		this.entriesListTitleCounter = Tag.render`
+			<span></span>
+		`;
+
+		return this.entriesListTitleCounter;
+	}
+
+	renderEntriesListWrap()
+	{
+		this.DOM.entrieListWrap = Tag.render`
+			<div
+				class="calendar-planner-user-container-inner"
+				style="
+					width: ${this.entriesListWidth - 25}px;
+				"
+			></div>
+		`;
+
+		return this.DOM.entrieListWrap;
+	}
+
+	renderTimelineFixedWrap()
+	{
+		this.DOM.timelineFixedWrap = Tag.render`
+			<div class="calendar-planner-timeline-wrapper" style="height: ${this.height}px;">
+				${this.renderTimelineVerticalConstraint()}
+			</div>
+		`;
+
+		return this.DOM.timelineFixedWrap;
+	}
+
+	renderTimelineVerticalConstraint()
+	{
+		this.DOM.timelineVerticalConstraint = Tag.render`
+			<div class="calendar-planner-timeline-constraint">
+				${this.renderTimelineInnerWrap()}
+			</div>
+		`;
+
+		if (this.isTodayButtonEnabled())
+		{
+			this.DOM.timelineVerticalConstraint.addEventListener('scroll', this.onScrollHandler.bind(this));
+		}
+
+		return this.DOM.timelineVerticalConstraint;
+	}
+
+	renderTimelineInnerWrap()
+	{
+		this.DOM.timelineInnerWrap = Tag.render`
+			<div class="calendar-planner-timeline-inner-wrapper" data-bx-planner-meta="timeline">
+				${this.renderTimelineScaleWrap()}
+				${this.renderTimelineDataWrap()}
+			</div>
+		`;
+
+		return this.DOM.timelineInnerWrap;
+	}
+
+	renderTimelineScaleWrap()
+	{
+		this.DOM.timelineScaleWrap = Tag.render`
+			<div class="calendar-planner-time"></div>
+		`;
+		Util.preventSelection(this.DOM.timelineScaleWrap);
+
+		return this.DOM.timelineScaleWrap;
+	}
+
+	renderTimelineDataWrap()
+	{
+		this.DOM.timelineDataWrap = Tag.render`
+			<div class="calendar-planner-timeline-container" style="height: ${this.height}px">
+				${this.renderTimelineAccessibilityWrap()}
+				${this.selector.getWrap()}
+			</div>
+		`;
+
+		return this.DOM.timelineDataWrap;
+	}
+
+	renderTimelineAccessibilityWrap()
+	{
+		this.DOM.accessibilityWrap = Tag.render`
+			<div class="calendar-planner-acc-wrap"></div>
+		`;
+
+		return this.DOM.accessibilityWrap;
+	}
+
+	renderSettingsButton()
+	{
+		if (this.compactMode)
+		{
+			return ''
+		}
+
+		this.DOM.settingsButton = Tag.render`
+			<div class="calendar-planner-settings-icon-container" title="${Loc.getMessage('EC_PL_SETTINGS_SCALE')}">
+				<span class="calendar-planner-settings-title">
+					${Loc.getMessage('EC_PL_SETTINGS_SCALE')}
+				</span>
+				<span class="calendar-planner-settings-icon"></span>
+			</div>
+		`;
+
+		Event.bind(this.DOM.settingsButton, 'click', () => this.showSettingsPopup());
+
+		return this.DOM.settingsButton;
+	}
+
+	renderSelectorPopup()
+	{
+		this.DOM.selectorPopup = Tag.render`
+			<div class="calendar-planner-selector-notice-popup" style="display: none;">
+				${Loc.getMessage('EC_PLANNER_TIMEZONE_NOTICE')}
+			</div>
+		`;
+
+		Event.bind(this.DOM.selectorPopup, 'click', () => this.hideSelectorPopup());
+
+		this.doShowTimezoneNoticePopup = true;
+
+		return this.DOM.selectorPopup;
+	}
+
+	renderTimezoneNoticeCount()
+	{
+		this.DOM.timezoneNoticeCount = Tag.render`
+			<div class="calendar-planner-timezone-count-notice" style="display: none;">
+				${this.renderTimezoneNoticeText(1)}
+			</div>
+		`;
+
+		return this.DOM.timezoneNoticeCount;
+	}
+
+	renderTimezoneNoticeText(count, isWarning = false)
+	{
+		const warningClass = isWarning ? '--warning' : '';
+		return Loc.getMessage('EC_PLANNER_TIMEZONE_NOTICE_TEXT', {
+			'#CLASS#': `calendar-planner-timezone-count-notice-text ${warningClass}`,
+			'#COUNT#': count,
+		});
+	}
+
+	renderVacationNode()
+	{
+		const vacationNode = Tag.render`
+			<div class="calendar-planner-timeline-side-notice --vacation" style="display: none;">
+				${Loc.getMessage('EC_PLANNER_IN_VACATION')}
+			</div>
+		`;
+
+		Event.bind(vacationNode, 'mouseenter', this.showHintPopup.bind(this, vacationNode));
+		Event.bind(vacationNode, 'mouseleave', this.hideHintPopup.bind(this, vacationNode));
+
+		return vacationNode;
+	}
+
+	showHintPopup(node)
+	{
+		node.hintPopup = Tag.render`
+			<div class="calendar-planner-selector-notice-popup --hint">
+				${node.dataHint}
+			</div>
+		`;
+
+		Event.bind(this.DOM.selectorPopup, 'click', () => this.hideHintPopup(node));
+
+		this.DOM.entrieListWrap.style.zIndex = '';
+		this.DOM.entrieListWrap.style.overflow = '';
+		this.DOM.entrieListWrap.style.clipPath = '';
+
+		node.append(node.hintPopup);
+	}
+
+	hideHintPopup(node)
+	{
+		node.hintPopup.remove();
 	}
 
 	buildTimeline(clearCache)
@@ -721,6 +887,8 @@ export class Planner extends EventEmitter
 			this.lastTimelineKey = this.getTimelineShownKey();
 			this.checkRebuildTimeout(timelineOffset);
 			this.buildTodayButtonWrap();
+
+			this.scrollLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
 		}
 	}
 
@@ -835,9 +1003,9 @@ export class Planner extends EventEmitter
 		}
 	}
 
-	rebuildDebounce(timeout = this.REBUILD_DELAY)
+	rebuildDebounce(params)
 	{
-		Runtime.debounce(this.rebuild, timeout, this)();
+		Runtime.debounce(this.rebuild, this.REBUILD_DELAY, this)(params);
 	}
 
 	extendTimelineToLeft(extendedTimeFrom, extendedTimeTo)
@@ -1017,13 +1185,15 @@ export class Planner extends EventEmitter
 		{
 			this.buildTimeline(true);
 			this.update(this.entries, this.accessibility);
-			this.adjustHeight();
 			this.resizePlannerWidth(this.width);
 
 			if (params.updateSelector !== false)
 			{
 				this.selector.update(params.selectorParams);
-				this.selector.focus(false, 0, true);
+				if (params.dontFocus !== true)
+				{
+					this.selector.focus(false, 0, true);
+				}
 			}
 
 			this.clearCacheTime();
@@ -1080,7 +1250,16 @@ export class Planner extends EventEmitter
 		return this.scaleType === '1day';
 	}
 
-	static prepareAccessibilityItem(entry)
+	prepareAccessibilityItem(entry)
+	{
+		const userOffset = Util.getTimeZoneOffset(this.userTimezone);
+		const timezoneOffset = Util.getTimeZoneOffset(this.currentTimezone);
+		const timeOffset = (userOffset - timezoneOffset) * 60 * 1000;
+
+		return Planner.prepareAccessibilityItem(entry, timeOffset);
+	}
+
+	static prepareAccessibilityItem(entry, timeOffset = 0)
 	{
 		if (!Type.isDate(entry.from))
 		{
@@ -1097,19 +1276,28 @@ export class Planner extends EventEmitter
 			return false;
 		}
 
-		entry.from.setSeconds(0,0);
-		entry.fromTimestamp = entry.from.getTime();
-
-		entry.to.setSeconds(0,0);
-		entry.toTimestamp = entry.to.getTime();
-
-		if (!Type.isDate(entry.toReal))
+		let from = new Date(entry.from.getTime());
+		let to = new Date(entry.to.getTime());
+		from.setSeconds(0,0);
+		to.setSeconds(0,0);
+		if (!entry.isFullDay)
 		{
-			entry.toReal = entry.to;
-			entry.toTimestampReal = entry.toTimestamp;
+			from = new Date(from.getTime() + timeOffset);
+			to = new Date(to.getTime() + timeOffset);
 		}
 
-		return entry;
+		const fromTimestamp = from.getTime();
+		const toTimestamp = to.getTime();
+		const toReal = new Date(to.getTime());
+		const toTimestampReal = toTimestamp;
+		const name = entry.name || entry.title;
+		const type = entry.isVacation ? 'hr' : 'event';
+
+		entry.fromTimestamp = fromTimestamp;
+		entry.toTimestamp = toTimestamp;
+		entry.toTimestampReal = toTimestamp;
+
+		return { from, to, fromTimestamp, toTimestamp, toReal, toTimestampReal, name, type };
 	}
 
 	addAccessibilityItem(entry, wrap)
@@ -1173,8 +1361,7 @@ export class Planner extends EventEmitter
 
 			entry.node = wrap.appendChild(BX.create('DIV', {
 				props: {
-					className: 'calendar-planner-acc-entry'
-						+ (entry.type && entry.type === 'hr' ? ' calendar-planner-acc-entry-hr' : '')
+					className: 'calendar-planner-acc-entry',
 				},
 				style: {
 					left: fromPos + 'px',
@@ -1182,9 +1369,9 @@ export class Planner extends EventEmitter
 				}
 			}));
 
-			if (entry.title || entry.name)
+			if (entry.name)
 			{
-				entry.node.title = entry.title || entry.name;
+				entry.node.title = entry.name;
 			}
 		}
 	}
@@ -1198,11 +1385,18 @@ export class Planner extends EventEmitter
 				<div class="calendar-planner-user"></div>
 			`);
 
+			this.DOM.statusNodeAll = this.getStatusNode('tzAll');
+			if (!entry.hasDifferentTimezone || this.readonly)
+			{
+				this.DOM.statusNodeAll.style.display = 'none';
+			}
+
 			if (this.showEntryName)
 			{
 				this.DOM.showMoreUsersLink = rowWrap.appendChild(Tag.render`
 					<div class="calendar-planner-all-users" title="${entry.title || ''}">
 						${entry.name}
+						${this.DOM.statusNodeAll}
 					</div>
 				`);
 			}
@@ -1210,12 +1404,15 @@ export class Planner extends EventEmitter
 			{
 				this.DOM.showMoreUsersLink = rowWrap.appendChild(Tag.render`
 					<div class="calendar-planner-users-more" title="${entry.name || ''}">
-						<span class="calendar-planner-users-more-btn"></span>
+						<span class="calendar-planner-users-more-btn">
+							${this.DOM.statusNodeAll}
+						</span>
 					</div>
 				`);
 			}
-			Event.bind(this.DOM.showMoreUsersLink, 'click', () => this.showMoreUsers());
-
+			Event.bind(this.DOM.showMoreUsersLink, 'click', this.showMoreUsersBind);
+			Event.bind(this.selector.DOM.moreButton, 'click', this.showMoreUsersBind);
+			this.selector.DOM.moreButton.style.display = '';
 		}
 		else if (entry.type === 'lastUsers')
 		{
@@ -1250,38 +1447,40 @@ export class Planner extends EventEmitter
 				}
 			}));
 
-			if (entry.status && this.entryStatusMap[entry.status])
+			entry.vacationNode = this.renderVacationNode();
+
+			if (entry.timezoneName)
 			{
-				rowWrap.appendChild(BX.create('SPAN', {
-					props: {
-						className: 'calendar-planner-user-status-icon '
-							+ this.entryStatusMap[entry.status],
-						title: Loc.getMessage('EC_PL_STATUS_'
-							+ entry.status.toUpperCase())
-					}
-				}));
+				entry.statusNode = this.getStatusNode(entry.status, entry.timezoneName);
+				rowWrap.append(entry.statusNode);
+			}
+
+			if (!this.showEntryName)
+			{
+				rowWrap.append(entry.vacationNode);
+			}
+
+			if (!this.hasCorrectStatus(entry) && entry.statusNode)
+			{
+				entry.statusNode.style.display = 'none';
 			}
 
 			rowWrap.appendChild(Planner.getEntryAvatarNode(entry));
 
 			if (this.showEntryName)
 			{
-				rowWrap.appendChild(Tag.render`
-					<span class="calendar-planner-user-name"></span>
-				`)
-				.appendChild(BX.create('SPAN', {
-					props: {
-						className: 'calendar-planner-entry-name'
-					},
-					attrs: {
-						'bx-tooltip-user-id': entry.id,
-						'bx-tooltip-classname': 'calendar-planner-user-tooltip'
-					},
-					style: {
-						width: (this.entriesListWidth - 42) + 'px'
-					},
-					text: entry.name
-				}))
+				rowWrap.append(Tag.render`
+					<span class="calendar-planner-user-name">
+						<span
+							class="calendar-planner-entry-name"
+							bx-tooltip-user-id="${entry.id}"
+							bx-tooltip-classname="calendar-planner-user-tooltip"
+						>
+							${Text.encode(entry.name)}
+						</span>
+						${entry.vacationNode}
+					</span>
+				`);
 			}
 		}
 		else if (entry.id && entry.type === 'room')
@@ -1358,27 +1557,27 @@ export class Planner extends EventEmitter
 			<div class="calendar-planner-timeline-space" style="top:${top}px" data-bx-planner-entry="${entry.uid||0}"></div>
 		`);
 
-		if (this.selectMode)
-		{
-			entry.selectorControlWrap = this.selector.controlWrap.appendChild(Tag.render`
-				<div class="calendar-planner-selector-control-row" data-bx-planner-entry="${entry.uid}" style="top: ${top - 4}px;"></div>
-			`);
-
-			if (entry.selected)
-			{
-				this.selectEntryRow(entry);
-			}
-		}
-
 		//this.entriesRowMap.set(entry, rowWrap);
 		this.entriesDataRowMap.set(entry.uid, dataRowWrap);
-		accessibility.forEach((item) => {
-			item = Planner.prepareAccessibilityItem(item);
-			if (item)
-			{
-				this.addAccessibilityItem(item, dataRowWrap);
-			}
-		});
+		accessibility.forEach((item) => this.addAccessibilityItem(item, dataRowWrap));
+	}
+
+	hasCorrectStatus(entry)
+	{
+		return entry.status && this.entryStatusMap[entry.status];
+	}
+
+	getStatusNode(status, timezoneName = '')
+	{
+		const statusMessage = 'EC_PL_STATUS_' + status.toUpperCase();
+		const title = Loc.hasMessage(statusMessage) ? Loc.getMessage(statusMessage) : Util.getFormattedTimezone(timezoneName);
+
+		return Tag.render`
+			<span
+				class="calendar-planner-user-status-icon ${this.entryStatusMap[status]}"
+				title="${title}"
+			></span>
+		`;
 	}
 
 	static getEntryAvatarNode(entry)
@@ -1502,31 +1701,6 @@ export class Planner extends EventEmitter
 			nodeTarget = e.target || e.srcElement,
 			accuracyMouse = 5;
 
-		if (this.selectMode &&
-			Dom.hasClass(nodeTarget, 'calendar-planner-selector-control-row'))
-		{
-			let entry = this.getEntryByUniqueId(nodeTarget.getAttribute('data-bx-planner-entry'));
-			if (entry)
-			{
-				if (!this.isEntrySelected(entry))
-				{
-					this.selectEntryRow(entry);
-				}
-				else
-				{
-					this.deSelectEntryRow(entry);
-				}
-
-				this.selector.checkStatus();
-
-				BX.onCustomEvent('OnCalendarPlannerSelectedEntriesOnChange', [{
-					plannerId: this.id,
-					entries: this.entries
-				}]);
-			}
-			return;
-		}
-
 		if (!this.readonly)
 		{
 			let
@@ -1564,6 +1738,12 @@ export class Planner extends EventEmitter
 		}
 
 		let nodeTarget = e.target || e.srcElement;
+
+		if (this.selector.DOM.timeWrap.contains(nodeTarget))
+		{
+			return;
+		}
+
 		this.mouseDownMousePos = this.getMousePos(e);
 		this.mouseDown = true;
 
@@ -1588,6 +1768,20 @@ export class Planner extends EventEmitter
 				this.startScrollTimeline();
 			}
 		}
+
+		if (this.shouldShakeSelector(nodeTarget))
+		{
+			this.showSelectorPopup(Loc.getMessage('EC_PLANNER_CANT_DRAG_SHARED_EVENT'));
+			this.selector.shake();
+		}
+	}
+
+	shouldShakeSelector(nodeTarget)
+	{
+		const isSelector = this.findTarget(nodeTarget, 'selector');
+		const isNotMoreButton = nodeTarget !== this.selector.DOM.moreButton;
+
+		return this.readonly && !this.solidStatus && isSelector && isNotMoreButton;
 	}
 
 	handleMouseup()
@@ -1614,14 +1808,7 @@ export class Planner extends EventEmitter
 
 	handleMousemove(e)
 	{
-		let
-			mousePos,
-			target = e.target || e.srcElement;
-
-		if (this.selectMode && target && target.getAttribute && target.getAttribute('data-bx-planner-entry'))
-		{
-			this.lastTouchedEntry = target;
-		}
+		let mousePos;
 
 		if (this.selector.isDragged())
 		{
@@ -1630,7 +1817,7 @@ export class Planner extends EventEmitter
 			this.selector.resize(mousePos.x - this.startMousePos.x);
 		}
 
-		if(this.timelineIsDraged)
+		if (this.timelineIsDraged)
 		{
 			mousePos = this.getMousePos(e);
 			this.scrollTimeline(mousePos.x - this.startMousePos.x);
@@ -1662,9 +1849,16 @@ export class Planner extends EventEmitter
 		}
 	}
 
+	onScrollHandler()
+	{
+		this.scrollLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
+		this.updateTodayButtonVisibility();
+		this.updateWorkTimeNotice();
+	}
+
 	updateTodayButtonVisibility(animation = true)
 	{
-		if (this.isOneDayScale())
+		if (!this.isTodayButtonEnabled() || this.isOneDayScale())
 		{
 			return;
 		}
@@ -2076,8 +2270,23 @@ export class Planner extends EventEmitter
 	showMoreUsers()
 	{
 		this.MIN_ENTRY_ROWS = this.MAX_ENTRY_ROWS;
-		this.update(this.entries, this.accessibility);
-		this.rebuildDebounce();
+		this.rebuild({ dontFocus: true });
+
+		Dom.addClass(this.selector.DOM.moreButton, '--close');
+
+		Event.unbind(this.selector.DOM.moreButton, 'click', this.showMoreUsersBind);
+		Event.bind(this.selector.DOM.moreButton, 'click', this.hideMoreUsersBind);
+	}
+
+	hideMoreUsers()
+	{
+		this.MIN_ENTRY_ROWS = this.initialMinEntryRows;
+		this.rebuild({ dontFocus: true });
+
+		Dom.removeClass(this.selector.DOM.moreButton, '--close');
+
+		Event.unbind(this.selector.DOM.moreButton, 'click', this.hideMoreUsersBind);
+		Event.bind(this.selector.DOM.moreButton, 'click', this.showMoreUsersBind);
 	}
 
 	adjustHeight()
@@ -2088,50 +2297,63 @@ export class Planner extends EventEmitter
 
 		if (this.compactMode && currentHeight < newHeight || !this.compactMode)
 		{
-			this.DOM.wrap.style.height = currentHeight + 'px';
 			this.resizePlannerHeight(newHeight, Math.abs(newHeight - currentHeight) > 10);
 		}
 	}
 
 	resizePlannerHeight(height, animation = false)
 	{
-		this.height = height;
 		if (animation)
 		{
-			// Stop animation before starting another one
-			if(this.resizeAnimation)
-			{
-				this.resizeAnimation.stop();
-				this.resizeAnimation = null;
-			}
-			this.resizeAnimation = new BX.easing({
-				duration: 800,
-				start: {height: parseInt(this.DOM.wrap.style.height)},
-				finish: {height: height},
-				transition: BX.easing.makeEaseOut(BX.easing.transitions.quart),
-				step: (state) => {
-					this.resizePlannerHeight(state.height, false);
-				},
-				complete: () => {this.resizeAnimation = null;}
-			});
-			this.resizeAnimation.animate();
+			const animationDuration = 300;
+			const top = parseInt(this.DOM.entrieListWrap.style.top);
+
+			this.updateHeightTransition(animationDuration);
+			this.DOM.entrieListWrap.style.zIndex = '10';
+			this.DOM.entrieListWrap.style.overflow = 'hidden';
+			this.DOM.entrieListWrap.style.clipPath = `inset(0 0 calc(100% - ${this.height - top}px))`;
+
+			setTimeout(() => {
+				this.updateHeight(height);
+				this.DOM.entrieListWrap.style.clipPath = `inset(0 0 calc(100% - ${height - top}px))`;
+
+				setTimeout(() => {
+					this.updateHeightTransition(0);
+					this.DOM.entrieListWrap.style.zIndex = '';
+					this.DOM.entrieListWrap.style.overflow = '';
+					this.DOM.entrieListWrap.style.clipPath = '';
+				}, animationDuration);
+			}, 0);
 		}
 		else
 		{
-			this.DOM.wrap.style.height = height + 'px';
-			this.DOM.mainWrap.style.height = height + 'px';
-			this.DOM.timelineFixedWrap.style.height = height + 'px';
-			let timelineDataContHeight = this.DOM.entrieListWrap.offsetHeight + 3;
-			this.DOM.timelineDataWrap.style.height = timelineDataContHeight + 'px';
-			// Todo: resize selector
-			//this.selector.wrap.style.height = (timelineDataContHeight + 10) + 'px';
-			this.DOM.entriesOuterWrap.style.height = height + 'px';
-
-			if (this.DOM.proposeTimeButton && this.DOM.proposeTimeButton.style.display !== "none")
-			{
-				this.DOM.proposeTimeButton.style.top = (this.DOM.timelineDataWrap.offsetTop + timelineDataContHeight / 2 - 16) + "px";
-			}
+			this.updateHeight(height);
 		}
+
+		this.height = height;
+		let timelineDataContHeight = this.DOM.entrieListWrap.offsetHeight + 3;
+		this.DOM.timelineDataWrap.style.height = timelineDataContHeight + 'px';
+		if (this.DOM.proposeTimeButton && this.DOM.proposeTimeButton.style.display !== "none")
+		{
+			this.DOM.proposeTimeButton.style.top = (this.DOM.timelineDataWrap.offsetTop + timelineDataContHeight / 2 - 16) + "px";
+		}
+	}
+
+	updateHeightTransition(duration)
+	{
+		this.DOM.wrap.style.transition = `height ${duration}ms ease`;
+		this.DOM.mainWrap.style.transition = `height ${duration}ms ease`;
+		this.DOM.timelineFixedWrap.style.transition = `height ${duration}ms ease`;
+		this.DOM.entriesOuterWrap.style.transition = `height ${duration}ms ease`;
+		this.DOM.entrieListWrap.style.transition = `clip-path ${duration}ms ease`;
+	}
+
+	updateHeight(height)
+	{
+		this.DOM.wrap.style.height = height + 'px';
+		this.DOM.mainWrap.style.height = height + 'px';
+		this.DOM.timelineFixedWrap.style.height = height + 'px';
+		this.DOM.entriesOuterWrap.style.height = height + 'px';
 	}
 
 	resizePlannerWidth(width, animation)
@@ -2140,6 +2362,12 @@ export class Planner extends EventEmitter
 		{
 			this.DOM.wrap.style.width = width + 'px';
 			let entriesListWidth = this.compactMode ? 0 : this.entriesListWidth;
+
+			if (!this.showEntryName)
+			{
+				entriesListWidth = 55;
+			}
+
 			this.DOM.mainWrap.style.width = width + 'px';
 			this.DOM.entriesOuterWrap.style.width = entriesListWidth + 'px';
 		}
@@ -2276,9 +2504,27 @@ export class Planner extends EventEmitter
 		return eventsAfter;
 	}
 
+	updateTimezone(timezone)
+	{
+		const currentOffset = Util.getTimeZoneOffset(this.currentTimezone);
+		const timezoneOffset = Util.getTimeZoneOffset(timezone);
+		this.currentTimezone = timezone;
+
+		if (currentOffset === timezoneOffset)
+		{
+			return;
+		}
+
+		if (this.isBuilt())
+		{
+			this.update(this.entries, this.accessibility);
+		}
+	}
+
 	update(entries = [], accessibility = {})
 	{
 		Dom.clean(this.DOM.entrieListWrap);
+
 		Dom.clean(this.DOM.accessibilityWrap);
 		this.entriesDataRowMap = new Map();
 
@@ -2287,10 +2533,24 @@ export class Planner extends EventEmitter
 			return;
 		}
 
+		if (this.entries?.length !== entries.length)
+		{
+			this.doShowTimezoneNoticePopup = true;
+		}
+
 		this.entries = entries;
 		this.accessibility = [];
+		this.preparedAccessibility = [];
+		this.allEvents = [];
+
+		const currentOffset = Util.getTimeZoneOffset(this.currentTimezone);
 		this.entries.forEach((entry) => {
 			this.accessibility[entry.id] = accessibility[entry.id];
+			this.preparedAccessibility[entry.id] = accessibility[entry.id].map((it) => this.prepareAccessibilityItem(it));
+			this.allEvents.push(...this.preparedAccessibility[entry.id]);
+			entry.timezoneOffset = Util.getTimeZoneOffset(entry.timezoneName);
+			entry.timezoneNameFormatted = Util.getFormattedTimezone(entry.timezoneName);
+			entry.offset = currentOffset - entry.timezoneOffset;
 		});
 
 		const userId = parseInt(this.userId);
@@ -2327,13 +2587,22 @@ export class Planner extends EventEmitter
 		const cutData = [];
 		const cutDataTitle = [];
 		let usersCount = 0;
-		let cutAmount = 0;
+		let cutEntries = [];
 		let dispDataCount = 0;
+
+		if (entries.length <= this.initialMinEntryRows + 1)
+		{
+			this.selector.DOM.moreButton.style.display = 'none';
+		}
+		else
+		{
+			this.selector.DOM.moreButton.style.display = '';
+		}
 
 		entries.forEach((entry, ind) => {
 			entry.uid = Planner.getEntryUniqueId(entry);
 
-			let accData = Type.isArray(accessibility[entry.uid]) ? accessibility[entry.uid] : [];
+			const accData = this.preparedAccessibility[entry.uid];
 			this.entriesIndex.set(entry.uid, entry);
 
 			if (entry.type === 'user')
@@ -2348,15 +2617,9 @@ export class Planner extends EventEmitter
 			}
 			else
 			{
-				cutAmount++;
+				cutEntries.push(entry);
 				cutDataTitle.push(entry.name);
-				accData.forEach((item) => {
-					item = Planner.prepareAccessibilityItem(item);
-					if (item)
-					{
-						cutData.push(item);
-					}
-				});
+				cutData.push(...accData);
 			}
 		});
 
@@ -2365,18 +2628,19 @@ export class Planner extends EventEmitter
 		{
 			this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
 		}
-			this.emit('onDisplayAttendees', new BaseEvent({
-				data:  {
-					usersCount: usersCount
-				}
-			}));
 
-		if (cutAmount > 0)
+		this.emit('onDisplayAttendees', new BaseEvent({
+			data:  {
+				usersCount: usersCount
+			}
+		}));
+
+		if (cutEntries.length > 0)
 		{
 			if (dispDataCount === this.MAX_ENTRY_ROWS)
 			{
 				this.displayEntryRow({
-					name: Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')',
+					name: Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutEntries.length + ')',
 					type: 'lastUsers',
 					title: cutDataTitle.join(', ')
 				}, cutData);
@@ -2384,8 +2648,9 @@ export class Planner extends EventEmitter
 			else
 			{
 				this.displayEntryRow({
-					name: Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutAmount + ')',
-					type: 'moreLink'
+					name: Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutEntries.length + ')',
+					type: 'moreLink',
+					hasDifferentTimezone: cutEntries.filter(entry => entry.offset !== 0).length > 0,
 				}, cutData);
 			}
 		}
@@ -2397,6 +2662,7 @@ export class Planner extends EventEmitter
 		Util.extendPlannerWatches({entries: entries, userId: this.userId});
 
 		this.adjustHeight();
+		this.updateWorkTimeNotice();
 	}
 
 	updateSelector(from, to, fullDay, options = {})
@@ -2464,6 +2730,8 @@ export class Planner extends EventEmitter
 			{
 				this.selector.focus(true, 300);
 			}
+
+			this.updateWorkTimeNotice();
 		}
 	}
 
@@ -2487,24 +2755,285 @@ export class Planner extends EventEmitter
 			{
 				this.extendScaleTime(this.currentToDate.getHours(), false);
 			}
+
+			this.updateWorkTimeNotice();
 		}
+	}
+
+	onStopAutoScrollHandler()
+	{
+		this.hideWorkTimeNotice();
+	}
+
+	onBeginChangeHandler()
+	{
+		this.hideWorkTimeNotice();
+	}
+
+	updateWorkTimeNotice()
+	{
+		if (!this.isWorkTimeNoticeEnabled())
+		{
+			return;
+		}
+
+		const selectorTime = this.selector.boundaryFrom ?? this.currentFromDate;
+		this.updateVacationNotice(selectorTime);
+		this.updateTimezoneNotice(selectorTime);
+	}
+
+	hideWorkTimeNotice()
+	{
+		this.hideVacationNotice();
+		this.hideTimezoneNotice();
+	}
+
+	updateVacationNotice(selectorTime)
+	{
+		for (const entry of this.entries.filter(entry => Type.isDomNode(entry.vacationNode)))
+		{
+			const currentVacations = this.accessibility[entry.id].filter((acc) => {
+				const from = acc.from.getTime();
+				const to = acc.to.getTime();
+				return acc.isVacation && from < selectorTime.getTime() && selectorTime.getTime() < to;
+			});
+
+			if (currentVacations.length > 0)
+			{
+				const to = Math.max(...currentVacations.map(vacation => vacation.to));
+				entry.vacationNode.dataHint = Loc.getMessage('EC_PLANNER_IN_VACATION_UNTIL', {
+					'#UNTIL#': Util.formatDate(to),
+				});
+				entry.vacationNode.style.display = '';
+			}
+			else
+			{
+				entry.vacationNode.style.display = 'none';
+			}
+		}
+	}
+
+	hideVacationNotice()
+	{
+		for (const entry of this.entries.filter(entry => Type.isDomNode(entry.vacationNode)))
+		{
+			entry.vacationNode.style.display = 'none';
+		}
+	}
+
+	updateTimezoneNotice(selectorTime)
+	{
+		if (!this.isSelectorVisible())
+		{
+			this.hideTimezoneNotice();
+			return;
+		}
+
+		const otherTimezoneEntries = this.entries.filter((entry) => this.isInternalUser(entry) && entry.offset !== 0);
+		const warningTimezoneEntries = otherTimezoneEntries.filter((entry) => {
+			const entryTime = new Date(selectorTime.getTime() + entry.offset * 60 * 1000);
+			const entryHours = this.getDateHours(entryTime);
+			return entryHours < this.warningHoursFrom || entryHours >= this.warningHoursTo;
+		});
+
+		if (Type.isDomNode(this.DOM.statusNodeAll))
+		{
+			Dom.removeClass(this.DOM.statusNodeAll, '--warning');
+		}
+
+		this.selector.clearTimeNodes();
+		for (const entry of otherTimezoneEntries)
+		{
+			const entryNode = this.entriesDataRowMap.get(entry.uid);
+			const entryTime = new Date(selectorTime.getTime() + entry.offset * 60 * 1000);
+			const entryHours = this.getDateHours(entryTime);
+			const isWarning = entryHours < this.warningHoursFrom || entryHours >= this.warningHoursTo;
+
+			if (Type.isDomNode(entryNode))
+			{
+				const top = parseInt(entryNode.style.top);
+				this.selector.showTimeNode(top, Util.formatTime(entryTime), entry.timezoneNameFormatted, isWarning);
+			}
+
+			this.showEntryStatusTimezone(entry, isWarning);
+		}
+
+		const isWarning = warningTimezoneEntries.length > 0;
+		if (isWarning)
+		{
+			Dom.addClass(this.selector.DOM.moreButton, '--warning');
+		}
+		else
+		{
+			Dom.removeClass(this.selector.DOM.moreButton, '--warning');
+		}
+
+		if (otherTimezoneEntries.length > 0)
+		{
+			this.showTimezoneNotice(otherTimezoneEntries.length, isWarning);
+		}
+		else
+		{
+			this.hideTimezoneNotice();
+		}
+	}
+
+	isInternalUser(entry)
+	{
+		return entry.type === 'user' && !entry.sharingUser && !entry.emailUser;
+	}
+
+	getDateHours(date)
+	{
+		return date.getHours() + date.getMinutes() / 60;
+	}
+
+	isSelectorVisible()
+	{
+		const timelineLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
+		const timelineRight = timelineLeft + this.DOM.timelineFixedWrap.offsetWidth;
+
+		const selectorWrap = this.selector.getWrap();
+		const selectorLeft = selectorWrap.offsetLeft;
+		const selectorRight = selectorWrap.offsetLeft + selectorWrap.offsetWidth;
+
+		return this.doSegmentsIntersect(selectorLeft, selectorRight, timelineLeft, timelineRight);
+	}
+
+	showTimezoneNotice(count, isWarning)
+	{
+		this.showTimezoneNoticeCount(count, isWarning);
+		if (isWarning)
+		{
+			this.showTimezoneNoticePopup();
+		}
+		else
+		{
+			this.hideTimezoneNoticePopup();
+		}
+	}
+
+	hideTimezoneNotice()
+	{
+		this.selector.clearTimeNodes();
+		this.hideTimezoneNoticeCount();
+		this.hideTimezoneNoticePopup();
+	}
+
+	showTimezoneNoticeCount(count, isWarning)
+	{
+		this.DOM.timezoneNoticeCount.innerHTML = this.renderTimezoneNoticeText(count, isWarning);
+
+		const left = this.getSelectorOffset();
+		this.DOM.timezoneNoticeCount.style.left = `${left}px`;
+		this.DOM.timezoneNoticeCount.style.display = 'block';
+		this.DOM.wrap.style.marginBottom = `${20}px`;
+	}
+
+	hideTimezoneNoticeCount()
+	{
+		this.DOM.timezoneNoticeCount.style.display = 'none';
+	}
+
+	showTimezoneNoticePopup()
+	{
+		if (!this.doShowTimezoneNoticePopup || this.isTimezoneNoticePopupShown)
+		{
+			return;
+		}
+
+		this.showSelectorPopup(Loc.getMessage('EC_PLANNER_TIMEZONE_NOTICE'));
+	}
+
+	hideTimezoneNoticePopup()
+	{
+		if (this.DOM.selectorPopup.style.display !== 'none')
+		{
+			this.doShowTimezoneNoticePopup = false;
+			this.isTimezoneNoticePopupShown = true;
+		}
+		this.hideSelectorPopup();
+	}
+
+	showSelectorPopup(text)
+	{
+		if (this.DOM.selectorPopup.style.display === 'block' && this.DOM.selectorPopup.innerText !== text)
+		{
+			this.DOM.selectorPopup.style.transition = 'color 200ms ease';
+			this.DOM.selectorPopup.style.color = '#ffffff00';
+			setTimeout(() => {
+				this.DOM.selectorPopup.innerText = text;
+				this.DOM.selectorPopup.style.color = '';
+			}, 200);
+		}
+		else
+		{
+			this.DOM.selectorPopup.style.transition = 'none';
+			this.DOM.selectorPopup.innerText = text;
+			this.DOM.selectorPopup.style.color = '';
+		}
+
+		const left = this.getSelectorOffset();
+		this.DOM.selectorPopup.style.left = `${left}px`;
+		this.DOM.selectorPopup.style.display = 'block';
+
+		clearTimeout(this.selectorPopupTimeout);
+		this.selectorPopupTimeout = setTimeout(() => this.hideTimezoneNoticePopup(), 3000);
+	}
+
+	hideSelectorPopup()
+	{
+		this.DOM.selectorPopup.style.display = 'none';
+	}
+
+	getSelectorOffset()
+	{
+		const scroll = this.scrollLeft;
+		const selectorWrap = this.selector.getWrap();
+		const selectorCenter = parseInt(selectorWrap.style.width) / 2 + parseInt(selectorWrap.style.left);
+		const userWrapWidth = parseInt(this.DOM.entriesOuterWrap.style.width);
+
+		return selectorCenter - scroll + userWrapWidth;
+	}
+
+	showEntryStatusTimezone(entry, isWarning)
+	{
+		if (!Type.isDomNode(entry.statusNode) || !this.DOM.wrap.contains(entry.statusNode))
+		{
+			if (Type.isDomNode(this.DOM.statusNodeAll))
+			{
+				this.DOM.statusNodeAll.style.display = '';
+			}
+
+			if (isWarning)
+			{
+				Dom.addClass(this.DOM.statusNodeAll, '--warning');
+			}
+
+			return;
+		}
+
+		entry.statusNode.style.display = '';
+		Dom.addClass(entry.statusNode, 'user-status-different-timezone');
+
+		if (isWarning)
+		{
+			Dom.addClass(entry.statusNode, '--warning');
+		}
+		else
+		{
+			Dom.removeClass(entry.statusNode, '--warning');
+		}
+	}
+
+	isWorkTimeNoticeEnabled()
+	{
+		return !this.solidStatus && Type.isArrayFilled(this.entries);
 	}
 
 	getAllEvents()
 	{
-		const events = [];
-		for (const entryId in this.accessibility)
-		{
-			if (!this.accessibility.hasOwnProperty(entryId) || !Type.isArray(this.accessibility[entryId]))
-			{
-				continue;
-			}
-			for (const event of this.accessibility[entryId])
-			{
-				events.push(event)
-			}
-		}
-		return events;
+		return this.allEvents;
 	}
 
 	doCheckSelectorStatus(event)
@@ -2550,29 +3079,12 @@ export class Planner extends EventEmitter
 		let
 			curTimestamp = Math.round(this.selector.getDateFrom().getTime() / (this.accuracy * 1000)) * this.accuracy * 1000,
 			curDate = new Date(curTimestamp),
-			duration = this.selector.getDuration(),
-			data = [], k, i;
+			duration = this.selector.getDuration();
 
 		curDate.setSeconds(0,0);
 		curTimestamp = curDate.getTime();
 
-		for (k in this.accessibility)
-		{
-			if (this.accessibility.hasOwnProperty(k) && this.accessibility[k] && this.accessibility[k].length > 0)
-			{
-				for (i = 0; i < this.accessibility[k].length; i++)
-				{
-					if (this.accessibility[k][i].toTimestampReal >= curTimestamp)
-					{
-						let item = Planner.prepareAccessibilityItem(this.accessibility[k][i]);
-						if (item)
-						{
-							data.push(item);
-						}
-					}
-				}
-			}
-		}
+		const data = [...this.allEvents];
 		data.sort(function(a, b){return a.fromTimestamp - b.fromTimestamp});
 
 		let ts = curTimestamp;
@@ -2704,10 +3216,6 @@ export class Planner extends EventEmitter
 			for (let i = 0; i < data.length; i++)
 			{
 				let item = data[i];
-				if (item.type && item.type === 'hr')
-				{
-					continue;
-				}
 
 				if ((item.fromTimestamp + accuracy) <= toTimestamp && ((item.toTimestampReal || item.toTimestamp) - accuracy) >= fromTimestamp)
 				{
@@ -2735,7 +3243,7 @@ export class Planner extends EventEmitter
 					{
 						entry = this.entries.find(function(el){return el.id === entryId.toString();});
 
-						if (!entry || this.selectMode && !entry.selected)
+						if (!entry)
 						{
 							continue;
 						}
@@ -2746,10 +3254,6 @@ export class Planner extends EventEmitter
 							for (let i = 0; i < this.accessibility[entryId].length; i++)
 							{
 								let item = this.accessibility[entryId][i];
-								if (item.type && item.type === 'hr')
-								{
-									continue;
-								}
 
 								if ((item.fromTimestamp + selectorAccuracy) <= toTimestamp && ((item.toTimestampReal || item.toTimestamp) - selectorAccuracy) >= fromTimestamp)
 								{
@@ -2772,23 +3276,6 @@ export class Planner extends EventEmitter
 	clearCacheTime()
 	{
 		this.checkTimeCache = {};
-	}
-
-	checkEntryTimePeriod(entry, fromDate, toDate)
-	{
-		let data = [], i;
-		if (entry && entry.id && BX.type.isArray(this.accessibility[entry.id]))
-		{
-			for (i = 0; i < this.accessibility[entry.id].length; i++)
-			{
-				let item = Planner.prepareAccessibilityItem(this.accessibility[entry.id][i]);
-				if (item)
-				{
-					data.push(item);
-				}
-			}
-		}
-		return this.checkTimePeriod(fromDate, toDate, data) === true;
 	}
 
 	showSettingsPopup()
@@ -3048,5 +3535,11 @@ export class Planner extends EventEmitter
 		return (x1 >= y1 && x1 <= y2)
 			|| (x2 >= y1 && x2 <= y2)
 			|| (x1 <= y1 && x2 >= y2);
+	}
+
+	setReadonly()
+	{
+		this.readonly = true;
+		Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
 	}
 }

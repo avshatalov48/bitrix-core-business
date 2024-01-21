@@ -43,7 +43,7 @@ class ProductRepository extends BaseIblockElementRepository implements ProductRe
 	{
 		$filter = parent::getAdditionalProductFilter();
 
-		$filter['@TYPE'] = [
+		$filter['=TYPE'] = [
 			ProductTable::TYPE_PRODUCT,
 			ProductTable::TYPE_SKU,
 			ProductTable::TYPE_EMPTY_SKU,

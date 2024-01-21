@@ -185,4 +185,16 @@ class UserToGroupTable extends Entity\DataManager
 	{
 		throw new NotImplementedException("Use CSocNetUserToGroup class.");
 	}
+
+	public static function getGroupModerators(int $groupId): array
+	{
+		$query = UserToGroupTable::query()
+			->setDistinct()
+			->setSelect(['USER_ID'])
+			->where('GROUP_ID', '=', $groupId)
+			->where('ROLE', '<=', UserToGroupTable::ROLE_MODERATOR)
+			->exec();
+
+		return $query->fetchAll() ?? [];
+	}
 }

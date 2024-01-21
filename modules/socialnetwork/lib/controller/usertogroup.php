@@ -11,6 +11,8 @@ use Bitrix\Main\Search\Content;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Socialnetwork\Helper;
 use Bitrix\Socialnetwork\Integration\Main\File;
+use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
+use Bitrix\Socialnetwork\Internals\EventService\Service;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 class UserToGroup extends Base
@@ -329,6 +331,19 @@ class UserToGroup extends Base
 			return null;
 		}
 
+		if ($confirmationNeeded)
+		{
+			// re-calculte counters for the group moderators
+			$moderators = UserToGroupTable::getGroupModerators($groupId);
+			Service::addEvent(
+				EventDictionary::EVENT_WORKGROUP_MEMBER_REQUEST_CONFIRM,
+				[
+					'GROUP_ID' => $groupId,
+					'RECEPIENTS' => array_map(function ($row) { return $row['USER_ID']; }, $moderators),
+				]
+			);
+		}
+
 		return [
 			'success' => true,
 			'confirmationNeeded' => $confirmationNeeded,
@@ -443,6 +458,44 @@ class UserToGroup extends Base
 			'userId' => $userId,
 			'groupId' => $groupId,
 		]);
+	}
+
+	public function acceptOutgoingRequestAction(int $groupId): bool
+	{
+		$userId = $this->getCurrentUser()->getId();
+
+		try
+		{
+			return Helper\Workgroup::acceptOutgoingRequest([
+				'groupId' => $groupId,
+				'userId' => $userId,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$this->addError(new Error($e->getMessage()));
+
+			return false;
+		}
+	}
+
+	public function rejectOutgoingRequestAction(int $groupId): bool
+	{
+		$userId = $this->getCurrentUser()->getId();
+
+		try
+		{
+			return Helper\Workgroup::rejectOutgoingRequest([
+				'groupId' => $groupId,
+				'userId' => $userId,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$this->addError(new Error($e->getMessage()));
+
+			return false;
+		}
 	}
 
 	public function acceptRequestAction(int $relationId, int $groupId): bool

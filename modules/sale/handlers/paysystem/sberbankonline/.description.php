@@ -24,6 +24,7 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_SBERBANK'),
+	'DESCRIPTION' => Loc::getMessage('SALE_HPS_SBERBANK_DESCRIPTION'),
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

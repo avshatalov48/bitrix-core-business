@@ -766,11 +766,13 @@ class AccessManager
 	{
 		return (
 			$this->canCurrentUserInitiate()
-			&& $this->currentUserRelation
-			&& in_array($this->currentUserRelation->get('ROLE'), [
-				UserToGroupTable::ROLE_OWNER,
-				UserToGroupTable::ROLE_MODERATOR
-			], true)
+			|| (
+				$this->currentUserRelation
+				&& in_array($this->currentUserRelation->get('ROLE'), [
+					UserToGroupTable::ROLE_OWNER,
+					UserToGroupTable::ROLE_MODERATOR
+				], true)
+			)
 		);
 	}
 

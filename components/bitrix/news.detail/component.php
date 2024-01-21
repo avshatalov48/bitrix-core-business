@@ -184,7 +184,7 @@ if (
 	|| $this->startResultCache(
 		false,
 		[
-			($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups()),
+			(isset($arParams["CACHE_GROUPS"]) && $arParams["CACHE_GROUPS"] === "N"? false : $USER->GetGroups()),
 			$bUSER_HAVE_ACCESS,
 			$arNavigation,
 			$pagerParameters,
@@ -300,7 +300,7 @@ if (
 	{
 		$arSelect[] = "PROPERTY_*";
 	}
-	if ($arParams['SET_CANONICAL_URL'] === 'Y')
+	if (isset($arParams['SET_CANONICAL_URL']) && $arParams['SET_CANONICAL_URL'] === 'Y')
 	{
 		$arSelect[] = 'CANONICAL_PAGE_URL';
 	}
@@ -309,7 +309,7 @@ if (
 	$arFilter["SHOW_HISTORY"] = $WF_SHOW_HISTORY;
 
 	$rsElement = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
-	$rsElement->SetUrlTemplates($arParams["DETAIL_URL"], "", $arParams["IBLOCK_URL"]);
+	$rsElement->SetUrlTemplates($arParams["DETAIL_URL"] ?? '', '', $arParams["IBLOCK_URL"]);
 	if($obElement = $rsElement->GetNextElement())
 	{
 		$arResult = $obElement->GetFields();
@@ -518,7 +518,7 @@ if (
 	{
 		$this->abortResultCache();
 		Iblock\Component\Tools::process404(
-			trim($arParams["MESSAGE_404"]) ?: GetMessage("T_NEWS_DETAIL_NF")
+			trim($arParams["MESSAGE_404"] ?? '') ?: GetMessage("T_NEWS_DETAIL_NF")
 			,true
 			,$arParams["SET_STATUS_404"] === "Y"
 			,$arParams["SHOW_404"] === "Y"
@@ -578,7 +578,7 @@ if(isset($arResult["ID"]))
 
 	$this->setTemplateCachedData($arResult["NAV_CACHED_DATA"]);
 
-	if ($arParams['SET_CANONICAL_URL'] === 'Y' && $arResult["CANONICAL_PAGE_URL"])
+	if (isset($arParams['SET_CANONICAL_URL']) && $arParams['SET_CANONICAL_URL'] === 'Y' && $arResult["CANONICAL_PAGE_URL"])
 	{
 		$APPLICATION->SetPageProperty('canonical', $arResult["CANONICAL_PAGE_URL"]);
 	}

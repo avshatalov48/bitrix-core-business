@@ -194,18 +194,18 @@ class MailServicesTable extends Entity\DataManager
 		{
 			$icons = array(
 				'bitrix24'	=> '/bitrix/images/mail/mailservice-icon/' . Localization\Loc::getMessage('mail_mailservice_bitrix24_icon'),
-				'gmail'	=> '/bitrix/images/mail/mailservice-icon/post-gmail-icon.png',
-				'icloud'	=> '/bitrix/images/mail/mailservice-icon/post-icloud-icon.png',
-				'outlook.com'	=> '/bitrix/images/mail/mailservice-icon/post-outlook-icon.png',
-				'office365'	=> '/bitrix/images/mail/mailservice-icon/post-office360-icon.png',
-				'yahoo'	=> '/bitrix/images/mail/mailservice-icon/post-yahoo-icon.png',
-				'aol'	=> '/bitrix/images/mail/mailservice-icon/post-aol-icon.png',
-				'yandex'	=> '/bitrix/images/mail/mailservice-icon/post-yandex-icon.png',
-				'mail.ru'	=> '/bitrix/images/mail/mailservice-icon/post-mail-icon.png',
+				'gmail'	=> '/bitrix/images/mail/mailservice-icon/post-gmail-icon.svg',
+				'icloud'	=> '/bitrix/images/mail/mailservice-icon/post-icloud-icon.svg',
+				'outlook.com'	=> '/bitrix/images/mail/mailservice-icon/post-outlook-icon.svg',
+				'office365'	=> '/bitrix/images/mail/mailservice-icon/post-office360-icon.svg',
+				'yahoo'	=> '/bitrix/images/mail/mailservice-icon/post-yahoo-icon.svg',
+				'aol'	=> '/bitrix/images/mail/mailservice-icon/post-aol-icon.svg',
+				'yandex'	=> '/bitrix/images/mail/mailservice-icon/post-yandex-icon.svg',
+				'mail.ru'	=> '/bitrix/images/mail/mailservice-icon/post-mail-icon.svg',
 				'ukr.net'	=> '/bitrix/images/mail/mailservice-icon/post-ukrnet-icon.png',
-				'exchange'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.png',
-				'exchangeOnline'	=> '/bitrix/images/mail/mailservice-icon/post-exchange-icon.png',
-				'other'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.png',
+				'exchange'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.svg',
+				'exchangeOnline'	=> '/bitrix/images/mail/mailservice-icon/post-exchange-icon.svg',
+				'other'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.svg',
 			);
 
 			if ($icons[$serviceName])

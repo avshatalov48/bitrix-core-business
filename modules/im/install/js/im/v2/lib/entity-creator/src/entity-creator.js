@@ -1,15 +1,13 @@
-import {BaseEvent, EventEmitter} from 'main.core.events';
-import {RestClient} from 'rest.client';
-import {Picker} from 'ai.picker';
+import { ajax as Ajax } from "main.core";
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { Picker } from 'ai.picker';
 import 'calendar.sliderloader';
 
-import {Core} from 'im.v2.application.core';
-import {EventType, RestMethod} from 'im.v2.const';
+import { runAction } from 'im.v2.lib.rest';
+import { Core } from 'im.v2.application.core';
+import { EventType, RestMethod } from 'im.v2.const';
 
-const REQUEST_METHODS = Object.freeze({
-	task: RestMethod.imChatTaskPrepare,
-	meeting: RestMethod.imChatCalendarPrepare,
-});
+import type { RestClient } from 'rest.client';
 
 const CALENDAR_ON_ENTRY_SAVE_EVENT = 'BX.Calendar:onEntrySave';
 
@@ -19,7 +17,6 @@ export class EntityCreator
 	#restClient: RestClient;
 
 	#onCalendarEntrySaveHandler: ?Function;
-	#calendarSliderId: ?number = null;
 
 	constructor(chatId: number)
 	{
@@ -54,14 +51,14 @@ export class EntityCreator
 
 	#createMeeting(messageId?: number): Promise
 	{
-		const queryParams = {CHAT_ID: this.#chatId};
+		const queryParams = { CHAT_ID: this.#chatId };
 		if (messageId)
 		{
-			queryParams['MESSAGE_ID'] = messageId;
+			queryParams.MESSAGE_ID = messageId;
 		}
 
-		return this.#requestPreparedParams(REQUEST_METHODS.meeting, queryParams).then(sliderParams => {
-			const {params} = sliderParams;
+		return this.#requestPreparedParams(RestMethod.imChatCalendarPrepare, queryParams).then((sliderParams) => {
+			const { params } = sliderParams;
 
 			this.#onCalendarEntrySaveHandler = this.#onCalendarEntrySave.bind(this, params.sliderId, messageId);
 			EventEmitter.subscribeOnce(CALENDAR_ON_ENTRY_SAVE_EVENT, this.#onCalendarEntrySaveHandler);
@@ -73,7 +70,7 @@ export class EntityCreator
 	#createAiText(startMessage: ''): Promise
 	{
 		const picker = new Picker({
-			startMessage: startMessage,
+			startMessage,
 			moduleId: 'im',
 			contextId: 'im_menu_plus',
 			history: true,
@@ -92,14 +89,16 @@ export class EntityCreator
 
 	#createTask(messageId?: number): Promise
 	{
-		const queryParams = {CHAT_ID: this.#chatId};
+		const config = {
+			data: { chatId: this.#chatId },
+		};
 		if (messageId)
 		{
-			queryParams['MESSAGE_ID'] = messageId;
+			config.data.messageId = messageId;
 		}
 
-		return this.#requestPreparedParams(REQUEST_METHODS.task, queryParams).then(sliderParams => {
-			const {link, params} = sliderParams;
+		return runAction(RestMethod.imV2ChatTaskPrepare, config).then((sliderParams) => {
+			const { link, params } = sliderParams;
 
 			return this.#openTaskSlider(link, params);
 		});
@@ -107,9 +106,9 @@ export class EntityCreator
 
 	#requestPreparedParams(requestMethod: string, query: Object): Promise
 	{
-		return this.#restClient.callMethod(requestMethod, query).then(result => {
+		return this.#restClient.callMethod(requestMethod, query).then((result) => {
 			return result.data();
-		}).catch(error => {
+		}).catch((error) => {
 			console.error(error);
 		});
 	}
@@ -138,12 +137,12 @@ export class EntityCreator
 
 		const queryParams = {
 			CALENDAR_ID: eventData.responseData.entryId,
-			CHAT_ID: this.#chatId
+			CHAT_ID: this.#chatId,
 		};
 
 		if (messageId)
 		{
-			queryParams['MESSAGE_ID'] = messageId;
+			queryParams.MESSAGE_ID = messageId;
 		}
 
 		return this.#restClient.callMethod(RestMethod.imChatCalendarAdd, queryParams).catch((error) => {

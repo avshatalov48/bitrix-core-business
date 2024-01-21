@@ -1,5 +1,7 @@
 <?
 $MESS["SALE_HPS_PAYPAL_NAME"] = "PayPal";
+$MESS["SALE_HPS_PAYPAL_DESCRIPTION"] = "Принимайте электронные платежи от клиентов PayPal";
+$MESS["SALE_HPS_PAYPAL_PUBLIC_DESCRIPTION"] = "Для оплаты через PayPal укажите электронный адрес, привязанный к системе PayPal, и пароль.";
 $MESS["SALE_HPS_PAYPAL_USER"] = "Имя пользователя (для Express Checkout)";
 $MESS["SALE_HPS_PAYPAL_PWD"] = "Пароль (для Express Checkout)";
 $MESS["SALE_HPS_PAYPAL_SIGNATURE"] = "Пароль для подписи (для Express Checkout)";

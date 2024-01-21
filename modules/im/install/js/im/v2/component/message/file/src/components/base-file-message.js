@@ -1,6 +1,6 @@
 import { Type } from 'main.core';
 
-import { DefaultMessageContent, ReactionSelector, AuthorTitle } from 'im.v2.component.message.elements';
+import { DefaultMessageContent, ReactionSelector, MessageHeader } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
 import { FileType } from 'im.v2.const';
 
@@ -19,7 +19,7 @@ export const BaseFileMessage = {
 		DefaultMessageContent,
 		BaseFileItem,
 		ReactionSelector,
-		AuthorTitle,
+		MessageHeader,
 	},
 	props: {
 		item: {
@@ -72,7 +72,7 @@ export const BaseFileMessage = {
 	template: `
 		<BaseMessage :item="item" :dialogId="dialogId">
 			<div class="bx-im-message-base-file__container">
-				<AuthorTitle v-if="withTitle" :item="item" class="bx-im-message-base-file__author-title" />
+				<MessageHeader :withTitle="withTitle" :item="item" class="bx-im-message-base-file__author-title" />
 				<BaseFileItem
 					:key="messageFile.id"
 					:item="messageFile"

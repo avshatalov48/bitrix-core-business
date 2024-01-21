@@ -1,0 +1,25 @@
+.bx-im-mention-loading-state__scope {
+	--im-mention-loading-state__color_title: var(--ui-color-palette-gray-50, #a8adb4);
+}
+
+.bx-im-mention-loading-state__container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+	height: 52px;
+	padding: 0 2px;
+}
+
+.bx-im-mention-loading-state__title {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-mention-loading-state__color_title);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bx-im-mention-loading-state__loader {
+	flex-grow: 0;
+}

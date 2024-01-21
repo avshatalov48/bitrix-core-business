@@ -68,7 +68,7 @@ class ChatConfigConverter extends Stepper
 			$defaultGroupId = $this->getDefaultGroupId();
 			if (!$defaultGroupId)
 			{
-				$defaultGroupId = $this->createDefaultPreset($isIntranetIncluded);
+				$defaultGroupId = Configuration::createDefaultPreset();
 			}
 			elseif ($isIntranetIncluded)
 			{

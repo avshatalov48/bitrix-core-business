@@ -191,7 +191,7 @@ class FileTable extends ORM\Data\DataManager
 		{
 			self::deleteIfCan($file, $entityId, $entityType, $deleteFiles);
 		}
-		SqlBatch::insert(self::getTableName(), $batchData, ['FILE_ID']);
+		SqlBatch::insert(self::getTableName(), $batchData);
 	}
 
 	private static function getCurrentFiles(int $entityId, int $entityType)

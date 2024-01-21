@@ -72,10 +72,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 	function _init2(counters) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/setUnloadedChatCounters', babelHelpers.classPrivateFieldLooseBase(this, _prepareChatCounters)[_prepareChatCounters](counters));
-	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/setUnloadedLinesCounters', counters.LINES);
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedChatCounters', babelHelpers.classPrivateFieldLooseBase(this, _prepareChatCounters)[_prepareChatCounters](counters));
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedLinesCounters', counters.LINES);
+	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('counters/setUnloadedCopilotCounters', counters.COPILOT);
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('notifications/setCounter', counters.TYPE.NOTIFY);
 	  babelHelpers.classPrivateFieldLooseBase(this, _subscribeToCountersChange)[_subscribeToCountersChange]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _sendChatCounterChangeEvent)[_sendChatCounterChangeEvent](counters.TYPE.CHAT);
 	  babelHelpers.classPrivateFieldLooseBase(this, _sendNotificationCounterChangeEvent)[_sendNotificationCounterChangeEvent](counters.TYPE.NOTIFY);
 	  babelHelpers.classPrivateFieldLooseBase(this, _sendLinesCounterChangeEvent)[_sendLinesCounterChangeEvent](counters.TYPE.LINES);
 	}
@@ -126,8 +128,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _onTotalCounterChange2() {
 	  const notificationCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['notifications/getCounter'];
-	  const chatCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/getTotalChatCounter'];
-	  const linesCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/getTotalLinesCounter'];
+	  const chatCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['counters/getTotalChatCounter'];
+	  const linesCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['counters/getTotalLinesCounter'];
 	  const totalCounter = notificationCounter + chatCounter + linesCounter;
 	  if (im_v2_lib_desktop.DesktopManager.getInstance().isDesktopActive()) {
 	    return;
@@ -155,10 +157,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return getters['notifications/getCounter'];
 	};
 	const chatCounterWatch = (state, getters) => {
-	  return getters['recent/getTotalChatCounter'];
+	  return getters['counters/getTotalChatCounter'];
 	};
 	const linesCounterWatch = (state, getters) => {
-	  return getters['recent/getTotalLinesCounter'];
+	  return getters['counters/getTotalLinesCounter'];
 	};
 
 	exports.CounterManager = CounterManager;

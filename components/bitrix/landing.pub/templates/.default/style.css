@@ -59,11 +59,6 @@ a.bitrix-footer-link:hover{
 	display: -ms-flexbox;
 	display: flex;
 }
-.bitrix-footer-terms noindex {
-	display: flex;
-	margin: auto;
-}
-
 .bitrix-footer-link-report {
 	margin: auto 10px auto auto;
 }

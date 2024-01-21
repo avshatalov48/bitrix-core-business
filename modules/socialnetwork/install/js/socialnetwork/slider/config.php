@@ -18,8 +18,12 @@ return [
 	'lang_additional' => [
 		'SONET_SLIDER_USER_SEF' => ComponentHelper::getUserSEFUrl(),
 		'SONET_SLIDER_GROUP_SEF' => ComponentHelper::getWorkgroupSEFUrl(),
+		'SONET_SLIDER_SPACES_SEF' => ComponentHelper::getSpacesSEFUrl(),
 		'SONET_SLIDER_SITE_TEMPLATE_ID' => SITE_TEMPLATE_ID,
 		'SONET_SLIDER_INTRANET_INSTALLED' => (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? 'Y' : 'N'),
 	],
 	'rel' => [ 'sidepanel', 'socialnetwork.common', 'ui.fonts.opensans' ],
+	'settings' => [
+		'isSpacesAvailable' => \Bitrix\Socialnetwork\Space\Service::isAvailable() ? 'Y' : 'N',
+	]
 ];

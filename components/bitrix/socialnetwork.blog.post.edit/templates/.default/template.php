@@ -22,6 +22,7 @@ use Bitrix\Main\UI;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Integration\Calendar\ApiVersion;
 use Bitrix\Main\Web\Json;
+use Bitrix\Socialnetwork\Integration\Intranet\Settings;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
@@ -198,7 +199,10 @@ else
 		]
 	];
 
-	if (in_array('tasks', $arResult['tabs'], true))
+	$settings = new Settings();
+
+	$isTasksEnabled = $settings->isToolAvailable(Settings::TASKS_TOOLS['base_tasks']);
+	if (in_array('tasks', $arResult['tabs'], true) && $isTasksEnabled)
 	{
 		$arTabs[] = [
 			"ID" => "tasks",
@@ -207,7 +211,8 @@ else
 		];
 	}
 
-	if (in_array('calendar', $arResult['tabs'], true))
+	$isCalendarEnabled = $settings->isToolAvailable(Settings::CALENDAR_TOOLS['calendar']);
+	if (in_array('calendar', $arResult['tabs'], true) && $isCalendarEnabled)
 	{
 		$arTabs[] = [
 			"ID" => "calendar",
@@ -697,6 +702,8 @@ HTML;
 									'contextId' => 'sonet_post_' . $USER->GetID(),
 									'category' => 'livefeed',
 								],
+								'isCopilotImageEnabledBySettings' => \Bitrix\Socialnetwork\Integration\AI\Settings::isImageAvailable(),
+								'isCopilotTextEnabledBySettings' => \Bitrix\Socialnetwork\Integration\AI\Settings::isTextAvailable(),
 							],
 							"USE_CLIENT_DATABASE" => "Y",
 							"DEST_CONTEXT" => "BLOG_POST",
@@ -1088,10 +1095,6 @@ HTML;
 						text: '<?=CUtil::JSEscape($formParams["TEXT"]["VALUE"])?>',
 						restoreAutosave: <?=(empty($arResult["ERROR_MESSAGE"]) ? 'true' : 'false')?>,
 						createdFromEmail: <?= (!empty($arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']['VALUE']) ? 'true' : 'false') ?>,
-						isAITextAvailable: '<?= $arResult['isAITextAvailable'] === true ? 'Y' : 'N' ?>',
-						AITextContextId: '<?= $arResult['AITextContextId'] ?>',
-						isAIImageAvailable: '<?= $arResult['isAIImageAvailable'] === true ? 'Y' : 'N' ?>',
-						AIImageContextId: '<?= $arResult['AIImageContextId'] ?>',
 					});
 
 				</script>

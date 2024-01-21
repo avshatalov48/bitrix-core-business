@@ -1,48 +1,39 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
-define('STOP_STATISTICS', true);
-define('NO_AGENT_CHECK', true);
-define('PUBLIC_AJAX_MODE', true);
+const STOP_STATISTICS = true;
+const NO_AGENT_CHECK = true;
+const PUBLIC_AJAX_MODE = true;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Loader,
-	Bitrix\Sale;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Sale;
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
-
-Loc::loadMessages(__FILE__);
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 
 $saleRights = $APPLICATION->GetGroupRight('sale');
 if ($saleRights < 'W')
 {
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_RIGHTS'));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
 
 if (!check_bitrix_sessid())
 {
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_INCORRECT_SESSION'));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
 
 if (!Loader::includeModule('sale'))
 {
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_MODULE_SALE_ABSENT'));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
 
 if (!Loader::includeModule('catalog'))
 {
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_MODULE_CATALOG_ABSENT'));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
 
@@ -50,20 +41,20 @@ if (!Loader::includeModule('catalog'))
 $request = Main\Context::getCurrent()->getRequest();
 
 if (
-	$request->getRequestMethod() == 'GET'
-	&& $request['operation'] == 'Y'
+	$request->getRequestMethod() === 'GET'
+	&& $request['operation'] === 'Y'
 )
 {
 	CUtil::JSPostUnescape();
 
-	$params = array(
+	$params = [
 		'sessID' => $request['ajaxSessionID'],
 		'maxExecutionTime' => $request['maxExecutionTime'],
 		'maxOperationCounter' => $request['maxOperationCounter'],
 		'counter' => $request['counter'],
 		'operationCounter' => $request['operationCounter'],
-		'lastID' => $request['lastID']
-	);
+		'lastID' => $request['lastID'],
+	];
 
 	$discountReindex = new CSaleDiscountReindex(
 		$params['sessID'],
@@ -77,19 +68,24 @@ if (
 	if ($result['finishOperation'])
 	{
 		$iterator = \CAdminNotify::GetList(
-			array(),
-			array('MODULE_ID' => 'sale', 'TAG' => Sale\Discount::ERROR_ID)
+			[],
+			[
+				'MODULE_ID' => 'sale',
+				'TAG' => Sale\Discount::ERROR_ID,
+			]
 		);
 		$notify = $iterator->Fetch();
 		unset($iterator);
 		if (!empty($notify))
+		{
 			\CAdminNotify::Delete($notify['ID']);
+		}
 		unset($notify);
 	}
 
-	header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
+	header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
 	echo CUtil::PhpToJSObject($result, false, true);
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin_after.php');
+	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin_after.php';
 }
 else
 {
@@ -98,11 +94,16 @@ else
 	$discountCounter = CSaleDiscountReindex::getAllCounter();
 	$oneStepTime = CSaleDiscountReindex::getDefaultExecutionTime();
 
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 
-	$tabList = array(
-		array('DIV' => 'discountReindexTab01', 'TAB' => Loc::getMessage('SALE_DISCOUNT_REINDEX_TAB'), 'ICON' => 'sale', 'TITLE' => Loc::getMessage('SALE_DISCOUNT_REINDEX_TAB_TITLE'))
-	);
+	$tabList = [
+		[
+			'DIV' => 'discountReindexTab01',
+			'TAB' => Loc::getMessage('SALE_DISCOUNT_REINDEX_TAB'),
+			'ICON' => 'sale',
+			'TITLE' => Loc::getMessage('SALE_DISCOUNT_REINDEX_TAB_TITLE'),
+		],
+	];
 	$tabControl = new CAdminTabControl('saleDiscountReindex', $tabList, true, true);
 	Main\Page\Asset::getInstance()->addJs('/bitrix/js/catalog/step_operations.js');
 
@@ -110,51 +111,51 @@ else
 	<div id="discount_reindex_error_div" style="margin:0; display: none;">
 		<div class="adm-info-message-wrap adm-info-message-red">
 			<div class="adm-info-message">
-				<div class="adm-info-message-title"><? echo Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_TITLE'); ?></div>
+				<div class="adm-info-message-title"><?= Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_TITLE'); ?></div>
 				<div id="discount_reindex_error_cont"></div>
 				<div class="adm-info-message-icon"></div>
 			</div>
 		</div>
 	</div>
-	<form name="discount_reindex_form" action="<? echo $APPLICATION->GetCurPage(); ?>" method="GET"><?
+	<form name="discount_reindex_form" action="<?= $APPLICATION->GetCurPage(); ?>" method="GET"><?php
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 	?><tr>
-	<td width="40%"><? echo Loc::getMessage('SALE_DISCOUNT_REINDEX_MAX_EXECUTION_TIME')?></td>
-	<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?echo $oneStepTime; ?>"></td>
-	</tr><?
+	<td style="width: 40%;"><?= Loc::getMessage('SALE_DISCOUNT_REINDEX_MAX_EXECUTION_TIME'); ?></td>
+	<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?= $oneStepTime; ?>"></td>
+	</tr><?php
 	$tabControl->Buttons();
 	?>
-	<input type="button" id="start_button" value="<? echo Loc::getMessage('SALE_DISCOUNT_REINDEX_UPDATE_BTN')?>"<? echo ($discountCounter > 0 ? '' : ' disabled'); ?>>
-	<input type="button" id="stop_button" value="<? echo Loc::getMessage('SALE_DISCOUNT_REINDEX_STOP_BTN')?>" disabled>
-	<?
+	<input type="button" id="start_button" value="<?= HtmlFilter::encode(Loc::getMessage('SALE_DISCOUNT_REINDEX_UPDATE_BTN')); ?>"<?= ($discountCounter > 0 ? '' : ' disabled'); ?>>
+	<input type="button" id="stop_button" value="<?= HtmlFilter::encode(Loc::getMessage('SALE_DISCOUNT_REINDEX_STOP_BTN')); ?>" disabled>
+	<?php
 	$tabControl->End();
-	?></form><?
+	?></form><?php
 
-	$jsParams = array(
+	$jsParams = [
 		'url' => $APPLICATION->GetCurPage(),
-		'options' => array(
+		'options' => [
 			'ajaxSessionID' => 'saleDiscountReindex',
 			'maxExecutionTime' => $oneStepTime,
 			'maxOperationCounter' => 10,
-			'counter' => $discountCounter
-		),
-		'visual' => array(
+			'counter' => $discountCounter,
+		],
+		'visual' => [
 			'startBtnID' => 'start_button',
 			'stopBtnID' => 'stop_button',
 			'resultContID' => 'discount_reindex_result_div',
 			'errorContID' => 'discount_reindex_error_cont',
 			'errorDivID' => 'discount_reindex_error_div',
-			'timeFieldID' => 'max_execution_time'
-		),
-		'ajaxParams' => array(
-			'operation' => 'Y'
-		)
-	);
+			'timeFieldID' => 'max_execution_time',
+		],
+		'ajaxParams' => [
+			'operation' => 'Y',
+		],
+	];
 ?>
 <script type="text/javascript">
-	var jsStepOperations = new BX.Catalog.StepOperations(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
+	var jsStepOperations = new BX.Catalog.StepOperations(<?= CUtil::PhpToJSObject($jsParams, false, true); ?>);
 </script>
-<?
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
+<?php
+	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';
 }

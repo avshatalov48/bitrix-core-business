@@ -6,7 +6,7 @@ import { AddToChat } from 'im.v2.component.entity-selector';
 
 import '../css/detail-header.css';
 
-import type { ImModelDialog } from 'im.v2.model';
+import type { ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const DetailHeader = {
@@ -51,9 +51,9 @@ export const DetailHeader = {
 
 			return detailsWithAddButton.includes(this.detailBlock);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		title(): string
 		{

@@ -1,24 +1,37 @@
-import {Dom, Loc, Tag} from "main.core";
-import SlotItem from "./slot-item";
-import {EventEmitter} from "main.core.events";
+import { Dom, Loc, Tag, Event } from 'main.core';
+import SlotItem from './slot-item';
+import { EventEmitter } from 'main.core.events';
 import Base from '../base';
+import { Util } from 'calendar.util';
 
 type SlotListOptions = {
 	isHiddenOnStart: boolean,
+	ownerOffset: number,
 }
+
 export default class SlotList extends Base
 {
 	#layout;
 	#slots;
 	#selectedSlot;
+	#timezoneNoticeWasUnderstood;
+	#ownerTimezoneOffsetUtc;
+	#selectedTimezoneOffsetUtc;
+
 	constructor(options: SlotListOptions)
 	{
-		super({isHiddenOnStart: options.isHiddenOnStart});
+		super({ isHiddenOnStart: options.isHiddenOnStart });
 		this.#layout = {
 			title: null,
 			list: null,
-		}
+			timezoneNotice: null,
+			timezoneNoticeOffset: null,
+		};
 		this.#slots = [];
+
+		this.#timezoneNoticeWasUnderstood = false;
+		this.#ownerTimezoneOffsetUtc = -options.ownerOffset;
+		this.#selectedTimezoneOffsetUtc = new Date().getTimezoneOffset();
 
 		this.#bindEvents();
 	}
@@ -29,7 +42,7 @@ export default class SlotList extends Base
 			this.#slots = event.data.slots;
 			this.updateSlotsList();
 		});
-		EventEmitter.subscribe('selectSlot', (event)=> {
+		EventEmitter.subscribe('selectSlot', (event) => {
 			const newSelectedSlot = event.data;
 			if (this.#selectedSlot !== newSelectedSlot)
 			{
@@ -37,6 +50,15 @@ export default class SlotList extends Base
 			}
 
 			this.#selectedSlot = newSelectedSlot;
+		});
+		EventEmitter.subscribe('updateTimezone', (event) => {
+			this.#selectedTimezoneOffsetUtc = Util.getTimeZoneOffset(event.getData().timezone);
+
+			this.#hideTimezoneNotice();
+			if (this.#shouldShowTimezoneNotice())
+			{
+				this.#showTimezoneNotice();
+			}
 		});
 	}
 
@@ -71,6 +93,11 @@ export default class SlotList extends Base
 					${this.#getNodeList()}
 				</div>
 			`;
+
+			if (this.#shouldShowTimezoneNotice())
+			{
+				this.#showTimezoneNotice();
+			}
 		}
 
 		return this.#layout.slotSelector;
@@ -90,6 +117,84 @@ export default class SlotList extends Base
 		return this.#layout.title;
 	}
 
+	#getNodeTimezoneNotice()
+	{
+		if (!this.#layout.timezoneNotice)
+		{
+			this.#layout.timezoneNotice = Tag.render`
+				<div class="calendar-pub-timezone-notice calendar-pub-ui__typography-s">
+					${this.#getNodeTimezoneNoticeText()}
+					<div class="calendar-pub-timezone-notice-offset">
+						${Loc.getMessage('CALENDAR_SHARING_TIMEZONE_NOTICE_OFFSET')}
+					</div>
+					${this.#getNodeTimezoneNoticeButton()}
+				</div>
+			`;
+			this.#hideTimezoneNotice();
+		}
+
+		return this.#layout.timezoneNotice;
+	}
+
+	#getNodeTimezoneNoticeText()
+	{
+		if (!this.#layout.timezoneNoticeText)
+		{
+			this.#layout.timezoneNoticeText = Tag.render`
+				<div>
+					${Loc.getMessage('CALENDAR_SHARING_TIMEZONE_NOTICE')}
+				</div>
+			`;
+		}
+
+		return this.#layout.timezoneNoticeText;
+	}
+
+	#getNodeTimezoneNoticeButton()
+	{
+		const button = Tag.render`
+			<div class="calendar-pub-ui__btn --m">
+				<div class="calendar-pub-ui__btn-text">
+					${Loc.getMessage('CALENDAR_SHARING_UNDERSTAND')}
+				</div>
+			</div>
+		`;
+
+		Event.bind(button, 'click', () => {
+			this.#hideTimezoneNotice();
+			this.#timezoneNoticeWasUnderstood = true;
+		});
+
+		return button;
+	}
+
+	#shouldShowTimezoneNotice()
+	{
+		const timezoneIsVeryDifferent = Math.abs(this.#ownerTimezoneOffsetUtc - this.#selectedTimezoneOffsetUtc) >= 180;
+
+		return !this.#timezoneNoticeWasUnderstood && timezoneIsVeryDifferent;
+	}
+
+	#showTimezoneNotice()
+	{
+		const offset = this.#ownerTimezoneOffsetUtc - this.#selectedTimezoneOffsetUtc;
+		this.#layout.timezoneNoticeText.innerText = this.#getTimezoneNoticeText(offset);
+		Dom.style(this.#layout.timezoneNotice, 'display', '');
+	}
+
+	#getTimezoneNoticeText(offset)
+	{
+		const sign = (offset < 0) ? '+' : '-';
+		return Loc.getMessage('CALENDAR_SHARING_TIMEZONE_NOTICE', {
+			'#OFFSET#': `${sign}${Util.formatDuration(Math.abs(offset))}`,
+		});
+	}
+
+	#hideTimezoneNotice()
+	{
+		Dom.style(this.#layout.timezoneNotice, 'display', 'none');
+	}
+
 	#getNodeList(): HTMLElement
 	{
 		if (!this.#layout.slots)
@@ -107,44 +212,45 @@ export default class SlotList extends Base
 	#getNodeListItems(): HTMLElement
 	{
 		const currentDaySlots = this.#slots
-			.map(slot => new SlotItem({
+			.map((slot) => new SlotItem({
 				value: {
 					from: slot.timeFrom,
 					to: slot.timeTo,
-				}
+				},
 			}));
 
 		const result = Tag.render`
 			<div class="calendar-sharing__slots">
-				${currentDaySlots.map(slotItem => slotItem.render())}
+				${this.#getNodeTimezoneNotice()}
+				${currentDaySlots.map((slotItem) => slotItem.render())}
 			</div>
 		`;
 
-		result.addEventListener('scroll', ()=> {
+		Event.bind(result, 'scroll', () => {
 			if (result.scrollTop > 0)
 			{
-				this.#getNodeList().classList.add('--shadow-top');
+				Dom.addClass(this.#getNodeList(), '--shadow-top');
 			}
 			else
 			{
-				this.#getNodeList().classList.remove('--shadow-top');
+				Dom.removeClass(this.#getNodeList(), '--shadow-top');
 			}
 
 			if (result.scrollHeight > result.offsetHeight
 				&& Math.ceil(result.offsetHeight + result.scrollTop) < result.scrollHeight)
 			{
-				this.#getNodeList().classList.add('--shadow-bottom');
+				Dom.addClass(this.#getNodeList(), '--shadow-bottom');
 			}
 			else
 			{
-				this.#getNodeList().classList.remove('--shadow-bottom');
+				Dom.removeClass(this.#getNodeList(), '--shadow-bottom');
 			}
 		});
 
-		setTimeout(()=> {
+		setTimeout(() => {
 			if (result.scrollHeight > result.offsetHeight)
 			{
-				this.#getNodeList().classList.add('--shadow-bottom');
+				Dom.addClass(this.#getNodeList(), '--shadow-bottom');
 			}
 		});
 

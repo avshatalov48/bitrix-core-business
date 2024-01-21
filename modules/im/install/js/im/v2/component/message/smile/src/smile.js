@@ -1,11 +1,15 @@
 import { BaseMessage } from 'im.v2.component.message.base';
-import { MessageStatus, ReactionList, ReactionSelector, ContextMenu } from 'im.v2.component.message.elements';
-import { UserRole } from 'im.v2.const';
+import {
+	MessageStatus,
+	ReactionList,
+	ReactionSelector,
+	ContextMenu,
+} from 'im.v2.component.message.elements';
 import { Parser } from 'im.v2.lib.parser';
 
 import './css/smile.css';
 
-import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
+import type { ImModelMessage } from 'im.v2.model';
 
 // @vue/component
 export const SmileMessage = {
@@ -55,7 +59,7 @@ export const SmileMessage = {
 			:withBackground="false"
 			:withDefaultContextMenu="false"
 		>
-			<div class="bx-im-message-smile__container">
+			<div class="bx-im-message-smile__container bx-im-message-smile__scope">
 				<div class="bx-im-message-smile__content-container">
 					<span class="bx-im-message-smile__text" v-html="text"></span>
 					<div class="bx-im-message-smile__message-status-container">

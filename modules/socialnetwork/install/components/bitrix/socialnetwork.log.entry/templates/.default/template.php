@@ -429,6 +429,7 @@ else
 								$strDestination .= ' <span class="'.implode(' ', $classPrefixAdditionalList).'">'.$arDestination["CRM_PREFIX"].':&nbsp;</span>';
 							}
 
+							$arDestination["URL"] ??= null;
 							$strDestination .= ($arDestination["URL"] <> ''
 								? '<a class="'.implode(' ', $classAdditionalList).'" href="'.htmlspecialcharsbx($arDestination["URL"]).'">'.$arDestination["TITLE"].'</a>'
 								: '<span class="'.implode(' ', $classAdditionalList).'">'.$arDestination["TITLE"].'</span>'

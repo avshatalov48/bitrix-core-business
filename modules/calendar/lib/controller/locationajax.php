@@ -79,10 +79,12 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
-		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		$sectionId = (int)$this->getRequest()->getPost('id');
+		$section = \CCalendarSect::GetById($sectionId);
+		$sectionModel = SectionModel::createFromArray($section);
+		$accessController = new SectionAccessController(CCalendar::GetUserId());
 		if (
-			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
+			!$accessController->check(ActionDictionary::ACTION_SECTION_EDIT, $sectionModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -124,10 +126,12 @@ class LocationAjax extends Controller
 			return [];
 		}
 
-		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
-		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		$sectionId = (int)$this->getRequest()->getPost('id');
+		$section = \CCalendarSect::GetById($sectionId);
+		$sectionModel = SectionModel::createFromArray($section);
+		$accessController = new SectionAccessController(CCalendar::GetUserId());
 		if (
-			!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, [])
+			!$accessController->check(ActionDictionary::ACTION_SECTION_EDIT, $sectionModel, [])
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
@@ -147,7 +151,6 @@ class LocationAjax extends Controller
 				->eventHandler('OnAfterCalendarRoomDelete')
 				->addPullEvent('delete_room')
 		;
-
 
 		if ($manager->getError())
 		{
@@ -193,9 +196,10 @@ class LocationAjax extends Controller
 	 */
 	public function getRoomsListAction(): array
 	{
+		$result = [];
 		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			return [];
+			return $result;
 		}
 
 		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
@@ -203,13 +207,12 @@ class LocationAjax extends Controller
 		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
-			return [];
+			return $result;
 		}
+		
+		$result['rooms'] = Rooms\Manager::getRoomsList();
 
-		$response = [];
-		$response['rooms'] = Rooms\Manager::getRoomsList();
-
-		return $response;
+		return $result;
 	}
 
 	/**
@@ -218,6 +221,18 @@ class LocationAjax extends Controller
 	 */
 	public function getLocationAccessibilityAction(): array
 	{
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			return [];
+		}
+		
+		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
+		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
+		{
+			return [];
+		}
+		
 		$request = $this->getRequest();
 
 		return

@@ -131,35 +131,28 @@ class UserContentViewTable extends Entity\DataManager
 
 		if ($save)
 		{
-			$listRes = self::getList([
-				'filter' => [
-					"=USER_ID" => $userId,
-					"=RATING_TYPE_ID" => $typeId,
-					"=RATING_ENTITY_ID" => $entityId,
-				]
-			]);
-			if (!$listRes->fetch())
-			{
-				$connection = \Bitrix\Main\Application::getConnection();
-				$helper = $connection->getSqlHelper();
+			$connection = \Bitrix\Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
 
-				$nowDate = new SqlExpression($helper->getCurrentDateTimeFunction());
+			$nowDate = new SqlExpression($helper->getCurrentDateTimeFunction());
 
-				$insertFields = array(
-					"USER_ID" => $userId,
-					"RATING_TYPE_ID" => $typeId,
-					"RATING_ENTITY_ID" => $entityId,
-					"CONTENT_ID" => $typeId."-".$entityId,
-					"DATE_VIEW" => $nowDate
-				);
+			$insertFields = array(
+				"USER_ID" => $userId,
+				"RATING_TYPE_ID" => $typeId,
+				"RATING_ENTITY_ID" => $entityId,
+				"CONTENT_ID" => $typeId."-".$entityId,
+				"DATE_VIEW" => $nowDate
+			);
 
-				$tableName = static::getTableName();
-				list($prefix, $values) = $helper->prepareInsert($tableName, $insertFields);
+			$tableName = static::getTableName();
+			list($prefix, $values) = $helper->prepareInsert($tableName, $insertFields);
 
-				$connection->queryExecute("INSERT IGNORE INTO {$tableName} ({$prefix}) VALUES ({$values})");
+			$connection->queryExecute(
+				"INSERT INTO {$tableName} ({$prefix}) VALUES ({$values})
+						ON DUPLICATE KEY UPDATE DATE_VIEW = {$nowDate}"
+			);
 
-				$saved = true;
-			}
+			$saved = true;
 		}
 
 		return array(

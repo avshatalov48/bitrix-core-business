@@ -4,17 +4,13 @@
 	--ui-label-background-color-hover: var(--ui-label-background-color);
 	--ui-label-color: #fff;
 	--ui-label-link-dashed-color: rgba(255, 255, 255, 0.51);
-	--ui-label-font: var(--ui-font-family-helvetica);
 	--ui-label-font-weight: var(--ui-font-weight-bold);
+	--ui-label-font: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 }
 
 .ui-label {
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 	max-width: 100%;
 	background-color: transparent;
 	padding: 0 8px;
@@ -22,11 +18,8 @@
 	height: var(--ui-label-height);
 	border-radius: calc(var(--ui-label-height) / 2);
 	border: 1px solid var(--ui-label-background-color);
-	-webkit-transition: 250ms linear all;
-	-o-transition: 250ms linear all;
 	transition: 250ms linear all;
-	-webkit-box-sizing: border-box;
-	        box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 .ui-label-inner {
@@ -34,14 +27,18 @@
 	font: var(--ui-font-size-5xs)/var(--ui-font-size-5xs) var(--ui-label-font);
 	font-weight: var(--ui-label-font-weight);
 	color: var(--ui-label-color);
-	-webkit-transition: 250ms linear all;
-	-o-transition: 250ms linear all;
 	transition: 250ms linear all;
 	max-width: 100%;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	white-space: nowrap;
-	-o-text-overflow: ellipsis;
-	   text-overflow: ellipsis;
+	text-overflow: ellipsis;
+}
+
+.ui-label span.ui-label-inner {
+	overflow: hidden !important;
+	margin: unset !important;
+	font-family: var(--ui-label-font) !important;
+	line-height: normal !important;;
 }
 
 a.ui-label:hover,
@@ -152,6 +149,12 @@ a.ui-label:not(.ui-label-fill):hover,
 	--ui-label-color: rgba(157, 126, 43, 1);
 }
 
+.ui-label-lavender {
+	--ui-label-background-color: rgba(231, 216, 250, 1);
+	--ui-label-background-color-hover: rgba(231, 216, 250, 1);
+	--ui-label-color: rgba(142, 82, 236, 1);
+}
+
 .ui-label-light {
 	--ui-label-background-color: var(--ui-color-base-15, #E6E7E9);
 	--ui-label-background-color-hover: rgba(168, 173, 180, 0.91);
@@ -207,8 +210,6 @@ a.ui-label:not(.ui-label-fill):hover,
 	margin-right: -6px;
 	opacity: .7;
 	cursor: pointer;
-	-webkit-transition: .1s;
-	-o-transition: .1s;
 	transition: .1s;
 	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M7.787%201L5%203.787%202.213%201%201%202.213%203.787%205%201%207.787%202.213%209%205%206.213%207.787%209%209%207.787%206.213%205%209%202.213%22%20fill%3D%22%23757c87%22/%3E%3C/svg%3E') center no-repeat;
 }
@@ -224,8 +225,6 @@ a.ui-label:not(.ui-label-fill):hover,
 }
 
 .ui-label-icon:hover {
-	-webkit-transition: none;
-	-o-transition: none;
 	transition: none;
 	opacity: 1;
 }

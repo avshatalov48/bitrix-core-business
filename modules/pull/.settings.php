@@ -1,11 +1,14 @@
 <?php
-return array(
-	'controllers' => array(
-		'value' => array(
-			'namespaces' => array(
+return [
+	'controllers' => [
+		'value' => [
+			'namespaces' => [
 				'\\Bitrix\\Pull\\Controller' => 'api',
-			),
-		),
+			],
+			'restIntegration' => [
+				'enabled' => true,
+			],
+		],
 		'readonly' => true,
-	)
-);
+	]
+];

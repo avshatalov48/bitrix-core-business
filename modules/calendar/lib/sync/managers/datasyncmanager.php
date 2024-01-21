@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Sync\Managers;
 
 use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
+use Bitrix\Calendar\Core\Managers\EventOriginalRecursion;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Internals\EventConnectionTable;
 use Bitrix\Calendar\Internals\EventTable;
@@ -438,7 +439,7 @@ class DataSyncManager
 	): void
 	{
 		[$importInstances, $importedInstancesDates] = $this->prepareInstanceEvents($importInstances);
-		$parentEvent = \CCalendarEvent::GetById($additionalParams['PARENT_ID']);
+		$parentEvent = \CCalendarEvent::GetById($additionalParams['PARENT_ID'], true, true);
 
 		if ($parentEvent && \CCalendarEvent::CheckRecurcion($parentEvent))
 		{
@@ -507,7 +508,7 @@ class DataSyncManager
 				{
 					unset($instance['RRULE'], $instance['EXDATE']);
 
-					$this->modifySingleEvent(
+					$instanceId = $this->modifySingleEvent(
 						$connection,
 						$instance,
 						[
@@ -520,6 +521,10 @@ class DataSyncManager
 					if (!empty($instance['RECURRENCE_ID_DATE']))
 					{
 						$exDates[] = \CCalendar::Date(\CCalendar::Timestamp($instance['RECURRENCE_ID_DATE']), false);
+
+						$originalRecursionId = (int)($parentEvent['ORIGINAL_RECURSION_ID'] ?? $parentEvent['ID']);
+
+						(new EventOriginalRecursion())->add($instanceId, $originalRecursionId);
 					}
 				}
 			}

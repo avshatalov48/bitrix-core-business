@@ -74,7 +74,7 @@ class Message
 		return $string;
 	}
 
-	final public static function wrapTheMessageWithAQuote($body, $subject, $timeString, $from = [], $to = [], $cc = []): string
+	final public static function wrapTheMessageWithAQuote($body, $subject, $timeString, $from = [], $to = [], $cc = [], bool $sanitized = false): string
 	{
 		$fieldDateInTimeStamp = makeTimestamp($timeString);
 		$titleDateFormat = Context::getCurrent()->getCulture()->getFullDateFormat()."&#013;H:i:s";
@@ -85,7 +85,10 @@ class Message
 		$fromList = static::convertContactListToString($from);
 		$toList = static::convertContactListToString($to);
 		$ccList = static::convertContactListToString($cc);
-		$body = Helper\Message::sanitizeHtml($body);
+		if (!$sanitized)
+		{
+			$body = Helper\Message::sanitizeHtml($body);
+		}
 
 		if (empty($ccList))
 		{

@@ -4,7 +4,6 @@ $MESS["CT_BLLE_COPY_CONFIRM_BUTTON"] = "Yes, copy";
 $MESS["CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"] = "Copy";
 $MESS["CT_BLLE_COPY_POPUP_CANCEL_BUTTON"] = "Cancel";
 $MESS["CT_BLLE_COPY_POPUP_CONTENT"] = "Are you sure you want to copy information?";
-$MESS["CT_BLLE_COPY_POPUP_CONTENT_1"] = "Are you sure you want to copy workflow?";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS"] = "List has been cloned. <a href=\"#URL#\">Edit the new list's parameters</a>";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS_PROCESS"] = "Workflow has been cloned. <a href=\"#URL#\">Edit the new workflow's parameters</a>";
 $MESS["CT_BLLE_COPY_POPUP_TEXT"] = "Are you sure you want to copy this list?";

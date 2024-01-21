@@ -1,11 +1,11 @@
 import Type from '../type';
 
-export default class BaseCache
+export default class BaseCache<T>
 {
 	/**
 	 * @private
 	 */
-	storage: Map<string, any> = new Map();
+	storage: Map<string, T> = new Map();
 
 	/**
 	 * Gets cached value or default value
@@ -31,7 +31,7 @@ export default class BaseCache
 	/**
 	 * Sets cache entry
 	 */
-	set(key: string, value: any)
+	set(key: string, value: T)
 	{
 		this.storage.set(key, value);
 	}
@@ -91,7 +91,7 @@ export default class BaseCache
 	/**
 	 * Gets storage values
 	 */
-	values(): Array<any>
+	values(): Array<T>
 	{
 		return [...this.storage.values()];
 	}

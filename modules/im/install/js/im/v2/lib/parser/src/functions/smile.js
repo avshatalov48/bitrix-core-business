@@ -66,6 +66,10 @@ export const ParserSmile = {
 	{
 		const smileManager = getSmileManager().getInstance();
 		const smiles = smileManager.smileList?.smiles ?? [];
+		if (smiles.length === 0)
+		{
+			return;
+		}
 		const sortedSmiles = [...smiles].sort((a, b) => {
 			return b.typing.localeCompare(a.typing);
 		});

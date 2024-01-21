@@ -782,8 +782,16 @@ class Conference
 		$addData['ENTITY_TYPE'] = static::ALIAS_TYPE;
 		$addData['ENTITY_DATA_1'] = $addData['VIDEOCONF']['IS_BROADCAST'] === 'Y'? static::BROADCAST_MODE: '';
 
-		$currentUser = \Bitrix\Im\User::getInstance();
-		$addData['AUTHOR_ID'] = $currentUser->getId();
+		if (isset($fields['AUTHOR_ID']))
+		{
+			$addData['AUTHOR_ID'] = (int)$fields['AUTHOR_ID'];
+		}
+		else
+		{
+			$currentUser = \Bitrix\Im\User::getInstance();
+			$addData['AUTHOR_ID'] = $currentUser->getId();
+		}
+
 
 		if (!isset($fields['MANAGERS']))
 		{
@@ -910,7 +918,7 @@ class Conference
 		];
 	}
 
-	public static function removeTemporaryAliases()
+	public static function removeTemporaryAliases(): string
 	{
 		AliasTable::deleteBatch(
 			[
@@ -920,7 +928,7 @@ class Conference
 			1000
 		);
 
-		return '\Bitrix\Im\Call\Conference::removeTemporaryAliases();';
+		return __METHOD__. '();';
 	}
 
 	private static function isAliasCorrect($aliasData): bool

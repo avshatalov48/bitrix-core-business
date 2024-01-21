@@ -108,6 +108,7 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 ?>
 			<tbody>
 <?
+			$count = count($arGroup["FORUMS"]);
 			foreach ($arGroup["FORUMS"] as $res)
 			{
 				
@@ -119,7 +120,7 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 				endif;
 ?>
 			<tr class="<?=($iCountRows == 1 ? "forum-row-first " : "")?><?
-				?><?=($iCountRows == count($arGroup["FORUMS"]) ? "forum-row-last " : "")
+				?><?=($iCountRows == $count ? "forum-row-last " : "")
 				?><?=($iCountRows%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?=($res["ACTIVE"] != "Y" ? " forum-row-inactive" : "")?>" <?
 				if ($res["ACTIVE"] != "Y"):
 					?> title="<?=GetMessage("F_NOT_ACTIVE_FORUM")?>" <?
@@ -203,12 +204,13 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 ?>
 			<tbody>
 <?
+				$count = count($arRes["GROUPS"]);
 				foreach ($arRes["GROUPS"] as $key => $res)
 				{
 					$iCountRows++;
 					
 ?>				<tr class="<?=($iCountRows == 1 ? "forum-row-first " : "")?><?
-					?><?=($iCountRows == $iCountRows ? "forum-row-last " : "")
+					?><?=($iCountRows == $count ? "forum-row-last " : "")
 						?><?=($iCountRows%2 == 1 ? "forum-row-odd " : "forum-row-even ")?>" >
 						<td class="forum-column-icon">
 						<div class="forum-icon-container">

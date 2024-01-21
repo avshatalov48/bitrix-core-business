@@ -37,6 +37,7 @@ function checkSmtp(array &$fields, Main\ErrorCollection &$errors)
 
 	if (Main\Mail\Smtp\Mailer::checkConnect($context, $errors))
 	{
+		\Bitrix\Main\Mail\Sender::clearCustomSmtpCache($smtpConfig->getLogin());
 		$fields['IS_CONFIRMED'] = true;
 	}
 }

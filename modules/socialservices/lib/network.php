@@ -49,51 +49,22 @@ class Network
 	 * Returns if option is turned on
 	 *
 	 * @return bool
+	 * @deprecated
 	 */
 	public function isOptionEnabled()
 	{
-		return Option::get('socialservices', 'network_enable', 'N') == 'Y';
+		return false;
 	}
 
 	/**
 	 * Returns if network communication is avalable for current user
 	 *
 	 * @return boolean
+	 * @deprecated
 	 */
 	public function isEnabled()
 	{
-		if(Loader::includeModule('bitrix24'))
-		{
-			if(method_exists('CBitrix24', 'isEmailConfirmed') && !\CBitrix24::isEmailConfirmed())
-			{
-				return false;
-			}
-		}
-
-		if(Loader::includeModule('socialservices'))
-		{
-			if(\CSocServAuthManager::GetAuthorizedServiceId() !== \CSocServBitrix24Net::ID)
-			{
-				if(Loader::includeModule('replica'))
-				{
-					global $USER;
-					if(is_object($USER) && $USER->GetID() > 0 && \Bitrix\Replica\Client\User::getGuid($USER->GetID()) === false)
-					{
-						return false;
-					}
-				}
-				else
-				{
-					return false;
-				}
-			}
-		}
-		else
-		{
-			return false;
-		}
-
-		return $this->isOptionEnabled();
+		return false;
 	}
 
 	/**
@@ -111,21 +82,9 @@ class Network
 		if (!$this->isOptionEnabled() && !$enable)
 			return true;
 
-		$query = \CBitrix24NetPortalTransport::init();
-		if (!$query)
-		{
-			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_SOCSERV_TRANSPORT_ERROR'), self::ERROR_SOCSERV_TRANSPORT);
-			return false;
-		}
+		$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED'), self::ERROR_NETWORK_IN_NOT_ENABLED);
 
-		$queryResult = $query->call('feature.enable', array(
-			'FEATURE' => 'replica',
-			'STATUS' => (bool)$enable,
-		));
-
-		Option::set('socialservices', 'network_enable', $enable ? 'Y': 'N');
-
-		return true;
+		return false;
 	}
 
 	/**
@@ -135,44 +94,12 @@ class Network
 	 *
 	 * @param string $search Search query string.
 	 * @return array|null
+	 * @deprecated
 	 */
 	public function searchUser($search)
 	{
-		if (!$this->isEnabled())
-		{
-			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED'), self::ERROR_NETWORK_IN_NOT_ENABLED);
-			return null;
-		}
-
-		$search = trim($search);
-		if (mb_strlen($search) < 3)
-		{
-			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_SEARCH_STRING_TO_SHORT'), self::ERROR_SEARCH_STRING_TO_SHORT);
-			return null;
-		}
-
-		$query = \CBitrix24NetPortalTransport::init();
-		if (!$query)
-		{
-			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_SOCSERV_TRANSPORT_ERROR'), self::ERROR_SOCSERV_TRANSPORT);
-			return null;
-		}
-
-		$queryResult = $query->call('profile.search', array(
-			'QUERY' => $search
-		));
-
-		$result = Array();
-		foreach ($queryResult['result'] as $user)
-		{
-			if (!$user = self::formatUserParam($user))
-			{
-				continue;
-			}
-			$result[] = $user;
-		}
-
-		return $result;
+		$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED'), self::ERROR_NETWORK_IN_NOT_ENABLED);
+		return null;
 	}
 
 	public static function sendMobileApplicationLink($phone, $language_id)
@@ -241,6 +168,8 @@ class Network
 	}
 
 	/**
+	 * Is portal verified at least once by any user
+	 *
 	 * @see \Bitrix\B24network\PhoneVerify::isPortalVerified()
 	 * @see \Bitrix\B24network\Rest::portalVerifyStatus()
 	 */

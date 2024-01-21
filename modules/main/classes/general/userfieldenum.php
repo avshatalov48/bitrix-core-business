@@ -141,7 +141,7 @@ class CUserFieldEnum
 				$value = $values[$arEnum["ID"]];
 				if((string)$value["VALUE"] == '' || $value["DEL"] == "Y")
 				{
-					$DB->Query("DELETE FROM b_user_field_enum WHERE ID = " . $arEnum["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+					$DB->Query("DELETE FROM b_user_field_enum WHERE ID = " . $arEnum["ID"]);
 				}
 				elseif($arEnum["VALUE"] != $value["VALUE"] ||
 					$arEnum["DEF"] != $value["DEF"] ||
@@ -154,7 +154,7 @@ class CUserFieldEnum
 					unset($value["ID"]);
 					$strUpdate = $DB->PrepareUpdate("b_user_field_enum", $value);
 					if($strUpdate <> '')
-						$DB->Query("UPDATE b_user_field_enum SET " . $strUpdate . " WHERE ID = " . $arEnum["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+						$DB->Query("UPDATE b_user_field_enum SET " . $strUpdate . " WHERE ID = " . $arEnum["ID"]);
 				}
 			}
 		}
@@ -268,12 +268,12 @@ class CUserFieldEnum
 
 		if($cacheId == '')
 		{
-			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 		else
 		{
 			$arResult = array();
-			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
+			$res = $DB->Query($strSql);
 			while($ar = $res->Fetch())
 				$arResult[] = $ar;
 
@@ -289,7 +289,7 @@ class CUserFieldEnum
 	function DeleteFieldEnum($FIELD_ID)
 	{
 		global $DB, $CACHE_MANAGER;
-		$DB->Query("DELETE FROM b_user_field_enum WHERE USER_FIELD_ID = " . intval($FIELD_ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+		$DB->Query("DELETE FROM b_user_field_enum WHERE USER_FIELD_ID = " . intval($FIELD_ID));
 		if(CACHED_b_user_field_enum !== false) $CACHE_MANAGER->CleanDir("b_user_field_enum");
 	}
 }

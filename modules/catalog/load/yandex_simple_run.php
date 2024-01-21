@@ -87,25 +87,27 @@ if ($strExportErrorMessage == '')
 	}
 	else
 	{
-		if (!@fwrite($fp, '<?if (!isset($_GET["referer1"]) || $_GET["referer1"] == "") $_GET["referer1"] = "yandext"?>'))
+		if (!@fwrite($fp, '<?php' . "\n"))
 		{
 			$strExportErrorMessage .= str_replace('#FILE#',$_SERVER["DOCUMENT_ROOT"].$SETUP_FILE_NAME, GetMessage('CET_YAND_RUN_ERR_SETUP_FILE_WRITE'))."\n";
 			@fclose($fp);
 		}
 		else
 		{
-			fwrite($fp, '<? $strReferer1 = htmlspecialchars($_GET["referer1"]); ?>');
-			fwrite($fp, '<?if (!isset($_GET["referer2"]) || $_GET["referer2"] == "") $_GET["referer2"] = "";?>');
-			fwrite($fp, '<? $strReferer2 = htmlspecialchars($_GET["referer2"]); ?>');
+			fwrite($fp, 'if (!isset($_GET["referer1"]) || $_GET["referer1"] == "") $_GET["referer1"] = "yandext";' . "\n");
+			fwrite($fp, '$strReferer1 = htmlspecialchars($_GET["referer1"]);' . "\n");
+			fwrite($fp, 'if (!isset($_GET["referer2"]) || $_GET["referer2"] == "") $_GET["referer2"] = "";' . "\n");
+			fwrite($fp, '$strReferer2 = htmlspecialchars($_GET["referer2"]);' . "\n");
 		}
 	}
 }
 
 if ($strExportErrorMessage == '')
 {
-	fwrite($fp, '<? header("Content-Type: text/xml; charset=windows-1251");?>');
-	fwrite($fp, '<? echo "<"."?xml version=\"1.0\" encoding=\"windows-1251\"?".">"?>');
-	fwrite($fp, "\n<!DOCTYPE yml_catalog SYSTEM \"shops.dtd\">\n");
+	fwrite($fp, 'header("Content-Type: text/xml; charset=windows-1251");' . "\n");
+	fwrite($fp, '?>' . "\n");
+	fwrite($fp, '<?xml version="1.0" encoding="windows-1251"?>' . "\n");
+	fwrite($fp, "<!DOCTYPE yml_catalog SYSTEM \"shops.dtd\">\n");
 	fwrite($fp, "<yml_catalog date=\"".date("Y-m-d H:i")."\">\n");
 	fwrite($fp, "<shop>\n");
 	fwrite($fp, "<name>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</name>\n");

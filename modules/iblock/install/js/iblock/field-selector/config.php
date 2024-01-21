@@ -7,8 +7,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 return [
 	'js' => 'dist/field-selector.bundle.js',
 	'rel' => [
-		'main.core',
 		'ui.entity-selector',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

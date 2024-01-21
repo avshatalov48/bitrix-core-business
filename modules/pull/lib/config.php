@@ -3,11 +3,9 @@ namespace Bitrix\Pull;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
 use Bitrix\Pull\SharedServer\Client;
 
-Loc::loadMessages(__FILE__);
 
 class Config
 {
@@ -42,11 +40,8 @@ class Config
 
 		if ($userId !== 0)
 		{
-			if (\CPullOptions::GetQueueServerVersion() < 5)
-			{
-				$privateChannelType = $params['CUSTOM_TYPE'] ?? \CPullChannel::TYPE_PRIVATE;
-				$privateChannel = \CPullChannel::Get($userId, $cache, $reopen, $privateChannelType);
-			}
+			$privateChannelType = $params['CUSTOM_TYPE'] ?? \CPullChannel::TYPE_PRIVATE;
+			$privateChannel = \CPullChannel::Get($userId, $cache, $reopen, $privateChannelType);
 			$sharedChannelType = $params['CUSTOM_TYPE'] ?? \CPullChannel::TYPE_SHARED;
 			$sharedChannel = \CPullChannel::GetShared($cache, $reopen, $sharedChannelType);
 		}
@@ -141,11 +136,21 @@ class Config
 			{
 				$channelsForToken[] = $sharedChannel['CHANNEL_ID'];
 			}
-			if ($privateChannel)
+			if ($privateChannel && $userId == 0)
 			{
 				$channelsForToken[] = $privateChannel['CHANNEL_ID'];
+				if ($privateChannel['CHANNEL_PUBLIC_ID'] != '')
+				{
+					$channelsForToken[] = $privateChannel['CHANNEL_PUBLIC_ID'];
+				}
 			}
-			$config['JWT'] = \Bitrix\Pull\Auth\Jwt::create($channelsForToken, $userId);
+			[$config['JWT'], $config['EXP']] = \Bitrix\Pull\Auth\Jwt::create($channelsForToken, $userId, [
+				'ttl' => \CPullOptions::GetConfigTtl()
+			]);
+		}
+		if (\CPullOptions::GetConfigTtl() > 0 && !isset($config['EXP']))
+		{
+			$config['EXP'] = time() + \CPullOptions::GetConfigTtl();
 		}
 
 		if ($params['JSON'])
@@ -169,6 +174,10 @@ class Config
 			if (isset($config['JWT']))
 			{
 				$result['jwt'] = $config['JWT'];
+			}
+			if (isset($config['EXP']))
+			{
+				$result['exp'] = $config['EXP'];
 			}
 
 			$result['publicChannels'] = $config['PUBLIC_CHANNELS'];

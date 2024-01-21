@@ -18,15 +18,19 @@ class CheckChatUpdate extends Base
 		'setAvatarId',
 	];
 
-	private const UPDATE_USERS = [
+	private const UPDATE_USERS_ADD = [
 		'addUsers',
+	];
+
+	private const UPDATE_USERS_DELETE = [
 		'deleteUser',
 	];
 
 	private const UPDATE_SETTINGS = [
 		'setOwner',
 		'setManagers',
-		'setManageUsers',
+		'setManageUsersAdd',
+		'setManageUsersDelete',
 		'setManageUI',
 		'setManageSettings',
 		'setDisappearingDate',
@@ -66,9 +70,21 @@ class CheckChatUpdate extends Base
 			$manageRights = $chat->getManageUI();
 		}
 
-		if ($this->inArrayCaseInsensitive($actionName, self::UPDATE_USERS, true))
+		if ($this->inArrayCaseInsensitive($actionName, self::UPDATE_USERS_ADD, true))
 		{
-			$manageRights = $chat->getManageUsers();
+			$manageRights = $chat->getManageUsersAdd();
+		}
+
+		if ($this->inArrayCaseInsensitive($actionName, self::UPDATE_USERS_DELETE, true))
+		{
+			$deleteUser = $arguments['userId'] ?? null;
+
+			if ((int)$deleteUser === (int)$currentUser->getId())
+			{
+				return null;
+			}
+
+			$manageRights = $chat->getManageUsersDelete();
 		}
 
 		if ($this->inArrayCaseInsensitive($actionName, self::UPDATE_SETTINGS, true))

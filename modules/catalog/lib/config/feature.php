@@ -207,6 +207,16 @@ final class Feature
 		return self::isFeatureEnabled(self::CATALOG_SERVICES);
 	}
 
+	/**
+	 * Returns true if can use product batches.
+	 *
+	 * @return bool
+	 */
+	public static function isStoreBatchEnabled(): bool
+	{
+		return self::isInventoryManagementEnabled();
+	}
+
 	public static function getLandingLimitVariable(): string
 	{
 		return self::LANDING_PRODUCT_LIMIT_VARIABLE;

@@ -1,8 +1,8 @@
 import { Type } from 'main.core';
-import { UI } from 'ui.notification';
+import 'ui.notification';
 import { Button, ButtonOptions } from 'ui.buttons';
 
-export default class BrowserNotificationAction extends UI.Notification.Action
+export default class BrowserNotificationAction extends BX.UI.Notification.Action
 {
 	static BASE_BUTTON_CLASS = 'ui-notification-manager-browser-button';
 	static TYPE_ACCEPT: string = 'accept';

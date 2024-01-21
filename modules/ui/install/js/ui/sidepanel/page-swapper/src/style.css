@@ -1,0 +1,28 @@
+.ui-page-swapper {
+	display: flex;
+	position: relative;
+	align-items : center;
+	justify-content: space-between;
+	pointer-events: none;
+	width: 40px;
+	height: 20px;
+}
+
+.ui-page-swap-left,
+.ui-page-swap-right {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-base-90-rgb), var(--ui-opacity-50));
+	pointer-events: all;
+}
+
+.ui-page-swap-left:hover,
+.ui-page-swap-right:hover {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-base-90-rgb), var(--ui-opacity-full));
+	cursor: pointer;
+}
+
+.ui-swap-btn-disabled,
+.ui-swap-btn-disabled:hover {
+	opacity: var(--ui-opacity-30);
+}
+
+

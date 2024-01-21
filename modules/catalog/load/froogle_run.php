@@ -1,4 +1,4 @@
-<?
+<?php
 //<title>Froogle</title>
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/data_export.php');
 

@@ -18,9 +18,11 @@ const SAVE_ITEM_ENDPOINT = 'ui.entityselector.saveRecentItems';
 export class BaseServerSearch
 {
 	#storeUpdater: StoreUpdater;
+	#findByParticipants: boolean;
 
-	constructor()
+	constructor(options: {findByParticipants: boolean} = {})
 	{
+		this.#findByParticipants = options.findByParticipants;
 		this.#storeUpdater = new StoreUpdater();
 	}
 
@@ -38,7 +40,7 @@ export class BaseServerSearch
 	searchRequest(query: string): Promise<ImRecentProviderItem[]>
 	{
 		const config = {
-			json: getSearchConfig(),
+			json: getSearchConfig(this.#findByParticipants),
 		};
 
 		config.json.searchQuery = {

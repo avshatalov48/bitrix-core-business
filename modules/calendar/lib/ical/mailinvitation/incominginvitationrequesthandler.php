@@ -4,10 +4,12 @@
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
 
+use Bitrix\Calendar\Core\Event\Tools;
 use Bitrix\Calendar\ICal\Parser\Calendar;
 use Bitrix\Calendar\ICal\Parser\Dictionary;
 use Bitrix\Calendar\ICal\Parser\Event;
 use Bitrix\Calendar\ICal\Parser\ParserPropertyType;
+use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
@@ -18,6 +20,7 @@ use Bitrix\Main\Type\Date;
 use CCalendar;
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/classes/general/calendar.php");
+IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/lib/ical/incomingeventmanager.php");
 
 /**
  * Class IncomingInvitationRequestHandler
@@ -25,31 +28,17 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/class
  */
 class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 {
-	public const MEETING_STATUS_HOST = 'H';
-	public const MEETING_STATUS_ACCEPTED = 'Y';
-	public const MEETING_STATUS_DECLINED = 'N';
+	public const MEETING_STATUS_ACCEPTED_CODE = 'accepted';
+	public const MEETING_STATUS_QUESTION_CODE = 'question';
+	public const MEETING_STATUS_DECLINED_CODE = 'declined';
 	public const SAFE_DELETED_YES = 'Y';
 
-	/**
-	 * @var string
-	 */
-	protected $decision;
-	/**
-	 * @var Calendar
-	 */
-	protected $icalComponent;
-	/**
-	 * @var int
-	 */
-	protected $userId;
-	/**
-	 * @var string
-	 */
-	protected $emailTo;
-	/**
-	 * @var array
-	 */
-	protected $organizer;
+	protected string $decision;
+	protected Calendar $icalComponent;
+	protected int $userId;
+	protected ?string $emailTo;
+	protected ?string $emailFrom;
+	protected ?array $organizer;
 
 	/**
 	 * @return IncomingInvitationRequestHandler
@@ -89,19 +78,26 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 		if ($localEvent === null)
 		{
 			$preparedEvent = $this->prepareEventToSave($icalEvent);
-			$preparedEvent['PARENT_ID'] = $this->saveParentEvent($preparedEvent);
-			$childEventId = $this->saveChildEvent($preparedEvent);
-			if ($childEventId > 0)
+			$parentId = $this->saveEvent($preparedEvent);
+			$childEvent = EventTable::query()
+				->setSelect(['ID','PARENT_ID','OWNER_ID'])
+				->where('PARENT_ID', $parentId)
+				->where('OWNER_ID', $this->userId)
+				->exec()->fetch()
+			;
+
+			if ((int)$childEvent['ID'] > 0)
 			{
+				$this->eventId = (int)$childEvent['ID'];
 				return true;
 			}
 		}
 		else
 		{
 			$preparedEvent = $this->prepareToUpdateEvent($icalEvent, $localEvent);
-			$this->updateParentEvent($preparedEvent);
-			if ($this->updateChildEvent($preparedEvent))
+			if ($this->updateEvent($preparedEvent, $localEvent))
 			{
+				$this->eventId = $localEvent['ID'];
 				return true;
 			}
 		}
@@ -142,6 +138,13 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 		return $this;
 	}
 
+	public function setEmailFrom(string $emailFrom): IncomingInvitationRequestHandler
+	{
+		$this->emailFrom = $emailFrom;
+
+		return $this;
+	}
+
 	/**
 	 * @param int $userId
 	 * @return $this
@@ -178,8 +181,10 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			else
 			{
 				$event['DATE_FROM'] = Helper::getIcalDate($icalEvent->getStart()->getValue())
-					->format(Date::convertFormatToPhp(FORMAT_DATE));
+					->format(Date::convertFormatToPhp(FORMAT_DATE))
+				;
 				$event['TZ_FROM'] = null;
+				$event['SKIP_TIME'] = 'Y';
 			}
 		}
 
@@ -196,6 +201,7 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			else
 			{
 				$event['DATE_TO'] = Helper::getIcalDate($icalEvent->getEnd()->getValue())
+					->add('-1 days')
 					->format(Date::convertFormatToPhp(FORMAT_DATE));
 				$event['TZ_TO'] = null;
 			}
@@ -203,7 +209,10 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 
 		if ($icalEvent->getName() !== null)
 		{
-			$event['NAME'] = $icalEvent->getName()->getValue();
+			$event['NAME'] = !empty($icalEvent->getName()->getValue())
+				? $icalEvent->getName()->getValue()
+				: Loc::getMessage('EC_DEFAULT_EVENT_NAME_V2')
+			;
 		}
 
 		if ($icalEvent->getUid() !== null)
@@ -284,15 +293,14 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 		$event['IS_MEETING'] = 1;
 		$event['SECTION_CAL_TYPE'] = 'user';
 		$event['ATTENDEES_CODES'] = ['U'.$event['OWNER_ID'], 'U'.$event['MEETING_HOST']];
-		$event['MEETING_STATUS'] = $this->decision === 'accepted'
-			? self::MEETING_STATUS_ACCEPTED
-			: self::MEETING_STATUS_DECLINED
-		;
+
+		$event['MEETING_STATUS'] = Tools\Dictionary::MEETING_STATUS['Host'];
+
 		$event['ACCESSIBILITY'] = 'free';
 		$event['IMPORTANCE'] = 'normal';
 		$event['REMIND'][] = [
 			'type' => 'min',
-			'count' => '15'
+			'count' => '15',
 		];
 		$event['MEETING'] = [
 			'HOST_NAME' => $icalEvent->getOrganizer() !== null
@@ -310,6 +318,11 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			$event['DELETED'] = self::SAFE_DELETED_YES;
 		}
 
+		if ($icalEvent->getLocation() !== null)
+		{
+			$event['LOCATION'] = CCalendar::GetTextLocation($icalEvent->getLocation()->getValue() ?? null);
+		}
+
 		return $event;
 	}
 
@@ -317,24 +330,11 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 	 * @param array $preparedEvent
 	 * @return int
 	 */
-	protected function saveParentEvent(array $preparedEvent): int
+	protected function saveEvent(array $preparedEvent): int
 	{
-		$preparedEvent['MEETING_STATUS'] = self::MEETING_STATUS_HOST;
 		$preparedEvent['OWNER_ID'] = $preparedEvent['MEETING_HOST'];
-		unset($preparedEvent['DAV_XML_ID']);
-
-		return (int)CCalendar::SaveEvent([
-			'arFields' => $preparedEvent,
-		]);
-	}
-
-	/**
-	 * @param array $preparedEvent
-	 * @return int
-	 */
-	protected function saveChildEvent(array $preparedEvent): int
-	{
 		$preparedEvent['MEETING']['MAILTO'] = $this->organizer['EMAIL'] ?? $this->emailTo;
+		$preparedEvent['MEETING']['MAIL_FROM'] = $this->emailFrom;
 
 		if ($this->icalComponent->getEvent()->getAttendees())
 		{
@@ -350,9 +350,25 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 				. $this->parseAttachmentsForDescription($this->icalComponent->getEvent()->getAttachments());
 		}
 
-		return (int)CCalendar::SaveEvent([
+		$id = (int)CCalendar::SaveEvent([
 			'arFields' => $preparedEvent,
+			'autoDetectSection' => true,
 		]);
+
+		\CCalendarNotify::Send([
+			"mode" => 'invite',
+			"name" => $preparedEvent['NAME'] ?? null,
+			"from" => $preparedEvent['DATE_FROM'] ?? null,
+			"to" => $preparedEvent['DATE_TO'] ?? null,
+			"location" => CCalendar::GetTextLocation($preparedEvent["LOCATION"] ?? null),
+			"guestId" => $this->userId ?? null,
+			"eventId" => $id,
+			"userId" => $preparedEvent['MEETING_HOST'],
+			"fields" => $preparedEvent,
+		]);
+		\CCalendar::UpdateCounter([$this->userId]);
+
+		return $id;
 	}
 
 	/**
@@ -373,8 +389,10 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			 * @var ParserPropertyType $attendee
 			 */
 			$email = $this->getMailTo($attendee->getValue());
-			if (!$attendee->getParameterValueByName('cn')
-				|| $attendee->getParameterValueByName('cn') === $email)
+			if (
+				!$attendee->getParameterValueByName('cn')
+				|| $attendee->getParameterValueByName('cn') === $email
+			)
 			{
 				$attendees[] = $email;
 			}
@@ -434,12 +452,16 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 					$icalEvent->getStart()->getParameterValueByName('tzid')
 				)->format(Date::convertFormatToPhp(FORMAT_DATETIME));
 				$event['TZ_FROM'] = $icalEvent->getStart()->getParameterValueByName('tzid');
+				$event['DT_SKIP_TIME'] = 'N';
+				$event['SKIP_TIME'] = false;
 			}
 			else
 			{
 				$event['DATE_FROM'] = Helper::getIcalDate($icalEvent->getStart()->getValue())
 					->format(Date::convertFormatToPhp(FORMAT_DATE));
 				$event['TZ_FROM'] = null;
+				$event['DT_SKIP_TIME'] = 'Y';
+				$event['SKIP_TIME'] = true;
 			}
 		}
 		else
@@ -461,6 +483,7 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			else
 			{
 				$event['DATE_TO'] = Helper::getIcalDate($icalEvent->getEnd()->getValue())
+					->add('-1 days')
 					->format(Date::convertFormatToPhp(FORMAT_DATE));
 				$event['TZ_TO'] = null;
 			}
@@ -515,6 +538,43 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 			$event['DESCRIPTION'] = null;
 		}
 
+		if ($icalEvent->getRRule() !== null)
+		{
+			$rrule = $this->parseRRule($icalEvent->getRRule());
+			if (isset($rrule['FREQ']) && in_array($rrule['FREQ'], Dictionary::RRULE_FREQUENCY, true))
+			{
+				$event['RRULE']['FREQ'] = $rrule['FREQ'];
+
+				if (isset($rrule['COUNT']) && (int)$rrule['COUNT'] > 0)
+				{
+					$event['RRULE']['COUNT'] = $rrule['COUNT'];
+				}
+				elseif (isset($rrule['UNTIL']))
+				{
+					$now = Util::getDateObject(null, false)->getTimestamp();
+					$until = Helper::getIcalDateTime($rrule['UNTIL']);
+					if ($now < $until->getTimestamp())
+					{
+						$event['RRULE']['UNTIL'] = $until->format(Date::convertFormatToPhp(FORMAT_DATE));
+					}
+				}
+
+				if ($rrule['FREQ'] === Dictionary::RRULE_FREQUENCY['weekly'] && isset($rrule['BYDAY']))
+				{
+					$event['RRULE']['BYDAY'] = $rrule['BYDAY'];
+				}
+
+				if (isset($rrule['INTERVAL']))
+				{
+					$event['RRULE']['INTERVAL'] = $rrule['INTERVAL'];
+				}
+				else
+				{
+					$event['RRULE']['INTERVAL'] = 1;
+				}
+			}
+		}
+
 		$organizer = [];
 		if ($icalEvent->getOrganizer() !== null)
 		{
@@ -529,29 +589,39 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 		$event['IS_MEETING'] = 1;
 		$event['SECTION_CAL_TYPE'] = 'user';
 		$event['ATTENDEES_CODES'] = ['U'.$event['OWNER_ID'], 'U'.$event['MEETING_HOST']];
-		$event['MEETING_STATUS'] = $this->decision === 'accepted'
-			? self::MEETING_STATUS_ACCEPTED
-			: self::MEETING_STATUS_DECLINED
-		;
+		$event['MEETING_STATUS'] = match ($this->decision) {
+			self::MEETING_STATUS_ACCEPTED_CODE => Tools\Dictionary::MEETING_STATUS['Yes'],
+			self::MEETING_STATUS_DECLINED_CODE => Tools\Dictionary::MEETING_STATUS['No'],
+			default => Tools\Dictionary::MEETING_STATUS['Question'],
+		};
 		$event['ACCESSIBILITY'] = 'free';
 		$event['IMPORTANCE'] = 'normal';
 		$event['REMIND'] = [
 			'type' => 'min',
-			'count' => '15'
+			'count' => '15',
 		];
+		$organizerCn = $icalEvent->getOrganizer()?->getParameterValueByName('cn');
+		$meeting = unserialize($localEvent['MEETING'], ['allowed_classes' => false]);
 		$event['MEETING'] = [
-			'HOST_NAME' => $icalEvent->getOrganizer()->getParameterValueByName('cn')
-				?? $organizer['EMAIL'] ?? $localEvent['MEETING']['HOST_NAME'],
-			'NOTIFY' => 1,
-			'REINVITE' => 0,
-			'ALLOW_INVITE' => 0,
-			'MEETING_CREATOR' => $event['MEETING_HOST'],
+			'HOST_NAME' => $organizerCn ?? $organizer['EMAIL'] ?? $meeting['HOST_NAME'] ?? null,
+			'NOTIFY' => $meeting['NOTIFY'] ?? 1,
+			'REINVITE' => $meeting['REINVITE'] ?? 0,
+			'ALLOW_INVITE' => $meeting['ALLOW_INVITE'] ?? 0,
+			'MEETING_CREATOR' => $meeting['MEETING_CREATOR'] ?? $event['MEETING_HOST'],
 			'EXTERNAL_TYPE' => 'mail',
 		];
+		$event['PARENT_ID'] = $localEvent['PARENT_ID'] ?? null;
+		$event['ID'] = $localEvent['ID'] ?? null;
+		$event['CAL_TYPE'] = $localEvent['CAL_TYPE'] ?? null;
 
 		if ($this->decision === 'declined')
 		{
 			$event['DELETED'] = self::SAFE_DELETED_YES;
+		}
+
+		if ($icalEvent->getLocation() !== null)
+		{
+			$event['LOCATION'] = CCalendar::GetTextLocation($icalEvent->getLocation()->getValue() ?? null);
 		}
 
 		return $event;
@@ -562,38 +632,23 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 	 * @param array $localEvent
 	 * @return bool
 	 */
-	protected function updateParentEvent(array $updatedEvent): bool
+	protected function updateEvent(array $updatedEvent, array $localEvent): bool
 	{
 		$updatedEvent['ID'] = $updatedEvent['PARENT_ID'];
 		$updatedEvent['OWNER_ID'] = $updatedEvent['MEETING_HOST'];
-		unset($updatedEvent['DAV_XML_ID']);
-
-		\CCalendar::SaveEvent([
-			'arFields' => $updatedEvent,
-		]);
-
-		return true;
-	}
-
-	/**
-	 * @param array $updatedEvent
-	 * @param array $localEvent
-	 * @return bool
-	 */
-	protected function updateChildEvent(array $updatedEvent): bool
-	{
-		$preparedEvent['MEETING']['MAILTO'] = $this->organizer['EMAIL'] ?? $this->emailTo;
+		$updatedEvent['MEETING']['MAILTO'] = $this->organizer['EMAIL'] ?? $this->emailTo;
+		$updatedEvent['MEETING']['MAIL_FROM'] = $this->emailFrom;
 
 		if ($this->icalComponent->getEvent()->getAttendees())
 		{
-			$preparedEvent['DESCRIPTION'] .= "\r\n"
+			$updatedEvent['DESCRIPTION'] .= "\r\n"
 				. Loc::getMessage('EC_EDEV_GUESTS') . ": "
 				. $this->parseAttendeesForDescription($this->icalComponent->getEvent()->getAttendees());
 		}
 
 		if ($this->icalComponent->getEvent()->getAttachments())
 		{
-			$preparedEvent['DESCRIPTION'] .= "\r\n"
+			$updatedEvent['DESCRIPTION'] .= "\r\n"
 				. Loc::getMessage('EC_FILES_TITLE') . ': '
 				. $this->parseAttachmentsForDescription($this->icalComponent->getEvent()->getAttachments());
 		}
@@ -601,15 +656,41 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 		\CCalendar::SaveEvent([
 			'arFields' => $updatedEvent,
 		]);
+
+		$entryChanges = \CCalendarEvent::CheckEntryChanges($updatedEvent, $localEvent);
+
+		\CCalendarNotify::Send([
+			'mode' => 'change_notify',
+			'name' => $updatedEvent['NAME'] ?? null,
+			"from" => $updatedEvent['DATE_FROM'] ?? null,
+			"to" => $updatedEvent['DATE_TO'] ?? null,
+			"location" => CCalendar::GetTextLocation($updatedEvent["LOCATION"] ?? null),
+			"guestId" => $this->userId ?? null,
+			"eventId" => $updatedEvent['PARENT_ID'] ?? null,
+			"userId" => $updatedEvent['MEETING_HOST'],
+			"fields" => $updatedEvent,
+			"entryChanges" => $entryChanges,
+		]);
+		\CCalendar::UpdateCounter([$this->userId]);
+
 		return true;
 	}
 
 	protected function parseAttachmentsForDescription(array $icalAttachments): string
 	{
 		$res = [];
+		/** @var ParserPropertyType $attachment */
 		foreach ($icalAttachments as $attachment)
 		{
-			$res[] = $attachment['filename'] . ' (' . $attachment['link'] . ')';
+			$link = $attachment->getValue();
+			if ($name = $attachment->getParameterValueByName('filename'))
+			{
+				$res[] =  $name . ' (' . $link . ')';
+			}
+			else
+			{
+				$res[] = $link;
+			}
 		}
 
 		return implode(', ', $res);
@@ -621,8 +702,12 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 		$parts = explode(";", $icalRRule->getValue());
 		foreach ($parts as $part)
 		{
-			$property = explode("=", $part);
-			$result[$property[0]] = $property[1];
+			[$name, $value] = explode("=", $part);
+			if ($name === 'BYDAY')
+			{
+				$value = explode(',', $value);
+			}
+			$result[$name] = $value;
 		}
 
 		return $result;

@@ -2934,18 +2934,6 @@ else
 	$arResult['FATAL_MESSAGE'] = Loc::getMessage('BLOG_ERR_NO_RIGHTS');
 }
 
-$arResult['AITextContextId'] = 'sonet_blog_post_text_' . $user_id;
-$arResult['AIImageContextId'] = 'sonet_blog_post_image_' . $user_id;
-
-$arResult['isAITextAvailable'] = Integration\AI\Controller::isAvailable(
-	Integration\AI\Controller::TEXT_CATEGORY,
-	$arResult['AITextContextId']
-);
-$arResult['isAIImageAvailable'] = Integration\AI\Controller::isAvailable(
-	Integration\AI\Controller::IMAGE_CATEGORY,
-	$arResult['AIImageContextId']
-);
-
 CSocNetTools::InitGlobalExtranetArrays();
 Loader::includeModule('intranet'); // for gov/public language messages
 

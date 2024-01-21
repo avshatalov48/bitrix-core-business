@@ -59,7 +59,15 @@ class Fuser
 
 		if ($id === null && !$skipCreate)
 		{
-			$internalResult = static::add();
+			$options = [];
+			if (
+				self::getCurrentUserId() === null
+				&& self::isSaveAnonymousUserCookie()
+			)
+			{
+				$options['save'] = true;
+			}
+			$internalResult = static::add($options);
 			if ($internalResult->isSuccess())
 			{
 				$id = $internalResult->getId();
@@ -267,6 +275,11 @@ class Fuser
 		;
 	}
 
+	protected static function isSaveAnonymousUserCookie(): bool
+	{
+		return Option::get('sale', 'save_anonymous_fuser_cookie') === 'Y';
+	}
+
 	protected static function getIdFromSession(): ?int
 	{
 		$session = static::getSession();
@@ -431,6 +444,11 @@ class Fuser
 		$userCode = static::generateCode();
 		$currentUserId = self::getCurrentUserId();
 
+		$options['update'] ??= true;
+		if (!is_bool($options['update']))
+		{
+			$options['update'] = true;
+		}
 		$options['save'] ??= false;
 		if (!is_bool($options['save']))
 		{
@@ -455,7 +473,11 @@ class Fuser
 		}
 
 		$id = (int)$internalResult->getId();
-		if ($options['save'] && $currentUserId !== null)
+		if (
+			$options['save']
+			&& $options['update']
+			&& ($currentUserId !== null || self::isSaveAnonymousUserCookie())
+		)
 		{
 			$cookieValue = (static::isEncodeCookie() ? $userCode : (string)$id);
 			static::setIdToCookie($cookieValue);
@@ -539,7 +561,7 @@ class Fuser
 			}
 		}
 
-		if ($options['save'] && $currentUserId !== null)
+		if ($options['save'] && $options['update'] && $currentUserId !== null)
 		{
 			$cookieValue = (static::isEncodeCookie() ? $userCode : (string)$id);
 			static::setIdToCookie($cookieValue);
@@ -580,7 +602,7 @@ class Fuser
 		];
 
 		$id = static::getIdFromSession();
-		if ($id === null)
+		if ($id === null && $options['update'])
 		{
 			$filter = static::getFilterFromCookie(static::getIdFromCookie());
 			if ($filter !== null)
@@ -608,7 +630,7 @@ class Fuser
 		if ($row !== null)
 		{
 			$newId = (int)$row['ID'];
-			if ($id !== null)
+			if ($id !== null && $options['update'])
 			{
 				if (\CSaleBasket::TransferBasket($id, $newId))
 				{

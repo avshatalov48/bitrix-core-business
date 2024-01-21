@@ -108,6 +108,7 @@ create table b_mail_message
    RIGHT_MARGIN INT(18) UNSIGNED NULL,
    READ_CONFIRMED DATETIME NULL,
    OPTIONS TEXT NULL,
+   SANITIZE_ON_VIEW tinyint(1) null default null,
    primary key (ID),
    index IX_MAIL_MESSAGE (MAILBOX_ID, IN_REPLY_TO(50), MSG_ID(50)),
    index IX_MAIL_MESSAGE_2 (MAILBOX_ID, MSG_ID),

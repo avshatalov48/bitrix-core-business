@@ -950,19 +950,38 @@ class LiveFeedAjaxController extends Controller
 
 		if($idElement)
 		{
-			$bizProcWorkflowId = array();
 			foreach($documentStates as $documentState)
 			{
 				if($documentState["ID"] == '')
 				{
-					$errorsTmp = array();
+					$startDuration = $_POST['timeToStart'] ?? null;
+					if (is_numeric($startDuration))
+					{
+						$startDuration = (int)$startDuration;
+					}
+					else
+					{
+						$startDuration = null;
+					}
 
-					$bizProcWorkflowId[$documentState['TEMPLATE_ID']] = CBPDocument::StartWorkflow(
-						$documentState['TEMPLATE_ID'],
-						array('lists', 'BizprocDocument', $idElement),
-						array_merge($bizprocParametersValues[$documentState['TEMPLATE_ID']], array('TargetUser' => 'user_'.intval($this->getUser()->getID()))),
-						$errorsTmp
+					$currentUserId = Main\Engine\CurrentUser::get()->getId();
+					$startWorkflowRequest = new \Bitrix\Bizproc\Api\Request\WorkflowService\StartWorkflowRequest(
+						userId: $this->getUser()->getId(),
+						targetUserId: $this->getUser()->getId(),
+						templateId: $documentState['TEMPLATE_ID'],
+						complexDocumentId: ['lists', 'BizprocDocument', $idElement],
+						parameters: array_merge(
+							$bizprocParametersValues[$documentState['TEMPLATE_ID']],
+							[
+								CBPDocument::PARAM_TAGRET_USER => 'user_' . $currentUserId,
+							],
+						),
+						startDuration: $startDuration,
 					);
+					$workflowService = new \Bitrix\Bizproc\Api\Service\WorkflowService(
+						accessService: new \Bitrix\Lists\Api\Service\WorkflowAccessService(),
+					);
+					$workflowService->startWorkflow($startWorkflowRequest);
 				}
 			}
 

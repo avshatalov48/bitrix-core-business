@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('URL_BUILDER_TYPE'))
 {
 	define('URL_BUILDER_TYPE', 'INVENTORY');

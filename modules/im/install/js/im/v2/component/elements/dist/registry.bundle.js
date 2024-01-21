@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_fonts_opensans,ui_icons_disk,im_v2_lib_parser,rest_client,ui_vue3_directives_lazyload,im_v2_provider_service,im_v2_application_core,im_v2_lib_user,ui_loader,im_public,im_v2_model,im_v2_const,im_v2_lib_logger,main_popup,ui_forms,main_core,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils) {
+(function (exports,ui_fonts_opensans,ui_icons_disk,im_v2_lib_parser,rest_client,ui_vue3_directives_lazyload,im_v2_lib_user,ui_loader,im_v2_model,im_v2_lib_logger,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,im_v2_application_core,main_popup,ui_forms,main_core,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_const,im_v2_lib_permission) {
 	'use strict';
 
 	const UserStatusSize = {
@@ -83,6 +83,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Boolean,
 	      default: true
 	    },
+	    withSpecialTypeIcon: {
+	      type: Boolean,
+	      default: true
+	    },
 	    withTooltip: {
 	      type: Boolean,
 	      default: true
@@ -95,13 +99,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  computed: {
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    user() {
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    isBot() {
 	      if (this.isUser) {
@@ -110,7 +114,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return false;
 	    },
 	    isSpecialType() {
-	      const commonTypes = [im_v2_const.DialogType.user, im_v2_const.DialogType.chat, im_v2_const.DialogType.open];
+	      const commonTypes = [im_v2_const.ChatType.user, im_v2_const.ChatType.chat, im_v2_const.ChatType.open];
 	      return !commonTypes.includes(this.dialog.type);
 	    },
 	    containerTitle() {
@@ -124,7 +128,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.withSpecialTypes && this.isSpecialType) {
 	        classes.push('--special');
 	      }
-	      const typeClass = im_v2_const.DialogType[this.dialog.type] ? `--${this.dialog.type}` : '--default';
+	      const typeClass = im_v2_const.ChatType[this.dialog.type] ? `--${this.dialog.type}` : '--default';
 	      classes.push(typeClass);
 	      return classes;
 	    },
@@ -189,8 +193,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div :title="containerTitle" :class="containerClasses" class="bx-im-avatar__scope bx-im-avatar__container">
 			<!-- Avatar -->
 			<template v-if="hasImage">
-				<img :src="avatarUrl" :alt="dialog.name" class="bx-im-avatar__content --image" @error="onImageLoadError"/>
-				<div v-if="withSpecialTypes && isSpecialType" :style="backgroundColorStyle" class="bx-im-avatar__special-type_icon"></div>
+				<img :src="avatarUrl" :alt="dialog.name" class="bx-im-avatar__content --image" @error="onImageLoadError" draggable="false"/>
+				<div v-if="withSpecialTypes && withSpecialTypeIcon && isSpecialType" :style="backgroundColorStyle" class="bx-im-avatar__special-type_icon"></div>
 			</template>
 			<div v-else-if="withAvatarLetters && avatarText" :style="backgroundColorStyle" class="bx-im-avatar__content --text">
 				{{ avatarText }}
@@ -292,7 +296,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  computed: {
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    user() {
 	      return this.$store.getters['users/get'](this.dialogId, true);
@@ -301,10 +305,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!this.isUser) {
 	        return '';
 	      }
-	      return this.$store.getters['users/getBotType'](this.dialogId);
+	      const {
+	        type
+	      } = this.$store.getters['users/bots/getByUserId'](this.dialogId);
+	      return type;
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    isSelfChat() {
 	      return this.isUser && this.user.id === im_v2_application_core.Core.getUserId();
@@ -334,7 +341,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        if (this.isExtranet) {
 	          return DialogSpecialType.extranet;
 	        }
-	        if ([im_v2_const.DialogType.support24Notifier, im_v2_const.DialogType.support24Question].includes(this.dialog.type)) {
+	        if ([im_v2_const.ChatType.support24Notifier, im_v2_const.ChatType.support24Question].includes(this.dialog.type)) {
 	          return DialogSpecialType.support24;
 	        }
 	        return '';
@@ -378,10 +385,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.dialogSpecialType;
 	    },
 	    isBot() {
-	      if (this.isUser) {
-	        return this.user.bot;
+	      if (!this.isUser) {
+	        return false;
 	      }
-	      return false;
+	      return this.user.bot === true;
 	    },
 	    isExtranet() {
 	      if (this.isUser) {
@@ -850,10 +857,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    styles() {
 	      var _this$internalConfig$;
 	      const result = {
-	        backgroundColor: (_this$internalConfig$ = this.internalConfig.DELIMITER.COLOR) != null ? _this$internalConfig$ : this.color
+	        backgroundColor: (_this$internalConfig$ = this.internalConfig.delimiter.color) != null ? _this$internalConfig$ : this.color
 	      };
-	      if (this.internalConfig.DELIMITER.SIZE) {
-	        result.width = `${this.internalConfig.DELIMITER.SIZE}px`;
+	      if (this.internalConfig.delimiter.size) {
+	        result.width = `${this.internalConfig.delimiter.size}px`;
 	      }
 	      return result;
 	    }
@@ -876,13 +883,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    fileName() {
-	      return this.internalConfig.NAME;
+	      return this.internalConfig.name;
 	    },
 	    fileSize() {
-	      return this.internalConfig.SIZE;
+	      return this.internalConfig.size;
 	    },
 	    link() {
-	      return this.internalConfig.LINK;
+	      return this.internalConfig.link;
 	    },
 	    fileShortName() {
 	      const NAME_MAX_LENGTH = 70;
@@ -949,7 +956,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<div class="bx-im-attach-file__container">
 			<AttachFileItem
-				v-for="(fileItem, index) in internalConfig.FILE"
+				v-for="(fileItem, index) in internalConfig.file"
 				:config="fileItem"
 				:key="index"
 			/>
@@ -979,28 +986,28 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    display() {
-	      return this.internalConfig.DISPLAY.toLowerCase();
+	      return this.internalConfig.display.toLowerCase();
 	    },
 	    width() {
-	      if (!this.value || !this.internalConfig.WIDTH) {
+	      if (!this.value || !this.internalConfig.width) {
 	        return '';
 	      }
-	      return `${this.internalConfig.WIDTH}px`;
+	      return `${this.internalConfig.width}px`;
 	    },
 	    value() {
-	      if (!this.internalConfig.VALUE) {
+	      if (!this.internalConfig.value) {
 	        return '';
 	      }
-	      return im_v2_lib_parser.Parser.decodeText(this.internalConfig.VALUE);
+	      return im_v2_lib_parser.Parser.decodeText(this.internalConfig.value);
 	    },
 	    color() {
-	      return this.internalConfig.COLOR || '';
+	      return this.internalConfig.color || '';
 	    },
 	    name() {
-	      return this.internalConfig.NAME;
+	      return this.internalConfig.name;
 	    },
 	    link() {
-	      return this.internalConfig.LINK;
+	      return this.internalConfig.link;
 	    }
 	  },
 	  template: `
@@ -1072,7 +1079,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<div class="bx-im-attach-grid__container">
 			<AttachGridItem
-				v-for="(gridItem, index) in internalConfig.GRID"
+				v-for="(gridItem, index) in internalConfig.grid"
 				:config="gridItem"
 				:key="index"
 			/>
@@ -1092,7 +1099,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    html() {
-	      return im_v2_lib_parser.Parser.decodeHtml(this.internalConfig.HTML);
+	      return im_v2_lib_parser.Parser.decodeHtml(this.internalConfig.html);
 	    }
 	  },
 	  template: `
@@ -1100,7 +1107,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	const MAX_IMAGE_SIZE = 250;
+	const MAX_IMAGE_SIZE = 272;
 
 	// @vue/component
 	const AttachImageItem = {
@@ -1119,44 +1126,43 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    width() {
-	      return this.internalConfig.WIDTH;
+	      return this.internalConfig.width || 0;
 	    },
 	    height() {
-	      return this.internalConfig.HEIGHT;
+	      return this.internalConfig.height || 0;
 	    },
 	    link() {
-	      return this.internalConfig.LINK;
+	      return this.internalConfig.link;
 	    },
 	    name() {
-	      return this.internalConfig.NAME;
+	      return this.internalConfig.name;
 	    },
 	    preview() {
-	      return this.internalConfig.PREVIEW;
+	      return this.internalConfig.preview;
 	    },
 	    source() {
 	      var _this$preview;
 	      return (_this$preview = this.preview) != null ? _this$preview : this.link;
 	    },
 	    imageSize() {
-	      if (!this.width && !this.height) {
+	      if (this.width === 0 || this.height === 0) {
 	        return {};
 	      }
-	      const aspectRatio = this.width > MAX_IMAGE_SIZE ? MAX_IMAGE_SIZE / this.width : 1;
-	      const sizes = {
-	        width: this.width * aspectRatio,
-	        height: this.height * aspectRatio
-	      };
+	      const sizes = im_v2_lib_utils.Utils.file.resizeToFitMaxSize(this.width, this.height, MAX_IMAGE_SIZE);
 	      return {
 	        width: `${sizes.width}px`,
 	        height: `${sizes.height}px`,
-	        backgroundSize: sizes.width < 100 || sizes.height < 100 ? 'contain' : 'initial'
+	        'object-fit': sizes.width < 100 || sizes.height < 100 ? 'cover' : 'contain'
 	      };
+	    },
+	    hasWidth() {
+	      return Boolean(this.imageSize.width);
 	    }
 	  },
 	  methods: {
 	    open() {
 	      if (!this.link) {
-	        return false;
+	        return;
 	      }
 	      window.open(this.link, '_blank');
 	    },
@@ -1173,7 +1179,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-attach-image__item" @click="open">
+		<div class="bx-im-attach-image__item" :class="{'--with-width': hasWidth }" @click="open">
 			<img
 				v-lazyload="{callback: lazyLoadCallback}"
 				:data-lazyload-src="source"
@@ -1208,7 +1214,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-attach-image__container bx-im-attach-image__scope">
-			<AttachImageItem v-for="(image, index) in internalConfig.IMAGE" :config="image" :key="index" />
+			<AttachImageItem v-for="(image, index) in internalConfig.image" :config="image" :key="index" />
 		</div>
 	`
 	};
@@ -1234,29 +1240,29 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    link() {
-	      return this.internalConfig.LINK;
+	      return this.internalConfig.link;
 	    },
 	    name() {
 	      var _this$internalConfig$;
-	      return (_this$internalConfig$ = this.internalConfig.NAME) != null ? _this$internalConfig$ : this.link;
+	      return (_this$internalConfig$ = this.internalConfig.name) != null ? _this$internalConfig$ : this.link;
 	    },
 	    description() {
-	      return this.internalConfig.DESC;
+	      return this.internalConfig.desc;
 	    },
 	    html() {
-	      const content = this.internalConfig.HTML || this.description;
+	      const content = this.internalConfig.html || this.description;
 	      return im_v2_lib_parser.Parser.decodeText(content);
 	    },
 	    preview() {
-	      return this.internalConfig.PREVIEW;
+	      return this.internalConfig.preview;
 	    },
 	    imageConfig() {
 	      return {
-	        IMAGE: [{
-	          NAME: this.internalConfig.NAME,
-	          PREVIEW: this.internalConfig.PREVIEW,
-	          WIDTH: this.internalConfig.WIDTH,
-	          HEIGHT: this.internalConfig.HEIGHT
+	        image: [{
+	          name: this.internalConfig.name,
+	          preview: this.internalConfig.preview,
+	          width: this.internalConfig.width,
+	          height: this.internalConfig.height
 	        }]
 	      };
 	    }
@@ -1269,7 +1275,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<span v-else class="bx-im-attach-link__name">
 				{{ name }}
 			</span>
-			<div v-if="internalConfig.HTML || description" class="bx-im-attach-link__desc" v-html="html"></div>
+			<div v-if="internalConfig.html || description" class="bx-im-attach-link__desc" v-html="html"></div>
 			<div v-if="preview" class="bx-im-attach-link__image">
 				<AttachImage :config="imageConfig" :color="color" />
 			</div>
@@ -1300,7 +1306,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-attach-link__container">
-			<AttachLinkItem v-for="(link, index) in internalConfig.LINK" :config="link" :key="index" />
+			<AttachLinkItem v-for="(link, index) in internalConfig.link" :config="link" :key="index" />
 		</div>
 	`
 	};
@@ -1323,7 +1329,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    message() {
-	      return im_v2_lib_parser.Parser.decodeText(this.internalConfig.MESSAGE);
+	      return im_v2_lib_parser.Parser.decodeText(this.internalConfig.message);
 	    }
 	  },
 	  template: `
@@ -1391,25 +1397,34 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    link() {
-	      return this.internalConfig.LINK;
+	      return this.internalConfig.link;
 	    },
 	    name() {
-	      return im_v2_lib_utils.Utils.text.convertHtmlEntities(this.internalConfig.NAME);
+	      return im_v2_lib_utils.Utils.text.convertHtmlEntities(this.internalConfig.name);
 	    },
 	    description() {
-	      return im_v2_lib_utils.Utils.text.convertHtmlEntities(this.internalConfig.DESC);
+	      return im_v2_lib_utils.Utils.text.convertHtmlEntities(this.internalConfig.desc);
 	    },
 	    html() {
-	      return this.internalConfig.HTML;
+	      return this.internalConfig.html;
 	    },
 	    preview() {
-	      return this.internalConfig.PREVIEW;
+	      return this.internalConfig.preview;
+	    },
+	    previewSize() {
+	      var _this$internalConfig$, _this$internalConfig$2, _this$internalConfig$3, _this$internalConfig$4;
+	      return {
+	        width: (_this$internalConfig$ = (_this$internalConfig$2 = this.internalConfig.previewSize) == null ? void 0 : _this$internalConfig$2.width) != null ? _this$internalConfig$ : 0,
+	        height: (_this$internalConfig$3 = (_this$internalConfig$4 = this.internalConfig.previewSize) == null ? void 0 : _this$internalConfig$4.height) != null ? _this$internalConfig$3 : 0
+	      };
 	    },
 	    imageConfig() {
 	      return {
-	        IMAGE: [{
-	          NAME: this.name,
-	          PREVIEW: this.preview
+	        image: [{
+	          name: this.name,
+	          preview: this.preview,
+	          width: this.previewSize.width,
+	          height: this.previewSize.height
 	        }]
 	      };
 	    },
@@ -1421,6 +1436,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    deleteRichLinkTitle() {
 	      return this.$Bitrix.Loc.getMessage('IM_ELEMENTS_ATTACH_RICH_LINK_DELETE');
+	    },
+	    imageStyles() {
+	      if (this.previewSize.width === 0 || this.previewSize.height === 0) {
+	        return {
+	          width: '272px',
+	          height: '272px'
+	        };
+	      }
+	      return {};
 	    }
 	  },
 	  methods: {
@@ -1449,7 +1473,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:title="deleteRichLinkTitle"
 				></button>
 			</div>
-			<div v-if="preview" class="bx-im-attach-rich__image" @click="openLink">
+			<div v-if="preview" class="bx-im-attach-rich__image" @click="openLink" :style="imageStyles">
 				<AttachImage :config="imageConfig" :color="color" />
 			</div>
 		</div>
@@ -1483,7 +1507,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<div class="bx-im-attach-rich__container">
 			<AttachRichItem 
-				v-for="(rich, index) in internalConfig.RICH_LINK" 
+				v-for="(rich, index) in internalConfig.richLink" 
 				:config="rich" 
 				:color="color" 
 				:key="index" 
@@ -1520,16 +1544,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    name() {
-	      return this.internalConfig.NAME;
+	      return this.internalConfig.name;
 	    },
 	    avatar() {
-	      return this.internalConfig.AVATAR;
+	      return this.internalConfig.avatar;
 	    },
 	    avatarType() {
-	      return this.internalConfig.AVATAR_TYPE;
+	      return this.internalConfig.avatarType;
 	    },
 	    link() {
-	      return this.internalConfig.LINK;
+	      return this.internalConfig.link;
 	    },
 	    avatarTypeClass() {
 	      if (this.avatar) {
@@ -1587,7 +1611,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-attach-user__container">
-			<AttachUserItem v-for="(user, index) in internalConfig.USER" :config="user" :color="color" :key="index" />
+			<AttachUserItem v-for="(user, index) in internalConfig.user" :config="user" :color="color" :key="index" />
 		</div>
 	`
 	};
@@ -1633,21 +1657,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.config;
 	    },
 	    blocks() {
-	      return this.internalConfig.BLOCKS;
+	      return this.internalConfig.blocks;
 	    },
 	    color() {
-	      if (!this.internalConfig.COLOR) {
+	      if (!this.internalConfig.color) {
 	        return this.baseColor;
 	      }
 
 	      // todo: in future we should set color for rich link on the backend. Remove after we delete the old chat.
-	      if (this.internalConfig.COLOR === im_v2_const.Color.transparent && this.hasRichLink) {
+	      if (this.internalConfig.color === im_v2_const.Color.transparent && this.hasRichLink) {
 	        return '#2FC6F6';
 	      }
-	      if (this.internalConfig.COLOR === im_v2_const.Color.transparent) {
+	      if (this.internalConfig.color === im_v2_const.Color.transparent) {
 	        return '';
 	      }
-	      return this.internalConfig.COLOR;
+	      return this.internalConfig.color;
 	    },
 	    hasRichLink() {
 	      return this.blocks.some(block => block[im_v2_const.AttachType.Rich]);
@@ -1672,7 +1696,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:config="block"
 					:color="color"
 					:key="index"
-					:attachId="internalConfig.ID.toString()"
+					:attachId="internalConfig.id.toString()"
 				/>
 			</div>
 		</div>
@@ -1702,14 +1726,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ButtonColor: () => ButtonColor,
 	    ButtonSize: () => ButtonSize,
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId);
+	      return this.$store.getters['chats/get'](this.dialogId);
 	    },
 	    user() {
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
 	    isUser() {
 	      var _this$dialog;
-	      return ((_this$dialog = this.dialog) == null ? void 0 : _this$dialog.type) === im_v2_const.DialogType.user;
+	      return ((_this$dialog = this.dialog) == null ? void 0 : _this$dialog.type) === im_v2_const.ChatType.user;
 	    },
 	    isBot() {
 	      if (this.isUser) {
@@ -1935,16 +1959,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    userDialogId() {
 	      return this.userId.toString();
-	    },
-	    userStatusClasses() {
-	      if (this.user.bot) {
-	        return [];
-	      }
-	      const status = this.$store.getters['users/getStatus'](this.userId);
-	      if (status === '') {
-	        return [];
-	      }
-	      return ['bx-im-user-list-content__avatar-status', `--${status}`];
 	    }
 	  },
 	  methods: {
@@ -1954,10 +1968,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-user-list-content__user-container" @click="onUserClick">
-			<div class="bx-im-user-list-content__avatar-container" :class="userStatusClasses">
+			<div class="bx-im-user-list-content__avatar-container">
 				<Avatar :size="AvatarSize.XS" :dialogId="userDialogId" />
 			</div>
-			<ChatTitle class="bx-im-user-list-content__chat-title-container" :dialogId="userDialogId" />
+			<ChatTitle class="bx-im-user-list-content__chat-title-container" :dialogId="userDialogId" :showItsYou="false" />
 		</div>
 	`
 	};
@@ -2024,6 +2038,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.getUserListService().loadUsers(this.userIds).then(() => {
 	        this.isLoadingUsers = false;
 	      }).catch(error => {
+	        // eslint-disable-next-line no-console
 	        console.error(error);
 	        this.hasError = true;
 	        this.isLoadingUsers = false;
@@ -2129,158 +2144,302 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	/**
-	 * Bitrix Messenger
-	 * Attach element Vue component
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
-	 */
-	const ButtonType = Object.freeze({
-	  newline: 'NEWLINE',
-	  button: 'BUTTON'
-	});
-	const Keyboard = {
-	  /*
-	   * @emits 'click' {action: string, params: Object}
-	   */
+	// @vue/component
+	const KeyboardButton = {
+	  name: 'KeyboardButton',
 	  props: {
-	    buttons: {
-	      type: Array,
-	      default: () => []
+	    config: {
+	      type: Object,
+	      required: true
 	    },
-	    messageId: {
-	      default: 0
-	    },
-	    userId: {
-	      default: 0
-	    },
-	    dialogId: {
-	      default: 0
+	    keyboardBlocked: {
+	      type: Boolean,
+	      required: true
 	    }
 	  },
-	  data: function () {
-	    return {
-	      isMobile: im_v2_lib_utils.Utils.platform.isMobile(),
-	      isBlocked: false,
-	      localButtons: []
-	    };
+	  emits: ['action', 'customCommand', 'blockKeyboard'],
+	  data() {
+	    return {};
 	  },
-	  created() {
-	    this.localButtons = this.prepareButtons(this.buttons);
-	  },
-	  watch: {
-	    buttons() {
-	      clearTimeout(this.recoverStateButton);
-	      this.isBlocked = false;
-	      this.localButtons = this.prepareButtons(this.buttons);
+	  computed: {
+	    button() {
+	      return this.config;
+	    },
+	    buttonClasses() {
+	      const displayClass = this.button.display === im_v2_const.KeyboardButtonDisplay.block ? '--block' : '--line';
+	      const classes = [displayClass];
+	      if (this.keyboardBlocked || this.button.disabled) {
+	        classes.push('--disabled');
+	      }
+	      if (this.button.wait) {
+	        classes.push('--loading');
+	      }
+	      return classes;
+	    },
+	    buttonStyles() {
+	      const styles = {};
+	      const {
+	        width,
+	        bgColor,
+	        textColor
+	      } = this.button;
+	      if (width) {
+	        styles.width = `${width}px`;
+	      }
+	      if (bgColor) {
+	        styles.backgroundColor = bgColor;
+	      }
+	      if (textColor) {
+	        styles.color = textColor;
+	      }
+	      return styles;
 	    }
 	  },
 	  methods: {
-	    click(button) {
-	      if (this.isBlocked) {
-	        return false;
+	    onClick() {
+	      if (this.keyboardBlocked || this.button.disabled || this.button.wait) {
+	        return;
 	      }
-	      if (button.DISABLED && button.DISABLED === 'Y') {
-	        return false;
-	      }
-	      if (button.ACTION && button.ACTION_VALUE.toString()) {
-	        this.$emit('click', {
-	          action: 'ACTION',
-	          params: {
-	            dialogId: this.dialogId,
-	            messageId: this.messageId,
-	            botId: button.BOT_ID,
-	            action: button.ACTION,
-	            value: button.ACTION_VALUE
-	          }
-	        });
-	      } else if (button.FUNCTION) {
-	        const execFunction = button.FUNCTION.toString().replace('#MESSAGE_ID#', this.messageId).replace('#DIALOG_ID#', this.dialogId).replace('#USER_ID#', this.userId);
-	        eval(execFunction);
-	      } else if (button.APP_ID) {
+	      if (this.button.action && this.button.actionValue) {
+	        this.handleAction();
+	      } else if (this.button.appId) {
 	        im_v2_lib_logger.Logger.warn('Messenger keyboard: open app is not implemented.');
-	      } else if (button.LINK) {
-	        if (im_v2_lib_utils.Utils.platform.isBitrixMobile()) {
-	          app.openNewPage(button.LINK);
-	        } else {
-	          window.open(button.LINK, '_blank');
-	        }
-	      } else if (button.WAIT !== 'Y') {
-	        if (button.BLOCK === 'Y') {
-	          this.isBlocked = true;
-	        }
-	        button.WAIT = 'Y';
-	        this.$emit('click', {
-	          action: 'COMMAND',
-	          params: {
-	            dialogId: this.dialogId,
-	            messageId: this.messageId,
-	            botId: button.BOT_ID,
-	            command: button.COMMAND,
-	            params: button.COMMAND_PARAMS
-	          }
-	        });
-	        this.recoverStateButton = setTimeout(() => {
-	          this.isBlocked = false;
-	          button.WAIT = 'N';
-	        }, 10000);
+	      } else if (this.button.link) {
+	        im_v2_lib_utils.Utils.browser.openLink(this.button.link);
+	      } else if (this.button.command) {
+	        this.handleCustomCommand();
 	      }
-	      return true;
 	    },
-	    getStyles(button) {
-	      const styles = {};
-	      if (button.WIDTH) {
-	        styles['width'] = `${button.WIDTH}px`;
-	      } else if (button.DISPLAY === 'BLOCK') {
-	        styles['width'] = '225px';
-	      }
-	      if (button.BG_COLOR) {
-	        styles['backgroundColor'] = button.BG_COLOR;
-	      }
-	      if (button.TEXT_COLOR) {
-	        styles['color'] = button.TEXT_COLOR;
-	      }
-	      return styles;
+	    handleAction() {
+	      this.$emit('action', {
+	        action: this.button.action,
+	        payload: this.button.actionValue
+	      });
 	    },
-	    prepareButtons(buttons) {
-	      return buttons.filter(button => {
-	        if (!button.CONTEXT) {
-	          return true;
-	        }
-	        if (im_v2_lib_utils.Utils.platform.isBitrixMobile() && button.CONTEXT === 'DESKTOP') {
-	          return false;
-	        }
-	        if (!im_v2_lib_utils.Utils.platform.isBitrixMobile() && button.CONTEXT === 'MOBILE') {
-	          return false;
-	        }
-
-	        // TODO activate this buttons
-	        if (!im_v2_lib_utils.Utils.platform.isBitrixMobile() && (button.ACTION === 'DIALOG' || button.ACTION === 'CALL')) {
-	          return false;
-	        }
-	        return true;
+	    handleCustomCommand() {
+	      if (this.button.block) {
+	        this.$emit('blockKeyboard');
+	      }
+	      this.button.wait = true;
+	      this.$emit('customCommand', {
+	        botId: this.button.botId,
+	        command: this.button.command,
+	        payload: this.button.commandParams
 	      });
 	    }
 	  },
-	  computed: {
-	    ButtonType: () => ButtonType
+	  template: `
+		<div
+			class="bx-im-keyboard-button__container"
+			:class="buttonClasses"
+			:style="buttonStyles"
+			@click="onClick"
+		>
+			{{ button.text }}
+		</div>
+	`
+	};
+
+	// @vue/component
+	const KeyboardSeparator = {
+	  name: 'KeyboardSeparator',
+	  data() {
+	    return {};
 	  },
 	  template: `
-		<div :class="['bx-im-element-keyboard', {'bx-im-element-keyboard-mobile': isMobile}]">
-			<template v-for="(button, index) in localButtons">
-				<div v-if="button.TYPE === ButtonType.newline" class="bx-im-element-keyboard-button-separator"></div>
-				<span v-else-if="button.TYPE === ButtonType.button" :class="[
-					'bx-im-element-keyboard-button', 
-					'bx-im-element-keyboard-button-'+button.DISPLAY.toLowerCase(), 
-					{
-						'bx-im-element-keyboard-button-disabled': isBlocked || button.DISABLED === 'Y',
-						'bx-im-element-keyboard-button-progress': button.WAIT === 'Y',
-					}
-				]" @click="click(button)">
-					<span class="bx-im-element-keyboard-button-text" :style="getStyles(button)">{{button.TEXT}}</span>
-				</span>
+		<div class="bx-im-keyboard-button__separator"></div>
+	`
+	};
+
+	var _dialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogId");
+	var _actionHandlers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("actionHandlers");
+	var _sendMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendMessage");
+	var _insertText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("insertText");
+	var _startCall = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("startCall");
+	var _copyText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("copyText");
+	var _openChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openChat");
+	class ActionManager {
+	  constructor(dialogId) {
+	    Object.defineProperty(this, _openChat, {
+	      value: _openChat2
+	    });
+	    Object.defineProperty(this, _copyText, {
+	      value: _copyText2
+	    });
+	    Object.defineProperty(this, _startCall, {
+	      value: _startCall2
+	    });
+	    Object.defineProperty(this, _insertText, {
+	      value: _insertText2
+	    });
+	    Object.defineProperty(this, _sendMessage, {
+	      value: _sendMessage2
+	    });
+	    Object.defineProperty(this, _dialogId, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _actionHandlers, {
+	      writable: true,
+	      value: {
+	        [im_v2_const.KeyboardButtonAction.send]: babelHelpers.classPrivateFieldLooseBase(this, _sendMessage)[_sendMessage].bind(this),
+	        [im_v2_const.KeyboardButtonAction.put]: babelHelpers.classPrivateFieldLooseBase(this, _insertText)[_insertText].bind(this),
+	        [im_v2_const.KeyboardButtonAction.call]: babelHelpers.classPrivateFieldLooseBase(this, _startCall)[_startCall].bind(this),
+	        [im_v2_const.KeyboardButtonAction.copy]: babelHelpers.classPrivateFieldLooseBase(this, _copyText)[_copyText].bind(this),
+	        [im_v2_const.KeyboardButtonAction.dialog]: babelHelpers.classPrivateFieldLooseBase(this, _openChat)[_openChat].bind(this)
+	      }
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _dialogId)[_dialogId] = dialogId;
+	  }
+	  handleAction(event) {
+	    const {
+	      action,
+	      payload
+	    } = event;
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _actionHandlers)[_actionHandlers][action]) {
+	      // eslint-disable-next-line no-console
+	      console.error('Keyboard: action not found');
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _actionHandlers)[_actionHandlers][action](payload);
+	  }
+	}
+	function _sendMessage2(payload) {
+	  im_v2_provider_service.SendingService.getInstance().sendMessage({
+	    text: payload,
+	    dialogId: babelHelpers.classPrivateFieldLooseBase(this, _dialogId)[_dialogId]
+	  });
+	}
+	function _insertText2(payload) {
+	  main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
+	    text: payload
+	  });
+	}
+	function _startCall2(payload) {
+	  im_v2_lib_phone.PhoneManager.getInstance().startCall(payload);
+	}
+	function _copyText2(payload) {
+	  var _BX$clipboard;
+	  if ((_BX$clipboard = BX.clipboard) != null && _BX$clipboard.copy(payload)) {
+	    BX.UI.Notification.Center.notify({
+	      content: main_core.Loc.getMessage('IM_ELEMENTS_KEYBOARD_BUTTON_ACTION_COPY_SUCCESS')
+	    });
+	  }
+	}
+	function _openChat2(payload) {
+	  im_public.Messenger.openChat(payload);
+	}
+
+	var _messageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("messageId");
+	var _dialogId$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogId");
+	class BotService {
+	  constructor(params) {
+	    Object.defineProperty(this, _messageId, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _dialogId$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    const {
+	      messageId,
+	      dialogId
+	    } = params;
+	    babelHelpers.classPrivateFieldLooseBase(this, _messageId)[_messageId] = messageId;
+	    babelHelpers.classPrivateFieldLooseBase(this, _dialogId$1)[_dialogId$1] = dialogId;
+	  }
+	  sendCommand(event) {
+	    const {
+	      botId,
+	      command,
+	      payload
+	    } = event;
+	    im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imMessageCommand, {
+	      MESSAGE_ID: babelHelpers.classPrivateFieldLooseBase(this, _messageId)[_messageId],
+	      DIALOG_ID: babelHelpers.classPrivateFieldLooseBase(this, _dialogId$1)[_dialogId$1],
+	      BOT_ID: botId,
+	      COMMAND: command,
+	      COMMAND_PARAMS: payload
+	    }).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('BotService: error sending command:', error);
+	    });
+	  }
+	}
+
+	const Keyboard = {
+	  props: {
+	    buttons: {
+	      type: Array,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    messageId: {
+	      type: [Number, String],
+	      required: true
+	    }
+	  },
+	  components: {
+	    KeyboardButton,
+	    KeyboardSeparator
+	  },
+	  data() {
+	    return {
+	      keyboardBlocked: false
+	    };
+	  },
+	  emits: ['click'],
+	  watch: {
+	    buttons() {
+	      this.keyboardBlocked = false;
+	    }
+	  },
+	  computed: {
+	    ButtonType: () => im_v2_const.KeyboardButtonType,
+	    preparedButtons() {
+	      return this.buttons.filter(button => {
+	        return button.context !== im_v2_const.KeyboardButtonContext.mobile;
+	      });
+	    }
+	  },
+	  methods: {
+	    onButtonActionClick(event) {
+	      this.getActionManager().handleAction(event);
+	    },
+	    onButtonCustomCommandClick(event) {
+	      this.getBotService().sendCommand(event);
+	    },
+	    getActionManager() {
+	      if (!this.actionManager) {
+	        this.actionManager = new ActionManager(this.dialogId);
+	      }
+	      return this.actionManager;
+	    },
+	    getBotService() {
+	      if (!this.botService) {
+	        this.botService = new BotService({
+	          messageId: this.messageId,
+	          dialogId: this.dialogId
+	        });
+	      }
+	      return this.botService;
+	    }
+	  },
+	  template: `
+		<div class="bx-im-keyboard__container">
+			<template v-for="button in preparedButtons">
+				<KeyboardButton
+					v-if="button.type === ButtonType.button"
+					:config="button"
+					:keyboardBlocked="keyboardBlocked"
+					@blockKeyboard="keyboardBlocked = true"
+					@action="onButtonActionClick"
+					@customCommand="onButtonCustomCommandClick"
+				/>
+				<KeyboardSeparator v-else-if="button.type === ButtonType.newLine" />
 			</template>
 		</div>
 	`
@@ -2416,7 +2575,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-elements-spinner__container">
+		<div class="bx-im-elements-spinner__container bx-im-elements-spinner__scope">
 			<div class="bx-im-elements-spinner__spinner" :class="[sizeClassName, colorClassName]"></div>
 		</div>
 	`
@@ -2739,8 +2898,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	});
 
 	// @vue/component
-	const SearchInput = {
+	const SearchInput$$1 = {
 	  name: 'SearchInput',
+	  components: {
+	    Spinner
+	  },
 	  props: {
 	    placeholder: {
 	      type: String,
@@ -2753,6 +2915,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    withIcon: {
 	      type: Boolean,
 	      default: true
+	    },
+	    withLoader: {
+	      type: Boolean,
+	      default: false
+	    },
+	    isLoading: {
+	      type: Boolean,
+	      default: false
 	    },
 	    delayForFocusOnStart: {
 	      type: Number,
@@ -2767,6 +2937,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  },
 	  computed: {
+	    SpinnerSize: () => SpinnerSize,
+	    SpinnerColor: () => SpinnerColor,
 	    isEmptyQuery() {
 	      return this.query.length === 0;
 	    }
@@ -2833,7 +3005,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-search-input__scope bx-im-search-input__container" :class="{'--has-focus': hasFocus}">
-			<div v-if="withIcon && !hasFocus" class="bx-im-search-input__search-icon"></div>
+			<div v-if="!isLoading" class="bx-im-search-input__search-icon"></div>
+			<Spinner 
+				v-if="withLoader && isLoading" 
+				:size="SpinnerSize.XXS" 
+				:color="SpinnerColor.grey" 
+				class="bx-im-search-input__loader"
+			/>
 			<input
 				@focus="onFocus"
 				@input="onInputUpdate"
@@ -2845,6 +3023,192 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				ref="searchInput"
 			/>
 			<div v-if="hasFocus" class="bx-im-search-input__close-icon" @click="onCloseClick"></div>
+		</div>
+	`
+	};
+
+	const INPUT_PADDING = 5;
+
+	// @vue/component
+	const EditableChatTitle = {
+	  name: 'EditableChatTitle',
+	  components: {
+	    ChatTitle
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  emits: ['newTitleSubmit'],
+	  data() {
+	    return {
+	      isEditing: false,
+	      inputWidth: 0,
+	      showEditIcon: false,
+	      chatTitle: ''
+	    };
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    canBeRenamed() {
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.rename, this.dialogId);
+	    },
+	    inputStyle() {
+	      return {
+	        width: `calc(${this.inputWidth}ch + ${INPUT_PADDING}px)`
+	      };
+	    }
+	  },
+	  watch: {
+	    chatTitle() {
+	      this.inputWidth = this.chatTitle.length;
+	    }
+	  },
+	  mounted() {
+	    this.chatTitle = this.dialog.name;
+	  },
+	  methods: {
+	    async onTitleClick() {
+	      if (!this.canBeRenamed) {
+	        return;
+	      }
+	      if (!this.chatTitle) {
+	        this.chatTitle = this.dialog.name;
+	      }
+	      this.isEditing = true;
+	      await this.$nextTick();
+	      this.$refs.titleInput.focus();
+	    },
+	    onNewTitleSubmit() {
+	      if (!this.isEditing) {
+	        return;
+	      }
+	      this.isEditing = false;
+	      const nameNotChanged = this.chatTitle === this.dialog.name;
+	      if (nameNotChanged || this.chatTitle === '') {
+	        return;
+	      }
+	      this.$emit('newTitleSubmit', this.chatTitle);
+	    },
+	    onEditCancel() {
+	      this.isEditing = false;
+	      this.showEditIcon = false;
+	      this.chatTitle = this.dialog.name;
+	    }
+	  },
+	  template: `
+		<div
+			v-if="!isEditing"
+			@click="onTitleClick"
+			@mouseover="showEditIcon = true"
+			@mouseleave="showEditIcon = false"
+			class="bx-im-elements-editable-chat-title__wrap"
+			:class="{'--can-rename': canBeRenamed}"
+		>
+			<div class="bx-im-elements-editable-chat-title__container">
+				<ChatTitle :dialogId="dialogId" :withMute="true" />
+			</div>
+			<div class="bx-im-elements-editable-chat-title__edit-icon_container">
+				<div v-if="showEditIcon && canBeRenamed" class="bx-im-elements-editable-chat-title__edit-icon"></div>
+			</div>
+		</div>
+		<div v-else class="bx-im-elements-editable-chat-title__input_container">
+			<input
+				v-model="chatTitle"
+				:style="inputStyle"
+				@focus="$event.target.select()"
+				@blur="onNewTitleSubmit"
+				@keyup.enter="onNewTitleSubmit"
+				@keyup.esc="onEditCancel"
+				type="text"
+				class="bx-im-elements-editable-chat-title__input"
+				ref="titleInput"
+			/>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const ScrollWithGradient = {
+	  name: 'ScrollWithGradient',
+	  props: {
+	    containerMaxHeight: {
+	      type: Number,
+	      default: 0,
+	      required: false
+	    },
+	    gradientHeight: {
+	      type: Number,
+	      default: 0
+	    },
+	    withShadow: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  data() {
+	    return {
+	      showTopGradient: false,
+	      showBottomGradient: false
+	    };
+	  },
+	  computed: {
+	    contentHeightStyle() {
+	      if (!this.containerMaxHeight) {
+	        return {
+	          height: '100%'
+	        };
+	      }
+	      return {
+	        maxHeight: `${this.containerMaxHeight}px`
+	      };
+	    },
+	    gradientHeightStyle() {
+	      return {
+	        maxHeight: `${this.gradientHeightStyle}px`
+	      };
+	    }
+	  },
+	  mounted() {
+	    // const container = this.$refs['scroll-container'];
+	    // this.showBottomGradient = container.scrollHeight > container.clientHeight;
+	  },
+	  methods: {
+	    onScroll(event) {
+	      this.$emit('scroll', event);
+	      const scrollPosition = Math.ceil(event.target.scrollTop + event.target.clientHeight);
+	      this.showBottomGradient = scrollPosition !== event.target.scrollHeight;
+	      if (event.target.scrollTop === 0) {
+	        this.showTopGradient = false;
+	        return;
+	      }
+	      this.showTopGradient = true;
+	    }
+	  },
+	  template: `
+		<div class="bx-im-scroll-with-gradient__container">
+			<Transition name="gradient-fade">
+				<div v-if="showTopGradient" class="bx-im-scroll-with-gradient__gradient --top" :style="gradientHeightStyle">
+					<div v-if="withShadow" class="bx-im-scroll-with-gradient__gradient-inner"></div>
+				</div>
+			</Transition>
+			<div 
+				class="bx-im-scroll-with-gradient__content" 
+				:style="contentHeightStyle" 
+				@scroll="onScroll"
+				ref="scroll-container"
+			>
+				<slot></slot>
+			</div>
+			<Transition name="gradient-fade">
+				<div v-if="showBottomGradient" class="bx-im-scroll-with-gradient__gradient --bottom" :style="gradientHeightStyle">
+					<div v-if="withShadow" class="bx-im-scroll-with-gradient__gradient-inner"></div>
+				</div>
+			</Transition>
 		</div>
 	`
 	};
@@ -2878,7 +3242,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.TabsColorScheme = TabsColorScheme;
 	exports.AudioPlayer = AudioPlayer$$1;
 	exports.ChatTitleWithHighlighting = ChatTitleWithHighlighting$$1;
-	exports.SearchInput = SearchInput;
+	exports.SearchInput = SearchInput$$1;
+	exports.EditableChatTitle = EditableChatTitle;
+	exports.ScrollWithGradient = ScrollWithGradient;
 
-}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Model,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Main,BX,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Model,BX.Messenger.v2.Lib,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Main,BX,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

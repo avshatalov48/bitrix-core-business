@@ -12,6 +12,7 @@ export const EventType = Object.freeze({
 		scrollToBottom: 'IM.Dialog:scrollToBottom',
 		goToMessageContext: 'IM.Dialog:goToMessageContext',
 		onClickMessageContextMenu: 'IM.Dialog:onClickMessageContextMenu',
+		showForwardPopup: 'IM.Dialog:showForwardPopup',
 
 		errors: {
 			accessDenied: 'IM.Dialog.errors:accessDenied',
@@ -23,6 +24,8 @@ export const EventType = Object.freeze({
 		replyMessage: 'IM.Textarea:replyMessage',
 		insertText: 'IM.Textarea:insertText',
 		insertMention: 'IM.Textarea:insertMention',
+		insertForward: 'IM.Textarea:insertForward',
+		sendMessage: 'IM.Textarea:sendMessage',
 	},
 	uploader:
 	{
@@ -50,19 +53,20 @@ export const EventType = Object.freeze({
 	},
 	mention:
 	{
-		openChatInfo: 'IM.Mention:openChatInfo',
-		selectFirstItem: 'IM.Mention:selectFirstItem',
+		selectItem: 'IM.Mention:selectItem',
 	},
 	counter:
 	{
 		onNotificationCounterChange: 'onImUpdateCounterNotify',
 		onChatCounterChange: 'onImUpdateCounterMessage',
 		onLinesCounterChange: 'onImUpdateCounterLines',
+		onImUpdateCounter: 'onImUpdateCounter',
 	},
 	desktop:
 	{
 		onInit: 'onDesktopInit',
 		onReload: 'onDesktopReload',
+		onSyncPause: 'onDesktopSyncPause',
 		onUserAway: 'BXUserAway',
 		onWakeUp: 'BXWakeAction',
 		onBxLink: 'BXProtocolUrl',
@@ -78,5 +82,9 @@ export const EventType = Object.freeze({
 	slider:
 	{
 		onClose: 'onChatSliderClose',
+	},
+	request:
+	{
+		onAuthError: 'IM.request:onAuthError',
 	},
 });

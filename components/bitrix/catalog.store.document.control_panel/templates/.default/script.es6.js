@@ -1,24 +1,25 @@
-import {Reflection, Type, Event, Dom, ajax} from 'main.core';
-import {Slider} from 'catalog.store-use'
+/* eslint-disable no-param-reassign */
+
+import { Reflection, Type } from 'main.core';
+import { StoreSlider } from 'catalog.store-use';
 
 const namespace = Reflection.namespace('BX.Catalog.Store.Document');
 
 class ControlPanel
 {
-	openSlider(url, options = {})
+	openSlider(url, options = {}): void
 	{
-		let currentSlider = BX.SidePanel.Instance.getTopSlider();
+		const currentSlider = BX.SidePanel.Instance.getTopSlider();
 
-		options = Type.isPlainObject(options) ? options:{};
+		options = Type.isPlainObject(options) ? options : {};
 
-		let params = {
-			events: options.hasOwnProperty("events") ? options.events : {},
-			data: options.hasOwnProperty("data") ? options.data : {},
+		const params = {
+			events: options.events ?? {},
+			data: options.data ?? {},
 		};
 
-		params.events.onClose = function(event)
-		{
-			let slider = event.getSlider();
+		params.events.onClose = function(event) {
+			const slider = event.getSlider();
 			if (!slider)
 			{
 				return;
@@ -32,9 +33,9 @@ class ControlPanel
 				}
 				document.location.reload();
 			}
-		}
+		};
 
-		return new Slider().open(url, params)
+		return new StoreSlider().open(url, params);
 	}
 
 	storeMasterOpenSlider(url, options = {})
@@ -44,8 +45,8 @@ class ControlPanel
 
 	reloadGrid()
 	{
-		document.location.reload()
+		document.location.reload();
 	}
 }
 
-namespace.ControlPanel = ControlPanel
+namespace.ControlPanel = ControlPanel;

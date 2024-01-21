@@ -16,6 +16,7 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\TariffsResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ClaimReader\ClaimReader;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Estimation;
+use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\OfferEstimation;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TariffsOptions;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Transport;
 use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
@@ -107,12 +108,94 @@ final class Api
 
 		$result
 			->setPrice((float)$body['price'])
-			->setCurrency((string)$body['currency_rules']['code']);
+			->setCurrency((string)$body['currency_rules']['code'])
+		;
 
 		if (isset($body['eta']))
 		{
 			$result->setEta((int)$body['eta']);
 		}
+
+		return $result;
+	}
+
+	/**
+	 * @param OfferEstimation $estimation
+	 * @return PriceResult
+	 */
+	public function offersCalculate(OfferEstimation $estimation): Result
+	{
+		$result = new PriceResult();
+
+		try
+		{
+			$response = $this->transport->request(
+				self::MULTI_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'offers/calculate',
+				null,
+				$estimation
+			);
+		}
+		catch (Transport\Exception $requestException)
+		{
+			return $this->respondTransportError($result);
+		}
+
+		$statusCode = $response->getStatus();
+		$body = $response->getBody();
+
+		if ($statusCode !== 200)
+		{
+			$this->logger->log(static::LOG_SOURCE, 'offers/calculate', $response->toString());
+			return $this->respondStatusError($result, $statusCode, 'offers/calculate');
+		}
+
+		if (
+			!isset($body['offers'])
+			|| !is_array($body['offers'])
+		)
+		{
+			return $result->addError(new Error(Loc::getMessage('SALE_YANDEX_TAXI_RATE_CALCULATE_ERROR')));
+		}
+
+		$maxOfferByPrice  = null;
+
+		foreach ($body['offers'] as $offer)
+		{
+			if (
+				!isset($offer['price']['total_price_with_vat'])
+				|| !isset($offer['price']['currency'])
+				|| !isset($offer['payload'])
+				|| (float)$offer['price']['total_price_with_vat'] < 0
+			)
+			{
+				continue;
+			}
+
+			if (is_null($maxOfferByPrice))
+			{
+				$maxOfferByPrice = $offer;
+
+				continue;
+			}
+
+			if ((float)$offer['price']['total_price_with_vat'] > (float)$maxOfferByPrice['price']['total_price_with_vat'])
+			{
+				$maxOfferByPrice = $offer;
+			}
+		}
+
+		if (is_null($maxOfferByPrice))
+		{
+			return $result->addError(new Error(Loc::getMessage('SALE_YANDEX_TAXI_RATE_CALCULATE_ERROR')));
+		}
+
+		$result
+			->setPrice((float)$maxOfferByPrice['price']['total_price_with_vat'])
+			->setCurrency((string)$maxOfferByPrice['price']['currency'])
+			->setData(['offerPayload' => (string)$maxOfferByPrice['payload']])
+		;
 
 		return $result;
 	}

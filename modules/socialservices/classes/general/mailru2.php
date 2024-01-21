@@ -2,6 +2,8 @@
 
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Socialservices\OAuth\StateService;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -10,6 +12,7 @@ class CSocServMailRu2 extends CSocServAuth
 	const ID = "MailRu2";
 	const CONTROLLER_URL = "https://www.bitrix24.ru/controller";
 
+	private static bool $isCloudPortal;
 	protected $entityOAuth;
 
 	public function GetSettings()
@@ -71,20 +74,42 @@ class CSocServMailRu2 extends CSocServAuth
 	{
 		global $APPLICATION;
 
-		if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
+		/**
+		 * @var \CMain $APPLICATION
+		 */
+
+		$backUrl = (string)(
+			$arParams['BACKURL']
+			?? $APPLICATION->GetCurPageParam('', [
+				'logout', 'auth_service_error', 'auth_service_id', 'backurl',
+			])
+		);
+		$state = StateService::getInstance()->createState([
+			'site_id' => SITE_ID,
+			'check_key' => \CSocServAuthManager::getUniqueKey(),
+			'redirect_url' => $backUrl,
+		]);
+
+		if ($this->isCloudPortal())
 		{
-			$redirect_uri = static::CONTROLLER_URL . "/redirect.php";
-			$state = $this->getEntityOAuth()->GetRedirectURI() . "?check_key=" . \CSocServAuthManager::getUniqueKey() . "&state=";
-			$backurl = $APPLICATION->GetCurPageParam('', array("logout", "auth_service_error", "auth_service_id", "backurl"));
-			$state .= urlencode("state=" . urlencode("backurl=" . urlencode($backurl) . (isset($arParams['BACKURL']) ? '&redirect_url=' . urlencode($arParams['BACKURL']) : '')));
+			$portalRedirectUri = new Uri(
+				$this->getEntityOAuth()->GetRedirectURI()
+			);
+			$portalRedirectUri->addParams([
+				'state' => $state,
+			]);
+
+			$state = (string)$portalRedirectUri;
+			$redirectUri = new Uri(
+				static::CONTROLLER_URL . '/redirect.php'
+			);
 		}
 		else
 		{
-			$state = 'site_id=' . SITE_ID . '&backurl=' . urlencode($APPLICATION->GetCurPageParam('check_key=' . \CSocServAuthManager::getUniqueKey(), array("logout", "auth_service_error", "auth_service_id", "backurl"))) . (isset($arParams['BACKURL']) ? '&redirect_url=' . urlencode($arParams['BACKURL']) : '');
-			$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();
+			$redirectUri = $this->getEntityOAuth()->GetRedirectURI();
 		}
 
-		return $this->getEntityOAuth()->GetAuthUrl($redirect_uri, $state);
+		return $this->getEntityOAuth()->GetAuthUrl($redirectUri, $state);
 	}
 
 	public function addScope($scope)
@@ -151,73 +176,78 @@ class CSocServMailRu2 extends CSocServAuth
 		return $arFields;
 	}
 
-	public function Authorize()
+	private function isCloudPortal(): bool
 	{
-		global $APPLICATION;
-		$APPLICATION->RestartBuffer();
+		self::$isCloudPortal ??= IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME');
 
-		$authError = SOCSERV_AUTHORISATION_ERROR;
+		return self::$isCloudPortal;
+	}
 
-		if (
-			isset($_REQUEST["code"]) && $_REQUEST["code"] <> ''
-			&& CSocServAuthManager::CheckUniqueKey()
-		)
+	private function getRequestState(string $state = null): ?array
+	{
+		if (empty($state))
 		{
-			if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
+			if (isset($_REQUEST['state']))
 			{
-				$redirect_uri = static::CONTROLLER_URL . "/redirect.php";
+				$state = $_REQUEST['state'];
 			}
 			else
 			{
-				$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();
-			}
-
-			$entityOAuth = $this->getEntityOAuth($_REQUEST['code']);
-			if ($entityOAuth->GetAccessToken($redirect_uri) !== false)
-			{
-				$arUser = $entityOAuth->GetCurrentUser();
-				if (is_array($arUser) && isset($arUser["email"]))
-				{
-					$arFields = $this->prepareUser($arUser);
-					$authError = $this->AuthorizeUser($arFields);
-				}
+				return null;
 			}
 		}
 
+		return StateService::getInstance()->getPayload($state);
+	}
+
+	private function getAuthorizeRedirectUrl($authError): string
+	{
+		global $APPLICATION;
+
+		/**
+		 * @var \CMain $APPLICATION
+		 */
+
 		$bSuccess = $authError === true;
 
-		$url = ($APPLICATION->GetCurDir() == "/login/") ? "" : $APPLICATION->GetCurDir();
-		$aRemove = array("logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset");
-
-		if (isset($_REQUEST["state"]) && $bSuccess)
+		$url = $APPLICATION->GetCurDir();
+		if ($url === '/login/')
 		{
-			$arState = array();
-			parse_str($_REQUEST["state"], $arState);
+			$url = '';
+		}
 
-			if (isset($arState['backurl']) || isset($arState['redirect_url']))
+		$aRemove = array("logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset");
+		$arState = $this->getRequestState();
+
+		if (
+			$bSuccess
+			&& (
+				isset($arState['backurl'])
+				|| isset($arState['redirect_url'])
+			)
+		)
+		{
+			$url = !empty($arState['redirect_url']) ? $arState['redirect_url'] : $arState['backurl'];
+			if (mb_substr($url, 0, 1) !== "#")
 			{
-				$url = !empty($arState['redirect_url']) ? $arState['redirect_url'] : $arState['backurl'];
-				if (mb_substr($url, 0, 1) !== "#")
+				$parseUrl = parse_url($url);
+
+				$urlPath = $parseUrl["path"];
+				$arUrlQuery = explode('&', $parseUrl["query"]);
+
+				foreach ($arUrlQuery as $key => $value)
 				{
-					$parseUrl = parse_url($url);
-
-					$urlPath = $parseUrl["path"];
-					$arUrlQuery = explode('&', $parseUrl["query"]);
-
-					foreach ($arUrlQuery as $key => $value)
+					foreach ($aRemove as $param)
 					{
-						foreach ($aRemove as $param)
+						if (mb_strpos($value, $param."=") === 0)
 						{
-							if (mb_strpos($value, $param."=") === 0)
-							{
-								unset($arUrlQuery[$key]);
-								break;
-							}
+							unset($arUrlQuery[$key]);
+							break;
 						}
 					}
-
-					$url = (!empty($arUrlQuery)) ? $urlPath . '?' . implode("&", $arUrlQuery) : $urlPath;
 				}
+
+				$url = (!empty($arUrlQuery)) ? $urlPath . '?' . implode("&", $arUrlQuery) : $urlPath;
 			}
 		}
 
@@ -235,6 +265,46 @@ class CSocServMailRu2 extends CSocServAuth
 		{
 			$url .= ((mb_strpos($url, "?") === false) ? '?' : '&') . "current_fieldset=SOCSERV";
 		}
+
+		return $url;
+	}
+
+	public function Authorize()
+	{
+		global $APPLICATION;
+
+		$APPLICATION->RestartBuffer();
+		$authError = SOCSERV_AUTHORISATION_ERROR;
+
+		if (
+			isset($_REQUEST["code"])
+			&& $_REQUEST["code"] <> ''
+			&& CSocServAuthManager::CheckUniqueKey()
+		)
+		{
+			if ($this->isCloudPortal())
+			{
+				$redirect_uri = static::CONTROLLER_URL . "/redirect.php";
+			}
+			else
+			{
+				$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();
+			}
+
+			$entityOAuth = $this->getEntityOAuth($_REQUEST['code']);
+			if ($entityOAuth->GetAccessToken($redirect_uri) !== false)
+			{
+				$arUser = $entityOAuth->GetCurrentUser();
+				if (is_array($arUser) && isset($arUser["email"]))
+				{
+					$authError = $this->AuthorizeUser(
+						$this->prepareUser($arUser)
+					);
+				}
+			}
+		}
+
+		$url = $this->getAuthorizeRedirectUrl($authError);
 		?>
 		<script type="text/javascript">
 			if (window.opener)
@@ -282,11 +352,17 @@ class CMailRu2Interface extends CSocServOAuthTransport
 		parent::__construct($appID, $appSecret, $code);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function GetRedirectURI()
 	{
 		return \CHTTP::URN2URI("/bitrix/tools/oauth/mailru2.php");
 	}
 
+	/**
+	 * @return string
+	 */
 	public function GetAuthUrl($redirect_uri, $state = '')
 	{
 		return self::AUTH_URL
@@ -298,11 +374,19 @@ class CMailRu2Interface extends CSocServOAuthTransport
 			.'&prompt_force=1';
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getResult()
 	{
 		return $this->responseData;
 	}
 
+	/**
+	 * @param string $redirect_uri
+	 *
+	 * @return bool
+	 */
 	public function GetAccessToken($redirect_uri)
 	{
 		$token = $this->getStorageTokens();
@@ -375,6 +459,13 @@ class CMailRu2Interface extends CSocServOAuthTransport
 		return false;
 	}
 
+	/**
+	 * @param bool $refreshToken
+	 * @param int $userId
+	 * @param bool $save
+	 *
+	 * @return bool
+	 */
 	public function getNewAccessToken($refreshToken = false, $userId = 0, $save = false)
 	{
 		if ($this->appID == false || $this->appSecret == false)
@@ -437,6 +528,9 @@ class CMailRu2Interface extends CSocServOAuthTransport
 		return false;
 	}
 
+	/**
+	 * @return array|false
+	 */
 	public function GetCurrentUser()
 	{
 		if ($this->access_token === false)
@@ -459,11 +553,17 @@ class CMailRu2Interface extends CSocServOAuthTransport
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function GetAppInfo()
 	{
 		return false;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getScopeEncode()
 	{
 		return implode(' ', array_map('urlencode', array_unique($this->getScope())));

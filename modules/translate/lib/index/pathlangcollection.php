@@ -63,7 +63,7 @@ class PathLangCollection
 	 *
 	 * @return int
 	 */
-	public function countItemsToProcess(Translate\Filter $filter = null): int
+	public function countItemsToProcess(?Translate\Filter $filter = null): int
 	{
 		$relPath = isset($filter, $filter->path) ? $filter->path : '';
 
@@ -89,7 +89,7 @@ class PathLangCollection
 	 *
 	 * @return int
 	 */
-	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null): int
+	public function collect(?Translate\Filter $filter = null, ?Translate\Controller\ITimeLimit $timer = null, ?Translate\Filter $seek = null): int
 	{
 		self::configure();
 
@@ -118,6 +118,7 @@ class PathLangCollection
 			$seek->lookForSeek = true;
 		}
 
+		$checkLanguages = [];
 		if (self::$useTranslationRepository)
 		{
 			$checkLanguages = self::$translationEnabledLanguages;
@@ -305,11 +306,11 @@ class PathLangCollection
 	/**
 	 * Drops index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return self
 	 */
-	public function purge(Translate\Filter $filter = null): self
+	public function purge(?Translate\Filter $filter = null): self
 	{
 		Index\Internals\PathLangTable::purge($filter);
 

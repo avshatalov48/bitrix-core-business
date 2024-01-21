@@ -152,7 +152,8 @@ class User
 			return 'offline';
 		}
 
-		return $fields['status']?: 'online';
+		//return $fields['status']?: 'online';
+		return 'online';
 	}
 
 	/**
@@ -160,7 +161,8 @@ class User
 	 */
 	public function getIdle()
 	{
-		return $this->getOnlineFields()['idle'];
+		//return $this->getOnlineFields()['idle'];
+		return false;
 	}
 
 	/**
@@ -176,7 +178,8 @@ class User
 	 */
 	public function getMobileLastDate()
 	{
-		return $this->getOnlineFields()['mobile_last_date'];
+		//return $this->getOnlineFields()['mobile_last_date'];
+		return false;
 	}
 
 	/**

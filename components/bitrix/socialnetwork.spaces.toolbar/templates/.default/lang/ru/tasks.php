@@ -1,0 +1,49 @@
+<?php
+$MESS['SN_SPACES_TASKS_ADD_TASK'] = 'Создать';
+$MESS['SN_SPACES_TASKS_VIEW_BTN'] = 'Вид';
+$MESS['SN_SPACES_TASKS_SETTINGS_READ_ALL'] = 'Прочитать все';
+$MESS['SN_SPACES_TASKS_SCRUM_SETTINGS_BACKLOG'] = 'Приоритет: бэклог';
+$MESS['SN_SPACES_TASKS_SCRUM_SETTINGS_SPRINT'] = 'Приоритет: спринты';
+$MESS['SN_SPACES_TASKS_SCRUM_SETTINGS_COMPLETE_SPRINT'] = 'Завершить спринт';
+$MESS['SN_SPACES_TASKS_SCRUM_SETTINGS_BURN_DOWN'] = 'Диаграмма сгорания';
+$MESS['SN_SPACES_TASKS_ROBOTS_BUTTON'] = 'Роботы';
+
+$MESS['SN_SPACES_TASKS_SORT'] = 'Сортировка';
+$MESS['SN_SPACES_TASKS_SORT_ID'] = 'ID';
+$MESS['SN_SPACES_TASKS_SORT_TITLE'] = 'Название';
+$MESS['SN_SPACES_TASKS_SORT_DEADLINE'] = 'Крайний срок';
+$MESS['SN_SPACES_TASKS_SORT_ORIGINATOR_NAME'] = 'Постановщик';
+$MESS['SN_SPACES_TASKS_SORT_RESPONSIBLE_NAME'] = 'Ответственный';
+$MESS['SN_SPACES_TASKS_SORT_PRIORITY'] = 'Важность';
+$MESS['SN_SPACES_TASKS_SORT_MARK'] = 'Оценка';
+$MESS['SN_SPACES_TASKS_SORT_MARK_MSGVER_1'] = 'Оценка';
+$MESS['SN_SPACES_TASKS_SORT_TIME_ESTIMATE'] = 'Плановые трудозатраты';
+$MESS['SN_SPACES_TASKS_SORT_ALLOW_TIME_TRACKING']= 'Учитывать время';
+$MESS['SN_SPACES_TASKS_SORT_CREATED_DATE'] = 'Дата создания';
+$MESS['SN_SPACES_TASKS_SORT_CHANGED_DATE'] = 'Дата изменения';
+$MESS['SN_SPACES_TASKS_SORT_ACTIVITY_DATE'] = 'По активности';
+$MESS['SN_SPACES_TASKS_SORT_CLOSED_DATE'] = 'Дата закрытия';
+$MESS['SN_SPACES_TASKS_SORT_SORTING'] = 'Моя сортировка';
+$MESS['SN_SPACES_TASKS_SORT_TITLE_ITEM'] = 'Сортировка:';
+$MESS['SN_SPACES_TASKS_SORT_RECOMMENDED_LABEL'] = 'Рекомендуется';
+$MESS['SN_SPACES_TASKS_SORT_ORDER_TITLE'] = 'Новые задачи:';
+$MESS['SN_SPACES_TASKS_SORT_DESC'] = 'Сверху';
+$MESS['SN_SPACES_TASKS_SORT_ASC'] = 'Снизу';
+$MESS['SN_SPACES_TASKS_SORT_BY_DESC'] = 'По убыванию';
+$MESS['SN_SPACES_TASKS_SORT_BY_ASC'] = 'По возрастанию';
+
+$MESS['SN_SPACES_TASKS_GROUP_SUBTASKS'] = 'Группировать подзадачи';
+
+$MESS['SN_SPACES_TASKS_CONFIGURE_VIEW'] = 'Настроить карточку просмотра';
+
+$MESS['SN_SPACES_TASKS_IMPORT_LIST'] = 'Импорт списка';
+$MESS['SN_SPACES_TASKS_IMPORT_LIST_CSV'] = 'из CSV';
+
+$MESS['SN_SPACES_TASKS_EXPORT_LIST'] = 'Экспорт списка';
+$MESS['SN_SPACES_TASKS_EXPORT_TO_EXCEL'] = 'в Excel';
+$MESS['SN_SPACES_TASKS_EXPORT_LIST_TO_EXCEL'] = 'Экспорт списка в Excel';
+$MESS['SN_SPACES_TASKS_EXPORT_GRID_FIELDS'] = 'Только поля из списка';
+$MESS['SN_SPACES_TASKS_EXPORT_ALL_FIELDS'] = 'Все поля задач';
+
+$MESS['SN_SPACES_TASKS_SYNC_LIST'] = 'Синхронизация списка';
+$MESS['SN_SPACES_TASKS_SYNC_WITH_OUTLOOK'] = 'с Outlook';

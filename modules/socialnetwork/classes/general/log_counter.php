@@ -455,6 +455,8 @@ class CAllSocNetLogCounter
 			) .
 			$userWhere;
 
+		$strSQL = '';
+
 		if ($workgroupMode)
 		{
 			$strSQL = "
@@ -520,6 +522,11 @@ class CAllSocNetLogCounter
 		}
 
 		return $strSQL;
+	}
+
+	private static function isComment(string $type): bool
+	{
+		return $type === CSocNetLogCounter::TYPE_LOG_COMMENT;
 	}
 
 	protected static function getFollowJoin(int $logId = 0, string $userIdReference = 'U.ID', string $mode = ''): array

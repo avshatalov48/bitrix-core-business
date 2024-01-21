@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\Integration\Report\StoreStock;
 
 use Bitrix\Catalog\StoreDocumentElementTable;
+use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\ORM\Query\Result;
@@ -43,6 +44,28 @@ final class StoreStockQuantity
 		return $receivedQuantity;
 	}
 
+
+	/**
+	 * Returns the received outgoing for each product for all stores
+	 * @param array $userFilter
+	 * @return array
+	 */
+	public static function getOutgoingQuantityForProducts(array $userFilter = []): array
+	{
+		$result = [];
+		$userFilter['ONLY_EXTERNAL_INCOMING'] = true;
+		foreach (self::getIncomingOutgoingQuantitiesFromDocuments($userFilter) as $entries)
+		{
+			foreach ($entries as $productId => $fields)
+			{
+				$result[$productId] ??= 0;
+				$result[$productId] += (float)($fields['AMOUNT']['OUTGOING'] ?? 0);
+			}
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Returns the overall outgoing quantity for each product in the store
 	 * For the filter format, @see StoreStockQuantity::getIncomingOutgoingQuantitiesFromDocuments
@@ -56,12 +79,7 @@ final class StoreStockQuantity
 
 		$outgoingQuantity = self::getIncomingOutgoingQuantitiesFromDocuments($userFilter)[$storeId] ?? [];
 
-		$mapCallback = static function ($entry)
-		{
-			return $entry['AMOUNT']['OUTGOING'];
-		};
-
-		return array_map($mapCallback, $outgoingQuantity);
+		return array_map(fn(array $entry) => $entry['AMOUNT']['OUTGOING'], $outgoingQuantity);
 	}
 
 	/**
@@ -95,6 +113,28 @@ final class StoreStockQuantity
 	}
 
 	/**
+	 * Returns the received quantity for each product for all stores
+	 * @param array $userFilter
+	 * @return array
+	 */
+	public static function getReceivedQuantityForProducts(array $userFilter = []): array
+	{
+		$result = [];
+
+		$userFilter['ONLY_EXTERNAL_INCOMING'] = true;
+		foreach (self::getIncomingOutgoingQuantitiesFromDocuments($userFilter) as $entries)
+		{
+			foreach ($entries as $productId => $fields)
+			{
+				$result[$productId] ??= 0;
+				$result[$productId] += (float)($fields['AMOUNT']['INCOMING'] ?? 0);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Returns the received quantity for each product in the store
 	 * For the filter format, @see StoreStockQuantity::getIncomingOutgoingQuantitiesFromDocuments
 	 *
@@ -108,12 +148,7 @@ final class StoreStockQuantity
 
 		$receivedQuantity = self::getIncomingOutgoingQuantitiesFromDocuments($userFilter)[$storeId] ?? [];
 
-		$mapCallback = static function ($entry)
-		{
-			return $entry['AMOUNT']['INCOMING'];
-		};
-
-		return array_map($mapCallback, $receivedQuantity);
+		return array_map(fn(array $entry) => $entry['AMOUNT']['INCOMING'], $receivedQuantity);
 	}
 
 	/**
@@ -205,6 +240,10 @@ final class StoreStockQuantity
 				'=STORE_TO' => $userFilter['STORES'],
 				'=STORE_FROM' => $userFilter['STORES'],
 			];
+		}
+		elseif (isset($userFilter['ONLY_EXTERNAL_INCOMING']))
+		{
+			$filter['!DOCUMENT.DOC_TYPE'] = StoreDocumentTable::TYPE_MOVING;
 		}
 
 		if (isset($userFilter['REPORT_INTERVAL']))

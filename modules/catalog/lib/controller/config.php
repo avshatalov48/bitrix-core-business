@@ -5,9 +5,10 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\PresetHandler;
 use Bitrix\Catalog\Component\UseStore;
-use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Catalog\Product\Store\CostPriceCalculator;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
@@ -42,27 +43,26 @@ final class Config extends \Bitrix\Main\Engine\Controller
 	/**
 	 * @throws NotImplementedException
 	 */
-	protected function checkPermission($name, $arguments=[])
+	protected function checkPermission($name, $arguments = [])
 	{
 		$name = strtolower($name);
 
-		if(
-			$name == strtolower('onceInventoryManagementY')
-			|| $name == strtolower('onceInventoryManagementN')
-			|| $name == strtolower('inventoryManagementN')
-			|| $name == strtolower('inventoryManagementY')
-			|| $name == strtolower('inventoryManagementYAndResetQuantity')
-			|| $name == strtolower('inventoryManagementYAndResetQuantityWithDocuments')
-			|| $name == strtolower('inventoryManagementInstallPreset')
-			|| $name == strtolower('unRegisterOnProlog')
+		if (
+			$name === strtolower('onceInventoryManagementY')
+			|| $name === strtolower('onceInventoryManagementN')
+			|| $name === strtolower('inventoryManagementN')
+			|| $name === strtolower('inventoryManagementY')
+			|| $name === strtolower('inventoryManagementYAndResetQuantity')
+			|| $name === strtolower('inventoryManagementYAndResetQuantityWithDocuments')
+			|| $name === strtolower('unRegisterOnProlog')
 		)
 		{
 			$r = $this->checkModifyPermissionEntity($name, $arguments);
 		}
-		else if(
-			$name == strtolower('isUsedInventoryManagement')
-			|| $name == strtolower('conductedDocumentsExist')
-			|| $name == strtolower('checkEnablingConditions')
+		else if (
+			$name === strtolower('isUsedInventoryManagement')
+			|| $name === strtolower('conductedDocumentsExist')
+			|| $name === strtolower('checkEnablingConditions')
 		)
 		{
 			$r = $this->checkReadPermissionEntity($name, $arguments);
@@ -80,7 +80,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 	 * @param array $arguments
 	 * @return Result
 	 */
-	protected function checkReadPermissionEntity($name, $arguments=[])
+	protected function checkReadPermissionEntity($name, $arguments = [])
 	{
 		$r = new Result();
 		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
@@ -90,7 +90,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 		return $r;
 	}
 
-	protected function checkModifyPermissionEntity($name, $arguments=[]): Result
+	protected function checkModifyPermissionEntity($name, $arguments = []): Result
 	{
 		$r = new Result();
 		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW))
@@ -105,7 +105,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 	 * @param array $arguments
 	 * @throws NotImplementedException
 	 */
-	protected function checkPermissionEntity($name, $arguments=[])
+	protected function checkPermissionEntity($name, $arguments = [])
 	{
 		throw new NotImplementedException('Check permission entity. The method '.$name.' is not implemented.');
 	}
@@ -125,76 +125,53 @@ final class Config extends \Bitrix\Main\Engine\Controller
 		return UseStore::isUsed();
 	}
 
-	public function inventoryManagementNAction(): bool
+	public function inventoryManagementNAction(): void
 	{
-		$result = UseStore::disable();
-		UseStore::resetPreset();
-
-		return $result;
+		if (!UseStore::disable())
+		{
+			$this->addInventoryManagementDisableError();
+		}
 	}
 
-	/**
-	 * Enable and reset store documents.
-	 *
-	 * @param mixed $preset
-	 *
-	 * @return bool
-	 */
-	public function inventoryManagementYAndResetQuantityWithDocumentsAction($preset)
+	public function inventoryManagementYAndResetQuantityWithDocumentsAction(string $costPriceCalculationMethod): void
 	{
-		if (UseStore::isPlanRestricted())
+		if (
+			UseStore::isPlanRestricted()
+			|| !UseStore::enable()
+		)
 		{
-			return false;
+			$this->addInventoryManagementEnableError();
+
+			return;
 		}
 
-		if (UseStore::enable())
-		{
-			UseStore::resetDocuments();
-			UseStore::installPreset($preset);
-		}
+		CostPriceCalculator::setMethod($costPriceCalculationMethod);
 
-		return true;
+		UseStore::resetDocuments();
 	}
 
-	/**
-	 * Enable and reset product quantities.
-	 *
-	 * @param mixed $preset
-	 *
-	 * @return bool
-	 */
-	public function inventoryManagementYAndResetQuantityAction($preset): bool
+	public function inventoryManagementYAndResetQuantityAction(): void
 	{
-		return UseStore::enableWithPreset($preset);
+		if (
+			UseStore::isPlanRestricted()
+			|| !UseStore::enable()
+		)
+		{
+			$this->addInventoryManagementEnableError();
+		}
 	}
 
-	/**
-	 * Enable without resetting documents or quantities.
-	 *
-	 * @param mixed $preset
-	 *
-	 * @return bool
-	 */
-	public function inventoryManagementYAction($preset): bool
+	public function inventoryManagementYAction(string $costPriceCalculationMethod): void
 	{
-		if (UseStore::isPlanRestricted())
+		if (
+			UseStore::isPlanRestricted()
+			|| !UseStore::enableWithoutResetting()
+		)
 		{
-			return false;
+			$this->addInventoryManagementEnableError();
 		}
 
-		if (UseStore::enableWithoutResetting())
-		{
-			UseStore::installPreset($preset);
-		}
-
-		return true;
-	}
-
-	public function inventoryManagementInstallPresetAction($preset): bool
-	{
-		UseStore::installPreset($preset);
-
-		return true;
+		CostPriceCalculator::setMethod($costPriceCalculationMethod);
 	}
 
 	public function unRegisterOnPrologAction(): bool
@@ -211,7 +188,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 	{
 		$result = [];
 
-		if (UseStore::isQuantityInconsistent())
+		if (UseStore::doNonEmptyProductsExist())
 		{
 			$result[] = self::QUANTITY_INCONSISTENCY_EXISTS;
 		}
@@ -222,5 +199,23 @@ final class Config extends \Bitrix\Main\Engine\Controller
 		}
 
 		return $result;
+	}
+
+	private function addInventoryManagementEnableError(): void
+	{
+		$this->addError(
+			new Error(
+				Loc::getMessage('CATALOG_CONTROLLER_CONFIG_INVENTORY_MANAGEMENT_ENABLE_DEFAULT_ERROR')
+			)
+		);
+	}
+
+	private function addInventoryManagementDisableError(): void
+	{
+		$this->addError(
+			new Error(
+				Loc::getMessage('CATALOG_CONTROLLER_CONFIG_INVENTORY_MANAGEMENT_DISABLE_DEFAULT_ERROR')
+			)
+		);
 	}
 }

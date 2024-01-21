@@ -43,13 +43,19 @@
 	border-bottom: 1px #FF5752 dashed;
 }
 
+.sonet-group-user-grid-action-cont {
+	display: flex;
+}
+
 .sonet-group-user-grid-action-cont .sonet-group-user-grid-action {
 	margin: 0 6px;
 	display: inline-block;
 }
+
 .sonet-group-user-grid-action-cont .sonet-group-user-grid-action:first-child {
 	margin-left: 0;
 }
+
 .sonet-group-user-grid-action-cont .sonet-group-user-grid-action:last-child {
 	margin-right: 0;
 }
@@ -112,19 +118,30 @@
 	color: rgba(82, 92, 105, 0.7);
 	font-size: 12px;
 }
+
 .ui-label.sonet-group-user-grid-request {
 	background-color: #ffffff;
 }
 
 .ui-label.sonet-group-user-grid-request.--request-green {
-	border-color: #2FC6F6 !important;
+	border-color: #9dcf00; !important;
 }
 
 .ui-label.sonet-group-user-grid-request.--request-yellow {
 	border-color: #F7A700 !important;
 }
 
+.ui-label.sonet-group-user-grid-request.--request-red {
+	border-color: #f54819 !important;
+}
+
 .sonet-group-user-grid-request-date {
 	font-size: 12px;
 	color: rgba(82, 92, 105, 0.5);
+}
+
+.sonet-group-user-grid-action__btn-cancel {
+	--ui-btn-border-color: #f4433e;
+	--ui-btn-border-color-hover: #ff9a97;
+	--ui-btn-background-hover: transparent;
 }

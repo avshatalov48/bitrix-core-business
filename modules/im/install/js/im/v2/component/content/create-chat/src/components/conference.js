@@ -6,7 +6,7 @@ import { Core } from 'im.v2.application.core';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ChatService } from 'im.v2.provider.service';
-import { UserRole, PopupType, DialogType, EventType, Layout } from 'im.v2.const';
+import { UserRole, PopupType, ChatType, EventType, Layout } from 'im.v2.const';
 
 import { TitleInput } from './elements/title-input';
 import { ChatAvatar } from './elements/chat-avatar';
@@ -55,7 +55,8 @@ export const ConferenceCreation = {
 			rights: {
 				ownerId: 0,
 				managerIds: [],
-				manageUsers: '',
+				manageUsersAdd: '',
+				manageUsersDelete: '',
 				manageSettings: '',
 				manageUi: '',
 				canPost: '',
@@ -77,7 +78,7 @@ export const ConferenceCreation = {
 		this.initDefaultRolesForRights();
 
 		this.restoreFields();
-		CreateChatManager.getInstance().setChatType(DialogType.videoconf);
+		CreateChatManager.getInstance().setChatType(ChatType.videoconf);
 		CreateChatManager.getInstance().setCreationStatus(true);
 		CreateChatManager.getInstance().setChatAvatar(this.avatarFile);
 	},
@@ -107,9 +108,13 @@ export const ConferenceCreation = {
 		{
 			this.settings.description = description;
 		},
-		onManageUsersChange(newValue: UserRoleItem)
+		onManageUsersAddChange(newValue: UserRoleItem)
 		{
-			this.rights.manageUsers = newValue;
+			this.rights.manageUsersAdd = newValue;
+		},
+		onManageUsersDeleteChange(newValue: UserRoleItem)
+		{
+			this.rights.manageUsersDelete = newValue;
 		},
 		onManageUiChange(newValue: UserRoleItem)
 		{
@@ -144,14 +149,15 @@ export const ConferenceCreation = {
 			this.isCreating = true;
 
 			const newDialogId = await this.getChatService().createChat({
-				type: DialogType.videoconf,
+				entityType: ChatType.videoconf,
 				title: this.chatTitle,
 				avatar: this.avatarFile,
 				members: this.chatMembers,
 				ownerId: this.rights.ownerId,
 				managers: this.rights.managerIds,
 				description: this.settings.description,
-				manageUsers: this.rights.manageUsers,
+				manageUsersAdd: this.rights.manageUsersAdd,
+				manageUsersDelete: this.rights.manageUsersDelete,
 				manageUi: this.rights.manageUi,
 				manageSettings: this.rights.manageSettings,
 				canPost: this.rights.canPost,
@@ -175,14 +181,15 @@ export const ConferenceCreation = {
 		},
 		onScroll()
 		{
-			MenuManager.getMenuById(PopupType.createChatManageUsersMenu)?.close();
+			MenuManager.getMenuById(PopupType.createChatManageUsersAddMenu)?.close();
+			MenuManager.getMenuById(PopupType.createChatManageUsersDeleteMenu)?.close();
 			MenuManager.getMenuById(PopupType.createChatManageUiMenu)?.close();
 			MenuManager.getMenuById(PopupType.createChatCanPostMenu)?.close();
 		},
 		onLayoutChange(event: BaseEvent<OnLayoutChangeEvent>)
 		{
 			const { to } = event.getData();
-			if (to.name === Layout.createChat.name && to.entityId !== DialogType.videoconf)
+			if (to.name === Layout.createChat.name && to.entityId !== ChatType.videoconf)
 			{
 				this.exitByChatTypeSwitch = true;
 			}
@@ -217,12 +224,14 @@ export const ConferenceCreation = {
 		initDefaultRolesForRights()
 		{
 			const {
-				manageUsers,
+				manageUsersAdd,
+				manageUsersDelete,
 				manageUi,
 				manageSettings,
 			} = PermissionManager.getInstance().getDefaultRolesForActionGroups();
 
-			this.rights.manageUsers = manageUsers;
+			this.rights.manageUsersAdd = manageUsersAdd;
+			this.rights.manageUsersDelete = manageUsersDelete;
 			this.rights.manageUi = manageUi;
 			this.rights.manageSettings = manageSettings;
 			this.rights.canPost = UserRole.member;
@@ -279,13 +288,15 @@ export const ConferenceCreation = {
 			<RightsSection
 				:ownerId="rights.ownerId"
 				:managerIds="rights.managerIds"
-				:manageUsers="rights.manageUsers"
+				:manageUsersAdd="rights.manageUsersAdd"
+				:manageUsersDelete="rights.manageUsersDelete"
 				:manageUi="rights.manageUi"
 				:manageSettings="rights.manageSettings"
 				:canPost="rights.canPost"
 				@ownerChange="onOwnerChange"
 				@managersChange="onManagersChange"
-				@manageUsersChange="onManageUsersChange"
+				@manageUsersAddChange="onManageUsersAddChange"
+				@manageUsersDeleteChange="onManageUsersDeleteChange"
 				@manageUiChange="onManageUiChange"
 				@canPostChange="onCanPostChange"
 			/>

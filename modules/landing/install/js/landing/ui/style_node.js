@@ -431,6 +431,11 @@
 							}
 							isAllInlineProps = isAllInlineProps && Boolean(style[prop]);
 						}
+
+						if (propValue === null)
+						{
+							style[prop] = null;
+						}
 					});
 				}
 

@@ -18,12 +18,12 @@ return [
 		'.landing-block-node-menu-top-item' => [
 			'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_ITEM'),
 			'label' => ['.landing-block-node-menu-top-link'],
-			'group_label' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_ITEMS_TOP'),
+			'group_label' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_ITEMS_TOP_MSGVER_1'),
 		],
 		'.landing-block-node-menu-bottom-item' => [
 			'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_ITEM'),
 			'label' => ['.landing-block-node-menu-bottom-text'],
-			'group_label' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_ITEMS_BOTTOM'),
+			'group_label' => Loc::getMessage('LNDBLCK_STOREMENUV3_2_ITEMS_BOTTOM_MSGVER_1'),
 		],
 	],
 	'nodes' => [

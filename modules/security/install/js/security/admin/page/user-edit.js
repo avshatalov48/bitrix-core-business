@@ -178,6 +178,7 @@ BX.Security.UserEdit.Otp = (function getUserOtp(BX)
 	BaseModel.prototype.onShow = function() {};
 	BaseModel.prototype.onInitialize = function() {};
 	BaseModel.prototype.getSecret = function () {};
+	BaseModel.prototype.getStartTimestamp = function () {};
 
 	BaseModel.prototype.getType = function() {
 		return this.type;
@@ -357,6 +358,7 @@ BX.Security.UserEdit.Otp = (function getUserOtp(BX)
 		var data = {
 			'secret': this.getSecret(),
 			'type': this.getType(),
+			'startTimestamp': this.getStartTimestamp(),
 			'sync1': sync1,
 			'sync2': sync2
 		};
@@ -421,6 +423,7 @@ BX.Security.UserEdit.Otp = (function getUserOtp(BX)
 		options = mergeObjects(defaults, options);
 
 		this.secretCodeElement = null;
+		this.startTimestampElement = null;
 		this.typeElement = null;
 
 		Device.superclass.constructor.call(this, userId, options);
@@ -446,11 +449,17 @@ BX.Security.UserEdit.Otp = (function getUserOtp(BX)
 	{
 		this.secretCodeElement = this.container.querySelector('[data-role="secret-code"]');
 		this.typeElement = this.container.querySelector('[data-role="type-selector"]');
+		this.startTimestampElement = this.container.querySelector('[data-role="start-timestamp"]');
 	};
 
 	Device.prototype.getSecret = function ()
 	{
 		return this.secretCodeElement.value;
+	};
+
+	Device.prototype.getStartTimestamp = function ()
+	{
+		return this.startTimestampElement.value;
 	};
 
 	/* -----------/Mobile popup/--------------*/

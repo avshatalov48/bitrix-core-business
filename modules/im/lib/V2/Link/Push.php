@@ -80,6 +80,7 @@ class Push
 			\Bitrix\Pull\Event::add($event['recipient'], $event['params']);
 		}
 		$this->isJobPlanned = false;
+		$this->events = [];
 	}
 
 	protected function deferRun(): void

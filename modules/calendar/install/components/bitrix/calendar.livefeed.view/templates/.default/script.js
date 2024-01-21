@@ -40,11 +40,12 @@
 					event.DT_FROM_TS -= event['~USER_OFFSET_FROM'] * 1000;
 					event.DT_TO_TS -= event['~USER_OFFSET_TO'] * 1000;
 				}
-				this.pFrom.innerHTML = this.GetFromHtml(event.DT_FROM_TS, event.DT_SKIP_TIME);
+
+				this.pFrom.innerHTML = this.GetFromHtml(event.DT_FROM_TS, event.DT_SKIP_TIME).replaceAll(/\\/g, '');
 			}
 			else // Copatibility with old records
 			{
-				this.pFrom.innerHTML = this.GetFromHtml(BX.date.getBrowserTimestamp(event.DT_FROM_TS), event.DT_SKIP_TIME);
+				this.pFrom.innerHTML = this.GetFromHtml(BX.date.getBrowserTimestamp(event.DT_FROM_TS), event.DT_SKIP_TIME).replaceAll(/\\/g, '');
 			}
 
 			var pViewTzHint = BX('feed-event-tz-hint-' + this.id);

@@ -72,7 +72,7 @@ export const NotificationItemHeader = {
 				return false;
 			}
 
-			return !!this.notificationItem.params?.USERS && this.notificationItem.params.USERS.length > 0;
+			return !!this.notificationItem.params?.users && this.notificationItem.params.users.length > 0;
 		},
 		moreUsers(): string
 		{
@@ -80,7 +80,7 @@ export const NotificationItemHeader = {
 
 			return {
 				start: phrase[0],
-				end: this.notificationItem.params.USERS.length + phrase[1]
+				end: this.notificationItem.params.users.length + phrase[1]
 			};
 		},
 		canDelete()
@@ -133,7 +133,7 @@ export const NotificationItemHeader = {
 					<span class="bx-im-content-notification-item-header__more-users-start">{{ moreUsers.start }}</span>
 					<span
 						class="bx-im-content-notification-item-header__more-users-dropdown"
-						@click="onMoreUsersClick({users: notificationItem.params.USERS, event: $event})"
+						@click="onMoreUsersClick({users: notificationItem.params.users, event: $event})"
 					>
 						{{ moreUsers.end }}
 					</span>

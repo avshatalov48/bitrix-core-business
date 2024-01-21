@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Page;
 
 use Bitrix\Main;
@@ -133,8 +134,6 @@ class Asset
 	/**
 	 * Returns gzip enabled or not.
 	 * @return bool|null
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function gzipEnabled()
 	{
@@ -196,7 +195,7 @@ class Asset
 	}
 
 	/**
-	 * @param integer $value Count of css files showed inline fore ie.
+	 * @param integer $value Count of css files showed inline fore IE.
 	 * @deprecated
 	 * @return void
 	 */
@@ -403,9 +402,9 @@ class Asset
 		{
 			$cacheInfo[$mode] = $emptyData;
 
-			foreach ($this->strings as $locationID => $location)
+			foreach ($this->strings as $location)
 			{
-				foreach ($location as $key => $item)
+				foreach ($location as $item)
 				{
 					if ($mode == $item['MODE'])
 					{
@@ -453,7 +452,7 @@ class Asset
 					{
 						$cache[] = $item;
 
-						if (isset($fileList['FULL_FILES']) && isset($fileList['FULL_FILES'][$item]))
+						if (isset($fileList['FULL_FILES'][$item]))
 						{
 							$cacheFull = array_merge($cacheFull, $fileList['FULL_FILES'][$item]);
 						}
@@ -464,9 +463,9 @@ class Asset
 							{
 								$cacheInfo[$mode][$type][$target][] = $item;
 
-								if (isset($fileList['FULL_FILES']) && isset($fileList['FULL_FILES'][$item]))
+								if (isset($fileList['FULL_FILES'][$item]))
 								{
-									if (!is_array($cacheInfo[$mode]['BUNDLE_'.$type][$target]))
+									if (!isset($cacheInfo[$mode]['BUNDLE_'.$type][$target]))
 									{
 										$cacheInfo[$mode]['BUNDLE_'.$type][$target] = [];
 									}
@@ -599,7 +598,7 @@ class Asset
 		$res = '';
 		if ($location == AssetLocation::AFTER_CSS && \CJSCore::IsCoreLoaded())
 		{
-			$res = "<script type=\"text/javascript\">if(!window.BX)window.BX={};if(!window.BX.message)window.BX.message=function(mess){if(typeof mess==='object'){for(let i in mess) {BX.message[i]=mess[i];} return true;}};</script>\n";
+			$res = "<script>if(!window.BX)window.BX={};if(!window.BX.message)window.BX.message=function(mess){if(typeof mess==='object'){for(let i in mess) {BX.message[i]=mess[i];} return true;}};</script>\n";
 		}
 
 		if (isset($this->strings[$location]))
@@ -799,7 +798,7 @@ class Asset
 	}
 
 	/**
-	 * Enables or disables the moving all of scripts to the body.
+	 * Enables or disables the moving of all scripts to the body.
 	 * @param bool $flag True or False.
 	 * @return void
 	 */
@@ -810,8 +809,6 @@ class Asset
 
 	/**
 	 * @return bool|null
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	protected function getJsToBody()
 	{
@@ -823,10 +820,8 @@ class Asset
 	}
 
 	/**
-	 * Moves all of scripts in front of </body>.
+	 * Moves all scripts in front of </body>.
 	 * @param string &$content Page content.
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 * @internal
 	 * @return void
 	 */
@@ -843,7 +838,7 @@ class Asset
 		$areas = $this->getScriptAreas($content);
 		foreach ($areas as $area)
 		{
-			if (strpos($area->attrs, "data-skip-moving") !== false || !self::isValidScriptType($area->attrs))
+			if (str_contains($area->attrs, "data-skip-moving") || !self::isValidScriptType($area->attrs))
 			{
 				continue;
 			}
@@ -926,9 +921,6 @@ class Asset
 
 	/**
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\SystemException
 	 */
 	public function canMoveJsToBody()
 	{
@@ -966,9 +958,9 @@ class Asset
 	public static function replaceUrlCss($url, $quote, $path)
 	{
 		if (
-			strpos($url, "://") !== false
-			|| strpos($url, "data:") !== false
-			|| mb_substr($url, 0, 1) == "#"
+			str_contains($url, "://")
+			|| str_contains($url, "data:")
+			|| str_starts_with($url, "#")
 		)
 		{
 			return $quote.$url.$quote;
@@ -990,7 +982,6 @@ class Asset
 	 */
 	public static function getAssetPath($src)
 	{
-		/** @noinspection PhpUndefinedClassInspection */
 		if (($p = mb_strpos($src, "?")) > 0 && !\CMain::IsExternalLink($src))
 		{
 			$src = mb_substr($src, 0, $p);
@@ -1000,8 +991,6 @@ class Asset
 
 	/**
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public function optimizeCss()
 	{
@@ -1015,8 +1004,6 @@ class Asset
 
 	/**
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public function optimizeJs()
 	{
@@ -1030,8 +1017,6 @@ class Asset
 
 	/**
 	 * @return bool|null
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function canUseMinifiedAssets()
 	{
@@ -1091,11 +1076,11 @@ class Asset
 	{
 		if ($inline)
 		{
-			return "<script type=\"text/javascript\" {$label}>\n{$js}\n</script>\n";
+			return "<script {$label}>\n{$js}\n</script>\n";
 		}
 		else
 		{
-			return "<script type=\"text/javascript\" {$label} src=\"$js\"></script>\n";
+			return "<script {$label} src=\"$js\"></script>\n";
 		}
 	}
 
@@ -1212,7 +1197,6 @@ class Asset
 		{
 			return $result["FULL_PATH"];
 		}
-		/** @noinspection PhpUndefinedClassInspection */
 		if (\CMain::IsExternalLink($sourcePath))
 		{
 			return $sourcePath;
@@ -1235,7 +1219,6 @@ class Asset
 		{
 			/** @var  $assetTID - get first target where added asset */
 			$assetTID = $set['ADDITIONAL'] ? 'TEMPLATE' : $set['TARGET'][0];
-			/** @noinspection PhpUndefinedClassInspection */
 			$cssInfo = [
 				'PATH' => $css,
 				'FULL_PATH' => false,
@@ -1291,7 +1274,6 @@ class Asset
 				$moduleInfo = $this->isKernelCSS($cssInfo['PATH']);
 				if ($moduleInfo)
 				{
-					$cssInfo['TARGET'] = 'KERNEL';
 					if ($this->sliceKernel() && $this->optimizeCss() && is_array($moduleInfo))
 					{
 						$cssInfo['MODULE_ID'] = $moduleInfo['MODULE_ID'];
@@ -1375,7 +1357,6 @@ class Asset
 		{
 			/** @var  $assetTID - get first target where added asset */
 			$assetTID = $set['ADDITIONAL'] ? 'TEMPLATE' : $set['TARGET'][0];
-			/** @noinspection PhpUndefinedClassInspection */
 			$jsInfo = [
 				'PATH' => $js,
 				'FULL_PATH' => false,
@@ -1431,7 +1412,6 @@ class Asset
 
 				if ($moduleInfo = $this->isKernelJS($jsInfo['PATH']))
 				{
-					$jsInfo['TARGET'] = 'KERNEL';
 					if ($this->sliceKernel() && $this->optimizeJs())
 					{
 						$jsInfo['MODULE_ID'] = $moduleInfo['MODULE_ID'];
@@ -1526,7 +1506,6 @@ class Asset
 	public function getCss($type = AssetShowTargetType::ALL)
 	{
 		$res = '';
-		$cnt = 0;
 		$additional = [];
 		static $setList = [];
 		static $ajaxList = [];
@@ -1574,7 +1553,6 @@ class Asset
 					{
 						$resCss .= $this->insertCss($css, $showLabel);
 						$this->fileList['CSS'][$setInfo['NAME']]['FILES'][] = $css;
-						$cnt++;
 					}
 					elseif ($optimizeCss)
 					{
@@ -1582,7 +1560,6 @@ class Asset
 						{
 							$resCss .= $this->insertCss($css, $showLabel);
 							$this->fileList['CSS'][$setInfo['NAME']]['FILES'][] = $css;
-							$cnt++;
 						}
 						else
 						{
@@ -1593,7 +1570,6 @@ class Asset
 					{
 						$resCss .= $this->insertCss($css, $showLabel);
 						$this->fileList['CSS'][$setInfo['NAME']]['FILES'][] = $css;
-						$cnt++;
 					}
 				}
 
@@ -1630,7 +1606,7 @@ class Asset
 
 		if ($this->ajax && !empty($ajaxList))
 		{
-			$res .= '<script type="text/javascript">'."BX.loadCSS(['".implode("','", $ajaxList)."']);".'</script>';
+			$res .= '<script>'."BX.loadCSS(['".implode("','", $ajaxList)."']);".'</script>';
 		}
 
 		if ($type == AssetShowTargetType::KERNEL)
@@ -1708,7 +1684,7 @@ class Asset
 						if ($jsFile['SKIP'])
 						{
 							$this->fileList['JS'][$setInfo['NAME']]['FILES'][] = $js;
-							$resJs .= "<script type=\"text/javascript\" src=\"{$js}\"></script>\n";
+							$resJs .= "<script src=\"{$js}\"></script>\n";
 						}
 						else
 						{
@@ -1718,7 +1694,7 @@ class Asset
 					else
 					{
 						$this->fileList['JS'][$setInfo['NAME']]['FILES'][] = $js;
-						$resJs .= "<script type=\"text/javascript\" src=\"{$js}\"></script>\n";
+						$resJs .= "<script src=\"{$js}\"></script>\n";
 					}
 				}
 				$optAsset = $this->optimizeAsset($listAsset, $setInfo['UNIQUE'], $setInfo['PREFIX'], $setInfo['NAME'], 'js', $data);
@@ -1840,7 +1816,7 @@ class Asset
 
 			if (!empty($assets))
 			{
-				$res .= '<script type="text/javascript">BX.setJSList('.\CUtil::phpToJSObject($assets).');</script>';
+				$res .= '<script>BX.setJSList('.\CUtil::phpToJSObject($assets).');</script>';
 				$res .= "\n";
 			}
 		}
@@ -1861,7 +1837,7 @@ class Asset
 
 			if (!empty($assets))
 			{
-				$res .= '<script type="text/javascript">BX.setCSSList('.\CUtil::phpToJSObject($assets).');</script>';
+				$res .= '<script>BX.setCSSList('.\CUtil::phpToJSObject($assets).');</script>';
 				$res .= "\n";
 			}
 		}
@@ -1955,8 +1931,6 @@ class Asset
 	 * Return information about file and check is it in kernel pack.
 	 * @param string $css File path.
 	 * @return array|bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	function isKernelCSS($css)
 	{
@@ -1999,8 +1973,6 @@ class Asset
 	 * Return information about file and check is it in kernel pack.
 	 * @param string $js File path.
 	 * @return array|bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	function isKernelJS($js)
 	{
@@ -2052,7 +2024,7 @@ class Asset
 		if (!(empty($setID) || empty($uniqueID)) && isset($this->targetList[$setID]))
 		{
 			$this->targetList[$setID]['UNIQUE'] = true;
-			$this->targetList[$setID]['PREFIX'] .= ''.($uniqueID == '' ? '' : '_'.$uniqueID);
+			$this->targetList[$setID]['PREFIX'] .= ($uniqueID == '' ? '' : '_'.$uniqueID);
 			return true;
 		}
 		return false;
@@ -2232,7 +2204,7 @@ class Asset
 		$add2End = (strncmp($prefix, 'kernel', 6) == 0);
 		$type = ($type == 'js' ? 'js' : 'css');
 
-		/** @var bool $noCheckOnly when we cant write files */
+		// when we can't write files
 		$noCheckOnly = !defined('BX_HEADFILES_CACHE_CHECK_ONLY');
 		$prefix = ($unique ? $prefix : $prefix.'_'.$this->getAssetChecksum($files));
 
@@ -2249,7 +2221,7 @@ class Asset
 		$files = $tmpInfo['FILE'];
 		$optimFileExist = $tmpInfo['FILE_EXIST'] ?? false;
 
-		$writeResult = ($action == 'NEW' ? false : true);
+		$writeResult = ($action != 'NEW');
 		$currentFileList = &$this->fileList[strtoupper($type)][$setName];
 
 		if ($action != 'NO')
@@ -2526,8 +2498,6 @@ class Asset
 	 * @param string $content File contents.
 	 * @param bool $gzip For disabled gzip.
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	function write($filePath, $content, $gzip = true)
 	{

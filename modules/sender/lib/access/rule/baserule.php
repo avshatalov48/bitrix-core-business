@@ -4,6 +4,7 @@ namespace Bitrix\Sender\Access\Rule;
 
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Main\Access\Rule\AbstractRule;
+use Bitrix\Main\Loader;
 use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Access\Role\RoleUtil;
 use Bitrix\Sender\Integration\Bitrix24\Service;
@@ -24,11 +25,16 @@ class BaseRule extends AbstractRule
 		{
 			return true;
 		}
+		$user = User::get($this->user->getUserId());
+
+		if ($user->isExtranet())
+		{
+			return false;
+		}
 
 		$action = ActionDictionary::getActionPermissionMap()[$params['action']];
 		if (Service::isCloud() && !Service::isPermissionEnabled())
 		{
-			$user = User::get($this->user->getUserId());
 			return $user->isPortalAdmin() || in_array($action, RoleUtil::preparedRoleMap()['MANAGER']);
 		}
 

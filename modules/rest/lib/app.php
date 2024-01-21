@@ -714,7 +714,7 @@ class AppTable extends Main\Entity\DataManager
 				else
 				{
 					$dateFinish = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
-					if ($dateFinish !== false)
+					if (!is_null($dateFinish))
 					{
 						$res['DAYS_LEFT'] = floor(($dateFinish->getTimestamp() - \CTimeZone::getOffset() - time()) / 86400);
 						if($res['DAYS_LEFT'] < 0)

@@ -5,7 +5,6 @@ use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
-use Bitrix\Main\Type\DateTime;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 {
@@ -153,7 +152,18 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	 */
 	protected function getLinkInfo(?string $hash): ?array
 	{
-		return $this->getSharingLinkFactory()->getLinkArrayByHash($hash);
+		$linkArray = $this->getSharingLinkFactory()->getLinkArrayByHash($hash);
+		if (empty($linkArray['rule']) && isset($linkArray['parentLinkHash']))
+		{
+			/** @var Sharing\Link\UserLink $parentLink */
+			$parentLink = $this->getSharingLinkFactory()->getLinkByHash($linkArray['parentLinkHash']);
+			if (isset($parentLink))
+			{
+				$linkArray['rule'] = (new Sharing\Link\Rule\Mapper())->convertToArray($parentLink->getSharingRule());
+			}
+		}
+
+		return $linkArray;
 	}
 
 	/**
@@ -204,12 +214,11 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	 */
 	protected function prepareAdditionalCalendarParams(array $link, int $userId): void
 	{
-		$this->arResult['USER_ACCESSIBILITY'] = $this->getUserAccessibility($userId);
+		$this->arResult['USER_ACCESSIBILITY'] = $this->getUsersAccessibility($link['userIds']);
 		$this->arResult['TIMEZONE_LIST'] = \CCalendar::GetTimezoneList();
 
 		$this->arResult['CALENDAR_SETTINGS'] = [
-			'workTimeStart' => $this->getWorkStart($userId),
-			'workTimeEnd' => $this->getWorkEnd($userId),
+			'serverOffset' => \CCalendar::GetCurrentOffsetUTC($userId) / 60,
 			'weekHolidays' => explode('|', COption::GetOptionString('calendar', 'week_holidays', 'SA|SU')),
 			'yearHolidays' => $this->getYearHolidays(),
 			'weekStart' => CCalendar::GetWeekStart(),
@@ -269,10 +278,10 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	}
 
 	/**
-	 * @param int $userId
+	 * @param array $userIds
 	 * @return array
 	 */
-	protected function getUserAccessibility(int $userId): array
+	protected function getUsersAccessibility(array $userIds): array
 	{
 		$date = new \Bitrix\Main\Type\Date();
 		$arrayKey = $date->format('n') . '.' . $date->format('Y');
@@ -280,38 +289,12 @@ class CalendarPubSharingComponent extends CBitrixComponent
 		$monthEnd = CCalendar::TimestampUTC('last day of this month 23:59:59');
 
 		$result = (new Sharing\SharingAccessibilityManager([
-			'userId' => $userId,
+			'userIds' => $userIds,
 			'timestampFrom' => $monthStart,
 			'timestampTo' => $monthEnd
-		]))->getUserAccessibilitySegmentsInUtc();
+		]))->getUsersAccessibilitySegmentsInUtc();
 
 		return [$arrayKey => $result];
-	}
-
-	/**
-	 * @param $userId
-	 * @return float
-	 */
-	protected function getWorkStart($userId): float
-	{
-		$timezoneOffset = \CCalendar::GetCurrentOffsetUTC($userId) / 3600;
-		$workStart = (float)COption::GetOptionString('calendar', 'work_time_start', 9);
-		$workStart = floor($workStart) + 5 * ($workStart - floor($workStart)) / 3;
-
-		return $workStart - $timezoneOffset;
-	}
-
-	/**
-	 * @param $userId
-	 * @return float
-	 */
-	protected function getWorkEnd($userId): float
-	{
-		$timezoneOffset = \CCalendar::GetCurrentOffsetUTC($userId) / 3600;
-		$workEnd = (float)COption::GetOptionString('calendar', 'work_time_end', 19);
-		$workEnd = floor($workEnd) + 5 * ($workEnd - floor($workEnd)) / 3;
-
-		return $workEnd - $timezoneOffset;
 	}
 
 	/**
@@ -339,6 +322,9 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	 */
 	protected function getEventById(array $link): array
 	{
+		$eventId = $link['eventId'];
+		$ownerId = $link['ownerId'];
+
 		$event = \Bitrix\Calendar\Internals\EventTable::query()
 			->setSelect([
 				'DELETED',
@@ -350,8 +336,8 @@ class CalendarPubSharingComponent extends CBitrixComponent
 				'DT_SKIP_TIME',
 				'MEETING_STATUS',
 			])
-			->where('PARENT_ID', $link['eventId'])
-			->where('OWNER_ID', $link['ownerId'])
+			->where('PARENT_ID', $eventId)
+			->where('OWNER_ID', $ownerId)
 			->setLimit(1)
 			->exec()->fetch()
 		;
@@ -364,12 +350,30 @@ class CalendarPubSharingComponent extends CBitrixComponent
 		$eventTsFromUTC = Sharing\Helper::getEventTimestampUTC($event['DATE_FROM'], $event['TZ_FROM']);
 		$eventTsToUTC = Sharing\Helper::getEventTimestampUTC($event['DATE_TO'], $event['TZ_TO']);
 
-		if ($event['DT_SKIP_TIME'] === 'Y')
+		$isFullDay = $event['DT_SKIP_TIME'] === 'Y';
+		if ($isFullDay)
 		{
 			$eventTsToUTC += \CCalendar::GetDayLen();
 		}
 
 		$ownerName = ($owner['name'] ?? '') . ' ' . ($owner['lastName'] ?? '');
+
+		$attendees = \CCalendarEvent::GetAttendees([$eventId])[$eventId];
+		$members = [];
+		$memberManager = new Sharing\Link\Member\Manager();
+		foreach ($attendees as $attendee)
+		{
+			if ($attendee['MEETING_STATUS'] !== 'Y' || (int)$attendee['USER_ID'] === $ownerId)
+			{
+				continue;
+			}
+			$member = (new Sharing\Link\Member\Member())
+				->setName($attendee['NAME'])
+				->setLastName($attendee['LAST_NAME'])
+				->setAvatar($attendee['AVATAR'])
+			;
+			$members[] = $memberManager->convertToArray($member);
+		}
 
 		return [
 			'id' => $link['eventId'],
@@ -384,6 +388,8 @@ class CalendarPubSharingComponent extends CBitrixComponent
 			'meetingStatus' => $event['MEETING_STATUS'],
 			'canceledTimestamp' => $link['canceledTimestamp'] ?? null,
 			'externalUserName' => $link['externalUserName'] ?? null,
+			'isFullDay' => $isFullDay,
+			'members' => $members,
 		];
 	}
 

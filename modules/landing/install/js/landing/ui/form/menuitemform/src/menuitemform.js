@@ -84,7 +84,7 @@ export class MenuItemForm extends BaseForm
 
 	isFormShown(): boolean
 	{
-		return Dom.style(this.body, 'display') !== 'none';
+		return this.layout.classList.contains('landing-ui-form-menuitem-open');
 	}
 
 	getDragButton(): HTMLDivElement

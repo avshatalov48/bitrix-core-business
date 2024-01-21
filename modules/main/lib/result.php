@@ -77,7 +77,7 @@ class Result
 	/**
 	 * Returns array of strings with error messages
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function getErrorMessages()
 	{

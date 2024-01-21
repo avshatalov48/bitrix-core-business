@@ -8,7 +8,7 @@ return [
 	'css' => 'dist/link.bundle.css',
 	'js' => 'dist/link.bundle.js',
 	'rel' => [
-		'landing.node',
+		'landing.node.base',
 		'main.core',
 	],
 	'skip_core' => false,

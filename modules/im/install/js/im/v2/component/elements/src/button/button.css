@@ -285,7 +285,8 @@
 .bx-im-button__container.--loading.--color-light-border,
 .bx-im-button__container.--loading.--color-danger-border,
 .bx-im-button__container.--loading.--color-primary-border,
-.bx-im-button__container.--loading.--color-link
+.bx-im-button__container.--loading.--color-link,
+.bx-im-button__container.--loading.--black-loader
 {
 	background-image: url('images/loader-black.svg');
 }

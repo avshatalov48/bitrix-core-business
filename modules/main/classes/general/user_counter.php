@@ -219,7 +219,7 @@ class CAllUserCounter
 		";
 
 		$result = 0;
-		$dbRes = $DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSQL);
 		if ($arRes = $dbRes->Fetch())
 		{
 			$result = MakeTimeStamp($arRes["LAST_DATE"]);
@@ -243,7 +243,7 @@ class CAllUserCounter
 			CNT = 0
 			WHERE USER_ID = ".$user_id."
 			AND (SITE_ID = '".$site_id."' OR SITE_ID = '".self::ALL_SITES."')";
-		$DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSQL);
 
 		if ($site_id === self::ALL_SITES)
 		{
@@ -281,7 +281,7 @@ class CAllUserCounter
 			CNT = 0
 			WHERE TAG = '" . $DB->ForSQL($tag) . "' AND CODE = '" . $DB->ForSQL($code) . "'
 			AND (SITE_ID = '" . $site_id . "' OR SITE_ID = '" . self::ALL_SITES . "')";
-		$DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSQL);
 
 		self::$counters = [];
 		$CACHE_MANAGER->CleanDir("user_counter");
@@ -308,7 +308,7 @@ class CAllUserCounter
 				WHERE TAG = '".$DB->ForSQL($tag)."' AND CODE = '".$DB->ForSQL($code)."'
 				AND (SITE_ID = '".$site_id."' OR SITE_ID = '" . self::ALL_SITES . "')";
 
-			$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSQL);
 
 			$pullMessage = [];
 			while ($row = $res->Fetch())
@@ -407,7 +407,7 @@ class CAllUserCounter
 					: ""
 				)."
 			";
-			$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSQL);
 
 			$pullMessage = Array();
 			while ($row = $res->Fetch())

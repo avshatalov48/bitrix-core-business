@@ -33,19 +33,19 @@ export const AttachUserItem = {
 		},
 		name(): string
 		{
-			return this.internalConfig.NAME;
+			return this.internalConfig.name;
 		},
 		avatar(): string
 		{
-			return this.internalConfig.AVATAR;
+			return this.internalConfig.avatar;
 		},
 		avatarType(): string
 		{
-			return this.internalConfig.AVATAR_TYPE;
+			return this.internalConfig.avatarType;
 		},
 		link(): string
 		{
-			return this.internalConfig.LINK;
+			return this.internalConfig.link;
 		},
 		avatarTypeClass()
 		{

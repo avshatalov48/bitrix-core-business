@@ -482,6 +482,17 @@ class CPullOptions
 		return COption::GetOptionInt("pull", "config_timestamp", self::GetDefaultOption("config_timestamp"));
 	}
 
+	public static function GetConfigTtl(): int
+	{
+		// TODO: remove after B24 has switched to push-go
+		if (IsModuleInstalled('bitrix24'))
+		{
+			return 86400;
+		}
+
+		return (int)COption::GetOptionInt("pull", "config_ttl", self::GetDefaultOption("config_ttl"));
+	}
+
 	public static function GetMaxPayload()
 	{
 		$maxPayload = (int)Option::get('pull', static::MAX_PAYLOAD);

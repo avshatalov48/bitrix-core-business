@@ -17,7 +17,7 @@ $ar_IBLOCK_SITE_FILTER_CACHE = Array();
 
 class CAllIBlockElement
 {
-	public $LAST_ERROR = "";
+	public string $LAST_ERROR = '';
 	protected $bWF_SetMove = true;
 
 	public $strField;
@@ -7698,7 +7698,11 @@ class CAllIBlockElement
 				)
 			)
 			{
-				$id = (int)$element['ID'] ?? null;
+				$id = (int)($element['ID'] ?? null);
+				if ($id <= 0)
+				{
+					$id = null;
+				}
 
 				$code = $this->getUniqueMnemonicCode(
 					$code,
@@ -7734,5 +7738,10 @@ class CAllIBlockElement
 		$filter['==WF_PARENT_ELEMENT_ID'] = null;
 
 		return $filter;
+	}
+
+	public function getLastError(): string
+	{
+		return $this->LAST_ERROR;
 	}
 }

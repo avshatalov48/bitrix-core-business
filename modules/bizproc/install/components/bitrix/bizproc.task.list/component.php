@@ -461,11 +461,11 @@ if ($arResult['FatalErrorMessage'] == '' && !$arParams['COUNTERS_ONLY'])
 			{
 				$toUserId = is_numeric($_REQUEST['ACTION_DELEGATE_TO_ID']) ? (int)$_REQUEST['ACTION_DELEGATE_TO_ID'] : 0;
 
-				$taskService = new \Bitrix\Bizproc\Task\Service\TaskService(
-					new \Bitrix\Bizproc\Task\Service\AccessService($currentUserId)
+				$taskService = new \Bitrix\Bizproc\Api\Service\TaskService(
+					new \Bitrix\Bizproc\Api\Service\TaskAccessService($currentUserId)
 				);
-				$options = new \Bitrix\Bizproc\Task\Options\DelegateTasksOptions($ids, (int)$targetUserId, $toUserId, $currentUserId);
-				$delegateTaskResult = $taskService->delegateTasks($options);
+				$request = new \Bitrix\Bizproc\Api\Request\TaskService\DelegateTasksRequest($ids, (int)$targetUserId, $toUserId, $currentUserId);
+				$delegateTaskResult = $taskService->delegateTasks($request);
 				if (!$delegateTaskResult->isSuccess())
 				{
 					foreach ($delegateTaskResult->getErrors() as $error)

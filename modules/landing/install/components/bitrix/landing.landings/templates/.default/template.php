@@ -95,6 +95,12 @@ $sliderShortConditions = [
 \trimArr($sliderFullConditions, true);
 \trimArr($sliderConditions, true);
 \trimArr($sliderShortConditions, true);
+
+// Tool availability (by intranet settings)
+if (!$component->isToolAvailable())
+{
+	echo $component->getToolUnavailableInfoScript();
+}
 ?>
 
 <div class="grid-tile-wrap landing-pages-wrap" id="grid-tile-wrap">

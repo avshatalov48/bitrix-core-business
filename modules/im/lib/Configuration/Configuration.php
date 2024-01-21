@@ -7,12 +7,13 @@ use Bitrix\Im\Model\OptionGroupTable;
 use Bitrix\Im\Model\OptionStateTable;
 use Bitrix\Im\Model\OptionUserTable;
 use Bitrix\Im\V2\Settings\CacheManager;
-use Bitrix\Im\V2\Settings\UserConfiguration;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Entity\Query\Filter\ConditionTree;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
@@ -50,10 +51,48 @@ class Configuration
 				->where('NAME', self::DEFAULT_PRESET_NAME)
 				->fetch()
 		;
-		self::$defaultPresetId = (int)$row['ID'];
 
-		return self::$defaultPresetId;
+		if ($row['ID'])
+		{
+			self::$defaultPresetId = (int)$row['ID'];
+
+			return self::$defaultPresetId;
+		}
+
+		return self::createDefaultPreset();
 	}
+
+	public static function createDefaultPreset(): int
+	{
+		$defaultGroupId =
+			\Bitrix\Im\Model\OptionGroupTable::add([
+				'NAME' => Configuration::DEFAULT_PRESET_NAME,
+				'SORT' => 0,
+				'CREATE_BY_ID' => 0,
+			])
+				->getId()
+		;
+
+		$generalDefaultSettings = General::getDefaultSettings();
+		General::setSettings($defaultGroupId, $generalDefaultSettings);
+
+		$notifySettings = Notification::getSimpleNotifySettings($generalDefaultSettings);
+		Notification::setSettings($defaultGroupId, $notifySettings);
+
+		if (Loader::includeModule('intranet'))
+		{
+			$topDepartmentId = Department::getTopDepartmentId();
+			OptionAccessTable::add([
+				'GROUP_ID' => $defaultGroupId,
+				'ACCESS_CODE' => $topDepartmentId ? 'DR' . $topDepartmentId : 'AU'
+			]);
+		}
+
+		Option::set('im', self::DEFAULT_PRESET_SETTING_NAME, (int)$defaultGroupId);
+
+		return (int)$defaultGroupId;
+	}
+
 	/**
 	 *
 	 * Gets the current preset of the user

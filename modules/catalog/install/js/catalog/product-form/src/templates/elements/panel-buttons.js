@@ -4,9 +4,9 @@ import {ajax, Event, Loc, Tag, Text, Type} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../../config";
 import "./panel-compilation";
-import {DialogDisable, Slider, EventType} from 'catalog.store-use'
 import {EventEmitter} from "main.core.events";
 import 'ui.hint';
+import { MessageBox } from 'ui.dialogs.messagebox';
 
 Vue.component(config.templatePanelButtons,
 {
@@ -170,59 +170,25 @@ Vue.component(config.templatePanelButtons,
 		},
 		showDialogProductExists(params)
 		{
-			this.popup = new Popup(null, null, {
-				events: {
-					onPopupClose: () => {this.popup.destroy()}
+			MessageBox.confirm(
+				Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT_FOR_DOUBLE').replace('#NAME#', params.name),
+				Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TITLE'),
+				(messageBox) => {
+					const productId = parseInt(params.id, 10);
+					const index = this.getInternalIndexByProductId(productId);
+					if (index >= 0)
+					{
+						this.handleAddItem(productId, {
+							...params,
+							isAddAnyway: true,
+						});
+					}
+					messageBox.close();
 				},
-				zIndex: 4000,
-				autoHide: true,
-				closeByEsc: true,
-				closeIcon: true,
-				titleBar: Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TITLE'),
-				draggable: true,
-				resizable: false,
-				lightShadow: true,
-				cacheable: false,
-				overlay: true,
-				content: Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT_FOR_DOUBLE').replace('#NAME#', params.name),
-				buttons: this.getButtons(params),
-			});
-
-			this.popup.show();
-		},
-		getButtons(product)
-		{
-			const buttons = [];
-			const params = product;
-			buttons.push(
-				new BX.UI.SaveButton(
-					{
-						text : Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_OK'),
-						onclick: () => {
-							const productId = parseInt(params.id);
-							const index = this.getInternalIndexByProductId(productId);
-							if(index >= 0)
-							{
-								this.handleAddItem(productId, {
-									...params,
-									isAddAnyway: true,
-								});
-							}
-							this.popup.destroy();
-						}
-					}
-				)
+				Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_OK'),
+				(messageBox) => messageBox.close(),
+				Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_NO'),
 			);
-
-			buttons.push(
-				new BX.UI.CancelButton(
-					{
-						text : Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_NO'),
-						onclick: () => {this.popup.destroy()}
-					}
-				)
-			);
-			return buttons;
 		},
 		showDialogProductSearch()
 		{
@@ -264,31 +230,6 @@ Vue.component(config.templatePanelButtons,
 			{
 				const value = event.target.checked ? 'Y' : 'N';
 				this.$root.$app.changeFormOption('showTaxBlock', value);
-			}
-			else if (event.target.dataset.settingId === 'warehouseOption')
-			{
-				const value = event.target.checked ? 'Y' : 'N';
-
-				if(value === 'Y')
-				{
-					this.popupMenu.close();
-					new Slider().open('/bitrix/components/bitrix/catalog.warehouse.master.clear/slider.php',{})
-					.then(() => {
-						ajax.runAction(
-							'catalog.config.isUsedInventoryManagement',
-							{}
-						).then(response => {
-
-							const index = this.getSettingItems().findIndex((item) =>
-							{
-								return item.id === event.target.dataset.settingId;
-							});
-
-							this.options.warehouseOption = response.data === true;
-							this.settings = this.getSettingItems();
-						});
-					})
-				}
 			}
 		},
 		getSettingItem(item): HTMLElement
@@ -338,19 +279,6 @@ Vue.component(config.templatePanelButtons,
 				// 	title: this.localize.CATALOG_FORM_ADD_SHOW_TAXES_OPTION,
 				// },
 			];
-
-			if (this.options.isCatalogSettingAccess)
-			{
-				items.push(
-					{
-						id: 'warehouseOption',
-						checked: (this.options.warehouseOption),
-						disabled: (this.options.warehouseOption),
-						title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION,
-						hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : '',
-					}
-				);
-			}
 
 			return items;
 		},

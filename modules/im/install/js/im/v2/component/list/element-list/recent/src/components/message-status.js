@@ -1,7 +1,7 @@
 import {Core} from 'im.v2.application.core';
-import {DialogType, OwnMessageStatus, MessageStatus as MessageStatusType} from 'im.v2.const';
+import {ChatType, OwnMessageStatus, MessageStatus as MessageStatusType} from 'im.v2.const';
 
-import type {ImModelDialog, ImModelRecentItem, ImModelUser, ImModelMessage} from 'im.v2.model';
+import type {ImModelChat, ImModelRecentItem, ImModelUser, ImModelMessage} from 'im.v2.model';
 
 const StatusIcon = {
 	none: '',
@@ -34,9 +34,9 @@ export const MessageStatus = {
 		{
 			return this.$store.getters['users/get'](this.recentItem.dialogId, true);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.recentItem.dialogId, true);
+			return this.$store.getters['chats/get'](this.recentItem.dialogId, true);
 		},
 		messageStatus(): $Values<typeof OwnMessageStatus>
 		{
@@ -54,7 +54,7 @@ export const MessageStatus = {
 		},
 		statusIcon(): $Values<typeof StatusIcon>
 		{
-			if (!this.isLastMessageAuthor || this.isBot || this.needsBirthdayPlaceholder)
+			if (!this.isLastMessageAuthor || this.isBot || this.needsBirthdayPlaceholder || this.hasDraft)
 			{
 				return StatusIcon.none;
 			}
@@ -86,7 +86,7 @@ export const MessageStatus = {
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
 		},
 		isBot(): boolean
 		{
@@ -96,6 +96,10 @@ export const MessageStatus = {
 			}
 
 			return false;
+		},
+		hasDraft(): boolean
+		{
+			return Boolean(this.recentItem.draft.text);
 		},
 		needsBirthdayPlaceholder(): boolean
 		{
@@ -109,5 +113,5 @@ export const MessageStatus = {
 	},
 	template: `
 		<div class="bx-im-list-recent-item__status-icon" :class="'--' + statusIcon"></div>
-	`
+	`,
 };

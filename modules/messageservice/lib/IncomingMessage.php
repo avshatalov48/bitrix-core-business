@@ -50,7 +50,7 @@ abstract class IncomingMessage
 		]);
 	}
 
-	public static function cleanUpAgent()
+	public static function cleanUpAgent(): string
 	{
 		$period = abs((int)Option::get("messageservice", "clean_up_period"));
 		$periodInSeconds = $period * 24 * 3600;
@@ -59,11 +59,9 @@ abstract class IncomingMessage
 		{
 			$connection = \Bitrix\Main\Application::getConnection();
 			$datetime = $connection->getSqlHelper()->addSecondsToDateTime('-' . $periodInSeconds);
-
-			$strSql = "DELETE FROM b_messageservice_incoming_message WHERE DATE_EXEC <= " . $datetime ;
-			$connection->query($strSql);
+			$connection->queryExecute("DELETE FROM b_messageservice_incoming_message WHERE DATE_EXEC <= {$datetime}");
 		}
 
-		return '\Bitrix\MessageService\IncomingMessage::cleanUpAgent();';
+		return __METHOD__.'();';
 	}
 }

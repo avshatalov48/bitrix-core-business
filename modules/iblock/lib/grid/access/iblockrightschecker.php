@@ -162,5 +162,10 @@ class IblockRightsChecker
 		return $this->checkSectionRight($sectionId, 'section_element_bind');
 	}
 
+	public function canBindSectionToSection(int $sectionId): bool
+	{
+		return $this->checkSectionRight($sectionId, 'section_section_bind');
+	}
+
 	#endregion public api
 }

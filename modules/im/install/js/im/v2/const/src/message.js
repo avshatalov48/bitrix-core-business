@@ -12,7 +12,12 @@ export const MessageComponent = Object.freeze({
 	deleted: 'DeletedMessage',
 	callInvite: 'CallInviteMessage',
 	chatCreation: 'ChatCreationMessage',
+	ownChatCreation: 'OwnChatCreationMessage',
+	copilotCreation: 'ChatCopilotCreationMessage',
+	copilotMessage: 'CopilotMessage',
 	conferenceCreation: 'ConferenceCreationMessage',
+	supportVote: 'SupportVoteMessage',
+	supportSessionNumber: 'SupportSessionNumberMessage',
 	system: 'SystemMessage',
 });
 
@@ -34,4 +39,5 @@ export const OwnMessageStatus = Object.freeze({
 	sending: 'sending',
 	sent: 'sent',
 	viewed: 'viewed',
+	error: 'error',
 });

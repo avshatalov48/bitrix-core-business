@@ -22,15 +22,15 @@ export const AttachFileItem = {
 		},
 		fileName(): string
 		{
-			return this.internalConfig.NAME;
+			return this.internalConfig.name;
 		},
 		fileSize(): number
 		{
-			return this.internalConfig.SIZE;
+			return this.internalConfig.size;
 		},
 		link()
 		{
-			return this.internalConfig.LINK;
+			return this.internalConfig.link;
 		},
 		fileShortName(): string
 		{

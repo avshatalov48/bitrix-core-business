@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST['save']) || !empty($_
 			"LANG" => array()
 		);
 
-		if (in_array($arSmileSet["STRING_ID"], Array('bitrix_main')))
+		if (is_array($arSmileSet) && in_array($arSmileSet["STRING_ID"], Array('bitrix_main')))
 		{
 			unset($arFields['STRING_ID']);
 		}
@@ -185,8 +185,8 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?foreach ($arLang as $key => $val):?>
 	<tr>
-		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.mb_strtoupper($key)); if ($word <> '') { echo $word; } else { echo $val["NAME"]; }?>:</td>
-		<td><input type="text" name="NAME[<?=$key?>]" value="<?=$arSmileSet["NAME"][$key]?>" size="40" /></td>
+		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.mb_strtoupper($key)); if (!empty($word)) { echo $word; } else { echo $val["NAME"]; }?>:</td>
+		<td><input type="text" name="NAME[<?=$key?>]" value="<?=($arSmileSet["NAME"][$key] ?? '')?>" size="40" /></td>
 	</tr>
 	<?endforeach;?>
 	<tr class="heading">
@@ -211,7 +211,6 @@ $tabControl->BeginNextTab();
 		$arSmiles = CSmile::getList(Array(
 			'SELECT' => Array('SET_ID', 'NAME', 'TYPE', 'IMAGE', 'IMAGE_WIDTH', 'IMAGE_HEIGHT'),
 			'FILTER' => Array('SET_ID' => $ID),
-			'ORDER' => array($by => $order),
 			'NAV_PARAMS' => array("nTopCount"=>5),
 		));
 		if (!empty($arSmiles)):?>

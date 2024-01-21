@@ -968,21 +968,23 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function lazyLoadCloudPreview() {
 	      var _this9 = this;
 
-	      var previewUrl = this.cloudPreview + (this.cloudPreview.indexOf('?') > 0 ? '&' : '?') + 'refreshed' + (Date.now() / 86400000 | 0);
-	      var xhr = new XMLHttpRequest();
-	      xhr.open("HEAD", previewUrl);
+	      try {
+		      var previewUrl = this.cloudPreview + (this.cloudPreview.indexOf('?') > 0 ? '&' : '?') + 'refreshed' + (Date.now() / 86400000 | 0);
+		      var xhr = new XMLHttpRequest();
+		      xhr.open("HEAD", previewUrl);
 
-	      xhr.onload = function () {
-	        var expires = xhr.getResponseHeader("expires");
+		      xhr.onload = function () {
+		        var expires = xhr.getResponseHeader("expires");
 
-	        if (expires && new Date(expires) <= new Date()) {
-	          setTimeout(_this9.lazyLoadCloudPreview, 3000);
-	        } else {
-	          _this9.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
-	        }
-	      };
+		        if (expires && new Date(expires) <= new Date()) {
+		          setTimeout(_this9.lazyLoadCloudPreview, 3000);
+		        } else {
+		          _this9.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
+		        }
+		      };
 
-	      xhr.send();
+		      xhr.send();
+		  } catch (error) {}
 	    }
 	  }, {
 	    key: "getContainerPreviewStatus",

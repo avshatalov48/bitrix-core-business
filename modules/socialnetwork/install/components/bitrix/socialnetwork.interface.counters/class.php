@@ -165,8 +165,6 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 				$result = ($sum > 0 ? Counter\CounterStyle::STYLE_GREEN : Counter\CounterStyle::STYLE_GRAY);
 				break;
 			case CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN:
-				$result = ($sum > 0 ? Counter\CounterStyle::STYLE_YELLOW : Counter\CounterStyle::STYLE_GRAY);
-				break;
 			case CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED:
 			case CounterDictionary::COUNTER_WORKGROUP_LIST_TASKS:
 				$result = ($sum > 0 ? Counter\CounterStyle::STYLE_RED : Counter\CounterStyle::STYLE_GRAY);

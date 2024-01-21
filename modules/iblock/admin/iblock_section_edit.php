@@ -39,6 +39,7 @@ $message = false;
 $ID = (isset($_REQUEST['ID']) ? (int)$_REQUEST['ID'] : 0);
 $IBLOCK_SECTION_ID = (isset($_REQUEST['IBLOCK_SECTION_ID']) ? (int)$_REQUEST['IBLOCK_SECTION_ID'] : 0);
 $IBLOCK_ID = (isset($_REQUEST['IBLOCK_ID']) ? (int)$_REQUEST['IBLOCK_ID'] : 0);
+$type = '';
 $find_section_section = (isset($_REQUEST['find_section_section']) ? (int)$_REQUEST['find_section_section'] : 0);
 /* autocomplete */
 $strLookup = '';
@@ -49,6 +50,8 @@ if ('' != $strLookup)
 	define('BT_UT_AUTOCOMPLETE', 1);
 }
 $bAutocomplete = defined('BT_UT_AUTOCOMPLETE') && (BT_UT_AUTOCOMPLETE == 1);
+$internalAdminPage = defined('INTERNAL_ADMIN_PAGE') && INTERNAL_ADMIN_PAGE === 'Y';
+$errorPopupProlog = $bAutocomplete || $internalAdminPage;
 
 $arIBlock = CIBlock::GetArrayByID($IBLOCK_ID);
 if($arIBlock)
@@ -76,22 +79,39 @@ if(!$bBadBlock)
 
 if($bBadBlock)
 {
-	$APPLICATION->SetTitle($arIBTYPE["NAME"]);
-	if ($bAutocomplete)
+	$APPLICATION->SetTitle($arIBTYPE["NAME"] ?? '');
+	if ($errorPopupProlog)
+	{
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+	}
 	else
+	{
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	}
 	ShowError(GetMessage("IBSEC_E_BAD_IBLOCK"));
-	?><a href="iblock_admin.php?lang=<?=LANGUAGE_ID?>&amp;type=<?=urlencode($type)?>"><?echo GetMessage("IBSEC_E_BACK_TO_ADMIN")?></a><?
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	if (!$errorPopupProlog)
+	{
+		?><a href="iblock_admin.php?lang=<?=LANGUAGE_ID?>&amp;type=<?=urlencode($type)?>"><?= GetMessage("IBSEC_E_BACK_TO_ADMIN")?></a><?php
+	}
+	if (!$internalAdminPage)
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	}
 	die();
 }
 
 $urlBuilder = Iblock\Url\AdminPage\BuilderManager::getInstance()->getBuilder();
 if ($urlBuilder === null)
 {
-	$APPLICATION->SetTitle($arIBTYPE["NAME"]);
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	$APPLICATION->SetTitle($arIBTYPE["NAME"] ?? '');
+	if ($errorPopupProlog)
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+	}
+	else
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	}
 	ShowError(GetMessage("IBSEC_E_ERR_BUILDER_ADSENT"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();

@@ -95,11 +95,6 @@ if($this->startResultCache(false, false, (($arParams["MENU_CACHE_USE_USERS"] ?? 
 			$arResult["menuDir"] = $menu->MenuDir;
 			$arResult["menuType"] = $menu->type;
 		}
-		else
-		{
-			$arResult["initMenuDir"] = $menu->MenuDir;
-			$arResult["initMenuType"] = $menu->type;
-		}
 	}
 	else
 	{

@@ -6,10 +6,8 @@ class CFavorites extends CAllFavorites
 {
 	public static function GetList($aSort=array(), $arFilter=Array())
 	{
-		$err_mess = (CFavorites::err_mess())."<br>Function: GetList<br>Line: ";
-		global $DB, $USER;
+		global $DB;
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
 			foreach ($arFilter as $key => $val)
@@ -112,7 +110,7 @@ class CFavorites extends CAllFavorites
 			".$strSqlSearch."
 			".$strSqlOrder;
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

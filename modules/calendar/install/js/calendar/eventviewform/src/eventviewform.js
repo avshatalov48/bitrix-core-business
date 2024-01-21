@@ -9,6 +9,7 @@ import { Planner } from 'calendar.planner';
 import { BitrixVue } from 'ui.vue3';
 import { ViewEventSlider } from './view-event-slider';
 import { CalendarSection } from 'calendar.sectionmanager';
+import 'viewer';
 
 export class EventViewForm {
 	permissions = {};
@@ -204,6 +205,28 @@ export class EventViewForm {
 						+ '</div>'
 						+ '</div>'
 					);
+				}
+
+				if (response.data && !Type.isNil(response.data.isAvailable) && !response.data.isAvailable)
+				{
+					const showHelperCallback = () => {
+						top.BX.UI.InfoHelper.show('limit_office_calendar_off', {
+							isLimit: true,
+							limitAnalyticsLabels: {
+								module: 'calendar',
+								source: 'eventViewForm',
+							},
+						});
+					};
+
+					if (this.slider)
+					{
+						this.slider.close(true, showHelperCallback);
+					}
+					else
+					{
+						showHelperCallback();
+					}
 				}
 
 				this.displayError(response.errors);
@@ -500,7 +523,7 @@ export class EventViewForm {
 							</div>
 						</div>
 						<div class="calendar-slider-sidebar-user-info">
-							<a href="${user.URL ? user.URL : '#'}" class="calendar-slider-sidebar-user-info-name">${user.DISPLAY_NAME}</a>
+							<a href="${user.URL ? user.URL : '#'}" class="calendar-slider-sidebar-user-info-name">${Text.encode(user.DISPLAY_NAME)}</a>
 						</div>
 					</div>
 				`;
@@ -511,15 +534,19 @@ export class EventViewForm {
 				autoHide: true,
 				closeByEsc: true,
 				offsetTop: 0,
-				offsetLeft: 0,
+				offsetLeft: node.offsetWidth / 2,
 				resizable: false,
 				lightShadow: true,
 				content: this.DOM.userListPopupWrap,
 				className: 'calendar-user-list-popup',
-				zIndex: 4000
+				maxWidth: 300,
+				maxHeight: 500,
+				zIndex: 4000,
+				angle: {
+					position: 'top',
+				},
 			});
 
-			this.userListPopup.setAngle({offset: 36});
 			this.userListPopup.show();
 			this.BX.addCustomEvent(this.userListPopup, 'onPopupClose', ()=>{this.userListPopup.destroy();});
 		}

@@ -472,6 +472,11 @@ class Date extends Base
 
 	public static function externalizeValue(FieldType $fieldType, $context, $value)
 	{
+		if ($context === FieldType::VALUE_CONTEXT_JN_MOBILE)
+		{
+			return \CBPHelper::makeTimestamp($value) ?: null;
+		}
+
 		//serialized date string
 		if (is_string($value) && preg_match('#(.+)\s\[([0-9\-]+)\]#', $value))
 		{
@@ -480,10 +485,10 @@ class Date extends Base
 
 		if ($value instanceof Value\Date)
 		{
-			return $context === 'rest' ? $value->toSystemObject()->format('c') : (string) $value->toSystemObject();
+			return $context === FieldType::VALUE_CONTEXT_REST ? $value->toSystemObject()->format('c') : (string) $value->toSystemObject();
 		}
 
-		if (is_string($value) && $context === 'rest')
+		if (is_string($value) && $context === FieldType::VALUE_CONTEXT_REST)
 		{
 			return date('c', strtotime($value));
 		}

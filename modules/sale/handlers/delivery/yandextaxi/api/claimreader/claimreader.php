@@ -143,16 +143,6 @@ final class ClaimReader
 					$shippingItem->setSize($shippingItemSize);
 				}
 
-				if (isset($item['pickup_point']))
-				{
-					$shippingItem->setPickupPoint($item['pickup_point']);
-				}
-
-				if (isset($item['droppof_point']))
-				{
-					$shippingItem->setDroppofPoint($item['droppof_point']);
-				}
-
 				$claim->addItem($shippingItem);
 			}
 		}

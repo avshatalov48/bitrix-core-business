@@ -7,6 +7,7 @@
  */
 
 namespace Bitrix\Main\ORM\Query;
+use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Query\Filter\ConditionTree;
 use Bitrix\Main\Security\Random;
@@ -107,8 +108,10 @@ class Expression
 	 */
 	public function length($columnName)
 	{
+		$helper = Application::getConnection()->getSqlHelper();
 		$alias = static::getTmpName('LENGTH');
-		return new ExpressionField($alias, 'LENGTH(%s)', $columnName);
+
+		return new ExpressionField($alias, $helper->getLengthFunction('%s'), $columnName);
 	}
 
 	/**
@@ -146,8 +149,7 @@ class Expression
 	 */
 	public function concat()
 	{
-		$connection = \Bitrix\Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
+		$helper = Application::getConnection()->getSqlHelper();
 		$columns = func_get_args();
 		$alias = static::getTmpName('CONCAT');
 

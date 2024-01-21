@@ -5,10 +5,11 @@ import { Runtime, Extension } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { Messenger } from 'im.public';
-import { MessengerSlider } from 'im.v2.lib.slider';
-import { EventType, PathPlaceholder } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { Logger } from 'im.v2.lib.logger';
+import { LocalStorageManager } from 'im.v2.lib.local-storage';
+import { ScrollWithGradient } from 'im.v2.component.elements';
+import { EventType, LocalStorageKey } from 'im.v2.const';
 
 import { SearchService } from 'im.v2.provider.service';
 import { SearchContextMenu } from './classes/search-context-menu';
@@ -17,10 +18,13 @@ import { SearchExperimentalResult } from './components/search-experimental-resul
 
 import './css/search-experimental.css';
 
+import type { JsonObject } from 'main.core';
+
 // @vue/component
 export const SearchExperimental = {
 	name: 'SearchExperimental',
 	components: {
+		ScrollWithGradient,
 		LatestSearchResult,
 		SearchExperimentalResult,
 	},
@@ -33,13 +37,22 @@ export const SearchExperimental = {
 			type: Boolean,
 			required: true,
 		},
+		handleClickItem: {
+			type: Boolean,
+			default: true,
+		},
+		withMyNotes: {
+			type: Boolean,
+			default: false,
+		},
 	},
-	data(): Object
+	data(): JsonObject
 	{
 		return {
 			isRecentLoading: false,
 			isServerLoading: false,
 
+			queryWasDeleted: false,
 			currentServerQueries: 0,
 			result: {
 				recent: [],
@@ -62,6 +75,11 @@ export const SearchExperimental = {
 	{
 		cleanQuery(newQuery: string, previousQuery: string)
 		{
+			if (newQuery.length > 0)
+			{
+				this.queryWasDeleted = false;
+			}
+
 			if (newQuery.length === 0)
 			{
 				this.searchService.clearSessionResult();
@@ -73,19 +91,23 @@ export const SearchExperimental = {
 			}
 			this.startSearch(newQuery);
 		},
+		isServerLoading(newValue: boolean)
+		{
+			this.$emit('loading', newValue);
+		},
 	},
 	created()
 	{
 		this.initSettings();
 		this.contextMenuManager = new SearchContextMenu();
 
-		this.searchService = new SearchService();
-
+		this.findByParticipants = LocalStorageManager.getInstance().get(LocalStorageKey.findByParticipants, false);
+		this.searchService = new SearchService({ findByParticipants: this.findByParticipants });
 		this.searchOnServerDelayed = Runtime.debounce(this.searchOnServer, 400, this);
 
 		EventEmitter.subscribe(EventType.search.openContextMenu, this.onOpenContextMenu);
 		EventEmitter.subscribe(EventType.dialog.errors.accessDenied, this.onDelete);
-		EventEmitter.subscribe(EventType.search.keyPressed, this.onPressEnterKey);
+		EventEmitter.subscribe(EventType.search.keyPressed, this.onKeyPressed);
 
 		this.loadRecentSearchFromServer();
 	},
@@ -94,7 +116,7 @@ export const SearchExperimental = {
 		this.contextMenuManager.destroy();
 		EventEmitter.unsubscribe(EventType.search.openContextMenu, this.onOpenContextMenu);
 		EventEmitter.unsubscribe(EventType.dialog.errors.accessDenied, this.onDelete);
-		EventEmitter.unsubscribe(EventType.search.keyPressed, this.onPressEnterKey);
+		EventEmitter.unsubscribe(EventType.search.keyPressed, this.onKeyPressed);
 	},
 	methods:
 	{
@@ -116,7 +138,7 @@ export const SearchExperimental = {
 		},
 		startSearch(query: string)
 		{
-			if (query.length > 0)
+			if (!this.findByParticipants && query.length > 0)
 			{
 				this.searchService.searchLocal(query).then((dialogIds: string[]) => {
 					if (query !== this.cleanQuery)
@@ -157,8 +179,15 @@ export const SearchExperimental = {
 					return;
 				}
 
-				const mergedItems = this.mergeResults(this.result.usersAndChats, dialogIds);
-				this.result.usersAndChats = this.searchService.sortByDate(mergedItems);
+				if (this.findByParticipants)
+				{
+					this.result.usersAndChats = this.searchService.sortByDate(dialogIds);
+				}
+				else
+				{
+					const mergedItems = this.mergeResults(this.result.usersAndChats, dialogIds);
+					this.result.usersAndChats = this.searchService.sortByDate(mergedItems);
+				}
 			}).catch((error) => {
 				console.error(error);
 			}).finally(() => {
@@ -174,17 +203,6 @@ export const SearchExperimental = {
 			}
 
 			this.isServerLoading = false;
-		},
-		mergeResults(originalItems: string[], newItems: string[]): string[]
-		{
-			newItems.forEach((newItem) => {
-				if (!originalItems.includes(newItem))
-				{
-					originalItems.push(newItem);
-				}
-			});
-
-			return originalItems;
 		},
 		onOpenContextMenu(event: BaseEvent)
 		{
@@ -228,15 +246,12 @@ export const SearchExperimental = {
 				Logger.error('SearchExperimental.onClickItem: addItemToRecent', error);
 			});
 
-			if (Utils.key.isCmdOrCtrl(nativeEvent))
+			Messenger.openChat(dialogId);
+			if (!this.handleClickItem)
 			{
-				MessengerSlider.getInstance().openNewTab(
-					PathPlaceholder.dialog.replace('#DIALOG_ID#', dialogId),
-				);
-			}
-			else
-			{
-				Messenger.openChat(dialogId);
+				this.$emit('clickItem', event);
+
+				return;
 			}
 
 			if (!Utils.key.isAltOrOption(nativeEvent))
@@ -244,15 +259,22 @@ export const SearchExperimental = {
 				EventEmitter.emit(EventType.search.close);
 			}
 		},
-		onPressEnterKey(event: BaseEvent)
+		onKeyPressed(event: BaseEvent)
 		{
 			const { keyboardEvent } = event.getData();
 
-			if (!Utils.key.isCombination(keyboardEvent, 'Enter'))
+			if (Utils.key.isCombination(keyboardEvent, 'Enter'))
 			{
-				return;
+				this.onPressEnterKey(event);
 			}
 
+			if (Utils.key.isCombination(keyboardEvent, 'Backspace'))
+			{
+				this.onPressBackspaceKey();
+			}
+		},
+		onPressEnterKey(keyboardEvent: KeyboardEvent)
+		{
 			const firstItem = this.getFirstItemFromSearchResults();
 			if (!firstItem)
 			{
@@ -263,6 +285,27 @@ export const SearchExperimental = {
 				dialogId: firstItem,
 				nativeEvent: keyboardEvent,
 			});
+		},
+		onPressBackspaceKey()
+		{
+			if (this.searchQuery.length > 0)
+			{
+				this.queryWasDeleted = false;
+
+				return;
+			}
+
+			if (!this.queryWasDeleted)
+			{
+				this.queryWasDeleted = true;
+
+				return;
+			}
+
+			if (this.queryWasDeleted)
+			{
+				EventEmitter.emit(EventType.search.close);
+			}
 		},
 		getFirstItemFromSearchResults(): ?string
 		{
@@ -278,22 +321,36 @@ export const SearchExperimental = {
 
 			return null;
 		},
+		mergeResults(originalItems: string[], newItems: string[]): string[]
+		{
+			newItems.forEach((newItem) => {
+				if (!originalItems.includes(newItem))
+				{
+					originalItems.push(newItem);
+				}
+			});
+
+			return originalItems;
+		},
 	},
 	template: `
-		<div class="bx-im-search-experimental__container bx-im-search-experimental__scope" @scroll="onScroll">
-			<LatestSearchResult 
-				v-if="showLatestSearchResult" 
-				:dialogIds="result.recent" 
-				:isLoading="isRecentLoading" 
-				@clickItem="onClickItem" 
-			/>
-			<SearchExperimentalResult 
-				v-else 
-				:dialogIds="result.usersAndChats" 
-				:isLoading="isServerLoading"
-				:query="cleanQuery"
-				@clickItem="onClickItem"
-			/>
-		</div>
+		<ScrollWithGradient :gradientHeight="28" :withShadow="false" @scroll="onScroll"> 
+			<div class="bx-im-search-experimental__container bx-im-search-experimental__scope">
+				<LatestSearchResult
+					v-if="showLatestSearchResult"
+					:dialogIds="result.recent"
+					:isLoading="isRecentLoading"
+					:withMyNotes="withMyNotes"
+					@clickItem="onClickItem"
+				/>
+				<SearchExperimentalResult
+					v-else
+					:dialogIds="result.usersAndChats"
+					:isLoading="isServerLoading"
+					:query="cleanQuery"
+					@clickItem="onClickItem"
+				/>
+			</div>
+		</ScrollWithGradient> 
 	`,
 };

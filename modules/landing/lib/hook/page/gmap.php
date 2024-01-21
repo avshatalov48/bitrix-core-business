@@ -4,6 +4,8 @@ namespace Bitrix\Landing\Hook\Page;
 use Bitrix\Landing\Field;
 use Bitrix\Landing\Help;
 use Bitrix\Landing\Hook\Page;
+use Bitrix\Landing\Internals\SiteTable;
+use Bitrix\Landing\Manager;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Text\HtmlFilter;
@@ -12,6 +14,9 @@ Loc::loadMessages(__FILE__);
 
 class GMap extends Page
 {
+	private $lang;
+	private $siteId;
+
 	/**
 	 * Map of the field.
 	 * @return array
@@ -79,10 +84,58 @@ class GMap extends Page
 				})();
 			</script>"
 		);
+		$lang = $this->getLang();
 		$assets->addString(
 			'<script defer src="https://maps.googleapis.com/maps/api/js?key='
 			. $code
+			. '&region='
+			. $lang
+			. '&language='
+			. $lang
 			. '&callback=onGoogleMapApiLoaded"></script>'
 		);
+	}
+
+	/**
+	 * Save current site id
+	 * @param int $siteId SiteId.
+	 * @return void
+	 */
+	public function setSiteId(int $siteId): void
+	{
+		$this->siteId = $siteId;
+	}
+
+	/**
+	 * Get current site language
+	 * @return string
+	 */
+	protected function getLang(): string
+	{
+		$lang = null;
+		if ($this->siteId > 0)
+		{
+			$res = SiteTable::getList([
+				'select' => [
+					'LANG'
+				],
+				'filter' => [
+					'=ID' => $this->siteId
+				]
+			])->fetch();
+			if ($res['LANG'])
+			{
+				$lang = $res['LANG'];
+				if ($lang === 'tc')
+				{
+					$lang = 'zh';
+				}
+				if ($lang === 'vn')
+				{
+					$lang = 'vi';
+				}
+			}
+		}
+		return $lang ?: Manager::getZone();
 	}
 }

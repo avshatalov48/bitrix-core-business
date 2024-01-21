@@ -606,28 +606,30 @@ export default class Item
 
 	lazyLoadCloudPreview()
 	{
-		const previewUrl =
-			this.cloudPreview
-			+ ((this.cloudPreview.indexOf('?') > 0) ? '&' : '?')
-			+ 'refreshed' + (Date.now()/86400000|0)
-		;
-		const xhr = new XMLHttpRequest();
-		xhr.open("HEAD", previewUrl);
-		xhr.onload = () => {
-			const expires = xhr.getResponseHeader("expires");
-			if (
-				expires
-				&& (new Date(expires)) <= (new Date())
-			)
-			{
-				setTimeout(this.lazyLoadCloudPreview, 3000);
-			}
-			else
-			{
-				this.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
-			}
-		};
-		xhr.send();
+		try {
+			const previewUrl =
+				this.cloudPreview
+				+ ((this.cloudPreview.indexOf('?') > 0) ? '&' : '?')
+				+ 'refreshed' + (Date.now()/86400000|0)
+			;
+			const xhr = new XMLHttpRequest();
+			xhr.open("HEAD", previewUrl);
+			xhr.onload = () => {
+				const expires = xhr.getResponseHeader("expires");
+				if (
+					expires
+					&& (new Date(expires)) <= (new Date())
+				)
+				{
+					setTimeout(this.lazyLoadCloudPreview, 3000);
+				}
+				else
+				{
+					this.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
+				}
+			};
+			xhr.send();
+		} catch (error) {}
 	}
 
 	getContainerPreviewStatus()

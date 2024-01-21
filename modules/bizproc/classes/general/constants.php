@@ -111,6 +111,11 @@ class CBPWorkflowStatus
 
 		return $result;
 	}
+
+	public static function isFinished(int $status): bool
+	{
+		return $status === static::Completed || $status === static::Terminated;
+	}
 }
 
 class CBPActivityExecutorOperationType
@@ -250,21 +255,26 @@ class CBPSetPermissionsMode
 
 class CBPTaskStatus
 {
-	const Running = 0;
-	const CompleteYes = 1;
-	const CompleteNo = 2;
-	const CompleteOk = 3;
-	const Timeout = 4;
-	const CompleteCancel = 5;
+	public const Running = 0;
+	public const CompleteYes = 1;
+	public const CompleteNo = 2;
+	public const CompleteOk = 3;
+	public const Timeout = 4;
+	public const CompleteCancel = 5;
+
+	public static function isSuccess(int $status)
+	{
+		return $status === self::CompleteYes || $status === self::CompleteOk;
+	}
 }
 
 class CBPTaskUserStatus
 {
-	const Waiting = 0;
-	const Yes = 1;
-	const No = 2;
-	const Ok = 3;
-	const Cancel = 4;
+	public const Waiting = 0;
+	public const Yes = 1;
+	public const No = 2;
+	public const Ok = 3;
+	public const Cancel = 4;
 
 	public static function resolveStatus($name)
 	{

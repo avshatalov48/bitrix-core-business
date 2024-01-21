@@ -214,27 +214,30 @@ class PathIndexTable extends DataManager
 	 * Drop index.
 	 *
 	 * @param Translate\Filter|null $filter Params to filter file list.
-	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return void
 	 */
-	public static function purge(?Translate\Filter $filter = null, $recursively = true): void
+	public static function purge(?Translate\Filter $filter = null): void
 	{
-		if (($filterOut = static::processFilter($filter)) !== false)
+		$recursively = true;
+		if (isset($filter, $filter->recursively))
 		{
-			if ($recursively)
-			{
-				if (!isset($filter, $filter->langId))
-				{
-					Index\Internals\PathTreeTable::purge($filter);
-				}
-				Index\Internals\FileIndexTable::purge($filter);
-			}
+			$recursively = $filter->recursively;
+		}
 
+		if ($recursively)
+		{
 			if (!isset($filter, $filter->langId))
 			{
-				static::bulkDelete($filterOut);
+				Index\Internals\PathTreeTable::purge($filter);
 			}
+			Index\Internals\FileIndexTable::purge($filter);
+		}
+
+		if (!isset($filter, $filter->langId))
+		{
+			$filterOut = static::processFilter($filter);
+			static::bulkDelete($filterOut);
 		}
 	}
 

@@ -86,4 +86,5 @@ $catalog_default_option = [
 	'store_document_numbers_D' => 0, // used for create store document name (deduct)
 	'store_document_numbers_U' => 0, // used for create store document name (undo reserve)
 	'enable_convert_product_to_service' => 'Y',  // system option, can't set from options page
+	'cost_price_calculation_method' => '',
 ];

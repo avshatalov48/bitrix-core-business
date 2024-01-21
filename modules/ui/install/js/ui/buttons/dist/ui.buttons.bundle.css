@@ -51,28 +51,16 @@
 .ui-btn-main,
 .ui-btn-extra,
 .ui-btn-menu {
-	-webkit-box-sizing: border-box;
-	        box-sizing: border-box;
+	box-sizing: border-box;
 	margin: 0;
 	outline: none;
 	height: var(--ui-btn-height);
 	border: var(--ui-btn-border);
 	border-color: var(--ui-btn-border-color);
 	background-color: var(--ui-btn-background);
-	-webkit-box-shadow: var(--ui-btn-box-shadow);
-	        box-shadow: var(--ui-btn-box-shadow);
+	box-shadow: var(--ui-btn-box-shadow);
 	text-shadow: var(--ui-btn-text-shadow);
 	cursor: pointer;
-	-webkit-transition: 160ms linear background-color,
-				160ms linear color,
-				160ms linear opacity,
-				160ms linear box-shadow,
-				160ms linear border-color;
-	-o-transition: 160ms linear background-color,
-				160ms linear color,
-				160ms linear opacity,
-				160ms linear box-shadow,
-				160ms linear border-color;
 	transition: 160ms linear background-color,
 				160ms linear color,
 				160ms linear opacity,
@@ -83,14 +71,8 @@
 .ui-btn,
 .ui-btn-main {
 	position: relative;
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
-	-ms-flex-pack: center;
-	-webkit-box-pack: center;
 	justify-content: center;
-	-ms-flex-align: center;
-	-webkit-box-align: center;
 	align-items: center;
 	padding: var(--ui-btn-padding);
 	color: var(--ui-btn-color);
@@ -102,8 +84,6 @@
 	font: var(--ui-btn-font-size)/calc(var(--ui-btn-height) - 2px) var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-bold, 700);
 	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
 	user-select: none;
 }
 
@@ -119,11 +99,7 @@
 
 .ui-btn-split {
 	position: relative;
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
-	-webkit-box-align: stretch;
-	-ms-flex-align: stretch;
 	align-items: stretch;
 	padding-right: var(--ui-btn-height);
 	border-radius: 3px;
@@ -162,8 +138,7 @@ a.ui-btn:focus,
 .ui-btn-menu-hover .ui-btn-menu {
 	border-color: var(--ui-btn-border-color-hover);
 	background-color: var(--ui-btn-background-hover);
-	-webkit-box-shadow: var(--ui-btn-box-shadow-hover);
-	        box-shadow: var(--ui-btn-box-shadow-hover);
+	box-shadow: var(--ui-btn-box-shadow-hover);
 	color: var(--ui-btn-color-hover);
 	text-decoration: none;
 	text-shadow: var(--ui-btn-text-shadow-hover);
@@ -200,8 +175,7 @@ a.ui-btn-split:focus,
 	outline: none;
 	border-color: var(--ui-btn-border-color-active);
 	background-color: var(--ui-btn-background-active);
-	-webkit-box-shadow: var(--ui-btn-box-shadow-active);
-	        box-shadow: var(--ui-btn-box-shadow-active);
+	box-shadow: var(--ui-btn-box-shadow-active);
 	color: var(--ui-btn-color-active);
 	text-shadow: var(--ui-btn-text-shadow-active);
 }
@@ -223,8 +197,7 @@ a.ui-btn-split:focus,
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	-webkit-box-sizing: border-box;
-	        box-sizing: border-box;
+	box-sizing: border-box;
 	margin-top: -2px;
 	margin-left: -4px;
 	width: 8px;
@@ -232,8 +205,6 @@ a.ui-btn-split:focus,
 	border-top-color: var(--ui-btn-colors-before-bg);
 	background: none;
 	content: '';
-	-webkit-transition: 160ms background-color linear, 160ms color linear, 160ms opacity linear, 160ms border-color linear;
-	-o-transition: 160ms background-color linear, 160ms color linear, 160ms opacity linear, 160ms border-color linear;
 	transition: 160ms background-color linear, 160ms color linear, 160ms opacity linear, 160ms border-color linear;
 }
 
@@ -252,8 +223,7 @@ a.ui-btn-split:focus,
 	overflow: hidden;
 	max-width: 100%;
 	white-space: nowrap;
-	-o-text-overflow: ellipsis;
-	   text-overflow: ellipsis;
+	text-overflow: ellipsis;
 	display: block;
 }
 
@@ -502,6 +472,60 @@ a.ui-btn-split:focus,
 	--ui-btn-color-active: #535b69;
 }
 
+.ui-btn-color-ai {
+	--ui-btn-backgroud-color-ai: #935BEC;
+	--ui-btn-background: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-background-hover: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-background-active: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-border-color: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-border-color-hover: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-border-color-active: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-opacity-after: .3;
+	--ui-btn-colors-after-bg: #fff;
+	--ui-btn-colors-before-bg: #fff;
+	--ui-btn-color: #fff;
+	--ui-btn-color-hover: #fff;
+	--ui-btn-color-active: #fff;
+}
+
+.ui-btn[class*="ui-btn-icon-"].ui-btn-icon-ai.ui-btn-color-ai {
+	flex-direction: row-reverse;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.ui-btn-icon-ai.ui-btn-color-ai::after {
+	position: static;
+	left: auto;
+	top: auto;
+	transform: none;
+}
+
+/* hack for preloading icon */
+.ui-btn-icon-ai.ui-btn-color-ai:hover::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-image: url(images/ui-btn-ai-waiting.svg);
+}
+
+.ui-btn-ai-waiting::before {
+	content: '';
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border-radius: var(--ui-btn-radius);
+	background-color: var(--ui-btn-background);
+	background-image: url(images/ui-btn-ai-waiting.svg);
+	background-size: 18px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	z-index: 2;
+}
+
 /*endregion*/
 
 /*region Button Color*/
@@ -580,10 +604,10 @@ a.ui-btn-split:focus,
 
 .ui-btn-shadow,
 .ui-btn-shadow:hover,
-.ui-btn-shadow.ui-btn-hover { -webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,0.18); box-shadow: 0 1px 2px 0 rgba(0,0,0,0.18); }
+.ui-btn-shadow.ui-btn-hover { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.18); }
 
 .ui-btn-shadow:active,
-.ui-btn-shadow.ui-btn-active { -webkit-box-shadow: 0 0 1px 0 rgba(0,0,0,0.18); box-shadow: 0 0 1px 0 rgba(0,0,0,0.18); }
+.ui-btn-shadow.ui-btn-active { box-shadow: 0 0 1px 0 rgba(0,0,0,0.18); }
 
 /*region Counter*/
 .ui-btn-counter {
@@ -613,17 +637,14 @@ a.ui-btn-split:focus,
 	top: 50%;
 	right: 13px;
 	display: block;
-	-webkit-box-sizing: border-box;
-	        box-sizing: border-box;
+	box-sizing: border-box;
 	margin-top: -1.5px;
 	width: 8px;
 	height: 8px;
 	border-bottom: 2px solid;
 	border-left: 2px solid;
 	content: '';
-	-webkit-transform: translateY(-50%) rotate(-45deg);
-	    -ms-transform: translateY(-50%) rotate(-45deg);
-	        transform: translateY(-50%) rotate(-45deg);
+	transform: translateY(-50%) rotate(-45deg);
 }
 
 .ui-btn.ui-btn-dropdown:before,
@@ -634,9 +655,7 @@ a.ui-btn-split:focus,
 .ui-btn-empty.ui-btn-dropdown .ui-btn-main:before,
 .ui-btn-collapsed.ui-btn-dropdown .ui-btn-main:before {
 	right: auto;
-	-webkit-transform: translate(-50%, -50%) rotate(-45deg);
-	    -ms-transform: translate(-50%, -50%) rotate(-45deg);
-	        transform: translate(-50%, -50%) rotate(-45deg);
+	transform: translate(-50%, -50%) rotate(-45deg);
 	left: 50%;
 }
 
@@ -645,9 +664,7 @@ a.ui-btn-split:focus,
 .ui-btn-empty.ui-btn-dropdown[class*="ui-btn-icon-"] .ui-btn-main:before,
 .ui-btn-collapsed.ui-btn-dropdown[class*="ui-btn-icon-"] .ui-btn-main:before {
 	right: 12px;
-	-webkit-transform: translateY(-50%) rotate(-45deg);
-	    -ms-transform: translateY(-50%) rotate(-45deg);
-	        transform: translateY(-50%) rotate(-45deg);
+	transform: translateY(-50%) rotate(-45deg);
 	left: auto;
 }
 
@@ -793,8 +810,6 @@ a.ui-btn-split:focus,
 	cursor: pointer;
 	font: 13px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: var(--ui-link-color);
-	-webkit-transition: 250ms linear color, 250ms linear border-color;
-	-o-transition: 250ms linear color, 250ms linear border-color;
 	transition: 250ms linear color, 250ms linear border-color;
 }
 

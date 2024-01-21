@@ -5,11 +5,11 @@ use Bitrix\Currency;
 
 class Editor
 {
-	protected static $listCurrencyCache;
+	protected static array $listCurrencyCache;
 
-	public static function getListCurrency()
+	public static function getListCurrency(): array
 	{
-		if (static::$listCurrencyCache === null)
+		if (!isset(static::$listCurrencyCache))
 		{
 			static::$listCurrencyCache = [];
 

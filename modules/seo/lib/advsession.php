@@ -3,7 +3,9 @@ namespace Bitrix\Seo;
 
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Session\Session;
 use Bitrix\Sale\Internals\BasketTable;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Seo\Adv\LinkTable;
@@ -27,6 +29,8 @@ class AdvSession
 	const URL_PARAM_BANNER = 'bxydbanner';
 	const URL_PARAM_BANNER_VALUE = '{banner_id}';
 
+	private const DATA_INDEX = 'SEO_ADV';
+
 	protected static $orderHandlerCalled = array();
 
 	public static function checkSession()
@@ -37,22 +41,47 @@ class AdvSession
 			&& isset($request[static::URL_PARAM_BANNER])
 		)
 		{
-			$_SESSION['SEO_ADV'] = array(
-				"ENGINE" => YandexDirect::ENGINE_ID,
-				"CAMPAIGN_ID" => $request[static::URL_PARAM_CAMPAIGN],
-				"BANNER_ID" => $request[static::URL_PARAM_BANNER],
+			$session = self::getSessionStorage();
+			$session?->set(
+				self::DATA_INDEX,
+				[
+					'ENGINE' => YandexDirect::ENGINE_ID,
+					'CAMPAIGN_ID' => $request[static::URL_PARAM_CAMPAIGN],
+					'BANNER_ID' => $request[static::URL_PARAM_BANNER],
+				]
 			);
 		}
 	}
 
 	public static function isSession()
 	{
-		return isset($_SESSION['SEO_ADV']);
+		$session = self::getSessionStorage();
+		if ($session === null)
+		{
+			return false;
+		}
+		$data = $session->get(self::DATA_INDEX);
+		unset($session);
+
+		return !empty($data) && is_array($data);
 	}
 
 	public static function getSession()
 	{
-		return $_SESSION['SEO_ADV'];
+		$session = self::getSessionStorage();
+		if ($session === null)
+		{
+			return null;
+		}
+		$data = $session->get(self::DATA_INDEX);
+		unset($session);
+
+		if (!empty($data) && is_array($data))
+		{
+			return $data;
+		}
+
+		return null;
 	}
 
 	public static function onOrderSave($orderId, $orderFields, $orderData, $isNew)
@@ -101,24 +130,37 @@ class AdvSession
 
 	protected static function checkSessionOrder($orderId)
 	{
-		if(
-			isset($_SESSION['SEO_ADV'])
-			&& is_array($_SESSION['SEO_ADV'])
-			&& $_SESSION['SEO_ADV']['BANNER_ID'] > 0
-			&& !in_array($orderId, static::$orderHandlerCalled)
-			&& Main\Loader::includeModule('sale')
+		if (in_array($orderId, static::$orderHandlerCalled))
+		{
+			return;
+		}
+		if (!(
+			Main\Loader::includeModule('sale')
 			&& Main\Loader::includeModule('catalog')
-		)
+		))
+		{
+			return;
+		}
+
+		$data = self::getSession();
+		if ($data === null)
+		{
+			return;
+		}
+
+		$bannerId = (string)($data['BANNER_ID'] ?? '');
+		if ($bannerId !== '')
 		{
 			static::$orderHandlerCalled[] = $orderId;
-
 			$banner = null;
-			switch($_SESSION['SEO_ADV']['ENGINE'])
+			$engine = (string)($data['ENGINE'] ?? '');
+
+			switch ($engine)
 			{
 				case YandexDirect::ENGINE_ID:
 					$dbRes = YandexBannerTable::getList(array(
 						'filter' => array(
-							'=XML_ID' => $_SESSION['SEO_ADV']['BANNER_ID'],
+							'=XML_ID' => $bannerId,
 							'=ENGINE.CODE' => YandexDirect::ENGINE_ID,
 						),
 						'select' => array(
@@ -129,11 +171,11 @@ class AdvSession
 					break;
 			}
 
-			if($banner)
+			if ($banner)
 			{
 				$linkedProductsList = static::getBannerLinkedProducts($banner['ID']);
 
-				if(count($linkedProductsList) > 0)
+				if (count($linkedProductsList) > 0)
 				{
 					$basket = BasketTable::getList(array(
 						'filter' => array(
@@ -143,9 +185,9 @@ class AdvSession
 					));
 
 					$addEntry = false;
-					while($item = $basket->fetch())
+					while ($item = $basket->fetch())
 					{
-						if(in_array($item['PRODUCT_ID'], $linkedProductsList))
+						if (in_array($item['PRODUCT_ID'], $linkedProductsList))
 						{
 							$addEntry = true;
 							break;
@@ -154,7 +196,7 @@ class AdvSession
 						{
 							$productInfo = \CCatalogSKU::GetProductInfo($item['PRODUCT_ID']);
 
-							if(is_array($productInfo) && in_array($productInfo['ID'], $linkedProductsList))
+							if (is_array($productInfo) && in_array($productInfo['ID'], $linkedProductsList))
 							{
 								$addEntry = true;
 								break;
@@ -162,7 +204,7 @@ class AdvSession
 						}
 					}
 
-					if($addEntry)
+					if ($addEntry)
 					{
 						$entryData = array(
 							'ENGINE_ID' => $banner['ENGINE_ID'],
@@ -302,5 +344,24 @@ class AdvSession
 			$profit = doubleval($productInfo['SUMMARY_PRICE'])-$purchasingCost;
 		}
 		return $profit;
+	}
+
+	/**
+	 * Session object.
+	 *
+	 * If session is not accessible, returns null.
+	 *
+	 * @return Session|null
+	 */
+	private static function getSessionStorage(): ?Session
+	{
+		/** @var Session $session */
+		$session = Application::getInstance()->getSession();
+		if (!$session->isAccessible())
+		{
+			return null;
+		}
+
+		return $session;
 	}
 }

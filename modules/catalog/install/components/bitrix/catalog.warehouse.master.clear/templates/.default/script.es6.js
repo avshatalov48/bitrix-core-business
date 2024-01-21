@@ -1,22 +1,28 @@
-import {Reflection, Type, Event, Dom, ajax} from 'main.core';
+/* eslint-disable no-param-reassign */
+import { Reflection, Type } from 'main.core';
 
 const namespace = Reflection.namespace('BX.Catalog.Master');
 
 class CatalogWarehouseMasterClear
 {
-	openSlider(url, options)
+	openSlider(url, options): Promise
 	{
-		if(!Type.isPlainObject(options))
+		if (!Type.isPlainObject(options))
 		{
-				options = {};
+			options = {};
 		}
-		options = {...{cacheable: false, allowChangeHistory: false, events: {}}, ...options};
-		return new Promise((resolve) =>
-		{
-			if(Type.isString(url) && url.length > 1)
+
+		options = {
+			cacheable: false,
+			allowChangeHistory: false,
+			events: {},
+			...options,
+		};
+
+		return new Promise((resolve) => {
+			if (Type.isString(url) && url.length > 1)
 			{
-				options.events.onClose = function(event)
-				{
+				options.events.onClose = (event) => {
 					resolve(event.getSlider());
 				};
 				BX.SidePanel.Instance.open(url, options);
@@ -29,4 +35,4 @@ class CatalogWarehouseMasterClear
 	}
 }
 
-namespace.CatalogWarehouseMasterClear = CatalogWarehouseMasterClear
+namespace.CatalogWarehouseMasterClear = CatalogWarehouseMasterClear;

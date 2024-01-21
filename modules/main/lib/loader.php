@@ -132,14 +132,14 @@ class Loader
 
 		self::$modulesHolders[$moduleName] = $moduleHolder;
 
+		if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
+		{
+			\Dev\Main\Migrator\ModuleUpdater::checkUpdates($moduleName, $pathToInclude);
+		}
+
 		$res = true;
 		if (file_exists($pathToInclude."/include.php"))
 		{
-			if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
-			{
-				\Dev\Main\Migrator\ModuleUpdater::checkUpdates($moduleName, $pathToInclude);
-			}
-
 			//recursion control
 			self::$semiloadedModules[$moduleName] = true;
 
@@ -363,7 +363,7 @@ class Loader
 				$module = $pathInfo["module"];
 				$holder = (self::$modulesHolders[$module] ?? self::BITRIX_HOLDER);
 
-				$filePath = (defined('REPOSITORY_ROOT'))
+				$filePath = (defined('REPOSITORY_ROOT') && $holder === self::BITRIX_HOLDER)
 					? REPOSITORY_ROOT
 					: "{$documentRoot}/{$holder}/modules";
 

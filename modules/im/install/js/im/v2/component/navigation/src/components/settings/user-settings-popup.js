@@ -1,25 +1,27 @@
-import {MessengerPopup} from 'im.v2.component.elements';
+import { MessengerPopup } from 'im.v2.component.elements';
 
-import {UserSettingsContent} from './user-settings-content';
+import { UserSettingsContent } from './user-settings-content';
+
+import type { JsonObject } from 'main.core';
 
 const POPUP_ID = 'im-user-settings-popup';
 
 // @vue/component
 export const UserSettingsPopup = {
 	name: 'UserSettingsPopup',
-	components: {MessengerPopup, UserSettingsContent},
+	components: { MessengerPopup, UserSettingsContent },
 	props:
 	{
 		bindElement: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['close'],
 	computed:
 	{
 		POPUP_ID: () => POPUP_ID,
-		config()
+		config(): JsonObject
 		{
 			return {
 				width: 313,
@@ -27,7 +29,7 @@ export const UserSettingsPopup = {
 				offsetTop: 4,
 				padding: 0,
 			};
-		}
+		},
 	},
 	template: `
 		<MessengerPopup
@@ -36,7 +38,11 @@ export const UserSettingsPopup = {
 			@close="$emit('close')"
 			:id="POPUP_ID"
 		>
-			<UserSettingsContent @closePopup="$emit('close')" @enableAutoHide="enableAutoHide" @disableAutoHide="disableAutoHide" />
+			<UserSettingsContent 
+				@closePopup="$emit('close')" 
+				@enableAutoHide="enableAutoHide" 
+				@disableAutoHide="disableAutoHide" 
+			/>
 		</MessengerPopup>
-	`
+	`,
 };

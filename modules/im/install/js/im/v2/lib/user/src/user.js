@@ -1,7 +1,7 @@
-import { Type } from 'main.core';
+import { Type, type JsonObject } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
-import { DialogType, UserRole } from 'im.v2.const';
+import { ChatType, UserRole } from 'im.v2.const';
 
 export class UserManager
 {
@@ -12,50 +12,56 @@ export class UserManager
 		this.store = Core.getStore();
 	}
 
-	static getDialogForUser(user: Object): Object
+	static getDialogForUser(user: JsonObject): JsonObject
 	{
 		return {
-			dialogId: user.id,
+			dialogId: UserManager.getUserId(user),
 			avatar: user.avatar,
 			color: user.color,
 			name: user.name,
-			type: DialogType.user,
+			type: ChatType.user,
 			role: UserRole.member,
 		};
 	}
 
-	setUsersToModel(rawUsers: Object[]): Promise
+	static getUserId(user: JsonObject): number | string
 	{
-		const { users, dialogues } = this.#prepareUsersForStore(rawUsers);
+		return user.id ?? user.networkId ?? 0;
+	}
+
+	setUsersToModel(rawUsers: JsonObject | JsonObject[]): Promise
+	{
+		const { users, chats } = this.#prepareUsersForStore(rawUsers);
 
 		const usersPromise = this.store.dispatch('users/set', users);
-		const dialoguesPromise = this.store.dispatch('dialogues/set', dialogues);
+		const chatsPromise = this.store.dispatch('chats/set', chats);
 
-		return Promise.all([usersPromise, dialoguesPromise]);
+		return Promise.all([usersPromise, chatsPromise]);
 	}
 
-	addUsersToModel(rawUsers: Object[]): Promise
+	addUsersToModel(rawUsers: JsonObject | JsonObject[]): Promise
 	{
-		const { users, dialogues } = this.#prepareUsersForStore(rawUsers);
+		const { users, chats } = this.#prepareUsersForStore(rawUsers);
 
 		const usersPromise = this.store.dispatch('users/add', users);
-		const dialoguesPromise = this.store.dispatch('dialogues/add', dialogues);
+		const chatsPromise = this.store.dispatch('chats/add', chats);
 
-		return Promise.all([usersPromise, dialoguesPromise]);
+		return Promise.all([usersPromise, chatsPromise]);
 	}
 
-	#prepareUsersForStore(users: Object[])
+	#prepareUsersForStore(rawUsers: JsonObject | JsonObject[]): { chats: JsonObject[], users: JsonObject[] }
 	{
+		let users = rawUsers;
 		if (Type.isPlainObject(users))
 		{
 			users = [users];
 		}
 
-		const dialogues = [];
+		const chats = [];
 		users.forEach((user) => {
-			dialogues.push(UserManager.getDialogForUser(user));
+			chats.push(UserManager.getDialogForUser(user));
 		});
 
-		return { users, dialogues };
+		return { users, chats };
 	}
 }

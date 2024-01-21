@@ -10,6 +10,8 @@ return [
 	'rel' => [
 		'main.core',
 		'calendar.sharing.public-v2',
+		'calendar.util',
+		'main.date',
 	],
 	'skip_core' => false,
 ];

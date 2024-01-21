@@ -1,6 +1,6 @@
 import { Type } from 'main.core';
 
-import { MessageStatus, ReactionList, DefaultMessageContent, ReactionSelector } from 'im.v2.component.message.elements';
+import { DefaultMessageContent, ReactionSelector, MessageHeader } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
 import { FileType, MessageType } from 'im.v2.const';
 
@@ -14,9 +14,8 @@ import type { ImModelMessage, ImModelFile } from 'im.v2.model';
 export const AudioMessage = {
 	name: 'AudioMessage',
 	components: {
-		ReactionList,
 		BaseMessage,
-		MessageStatus,
+		MessageHeader,
 		DefaultMessageContent,
 		AudioItem,
 		ReactionSelector,
@@ -29,6 +28,10 @@ export const AudioMessage = {
 		dialogId: {
 			type: String,
 			required: true,
+		},
+		withTitle: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	computed:
@@ -56,6 +59,7 @@ export const AudioMessage = {
 	template: `
 		<BaseMessage :item="item" :dialogId="dialogId">
 			<div class="bx-im-message-audio__container">
+				<MessageHeader :withTitle="withTitle" :item="item" class="bx-im-message-audio__header"/>
 				<AudioItem
 					:key="messageFile.id"
 					:item="messageFile"

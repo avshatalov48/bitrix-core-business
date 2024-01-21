@@ -2741,7 +2741,7 @@ class CAllCatalogProduct
 	 * @param array $userGroups
 	 * @return array
 	 */
-	private static function getAllowedPriceTypes(array $userGroups)
+	private static function getAllowedPriceTypes(array $userGroups): array
 	{
 		static $priceTypeCache = array();
 
@@ -2770,13 +2770,15 @@ class CAllCatalogProduct
 		return $priceTypeCache[$cacheKey];
 	}
 
-	private static function convertErrors(Main\Entity\Result $result)
+	private static function convertErrors(Main\Entity\Result $result): void
 	{
 		global $APPLICATION;
 
-		$oldMessages = array();
+		$oldMessages = [];
 		foreach ($result->getErrorMessages() as $errorText)
-			$oldMessages[] = array('text' => $errorText);
+		{
+			$oldMessages[] = ['text' => $errorText];
+		}
 		unset($errorText);
 
 		if (!empty($oldMessages))
@@ -2788,13 +2790,19 @@ class CAllCatalogProduct
 		unset($oldMessages);
 	}
 
-	private static function normalizeFields(array &$fields)
+	private static function normalizeFields(array &$fields): void
 	{
-		if (isset($fields['QUANTITY']) && is_string($fields['QUANTITY']) && $fields['QUANTITY'] === '')
+		if (isset($fields['QUANTITY']) && $fields['QUANTITY'] === '')
+		{
 			$fields['QUANTITY'] = 0;
-		if (isset($fields['QUANTITY_RESERVED']) && is_string($fields['QUANTITY_RESERVED']) && $fields['QUANTITY_RESERVED'] === '')
+		}
+		if (isset($fields['QUANTITY_RESERVED']) && $fields['QUANTITY_RESERVED'] === '')
+		{
 			$fields['QUANTITY_RESERVED'] = 0;
-		if (isset($fields['WEIGHT']) && is_string($fields['WEIGHT']) && $fields['WEIGHT'] === '')
+		}
+		if (isset($fields['WEIGHT']) && $fields['WEIGHT'] === '')
+		{
 			$fields['WEIGHT'] = 0;
+		}
 	}
 }

@@ -1,6 +1,9 @@
 <?
 $MESS["IM_DIALOG_CHAT_MENU_QUOTE"] = "Цитировать";
 $MESS["IM_DIALOG_CHAT_MENU_REPLY"] = "Ответить";
+$MESS["IM_DIALOG_CHAT_MENU_FORWARD"] = "Переслать";
+$MESS["IM_DIALOG_CHAT_MENU_COPY"] = "Копировать";
+$MESS["IM_DIALOG_CHAT_MENU_COPY_SUCCESS"] = "Сообщение скопировано";
 $MESS["IM_DIALOG_CHAT_MENU_COPY_FILE"] = "Копировать файл";
 $MESS["IM_DIALOG_CHAT_MENU_COPY_FILE_SUCCESS"] = "Файл скопирован";
 $MESS["IM_DIALOG_CHAT_MENU_PIN"] = "Закрепить";

@@ -1,4 +1,5 @@
-import { Dom } from 'main.core';
+import { Dom, Tag, Event } from 'main.core';
+import { Loc } from '../controls/controls.loc';
 
 import { Devices, DeviceItem } from './device.data';
 import DeviceUI from './device.ui';
@@ -11,10 +12,12 @@ type Options = {
 
 export class Device
 {
+	#options;
 	#frameUrl: string;
 	#editorFrameWrapper: HTMLElement;
 	#previewElement: HTMLDivElement;
 	#previewWindow;// window object of iframe
+	#previewLoader: HTMLDivElement;
 	#currentDevice: ?DeviceItem = null;
 	#editorEnabled: boolean = false;
 	#pendingReload: boolean = false;
@@ -47,6 +50,7 @@ export class Device
 	{
 		this.#frameUrl = options.frameUrl;
 		this.#editorFrameWrapper = options.editorFrameWrapper;
+		this.#options = options;
 		this.#registerListeners(options);
 		this.#buildPreview(options);
 
@@ -185,6 +189,41 @@ export class Device
 		return Devices.devices[deviceCode];
 	}
 
+	#getPreviewNode(): HTMLDivElement
+	{
+		if (!this.#previewLoader)
+		{
+			Loc.loadMessages(this.#options.messages);
+
+			this.#previewLoader = Tag.render`
+				<div class="landing-device-loader">
+					<div class="landing-device-loader-icon"></div>
+					<div class="landing-device-loader-text">${Loc.getMessage('LANDING_TPL_PREVIEW_LOADING')}</div>
+				</div>
+			`;
+		}
+
+		return this.#previewLoader;
+	}
+
+	#setPreview(target: HTMLElement)
+	{
+		if (!target)
+		{
+			return;
+		}
+
+		Dom.append(this.#getPreviewNode(), target)
+	}
+
+	#removePreview()
+	{
+		Dom.addClass(this.#getPreviewNode(), '--hide');
+		Event.bind(this.#getPreviewNode(), 'transitionend', () => {
+			Dom.remove(this.#getPreviewNode());
+		});
+	}
+
 	/**
 	 * Sets new device.
 	 *
@@ -211,6 +250,8 @@ export class Device
 		this.#previewElement.querySelector('[data-role="device-orientation"]').innerHTML = localStorage.getItem('deviceOrientation');
 		const frame = this.#previewElement.querySelector('[data-role="landing-device-preview-iframe"]');
 		const frameWrapper = this.#previewElement.querySelector('[data-role="landing-device-preview"]');
+
+		frame.onload = () => this.#removePreview();
 
 		// scale for device
 		if (frame
@@ -305,6 +346,7 @@ export class Device
 	#showPreview()
 	{
 		Dom.show(this.#previewElement);
+		this.#setPreview(this.#previewElement);
 	}
 
 	/**

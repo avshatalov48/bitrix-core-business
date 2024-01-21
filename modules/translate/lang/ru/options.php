@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TRANS_RESTRICTED_FOLDERS"] = "Ограничить области перевода (пути к папкам через запятую)";
 $MESS["MAIN_RESTORE_DEFAULTS"] = "По умолчанию";
 $MESS["TRANS_SHOW_BUTTON_LANG_FILES"] = "Добавить на панель инструментов кнопку \"Выводить языковые файлы\"";
@@ -11,4 +11,3 @@ $MESS["TRANS_EXPORT_CSV_DELIMITER_SEMICOLON"] = "Точка с запятой";
 $MESS["TRANS_EXPORT_CSV_DELIMITER_COMMA"] = "Запятая";
 $MESS["TRANS_EXPORT_CSV_DELIMITER_TABULATION"] = "Табуляция";
 $MESS["TRANS_EXPORT_FOLDER"] = "Папка для экспортируемых файлов (например \"upload/translate/export/\")";
-?>

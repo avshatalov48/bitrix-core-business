@@ -94,7 +94,20 @@ class HardwareManager extends EventEmitter
 
 	get defaultMicrophone()
 	{
-		const microphoneId = localStorage ? localStorage.getItem(lsKey.defaultMicrophone) : '';
+		let microphoneId = localStorage ? localStorage.getItem(lsKey.defaultMicrophone) : '';
+		
+		if (
+			(!microphoneId || !this.microphoneList[microphoneId])
+			&& Object.keys(this.microphoneList).length
+		)
+		{
+			microphoneId = Object.keys(this.microphoneList).includes('default')
+				? this.getDefaultDeviceIdByGroupId(this.getDeviceGroupIdByDeviceId('default', 'audioinput'), 'audioinput')
+				: Object.keys(this.microphoneList)[0]
+			;
+
+			return  microphoneId;
+		}
 		return this.microphoneList[microphoneId] ? microphoneId : '';
 	}
 
@@ -122,7 +135,20 @@ class HardwareManager extends EventEmitter
 
 	get defaultSpeaker()
 	{
-		const speakerId = localStorage ? localStorage.getItem(lsKey.defaultSpeaker) : '';
+		let speakerId = localStorage ? localStorage.getItem(lsKey.defaultSpeaker) : '';
+
+		if (
+			(!speakerId || this.audioOutputList[speakerId])
+			&& Object.keys(this.audioOutputList).length
+		)
+		{
+			speakerId = Object.keys(this.audioOutputList).includes('default')
+				? this.getDefaultDeviceIdByGroupId(this.getDeviceGroupIdByDeviceId('default', 'audiooutput'), 'audiooutput')
+				: Object.keys(this.audioOutputList)[0]
+			;
+
+			return  speakerId;
+		}
 		return this.audioOutputList[speakerId] ? speakerId : '';
 	}
 
@@ -199,7 +225,9 @@ class HardwareManager extends EventEmitter
 			throw new Error("HardwareManager is not initialized yet");
 		}
 
-		return Object.values(this._currentDeviceList).filter(deviceInfo => deviceInfo.kind == "audioinput")
+		return Object.values(this._currentDeviceList).filter(deviceInfo => (
+			deviceInfo.kind === "audioinput" && deviceInfo.deviceId !== 'default'
+		));
 	}
 
 	getCameraList()
@@ -219,7 +247,9 @@ class HardwareManager extends EventEmitter
 			throw new Error("HardwareManager is not initialized yet");
 		}
 
-		return Object.values(this._currentDeviceList).filter(deviceInfo => deviceInfo.kind == "audiooutput")
+		return Object.values(this._currentDeviceList).filter(deviceInfo => (
+			deviceInfo.kind === "audiooutput" && deviceInfo.deviceId !== 'default'
+		));
 	}
 
 	canSelectSpeaker()
@@ -244,7 +274,11 @@ class HardwareManager extends EventEmitter
 			devices = this.filterDeviceList(devices);
 			devices.forEach(deviceInfo =>
 			{
-				const index = removedDevices.findIndex(dev => dev.kind === deviceInfo.kind && dev.deviceId === deviceInfo.deviceId)
+				const index = removedDevices.findIndex(dev => (
+					dev.kind === deviceInfo.kind
+					&& dev.deviceId === deviceInfo.deviceId
+					&& dev.groupId === deviceInfo.groupId
+				))
 				if (index != -1)
 				{
 					// device found in previous version
@@ -276,13 +310,34 @@ class HardwareManager extends EventEmitter
 			switch (device.kind)
 			{
 				case "audioinput":
-					return device.deviceId !== "default" && device.deviceId !== "communications";
+					return device.deviceId !== "communications" && !this.isDeviceInBlackList(device);
 				case "audiooutput":
-					return device.deviceId !== "default";
+					return device.deviceId !== "communications" && !this.isDeviceInBlackList(device);
 				default:
 					return true;
 			}
 		})
+	}
+
+	isDeviceInBlackList(device)
+	{
+		const deviceBlackList = [
+			'(virtual)',
+			'zoomaudiodevice',
+			'microsoft teams audio',
+			'bitrixaudio',
+		];
+		let result = false;
+
+		deviceBlackList.forEach(item => {
+			if (device.label.toLowerCase().includes(item))
+			{
+				result = true;
+				return false;
+			}
+		});
+
+		return result;
 	}
 
 	onNavigatorDeviceChanged(e)
@@ -311,6 +366,67 @@ class HardwareManager extends EventEmitter
 		}
 
 		return result;
+	}
+
+	getDefaultDeviceIdByGroupId(groupId, deviceKind)
+	{
+		let deviceId;
+
+		this._currentDeviceList.forEach(device => {
+			if (
+				device.groupId === groupId
+				&& device.deviceId !== 'default'
+				&& device.kind === deviceKind
+			)
+			{
+				deviceId = device.deviceId;
+				return false;
+			}
+		});
+
+		return deviceId;
+	}
+
+	getDeviceGroupIdByDeviceId(deviceId, deviceKind)
+	{
+		let groupId;
+
+		this._currentDeviceList.forEach(device => {
+			if (device.deviceId === deviceId && device.kind === deviceKind)
+			{
+				groupId = device.groupId;
+				return false;
+			}
+		});
+
+		return groupId;
+	}
+
+	removeDevicesByDefaultGroup(devices)
+	{
+		let resultDeviceList = devices;
+
+		devices.forEach(device => {
+			if (device.deviceId === 'default')
+			{
+				resultDeviceList = resultDeviceList.filter(item => (
+					item.kind !== device.kind
+					|| item.groupId !== device.groupId
+				));
+			}
+		});
+
+		return resultDeviceList;
+	}
+
+	getCurrentDeviceList()
+	{
+		return new Promise((resolve, reject) => {
+			this.enumerateDevices().then(deviceList => {
+				this._currentDeviceList = this.filterDeviceList(deviceList);
+				resolve();
+			})
+		});
 	}
 }
 

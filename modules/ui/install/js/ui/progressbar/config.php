@@ -1,11 +1,11 @@
-<?
+<?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 return [
-	'css' => 'ui.progressbar.css',
+	'css' => 'dist/progressbar.bundle.css',
 	'js' => 'dist/progressbar.bundle.js',
 	'rel' => [
 		'main.core',

@@ -3,7 +3,10 @@
 use Bitrix\Fileman\UserField\Types\AddressType;
 use Bitrix\Main\Text\HtmlFilter;
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @var AddressUfComponent $component
@@ -56,11 +59,13 @@ $wrapperId = 'address-wrapper-' . $arResult['userField']['ID'] . '_' . $randStri
 	BX.ready(function(){
 		var addressData = <?= CUtil::PhpToJSObject($arResult['value']) ?>;
 		var wrapperId = <?= CUtil::PhpToJSObject($wrapperId) ?>;
+		const fieldName = <?= CUtil::PhpToJSObject($arResult['fieldName']) ?>;
 
 		BX.Runtime.loadExtension('fileman.userfield.address_widget').then(function (){
 			BX.Fileman.UserField.AddressField.init({
-				wrapperId: wrapperId,
-				addressData: addressData,
+				wrapperId,
+				addressData,
+				fieldName,
 				mode: BX.Fileman.UserField.AddressField.VIEW_MODE,
 			});
 		});

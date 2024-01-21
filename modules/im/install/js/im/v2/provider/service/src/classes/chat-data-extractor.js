@@ -1,4 +1,4 @@
-import { DialogType } from 'im.v2.const';
+import { ChatType } from 'im.v2.const';
 import { UserManager } from 'im.v2.lib.user';
 
 import type {
@@ -33,7 +33,7 @@ export class ChatDataExtractor
 
 	isOpenlinesChat(): boolean
 	{
-		return this.#restResult.chat.type === DialogType.lines;
+		return this.#restResult.chat.type === ChatType.lines;
 	}
 
 	getChats(): RawChat[]

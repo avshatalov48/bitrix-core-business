@@ -13,7 +13,7 @@ export class FacebookLogin extends Login
 		BX.SidePanel.Instance.open('seo-fbe-install',{
 			contentCallback: slider => {
 					return BX.UI.SidePanel.Layout.createContent({
-					title: Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE'),
+					title: Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE_MSGVER_1'),
 					extensions:['seo.ads.login', 'ui.forms'],
 					design:{ section: false },
 					content()
@@ -53,7 +53,7 @@ export class FacebookLogin extends Login
 					},
 				});
 			},
-			title: Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE'),
+			title: Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE_MSGVER_1'),
 			width: (BX.SidePanel.Instance.getTopSlider()?.getWidth() ?? 850),
 			cacheable: false
 		});

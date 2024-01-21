@@ -10,76 +10,108 @@ class CPerfomanceSQL extends CAllPerfomanceSQL
 	public static function _console_explain($strSQL)
 	{
 		global $DB;
-		$rs = $DB->Query("explain ".$strSQL);
-		$arResult = array();
+		$rs = $DB->Query('explain ' . $strSQL);
+		$arResult = [];
 		while ($ar = $rs->Fetch())
+		{
 			$arResult[] = $ar;
+		}
 
-		$arColumnW = array();
-		$arColumns = array('id', 'select_type', 'table', 'type', 'possible_keys', 'key_len', 'ref', 'rows', 'Extra');
+		$arColumnW = [];
+		$arColumns = ['id', 'select_type', 'table', 'type', 'possible_keys', 'key_len', 'ref', 'rows', 'Extra'];
 		foreach ($arColumns as $name)
+		{
 			$arColumnW[$name] = mb_strlen($name);
+		}
 
 		foreach ($arResult as $i => $ar)
 		{
 			foreach ($arColumns as $name)
 			{
-				if ($name == 'possible_keys')
+				if ($name === 'possible_keys')
 				{
 					$l = 0;
 					$arResult[$i][$name] = explode(',', $ar[$name]);
 					foreach ($arResult[$i][$name] as $j => $key)
-						if ($arResult[$i]['key'] == $key && $key != '')
-							$arResult[$i][$name][$j] = '*'.$arResult[$i][$name][$j];
+					{
+						if ($arResult[$i]['key'] === $key && $key !== '')
+						{
+							$arResult[$i][$name][$j] = '*' . $arResult[$i][$name][$j];
+						}
 						else
-							$arResult[$i][$name][$j] = ' '.$arResult[$i][$name][$j];
+						{
+							$arResult[$i][$name][$j] = ' ' . $arResult[$i][$name][$j];
+						}
+					}
 
 					foreach ($arResult[$i][$name] as $key)
+					{
 						if (mb_strlen($key) > $l)
+						{
 							$l = mb_strlen($key);
+						}
+					}
 
 					if ($arColumnW[$name] < $l)
+					{
 						$arColumnW[$name] = $l;
+					}
 				}
-				elseif ($name == 'Extra')
+				elseif ($name === 'Extra')
 				{
 					$l = 0;
 					$arResult[$i][$name] = array_map('trim', explode(';', $ar[$name]));
 					foreach ($arResult[$i][$name] as $key)
+					{
 						if (mb_strlen($key) > $l)
+						{
 							$l = mb_strlen($key);
+						}
+					}
 
 					if ($arColumnW[$name] < $l)
+					{
 						$arColumnW[$name] = $l;
+					}
 				}
 				elseif ($arColumnW[$name] < mb_strlen($ar[$name]))
+				{
 					$arColumnW[$name] = mb_strlen($ar[$name]);
+				}
 			}
 		}
 
-		$arTable = array();
+		$arTable = [];
 
-		$arTable['headers'] = array();
+		$arTable['headers'] = [];
 		foreach ($arColumns as $name)
+		{
 			$arTable['headers'][] = str_pad($name, $arColumnW[$name], ' ', STR_PAD_RIGHT);
+		}
 
-		$arTable['delim'] = array();
+		$arTable['delim'] = [];
 		foreach ($arColumns as $name)
+		{
 			$arTable['delim'][] = str_repeat('-', $arColumnW[$name]);
+		}
 
 		$i = 0;
 		$j = 0;
 		while ($i < count($arResult))
 		{
-			$arTable[$j] = array();
+			$arTable[$j] = [];
 			$bNext = true;
 
 			foreach ($arColumns as $name)
 			{
-				if ($name == 'key_len' || $name == 'rows')
+				if ($name === 'key_len' || $name === 'rows')
+				{
 					$pad = STR_PAD_LEFT;
+				}
 				else
+				{
 					$pad = STR_PAD_RIGHT;
+				}
 
 				if (is_array($arResult[$i][$name]))
 				{
@@ -102,14 +134,18 @@ class CPerfomanceSQL extends CAllPerfomanceSQL
 			}
 
 			if ($bNext)
+			{
 				$i++;
+			}
 			$j++;
 		}
 
-		$result = $strSQL."\n";
+		$result = $strSQL . "\n";
 		foreach ($arTable as $row)
-			$result .= implode('|', $row)."\n";
-		$result .= implode('-', $arTable['delim'])."\n\n";
+		{
+			$result .= implode('|', $row) . "\n";
+		}
+		$result .= implode('-', $arTable['delim']) . "\n\n";
 
 		return $result;
 	}
@@ -117,11 +153,15 @@ class CPerfomanceSQL extends CAllPerfomanceSQL
 	public static function Clear()
 	{
 		global $DB;
-		$res = $DB->Query("TRUNCATE TABLE b_perf_sql_backtrace");
+		$res = $DB->Query('TRUNCATE TABLE b_perf_sql_backtrace');
 		if ($res)
-			$res = $DB->Query("TRUNCATE TABLE b_perf_index_suggest_sql");
+		{
+			$res = $DB->Query('TRUNCATE TABLE b_perf_index_suggest_sql');
+		}
 		if ($res)
-			$res = $DB->Query("TRUNCATE TABLE b_perf_sql");
+		{
+			$res = $DB->Query('TRUNCATE TABLE b_perf_sql');
+		}
 		return $res;
 	}
 }

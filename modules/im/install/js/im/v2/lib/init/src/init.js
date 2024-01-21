@@ -10,6 +10,7 @@ import { MarketManager } from 'im.v2.lib.market';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { PromoManager } from 'im.v2.lib.promo';
 import { PermissionManager } from 'im.v2.lib.permission';
+import { UpdateStateManager } from 'im.v2.lib.update-state.manager';
 
 export class InitManager
 {
@@ -36,6 +37,7 @@ export class InitManager
 		SmileManager.init();
 		NotifierManager.init();
 		DesktopManager.init();
+		UpdateStateManager.init();
 
 		this.#started = true;
 	}

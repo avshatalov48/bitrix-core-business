@@ -35,11 +35,15 @@
 }
 
 .ui-label.sonet-ui-grid-request.--request-green {
-	border-color: #2FC6F6 !important;
+	border-color: #9dcf00 !important;
 }
 
 .ui-label.sonet-ui-grid-request.--request-yellow {
 	border-color: #F7A700 !important;
+}
+
+.ui-label.sonet-ui-grid-request.--request-red {
+	border-color: #f54819 !important;
 }
 
 .ui-label.sonet-ui-grid-join {

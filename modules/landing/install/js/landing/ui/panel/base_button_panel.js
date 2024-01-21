@@ -18,7 +18,10 @@
 	BX.Landing.UI.Panel.BaseButtonPanel = function(id, className)
 	{
 		BX.Landing.UI.Panel.BasePanel.apply(this, arguments);
-		this.layout.classList.add(className);
+		if (className)
+		{
+			this.layout.classList.add(className);
+		}
 		this.buttons = new BX.Landing.UI.Collection.ButtonCollection();
 	};
 

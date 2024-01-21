@@ -1,6 +1,6 @@
-import {Type} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {DragStartSensorEvent} from './events/drag.start.sensor.event';
+import { Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { DragStartSensorEvent } from './events/drag.start.sensor.event';
 
 export default class Sensor extends EventEmitter
 {
@@ -14,10 +14,10 @@ export default class Sensor extends EventEmitter
 		super();
 		this.setEventNamespace('BX.UI.DragAndDrop.Draggable.Sensor');
 
-		const {dropzone} = options;
+		const { dropzone } = options;
 		this.containers = Type.isArray(container) ? [...container] : [container];
 		this.dropzones = Type.isArrayLike(dropzone) ? [...dropzone] : [dropzone];
-		this.options = {delay: 0, ...options};
+		this.options = { delay: 0, ...options };
 	}
 
 	getDocument(): HTMLDocument
@@ -97,7 +97,8 @@ export default class Sensor extends EventEmitter
 	{
 		if (child)
 		{
-			const {dragElement} = this.options;
+			const { dragElement } = this.options;
+
 			return child.closest(dragElement) || null;
 		}
 

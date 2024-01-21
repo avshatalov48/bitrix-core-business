@@ -2,6 +2,8 @@
 
 namespace Bitrix\Bizproc\Workflow\Entity;
 
+use Bitrix\Bizproc\Workflow\Task\TaskTable;
+use Bitrix\Bizproc\Workflow\WorkflowState;
 use Bitrix\Main;
 use Bitrix\Main\Entity;
 
@@ -16,9 +18,9 @@ use Bitrix\Main\Entity;
  * @method static EO_WorkflowState_Result getById($id)
  * @method static EO_WorkflowState_Result getList(array $parameters = [])
  * @method static EO_WorkflowState_Entity getEntity()
- * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\WorkflowState createObject($setDefaultValues = true)
  * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection createCollection()
- * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\WorkflowState wakeUpObject($row)
  * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection wakeUpCollection($rows)
  */
 class WorkflowStateTable extends Entity\DataManager
@@ -32,70 +34,83 @@ class WorkflowStateTable extends Entity\DataManager
 	}
 
 	/**
+	 * @return string
+	 */
+	public static function getObjectClass()
+	{
+		return WorkflowState::class;
+	}
+
+	/**
 	 * @return array
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'string',
 				'primary' => true,
-			),
-			'MODULE_ID' => array(
-				'data_type' => 'string'
-			),
-			'ENTITY' => array(
-				'data_type' => 'string'
-			),
-			'DOCUMENT_ID' => array(
-				'data_type' => 'string'
-			),
-			'DOCUMENT_ID_INT' => array(
-				'data_type' => 'integer'
-			),
-			'WORKFLOW_TEMPLATE_ID' => array(
-				'data_type' => 'integer'
-			),
-			'STATE' => array(
-				'data_type' => 'string'
-			),
-			'STATE_TITLE' => array(
-				'data_type' => 'string'
-			),
-			'STATE_PARAMETERS' => array(
-				'data_type' => 'string'
-			),
-			'MODIFIED' => array(
-				'data_type' => 'datetime'
-			),
-			'STARTED' => array(
-				'data_type' => 'datetime'
-			),
-			'STARTED_BY' => array(
-				'data_type' => 'integer'
-			),
-			'STARTED_USER' => array(
+			],
+			'MODULE_ID' => [
+				'data_type' => 'string',
+			],
+			'ENTITY' => [
+				'data_type' => 'string',
+			],
+			'DOCUMENT_ID' => [
+				'data_type' => 'string',
+			],
+			'DOCUMENT_ID_INT' => [
+				'data_type' => 'integer',
+			],
+			'WORKFLOW_TEMPLATE_ID' => [
+				'data_type' => 'integer',
+			],
+			'STATE' => [
+				'data_type' => 'string',
+			],
+			'STATE_TITLE' => [
+				'data_type' => 'string',
+			],
+			'STATE_PARAMETERS' => [
+				'data_type' => 'string',
+			],
+			'MODIFIED' => [
+				'data_type' => 'datetime',
+			],
+			'STARTED' => [
+				'data_type' => 'datetime',
+			],
+			'STARTED_BY' => [
+				'data_type' => 'integer',
+			],
+			'STARTED_USER' => [
 				'data_type' => '\Bitrix\Main\UserTable',
-				'reference' => array(
-					'=this.STARTED_BY' => 'ref.ID'
-				),
+				'reference' => [
+					'=this.STARTED_BY' => 'ref.ID',
+				],
 				'join_type' => 'LEFT',
-			),
-			'INSTANCE' => array(
+			],
+			'INSTANCE' => [
 				'data_type' => '\Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable',
-				'reference' => array(
-					'=this.ID' => 'ref.ID'
-				),
+				'reference' => [
+					'=this.ID' => 'ref.ID',
+				],
 				'join_type' => 'LEFT',
-			),
-			'TEMPLATE' => array(
+			],
+			'TEMPLATE' => [
 				'data_type' => '\Bitrix\Bizproc\WorkflowTemplateTable',
-				'reference' => array(
-					'=this.WORKFLOW_TEMPLATE_ID' => 'ref.ID'
-				),
-				'join_type' => 'LEFT'
+				'reference' => [
+					'=this.WORKFLOW_TEMPLATE_ID' => 'ref.ID',
+				],
+				'join_type' => 'LEFT',
+			],
+			new Main\ORM\Fields\Relations\OneToMany(
+				'TASKS',
+				TaskTable::class,
+				'WORKFLOW_STATE'
 			),
-		);
+		];
 	}
 
 	public static function getIdsByDocument(array $documentId)

@@ -1,0 +1,86 @@
+.bx-im-list-container-copilot__scope {
+	--im-list-container-copilot__background-color: var(--im-color-palette-white-base);
+	--im-list-container-copilot__background-color_separator: rgba(var(--im-color-palette-gray-90-rgb), 0.08);
+	--im-list-container-copilot__background-color_create-chat: rgba(142, 82, 236, 0.12);
+	--im-list-container-copilot__background-color_create-chat-hover: rgba(142, 82, 236, 0.2);
+	--im-list-container-copilot__font-color_header-title: var(--im-color-palette-black-base);
+}
+
+.bx-im-list-container-copilot__container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--im-list-container-copilot__background-color);
+}
+
+/* Header */
+.bx-im-list-container-copilot__header_container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: var(--im-space-inset-md) 13px 14px 13px;
+	border-bottom: 1px solid var(--im-list-container-copilot__background-color_separator);
+}
+
+.bx-im-list-container-copilot__header_title {
+	flex: 1;
+	font: var(--im-font-size-2xl) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-list-container-copilot__font-color_header-title);
+}
+
+.bx-im-list-container-copilot__create-chat {
+	flex-shrink: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 44px;
+	height: 34px;
+	border-radius: 80px;
+	background-color: var(--im-list-container-copilot__background-color_create-chat);
+	cursor: pointer;
+}
+
+.bx-im-list-container-copilot__create-chat:hover {
+	background-color: var(--im-list-container-copilot__background-color_create-chat-hover);
+}
+
+.bx-im-list-container-copilot__create-chat_icon {
+	width: 24px;
+	height: 24px;
+	background-image: url('./images/plus.svg');
+}
+
+.bx-im-list-container-copilot__create-chat.--loading .bx-im-list-container-copilot__create-chat_icon {
+	width: 22px;
+	height: 22px;
+	background-image: url('./images/spinner.svg');
+	animation: imRotate360 .8s linear infinite;
+}
+/* End Header */
+
+/* Recent list */
+.bx-im-list-container-copilot__elements_container {
+	flex: 1 0 auto;
+	position: relative;
+	padding-top: 1px;
+}
+
+.bx-im-list-container-copilot__elements {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: var(--im-list-container-copilot__background-color);
+}
+/* End Recent list */
+
+@keyframes imRotate360 {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

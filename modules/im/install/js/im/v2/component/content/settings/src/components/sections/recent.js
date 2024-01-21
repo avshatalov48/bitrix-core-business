@@ -55,22 +55,24 @@ export const RecentSection = {
 		},
 	},
 	template: `
-		<div class="bx-im-settings-section-content__block">
-			<CheckboxOption
-				:value="showBirthday"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY')"
-				@change="onShowBirthdayChange"
-			/>
-			<CheckboxOption
-				:value="showInvited"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED')"
-				@change="onShowInvitedChange"
-			/>
-			<CheckboxOption
-				:value="showLastMessage"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT')"
-				@change="onShowLastMessageChange"
-			/>
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<CheckboxOption
+					:value="showBirthday"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY')"
+					@change="onShowBirthdayChange"
+				/>
+				<CheckboxOption
+					:value="showInvited"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED')"
+					@change="onShowInvitedChange"
+				/>
+				<CheckboxOption
+					:value="showLastMessage"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT')"
+					@change="onShowLastMessageChange"
+				/>
+			</div>
 		</div>
 	`,
 };

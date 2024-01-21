@@ -91,6 +91,15 @@ class FieldType
 	 */
 	public const RENDER_MODE_PUBLIC = 8;
 
+	/**
+	 * Control render mode - Native mobile controls
+	 */
+	public const RENDER_MODE_JN_MOBILE = 16;
+
+	public const VALUE_CONTEXT_DOCUMENT = 'Document';
+	public const VALUE_CONTEXT_REST = 'rest';
+	public const VALUE_CONTEXT_JN_MOBILE = 'jn_mobile';
+
 	/** @var \Bitrix\Bizproc\BaseType\Base $typeClass */
 	protected $typeClass;
 
@@ -539,6 +548,7 @@ class FieldType
 	public static function normalizeProperty($property)
 	{
 		$normalized = [
+			'Id' => null,
 			'Type' => null,
 
 			'Name' => null,
@@ -552,57 +562,50 @@ class FieldType
 			'Default' => null,
 		];
 
-		if (is_array($property))
-		{
-			foreach ($property as $key => $val)
-			{
-				switch(mb_strtoupper($key))
-				{
-					case 'TYPE':
-					case '0':
-						$normalized['Type'] = (string)$val;
-						break;
-					case 'MULTIPLE':
-					case '1':
-						$normalized['Multiple'] = \CBPHelper::getBool($val);
-						break;
-					case 'REQUIRED':
-					case '2':
-						$normalized['Required'] = \CBPHelper::getBool($val);
-						break;
-					case 'OPTIONS':
-					case '3':
-						$normalized['Options'] = is_array($val)? $val : (string)$val;
-						break;
-					case 'SETTINGS':
-						{
-							if(is_array($val))
-							{
-								$normalized['Settings'] = $val;
-							}
-						}
-						break;
-					case 'NAME':
-						{
-							$normalized['Name'] = (string)$val;
-						}
-						break;
-					case 'DESCRIPTION':
-						{
-							$normalized['Description'] = (string)$val;
-						}
-						break;
-					case 'DEFAULT':
-						{
-							$normalized['Default'] = $val;
-						}
-						break;
-				}
-			}
-		}
-		else
+		if (!is_array($property))
 		{
 			$normalized['Type'] = (string) $property;
+
+			return $normalized;
+		}
+
+		foreach ($property as $key => $val)
+		{
+			switch(mb_strtoupper($key))
+			{
+				case 'TYPE':
+				case '0':
+					$normalized['Type'] = (string)$val;
+					break;
+				case 'MULTIPLE':
+				case '1':
+					$normalized['Multiple'] = \CBPHelper::getBool($val);
+					break;
+				case 'REQUIRED':
+				case '2':
+					$normalized['Required'] = \CBPHelper::getBool($val);
+					break;
+				case 'OPTIONS':
+				case '3':
+					$normalized['Options'] = is_array($val)? $val : (string)$val;
+					break;
+				case 'SETTINGS':
+					$normalized['Settings'] = is_array($val) ? $val : null;
+					break;
+				case 'ID':
+					$normalized['Id'] = (string)$val;
+					break;
+				case 'NAME':
+				case 'TITLE':
+					$normalized['Name'] = (string)$val;
+					break;
+				case 'DESCRIPTION':
+					$normalized['Description'] = (string)$val;
+					break;
+				case 'DEFAULT':
+					$normalized['Default'] = $val;
+					break;
+			}
 		}
 
 		return $normalized;
@@ -629,5 +632,12 @@ class FieldType
 	public function getValue()
 	{
 		return $this->property['Default'];
+	}
+
+	public function convertPropertyToView(int $viewMode): array
+	{
+		$typeClass = $this->typeClass;
+
+		return $typeClass::convertPropertyToView($this, $viewMode, $this->getProperty());
 	}
 }

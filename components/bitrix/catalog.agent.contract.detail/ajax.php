@@ -22,7 +22,7 @@ if ($request->isAjaxRequest())
 	$request->addFilter(new Main\Web\PostDecodeFilter());
 }
 
-if (!$request->isPost() || !check_bitrix_sessid())
+if (!$request->isPost() || !check_bitrix_sessid() || !Catalog\v2\AgentContract\AccessController::check())
 {
 	return;
 }

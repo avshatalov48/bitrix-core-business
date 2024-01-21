@@ -34,6 +34,8 @@ BX.UserContentView = {
 	failedAjaxLimit: 10,
 
 	preventRead: false,
+
+	viewedContentKey: 'viewedContentV2',
 };
 
 BX.UserContentView.clear = function()
@@ -95,7 +97,7 @@ BX.UserContentView.init = function(params)
 
 	if (BX.browser.SupportLocalStorage())
 	{
-		var viewedContent = BX.localStorage.get('viewedContent');
+		var viewedContent = BX.localStorage.get(this.viewedContentKey);
 		if (BX.type.isArray(viewedContent))
 		{
 			this.viewAreaSentList = viewedContent;
@@ -234,7 +236,7 @@ BX.UserContentView.success = function(data)
 		}
 		if (BX.browser.SupportLocalStorage())
 		{
-			BX.localStorage.set('viewedContent', this.viewAreaSentList, 86400);
+			BX.localStorage.set(this.viewedContentKey, this.viewAreaSentList, 86400);
 		}
 	}
 };

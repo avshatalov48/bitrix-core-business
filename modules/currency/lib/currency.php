@@ -34,9 +34,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Currency_Query query()
- * @method static EO_Currency_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Currency_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Currency_Result getById($id)
- * @method static EO_Currency_Result getList(array $parameters = array())
+ * @method static EO_Currency_Result getList(array $parameters = [])
  * @method static EO_Currency_Entity getEntity()
  * @method static \Bitrix\Currency\EO_Currency createObject($setDefaultValues = true)
  * @method static \Bitrix\Currency\EO_Currency_Collection createCollection()

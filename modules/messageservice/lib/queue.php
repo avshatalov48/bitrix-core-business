@@ -13,20 +13,27 @@ use Bitrix\MessageService\Sender\Result\SendMessage;
 use Bitrix\MessageService\Sender\SmsManager;
 use Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(__FILE__);
 
 class Queue
 {
 	public const EVENT_SEND_RESULT = 'messageSendResult';
 
-	private static function hasMessages()
+	public static function hasMessages(): bool
 	{
-		$connection = Application::getConnection();
-		$now = date('Y-m-d H:i:s');
+		$result = MessageTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=SUCCESS_EXEC' => 'N',
+				[
+					'LOGIC' => 'OR',
+					'<NEXT_EXEC' => new DateTime(),
+					'=NEXT_EXEC' => null,
+				]
+			],
+			'limit' => 1,
+		]);
 
-		$queryString = 'SELECT 1 FROM b_messageservice_message WHERE SUCCESS_EXEC=\'N\' AND (NEXT_EXEC < \''
-			.$now.'\' OR NEXT_EXEC IS NULL) LIMIT 1';
-		return is_array($connection->query($queryString)->fetch());
+		return !empty($result->fetch());
 	}
 
 	/**
@@ -51,16 +58,13 @@ class Queue
 			return "";
 		}
 
-		Application::getInstance()->addBackgroundJob([get_called_class(), "sendMessages"]);
+		Application::getInstance()->addBackgroundJob([static::class, "sendMessages"]);
 
 		return "";
 	}
 
 	/**
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public static function sendMessages()
 	{
@@ -112,7 +116,7 @@ class Queue
 
 		if (defined('BX_CLUSTER_GROUP'))
 		{
-			$query->where('CLUSTER_GROUP', BX_CLUSTER_GROUP);
+			$query->where('CLUSTER_GROUP', \BX_CLUSTER_GROUP);
 		}
 		$messageFieldsList = $query->fetchAll();
 
@@ -177,6 +181,7 @@ class Queue
 		}
 
 		Application::getConnection()->unlock($lockTag);
+
 		return null;
 	}
 
@@ -207,11 +212,11 @@ class Queue
 			$sendResult = new SendMessage();
 			$sendResult->addError(new Error(Loc::getMessage("MESSAGESERVICE_QUEUE_MESSAGE_TYPE_ERROR")));
 		}
+
 		EventManager::getInstance()->send(new Event("messageservice", static::EVENT_SEND_RESULT, [
 			'message' => $messageFields,
 			'sendResult' => $sendResult,
 		]));
-
 
 		return $sendResult;
 	}
@@ -242,9 +247,8 @@ class Queue
 
 	/**
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
-	public static function cleanUpAgent()
+	public static function cleanUpAgent(): string
 	{
 		$period = abs(intval(Config\Option::get("messageservice", "clean_up_period", 14)));
 		$periodInSeconds = $period * 24 * 3600;
@@ -253,10 +257,9 @@ class Queue
 		{
 			$connection = \Bitrix\Main\Application::getConnection();
 			$datetime = $connection->getSqlHelper()->addSecondsToDateTime('-' . $periodInSeconds);
-
-			$strSql = "DELETE FROM b_messageservice_message WHERE DATE_EXEC <= " . $datetime ;
-			$connection->query($strSql);
+			$connection->queryExecute("DELETE FROM b_messageservice_message WHERE DATE_EXEC <= {$datetime}");
 		}
-		return "\Bitrix\MessageService\Queue::cleanUpAgent();";
+
+		return __METHOD__.'();';
 	}
 }

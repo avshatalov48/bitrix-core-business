@@ -51,19 +51,19 @@ if (!empty($arResult['GRID_DATA']))
 	// view mode
 	if ($arResult['ACTION'] === \TranslateListComponent::ACTION_SEARCH_PHRASE)
 	{
-		$highlightSearchedCode = $arResult['HIGHLIGHT_SEARCHED_CODE'];
-		$highlightSearchedPhrase = $arResult['HIGHLIGHT_SEARCHED_PHRASE'];
+		$highlightSearchedCode = $arResult['HIGHLIGHT_SEARCHED_CODE'] ?? false;
+		$highlightSearchedPhrase = $arResult['HIGHLIGHT_SEARCHED_PHRASE'] ?? false;
 	}
 	else
 	{
-		$showCountPhrases = $arParams['SHOW_COUNT_PHRASES'];
-		$showCountFiles = $arParams['SHOW_COUNT_FILES'];
-		$showUntranslatedPhrases = $arParams['SHOW_UNTRANSLATED_PHRASES'];
-		$showUntranslatedFiles = $arParams['SHOW_UNTRANSLATED_FILES'];
+		$showCountPhrases = $arParams['SHOW_COUNT_PHRASES'] ?? false;
+		$showCountFiles = $arParams['SHOW_COUNT_FILES'] ?? false;
+		$showUntranslatedPhrases = $arParams['SHOW_UNTRANSLATED_PHRASES'] ?? false;
+		$showUntranslatedFiles = $arParams['SHOW_UNTRANSLATED_FILES'] ?? false;
 	}
 	if ($arResult['ACTION'] === \TranslateListComponent::ACTION_FILE_LIST)
 	{
-		$showDiffLinks = $arParams['SHOW_DIFF_LINKS'];
+		$showDiffLinks = $arParams['SHOW_DIFF_LINKS'] ?? false;
 	}
 
 	if ($showCountFiles)
@@ -241,11 +241,11 @@ if (!empty($arResult['GRID_DATA']))
 			$row['attrs']['data-path'] = str_replace('#LANG_ID#', $arParams['CURRENT_LANG'], $row['attrs']['data-path']);
 		}
 
-		if ($columns['IS_UP'] === true)
+		if (isset($columns['IS_UP']) && $columns['IS_UP'] === true)
 		{
 			$row['id'] = $columns['ID'] = 'p0';
 		}
-		elseif ($columns['IS_DIR'] === true)
+		elseif (isset($columns['IS_DIR']) && $columns['IS_DIR'] === true)
 		{
 			$row['id'] = $columns['ID'] = 'p'.($id ++);
 
@@ -291,7 +291,7 @@ if (!empty($arResult['GRID_DATA']))
 			}
 		}
 
-		if ($columns['IS_UP'] === true)
+		if (isset($columns['IS_UP']) && $columns['IS_UP'] === true)
 		{
 			$columns['TITLE'] =
 				'<a href="'.htmlspecialcharsbx($arParams['LIST_PATH']).
@@ -303,7 +303,7 @@ if (!empty($arResult['GRID_DATA']))
 					$iconDirUp. '..'.
 				'</a>';
 		}
-		elseif ($columns['IS_DIR'] === true)
+		elseif (isset($columns['IS_DIR']) && $columns['IS_DIR'] === true)
 		{
 			$columns['TITLE'] =
 				'<a href="'.htmlspecialcharsbx($arParams['LIST_PATH']).
@@ -343,7 +343,7 @@ if (!empty($arResult['GRID_DATA']))
 			;
 		}
 
-		if ($columns['IS_DIR'] === true)
+		if (isset($columns['IS_DIR']) && $columns['IS_DIR'] === true)
 		{
 			if (!isset($index))
 			{
@@ -503,7 +503,7 @@ if (!empty($arResult['GRID_DATA']))
 
 			}
 		}
-		elseif ($columns['IS_FILE'] === true)
+		elseif (isset($columns['IS_FILE']) && $columns['IS_FILE'] === true)
 		{
 			$ethalonExists = !empty($columns[mb_strtoupper($arParams['CURRENT_LANG']).'_LANG']);
 
@@ -535,7 +535,7 @@ if (!empty($arResult['GRID_DATA']))
 				{
 					if (empty($value) && $isObligatory)
 					{
-						if ($langId === $arParams['CURRENT_LANG'])
+						if (isset($arParams['CURRENT_LANG']) && $langId === $arParams['CURRENT_LANG'])
 						{
 							$columns[$columnId] = $formatIconWarning($dataEmptyEthalonTitle);
 						}
@@ -548,7 +548,7 @@ if (!empty($arResult['GRID_DATA']))
 							$columns[$columnId] = $formatIconError($dataEmptyTitle);
 						}
 					}
-					elseif ($langId === $arResult['PHRASE_SEARCH_LANGUAGE_ID'])
+					elseif (isset($arResult['PHRASE_SEARCH_LANGUAGE_ID']) && $langId === $arResult['PHRASE_SEARCH_LANGUAGE_ID'])
 					{
 						$columns[$columnId] =
 							$formatSearchedPhrase(

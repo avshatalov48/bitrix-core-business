@@ -4466,7 +4466,7 @@ foreach (array_keys($rawRows) as $rowId)
 	);
 	$elementCodeTranslitAction = array(
 		"ID" => "code_translit",
-		"TEXT" => GetMessage('IBLIST_A_CODE_TRANSLIT'),
+		"TEXT" => GetMessage('IBLIST_A_CODE_TRANSLIT_MSGVER_1'),
 		"TITLE" => GetMessage('IBLIST_A_CODE_TRANSLIT_ELEMENT_TITLE'),
 		"ACTION" => "if(confirm('".GetMessageJS("IBLIST_A_CODE_TRANSLIT_ELEMENT_CONFIRM")."')) ".$lAdmin->ActionDoGroup($itemType.$itemId, ActionType::CODE_TRANSLIT, $sThisSectionUrl),
 		"ONCLICK" => ""
@@ -4487,7 +4487,7 @@ foreach (array_keys($rawRows) as $rowId)
 			{
 				$arActions[] = array(
 					"ID" => "code_translit",
-					"TEXT" => GetMessage('IBLIST_A_CODE_TRANSLIT'),
+					"TEXT" => GetMessage('IBLIST_A_CODE_TRANSLIT_MSGVER_1'),
 					"TITLE" => GetMessage('IBLIST_A_CODE_TRANSLIT_SECTION_TITLE'),
 					"ACTION" => "if(confirm('".GetMessageJS("IBLIST_A_CODE_TRANSLIT_SECTION_CONFIRM")."')) ".$lAdmin->ActionDoGroup($itemType.$itemId, ActionType::CODE_TRANSLIT, $sThisSectionUrl),
 					"ONCLICK" => ""
@@ -4960,7 +4960,7 @@ if ($bCatalog)
 		if (isset($productTypeList[$arRows['E'.$intOneElemID]->arRes['CATALOG_TYPE']]))
 			$strProductType = $productTypeList[$arRows['E'.$intOneElemID]->arRes['CATALOG_TYPE']];
 		if ($arRows['E'.$intOneElemID]->arRes['CATALOG_BUNDLE'] == 'Y' && $boolCatalogSet)
-			$strProductType .= ('' != $strProductType ? ', ' : '').GetMessage('IBLIST_A_CATALOG_TYPE_MESS_GROUP');
+			$strProductType .= ('' != $strProductType ? ', ' : '').GetMessage('IBLIST_A_CATALOG_TYPE_MESS_GROUP_MSGVER_1');
 		$arRows['E'.$intOneElemID]->AddViewField('CATALOG_TYPE', $strProductType);
 	}
 	if (isset($intOneElemID))

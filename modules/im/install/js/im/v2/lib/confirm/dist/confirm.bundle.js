@@ -51,6 +51,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    secondButtonCaption: laterCaption
 	  });
 	};
+	const showDesktopDeleteConfirm = () => {
+	  const deleteText = main_core.Loc.getMessage('IM_LIB_CONFIRM_DELETE_DESKTOP').replace('#BR#', '<br>');
+	  const confirmCaption = main_core.Loc.getMessage('IM_LIB_CONFIRM_DELETE_DESKTOP_CONFIRM');
+	  return showTwoButtonConfirm({
+	    text: deleteText,
+	    firstButtonCaption: confirmCaption
+	  });
+	};
+	const showNotificationsModeSwitchConfirm = () => {
+	  const kickText = main_core.Loc.getMessage('IM_LIB_CONFIRM_SWITCH_NOTIFICATION_MODE');
+	  const yesCaption = main_core.Loc.getMessage('IM_LIB_CONFIRM_SWITCH_NOTIFICATION_MODE_YES');
+	  return showTwoButtonConfirm({
+	    text: kickText,
+	    firstButtonCaption: yesCaption
+	  });
+	};
 	const showTwoButtonConfirm = params => {
 	  const {
 	    text,
@@ -106,6 +122,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.showLeaveFromChatConfirm = showLeaveFromChatConfirm;
 	exports.showDesktopConfirm = showDesktopConfirm;
 	exports.showDesktopRestartConfirm = showDesktopRestartConfirm;
+	exports.showDesktopDeleteConfirm = showDesktopDeleteConfirm;
+	exports.showNotificationsModeSwitchConfirm = showNotificationsModeSwitchConfirm;
 
 }((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Main,BX.UI.Dialogs));
 //# sourceMappingURL=confirm.bundle.js.map

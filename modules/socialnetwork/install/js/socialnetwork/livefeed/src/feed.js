@@ -45,6 +45,11 @@ class Feed
 			PageInstance.setSignedParameters(params.signedParameters);
 		}
 
+		if (Type.isStringFilled(params.context))
+		{
+			PageInstance.setContext(params.context);
+		}
+
 		if (Type.isStringFilled(params.componentName))
 		{
 			PageInstance.setComponentName(params.componentName);

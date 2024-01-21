@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Sync\Office365;
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Core\Role\User;
 use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Connection;
@@ -16,6 +17,7 @@ use Bitrix\Calendar\Sync\Managers\OutgoingManager;
 use Bitrix\Calendar\Sync\Managers\StartSynchronization;
 use Bitrix\Calendar\Sync\Managers\VendorDataExchangeManager;
 use Bitrix\Calendar\Sync\Util\Result;
+use Bitrix\Calendar\Util;
 use Bitrix\Dav\Internals\DavConnectionTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
@@ -40,6 +42,7 @@ class StartSyncController implements StartSynchronization
 		'events_sync_finished' => 'events_sync_finished',
 		'subscribe_finished' => 'subscribe_finished',
 		'all_finished' => 'all_finished',
+		'export_finished' => 'export_finished',
 	];
 
 	/**
@@ -57,6 +60,60 @@ class StartSyncController implements StartSynchronization
 	public function __construct(Role $owner)
 	{
 		$this->owner = $owner;
+	}
+
+	/**
+	 * @return array
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function synchronize(): array
+	{
+		$response = [
+			'status' => 'success',
+			'message' => 'CONNECTION_CREATED'
+		];
+
+		$owner = \Bitrix\Calendar\Core\Role\Helper::getRole(\CCalendar::GetUserId(), User::TYPE);
+		$pusher = static function ($result) use ($owner)
+		{
+			Util::addPullEvent(
+				'process_sync_connection',
+				$owner->getId(),
+				(array) $result
+			);
+
+			if ($result['stage'] === self::STATUSES['export_finished'])
+			{
+				NotificationManager::addFinishedSyncNotificationAgent(
+					$owner->getId(),
+					$result['vendorName']
+				);
+			}
+		};
+
+		try
+		{
+			// start process
+			if ($connection = $this->addStatusHandler($pusher)->start())
+			{
+				$response['connectionId'] = $connection->getId();
+			}
+			else
+			{
+				$response['connectionId'] = null;
+			}
+		}
+		catch (\Throwable $e)
+		{
+			$response = [
+				'status' => 'error',
+				'message' => 'Could not finish sync: '.$e->getMessage()
+			];
+		}
+
+		return $response;
 	}
 
 	/**
@@ -93,14 +150,14 @@ class StartSyncController implements StartSynchronization
 					->addStatusHandlerList($this->getStatusHandlerList())
 					->exchange();
 
-				$status = self::STATUSES['events_sync_finished'];
+				$status = self::STATUSES['export_finished'];
 				$this->sendResult($status);
 
 				if ($this->isPushEnabled())
 				{
 					$this->initSubscription($connection);
-					$status = self::STATUSES['subscribe_finished'];
-					$this->sendResult($status);
+//					$status = self::STATUSES['subscribe_finished'];
+//					$this->sendResult($status);
 				}
 
 				$this->setConnectionStatus($connection, Sync\Dictionary::SYNC_STATUS['success']);

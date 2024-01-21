@@ -18,7 +18,7 @@ class CheckChatManageUpdate extends Base
 		$this->getAction()->setArguments($arguments);
 		$rightsLevel = $arguments['rightsLevel'];
 		$actionName = $this->getAction()->getName();
-		if ($this->inArrayCaseInsensitive($actionName, ['setManageUsers', 'setManageUI'], true))
+		if ($this->inArrayCaseInsensitive($actionName, ['setManageUsersAdd', 'setManageUsersDelete', 'setManageUI'], true))
 		{
 			if (in_array(
 				$rightsLevel,

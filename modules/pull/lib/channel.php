@@ -1,9 +1,6 @@
 <?php
 namespace Bitrix\Pull;
 
-use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 class Channel
 {

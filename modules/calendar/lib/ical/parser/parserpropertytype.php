@@ -80,8 +80,8 @@ class ParserPropertyType
 	}
 
 	/**
-	 * @param $key
-	 * @param $parameter
+	 * @param string $key
+	 * @param string $parameter
 	 * @return $this
 	 */
 	public function addParameter(string $key, string $parameter): ParserPropertyType
@@ -93,6 +93,6 @@ class ParserPropertyType
 
 	public function getParameterValueByName(string $name): ?string
 	{
-		return $this->parameters[$name];
+		return $this->parameters[$name] ?? null;
 	}
 }

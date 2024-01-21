@@ -7,53 +7,55 @@ class CPerfomanceError
 		global $DB;
 
 		$obQueryWhere = new CSQLWhere;
-		$obQueryWhere->SetFields(array(
-			"HIT_ID" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "HIT_ID",
-				"FIELD_TYPE" => "int",
-				"JOIN" => false,
-			),
-			"ERRNO" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRNO",
-				"FIELD_TYPE" => "int",
-				"JOIN" => false,
-			),
-			"ERRFILE" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRFILE",
-				"FIELD_TYPE" => "string",
-				"JOIN" => false,
-			),
-			"ERRSTR" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRSTR",
-				"FIELD_TYPE" => "string",
-				"JOIN" => false,
-			),
-			"ERRLINE" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRLINE",
-				"FIELD_TYPE" => "int",
-				"JOIN" => false,
-			),
-		));
+		$obQueryWhere->SetFields([
+			'HIT_ID' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'HIT_ID',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'ERRNO' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRNO',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'ERRFILE' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRFILE',
+				'FIELD_TYPE' => 'string',
+				'JOIN' => false,
+			],
+			'ERRSTR' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRSTR',
+				'FIELD_TYPE' => 'string',
+				'JOIN' => false,
+			],
+			'ERRLINE' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRLINE',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+		]);
 
-		$strSql = "
+		$strSql = '
 			DELETE FROM b_perf_error
-		";
+		';
 		if (!is_array($arFilter))
-			$arFilter = array();
+		{
+			$arFilter = [];
+		}
 		if ($strQueryWhere = $obQueryWhere->GetQuery($arFilter))
 		{
-			$strSql .= "
+			$strSql .= '
 				WHERE
-				".$strQueryWhere."
-			";
+				' . $strQueryWhere . '
+			';
 		}
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 	}
 
 	public static function GetList($arSelect, $arFilter, $arOrder, $bGroup = false)
@@ -61,153 +63,169 @@ class CPerfomanceError
 		global $DB;
 
 		if (!is_array($arSelect))
-			$arSelect = array();
+		{
+			$arSelect = [];
+		}
 		if (count($arSelect) < 1)
-			$arSelect = array(
-				"ID",
-				"HIT_ID",
-				"ERRNO",
-				"ERRFILE",
-				"ERRLINE",
-				"ERRSTR",
-			);
+		{
+			$arSelect = [
+				'ID',
+				'HIT_ID',
+				'ERRNO',
+				'ERRFILE',
+				'ERRLINE',
+				'ERRSTR',
+			];
+		}
 
 		if (!is_array($arOrder))
-			$arOrder = array();
+		{
+			$arOrder = [];
+		}
 		if (count($arOrder) < 1)
-			$arOrder = array(
-				"HIT_ID" => "DESC",
-				"ID" => "DESC",
-			);
+		{
+			$arOrder = [
+				'HIT_ID' => 'DESC',
+				'ID' => 'DESC',
+			];
+		}
 
-		$arQueryOrder = array();
+		$arQueryOrder = [];
 		foreach ($arOrder as $strColumn => $strDirection)
 		{
 			$strColumn = mb_strtoupper($strColumn);
-			$strDirection = mb_strtoupper($strDirection) == "ASC"? "ASC": "DESC";
+			$strDirection = mb_strtoupper($strDirection) === 'ASC' ? 'ASC' : 'DESC';
 			switch ($strColumn)
 			{
-			case "ID":
-			case "HIT_ID":
-			case "ERRNO":
-			case "ERRFILE":
-			case "ERRLINE":
-			case "ERRSTR":
+			case 'ID':
+			case 'HIT_ID':
+			case 'ERRNO':
+			case 'ERRFILE':
+			case 'ERRLINE':
+			case 'ERRSTR':
 				$arSelect[] = $strColumn;
-				$arQueryOrder[$strColumn] = $strColumn." ".$strDirection;
+				$arQueryOrder[$strColumn] = $strColumn . ' ' . $strDirection;
 				break;
-			case "COUNT":
+			case 'COUNT':
 				if ($bGroup)
 				{
 					$arSelect[] = $strColumn;
-					$arQueryOrder[$strColumn] = $strColumn." ".$strDirection;
+					$arQueryOrder[$strColumn] = $strColumn . ' ' . $strDirection;
 				}
 				break;
 			}
 		}
 
-		$arQueryGroup = array();
-		$arQuerySelect = array();
+		$arQueryGroup = [];
+		$arQuerySelect = [];
 		foreach ($arSelect as $strColumn)
 		{
 			$strColumn = mb_strtoupper($strColumn);
 			switch ($strColumn)
 			{
-			case "ID":
-			case "HIT_ID":
+			case 'ID':
+			case 'HIT_ID':
 				if (!$bGroup)
-					$arQuerySelect[$strColumn] = "e.".$strColumn;
+				{
+					$arQuerySelect[$strColumn] = 'e.' . $strColumn;
+				}
 				break;
-			case "ERRNO":
-			case "ERRFILE":
-			case "ERRLINE":
-			case "ERRSTR":
-				if ($bGroup)
-					$arQueryGroup[$strColumn] = "e.".$strColumn;
-				$arQuerySelect[$strColumn] = "e.".$strColumn;
-				break;
-			case "COUNT":
+			case 'ERRNO':
+			case 'ERRFILE':
+			case 'ERRLINE':
+			case 'ERRSTR':
 				if ($bGroup)
 				{
-					$arQuerySelect[$strColumn] = "COUNT(e.ID) ".$strColumn;
+					$arQueryGroup[$strColumn] = 'e.' . $strColumn;
+				}
+				$arQuerySelect[$strColumn] = 'e.' . $strColumn;
+				break;
+			case 'COUNT':
+				if ($bGroup)
+				{
+					$arQuerySelect[$strColumn] = 'COUNT(e.ID) ' . $strColumn;
 				}
 				break;
 			}
 		}
 
 		$obQueryWhere = new CSQLWhere;
-		$obQueryWhere->SetFields(array(
-			"HIT_ID" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "HIT_ID",
-				"FIELD_TYPE" => "int",
-				"JOIN" => false,
-			),
-			"ERRNO" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRNO",
-				"FIELD_TYPE" => "int",
-				"JOIN" => false,
-			),
-			"ERRFILE" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRFILE",
-				"FIELD_TYPE" => "string",
-				"JOIN" => false,
-			),
-			"ERRSTR" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRSTR",
-				"FIELD_TYPE" => "string",
-				"JOIN" => false,
-			),
-			"ERRLINE" => array(
-				"TABLE_ALIAS" => "e",
-				"FIELD_NAME" => "ERRLINE",
-				"FIELD_TYPE" => "int",
-				"JOIN" => false,
-			),
-		));
+		$obQueryWhere->SetFields([
+			'HIT_ID' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'HIT_ID',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'ERRNO' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRNO',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'ERRFILE' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRFILE',
+				'FIELD_TYPE' => 'string',
+				'JOIN' => false,
+			],
+			'ERRSTR' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRSTR',
+				'FIELD_TYPE' => 'string',
+				'JOIN' => false,
+			],
+			'ERRLINE' => [
+				'TABLE_ALIAS' => 'e',
+				'FIELD_NAME' => 'ERRLINE',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+		]);
 
 		if (count($arQuerySelect) < 1)
-			$arQuerySelect = array("ID" => "e.ID");
+		{
+			$arQuerySelect = ['ID' => 'e.ID'];
+		}
 
-		$strSql = "
+		$strSql = '
 			SELECT
-			".implode(", ", $arQuerySelect)."
+			' . implode(', ', $arQuerySelect) . '
 			FROM
 				b_perf_error e
-		";
+		';
 		if (!is_array($arFilter))
-			$arFilter = array();
+		{
+			$arFilter = [];
+		}
 		if ($strQueryWhere = $obQueryWhere->GetQuery($arFilter))
 		{
-			$strSql .= "
+			$strSql .= '
 				WHERE
-				".$strQueryWhere."
-			";
+				' . $strQueryWhere . '
+			';
 		}
 		if ($bGroup && count($arQueryGroup) > 0)
 		{
-			$strSql .= "
+			$strSql .= '
 				GROUP BY
-				".implode(", ", $arQueryGroup)."
-			";
+				' . implode(', ', $arQueryGroup) . '
+			';
 		}
 		if (count($arQueryOrder) > 0)
 		{
-			$strSql .= "
+			$strSql .= '
 				ORDER BY
-				".implode(", ", $arQueryOrder)."
-			";
+				' . implode(', ', $arQueryOrder) . '
+			';
 		}
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 	}
 
 	public static function Clear()
 	{
 		global $DB;
-		return $DB->Query("TRUNCATE TABLE b_perf_error");
+		return $DB->Query('TRUNCATE TABLE b_perf_error');
 	}
 }

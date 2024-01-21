@@ -4,8 +4,8 @@
 	--ui-label-background-color-hover: var(--ui-label-background-color);
 	--ui-label-color: #fff;
 	--ui-label-link-dashed-color: rgba(255, 255, 255, 0.51);
-	--ui-label-font: var(--ui-font-family-helvetica);
 	--ui-label-font-weight: var(--ui-font-weight-bold);
+	--ui-label-font: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 }
 
 .ui-label {
@@ -29,9 +29,16 @@
 	color: var(--ui-label-color);
 	transition: 250ms linear all;
 	max-width: 100%;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	white-space: nowrap;
 	text-overflow: ellipsis;
+}
+
+.ui-label span.ui-label-inner {
+	overflow: hidden !important;
+	margin: unset !important;
+	font-family: var(--ui-label-font) !important;
+	line-height: normal !important;;
 }
 
 a.ui-label:hover,
@@ -140,6 +147,12 @@ a.ui-label:not(.ui-label-fill):hover,
 	--ui-label-background-color: rgba(242, 228, 28, 0.42);
 	--ui-label-background-color-hover: rgba(242, 228, 28, 0.42);
 	--ui-label-color: rgba(157, 126, 43, 1);
+}
+
+.ui-label-lavender {
+	--ui-label-background-color: rgba(231, 216, 250, 1);
+	--ui-label-background-color-hover: rgba(231, 216, 250, 1);
+	--ui-label-color: rgba(142, 82, 236, 1);
 }
 
 .ui-label-light {

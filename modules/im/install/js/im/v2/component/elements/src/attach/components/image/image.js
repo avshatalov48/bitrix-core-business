@@ -29,7 +29,7 @@ export const AttachImage = {
 	},
 	template: `
 		<div class="bx-im-attach-image__container bx-im-attach-image__scope">
-			<AttachImageItem v-for="(image, index) in internalConfig.IMAGE" :config="image" :key="index" />
+			<AttachImageItem v-for="(image, index) in internalConfig.image" :config="image" :key="index" />
 		</div>
 	`,
 };

@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Catalog;
 
 class CCatalogResult extends CDBResult

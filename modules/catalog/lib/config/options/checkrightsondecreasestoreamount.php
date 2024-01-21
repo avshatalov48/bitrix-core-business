@@ -2,6 +2,8 @@
 
 namespace Bitrix\Catalog\Config\Options;
 
+use Bitrix\Catalog\Config\State;
+
 /**
  * Option for toggle decrease store product quantity checking algorithm.
  *
@@ -35,7 +37,7 @@ class CheckRightsOnDecreaseStoreAmount extends Option
 	 */
 	public static function isEnabled(): bool
 	{
-		return self::get() === self::ENABLED_VALUE;
+		return self::get() === self::ENABLED_VALUE && !State::isProductBatchMethodSelected();
 	}
 
 	/**

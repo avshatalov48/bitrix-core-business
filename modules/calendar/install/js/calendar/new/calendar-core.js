@@ -15,6 +15,11 @@
 			this.search = new BX.Calendar.Search(config.filterId, config.counters);
 		}
 
+		if (config.settings && config.weekStart)
+		{
+			config.settings.week_start = config.weekStart;
+		}
+
 		this.externalMode = config.externalDataHandleMode;
 		this.entityType = config.entityType || '';
 		this.newEntryName = config.newEntryName || null;
@@ -38,6 +43,7 @@
 		this.currentViewName = this.util.getUserOption(this.viewOption) || this.DEFAULT_VIEW;
 
 		BX.Calendar.Util.setUserSettings(config.userSettings);
+		BX.Calendar.Util.setOptions(config.settings);
 		BX.Calendar.Util.setAccessNames(config.accessNames);
 		BX.Calendar.Util.setEventWithEmailGuestAmount(config.countEventWithEmailGuestAmount);
 		BX.Calendar.Util.setEventWithEmailGuestLimit(config.eventWithEmailGuestLimit);
@@ -54,6 +60,7 @@
 		BX.Calendar.Util.setSharingConfig(config.sharing);
 		this.payAttentionToNewSharingFeature = config.payAttentionToNewSharingFeature;
 		this.sharingFeatureLimitEnable = config.sharingFeatureLimitEnable;
+		this.sharingSettingsCollapsed = config.sharingSettingsCollapsed;
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -199,9 +206,14 @@
 
 					this.sharingInterface = new BX.Calendar.Sharing.Interface({
 						buttonWrap: document.querySelector('#' + this.id + '-sharing-container'),
-						userId: this.currentUser.id,
+						userInfo: {
+							id: this.currentUser.id,
+							name: this.currentUser.name,
+							avatar: this.currentUser.avatar,
+						},
 						payAttentionToNewFeature: this.payAttentionToNewSharingFeature,
 						sharingFeatureLimit: !this.sharingFeatureLimitEnable,
+						sharingSettingsCollapsed: this.sharingSettingsCollapsed,
 					});
 
 					if (BX.Calendar.Util.checkSharingFeatureEnabled())

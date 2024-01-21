@@ -33,7 +33,20 @@ use Bitrix\Catalog\v2\Contractor;
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_AgentContract_Query query()
+ * @method static EO_AgentContract_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_AgentContract_Result getById($id)
+ * @method static EO_AgentContract_Result getList(array $parameters = [])
+ * @method static EO_AgentContract_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_AgentContract createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_AgentContract_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_AgentContract wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_AgentContract_Collection wakeUpCollection($rows)
+ */
 
 class AgentContractTable extends DataManager
 {

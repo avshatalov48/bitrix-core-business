@@ -81,26 +81,26 @@ class CGridOptions
 		return $this->all_options;
 	}
 
-	public function GetSorting($arParams=array())
+	public function GetSorting($default=array())
 	{
-		if (!isset($arParams["vars"]) || !is_array($arParams["vars"]))
+		if (!isset($default["vars"]) || !is_array($default["vars"]))
 		{
-			$arParams["vars"] = ["by" => "by", "order" => "order"];
+			$default["vars"] = ["by" => "by", "order" => "order"];
 		}
-		if (!isset($arParams["sort"]) || !is_array($arParams["sort"]))
+		if (!isset($default["sort"]) || !is_array($default["sort"]))
 		{
-			$arParams["sort"] = [];
+			$default["sort"] = [];
 		}
 
 		$arResult = array(
-			"sort" => $arParams["sort"],
-			"vars" => $arParams["vars"],
+			"sort" => $default["sort"],
+			"vars" => $default["vars"],
 		);
 
 		$key = '';
-		if(isset($_REQUEST[$arParams["vars"]["by"]]))
+		if(isset($_REQUEST[$default["vars"]["by"]]))
 		{
-			Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"] = $_REQUEST[$arParams["vars"]["by"]];
+			Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"] = $_REQUEST[$default["vars"]["by"]];
 		}
 		elseif(!isset(Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"]))
 		{
@@ -120,9 +120,9 @@ class CGridOptions
 
 		if($key <> '')
 		{
-			if(isset($_REQUEST[$arParams["vars"]["order"]]))
+			if(isset($_REQUEST[$default["vars"]["order"]]))
 			{
-				Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"] = $_REQUEST[$arParams["vars"]["order"]];
+				Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"] = $_REQUEST[$default["vars"]["order"]];
 			}
 			elseif(!isset(Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"]))
 			{
@@ -136,7 +136,7 @@ class CGridOptions
 				}
 				else
 				{
-					$arResult["sort"] = array($key => reset($arParams["sort"]));
+					$arResult["sort"] = array($key => reset($default["sort"]));
 				}
 			}
 			if(isset(Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"]))
@@ -233,7 +233,7 @@ class CGridOptions
 			}
 
 			//filtered outside, we don't control the filter field value
-			if(isset($field["filtered"]) && $field["filtered"] == true)
+			if(isset($field["filtered"]) && $field["filtered"])
 			{
 				if(isset($field["filter_value"]))
 					$aRes[$field["id"]] = $field["filter_value"];
@@ -401,9 +401,9 @@ class CGridOptions
 		}
 	}
 
-	public function DeleteView($view_id)
+	public function DeleteView($viewId)
 	{
-		unset($this->all_options["views"][$view_id]);
+		unset($this->all_options["views"][$viewId]);
 	}
 
 	public function SetView($view_id)
@@ -503,10 +503,10 @@ class CGridOptions
 				break;
 			case "month":
 				$aRes[$field_id."_from"] = ConvertTimeStamp(mktime(0, 0, 0, date("n"), 1));
-				$aRes[$field_id."_to"] = ConvertTimeStamp(mktime(0, 0, 0, date("n")+1, 0));
+				$aRes[$field_id."_to"] = ConvertTimeStamp(mktime(0, 0, 0, (int)date("n") + 1, 0));
 				break;
 			case "month_ago":
-				$aRes[$field_id."_from"] = ConvertTimeStamp(mktime(0, 0, 0, date("n")-1, 1));
+				$aRes[$field_id."_from"] = ConvertTimeStamp(mktime(0, 0, 0, (int)date("n") - 1, 1));
 				$aRes[$field_id."_to"] = ConvertTimeStamp(mktime(0, 0, 0, date("n"), 0));
 				break;
 			case "days":

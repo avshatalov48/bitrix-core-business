@@ -1,3 +1,5 @@
+export { ResizeManager } from './classes/resize-manager';
+
 const TAB = '\t';
 const NEW_LINE = '\n';
 const LETTER_CODE_PREFIX = 'Key';

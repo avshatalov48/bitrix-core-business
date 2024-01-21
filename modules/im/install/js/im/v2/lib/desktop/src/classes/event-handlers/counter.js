@@ -30,7 +30,7 @@ export class CounterHandler
 
 	#onCounterChange()
 	{
-		const chatCounter = this.#store.getters['recent/getTotalChatCounter'];
+		const chatCounter = this.#store.getters['counters/getTotalChatCounter'];
 		const notificationCounter = this.#store.getters['notifications/getCounter'];
 
 		const isImportant = chatCounter > 0;

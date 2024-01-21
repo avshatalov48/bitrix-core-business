@@ -2,54 +2,60 @@
 
 class CPerfomanceIndexComplete
 {
-	public static function GetList($arFilter = array(), $arOrder = array())
+	public static function GetList($arFilter = [], $arOrder = [])
 	{
 		global $DB;
 
 		if (!is_array($arOrder))
-			$arOrder = array();
+		{
+			$arOrder = [];
+		}
 		if (count($arOrder) < 1)
-			$arOrder = array(
-				"TABLE_NAME" => "ASC",
-			);
+		{
+			$arOrder = [
+				'TABLE_NAME' => 'ASC',
+			];
+		}
 
-		$arQueryOrder = array();
+		$arQueryOrder = [];
 		foreach ($arOrder as $strColumn => $strDirection)
 		{
 			$strColumn = mb_strtoupper($strColumn);
-			$strDirection = mb_strtoupper($strDirection) == "ASC"? "ASC": "DESC";
+			$strDirection = mb_strtoupper($strDirection) === 'ASC' ? 'ASC' : 'DESC';
 			switch ($strColumn)
 			{
-			case "ID":
-			case "TABLE_NAME":
+			case 'ID':
+			case 'TABLE_NAME':
 				$arSelect[] = $strColumn;
-				$arQueryOrder[$strColumn] = $strColumn." ".$strDirection;
+				$arQueryOrder[$strColumn] = $strColumn . ' ' . $strDirection;
 				break;
 			}
 		}
 
 		$obQueryWhere = new CSQLWhere;
-		$obQueryWhere->SetFields(array(
-			"ID" => array(
-				"TABLE_ALIAS" => "s",
-				"FIELD_NAME" => "ID",
-				"FIELD_TYPE" => "int", //int, double, file, enum, int, string, date, datetime
-				"JOIN" => false,
+		$obQueryWhere->SetFields([
+			'ID' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 'ID',
+				'FIELD_TYPE' => 'int', //int, double, file, enum, int, string, date, datetime
+				'JOIN' => false,
 				//"LEFT_JOIN" => "lt",
-			),
-		));
+			],
+		]);
 
 		if (!is_array($arFilter))
-			$arFilter = array();
+		{
+			$arFilter = [];
+		}
 		$strQueryWhere = $obQueryWhere->GetQuery($arFilter);
 
-		$strSql = "
+		$strSql = '
 			SELECT *
 			FROM b_perf_index_complete s
-			".($strQueryWhere? "WHERE ".$strQueryWhere: "")."
-			".(count($arQueryOrder)? "ORDER BY ".implode(", ", $arQueryOrder): "")."
-		";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			' . ($strQueryWhere ? 'WHERE ' . $strQueryWhere : '') . '
+			' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
+		';
+		$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 
 		return $res;
 	}
@@ -57,7 +63,7 @@ class CPerfomanceIndexComplete
 	public static function Add($arFields)
 	{
 		global $DB;
-		$ID = $DB->Add("b_perf_index_complete", $arFields);
+		$ID = $DB->Add('b_perf_index_complete', $arFields);
 		return $ID;
 	}
 
@@ -65,7 +71,7 @@ class CPerfomanceIndexComplete
 	{
 		global $DB;
 		$ID = intval($ID);
-		$DB->Query("DELETE FROM b_perf_index_complete WHERE ID = ".$ID);
+		$DB->Query('DELETE FROM b_perf_index_complete WHERE ID = ' . $ID);
 	}
 
 	public static function DeleteByTableName($table, $columns)
@@ -74,8 +80,8 @@ class CPerfomanceIndexComplete
 		$DB->Query("
 			delete
 			from b_perf_index_complete
-			where TABLE_NAME = '".$DB->ForSQL($table)."'
-			AND COLUMN_NAMES = '".$DB->ForSQL($columns)."'
+			where TABLE_NAME = '" . $DB->ForSql($table) . "'
+			AND COLUMN_NAMES = '" . $DB->ForSql($columns) . "'
 		");
 	}
 
@@ -85,8 +91,8 @@ class CPerfomanceIndexComplete
 		$rs = $DB->Query("
 			select *
 			from b_perf_index_complete
-			where TABLE_NAME = '".$DB->ForSQL($table)."'
-			AND COLUMN_NAMES = '".$DB->ForSQL($columns)."'
+			where TABLE_NAME = '" . $DB->ForSql($table) . "'
+			AND COLUMN_NAMES = '" . $DB->ForSql($columns) . "'
 			AND BANNED = 'Y'
 		");
 		return is_array($rs->Fetch());

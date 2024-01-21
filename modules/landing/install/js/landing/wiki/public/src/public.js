@@ -19,34 +19,5 @@ Event.bind(document, 'click', (event: MouseEvent) => {
 				void SliderHacks.reloadSlider(link.href);
 			}
 		}
-
-		const pseudoLink = event.target.closest('[data-pseudo-url]');
-		if (Type.isDomNode(pseudoLink))
-		{
-			const urlParams = Dom.attr(pseudoLink, 'data-pseudo-url');
-
-			if (
-				Text.toBoolean(urlParams.enabled)
-				&& Type.isStringFilled(urlParams.href)
-				&& urlParams.href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') !== 0
-			)
-			{
-				if (urlParams.query)
-				{
-					urlParams.href += (urlParams.href.indexOf('?') === -1) ? '?' : '&';
-					urlParams.href += urlParams.query;
-				}
-				if (urlParams.target === '_self')
-				{
-					event.stopImmediatePropagation();
-					BX.Landing.Pub.TopPanel.pushHistory(urlParams.href);
-					void SliderHacks.reloadSlider(urlParams.href);
-				}
-				else
-				{
-					top.open(urlParams.href, urlParams.target);
-				}
-			}
-		}
 	}
 });

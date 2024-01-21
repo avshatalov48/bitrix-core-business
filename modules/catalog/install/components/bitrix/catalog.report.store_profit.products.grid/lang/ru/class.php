@@ -1,0 +1,20 @@
+<?php
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_PRODUCT_COLUMN_MSGVER_1'] = 'Товар';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_STARTING_QUANTITY_COLUMN'] = 'Начальный остаток';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_STARTING_QUANTITY_COLUMN_HINT'] = 'Остаток на начало выбранного периода';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_RECEIVED_QUANTITY_COLUMN'] = 'Поступило';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_RECEIVED_QUANTITY_COLUMN_HINT'] = 'Сколько товара суммарно поступило на склад за период через Приход, Оприходование, Перемещение';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_SOLD_COLUMN'] = 'Продано (количество)';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_SOLD_COLUMN_HINT'] = 'Общее количество продаж за период по проведённым документам реализации';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_SOLD_COLUMN'] = 'Продано (деньги)';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_SOLD_COLUMN_HINT'] = 'Общая сумма по продажам за период по проведённым документам реализации';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_COST_PRICE_COLUMN'] = 'Себестоимость единицы товара';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_COST_PRICE_COLUMN_HINT'] = 'Средняя себестоимость единицы товара за период по проведённым документам реализации';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_COST_PRICE_COLUMN'] = 'Сумма себестоимости';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_COST_PRICE_COLUMN_HINT'] = 'Сумма себестоимости товаров за период по проведённым документам реализации';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_PROFIT_COLUMN'] = 'Валовая прибыль';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_PROFIT_COLUMN_HINT'] = 'Рассчитанная валовая прибыль за период по проведённым документам реализации';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_PROFITABILITY_COLUMN'] = 'Рентабельность';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_PROFITABILITY_COLUMN_HINT'] = 'Рентабельность - это рассчитанная валовая прибыль, разделенная на общую себестоимость и умноженная на 100';
+$MESS['STORE_SALE_PRODUCTS_REPORT_GRID_NO_PRODUCTS'] = 'Не было операций с товаром за указанный период';
+$MESS['STORE_SALE_PRODUCTS_FILTER_STORES_TITLE'] = 'Склады';

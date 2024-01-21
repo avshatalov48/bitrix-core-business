@@ -13,11 +13,12 @@
 	 *
 	 * @constructor
 	 */
-	BX.Landing.UI.Button.TableColorAction = function(id, options)
+	BX.Landing.UI.Button.TableColorAction = function(id, options, textNode)
 	{
 		BX.Landing.UI.Button.EditorAction.apply(this, arguments);
 		this.id = id;
 		this.options = options;
+		this.textNode = textNode;
 		if (this.id !== 'tableBgColor')
 		{
 			BX.Dom.addClass(this.layout, 'landing-ui-button-editor-action-color');
@@ -47,7 +48,7 @@
 		 * Handles event on this button click
 		 * @param {MouseEvent} event
 		 */
-		onClick: function(event)
+		onClick(event)
 		{
 			event.preventDefault();
 			event.stopPropagation();
@@ -72,7 +73,7 @@
 		 * Handles event on color selected
 		 * @param {string} color - Selected color
 		 */
-		onColorSelected: function(color)
+		onColorSelected(color)
 		{
 			if (this.id === 'tableTextColor')
 			{
@@ -89,7 +90,7 @@
 		 * Apply selected color to text in table cells
 		 * @param {string} color - Selected color
 		 */
-		applyColorInTableCells: function(color)
+		applyColorInTableCells(color)
 		{
 			const setTd = [...this.options.setTd];
 			setTd.forEach((td) => {
@@ -102,7 +103,6 @@
 			{
 				this.options.table.setAttribute('text-color', color);
 			}
-			BX.Landing.Node.Text.currentNode.onChange(true);
 		},
 
 		/**
@@ -110,7 +110,7 @@
 		 * @param {string} color - Needed color for dark or light table style
 		 * @param {object} options - All options
 		 */
-		prepareOptionsForApplyColorInTableCells: function(color, options)
+		prepareOptionsForApplyColorInTableCells(color, options)
 		{
 			this.options = options;
 			this.applyColorInTableCells(color);
@@ -120,7 +120,7 @@
 		 * Apply selected background color to table cells
 		 * @param {string} color - Selected color
 		 */
-		applyBgInTableCells: function(color)
+		applyBgInTableCells(color)
 		{
 			const setTd = [...this.options.setTd];
 			setTd.forEach((td) => {
@@ -138,13 +138,12 @@
 			{
 				this.options.table.setAttribute('bg-color', color);
 			}
-			BX.Landing.Node.Text.currentNode.onChange(true);
 		},
 
 		/**
 		 * @param contextDocument document
 		 */
-		setContextDocument: function(contextDocument)
+		setContextDocument(contextDocument)
 		{
 			BX.Landing.UI.Button.EditorAction.prototype.setContextDocument.apply(this, arguments);
 			this.colorPicker.setContextDocument(contextDocument);

@@ -25,7 +25,7 @@ class ReminderService
 	{
 		(new static())->remind();
 
-		return '\Bitrix\Im\V2\Link\Reminder\ReminderService::remindAgent();';
+		return __METHOD__. '();';
 	}
 
 	public function getCount(int $chatId): int

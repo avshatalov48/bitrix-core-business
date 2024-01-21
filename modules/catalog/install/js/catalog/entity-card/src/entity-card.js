@@ -13,7 +13,8 @@ import IblockFieldConfigurationManager from './field-configurator/iblock-field-c
 import GridFieldConfigurationManager from './field-configurator/grid-field-configuration-manager';
 import {Popup} from "main.popup";
 import {BaseCard} from "./base-card/base-card";
-import {Slider} from 'catalog.store-use'
+import { StoreSlider } from 'catalog.store-use';
+import { ToolAvailabilityManager } from 'catalog.tool-availability-manager';
 
 class EntityCard extends BaseCard
 {
@@ -39,6 +40,7 @@ class EntityCard extends BaseCard
 		this.isSimpleProduct = settings.isSimpleProduct || false;
 		this.isWithOrdersMode = settings.isWithOrdersMode || false;
 		this.isInventoryManagementUsed = settings.isInventoryManagementUsed || false;
+		this.isInventoryManagementToolEnabled = settings.isInventoryManagementToolEnabled || false;
 
 		this.registerFieldsFactory();
 		this.registerControllersFactory();
@@ -486,14 +488,38 @@ class EntityCard extends BaseCard
 		popupWrapper.appendChild(popupItemsContainer);
 
 		this.createDocumentButtonMenuPopupItems.forEach((item) => {
-			popupItemsContainer.appendChild(Tag.render`
-				<a class="menu-popup-item menu-popup-item-no-icon" href="${item.link}">
-					<span class="menu-popup-item-text">${item.text}</span>
-				</a>
-			`);
+			let itemEntry = null;
+			if (this.isInventoryManagementToolEnabled)
+			{
+				itemEntry = Tag.render`
+					<a class="menu-popup-item menu-popup-item-no-icon" href="${item.link}">
+						<span class="menu-popup-item-text">${item.text}</span>
+					</a>
+				`;
+			}
+			else
+			{
+				itemEntry = Tag.render`
+					<a class="menu-popup-item menu-popup-item-no-icon">
+						<span class="menu-popup-item-text">${item.text}</span>
+					</a>
+				`;
+
+				Event.bind(itemEntry, 'click', (event) => {
+					event.preventDefault();
+					EntityCard.openInventoryManagementToolDisabledSlider();
+				});
+			}
+
+			popupItemsContainer.appendChild(itemEntry);
 		});
 
 		return popupWrapper;
+	}
+
+	static openInventoryManagementToolDisabledSlider()
+	{
+		ToolAvailabilityManager.openInventoryManagementToolDisabledSlider();
 	}
 
 	getCardSettingsPopup()
@@ -574,11 +600,12 @@ class EntityCard extends BaseCard
 		{
 			Event.bind(setting, 'change', (event) =>
 			{
-				new Slider().open(item.url, {})
-				.then(() => {
-					this.reloadGrid();
-					this.getCardSettingsPopup().close();
-				});
+				new StoreSlider().open(item.url, {})
+					.then(() => {
+						this.reloadGrid();
+						this.getCardSettingsPopup().close();
+					})
+					.catch(() => {});
 			})
 		}
 		else if(item.id === 'SEO')

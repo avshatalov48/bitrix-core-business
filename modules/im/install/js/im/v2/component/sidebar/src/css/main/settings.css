@@ -23,11 +23,11 @@
 }
 
 .bx-im-sidebar-main-settings__container.--group-chat {
-	height: 83px;
+	/*height: 83px;*/
 }
 
 .bx-im-sidebar-main-settings__container.--personal {
-	height: 54px;
+	/*height: 54px;*/
 }
 
 .bx-im-sidebar-main-settings__autodelete-container {

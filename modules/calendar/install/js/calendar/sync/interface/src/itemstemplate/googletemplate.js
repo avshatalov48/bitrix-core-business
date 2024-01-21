@@ -37,15 +37,8 @@ export default class GoogleTemplate extends InterfaceTemplate
 
 	createConnection()
 	{
-		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-			analyticsLabel: {
-				calendarAction: 'createConnection',
-				click_to_connection_button: 'Y',
-				connection_type: 'google',
-			}
-		});
-
-		BX.util.popup(this.provider.getSyncLink(), 500, 600);
+		const syncLink = this.provider.getSyncLink();
+		BX.util.popup(syncLink, 500, 600);
 
 		Event.bind(window, 'hashchange', this.handleSuccessConnectionDebounce);
 		Event.bind(window, 'message', this.handleSuccessConnectionDebounce);
@@ -54,7 +47,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 	handleSuccessConnection(event)
 	{
 		if (
-			(window.location.hash === '#googleAuthSuccess')
+			window.location.hash === '#googleAuthSuccess'
 			|| (event.data.title === 'googleAuthSuccess')
 		)
 		{
@@ -65,6 +58,9 @@ export default class GoogleTemplate extends InterfaceTemplate
 			this.openSyncWizard();
 			this.provider.setStatus(this.provider.STATUS_SYNCHRONIZING);
 			this.provider.getInterfaceUnit().refreshButton();
+
+			Event.unbind(window, 'hashchange', this.handleSuccessConnectionDebounce);
+			Event.unbind(window, 'message', this.handleSuccessConnectionDebounce);
 		}
 	}
 

@@ -4,7 +4,6 @@ import PostUser from './postuser';
 import UploadImage from './files/upload-image';
 import UploadFile from './files/upload-file';
 import DiskFile from './files/disk-file';
-import AITextGenerator from './aiTextGenerator';
 import AIImageGenerator from './aiImageGenerator';
 
 function getKnownParser(parserId, editor, htmlEditor): ?Default
@@ -24,10 +23,6 @@ function getKnownParser(parserId, editor, htmlEditor): ?Default
 	if (parserId === 'UploadFile')
 	{
 		return new UploadFile(editor, htmlEditor);
-	}
-	if (parserId === 'AIText')
-	{
-		return new AITextGenerator(editor, htmlEditor);
 	}
 	if (parserId === 'AIImage')
 	{

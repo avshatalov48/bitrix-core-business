@@ -6,38 +6,34 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CounterColor = function CounterColor() {
-	  babelHelpers.classCallCheck(this, CounterColor);
-	};
-	babelHelpers.defineProperty(CounterColor, "DANGER", "ui-counter-danger");
-	babelHelpers.defineProperty(CounterColor, "WARNING", "ui-counter-warning");
-	babelHelpers.defineProperty(CounterColor, "SUCCESS", "ui-counter-success");
-	babelHelpers.defineProperty(CounterColor, "PRIMARY", "ui-counter-primary");
-	babelHelpers.defineProperty(CounterColor, "GRAY", "ui-counter-gray");
-	babelHelpers.defineProperty(CounterColor, "LIGHT", "ui-counter-light");
-	babelHelpers.defineProperty(CounterColor, "WHITE", "ui-counter-white");
-	babelHelpers.defineProperty(CounterColor, "DARK", "ui-counter-dark");
-	babelHelpers.defineProperty(CounterColor, "THEME", "ui-counter-theme");
+	class CounterColor {}
+	CounterColor.DANGER = "ui-counter-danger";
+	CounterColor.WARNING = "ui-counter-warning";
+	CounterColor.SUCCESS = "ui-counter-success";
+	CounterColor.PRIMARY = "ui-counter-primary";
+	CounterColor.GRAY = "ui-counter-gray";
+	CounterColor.LIGHT = "ui-counter-light";
+	CounterColor.WHITE = "ui-counter-white";
+	CounterColor.DARK = "ui-counter-dark";
+	CounterColor.THEME = "ui-counter-theme";
 
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CounterSize = function CounterSize() {
-	  babelHelpers.classCallCheck(this, CounterSize);
-	};
-	babelHelpers.defineProperty(CounterSize, "SMALL", "ui-counter-sm");
-	babelHelpers.defineProperty(CounterSize, "LARGE", "ui-counter-lg");
-	babelHelpers.defineProperty(CounterSize, "MEDIUM", "ui-counter-md");
+	class CounterSize {}
+	CounterSize.SMALL = "ui-counter-sm";
+	CounterSize.LARGE = "ui-counter-lg";
+	CounterSize.MEDIUM = "ui-counter-md";
 
-	var _templateObject, _templateObject2;
-	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var _getBorderClassname = /*#__PURE__*/new WeakSet();
-	var Counter = /*#__PURE__*/function () {
-	  function Counter(options) {
-	    babelHelpers.classCallCheck(this, Counter);
-	    _classPrivateMethodInitSpec(this, _getBorderClassname);
+	let _ = t => t,
+	  _t,
+	  _t2;
+	var _getBorderClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getBorderClassname");
+	class Counter {
+	  constructor(options) {
+	    Object.defineProperty(this, _getBorderClassname, {
+	      value: _getBorderClassname2
+	    });
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
 	    this.container = null;
 	    this.counterContainer = null;
@@ -50,200 +46,170 @@ this.BX = this.BX || {};
 	  }
 
 	  //region Parameters
-	  babelHelpers.createClass(Counter, [{
-	    key: "setValue",
-	    value: function setValue(value) {
-	      if (main_core.Type.isNumber(value)) {
-	        this.value = value < 0 ? 0 : value;
-	      }
-	      return this;
+	  setValue(value) {
+	    if (main_core.Type.isNumber(value)) {
+	      this.value = value < 0 ? 0 : value;
 	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      if (this.value <= this.maxValue) {
-	        return this.value;
-	      } else {
-	        return this.maxValue + "+";
-	      }
+	    return this;
+	  }
+	  getValue() {
+	    if (this.value <= this.maxValue) {
+	      return this.value;
+	    } else {
+	      return this.maxValue + "+";
 	    }
-	  }, {
-	    key: "setMaxValue",
-	    value: function setMaxValue(value) {
-	      if (main_core.Type.isNumber(value)) {
-	        this.value = value < 0 ? 0 : value;
-	      }
-	      return this;
+	  }
+	  setMaxValue(value) {
+	    if (main_core.Type.isNumber(value)) {
+	      this.value = value < 0 ? 0 : value;
 	    }
-	  }, {
-	    key: "getMaxValue",
-	    value: function getMaxValue() {
-	      return this.maxValue;
-	    }
-	  }, {
-	    key: "isBorder",
-	    value: function isBorder() {
-	      return this.border;
-	    }
-	  }, {
-	    key: "setColor",
-	    value: function setColor(color) {
-	      if (main_core.Type.isStringFilled(color)) {
-	        if (this.container === null) {
-	          this.createContainer();
-	        }
-	        main_core.Dom.removeClass(this.container, this.color);
-	        this.color = color;
-	        main_core.Dom.addClass(this.container, this.color);
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "setSize",
-	    value: function setSize(size) {
-	      if (main_core.Type.isStringFilled(size)) {
-	        BX.removeClass(this.container, this.size);
-	        this.size = size;
-	        BX.addClass(this.container, this.size);
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "setAnimate",
-	    value: function setAnimate(animate) {
-	      if (main_core.Type.isBoolean(animate)) {
-	        this.animate = animate;
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "setBorder",
-	    value: function setBorder(border) {
-	      if (!main_core.Type.isBoolean(border)) {
-	        console.warn('Parameter "border" is not boolean');
-	        return this;
-	      }
-	      this.border = border;
-	      var borderedCounterClassname = _classPrivateMethodGet(this, _getBorderClassname, _getBorderClassname2).call(this, border);
-	      if (border) {
-	        main_core.Dom.addClass(this.container, borderedCounterClassname);
-	      } else {
-	        main_core.Dom.removeClass(this.container, borderedCounterClassname);
-	      }
-	      return this;
-	    }
-	  }, {
-	    key: "update",
-	    //endregion
-	    // region Counter
-	    value: function update(value) {
+	    return this;
+	  }
+	  getMaxValue() {
+	    return this.maxValue;
+	  }
+	  isBorder() {
+	    return this.border;
+	  }
+	  setColor(color) {
+	    if (main_core.Type.isStringFilled(color)) {
 	      if (this.container === null) {
 	        this.createContainer();
 	      }
-	      if (this.animate == true) {
-	        this.updateAnimated(value);
-	      } else if (this.animate == false) {
-	        this.setValue(value);
-	        main_core.Dom.adjust(this.counterContainer, {
-	          text: this.getValue()
-	        });
+	      main_core.Dom.removeClass(this.container, this.color);
+	      this.color = color;
+	      main_core.Dom.addClass(this.container, this.color);
+	    }
+	    return this;
+	  }
+	  setSize(size) {
+	    if (main_core.Type.isStringFilled(size)) {
+	      BX.removeClass(this.container, this.size);
+	      this.size = size;
+	      BX.addClass(this.container, this.size);
+	    }
+	    return this;
+	  }
+	  setAnimate(animate) {
+	    if (main_core.Type.isBoolean(animate)) {
+	      this.animate = animate;
+	    }
+	    return this;
+	  }
+	  setBorder(border) {
+	    if (!main_core.Type.isBoolean(border)) {
+	      console.warn('Parameter "border" is not boolean');
+	      return this;
+	    }
+	    this.border = border;
+	    const borderedCounterClassname = babelHelpers.classPrivateFieldLooseBase(this, _getBorderClassname)[_getBorderClassname](border);
+	    if (border) {
+	      main_core.Dom.addClass(this.container, borderedCounterClassname);
+	    } else {
+	      main_core.Dom.removeClass(this.container, borderedCounterClassname);
+	    }
+	    return this;
+	  }
+	  //endregion
+
+	  // region Counter
+	  update(value) {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    if (this.animate == true) {
+	      this.updateAnimated(value);
+	    } else if (this.animate == false) {
+	      this.setValue(value);
+	      main_core.Dom.adjust(this.counterContainer, {
+	        text: this.getValue()
+	      });
+	    }
+	  }
+	  updateAnimated(value) {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    if (value > this.value && this.value < this.maxValue) {
+	      main_core.Dom.addClass(this.counterContainer, "ui-counter-plus");
+	    } else if (value < this.value && this.value < this.maxValue) {
+	      main_core.Dom.addClass(this.counterContainer, "ui-counter-minus");
+	    }
+	    setTimeout(function () {
+	      this.setValue(value);
+	      main_core.Dom.adjust(this.counterContainer, {
+	        text: this.getValue()
+	      });
+	    }.bind(this), 250);
+	    setTimeout(function () {
+	      main_core.Dom.removeClass(this.counterContainer, "ui-counter-plus");
+	      main_core.Dom.removeClass(this.counterContainer, "ui-counter-minus");
+	    }.bind(this), 500);
+	  }
+	  show() {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    main_core.Dom.addClass(this.container, "ui-counter-show");
+	    main_core.Dom.removeClass(this.container, "ui-counter-hide");
+	  }
+	  hide() {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    main_core.Dom.addClass(this.container, "ui-counter-hide");
+	    main_core.Dom.removeClass(this.container, "ui-counter-show");
+	  }
+	  getCounterContainer() {
+	    if (this.counterContainer === null) {
+	      this.counterContainer = main_core.Tag.render(_t || (_t = _`
+				<div class="ui-counter-inner">${0}</div>
+			`), this.getValue());
+	    }
+	    return this.counterContainer;
+	  }
+	  createContainer() {
+	    if (this.container === null) {
+	      this.container = main_core.Tag.render(_t2 || (_t2 = _`
+				<div class="ui-counter">${0}</div>
+			`), this.getCounterContainer());
+	      this.setSize(this.size);
+	      this.setColor(this.color);
+	      this.setBorder(this.border);
+	    }
+	    return this.container;
+	  }
+
+	  //endregion
+
+	  getContainer() {
+	    if (this.container === null) {
+	      this.createContainer();
+	    }
+	    return this.container;
+	  }
+	  renderTo(node) {
+	    if (main_core.Type.isDomNode(node)) {
+	      return node.appendChild(this.getContainer());
+	    }
+	    return null;
+	  }
+	  destroy() {
+	    main_core.Dom.remove(this.container);
+	    this.container = null;
+	    this.finished = false;
+	    this.textAfterContainer = null;
+	    this.textBeforeContainer = null;
+	    this.bar = null;
+	    this.svg = null;
+	    for (const property in this) {
+	      if (this.hasOwnProperty(property)) {
+	        delete this[property];
 	      }
 	    }
-	  }, {
-	    key: "updateAnimated",
-	    value: function updateAnimated(value) {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      if (value > this.value && this.value < this.maxValue) {
-	        main_core.Dom.addClass(this.counterContainer, "ui-counter-plus");
-	      } else if (value < this.value && this.value < this.maxValue) {
-	        main_core.Dom.addClass(this.counterContainer, "ui-counter-minus");
-	      }
-	      setTimeout(function () {
-	        this.setValue(value);
-	        main_core.Dom.adjust(this.counterContainer, {
-	          text: this.getValue()
-	        });
-	      }.bind(this), 250);
-	      setTimeout(function () {
-	        main_core.Dom.removeClass(this.counterContainer, "ui-counter-plus");
-	        main_core.Dom.removeClass(this.counterContainer, "ui-counter-minus");
-	      }.bind(this), 500);
-	    }
-	  }, {
-	    key: "show",
-	    value: function show() {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      main_core.Dom.addClass(this.container, "ui-counter-show");
-	      main_core.Dom.removeClass(this.container, "ui-counter-hide");
-	    }
-	  }, {
-	    key: "hide",
-	    value: function hide() {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      main_core.Dom.addClass(this.container, "ui-counter-hide");
-	      main_core.Dom.removeClass(this.container, "ui-counter-show");
-	    }
-	  }, {
-	    key: "getCounterContainer",
-	    value: function getCounterContainer() {
-	      if (this.counterContainer === null) {
-	        this.counterContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-inner\">", "</div>\n\t\t\t"])), this.getValue());
-	      }
-	      return this.counterContainer;
-	    }
-	  }, {
-	    key: "createContainer",
-	    value: function createContainer() {
-	      if (this.container === null) {
-	        this.container = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter\">", "</div>\n\t\t\t"])), this.getCounterContainer());
-	        this.setSize(this.size);
-	        this.setColor(this.color);
-	        this.setBorder(this.border);
-	      }
-	      return this.container;
-	    } //endregion
-	  }, {
-	    key: "getContainer",
-	    value: function getContainer() {
-	      if (this.container === null) {
-	        this.createContainer();
-	      }
-	      return this.container;
-	    }
-	  }, {
-	    key: "renderTo",
-	    value: function renderTo(node) {
-	      if (main_core.Type.isDomNode(node)) {
-	        return node.appendChild(this.getContainer());
-	      }
-	      return null;
-	    }
-	  }, {
-	    key: "destroy",
-	    value: function destroy() {
-	      main_core.Dom.remove(this.container);
-	      this.container = null;
-	      this.finished = false;
-	      this.textAfterContainer = null;
-	      this.textBeforeContainer = null;
-	      this.bar = null;
-	      this.svg = null;
-	      for (var property in this) {
-	        if (this.hasOwnProperty(property)) {
-	          delete this[property];
-	        }
-	      }
-	      Object.setPrototypeOf(this, null);
-	    }
-	  }]);
-	  return Counter;
-	}();
+	    Object.setPrototypeOf(this, null);
+	  }
+	}
 	function _getBorderClassname2(border) {
 	  if (border) {
 	    return 'ui-counter-border';
@@ -251,8 +217,8 @@ this.BX = this.BX || {};
 	    return '';
 	  }
 	}
-	babelHelpers.defineProperty(Counter, "Color", CounterColor);
-	babelHelpers.defineProperty(Counter, "Size", CounterSize);
+	Counter.Color = CounterColor;
+	Counter.Size = CounterSize;
 
 	exports.Counter = Counter;
 	exports.CounterColor = CounterColor;

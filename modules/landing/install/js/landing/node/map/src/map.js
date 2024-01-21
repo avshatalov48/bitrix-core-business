@@ -1,4 +1,4 @@
-import { Node } from 'landing.node';
+import { Base } from 'landing.node.base';
 
 const debounce = BX.Landing.Utils.debounce;
 const data = BX.Landing.Utils.data;
@@ -6,7 +6,7 @@ const proxy = BX.Landing.Utils.proxy;
 const onCustomEvent = BX.Landing.Utils.onCustomEvent;
 const encodeDataValue = BX.Landing.Utils.encodeDataValue;
 
-export class Map extends Node
+export class Map extends Base
 {
 	constructor(options)
 	{

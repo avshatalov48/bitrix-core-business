@@ -1152,7 +1152,9 @@ class VendorDataExchangeManager
 	 */
 	private function getMasterSyncEvent(Sync\Entities\SyncEvent $syncEvent): ?Sync\Entities\SyncEvent
 	{
+		$recurrenceId = [];
 		$eventConnection = $syncEvent->getEventConnection();
+
 		if ($eventConnection === null)
 		{
 			throw new BaseException('you should set EventConnection in SyncEvent');
@@ -1163,8 +1165,13 @@ class VendorDataExchangeManager
 			return $masterSyncEvent;
 		}
 
+		if ($eventConnection->getRecurrenceId())
+		{
+			$recurrenceId[] = $eventConnection->getRecurrenceId();
+		}
+
 		return $this->syncEventFactory->getSyncEventCollectionByVendorIdList(
-			[$eventConnection->getRecurrenceId()],
+			$recurrenceId,
 			$this->factory->getConnection()->getId()
 		)->fetch();
 	}

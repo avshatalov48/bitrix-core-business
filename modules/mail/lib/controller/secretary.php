@@ -4,6 +4,8 @@ namespace Bitrix\Mail\Controller;
 
 use Bitrix\Forum\ForumTable;
 use Bitrix\Mail\Helper\Message;
+use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
+use Bitrix\Mail\Internals\MailMessageAttachmentTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\Action;
@@ -364,9 +366,13 @@ class Secretary extends Controller
 			'#LINK#' => \Bitrix\Mail\Integration\Intranet\Secretary::getDirectMessageUrl($message->getId()),
 		]);
 
+		$isIcal = Message::isIcalMessage($message);
+
 		return [
 			'name' => htmlspecialcharsbx($message->getSubject()),
 			'desc' => $desc,
+			'isIcal' => $isIcal,
+			'isNewEvent' => !$isIcal,
 			// 'userIds' => $data['USER_IDS'],
 		];
 	}

@@ -21,10 +21,10 @@ class Token
 	public $level;
 
 	/**
-	 * @param integer $type Type of the token.
+	 * @param int $type Type of the token.
 	 * @param string $text Text of the token.
 	 */
-	function __construct($type, $text)
+	public function __construct($type, $text)
 	{
 		$this->type = $type;
 		$this->text = $text;
@@ -40,7 +40,7 @@ class Token
 	 *
 	 * @return void
 	 */
-	function setText($text)
+	public function setText($text)
 	{
 		$this->text = $text;
 		$this->upper = mb_strtoupper($this->text);
@@ -55,7 +55,7 @@ class Token
 	 *
 	 * @return void
 	 */
-	function appendText($text)
+	public function appendText($text)
 	{
 		$this->text .= $text;
 		$this->upper = mb_strtoupper($this->text);
@@ -67,7 +67,7 @@ class Tokenizer
 	protected $index = 0;
 	protected $bookmark = 0;
 	/** @var array[Token] */
-	protected $tokens = array();
+	protected $tokens = [];
 
 	/**
 	 * Splits a text into tokens, creates new Tokenizer object, and returns it.
@@ -154,7 +154,7 @@ class Tokenizer
 	/**
 	 * Checks if end of tokens reached.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function endOfInput()
 	{
@@ -217,9 +217,13 @@ class Tokenizer
 			/** @var Token $token */
 			$token = $this->tokens[$i];
 			if ($token->type == Token::T_WHITESPACE || $token->type == Token::T_COMMENT)
+			{
 				$i++;
+			}
 			else
+			{
 				break;
+			}
 		}
 		return $this->tokens[$i] ?? null;
 	}
@@ -236,9 +240,13 @@ class Tokenizer
 			/** @var Token $token */
 			$token = $this->tokens[$this->index];
 			if ($token->type == Token::T_WHITESPACE || $token->type == Token::T_COMMENT)
+			{
 				$this->index++;
+			}
 			else
+			{
 				break;
+			}
 		}
 	}
 
@@ -249,7 +257,7 @@ class Tokenizer
 	 *
 	 * @param string $text Text to compare.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function testUpperText($text)
 	{
@@ -273,7 +281,7 @@ class Tokenizer
 	 *
 	 * @param string $text Text to compare.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function testText($text)
 	{
@@ -299,7 +307,7 @@ class Tokenizer
 	 */
 	private function _tokenize($sql)
 	{
-		$this->tokens = array();
+		$this->tokens = [];
 		$tokenCount = 0;
 		$chars = '(),.:=;/';
 		$rawTokens = preg_split("/(
@@ -312,17 +320,19 @@ class Tokenizer
 			|\\/\\*.*?\\*\\/                # COMMENTARY
 			|--.*?\\n                       # COMMENTARY
 			|\\#[^']*?\\n                   # COMMENTARY
-			|[".preg_quote($chars, "/")."]  # CHARACTER
-		)/xs", $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
+			|[" . preg_quote($chars, '/') . ']  # CHARACTER
+		)/xs', $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
 		$isInSingleQuote = false;
 		$isInDoubleQuote = false;
-		foreach ($rawTokens as $i => $rawToken)
+		foreach ($rawTokens as $rawToken)
 		{
-			if ($rawToken === "")
+			if ($rawToken === '')
+			{
 				continue;
+			}
 
 			/** @var Token $prevToken */
-			$prevToken = $this->tokens[$tokenCount-1] ?? null;
+			$prevToken = $this->tokens[$tokenCount - 1] ?? null;
 
 			if ($isInSingleQuote)
 			{
@@ -343,26 +353,26 @@ class Tokenizer
 			{
 				$prevToken->appendText($rawToken);
 				if (
-					$rawToken === "\""
-					&& preg_match("/(\\\\)*\"\$/", $prevToken->text, $match)
+					$rawToken === '"'
+					&& preg_match('/(\\\\)*"$/', $prevToken->text, $match)
 					&& (mb_strlen($match[0]) % 2) === 1
 				)
 				{
 					$isInDoubleQuote = false;
 				}
 			}
-			elseif ($rawToken[0] === "`")
+			elseif ($rawToken[0] === '`')
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_BACK_QUOTE, $rawToken);
 			}
-			elseif ($rawToken[0] === "[")
+			elseif ($rawToken[0] === '[')
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_SQUARE_QUOTE, $rawToken);
 			}
 			elseif (
-				($rawToken[0] === "/" && $rawToken[1] === '*')
-				|| ($rawToken[0] === "-" && $rawToken[1] === '-')
-				|| ($rawToken[0] === "#")
+				($rawToken[0] === '/' && $rawToken[1] === '*')
+				|| ($rawToken[0] === '-' && $rawToken[1] === '-')
+				|| ($rawToken[0] === '#')
 			)
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_COMMENT, $rawToken);
@@ -371,7 +381,7 @@ class Tokenizer
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_CHAR, $rawToken);
 			}
-			elseif ($rawToken === "\"")
+			elseif ($rawToken === '"')
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_DOUBLE_QUOTE, $rawToken);
 				$isInDoubleQuote = true;
@@ -430,10 +440,14 @@ class Tokenizer
 		foreach ($this->tokens as $token)
 		{
 			if ($token->text === ')')
+			{
 				$level--;
+			}
 			$token->level = $level;
 			if ($token->text === '(')
+			{
 				$level++;
+			}
 		}
 	}
 }

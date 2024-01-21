@@ -273,6 +273,12 @@ $optionMainList[] = [
 	'TYPE' => 'checkbox',
 ];
 $optionMainList[] = [
+	'ID' => 'save_anonymous_fuser_cookie',
+	'TITLE' => Loc::getMessage('SALE_SAVE_ANONYMOUS_FUSER_COOKIE'),
+	'TYPE' => 'checkbox',
+	'HINT' => Loc::getMessage('SALE_HINT_SAVE_ANONYMOUS_FUSER_COOKIE'),
+];
+$optionMainList[] = [
 	'ID' => 'COUNT_DISCOUNT_4_ALL_QUANTITY',
 	'TITLE' => Loc::getMessage('SALE_OPT_COUNT_DISCOUNT_4_ALL_QUANTITY'),
 	'TYPE' => 'checkbox',

@@ -29,6 +29,11 @@ class StoreProvider extends BaseProvider
 		return StoreTable::getUfId();
 	}
 
+	public function getUfPrefix(): string
+	{
+		return $this->getUfEntityId();
+	}
+
 	/**
 	 * Entity field values.
 	 *

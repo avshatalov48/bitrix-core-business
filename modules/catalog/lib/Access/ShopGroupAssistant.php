@@ -69,8 +69,8 @@ class ShopGroupAssistant
 		}
 
 		$group = GroupTable::getRow([
-			'filter' => ['STRING_ID' => $groupCode],
-			'select' => ['ID']
+			'filter' => ['=STRING_ID' => $groupCode],
+			'select' => ['ID'],
 		]);
 
 		if (!$group)

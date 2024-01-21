@@ -15,11 +15,11 @@ trait MergeTrait
 	 * @param array $insertFields
 	 * @param array $updateFields
 	 */
-	public static function merge(array $insertFields, array $updateFields)
+	public static function merge(array $insertFields, array $updateFields, ?array $uniqueFields = null)
 	{
 		$entity = static::getEntity();
 		$conn = $entity->getConnection();
-		$primary = $entity->getPrimaryArray();
+		$primary = $uniqueFields === null ? $entity->getPrimaryArray() : $uniqueFields;
 
 		$sql = $conn->getSqlHelper()->prepareMerge(static::getTableName(), $primary, $insertFields, $updateFields);
 

@@ -1,13 +1,13 @@
-import {Dom, Event, Loc, Tag, Type} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {Button, ButtonSize, ButtonColor, ButtonIcon} from 'ui.buttons';
-import {MessageBox} from 'ui.dialogs.messagebox';
-import {Util} from 'calendar.util';
+import { Dom, Event, Loc, Tag, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Button, ButtonSize, ButtonColor, ButtonIcon } from 'ui.buttons';
+import { MessageBox } from 'ui.dialogs.messagebox';
+import { Util } from 'calendar.util';
 import DialogNew from './dialog-new';
 import 'ui.switcher';
 import 'spotlight';
-import {Guide} from "ui.tour";
-import {Counter} from 'ui.cnt';
+import { Guide } from 'ui.tour';
+import { Counter } from 'ui.cnt';
 
 export default class SharingButton
 {
@@ -16,22 +16,31 @@ export default class SharingButton
 	PAY_ATTENTION_TO_NEW_FEATURE_FIRST = 'first-feature';
 	PAY_ATTENTION_TO_NEW_FEATURE_NEW = 'new-feature';
 	PAY_ATTENTION_TO_NEW_FEATURE_REMIND = 'remind-feature';
+	PAY_ATTENTION_TO_NEW_FEATURE_JOINT = 'joint-sharing'
 
 	PAY_ATTENTION_TO_NEW_FEATURE_WITHOUT_TEXT_MODS = [this.PAY_ATTENTION_TO_NEW_FEATURE_FIRST];
-	PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS = [this.PAY_ATTENTION_TO_NEW_FEATURE_NEW, this.PAY_ATTENTION_TO_NEW_FEATURE_REMIND];
+	PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS = [
+		this.PAY_ATTENTION_TO_NEW_FEATURE_NEW,
+		this.PAY_ATTENTION_TO_NEW_FEATURE_REMIND,
+
+	];
+
 	AVAILABLE_PAY_ATTENTION_TO_NEW_FEATURE_MODS = [
 		...this.PAY_ATTENTION_TO_NEW_FEATURE_WITHOUT_TEXT_MODS,
-		...this.PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS
+		...this.PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS,
 	];
 
 	constructor(options = {})
 	{
 		this.wrap = options.wrap;
-		this.userId = options.userId;
+		this.userInfo = options.userInfo || null;
 		this.sharingConfig = Util.getSharingConfig();
 		this.sharingUrl = this.sharingConfig?.url || null;
+		this.linkHash = this.sharingConfig?.hash || null;
+		this.sharingRule = this.sharingConfig?.rule || null;
 		this.payAttentionToNewFeatureMode = options.payAttentionToNewFeature;
 		this.sharingFeatureLimit = options.sharingFeatureLimit;
+		this.sharingSettingsCollapsed = options.sharingSettingsCollapsed;
 	}
 
 	show()
@@ -55,10 +64,15 @@ export default class SharingButton
 		this.button.renderTo(this.wrap);
 		this.renderSwitcher();
 
-		if (this.AVAILABLE_PAY_ATTENTION_TO_NEW_FEATURE_MODS.includes(this.payAttentionToNewFeatureMode))
+		if (this.payAttentionToNewFeatureMode === this.PAY_ATTENTION_TO_NEW_FEATURE_JOINT)
 		{
-			this.payAttentionToNewFeature(this.payAttentionToNewFeatureMode);
-			BX.ajax.runAction('calendar.api.sharingajax.disableOptionPayAttentionToNewSharingFeature');
+			setTimeout(() => {
+				if (BX.SidePanel.Instance.getTopSlider() === null)
+				{
+					this.payAttentionToNewFeatureWithText();
+					BX.ajax.runAction('calendar.api.sharingajax.disableOptionPayAttentionToNewSharingFeature');
+				}
+			}, this.PAY_ATTENTION_TO_NEW_FEATURE_DELAY);
 		}
 	}
 
@@ -71,13 +85,13 @@ export default class SharingButton
 			return;
 		}
 
-		if (!this.isSharingEnabled())
+		if (this.isSharingEnabled())
 		{
-			this.switcher.toggle();
+			this.openDialog();
 		}
 		else
 		{
-			this.openDialog();
+			this.switcher.toggle();
 		}
 	}
 
@@ -100,7 +114,7 @@ export default class SharingButton
 		Dom.append(this.getSwitcherDivider(), this.wrap);
 		this.switcherWrap = Tag.render`<div class="calendar-sharing__switcher-wrap"></div>`;
 		Dom.append(this.switcherWrap, this.wrap);
-		Event.bind(this.switcherWrap, 'click', this.handleSwitcherWrapClick.bind(this), {capture: true});
+		Event.bind(this.switcherWrap, 'click', this.handleSwitcherWrapClick.bind(this), { capture: true });
 
 		this.switcher = new BX.UI.Switcher({
 			node: this.getSwitcherContainer(),
@@ -167,14 +181,16 @@ export default class SharingButton
 		BX.ajax.runAction(action)
 			.then((response) => {
 				this.sharingUrl = response.data.url;
+				this.linkHash = response.data.hash;
+				this.sharingRule = response.data.rule;
 				this.openDialog();
 
 				EventEmitter.emit(
 					event,
 					{
-						'isChecked': this.switcher.isChecked(),
-						'url': response.data.url,
-					}
+						isChecked: this.switcher.isChecked(),
+						url: response.data.url,
+					},
 				);
 			})
 			.catch(() => {
@@ -193,14 +209,23 @@ export default class SharingButton
 			this.newDialog = new DialogNew({
 				bindElement: this.button.getContainer(),
 				sharingUrl: this.sharingUrl,
-				context: "calendar",
+				linkHash: this.linkHash,
+				sharingRule: this.sharingRule,
+				context: 'calendar',
+				calendarSettings: {
+					weekHolidays: Util.config.week_holidays,
+					weekStart: Util.config.week_start,
+					workTimeStart: Util.config.work_time_start,
+					workTimeEnd: Util.config.work_time_end,
+				},
+				userInfo: this.userInfo,
+				settingsCollapsed: this.sharingSettingsCollapsed,
 			});
 		}
 
 		if (!this.newDialog.isShown())
 		{
 			this.newDialog.show();
-			this.newDialog.copyLink();
 		}
 	}
 
@@ -218,7 +243,7 @@ export default class SharingButton
 					this.newDialog.destroy();
 					this.newDialog = null;
 				}
-				EventEmitter.emit(event, {'isChecked': this.switcher.isChecked()});
+				EventEmitter.emit(event, { isChecked: this.switcher.isChecked() });
 			})
 			.catch(() => {
 				this.switcher.toggle();
@@ -232,7 +257,7 @@ export default class SharingButton
 		{
 			this.warningPopup = new MessageBox({
 				title: Loc.getMessage('SHARING_WARNING_POPUP_TITLE_1'),
-				message: Loc.getMessage('SHARING_WARNING_POPUP_CONTENT_1'),
+				message: Loc.getMessage('SHARING_WARNING_POPUP_CONTENT_2'),
 				buttons: this.getWarningPopupButtons(),
 				popupOptions: {
 					autoHide: true,
@@ -240,7 +265,7 @@ export default class SharingButton
 					draggable: false,
 					closeIcon: true,
 					minWidth: 365,
-					maxWidth: 365,
+					maxWidth: 385,
 					minHeight: 180,
 				},
 			});
@@ -251,7 +276,7 @@ export default class SharingButton
 
 	getWarningPopupButtons()
 	{
-		return [this.getSubmitButton(), this.getCancelButton()]
+		return [this.getSubmitButton(), this.getCancelButton()];
 	}
 
 	getSubmitButton()
@@ -259,10 +284,10 @@ export default class SharingButton
 		return new Button({
 			size: ButtonSize.MEDIUM,
 			color: ButtonColor.DANGER,
-			text: Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW'),
+			text: Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1'),
 			events: {
 				click: () => this.handleSubmitButtonClick(),
-			}
+			},
 		});
 	}
 
@@ -274,7 +299,7 @@ export default class SharingButton
 			text: Loc.getMessage('SHARING_WARNING_POPUP_CANCEL_BUTTON'),
 			events: {
 				click: () => this.handleCancelButtonClick(),
-			}
+			},
 		});
 	}
 
@@ -295,9 +320,10 @@ export default class SharingButton
 		{
 			this.payAttentionToNewFeatureWithoutText();
 		}
+
 		if (this.PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS.includes(mode))
 		{
-			this.payAttentionToNewFeatureWithText(mode);
+			this.payAttentionToNewFeatureWithText();
 		}
 	}
 
@@ -313,31 +339,24 @@ export default class SharingButton
 			value: 1,
 			color: Counter.Color.DANGER,
 			size: Counter.Size.MEDIUM,
-			animation: false
+			animation: false,
 		})).getContainer();
 		Dom.addClass(this.counterNode, 'calendar-sharing__new-feature-counter');
 		Dom.append(this.counterNode, this.wrap);
 	}
 
-	payAttentionToNewFeatureWithText(mode)
+	payAttentionToNewFeatureWithText()
 	{
-		let title = Loc.getMessage('CALENDAR_PAY_ATTENTION_TO_NEW_FEATURE_TITLE');
-		let text = Loc.getMessage('CALENDAR_PAY_ATTENTION_TO_NEW_FEATURE_TEXT');
-		if (mode === this.PAY_ATTENTION_TO_NEW_FEATURE_REMIND)
-		{
-			title = Loc.getMessage('CALENDAR_PAY_ATTENTION_TO_NEW_FEATURE_NOTIFY_TITLE');
-			text = Loc.getMessage('CALENDAR_PAY_ATTENTION_TO_NEW_FEATURE_NOTIFY_TEXT');
-		}
+		const title = Loc.getMessage('CALENDAR_PAY_ATTENTION_TO_NEW_FEATURE_JOINT_TITLE');
+		const text = Loc.getMessage('CALENDAR_PAY_ATTENTION_TO_NEW_FEATURE_JOINT_TEXT');
 
 		const guide = this.getGuide(title, text);
 		const pulsar = this.getPulsar(this.wrap);
 
-		setTimeout(() => {
-			guide.showNextStep();
-			guide.getPopup().setAngle({ offset: 210 });
+		guide.showNextStep();
+		guide.getPopup().setAngle({ offset: 210 });
 
-			pulsar.show();
-		}, this.PAY_ATTENTION_TO_NEW_FEATURE_DELAY);
+		pulsar.show();
 	}
 
 	getGuide(title, text)
@@ -348,8 +367,8 @@ export default class SharingButton
 			steps: [
 				{
 					target: this.wrap,
-					title: title,
-					text: text,
+					title,
+					text,
 					position: 'bottom',
 					condition: {
 						top: true,
@@ -362,7 +381,7 @@ export default class SharingButton
 		const guidePopup = guide.getPopup();
 		Dom.addClass(guidePopup.popupContainer, 'calendar-popup-ui-tour-animate');
 		guidePopup.setWidth(400);
-		guidePopup.getContentContainer().style.paddingRight = getComputedStyle(guidePopup.closeIcon)['width'];
+		Dom.style(guidePopup.getContentContainer(), 'paddingRight', getComputedStyle(guidePopup.closeIcon).width);
 
 		return guide;
 	}
@@ -377,7 +396,7 @@ export default class SharingButton
 		if (hideOnHover)
 		{
 			pulsar.bindEvents({
-				'onTargetEnter': () => pulsar.close(),
+				onTargetEnter: () => pulsar.close(),
 			});
 		}
 

@@ -1,4 +1,4 @@
-<?
+<?php
 //<title>CommerceML</title>
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/import_setup_templ.php');
 $startImportExecTime = getmicrotime();

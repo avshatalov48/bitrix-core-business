@@ -2,6 +2,8 @@
 
 namespace Bitrix\Im\V2\Message;
 
+use Bitrix\Im\V2\Result;
+
 interface MessageParameter
 {
 	public function setMessageId(int $messageId): self;
@@ -65,6 +67,11 @@ interface MessageParameter
 	public function unsetValue(): self;
 
 	/**
+	 * @return bool
+	 */
+	public function isHidden(): bool;
+
+	/**
 	 * @return string|array|null
 	 */
 	public function toRestFormat();
@@ -73,4 +80,11 @@ interface MessageParameter
 	 * @return string|array|null
 	 */
 	public function toPullFormat();
+
+	/**
+	 * @return Result
+	 */
+	public function isValid(): Result;
+
+	public function isDeleted(): bool;
 }

@@ -146,15 +146,20 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	/** Display message as a system notification. */
 	protected bool $isSystem = false;
 
-	protected ?array $linkAttachments = null;
+	protected ?UrlItem $url;
+
+	protected int $botId = 0;
 
 	/** Message UUID.*/
 	protected ?string $uuid = null;
+
+	protected ?string $forwardUuid = null;
 
 	/** File UUID.*/
 	protected ?string $fileUuid = null;
 
 	protected bool $isUuidFilled = false;
+	protected bool $isUrlFilled = false;
 
 	protected ?string $pushMessage = null;
 	protected ?array $pushParams = null;
@@ -181,6 +186,13 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 
 	public function save(): Result
 	{
+		$checkParamsIsValid = $this->getParams()->isValid();
+
+		if (!$checkParamsIsValid->isSuccess())
+		{
+			return $checkParamsIsValid;
+		}
+
 		$result = $this->defaultSave();
 
 		if ($result->isSuccess())
@@ -250,9 +262,26 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this->importantFor ?? array_values($this->getUserIdsFromMention());
 	}
 
-	public function setImportantFor(array $importantFor): void
+	public function setImportantFor(array $importantFor): self
 	{
 		$this->importantFor = $importantFor;
+
+		return $this;
+	}
+
+	public function getForwardUuid(): ?string
+	{
+		return $this->forwardUuid;
+	}
+
+	public function setForwardUuid(?string $forwardUuid): self
+	{
+		if ($forwardUuid && Im\Message\Uuid::validate($forwardUuid))
+		{
+			$this->forwardUuid = $forwardUuid;
+		}
+
+		return $this;
 	}
 
 	/**
@@ -302,7 +331,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	 */
 	public function setAttach($attach): self
 	{
-		$this->getParams()->set(Params::ATTACH, $attach);
+		$this->getParams()->get(Params::ATTACH)->setValue($attach);
 		return $this;
 	}
 
@@ -314,29 +343,28 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this->getParams()->get(Params::ATTACH);
 	}
 
-	public function setLinkAttachments(array $linkAttachments): self
+	public function setUrl(?UrlItem $url): self
 	{
-		$this->linkAttachments = $linkAttachments;
+		$this->url = $url;
+		$this->isUrlFilled = true;
 
 		return $this;
 	}
 
-	public function getLinkAttachments(): array
+	public function getUrl(): ?UrlItem
 	{
-		if (!isset($this->linkAttachments))
+		if (isset($this->url))
 		{
-			$this->linkAttachments = [];
-			if ($this->getParams()->isSet(Params::URL_ID))
-			{
-				$urlIds = $this->getParams()->get(Params::URL_ID)->getValue();
-				if ($urlIds)
-				{
-					$this->linkAttachments = array_values(\CIMMessageLink::getAttachments($urlIds, true));
-				}
-			}
+			return $this->url;
 		}
 
-		return $this->linkAttachments;
+		$urlId = $this->getParams()->get(Params::URL_ID)->getValue()[0] ?? null;
+		if (isset($urlId) && !$this->isUrlFilled)
+		{
+			return UrlItem::initByPreviewUrlId($urlId, false);
+		}
+
+		return null;
 	}
 
 	public function setUnread(bool $isUnread): self
@@ -405,13 +433,38 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this->isViewedByOthers;
 	}
 
+	public function setBotId(int $botId): self
+	{
+		$this->botId = $botId;
+
+		return $this;
+	}
+
 	/**
 	 * @param array|Param|Keyboard $keyboard
 	 * @return $this
 	 */
 	public function setKeyboard($keyboard): self
 	{
-		$this->getParams()->set(Params::KEYBOARD, $keyboard);
+		if (is_array($keyboard))
+		{
+			$value = [];
+			if (!isset($keyboard['BUTTONS']))
+			{
+				$value['BUTTONS'] = $keyboard;
+			}
+			else
+			{
+				$value = $keyboard;
+			}
+			if (!isset($value['BOT_ID']))
+			{
+				$value['BOT_ID'] = $this->botId;
+			}
+			$keyboard = $value;
+		}
+
+		$this->getParams()->get(Params::KEYBOARD)->setValue($keyboard);
 		return $this;
 	}
 
@@ -428,7 +481,25 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	 */
 	public function setMenu($menu): self
 	{
-		$this->getParams()->set(Params::MENU, $menu);
+		if (is_array($menu))
+		{
+			$value = [];
+			if (!isset($menu['ITEMS']))
+			{
+				$value['ITEMS'] = $menu;
+			}
+			else
+			{
+				$value = $menu;
+			}
+			if (!isset($value['BOT_ID']))
+			{
+				$value['BOT_ID'] = $this->botId;
+			}
+			$menu = $value;
+		}
+
+		$this->getParams()->get(Params::MENU)->setValue($menu);
 		return $this;
 	}
 
@@ -544,6 +615,21 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this;
 	}
 
+	public function fillFiles(FileCollection $files): self
+	{
+		$this->files = $files;
+
+		return $this;
+	}
+
+	public function addFile(Im\V2\Entity\File\FileItem $file): self
+	{
+		$this->getFiles()[] = $file;
+		$this->getParams()->get(Params::FILE_ID)->addValue($file->getId());
+
+		return $this;
+	}
+
 	/**
 	 * @return FileCollection
 	 */
@@ -588,10 +674,12 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 
 	/**
 	 * Extracts and saves files from message text.
-	 * @return self
+	 *
+	 * @return array
 	 */
-	public function uploadFileFromText(): self
+	public function uploadFileFromText(): array
 	{
+		$files = [];
 		if ($this->getMessage() && $this->getChatId())
 		{
 			$message = $this->getMessage();
@@ -603,8 +691,10 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 					$newFile = \CIMDisk::SaveFromLocalDisk($this->getChatId(), $fileId, false, $this->getContext()->getUserId());
 					if ($newFile)
 					{
+						$files[] = $newFile;
 						$fileFound = true;
-						$this->getParams()->get(Params::FILE_ID)->addValue($newFile->getId());
+						$file = new Im\V2\Entity\File\FileItem($newFile, $this->getChatId());
+						$this->addFile($file);
 					}
 				}
 				if ($fileFound)
@@ -615,7 +705,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 			}
 		}
 
-		return $this;
+		return $files;
 	}
 
 	public function formatFilesMessageOut(): self
@@ -679,13 +769,25 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return Link\Reminder\ReminderItem::getByMessageAndUserId($this, $this->getContext()->getUserId());
 	}
 
+	public function getAdditionalMessageIds(): array
+	{
+		$ids = [];
+
+		if ($this->getParams()->isSet(Params::REPLY_ID))
+		{
+			$ids[] = $this->getParams()->get(Params::REPLY_ID)->getValue();
+		}
+
+		return $ids;
+	}
+
 	public function getPopupData(array $excludedList = []): PopupData
 	{
 		$data = new PopupData([
 			new Im\V2\Entity\User\UserPopupItem($this->getUserIds()),
 			new Im\V2\Entity\File\FilePopupItem(),
 			new Im\V2\Link\Reminder\ReminderPopupItem(),
-			new Im\V2\Message\Reaction\ReactionPopupItem($this->getReactions())
+			new Im\V2\Message\Reaction\ReactionPopupItem($this->getReactions()),
 		], $excludedList);
 
 		if (!in_array(Im\V2\Entity\File\FilePopupItem::class, $excludedList, true))
@@ -756,6 +858,12 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this;
 	}
 
+	public function setChat(Chat $chat): self
+	{
+		$this->chat = $chat;
+		return $this;
+	}
+
 	public function getChatId(): ?int
 	{
 		return $this->chatId;
@@ -796,6 +904,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		}
 
 		$this->message = $value ?: '';
+		unset($this->parsedMessage, $this->formattedMessage, $this->url);
 		return $this;
 	}
 
@@ -804,7 +913,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this->message;
 	}
 
-	private function getParsedMessage(): string
+	public function getParsedMessage(): string
 	{
 		$this->parsedMessage ??= Im\Text::parse($this->getMessage() ?? '');
 
@@ -1530,6 +1639,12 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 			$userIds[$this->getAuthorId()] = $this->getAuthorId();
 		}
 
+		if ($this->getParams()->isSet(Params::FORWARD_USER_ID))
+		{
+			$userId = (int)$this->getParams()->get(Params::FORWARD_USER_ID)->getValue();
+			$userIds[$userId] = $userId;
+		}
+
 		return $userIds;
 	}
 
@@ -1552,29 +1667,25 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this->userIdsFromMention;
 	}
 
-	/**
-	 * Enrich the parameters with data that is displayed only in the rest
-	 * @return array
-	 */
-	protected function getParamsForRest(): array
+	public function getEnrichedParams(): Params
 	{
-		$params = $this->getParams()->toRestFormat();
+		$params = clone $this->getParams();
 
-		$attach = $this->getLinkAttachments();
-		if (!empty($attach))
+		$url = $this->getUrl();
+		if (isset($url))
 		{
-			$params[Params::ATTACH] = array_merge($params[Params::ATTACH] ?? [], $attach);
+			$params->get(Params::ATTACH)->addValue($url->getUrlAttach());
 		}
 
 		if ($this->isCompletelyEmpty())
 		{
-			$params[Params::IS_DELETED] = 'Y';
+			$params->get(Params::IS_DELETED)->setValue(true);
 		}
 
 		return $params;
 	}
 
-	protected function isCompletelyEmpty(): bool
+	public function isCompletelyEmpty(): bool
 	{
 		return (
 			$this->getParsedMessage() === ''
@@ -1584,7 +1695,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		);
 	}
 
-	protected function getContextTag(): string
+	public function getContextId(): string
 	{
 		$chat = $this->getChat();
 
@@ -1593,10 +1704,35 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 			$userIds = $chat->getRelations()->getUserIds();
 			$implodeUserIds = implode(':', $userIds);
 
-			return "#{$implodeUserIds}/{$this->getMessageId()}";
+			return "{$implodeUserIds}/{$this->getMessageId()}";
 		}
 
-		return "#{$chat->getDialogId()}/{$this->getMessageId()}";
+		return "{$chat->getDialogId()}/{$this->getMessageId()}";
+	}
+
+	protected function getContextTag(): string
+	{
+		return "#{$this->getContextId()}";
+	}
+
+	public function isForward(): bool
+	{
+		return $this->getParams()->isSet(Params::FORWARD_ID)
+			&& $this->getParams()->isSet(Params::FORWARD_CONTEXT_ID)
+		;
+	}
+
+	protected function getForwardInfo(): ?array
+	{
+		if (!$this->isForward())
+		{
+			return null;
+		}
+
+		return [
+			'id' => $this->getParams()->get(Params::FORWARD_CONTEXT_ID)->getValue(),
+			'userId' => (int)$this->getParams()->get(Params::FORWARD_USER_ID)->getValue(),
+		];
 	}
 
 	/**
@@ -1607,8 +1743,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	{
 		$dateCreate = $this->getDateCreate();
 		$authorId = $this->getNotifyEvent() === Notify::EVENT_SYSTEM ? 0 : $this->getAuthorId();
-
-		return [
+		$onlyCommonRest = [
 			'id' => $this->getId(),
 			'chat_id' => $this->getChatId(),
 			'author_id' => $authorId,
@@ -1616,12 +1751,22 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 			'text' => $this->getFormattedMessage(),
 			'isSystem' => $this->isSystem(),
 			'replaces' => $this->getReplaceMap(),
-			'unread' => $this->isUnread(),
-			'viewed' => $this->isViewed(),
-			'viewedByOthers' => $this->isViewedByOthers(),
 			'uuid' => $this->getUuid(),
-			'params' => $this->getParamsForRest(),
+			'forward' => $this->getForwardInfo(),
+			'params' => $this->getEnrichedParams()->toRestFormat(),
 		];
+		$rest = $onlyCommonRest;
+
+		if (!isset($option['MESSAGE_ONLY_COMMON_FIELDS']) || $option['MESSAGE_ONLY_COMMON_FIELDS'] === false)
+		{
+			$rest = array_merge($onlyCommonRest, [
+				'unread' => $this->isUnread(),
+				'viewed' => $this->isViewed(),
+				'viewedByOthers' => $this->isViewedByOthers(),
+			]);
+		}
+
+		return $rest;
 	}
 
 	/**
@@ -1699,6 +1844,58 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		}
 
 		return $this;
+	}
+
+	public function autocompleteParams(bool $urlPreview): self
+	{
+		$this->getParams()->get(Params::LARGE_FONT)->setValue(Text::isOnlyEmoji($this->getMessage() ?? ''));
+		$dateText = [];
+		$dateTs = [];
+		$urlIds = [];
+		$isUrlOnly = false;
+		if ($urlPreview)
+		{
+			$results = Text::getDateConverterParams($this->getMessage() ?? '');
+			foreach ($results as $result)
+			{
+				$dateText[] = $result->getText();
+				$dateTs[] = $result->getDate()->getTimestamp();
+			}
+
+			$url = UrlItem::getByMessage($this);
+			if (isset($url))
+			{
+				if ($url->getId() !== null)
+				{
+					$urlIds[] = $url->getId();
+				}
+				$this->setUrl($url);
+				$isUrlOnly = $this->isUrlOnly($url);
+			}
+		}
+		$this->getParams()->get(Params::DATE_TEXT)->setValue($dateText);
+		$this->getParams()->get(Params::DATE_TS)->setValue($dateTs);
+		$this->getParams()->get(Params::URL_ID)->setValue($urlIds);
+		$this->getParams()->get(Params::URL_ONLY)->setValue($isUrlOnly);
+
+		return $this;
+	}
+
+	private function isUrlOnly(?UrlItem $url): bool
+	{
+		if ($url === null)
+		{
+			return false;
+		}
+
+		if (!$url->isStaticUrl())
+		{
+			return false;
+		}
+
+		$messageWithoutUrl = str_replace($url->getUrl(), '', $this->getMessage() ?? '');
+
+		return trim($messageWithoutUrl) === '';
 	}
 
 	/**

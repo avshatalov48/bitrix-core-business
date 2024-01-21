@@ -1,31 +1,31 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 class CIBlockPropertyElementList
 {
-	const USER_TYPE = 'EList';
+	/** @deprecated */
+	public const USER_TYPE = Iblock\PropertyTable::USER_TYPE_ELEMENT_LIST;
 
 	public static function GetUserTypeDescription()
 	{
-		return array(
-			"PROPERTY_TYPE" => Iblock\PropertyTable::TYPE_ELEMENT,
-			"USER_TYPE" => self::USER_TYPE,
-			"DESCRIPTION" => Loc::getMessage("IBLOCK_PROP_ELIST_DESC"),
-			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"GetPropertyFieldHtmlMulty" => array(__CLASS__, "GetPropertyFieldHtmlMulty"),
-			"GetPublicEditHTML" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"GetPublicEditHTMLMulty" => array(__CLASS__, "GetPropertyFieldHtmlMulty"),
-			"GetPublicViewHTML" => array(__CLASS__,  "GetPublicViewHTML"),
-			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty"),
-			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
-			"PrepareSettings" =>array(__CLASS__, "PrepareSettings"),
-			"GetSettingsHTML" =>array(__CLASS__, "GetSettingsHTML"),
-			"GetExtendedValue" => array(__CLASS__,  "GetExtendedValue"),
-			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
-		);
+		return [
+			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_ELEMENT,
+			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_ELEMENT_LIST,
+			'DESCRIPTION' => Loc::getMessage('IBLOCK_PROP_ELIST_DESC'),
+			'GetPropertyFieldHtml' => [__CLASS__, 'GetPropertyFieldHtml'],
+			'GetPropertyFieldHtmlMulty' => [__CLASS__, 'GetPropertyFieldHtmlMulty'],
+			'GetPublicEditHTML' => [__CLASS__, 'GetPropertyFieldHtml'],
+			'GetPublicEditHTMLMulty' => [__CLASS__, 'GetPropertyFieldHtmlMulty'],
+			'GetPublicViewHTML' => [__CLASS__,  'GetPublicViewHTML'],
+			'GetUIFilterProperty' => [__CLASS__, 'GetUIFilterProperty'],
+			'GetAdminFilterHTML' => [__CLASS__, 'GetAdminFilterHTML'],
+			'PrepareSettings' => [__CLASS__, 'PrepareSettings'],
+			'GetSettingsHTML' => [__CLASS__, 'GetSettingsHTML'],
+			'GetExtendedValue' => [__CLASS__,  'GetExtendedValue'],
+			'GetUIEntityEditorProperty' => [__CLASS__, 'GetUIEntityEditorProperty'],
+		];
 	}
 
 	public static function PrepareSettings($arProperty)
@@ -60,9 +60,13 @@ class CIBlockPropertyElementList
 	{
 		$settings = CIBlockPropertyElementList::PrepareSettings($arProperty);
 
-		$arPropertyFields = array(
-			"HIDE" => array("ROW_COUNT", "COL_COUNT", "MULTIPLE_CNT"),
-		);
+		$arPropertyFields = [
+			'HIDE' => [
+				'ROW_COUNT',
+				'COL_COUNT',
+				'MULTIPLE_CNT',
+			],
+		];
 
 		return '
 		<tr valign="top">
@@ -164,7 +168,7 @@ class CIBlockPropertyElementList
 		}
 		else
 		{
-			if(end($values) != "" || mb_substr(key($values), 0, 1) != "n")
+			if(end($values) != "" || mb_substr((string)key($values), 0, 1) != "n")
 				$values["n".($max_n+1)] = "";
 
 			$name = $strHTMLControlName["VALUE"]."VALUE";
@@ -225,18 +229,18 @@ class CIBlockPropertyElementList
 
 	public static function GetUIFilterProperty($arProperty, $strHTMLControlName, &$fields)
 	{
-		$fields["type"] = "list";
-		$fields["items"] = self::getItemsForUiFilter($arProperty);
-		$fields["operators"] = array(
-			"default" => "=",
-			"enum" => "@"
+		$fields['type'] = 'list';
+		$fields['items'] = self::getItemsForUiFilter($arProperty);
+		$fields['operators'] = array(
+			'default' => '=',
+			'enum' => '@',
 		);
 	}
 
 	private static function getItemsForUiFilter($arProperty)
 	{
 		$items = array();
-		$settings = CIBlockPropertyElementList::PrepareSettings($arProperty);
+		$settings = static::PrepareSettings($arProperty);
 
 		if ($settings["group"] === "Y")
 		{
@@ -382,7 +386,8 @@ class CIBlockPropertyElementList
 
 			foreach($arTree as $arSection)
 			{
-				$options .= '<optgroup label="'.str_repeat(" . ", $arSection["DEPTH_LEVEL"]-1).$arSection["NAME"].'">';
+				$margin = max((int)$arSection['DEPTH_LEVEL'], 1) - 1;
+				$options .= '<optgroup label="' . str_repeat(' . ', $margin) . $arSection['NAME'] . '">';
 				if(isset($arSection["E"]))
 				{
 					foreach($arSection["E"] as $arItem)
@@ -483,54 +488,45 @@ class CIBlockPropertyElementList
 
 	public static function GetSections($IBLOCK_ID)
 	{
-		static $cache = array();
-		$IBLOCK_ID = intval($IBLOCK_ID);
+		static $cache = [];
+		$IBLOCK_ID = (int)$IBLOCK_ID;
 
-		if(!array_key_exists($IBLOCK_ID, $cache))
+		if (!isset($cache[$IBLOCK_ID]))
 		{
-			$cache[$IBLOCK_ID] = array();
-			if($IBLOCK_ID > 0)
+			$cache[$IBLOCK_ID] = [];
+			if ($IBLOCK_ID > 0)
 			{
-				$arSelect = array(
-					"ID",
-					"NAME",
-					"DEPTH_LEVEL",
-				);
-				$arFilter = array (
-					"IBLOCK_ID"=> $IBLOCK_ID,
-					//"ACTIVE" => "Y",
-					"CHECK_PERMISSIONS" => "Y",
-				);
-				$arOrder = array(
-					"LEFT_MARGIN" => "ASC",
-				);
+				$arSelect = [
+					'ID',
+					'IBLOCK_ID',
+					'NAME',
+					'DEPTH_LEVEL',
+					'LEFT_MARGIN',
+				];
+				$arFilter = [
+					'IBLOCK_ID'=> $IBLOCK_ID,
+					//'ACTIVE' => 'Y',
+					'CHECK_PERMISSIONS' => 'Y',
+				];
+				$arOrder = [
+					'LEFT_MARGIN' => 'ASC',
+				];
 				$rsItems = CIBlockSection::GetList($arOrder, $arFilter, false, $arSelect);
 				while($arItem = $rsItems->GetNext())
-					$cache[$IBLOCK_ID][$arItem["ID"]] = $arItem;
+				{
+					$cache[$IBLOCK_ID][$arItem['ID']] = $arItem;
+				}
+				unset($arItem, $rsItems);
 			}
 		}
+
 		return $cache[$IBLOCK_ID];
 	}
 
 	public static function GetUIEntityEditorProperty($settings, $value)
 	{
-		$items = [];
-		foreach (CIBlockPropertyElementList::GetElements($settings['LINK_IBLOCK_ID']) as $element)
-		{
-			$items[] = [
-				'NAME' => $element['NAME'],
-				'VALUE' => $element['ID'],
-				'ID' => $element['ID'],
-			];
-		}
 		return [
-			'type' => ($settings['MULTIPLE'] === 'Y') ? 'multilist' : 'list',
-			'data' => [
-				'isProductProperty' => true,
-				'enableEmptyItem' => true,
-				'items' => $items,
-				'isConfigurable' => false,
-			],
+			'type' => 'custom',
 		];
 	}
 }

@@ -8,4 +8,5 @@ export default class ButtonState
 	static DISABLED = 'ui-btn-disabled';
 	static CLOCKING = 'ui-btn-clock';
 	static WAITING = 'ui-btn-wait';
+	static AI_WAITING = 'ui-btn-ai-waiting';
 }

@@ -19,9 +19,7 @@ Loader::includeModule('catalog');
 $readOnly = !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS);
 if ($readOnly && !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
 {
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('BX_CATALOG_SETTINGS_ACCESS_DENIED'));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
 
@@ -33,9 +31,7 @@ $iblockId = (isset($request['IBLOCK_ID']) ? (int)$request['IBLOCK_ID'] : 0);
 $catalogEdit = new CatalogEdit($iblockId);
 if (!$catalogEdit->isSuccess())
 {
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(implode(' ', $catalogEdit->getErrors()));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
 

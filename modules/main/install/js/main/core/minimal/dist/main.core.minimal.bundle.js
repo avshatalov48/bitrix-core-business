@@ -5854,7 +5854,7 @@ window._main_polyfill_core = true;
 	  }, {
 	    key: "isStringFilled",
 	    value: function isStringFilled(value) {
-	      return this.isString(value) && value !== '';
+	      return Type.isString(value) && value !== '';
 	    }
 	    /**
 	     * Checks that value is function
@@ -5972,7 +5972,7 @@ window._main_polyfill_core = true;
 	  }, {
 	    key: "isArrayFilled",
 	    value: function isArrayFilled(value) {
-	      return this.isArray(value) && value.length > 0;
+	      return Type.isArray(value) && value.length > 0;
 	    }
 	    /**
 	     * Checks that value is array like
@@ -6528,6 +6528,36 @@ window._main_polyfill_core = true;
 	  }
 	}
 
+	var extensionsStorage = new Map();
+
+	var ajaxController = 'main.bitrix.main.controller.loadext.getextensions';
+	function loadAssets(options) {
+	  return new Promise(function (resolve) {
+	    // eslint-disable-next-line
+	    BX.ajax.runAction(ajaxController, {
+	      data: options
+	    }).then(resolve);
+	  });
+	}
+
+	function fetchInlineScripts(acc, item) {
+	  if (item.isInternal) {
+	    acc.push(item.JS);
+	  }
+	  return acc;
+	}
+	function fetchExternalScripts(acc, item) {
+	  if (!item.isInternal) {
+	    acc.push(item.JS);
+	  }
+	  return acc;
+	}
+	function fetchExternalStyles(acc, item) {
+	  if (Type.isString(item) && item !== '') {
+	    acc.push(item);
+	  }
+	  return acc;
+	}
 	function fetchExtensionSettings(html) {
 	  if (Type.isStringFilled(html)) {
 	    var scripts = html.match(/<script type="extension\/settings" \b[^>]*>([\s\S]*?)<\/script>/g);
@@ -6545,124 +6575,8 @@ window._main_polyfill_core = true;
 	  }
 	  return [];
 	}
-
-	var Extension = /*#__PURE__*/function () {
-	  function Extension(options) {
-	    babelHelpers.classCallCheck(this, Extension);
-	    this.config = options.config || {};
-	    this.name = options.extension;
-	    this.state = 'scheduled';
-
-	    // eslint-disable-next-line
-	    var result = BX.processHTML(options.html || '');
-	    this.inlineScripts = result.SCRIPT.reduce(inlineScripts, []);
-	    this.externalScripts = result.SCRIPT.reduce(externalScripts, []);
-	    this.externalStyles = result.STYLE.reduce(externalStyles, []);
-	    this.settingsScripts = fetchExtensionSettings(result.HTML);
-	  }
-	  babelHelpers.createClass(Extension, [{
-	    key: "load",
-	    value: function load() {
-	      var _this = this;
-	      if (this.state === 'error') {
-	        this.loadPromise = this.loadPromise || Promise.resolve(this);
-	        console.warn('Extension', this.name, 'not found');
-	      }
-	      if (!this.loadPromise && this.state) {
-	        this.state = 'load';
-	        this.settingsScripts.forEach(function (entry) {
-	          var isLoaded = !!document.querySelector("script[data-extension=\"".concat(entry.extension, "\"]"));
-	          if (!isLoaded) {
-	            document.body.insertAdjacentHTML('beforeend', entry.script);
-	          }
-	        });
-	        this.inlineScripts.forEach(BX.evalGlobal);
-	        this.loadPromise = Promise.all([loadAll(this.externalScripts), loadAll(this.externalStyles)]).then(function () {
-	          _this.state = 'loaded';
-	          if (Type.isPlainObject(_this.config) && _this.config.namespace) {
-	            return Reflection.getClass(_this.config.namespace);
-	          }
-	          return window;
-	        });
-	      }
-	      return this.loadPromise;
-	    }
-	  }]);
-	  return Extension;
-	}();
-
-	var initialized = {};
-	var ajaxController = 'main.bitrix.main.controller.loadext.getextensions';
-
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-	function makeIterable(value) {
-	  return Type.isArray(value) ? value : [value];
-	}
-	function isInitialized(extension) {
-	  return extension in initialized;
-	}
-	function getInitialized(extension) {
-	  return initialized[extension];
-	}
-	function isAllInitialized(extensions) {
-	  return extensions.every(isInitialized);
-	}
-	function loadExtensions(extensions) {
-	  return Promise.all(extensions.map(function (item) {
-	    return item.load();
-	  }));
-	}
-	function mergeExports(exports) {
-	  return exports.reduce(function (acc, currentExports) {
-	    if (Type.isObject(currentExports)) {
-	      return _objectSpread({}, currentExports);
-	    }
-	    return currentExports;
-	  }, {});
-	}
-	function inlineScripts(acc, item) {
-	  if (item.isInternal) {
-	    acc.push(item.JS);
-	  }
-	  return acc;
-	}
-	function externalScripts(acc, item) {
-	  if (!item.isInternal) {
-	    acc.push(item.JS);
-	  }
-	  return acc;
-	}
-	function externalStyles(acc, item) {
-	  if (Type.isString(item) && item !== '') {
-	    acc.push(item);
-	  }
-	  return acc;
-	}
-	function request(options) {
-	  return new Promise(function (resolve) {
-	    // eslint-disable-next-line
-	    BX.ajax.runAction(ajaxController, {
-	      data: options
-	    }).then(resolve);
-	  });
-	}
-	function prepareExtensions(response) {
-	  if (response.status !== 'success') {
-	    response.errors.map(console.warn);
-	    return [];
-	  }
-	  return response.data.map(function (item) {
-	    var initializedExtension = getInitialized(item.extension);
-	    if (initializedExtension) {
-	      return initializedExtension;
-	    }
-	    initialized[item.extension] = new Extension(item);
-	    return initialized[item.extension];
-	  });
-	}
 	function loadAll(items) {
-	  var itemsList = makeIterable(items);
+	  var itemsList = Type.isArray(items) ? items : [items];
 	  if (!itemsList.length) {
 	    return Promise.resolve();
 	  }
@@ -6672,21 +6586,143 @@ window._main_polyfill_core = true;
 	  });
 	}
 
-	/**
-	 * Loads extensions asynchronously
-	 * @param {string|Array<string>} extension
-	 * @return {Promise<Array<Extension>>}
-	 */
-	function loadExtension(extension) {
-	  var extensions = makeIterable(extension);
-	  var isAllInitialized$$1 = isAllInitialized(extensions);
-	  if (isAllInitialized$$1) {
-	    var initializedExtensions = extensions.map(getInitialized);
-	    return loadExtensions(initializedExtensions).then(mergeExports);
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var defaultOptions = {
+	  loaded: false
+	};
+	var _state = /*#__PURE__*/new WeakMap();
+	var _name = /*#__PURE__*/new WeakMap();
+	var _namespace = /*#__PURE__*/new WeakMap();
+	var _promise = /*#__PURE__*/new WeakMap();
+	var Extension = /*#__PURE__*/function () {
+	  function Extension(options) {
+	    babelHelpers.classCallCheck(this, Extension);
+	    _classPrivateFieldInitSpec(this, _state, {
+	      writable: true,
+	      value: Extension.State.LOADING
+	    });
+	    _classPrivateFieldInitSpec(this, _name, {
+	      writable: true,
+	      value: ''
+	    });
+	    _classPrivateFieldInitSpec(this, _namespace, {
+	      writable: true,
+	      value: ''
+	    });
+	    _classPrivateFieldInitSpec(this, _promise, {
+	      writable: true,
+	      value: null
+	    });
+	    var preparedOptions = _objectSpread(_objectSpread({}, defaultOptions), options);
+	    babelHelpers.classPrivateFieldSet(this, _name, preparedOptions.name);
+	    babelHelpers.classPrivateFieldSet(this, _namespace, Type.isStringFilled(preparedOptions.namespace) ? preparedOptions.namespace : 'window');
+	    if (preparedOptions.loaded) {
+	      babelHelpers.classPrivateFieldSet(this, _state, Extension.State.LOADED);
+	    }
 	  }
-	  return request({
-	    extension: extensions
-	  }).then(prepareExtensions).then(loadExtensions).then(mergeExports);
+	  babelHelpers.createClass(Extension, [{
+	    key: "load",
+	    value: function load() {
+	      var _this = this;
+	      if (babelHelpers.classPrivateFieldGet(this, _state) === Extension.State.LOADED && !babelHelpers.classPrivateFieldGet(this, _promise)) {
+	        babelHelpers.classPrivateFieldSet(this, _promise, Promise.resolve(Reflection.getClass(babelHelpers.classPrivateFieldGet(this, _namespace))));
+	      }
+	      if (babelHelpers.classPrivateFieldGet(this, _promise)) {
+	        return babelHelpers.classPrivateFieldGet(this, _promise);
+	      }
+	      babelHelpers.classPrivateFieldSet(this, _state, Extension.State.LOADING);
+	      babelHelpers.classPrivateFieldSet(this, _promise, new Promise(function (resolve) {
+	        void loadAssets({
+	          extension: [babelHelpers.classPrivateFieldGet(_this, _name)]
+	        }).then(function (assetsResult) {
+	          if (!Type.isArrayFilled(assetsResult.data)) {
+	            resolve(window);
+	          }
+	          var extensionData = assetsResult.data.at(0);
+	          if (Type.isPlainObject(extensionData.config) && Type.isStringFilled(extensionData.config.namespace)) {
+	            babelHelpers.classPrivateFieldSet(_this, _namespace, extensionData.config.namespace);
+	          }
+	          var result = BX.processHTML(extensionData.html || '');
+	          var inlineScripts = result.SCRIPT.reduce(fetchInlineScripts, []);
+	          var externalScripts = result.SCRIPT.reduce(fetchExternalScripts, []);
+	          var externalStyles = result.STYLE.reduce(fetchExternalStyles, []);
+	          var settingsScripts = fetchExtensionSettings(result.HTML);
+	          settingsScripts.forEach(function (entry) {
+	            document.body.insertAdjacentHTML('beforeend', entry.script);
+	          });
+	          inlineScripts.forEach(function (script) {
+	            BX.evalGlobal(script);
+	          });
+	          void Promise.all([loadAll(externalScripts), loadAll(externalStyles)]).then(function () {
+	            babelHelpers.classPrivateFieldSet(_this, _state, Extension.State.LOADED);
+	            if (babelHelpers.classPrivateFieldGet(_this, _namespace)) {
+	              return Reflection.getClass(babelHelpers.classPrivateFieldGet(_this, _namespace));
+	            }
+	            return window;
+	          }).then(function (exports) {
+	            resolve(exports);
+	          });
+	        });
+	      }));
+	      return babelHelpers.classPrivateFieldGet(this, _promise);
+	    }
+	  }]);
+	  return Extension;
+	}();
+	babelHelpers.defineProperty(Extension, "State", {
+	  LOADED: 'LOADED',
+	  LOADING: 'LOADING'
+	});
+
+	function _regeneratorRuntime() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == babelHelpers["typeof"](value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function loadExtension() {
+	  return _loadExtension.apply(this, arguments);
+	}
+	function _loadExtension() {
+	  _loadExtension = babelHelpers.asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+	    var _len,
+	      extensionName,
+	      _key,
+	      extensionNames,
+	      result,
+	      _args = arguments;
+	    return _regeneratorRuntime().wrap(function _callee$(_context) {
+	      while (1) switch (_context.prev = _context.next) {
+	        case 0:
+	          for (_len = _args.length, extensionName = new Array(_len), _key = 0; _key < _len; _key++) {
+	            extensionName[_key] = _args[_key];
+	          }
+	          extensionNames = extensionName.flat();
+	          result = extensionNames.map(function (name) {
+	            if (extensionsStorage.has(name)) {
+	              return extensionsStorage.get(name).load();
+	            }
+	            var extension = new Extension({
+	              name: name
+	            });
+	            extensionsStorage.set(name, extension);
+	            return extension.load();
+	          });
+	          return _context.abrupt("return", Promise.all(result).then(function (exports) {
+	            return exports.reduce(function (acc, currentExports) {
+	              if (Type.isPlainObject(currentExports)) {
+	                return _objectSpread$1(_objectSpread$1({}, acc), currentExports);
+	              }
+	              return acc;
+	            }, {});
+	          }));
+	        case 4:
+	        case "end":
+	          return _context.stop();
+	      }
+	    }, _callee);
+	  }));
+	  return _loadExtension.apply(this, arguments);
 	}
 
 	var cloneableTags = ['[object Object]', '[object Array]', '[object RegExp]', '[object Arguments]', '[object Date]', '[object Error]', '[object Map]', '[object Set]', '[object ArrayBuffer]', '[object DataView]', '[object Float32Array]', '[object Float64Array]', '[object Int8Array]', '[object Int16Array]', '[object Int32Array]', '[object Uint8Array]', '[object Uint16Array]', '[object Uint32Array]', '[object Uint8ClampedArray]'];
@@ -6797,6 +6833,12 @@ window._main_polyfill_core = true;
 	  };
 	}
 
+	function registerExtension(options) {
+	  if (!extensionsStorage.has(options.name)) {
+	    extensionsStorage.set(options.name, new Extension(options));
+	  }
+	}
+
 	/**
 	 * @memberOf BX
 	 */
@@ -6859,9 +6901,9 @@ window._main_polyfill_core = true;
 
 	      // eslint-disable-next-line
 	      var parsedHtml = BX.processHTML(_html);
-	      var externalCss = parsedHtml.STYLE.reduce(externalStyles, []);
-	      var externalJs = parsedHtml.SCRIPT.reduce(externalScripts, []);
-	      var inlineJs = parsedHtml.SCRIPT.reduce(inlineScripts, []);
+	      var externalCss = parsedHtml.STYLE.reduce(fetchExternalStyles, []);
+	      var externalJs = parsedHtml.SCRIPT.reduce(fetchExternalScripts, []);
+	      var inlineJs = parsedHtml.SCRIPT.reduce(fetchInlineScripts, []);
 	      if (Type.isDomNode(node)) {
 	        if (params.htmlFirst || !externalJs.length && !externalCss.length) {
 	          if (params.useAdjacentHTML) {
@@ -6952,6 +6994,7 @@ window._main_polyfill_core = true;
 	}();
 	babelHelpers.defineProperty(Runtime, "debug", debug);
 	babelHelpers.defineProperty(Runtime, "loadExtension", loadExtension);
+	babelHelpers.defineProperty(Runtime, "registerExtension", registerExtension);
 	babelHelpers.defineProperty(Runtime, "clone", clone);
 
 	var _isError = Symbol["for"]('BX.BaseError.isError');
@@ -9141,8 +9184,8 @@ window._main_polyfill_core = true;
 	  return Browser;
 	}();
 
-	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Cookie = /*#__PURE__*/function () {
 	  function Cookie() {
 	    babelHelpers.classCallCheck(this, Cookie);
@@ -9192,7 +9235,7 @@ window._main_polyfill_core = true;
 	    key: "set",
 	    value: function set(name, value) {
 	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-	      var attributes = _objectSpread$1({
+	      var attributes = _objectSpread$2({
 	        expires: ''
 	      }, options);
 	      if (Type.isNumber(attributes.expires)) {
@@ -9236,7 +9279,7 @@ window._main_polyfill_core = true;
 	    key: "remove",
 	    value: function remove(name) {
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-	      Cookie.set(name, '', _objectSpread$1(_objectSpread$1({}, options), {}, {
+	      Cookie.set(name, '', _objectSpread$2(_objectSpread$2({}, options), {}, {
 	        expires: -1
 	      }));
 	    }
@@ -9940,8 +9983,8 @@ window._main_polyfill_core = true;
 	babelHelpers.defineProperty(Tag, "render", render);
 	babelHelpers.defineProperty(Tag, "attr", Tag.attrs);
 
-	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	function getParser(format) {
 	  switch (format) {
 	    case 'index':
@@ -9998,7 +10041,7 @@ window._main_polyfill_core = true;
 	  if (!url) {
 	    return {};
 	  }
-	  return _objectSpread$2({}, url.split('&').reduce(function (acc, param) {
+	  return _objectSpread$3({}, url.split('&').reduce(function (acc, param) {
 	    var _param$replace$split = param.replace(/\+/g, ' ').split('='),
 	      _param$replace$split2 = babelHelpers.slicedToArray(_param$replace$split, 2),
 	      key = _param$replace$split2[0],
@@ -10058,8 +10101,8 @@ window._main_polyfill_core = true;
 	  return queryString;
 	}
 
-	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	function prepareParamValue(value) {
 	  if (Type.isArray(value)) {
 	    return value.map(function (item) {
@@ -10067,13 +10110,13 @@ window._main_polyfill_core = true;
 	    });
 	  }
 	  if (Type.isPlainObject(value)) {
-	    return _objectSpread$3({}, value);
+	    return _objectSpread$4({}, value);
 	  }
 	  return String(value);
 	}
 
-	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function ownKeys$5(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$5(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$5(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var map = new WeakMap();
 
 	/**
@@ -10228,7 +10271,7 @@ window._main_polyfill_core = true;
 	  }, {
 	    key: "getQueryParams",
 	    value: function getQueryParams() {
-	      return _objectSpread$4({}, map.get(this).queryParams);
+	      return _objectSpread$5({}, map.get(this).queryParams);
 	    }
 	    /**
 	     * Sets query params
@@ -10240,7 +10283,7 @@ window._main_polyfill_core = true;
 	    value: function setQueryParams() {
 	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      var currentParams = this.getQueryParams();
-	      var newParams = _objectSpread$4(_objectSpread$4({}, currentParams), params);
+	      var newParams = _objectSpread$5(_objectSpread$5({}, currentParams), params);
 	      Object.keys(newParams).forEach(function (key) {
 	        newParams[key] = prepareParamValue(newParams[key]);
 	      });
@@ -10255,7 +10298,7 @@ window._main_polyfill_core = true;
 	  }, {
 	    key: "removeQueryParam",
 	    value: function removeQueryParam() {
-	      var currentParams = _objectSpread$4({}, map.get(this).queryParams);
+	      var currentParams = _objectSpread$5({}, map.get(this).queryParams);
 	      for (var _len = arguments.length, keys = new Array(_len), _key = 0; _key < _len; _key++) {
 	        keys[_key] = arguments[_key];
 	      }
@@ -10294,7 +10337,7 @@ window._main_polyfill_core = true;
 	  }, {
 	    key: "serialize",
 	    value: function serialize() {
-	      var serialized = _objectSpread$4({}, map.get(this));
+	      var serialized = _objectSpread$5({}, map.get(this));
 	      serialized.href = this.toString();
 	      return serialized;
 	    }
@@ -10305,7 +10348,7 @@ window._main_polyfill_core = true;
 	  }, {
 	    key: "toString",
 	    value: function toString() {
-	      var data = _objectSpread$4({}, map.get(this));
+	      var data = _objectSpread$5({}, map.get(this));
 	      var protocol = data.schema ? "".concat(data.schema, "://") : '';
 	      if (data.useShort) {
 	        protocol = '//';
@@ -10565,8 +10608,8 @@ window._main_polyfill_core = true;
 	babelHelpers.defineProperty(Cache, "LocalStorageCache", LocalStorageCache);
 
 	var _Symbol$iterator;
-	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _searchIndexToInsert = /*#__PURE__*/new WeakSet();
 	_Symbol$iterator = Symbol.iterator;
@@ -11142,8 +11185,8 @@ window._main_polyfill_core = true;
 	  return window;
 	}
 
-	function ownKeys$5(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$5(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$5(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function ownKeys$6(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$6(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$6(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$6(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	// BX.*
 	var getClass = Reflection.getClass,
@@ -11191,7 +11234,7 @@ window._main_polyfill_core = true;
 	var getCookie = Http.Cookie.get;
 	var setCookie = function setCookie(name, value) {
 	  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-	  var attributes = _objectSpread$5({}, options);
+	  var attributes = _objectSpread$6({}, options);
 	  if (Type.isNumber(attributes.expires)) {
 	    attributes.expires /= 3600 * 24;
 	  }
@@ -11217,7 +11260,7 @@ window._main_polyfill_core = true;
 	  debounce = Runtime.debounce,
 	  throttle = Runtime.throttle,
 	  html = Runtime.html;
-	var type = _objectSpread$5(_objectSpread$5({}, Object.getOwnPropertyNames(Type).filter(function (key) {
+	var type = _objectSpread$6(_objectSpread$6({}, Object.getOwnPropertyNames(Type).filter(function (key) {
 	  return !['name', 'length', 'prototype', 'caller', 'arguments'].includes(key);
 	}).reduce(function (acc, key) {
 	  acc[key] = Type[key];
@@ -11292,7 +11335,7 @@ window._main_polyfill_core = true;
 	}
 	function GetWindowSize() {
 	  var doc = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : document;
-	  return _objectSpread$5(_objectSpread$5(_objectSpread$5({}, GetWindowInnerSize(doc)), GetWindowScrollPos(doc)), GetWindowScrollSize(doc));
+	  return _objectSpread$6(_objectSpread$6(_objectSpread$6({}, GetWindowInnerSize(doc)), GetWindowScrollPos(doc)), GetWindowScrollSize(doc));
 	}
 	function GetContext(node) {
 	  return getWindow(node);

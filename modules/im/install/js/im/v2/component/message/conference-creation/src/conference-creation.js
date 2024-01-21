@@ -8,7 +8,7 @@ import './css/conference-creation-message.css';
 
 import type { JsonObject } from 'main.core';
 import type { CustomColorScheme } from 'im.v2.component.elements';
-import type { ImModelMessage, ImModelDialog } from 'im.v2.model';
+import type { ImModelMessage, ImModelChat } from 'im.v2.model';
 
 const BUTTON_COLOR = '#00ace3';
 
@@ -54,9 +54,9 @@ export const ConferenceCreationMessage = {
 		{
 			return this.message.chatId;
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/getByChatId'](this.chatId);
+			return this.$store.getters['chats/getByChatId'](this.chatId);
 		},
 	},
 	methods:

@@ -53,6 +53,7 @@ class RolePermissionService implements RolePermissionServiceInterface
 			{
 				continue;
 			}
+			$adsAccessMap = SectionDictionary::getAdsAccessMap();
 
 			foreach ($setting['accessRights'] as $permission)
 			{
@@ -60,13 +61,18 @@ class RolePermissionService implements RolePermissionServiceInterface
 				{
 					continue;
 				}
+				$messageCodeByPermission = $adsAccessMap[(int)$permission['id']] ?? null;
 
-				$query[] = sprintf(
-					'(%d, %d, %d)',
-					$roleId,
-					(int)$permission['id'],
-					$permission['value']
-				);
+				if ($messageCodeByPermission !== null && !Service::isAdVisibleInRegion($messageCodeByPermission))
+				{
+					continue;
+				}
+
+				$query[] = [
+					'ROLE_ID' => $roleId,
+					'PERMISSION_ID' => $permission['id'],
+					'VALUE' => $permission['value'],
+				];
 			}
 		}
 

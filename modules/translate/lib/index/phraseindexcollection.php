@@ -3,6 +3,7 @@
 namespace Bitrix\Translate\Index;
 
 use Bitrix\Main;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Translate;
 use Bitrix\Translate\Index;
 
@@ -25,7 +26,7 @@ class PhraseIndexCollection
 	 *
 	 * @return int
 	 */
-	public function countItemsToProcess(Translate\Filter $filter = null): int
+	public function countItemsToProcess(?Translate\Filter $filter = null): int
 	{
 		if (isset($filter, $filter->path))
 		{
@@ -72,7 +73,7 @@ class PhraseIndexCollection
 	 *
 	 * @return int
 	 */
-	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null): int
+	public function collect(?Translate\Filter $filter = null, ?Translate\Controller\ITimeLimit $timer = null, ?Translate\Filter $seek = null): int
 	{
 		if (isset($filter, $filter->path))
 		{
@@ -118,13 +119,13 @@ class PhraseIndexCollection
 		$fileListQuery
 			->addSelect('PATH_ID')
 
-			->registerRuntimeField(new Main\ORM\Fields\ExpressionField('FILE_IDS', "GROUP_CONCAT(%s ORDER BY (%s) SEPARATOR '\\n')", ['ID', 'ID']))
+			->registerRuntimeField(new ExpressionField('FILE_IDS', "GROUP_CONCAT(%s ORDER BY (%s) SEPARATOR '\\n')", ['ID', 'ID']))
 			->addSelect('FILE_IDS')
 
-			->registerRuntimeField(new Main\ORM\Fields\ExpressionField('LANG_IDS', "GROUP_CONCAT(%s ORDER BY (%s) SEPARATOR '\\n')", ['LANG_ID', 'ID']))
+			->registerRuntimeField(new ExpressionField('LANG_IDS', "GROUP_CONCAT(%s ORDER BY (%s) SEPARATOR '\\n')", ['LANG_ID', 'ID']))
 			->addSelect('LANG_IDS')
 
-			->registerRuntimeField(new Main\ORM\Fields\ExpressionField('FULL_PATHS', "GROUP_CONCAT(%s ORDER BY (%s) SEPARATOR '\\n')", ['FULL_PATH', 'ID']))
+			->registerRuntimeField(new ExpressionField('FULL_PATHS', "GROUP_CONCAT(%s ORDER BY (%s) SEPARATOR '\\n')", ['FULL_PATH', 'ID']))
 			->addSelect('FULL_PATHS')
 
 			->setFilter($fileFilter)
@@ -135,7 +136,7 @@ class PhraseIndexCollection
 		$fileListRes = $fileListQuery->exec();
 
 		$phraseId = Index\Internals\PhraseIndexTable::query()
-			->registerRuntimeField(new Main\ORM\Fields\ExpressionField('MAXID', 'MAX(%s)', ['ID']))
+			->registerRuntimeField(new ExpressionField('MAXID', 'MAX(%s)', ['ID']))
 			->addSelect('MAXID')
 			->exec()
 			->fetch()['MAXID'];
@@ -244,17 +245,20 @@ class PhraseIndexCollection
 			}
 
 			// delete
-			Index\Internals\PhraseIndexTable::bulkDelete(['=PATH_ID' => $pathIdPortion, '=LANG_ID' => $checkLanguages]);
+			Index\Internals\PhraseIndexTable::bulkDelete([
+				'=PATH_ID' => $pathIdPortion,
+				'=LANG_ID' => $checkLanguages,
+			]);
 
 			if (\count($nonexistentFiles) > 0)
 			{
 				Index\Internals\PhraseIndexTable::bulkDelete(['=FILE_ID' => $nonexistentFiles]);
 				Index\Internals\FileIndexTable::bulkDelete(['=ID' => $nonexistentFiles]);
-			}
-			foreach (Translate\Config::getLanguages() as $langId)
-			{
-				$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
-				$ftsClass::bulkDelete(['=FILE_ID' => $nonexistentFiles]);
+				foreach (Translate\Config::getEnabledLanguages() as $langId)
+				{
+					$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
+					$ftsClass::bulkDelete(['=FILE_ID' => $nonexistentFiles]);
+				}
 			}
 
 			// Add
@@ -262,11 +266,11 @@ class PhraseIndexCollection
 			{
 				Index\Internals\FileIndexTable::bulkAdd($fileData, 'ID');
 				Index\Internals\PhraseIndexTable::bulkAdd($phraseCodeData);
-			}
-			foreach ($phraseData as $langId => $phraseLangData)
-			{
-				$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
-				$ftsClass::bulkAdd($phraseLangData, 'ID');
+				foreach ($phraseData as $langId => $phraseLangData)
+				{
+					$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
+					$ftsClass::bulkAdd($phraseLangData, 'ID');
+				}
 			}
 
 			Index\Internals\PathIndexTable::bulkUpdate(
@@ -307,7 +311,7 @@ class PhraseIndexCollection
 	 *
 	 * @return self
 	 */
-	public function purge(Translate\Filter $filter = null): self
+	public function purge(?Translate\Filter $filter = null): self
 	{
 		Index\Internals\PhraseIndexTable::purge($filter);
 

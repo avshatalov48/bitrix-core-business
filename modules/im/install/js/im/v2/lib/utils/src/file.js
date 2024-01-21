@@ -256,4 +256,25 @@ export const FileUtil = {
 			reader.readAsDataURL(file);
 		});
 	},
+
+	resizeToFitMaxSize(width: number, height: number, maxSize: number): {width: number, height: number}
+	{
+		const aspectRatio = width / height;
+		let newWidth = width;
+		let newHeight = height;
+
+		if (newHeight > maxSize)
+		{
+			newHeight = maxSize;
+			newWidth = newHeight * aspectRatio;
+		}
+
+		if (newWidth > maxSize)
+		{
+			newWidth = maxSize;
+			newHeight = newWidth / aspectRatio;
+		}
+
+		return { height: newHeight, width: newWidth };
+	},
 };

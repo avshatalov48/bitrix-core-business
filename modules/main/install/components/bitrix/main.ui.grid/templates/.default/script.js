@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core_events,ui_cnt,main_core) {
 	'use strict';
 
@@ -4897,7 +4898,7 @@
 	    },
 	    isAllSelected: function isAllSelected() {
 	      return !this.getBodyChild().filter(function (current) {
-	        return !!current.getCheckbox();
+	        return !!current.getCheckbox() && current.getCheckbox().disabled !== true;
 	      }).some(function (current) {
 	        return !current.isSelected();
 	      });
@@ -6259,7 +6260,6 @@
 	     */
 	    createPopup: function createPopup() {
 	      if (!this.popup) {
-	        console.log('create popup', document.body.offsetWidth);
 	        var leftIndentFromWindow = 20;
 	        var rightIndentFromWindow = 20;
 	        var popupWidth = document.body.offsetWidth > 1000 ? 1000 : document.body.offsetWidth - leftIndentFromWindow - rightIndentFromWindow;
@@ -8117,7 +8117,15 @@
 	      }
 	      return rows;
 	    },
+	    hasEmptyRow: function hasEmptyRow() {
+	      return this.getAllRows().some(function (row) {
+	        return BX.hasClass(row, 'main-grid-row-empty');
+	      });
+	    },
 	    initStickedColumns: function initStickedColumns() {
+	      if (this.hasEmptyRow()) {
+	        return;
+	      }
 	      [].slice.call(this.getAllRows()[0].children).forEach(function (cell, index) {
 	        if (cell.classList.contains('main-grid-sticked-column')) {
 	          this.stickyColumnByIndex(index);

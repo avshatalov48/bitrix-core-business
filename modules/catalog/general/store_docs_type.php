@@ -1,7 +1,9 @@
 <?php
 
+use Bitrix\Catalog\Document\Action\Store\MoveStoreBatchAction;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\Document\Action;
 use Bitrix\Catalog\Document\Action\Barcode\AddStoreBarcodeAction;
 use Bitrix\Catalog\Document\Action\Barcode\DeleteStoreBarcodeAction;
@@ -10,6 +12,10 @@ use Bitrix\Catalog\Document\Action\Reserve\UnReserveStoreProductAction;
 use Bitrix\Catalog\Document\Action\Store\DecreaseStoreQuantityAction;
 use Bitrix\Catalog\Document\Action\Store\IncreaseStoreQuantityAction;
 use Bitrix\Catalog\Document\Action\Price\UpdateProductPricesAction;
+use Bitrix\Catalog\Document\Action\Store\ReduceStoreBatchAmountAction;
+use Bitrix\Catalog\Document\Action\Store\UpsertStoreBatchAction;
+use Bitrix\Catalog\Document\Action\Store\ReturnStoreBatchAction;
+use Bitrix\Catalog\Document\Action\Store\WriteOffStoreBatchAction;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Iblock;
 use Bitrix\Catalog\v2\Contractor\Provider\Manager;
@@ -1320,6 +1326,8 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 			return null;
 		}
 
+		$isBatchMetodSelected = State::isProductBatchMethodSelected();
+
 		$elements = $document['ELEMENTS'] ?? [];
 		foreach ($elements as $productId => $element)
 		{
@@ -1331,8 +1339,21 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 					$actions[] = new IncreaseStoreQuantityAction(
 						$item['STORE_TO'],
 						$item['PRODUCT_ID'],
-						$item['AMOUNT']
+						$item['AMOUNT'],
 					);
+
+					if ($isBatchMetodSelected)
+					{
+						$actions[] = new UpsertStoreBatchAction(
+							$item['STORE_TO'],
+							$item['PRODUCT_ID'],
+							$item['AMOUNT'],
+							$item['ROW_ID'],
+							$item['PURCHASING_PRICE'] ?? null,
+							$item['PURCHASING_CURRENCY'] ?? null,
+						);
+					}
+
 					$actions[] = new UpdateProductPricesAction(
 						$item['PRODUCT_ID'],
 						$item['PURCHASING_PRICE'] ?? null,
@@ -1343,11 +1364,16 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 				}
 				elseif ($action === self::ACTION_CANCEL)
 				{
+					if (State::isProductBatchMethodSelected())
+					{
+						$actions[] = new ReduceStoreBatchAmountAction($item['ROW_ID']);
+					}
+
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_TO'],
 						$item['PRODUCT_ID'],
 						$item['AMOUNT'],
-						$document['DOC_TYPE']
+						$document['DOC_TYPE'],
 					);
 				}
 			}
@@ -1592,6 +1618,17 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 			{
 				if ($action === self::ACTION_CONDUCTION)
 				{
+					if (State::isProductBatchMethodSelected())
+					{
+						$actions[] = new MoveStoreBatchAction(
+							$item['STORE_FROM'],
+							$item['STORE_TO'],
+							$item['PRODUCT_ID'],
+							$item['AMOUNT'],
+							$item['ROW_ID']
+						);
+					}
+
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_FROM'],
 						$item['PRODUCT_ID'],
@@ -1606,6 +1643,12 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 				}
 				elseif ($action === self::ACTION_CANCEL)
 				{
+					if (State::isProductBatchMethodSelected())
+					{
+						$actions[] = new ReduceStoreBatchAmountAction($item['ROW_ID']);
+						$actions[] = new ReturnStoreBatchAction($item['ROW_ID']);
+					}
+
 					$actions[] = new IncreaseStoreQuantityAction(
 						$item['STORE_FROM'],
 						$item['PRODUCT_ID'],
@@ -1824,9 +1867,25 @@ class CCatalogReturnsDocs extends CCatalogDocsTypes
 						$item['PRODUCT_ID'],
 						$item['AMOUNT']
 					);
+					if (State::isProductBatchMethodSelected())
+					{
+						$actions[] = new UpsertStoreBatchAction(
+							$item['STORE_TO'],
+							$item['PRODUCT_ID'],
+							$item['AMOUNT'],
+							$item['ROW_ID'],
+							$item['PURCHASING_PRICE'],
+							$item['PURCHASING_CURRENCY'],
+						);
+					}
 				}
 				elseif ($action === self::ACTION_CANCEL)
 				{
+					if (State::isProductBatchMethodSelected())
+					{
+						$actions[] = new ReduceStoreBatchAmountAction($item['ROW_ID']);
+					}
+
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_TO'],
 						$item['PRODUCT_ID'],
@@ -1982,6 +2041,14 @@ class CCatalogDeductDocs extends CCatalogDocsTypes
 			{
 				if ($action === self::ACTION_CONDUCTION)
 				{
+					if (State::isProductBatchMethodSelected())
+					{
+						$actions[] = new WriteOffStoreBatchAction(
+							$item['ROW_ID'],
+							$item['PRODUCT_ID'],
+							$item['AMOUNT']
+						);
+					}
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_FROM'],
 						$item['PRODUCT_ID'],
@@ -1996,6 +2063,10 @@ class CCatalogDeductDocs extends CCatalogDocsTypes
 						$item['PRODUCT_ID'],
 						$item['AMOUNT']
 					);
+					if (State::isProductBatchMethodSelected())
+					{
+						$actions[] = new ReturnStoreBatchAction($item['ROW_ID']);
+					}
 				}
 			}
 

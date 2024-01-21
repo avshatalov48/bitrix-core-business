@@ -12,16 +12,13 @@ export class Selector extends EventEmitter
 	currentDateTo = new Date();
 	currentFullDay = false;
 	useAnimation = true;
-	magnetDuration = 50;
-	stickDistanceInMinutes = 30;
-	magnetizeDistanceInMinutes = 15;
+	beforeBeginChange = false;
 
 	constructor(params = {})
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.Planner.Selector');
 
-		this.selectMode = params.selectMode;
 		this.getPosByDate = params.getPosByDate;
 		this.getDateByPos = params.getDateByPos;
 		this.getPosDateMap = params.getPosDateMap;
@@ -32,30 +29,78 @@ export class Selector extends EventEmitter
 		this.eventDragAndDrop = new EventDragAndDrop(params.getDateByPos, params.getPosByDate, params.getEvents);
 
 		this.useAnimation = params.useAnimation !== false;
-		this.DOM.timelineWrap = params.timelineWrap;
-		this.DOM.timelineFixedWrap = params.timelineFixedWrap;
 
 		this.render();
 	}
 
 	render()
 	{
+		this.DOM.timeNodes = {};
+		this.DOM.timeWrap = Tag.render`
+			<div></div>
+		`;
+
 		this.DOM.wrap = Tag.render`
 			<div class="calendar-planner-timeline-selector" data-bx-planner-meta="selector">
 				<span data-bx-planner-meta="selector-resize-left" class="calendar-planner-timeline-drag-left"></span>
 				<span class="calendar-planner-timeline-selector-grip"></span>
 				<span data-bx-planner-meta="selector-resize-right" class="calendar-planner-timeline-drag-right"></span>
-			</div>`;
+				${this.DOM.timeWrap}
+				<div class="calendar-planner-timeline-selector-background"></div>
+				${this.renderMoreButton()}
+			</div>
+		`;
 
 		// prefent draging selector and activating uploader controll in livefeed
 		this.DOM.wrap.ondrag = BX.False;
 		this.DOM.wrap.ondragstart = BX.False;
 
 		this.DOM.titleNode = Tag.render`<div class="calendar-planner-selector-notice" style="display: none"></div>`;
+	}
 
-		if (this.selectMode)
+	renderMoreButton()
+	{
+		this.DOM.moreButton = Tag.render`
+			<div class="calendar-planner-timeline-selector-more-button" style="display: none;"></div>
+		`;
+
+		return this.DOM.moreButton;
+	}
+
+	shake()
+	{
+		const shakeClass = 'calendar-planner-selector-shake';
+		Dom.addClass(this.DOM.wrap, shakeClass);
+		clearTimeout(this.shakeTimeout);
+		this.shakeTimeout = setTimeout(() => Dom.removeClass(this.DOM.wrap, shakeClass), 400);
+	}
+
+	clearTimeNodes()
+	{
+		for (const offset in this.DOM.timeNodes)
 		{
-			result.controlWrap = this.DOM.wrap.appendChild(Tag.render`<div class="calendar-planner-selector-control"></div>`);
+			this.destroyTimeNode(offset);
+		}
+	}
+
+	showTimeNode(offsetTop, time, timezone, isWarning = false)
+	{
+		this.destroyTimeNode(offsetTop);
+
+		const warningClass = isWarning ? '--warning' : '';
+
+		this.DOM.timeNodes[offsetTop] = Tag.render`
+			<div class="calendar-planner-timeline-side-notice --left ${warningClass}" style="top: ${offsetTop}px" title="${timezone}">${time}</div>
+		`;
+		this.DOM.timeWrap.append(this.DOM.timeNodes[offsetTop]);
+	}
+
+	destroyTimeNode(offset)
+	{
+		if (Type.isElementNode(this.DOM.timeNodes[offset]))
+		{
+			this.DOM.timeNodes[offset].remove();
+			this.DOM.timeNodes[offset] = null;
 		}
 	}
 
@@ -107,6 +152,7 @@ export class Selector extends EventEmitter
 				to.setHours(23, 55, 0, 0);
 			}
 
+			this.boundaryFrom = from;
 			this.currentDateFrom = from;
 			this.currentDateTo = to;
 
@@ -149,7 +195,7 @@ export class Selector extends EventEmitter
 			{
 				this.transit({
 					toX: fromPos,
-					triggerChangeEvents: false,
+					// triggerChangeEvents: false, //if everything is broken - uncomment
 					focus: focus
 				});
 			}
@@ -181,6 +227,8 @@ export class Selector extends EventEmitter
 		this.eventDragAndDrop.onDragStart(this.currentDateTo.getTime() - this.currentDateFrom.getTime(), this.selectorStartLeft);
 
 		Dom.addClass(document.body, 'calendar-planner-unselectable');
+
+		this.beforeBeginChange = true;
 	}
 
 	move(x)
@@ -199,13 +247,22 @@ export class Selector extends EventEmitter
 			}
 
 			let boundary = this.eventDragAndDrop.getDragBoundary(pos);
-			boundary = this.getAutoScrollBoundary(boundary);
+
+			const valueChanged = boundary.from.getTime() !== this.boundaryFrom.getTime();
+			if (valueChanged && this.beforeBeginChange)
+			{
+				this.emit('onBeginChange');
+				this.beforeBeginChange = false;
+			}
+
+			boundary = this.getAutoScrollBoundary(boundary, valueChanged);
 			boundary = this.getConstrainedBoundary(boundary);
+
 			this.setBoundary(boundary);
 		}
 	}
 
-	getAutoScrollBoundary(boundary)
+	getAutoScrollBoundary(boundary, valueChanged)
 	{
 		const boundaryLeft = boundary.position - this.DOM.timelineWrap.scrollLeft;
 		const containerLeft = this.getPosByDate(this.getScaleInfo().scaleDateFrom);
@@ -226,7 +283,7 @@ export class Selector extends EventEmitter
 		}
 		else
 		{
-			this.stopAutoScroll();
+			this.stopAutoScroll(valueChanged);
 		}
 
 		return boundary;
@@ -260,10 +317,15 @@ export class Selector extends EventEmitter
 		}
 	}
 
-	stopAutoScroll()
+	stopAutoScroll(valueChanged = true)
 	{
 		clearInterval(this.scrollInterval);
 		this.scrollInterval = false;
+
+		if (valueChanged || !this.beforeBeginChange)
+		{
+			this.emit('onStopAutoScroll');
+		}
 	}
 
 	setBoundary(boundary)
@@ -283,6 +345,8 @@ export class Selector extends EventEmitter
 		this.showTitle(boundary.from, boundary.to);
 
 		this.checkStatus(boundary.position, true);
+
+		this.boundaryFrom = boundary.from;
 	}
 
 	getConstrainedBoundary(boundary)
@@ -359,6 +423,8 @@ export class Selector extends EventEmitter
 		this.selectorStartLeft = parseInt(this.DOM.wrap.style.left);
 		this.selectorStartWidth = parseInt(this.DOM.wrap.style.width);
 		this.selectorStartScrollLeft = this.DOM.timelineWrap.scrollLeft;
+
+		this.beforeBeginChange = true;
 	}
 
 	resize(x)
@@ -382,6 +448,11 @@ export class Selector extends EventEmitter
 
 			if (this.fullDayMode)
 			{
+				if (toDate.getTime() - this.currentDateFrom.getTime() < Util.getDayLength())
+				{
+					toDate = new Date(this.currentDateFrom.getTime() + Util.getDayLength());
+				}
+
 				timeTo = parseInt(toDate.getHours()) + Math.round((toDate.getMinutes() / 60) * 10) / 10;
 				toDate.setHours(0, 0, 0, 0);
 				if (timeTo > 12)
@@ -419,7 +490,7 @@ export class Selector extends EventEmitter
 				this.selectorRoundedRightPos = this.selectorStartLeft;
 			}
 
-			if (this.selectorRoundedRightPos - this.DOM.timelineWrap.scrollLeft > this.DOM.timelineFixedWrap.offsetWidth)
+			if (!this.fullDayMode && this.selectorRoundedRightPos - this.DOM.timelineWrap.scrollLeft > this.DOM.timelineFixedWrap.offsetWidth)
 			{
 				this.selectorRoundedRightPos = this.DOM.timelineWrap.scrollLeft + this.DOM.timelineFixedWrap.offsetWidth;
 			}
@@ -429,6 +500,12 @@ export class Selector extends EventEmitter
 			this.DOM.wrap.style.width = width + 'px';
 			this.showTitle(this.getDateByPos(this.selectorStartLeft), this.getDateByPos(this.selectorRoundedRightPos));
 			this.checkStatus(this.selectorStartLeft, true);
+
+			if (this.beforeBeginChange)
+			{
+				this.emit('onBeginChange');
+				this.beforeBeginChange = false;
+			}
 		}
 	}
 
@@ -575,6 +652,7 @@ export class Selector extends EventEmitter
 			this.currentDateFrom = dateFrom;
 			this.currentDateTo = dateTo;
 			this.currentFullDay = this.fullDayMode;
+			this.boundaryFrom = this.currentDateFrom;
 
 			this.emit('onChange', new BaseEvent({data: {
 				dateFrom: dateFrom,
@@ -675,6 +753,8 @@ export class Selector extends EventEmitter
 				this.animation.stop();
 			}
 
+			this.emit('onStartTransit');
+
 			this.animation = new BX.easing({
 				duration: 300,
 				start: {left: fromX},
@@ -765,20 +845,7 @@ export class Selector extends EventEmitter
 			selectorTitle.innerHTML = Util.formatTime(fromDate) + ' - ' + Util.formatTime(toDate);
 		}
 
-		if (this.selectMode && this.lastTouchedEntry)
-		{
-			let
-				entriesListWidth = this.compactMode ? 0 : this.entriesListWidth,
-				selectorTitleLeft = parseInt(selector.style.left) - this.DOM.timelineWrap.scrollLeft + entriesListWidth + parseInt(selector.style.width) / 2,
-				selectorTitleTop = parseInt(this.timelineDataCont.offsetTop) + parseInt(this.lastTouchedEntry.style.top) - 12;
-
-			selectorTitle.style.top = selectorTitleTop + 'px';
-			selectorTitle.style.left = selectorTitleLeft + 'px';
-		}
-		else
-		{
-			selector.appendChild(selectorTitle);
-		}
+		selector.appendChild(selectorTitle);
 
 		if (selectorTitle === this.selectorTitle)
 		{

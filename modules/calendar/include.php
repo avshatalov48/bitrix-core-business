@@ -1,7 +1,5 @@
 <?php
-/*patchlimitationmutatormark1*/
 IncludeModuleLangFile(__FILE__);
-
 
 CModule::AddAutoloadClasses(
 	"calendar",
@@ -26,8 +24,6 @@ CModule::AddAutoloadClasses(
 		"CCalendarLocation" => "classes/general/calendar_location.php",
 	)
 );
-
-/*patchlimitationmutatormark2*/
 
 CJSCore::RegisterExt('userfield_resourcebooking', array(
 	'js' => array(

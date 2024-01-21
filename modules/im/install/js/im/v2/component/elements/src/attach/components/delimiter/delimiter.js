@@ -27,12 +27,12 @@ export const AttachDelimiter = {
 		styles(): Object
 		{
 			const result = {
-				backgroundColor: this.internalConfig.DELIMITER.COLOR ?? this.color
+				backgroundColor: this.internalConfig.delimiter.color ?? this.color
 			};
 
-			if (this.internalConfig.DELIMITER.SIZE)
+			if (this.internalConfig.delimiter.size)
 			{
-				result.width = `${this.internalConfig.DELIMITER.SIZE}px`;
+				result.width = `${this.internalConfig.delimiter.size}px`;
 			}
 
 			return result;

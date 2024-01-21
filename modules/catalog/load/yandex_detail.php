@@ -17,16 +17,12 @@ IncludeModuleLangFile(__FILE__);
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 
 if (!check_bitrix_sessid())
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 
@@ -36,26 +32,20 @@ CModule::IncludeModule('catalog');
 
 if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_EXPORT_EDIT))
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(GetMessage('YANDEX_ERR_NO_ACCESS_EXPORT'));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 
 if ((!isset($_REQUEST['IBLOCK_ID'])) || ($_REQUEST['IBLOCK_ID'] == ''))
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(GetMessage("YANDEX_ERR_NO_IBLOCK_CHOSEN"));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 $intIBlockID = $_REQUEST['IBLOCK_ID'];
 $intIBlockIDCheck = intval($intIBlockID);
 if ($intIBlockIDCheck.'|' != $intIBlockID.'|' || $intIBlockIDCheck <= 0)
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(GetMessage("YANDEX_ERR_NO_IBLOCK_CHOSEN"));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 else
@@ -71,17 +61,13 @@ if (($arIBlock = $rsIBlocks->Fetch()))
 	$bBadBlock = !CIBlockRights::UserHasRightTo($intIBlockID, $intIBlockID, "iblock_admin_display");
 	if ($bBadBlock)
 	{
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 		ShowError(GetMessage('YANDEX_ERR_NO_ACCESS_IBLOCK'));
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 		die();
 	}
 }
 else
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(str_replace('#ID#',$intIBlockID,GetMessage("YANDEX_ERR_NO_IBLOCK_FOUND_EXT")));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 
@@ -114,17 +100,13 @@ if (!empty($arOffers['IBLOCK_ID']))
 		$bBadBlock = !CIBlockRights::UserHasRightTo($intOfferIBlockID, $intOfferIBlockID, "iblock_admin_display");
 		if ($bBadBlock)
 		{
-			require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 			ShowError(GetMessage('YANDEX_ERR_NO_ACCESS_IBLOCK_SKU'));
-			require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 			die();
 		}
 	}
 	else
 	{
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 		ShowError(str_replace('#ID#',$intIBlockID,GetMessage("YANDEX_ERR_NO_IBLOCK_SKU_FOUND")));
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 		die();
 	}
 	$boolOffers = true;

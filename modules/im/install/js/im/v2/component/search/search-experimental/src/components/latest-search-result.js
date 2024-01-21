@@ -18,6 +18,10 @@ export const LatestSearchResult = {
 			type: Boolean,
 			default: false,
 		},
+		withMyNotes: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	emits: ['clickItem'],
 	computed:
@@ -29,7 +33,7 @@ export const LatestSearchResult = {
 	},
 	template: `
 		<div class="bx-im-latest-search-result__scope">
-			<RecentUsersCarousel @clickItem="$emit('clickItem', $event)" />
+			<RecentUsersCarousel :withMyNotes="withMyNotes" @clickItem="$emit('clickItem', $event)" />
 			<div class="bx-im-latest-search-result__title">{{ title }}</div>
 			<SearchExperimentalItem
 				v-for="dialogId in dialogIds"

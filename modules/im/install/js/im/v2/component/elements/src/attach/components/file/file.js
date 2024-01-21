@@ -32,7 +32,7 @@ export const AttachFile = {
 	template: `
 		<div class="bx-im-attach-file__container">
 			<AttachFileItem
-				v-for="(fileItem, index) in internalConfig.FILE"
+				v-for="(fileItem, index) in internalConfig.file"
 				:config="fileItem"
 				:key="index"
 			/>

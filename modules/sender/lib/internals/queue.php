@@ -182,16 +182,21 @@ class Queue
 	public function save()
 	{
 		$sqlHelper = Application::getConnection()->getSqlHelper();
-		$type = $sqlHelper->forSql($this->type);
-		$id = $sqlHelper->forSql($this->id);
-		$item = $sqlHelper->forSql($this->current());
+		$item = $this->current();
+
 		if ($item)
 		{
+			$insert = [
+				'ENTITY_TYPE' => $this->type,
+				'ENTITY_ID' => $this->id,
+				'LAST_ITEM' => $item,
+			];
+			$update = [
+				'LAST_ITEM' => $item,
+			];
 			$tableName = QueueTable::getTableName();
-			$sql = "INSERT IGNORE $tableName(ENTITY_TYPE, ENTITY_ID, LAST_ITEM) "
-				. "VALUES('$type', '$id', '$item') "
-				. "ON DUPLICATE KEY UPDATE LAST_ITEM = '$item' ";
-			Application::getConnection()->query($sql);
+			$queries = $sqlHelper->prepareMerge($tableName, QueueTable::getConflictFields(), $insert, $update);
+			Application::getConnection()->query($queries[0]);
 		}
 		else
 		{

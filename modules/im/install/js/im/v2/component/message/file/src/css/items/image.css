@@ -1,4 +1,6 @@
-.bx-im-media-image__scope {}
+.bx-im-message-image__container {
+	--bx-im-media-image__background-color_container: rgba(var(--im-color-palette-gray-04-rgb), 0.8);
+}
 
 .bx-im-media-image__container {
 	display: flex;
@@ -8,8 +10,13 @@
 	overflow: hidden;
 	background-size: contain;
 	border-radius: 6px;
-	background-color: #f1f4f6;
+	background-color: var(--bx-im-media-image__background-color_container);
 	flex-grow: 1;
+}
+
+.bx-im-media-image__container.--with-forward {
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 
 .bx-im-media-image__source {

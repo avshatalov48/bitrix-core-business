@@ -40,7 +40,7 @@ class Schema
 	/** @var Collection */
 	public $sequences = null;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->tables = new Collection;
 		$this->procedures = new Collection;
@@ -75,9 +75,9 @@ class Schema
 	 */
 	protected function splitStatements(Tokenizer $tokenizer, $delimiter = ';')
 	{
-		$result = array();
+		$result = [];
 		$index = 0;
-		$result[$index] = array();
+		$result[$index] = [];
 
 		/** @var Token $prevToken */
 		$prevToken = null;
@@ -91,7 +91,7 @@ class Schema
 			)
 			{
 				$index++;
-				$result[$index] = array();
+				$result[$index] = [];
 			}
 			elseif (
 				mb_strpos($token->text, "\n") !== false
@@ -101,7 +101,7 @@ class Schema
 			{
 				array_pop($result[$index]);
 				$index++;
-				$result[$index] = array();
+				$result[$index] = [];
 			}
 			else
 			{
@@ -155,7 +155,9 @@ class Schema
 				while (!$tokenizer->endOfInput())
 				{
 					if ($tokenizer->nextToken()->upper === 'CREATE')
+					{
 						break;
+					}
 				}
 				$tokenizer->nextToken();
 				$tokenizer->skipWhiteSpace();
@@ -165,7 +167,7 @@ class Schema
 				}
 				else
 				{
-					throw new NotSupportedException("'CREATE TABLE' expected. line:".$tokenizer->getCurrentToken()->line);
+					throw new NotSupportedException("'CREATE TABLE' expected. line:" . $tokenizer->getCurrentToken()->line);
 				}
 			}
 			elseif ($tokenizer->testUpperText('NOT'))
@@ -176,7 +178,9 @@ class Schema
 					while (!$tokenizer->endOfInput())
 					{
 						if ($tokenizer->nextToken()->upper === 'CREATE')
+						{
 							break;
+						}
 					}
 					$tokenizer->nextToken();
 					$tokenizer->skipWhiteSpace();
@@ -197,22 +201,22 @@ class Schema
 					}
 					else
 					{
-						throw new NotSupportedException("'CREATE INDEX' expected. line:".$tokenizer->getCurrentToken()->line);
+						throw new NotSupportedException("'CREATE INDEX' expected. line:" . $tokenizer->getCurrentToken()->line);
 					}
 				}
 				else
 				{
-					throw new NotSupportedException("'NOT EXISTS' expected. line:".$tokenizer->getCurrentToken()->line);
+					throw new NotSupportedException("'NOT EXISTS' expected. line:" . $tokenizer->getCurrentToken()->line);
 				}
 			}
 			else
 			{
-				throw new NotSupportedException("'OBJECT_ID' expected. line:".$tokenizer->getCurrentToken()->line);
+				throw new NotSupportedException("'OBJECT_ID' expected. line:" . $tokenizer->getCurrentToken()->line);
 			}
 		}
 		elseif (!$tokenizer->endOfInput())
 		{
-			throw new NotSupportedException("'CREATE' expected. line:".$tokenizer->getCurrentToken()->line);
+			throw new NotSupportedException("'CREATE' expected. line:" . $tokenizer->getCurrentToken()->line);
 		}
 	}
 
@@ -225,13 +229,17 @@ class Schema
 	protected function executeCreate(Tokenizer $tokenizer)
 	{
 		$tokenizer->skipWhiteSpace();
-		if ($tokenizer->testUpperText("OR"))
+		if ($tokenizer->testUpperText('OR'))
 		{
 			$tokenizer->skipWhiteSpace();
-			if ($tokenizer->testUpperText("REPLACE"))
+			if ($tokenizer->testUpperText('REPLACE'))
+			{
 				$tokenizer->skipWhiteSpace();
+			}
 			else
-				throw new NotSupportedException("'OR REPLACE' expected. line:".$tokenizer->getCurrentToken()->line);
+			{
+				throw new NotSupportedException("'OR REPLACE' expected. line:" . $tokenizer->getCurrentToken()->line);
+			}
 		}
 
 		if ($tokenizer->testUpperText('TABLE'))
@@ -246,9 +254,21 @@ class Schema
 		{
 			$tokenizer->skipWhiteSpace();
 			if ($tokenizer->testUpperText('INDEX'))
+			{
 				$tokenizer->skipWhiteSpace();
+			}
 
 			$this->executeCreateIndex($tokenizer, true);
+		}
+		elseif ($tokenizer->testUpperText('FULLTEXT'))
+		{
+			$tokenizer->skipWhiteSpace();
+			if ($tokenizer->testUpperText('INDEX'))
+			{
+				$tokenizer->skipWhiteSpace();
+			}
+
+			$this->executeCreateIndex($tokenizer, false, true);
 		}
 		elseif ($tokenizer->testUpperText('TRIGGER'))
 		{
@@ -268,7 +288,7 @@ class Schema
 		}
 		else
 		{
-			throw new NotSupportedException("TABLE|INDEX|UNIQUE|TRIGGER|PROCEDURE|FUNCTION|TYPE|SEQUENCE expected. line:".$tokenizer->getCurrentToken()->line);
+			throw new NotSupportedException('TABLE|INDEX|UNIQUE|TRIGGER|PROCEDURE|FUNCTION|TYPE|SEQUENCE expected. line:' . $tokenizer->getCurrentToken()->line);
 		}
 	}
 
@@ -289,7 +309,7 @@ class Schema
 			$table = $this->tables->search($tableName);
 			if (!$table)
 			{
-				throw new NotSupportedException("Table [$tableName] not found. line: ".$tokenizer->getCurrentToken()->line);
+				throw new NotSupportedException("Table [${tableName}] not found. line: " . $tokenizer->getCurrentToken()->line);
 			}
 			$tokenizer->nextToken();
 			$tokenizer->skipWhiteSpace();
@@ -317,12 +337,12 @@ class Schema
 			}
 			else
 			{
-				throw new NotSupportedException("'ADD' expected. line:".$tokenizer->getCurrentToken()->line);
+				throw new NotSupportedException("'ADD' expected. line:" . $tokenizer->getCurrentToken()->line);
 			}
 		}
 		else
 		{
-			throw new NotSupportedException("'TABLE' expected. line:".$tokenizer->getCurrentToken()->line);
+			throw new NotSupportedException("'TABLE' expected. line:" . $tokenizer->getCurrentToken()->line);
 		}
 	}
 
@@ -340,12 +360,13 @@ class Schema
 
 	/**
 	 * @param Tokenizer $tokenizer Statement tokens.
-	 * @param boolean $unique Index uniqueness flag.
+	 * @param bool $unique Index uniqueness flag.
+	 * @param bool $fulltext Index is full text.
 	 *
 	 * @return void
 	 * @throws NotSupportedException
 	 */
-	protected function executeCreateIndex(Tokenizer $tokenizer, $unique)
+	protected function executeCreateIndex(Tokenizer $tokenizer, $unique, $fulltext = false)
 	{
 		$tokenizer->skipWhiteSpace();
 
@@ -358,12 +379,13 @@ class Schema
 		$table = $this->tables->search($tableName);
 		if (!$table)
 		{
-			throw new NotSupportedException("Table [$tableName] not found. line: ".$tokenizer->getCurrentToken()->line);
+			$table = new Table($tableName);
+			$this->tables->add($table);
 		}
 
 		$tokenizer->restoreBookmark();
 
-		$table->createIndex($tokenizer, $unique);
+		$table->createIndex($tokenizer, $unique, $fulltext);
 	}
 
 	/**
@@ -385,7 +407,7 @@ class Schema
 		$table = $this->tables->search($tableName);
 		if (!$table)
 		{
-			throw new NotSupportedException("Table [$tableName] not found. line: ".$tokenizer->getCurrentToken()->line);
+			throw new NotSupportedException("Table [${tableName}] not found. line: " . $tokenizer->getCurrentToken()->line);
 		}
 
 		$tokenizer->restoreBookmark();

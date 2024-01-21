@@ -2,9 +2,10 @@
 
 namespace Bitrix\Calendar\Sharing\Link;
 
+use Bitrix\Calendar\Sharing\Link\Joint\JointLinkMapper;
 use Bitrix\Main\Web\Json;
 
-class CrmDealLinkMapper extends LinkMapper
+class CrmDealLinkMapper extends JointLinkMapper
 {
 	/**
 	 * @param CrmDealLink $entity
@@ -90,6 +91,9 @@ class CrmDealLinkMapper extends LinkMapper
 			$crmDealLink->setOwnerId($options['ownerId']);
 		}
 
+		$rule = (new Rule\Factory())->getRuleBySharingLink($crmDealLink);
+		$crmDealLink->setSharingRule($rule);
+
 		return $crmDealLink;
 	}
 
@@ -109,6 +113,7 @@ class CrmDealLinkMapper extends LinkMapper
 			'contactType' => $sharingLink->getContactType(),
 			'ownerId' => $sharingLink->getOwnerId(),
 			'lastStatus' => $sharingLink->getLastStatus(),
+			'rule' => (new Rule\Mapper())->convertToArray($sharingLink->getSharingRule()),
 		]);
 	}
 

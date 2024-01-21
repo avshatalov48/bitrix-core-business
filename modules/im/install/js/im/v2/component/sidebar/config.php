@@ -7,7 +7,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-$getAvailableBlocks = static fn() => ['main', 'info', 'file', 'fileUnsorted', 'task', 'meeting', 'market', 'messageSearch'];
+$getAvailableBlocks = static fn() => [
+	'main',
+	'info',
+	'file',
+	'fileUnsorted',
+	'task',
+	'meeting',
+	'market',
+	'messageSearch',
+	'chatsWithUser'
+];
 $isLinksAvailable = static function() {
 	return \Bitrix\Main\Config\Option::get('im', 'im_link_url_migration', 'N') === 'Y';
 };

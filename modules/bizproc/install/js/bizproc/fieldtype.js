@@ -83,6 +83,158 @@
 
 			return false;
 		},
+
+		/**
+		 * @private
+		 * @param documentType
+		 * @param {Array<{
+		 *     property: Object,
+		 *     fieldName: string,
+		 *     value: any,
+		 *     controlId: string,
+		 * }>} controlsData
+		 * @param {'public' | 'designer' | ''} renderMode
+		 */
+		renderControlCollection: function(documentType, controlsData, renderMode)
+		{
+			let renderedControls = {};
+			if (BX.Type.isArrayFilled(controlsData))
+			{
+				const chunks = [];
+				const chunkSize = 100;
+
+				let controlIndex = 0;
+				while (controlIndex < controlsData.length)
+				{
+					const afterLastItemIndex = Math.min(controlIndex + chunkSize, controlsData.length);
+
+					chunks.push(controlsData.slice(controlIndex, afterLastItemIndex));
+					controlIndex = afterLastItemIndex;
+				}
+
+				const isPublicMode = !renderMode || renderMode === 'public';
+				const promises = [];
+				for (const controlsChunk of chunks)
+				{
+					const controls = this.renderControlCollectionInner(documentType, controlsChunk, renderMode);
+					renderedControls = { ...renderedControls, ...controls.rendered };
+
+					promises.push(
+						BX.ajax.runAction(
+							'bizproc.fieldtype.renderControlCollection',
+							{
+								json: {
+									documentType,
+									controlsData: controls.toLoad.map((toLoad) => ({
+										property: toLoad.data.property,
+										params: {
+											Field: { Field: toLoad.data.fieldName, Form: 'sfa_form' },
+											Value: (toLoad.data.value || ''),
+											Als: isPublicMode ? 0 : 1,
+											RenderMode: renderMode === 'designer' ? 'designer' : 'public',
+										},
+									})),
+								},
+							},
+						).then((response) => {
+							const rendered = response.data?.additionalParams;
+
+							if (BX.Type.isArray(rendered))
+							{
+								rendered.forEach((renderedControl, controlId) => {
+									const controlNode = controls.toLoad[controlId].node;
+
+									BX.Dom.clean(controlNode);
+									BX.Runtime.html(controlNode, renderedControl).then(() => {
+										if (isPublicMode)
+										{
+											this.initControl(controlNode, controls.toLoad[controlId].data.property);
+										}
+										else if (!BX.Type.isNil(BX.Bizproc.Selector))
+										{
+											BX.Bizproc.Selector.initSelectors(controlNode);
+										}
+									});
+								});
+							}
+						}).catch((response) => {
+							if (!BX.Type.isArrayFilled(response.errors))
+							{
+								return;
+							}
+
+							const error = response.errors[0];
+							if (BX.Type.isStringFilled(error.message))
+							{
+								BX.UI.Dialogs.MessageBox.alert(error.message);
+							}
+
+							if (BX.Type.isPlainObject(error.customData) && BX.Type.isStringFilled(error.customData.reason))
+							{
+								console.error(error.customData.reason);
+							}
+						}),
+					);
+				}
+
+				Promise.all(promises).catch(() => {});
+			}
+
+			return renderedControls;
+		},
+
+		/**
+		 * @private
+		 * @param documentType
+		 * @param {Array<{
+		 *     property: Object,
+		 *     fieldName: string,
+		 *     value: any,
+		 *     controlId: string,
+		 * }>} controlsData
+		 * @param {'public' | 'designer' | ''} renderMode
+		 * @returns {{
+		 *     rendered: Object<string, HTMLElement>
+		 *     toLoad: Array<{ node: HTMLElement, data: Object }>
+		 * }}
+		 */
+		renderControlCollectionInner: function(documentType, controlsData, renderMode)
+		{
+			const controls = {
+				rendered: {},
+				toLoad: [],
+			};
+
+			const isPublicMode = !renderMode || renderMode === 'public';
+			controlsData.forEach((data) => {
+				const hasRenderer = BX.Type.isStringFilled(this.getRenderFunctionName(data.property));
+
+				let node = null;
+				if (!isPublicMode || !hasRenderer)
+				{
+					node = BX.Dom.create('div', { text: '...' });
+					controls.toLoad.push({
+						node,
+						data,
+					});
+				}
+				else
+				{
+					node = this.renderControl(
+						documentType,
+						data.property,
+						data.fieldName,
+						data.value,
+						renderMode,
+					);
+				}
+
+				controls.rendered[data.controlId] = node;
+			});
+
+			return controls;
+		},
+
 		renderControl: function (documentType, property, fieldName, value, renderMode) {
 			if (!renderMode || renderMode === 'public')
 			{

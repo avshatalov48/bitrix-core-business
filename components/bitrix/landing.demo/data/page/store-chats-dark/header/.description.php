@@ -27,15 +27,13 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-
 		),
 	),
 	'layout' => array(),
 	'items' => array(
 		'0' => array(
 			'code' => '35.9.header_shop_and_phone',
-			'nodes' => array(
-			),
+			'nodes' => array(),
 			'style' => array(
 				'.landing-block-node-title' => array(
 					0 => 'landing-block-node-title text-left g-font-size-24 g-color-white g-font-weight-700 g-mb-0 g-letter-spacing-0',

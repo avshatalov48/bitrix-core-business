@@ -23,6 +23,7 @@ $MESS["BIZPROC_JS_DEBUGGER_HELPTIP_LOG"] = "Use logs to learn what your automati
 $MESS["BIZPROC_JS_DEBUGGER_HELPTIP_ROBOT"] = "Automation rules will perform routine duties to help you automate business workflows";
 $MESS["BIZPROC_JS_DEBUGGER_HELPTIP_TRIGGER"] = "Triggers watch customer actions and CRM fields. As soon as the trigger fires, the item is brought to a specified stage";
 $MESS["BIZPROC_JS_DEBUGGER_LOG_AFTER_PREVIOUS"] = "After automation rule";
+$MESS['BIZPROC_JS_DEBUGGER_LOG_AFTER_PREVIOUS_MSGVER_1'] = 'After automation rule:';
 $MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION"] = "Condition is true";
 $MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_AND"] = "and";
 $MESS["BIZPROC_JS_DEBUGGER_LOG_CONDITION_FALSE"] = "Condition is false";

@@ -283,12 +283,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    clearTimeout(this.buttonEnterTimeout);
 	    (window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then(exports => {
 	      if (!main_core.Dom.hasClass(this.button.button, 'ui-btn-clock')) {
-	        BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-	          analyticsLabel: {
-	            sync_button_click: 'Y',
-	            has_active_connection: this.status === 'not_connected' ? 'N' : 'Y'
-	          }
-	        });
 	        this.syncPanel = new exports.SyncPanel({
 	          connectionsProviders: this.connectionsProviders,
 	          userId: this.userId,
@@ -864,13 +858,32 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  hasSetSyncOffice365Settings() {
 	    return this.isSetSyncOffice365Settings;
 	  }
-	  removeConnection(id) {
-	    BX.ajax.runAction('calendar.api.syncajax.deactivateConnection', {
-	      data: {
-	        connectionId: id
-	      }
-	    }).then(() => {
-	      BX.reload();
+	  saveConnection() {
+	    return new Promise(resolve => {
+	      BX.ajax.runAction('calendar.api.syncajax.createOffice365Connection').then(response => {
+	        var _response$data, _response$data2;
+	        if ((response == null ? void 0 : (_response$data = response.data) == null ? void 0 : _response$data.status) === this.provider.ERROR_CODE) {
+	          this.setStatus(this.provider.STATUS_FAILED);
+	          this.setWizardState({
+	            status: this.provider.ERROR_CODE,
+	            vendorName: this.provider.type
+	          });
+	        } else if (response != null && (_response$data2 = response.data) != null && _response$data2.connectionId) {
+	          this.setStatus(this.provider.STATUS_SUCCESS);
+	          this.getConnection().setId(response.data.connectionId);
+	          this.getConnection().setStatus(true);
+	          this.getConnection().setConnected(true);
+	          this.getConnection().setSyncDate(new Date());
+	        }
+	        resolve(response.data);
+	      }, response => {
+	        this.setStatus(this.provider.STATUS_FAILED);
+	        this.setWizardState({
+	          status: this.provider.ERROR_CODE,
+	          vendorName: this.provider.type
+	        });
+	        resolve(response.errors);
+	      });
 	    });
 	  }
 	}
@@ -1267,8 +1280,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    }
 	    this.connectionsProviders = {
 	      google: this.getGoogleProvider(),
-	      office365: this.getOffice365Provider(),
 	      icloud: this.getIcloudProvider(),
+	      office365: this.getOffice365Provider(),
 	      caldav: this.getCaldavProvider(caldavConnections),
 	      iphone: this.getIphoneProvider(),
 	      android: this.getAndroidProvider(),

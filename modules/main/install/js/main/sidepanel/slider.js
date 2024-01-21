@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function() {
 
 "use strict";
@@ -59,9 +60,14 @@ BX.SidePanel.Slider = function(url, options)
 	this.hidden = false;
 	this.destroyed = false;
 	this.loaded = false;
+	this.loadedCnt = 0;
+
+	this.minimizing = false;
+	this.maximizing = false;
 
 	this.handleFrameKeyDown = this.handleFrameKeyDown.bind(this);
 	this.handleFrameFocus = this.handleFrameFocus.bind(this);
+	this.handleFrameUnload = this.handleFrameUnload.bind(this);
 	this.handlePopupInit = this.handlePopupInit.bind(this);
 
 	/**
@@ -87,10 +93,24 @@ BX.SidePanel.Slider = function(url, options)
 
 	this.animation = null;
 	this.animationDuration = BX.type.isNumber(options.animationDuration) ? options.animationDuration : 200;
-	this.startParams = { translateX: 100, opacity: 0 };
-	this.endParams = { translateX: 0, opacity: 40 };
+	this.startParams = { translateX: 100, opacity: 0, scale: 0 };
+	this.endParams = { translateX: 0, opacity: 40, scale: 100 };
 	this.currentParams = null;
 	this.overlayAnimation = false;
+	this.animationName = 'sliding';
+	this.animationOptions = {};
+
+	this.minimizeOptions = null;
+	const minimizeOptions = options.minimizeOptions;
+	if (
+		BX.Type.isPlainObject(minimizeOptions)
+		&& BX.Type.isStringFilled(minimizeOptions.entityType)
+		&& (BX.Type.isStringFilled(minimizeOptions.entityId) || BX.Type.isNumber(minimizeOptions.entityId))
+		&& (BX.Type.isStringFilled(minimizeOptions.url))
+	)
+	{
+		this.minimizeOptions = minimizeOptions;
+	}
 
 	this.label = new BX.SidePanel.Label(this, {
 		iconClass: 'side-panel-label-icon-close',
@@ -105,45 +125,67 @@ BX.SidePanel.Slider = function(url, options)
 	this.label.setColor(labelOptions.color);
 	this.label.setBgColor(labelOptions.bgColor, labelOptions.opacity);
 
+	this.minimizeLabel = null;
 	this.newWindowLabel = null;
 	this.copyLinkLabel = null;
-	if (!this.isSelfContained())
+
+	if (!this.isSelfContained() && this.minimizeOptions !== null)
 	{
-		if (options.newWindowLabel === true)
-		{
-			this.newWindowLabel = new BX.SidePanel.Label(this, {
-				iconClass: 'side-panel-label-icon-new-window',
-				iconTitle: BX.Loc.getMessage('MAIN_SIDEPANEL_NEW_WINDOW'),
-				bgColor: ['#d9dcdf', 100],
-				onclick: function(label, slider) {
-					Object.assign(document.createElement('a'), {
-						target: '_blank',
-						href: slider.getUrl(),
-					}).click();
-				}
-			});
-		}
-
-		if (options.copyLinkLabel === true)
-		{
-			this.copyLinkLabel = new BX.SidePanel.Label(this, {
-				iconClass: 'side-panel-label-icon-copy-link',
-				iconTitle: BX.Loc.getMessage('MAIN_SIDEPANEL_COPY_LINK'),
-				bgColor: ['#d9dcdf', 100],
-			});
-
-			BX.clipboard.bindCopyClick(
-				this.copyLinkLabel.getIconBox(),
+		this.minimizeLabel = new BX.SidePanel.Label(this, {
+			iconClass: 'side-panel-label-icon-minimize ui-icon-set --arrow-line',
+			iconTitle: BX.Loc.getMessage('MAIN_SIDEPANEL_MINIMIZE'),
+			bgColor: ['#d9dcdf', 100],
+			onclick: (label, slider) => {
+				if (this.isLoaded())
 				{
-					text: function() {
-						var link = document.createElement('a');
-						link.href = this.getUrl();
-						return link.href;
-					}.bind(this)
+					this.minimize();
 				}
-			);
-		}
+			},
+		});
 	}
+
+	if (options.newWindowLabel === true && (!this.isSelfContained() || BX.Type.isStringFilled(options.newWindowUrl)))
+	{
+		this.newWindowLabel = new BX.SidePanel.Label(this, {
+			iconClass: 'side-panel-label-icon-new-window',
+			iconTitle: BX.Loc.getMessage('MAIN_SIDEPANEL_NEW_WINDOW'),
+			bgColor: ['#d9dcdf', 100],
+			onclick: function(label, slider) {
+				const url = BX.Type.isStringFilled(options.newWindowUrl) ? options.newWindowUrl : slider.getUrl();
+				Object.assign(document.createElement('a'), {
+					target: '_blank',
+					href: url,
+				}).click();
+			}
+		});
+	}
+
+	if (options.copyLinkLabel === true && (!this.isSelfContained() || BX.Type.isStringFilled(options.newWindowUrl)))
+	{
+		this.copyLinkLabel = new BX.SidePanel.Label(this, {
+			iconClass: 'side-panel-label-icon-copy-link',
+			iconTitle: BX.Loc.getMessage('MAIN_SIDEPANEL_COPY_LINK'),
+			bgColor: ['#d9dcdf', 100],
+		});
+
+		BX.clipboard.bindCopyClick(
+			this.copyLinkLabel.getIconBox(),
+			{
+				text: () => {
+					if (BX.Type.isStringFilled(options.newWindowUrl))
+					{
+						return options.newWindowUrl;
+					}
+
+					const link = document.createElement('a');
+					link.href = this.getUrl();
+
+					return link.href;
+				}
+			}
+		);
+	}
+
 
 	//Compatibility
 	if (
@@ -210,6 +252,11 @@ BX.SidePanel.Slider.prototype =
 			return false;
 		}
 
+		if (this.maximizing)
+		{
+			this.fireEvent("onMaximizeStart");
+		}
+
 		this.createLayout();
 		BX.addClass(this.getOverlay(), "side-panel-overlay-open side-panel-overlay-opening");
 		this.adjustLayout();
@@ -243,6 +290,11 @@ BX.SidePanel.Slider.prototype =
 			return false;
 		}
 
+		if (this.minimizing)
+		{
+			this.fireEvent("onMinimizeStart");
+		}
+
 		this.fireEvent("onCloseStart");
 
 		this.opened = false;
@@ -256,6 +308,8 @@ BX.SidePanel.Slider.prototype =
 		{
 			this.animation.stop();
 		}
+
+		this.fireEvent("onClosing");
 
 		if (immediately === true || BX.browser.IsMobile())
 		{
@@ -278,10 +332,64 @@ BX.SidePanel.Slider.prototype =
 				}, this)
 			});
 
+			// Chrome rendering bug
+			this.getContainer().style.opacity = 0.96;
+
+			if (this.animationName === 'scale' && BX.Type.isStringFilled(this.animationOptions.origin))
+			{
+				this.getContainer().style.transformOrigin = this.animationOptions.origin;
+			}
+
 			this.animation.animate();
 		}
 
 		return true;
+	},
+
+	minimize(immediately, callback)
+	{
+		this.minimizing = true;
+
+		const success = this.close(immediately, callback);
+		if (!success)
+		{
+			this.minimizing = false;
+		}
+
+		return success;
+	},
+
+	isMinimizing()
+	{
+		return this.minimizing;
+	},
+
+	maximize()
+	{
+		this.maximizing = true;
+		const success = this.open();
+		if (!success)
+		{
+			this.maximizing = false;
+		}
+
+		return success;
+	},
+
+	isMaximizing()
+	{
+		return this.maximizing;
+	},
+
+	setAnimation(type, options)
+	{
+		this.animationName = type === 'scale' ? type : 'sliding';
+		this.animationOptions = BX.Type.isPlainObject(options) ? options : {};
+	},
+
+	getMinimizeOptions()
+	{
+		return this.minimizeOptions;
 	},
 
 	/**
@@ -291,6 +399,14 @@ BX.SidePanel.Slider.prototype =
 	getUrl: function()
 	{
 		return this.url;
+	},
+
+	setUrl(url)
+	{
+		if (BX.Type.isStringFilled(url))
+		{
+			this.url = url;
+		}
 	},
 
 	focus: function()
@@ -881,6 +997,7 @@ BX.SidePanel.Slider.prototype =
 		{
 			frameWindow.removeEventListener("keydown", this.handleFrameKeyDown);
 			frameWindow.removeEventListener("focus", this.handleFrameFocus);
+			frameWindow.removeEventListener("unload", this.handleFrameUnload);
 		}
 
 		BX.Event.EventEmitter.unsubscribe('BX.Main.Popup:onInit', this.handlePopupInit);
@@ -905,6 +1022,8 @@ BX.SidePanel.Slider.prototype =
 				BX.removeCustomEvent(this, BX.SidePanel.Slider.getEventFullName(eventName), this.options.events[eventName]);
 			}
 		}
+
+		this.firePageEvent("onDestroyComplete");
 
 		return true;
 	},
@@ -934,6 +1053,7 @@ BX.SidePanel.Slider.prototype =
 	 */
 	reload: function()
 	{
+		this.loaded = false;
 		if (this.isSelfContained())
 		{
 			this.contentCallbackInvoved = false;
@@ -1029,7 +1149,7 @@ BX.SidePanel.Slider.prototype =
 				id: this.getFrameId()
 			},
 			events: {
-				load: this.handleFrameLoad.bind(this)
+				load: this.handleFrameLoad.bind(this),
 			}
 		});
 
@@ -1172,6 +1292,7 @@ BX.SidePanel.Slider.prototype =
 					className: 'side-panel-extra-labels'
 				},
 				children: [
+					this.minimizeLabel ? this.minimizeLabel.getContainer() : null,
 					this.newWindowLabel ? this.newWindowLabel.getContainer() : null,
 					this.copyLinkLabel ? this.copyLinkLabel.getContainer() : null
 				]
@@ -1213,6 +1334,15 @@ BX.SidePanel.Slider.prototype =
 	getCopyLinkLabel: function()
 	{
 		return this.copyLinkLabel;
+	},
+
+	/**
+	 * @public
+	 * @returns {BX.SidePanel.Label | null}
+	 */
+	getMinimizeLabel: function()
+	{
+		return this.minimizeLabel;
 	},
 
 	/**
@@ -1347,6 +1477,9 @@ BX.SidePanel.Slider.prototype =
 			this.iframeSrc = this.getUrl();
 			this.iframe.src = url;
 		}
+
+		this.loaded = false;
+		this.listenIframeLoading();
 	},
 
 	/**
@@ -1619,6 +1752,8 @@ BX.SidePanel.Slider.prototype =
 			this.animation.stop();
 		}
 
+		this.fireEvent("onOpening");
+
 		if (BX.browser.IsMobile())
 		{
 			this.currentParams = this.endParams;
@@ -1642,6 +1777,11 @@ BX.SidePanel.Slider.prototype =
 			}, this)
 		});
 
+		if (this.animationName === 'scale' && BX.Type.isStringFilled(this.animationOptions.origin))
+		{
+			this.getContainer().style.transformOrigin = this.animationOptions.origin;
+		}
+
 		this.animation.animate();
 	},
 
@@ -1651,11 +1791,15 @@ BX.SidePanel.Slider.prototype =
 	 */
 	animateStep: function(state)
 	{
-		this.getContainer().style.transform = "translateX(" + state.translateX + "%)";
-		if(state.translateX === 0 && BX.browser.IsIE10())
+		if (this.animationName === 'scale')
 		{
-			this.getContainer().style.transform = 'none';
+			this.getContainer().style.transform = "scale(" + state.scale / 100 + ")";
 		}
+		else
+		{
+			this.getContainer().style.transform = "translateX(" + state.translateX + "%)";
+		}
+
 		if (this.getOverlayAnimation())
 		{
 			this.getOverlay().style.backgroundColor = "rgba(0, 0, 0, " + state.opacity / 100 + ")";
@@ -1672,8 +1816,14 @@ BX.SidePanel.Slider.prototype =
 		if (this.isOpen())
 		{
 			this.currentParams = this.endParams;
+			this.maximizing = false;
 
 			BX.removeClass(this.getOverlay(), "side-panel-overlay-opening");
+			if (this.animationName === 'scale')
+			{
+				this.getContainer().style.removeProperty("transform-origin");
+				this.getContainer().style.transform = "translateX(0%)";
+			}
 
 			this.firePageEvent("onBeforeOpenComplete");
 			this.fireFrameEvent("onBeforeOpenComplete");
@@ -1694,11 +1844,18 @@ BX.SidePanel.Slider.prototype =
 		else
 		{
 			this.currentParams = this.startParams;
+			this.minimizing = false;
 
 			BX.removeClass(this.getOverlay(), "side-panel-overlay-open side-panel-overlay-opening");
+			if (this.animationName === 'scale')
+			{
+				this.getContainer().style.removeProperty("transform-origin");
+				this.getContainer().style.transform = "translateX(100%)";
+			}
 
 			this.getContainer().style.removeProperty("width");
 			this.getContainer().style.removeProperty("right");
+			this.getContainer().style.removeProperty("opacity");
 			this.getContainer().style.removeProperty("max-width");
 			this.getContainer().style.removeProperty("min-width");
 			this.getCloseBtn().style.removeProperty("opacity");
@@ -1856,6 +2013,11 @@ BX.SidePanel.Slider.prototype =
 	 */
 	handleFrameLoad: function(event)
 	{
+		if (this.loaded)
+		{
+			return;
+		}
+
 		var frameWindow = this.iframe.contentWindow;
 		var iframeLocation = frameWindow.location;
 
@@ -1866,6 +2028,7 @@ BX.SidePanel.Slider.prototype =
 
 		frameWindow.addEventListener("keydown", this.handleFrameKeyDown);
 		frameWindow.addEventListener("focus", this.handleFrameFocus);
+		frameWindow.addEventListener("unload", this.handleFrameUnload);
 
 		if (BX.browser.IsMobile())
 		{
@@ -1881,7 +2044,10 @@ BX.SidePanel.Slider.prototype =
 			this.injectPrintStyles();
 		}
 
-		if (this.loaded)
+		this.loaded = true;
+		this.loadedCnt++;
+
+		if (this.loadedCnt > 1)
 		{
 			this.firePageEvent("onLoad");
 			this.fireFrameEvent("onLoad");
@@ -1891,7 +2057,6 @@ BX.SidePanel.Slider.prototype =
 		}
 		else
 		{
-			this.loaded = true;
 			this.firePageEvent("onLoad");
 			this.fireFrameEvent("onLoad");
 		}
@@ -1902,6 +2067,45 @@ BX.SidePanel.Slider.prototype =
 		}
 
 		this.closeLoader();
+	},
+
+	/**
+	 * @private
+	 */
+	listenIframeLoading: function()
+	{
+		const isLoaded = setInterval(() => {
+			if (this.isLoaded() || this.isDestroyed())
+			{
+				clearInterval(isLoaded);
+
+				return;
+			}
+
+			if (this.iframe.contentWindow.location.toString() === "about:blank")
+			{
+				return;
+			}
+
+			if (
+				this.iframe.contentWindow.document.readyState === 'complete'
+				|| this.iframe.contentWindow.document.readyState === 'interactive'
+			)
+			{
+				clearInterval(isLoaded);
+				this.handleFrameLoad();
+			}
+		}, 200);
+	},
+
+	/**
+	 * @private
+	 * @param {Event} event
+	 */
+	handleFrameUnload: function(event)
+	{
+		this.loaded = false;
+		this.listenIframeLoading();
 	},
 
 	/**

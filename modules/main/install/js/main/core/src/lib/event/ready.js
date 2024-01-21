@@ -1,4 +1,5 @@
 import Type from '../type';
+import bindOnce from './bind-once';
 
 let stack: Array<Function> = [];
 /**
@@ -10,29 +11,27 @@ export let isReady = false;
 
 export default function ready(handler: () => void)
 {
-	switch (document.readyState)
+	if (!Type.isFunction(handler))
 	{
-		case 'loading':
-			stack.push(handler);
-			break;
-		case 'interactive':
-		case 'complete':
-			if (Type.isFunction(handler))
-			{
-				handler();
-			}
+		return;
+	}
 
-			isReady = true;
-			break;
-		default:
-			break;
+	if (isReady)
+	{
+		handler();
+	}
+	else
+	{
+		stack.push(handler);
 	}
 }
 
-document.addEventListener('readystatechange', () => {
-	if (!isReady)
-	{
-		stack.forEach(ready);
-		stack = [];
-	}
+bindOnce(document, 'DOMContentLoaded', () => {
+	isReady = true;
+
+	stack.forEach((handler: Function) => {
+		handler();
+	});
+
+	stack = [];
 });

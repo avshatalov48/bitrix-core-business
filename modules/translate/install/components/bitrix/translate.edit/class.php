@@ -27,7 +27,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 	public const TEMPLATE_SOURCE_VIEW = 'source_view';
 
 	/** @var string */
-	private $filePath;
+	private $filePath = '';
 
 	/** @var string */
 	private $viewMode;
@@ -397,7 +397,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 	private function detectPath($inpName = 'file')
 	{
 		// from request
-		$path = $this->request->get($inpName);
+		$path = $this->request->get($inpName) ?? '';
 
 		if (!empty($path) && !preg_match("#\.\.[\\/]#".\BX_UTF_PCRE_MODIFIER, $path))
 		{

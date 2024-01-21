@@ -530,7 +530,7 @@ class CDatabaseMysql extends CAllDatabase
 			$this->column_cache[$table] = [];
 			$this->DoConnect();
 
-			$dbResult = $this->query("SELECT * FROM `" . $this->ForSql($table) . "` LIMIT 0");
+			$dbResult = $this->query("SELECT * FROM " . $this->quote($table) . " LIMIT 0");
 
 			$resultFields = mysqli_fetch_fields($dbResult->result);
 			foreach ($resultFields as $field)

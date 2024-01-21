@@ -72,11 +72,11 @@ class CBPViewHelper
 			$tasks = array('COMPLETED' => array(), 'RUNNING' => array());
 			$ids = array();
 			$taskIterator = CBPTaskService::GetList(
-				array('MODIFIED' => 'DESC'),
-				array('WORKFLOW_ID' => $workflowId),
+				['ID' => 'ASC'],
+				['WORKFLOW_ID' => $workflowId],
 				false,
-				array('nTopCount' => 50),
-				array('ID', 'MODIFIED', 'NAME', 'DESCRIPTION', 'PARAMETERS', 'STATUS', 'IS_INLINE', 'ACTIVITY')
+				['nTopCount' => 50],
+				['ID', 'MODIFIED', 'NAME', 'DESCRIPTION', 'PARAMETERS', 'STATUS', 'IS_INLINE', 'ACTIVITY']
 			);
 			while ($task = $taskIterator->getNext())
 			{

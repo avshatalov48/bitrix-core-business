@@ -234,20 +234,7 @@
 			const items = styles.concat(scripts);
 			if (items.length > 0)
 			{
-				let callOnce = false;
-				const callbackOnce = () => {
-					if (callOnce)
-					{
-						console.log('BX.load invoked callback twice', block);
-					}
-					else
-					{
-						callOnce = true;
-						callback();
-					}
-				};
-
-				BX.load(items, callbackOnce);
+				BX.load(items, callback);
 			}
 			else
 			{

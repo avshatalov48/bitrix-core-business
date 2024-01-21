@@ -55,22 +55,29 @@ export class CreateService
 		}
 
 		preparedConfig.managers = preparedConfig.managers ?? [];
-		const allMembers = [...preparedConfig.members, ...preparedConfig.managers, preparedConfig.ownerId];
+		preparedConfig.members = preparedConfig.members ?? [];
+		const allMembers = [...preparedConfig.members, ...preparedConfig.managers];
+		if (preparedConfig.ownerId)
+		{
+			allMembers.push(preparedConfig.ownerId);
+		}
 		preparedConfig.members = [...new Set(allMembers)];
 
 		return {
-			entityType: preparedConfig.type?.toUpperCase() ?? null,
-			title: preparedConfig.title,
-			avatar: preparedConfig.avatar,
-			description: preparedConfig.description,
+			type: preparedConfig.type?.toUpperCase() ?? null,
+			entityType: preparedConfig.entityType?.toUpperCase() ?? null,
+			title: preparedConfig.title ?? null,
+			avatar: preparedConfig.avatar ?? null,
+			description: preparedConfig.description ?? null,
 			users: preparedConfig.members,
 			managers: preparedConfig.managers,
-			ownerId: preparedConfig.ownerId,
+			ownerId: preparedConfig.ownerId ?? null,
 			searchable: preparedConfig.isAvailableInSearch ? 'Y' : 'N',
-			manageUsers: preparedConfig.manageUsers,
-			manageUi: preparedConfig.manageUi,
-			manageSettings: preparedConfig.manageSettings,
-			canPost: preparedConfig.canPost,
+			manageUsersAdd: preparedConfig.manageUsersAdd ?? null,
+			manageUsersDelete: preparedConfig.manageUsersDelete ?? null,
+			manageUi: preparedConfig.manageUi ?? null,
+			manageSettings: preparedConfig.manageSettings ?? null,
+			canPost: preparedConfig.canPost ?? null,
 			conferencePassword: preparedConfig.conferencePassword ?? null,
 		};
 	}
@@ -83,7 +90,12 @@ export class CreateService
 			chatType = chatConfig.entityType.toLowerCase();
 		}
 
-		this.#store.dispatch('dialogues/set', {
+		if (Type.isStringFilled(chatConfig.type))
+		{
+			chatType = chatConfig.type.toLowerCase();
+		}
+
+		this.#store.dispatch('chats/set', {
 			dialogId: newDialogId,
 			type: chatType.toLowerCase(),
 			name: chatConfig.title,

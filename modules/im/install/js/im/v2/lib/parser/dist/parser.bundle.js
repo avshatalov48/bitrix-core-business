@@ -267,14 +267,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    let attachDescription = '';
 	    if (main_core.Type.isArray(attach) && attach.length > 0) {
 	      const [firstAttach] = attach;
-	      if (main_core.Type.isStringFilled(firstAttach.DESCRIPTION)) {
-	        attachDescription = firstAttach.DESCRIPTION;
+	      if (main_core.Type.isStringFilled(firstAttach.description)) {
+	        attachDescription = firstAttach.description;
 	      }
 	    } else if (main_core.Type.isStringFilled(attach)) {
 	      attachDescription = attach;
 	    }
 	    if (main_core.Type.isStringFilled(attachDescription)) {
-	      if (attachDescription === AttachDescription.SKIP_MESSAGE) {
+	      if (attachDescription === AttachDescription.skipMessage) {
 	        attachDescription = '';
 	      } else {
 	        attachDescription = Parser.purifyText(attachDescription, {
@@ -648,6 +648,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    var _smileManager$smileLi, _smileManager$smileLi2;
 	    const smileManager = getSmileManager().getInstance();
 	    const smiles = (_smileManager$smileLi = (_smileManager$smileLi2 = smileManager.smileList) == null ? void 0 : _smileManager$smileLi2.smiles) != null ? _smileManager$smileLi : [];
+	    if (smiles.length === 0) {
+	      return;
+	    }
 	    const sortedSmiles = [...smiles].sort((a, b) => {
 	      return b.typing.localeCompare(a.typing);
 	    });
@@ -835,7 +838,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	};
 
+	const {
+	  EventType: EventType$1
+	} = getConst();
 	const atomRegExpPart = '\\d{4}-\\d{2}-\\d{2}T[0-2]\\d:[0-5]\\d:[0-5]\\d[+-][0-2]\\d:[0-5]\\d';
+	const ActionType = {
+	  put: 'put',
+	  send: 'send'
+	};
 	const ParserAction = {
 	  decodePut(text) {
 	    text = text.replace(/\[PUT(?:=(?:.+?))?](?:.+?)?\[\/PUT]/gi, match => {
@@ -924,6 +934,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        text: data
 	      })]
 	    }).outerHTML;
+	  },
+	  executeClickEvent(event) {
+	    if (!main_core.Dom.hasClass(event.target, 'bx-im-message-command')) {
+	      return;
+	    }
+	    const element = event.target;
+	    if (element.dataset.entity === ActionType.put) {
+	      const {
+	        innerText: textToInsert = ''
+	      } = element.parentElement.querySelector('.bx-im-message-command-data');
+	      if (!textToInsert) {
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(EventType$1.textarea.insertText, {
+	        text: textToInsert
+	      });
+	    } else if (element.dataset.entity === ActionType.send) {
+	      const {
+	        innerText: textToSend = ''
+	      } = element.parentElement.querySelector('.bx-im-message-command-data');
+	      if (!textToSend) {
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(EventType$1.textarea.sendMessage, {
+	        text: textToSend
+	      });
+	    }
 	  }
 	};
 
@@ -969,7 +1006,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	const {
-	  EventType: EventType$1,
+	  EventType: EventType$2,
 	  MessageMentionType: MessageMentionType$1
 	} = getConst();
 	const ParserMention = {
@@ -990,10 +1027,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!userName) {
 	        userName = `User ${userId}`;
 	      }
+	      let className = 'bx-im-mention';
+	      if (getCore().getUserId() === userId) {
+	        className += ' --highlight';
+	      }
 	      return main_core.Dom.create({
 	        tag: 'span',
 	        attrs: {
-	          className: 'bx-im-mention',
+	          className,
 	          'data-type': MessageMentionType$1.user,
 	          'data-value': userId
 	        },
@@ -1008,7 +1049,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (chatName) {
 	        chatName = main_core.Text.decode(chatName);
 	      } else {
-	        const dialog = getCore().store.getters['dialogues/get'](`chat${chatId}`);
+	        const dialog = getCore().store.getters['chats/get'](`chat${chatId}`);
 	        chatName = dialog ? dialog.name : `Chat ${chatId}`;
 	      }
 	      return main_core.Dom.create({
@@ -1082,14 +1123,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    text = text.replace(/\[CHAT=(imol\|)?(\d+)](.*?)\[\/CHAT]/gi, (whole, openlines, chatId, chatName) => {
 	      chatId = Number.parseInt(chatId, 10);
 	      if (!chatName) {
-	        const dialog = getCore().store.getters['dialogues/get']('chat' + chatId);
+	        const dialog = getCore().store.getters['chats/get']('chat' + chatId);
 	        chatName = dialog ? dialog.name : 'Chat ' + chatId;
 	      }
 	      return chatName;
 	    });
 	    text = text.replace(/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/gis, (whole, dialogId, messageId, text) => {
 	      if (!text) {
-	        const dialog = getCore().store.getters['dialogues/get'](dialogId);
+	        const dialog = getCore().store.getters['chats/get'](dialogId);
 	        text = dialog ? dialog.name : 'Dialog ' + dialogId;
 	      }
 	      return text;
@@ -1101,10 +1142,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return;
 	    }
 	    if (event.target.dataset.type === MessageMentionType$1.user || event.target.dataset.type === MessageMentionType$1.chat) {
-	      main_core_events.EventEmitter.emit(EventType$1.mention.openChatInfo, {
-	        event,
-	        dialogId: event.target.dataset.value
-	      });
+	      void im_public.Messenger.openChat(event.target.dataset.value);
 	    } else if (event.target.dataset.type === MessageMentionType$1.lines) {
 	      const dialogId = event.target.dataset.value;
 	      if (getUtils().dialog.isLinesHistoryId(dialogId)) {
@@ -1113,7 +1151,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        void im_public.Messenger.openLines(dialogId);
 	      }
 	    } else if (event.target.dataset.type === MessageMentionType$1.context) {
-	      main_core_events.EventEmitter.emit(EventType$1.dialog.goToMessageContext, {
+	      main_core_events.EventEmitter.emit(EventType$2.dialog.goToMessageContext, {
 	        messageId: Number.parseInt(event.target.dataset.messageId, 10),
 	        dialogId: event.target.dataset.dialogId.toString()
 	      });
@@ -1206,7 +1244,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    var _notification$params$;
 	    return this.decode({
 	      text: notification.text,
-	      attach: (_notification$params$ = notification.params.ATTACH) != null ? _notification$params$ : false,
+	      attach: (_notification$params$ = notification.params.attach) != null ? _notification$params$ : false,
 	      replaces: notification.replaces,
 	      showIconIfEmptyText: false,
 	      showImageFromLink: false,
@@ -1316,7 +1354,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const messageFiles = getCore().store.getters['messages/getMessageFiles'](notification.id);
 	    return this.purify({
 	      text: notification.text,
-	      attach: (_notification$params$2 = notification.params.ATTACH) != null ? _notification$params$2 : false,
+	      attach: (_notification$params$2 = notification.params.attach) != null ? _notification$params$2 : false,
 	      files: messageFiles
 	    });
 	  },
@@ -1407,11 +1445,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    text = ParserQuote.purifyCode(text, ' ');
 	    text = ParserQuote.purifyQuote(text, ' ');
 	    text = ParserQuote.purifyArrowQuote(text, ' ');
-	    text = ParserIcon.addIconToShortText({
-	      text,
-	      attach,
-	      files
-	    });
+	    if (quoteText === '') {
+	      text = ParserIcon.addIconToShortText({
+	        text,
+	        attach,
+	        files
+	      });
+	    }
 	    text = text.length > 0 ? main_core.Text.decode(text) : main_core.Loc.getMessage('IM_PARSER_MESSAGE_DELETED');
 	    return text.trim();
 	  },
@@ -1423,6 +1463,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return text.trim();
 	  },
 	  prepareCopy(message) {
+	    let {
+	      text
+	    } = message;
+	    text = ParserUrl.removeSimpleUrlTag(text);
+	    return text.trim();
+	  },
+	  prepareCopyFile(message) {
 	    const {
 	      id
 	    } = message;
@@ -1454,6 +1501,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  executeClickEvent(event) {
 	    ParserMention.executeClickEvent(event);
 	    ParserQuote.executeClickEvent(event);
+	    ParserAction.executeClickEvent(event);
+	  },
+	  getContextCodeFromForwardId(forwardId) {
+	    return ParserUtils.getFinalContextTag(forwardId);
 	  }
 	};
 

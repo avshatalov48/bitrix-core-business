@@ -1,8 +1,8 @@
-import { RestClient } from 'rest.client';
-
 import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
 import { UserManager } from 'im.v2.lib.user';
+
+import type { RestClient } from 'rest.client';
 
 export class ChatParticipants
 {

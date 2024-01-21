@@ -93,7 +93,7 @@
 	{
 		if (!tile.selected && BX.Sender.B24License)
 		{
-			BX.Sender.B24License.showPopup('Ad');
+			BX.Sender.B24License.showPopup('Ad', tile.id);
 			return;
 		}
 

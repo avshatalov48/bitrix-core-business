@@ -19,7 +19,6 @@ class EnumType extends BaseType
 {
 	public const USER_TYPE_ID = 'enumeration';
 	public const RENDER_COMPONENT = 'bitrix:main.field.enum';
-
 	public const DISPLAY_LIST = 'LIST';
 	public const DISPLAY_CHECKBOX = 'CHECKBOX';
 	public const DISPLAY_UI = 'UI';
@@ -57,12 +56,12 @@ class EnumType extends BaseType
 	public static function renderEditForm(array $userField, ?array $additionalParameters): string
 	{
 		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
-		if(!$enum)
+		if (!$enum)
 		{
 			return '';
 		}
 		$items = [];
-		while($item = $enum->GetNext())
+		while ($item = $enum->GetNext())
 		{
 			$items[$item['ID']] = $item;
 		}
@@ -74,12 +73,12 @@ class EnumType extends BaseType
 	public static function renderFilter(array $userField, ?array $additionalParameters): string
 	{
 		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
-		if(!$enum)
+		if (!$enum)
 		{
 			return '';
 		}
 		$items = [];
-		while($item = $enum->GetNext())
+		while ($item = $enum->GetNext())
 		{
 			$items[$item['ID']] = $item['VALUE'];
 		}
@@ -90,27 +89,31 @@ class EnumType extends BaseType
 	public static function renderAdminListView(array $userField, ?array $additionalParameters): string
 	{
 		static $cache = [];
-		$empty_caption = '&nbsp;';
 
-		if(!array_key_exists($additionalParameters['VALUE'], $cache))
+		$emptyCaption = '&nbsp;';
+
+		$value = (int)($additionalParameters['VALUE'] ?? 0);
+		$fieldId = (int)$userField['ID'];
+
+		if (!isset($cache[$fieldId][$value]))
 		{
 			$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
-			if(!$enum)
+			if (!$enum)
 			{
-				$additionalParameters['VALUE'] = $empty_caption;
+				$additionalParameters['VALUE'] = $emptyCaption;
 				return parent::renderAdminListView($userField, $additionalParameters);
 			}
-			while($item = $enum->GetNext())
+			while ($item = $enum->GetNext())
 			{
-				$cache[$item['ID']] = $item['VALUE'];
+				$cache[$fieldId][(int)$item['ID']] = $item['VALUE'];
 			}
 		}
-		if(!array_key_exists($additionalParameters['VALUE'], $cache))
+		if (!isset($cache[$fieldId][$value]))
 		{
-			$cache[$additionalParameters['VALUE']] = $empty_caption;
+			$cache[$fieldId][$value] = $emptyCaption;
 		}
 
-		$additionalParameters['VALUE'] = $cache[$additionalParameters['VALUE']];
+		$additionalParameters['VALUE'] = $cache[$fieldId][$value];
 		return parent::renderAdminListView($userField, $additionalParameters);
 	}
 
@@ -118,13 +121,9 @@ class EnumType extends BaseType
 	{
 		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
 		$values = [];
-		if(!$enum)
+		if ($enum)
 		{
-			$values = [];
-		}
-		else
-		{
-			while($item = $enum->GetNext())
+			while ($item = $enum->GetNext())
 			{
 				$values[$item['ID']] = $item['VALUE'];
 			}
@@ -192,7 +191,7 @@ class EnumType extends BaseType
 	{
 		$res = '';
 
-		if(is_array($userField['VALUE']))
+		if (is_array($userField['VALUE']))
 		{
 			$val = $userField['VALUE'];
 		}
@@ -202,7 +201,7 @@ class EnumType extends BaseType
 		}
 
 		$val = array_filter($val, 'strlen');
-		if(!empty($val))
+		if (!empty($val))
 		{
 			$ob = new CUserFieldEnum();
 			$rs = $ob->GetList([], [
@@ -210,7 +209,7 @@ class EnumType extends BaseType
 				'ID' => $val,
 			]);
 
-			while($ar = $rs->Fetch())
+			while ($ar = $rs->Fetch())
 			{
 				$res .= $ar['VALUE'] . '\r\n';
 			}
@@ -228,9 +227,9 @@ class EnumType extends BaseType
 	{
 		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
 		$items = [];
-		if($enum)
+		if ($enum)
 		{
-			while($item = $enum->GetNext())
+			while ($item = $enum->GetNext())
 			{
 				$items[$item['ID']] = $item['VALUE'];
 			}
@@ -241,7 +240,7 @@ class EnumType extends BaseType
 			'type' => 'list',
 			'items' => $items,
 			'params' => ['multiple' => 'Y'],
-			'filterable' => ''
+			'filterable' => '',
 		];
 	}
 
@@ -273,7 +272,7 @@ class EnumType extends BaseType
 			)
 		);
 
-		if(
+		if (
 			$showNoValue
 			&&
 			(
@@ -290,7 +289,7 @@ class EnumType extends BaseType
 
 		$enumList = static::getList($userField);
 
-		while($item = $enumList->Fetch())
+		while ($item = $enumList->Fetch())
 		{
 			$userField['USER_TYPE']['FIELDS'][$item['ID']] = HtmlFilter::encode($item['VALUE']);
 			$userField['USER_TYPE']['~FIELDS'][$item['ID']] = $item['VALUE'];
@@ -299,7 +298,7 @@ class EnumType extends BaseType
 
 	/**
 	 * @array $userField
-	 * @param $userField
+	 * @param array $userField
 	 * @return string
 	 */
 	public static function getEmptyCaption(array $userField): string
@@ -320,7 +319,7 @@ class EnumType extends BaseType
 	public static function getListMultiple(array $userFields)
 	{
 		$ids = [];
-		foreach($userFields as $field)
+		foreach ($userFields as $field)
 		{
 			$ids[] = $field['ID'];
 		}
@@ -340,12 +339,12 @@ class EnumType extends BaseType
 	{
 		$result = [];
 		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
-		if(!$enum)
+		if (!$enum)
 		{
 			return $result;
 		}
 
-		while($item = $enum->GetNext())
+		while ($item = $enum->GetNext())
 		{
 			$result[] = ['NAME' => $item['VALUE'], 'VALUE' => $item['ID']];
 		}
@@ -368,7 +367,7 @@ class EnumType extends BaseType
 		if (!isset($userField['ENUM']))
 		{
 			$userField['ENUM'] = [];
-			$enumValuesManager = new \CUserFieldEnum();
+			$enumValuesManager = new CUserFieldEnum();
 			$dbRes = $enumValuesManager->getList(
 				[],
 				[
@@ -401,19 +400,19 @@ class EnumType extends BaseType
 	public static function getFieldValue(array $userField, array $additionalParameters = [])
 	{
 		$bVarsFromForm = ($additionalParameters['bVarsFromForm'] ?? false);
-		if(!$bVarsFromForm && !isset($additionalParameters['VALUE']))
+		if (!$bVarsFromForm && !isset($additionalParameters['VALUE']))
 		{
-			if(
+			if (
 				isset($userField['ENTITY_VALUE_ID'], $userField['ENUM'])
 				&& $userField['ENTITY_VALUE_ID'] <= 0
 			)
 			{
 				$value = ($userField['MULTIPLE'] === 'Y' ? [] : null);
-				foreach($userField['ENUM'] as $enum)
+				foreach ($userField['ENUM'] as $enum)
 				{
-					if($enum['DEF'] === 'Y')
+					if ($enum['DEF'] === 'Y')
 					{
-						if($userField['MULTIPLE'] === 'Y')
+						if ($userField['MULTIPLE'] === 'Y')
 						{
 							$value[] = $enum['ID'];
 						}
@@ -430,7 +429,7 @@ class EnumType extends BaseType
 				$value = $userField['VALUE'] ?? null;
 			}
 		}
-		elseif(isset($additionalParameters['VALUE']))
+		elseif (isset($additionalParameters['VALUE']))
 		{
 			$value = $additionalParameters['VALUE'];
 		}
@@ -441,5 +440,4 @@ class EnumType extends BaseType
 
 		return $value;
 	}
-
 }

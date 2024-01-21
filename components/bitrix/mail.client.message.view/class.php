@@ -2,19 +2,31 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Calendar\ICal\Parser\Calendar as CalendarIcalComponent;
 use Bitrix\Mail;
+use Bitrix\Mail\Helper\DownloadResponse;
 use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
 use Bitrix\Mail\Internals\MessageAccessTable;
 use Bitrix\Main;
+use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Mail\Message;
+use Bitrix\Main\Engine\Response\Redirect;
+use Bitrix\Mail\MailMessageTable;
+use Bitrix\Main\Errorable;
+use Bitrix\Mail\Helper\Cache\SanitizedBodyCache;
+use Bitrix\Mail\Integration\AI;
 
 Loc::loadMessages(__DIR__ . '/../mail.client/class.php');
 
 Main\Loader::includeModule('mail');
 
-class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitrix\Main\Engine\Contract\Controllerable, Main\Errorable
+class CMailClientMessageViewComponent extends CBitrixComponent implements Controllerable, Errorable
 {
+	/**
+	 * Slow sanitizing html size
+	 */
+	private const SANITIZE_HTML_SIZE_THRESHOLD = 50000;
+
 	/** @var Main\ErrorCollection */
 	private $errorCollection;
 
@@ -24,11 +36,28 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 	/**
 	 * @return array
 	 */
-	public function configureActions()
+	public function configureActions(): array
 	{
 		$this->errorCollection = new Main\ErrorCollection();
 
-		return array();
+		return [
+			'downloadHtmlBody' => [
+				'+prefilters' => [
+					new \Bitrix\Main\Engine\ActionFilter\CloseSession(),
+				],
+				'-prefilters' => [
+					\Bitrix\Main\Engine\ActionFilter\Csrf::class,
+				],
+			],
+			'getHtmlBody' => [
+				'+prefilters' => [
+					new \Bitrix\Main\Engine\ActionFilter\CloseSession(),
+				],
+				'-prefilters' => [
+					\Bitrix\Main\Engine\ActionFilter\Csrf::class,
+				],
+			],
+		];
 	}
 
 	/**
@@ -64,6 +93,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			showError($this->getFirstErrorMessage());
 			return;
 		}
+		$this->prepareMessageHtml($message);
 
 		$this->arResult['MESSAGE'] = $message;
 
@@ -152,6 +182,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 		));
 		$APPLICATION->setTitle(htmlspecialcharsbx($message['SUBJECT']) ?: Loc::getMessage('MAIL_MESSAGE_EMPTY_SUBJECT_PLACEHOLDER'));
 		$this->arResult['MESSAGE_UID_KEY'] = $message['UID'] . '-' . $message['MAILBOX_ID'];
+		$this->arResult['COPILOT_PARAMS'] = $this->prepareCopilotParams($USER->getId());
 
 		$this->includeComponentTemplate();
 	}
@@ -336,6 +367,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			// Errors added to collection in getMessage method
 			return;
 		}
+		$this->prepareMessageHtml($message);
 
 		$this->arResult['MESSAGE'] = $message;
 		$this->prepareUser();
@@ -348,6 +380,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 		$this->markMessageAsSeen($this->arResult['MESSAGE']);
 		ob_start();
 
+		$this->arResult['COPILOT_PARAMS'] = $this->prepareCopilotParams(Main\Engine\CurrentUser::get()->getId());
 		$this->includeComponentTemplate('logitem');
 
 		return ob_get_clean();
@@ -866,6 +899,163 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			'OPTIONS',
 			'READ_CONFIRMED',
 		];
+	}
+
+	/**
+	 * Sanitize html in message
+	 *
+	 * @param array $message Message fields
+	 *
+	 * @return void
+	 */
+	private function prepareMessageHtml(array &$message): void
+	{
+		if (!trim($message['BODY_HTML']))
+		{
+			$message['MESSAGE_HTML'] = $this->getHtmlFromTextBody((string)$message['BODY']);
+			return;
+		}
+
+		if (!$message[MailMessageTable::FIELD_SANITIZE_ON_VIEW])
+		{
+			$message['MESSAGE_HTML'] = $message['BODY_HTML'];
+			return;
+		}
+		if (!$this->isSanitizeHtmlCanBeLong($message['BODY_HTML']))
+		{
+			$message['MESSAGE_HTML'] = \Bitrix\Mail\Helper\Message::sanitizeHtml($message['BODY_HTML'], true);
+			return;
+		}
+
+		$cachedBody = (new SanitizedBodyCache())->get($message['ID']);
+		if ($cachedBody)
+		{
+			$message['MESSAGE_HTML'] = $cachedBody;
+		}
+		else
+		{
+			$message['MESSAGE_HTML'] = $this->getHtmlFromTextBody((string)$message['BODY']);
+			$message['IS_AJAX_BODY_SANITIZE'] = true;
+		}
+	}
+
+	/**
+	 * Get html body of message
+	 *
+	 * @param int $id Message ID
+	 *
+	 * @return array
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function getHtmlBodyAction(int $id): array
+	{
+		$this->setCrmEnableFields();
+
+		$message = $this->getPreparedMessage($id);
+		if (empty($message))
+		{
+			// Errors added to collection in getMessage method
+			return [];
+		}
+
+		$messageHtml = \Bitrix\Mail\Helper\Message::sanitizeHtml($message['BODY_HTML'], true);
+		(new SanitizedBodyCache())->set($id, $messageHtml);
+
+		$quote = Message::wrapTheMessageWithAQuote(
+			$messageHtml,
+			$message['SUBJECT'],
+			$message['FIELD_DATE'],
+			$message['__from'],
+			$message['__to'],
+			$message['__cc'],
+			true,
+		);
+
+		return [
+			"messageHtml" => $messageHtml,
+			"quote" => $quote,
+		];
+	}
+
+	/**
+	 * Download html body
+	 *
+	 * @param int $id Message ID
+	 *
+	 * @return \Bitrix\Main\HttpResponse
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function downloadHtmlBodyAction(int $id): \Bitrix\Main\HttpResponse
+	{
+		$this->setCrmEnableFields();
+
+		$message = $this->getPreparedMessage($id);
+
+		if (empty($message))
+		{
+			return new Redirect('/404.php');
+		}
+
+		$content = $message['BODY_HTML'] ?? '';
+		$name = "email_$id.html";
+		$contentType = 'text/html';
+
+		return new DownloadResponse($content, $name, $contentType);
+	}
+
+	/**
+	 * Is html big enough to cause slow sanitization
+	 *
+	 * @param string $bodyHtml Email html body, that we sanitize
+	 *
+	 * @return bool
+	 */
+	private function isSanitizeHtmlCanBeLong(string $bodyHtml): bool
+	{
+		return mb_strlen(trim($bodyHtml)) > self::SANITIZE_HTML_SIZE_THRESHOLD;
+	}
+
+	/**
+	 * Get HTML from text body of email
+	 *
+	 * @param string $textBody Text body
+	 *
+	 * @return string
+	 */
+	private function getHtmlFromTextBody(string $textBody): string
+	{
+		return preg_replace('/(\s*(\r\n|\n|\r))+/', '<br>', htmlspecialcharsbx($textBody));
+	}
+
+	private function prepareCopilotParams(): array
+	{
+		$messageIds = [];
+		if ($this->arResult['LOG']['A'])
+		{
+			foreach ($this->arResult['LOG']['A'] as $message)
+			{
+				array_unshift($messageIds, (int)$message['ID']);
+			}
+		}
+		array_unshift($messageIds, (int)$this->arResult['MESSAGE']['ID']);
+		if ($this->arResult['LOG']['B'])
+		{
+			foreach ($this->arResult['LOG']['B'] as $message)
+			{
+				array_unshift($messageIds, (int)$message['ID']);
+			}
+		}
+
+		return AI\Settings::instance()->getMailCopilotParams(
+			AI\Settings::MAIL_REPLY_MESSAGE_CONTEXT_ID,
+			['messageIds' => $messageIds,],
+		);
 	}
 
 }

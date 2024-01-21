@@ -105,6 +105,7 @@ if(typeof(BX.UI.AjaxForm) === "undefined")
 			this._config["url"] = BX.util.add_url_param(BX.prop.getString(this._config, "url", ""), params);
 		}
 	};
+
 	BX.UI.AjaxForm.prototype.doSubmit = function(options)
 	{
 		if (!this._elementNode)

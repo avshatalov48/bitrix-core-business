@@ -66,10 +66,8 @@
 						resolve(event);
 					});
 
-				requestAnimationFrame(function() {
-					element.classList.remove("landing-ui-show");
-					element.classList.add("landing-ui-hide");
-				});
+				element.classList.remove("landing-ui-show");
+				element.classList.add("landing-ui-hide");
 			}
 			else
 			{

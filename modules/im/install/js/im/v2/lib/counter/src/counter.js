@@ -10,10 +10,12 @@ import { EventType } from 'im.v2.const';
 type InitialCounters = {
 	CHAT: {[chatId: string]: number},
 	LINES: {[chatId: string]: number},
+	COPILOT: {[chatId: string]: number},
 	CHAT_MUTED: number[],
 	CHAT_UNREAD: number[],
 	TYPE: {
 		'ALL': number,
+		'CHAT': number,
 		'NOTIFY': number,
 		'LINES': number,
 	}
@@ -63,11 +65,13 @@ export class CounterManager
 
 	#init(counters: InitialCounters)
 	{
-		this.#store.dispatch('recent/setUnloadedChatCounters', this.#prepareChatCounters(counters));
-		this.#store.dispatch('recent/setUnloadedLinesCounters', counters.LINES);
+		this.#store.dispatch('counters/setUnloadedChatCounters', this.#prepareChatCounters(counters));
+		this.#store.dispatch('counters/setUnloadedLinesCounters', counters.LINES);
+		this.#store.dispatch('counters/setUnloadedCopilotCounters', counters.COPILOT);
 		this.#store.dispatch('notifications/setCounter', counters.TYPE.NOTIFY);
 
 		this.#subscribeToCountersChange();
+		this.#sendChatCounterChangeEvent(counters.TYPE.CHAT);
 		this.#sendNotificationCounterChangeEvent(counters.TYPE.NOTIFY);
 		this.#sendLinesCounterChangeEvent(counters.TYPE.LINES);
 	}
@@ -129,8 +133,8 @@ export class CounterManager
 	#onTotalCounterChange()
 	{
 		const notificationCounter = this.#store.getters['notifications/getCounter'];
-		const chatCounter = this.#store.getters['recent/getTotalChatCounter'];
-		const linesCounter = this.#store.getters['recent/getTotalLinesCounter'];
+		const chatCounter = this.#store.getters['counters/getTotalChatCounter'];
+		const linesCounter = this.#store.getters['counters/getTotalLinesCounter'];
 		const totalCounter = notificationCounter + chatCounter + linesCounter;
 
 		if (DesktopManager.getInstance().isDesktopActive())
@@ -166,9 +170,9 @@ const notificationCounterWatch = (state, getters) => {
 };
 
 const chatCounterWatch = (state, getters) => {
-	return getters['recent/getTotalChatCounter'];
+	return getters['counters/getTotalChatCounter'];
 };
 
 const linesCounterWatch = (state, getters) => {
-	return getters['recent/getTotalLinesCounter'];
+	return getters['counters/getTotalLinesCounter'];
 };

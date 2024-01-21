@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\Grid\Panel;
 
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\GridRequest;
 use Bitrix\Main\Grid\GridResponse;
 use Bitrix\Main\Grid\Panel\Action\DataProvider;
@@ -19,7 +20,6 @@ class Panel
 	 * @var array[]
 	 */
 	private array $controls;
-
 	/**
 	 * @var DataProvider[]
 	 */
@@ -90,10 +90,11 @@ class Panel
 	 * Processing all actions of the panel.
 	 *
 	 * @param GridRequest $request
+	 * @param Filter|null $filter
 	 *
 	 * @return GridResponse|null
 	 */
-	public function processRequest(GridRequest $request): ?GridResponse
+	public function processRequest(GridRequest $request, ?Filter $filter): ?GridResponse
 	{
 		$result = null;
 
@@ -110,7 +111,8 @@ class Panel
 		{
 			$result = $action->processRequest(
 				$request->getHttpRequest(),
-				$request->isSelectedAllPanelRows()
+				$request->isSelectedAllPanelRows(),
+				$filter
 			);
 		}
 		else
@@ -121,7 +123,8 @@ class Panel
 			{
 				$result = $groupAction->processRequest(
 					$request->getHttpRequest(),
-					$request->isSelectedAllPanelGroupRows()
+					$request->isSelectedAllPanelGroupRows(),
+					$filter
 				);
 			}
 		}

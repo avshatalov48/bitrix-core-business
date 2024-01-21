@@ -153,42 +153,41 @@
 
 .feed-com-add-box .feed-add-successfully,
 .feed-com-add-box .feed-add-error {
-	border-radius: 22px 22px 0 0;
+	border-radius: 19px 19px 0 0;
 }
 
 .feed-add-successfully {
-	background-color: #e4efad;
+	background-color: rgba(var(--ui-color-primary-alt-rgb), .3);
 }
 
 .feed-add-error {
-	background-color: #ffd4d4;
+	background-color: rgba(var(--ui-color-text-alert-rgb), .25);
 }
 
 .feed-add-info-text {
-	color: #57740d;
-	display: inline-block;
-	font-size: 15px;
-	position: relative;
+	display: flex;
+	flex-direction: column;
+	color: var(--ui-color-palette-green-90);
+	font-size: var(--ui-typography-text-lg-font-size);
+}
+
+.feed-add-info-text-top {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.feed-add-info-text-title {
+	font-weight: var(--ui-font-weight-semi-bold);
 }
 
 .feed-add-error .feed-add-info-text {
-	color: #ce0000;
+	color: var(--ui-color-palette-red-80);
 }
 
 .feed-add-info-icon {
-	background: url("images/log/live_feed_sprite_6.png?3") no-repeat -105px -83px;
-	display: inline-block;
-	height: 21px;
-	margin-right: 10px;
-	vertical-align: top;
-	width: 23px;
+	display: inline-flex;
 }
-
-.feed-add-error .feed-add-info-icon {
-	background-position: -109px -56px;
-	margin-top: -3px;
-}
-
 
 .feed-add-post-menu {
 	height: 31px;
@@ -1991,6 +1990,15 @@ span.feed-add-post-destination-new:hover {
 .feed-post-more-link a:hover {
 	color: #3A3D42;
 	text-decoration: none;
+}
+
+.feed-inform-comments.feed-copilot-readonly a {
+	color: #965fee;
+	margin: 0 0 0 8px;
+}
+
+.feed-inform-comments.feed-copilot-readonly a:hover {
+	color: #843bf6;
 }
 
 .feed-inform-ilike a.bx-ilike-text.bx-ilike-text-unavailable:hover {

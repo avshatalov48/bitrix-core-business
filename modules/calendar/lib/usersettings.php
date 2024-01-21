@@ -292,7 +292,7 @@ class UserSettings
 			$optionName = ($options['isPersonalCalendarContext'] ?? null) ? 'hidden_sections' : 'hidden_sections_'.$options['type'];
 			$res = \CUserOptions::getOption('calendar', $optionName, false, $userId);
 
-			if (is_array($res) && isset($res[$optionName]))
+			if (is_array($res) && isset($res[$optionName]) && is_string($res[$optionName]))
 			{
 				$res = explode(',', $res[$optionName]);
 			}

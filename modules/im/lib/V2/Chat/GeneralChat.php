@@ -8,7 +8,9 @@ use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
+use Bitrix\Intranet\Settings\CommunicationSettings;
 use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -19,6 +21,7 @@ class GeneralChat extends GroupChat
 	public const GENERAL_MESSAGE_TYPE_LEAVE = 'leave';
 	public const ID_CACHE_ID = 'general_chat_id';
 	public const MANAGERS_CACHE_ID = 'general_chat_managers';
+	public const DISABLE_GENERAL_CHAT_OPTION = 'disable_general_chat';
 
 	protected static ?self $instance = null;
 	protected static bool $wasSearched = false;
@@ -65,6 +68,11 @@ class GeneralChat extends GroupChat
 		return in_array($userId, $this->getManagerList(), true);
 	}
 
+	public static function isEnable(): bool
+	{
+		return Option::get('im', self::DISABLE_GENERAL_CHAT_OPTION, 'N') === 'N';
+	}
+
 	public function getManagerList(): array
 	{
 		$cache = static::getCache(self::MANAGERS_CACHE_ID);
@@ -101,6 +109,11 @@ class GeneralChat extends GroupChat
 
 	public static function getGeneralChatId(): ?int
 	{
+		if (!static::isEnable())
+		{
+			return 0;
+		}
+
 		$cache = static::getCache(self::ID_CACHE_ID);
 
 		$cachedId = $cache->getVars();
@@ -329,6 +342,8 @@ class GeneralChat extends GroupChat
 
 	private function getUsersForInstall(): array
 	{
+		$externalUserTypes = \Bitrix\Main\UserTable::getExternalUserTypes();
+		$types = implode("', '", $externalUserTypes);
 		if (Loader::includeModule('intranet'))
 		{
 			$sql = "
@@ -342,7 +357,7 @@ class GeneralChat extends GroupChat
 						AND UF.VALUE_INT > 0
 				WHERE
 					U.ACTIVE = 'Y'
-					AND U.EXTERNAL_AUTH_ID IS NULL
+					AND (U.EXTERNAL_AUTH_ID IS NULL OR U.EXTERNAL_AUTH_ID NOT IN ('{$types}') )
 					AND F.ENTITY_ID = 'USER'
 					AND F.FIELD_NAME = 'UF_DEPARTMENT'
 			";
@@ -354,7 +369,7 @@ class GeneralChat extends GroupChat
 				FROM b_user U
 				WHERE 
 				    U.ACTIVE = 'Y'
-					AND U.EXTERNAL_AUTH_ID IS NULL
+					AND (U.EXTERNAL_AUTH_ID IS NULL OR U.EXTERNAL_AUTH_ID NOT IN ('{$types}') )
 			";
 		}
 
@@ -403,9 +418,35 @@ class GeneralChat extends GroupChat
 		$managers = array_map(function ($managerId) {
 			return 'U' . $managerId;
 		}, $managerIds);
-		$result['generalChatManagersList'] = \IntranetConfigsComponent::processOldAccessCodes($managers);
+		Loader::includeModule('intranet');
+		if (method_exists('\Bitrix\Intranet\Settings\CommunicationSettings', 'processOldAccessCodes'))
+		{
+			$result['generalChatManagersList'] = CommunicationSettings::processOldAccessCodes($managers);
+		}
+		else
+		{
+			$result['generalChatManagersList'] = \IntranetConfigsComponent::processOldAccessCodes($managers);
+		}
 
 		return $result;
+	}
+
+	protected function getAccessCodesForDiskFolder(): array
+	{
+		$accessCodes = parent::getAccessCodesForDiskFolder();
+		$departmentCode = \CIMDisk::GetTopDepartmentCode();
+
+		if ($departmentCode)
+		{
+			$driver = \Bitrix\Disk\Driver::getInstance();
+			$rightsManager = $driver->getRightsManager();
+			$accessCodes[] = [
+				'ACCESS_CODE' => $departmentCode,
+				'TASK_ID' => $rightsManager->getTaskIdByName($rightsManager::TASK_READ)
+			];
+		}
+
+		return $accessCodes;
 	}
 
 	public static function deleteGeneralChat(): Result

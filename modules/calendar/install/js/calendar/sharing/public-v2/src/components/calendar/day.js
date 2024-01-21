@@ -1,4 +1,4 @@
-import { Tag, Loc, Dom, Event } from 'main.core';
+import { Tag, Dom, Event } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 type DayOptions = {
@@ -24,16 +24,16 @@ export default class Day
 
 	constructor(options: DayOptions)
 	{
-		this.#value = options.value ? options.value : null;
-		this.#notCurrentMonth = options.notCurrentMonth ? options.notCurrentMonth : null;
-		this.#today = options.today ? options.today : null;
+		this.#value = options.value || null;
+		this.#notCurrentMonth = options.notCurrentMonth || null;
+		this.#today = options.today || null;
 		this.#slots = options.slots || null;
 		this.#layout = {
-			wrapper: null
+			wrapper: null,
 		};
-		this.#selected = options.selected ? options.selected : null;
-		this.#weekend = options.weekend ? options.weekend : null;
-		this.#enableBooking = options.enableBooking ? options.enableBooking : null;
+		this.#selected = options.selected || null;
+		this.#weekend = options.weekend || null;
+		this.#enableBooking = options.enableBooking || null;
 
 		if (this.#selected)
 		{
@@ -84,7 +84,7 @@ export default class Day
 		Dom.removeClass(this.#getNodeWrapper(), '--selected');
 	}
 
-	#getNodeWrapper():HTMLElement
+	#getNodeWrapper(): HTMLElement
 	{
 		if (!this.#layout.wrapper)
 		{

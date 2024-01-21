@@ -22,7 +22,7 @@ export class UserPullHandler
 
 		this.#store.dispatch('users/update', {
 			id: params.userId,
-			fields: params.user
+			fields: params.user,
 		});
 	}
 }

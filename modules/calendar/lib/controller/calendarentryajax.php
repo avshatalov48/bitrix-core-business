@@ -82,7 +82,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			: [];
 
 		$sections = [];
-		$limits = $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
+		$limits = \CCalendarEvent::getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
 
 		$connections = false;
 		$fetchTasks = false;
@@ -104,7 +104,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		{
 			$sect = \CCalendarSect::GetList([
 				'arFilter' => [
-					'ID'=> $sectionIdList,
+					'ID' => $sectionIdList,
 					'ACTIVE' => 'Y'
 				],
 				'checkPermissions' => true
@@ -164,13 +164,13 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			{
 				//Load one month further
 				[$yearFrom, $monthFrom] = $this->getValidYearAndMonth($yearFrom, $monthFrom - 1);
-				$entries = $this->getEntries($sections, $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo));
+				$entries = $this->getEntries($sections, \CCalendarEvent::getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo));
 
 				if (!$this->hasArrayEntriesInMonth($entries, $yearFrom, $monthFrom))
 				{
 					//Load half year further
 					[$yearFrom, $monthFrom] = $this->getValidYearAndMonth($yearFrom, $monthFrom - 5);
-					$limits = $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
+					$limits = \CCalendarEvent::getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
 					$entries = $this->getEntries($sections, $limits);
 
 					if (!$this->hasArrayEntriesInRange($entries, $yearFrom, $monthFrom, (int)$request->getPost('year_from'), (int)$request->getPost('month_from')))
@@ -198,13 +198,13 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			{
 				//Load one month further
 				[$yearTo, $monthTo] = $this->getValidYearAndMonth($yearTo, $monthTo + 1);
-				$entries = $this->getEntries($sections, $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo));
+				$entries = $this->getEntries($sections, \CCalendarEvent::getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo));
 
 				if (!$this->hasArrayEntriesInMonth($entries, $yearTo, $monthTo - 1))
 				{
 					//Load half year further
 					[$yearTo, $monthTo] = $this->getValidYearAndMonth($yearTo, $monthTo + 5);
-					$limits = $this->getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
+					$limits = \CCalendarEvent::getLimitDates($yearFrom, $monthFrom, $yearTo, $monthTo);
 					$entries = $this->getEntries($sections, $limits);
 
 					if (!$this->hasArrayEntriesInRange($entries, (int)$request->getPost('year_to'), (int)$request->getPost('month_to') - 1, $yearTo, $monthTo - 1))
@@ -225,6 +225,20 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					}
 				}
 			}
+		}
+
+		$userId = \CCalendar::GetUserId();
+		$accessController = new EventAccessController($userId);
+		foreach ($entries as $key => $entry)
+		{
+			$eventModel = EventModel::createFromArray($entry);
+			$canEditEventInParentSection = $accessController->check(ActionDictionary::ACTION_EVENT_EDIT, $eventModel);
+			$canEditEventInCurrentSection = $accessController->check(ActionDictionary::ACTION_EVENT_EDIT, $eventModel, [
+				'checkCurrentEvent' => 'Y',
+			]);
+			$entries[$key]['permissions'] = [
+				'edit' => $canEditEventInParentSection && $canEditEventInCurrentSection,
+			];
 		}
 
 		//  **** GET TASKS ****
@@ -310,16 +324,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		return [$year, $month];
-	}
-
-	protected function getLimitDates(int $yearFrom, int $monthFrom, int $yearTo, int $monthTo): array
-	{
-		$userTimezoneName = \CCalendar::GetUserTimezoneName(\CCalendar::GetUserId());
-		$offset = Util::getTimezoneOffsetUTC($userTimezoneName);
-		return [
-			'from' => \CCalendar::Date(mktime(0, 0, 0, $monthFrom, 1, $yearFrom) - $offset, false),
-			'to' => \CCalendar::Date(mktime(0, 0, 0, $monthTo, 1, $yearTo) - $offset, false),
-		];
 	}
 
 	protected function hasArrayEntriesInMonth(array $entries, int $yearFrom, int $monthFrom): bool
@@ -659,6 +663,15 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$dateFrom = trim($dateFrom);
 		$dateTo = trim($dateTo);
 
+		if (
+			(int)(new \DateTime())->setTimestamp(\CCalendar::Timestamp($dateFrom))->format('Y') > 9999
+			|| (int)(new \DateTime())->setTimestamp(\CCalendar::Timestamp($dateTo))->format('Y') > 9999
+		)
+		{
+			$this->addError(new Error(Loc::getMessage('EC_JS_EV_FROM_ERR')));
+			return false;
+		}
+
 		// Timezone
 		$tzFrom = $request['tz_from'];
 		$tzTo = $request['tz_to'];
@@ -759,6 +772,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			: null
 		;
 		
+
 		if ($chatId)
 		{
 			$entryFields['MEETING']['CHAT_ID'] = $chatId;
@@ -785,6 +799,10 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$timezoneOffset = Util::getTimezoneOffsetUTC($timezoneName);
 			$timestampFrom = \CCalendar::TimestampUTC($dateFrom) - $timezoneOffset;
 			$timestampTo = \CCalendar::TimestampUTC($dateTo) - $timezoneOffset;
+			if ($skipTime)
+			{
+				$timestampTo += \CCalendar::GetDayLen();
+			}
 			$busyUsers = $this->getBusyUsersIds($attendees, $id, $timestampFrom, $timestampTo);
 			if (!empty($busyUsers))
 			{

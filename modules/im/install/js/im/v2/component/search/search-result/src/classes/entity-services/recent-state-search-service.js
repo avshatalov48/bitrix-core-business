@@ -1,15 +1,15 @@
 import { Core } from 'im.v2.application.core';
-import { DialogType } from 'im.v2.const';
+import { ChatType } from 'im.v2.const';
 
 import { LayoutManager } from '../layout-manager';
 import { SearchUtils } from '../search-utils';
 
-import type { ImModelUser, ImModelDialog } from 'im.v2.model';
+import type { ImModelUser, ImModelChat } from 'im.v2.model';
 
 type RecentItem = {
 	dialogId: string,
 	user: ImModelUser,
-	dialog: ImModelDialog
+	dialog: ImModelChat
 }
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
@@ -28,7 +28,7 @@ export class RecentStateSearchService
 	{
 		const recentUsers = [];
 		this.#store.getters['recent/getSortedCollection'].forEach((recentItem) => {
-			const dialog = this.#store.getters['dialogues/get'](recentItem.dialogId, true);
+			const dialog = this.#store.getters['chats/get'](recentItem.dialogId, true);
 			const user = this.#store.getters['users/get'](recentItem.dialogId, true);
 
 			recentUsers.push({ dialogId: recentItem.dialogId, dialog, user });
@@ -80,8 +80,8 @@ export class RecentStateSearchService
 	getRecentListItems(): Array
 	{
 		return this.#store.getters['recent/getSortedCollection'].map((item) => {
-			const dialog = this.#store.getters['dialogues/get'](item.dialogId, true);
-			const isUser = dialog.type === DialogType.user;
+			const dialog = this.#store.getters['chats/get'](item.dialogId, true);
+			const isUser = dialog.type === ChatType.user;
 
 			const recentListItem = {
 				dialogId: item.dialogId,

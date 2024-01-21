@@ -3,11 +3,9 @@
 namespace Bitrix\Main\UrlPreview;
 
 use Bitrix\Main;
-use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
-use Bitrix\Main\Entity\AddResult;
-use Bitrix\Main\Entity\ScalarField;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\ORM\Event;
 
 /**
  * Class UrlMetadataTable
@@ -105,5 +103,41 @@ class UrlMetadataTable extends Entity\DataManager
 		];
 
 		return static::getList($parameters)->fetch();
+	}
+
+	public static function onUpdate(Event $event)
+	{
+		$parameters = $event->getParameters();
+
+		if (!empty($parameters['fields']))
+		{
+			if (array_key_exists('IMAGE_ID', $parameters['fields']))
+			{
+				$currentValues = static::getList([
+					'select' => ['IMAGE_ID'],
+					'filter' => ['=ID' => $parameters['id']],
+				])->fetch();
+
+				if ($currentValues['IMAGE_ID'] > 0 && $currentValues['IMAGE_ID'] != $parameters['fields']['IMAGE_ID'])
+				{
+					\CFile::Delete($currentValues['IMAGE_ID']);
+				}
+			}
+		}
+	}
+
+	public static function onDelete(Event $event)
+	{
+		$parameters = $event->getParameters();
+
+		$currentValues = static::getList([
+			'select' => ['IMAGE_ID'],
+			'filter' => ['=ID' => $parameters['id']],
+		])->fetch();
+
+		if ($currentValues['IMAGE_ID'] > 0)
+		{
+			\CFile::Delete($currentValues['IMAGE_ID']);
+		}
 	}
 }

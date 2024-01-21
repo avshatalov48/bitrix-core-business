@@ -1,15 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bitrix\Main\Engine\AutoWire;
 
 final class TypeDeclarationChecker
 {
-	/** @var \ReflectionNamedType */
-	private $type;
-	/** @var mixed */
-	private $desiredValue;
+	private \ReflectionNamedType $type;
+	private mixed $desiredValue;
 
-	public function __construct(\ReflectionNamedType $type, $desiredValue)
+	public function __construct(\ReflectionNamedType $type, mixed $desiredValue)
 	{
 		$this->type = $type;
 		$this->desiredValue = $desiredValue;
@@ -22,13 +22,13 @@ final class TypeDeclarationChecker
 			return false;
 		}
 
-		if ($this->type->getName() === gettype($this->desiredValue))
+		if ($this->type->getName() === \gettype($this->desiredValue))
 		{
 			return true;
 		}
 
 		//gettype returns 'double' when type is float :)
-		if (is_float($this->desiredValue) && $this->type->getName() === 'float')
+		if (\is_float($this->desiredValue) && $this->type->getName() === 'float')
 		{
 			return true;
 		}
@@ -38,17 +38,17 @@ final class TypeDeclarationChecker
 			return true;
 		}
 
-		switch ($this->type->getName())
+		return match ($this->type->getName())
 		{
-			case 'bool':
-				return is_scalar($this->desiredValue);
-			case 'float':
-			case 'int':
-				return is_numeric($this->desiredValue);
-			case 'string':
-				return is_string($this->desiredValue);
-		}
+			'bool' => \is_scalar($this->desiredValue),
+			'float', 'int' => \is_numeric($this->desiredValue),
+			'string' => \is_string($this->desiredValue),
+			default => false,
+		};
+	}
 
-		return false;
+	public function isArray(): bool
+	{
+		return $this->type->getName() === 'array';
 	}
 }

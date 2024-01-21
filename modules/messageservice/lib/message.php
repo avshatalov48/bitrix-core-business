@@ -124,7 +124,7 @@ class Message
 		return $this->type;
 	}
 
-	public function checkFields()
+	public function checkFields(): Main\Result
 	{
 		$result = new Main\Result();
 
@@ -196,7 +196,7 @@ class Message
 			$this->id = $result->getId();
 			if (Main\Config\Option::get('messageservice', 'event_log_message_send', 'N') === 'Y')
 			{
-				$userId = is_object($USER) ? $USER->getId() : 0;
+				$userId = $USER instanceof \CUser ? $USER->getId() : 0;
 				\CEventLog::Log('INFO', 'MESSAGE_SEND', 'messageservice', $userId, $this->getTo());
 			}
 		}
@@ -281,7 +281,7 @@ class Message
 
 		if (Main\Config\Option::get('messageservice', 'event_log_message_send', 'N') === 'Y')
 		{
-			$userId = is_object($USER) ? $USER->getId() : 0;
+			$userId = $USER instanceof \CUser ? $USER->getId() : 0;
 			\CEventLog::Log('INFO', 'MESSAGE_SEND', 'messageservice', $userId, $this->getTo());
 		}
 

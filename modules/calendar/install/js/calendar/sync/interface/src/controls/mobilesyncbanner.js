@@ -144,8 +144,8 @@ export default class MobileSyncBanner
 	initQrCode()
 	{
 		return new Promise((resolve) => {
-			Runtime.loadExtension(['main.qrcode']).then((exports) => {
-				if (exports && exports.QRCode)
+			Runtime.loadExtension(['main.qrcode']).then(() => {
+				if (typeof QRCode !== 'undefined')
 				{
 					resolve();
 				}

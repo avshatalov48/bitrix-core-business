@@ -2,9 +2,6 @@
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\Type;
-use Bitrix\Main\IO;
-
 /**
  * Class Request contains current request
  * @package Bitrix\Main
@@ -90,9 +87,9 @@ abstract class Request extends Type\ParameterDictionary
 	public function isAdminSection()
 	{
 		$requestedDir = $this->getRequestedPageDirectory();
-		return (mb_substr($requestedDir, 0, mb_strlen("/bitrix/admin/")) == "/bitrix/admin/"
-			|| mb_substr($requestedDir, 0, mb_strlen("/bitrix/updates/")) == "/bitrix/updates/"
-			|| (defined("ADMIN_SECTION") && ADMIN_SECTION == true)
+		return (str_starts_with($requestedDir, "/bitrix/admin/")
+			|| str_starts_with($requestedDir, "/bitrix/updates/")
+			|| (defined("ADMIN_SECTION") && ADMIN_SECTION === true)
 			|| (defined("BX_PUBLIC_TOOLS") && BX_PUBLIC_TOOLS === true)
 		);
 	}

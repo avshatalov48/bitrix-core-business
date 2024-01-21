@@ -1,5 +1,6 @@
 module.exports = {
 	input: 'src/menu.js',
-	output: 'dist/bundle.js',
-	namespace: 'BX.UI.SidePanel'
+	output: 'dist/sidepanel.menu.bundle.js',
+	namespace: 'BX.UI.SidePanel',
+	browserslist: true,
 };

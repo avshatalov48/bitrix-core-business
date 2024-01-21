@@ -1,15 +1,16 @@
 import Type from './type';
 import debug from './runtime/debug';
-import loadExtension from './runtime/loadextension/load.extension';
+import loadExtension from './runtime/loadextension/load-extension';
 import clone from './runtime/clone';
 import {
-	externalScripts,
-	externalStyles,
-	inlineScripts,
+	fetchExternalScripts,
+	fetchExternalStyles,
+	fetchInlineScripts,
 	loadAll,
-} from './runtime/loadextension/lib/load.extension.utils';
+} from './runtime/loadextension/internal/utils';
 import merge from './runtime/merge';
 import createComparator from './runtime/create-comparator';
+import registerExtension from './runtime/loadextension/internal/register-extension';
 
 /**
  * @memberOf BX
@@ -18,6 +19,7 @@ export default class Runtime
 {
 	static debug = debug;
 	static loadExtension = loadExtension;
+	static registerExtension = registerExtension;
 	static clone = clone;
 
 	static debounce(func: Function, wait: number = 0, context = null): Function
@@ -75,9 +77,9 @@ export default class Runtime
 
 		// eslint-disable-next-line
 		const parsedHtml = BX.processHTML(html);
-		const externalCss = parsedHtml.STYLE.reduce(externalStyles, []);
-		const externalJs = parsedHtml.SCRIPT.reduce(externalScripts, []);
-		const inlineJs = parsedHtml.SCRIPT.reduce(inlineScripts, []);
+		const externalCss = parsedHtml.STYLE.reduce(fetchExternalStyles, []);
+		const externalJs = parsedHtml.SCRIPT.reduce(fetchExternalScripts, []);
+		const inlineJs = parsedHtml.SCRIPT.reduce(fetchInlineScripts, []);
 
 		if (Type.isDomNode(node))
 		{

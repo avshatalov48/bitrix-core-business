@@ -14,6 +14,7 @@ type ReactionType = $Values<typeof Reaction>;
 
 // @vue/component
 export const ReactionList = {
+	name: 'ReactionList',
 	components: { ReactionItem },
 	props:
 	{

@@ -1,7 +1,8 @@
-import { ajax, Loc } from 'main.core';
-import { Popup } from 'main.popup';
+import { ajax, Dom, Event, Extension, Loc, Tag } from 'main.core';
+import { Popup, PopupManager } from 'main.popup';
 import { Button, ButtonColor } from 'ui.buttons';
-import { Slider } from 'catalog.store-use';
+import { StoreSlider } from 'catalog.store-use';
+import { MessageBox } from 'ui.dialogs.messagebox';
 
 export class DocumentGridManager
 {
@@ -22,6 +23,11 @@ export class DocumentGridManager
 		return this.grid.getRows().getSelectedIds();
 	}
 
+	static hideSettingsMenu()
+	{
+		PopupManager.getPopupById('docFieldsSettingsMenu').close();
+	}
+
 	deleteDocument(documentId)
 	{
 		if (this.isInventoryManagementDisabled && this.inventoryManagementFeatureCode)
@@ -31,50 +37,37 @@ export class DocumentGridManager
 			return;
 		}
 
-		const popup = new Popup({
-			id: 'catalog_delete_document_popup',
-			titleBar: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_TITLE'),
-			content: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT'),
-			buttons: [
-				new Button({
-					text: Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
-					color: ButtonColor.SUCCESS,
-					onclick: (button, event) => {
-						button.setDisabled();
-						ajax.runAction(
-							'catalog.document.deleteList',
-							{
-								data: {
-									documentIds: [documentId],
-								},
-								analyticsLabel: {
-									inventoryManagementSource: this.inventoryManagementSource,
-								},
-							},
-						).then((response) => {
-							popup.destroy();
-							this.grid.reload();
-						}).catch((response) => {
-							if (response.errors)
-							{
-								BX.UI.Notification.Center.notify({
-									content: response.errors[0].message,
-								});
-							}
-							popup.destroy();
+		MessageBox.confirm(
+			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT'),
+			(messageBox, button) => {
+				button.setWaiting();
+				ajax.runAction(
+					'catalog.document.deleteList',
+					{
+						data: {
+							documentIds: [documentId],
+						},
+						analyticsLabel: {
+							inventoryManagementSource: this.inventoryManagementSource,
+						},
+					},
+				).then(() => {
+					messageBox.close();
+					this.grid.reload();
+				}).catch((response) => {
+					if (response.errors)
+					{
+						BX.UI.Notification.Center.notify({
+							content: response.errors[0].message,
 						});
-					},
-				}),
-				new Button({
-					text: Loc.getMessage('DOCUMENT_GRID_CANCEL'),
-					color: ButtonColor.DANGER,
-					onclick: (button, event) => {
-						popup.destroy();
-					},
-				}),
-			],
-		});
-		popup.show();
+					}
+					messageBox.close();
+				});
+			},
+			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_BUTTON_CONFIRM'),
+			(messageBox) => messageBox.close(),
+			Loc.getMessage('DOCUMENT_GRID_BUTTON_BACK'),
+		);
 	}
 
 	conductDocument(documentId, documentType = '')
@@ -109,43 +102,30 @@ export class DocumentGridManager
 
 		actionConfig.analyticsLabel.mode = 'single';
 
-		const popup = new Popup({
-			id: 'catalog_delete_document_popup',
-			titleBar: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_TITLE'),
-			content: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT'),
-			buttons: [
-				new Button({
-					text: Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
-					color: ButtonColor.SUCCESS,
-					onclick: (button, event) => {
-						button.setDisabled();
-						ajax.runAction(
-							'catalog.document.conductList',
-							actionConfig,
-						).then((response) => {
-							popup.destroy();
-							this.grid.reload();
-						}).catch((response) => {
-							if (response.errors)
-							{
-								BX.UI.Notification.Center.notify({
-									content: response.errors[0].message,
-								});
-							}
-							popup.destroy();
+		MessageBox.confirm(
+			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT'),
+			(messageBox, button) => {
+				button.setWaiting();
+				ajax.runAction(
+					'catalog.document.conductList',
+					actionConfig,
+				).then(() => {
+					messageBox.close();
+					this.grid.reload();
+				}).catch((response) => {
+					if (response.errors)
+					{
+						BX.UI.Notification.Center.notify({
+							content: response.errors[0].message,
 						});
-					},
-				}),
-				new Button({
-					text: Loc.getMessage('DOCUMENT_GRID_CANCEL'),
-					color: ButtonColor.DANGER,
-					onclick: (button, event) => {
-						popup.destroy();
-					},
-				}),
-			],
-		});
-		popup.show();
+					}
+					messageBox.close();
+				});
+			},
+			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_BUTTON_CONFIRM'),
+			(messageBox) => messageBox.close(),
+			Loc.getMessage('DOCUMENT_GRID_BUTTON_BACK'),
+		);
 	}
 
 	cancelDocument(documentId, documentType = '')
@@ -164,6 +144,8 @@ export class DocumentGridManager
 			return;
 		}
 
+		const settings = Extension.getSettings('catalog.document-grid');
+
 		const actionConfig = {
 			data: {
 				documentIds: [documentId],
@@ -180,43 +162,61 @@ export class DocumentGridManager
 
 		actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 
-		const popup = new Popup({
-			id: 'catalog_delete_document_popup',
-			titleBar: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_TITLE'),
-			content: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT'),
-			buttons: [
-				new Button({
-					text: Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
-					color: ButtonColor.SUCCESS,
-					onclick: (button, event) => {
-						button.setDisabled();
-						ajax.runAction(
-							'catalog.document.cancelList',
-							actionConfig,
-						).then((response) => {
-							popup.destroy();
-							this.grid.reload();
-						}).catch((response) => {
-							if (response.errors)
-							{
-								BX.UI.Notification.Center.notify({
-									content: response.errors[0].message,
-								});
-							}
-							popup.destroy();
+		let content = Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT');
+		if (settings.get('isProductBatchMethodSelected'))
+		{
+			const text = Loc.getMessage(
+				'DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT',
+				{
+					'#HELP_LINK#': '<help-link></help-link>',
+				},
+			);
+
+			content = Tag.render`
+				<div>
+					<div>${content}</div>
+					<div>${text}</div>
+				</div>
+			`;
+
+			const moreLink = Tag.render`
+				<a href="#" class="ui-form-link">
+					${Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT_LINK')}
+				</a>
+			`;
+
+			Event.bind(moreLink, 'click', () => {
+				const articleId = 17858278;
+				top.BX.Helper.show(`redirect=detail&code=${articleId}`);
+			});
+
+			Dom.replace(content.querySelector('help-link'), moreLink);
+		}
+
+		MessageBox.confirm(
+			content,
+			(messageBox, button) => {
+				button.setWaiting();
+				ajax.runAction(
+					'catalog.document.cancelList',
+					actionConfig,
+				).then(() => {
+					messageBox.close();
+					this.grid.reload();
+				}).catch((response) => {
+					if (response.errors)
+					{
+						BX.UI.Notification.Center.notify({
+							content: response.errors[0].message,
 						});
-					},
-				}),
-				new Button({
-					text: Loc.getMessage('DOCUMENT_GRID_CANCEL'),
-					color: ButtonColor.DANGER,
-					onclick: (button, event) => {
-						popup.destroy();
-					},
-				}),
-			],
-		});
-		popup.show();
+					}
+					messageBox.close();
+				});
+			},
+			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_BUTTON_CONFIRM'),
+			(messageBox) => messageBox.close(),
+			Loc.getMessage('DOCUMENT_GRID_BUTTON_BACK'),
+		);
 	}
 
 	deleteSelectedDocuments()
@@ -412,7 +412,7 @@ export class DocumentGridManager
 
 	openStoreMasterSlider()
 	{
-		new Slider().open(
+		new StoreSlider().open(
 			this.masterSliderUrl,
 			{
 				data: {
@@ -432,6 +432,20 @@ export class DocumentGridManager
 						}
 					},
 				},
+			},
+		);
+	}
+
+	static openUfSlider(e, item)
+	{
+		e.preventDefault();
+
+		DocumentGridManager.hideSettingsMenu();
+		BX.SidePanel.Instance.open(
+			item.options.href,
+			{
+				allowChangeHistory: false,
+				cacheable: false,
 			},
 		);
 	}

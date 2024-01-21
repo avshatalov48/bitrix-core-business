@@ -113,6 +113,7 @@ class Notify
 
 		$filter = array(
 			"EVENT_NAME" => $eventName,
+			"EVENT_NAME_EXACT_MATCH" => 'Y',
 			'ACTIVE' => 'Y',
 		);
 
@@ -425,6 +426,7 @@ class Notify
 					'',
 					array(
 						"EVENT_NAME" => $eventName,
+						"EVENT_NAME_EXACT_MATCH" => 'Y',
 						"SITE_ID" => $entity->getSiteId(),
 						'ACTIVE' => 'Y'
 					)
@@ -511,19 +513,19 @@ class Notify
 			$siteData = $cacheSiteData[$order->getSiteId()];
 		}
 
-		$statusData = Internals\StatusTable::getList(array(
-								 'select' => array(
-									 'ID',
-									 'NOTIFY',
-									 'NAME' => 'Bitrix\Sale\Internals\StatusLangTable:STATUS.NAME',
-								 ),
-								 'filter' => array(
-									 '=ID' => $entity->getField("STATUS_ID"),
-									 '=Bitrix\Sale\Internals\StatusLangTable:STATUS.LID' => $siteData['LANGUAGE_ID'],
-									 '=TYPE' => DeliveryStatus::TYPE
-								 ),
-								 'limit'  => 1,
-							 ))->fetch();
+		$statusData = Internals\StatusTable::getList([
+			'select' => [
+				'ID',
+				'NOTIFY',
+				'NAME' => 'Bitrix\Sale\Internals\StatusLangTable:STATUS.NAME',
+			],
+			'filter' => [
+				'=ID' => $entity->getField("STATUS_ID"),
+				'=Bitrix\Sale\Internals\StatusLangTable:STATUS.LID' => $siteData['LANGUAGE_ID'],
+				'=TYPE' => DeliveryStatus::TYPE,
+			],
+			'limit'  => 1,
+		])->fetch();
 
 		if (!empty($statusData) && $statusData['NOTIFY'] == "Y")
 		{
@@ -592,6 +594,7 @@ class Notify
 					'',
 					array(
 						"EVENT_NAME" => $statusEventName,
+						"EVENT_NAME_EXACT_MATCH" => 'Y',
 						"SITE_ID" => $order->getSiteId(),
 						'ACTIVE' => 'Y'
 					)
@@ -661,19 +664,19 @@ class Notify
 			$siteData = $cacheSiteData[$entity->getSiteId()];
 		}
 
-		$statusData = Internals\StatusTable::getList(array(
-								 'select' => array(
-									 'ID',
-									 'NOTIFY',
-									 'NAME' => 'Bitrix\Sale\Internals\StatusLangTable:STATUS.NAME',
-								 ),
-								 'filter' => array(
-									 '=ID' => $entity->getField("STATUS_ID"),
-									 '=Bitrix\Sale\Internals\StatusLangTable:STATUS.LID' => $siteData['LANGUAGE_ID'],
-									 '=TYPE' => OrderStatus::TYPE
-								 ),
-								 'limit'  => 1,
-							 ))->fetch();
+		$statusData = Internals\StatusTable::getList([
+			'select' => [
+				'ID',
+				'NOTIFY',
+				'NAME' => 'Bitrix\Sale\Internals\StatusLangTable:STATUS.NAME',
+			],
+			'filter' => [
+				'=ID' => $entity->getField("STATUS_ID"),
+				'=Bitrix\Sale\Internals\StatusLangTable:STATUS.LID' => $siteData['LANGUAGE_ID'],
+				'=TYPE' => OrderStatus::TYPE,
+			],
+			'limit'  => 1,
+		])->fetch();
 
 		if (!empty($statusData) && $statusData['NOTIFY'] == "Y")
 		{
@@ -740,6 +743,7 @@ class Notify
 					'',
 					array(
 						"EVENT_NAME" => $statusEventName,
+						"EVENT_NAME_EXACT_MATCH" => 'Y',
 						"SITE_ID" => $entity->getSiteId(),
 						'ACTIVE' => 'Y'
 					)
@@ -1248,10 +1252,19 @@ class Notify
 
 		if (empty($userEmail))
 		{
-			$userRes = Main\UserTable::getList(array(
-												   'select' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'),
-												   'filter' => array('=ID' => $order->getUserId()),
-											   ));
+			$userRes = Main\UserTable::getList([
+				'select' => [
+					'ID',
+					'LOGIN',
+					'NAME',
+					'LAST_NAME',
+					'SECOND_NAME',
+					'EMAIL',
+				],
+				'filter' => [
+					'=ID' => $order->getUserId(),
+				],
+			]);
 			if ($userData = $userRes->fetch())
 			{
 				static::$cacheUserData[$order->getId()] = $userData;
@@ -1297,10 +1310,19 @@ class Notify
 
 		if (empty($userName))
 		{
-			$userRes = Main\UserTable::getList(array(
-												   'select' => array('ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL'),
-												   'filter' => array('=ID' => $order->getUserId()),
-											   ));
+			$userRes = Main\UserTable::getList([
+				'select' => [
+					'ID',
+					'LOGIN',
+					'NAME',
+					'LAST_NAME',
+					'SECOND_NAME',
+					'EMAIL',
+				],
+				'filter' => [
+					'=ID' => $order->getUserId(),
+				],
+			]);
 			if ($userData = $userRes->fetch())
 			{
 				$userData['PAYER_NAME'] = \CUser::FormatName(\CSite::GetNameFormat(null, $order->getSiteId()), $userData, true);
@@ -1374,10 +1396,10 @@ class Notify
 			$orderFields = static::convertDateFieldsToOldFormat($orderFields);
 		}
 
-		$result->setData(array(
-							 'FIELDS' => $fields,
-							 'ORDER_FIELDS' => $orderFields,
-						 ));
+		$result->setData([
+			'FIELDS' => $fields,
+			'ORDER_FIELDS' => $orderFields,
+		]);
 
 		return $result;
 	}
@@ -1391,17 +1413,18 @@ class Notify
 	protected static function getOrderFields(Order $order)
 	{
 		$fields = $order->getFieldValues();
-		$fields = array_merge($fields,
-							  array(
-								  'ORDER_ID' => $order->getId(),
-								  'ORDER_WEIGHT' => 0,
-								  'BASKET_ITEMS' => array(),
-								  'ORDER_PROP' => array(),
-								  'DISCOUNT_LIST' => array(),
-								  'TAX_LIST' => array(),
-								  'VAT_RATE' => $order->getVatRate(),
-								  'VAT_SUM' => $order->getVatSum(),
-							  ));
+		$fields = array_merge(
+			$fields,
+				[
+					'ORDER_ID' => $order->getId(),
+					'ORDER_WEIGHT' => 0,
+					'BASKET_ITEMS' => [],
+					'ORDER_PROP' => [],
+					'DISCOUNT_LIST' => [],
+					'TAX_LIST' => [],
+					'VAT_RATE' => $order->getVatRate(),
+					'VAT_SUM' => $order->getVatSum(),
+				]);
 
 		/** @var Basket $basket */
 		if ($basket = $order->getBasket())

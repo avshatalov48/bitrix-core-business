@@ -1,15 +1,16 @@
-import { Tag, Type } from 'main.core';
+import { Dom, Tag, Type } from 'main.core';
 import { Form } from './form/index';
-import { EmptyState } from './empty-state/index';
+import { EmptyState, AccessDenied } from './empty-state/index';
 import { SlotList } from './slot-list/index';
 import { Event } from './event/index';
-import { EventEmitter } from "main.core.events";
-import { AccessDenied } from "./empty-state/index";
+import { EventEmitter } from 'main.core.events';
+import { Member } from '../layout/members-list';
 
 type SlotSelectorOptions = {
 	selectedTimezoneId: number,
 	owner: any,
 	link: any,
+	members: Member[],
 	sharingUser: any,
 	hasContactData: boolean,
 	calendarSettings: any,
@@ -18,6 +19,7 @@ type SlotSelectorOptions = {
 	action: string,
 	showBackCalendarButtons: any,
 };
+
 export default class SlotSelector
 {
 	#layout;
@@ -31,6 +33,7 @@ export default class SlotSelector
 	#calendarSettings;
 	#eventLinkHash;
 	#event;
+	#members;
 	#action;
 	#showBackCalendarButtons;
 
@@ -48,6 +51,7 @@ export default class SlotSelector
 		this.#sharingUser = options.sharingUser;
 		this.#eventLinkHash = options.eventLinkHash;
 		this.#event = options.event;
+		this.#members = options.members;
 
 		this.#layout = {
 			wrapper: null,
@@ -55,7 +59,7 @@ export default class SlotSelector
 			title: null,
 			slots: null,
 			slotSelector: null,
-		}
+		};
 		this.#components = {
 			form: null,
 			slotList: null,
@@ -156,21 +160,28 @@ export default class SlotSelector
 				isFromCrm: this.#isFromCrm,
 				hasContactData: this.#hasContactData,
 				isPhoneFeatureEnabled: this.#calendarSettings.phoneFeatureEnabled,
-				isMailFeatureEnabled: this.#calendarSettings.mailFeatureEnabled
+				isMailFeatureEnabled: this.#calendarSettings.mailFeatureEnabled,
 			});
 		}
+
 		if (!this.#components.emptyState)
 		{
-			this.#components.emptyState = new EmptyState({isHiddenOnStart: true});
+			this.#components.emptyState = new EmptyState({ isHiddenOnStart: true });
 		}
+
 		if (!this.#components.accessDenied)
 		{
-			this.#components.accessDenied = new AccessDenied({isHiddenOnStart: true});
+			this.#components.accessDenied = new AccessDenied({ isHiddenOnStart: true });
 		}
+
 		if (!this.#components.slotList)
 		{
-			this.#components.slotList = new SlotList({isHiddenOnStart: false});
+			this.#components.slotList = new SlotList({
+				isHiddenOnStart: false,
+				ownerOffset: parseInt(this.#calendarSettings.serverOffset, 10),
+			});
 		}
+
 		if (!this.#components.event)
 		{
 			let state = 'created';
@@ -191,12 +202,13 @@ export default class SlotSelector
 				owner: this.#owner,
 				event: this.#event,
 				eventLinkHash: this.#eventLinkHash,
-				state: state,
+				state,
 				eventId: this.#event.id,
 				isView: Type.isString(this.#eventLinkHash),
-				canceledByManager: canceledByManager,
+				canceledByManager,
 				showBackCalendarButtons: this.#showBackCalendarButtons,
 				action: this.#action,
+				members: this.#members,
 			});
 		}
 

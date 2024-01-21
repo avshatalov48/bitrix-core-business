@@ -155,8 +155,7 @@ class Event
 		}
 
 		$templates = $this->fetchTemplates();
-
-		if(empty($templates))
+		if($templates->isEmpty())
 		{
 			$result->addError(new Main\Error("Templates not found.", self::ERR_TEMPLATES));
 			return $result;
@@ -172,6 +171,9 @@ class Event
 		return $result;
 	}
 
+	/**
+	 * @return \Bitrix\Main\ORM\Objectify\Collection|\Bitrix\Main\Sms\EO_Template_Collection
+	 */
 	protected function fetchTemplates()
 	{
 		$filter = Query::filter()

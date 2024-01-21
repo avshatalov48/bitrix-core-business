@@ -1,6 +1,6 @@
-import { Node } from 'landing.node';
+import { Base } from 'landing.node.base';
 
-export class Component extends Node
+export class Component extends Base
 {
 	constructor(options)
 	{

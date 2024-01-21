@@ -1,0 +1,133 @@
+.sn-spaces__toolbar-space {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	height: 47px;
+	padding: 0 10px;
+	margin-bottom: 12px;
+}
+
+.sn-spaces__toolbar-space_basic {
+	flex: 1;
+	display: flex;
+	gap: 12px;
+}
+
+.sn-spaces__toolbar-space_left-content,
+.sn-spaces__toolbar-space_right-content {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.sn-spaces__toolbar-space_left-content {
+	flex: 1;
+	max-width: 1073px
+}
+
+.sn-spaces__toolbar_filter-container {
+	transition: .2s;
+}
+
+.sn-spaces__toolbar_filter-container.--active {
+	flex: 1;
+}
+
+.sn-spaces__toolbar-space_right-content {
+	margin-left: auto;
+}
+
+.sn-spaces__toolbar-space_btn-text {
+	margin: 0 3px 0 6px;
+}
+
+.sn-spaces__toolbar-space_separator {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.sn-spaces__toolbar-space_separator::before {
+	content: '';
+	display: block;
+	width: 1px;
+	height: 18px;
+	position: absolute;
+	left: 2px;
+	top: 50%;
+	transform: translate(0, -50%);
+	background-color: rgba(var(--ui-color-palette-white-base-rgb), var(--ui-opacity-20));
+}
+
+.sn-spaces__toolbar-space_btn-with-counter {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-palette-white-base-rgb), var(--ui-opacity-30));
+}
+
+.sn-spaces__toolbar-space_btn-with-counter.--active {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-palette-white-base-rgb), var(--ui-opacity-80));
+}
+
+.bitrix24-default-theme .sn-spaces__toolbar-space_btn-with-counter,
+.bitrix24-dark-theme .sn-spaces__toolbar-space_btn-with-counter {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-base-90-rgb), var(--ui-opacity-30));
+}
+
+.bitrix24-default-theme .sn-spaces__toolbar-space_btn-with-counter.--active,
+.bitrix24-dark-theme .sn-spaces__toolbar-space_btn-with-counter.--active {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-base-90-rgb), var(--ui-opacity-80));
+}
+
+.sn-spaces__toolbar-space_btn-more,
+.sn-spaces__toolbar-space_btn-options {
+	--ui-icon-set__icon-color: var(--ui-color-background-primary);
+}
+
+.bitrix24-default-theme .sn-spaces__toolbar-space_btn-more,
+.bitrix24-default-theme .sn-spaces__toolbar-space_btn-options,
+.bitrix24-dark-theme .sn-spaces__toolbar-space_btn-more,
+.bitrix24-dark-theme .sn-spaces__toolbar-space_btn-options {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-base-90-rgb), var(--ui-opacity-80));
+	color: rgba(var(--ui-color-text-primary-rgb), var(--ui-opacity-70));
+}
+
+.bitrix24-default-theme .sn-spaces__toolbar-space .ui-btn,
+.bitrix24-dark-theme .sn-spaces__toolbar-space .ui-btn {
+	--ui-btn-border-color-hover: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+	--ui-btn-background: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+}
+.bitrix24-default-theme .sn-spaces__toolbar-space .ui-btn:hover,
+.bitrix24-dark-theme .sn-spaces__toolbar-space .ui-btn:hover {
+	--ui-btn-border-color-hover: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+}
+
+.sn-spaces__toolbar-space_btn-with-counter {
+	--ui-btn-margin-left: 8px;
+}
+
+.sn-spaces__toolbar-space_tasks-short-view-btn .tasks-scrum__switcher--container {
+	padding: 8px 10px;
+	font-size: 0;
+	background-color: rgba(255, 255, 255, .15);
+	transition: .2s;
+}
+
+.sn-spaces__toolbar-space_tasks-short-view-btn .tasks-scrum__switcher--container:hover {
+	background-color: rgba(255, 255, 255, .3);
+}
+
+.bitrix24-default-theme .sn-spaces__toolbar-space_tasks-short-view-btn .tasks-scrum__switcher--container,
+.bitrix24-dark-theme .sn-spaces__toolbar-space_tasks-short-view-btn .tasks-scrum__switcher--container {
+	background-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+}
+
+.bitrix24-dark-theme .sn-spaces__toolbar-space_tasks-short-view-btn .tasks-scrum__switcher--container:hover {
+	background-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-10));
+}
+
+.bitrix24-default-theme .sn-spaces__toolbar-space_tasks-short-view-btn .tasks-scrum__switcher--container:hover {
+	background-color: #f6f8f9;
+}
+
+.sn-spaces__toolbar-space_tasks-short-view-btn .tasks-scrum__switcher-cursor {
+	margin-left: 0;
+}

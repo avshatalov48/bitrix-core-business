@@ -4,5 +4,6 @@ module.exports = {
 		js: 'dist/buttons-panel.bundle.js',
 		css: 'dist/buttons-panel.bundle.css'
 	},
-	namespace: 'BX.UI'
+	namespace: 'BX.UI',
+	browserslist: true,
 };

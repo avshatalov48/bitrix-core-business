@@ -6,7 +6,7 @@ class Smile extends \IRestService
 	public static function getList($arParams, $n, \CRestServer $server)
 	{
 		$options = [];
-		if ($arParams['FULL_TYPINGS'] === 'Y')
+		if (isset($arParams['FULL_TYPINGS']) && $arParams['FULL_TYPINGS'] === 'Y')
 		{
 			$options['FULL_TYPINGS'] = 'Y';
 		}

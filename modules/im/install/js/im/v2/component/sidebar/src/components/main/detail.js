@@ -1,5 +1,5 @@
 import {Core} from 'im.v2.application.core';
-import {ImModelDialog} from 'im.v2.model';
+import {ImModelChat} from 'im.v2.model';
 import {Button, ButtonColor, ButtonSize} from 'im.v2.component.elements';
 
 import {DetailUser} from './detail-user';
@@ -30,9 +30,9 @@ export const MainDetail = {
 	{
 		ButtonSize: () => ButtonSize,
 		ButtonColor: () => ButtonColor,
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		dialogManagers(): number[]
 		{

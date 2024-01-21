@@ -1,7 +1,7 @@
 <?php
 $MESS["LNDBLCK_STOREMENUV3_2_ITEM"] = "Menu item";
-$MESS["LNDBLCK_STOREMENUV3_2_ITEMS_BOTTOM"] = "Bottom menu items";
-$MESS["LNDBLCK_STOREMENUV3_2_ITEMS_TOP"] = "Top menu items";
+$MESS["LNDBLCK_STOREMENUV3_2_ITEMS_BOTTOM_MSGVER_1"] = "Mobile bottom menu";
+$MESS["LNDBLCK_STOREMENUV3_2_ITEMS_TOP_MSGVER_1"] = "Mobile top menu";
 $MESS["LNDBLCK_STOREMENUV3_2_LINK"] = "Link";
 $MESS["LNDBLCK_STOREMENUV3_2_LINK_TEXT_2"] = "Text";
 $MESS["LNDBLCK_STOREMENUV3_2_NAME_2"] = "Menu for CRM + Online store template with mobile header";

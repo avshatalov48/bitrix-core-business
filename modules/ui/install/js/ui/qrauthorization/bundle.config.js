@@ -1,8 +1,6 @@
 module.exports = {
 	input: 'src/index.js',
-	output: 'dist/bundle.js',
-	concat: {
-		css: ['src/style.css']
-	},
-	namespace: 'BX.UI'
+	output: 'dist/qrauthorization.bundle.js',
+	namespace: 'BX.UI',
+	browserslist: true,
 };

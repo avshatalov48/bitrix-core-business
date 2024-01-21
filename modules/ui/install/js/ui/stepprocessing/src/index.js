@@ -4,6 +4,8 @@ import { ProcessManager } from './process-manager';
 import { Process, ProcessEvent, ProcessCallback } from './process';
 import { Dialog, DialogEvent } from './dialog';
 
+import './css/style.css';
+
 export type {
 	ProcessOptions,
 	OptionsField,

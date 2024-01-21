@@ -274,13 +274,11 @@ class CFileMan
 				$strMenuLinksTmp .= ",";
 
 			$strMenuLinkHref = $arMenuItem[1] ?? '';
-			$isExternalLink = mb_strpos($strMenuLinkHref, 'http://') === 0 || mb_strpos($strMenuLinkHref, 'https://') === 0;
-			$strSiteDir = !$isExternalLink ? 'SITE_DIR.' : '';
 
 			$strMenuLinksTmp .= "\n".
 				"	Array(\n".
 				"		\"".CFileMan::EscapePHPString(($arMenuItem[0] ?? null))."\", \n".
-				"		$strSiteDir\"".CFileMan::EscapePHPString($strMenuLinkHref)."\", \n".
+				"		\"".CFileMan::EscapePHPString($strMenuLinkHref)."\", \n".
 				"		Array(";
 
 			if(is_array(($arMenuItem[2] ?? null)))
@@ -325,7 +323,17 @@ class CFileMan
 
 		$io = CBXVirtualIo::GetInstance();
 		if ($io->FileExists($abs_path))
-			include($io->GetPhysicalName($abs_path));
+		{
+			global $APPLICATION;
+			$arrMenuContent = $APPLICATION->GetFileContent($io->GetPhysicalName($abs_path));
+			$arrMenuContent = str_replace(['<?php', '<?', '?>'], '', $arrMenuContent);
+			if (SITE_DIR === '')
+			{
+				$arrMenuContent = str_replace('SITE_DIR."', '"/', $arrMenuContent);
+			}
+
+			eval($arrMenuContent);
+		}
 
 		return Array("aMenuLinks"=>$aMenuLinks, "sMenuTemplate" => $sMenuTemplate);
 	}

@@ -23,7 +23,7 @@ abstract class ComponentBase
 	const TEMPLATE_ERROR = 'error';
 
 	/** @var string */
-	protected $path;
+	protected $path = '';
 
 	/** @var int Session tab counter. */
 	protected $tabId = 0;
@@ -167,6 +167,15 @@ abstract class ComponentBase
 	}
 
 	/**
+	 * Checks FTS if tables exists.
+	 * @return void
+	 */
+	protected function checkFtsTables(): void
+	{
+		Translate\Index\Internals\PhraseFts::checkTables();
+	}
+
+	/**
 	 * Checks some mysql config variables.
 	 * @return void
 	 */
@@ -268,7 +277,10 @@ abstract class ComponentBase
 	 */
 	protected function getLanguagesTitle($languageIds)
 	{
-		return Translate\Config::getLanguagesTitle($languageIds);
+		$titles = Translate\Config::getLanguagesTitle($languageIds);
+		array_walk($titles, function(&$title, $langId) { $title = "{$title} ({$langId})"; });
+
+		return $titles;
 	}
 
 	/**

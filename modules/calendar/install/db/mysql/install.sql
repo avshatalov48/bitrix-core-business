@@ -244,7 +244,9 @@ create table b_calendar_event_connection
 	DATA text DEFAULT NULL,
 	PRIMARY KEY (ID),
 	INDEX ix_cal_event_con_event_id (EVENT_ID),
-	INDEX ix_cal_event_con_connection_id (CONNECTION_ID)
+	INDEX ix_cal_event_con_connection_id (CONNECTION_ID),
+	INDEX ix_cal_event_con_vendor_event_id (VENDOR_EVENT_ID),
+	INDEX ix_cal_event_con_recurrence_id (RECURRENCE_ID)
 );
 
 CREATE TABLE b_calendar_room_category (
@@ -285,8 +287,51 @@ CREATE TABLE b_calendar_sharing_link (
 	PARENT_LINK_HASH char(64) DEFAULT NULL,
 	CONTACT_ID int DEFAULT NULL,
 	CONTACT_TYPE int DEFAULT NULL,
+	MEMBERS_HASH char(64) DEFAULT NULL,
+	FREQUENT_USE int DEFAULT NULL,
 	PRIMARY KEY (ID),
 	INDEX ix_calendar_sharing_link_hash(HASH),
 	INDEX ix_calendar_sharing_link_object_id(OBJECT_ID),
-	INDEX ix_calendar_sharing_link_contact_id_contact_type(CONTACT_ID, CONTACT_TYPE)
+	INDEX ix_calendar_sharing_link_contact_id_contact_type(CONTACT_ID, CONTACT_TYPE),
+	INDEX ix_calendar_sharing_link_members_hash(MEMBERS_HASH),
+	INDEX ix_calendar_sharing_link_conference_id(CONFERENCE_ID)
+);
+
+CREATE TABLE b_calendar_sharing_link_rule (
+	ID int NOT NULL AUTO_INCREMENT,
+	LINK_ID int NOT NULL,
+	WEEKDAYS varchar(32) DEFAULT NULL,
+	SLOT_SIZE int NOT NULL,
+	TIME_FROM int DEFAULT NULL,
+	TIME_TO int DEFAULT NULL,
+	PRIMARY KEY (ID),
+	INDEX ix_calendar_sharing_link_rule_link_id(LINK_ID)
+);
+
+CREATE TABLE b_calendar_sharing_object_rule (
+	ID int NOT NULL AUTO_INCREMENT,
+	OBJECT_ID int NOT NULL,
+	OBJECT_TYPE varchar(32) NOT NULL,
+	SLOT_SIZE int NOT NULL,
+	WEEKDAYS varchar(32) DEFAULT NULL,
+	TIME_FROM int DEFAULT NULL,
+	TIME_TO int DEFAULT NULL,
+	PRIMARY KEY (ID),
+	INDEX ix_calendar_sharing_object_rule_object_id_object_type(OBJECT_ID, OBJECT_TYPE)
+);
+
+CREATE TABLE b_calendar_event_original_recursion (
+	PARENT_EVENT_ID int NOT NULL,
+	ORIGINAL_RECURSION_EVENT_ID int NOT NULL,
+	PRIMARY KEY (PARENT_EVENT_ID),
+	INDEX ix_calendar_event_original_recursion_original_recursion_event_id(ORIGINAL_RECURSION_EVENT_ID)
+);
+
+CREATE TABLE b_calendar_sharing_link_member (
+    ID int NOT NULL AUTO_INCREMENT,
+	LINK_ID int NOT NULL,
+	MEMBER_ID int NOT NULL,
+	PRIMARY KEY (ID),
+	UNIQUE KEY (LINK_ID, MEMBER_ID),
+	INDEX ix_calendar_sharing_link_member_link_id(LINK_ID)
 );

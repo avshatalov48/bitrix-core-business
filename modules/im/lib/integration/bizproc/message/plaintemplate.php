@@ -10,7 +10,7 @@ Loc::loadMessages(__FILE__);
 
 class PlainTemplate extends Template
 {
-	protected string $messageText;
+	protected string $messageText = '';
 
 	public function buildMessage(array $messageFields): array
 	{

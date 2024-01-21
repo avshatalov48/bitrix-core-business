@@ -77,6 +77,7 @@ abstract class ReportStoreList extends \CBitrixComponent
 		$result['SHOW_ACTION_PANEL'] = false;
 		$result['HANDLE_RESPONSE_ERRORS'] = true;
 		$result['SHOW_GRID_SETTINGS_MENU'] = false;
+		$result['ALLOW_STICKED_COLUMNS'] = true;
 
 		return $result;
 	}
@@ -167,7 +168,9 @@ abstract class ReportStoreList extends \CBitrixComponent
 
 	private function getMeasureSymbol(int $measureId): string
 	{
-		return htmlspecialcharsbx($this->getMeasures()[$measureId]['SYMBOL']);
+		$measure = $this->getMeasures()[$measureId] ?? null;
+
+		return $measure !== null ? htmlspecialcharsbx($measure['SYMBOL']) : '';
 	}
 
 	private function getMeasures(): array

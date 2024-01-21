@@ -2,7 +2,7 @@ import { EventType } from 'im.v2.const';
 import { EventEmitter } from 'main.core.events';
 
 const MentionSymbols: Set<string> = new Set(['@', '+']);
-const WAIT_FOR_NEXT_SYMBOL_TIME = 300;
+const WAIT_FOR_NEXT_SYMBOL_TIME = 10;
 const WAIT_FOR_LAST_SYMBOL_TIME = 10;
 
 export const MentionManagerEvents = Object.freeze({
@@ -75,8 +75,16 @@ export class MentionManager extends EventEmitter
 			return;
 		}
 
+		if (this.#isNavigateCombination(event))
+		{
+			event.preventDefault();
+
+			return;
+		}
+
 		if (this.#isInsertMentionCombination(event))
 		{
+			event.preventDefault();
 			this.#sendInsertMentionEvent(event);
 
 			return;
@@ -110,11 +118,6 @@ export class MentionManager extends EventEmitter
 		return symbolBeforeMentionSymbol.length === 0 || this.#hasWhitespace(symbolBeforeMentionSymbol);
 	}
 
-	#hasWhitespace(text: string): boolean
-	{
-		return (/^\s/).test(text);
-	}
-
 	#isValidQuery(): boolean
 	{
 		const query = this.#getQuery();
@@ -129,7 +132,7 @@ export class MentionManager extends EventEmitter
 			return true;
 		}
 
-		if (/\d$/.test(firstQuerySymbol))
+		if (!this.#isValidFirstSymbol(firstQuerySymbol))
 		{
 			return false;
 		}
@@ -163,7 +166,7 @@ export class MentionManager extends EventEmitter
 	#sendInsertMentionEvent(event)
 	{
 		event.preventDefault();
-		EventEmitter.emit(EventType.mention.selectFirstItem);
+		EventEmitter.emit(EventType.mention.selectItem);
 		this.#sendHidePopupEvent();
 	}
 
@@ -194,5 +197,34 @@ export class MentionManager extends EventEmitter
 	#getQueryWithoutMentionSymbol(): string
 	{
 		return this.#getQuery().slice(1);
+	}
+
+	#isNavigateCombination(event: KeyboardEvent): boolean
+	{
+		return event.key === 'ArrowUp' || event.key === 'ArrowDown';
+	}
+
+	#isValidFirstSymbol(firstQuerySymbol: string): boolean
+	{
+		return !(this.#hasNumber(firstQuerySymbol)
+			|| this.#hasWhitespace(firstQuerySymbol)
+			|| this.#hasSpecialSymbol(firstQuerySymbol));
+	}
+
+	#hasWhitespace(text: string): boolean
+	{
+		return (/^\s/).test(text);
+	}
+
+	#hasNumber(text: string): boolean
+	{
+		return (/\d$/).test(text);
+	}
+
+	#hasSpecialSymbol(text: string): boolean
+	{
+		const regex = /[!"#$%&'()*+,./<>@\\^_|-]/;
+
+		return regex.test(text);
 	}
 }

@@ -11,8 +11,8 @@ use Bitrix\MobileApp\Janative\Utils;
 
 class Extension extends Base
 {
-	protected static $modificationDates = [];
-	protected static $dependencies = [];
+	protected static array $modificationDates = [];
+	protected static array $dependencies = [];
 	protected static $paths = [];
 	public ?string $result = null;
 

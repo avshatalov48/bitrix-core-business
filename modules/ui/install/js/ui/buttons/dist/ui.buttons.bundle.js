@@ -5,7 +5,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ButtonTag = function ButtonTag() {
+	let ButtonTag = function ButtonTag() {
 	  babelHelpers.classCallCheck(this, ButtonTag);
 	};
 	babelHelpers.defineProperty(ButtonTag, "BUTTON", 0);
@@ -15,8 +15,16 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonTag, "DIV", 4);
 	babelHelpers.defineProperty(ButtonTag, "SPAN", 5);
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
-	var BaseButton = /*#__PURE__*/function () {
+	let _ = t => t,
+	  _t,
+	  _t2,
+	  _t3,
+	  _t4,
+	  _t5,
+	  _t6,
+	  _t7,
+	  _t8;
+	let BaseButton = /*#__PURE__*/function () {
 	  function BaseButton(options) {
 	    babelHelpers.classCallCheck(this, BaseButton);
 	    options = main_core.Type.isPlainObject(options) ? options : {};
@@ -107,22 +115,22 @@ this.BX = this.BX || {};
 	      switch (this.getTag()) {
 	        case ButtonTag.BUTTON:
 	        default:
-	          this.button = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<button class=\"", "\"></button>"])), this.getBaseClass());
+	          this.button = main_core.Tag.render(_t || (_t = _`<button class="${0}"></button>`), this.getBaseClass());
 	          break;
 	        case ButtonTag.INPUT:
-	          this.button = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<input class=\"", "\" type=\"button\">"])), this.getBaseClass());
+	          this.button = main_core.Tag.render(_t2 || (_t2 = _`<input class="${0}" type="button">`), this.getBaseClass());
 	          break;
 	        case ButtonTag.LINK:
-	          this.button = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<a class=\"", "\" href=\"\"></a>"])), this.getBaseClass());
+	          this.button = main_core.Tag.render(_t3 || (_t3 = _`<a class="${0}" href=""></a>`), this.getBaseClass());
 	          break;
 	        case ButtonTag.SUBMIT:
-	          this.button = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<input class=\"", "\" type=\"submit\">"])), this.getBaseClass());
+	          this.button = main_core.Tag.render(_t4 || (_t4 = _`<input class="${0}" type="submit">`), this.getBaseClass());
 	          break;
 	        case ButtonTag.DIV:
-	          this.button = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"])), this.getBaseClass());
+	          this.button = main_core.Tag.render(_t5 || (_t5 = _`<div class="${0}"></div>`), this.getBaseClass());
 	          break;
 	        case ButtonTag.SPAN:
-	          this.button = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<span class=\"", "\"></span>"])), this.getBaseClass());
+	          this.button = main_core.Tag.render(_t6 || (_t6 = _`<span class="${0}"></span>`), this.getBaseClass());
 	          break;
 	      }
 	      return this.button;
@@ -150,7 +158,7 @@ this.BX = this.BX || {};
 	          this.getContainer().value = text;
 	        } else if (text.length > 0) {
 	          if (this.textNode === null) {
-	            this.textNode = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-btn-text\"></span>"])));
+	            this.textNode = main_core.Tag.render(_t7 || (_t7 = _`<span class="ui-btn-text"></span>`));
 	          }
 	          if (!this.textNode.parentNode) {
 	            main_core.Dom.prepend(this.textNode, this.getContainer());
@@ -192,7 +200,7 @@ this.BX = this.BX || {};
 	          throw new Error('BX.UI.Button: an input button cannot have a counter.');
 	        }
 	        if (this.counterNode === null) {
-	          this.counterNode = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-btn-counter\"></span>"])));
+	          this.counterNode = main_core.Tag.render(_t8 || (_t8 = _`<span class="ui-btn-counter"></span>`));
 	          main_core.Dom.append(this.counterNode, this.getContainer());
 	        }
 	        this.counter = counter;
@@ -239,7 +247,7 @@ this.BX = this.BX || {};
 	    value: function setMaxWidth(maxWidth) {
 	      if (main_core.Type.isNumber(maxWidth) && maxWidth > 0) {
 	        this.maxWidth = maxWidth;
-	        this.getContainer().style.maxWidth = "".concat(maxWidth, "px");
+	        this.getContainer().style.maxWidth = `${maxWidth}px`;
 	      } else if (maxWidth === null) {
 	        this.getContainer().style.removeProperty('max-width');
 	        this.maxWidth = null;
@@ -271,8 +279,8 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(props)) {
 	        return this;
 	      }
-	      for (var propName in props) {
-	        var propValue = props[propName];
+	      for (let propName in props) {
+	        const propValue = props[propName];
 	        main_core.Dom.attr(this.getContainer(), propName, propValue);
 	      }
 	      return this;
@@ -284,13 +292,14 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getProps",
 	    value: function getProps() {
-	      var attrs = this.getContainer().attributes;
-	      var result = {};
-	      var reserved = this.isInputType() ? ['class', 'type'] : ['class'];
-	      for (var i = 0; i < attrs.length; i++) {
-	        var _attrs$i = attrs[i],
-	          name = _attrs$i.name,
-	          value = _attrs$i.value;
+	      const attrs = this.getContainer().attributes;
+	      const result = {};
+	      const reserved = this.isInputType() ? ['class', 'type'] : ['class'];
+	      for (let i = 0; i < attrs.length; i++) {
+	        const {
+	          name,
+	          value
+	        } = attrs[i];
 	        if (reserved.includes(name) || name.startsWith('data-')) {
 	          continue;
 	        }
@@ -309,8 +318,8 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(props)) {
 	        return this;
 	      }
-	      for (var propName in props) {
-	        var propValue = props[propName];
+	      for (let propName in props) {
+	        const propValue = props[propName];
 	        if (propValue === null) {
 	          delete this.getDataSet()[propName];
 	        } else {
@@ -402,8 +411,8 @@ this.BX = this.BX || {};
 	    key: "bindEvents",
 	    value: function bindEvents(events) {
 	      if (main_core.Type.isPlainObject(events)) {
-	        for (var eventName in events) {
-	          var fn = events[eventName];
+	        for (let eventName in events) {
+	          const fn = events[eventName];
 	          this.bindEvent(eventName, fn);
 	        }
 	      }
@@ -417,10 +426,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "unbindEvents",
 	    value: function unbindEvents(events) {
-	      var _this = this;
 	      if (main_core.Type.isArray(events)) {
-	        events.forEach(function (eventName) {
-	          _this.unbindEvent(eventName);
+	        events.forEach(eventName => {
+	          this.unbindEvent(eventName);
 	        });
 	      }
 	      return this;
@@ -462,9 +470,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handleEvent",
 	    value: function handleEvent(event) {
-	      var eventName = event.type;
+	      const eventName = event.type;
 	      if (this.events[eventName]) {
-	        var fn = this.events[eventName];
+	        const fn = this.events[eventName];
 	        fn.call(this, this, event);
 	      }
 	    }
@@ -474,7 +482,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isEnumValue",
 	    value: function isEnumValue(value, enumeration) {
-	      for (var code in enumeration) {
+	      for (let code in enumeration) {
 	        if (enumeration[code] === value) {
 	          return true;
 	        }
@@ -488,7 +496,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ButtonColor = function ButtonColor() {
+	let ButtonColor = function ButtonColor() {
 	  babelHelpers.classCallCheck(this, ButtonColor);
 	};
 	babelHelpers.defineProperty(ButtonColor, "DANGER", 'ui-btn-danger');
@@ -503,11 +511,12 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonColor, "LINK", 'ui-btn-link');
 	babelHelpers.defineProperty(ButtonColor, "LIGHT", 'ui-btn-light');
 	babelHelpers.defineProperty(ButtonColor, "LIGHT_BORDER", 'ui-btn-light-border');
+	babelHelpers.defineProperty(ButtonColor, "AI", 'ui-btn-color-ai');
 
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ButtonSize = function ButtonSize() {
+	let ButtonSize = function ButtonSize() {
 	  babelHelpers.classCallCheck(this, ButtonSize);
 	};
 	babelHelpers.defineProperty(ButtonSize, "LARGE", 'ui-btn-lg');
@@ -518,7 +527,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ButtonIcon = function ButtonIcon() {
+	let ButtonIcon = function ButtonIcon() {
 	  babelHelpers.classCallCheck(this, ButtonIcon);
 	};
 	babelHelpers.defineProperty(ButtonIcon, "UNFOLLOW", 'ui-btn-icon-unfollow');
@@ -577,11 +586,12 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "FUNNEL", 'ui-btn-icon-funnel');
 	babelHelpers.defineProperty(ButtonIcon, "FORWARD", 'ui-btn-icon-forward');
 	babelHelpers.defineProperty(ButtonIcon, "COPY", 'ui-btn-icon-copy');
+	babelHelpers.defineProperty(ButtonIcon, "AI", 'ui-btn-icon-ai ui-icon-set__scope');
 
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ButtonState = function ButtonState() {
+	let ButtonState = function ButtonState() {
 	  babelHelpers.classCallCheck(this, ButtonState);
 	};
 	babelHelpers.defineProperty(ButtonState, "HOVER", 'ui-btn-hover');
@@ -589,11 +599,12 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonState, "DISABLED", 'ui-btn-disabled');
 	babelHelpers.defineProperty(ButtonState, "CLOCKING", 'ui-btn-clock');
 	babelHelpers.defineProperty(ButtonState, "WAITING", 'ui-btn-wait');
+	babelHelpers.defineProperty(ButtonState, "AI_WAITING", 'ui-btn-ai-waiting');
 
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ButtonStyle = function ButtonStyle() {
+	let ButtonStyle = function ButtonStyle() {
 	  babelHelpers.classCallCheck(this, ButtonStyle);
 	};
 	babelHelpers.defineProperty(ButtonStyle, "NO_CAPS", 'ui-btn-no-caps');
@@ -602,12 +613,10 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonStyle, "COLLAPSED", 'ui-btn-collapsed');
 	babelHelpers.defineProperty(ButtonStyle, "DEPEND_ON_THEME", 'ui-btn-themes');
 
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var Button = /*#__PURE__*/function (_BaseButton) {
+	let Button = /*#__PURE__*/function (_BaseButton) {
 	  babelHelpers.inherits(Button, _BaseButton);
 	  function Button(options) {
 	    var _this;
@@ -854,10 +863,11 @@ this.BX = this.BX || {};
 	    value: function setMenu(options) {
 	      if (main_core.Type.isPlainObject(options) && main_core.Type.isArray(options.items) && options.items.length > 0) {
 	        this.setMenu(false);
-	        this.menuWindow = new main_popup.Menu(_objectSpread({
-	          id: "ui-btn-menu-".concat(main_core.Text.getRandom().toLowerCase()),
-	          bindElement: this.getMenuBindElement()
-	        }, options));
+	        this.menuWindow = new main_popup.Menu({
+	          id: `ui-btn-menu-${main_core.Text.getRandom().toLowerCase()}`,
+	          bindElement: this.getMenuBindElement(),
+	          ...options
+	        });
 	        this.menuWindow.getPopupWindow().subscribe('onClose', this.handleMenuClose);
 	        main_core.Event.bind(this.getMenuClickElement(), 'click', this.handleMenuClick);
 	      } else if (options === false && this.menuWindow !== null) {
@@ -1106,7 +1116,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SplitButtonState = function SplitButtonState() {
+	let SplitButtonState = function SplitButtonState() {
 	  babelHelpers.classCallCheck(this, SplitButtonState);
 	};
 	babelHelpers.defineProperty(SplitButtonState, "HOVER", 'ui-btn-hover');
@@ -1124,7 +1134,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SplitSubButtonType = function SplitSubButtonType() {
+	let SplitSubButtonType = function SplitSubButtonType() {
 	  babelHelpers.classCallCheck(this, SplitSubButtonType);
 	};
 	babelHelpers.defineProperty(SplitSubButtonType, "MAIN", 'ui-btn-main');
@@ -1133,7 +1143,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SplitSubButton = /*#__PURE__*/function (_BaseButton) {
+	let SplitSubButton = /*#__PURE__*/function (_BaseButton) {
 	  babelHelpers.inherits(SplitSubButton, _BaseButton);
 	  function SplitSubButton(options) {
 	    var _this;
@@ -1206,7 +1216,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isActive",
 	    value: function isActive() {
-	      var state = this.getSplitButton().getState();
+	      const state = this.getSplitButton().getState();
 	      if (state === SplitButtonState.ACTIVE) {
 	        return true;
 	      }
@@ -1245,7 +1255,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isHovered",
 	    value: function isHovered() {
-	      var state = this.getSplitButton().getState();
+	      const state = this.getSplitButton().getState();
 	      if (state === SplitButtonState.HOVER) {
 	        return true;
 	      }
@@ -1264,7 +1274,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "toggleState",
 	    value: function toggleState(flag, globalState, mainState, menuState) {
-	      var state = this.getSplitButton().getState();
+	      const state = this.getSplitButton().getState();
 	      if (flag === false) {
 	        if (state === globalState) {
 	          this.getSplitButton().setState(this.isMainButton() ? menuState : mainState);
@@ -1286,12 +1296,13 @@ this.BX = this.BX || {};
 	}(BaseButton);
 	babelHelpers.defineProperty(SplitSubButton, "Type", SplitSubButtonType);
 
-	var _templateObject$1;
+	let _$1 = t => t,
+	  _t$1;
 
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SplitButton = /*#__PURE__*/function (_Button) {
+	let SplitButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SplitButton, _Button);
 	  function SplitButton(options) {
 	    babelHelpers.classCallCheck(this, SplitButton);
@@ -1310,8 +1321,8 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(SplitButton, [{
 	    key: "init",
 	    value: function init() {
-	      var mainOptions = main_core.Type.isPlainObject(this.options.mainButton) ? this.options.mainButton : {};
-	      var menuOptions = main_core.Type.isPlainObject(this.options.menuButton) ? this.options.menuButton : {};
+	      const mainOptions = main_core.Type.isPlainObject(this.options.mainButton) ? this.options.mainButton : {};
+	      const menuOptions = main_core.Type.isPlainObject(this.options.menuButton) ? this.options.menuButton : {};
 	      mainOptions.buttonType = SplitSubButtonType.MAIN;
 	      mainOptions.splitButton = this;
 	      menuOptions.buttonType = SplitSubButtonType.MENU;
@@ -1332,7 +1343,9 @@ this.BX = this.BX || {};
 	     */
 	    value: function getContainer() {
 	      if (this.button === null) {
-	        this.button = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t"])), this.getBaseClass(), [this.getMainButton().getContainer(), this.getMenuButton().getContainer()]);
+	        this.button = main_core.Tag.render(_t$1 || (_t$1 = _$1`
+				<div class="${0}">${0}</div>
+			`), this.getBaseClass(), [this.getMainButton().getContainer(), this.getMenuButton().getContainer()]);
 	      }
 	      return this.button;
 	    }
@@ -1458,7 +1471,7 @@ this.BX = this.BX || {};
 	    key: "handleMenuClick",
 	    value: function handleMenuClick(event) {
 	      this.getMenuWindow().show();
-	      var isActive = this.getMenuWindow().getPopupWindow().isShown();
+	      const isActive = this.getMenuWindow().getPopupWindow().isShown();
 	      this.getMenuButton().setActive(isActive);
 	    }
 	    /**
@@ -1512,10 +1525,11 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(SplitButton, "BASE_CLASS", 'ui-btn-split');
 	babelHelpers.defineProperty(SplitButton, "State", SplitButtonState);
 
-	var _templateObject$2;
+	let _$2 = t => t,
+	  _t$2;
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-	var ButtonManager = /*#__PURE__*/function () {
+	let ButtonManager = /*#__PURE__*/function () {
 	  function ButtonManager() {
 	    babelHelpers.classCallCheck(this, ButtonManager);
 	  }
@@ -1527,45 +1541,41 @@ this.BX = this.BX || {};
 	     * @return {Button | SplitButton}
 	     */
 	    value: function createFromNode(node) {
-	      var _this = this;
 	      if (!main_core.Type.isDomNode(node)) {
 	        throw new Error('BX.UI.ButtonManager.createFromNode: "node" must be a DOM node.');
 	      }
 	      if (!main_core.Dom.hasClass(node, Button.BASE_CLASS) && !main_core.Dom.hasClass(node, SplitButton.BASE_CLASS)) {
 	        throw new Error('BX.UI.ButtonManager.createFromNode: "node" is not a button.');
 	      }
-	      var isSplitButton = main_core.Dom.hasClass(node, SplitButton.BASE_CLASS);
-	      var tag = null;
-	      var text = null;
-	      var textNode = null;
-	      var counterNode = null;
-	      var disabled = false;
-	      var mainButtonOptions = {};
-	      var menuButtonOptions = {};
+	      const isSplitButton = main_core.Dom.hasClass(node, SplitButton.BASE_CLASS);
+	      let tag = null;
+	      let text = null;
+	      let textNode = null;
+	      let counterNode = null;
+	      let disabled = false;
+	      let mainButtonOptions = {};
+	      let menuButtonOptions = {};
 	      if (isSplitButton) {
-	        var mainButton = node.querySelector(".".concat(SplitSubButtonType.MAIN));
-	        var menuButton = node.querySelector(".".concat(SplitSubButtonType.MENU));
+	        const mainButton = node.querySelector(`.${SplitSubButtonType.MAIN}`);
+	        const menuButton = node.querySelector(`.${SplitSubButtonType.MENU}`);
 	        if (!mainButton) {
 	          throw new Error('BX.UI.ButtonManager.createFromNode: a split button doesn\'t have a main button.');
 	        }
 	        if (!menuButton) {
 	          throw new Error('BX.UI.ButtonManager.createFromNode: a split button doesn\'t have a menu button.');
 	        }
-	        var mainButtonTag = _classStaticPrivateMethodGet(this, ButtonManager, _getTag).call(this, mainButton);
+	        const mainButtonTag = _classStaticPrivateMethodGet(this, ButtonManager, _getTag).call(this, mainButton);
 	        if (mainButtonTag === ButtonTag.INPUT || mainButtonTag === ButtonTag.SUBMIT) {
 	          text = mainButton.value;
 	        } else {
-	          var _classStaticPrivateMe = _classStaticPrivateMethodGet(this, ButtonManager, _getTextNode).call(this, mainButton);
-	          var _classStaticPrivateMe2 = babelHelpers.slicedToArray(_classStaticPrivateMe, 2);
-	          textNode = _classStaticPrivateMe2[0];
-	          counterNode = _classStaticPrivateMe2[1];
+	          [textNode, counterNode] = _classStaticPrivateMethodGet(this, ButtonManager, _getTextNode).call(this, mainButton);
 	          text = textNode.textContent;
 	        }
 	        disabled = main_core.Dom.hasClass(node, SplitButtonState.DISABLED);
 	        mainButtonOptions = {
 	          tag: mainButtonTag,
-	          textNode: textNode,
-	          counterNode: counterNode,
+	          textNode,
+	          counterNode,
 	          buttonNode: mainButton,
 	          disabled: main_core.Dom.hasClass(node, SplitButtonState.MAIN_DISABLED)
 	        };
@@ -1585,22 +1595,19 @@ this.BX = this.BX || {};
 	        if (tag === ButtonTag.INPUT || tag === ButtonTag.SUBMIT) {
 	          text = node.value;
 	        } else {
-	          var _classStaticPrivateMe3 = _classStaticPrivateMethodGet(this, ButtonManager, _getTextNode).call(this, node);
-	          var _classStaticPrivateMe4 = babelHelpers.slicedToArray(_classStaticPrivateMe3, 2);
-	          textNode = _classStaticPrivateMe4[0];
-	          counterNode = _classStaticPrivateMe4[1];
+	          [textNode, counterNode] = _classStaticPrivateMethodGet(this, ButtonManager, _getTextNode).call(this, node);
 	          text = textNode.textContent;
 	        }
 	      }
-	      var options = {
+	      const options = {
 	        id: node.dataset.btnUniqid,
 	        buttonNode: node,
 	        textNode: isSplitButton ? null : textNode,
 	        counterNode: isSplitButton ? null : counterNode,
 	        counter: _classStaticPrivateMethodGet(this, ButtonManager, _getCounter).call(this, counterNode),
-	        tag: tag,
-	        text: text,
-	        disabled: disabled,
+	        tag,
+	        text,
+	        disabled,
 	        mainButton: mainButtonOptions,
 	        menuButton: menuButtonOptions,
 	        size: _classStaticPrivateMethodGet(this, ButtonManager, _getEnumProp).call(this, node, ButtonSize),
@@ -1610,7 +1617,7 @@ this.BX = this.BX || {};
 	        noCaps: main_core.Dom.hasClass(node, ButtonStyle.NO_CAPS),
 	        round: main_core.Dom.hasClass(node, ButtonStyle.ROUND)
 	      };
-	      var nodeOptions = main_core.Dom.attr(node, 'data-json-options') || {};
+	      const nodeOptions = main_core.Dom.attr(node, 'data-json-options') || {};
 	      if (main_core.Dom.hasClass(node, ButtonStyle.DROPDOWN)) {
 	        options.dropdown = true;
 	      } else if (nodeOptions.dropdown === false) {
@@ -1627,15 +1634,15 @@ this.BX = this.BX || {};
 	        options.menu = nodeOptions.menu;
 	        _classStaticPrivateMethodGet(this, ButtonManager, _convertMenuEvents).call(this, options.menu.items);
 	      }
-	      ['mainButton', 'menuButton'].forEach(function (button) {
+	      ['mainButton', 'menuButton'].forEach(button => {
 	        if (!main_core.Type.isPlainObject(nodeOptions[button])) {
 	          return;
 	        }
 	        options[button] = main_core.Runtime.merge(options[button], nodeOptions[button]);
 	        if (options[button].onclick) {
-	          options[button].onclick = _classStaticPrivateMethodGet(_this, ButtonManager, _convertEventHandler).call(_this, options[button].onclick);
+	          options[button].onclick = _classStaticPrivateMethodGet(this, ButtonManager, _convertEventHandler).call(this, options[button].onclick);
 	        }
-	        _classStaticPrivateMethodGet(_this, ButtonManager, _convertEvents).call(_this, options[button].events);
+	        _classStaticPrivateMethodGet(this, ButtonManager, _convertEvents).call(this, options[button].events);
 	      });
 	      if (main_core.Type.isStringFilled(nodeOptions.menuTarget)) {
 	        options.menuTarget = nodeOptions.menuTarget;
@@ -1648,7 +1655,7 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isStringFilled(id)) {
 	        return null;
 	      }
-	      var node = document.querySelector("[data-btn-uniqid=\"".concat(id, "\"]"));
+	      const node = document.querySelector(`[data-btn-uniqid="${id}"]`);
 	      return node ? this.createFromNode(node) : null;
 	    }
 	    /**
@@ -1664,7 +1671,7 @@ this.BX = this.BX || {};
 	     * @return {null|*}
 	     */
 	    value: function getByUniqid(uniqId) {
-	      var toolbar = BX.UI.ToolbarManager.getDefaultToolbar();
+	      const toolbar = BX.UI.ToolbarManager.getDefaultToolbar();
 	      return toolbar ? toolbar.getButton(uniqId) : null;
 	    }
 	  }]);
@@ -1683,13 +1690,13 @@ this.BX = this.BX || {};
 	  return null;
 	}
 	function _getTextNode(node) {
-	  var textNode = node.querySelector('.ui-btn-text');
-	  var counterNode = node.querySelector('.ui-btn-counter');
+	  let textNode = node.querySelector('.ui-btn-text');
+	  const counterNode = node.querySelector('.ui-btn-counter');
 	  if (!textNode) {
 	    if (counterNode) {
 	      main_core.Dom.remove(counterNode);
 	    }
-	    textNode = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-btn-text\">", "</span>"])), node.innerHTML.trim());
+	    textNode = main_core.Tag.render(_t$2 || (_t$2 = _$2`<span class="ui-btn-text">${0}</span>`), node.innerHTML.trim());
 	    main_core.Dom.clean(node);
 	    main_core.Dom.append(textNode, node);
 	    if (counterNode) {
@@ -1700,14 +1707,14 @@ this.BX = this.BX || {};
 	}
 	function _getCounter(counterNode) {
 	  if (main_core.Type.isDomNode(counterNode)) {
-	    var textContent = counterNode.textContent;
-	    var counter = Number(textContent);
+	    const textContent = counterNode.textContent;
+	    const counter = Number(textContent);
 	    return main_core.Type.isNumber(counter) ? counter : textContent;
 	  }
 	  return null;
 	}
 	function _getEnumProp(node, enumeration) {
-	  for (var key in enumeration) {
+	  for (let key in enumeration) {
 	    if (!enumeration.hasOwnProperty(key)) {
 	      continue;
 	    }
@@ -1730,11 +1737,8 @@ this.BX = this.BX || {};
 	      eval(handler.code);
 	    };
 	  } else if (main_core.Type.isStringFilled(handler.event)) {
-	    return function () {
-	      var event;
-	      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-	        args[_key] = arguments[_key];
-	      }
+	    return function (...args) {
+	      let event;
 	      if (args[0] instanceof main_core_events.BaseEvent) {
 	        event = args[0];
 	      } else {
@@ -1761,19 +1765,16 @@ this.BX = this.BX || {};
 	      main_core_events.EventEmitter.emit(handler.event, event);
 	    };
 	  } else if (main_core.Type.isStringFilled(handler.handler)) {
-	    return function () {
-	      var fn = main_core.Reflection.getClass(handler.handler);
+	    return function (...args) {
+	      const fn = main_core.Reflection.getClass(handler.handler);
 	      if (main_core.Type.isFunction(fn)) {
-	        var context = this;
+	        let context = this;
 	        if (main_core.Type.isStringFilled(handler.context)) {
 	          context = main_core.Reflection.getClass(handler.context);
 	        }
-	        for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-	          args[_key2] = arguments[_key2];
-	        }
 	        return fn.apply(context, args);
 	      } else {
-	        console.warn("BX.UI.ButtonManager.createFromNode: be aware, the handler ".concat(handler.handler, " is not a function."));
+	        console.warn(`BX.UI.ButtonManager.createFromNode: be aware, the handler ${handler.handler} is not a function.`);
 	      }
 	      return null;
 	    };
@@ -1782,28 +1783,24 @@ this.BX = this.BX || {};
 	}
 	function _convertEvents(events) {
 	  if (main_core.Type.isPlainObject(events)) {
-	    for (var _i = 0, _Object$entries = Object.entries(events); _i < _Object$entries.length; _i++) {
-	      var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
-	        eventName = _Object$entries$_i[0],
-	        eventFn = _Object$entries$_i[1];
+	    for (let [eventName, eventFn] of Object.entries(events)) {
 	      events[eventName] = _classStaticPrivateMethodGet(this, ButtonManager, _convertEventHandler).call(this, eventFn);
 	    }
 	  }
 	}
 	function _convertMenuEvents(items) {
-	  var _this2 = this;
 	  if (!main_core.Type.isArray(items)) {
 	    return;
 	  }
-	  items.forEach(function (item) {
+	  items.forEach(item => {
 	    if (item.onclick) {
-	      item.onclick = _classStaticPrivateMethodGet(_this2, ButtonManager, _convertEventHandler).call(_this2, item.onclick);
+	      item.onclick = _classStaticPrivateMethodGet(this, ButtonManager, _convertEventHandler).call(this, item.onclick);
 	    }
 	    if (item.events) {
-	      _classStaticPrivateMethodGet(_this2, ButtonManager, _convertEvents).call(_this2, item.events);
+	      _classStaticPrivateMethodGet(this, ButtonManager, _convertEvents).call(this, item.events);
 	    }
 	    if (main_core.Type.isArray(item.items)) {
-	      _classStaticPrivateMethodGet(_this2, ButtonManager, _convertMenuEvents).call(_this2, item.items);
+	      _classStaticPrivateMethodGet(this, ButtonManager, _convertMenuEvents).call(this, item.items);
 	    }
 	  });
 	}
@@ -1811,7 +1808,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var IButton = /*#__PURE__*/function () {
+	let IButton = /*#__PURE__*/function () {
 	  function IButton() {
 	    babelHelpers.classCallCheck(this, IButton);
 	  }
@@ -1827,7 +1824,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var AddButton = /*#__PURE__*/function (_Button) {
+	let AddButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(AddButton, _Button);
 	  function AddButton() {
 	    babelHelpers.classCallCheck(this, AddButton);
@@ -1848,7 +1845,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ApplyButton = /*#__PURE__*/function (_Button) {
+	let ApplyButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(ApplyButton, _Button);
 	  function ApplyButton() {
 	    babelHelpers.classCallCheck(this, ApplyButton);
@@ -1869,7 +1866,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CancelButton = /*#__PURE__*/function (_Button) {
+	let CancelButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(CancelButton, _Button);
 	  function CancelButton() {
 	    babelHelpers.classCallCheck(this, CancelButton);
@@ -1890,7 +1887,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CloseButton = /*#__PURE__*/function (_Button) {
+	let CloseButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(CloseButton, _Button);
 	  function CloseButton() {
 	    babelHelpers.classCallCheck(this, CloseButton);
@@ -1911,7 +1908,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CreateButton = /*#__PURE__*/function (_Button) {
+	let CreateButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(CreateButton, _Button);
 	  function CreateButton() {
 	    babelHelpers.classCallCheck(this, CreateButton);
@@ -1932,7 +1929,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SaveButton = /*#__PURE__*/function (_Button) {
+	let SaveButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SaveButton, _Button);
 	  function SaveButton() {
 	    babelHelpers.classCallCheck(this, SaveButton);
@@ -1953,7 +1950,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SendButton = /*#__PURE__*/function (_Button) {
+	let SendButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SendButton, _Button);
 	  function SendButton() {
 	    babelHelpers.classCallCheck(this, SendButton);
@@ -1974,7 +1971,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SettingsButton = /*#__PURE__*/function (_Button) {
+	let SettingsButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(SettingsButton, _Button);
 	  function SettingsButton() {
 	    babelHelpers.classCallCheck(this, SettingsButton);
@@ -1996,7 +1993,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var AddSplitButton = /*#__PURE__*/function (_SplitButton) {
+	let AddSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(AddSplitButton, _SplitButton);
 	  function AddSplitButton() {
 	    babelHelpers.classCallCheck(this, AddSplitButton);
@@ -2017,7 +2014,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var ApplySplitButton = /*#__PURE__*/function (_SplitButton) {
+	let ApplySplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(ApplySplitButton, _SplitButton);
 	  function ApplySplitButton() {
 	    babelHelpers.classCallCheck(this, ApplySplitButton);
@@ -2038,7 +2035,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CancelSplitButton = /*#__PURE__*/function (_SplitButton) {
+	let CancelSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(CancelSplitButton, _SplitButton);
 	  function CancelSplitButton() {
 	    babelHelpers.classCallCheck(this, CancelSplitButton);
@@ -2059,7 +2056,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CloseSplitButton = /*#__PURE__*/function (_SplitButton) {
+	let CloseSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(CloseSplitButton, _SplitButton);
 	  function CloseSplitButton() {
 	    babelHelpers.classCallCheck(this, CloseSplitButton);
@@ -2080,7 +2077,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var CreateSplitButton = /*#__PURE__*/function (_SplitButton) {
+	let CreateSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(CreateSplitButton, _SplitButton);
 	  function CreateSplitButton() {
 	    babelHelpers.classCallCheck(this, CreateSplitButton);
@@ -2101,7 +2098,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SaveSplitButton = /*#__PURE__*/function (_SplitButton) {
+	let SaveSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(SaveSplitButton, _SplitButton);
 	  function SaveSplitButton() {
 	    babelHelpers.classCallCheck(this, SaveSplitButton);
@@ -2122,7 +2119,7 @@ this.BX = this.BX || {};
 	/**
 	 * @namespace {BX.UI}
 	 */
-	var SendSplitButton = /*#__PURE__*/function (_SplitButton) {
+	let SendSplitButton = /*#__PURE__*/function (_SplitButton) {
 	  babelHelpers.inherits(SendSplitButton, _SplitButton);
 	  function SendSplitButton() {
 	    babelHelpers.classCallCheck(this, SendSplitButton);

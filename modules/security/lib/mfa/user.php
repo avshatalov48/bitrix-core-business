@@ -1,25 +1,9 @@
 <?php
+
 namespace Bitrix\Security\Mfa;
 
-
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
 use Bitrix\Main\Type;
-
-/*
-CREATE TABLE b_sec_user
-(
-	USER_ID INT(11) NOT NULL REFERENCES b_user(ID),
-	ACTIVE CHAR(1) NOT NULL DEFAULT 'N',
-	SECRET VARCHAR(64) NOT NULL,
-	PARAMS text,
-	TYPE VARCHAR(16) NOT NULL,
-	ATTEMPTS int(18),
-	INITIAL_DATE date,
-	SKIP_MANDATORY CHAR(1) DEFAULT 'N',
-	DEACTIVATE_UNTIL datetime,
-	PRIMARY KEY (USER_ID)
-);
- */
 
 /**
  * Class UserTable
@@ -37,8 +21,7 @@ CREATE TABLE b_sec_user
  * @method static \Bitrix\Security\Mfa\EO_User wakeUpObject($row)
  * @method static \Bitrix\Security\Mfa\EO_User_Collection wakeUpCollection($rows)
  */
-class UserTable
-	extends Entity\DataManager
+class UserTable	extends ORM\Data\DataManager
 {
 	/**
 	 * {@inheritdoc}
@@ -100,17 +83,18 @@ class UserTable
 			'DEACTIVATE_UNTIL' => array(
 				'data_type' => 'datetime'
 			),
+			(new ORM\Fields\ArrayField('INIT_PARAMS')),
 		);
 	}
 
 	/**
 	 * Clear recovery codes after delete user
 	 *
-	 * @param Entity\Event $event Our event.
+	 * @param ORM\Event $event Our event.
 	 * @return void
 	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
-	public static function onAfterDelete(Entity\Event $event)
+	public static function onAfterDelete(ORM\Event $event)
 	{
 		$primary = $event->getParameter('primary');
 		RecoveryCodesTable::clearByUser($primary['USER_ID']);

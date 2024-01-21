@@ -491,7 +491,7 @@ class Package
 	{
 		if ($this->processTime["max"] > 0)
 		{
-			$res = (getmicrotime() - START_EXEC_TIME);
+			$res = (microtime(true) - START_EXEC_TIME);
 			return $res < $this->processTime["max"];
 		}
 		return true;

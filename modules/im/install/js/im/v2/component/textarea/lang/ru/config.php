@@ -1,6 +1,6 @@
 <?php
 
-$MESS["IM_TEXTAREA_PLACEHOLDER"] = "Введите сообщение...";
+$MESS["IM_TEXTAREA_PLACEHOLDER_V3"] = "Нажмите @, чтобы упомянуть человека или чат";
 $MESS["IM_TEXTAREA_ICON_SEND_VOICE"] = "Отправить голосовое сообщение";
 $MESS["IM_TEXTAREA_ICON_SEND_TEXT"] = "Отправить сообщение (#SEND_MESSAGE_COMBINATION#)";
 $MESS["IM_TEXTAREA_ICON_UPLOAD"] = "Отправить файл";
@@ -23,6 +23,7 @@ $MESS["IM_TEXTAREA_CREATE_AND_SEND_FILE"] = "Создать и отправит�
 $MESS["IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO"] = "Фото или видео";
 $MESS["IM_TEXTAREA_SELECT_FILE"] = "Файл";
 $MESS["IM_TEXTAREA_SELECT_FILE_FROM_DISK"] = "Мой Диск";
+$MESS["IM_TEXTAREA_SELECT_FILE_FROM_DISK_1"] = "Недавние файлы";
 
 $MESS["IM_TEXTAREA_CREATE_DOCUMENT"] = "Документ";
 $MESS["IM_TEXTAREA_CREATE_PRESENTATION"] = "Презентация";
@@ -60,4 +61,11 @@ $MESS["IM_TEXTAREA_GIPHY_INPUT_PLACEHOLDER"] = "Поиск по Giphy.com";
 $MESS["IM_TEXTAREA_REPLY_AUDIO_TITLE"] = "Аудио";
 $MESS["IM_TEXTAREA_REPLY_DELETED_TITLE"] = "Сообщение удалено";
 
+$MESS["IM_TEXTAREA_FORWARD_SYSTEM"] = "Системное сообщение";
+$MESS["IM_TEXTAREA_FORWARD_TITLE"] = "Пересылаемое сообщение";
+
 $MESS["IM_TEXTAREA_MENTION_EMPTY_STATE"] = "Ничего не нашлось";
+$MESS["IM_TEXTAREA_MENTION_LOADING_STATE"] = "Идёт поиск";
+$MESS["IM_TEXTAREA_MENTION_ARROWS_CONTROL"] = "для переключения";
+$MESS["IM_TEXTAREA_MENTION_ENTER_CONTROL"] = "для выбора";
+$MESS["IM_TEXTAREA_MENTION_ESC_CONTROL"] = "для отмены";

@@ -3,9 +3,11 @@
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Web;
+use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Pull\Push\Service\PushService;
 
-IncludeModuleLangFile(__FILE__);
 
 /**
  * Class CPullPush
@@ -22,9 +24,6 @@ class CPullPush
 	 * @param array $arSelect
 	 * @param array $arNavStartParams
 	 * @return \Bitrix\Main\DB\Result
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function GetList($arOrder = [], $arFilter = [], $arSelect = [], $arNavStartParams = [])
 	{
@@ -161,10 +160,6 @@ class CPushManager
 	/**
 	 * @param $arParams
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function AddQueue($arParams)
 	{
@@ -473,10 +468,6 @@ class CPushManager
 	 * @param array $options
 	 * @param string $appId
 	 * @return array|bool
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function GetDeviceInfo($userId, $options = Array(), $appId = self::DEFAULT_APP_ID)
 	{
@@ -507,10 +498,15 @@ class CPushManager
 
 		$imInclude = \Bitrix\Main\Loader::includeModule('im');
 
-		$query = new \Bitrix\Main\Entity\Query(\Bitrix\Main\UserTable::getEntity());
+		$query = new Query(\Bitrix\Main\UserTable::getEntity());
 
 		$sago = Bitrix\Main\Application::getConnection()->getSqlHelper()->addSecondsToDateTime('-300');
-		$query->registerRuntimeField('', new \Bitrix\Main\Entity\ExpressionField('IS_ONLINE_CUSTOM', 'CASE WHEN LAST_ACTIVITY_DATE > ' . $sago . ' THEN \'Y\' ELSE \'N\' END'));
+		$query->registerRuntimeField(new ExpressionField('SAGO', $sago));
+		$query->registerRuntimeField(new ExpressionField(
+			'IS_ONLINE_CUSTOM',
+			"CASE WHEN %s > %s THEN 'Y' ELSE 'N' END",
+			['LAST_ACTIVITY_DATE', 'SAGO']
+		));
 		$query
 			->addSelect('ID')
 			->addSelect('ACTIVE')
@@ -519,7 +515,11 @@ class CPushManager
 
 		if ($imInclude)
 		{
-			$query->registerRuntimeField('', new \Bitrix\Main\Entity\ReferenceField('im', 'Bitrix\Im\Model\StatusTable', ['=this.ID' => 'ref.USER_ID']));
+			$query->registerRuntimeField(new Reference(
+				'im',
+				\Bitrix\Im\Model\StatusTable::class,
+				['=this.ID' => 'ref.USER_ID']
+			));
 			$query
 				->addSelect('im.IDLE', 'IDLE')
 				->addSelect('im.DESKTOP_LAST_DATE', 'DESKTOP_LAST_DATE')
@@ -527,8 +527,16 @@ class CPushManager
 			;
 		}
 
-		$query->registerRuntimeField('', new \Bitrix\Main\Entity\ReferenceField('push', 'Bitrix\Pull\Model\PushTable', ['=this.ID' => 'ref.USER_ID']));
-		$query->registerRuntimeField('', new \Bitrix\Main\Entity\ExpressionField('HAS_MOBILE', 'CASE WHEN main_user_push.USER_ID > 0 THEN \'Y\' ELSE \'N\' END'));
+		$query->registerRuntimeField(new Reference(
+			'push',
+			\Bitrix\Pull\Model\PushTable::class,
+			['=this.ID' => 'ref.USER_ID']
+		));
+		$query->registerRuntimeField(new ExpressionField(
+			'HAS_MOBILE',
+			"CASE WHEN %s > 0 THEN 'Y' ELSE 'N' END",
+			['push.USER_ID']
+		));
 		$query
 			->addSelect('HAS_MOBILE')
 			->addSelect('push.APP_ID', 'APP_ID')
@@ -723,9 +731,6 @@ class CPushManager
 	 * @param array $arMessages
 	 * @param array $arDevices
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function SendMessage(array $arMessages = [], array $arDevices = []): bool
 	{
@@ -954,23 +959,18 @@ class CPushManager
 		$arPush = [];
 
 		$sqlDate = "";
-		if ($DB->type == "MYSQL")
+		if ($DB->type == "MYSQL" || $DB->type == "PGSQL")
 		{
-			$sqlDate = " WHERE DATE_CREATE < DATE_SUB(NOW(), INTERVAL 15 SECOND) ";
+			$helper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
+			$sqlDate = " WHERE DATE_CREATE < ".$helper->addSecondsToDateTime(-15);
 		}
-		else
+		elseif ($DB->type == "MSSQL")
 		{
-			if ($DB->type == "MSSQL")
-			{
-				$sqlDate = " WHERE DATE_CREATE < dateadd(SECOND, -15, getdate()) ";
-			}
-			else
-			{
-				if ($DB->type == "ORACLE")
-				{
-					$sqlDate = " WHERE DATE_CREATE < SYSDATE-(1/24/60/60*15) ";
-				}
-			}
+			$sqlDate = " WHERE DATE_CREATE < dateadd(SECOND, -15, getdate()) ";
+		}
+		elseif ($DB->type == "ORACLE")
+		{
+			$sqlDate = " WHERE DATE_CREATE < SYSDATE-(1/24/60/60*15) ";
 		}
 
 		$strSql = $DB->TopSql("SELECT ID, USER_ID, MESSAGE, PARAMS, ADVANCED_PARAMS, BADGE, APP_ID FROM b_pull_push_queue" . $sqlDate, 280);
@@ -1062,4 +1062,3 @@ class CPushManager
 		return \Bitrix\Pull\MobileCounter::send($userId, $appId);
 	}
 }
-?>

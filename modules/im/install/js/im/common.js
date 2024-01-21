@@ -1845,8 +1845,10 @@
 
 	MessengerCommon.prototype.userInChat = function(chatId, userId)
 	{
-		if (!this.BXIM.messenger.userInChat[chatId])
+		if (!BX.type.isArray(BXIM.messenger.userInChat[chatId]))
+		{
 			return false;
+		}
 
 		if (typeof(userId) == 'undefined')
 		{
@@ -1892,7 +1894,7 @@
 		else if (userData.network)
 		{
 			status = 'network';
-			statusText = BX.message('IM_STATUS_NETWORK');
+			statusText = BX.message('IM_STATUS_NETWORK_MSGVER_1');
 
 			if (userData.bot && this.BXIM.messenger.bot[userData.id] && this.BXIM.messenger.bot[userData.id].type == 'support24')
 			{
@@ -4609,7 +4611,7 @@
 		var userListObject = this.BXIM.messenger.users;
 		if (activeSearch && searchStructureId)
 		{
-			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW')});
+			category.push({'id': 'private', 'name': BX.message('IM_CL_CREATE_PRIVATE_NEW_MSGVER_1'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW_MSGVER_1'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW_MSGVER_1')});
 
 			userListObject = {};
 			if (this.BXIM.messenger.userInGroup[searchStructureId])
@@ -4622,14 +4624,14 @@
 		}
 		else if (activeSearch)
 		{
-			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW')});
+			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW_MSGVER_1'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW_MSGVER_1'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW_MSGVER_1')});
 			category.push({'id': 'bot', 'name': BX.message('IM_CTL_CHAT_BOT'), 'title': '', 'more': BX.message('IM_CL_MORE_BOT')});
 			category.push({'id': 'open', 'name': BX.message('IM_CTL_CHAT_OPEN_NEW'), 'title': BX.message('IM_CL_CREATE_OPEN_NEW'), 'more': BX.message('IM_CL_MORE_OPEN_NEW'), skip: !this.BXIM.messenger.openChatEnable || this.BXIM.userExtranet});
 			category.push({'id': 'chat', 'name': BX.message('IM_CTL_CHAT_CHAT_NEW'), 'title': BX.message('IM_CL_CREATE_CHAT_NEW'), 'more': BX.message('IM_CL_MORE_CHAT_NEW')});
 			category.push({'id': 'lines', 'name': BX.message('IM_CTL_CHAT_LINES'), 'title': '', 'more': BX.message('IM_CL_MORE_LINES')});
 			category.push({'id': 'call', 'name': BX.message('IM_CTL_CHAT_CALL'), 'title': '', 'more': BX.message('IM_CL_MORE_CALL'),  skip: !this.BXIM.webrtc.phoneEnabled});
 			category.push({'id': 'ol', 'name': BX.message('IM_CTL_CHAT_OL'), 'title': '', 'more': BX.message('IM_CTL_CHAT_OL'), skip: this.BXIM.userExtranet});
-			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
+			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW_MSGVER_1'), 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 			category.push({'id': 'structure', 'name': this.BXIM.bitrixIntranet? BX.message('IM_CTL_CHAT_STRUCTURE'): BX.message('IM_CL_GROUP'), 'title': '', 'more': this.BXIM.bitrixIntranet? BX.message('IM_CL_MORE_STRUCTURE'): BX.message('IM_CL_MORE_GROUP'), skip: !showStructureBlock});
 			category.push({'id': 'blocked', 'name': BX.message('IM_CTL_CHAT_BLOCKED'), 'title': '', 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 		}
@@ -4639,10 +4641,10 @@
 			category.push({'id': 'chat', 'name': BX.message('IM_CTL_CHAT_CHAT_NEW'), 'title': BX.message('IM_CL_CREATE_CHAT_NEW'), 'more': BX.message('IM_CL_MORE_CHAT_NEW')});
 			category.push({'id': 'lines', 'name': BX.message('IM_CTL_CHAT_LINES'), 'title': '', 'more': BX.message('IM_CL_MORE_LINES')});
 			category.push({'id': 'call', 'name': BX.message('IM_CTL_CHAT_CALL'), 'title': '', 'more': BX.message('IM_CL_MORE_CALL'),  skip: !this.BXIM.webrtc.phoneEnabled});
-			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW')});
+			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW_MSGVER_1'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW_MSGVER_1'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW_MSGVER_1')});
 			category.push({'id': 'bot', 'name': BX.message('IM_CTL_CHAT_BOT'), 'title': '', 'more': BX.message('IM_CL_MORE_BOT')});
 			category.push({'id': 'ol', 'name': BX.message('IM_CTL_CHAT_OL'), 'title': '', 'more': BX.message('IM_CTL_CHAT_OL'), skip: this.BXIM.userExtranet});
-			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
+			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW_MSGVER_1'), 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 			category.push({'id': 'structure', 'name': this.BXIM.bitrixIntranet? BX.message('IM_CTL_CHAT_STRUCTURE'): BX.message('IM_CTL_CHAT_GROUP'), 'title': '', 'more': this.BXIM.bitrixIntranet? BX.message('IM_CL_MORE_STRUCTURE'): BX.message('IM_CL_MORE_GROUP'), skip: !showStructureBlock});
 			category.push({'id': 'blocked', 'name': BX.message('IM_CTL_CHAT_BLOCKED'), 'title': '', 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 		}
@@ -5184,7 +5186,7 @@
 				if (showBitrix24Search && category[i].id == 'extranet')
 				{
 					chatList.appendChild(BX.create("div", {props : { className: "bx-messenger-chatlist-search-button-wrap"}, children : [
-						BX.create("span", {props : { className: "bx-messenger-chatlist-search-button"}, html: this.BXIM.bitrixIntranet? BX.message('IM_SEARCH_B24'): BX.message('IM_SEARCH_SITE')})
+						BX.create("span", {props : { className: "bx-messenger-chatlist-search-button"}, html: this.BXIM.bitrixIntranet? BX.message('IM_SEARCH_B24_MSGVER_1'): BX.message('IM_SEARCH_SITE')})
 					]}));
 				}
 
@@ -5285,7 +5287,7 @@
 				if (showBitrix24Search && category[i].id == 'extranet')
 				{
 					chatList.appendChild(BX.create("div", {props : { className: "bx-messenger-chatlist-search-button-wrap"}, children : [
-						BX.create("span", {props : { className: "bx-messenger-chatlist-search-button"}, html: BX.message('IM_SEARCH_B24')})
+						BX.create("span", {props : { className: "bx-messenger-chatlist-search-button"}, html: BX.message('IM_SEARCH_B24_MSGVER_1')})
 					]}));
 				}
 			}
@@ -5447,12 +5449,18 @@
 
 		var contactListRedraw = false;
 		var dialogStatusRedraw = false;
+		var changeCurrentUser = false;
 
 		users.forEach(function(user)
 		{
 			if (typeof(this.BXIM.messenger.users[user.id]) == 'undefined')
 			{
 				return;
+			}
+
+			if (user.id === this.getCurrentUser())
+			{
+				changeCurrentUser = true;
 			}
 
 			var storedUser = this.BXIM.messenger.users[user.id];
@@ -5525,6 +5533,11 @@
 				storedUser.last_activity_date = user.last_activity_date? new Date(user.last_activity_date): false;
 			}
 		}.bind(this));
+
+		if (changeCurrentUser)
+		{
+			this.BXIM.messenger.setStatus(this.BXIM.messenger.users[this.getCurrentUser()].status, false);
+		}
 
 		if (dialogStatusRedraw)
 		{
@@ -14038,6 +14051,41 @@
 		});
 	};
 
+	MessengerCommon.prototype.linesOpenNewDialogByMessage = function(messageId)
+	{
+		if (!this.BXIM.messenger.message[messageId])
+		{
+			return false;
+		}
+
+		var chatId = this.BXIM.messenger.message[messageId].chatId;
+
+		if (this.BXIM.messenger.blockJoinChat[chatId])
+			return false;
+
+		if (this.BXIM.messenger.chat[chatId] && this.BXIM.messenger.chat[chatId].entity_type != 'LINES')
+			return false;
+
+		if (!BX.MessengerCommon.userInChat(chatId))
+			return false;
+
+		this.BXIM.messenger.blockJoinChat[chatId] = true;
+
+		BX.ajax({
+			url: this.BXIM.pathToAjax+'?OPEN_NEW_DIALOG_BY_MESSAGE&V='+this.BXIM.revision,
+			method: 'POST',
+			dataType: 'json',
+			timeout: 60,
+			data: {'COMMAND': 'openNewDialogByMessage', 'CHAT_ID' : chatId, 'MESSAGE_ID' : messageId, 'IM_OPEN_LINES' : 'Y', 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
+			onsuccess: BX.delegate(function(){
+				this.BXIM.messenger.blockJoinChat[chatId] = false;
+			}, this),
+			onfailure: BX.delegate(function(){
+				this.BXIM.messenger.blockJoinChat[chatId] = false;
+			}, this)
+		});
+	};
+
 
 	MessengerCommon.prototype.linesOpenSession = function(userCode, params)
 	{
@@ -14104,7 +14152,7 @@
 
 			disableAction =
 				!this.BXIM.messenger.users[this.BXIM.userId].connector
-				&& lineSource != 'support24Question';
+				&& !(lineSource == 'network' || lineSource == 'support24Question');
 		}
 		else if (
 			!this.BXIM.messenger.bot[this.BXIM.messenger.currentTab]
@@ -14704,7 +14752,7 @@
 	MessengerCommon.prototype.linesGetSource = function(chatData) // after change this code, sync with IM and MOBILE
 	{
 		var sourceId = '';
-		if (!chatData || !(chatData.type == 'livechat' || chatData.type == 'lines' || chatData.type == 'support24Question'))
+		if (!chatData || !(chatData.type == 'livechat' || chatData.type == 'lines' || chatData.type == 'support24Question' || chatData.type == 'networkDialog'))
 		{
 			return sourceId;
 		}

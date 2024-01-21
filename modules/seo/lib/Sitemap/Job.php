@@ -2,12 +2,11 @@
 
 namespace Bitrix\Seo\Sitemap;
 
-use Bitrix\Iblock\IblockTable;
 use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Converter;
-use Bitrix\Seo\Sitemap\Internals\EntityTable;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Seo\Sitemap\Internals\JobTable;
 use Bitrix\Seo\Sitemap\Internals\SitemapTable;
 use Bitrix\Seo\Sitemap\Type\Step;
@@ -22,6 +21,8 @@ class Job
 	protected const AGENT_FUNCTION = 'doJobAgent';
 	protected const AGENT_INTERVAL = 1;
 	protected const AGENT_DELAY = 60;
+
+	protected const LOCK_MAX_INTERVAL = 300;
 
 	/**
 	 * Progressbar width
@@ -57,6 +58,12 @@ class Job
 	protected string $statusMessage = '';
 
 	/**
+	 * Job properties
+	 */
+	protected bool $isLocked = false;
+	protected ?DateTime $dateModify;
+
+	/**
 	 * Create job for sitemap by table
 	 * @throws SystemException
 	 */
@@ -73,6 +80,9 @@ class Job
 			$this->statusMessage = $job['STATUS_MESSAGE'];
 			$this->step = (int)$job['STEP'];
 			$this->state = $job['STATE'] ?? [];
+
+			$this->isLocked = $job['RUNNING'] === 'Y';
+			$this->dateModify = $job['DATE_MODIFY'] ? new DateTime($job['DATE_MODIFY']) : null;
 
 			if (!self::checkSitemapExists($sitemapId))
 			{
@@ -169,7 +179,7 @@ class Job
 		if ($sitemapId > 0)
 		{
 			$job = JobTable::query()
-				->setSelect(['ID', 'RUNNING', 'STATUS', 'STATUS_MESSAGE', 'STEP', 'STATE'])
+				->setSelect(['ID', 'RUNNING', 'STATUS', 'STATUS_MESSAGE', 'STEP', 'STATE', 'DATE_MODIFY'])
 				->where('SITEMAP_ID', $sitemapId)
 				->exec()
 				->fetch()
@@ -309,9 +319,8 @@ class Job
 		$result = new Result();
 
 		// skip if job running now
-		$currentData = self::getDataBySitemap($this->sitemapId);
 		if (
-			$currentData['RUNNING'] === 'Y'
+			$this->checkLock()
 			|| !$this->lock()
 		)
 		{
@@ -358,8 +367,14 @@ class Job
 				'RUNNING' => 'Y',
 			]
 		);
+		if ($res->isSuccess())
+		{
+			$this->isLocked = true;
 
-		return $res->isSuccess();
+			return true;
+		}
+
+		return false;
 	}
 
 	protected function unlock(): bool
@@ -371,7 +386,33 @@ class Job
 			]
 		);
 
-		return $res->isSuccess();
+		if ($res->isSuccess())
+		{
+			$this->isLocked = false;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	protected function checkLock(): bool
+	{
+		if ($this->isLocked)
+		{
+			if ($this->dateModify)
+			{
+				$secondsDiff = (new DateTime())->getDiff($this->dateModify)->s;
+				if ($secondsDiff > self::LOCK_MAX_INTERVAL)
+				{
+					return !$this->unlock();
+				}
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

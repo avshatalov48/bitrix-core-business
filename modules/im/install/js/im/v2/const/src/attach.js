@@ -1,25 +1,25 @@
 export const AttachType = Object.freeze({
-	Delimiter: 'DELIMITER',
-	File: 'FILE',
-	Grid: 'GRID',
-	Html: 'HTML',
-	Image: 'IMAGE',
-	Link: 'LINK',
-	Message: 'MESSAGE',
-	Rich: 'RICH_LINK',
-	User: 'USER',
+	Delimiter: 'delimiter',
+	File: 'file',
+	Grid: 'grid',
+	Html: 'html',
+	Image: 'image',
+	Link: 'link',
+	Message: 'message',
+	Rich: 'richLink',
+	User: 'user',
 });
 
 export const AttachDescription = Object.freeze({
-	FIRST_MESSAGE: 'FIRST_MESSAGE',
-	SKIP_MESSAGE: 'SKIP_MESSAGE',
+	firstMessage: 'FIRST_MESSAGE',
+	skipMessage: 'SKIP_MESSAGE',
 });
 
 export type AttachConfig = {
-	ID: number,
-	DESCRIPTION: string,
-	COLOR: string,
-	BLOCKS: AttachConfigBlock[]
+	id: number,
+	description: string,
+	color: string,
+	blocks: AttachConfigBlock[]
 };
 
 export type AttachConfigBlock = {
@@ -28,96 +28,100 @@ export type AttachConfigBlock = {
 
 // message
 export type AttachMessageConfig = {
-	MESSAGE: string
+	message: string
 };
 
 // delimiter
 export type AttachDelimiterConfig = {
-	DELIMITER: {
-		SIZE?: number,
-		COLOR?: string
+	delimiter: {
+		size?: number,
+		color?: string
 	}
 };
 
 // file
 export type AttachFileConfig = {
-	FILE: AttachFileItemConfig[]
+	file: AttachFileItemConfig[]
 };
 
 export type AttachFileItemConfig = {
-	LINK: string,
-	NAME?: string,
-	SIZE?: number
+	link: string,
+	name?: string,
+	size?: number
 };
 
 // grid
 export type AttachGridConfig = {
-	GRID: AttachGridItemConfig[]
+	grid: AttachGridItemConfig[]
 };
 
 export type AttachGridItemConfig = {
-	DISPLAY: string, // AttachGridItemDisplayType
-	NAME: string,
-	VALUE: string,
-	WIDTH?: number,
-	COLOR?: string,
-	LINK?: string
+	display: string, // AttachGridItemDisplayType
+	name: string,
+	value: string,
+	width?: number,
+	color?: string,
+	link?: string
 };
 
 // html
 export type AttachHtmlConfig = {
-	HTML: string
+	html: string
 };
 
 // image
 export type AttachImageConfig = {
-	IMAGE: AttachImageItemConfig[]
+	image: AttachImageItemConfig[]
 };
 
 export type AttachImageItemConfig = {
-	LINK: string,
-	WIDTH?: number,
-	HEIGHT?: number,
-	NAME?: string,
-	PREVIEW?: string
+	link: string,
+	width?: number,
+	height?: number,
+	name?: string,
+	preview?: string
 };
 
 // link
 export type AttachLinkConfig = {
-	LINK: AttachLinkItemConfig[]
+	link: AttachLinkItemConfig[]
 };
 
 export type AttachLinkItemConfig = {
-	LINK: string,
-	NAME?: string,
-	DESC?: string,
-	HTML?: string,
-	PREVIEW?: string,
-	WIDTH?: number,
-	HEIGHT?: number
+	link: string,
+	name?: string,
+	desc?: string,
+	html?: string,
+	preview?: string,
+	width?: number,
+	height?: number
 };
 
 // rich
 export type AttachRichConfig = {
-	RICH_LINK: AttachRichItemConfig[]
+	richLink: AttachRichItemConfig[]
 };
 
 export type AttachRichItemConfig = {
-	LINK: string,
-	NAME?: string,
-	DESC?: string,
-	HTML?: string,
-	PREVIEW?: string
+	link: string,
+	name?: string,
+	desc?: string,
+	html?: string,
+	preview?: string,
+	previewSize?: {
+		width: number,
+		height: number
+	}
 };
 
 // user
 export type AttachUserConfig = {
-	USER: AttachRichItemConfig[]
+	user: AttachRichItemConfig[]
 };
 
 export type AttachUserItemConfig = {
-	NAME: string,
-	AVATAR: string,
-	AVATAR_TYPE: string,
-	LINK: string
+	name: string,
+	avatar: string,
+	avatarType: string,
+	link: string
 };

@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_logger,ui_feedback_form,im_v2_component_dialog_chat,im_v2_lib_theme,im_v2_application_core,im_v2_lib_user,ui_forms,im_v2_lib_utils,main_core,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_const,im_v2_provider_service) {
+(function (exports,im_v2_lib_logger,ui_feedback_form,im_v2_component_dialog_chat,im_v2_lib_theme,im_v2_lib_user,ui_forms,main_core,im_v2_application_core,im_v2_lib_rest,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_const,im_v2_provider_service) {
 	'use strict';
 
 	const SectionMetaData = {
@@ -69,7 +69,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return disabledSections;
 	    },
 	    sections() {
-	      return Object.keys(im_v2_const.Settings).filter(section => {
+	      return Object.keys(im_v2_const.SettingsSection).filter(section => {
 	        return !this.disabledSections.has(section);
 	      });
 	    }
@@ -242,7 +242,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const demoChat = {
 	  dialogId: DEMO_DIALOG_ID,
 	  chatId: -1,
-	  type: im_v2_const.DialogType.chat,
+	  type: im_v2_const.ChatType.chat,
 	  inited: true,
 	  role: im_v2_const.UserRole.guest
 	};
@@ -274,7 +274,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 	const DemoManager = {
 	  initModels() {
-	    im_v2_application_core.Core.getStore().dispatch('dialogues/set', demoChat);
+	    im_v2_application_core.Core.getStore().dispatch('chats/set', demoChat);
 	    const userManager = new im_v2_lib_user.UserManager();
 	    userManager.addUsersToModel([demoUser]);
 	    const messages = [demoMessage1, demoMessage2, demoMessage3];
@@ -313,23 +313,25 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-content-chat__container bx-im-settings-appearance__demo-chat_container" :class="containerClasses" :style="backgroundStyle">
-				<ChatDialog :dialogId="'settings'" />
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-content-chat__container bx-im-settings-appearance__demo-chat_container" :class="containerClasses" :style="backgroundStyle">
+					<ChatDialog :dialogId="'settings'" />
+				</div>
 			</div>
-		</div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_BACKGROUND') }}
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_BACKGROUND') }}
+				</div>
+				<ChatBackground />
 			</div>
-			<ChatBackground />
-		</div>
-		<div class="bx-im-settings-section-content__separator"></div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_ALIGNMENT') }}
+			<div class="bx-im-settings-section-content__separator"></div>
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_ALIGNMENT') }}
+				</div>
+				<ChatAlignment />
 			</div>
-			<ChatAlignment />
 		</div>
 	`
 	};
@@ -344,7 +346,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    text: {
 	      type: String,
-	      required: true
+	      required: false,
+	      default: ''
+	    },
+	    disabled: {
+	      type: Boolean,
+	      required: false,
+	      default: false
 	    }
 	  },
 	  emits: ['change'],
@@ -357,53 +365,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-settings-checkbox__container bx-im-settings-section-content__block_option">
+		<div class="bx-im-settings-checkbox__container bx-im-settings-section-content__block_option" :class="{ '--no-text': text === '' }">
 			<label class="ui-ctl ui-ctl-checkbox">
-				<input type="checkbox" :checked="value" @input="onInput" class="ui-ctl-element">
-				<div class="ui-ctl-label-text">{{ text }}</div>
+				<input type="checkbox" :checked="value" :disabled="disabled" @input="onInput" class="ui-ctl-element">
+				<div v-if="text" class="ui-ctl-label-text">{{ text }}</div>
 			</label>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const NotificationSection = {
-	  name: 'NotificationSection',
-	  components: {
-	    CheckboxOption
-	  },
-	  data() {
-	    return {};
-	  },
-	  computed: {
-	    enableSound() {
-	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableSound);
-	    }
-	  },
-	  methods: {
-	    onEnableSoundChange(newValue) {
-	      this.getSettingsService().changeSetting(im_v2_const.Settings.notification.enableSound, newValue);
-	    },
-	    getSettingsService() {
-	      if (!this.settingsService) {
-	        this.settingsService = new im_v2_provider_service.SettingsService();
-	      }
-	      return this.settingsService;
-	    },
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_SOUND') }}
-			</div>
-			<CheckboxOption
-				:value="enableSound"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_SOUND')"
-				@change="onEnableSoundChange"
-			/>
 		</div>
 	`
 	};
@@ -454,6 +420,368 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</div>
 			</label>
 		</div>
+	`
+	};
+
+	// @vue/component
+	const SimpleNotificationList = {
+	  name: 'SimpleNotificationList',
+	  components: {
+	    CheckboxOption
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    enableWeb() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableWeb);
+	    },
+	    enableMail() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableMail);
+	    },
+	    enablePush() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enablePush);
+	    },
+	    enableMailText() {
+	      return this.loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_MAIL', {
+	        '#MAIL#': this.userEmail
+	      });
+	    },
+	    userEmail() {
+	      const {
+	        currentUser: {
+	          email
+	        }
+	      } = im_v2_application_core.Core.getApplicationData();
+	      return email;
+	    }
+	  },
+	  methods: {
+	    onEnableWebChange(newValue) {
+	      this.getSettingsService().changeSetting(im_v2_const.Settings.notification.enableWeb, newValue);
+	    },
+	    onEnableMailChange(newValue) {
+	      this.getSettingsService().changeSetting(im_v2_const.Settings.notification.enableMail, newValue);
+	    },
+	    onEnablePushChange(newValue) {
+	      this.getSettingsService().changeSetting(im_v2_const.Settings.notification.enablePush, newValue);
+	    },
+	    getSettingsService() {
+	      if (!this.settingsService) {
+	        this.settingsService = new im_v2_provider_service.SettingsService();
+	      }
+	      return this.settingsService;
+	    },
+	    loc(phraseCode, replacements = {}) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_SIMPLE_MODE_TITLE') }}
+				</div>
+				<CheckboxOption
+					:value="enableWeb"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_WEB')"
+					@change="onEnableWebChange"
+				/>
+				<CheckboxOption
+					:value="enableMail"
+					:text="enableMailText"
+					@change="onEnableMailChange"
+				/>
+				<CheckboxOption
+					:value="enablePush"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_PUSH_V1')"
+					@change="onEnablePushChange"
+				/>
+			</div>
+		</div>
+	`
+	};
+
+	const NotificationService = {
+	  async switchScheme(newScheme) {
+	    void im_v2_application_core.Core.getStore().dispatch('application/settings/set', {
+	      [im_v2_const.Settings.notification.mode]: newScheme
+	    });
+	    const newNotificationsSettings = await im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2SettingsNotifySwitchScheme, {
+	      data: {
+	        userId: im_v2_application_core.Core.getUserId(),
+	        scheme: newScheme
+	      }
+	    }).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('NotificationService: switchScheme error', error);
+	    });
+	    return im_v2_application_core.Core.getStore().dispatch('application/settings/set', {
+	      notifications: newNotificationsSettings
+	    });
+	  },
+	  changeExpertOption(payload) {
+	    const {
+	      moduleId,
+	      optionName,
+	      type,
+	      value
+	    } = payload;
+	    im_v2_application_core.Core.getStore().dispatch('application/settings/setNotificationOption', {
+	      moduleId,
+	      optionName,
+	      type,
+	      value
+	    });
+	    return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2SettingsNotifyUpdate, {
+	      data: {
+	        userId: im_v2_application_core.Core.getUserId(),
+	        moduleId,
+	        name: optionName,
+	        type,
+	        value
+	      }
+	    }).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('NotificationService: changeExpertOption error', error);
+	    });
+	  }
+	};
+
+	// @vue/component
+	const NotificationItem = {
+	  name: 'NotificationItem',
+	  components: {
+	    CheckboxOption
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    },
+	    blockId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    NotificationSettingsType: () => im_v2_const.NotificationSettingsType,
+	    notification() {
+	      return this.item;
+	    },
+	    disabledForWeb() {
+	      return this.notification.disabled.includes(im_v2_const.NotificationSettingsType.web);
+	    },
+	    disabledForMail() {
+	      return this.notification.disabled.includes(im_v2_const.NotificationSettingsType.mail);
+	    },
+	    disabledForPush() {
+	      return this.notification.disabled.includes(im_v2_const.NotificationSettingsType.push);
+	    }
+	  },
+	  methods: {
+	    onItemChange(newValue, type) {
+	      NotificationService.changeExpertOption({
+	        moduleId: this.blockId,
+	        optionName: this.notification.id,
+	        type,
+	        value: newValue
+	      });
+	    }
+	  },
+	  template: `
+		<div class="bx-im-settings-expert-notifications-item__container">
+			<div class="bx-im-settings-expert-notifications-item__title">
+				{{ notification.label }}
+			</div>
+			<div class="bx-im-settings-expert-notifications-item__type --web">
+				<CheckboxOption :value="notification.site" :disabled="disabledForWeb" @change="onItemChange($event, NotificationSettingsType.web)" />
+			</div>
+			<div class="bx-im-settings-expert-notifications-item__type --mail">
+				<CheckboxOption :value="notification.mail" :disabled="disabledForMail" @change="onItemChange($event, NotificationSettingsType.mail)" />
+			</div>
+			<div class="bx-im-settings-expert-notifications-item__type --push">
+				<CheckboxOption :value="notification.push" :disabled="disabledForPush" @change="onItemChange($event, NotificationSettingsType.push)" />
+			</div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const NotificationBlock = {
+	  name: 'NotificationBlock',
+	  components: {
+	    NotificationItem
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    block() {
+	      return this.item;
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ block.label }}
+				</div>
+				<div class="bx-im-settings-expert-notifications__header">
+					<div class="bx-im-settings-expert-notifications__header_title"></div>
+					<div class="bx-im-settings-expert-notifications__header_type">
+						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_WEB') }}
+					</div>
+					<div class="bx-im-settings-expert-notifications__header_type">
+						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_MAIL') }}
+					</div>
+					<div class="bx-im-settings-expert-notifications__header_type">
+						{{ loc('IM_CONTENT_SETTINGS_EXPERT_NOTIFICATIONS_TYPE_PUSH') }}
+					</div>
+				</div>
+				<NotificationItem v-for="item in block.items" :item="item" :blockId="block.id" :key="item.id" />
+			</div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const ExpertNotificationList = {
+	  name: 'ExpertNotificationList',
+	  components: {
+	    NotificationBlock
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    notificationSettings() {
+	      const settings = this.$store.getters['application/settings/get']('notifications');
+	      return Object.values(settings);
+	    }
+	  },
+	  template: `
+		<NotificationBlock
+			v-for="block in notificationSettings"
+			:item="block"
+			:key="block.id"
+			class="bx-im-settings-expert-notifications__container"
+		/>
+	`
+	};
+
+	// @vue/component
+	const NotificationSection = {
+	  name: 'NotificationSection',
+	  components: {
+	    CheckboxOption,
+	    RadioOption,
+	    SimpleNotificationList,
+	    ExpertNotificationList
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    enableSound() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableSound);
+	    },
+	    enableAutoRead() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableAutoRead);
+	    },
+	    notificationMode() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.mode);
+	    },
+	    notificationModeOptions() {
+	      return [{
+	        value: im_v2_const.NotificationSettingsMode.simple,
+	        text: this.loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_SIMPLE_MODE'),
+	        selected: this.notificationMode === im_v2_const.NotificationSettingsMode.simple
+	      }, {
+	        value: im_v2_const.NotificationSettingsMode.expert,
+	        text: this.loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_EXPERT_MODE'),
+	        selected: this.notificationMode === im_v2_const.NotificationSettingsMode.expert
+	      }];
+	    },
+	    notificationListComponent() {
+	      return this.notificationMode === 'simple' ? SimpleNotificationList : ExpertNotificationList;
+	    }
+	  },
+	  methods: {
+	    onEnableSoundChange(newValue) {
+	      this.getSettingsService().changeSetting(im_v2_const.Settings.notification.enableSound, newValue);
+	    },
+	    onEnableAutoReadChange(newValue) {
+	      this.getSettingsService().changeSetting(im_v2_const.Settings.notification.enableAutoRead, newValue);
+	    },
+	    async onNotificationModeChange(newValue) {
+	      const isChangingToSimple = newValue === im_v2_const.NotificationSettingsMode.simple;
+	      if (isChangingToSimple) {
+	        this.changeLocalNotificationMode(im_v2_const.NotificationSettingsMode.simple);
+	        const confirmResult = await im_v2_lib_confirm.showNotificationsModeSwitchConfirm();
+	        if (!confirmResult) {
+	          this.changeLocalNotificationMode(im_v2_const.NotificationSettingsMode.expert);
+	          return;
+	        }
+	      }
+	      void NotificationService.switchScheme(newValue);
+	    },
+	    async changeLocalNotificationMode(newValue) {
+	      this.$store.dispatch('application/settings/set', {
+	        [im_v2_const.Settings.notification.mode]: newValue
+	      });
+	    },
+	    getSettingsService() {
+	      if (!this.settingsService) {
+	        this.settingsService = new im_v2_provider_service.SettingsService();
+	      }
+	      return this.settingsService;
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_FOCUS') }}
+				</div>
+				<CheckboxOption
+					:value="enableSound"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_ENABLE_SOUND')"
+					@change="onEnableSoundChange"
+				/>
+				<CheckboxOption
+					:value="enableAutoRead"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_AUTO_READ')"
+					@change="onEnableAutoReadChange"
+				/>
+			</div>
+		</div>
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_NOTIFICATION_BLOCK_MODE') }}
+				</div>
+				<RadioOption :items="notificationModeOptions" @change="onNotificationModeChange" />
+			</div>
+		</div>
+		<component :is="notificationListComponent" />
 	`
 	};
 
@@ -510,14 +838,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_SEND_COMBINATION') }}
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_SEND_COMBINATION') }}
+				</div>
+				<RadioOption
+					:items="sendCombinationItems"
+					@change="onSendByEnterChange"
+				/>
 			</div>
-			<RadioOption
-				:items="sendCombinationItems"
-				@change="onSendByEnterChange"
-			/>
 		</div>
 	`
 	};
@@ -563,22 +893,24 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-settings-section-content__block">
-			<CheckboxOption
-				:value="showBirthday"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY')"
-				@change="onShowBirthdayChange"
-			/>
-			<CheckboxOption
-				:value="showInvited"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED')"
-				@change="onShowInvitedChange"
-			/>
-			<CheckboxOption
-				:value="showLastMessage"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT')"
-				@change="onShowLastMessageChange"
-			/>
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<CheckboxOption
+					:value="showBirthday"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_BIRTHDAY')"
+					@change="onShowBirthdayChange"
+				/>
+				<CheckboxOption
+					:value="showInvited"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_INVITED')"
+					@change="onShowInvitedChange"
+				/>
+				<CheckboxOption
+					:value="showLastMessage"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_RECENT_SHOW_TEXT')"
+					@change="onShowLastMessageChange"
+				/>
+			</div>
 		</div>
 	`
 	};
@@ -653,45 +985,47 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_STARTUP') }}
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_STARTUP') }}
+				</div>
+				<CheckboxOption
+					:value="twoWindowMode"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE')"
+					@change="onTwoWindowModeChange"
+				/>
+				<CheckboxOption
+					:value="autoStartDesktop"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_AUTO_START')"
+					@change="onAutoStartDesktopChange"
+				/>
 			</div>
-			<CheckboxOption
-				:value="twoWindowMode"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE')"
-				@change="onTwoWindowModeChange"
-			/>
-			<CheckboxOption
-				:value="autoStartDesktop"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_AUTO_START')"
-				@change="onAutoStartDesktopChange"
-			/>
-		</div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_LINKS') }}
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_LINKS') }}
+				</div>
+				<CheckboxOption
+					:value="openChatInDesktop"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT')"
+					@change="onOpenChatInDesktopChange"
+				/>
+				<CheckboxOption
+					:value="openLinksInSlider"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER')"
+					@change="onOpenLinksInSliderChange"
+				/>
 			</div>
-			<CheckboxOption
-				:value="openChatInDesktop"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT')"
-				@change="onOpenChatInDesktopChange"
-			/>
-			<CheckboxOption
-				:value="openLinksInSlider"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER')"
-				@change="onOpenLinksInSliderChange"
-			/>
-		</div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_REST') }}
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_REST') }}
+				</div>
+				<CheckboxOption
+					:value="sendTelemetry"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_SEND_TELEMETRY')"
+					@change="onSendTelemetryChange"
+				/>
 			</div>
-			<CheckboxOption
-				:value="sendTelemetry"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_SEND_TELEMETRY')"
-				@change="onSendTelemetryChange"
-			/>
 		</div>
 	`
 	};
@@ -742,9 +1076,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-settings-section-content__header_title">{{ sectionName }}</div>
 			</div>
 			<div class="bx-im-settings-section-content__background">
-				<div class="bx-im-settings-section-content__body">
-					<component :is="sectionComponentName" />
-				</div>
+				<component :is="sectionComponentName" />
 			</div>
 		</div>
 	`
@@ -756,6 +1088,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    SectionList,
 	    SectionContent
+	  },
+	  props: {
+	    entityId: {
+	      type: String,
+	      required: true
+	    }
 	  },
 	  data() {
 	    return {
@@ -773,6 +1111,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    setInitialSection() {
+	      if (this.entityId && im_v2_const.SettingsSection[this.entityId]) {
+	        this.activeSection = this.entityId;
+	        return;
+	      }
 	      this.activeSection = this.sections[0];
 	    },
 	    onSectionClick(sectionId) {
@@ -789,5 +1131,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SettingsContent = SettingsContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Provider.Service));
 //# sourceMappingURL=settings-content.bundle.js.map

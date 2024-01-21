@@ -1,0 +1,22 @@
+.bx-im-content-chat__container.--center-align .bx-im-message-base__wrap.--self .bx-im-message-support-session-number__container {
+	margin-left: auto;
+	margin-right: var(--im-message-base__offset_context-menu);
+	justify-content: flex-end;
+}
+
+.bx-im-message-support-session-number__container {
+	--im-message-support-session-number__background-color_container: rgba(var(--im-color-palette-gray-90-rgb), 0.4);
+	--im-message-support-session-number__font-color: var(--im-color-palette-white-base);
+
+	display: flex;
+	align-items: center;
+	margin-bottom: 4px;
+}
+
+.bx-im-message-support-session-number__content {
+	padding: 4px 12px;
+	font: var(--im-font-size-xs)/var(--im-font-line-height-lg) var(--im-font-family-system);
+	color: var(--im-message-support-session-number__font-color);
+	background-color: var(--im-message-support-session-number__background-color_container);
+	border-radius: 20px;
+}

@@ -27,6 +27,24 @@ class OpenChat extends GroupChat
 		return true;
 	}
 
+	protected function getAccessCodesForDiskFolder(): array
+	{
+		$accessCodes = parent::getAccessCodesForDiskFolder();
+		$departmentCode = \CIMDisk::GetTopDepartmentCode();
+
+		if ($departmentCode)
+		{
+			$driver = \Bitrix\Disk\Driver::getInstance();
+			$rightsManager = $driver->getRightsManager();
+			$accessCodes[] = [
+				'ACCESS_CODE' => $departmentCode,
+				'TASK_ID' => $rightsManager->getTaskIdByName($rightsManager::TASK_READ)
+			];
+		}
+
+		return $accessCodes;
+	}
+
 	public function startRecordVoice(): void
 	{
 		if (!Loader::includeModule('pull'))
@@ -37,6 +55,15 @@ class OpenChat extends GroupChat
 		parent::startRecordVoice();
 		$pushFormatter = new PushFormat();
 		\CPullWatch::AddToStack('IM_PUBLIC_'.$this->getId(), $pushFormatter->formatStartRecordVoice($this));
+	}
+
+	public function sendPushUpdateMessage(Message $message): void
+	{
+		parent::sendPushUpdateMessage($message);
+		$pushFormat = new Message\PushFormat();
+		$push = $pushFormat->formatMessageUpdate($message);
+		$push['params']['dialogId'] = $this->getDialogId();
+		\CPullWatch::AddToStack('IM_PUBLIC_' . $message->getChatId(), $push);
 	}
 
 	public function getLoadContextMessage(): Message

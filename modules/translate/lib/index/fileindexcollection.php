@@ -46,7 +46,7 @@ class FileIndexCollection
 	 *
 	 * @return int
 	 */
-	public function countItemsToProcess(Translate\Filter $filter = null): int
+	public function countItemsToProcess(?Translate\Filter $filter = null): int
 	{
 		if (isset($filter, $filter->path))
 		{
@@ -89,7 +89,7 @@ class FileIndexCollection
 	 *
 	 * @return int
 	 */
-	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null): int
+	public function collect(?Translate\Filter $filter = null, ?Translate\Controller\ITimeLimit $timer = null, ?Translate\Filter $seek = null): int
 	{
 		self::configure();
 
@@ -222,7 +222,7 @@ class FileIndexCollection
 
 			if (\count($nonexistentFiles) > 0)
 			{
-				Index\Internals\FileIndexTable::purge(new Translate\Filter(['fileId' => $nonexistentFiles]), true);
+				Index\Internals\FileIndexTable::purge(new Translate\Filter(['fileId' => $nonexistentFiles]));
 			}
 
 			$processedItemCount += \count($pathIdPortion);
@@ -245,13 +245,12 @@ class FileIndexCollection
 	 * Drop index.
 	 *
 	 * @param Translate\Filter|null $filter Params to filter file list.
-	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return self
 	 */
-	public function purge(Translate\Filter $filter = null, $recursively = true): self
+	public function purge(?Translate\Filter $filter = null): self
 	{
-		Index\Internals\FileIndexTable::purge($filter, $recursively);
+		Index\Internals\FileIndexTable::purge($filter);
 
 		return $this;
 	}
@@ -263,12 +262,10 @@ class FileIndexCollection
 	 *
 	 * @return self
 	 */
-	public function unvalidate(Translate\Filter $filter = null): self
+	public function unvalidate(?Translate\Filter $filter = null): self
 	{
-		if (($filterOut = Index\Internals\FileIndexTable::processFilter($filter)) !== false)
-		{
-			Index\Internals\FileIndexTable::bulkUpdate(['INDEXED' => 'N'], $filterOut);
-		}
+		$filterOut = Index\Internals\FileIndexTable::processFilter($filter);
+		Index\Internals\FileIndexTable::bulkUpdate(['INDEXED' => 'N'], $filterOut);
 
 		return $this;
 	}

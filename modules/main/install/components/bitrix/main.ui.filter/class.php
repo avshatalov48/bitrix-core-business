@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Filter\Type;
@@ -14,7 +14,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 Loc::loadMessages(__FILE__);
 
-
 class CMainUiFilter extends CBitrixComponent
 {
 	protected $defaultViewSort = 500;
@@ -23,8 +22,8 @@ class CMainUiFilter extends CBitrixComponent
 	protected $configName = "config.json";
 	protected $commonOptions;
 	protected $theme;
-	protected $themeInstance;
 	protected $defaultHeaderSectionId = '';
+
 	protected function prepareResult()
 	{
 		$this->arResult["FILTER_ID"] = $this->arParams["FILTER_ID"] ?? '';
@@ -100,7 +99,7 @@ class CMainUiFilter extends CBitrixComponent
 			foreach ($this->arParams["MESSAGES"] as $key => $message)
 			{
 				if (
-					strpos($key, "MAIN_UI_FILTER__") !== false
+					str_contains($key, "MAIN_UI_FILTER__")
 					&& isset($this->arResult[$key])
 				)
 				{
@@ -301,7 +300,7 @@ class CMainUiFilter extends CBitrixComponent
 				!empty($this->arParams["FILTER"]) &&
 				is_array($this->arParams["FILTER"]))
 			{
-				foreach ($this->arParams["FILTER"] as $key => $field)
+				foreach ($this->arParams["FILTER"] as $field)
 				{
 					if (!empty($field["default"]))
 					{
@@ -314,9 +313,9 @@ class CMainUiFilter extends CBitrixComponent
 		return $this->arParams["FILTER_ROWS"];
 	}
 
-	protected static function prepareSelectValue(Array $items = array(), $value = "", $strictMode = false)
+	protected static function prepareSelectValue(array $items = array(), $value = "", $strictMode = false)
 	{
-		foreach ($items as $key => $item)
+		foreach ($items as $item)
 		{
 			if (
 				(!$strictMode && $item["VALUE"] == $value) ||
@@ -330,12 +329,12 @@ class CMainUiFilter extends CBitrixComponent
 		return array();
 	}
 
-	protected static function prepareMultiselectValue(Array $items = array(), Array $value = array(), $isStrict = false)
+	protected static function prepareMultiselectValue(array $items = array(), array $value = array(), $isStrict = false)
 	{
 		$result = array();
 		$values = array_values($value);
 
-		foreach ($items as $key => $item)
+		foreach ($items as $item)
 		{
 			if (in_array($item["VALUE"], $values, $isStrict))
 			{
@@ -346,13 +345,13 @@ class CMainUiFilter extends CBitrixComponent
 		return $result;
 	}
 
-	protected static function prepareValue(Array $field, Array $presetFields = array(), $prefix)
+	protected static function prepareValue(array $field, array $presetFields, $prefix)
 	{
 		$fieldValuesKeys = array_keys($field["VALUES"]);
 		$fieldName = mb_strpos($field["NAME"], $prefix) !== false ? str_replace($prefix, "", $field["NAME"]) : $field["NAME"];
 		$result = array();
 
-		foreach ($fieldValuesKeys as $key => $keyName)
+		foreach ($fieldValuesKeys as $keyName)
 		{
 			$currentFieldName = $fieldName.$keyName;
 			$result[$keyName] = "";
@@ -366,7 +365,7 @@ class CMainUiFilter extends CBitrixComponent
 		return $result;
 	}
 
-	protected static function prepareSubtype(Array $field, Array $presetFields = array(), $prefix)
+	protected static function prepareSubtype(array $field, array $presetFields, $prefix)
 	{
 		$subTypes = $field["SUB_TYPES"];
 		$dateselName = mb_strpos($field["NAME"], $prefix) === false ? $field["NAME"].$prefix : $field["NAME"];
@@ -374,7 +373,7 @@ class CMainUiFilter extends CBitrixComponent
 
 		if (array_key_exists($dateselName, $presetFields))
 		{
-			foreach ($subTypes as $key => $subType)
+			foreach ($subTypes as $subType)
 			{
 				if ($subType["VALUE"] === $presetFields[$dateselName])
 				{
@@ -386,7 +385,7 @@ class CMainUiFilter extends CBitrixComponent
 		return $result;
 	}
 
-	protected static function extractValueFromPreset(Array $field, Array $presetFields = []): array
+	protected static function extractValueFromPreset(array $field, array $presetFields = []): array
 	{
 		$fieldName = $field["NAME"];
 		$fieldNameLabel = $fieldName . "_label";
@@ -422,7 +421,7 @@ class CMainUiFilter extends CBitrixComponent
 		return $result;
 	}
 
-	protected static function prepareCustomEntityValue(Array $field, Array $presetFields = [])
+	protected static function prepareCustomEntityValue(array $field, array $presetFields = [])
 	{
 		$result = self::extractValueFromPreset($field, $presetFields);
 
@@ -439,12 +438,12 @@ class CMainUiFilter extends CBitrixComponent
 		return $result;
 	}
 
-	protected static function prepareCustomValue(Array $field, Array $presetFields = array())
+	protected static function prepareCustomValue(array $field, array $presetFields = array())
 	{
 		return array_key_exists($field["NAME"], $presetFields) ? $presetFields[$field["NAME"]] : "";
 	}
 
-	protected static function prepareDestSelectorValue(Array $field, Array $presetFields = array(), Array $params = array())
+	protected static function prepareDestSelectorValue(array $field, array $presetFields = array(), array $params = array())
 	{
 		$result = self::extractValueFromPreset($field, $presetFields);
 
@@ -522,7 +521,7 @@ class CMainUiFilter extends CBitrixComponent
 		return self::replaceEmptyLabelsWithIds($result);
 	}
 
-	protected static function prepareEntitySelectorValue(Array $field, Array $presetFields = [])
+	protected static function prepareEntitySelectorValue(array $field, array $presetFields = [])
 	{
 		$result = self::extractValueFromPreset($field, $presetFields);
 		if (!empty($result['_label']))
@@ -587,7 +586,7 @@ class CMainUiFilter extends CBitrixComponent
 
 		if (is_array($presetRows) && is_array($presetFields))
 		{
-			foreach ($presetRows as $rowKey => $rowName)
+			foreach ($presetRows as $rowName)
 			{
 				$field = $this->getField($rowName);
 
@@ -810,7 +809,7 @@ class CMainUiFilter extends CBitrixComponent
 
 			if (isset($arFilter["PRESET_ID"]))
 			{
-				foreach ($this->arResult["PRESETS"] as $key => $preset)
+				foreach ($this->arResult["PRESETS"] as $preset)
 				{
 					if ($arFilter["PRESET_ID"] === $preset["ID"])
 					{
@@ -863,7 +862,7 @@ class CMainUiFilter extends CBitrixComponent
 			$fields = $preset["fields"];
 			$rows = explode(",", $preset["filter_rows"] ?? '');
 
-			foreach ($rows as $key => $row)
+			foreach ($rows as $row)
 			{
 				if (array_key_exists($row, $fields) && !empty($fields[$row]))
 				{
@@ -978,11 +977,7 @@ class CMainUiFilter extends CBitrixComponent
 		{
 			$commonOptions = $this->getCommonOptions();
 
-			if (!empty($commonOptions) &&
-				is_array($commonOptions) &&
-				isset($commonOptions["filters"]) &&
-				is_array($commonOptions["filters"]) &&
-				isset($commonOptions["filters"]["default_filter"]))
+			if (isset($commonOptions["filters"]["default_filter"]["filter_rows"]))
 			{
 				$rows = explode(",", $commonOptions["filters"]["default_filter"]["filter_rows"]);
 			}
@@ -1027,7 +1022,7 @@ class CMainUiFilter extends CBitrixComponent
 
 		if (!empty($fields) && is_array($fields))
 		{
-			foreach ($fields as $fieldKey => $fieldFields)
+			foreach ($fields as $fieldFields)
 			{
 				if ($fieldFields["NAME"] === $fieldId ||
 					$fieldFields["NAME"]."_datesel" === $fieldId ||
@@ -1102,7 +1097,7 @@ class CMainUiFilter extends CBitrixComponent
 
 			if (is_array($sourceFields) && !empty($sourceFields))
 			{
-				foreach ($sourceFields as $sourceFieldKey => $sourceField)
+				foreach ($sourceFields as $sourceField)
 				{
 					$this->arResult["FIELDS"][] = static::prepareField($sourceField, $this->arParams['FILTER_ID']);
 				}
@@ -1129,12 +1124,12 @@ class CMainUiFilter extends CBitrixComponent
 			$errors->add(array(new \Bitrix\Main\Error(Loc::getMessage("MAIN_UI_FILTER__FILTER_ID_NOT_SET"))));
 		}
 
-		foreach ($errors->toArray() as $key => $error)
+		foreach ($errors->toArray() as $error)
 		{
 			ShowError($error);
 		}
 
-		return $errors->count() === 0;
+		return $errors->isEmpty();
 	}
 
 	protected function includeScripts($folder)
@@ -1153,7 +1148,7 @@ class CMainUiFilter extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'js' && !(strpos($file, 'map.js') !== false || strpos($file, 'min.js') !== false))
+					if ($ext === 'js' && !(str_contains($file, 'map.js') || str_contains($file, 'min.js')))
 					{
 						$tmpl->addExternalJs($relPath.$file);
 					}
@@ -1180,7 +1175,7 @@ class CMainUiFilter extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'css' && !(strpos($file, 'map.css') !== false || strpos($file, 'min.css') !== false))
+					if ($ext === 'css' && !(str_contains($file, 'map.css') || str_contains($file, 'min.css')))
 					{
 						$tmpl->addExternalCss($relPath.$file);
 					}
@@ -1212,7 +1207,7 @@ class CMainUiFilter extends CBitrixComponent
 	{
 		if (!$this->commonOptions)
 		{
-			$this->commonOptions = \CUserOptions::getOption("main.ui.filter.common", $this->arParams["FILTER_ID"], array());
+			$this->commonOptions = CUserOptions::getOption("main.ui.filter.common", $this->arParams["FILTER_ID"], array());
 		}
 
 		return $this->commonOptions;
@@ -1247,7 +1242,7 @@ class CMainUiFilter extends CBitrixComponent
 		{
 			$allowValueRequiredParam = false;
 
-			foreach ($this->arParams["FILTER"] as $key => $field)
+			foreach ($this->arParams["FILTER"] as $field)
 			{
 				if (!$allowValueRequiredParam && isset($field["required"]) && $field["required"] === true)
 				{

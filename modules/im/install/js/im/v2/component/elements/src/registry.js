@@ -17,6 +17,7 @@ export { MessengerTabs, TabsColorScheme } from './tabs/tabs';
 export { AudioPlayer } from './audioplayer/audioplayer';
 export { ChatTitleWithHighlighting } from './chat-title-with-highlighting/chat-title-wiith-highlighting';
 export { SearchInput } from './search-input/search-input';
-
+export { EditableChatTitle } from './editable-chat-title/editable-chat-title.js';
+export { ScrollWithGradient } from './scroll-with-gradient/scroll-with-gradient';
 export type { CustomColorScheme } from './button/button';
 export type { DropdownItem } from './dropdown/dropdown';

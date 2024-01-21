@@ -1,0 +1,1 @@
+{"version":3,"file":"fetch-dependencies.map.js","names":["module","exports","fetchDependenciesContent","content","matches","matchAll","map","moduleName"],"sources":["fetch-dependencies.js"],"mappings":"AAIAA,OAAOC,QAAU,SAASC,EAAyBC,GAClD,UAAWA,IAAY,SACvB,CACC,MAAMC,EAAU,IAAID,EAAQE,SAAS,6BAErC,OAAOD,EAAQE,KAAI,EAAE,CAAEC,KACfA,GAET,CAEA,MAAO,EACR"}

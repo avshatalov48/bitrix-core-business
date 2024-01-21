@@ -11,6 +11,7 @@ namespace Bitrix\Main\ORM\Fields\Validators;
 use Bitrix\Main\ORM\Fields\Field;
 use Bitrix\Main\ArgumentTypeException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\ScalarField;
 
 Loc::loadMessages(__FILE__);
 
@@ -85,6 +86,11 @@ class LengthValidator extends Validator
 	 */
 	public function validate($value, $primary, array $row, Field $field)
 	{
+		if ($field instanceof ScalarField && $field->isNullable() && $value === null)
+		{
+			return true;
+		}
+
 		if ($this->min !== null)
 		{
 			if (mb_strlen((string)$value) < $this->min)

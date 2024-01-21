@@ -2,51 +2,40 @@ this.BX = this.BX || {};
 (function (exports,ui_buttons,main_core) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var ErrorAlert =
-	/*#__PURE__*/
-	function () {
+	var _templateObject;
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var ErrorAlert = /*#__PURE__*/function () {
 	  function ErrorAlert(options) {
 	    babelHelpers.classCallCheck(this, ErrorAlert);
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread(_objectSpread({}, {
 	      id: main_core.Text.getRandom(),
 	      message: "Error!"
-	    }, options);
+	    }), options);
 	    this.id = options.id;
 	    this.message = options.message;
 	    this.classes = new Map([["container", "ui-alert ui-alert-danger"], ["message", "ui-alert-message"]]);
 	  }
-
 	  babelHelpers.createClass(ErrorAlert, [{
 	    key: "render",
 	    value: function render() {
 	      this.id = main_core.Text.encode(this.id);
 	      this.message = main_core.Text.encode(this.message);
-	      return main_core.Tag.render(_templateObject(), this.id, this.classes.get("container"), this.classes.get("message"), this.message);
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t</div>\n\t\t"])), this.id, this.classes.get("container"), this.classes.get("message"), this.message);
 	    }
 	  }]);
 	  return ErrorAlert;
 	}();
 
-	var BaseField =
-	/*#__PURE__*/
-	function (_Event$EventEmitter) {
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var BaseField = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(BaseField, _Event$EventEmitter);
-
 	  function BaseField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, BaseField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$1(_objectSpread$1({}, {
 	      fieldTitle: "title",
 	      fieldName: "name",
 	      validators: [],
@@ -55,7 +44,7 @@ this.BX = this.BX || {};
 	      value: "",
 	      focus: false,
 	      visible: true
-	    }, options);
+	    }), options);
 	    _this.fieldTitle = options.fieldTitle;
 	    _this.fieldName = options.fieldName;
 	    _this.validators = options.validators;
@@ -72,18 +61,14 @@ this.BX = this.BX || {};
 	    _this.ids = new Map([["container", "social-group-copy-field-" + _this.fieldName]]);
 	    _this.errorContainer = new Set();
 	    _this.classes = new Map([["container", "social-group-copy-fields-item"], ["leftColumn", "social-group-copy-fields-item-column-left"], ["rightColumn", "social-group-copy-fields-item-column-right"], ["fieldTitle", "social-group-copy-fields-item-name"], ["errorMark", "ui-ctl-danger"], ["hide", "hide"]]);
-
 	    if (main_core.Type.isDomNode(_this.parentNode)) {
 	      _this.observerParent = new MutationObserver(_this.onAppendToParent.bind(babelHelpers.assertThisInitialized(_this)));
-
 	      _this.observerParent.observe(_this.parentNode, {
 	        childList: true
 	      });
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(BaseField, [{
 	    key: "setClass",
 	    value: function setClass(id, name) {
@@ -112,11 +97,9 @@ this.BX = this.BX || {};
 	      this.titleControl = document.getElementById(this.titleId);
 	      this.innerControl = document.getElementById(this.innerControlId);
 	      this.container = document.getElementById(this.ids.get("container"));
-
 	      if (main_core.Type.isFunction(this.onCustomChange)) {
 	        main_core.Event.bind(this.innerControl, "change", this.onCustomChange);
 	      }
-
 	      if (this.focus) {
 	        this.innerControl.focus();
 	      }
@@ -125,23 +108,18 @@ this.BX = this.BX || {};
 	    key: "validate",
 	    value: function validate() {
 	      var _this2 = this;
-
 	      this.errorContainer.clear();
-
 	      if (!this.visible) {
 	        return true;
 	      }
-
 	      var parentNode = this.parentNode ? this.parentNode : this.innerControl.parentNode;
 	      this.validators.forEach(function (validatorClass) {
 	        var validator = new validatorClass();
 	        var errorId = "social-group-" + _this2.fieldName + "-" + validatorClass.getType();
 	        var errorDom = document.getElementById(errorId);
-
 	        if (main_core.Type.isDomNode(errorDom)) {
 	          errorDom.remove();
 	        }
-
 	        if (validator.validate(_this2.value)) {
 	          main_core.Dom.removeClass(parentNode, _this2.classes.get("errorMark"));
 	        } else {
@@ -151,7 +129,6 @@ this.BX = this.BX || {};
 	            message: validator.getErrorMessage()
 	          });
 	          parentNode.before(error.render());
-
 	          _this2.errorContainer.add(error);
 	        }
 	      });
@@ -173,7 +150,6 @@ this.BX = this.BX || {};
 	      if (!this.visible) {
 	        return "";
 	      }
-
 	      return this.value;
 	    }
 	  }, {
@@ -191,7 +167,6 @@ this.BX = this.BX || {};
 	    key: "toggleVisible",
 	    value: function toggleVisible(bool) {
 	      this.visible = bool;
-
 	      if (bool) {
 	        main_core.Dom.removeClass(this.container, this.classes.get("hide"));
 	      } else {
@@ -202,60 +177,35 @@ this.BX = this.BX || {};
 	  return BaseField;
 	}(main_core.Event.EventEmitter);
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<input id=\"", "\" type=\"text\" value=\"", "\" \n\t\t\t\t\tname=\"", "\" class=\"", "\" \n\t\t\t\t\tonchange=\"", "\" placeholder=\"", "\">\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var TextField =
-	/*#__PURE__*/
-	function (_BaseField) {
+	var _templateObject$1, _templateObject2;
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var TextField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(TextField, _BaseField);
-
 	  function TextField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, TextField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$2(_objectSpread$2({}, {
 	      placeHolder: ""
-	    }, options);
+	    }), options);
 	    _this.placeHolder = options.placeHolder;
-
 	    _this.classes.set("control", "ui-ctl ui-ctl-textbox ui-ctl-w100");
-
 	    _this.classes.set("innerControl", "ui-ctl-element");
-
 	    return _this;
 	  }
+
 	  /**
 	   * @returns {HTMLElement}
 	   */
-
-
 	  babelHelpers.createClass(TextField, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$1(), this.classes.get("container"), this.classes.get("leftColumn"), this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
+	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.classes.get("container"), this.classes.get("leftColumn"), this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
 	    }
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "renderRightColumn",
 	    value: function renderRightColumn() {
@@ -264,7 +214,7 @@ this.BX = this.BX || {};
 	      this.fieldName = main_core.Text.encode(this.fieldName);
 	      this.value = main_core.Text.encode(this.value);
 	      this.placeHolder = main_core.Text.encode(this.placeHolder);
-	      return main_core.Tag.render(_templateObject2(), this.classes.get("control"), this.innerControlId, this.value, this.fieldName, this.classes.get("innerControl"), onChange, this.placeHolder);
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<input id=\"", "\" type=\"text\" value=\"", "\" \n\t\t\t\t\tname=\"", "\" class=\"", "\" \n\t\t\t\t\tonchange=\"", "\" placeholder=\"", "\">\n\t\t\t</div>\n\t\t"])), this.classes.get("control"), this.innerControlId, this.value, this.fieldName, this.classes.get("innerControl"), onChange, this.placeHolder);
 	    }
 	  }, {
 	    key: "changePlaceHolder",
@@ -281,14 +231,11 @@ this.BX = this.BX || {};
 	  return TextField;
 	}(BaseField);
 
-	var RequireValidator =
-	/*#__PURE__*/
-	function () {
+	var RequireValidator = /*#__PURE__*/function () {
 	  function RequireValidator() {
 	    babelHelpers.classCallCheck(this, RequireValidator);
 	    this.errorMessage = main_core.Loc.getMessage("SGCG_REQUIRE_ERROR");
 	  }
-
 	  babelHelpers.createClass(RequireValidator, [{
 	    key: "validate",
 	    value: function validate(value) {
@@ -317,60 +264,35 @@ this.BX = this.BX || {};
 	  return RequireValidator;
 	}();
 
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<textarea id=\"", "\" type=\"text\" name=\"", "\" onchange=\"", "\" \n\t\t\t\tclass=\"", "\" placeholder=\"", "\">", "</textarea>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var TextAreaField =
-	/*#__PURE__*/
-	function (_BaseField) {
+	var _templateObject$2, _templateObject2$1;
+	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var TextAreaField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(TextAreaField, _BaseField);
-
 	  function TextAreaField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, TextAreaField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextAreaField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$3(_objectSpread$3({}, {
 	      placeHolder: ""
-	    }, options);
+	    }), options);
 	    _this.placeHolder = options.placeHolder;
-
 	    _this.classes.set("control", "ui-ctl ui-ctl-textarea");
-
 	    _this.classes.set("innerControl", "ui-ctl-element");
-
 	    return _this;
 	  }
+
 	  /**
 	   * @returns {HTMLElement}
 	   */
-
-
 	  babelHelpers.createClass(TextAreaField, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$2(), this.classes.get("container"), this.classes.get("leftColumn"), this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
+	      return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.classes.get("container"), this.classes.get("leftColumn"), this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
 	    }
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "renderRightColumn",
 	    value: function renderRightColumn() {
@@ -378,7 +300,7 @@ this.BX = this.BX || {};
 	      this.fieldTitle = main_core.Text.encode(this.fieldTitle);
 	      this.fieldName = main_core.Text.encode(this.fieldName);
 	      this.value = main_core.Text.encode(this.value);
-	      return main_core.Tag.render(_templateObject2$1(), this.classes.get("control"), this.innerControlId, this.fieldName, onChange, this.classes.get("innerControl"), this.placeHolder, this.value);
+	      return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<textarea id=\"", "\" type=\"text\" name=\"", "\" onchange=\"", "\" \n\t\t\t\tclass=\"", "\" placeholder=\"", "\">", "</textarea>\n\t\t\t</div>\n\t\t"])), this.classes.get("control"), this.innerControlId, this.fieldName, onChange, this.classes.get("innerControl"), this.placeHolder, this.value);
 	    }
 	  }, {
 	    key: "onChange",
@@ -390,26 +312,18 @@ this.BX = this.BX || {};
 	  return TextAreaField;
 	}(BaseField);
 
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<form class=\"", "\" novalidate>\n\t\t\t\t<div id=\"", "\" class=\"", "\"></div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</form>\n\t\t"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var Form =
-	/*#__PURE__*/
-	function () {
+	var _templateObject$3;
+	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var Form = /*#__PURE__*/function () {
 	  function Form(options) {
 	    babelHelpers.classCallCheck(this, Form);
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$4(_objectSpread$4({}, {
 	      requestSender: null,
 	      groupData: {},
 	      copyButtonId: "",
 	      cancelButtonId: ""
-	    }, options);
+	    }), options);
 	    this.requestSender = options.requestSender;
 	    this.groupData = options.groupData;
 	    this.isProject = this.groupData.PROJECT === "Y";
@@ -423,14 +337,12 @@ this.BX = this.BX || {};
 	    this.classes = new Map([["form", "social-group-copy-form"], ["base", "social-group-copy-base"], ["nameContainer", "social-group-copy-name"], ["name", "social-group-copy-name-title"], ["descriptionContainer", "social-group-copy-description"], ["descriptionArea", "social-group-copy-description-area"], ["description", "social-group-copy-description"], ["descriptionSeparator", "social-group-copy-separator-line"], ["errorDomContainer", "social-group-copy-error"], ["fields", "social-group-copy-fields"], ["blocks", "social-group-copy-blocks"]]);
 	    this.checkboxEventName = "BX.Socialnetwork.CheckboxField";
 	  }
-
 	  babelHelpers.createClass(Form, [{
 	    key: "renderTo",
 	    value: function renderTo(formContainer) {
 	      if (!main_core.Type.isDomNode(formContainer)) {
 	        throw new Error("Form: HTMLElement for form not found");
 	      }
-
 	      formContainer.appendChild(this.render());
 	      this.errorDomContainer = document.getElementById(this.ids.get("errorDomContainer"));
 	      this.emitFormAppend(formContainer);
@@ -440,22 +352,18 @@ this.BX = this.BX || {};
 	    key: "onCopy",
 	    value: function onCopy() {
 	      var _this = this;
-
 	      if (this.validate()) {
-	        var uiCopyButton = new ui_buttons.UI.Button({
+	        var uiCopyButton = new ui_buttons.Button({
 	          buttonContainer: this.copyButton
 	        });
-
 	        if (uiCopyButton.isWaiting()) {
 	          return;
 	        }
-
 	        uiCopyButton.setWaiting(true);
 	        this.requestSender.copyGroup(this.getRequestData()).then(function (response) {
 	          _this.handleResponse(response);
-	        }).catch(function (response) {
+	        })["catch"](function (response) {
 	          uiCopyButton.setWaiting(false);
-
 	          _this.handleResponse(response);
 	        });
 	      }
@@ -470,11 +378,9 @@ this.BX = this.BX || {};
 	    value: function bindButtons() {
 	      this.copyButton = document.getElementById(this.copyButtonId);
 	      this.cancelButton = document.getElementById(this.cancelButtonId);
-
 	      if (!main_core.Type.isDomNode(this.copyButton) || !main_core.Type.isDomNode(this.cancelButton)) {
 	        throw new Error("Form: buttons are not found");
 	      }
-
 	      main_core.Event.bind(this.copyButton, "click", this.onCopy.bind(this));
 	      main_core.Event.bind(this.cancelButton, "click", this.onClose.bind(this));
 	    }
@@ -506,7 +412,6 @@ this.BX = this.BX || {};
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "render",
 	    value: function render() {
@@ -535,16 +440,15 @@ this.BX = this.BX || {};
 	      });
 	      this.addField(nameField);
 	      this.addField(descriptionField);
-	      return main_core.Tag.render(_templateObject$3(), this.classes.get("form"), this.ids.get("errorDomContainer"), this.classes.get("errorDomContainer"), this.classes.get("base"), this.classes.get("nameContainer"), nameField.renderRightColumn(), this.classes.get("descriptionContainer"), descriptionField.renderRightColumn(), this.classes.get("fields"), fields, this.classes.get("blocks"), blocks);
+	      return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<form class=\"", "\" novalidate>\n\t\t\t\t<div id=\"", "\" class=\"", "\"></div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</form>\n\t\t"])), this.classes.get("form"), this.ids.get("errorDomContainer"), this.classes.get("errorDomContainer"), this.classes.get("base"), this.classes.get("nameContainer"), nameField.renderRightColumn(), this.classes.get("descriptionContainer"), descriptionField.renderRightColumn(), this.classes.get("fields"), fields, this.classes.get("blocks"), blocks);
 	    }
 	  }, {
 	    key: "validate",
 	    value: function validate() {
 	      var _this2 = this;
-
 	      this.fields.forEach(function (field) {
 	        if (field.validate()) {
-	          _this2.errorContainer.delete(field);
+	          _this2.errorContainer["delete"](field);
 	        } else {
 	          _this2.errorContainer.set(field, field.getErrorContainer());
 	        }
@@ -562,7 +466,7 @@ this.BX = this.BX || {};
 	      });
 	      var blocksValues = {};
 	      this.blocks.forEach(function (block) {
-	        blocksValues = babelHelpers.objectSpread({}, blocksValues, block.getValues());
+	        blocksValues = _objectSpread$4(_objectSpread$4({}, blocksValues), block.getValues());
 	      });
 	      return Object.assign(fieldsValues, blocksValues);
 	    }
@@ -575,7 +479,6 @@ this.BX = this.BX || {};
 	        }));
 	      } else {
 	        var urlToCopiedGroup = response.data;
-
 	        if (urlToCopiedGroup.length) {
 	          top.window.location.href = urlToCopiedGroup;
 	        } else {
@@ -591,7 +494,6 @@ this.BX = this.BX || {};
 	      while (this.errorDomContainer.hasChildNodes()) {
 	        this.errorDomContainer.removeChild(this.errorDomContainer.firstChild);
 	      }
-
 	      this.errorDomContainer.appendChild(errorAlert.render());
 	    }
 	  }], [{
@@ -604,23 +506,21 @@ this.BX = this.BX || {};
 	  return Form;
 	}();
 
-	var RequestSender =
-	/*#__PURE__*/
-	function () {
+	function ownKeys$5(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$5(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$5(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var RequestSender = /*#__PURE__*/function () {
 	  function RequestSender(options) {
 	    babelHelpers.classCallCheck(this, RequestSender);
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$5(_objectSpread$5({}, {
 	      signedParameters: ""
-	    }, options);
+	    }), options);
 	    this.signedParameters = options.signedParameters;
 	    this.isProject = false;
 	  }
-
 	  babelHelpers.createClass(RequestSender, [{
 	    key: "selectGroup",
 	    value: function selectGroup(groupId) {
 	      var _this = this;
-
 	      return new Promise(function (resolve, reject) {
 	        main_core.ajax.runComponentAction("bitrix:socialnetwork.group_copy", "getGroupData", {
 	          mode: "class",
@@ -635,7 +535,6 @@ this.BX = this.BX || {};
 	    key: "copyGroup",
 	    value: function copyGroup(requestData) {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        main_core.ajax.runComponentAction("bitrix:socialnetwork.group_copy", "copyGroup", {
 	          mode: "class",
@@ -656,100 +555,64 @@ this.BX = this.BX || {};
 	  return RequestSender;
 	}();
 
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var CustomField =
-	/*#__PURE__*/
-	function (_BaseField) {
+	var _templateObject$4, _templateObject2$2;
+	function ownKeys$6(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$6(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$6(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$6(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var CustomField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(CustomField, _BaseField);
-
 	  function CustomField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, CustomField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CustomField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$6(_objectSpread$6({}, {
 	      fieldContainerId: ""
-	    }, options);
+	    }), options);
 	    _this.fieldContainerId = options.fieldContainerId;
-
 	    _this.classes.set("control", "ui-ctl ui-ctl-textbox ui-ctl-wa");
-
 	    _this.classes.set("innerControl", "social-group-copy-ui-ctl-element");
-
 	    _this.classes.set("customContainer", "social-group-copy-custom-container");
-
 	    return _this;
 	  }
+
 	  /**
 	   * @returns {HTMLElement}
 	   */
-
-
 	  babelHelpers.createClass(CustomField, [{
 	    key: "render",
 	    value: function render() {
 	      this.fieldTitle = main_core.Text.encode(this.fieldTitle);
-	      return main_core.Tag.render(_templateObject$4(), main_core.Text.encode(this.ids.get("container")), this.classes.get("container"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
+	      return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(this.ids.get("container")), this.classes.get("container"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
 	    }
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "renderRightColumn",
 	    value: function renderRightColumn() {
 	      var customContainer = document.getElementById(this.fieldContainerId);
 	      main_core.Dom.removeClass(customContainer, this.classes.get("customContainer"));
-	      return main_core.Tag.render(_templateObject2$2(), this.classes.get("control"), this.innerControlId, this.classes.get("innerControl"), customContainer);
+	      return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.classes.get("control"), this.innerControlId, this.classes.get("innerControl"), customContainer);
 	    }
 	  }]);
 	  return CustomField;
 	}(BaseField);
 
-	var ImageField =
-	/*#__PURE__*/
-	function (_CustomField) {
+	var ImageField = /*#__PURE__*/function (_CustomField) {
 	  babelHelpers.inherits(ImageField, _CustomField);
-
 	  function ImageField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, ImageField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ImageField).call(this, options));
-
 	    _this.classes.set("innerControl", "social-group-copy-link-upload social-group-copy-link-upload-set");
-
 	    _this.classes.set("uploadSet", "social-group-copy-link-upload-set");
-
 	    _this.init();
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(ImageField, [{
 	    key: "init",
 	    value: function init() {
 	      // eslint-ignore-next-line
 	      var uploaderInstance = BX.UploaderManager.getById(this.fieldName);
-
 	      if (uploaderInstance) {
 	        // eslint-ignore-next-line
 	        BX.addCustomEvent(uploaderInstance, "onQueueIsChanged", this.onQueueIsChanged.bind(this));
@@ -761,7 +624,6 @@ this.BX = this.BX || {};
 	      babelHelpers.get(babelHelpers.getPrototypeOf(ImageField.prototype), "onAppendToParent", this).call(this);
 	      var currentValue = this.getCurrentValue();
 	      babelHelpers.get(babelHelpers.getPrototypeOf(ImageField.prototype), "setValue", this).call(this, currentValue);
-
 	      if (!currentValue) {
 	        main_core.Dom.removeClass(this.innerControl, this.classes.get("uploadSet"));
 	      }
@@ -771,12 +633,10 @@ this.BX = this.BX || {};
 	    value: function onQueueIsChanged(uploaderInstance, action, fileId, file) {
 	      // eslint-ignore-next-line
 	      BX.addCustomEvent(file, "onUploadDone", this.onUploadDone.bind(this));
-
 	      switch (action) {
 	        case "add":
 	          main_core.Dom.addClass(this.innerControl, this.classes.get("uploadSet"));
 	          break;
-
 	        case "delete":
 	          main_core.Dom.removeClass(this.innerControl, this.classes.get("uploadSet"));
 	          babelHelpers.get(babelHelpers.getPrototypeOf(ImageField.prototype), "setValue", this).call(this, "");
@@ -798,14 +658,11 @@ this.BX = this.BX || {};
 	  return ImageField;
 	}(CustomField);
 
-	var DateValidator =
-	/*#__PURE__*/
-	function () {
+	var DateValidator = /*#__PURE__*/function () {
 	  function DateValidator() {
 	    babelHelpers.classCallCheck(this, DateValidator);
 	    this.errorMessage = main_core.Loc.getMessage("SGCG_FORMAT_ERROR");
 	  }
-
 	  babelHelpers.createClass(DateValidator, [{
 	    key: "validate",
 	    value: function validate(value) {
@@ -831,49 +688,20 @@ this.BX = this.BX || {};
 	  return DateValidator;
 	}();
 
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\"></div>\n\t\t\t\t<input id=\"", "\" type=\"text\" autocomplete=\"off\" value=\"", "\" name=\"\n\t\t\t\t\t", "\" class=\"", "\" onchange=\"", "\">\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var DateField =
-	/*#__PURE__*/
-	function (_BaseField) {
+	var _templateObject$5, _templateObject2$3;
+	var DateField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(DateField, _BaseField);
-
 	  function DateField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, DateField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DateField).call(this, options));
-
 	    _this.ids.set("container", "social-group-copy-date-field-" + _this.fieldName);
-
 	    _this.classes.set("control", "ui-ctl ui-ctl-after-icon ui-ctl-datetime");
-
 	    _this.classes.set("icon", "ui-ctl-after ui-ctl-icon-calendar");
-
 	    _this.classes.set("innerControl", "ui-ctl-element");
-
 	    _this.validators.push(DateValidator);
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(DateField, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent() {
@@ -890,24 +718,22 @@ this.BX = this.BX || {};
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "render",
 	    value: function render() {
 	      this.fieldTitle = main_core.Text.encode(this.fieldTitle);
-	      return main_core.Tag.render(_templateObject$5(), main_core.Text.encode(this.ids.get("container")), this.classes.get("container"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
+	      return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(this.ids.get("container")), this.classes.get("container"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
 	    }
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "renderRightColumn",
 	    value: function renderRightColumn() {
 	      this.fieldName = main_core.Text.encode(this.fieldName);
 	      this.value = main_core.Text.encode(this.value);
 	      var onChange = this.onChange.bind(this);
-	      return main_core.Tag.render(_templateObject2$3(), this.classes.get("control"), this.classes.get("icon"), this.innerControlId, this.value, this.fieldName, this.classes.get("innerControl"), onChange);
+	      return main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\"></div>\n\t\t\t\t<input id=\"", "\" type=\"text\" autocomplete=\"off\" value=\"", "\" name=\"\n\t\t\t\t\t", "\" class=\"", "\" onchange=\"", "\">\n\t\t\t</div>\n\t\t"])), this.classes.get("control"), this.classes.get("icon"), this.innerControlId, this.value, this.fieldName, this.classes.get("innerControl"), onChange);
 	    }
 	  }, {
 	    key: "showCalendar",
@@ -932,39 +758,21 @@ this.BX = this.BX || {};
 	  return DateField;
 	}(BaseField);
 
-	function _templateObject$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"", "\"></div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$6 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var DateRangeField =
-	/*#__PURE__*/
-	function (_CustomField) {
+	var _templateObject$6;
+	var DateRangeField = /*#__PURE__*/function (_CustomField) {
 	  babelHelpers.inherits(DateRangeField, _CustomField);
-
 	  function DateRangeField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, DateRangeField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DateRangeField).call(this, options));
 	    _this.startPoint = null;
 	    _this.endPoint = null;
-
 	    _this.ids.set("container", "social-group-copy-date-range-field-" + _this.fieldName);
-
 	    _this.ids.set("baseContainer", "social-group-copy-date-range-base-" + _this.fieldName);
-
 	    _this.classes.set("baseContainer", "social-group-copy-field-container " + "social-group-copy-field-container-datetime social-group-copy-field-datetime");
-
 	    _this.classes.set("delimiter", "social-group-copy-field-block social-group-copy-field-block-between");
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(DateRangeField, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent() {
@@ -978,7 +786,6 @@ this.BX = this.BX || {};
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "renderRightColumn",
 	    value: function renderRightColumn() {
@@ -989,17 +796,15 @@ this.BX = this.BX || {};
 	      this.endPoint = new DateField({
 	        fieldName: "range_end_point"
 	      });
-	      return main_core.Tag.render(_templateObject$6(), this.ids.get("baseContainer"), this.classes.get("baseContainer"), this.startPoint.renderRightColumn(), this.classes.get("delimiter"), this.endPoint.renderRightColumn());
+	      return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"", "\"></div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.ids.get("baseContainer"), this.classes.get("baseContainer"), this.startPoint.renderRightColumn(), this.classes.get("delimiter"), this.endPoint.renderRightColumn());
 	    }
 	  }, {
 	    key: "validate",
 	    value: function validate() {
 	      this.errorContainer.clear();
-
 	      if (!this.visible) {
 	        return true;
 	      }
-
 	      return this.startPoint && this.startPoint.validate();
 	    }
 	  }, {
@@ -1014,35 +819,30 @@ this.BX = this.BX || {};
 	  return DateRangeField;
 	}(CustomField);
 
-	var UserField =
-	/*#__PURE__*/
-	function (_CustomField) {
+	function ownKeys$7(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$7(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$7(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$7(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var UserField = /*#__PURE__*/function (_CustomField) {
 	  babelHelpers.inherits(UserField, _CustomField);
-
 	  function UserField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, UserField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UserField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$7(_objectSpread$7({}, {
 	      selectorId: "",
 	      multiple: true
-	    }, options);
+	    }), options);
 	    _this.selectorId = options.selectorId;
 	    _this.multiple = options.multiple;
 	    _this.value = _this.multiple ? {} : "";
-
 	    _this.init();
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(UserField, [{
 	    key: "init",
 	    value: function init() {
 	      // eslint-ignore-next-line
-	      BX.addCustomEvent("BX.Main.User.SelectorController:select", this.onSelect.bind(this)); // eslint-ignore-next-line
-
+	      BX.addCustomEvent("BX.Main.User.SelectorController:select", this.onSelect.bind(this));
+	      // eslint-ignore-next-line
 	      BX.addCustomEvent("BX.Main.User.SelectorController:unSelect", this.onUnSelect.bind(this));
 	    }
 	  }, {
@@ -1051,11 +851,9 @@ this.BX = this.BX || {};
 	      if (this.selectorId !== info.selectorId) {
 	        return;
 	      }
-
 	      if (main_core.Type.isUndefined(info.item) || main_core.Type.isUndefined(info.item.entityId)) {
 	        return;
 	      }
-
 	      this.setValue(info.item.entityId);
 	    }
 	  }, {
@@ -1064,11 +862,9 @@ this.BX = this.BX || {};
 	      if (this.selectorId !== info.selectorId) {
 	        return;
 	      }
-
 	      if (main_core.Type.isUndefined(info.item) || main_core.Type.isUndefined(info.item.entityId)) {
 	        return;
 	      }
-
 	      this.deleteValue(info.item.entityId);
 	      this.validate();
 	    }
@@ -1094,82 +890,54 @@ this.BX = this.BX || {};
 	  return UserField;
 	}(CustomField);
 
-	function _templateObject2$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\"></div>\n\t\t\t\t<select id=\"", "\" name=\"", "\" class=\"", "\" onchange=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</select>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2$4 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$7 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var SelectField =
-	/*#__PURE__*/
-	function (_BaseField) {
+	var _templateObject$7, _templateObject2$4;
+	function ownKeys$8(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$8(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$8(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$8(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var SelectField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(SelectField, _BaseField);
-
 	  function SelectField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, SelectField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SelectField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$8(_objectSpread$8({}, {
 	      list: {}
-	    }, options);
+	    }), options);
 	    _this.list = options.list;
 	    _this.onChangeCallback = _this.onChange.bind(babelHelpers.assertThisInitialized(_this));
-
 	    _this.classes.set("control", "ui-ctl ui-ctl-after-icon ui-ctl-dropdown");
-
 	    _this.classes.set("controlAngle", "ui-ctl-after ui-ctl-icon-angle");
-
 	    _this.classes.set("innerControl", "ui-ctl-element");
-
 	    return _this;
 	  }
+
 	  /**
 	   * @returns {HTMLElement}
 	   */
-
-
 	  babelHelpers.createClass(SelectField, [{
 	    key: "render",
 	    value: function render() {
 	      this.fieldTitle = main_core.Text.encode(this.fieldTitle);
 	      this.fieldName = main_core.Text.encode(this.fieldName);
 	      this.value = main_core.Text.encode(this.value);
-	      return main_core.Tag.render(_templateObject$7(), this.classes.get("container"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
+	      return main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.classes.get("container"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.renderRightColumn());
 	    }
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "renderRightColumn",
 	    value: function renderRightColumn() {
 	      var options = this.getOptions();
-	      return main_core.Tag.render(_templateObject2$4(), this.classes.get("control"), this.classes.get("controlAngle"), this.innerControlId, this.fieldName, this.classes.get("innerControl"), this.onChangeCallback, options.join(""));
+	      return main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t<div class=\"", "\"></div>\n\t\t\t\t<select id=\"", "\" name=\"", "\" class=\"", "\" onchange=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</select>\n\t\t\t</div>\n\t\t"])), this.classes.get("control"), this.classes.get("controlAngle"), this.innerControlId, this.fieldName, this.classes.get("innerControl"), this.onChangeCallback, options.join(""));
 	    }
 	  }, {
 	    key: "getOptions",
 	    value: function getOptions() {
 	      var _this2 = this;
-
 	      return Object.entries(this.list).map(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            id = _ref2[0],
-	            value = _ref2[1];
-
+	          id = _ref2[0],
+	          value = _ref2[1];
 	        return "<option ".concat(id === _this2.value ? "selected" : "", " value=\"").concat(main_core.Text.encode(id), "\">").concat(main_core.Text.encode(value), "</option>");
 	      });
 	    }
@@ -1195,23 +963,15 @@ this.BX = this.BX || {};
 	  return SelectField;
 	}(BaseField);
 
-	function _templateObject$8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t", "\n\t\t\t\t<div id=\"", "\" class=\"", "\"></div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$8 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var Options =
-	/*#__PURE__*/
-	function () {
+	var _templateObject$8;
+	function ownKeys$9(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$9(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$9(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$9(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var Options = /*#__PURE__*/function () {
 	  function Options(options) {
 	    babelHelpers.classCallCheck(this, Options);
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$9(_objectSpread$9({}, {
 	      switcher: null
-	    }, options);
+	    }), options);
 	    this.switcher = options.switcher;
 	    this.options = [];
 	    this.block = null;
@@ -1219,12 +979,10 @@ this.BX = this.BX || {};
 	    this.ids = new Map([["blockId", "social-group-copy-options-block"], ["listId", "social-group-copy-options-list-block"]]);
 	    this.classes = new Map([["block", "social-group-copy-options-block"], ["switcher", "social-group-copy-options-title-block"], ["optionsList", "social-group-copy-options-list hide fade-out"]]);
 	  }
-
 	  babelHelpers.createClass(Options, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent() {
 	      var _this = this;
-
 	      this.block = document.getElementById(this.ids.get("blockId"));
 	      this.list = document.getElementById(this.ids.get("listId"));
 	      this.options.forEach(function (option) {
@@ -1241,14 +999,14 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$8(), this.ids.get("blockId"), this.classes.get("block"), this.switcher.render(), this.ids.get("listId"), this.classes.get("optionsList"));
+	      return main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t", "\n\t\t\t\t<div id=\"", "\" class=\"", "\"></div>\n\t\t\t</div>\n\t\t"])), this.ids.get("blockId"), this.classes.get("block"), this.switcher.render(), this.ids.get("listId"), this.classes.get("optionsList"));
 	    }
 	  }, {
 	    key: "getValues",
 	    value: function getValues() {
 	      var optionsValues = {};
 	      this.options.forEach(function (option) {
-	        optionsValues = babelHelpers.objectSpread({}, optionsValues, option.getValues());
+	        optionsValues = _objectSpread$9(_objectSpread$9({}, optionsValues), option.getValues());
 	      });
 	      return optionsValues;
 	    }
@@ -1256,30 +1014,21 @@ this.BX = this.BX || {};
 	  return Options;
 	}();
 
-	function _templateObject$9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$9 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var Switcher =
-	/*#__PURE__*/
-	function () {
+	var _templateObject$9;
+	function ownKeys$a(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$a(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$a(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$a(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var Switcher = /*#__PURE__*/function () {
 	  function Switcher(options) {
 	    babelHelpers.classCallCheck(this, Switcher);
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$a(_objectSpread$a({}, {
 	      title: "Title"
-	    }, options);
+	    }), options);
 	    this.title = options.title;
 	    this.container = null;
 	    this.options = [];
 	    this.ids = new Map([["switcherId", "social-group-copy-switcher"]]);
 	    this.classes = new Map([["switcher", "social-group-copy-switcher"], ["switcherMore", "social-group-copy-switcher-more"], ["switcherPromo", "social-group-copy-switcher-promo"], ["opened", "opened"], ["hide", "hide"], ["easingIn", "fade-in"], ["easingOut", "fade-out"]]);
 	  }
-
 	  babelHelpers.createClass(Switcher, [{
 	    key: "addOption",
 	    value: function addOption(option) {
@@ -1300,7 +1049,6 @@ this.BX = this.BX || {};
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "render",
 	    value: function render() {
@@ -1308,19 +1056,17 @@ this.BX = this.BX || {};
 	      var options = this.options.map(function (option) {
 	        return option.renderPromo();
 	      });
-	      return main_core.Tag.render(_templateObject$9(), this.ids.get("switcherId"), this.classes.get("switcher"), this.classes.get("switcherMore"), this.title, this.classes.get("switcherPromo"), options);
+	      return main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.ids.get("switcherId"), this.classes.get("switcher"), this.classes.get("switcherMore"), this.title, this.classes.get("switcherPromo"), options);
 	    }
 	  }, {
 	    key: "onClick",
 	    value: function onClick(event) {
 	      var target = event.target;
 	      var targetId = target.getAttribute("id");
-
 	      if (!targetId) {
 	        target = event.currentTarget;
 	        targetId = target.getAttribute("id");
 	      }
-
 	      if (targetId === this.ids.get("switcherId")) {
 	        this.switchOptions();
 	      }
@@ -1348,50 +1094,33 @@ this.BX = this.BX || {};
 	  return Switcher;
 	}();
 
-	function _templateObject$a() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label class=\"", "\">\n\t\t\t\t<input id=\"", "\" ", " ", " \n\t\t\t\t\ttype=\"checkbox\" name=\"", "\" \n\t\t\t\t\tonchange=\"", "\" class=\"", "\">\n\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t</label>\n\t\t"]);
-
-	  _templateObject$a = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var CheckboxField =
-	/*#__PURE__*/
-	function (_BaseField) {
+	var _templateObject$a;
+	function ownKeys$b(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$b(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$b(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$b(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var CheckboxField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(CheckboxField, _BaseField);
-
 	  function CheckboxField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, CheckboxField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CheckboxField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$b(_objectSpread$b({}, {
 	      checked: true,
 	      disabled: false
-	    }, options);
+	    }), options);
 	    _this.checked = options.checked;
 	    _this.disabled = options.disabled;
-
 	    _this.classes.set("control", "ui-ctl ui-ctl-checkbox ui-ctl-wa ui-ctl-xs social-group-copy-checkbox");
-
 	    _this.classes.set("innerControl", "ui-ctl-element");
+	    _this.classes.set("title", "ui-ctl-label-text");
 
-	    _this.classes.set("title", "ui-ctl-label-text"); // todo tmp delete after main 20.0.200
-
-
+	    // todo tmp delete after main 20.0.200
 	    _this.eventNamespace = "BX.Socialnetwork.CheckboxField:";
-
 	    if (typeof _this.setEventNamespace === "function") {
 	      _this.eventNamespace = "";
-
 	      _this.setEventNamespace("BX.Socialnetwork.CheckboxField");
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(CheckboxField, [{
 	    key: "setChecked",
 	    value: function setChecked(checked) {
@@ -1400,14 +1129,13 @@ this.BX = this.BX || {};
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "render",
 	    value: function render() {
 	      var onChange = this.onChange.bind(this);
 	      this.fieldTitle = main_core.Text.encode(this.fieldTitle);
 	      this.fieldName = main_core.Text.encode(this.fieldName);
-	      return main_core.Tag.render(_templateObject$a(), this.classes.get("control"), this.innerControlId, this.disabled ? "disabled" : "", this.checked ? "checked" : "", this.fieldName, onChange, this.classes.get("innerControl"), this.titleId, this.classes.get("title"), this.fieldTitle);
+	      return main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label class=\"", "\">\n\t\t\t\t<input id=\"", "\" ", " ", " \n\t\t\t\t\ttype=\"checkbox\" name=\"", "\" \n\t\t\t\t\tonchange=\"", "\" class=\"", "\">\n\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t</label>\n\t\t"])), this.classes.get("control"), this.innerControlId, this.disabled ? "disabled" : "", this.checked ? "checked" : "", this.fieldName, onChange, this.classes.get("innerControl"), this.titleId, this.classes.get("title"), this.fieldTitle);
 	    }
 	  }, {
 	    key: "onChange",
@@ -1425,7 +1153,6 @@ this.BX = this.BX || {};
 	    /**
 	     * @param {Boolean} disabled
 	     */
-
 	  }, {
 	    key: "changeDisabled",
 	    value: function changeDisabled(disabled) {
@@ -1433,7 +1160,6 @@ this.BX = this.BX || {};
 	        this.innerControl.checked = false;
 	        this.setValue("");
 	      }
-
 	      this.innerControl.disabled = disabled;
 	    }
 	  }, {
@@ -1451,36 +1177,18 @@ this.BX = this.BX || {};
 	  return CheckboxField;
 	}(BaseField);
 
-	function _templateObject2$5() {
-	  var data = babelHelpers.taggedTemplateLiteral([""]);
-
-	  _templateObject2$5 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$b() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$b = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var ChildOption =
-	/*#__PURE__*/
-	function () {
+	var _templateObject$b, _templateObject2$5;
+	function ownKeys$c(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$c(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$c(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$c(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var ChildOption = /*#__PURE__*/function () {
 	  function ChildOption(options) {
 	    babelHelpers.classCallCheck(this, ChildOption);
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$c(_objectSpread$c({}, {
 	      fieldTitle: "title",
 	      data: {},
 	      switcher: null,
 	      value: ""
-	    }, options);
+	    }), options);
 	    this.fieldTitle = main_core.Text.encode(options.fieldTitle);
 	    this.data = options.data;
 	    this.value = options.value ? options.value : "";
@@ -1493,16 +1201,13 @@ this.BX = this.BX || {};
 	    this.fields = new Set();
 	    this.classes = new Map([["optionItem", "social-group-copy-options-item social-group-copy-form-field-list-block"], ["leftColumn", "social-group-copy-options-item-column-left"], ["fieldTitle", "social-group-copy-options-item-name"], ["rightColumn", "social-group-copy-options-item-column-right"], ["promoText", "social-group-copy-switcher-promo-text"], ["itemHighlight", "item-highlight"]]);
 	  }
-
 	  babelHelpers.createClass(ChildOption, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent(optionsContainer) {
 	      this.optionsContainer = optionsContainer;
-
 	      if (main_core.Type.isPlainObject(this.data)) {
 	        this.append(this.data);
 	      }
-
 	      this.fields.forEach(function (field) {
 	        return field.onAppendToParent();
 	      });
@@ -1512,16 +1217,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "append",
 	    value: function append(data) {
-	      this.optionsContainer.appendChild(main_core.Tag.render(_templateObject$b(), this.blockId, this.classes.get("optionItem"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.getChildRender(data)));
+	      this.optionsContainer.appendChild(main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div id=\"", "\" class=\"", "\">\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t<div id=\"", "\" class=\"", "\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.blockId, this.classes.get("optionItem"), this.classes.get("leftColumn"), this.titleId, this.classes.get("fieldTitle"), this.fieldTitle, this.classes.get("rightColumn"), this.getChildRender(data)));
 	    }
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getChildRender",
 	    value: function getChildRender(data) {
-	      return main_core.Tag.render(_templateObject2$5());
+	      return main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral([""])));
 	    }
 	  }, {
 	    key: "getValues",
@@ -1536,9 +1240,7 @@ this.BX = this.BX || {};
 	    key: "onClick",
 	    value: function onClick(event) {
 	      var _this = this;
-
 	      this.switcher.switchOptions();
-
 	      if (this.switcher.isOpened()) {
 	        setTimeout(function () {
 	          main_core.Dom.addClass(_this.block, _this.classes.get("itemHighlight"));
@@ -1547,9 +1249,9 @@ this.BX = this.BX || {};
 	            top: position.top,
 	            left: position.left,
 	            behavior: "smooth"
-	          }); // todo hack for slider
+	          });
+	          // todo hack for slider
 	          //this.block.scrollIntoView({behavior: "smooth", block: "start"});
-
 	          setTimeout(function () {
 	            main_core.Dom.removeClass(_this.block, _this.classes.get("itemHighlight"));
 	          }, 3000);
@@ -1566,65 +1268,19 @@ this.BX = this.BX || {};
 	  return ChildOption;
 	}();
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2$6 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$c() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">", "</span>\n\t\t"]);
-
-	  _templateObject$c = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var Features =
-	/*#__PURE__*/
-	function (_ChildOption) {
+	var _templateObject$c, _templateObject2$6, _templateObject3, _templateObject4;
+	var Features = /*#__PURE__*/function (_ChildOption) {
 	  babelHelpers.inherits(Features, _ChildOption);
-
 	  function Features(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Features);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Features).call(this, options));
 	    _this.promoId = "features";
 	    _this.blockId = "features-block";
-
 	    _this.classes.set("featuresList", "social-group-copy-features-list");
-
 	    _this.classes.set("featureItem", "social-group-copy-feature-item social-group-copy-feature-item-tree");
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Features, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent(optionsContainer) {
@@ -1634,16 +1290,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderPromo",
 	    value: function renderPromo() {
-	      return main_core.Tag.render(_templateObject$c(), this.promoId, this.classes.get("promoText"), this.fieldTitle);
+	      return main_core.Tag.render(_templateObject$c || (_templateObject$c = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">", "</span>\n\t\t"])), this.promoId, this.classes.get("promoText"), this.fieldTitle);
 	    }
 	    /**
 	     * @returns {HTMLElement}
 	     */
-
 	  }, {
 	    key: "getChildRender",
 	    value: function getChildRender(data) {
-	      return main_core.Tag.render(_templateObject2$6(), this.classes.get("featuresList"), this.getFeaturesRender(data));
+	      return main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.classes.get("featuresList"), this.getFeaturesRender(data));
 	    }
 	  }, {
 	    key: "selfClean",
@@ -1656,7 +1311,6 @@ this.BX = this.BX || {};
 	    key: "getFeaturesRender",
 	    value: function getFeaturesRender(features) {
 	      var _this2 = this;
-
 	      return Object.values(features).map(function (feature) {
 	        var hasProperty = Object.prototype.hasOwnProperty;
 	        var childrenFields = Object.values(feature["Children"]).map(function (featureChild) {
@@ -1667,13 +1321,11 @@ this.BX = this.BX || {};
 	            parentNode: _this2.optionsContainer,
 	            checked: hasProperty.call(featureChild, "Checked") ? featureChild["Checked"] : true
 	          });
-
 	          _this2.fields.add(childField);
-
 	          return childField;
 	        });
 	        var childrenRender = childrenFields.map(function (childrenField) {
-	          return main_core.Tag.render(_templateObject3(), childrenField.render());
+	          return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["", ""])), childrenField.render());
 	        });
 	        var featureField = new CheckboxField({
 	          fieldTitle: feature["Title"],
@@ -1687,33 +1339,19 @@ this.BX = this.BX || {};
 	            });
 	          }.bind(childrenFields)
 	        });
-
 	        _this2.fields.add(featureField);
-
-	        return main_core.Tag.render(_templateObject4(), _this2.classes.get("featureItem"), featureField.render(), childrenRender);
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.classes.get("featureItem"), featureField.render(), childrenRender);
 	      });
 	    }
 	  }]);
 	  return Features;
 	}(ChildOption);
 
-	function _templateObject$d() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"]);
-
-	  _templateObject$d = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var Rights =
-	/*#__PURE__*/
-	function (_ChildOption) {
+	var _templateObject$d;
+	var Rights = /*#__PURE__*/function (_ChildOption) {
 	  babelHelpers.inherits(Rights, _ChildOption);
-
 	  function Rights(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Rights);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Rights).call(this, options));
 	    _this.promoId = "rights";
@@ -1722,7 +1360,6 @@ this.BX = this.BX || {};
 	    _this.selectField = null;
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Rights, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent(optionsContainer) {
@@ -1732,7 +1369,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderPromo",
 	    value: function renderPromo() {
-	      return main_core.Tag.render(_templateObject$d(), this.promoId, this.classes.get("promoText"), main_core.Loc.getMessage("SGCG_OPTIONS_PERMS_TITLE"));
+	      return main_core.Tag.render(_templateObject$d || (_templateObject$d = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), this.promoId, this.classes.get("promoText"), main_core.Loc.getMessage("SGCG_OPTIONS_PERMS_TITLE"));
 	    }
 	  }, {
 	    key: "getChildRender",
@@ -1755,36 +1392,29 @@ this.BX = this.BX || {};
 	  return Rights;
 	}(ChildOption);
 
-	var SelectorField =
-	/*#__PURE__*/
-	function (_CustomField) {
+	function ownKeys$d(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$d(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$d(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$d(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var SelectorField = /*#__PURE__*/function (_CustomField) {
 	  babelHelpers.inherits(SelectorField, _CustomField);
-
 	  function SelectorField(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, SelectorField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SelectorField).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$d(_objectSpread$d({}, {
 	      selectorId: ""
-	    }, options);
+	    }), options);
 	    _this.selectorId = options.selectorId;
 	    _this.selector = null;
 	    _this.value = {};
-
 	    _this.init();
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(SelectorField, [{
 	    key: "init",
 	    value: function init() {
 	      var _this2 = this;
-
 	      /* eslint-disable */
 	      this.selector = BX.UI.TileSelector.getById(this.selectorId);
-
 	      if (this.selector) {
 	        BX.addCustomEvent(this.selector, this.selector.events.search, this.onSearch.bind(this));
 	        BX.addCustomEvent(this.selector, this.selector.events.input, this.onInput.bind(this));
@@ -1796,7 +1426,6 @@ this.BX = this.BX || {};
 	        });
 	      }
 	      /* eslint-enable */
-
 	    }
 	  }, {
 	    key: "setValue",
@@ -1819,11 +1448,13 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "onInput",
-	    value: function onInput(inputValue) {//todo later ajax search.tags.input
+	    value: function onInput(inputValue) {
+	      //todo later ajax search.tags.input
 	    }
 	  }, {
 	    key: "buttonSelect",
-	    value: function buttonSelect() {//todo if need
+	    value: function buttonSelect() {
+	      //todo if need
 	    }
 	  }, {
 	    key: "removeTile",
@@ -1832,22 +1463,19 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "clickTile",
-	    value: function clickTile(tile) {//todo if need
+	    value: function clickTile(tile) {
+	      //todo if need
 	    }
 	  }]);
 	  return SelectorField;
 	}(CustomField);
 
-	var TagField =
-	/*#__PURE__*/
-	function (_SelectorField) {
+	var TagField = /*#__PURE__*/function (_SelectorField) {
 	  babelHelpers.inherits(TagField, _SelectorField);
-
 	  function TagField() {
 	    babelHelpers.classCallCheck(this, TagField);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TagField).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(TagField, [{
 	    key: "getValue",
 	    value: function getValue() {
@@ -1857,34 +1485,23 @@ this.BX = this.BX || {};
 	  return TagField;
 	}(SelectorField);
 
-	function _templateObject$e() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">", "</span>\n\t\t"]);
-
-	  _templateObject$e = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var Tags =
-	/*#__PURE__*/
-	function (_ChildOption) {
+	var _templateObject$e;
+	function ownKeys$e(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$e(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$e(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$e(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var Tags = /*#__PURE__*/function (_ChildOption) {
 	  babelHelpers.inherits(Tags, _ChildOption);
-
 	  function Tags(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Tags);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Tags).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$e(_objectSpread$e({}, {
 	      tagsFieldContainerId: ""
-	    }, options);
+	    }), options);
 	    _this.promoId = "tags";
 	    _this.blockId = "tags-block";
 	    _this.tagsFieldContainerId = options.tagsFieldContainerId;
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Tags, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent(optionsContainer) {
@@ -1894,7 +1511,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderPromo",
 	    value: function renderPromo() {
-	      return main_core.Tag.render(_templateObject$e(), this.promoId, this.classes.get("promoText"), this.fieldTitle);
+	      return main_core.Tag.render(_templateObject$e || (_templateObject$e = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">", "</span>\n\t\t"])), this.promoId, this.classes.get("promoText"), this.fieldTitle);
 	    }
 	  }, {
 	    key: "getChildRender",
@@ -1912,112 +1529,22 @@ this.BX = this.BX || {};
 	  return Tags;
 	}(ChildOption);
 
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2$7 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$f() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"]);
-
-	  _templateObject$f = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var Types =
-	/*#__PURE__*/
-	function (_ChildOption) {
+	var _templateObject$f, _templateObject2$7, _templateObject3$1, _templateObject4$1, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
+	function ownKeys$f(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$f(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$f(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$f(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var Types = /*#__PURE__*/function (_ChildOption) {
 	  babelHelpers.inherits(Types, _ChildOption);
-
 	  function Types(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Types);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Types).call(this, options));
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$f(_objectSpread$f({}, {
 	      isProject: false,
 	      isExtranetGroup: false,
 	      isExtranetInstalled: false,
 	      isIntranetInstalled: false,
 	      isLandingInstalled: false
-	    }, options);
+	    }), options);
 	    _this.isProject = options.isProject;
 	    _this.isExtranetGroup = options.isExtranetGroup;
 	    _this.isExtranetInstalled = options.isExtranetInstalled;
@@ -2026,15 +1553,11 @@ this.BX = this.BX || {};
 	    _this.promoId = "types";
 	    _this.blockId = "types-block";
 	    _this.titleId = "types-option-title-id";
-
 	    _this.classes.set("typesList", "social-group-copy-types-list");
-
 	    _this.classes.set("typeItem", "social-group-copy-feature-item");
-
 	    _this.checkboxEventName = "BX.Socialnetwork.CheckboxField";
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Types, [{
 	    key: "onAppendToParent",
 	    value: function onAppendToParent(optionsContainer) {
@@ -2044,40 +1567,36 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderPromo",
 	    value: function renderPromo() {
-	      return main_core.Tag.render(_templateObject$f(), this.promoId, this.classes.get("promoText"), main_core.Loc.getMessage("SGCG_OPTIONS_TYPE_TITLE"));
+	      return main_core.Tag.render(_templateObject$f || (_templateObject$f = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span id=\"", "\" class=\"", "\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), this.promoId, this.classes.get("promoText"), main_core.Loc.getMessage("SGCG_OPTIONS_TYPE_TITLE"));
 	    }
 	  }, {
 	    key: "getChildRender",
 	    value: function getChildRender(data) {
-	      return main_core.Tag.render(_templateObject2$7(), this.classes.get("typesList"), this.getTypesRender(data));
+	      return main_core.Tag.render(_templateObject2$7 || (_templateObject2$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.classes.get("typesList"), this.getTypesRender(data));
 	    }
 	  }, {
 	    key: "getTypesRender",
 	    value: function getTypesRender(data) {
 	      var result = [];
 	      var visibleField = this.createVisibleField(data);
-	      result.push(main_core.Tag.render(_templateObject3$1(), visibleField.render()));
+	      result.push(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["", ""])), visibleField.render()));
 	      var openField = this.createOpenedField(data);
-	      result.push(main_core.Tag.render(_templateObject4$1(), openField.render()));
+	      result.push(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["", ""])), openField.render()));
 	      var closeField = this.createCloseField(data);
-	      result.push(main_core.Tag.render(_templateObject5(), closeField.render()));
-
+	      result.push(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["", ""])), closeField.render()));
 	      if (this.isExtranetInstalled) {
 	        var extranetField = this.createExtranetField(data);
-	        result.push(main_core.Tag.render(_templateObject6(), extranetField.render()));
+	        result.push(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["", ""])), extranetField.render()));
 	      }
-
 	      if (this.isIntranetInstalled) {
 	        var projectField = this.createProjectField(data);
-	        result.push(main_core.Tag.render(_templateObject7(), projectField.render()));
+	        result.push(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["", ""])), projectField.render()));
 	      }
-
 	      if (this.isLandingInstalled) {
 	        var landingField = this.createLandingField(data);
-	        result.push(main_core.Tag.render(_templateObject8(), landingField.render()));
+	        result.push(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["", ""])), landingField.render()));
 	      }
-
-	      return main_core.Tag.render(_templateObject9(), result);
+	      return main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["", ""])), result);
 	    }
 	  }, {
 	    key: "createVisibleField",
@@ -2170,7 +1689,7 @@ this.BX = this.BX || {};
 	    key: "createLandingField",
 	    value: function createLandingField(data) {
 	      var landingField = new CheckboxField({
-	        fieldTitle: main_core.Loc.getMessage("SGCG_OPTIONS_TYPE_LANDING"),
+	        fieldTitle: main_core.Loc.getMessage("SGCG_OPTIONS_TYPE_LANDING_MSGVER_1"),
 	        fieldName: "landing",
 	        validators: [],
 	        checked: data["LANDING"] === "Y"
@@ -2187,12 +1706,12 @@ this.BX = this.BX || {};
 	  return Types;
 	}(ChildOption);
 
-	var CopyingManager =
-	/*#__PURE__*/
-	function () {
+	function ownKeys$g(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread$g(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$g(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$g(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	var CopyingManager = /*#__PURE__*/function () {
 	  function CopyingManager(options) {
 	    babelHelpers.classCallCheck(this, CopyingManager);
-	    options = babelHelpers.objectSpread({}, {
+	    options = _objectSpread$g(_objectSpread$g({}, {
 	      signedParameters: "",
 	      formContainerId: "",
 	      isProject: "N",
@@ -2208,7 +1727,7 @@ this.BX = this.BX || {};
 	      tagsFieldContainerId: "",
 	      copyButtonId: "",
 	      cancelButtonId: ""
-	    }, options);
+	    }), options);
 	    this.signedParameters = options.signedParameters;
 	    this.formContainerId = options.formContainerId;
 	    this.isProject = options.isProject === "Y";
@@ -2237,7 +1756,6 @@ this.BX = this.BX || {};
 	    });
 	    this.buildForm();
 	  }
-
 	  babelHelpers.createClass(CopyingManager, [{
 	    key: "buildForm",
 	    value: function buildForm() {
@@ -2248,11 +1766,9 @@ this.BX = this.BX || {};
 	        fieldContainerId: this.imageFieldContainerId
 	      }));
 	      this.form.addField(this.createDate());
-
 	      if (!this.isProject) {
 	        this.form.addField(this.createRangeDate());
 	      }
-
 	      this.form.addField(this.createOwner());
 	      this.form.addField(new UserField({
 	        selectorId: "group-copy-helpers",
@@ -2260,11 +1776,9 @@ this.BX = this.BX || {};
 	        fieldName: "moderators",
 	        fieldContainerId: this.helpersFieldContainerId
 	      }));
-
 	      if (main_core.Type.isPlainObject(this.subjects)) {
 	        this.form.addField(this.createSubject());
 	      }
-
 	      var switcher = new Switcher({
 	        title: main_core.Loc.getMessage("SGCG_OPTIONS_TITLE")
 	      });
@@ -2276,8 +1790,9 @@ this.BX = this.BX || {};
 	        data: this.features,
 	        switcher: switcher
 	      });
-	      options.addOption(features); //todo SPAM_PERMS
+	      options.addOption(features);
 
+	      //todo SPAM_PERMS
 	      options.addOption(this.createRights(switcher));
 	      options.addOption(this.createTags(switcher));
 	      options.addOption(this.createTypes(switcher));
@@ -2320,7 +1835,6 @@ this.BX = this.BX || {};
 	    key: "createRights",
 	    value: function createRights(switcher) {
 	      var _this = this;
-
 	      var rights = new Rights({
 	        fieldTitle: this.isProject ? main_core.Loc.getMessage("SGCG_OPTIONS_PROJECT_PERMS_LABEL") : main_core.Loc.getMessage("SGCG_OPTIONS_GROUP_PERMS_LABEL"),
 	        value: this.groupData["INITIATE_PERMS"],
@@ -2367,7 +1881,6 @@ this.BX = this.BX || {};
 	    key: "createDate",
 	    value: function createDate() {
 	      var _this2 = this;
-
 	      var date = new DateField({
 	        fieldTitle: this.isProject ? main_core.Loc.getMessage("SGCG_PROJECT_START_POINT_TITLE") : main_core.Loc.getMessage("SGCG_GROUP_START_POINT_TITLE"),
 	        fieldName: "start_point",
@@ -2387,7 +1900,6 @@ this.BX = this.BX || {};
 	    key: "createRangeDate",
 	    value: function createRangeDate() {
 	      var _this3 = this;
-
 	      var dateRange = new DateRangeField({
 	        fieldTitle: main_core.Loc.getMessage("SGCG_PROJECT_RANGE_TITLE"),
 	        fieldName: "project_term",
@@ -2406,5 +1918,5 @@ this.BX = this.BX || {};
 
 	exports.CopyingManager = CopyingManager;
 
-}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX,BX));
+}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.UI,BX));
 //# sourceMappingURL=script.js.map

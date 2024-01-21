@@ -119,7 +119,10 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 					if ($value)
 					{
 						$fieldTypeObject->setValue($value);
-						$value = $fieldTypeObject->externalizeValue('Document', $fieldTypeObject->getValue());
+						$value = $fieldTypeObject->externalizeValue(
+							FieldType::VALUE_CONTEXT_DOCUMENT,
+							$fieldTypeObject->getValue()
+						);
 					}
 				}
 			}

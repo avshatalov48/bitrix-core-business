@@ -8,7 +8,8 @@ return [
 	'css' => 'dist/textarea.bundle.css',
 	'js' => 'dist/textarea.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
+		'main.core.events',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

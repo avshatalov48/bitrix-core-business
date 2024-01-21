@@ -1164,6 +1164,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  createContent() {
+	    var _this$calendarContext4, _this$calendarContext5;
 	    this.DOM.outerWrap = main_core.Tag.render(_t$4 || (_t$4 = _$4`
 			<div class="calendar-list-slider-wrap"></div>
 		`));
@@ -1186,7 +1187,7 @@ this.BX = this.BX || {};
 					</div>
 				`), main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_SECTION')));
 	    }
-	    if (calendarContext && !this.readonly && (!calendarContext.util.isUserCalendar() || calendarContext.util.userIsOwner())) {
+	    if (calendarContext && !this.readonly && !((_this$calendarContext4 = this.calendarContext) != null && (_this$calendarContext5 = _this$calendarContext4.util) != null && _this$calendarContext5.isExtranetUser()) && (!calendarContext.util.isUserCalendar() || calendarContext.util.userIsOwner())) {
 	      // #1. Controls
 	      this.createAddButton();
 
@@ -1498,7 +1499,7 @@ this.BX = this.BX || {};
 	        this.showTrackingGroupsForm();
 	      }
 	    }];
-	    this.addBtnMenu = this.BX.PopupMenu.create('add-btn-' + calendar_util.Util.getRandomInt(), this.DOM.addButtonMore, menuItems, {
+	    this.addBtnMenu = main_popup.MenuManager.create('add-btn-' + calendar_util.Util.getRandomInt(), this.DOM.addButtonMore, menuItems, {
 	      closeByEsc: true,
 	      autoHide: true,
 	      zIndex: this.zIndex,
@@ -1607,6 +1608,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  showSectionMenu(section, menuItemNode) {
+	    var _this$calendarContext6, _this$calendarContext7, _this$calendarContext8, _this$calendarContext9, _this$calendarContext10, _this$calendarContext11;
 	    const menuItems = [];
 	    const itemNode = menuItemNode.closest('[data-bx-calendar-section]');
 	    if (main_core.Type.isElementNode(itemNode)) {
@@ -1627,7 +1629,7 @@ this.BX = this.BX || {};
 	        href: section.getLink()
 	      });
 	    }
-	    if (!this.readonly && section.canDo('edit_section') && !section.isPseudo()) {
+	    if (!this.readonly && section.canDo('edit_section') && !section.isPseudo() && !((_this$calendarContext6 = this.calendarContext) != null && (_this$calendarContext7 = _this$calendarContext6.util) != null && _this$calendarContext7.isExtranetUser())) {
 	      menuItems.push({
 	        text: main_core.Loc.getMessage('EC_SEC_EDIT'),
 	        onclick: () => {
@@ -1657,7 +1659,7 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-	    if (!section.isPseudo() && section.data.EXPORT && section.data.EXPORT.LINK && section.data['EXTERNAL_TYPE'] === 'local') {
+	    if (!section.isPseudo() && section.data.EXPORT && section.data.EXPORT.LINK && section.data['EXTERNAL_TYPE'] === 'local' && !((_this$calendarContext8 = this.calendarContext) != null && (_this$calendarContext9 = _this$calendarContext8.util) != null && _this$calendarContext9.isExtranetUser())) {
 	      menuItems.push({
 	        text: main_core.Loc.getMessage('EC_ACTION_EXPORT'),
 	        onclick: () => {
@@ -1679,7 +1681,7 @@ this.BX = this.BX || {};
 	    if (section.data.CAL_DAV_CON && section.belongsToView() && this.calendarContext.syncInterface) {
 	      [provider, connection] = this.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON);
 	    }
-	    if (section.canDo('edit_section') && section.belongsToView() && !section.isPseudo() && (!section.isGoogle() && !connection || section.data['EXTERNAL_TYPE'] === 'local' || !connection)) {
+	    if (section.canDo('edit_section') && section.belongsToView() && !section.isPseudo() && !((_this$calendarContext10 = this.calendarContext) != null && (_this$calendarContext11 = _this$calendarContext10.util) != null && _this$calendarContext11.isExtranetUser()) && (!section.isGoogle() && !connection || section.data['EXTERNAL_TYPE'] === 'local' || !connection)) {
 	      menuItems.push({
 	        text: main_core.Loc.getMessage('EC_SEC_DELETE'),
 	        onclick: () => {
@@ -1742,7 +1744,7 @@ this.BX = this.BX || {};
 	      });
 	    }
 	    if (menuItems && menuItems.length > 0) {
-	      this.sectionActionMenu = top.BX.PopupMenu.create('section-menu-' + calendar_util.Util.getRandomInt(), menuItemNode, menuItems, {
+	      this.sectionActionMenu = main_popup.MenuManager.create('section-menu-' + calendar_util.Util.getRandomInt(), menuItemNode, menuItems, {
 	        closeByEsc: true,
 	        autoHide: true,
 	        zIndex: this.zIndex,
@@ -1785,6 +1787,9 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  showEditSectionForm(params = {}) {
+	    if (!this.DOM.sectionFormWrap) {
+	      return;
+	    }
 	    this.closeForms();
 	    const formTitleNode = this.DOM.sectionFormWrap.querySelector('.calendar-list-slider-card-widget-title-text');
 	    this.editSectionForm = new EditForm({

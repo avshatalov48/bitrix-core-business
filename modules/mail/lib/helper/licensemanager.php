@@ -7,6 +7,7 @@ use Bitrix\Main;
 use Bitrix\Bitrix24;
 use Bitrix\Mail\MailboxTable;
 use Bitrix\Mail\Integration\Im\Notification;
+use Bitrix\Main\Mail\Internal\SenderTable;
 
 /**
  * Class LicenseManager
@@ -212,11 +213,48 @@ class LicenseManager
 		return false;
 	}
 
+	private static function getCountSenders(int $userId = 0)
+	{
+		global $USER;
+
+		if (!($userId > 0 || (is_object($USER) && $USER->isAuthorized())))
+		{
+			return false;
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
+		}
+
+
+		return SenderTable::getCount([
+			'IS_CONFIRMED' => true,
+			[
+				'LOGIC' => 'OR',
+				'=USER_ID' => $userId,
+				'IS_PUBLIC' => true,
+			],
+		]);
+	}
+
 	public static function isMailClientReadyToUse($userId = null): bool
 	{
+		global $USER;
+
+		if (!($userId > 0 || (is_object($USER) && $USER->isAuthorized())))
+		{
+			return false;
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
+		}
+
 		if (
 			self::isSyncAvailable()
-			&& count(MailboxTable::getUserMailboxes($userId)) > 0
+			&& (self::getCountSenders($userId) || count(MailboxTable::getUserMailboxes($userId)) > 0 )
 			&& self::checkUserHasNotExceededTheConnectedMailboxesLimit($userId)
 		)
 		{

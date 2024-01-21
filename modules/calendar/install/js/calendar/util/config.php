@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -10,10 +10,10 @@ return [
 	'rel' => [
 		'main.core',
 		'main.date',
-		'ui.notification',
 		'main.popup',
 		'pull.client',
 		'ui.dialogs.messagebox',
+		'ui.notification',
 	],
 	'skip_core' => false,
 ];

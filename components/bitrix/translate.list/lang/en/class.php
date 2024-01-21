@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TR_ASSIGNMENT_TYPE_ACTIVITIES"] = "Activities";
 $MESS["TR_ASSIGNMENT_TYPE_ADMIN"] = "Control Panel page";
 $MESS["TR_ASSIGNMENT_TYPE_BLOCKS"] = "Sites24 template";
@@ -41,4 +41,3 @@ $MESS["TR_SEARCH_METHOD_EXACT_WORD"] = "match exact wording";
 $MESS["TR_SEARCH_METHOD_START_WITH"] = "starts with";
 $MESS["TR_SEARCH_PHRASE_ENTRY"] = "Message search options";
 $MESS["TR_UNCOMPATIBLE_ENCODING"] = "The current page encoding is not compatible with the localization encoding. Some characters may show incorrectly. ";
-?>

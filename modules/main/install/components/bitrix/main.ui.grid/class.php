@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Grid;
 use Bitrix\Main\Grid\Column\Column;
@@ -11,7 +11,6 @@ use Bitrix\Main\Web;
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 Loc::loadMessages(__FILE__);
-
 
 /**
  * Class CMainUIGrid
@@ -39,7 +38,7 @@ class CMainUIGrid extends CBitrixComponent
 	/** @var bool */
 	protected bool $needSortColumns = false;
 
-	/** @var \CGridOptions $gridOptions */
+	/** @var CGridOptions $gridOptions */
 	protected $gridOptions;
 
 	/** @var Bitrix\Main\Web\Uri $uri */
@@ -105,14 +104,14 @@ class CMainUIGrid extends CBitrixComponent
 
 	protected function validateColumn($column = array())
 	{
-		return (is_array($column) && isset($column["id"]) && is_string($column["id"]) && !empty($column["id"]));
+		return (is_array($column) && !empty($column["id"]) && is_string($column["id"]));
 	}
 
 	protected function validateColumns($columns = array())
 	{
 		$result = true;
 
-		foreach ($columns as $key => $column)
+		foreach ($columns as $column)
 		{
 			if (!$this->validateColumn($column))
 			{
@@ -150,7 +149,7 @@ class CMainUIGrid extends CBitrixComponent
 
 		if (!empty($messages))
 		{
-			foreach ($messages as $key => $message)
+			foreach ($messages as $message)
 			{
 				ShowMessage($message);
 			}
@@ -578,7 +577,7 @@ class CMainUIGrid extends CBitrixComponent
 
 		if ($isArray && !$isAssociative)
 		{
-			foreach ($messages as $key => $message)
+			foreach ($messages as $message)
 			{
 				$result[] = self::prepareMessage($message);
 			}
@@ -642,9 +641,7 @@ class CMainUIGrid extends CBitrixComponent
 		if (!$USER->CanDoOperation("edit_other_settings"))
 		{
 			$commonOptions = CUserOptions::getOption("main.interface.grid", $this->arParams["GRID_ID"], array());
-			if (!empty($commonOptions) &&
-				isset($commonOptions["views"]["default"]["columns"]) &&
-				!empty($commonOptions["views"]["default"]["columns"]))
+			if (!empty($commonOptions["views"]["default"]["columns"]))
 			{
 				$commonColumns = explode(",", $commonOptions["views"]["default"]["columns"]);
 			}
@@ -868,12 +865,9 @@ class CMainUIGrid extends CBitrixComponent
 			foreach ($this->getCustomNames() as $key => $value)
 			{
 				$column = $this->getResultColumn($key);
-				if (isset($column))
-				{
-					$column->setName(
-						(string)Bitrix\Main\Text\Converter::getHtmlConverter()->decode($value)
-					);
-				}
+				$column?->setName(
+					(string)Bitrix\Main\Text\Converter::getHtmlConverter()->decode($value)
+				);
 			}
 		}
 
@@ -1106,7 +1100,7 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$this->arResult["DATA_FOR_EDIT"] = $this->dataForEdit;
 
-			foreach ($this->prepareRows() as $rowKey => $rowItem)
+			foreach ($this->prepareRows() as $rowItem)
 			{
 				if (isset($rowItem["editable"]) && $rowItem["editable"] === false)
 				{
@@ -1177,7 +1171,7 @@ class CMainUIGrid extends CBitrixComponent
 		{
 			$this->arResult["ALLOW_INLINE_EDIT"] = $this->allowInlineEdit;
 
-			foreach ($this->prepareRows() as $key => $item)
+			foreach ($this->prepareRows() as $item)
 			{
 				if (
 					$item['id'] !== 'template_0'
@@ -1325,7 +1319,7 @@ class CMainUIGrid extends CBitrixComponent
 				unset($actions[$key]["DEFAULT"]);
 			}
 
-			if (isset($action["MENU"]) && is_array($action["MENU"]) && !empty($action["MENU"]))
+			if (!empty($action["MENU"]) && is_array($action["MENU"]))
 			{
 				$actions[$key]["items"] = $this->compatibleActions($action["MENU"], $row);
 				unset($actions[$key]["MENU"]);
@@ -1375,21 +1369,14 @@ class CMainUIGrid extends CBitrixComponent
 
 	protected function compatibleRow($row, $rowIndex)
 	{
-		if (isset($row["actions"]) && is_array($row["actions"]) && !empty($row["actions"]))
+		if (!empty($row["actions"]) && is_array($row["actions"]))
 		{
 			$row["actions"] = $this->compatibleActions($row["actions"], $row);
 		}
 
 		if(!isset($row["id"]))
 		{
-			if (isset($row["data"]) && is_array($row["data"]) && isset($row["data"]["ID"]))
-			{
-				$row["id"] = $row["data"]["ID"];
-			}
-			else
-			{
-				$row["id"] = $rowIndex;
-			}
+			$row["id"] = $row["data"]["ID"] ?? $rowIndex;
 		}
 
 		return $row;
@@ -1672,7 +1659,7 @@ class CMainUIGrid extends CBitrixComponent
 
 			$this->showedColumnsList = array();
 
-			foreach ($tmp as $key => $item)
+			foreach ($tmp as $item)
 			{
 				$item = trim($item);
 
@@ -1791,7 +1778,6 @@ class CMainUIGrid extends CBitrixComponent
 			'default' => $column->isDefault(),
 			'is_shown' => $column->isShown(),
 			'sort' => $column->getSort(),
-			'default' => $column->isDefault(),
 			'editable' => isset($editable) ? $editable->toArray() : false,
 			'sort_state' => $column->getSortState(),
 			'sort_index' => $column->getSortIndex(),
@@ -1892,7 +1878,7 @@ class CMainUIGrid extends CBitrixComponent
 			$attributes["data-parent-id"] = $row["parent_id"] ?? null;
 		}
 
-		if (isset($row["default_action"]) && !empty($row["default_action"]))
+		if (!empty($row["default_action"]))
 		{
 			$attributes["data-default-action"] = $row["default_action"]["js"] ?? '';
 			$attributes["title"] = '';
@@ -1976,10 +1962,7 @@ class CMainUIGrid extends CBitrixComponent
 			$cellClass = "main-grid-cell";
 
 			$align = $column->getAlign();
-			if (isset($align))
-			{
-				$cellClass .= " main-grid-cell-{$align}";
-			}
+			$cellClass .= " main-grid-cell-{$align}";
 
 			if (
 				isset($row["columnClasses"])
@@ -2037,11 +2020,7 @@ class CMainUIGrid extends CBitrixComponent
 			;
 
 			$cellActions = [];
-			if (
-				isset($row['cellActions'][$columnId])
-				&& is_array($row['cellActions'][$columnId])
-				&& !empty($row['cellActions'][$columnId])
-			)
+			if (!empty($row['cellActions'][$columnId]) && is_array($row['cellActions'][$columnId]))
 			{
 				$isCellActionsEnabled = true;
 				foreach ($row['cellActions'][$columnId] as $action)
@@ -2087,13 +2066,7 @@ class CMainUIGrid extends CBitrixComponent
 					"attributes" => "",
 				],
 			];
-			if (
-				isset($row["counters"])
-				&& is_array($row["counters"])
-				&& isset($row["counters"][$columnId])
-				&& is_array($row["counters"][$columnId])
-				&& !empty($row["counters"][$columnId])
-			)
+			if (!empty($row["counters"][$columnId]) && is_array($row["counters"][$columnId]))
 			{
 				$counter["enabled"] = true;
 
@@ -2120,8 +2093,7 @@ class CMainUIGrid extends CBitrixComponent
 				}
 
 				if (
-					isset($counterOptions["value"])
-					&& !empty($counterOptions["value"])
+					!empty($counterOptions["value"])
 					&& (
 						is_string($counterOptions["value"])
 						|| is_numeric($counterOptions["value"])
@@ -2132,8 +2104,7 @@ class CMainUIGrid extends CBitrixComponent
 				}
 
 				if (
-					isset($counterOptions["color"])
-					&& !empty($counterOptions["color"])
+					!empty($counterOptions["color"])
 					&& is_string($counterOptions["color"])
 				)
 				{
@@ -2141,8 +2112,7 @@ class CMainUIGrid extends CBitrixComponent
 				}
 
 				if (
-					isset($counterOptions["size"])
-					&& !empty($counterOptions["size"])
+					!empty($counterOptions["size"])
 					&& is_string($counterOptions["size"])
 				)
 				{
@@ -2256,9 +2226,7 @@ class CMainUIGrid extends CBitrixComponent
 				$addButtonEvents = [];
 				$addButtonEnabled = false;
 				if (
-					isset($row["columns"][$columnId]["addButton"])
-					&& is_array($row["columns"][$columnId]["addButton"])
-					&& isset($row["columns"][$columnId]["addButton"]["events"])
+					isset($row["columns"][$columnId]["addButton"]["events"])
 					&& is_array($row["columns"][$columnId]["addButton"]["events"])
 				)
 				{
@@ -2267,7 +2235,7 @@ class CMainUIGrid extends CBitrixComponent
 				}
 
 				$items = [];
-				foreach ($row["columns"][$columnId]["items"] as $tagKey => $tag)
+				foreach ($row["columns"][$columnId]["items"] as $tag)
 				{
 					$item = [];
 					$item["class"] = "";
@@ -2290,9 +2258,7 @@ class CMainUIGrid extends CBitrixComponent
 
 					$removeButtonEvents = [];
 					if (
-						isset($tag["removeButton"])
-						&& is_array($tag["removeButton"])
-						&& isset($tag["removeButton"]["events"])
+						isset($tag["removeButton"]["events"])
 						&& is_array($tag["removeButton"]["events"])
 					)
 					{
@@ -2450,10 +2416,6 @@ class CMainUIGrid extends CBitrixComponent
 						$this->resultColumnsAll[$column->getId()] = $column;
 					}
 				}
-				else
-				{
-					continue;
-				}
 			}
 		}
 
@@ -2533,9 +2495,7 @@ class CMainUIGrid extends CBitrixComponent
 		$gridOptions = $this->getGridOptions();
 		$isNeedSave = false;
 
-		if (!isset($options["columns_sizes"]) ||
-			empty($options["columns_sizes"]) ||
-			!is_array($options["columns_sizes"]))
+		if (empty($options["columns_sizes"]) || !is_array($options["columns_sizes"]))
 		{
 			$columnsSizes = array();
 			$isNeedSave = true;
@@ -2606,7 +2566,7 @@ class CMainUIGrid extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'js' && !(strpos($file, 'map.js') !== false || strpos($file, 'min.js') !== false))
+					if ($ext === 'js' && !(str_contains($file, 'map.js') || str_contains($file, 'min.js')))
 					{
 						$tmpl->addExternalJs($relPath.$file);
 					}
@@ -2633,7 +2593,7 @@ class CMainUIGrid extends CBitrixComponent
 	{
 		foreach ($rows as $key => $row)
 		{
-			if ($row["parent_id"] === $parent)
+			if ($row["parent_id"] == $parent)
 			{
 				$row["depth"] = $depth;
 				$resultRows[] = $row;
@@ -2648,7 +2608,7 @@ class CMainUIGrid extends CBitrixComponent
 	{
 		$ids = array();
 
-		foreach ($rows as $key => $row)
+		foreach ($rows as $row)
 		{
 			$ids[] = $row["id"];
 		}
@@ -2732,7 +2692,7 @@ class CMainUIGrid extends CBitrixComponent
 			"hasCellActions" => [],
 		];
 
-		foreach ($this->arParams["ROWS"] as $rowId => $row)
+		foreach ($this->arParams["ROWS"] as $row)
 		{
 			if (isset($row["cellActions"]) && is_array($row["cellActions"]))
 			{
@@ -2826,7 +2786,7 @@ trait DeprecatedMethods
 	/**
 	 * @deprecated use `Layout` class.
 	 *
-	 * @see \Bitrix\Main\Component\Grid\Column\Layout
+	 * @see \Bitrix\Main\Grid\Column\UI\Layout
 	 *
 	 * @param mixed $column
 	 *
@@ -2846,7 +2806,7 @@ trait DeprecatedMethods
 	/**
 	 * @deprecated use `Layout` class.
 	 *
-	 * @see \Bitrix\Main\Component\Grid\Column\Layout
+	 * @see \Bitrix\Main\Grid\Column\UI\Layout
 	 *
 	 * @param mixed $column
 	 *
@@ -2874,9 +2834,9 @@ trait DeprecatedMethods
 			isset($column["color"])
 			&& is_string($column["color"])
 			&& (
-				strpos($column["color"], "#") === false
-				&& strpos($column["color"], "rgb") === false
-				&& strpos($column["color"], "hsl") === false
+				!str_contains($column["color"], "#")
+				&& !str_contains($column["color"], "rgb")
+				&& !str_contains($column["color"], "hsl")
 			)
 		)
 		{
@@ -2932,9 +2892,9 @@ trait DeprecatedMethods
 	/**
 	 * @deprecated use `Layout` class.
 	 *
-	 * @see \Bitrix\Main\Component\Grid\Column\Layout
+	 * @see \Bitrix\Main\Grid\Column\UI\Layout
 	 *
-	 * @param mixed $attrs
+	 * @param mixed $column
 	 *
 	 * @return string
 	 */
@@ -2950,9 +2910,9 @@ trait DeprecatedMethods
 			isset($column["color"])
 			&& is_string($column["color"])
 			&& (
-				strpos($column["color"], "#") === 0
-				|| strpos($column["color"], "rgb") === 0
-				|| strpos($column["color"], "hsl") === 0
+				str_starts_with($column["color"], "#")
+				|| str_starts_with($column["color"], "rgb")
+				|| str_starts_with($column["color"], "hsl")
 			)
 		)
 		{
@@ -2994,7 +2954,7 @@ trait DeprecatedMethods
 
 	/**
 	 * @deprecated use `Column` class
-	 * @see \Bitrix\Main\Grid\Column\Column
+	 * @see Column
 	 *
 	 * Prepares sticked value
 	 * @param array $column
@@ -3007,7 +2967,7 @@ trait DeprecatedMethods
 
 	/**
 	 * @deprecated use `Column` class
-	 * @see \Bitrix\Main\Grid\Column\Column
+	 * @see Column
 	 */
 	protected function preparePreventDefault(array $column)
 	{
@@ -3033,7 +2993,7 @@ trait DeprecatedMethods
 		{
 			$this->arResult["COLUMNS_ALL"] = array();
 
-			foreach ($this->arParams["COLUMNS"] as $key => $item)
+			foreach ($this->arParams["COLUMNS"] as $item)
 			{
 				$this->arResult["COLUMNS_ALL"][$item["id"]] = $this->prepareColumn($item);
 			}
@@ -3101,7 +3061,7 @@ trait DeprecatedMethods
 	 * Prepares each column
 	 * @method prepareColumn
 	 * @param  array $column header item
-	 * @return array prepared header item
+	 * @return array | null prepared header item
 	 */
 	protected function prepareColumn(array $column)
 	{
@@ -3111,7 +3071,7 @@ trait DeprecatedMethods
 			return $this->convertColumnToArray($column);
 		}
 
-		return $column;
+		return null;
 	}
 
 	/**
@@ -3199,7 +3159,7 @@ trait DeprecatedMethods
 	 *
 	 * @param array $headerItem
 	 *
-	 * @return void
+	 * @return string
 	 */
 	protected function prepareNextSortOrder(array $headerItem)
 	{
@@ -3285,7 +3245,7 @@ trait DeprecatedMethods
 
 			if($result["TYPE"] === Grid\Editor\Types::MONEY	&& is_array($result["CURRENCY_LIST"]))
 			{
-				$currencyList = is_array($result["CURRENCY_LIST"]) ? $result["CURRENCY_LIST"] : [];
+				$currencyList = $result["CURRENCY_LIST"];
 				$result["CURRENCY_LIST"] = [];
 				foreach($currencyList as $k => $v)
 				{
@@ -3300,8 +3260,7 @@ trait DeprecatedMethods
 				)
 				&& $result["items"] && is_array($result["items"])
 				&& !(
-					isset($result["DATA"])
-					&& isset($result["DATA"]["ITEMS"])
+					isset($result["DATA"]["ITEMS"])
 					&& is_array($result["DATA"]["ITEMS"])
 				)
 			)
@@ -3333,7 +3292,7 @@ trait DeprecatedMethods
 	 *
 	 * @param mixed $column
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	protected function prepareResizeable($column)
 	{
@@ -3399,10 +3358,12 @@ trait DeprecatedMethods
 	{
 		$state = null;
 
-		if (isset($this->arParams["SORT"]) &&
+		if (
+			isset($this->arParams["SORT"]) &&
 			is_array($this->arParams["SORT"]) &&
 			(isset($headerItem["sort"]) && (is_string($headerItem["sort"]) || is_int($headerItem["sort"]))) &&
-			array_key_exists($headerItem["sort"], $this->arParams["SORT"]))
+			array_key_exists($headerItem["sort"], $this->arParams["SORT"])
+		)
 		{
 			$state = $this->arParams["SORT"][$headerItem["sort"]];
 		}

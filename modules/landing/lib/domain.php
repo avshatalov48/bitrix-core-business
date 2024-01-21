@@ -19,6 +19,8 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 		'bitrix24site.ua',
 		'bitrix24site.ru',
 		'bitrix24shop.ru',
+		'b24site.online',
+		'b24shop.online',
 	];
 
 	/**
@@ -82,11 +84,22 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 		$type = mb_strtoupper($type);
 
 		// local domain
-		if (in_array($zone, ['ru', 'by']))
+		if (in_array($zone, ['ru']))
 		{
 			$postfix = '.';
 			$postfix .= ($type === 'STORE') ? 'bitrix24shop' : 'bitrix24site';
 			$postfix .= '.' . $zone;
+		}
+		if (in_array($zone, ['by']))
+		{
+			if ($type === 'STORE')
+			{
+				$postfix = '.b24shop.online';
+			}
+			else
+			{
+				$postfix = '.b24site.online';
+			}
 		}
 
 		return $postfix;

@@ -42,6 +42,10 @@ if ($arParams["PAGE_ID"] == '')
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
+$arParams["PAGE_VAR"] = $arParams["PAGE_VAR"] ?? '';
+$arParams["USER_VAR"] = $arParams["USER_VAR"] ?? '';
+$arParams["GROUP_VAR"] = $arParams["GROUP_VAR"] ?? '';
+
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
 if ($arParams["PAGE_VAR"] == '')
@@ -151,7 +155,7 @@ else
 						}
 
 						$arResult["Features"][$feature] = array(
-							"FeatureName" => $arFeaturesTmp[$feature]["FEATURE_NAME"],
+							"FeatureName" => $arFeaturesTmp[$feature]["FEATURE_NAME"] ?? null,
 							"Active" => (array_key_exists($feature, $arFeaturesTmp) ? ($arFeaturesTmp[$feature]["ACTIVE"] == "Y") : true),
 							"Operations" => array(),
 						);

@@ -116,9 +116,9 @@ export const ParserIcon = {
 		if (Type.isArray(attach) && attach.length > 0)
 		{
 			const [firstAttach] = attach;
-			if (Type.isStringFilled(firstAttach.DESCRIPTION))
+			if (Type.isStringFilled(firstAttach.description))
 			{
-				attachDescription = firstAttach.DESCRIPTION;
+				attachDescription = firstAttach.description;
 			}
 		}
 		else if (Type.isStringFilled(attach))
@@ -128,7 +128,7 @@ export const ParserIcon = {
 
 		if (Type.isStringFilled(attachDescription))
 		{
-			if (attachDescription === AttachDescription.SKIP_MESSAGE)
+			if (attachDescription === AttachDescription.skipMessage)
 			{
 				attachDescription = '';
 			}

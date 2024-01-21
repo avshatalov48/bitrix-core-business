@@ -1,7 +1,7 @@
 <?php
 $MESS["PRODUCT_ENTITY_ID_FIELD"] = "Идентификатор";
 $MESS["PRODUCT_ENTITY_QUANTITY_FIELD"] = "Доступное количество";
-$MESS["PRODUCT_ENTITY_QUANTITY_TRACE_FIELD"] = "Режим количественного учета";
+$MESS["PRODUCT_ENTITY_QUANTITY_TRACE_FIELD_MSGVER_1"] = "Режим количественного учета";
 $MESS["PRODUCT_ENTITY_WEIGHT_FIELD"] = "Вес";
 $MESS["PRODUCT_ENTITY_TIMESTAMP_X_FIELD"] = "Дата изменения";
 $MESS["PRODUCT_ENTITY_PRICE_TYPE_FIELD"] = "Тип оплаты";
@@ -25,7 +25,7 @@ $MESS["PRODUCT_ENTITY_MEASURE_FIELD"] = "Единица измерения";
 $MESS["PRODUCT_ENTITY_TYPE_FIELD"] = "Тип товара";
 $MESS["PRODUCT_ENTITY_AVAILABLE_FIELD"] = "Доступность к покупке";
 $MESS["PRODUCT_ENTITY_TYPE_PRODUCT"] = "простой";
-$MESS["PRODUCT_ENTITY_TYPE_SET"] = "комплект";
+$MESS["PRODUCT_ENTITY_TYPE_SET_MSGVER_1"] = "комплект";
 $MESS["PRODUCT_ENTITY_TYPE_SKU"] = "товар с предложениями";
 $MESS["PRODUCT_ENTITY_TYPE_EMPTY_SKU"] = "невалидный товар с предложениями";
 $MESS["PRODUCT_ENTITY_TYPE_OFFER"] = "предложение";

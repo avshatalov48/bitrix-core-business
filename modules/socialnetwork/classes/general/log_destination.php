@@ -2301,6 +2301,8 @@ class CSocNetLogDestination
 	public static function getUsersAll($arParams = [])
 	{
 		global $DB, $USER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		static $arFieldsStatic = array(
 			"ID" => Array("FIELD" => "U.ID", "TYPE" => "int"),
@@ -2319,7 +2321,7 @@ class CSocNetLogDestination
 
 		$arFields = $arFieldsStatic;
 		$arFields["IS_ONLINE"] = Array(
-			"FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL " . CUser::getSecondsForLimitOnline() . " SECOND), 'Y', 'N')"
+			"FIELD" => "case when U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-CUser::getSecondsForLimitOnline()) . " then 'Y' else 'N' end"
 		);
 
 		$currentUserId = $USER->GetId();
@@ -2460,7 +2462,7 @@ class CSocNetLogDestination
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 		}
 
-		$strSql .= "GROUP BY ID ";
+		$strSql .= "GROUP BY U.ID".($bExtranetEnabled ? ",UM.VALUE_INT" : "")." ";
 
 		if ($strJoin2)
 		{
@@ -2477,7 +2479,7 @@ class CSocNetLogDestination
 				$strSql .= "WHERE ".$arSqls2["WHERE"]." ";
 			}
 
-			$strSql .= "GROUP BY ID ";
+			$strSql .= "GROUP BY U.ID".($bExtranetEnabled ? ",UM.VALUE_INT" : "")." ";
 
 			$strSql .= "ORDER BY ID ASC"; // cannot use alias
 		}

@@ -4,6 +4,9 @@ namespace Bitrix\Calendar\Access\Rule;
 
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\Model\TypeModel;
+use Bitrix\Calendar\Access\Model\UserModel;
+use Bitrix\Calendar\Access\Rule\Traits\ExtranetUserTrait;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Rule\Traits\CurrentUserTrait;
@@ -12,7 +15,7 @@ use CCalendarSect;
 
 class SectionEventViewTitleRule extends \Bitrix\Main\Access\Rule\AbstractRule
 {
-	use SectionTrait, CurrentUserTrait;
+	use SectionTrait, CurrentUserTrait, ExtranetUserTrait;
 
 	public function execute(AccessibleItem $item = null, $params = null): bool
 	{
@@ -24,6 +27,11 @@ class SectionEventViewTitleRule extends \Bitrix\Main\Access\Rule\AbstractRule
 		if (!$this->hasCurrentUser())
 		{
 			return true;
+		}
+
+		if (!$this->canSeeOwnerIfExtranetUser($item, $this->user))
+		{
+			return false;
 		}
 
 		if ($this->user->isAdmin() || $this->user->isSocNetAdmin($item->getType()))

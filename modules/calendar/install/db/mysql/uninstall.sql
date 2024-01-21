@@ -14,3 +14,7 @@ DROP TABLE if exists b_calendar_room_category;
 DROP TABLE if exists b_calendar_queue_message;
 DROP TABLE if exists b_calendar_queue_handled_message;
 DROP TABLE if exists b_calendar_sharing_link;
+DROP TABLE if exists b_calendar_sharing_link_rule;
+DROP TABLE if exists b_calendar_sharing_object_rule;
+DROP TABLE if exists b_calendar_event_original_recursion;
+DROP TABLE if exists b_calendar_sharing_link_member;

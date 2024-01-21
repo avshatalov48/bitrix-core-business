@@ -1,4 +1,4 @@
-import type {RawUser} from './common';
+import type { RawUser } from './common';
 
 export type ChatOwnerParams = {
 	chatId: number,
@@ -66,4 +66,10 @@ export type ChatRenameParams = {
 export type ChatAvatarParams = {
 	chatId: number,
 	avatar: string
+};
+
+export type ChatHideParams = {
+	dialogId: string,
+	chatId: string,
+	lines: Object | false,
 };

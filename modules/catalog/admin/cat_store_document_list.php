@@ -153,9 +153,9 @@ foreach ($listDocType as $type => $title)
 
 $aContext = array(
 	array(
-		"TEXT" => Loc::getMessage("CAT_DOC_ADD"),
+		"TEXT" => Loc::getMessage("CAT_DOC_ADD_MSGVER_1"),
 		"ICON" => "btn_new",
-		"TITLE" =>  Loc::getMessage("CAT_DOC_ADD_TITLE"),
+		"TITLE" =>  Loc::getMessage("CAT_DOC_ADD_TITLE_MSGVER_1"),
 		"DISABLE" => true,
 		"MENU" => $arSiteMenu
 	),
@@ -195,7 +195,7 @@ $filterFields = [
 	],
 	[
 		"id" => "DOC_TYPE",
-		"name" => Loc::getMessage("CAT_DOC_TYPE"),
+		"name" => Loc::getMessage("CAT_DOC_TYPE_MSGVER_1"),
 		"type" => "list",
 		"items" => $listDocType,
 		"filterable" => ""
@@ -471,7 +471,7 @@ $headers[] = [
 ];
 $headers[] = [
 	"id" => "DOC_TYPE",
-	"content" => Loc::getMessage("CAT_DOC_TYPE"),
+	"content" => Loc::getMessage("CAT_DOC_TYPE_MSGVER_1"),
 	"sort" => "DOC_TYPE",
 	"default" => true,
 ];

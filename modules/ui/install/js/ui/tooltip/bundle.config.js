@@ -1,5 +1,6 @@
 module.exports = {
 	input: 'src/index.js',
-	output: 'tooltip.js',
-	namespace: 'BX.UI'
+	output: 'dist/tooltip.bundle.js',
+	namespace: 'BX.UI',
+	browserslist: true,
 };

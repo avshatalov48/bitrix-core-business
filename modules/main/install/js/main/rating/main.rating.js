@@ -12562,6 +12562,10 @@ this.BX.Main = this.BX.Main || {};
 	          },
 	          transition: BX.easing.makeEaseInOut(BX.easing.transitions.cubic),
 	          step: function step(state) {
+	            if (!_this2.reactionsPopup) {
+	              _this2.reactionsPopupAnimation.stop();
+	              return;
+	            }
 	            _this2.reactionsPopup.style.width = "".concat(state.width, "px");
 	            _this2.reactionsPopup.style.left = "".concat(state.left, "px");
 	            _this2.reactionsPopup.style.top = "".concat(state.top, "px");
@@ -12570,13 +12574,22 @@ this.BX.Main = this.BX.Main || {};
 	            _this2.reactionsPopupOpacityState = state.opacity;
 	          },
 	          complete: function complete() {
+	            if (!_this2.reactionsPopup) {
+	              return;
+	            }
 	            _this2.reactionsPopup.style.opacity = '';
 	            _this2.reactionsPopup.classList.add('feed-post-emoji-popup-active-final');
 	            likeInstance.box.classList.add('feed-post-emoji-control-active');
+	            if (main_core.Type.isFunction(params.onComplete)) {
+	              params.onComplete();
+	            }
 	          }
 	        });
 	        this.reactionsPopupAnimation.animate();
 	        setTimeout(function () {
+	          if (!_this2.reactionsPopup) {
+	            return;
+	          }
 	          var reactions = _this2.reactionsPopup.querySelectorAll('.feed-post-emoji-icon-item');
 	          _this2.reactionsPopupAnimation2 = new BX.easing({
 	            duration: 140,
@@ -12879,6 +12892,11 @@ this.BX.Main = this.BX.Main || {};
 	    value: function getReactionsPopupMouseOutHandler(likeId) {
 	      var _this6 = this;
 	      return function (e) {
+	        if (!_this6.reactionsPopup) {
+	          document.removeEventListener('mousemove', _this6.reactionsPopupMouseOutHandler);
+	          _this6.reactionsPopupMouseOutHandler = null;
+	          return;
+	        }
 	        var popupPosition = _this6.reactionsPopup.getBoundingClientRect();
 	        var inverted = _this6.reactionsPopup.classList.contains('feed-post-emoji-popup-inverted');
 	        if (e.clientX >= popupPosition.left && e.clientX <= popupPosition.right && e.clientY >= popupPosition.top - (inverted ? 25 : 0) && e.clientY <= popupPosition.bottom + (inverted ? 0 : 25)) {
@@ -12897,7 +12915,11 @@ this.BX.Main = this.BX.Main || {};
 	    value: function getMouseOverHandler(likeId) {
 	      var _this7 = this;
 	      return function () {
+	        var _this7$reactionsPopup, _this7$reactionsPopup2;
 	        var likeInstance = RatingLike$1.getInstance(likeId);
+	        if (_this7.reactionsPopup && !((_this7$reactionsPopup = _this7.reactionsPopup) !== null && _this7$reactionsPopup !== void 0 && _this7$reactionsPopup.classList.contains('feed-post-emoji-popup-invisible')) && !(RatingManager.mobile && (_this7$reactionsPopup2 = _this7.reactionsPopup) !== null && _this7$reactionsPopup2 !== void 0 && _this7$reactionsPopup2.classList.contains('feed-post-emoji-popup-invisible-final-mobile'))) {
+	          return;
+	        }
 	        if (!_this7.afterClickBlockShowPopup) {
 	          if (_this7.blockShowPopup) {
 	            return;
@@ -12907,11 +12929,13 @@ this.BX.Main = this.BX.Main || {};
 	          }
 	          _this7.showReactionsPopup({
 	            bindElement: likeInstance.box,
-	            likeId: likeId
+	            likeId: likeId,
+	            onComplete: function onComplete() {
+	              likeInstance.box.removeEventListener('mouseenter', likeInstance.mouseOverHandler);
+	              likeInstance.box.removeEventListener('mouseleave', _this7.blockReactionsPopup.bind(_this7));
+	            }
 	          });
 	        }
-	        likeInstance.box.removeEventListener('mouseenter', likeInstance.mouseOverHandler);
-	        likeInstance.box.removeEventListener('mouseleave', _this7.blockReactionsPopup.bind(_this7));
 	      };
 	    }
 	  }, {

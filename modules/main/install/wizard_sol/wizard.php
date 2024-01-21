@@ -6,6 +6,7 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\CultureTable;
 
 require_once("utils.php");
@@ -890,6 +891,6 @@ class CFinishWizardStep extends CWizardStep
 			$delete_after_copy = true
 		);
 
-		bx_accelerator_reset();
+		Application::resetAccelerator();
 	}
 }

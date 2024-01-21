@@ -107,7 +107,7 @@ export class Item
 		}
 		else
 		{
-			this.#text = Loc.getMessage(this.#phrases[this.#bindingType]+'NOT_ACTIVE');
+			this.#text = Loc.getMessage(this.#phrases[this.#bindingType]+'NOT_ACTIVE' + this.getVersionNotActivePhrase());
 		}
 	}
 
@@ -206,7 +206,7 @@ export class Item
 		this.stopWait();
 		this.getNode().classList.add("mail-ui-not-active");
 		this.getNode().classList.remove("mail-ui-active");
-		this.setText(Loc.getMessage(this.#phrases[this.getType()]+'NOT_ACTIVE'));
+		this.setText(Loc.getMessage(`${this.#phrases[this.getType()]}NOT_ACTIVE${this.getVersionNotActivePhrase()}`));
 		this.getNode().removeAttribute("href");
 		this.#active = false;
 		this.updateTitle();
@@ -277,4 +277,12 @@ export class Item
 
 		return item;
 	}
+
+	getVersionNotActivePhrase()
+	{
+		return {
+			'meeting': '_MSG_1',
+		}[this.getType()] || '';
+	}
 }
+

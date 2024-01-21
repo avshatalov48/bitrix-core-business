@@ -5,11 +5,11 @@ namespace Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Role;
-use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromArray;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Internals\PushTable;
 use Bitrix\Calendar\Internals\SectionConnectionTable;
+use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Calendar\Util;
 use Bitrix\Dav\Internals\DavConnectionTable;
@@ -280,10 +280,20 @@ class ConnectionManager
 		{
 			$this->unsubscribeConnection($connection);
 
+			$accountType = $connection->getAccountType() === Sync\Google\Helper::GOOGLE_ACCOUNT_TYPE_API
+				? 'google'
+				: $connection->getAccountType()
+			;
+
 			Util::addPullEvent(
 				'delete_sync_connection',
 				$connection->getOwner()->getId(),
 				[
+					'syncInfo' => [
+						$accountType => [
+							'type' => $accountType,
+						],
+					],
 					'connectionId' => $connection->getId()
 				]
 			);

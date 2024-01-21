@@ -24,6 +24,8 @@ export class Binding
 	{
 		this.#mailboxId = mailboxId;
 
+		this.#subscribeEvent();
+
 		EventEmitter.subscribe('onPullEvent-mail', (event) => {
 
 			let data = event.getData();
@@ -85,5 +87,32 @@ export class Binding
 		{
 			this.replaceElement(element);
 		}
+	}
+
+	#subscribeEvent()
+	{
+		BX.PULL.subscribe({
+			type: BX.PullClient.SubscriptionType.Server,
+			moduleId: 'mail',
+			command: 'unbindItem',
+			callback: (data) => this.#unbindItem(data),
+		});
+	}
+
+	#unbindItem(data)
+	{
+		const selector = `.js-bind-${data.messageId}.mail-binding-${data.type}.mail-ui-active`;
+		const bindingWrapper = document.querySelector(selector);
+		if (!bindingWrapper)
+		{
+			return;
+		}
+		bindingWrapper.deactivation();
+		this.#updateGridByUnbindFilter();
+	}
+
+	#updateGridByUnbindFilter()
+	{
+		BX.Mail.Home.Grid.reloadTable();
 	}
 }

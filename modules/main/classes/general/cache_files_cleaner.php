@@ -186,7 +186,7 @@ class _CFileTree
 	{
 		$this->_path = preg_replace("#[\\\\\\/]+#", "/", $this->_in_path.trim($path, "/"));
 
-		if(!$this->FileExists($this->_path) || is_file($this->_path))
+		if(!file_exists($this->_path) || is_file($this->_path))
 		{
 			$last = self::ExtractFileFromPath($this->_path);
 			$this->_dir = $this->ReadDir($this->_path);
@@ -199,30 +199,6 @@ class _CFileTree
 					array_shift($this->_dir);
 				}
 			}
-		}
-	}
-
-	function FileExists($file)
-	{
-		if(function_exists('accelerator_reset'))
-		{
-			if(is_dir($file))
-				return true;
-
-			$fd = @fopen($file, "rb");
-			if($fd)
-			{
-				fclose($fd);
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return file_exists($file);
 		}
 	}
 

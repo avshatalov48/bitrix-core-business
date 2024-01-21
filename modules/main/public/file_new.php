@@ -68,7 +68,12 @@ else
 	Loc::loadLanguageFile(__FILE__);
 }
 
-$popupWindow = new CJSPopup(GetMessage("PAGE_NEW_WINDOW_TITLE"), array("SUFFIX"=>($_GET['subdialog'] == 'Y'? 'subdialog':'')));
+$popupWindow = new CJSPopup(
+	GetMessage("PAGE_NEW_WINDOW_TITLE"),
+	[
+		"SUFFIX"=> (isset($_GET['subdialog']) && $_GET['subdialog'] === 'Y'? 'subdialog':'')
+	]
+);
 
 //Check fileman permissions
 $canEditNewPage = true;
@@ -229,6 +234,7 @@ if (IsModuleInstalled("fileman") && $USER->CanDoOperation("fileman_add_element_t
 		$actualDir = $menu->MenuDir;
 		$currentDir = rtrim($path, "/")."/";
 
+		$actualMenuFile = null;
 		if ($actualDir <> '')
 		{
 			$actualMenuFile = $actualDir.".".$type.".menu.php";
@@ -547,7 +553,7 @@ if ($strWarning != "" && isset($_POST["PROPERTY"]) && is_array($_POST["PROPERTY"
 }
 else
 {
-	$arPageSlice = ParseFileContent($fileContent);
+	$arPageSlice = ParseFileContent($fileContent ?? '');
 	$arDirProperties = $arPageSlice["PROPERTIES"];
 }
 

@@ -32,17 +32,13 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 		$APPLICATION->RestartBuffer();
 
 		$bSuccess = false;
-		$mode = '';
 		$addParams = false;
 
 		$authError = SOCSERV_AUTHORISATION_ERROR;
 
 		$state = $this->parseState($_REQUEST['state']);
-		if(
-			isset($_REQUEST["code"])
-			&& $_REQUEST["code"] !== ''
-			&& $this->checkUserToken($state['user_token'])
-		)
+
+		if(!empty($_REQUEST["code"]) && $this->checkUserToken($state['user_token']))
 		{
 			$this->getEntityOAuth()->setCode($_REQUEST["code"]);
 
@@ -61,8 +57,8 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 			}
 		}
 
-
 		$aRemove = ["logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset"];
+		$mode = null;
 
 		if($this->user && ($authError === true))
 		{
@@ -77,7 +73,7 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 				if(isset($state['backurl']) || isset($state['redirect_url']))
 				{
 					$url = !empty($state['redirect_url']) ? $state['redirect_url'] : $state['backurl'];
-					if(mb_strpos($url, "#") !== 0)
+					if(!str_starts_with($url, "#"))
 					{
 						$parseUrl = parse_url($url);
 
@@ -88,7 +84,7 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 						{
 							foreach($aRemove as $param)
 							{
-								if(mb_strpos($value, $param."=") === 0)
+								if(str_starts_with($value, $param . "="))
 								{
 									unset($arUrlQuery[$key]);
 									break;
@@ -121,30 +117,21 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 			$url = (isset($urlPath)) ? $urlPath.'?auth_service_id='.static::ID.'&auth_service_error='.$authError : $APPLICATION->GetCurPageParam(('auth_service_id='.static::ID.'&auth_service_error='.$authError), $aRemove);
 		}
 
-		if($addParams && CModule::IncludeModule("socialnetwork") && mb_strpos($url, "current_fieldset=") === false)
+		if($addParams && CModule::IncludeModule("socialnetwork") && !str_contains($url, "current_fieldset="))
 		{
 			$url = (preg_match("/\?/", $url)) ? $url."&current_fieldset=SOCSERV" : $url."?current_fieldset=SOCSERV";
 		}
 
 		$url = CUtil::JSEscape($url);
 
-		if($addParams)
+		if ($bSuccess && $mode === self::MOBILE_MODE)
 		{
-			$location = ($mode === "opener") ? 'if(window.opener) window.opener.location = \''.$url.'\'; window.close();' : ' window.location = \''.$url.'\';';
+			$this->onAfterMobileAuth();
 		}
 		else
 		{
-			//fix for chrome
-			$location = ($mode === "opener") ? 'if(window.opener) window.opener.location = window.opener.location.href + \''.$url.'\'; window.close();' : ' window.location = window.location.href + \''.$url.'\';';
+			$this->onAfterWebAuth($addParams, $mode, $url);
 		}
-
-		$JSScript = '
-			<script type="text/javascript">
-			'.$location.'
-			</script>
-		';
-
-		echo $JSScript;
 
 		CMain::FinalActions();
 	}
@@ -174,7 +161,7 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 				$GLOBALS["APPLICATION"]
 					->GetCurPageParam(
 						'check_key=' . \CSocServAuthManager::getUniqueKey(),
-						["logout", "auth_service_error", "auth_service_id", "backurl"]
+						["logout", "auth_service_error", "auth_service_id", "backurl", 'serviceName', 'hitHash']
 					)
 			)
 			. '&mode=' . $location

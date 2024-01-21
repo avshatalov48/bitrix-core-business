@@ -11,7 +11,7 @@ else
 {
 	$isDark = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark');
 }
-$styleFilePath = \Bitrix\Im\Settings::isBetaActivated() ? "/template_styles_v2.css" : '/template_styles_v1.css';
+$styleFilePath = \Bitrix\Im\Settings::isLegacyChatActivated() ? '/template_styles_v1.css' : "/template_styles_v2.css";
 
 $preloadExtensions = [
 	'ui.design-tokens',
@@ -20,7 +20,7 @@ $preloadExtensions = [
 	'intranet.sidepanel.external',
 ];
 
-if (!\Bitrix\Im\Settings::isBetaActivated())
+if (\Bitrix\Im\Settings::isLegacyChatActivated())
 {
 	$preloadExtensions[] = 'socialnetwork.slider';
 }

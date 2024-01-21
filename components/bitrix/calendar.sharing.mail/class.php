@@ -27,6 +27,8 @@ class CalendarSharingMailComponent extends CBitrixComponent
 		$this->arParams['IS_CREATED'] = $status === self::MEETING_STATUS_CREATED;
 		$this->arParams['IS_CANCELLED'] = $status === self::MEETING_STATUS_CANCELLED;
 
+		$this->prepareAvatars();
+
 		$this->includeComponentTemplate();
 	}
 
@@ -48,4 +50,33 @@ class CalendarSharingMailComponent extends CBitrixComponent
 		$this->arParams['LOGO_RU'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/logo-ru-x2.png';
 	}
 
+	protected function prepareAvatars(): void
+	{
+		if (empty($this->arParams['AVATARS']))
+		{
+			return;
+		}
+
+		$maxAvatarsCount = 4;
+		$avatars = explode(',', $this->arParams['AVATARS']);
+		if (count($avatars) > $maxAvatarsCount)
+		{
+			$avatars = array_slice($avatars, 0, $maxAvatarsCount - 1);
+			$this->arParams['SHOW_DOTS'] = true;
+		}
+
+		$this->arParams['AVATARS'] = array_map([$this, 'prepareAvatar'], $avatars);
+
+		$this->arParams['ICON_DOTS'] = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/calendar-sharing-email-dots.png';
+	}
+
+	protected function prepareAvatar(string $avatar): string
+	{
+		if (trim($avatar) === '')
+		{
+			$avatar = $this->arParams['COMPONENT_PATH'] . '/templates/.default/images/ui-user.png';
+		}
+
+		return $avatar;
+	}
 }

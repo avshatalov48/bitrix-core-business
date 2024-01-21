@@ -69,7 +69,6 @@ export const ProgressBar = {
 			});
 
 			this.progressBarManager.subscribe(ProgressBarManager.event.cancel, () => {
-				console.warn('test');
 				EventEmitter.emit(EventType.uploader.cancel, {
 					tempFileId: this.file.id,
 					tempMessageId: this.messageId,

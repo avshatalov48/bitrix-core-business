@@ -184,21 +184,22 @@ class CBPRequestInformationOptionalActivity extends CBPRequestInformationActivit
 
 	public static function getTaskControls($task)
 	{
-		$taskControls = parent::getTaskControls($task);
-		$taskControls['BUTTONS'][] = [
+		$controls = parent::getTaskControls($task);
+		$controls['BUTTONS'][] = [
 			'TYPE' => 'submit',
 			'TARGET_USER_STATUS' => CBPTaskUserStatus::Cancel,
 			'NAME' => 'cancel',
 			'VALUE' => 'Y',
-			'TEXT' => $task['PARAMETERS']['TaskButtonCancelMessage'] <> '' ? $task["PARAMETERS"]["TaskButtonCancelMessage"] : GetMessage("BPAA_ACT_BUTTON2")
+			'TEXT' => $task['PARAMETERS']['TaskButtonCancelMessage'] ?: GetMessage("BPRIOA_ACT_BUTTON2"),
 		];
-		return $taskControls;
+
+		return $controls;
 	}
 
 	protected static function getEventParameters($task, $request)
 	{
 		$result = [
-			'COMMENT' => isset($request['task_comment']) ? trim($request['task_comment']) : ''
+			'COMMENT' => trim($request['fields']['task_comment'] ?? ($request['task_comment'] ?? '')),
 		];
 
 		if(isset($request['INLINE_USER_STATUS']) && $request['INLINE_USER_STATUS'] === \CBPTaskUserStatus::Cancel)

@@ -50,6 +50,10 @@ abstract class Connection extends Data\Connection
 	const PERSISTENT = 1;
 	const DEFERRED = 2;
 
+	const INDEX_UNIQUE = 'UNIQUE';
+	const INDEX_FULLTEXT = 'FULLTEXT';
+	const INDEX_SPATIAL = 'SPATIAL';
+
 	/**
 	 * $configuration may contain following keys:
 	 * <ul>

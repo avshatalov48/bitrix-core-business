@@ -1,5 +1,4 @@
 <?php
-$MESS["SALE_HPS_WOOPPAY_CHECKOUT_MODE"] = "Payment page";
 $MESS["SALE_HPS_WOOPPAY_ERROR_DECODE_RESPONSE"] = "Error decoding JSON string";
 $MESS["SALE_HPS_WOOPPAY_ERROR_EMPTY_RESPONSE"] = "Empty server response";
 $MESS["SALE_HPS_WOOPPAY_ERROR_REQUEST_STATUS"] = "Incorrect payment status: #STATUS#";

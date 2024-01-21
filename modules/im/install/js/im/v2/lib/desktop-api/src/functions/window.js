@@ -71,6 +71,7 @@ export const windowFunctions = {
 	{
 		const event = new BaseEvent();
 		EventEmitter.emit(window, EventType.desktop.onReload, event);
+
 		location.reload();
 	},
 	findWindow(name: string = ''): ?Window

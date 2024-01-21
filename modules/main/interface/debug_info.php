@@ -611,7 +611,7 @@ if($bShowExtTime)
 				?><b><?=Loc::getMessage("debug_info_whole_page")?></b><?
 			endif?>
 		</td>
-		<td class="number" nowrap><b><?echo number_format($PAGE/$PAGE*100, 2),"%"?></b></td>
+		<td class="number" nowrap><b>100%</b></td>
 		<td class="number" nowrap><b><?echo number_format($PAGE, 4)?></b></td>
 		<?if($bShowComps):?>
 			<td class="number" nowrap><b><?echo intval($arAreas["PAGE"]["TRACE"]["COMPONENT_COUNT"])?></b></td>

@@ -30,7 +30,7 @@ export const AttachLink = {
 	},
 	template: `
 		<div class="bx-im-attach-link__container">
-			<AttachLinkItem v-for="(link, index) in internalConfig.LINK" :config="link" :key="index" />
+			<AttachLinkItem v-for="(link, index) in internalConfig.link" :config="link" :key="index" />
 		</div>
 	`
 };

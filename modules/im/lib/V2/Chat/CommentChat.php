@@ -79,7 +79,8 @@ class CommentChat extends GroupChat
 		}
 		$chat
 			->setExtranet($chat->getParent()->getExtranet())
-			->setManageUsers($chat->getParent()->getManageUsers())
+			->setManageUsersAdd($chat->getParent()->getManageUsersAdd())
+			->setManageUsersDelete($chat->getParent()->getManageUsersDelete())
 			->setManageUI($chat->getParent()->getManageUI())
 			->setParentMessageId($params['PARENT_MID'])
 		;

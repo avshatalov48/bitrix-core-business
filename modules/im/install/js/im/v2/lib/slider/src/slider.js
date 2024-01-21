@@ -10,6 +10,7 @@ import { CallManager } from 'im.v2.lib.call';
 import { PhoneManager } from 'im.v2.lib.phone';
 import { Utils } from 'im.v2.lib.utils';
 import { DesktopManager } from 'im.v2.lib.desktop';
+import { LayoutManager } from 'im.v2.lib.layout';
 import { LinesService } from 'im.v2.provider.service';
 
 import 'ui.notification';
@@ -65,8 +66,8 @@ export class MessengerSlider
 
 		await this.openSlider();
 
-		await this.store.dispatch('application/setLayout', {
-			layoutName: Layout.chat.name,
+		await LayoutManager.getInstance().setLayout({
+			name: Layout.chat.name,
 			entityId: preparedDialogId,
 		});
 		EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
@@ -85,14 +86,30 @@ export class MessengerSlider
 
 		await this.openSlider();
 
-		return this.store.dispatch('application/setLayout', {
-			layoutName: Layout.openlines.name,
+		return LayoutManager.getInstance().setLayout({
+			name: Layout.openlines.name,
+			entityId: preparedDialogId,
+		});
+	}
+
+	async openCopilot(dialogId: string = ''): Promise
+	{
+		const preparedDialogId = dialogId.toString();
+		await this.openSlider();
+
+		return LayoutManager.getInstance().setLayout({
+			name: Layout.copilot.name,
 			entityId: preparedDialogId,
 		});
 	}
 
 	openHistory(dialogId: string | number = ''): Promise
 	{
+		if (Utils.dialog.isDialogId(dialogId))
+		{
+			return this.openChat(dialogId);
+		}
+
 		if (!this.#checkHistoryDialogId(dialogId))
 		{
 			return Promise.reject();
@@ -112,8 +129,8 @@ export class MessengerSlider
 	async openNotifications(): Promise
 	{
 		await this.openSlider();
-		await this.store.dispatch('application/setLayout', {
-			layoutName: Layout.notification.name,
+		await LayoutManager.getInstance().setLayout({
+			name: Layout.notification.name,
 		});
 
 		EventEmitter.emit(EventType.layout.onOpenNotifications);
@@ -124,8 +141,8 @@ export class MessengerSlider
 	async openRecentSearch(): Promise
 	{
 		await this.openSlider();
-		await this.store.dispatch('application/setLayout', {
-			layoutName: Layout.chat.name,
+		await LayoutManager.getInstance().setLayout({
+			name: Layout.chat.name,
 		});
 
 		EventEmitter.emit(EventType.recent.openSearch);
@@ -133,13 +150,14 @@ export class MessengerSlider
 		return Promise.resolve();
 	}
 
-	async openSettings(options: ?Object = {}): Promise
+	async openSettings(sectionName: string): Promise
 	{
-		Logger.warn('Slider: openSettings', options);
+		Logger.warn('Slider: openSettings', sectionName);
 		await this.openSlider();
 
-		await this.store.dispatch('application/setLayout', {
-			layoutName: Layout.settings.name,
+		await LayoutManager.getInstance().setLayout({
+			name: Layout.settings.name,
+			entityId: sectionName,
 		});
 
 		return Promise.resolve();
@@ -159,7 +177,7 @@ export class MessengerSlider
 		const url = Utils.conference.getUrlByCode(code);
 		Utils.browser.openLink(url, Utils.conference.getWindowNameByCode(code));
 
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			resolve();
 		});
 	}
@@ -182,7 +200,7 @@ export class MessengerSlider
 	startPhoneCall(number: string, params: Object<any, string>): Promise
 	{
 		Logger.warn('Slider: startPhoneCall', number, params);
-		PhoneManager.getInstance().startCall(number, params);
+		void PhoneManager.getInstance().startCall(number, params);
 
 		return Promise.resolve();
 	}
@@ -247,7 +265,7 @@ export class MessengerSlider
 			return Promise.resolve();
 		}
 
-		this.launchMessengerApplication();
+		void this.launchMessengerApplication();
 
 		return new Promise((resolve) => {
 			if (this.isFocused())
@@ -274,12 +292,11 @@ export class MessengerSlider
 					onLoad: (event) => {
 						event.slider.showLoader();
 					},
-					onOpenComplete: (event) => {
-						this.initMessengerComponent().then(() => {
-							event.slider.closeLoader();
+					onOpenComplete: async (event) => {
+						await this.initMessengerComponent();
+						event.slider.closeLoader();
 
-							return resolve();
-						});
+						return resolve();
 					},
 				},
 			});
@@ -306,13 +323,11 @@ export class MessengerSlider
 		return this.applicationPromise;
 	}
 
-	initMessengerComponent(): Promise
+	async initMessengerComponent(): Promise
 	{
-		return this.applicationPromise.then((application) => {
-			this.store.dispatch('application/setLayout', { layoutName: Layout.chat.name, entityId: '' });
+		const application = await this.applicationPromise;
 
-			return application.initComponent(`.${SLIDER_CONTAINER_CLASS}`);
-		});
+		return application.initComponent(`.${SLIDER_CONTAINER_CLASS}`);
 	}
 
 	onDialogOpen(event)
@@ -343,9 +358,8 @@ export class MessengerSlider
 
 		EventEmitter.emit(EventType.slider.onClose);
 
-		this.store.dispatch('application/setLayout', {
-			layoutName: Layout.chat.name,
-			entityId: '',
+		LayoutManager.getInstance().setLayout({
+			name: Layout.chat.name,
 		});
 	}
 
@@ -447,9 +461,10 @@ export class MessengerSlider
 
 	#checkHistoryDialogId(dialogId: string): boolean
 	{
-		return Utils.dialog.isDialogId(dialogId)
-			|| Utils.dialog.isLinesHistoryId(dialogId)
-			|| Utils.dialog.isLinesExternalId(dialogId);
+		return (
+			Utils.dialog.isLinesHistoryId(dialogId)
+			|| Utils.dialog.isLinesExternalId(dialogId)
+		);
 	}
 
 	#prepareHistorySliderLink(dialogId: string): string

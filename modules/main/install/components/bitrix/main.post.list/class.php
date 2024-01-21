@@ -370,7 +370,7 @@ HTML;
 		return $res;
 	}
 
-	protected function buildComment(&$res)
+	protected function buildComment($res, array $specifiedTemplates = ['WEB', 'MOBILE'])
 	{
 		$arParams = $this->arParams;
 		$templateId = implode('_', array($arParams["TEMPLATE_ID"], 'ID', $res['ID'], ''));
@@ -391,13 +391,14 @@ HTML;
 			"RATING" => array_key_exists("RATING", $res) ? $res["RATING"] : false,
 			"CLASSNAME" => '',
 			"SHOW_MOBILE_HINTS" => $res['SHOW_MOBILE_HINTS'] ?? 'N',
-			"WEB" => array(), // html
-			"MOBILE" => array() // html
 		);
 
-		foreach (array("WEB", "MOBILE") as $key)
+		//region Special data for web and mobile views. General data
+		$specifiedTemplates = array_intersect(['WEB', 'MOBILE'], array_merge($specifiedTemplates, [$this->isWeb() ? 'WEB' : 'MOBILE']));
+		//1. General
+		foreach ($specifiedTemplates as $templateCode)
 		{
-			$val = (isset($res[$key]) && $res[$key] ? $res[$key] : $res);
+			$val = $res[$templateCode] ?? $res;
 
 			$defaultDateTime = \CComponentUtil::getDateTimeFormatted(array(
 				'TIMESTAMP' => $res["POST_TIMESTAMP"],
@@ -417,7 +418,7 @@ HTML;
 				$classNameList[] = 'mpl-comment-aux-'.mb_strtolower($res['AUX']);
 			}
 
-			$result[$key] = array(
+			$result[$templateCode] = array(
 				"POST_TIME" => ($val["POST_TIME"] ?? $defaultDateTime),
 				"POST_DATE" => ($val["POST_DATE"] ?? $defaultDateTime),
 				"POST_DATE_AGO" => FormatDate(array(
@@ -449,7 +450,7 @@ HTML;
 				"LIKE_REACT" => ($val["LIKE_REACT"] ?? '') . $this->getApplication()->GetViewContent($templateId.'LIKE_REACT'),
 			);
 		}
-
+		//2. Rating
 		$userHasVoted = (
 			(
 				isset($res["RATING_USER_HAS_VOTED"])
@@ -477,19 +478,24 @@ HTML;
 
 			$buttonText = \CRatingsComponentsMain::getRatingLikeMessage($emotion);
 
-			ob_start();
-			?><span id="bx-ilike-button-<?=htmlspecialcharsbx($res["RATING_VOTE_ID"])?>" class="feed-inform-ilike feed-new-like"><?
-				?><span class="bx-ilike-left-wrap<?=($userHasVoted ? ' bx-you-like-button' : '')?>"><a href="#like" class="bx-ilike-text"><?=$buttonText?></a></span><?
-			?></span><?
-			$result["WEB"]["BEFORE_ACTIONS"] .= ob_get_clean();
-
-			ob_start();
-			?><span id="bx-ilike-button-<?=htmlspecialcharsbx($res["RATING_VOTE_ID"])?>" class="post-comment-control-item post-comment-control-item-like bx-ilike-text" data-rating-vote-id="<?=htmlspecialcharsbx($res["RATING_VOTE_ID"])?>"><?
-				?><span class="bx-ilike-left-wrap<?=($userHasVoted ? ' bx-you-like-button' : '')?>"><?
-					?><span class="bx-ilike-text"><?=$buttonText?></span><?
+			if (isset($result['WEB']))
+			{
+				ob_start();
+				?><span id="bx-ilike-button-<?=htmlspecialcharsbx($res["RATING_VOTE_ID"])?>" class="feed-inform-ilike feed-new-like">
+					<span class="bx-ilike-left-wrap<?=($userHasVoted ? ' bx-you-like-button' : '')?>"><a href="#like" class="bx-ilike-text"><?=$buttonText?></a></span>
+				</span><?
+				$result["WEB"]["BEFORE_ACTIONS"] .= ob_get_clean();
+			}
+			if (isset($result['MOBILE']))
+			{
+				ob_start();
+				?><span id="bx-ilike-button-<?=htmlspecialcharsbx($res["RATING_VOTE_ID"])?>" class="post-comment-control-item post-comment-control-item-like bx-ilike-text" data-rating-vote-id="<?=htmlspecialcharsbx($res["RATING_VOTE_ID"])?>"><?
+					?><span class="bx-ilike-left-wrap<?=($userHasVoted ? ' bx-you-like-button' : '')?>"><?
+						?><span class="bx-ilike-text"><?=$buttonText?></span><?
+					?></span><?
 				?></span><?
-			?></span><?
-			$result["MOBILE"]["BEFORE_ACTIONS"] .= ob_get_clean();
+				$result["MOBILE"]["BEFORE_ACTIONS"] .= ob_get_clean();
+			}
 		}
 
 		if (
@@ -512,44 +518,50 @@ HTML;
 					: array()
 			);
 
-			ob_start();
-			$result["RATING"] = $result["WEB"]["RATING"] = $this->getApplication()->includeComponent(
-				"bitrix:rating.vote",
-				(!empty($res["RATING_VOTE_ID"]) && ModuleManager::isModuleInstalled('intranet') ? "like_react" : "like"),
-				array(
-					"COMMENT" => "Y",
-					"ENTITY_TYPE_ID" => $this->arParams["RATING_TYPE_ID"],
-					"ENTITY_ID" => $result["ID"],
-					"OWNER_ID" => $result["AUTHOR"]["ID"],
-					"PATH_TO_USER_PROFILE" => $this->arParams["AUTHOR_URL"],
-					"VOTE_ID" => (!empty($res["RATING_VOTE_ID"]) ? $res["RATING_VOTE_ID"] : ""),
-					'CURRENT_USER_ID' => (isset($this->arParams['CURRENT_USER_ID']) ? (int)$this->arParams['CURRENT_USER_ID'] : 0),
-				) + $ratingValues,
-				$this,
-				array("HIDE_ICONS" => "Y")
-			);
+			if (isset($result['WEB']))
+			{
+				ob_start();
+				$result["WEB"]["RATING"] = $this->getApplication()->includeComponent(
+					"bitrix:rating.vote",
+					(!empty($res["RATING_VOTE_ID"]) && ModuleManager::isModuleInstalled('intranet') ? "like_react" : "like"),
+					array(
+						"COMMENT" => "Y",
+						"ENTITY_TYPE_ID" => $this->arParams["RATING_TYPE_ID"],
+						"ENTITY_ID" => $result["ID"],
+						"OWNER_ID" => $result["AUTHOR"]["ID"],
+						"PATH_TO_USER_PROFILE" => $this->arParams["AUTHOR_URL"],
+						"VOTE_ID" => (!empty($res["RATING_VOTE_ID"]) ? $res["RATING_VOTE_ID"] : ""),
+						'CURRENT_USER_ID' => (isset($this->arParams['CURRENT_USER_ID']) ? (int)$this->arParams['CURRENT_USER_ID'] : 0),
+					) + $ratingValues,
+					$this,
+					array("HIDE_ICONS" => "Y")
+				);
 
-			$result["WEB"][(!empty($res["RATING_VOTE_ID"]) && ModuleManager::isModuleInstalled('intranet') ? "LIKE_REACT" : "BEFORE_ACTIONS")] .= ob_get_clean();
+				$result["WEB"][(!empty($res["RATING_VOTE_ID"]) && ModuleManager::isModuleInstalled('intranet') ? "LIKE_REACT" : "BEFORE_ACTIONS")] .= ob_get_clean();
+			}
 
-			ob_start();
-			$result["MOBILE"]["RATING"] = $this->getApplication()->includeComponent(
-				"bitrix:rating.vote",
-				"like_react",
-				array(
-					"MOBILE" => "Y",
-					"COMMENT" => "Y",
-					"ENTITY_TYPE_ID" => $this->arParams["RATING_TYPE_ID"],
-					"ENTITY_ID" => $result["ID"],
-					"OWNER_ID" => $result["AUTHOR"]["ID"],
-					"PATH_TO_USER_PROFILE" => $this->arParams["AUTHOR_URL"],
-					"VOTE_ID" => (!empty($res["RATING_VOTE_ID"]) ? $res["RATING_VOTE_ID"] : "")
-				) + $ratingValues,
-				$this,
-				array("HIDE_ICONS" => "Y")
-			);
-			$result["MOBILE"]["LIKE_REACT"] .= ob_get_clean();
+			if (isset($result['MOBILE']))
+			{
+				ob_start();
+				$result["MOBILE"]["RATING"] = $this->getApplication()->includeComponent(
+					"bitrix:rating.vote",
+					"like_react",
+					array(
+						"MOBILE" => "Y",
+						"COMMENT" => "Y",
+						"ENTITY_TYPE_ID" => $this->arParams["RATING_TYPE_ID"],
+						"ENTITY_ID" => $result["ID"],
+						"OWNER_ID" => $result["AUTHOR"]["ID"],
+						"PATH_TO_USER_PROFILE" => $this->arParams["AUTHOR_URL"],
+						"VOTE_ID" => (!empty($res["RATING_VOTE_ID"]) ? $res["RATING_VOTE_ID"] : "")
+					) + $ratingValues,
+					$this,
+					array("HIDE_ICONS" => "Y")
+				);
+				$result["MOBILE"]["LIKE_REACT"] .= ob_get_clean();
+			}
 		}
-
+		//3. Files
 		if (isset($res["FILES"]) && is_array($res["FILES"]))
 		{
 			$images = array();
@@ -570,7 +582,7 @@ HTML;
 					}
 				}
 			}
-			if (!empty($images))
+			if (!empty($images) && isset($result['WEB']))
 			{
 				ob_start();
 				?><div class="feed-com-files">
@@ -598,7 +610,9 @@ HTML;
 					?></div>
 				</div><?
 				$result["WEB"]["AFTER"] = preg_replace("/[\n\t]/", "", ob_get_clean()).$result["WEB"]["AFTER"];
-
+			}
+			if (!empty($images) && isset($result['MOBILE']))
+			{
 				ob_start();
 				?><div class="post-item-attached-img-wrap"><?
 					$ids = array();
@@ -617,7 +631,7 @@ HTML;
 				?></div><?
 				$result["MOBILE"]["AFTER"] = preg_replace("/[\n\t]/", "", ob_get_clean()).$result["MOBILE"]["AFTER"];
 			}
-			if (!empty($files))
+			if (!empty($files) && isset($result['WEB']))
 			{
 				ob_start();
 				?><div class="feed-com-files feed-com-basic-files-entity">
@@ -648,7 +662,9 @@ HTML;
 					?></div>
 				</div><?
 				$result["WEB"]["AFTER"] = preg_replace("/[\n\t]/", "", ob_get_clean()).$result["WEB"]["AFTER"];
-
+			}
+			if (!empty($files) && isset($result['MOBILE']))
+			{
 				ob_start();
 				?><ul class="post-item-attached-file-wrap"><?
 					foreach($files as $file)
@@ -656,35 +672,38 @@ HTML;
 						?><li><?=$file["FILE_NAME"]?></li><?
 					}
 				?></ul><?
-				$res["MOBILE"]["AFTER"] .= ob_get_clean();
+				$result["MOBILE"]["AFTER"] .= ob_get_clean();
 			}
 		}
-		if (is_array($res["UF"]))
+		//4. UFs
+		if (is_array($res['UF']) && isset($result['WEB']))
 		{
 			ob_start();
 			$uf = ($res["WEB"]['UF'] ?? $res['UF']);
 			foreach ($uf as $arPostField)
 			{
-				if(!empty($arPostField["VALUE"]))
+				if (!empty($arPostField["VALUE"]))
 				{
 					$this->getApplication()->IncludeComponent(
 						"bitrix:system.field.view",
 						$arPostField["USER_TYPE"]["USER_TYPE_ID"],
-						array(
+						[
 							"arUserField" => $arPostField,
 							"TEMPLATE" => $this->getTemplateName(),
 							"LAZYLOAD" => (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] == "Y" ? "Y" : "N"),
 							"DISABLE_LOCAL_EDIT" => (isset($arParams["bPublicPage"]) && $arParams["bPublicPage"])
-						) + $arParams,
+						] + $arParams,
 						null,
-						array("HIDE_ICONS"=>"Y")
+						["HIDE_ICONS" => "Y"]
 					);
 				}
 			}
-			$result["WEB"]["AFTER"] = ob_get_clean().$result["WEB"]["AFTER"];
+			$result["WEB"]["AFTER"] = ob_get_clean() . $result["WEB"]["AFTER"];
+		}
 
+		if (is_array($res["UF"]) && isset($result['MOBILE']))
+		{
 			ob_start();
-
 			$uf = ($res["MOBILE"]['UF'] ?? $res['UF']);
 			foreach ($uf as $arPostField)
 			{
@@ -711,7 +730,8 @@ HTML;
 			}
 			$result["CLASSNAME"] .= " feed-com-block-uf";
 		}
-		$result = array_merge($result, ($this->isWeb() ? $result["WEB"] : $result["MOBILE"]));
+		$result = array_merge($result, ($this->isWeb() ? $result['WEB'] : $result['MOBILE']));
+		//endregion
 
 		return $result;
 	}
@@ -1049,7 +1069,11 @@ HTML;
 
 			$arParams["~RECORDS"] = $arParams["RECORDS"];
 			foreach ($arParams["~RECORDS"] as $key => $res)
-				$arParams["RECORDS"][$key] = $this->buildComment($res);
+			{
+				$arParams["RECORDS"][$key] = $this->buildComment($res, !empty($arParams["PUSH&PULL"]["ID"])
+					? ['WEB', 'MOBILE'] : [$this->isWeb() ? 'WEB' : 'MOBILE'])
+				;
+			}
 		}
 
 		if ($this->getUserId() > 0)

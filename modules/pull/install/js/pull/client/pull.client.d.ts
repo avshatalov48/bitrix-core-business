@@ -44,6 +44,33 @@ type JsonRpcRequest = {
     id: string
 }
 
+type PullExtraData = {
+	revision_im_mobile: number,
+	revision_im_rest: number,
+	revision_im_web: number,
+	revision_mobile: number,
+	revision_web: number,
+	sender: object,
+	server_name: string,
+	server_time: string,
+	server_time_ago: number,
+	server_time_unix: number,
+}
+
+// user id to time in seconds, when user was connected last time
+type UsersLastSeen = {
+    [userId: number]: number
+}
+
+
+type UserStatusCallbackParameters = {
+    userId: number,
+    isOnline: boolean,
+}
+
+type UserStatusCallback = (event: UserStatusCallbackParameters) => void
+
+
 declare class PullCommandHandler {
     getModuleId(): string;
     getSubscriptionType(): SubscriptionType;
@@ -59,6 +86,10 @@ declare module 'pull.client' {
         function getDebugInfo(): void;
         function start(options?: PullOptions): Promise<Function>;
         function disconnect(code?: string, reason?: string): void;
+        function isJsonRpc(): boolean;
+        function getUsersLastSeen(userList: number[]): Promise<UsersLastSeen>;
+        function subscribeUserStatusChange(userId: number, callback: UserStatusCallback): Promise<null>;
+        function unsubscribeUserStatusChange(userId: number, callback: UserStatusCallback): Promise<null>;
     }
 
     class PullClient {

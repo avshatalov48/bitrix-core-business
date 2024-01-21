@@ -5,6 +5,7 @@ import {CallEngine, CallState, CallEvent, UserState, Provider} from './engine';
 import {View} from '../view/view';
 import {SimpleVAD} from './simple_vad'
 import Util from '../util'
+import {MediaStreamsKinds} from '../call_api';
 
 const ajaxActions = {
 	invite: 'im.call.invite',
@@ -161,9 +162,18 @@ export class PlainCall extends AbstractCall
 			onStateChanged: this.#onPeerStateChanged.bind(this),
 			onInviteTimeout: this.#onPeerInviteTimeout.bind(this),
 			onRTCStatsReceived: this.#onPeerRTCStatsReceived.bind(this),
+			onRTCQualityChanged: this.#onPeerRTCQualityChanged.bind(this),
 			onNetworkProblem: (e) =>
 			{
 				this.runCallback(CallEvent.onNetworkProblem, e)
+			},
+			onReconnecting: () =>
+			{
+				this.runCallback(CallEvent.onReconnecting);
+			},
+			onReconnected: () =>
+			{
+				this.runCallback(CallEvent.onReconnected);
 			}
 		});
 	};
@@ -436,16 +446,8 @@ export class PlainCall extends AbstractCall
 				video.deviceId = {exact: this.cameraId};
 			}
 
-			if (hdVideo)
-			{
-				video.width = {max: 1920, min: 1280};
-				video.height = {max: 1080, min: 720};
-			}
-			else
-			{
-				video.width = {ideal: 640};
-				video.height = {ideal: 360};
-			}
+			video.width = {ideal: 1280};
+			video.height = {ideal: 720};
 		}
 
 		return {audio: audio, video: video};
@@ -502,6 +504,10 @@ export class PlainCall extends AbstractCall
 		}
 		if (this.localStreams[tag])
 		{
+			this.runCallback(CallEvent.onLocalMediaReceived, {
+				tag: tag,
+				stream: this.localStreams[tag]
+			});
 			return Promise.resolve(this.localStreams[tag]);
 		}
 
@@ -869,6 +875,9 @@ export class PlainCall extends AbstractCall
 			{
 				this.peers[userId].disconnect();
 			}
+
+			this.#beforeLeaveCall();
+
 			this.runCallback(CallEvent.onLeave, {local: true});
 
 			this.signaling.sendHangup({userId: this.users})
@@ -1013,22 +1022,16 @@ export class PlainCall extends AbstractCall
 				continue;
 			}
 
-			if (this.peers[userId])
-			{
-				if (this.peers[userId].calculatedState === UserState.Failed || this.peers[userId].calculatedState === UserState.Idle)
-				{
-					this.peers[userId].onInvited();
-				}
-			}
-			else
+			if (!this.peers[userId])
 			{
 				this.peers[userId] = this.createPeer(userId);
 				this.runCallback(CallEvent.onUserInvited, {
 					userId: userId
 				});
-
-				this.peers[userId].onInvited();
 			}
+
+			this.peers[userId].onInvited();
+
 			if (!this.users.includes(userId))
 			{
 				this.users.push(userId);
@@ -1206,6 +1209,7 @@ export class PlainCall extends AbstractCall
 
 	#onPullEventAnswerSelf(params)
 	{
+		this.runCallback('onGetUserMediaEnded', {});
 		if (params.callInstanceId === this.instanceId)
 		{
 			return;
@@ -1476,8 +1480,30 @@ export class PlainCall extends AbstractCall
 
 	#onPeerRTCStatsReceived(e)
 	{
+		const reportsToShow = {};
+		e.stats.forEach((report) =>
+		{
+			if (report.type === 'inbound-rtp' && report.kind === 'video' && report.source)
+			{
+				reportsToShow[report.source] = report;
+			}
+		});
+
+		this.runCallback(CallEvent.onUserStatsReceived, {
+			userId: e.userId,
+			report: reportsToShow
+		});
+
 		this.runCallback(CallEvent.onRTCStatsReceived, e);
 	};
+
+	#onPeerRTCQualityChanged(e)
+	{
+		this.runCallback(CallEvent.onConnectionQualityChanged, {
+			userId: e.userId,
+			hasConnectionProblem: e.hasConnectionProblem
+		});
+	}
 
 	#onUnload()
 	{
@@ -1496,20 +1522,8 @@ export class PlainCall extends AbstractCall
 		}
 	};
 
-	destroy()
+	#beforeLeaveCall()
 	{
-		const tempError = new Error();
-		tempError.name = "Call stack:";
-		this.log("Call destroy \n" + tempError.stack);
-
-		// stop sending media streams
-		for (let userId in this.peers)
-		{
-			if (this.peers[userId])
-			{
-				this.peers[userId].destroy();
-			}
-		}
 		// stop media streams
 		for (let tag in this.localStreams)
 		{
@@ -1533,6 +1547,24 @@ export class PlainCall extends AbstractCall
 		clearInterval(this.pingBackendInterval);
 		clearInterval(this.microphoneLevelInterval);
 		clearTimeout(this.reinviteTimeout);
+	};
+
+	destroy()
+	{
+		const tempError = new Error();
+		tempError.name = "Call stack:";
+		this.log("Call destroy \n" + tempError.stack);
+
+		// stop sending media streams
+		for (let userId in this.peers)
+		{
+			if (this.peers[userId])
+			{
+				this.peers[userId].destroy();
+			}
+		}
+
+		this.#beforeLeaveCall();
 
 		return super.destroy();
 	}
@@ -1807,7 +1839,10 @@ class Peer
 			onMediaReceived: Type.isFunction(params.onMediaReceived) ? params.onMediaReceived : BX.DoNothing,
 			onMediaStopped: Type.isFunction(params.onMediaStopped) ? params.onMediaStopped : BX.DoNothing,
 			onRTCStatsReceived: Type.isFunction(params.onRTCStatsReceived) ? params.onRTCStatsReceived : BX.DoNothing,
+			onRTCQualityChanged: Type.isFunction(params.onRTCQualityChanged) ? params.onRTCQualityChanged : BX.DoNothing,
 			onNetworkProblem: Type.isFunction(params.onNetworkProblem) ? params.onNetworkProblem : BX.DoNothing,
+			onReconnecting: Type.isFunction(params.onReconnecting) ? params.onReconnecting : BX.DoNothing,
+			onReconnected: Type.isFunction(params.onReconnected) ? params.onReconnected : BX.DoNothing,
 		};
 
 		// intervals and timeouts
@@ -1896,6 +1931,11 @@ class Peer
 		this._updateTracksDebounced = Runtime.debounce(this.#updateTracks.bind(this), 50);
 
 		this._waitTurnCandidatesTimeout = null;
+
+		this.prevReport = {};
+		this.packetLostThreshold = 7;
+		this.videoBitrate = 1000000;
+		this.screenShareBitrate = 1500000;
 	};
 
 	_mediaGetter(trackVariable)
@@ -1950,10 +1990,10 @@ class Peer
 			this.#createPeerConnection(connectionId);
 		}
 		this.updateOutgoingTracks();
-		this.applyResolutionScale();
 
 		if (!skipOffer)
 		{
+			this.applyResolutionScale();
 			this.createAndSendOffer();
 		}
 	};
@@ -2062,19 +2102,28 @@ class Peer
 
 	applyResolutionScale(factor)
 	{
-		if (!this.videoSender)
+		if (this.videoSender)
 		{
-			return;
+			const scaleFactor = factor || (this.screenSender ? 2 : 1);
+			const rate = this.videoBitrate / scaleFactor;
+			const videoParams = this.videoSender.getParameters();
+
+			if (videoParams.encodings && videoParams.encodings.length > 0)
+			{
+				videoParams.encodings[0].scaleResolutionDownBy = scaleFactor;
+				videoParams.encodings[0].maxBitrate = rate;
+				this.videoSender.setParameters(videoParams);
+			}
 		}
 
-		const scaleFactor = factor || (this.screenSender ? 4 : 1);
-
-		const params = this.videoSender.getParameters();
-		if (params.encodings && params.encodings.length > 0)
+		if (this.screenSender)
 		{
-			params.encodings[0].scaleResolutionDownBy = scaleFactor;
-			//params.encodings[0].maxBitrate = rate;
-			this.videoSender.setParameters(params);
+			const screenParams = this.screenSender.getParameters();
+			if (screenParams.encodings && screenParams.encodings.length > 0)
+			{
+				screenParams.encodings[0].maxBitrate = this.screenShareBitrate;
+				this.screenSender.setParameters(screenParams);
+			}
 		}
 	};
 
@@ -2334,9 +2383,95 @@ class Peer
 
 			this.peerConnection.getStats().then(function (stats)
 			{
+				// stats gathering in new format like in the Bitrix24 calls
+				const statsOutput = [];
+				const codecs = {};
+				const reportsWithoutCodecs = {};
+				const prevLargeDataLoss = !!this.prevReport[MediaStreamsKinds.Camera]?.largeDataLoss;
+				let newLargeDataLoss;
+
+				stats.forEach((report) => {
+					statsOutput.push(report);
+
+					const needCheckPacketLost = (report?.trackIdentifier
+						&& report?.kind === 'video'
+						&& report?.type === 'inbound-rtp'
+						&& report.hasOwnProperty('packetsLost')
+						&& report.hasOwnProperty('packetsReceived'));
+
+					if (needCheckPacketLost)
+					{
+						switch (this.trackList[report.mid])
+						{
+							case 'video':
+								report.source = MediaStreamsKinds.Camera;
+								break;
+							case 'screen':
+								report.source = MediaStreamsKinds.Screen;
+								break;
+							default:
+								return;
+						}
+
+						this.prevReport[report.source] = this.prevReport[report.source] || {};
+						const {packetsLost, packetsReceived} = report;
+						const packetsReceivedDelta = packetsReceived - (this.prevReport[report.source].packetsReceived || 0);
+						const packetsLostDelta = packetsLost - (this.prevReport[report.source].packetsLost || 0);
+						const percentPacketLost = packetsReceivedDelta / 100 * packetsLostDelta;
+						this.prevReport[report.source].packetsLost = packetsLost;
+						this.prevReport[report.source].packetsReceived = packetsReceived;
+
+						if (report.source === MediaStreamsKinds.Camera)
+						{
+							newLargeDataLoss = percentPacketLost > this.packetLostThreshold
+							this.prevReport[report.source].largeDataLoss = newLargeDataLoss;
+						}
+
+						const bytes = report.bytesReceived - (this.prevReport[report.source].bytesReceived || 0);
+						const time = report.timestamp - (this.prevReport[report.source].timestamp || 0);
+						const bitrate = 8 * bytes / (time / 1000);
+						report.bitrate = bitrate < 0 ? 0 : Math.trunc(bitrate);
+
+						this.prevReport[report.source].bytesReceived = report.bytesReceived;
+						this.prevReport[report.source].timestamp = report.timestamp;
+
+						if (codecs[report.codecId])
+						{
+							report.codecName = codecs[report.codecId];
+						}
+						else if (reportsWithoutCodecs[report.codecId])
+						{
+							reportsWithoutCodecs[report.codecId].push(report);
+						}
+						else
+						{
+							reportsWithoutCodecs[report.codecId] = [report];
+						}
+					}
+					else if (report.type === 'codec')
+					{
+						codecs[report.id] = report.mimeType;
+						if (reportsWithoutCodecs[report.id])
+						{
+							reportsWithoutCodecs[report.id].forEach(r => {
+								r.codecName = report.mimeType;
+							});
+							delete reportsWithoutCodecs[report.id];
+						}
+					}
+				});
+
+				if (newLargeDataLoss !== undefined && newLargeDataLoss !== prevLargeDataLoss)
+				{
+					this.callbacks.onRTCQualityChanged({
+						userId: this.userId,
+						hasConnectionProblem: newLargeDataLoss
+					});
+				}
+
 				this.callbacks.onRTCStatsReceived({
 					userId: this.userId,
-					stats: stats
+					stats: statsOutput
 				});
 			}.bind(this));
 		}.bind(this), 1000);
@@ -2422,6 +2557,8 @@ class Peer
 			return;
 		}
 
+		clearTimeout(this.reconnectAfterDisconnectTimeout);
+
 		this.log("User " + this.userId + ": Destroying peer connection " + this.peerConnectionId);
 		this.stopStatisticsGathering();
 
@@ -2443,6 +2580,7 @@ class Peer
 		this.peerConnection = null;
 		this.peerConnectionId = null;
 		this.videoSender = null;
+		this.screenSender = null;
 		this.audioSender = null;
 		this.incomingAudioTrack = null;
 		this.incomingVideoTrack = null;
@@ -2493,6 +2631,7 @@ class Peer
 		if (this.peerConnection.iceConnectionState === "connected" || this.peerConnection.iceConnectionState === "completed")
 		{
 			this.connectionAttempt = 0;
+			this.callbacks.onReconnected();
 			clearTimeout(this.reconnectAfterDisconnectTimeout);
 			this._updateTracksDebounced();
 		}
@@ -2839,6 +2978,7 @@ class Peer
 			})
 			.then(() =>
 			{
+				this.applyResolutionScale();
 				this.applyPendingIceCandidates();
 				this.getSignaling().sendConnectionAnswer({
 					userId: this.userId,
@@ -2986,14 +3126,7 @@ class Peer
 		clearTimeout(this.reconnectAfterDisconnectTimeout);
 
 		this.connectionAttempt++;
-
-		if (this.connectionAttempt > 3)
-		{
-			this.log("Error: Too many reconnection attempts, giving up");
-			this.failureReason = "Could not connect to user in time";
-			this.updateCalculatedState();
-			return;
-		}
+		this.callbacks.onReconnecting();
 
 		this.log("Trying to restore ICE connection. Attempt " + this.connectionAttempt);
 		if (this.isInitiator())
@@ -3010,6 +3143,14 @@ class Peer
 	disconnect()
 	{
 		this._destroyPeerConnection();
+
+		this.outgoingVideoTrack = null;
+		this.outgoingScreenTrack = null;
+		this.outgoingVideoHoldState = false;
+
+		this.incomingAudioTrack = null;
+		this.incomingVideoTrack = null;
+		this.incomingScreenTrack = null;
 	};
 
 	log()
@@ -3031,13 +3172,6 @@ class Peer
 		{
 			this.localStreams[tag] = null;
 		}
-		this.outgoingVideoTrack = null;
-		this.outgoingScreenTrack = null;
-		this.outgoingVideoHoldState = false;
-
-		this.incomingAudioTrack = null;
-		this.incomingVideoTrack = null;
-		this.incomingScreenTrack = null;
 
 		clearTimeout(this.answerTimeout);
 		this.answerTimeout = null;

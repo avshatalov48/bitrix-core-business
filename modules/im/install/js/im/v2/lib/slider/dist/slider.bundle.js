@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_desktopApi,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_call,im_v2_lib_phone,im_v2_lib_utils,im_v2_lib_desktop,im_v2_provider_service) {
+(function (exports,im_v2_lib_desktopApi,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_application_launch,im_v2_lib_call,im_v2_lib_phone,im_v2_lib_utils,im_v2_lib_desktop,im_v2_lib_layout,im_v2_provider_service) {
 	'use strict';
 
 	const SLIDER_PREFIX = 'im:slider';
@@ -43,8 +43,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.openLines(preparedDialogId);
 	    }
 	    await this.openSlider();
-	    await this.store.dispatch('application/setLayout', {
-	      layoutName: im_v2_const.Layout.chat.name,
+	    await im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.chat.name,
 	      entityId: preparedDialogId
 	    });
 	    main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenChat, {
@@ -59,12 +59,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      preparedDialogId = await linesService.getDialogIdByUserCode(preparedDialogId);
 	    }
 	    await this.openSlider();
-	    return this.store.dispatch('application/setLayout', {
-	      layoutName: im_v2_const.Layout.openlines.name,
+	    return im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.openlines.name,
+	      entityId: preparedDialogId
+	    });
+	  }
+	  async openCopilot(dialogId = '') {
+	    const preparedDialogId = dialogId.toString();
+	    await this.openSlider();
+	    return im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.copilot.name,
 	      entityId: preparedDialogId
 	    });
 	  }
 	  openHistory(dialogId = '') {
+	    if (im_v2_lib_utils.Utils.dialog.isDialogId(dialogId)) {
+	      return this.openChat(dialogId);
+	    }
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _checkHistoryDialogId)[_checkHistoryDialogId](dialogId)) {
 	      return Promise.reject();
 	    }
@@ -79,25 +90,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  async openNotifications() {
 	    await this.openSlider();
-	    await this.store.dispatch('application/setLayout', {
-	      layoutName: im_v2_const.Layout.notification.name
+	    await im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.notification.name
 	    });
 	    main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenNotifications);
 	    return Promise.resolve();
 	  }
 	  async openRecentSearch() {
 	    await this.openSlider();
-	    await this.store.dispatch('application/setLayout', {
-	      layoutName: im_v2_const.Layout.chat.name
+	    await im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.chat.name
 	    });
 	    main_core_events.EventEmitter.emit(im_v2_const.EventType.recent.openSearch);
 	    return Promise.resolve();
 	  }
-	  async openSettings(options = {}) {
-	    im_v2_lib_logger.Logger.warn('Slider: openSettings', options);
+	  async openSettings(sectionName) {
+	    im_v2_lib_logger.Logger.warn('Slider: openSettings', sectionName);
 	    await this.openSlider();
-	    await this.store.dispatch('application/setLayout', {
-	      layoutName: im_v2_const.Layout.settings.name
+	    await im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.settings.name,
+	      entityId: sectionName
 	    });
 	    return Promise.resolve();
 	  }
@@ -110,7 +122,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const url = im_v2_lib_utils.Utils.conference.getUrlByCode(code);
 	    im_v2_lib_utils.Utils.browser.openLink(url, im_v2_lib_utils.Utils.conference.getWindowNameByCode(code));
-	    return new Promise((resolve, reject) => {
+	    return new Promise(resolve => {
 	      resolve();
 	    });
 	  }
@@ -125,7 +137,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  startPhoneCall(number, params) {
 	    im_v2_lib_logger.Logger.warn('Slider: startPhoneCall', number, params);
-	    im_v2_lib_phone.PhoneManager.getInstance().startCall(number, params);
+	    void im_v2_lib_phone.PhoneManager.getInstance().startCall(number, params);
 	    return Promise.resolve();
 	  }
 	  startCallList(callListId, params) {
@@ -164,7 +176,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      main_core.ZIndexManager.bringToFront(this.getCurrent().getOverlay());
 	      return Promise.resolve();
 	    }
-	    this.launchMessengerApplication();
+	    void this.launchMessengerApplication();
 	    return new Promise(resolve => {
 	      if (this.isFocused()) {
 	        resolve();
@@ -188,11 +200,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          onLoad: event => {
 	            event.slider.showLoader();
 	          },
-	          onOpenComplete: event => {
-	            this.initMessengerComponent().then(() => {
-	              event.slider.closeLoader();
-	              return resolve();
-	            });
+	          onOpenComplete: async event => {
+	            await this.initMessengerComponent();
+	            event.slider.closeLoader();
+	            return resolve();
 	          }
 	        }
 	      });
@@ -211,14 +222,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    return this.applicationPromise;
 	  }
-	  initMessengerComponent() {
-	    return this.applicationPromise.then(application => {
-	      this.store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.chat.name,
-	        entityId: ''
-	      });
-	      return application.initComponent(`.${SLIDER_CONTAINER_CLASS}`);
-	    });
+	  async initMessengerComponent() {
+	    const application = await this.applicationPromise;
+	    return application.initComponent(`.${SLIDER_CONTAINER_CLASS}`);
 	  }
 	  onDialogOpen(event) {
 	    im_v2_lib_logger.Logger.warn('Slider: onDialogOpen', event.data.dialogId);
@@ -241,9 +247,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const id = this.getIdFromSliderId(sliderId);
 	    delete this.instances[id];
 	    main_core_events.EventEmitter.emit(im_v2_const.EventType.slider.onClose);
-	    this.store.dispatch('application/setLayout', {
-	      layoutName: im_v2_const.Layout.chat.name,
-	      entityId: ''
+	    im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.chat.name
 	    });
 	  }
 	  onCloseByEsc({
@@ -313,7 +318,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 	function _checkHistoryDialogId2(dialogId) {
-	  return im_v2_lib_utils.Utils.dialog.isDialogId(dialogId) || im_v2_lib_utils.Utils.dialog.isLinesHistoryId(dialogId) || im_v2_lib_utils.Utils.dialog.isLinesExternalId(dialogId);
+	  return im_v2_lib_utils.Utils.dialog.isLinesHistoryId(dialogId) || im_v2_lib_utils.Utils.dialog.isLinesExternalId(dialogId);
 	}
 	function _prepareHistorySliderLink2(dialogId) {
 	  const getParams = new URLSearchParams({
@@ -326,5 +331,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessengerSlider = MessengerSlider;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service));
 //# sourceMappingURL=slider.bundle.js.map

@@ -3,6 +3,10 @@
 	padding: 9px 12px 0 14px;
 }
 
+.bx-im-message-audio__header {
+	padding-bottom: 6px;
+}
+
 .bx-im-message-audio__message-status-container {
 	position: absolute;
 	right: 9px;
@@ -33,7 +37,7 @@
 }
 
 .bx-im-message-audio__container .bx-im-audio-player__timeline-container {
-	margin-top: 10px;
+	margin-top: 7px;
 }
 
 .bx-im-message-audio__container .bx-im-audio-player__track-container {

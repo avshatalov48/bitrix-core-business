@@ -504,8 +504,15 @@ class PropertyFeature
 	 */
 	protected static function getPropertyCode(array $property, bool $getCode = false): string
 	{
+		$property['ID'] = (string)$property['ID'];
 		if ($getCode)
 		{
+			$property['CODE'] = trim((string)$property['CODE']);
+			if ($property['CODE'] === '')
+			{
+				$property['CODE'] = null;
+			}
+
 			return ($property['CODE'] ?? $property['ID']);
 		}
 		else

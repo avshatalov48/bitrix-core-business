@@ -8,7 +8,7 @@
 		<?=CBPDocument::ShowParameterField(
 				"text",
 				'target_state_title',
-				$arCurrentValues['target_state_title'],
+				$arCurrentValues['target_state_title'] ?? null,
 				array('rows' => 2, 'maxlength' => 255))?>
 	</td>
 </tr>

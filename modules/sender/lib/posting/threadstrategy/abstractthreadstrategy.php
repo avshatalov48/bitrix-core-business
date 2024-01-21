@@ -9,6 +9,7 @@ use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\ORM\Query\Result;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sender\Internals\Model\PostingThreadTable;
+use Bitrix\Sender\Internals\SqlBatch;
 use Bitrix\Sender\PostingRecipientTable;
 
 abstract class AbstractThreadStrategy implements IThreadStrategy
@@ -28,32 +29,26 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 	public const THREAD_UNAVAILABLE = -1;
 	public const THREAD_LOCKED = -2;
 	public const THREAD_NEEDED = 1;
+
 	/**
+	 * Insert new posting threads with ignore of conflicts
 	 *
-	 * @return array
+	 * @return void
 	 */
 	public function fillThreads(): void
 	{
-		$tableName = PostingThreadTable::getTableName();
-
 		$insertData = [];
 		for ($thread = 0; $thread < static::THREADS_COUNT; $thread++)
 		{
-			$insertData[] = '('.$thread.', '.$this->postingId.', \''.static::THREADS_COUNT.'\')';
+			$insertData[] = [
+				'THREAD_ID' => $thread,
+				'POSTING_ID' => $this->postingId,
+				'THREAD_TYPE' => static::THREADS_COUNT,
+				'EXPIRE_AT' => new DateTime(),
+			];
 		}
-		$query = '
-				INSERT INTO `'.$tableName.'`(THREAD_ID, POSTING_ID, THREAD_TYPE)
-					VALUES '.implode(',', $insertData).'
-			';
 
-		try
-		{
-			Application::getConnection()->query($query);
-		}
-		catch (SqlQueryException $e)
-		{
-
-		}
+		SqlBatch::insert(PostingThreadTable::getTableName(), $insertData);
 	}
 
 	/**
@@ -186,32 +181,15 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 	}
 
 	/**
-	 * lock table from selecting of the thread
+	 * Lock table from selecting of the thread
+	 *
 	 * @return bool
-	 * @throws SqlQueryException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	protected function lock()
 	{
 		$connection = Application::getInstance()->getConnection();
-		if ($connection instanceof DB\MysqlCommonConnection)
-		{
-			$lockDb = $connection->query(
-				sprintf(
-					"SELECT GET_LOCK('posting_thread_%d', 0) as L",
-					$this->postingId
-				),
-				false,
-				"File: ".__FILE__."<br>Line: ".__LINE__
-			);
-			$lock   = $lockDb->fetch();
-			if ($lock["L"] == "1")
-			{
-				return true;
-			}
-		}
 
-		return false;
+		return $connection->lock($this->getLockName());
 	}
 
 	/**
@@ -248,30 +226,25 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 	}
 
 	/**
-	 * unlock table for select
+	 * Unlock table for select
+	 *
 	 * @return bool
-	 * @throws SqlQueryException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	protected function unlock()
 	{
 		$connection = Application::getInstance()->getConnection();
-		if ($connection instanceof DB\MysqlCommonConnection)
-		{
-			$lockDb = $connection->query(
-				sprintf(
-					"SELECT RELEASE_LOCK('posting_thread_%d') as L",
-					$this->postingId
-				)
-			);
-			$lock   = $lockDb->fetch();
-			if ($lock["L"] != "0")
-			{
-				return true;
-			}
-		}
 
-		return false;
+		return $connection->unlock($this->getLockName());
+	}
+
+	/**
+	 * Get lock name
+	 *
+	 * @return string
+	 */
+	private function getLockName(): string
+	{
+		return "posting_thread_$this->postingId";
 	}
 
 	/**
@@ -360,7 +333,8 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 		}
 
 		$tableName = PostingThreadTable::getTableName();
-		$query = 'DELETE FROM `'.$tableName.'` WHERE POSTING_ID='.intval($this->postingId);
+		$sqlHelper = Application::getConnection()->getSqlHelper();
+		$query = 'DELETE FROM ' . $sqlHelper->quote($tableName) . ' WHERE POSTING_ID=' . intval($this->postingId);
 		try
 		{
 			Application::getConnection()->query($query);

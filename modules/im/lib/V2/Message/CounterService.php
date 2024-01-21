@@ -7,6 +7,7 @@ use Bitrix\Im\Model\EO_MessageUnread_Collection;
 use Bitrix\Im\Model\MessageTable;
 use Bitrix\Im\Model\MessageUnreadTable;
 use Bitrix\Im\Model\RecentTable;
+use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\NotifyChat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\User\User;
@@ -16,6 +17,7 @@ use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\Data\Cache;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\Type\DateTime;
 use CTimeZone;
@@ -38,15 +40,18 @@ class CounterService
 			'NOTIFY' => 0,
 			'CHAT' => 0,
 			'LINES' => 0,
+			'COPILOT' => 0,
 		],
 		'CHAT' => [],
 		'CHAT_MUTED' => [],
 		'CHAT_UNREAD' => [],
 		'LINES' => [],
+		'COPILOT' => [],
 	];
 
 	protected static array $staticCounterCache = [];
 	protected static array $staticChatsCounterCache = [];
+	protected static array $staticSpecificChatsCounterCache = [];
 
 	protected array $counters;
 	protected array $countersByChatIds = [];
@@ -139,6 +144,11 @@ class CounterService
 			return self::$staticChatsCounterCache[$userId];
 		}
 
+		if ($chatIds !== null && $this->haveInSpecificChatsCache($chatIds))
+		{
+			return static::$staticSpecificChatsCounterCache[$userId] ?? [];
+		}
+
 		$cache = $this->getCacheForChatsCounters();
 		$cachedCounters = $cache->getVars();
 		if ($cachedCounters !== false)
@@ -156,6 +166,10 @@ class CounterService
 		if ($chatIds === null)
 		{
 			$this->saveChatsCountersInCache($cache);
+		}
+		else
+		{
+			$this->saveSpecificChatsCountersInCache($chatIds);
 		}
 
 		return $this->countersByChatIds;
@@ -448,7 +462,7 @@ class CounterService
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
 		if (isset($userId))
 		{
-			unset(self::$staticCounterCache[$userId], self::$staticChatsCounterCache[$userId]);
+			unset(self::$staticCounterCache[$userId], self::$staticChatsCounterCache[$userId], self::$staticSpecificChatsCounterCache[$userId]);
 			$cache->clean(static::CACHE_NAME.'_'.$userId, self::CACHE_PATH);
 			$cache->clean(static::CACHE_NAME.'_'.$userId, CounterServiceLegacy::CACHE_PATH);
 			$cache->clean(self::CACHE_CHATS_COUNTERS_NAME.'_'.$userId, self::CACHE_PATH);
@@ -457,6 +471,7 @@ class CounterService
 		{
 			self::$staticCounterCache = [];
 			self::$staticChatsCounterCache = [];
+			self::$staticSpecificChatsCounterCache = [];
 			$cache->cleanDir(self::CACHE_PATH);
 			$cache->cleanDir(CounterServiceLegacy::CACHE_PATH);
 		}
@@ -494,6 +509,16 @@ class CounterService
 		self::$staticChatsCounterCache[$this->getContext()->getUserId()] = $this->countersByChatIds;
 	}
 
+	protected function saveSpecificChatsCountersInCache(array $chatIds): void
+	{
+		$userId = $this->getContext()->getUserId();
+
+		foreach ($chatIds as $chatId)
+		{
+			self::$staticSpecificChatsCounterCache[$userId][$chatId] = $this->countersByChatIds[$chatId] ?? 0;
+		}
+	}
+
 	protected function countUnreadChats(): void
 	{
 		$unreadChats = $this->getUnreadChats(false);
@@ -523,6 +548,10 @@ class CounterService
 			else if ($counter['CHAT_TYPE'] === \IM_MESSAGE_OPEN_LINE)
 			{
 				$this->setFromLine($chatId, $count);
+			}
+			else if ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COPILOT)
+			{
+				$this->setFromCopilot($chatId, $count);
 			}
 			else
 			{
@@ -561,6 +590,12 @@ class CounterService
 		$this->counters['LINES'][$id] = $count;
 	}
 
+	protected function setFromCopilot(int $id, int $count): void
+	{
+		$this->counters['TYPE']['COPILOT'] += $count;
+		$this->counters['COPILOT'][$id] = $count;
+	}
+
 	protected function setFromChat(int $id, int $count): void
 	{
 		$this->counters['TYPE']['ALL'] += $count;
@@ -585,6 +620,7 @@ class CounterService
 
 	protected function getCountersForEachChat(?array $chatIds = null, bool $forCurrentUser = true): array
 	{
+		$additionalCounters = $this->getAdditionalCounters($chatIds, $forCurrentUser);
 		$query = MessageUnreadTable::query()
 			->setSelect(['CHAT_ID', 'IS_MUTED', 'CHAT_TYPE', 'COUNT'])
 			->setGroup(['CHAT_ID', 'CHAT_TYPE', 'IS_MUTED'])
@@ -599,7 +635,30 @@ class CounterService
 			$query->where('USER_ID', $this->getContext()->getUserId());
 		}
 
-		return $query->fetchAll();
+		return array_merge($additionalCounters, $query->fetchAll());
+	}
+
+	protected function getAdditionalCounters(?array $chatIds = null, bool $forCurrentUser = true): array
+	{
+		$result = [];
+		$nonAnsweredLines = [];
+
+		if ($forCurrentUser && empty($chatIds) && Loader::includeModule('imopenlines'))
+		{
+			$nonAnsweredLines = \Bitrix\ImOpenLines\Recent::getNonAnsweredLines($this->getContext()->getUserId());
+		}
+
+		foreach ($nonAnsweredLines as $lineId)
+		{
+			$result[] = [
+				'CHAT_ID' => $lineId,
+				'IS_MUTED' => 'N',
+				'CHAT_TYPE' => Chat::IM_TYPE_OPEN_LINE,
+				'COUNT' => 1,
+			];
+		}
+
+		return $result;
 	}
 
 	protected function getTotalCountUnreadMessages(): int
@@ -608,6 +667,7 @@ class CounterService
 			->setSelect(['COUNT'])
 			->where('USER_ID', $this->getContext()->getUserId())
 			->where('IS_MUTED', false)
+			->whereNot('CHAT_TYPE', Chat::IM_TYPE_COPILOT)
 			->registerRuntimeField('COUNT', new ExpressionField('COUNT', 'COUNT(*)'))
 			->fetch()['COUNT']
 		;
@@ -638,6 +698,21 @@ class CounterService
 			->registerRuntimeField('COUNT', new ExpressionField('COUNT', 'COUNT(*)'))
 			->fetch()['COUNT'] ?? 0
 		;
+	}
+
+	protected function haveInSpecificChatsCache(array $chatIds): bool
+	{
+		$userId = $this->getContext()->getUserId();
+
+		foreach ($chatIds as $chatId)
+		{
+			if ($chatId > 0 && !isset(self::$staticSpecificChatsCounterCache[$userId][$chatId]))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private function prepareInsertFields(Message $message, Relation $relation): array

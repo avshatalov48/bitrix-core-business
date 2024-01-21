@@ -17,14 +17,16 @@ return [
 		'ui.dialogs.messagebox',
 		'im.v2.lib.slider',
 		'im.v2.lib.call',
-		'im.v2.lib.desktop-api',
 		'im.v2.lib.phone',
-		'im.v2.lib.desktop',
-		'main.core',
 		'im.v2.component.elements',
 		'im.v2.lib.utils',
 		'im.v2.lib.logger',
-		'im.v2.lib.rest',
+		'main.core',
+		'main.popup',
+		'im.v2.lib.menu',
+		'im.v2.lib.desktop-api',
+		'im.v2.lib.confirm',
+		'im.v2.lib.desktop',
 		'ui.buttons',
 		'ui.feedback.form',
 		'ui.fontawesome4',
@@ -34,7 +36,7 @@ return [
 	],
 	'skip_core' => false,
 	'settings' => [
-		'v2' => \Bitrix\Im\Settings::isBetaActivated(),
-		'force_beta' => \Bitrix\Im\Settings::isForceBetaActivatedForCurrentUser()
+		'copilotActive' => \Bitrix\Im\V2\Chat\CopilotChat::isAvailable(),
+		'v2' => !\Bitrix\Im\Settings::isLegacyChatActivated(),
 	]
 ];

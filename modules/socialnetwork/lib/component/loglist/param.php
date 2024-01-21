@@ -5,6 +5,8 @@ namespace Bitrix\Socialnetwork\Component\LogList;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Livefeed\Context\Context;
+use Bitrix\Socialnetwork\Space\Toolbar\Switcher\Mode\SmartTracking;
 
 class Param
 {
@@ -338,7 +340,7 @@ class Param
 		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', (int) ($parentParams['BLOG_IMAGE_MAX_WIDTH'] ?? 0));
 		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', (int) ($parentParams['BLOG_IMAGE_MAX_HEIGHT'] ?? 0));
 		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_IMAGE_UPLOAD', trim($parentParams['BLOG_COMMENT_ALLOW_IMAGE_UPLOAD'] ?? ''));
-		Util::checkEmptyParamString($componentParams, 'BLOG_ALLOW_POST_CODE', trim($parentParams['BLOG_ALLOW_POST_CODE']));
+		Util::checkEmptyParamString($componentParams, 'BLOG_ALLOW_POST_CODE', trim($parentParams['BLOG_ALLOW_POST_CODE'] ?? ''));
 		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_VIDEO', trim($parentParams['BLOG_COMMENT_ALLOW_VIDEO'] ?? ''));
 
 		$componentParams['BLOG_GROUP_ID'] = (int) ($parentParams['BLOG_GROUP_ID'] ?? null);
@@ -426,7 +428,10 @@ class Param
 
 			if (empty($componentParams['DESTINATION']))
 			{
-				if ($componentParams['GROUP_ID'] > 0)
+				if (
+					($componentParams['GROUP_ID'] > 0 && !$this->isSpace($componentParams))
+					|| !$this->isSmartTrackingMode($componentParams)
+				)
 				{
 					$componentParams['SET_LOG_PAGE_CACHE'] = 'Y';
 					$componentParams['USE_FOLLOW'] = 'N';
@@ -623,7 +628,7 @@ class Param
 				\CUserOptions::deleteOption('socialnetwork', '~log_'.$componentParams['ENTITY_TYPE'].'_'.($componentParams['ENTITY_TYPE'] == SONET_ENTITY_GROUP ? $componentParams['GROUP_ID'] : $componentParams['USER_ID']));
 			}
 
-			$presetFiltersList = \CSocNetLogComponent::convertPresetToFilters($presetFiltersOptions, $componentParams);
+			$presetFiltersList = \CSocNetLogComponent::convertPresetToFilters($presetFiltersOptions, $componentParams['GROUP_ID'] ?? null);
 
 			// to filter component
 			$livefeedFilterHandler = new FilterHandler([
@@ -771,5 +776,26 @@ class Param
 			$componentParams['NAME_TEMPLATE']
 		);
 		$componentParams['NAME_TEMPLATE'] = $componentParams['NAME_TEMPLATE_WO_NOBR'];
+	}
+
+	private function isSpace(array $componentParams): bool
+	{
+		return ($componentParams['CONTEXT'] ?? '') === Context::SPACES;
+	}
+
+	private function isSmartTrackingMode(array $componentParams): bool
+	{
+		if (!$this->isSpace($componentParams))
+		{
+			return true;
+		}
+
+		$switcher = SmartTracking::get(
+			$componentParams['SPACE_USER_ID'] ?? $componentParams['USER_ID'] ?? 0,
+			0,
+			SmartTracking::getDefaultCode()
+		);
+
+		return $switcher->isEnabled();
 	}
 }

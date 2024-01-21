@@ -1,6 +1,5 @@
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Editor} from '../editor';
-import {Copilot} from 'ai.copilot';
 
 export default function bindToolbar(editor: Editor, htmlEditor)
 {
@@ -107,6 +106,13 @@ export default function bindToolbar(editor: Editor, htmlEditor)
 	if (copilot)
 	{
 		copilot.addEventListener('click', () => {
+			if (!editor.isTextCopilotEnabledBySettings())
+			{
+				top.BX.UI.InfoHelper.show('limit_copilot_off');
+
+				return;
+			}
+
 			editor.showCopilot();
 		});
 	}

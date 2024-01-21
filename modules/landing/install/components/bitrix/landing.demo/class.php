@@ -446,14 +446,17 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			// localization
 			$pageData = $this->translate(
 				$pageData,
-				$demo[$code]['LANG']
+				$demo[$code]['LANG'] ?? null
 			);
 			$pageData['ADDITIONAL_FIELDS'] = $this->translate(
 				$pageData['ADDITIONAL_FIELDS'],
-				$demo[$code]['LANG']
+				$demo[$code]['LANG'] ?? null
 			);
 			// folder
-			if ($this->request($this->arParams['ACTION_FOLDER']))
+			if (
+				isset($this->arParams['ACTION_FOLDER'])
+				&& $this->request($this->arParams['ACTION_FOLDER'])
+			)
 			{
 				$pageData['FOLDER_ID'] = $this->request(
 					$this->arParams['ACTION_FOLDER']
@@ -519,6 +522,14 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					{
 						if (is_array($block))
 						{
+							if (
+								isset($this->arParams['PREPARE_BLOCKS_DATA'])
+								&& is_array($this->arParams['PREPARE_BLOCKS_DATA'])
+								&& array_key_exists($block['code'], $this->arParams['PREPARE_BLOCKS_DATA'])
+							)
+							{
+								$block['prepare_block_data'] = $this->arParams['PREPARE_BLOCKS_DATA'][$block['code']];
+							}
 							if ($data['version'] >= 2)
 							{
 								// support rest blocks
@@ -546,18 +557,22 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 									continue;
 								}
 								$blocksCodes[$k] = $block['code'];
+								$block['old_id'] = $block['old_id'] ?? \randString(10);
+								$blockData = [
+									'PUBLIC' => 'N',
+									'SORT' => $sort,
+									'XML_ID' => $block['old_id'],
+									'ANCHOR' => isset($block['anchor'])
+										? $block['anchor']
+										: '',
+								];
+								if (isset($block['prepare_block_data']))
+								{
+									$blockData['PREPARE_BLOCK_DATA'] = $block['prepare_block_data'];
+								}
 								$blockId = $landing->addBlock(
 									$block['code'],
-									array(
-										'PUBLIC' => 'N',
-										'SORT' => $sort,
-										'XML_ID' => isset($block['old_id'])
-													? $block['old_id']
-													: strtolower(\randString(10)),
-										'ANCHOR' => isset($block['anchor'])
-													? $block['anchor']
-													: ''
-									)
+									$blockData,
 								);
 								if (isset($block['access']))
 								{
@@ -954,6 +969,11 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 */
 	protected function bindingSite($siteId)
 	{
+		if (empty($siteId))
+		{
+			return;
+		}
+
 		$this->arParams['BINDING_TYPE'] = mb_strtoupper($this->arParams['BINDING_TYPE']);
 		if ($this->arParams['BINDING_TYPE'] == 'GROUP')
 		{
@@ -1038,20 +1058,17 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$siteData['TPL_CODE'] = $code;
 			$siteData['XML_ID'] = $data['name'] . '|' . $code;
 			$siteData['TYPE'] = $this->arParams['TYPE'];
-			$pageIndex = $siteData['LANDING_ID_INDEX']
-						? $siteData['LANDING_ID_INDEX']
-						: '';
-			$page404 = $siteData['LANDING_ID_404']
-						? $siteData['LANDING_ID_404']
-						: '';
+			$pageIndex = $siteData['LANDING_ID_INDEX'] ?? '';
+			$page404 = $siteData['LANDING_ID_404'] ?? '';
 			// localization
+
 			$siteData = $this->translate(
 				$siteData,
-				$demo[$code]['LANG']
+				$demo[$code]['LANG'] ?? null
 			);
 			$siteData['ADDITIONAL_FIELDS'] = $this->translate(
 				$siteData['ADDITIONAL_FIELDS'],
-				$demo[$code]['LANG']
+				$demo[$code]['LANG'] ?? null
 			);
 			// first create site
 			if ($this->arParams['SITE_WORK_MODE'] == 'Y')
@@ -1099,7 +1116,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				{
 					$siteData['ADDITIONAL_FIELDS']['B24BUTTON_CODE'] = 'N';
 				}
-				if ($data['singleton'])
+				if ($data['singleton'] ?? false)
 				{
 					Manager::enableFeatureTmp(
 						Manager::FEATURE_CREATE_SITE
@@ -1227,7 +1244,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 											]
 										);
 									}
-									if ($code === 'store_v3' || $code === 'clothes')
+									if ($data['type'] !== 'KNOWLEDGE')
 									{
 										$content = str_replace(
 											'@landing[' . $landCode . ']',
@@ -1862,6 +1879,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					'search-result2',
 					'search-result3-dark',
 					'news-detail',
+					'requisites',
 				];
 				foreach ($localTemplates as $template)
 				{
@@ -1914,6 +1932,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						{
 							$itemData['fields']['TITLE'] = $itemData['name'];
 						}
+						$itemData['old_id'] = $itemData['old_id'] ?? rand(1, 1000);
 						$data[$subDir][$dir] = array(
 							'ID' => $dir,
 							'XML_ID' => $dir,
@@ -2792,7 +2811,11 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				);
 				$this->arResult['FILTER'] = $this->arResult['FILTER_OPTIONS']->getFilter();
 			}
-			$this->arResult['IS_SEARCH'] = is_array($this->arResult['FILTER']) && !empty($this->arResult['FILTER']);
+			$this->arResult['IS_SEARCH'] =
+				isset($this->arResult['FILTER'])
+				&& is_array($this->arResult['FILTER'])
+				&& !empty($this->arResult['FILTER'])
+			;
 
 			// init nav
 			$this->arResult['NAV_URI'] =

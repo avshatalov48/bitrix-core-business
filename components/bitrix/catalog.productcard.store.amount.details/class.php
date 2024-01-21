@@ -365,8 +365,8 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 			],
 			[
 				'id' => 'QUANTITY_COMMON',
-				'name' => Loc::getMessage('STORE_LIST_DETAILS_HEADER_QUANTITY_COMMON'),
-				'title' => Loc::getMessage('STORE_LIST_DETAILS_HEADER_QUANTITY_COMMON'),
+				'name' => Loc::getMessage('STORE_LIST_DETAILS_HEADER_QUANTITY_COMMON_MSGVER_1'),
+				'title' => Loc::getMessage('STORE_LIST_DETAILS_HEADER_QUANTITY_COMMON_MSGVER_1'),
 				'sort' => 'QUANTITY_COMMON',
 				'type' => 'number',
 				'width' => $defaultWidth,

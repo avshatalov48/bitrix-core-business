@@ -127,7 +127,7 @@ class LogIndexTable extends Entity\DataManager
 
 		$merge = $helper->prepareMerge(
 			static::getTableName(),
-			[ 'ITEM_TYP', 'ITEM_ID' ],
+			[ 'ITEM_TYPE', 'ITEM_ID' ],
 			$insertFields,
 			$updateFields
 		);
@@ -168,7 +168,7 @@ class LogIndexTable extends Entity\DataManager
 
 		$tableName = self::getTableName();
 		list($prefix, $values) = $helper->prepareUpdate($tableName, $updateFields);
-		$connection->queryExecute("UPDATE {$tableName} SET {$prefix} WHERE `LOG_ID` = " . $logId);
+		$connection->queryExecute("UPDATE {$tableName} SET {$prefix} WHERE LOG_ID = " . $logId);
 
 		return true;
 	}

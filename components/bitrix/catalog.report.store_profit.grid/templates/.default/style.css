@@ -1,0 +1,38 @@
+tr[data-id="overallTotal"],
+tr[data-id="totalLink"] {
+	font-weight: var(--ui-font-weight-bold);
+}
+
+tr[data-id="overallTotal"] td,
+tr[data-id="totalLink"] td {
+	border-bottom: 0;
+}
+
+.store-report-link {
+	cursor: pointer;
+}
+
+.main-grid-container {
+	overflow: hidden !important;
+}
+
+.chart-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.chart-header:last-child {
+	margin-right: 20px;
+}
+
+.catalog-report-config {
+	margin: 100px 0;
+	text-align: center;
+}
+
+.catalog-report-config-title {
+	margin: 20px;
+	text-align: center;
+}

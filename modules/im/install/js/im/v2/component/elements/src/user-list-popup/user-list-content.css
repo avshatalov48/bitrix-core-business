@@ -1,12 +1,6 @@
 .bx-im-user-list-content__scope{
 	--im-user-list-content__color_user-title: #525c69;
 	--im-user-list-content__background-color_user: #f5f7f8;
-	--im-user-list-content__border-color_online: #9dcf00;
-	--im-user-list-content__border-color_away: #f7ae3b;
-	--im-user-list-content__border-color_idle: #f6ae3b;
-	--im-user-list-content__border-color_dnd: #ff5752;
-	--im-user-list-content__border-color_break: #c48300;
-	--im-user-list-content__border-color_mobile-online: #11a9d9;
 	--im-user-list-content__background-color_scroll: rgb(82 92 105 / 30%);
 	--im-user-list-content__background-color_scroll-hover: rgb(82 92 105 / 50%);
 	--im-user-list-content__background-color_scroll-active: rgb(82 92 105 / 80%);
@@ -15,13 +9,13 @@
 .bx-im-user-list-content__container {
 	display: flex;
 	flex-direction: column;
-	width: 200px;
-	max-width: 200px;
+	width: 240px;
+	max-width: 240px;
 	min-height: 30px;
 	max-height: 150px;
 	overflow-x: hidden;
 	overflow-y: auto;
-	padding: 0 12px;
+	padding: 0 8px;
 	margin: 12px 0;
 }
 
@@ -68,7 +62,7 @@
 }
 
 .bx-im-user-list-content__chat-title-container {
-	margin-left: 8px;
+	margin-left: 6px;
 }
 
 .bx-im-user-list-content__user-container .bx-im-chat-title__text {
@@ -84,28 +78,4 @@
 
 .bx-im-user-list-content__avatar-status {
 	border: 1px solid transparent;
-}
-
-.bx-im-user-list-content__avatar-status.--online {
-	border-color: var(--im-user-list-content__border-color_online);
-}
-
-.bx-im-user-list-content__avatar-status.--mobile-online {
-	border-color: var(--im-user-list-content__border-color_mobile-online);
-}
-
-.bx-im-user-list-content__avatar-status.--away {
-	border-color: var(--im-user-list-content__border-color_away);
-}
-
-.bx-im-user-list-content__avatar-status.--idle {
-	border-color: var(--im-user-list-content__border-color_idle);
-}
-
-.bx-im-user-list-content__avatar-status.--dnd {
-	border-color: var(--im-user-list-content__border-color_dnd);
-}
-
-.bx-im-user-list-content__avatar-status.--break {
-	border-color: var(--im-user-list-content__border-color_break);
 }

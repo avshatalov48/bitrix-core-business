@@ -1,6 +1,8 @@
 <?php
 $MESS["SALE_HPS_WOOPPAY_DESCRIPTION_MAIN"] = "Данные для заполнения полей вы получаете от технического специалиста Woopkassa в процессе интеграции";
 $MESS["SALE_HPS_WOOPPAY"] = "Woopkassa";
+$MESS["SALE_HPS_WOOPPAY_CHECKOUT_MODE"] = "Страница оплаты";
+$MESS["SALE_HPS_WOOPPAY_CHECKOUT_MODE_DESCRIPTION"] = "Принимайте онлайн-платежи от клиентов с банковской карты, баланса мобильного телефона или кошелька Wooppay. Woopkassa – cервис по приему онлайн-платежей от Wooppay, первой зарегистрированной платежной организации в Казахстане.";
 $MESS["SALE_HPS_WOOPPAY_LOGIN"] = "Логин";
 $MESS["SALE_HPS_WOOPPAY_PASSWORD"] = "Пароль";
 $MESS["SALE_HPS_WOOPPAY_SERVICE_NAME"] = "Системное имя сервиса";

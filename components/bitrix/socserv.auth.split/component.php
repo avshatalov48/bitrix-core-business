@@ -8,11 +8,13 @@ if (!CModule::IncludeModule("socialservices"))
 if (!$GLOBALS["USER"]->IsAuthorized())
 	return;
 
-if ($_SESSION["LAST_ERROR"])
+$session = \Bitrix\Main\Application::getInstance()->getSession();
+if ($session['LAST_ERROR'])
 {
-	ShowError($_SESSION["LAST_ERROR"]);
-	$_SESSION["LAST_ERROR"] = false;
+	ShowError($session['LAST_ERROR']);
+	unset($session['LAST_ERROR']);
 }
+
 $oAuthManager = new CSocServAuthManager();
 if(isset($arParams['BACKURL']))
 {
@@ -177,7 +179,9 @@ $arParamsToDelete = array(
 	"current_fieldset",
 );
 $add = (CModule::IncludeModule("socialnetwork") && $_REQUEST["auth_service_id"] <> '' && $componentTemplate == 'twitpost') ? "current_fieldset=SOCSERV" : "";
-if ($_SERVER["REQUEST_METHOD"] == "GET" && $_REQUEST["action"] == "delete" && isset($_REQUEST["user_id"]) && intval($_REQUEST["user_id"] > 0) && check_bitrix_sessid())
+$isActionDelete = isset($_REQUEST["action"]) && $_REQUEST["action"] === "delete";
+
+if ($_SERVER["REQUEST_METHOD"] === "GET" && $isActionDelete && isset($_REQUEST["user_id"]) && intval($_REQUEST["user_id"] > 0) && check_bitrix_sessid())
 {
 	$userId = intval($_REQUEST["user_id"]);
 	if(in_array($userId, $arResult["ALLOW_DELETE_ID"]))

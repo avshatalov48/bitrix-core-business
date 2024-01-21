@@ -1,28 +1,30 @@
 export { RestMethod } from './rest';
 export { EventType } from './events';
-export { DialogType, DialogBlockType, DialogScrollThreshold, DialogAlignment } from './dialog';
+export { ChatType, DialogBlockType, DialogScrollThreshold, DialogAlignment } from './chat';
 export { FileStatus, FileType, FileIconType } from './file';
 export { MessageType, MessageComponent, MessageMentionType, MessageStatus, OwnMessageStatus } from './message';
 export { RecentCallStatus } from './recent';
-export { NotificationTypesCodes } from './notification';
+export { NotificationTypesCodes, NotificationSettingsMode } from './notification';
 export { Layout } from './layout';
 export { SearchEntityIdTypes } from './search-result';
-export { UserStatus, UserExternalType, UserRole } from './user';
+export { UserStatus, UserExternalType, UserRole, UserIdNetworkPrefix } from './user';
 export { SidebarDetailBlock, SidebarBlock, SidebarFileTabTypes, SidebarFileTypes } from './sidebar';
 export { Color } from './color';
 export { AttachType, AttachDescription } from './attach';
+export { KeyboardButtonType, KeyboardButtonAction, KeyboardButtonDisplay, KeyboardButtonContext } from './keyboard';
 export { DesktopFeature, DesktopBxLink, LegacyDesktopBxLink } from './desktop';
 export { LocalStorageKey } from './local-storage';
 export { PlacementType } from './market';
 export { PopupType } from './popup';
-export { Settings, SettingsSection } from './settings';
+export { Settings, SettingsSection, NotificationSettingsType } from './settings';
 export { SoundType } from './sound';
 export { PromoId } from './promo';
 export { ChatActionType, ChatActionGroup } from './chat-action';
-export { BotType } from './bot';
+export { BotType, RawBotType, BotCode, BotCommand } from './bot';
 export { PathPlaceholder } from './path';
 export { GetParameter } from './get-params';
 export { CallViewState } from './call';
+export { TextareaPanelType } from './textarea';
 
 export type {
 	OnLayoutChangeEvent,
@@ -45,3 +47,7 @@ export type {
 	AttachRichConfig, AttachRichItemConfig,
 	AttachUserConfig, AttachUserItemConfig,
 } from './attach';
+
+export type { RawKeyboardButtonConfig, KeyboardButtonConfig } from './keyboard';
+
+export type { RawSettings, RawNotificationSettingsBlock, NotificationSettingsBlock, NotificationSettingsItem } from './settings';

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Im\Notify;
 use Bitrix\Im\User;
@@ -63,6 +64,11 @@ class NotifyChat extends Chat
 		$result->setResult($params);
 
 		return $result;
+	}
+
+	public static function getByUser(?int $userId = null): ?NotifyChat
+	{
+		return ChatFactory::getInstance()->getNotifyFeed($userId);
 	}
 
 	/**
@@ -398,6 +404,21 @@ class NotifyChat extends Chat
 		return $result;
 	}
 
+	public function dropAll(): void
+	{
+		$chatId = $this->getChatId();
+
+		if ($chatId === null || $chatId === 0)
+		{
+			return;
+		}
+
+		Message\MessageService::deleteByChatId($chatId, $this->getContext()->getUserId());
+		$this->setMessageCount(0)->save();
+
+		$this->sendPushDropAll();
+	}
+
 	/**
 	 * If we have other notifications with the same tag, we need to get USERS from the old notifications,
 	 * then merge it with AUTHOR_ID or create new USERS array with AUTHOR_ID then delete old notifications.
@@ -497,6 +518,25 @@ class NotifyChat extends Chat
 		)
 		{
 			\CIMNotify::DeleteByTag($message->getNotifyTag());
+		}
+	}
+
+	protected function sendPushDropAll(): void
+	{
+		if (Loader::includeModule('pull'))
+		{
+			\Bitrix\Pull\Event::add(
+				$this->getContext()->getUserId(),
+				[
+					'module_id' => 'im',
+					'command' => 'notifyDeleteAll',
+					'params' => [
+						'chatId' => $this->getChatId(),
+					],
+					'extra' => \Bitrix\Im\Common::getPullExtra()
+				]
+			);
+			\Bitrix\Pull\MobileCounter::send($this->getContext()->getUserId());
 		}
 	}
 

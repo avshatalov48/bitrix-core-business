@@ -1,0 +1,3 @@
+<?php
+$MESS["STORE_STOCK_REPORT_PRODUCT_GRID_ALL_STORES_TITLE"] = "Lagerbestand für alle Lager";
+$MESS["STORE_STOCK_REPORT_PRODUCT_GRID_TITLE"] = "Aktueller Bestand auf Lager #STORE_TITLE#";

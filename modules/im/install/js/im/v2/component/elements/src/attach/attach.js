@@ -59,27 +59,27 @@ export const Attach = {
 		},
 		blocks(): AttachConfigBlock[]
 		{
-			return this.internalConfig.BLOCKS;
+			return this.internalConfig.blocks;
 		},
 		color(): string
 		{
-			if (!this.internalConfig.COLOR)
+			if (!this.internalConfig.color)
 			{
 				return this.baseColor;
 			}
 
 			// todo: in future we should set color for rich link on the backend. Remove after we delete the old chat.
-			if (this.internalConfig.COLOR === Color.transparent && this.hasRichLink)
+			if (this.internalConfig.color === Color.transparent && this.hasRichLink)
 			{
 				return '#2FC6F6';
 			}
 
-			if (this.internalConfig.COLOR === Color.transparent)
+			if (this.internalConfig.color === Color.transparent)
 			{
 				return '';
 			}
 
-			return this.internalConfig.COLOR;
+			return this.internalConfig.color;
 		},
 		hasRichLink(): boolean
 		{
@@ -109,7 +109,7 @@ export const Attach = {
 					:config="block"
 					:color="color"
 					:key="index"
-					:attachId="internalConfig.ID.toString()"
+					:attachId="internalConfig.id.toString()"
 				/>
 			</div>
 		</div>

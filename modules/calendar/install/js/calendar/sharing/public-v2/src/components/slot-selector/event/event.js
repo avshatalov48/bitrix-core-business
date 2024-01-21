@@ -1,12 +1,12 @@
-import Base from "../base";
-import { Util } from "calendar.util";
-import {Dom, Loc, Tag, Browser, Text} from "main.core";
-import {Popup} from "main.popup";
-import WidgetDate from "../widget-date";
-import {EventEmitter} from "main.core.events";
-import {DateTimeFormat} from "main.date";
-import {BottomSheet} from "ui.bottomsheet";
-
+import { Member } from '../../layout/members-list';
+import Base from '../base';
+import { Util } from 'calendar.util';
+import { Dom, Loc, Tag, Browser, Type, Text } from 'main.core';
+import { Popup } from 'main.popup';
+import WidgetDate from '../widget-date';
+import { EventEmitter } from 'main.core.events';
+import { DateTimeFormat } from 'main.date';
+import { BottomSheet } from 'ui.bottomsheet';
 
 type State = 'created' | 'not-created' | 'declined' ;
 
@@ -14,6 +14,7 @@ type EventData = {
 	from: Date,
 	to: Date,
 	timezone: string,
+	isFullDay: boolean,
 	eventLinkHash: string,
 	eventName: string,
 	state: State,
@@ -35,8 +36,8 @@ type EventOptions = {
 	action: string,
 	canceledByManager: boolean,
 	showBackCalendarButtons: boolean,
+	members: Member[],
 };
-
 
 export default class Event extends Base
 {
@@ -54,7 +55,7 @@ export default class Event extends Base
 
 	constructor(options: EventOptions)
 	{
-		super({isHiddenOnStart: options.isHiddenOnStart});
+		super({ isHiddenOnStart: options.isHiddenOnStart });
 		this.#state = options.state;
 		this.#isView = options.isView;
 		this.#event = options.event;
@@ -68,18 +69,20 @@ export default class Event extends Base
 			icon: null,
 			stateTitle: null,
 			additionalBlock: null,
-			bottomButton: null
+			bottomButton: null,
 		};
 		this.#value = {
 			from: null,
 			to: null,
 			timezone: null,
+			isFullDay: false,
 			canceledTimestamp: null,
 			canceledUserName: null,
 			eventName: null,
 			canceledByManager: options.canceledByManager,
 			eventLinkHash: options.eventLinkHash,
 			eventId: options.eventId,
+			members: options.members,
 		};
 		this.#icsFile = null;
 		this.#inDeletedSlider = options.inDeletedSlider === true;
@@ -123,9 +126,16 @@ export default class Event extends Base
 
 	#initEventData()
 	{
-		this.#value.from = Util.getTimezoneDateFromTimestampUTC(parseInt(this.#event.timestampFromUTC) * 1000, this.#currentTimezone);
-		this.#value.to = Util.getTimezoneDateFromTimestampUTC(parseInt(this.#event.timestampToUTC) * 1000, this.#currentTimezone);
+		this.#value.from = Util.getTimezoneDateFromTimestampUTC(
+			parseInt(this.#event.timestampFromUTC, 10) * 1000,
+			this.#currentTimezone,
+		);
+		this.#value.to = Util.getTimezoneDateFromTimestampUTC(
+			parseInt(this.#event.timestampToUTC, 10) * 1000,
+			this.#currentTimezone,
+		);
 		this.#value.timezone = this.#currentTimezone;
+		this.#value.isFullDay = this.#event.isFullDay;
 		this.#value.eventName = this.#getEventName();
 		this.#value.canceledTimestamp = this.#event.canceledTimestamp;
 		this.#value.canceledUserName = this.#event.externalUserName;
@@ -138,38 +148,52 @@ export default class Event extends Base
 		{
 			this.#value.from = data.from;
 		}
+
 		if (data.to)
 		{
 			this.#value.to = data.to;
 		}
+
 		if (data.timezone)
 		{
 			this.#value.timezone = data.timezone;
 		}
+
+		if (Type.isBoolean(data.isFullDay))
+		{
+			this.#value.isFullDay = data.isFullDay;
+		}
+
 		if (data.eventLinkHash)
 		{
 			this.#value.eventLinkHash = data.eventLinkHash;
 		}
+
 		if (data.eventName)
 		{
 			this.#value.eventName = data.eventName;
 		}
+
 		if (data.state)
 		{
 			this.#updateState(data.state);
 		}
+
 		if (data.isView)
 		{
 			this.#isView = false;
 		}
+
 		if (data.eventId)
 		{
 			this.#value.eventId = data.eventId;
 		}
+
 		if (data.userName)
 		{
 			this.#value.canceledUserName = data.userName;
 		}
+
 		if (this.#value.canceledByManager === true)
 		{
 			this.#value.canceledByManager = false;
@@ -194,15 +218,15 @@ export default class Event extends Base
 					${this.#getEventNameNode()}
 					${this.#getStateTitleNode()}
 				</div>
-				
+
 				<div class="calendar-sharing__calendar-block --form --center">
 					${this.#getNodeWidgetDate()}
 				</div>
-				
+
 				<div class="calendar-sharing__calendar-block --form --center">
 					${this.#getAdditionalBlockNode()}
 				</div>
-				
+
 				<div class="calendar-sharing__calendar-block --top-auto">
 					${this.#getBottomButtonNode()}
 				</div>
@@ -262,7 +286,7 @@ export default class Event extends Base
 
 	#createIconByState(state: State)
 	{
-		let result = Tag.render`
+		const result = Tag.render`
 			<div class="calendar-sharing__form-result_icon"></div>
 		`;
 		Dom.addClass(result, this.#getIconClassByState(state));
@@ -275,14 +299,16 @@ export default class Event extends Base
 		let result = '';
 		switch (state)
 		{
-			case "created":
+			case 'created':
 				result = '--accept';
 				break;
-			case "not-created":
+			case 'not-created':
 				result = '--decline';
 				break;
-			case "declined":
+			case 'declined':
 				result = '--decline';
+				break;
+			default:
 				break;
 		}
 
@@ -321,17 +347,19 @@ export default class Event extends Base
 		let result = '';
 		switch (state)
 		{
-			case "created":
+			case 'created':
 				if (!this.#isView)
 				{
 					result = Loc.getMessage('CALENDAR_SHARING_MEETING_CREATED');
 				}
 				break;
-			case "not-created":
+			case 'not-created':
 				result = Loc.getMessage('CALENDAR_SHARING_MEETING_NOT_CREATED');
 				break;
-			case "declined":
+			case 'declined':
 				result = Loc.getMessage('CALENDAR_SHARING_MEETING_CANCELED');
+				break;
+			default:
 				break;
 		}
 
@@ -354,25 +382,28 @@ export default class Event extends Base
 
 		if (this.#inDeletedSlider)
 		{
-			const date = Util.getTimezoneDateFromTimestampUTC(parseInt(this.#value.canceledTimestamp) * 1000, this.#currentTimezone);
+			const date = Util.getTimezoneDateFromTimestampUTC(
+				parseInt(this.#value.canceledTimestamp, 10) * 1000,
+				this.#currentTimezone,
+			);
 
 			if (this.#value.canceledTimestamp && this.#value.canceledUserName && date)
 			{
 				result = Tag.render`
-						<div class="calendar-pub__form-status">
-							<div class="calendar-pub__form-status_text">
-								${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: <a href="/company/personal/user/${this.#owner.id}/" target="_blank" class="calendar-sharing-deletedviewform_open-profile">${Text.encode(this.#value.canceledUserName)}</a>
-								<br>
-								${DateTimeFormat.format('j F ' + Util.getTimeFormatShort(), date.getTime() / 1000)}
-							</div>
+					<div class="calendar-pub__form-status">
+						<div class="calendar-pub__form-status_text">
+							${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: <a href="/company/personal/user/${this.#owner.id}/" target="_blank" class="calendar-sharing-deletedviewform_open-profile">${Text.encode(this.#value.canceledUserName)}</a>
+							<br>
+							${DateTimeFormat.format(`j F ${Util.getTimeFormatShort()}`, date.getTime() / 1000)}
 						</div>
-					`;
+					</div>
+				`;
 			}
 			else
 			{
 				result = Tag.render`
-						<div></div>
-					`;
+					<div></div>
+				`;
 			}
 
 			return result;
@@ -380,7 +411,7 @@ export default class Event extends Base
 
 		switch (state)
 		{
-			case "created":
+			case 'created':
 				result = Tag.render`
 					<div onclick="${this.showCancelEventPopup.bind(this)}" class="calendar-pub__form-status --decline">
 						<div class="calendar-pub__form-status_text">
@@ -389,16 +420,19 @@ export default class Event extends Base
 					</div>
 				`;
 				break;
-			case "not-created":
+			case 'not-created':
 				result = Tag.render`
 					<div></div>
 				`;
 				break;
-			case "declined":
-				const date = Util.getTimezoneDateFromTimestampUTC(parseInt(this.#value.canceledTimestamp) * 1000, this.#currentTimezone);
+			case 'declined':
+				const date = Util.getTimezoneDateFromTimestampUTC(
+					parseInt(this.#value.canceledTimestamp, 10) * 1000,
+					this.#currentTimezone,
+				);
 				if (this.#value.canceledByManager)
 				{
-					this.#value.canceledUserName = this.#owner.name + ' ' + this.#owner.lastName;
+					this.#value.canceledUserName = `${this.#owner.name} ${this.#owner.lastName}`;
 				}
 
 				if (this.#value.canceledTimestamp && this.#value.canceledUserName && date)
@@ -406,7 +440,7 @@ export default class Event extends Base
 					result = Tag.render`
 						<div class="calendar-pub__form-status">
 							<div class="calendar-pub__form-status_text">
-								${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: ${Text.encode(this.#value.canceledUserName)}<br> ${DateTimeFormat.format('j F ' + Util.getTimeFormatShort(), date.getTime() / 1000)}
+								${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: ${Text.encode(this.#value.canceledUserName)}<br> ${DateTimeFormat.format(`j F ${Util.getTimeFormatShort()}`, date.getTime() / 1000)}
 							</div>
 						</div>
 					`;
@@ -418,6 +452,8 @@ export default class Event extends Base
 					`;
 				}
 
+				break;
+			default:
 				break;
 		}
 
@@ -444,7 +480,7 @@ export default class Event extends Base
 		let result = '';
 		switch (state)
 		{
-			case "created":
+			case 'created':
 				this.#layout.videoconferenceButton = Tag.render`
 					<div onclick="${this.#onVideoconferenceButtonClick.bind(this)}" class="calendar-pub-ui__btn --light-border --m calendar-pub-action-btn">
 						<div class="calendar-pub-ui__btn-text">${Loc.getMessage('CALENDAR_SHARING_OPEN_VIDEOCONFERENCE')}</div>
@@ -462,8 +498,8 @@ export default class Event extends Base
 					</div>
 				`;
 				break;
-			case "not-created":
-			case "declined":
+			case 'not-created':
+			case 'declined':
 				if (this.#showBackCalendarButtons)
 				{
 					result = Tag.render`
@@ -476,6 +512,8 @@ export default class Event extends Base
 				{
 					result = Tag.render`<div></div>`;
 				}
+				break;
+			default:
 				break;
 		}
 
@@ -506,7 +544,7 @@ export default class Event extends Base
 				this.popup = new BottomSheet({
 					className: 'calendar-pub__state',
 					content: popupContent,
-					padding: '20px 25px'
+					padding: '20px 25px',
 				});
 			}
 			else
@@ -517,7 +555,7 @@ export default class Event extends Base
 					width: 380,
 					animation: 'fading-slide',
 					content: popupContent,
-					overlay: true
+					overlay: true,
 				});
 			}
 		}
@@ -541,7 +579,7 @@ export default class Event extends Base
 		const isSuccess = await this.deleteEvent();
 		if (isSuccess)
 		{
-			this.#value.canceledTimestamp = new Date().getTime() / 1000;
+			this.#value.canceledTimestamp = Date.now() / 1000;
 			this.#updateState('declined');
 			EventEmitter.emit('onDeleteEvent');
 		}
@@ -568,7 +606,7 @@ export default class Event extends Base
 				data: {
 					eventId: this.#value.eventId,
 					eventLinkHash: this.#value.eventLinkHash,
-				}
+				},
 			});
 		}
 		catch (e)
@@ -587,8 +625,8 @@ export default class Event extends Base
 			response = await BX.ajax.runAction('calendar.api.sharingajax.getConferenceLink', {
 				data: {
 					eventLinkHash: this.#value.eventLinkHash,
-				}
-			})
+				},
+			});
 		}
 		catch (error)
 		{
@@ -609,7 +647,7 @@ export default class Event extends Base
 		{
 			const response = await BX.ajax.runAction('calendar.api.sharingajax.getIcsFileContent', {
 				data: {
-					eventLinkHash: this.#value.eventLinkHash
+					eventLinkHash: this.#value.eventLinkHash,
 				},
 			});
 			this.icsFile = response.data;
@@ -636,7 +674,7 @@ export default class Event extends Base
 	#getEventName()
 	{
 		return Loc.getMessage('CALENDAR_SHARING_EVENT_NAME', {
-			'#OWNER_NAME#' : this.#owner.name + ' ' + this.#owner.lastName,
+			'#OWNER_NAME#': `${this.#owner.name} ${this.#owner.lastName}`,
 		});
 	}
 }

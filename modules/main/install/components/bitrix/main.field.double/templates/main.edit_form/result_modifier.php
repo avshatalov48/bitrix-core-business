@@ -21,7 +21,7 @@ if(
 
 foreach($arResult['value'] as $key => $value)
 {
-	if($arUserField['SETTINGS']['VALUE'] <> '')
+	if (!empty($arUserField['SETTINGS']['VALUE']))
 	{
 		$value = round(
 			(double)$arResult['additionalParameters']['VALUE'],
@@ -31,7 +31,7 @@ foreach($arResult['value'] as $key => $value)
 
 	$attrList = [
 		'type' => 'text',
-		'size' => $arResult['additionalParameters']['SETTINGS']['SIZE'],
+		'size' => $arResult['additionalParameters']['SETTINGS']['SIZE'] ?? '',
 		'value' => $value,
 		'name' => str_replace('[]', '[' . $key . ']', $arResult['fieldName'])
 	];

@@ -1119,20 +1119,6 @@ class CIMNotify
 
 		self::deleteInternal($id, (int)$notification['RELATION_USER_ID']);
 		$counter = self::GetRealCounter($notification['CHAT_ID']);
-		$time = microtime(true);
-		if (Loader::includeModule('pull'))
-		{
-			\Bitrix\Pull\Event::add((int)$notification['RELATION_USER_ID'], [
-				'module_id' => 'im',
-				'command' => 'chatCounterChange',
-				'params' => [
-					'chatId' => (int)$notification['CHAT_ID'],
-					'counter' => $counter,
-					'time' => $time
-				],
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			]);
-		}
 		$chatId = (int)$notification['CHAT_ID'];
 		// update unread counter
 		//$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".$chatId);
@@ -1246,20 +1232,6 @@ class CIMNotify
 
 		$chatId = (int)$chatId;
 		$counter = self::GetRealCounter($chatId);
-		$time = microtime(true);
-		if (Loader::includeModule('pull'))
-		{
-			\Bitrix\Pull\Event::add((int)$relationUserId, [
-				'module_id' => 'im',
-				'command' => 'chatCounterChange',
-				'params' => [
-					'chatId' => $chatId,
-					'counter' => $counter,
-					'time' => $time
-				],
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			]);
-		}
 		// update unread counter
 		//$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = ".$chatId);
 		\Bitrix\Im\Counter::clearCache($relationUserId);

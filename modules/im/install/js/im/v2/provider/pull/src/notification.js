@@ -29,7 +29,7 @@ export class NotificationPullHandler
 	{
 		if (params.onlyFlash === true)
 		{
-			return false;
+			return;
 		}
 
 		this.userManager.setUsersToModel(params.users);

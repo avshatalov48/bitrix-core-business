@@ -5,6 +5,8 @@
 	--bx-im-message-quote__color_time: var(--im-message-base__font-color_date);
 	--bx-im-message-quote-with-context__border-color: #2FC6F6;
 	--bx-im-message-quote-with-context__color_name: #11A9D9;
+	--bx-im-mention__color_highlight: var(--im-color-palette-black-solid);
+	--bx-im-mention__background-color_highlight: #ffec91;
 }
 .bx-im-content-notification-item__container {
 	--bx-im-message-quote__border-color: #939ba4;
@@ -127,6 +129,14 @@
 	color: #1d54a2;
 	border-bottom: 1px dotted #1d54a2;
 	cursor: pointer;
+}
+
+.bx-im-mention.--highlight {
+	color: var(--bx-im-mention__color_highlight);
+	background-color: var(--bx-im-mention__background-color_highlight);
+	border-bottom: none;
+	border-radius: 6px;
+	padding: 1px 5px;
 }
 
 

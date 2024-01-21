@@ -1,0 +1,54 @@
+.store-chart-linear-graph-balloon-wrapper {
+	display: inline-block;
+	top: 350px;
+	padding: 15px 16px 0 13px;
+	min-width: 157px;
+	border-left: 3px solid #F7CC00;
+	background: #fff;
+	box-shadow: 0 6px 21px 0 rgba(83,92,105,.15);
+	box-sizing: border-box;
+}
+.store-chart-linear-graph-balloon-title {
+	display: block;
+	margin: 0 0 17px 0;
+	padding: 0 0 12px 0;
+	border-bottom: 1px solid rgba(130,139,149,.19);
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	color: #333;
+}
+.store-chart-linear-graph-balloon-subtitle {
+	display: block;
+	margin: 0 0 2px 0;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #A8ADB4;
+	opacity: .84;
+}
+.store-chart-linear-graph-balloon-main {}
+.store-chart-linear-graph-balloon-content {
+	display: flex;
+	padding: 0 0 18px 0;
+	align-items: baseline;
+	justify-content: space-between;
+}
+.store-chart-linear-graph-balloon-modal {
+	display: inline-block;
+	top: 350px;
+	padding: 15px 16px 0 13px;
+	min-width: 157px;
+	border-left: 3px solid transparent;
+	background: #fff;
+	box-shadow: 0 6px 21px 0 rgba(83,92,105,.15);
+	box-sizing: border-box;
+}
+.store-chart-linear-graph-balloon-modal-content {
+	display: flex;
+	padding: 0 0 18px 0;
+	align-items: baseline;
+	justify-content: space-between;
+}
+.store-chart-linear-graph-balloon-modal-value {
+	font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	color: #333;
+}

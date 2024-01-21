@@ -196,7 +196,7 @@ class PropertyManager
 							];
 							break;
 						case Iblock\PropertyTable::TYPE_SECTION:
-							$items = array();
+							$items = [];
 							$sectionQueryObject = \CIBlockSection::getList(
 								[
 									'LEFT_MARGIN' => 'ASC',
@@ -215,7 +215,8 @@ class PropertyManager
 							);
 							while ($section = $sectionQueryObject->fetch())
 							{
-								$items[$section["ID"]] = str_repeat('. ', $section["DEPTH_LEVEL"] - 1) . $section["NAME"];
+								$margin = max((int)$section['DEPTH_LEVEL'], 1) - 1;
+								$items[$section['ID']] = str_repeat('. ', $margin) . $section['NAME'];
 							}
 							unset($section, $sectionQueryObject);
 							$this->filterFields[] = [

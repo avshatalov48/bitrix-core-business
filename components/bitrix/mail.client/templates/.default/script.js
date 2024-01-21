@@ -438,35 +438,9 @@
 					id: this.options.messageId
 				}
 			);
-			var emailContainerId = 'mail_msg_'+this.options.messageId+'_body';
 
-			// target links
-			var emailLinks = typeof document.querySelectorAll != 'undefined'
-				? document.querySelectorAll('#'+emailContainerId+' a')
-				: BX.findChildren(BX(emailContainerId), {tag: 'a'}, true);
-			for (var i in emailLinks)
-			{
-				if (!emailLinks.hasOwnProperty(i))
-					continue;
-
-				if (emailLinks[i] && emailLinks[i].setAttribute)
-					emailLinks[i].setAttribute('target', '_blank');
-			}
-
-			// unfold quotes
-			var quotesList = typeof document.querySelectorAll != 'undefined'
-				? document.querySelectorAll('#'+emailContainerId+' blockquote')
-				: BX.findChildren(BX(emailContainerId), {tag: 'blockquote'}, true);
-			for (var i in quotesList)
-			{
-				if (!quotesList.hasOwnProperty(i))
-					continue;
-
-				BX.bind(quotesList[i], 'click', function ()
-				{
-					BX.addClass(this, 'mail-msg-view-quote-unfolded');
-				});
-			}
+			initMessageBody(options);
+			BX.addCustomEvent(this, 'MailMessage:reInitMessageBody', BXMailMessage.reInitMessageBody.bind(this));
 
 			// show hidden rcpt items
 			var rcptMore = BX.findChildrenByClassName(this.__wrapper, 'mail-msg-view-rcpt-more');
@@ -566,6 +540,45 @@
 		this.htmlForm.__inited = true;
 	};
 
+	function initMessageBody(options) {
+		var emailContainerId = 'mail_msg_' + options.messageId + '_body';
+		initMessageBodyLinks(emailContainerId);
+		initMessageBodyQuotes(emailContainerId);
+	}
+
+	function initMessageBodyLinks(emailContainerId) {
+		// target links
+		var emailLinks = typeof document.querySelectorAll != 'undefined'
+			? document.querySelectorAll('#' + emailContainerId + ' a')
+			: BX.findChildren(BX(emailContainerId), {tag: 'a'}, true);
+		for (var i in emailLinks) {
+			if (!emailLinks.hasOwnProperty(i))
+				continue;
+
+			if (emailLinks[i] && emailLinks[i].setAttribute)
+				emailLinks[i].setAttribute('target', '_blank');
+		}
+	}
+
+	function initMessageBodyQuotes(emailContainerId) {
+		// unfold quotes
+		var quotesList = typeof document.querySelectorAll != 'undefined'
+			? document.querySelectorAll('#' + emailContainerId + ' blockquote')
+			: BX.findChildren(BX(emailContainerId), {tag: 'blockquote'}, true);
+		for (var i in quotesList) {
+			if (!quotesList.hasOwnProperty(i))
+				continue;
+
+			BX.bind(quotesList[i], 'click', function () {
+				BX.addClass(this, 'mail-msg-view-quote-unfolded');
+			});
+		}
+	}
+
+	BXMailMessage.reInitMessageBody = function () {
+		initMessageBody(this.options);
+	}
+
 	BXMailMessage.handleFooterButtonClick = function (form, button)
 	{
 		if (BX.hasClass(button, 'main-mail-form-cancel-button'))
@@ -612,7 +625,7 @@
 		var emailsLimitToSendMessage = Number(BX.message('EMAILS_LIMIT_TO_SEND_MESSAGE'));
 
 		if(emailsLimitToSendMessage !== -1 && (countTo > emailsLimitToSendMessage || countCc > emailsLimitToSendMessage || countBcc > emailsLimitToSendMessage))
-		{console.log(emailsLimitToSendMessage);
+		{
 			form.showError(BX.message('MAIL_MESSAGE_NEW_TARIFF_RESTRICTION'));
 			return BX.PreventDefault(event);
 		}
@@ -982,7 +995,7 @@
 		{
 			self.syncData[params.sessid].new = params.new;
 		}
-		
+
 		if (!self.syncData[params.sessid].complete)
 		{
 			if (self.syncData[params.sessid].new > 0 || params.updated > 0 || params.deleted > 0)
@@ -1068,7 +1081,7 @@
 				}
 
 				stepperError.innerText = error;
-				
+
 				if (details.length > 0 && errors.length > 0)
 				{
 					while (hintTextNode.firstChild)

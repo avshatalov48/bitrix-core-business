@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Catalog\Document\StoreDocumentTableManager;
 use Bitrix\Catalog\Integration\PullManager;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
@@ -16,6 +17,7 @@ class CCatalogDocs extends CAllCatalogDocs
 	public static function add($arFields)
 	{
 		global $DB;
+		global $USER_FIELD_MANAGER;
 
 		foreach (GetModuleEvents("catalog", "OnBeforeDocumentAdd", true) as $arEvent)
 		{
@@ -60,6 +62,12 @@ class CCatalogDocs extends CAllCatalogDocs
 			return false;
 		}
 		$lastId = (int)$DB->LastID();
+
+		$typeTableClass = StoreDocumentTableManager::getTableClassByType($arFields['DOC_TYPE']);
+		if ($typeTableClass)
+		{
+			$USER_FIELD_MANAGER->Update($typeTableClass::getUfId(), $lastId, $arFields);
+		}
 
 		$item = [
 			'id' => $lastId,
@@ -221,27 +229,6 @@ class CCatalogDocs extends CAllCatalogDocs
 		}
 
 		return $dbRes;
-	}
-
-	public static function synchronizeStockQuantity($storeId, $iblockId = 0)
-	{
-		global $DB;
-		$storeId = (int)$storeId;
-		if ($storeId <= 0)
-			return false;
-
-		$internalSql = 'select CP.QUANTITY + IFNULL(CP.QUANTITY_RESERVED, 0), CP.ID, '.$storeId.' ';
-		$iblockId = (int)$iblockId;
-		if ($iblockId <= 0)
-			$internalSql .= 'from b_catalog_product CP where 1 = 1';
-		else
-			$internalSql .= 'from b_catalog_product CP inner join b_iblock_element IE on (CP.ID = IE.ID) where IE.IBLOCK_ID = '.$iblockId;
-
-		return $DB->Query(
-			"insert into b_catalog_store_product (AMOUNT, PRODUCT_ID, STORE_ID) (".$internalSql.")",
-			true,
-			"File: ".__FILE__."<br>Line: ".__LINE__
-		);
 	}
 
 	private static function increaseDocumentTypeNumber(string $type): void

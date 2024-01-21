@@ -458,8 +458,8 @@ class EventMessageCompiler
 			$messageSiteDb = MailInternal\EventMessageSiteTable::getList(array(
 				'select' => array('SITE_ID'),
 				'filter' => array(
-					'EVENT_MESSAGE_ID' => $this->eventMessageId,
-					'SITE_ID' => $sites
+					'=EVENT_MESSAGE_ID' => $this->eventMessageId,
+					'=SITE_ID' => $sites
 				)
 			));
 			if ($arMessageSite = $messageSiteDb->Fetch())

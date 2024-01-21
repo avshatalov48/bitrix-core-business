@@ -1,10 +1,11 @@
-import {Store} from 'ui.vue3.vuex';
+import { Store } from 'ui.vue3.vuex';
 
-import {Messenger} from 'im.public';
-import {Core} from 'im.v2.application.core';
-import {UserManager} from 'im.v2.lib.user';
-import {CallManager} from 'im.v2.lib.call';
-import {Logger} from 'im.v2.lib.logger';
+import { Messenger } from 'im.public';
+import { Core } from 'im.v2.application.core';
+import { UserManager } from 'im.v2.lib.user';
+import { CallManager } from 'im.v2.lib.call';
+import { WritingManager } from 'im.v2.lib.writing';
+import { Logger } from 'im.v2.lib.logger';
 
 import type {
 	ChatOwnerParams,
@@ -15,9 +16,9 @@ import type {
 	ChatUnreadParams,
 	ChatMuteNotifyParams,
 	ChatRenameParams,
-	ChatAvatarParams
+	ChatAvatarParams,
 } from '../types/chat';
-import type {RawUser} from '../types/common';
+import type { RawUser } from '../types/common';
 
 export class ChatPullHandler
 {
@@ -31,22 +32,22 @@ export class ChatPullHandler
 	handleChatOwner(params: ChatOwnerParams)
 	{
 		Logger.warn('ChatPullHandler: handleChatOwner', params);
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: params.dialogId,
 			fields: {
 				ownerId: params.userId,
-			}
+			},
 		});
 	}
 
 	handleChatManagers(params: ChatManagersParams)
 	{
 		Logger.warn('ChatPullHandler: handleChatManagers', params);
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: params.dialogId,
 			fields: {
 				managerList: params.list,
-			}
+			},
 		});
 	}
 
@@ -63,13 +64,13 @@ export class ChatPullHandler
 
 		if (currentUserIsKicked)
 		{
-			this.#store.dispatch('dialogues/update', {
+			this.#store.dispatch('chats/update', {
 				dialogId: params.dialogId,
 				fields: {
-					inited: false
-				}
+					inited: false,
+				},
 			});
-			this.#store.dispatch('messages/clearChatCollection', {chatId: params.chatId});
+			this.#store.dispatch('messages/clearChatCollection', { chatId: params.chatId });
 		}
 
 		const chatIsOpened = this.#store.getters['application/isChatOpen'](params.dialogId);
@@ -90,11 +91,13 @@ export class ChatPullHandler
 	handleStartWriting(params: StartWritingParams)
 	{
 		Logger.warn('ChatPullHandler: handleStartWriting', params);
-		const {dialogId, userId, userName} = params;
-		this.#store.dispatch('dialogues/startWriting', {
-			dialogId,
-			userId,
-			userName
+		const { dialogId, userId, userName } = params;
+		WritingManager.getInstance().startWriting({ dialogId, userId, userName });
+		this.#store.dispatch('users/update', {
+			id: userId,
+			fields: {
+				lastActivityDate: new Date(),
+			},
 		});
 	}
 
@@ -106,9 +109,9 @@ export class ChatPullHandler
 		{
 			markedId = params.markedId;
 		}
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: params.dialogId,
-			fields: {markedId}
+			fields: { markedId },
 		});
 	}
 
@@ -116,54 +119,54 @@ export class ChatPullHandler
 	{
 		if (params.muted)
 		{
-			this.#store.dispatch('dialogues/mute', {
-				dialogId: params.dialogId
+			this.#store.dispatch('chats/mute', {
+				dialogId: params.dialogId,
 			});
 
-			return true;
+			return;
 		}
 
-		this.#store.dispatch('dialogues/unmute', {
-			dialogId: params.dialogId
+		this.#store.dispatch('chats/unmute', {
+			dialogId: params.dialogId,
 		});
 	}
 
 	handleChatRename(params: ChatRenameParams)
 	{
-		const dialog = this.#store.getters['dialogues/getByChatId'](params.chatId);
-		if (!dialog)
-		{
-			return false;
-		}
-
-		this.#store.dispatch('dialogues/update', {
-			dialogId: dialog.dialogId,
-			fields: {
-				name: params.name
-			}
-		});
-	}
-
-	handleChatAvatar(params: ChatAvatarParams)
-	{
-		const dialog = this.#store.getters['dialogues/getByChatId'](params.chatId);
+		const dialog = this.#store.getters['chats/getByChatId'](params.chatId);
 		if (!dialog)
 		{
 			return;
 		}
 
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: dialog.dialogId,
 			fields: {
-				avatar: params.avatar
-			}
+				name: params.name,
+			},
+		});
+	}
+
+	handleChatAvatar(params: ChatAvatarParams)
+	{
+		const dialog = this.#store.getters['chats/getByChatId'](params.chatId);
+		if (!dialog)
+		{
+			return;
+		}
+
+		this.#store.dispatch('chats/update', {
+			dialogId: dialog.dialogId,
+			fields: {
+				avatar: params.avatar,
+			},
 		});
 	}
 
 	handleReadAllChats()
 	{
 		Logger.warn('ChatPullHandler: handleReadAllChats');
-		this.#store.dispatch('dialogues/clearCounters');
+		this.#store.dispatch('chats/clearCounters');
 		this.#store.dispatch('recent/clearUnread');
 	}
 
@@ -179,9 +182,9 @@ export class ChatPullHandler
 			userManager.setUsersToModel(Object.values(params.users));
 		}
 
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: params.dialogId,
-			fields: {userCounter: params.userCount}
+			fields: { userCounter: params.userCount },
 		});
 	}
 }

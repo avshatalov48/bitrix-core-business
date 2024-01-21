@@ -254,13 +254,13 @@ class CCheckList
 	}
 
 	function GetDescription($ID)
-	{//getting description of sections and points
+	{
+		//getting description of sections and points
 		$file = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/".LANG."/admin/checklist/".$ID.".html";
-		$arHowTo = "";
-		if(file_exists($file))
+		$howTo = "";
+		if (file_exists($file))
 		{
-			if ($f = @fopen($file, "r"))
-				$arHowTo = fread($f, filesize($file));
+			$howTo = file_get_contents($file);
 		}
 
 		$convertEncoding = \Bitrix\Main\Localization\Translation::needConvertEncoding(LANG);
@@ -268,14 +268,14 @@ class CCheckList
 		{
 			$targetEncoding = \Bitrix\Main\Localization\Translation::getCurrentEncoding();
 			$sourceEncoding = \Bitrix\Main\Localization\Translation::getSourceEncoding(LANG);
-			$arHowTo = \Bitrix\Main\Text\Encoding::convertEncoding($arHowTo, $sourceEncoding, $targetEncoding);
+			$howTo = \Bitrix\Main\Text\Encoding::convertEncoding($howTo, $sourceEncoding, $targetEncoding);
 		}
 
 		$arDesc = array(
 			"NAME" => GetMessage("CL_".$ID),
 			"DESC" => GetMessage("CL_".$ID."_DESC", array('#LANG#' => LANG)),
 			"AUTOTEST_DESC" => GetMessage("CL_".$ID."_AUTOTEST_DESC"),
-			"HOWTO" => ($arHowTo <> '')?(str_ireplace('#LANG#', LANG, $arHowTo)):"",
+			"HOWTO" => ($howTo <> '')?(str_ireplace('#LANG#', LANG, $howTo)):"",
 			"LINKS" => GetMessage("CL_".$ID."_LINKS")
 		);
 
@@ -518,7 +518,7 @@ class CCheckListResult
 			$strSql.= " WHERE ".$arSqlWhereStr;
 		}
 		$strSql.= " ORDER BY ID desc";
-		$arResult = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$arResult = $DB->Query($strSql);
 
 		return $arResult;
 	}
@@ -543,7 +543,7 @@ class CCheckListResult
 		if (!$ID>0)
 			return false;
 		$strSql = "DELETE FROM b_checklist where ID=".$ID;
-		if (($arResult = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__)))
+		if ($arResult = $DB->Query($strSql))
 			return true;
 		return false;
 	}
@@ -730,28 +730,31 @@ class CAutoCheck
 
 					if (in_array("header.php", $arRequireFilesTmp))
 					{
-						if($f = fopen($arTemplateFolder."/header.php", "r"))
+						if (file_exists($arTemplateFolder . '/header.php'))
 						{
-							$arHeader = fread($f, filesize($arTemplateFolder."/header.php"));
+							$header = file_get_contents($arTemplateFolder . '/header.php');
 
-							preg_match('/\$APPLICATION->ShowHead\(/im', $arHeader, $arShowHead);
-							preg_match('/\$APPLICATION->ShowTitle\(/im', $arHeader, $arShowTitle);
-							preg_match('/\$APPLICATION->ShowPanel\(/im', $arHeader, $arShowPanel);
-							if (!in_array($dir, array('mail_join')) && empty($arShowHead))
+							if ($header != '')
 							{
-								preg_match_all('/\$APPLICATION->(ShowCSS|ShowHeadScripts|ShowHeadStrings)\(/im', $arHeader, $arShowHead);
-								if (!$arShowHead[0] || count($arShowHead[0]) != 3)
+								preg_match('/\$APPLICATION->ShowHead\(/im', $header, $arShowHead);
+								preg_match('/\$APPLICATION->ShowTitle\(/im', $header, $arShowTitle);
+								preg_match('/\$APPLICATION->ShowPanel\(/im', $header, $arShowPanel);
+								if (!in_array($dir, array('mail_join')) && empty($arShowHead))
 								{
-									$arMessage .= GetMessage("NO_SHOWHEAD", array("#template#" => $dir))."\n";
+									preg_match_all('/\$APPLICATION->(ShowCSS|ShowHeadScripts|ShowHeadStrings)\(/im', $header, $arShowHead);
+									if (!$arShowHead[0] || count($arShowHead[0]) != 3)
+									{
+										$arMessage .= GetMessage("NO_SHOWHEAD", array("#template#" => $dir))."\n";
+									}
 								}
-							}
-							if (!in_array($dir, array('empty', 'mail_join')) && empty($arShowTitle))
-							{
-								$arMessage .= GetMessage("NO_SHOWTITLE", array("#template#" => $dir))."\n";
-							}
-							if (!in_array($dir, array('mobile_app', 'desktop_app', 'empty', 'learning_10_0_0', 'call_app', 'mail_join')) && empty($arShowPanel))
-							{
-								$arMessage .= GetMessage("NO_SHOWPANEL", array("#template#" => $dir))."\n";
+								if (!in_array($dir, array('empty', 'mail_join')) && empty($arShowTitle))
+								{
+									$arMessage .= GetMessage("NO_SHOWTITLE", array("#template#" => $dir))."\n";
+								}
+								if (!in_array($dir, array('mobile_app', 'desktop_app', 'empty', 'learning_10_0_0', 'call_app', 'mail_join')) && empty($arShowPanel))
+								{
+									$arMessage .= GetMessage("NO_SHOWPANEL", array("#template#" => $dir))."\n";
+								}
 							}
 						}
 					}

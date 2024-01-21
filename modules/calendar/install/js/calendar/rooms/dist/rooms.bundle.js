@@ -706,7 +706,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 							<span class="calendar-list-slider-card-widget-title-text">
 								${0}
 							</span>
-							<input type="number" class="calendar-field calendar-field-number" placeholder="0"/>
+							<input type="number" class="calendar-field calendar-field-number" placeholder="0" min="0" max="9999"/>
 						</div>
 					</div>
 				</div>

@@ -1,20 +1,10 @@
-import {Logger} from 'im.v2.lib.logger';
+import { Logger } from 'im.v2.lib.logger';
 
-const ApplicationLauncher = function (app, params = {})
-{
-	let application = '';
-	let name = '';
+import type { JsonObject } from 'main.core';
 
-	if (typeof app === 'object')
-	{
-		name = app.name.toString();
-		application = app.application.toString();
-	}
-	else
-	{
-		name = app.toString();
-		application = app;
-	}
+const ApplicationLauncher = (app: string, params: JsonObject = {}) => {
+	let application = app;
+	const name = app.toString();
 
 	application = application.slice(0, 1).toUpperCase() + application.slice(1);
 
@@ -25,18 +15,19 @@ const ApplicationLauncher = function (app, params = {})
 		return Promise.reject();
 	}
 
-	const launch = function()
-	{
-		try {
+	const launch = (): Promise => {
+		try
+		{
 			BX.Messenger.v2.Application[name] = new BX.Messenger.v2.Application[`${application}Application`](params);
 
 			return BX.Messenger.v2.Application[name].ready();
 		}
 		catch (error)
 		{
-			Logger.error(`BX.Messenger.Application.Launch: application "${application}" is not initialized.`, error);
+			const errorMessage = `BX.Messenger.Application.Launch: application "${application}" is not initialized.`;
+			Logger.error(errorMessage, error);
 
-			return false;
+			return Promise.reject(errorMessage);
 		}
 	};
 
@@ -50,4 +41,4 @@ const ApplicationLauncher = function (app, params = {})
 	return launch();
 };
 
-export {ApplicationLauncher as Launch};
+export { ApplicationLauncher as Launch };

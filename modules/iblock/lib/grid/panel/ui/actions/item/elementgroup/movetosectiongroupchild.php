@@ -3,10 +3,11 @@
 namespace Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroup;
 
 use Bitrix\Iblock\Grid\ActionType;
+use Bitrix\Iblock\Grid\Panel\UI\Actions\Helpers\ItemFinder;
 use Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroup\Helpers\SectionSelectControl;
-use Bitrix\Iblock\Grid\RowType;
 use Bitrix\Iblock\InheritedProperty\ElementValues;
 use Bitrix\Main\Error;
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Actions;
 use Bitrix\Main\Grid\Panel\Snippet;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
@@ -22,6 +23,7 @@ use CIBlockSection;
 final class MoveToSectionGroupChild extends BaseGroupChild
 {
 	use SectionSelectControl;
+	use ItemFinder;
 
 	public static function getId(): string
 	{
@@ -33,7 +35,7 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 		return Loc::getMessage('IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_MOVE_TO_SECTION_NAME');
 	}
 
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter = null): ?Result
 	{
 		$result = new Result();
 
@@ -43,44 +45,26 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 			return $result;
 		}
 
-		$sectionId = (int)($controls['section_id'] ?? 0);
-		if ($sectionId <= 0)
+		$destinationSectionId = (int)($controls['section_id'] ?? -1);
+		if ($destinationSectionId < 0)
 		{
 			return $result;
 		}
 
-		if ($isSelectedAllRows)
+		[$elementIds, $sectionIds] = $this->prepareItemIds($request, $isSelectedAllRows, $filter);
+
+		if ($elementIds)
 		{
 			$result->addErrors(
-				$this->moveElementsToSection($sectionId, true, [])->getErrors()
-			);
-			$result->addErrors(
-				$this->moveSectionsToSection($sectionId, true, [])->getErrors()
+				$this->moveElementsToSection($destinationSectionId, $elementIds)->getErrors()
 			);
 		}
-		else
+
+		if ($sectionIds)
 		{
-			$ids = $this->getRequestRows($request);
-			if (empty($ids))
-			{
-				return null;
-			}
-
-			[$elementIds, $sectionIds] = RowType::parseIndexList($ids);
-
-			if ($elementIds)
-			{
-				$result->addErrors(
-					$this->moveElementsToSection($sectionId, false, $elementIds)->getErrors()
-				);
-			}
-
-			if ($sectionIds)
-			{
-				$result->addErrors(
-					$this->moveSectionsToSection($sectionId, false, $sectionIds)->getErrors()
-				);
-			}
+			$result->addErrors(
+				$this->moveSectionsToSection($destinationSectionId, $sectionIds)->getErrors()
+			);
 		}
 
 		return $result;
@@ -102,7 +86,7 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 		]);
 	}
 
-	private function moveElementsToSection(int $sectionId, bool $isSelectedAllRows, array $ids): Result
+	private function moveElementsToSection(int $sectionId, array $ids): Result
 	{
 		$result = new Result();
 		$entity = new CIBlockElement();
@@ -119,27 +103,8 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 			return $result;
 		}
 
-		$filter = [
-			'IBLOCK_ID' => $this->getIblockId(),
-		];
-		if (!$isSelectedAllRows)
+		foreach ($ids as $id)
 		{
-			$filter['ID'] = $ids;
-		}
-
-		$rows = CIBlockElement::GetList(
-			[],
-			$filter + ['CHECK_PERMISSIONS' => 'N'],
-			false,
-			false,
-			[
-				'ID',
-			]
-		);
-		while ($row = $rows->Fetch())
-		{
-			$id = (int)$row['ID'];
-
 			if (!$this->getIblockRightsChecker()->canEditElement($id))
 			{
 				$message = Loc::getMessage('IBLOCK_GRID_PANEL_UI_MOVE_TO_SECTION_GROUP_CHILD_ACCESS_DENIED_EDIT_ELEMENT', [
@@ -161,10 +126,10 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 			$updateResult = $entity->Update($id, $fields);
 			if (!$updateResult)
 			{
-				if ($entity->LAST_ERROR)
+				if ($entity->getLastError())
 				{
 					$result->addError(
-						new Error($entity->LAST_ERROR)
+						new Error($entity->getLastError())
 					);
 				}
 			}
@@ -178,12 +143,12 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 		return $result;
 	}
 
-	private function moveSectionsToSection(int $sectionId, bool $isSelectedAllRows, array $ids): Result
+	private function moveSectionsToSection(int $sectionId, array $ids): Result
 	{
 		$result = new Result();
 		$entity = new CIBlockSection();
 
-		if (!$this->getIblockRightsChecker()->canBindElementToSection($sectionId))
+		if (!$this->getIblockRightsChecker()->canBindSectionToSection($sectionId))
 		{
 			$message = Loc::getMessage('IBLOCK_GRID_PANEL_UI_MOVE_TO_SECTION_GROUP_CHILD_ACCESS_DENIED_BIND_ELEMENT', [
 				'#ID#' => $sectionId,
@@ -195,26 +160,8 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 			return $result;
 		}
 
-		$filter = [
-			'IBLOCK_ID' => $this->getIblockId(),
-		];
-		if (!$isSelectedAllRows)
+		foreach ($ids as $id)
 		{
-			$filter['ID'] = $ids;
-		}
-
-		$rows = CIBlockSection::GetList(
-			[],
-			$filter + ['CHECK_PERMISSIONS' => 'N'],
-			false,
-			[
-				'ID',
-			]
-		);
-		while ($row = $rows->Fetch())
-		{
-			$id = (int)$row['ID'];
-
 			if (!$this->getIblockRightsChecker()->canEditElement($id))
 			{
 				$message = Loc::getMessage('IBLOCK_GRID_PANEL_UI_MOVE_TO_SECTION_GROUP_CHILD_ACCESS_DENIED_EDIT_ELEMENT', [
@@ -233,10 +180,10 @@ final class MoveToSectionGroupChild extends BaseGroupChild
 			$updateResult = $entity->Update($id, $fields);
 			if (!$updateResult)
 			{
-				if ($entity->LAST_ERROR)
+				if ($entity->getLastError())
 				{
 					$result->addError(
-						new Error($entity->LAST_ERROR)
+						new Error($entity->getLastError())
 					);
 				}
 			}

@@ -119,7 +119,7 @@ $data = array(
 );
 
 $lastTestingInfo = CSecuritySiteChecker::getLastTestingInfo();
-if(isset($lastTestingInfo["results"]))
+if(isset($lastTestingInfo["results"]) && is_array($lastTestingInfo["results"]))
 {
 	$lastResults = $lastTestingInfo["results"];
 } else

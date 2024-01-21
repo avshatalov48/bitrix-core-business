@@ -43,14 +43,16 @@ final class Doctor
 	 */
 	private function getSql(): string
 	{
+		$conn = Application::getConnection();
+		$helper = $conn->getSqlHelper();
 		return '
 			SELECT
-				cp.ID AS `PRODUCT_ID`,
-				cp.QUANTITY AS `PRODUCT_QUANTITY_AVAILABLE`,
-				csp.QUANTITY_AVAILABLE AS `STORE_QUANTITY_AVAILABLE`,
-				cp.QUANTITY_RESERVED AS `PRODUCT_QUANTITY_RESERVED`,
-				csp.QUANTITY_RESERVED AS `STORE_QUANTITY_RESERVED`,
-				sbr.QUANTITY_RESERVED AS `SALE_QUANTITY_RESERVED`
+				cp.ID AS ' . $helper->quote('PRODUCT_ID') . ',
+				cp.QUANTITY AS ' . $helper->quote('PRODUCT_QUANTITY_AVAILABLE') . ',
+				csp.QUANTITY_AVAILABLE AS ' . $helper->quote('STORE_QUANTITY_AVAILABLE') . ',
+				cp.QUANTITY_RESERVED AS ' . $helper->quote('PRODUCT_QUANTITY_RESERVED') . ',
+				csp.QUANTITY_RESERVED AS ' . $helper->quote('STORE_QUANTITY_RESERVED') . ',
+				sbr.QUANTITY_RESERVED AS ' . $helper->quote('SALE_QUANTITY_RESERVED') . '
 			FROM
 				b_catalog_product AS cp
 				LEFT JOIN (
@@ -61,7 +63,7 @@ final class Doctor
 						SUM(AMOUNT - QUANTITY_RESERVED) as QUANTITY_AVAILABLE
 					FROM
 						b_catalog_store_product
-						INNER JOIN b_catalog_store ON b_catalog_store.ID = b_catalog_store_product.STORE_ID AND b_catalog_store.ACTIVE = "Y"
+						INNER JOIN b_catalog_store ON b_catalog_store.ID = b_catalog_store_product.STORE_ID AND b_catalog_store.ACTIVE = \'Y\'
 					GROUP BY PRODUCT_ID
 				) as csp ON cp.ID = csp.PRODUCT_ID
 				LEFT JOIN (
@@ -135,7 +137,7 @@ final class Doctor
 
 			if ((float)$row['SALE_QUANTITY_RESERVED'] > $productReserveQuantity)
 			{
-				$problems[] = 'More is reserved in `sale` than in `catalog`';
+				$problems[] = 'More is reserved in \'sale\' than in \'catalog\'';
 			}
 
 			if (empty($problems))

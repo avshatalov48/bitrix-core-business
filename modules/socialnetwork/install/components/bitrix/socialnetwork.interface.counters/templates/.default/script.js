@@ -11,16 +11,13 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.countersManager = options.countersManager;
 	    setTimeout(this.updateFields.bind(this), 100);
 	  }
-
 	  babelHelpers.createClass(Filter, [{
 	    key: "updateFields",
 	    value: function updateFields() {
 	      var filterManager = this.getFilter();
-
 	      if (!filterManager) {
 	        return;
 	      }
-
 	      this.presetId = filterManager.getPreset().getCurrentPresetId();
 	      this.fields = filterManager.getFilterFieldsValues();
 	      this.countersManager.activateCountersByFilter();
@@ -34,17 +31,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "isFilteredByFields",
 	    value: function isFilteredByFields(filterFields) {
 	      var _this = this;
-
 	      var result = false;
 	      var breakNeeded = false;
 	      Object.entries(filterFields).map(function (_ref) {
 	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            field = _ref2[0],
-	            value = _ref2[1];
-
+	          field = _ref2[0],
+	          value = _ref2[1];
 	        if (!breakNeeded && !main_core.Type.isUndefined(_this.fields[field])) {
 	          result = _this.fields[field] === value;
-
 	          if (!result) {
 	            breakNeeded = true;
 	          }
@@ -84,7 +78,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      countersManager: this
 	    });
 	  }
-
 	  babelHelpers.createClass(Counters, [{
 	    key: "isWorkgroupList",
 	    value: function isWorkgroupList() {
@@ -94,7 +87,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "initPull",
 	    value: function initPull() {
 	      var _this = this;
-
 	      pull_client.PULL.subscribe({
 	        moduleId: 'main',
 	        callback: function callback(data) {
@@ -118,7 +110,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "extendWatch",
 	    value: function extendWatch() {
 	      var _this2 = this;
-
 	      if (this.isWorkgroupList()) {
 	        var tagId = 'WORKGROUP_LIST';
 	        BX.PULL.extendWatch(tagId, true);
@@ -135,11 +126,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      };
 	      var has = Object.prototype.hasOwnProperty;
 	      var command = data.command,
-	          params = data.params;
-
+	        params = data.params;
 	      if (has.call(eventHandlers, command)) {
 	        var method = eventHandlers[command];
-
 	        if (method) {
 	          method.apply(this, [params]);
 	        }
@@ -159,11 +148,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "activateCountersByFilter",
 	    value: function activateCountersByFilter() {
 	      var _this3 = this;
-
 	      if (!this.panel) {
 	        return;
 	      }
-
 	      this.counterItems.forEach(function (counter) {
 	        if (main_core.Type.isObject(counter.filterFields)) {
 	          _this3.filter.isFilteredByFields(counter.filterFields) ? _this3.panel.getItemById(counter.type).activate() : _this3.panel.getItemById(counter.type).deactivate();
@@ -176,36 +163,28 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "onUserCounter",
 	    value: function onUserCounter(data) {
 	      var _this4 = this;
-
 	      var has = Object.prototype.hasOwnProperty;
-
 	      if (this.entityType === 'workgroup_detail') {
 	        if (!has.call(data, 'workgroupId') || !has.call(data, 'values') || this.entityId !== parseInt(data.workgroupId) || this.userId !== Number(data.userId)) {
 	          return;
 	        }
-
 	        Object.entries(data.values).forEach(function (_ref) {
 	          var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	              type = _ref2[0],
-	              value = _ref2[1];
-
+	            type = _ref2[0],
+	            value = _ref2[1];
 	          _this4.counterItems.forEach(function (counter) {
 	            if (counter.type === type) {
 	              var item = _this4.panel.getItemById(counter.type);
-
 	              item.updateValue(value.all);
 	              var baseColor = 'GRAY';
-
 	              switch (type) {
 	                case 'workgroup_requests_in':
-	                  baseColor = 'WARNING';
+	                  baseColor = 'DANGER';
 	                  break;
-
 	                case 'workgroup_requests_out':
 	                  baseColor = 'SUCCESS';
 	                  break;
 	              }
-
 	              item.updateColor(value.all > 0 ? baseColor : 'GRAY');
 	            }
 	          });
@@ -215,7 +194,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          this.counterItems.forEach(function (counter) {
 	            if (counter.type === 'workgroup_list_livefeed') {
 	              var item = _this4.panel.getItemById(counter.type);
-
 	              var value = Number(data[main_core.Loc.getMessage('SITE_ID')]['**SG0']);
 	              item.updateValue(value);
 	              item.updateColor(value > 0 ? 'DANGER' : 'GRAY');
@@ -225,23 +203,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          if (!main_core.Type.isUndefined(data.projects_major)) {
 	            this.tasksCounter.projects_major = Number(data.projects_major);
 	          }
-
 	          if (!main_core.Type.isUndefined(data.scrum_total_comments)) {
 	            this.tasksCounter.scrum_total_comments = Number(data.scrum_total_comments);
 	          }
-
 	          this.counterItems.forEach(function (counter) {
 	            if (counter.type === 'workgroup_list_tasks') {
 	              var sum = 0;
 	              Object.entries(_this4.tasksCounter).map(function (_ref3) {
 	                var _ref4 = babelHelpers.slicedToArray(_ref3, 1),
-	                    key = _ref4[0];
-
+	                  key = _ref4[0];
 	                sum += _this4.tasksCounter[key];
 	              });
-
 	              var item = _this4.panel.getItemById(counter.type);
-
 	              item.updateValue(sum);
 	              item.updateColor(sum > 0 ? 'DANGER' : 'GRAY');
 	            }
@@ -257,19 +230,16 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        activeByDefault: param.type === this.initialCounter,
 	        filter: this.filter
 	      };
-
 	      if (main_core.Type.isObject(param.filterFields)) {
 	        var _Object$entries$pop = Object.entries(param.filterFields).pop(),
-	            _Object$entries$pop2 = babelHelpers.slicedToArray(_Object$entries$pop, 2),
-	            key = _Object$entries$pop2[0],
-	            value = _Object$entries$pop2[1];
-
+	          _Object$entries$pop2 = babelHelpers.slicedToArray(_Object$entries$pop, 2),
+	          key = _Object$entries$pop2[0],
+	          value = _Object$entries$pop2[1];
 	        counterData.filterField = key;
 	        counterData.filterValue = value;
 	      } else if (main_core.Type.isStringFilled(param.filterPresetId)) {
 	        counterData.filterPresetId = param.filterPresetId;
 	      }
-
 	      return {
 	        id: param.type,
 	        title: param.name,
@@ -297,13 +267,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "setData",
 	    value: function setData(counters) {
 	      var _this5 = this;
-
 	      this.counterItems = [];
 	      Object.entries(counters).forEach(function (_ref5) {
 	        var _ref6 = babelHelpers.slicedToArray(_ref5, 2),
-	            type = _ref6[0],
-	            data = _ref6[1];
-
+	          type = _ref6[0],
+	          data = _ref6[1];
 	        _this5.counterItems.push({
 	          type: type,
 	          name: data.TITLE,
@@ -320,8 +288,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      var result = 0;
 	      Object.entries(counterValues).map(function (_ref7) {
 	        var _ref8 = babelHelpers.slicedToArray(_ref7, 2),
-	            value = _ref8[1];
-
+	          value = _ref8[1];
 	        result += Number(value);
 	      });
 	      return result;
@@ -330,7 +297,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    key: "render",
 	    value: function render() {
 	      var _this6 = this;
-
 	      this.panel = new ui_counterpanel.CounterPanel({
 	        target: this.renderTo,
 	        multiselect: true,

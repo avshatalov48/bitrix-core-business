@@ -132,6 +132,22 @@ class UserDataProvider extends EntityDataProvider
 		return $result;
 	}
 
+	public static function getVisitorAvailability(): bool
+	{
+		global $USER;
+
+		static $result = null;
+
+		if ($result === null)
+		{
+			$result = (
+				$USER->canDoOperation('edit_all_users')
+			);
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Get Settings
 	 * @return UserSettings
@@ -257,6 +273,10 @@ class UserDataProvider extends EntityDataProvider
 			'INVITED' => [
 				'conditionMethod' => 'self::getInvitedAvailability',
 				'options' => [ 'type' => 'checkbox' ]
+			],
+			'VISITOR' => [
+				'conditionMethod' => 'self::getVisitorAvailability',
+				'options' => ['type' => 'checkbox']
 			],
 			'INTEGRATOR' => [
 				'conditionMethod' => 'self::getIntegratorAvailability',

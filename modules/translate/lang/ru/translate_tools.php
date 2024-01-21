@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TR_TOOLS_ERROR_EMPTY_FILE"] = "Нет файла";
 $MESS["TR_TOOLS_ERROR_FILE_NOT_LANG"] = "Файл \"#FILE#\" не является языковым";
 $MESS["TR_TOOLS_ERROR_WRITE_FILE"] = "Невозможно перезаписать файл \"#FILE#\"";
@@ -20,4 +20,3 @@ $MESS["BX_TRANSLATE_IMPORT_ERR_BAD_FILEPATH"] = "Некорректный пут
 $MESS["BX_TRANSLATE_LIST_GROUP_ERR_CANNOT_CREATE_BACKUP_LANG_FILE"] = "Не удалось создать бэкап файла #FILEPATH#";
 $MESS["BX_TRANSLATE_LIST_GROUP_ERR_CANNOT_REWRITE_LANG_FILE"] = "Не удалось перезаписать файл #FILEPATH#";
 $MESS["TR_CREATE_BACKUP_ERROR"] = "Не удалось создать бэкап файла \"#FILE#\"";
-?>

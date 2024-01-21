@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_public,main_core_events,main_core,im_v2_lib_utils,im_v2_lib_desktopApi,im_v2_application_core,im_v2_lib_logger,im_v2_lib_rest,im_v2_const) {
+(function (exports,im_public,im_v2_lib_rest,im_v2_lib_call,im_v2_application_core,im_v2_const,main_core_events,main_core,im_v2_lib_logger,im_v2_lib_utils,im_v2_lib_desktopApi) {
 	'use strict';
 
 	const IMAGE_CHECK_URL = 'http://127.0.0.1:20141';
@@ -10,8 +10,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const IMAGE_CLASS = 'bx-im-messenger__out-of-view';
 	const INTERNET_CHECK_URL = '//www.bitrixsoft.com/200.ok';
 	const checkTimeoutList = {};
-	const Checker = {
-	  testImageUpload(successCallback, failureCallback) {
+	const CheckUtils = {
+	  testImageLoad(successCallback, failureCallback) {
 	    const dateCheck = Date.now();
 	    let failureCallbackCalled = false;
 	    const imageForCheck = main_core.Dom.create({
@@ -122,12 +122,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  toggleConference() {
 	    if (conferenceIndex > conferenceList.length - 1) {
 	      conferenceIndex = 0;
-
-	      // TODO temporary workaround for life with two cores of IM
-	      const CallManager = main_core.Reflection.getClass('BX.Messenger.v2.Lib.CallManager');
-	      if (CallManager && CallManager.getInstance().hasCurrentCall()) {
-	        CallManager.getInstance().foldCurrentCall();
-	      }
 	      im_v2_lib_desktopApi.DesktopApi.showWindow();
 	      return true;
 	    }
@@ -145,6 +139,65 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return true;
 	  }
 	};
+
+	const ONE_HOUR = 60 * 60 * 1000;
+	var _initDate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initDate");
+	var _sidePanelManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sidePanelManager");
+	var _startReloadCheck = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("startReloadCheck");
+	var _isReloadNeeded = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isReloadNeeded");
+	var _reloadWindow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("reloadWindow");
+	class ReloadChecker {
+	  static init() {
+	    return new ReloadChecker();
+	  }
+	  constructor() {
+	    Object.defineProperty(this, _reloadWindow, {
+	      value: _reloadWindow2
+	    });
+	    Object.defineProperty(this, _isReloadNeeded, {
+	      value: _isReloadNeeded2
+	    });
+	    Object.defineProperty(this, _startReloadCheck, {
+	      value: _startReloadCheck2
+	    });
+	    Object.defineProperty(this, _initDate, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _sidePanelManager, {
+	      writable: true,
+	      value: BX.SidePanel.Instance
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _initDate)[_initDate] = new Date();
+	    babelHelpers.classPrivateFieldLooseBase(this, _startReloadCheck)[_startReloadCheck]();
+	  }
+	}
+	function _startReloadCheck2() {
+	  setInterval(async () => {
+	    const isReloadNeeded = await babelHelpers.classPrivateFieldLooseBase(this, _isReloadNeeded)[_isReloadNeeded]();
+	    if (isReloadNeeded) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _reloadWindow)[_reloadWindow]();
+	    }
+	  }, ONE_HOUR);
+	}
+	async function _isReloadNeeded2() {
+	  if (im_v2_lib_utils.Utils.date.isSameDay(new Date(), babelHelpers.classPrivateFieldLooseBase(this, _initDate)[_initDate])) {
+	    return false;
+	  }
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _sidePanelManager)[_sidePanelManager].opened) {
+	    im_v2_lib_logger.Logger.desktop('Checker: checkDayForReload, slider is open - delay reload');
+	    return false;
+	  }
+	  if (im_v2_lib_call.CallManager.getInstance().hasCurrentCall()) {
+	    im_v2_lib_logger.Logger.desktop('Checker: checkDayForReload, call is active - delay reload');
+	    return false;
+	  }
+	  return CheckUtils.testInternetConnection();
+	}
+	function _reloadWindow2() {
+	  im_v2_lib_logger.Logger.desktop('Checker: checkDayForReload, new day - reload window');
+	  im_v2_lib_desktopApi.DesktopApi.reloadWindow();
+	}
 
 	const ENCODE_SEPARATOR = '!!';
 	const Encoder = {
@@ -243,9 +296,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      void im_public.Messenger.openNotifications();
 	    } else if (command === im_v2_const.DesktopBxLink.recentSearch) {
 	      void im_public.Messenger.openRecentSearch();
+	    } else if (command === im_v2_const.DesktopBxLink.copilot) {
+	      void im_public.Messenger.openCopilot(params.dialogId);
+	    } else if (command === im_v2_const.DesktopBxLink.settings) {
+	      void im_public.Messenger.openSettings({
+	        onlyPanel: params.section
+	      });
 	    } else if (command === im_v2_const.DesktopBxLink.timeManager) {
 	      var _BX$Timeman, _BX$Timeman$Monitor;
 	      (_BX$Timeman = BX.Timeman) == null ? void 0 : (_BX$Timeman$Monitor = _BX$Timeman.Monitor) == null ? void 0 : _BX$Timeman$Monitor.openReport();
+	    } else if (command === im_v2_const.DesktopBxLink.openTab) {
+	      im_v2_lib_desktopApi.DesktopApi.setActiveTab();
 	    }
 	  });
 	}
@@ -307,7 +368,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	}
 
-	var _initDate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initDate");
+	var _initDate$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initDate");
+	var _wakeUpTimer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("wakeUpTimer");
 	var _subscribeToWakeUpEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToWakeUpEvent");
 	var _onWakeUp = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onWakeUp");
 	var _subscribeToIconClickEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToIconClickEvent");
@@ -357,11 +419,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _subscribeToWakeUpEvent, {
 	      value: _subscribeToWakeUpEvent2
 	    });
-	    Object.defineProperty(this, _initDate, {
+	    Object.defineProperty(this, _initDate$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _initDate)[_initDate] = new Date();
+	    Object.defineProperty(this, _wakeUpTimer, {
+	      writable: true,
+	      value: null
+	    });
+	    this.sidePanelManager = BX.SidePanel.Instance;
+	    babelHelpers.classPrivateFieldLooseBase(this, _initDate$1)[_initDate$1] = new Date();
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToWakeUpEvent)[_subscribeToWakeUpEvent]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToAwayEvent)[_subscribeToAwayEvent]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToFocusEvent)[_subscribeToFocusEvent]();
@@ -379,14 +446,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  im_v2_lib_desktopApi.DesktopApi.subscribe(im_v2_const.EventType.desktop.onWakeUp, babelHelpers.classPrivateFieldLooseBase(this, _onWakeUp)[_onWakeUp].bind(this));
 	}
 	async function _onWakeUp2() {
-	  const hasConnection = await Checker.testInternetConnection();
+	  const hasConnection = await CheckUtils.testInternetConnection();
 	  if (!hasConnection) {
-	    console.error('NO INTERNET CONNECTION!');
+	    im_v2_lib_logger.Logger.desktop('StatusHandler: onWakeUp event, no internet connection, delay 60 sec');
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _wakeUpTimer)[_wakeUpTimer]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _wakeUpTimer)[_wakeUpTimer] = setTimeout(babelHelpers.classPrivateFieldLooseBase(this, _onWakeUp)[_onWakeUp].bind(this), 60 * 1000);
 	    return;
 	  }
-	  if (im_v2_lib_utils.Utils.date.isSameDay(new Date(), babelHelpers.classPrivateFieldLooseBase(this, _initDate)[_initDate])) {
+	  if (im_v2_lib_utils.Utils.date.isSameHour(new Date(), babelHelpers.classPrivateFieldLooseBase(this, _initDate$1)[_initDate$1])) {
+	    im_v2_lib_logger.Logger.desktop('StatusHandler: onWakeUp event, same hour - restart pull client');
 	    im_v2_application_core.Core.getPullClient().restart();
 	  } else {
+	    if (this.sidePanelManager.opened) {
+	      clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _wakeUpTimer)[_wakeUpTimer]);
+	      babelHelpers.classPrivateFieldLooseBase(this, _wakeUpTimer)[_wakeUpTimer] = setTimeout(babelHelpers.classPrivateFieldLooseBase(this, _onWakeUp)[_onWakeUp].bind(this), 60 * 1000);
+	      im_v2_lib_logger.Logger.desktop('StatusHandler: onWakeUp event, slider is open, delay 60 sec');
+	      return;
+	    }
+	    im_v2_lib_logger.Logger.desktop('StatusHandler: onWakeUp event, reload window');
 	    im_v2_lib_desktopApi.DesktopApi.reloadWindow();
 	  }
 	}
@@ -419,18 +496,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  im_v2_lib_desktopApi.DesktopApi.removeNativeNotifications();
 	}
 	function _setInitialStatus2() {
-	  const userId = im_v2_application_core.Core.getUserId();
-	  const user = im_v2_application_core.Core.getStore().getters['users/get'](userId);
-	  if (!user) {
-	    return;
-	  }
-	  im_v2_lib_desktopApi.DesktopApi.setIconStatus(user.status);
+	  const status = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.user.status);
+	  im_v2_lib_desktopApi.DesktopApi.setIconStatus(status);
 	}
 	function _subscribeToStatusChange2() {
 	  const statusWatcher = (state, getters) => {
-	    const userId = im_v2_application_core.Core.getUserId();
-	    const user = getters['users/get'](userId);
-	    return user == null ? void 0 : user.status;
+	    return getters['application/settings/get'](im_v2_const.Settings.user.status);
 	  };
 	  im_v2_application_core.Core.getStore().watch(statusWatcher, newStatus => {
 	    im_v2_lib_desktopApi.DesktopApi.setIconStatus(newStatus);
@@ -464,7 +535,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  main_core_events.EventEmitter.subscribe(im_v2_const.EventType.counter.onChatCounterChange, babelHelpers.classPrivateFieldLooseBase(this, _onCounterChange)[_onCounterChange].bind(this));
 	}
 	function _onCounterChange2() {
-	  const chatCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/getTotalChatCounter'];
+	  const chatCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['counters/getTotalChatCounter'];
 	  const notificationCounter = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['notifications/getCounter'];
 	  const isImportant = chatCounter > 0;
 	  im_v2_lib_desktopApi.DesktopApi.setCounter(chatCounter + notificationCounter, isImportant);
@@ -487,60 +558,41 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const reloadCombination = im_v2_lib_utils.Utils.key.isCombination(event, 'Ctrl+R');
 	    if (reloadCombination) {
 	      im_v2_lib_desktopApi.DesktopApi.reloadWindow();
+	      im_v2_lib_logger.Logger.desktop('NOTICE: User reload window (hotkey)');
+	      return;
+	    }
+	    const logFolderCombination = im_v2_lib_utils.Utils.key.isCombination(event, 'Ctrl+Shift+L');
+	    if (logFolderCombination) {
+	      im_v2_lib_desktopApi.DesktopApi.openLogsFolder();
+	      im_v2_lib_logger.Logger.desktop('NOTICE: User open log folder (hotkey)');
+	      return;
+	    }
+	    const devToolsCombination = im_v2_lib_utils.Utils.key.isCombination(event, 'Ctrl+Shift+D');
+	    if (devToolsCombination) {
+	      im_v2_lib_desktopApi.DesktopApi.openDeveloperTools();
+	      im_v2_lib_logger.Logger.desktop('NOTICE: User open developer tools (hotkey)');
 	    }
 	  });
 	}
 
-	var _sessionTime = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sessionTime");
-	var _startUpdateInterval = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("startUpdateInterval");
-	var _requestUpdate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestUpdate");
-	class UpdateStateManager {
-	  static init() {
-	    return new UpdateStateManager();
-	  }
-	  constructor() {
-	    Object.defineProperty(this, _requestUpdate, {
-	      value: _requestUpdate2
-	    });
-	    Object.defineProperty(this, _startUpdateInterval, {
-	      value: _startUpdateInterval2
-	    });
-	    Object.defineProperty(this, _sessionTime, {
-	      writable: true,
-	      value: void 0
-	    });
-	    const {
-	      sessionTime
-	    } = im_v2_application_core.Core.getApplicationData();
-	    babelHelpers.classPrivateFieldLooseBase(this, _sessionTime)[_sessionTime] = sessionTime * 1000;
-	    babelHelpers.classPrivateFieldLooseBase(this, _startUpdateInterval)[_startUpdateInterval]();
-	  }
-	}
-	function _startUpdateInterval2() {
-	  setInterval(() => {
-	    babelHelpers.classPrivateFieldLooseBase(this, _requestUpdate)[_requestUpdate]();
-	  }, babelHelpers.classPrivateFieldLooseBase(this, _sessionTime)[_sessionTime]);
-	}
-	function _requestUpdate2() {
-	  im_v2_lib_logger.Logger.warn('Desktop: updateStateManager: requesting update');
-	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2UpdateState).catch(error => {
-	    // eslint-disable-next-line no-console
-	    console.error('Desktop: updateStateManager: error updating state', error);
-	  });
-	}
-
-	var _minWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("minWidth");
-	var _minHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("minHeight");
-	var _setDefaults = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setDefaults");
+	/* eslint-disable no-undef */
 	var _sendInitEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendInitEvent");
 	var _initSliderBindings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initSliderBindings");
 	var _getSliderBindingsStatus = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSliderBindingsStatus");
 	var _initComplete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initComplete");
+	var _subscribeOnErrorEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeOnErrorEvent");
+	var _handleInvalidAuthError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleInvalidAuthError");
 	class Desktop {
 	  static init() {
 	    return new Desktop();
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _handleInvalidAuthError, {
+	      value: _handleInvalidAuthError2
+	    });
+	    Object.defineProperty(this, _subscribeOnErrorEvent, {
+	      value: _subscribeOnErrorEvent2
+	    });
 	    Object.defineProperty(this, _initComplete, {
 	      value: _initComplete2
 	    });
@@ -553,31 +605,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _sendInitEvent, {
 	      value: _sendInitEvent2
 	    });
-	    Object.defineProperty(this, _setDefaults, {
-	      value: _setDefaults2
-	    });
-	    Object.defineProperty(this, _minWidth, {
-	      writable: true,
-	      value: 1280
-	    });
-	    Object.defineProperty(this, _minHeight, {
-	      writable: true,
-	      value: 720
-	    });
+	    ReloadChecker.init();
 	    StatusHandler.init();
 	    AuthHandler.init();
 	    BxLinkHandler.init();
 	    CounterHandler.init();
 	    HotkeyHandler.init();
-	    UpdateStateManager.init();
-	    babelHelpers.classPrivateFieldLooseBase(this, _setDefaults)[_setDefaults]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _sendInitEvent)[_sendInitEvent]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeOnErrorEvent)[_subscribeOnErrorEvent]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _initSliderBindings)[_initSliderBindings]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _initComplete)[_initComplete]();
 	  }
-	}
-	function _setDefaults2() {
-	  // DesktopApi.setMinimumWindowSize(this.#minWidth, this.#minHeight);
 	}
 	function _sendInitEvent2() {
 	  const {
@@ -600,11 +638,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return result === '1';
 	}
 	function _initComplete2() {
-	  BXDesktopSystem.LogInfo = function (...params) {
+	  im_v2_lib_desktopApi.DesktopApi.setLogInfo = function (...params) {
 	    im_v2_lib_logger.Logger.desktop(...params);
 	  };
-	  im_v2_lib_desktopApi.DesktopApi.printWelcomePrompt();
 	  window.BX.debugEnable(true);
+	  im_v2_lib_desktopApi.DesktopApi.printWelcomePrompt();
+	}
+	function _subscribeOnErrorEvent2() {
+	  main_core_events.EventEmitter.subscribe(im_v2_const.EventType.request.onAuthError, () => {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _handleInvalidAuthError)[_handleInvalidAuthError]();
+	  });
+	}
+	function _handleInvalidAuthError2() {
+	  return im_v2_lib_desktopApi.DesktopApi.login();
 	}
 
 	const DESKTOP_PROTOCOL_VERSION = 2;
@@ -676,6 +722,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.lines}/dialogId/${dialogId}`);
 	    return Promise.resolve();
 	  }
+	  redirectToCopilot(dialogId = '') {
+	    im_v2_lib_logger.Logger.warn('Desktop: redirectToCopilot', dialogId);
+	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.copilot}/dialogId/${dialogId}`);
+	    return Promise.resolve();
+	  }
 	  redirectToNotifications() {
 	    im_v2_lib_logger.Logger.warn('Desktop: redirectToNotifications');
 	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.notifications}`);
@@ -689,6 +740,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  redirectToConference(code) {
 	    im_v2_lib_logger.Logger.warn('Desktop: redirectToConference', code);
 	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.conference}/code/${code}`);
+	    return Promise.resolve();
+	  }
+	  redirectToSettings(sectionName) {
+	    im_v2_lib_logger.Logger.warn('Desktop: redirectToSettings', sectionName);
+	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.settings}/section/${sectionName}`);
 	    return Promise.resolve();
 	  }
 	  openConference(code) {
@@ -721,6 +777,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.openBxLink(`bx://${im_v2_const.DesktopBxLink.callList}/callListId/${callListId}/callListParams/${encodedParams}`);
 	    return Promise.resolve();
 	  }
+	  openAccountTab(domainName) {
+	    this.openBxLink(`bx://v2/${domainName}/openTab`);
+	  }
 	  checkStatusInDifferentContext() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _desktopIsActive)[_desktopIsActive]) {
 	      return Promise.resolve(false);
@@ -729,7 +788,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return Promise.resolve(false);
 	    }
 	    return new Promise(resolve => {
-	      Checker.testImageUpload(() => {
+	      CheckUtils.testImageLoad(() => {
 	        resolve(true);
 	      }, () => {
 	        resolve(false);
@@ -783,5 +842,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.DesktopManager = DesktopManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=desktop-manager.bundle.js.map

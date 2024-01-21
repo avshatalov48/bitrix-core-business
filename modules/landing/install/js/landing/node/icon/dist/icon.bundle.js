@@ -11,6 +11,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  constructor(options) {
 	    super(options);
 	    this.type = 'icon';
+	    this.node.addEventListener('click', this.onClick.bind(this));
 	  }
 
 	  /**
@@ -75,6 +76,9 @@ this.BX.Landing = this.BX.Landing || {};
 	      classList: getIconClassList(this.node.className),
 	      url: encodeDataValue(getPseudoUrl(this))
 	    };
+	  }
+	  onClick(event) {
+	    BX.Event.EventEmitter.emit('BX.Landing.Node.Icon:onClick');
 	  }
 	}
 	BX.Landing.Node.Icon = Icon;

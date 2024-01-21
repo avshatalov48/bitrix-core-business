@@ -273,7 +273,7 @@ abstract class TransferProviderBase
 			}
 		}
 
-		if (!empty($reverseProducts))
+		if ($needReverse && !empty($reverseProducts))
 		{
 			$r = $this->ship($reverseProducts);
 		}
@@ -314,4 +314,21 @@ abstract class TransferProviderBase
 	 */
 	abstract public function getStoresCount();
 
+	/**
+	 * @param array $products
+	 * @return Sale\Result
+	 */
+	public function writeOffProductBatches(array $products): Sale\Result
+	{
+		return new Sale\Result();
+	}
+
+	/**
+	 * @param array $products
+	 * @return Sale\Result
+	 */
+	public function returnProductBatches(array $products): Sale\Result
+	{
+		return new Sale\Result();
+	}
 }

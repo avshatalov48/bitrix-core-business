@@ -48,9 +48,13 @@ $factory = new SliderFactory();
 $queryList = Context::getCurrent()->getRequest()->getQueryList()->toArray();
 $getParams = empty($queryList) ? '' : '?'. http_build_query($queryList);
 // special case for comment
-if (array_key_exists('MID', $queryList))
+if (isset($queryList['MID']))
 {
 	$getParams .= '#com' . $queryList['MID'];
+}
+if (isset($queryList['commentId']))
+{
+	$getParams .= '#com' . $queryList['commentId'];
 }
 try
 {

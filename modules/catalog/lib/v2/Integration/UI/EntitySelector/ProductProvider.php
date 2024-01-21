@@ -11,7 +11,6 @@ use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Iblock\Component\Tools;
 use Bitrix\Iblock\PropertyTable;
-use Bitrix\Main\Loader;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
@@ -351,11 +350,7 @@ class ProductProvider extends BaseProvider
 		if ($searchString !== '')
 		{
 			$simpleProductFilter = [
-				[
-					'LOGIC' => 'OR',
-					'*SEARCHABLE_CONTENT' => $searchString,
-					'PRODUCT_BARCODE' => $searchString . '%',
-				]
+				'*SEARCHABLE_CONTENT' => $searchString,
 			];
 
 			if ($iblockInfo->canHaveSku())
@@ -371,14 +366,13 @@ class ProductProvider extends BaseProvider
 						'IBLOCK_ID' => $iblockInfo->getSkuIblockId(),
 						'*SEARCHABLE_CONTENT' => $searchString,
 					]),
-					'PRODUCT_BARCODE' => $searchString . '%',
 				];
 
 				$offerFilter = $simpleProductFilter;
 			}
 			else
 			{
-				$productFilter[] = $simpleProductFilter;
+				$productFilter = $simpleProductFilter;
 			}
 		}
 
@@ -452,6 +446,12 @@ class ProductProvider extends BaseProvider
 			'ACTIVE' => 'Y',
 			'ACTIVE_DATE' => 'Y',
 		];
+
+		$shortSelect = [
+			'ID',
+			'IBLOCK_ID',
+		];
+
 		$selectFields = array_filter(array_unique(array_merge(
 			[
 				'ID',
@@ -480,38 +480,61 @@ class ProductProvider extends BaseProvider
 			array_merge($filter, $additionalFilter),
 			false,
 			$navParams,
-			$selectFields
+			$shortSelect
 		);
-		while ($element = $elementIterator->Fetch())
+		while ($row = $elementIterator->Fetch())
 		{
-			$element['ID'] = (int)$element['ID'];
-			$element['IBLOCK_ID'] = (int)$element['IBLOCK_ID'];
-			$element['TYPE'] = (int)$element['TYPE'];
-			$element['IMAGE'] = null;
-			$element['PRICE'] = null;
-			$element['SKU_PROPERTIES'] = null;
+			$row['ID'] = (int)$row['ID'];
+			$row['IBLOCK_ID'] = (int)$row['IBLOCK_ID'];
 
-			if (!empty($element['PREVIEW_PICTURE']))
+			$elements[$row['ID']] = $row;
+		}
+		unset($row, $elementIterator);
+
+		if (!empty($elements))
+		{
+			$elementIterator = \CIBlockElement::GetList(
+				[],
+				[
+					'ID' => array_keys($elements)
+				],
+				false,
+				false,
+				$selectFields
+			);
+			while ($row = $elementIterator->Fetch())
 			{
-				$element['IMAGE'] = $this->getImageSource((int)$element['PREVIEW_PICTURE']);
-			}
+				$id = (int)$row['ID'];
+				unset($row['ID'], $row['IBLOCK_ID']);
 
-			if (empty($element['IMAGE']) && !empty($element['DETAIL_PICTURE']))
-			{
-				$element['IMAGE'] = $this->getImageSource((int)$element['DETAIL_PICTURE']);
-			}
+				$row['TYPE'] = (int)$row['TYPE'];
+				$row['IMAGE'] = null;
+				$row['PRICE'] = null;
+				$row['SKU_PROPERTIES'] = null;
 
-			if (!empty($element['PREVIEW_TEXT']) && $element['PREVIEW_TEXT_TYPE'] === 'html')
-			{
-				$element['PREVIEW_TEXT'] = HTMLToTxt($element['PREVIEW_TEXT']);
-			}
+				if (!empty($row['PREVIEW_PICTURE']))
+				{
+					$row['IMAGE'] = $this->getImageSource((int)$row['PREVIEW_PICTURE']);
+				}
 
-			if (!empty($element['DETAIL_TEXT']) && $element['DETAIL_TEXT_TYPE'] === 'html')
-			{
-				$element['DETAIL_TEXT'] = HTMLToTxt($element['DETAIL_TEXT']);
-			}
+				if (empty($row['IMAGE']) && !empty($row['DETAIL_PICTURE']))
+				{
+					$row['IMAGE'] = $this->getImageSource((int)$row['DETAIL_PICTURE']);
+				}
 
-			$elements[$element['ID']] = $element;
+				if (!empty($row['PREVIEW_TEXT']) && $row['PREVIEW_TEXT_TYPE'] === 'html')
+				{
+					$row['PREVIEW_TEXT'] = HTMLToTxt($row['PREVIEW_TEXT']);
+				}
+
+				if (!empty($row['DETAIL_TEXT']) && $row['DETAIL_TEXT_TYPE'] === 'html')
+				{
+					$row['DETAIL_TEXT'] = HTMLToTxt($row['DETAIL_TEXT']);
+				}
+
+				$elements[$id] += $row;
+			}
+			unset($row, $elementIterator);
 		}
 
 		return $elements;
@@ -542,7 +565,7 @@ class ProductProvider extends BaseProvider
 		$productsStillWithoutOffers = array_diff_key($productsWithOffers, $offers);
 		if (!empty($productsStillWithoutOffers))
 		{
-			// second - load any offer for product if have no coincidences in searchable content
+			// second - load any offer for product if you have no coincidences in searchable content
 			$additionalOffers = $this->loadElements([
 				'filter' => [
 					'IBLOCK_ID' => $iblockInfo->getSkuIblockId(),
@@ -844,9 +867,7 @@ class ProductProvider extends BaseProvider
 			$value = implode(', ', $value);
 		}
 
-		$value = trim((string)$value);
-
-		return $value;
+		return trim((string)$value);
 	}
 
 	private function getMorePhotoPropertyId(int $iblockId): ?int

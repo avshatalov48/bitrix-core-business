@@ -9,7 +9,14 @@ use Bitrix\Calendar\ICal\Builder\AttendeesCollection;
 
 abstract class IncomingInvitationHandler
 {
+	protected ?int $eventId = null;
+
 	abstract public function handle();
+
+	public function getEventId(): ?int
+	{
+		return $this->eventId;
+	}
 
 	protected function getAttendeesCollection(?array $parsedAttendees): AttendeesCollection
 	{

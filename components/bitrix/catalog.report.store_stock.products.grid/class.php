@@ -65,6 +65,8 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 				'sort' => 'PRODUCT_ID',
 				'default' => true,
 				'type' => 'custom',
+				'sticked' => true,
+				'resizeable' => false,
 			],
 			[
 				'id' => 'AMOUNT',
@@ -72,6 +74,7 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 				'hint' => Loc::getMessage('STORE_STOCK_PRODUCTS_REPORT_GRID_AMOUNT_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,
+				'align' => 'right',
 				'width' => 200,
 			],
 			[
@@ -80,6 +83,7 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 				'hint' => Loc::getMessage('STORE_STOCK_PRODUCTS_REPORT_GRID_QUANTITY_RESERVED_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,
+				'align' => 'right',
 				'width' => 200,
 			],
 			[
@@ -88,6 +92,7 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 				'hint' => Loc::getMessage('STORE_STOCK_PRODUCTS_REPORT_GRID_QUANTITY_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,
+				'align' => 'right',
 				'width' => 200,
 			],
 		];

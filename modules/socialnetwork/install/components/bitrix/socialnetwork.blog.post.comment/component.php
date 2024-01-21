@@ -764,7 +764,7 @@ if (
 				$UserIP = CBlogUser::GetUserIP();
 				$arFields = Array(
 					"POST_ID" => $arPost["ID"],
-					"BLOG_ID" => $arBlog["ID"],
+					'BLOG_ID' => $arPost['BLOG_ID'],
 					"TITLE" => trim($_POST["subject"] ?? ''),
 					"POST_TEXT" => trim(preg_replace("/\xe2\x81\xa0/is", ' ', $_POST["comment"])), // INVISIBLE_CURSOR from editor
 					"AUTHOR_IP" => $UserIP[0],
@@ -828,7 +828,7 @@ if (
 				{
 					\Bitrix\Blog\Item\Comment::checkDuplicate([
 						'MESSAGE' => $arFields['POST_TEXT'],
-						'BLOG_ID' => $arBlog['ID'],
+						'BLOG_ID' => $arPost['BLOG_ID'],
 						'POST_ID' => $arPost['ID'],
 						'AUTHOR_ID' => $arFields['AUTHOR_ID']
 					], $commentId);
@@ -854,7 +854,7 @@ if (
 								if (CFile::CheckImageFile(CFile::MakeFileArray($fileID)) === null)
 								{
 									$arImgFields = array(
-										"BLOG_ID" => $arBlog["ID"],
+										'BLOG_ID' => $arPost['BLOG_ID'],
 										"POST_ID" => $arPost["ID"],
 										"COMMENT_ID" => 0,
 										"=TIMESTAMP_X" => $DB->GetNowFunction(),
@@ -946,7 +946,7 @@ if (
 							)));
 							$images = [];
 
-							$DB->Query('UPDATE b_blog_image SET COMMENT_ID=' . (int)$commentId . " WHERE BLOG_ID=" . (int)$arBlog["ID"] . " AND POST_ID = " . (int)$arPost['ID'] . " AND IS_COMMENT = 'Y' AND (COMMENT_ID = 0 OR COMMENT_ID is null) AND USER_ID=" . $currentUserId . '', true);
+							$DB->Query('UPDATE b_blog_image SET COMMENT_ID=' . (int)$commentId . " WHERE BLOG_ID=" . (int) $arPost['BLOG_ID'] . " AND POST_ID = " . (int)$arPost['ID'] . " AND IS_COMMENT = 'Y' AND (COMMENT_ID = 0 OR COMMENT_ID is null) AND USER_ID=" . $currentUserId . '', true);
 
 							$parserBlog = new blogTextParser(false, $arParams["PATH_TO_SMILE"], array("bPublic" => $arParams["bPublicPage"]));
 							$arParserParams = Array(
@@ -987,7 +987,7 @@ if (
 								}
 
 								$arImages = Array();
-								$res = CBlogImage::GetList(array("ID"=>"ASC"), array("POST_ID"=>$arPost["ID"], "BLOG_ID"=>$arBlog["ID"], "IS_COMMENT" => "Y", "COMMENT_ID" => $commentId));
+								$res = CBlogImage::GetList(array("ID"=>"ASC"), array("POST_ID"=>$arPost["ID"], "BLOG_ID"=>$arPost['BLOG_ID'], "IS_COMMENT" => "Y", "COMMENT_ID" => $commentId));
 								while ($arImage = $res->Fetch())
 								{
 									$arImages[$arImage["ID"]] = $arImage["FILE_ID"];
@@ -1162,7 +1162,7 @@ if (
 								}
 							}
 
-							$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arBlog["ID"], "IS_COMMENT" => "Y", "COMMENT_ID" => false, "<=TIMESTAMP_X" => ConvertTimeStamp(AddToTimeStamp(Array("HH" => -3)), "FULL")));
+							$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arPost['BLOG_ID'], "IS_COMMENT" => "Y", "COMMENT_ID" => false, "<=TIMESTAMP_X" => ConvertTimeStamp(AddToTimeStamp(Array("HH" => -3)), "FULL")));
 							while ($aImg = $res->Fetch())
 							{
 								CBlogImage::Delete($aImg["ID"]);
@@ -1179,7 +1179,7 @@ if (
 							$bHasImg = false;
 							$bHasProps = false;
 
-							$dbImg = CBlogImage::GetList(Array(), Array("BLOG_ID" => $arBlog["ID"], "POST_ID" => $arPost["ID"], "IS_COMMENT" => "Y"), false, false, Array("ID"));
+							$dbImg = CBlogImage::GetList(Array(), Array("BLOG_ID" => $arPost['BLOG_ID'], "POST_ID" => $arPost["ID"], "IS_COMMENT" => "Y"), false, false, Array("ID"));
 							if ($dbImg->Fetch())
 							{
 								$bHasImg = true;
@@ -1283,7 +1283,7 @@ if (
 							if (CFile::CheckImageFile(CFile::MakeFileArray($fileID)) === null)
 							{
 								$arImgFields = array(
-									"BLOG_ID" => $arBlog["ID"],
+									"BLOG_ID" => $arPost['BLOG_ID'],
 									"POST_ID" => $arPost["ID"],
 									"USER_ID" => $currentUserId,
 									"COMMENT_ID" => $commentID,
@@ -1382,7 +1382,7 @@ if (
 								'POST_ID' => $arParams["ID"]
 							)));
 							$images = Array();
-							$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arBlog["ID"], "COMMENT_ID" => $commentID, "IS_COMMENT" => "Y"));
+							$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arPost['BLOG_ID'], "COMMENT_ID" => $commentID, "IS_COMMENT" => "Y"));
 							while ($aImg = $res->Fetch())
 							{
 								$images[$aImg["ID"]] = $aImg["FILE_ID"];
@@ -1404,7 +1404,7 @@ if (
 
 							CBlogComment::UpdateLog($commentID, $arResult["BlogUser"], $arResult["User"], $arFields, $arPost, $arParamsUpdateLog);
 
-							$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arBlog["ID"], "IS_COMMENT" => "Y", "COMMENT_ID" => false, "<=TIMESTAMP_X" => ConvertTimeStamp(AddToTimeStamp(Array("HH" => -3)), "FULL")));
+							$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arPost['BLOG_ID'], "IS_COMMENT" => "Y", "COMMENT_ID" => false, "<=TIMESTAMP_X" => ConvertTimeStamp(AddToTimeStamp(Array("HH" => -3)), "FULL")));
 							while ($aImg = $res->Fetch())
 							{
 								CBlogImage::Delete($aImg["ID"]);
@@ -1451,7 +1451,7 @@ if (
 							$bHasImg = false;
 							$bHasProps = false;
 
-							$dbImg = CBlogImage::GetList(Array(), Array("BLOG_ID" => $arBlog["ID"], "POST_ID" => $arPost["ID"], "IS_COMMENT" => "Y"), false, false, Array("ID"));
+							$dbImg = CBlogImage::GetList(Array(), Array("BLOG_ID" => $arPost['BLOG_ID'], "POST_ID" => $arPost["ID"], "IS_COMMENT" => "Y"), false, false, Array("ID"));
 							if ($dbImg->Fetch())
 							{
 								$bHasImg = true;

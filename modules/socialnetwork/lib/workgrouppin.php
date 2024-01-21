@@ -8,6 +8,8 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
+use Bitrix\Socialnetwork\Internals\Pin\Pin;
+use Bitrix\Socialnetwork\Internals\Pin\PinCollection;
 
 /**
  * Class WorkgroupPinTable
@@ -20,19 +22,19 @@ use Bitrix\Main\Entity;
  * @method static EO_WorkgroupPin_Result getById($id)
  * @method static EO_WorkgroupPin_Result getList(array $parameters = [])
  * @method static EO_WorkgroupPin_Entity getEntity()
- * @method static \Bitrix\Socialnetwork\EO_WorkgroupPin createObject($setDefaultValues = true)
- * @method static \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection createCollection()
- * @method static \Bitrix\Socialnetwork\EO_WorkgroupPin wakeUpObject($row)
- * @method static \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection wakeUpCollection($rows)
+ * @method static \Bitrix\Socialnetwork\Internals\Pin\Pin createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\Internals\Pin\PinCollection createCollection()
+ * @method static \Bitrix\Socialnetwork\Internals\Pin\Pin wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\Internals\Pin\PinCollection wakeUpCollection($rows)
  */
 class WorkgroupPinTable extends Entity\DataManager
 {
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_sonet_group_pin';
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
 			'ID' => [
@@ -65,7 +67,7 @@ class WorkgroupPinTable extends Entity\DataManager
 		$tableName = static::getTableName();
 
 		return "
-			IF(
+			CASE WHEN
 				EXISTS(
 					SELECT 'x'
 					FROM {$tableName}
@@ -73,10 +75,20 @@ class WorkgroupPinTable extends Entity\DataManager
 						GROUP_ID = %s
 						AND USER_ID = %s
 						AND CONTEXT = %s
-				),
-				'Y',
-				'N'
-			)
+				)
+				THEN 'Y'
+				ELSE 'N'
+			END
 		";
+	}
+
+	public static function getObjectClass(): string
+	{
+		return Pin::class;
+	}
+
+	public static function getCollectionClass(): string
+	{
+		return PinCollection::class;
 	}
 }

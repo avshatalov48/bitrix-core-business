@@ -15,7 +15,7 @@ IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/l
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/lib/ical/mailinvitation/sendercancelinvitation.php');
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/classes/general/calendar.php');
 
-class CalendarPubEventComponent extends CBitrixComponent
+class CalendarICalMailComponent extends CBitrixComponent
 {
 	/** @var array */
 	protected $data = [];
@@ -47,7 +47,7 @@ class CalendarPubEventComponent extends CBitrixComponent
 	{
 		$this->arResult['NAME'] = $this->arParams['PARAMS']['NAME'];
 		$this->arResult['TITLE'] = \COption::GetOptionString("main", "site_name", '', '-');
-		$this->arResult['DETAIL_LINK'] = $this->arParams['PARAMS']['DETAIL_LINK'];
+		$this->arResult['DETAIL_LINK'] = $this->arParams['PARAMS']['DETAIL_LINK'] ?? '';
 		$this->arResult['FULL_DAY'] = $this->arParams['PARAMS']['FULL_DAY'] === 'Y';
 		$this->dateFrom = Util::getDateObject(
 			$this->arParams['PARAMS']['DATE_FROM'],
@@ -182,7 +182,9 @@ class CalendarPubEventComponent extends CBitrixComponent
 				}
 			}
 
-			if ($this->arParams['PARAMS']['RRULE'] !== '')
+			$rrule = $this->arParams['PARAMS']['RRULE'] ?? '';
+
+			if ($rrule !== '')
 			{
 				$this->arResult['RRULE'] = $this->arParams['PARAMS']['RRULE'];
 				$this->arResult['IS_SHOW_RRULE'] = true;

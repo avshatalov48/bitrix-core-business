@@ -3,6 +3,7 @@
 use Bitrix\Main\Engine\JsonPayload;
 use Bitrix\Main\Loader;
 use Bitrix\MobileApp\Janative\Entity\Extension;
+use Bitrix\MobileApp\Janative\Manager;
 
 define('NOT_CHECK_PERMISSIONS', true);
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
@@ -39,7 +40,6 @@ else
 	{
 		$extension = new Extension($componentName);
 		$deps = $extension->getDependencies();
-
 		$payload = new JsonPayload();
 		if (!empty($payload->getRaw()))
 		{
@@ -59,7 +59,20 @@ else
 			$content .= $item->getContent();
 		}
 		header('BX-Extension: true');
-		echo "$langExpression\n$content";
+		$result = "$langExpression\n$content";
+		$componentDeps = $extension->getComponentDependencies();
+		if ($componentDeps !== null) {
+			$allComponents = Manager::getAvailableComponents();
+			$data = array_map(function ($component) {
+				return $component->getInfo();
+			}, array_intersect_key($allComponents, array_flip($componentDeps)));
+			$jsonData = json_encode($data);
+			$updateComponentsExpression = "\nthis.availableComponents = { ... this.availableComponents, ... $jsonData };\n";
+			$result = "$updateComponentsExpression\n$result";
+		}
+
+
+		echo $result;
 	}
 	catch (Exception $e)
 	{

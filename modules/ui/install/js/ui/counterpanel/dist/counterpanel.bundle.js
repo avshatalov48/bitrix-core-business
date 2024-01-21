@@ -3,7 +3,15 @@ this.BX = this.BX || {};
 (function (exports,main_popup,main_core,ui_cnt,main_core_events) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
+	let _ = t => t,
+	  _t,
+	  _t2,
+	  _t3,
+	  _t4,
+	  _t5,
+	  _t6,
+	  _t7,
+	  _t8;
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
@@ -13,7 +21,7 @@ this.BX = this.BX || {};
 	var _getValue = /*#__PURE__*/new WeakSet();
 	var _getTitle = /*#__PURE__*/new WeakSet();
 	var _getCross = /*#__PURE__*/new WeakSet();
-	var CounterItem = /*#__PURE__*/function () {
+	let CounterItem = /*#__PURE__*/function () {
 	  function CounterItem(args) {
 	    babelHelpers.classCallCheck(this, CounterItem);
 	    _classPrivateMethodInitSpec(this, _getCross);
@@ -104,11 +112,10 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "activate",
-	    value: function activate() {
-	      var isEmitEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	    value: function activate(isEmitEvent = true) {
 	      this.isActive = true;
 	      if (this.parentId) {
-	        var target = BX.findParent(this.getContainerMenu(), {
+	        const target = BX.findParent(this.getContainerMenu(), {
 	          'className': 'ui-counter-panel__popup-item'
 	        });
 	        if (target) {
@@ -123,11 +130,10 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "deactivate",
-	    value: function deactivate() {
-	      var isEmitEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	    value: function deactivate(isEmitEvent = true) {
 	      this.isActive = false;
 	      if (this.parentId) {
-	        var target = BX.findParent(this.getContainerMenu(), {
+	        const target = BX.findParent(this.getContainerMenu(), {
 	          'className': 'ui-counter-panel__popup-item'
 	        });
 	        if (target) {
@@ -150,36 +156,29 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setEvents",
 	    value: function setEvents(container) {
-	      var _this = this;
 	      if (!container) {
 	        container = this.getContainer();
 	      }
 	      if (this.eventsForActive) {
-	        var eventKeys = Object.keys(this.eventsForActive);
-	        var _loop = function _loop() {
-	          var event = eventKeys[i];
-	          container.addEventListener(event, function () {
-	            if (_this.isActive) {
-	              _this.eventsForActive[event]();
+	        const eventKeys = Object.keys(this.eventsForActive);
+	        for (let i = 0; i < eventKeys.length; i++) {
+	          let event = eventKeys[i];
+	          container.addEventListener(event, () => {
+	            if (this.isActive) {
+	              this.eventsForActive[event]();
 	            }
 	          });
-	        };
-	        for (var i = 0; i < eventKeys.length; i++) {
-	          _loop();
 	        }
 	      }
 	      if (this.eventsForUnActive) {
-	        var _eventKeys = Object.keys(this.eventsForUnActive);
-	        var _loop2 = function _loop2() {
-	          var event = _eventKeys[_i];
-	          container.addEventListener(event, function () {
-	            if (!_this.isActive) {
-	              _this.eventsForUnActive[event]();
+	        const eventKeys = Object.keys(this.eventsForUnActive);
+	        for (let i = 0; i < eventKeys.length; i++) {
+	          let event = eventKeys[i];
+	          container.addEventListener(event, () => {
+	            if (!this.isActive) {
+	              this.eventsForUnActive[event]();
 	            }
 	          });
-	        };
-	        for (var _i = 0; _i < _eventKeys.length; _i++) {
-	          _loop2();
 	        }
 	      }
 	    }
@@ -204,7 +203,11 @@ this.BX = this.BX || {};
 	    key: "getArrowDropdown",
 	    value: function getArrowDropdown() {
 	      if (!this.layout.dropdownArrow) {
-	        this.layout.dropdownArrow = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-panel__item-dropdown\">\n\t\t\t\t\t<i></i>\n\t\t\t\t</div>\n\t\t\t"])));
+	        this.layout.dropdownArrow = main_core.Tag.render(_t || (_t = _`
+				<div class="ui-counter-panel__item-dropdown">
+					<i></i>
+				</div>
+			`));
 	      }
 	      return this.layout.dropdownArrow;
 	    }
@@ -212,22 +215,39 @@ this.BX = this.BX || {};
 	    key: "getContainerMenu",
 	    value: function getContainerMenu() {
 	      if (!this.layout.menuItem) {
-	        this.layout.menuItem = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), _classPrivateMethodGet(this, _getValue, _getValue2).call(this), this.title, _classPrivateMethodGet(this, _getCross, _getCross2).call(this));
+	        this.layout.menuItem = main_core.Tag.render(_t2 || (_t2 = _`
+				<span>
+					${0}
+					${0}
+					${0}
+				</span>
+			`), _classPrivateMethodGet(this, _getValue, _getValue2).call(this), this.title, _classPrivateMethodGet(this, _getCross, _getCross2).call(this));
 	      }
 	      return this.layout.menuItem;
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this2 = this;
 	      if (!this.layout.container) {
-	        var type = this.type ? "id=\"ui-counter-panel-item-".concat(this.type, "\"") : '';
-	        var isValue = main_core.Type.isNumber(this.value);
-	        this.layout.container = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div ", " class=\"ui-counter-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), type, isValue ? _classPrivateMethodGet(this, _getValue, _getValue2).call(this) : '', this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', isValue ? _classPrivateMethodGet(this, _getCross, _getCross2).call(this) : '');
+	        const type = this.type ? `id="ui-counter-panel-item-${this.type}"` : '';
+	        const isValue = main_core.Type.isNumber(this.value);
+	        this.layout.container = main_core.Tag.render(_t3 || (_t3 = _`
+				<div ${0} class="ui-counter-panel__item">
+					${0}
+					${0}
+					${0}
+				</div>
+			`), type, isValue ? _classPrivateMethodGet(this, _getValue, _getValue2).call(this) : '', this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', isValue ? _classPrivateMethodGet(this, _getCross, _getCross2).call(this) : '');
 	        if (this.parent) {
-	          this.layout.container = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-counter-panel__item\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', isValue ? _classPrivateMethodGet(this, _getValue, _getValue2).call(this) : '', _classPrivateMethodGet(this, _getCross, _getCross2).call(this));
-	          _classPrivateMethodGet(this, _getCross, _getCross2).call(this).addEventListener('click', function (ev) {
-	            _this2.deactivate();
+	          this.layout.container = main_core.Tag.render(_t4 || (_t4 = _`
+					<div class="ui-counter-panel__item">
+						${0}
+						${0}
+						${0}
+					</div>
+				`), this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', isValue ? _classPrivateMethodGet(this, _getValue, _getValue2).call(this) : '', _classPrivateMethodGet(this, _getCross, _getCross2).call(this));
+	          _classPrivateMethodGet(this, _getCross, _getCross2).call(this).addEventListener('click', ev => {
+	            this.deactivate();
 	            ev.stopPropagation();
 	          });
 	          main_core.Dom.addClass(this.layout.container, '--dropdown');
@@ -253,18 +273,18 @@ this.BX = this.BX || {};
 	        this.setEvents(this.layout.container);
 	        if (isValue && this.items.length === 0) {
 	          if (!this.parent) {
-	            this.layout.container.addEventListener('mouseenter', function () {
-	              if (!_this2.isActive) {
-	                _this2.layout.container.classList.add('--hover');
+	            this.layout.container.addEventListener('mouseenter', () => {
+	              if (!this.isActive) {
+	                this.layout.container.classList.add('--hover');
 	              }
 	            });
-	            this.layout.container.addEventListener('mouseleave', function () {
-	              if (!_this2.isActive) {
-	                _this2.layout.container.classList.remove('--hover');
+	            this.layout.container.addEventListener('mouseleave', () => {
+	              if (!this.isActive) {
+	                this.layout.container.classList.remove('--hover');
 	              }
 	            });
-	            this.layout.container.addEventListener('click', function () {
-	              _this2.isActive ? _this2.deactivate() : _this2.activate();
+	            this.layout.container.addEventListener('click', () => {
+	              this.isActive ? this.deactivate() : this.activate();
 	            });
 	          }
 	        }
@@ -278,11 +298,10 @@ this.BX = this.BX || {};
 	  return CounterItem;
 	}();
 	function _bindEvents2() {
-	  var _this3 = this;
-	  main_core_events.EventEmitter.subscribe('BX.UI.CounterPanel.Item:activate', function (item) {
-	    var isLinkedItems = item.data.parentId === _this3.id;
-	    if (item.data !== _this3 && !isLinkedItems) {
-	      _this3.deactivate();
+	  main_core_events.EventEmitter.subscribe('BX.UI.CounterPanel.Item:activate', item => {
+	    const isLinkedItems = item.data.parentId === this.id;
+	    if (item.data !== this && !isLinkedItems) {
+	      this.deactivate();
 	    }
 	  });
 	}
@@ -301,34 +320,47 @@ this.BX = this.BX || {};
 	}
 	function _getValue2() {
 	  if (!this.layout.value) {
-	    var counterValue = this.isRestricted ? main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-counter-panel__item-lock\"></div>"]))) : _classPrivateMethodGet(this, _getCounter, _getCounter2).call(this).getContainer();
-	    this.layout.value = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-panel__item-value\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), counterValue);
+	    const counterValue = this.isRestricted ? main_core.Tag.render(_t5 || (_t5 = _`<div class="ui-counter-panel__item-lock"></div>`)) : _classPrivateMethodGet(this, _getCounter, _getCounter2).call(this).getContainer();
+	    this.layout.value = main_core.Tag.render(_t6 || (_t6 = _`
+				<div class="ui-counter-panel__item-value">
+					${0}
+				</div>
+			`), counterValue);
 	    this.layout.value.style.setProperty('order', this.valueOrder);
 	  }
 	  return this.layout.value;
 	}
 	function _getTitle2() {
 	  if (!this.layout.title) {
-	    this.layout.title = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-panel__item-title\">", "</div>\n\t\t\t"])), this.title);
+	    this.layout.title = main_core.Tag.render(_t7 || (_t7 = _`
+				<div class="ui-counter-panel__item-title">${0}</div>
+			`), this.title);
 	    this.layout.title.style.setProperty('order', this.titleOrder);
 	  }
 	  return this.layout.title;
 	}
 	function _getCross2() {
 	  if (!this.layout.cross) {
-	    this.layout.cross = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-panel__item-cross\">\n\t\t\t\t\t<i></i>\n\t\t\t\t</div>\n\t\t\t"])));
+	    this.layout.cross = main_core.Tag.render(_t8 || (_t8 = _`
+				<div class="ui-counter-panel__item-cross">
+					<i></i>
+				</div>
+			`));
 	  }
 	  return this.layout.cross;
 	}
 
-	var _templateObject$1, _templateObject2$1, _templateObject3$1;
+	let _$1 = t => t,
+	  _t$1,
+	  _t2$1,
+	  _t3$1;
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _adjustData = /*#__PURE__*/new WeakSet();
 	var _getContainer = /*#__PURE__*/new WeakSet();
 	var _render = /*#__PURE__*/new WeakSet();
-	var CounterPanel = /*#__PURE__*/function () {
+	let CounterPanel = /*#__PURE__*/function () {
 	  function CounterPanel(options) {
 	    babelHelpers.classCallCheck(this, CounterPanel);
 	    _classPrivateMethodInitSpec$1(this, _render);
@@ -356,7 +388,7 @@ this.BX = this.BX || {};
 	    key: "getItemById",
 	    value: function getItemById(param) {
 	      if (param) {
-	        var index = this.keys.indexOf(param);
+	        const index = this.keys.indexOf(param);
 	        return this.items[index];
 	      }
 	    }
@@ -370,62 +402,66 @@ this.BX = this.BX || {};
 	  return CounterPanel;
 	}();
 	function _adjustData2() {
-	  var _this = this;
-	  this.items = this.items.map(function (item) {
-	    item.panel = _this;
-	    _this.keys.push(item.id);
+	  this.items = this.items.map(item => {
+	    item.panel = this;
+	    this.keys.push(item.id);
 	    if (item.parentId) {
-	      _this.hasParent.push(item.parentId);
+	      this.hasParent.push(item.parentId);
 	    }
 	    return new CounterItem(item);
 	  });
-	  this.hasParent.forEach(function (item) {
-	    var index = _this.keys.indexOf(item);
-	    _this.items[index].parent = true;
+	  this.hasParent.forEach(item => {
+	    let index = this.keys.indexOf(item);
+	    this.items[index].parent = true;
 	  });
-	  this.items.map(function (item) {
+	  this.items.map(item => {
 	    if (item.parentId) {
-	      var index = _this.keys.indexOf(item.parentId);
-	      _this.items[index].items.push(item.id);
+	      let index = this.keys.indexOf(item.parentId);
+	      this.items[index].items.push(item.id);
 	    }
 	  });
 	}
 	function _getContainer2() {
 	  if (!this.container) {
-	    var myHead = '';
+	    let myHead = '';
 	    if (this.title) {
-	      myHead = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-counter-panel__item-head\">", "</div>\n\t\t\t\t"])), this.title);
+	      myHead = main_core.Tag.render(_t$1 || (_t$1 = _$1`
+					<div class="ui-counter-panel__item-head">${0}</div>
+				`), this.title);
 	    }
-	    this.container = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-panel ui-counter-panel__scope\">", "</div>\n\t\t\t"])), myHead);
+	    this.container = main_core.Tag.render(_t2$1 || (_t2$1 = _$1`
+				<div class="ui-counter-panel ui-counter-panel__scope">${0}</div>
+			`), myHead);
 	  }
 	  return this.container;
 	}
 	function _render2() {
-	  var _this2 = this;
 	  if (this.target && this.items.length > 0) {
-	    this.items.map(function (item, key) {
+	    this.items.map((item, key) => {
 	      if (item instanceof CounterItem) {
 	        if (!item.hasParentId()) {
-	          _classPrivateMethodGet$1(_this2, _getContainer, _getContainer2).call(_this2).appendChild(item.getContainer());
-	          if (_this2.items.length !== key + 1 && _this2.items.length > 1) {
-	            _classPrivateMethodGet$1(_this2, _getContainer, _getContainer2).call(_this2).appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<div class=\"ui-counter-panel__item-separator ", "\"></div>\n\t\t\t\t\t\t\t"])), !item.getSeparator() ? '--invisible' : ''));
+	          _classPrivateMethodGet$1(this, _getContainer, _getContainer2).call(this).appendChild(item.getContainer());
+	          if (this.items.length !== key + 1 && this.items.length > 1) {
+	            _classPrivateMethodGet$1(this, _getContainer, _getContainer2).call(this).appendChild(main_core.Tag.render(_t3$1 || (_t3$1 = _$1`
+								<div class="ui-counter-panel__item-separator ${0}"></div>
+							`), !item.getSeparator() ? '--invisible' : ''));
 	          }
 	        }
 	        if (item.parent) {
-	          item.getContainer().addEventListener('click', function () {
-	            var itemsArr = [];
-	            item.getItems().forEach(function (item) {
-	              var itemCounter = _this2.getItemById(item);
-	              var test = {
+	          item.getContainer().addEventListener('click', () => {
+	            const itemsArr = [];
+	            item.getItems().forEach(item => {
+	              const itemCounter = this.getItemById(item);
+	              let test = {
 	                html: itemCounter.getContainerMenu(),
-	                className: "ui-counter-panel__popup-item menu-popup-no-icon ".concat(itemCounter.isActive ? '--active' : ''),
-	                onclick: function onclick() {
+	                className: `ui-counter-panel__popup-item menu-popup-no-icon ${itemCounter.isActive ? '--active' : ''}`,
+	                onclick: () => {
 	                  itemCounter.isActive ? itemCounter.deactivate() : itemCounter.activate();
 	                }
 	              };
 	              itemsArr.push(test);
 	            });
-	            var popup = new main_popup.PopupMenuWindow({
+	            const popup = new main_popup.PopupMenuWindow({
 	              className: 'ui-counter-panel__popup ui-counter-panel__scope',
 	              bindElement: item.getArrowDropdown(),
 	              autoHide: true,
@@ -436,11 +472,11 @@ this.BX = this.BX || {};
 	              offsetTop: 5,
 	              animation: 'fading-slide',
 	              events: {
-	                onPopupShow: function onPopupShow() {
+	                onPopupShow: () => {
 	                  item.getContainer().classList.add('--hover');
 	                  item.getContainer().classList.add('--pointer-events-none');
 	                },
-	                onPopupClose: function onPopupClose() {
+	                onPopupClose: () => {
 	                  item.getContainer().classList.remove('--hover');
 	                  item.getContainer().classList.remove('--pointer-events-none');
 	                  popup.destroy();

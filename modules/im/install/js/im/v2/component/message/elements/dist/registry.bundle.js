@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_dateFormatter,ui_vue3,ui_lottie,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,main_core,ui_vue3_components_reactions,im_v2_lib_parser,im_v2_application_core,im_v2_component_elements,main_core_events,im_v2_const,im_v2_lib_utils,im_v2_lib_quote) {
+(function (exports,im_v2_lib_dateFormatter,ui_vue3,ui_lottie,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,ui_vue3_components_reactions,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_quote,main_core,im_v2_application_core,im_v2_lib_menu,im_v2_provider_service,main_core_events,im_v2_const,im_v2_lib_parser) {
 	'use strict';
 
 	// @vue/component
@@ -30,6 +30,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.message.authorId === im_v2_application_core.Core.getUserId();
 	    },
 	    messageStatus() {
+	      if (this.message.error) {
+	        return im_v2_const.OwnMessageStatus.error;
+	      }
 	      if (this.message.sending) {
 	        return im_v2_const.OwnMessageStatus.sending;
 	      }
@@ -78,18 +81,55 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.item;
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    user() {
+	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
 	    dialogColor() {
-	      return this.dialog.type === im_v2_const.DialogType.private ? this.user.color : this.dialog.color;
+	      return this.dialog.type === im_v2_const.ChatType.user ? this.user.color : this.dialog.color;
 	    }
 	  },
 	  created() {
 	    ui_vue3.provide('message', this.message);
 	  },
 	  template: `
-		<div v-for="config in message.attach" :key="config.ID" class="bx-im-message-attach__container">
+		<div v-for="config in message.attach" :key="config.id" class="bx-im-message-attach__container">
 			<Attach :baseColor="dialogColor" :config="config" />
+		</div>
+	`
+	};
+
+	// @vue/component
+	const MessageKeyboard = {
+	  name: 'MessageKeyboard',
+	  components: {
+	    Keyboard: im_v2_component_elements.Keyboard
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    message() {
+	      return this.item;
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    user() {
+	      return this.$store.getters['users/get'](this.dialogId, true);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-keyboard__container">
+			<Keyboard :buttons="message.keyboard" :dialogId="dialogId" :messageId="message.id" />
 		</div>
 	`
 	};
@@ -422,6 +462,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	// @vue/component
 	const ReactionList = {
+	  name: 'ReactionList',
 	  components: {
 	    ReactionItem
 	  },
@@ -518,9 +559,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	const SHOW_DELAY = 500;
 	const HIDE_DELAY = 800;
+	const chatTypesWithReactionDisabled = new Set([im_v2_const.ChatType.copilot]);
 
 	// @vue/component
 	const ReactionSelector = {
+	  name: 'ReactionSelector',
 	  props: {
 	    messageId: {
 	      type: [String, Number],
@@ -528,6 +571,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
+	    message() {
+	      return this.$store.getters['messages/getById'](this.messageId);
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/getByChatId'](this.message.chatId);
+	    },
 	    reactionsData() {
 	      return this.$store.getters['messages/reactions/getByMessageId'](this.messageId);
 	    },
@@ -536,12 +585,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return ((_this$reactionsData = this.reactionsData) == null ? void 0 : (_this$reactionsData$o = _this$reactionsData.ownReactions) == null ? void 0 : _this$reactionsData$o.size) > 0;
 	    },
 	    isGuest() {
-	      const message = this.$store.getters['messages/getById'](this.messageId);
-	      const dialog = this.$store.getters['dialogues/getByChatId'](message.chatId);
-	      return dialog.role === im_v2_const.UserRole.guest;
+	      return this.dialog.role === im_v2_const.UserRole.guest;
+	    },
+	    isBot() {
+	      const user = this.$store.getters['users/get'](this.dialog.dialogId);
+	      return (user == null ? void 0 : user.bot) === true;
 	    },
 	    canSetReactions() {
-	      return main_core.Type.isNumber(this.messageId) && !this.isGuest;
+	      return main_core.Type.isNumber(this.messageId) && !this.isGuest && !this.isBot && !this.areReactionsDisabledForType(this.dialog.type);
 	    }
 	  },
 	  methods: {
@@ -608,6 +659,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.reactionService = new ReactionService();
 	      }
 	      return this.reactionService;
+	    },
+	    areReactionsDisabledForType(type) {
+	      return chatTypesWithReactionDisabled.has(this.dialog.type);
 	    }
 	  },
 	  template: `
@@ -700,7 +754,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.item;
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/getByChatId'](this.message.chatId);
+	      return this.$store.getters['chats/getByChatId'](this.message.chatId);
+	    },
+	    user() {
+	      return this.$store.getters['users/get'](this.message.authorId, true);
 	    },
 	    isSystemMessage() {
 	      return this.message.authorId === 0;
@@ -709,13 +766,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.message.authorId === im_v2_application_core.Core.getUserId();
 	    },
 	    isUserChat() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user && !this.isBotWithFakeAuthorNames;
+	    },
+	    isBotWithFakeAuthorNames() {
+	      return this.isSupportBot || this.isNetworkBot;
+	    },
+	    isNetworkBot() {
+	      return this.$store.getters['users/bots/isNetwork'](this.dialog.dialogId);
+	    },
+	    isSupportBot() {
+	      return this.$store.getters['users/bots/isSupport'](this.dialog.dialogId);
 	    },
 	    showTitle() {
 	      return !this.isSystemMessage && !this.isSelfMessage && !this.isUserChat;
-	    },
-	    user() {
-	      return this.$store.getters['users/get'](this.message.authorId, true);
 	    },
 	    authorDialogId() {
 	      if (this.message.authorId) {
@@ -727,7 +790,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    onAuthorNameClick() {
 	      const authorId = Number.parseInt(this.authorDialogId, 10);
-	      if (authorId === im_v2_application_core.Core.getUserId()) {
+	      if (!authorId || authorId === im_v2_application_core.Core.getUserId()) {
 	        return;
 	      }
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
@@ -766,6 +829,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE', {
 	        '#SHORTCUT#': im_v2_lib_utils.Utils.platform.isMac() ? 'CMD' : 'CTRL'
 	      });
+	    },
+	    messageItem() {
+	      return this.message;
+	    },
+	    messageHasError() {
+	      return this.messageItem.error;
 	    }
 	  },
 	  methods: {
@@ -797,7 +866,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
+		<div v-if="!messageHasError" class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
 			<button
 				:title="menuTitle"
 				@click="onMenuClick"
@@ -809,13 +878,204 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	var _isOwnMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOwnMessage");
+	var _hasError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasError");
+	var _retrySend = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("retrySend");
+	var _retrySendMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("retrySendMessage");
+	class RetryContextMenu extends im_v2_lib_menu.BaseMenu {
+	  constructor() {
+	    super();
+	    Object.defineProperty(this, _retrySendMessage, {
+	      value: _retrySendMessage2
+	    });
+	    Object.defineProperty(this, _retrySend, {
+	      value: _retrySend2
+	    });
+	    Object.defineProperty(this, _hasError, {
+	      value: _hasError2
+	    });
+	    Object.defineProperty(this, _isOwnMessage, {
+	      value: _isOwnMessage2
+	    });
+	    this.id = 'bx-im-message-retry-context-menu';
+	  }
+	  getMenuItems() {
+	    return [this.getRetryItem(), this.getDeleteItem()];
+	  }
+	  getRetryItem() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || !babelHelpers.classPrivateFieldLooseBase(this, _hasError)[_hasError]()) {
+	      return null;
+	    }
+	    return {
+	      text: main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_RETRY'),
+	      onclick: () => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _retrySend)[_retrySend]();
+	        this.menuInstance.close();
+	      }
+	    };
+	  }
+	  getDeleteItem() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || !babelHelpers.classPrivateFieldLooseBase(this, _hasError)[_hasError]()) {
+	      return null;
+	    }
+	    const phrase = main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_DELETE');
+	    return {
+	      html: `<span class="bx-im-message-retry-button__context-menu-delete">${phrase}</span>`,
+	      onclick: () => {
+	        const messageService = new im_v2_provider_service.MessageService({
+	          chatId: this.context.chatId
+	        });
+	        messageService.deleteMessage(this.context.id);
+	        this.menuInstance.close();
+	      }
+	    };
+	  }
+	}
+	function _isOwnMessage2() {
+	  return this.context.authorId === im_v2_application_core.Core.getUserId();
+	}
+	function _hasError2() {
+	  return this.context.error;
+	}
+	function _retrySend2() {
+	  const hasFiles = this.context.files.length > 0;
+	  if (hasFiles) {
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _retrySendMessage)[_retrySendMessage]();
+	}
+	function _retrySendMessage2() {
+	  new im_v2_provider_service.SendingService().retrySendMessage({
+	    tempMessageId: this.context.id,
+	    dialogId: this.context.dialogId
+	  });
+	}
+
+	// @vue/component
+	const RetryButton = {
+	  name: 'RetryButton',
+	  props: {
+	    message: {
+	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    messageItem() {
+	      return this.message;
+	    },
+	    menuTitle() {
+	      return this.$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_CONTEXT_MENU_RETRY');
+	    }
+	  },
+	  created() {
+	    this.contextMenu = new RetryContextMenu();
+	  },
+	  methods: {
+	    onClick(event) {
+	      const context = {
+	        dialogId: this.dialogId,
+	        ...this.messageItem
+	      };
+	      this.contextMenu.openMenu(context, event.currentTarget);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-retry-button__container bx-im-message-retry-button__scope">
+			<button
+				:title="menuTitle"
+				@click="onClick"
+				class="bx-im-message-retry-button__arrow"
+			></button>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const MessageHeader = {
+	  name: 'MessageHeader',
+	  components: {
+	    AuthorTitle
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    },
+	    withTitle: {
+	      type: Boolean,
+	      default: false
+	    }
+	  },
+	  computed: {
+	    message() {
+	      return this.item;
+	    },
+	    forwardAuthorId() {
+	      return this.message.forward.userId;
+	    },
+	    forwardContextId() {
+	      return this.message.forward.id;
+	    },
+	    isForwarded() {
+	      return this.$store.getters['messages/isForward'](this.message.id);
+	    },
+	    forwardAuthorName() {
+	      return this.$store.getters['users/get'](this.forwardAuthorId, true).name;
+	    },
+	    isSystemMessage() {
+	      return this.message.forward.userId === 0;
+	    },
+	    forwardAuthorTitle() {
+	      const [prefix] = this.loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM').split('#NAME#');
+	      return {
+	        prefix,
+	        name: this.forwardAuthorName
+	      };
+	    }
+	  },
+	  methods: {
+	    loc(code) {
+	      return this.$Bitrix.Loc.getMessage(code);
+	    },
+	    onForwardClick() {
+	      const contextCode = im_v2_lib_parser.Parser.getContextCodeFromForwardId(this.forwardContextId);
+	      if (contextCode.length === 0) {
+	        return;
+	      }
+	      const [dialogId, messageId] = contextCode.split('/');
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.goToMessageContext, {
+	        messageId: Number.parseInt(messageId, 10),
+	        dialogId: dialogId.toString()
+	      });
+	    }
+	  },
+	  template: `
+		<div v-if="isForwarded" class="bx-im-message-header__container" @click="onForwardClick">
+			<span v-if="isSystemMessage">{{ loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_SYSTEM')}}</span> 
+			<span v-else>
+				{{ forwardAuthorTitle.prefix }}
+				<span class="bx-im-message-header__author-name">{{ forwardAuthorTitle.name }}</span> 
+			</span>
+		</div>
+		<AuthorTitle v-else-if="withTitle" :item="item" />
+	`
+	};
+
 	exports.MessageStatus = MessageStatus;
 	exports.MessageAttach = MessageAttach;
+	exports.MessageKeyboard = MessageKeyboard;
 	exports.ReactionList = ReactionList;
 	exports.ReactionSelector = ReactionSelector;
 	exports.DefaultMessageContent = DefaultMessageContent$$1;
 	exports.AuthorTitle = AuthorTitle;
 	exports.ContextMenu = ContextMenu;
+	exports.RetryButton = RetryButton;
+	exports.MessageHeader = MessageHeader;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Im.V2.Lib,BX.Vue3,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX,BX.Vue3.Components,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Component.Elements,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Vue3,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX.Vue3.Components,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

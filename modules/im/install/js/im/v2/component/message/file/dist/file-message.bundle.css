@@ -12,6 +12,13 @@
 	width: 100%;
 }
 
+.bx-im-message-image__content-with-header {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
+}
+
 .bx-im-message-image__content-with-menu {
 	display: flex;
 	justify-content: center;
@@ -51,6 +58,16 @@
 	align-items: flex-start;
 }
 
+.bx-im-message-image__header {
+	background: var(--im-message-base__background-color);
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding: 10px 19px 10px 14px;
+}
+
+.--self .bx-im-message-image__header {
+	background: var(--im-message-base__background-color_self);
+}
 .bx-im-message-base-file__container {
 	position: relative;
 	padding: 9px 10px 6px 14px;
@@ -119,9 +136,30 @@
 	align-items: flex-start;
 }
 
+.bx-im-message-video__content-with-header {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.bx-im-message-video__header {
+	background: var(--im-message-base__background-color);
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding: 10px 19px 18px 14px;
+	margin-bottom: -6px;
+}
+
+.--self .bx-im-message-video__header {
+	background: var(--im-message-base__background-color_self);
+}
 .bx-im-message-audio__container {
 	position: relative;
 	padding: 9px 12px 0 14px;
+}
+
+.bx-im-message-audio__header {
+	padding-bottom: 6px;
 }
 
 .bx-im-message-audio__message-status-container {
@@ -154,14 +192,16 @@
 }
 
 .bx-im-message-audio__container .bx-im-audio-player__timeline-container {
-	margin-top: 10px;
+	margin-top: 7px;
 }
 
 .bx-im-message-audio__container .bx-im-audio-player__track-container {
 	margin-bottom: 7px;
 }
 
-.bx-im-media-image__scope {}
+.bx-im-message-image__container {
+	--bx-im-media-image__background-color_container: rgba(var(--im-color-palette-gray-04-rgb), 0.8);
+}
 
 .bx-im-media-image__container {
 	display: flex;
@@ -171,8 +211,13 @@
 	overflow: hidden;
 	background-size: contain;
 	border-radius: 6px;
-	background-color: #f1f4f6;
+	background-color: var(--bx-im-media-image__background-color_container);
 	flex-grow: 1;
+}
+
+.bx-im-media-image__container.--with-forward {
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 
 .bx-im-media-image__source {

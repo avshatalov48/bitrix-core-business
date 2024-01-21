@@ -51,7 +51,10 @@ export const ActiveCall = {
 		},
 		isTabWithActiveCall(): boolean
 		{
-			return !!this.getCallManager().hasCurrentCall();
+			return (
+				this.$store.getters['recent/calls/hasActiveCall']()
+				&& !!this.getCallManager().hasCurrentCall()
+			);
 		},
 		hasJoined(): boolean
 		{
@@ -70,11 +73,6 @@ export const ActiveCall = {
 		},
 		onClick(event)
 		{
-			if (!this.isTabWithActiveCall)
-			{
-				return;
-			}
-
 			const recentItem = this.$store.getters['recent/get'](this.activeCall.dialogId);
 			if (!recentItem)
 			{

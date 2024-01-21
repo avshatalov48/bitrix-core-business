@@ -1,0 +1,23 @@
+.bx-im-copilot-audio-input__container {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-self: flex-end;
+	margin-right: 4px;
+	margin-left: 14px;
+	background-image: url('./images/mic.svg?v3');
+	background-size: cover;
+	cursor: pointer;
+}
+
+.bx-im-copilot-audio-input__container:hover {
+	background-image: url('./images/mic-hover.svg?v3');
+}
+
+.bx-im-copilot-audio-input__container.--active {
+	background-image: url('./images/stop.svg?v3');
+}
+
+.bx-im-copilot-audio-input__container.--active:hover {
+	background-image: url('./images/stop-hover.svg?v3');
+}

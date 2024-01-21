@@ -1,4 +1,4 @@
-import {Popup as MainPopup} from 'main.popup';
+import { Popup as MainPopup } from 'main.popup';
 
 class Popup
 {
@@ -20,7 +20,7 @@ class Popup
 				onPopupClose: () => {
 					this.popup.destroy();
 					this.popup = null;
-				}
+				},
 			},
 			darkMode: true,
 			content: message,
@@ -47,7 +47,6 @@ class Popup
 	}
 }
 
-export
-{
-	Popup
-}
+export {
+	Popup,
+};

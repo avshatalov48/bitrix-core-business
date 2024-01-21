@@ -28,9 +28,9 @@ class InfoHelper
 		];
 	}
 
-	public static function getUrl(string $url = "/widget2/show/code/", ?string $currentUrl = null)
+	public static function getUrl(string $url = "/widget2/show/code/", ?string $currentUrl = null, bool $byLang = false)
 	{
-		$notifyUrl = Util::getHelpdeskUrl() . $url;
+		$notifyUrl = Util::getHelpdeskUrl($byLang) . $url;
 		$parameters = self::getParameters($currentUrl);
 
 		return \CHTTP::urlAddParams($notifyUrl, $parameters, array("encode" => true));

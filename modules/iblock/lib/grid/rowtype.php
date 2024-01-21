@@ -22,10 +22,9 @@ class RowType
 	/**
 	 * @param string $index
 	 *
-	 * @return array in format `[type, id]`
-	 * @throws \Bitrix\Main\SystemException if call with invalid index
+	 * @return null|array in format `[type, id]`
 	 */
-	public static function parseIndex(string $index): array
+	public static function parseIndex(string $index): ?array
 	{
 		$re = '/^(E|S|)(\d+)$/';
 		if (preg_match($re, $index, $m))
@@ -40,7 +39,7 @@ class RowType
 			return [RowType::ELEMENT, (int)$index];
 		}
 
-		throw new SystemException('Invalid index format');
+		return null;
 	}
 
 	/**
@@ -57,7 +56,12 @@ class RowType
 
 		foreach ($ids as $id)
 		{
-			[$type, $id] = self::parseIndex($id);
+			$index = self::parseIndex($id);
+			if ($index === null)
+			{
+				continue;
+			}
+			[$type, $id] = $index;
 
 			if ($type === self::ELEMENT)
 			{

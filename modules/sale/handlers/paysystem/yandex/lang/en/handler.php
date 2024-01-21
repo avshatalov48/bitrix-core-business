@@ -17,5 +17,4 @@ $MESS["SALE_HPS_YANDEX_Terminals"] = "Terminals";
 $MESS["SALE_HPS_YANDEX_TinkoffBank"] = "KupiVKredit";
 $MESS["SALE_HPS_YANDEX_YKuppiRu"] = "Trusted payment";
 $MESS["SALE_HPS_YANDEX_YMoney"] = "YooMoney";
-$MESS["SALE_HPS_YANDEX_Ymoney"] = "YooMoney";
 $MESS["SALE_HPS_YANDEX_mPOS"] = "Mobile terminal (mPOS)";

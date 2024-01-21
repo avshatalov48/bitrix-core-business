@@ -33,8 +33,8 @@ class CSaleOrderProps
 		$arUser = null;
 
 		$arFilter = [
-			"PERSON_TYPE_ID" => $arOrder["PERSON_TYPE_ID"],
-			"ACTIVE" => "Y"
+			"=PERSON_TYPE_ID" => $arOrder["PERSON_TYPE_ID"],
+			"=ACTIVE" => "Y"
 		];
 
 		$relationFilter = [];

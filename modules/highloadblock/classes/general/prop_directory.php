@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Highloadblock as HL;
+use Bitrix\Highloadblock\Integration\UI\EntitySelector\ElementProvider;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 
@@ -759,13 +760,40 @@ HIBSELECT;
 	 */
 	public static function GetUIFilterProperty($property, $strHTMLControlName, &$field)
 	{
-		unset($field['value']);
-		$field['type'] = 'list';
-		$field['items'] = self::GetOptionsData($property);
-		$field['params'] = ['multiple' => 'Y'];
-		$field['operators'] = [
-			'default' => '='
-		];
+		$tableName = (string)($property['USER_TYPE_SETTINGS']['TABLE_NAME'] ?? '');
+		if ($tableName === '')
+		{
+			return;
+		}
+
+		unset($field['value']); // aftefact from \Bitrix\Iblock\Helpers\Filter\PropertyManager::getFilterFields
+
+		$hlblock = \Bitrix\Highloadblock\HighloadBlockTable::getRow([
+			'select' => ['ID'],
+			'filter' => ['=TABLE_NAME' => $tableName]
+		]);
+		if ($hlblock)
+		{
+			$field['type'] = 'entity_selector';
+			$field['params'] = [
+				'multiple' => 'Y',
+				'dialogOptions' => [
+					'entities' => [
+						[
+							'id' => ElementProvider::ENTITY_ID,
+							'dynamicLoad' => true,
+							'dynamicSearch' => true,
+							'options' => [
+								'highloadblockId' => $hlblock['ID'],
+							],
+						],
+					],
+					'searchOptions' => [
+						'allowCreateItem' => false,
+					],
+				],
+			];
+		}
 	}
 
 	/**

@@ -15,4 +15,5 @@ export default class ButtonColor
 	static LINK = 'ui-btn-link';
 	static LIGHT = 'ui-btn-light';
 	static LIGHT_BORDER = 'ui-btn-light-border';
+	static AI = 'ui-btn-color-ai';
 }

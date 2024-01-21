@@ -102,7 +102,7 @@ class LogTagTable extends Entity\DataManager
 			$params['itemType'] = self::ITEM_TYPE_LOG;
 		}
 
-		\Bitrix\Main\Application::getConnection()->queryExecute('DELETE FROM '.self::getTableName().' WHERE ITEM_TYPE = "'.$params['itemType'].'" AND ITEM_ID = '.intval($params['itemId']));
+		\Bitrix\Main\Application::getConnection()->queryExecute('DELETE FROM '.self::getTableName().' WHERE ITEM_TYPE = \''.$params['itemType'].'\' AND ITEM_ID = '.intval($params['itemId']));
 		return true;
 	}
 

@@ -6,5 +6,5 @@ $MESS["IM_DISK_AVATAR_CHANGE_M"] = "#USER_NAME# изменил иконку ча
 $MESS["IM_DISK_AVATAR_CHANGE_F"] = "#USER_NAME# изменила иконку чата";
 $MESS["IM_DISK_ERR_AVATAR_1"] = "Вы не можете изменить аватар в этом чате.";
 $MESS["IM_DISK_ERR_UPLOAD"] = "Вы не можете загрузить файл в этот чат.";
-$MESS["IM_DISK_ACTION_SAVE_TO_OWN_FILES"] = "Сохранить на Битрикс24.Диск";
+$MESS["IM_DISK_ACTION_SAVE_TO_OWN_FILES_MSGVER_1"] = "Сохранить на Битрикс24 Диск";
 ?>

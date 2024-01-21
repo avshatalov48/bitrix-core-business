@@ -1,14 +1,15 @@
-<?
+<?php
+
 /**
- * @global int $ID - Edited user id
- * @global string $strError - Save error
- * @global \CUser $USER
+ * @var int $ID - Edited user id
+ * @var string $strError - Save error
+ * @var CAdminForm $tabControl
+ * @global CUser $USER
  * @global CMain $APPLICATION
  */
 
 use Bitrix\Security\Mfa\Otp;
 use Bitrix\Main\Web\Json;
-
 
 IncludeModuleLangFile(__FILE__);
 
@@ -32,7 +33,7 @@ $APPLICATION->AddHeadScript('/bitrix/js/security/admin/page/user-edit.js');
 $otp = Otp::getByUser($ID);
 $deactivateUntil = $otp->getDeactivateUntil();
 $availableTypes = Otp::getAvailableTypes();
-$availableTypesDescription = \Bitrix\Security\Mfa\Otp::getTypesDescription();
+$availableTypesDescription = Otp::getTypesDescription();
 $currentPage = $APPLICATION->GetCurPageParam(
 	sprintf('%s_active_tab=%s',$tabControl->name, $tabControl->tabs[$tabControl->tabIndex]['DIV']),
 	array(sprintf('%s_active_tab',$tabControl->name))
@@ -94,8 +95,8 @@ $jsSettings = array(
 			</div>
 			<div style="margin-bottom: 20px">
 				<?=GetMessage('SEC_OTP_CONNECT_MOBILE_MANUAL_INPUT')?>
-				<span class="type-title" data-show-type="hotp"><?=GetMessage('SEC_OTP_CONNECT_MOBILE_MANUAL_INPUT_HOTP')?></span>
-				<span class="type-title" data-show-type="totp"><?=GetMessage('SEC_OTP_CONNECT_MOBILE_MANUAL_INPUT_TOTP')?></span>
+				<span class="type-title" data-show-type="<?= Otp::TYPE_HOTP ?>"><?=GetMessage('SEC_OTP_CONNECT_MOBILE_MANUAL_INPUT_HOTP')?></span>
+				<span class="type-title" data-show-type="<?= Otp::TYPE_TOTP ?>"><?=GetMessage('SEC_OTP_CONNECT_MOBILE_MANUAL_INPUT_TOTP')?></span>
 				.
 			</div>
 			<div>
@@ -130,7 +131,7 @@ $jsSettings = array(
 			<td>
 				<?foreach($availableTypes as $value):?>
 					<span class="type-title" data-show-type="<?=$value?>">
-						<?=(isset($availableTypesDescription[$value]['title'])? $availableTypesDescription[$value]['title'] : $value)?>
+						<?= ($availableTypesDescription[$value]['title'] ?? $value) ?>
 					</span>
 				<?endforeach?>
 			</td>
@@ -141,6 +142,14 @@ $jsSettings = array(
 			</td>
 			<td>
 				<input type="text" autocomplete="off" data-autoclear="yes" data-role="secret-code" size="40" maxlength="64" value="">
+			</td>
+		</tr>
+		<tr data-show-type="<?= Otp::TYPE_TOTP ?>">
+			<td>
+				<?=GetMessage('SEC_OTP_START_TIMESTAMP')?>:
+			</td>
+			<td>
+				<input type="text" autocomplete="off" data-autoclear="yes" data-role="start-timestamp" size="40" maxlength="20" value="">
 			</td>
 		</tr>
 		<tr class="heading">
@@ -217,7 +226,7 @@ $jsSettings = array(
 				<?=getMessage('SEC_OTP_MANDATORY_EXPIRED')?>
 				<span class="otp-link-button" id="otp-deffer"><?=GetMessage('SEC_OTP_MANDATORY_DEFFER')?></span>
 				<?=EndNote()?>
-		<?elseif ($otp->isMandatorySkipped() && $otp->getDeactivateUntil()):?>
+		<?elseif ($otp->getDeactivateUntil()):?>
 				<?=BeginNote()?>
 				<?=getMessage('SEC_OTP_MANDATORY_ALMOST_EXPIRED', array('#DATE#' => $otp->getDeactivateUntil()))?>
 				<span class="otp-link-button" id="otp-deffer"><?=GetMessage('SEC_OTP_MANDATORY_DEFFER')?></span>

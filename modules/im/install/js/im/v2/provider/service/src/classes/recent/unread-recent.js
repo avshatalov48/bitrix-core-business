@@ -33,7 +33,7 @@ export class UnreadRecentService extends RecentService
 		const {users, dialogues, recent} = this.prepareDataForModels(rawData);
 
 		const usersPromise = this.store.dispatch('users/set', users);
-		const dialoguesPromise = this.store.dispatch('dialogues/set', dialogues);
+		const dialoguesPromise = this.store.dispatch('chats/set', dialogues);
 
 		const fakeRecent = this.getFakeData(recent);
 		const recentPromise = this.store.dispatch('recent/setUnread', fakeRecent);
@@ -45,7 +45,7 @@ export class UnreadRecentService extends RecentService
 	{
 		itemsForModel = itemsForModel.slice(-4);
 		itemsForModel.forEach(item => {
-			this.store.dispatch('dialogues/update', {
+			this.store.dispatch('chats/update', {
 				dialogId: item.id,
 				fields: {
 					counter: 7

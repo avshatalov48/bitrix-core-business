@@ -1,4 +1,6 @@
 <?
+$MESS["SALE_HPS_LIQPAY_NAME"] = "LiqPay";
+$MESS["SALE_HPS_LIQPAY_DESCRIPTION"] = "Принимайте электронные платежи от клиентов LiqPay";
 $MESS["SALE_HPS_LIQPAY_MERCHANT_ID"] = "Merchant ID";
 $MESS["SALE_HPS_LIQPAY_SIGN"] = "Подпись";
 $MESS["SALE_HPS_LIQPAY_PATH_TO_SERVER_URL"] = "Путь к файлу-обработчику результата";

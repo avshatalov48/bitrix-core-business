@@ -35,7 +35,7 @@ class Base
 	{
 		if (!is_callable($checker))
 		{
-			throw new ArgumentException("Argument `checker` should be callabe.");
+			throw new ArgumentException("Argument 'checker' should be callable.");
 		}
 
 		$this->checkers[] = $checker;
@@ -68,7 +68,7 @@ class Base
 	{
 		if (!is_callable($modifier))
 		{
-			throw new ArgumentException("Argument `modifier` should be callabe.");
+			throw new ArgumentException("Argument 'modifier' should be callable.");
 		}
 
 		$this->responseModifiers[] = $modifier;
@@ -123,7 +123,7 @@ class Base
 	{
 		if (!is_callable($callee))
 		{
-			throw new ArgumentException("Argument `callee` should be callabe.");
+			throw new ArgumentException("Argument 'callee' should be callable.");
 		}
 
 		return call_user_func_array($callee, $parameters);

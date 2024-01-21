@@ -1,4 +1,4 @@
-import { ImModelSidebarMeetingItem, ImModelDialog } from 'im.v2.model';
+import { ImModelSidebarMeetingItem, ImModelChat } from 'im.v2.model';
 import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
 import { SidebarBlock, SidebarDetailBlock } from 'im.v2.const';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
@@ -32,9 +32,9 @@ export const MeetingPreview = {
 		{
 			return this.$store.getters['sidebar/meetings/get'](this.chatId)[0];
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		chatId(): number
 		{

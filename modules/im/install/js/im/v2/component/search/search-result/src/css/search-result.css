@@ -1,14 +1,12 @@
 .bx-im-search-result__scope {
 	--im-search-result__background-color_container: var(--im-recent-background-color, #fff);
-	--im-search-result__color_empty-state-title: #828B95;
-	--im-search-result__color_empty-state-subtitle: #A8ADB4;
+	--im-search-result__color_empty-state-title: #828b95;
+	--im-search-result__color_empty-state-subtitle: #a8adb4;
 	--im-search-result__background-image_empty-state-icon: url('../css/images/empty-state.svg');
 }
 
 .bx-im-search-result__container {
-	height: 100%;
 	overflow: hidden;
-	overflow-y: auto;
 	background-color: var(--im-search-result__background-color_container);
 	padding: 16px 0 16px 6px;
 }

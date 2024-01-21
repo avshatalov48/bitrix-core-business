@@ -101,6 +101,7 @@ class ConferenceApplication
 		this.onCallRemoteMediaStoppedHandler = this.onCallRemoteMediaStopped.bind(this);
 		this.onCallUserVoiceStartedHandler = this.onCallUserVoiceStarted.bind(this);
 		this.onCallUserVoiceStoppedHandler = this.onCallUserVoiceStopped.bind(this);
+		this.onUserStatsReceivedHandler = this.onUserStatsReceived.bind(this);
 		this.onCallUserScreenStateHandler = this.onCallUserScreenState.bind(this);
 		this.onCallUserRecordStateHandler = this.onCallUserRecordState.bind(this);
 		this.onCallUserFloorRequestHandler = this.onCallUserFloorRequest.bind(this);
@@ -752,11 +753,7 @@ class ConferenceApplication
 
 		if (this.localVideoStream)
 		{
-			if (videoEnabled)
-			{
-				this.callView.setLocalStream(this.localVideoStream, Call.Hardware.enableMirroring);
-			}
-			else
+			if (!videoEnabled)
 			{
 				this.stopLocalVideoStream();
 			}
@@ -1727,6 +1724,7 @@ class ConferenceApplication
 		this.currentCall.addEventListener(Call.Event.onRemoteMediaStopped, this.onCallRemoteMediaStoppedHandler);
 		this.currentCall.addEventListener(Call.Event.onUserVoiceStarted, this.onCallUserVoiceStartedHandler);
 		this.currentCall.addEventListener(Call.Event.onUserVoiceStopped, this.onCallUserVoiceStoppedHandler);
+		this.currentCall.addEventListener(Call.Event.onUserStatsReceived, this.onUserStatsReceivedHandler);
 		this.currentCall.addEventListener(Call.Event.onUserScreenState, this.onCallUserScreenStateHandler);
 		this.currentCall.addEventListener(Call.Event.onUserRecordState, this.onCallUserRecordStateHandler);
 		this.currentCall.addEventListener(Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
@@ -1750,6 +1748,7 @@ class ConferenceApplication
 		this.currentCall.removeEventListener(Call.Event.onRemoteMediaStopped, this.onCallRemoteMediaStoppedHandler);
 		this.currentCall.removeEventListener(Call.Event.onUserVoiceStarted, this.onCallUserVoiceStartedHandler);
 		this.currentCall.removeEventListener(Call.Event.onUserVoiceStopped, this.onCallUserVoiceStoppedHandler);
+		this.currentCall.removeEventListener(Call.Event.onUserStatsReceived, this.onUserStatsReceivedHandler);
 		this.currentCall.removeEventListener(Call.Event.onUserScreenState, this.onCallUserScreenStateHandler);
 		this.currentCall.removeEventListener(Call.Event.onUserRecordState, this.onCallUserRecordStateHandler);
 		this.currentCall.removeEventListener(Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
@@ -1774,6 +1773,14 @@ class ConferenceApplication
 	{
 		this.callView.setUserState(e.userId, e.state);
 		this.updateCallUser(e.userId,{state: e.state});
+
+		if (!this.isRecording())
+		{
+			this.callView.getConnectedUserCount(false)
+				? this.callView.unblockButtons(['record'])
+				: this.callView.blockButtons(['record'])
+			;
+		}
 		/*if (e.direction)
 		{
 			this.callView.setUserDirection(e.userId, e.direction);
@@ -1802,10 +1809,14 @@ class ConferenceApplication
 		//this.template.$emit('callLocalMediaReceived');
 
 		this.stopLocalVideoStream();
-		const enableVideoMirroring = e.tag == "main" ? Call.Hardware.enableMirroring : false;
-		this.callView.setLocalStream(e.stream, enableVideoMirroring);
-		this.callView.setButtonActive("screen", e.tag == "screen");
-		if(e.tag == "screen")
+		const enableVideoMirroring = (e.tag == "main" || e.mediaRenderer) ? Call.Hardware.enableMirroring : false;
+		const streamData = {
+			flipVideo: enableVideoMirroring,
+			...e,
+		};
+		this.callView.setLocalStream(streamData);
+		this.callView.setButtonActive("screen", this.currentCall.isScreenSharingStarted());
+		if(this.currentCall.isScreenSharingStarted())
 		{
 			if (!Utils.platform.isBitrixDesktop())
 			{
@@ -1856,7 +1867,8 @@ class ConferenceApplication
 			{
 				if (e.kind === 'video' || e.kind === 'sharing')
 				{
-					this.callView.setVideoRenderer(e.userId, null);
+					e.mediaRenderer.stream = null;
+					this.callView.setVideoRenderer(e.userId, e.mediaRenderer);
 				}
 			}
 			else
@@ -1886,6 +1898,14 @@ class ConferenceApplication
 	{
 		this.callView.setUserTalking(e.userId, false);
 		this.updateCallUser(e.userId, {talking: false});
+	}
+
+	onUserStatsReceived(e)
+	{
+		if (this.callView)
+		{
+			this.callView.setUserStats(e.userId, e.report);
+		}
 	}
 
 	onCallUserScreenState(e)
@@ -1974,8 +1994,14 @@ class ConferenceApplication
 
 		if (!this.isViewerMode())
 		{
-			this.callView.unblockButtons(['camera', 'floorRequest', 'screen', 'record']);
+			this.callView.unblockButtons(['camera', 'floorRequest', 'screen']);
 		}
+
+		if (this.callView.getConnectedUserCount(false))
+		{
+			this.callView.unblockButtons(['record']);
+		}
+
 		this.callView.setUiState(Call.View.UiState.Connected);
 	}
 

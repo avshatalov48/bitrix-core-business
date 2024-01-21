@@ -492,7 +492,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
-	class BrowserNotificationAction extends ui_notification.UI.Notification.Action {
+	class BrowserNotificationAction extends BX.UI.Notification.Action {
 	  constructor(balloon, options) {
 	    super(balloon, options);
 	    this.setButtonClass(options.buttonType);
@@ -540,7 +540,7 @@ this.BX.UI = this.BX.UI || {};
 	  _t4,
 	  _t5,
 	  _t6;
-	class BrowserNotification extends ui_notification.UI.Notification.Balloon {
+	class BrowserNotification extends BX.UI.Notification.Balloon {
 	  constructor(options) {
 	    super(options);
 	    this.userInputContainerNode = null;
@@ -895,10 +895,10 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }
 	  findBalloonById(id) {
-	    const balloonsKeys = Object.keys(ui_notification.UI.Notification.Center.balloons);
+	    const balloonsKeys = Object.keys(BX.UI.Notification.Center.balloons);
 	    for (const uid of balloonsKeys) {
 	      if (uid.startsWith(id)) {
-	        return ui_notification.UI.Notification.Center.balloons[uid];
+	        return BX.UI.Notification.Center.balloons[uid];
 	      }
 	    }
 	    return null;
@@ -908,11 +908,11 @@ this.BX.UI = this.BX.UI || {};
 	    balloon.close();
 	  }
 	  closeAllNotifications() {
-	    var _UI$Notification$Cent;
-	    (_UI$Notification$Cent = ui_notification.UI.Notification.Center.getDefaultStack()) == null ? void 0 : _UI$Notification$Cent.clear();
+	    var _BX$UI$Notification$C;
+	    (_BX$UI$Notification$C = BX.UI.Notification.Center.getDefaultStack()) == null ? void 0 : _BX$UI$Notification$C.clear();
 	  }
 	  sendNotification(notification) {
-	    ui_notification.UI.Notification.Center.notify(notification);
+	    BX.UI.Notification.Center.notify(notification);
 	  }
 	  onNotificationAction(event, balloon, action) {
 	    balloon.close();
@@ -932,11 +932,12 @@ this.BX.UI = this.BX.UI || {};
 	 */
 	class Notifier {
 	  constructor() {
+	    var _BX$PULL;
 	    Object.defineProperty(this, _getBrowserPageProvider, {
 	      value: _getBrowserPageProvider2
 	    });
 	    this.provider = this.createProvider();
-	    pull_client.PULL.subscribe(new PullHandler());
+	    (_BX$PULL = BX.PULL) == null ? void 0 : _BX$PULL.subscribe(new PullHandler());
 	  }
 	  createProvider() {
 	    if (DesktopHelper.isSupportedDesktopApp() && DesktopHelper.isMac() && DesktopHelper.geApiVersion() >= 73) {

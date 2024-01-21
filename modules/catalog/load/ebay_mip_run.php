@@ -1,4 +1,4 @@
-<?
+<?php
 use \Bitrix\Main\SystemException;
 
 //<title>Ebay</title>

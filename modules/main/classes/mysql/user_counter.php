@@ -534,9 +534,7 @@ class CUserCounter extends CAllUserCounter
 		if ($isLiveFeed)
 		{
 			$DB->Query(
-				"DELETE FROM b_user_counter WHERE CODE = '".$code."'",
-				false,
-				"FILE: " . __FILE__ . "<br> LINE: " . __LINE__
+				"DELETE FROM b_user_counter WHERE CODE = '".$code."'"
 			);
 
 			self::$counters = [];
@@ -576,7 +574,7 @@ class CUserCounter extends CAllUserCounter
 				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", \Bitrix\Main\UserTable::getExternalUserTypes()) . "') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
 				WHERE uc.CODE = '" . $code . "'";
 
-			$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSQL);
 
 			while($row = $res->Fetch())
 			{
@@ -584,7 +582,7 @@ class CUserCounter extends CAllUserCounter
 			}
 		}
 
-		$DB->Query("DELETE FROM b_user_counter WHERE CODE = '".$code."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_user_counter WHERE CODE = '".$code."'");
 
 		self::$counters = [];
 		$CACHE_MANAGER->CleanDir("user_counter");
@@ -652,7 +650,7 @@ class CUserCounter extends CAllUserCounter
 			WHERE uc.CODE LIKE '" . self::LIVEFEED_CODE . "%'
 		";
 
-		$queryObject = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$queryObject = $DB->Query($strSQL);
 		while($row = $queryObject->fetch())
 		{
 			self::addValueToPullMessage($row, $sites, $pullMessage);
@@ -688,7 +686,7 @@ class CUserCounterPage extends CAllUserCounterPage
 		$counterPageSize = (int)CAllUserCounterPage::getPageSizeOption(100);
 
 		$userSQL = "SELECT USER_ID FROM b_user_counter WHERE SENT='0' GROUP BY USER_ID LIMIT ".$counterPageSize;
-		$res = $DB->Query($userSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($userSQL);
 
 		$pullMessage = [];
 		$userIdList = [];
@@ -734,7 +732,7 @@ class CUserCounterPage extends CAllUserCounterPage
 				WHERE uc.USER_ID IN (".$userString.") AND uc.CODE NOT LIKE '" . CUserCounter::LIVEFEED_CODE . "L%' AND uc.SENT = '0'
 			";
 
-			$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSQL);
 			while($row = $res->Fetch())
 			{
 				CUserCounter::addValueToPullMessage($row, $arSites, $pullMessage);
@@ -747,7 +745,7 @@ class CUserCounterPage extends CAllUserCounterPage
 				WHERE uc.USER_ID IN (" . $userString . ") AND uc.CODE LIKE '" . CUserCounter::LIVEFEED_CODE . "L%'
 			";
 
-			$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSQL);
 			while($row = $res->Fetch())
 			{
 				CUserCounter::addValueToPullMessage($row, $arSites, $pullMessage);

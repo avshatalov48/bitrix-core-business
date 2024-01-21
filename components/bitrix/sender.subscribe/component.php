@@ -172,7 +172,7 @@ if(isset($arResult['MESSAGE']) && isset($arResult['MESSAGE']['CODE']))
 	$arResult['MESSAGE']['TEXT'] = $messageDictionary[$arResult['MESSAGE']['CODE']]['TEXT'];
 }
 
-if($_SERVER['REQUEST_METHOD'] == 'POST' && $arParams['AJAX_MODE'] <> 'Y')
+if($_SERVER['REQUEST_METHOD'] == 'POST' && (!isset($arParams['AJAX_MODE']) || $arParams['AJAX_MODE'] != 'Y'))
 {
 	if(isset($arResult['MESSAGE']) && $arResult['MESSAGE']['TYPE'] == 'NOTE')
 	{

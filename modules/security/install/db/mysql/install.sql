@@ -81,6 +81,7 @@ CREATE TABLE b_sec_user
 	ACTIVE CHAR(1) NOT NULL DEFAULT 'N',
 	SECRET VARCHAR(64),
 	TYPE VARCHAR(16) NOT NULL,
+	INIT_PARAMS text,
 	PARAMS text,
 	ATTEMPTS int(18),
 	INITIAL_DATE datetime,
@@ -145,7 +146,7 @@ CREATE TABLE b_sec_recovery_codes
 	INDEX ix_b_sec_recovery_codes_user_id (USER_ID)
 );
 
-CREATE TABLE IF NOT EXISTS b_xscan_results
+CREATE TABLE IF NOT EXISTS b_sec_xscan_results
 (
     `id` int NOT NULL AUTO_INCREMENT,
     `type` varchar(5) NOT NULL,

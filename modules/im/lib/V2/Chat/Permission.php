@@ -23,17 +23,21 @@ class Permission
 	public const ACTION_CHANGE_DESCRIPTION = 'DESCRIPTION';
 	public const ACTION_CHANGE_RIGHTS = 'RIGHT';
 	public const ACTION_OPEN_EDIT = 'EDIT';
+	public const ACTION_CHANGE_OWNER = 'CHANGE_OWNER';
+	public const ACTION_CHANGE_MANAGERS = 'CHANGE_MANAGERS';
 
 	public const TYPE_DEFAULT = 'DEFAULT';
 	public const TYPE_GENERAL = 'GENERAL';
-	public const TYPE_SONET = 'SONET_GROUP';
-	public const TYPE_TASKS = 'TASKS';
-	public const TYPE_CRM = 'CRM';
+	public const TYPE_SONET = EntityLink::TYPE_SONET;
+	public const TYPE_TASKS = EntityLink::TYPE_TASKS;
+	public const TYPE_CRM = EntityLink::TYPE_CRM;
 	public const TYPE_CALL = 'CALL';
 	public const TYPE_ANNOUNCEMENT = 'ANNOUNCEMENT';
+	public const TYPE_COPILOT = 'COPILOT';
 
 	public const GROUP_MANAGE_UI = 'MANAGE_UI';
-	public const GROUP_MANAGE_USERS = 'MANAGE_USERS';
+	public const GROUP_MANAGE_USERS_ADD = 'MANAGE_USERS_ADD';
+	public const GROUP_MANAGE_USERS_DELETE = 'MANAGE_USERS_DELETE';
 	public const GROUP_MANAGE_SETTINGS = 'MANAGE_SETTINGS';
 
 	public const ACTIONS_MANAGE_UI = [
@@ -42,18 +46,27 @@ class Permission
 		self::ACTION_CHANGE_COLOR,
 		self::ACTION_CHANGE_AVATAR,
 	];
-	public const ACTIONS_MANAGE_USERS = [self::ACTION_EXTEND, self::ACTION_KICK];
-	public const ACTIONS_MANAGE_SETTINGS = [self::ACTION_CHANGE_RIGHTS, self::ACTION_OPEN_EDIT];
+	public const ACTIONS_MANAGE_USERS_ADD = [self::ACTION_EXTEND];
+	public const ACTIONS_MANAGE_USERS_DELETE = [self::ACTION_KICK];
+	public const ACTIONS_MANAGE_SETTINGS = [
+		self::ACTION_CHANGE_RIGHTS,
+		self::ACTION_OPEN_EDIT,
+		self::ACTION_CHANGE_OWNER,
+		self::ACTION_CHANGE_MANAGERS,
+	];
+	public const ACTIONS_MANAGE_CAN_POST = [self::ACTION_SEND];
 
 	public const GROUP_ACTIONS = [
 		self::GROUP_MANAGE_UI => self::ACTIONS_MANAGE_UI,
-		self::GROUP_MANAGE_USERS => self::ACTIONS_MANAGE_USERS,
+		self::GROUP_MANAGE_USERS_ADD => self::ACTIONS_MANAGE_USERS_ADD,
+		self::GROUP_MANAGE_USERS_DELETE => self::ACTIONS_MANAGE_USERS_DELETE,
 		self::GROUP_MANAGE_SETTINGS => self::ACTIONS_MANAGE_SETTINGS,
 	];
 
 	public const GROUP_ACTIONS_DEFAULT_PERMISSIONS = [
 		self::GROUP_MANAGE_UI => Chat::ROLE_MEMBER,
-		self::GROUP_MANAGE_USERS => Chat::ROLE_MEMBER,
+		self::GROUP_MANAGE_USERS_ADD => Chat::ROLE_MEMBER,
+		self::GROUP_MANAGE_USERS_DELETE => Chat::ROLE_MANAGER,
 		self::GROUP_MANAGE_SETTINGS => Chat::ROLE_OWNER,
 	];
 
@@ -105,6 +118,12 @@ class Permission
 			self::ACTION_SEND => $roleForPostToGeneral,
 		];
 
+		self::$permissionsByChatTypes[self::TYPE_COPILOT] = [
+			self::ACTION_EXTEND => Chat::ROLE_NONE,
+			self::ACTION_CALL => Chat::ROLE_NONE,
+			self::ACTION_USER_LIST => Chat::ROLE_NONE,
+		];
+
 		self::$permissionsByChatTypes[self::TYPE_ANNOUNCEMENT] = [
 			self::ACTION_LEAVE_OWNER => Chat::ROLE_OWNER,
 			self::ACTION_SEND => Chat::ROLE_MANAGER,
@@ -127,6 +146,10 @@ class Permission
 				self::ACTION_LEAVE_OWNER => Chat::ROLE_NONE,
 				self::ACTION_USER_LIST => Chat::ROLE_NONE,
 			];
+
+			self::$permissionsByChatTypes[\Bitrix\ImBot\Bot\Network::CHAT_ENTITY_TYPE] =
+				self::$permissionsByChatTypes[\Bitrix\ImBot\Bot\Support24::CHAT_ENTITY_TYPE]
+			;
 		}
 
 		if (Loader::includeModule('socialnetwork'))

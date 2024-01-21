@@ -157,7 +157,7 @@ class PostingTable extends Main\Entity\DataManager
 	}
 
 	/**
-	 * Handler of event `onDelete`.
+	 * Handler of event onDelete
 	 *
 	 * @param Main\Entity\Event $event Event.
 	 * @return Main\Entity\EventResult

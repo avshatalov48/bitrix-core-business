@@ -4,19 +4,18 @@ use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Model\StoreDocumentElement;
+use Bitrix\Catalog\Document\StoreDocumentTableManager;
 use Bitrix\Catalog\Config\Feature;
-use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\StoreDocumentBarcodeTable;
 use Bitrix\Catalog\StoreDocumentElementTable;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Catalog\Url\InventoryManagementSourceBuilder;
-use Bitrix\Catalog\v2\Integration\JS\ProductForm\BasketBuilder;
 use Bitrix\Catalog\v2\Integration\UI\EntityEditor\StoreDocumentProvider;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
-use Bitrix\Catalog\v2\Product\BaseProduct;
-use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Sale\PriceMaths;
 use Bitrix\Main;
 use Bitrix\UI;
@@ -154,6 +153,11 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 
 		$this->setDropdownTypes();
 
+		// region uf
+		$tableClass = StoreDocumentTableManager::getTableClassByType($this->getDocumentType());
+		$this->arResult['USER_FIELD_ENTITY_ID'] = $tableClass ? $tableClass::getUfId() : '';
+		// endregion
+
 		$this->getAdditionalEntityEditorActions();
 
 		$this->collectRightColumnContent();
@@ -167,6 +171,8 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		$this->arResult['INVENTORY_MANAGEMENT_SOURCE'] =
 			InventoryManagementSourceBuilder::getInstance()->getInventoryManagementSource()
 		;
+
+		$this->arResult['IS_PRODUCT_BATCH_METHOD_SELECTED'] = State::isProductBatchMethodSelected();
 
 		$this->includeComponentTemplate();
 	}
@@ -257,12 +263,28 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 
 	private function getEditorProvider(): StoreDocumentProvider
 	{
-		if ($this->document)
+		$createUfUrl = '';
+		$tableClass = StoreDocumentTableManager::getTableClassByType($this->getDocumentType());
+		if ($tableClass)
 		{
-			return StoreDocumentProvider::createByArray($this->document);
+			$url = new Uri($this->arParams['PATH_TO']['UF']);
+			$url->addParams(['entityId' => $tableClass::getUfId()]);
+
+			$createUfUrl = $url->getUri();
 		}
 
-		return StoreDocumentProvider::createByType($this->getDocumentType());
+		if ($this->document)
+		{
+			$provider = StoreDocumentProvider::createByArray($this->document);
+		}
+		else
+		{
+			$provider = StoreDocumentProvider::createByType($this->getDocumentType());
+		}
+
+		$provider->setCreateUfUrl($createUfUrl);
+
+		return $provider;
 	}
 
 	private function loadDocument()
@@ -290,15 +312,26 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 			return;
 		}
 
-		$document = StoreDocumentTable::getList([
+		$documentType = StoreDocumentTable::getRow(['select' => ['DOC_TYPE'], 'filter' => ['=ID' => $this->documentId]]);
+		if (!$documentType)
+		{
+			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_DOCUMENT_NOT_FOUND_ERROR');
+			return;
+		}
+
+		$documentType = $documentType['DOC_TYPE'];
+
+		$tableClass = StoreDocumentTableManager::getTableClassByType($documentType) ?: StoreDocumentTable::class;
+		$document = $tableClass::getRow([
 			'select' => [
 				'*',
+				'UF_*',
 				'CONTRACTOR_REF_' => 'CONTRACTOR',
 			],
 			'filter' => [
 				'=ID' => $this->documentId,
 			],
-		])->fetch();
+		]);
 		if ($document)
 		{
 			$document = $this->fillDefaultDocumentFields($document);
@@ -913,11 +946,15 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 			$preparedFields['TOTAL'] = $this->calculateDocumentTotalFromElement($element);
 		}
 
+		$userFieldValues = $this->extractUserFieldValues($preparedFields);
+
 		$validFieldNames = array_keys(StoreDocumentTable::getEntity()->getFields());
 		$validFieldNames = array_merge($validFieldNames, ['ELEMENT', 'DOCUMENT_FILES']);
 		$preparedFields = array_intersect_key($preparedFields, array_flip($validFieldNames));
 
 		$preparedFields = $this->prepareFilesToUpdate($preparedFields);
+
+		$preparedFields += $userFieldValues;
 
 		$result->setData(['PREPARED_FIELDS' => $preparedFields]);
 
@@ -975,16 +1012,40 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		}
 
 		$generalFields = $this->prepareFilesToUpdate($generalFields);
+		$userFieldValues = $this->extractUserFieldValues($generalFields);
 
 		$validFieldNames = array_keys(StoreDocumentTable::getEntity()->getFields());
 		$validFieldNames = array_merge($validFieldNames, ['ELEMENT', 'DOCUMENT_FILES']);
 		$generalFields = array_intersect_key($generalFields, array_flip($validFieldNames));
+
+		$generalFields += $userFieldValues;
 
 		$preparedFields['GENERAL'] = $generalFields;
 
 		$result->setData(['PREPARED_FIELDS' => $preparedFields]);
 
 		return $result;
+	}
+
+	private function extractUserFieldValues(array $fields): array
+	{
+		global $USER_FIELD_MANAGER;
+
+		$tableClass = StoreDocumentTableManager::getTableClassByType($this->getDocumentType());
+
+		if (!$tableClass)
+		{
+			return [];
+		}
+
+		$userFieldValues = [];
+		$USER_FIELD_MANAGER->EditFormAddFields(
+			$tableClass::getUfId(),
+			$userFieldValues,
+			[ 'FORM' => $fields ]
+		);
+
+		return $userFieldValues;
 	}
 
 	private function prepareFilesToUpdate(array $fields): array

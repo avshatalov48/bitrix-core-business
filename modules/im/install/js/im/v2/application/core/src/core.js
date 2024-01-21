@@ -1,31 +1,36 @@
-import {Extension, Loc} from 'main.core';
-import {BitrixVue} from 'ui.vue3';
-import {Builder, Store} from 'ui.vue3.vuex';
+import { Extension, Loc } from 'main.core';
+import { BitrixVue } from 'ui.vue3';
+import { Builder, Store } from 'ui.vue3.vuex';
 
-import {PullClient, PULL as Pull} from 'pull.client';
-import {RestClient, rest as Rest} from 'rest.client';
+import 'pull.client';
+import 'rest.client';
 
 import 'im.v2.application.launch';
 
 import {
 	ApplicationModel,
 	MessagesModel,
-	DialoguesModel,
+	ChatsModel,
 	UsersModel,
 	FilesModel,
 	RecentModel,
 	NotificationsModel,
 	SidebarModel,
-	MarketModel
+	MarketModel,
+	CountersModel,
 } from 'im.v2.model';
 import {
 	BasePullHandler,
 	RecentPullHandler,
+	CopilotRecentHandler,
 	NotificationPullHandler,
 	NotifierPullHandler,
 	LinesPullHandler,
+	OnlinePullHandler,
 } from 'im.v2.provider.pull';
-import {Logger} from 'im.v2.lib.logger';
+import { Logger } from 'im.v2.lib.logger';
+
+import type { RestClient } from 'rest.client';
 
 class CoreApplication
 {
@@ -52,73 +57,80 @@ class CoreApplication
 		this.storeBuilder = null;
 
 		this.prepareVariables();
+		this.initRestClient();
+	}
 
+	start()
+	{
 		this.initStorage()
-			.then(() => this.initPullClient())
+			.then(() => this.initPull())
 			.then(() => this.initComplete())
-			.catch(error => {
-				Logger.error('Error initializing core controller', error);
+			.catch((error) => {
+				Logger.error('Core: error starting core application', error);
 			})
 		;
 	}
 
 	prepareVariables()
 	{
-		this.localize = BX ? {...BX.message} : {};
+		this.localize = BX ? { ...BX.message } : {};
 
 		this.host = location.origin;
 		this.userId = Number.parseInt(Loc.getMessage('USER_ID'), 10) ?? 0;
 		this.siteId = Loc.getMessage('SITE_ID') ?? 's1';
 		this.siteDir = Loc.getMessage('SITE_DIR') ?? 's1';
 		this.languageId = Loc.getMessage('LANGUAGE_ID') ?? 'en';
-
-		this.initPull();
-		this.initRest();
 	}
 
-	initStorage()
+	initRestClient()
+	{
+		this.restInstance = BX.RestClient;
+		this.restClient = BX.rest;
+	}
+
+	initStorage(): Promise
 	{
 		const builder = Builder.init()
 			.addModel(ApplicationModel.create())
 			.addModel(MessagesModel.create())
-			.addModel(DialoguesModel.create())
+			.addModel(ChatsModel.create())
 			.addModel(FilesModel.create())
 			.addModel(UsersModel.create())
 			.addModel(RecentModel.create())
+			.addModel(CountersModel.create())
 			.addModel(NotificationsModel.create())
 			.addModel(SidebarModel.create())
 			.addModel(MarketModel.create())
 		;
 
-		return builder.build().then(result => {
+		return builder.build().then((result) => {
 			this.store = result.store;
 			this.storeBuilder = result.builder;
 
-			return Promise.resolve();
+			return true;
 		});
 	}
 
-	initPullClient()
+	initPull(): Promise
 	{
+		this.pullInstance = BX.PullClient;
+		this.pullClient = BX.PULL;
 		if (!this.pullClient)
 		{
-			return false;
+			return Promise.reject(new Error('Core: error setting pull client'));
 		}
 
 		this.pullClient.subscribe(new BasePullHandler());
 		this.pullClient.subscribe(new RecentPullHandler());
+		this.pullClient.subscribe(new CopilotRecentHandler());
 		this.pullClient.subscribe(new NotificationPullHandler());
 		this.pullClient.subscribe(new NotifierPullHandler());
 		this.pullClient.subscribe(new LinesPullHandler());
+		this.pullClient.subscribe(new OnlinePullHandler());
 
 		this.pullClient.subscribe({
 			type: this.pullInstance.SubscriptionType.Status,
-			callback: this.onPullStatusChange.bind(this)
-		});
-
-		this.pullClient.subscribe({
-			type: this.pullInstance.SubscriptionType.Online,
-			callback: this.onUsersOnlineChange.bind(this)
+			callback: this.onPullStatusChange.bind(this),
 		});
 
 		return Promise.resolve();
@@ -128,20 +140,6 @@ class CoreApplication
 	{
 		this.inited = true;
 		this.initPromiseResolver(this);
-	}
-
-	initRest()
-	{
-		this.restInstance = RestClient;
-		this.restClient = Rest;
-
-		return Promise.resolve();
-	}
-
-	initPull()
-	{
-		this.pullInstance = PullClient;
-		this.pullClient = Pull;
 	}
 	/* endregion 01. Initialize and store data */
 
@@ -157,25 +155,10 @@ class CoreApplication
 			this.offline = true;
 		}
 	}
-
-	onUsersOnlineChange(data)
-	{
-		if (!['list', 'userStatus'].includes(data.command))
-		{
-			return false;
-		}
-
-		Object.values(data.params.users).forEach(userInfo => {
-			this.store.dispatch('users/update', {
-				id: userInfo.id,
-				fields: userInfo
-			});
-		});
-	}
 	/* endregion 02. Push & Pull */
 
 	/* region 04. Template engine */
-	createVue(application, config = {})
+	createVue(application, config = {}): Promise
 	{
 		const initConfig = {};
 
@@ -204,12 +187,16 @@ class CoreApplication
 				resolve(this);
 			};
 			const bitrixVue = BitrixVue.createApp(initConfig);
-			bitrixVue.config.errorHandler = function (err, vm, info) {
+			bitrixVue.config.errorHandler = function(err, vm, info) {
+				// eslint-disable-next-line no-console
 				console.error(err, info);
 			};
-			bitrixVue.config.warnHandler = function (warn, vm, trace) {
+
+			bitrixVue.config.warnHandler = function(warn, vm, trace) {
+				// eslint-disable-next-line no-console
 				console.warn(warn, trace);
 			};
+			// eslint-disable-next-line no-param-reassign
 			application.bitrixVue = bitrixVue;
 			bitrixVue.use(this.store).mount(initConfig.el);
 		});
@@ -254,7 +241,7 @@ class CoreApplication
 
 	setApplicationData(data: {string: any})
 	{
-		this.applicationData = {...this.applicationData, ...data};
+		this.applicationData = { ...this.applicationData, ...data };
 	}
 
 	getApplicationData(): {[key]: any}
@@ -262,7 +249,7 @@ class CoreApplication
 		return this.applicationData;
 	}
 
-	isOnline()
+	isOnline(): boolean
 	{
 		return !this.offline;
 	}
@@ -274,12 +261,14 @@ class CoreApplication
 		return settings.get('isCloud');
 	}
 
-	ready()
+	ready(): Promise
 	{
 		if (this.inited)
 		{
 			return Promise.resolve(this);
 		}
+
+		Core.start();
 
 		return this.initPromise;
 	}
@@ -288,4 +277,4 @@ class CoreApplication
 }
 
 const Core = new CoreApplication();
-export {Core, CoreApplication};
+export { Core, CoreApplication };

@@ -16,9 +16,9 @@ Localization\Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_MailMessage_Query query()
- * @method static EO_MailMessage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MailMessage_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_MailMessage_Result getById($id)
- * @method static EO_MailMessage_Result getList(array $parameters = array())
+ * @method static EO_MailMessage_Result getList(array $parameters = [])
  * @method static EO_MailMessage_Entity getEntity()
  * @method static \Bitrix\Mail\EO_MailMessage createObject($setDefaultValues = true)
  * @method static \Bitrix\Mail\EO_MailMessage_Collection createCollection()
@@ -27,6 +27,11 @@ Localization\Loc::loadMessages(__FILE__);
  */
 class MailMessageTable extends Entity\DataManager
 {
+
+	/**
+	 * Should view sanitize html body before view
+	 */
+	const FIELD_SANITIZE_ON_VIEW = 'SANITIZE_ON_VIEW';
 
 	public static function getFilePath()
 	{
@@ -147,6 +152,9 @@ class MailMessageTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Mail\Mailbox',
 				'reference' => array('=this.MAILBOX_ID' => 'ref.ID'),
 			),
+			self::FIELD_SANITIZE_ON_VIEW => [
+				'data_type' => 'boolean',
+			],
 		);
 	}
 

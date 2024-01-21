@@ -1,14 +1,12 @@
-<?
+<?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 return [
-	'css' => [
-		'/bitrix/js/ui/timeline/src/timeline.css'
-	],
-	'js' => '/bitrix/js/ui/timeline/dist/timeline.bundle.js',
+	'css' => 'dist/timeline.bundle.css',
+	'js' => 'dist/timeline.bundle.js',
 	'rel' => [
 		'main.loader',
 		'ui.dialogs.messagebox',

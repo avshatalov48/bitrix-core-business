@@ -1,7 +1,7 @@
 <?
 $MESS["IM_NS_IM"] = "Чат и звонки";
 $MESS["IM_NS_DEFAULT"] = "Нераспознанные уведомления";
-$MESS["IM_NS_MESSAGE_NEW"] = "Сообщения в чате";
+$MESS["IM_NS_MESSAGE_NEW_MSGVER_1"] = "Сообщения в чате";
 $MESS["IM_NS_CHAT_NEW"] = "Сообщения в групповых чатах";
 $MESS["IM_NS_OPEN_NEW"] = "Сообщения в каналах";
 $MESS["IM_NS_LIKE"] = "Лайки в чатах (мне нравится)";

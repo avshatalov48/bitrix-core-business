@@ -29,7 +29,7 @@ if (!empty($templateData['TEMPLATE_LIBRARY']))
 	{
 		?>
 		<script>
-		  BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
+			BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
 		</script>
 		<?
 	}
@@ -45,7 +45,7 @@ if ($request->isAjaxRequest() && ($request->get('action') === 'showMore' || $req
 	list(, $itemsContainer) = explode('<!-- items-container -->', $content);
 	list(, $paginationContainer) = explode('<!-- pagination-container -->', $content);
 
-	if ($arParams['AJAX_MODE'] === 'Y')
+	if (isset($arParams['AJAX_MODE']) && $arParams['AJAX_MODE'] === 'Y')
 	{
 		$component->prepareLinks($paginationContainer);
 	}

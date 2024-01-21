@@ -12,6 +12,8 @@ Loc::loadMessages(__FILE__);
 
 class ImRouterComponent extends \CBitrixComponent
 {
+	private const NETWORK_LINE = 'networkLines';
+
 	/** @var HttpRequest $request */
 	protected $request = array();
 	protected $errors = array();
@@ -96,7 +98,7 @@ class ImRouterComponent extends \CBitrixComponent
 
 		$this->request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-		$this->arResult['MESSENGER_V2'] = \Bitrix\Im\Settings::isBetaActivated()? 'Y': 'N';
+		$this->arResult['MESSENGER_V2'] = \Bitrix\Im\Settings::isLegacyChatActivated()  ? 'N' : 'Y';
 
 		if ($this->request->get('alias'))
 		{
@@ -134,6 +136,7 @@ class ImRouterComponent extends \CBitrixComponent
 			global $USER;
 			if ($USER->IsAuthorized() && !\Bitrix\Im\User::getInstance()->isConnector())
 			{
+				$this->checkNetworkLines();
 				$this->showFullscreenChat();
 			}
 			else
@@ -141,6 +144,28 @@ class ImRouterComponent extends \CBitrixComponent
 				LocalRedirect('/');
 			}
 		}
+	}
+
+	private function checkNetworkLines(): void
+	{
+		if (!str_starts_with($this->request['IM_DIALOG'], self::NETWORK_LINE))
+		{
+			return;
+		}
+
+		$code = substr($this->request['IM_DIALOG'], strlen(self::NETWORK_LINE));
+		if (!preg_match('/^[a-f0-9]{32}$/i', $code))
+		{
+			LocalRedirect('/online/');
+		}
+
+		$botId = \Bitrix\ImBot\Bot\Network::join($code);
+		if ($botId > 0)
+		{
+			LocalRedirect("/online/?IM_DIALOG={$botId}");
+		}
+
+		LocalRedirect('/online/');
 	}
 
 	protected function checkModules()

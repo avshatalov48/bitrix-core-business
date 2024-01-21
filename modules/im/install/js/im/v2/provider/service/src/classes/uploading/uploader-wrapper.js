@@ -61,6 +61,7 @@ export class UploaderWrapper extends EventEmitter
 			imagePreviewWidth: 720,
 			treatOversizeImageAsFile: true,
 			ignoreUnknownImageTypes: true,
+			maxFileSize: null,
 			events: {
 				[UploaderEvent.FILE_ADD_START]: (event) => {
 					this.emit(UploaderWrapper.events.onFileAddStart, event);
@@ -76,7 +77,8 @@ export class UploaderWrapper extends EventEmitter
 					this.emit(UploaderWrapper.events.onFileUploadProgress, event);
 				},
 				[UploaderEvent.FILE_UPLOAD_COMPLETE]: (event) => {
-					this.emit(UploaderWrapper.events.onFileUploadComplete, event);
+					const { file } = event.getData();
+					this.emit(UploaderWrapper.events.onFileUploadComplete, { file, uploaderId });
 				},
 				[UploaderEvent.ERROR]: (event) => {
 					this.emit(UploaderWrapper.events.onFileUploadError, event);

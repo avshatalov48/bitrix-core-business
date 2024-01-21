@@ -107,7 +107,7 @@ export const TextUtil = {
 		});
 	},
 
-	isUuidV4(uuid): boolean
+	isUuidV4(uuid: string): boolean
 	{
 		if (!Type.isString(uuid))
 		{

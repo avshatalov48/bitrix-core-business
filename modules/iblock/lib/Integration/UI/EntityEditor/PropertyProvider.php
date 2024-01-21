@@ -72,6 +72,11 @@ class PropertyProvider extends BaseProvider
 		return $this->entity['ID'] ?? null;
 	}
 
+	public function getEntityIblockId(): ?int
+	{
+		return $this->entity['IBLOCK_ID'] ?? null;
+	}
+
 	public function getEntityData(): array
 	{
 		$values = $this->entity;
@@ -345,6 +350,39 @@ class PropertyProvider extends BaseProvider
 		return $result;
 	}
 
+	private function hideSkuProperty(): bool
+	{
+		if ($this->getEntityId())
+		{
+			return false;
+		}
+
+		if (!Loader::includeModule('catalog'))
+		{
+			return false;
+		}
+
+		$iblockId = $this->getEntityIblockId();
+		if ($iblockId === null)
+		{
+			return false;
+		}
+
+		$catalog = \CCatalogSku::GetInfoByProductIBlock($iblockId);
+		if (!empty($catalog))
+		{
+			return true;
+		}
+
+		$catalog = \CCatalogSku::GetInfoByOfferIBlock($iblockId);
+		if (!empty($catalog))
+		{
+			return (int)$catalog['SKU_PROPERTY_ID'] > 0;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Property types for dropdown.
 	 *
@@ -364,6 +402,10 @@ class PropertyProvider extends BaseProvider
 		}
 
 		$userTypes = CIBlockProperty::GetUserType();
+		if ($this->hideSkuProperty())
+		{
+			unset($userTypes[PropertyTable::USER_TYPE_SKU]);
+		}
 		Collection::sortByColumn($userTypes, [
 			'DESCRIPTION' => SORT_STRING,
 		]);

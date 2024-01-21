@@ -6,6 +6,8 @@ import {FieldsChange} from './fieldschange';
 import {Editor} from './editor';
 import {CommentEditor} from './commenteditor';
 
+import './css/style.css';
+
 import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 

@@ -96,8 +96,7 @@ export class MembersMenu extends SidebarMenu
 
 	getOpenProfileItem(): ?MenuItem
 	{
-		const isUser = this.store.getters['dialogues/isUser'](this.context.dialogId);
-		if (!isUser)
+		if (!this.isUser() || this.isBot())
 		{
 			return null;
 		}
@@ -115,13 +114,7 @@ export class MembersMenu extends SidebarMenu
 
 	getOpenUserCalendarItem(): ?MenuItem
 	{
-		const isUser = this.store.getters['dialogues/isUser'](this.context.dialogId);
-		if (!isUser)
-		{
-			return null;
-		}
-		const user = this.store.getters['users/get'](this.context.dialogId, true);
-		if (user.bot)
+		if (!this.isUser() || this.isBot())
 		{
 			return null;
 		}
@@ -141,7 +134,7 @@ export class MembersMenu extends SidebarMenu
 	{
 		const userIdToKick = Number.parseInt(this.context.dialogId, 10);
 		const isSelfKick = userIdToKick === this.getCurrentUserId();
-		const canKick = this.permissionManager.canPerformKick(this.context.contextDialogId, this.context.dialogId);
+		const canKick = this.permissionManager.canPerformAction(ChatActionType.kick, this.context.contextDialogId);
 		if (isSelfKick || !canKick)
 		{
 			return null;
@@ -182,5 +175,22 @@ export class MembersMenu extends SidebarMenu
 				}
 			},
 		};
+	}
+
+	isUser(): boolean
+	{
+		return this.store.getters['chats/isUser'](this.context.dialogId);
+	}
+
+	isBot(): boolean
+	{
+		if (!this.isUser())
+		{
+			return false;
+		}
+
+		const user: ImModelUser = this.store.getters['users/get'](this.context.dialogId);
+
+		return user.bot === true;
 	}
 }

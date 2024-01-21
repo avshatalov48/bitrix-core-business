@@ -57,7 +57,7 @@ class ProductAction
 			));
 			return $result;
 		}
-		$filter['@TYPE'] = $allowedTypes;
+		$filter['=TYPE'] = $allowedTypes;
 		unset($allowedTypes);
 
 		$sectionElements = self::getSectionProducts($iblockId, $sections, $filter);

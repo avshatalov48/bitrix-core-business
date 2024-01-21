@@ -3,7 +3,7 @@ import {reactionType as Reaction} from 'ui.reactions-select';
 import type {RawChat, RawFile, RawUser, RawMessage} from './common';
 
 export type MessageAddParams = {
-	chat: {[chatId: string]: RawChat} | [],
+	chat?: {[chatId: string]: RawChat} | [],
 	chatId: number,
 	counter: number,
 	dialogId: string,
@@ -13,7 +13,7 @@ export type MessageAddParams = {
 	notify: boolean,
 	userBlockChat: {[chatId: string]: {[userId: string]: boolean}} | [],
 	userInChat: {[chatId: string]: number[]} | [],
-	users: {[userId: string]: RawUser} | null
+	users: {[userId: string]: RawUser} | null,
 };
 
 export type MessageUpdateParams = {

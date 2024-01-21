@@ -98,16 +98,6 @@ abstract class Platform
 	{
 		return $this->id;
 	}
-
-	public function getIdIfInstalled(): ?int
-	{
-		if (!$this->isInstalled())
-		{
-			return null;
-		}
-
-		return $this->getId();
-	}
 	
 	/**
 	 * @param int $level The level of event.
@@ -195,7 +185,7 @@ abstract class Platform
 	{
 		$dbRes = TradingPlatformTable::getList([
 			'filter' => [
-				'ACTIVE' => 'Y',
+				'=ACTIVE' => 'Y',
 			],
 			'select' => ['ID'],
 		]);

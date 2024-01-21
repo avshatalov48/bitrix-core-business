@@ -1,4 +1,4 @@
-<?
+<?php
 
 class CPullTableSchema
 {
@@ -36,4 +36,3 @@ class CPullTableSchema
 	}
 }
 
-?>

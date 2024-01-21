@@ -1,8 +1,7 @@
-<?
+<?php
 $MESS["MAIN_USER_FILTER_ADMIN"] = "Administrator";
 $MESS["MAIN_USER_FILTER_BIRTHDAY"] = "Date of birth";
 $MESS["MAIN_USER_FILTER_COMPANY"] = "Company";
-$MESS["MAIN_USER_FILTER_WORK_DEPARTMENT"] = "Department";
 $MESS["MAIN_USER_FILTER_DATE_REGISTER"] = "Registered on";
 $MESS["MAIN_USER_FILTER_DEPARTMENT"] = "Department";
 $MESS["MAIN_USER_FILTER_EMAIL"] = "Email";
@@ -30,12 +29,13 @@ $MESS["MAIN_USER_FILTER_PRESET_COMPANY"] = "Company";
 $MESS["MAIN_USER_FILTER_PROFESSION"] = "Job title";
 $MESS["MAIN_USER_FILTER_SECOND_NAME"] = "Second name";
 $MESS["MAIN_USER_FILTER_TAGS"] = "Interests";
+$MESS["MAIN_USER_FILTER_VISITOR"] = "Visitor";
 $MESS["MAIN_USER_FILTER_WORK_CITY"] = "Company city";
 $MESS["MAIN_USER_FILTER_WORK_COUNTRY"] = "Company country";
+$MESS["MAIN_USER_FILTER_WORK_DEPARTMENT"] = "Department";
 $MESS["MAIN_USER_FILTER_WORK_MAILBOX"] = "Company P.O. Box";
 $MESS["MAIN_USER_FILTER_WORK_PHONE"] = "Work phone";
 $MESS["MAIN_USER_FILTER_WORK_STATE"] = "Company state/region";
 $MESS["MAIN_USER_FILTER_WORK_STREET"] = "Company street address";
 $MESS["MAIN_USER_FILTER_WORK_ZIP"] = "Company zip code";
 $MESS["MAIN_USER_FILTER_Y"] = "Yes";
-?>

@@ -1,5 +1,3 @@
-import { Type } from 'main.core';
-
 import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
@@ -14,17 +12,11 @@ export class SettingsService
 			[settingName]: value,
 		});
 
-		let preparedValue = value;
-		if (Type.isBoolean(preparedValue))
-		{
-			preparedValue = preparedValue === true ? 'Y' : 'N';
-		}
-
 		return runAction(RestMethod.imV2SettingsGeneralUpdate, {
 			data: {
 				userId: Core.getUserId(),
 				name: settingName,
-				value: preparedValue,
+				value: value,
 			},
 		}).catch((error) => {
 			// eslint-disable-next-line no-console

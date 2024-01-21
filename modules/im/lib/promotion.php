@@ -69,6 +69,15 @@ class Promotion
 			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
 		];
 
+		if (!\Bitrix\Im\Settings::isLegacyChatActivated())
+		{
+			$result[] = [
+				"ID" => 'immobile:chat-v2:16112023:mobile',
+				"USER_TYPE" => self::USER_TYPE_ALL,
+				"DEVICE_TYPE" => self::DEVICE_TYPE_MOBILE,
+			];
+		}
+
 		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
 		if (isset($settings['promotion']) && is_array($settings['promotion']))
 		{

@@ -2,11 +2,14 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Bitrix24\MailCounter;
 use Bitrix\Mail;
+use Bitrix\Mail\Helper\Message;
 use Bitrix\Mail\Helper\MessageFolder;
 use Bitrix\Mail\ImapCommands\MailsFlagsManager;
 use Bitrix\Mail\ImapCommands\MailsFoldersManager;
 use Bitrix\Mail\Integration\Calendar\ICal\ICalMailManager;
+use Bitrix\Mail\Integration\Intranet\Secretary;
 use Bitrix\Mail\Internals\MessageAccessTable;
 use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main;
@@ -15,6 +18,8 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Mail\Helper;
+use Bitrix\Main\Mail\Sender;
+use Bitrix\Main\Mail\SenderSendCounter;
 
 Loader::includeModule('mail');
 Loc::loadLanguageFile(__FILE__);
@@ -712,6 +717,30 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			return;
 		}
 
+		$totalRecipientsCount = count($to) + count($cc) + count($bcc);
+
+		if ($this->isSenderLimitReached((string)$fromEmail, $totalRecipientsCount))
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_CLIENT_DAILY_SENDER_LIMIT_REACHED'));
+
+			return;
+		}
+
+		if ($this->isDailyPortalLimitReached($totalRecipientsCount))
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_CLIENT_DAILY_PORTAL_LIMIT_REACHED'));
+
+			return;
+		}
+
+		if ($this->isMonthPortalLimitReached($totalRecipientsCount))
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_CLIENT_MONTH_PORTAL_LIMIT_REACHED'));
+
+			return;
+		}
+
+
 		$messageBody = (string) $decodedData['message'];
 		$messageBodyHtml = '';
 		if (!empty($messageBody))
@@ -938,6 +967,46 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		return;
 	}
 
+	private function isSenderLimitReached(string $fromEmail, int $recipientsCount): bool
+	{
+		$emailDailyLimit = Sender::getEmailLimit($fromEmail);
+		if ($emailDailyLimit <= 0)
+		{
+			return false;
+		}
+
+		$emailCounter = new SenderSendCounter();
+		$limit = $emailCounter->get($fromEmail);
+
+		return ($limit + $recipientsCount) > $emailDailyLimit;
+	}
+
+	private function isDailyPortalLimitReached(int $recipientsCount): bool
+	{
+		if (!isModuleInstalled('bitrix24') || !Loader::includeModule('bitrix24'))
+		{
+			return false;
+		}
+
+		$counter = new MailCounter();
+		$limit = $counter->getDailyLimit();
+
+		return $limit > 0 && MailCounter::checkLimit($limit, $counter->get() + $recipientsCount);
+	}
+
+	private function isMonthPortalLimitReached(int $recipientsCount): bool
+	{
+		if (!isModuleInstalled('bitrix24') || !Loader::includeModule('bitrix24'))
+		{
+			return false;
+		}
+
+		$counter = new MailCounter();
+		$limit = $counter->getLimit();
+
+		return $limit > 0 && MailCounter::checkLimit($limit, $counter->getMonthly() + $recipientsCount);
+	}
+
 	/**
 	 * Creates crm activity.
 	 *
@@ -1017,6 +1086,9 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		$message['IS_SEEN'] = in_array($message['IS_SEEN'], array('Y', 'S'));
 
 		$message['__forced'] = true;
+
+		$this->sanitizeHtmlForOldCrmModule($message);
+
 		if (!\CCrmEMail::imapEmailMessageAdd($message, null, $error))
 		{
 			$this->addError(new Error(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR')));
@@ -1024,6 +1096,23 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			{
 				$this->addError($error instanceof Error ? $error : new Error($error));
 			}
+		}
+	}
+
+	/**
+	 * Sanitization of mail html body if crm module not able to sanitize on view
+	 * (crm module version < 23.1300.0)
+	 *
+	 * @param array $message Message fields
+	 */
+	private function sanitizeHtmlForOldCrmModule(array &$message): void
+	{
+		$crmFilterSettings = \CCrmEMail::onGetFilterListImap();
+		if (empty($crmFilterSettings['SANITIZE_ON_VIEW'])
+			&& !empty($message[MailMessageTable::FIELD_SANITIZE_ON_VIEW])
+			&& !empty($message['BODY_HTML']))
+		{
+			$message['BODY_HTML'] = \Bitrix\Mail\Helper\Message::sanitizeHtml($message['BODY_HTML'], true);
 		}
 	}
 
@@ -1202,17 +1291,16 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 	public function icalAction()
 	{
-//		return false;
 		$request = Context::getCurrent()->getRequest();
 
-		$messageId = (int)$request->getPost("messageId");
-		$action = (string)$request->getPost("action");
+		$messageId = (int)$request->getPost('messageId');
+		$action = (string)$request->getPost('action');
 
 		if (!$messageId || !$action)
 		{
 			$this->addError(new Error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR')));
 
-			return false;
+			return [];
 		}
 
 		$message = MailMessageTable::getList([
@@ -1242,7 +1330,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 		if (empty($message['OPTIONS']['iCal']))
 		{
-			return false;
+			return [];
 		}
 
 		$icalComponent = ICalMailManager::parseRequest($message['OPTIONS']['iCal']);
@@ -1252,22 +1340,32 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			&& $icalComponent->hasOneEvent()
 		)
 		{
-			\Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler::createInstance()
-				->setDecision($action)
+			$handler = \Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler::createInstance();
+			$result = $handler->setDecision($action)
 				->setIcalComponent($icalComponent)
 				->setUserId((int)$message['USER_ID'])
-				->handle();
-//			ICalMailManager::manageRequest([
-//				'event'  => $icalComponent->getEvent(),
-//				'userId' => $message['USER_ID'],
-//				'emailFrom'  => $message['FIELD_FROM'],
-//				'emailTo'  => $message['FIELD_TO'],
-//				'answer' => $action
-//			]);
+				->setEmailFrom($message['FIELD_FROM'])
+				->setEmailTo($message['FIELD_TO'])
+				->handle()
+			;
 
-			return true;
+			$eventId = $handler->getEventId();
+
+			if ($result && ($eventId > 0))
+			{
+				Secretary::provideAccessToMessage(
+					$message['ID'],
+					Message::ENTITY_TYPE_CALENDAR_EVENT,
+					$eventId,
+					$this->getCurrentUser()->getId()
+				);
+			}
+
+			return [
+				'eventId' => $eventId,
+			];
 		}
 
-		return false;
+		return [];
 	}
 }

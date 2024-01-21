@@ -5,8 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'dist/process.bundle.css',
-	'js' => 'dist/process.bundle.js',
+	'css' => 'dist/stepprocessing.bundle.css',
+	'js' => 'dist/stepprocessing.bundle.js',
 	'rel' => [
 		'ui.design-tokens',
 		'ui.progressbar',

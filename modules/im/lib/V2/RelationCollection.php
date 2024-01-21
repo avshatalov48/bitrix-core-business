@@ -134,20 +134,19 @@ class RelationCollection extends Collection
 			$query->where('MESSAGE_TYPE', (string)$filter['MESSAGE_TYPE']);
 		}
 
-		if (isset($order['ID']))
+		foreach (['ID', 'USER_ID', 'LAST_SEND_MESSAGE_ID'] as $allowedFieldToOrder)
 		{
-			$orderField = 'ID';
-			$relationOrder['ID'] = $order['ID'];
-		}
-		elseif (isset($order['USER_ID']))
-		{
-			$orderField = 'USER_ID';
-			$relationOrder['USER_ID'] = $order['USER_ID'];
+			if (isset($order[$allowedFieldToOrder]))
+			{
+				$orderField = $allowedFieldToOrder;
+				$relationOrder[$allowedFieldToOrder] = $order[$allowedFieldToOrder];
+				break;
+			}
 		}
 
 		if (isset($orderField))
 		{
-			$query->setOrder($orderField);
+			$query->setOrder($relationOrder);
 		}
 
 		if (isset($filter['LAST_ID']))

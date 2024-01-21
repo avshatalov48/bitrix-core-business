@@ -1,24 +1,25 @@
 import 'ui.notification';
-import { Loc, type JsonObject } from 'main.core';
 
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { Avatar, AvatarSize } from 'im.v2.component.elements';
 import { ChatService } from 'im.v2.provider.service';
-import { DialogType, ChatActionType, UserRole } from 'im.v2.const';
+import { ChatType, ChatActionType, UserRole } from 'im.v2.const';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
 
-import { EditableChatTitle } from './editable-chat-title';
-import { CallButton } from './call-button/call-button';
+import { CallButton } from './components/call-button/call-button';
+import { GroupChatTitle } from './components/group-chat-title';
+import { UserTitle } from './components/user-title';
 
 import '../../css/chat-header.css';
 
-import type { ImModelUser, ImModelDialog } from 'im.v2.model';
+import type { JsonObject } from 'main.core';
+import type { ImModelUser, ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const ChatHeader = {
 	name: 'ChatHeader',
-	components: { Avatar, ChatTitle, EditableChatTitle, AddToChat, CallButton },
+	components: { Avatar, AddToChat, CallButton, GroupChatTitle, UserTitle },
 	props:
 	{
 		dialogId: {
@@ -48,9 +49,9 @@ export const ChatHeader = {
 		{
 			return this.$store.getters['users/get'](this.dialogId, true);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		isInited(): boolean
 		{
@@ -58,7 +59,16 @@ export const ChatHeader = {
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
+		},
+		isBot(): boolean
+		{
+			if (!this.isUser)
+			{
+				return false;
+			}
+
+			return this.user.bot === true;
 		},
 		isChat(): boolean
 		{
@@ -68,35 +78,25 @@ export const ChatHeader = {
 		{
 			return this.dialog.role === UserRole.guest;
 		},
-		avatarStyle(): {backgroundImage: string}
-		{
-			return { backgroundImage: `url('${this.dialog.avatar}')` };
-		},
 		chatId(): number
 		{
 			return this.dialog.chatId;
-		},
-		dialogDescription(): string
-		{
-			if (this.isUser)
-			{
-				return this.$store.getters['users/getPosition'](this.dialogId);
-			}
-
-			return Loc.getMessagePlural('IM_CONTENT_CHAT_HEADER_USER_COUNT', this.dialog.userCounter, {
-				'#COUNT#': this.dialog.userCounter,
-			});
 		},
 		userLink(): string
 		{
 			return Utils.user.getProfileLink(this.dialogId);
 		},
-		userLastOnline(): string
+		showCallButton(): boolean
 		{
-			return this.$store.getters['users/getLastOnline'](this.dialogId);
+			return !this.isBot;
 		},
 		showInviteButton(): boolean
 		{
+			if (this.isBot)
+			{
+				return false;
+			}
+
 			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
 		},
 		canChangeAvatar(): boolean
@@ -116,7 +116,7 @@ export const ChatHeader = {
 		},
 		onMembersClick()
 		{
-			if (this.isUser || !this.isInited)
+			if (!this.isInited)
 			{
 				return;
 			}
@@ -196,28 +196,16 @@ export const ChatHeader = {
 					class="bx-im-chat-header__avatar_input" 
 					ref="avatarInput"
 				>
-				<div v-if="isChat" class="bx-im-chat-header__info">
-					<EditableChatTitle :dialogId="dialogId" @newTitleSubmit="onNewTitleSubmit" />
-					<div 
-						:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS')" 
-						@click="onMembersClick" 
-						class="bx-im-chat-header__subtitle --click"
-					>
-						{{ dialogDescription }}
-					</div>
-				</div>
-				<div v-else class="bx-im-chat-header__info">
-					<div class="bx-im-chat-header__title --user">
-						<a :href="userLink" target="_blank" class="bx-im-chat-header__title_container">
-							<ChatTitle :dialogId="dialogId" />
-						</a>
-						<span class="bx-im-chat-header__user-status">{{ userLastOnline }}</span>
-					</div>
-					<div class="bx-im-chat-header__subtitle">{{ dialogDescription }}</div>
-				</div>
+				<GroupChatTitle
+					v-if="isChat"
+					:dialogId="dialogId"
+					@membersClick="onMembersClick"
+					@newTitle="onNewTitleSubmit"
+				/>
+				<UserTitle v-else :dialogId="dialogId" />
 			</div>
 			<div class="bx-im-chat-header__right">
-				<CallButton :dialogId="dialogId" />
+				<CallButton v-if="showCallButton" :dialogId="dialogId" />
 				<div
 					v-if="showInviteButton"
 					class="bx-im-chat-header__icon --add-people"

@@ -2,7 +2,7 @@
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 
 /**
  * Class TaskTable
@@ -22,6 +22,8 @@ use Bitrix\Main\Entity;
  */
 class TaskTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	public static function getTableName()
 	{
 		return 'b_task';

@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Lists\Security;
 
 use Bitrix\Lists\Entity\Utils;
@@ -9,10 +10,12 @@ use Bitrix\Main\Config\Option;
 class RightParam
 {
 	private $user = null;
-	private $iblockTypeId = "";
+	private $iblockTypeId = '';
 	private $iblockId = false;
 	private $socnetGroupId = 0;
 	private $entityId = 0;
+
+	private ?int $sectionId = null;
 
 	public function __construct(Param $param)
 	{
@@ -101,6 +104,25 @@ class RightParam
 	public function setEntityId($entityId)
 	{
 		$this->entityId = (int)$entityId;
+	}
+
+	/***
+	 * @return int|null
+	 */
+	public function getSectionId(): ?int
+	{
+		return $this->sectionId;
+	}
+
+	/***
+	 * @param int $sectionId
+	 */
+	public function setSectionId(int $sectionId)
+	{
+		if ($sectionId >= 0)
+		{
+			$this->sectionId = $sectionId;
+		}
 	}
 
 	/**

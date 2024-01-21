@@ -1,4 +1,4 @@
-import { Slider } from './slider';
+import { StoreSlider } from './slider';
 
 class ProductGridMenu
 {
@@ -9,22 +9,21 @@ class ProductGridMenu
 
 	static openWarehousePanel(url)
 	{
-		new Slider().open(
+		new StoreSlider().open(
 			url,
 			{
 				data: {
-					closeSliderOnDone: false
-				}
-			}
+					closeSliderOnDone: false,
+				},
+			},
 		)
 			.then(() => {
 				ProductGridMenu.reloadGridAction();
 			})
-		;
+			.catch(() => {});
 	}
 }
 
-export
-{
-	ProductGridMenu
-}
+export {
+	ProductGridMenu,
+};

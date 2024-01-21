@@ -109,16 +109,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 	function _isUser2(dialogType) {
-	  return dialogType === im_v2_const.DialogType.user;
+	  return dialogType === im_v2_const.ChatType.user;
 	}
 	function _isChat2(dialogType) {
-	  return dialogType !== im_v2_const.DialogType.lines && dialogType !== im_v2_const.DialogType.crm && dialogType !== im_v2_const.DialogType.user;
+	  return dialogType !== im_v2_const.ChatType.lines && dialogType !== im_v2_const.ChatType.crm && dialogType !== im_v2_const.ChatType.user;
 	}
 	function _isLines2(dialogType) {
-	  return dialogType === im_v2_const.DialogType.lines;
+	  return dialogType === im_v2_const.ChatType.lines;
 	}
 	function _isCrm2(dialogType) {
-	  return dialogType === im_v2_const.DialogType.crm;
+	  return dialogType === im_v2_const.ChatType.crm;
 	}
 
 	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
@@ -163,7 +163,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getAvailablePlacementsByType(placementType, dialogId = '') {
 	    const placements = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['market/getByPlacement'](placementType);
-	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['dialogues/get'](dialogId);
+	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['chats/get'](dialogId);
 	    const dialogType = dialog ? dialog.type : '';
 	    return babelHelpers.classPrivateFieldLooseBase(this, _availabilityManager)[_availabilityManager].getAvailablePlacements(placements, dialogType);
 	  }

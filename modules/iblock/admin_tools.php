@@ -119,21 +119,33 @@ function _ShowGroupPropertyField($name, $property_fields, $values, $bVarsFromFor
 	$res = "";
 	$bWas = false;
 	$sections = CIBlockSection::GetList(
-		array("left_margin"=>"asc"),
-		array("IBLOCK_ID"=>$property_fields["LINK_IBLOCK_ID"]),
+		[
+			'LEFT_MARGIN' => 'ASC',
+		],
+		[
+			'IBLOCK_ID' => $property_fields['LINK_IBLOCK_ID']
+		],
 		false,
-		array("ID", "DEPTH_LEVEL", "NAME")
+		[
+			'ID',
+			'IBLOCK_ID',
+			'DEPTH_LEVEL',
+			'NAME',
+			'LEFT_MARGIN',
+		]
 	);
 	while ($ar = $sections->GetNext())
 	{
-		$res .= '<option value="'.$ar["ID"].'"';
-		if(in_array($ar["ID"], $values))
+		$margin = max((int)$ar['DEPTH_LEVEL'], 1) - 1;
+		$res .= '<option value="' . $ar['ID'] . '"';
+		if (in_array($ar['ID'], $values))
 		{
 			$bWas = true;
 			$res .= ' selected';
 		}
-		$res .= '>'.str_repeat(" . ", $ar["DEPTH_LEVEL"]-1).$ar["NAME"].'</option>';
+		$res .= '>' . str_repeat(' . ', $margin) .$ar['NAME'] . '</option>';
 	}
+	unset($ar, $sections);
 
 	echo '<input type="hidden" name="'.$name.'[]" value="">';
 	echo '<select name="'.$name.'[]" size="'.$property_fields["MULTIPLE_CNT"].'" '.($property_fields["MULTIPLE"]=="Y"?"multiple":"").'>';

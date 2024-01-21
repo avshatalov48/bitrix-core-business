@@ -1,0 +1,78 @@
+.sn-spaces__navigation .main-buttons-box {
+	background: transparent;
+}
+
+.sn-spaces__navigation .main-buttons-item {
+	--mib-item-spacing: 37px;
+	margin-bottom: 0;
+}
+
+.sn-spaces__menu {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	padding: 0 6px;
+}
+
+.sn-spaces__menu-list {
+	height: var(--sn_spaces-toolbar_height);
+	margin-left: 6px;
+}
+
+.sn-spaces__menu-list {
+	flex: 1;
+}
+
+.sn-spaces__menu-toolbar {
+	display: flex;
+	align-items: center;
+	padding: 0 7px 0 15px;
+	margin-left: auto;
+	border-left: var(--ui-border-width-thin) solid rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-10));
+}
+
+.sn-spaces__menu-toolbar_btn {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-30));
+	display: flex;
+	align-items: center;
+
+	height: 26px;
+	padding: 0 5px;
+	margin: 0 3px;
+	cursor: pointer;
+	transition: .2s;
+}
+
+.sn-spaces__menu-toolbar_btn:hover {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-50));
+}
+
+.sn-spaces-menu-video-call-hd-icon .menu-popup-item-icon {
+	background: transparent url(images/video-call-sub-menu.svg) no-repeat center;
+}
+
+.sn-spaces-menu-video-call-chat-icon .menu-popup-item-icon {
+	background: transparent url(images/open-chat-sub-menu.svg) no-repeat center;
+}
+
+.sn-spaces-menu-create-chat-icon .menu-popup-item-icon {
+	background: transparent url(images/create-chat-sub-menu.svg) no-repeat center;
+}
+
+.sn-spaces__menu-toolbar_btn.--active .ui-icon-set.--person-plus {
+	position: relative;
+	background: var(--ui-color-palette-blue-50, #2fc6f6);
+}
+
+.sn-spaces__entity-dialog-header {
+	margin: 20px 17px 0 20px;
+	font-size: 18px;
+}
+
+.sn-ui-selector-footer-create-chat {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 15px;
+	border-top: 1px solid rgba(82, 92, 105, 0.1);
+}

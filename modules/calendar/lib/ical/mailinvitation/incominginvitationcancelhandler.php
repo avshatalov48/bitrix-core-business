@@ -4,6 +4,7 @@
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
 
+use Bitrix\Calendar\Core\Event\Properties\ExcludedDatesCollection;
 use Bitrix\Calendar\ICal\Parser\Calendar;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ObjectPropertyException;
@@ -50,11 +51,31 @@ class IncomingInvitationCancelHandler extends IncomingInvitationHandler
 	 */
 	public function handle(): bool
 	{
-		$localEvent = Helper::getEventByUId($this->icalComponent->getEvent()->getUid());
-		if ((int)$localEvent['OWNER_ID'] === $this->userId)
+		$icalEvent = $this->icalComponent->getEvent();
+		$event = Helper::getEventByUId($icalEvent->getUid());
+
+		if ($event)
 		{
-			CCalendar::DeleteEvent($localEvent['ID'], true, ['sendNotification' => true]);
-			return true;
+			if ($icalEvent->getRecurrenceId() !== null)
+			{
+				$date = $this->getExdateFromRecurrenceId($icalEvent->getRecurrenceId());
+				if ($date !== null)
+				{
+					\CCalendarEvent::ExcludeInstance(
+						$event['ID'],
+						$date->format(ExcludedDatesCollection::EXCLUDED_DATE_FORMAT)
+					);
+
+					return true;
+				}
+			}
+			else
+			{
+				return CCalendar::DeleteEvent($event['ID'], true, [
+					'sendNotification' => true,
+					'userId' => (int)$event['OWNER_ID'],
+				]);
+			}
 		}
 
 		return false;
@@ -69,5 +90,19 @@ class IncomingInvitationCancelHandler extends IncomingInvitationHandler
 		$this->userId = $userId;
 
 		return $this;
+	}
+
+	private function getExdateFromRecurrenceId(?\Bitrix\Calendar\ICal\Parser\ParserPropertyType $property)
+	{
+		if ($property->getParameterValueByName('value') === 'DATE')
+		{
+			return Helper::getIcalDate($property->getValue());
+		}
+		elseif ($tz = $property->getParameterValueByName('tzid'))
+		{
+			return Helper::getIcalDateTime($property->getValue(), $tz);
+		}
+
+		return null;
 	}
 }

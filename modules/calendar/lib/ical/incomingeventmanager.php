@@ -4,10 +4,18 @@
 namespace Bitrix\Calendar\ICal;
 
 
+use Bitrix\Calendar\ICal\Builder\AttendeesCollection;
+use Bitrix\Calendar\ICal\MailInvitation\Helper;
+use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler;
+use Bitrix\Mail\Internals\MessageAccessTable;
+use Bitrix\Mail\MailboxTable;
 use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main\IO\FileNotFoundException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Tasks\Integration\Disk;
 use Bitrix\Calendar\ICal\Basic\{Dictionary, ICalUtil};
@@ -42,7 +50,7 @@ class IncomingEventManager
 		]);
 
 
-		$replyStatus = OutcomingEventManager::getInstance([
+		$replyStatus = OutcomingEventManager::createInstance([
 			'icalMethod' => 'reply',
 			'arFields' => $event,
 			'userIndex' => $attendees,
@@ -143,16 +151,54 @@ class IncomingEventManager
 			$params['userId']
 		);
 
+		$mailBoxQuery = MessageAccessTable::query()
+			->setSelect(['EMAIL' => 'MAILBOX.EMAIL'])
+			->registerRuntimeField(
+				'MAILBOX',
+				new Reference(
+					'MAILBOX',
+					MailboxTable::class,
+					Join::on('this.MAILBOX_ID', 'ref.ID'),
+					['join_type' => Join::TYPE_INNER]
+				)
+			)
+			->where('ENTITY_TYPE', MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT)
+			->where('ENTITY_ID', $params['event']['ID'])
+		;
+
+		$mailbox = $mailBoxQuery->fetch();
+		if (!$mailbox)
+		{
+			return;
+		}
+
 		$params['event']['ORGANIZER_MAIL'] = $attendees[$params['event']['MEETING_HOST']];
 		$params['event']['ORGANIZER_MAIL']['MAILTO'] = $params['event']['MEETING']['MAILTO'];
 		$params['event']['ATTENDEES_MAIL'] = $attendees[$params['event']['OWNER_ID']];
+		$params['event']['ICAL_ORGANIZER'] = (Helper::getAttendee($params['event']['MEETING_HOST'], $params['event']['PARENT_ID'], false))
+			->setStatus(null)
+			->setRole(null)
+			->setRsvp(false)
+			->setCutype(null)
+		;
 
-		$replyStatus = OutcomingEventManager::getInstance([
+		$answer = isset($params['answer']) && $params['answer']
+			? IncomingInvitationRequestHandler::MEETING_STATUS_ACCEPTED_CODE
+			: IncomingInvitationRequestHandler::MEETING_STATUS_DECLINED_CODE
+		;
+		$attendee = Helper::getAttendee($params['event']['OWNER_ID'], $params['event']['PARENT_ID'], false);
+		$status = Dictionary::OUT_ATTENDEES_STATUS[$answer];
+		$attendee->setStatus($status);
+		$attendee->setEmail($mailbox['EMAIL'])->setMailto($mailbox['EMAIL']);
+		$attendeesCollection = new AttendeesCollection([$attendee]);
+
+		$replyStatus = OutcomingEventManager::createInstance([
 			'icalMethod' => 'reply',
 			'arFields' => $params['event'],
-			'userIndex' => $attendees,
+			'userIndex' => $attendeesCollection,
 			'receiver' => $params['event']['ORGANIZER_MAIL'],
 			'sender' => $attendees[$params['event']['OWNER_ID']],
+			'answer' => $answer,
 		])->replyInvitation()->getStatus();
 	}
 

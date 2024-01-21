@@ -67,12 +67,12 @@ font-family: consolas, monospace!important;font-size:12px!important;line-height:
 /* * * * * * * * * * * * * * */
 
 /* LIGHT THEME*/
-.bxce--light {border-right: 1px solid #D0D7D8; border-top: 1px solid #D0D7D8;}
-.bxce--light .bxce-foot-cont{background: #FFFFFF; border-bottom: 1px solid #D0D7D8; border-top: 1px solid #D0D7D8; border-right: 0 solid #D0D7D8; border-left: 1px solid #D0D7D8;text-align: left;}
+.bxce--light {border-right: 1px solid #D0D7D8; border-top: 1px solid #D0D7D8; box-sizing: border-box;}
+.bxce--light .bxce-foot-cont{background: #FFFFFF; border-bottom: 1px solid #D0D7D8; border-top: 1px solid #D0D7D8; border-right: 0; border-left: 1px solid #D0D7D8; text-align: left;}
 .bxce--light .bxce-line-num-bg, .bxce--light .bxce-line-num{background: #ECE9D8; color:#3F3F3F;}
 .bxce--light .bxce-cur-line {background: #ECE9D8; color: #000000!important;}
 .bxce--light .bxce-ta{color: #000000;}
-.bxce--light .bxce-base-cont{background-color: #FFFFFF; border-right: 1px solid #D0D7D8;}
+.bxce--light .bxce-base-cont{background-color: #FFFFFF; border-right: 1px solid #D0D7D8; box-sizing: border-box;}
 .bxce--light .bxce-go-to-line-cont{background:url("/bitrix/images/fileman/codeeditor/but.png") no-repeat -125px -62px;}
 .bxce--light .bxce-go-to-line{color: #000000!important;}
 

@@ -47,12 +47,16 @@ class StartIdFilter extends Base
 
 	private function filterMessagesByStartId(MessageCollection $messages): void
 	{
-		foreach ($messages as $message)
+		$keysToUnset = [];
+
+		foreach ($messages as $key => $message)
 		{
 			if ($message->getMessageId() && $message->getMessageId() < $message->getChat()->getStartId())
 			{
-				unset($messages[$message->getMessageId()]);
+				$keysToUnset[$key] = $key;
 			}
 		}
+
+		$messages->unsetByKeys($keysToUnset);
 	}
 }

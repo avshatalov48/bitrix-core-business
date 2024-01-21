@@ -5,8 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'dist/bundle.css',
-	'js' => 'dist/bundle.js',
+	'css' => 'dist/sidepanel.menu.bundle.css',
+	'js' => 'dist/sidepanel.menu.bundle.js',
 	'rel' => [
 		'ui.fonts.opensans',
 		'main.popup',

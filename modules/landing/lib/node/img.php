@@ -139,15 +139,18 @@ class Img extends \Bitrix\Landing\Node
 					if ($isLazy)
 					{
 						$resultList[$pos]->setAttribute('data-lazy-bg', 'Y');
-						if ($lazyOrigSrc = $value['lazyOrigSrc'])
+						$lazyOrigSrc = ($value['lazyOrigSrc'] ?? null);
+						if ($lazyOrigSrc)
 						{
 							$resultList[$pos]->setAttribute('data-src', $lazyOrigSrc);
 						}
-						if ($lazyOrigSrc2x = $value['lazyOrigSrc2x'])
+						$lazyOrigSrc2x = ($value['lazyOrigSrc2x'] ?? null);
+						if ($lazyOrigSrc2x)
 						{
 							$resultList[$pos]->setAttribute('data-src2x', $lazyOrigSrc2x);
 						}
-						if ($lazyOrigStyle = $value['lazyOrigStyle'])
+						$lazyOrigStyle = ($value['lazyOrigStyle'] ?? null);
+						if ($lazyOrigStyle)
 						{
 							$resultList[$pos]->setAttribute('data-style', $lazyOrigStyle);
 						}

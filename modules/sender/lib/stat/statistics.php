@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sender\Stat;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Localization\Loc;
@@ -284,9 +285,9 @@ class Statistics
 		return array(
 			'CODE' => $code,
 			'VALUE' => round($value, 3),
-			'VALUE_DISPLAY' => self::formatNumber($value, 1),
-			'PERCENT_VALUE' => round($percentValue, $code == 'UNSUB' ? 3 : 3),
-			'PERCENT_VALUE_DISPLAY' => self::formatNumber($percentValue * 100, $code == 'UNSUB' ? 1 : 1),
+			'VALUE_DISPLAY' => self::formatNumber($value),
+			'PERCENT_VALUE' => round($percentValue, 3),
+			'PERCENT_VALUE_DISPLAY' => self::formatNumber($percentValue * 100),
 		);
 	}
 
@@ -336,10 +337,11 @@ class Statistics
 			'CLICK' => 'COUNT_CLICK',
 			'UNSUB' => 'COUNT_UNSUB'
 		);
-		$runtime = array(
+		$sqlHelper = Application::getConnection()->getSqlHelper();
+		$runtime = [
 			new ExpressionField('CNT', 'COUNT(%s)', 'ID'),
-			new ExpressionField('DATE', 'DATE(%s)', 'DATE_SENT'),
-		);
+			new ExpressionField('DATE', $sqlHelper->getDatetimeToDateFunction('%s'), 'DATE_SENT'),
+		];
 		foreach ($select as $alias => $fieldName)
 		{
 			$runtime[] = new ExpressionField($alias, 'SUM(%s)', $fieldName);

@@ -30,9 +30,9 @@ class UserFactory
 		'PERSONAL_WWW',
 		'ACTIVE',
 		'WORK_PHONE',
-		'PERSONAL_PHONE',
 		'PERSONAL_MOBILE',
-		'COLOR' => 'STATUS.COLOR',
+		'COLOR' => 'ST.COLOR',
+		'STATUS' => 'ST.STATUS',
 	];
 
 	protected static self $instance;
@@ -101,6 +101,7 @@ class UserFactory
 
 		$preparedUserData = $userData;
 		$preparedUserData['COLOR'] = $this->getColor($userData);
+		$preparedUserData['STATUS'] = $userData['STATUS'] ?? null;
 		$preparedUserData['NAME'] = \Bitrix\Im\User::formatFullNameFromDatabase($userData);
 		$preparedUserData['FIRST_NAME'] = \Bitrix\Im\User::formatNameFromDatabase($userData);
 		$preparedUserData['BIRTHDAY'] =
@@ -121,7 +122,11 @@ class UserFactory
 		{
 			$preparedUserData['WORK_PHONE'] = CVoxImplantPhone::Normalize($userData['WORK_PHONE']) ?: null;
 			$preparedUserData['PERSONAL_MOBILE'] = CVoxImplantPhone::Normalize($userData['PERSONAL_MOBILE']) ?: null;
-			$preparedUserData['PERSONAL_PHONE'] = CVoxImplantPhone::Normalize($userData['PERSONAL_PHONE']) ?: null;
+		}
+
+		if (Loader::includeModule('intranet'))
+		{
+			$preparedUserData['INNER_PHONE'] = $userData['UF_PHONE_INNER'] ?? null;
 		}
 
 		return $preparedUserData;
@@ -134,9 +139,9 @@ class UserFactory
 			->setLimit(1)
 			->where('ID', $id)
 			->registerRuntimeField(
-				'STATUS',
+				'ST',
 				new Reference(
-					'STATUS',
+					'ST',
 					StatusTable::class,
 					Join::on('this.ID', 'ref.USER_ID'),
 					['join_type' => Join::TYPE_LEFT]
@@ -147,6 +152,7 @@ class UserFactory
 		if (Loader::includeModule('intranet'))
 		{
 			$query->addSelect('UF_DEPARTMENT');
+			$query->addSelect('UF_PHONE_INNER');
 		}
 
 		return $query->fetch() ?: null;
@@ -237,7 +243,7 @@ class UserFactory
 		$cacheSubDir = $id % 100;
 		$cacheSubSubDir = ($id % 10000) / 100;
 
-		return "/bx/imc/userdata_v2/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
+		return "/bx/imc/userdata_v4/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
 	}
 
 	//endregion

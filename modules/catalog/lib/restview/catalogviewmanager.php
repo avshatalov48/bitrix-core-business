@@ -134,6 +134,11 @@ final class CatalogViewManager extends ViewManager
 			return new RestView\DocumentContractor();
 		}
 
+		if ($controller instanceof Controller\Userfield\Document)
+		{
+			return new RestView\DocumentUserField();
+		}
+
 		throw new RestException('Unknown object ' . get_class($controller));
 	}
 }

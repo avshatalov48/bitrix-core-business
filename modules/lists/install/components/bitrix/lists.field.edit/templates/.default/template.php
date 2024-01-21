@@ -326,7 +326,7 @@ elseif($arResult["FORM_DATA"]["TYPE"] == "DETAIL_PICTURE")
 }
 elseif($arResult["FORM_DATA"]["TYPE"] == "S")
 {
-	if ($arResult["FORM_DATA"]["ROW_COUNT"] > 1)
+	if (($arResult["FORM_DATA"]["ROW_COUNT"] ?? 0) > 1)
 	{
 		$arTab1Fields[] = array(
 			"id" => "DEFAULT_VALUE",
@@ -345,7 +345,7 @@ elseif($arResult["FORM_DATA"]["TYPE"] == "S")
 			"id" => "DEFAULT_VALUE",
 			"name" => GetMessage("CT_BLFE_FIELD_DEFAULT_VALUE"),
 			"params" => array(
-				"size" => $arResult["FORM_DATA"]["COL_COUNT"],
+				"size" => ($arResult["FORM_DATA"]["COL_COUNT"] ?? 0),
 			),
 		);
 	}
@@ -494,7 +494,7 @@ elseif($arResult["FORM_DATA"]["TYPE"] === "S")
 		"id"=>"INPUT_SIZE",
 		"name"=>GetMessage("CT_BLFE_FIELD_INPUT_SIZE"),
 		"type"=>"custom",
-		"value"=>'<input type="text" size="2" maxlength="10" name="ROW_COUNT" value="'.intval($arResult["FORM_DATA"]["ROW_COUNT"]).'"> x <input type="text" size="2" maxlength="10" name="COL_COUNT" value="'.intval($arResult["FORM_DATA"]["COL_COUNT"]).'">',
+		"value"=>'<input type="text" size="2" maxlength="10" name="ROW_COUNT" value="'.intval($arResult["FORM_DATA"]["ROW_COUNT"] ?? 0).'"> x <input type="text" size="2" maxlength="10" name="COL_COUNT" value="'.intval($arResult["FORM_DATA"]["COL_COUNT"] ?? 0).'">',
 	);
 }
 

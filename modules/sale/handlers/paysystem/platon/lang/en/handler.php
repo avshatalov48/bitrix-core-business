@@ -1,9 +1,5 @@
 <?php
 $MESS["SALE_HPS_PLATON_ERROR_CARD_NOT_FOUND"] = "Card number was not found";
-$MESS["SALE_HPS_PLATON_MODE_APPLE_PAY"] = "Payment via Apple Pay";
-$MESS["SALE_HPS_PLATON_MODE_CARD"] = "Credit/debit card payment";
-$MESS["SALE_HPS_PLATON_MODE_GOOGLE_PAY"] = "Payment via Google Pay";
-$MESS["SALE_HPS_PLATON_MODE_PRIVAT24"] = "Payment via Privat24";
 $MESS["SALE_HPS_PLATON_REFUND_ERROR"] = "Error processing chargeback request.";
 $MESS["SALE_HPS_PLATON_REFUND_IN_PROCESS"] = "(chargeback in progress)";
 $MESS["SALE_HPS_PLATON_REQUEST_ERROR"] = "Error processing server request";

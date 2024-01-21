@@ -108,9 +108,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 
 		$orderCompatibility = new static();
 
-		$lid = $fields['LID'];
-		$userId = $fields['USER_ID'];
-		$currency = $fields['CURRENCY'];
+
 
 		$registry = Sale\Registry::getInstance(static::getRegistryType());
 		/** @var Sale\Order $orderClassName */
@@ -125,6 +123,9 @@ class OrderCompatibility extends Internals\EntityCompatibility
 		}
 		else
 		{
+			$lid = $fields['LID'] ?? '';
+			$userId = $fields['USER_ID'] ?? null;
+			$currency = $fields['CURRENCY'] ?? null;
 			if (!$order = $orderClassName::create($lid, $userId, $currency))
 			{
 				throw new Sale\UserMessageException('Order not create');
@@ -1815,7 +1816,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 					$order->setBasket($basket);
 					$order->setMathActionOnly(false);
 				}
-				
+
 				if ($orderCompatibility->isExistPrice() && $oldPrice == $order->getPrice())
 				{
 					$order->setFieldNoDemand('PRICE', $orderCompatibility->externalPrice);
@@ -1921,7 +1922,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 					}
 				}
 			}
-			
+
 			$result->setData(array(
 								'OLD_FIELDS' => $oldFields
 							));
@@ -2677,7 +2678,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 	}
 
 	/**
-	 * @internal 
+	 * @internal
 	 * @return array
 	 */
 	public static function getAliasFields()
@@ -2714,10 +2715,11 @@ class OrderCompatibility extends Internals\EntityCompatibility
 //			'COMPLETE_ORDERS' => 'PROPERTY.ORDER_PROPS_ID',
 
 		);
-		return array_merge($fields,
-						   static::getAliasPaymentFields(),
-						   static::getAliasShipmentFields(),
-						   static::getAliasBasketFields()
+		return array_merge(
+			$fields,
+			static::getAliasPaymentFields(),
+			static::getAliasShipmentFields(),
+			static::getAliasBasketFields()
 		);
 	}
 
@@ -2782,9 +2784,9 @@ class OrderCompatibility extends Internals\EntityCompatibility
 			'BASKET_CURRENCY' => 'BASKET.CURRENCY',
 			'BASKET_VAT_RATE' => 'BASKET.VAT_RATE',
 			'BASKET_RECOMMENDATION' => 'BASKET.RECOMMENDATION',
-            'BASKET_DISCOUNT_PRICE' => 'BASKET.DISCOUNT_PRICE',
-            'BASKET_DISCOUNT_NAME' => 'BASKET.DISCOUNT_NAME',
-            'BASKET_DISCOUNT_VALUE' => 'BASKET.DISCOUNT_VALUE',
+			'BASKET_DISCOUNT_PRICE' => 'BASKET.DISCOUNT_PRICE',
+			'BASKET_DISCOUNT_NAME' => 'BASKET.DISCOUNT_NAME',
+			'BASKET_DISCOUNT_VALUE' => 'BASKET.DISCOUNT_VALUE',
 		);
 	}
 
@@ -2895,7 +2897,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 			'REASON_MARKED',
 		);
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -3151,7 +3153,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 	/**
 	 * @param Sale\Order $order
 	 *
-	 * @return array
+	 * @return Sale\Result
 	 */
 	public static function getOrderFields(Sale\Order $order)
 	{
@@ -3183,10 +3185,10 @@ class OrderCompatibility extends Internals\EntityCompatibility
 			$orderFields = static::convertDateFieldsToOldFormat($orderFields);
 		}
 
-		$result->setData(array(
-							 'FIELDS' => $fields,
-							 'ORDER_FIELDS' => $orderFields,
-						 ));
+		$result->setData([
+			'FIELDS' => $fields,
+			'ORDER_FIELDS' => $orderFields,
+		]);
 
 		return $result;
 	}
@@ -3201,16 +3203,18 @@ class OrderCompatibility extends Internals\EntityCompatibility
 		$fields = $order->getFieldValues();
 
 		//getWeight
-		$fields = array_merge($fields,
-							  array(
-								  'ORDER_WEIGHT' => 0,
-								  'BASKET_ITEMS' => array(),
-								  'ORDER_PROP' => array(),
-								  'DISCOUNT_LIST' => array(),
-								  'TAX_LIST' => array(),
-								  'VAT_RATE' => $order->getVatRate(),
-								  'VAT_SUM' => $order->getVatSum(),
-							  ));
+		$fields = array_merge(
+			$fields,
+			[
+				'ORDER_WEIGHT' => 0,
+				'BASKET_ITEMS' => [],
+				'ORDER_PROP' => [],
+				'DISCOUNT_LIST' => [],
+				'TAX_LIST' => [],
+				'VAT_RATE' => $order->getVatRate(),
+				'VAT_SUM' => $order->getVatSum(),
+			]
+		);
 
 		/** @var Sale\Basket $basket */
 		if ($basket = $order->getBasket())

@@ -1579,7 +1579,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 						<span class="bizproc-debugger-automation__log-info--name-text">
 							${0}
 						</span>
-						<span>:</span>
 					</div>
 					<div class="bizproc-debugger-automation__log-info--value">
 						<span class="bizproc-debugger-automation__log-color-box --blue">
@@ -1588,7 +1587,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 					</div>
 				</div>
 			</div>
-		`), babelHelpers.classPrivateFieldLooseBase(this, _view)[_view].renderIndex(), main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_AFTER_PREVIOUS'), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _prevRobotTitle)[_prevRobotTitle]));
+		`), babelHelpers.classPrivateFieldLooseBase(this, _view)[_view].renderIndex(), main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_AFTER_PREVIOUS_MSGVER_1'), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _prevRobotTitle)[_prevRobotTitle]));
 	  babelHelpers.classPrivateFieldLooseBase(this, _currentIndex)[_currentIndex] = babelHelpers.classPrivateFieldLooseBase(this, _view)[_view].index;
 	  return node;
 	}

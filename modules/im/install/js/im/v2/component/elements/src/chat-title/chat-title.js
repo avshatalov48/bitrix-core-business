@@ -1,11 +1,11 @@
 import { Text } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
-import { DialogType, Settings } from 'im.v2.const';
+import { ChatType, Settings } from 'im.v2.const';
 
 import './chat-title.css';
 
-import type { ImModelDialog, ImModelUser } from 'im.v2.model';
+import type { ImModelChat, ImModelUser, ImModelBot } from 'im.v2.model';
 
 const DialogSpecialType = {
 	bot: 'bot',
@@ -57,9 +57,9 @@ export const ChatTitle = {
 	},
 	computed:
 	{
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		user(): ImModelUser
 		{
@@ -72,11 +72,13 @@ export const ChatTitle = {
 				return '';
 			}
 
-			return this.$store.getters['users/getBotType'](this.dialogId);
+			const { type }: ImModelBot = this.$store.getters['users/bots/getByUserId'](this.dialogId);
+
+			return type;
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
 		},
 		isSelfChat(): boolean
 		{
@@ -122,7 +124,7 @@ export const ChatTitle = {
 					return DialogSpecialType.extranet;
 				}
 
-				if ([DialogType.support24Notifier, DialogType.support24Question].includes(this.dialog.type))
+				if ([ChatType.support24Notifier, ChatType.support24Question].includes(this.dialog.type))
 				{
 					return DialogSpecialType.support24;
 				}
@@ -191,12 +193,12 @@ export const ChatTitle = {
 		},
 		isBot(): boolean
 		{
-			if (this.isUser)
+			if (!this.isUser)
 			{
-				return this.user.bot;
+				return false;
 			}
 
-			return false;
+			return this.user.bot === true;
 		},
 		isExtranet(): boolean
 		{

@@ -30,7 +30,7 @@ BX.Catalog.productGridInit = function(grid) {
 		dialogInstance.Show();
 	}
 
-	grid.sendActionWithConfirm = function(action, data, confirmMessage)
+	grid.sendSmallPopupWithConfirm = function(action, data, confirmMessage, confirmButtonMessage, backButtonMessage)
 	{
 		BX.UI.Dialogs.MessageBox.confirm(
 			confirmMessage,
@@ -38,9 +38,37 @@ BX.Catalog.productGridInit = function(grid) {
 				grid.sendRowAction(action, data);
 				messageBox.close();
 			},
-			BX.Loc.getMessage('UI_MESSAGE_BOX_YES_CAPTION')
+			confirmButtonMessage,
+			(messageBox) => {
+				messageBox.close();
+			},
+			backButtonMessage,
 		);
-	}
+	};
+
+	grid.sendMediumPopupWithConfirm = function(
+		action,
+		data,
+		titleMessage,
+		confirmMessage,
+		confirmButtonMessage,
+		backButtonMessage,
+	)
+	{
+		BX.UI.Dialogs.MessageBox.confirm(
+			confirmMessage,
+			titleMessage,
+			(messageBox) => {
+				grid.sendRowAction(action, data);
+				messageBox.close();
+			},
+			confirmButtonMessage,
+			(messageBox) => {
+				messageBox.close();
+			},
+			backButtonMessage,
+		);
+	};
 
 	return grid;
 }

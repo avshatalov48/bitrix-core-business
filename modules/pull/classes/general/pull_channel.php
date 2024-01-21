@@ -1,8 +1,7 @@
 <?php
 
 use Bitrix\Main\Security\Sign;
-
-IncludeModuleLangFile(__FILE__);
+use Bitrix\Main\Localization\Loc;
 
 class CPullChannel
 {
@@ -62,7 +61,7 @@ class CPullChannel
 		{
 			CTimeZone::Disable();
 			$strSql = "
-					SELECT C.CHANNEL_ID, C.CHANNEL_PUBLIC_ID, C.CHANNEL_TYPE, ".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." DATE_CREATE, C.LAST_ID
+					SELECT C.CHANNEL_ID, C.CHANNEL_PUBLIC_ID, C.CHANNEL_TYPE, ".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." AS DATE_CREATE, C.LAST_ID
 					FROM b_pull_channel C
 					WHERE C.USER_ID = ".$userId." AND C.CHANNEL_TYPE = '".$DB->ForSQL($channelType)."'
 			";
@@ -305,7 +304,7 @@ class CPullChannel
 		{
 			CTimeZone::Disable();
 			$strSql = "
-					SELECT CHANNEL_ID, CHANNEL_PUBLIC_ID, ".$DB->DatetimeToTimestampFunction('DATE_CREATE')." DATE_CREATE, LAST_ID
+					SELECT CHANNEL_ID, CHANNEL_PUBLIC_ID, ".$DB->DatetimeToTimestampFunction('DATE_CREATE')." AS DATE_CREATE, LAST_ID
 					FROM b_pull_channel
 					WHERE USER_ID = ".$userId." AND CHANNEL_TYPE = '".$DB->ForSQL($channelType)."'
 			";
@@ -549,7 +548,7 @@ class CPullChannel
 			else if ($nginx_error['count'] >= 10)
 			{
 				$ar = Array(
-					"MESSAGE" => GetMessage('PULL_ERROR_SEND'),
+					"MESSAGE" => Loc::getMessage('PULL_ERROR_SEND'),
 					"TAG" => "PULL_ERROR_SEND",
 					"MODULE_ID" => "pull",
 				);
@@ -631,19 +630,27 @@ class CPullChannel
 		global $DB;
 		$sqlDateFunction = null;
 
-		if ($DB->type == "MYSQL")
-			$sqlDateFunction = "DATE_SUB(NOW(), INTERVAL 13 HOUR)";
+		if ($DB->type == "MYSQL" || $DB->type == "PGSQL")
+		{
+			$helper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
+			$sqlDateFunction = $helper->addSecondsToDateTime(-13 * 3600);
+		}
 		elseif ($DB->type == "MSSQL")
+		{
 			$sqlDateFunction = "dateadd(HOUR, -13, getdate())";
+		}
 		elseif ($DB->type == "ORACLE")
+		{
 			$sqlDateFunction = "SYSDATE-1/13";
+		}
 
 		if (!is_null($sqlDateFunction))
 		{
 			$strSql = "
-					SELECT USER_ID, CHANNEL_ID, CHANNEL_TYPE
-					FROM b_pull_channel
-					WHERE DATE_CREATE < ".$sqlDateFunction;
+				SELECT USER_ID, CHANNEL_ID, CHANNEL_TYPE
+				FROM b_pull_channel
+				WHERE DATE_CREATE < {$sqlDateFunction}
+			";
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			while ($arRes = $dbRes->Fetch())
 			{
@@ -651,127 +658,46 @@ class CPullChannel
 			}
 		}
 
-		return "CPullChannel::CheckExpireAgent();";
+		return __METHOD__. '();';
 	}
 
 	public static function CheckOnlineChannel()
 	{
 		if (!CPullOptions::GetQueueServerStatus())
+		{
 			return "CPullChannel::CheckOnlineChannel();";
+		}
 
-		$users = Array();
 		$channels = Array();
 
-		$isImInstalled = CModule::IncludeModule('im');
-		if ($isImInstalled)
-		{
-			$orm = \Bitrix\Main\UserTable::getList(array(
-				'select' => Array(
-					'USER_ID' => 'ID',
-					'CHANNEL_ID' =>	'CHANNEL.CHANNEL_ID',
-					'STATUS' =>	'ST.STATUS',
-					'COLOR' =>	'ST.COLOR',
-					'IDLE' => 'ST.IDLE',
-					'MOBILE_LAST_DATE' => 'ST.MOBILE_LAST_DATE',
-					'DESKTOP_LAST_DATE' => 'ST.DESKTOP_LAST_DATE',
-				 ),
-				'runtime' => Array(
-					new \Bitrix\Main\Entity\ReferenceField(
-						'CHANNEL',
-						'\Bitrix\Pull\Model\ChannelTable',
-						array(
-							"=ref.USER_ID" => "this.ID",
-							"=ref.CHANNEL_TYPE" => new \Bitrix\Main\DB\SqlExpression('?s', 'private'),
-						),
-						array("join_type"=>"INNER")
-					),
-					new \Bitrix\Main\Entity\ReferenceField(
-						'ST',
-						'\Bitrix\Im\Model\StatusTable',
-						array("=ref.USER_ID" => "this.ID"),
-						array("join_type"=>"LEFT")
-					),
-				),
-				'filter' => Array(
-					'=IS_ONLINE' => 'Y',
-					'=IS_REAL_USER' => 'Y'
-				)
-			));
-		}
-		else
-		{
-			$orm = \Bitrix\Pull\ChannelTable::getList([
-				'select' => [
-					'USER_ID',
-					'CHANNEL_ID'
-				],
-				'filter' => [
-					'=CHANNEL_TYPE' => 'private',
-					'=USER.IS_ONLINE' => 'Y',
-					'=USER.IS_REAL_USER' => 'Y',
-				]
-			]);
-		}
+		$orm = \Bitrix\Pull\ChannelTable::getList([
+			'select' => [
+				'USER_ID',
+				'CHANNEL_ID'
+			],
+			'filter' => [
+				'=CHANNEL_TYPE' => 'private',
+				'=USER.IS_ONLINE' => 'Y',
+				'=USER.IS_REAL_USER' => 'Y',
+			]
+		]);
 
 		while ($res = $orm->fetch())
 		{
 			$channels[$res['CHANNEL_ID']] = $res['USER_ID'];
-			$users[$res['USER_ID']] = $isImInstalled? CIMStatus::prepareLastDate($res): $res;
 		}
 
-		if (count($users) == 0)
+		if (count($channels) == 0)
 		{
 			return "CPullChannel::CheckOnlineChannel();";
 		}
 
 		$arOnline = static::getOnlineUsers($channels);
-
 		if (count($arOnline) > 0)
 		{
 			ksort($arOnline);
 			CUser::SetLastActivityDateByArray($arOnline);
 		}
-
-			$arSend = Array();
-			if ($isImInstalled)
-			{
-				foreach ($arOnline as $userId)
-				{
-					$arSend[$userId] = Array(
-						'id' => $userId,
-						'status' => $users[$userId]['STATUS'],
-						'color' => $users[$userId]['COLOR']? \Bitrix\Im\Color::getColor($users[$userId]['COLOR']): \Bitrix\Im\Color::getColorByNumber($userId),
-						'idle' => $users[$userId]['IDLE'],
-						'mobile_last_date' => $users[$userId]['MOBILE_LAST_DATE'],
-						'desktop_last_date' => $users[$userId]['DESKTOP_LAST_DATE'],
-						'last_activity_date' => new \Bitrix\Main\Type\DateTime(),
-					);
-				}
-			}
-			else
-			{
-				foreach ($arOnline as $userId)
-				{
-					$arSend[$userId] = Array(
-						'id' => $userId,
-						'status' => 'online',
-						'color' => '#556574',
-						'idle' => false,
-						'mobile_last_date' => false,
-						'desktop_last_date' => false,
-						'last_activity_date' => new \Bitrix\Main\Type\DateTime(),
-					);
-				}
-			}
-
-		CPullStack::AddShared(Array(
-			'module_id' => 'online',
-			'command' => 'list',
-			'expiry' => 240,
-			'params' => Array(
-				'users' => $arSend
-			),
-		));
 
 		return "CPullChannel::CheckOnlineChannel();";
 	}
@@ -795,7 +721,7 @@ class CPullChannel
 		if (\Bitrix\Pull\Config::isJsonRpcUsed())
 		{
 			$userList = array_map("intval", array_values($channels));
-			$result = \Bitrix\Pull\JsonRpcTransport::getUsersLastSeen($userList);
+			$result = (new \Bitrix\Pull\JsonRpcTransport())->getUsersLastSeen($userList);
 			if (!$result->isSuccess())
 			{
 				return [];
@@ -949,4 +875,4 @@ class CPullChannel
 		return $result;
 	}
 }
-?>
+

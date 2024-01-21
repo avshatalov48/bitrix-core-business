@@ -38,17 +38,23 @@
 		{
 			this.showPopup('Mail_limit');
 		},
-		showPopup: function (code)
+		showPopup: function (code, id = null)
 		{
 			if (!B24 || !B24.licenseInfoPopup)
 			{
 				return;
 			}
-
 			switch (code)
 			{
 				case 'Ad':
-					code = 'limit_crm_marketing_adv';
+					if (id === 'toloka')
+					{
+						code = 'limit_integration_yandex_toloka';
+					}
+					else
+					{
+						code = 'limit_crm_marketing_adv';
+					}
 					break;
 				case 'Rc':
 					code = 'limit_crm_marketing_sales_generator';

@@ -3,6 +3,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Main\Engine\Response\AjaxJson;
+use Bitrix\Main\Event;
 use Bitrix\Ui\EntityForm\Scope;
 use Bitrix\Ui\EntityForm\ScopeAccess;
 use Bitrix\UI\Form\EntityEditorConfigScope;
@@ -48,6 +49,20 @@ class UiFormConfigAjaxController extends \Bitrix\Main\Engine\Controller
 	 * @param int $userScopeId
 	 * @return void|AjaxJson
 	 */
+	protected function emitOnUIFormSetScope(string $guid, string $scope, string $categoryName = '')
+	{
+		$event = new Event(
+			'ui',
+			'onUIFormSetScope',
+			[
+				'GUID' => $guid,
+				'SCOPE' => $scope,
+				'CATEGORY_NAME' => $categoryName
+			]
+		);
+		$event->send();
+	}
+
 	public function setScopeAction(string $moduleId, string $categoryName, string $guid, string $scope, int $userScopeId = 0)
 	{
 		if (
@@ -59,7 +74,10 @@ class UiFormConfigAjaxController extends \Bitrix\Main\Engine\Controller
 		)
 		{
 			Scope::getInstance()->setScope($categoryName, $guid, $scope, $userScopeId);
-			return;
+
+			$this->emitOnUIFormSetScope($guid, $scope, $categoryName);
+
+			return null;
 		}
 
 		return $this->getAccessDenied();

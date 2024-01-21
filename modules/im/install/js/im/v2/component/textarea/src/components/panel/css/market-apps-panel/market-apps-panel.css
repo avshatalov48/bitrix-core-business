@@ -1,0 +1,68 @@
+.bx-im-market-apps-panel__scope {
+	--im-market-apps-panel__border-color_container: #edeef0;
+	--im-market-apps-panel__color_empty-state-text: #525c69;
+	--im-market-apps-panel__color_more-items-button-text: #008dba;
+	--im-market-apps-panel__background-color_more-items-button-hover: #ecfafe;
+	--im-market-apps-panel__background-image_empty-state: url('../images/market-apps-empty-state.svg');
+}
+
+.bx-im-market-apps-panel__container {
+	height: 57px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	overflow: hidden;
+	border-bottom: 1px solid var(--im-market-apps-panel__border-color_container);
+	padding: 0 14px;
+}
+
+.bx-im-market-apps-panel__items-container {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	overflow: hidden;
+}
+
+.bx-im-market-apps-panel__items-container.--short {
+	gap: 0;
+}
+
+.bx-im-market-apps-panel__more-items-button {
+	flex-shrink: 0;
+	height: 32px;
+	padding: 9px 10px 9px 8px;
+	border-radius: 100px;
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-market-apps-panel__color_more-items-button-text);
+}
+
+.bx-im-market-apps-panel__more-items-button.--active,
+.bx-im-market-apps-panel__more-items-button:hover {
+	background-color: var(--im-market-apps-panel__background-color_more-items-button-hover);
+	cursor: pointer;
+}
+
+/*empty state*/
+.bx-im-market-apps-panel__empty-state-container {
+	display: flex;
+	align-items: center;
+	gap: 22px;
+	overflow: hidden;
+	height: 69px;
+	border-bottom: 1px solid var(--im-market-apps-panel__border-color_container);
+}
+
+.bx-im-market-apps-panel__empty-state-icon {
+	height: 68px;
+	width: 103px;
+	flex-shrink: 0;
+	background-image: var(--im-market-apps-panel__background-image_empty-state);
+	background-repeat: no-repeat;
+}
+
+.bx-im-market-apps-panel__empty-state-text {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-market-apps-panel__color_empty-state-text);
+}

@@ -23,11 +23,6 @@ Class workflow extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = WORKFLOW_VERSION;
-			$this->MODULE_VERSION_DATE = WORKFLOW_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("FLOW_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("FLOW_MODULE_DESCRIPTION");
@@ -36,14 +31,14 @@ Class workflow extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		// Database tables creation
 		$bDBInstall = !$DB->Query("SELECT 'x' FROM b_workflow_document WHERE 1=0", true);
 		if($bDBInstall)
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/db/".$DBType."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -98,12 +93,12 @@ Class workflow extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		if(!array_key_exists("savedata", $arParams) || ($arParams["savedata"] != "Y"))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/db/".$DBType."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/db/mysql/uninstall.sql");
 		}
 
 		UnRegisterModuleDependences("main", "OnPanelCreate", "workflow", "CWorkflow", "OnPanelCreate");

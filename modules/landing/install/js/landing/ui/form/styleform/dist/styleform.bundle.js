@@ -4,7 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_form_baseform,landing_ui_highlight,landing_ui_field_basefield,landing_env,landing_ui_component_internal) {
 	'use strict';
 
-	var _templateObject, _templateObject2;
+	var _templateObject, _templateObject2, _templateObject3;
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -52,7 +52,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    if (_this.collapsed) {
 	      main_core.Dom.addClass(_this.layout, 'landing-ui-form-style--collapsed');
 	    }
-	    if (_this.specialType && _this.specialType === 'crm_forms' && landing_env.Env.getInstance().getOptions().specialType === 'crm_forms' && landing_env.Env.getInstance().getOptions().release_autumn_2023 === 'Y') {
+	    if (_this.specialType && _this.specialType === 'crm_forms' && landing_env.Env.getInstance().getOptions().specialType === 'crm_forms') {
 	      _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _addReplaceByTemplateCard, _addReplaceByTemplateCard2).call(babelHelpers.assertThisInitialized(_this));
 	    }
 	    return _this;
@@ -151,13 +151,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }
 	}
 	function _addReplaceByTemplateCard2() {
-	  var button = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-hover ui-btn-round\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_BUTTON'));
-	  var card = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-replace-by-templates-card\">\n\t\t\t<div class=\"landing-ui-form-replace-by-templates-card-title\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t", "\n\t\t</div>"])), main_core.Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_TITLE'), button);
+	  var isMinisitesAllowed = landing_env.Env.getInstance().getOptions().allow_minisites;
+	  var lockIcon = isMinisitesAllowed ? '' : main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-form-lock-icon\"></span>"])));
+	  var button = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"landing-ui-form-replace-by-templates-card-button ui-btn ui-btn-sm ui-btn-primary ui-btn-hover ui-btn-round\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_BUTTON'), lockIcon);
+	  var card = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-replace-by-templates-card\">\n\t\t\t<div class=\"landing-ui-form-replace-by-templates-card-title\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t", "\n\t\t</div>"])), main_core.Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_TITLE'), button);
 	  main_core.Dom.insertBefore(card, this.header);
 	  main_core.Event.bind(button, 'click', function () {
+	    if (!isMinisitesAllowed) {
+	      BX.UI.InfoHelper.show('limit_crm_forms_templates');
+	      return;
+	    }
 	    var metrika = new BX.Landing.Metrika(true);
 	    metrika.sendLabel(null, 'templateMarket', 'open&replaceLid=' + landingParams['LANDING_ID']);
-	    var templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE'];
+	    var templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'];
 	    if (templatesMarketUrl) {
 	      BX.SidePanel.Instance.open(templatesMarketUrl, {
 	        allowChangeHistory: false,

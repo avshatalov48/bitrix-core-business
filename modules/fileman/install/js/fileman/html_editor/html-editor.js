@@ -407,6 +407,9 @@
 				BX.addCustomEvent(this, "OnIframeSetValue", BX.proxy(this.AutoResizeSceleton, this));
 				BX.addCustomEvent(this, "OnFocus", BX.proxy(this.AutoResizeSceleton, this));
 				BX.addCustomEvent(this, "OnSetViewAfter", BX.proxy(this.AutoResizeSceleton, this));
+				new ResizeObserver(() => {
+					this.ResizeSceleton(this.dom.toolbarCont.offsetWidth);
+				}).observe(this.dom.toolbarCont);
 			}
 
 			BX.addCustomEvent(this, "OnIframeKeyup", BX.proxy(this.CheckBodyHeight, this));
@@ -970,10 +973,11 @@
 			if (view == 'split' && this.bbCode)
 				view = 'wysiwyg';
 
-			this.toolbar.HideControl('ai-image-generator');
-			this.toolbar.HideControl('ai-text-generator');
 			if (this.currentViewName != view)
 			{
+				this.toolbar.HideControl('ai-image-generator');
+				this.toolbar.HideControl('ai-text-generator');
+
 				if (view == 'wysiwyg')
 				{
 					this.iframeView.Show();

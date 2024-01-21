@@ -144,7 +144,8 @@ this.BX = this.BX || {};
 	        locationCapacity: options.locationCapacity || 0,
 	        ownerId: options.ownerId,
 	        userId: options.userId,
-	        formDataValue: options.formDataValue || null
+	        formDataValue: options.formDataValue || null,
+	        jumpToControl: options.jumpToControl
 	      }).show();
 	    }
 	  }
@@ -173,9 +174,6 @@ this.BX = this.BX || {};
 	      main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:beforeDelete', beforeDeleteHandler);
 	      const deleteHandler = () => {
 	        const calendar = calendar_util.Util.getCalendarContext();
-	        if (!calendar && !calendarContext) {
-	          return calendar_util.Util.getBX().reload();
-	        }
 	        if (calendar) {
 	          calendar.reload();
 	        } else if (calendarContext) {
@@ -564,6 +562,11 @@ this.BX = this.BX || {};
 	    this.parentId = parseInt(this.data.PARENT_ID || 0);
 	    if (!this.data.DT_SKIP_TIME) {
 	      this.data.DT_SKIP_TIME = this.data.SKIP_TIME ? 'Y' : 'N';
+	    }
+	    if (!main_core.Type.isString(this.data.NAME)) {
+	      this.data.NAME = main_core.Loc.getMessage('CALENDAR_DEFAULT_ENTRY_NAME');
+	    } else {
+	      this.data.NAME = this.data.NAME.replaceAll(/\r\n|\r|\n/g, ' ');
 	    }
 	    this.fullDay = this.data.DT_SKIP_TIME === 'Y';
 	    this.accessibility = this.data.ACCESSIBILITY || 'busy';

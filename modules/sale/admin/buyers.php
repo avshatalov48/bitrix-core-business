@@ -536,7 +536,7 @@ while ($arBuyers = $resultUsersList->Fetch())
 			$buyerLidId = SITE_ID;
 		}
 
-		$row->AddField("LID", htmlspecialcharsbx($arSites[$buyerLidId]["NAME"]));
+		$row->AddField('LID', htmlspecialcharsbx((string)($arSites[$buyerLidId]['NAME'] ?? '')));
 	}
 
 	/*BUYER*/

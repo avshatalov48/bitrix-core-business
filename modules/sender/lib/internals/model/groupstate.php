@@ -87,7 +87,7 @@ class GroupStateTable extends DataManager
 	}
 
 	/**
-	 * Handler of event `onDelete`.
+	 * Handler of event onDelete
 	 *
 	 * @param \Bitrix\Main\Entity\Event $event Event.
 	 * @return \Bitrix\Main\Entity\EventResult

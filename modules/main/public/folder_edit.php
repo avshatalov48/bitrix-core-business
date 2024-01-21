@@ -3,7 +3,10 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_bef
 
 IncludeModuleLangFile(__FILE__);
 
-$popupWindow = new CJSPopup(GetMessage('FOLDER_EDIT_WINDOW_TITLE'), array("SUFFIX"=>($_GET['subdialog'] == 'Y'? 'subdialog':'')));
+$popupWindow = new CJSPopup(
+	GetMessage('FOLDER_EDIT_WINDOW_TITLE'),
+	["SUFFIX" => (isset($_GET['subdialog']) && $_GET['subdialog'] === 'Y' ? 'subdialog' : '')]
+);
 
 if (IsModuleInstalled("fileman"))
 {

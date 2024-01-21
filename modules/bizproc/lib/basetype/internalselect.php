@@ -97,4 +97,14 @@ class InternalSelect extends Select
 		}
 		return $result;
 	}
+
+	public static function convertPropertyToView(FieldType $fieldType, int $viewMode, array $property): array
+	{
+		if ($viewMode === FieldType::RENDER_MODE_JN_MOBILE)
+		{
+			$property['Type'] = FieldType::SELECT;
+		}
+
+		return parent::convertPropertyToView($fieldType, $viewMode, $property);
+	}
 }

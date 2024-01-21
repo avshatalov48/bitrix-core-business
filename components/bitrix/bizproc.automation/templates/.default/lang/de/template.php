@@ -25,6 +25,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_DISK_ATTACHED_FILES"] = "Anhänge";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_ATTACH_FILE"] = "Dateien anhängen";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE"] = "Bitrix24 durchsuchen";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND"] = "Bitrix24.Drive im Fenster öffnen";
+$MESS["BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND_MSGVER_1"] = "Drive-Fenster öffnen";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE"] = "Datei hochladen";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND"] = "Per Drag'n'Drop hinzufügen";
 $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_STAGE_TEXT"] = "Automatisierungsregeln in dieser Phase können nur im Workflow-Designer bearbeitet werden. ";

@@ -6,6 +6,7 @@ use Bitrix\Calendar\Util;
 use Bitrix\Main;
 use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
@@ -32,6 +33,8 @@ use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
  */
 class EventTable extends Main\Entity\DataManager
 {
+	use DeleteByFilterTrait;
+	
 	/**
 	 * Returns DB table name for entity.
 	 *

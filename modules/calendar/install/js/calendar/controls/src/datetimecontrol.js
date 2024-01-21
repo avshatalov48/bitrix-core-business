@@ -193,6 +193,7 @@ export class DateTimeControl extends EventEmitter
 		this.value = value;
 
 		this.handleFullDayChange();
+		this.emit('onSetValue');
 	}
 
 	updateTimePeriod()
@@ -276,6 +277,9 @@ export class DateTimeControl extends EventEmitter
 
 		Event.bind(this.DOM.fromTime, 'input', this.handleTimeInput.bind(this));
 		Event.bind(this.DOM.toTime, 'input', this.handleTimeInput.bind(this));
+
+		Event.bind(this.DOM.fromTz, 'change', this.handleValueChange.bind(this));
+		Event.bind(this.DOM.toTz, 'change', this.handleValueChange.bind(this));
 
 		Event.bind(this.DOM.fullDay, 'click', () => {
 			this.handleFullDayChange();

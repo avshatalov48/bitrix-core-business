@@ -75,6 +75,11 @@ Class mail extends CModule
 
 			$eventManager->registerEventHandler('mobile', 'onRequestSyncMail', 'mail', '\Bitrix\Mail\Integration\SyncRequest', 'onRequestSyncMail');
 
+			$eventManager->registerEventHandler('calendar', 'OnAfterCalendarEventDelete', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onUnbindEvent');
+
+			$eventManager->registerEventHandler('ai', 'onTuningLoad', 'mail', '\Bitrix\Mail\Integration\AI\EventHandler', 'onTuningLoad');
+			$eventManager->registerEventHandler('ai', 'onContextGetMessages', 'mail', '\Bitrix\Mail\Integration\AI\Controller', 'onContextGetMessages');
+
 			RegisterModule("mail");
 
 			if (CModule::IncludeModule("mail"))
@@ -274,8 +279,12 @@ Class mail extends CModule
 		$eventManager->unRegisterEventHandler('im', 'OnGetNotifySchema', 'mail', '\Bitrix\Mail\Integration\Im\Notification', 'getSchema');
 
 		$eventManager->unRegisterEventHandler('mail', 'onMailMessageNew', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onMailMessageNew');
+		$eventManager->unRegisterEventHandler('calendar', 'OnAfterCalendarEventDelete', 'mail', '\Bitrix\Mail\Integration\Calendar\ICal\ICalMailEventManager', 'onUnbindEvent');
 
 		$eventManager->unRegisterEventHandler('mobile', 'onRequestSyncMail', 'mail', '\Bitrix\Mail\Integration\SyncRequest', 'onRequestSyncMail');
+
+		$eventManager->unRegisterEventHandler('ai', 'onTuningLoad', 'mail', '\Bitrix\Mail\Integration\AI\EventHandler', 'onTuningLoad');
+		$eventManager->unRegisterEventHandler('ai', 'onContextGetMessages', 'mail', '\Bitrix\Mail\Integration\AI\Controller', 'onContextGetMessages');
 
 		//delete agents
 		CAgent::RemoveModuleAgents("mail");

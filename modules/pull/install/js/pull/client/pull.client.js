@@ -1,5 +1,4 @@
-;(function ()
-{
+;(function () {
 	/**
 	 * Bitrix Push & Pull
 	 * Pull client
@@ -96,6 +95,7 @@
 		server: {timeShift: 0},
 		clientId: null,
 		jwt: null,
+		exp: 0,
 	};
 
 	// Protobuf message models
@@ -123,11 +123,11 @@
 
 	const RpcMethod = {
 		Publish: "publish",
-		Subscribe: "subscribe",
-	}
-
-	const InternalChannel = {
-		StatusChange: "internal:user_status",
+		GetUsersLastSeen: "getUsersLastSeen",
+		Ping: "ping",
+		ListChannels: "listChannels",
+		SubscribeStatusChange: "subscribeStatusChange",
+		UnsubscribeStatusChange: "unsubscribeStatusChange",
 	}
 
 	class PullClient
@@ -259,6 +259,8 @@
 
 			// bound event handlers
 			this.onPingTimeoutHandler = this.onPingTimeout.bind(this);
+
+			this.userStatusCallbacks = {}; // [userId] => array of callbacks
 		}
 
 		get connector()
@@ -350,10 +352,8 @@
 
 					this._subscribers[params.type][params.moduleId]['commands'][params.command].push(params.callback);
 
-					return function ()
-					{
-						this._subscribers[params.type][params.moduleId]['commands'][params.command] = this._subscribers[params.type][params.moduleId]['commands'][params.command].filter((element) =>
-						{
+					return function () {
+						this._subscribers[params.type][params.moduleId]['commands'][params.command] = this._subscribers[params.type][params.moduleId]['commands'][params.command].filter((element) => {
 							return element !== params.callback;
 						});
 					}.bind(this);
@@ -362,10 +362,8 @@
 				{
 					this._subscribers[params.type][params.moduleId]['callbacks'].push(params.callback);
 
-					return function ()
-					{
-						this._subscribers[params.type][params.moduleId]['callbacks'] = this._subscribers[params.type][params.moduleId]['callbacks'].filter((element) =>
-						{
+					return function () {
+						this._subscribers[params.type][params.moduleId]['callbacks'] = this._subscribers[params.type][params.moduleId]['callbacks'].filter((element) => {
 							return element !== params.callback;
 						});
 					}.bind(this);
@@ -380,10 +378,8 @@
 
 				this._subscribers[params.type].push(params.callback);
 
-				return function ()
-				{
-					this._subscribers[params.type] = this._subscribers[params.type].filter((element) =>
-					{
+				return function () {
+					this._subscribers[params.type] = this._subscribers[params.type].filter((element) => {
 						return element !== params.callback;
 					});
 				}.bind(this);
@@ -411,8 +407,7 @@
 			return this.subscribe({
 				type: type,
 				moduleId: handler.getModuleId(),
-				callback: function (data)
-				{
+				callback: function (data) {
 					let method = null;
 
 					if (typeof handler.getMap === 'function')
@@ -482,8 +477,7 @@
 
 				if (this._subscribers[params.type][params.moduleId]['callbacks'].length > 0)
 				{
-					this._subscribers[params.type][params.moduleId]['callbacks'].forEach(function (callback)
-					{
+					this._subscribers[params.type][params.moduleId]['callbacks'].forEach(function (callback) {
 						callback(params.data, {type: params.type, moduleId: params.moduleId});
 					});
 				}
@@ -492,8 +486,7 @@
 					this._subscribers[params.type][params.moduleId]['commands'][params.data.command]
 					&& this._subscribers[params.type][params.moduleId]['commands'][params.data.command].length > 0)
 				{
-					this._subscribers[params.type][params.moduleId]['commands'][params.data.command].forEach(function (callback)
-					{
+					this._subscribers[params.type][params.moduleId]['commands'][params.data.command].forEach(function (callback) {
 						callback(params.data.params, params.data.extra, params.data.command, {
 							type: params.type,
 							moduleId: params.moduleId
@@ -515,8 +508,7 @@
 					return true;
 				}
 
-				this._subscribers[params.type].forEach(function (callback)
-				{
+				this._subscribers[params.type].forEach(function (callback) {
 					callback(params.data, {type: params.type});
 				});
 
@@ -555,14 +547,13 @@
 
 			if (BX && BX.desktop)
 			{
-				BX.addCustomEvent("onDesktopReload", () =>
-				{
+				BX.addCustomEvent("onDesktopReload", () => {
 					this.session.mid = null;
 					this.session.tag = null;
 					this.session.time = null;
 				});
 
-				BX.desktop.addCustomEvent("BXLoginSuccess", () => this.restart(1000, "Desktop login"));
+				BX.desktop.addCustomEvent("BXLoginSuccess", () => this.restart(1000, "desktop login"));
 			}
 
 			this.jsonRpcAdapter = new JsonRpc({
@@ -634,12 +625,10 @@
 			}
 
 			this.starting = true;
-			return new Promise((resolve, reject) =>
-			{
+			return new Promise((resolve, reject) => {
 				this._startingPromise = {resolve, reject};
-				this.loadConfig().then(
-					(config) =>
-					{
+				this.loadConfig("client_start").then(
+					(config) => {
 						this.setConfig(config, allowConfigCaching);
 						this.init();
 						this.updateWatch();
@@ -649,8 +638,7 @@
 							error => reject(error)
 						);
 					},
-					(error) =>
-					{
+					(error) => {
 						this.starting = false;
 						this.status = PullStatus.Offline;
 						this.stopCheckConfig();
@@ -749,7 +737,7 @@
 
 			if (this.isJsonRpc())
 			{
-				return this.jsonRpcAdapter.executeOutgoingRpcCommand("publish", message)
+				return this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.Publish, message)
 			}
 			else
 			{
@@ -795,8 +783,7 @@
 						}
 					}
 				}
-				this.channelManager.getPublicIds(Object.keys(userIds)).then((publicIds) =>
-				{
+				this.channelManager.getPublicIds(Object.keys(userIds)).then((publicIds) => {
 					return this.connector.send(this.encodeMessageBatch(messageBatch, publicIds));
 				})
 			}
@@ -805,8 +792,7 @@
 		encodeMessageBatch(messageBatch, publicIds)
 		{
 			let messages = [];
-			messageBatch.forEach(function (messageFields)
-			{
+			messageBatch.forEach(function (messageFields) {
 				const messageBody = messageFields.body;
 
 				let receivers;
@@ -825,8 +811,7 @@
 					{
 						throw new Error('messageFields.publicChannels must be an array');
 					}
-					messageFields.channelList.forEach(function (publicChannel)
-					{
+					messageFields.channelList.forEach(function (publicChannel) {
 						let publicId;
 						let signature;
 						if (typeof (publicChannel) === 'string' && publicChannel.includes('.'))
@@ -885,19 +870,79 @@
 				result.push(Receiver.create({
 					id: this.encodeId(publicIds[userId].publicId),
 					signature: this.encodeId(publicIds[userId].signature)
-				}))
+				}));
 			}
 			return result;
 		}
 
-		subscribeUserStatusChange()
+		/**
+		 * @param userId {number}
+		 * @param callback {UserStatusCallback}
+		 * @returns {Promise}
+		 */
+		subscribeUserStatusChange(userId, callback)
 		{
-			return this.executeSubscribeCommand([InternalChannel.StatusChange]);
+			if (typeof (userId) !== 'number')
+			{
+				throw new Error('userId must be a number');
+			}
+
+			return new Promise((resolve, reject) => {
+				this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.SubscribeStatusChange, {userId}).then(() => {
+					if (!this.userStatusCallbacks[userId])
+					{
+						this.userStatusCallbacks[userId] = [];
+					}
+					if (Utils.isFunction(callback))
+					{
+						this.userStatusCallbacks[userId].push(callback);
+					}
+
+					return resolve()
+				}).catch(err => reject(err))
+			})
 		}
 
-		executeSubscribeCommand(channelList)
+		/**
+		 * @param userId {number}
+		 * @param callback {UserStatusCallback}
+		 * @returns {Promise}
+		 */
+		unsubscribeUserStatusChange(userId, callback)
 		{
-			return this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.Subscribe, {channelList});
+			if (typeof (userId) !== 'number')
+			{
+				throw new Error('userId must be a number');
+			}
+			if (this.userStatusCallbacks[userId])
+			{
+				this.userStatusCallbacks[userId] = this.userStatusCallbacks[userId].filter(cb => cb !== callback)
+				if (this.userStatusCallbacks[userId].length === 0)
+				{
+					return this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.UnsubscribeStatusChange, {userId});
+				}
+			}
+
+			return Promise.resolve();
+		}
+
+		emitUserStatusChange(userId, isOnline)
+		{
+			if (this.userStatusCallbacks[userId])
+			{
+				this.userStatusCallbacks[userId].forEach(cb => cb({userId, isOnline}));
+			}
+		}
+
+		restoreUserStatusSubscription()
+		{
+			for (const userId in this.userStatusCallbacks)
+			{
+				if (this.userStatusCallbacks.hasOwnProperty(userId) && this.userStatusCallbacks[userId].length > 0)
+				{
+					this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.SubscribeStatusChange, {userId: Number(userId)});
+				}
+			}
 		}
 
 		/**
@@ -906,14 +951,48 @@
 		 * If the user if offline - will return diff between current timestamp and last seen timestamp in seconds.
 		 * If the user was never online - the record for user will be missing from the result object.
 		 *
-		 * @param {integer[]} userList Optional. If empty - returns all known to the server host users.
+		 * @param {integer[]} userList List of user ids.
 		 * @returns {Promise}
 		 */
 		getUsersLastSeen(userList)
 		{
-			return this.jsonRpcAdapter.executeOutgoingRpcCommand("getUsersLastSeen", {
-				userList: userList
-			});
+			if (!Utils.isArray(userList) || !userList.every(item => typeof (item) === 'number'))
+			{
+				throw new Error('userList must be an array of numbers');
+			}
+			return new Promise((resolve, reject) => {
+				this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.GetUsersLastSeen, {
+					userList: userList
+				}).then(result => {
+					let unresolved = [];
+					for (let i = 0; i < userList.length; i++)
+					{
+						if (!result.hasOwnProperty(userList[i]))
+						{
+							unresolved.push(userList[i]);
+						}
+					}
+					if (unresolved.length === 0)
+					{
+						return resolve(result);
+					}
+
+					const params = {
+						userIds: unresolved,
+						sendToQueueSever: true
+					}
+					this.restClient.callMethod('pull.api.user.getLastSeen', params).then(response => {
+						let data = response.data();
+						for (let userId in data)
+						{
+							result[userId] = data[userId];
+						}
+						return resolve(result);
+					}).catch(error => {
+						console.error(error);
+					})
+				})
+			})
 		}
 
 		/**
@@ -924,7 +1003,7 @@
 		 */
 		ping(timeout)
 		{
-			return this.jsonRpcAdapter.executeOutgoingRpcCommand("ping", {}, timeout);
+			return this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.Ping, {}, timeout);
 		}
 
 		/**
@@ -934,7 +1013,7 @@
 		 */
 		listChannels()
 		{
-			return this.jsonRpcAdapter.executeOutgoingRpcCommand("listChannels", {});
+			return this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.ListChannels, {});
 		}
 
 		scheduleRestart(disconnectCode, disconnectReason, restartDelay)
@@ -966,16 +1045,15 @@
 			}
 			this.config = null;
 
-			this.loadConfig().then(
-				(config) =>
-				{
+			const loadConfigReason = disconnectCode + '_' + disconnectReason.replaceAll(' ', '_');
+			this.loadConfig(loadConfigReason).then(
+				(config) => {
 					this.setConfig(config, true);
 					this.updateWatch();
 					this.startCheckConfig();
 					this.connect().catch(error => console.error(error));
 				},
-				(error) =>
-				{
+				(error) => {
 					console.error(Utils.getDateForLog() + ': Pull: could not read push-server config', error);
 					this.status = PullStatus.Offline;
 
@@ -993,7 +1071,7 @@
 			);
 		}
 
-		loadConfig()
+		loadConfig(logTag)
 		{
 			if (!this.config)
 			{
@@ -1022,10 +1100,8 @@
 				this.config = Object.assign({}, EmptyConfig);
 			}
 
-			return new Promise((resolve, reject) =>
-			{
-				this.restClient.callMethod(this.configGetMethod, {'CACHE': 'N'}).then((response) =>
-				{
+			return new Promise((resolve, reject) => {
+				this.restClient.callMethod(this.configGetMethod, {'CACHE': 'N'}, undefined, undefined, logTag).then((response) => {
 					const data = response.data();
 					let timeShift;
 
@@ -1036,8 +1112,7 @@
 					config.server.timeShift = timeShift;
 
 					resolve(config);
-				}).catch((response) =>
-				{
+				}).catch((response) => {
 					const error = response.error();
 					if (error.getError().error == "AUTHORIZE_ERROR" || error.getError().error == "WRONG_AUTH_TYPE")
 					{
@@ -1061,6 +1136,11 @@
 			}
 
 			const now = new Date();
+
+			if (BX.type.isNumber(config.exp) && config.exp > 0 && config.exp < now.getTime() / 1000)
+			{
+				return false;
+			}
 
 			const channelCount = Object.keys(config.channels).length;
 			if (channelCount === 0)
@@ -1118,7 +1198,7 @@
 			else
 			{
 				this.logToConsole("Stale config detected. Restarting");
-				this.restart(CloseReasons.CONFIG_EXPIRED, "Config update required");
+				this.restart(CloseReasons.CONFIG_EXPIRED, "config expired");
 			}
 		}
 
@@ -1274,10 +1354,8 @@
 			this.logToConsole('Pull: scheduling reconnection in ' + connectionDelay + ' seconds; attempt # ' + this.connectionAttempt);
 
 			this.reconnectTimeout = setTimeout(
-				() =>
-				{
-					this.connect().catch(error =>
-					{
+				() => {
+					this.connect().catch(error => {
 						console.error(error)
 					})
 				},
@@ -1293,8 +1371,7 @@
 				return;
 			}
 
-			this.restoreWebSocketTimeout = setTimeout(() =>
-			{
+			this.restoreWebSocketTimeout = setTimeout(() => {
 				this.restoreWebSocketTimeout = 0;
 				this.restoreWebSocketConnection();
 			}, RESTORE_WEBSOCKET_TIMEOUT * 1000);
@@ -1321,8 +1398,7 @@
 
 			this.status = PullStatus.Connecting;
 			this.connectionAttempt++;
-			return new Promise((resolve, reject) =>
-			{
+			return new Promise((resolve, reject) => {
 				this._connectPromise = {resolve, reject}
 				this.connector.connect();
 			})
@@ -1663,6 +1739,11 @@
 							}
 						});
 					}
+
+					if (command === 'userStatusChange')
+					{
+						this.emitUserStatusChange(message.params.user_id, message.params.online);
+					}
 				}
 				else
 				{
@@ -1805,6 +1886,7 @@
 			{
 				this._connectPromise.resolve();
 			}
+			this.restoreUserStatusSubscription();
 		}
 
 		onWebSocketDisconnect(e)
@@ -1824,7 +1906,7 @@
 			{
 				if (e.code == CloseReasons.WRONG_CHANNEL_ID)
 				{
-					this.scheduleRestart(CloseReasons.WRONG_CHANNEL_ID, "restarting to reload config");
+					this.scheduleRestart(CloseReasons.WRONG_CHANNEL_ID, "wrong channel signature");
 				}
 				else
 				{
@@ -1944,13 +2026,13 @@
 					}
 					else
 					{
-						this.restart(CloseReasons.CHANNEL_EXPIRED, "channel expired");
+						this.restart(CloseReasons.CHANNEL_EXPIRED, "channel expired received");
 					}
 					break;
 				}
 				case SystemCommands.CONFIG_EXPIRE:
 				{
-					this.restart(CloseReasons.CONFIG_EXPIRED, "config expired");
+					this.restart(CloseReasons.CONFIG_EXPIRED, "config expired received");
 					break;
 				}
 				case SystemCommands.SERVER_RESTART:
@@ -2025,8 +2107,8 @@
 					})
 				],
 				events: {
-					onPopupClose: () =>	this.notificationPopup.destroy(),
-					onPopupDestroy: () =>this.notificationPopup = null,
+					onPopupClose: () => this.notificationPopup.destroy(),
+					onPopupDestroy: () => this.notificationPopup = null,
 				}
 			});
 			this.notificationPopup.show();
@@ -2103,7 +2185,7 @@
 				...configDump,
 
 				"Last message": (this.session.mid > 0 ? this.session.mid : '-'),
-				"Session history": JSON.stringify(this.session.history),
+				"Session history": this.session.history,
 				"Watch tags": this.watchTagsQueue,
 			}
 		}
@@ -2159,8 +2241,7 @@
 			else
 			{
 				let channels = [];
-				['private', 'shared'].forEach((type) =>
-				{
+				['private', 'shared'].forEach((type) => {
 					if (typeof this.config.channels[type] !== 'undefined')
 					{
 						channels.push(this.config.channels[type].id);
@@ -2272,8 +2353,7 @@
 				clearTimeout(this.offlineTimeout)
 			}
 			this.offlineTimeout = setTimeout(
-				() =>
-				{
+				() => {
 					this.offlineTimeout = null;
 					this.sendPullStatus(status);
 				},
@@ -2318,13 +2398,11 @@
 		updateWatch(force)
 		{
 			clearTimeout(this.watchUpdateTimeout);
-			this.watchUpdateTimeout = setTimeout(() =>
-			{
+			this.watchUpdateTimeout = setTimeout(() => {
 				const watchTags = Object.keys(this.watchTagsQueue);
 				if (watchTags.length > 0)
 				{
-					this.restClient.callMethod('pull.watch.extend', {tags: watchTags}, (result) =>
-					{
+					this.restClient.callMethod('pull.watch.extend', {tags: watchTags}, (result) => {
 						if (result.error())
 						{
 							this.updateWatch();
@@ -2925,10 +3003,8 @@
 				return Promise.resolve(result);
 			}
 
-			return new Promise((resolve) =>
-			{
-				this.restClient.callMethod(this.getPublicListMethod, {users: unknownUsers}).then((response) =>
-				{
+			return new Promise((resolve) => {
+				this.restClient.callMethod(this.getPublicListMethod, {users: unknownUsers}).then((response) => {
 					if (response.error())
 					{
 						return resolve({});
@@ -2936,8 +3012,7 @@
 
 					const data = response.data();
 					this.setPublicIds(Utils.objectValues(data));
-					unknownUsers.forEach((userId) =>
-					{
+					unknownUsers.forEach((userId) => {
 						result[userId] = this.publicIds[userId];
 					});
 
@@ -3076,8 +3151,7 @@
 			{
 				timeout = 5;
 			}
-			return new Promise((resolve, reject) =>
-			{
+			return new Promise((resolve, reject) => {
 				const request = this.createRequest(method, params);
 
 				if (!this.connector.send(JSON.stringify(request)))
@@ -3085,8 +3159,7 @@
 					reject(new ErrorNotConnected('websocket is not connected'));
 				}
 
-				const t = setTimeout(() =>
-				{
+				const t = setTimeout(() => {
 					this.rpcResponseAwaiters.delete(request.id);
 					reject(new ErrorTimeout('no response'));
 				}, timeout * 1000);
@@ -3104,8 +3177,7 @@
 		{
 			let requests = [];
 			let promises = [];
-			batch.forEach(({method, params, id}) =>
-			{
+			batch.forEach(({method, params, id}) => {
 				const request = this.createRequest(method, params, id);
 				requests.push(request);
 				promises.push(new Promise((resolve, reject) => this.rpcResponseAwaiters.set(request.id, {
@@ -3282,21 +3354,17 @@
 
 	const Utils = {
 		browser: {
-			IsChrome: function ()
-			{
+			IsChrome: function () {
 				return navigator.userAgent.toLowerCase().indexOf('chrome') != -1;
 			},
-			IsFirefox: function ()
-			{
+			IsFirefox: function () {
 				return navigator.userAgent.toLowerCase().indexOf('firefox') != -1;
 			},
-			IsIe: function ()
-			{
+			IsIe: function () {
 				return navigator.userAgent.match(/(Trident\/|MSIE\/)/) !== null;
 			}
 		},
-		getTimestamp: function ()
-		{
+		getTimestamp: function () {
 			return (new Date()).getTime();
 		},
 		/**
@@ -3304,16 +3372,14 @@
 		 * @param {array} errors
 		 * @return {string}
 		 */
-		errorsToString: function (errors)
-		{
+		errorsToString: function (errors) {
 			if (!this.isArray(errors))
 			{
 				return "";
 			}
 			else
 			{
-				return errors.reduce(function (result, currentValue)
-				{
+				return errors.reduce(function (result, currentValue) {
 					if (result != "")
 					{
 						result += "; ";
@@ -3322,28 +3388,22 @@
 				}, "");
 			}
 		},
-		isString: function (item)
-		{
+		isString: function (item) {
 			return item === '' ? true : (item ? (typeof (item) == "string" || item instanceof String) : false);
 		},
-		isArray: function (item)
-		{
+		isArray: function (item) {
 			return item && Object.prototype.toString.call(item) == "[object Array]";
 		},
-		isFunction: function (item)
-		{
+		isFunction: function (item) {
 			return item === null ? false : (typeof (item) == "function" || item instanceof Function);
 		},
-		isDomNode: function (item)
-		{
+		isDomNode: function (item) {
 			return item && typeof (item) == "object" && "nodeType" in item;
 		},
-		isDate: function (item)
-		{
+		isDate: function (item) {
 			return item && Object.prototype.toString.call(item) == "[object Date]";
 		},
-		isPlainObject: function (item)
-		{
+		isPlainObject: function (item) {
 			if (!item || typeof (item) !== "object" || item.nodeType)
 			{
 				return false;
@@ -3367,12 +3427,10 @@
 			}
 			return typeof (key) === "undefined" || hasProp.call(item, key);
 		},
-		isNotEmptyString: function (item)
-		{
+		isNotEmptyString: function (item) {
 			return this.isString(item) ? item.length > 0 : false;
 		},
-		isJsonRpcRequest: function (item)
-		{
+		isJsonRpcRequest: function (item) {
 			return (
 				typeof (item) === "object"
 				&& item
@@ -3382,8 +3440,7 @@
 				&& Utils.isNotEmptyString(item.method)
 			);
 		},
-		isJsonRpcResponse: function (item)
-		{
+		isJsonRpcResponse: function (item) {
 			return (
 				typeof (item) === "object"
 				&& item
@@ -3397,8 +3454,7 @@
 			);
 
 		},
-		buildQueryString: function (params)
-		{
+		buildQueryString: function (params) {
 			let result = '';
 			for (let key in params)
 			{
@@ -3409,8 +3465,7 @@
 				const value = params[key];
 				if (Utils.isArray(value))
 				{
-					value.forEach((valueElement, index) =>
-					{
+					value.forEach((valueElement, index) => {
 						result += encodeURIComponent(key + "[" + index + "]") + "=" + encodeURIComponent(valueElement) + "&";
 					});
 				}
@@ -3427,8 +3482,7 @@
 
 			return result;
 		},
-		objectValues: function values(obj)
-		{
+		objectValues: function values(obj) {
 			let result = [];
 			for (let key in obj)
 			{
@@ -3439,8 +3493,7 @@
 			}
 			return result;
 		},
-		clone: function (obj, bCopyObj)
-		{
+		clone: function (obj, bCopyObj) {
 			let _obj, i, l;
 			if (bCopyObj !== false)
 			{
@@ -3514,15 +3567,13 @@
 			return _obj;
 		},
 
-		getDateForLog: function ()
-		{
+		getDateForLog: function () {
 			const d = new Date();
 
 			return d.getFullYear() + "-" + Utils.lpad(d.getMonth(), 2, '0') + "-" + Utils.lpad(d.getDate(), 2, '0') + " " + Utils.lpad(d.getHours(), 2, '0') + ":" + Utils.lpad(d.getMinutes(), 2, '0');
 		},
 
-		lpad: function (str, length, chr)
-		{
+		lpad: function (str, length, chr) {
 			str = str.toString();
 			chr = chr || ' ';
 

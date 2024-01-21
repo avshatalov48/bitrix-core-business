@@ -11,7 +11,6 @@ $pathTemplate24 = getLocalPath($pathTemplate24);
 $pathCSS = '/bitrix/js/landing/css';
 $pathLang = BX_ROOT . '/modules/landing/lang/' . LANGUAGE_ID;
 
-
 $jsConfig = [
 	'landing_master' => [
 		'rel' => [

@@ -54,4 +54,4 @@ $MESS["IBLOCK_FIELD_DETAIL_TEXT"] = "Детальное описание";
 $MESS["IBLOCK_FIELD_XML_ID"] = "Внешний код";
 $MESS["IBLOCK_FIELD_CODE"] = "Символьный код";
 $MESS["IBLOCK_FIELD_TAGS"] = "Теги";
-?>
+$MESS["IBLOCK_ERR_IBLOCK_IS_ABSENT"] = "Не найден инфоблок";

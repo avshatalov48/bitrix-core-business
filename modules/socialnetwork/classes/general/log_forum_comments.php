@@ -102,6 +102,8 @@ class CSocNetForumComments
 			}
 		}
 
+		$log_id = null;
+
 		$dbRes = CSocNetLog::GetList(
 			array("ID" => "DESC"),
 			$logFilter,
@@ -241,6 +243,8 @@ class CSocNetForumComments
 		{
 			return false;
 		}
+
+		$log_id = null;
 
 		$parser = new CTextParser();
 		$parser->allow = array("HTML" => 'N',"ANCHOR" => 'Y',"BIU" => 'Y',"IMG" => "Y","VIDEO" => "Y","LIST" => 'N',"QUOTE" => 'Y',"CODE" => 'Y',"FONT" => 'Y',"SMILES" => "N","UPLOAD" => 'N',"NL2BR" => 'N',"TABLE" => "Y");

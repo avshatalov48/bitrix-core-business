@@ -2,25 +2,29 @@
 
 namespace Bitrix\Iblock\UserField\Types;
 
-use Bitrix\Main\Application;
+use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Type;
-use Bitrix\Main\UserField\Types\EnumType;
+use Bitrix\Main\UserField\Types\BaseType;
 use Bitrix\Iblock;
 use CDBResult;
 use CUserTypeManager;
-use CIBlockElementEnum;
 
 /**
  * Class ElementType
  * @package Bitrix\Iblock\UserField\Types
  */
-class ElementType extends EnumType
+class ElementType extends BaseType
 {
-	public const
-		USER_TYPE_ID = 'iblock_element',
-		RENDER_COMPONENT = 'bitrix:iblock.field.element';
+	public const USER_TYPE_ID = 'iblock_element';
+	public const RENDER_COMPONENT = 'bitrix:iblock.field.element';
+
+	public const DISPLAY_LIST = 'LIST';
+	public const DISPLAY_CHECKBOX = 'CHECKBOX';
+	public const DISPLAY_UI = 'UI';
+	public const DISPLAY_DIALOG = 'DIALOG';
 
 	protected static ?bool $iblockIncluded = null;
 
@@ -33,6 +37,154 @@ class ElementType extends EnumType
 			'DESCRIPTION' => Loc::getMessage('USER_TYPE_IBEL_DESCRIPTION'),
 			'BASE_TYPE' => CUserTypeManager::BASE_TYPE_INT,
 		];
+	}
+
+	/**
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string
+	 */
+	public static function renderField(array $userField, ?array $additionalParameters = []): string
+	{
+		static::getEnumList($userField, $additionalParameters);
+
+		return parent::renderField($userField, $additionalParameters);
+	}
+
+	/**
+	 * This function is called when the property values are displayed in the public part of the site.
+	 *
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string
+	 */
+	public static function renderView(array $userField, ?array $additionalParameters = []): string
+	{
+		static::getEnumList(
+			$userField,
+			array_merge(
+				$additionalParameters ?? [],
+				['mode' => self::MODE_VIEW]
+			)
+		);
+
+		return parent::renderView($userField, $additionalParameters);
+	}
+
+	/**
+	 * This function is called when editing property values in the public part of the site.
+	 *
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string
+	 */
+	public static function renderEdit(array $userField, ?array $additionalParameters = []): string
+	{
+		static::getEnumList(
+			$userField,
+			array_merge(
+				$additionalParameters ?? [],
+				['mode' => self::MODE_EDIT]
+			)
+		);
+
+		return parent::renderEdit($userField, $additionalParameters);
+	}
+
+	public static function renderEditForm(array $userField, ?array $additionalParameters): string
+	{
+		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
+		if(!$enum)
+		{
+			return '';
+		}
+		$items = [];
+		while($item = $enum->GetNext())
+		{
+			$items[$item['ID']] = $item;
+		}
+		$additionalParameters['items'] = $items;
+
+		return parent::renderEditForm($userField, $additionalParameters);
+	}
+
+	public static function renderFilter(array $userField, ?array $additionalParameters): string
+	{
+		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
+		if(!$enum)
+		{
+			return '';
+		}
+		$items = [];
+		while($item = $enum->GetNext())
+		{
+			$items[$item['ID']] = $item['VALUE'];
+		}
+		$additionalParameters['items'] = $items;
+		return parent::renderFilter($userField, $additionalParameters);
+	}
+
+	public static function renderAdminListView(array $userField, ?array $additionalParameters): string
+	{
+		static $cache = [];
+		$empty_caption = '&nbsp;';
+
+		if(!array_key_exists($additionalParameters['VALUE'], $cache))
+		{
+			$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
+			if(!$enum)
+			{
+				$additionalParameters['VALUE'] = $empty_caption;
+				return parent::renderAdminListView($userField, $additionalParameters);
+			}
+			while($item = $enum->GetNext())
+			{
+				$cache[$item['ID']] = $item['VALUE'];
+			}
+		}
+		if(!array_key_exists($additionalParameters['VALUE'], $cache))
+		{
+			$cache[$additionalParameters['VALUE']] = $empty_caption;
+		}
+
+		$additionalParameters['VALUE'] = $cache[$additionalParameters['VALUE']];
+		return parent::renderAdminListView($userField, $additionalParameters);
+	}
+
+	public static function renderAdminListEdit(array $userField, ?array $additionalParameters): string
+	{
+		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
+		$values = [];
+		if ($enum)
+		{
+			while($item = $enum->GetNext())
+			{
+				$values[$item['ID']] = $item['VALUE'];
+			}
+		}
+		$additionalParameters['enumItems'] = $values;
+
+		return parent::renderAdminListEdit($userField, $additionalParameters);
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getDbColumnType(): string
+	{
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\IntegerField('x'));
+	}
+
+	/**
+	 * @param array $userField
+	 * @param string|array $value
+	 * @return array
+	 */
+	public static function checkFields(array $userField, $value): array
+	{
+		return [];
 	}
 
 	/**
@@ -116,6 +268,32 @@ class ElementType extends EnumType
 		unset($val);
 
 		return $res;
+	}
+
+	/**
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 * @return array
+	 */
+	public static function getFilterData(array $userField, array $additionalParameters): array
+	{
+		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
+		$items = [];
+		if($enum)
+		{
+			while($item = $enum->GetNext())
+			{
+				$items[$item['ID']] = $item['VALUE'];
+			}
+		}
+		return [
+			'id' => $additionalParameters['ID'],
+			'name' => $additionalParameters['NAME'],
+			'type' => 'list',
+			'items' => $items,
+			'params' => ['multiple' => 'Y'],
+			'filterable' => ''
+		];
 	}
 
 	/**
@@ -235,7 +413,7 @@ class ElementType extends EnumType
 
 		if (
 			!self::$iblockIncluded
-			|| (int)$userField['SETTINGS']['IBLOCK_ID']<= 0
+			|| (int)$userField['SETTINGS']['IBLOCK_ID'] <= 0
 		)
 		{
 			return;
@@ -265,23 +443,35 @@ class ElementType extends EnumType
 		}
 
 		$filter = [];
-		if (isset($additionalParameters['CURRENT_VALUES']))
+
+		$checkValue = ($additionalParameters['mode'] ?? '') === self::MODE_VIEW;
+		if ($checkValue)
 		{
-			if (is_array($additionalParameters['CURRENT_VALUES']))
+			$currentValues = static::getFieldValue($userField, $additionalParameters);
+			if (!empty($currentValues))
 			{
-				Type\Collection::normalizeArrayValuesByInt($additionalParameters['CURRENT_VALUES']);
+				if (is_array($currentValues))
+				{
+					Type\Collection::normalizeArrayValuesByInt($currentValues);
+				}
+				else
+				{
+					$currentValues = (int)$currentValues;
+					if ($currentValues <= 0)
+					{
+						$currentValues = null;
+					}
+				}
+			}
+			if (!empty($currentValues))
+			{
+				$filter['ID'] = $currentValues;
 			}
 			else
 			{
-				$additionalParameters['CURRENT_VALUES'] = (int)$additionalParameters['CURRENT_VALUES'];
-				if ($additionalParameters['CURRENT_VALUES'] <= 0)
-				{
-					$additionalParameters['CURRENT_VALUES'] = null;
-				}
-			}
-			if (!empty($additionalParameters['CURRENT_VALUES']))
-			{
-				$filter['ID'] = $additionalParameters['CURRENT_VALUES'];
+				$userField['USER_TYPE']['FIELDS'] = $result;
+
+				return;
 			}
 		}
 		$filter['ACTIVE'] = $userField['SETTINGS']['ACTIVE_FILTER'] === 'Y';
@@ -296,7 +486,7 @@ class ElementType extends EnumType
 			return;
 		}
 
-		if (!empty($additionalParameters['CURRENT_VALUES']))
+		if (!empty($currentValues))
 		{
 			$result = $elements;
 		}
@@ -308,10 +498,83 @@ class ElementType extends EnumType
 		$userField['USER_TYPE']['FIELDS'] = $result;
 	}
 
+	/**
+	 * @param array $userField
+	 * @return string
+	 */
+	public static function getEmptyCaption(array $userField): string
+	{
+		$message = ($userField['SETTINGS']['CAPTION_NO_VALUE'] ?? '');
+		return
+			$message !== ''
+				? HtmlFilter::encode($userField['SETTINGS']['CAPTION_NO_VALUE'])
+				: Loc::getMessage('USER_TYPE_IBEL_NO_VALUE')
+		;
+	}
+
+	/**
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string
+	 */
+	public static function getAdminListEditHtmlMulty(array $userField, ?array $additionalParameters): string
+	{
+		return static::renderAdminListEdit($userField, $additionalParameters);
+	}
+
 	public static function getDefaultValue(array $userField, array $additionalParameters = [])
 	{
 		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '');
 		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
+	}
+
+	public static function onBeforeSave($userField, $value)
+	{
+		return ($userField['MULTIPLE'] !== 'Y' && is_array($value)) ? array_shift($value) : $value;
+	}
+
+	public static function getFieldValue(array $userField, array $additionalParameters = [])
+	{
+		$valueFromForm = ($additionalParameters['bVarsFromForm'] ?? false);
+		if (!$valueFromForm && !isset($additionalParameters['VALUE']))
+		{
+			if(
+				isset($userField['ENTITY_VALUE_ID'], $userField['ENUM'])
+				&& $userField['ENTITY_VALUE_ID'] <= 0
+			)
+			{
+				$value = ($userField['MULTIPLE'] === 'Y' ? [] : null);
+				foreach($userField['ENUM'] as $enum)
+				{
+					if($enum['DEF'] === 'Y')
+					{
+						if($userField['MULTIPLE'] === 'Y')
+						{
+							$value[] = $enum['ID'];
+						}
+						else
+						{
+							$value = $enum['ID'];
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				$value = $userField['VALUE'] ?? null;
+			}
+		}
+		elseif(isset($additionalParameters['VALUE']))
+		{
+			$value = $additionalParameters['VALUE'];
+		}
+		else
+		{
+			$value = Context::getCurrent()->getRequest()->get($userField['FIELD_NAME']);
+		}
+
+		return $value;
 	}
 
 	protected static function getElements(int $iblockId, array $additionalFilter = [])

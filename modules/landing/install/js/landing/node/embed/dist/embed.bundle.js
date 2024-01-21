@@ -1,9 +1,9 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,landing_node) {
+(function (exports,landing_node_base) {
 	'use strict';
 
-	class Embed extends landing_node.Node {
+	class Embed extends landing_node_base.Base {
 	  constructor(options) {
 	    super(options);
 	    this.data = BX.Landing.Utils.data;
@@ -91,5 +91,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Embed = Embed;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing.Node));
 //# sourceMappingURL=embed.bundle.js.map

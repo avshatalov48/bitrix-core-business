@@ -22,6 +22,10 @@ global $adminSidePanelHelper;
 Loader::includeModule('iblock');
 
 $request = Context::getCurrent()->getRequest();
+if (!$request->isAjaxRequest() && !$request->isPost())
+{
+	LocalRedirect('/');
+}
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $publicMode = defined("SELF_FOLDER_URL");
@@ -806,20 +810,36 @@ do{ //one iteration loop
 			{
 				$bs = new CIBlockElement();
 
+				if (array_key_exists('SUB_PREVIEW_PICTURE', $_FILES))
+				{
+					$pictureFile = $_FILES['SUB_PREVIEW_PICTURE'];
+				}
+				else
+				{
+					$pictureFile = $_REQUEST['SUB_PREVIEW_PICTURE'] ?? null;
+				}
 				$arPREVIEW_PICTURE = CIBlock::makeFileArray(
-					array_key_exists("SUB_PREVIEW_PICTURE", $_FILES)? $_FILES["SUB_PREVIEW_PICTURE"]: $_REQUEST["SUB_PREVIEW_PICTURE"],
-					${"SUB_PREVIEW_PICTURE_del"} === "Y",
-					${"SUB_PREVIEW_PICTURE_descr"}
+					$pictureFile,
+					(${"SUB_PREVIEW_PICTURE_del"} ?? null) === "Y",
+					(${"SUB_PREVIEW_PICTURE_descr"} ?? null)
 				);
 				if (is_array($arPREVIEW_PICTURE) && ($arPREVIEW_PICTURE['error'] ?? 0) === 0)
 				{
 					$arPREVIEW_PICTURE['COPY_FILE'] = 'Y';
 				}
 
+				if (array_key_exists('SUB_DETAIL_PICTURE', $_FILES))
+				{
+					$pictureFile = $_FILES['SUB_DETAIL_PICTURE'];
+				}
+				else
+				{
+					$pictureFile = $_REQUEST['SUB_DETAIL_PICTURE'] ?? null;
+				}
 				$arDETAIL_PICTURE = CIBlock::makeFileArray(
-					array_key_exists("SUB_DETAIL_PICTURE", $_FILES)? $_FILES["SUB_DETAIL_PICTURE"]: $_REQUEST["SUB_DETAIL_PICTURE"],
-					${"SUB_DETAIL_PICTURE_del"} === "Y",
-					${"SUB_DETAIL_PICTURE_descr"}
+					$pictureFile,
+					(${"SUB_DETAIL_PICTURE_del"} ?? null) === "Y",
+					(${"SUB_DETAIL_PICTURE_descr"} ?? null)
 				);
 				if (is_array($arDETAIL_PICTURE) && ($arDETAIL_PICTURE['error'] ?? 0) === 0)
 				{

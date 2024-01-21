@@ -1,5 +1,5 @@
-import {EventEmitter} from "main.core.events";
-import {Tag, Dom} from "main.core";
+import { EventEmitter } from 'main.core.events';
+import { Tag, Dom } from 'main.core';
 
 type BaseOptions = {
 	isHiddenOnStart: boolean,
@@ -50,14 +50,14 @@ export default class Base
 
 	#bindEvents()
 	{
-		EventEmitter.subscribe('selectorTypeChange', (ev)=> {
-			if (ev.data !== this.getType())
+		EventEmitter.subscribe('selectorTypeChange', (ev) => {
+			if (ev.data === this.getType())
 			{
-				this.#hide();
+				this.#show();
 			}
 			else
 			{
-				this.#show();
+				this.#hide();
 			}
 		});
 	}

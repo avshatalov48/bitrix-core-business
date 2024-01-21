@@ -1,10 +1,11 @@
-import {ajax} from 'main.core';
-import {type BaseEvent, EventEmitter} from 'main.core.events'
+import { ajax, Type } from 'main.core';
+import { type BaseEvent, EventEmitter } from 'main.core.events';
 
 export default class FieldConfiguratorController extends BX.UI.EntityEditorController
 {
 	fieldAddHandler = this.handleFieldAdd.bind(this);
 	fieldUpdateHandler = this.handleFieldUpdate.bind(this);
+	propertySavedHandler = this.handlePropertySaved.bind(this);
 
 	constructor(id, settings)
 	{
@@ -13,6 +14,40 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 
 		EventEmitter.subscribe(this._editor, 'BX.UI.EntityEditor:onFieldCreate', this.fieldAddHandler);
 		EventEmitter.subscribe(this._editor, 'BX.UI.EntityEditor:onFieldModify', this.fieldUpdateHandler);
+
+		// global events
+		top.BX.Event.EventEmitter.subscribe('IblockPropertyDetails:saved', this.propertySavedHandler);
+	}
+
+	handlePropertySaved(event: BaseEvent)
+	{
+		const [property] = event.getData();
+		const propertyId = parseInt(property.id);
+
+		ajax.runComponentAction(
+			this._editor._settings.ajaxData.COMPONENT_NAME,
+			'load',
+			{
+				mode: 'class',
+				signedParameters: this._editor._settings.ajaxData.SIGNED_PARAMETERS,
+			},
+		)
+			.then((response) => {
+				if (Type.isArray(response.data.ENTITY_FIELDS))
+				{
+					const schemeField = response.data.ENTITY_FIELDS.find((item) => parseInt(item.propertyId) === propertyId);
+					if (schemeField)
+					{
+						this._editor.addAvailableSchemeElement(
+							BX.UI.EntitySchemeElement.create(schemeField),
+						);
+					}
+				}
+			})
+			.catch((response) => {
+				console.error('Cannot reload scheme', response);
+			})
+		;
 	}
 
 	handleFieldAdd(event: BaseEvent)
@@ -26,10 +61,10 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 			{
 				mode: 'class',
 				signedParameters: this._editor._settings.ajaxData.SIGNED_PARAMETERS,
-				data: fields
-			}
+				data: fields,
+			},
 		)
-			.then(response => {
+			.then((response) => {
 				const property = response.data.PROPERTY_FIELDS;
 				if (!property)
 				{
@@ -40,7 +75,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				if (additionalValues)
 				{
 					const model = this._editor._model;
-					for (let [key, value] of Object.entries(additionalValues))
+					for (const [key, value] of Object.entries(additionalValues))
 					{
 						model.setField(key, value);
 					}
@@ -48,15 +83,15 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				let mode = BX.UI.EntityEditorMode.view;
 				if (section instanceof BX.UI.EntityEditorSection)
 				{
-					mode = section.getMode()
+					mode = section.getMode();
 				}
 
 				const control = this.createProperty(property, section.getName(), {
 					layout: {
 						notifyIfNotDisplayed: true,
-						forceDisplay: eventArgs.showAlways
+						forceDisplay: eventArgs.showAlways,
 					},
-					mode: mode
+					mode,
 				});
 
 				control.toggleOptionFlag(eventArgs.showAlways);
@@ -65,12 +100,13 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 
 				this.isRequesting = false;
 			})
-			.catch(response => {
+			.catch((response) => {
 				this.isRequesting = false;
 			})
 		;
 	}
 
+	/* eslint-disable max-lines-per-function */
 	handleFieldUpdate(event: BaseEvent)
 	{
 		const [section, eventArgs] = event.getCompatData();
@@ -92,9 +128,9 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 			{
 				mode: 'class',
 				signedParameters: this._editor._settings.ajaxData.SIGNED_PARAMETERS,
-				data: fields
-			}
-		).then(response => {
+				data: fields,
+			},
+		).then((response) => {
 			const property = response?.data?.PROPERTY_FIELDS;
 			if (currentField instanceof BX.UI.EntityEditorDatetime || currentField instanceof BX.UI.EntityEditorMultiDatetime)
 			{
@@ -107,6 +143,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 					currentField.refreshLayout();
 				}
 			}
+
 			if (currentField instanceof BX.UI.EntityEditorCustom)
 			{
 				currentField.refreshLayout();
@@ -134,7 +171,6 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				}
 			}
 			else
-			{
 				if (currentField instanceof BX.UI.EntityEditorMultiList)
 				{
 					newType = 'list';
@@ -151,7 +187,6 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				{
 					newType = 'text';
 				}
-			}
 			schemeElement = currentField.getSchemeElement();
 			if (
 				((currentField instanceof BX.UI.EntityEditorList) || (currentField instanceof BX.UI.EntityEditorMultiList))
@@ -161,6 +196,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				schemeElement = BX.UI.EntitySchemeElement.create(property);
 				newType = property.type;
 			}
+
 			if (newType)
 			{
 				const index = section.getChildIndex(currentField);
@@ -168,35 +204,36 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 					newType,
 					eventArgs.CODE,
 					{
-						schemeElement: schemeElement,
+						schemeElement,
 						model: section._model,
 						parent: section,
-						mode: section.getMode()
-					}
+						mode: section.getMode(),
+					},
 				);
 
 				section.addChild(newControl, {
 					index,
 					layout: {
-						forceDisplay: true
+						forceDisplay: true,
 					},
-					enableSaving: false
+					enableSaving: false,
 				});
 
 				currentField._schemeElement = null;
 				section.removeChild(currentField, {
-					enableSaving: false
+					enableSaving: false,
 				});
 			}
 
 			this.isRequesting = false;
 		})
-			.catch(response => {
+			.catch((response) => {
 				this.isRequesting = false;
 			});
 	}
+	/* eslint-enable */
 
-	getFieldsForm(fields)
+	getFieldsForm(fields): Object
 	{
 		const form = new FormData();
 		const formatted = {
@@ -205,7 +242,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 			IS_REQUIRED: fields.mandatory ? 'Y' : 'N',
 			IS_PUBLIC: fields.isPublic ? 'Y' : 'N',
 			PROPERTY_TYPE: 'S',
-			CODE: fields.CODE || ''
+			CODE: fields.CODE || '',
 		};
 
 		switch (fields.typeId)
@@ -218,24 +255,24 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 			case 'multilist':
 				formatted.PROPERTY_TYPE = 'L';
 				(fields.enumeration || []).forEach((enumItem, key) => {
-					form.append(this.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
-					form.append(this.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE);
-					form.append(this.getFormFieldName('VALUES][' + key + '][ID'), enumItem.ID);
+					form.append(this.getFormFieldName(`VALUES][${key}][SORT`), enumItem.SORT);
+					form.append(this.getFormFieldName(`VALUES][${key}][VALUE`), enumItem.VALUE);
+					form.append(this.getFormFieldName(`VALUES][${key}][ID`), enumItem.ID);
 				});
 				break;
 			case 'directory':
 				formatted.USER_TYPE = 'directory';
 				(fields.enumeration || []).forEach((enumItem, key) => {
-					form.append(this.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
-					form.append(this.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE.value);
-					form.append(this.getFormFieldName('VALUES][' + key + '][XML_ID'), enumItem.XML_ID);
-					form.append(this.getFormFieldName('VALUES][' + key + '][FILE_ID'), enumItem.FILE_ID);
-					form.append('FILES[' + enumItem.SORT + ']', enumItem.VALUE.file);
+					form.append(this.getFormFieldName(`VALUES][${key}][SORT`), enumItem.SORT);
+					form.append(this.getFormFieldName(`VALUES][${key}][VALUE`), enumItem.VALUE.value);
+					form.append(this.getFormFieldName(`VALUES][${key}][XML_ID`), enumItem.XML_ID);
+					form.append(this.getFormFieldName(`VALUES][${key}][FILE_ID`), enumItem.FILE_ID);
+					form.append(`FILES[${enumItem.SORT}]`, enumItem.VALUE.file);
 				});
 				break;
 			case 'boolean':
 				formatted.PROPERTY_TYPE = 'L';
-				form.append(this.getFormFieldName('VALUES][0][VALUE'), 'Y')
+				form.append(this.getFormFieldName('VALUES][0][VALUE'), 'Y');
 				formatted.LIST_TYPE = 'C';
 				break;
 			case 'money':
@@ -256,19 +293,20 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				break;
 		}
 
-		for (let [key, item] of Object.entries(formatted))
+		for (const [key, item] of Object.entries(formatted))
 		{
 			form.append(this.getFormFieldName(key), item);
 		}
+
 		return form;
 	}
 
-	getFormFieldName(name)
+	getFormFieldName(name): string
 	{
-		return 'fields[' + name + ']';
+		return `fields[${name}]`;
 	}
 
-	createProperty(property, sectionName, options = {})
+	createProperty(property, sectionName, options = {}): any
 	{
 		const sectionSchemeElement = this._editor.getSchemeElementByName(sectionName);
 		if (!sectionSchemeElement)
@@ -284,11 +322,11 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 			schemeElement.getType(),
 			schemeElement.getName(),
 			{
-				schemeElement: schemeElement,
+				schemeElement,
 				model: this._model,
 				parent: this,
-				mode: mode
-			}
+				mode,
+			},
 		);
 
 		if (!control)
@@ -299,7 +337,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 		const sectionControl = this._editor.getControlById(sectionName);
 		sectionControl.addChild(control, {
 			...options,
-			enableSaving: false
+			enableSaving: false,
 		});
 
 		return control;

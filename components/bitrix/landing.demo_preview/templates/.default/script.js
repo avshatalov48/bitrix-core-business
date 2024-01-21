@@ -55,12 +55,15 @@
 		this.zipInstallPath = params.zipInstallPath
 						? params.zipInstallPath
 						: null;
+		this.appCode = params.appCode || '';
 		this.siteId = params.siteId || 0;
 		this.langId = BX.type.isString(params.langId)
 						? params.langId
 						: '';
 		this.folderId = params.folderId || 0;
 		this.replaceLid = params.replaceLid || 0;
+		this.isCrmForm = (params.isCrmForm || 'N') === 'Y';
+		this.context = params.context || null;
 		this.urlPreview = params.urlPreview || '';
 
 		this.onCreateButtonClick = proxy(this.onCreateButtonClick, this);
@@ -158,7 +161,7 @@
 		onFrameLoad: function() {
 			if (this.createStore)
 			{
-				new BX.Landing.SaveBtn(document.querySelector(".landing-template-preview-create"));
+				new BX.Landing.SaveBtn(this.createButton);
 			}
 			this.IsLoadedFrame = true;
 		},
@@ -437,30 +440,48 @@
 			if (BX.Dom.hasClass(this.createButton.parentNode, 'needed-market-subscription'))
 			{
 				top.BX.UI.InfoHelper.show('limit_subscription_market_templates');
-				const promise = new Promise(function(resolve) {
-					setInterval(
-						() => {
-							if (BX.Dom.hasClass(this.createButton, 'ui-btn-clock'))
-							{
-								resolve();
-							}
-						},
-						500
-					);
-				}.bind(this));
-				promise.then(() => {
+				new Promise(resolve => {
+					const timerId = setInterval(() => {
+						if (BX.Dom.hasClass(this.createButton, 'ui-btn-clock'))
+						{
+							clearInterval(timerId);
+							resolve();
+						}
+					}, 500);
+				})
+				.then(() => {
 					BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
 					BX.Dom.attr(this.createButton, 'style', '');
 				});
+
 				return;
 			}
 
+			// Analytic
 			const metrika = new BX.Landing.Metrika(true);
-			metrika.sendLabel(
-				null,
-				'createTemplate',
-				event.target.href
-			);
+			if (this.isCrmForm && this.replaceLid > 0)
+			{
+				const metrikaParams = {
+					category: 'crm_forms',
+					event: this.replaceLid > 0 ? 'replace_template' : 'create_template',
+					c_element: 'create_template_button',
+					params: {
+						appCode: this.appCode,
+					},
+				};
+				if (this.context)
+				{
+					metrikaParams.c_section = this.context;
+				}
+				metrika.sendData(metrikaParams);
+			}
+			else {
+				metrika.sendLabel(
+					null,
+					'createTemplate',
+					event.target.href
+				);
+			}
 
 			if (this.isStore() && this.IsLoadedFrame)
 			{
@@ -578,6 +599,22 @@
 				{
 					add['additional[replaceLid]'] = this.replaceLid;
 				}
+
+				// new analytic - now just for minisites for crm forms
+				if (this.isCrmForm && this.replaceLid > 0)
+				{
+					add['additional[st_category]'] = 'crm_forms';
+					add['additional[st_event]'] = this.replaceLid > 0 ? 'replace_template' : 'create_template';
+					add['additional[st_event]'] += '_success';
+					add['additional[st_element]'] = 'create_template_button';
+					if (this.context)
+					{
+						add['additional[st_section]'] = this.context;
+					}
+					add['additional[app_code]'] = this.appCode;
+				}
+
+				// 'form' is for analytic
 				add['from'] = this.createParamsStrFromUrl(url);
 
 				if (this.adminSection && this.langId !== '')
@@ -699,10 +736,9 @@
 			{
 				BX.Dom.addClass(popupImportError, 'hide');
 			}
-			const createButton = document.querySelector(".landing-template-preview-create");
-			if (createButton)
+			if (this.createButton)
 			{
-				createButton.click();
+				this.createButton.click();
 			}
 		},
 

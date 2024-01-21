@@ -484,6 +484,60 @@ a.ui-btn-split:focus,
 	--ui-btn-color-active: #535b69;
 }
 
+.ui-btn-color-ai {
+	--ui-btn-backgroud-color-ai: #935BEC;
+	--ui-btn-background: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-background-hover: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-background-active: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-border-color: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-border-color-hover: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-border-color-active: var(--ui-btn-backgroud-color-ai);
+	--ui-btn-opacity-after: .3;
+	--ui-btn-colors-after-bg: #fff;
+	--ui-btn-colors-before-bg: #fff;
+	--ui-btn-color: #fff;
+	--ui-btn-color-hover: #fff;
+	--ui-btn-color-active: #fff;
+}
+
+.ui-btn[class*="ui-btn-icon-"].ui-btn-icon-ai.ui-btn-color-ai {
+	flex-direction: row-reverse;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.ui-btn-icon-ai.ui-btn-color-ai::after {
+	position: static;
+	left: auto;
+	top: auto;
+	transform: none;
+}
+
+/* hack for preloading icon */
+.ui-btn-icon-ai.ui-btn-color-ai:hover::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-image: url(../images/ui-btn-ai-waiting.svg);
+}
+
+.ui-btn-ai-waiting::before {
+	content: '';
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border-radius: var(--ui-btn-radius);
+	background-color: var(--ui-btn-background);
+	background-image: url(../images/ui-btn-ai-waiting.svg);
+	background-size: 18px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	z-index: 2;
+}
+
 /*endregion*/
 
 /*region Button Color*/

@@ -3,7 +3,7 @@ import {FilePreviewItem} from './item/file-preview-item';
 import {DetailEmptyState} from '../detail-empty-state';
 import '../../css/file/preview.css';
 
-import type {ImModelDialog, ImModelSidebarFileItem} from 'im.v2.model';
+import type {ImModelChat, ImModelSidebarFileItem} from 'im.v2.model';
 
 // @vue/component
 export const FilePreview = {
@@ -39,9 +39,9 @@ export const FilePreview = {
 		{
 			return this.$store.state.sidebar.isFilesMigrated;
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		chatId(): number
 		{

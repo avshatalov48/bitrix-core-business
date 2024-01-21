@@ -1064,7 +1064,7 @@ class CBitrixRestEntity extends IRestService
 
 			if($params['ENTITY'] == '')
 			{
-				throw new \Bitrix\Main\ArgumentNullException("ENTITY");
+				throw new Bitrix\Rest\Exceptions\ArgumentNullException("ENTITY");
 			}
 
 			if(isset($params['ENTITY_NEW']))
@@ -1074,7 +1074,7 @@ class CBitrixRestEntity extends IRestService
 		}
 		else
 		{
-			throw new \Bitrix\Main\ArgumentNullException("ENTITY");
+			throw new Bitrix\Rest\Exceptions\ArgumentNullException("ENTITY");
 		}
 
 		return true;

@@ -13,6 +13,9 @@ use Bitrix\Main\Type;
 use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Fields\ScalarField;
 
+/**
+ * @property MysqliConnection $connection
+ */
 class MysqliSqlHelper extends SqlHelper
 {
 	/**
@@ -113,7 +116,8 @@ class MysqliSqlHelper extends SqlHelper
 			"G",
 			"SS",
 			"TT",
-			"T"
+			"T",
+			"W",
 		);
 		static $replace = array(
 			"%Y",
@@ -126,7 +130,8 @@ class MysqliSqlHelper extends SqlHelper
 			"%l",
 			"%s",
 			"%p",
-			"%p"
+			"%p",
+			"%w",
 		);
 
 		$format = str_replace($search, $replace, $format);
@@ -399,7 +404,6 @@ class MysqliSqlHelper extends SqlHelper
 			$value = mb_substr($value, 0, $maxLength);
 
 		$con = $this->connection->getResource();
-		/** @var $con \mysqli */
 
 		return $con->real_escape_string($value);
 	}
@@ -569,6 +573,20 @@ class MysqliSqlHelper extends SqlHelper
 		return $sql;
 	}
 
+	/**
+	 * @inheritdoc
+	 */
+	public function prepareDeleteLimit($tableName, array $primaryFields, $where, array $order, $limit)
+	{
+		$orderColumns = [];
+		foreach ($order as $columnName => $sort)
+		{
+			$orderColumns[] = $this->quote($columnName) . ' ' . $sort;
+		}
+		$sqlOrder = $orderColumns ? ' ORDER BY ' . implode(', ', $orderColumns) : '';
+		return 'DELETE FROM ' . $this->quote($tableName) . ' WHERE ' . $where . $sqlOrder . ' LIMIT ' . intval($limit);
+	}
+
 	public function initRowNumber($variableName)
 	{
 		return 'set @' . $variableName . ' = 0';
@@ -596,5 +614,13 @@ class MysqliSqlHelper extends SqlHelper
 		$dml .= 'WHERE ' . $where . "\n";
 
 		return $dml;
+	}
+
+	protected function getOrderByField(string $field, array $values, callable $callback, bool $quote = true): string
+	{
+		$field = $quote ? $this->quote($field) : $field;
+		$values = implode(',', array_map($callback, $values));
+
+		return "FIELD({$field}, {$values})";
 	}
 }

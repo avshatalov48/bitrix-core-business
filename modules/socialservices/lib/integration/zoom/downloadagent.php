@@ -34,6 +34,11 @@ class DownloadAgent
 	public static function run($activityId, $recordingId, $siteId = SITE_ID, $attempt = 0)
 	{
 		$recordingFields = ZoomMeetingRecordingTable::getRowById($recordingId);
+		if (!is_array($recordingFields))
+		{
+			return '';
+		}
+
 		$attachResult = static::attach($activityId, $recordingFields, $siteId);
 		if ($attachResult->isSuccess())
 		{
@@ -128,6 +133,7 @@ class DownloadAgent
 
 		$http = new HttpClient();
 		$http->setHeader("Authorization",  "Bearer {$downloadToken}");
+		$http->setOutputStream($handler);
 		$http->query("GET", $recordingUrl);
 		$statusCode = $http->getStatus();
 		if($statusCode !== 200)
@@ -135,7 +141,6 @@ class DownloadAgent
 			return $result->addError(new Error("Service response status code is {$statusCode}"));
 		}
 
-		$http->setOutputStream($handler);
 		$http->getResult();
 		$tempFile->close();
 

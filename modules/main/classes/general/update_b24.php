@@ -109,7 +109,7 @@ class CB24Updater
 
 		if ($DB->type == "MYSQL")
 		{
-			$dbLock = $DB->Query("SELECT GET_LOCK('".$uniq."_DBUpdater', 0) as L", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbLock = $DB->Query("SELECT GET_LOCK('".$uniq."_DBUpdater', 0) as L");
 			$arLock = $dbLock->Fetch();
 			if ($arLock["L"] == "1")
 				return true;
@@ -144,10 +144,10 @@ class CB24Updater
 		else
 		{
 			$i = 60;
-			$DB->Query("DELETE FROM b_option WHERE MODULE_ID = 'main' AND NAME = '".$uniq."_DBUpdater' AND SITE_ID IS NULL AND DATEDIFF(SECOND, CONVERT(DATETIME, DESCRIPTION), GETDATE()) > ".$i, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-			$DB->Query("SET LOCK_TIMEOUT 1", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE FROM b_option WHERE MODULE_ID = 'main' AND NAME = '".$uniq."_DBUpdater' AND SITE_ID IS NULL AND DATEDIFF(SECOND, CONVERT(DATETIME, DESCRIPTION), GETDATE()) > ".$i);
+			$DB->Query("SET LOCK_TIMEOUT 1");
 			$dbLock = $DB->Query("INSERT INTO b_option(MODULE_ID, NAME, SITE_ID, VALUE, DESCRIPTION) VALUES ('main', '".$uniq."_DBUpdater', NULL,  NULL, CONVERT(VARCHAR(128), GETDATE()))", true);
-			$DB->Query("SET LOCK_TIMEOUT -1", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("SET LOCK_TIMEOUT -1");
 			return ($dbLock !== false);
 		}
 	}
@@ -160,7 +160,7 @@ class CB24Updater
 
 		if ($DB->type == "MYSQL")
 		{
-			$dbLock = $DB->Query("SELECT RELEASE_LOCK('".$uniq."_DBUpdater') as L", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbLock = $DB->Query("SELECT RELEASE_LOCK('".$uniq."_DBUpdater') as L");
 			$arLock = $dbLock->Fetch();
 			if($arLock["L"] == "0")
 				return false;
@@ -173,7 +173,7 @@ class CB24Updater
 		}
 		else
 		{
-			$DB->Query("DELETE FROM b_option WHERE MODULE_ID = 'main' AND NAME = '".$uniq."_DBUpdater' AND SITE_ID IS NULL", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE FROM b_option WHERE MODULE_ID = 'main' AND NAME = '".$uniq."_DBUpdater' AND SITE_ID IS NULL");
 			return true;
 		}
 	}

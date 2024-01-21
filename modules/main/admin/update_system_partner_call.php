@@ -1,8 +1,13 @@
-<?
+<?php
 //**********************************************************************/
 //**    DO NOT MODIFY THIS FILE                                       **/
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
 //**********************************************************************/
+
+/**
+ * @global CUser $USER
+ */
+
 if (!defined("UPD_INTERNAL_CALL") || UPD_INTERNAL_CALL != "Y")
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -40,8 +45,8 @@ else
 	$arRequestedModules = CUpdateClientPartner::GetRequestedModules($_REQUEST["addmodule"]);
 }
 
-COption::SetOptionString("main", "update_system_update", Date($GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()));
-/************************************/
+COption::SetOptionString("main", "update_system_update", Date($GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat()), time()));
+
 $arUpdatedModulesList = array();
 $loadResult = CUpdateClientPartner::LoadModulesUpdates($errorMessage, $arUpdateDescription, LANG, $stableVersionsOnly, $arRequestedModules, array_key_exists("reqm", $_REQUEST));
 
@@ -76,16 +81,11 @@ elseif ($loadResult == "F")
 	die("FIN");
 }
 
-/*if (!CUpdateClientPartner::GetNextStepUpdates($errorMessage, LANG, $stableVersionsOnly, $arRequestedModules, array_key_exists("reqm", $_REQUEST)))
-{
-	$errorMessage .= "[CL01] ".GetMessage("SUPC_ME_LOAD").". ";
-	CUpdateClientPartner::AddMessage2Log(GetMessage("SUPC_ME_LOAD"), "CL01");
-}*/
+$temporaryUpdatesDir = "";
 
 if ($errorMessage == '')
 {
-	$temporaryUpdatesDir = "";
-	if (!CUpdateClientPartner::UnGzipArchive($temporaryUpdatesDir, $errorMessage, true))
+	if (!CUpdateClientPartner::UnGzipArchive($temporaryUpdatesDir, $errorMessage))
 	{
 		$errorMessage .= "[CL02] ".GetMessage("SUPC_ME_PACK").". ";
 		CUpdateClientPartner::AddMessage2Log(GetMessage("SUPC_ME_PACK"), "CL02");
@@ -102,11 +102,6 @@ if ($errorMessage == '')
 }
 
 $arStepUpdateInfo = $arUpdateDescription;
-/*if (strlen($errorMessage) <= 0)
-{
-	$arStepUpdateInfo = CUpdateClientPartner::GetStepUpdateInfo($temporaryUpdatesDir, $errorMessage);
-	//CUpdateClientPartner::AddMessage2Log(print_r($arStepUpdateInfo, true), "!!!!!");
-}*/
 
 if ($errorMessage == '')
 {
@@ -183,11 +178,8 @@ else
 	CUpdateClientPartner::AddMessage2Log("Error: ".$errorMessage, "UPD_ERROR");
 	echo "ERR".$errorMessage;
 }
-/************************************/
-
 
 if (!defined("UPD_INTERNAL_CALL") || UPD_INTERNAL_CALL != "Y")
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_after.php");
 }
-?>

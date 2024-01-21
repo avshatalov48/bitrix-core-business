@@ -8,6 +8,8 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\Component\ImageInput;
+use Bitrix\Catalog\Config\Feature;
+use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\GroupTable;
 use Bitrix\Catalog\StoreBarcodeTable;
 use Bitrix\Catalog\StoreDocumentBarcodeTable;
@@ -336,6 +338,7 @@ final class CatalogStoreDocumentProductListComponent
 		$params['ALLOW_EDIT'] = isset($params['ALLOW_EDIT']) && $params['ALLOW_EDIT'] === 'Y';
 		$params['ALLOW_ADD_PRODUCT'] = isset($params['ALLOW_ADD_PRODUCT']) && $params['ALLOW_ADD_PRODUCT'] === 'Y';
 		$params['ALLOW_CREATE_NEW_PRODUCT'] = isset($params['ALLOW_CREATE_NEW_PRODUCT']) && $params['ALLOW_CREATE_NEW_PRODUCT'] === 'Y';
+		$params['CALCULATE_STORE_PURCHASING_PRICE'] = ($params['CALCULATE_STORE_PURCHASING_PRICE'] ?? 'N') === 'Y';
 
 		if (!$params['ALLOW_EDIT'])
 		{
@@ -1674,18 +1677,28 @@ final class CatalogStoreDocumentProductListComponent
 			&& !(
 				$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
 				|| $this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT
+				|| $this->getDocumentType() === StoreDocumentTable::TYPE_SALES_ORDERS
 			)
 		;
 
-		$result['PURCHASING_PRICE'] = [
-			'id' => 'PURCHASING_PRICE',
-			'name' => $purchasingPriceName,
-			'title' => $purchasingPriceName,
-			'sort' => 'PURCHASING_PRICE',
-			'default' => true,
-			'editable' => $purchasingPriceEditable ? $priceEditable : false,
-			'width' => $columnDefaultWidth,
-		];
+		if (
+			$this->getDocumentType() !== StoreDocumentTable::TYPE_MOVING
+			&& (
+				$this->getDocumentType() !== StoreDocumentTable::TYPE_SALES_ORDERS
+				|| (Feature::isStoreBatchEnabled() && State::isProductBatchMethodSelected())
+			)
+		)
+		{
+			$result['PURCHASING_PRICE'] = [
+				'id' => 'PURCHASING_PRICE',
+				'name' => $purchasingPriceName,
+				'title' => $purchasingPriceName,
+				'sort' => 'PURCHASING_PRICE',
+				'default' => true,
+				'editable' => $purchasingPriceEditable ? $priceEditable : false,
+				'width' => $columnDefaultWidth,
+			];
+		}
 
 		$result['BASE_PRICE'] = [
 			'id' => 'BASE_PRICE',
@@ -1960,6 +1973,7 @@ final class CatalogStoreDocumentProductListComponent
 			'productUrlBuilderContext' => htmlspecialcharsbx($this->arParams['BUILDER_CONTEXT']),
 
 			'restrictedProductTypes' => $this->getRestrictedProductTypesForSelector(),
+			'isCalculableStorePurchasingPrice' => $this->arParams['CALCULATE_STORE_PURCHASING_PRICE'],
 		];
 	}
 
@@ -2601,6 +2615,22 @@ final class CatalogStoreDocumentProductListComponent
 		}
 
 		return $response;
+	}
+
+	/** @noinspection PhpUnused
+	 *
+	 * @param array $products
+	 * @param string currencyId
+	 * @return null|array
+	 */
+	public function calculateStoreCostPriceAction(int $productId, float $quantity, string $currency, int $storeId): ?float
+	{
+		if (!$this->checkModules())
+		{
+			return null;
+		}
+
+		return (new \Bitrix\Catalog\Product\Store\BatchManager($productId))->calculateCostPrice($quantity, $storeId, $currency);
 	}
 
 	private function getRestrictedProductTypesForSelector(): array

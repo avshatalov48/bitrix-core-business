@@ -16,8 +16,8 @@ return [
 		'attrsFormDescription' => Loc::getMessage(
 			'LANDING_BLOCK_60_2_SETTINGS_DESC_A',
 			[
-				'#LINK1#' => '<a onclick="BX.PreventDefault(); BX.SidePanel.Instance.open(landingParams[\'PAGE_URL_LANDING_SETTINGS\']);" href="">',
-				'#LINK2#' => '</a>',
+				'#LINK1#' => '<div class="landing-ui-form-description-link" onclick="BX.SidePanel.Instance.open(landingParams[\'PAGE_URL_LANDING_SETTINGS\']);">',
+				'#LINK2#' => '</div>',
 			]
 		),
 	],

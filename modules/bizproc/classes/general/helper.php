@@ -2301,7 +2301,7 @@ class CBPHelper
 					$v = mb_substr($v, 5);
 			}
 		}
-		else
+		elseif (is_string($value))
 		{
 			if (mb_substr($value, 0, 5) == "user_")
 				$value = mb_substr($value, 5);

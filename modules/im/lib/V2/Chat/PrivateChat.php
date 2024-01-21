@@ -27,6 +27,7 @@ use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Pull\Event;
 
 class PrivateChat extends Chat implements PopupDataAggregatable
 {
@@ -56,7 +57,12 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		return $this;
 	}
 
-	public function setManageUsers(string $manageUsers): Chat
+	public function setManageUsersAdd(string $manageUsersAdd): Chat
+	{
+		return $this;
+	}
+
+	public function setManageUsersDelete(string $manageUsersDelete): Chat
 	{
 		return $this;
 	}
@@ -192,6 +198,24 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		return $this;
 	}
 
+	public function sendPushUpdateMessage(Message $message): void
+	{
+		$pushFormat = new Message\PushFormat();
+		$push = $pushFormat->formatMessageUpdate($message);
+		$authorId = $message->getAuthorId();
+		$opponentId = $this->getCompanion($authorId)->getId();
+
+		$push['params']['dialogId'] = $authorId;
+		$push['params']['fromUserId'] = $authorId;
+		$push['params']['toUserId'] = $opponentId;
+		Event::add($opponentId, $push);
+
+		$push['params']['dialogId'] = $opponentId;
+		$push['params']['fromUserId'] = $opponentId;
+		$push['params']['toUserId'] = $authorId;
+		Event::add($authorId, $push);
+	}
+
 	protected function sendPushReadSelf(MessageCollection $messages, int $lastId, int $counter): void
 	{
 		$companionId = $this->getDialogId();
@@ -257,24 +281,6 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 			'push' => ['badge' => 'Y'],
 			'extra' => \Bitrix\Im\Common::getPullExtra()
 		]);
-	}
-
-	protected function sendPushUnreadOpponent(string $chatMessageStatus, int $unreadTo, ?array $lastMessageStatuses = null): void
-	{
-		$pushMessage = [
-			'module_id' => 'im',
-			'command' => 'unreadMessageOpponent',
-			'expiry' => 3600,
-			'params' => [
-				'dialogId' => $this->getContext()->getUserId(),
-				'chatId' => $this->chatId,
-				'userId' =>$this->getContext()->getUserId(),
-				'chatMessageStatus' => $chatMessageStatus,
-				'unreadTo' => $unreadTo,
-			],
-			'extra' => \Bitrix\Im\Common::getPullExtra()
-		];
-		\Bitrix\Pull\Event::add($this->getDialogId(), $pushMessage);
 	}
 
 	protected function sendEventRead(int $startId, int $endId, int $counter, bool $byEvent): void

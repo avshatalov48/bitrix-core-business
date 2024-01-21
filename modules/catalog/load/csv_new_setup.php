@@ -1,4 +1,4 @@
-<?
+<?php
 //<title>CSV (new)</title>
 /** @global CDatabase $DB */
 /** @global CUser $USER */

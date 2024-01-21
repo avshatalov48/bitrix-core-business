@@ -8261,7 +8261,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        'diskAttachFiles': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACH_FILE'),
 	        'diskAttachedFiles': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACHED_FILES'),
 	        'diskSelectFile': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE'),
-	        'diskSelectFileLegend': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND'),
+	        'diskSelectFileLegend': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND_MSGVER_1'),
 	        'diskUploadFile': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE'),
 	        'diskUploadFileLegend': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND')
 	      }

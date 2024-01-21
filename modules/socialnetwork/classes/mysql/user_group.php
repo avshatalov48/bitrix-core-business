@@ -15,6 +15,8 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 	public static function Add($arFields)
 	{
 		global $DB, $CACHE_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$arFields1 = Util::getEqualityFields($arFields);
 
@@ -33,22 +35,36 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		}
 
 		$arInsert = $DB->PrepareInsert("b_sonet_user2group", $arFields);
-		$strUpdate = $DB->PrepareUpdate("b_sonet_user2group", $arFields);
 
 		Util::processEqualityFieldsToInsert($arFields1, $arInsert);
-		Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
 		$ID = false;
 		if ($arInsert[0] <> '')
 		{
-			$strSql =
-				"INSERT INTO b_sonet_user2group(".$arInsert[0].") ".
-				"VALUES(".$arInsert[1].") 
-				ON DUPLICATE KEY UPDATE ".$strUpdate;
+			$queryFields = [];
+			$tableFields = $connection->getTableFields('b_sonet_user2group');
+			foreach ($arFields as $columnName => $columnValue)
+			{
+				if (array_key_exists($columnName, $tableFields))
+				{
+					$queryFields[$columnName] = $columnValue;
+				}
+			}
 
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-			$ID = (int)$DB->LastID();
+			$insert = $queryFields;
+			$insert['DATE_CREATE'] = (new \Bitrix\Main\Type\DateTime());
+			$insert['DATE_UPDATE'] = $insert['DATE_CREATE'];
+			$update = $queryFields;
+			$update['DATE_UPDATE'] = $insert['DATE_CREATE'];
+			$merge = $helper->prepareMerge('b_sonet_user2group', ['USER_ID', 'GROUP_ID'], $insert, $update);
+			if ($merge[0])
+			{
+				$connection->query($merge[0]);
+			}
+			$strSql ="SELECT ID FROM b_sonet_user2group WHERE USER_ID = "
+				. intval($arFields['USER_ID']) . " AND GROUP_ID = " . intval($arFields['GROUP_ID']);
+			$ar = $DB->Query($strSql)->Fetch();
+			$ID = $ar ? intval($ar['ID']) : 0;
 		}
 
 		if ($ID)
@@ -200,6 +216,8 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if (count($arSelectFields) <= 0)
 		{
@@ -259,7 +277,8 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			"SCRUM_OWNER_ID" => Array("FIELD" => "G.SCRUM_OWNER_ID", "TYPE" => "int"),
 			"GROUP_SCRUM_MASTER_ID" => [ 'FIELD' => 'G.SCRUM_MASTER_ID', 'TYPE' => 'int' ],
 		);
-		$arFields["USER_IS_ONLINE"] = Array("FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N')", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UG.USER_ID = U.ID)");
+		$arFields1['RAND']['FIELD'] = $helper->getRandomFunction();
+		$arFields["USER_IS_ONLINE"] = Array("FIELD" => "CASE U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND) THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UG.USER_ID = U.ID)");
 
 		if (array_key_exists("GROUP_SITE_ID", $arFilter))
 		{

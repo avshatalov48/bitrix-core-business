@@ -1,6 +1,6 @@
 import { Type } from 'main.core';
 
-import { MessageStatus, ReactionList, DefaultMessageContent, ReactionSelector, ContextMenu } from 'im.v2.component.message.elements';
+import { MessageStatus, ReactionList, DefaultMessageContent, ReactionSelector, ContextMenu, MessageHeader } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
 import { FileType } from 'im.v2.const';
 
@@ -21,6 +21,7 @@ export const ImageMessage = {
 		ImageItem,
 		ReactionSelector,
 		ContextMenu,
+		MessageHeader,
 	},
 	props: {
 		item: {
@@ -84,18 +85,21 @@ export const ImageMessage = {
 		>
 			<div class="bx-im-message-image__container">
 				<div class="bx-im-message-image__content-with-menu">
-					<div class="bx-im-message-image__content">
-						<ImageItem
-							:key="messageFile.id"
-							:item="messageFile"
-							:messageId="message.id"
-						/>
-						<template v-if="onlyImage">
-							<div class="bx-im-message-image__message-status-container">
-								<MessageStatus :item="message" :isOverlay="onlyImage" />
-							</div>
-							<ReactionSelector :messageId="message.id" />
-						</template>
+					<div class="bx-im-message-image__content-with-header">
+						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-image__header" />
+						<div class="bx-im-message-image__content">
+							<ImageItem
+								:key="messageFile.id"
+								:item="messageFile"
+								:message="message"
+							/>
+							<template v-if="onlyImage">
+								<div class="bx-im-message-image__message-status-container">
+									<MessageStatus :item="message" :isOverlay="onlyImage" />
+								</div>
+								<ReactionSelector :messageId="message.id" />
+							</template>
+						</div>
 					</div>
 					<ContextMenu v-if="onlyImage" :message="message" :menuIsActiveForId="menuIsActiveForId" />
 				</div>

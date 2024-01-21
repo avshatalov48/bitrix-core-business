@@ -50,19 +50,7 @@ export default class IcloudTemplate extends InterfaceTemplate
 					this.syncCalendarsWithIcloud(result.connectionId);
 				}
 			},
-			(response) => {
-				const result = response.data;
-				if (result.status === 'incorrect_app_pass')
-				{
-					BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-						analyticsLabel: {
-							calendarAction: 'createConnection',
-							wrong_app_pass: 'Y',
-							connection_type: 'icloud'
-						}
-					});
-					
-				}
+			() => {
 				this.authDialog.showErrorAuthorizationAlert();
 			}
 		);
@@ -132,14 +120,6 @@ export default class IcloudTemplate extends InterfaceTemplate
 
 	handleConnectButton()
 	{
-		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-			analyticsLabel: {
-				calendarAction: 'createConnection',
-				click_to_connection_button: 'Y',
-				connection_type: 'icloud',
-			}
-		});
-		
 		this.initPopup();
 		if (Util.isIphoneConnected() || Util.isMacConnected())
 		{

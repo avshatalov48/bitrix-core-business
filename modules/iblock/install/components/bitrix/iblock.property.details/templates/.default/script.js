@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_buttons,ui_dialogs_messagebox,main_core) {
 	'use strict';
@@ -290,8 +291,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "stylizationSettingsControls",
 	    value: function stylizationSettingsControls() {
-	      var buttonInputTypes = ['button', 'submit', 'reset'];
-	      var flagInputTypes = ['checkbox', 'radio'];
+	      var buttonInputTypes = new Set(['button', 'submit', 'reset']);
+	      var flagInputTypes = new Set(['checkbox', 'radio']);
 	      var isOnlyChild = function isOnlyChild(control) {
 	        var childs = control.parentNode.childNodes;
 	        childs = Array.prototype.filter.call(childs, function (item) {
@@ -307,28 +308,38 @@ this.BX = this.BX || {};
 	        if (control.classList.contains('ui-ctl-element')) {
 	          return;
 	        }
-	        if (control.nodeName === 'INPUT') {
-	          var type = control.type || 'text';
-	          if (buttonInputTypes.includes(type)) {
-	            return;
-	          } else if (flagInputTypes.includes(type)) ; else if (type === 'hidden') ; else {
-	            control.classList.add('ui-ctl-element');
-	            if (!isOnlyChild(control)) {
-	              control.classList.add('ui-ctl-inline');
-	            } else {
-	              control.classList.add('ui-ctl-w100');
+	        switch (control.nodeName) {
+	          case 'INPUT':
+	            {
+	              var type = control.type || 'text';
+	              if (buttonInputTypes.has(type)) ; else if (flagInputTypes.has(type)) ; else if (type === 'hidden') ; else {
+	                control.classList.add('ui-ctl-element');
+	                if (isOnlyChild(control)) {
+	                  control.classList.add('ui-ctl-w100');
+	                } else {
+	                  control.classList.add('ui-ctl-inline');
+	                }
+	              }
+	              break;
 	            }
-	          }
-	        } else if (control.nodeName === 'SELECT') {
-	          control.classList.add('ui-ctl-element');
-	          if (!isOnlyChild(control)) {
-	            control.classList.add('ui-ctl-inline');
-	          }
-	        } else if (control.nodeName === 'TEXTAREA') {
-	          control.classList.add('ui-ctl-element');
-	          control.classList.add('ui-ctl-textarea');
+	          case 'SELECT':
+	            {
+	              control.classList.add('ui-ctl-element');
+	              if (!isOnlyChild(control)) {
+	                control.classList.add('ui-ctl-inline');
+	              }
+	              break;
+	            }
+	          case 'TEXTAREA':
+	            {
+	              control.classList.add('ui-ctl-element');
+	              control.classList.add('ui-ctl-textarea');
+	              break;
+	            }
+	          // No default
 	        }
 	      };
+
 	      var settingsContainer = this.getAdditionalTab().querySelector('.iblock-property-details-settings-table');
 	      if (settingsContainer) {
 	        settingsContainer.querySelectorAll('input, select, textarea').forEach(prepareControl);
@@ -386,6 +397,7 @@ this.BX = this.BX || {};
 	          _this3.errors.show(response.errors);
 	          return false;
 	        }
+	        top.BX.Event.EventEmitter.emit('IblockPropertyDetails:saved', [response.data]);
 	        _classPrivateMethodGet(_this3, _getSlider, _getSlider2).call(_this3).close();
 	        return true;
 	      })["catch"](function (response) {

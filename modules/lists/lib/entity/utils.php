@@ -16,7 +16,7 @@ class Utils
 		{
 			return (int) $params["IBLOCK_ID"];
 		}
-		elseif ($params["IBLOCK_CODE"])
+		elseif ($params["IBLOCK_CODE"] ?? null)
 		{
 			$queryObject = \CIBlock::getList([], [
 				"CHECK_PERMISSIONS" => "N",

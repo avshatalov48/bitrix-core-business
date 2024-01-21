@@ -70,5 +70,9 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_37.2.FOUR_IMG_WITH_TEXT_BLOCKS_CARDS_LANDINGBLOCK_INNER'),
 			'type' => 'row-align',
 		),
+		'.landing-block-node-card-bghover' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_37.2.FOUR_IMG_WITH_TEXT_BLOCKS_CARDS_LANDINGBLOCK_BGHOVER'),
+			'type' => 'bg',
+		),
 	),
 );

@@ -224,9 +224,9 @@ export default class ActionsContent extends ContentWrapper
 				selector: 'redirectDelay',
 				title: Loc.getMessage('LANDING_FORM_ACTIONS_DELAY_TITLE'),
 				content: this.options.formOptions.result.redirectDelay,
-				items: Array.from({length: 11}, (item, index) => {
+				items: Array.from({ length: 11 }, (item, index) => {
 					return {
-						name: `${index} ${Loc.getMessage('LANDING_FORM_ACTIONS_DELAY_ITEM')}`,
+						name: Loc.getMessage(`LANDING_FORM_ACTIONS_DELAY_ITEM_${index}`),
 						value: (index),
 					};
 				}),

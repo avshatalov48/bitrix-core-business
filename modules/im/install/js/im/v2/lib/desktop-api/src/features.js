@@ -7,4 +7,8 @@ export const DesktopFeature = {
 		id: 'restart',
 		version: 74,
 	},
+	accountManagement: {
+		id: 'accountManagement',
+		version: 75,
+	},
 };

@@ -1,23 +1,23 @@
-import { Extension, Runtime, Type, type JsonObject } from 'main.core';
+import { Extension, Runtime, Type, type JsonObject, Event, Dom } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Utils } from 'im.v2.lib.utils';
 import { EventType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { SearchService } from 'im.v2.provider.service';
-import { Loader } from 'im.v2.component.elements';
+import { ScrollWithGradient } from 'im.v2.component.elements';
 
 import { MentionItem } from './mention-item';
 import { MentionEmptyState } from './mention-empty-state';
+import { MentionLoadingState } from './mention-loading-state';
+import { MentionContentFooter } from './mention-content-footer';
 
 import '../css/mention-popup-content.css';
-
-import type { ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const MentionPopupContent = {
 	name: 'MentionPopupContent',
-	components: { MentionItem, Loader, MentionEmptyState },
+	components: { MentionItem, MentionContentFooter, MentionEmptyState, ScrollWithGradient, MentionLoadingState },
 	props:
 	{
 		dialogId: {
@@ -34,11 +34,12 @@ export const MentionPopupContent = {
 	{
 		return {
 			isLoading: false,
-			recentChats: [],
 			searchResult: [],
 			currentServerQueries: 0,
 			needTopShadow: false,
 			needBottomShadow: true,
+			selectedIndex: 0,
+			selectedItem: '',
 		};
 	},
 	computed:
@@ -59,6 +60,12 @@ export const MentionPopupContent = {
 			}
 
 			return this.searchResult.length === 0 && this.preparedQuery.length > 0;
+		},
+		recentChats(): string[]
+		{
+			return this.$store.getters['recent/getSortedCollection'].map((recentItem) => {
+				return recentItem.dialogId;
+			});
 		},
 	},
 	watch:
@@ -82,34 +89,26 @@ export const MentionPopupContent = {
 				return;
 			}
 
+			this.selectedIndex = 0;
 			this.startSearch(newQuery);
 		},
 	},
 	created()
 	{
 		this.initSettings();
-		this.searchService = new SearchService();
+		this.searchService = new SearchService({ findByParticipants: false });
 		this.searchOnServerDelayed = Runtime.debounce(this.searchOnServer, 400, this);
 
-		this.requestChatParticipants();
-		EventEmitter.subscribe(EventType.mention.selectFirstItem, this.onInsertFirstItem);
+		Event.bind(window, 'keydown', this.onKeyDown);
+		EventEmitter.subscribe(EventType.mention.selectItem, this.onInsertItem);
 	},
 	beforeUnmount()
 	{
-		EventEmitter.unsubscribe(EventType.mention.selectFirstItem, this.onInsertFirstItem);
+		Event.unbind(window, 'keydown', this.onKeyDown);
+		EventEmitter.unsubscribe(EventType.mention.selectItem, this.onInsertItem);
 	},
 	methods:
 	{
-		requestChatParticipants()
-		{
-			this.isLoading = true;
-			this.searchService.loadChatParticipants(this.dialogId).then((dialogIds: string[]) => {
-				this.recentChats = dialogIds;
-				this.isLoading = false;
-			}).catch((error) => {
-				Logger.warn('Mention: loadChatParticipants', error);
-			});
-		},
 		initSettings()
 		{
 			const settings = Extension.getSettings('im.v2.component.textarea');
@@ -128,7 +127,7 @@ export const MentionPopupContent = {
 					return;
 				}
 
-				this.searchResult = dialogIds;
+				this.searchResult = this.searchService.sortByDate(dialogIds);
 			}).catch((error) => {
 				console.error(error);
 			}).finally(() => {
@@ -146,7 +145,7 @@ export const MentionPopupContent = {
 						return;
 					}
 
-					this.searchResult = dialogIds;
+					this.searchResult = this.searchService.sortByDate(dialogIds);
 				}).catch((error) => {
 					Logger.error('Mention: searchLocalOnlyUsers', error);
 				});
@@ -176,33 +175,19 @@ export const MentionPopupContent = {
 		{
 			this.searchResult = [];
 		},
-		onItemsScroll(event: Event)
-		{
-			this.needBottomShadow = event.target.scrollTop + event.target.clientHeight !== event.target.scrollHeight;
-
-			if (event.target.scrollTop === 0)
-			{
-				this.needTopShadow = false;
-
-				return;
-			}
-
-			this.needTopShadow = true;
-		},
 		async adjustPosition()
 		{
 			await this.$nextTick();
 			this.$emit('adjustPosition');
 		},
-		onInsertFirstItem()
+		onInsertItem()
 		{
 			if (!Type.isArrayFilled(this.itemsToShow))
 			{
 				return;
 			}
 
-			const [firstItem] = this.itemsToShow;
-			this.sendInsertMentionEvent(firstItem);
+			this.sendInsertMentionEvent(this.itemsToShow[this.selectedIndex]);
 		},
 		onItemClick({ dialogId })
 		{
@@ -224,30 +209,82 @@ export const MentionPopupContent = {
 		{
 			if (dialogId.startsWith('chat'))
 			{
-				return this.$store.getters['dialogues/get'](dialogId, true).name;
+				return this.$store.getters['chats/get'](dialogId, true).name;
 			}
 
 			return this.$store.getters['users/get'](dialogId, true).name;
 		},
+		onKeyDown(event: KeyboardEvent)
+		{
+			if (event.key === 'ArrowDown')
+			{
+				this.selectedIndex = this.selectedIndex === this.itemsToShow.length - 1 ? 0 : this.selectedIndex + 1;
+			}
+
+			if (event.key === 'ArrowUp')
+			{
+				this.selectedIndex = this.selectedIndex === 0 ? this.itemsToShow.length - 1 : this.selectedIndex - 1;
+			}
+
+			const element = this.getDomElementById(this.selectedIndex);
+			if (!element)
+			{
+				this.selectedIndex = 0;
+			}
+
+			this.selectedItem = this.itemsToShow[this.selectedIndex];
+			this.scrollToItem(element);
+		},
+		scrollToItem(element: HTMLElement)
+		{
+			const scrollContainer = document.querySelector('.bx-im-mention-popup-content__container .bx-im-scroll-with-gradient__content');
+
+			const tabRect = Dom.getPosition(scrollContainer);
+			const nodeRect = Dom.getPosition(element);
+			const margin = 12; // 'bx-im-mention-popup-content__items' margin
+
+			if (nodeRect.top < tabRect.top) // scroll up
+			{
+				scrollContainer.scrollTop -= (tabRect.top - nodeRect.top + margin);
+			}
+			else if (nodeRect.bottom > tabRect.bottom) // scroll down
+			{
+				scrollContainer.scrollTop += nodeRect.bottom - tabRect.bottom + margin;
+			}
+		},
+		onItemHover(index: number)
+		{
+			this.selectedIndex = index;
+			this.selectedItem = this.itemsToShow[this.selectedIndex];
+		},
+		getDomElementById(id: number | string): ?HTMLElement
+		{
+			return this.$refs['mention-content'].querySelector(`[data-index="${id}"]`);
+		},
 	},
 	template: `
-		<div class="bx-im-mention-popup-content__container">
-			<div v-if="!isEmptyState && needTopShadow" class="bx-im-mention-popup-content__shadow --top">
-				<div class="bx-im-mention-popup-content__shadow-inner"></div>
-			</div>
-			<div v-if="itemsToShow.length > 0" class="bx-im-mention-popup-content__items" @scroll="onItemsScroll">
-				<MentionItem
-					v-for="dialogId in itemsToShow"
-					:dialogId="dialogId"
-					:query="query"
-					@itemClick="onItemClick"
-				/>
-			</div>
+		<div class="bx-im-mention-popup-content__container" ref="mention-content">
+			<ScrollWithGradient 
+				v-if="itemsToShow.length > 0" 
+				:gradientHeight="13" 
+				:containerMaxHeight="226"
+				:withShadow="false"
+			>
+				<div class="bx-im-mention-popup-content__items">
+					<MentionItem
+						v-for="(dialogId, index) in itemsToShow"
+						:data-index="index"
+						:dialogId="dialogId"
+						:query="query"
+						:selected="selectedIndex === index"
+						@itemClick="onItemClick"
+						@itemHover="onItemHover(index)"
+					/>
+				</div>
+			</ScrollWithGradient>
 			<MentionEmptyState v-if="isEmptyState" />
-			<Loader v-if="isLoading" class="bx-im-mention-popup-content__loader" />
-			<div v-if="!isEmptyState && needBottomShadow" class="bx-im-mention-popup-content__shadow --bottom">
-				<div class="bx-im-mention-popup-content__shadow-inner"></div>
-			</div>
+			<MentionLoadingState v-if="isLoading && itemsToShow.length === 0" />
+			<MentionContentFooter :isLoading="isLoading" />
 		</div>
 	`,
 };

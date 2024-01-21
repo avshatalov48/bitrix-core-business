@@ -42,7 +42,8 @@ class LockTable extends Entity\DataManager
 		return array(
 			'ID' => new Entity\IntegerField('ID', array(
 				'title' => 'ID',
-				'primary' => true
+				'primary' => true,
+				'autocomplete' => true,
 			)),
 			'ENTITY_ID' => new Entity\IntegerField('ENTITY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_LOCK_ENTITY_ID'),

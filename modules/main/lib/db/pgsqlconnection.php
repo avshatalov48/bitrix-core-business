@@ -11,7 +11,7 @@ class PgsqlConnection extends Connection
 {
 	protected int $transactionLevel = 0;
 
-	protected function connectionErrorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
+	public function connectionErrorHandler($errno, $errstr, $errfile = '', $errline = 0, $errcontext = null)
 	{
 		throw new ConnectionException('Pgsql connect error: ', $errstr);
 	}
@@ -130,7 +130,13 @@ class PgsqlConnection extends Connection
 	public function add($tableName, array $data, $identity = "ID")
 	{
 		$insert = $this->getSqlHelper()->prepareInsert($tableName, $data);
-		if($identity !== null && !isset($data[$identity]))
+		if(
+			$identity !== null
+			&& (
+				!isset($data[$identity])
+				|| $data[$identity] instanceof SqlExpression
+			)
+		)
 		{
 			$sql = "INSERT INTO ".$tableName."(".$insert[0].") VALUES (".$insert[1].") RETURNING ".$identity;
 			$row = $this->query($sql)->fetch();
@@ -173,16 +179,13 @@ class PgsqlConnection extends Connection
 	public function isTableExists($tableName)
 	{
 		$result = $this->query("
-			SELECT EXISTS (
-				SELECT FROM 
-					pg_tables
-				WHERE 
-					schemaname = 'public' AND 
-					tablename  = '".$this->getSqlHelper()->forSql($tableName)."'
-				) as \"X\"
+			SELECT tablename
+			FROM  pg_tables
+			WHERE schemaname = 'public'
+			AND tablename  = '".$this->getSqlHelper()->forSql($tableName)."'
 		");
 		$row = $result->fetch();
-		return $row && $row['X'] === 't';
+		return is_array($row);
 	}
 	/**
 	 * @inheritDoc
@@ -286,15 +289,42 @@ class PgsqlConnection extends Connection
 	 */
 	public function getTableFields($tableName)
 	{
-		if (!isset($this->tableColumnsCache[$tableName]))
+		if (!isset($this->tableColumnsCache[$tableName]) || empty($this->tableColumnsCache[$tableName]))
 		{
 			$this->connectInternal();
 
-			$query = $this->queryInternal("SELECT * FROM ".$this->getSqlHelper()->quote($tableName)." limit 0");
+			$sqlHelper = $this->getSqlHelper();
+			$query = $this->query("
+				SELECT
+					column_name,
+					data_type,
+					character_maximum_length
+				FROM
+					information_schema.columns
+				WHERE
+					table_catalog = '" . $sqlHelper->forSql($this->getDatabase()) . "'
+					and table_schema = 'public'
+					and table_name = '" . $sqlHelper->forSql(mb_strtolower($tableName)) . "'
+				ORDER BY
+					ordinal_position
+			");
 
-			$result = $this->createResult($query);
+			$this->tableColumnsCache[$tableName] = [];
+			while ($fieldInfo = $query->fetch())
+			{
+				$fieldName = mb_strtoupper($fieldInfo['COLUMN_NAME']);
+				$fieldType = $fieldInfo['DATA_TYPE'];
+				$field = $sqlHelper->getFieldByColumnType($fieldName, $fieldType);
+				if (
+					$fieldInfo['CHARACTER_MAXIMUM_LENGTH']
+					&& is_a($field, '\Bitrix\Main\ORM\Fields\StringField')
+				)
+				{
+					$field->configureSize($fieldInfo['CHARACTER_MAXIMUM_LENGTH']);
+				}
 
-			$this->tableColumnsCache[$tableName] = $result->getFields();
+				$this->tableColumnsCache[$tableName][$fieldName] = $field;
+			}
 		}
 
 		return $this->tableColumnsCache[$tableName];
@@ -363,6 +393,38 @@ class PgsqlConnection extends Connection
 
 		$this->query($sql);
 
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function createIndex($tableName, $indexName, $columnNames, $columnLengths = null, $indexType = null)
+	{
+		if (!is_array($columnNames))
+		{
+			$columnNames = array($columnNames);
+		}
+
+		$sqlHelper = $this->getSqlHelper();
+
+		foreach ($columnNames as &$columnName)
+		{
+			$columnName = $sqlHelper->quote($columnName);
+		}
+		unset($columnName);
+
+		if ($indexType === static::INDEX_UNIQUE)
+		{
+			return $this->query('CREATE UNIQUE INDEX ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . '(' . implode(',', $columnNames) . ')');
+		}
+		elseif ($indexType === static::INDEX_FULLTEXT)
+		{
+			return $this->query('CREATE INDEX ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . ' USING GIN (to_tsvector(\'english\', ' . implode(',', $columnNames) . '))');
+		}
+		else
+		{
+			return $this->query('CREATE INDEX ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . '(' . implode(',', $columnNames) . ')');
+		}
 	}
 
 	/**

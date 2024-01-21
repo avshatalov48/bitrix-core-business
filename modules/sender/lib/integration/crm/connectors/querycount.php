@@ -131,6 +131,7 @@ class QueryCount
 	 */
 	private static function prepare(Entity\Query $query, $dataTypeId = null, $entityDbName = null, $entityName = null)
 	{
+		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 		$fields = array();
 		foreach (self::getTypes() as $typeId => $field)
 		{
@@ -164,7 +165,7 @@ class QueryCount
 			{
 				$query->registerRuntimeField(new Entity\ExpressionField(
 					$fieldName,
-					"COUNT(DISTINCT CASE WHEN %s = 'Y' THEN `{$entityDbName}`.`ID` END)",
+					"COUNT(DISTINCT CASE WHEN %s = 'Y' THEN  {$sqlHelper->quote($entityDbName)}.ID END)",
 					$field['HAS']
 				));
 			}
@@ -182,9 +183,10 @@ class QueryCount
 					$field['DATA_COLUMN'] = 'CRM_COMPANY_ID';
 				}
 
+
 				$query->registerRuntimeField(new Entity\ExpressionField(
 					$fieldName,
-					"COUNT(DISTINCT CASE WHEN %s > 0 THEN `{$entityDbName}`.`ID` END)",
+					"COUNT(DISTINCT CASE WHEN %s > 0 THEN {$sqlHelper->quote($entityDbName)}.ID END)",
 					$field['DATA_COLUMN']
 				));
 			}

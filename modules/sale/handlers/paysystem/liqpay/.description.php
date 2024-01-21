@@ -23,7 +23,8 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ua')
 }
 
 $data = [
-	'NAME' => 'LiqPay',
+	'NAME' => Loc::getMessage('SALE_HPS_LIQPAY_NAME'),
+	'DESCRIPTION' => Loc::getMessage('SALE_HPS_LIQPAY_DESCRIPTION'),
 	'SORT' => 400,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

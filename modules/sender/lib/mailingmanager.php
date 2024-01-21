@@ -9,6 +9,8 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main;
 use Bitrix\Main\DB\Exception;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventResult;
 use Bitrix\Main\Type;
 use Bitrix\Sender\Dispatch\MethodSchedule;
 use Bitrix\Sender\Entity;
@@ -130,11 +132,14 @@ class MailingManager
 			catch (Exception $e)
 			{
 				static::$error = $e;
+				AddMessage2Log('Exception in mailing send. PostingId: ' . $letter['POSTING_ID'],'sender');
 				$postingSendStatus = PostingManager::SEND_RESULT_ERROR;
 			}
 		}
 
-		if(!empty(static::$error) || $postingSendStatus === PostingManager::SEND_RESULT_CONTINUE)
+		if(
+			in_array($postingSendStatus, [PostingManager::SEND_RESULT_CONTINUE, PostingManager::SEND_RESULT_ERROR], true)
+		)
 		{
 			return Runtime\SenderJob::getAgentName($letterId);
 		}
@@ -147,7 +152,10 @@ class MailingManager
 		}
 
 
-		if ($postingSendStatus === PostingManager::SEND_RESULT_WAITING_RECIPIENT)
+		if (
+			$postingSendStatus === PostingManager::SEND_RESULT_WAITING_RECIPIENT
+			|| \Bitrix\Sender\PostingRecipientTable::hasUnprocessed($letter['POSTING_ID'])
+		)
 		{
 			return Runtime\SenderJob::getAgentName($letterId);
 		}
@@ -225,6 +233,18 @@ class MailingManager
 
 		while ($mailingChain = $mailingChainDb->fetch())
 		{
+			$event = new Event('sender', 'onBeforeMailingChainSend', [
+				'chain' => $mailingChain,
+			]);
+			$event->send();
+			foreach ($event->getResults() as $eventResult)
+			{
+				if ($eventResult->getType() === EventResult::ERROR)
+				{
+					continue 2;
+				}
+			}
+
 			static::chainSend($mailingChain['ID']);
 		}
 	}
@@ -274,6 +294,17 @@ class MailingManager
 				continue;
 			}
 
+			$event = new Event('sender', 'onBeforeMailingPeriodChainSend', [
+				'chain' => $arMailingChain,
+			]);
+			$event->send();
+			foreach ($event->getResults() as $eventResult)
+			{
+				if ($eventResult->getType() === EventResult::ERROR)
+				{
+					continue 2;
+				}
+			}
 
 			$timeOfExecute = static::getDateExecute(
 				$dateTodayPhp,

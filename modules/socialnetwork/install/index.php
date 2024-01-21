@@ -24,11 +24,6 @@ Class socialnetwork extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = SONET_VERSION;
-			$this->MODULE_VERSION_DATE = SONET_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = Loc::getMessage("SONET_INSTALL_NAME");
 		$this->MODULE_DESCRIPTION = Loc::getMessage("SONET_INSTALL_DESCRIPTION");
@@ -113,10 +108,12 @@ Class socialnetwork extends CModule
 	function InstallDB($install_wizard = true)
 	{
 		global $DB, $APPLICATION, $install_smiles;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$errors = null;
 
-		if (!$DB->Query("SELECT 'x' FROM b_sonet_group", true))
+		if (!$DB->TableExists('b_sonet_group'))
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/mysql/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/socialnetwork/install/db/' . $connection->getType() . '/install.sql');
 		}
 
 		if (!empty($errors))
@@ -203,6 +200,7 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('tasks', 'onTaskUserOptionChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUserOptionChanged');
 		$eventManager->registerEventHandler('im', 'onDiskRecordShare', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Im\Chat\CallRecord', 'onDiskRecordShare');
 		$eventManager->registerEventHandler('ai', 'onContextGetMessages', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Controller', 'onContextGetMessages');
+		$eventManager->registerEventHandler('ai', 'onTuningLoad', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Settings', 'onTuningLoad');
 
 		CAgent::AddAgent("CSocNetMessages::SendEventAgent();", "socialnetwork", "N", 600);
 
@@ -221,7 +219,7 @@ Class socialnetwork extends CModule
 		static::__SetLogFilter();
 
 		CModule::IncludeModule("socialnetwork");
-		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/mysql/install_ft.sql");
+		$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/socialnetwork/install/db/' . $connection->getType() . '/install_ft.sql');
 		if ($errors === false)
 		{
 			\Bitrix\Socialnetwork\WorkgroupTable::getEntity()->enableFullTextIndex("SEARCH_INDEX");
@@ -349,11 +347,12 @@ Class socialnetwork extends CModule
 			CSearch::DeleteIndex("socialnetwork");
 
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
 			$this->UnInstallUserFields();
 
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/mysql/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/".$connection->getType()."/uninstall.sql");
 
 			if (!empty($errors))
 			{
@@ -442,6 +441,8 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('tasks', 'onTaskUserOptionChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUserOptionChanged');
 		$eventManager->unregisterEventHandler('im', 'onDiskRecordShare', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Im\Chat\CallRecord', 'onDiskRecordShare');
 		$eventManager->unregisterEventHandler('ai', 'onContextGetMessages', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Controller', 'onContextGetMessages');
+		$eventManager->unregisterEventHandler('ai', 'onTuningLoad', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Settings', 'onTuningLoad');
+
 
 		UnRegisterModule("socialnetwork");
 		return true;
@@ -458,6 +459,7 @@ Class socialnetwork extends CModule
 			$USER_FIELD_MANAGER->CleanCache();
 			$USER_FIELD_MANAGER->arUserTypes = '';
 
+			$createIndex = false;
 			$arFields = array();
 			if ($id != "webdav")
 			{
@@ -532,6 +534,8 @@ Class socialnetwork extends CModule
 						$arImportantDateEndUF["LIST_COLUMN_LABEL"][$arLang["LID"]] = $messages["SONETP_UF_IMPRTANT_DATE_END_LIST_COLUMN_LABEL"];
 					}
 					$arFields[] = $arImportantDateEndUF;
+
+					$createIndex = true;
 				}
 			}
 
@@ -633,23 +637,19 @@ Class socialnetwork extends CModule
 					{
 						$errors = $strEx->GetString();
 					}
-					else if (
-						$arField["FIELD_NAME"] == "UF_BLOG_POST_IMPRTNT"
-						&& $DB->TableExists("b_uts_blog_post")
-						&& $DB->Query("SELECT UF_BLOG_POST_IMPRTNT FROM b_uts_blog_post WHERE 1=0", true)
-						&& $DB->Query("SELECT UF_IMPRTANT_DATE_END FROM b_uts_blog_post WHERE 1=0", true)
-						&& !$DB->IndexExists('b_uts_blog_post', ['UF_IMPRTANT_DATE_END', 'UF_BLOG_POST_IMPRTNT'])
-					)
-					{
-						$DB->Query("CREATE INDEX UX_UF_BLOG_POST_IMPRTNT2 ON b_uts_blog_post(UF_IMPRTANT_DATE_END, UF_BLOG_POST_IMPRTNT)", true);
-					}
 				}
 				else if ($arField["FIELD_NAME"] == "UF_BLOG_POST_VOTE")
 				{
 					$obUserField->Update($arRes["ID"], $arField);
 				}
 			}
+
+			if ($createIndex)
+			{
+				$DB->Query("CREATE INDEX UX_UF_BLOG_POST_IMPRTNT2 ON b_uts_blog_post(UF_IMPRTANT_DATE_END, UF_BLOG_POST_IMPRTNT)", true);
+			}
 		}
+
 		return $errors;
 	}
 

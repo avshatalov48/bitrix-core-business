@@ -20,7 +20,8 @@ class ConversionHandler
 	protected static function getSeoId()
 	{
 		$session = AdvSession::getSession();
-		return $session["BANNER_ID"];
+
+		return $session['BANNER_ID'] ?? null;
 	}
 
 	public static function onGetAttributeTypes()
@@ -43,7 +44,7 @@ class ConversionHandler
 					$bannerList = array();
 					while($banner = $dbRes->fetch())
 					{
-						$bannerList[$banner['XML_ID']] = array("NAME" => array($banner["NAME"]));
+						$bannerList[$banner['XML_ID']] = array("NAME" => $banner["NAME"]);
 					}
 
 					return $bannerList;

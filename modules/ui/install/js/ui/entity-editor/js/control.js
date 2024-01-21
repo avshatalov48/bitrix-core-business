@@ -1,8 +1,4 @@
-/**
- * @module ui
- * @version 1.0
- * @copyright 2001-2019 Bitrix
- */
+/* eslint-disable */
 
 BX.namespace("BX.UI");
 
@@ -744,7 +740,7 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 			}
 			return button;
 		},
-		hide: function()
+		hide: function(options)
 		{
 			if(this.isRequired() || this.isRequiredByAttribute() || this.isRequiredConditionally())
 			{
@@ -756,7 +752,7 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 				BX.addClass(this._wrapper, "ui-entity-card-content-hide");
 				setTimeout(BX.delegate(function ()
 				{
-					this._parent.removeChild(this);
+					this._parent.removeChild(this, options);
 				}, this), 350);
 			}
 			else
@@ -1560,7 +1556,7 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	{
 		return this.isInEditMode() && (this.isRequired() || this.isRequiredByAttribute()) && !this.hasValue();
 	};
-	BX.UI.EntityEditorField.prototype.hide = function()
+	BX.UI.EntityEditorField.prototype.hide = function(options)
 	{
 		if(!(this.isRequired() || this.isRequiredConditionally() || this.isRequiredByAttribute()))
 		{
@@ -1936,18 +1932,25 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 			}
 		}
 
-		results.push(
-			{
-				value: "showAlways",
-				html: '<label class="ui-entity-card-context-menu-item-hide-empty-wrap">' +
-				'<input type="checkbox"' +
-				(this.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways) ? ' checked = "true"' : '') +
-				' class="ui-entity-card-context-menu-item-hide-empty-input">' +
-				'<span class="ui-entity-card-context-menu-item-hide-empty-text">' +
-				BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS") +
-				'</span></label>'
-			}
-		);
+		if (this.getEditor().isShowAlwaysFeautureEnabled())
+		{
+			results.push(
+				{
+					value: "showAlways",
+					html: '<label class="ui-entity-card-context-menu-item-hide-empty-wrap">' +
+						'<input type="checkbox"' +
+						(
+							this.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways)
+								? ' checked = "true"'
+								: ''
+						) +
+						' class="ui-entity-card-context-menu-item-hide-empty-input">' +
+						'<span class="ui-entity-card-context-menu-item-hide-empty-text">' +
+						BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS") +
+						'</span></label>'
+				}
+			);
+		}
 
 		this.doPrepareContextMenuItems(results);
 		return results;
@@ -3861,7 +3864,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 
 		if(child.hasScheme())
 		{
-			this._editor.processControlAdd(child);
+			this._editor.processControlAdd(child, options);
 			this.markSchemeAsChanged();
 
 			if(BX.prop.getBoolean(options, "enableSaving", true))
@@ -3927,7 +3930,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 
 		if(processScheme)
 		{
-			this._editor.processControlRemove(child);
+			this._editor.processControlRemove(child, options);
 			this.markSchemeAsChanged();
 
 			if(BX.prop.getBoolean(options, "enableSaving", true))
@@ -3993,7 +3996,8 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			}
 		}
 
-		this._editor.processControlMove(child);
+		options["index"] = index;
+		this._editor.processControlMove(child, options);
 		this.markSchemeAsChanged();
 
 		if(BX.prop.getBoolean(options, "enableSaving", true))
@@ -8977,6 +8981,21 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 			window.top.setTimeout(BX.delegate(this.bindChangeEvent, this), 1000);
 			this.initializeDragDropAbilities();
 		}
+		else
+		{
+			const innerHtmlElements = this._innerWrapper.querySelectorAll('.ui-entity-editor-content-block-inner-html');
+			const fieldIcon = new BX.UI.EntityFieldIcon({
+				editor: this._editor,
+				mode: this.getMode(),
+				fieldId: this.getId(),
+				fieldType: 'string',
+				isFieldMultiple: false,
+				fieldInnerWrapper: this._innerWrapper,
+				target: innerHtmlElements[0],
+			});
+
+			fieldIcon.renderFieldValueIcon();
+		}
 
 		this._hasLayout = true;
 	};
@@ -9245,6 +9264,20 @@ if (typeof BX.UI.EntityEditorBB === 'undefined')
 				if (!BX.Type.isStringFilled(value))
 				{
 					value = BX.Text.encode(this.getValue());
+				}
+
+				const fieldIcon = new BX.UI.EntityFieldIcon({
+					editor: this._editor,
+					mode: this.getMode(),
+					fieldId: this.getId(),
+					fieldType: 'string',
+					fieldInnerWrapper: this._innerWrapper,
+				});
+
+				const iconNode = fieldIcon.getIconNode();
+				if (iconNode)
+				{
+					value = value.replace(new RegExp(/<br>$/), iconNode.outerHTML);
 				}
 
 				contentNode.innerHTML = value;

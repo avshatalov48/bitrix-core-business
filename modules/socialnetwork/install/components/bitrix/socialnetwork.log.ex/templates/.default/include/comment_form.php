@@ -120,6 +120,8 @@ $formParams = [
 			'contextId' => 'sonet_comment_' . $USER->GetID(),
 			'category' => 'livefeed_comments',
 		],
+		'isCopilotImageEnabledBySettings' => \Bitrix\Socialnetwork\Integration\AI\Settings::isImageCommentAvailable(),
+		'isCopilotTextEnabledBySettings' => \Bitrix\Socialnetwork\Integration\AI\Settings::isTextCommentAvailable(),
 	],
 	"PROPERTIES" => [
 		array_merge(

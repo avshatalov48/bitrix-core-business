@@ -2,7 +2,7 @@
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 
 /**
  * Class OperationTable
@@ -22,6 +22,8 @@ use Bitrix\Main\Entity;
  */
 class OperationTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	public static function getTableName()
 	{
 		return 'b_operation';

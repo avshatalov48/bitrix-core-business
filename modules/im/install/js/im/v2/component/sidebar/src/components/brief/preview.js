@@ -4,7 +4,7 @@ import {DetailEmptyState} from '../detail-empty-state';
 import {BriefItem} from './brief-item';
 import '../../css/brief/preview.css';
 
-import type {ImModelDialog, ImModelSidebarFileItem} from 'im.v2.model';
+import type {ImModelChat, ImModelSidebarFileItem} from 'im.v2.model';
 
 // @vue/component
 export const BriefPreview = {
@@ -29,9 +29,9 @@ export const BriefPreview = {
 	computed:
 	{
 		SidebarDetailBlock: () => SidebarDetailBlock,
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		chatId(): number
 		{

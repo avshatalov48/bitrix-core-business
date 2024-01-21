@@ -4,9 +4,9 @@ this.BX = this.BX || {};
 
 	class SliderLoader {
 	  constructor(entryId, options = {}) {
-	    this.extensionName = main_core.Type.isString(entryId) && (entryId === 'NEW' || entryId.substr(0, 4) === 'EDIT') || !parseInt(entryId) ? 'EventEditForm' : 'EventViewForm';
+	    this.extensionName = main_core.Type.isString(entryId) && (entryId === 'NEW' || entryId.substring(0, 4) === 'EDIT') || !parseInt(entryId) ? 'EventEditForm' : 'EventViewForm';
 	    this.sliderId = options.sliderId || "calendar:slider-" + Math.random();
-	    entryId = main_core.Type.isString(entryId) && entryId.substr(0, 4) === 'EDIT' ? parseInt(entryId.substr(4)) : parseInt(entryId);
+	    entryId = main_core.Type.isString(entryId) && entryId.substring(0, 4) === 'EDIT' ? parseInt(entryId.substring(4)) : parseInt(entryId);
 	    this.extensionParams = {
 	      entryId: entryId,
 	      entry: options.entry || null,
@@ -60,6 +60,9 @@ this.BX = this.BX || {};
 	    }
 	    if (main_core.Type.isBoolean(options.isSharing) && options.isSharing === true) {
 	      this.isSharing = true;
+	    }
+	    if (main_core.Type.isStringFilled(options.jumpToControl)) {
+	      this.extensionParams.jumpToControl = options.jumpToControl;
 	    }
 	  }
 	  show() {

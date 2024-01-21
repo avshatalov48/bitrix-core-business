@@ -165,6 +165,11 @@ class Toolbar
 		$this->filter = ob_get_clean();
 	}
 
+	public function setFilter(string $filter)
+	{
+		$this->filter = $filter;
+	}
+
 	public function getFilter()
 	{
 		return $this->filter;

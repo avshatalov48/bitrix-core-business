@@ -6,7 +6,7 @@ define("BX_SEARCH_ADMIN", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-$start = getmicrotime();
+$start = microtime(true);
 
 $query = ltrim($_POST["q"]);
 if(

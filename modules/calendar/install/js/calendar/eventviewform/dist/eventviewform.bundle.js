@@ -50,6 +50,9 @@ this.BX = this.BX || {};
 	      meetingHostWorkPosition: this.params.meetingHostWorkPosition,
 	      avatarSize: this.params.avatarSize,
 	      attendees: this.params.attendees,
+	      avatarUsers: [],
+	      avatarMoreUsers: [],
+	      avatarMoreCount: 0,
 	      userList: {
 	        y: [],
 	        i: [],
@@ -71,6 +74,7 @@ this.BX = this.BX || {};
 	      isPrivate: this.params.isPrivate,
 	      location: this.params.location,
 	      canEditCalendar: this.params.canEditCalendar,
+	      canDeleteEvent: this.params.canDeleteEvent,
 	      showComments: this.params.showComments,
 	      filesView: this.getComponentHTML(this.params.filesView),
 	      crmView: this.getComponentHTML(this.params.crmView),
@@ -98,6 +102,8 @@ this.BX = this.BX || {};
 	      }
 	      main_core.Event.bind(document, 'visibilitychange', this.handleBackgroundPulls);
 	    }
+	    main_core.Event.bind(this.$refs.sliderDetailContent, 'mouseup', this.quote);
+	    main_core_events.EventEmitter.subscribe('AI.Copilot.Menu:open', this.handleCopilotMenuShow);
 	  },
 	  beforeMount() {
 	    if (this.params.eventExists) {
@@ -109,6 +115,13 @@ this.BX = this.BX || {};
 	    if (this.params.eventExists) {
 	      main_core_events.EventEmitter.unsubscribe('onPullEvent-calendar', this.handlePullEvent);
 	      main_core_events.EventEmitter.unsubscribe(`MeetingStatusControl_${this.id}:onSetStatus`, this.handleStatusUpdate);
+	      main_core.Event.unbind(this.$refs.sliderDetailContent, 'mouseup', this.quote);
+	      main_core_events.EventEmitter.unsubscribe('AI.Copilot.Menu:open', this.handleCopilotMenuShow);
+	    }
+	  },
+	  computed: {
+	    authorNodeId() {
+	      return this.id + '_detail-author-info';
 	    }
 	  },
 	  methods: {
@@ -146,7 +159,11 @@ this.BX = this.BX || {};
 	      // element.querySelectorAll('script').forEach(e => e.remove());
 	    },
 
+	    quote(e) {
+	      window.mplCheckForQuote(e, e.currentTarget, 'EVENT_' + this.eventId, this.authorNodeId);
+	    },
 	    updateUserList() {
+	      var _this$attendees$y$fil, _this$attendees$y;
 	      this.userList = {
 	        y: [],
 	        i: [],
@@ -161,6 +178,18 @@ this.BX = this.BX || {};
 	            this.userList[user.STATUS.toLowerCase()].push(user);
 	          }
 	        }, this);
+	      }
+	      const accepted = (_this$attendees$y$fil = (_this$attendees$y = this.attendees.y) == null ? void 0 : _this$attendees$y.filter(a => parseInt(this.meetingHost.ID) !== parseInt(a.ID))) != null ? _this$attendees$y$fil : [];
+	      if (accepted.length <= 11) {
+	        this.avatarUsers = accepted.slice(0, 11);
+	        this.avatarMoreUsers = [];
+	      } else {
+	        this.avatarUsers = accepted.slice(0, 10);
+	        this.avatarMoreUsers = accepted.slice(10);
+	      }
+	      this.avatarMoreCount = this.avatarMoreUsers.length;
+	      if (this.avatarMoreCount >= 1000) {
+	        this.avatarMoreCount = `${parseInt(this.avatarMoreUsers.length / 1000)}K`;
 	      }
 	    },
 	    reloadPlanner() {
@@ -245,6 +274,7 @@ this.BX = this.BX || {};
 	        this.isPrivate = newData.isPrivate;
 	        this.location = newData.location;
 	        this.canEditCalendar = newData.canEditCalendar;
+	        this.canDeleteEvent = newData.canDeleteEvent;
 	        this.showComments = newData.showComments;
 	        this.filesView = this.getComponentHTML(newData.filesView);
 	        if (this.filesView) {
@@ -261,6 +291,15 @@ this.BX = this.BX || {};
 	        this.updateUserList();
 	        this.reloadPlanner();
 	      });
+	    },
+	    handleCopilotMenuShow() {
+	      const copilotPopups = [...document.querySelectorAll('.ai__copilot-menu-popup')];
+	      const menu = copilotPopups.find(popup => popup.offsetHeight > 0);
+	      const offset = menu.getBoundingClientRect().bottom - this.$refs.comments.getBoundingClientRect().bottom;
+	      const marginBottom = parseInt(this.$refs.comments.style.marginBottom);
+	      if (isNaN(marginBottom) && offset > 0 || !isNaN(marginBottom) && marginBottom < offset) {
+	        this.$refs.comments.style.marginBottom = `${offset}px`;
+	      }
 	    },
 	    highlightChange(element) {
 	      if (!element) {
@@ -353,24 +392,37 @@ this.BX = this.BX || {};
 								</div>
 							</div>
 							<div class="calendar-slider-sidebar-layout-main">
-								
 								<div class="calendar-slider-sidebar-user-block">
 								<div v-if="isMeeting">
-									<div class="calendar-slider-sidebar-user-container">
-										<div class="calendar-slider-sidebar-user-block-avatar">
-											<a :href="meetingHost.URL">
-												<UserAvatar :user="meetingHost" :avatarSize="avatarSize"/>
-												<div class="calendar-slider-sidebar-user-icon-top"></div>
-												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
-											</a>
+									<div class="calendar-slider-sidebar-user-container-holder">
+										<div class="calendar-slider-sidebar-user-container">
+											<div class="calendar-slider-sidebar-user-block-avatar">
+												<a :href="meetingHost.URL">
+													<UserAvatar :user="meetingHost" :avatarSize="avatarSize"/>
+													<div class="calendar-slider-sidebar-user-icon-top"></div>
+													<div class="calendar-slider-sidebar-user-icon-bottom"></div>
+												</a>
+											</div>
 										</div>
-									</div>
-									<div class="calendar-slider-sidebar-user-container" v-for="att in attendees.y.slice(0,10)">
-										<div class="calendar-slider-sidebar-user-block-avatar" v-if="meetingHost.ID != att.ID">
-											<a :href="att.URL">
-												<UserAvatar :user="att" :avatarSize="avatarSize"/>
-												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
-											</a>
+										<div
+											class="calendar-slider-sidebar-user-container"
+											v-for="att in avatarUsers"
+										>
+											<div class="calendar-slider-sidebar-user-block-avatar">
+												<a :href="att.URL">
+													<UserAvatar :user="att" :avatarSize="avatarSize"/>
+													<div class="calendar-slider-sidebar-user-icon-bottom"></div>
+												</a>
+											</div>
+										</div>
+										<div
+											v-if="avatarMoreUsers.length > 0"
+											class="calendar-slider-sidebar-user-more-container" ref="attendeesMore"
+											@click="showUserListPopupCallback($refs.attendeesMore, avatarMoreUsers)"
+										>
+											<div class="calendar-slider-sidebar-user-more">
+												+{{avatarMoreCount}}
+											</div>
 										</div>
 									</div>
 									<div class="calendar-slider-sidebar-row calendar-slider-sidebar-border-bottom" v-if="meetingCreatorUrl">
@@ -471,7 +523,14 @@ this.BX = this.BX || {};
 								</div>
 							</div>
 
-							<div class="calendar-slider-detail-content">
+							<div class="calendar-slider-detail-content" ref="sliderDetailContent">
+								<span
+									class="calendar-detail-author-info"
+									:id="authorNodeId"
+									:bx-post-author-id="meetingHost.ID"
+								>
+									{{meetingCreatorDisplayName ?? meetingHostDisplayName}}
+								</span>
 								<div id="calendar-slider-detail-description" class="calendar-slider-detail-description" v-if="description"
 									 ref="highlightDescription" v-html="description">
 								</div>
@@ -515,9 +574,9 @@ this.BX = this.BX || {};
 										<input type="hidden" :id="id + '_current_status'" :value="curUserStatus"/>
 										<span :id="id + '_status_buttonset'"></span>
 
-										<div v-if="canEditCalendar">
-											<button :id="id + '_but_edit'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EDIT')}}</button>
-											<button :id="id + '_but_del'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_DEL')}}</button>
+										<div>
+											<button v-if="canEditCalendar" :id="id + '_but_edit'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EDIT')}}</button>
+											<button v-if="canDeleteEvent" :id="id + '_but_del'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_DEL')}}</button>
 										</div>
 										
 									</div>
@@ -525,7 +584,7 @@ this.BX = this.BX || {};
 							</div>
 						</div>
 						
-						<div class="calendar-slider-comments" v-if="showComments">
+						<div class="calendar-slider-comments" v-if="showComments" ref="comments">
 							<div class="calendar-slider-comments-title">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_COMMENTS')}}</div>
 							<div class="calendar-slider-comments-main" :id="id + 'comments-cont'" style="opacity: 1;">
 								<div ref="commentsView"></div>
@@ -694,6 +753,22 @@ this.BX = this.BX || {};
 	      }, response => {
 	        if (response.errors && response.errors.length) {
 	          slider.getData().set("sliderContent", '<div class="calendar-slider-alert">' + '<div class="calendar-slider-alert-inner">' + '<div class="calendar-slider-alert-img"></div>' + '<h1 class="calendar-slider-alert-text">' + main_core.Text.encode(response.errors[0].message) + '</h1>' + '</div>' + '</div>');
+	        }
+	        if (response.data && !main_core.Type.isNil(response.data.isAvailable) && !response.data.isAvailable) {
+	          const showHelperCallback = () => {
+	            top.BX.UI.InfoHelper.show('limit_office_calendar_off', {
+	              isLimit: true,
+	              limitAnalyticsLabels: {
+	                module: 'calendar',
+	                source: 'eventViewForm'
+	              }
+	            });
+	          };
+	          if (this.slider) {
+	            this.slider.close(true, showHelperCallback);
+	          } else {
+	            showHelperCallback();
+	          }
 	        }
 	        this.displayError(response.errors);
 	        resolve(response);
@@ -925,22 +1000,24 @@ this.BX = this.BX || {};
 							<a href="${0}" class="calendar-slider-sidebar-user-info-name">${0}</a>
 						</div>
 					</div>
-				`), userAvatar, user.URL ? user.URL : '#', user.DISPLAY_NAME);
+				`), userAvatar, user.URL ? user.URL : '#', main_core.Text.encode(user.DISPLAY_NAME));
 	        this.DOM.userListPopupWrap.append(userWrap);
 	      }, this);
 	      this.userListPopup = this.BX.PopupWindowManager.create("user-list-popup-" + Math.random(), node, {
 	        autoHide: true,
 	        closeByEsc: true,
 	        offsetTop: 0,
-	        offsetLeft: 0,
+	        offsetLeft: node.offsetWidth / 2,
 	        resizable: false,
 	        lightShadow: true,
 	        content: this.DOM.userListPopupWrap,
 	        className: 'calendar-user-list-popup',
-	        zIndex: 4000
-	      });
-	      this.userListPopup.setAngle({
-	        offset: 36
+	        maxWidth: 300,
+	        maxHeight: 500,
+	        zIndex: 4000,
+	        angle: {
+	          position: 'top'
+	        }
 	      });
 	      this.userListPopup.show();
 	      this.BX.addCustomEvent(this.userListPopup, 'onPopupClose', () => {

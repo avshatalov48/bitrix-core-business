@@ -1,5 +1,3 @@
-import { EventEmitter, BaseEvent } from 'main.core.events';
-
 import { MessengerNavigation } from 'im.v2.component.navigation';
 import { RecentListContainer } from 'im.v2.component.list.container.recent';
 import { OpenlineListContainer } from 'im.v2.component.list.container.openline';
@@ -9,20 +7,24 @@ import { OpenlinesContent } from 'im.v2.component.content.openlines';
 import { NotificationContent } from 'im.v2.component.content.notification';
 import { MarketContent } from 'im.v2.component.content.market';
 import { SettingsContent } from 'im.v2.component.content.settings';
+import { CopilotListContainer } from 'im.v2.component.list.container.copilot';
+import { CopilotContent } from 'im.v2.component.content.copilot';
 
 import { Logger } from 'im.v2.lib.logger';
 import { InitManager } from 'im.v2.lib.init';
-import { EventType, Layout } from 'im.v2.const';
+import { Layout } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { ThemeManager } from 'im.v2.lib.theme';
 import { DesktopManager } from 'im.v2.lib.desktop';
+import { LayoutManager } from 'im.v2.lib.layout';
 
 import 'ui.fonts.opensans';
 import './css/messenger.css';
 import './css/tokens.css';
 import './css/icons.css';
 
-import type { ImModelDialog, ImModelLayout } from 'im.v2.model';
+import type { JsonObject } from 'main.core';
+import type { ImModelLayout } from 'im.v2.model';
 
 // @vue/component
 export const Messenger = {
@@ -37,8 +39,10 @@ export const Messenger = {
 		NotificationContent,
 		MarketContent,
 		SettingsContent,
+		CopilotListContainer,
+		CopilotContent,
 	},
-	data()
+	data(): JsonObject
 	{
 		return {
 			contextMessageId: 0,
@@ -63,18 +67,6 @@ export const Messenger = {
 		{
 			return this.layout.entityId;
 		},
-		currentDialog(): ImModelDialog
-		{
-			return this.$store.getters['dialogues/get'](this.entityId, true);
-		},
-		isChat(): boolean
-		{
-			return this.layout.name === Layout.chat.name;
-		},
-		isNotification(): boolean
-		{
-			return this.layout.name === Layout.notification.name;
-		},
 		isOpenline(): boolean
 		{
 			return this.layout.name === Layout.openlines.name;
@@ -84,7 +76,7 @@ export const Messenger = {
 			return {
 				'--dark-theme': ThemeManager.isDarkTheme(),
 				'--light-theme': ThemeManager.isLightTheme(),
-				'--desktop': DesktopManager.isDesktop()
+				'--desktop': DesktopManager.isDesktop(),
 			};
 		},
 		callContainerClass(): string[]
@@ -111,57 +103,36 @@ export const Messenger = {
 	created()
 	{
 		InitManager.start();
+		LayoutManager.init();
 		Logger.warn('MessengerRoot created');
-	},
-	mounted()
-	{
-		EventEmitter.subscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
+
+		this.getLayoutManager().restoreLastLayout();
 	},
 	beforeUnmount()
 	{
-		EventEmitter.unsubscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
+		this.getLayoutManager().destroy();
 	},
 	methods:
 	{
 		onNavigationClick({ layoutName, layoutEntityId }: {layoutName: string, layoutEntityId: string | number})
 		{
-			let entityId = '';
-			const isChatNext = layoutName === Layout.chat.name;
-			const isMarketNext = layoutName === Layout.market.name;
+			let entityId = layoutEntityId;
 
-			if (isChatNext)
+			const lastOpenedElement = this.getLayoutManager().getLastOpenedElement(layoutName);
+			if (lastOpenedElement)
 			{
-				entityId = this.previouslySelectedChat;
-			}
-			else if (isMarketNext)
-			{
-				entityId = layoutEntityId;
+				entityId = lastOpenedElement;
 			}
 
-			this.$store.dispatch('application/setLayout', { layoutName, entityId });
+			this.getLayoutManager().setLayout({ name: layoutName, entityId });
 		},
 		onEntitySelect({ layoutName, entityId })
 		{
-			this.saveLastOpenedChat(entityId);
-			this.$store.dispatch('application/setLayout', { layoutName, entityId });
+			this.getLayoutManager().setLayout({ name: layoutName, entityId });
 		},
-		onGoToMessageContext(event: BaseEvent)
+		getLayoutManager(): LayoutManager
 		{
-			const { dialogId, messageId } = event.getData();
-			if (this.currentDialog.dialogId === dialogId)
-			{
-				return;
-			}
-
-			this.$store.dispatch('application/setLayout', {
-				layoutName: Layout.chat.name,
-				entityId: dialogId,
-				contextId: messageId,
-			});
-		},
-		saveLastOpenedChat(dialogId: string)
-		{
-			this.previouslySelectedChat = dialogId || '';
+			return LayoutManager.getInstance();
 		},
 	},
 	template: `

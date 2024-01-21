@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Controller\Filter;
 
 use Bitrix\Im\V2\Chat\OpenChat;
 use Bitrix\Im\V2\Chat\OpenLineChat;
+use Bitrix\Im\V2\Chat\PrivateChat;
 use Bitrix\Im\V2\Message;
 use Bitrix\Main\Engine\ActionFilter\Base;
 use Bitrix\Main\Event;

@@ -462,4 +462,25 @@ class PaymentTable extends Main\Entity\DataManager
 			new Main\Entity\Validator\Length(null, 64),
 		);
 	}
+
+	public static function deleteWithItems(int $id) : Main\Entity\DeleteResult
+	{
+		if ($id <= 0)
+		{
+			throw new Main\ArgumentNullException("id");
+		}
+
+		$itemsList = PayableItemTable::getList(
+			[
+				"filter" => ["=PAYMENT_ID" => $id],
+				"select" => ["ID"]
+			]
+		);
+		while ($item = $itemsList->fetch())
+		{
+			PayableItemTable::delete($item["ID"]);
+		}
+
+		return static::delete($id);
+	}
 }

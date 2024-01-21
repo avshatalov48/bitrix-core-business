@@ -14,6 +14,17 @@ class ForwardService
 {
 	use ContextCustomer;
 
+	private const PARAMS_TO_COPY_WHITELIST = [
+		Message\Params::ATTACH => Message\Params::ATTACH,
+		Message\Params::URL_ID => Message\Params::URL_ID,
+		Message\Params::IS_DELETED => Message\Params::IS_DELETED,
+		Message\Params::URL_ONLY => Message\Params::URL_ONLY,
+		Message\Params::LARGE_FONT => Message\Params::LARGE_FONT,
+		Message\Params::FORWARD_CONTEXT_ID => Message\Params::FORWARD_CONTEXT_ID,
+		Message\Params::FORWARD_ID => Message\Params::FORWARD_ID,
+		Message\Params::FORWARD_USER_ID => Message\Params::FORWARD_USER_ID,
+	];
+
 	private Chat $toChat;
 
 	public function __construct(Chat $toChat)
@@ -23,18 +34,13 @@ class ForwardService
 
 	/**
 	 * @param MessageCollection $forwardingMessages
-	 * @param string|null $comment
 	 * @return Result<MessageCollection>
 	 */
-	public function createMessages(MessageCollection $forwardingMessages, ?string $comment = null): Result
+	public function createMessages(MessageCollection $forwardingMessages): Result
 	{
 		$result = new Result();
-		if (!$this->toChat->hasAccess($this->getContext()->getUserId()))
-		{
-			return $result->addError(new Chat\ChatError(Chat\ChatError::ACCESS_DENIED));
-		}
 
-		$messages = new MessageCollection();
+		$uuidMap = [];
 		foreach ($forwardingMessages as $forwardingMessage)
 		{
 			if ($forwardingMessage->getChat()->hasAccess($this->getContext()->getUserId()))
@@ -42,23 +48,15 @@ class ForwardService
 				$forwardMessageResult = $this->createForwardMessage($forwardingMessage);
 				if ($forwardMessageResult->hasResult())
 				{
-					$messages->add($forwardMessageResult->getResult());
+					$messageMap = $forwardMessageResult->getResult();
+					$uuidMap[$messageMap['uuid']] = $messageMap['id'];
 				}
+
 				$result->addErrors($forwardMessageResult->getErrors());
 			}
 		}
 
-		if ($comment !== null)
-		{
-			$commentMessageResult = $this->createCommentMessage($comment);
-			if ($commentMessageResult->hasResult())
-			{
-				$messages->add($commentMessageResult->getResult());
-			}
-			$result->addErrors($commentMessageResult->getErrors());
-		}
-
-		return $result->setResult($messages);
+		return $result->setResult($uuidMap);
 	}
 
 	/**
@@ -75,10 +73,11 @@ class ForwardService
 
 		$messageConfig = [
 			'MESSAGE_TYPE' => $this->toChat->getType(),
-			'MESSAGE' => $forwardingMessage->getMessage(),
+			'MESSAGE' => $forwardingMessage->getMessage() !== '' ? $forwardingMessage->getMessage() : null,
 			'PARAMS' => $paramsResult->getResult(),
 			'TO_CHAT_ID' =>  $this->toChat->getChatId(),
 			'FROM_USER_ID' => $this->getContext()->getUserId(),
+			'URL_PREVIEW' => 'N',
 		];
 
 		$result = new Result();
@@ -89,33 +88,10 @@ class ForwardService
 			$result->addError(new Message\MessageError(Message\MessageError::SENDING_FAILED));
 		}
 
-		return $result->setResult(new Message($messageId));
-	}
-
-	/**
-	 * @param string $comment
-	 * @return Result<Message>
-	 */
-	private function createCommentMessage(string $comment): Result
-	{
-		$result = new Result();
-
-
-		$messageConfig = [
-			"MESSAGE_TYPE" => $this->toChat->getType(),
-			"MESSAGE" => $comment,
-			"TO_CHAT_ID" =>  $this->toChat->getChatId(),
-			"FROM_USER_ID" => $this->getContext()->getUserId(),
-		];
-
-		$messageId = \CIMMessenger::Add($messageConfig); //TODO replace with $chat->sendMessage
-
-		if (!$messageId)
-		{
-			return $result->addError(new Message\MessageError(Message\MessageError::SENDING_FAILED));
-		}
-
-		return $result->setResult(new Message($messageId));
+		return $result->setResult([
+			'uuid' => $forwardingMessage->getForwardUuid(),
+			'id' => $messageId
+		]);
 	}
 
 	/**
@@ -130,30 +106,25 @@ class ForwardService
 
 		if ($this->isOriginalMessage($newParams))
 		{
-			$newParams[Message\Params::FORWARD_ID] = $forwardingMessage->getMessageId();
-			$newParams[Message\Params::FORWARD_CHAT_ID] = $forwardingMessage->getChatId();
-			$newParams[Message\Params::FORWARD_USER_ID] = $forwardingMessage->getAuthorId();
-
-			if ($forwardingMessage->getChat()->getType() === Chat::IM_TYPE_OPEN)
-			{
-				$newParams[Message\Params::FORWARD_TITLE] = $forwardingMessage->getChat()->getTitle();
-			}
+			$userId = $forwardingMessage->isSystem() ? 0 : $forwardingMessage->getAuthorId();
+			$newParams[Message\Params::FORWARD_ID] = $forwardingMessage->getId();
+			$newParams[Message\Params::FORWARD_CONTEXT_ID] = $forwardingMessage->getContextId();
+			$newParams[Message\Params::FORWARD_USER_ID] = $userId;
 		}
 
-		if (isset($newParams[Message\Params::REPLY_ID]))
+		if ($forwardingMessage->getParams()->isSet(Message\Params::FILE_ID))
 		{
-			unset($newParams[Message\Params::REPLY_ID]);
-		}
-
-		if (isset($newParams[Message\Params::FILE_ID]))
-		{
-			$newLinkResult = $this->getFileLink($newParams[Message\Params::FILE_ID]);
-			if (!$newLinkResult->hasResult())
+			$newFileIds = [];
+			foreach ($forwardingMessage->getFiles() as $file)
 			{
-				return $result->addErrors($newLinkResult->getErrors());
+				$copy = $file->getCopyToChat($this->toChat);
+				if ($copy instanceof FileItem)
+				{
+					$newFileIds[] = $copy->getId();
+				}
 			}
 
-			$newParams[Message\Params::FILE_ID] = $newLinkResult->getResult()->getId();
+			$newParams[Message\Params::FILE_ID] = $newFileIds;
 		}
 
 		return $result->setResult($newParams);
@@ -167,8 +138,7 @@ class ForwardService
 	private function isOriginalMessage(array $messageParams): bool
 	{
 		return !isset(
-			$messageParams[Message\Params::FORWARD_ID],
-			$messageParams[Message\Params::FORWARD_CHAT_ID],
+			$messageParams[Message\Params::FORWARD_CONTEXT_ID],
 			$messageParams[Message\Params::FORWARD_USER_ID]
 		);
 	}
@@ -182,7 +152,15 @@ class ForwardService
 		$result = [];
 		foreach ($message->getParams() as $param)
 		{
-			$result[$param->getName()] = $param->getValue();
+			if (isset(self::PARAMS_TO_COPY_WHITELIST[$param->getName()]))
+			{
+				$value = $param->getValue();
+				if (is_bool($value))
+				{
+					$value = $value ? 'Y' : 'N';
+				}
+				$result[$param->getName()] = $value;
+			}
 		}
 
 		return $result;
@@ -192,7 +170,7 @@ class ForwardService
 	 * @param int $fileId
 	 * @return Result<FileItem>
 	 */
-	private function getFileLink(int $fileId): Result
+	private function getFileCopy(int $fileId): Result
 	{
 		$result = new Result();
 
@@ -202,12 +180,12 @@ class ForwardService
 			return $result->addError(new FileError(FileError::NOT_FOUND));
 		}
 
-		$newSymLink = $fileItem->getSymLink();
-		if (!$newSymLink)
+		$copyFile = $fileItem->getCopyToChat($this->toChat);
+		if (!$copyFile)
 		{
 			return $result->addError(new FileError(FileError::CREATE_SYMLINK));
 		}
 
-		return $result->setResult($newSymLink);
+		return $result->setResult($copyFile);
 	}
 }

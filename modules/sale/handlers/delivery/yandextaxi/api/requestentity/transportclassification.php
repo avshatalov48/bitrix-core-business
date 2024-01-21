@@ -15,7 +15,7 @@ final class TransportClassification extends RequestEntity
 	/**
 	 * @return string
 	 */
-	public function getTaxiClass()
+	public function getTaxiClass(): string
 	{
 		return $this->taxiClass;
 	}

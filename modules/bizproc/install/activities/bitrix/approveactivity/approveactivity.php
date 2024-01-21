@@ -144,6 +144,7 @@ class CBPApproveActivity extends CBPCompositeActivity implements IBPEventActivit
 			$arUsersTmp = [$arUsersTmp];
 		}
 
+		$approveType = 'all';
 		if ($this->ApproveType == 'any')
 		{
 			$this->writeToTrackingService(
@@ -152,6 +153,7 @@ class CBPApproveActivity extends CBPCompositeActivity implements IBPEventActivit
 					Loc::getMessage('BPAA_ACT_TRACK1')
 				)
 			);
+			$approveType = $this->ApproveType;
 		}
 		elseif ($this->ApproveType == 'all')
 		{
@@ -170,6 +172,7 @@ class CBPApproveActivity extends CBPCompositeActivity implements IBPEventActivit
 					Loc::getMessage('BPAA_ACT_TRACK3')
 				)
 			);
+			$approveType = $this->ApproveType;
 		}
 
 		$arUsers = CBPHelper::extractUsers($arUsersTmp, $documentId, false);
@@ -224,6 +227,7 @@ class CBPApproveActivity extends CBPCompositeActivity implements IBPEventActivit
 				? 'Y'
 				: 'N'
 		;
+		$arParameters['ApproveType'] = $approveType;
 
 		$overdueDate = $this->OverdueDate;
 		$timeoutDuration = $this->CalculateTimeoutDuration();
@@ -292,21 +296,6 @@ class CBPApproveActivity extends CBPCompositeActivity implements IBPEventActivit
 		}
 
 		$this->workflow->addEventHandler($this->name, $eventHandler);
-	}
-
-	private function ReplaceTemplate($str, $ar)
-	{
-		$str = str_replace('%', '%2', $str);
-		foreach ($ar as $key => $val)
-		{
-			$val = str_replace('%', '%2', $val);
-			$val = str_replace('#', '%1', $val);
-			$str = str_replace('#'.$key.'#', $val, $str);
-		}
-		$str = str_replace('%1', '#', $str);
-		$str = str_replace('%2', '%', $str);
-
-		return $str;
 	}
 
 	public function Unsubscribe(IBPActivityExternalEventListener $eventHandler)
@@ -799,34 +788,40 @@ class CBPApproveActivity extends CBPCompositeActivity implements IBPEventActivit
 		return array($form, $buttons);
 	}
 
-	public static function getTaskControls($arTask)
+	public static function getTaskControls($task)
 	{
-		return [
+		$controls = [
 			'BUTTONS' => [
 				[
 					'TYPE' => 'submit',
 					'TARGET_USER_STATUS' => CBPTaskUserStatus::Yes,
 					'NAME' => 'approve',
 					'VALUE' => 'Y',
-					'TEXT' =>
-						$arTask['PARAMETERS']['TaskButton1Message'] <> ''
-							? $arTask['PARAMETERS']['TaskButton1Message']
-							: Loc::getMessage('BPAA_ACT_BUTTON1')
-					,
+					'TEXT' => $task['PARAMETERS']['TaskButton1Message'] ?: Loc::getMessage('BPAA_ACT_BUTTON1'),
 				],
 				[
 					'TYPE' => 'submit',
 					'TARGET_USER_STATUS' => CBPTaskUserStatus::No,
 					'NAME' => 'nonapprove',
 					'VALUE' => 'Y',
-					'TEXT' =>
-						$arTask['PARAMETERS']['TaskButton2Message'] <> ''
-							? $arTask['PARAMETERS']['TaskButton2Message']
-							: Loc::getMessage('BPAA_ACT_BUTTON2')
-					,
+					'TEXT' => $task['PARAMETERS']['TaskButton2Message'] ?: Loc::getMessage('BPAA_ACT_BUTTON2'),
 				],
 			],
 		];
+
+		if (($task["PARAMETERS"]["ShowComment"] ?? 'N') !== "N")
+		{
+			$controls['FIELDS'] = [
+				[
+					'Id' => 'task_comment',
+					'Type' => 'text',
+					'Name' => $task["PARAMETERS"]["CommentLabelMessage"] ?: GetMessage("BPAA_ACT_COMMENT"),
+					'Required' => (($task['PARAMETERS']['CommentRequired'] ?? '') === 'Y'),
+				],
+			];
+		}
+
+		return $controls;
 	}
 
 	public static function PostTaskForm($arTask, $userId, $arRequest, &$arErrors, $userName = '', $realUserId = null)
@@ -845,7 +840,7 @@ class CBPApproveActivity extends CBPCompositeActivity implements IBPEventActivit
 				'USER_ID' => $userId,
 				'REAL_USER_ID' => $realUserId,
 				'USER_NAME' => $userName,
-				'COMMENT' => isset($arRequest['task_comment']) ? trim($arRequest['task_comment']) : '',
+				'COMMENT' => trim($arRequest['fields']['task_comment'] ?? ($arRequest['task_comment'] ?? '')),
 			];
 
 			if (

@@ -31,6 +31,13 @@ $filterFields = array();
 
 $by = mb_strtoupper($adminSort->getField());
 $order = mb_strtoupper($adminSort->getOrder());
+$listOrder = [
+	$by => $order,
+];
+if ($by !== 'CURRENCY')
+{
+	$listOrder['CURRENCY'] = 'ASC';
+}
 
 if ($adminList->EditAction() && $CURRENCY_RIGHT >= "W")
 {
@@ -213,11 +220,11 @@ else
 {
 	$selectFields = array_keys($selectFields);
 }
-$getListParams = array(
+$getListParams = [
 	'select' => $selectFields,
 	'filter' => $filter,
-	'order' => array($by => $order)
-);
+	'order' => $listOrder,
+];
 if ($usePageNavigation)
 {
 	$getListParams['limit'] = $navyParams['SIZEN'];

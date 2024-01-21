@@ -7,12 +7,12 @@ class RestAdapter
 	/**
 	 * @var array<RestConvertible>
 	 */
-	protected array $entities;
+	protected array $entities = [];
 	protected ?PopupData $additionalPopupData = null;
 
 	public function __construct(RestConvertible ...$entities)
 	{
-		$this->entities = $entities;
+		$this->entities = $entities ?? [];
 	}
 
 	public function toRestFormat(array $options = []): array
@@ -32,7 +32,7 @@ class RestAdapter
 			$popupData->merge($this->additionalPopupData);
 		}
 
-		$rest = $popupData->toRestFormat();
+		$rest = $popupData->toRestFormat($options);
 
 		if (empty($rest))
 		{
@@ -53,6 +53,16 @@ class RestAdapter
 	public function setAdditionalPopupData(PopupData $popupData): self
 	{
 		$this->additionalPopupData = $popupData;
+
+		return $this;
+	}
+
+	public function addEntities(RestConvertible ...$entities): self
+	{
+		foreach ($entities as $entity)
+		{
+			$this->entities[] = $entity;
+		}
 
 		return $this;
 	}

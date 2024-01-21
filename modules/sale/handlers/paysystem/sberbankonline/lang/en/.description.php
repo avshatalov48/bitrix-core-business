@@ -1,6 +1,7 @@
 <?php
 $MESS["SALE_HPS_SBERBANK"] = "Sberbank";
 $MESS["SALE_HPS_SBERBANK_CHANGE_STATUS_PAY"] = "Auto change order status to paid when payment success status is received";
+$MESS["SALE_HPS_SBERBANK_DESCRIPTION"] = "Card payment processed by Sberbank.";
 $MESS["SALE_HPS_SBERBANK_LOGIN"] = "Login";
 $MESS["SALE_HPS_SBERBANK_LOGIN_DESC"] = "Login";
 $MESS["SALE_HPS_SBERBANK_ORDER_DESCRIPTION"] = "Order description";

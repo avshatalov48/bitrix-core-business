@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Iblock\Url\AdminPage;
 
 use Bitrix\Main;
@@ -7,15 +8,13 @@ class BuilderManager
 {
 	public const EVENT_ID = 'onGetUrlBuilders';
 
-	private static $instance;
-
-	protected $mode;
+	private static self $instance;
 
 	/** @var BaseBuilder[] */
-	protected $builders;
+	protected array $builders;
 
 	/** @var array */
-	protected $map;
+	protected array $map;
 
 	protected function __construct()
 	{
@@ -30,7 +29,7 @@ class BuilderManager
 		$this->map[] = [
 			'ID' => $id,
 			'WEIGHT' => (int)$item->getWeight(),
-			'COUNTER' => $counter
+			'COUNTER' => $counter,
 		];
 		$counter++;
 		unset($item);
@@ -44,7 +43,7 @@ class BuilderManager
 		}
 		foreach ($resultList as $eventResult)
 		{
-			if ($eventResult->getType() != Main\EventResult::SUCCESS)
+			if ($eventResult->getType() !== Main\EventResult::SUCCESS)
 			{
 				continue;
 			}
@@ -55,6 +54,14 @@ class BuilderManager
 			}
 			foreach ($row as $className)
 			{
+				if (!is_string($className) || $className === '')
+				{
+					continue;
+				}
+				if (!class_exists($className))
+				{
+					continue;
+				}
 				/** @var BaseBuilder $item */
 				$item = new $className();
 				if ($item instanceof BaseBuilder)
@@ -66,7 +73,7 @@ class BuilderManager
 						$this->map[] = [
 							'ID' => $id,
 							'WEIGHT' => (int)$item->getWeight(),
-							'COUNTER' => $counter
+							'COUNTER' => $counter,
 						];
 						$counter++;
 					}
@@ -80,17 +87,21 @@ class BuilderManager
 		{
 			Main\Type\Collection::sortByColumn(
 				$this->map,
-				['WEIGHT' => SORT_DESC, 'COUNTER' => SORT_ASC]
+				[
+					'WEIGHT' => SORT_DESC,
+					'COUNTER' => SORT_ASC,
+				]
 			);
 		}
 	}
 
 	public static function getInstance(): BuilderManager
 	{
-		if (self::$instance === null)
+		if (!isset(self::$instance))
 		{
 			self::$instance = new BuilderManager();
 		}
+
 		return self::$instance;
 	}
 
@@ -126,6 +137,7 @@ class BuilderManager
 				$result = $this->builders[$builder];
 			}
 		}
+
 		return $result;
 	}
 }

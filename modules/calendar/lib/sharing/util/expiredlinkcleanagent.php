@@ -2,7 +2,7 @@
 
 namespace Bitrix\Calendar\Sharing\Util;
 
-use Bitrix\Calendar\Sharing\Link\SharingLinkTable;
+use Bitrix\Calendar\Internals\SharingLinkTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
@@ -10,6 +10,8 @@ use Bitrix\Main\Type\DateTime;
 
 final class ExpiredLinkCleanAgent
 {
+	private const MAX_LINKS_PER_QUERY = 500;
+
 	/**
 	 * runs agent that deactivate expired sharing links
 	 * @return string
@@ -52,6 +54,8 @@ final class ExpiredLinkCleanAgent
 				->setSelect(['ID'])
 				->whereNotNull('DATE_EXPIRE')
 				->where('DATE_EXPIRE', '<', new DateTime())
+				->where('ACTIVE', '=', 'Y')
+				->setLimit(self::MAX_LINKS_PER_QUERY)
 				->fetchAll()
 		;
 

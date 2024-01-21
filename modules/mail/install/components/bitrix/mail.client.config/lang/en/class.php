@@ -1,7 +1,6 @@
 <?php
 $MESS["MAIL_CLIENT_CONFIG_ACCESS"] = "Mailbox access";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_ADD"] = "Add";
-$MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT"] = "Give the employees access permission to this mailbox so they could receive and reply to email messages. It's a simple, effortless way to set up a collaboration environment for your sales department or helpdesk service.";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT_MSGVER_1"] = "Give the employees access permission to this mailbox so they could receive and reply to email messages. It's a simple, effortless way to set up a collaboration environment for your sales department or helpdesk service.";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_MORE"] = "details";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CANCEL"] = "Cancel";
@@ -30,6 +29,8 @@ $MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_ERROR"] = "E-mail is incorrect. Plea
 $MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_SUCCESS"] = "E-mail is confirmed!";
 $MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_TITLE_OFFICE365"] = "Please enter an e-mail address manually (as per Microsoft security rules)";
 $MESS["MAIL_CLIENT_CONFIG_EXT_SWITCH"] = "Edit more parameters";
+$MESS["MAIL_CLIENT_CONFIG_ICAL_ACTIVE"] = "Automatically add events to calendar";
+$MESS["MAIL_CLIENT_CONFIG_ICAL_OPTIONS"] = "Calendar integration";
 $MESS["MAIL_CLIENT_CONFIG_IMAP"] = "Connection data";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE"] = "Fetch messages for #AGE#";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_1"] = "1 day";
@@ -39,6 +40,8 @@ $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_60"] = "2 months";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_90"] = "3 months";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_I"] = "all the time";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT"] = "Authentication error. Please make sure your login and password are correct.<br>Note that you have to use a special integration password if you use app passwords or if two-factor authentication is enabled.";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH"] = "Authentication at external incoming mail server has failed. Make sure that the user with this email exists on that server. If your email accounts are under the supervision of your administrator, contact them for further assistance.";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH_SMTP"] = "Authentication at external outgoing mail server has failed. Make sure that the email server allows sending emails via the SMTP, or try unchecking the option \"Send using external SMTP\". If your email accounts are under the supervision of your administrator, contact them for further assistance.";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS"] = "Configure folders";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS_BTN_CANCEL"] = "Cancel";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS_BTN_SAVE"] = "Save";
@@ -106,3 +109,5 @@ Your current plan allows #LIMIT# shared mailboxes.";
 $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_TITLE"] = "Shared mailboxes in Bitrix24";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM"] = "Disconnect mailbox?";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM_TEXT"] = "Are you sure you want to disconnect the mailbox?";
+$MESS["MAIL_MAILBOX_SERVICE_NAME_IMAP"] = "Corporate e-mail";
+$MESS["MAIL_MAILBOX_SERVICE_NAME_YANDEX"] = "Yandex";

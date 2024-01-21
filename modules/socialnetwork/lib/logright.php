@@ -89,7 +89,7 @@ class LogRightTable extends Entity\DataManager
 
 		$tableName = self::getTableName();
 		list($prefix, $values) = $helper->prepareUpdate($tableName, $updateFields);
-		$connection->queryExecute("UPDATE {$tableName} SET {$prefix} WHERE `LOG_ID` = ".$logId);
+		$connection->queryExecute("UPDATE {$tableName} SET {$prefix} WHERE LOG_ID = ".$logId);
 
 		return true;
 	}
@@ -105,7 +105,7 @@ class LogRightTable extends Entity\DataManager
 		$helper = $connection->getSqlHelper();
 
 		$tableName = self::getTableName();
-		$connection->queryExecute("DELETE FROM {$tableName} WHERE `GROUP_CODE` = '".$helper->forSql($value)."'");
+		$connection->queryExecute("DELETE FROM {$tableName} WHERE GROUP_CODE = '".$helper->forSql($value)."'");
 
 		return true;
 	}

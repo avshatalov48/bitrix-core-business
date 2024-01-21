@@ -2,11 +2,11 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_uploader_core,im_v2_lib_draft,im_v2_lib_localStorage,im_v2_lib_soundNotification,rest_client,im_v2_application_core,im_v2_lib_smileManager,im_v2_lib_rest,im_v2_lib_parser,ui_vue3_directives_hint,im_v2_lib_entityCreator,im_v2_lib_market,im_v2_lib_hotkey,im_v2_lib_textarea,main_core_events,im_v2_lib_utils,im_v2_lib_logger,im_v2_provider_service,main_core,im_v2_const,im_v2_component_elements,im_v2_lib_textHighlighter) {
+(function (exports,ui_uploader_core,im_v2_lib_draft,im_v2_lib_localStorage,im_v2_lib_soundNotification,rest_client,im_v2_application_core,im_v2_lib_smileManager,im_v2_lib_rest,im_v2_lib_entityCreator,im_v2_lib_hotkey,im_v2_lib_textarea,main_core_events,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_textHighlighter,im_v2_lib_dateFormatter,im_v2_lib_utils,im_v2_lib_parser,im_v2_const,main_core,im_v2_lib_market,im_v2_component_elements) {
 	'use strict';
 
 	const MentionSymbols = new Set(['@', '+']);
-	const WAIT_FOR_NEXT_SYMBOL_TIME = 300;
+	const WAIT_FOR_NEXT_SYMBOL_TIME = 10;
 	const WAIT_FOR_LAST_SYMBOL_TIME = 10;
 	const MentionManagerEvents = Object.freeze({
 	  showMentionPopup: 'showMentionPopup',
@@ -19,7 +19,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _onClosedMentionKeyDown = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onClosedMentionKeyDown");
 	var _onOpenedMentionKeyDown = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onOpenedMentionKeyDown");
 	var _checkMentionSymbol = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkMentionSymbol");
-	var _hasWhitespace = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasWhitespace");
 	var _isValidQuery = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isValidQuery");
 	var _isCloseMentionCombination = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCloseMentionCombination");
 	var _isInsertMentionCombination = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isInsertMentionCombination");
@@ -30,9 +29,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _getMentionSymbolIndex = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMentionSymbolIndex");
 	var _getQuery = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getQuery");
 	var _getQueryWithoutMentionSymbol = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getQueryWithoutMentionSymbol");
+	var _isNavigateCombination = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isNavigateCombination");
+	var _isValidFirstSymbol = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isValidFirstSymbol");
+	var _hasWhitespace = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasWhitespace");
+	var _hasNumber = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasNumber");
+	var _hasSpecialSymbol = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasSpecialSymbol");
 	class MentionManager extends main_core_events.EventEmitter {
 	  constructor(textarea) {
 	    super();
+	    Object.defineProperty(this, _hasSpecialSymbol, {
+	      value: _hasSpecialSymbol2
+	    });
+	    Object.defineProperty(this, _hasNumber, {
+	      value: _hasNumber2
+	    });
+	    Object.defineProperty(this, _hasWhitespace, {
+	      value: _hasWhitespace2
+	    });
+	    Object.defineProperty(this, _isValidFirstSymbol, {
+	      value: _isValidFirstSymbol2
+	    });
+	    Object.defineProperty(this, _isNavigateCombination, {
+	      value: _isNavigateCombination2
+	    });
 	    Object.defineProperty(this, _getQueryWithoutMentionSymbol, {
 	      value: _getQueryWithoutMentionSymbol2
 	    });
@@ -62,9 +81,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _isValidQuery, {
 	      value: _isValidQuery2
-	    });
-	    Object.defineProperty(this, _hasWhitespace, {
-	      value: _hasWhitespace2
 	    });
 	    Object.defineProperty(this, _checkMentionSymbol, {
 	      value: _checkMentionSymbol2
@@ -122,7 +138,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _sendHidePopupEvent)[_sendHidePopupEvent]();
 	    return;
 	  }
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isNavigateCombination)[_isNavigateCombination](event)) {
+	    event.preventDefault();
+	    return;
+	  }
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _isInsertMentionCombination)[_isInsertMentionCombination](event)) {
+	    event.preventDefault();
 	    babelHelpers.classPrivateFieldLooseBase(this, _sendInsertMentionEvent)[_sendInsertMentionEvent](event);
 	    return;
 	  }
@@ -145,9 +166,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const symbolBeforeMentionSymbol = babelHelpers.classPrivateFieldLooseBase(this, _textarea)[_textarea].value.slice(cursorPosition - 2, cursorPosition - 1);
 	  return symbolBeforeMentionSymbol.length === 0 || babelHelpers.classPrivateFieldLooseBase(this, _hasWhitespace)[_hasWhitespace](symbolBeforeMentionSymbol);
 	}
-	function _hasWhitespace2(text) {
-	  return /^\s/.test(text);
-	}
 	function _isValidQuery2() {
 	  const query = babelHelpers.classPrivateFieldLooseBase(this, _getQuery)[_getQuery]();
 	  if (query.length === 0) {
@@ -157,7 +175,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  if (firstQuerySymbol.length === 0) {
 	    return true;
 	  }
-	  if (/\d$/.test(firstQuerySymbol)) {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isValidFirstSymbol)[_isValidFirstSymbol](firstQuerySymbol)) {
 	    return false;
 	  }
 	  return !babelHelpers.classPrivateFieldLooseBase(this, _hasWhitespace)[_hasWhitespace](firstQuerySymbol);
@@ -178,7 +196,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _sendInsertMentionEvent2(event) {
 	  event.preventDefault();
-	  main_core_events.EventEmitter.emit(im_v2_const.EventType.mention.selectFirstItem);
+	  main_core_events.EventEmitter.emit(im_v2_const.EventType.mention.selectItem);
 	  babelHelpers.classPrivateFieldLooseBase(this, _sendHidePopupEvent)[_sendHidePopupEvent]();
 	}
 	function _getTextBeforeCursor2() {
@@ -198,6 +216,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _getQueryWithoutMentionSymbol2() {
 	  return babelHelpers.classPrivateFieldLooseBase(this, _getQuery)[_getQuery]().slice(1);
+	}
+	function _isNavigateCombination2(event) {
+	  return event.key === 'ArrowUp' || event.key === 'ArrowDown';
+	}
+	function _isValidFirstSymbol2(firstQuerySymbol) {
+	  return !(babelHelpers.classPrivateFieldLooseBase(this, _hasNumber)[_hasNumber](firstQuerySymbol) || babelHelpers.classPrivateFieldLooseBase(this, _hasWhitespace)[_hasWhitespace](firstQuerySymbol) || babelHelpers.classPrivateFieldLooseBase(this, _hasSpecialSymbol)[_hasSpecialSymbol](firstQuerySymbol));
+	}
+	function _hasWhitespace2(text) {
+	  return /^\s/.test(text);
+	}
+	function _hasNumber2(text) {
+	  return /\d$/.test(text);
+	}
+	function _hasSpecialSymbol2(text) {
+	  const regex = /[!"#$%&'()*+,./<>@\\^_|-]/;
+	  return regex.test(text);
 	}
 	MentionManager.eventNamespace = 'BX.Messenger.v2.Textarea.MentionManager';
 
@@ -403,8 +437,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    symbol: '\uD83D\uDE1F'
 	  }, {
 	    symbol: '\uD83D\uDE15'
-	  }, {
-	    symbol: '\u2639'
 	  }, {
 	    symbol: '\uD83D\uDE41'
 	  }, {
@@ -3797,7 +3829,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			<div v-if="isLoading" class="bx-im-smile-popup-market-content__loader-container">
 				<Spinner :size="SpinnerSize.S"/>
 			</div>
-			<div v-show="!isLoading" ref="im-messenger-smile-selector-placement"></div>
+			<div 
+				v-show="!isLoading"
+				class="bx-im-smile-popup-market-content__placement-container"
+				ref="im-messenger-smile-selector-placement"
+			></div>
 		</div>
 	`
 	};
@@ -3943,189 +3979,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	// @vue/component
-	const EditPanel = {
-	  name: 'EditPanel',
-	  props: {
-	    messageId: {
-	      type: [Number, String],
-	      required: true
-	    }
-	  },
-	  emits: ['close'],
-	  computed: {
-	    message() {
-	      return this.$store.getters['messages/getById'](this.messageId);
-	    },
-	    preparedText() {
-	      return im_v2_lib_parser.Parser.purifyMessage(this.message);
-	    }
-	  },
-	  methods: {
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-message-panel__container">
-			<div class="bx-im-message-panel__icon"></div>
-			<div class="bx-im-message-panel__content">
-				<div class="bx-im-message-panel__title">{{ loc('IM_TEXTAREA_EDIT_MESSAGE_TITLE') }}</div>
-				<div class="bx-im-message-panel__text">{{ preparedText }}</div>
-			</div>
-			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
-		</div>
-	`
-	};
-
-	const NAME_MAX_LENGTH = 40;
-
-	// @vue/component
-	const ReplyPanel = {
-	  name: 'EditPanel',
-	  props: {
-	    messageId: {
-	      type: Number,
-	      required: true
-	    }
-	  },
-	  emits: ['close'],
-	  data() {
-	    return {};
-	  },
-	  computed: {
-	    message() {
-	      return this.$store.getters['messages/getById'](this.messageId);
-	    },
-	    replyAuthor() {
-	      return this.$store.getters['users/get'](this.message.authorId);
-	    },
-	    replyTitle() {
-	      return this.replyAuthor ? this.replyAuthor.name : this.loc('IM_DIALOG_CHAT_QUOTE_DEFAULT_TITLE');
-	    },
-	    messageFile() {
-	      return this.$store.getters['messages/getMessageFiles'](this.message.id)[0];
-	    },
-	    isFile() {
-	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.file;
-	    },
-	    isVideo() {
-	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.video;
-	    },
-	    isImage() {
-	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.image;
-	    },
-	    isAudio() {
-	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.audio;
-	    },
-	    showIcon() {
-	      return this.messageFile ? !this.messageFile.urlPreview : false;
-	    },
-	    truncatedFileName() {
-	      return im_v2_lib_utils.Utils.file.getShortFileName(this.messageFile.name, NAME_MAX_LENGTH);
-	    },
-	    isMessageDeleted() {
-	      return this.message.isDeleted;
-	    },
-	    messageText() {
-	      if (this.isFile) {
-	        return this.truncatedFileName;
-	      }
-	      if (this.isAudio) {
-	        return this.loc('IM_TEXTAREA_REPLY_AUDIO_TITLE');
-	      }
-	      if (this.isMessageDeleted) {
-	        return this.loc('IM_TEXTAREA_REPLY_DELETED_TITLE');
-	      }
-	      return im_v2_lib_parser.Parser.purify(this.message);
-	    },
-	    iconClass() {
-	      const iconType = im_v2_lib_utils.Utils.file.getIconTypeByFilename(this.messageFile.name);
-	      return `ui-icon-file-${iconType}`;
-	    }
-	  },
-	  methods: {
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-message-panel__container">
-			<div class="bx-im-message-panel__icon --quote"></div>
-			<div v-if="showIcon" class="bx-im-message-panel-file__icon">
-				<div :class="iconClass" class="ui-icon"><i></i></div>
-			</div>
-			<div v-else-if="isImage || isVideo" class="bx-im-message-panel__image">
-				<img v-if="this.messageFile.urlPreview" class="bx-im-message-panel__image_img" :src="this.messageFile.urlPreview"
-					 :alt="this.messageFile.name">
-			</div>
-			<div class="bx-im-message-panel__content">
-				<div class="bx-im-message-panel__title">{{ replyTitle }}</div>
-				<div class="bx-im-message-panel__text">{{ messageText }}</div>
-			</div>
-			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const DocumentPanel = {
-	  directives: {
-	    hint: ui_vue3_directives_hint.hint
-	  },
-	  data() {
-	    return {};
-	  },
-	  computed: {
-	    hintContent() {
-	      return {
-	        text: this.loc('IM_MESSENGER_NOT_AVAILABLE'),
-	        popupOptions: {
-	          bindOptions: {
-	            position: 'top'
-	          },
-	          angle: true,
-	          targetContainer: document.body,
-	          offsetLeft: 125,
-	          offsetTop: -30
-	        }
-	      };
-	    }
-	  },
-	  methods: {
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-file-menu__document-panel_container">
-			<div class="bx-im-file-menu__document-panel_title">
-				{{ loc('IM_TEXTAREA_CREATE_AND_SEND_FILE') }}
-			</div>
-			<div class="bx-im-file-menu__document-panel_content" v-hint="hintContent">
-				<div class="bx-im-file-menu__document-panel_item">
-					<div class="ui-icon ui-icon-file-doc"><i></i></div>
-					<div class="bx-im-file-menu__document-panel_item_title">
-						{{ loc('IM_TEXTAREA_CREATE_DOCUMENT') }}
-					</div>
-				</div>
-				<div class="bx-im-file-menu__document-panel_item">
-					<div class="ui-icon ui-icon-file-xls"><i></i></div>
-					<div class="bx-im-file-menu__document-panel_item_title">
-						{{ loc('IM_TEXTAREA_CREATE_SPREADSHEET') }}
-					</div>
-				</div>
-				<div class="bx-im-file-menu__document-panel_item">
-					<div class="ui-icon ui-icon-file-ppt"><i></i></div>
-					<div class="bx-im-file-menu__document-panel_item_title">
-						{{ loc('IM_TEXTAREA_CREATE_PRESENTATION') }}
-					</div>
-				</div>
-			</div>
-		</div>
-	`
-	};
-
 	const FILE_DIALOG_ID = 'im-file-dialog';
 
 	/* eslint-disable bitrix-rules/no-bx */
@@ -4191,7 +4044,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	// @vue/component
 	const UploadMenu = {
 	  components: {
-	    DocumentPanel,
 	    MessengerMenu: im_v2_component_elements.MessengerMenu,
 	    MenuItem: im_v2_component_elements.MenuItem,
 	    DiskPopup
@@ -4222,8 +4074,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  methods: {
 	    onSelectFromPhotoOrVideo() {
 	      this.onlyPhotoOrVideo = true;
-	      // @see \CFile::GetImageExtensions
-	      const acceptedFormats = '.jpg, .bmp, .jpeg, .jpe, .gif, .png, .webp, video/*';
+	      const acceptedFormats = 'image/*, video/*';
 	      this.$refs.fileInput.setAttribute('accept', acceptedFormats);
 	      this.$refs.fileInput.click();
 	      this.showMenu = false;
@@ -4262,9 +4113,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 		>
 		</div>
 		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false" className="bx-im-file-menu__scope">
-			<template #header>
-				<DocumentPanel />
-			</template>
 			<MenuItem
 				:icon="MenuItemIcon.upload"
 				:title="loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO')"
@@ -4277,7 +4125,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			/>
 			<MenuItem
 				:icon="MenuItemIcon.disk"
-				:title="loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK')"
+				:title="loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1')"
 				@click="onSelectFromDiskClick"
 			/>
 			<input type="file" @change="onFileSelect" multiple class="bx-im-file-menu__file-input" ref="fileInput">
@@ -4311,7 +4159,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  computed: {
 	    MenuItemIcon: () => im_v2_component_elements.MenuItemIcon,
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    chatId() {
 	      return this.dialog.chatId;
@@ -4327,17 +4175,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        offsetLeft: -139,
 	        padding: 0
 	      };
-	    },
-	    isAiBetaAvailable() {
-	      return this.isAiTextAvailable || this.isAiImageAvailable;
-	    },
-	    isAiTextAvailable() {
-	      const settings = main_core.Extension.getSettings('im.v2.component.textarea');
-	      return settings.get('isAiTextBetaAvailable');
-	    },
-	    isAiImageAvailable() {
-	      const settings = main_core.Extension.getSettings('im.v2.component.textarea');
-	      return settings.get('isAiImageBetaAvailable');
 	    }
 	  },
 	  methods: {
@@ -4374,27 +4211,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			@click="showMenu = true"
 			:title="loc('IM_TEXTAREA_ICON_CREATE')"
 			class="bx-im-textarea__icon --create"
-			:class="{'--active': showMenu, '--with-ai': isAiBetaAvailable}"
+			:class="{'--active': showMenu}"
 			ref="createEntity"
 		>
 		</div>
 		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false">
-			<template v-if="isAiBetaAvailable">
-				<MenuItem
-					:icon="MenuItemIcon.aiText"
-					:title="loc('IM_TEXTAREA_CREATE_AI_TEXT_TITLE')"
-					:subtitle="loc('IM_TEXTAREA_CREATE_AI_TEXT_SUBTITLE')"
-					:disabled="!isAiTextAvailable"
-					@click="onCreateAiTextClick"
-				/>
-				<MenuItem
-					:icon="MenuItemIcon.aiImage"
-					:title="loc('IM_TEXTAREA_CREATE_AI_IMAGE_TITLE')"
-					:subtitle="loc('IM_TEXTAREA_CREATE_AI_IMAGE_SUBTITLE')"
-					:disabled="!isAiImageAvailable"
-					@click="onCreateAiImageClick"
-				/>
-			</template>
 			<MenuItem
 				:icon="MenuItemIcon.task"
 				:title="loc('IM_TEXTAREA_CREATE_TASK_TITLE')"
@@ -4408,12 +4229,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				@click="onCreateMeetingClick"
 			/>
 			<MenuItem
+				v-if="false"
 				:icon="MenuItemIcon.summary"
 				:title="loc('IM_TEXTAREA_CREATE_SUMMARY_TITLE')"
 				:subtitle="loc('IM_TEXTAREA_CREATE_SUMMARY_SUBTITLE')"
 				:disabled="true"
 			/>
 			<MenuItem
+				v-if="false"
 				:icon="MenuItemIcon.vote"
 				:title="loc('IM_TEXTAREA_CREATE_VOTE_TITLE')"
 				:subtitle="loc('IM_TEXTAREA_CREATE_VOTE_SUBTITLE')"
@@ -4459,6 +4282,934 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			class="bx-im-send-panel__button_container"
 			:class="{'--edit': editMode, '--disabled': isDisabled}"
 		></div>
+	`
+	};
+
+	// @vue/component
+	const FileItem = {
+	  name: 'FileItem',
+	  components: {
+	    Spinner: im_v2_component_elements.Spinner
+	  },
+	  props: {
+	    file: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {
+	      text: '',
+	      files: []
+	    };
+	  },
+	  computed: {
+	    SpinnerSize: () => im_v2_component_elements.SpinnerSize,
+	    fileFromStore() {
+	      return this.file;
+	    },
+	    hasPreview() {
+	      return this.fileFromStore.urlPreview !== '';
+	    },
+	    hasError() {
+	      return this.fileFromStore.status === im_v2_const.FileStatus.error;
+	    }
+	  },
+	  template: `
+		<div class="bx-im-upload-preview-file-item__container bx-im-upload-preview-file-item__scope">
+			<div v-if="hasError" class="bx-im-upload-preview-file-item__item-error">
+				<div class="bx-im-upload-preview-file-item__item-error-icon"></div>
+				<div class="bx-im-upload-preview-file-item__item-error-text">
+					{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_UPLOAD_ERROR') }}
+				</div>
+			</div>
+			<Spinner v-else-if="!hasPreview" :size="SpinnerSize.s" />
+			<img 
+				v-else 
+				:src="fileFromStore.urlPreview" 
+				:alt="fileFromStore.name"
+				:title="fileFromStore.name"
+				class="bx-im-upload-preview-file-item__item-image"
+			>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const UploadPreviewContent = {
+	  name: 'UploadPreviewContent',
+	  components: {
+	    MessengerButton: im_v2_component_elements.Button,
+	    FileItem
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    uploaderId: {
+	      type: String,
+	      required: true
+	    },
+	    textareaValue: {
+	      type: String,
+	      required: false,
+	      default: ''
+	    }
+	  },
+	  emits: ['sendFiles', 'close'],
+	  data() {
+	    return {
+	      text: '',
+	      sendAsFile: false,
+	      files: []
+	    };
+	  },
+	  computed: {
+	    ButtonSize: () => im_v2_component_elements.ButtonSize,
+	    ButtonColor: () => im_v2_component_elements.ButtonColor,
+	    filesFromStore() {
+	      const filesFromStore = [];
+	      this.files.forEach(file => {
+	        const fileFromStore = this.$store.getters['files/get'](file.getId());
+	        if (fileFromStore) {
+	          filesFromStore.push(fileFromStore);
+	        }
+	      });
+	      return filesFromStore;
+	    },
+	    filesCount() {
+	      return this.files.length;
+	    },
+	    isSingleFile() {
+	      return this.filesFromStore.length === 1;
+	    },
+	    inputMaxLength() {
+	      const settings = main_core.Extension.getSettings('im.v2.component.textarea');
+	      return settings.get('maxLength');
+	    }
+	  },
+	  watch: {
+	    sendAsFile(newValue) {
+	      this.files.forEach(file => {
+	        file.setCustomData('sendAsFile', newValue);
+	      });
+	    }
+	  },
+	  created() {
+	    this.text = this.textareaValue;
+	    this.files = this.getUploadingService().getFiles(this.uploaderId);
+	  },
+	  mounted() {
+	    this.$refs.messageText.focus();
+	  },
+	  methods: {
+	    getUploadingService() {
+	      if (!this.uploadingService) {
+	        this.uploadingService = im_v2_provider_service.UploadingService.getInstance();
+	      }
+	      return this.uploadingService;
+	    },
+	    onCancel() {
+	      this.$emit('close', {
+	        text: this.text
+	      });
+	    },
+	    onSend() {
+	      if (this.sendAsFile) {
+	        this.files.forEach(file => {
+	          this.removePreview(file);
+	        });
+	      }
+	      this.$emit('sendFiles', {
+	        groupFiles: false,
+	        text: this.text,
+	        uploaderId: this.uploaderId,
+	        sendAsFile: this.sendAsFile
+	      });
+	    },
+	    onKeyDownHandler(event) {
+	      const sendMessageCombination = im_v2_lib_hotkey.isSendMessageCombination(event);
+	      const newLineCombination = im_v2_lib_hotkey.isNewLineCombination(event);
+	      if (sendMessageCombination && !newLineCombination) {
+	        event.preventDefault();
+	        this.onSend();
+	        return;
+	      }
+	      if (newLineCombination) {
+	        event.preventDefault();
+	        this.text = im_v2_lib_textarea.Textarea.addNewLine(this.$refs.messageText);
+	      }
+	    },
+	    removePreview(file) {
+	      this.$store.dispatch('files/update', {
+	        id: file.getId(),
+	        fields: {
+	          urlPreview: '',
+	          image: false
+	        }
+	      });
+	    }
+	  },
+	  template: `
+		<div class="bx-im-upload-preview__container">
+			<div class="bx-im-upload-preview__upper-delimiter"></div>
+			<div class="bx-im-upload-preview__items-container">
+				<FileItem v-for="fileItem in filesFromStore" :file="fileItem" :class="{'--single': isSingleFile}" />
+			</div>
+			<div class="bx-im-upload-preview__bottom-delimiter"></div>
+			<div class="bx-im-upload-preview__controls-container">
+				<!--<label class="bx-im-upload-preview__control-compress-image">-->
+				<!--<input type="checkbox" v-model="sendAsFile">-->
+				<!--{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_AS_FILE') }}-->
+				<!--</label>-->
+				<textarea
+					ref="messageText"
+					type="text"
+					v-model="text"
+					@keydown="onKeyDownHandler"
+					class="bx-im-upload-preview__message-text"
+					rows="1"
+					:placeholder="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER')"
+					:maxlength="inputMaxLength"
+				></textarea>
+			</div>
+			<div class="bx-im-upload-preview__controls-buttons">
+				<MessengerButton
+					:color="ButtonColor.Primary"
+					:size="ButtonSize.L"
+					:isRounded="true"
+					:text="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND')"
+					@click="onSend"
+				/>
+				<MessengerButton
+					:color="ButtonColor.LightBorder"
+					:size="ButtonSize.L"
+					:isRounded="true"
+					:text="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL')"
+					@click="onCancel"
+				/>
+			</div>
+		</div>
+	`
+	};
+
+	const POPUP_ID = 'im-chat-upload-preview-popup';
+
+	// @vue/component
+	const UploadPreviewPopup = {
+	  name: 'UploadPreviewPopup',
+	  components: {
+	    MessengerPopup: im_v2_component_elements.MessengerPopup,
+	    UploadPreviewContent
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    uploaderId: {
+	      type: String,
+	      required: true
+	    },
+	    textareaValue: {
+	      type: String,
+	      required: false,
+	      default: ''
+	    }
+	  },
+	  emits: ['close', 'sendFiles'],
+	  computed: {
+	    POPUP_ID: () => POPUP_ID,
+	    config() {
+	      return {
+	        width: 400,
+	        targetContainer: document.body,
+	        fixed: true,
+	        draggable: true,
+	        offsetTop: 0,
+	        padding: 0,
+	        closeIcon: true,
+	        titleBar: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE'),
+	        contentColor: 'transparent',
+	        contentPadding: 0,
+	        className: 'bx-im-upload-preview__scope',
+	        autoHide: false
+	      };
+	    }
+	  },
+	  created() {
+	    this.initialText = this.textareaValue;
+	    main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
+	      text: '',
+	      replace: true
+	    });
+	  },
+	  methods: {
+	    onContentClose() {
+	      this.insertText(this.initialText);
+	      this.$emit('close');
+	    },
+	    onSendFiles(event) {
+	      this.$emit('sendFiles', event);
+	      this.$emit('close');
+	    },
+	    insertText(text) {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
+	        text,
+	        replace: true
+	      });
+	    }
+	  },
+	  template: `
+		<MessengerPopup
+			:config="config"
+			@close="$emit('close')"
+			:id="POPUP_ID"
+		>
+			<UploadPreviewContent 
+				:dialogId="dialogId" 
+				:uploaderId="uploaderId"
+				:textareaValue="textareaValue"
+				@close="onContentClose"
+				@sendFiles="onSendFiles"
+			/>
+		</MessengerPopup>
+	`
+	};
+
+	// @vue/component
+	const MentionItem = {
+	  name: 'MentionItem',
+	  components: {
+	    Avatar: im_v2_component_elements.Avatar,
+	    ChatTitleWithHighlighting: im_v2_component_elements.ChatTitleWithHighlighting
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    query: {
+	      type: String,
+	      default: ''
+	    },
+	    selected: {
+	      type: Boolean,
+	      default: false
+	    }
+	  },
+	  emits: ['itemClick', 'itemHover'],
+	  computed: {
+	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    user() {
+	      return this.$store.getters['users/get'](this.dialogId, true);
+	    },
+	    recentItem() {
+	      return this.$store.getters['recent/get'](this.dialogId);
+	    },
+	    isUser() {
+	      return this.dialog.type === im_v2_const.ChatType.user;
+	    },
+	    position() {
+	      if (!this.isUser) {
+	        return '';
+	      }
+	      return this.user.workPosition;
+	    },
+	    userItemText() {
+	      if (!this.position) {
+	        return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_USER_TYPE_GROUP_V2');
+	      }
+	      return im_v2_lib_textHighlighter.highlightText(main_core.Text.encode(this.position), this.query);
+	    },
+	    chatItemText() {
+	      return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
+	    },
+	    formattedDate() {
+	      if (!this.recentItem.message.date) {
+	        return '';
+	      }
+	      return this.formatDate(this.recentItem.message.date);
+	    }
+	  },
+	  methods: {
+	    onClick() {
+	      this.$emit('itemClick', {
+	        dialogId: this.dialogId
+	      });
+	    },
+	    formatDate(date) {
+	      return im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(date, im_v2_lib_dateFormatter.DateTemplate.recent);
+	    }
+	  },
+	  template: `
+		<div 
+			@click="onClick" 
+			class="bx-im-mention-item__container bx-im-mention-item__scope" 
+			:class="{'--selected': selected}"
+			@mouseover="$emit('itemHover')"
+		>
+			<Avatar :dialogId="dialogId" :size="AvatarSize.M" class="bx-im-mention-item__avatar-container" />
+			<div class="bx-im-mention-item__content-container">
+				<div class="bx-im-mention-item__content-header">
+					<ChatTitleWithHighlighting 
+						:dialogId="dialogId" 
+						:textToHighlight="query" 
+						class="bx-im-mention-item__title"
+					/>
+					<span v-if="formattedDate.length > 0" class="bx-im-mention-item__date">
+						{{ formattedDate }}
+					</span>
+				</div>
+				<div v-if="isUser" class="bx-im-mention-item__position" :title="position" v-html="userItemText"></div>
+				<div v-else class="bx-im-mention-item__position" :title="chatItemText">{{ chatItemText }}</div>
+			</div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const MentionEmptyState = {
+	  name: 'MentionEmptyState',
+	  template: `
+		<div class="bx-im-mention-empty-state__scope bx-im-mention-empty-state__container">
+			<span class="bx-im-mention-empty-state__icon"></span>
+			<span class="bx-im-mention-empty-state__title">
+				{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_EMPTY_STATE') }}
+			</span>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const MentionLoadingState = {
+	  name: 'MentionLoadingState',
+	  components: {
+	    Spinner: im_v2_component_elements.Spinner
+	  },
+	  computed: {
+	    SpinnerSize: () => im_v2_component_elements.SpinnerSize,
+	    SpinnerColor: () => im_v2_component_elements.SpinnerColor
+	  },
+	  template: `
+		<div class="bx-im-mention-loading-state__scope bx-im-mention-loading-state__container">
+			<div class="bx-im-mention-loading-state__loader">
+				<Spinner :size="SpinnerSize.XXS" :color="SpinnerColor.grey"/>
+			</div>
+			<span class="bx-im-mention-loading-state__title">
+				{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_LOADING_STATE') }}
+			</span>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const MentionContentFooter = {
+	  name: 'MentionContentFooter',
+	  components: {
+	    Loader: im_v2_component_elements.Loader
+	  },
+	  props: {
+	    isLoading: {
+	      type: Boolean,
+	      default: false
+	    }
+	  },
+	  computed: {
+	    arrowsControlTitle() {
+	      return this.$Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_ARROWS_CONTROL').replace('##ARROWS_ICON##', '');
+	    },
+	    enterControlTitle() {
+	      return this.$Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_ENTER_CONTROL');
+	    },
+	    escControlTitle() {
+	      return this.$Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_ESC_CONTROL');
+	    }
+	  },
+	  template: `
+		<div class="bx-im-mention-content-footer__container bx-im-mention-content-footer__scope">
+			<div class="bx-im-mention-content-footer__controls">
+				<div class="bx-im-mention-content-footer__control">
+					<span class="bx-im-mention-content-footer__arrows-control-key"></span>
+					<span class="bx-im-mention-content-footer__control-description">
+						{{ arrowsControlTitle }}
+					</span>
+				</div>
+				<div class="bx-im-mention-content-footer__control">
+					<span class="bx-im-mention-content-footer__control-key">Enter</span>
+					<span class="bx-im-mention-content-footer__control-description">{{ enterControlTitle }}</span>
+				</div>
+				<div class="bx-im-mention-content-footer__control">
+					<span class="bx-im-mention-content-footer__control-key">Esc</span>
+					<span class="bx-im-mention-content-footer__control-description">{{ escControlTitle }}</span>
+				</div>
+			</div>
+			<Loader v-if="isLoading" class="bx-im-mention-content-footer__loader" />
+		</div>
+	`
+	};
+
+	// @vue/component
+	const MentionPopupContent = {
+	  name: 'MentionPopupContent',
+	  components: {
+	    MentionItem,
+	    MentionContentFooter,
+	    MentionEmptyState,
+	    ScrollWithGradient: im_v2_component_elements.ScrollWithGradient,
+	    MentionLoadingState
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    query: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  emits: ['close', 'adjustPosition'],
+	  data() {
+	    return {
+	      isLoading: false,
+	      searchResult: [],
+	      currentServerQueries: 0,
+	      needTopShadow: false,
+	      needBottomShadow: true,
+	      selectedIndex: 0,
+	      selectedItem: ''
+	    };
+	  },
+	  computed: {
+	    itemsToShow() {
+	      return this.preparedQuery.length > 0 ? this.searchResult : this.recentChats;
+	    },
+	    preparedQuery() {
+	      return this.query.trim().toLowerCase();
+	    },
+	    isEmptyState() {
+	      if (this.isLoading) {
+	        return false;
+	      }
+	      return this.searchResult.length === 0 && this.preparedQuery.length > 0;
+	    },
+	    recentChats() {
+	      return this.$store.getters['recent/getSortedCollection'].map(recentItem => {
+	        return recentItem.dialogId;
+	      });
+	    }
+	  },
+	  watch: {
+	    async isLoading() {
+	      await this.adjustPosition();
+	    },
+	    async recentChats() {
+	      await this.adjustPosition();
+	    },
+	    async searchResult() {
+	      await this.adjustPosition();
+	    },
+	    preparedQuery(newQuery, previousQuery) {
+	      if (newQuery === previousQuery) {
+	        return;
+	      }
+	      this.selectedIndex = 0;
+	      this.startSearch(newQuery);
+	    }
+	  },
+	  created() {
+	    this.initSettings();
+	    this.searchService = new im_v2_provider_service.SearchService({
+	      findByParticipants: false
+	    });
+	    this.searchOnServerDelayed = main_core.Runtime.debounce(this.searchOnServer, 400, this);
+	    main_core.Event.bind(window, 'keydown', this.onKeyDown);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.mention.selectItem, this.onInsertItem);
+	  },
+	  beforeUnmount() {
+	    main_core.Event.unbind(window, 'keydown', this.onKeyDown);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.mention.selectItem, this.onInsertItem);
+	  },
+	  methods: {
+	    initSettings() {
+	      const settings = main_core.Extension.getSettings('im.v2.component.textarea');
+	      const defaultMinTokenSize = 3;
+	      this.minTokenSize = settings.get('minSearchTokenSize', defaultMinTokenSize);
+	    },
+	    searchOnServer(query) {
+	      this.currentServerQueries++;
+	      this.searchService.searchOnServer(query).then(dialogIds => {
+	        if (query !== this.preparedQuery) {
+	          this.isLoading = false;
+	          return;
+	        }
+	        this.searchResult = this.searchService.sortByDate(dialogIds);
+	      }).catch(error => {
+	        console.error(error);
+	      }).finally(() => {
+	        this.currentServerQueries--;
+	        this.stopLoader();
+	      });
+	    },
+	    startSearch(query) {
+	      if (query.length > 0) {
+	        this.searchService.searchLocal(query).then(dialogIds => {
+	          if (query !== this.preparedQuery) {
+	            return;
+	          }
+	          this.searchResult = this.searchService.sortByDate(dialogIds);
+	        }).catch(error => {
+	          im_v2_lib_logger.Logger.error('Mention: searchLocalOnlyUsers', error);
+	        });
+	      }
+	      if (query.length >= this.minTokenSize) {
+	        this.isLoading = true;
+	        this.searchOnServerDelayed(query);
+	      }
+	      if (query.length === 0) {
+	        this.cleanSearchResult();
+	      }
+	    },
+	    stopLoader() {
+	      if (this.currentServerQueries > 0) {
+	        return;
+	      }
+	      this.isLoading = false;
+	    },
+	    cleanSearchResult() {
+	      this.searchResult = [];
+	    },
+	    async adjustPosition() {
+	      await this.$nextTick();
+	      this.$emit('adjustPosition');
+	    },
+	    onInsertItem() {
+	      if (!main_core.Type.isArrayFilled(this.itemsToShow)) {
+	        return;
+	      }
+	      this.sendInsertMentionEvent(this.itemsToShow[this.selectedIndex]);
+	    },
+	    onItemClick({
+	      dialogId
+	    }) {
+	      this.sendInsertMentionEvent(dialogId);
+	      this.$emit('close');
+	    },
+	    sendInsertMentionEvent(dialogId) {
+	      const mentionText = this.getMentionText(dialogId);
+	      const mentionReplacement = im_v2_lib_utils.Utils.text.getMentionBbCode(dialogId, mentionText);
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
+	        mentionText,
+	        mentionReplacement,
+	        textToReplace: this.query
+	      });
+	    },
+	    getMentionText(dialogId) {
+	      if (dialogId.startsWith('chat')) {
+	        return this.$store.getters['chats/get'](dialogId, true).name;
+	      }
+	      return this.$store.getters['users/get'](dialogId, true).name;
+	    },
+	    onKeyDown(event) {
+	      if (event.key === 'ArrowDown') {
+	        this.selectedIndex = this.selectedIndex === this.itemsToShow.length - 1 ? 0 : this.selectedIndex + 1;
+	      }
+	      if (event.key === 'ArrowUp') {
+	        this.selectedIndex = this.selectedIndex === 0 ? this.itemsToShow.length - 1 : this.selectedIndex - 1;
+	      }
+	      const element = this.getDomElementById(this.selectedIndex);
+	      if (!element) {
+	        this.selectedIndex = 0;
+	      }
+	      this.selectedItem = this.itemsToShow[this.selectedIndex];
+	      this.scrollToItem(element);
+	    },
+	    scrollToItem(element) {
+	      const scrollContainer = document.querySelector('.bx-im-mention-popup-content__container .bx-im-scroll-with-gradient__content');
+	      const tabRect = main_core.Dom.getPosition(scrollContainer);
+	      const nodeRect = main_core.Dom.getPosition(element);
+	      const margin = 12; // 'bx-im-mention-popup-content__items' margin
+
+	      if (nodeRect.top < tabRect.top)
+	        // scroll up
+	        {
+	          scrollContainer.scrollTop -= tabRect.top - nodeRect.top + margin;
+	        } else if (nodeRect.bottom > tabRect.bottom)
+	        // scroll down
+	        {
+	          scrollContainer.scrollTop += nodeRect.bottom - tabRect.bottom + margin;
+	        }
+	    },
+	    onItemHover(index) {
+	      this.selectedIndex = index;
+	      this.selectedItem = this.itemsToShow[this.selectedIndex];
+	    },
+	    getDomElementById(id) {
+	      return this.$refs['mention-content'].querySelector(`[data-index="${id}"]`);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-mention-popup-content__container" ref="mention-content">
+			<ScrollWithGradient 
+				v-if="itemsToShow.length > 0" 
+				:gradientHeight="13" 
+				:containerMaxHeight="226"
+				:withShadow="false"
+			>
+				<div class="bx-im-mention-popup-content__items">
+					<MentionItem
+						v-for="(dialogId, index) in itemsToShow"
+						:data-index="index"
+						:dialogId="dialogId"
+						:query="query"
+						:selected="selectedIndex === index"
+						@itemClick="onItemClick"
+						@itemHover="onItemHover(index)"
+					/>
+				</div>
+			</ScrollWithGradient>
+			<MentionEmptyState v-if="isEmptyState" />
+			<MentionLoadingState v-if="isLoading && itemsToShow.length === 0" />
+			<MentionContentFooter :isLoading="isLoading" />
+		</div>
+	`
+	};
+
+	const POPUP_ID$1 = 'im-mention-popup';
+
+	// @vue/component
+	const MentionPopup = {
+	  name: 'MentionPopup',
+	  components: {
+	    MessengerPopup: im_v2_component_elements.MessengerPopup,
+	    MentionPopupContent
+	  },
+	  props: {
+	    bindElement: {
+	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    query: {
+	      type: String,
+	      default: ''
+	    }
+	  },
+	  emits: ['close'],
+	  computed: {
+	    POPUP_ID: () => POPUP_ID$1,
+	    config() {
+	      return {
+	        width: 426,
+	        padding: 0,
+	        bindElement: this.bindElement,
+	        offsetTop: 14,
+	        offsetLeft: -44,
+	        bindOptions: {
+	          position: 'top'
+	        },
+	        className: 'bx-im-mention-popup__scope'
+	      };
+	    }
+	  },
+	  template: `
+		<MessengerPopup
+			:config="config"
+			@close="$emit('close');"
+			:id="POPUP_ID"
+			v-slot="{adjustPosition}"
+		>
+			<MentionPopupContent 
+				:dialogId="dialogId"
+				:query="query"
+				@close="$emit('close');"
+				@adjustPosition="adjustPosition()"
+			/>
+		</MessengerPopup>
+	`
+	};
+
+	// @vue/component
+	const EditPanel = {
+	  name: 'EditPanel',
+	  props: {
+	    messageId: {
+	      type: [Number, String],
+	      required: true
+	    }
+	  },
+	  emits: ['close'],
+	  computed: {
+	    message() {
+	      return this.$store.getters['messages/getById'](this.messageId);
+	    },
+	    preparedText() {
+	      return im_v2_lib_parser.Parser.purifyMessage(this.message);
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-panel__container">
+			<div class="bx-im-message-panel__icon"></div>
+			<div class="bx-im-message-panel__content">
+				<div class="bx-im-message-panel__title">{{ loc('IM_TEXTAREA_EDIT_MESSAGE_TITLE') }}</div>
+				<div class="bx-im-message-panel__text">{{ preparedText }}</div>
+			</div>
+			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
+		</div>
+	`
+	};
+
+	const NAME_MAX_LENGTH = 40;
+
+	// @vue/component
+	const ReplyPanel = {
+	  name: 'ReplyPanel',
+	  props: {
+	    messageId: {
+	      type: Number,
+	      required: true
+	    }
+	  },
+	  emits: ['close'],
+	  computed: {
+	    message() {
+	      return this.$store.getters['messages/getById'](this.messageId);
+	    },
+	    replyAuthor() {
+	      return this.$store.getters['users/get'](this.message.authorId);
+	    },
+	    replyTitle() {
+	      return this.replyAuthor ? this.replyAuthor.name : this.loc('IM_DIALOG_CHAT_QUOTE_DEFAULT_TITLE');
+	    },
+	    messageFile() {
+	      return this.$store.getters['messages/getMessageFiles'](this.message.id)[0];
+	    },
+	    isFile() {
+	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.file;
+	    },
+	    isVideo() {
+	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.video;
+	    },
+	    isImage() {
+	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.image;
+	    },
+	    isAudio() {
+	      return this.messageFile && this.messageFile.type === im_v2_const.FileType.audio;
+	    },
+	    showIcon() {
+	      return this.messageFile ? !this.messageFile.urlPreview : false;
+	    },
+	    truncatedFileName() {
+	      return im_v2_lib_utils.Utils.file.getShortFileName(this.messageFile.name, NAME_MAX_LENGTH);
+	    },
+	    isMessageDeleted() {
+	      return this.message.isDeleted;
+	    },
+	    messageText() {
+	      if (this.isFile) {
+	        return this.truncatedFileName;
+	      }
+	      if (this.isAudio) {
+	        return this.loc('IM_TEXTAREA_REPLY_AUDIO_TITLE');
+	      }
+	      if (this.isMessageDeleted) {
+	        return this.loc('IM_TEXTAREA_REPLY_DELETED_TITLE');
+	      }
+	      return im_v2_lib_parser.Parser.purify(this.message);
+	    },
+	    iconClass() {
+	      const iconType = im_v2_lib_utils.Utils.file.getIconTypeByFilename(this.messageFile.name);
+	      return `ui-icon-file-${iconType}`;
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-panel__container">
+			<div class="bx-im-message-panel__icon --quote"></div>
+			<div v-if="showIcon" class="bx-im-message-panel-file__icon">
+				<div :class="iconClass" class="ui-icon"><i></i></div>
+			</div>
+			<div v-else-if="isImage || isVideo" class="bx-im-message-panel__image">
+				<img 
+					v-if="this.messageFile.urlPreview" 
+					class="bx-im-message-panel__image_img" 
+					:src="this.messageFile.urlPreview"
+                    :alt="this.messageFile.name"
+				>
+			</div>
+			<div class="bx-im-message-panel__content">
+				<div class="bx-im-message-panel__title">{{ replyTitle }}</div>
+				<div class="bx-im-message-panel__text">{{ messageText }}</div>
+			</div>
+			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const ForwardPanel = {
+	  name: 'ForwardPanel',
+	  props: {
+	    messageId: {
+	      type: Number,
+	      required: true
+	    }
+	  },
+	  emits: ['close'],
+	  computed: {
+	    message() {
+	      return this.$store.getters['messages/getById'](this.messageId);
+	    },
+	    forwardAuthor() {
+	      const isForward = this.$store.getters['messages/isForward'](this.messageId);
+	      const userId = isForward ? this.message.forward.userId : this.message.authorId;
+	      return this.$store.getters['users/get'](userId, true);
+	    },
+	    forwardAuthorName() {
+	      let name = this.forwardAuthor.name;
+	      if (this.forwardAuthor.id === 0) {
+	        name = this.loc('IM_TEXTAREA_FORWARD_SYSTEM');
+	      }
+	      return `${name}: `;
+	    },
+	    messageText() {
+	      return im_v2_lib_parser.Parser.purifyMessage(this.message);
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-panel__container">
+			<div class="bx-im-message-panel__icon --forward"></div>
+			<div class="bx-im-message-panel__content">
+				<div class="bx-im-message-panel__title">{{ loc('IM_TEXTAREA_FORWARD_TITLE') }}</div>
+				<div class="bx-im-message-panel__text">
+					<span class="bx-im-message-panel__forward-author">{{ forwardAuthorName }}</span>
+					<span class="bx-im-message-panel__forward-message-text">{{ messageText }}</span>
+				</div>
+			</div>
+			<div @click="$emit('close')" class="bx-im-message-panel__close"></div>
+		</div>
 	`
 	};
 
@@ -4872,634 +5623,55 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	// @vue/component
-	const FileItem = {
-	  name: 'FileItem',
+	const TextareaPanel = {
+	  name: 'TextareaPanel',
 	  components: {
-	    Spinner: im_v2_component_elements.Spinner
-	  },
-	  props: {
-	    file: {
-	      type: Object,
-	      required: true
-	    }
-	  },
-	  data() {
-	    return {
-	      text: '',
-	      files: []
-	    };
-	  },
-	  computed: {
-	    SpinnerSize: () => im_v2_component_elements.SpinnerSize,
-	    fileFromStore() {
-	      return this.file;
-	    },
-	    hasPreview() {
-	      return this.fileFromStore.urlPreview !== '';
-	    },
-	    hasError() {
-	      return this.fileFromStore.status === im_v2_const.FileStatus.error;
-	    }
-	  },
-	  template: `
-		<div class="bx-im-upload-preview-file-item__container bx-im-upload-preview-file-item__scope">
-			<div v-if="hasError" class="bx-im-upload-preview-file-item__item-error">
-				<div class="bx-im-upload-preview-file-item__item-error-icon"></div>
-				<div class="bx-im-upload-preview-file-item__item-error-text">
-					{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_UPLOAD_ERROR') }}
-				</div>
-			</div>
-			<Spinner v-else-if="!hasPreview" :size="SpinnerSize.s" />
-			<img 
-				v-else 
-				:src="fileFromStore.urlPreview" 
-				:alt="fileFromStore.name"
-				:title="fileFromStore.name"
-				class="bx-im-upload-preview-file-item__item-image"
-			>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const UploadPreviewContent = {
-	  name: 'UploadPreviewContent',
-	  components: {
-	    MessengerButton: im_v2_component_elements.Button,
-	    FileItem
+	    EditPanel,
+	    ReplyPanel,
+	    ForwardPanel,
+	    MarketAppsPanel
 	  },
 	  props: {
 	    dialogId: {
 	      type: String,
 	      required: true
 	    },
-	    uploaderId: {
+	    type: {
 	      type: String,
 	      required: true
 	    },
-	    textareaValue: {
-	      type: String,
-	      required: false,
-	      default: ''
-	    }
-	  },
-	  emits: ['sendFiles', 'close'],
-	  data() {
-	    return {
-	      text: '',
-	      sendAsFile: false,
-	      files: []
-	    };
-	  },
-	  computed: {
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonColor: () => im_v2_component_elements.ButtonColor,
-	    filesFromStore() {
-	      const filesFromStore = [];
-	      this.files.forEach(file => {
-	        const fileFromStore = this.$store.getters['files/get'](file.getId());
-	        if (fileFromStore) {
-	          filesFromStore.push(fileFromStore);
-	        }
-	      });
-	      return filesFromStore;
-	    },
-	    filesCount() {
-	      return this.files.length;
-	    },
-	    isSingleFile() {
-	      return this.filesFromStore.length === 1;
-	    },
-	    inputMaxLength() {
-	      const settings = main_core.Extension.getSettings('im.v2.component.textarea');
-	      return settings.get('maxLength');
-	    }
-	  },
-	  watch: {
-	    sendAsFile(newValue) {
-	      this.files.forEach(file => {
-	        file.setCustomData('sendAsFile', newValue);
-	      });
-	    }
-	  },
-	  created() {
-	    this.text = this.textareaValue;
-	    this.files = this.getUploadingService().getFiles(this.uploaderId);
-	  },
-	  mounted() {
-	    this.$refs.messageText.focus();
-	  },
-	  methods: {
-	    getUploadingService() {
-	      if (!this.uploadingService) {
-	        this.uploadingService = im_v2_provider_service.UploadingService.getInstance();
-	      }
-	      return this.uploadingService;
-	    },
-	    onCancel() {
-	      this.$emit('close', {
-	        text: this.text
-	      });
-	    },
-	    onSend() {
-	      if (this.sendAsFile) {
-	        this.files.forEach(file => {
-	          this.removePreview(file);
-	        });
-	      }
-	      this.$emit('sendFiles', {
-	        groupFiles: false,
-	        text: this.text,
-	        uploaderId: this.uploaderId,
-	        sendAsFile: this.sendAsFile
-	      });
-	    },
-	    onKeyDownHandler(event) {
-	      const sendMessageCombination = im_v2_lib_hotkey.isSendMessageCombination(event);
-	      const newLineCombination = im_v2_lib_hotkey.isNewLineCombination(event);
-	      if (sendMessageCombination && !newLineCombination) {
-	        event.preventDefault();
-	        this.onSend();
-	        return;
-	      }
-	      if (newLineCombination) {
-	        event.preventDefault();
-	        this.text = im_v2_lib_textarea.Textarea.addNewLine(this.$refs.messageText);
-	      }
-	    },
-	    removePreview(file) {
-	      this.$store.dispatch('files/update', {
-	        id: file.getId(),
-	        fields: {
-	          urlPreview: '',
-	          image: false
-	        }
-	      });
-	    }
-	  },
-	  template: `
-		<div class="bx-im-upload-preview__container">
-			<div class="bx-im-upload-preview__upper-delimiter"></div>
-			<div class="bx-im-upload-preview__items-container">
-				<FileItem v-for="fileItem in filesFromStore" :file="fileItem" :class="{'--single': isSingleFile}" />
-			</div>
-			<div class="bx-im-upload-preview__bottom-delimiter"></div>
-			<div class="bx-im-upload-preview__controls-container">
-				<!--<label class="bx-im-upload-preview__control-compress-image">-->
-				<!--<input type="checkbox" v-model="sendAsFile">-->
-				<!--{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_SEND_AS_FILE') }}-->
-				<!--</label>-->
-				<textarea
-					ref="messageText"
-					type="text"
-					v-model="text"
-					@keydown="onKeyDownHandler"
-					class="bx-im-upload-preview__message-text"
-					rows="1"
-					:placeholder="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER')"
-					:maxlength="inputMaxLength"
-				></textarea>
-			</div>
-			<div class="bx-im-upload-preview__controls-buttons">
-				<MessengerButton
-					:color="ButtonColor.Primary"
-					:size="ButtonSize.L"
-					:isRounded="true"
-					:text="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND')"
-					@click="onSend"
-				/>
-				<MessengerButton
-					:color="ButtonColor.LightBorder"
-					:size="ButtonSize.L"
-					:isRounded="true"
-					:text="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL')"
-					@click="onCancel"
-				/>
-			</div>
-		</div>
-	`
-	};
-
-	const POPUP_ID = 'im-chat-upload-preview-popup';
-
-	// @vue/component
-	const UploadPreviewPopup = {
-	  name: 'UploadPreviewPopup',
-	  components: {
-	    MessengerPopup: im_v2_component_elements.MessengerPopup,
-	    UploadPreviewContent
-	  },
-	  props: {
-	    dialogId: {
-	      type: String,
+	    messageId: {
+	      type: Number,
 	      required: true
-	    },
-	    uploaderId: {
-	      type: String,
-	      required: true
-	    },
-	    textareaValue: {
-	      type: String,
-	      required: false,
-	      default: ''
-	    }
-	  },
-	  emits: ['close', 'sendFiles'],
-	  computed: {
-	    POPUP_ID: () => POPUP_ID,
-	    config() {
-	      return {
-	        width: 400,
-	        targetContainer: document.body,
-	        fixed: true,
-	        draggable: true,
-	        offsetTop: 0,
-	        padding: 0,
-	        closeIcon: true,
-	        titleBar: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE'),
-	        contentColor: 'transparent',
-	        contentPadding: 0,
-	        className: 'bx-im-upload-preview__scope'
-	      };
-	    }
-	  },
-	  created() {
-	    this.initialText = this.textareaValue;
-	    main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
-	      text: '',
-	      replace: true
-	    });
-	  },
-	  methods: {
-	    onContentClose() {
-	      this.insertText(this.initialText);
-	      this.$emit('close');
-	    },
-	    onSendFiles(event) {
-	      this.$emit('sendFiles', event);
-	      this.$emit('close');
-	    },
-	    insertText(text) {
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
-	        text,
-	        replace: true
-	      });
-	    }
-	  },
-	  template: `
-		<MessengerPopup
-			:config="config"
-			@close="$emit('close')"
-			:id="POPUP_ID"
-		>
-			<UploadPreviewContent 
-				:dialogId="dialogId" 
-				:uploaderId="uploaderId"
-				:textareaValue="textareaValue"
-				@close="onContentClose"
-				@sendFiles="onSendFiles"
-			/>
-		</MessengerPopup>
-	`
-	};
-
-	// @vue/component
-	const MentionItem = {
-	  name: 'MentionItem',
-	  components: {
-	    Avatar: im_v2_component_elements.Avatar,
-	    ChatTitleWithHighlighting: im_v2_component_elements.ChatTitleWithHighlighting
-	  },
-	  props: {
-	    dialogId: {
-	      type: String,
-	      required: true
-	    },
-	    query: {
-	      type: String,
-	      default: ''
-	    }
-	  },
-	  emits: ['itemClick'],
-	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
-	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
-	    },
-	    user() {
-	      return this.$store.getters['users/get'](this.dialogId, true);
-	    },
-	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
-	    },
-	    position() {
-	      if (!this.isUser) {
-	        return '';
-	      }
-	      return this.user.workPosition;
-	    },
-	    userItemText() {
-	      if (!this.position) {
-	        return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_USER_TYPE_GROUP_V2');
-	      }
-	      return im_v2_lib_textHighlighter.highlightText(main_core.Text.encode(this.position), this.query);
-	    },
-	    chatItemText() {
-	      return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
-	    }
-	  },
-	  methods: {
-	    onClick() {
-	      this.$emit('itemClick', {
-	        dialogId: this.dialogId
-	      });
-	    }
-	  },
-	  template: `
-		<div @click="onClick" class="bx-im-mention-item__container bx-im-mention-item__scope">
-			<Avatar :dialogId="dialogId" :size="AvatarSize.M" />
-			<div class="bx-im-mention-item__content-container">
-				<ChatTitleWithHighlighting class="bx-im-mention-item__title" :dialogId="dialogId" :textToHighlight="query" />
-				<div v-if="isUser" class="bx-im-mention-item__position" :title="position" v-html="userItemText"></div>
-				<div v-else class="bx-im-mention-item__position" :title="chatItemText">{{ chatItemText }}</div>
-			</div>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const MentionEmptyState = {
-	  name: 'MentionEmptyState',
-	  template: `
-		<div class="bx-im-mention-empty-state__scope bx-im-mention-empty-state__container">
-			<span class="bx-im-mention-empty-state__icon"></span>
-			<span class="bx-im-mention-empty-state__title">
-				{{ $Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_EMPTY_STATE') }}
-			</span>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const MentionPopupContent = {
-	  name: 'MentionPopupContent',
-	  components: {
-	    MentionItem,
-	    Loader: im_v2_component_elements.Loader,
-	    MentionEmptyState
-	  },
-	  props: {
-	    dialogId: {
-	      type: String,
-	      required: true
-	    },
-	    query: {
-	      type: String,
-	      default: ''
-	    }
-	  },
-	  emits: ['close', 'adjustPosition'],
-	  data() {
-	    return {
-	      isLoading: false,
-	      recentChats: [],
-	      searchResult: [],
-	      currentServerQueries: 0,
-	      needTopShadow: false,
-	      needBottomShadow: true
-	    };
-	  },
-	  computed: {
-	    itemsToShow() {
-	      return this.preparedQuery.length > 0 ? this.searchResult : this.recentChats;
-	    },
-	    preparedQuery() {
-	      return this.query.trim().toLowerCase();
-	    },
-	    isEmptyState() {
-	      if (this.isLoading) {
-	        return false;
-	      }
-	      return this.searchResult.length === 0 && this.preparedQuery.length > 0;
-	    }
-	  },
-	  watch: {
-	    async isLoading() {
-	      await this.adjustPosition();
-	    },
-	    async recentChats() {
-	      await this.adjustPosition();
-	    },
-	    async searchResult() {
-	      await this.adjustPosition();
-	    },
-	    preparedQuery(newQuery, previousQuery) {
-	      if (newQuery === previousQuery) {
-	        return;
-	      }
-	      this.startSearch(newQuery);
-	    }
-	  },
-	  created() {
-	    this.initSettings();
-	    this.searchService = new im_v2_provider_service.SearchService();
-	    this.searchOnServerDelayed = main_core.Runtime.debounce(this.searchOnServer, 400, this);
-	    this.requestChatParticipants();
-	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.mention.selectFirstItem, this.onInsertFirstItem);
-	  },
-	  beforeUnmount() {
-	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.mention.selectFirstItem, this.onInsertFirstItem);
-	  },
-	  methods: {
-	    requestChatParticipants() {
-	      this.isLoading = true;
-	      this.searchService.loadChatParticipants(this.dialogId).then(dialogIds => {
-	        this.recentChats = dialogIds;
-	        this.isLoading = false;
-	      }).catch(error => {
-	        im_v2_lib_logger.Logger.warn('Mention: loadChatParticipants', error);
-	      });
-	    },
-	    initSettings() {
-	      const settings = main_core.Extension.getSettings('im.v2.component.textarea');
-	      const defaultMinTokenSize = 3;
-	      this.minTokenSize = settings.get('minSearchTokenSize', defaultMinTokenSize);
-	    },
-	    searchOnServer(query) {
-	      this.currentServerQueries++;
-	      this.searchService.searchOnServer(query).then(dialogIds => {
-	        if (query !== this.preparedQuery) {
-	          this.isLoading = false;
-	          return;
-	        }
-	        this.searchResult = dialogIds;
-	      }).catch(error => {
-	        console.error(error);
-	      }).finally(() => {
-	        this.currentServerQueries--;
-	        this.stopLoader();
-	      });
-	    },
-	    startSearch(query) {
-	      if (query.length > 0) {
-	        this.searchService.searchLocal(query).then(dialogIds => {
-	          if (query !== this.preparedQuery) {
-	            return;
-	          }
-	          this.searchResult = dialogIds;
-	        }).catch(error => {
-	          im_v2_lib_logger.Logger.error('Mention: searchLocalOnlyUsers', error);
-	        });
-	      }
-	      if (query.length >= this.minTokenSize) {
-	        this.isLoading = true;
-	        this.searchOnServerDelayed(query);
-	      }
-	      if (query.length === 0) {
-	        this.cleanSearchResult();
-	      }
-	    },
-	    stopLoader() {
-	      if (this.currentServerQueries > 0) {
-	        return;
-	      }
-	      this.isLoading = false;
-	    },
-	    cleanSearchResult() {
-	      this.searchResult = [];
-	    },
-	    onItemsScroll(event) {
-	      this.needBottomShadow = event.target.scrollTop + event.target.clientHeight !== event.target.scrollHeight;
-	      if (event.target.scrollTop === 0) {
-	        this.needTopShadow = false;
-	        return;
-	      }
-	      this.needTopShadow = true;
-	    },
-	    async adjustPosition() {
-	      await this.$nextTick();
-	      this.$emit('adjustPosition');
-	    },
-	    onInsertFirstItem() {
-	      if (!main_core.Type.isArrayFilled(this.itemsToShow)) {
-	        return;
-	      }
-	      const [firstItem] = this.itemsToShow;
-	      this.sendInsertMentionEvent(firstItem);
-	    },
-	    onItemClick({
-	      dialogId
-	    }) {
-	      this.sendInsertMentionEvent(dialogId);
-	      this.$emit('close');
-	    },
-	    sendInsertMentionEvent(dialogId) {
-	      const mentionText = this.getMentionText(dialogId);
-	      const mentionReplacement = im_v2_lib_utils.Utils.text.getMentionBbCode(dialogId, mentionText);
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
-	        mentionText,
-	        mentionReplacement,
-	        textToReplace: this.query
-	      });
-	    },
-	    getMentionText(dialogId) {
-	      if (dialogId.startsWith('chat')) {
-	        return this.$store.getters['dialogues/get'](dialogId, true).name;
-	      }
-	      return this.$store.getters['users/get'](dialogId, true).name;
-	    }
-	  },
-	  template: `
-		<div class="bx-im-mention-popup-content__container">
-			<div v-if="!isEmptyState && needTopShadow" class="bx-im-mention-popup-content__shadow --top">
-				<div class="bx-im-mention-popup-content__shadow-inner"></div>
-			</div>
-			<div v-if="itemsToShow.length > 0" class="bx-im-mention-popup-content__items" @scroll="onItemsScroll">
-				<MentionItem
-					v-for="dialogId in itemsToShow"
-					:dialogId="dialogId"
-					:query="query"
-					@itemClick="onItemClick"
-				/>
-			</div>
-			<MentionEmptyState v-if="isEmptyState" />
-			<Loader v-if="isLoading" class="bx-im-mention-popup-content__loader" />
-			<div v-if="!isEmptyState && needBottomShadow" class="bx-im-mention-popup-content__shadow --bottom">
-				<div class="bx-im-mention-popup-content__shadow-inner"></div>
-			</div>
-		</div>
-	`
-	};
-
-	const POPUP_ID$1 = 'im-mention-popup';
-
-	// @vue/component
-	const MentionPopup = {
-	  name: 'MentionPopup',
-	  components: {
-	    MessengerPopup: im_v2_component_elements.MessengerPopup,
-	    MentionPopupContent
-	  },
-	  props: {
-	    bindElement: {
-	      type: Object,
-	      required: true
-	    },
-	    dialogId: {
-	      type: String,
-	      required: true
-	    },
-	    query: {
-	      type: String,
-	      default: ''
 	    }
 	  },
 	  emits: ['close'],
+	  data() {
+	    return {};
+	  },
 	  computed: {
-	    POPUP_ID: () => POPUP_ID$1,
-	    config() {
-	      return {
-	        width: 320,
-	        padding: 0,
-	        bindElement: this.bindElement,
-	        offsetTop: 14,
-	        offsetLeft: -37,
-	        bindOptions: {
-	          position: 'top'
-	        },
-	        className: 'bx-im-mention-popup__scope'
-	      };
-	    }
+	    PanelType: () => im_v2_const.TextareaPanelType
 	  },
 	  template: `
-		<MessengerPopup
-			:config="config"
-			@close="$emit('close');"
-			:id="POPUP_ID"
-			v-slot="{adjustPosition}"
-		>
-			<MentionPopupContent 
-				:dialogId="dialogId"
-				:query="query"
-				@close="$emit('close');"
-				@adjustPosition="adjustPosition()"
-			/>
-		</MessengerPopup>
+		<EditPanel v-if="type === PanelType.edit" :messageId="messageId" @close="$emit('close')" />
+		<ReplyPanel v-if="type === PanelType.reply" :messageId="messageId" @close="$emit('close')" />
+		<ForwardPanel v-if="type === PanelType.forward" :messageId="messageId" @close="$emit('close')" />
+		<MarketAppsPanel v-if="type === PanelType.market" :dialogId="dialogId"/>
 	`
 	};
+
+	const MESSAGE_ACTION_PANELS = new Set([im_v2_const.TextareaPanelType.edit, im_v2_const.TextareaPanelType.reply, im_v2_const.TextareaPanelType.forward]);
 
 	// @vue/component
 	const ChatTextarea = {
 	  components: {
-	    ReplyPanel,
-	    EditPanel,
 	    UploadMenu,
 	    CreateEntityMenu,
 	    SmileSelector,
 	    SendButton,
 	    UploadPreviewPopup,
-	    MarketAppsPanel,
-	    MentionPopup
+	    MentionPopup,
+	    TextareaPanel
 	  },
 	  props: {
 	    dialogId: {
@@ -5512,30 +5684,35 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      text: '',
 	      mentions: {},
 	      textareaHeight: ResizeManager.minHeight,
-	      editMessageId: 0,
-	      replyMessageId: 0,
-	      showMarketApps: false,
 	      showMention: false,
 	      mentionQuery: '',
 	      showUploadPreviewPopup: false,
-	      previewPopupUploaderId: ''
+	      previewPopupUploaderId: '',
+	      panelType: im_v2_const.TextareaPanelType.none,
+	      panelMessageId: 0
 	    };
 	  },
 	  computed: {
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    dialogInited() {
 	      return this.dialog.inited;
 	    },
 	    replyMode() {
-	      return Boolean(this.replyMessageId);
+	      return this.panelType === im_v2_const.TextareaPanelType.reply;
+	    },
+	    forwardMode() {
+	      return this.panelType === im_v2_const.TextareaPanelType.forward;
 	    },
 	    editMode() {
-	      return Boolean(this.editMessageId);
+	      return this.panelType === im_v2_const.TextareaPanelType.edit;
+	    },
+	    marketMode() {
+	      return this.panelType === im_v2_const.TextareaPanelType.market;
 	    },
 	    isDisabled() {
-	      return this.text.trim() === '' && !this.editMode;
+	      return this.text.trim() === '' && !this.editMode && !this.forwardMode;
 	    },
 	    textareaStyle() {
 	      let height = `${this.textareaHeight}px`;
@@ -5559,7 +5736,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    text(newValue) {
 	      this.adjustTextareaHeight();
 	      if (!this.editMode) {
-	        im_v2_lib_draft.DraftManager.getInstance().setDraft(this.dialogId, newValue);
+	        this.getDraftManager().setDraft(this.dialogId, newValue);
 	      }
 	      if (main_core.Type.isStringFilled(newValue)) {
 	        this.getTypingService().startTyping();
@@ -5569,17 +5746,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  created() {
 	    this.initResizeManager();
 	    this.restoreTextareaHeight();
-	    this.restoreMarketPanelOpenState();
 	    this.restoreDraftText();
 	    this.initSendingService();
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.insertMention, this.onInsertMention);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.insertText, this.onInsertText);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.editMessage, this.onEditMessage);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.replyMessage, this.onReplyMessage);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.sendMessage, this.onSendMessage);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.textarea.insertForward, this.onInsertForward);
 	  },
 	  mounted() {
 	    this.initMentionManager();
-	    this.$refs.textarea.focus();
+	    this.focus();
 	  },
 	  beforeUnmount() {
 	    this.resizeManager.destroy();
@@ -5587,39 +5765,56 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.insertText, this.onInsertText);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.editMessage, this.onEditMessage);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.replyMessage, this.onReplyMessage);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.sendMessage, this.onSendMessage);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.textarea.insertForward, this.onInsertForward);
 	  },
 	  methods: {
+	    handlePanelAction(text) {
+	      if (this.editMode) {
+	        if (this.text === '') {
+	          this.getMessageService().deleteMessage(this.panelMessageId);
+	        } else {
+	          this.getMessageService().editMessageText(this.panelMessageId, text);
+	        }
+	      } else if (this.forwardMode) {
+	        this.getSendingService().forwardMessages({
+	          text,
+	          dialogId: this.dialogId,
+	          forwardIds: [this.panelMessageId]
+	        });
+	      } else if (this.replyMode) {
+	        this.getSendingService().sendMessage({
+	          text,
+	          dialogId: this.dialogId,
+	          replyId: this.panelMessageId
+	        });
+	      }
+	    },
 	    sendMessage() {
 	      this.text = this.text.trim();
 	      if (this.isDisabled || !this.dialogInited) {
 	        return;
 	      }
-	      const text = this.hasMentions ? this.replaceMentions(this.text) : this.text;
-	      if (this.editMode) {
-	        if (this.text === '') {
-	          this.getMessageService().deleteMessage(this.editMessageId);
-	        } else {
-	          this.getMessageService().editMessageText(this.editMessageId, text);
-	        }
-	        this.onEditPanelClose();
+	      const text = this.replaceMentions(this.text);
+	      if (this.hasActiveMessageAction()) {
+	        this.handlePanelAction(text);
+	        this.closePanel();
+	        this.clear();
 	        return;
 	      }
 	      this.getSendingService().sendMessage({
 	        text,
-	        dialogId: this.dialogId,
-	        replyId: this.replyMessageId
+	        dialogId: this.dialogId
 	      });
 	      this.getTypingService().stopTyping();
 	      this.clear();
-	      im_v2_lib_draft.DraftManager.getInstance().clearDraftInRecentList(this.dialogId);
+	      this.getDraftManager().clearDraftInRecentList(this.dialogId);
 	      im_v2_lib_soundNotification.SoundNotificationManager.getInstance().playOnce(im_v2_const.SoundType.send);
-	      if (this.replyMode) {
-	        this.closeReplyPanel();
-	      }
+	      this.focus();
 	    },
 	    replaceMentions(text) {
 	      if (!this.hasMentions) {
-	        return '';
+	        return text;
 	      }
 	      let textWithMentions = text;
 	      Object.entries(this.mentions).forEach(mention => {
@@ -5632,35 +5827,47 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.text = '';
 	      this.mentions = {};
 	    },
-	    openEditPanel(messageId) {
-	      this.showMarketApps = false;
-	      const message = this.$store.getters['messages/getById'](messageId);
-	      if (this.replyMode) {
-	        this.closeReplyPanel();
+	    hasActiveMessageAction() {
+	      return MESSAGE_ACTION_PANELS.has(this.panelType);
+	    },
+	    closePanel() {
+	      if (this.editMode) {
+	        this.clear();
 	      }
+	      this.panelType = im_v2_const.TextareaPanelType.none;
+	      this.panelMessageId = 0;
+	    },
+	    openEditPanel(messageId) {
+	      const message = this.$store.getters['messages/getById'](messageId);
 	      if (message.isDeleted) {
 	        return;
 	      }
-	      this.editMessageId = messageId;
+	      this.panelType = im_v2_const.TextareaPanelType.edit;
+	      this.panelMessageId = messageId;
 	      this.text = im_v2_lib_parser.Parser.prepareEdit(message);
-	      this.$refs.textarea.focus();
+	      this.focus();
 	    },
 	    openReplyPanel(messageId) {
-	      this.showMarketApps = false;
 	      if (this.editMode) {
-	        this.closeEditPanel();
 	        this.clear();
 	      }
-	      this.replyMessageId = messageId;
-	      this.$refs.textarea.focus();
+	      this.panelType = im_v2_const.TextareaPanelType.reply;
+	      this.panelMessageId = messageId;
+	      this.focus();
 	    },
-	    closeEditPanel() {
-	      this.editMessageId = 0;
-	      this.restoreMarketPanelOpenState();
+	    openForwardPanel(messageId) {
+	      this.panelType = im_v2_const.TextareaPanelType.forward;
+	      this.panelMessageId = messageId;
+	      this.clear();
+	      this.focus();
 	    },
-	    closeReplyPanel() {
-	      this.replyMessageId = 0;
-	      this.restoreMarketPanelOpenState();
+	    toggleMarketPanel() {
+	      if (this.marketMode) {
+	        this.panelType = im_v2_const.TextareaPanelType.none;
+	        return;
+	      }
+	      this.panelType = im_v2_const.TextareaPanelType.market;
+	      this.panelMessageId = 0;
 	    },
 	    async adjustTextareaHeight() {
 	      this.textareaHeight = 'auto';
@@ -5689,16 +5896,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.adjustTextareaHeight();
 	    },
 	    restoreDraftText() {
-	      this.text = im_v2_lib_draft.DraftManager.getInstance().getDraft(this.dialogId);
+	      this.text = this.getDraftManager().getDraft(this.dialogId);
 	    },
 	    async onKeyDown(event) {
-	      const exitEditCombination = im_v2_lib_utils.Utils.key.isCombination(event, 'Escape');
-	      if (this.editMode && exitEditCombination) {
-	        this.onEditPanelClose();
-	        return;
-	      }
-	      if (this.replyMode && exitEditCombination) {
-	        this.closeReplyPanel();
+	      const exitActionCombination = im_v2_lib_utils.Utils.key.isCombination(event, 'Escape');
+	      if (this.hasActiveMessageAction() && exitActionCombination) {
+	        this.closePanel();
 	        return;
 	      }
 	      const sendMessageCombination = im_v2_lib_hotkey.isSendMessageCombination(event);
@@ -5706,20 +5909,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (sendMessageCombination && !newLineCombination && !this.showMention) {
 	        event.preventDefault();
 	        this.sendMessage();
+	        return;
 	      }
-	      if (newLineCombination) {
-	        event.preventDefault();
-	        this.text = im_v2_lib_textarea.Textarea.addNewLine(this.$refs.textarea);
+	      if (newLineCombination && !this.showMention) {
+	        this.handleNewLine();
 	        return;
 	      }
 	      const tabCombination = im_v2_lib_utils.Utils.key.isCombination(event, 'Tab');
 	      if (tabCombination) {
-	        event.preventDefault();
-	        if (event.shiftKey) {
-	          this.text = im_v2_lib_textarea.Textarea.removeTab(this.$refs.textarea);
-	          return;
-	        }
-	        this.text = im_v2_lib_textarea.Textarea.addTab(this.$refs.textarea);
+	        this.handleTab(event);
 	        return;
 	      }
 	      const decorationCombination = im_v2_lib_utils.Utils.key.isCombination(event, ['Ctrl+b', 'Ctrl+i', 'Ctrl+u', 'Ctrl+s']);
@@ -5729,13 +5927,38 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      if (this.text === '' && im_v2_lib_utils.Utils.key.isCombination(event, 'ArrowUp')) {
-	        event.preventDefault();
-	        const lastOwnMessageId = this.$store.getters['messages/getLastOwnMessageId'](this.dialog.chatId);
-	        if (lastOwnMessageId) {
-	          this.openEditPanel(lastOwnMessageId);
-	        }
+	        this.handleLastOwnMessageEdit(event);
+	        return;
 	      }
 	      this.mentionManager.onKeyDown(event);
+	    },
+	    handleNewLine() {
+	      this.text = im_v2_lib_textarea.Textarea.addNewLine(this.$refs.textarea);
+	    },
+	    handleTab(event) {
+	      event.preventDefault();
+	      if (event.shiftKey) {
+	        this.text = im_v2_lib_textarea.Textarea.removeTab(this.$refs.textarea);
+	        return;
+	      }
+	      this.text = im_v2_lib_textarea.Textarea.addTab(this.$refs.textarea);
+	    },
+	    handleLastOwnMessageEdit(event) {
+	      event.preventDefault();
+	      const lastOwnMessageId = this.$store.getters['messages/getLastOwnMessageId'](this.dialog.chatId);
+	      const isForward = this.$store.getters['messages/isForward'](lastOwnMessageId);
+	      if (lastOwnMessageId && !isForward) {
+	        this.openEditPanel(lastOwnMessageId);
+	      }
+	    },
+	    onSendMessage(event) {
+	      const {
+	        text
+	      } = event.getData();
+	      this.getSendingService().sendMessage({
+	        text,
+	        dialogId: this.dialogId
+	      });
 	    },
 	    onResizeStart(event) {
 	      this.resizeManager.onResizeStart(event, this.textareaHeight);
@@ -5765,15 +5988,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      } else {
 	        this.text += `${mentionText} `;
 	      }
-	      this.$refs.textarea.focus();
+	      this.focus();
 	    },
 	    onInsertText(event) {
 	      // TODO sync with im/install/js/im/component/textarea/src/textarea.js:164
 	      const textarea = this.$refs.textarea;
 	      const {
-	        text,
-	        withNewLine,
-	        replace
+	        text = '',
+	        withNewLine = false,
+	        replace = false
 	      } = event.getData();
 	      if (replace) {
 	        this.text = '';
@@ -5786,7 +6009,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      } else {
 	        this.text = withNewLine ? `${this.text}\n${text}` : `${this.text} ${text}`;
 	      }
-	      textarea.focus();
+	      this.focus();
 	    },
 	    onEditMessage(event) {
 	      const {
@@ -5800,11 +6023,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      } = event.getData();
 	      this.openReplyPanel(messageId);
 	    },
-	    onEditPanelClose() {
-	      this.closeEditPanel();
-	      this.clear();
+	    onInsertForward(event) {
+	      const {
+	        messageId
+	      } = event.getData();
+	      this.openForwardPanel(messageId);
 	    },
-	    onPaste(clipboardEvent) {
+	    async onPaste(clipboardEvent) {
 	      const {
 	        clipboardData
 	      } = clipboardEvent;
@@ -5812,28 +6037,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      clipboardEvent.preventDefault();
-	      this.getUploadingService().addFilesFromClipboard(clipboardData, this.dialogId).then(({
+	      const {
 	        files,
 	        uploaderId
-	      }) => {
-	        if (files.length === 0) {
-	          return;
-	        }
-	        this.showUploadPreviewPopup = true;
-	        this.previewPopupUploaderId = uploaderId;
-	      }).catch(error => {
+	      } = await this.getUploadingService().addFilesFromClipboard(clipboardData, this.dialogId).catch(error => {
 	        im_v2_lib_logger.Logger.error('Textarea: error paste file from clipboard', error);
 	      });
+	      if (files.length === 0) {
+	        return;
+	      }
+	      this.showUploadPreviewPopup = true;
+	      this.previewPopupUploaderId = uploaderId;
 	    },
 	    onMarketIconClick() {
-	      if (this.editMode) {
-	        this.onEditPanelClose();
-	      }
-	      if (this.replyMode) {
-	        this.closeReplyPanel();
-	      }
-	      this.showMarketApps = !this.showMarketApps;
-	      this.saveMarketPanelOpenState(this.showMarketApps);
+	      this.toggleMarketPanel();
 	    },
 	    initResizeManager() {
 	      this.resizeManager = new ResizeManager();
@@ -5878,6 +6095,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	      return this.typingService;
 	    },
+	    getDraftManager() {
+	      if (!this.draftManager) {
+	        this.draftManager = im_v2_lib_draft.DraftManager.getInstance();
+	      }
+	      return this.draftManager;
+	    },
 	    getMessageService() {
 	      if (!this.messageService) {
 	        this.messageService = new im_v2_provider_service.MessageService({
@@ -5892,17 +6115,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	      return this.uploadingService;
 	    },
-	    restoreMarketPanelOpenState() {
-	      const showMarketApps = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.textareaMarketOpened);
-	      this.showMarketApps = Boolean(showMarketApps);
-	    },
-	    saveMarketPanelOpenState(showMarketApps) {
-	      const WRITE_TO_STORAGE_TIMEOUT = 200;
-	      clearTimeout(this.saveMarketOpenedStateTimeout);
-	      this.saveMarketOpenedStateTimeout = setTimeout(() => {
-	        im_v2_lib_localStorage.LocalStorageManager.getInstance().set(im_v2_const.LocalStorageKey.textareaMarketOpened, showMarketApps);
-	      }, WRITE_TO_STORAGE_TIMEOUT);
-	    },
 	    onSendFilesFromPreviewPopup(event) {
 	      this.text = '';
 	      const {
@@ -5913,10 +6125,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (groupFiles) {
 	        return;
 	      }
+	      const textWithMentions = this.replaceMentions(text);
 	      this.getUploadingService().sendSeparateMessagesWithFiles({
 	        uploaderId,
-	        text
+	        text: textWithMentions
 	      });
+	      this.focus();
 	    },
 	    closeMentionPopup() {
 	      this.showMention = false;
@@ -5927,6 +6141,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.mentionQuery = mentionQuery;
 	      this.showMention = true;
 	    },
+	    focus() {
+	      var _this$$refs;
+	      (_this$$refs = this.$refs) == null ? void 0 : _this$$refs.textarea.focus();
+	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
@@ -5935,9 +6153,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 		<div class="bx-im-send-panel__scope bx-im-send-panel__container">
 			<div class="bx-im-textarea__container">
 				<div @mousedown="onResizeStart" class="bx-im-textarea__drag-handle"></div>
-				<EditPanel v-if="editMode" :messageId="editMessageId" @close="onEditPanelClose" />
-				<ReplyPanel v-if="replyMode" :messageId="replyMessageId" @close="closeReplyPanel" />
-				<MarketAppsPanel v-if="showMarketApps" :dialogId="dialogId"/>
+				<TextareaPanel
+					:type="panelType"
+					:messageId="panelMessageId"
+					:dialogId="dialogId"
+					@close="closePanel"
+				/>
 				<div class="bx-im-textarea__content">
 					<div class="bx-im-textarea__left">
 						<div class="bx-im-textarea__upload_container">
@@ -5946,7 +6167,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 						<textarea
 							v-model="text"
 							:style="textareaStyle"
-							:placeholder="loc('IM_TEXTAREA_PLACEHOLDER')"
+							:placeholder="loc('IM_TEXTAREA_PLACEHOLDER_V3')"
 							:maxlength="textareaMaxLength"
 							@keydown="onKeyDown"
 							@paste="onPaste"
@@ -5962,7 +6183,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 								:title="loc('IM_TEXTAREA_ICON_APPLICATION')"
 								@click="onMarketIconClick"
 								class="bx-im-textarea__icon --market"
-								:class="{'--active': showMarketApps}"
+								:class="{'--active': marketMode}"
 							></div>
 							<SmileSelector :dialogId="dialogId" />
 						</div>
@@ -5991,5 +6212,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.ChatTextarea = ChatTextarea;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Directives,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=textarea.bundle.js.map

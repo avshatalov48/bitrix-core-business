@@ -10,7 +10,6 @@ class CRatingRule
 		global $DB;
 
 		$ID = intval($ID);
-		$err_mess = (CRatingRule::err_mess())."<br>Function: GetByID<br>Line: ";
 
 		if($ID<=0)
 			return false;
@@ -23,8 +22,8 @@ class CRatingRule
 			FROM
 				b_rating_rule PR
 			WHERE
-				ID=".$ID,
-			false, $err_mess.__LINE__));
+				ID=".$ID
+		));
 	}
 
 	// get rating rule list
@@ -33,17 +32,16 @@ class CRatingRule
 		global $DB;
 
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
-		$err_mess = (CRatingRule::err_mess())."<br>Function: GetList<br>Line: ";
 
 		if (is_array($arFilter))
 		{
-			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			foreach ($arFilter as $key => $val)
 			{
-				$val = $arFilter[$filter_keys[$i]];
-				if ((string)$val == '' || $val=="NOT_REF") continue;
-				switch(mb_strtoupper($filter_keys[$i]))
+				if ((string)$val == '' || $val == "NOT_REF")
+				{
+					continue;
+				}
+				switch (strtoupper($key))
 				{
 					case "ID":
 						$arSqlSearch[] = GetFilterQuery("PR.ID", $val, "N");
@@ -114,7 +112,7 @@ class CRatingRule
 			WHERE
 			".$strSqlSearch."
 			".$strSqlOrder;
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -123,8 +121,6 @@ class CRatingRule
 	public static function Add($arFields)
 	{
 		global $DB;
-
-		$err_mess = (CRatingRule::err_mess())."<br>Function: Add<br>Line: ";
 
 		// check only general field
 		if(!CRatingRule::__CheckFields($arFields))
@@ -179,7 +175,6 @@ class CRatingRule
 		global $DB;
 
 		$ID = intval($ID);
-		$err_mess = (CRatingRule::err_mess())."<br>Function: Update<br>Line: ";
 
 		// check only general field
 		if(!CRatingRule::__CheckFields($arFields))
@@ -223,7 +218,7 @@ class CRatingRule
 		if($strUpdate!="")
 		{
 			$strSql = "UPDATE b_rating_rule SET ".$strUpdate." WHERE ID=".$ID;
-			if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+			if(!$DB->Query($strSql))
 				return false;
 		}
 
@@ -253,14 +248,13 @@ class CRatingRule
 		global $DB;
 
 		$ID = intval($ID);
-		$err_mess = (CRatingRule::err_mess())."<br>Function: Delete<br>Line: ";
 
 		$db_events = GetModuleEvents("main", "OnBeforeDeleteRatingRule");
 		while($arEvent = $db_events->Fetch())
 			ExecuteModuleEventEx($arEvent, array($ID));
 
-		$DB->Query("DELETE FROM b_rating_rule WHERE ID=$ID", false, $err_mess.__LINE__);
-		$DB->Query("DELETE FROM b_rating_rule_vetting WHERE RULE_ID=$ID", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_rating_rule WHERE ID=$ID");
+		$DB->Query("DELETE FROM b_rating_rule_vetting WHERE RULE_ID=$ID");
 
 		CAgent::RemoveAgent("CRatingRule::Apply($ID);", "main");
 		
@@ -273,7 +267,6 @@ class CRatingRule
 		global $DB;
 
 		$ID = intval($ID);
-		$err_mess = (CRatingRule::err_mess())."<br>Function: Apply<br>Line: ";
 
 		$ratingRule = CRatingRule::GetByID($ID);
 		$arConfigs = $ratingRule->Fetch();
@@ -287,12 +280,12 @@ class CRatingRule
 				if (method_exists($arConfigs['CONDITION_CLASS'],  $arConfigs['CONDITION_METHOD']))
 					call_user_func(array($arConfigs['CONDITION_CLASS'], $arConfigs['CONDITION_METHOD']), $arConfigs);
 
-				$DB->Query("DELETE FROM b_rating_rule_vetting WHERE RULE_ID = $ID AND APPLIED = 'Y'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_rating_rule_vetting WHERE RULE_ID = $ID AND APPLIED = 'Y'");
 			}
 			if (method_exists($arConfigs['ACTIVATE_CLASS'],  $arConfigs['ACTIVATE_METHOD']))
 				call_user_func(array($arConfigs['ACTIVATE_CLASS'], $arConfigs['ACTIVATE_METHOD']), $arConfigs);
 
-			$DB->Query("UPDATE b_rating_rule SET LAST_APPLIED = ".$DB->GetNowFunction()." WHERE ID = $ID", false, $err_mess.__LINE__);	
+			$DB->Query("UPDATE b_rating_rule SET LAST_APPLIED = ".$DB->GetNowFunction()." WHERE ID = $ID");
 		}
 		return "CRatingRule::Apply($ID);";
 	}
@@ -301,17 +294,17 @@ class CRatingRule
 	public static function GetVetting($arFilter, $arSort)
 	{
 		global $DB;
-		$err_mess = (CRatingRule::err_mess())."<br>Function: GetVetting<br>Line: ";
 
 		$arSqlSearch = array();
 		if (is_array($arFilter))
 		{
-			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			foreach ($arFilter as $key => $val)
 			{
-				$val = $arFilter[$filter_keys[$i]];
-				if ((string)$val == '' || $val=="NOT_REF") continue;
-				switch(strtoupper($filter_keys[$i]))
+				if ((string)$val == '' || $val=="NOT_REF")
+				{
+					continue;
+				}
+				switch (strtoupper($key))
 				{
 					case "RULE_ID":
 						$arSqlSearch[] = GetFilterQuery("RULE_ID", $val, "N");
@@ -362,7 +355,7 @@ class CRatingRule
 		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
 
 		$strSql = "SELECT * FROM b_rating_rule_vetting WHERE $strSqlSearch $strSqlOrder";
-		return  $DB->Query($strSql, false, $err_mess.__LINE__);
+		return  $DB->Query($strSql);
 	}
 
 	// apply vetting list
@@ -370,12 +363,10 @@ class CRatingRule
 	{
 		global $DB;
 
-		$err_mess = (CRatingRule::err_mess())."<br>Function: ApplyVetting<br>Line: ";
-
 		$ruleId = intval($arConfigs['ID']);
 
 		// put a check that they are counted
-		$DB->Query("UPDATE b_rating_rule_vetting SET APPLIED = 'Y' WHERE RULE_ID = $ruleId", false, $err_mess.__LINE__);
+		$DB->Query("UPDATE b_rating_rule_vetting SET APPLIED = 'Y' WHERE RULE_ID = $ruleId");
 
 		return true;
 	}
@@ -458,10 +449,5 @@ class CRatingRule
 		}
 
 		return true;
-	}
-
-	public static function err_mess()
-	{
-		return "<br>Class: CRatingRule<br>File: ".__FILE__;
 	}
 }

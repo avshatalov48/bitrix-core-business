@@ -88,7 +88,12 @@ class Manager
 			'check_callback' => [
 				'\Bitrix\Landing\Restriction\Knowledge', 'isAllowedInGroup'
 			]
-		]
+		],
+		'limit_crm_forms_templates' => [
+			'check_callback' => [
+				'\Bitrix\Landing\Restriction\Form', 'isMinisitesAllowed'
+			]
+		],
 	];
 
 	/**

@@ -6,5 +6,4 @@
  * If you need to make some changes, then make edits to the `ui.bbcode.ast-processor`
  * and run the build using 'bitrix build'.
  * During the build, the code will be automatically ported to `bbcode/ast-processor'.
- * @module bbcode/ast-processor
  */

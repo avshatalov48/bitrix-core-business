@@ -14,6 +14,7 @@ export const ChatActionType = Object.freeze({
 export const ChatActionGroup = Object.freeze({
 	manageSettings: 'manageSettings',
 	manageUi: 'manageUi',
-	manageUsers: 'manageUsers',
+	manageUsersAdd: 'manageUsersAdd',
+	manageUsersDelete: 'manageUsersDelete',
 	canPost: 'canPost',
 });

@@ -1,6 +1,7 @@
 .bx-im-attach-rich__scope {
 	--im-attach-rich__font-color_name: #11a9d9;
 	--im-attach-rich__font-color_desc: #828b95;
+	--im-attach-rich__background-color_image-item: #f1f4f6;
 }
 
 .bx-im-attach-rich__container {
@@ -10,6 +11,8 @@
 .bx-im-attach-rich__image {
 	cursor: pointer;
 	padding-top: 2px;
+	max-width: 272px;
+	max-height: 272px;
 }
 
 .bx-im-attach-rich__block {

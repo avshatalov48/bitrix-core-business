@@ -1,9 +1,9 @@
 <?php
 $MESS["SALE_HPS_SKB"] = "Синара банк";
 $MESS["SALE_HPS_SKB_LOGIN"] = "Логин";
-$MESS["SALE_HPS_SKB_LOGIN_DESC"] = "Логин ТСП в системе быстрых платежей";
+$MESS["SALE_HPS_SKB_LOGIN_DESC"] = "Логин ТСП в Системе быстрых платежей";
 $MESS["SALE_HPS_SKB_PASSWORD"] = "Пароль";
-$MESS["SALE_HPS_SKB_PASSWORD_DESC"] = "Пароль ТСП в системе быстрых платежей";
+$MESS["SALE_HPS_SKB_PASSWORD_DESC"] = "Пароль ТСП в Системе быстрых платежей";
 $MESS["SALE_HPS_SKB_MERCHANT_ID"] = "Идентификатор ТСП";
 $MESS["SALE_HPS_SKB_SECRET_KEY"] = "Секретный ключ";
 $MESS["SALE_HPS_SKB_ADDITIONAL_INFO"] = "Дополнительная информация";
@@ -12,3 +12,7 @@ $MESS["SALE_HPS_SKB_ADDITIONAL_INFO_TEMPLATE"] = "Оплата №#PAYMENT_NUMBE
 $MESS["SALE_HPS_SKB_TEST_MODE"] = "Тестовый режим";
 $MESS["SALE_HPS_SKB_CHANGE_STATUS_PAY"] = "Автоматически оплачивать заказ при получении успешного статуса оплаты";
 $MESS["SALE_HPS_SKB_DESCRIPTION_MAIN"] = "Принимайте платежи через QR-код. Ваши клиенты смогут оплатить покупки в приложении любого банка, которое поддерживает государственную систему быстрых платежей.";
+$MESS["SALE_HPS_SKB_MODE_SKB"] = "Система быстрых платежей";
+$MESS["SALE_HPS_SKB_MODE_SKB_PUBLIC_DESCRIPTION"] = "Для оплаты через QR-код воспользуйтесь приложением любого банка, которое поддерживает государственную систему быстрых платежей.";
+$MESS["SALE_HPS_SKB_MODE_DELOBANK"] = "Делобанк";
+$MESS["SALE_HPS_SKB_MODE_GAZENERGOBANK"] = "Газэнергобанк";

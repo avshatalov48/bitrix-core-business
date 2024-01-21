@@ -10,11 +10,6 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllFavorites extends CDBResult
 {
-	public static function err_mess()
-	{
-		return "<br>Class: CFavorites<br>File: ".__FILE__;
-	}
-
 	public static function GetIDByUrl($url)
 	{
 		global $USER;
@@ -50,13 +45,12 @@ class CAllFavorites extends CDBResult
 		if($ID <= 0)
 			return false;
 
-		return ($DB->Query("
+		return $DB->Query("
 			SELECT F.*,
 				".$DB->DateToCharFunction("F.TIMESTAMP_X")." as TIMESTAMP_X,
 				".$DB->DateToCharFunction("F.DATE_CREATE")." as	DATE_CREATE
 			FROM b_favorite F
-			WHERE ID=".$ID,
-			false, "File: ".__FILE__."<br>Line: ".__LINE__)
+			WHERE ID=".$ID
 		);
 	}
 
@@ -200,7 +194,7 @@ class CAllFavorites extends CDBResult
 		while($arFav = $res->Fetch())
 			$codes->Delete($arFav["CODE_ID"]);
 
-		return ($DB->Query("DELETE FROM b_favorite WHERE ID='".intval($ID)."'", false, "File: ".__FILE__."<br>Line: ".__LINE__));
+		return $DB->Query("DELETE FROM b_favorite WHERE ID='".intval($ID)."'");
 	}
 
 	//*****************************
@@ -211,14 +205,14 @@ class CAllFavorites extends CDBResult
 	public static function OnUserDelete($user_id)
 	{
 		global $DB;
-		return ($DB->Query("DELETE FROM b_favorite WHERE USER_ID=". intval($user_id), false, "File: ".__FILE__."<br>Line: ".__LINE__));
+		return $DB->Query("DELETE FROM b_favorite WHERE USER_ID=". intval($user_id));
 	}
 
 	//interface language delete event
 	public static function OnLanguageDelete($language_id)
 	{
 		global $DB;
-		return ($DB->Query("DELETE FROM b_favorite WHERE LANGUAGE_ID='".$DB->ForSQL($language_id, 2)."'", false, "File: ".__FILE__."<br>Line: ".__LINE__));
+		return $DB->Query("DELETE FROM b_favorite WHERE LANGUAGE_ID='".$DB->ForSQL($language_id, 2)."'");
 	}
 }
 

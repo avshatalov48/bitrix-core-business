@@ -1,5 +1,5 @@
 import BX from './internal/bootstrap';
-
+import '../../../core_ajax';
 
 describe('old/core.js', () => {
 	describe('BX', () => {
@@ -452,7 +452,7 @@ describe('old/core.js', () => {
 				assert.ok(BX.util.array_unique(false) === false);
 			});
 		});
-		
+
 		describe('#in_array', () => {
 			it('Should return true if array includes passed item (strict)', () => {
 				assert.ok(BX.util.in_array(2, [1, 2, 3]));
@@ -559,5 +559,118 @@ describe('old/core.js', () => {
 				assert.equal(-1, BX.util.array_search(5, 5));
 			});
 		});
+	});
+
+	describe('BX.userOptions', () => {
+		BX.message({
+			'bitrix_sessid': 'x',
+			'COOKIE_PREFIX': 'x',
+		});
+
+		const queryStringToObject = function(queryString) {
+			const params = new URLSearchParams(queryString);
+			const result = {};
+
+			// Step 1: Convert query string to a nested object
+			params.forEach((value, key) => {
+				let keys = key.match(/(\w+)/g); // Extract keys using regex
+				let lastKey = keys.pop(); // The last key corresponds to the deepest nested value
+				let obj = keys.reduce((res, k) => res[k] = res[k] || {}, result); // Build nested objects
+				obj[lastKey] = value; // Assign the value to the deepest level
+			});
+
+			// Step 2: Transform the top level of the object into an array
+			const resultArray = Object.keys(result).map(topLevelKey => {
+				// 'result[topLevelKey]' is assumed to be an object itself, and we're transforming
+				// it into an array of objects, each corresponding to one of its properties
+				return Object.keys(result[topLevelKey]).map(index => {
+					return result[topLevelKey][index];
+				});
+			}).flat(); // Use 'flat()' to flatten the resulting array of arrays into a single array
+
+			return resultArray;
+		};
+
+		describe('Maintain backward compatibility', () => {
+			it('Should store one value', () => {
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off');
+
+				const oldFashion = queryStringToObject(BX.userOptions.__get());
+				const newFashion = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.deepEqual(oldFashion, newFashion);
+			});
+
+			it('Should store few values', () => {
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off');
+				BX.userOptions.save('disk', 'config_status', 'fix_footer1', 'off');
+				BX.userOptions.save('crm', 'status', 'fix_footer', 'off');
+
+				const oldFashion = queryStringToObject(BX.userOptions.__get());
+				const newFashion = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.deepEqual(oldFashion, newFashion);
+			});
+
+			it('Should rewrite value', () => {
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off');
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'on');
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off');
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'on');
+
+				const oldFashion = queryStringToObject(BX.userOptions.__get());
+				const newFashion = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.deepEqual(oldFashion, newFashion);
+			});
+
+			it('Should support Common', () => {
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off', true);
+
+				const oldFashion = queryStringToObject(BX.userOptions.__get());
+				const newFashion = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.deepEqual(oldFashion, newFashion);
+			});
+
+			it('Should support rewrite Common', () => {
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off', true);
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off', false);
+
+				const oldFashion = queryStringToObject(BX.userOptions.__get());
+				const newFashion = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.deepEqual(oldFashion, newFashion);
+
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off', false);
+				BX.userOptions.save('disk', 'config_status', 'fix_footer', 'off', true);
+
+				const oldFashion2 = queryStringToObject(BX.userOptions.__get());
+				const newFashion2 = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.deepEqual(oldFashion2, newFashion2);
+			});
+
+			it('Should support Arrays', () => {
+				BX.userOptions.save('intranet', 'user_search', 'last_selected', [1, 2]);
+				BX.userOptions.save('my', 'choice', 'be_a_superman', [null, 'can', 4, 2, 'solve', 'any', 'problem ?+_=']);
+
+				const oldFashion = queryStringToObject(BX.userOptions.__get());
+				const newFashion = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.deepEqual(oldFashion, newFashion);
+			});
+
+			it('Should not support Objects', () => {
+				BX.userOptions.save('intranet', 'user_search', 'last_selected', {"sample": [1,2]});
+				BX.userOptions.save('intranet', 'user_search', 'last_selected', {"sample": {"example": [1,2]}});
+
+				const oldFashion = queryStringToObject(BX.userOptions.__get());
+				const newFashion = BX.userOptions.__get_values({backwardCompatibility: true});
+
+				assert.notDeepEqual(oldFashion, newFashion);
+			});
+		});
+
 	});
 });

@@ -9,12 +9,14 @@ use Bitrix\Disk\Folder;
 use Bitrix\Disk\Storage;
 use Bitrix\Disk\TypeFile;
 use Bitrix\Disk\Ui\FileAttributes;
+use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\RestEntity;
 use Bitrix\Main\Engine\UrlManager;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 class FileItem implements RestEntity, PopupDataAggregatable
@@ -136,30 +138,36 @@ class FileItem implements RestEntity, PopupDataAggregatable
 		return new static($copy, $this->getChatId());
 	}
 
-	public function getSymLink(): ?self
+	public function getCopyToChat(Chat $chat): ?self
 	{
-		$folderModel = \CIMDisk::GetFolderModel($this->chatId);
-		if (!($folderModel instanceof Folder))
+		if (!Loader::includeModule('disk'))
 		{
 			return null;
 		}
 
-		$newFileLink = $folderModel->addFileLink(
-			$this->getDiskFile(),
-			[
-				'CREATED_BY' => $this->getContext()->getUserId(),
-				'GLOBAL_CONTENT_VERSION' => 1
-			],
-			[],
-			true
-		);
+		$folder = $chat->getOrCreateDiskFolder();
+		$diskFile = $this->getDiskFile();
 
-		if (!isset($newFileLink))
+		if (!($folder instanceof Folder) || $diskFile === null)
 		{
 			return null;
 		}
 
-		return new static($newFileLink, $this->chatId);
+		$newFileModel = $diskFile->copyTo($folder, $chat->getContext()->getUserId(), true);
+
+		if (!($newFileModel instanceof File))
+		{
+			return null;
+		}
+
+		if ($diskFile->getCode() === \Bitrix\Im\V2\Link\File\FileItem::MEDIA_ORIGINAL_CODE)
+		{
+			$newFileModel->changeCode(\Bitrix\Im\V2\Link\File\FileItem::MEDIA_ORIGINAL_CODE);
+		}
+
+		$newFileModel->increaseGlobalContentVersion();
+
+		return new static($newFileModel, $chat->getId());
 	}
 
 	public function getPopupData(array $excludedList = []): PopupData

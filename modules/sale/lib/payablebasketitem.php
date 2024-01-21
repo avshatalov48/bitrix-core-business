@@ -22,6 +22,19 @@ class PayableBasketItem extends PayableItem
 		return Registry::ENTITY_BASKET_ITEM;
 	}
 
+	public function getPrice(): float
+	{
+		/** @var BasketItem $basketItem */
+		$basketItem = $this->getEntityObject();
+
+		if ($basketItem)
+		{
+			return $basketItem->getPrice();
+		}
+
+		return 0;
+	}
+
 	public static function create(PayableItemCollection $collection, Internals\CollectableEntity $entity)
 	{
 		if (!$entity instanceof BasketItem)

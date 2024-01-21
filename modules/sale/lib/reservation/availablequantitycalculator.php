@@ -204,6 +204,13 @@ class AvailableQuantityCalculator
 		{
 			foreach ($currentStoreProductQuantity as $storeId => $quantities)
 			{
+				if (
+					isset($basketItemsStoreQuantity[$basketId])
+					&& !isset($basketItemsStoreQuantity[$basketId][$storeId])
+				)
+				{
+					continue;
+				}
 				$storeQuantity = $quantities[$productId] ?? 0.0;
 				if ($storeQuantity > 0.0)
 				{

@@ -721,11 +721,7 @@ class SkbHandler
 	 */
 	public static function getHandlerModeList(): array
 	{
-		return [
-			self::MODE_SKB => Loc::getMessage('SALE_HPS_SKB_MODE_SKB'),
-			self::MODE_DELOBANK => Loc::getMessage('SALE_HPS_SKB_MODE_DELOBANK'),
-			self::MODE_GAZENERGOBANK => Loc::getMessage('SALE_HPS_SKB_MODE_GAZENERGOBANK'),
-		];
+		return PaySystem\Manager::getHandlerDescription('Skb')['HANDLER_MODE_LIST'];
 	}
 
 	/**

@@ -70,7 +70,7 @@ class SaleAdminPageStub extends \CBitrixComponent
 			],
 			"cat_store_document_list.php" => [
 				"page" => "/shop/documents/",
-				"title" => Loc::getMessage("SAPS_CAT_STORE_DOCUMENT_LIST"),
+				"title" => Loc::getMessage("SAPS_CAT_STORE_DOCUMENT_LIST_MSGVER_1"),
 				"adminPageAvailable" => false,
 			],
 			"cat_contractor_list.php" => [

@@ -644,7 +644,7 @@ class CComponentUtil
 							"TYPE" => "STRING",
 							"MULTIPLE" => "N",
 							"DEFAULT" => $arTemplateValue["DEFAULT"],
-							"HIDDEN" => $arTemplateValue["HIDDEN"],
+							"HIDDEN" => $arTemplateValue["HIDDEN"] ?? '',
 							"COLS" => 50,
 							"VARIABLES" => array(),
 						);
@@ -653,7 +653,7 @@ class CComponentUtil
 						{
 							foreach ($arTemplateValue["VARIABLES"] as $variable)
 							{
-								if ($arVariableAliasesSettings[$variable]["TEMPLATE"])
+								if (!empty($arVariableAliasesSettings[$variable]["TEMPLATE"]))
 								{
 									$arComponentParameters["PARAMETERS"]["SEF_URL_TEMPLATES_".$templateKey]["TYPE"] = "TEMPLATES";
 									$arComponentParameters["PARAMETERS"]["SEF_URL_TEMPLATES_".$templateKey]["VALUES"][$variable] = array(
@@ -661,7 +661,7 @@ class CComponentUtil
 										"TEMPLATE" => $arVariableAliasesSettings[$variable]["TEMPLATE"],
 									);
 								}
-								$arComponentParameters["PARAMETERS"]["SEF_URL_TEMPLATES_".$templateKey]["VARIABLES"]["#".$variable."#"] = $arVariableAliasesSettings[$variable]["NAME"];
+								$arComponentParameters["PARAMETERS"]["SEF_URL_TEMPLATES_".$templateKey]["VARIABLES"]["#".$variable."#"] = $arVariableAliasesSettings[$variable]["NAME"] ?? '';
 							}
 						}
 					}

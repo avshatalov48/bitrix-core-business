@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 
 Extension::load([
@@ -24,7 +25,13 @@ if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])
 	return;
 endif;
 
-$APPLICATION->SetTitle(\Bitrix\Main\Localization\Loc::getMessage('STORE_STOCK_REPORT_PRODUCT_GRID_TITLE', ['#STORE_TITLE#' => $arResult['STORE_TITLE']]));
+$title =
+	$arParams['STORE_ID'] > 0
+		? Loc::getMessage('STORE_STOCK_REPORT_PRODUCT_GRID_TITLE',['#STORE_TITLE#' => $arResult['STORE_TITLE']])
+		: Loc::getMessage('STORE_STOCK_REPORT_PRODUCT_GRID_ALL_STORES_TITLE')
+;
+
+$APPLICATION->SetTitle($title);
 
 $this->setViewTarget('below_pagetitle');
 $APPLICATION->IncludeComponent(

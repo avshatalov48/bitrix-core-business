@@ -88,6 +88,10 @@ if (isset($orderConvert[$by]))
 
 $order = mb_strtoupper($adminSort->getOrder());
 $rateOrder = [$by => $order];
+if ($by !== 'ID')
+{
+	$rateOrder['ID'] = 'DESC';
+}
 
 if ($CURRENCY_RIGHT >="W" && $adminList->EditAction())
 {

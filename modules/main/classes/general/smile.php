@@ -377,7 +377,7 @@ class CSmile
 			FROM b_smile s
 			LEFT JOIN b_smile_lang sl ON sl.TYPE = '".self::TYPE_SMILE."' AND sl.SID = s.ID".($lang !== false? " AND sl.LID = '".$DB->ForSql(htmlspecialcharsbx($lang))."'": "")."
 			WHERE s.ID = ".$id."";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		if ($lang !== self::GET_ALL_LANGUAGE)
 		{
@@ -509,7 +509,7 @@ class CSmile
 			if($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSelect.$strSql, $nTopCount);
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
@@ -525,7 +525,7 @@ class CSmile
 		}
 		else
 		{
-			$res = $DB->Query($strSelect.$strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSelect.$strSql);
 		}
 
 		if (isset($arParams['RETURN_RES']) && $arParams['RETURN_RES'] == 'Y')
@@ -1397,7 +1397,7 @@ class CSmileSet
 			FROM b_smile_set ss
 			LEFT JOIN b_smile_lang sl ON sl.TYPE = ss.TYPE AND sl.SID = ss.ID".($lang !== false? " AND sl.LID = '".$DB->ForSql(htmlspecialcharsbx($lang))."'": "")."
 			WHERE ss.ID = ".$id."";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		if ($lang !== self::GET_ALL_LANGUAGE)
 		{
@@ -1437,7 +1437,7 @@ class CSmileSet
 			FROM b_smile_set ss
 			LEFT JOIN b_smile_lang sl ON sl.TYPE = ss.TYPE AND sl.SID = ss.ID".($lang !== false? " AND sl.LID = '".$DB->ForSql(htmlspecialcharsbx($lang))."'": "")."
 			WHERE ss.STRING_ID = '".$DB->ForSql($stringId)."' AND ss.TYPE = '".$DB->ForSql($type)."'";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		if ($lang !== false)
 		{
@@ -1597,7 +1597,7 @@ class CSmileSet
 			if($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSelect.$strSql, $nTopCount);
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
@@ -1613,7 +1613,7 @@ class CSmileSet
 		}
 		else
 		{
-			$res = $DB->Query($strSelect.$strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSelect.$strSql);
 		}
 
 		if (isset($arParams['RETURN_RES']) && $arParams['RETURN_RES'] == 'Y')

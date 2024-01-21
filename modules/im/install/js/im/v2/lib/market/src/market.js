@@ -54,7 +54,7 @@ export class MarketManager
 	getAvailablePlacementsByType(placementType: string, dialogId: string = ''): ImModelMarketApplication[]
 	{
 		const placements: ImModelMarketApplication[] = this.#store.getters['market/getByPlacement'](placementType);
-		const dialog = this.#store.getters['dialogues/get'](dialogId);
+		const dialog = this.#store.getters['chats/get'](dialogId);
 		const dialogType = dialog ? dialog.type : '';
 
 		return this.#availabilityManager.getAvailablePlacements(placements, dialogType);

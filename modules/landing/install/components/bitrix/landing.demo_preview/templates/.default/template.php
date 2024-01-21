@@ -50,7 +50,7 @@ $colors = $arResult['COLORS'];
 $themeCurr = $arResult['THEME_CURRENT'] ?: null;
 $themeSite = $arResult['THEME_SITE'] ?: null;
 $colorSite = $arResult['THEME_COLOR'] ?: $colors[$themeSite]['color'];
-$template = $arResult['TEMPLATE'];
+$template = $arResult['TEMPLATE'] ?: null;;
 $siteGroup = $arResult['SITE_GROUP'];
 $hasAccessCreate = $arResult['RIGHTS_CREATE'] ?: null;
 $marketSubscriptionNeeded = false;
@@ -402,6 +402,7 @@ else
 	{
 		$popupTextCode = 'LANDING_TPL_POPUP_TEXT_KB';
 	}
+
 	?>
 	BX.Landing.TemplatePreviewInstance = BX.Landing.TemplatePreview.getInstance({
 		createStore: <?= ($createStore ? 'true' : 'false') ?>,
@@ -413,8 +414,11 @@ else
 		},
 		disableStoreRedirect: <?= ($arParams['DISABLE_REDIRECT'] === 'Y') ? 'true' : 'false' ?>,
 		zipInstallPath: '<?= ($template['ZIP_ID'] ?? null) ? Url::getConfigurationImportZipUrl($template['ZIP_ID']) : '' ?>',
+		appCode: '<?= $template['APP_CODE'] ?>',
 		siteId: <?= ($arParams['SITE_ID'] > 0) ? $arParams['SITE_ID'] : 0 ?>,
 		replaceLid: <?= $arParams['REPLACE_LID'] ?? 0 ?>,
+		isCrmForm: '<?= $arParams['IS_CRM_FORM'] ?? 'N' ?>',
+		context: '<?= $arParams['CONTEXT'] ?? null ?>',
 		langId: "<?= is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
 		folderId: <?= ($arResult['FOLDER_ID'] ?? 0 && $arResult['FOLDER_ID'] > 0) ? $arResult['FOLDER_ID'] : 0 ?>,
 		adminSection: <?= $arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,

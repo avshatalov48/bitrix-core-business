@@ -140,14 +140,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return CallRestClient;
 	}();
 
-	/**
-	 * Bitrix Im
-	 * Conference application
-	 *
-	 * @package bitrix
-	 * @subpackage mobile
-	 * @copyright 2001-2021 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ConferenceApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
 	  function ConferenceApplication() {
@@ -193,6 +187,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.onCallRemoteMediaStoppedHandler = this.onCallRemoteMediaStopped.bind(this);
 	    this.onCallUserVoiceStartedHandler = this.onCallUserVoiceStarted.bind(this);
 	    this.onCallUserVoiceStoppedHandler = this.onCallUserVoiceStopped.bind(this);
+	    this.onUserStatsReceivedHandler = this.onUserStatsReceived.bind(this);
 	    this.onCallUserScreenStateHandler = this.onCallUserScreenState.bind(this);
 	    this.onCallUserRecordStateHandler = this.onCallUserRecordState.bind(this);
 	    this.onCallUserFloorRequestHandler = this.onCallUserFloorRequest.bind(this);
@@ -764,9 +759,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      }
 	      this.callView.setUiState(Call.View.UiState.Calling);
 	      if (this.localVideoStream) {
-	        if (videoEnabled) {
-	          this.callView.setLocalStream(this.localVideoStream, Call.Hardware.enableMirroring);
-	        } else {
+	        if (!videoEnabled) {
 	          this.stopLocalVideoStream();
 	        }
 	      }
@@ -1569,6 +1562,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.currentCall.addEventListener(Call.Event.onRemoteMediaStopped, this.onCallRemoteMediaStoppedHandler);
 	      this.currentCall.addEventListener(Call.Event.onUserVoiceStarted, this.onCallUserVoiceStartedHandler);
 	      this.currentCall.addEventListener(Call.Event.onUserVoiceStopped, this.onCallUserVoiceStoppedHandler);
+	      this.currentCall.addEventListener(Call.Event.onUserStatsReceived, this.onUserStatsReceivedHandler);
 	      this.currentCall.addEventListener(Call.Event.onUserScreenState, this.onCallUserScreenStateHandler);
 	      this.currentCall.addEventListener(Call.Event.onUserRecordState, this.onCallUserRecordStateHandler);
 	      this.currentCall.addEventListener(Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
@@ -1592,6 +1586,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.currentCall.removeEventListener(Call.Event.onRemoteMediaStopped, this.onCallRemoteMediaStoppedHandler);
 	      this.currentCall.removeEventListener(Call.Event.onUserVoiceStarted, this.onCallUserVoiceStartedHandler);
 	      this.currentCall.removeEventListener(Call.Event.onUserVoiceStopped, this.onCallUserVoiceStoppedHandler);
+	      this.currentCall.removeEventListener(Call.Event.onUserStatsReceived, this.onUserStatsReceivedHandler);
 	      this.currentCall.removeEventListener(Call.Event.onUserScreenState, this.onCallUserScreenStateHandler);
 	      this.currentCall.removeEventListener(Call.Event.onUserRecordState, this.onCallUserRecordStateHandler);
 	      this.currentCall.removeEventListener(Call.Event.onUserFloorRequest, this.onCallUserFloorRequestHandler);
@@ -1620,6 +1615,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.updateCallUser(e.userId, {
 	        state: e.state
 	      });
+	      if (!this.isRecording()) {
+	        this.callView.getConnectedUserCount(false) ? this.callView.unblockButtons(['record']) : this.callView.blockButtons(['record']);
+	      }
 	      /*if (e.direction)
 	      {
 	      	this.callView.setUserDirection(e.userId, e.direction);
@@ -1652,10 +1650,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      //this.template.$emit('callLocalMediaReceived');
 
 	      this.stopLocalVideoStream();
-	      var enableVideoMirroring = e.tag == "main" ? Call.Hardware.enableMirroring : false;
-	      this.callView.setLocalStream(e.stream, enableVideoMirroring);
-	      this.callView.setButtonActive("screen", e.tag == "screen");
-	      if (e.tag == "screen") {
+	      var enableVideoMirroring = e.tag == "main" || e.mediaRenderer ? Call.Hardware.enableMirroring : false;
+	      var streamData = _objectSpread({
+	        flipVideo: enableVideoMirroring
+	      }, e);
+	      this.callView.setLocalStream(streamData);
+	      this.callView.setButtonActive("screen", this.currentCall.isScreenSharingStarted());
+	      if (this.currentCall.isScreenSharingStarted()) {
 	        if (!im_lib_utils.Utils.platform.isBitrixDesktop()) {
 	          this.showWebScreenSharePopup();
 	        }
@@ -1692,7 +1693,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (this.callView) {
 	        if ('mediaRenderer' in e) {
 	          if (e.kind === 'video' || e.kind === 'sharing') {
-	            this.callView.setVideoRenderer(e.userId, null);
+	            e.mediaRenderer.stream = null;
+	            this.callView.setVideoRenderer(e.userId, e.mediaRenderer);
 	          }
 	        } else {
 	          this.callView.setUserMedia(e.userId, e.kind, null);
@@ -1722,6 +1724,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.updateCallUser(e.userId, {
 	        talking: false
 	      });
+	    }
+	  }, {
+	    key: "onUserStatsReceived",
+	    value: function onUserStatsReceived(e) {
+	      if (this.callView) {
+	        this.callView.setUserStats(e.userId, e.report);
+	      }
 	    }
 	  }, {
 	    key: "onCallUserScreenState",
@@ -1793,7 +1802,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return;
 	      }
 	      if (!this.isViewerMode()) {
-	        this.callView.unblockButtons(['camera', 'floorRequest', 'screen', 'record']);
+	        this.callView.unblockButtons(['camera', 'floorRequest', 'screen']);
+	      }
+	      if (this.callView.getConnectedUserCount(false)) {
+	        this.callView.unblockButtons(['record']);
 	      }
 	      this.callView.setUiState(Call.View.UiState.Connected);
 	    }

@@ -1,4 +1,4 @@
-import { DialogType } from 'im.v2.const';
+import { ChatType } from 'im.v2.const';
 
 import { GroupChatPromo } from './group-chat';
 import { ConferencePromo } from './conference';
@@ -23,10 +23,10 @@ export const CreateChatPromo = {
 	},
 	computed:
 	{
-		DialogType: () => DialogType,
+		ChatType: () => ChatType,
 	},
 	template: `
-		<GroupChatPromo v-if="chatType === DialogType.chat" @close="$emit('close')" @continue="$emit('continue')" />
-		<ConferencePromo v-else-if="chatType === DialogType.videoconf" @close="$emit('close')" @continue="$emit('continue')" />
+		<GroupChatPromo v-if="chatType === ChatType.chat" @close="$emit('close')" @continue="$emit('continue')" />
+		<ConferencePromo v-else-if="chatType === ChatType.videoconf" @close="$emit('close')" @continue="$emit('continue')" />
 	`,
 };

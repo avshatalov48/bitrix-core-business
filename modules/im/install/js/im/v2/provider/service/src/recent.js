@@ -1,11 +1,14 @@
-import {RestClient} from 'rest.client';
+import { RestClient } from 'rest.client';
 
-import {Messenger} from 'im.public';
-import {Core} from 'im.v2.application.core';
-import {DialogType, RestMethod, UserRole} from 'im.v2.const';
-import {Logger} from 'im.v2.lib.logger';
+import { Messenger } from 'im.public';
+import { Core } from 'im.v2.application.core';
+import { RestMethod } from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
 
-import type {ImModelRecentItem} from 'im.v2.model';
+import { RecentDataExtractor } from './classes/recent-data-extractor';
+
+import type { JsonObject } from 'main.core';
+import type { ImModelRecentItem } from 'im.v2.model';
 
 export class RecentService
 {
@@ -43,17 +46,17 @@ export class RecentService
 		return this.store.getters['recent/getRecentCollection'];
 	}
 
-	loadFirstPage({ignorePreloadedItems = false} = {}): Promise
+	loadFirstPage({ ignorePreloadedItems = false } = {}): Promise
 	{
 		if (this.dataIsPreloaded && !ignorePreloadedItems)
 		{
-			Logger.warn(`Im.RecentList: first page was preloaded`);
+			Logger.warn('Im.RecentList: first page was preloaded');
 
 			return Promise.resolve();
 		}
 		this.isLoading = true;
 
-		return this.requestItems({firstPage: true});
+		return this.requestItems({ firstPage: true });
 	}
 
 	loadNextPage(): Promise
@@ -70,8 +73,8 @@ export class RecentService
 
 	setPreloadedData(params)
 	{
-		Logger.warn(`Im.RecentList: setting preloaded data`, params);
-		const {items, hasMore} = params;
+		Logger.warn('Im.RecentList: setting preloaded data', params);
+		const { items, hasMore } = params;
 
 		this.lastMessageDate = this.getLastMessageDate(items);
 
@@ -87,15 +90,15 @@ export class RecentService
 
 	hideChat(dialogId)
 	{
-		Logger.warn(`Im.RecentList: hide chat`, dialogId);
+		Logger.warn('Im.RecentList: hide chat', dialogId);
 		const recentItem = this.store.getters['recent/get'](dialogId);
 		if (!recentItem)
 		{
-			return false;
+			return;
 		}
 
 		this.store.dispatch('recent/delete', {
-			id: dialogId
+			id: dialogId,
 		});
 
 		const chatIsOpened = this.store.getters['application/isChatOpen'](dialogId);
@@ -104,34 +107,41 @@ export class RecentService
 			Messenger.openChat();
 		}
 
-		this.restClient.callMethod(RestMethod.imRecentHide, {'DIALOG_ID': dialogId}).catch(error => {
+		this.restClient.callMethod(RestMethod.imRecentHide, { DIALOG_ID: dialogId }).catch((error) => {
+			// eslint-disable-next-line no-console
 			console.error('Im.RecentList: hide chat error', error);
 		});
 	}
 	// endregion public
 
-	requestItems({firstPage = false} = {}): Promise
+	requestItems({ firstPage = false } = {}): Promise
 	{
 		const queryParams = this.getQueryParams(firstPage);
 
-		return this.restClient.callMethod(this.getQueryMethod(), queryParams).then((result) => {
-			this.pagesLoaded++;
-			Logger.warn(`Im.RecentList: ${firstPage? 'First' : this.pagesLoaded} page request result`, result.data());
-			const {items, hasMore} = result.data();
+		return this.restClient.callMethod(this.getQueryMethod(), queryParams)
+			.then((result) => {
+				this.pagesLoaded++;
+				Logger.warn(`Im.RecentList: ${firstPage ? 'First' : this.pagesLoaded} page request result`, result.data());
+				const { items, hasMore } = result.data();
 
-			this.lastMessageDate = this.getLastMessageDate(items);
+				this.lastMessageDate = this.getLastMessageDate(items);
 
-			if (!hasMore)
-			{
-				this.hasMoreItemsToLoad = false;
-			}
+				if (!hasMore)
+				{
+					this.hasMoreItemsToLoad = false;
+				}
 
-			return this.updateModels(result.data()).then(() => {
+				return this.updateModels(result.data());
+			})
+			.then(() => {
 				this.isLoading = false;
+
+				return true;
+			})
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('Im.RecentList: page request error', error);
 			});
-		}).catch(error => {
-			console.error('Im.RecentList: page request error', error);
-		});
 	}
 
 	getQueryMethod(): string
@@ -139,149 +149,33 @@ export class RecentService
 		return RestMethod.imRecentList;
 	}
 
-	getQueryParams(firstPage: boolean): Object
+	getQueryParams(firstPage: boolean): JsonObject
 	{
 		return {
-			'SKIP_OPENLINES': 'Y',
-			'LIMIT': this.itemsPerPage,
-			'LAST_MESSAGE_DATE': firstPage? null : this.lastMessageDate,
-			'GET_ORIGINAL_TEXT': 'Y'
+			SKIP_OPENLINES: 'Y',
+			LIMIT: this.itemsPerPage,
+			LAST_MESSAGE_DATE: firstPage ? null : this.lastMessageDate,
+			GET_ORIGINAL_TEXT: 'Y',
 		};
+	}
+
+	getModelSaveMethod(): string
+	{
+		return 'recent/setRecent';
 	}
 
 	updateModels(rawData): Promise
 	{
-		const {users, dialogues, recent} = this.prepareDataForModels(rawData);
+		const extractor = new RecentDataExtractor({ rawData, ...this.getExtractorOptions() });
+		const extractedItems = extractor.getItems();
+		const { users, chats, recentItems } = extractedItems;
+		Logger.warn('RecentService: prepared data for models', extractedItems);
 
 		const usersPromise = this.store.dispatch('users/set', users);
-		if (rawData.botList)
-		{
-			this.store.dispatch('users/setBotList', rawData.botList);
-		}
-		const dialoguesPromise = this.store.dispatch('dialogues/set', dialogues);
-		const recentPromise = this.store.dispatch('recent/setRecent', recent);
+		const dialoguesPromise = this.store.dispatch('chats/set', chats);
+		const recentPromise = this.store.dispatch(this.getModelSaveMethod(), recentItems);
 
 		return Promise.all([usersPromise, dialoguesPromise, recentPromise]);
-	}
-
-	prepareDataForModels({items, birthdayList = []}): {users: Array, dialogues: Array, recent: Array}
-	{
-		const result = {
-			users: [],
-			dialogues: [],
-			recent: []
-		};
-
-		items.forEach(item => {
-			// user
-			if (item.user && item.user.id && !this.isAddedAlready(result, 'users', item.user.id))
-			{
-				result.users.push(item.user);
-			}
-
-			// chat
-			if (item.chat)
-			{
-				result.dialogues.push(this.prepareGroupChat(item));
-
-				if (item.user.id && !this.isAddedAlready(result, 'dialogues', item.user.id))
-				{
-					result.dialogues.push(this.prepareChatForAdditionalUser(item.user));
-				}
-			}
-			else if (item.user.id)
-			{
-				const existingRecentItem = this.store.getters['recent/get'](item.user.id);
-				// we should not update real chat with "default" chat data
-				if (!existingRecentItem || !item.options.default_user_record)
-				{
-					result.dialogues.push(this.prepareChatForUser(item));
-				}
-			}
-
-			// recent
-			result.recent.push({...item});
-		});
-
-		birthdayList.forEach(item => {
-			if (!this.isAddedAlready(result, 'users', item.id))
-			{
-				result.users.push(item);
-				result.dialogues.push(this.prepareChatForAdditionalUser(item));
-			}
-
-			if (!this.isAddedAlready(result, 'recent', item.id))
-			{
-				result.recent.push(this.getBirthdayPlaceholder(item));
-			}
-		});
-
-		Logger.warn(`Im.RecentList: prepared data for models`, result);
-
-		return result;
-	}
-
-	isAddedAlready(result: Object, type: 'users' | 'dialogues' | 'recent', id: string | number): boolean
-	{
-		if (type === 'users')
-		{
-			return result.users.some(user => user.id === id);
-		}
-		else if (type === 'dialogues')
-		{
-			return result.dialogues.some(chat => chat.dialogId === id);
-		}
-		else if (type === 'recent')
-		{
-			return result.recent.some(item => item.id === id);
-		}
-
-		return false;
-	}
-
-	prepareGroupChat(item)
-	{
-		return {
-			...item.chat,
-			counter: item.counter,
-			dialogId: item.id
-		};
-	}
-
-	prepareChatForUser(item)
-	{
-		return {
-			chatId: item.chat_id,
-			avatar: item.user.avatar,
-			color: item.user.color,
-			dialogId: item.id,
-			name: item.user.name,
-			type: DialogType.user,
-			counter: item.counter,
-			role: UserRole.member,
-		};
-	}
-
-	prepareChatForAdditionalUser(user)
-	{
-		return {
-			dialogId: user.id,
-			avatar: user.avatar,
-			color: user.color,
-			name: user.name,
-			type: DialogType.user,
-			role: UserRole.member,
-		};
-	}
-
-	getBirthdayPlaceholder(item: Object): Object
-	{
-		return {
-			id: item.id,
-			options: {
-				birthdayPlaceholder: true
-			}
-		};
 	}
 
 	getLastMessageDate(items: Array): string
@@ -292,5 +186,10 @@ export class RecentService
 		}
 
 		return items.slice(-1)[0].message.date;
+	}
+
+	getExtractorOptions(): { withBirthdays?: boolean }
+	{
+		return {};
 	}
 }

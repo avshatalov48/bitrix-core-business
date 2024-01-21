@@ -271,6 +271,10 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 		$phrases = $this->getRandomPhraseCollection($type);
 		$code = (int)$this->fields['CODE']->getValue() ?: 1;
 		$text = $phrases[$code] ?: $phrases[1];
+		if (is_array($text))
+		{
+			$text = $text[0];
+		}
 		$component = $this->getPublicComponent();
 
 		$link = $component->getRefLink('websites', true, true);
@@ -350,7 +354,7 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 			. '</a>';
 		$hintText = Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_CONTENT_LINK_REPORT_HINT', null, $lang);
 		$hint = '<span class="bitrix-footer-hint" data-hint="' . $hintText . '"></span>';
-		$content .= '<noindex>' . $linkReport . $hint . '</noindex>';
+		$content .= $linkReport . $hint;
 		$content .= '</div>';
 
 		return $content;

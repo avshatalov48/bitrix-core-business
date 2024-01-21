@@ -5,6 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\AI;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Socialnetwork\ComponentHelper;
 
@@ -12,6 +14,8 @@ final class SocialnetworkBlogPost extends CBitrixComponent
 {
 	public function onPrepareComponentParams($params)
 	{
+		$params['CONTEXT'] = (is_string($params['CONTEXT'] ?? null) ? $params['CONTEXT'] : '');
+
 		return $params;
 	}
 
@@ -202,6 +206,37 @@ final class SocialnetworkBlogPost extends CBitrixComponent
 
 	public function executeComponent()
 	{
+		$this->arResult['IS_COPILOT_READONLY_ENABLED'] = $this->isCopilotEnabled();
+		$this->arResult['IS_COPILOT_READONLY_ENABLED_BY_SETTINGS'] = $this->isCopilotEnabledBySettings();
+
 		return $this->__includeComponent();
+	}
+
+	private function isCopilotEnabled(): bool
+	{
+		if (!Loader::includeModule('ai'))
+		{
+			return false;
+		}
+
+		$isCopilotFeatureEnabled = \COption::GetOptionString('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y';
+		if (!$isCopilotFeatureEnabled)
+		{
+			return false;
+		}
+
+		$engine = AI\Engine::getByCategory(AI\Engine::CATEGORIES['text'], AI\Context::getFake());
+
+		return !is_null($engine);
+	}
+
+	private function isCopilotEnabledBySettings(): bool
+	{
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			return false;
+		}
+
+		return \Bitrix\Socialnetwork\Integration\AI\Settings::isTextAvailable();
 	}
 }

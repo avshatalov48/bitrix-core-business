@@ -28,7 +28,7 @@ this.BX = this.BX || {};
       var frames = {};
       var lastFrameTime = 0;
       if (typeof requestAnimationFrame === 'function' && typeof cancelAnimationFrame === 'function') {
-        frame = function frame(cb) {
+        frame = function (cb) {
           var id = Math.random();
           frames[id] = requestAnimationFrame(function onFrame(time) {
             if (lastFrameTime === time || lastFrameTime + TIME - 1 < time) {
@@ -41,16 +41,16 @@ this.BX = this.BX || {};
           });
           return id;
         };
-        cancel = function cancel(id) {
+        cancel = function (id) {
           if (frames[id]) {
             cancelAnimationFrame(frames[id]);
           }
         };
       } else {
-        frame = function frame(cb) {
+        frame = function (cb) {
           return setTimeout(cb, TIME);
         };
-        cancel = function cancel(timer) {
+        cancel = function (timer) {
           return clearTimeout(timer);
         };
       }
@@ -123,7 +123,7 @@ this.BX = this.BX || {};
             worker = new Worker(URL.createObjectURL(new Blob([code])));
           } catch (e) {
             // eslint-disable-next-line no-console
-            (typeof console === "undefined" ? "undefined" : babelHelpers["typeof"](console)) !== undefined && typeof console.warn === 'function' ? console.warn('рџЋЉ Count not load worker', e) : null;
+            typeof console !== undefined && typeof console.warn === 'function' ? console.warn('рџЋЉ Count not load worker', e) : null;
             return null;
           }
           decorate(worker);
@@ -296,13 +296,13 @@ this.BX = this.BX || {};
         destroy = onDone;
       });
       return {
-        addFettis: function addFettis(fettis) {
+        addFettis: function (fettis) {
           animatingFettis = animatingFettis.concat(fettis);
           return prom;
         },
         canvas: canvas,
         promise: prom,
-        reset: function reset() {
+        reset: function () {
           if (animationFrame) {
             raf.cancel(animationFrame);
           }
@@ -395,7 +395,7 @@ this.BX = this.BX || {};
           if (worker) {
             // TODO this really shouldn't be immediate, because it is expensive
             var obj = {
-              getBoundingClientRect: function getBoundingClientRect() {
+              getBoundingClientRect: function () {
                 if (!isLibCanvas) {
                   return canvas.getBoundingClientRect();
                 }
@@ -464,11 +464,9 @@ this.BX = this.BX || {};
   var confetti = module$1.exports;
   var create = module$1.exports.create;
 
-  var Confetti = function Confetti() {
-    babelHelpers.classCallCheck(this, Confetti);
-  };
-  babelHelpers.defineProperty(Confetti, "fire", confetti);
-  babelHelpers.defineProperty(Confetti, "create", confetti.create);
+  class Confetti {}
+  Confetti.fire = confetti;
+  Confetti.create = confetti.create;
 
   exports.Confetti = Confetti;
 

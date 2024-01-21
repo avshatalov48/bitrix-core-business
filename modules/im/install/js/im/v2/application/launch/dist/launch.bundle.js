@@ -5,29 +5,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,im_v2_lib_logger) {
 	'use strict';
 
-	const ApplicationLauncher = function (app, params = {}) {
+	const ApplicationLauncher = (app, params = {}) => {
 	  var _BX, _BX$Runtime;
-	  let application = '';
-	  let name = '';
-	  if (typeof app === 'object') {
-	    name = app.name.toString();
-	    application = app.application.toString();
-	  } else {
-	    name = app.toString();
-	    application = app;
-	  }
+	  let application = app;
+	  const name = app.toString();
 	  application = application.slice(0, 1).toUpperCase() + application.slice(1);
 	  if (application === 'Launch' || application === 'Core' || application.endsWith('Application')) {
 	    im_v2_lib_logger.Logger.error('BX.Messenger.Application.Launch: specified name is forbidden.');
 	    return Promise.reject();
 	  }
-	  const launch = function () {
+	  const launch = () => {
 	    try {
 	      BX.Messenger.v2.Application[name] = new BX.Messenger.v2.Application[`${application}Application`](params);
 	      return BX.Messenger.v2.Application[name].ready();
 	    } catch (error) {
-	      im_v2_lib_logger.Logger.error(`BX.Messenger.Application.Launch: application "${application}" is not initialized.`, error);
-	      return false;
+	      const errorMessage = `BX.Messenger.Application.Launch: application "${application}" is not initialized.`;
+	      im_v2_lib_logger.Logger.error(errorMessage, error);
+	      return Promise.reject(errorMessage);
 	    }
 	  };
 	  if (!BX.Messenger.v2.Application[`${application}Application`] && (_BX = BX) != null && (_BX$Runtime = _BX.Runtime) != null && _BX$Runtime.loadExtension) {

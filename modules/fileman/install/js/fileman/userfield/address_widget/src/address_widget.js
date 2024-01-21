@@ -1,8 +1,9 @@
-import {Reflection, Type} from "main.core";
-import {Address as AddressEntity} from "location.core";
+import { Address as AddressEntity } from 'location.core';
+import { Reflection, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Edit } from './view/edit';
 
-import {View} from './view/view';
-import {Edit} from './view/edit';
+import { View } from './view/view';
 
 class AddressField
 {
@@ -56,6 +57,8 @@ class AddressField
 
 		const addressField = new AddressField(addressFieldParams);
 		addressField.layout();
+
+		EventEmitter.emit(this, 'BX.Fileman.UserField.AddressField:onInitiated', addressFieldParams);
 	}
 
 	constructor(params: Object)

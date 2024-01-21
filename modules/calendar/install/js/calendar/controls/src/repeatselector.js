@@ -23,6 +23,7 @@ export class RepeatSelector
 			count: formElements['EVENT_RRULE[COUNT]'],
 			until: formElements['EVENT_RRULE[UNTIL]'],
 		};
+		this.viewMode = false;
 
 		this.create();
 	}
@@ -74,6 +75,11 @@ export class RepeatSelector
 
 	setValue(rrule = {})
 	{
+		if (Type.isNil(rrule))
+		{
+			rrule = {};
+		}
+
 		this.changeType(rrule.FREQ);
 		this.DOM.interval.value = rrule.INTERVAL || 1;
 		if (rrule.COUNT)

@@ -1,9 +1,12 @@
+/* eslint-disable */
+
 BX.namespace("BX.UI");
 
 if(typeof BX.UI.EntityUserFieldType === "undefined")
 {
 	BX.UI.EntityUserFieldType =
 	{
+		address: "address",
 		string: "string",
 		integer: "integer",
 		double: "double",
@@ -13,6 +16,8 @@ if(typeof BX.UI.EntityUserFieldType === "undefined")
 		datetime: "datetime",
 		enumeration: "enumeration",
 		employee: "employee",
+		iblockElement: "iblock_element",
+		iblockSection: "iblock_section",
 		crm: "crm",
 		crmStatus: "crm_status",
 		file: "file",
@@ -556,6 +561,8 @@ if(typeof BX.UI.EntityUserFieldLayoutLoader === "undefined")
 			this._mode = BX.prop.getInteger(this._settings, "mode", BX.UI.EntityEditorMode.view);
 			this._enableBatchMode = BX.prop.getBoolean(this._settings, "enableBatchMode", true);
 			this._owner = BX.prop.get(this._settings, "owner", null);
+
+			this.eventsNamespace = "BX.UI.EntityUserFieldLayoutLoader";
 		},
 		getId: function()
 		{
@@ -573,20 +580,30 @@ if(typeof BX.UI.EntityUserFieldLayoutLoader === "undefined")
 		{
 			if(!this._enableBatchMode)
 			{
-				this.startRequest();
+				(new Promise((resolve, reject)=> {
+					this.startRequest({resolve, reject});
+				})).then(() => {
+					BX.onCustomEvent(window, this.eventsNamespace + ":onUserFieldDeployed", [ this ]);
+				});
 			}
 		},
-		runBatch: function()
+		runBatch: function(options)
 		{
 			if(this._enableBatchMode)
 			{
-				this.startRequest();
+				return new Promise((resolve, reject)=> {
+					this.startRequest({resolve, reject});
+				});
 			}
 		},
-		startRequest: function()
+
+		startRequest: function(options)
 		{
+			const resolve = options && options.resolve ? options.resolve : (() => {});
+
 			if(this._items.length === 0)
 			{
+				resolve();
 				return;
 			}
 
@@ -601,18 +618,24 @@ if(typeof BX.UI.EntityUserFieldLayoutLoader === "undefined")
 
 			if(fields.length === 0)
 			{
-				return;
+				resolve();
+				return null;
 			}
 
 			var data = { "FIELDS": fields, "FORM": this._id, "CONTEXT": "UI_EDITOR" };
 
+			const onRequestCompleteWrapper = (result) => {
+				this.onRequestComplete(result);
+				resolve();
+			}
+
 			if(this._mode === BX.UI.EntityEditorMode.view)
 			{
-				BX.Main.UF.Manager.getView(data, BX.delegate(this.onRequestComplete, this));
+				BX.Main.UF.Manager.getView(data, onRequestCompleteWrapper);
 			}
 			else
 			{
-				BX.Main.UF.Manager.getEdit(data, BX.delegate(this.onRequestComplete, this));
+				BX.Main.UF.Manager.getEdit(data, onRequestCompleteWrapper);
 			}
 		},
 		onRequestComplete: function(result)
@@ -1025,7 +1048,7 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 				function()
 				{
 					this.onLayoutSuccess();
-
+					this.doFieldValueIcon();
 					this._isLoaded = true;
 					if(this._focusOnLoad === true)
 					{
@@ -1097,6 +1120,39 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 
 		this.addExternalEventsHandlers();
 	};
+
+	BX.UI.EntityEditorUserField.prototype.doFieldValueIcon = function()
+	{
+		if (this.getMode() === BX.UI.EntityEditorMode.edit)
+		{
+			return;
+		}
+
+		const fieldIcon = new BX.UI.EntityFieldIcon({
+			editor: this._editor,
+			mode: this.getMode(),
+			fieldId: this.getId(),
+			fieldType: this.getFieldType(),
+			isFieldMultiple: this.isMultiple(),
+			fieldInnerWrapper: this._innerWrapper,
+			isUserField: true,
+		});
+
+		if (this.getFieldType() === BX.UI.EntityUserFieldType.address)
+		{
+			BX.Event.EventEmitter.unsubscribe(
+				'BX.Fileman.UserField.AddressField:onInitiated',
+				fieldIcon.onAddressFieldInitiated,
+			);
+			BX.Event.EventEmitter.subscribe(
+				'BX.Fileman.UserField.AddressField:onInitiated',
+				fieldIcon.onAddressFieldInitiated,
+			);
+		}
+
+		fieldIcon.renderFieldValueIcon();
+	};
+
 	BX.UI.EntityEditorUserField.prototype.doClearLayout = function(options)
 	{
 		this._innerWrapper = null;
@@ -1884,9 +1940,16 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 		}
 
 		//region Show Always
-		this._showAlwaysCheckBox = this.createOption(
-			{ caption: BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS"), helpCode: "9627471" }
-		);
+		if (this.getEditor().isShowAlwaysFeautureEnabled())
+		{
+			this._showAlwaysCheckBox = this.createOption(
+				{ caption: BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS"), helpCode: "9627471" }
+			);
+		}
+		else
+		{
+			this._showAlwaysCheckBox = { checked: false };
+		}
 		this._showAlwaysCheckBox.checked = isNew
 			? BX.prop.getBoolean(this._settings, "showAlways", true)
 			: this._field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways);

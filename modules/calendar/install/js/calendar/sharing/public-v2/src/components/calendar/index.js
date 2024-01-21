@@ -1,5 +1,5 @@
 import Calendar from './calendar';
 
 export {
-	Calendar
-}
+	Calendar,
+};

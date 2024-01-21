@@ -4,14 +4,16 @@ namespace Bitrix\Calendar\Access\Rule;
 
 use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Access\Model\SectionModel;
+use Bitrix\Calendar\Access\Rule\Traits\SharingTrait;
+use Bitrix\Calendar\Sharing\SharingEventManager;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Rule\Traits\CurrentUserTrait;
-use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 
 class EventEditRule extends \Bitrix\Main\Access\Rule\AbstractRule
 {
 	use CurrentUserTrait;
+	use SharingTrait;
 
 	public function execute(AccessibleItem $item = null, $params = null): bool
 	{
@@ -30,7 +32,13 @@ class EventEditRule extends \Bitrix\Main\Access\Rule\AbstractRule
 			return true;
 		}
 
-		if (isset($params['checkCurrentEvent']) && $params['checkCurrentEvent'] === 'Y')
+		$doCheckCurrentEvent = isset($params['checkCurrentEvent']) && $params['checkCurrentEvent'] === 'Y';
+		$isSharingEventLinkOwner =
+			in_array($item->getEventType(), SharingEventManager::getSharingEventTypes())
+			&& $this->isEventLinkOwner($item->getParentEventId(), $this->user->getUserId())
+		;
+
+		if ($doCheckCurrentEvent || $isSharingEventLinkOwner)
 		{
 			$section = SectionModel::createFromEventModel($item);
 		}

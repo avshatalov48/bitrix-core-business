@@ -210,17 +210,9 @@ class ViewedService
 		MessageViewedTable::deleteByFilter(['=MESSAGE_ID' => $messageIds]); //todo add index
 	}
 
-	public function getLastMessageIdInChat(int $chatId): ?int
+	public function deleteByChatId(int $chatId): void
 	{
-		$result = MessageTable::query()
-			->setSelect(['ID'])
-			->where('CHAT_ID', $chatId)
-			->setOrder(['DATE_CREATE' => 'DESC'])
-			->setLimit(1)
-			->fetch()
-		;
-
-		return $result ? (int)$result['ID'] : null;
+		MessageViewedTable::deleteByFilter(['=CHAT_ID' => $chatId, '=USER_ID' => $this->getContext()->getUserId()]);
 	}
 
 	private function prepareInsertFields(MessageCollection $messages): array

@@ -1,6 +1,9 @@
-import {Dom, Loc} from 'main.core';
+import {Loc, Tag} from 'main.core';
 import { EntryManager } from 'calendar.entry';
 import { EventEmitter, BaseEvent} from 'main.core.events';
+import { Button, ButtonColor, ButtonSize } from "ui.buttons";
+import { Popup } from 'main.popup';
+
 
 export class ConfirmStatusDialog extends EventEmitter
 {
@@ -15,62 +18,72 @@ export class ConfirmStatusDialog extends EventEmitter
 
 	show()
 	{
-		let content = Dom.create('DIV');
-		this.dialog = new BX.PopupWindow(this.id, null, {
-			overlay: {opacity: 10},
-			autoHide: true,
-			closeByEsc : true,
-			zIndex: this.zIndex,
-			offsetLeft: 0,
-			offsetTop: 0,
-			draggable: true,
-			bindOnResize: false,
+		this.dialog = new Popup({
+			id: this.id,
 			titleBar: Loc.getMessage('EC_DECLINE_REC_EVENT'),
-			closeIcon: { right : "12px", top : "10px"},
-			className: 'bxc-popup-window',
-			buttons: [
-				new BX.PopupWindowButtonLink({
-					text: Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
-					className: "popup-window-button-link-cancel",
-					events: {click : this.close.bind(this)}
-				})
-			],
-			content: content,
-			cacheable: false
+			content: this.getContent(),
+			className: 'calendar__confirm-dialog',
+			lightShadow: true,
+			maxWidth: 700,
+			minHeight: 120,
+			autoHide: true,
+			closeByEsc: true,
+			draggable: true,
+			closeIcon: true,
+			animation: 'fading-slide',
+			contentBackground: "#fff",
+			overlay: { opacity: 15 },
+			cacheable: false,
 		});
 
-		content.appendChild(new BX.PopupWindowButton({
+		this.dialog.show();
+	}
+
+	getContent()
+	{
+		const thisEventButton = new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.LIGHT_BORDER,
 			text: Loc.getMessage('EC_DECLINE_ONLY_THIS'),
 			events: {
-				click : () => {
+				click: () => {
 					this.onDeclineHandler();
 					this.emit('onDecline', new BaseEvent({data: {recursionMode: 'this'}}));
-				}
-			}
-		}).buttonNode);
+				},
+			},
+		});
 
-		content.appendChild(new BX.PopupWindowButton({
+		const nextEventButton = new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.LIGHT_BORDER,
 			text: Loc.getMessage('EC_DECLINE_NEXT'),
+			events: {
+				click: () => {
+					this.onDeclineHandler();
+					this.emit('onDecline', new BaseEvent({data: {recursionMode: 'next'}}));
+				},
+			},
+		});
+
+		const allEventButton = new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.LIGHT_BORDER,
+			text: Loc.getMessage('EC_DECLINE_ALL'),
 			events: {
 				click : () => {
 					this.onDeclineHandler();
-					this.emit('onDecline', new BaseEvent({data: {recursionMode: 'next'}}));
-				}
-			}
-		}).buttonNode);
+					this.emit('onDecline', new BaseEvent({data: {recursionMode: 'all'}}));
+				},
+			},
+		});
 
-		content.appendChild(new BX.PopupWindowButton(
-			{
-				text: Loc.getMessage('EC_DECLINE_ALL'),
-				events: {
-					click : () => {
-						this.onDeclineHandler();
-						this.emit('onDecline', new BaseEvent({data: {recursionMode: 'all'}}));
-					}
-				}
-			}).buttonNode);
-
-		this.dialog.show();
+		return Tag.render`
+			<div class="calendar__confirm-dialog-content">
+				${thisEventButton.render()}
+				${nextEventButton.render()}
+				${allEventButton.render()}
+			</div>
+		`;
 	}
 
 	close()
@@ -85,8 +98,10 @@ export class ConfirmStatusDialog extends EventEmitter
 	{
 		this.close();
 		const compactForm = EntryManager.getCompactViewForm();
-		if (compactForm
-			&& compactForm.isShown())
+		if (
+			compactForm
+			&& compactForm.isShown()
+		)
 		{
 			compactForm.close();
 		}

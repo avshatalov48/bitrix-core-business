@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Sync\Office365;
 
+use Bitrix\Calendar\Sync\Exceptions\PreconditionFailedException;
 use Bitrix\Calendar\Sync\Office365\Util\ObjectStatusTrait;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
@@ -137,6 +138,13 @@ class ApiClient
 							throw new GoneException(
 								$error['error']['code'],
 								410,
+								__FILE__,
+								__LINE__
+							);
+						case 412:
+							throw new PreconditionFailedException(
+								$error['error']['code'],
+								412,
 								__FILE__,
 								__LINE__
 							);

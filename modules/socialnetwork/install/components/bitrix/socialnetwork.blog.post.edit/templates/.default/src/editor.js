@@ -40,12 +40,6 @@ export default class PostFormEditor extends EventEmitter
 		this.disabled = false;
 		this.formId = formID;
 
-		this.isAITextAvailable = params.isAITextAvailable === 'Y';
-		this.AITextContextId = params.AITextContextId;
-
-		this.isAIImageAvailable = params.isAIImageAvailable === 'Y';
-		this.AIImageContextId = params.AIImageContextId;
-
 		this.formParams = {
 			editorID: params.editorID,
 			showTitle: !!params.showTitle,
@@ -66,15 +60,6 @@ export default class PostFormEditor extends EventEmitter
 		{
 			this.onHandlerInited(this.formParams.handler, formID);
 		}
-
-		EventEmitter.subscribe('OnEditorInitedBefore', (event: BaseEvent) => {
-			const [editor] = event.getData();
-
-			if (editor.id === this.formParams.editorID)
-			{
-				this.addAiButtons(editor);
-			}
-		});
 
 		EventEmitter.subscribe('OnEditorInitedAfter', (event: BaseEvent) => {
 			const [ editor ] = event.getData();
@@ -702,94 +687,6 @@ export default class PostFormEditor extends EventEmitter
 		else
 		{
 			setTimeout(this.reinit, 50);
-		}
-	}
-
-	addAiButtons(editor)
-	{
-		if (this.isAIImageAvailable)
-		{
-			editor.AddButton({
-				id: 'ai-image-generator',
-				name: Loc.getMessage('BLOG_POST_EDIT_EDITOR_BTN_AI_IMAGE'),
-				iconClassName: 'feed-add-post-editor-btn-ai-image',
-				toolbarSort: 351,
-				disabledForTextarea: false,
-				handler: () => {
-					const aiTextPicker = new Picker({
-						moduleId: 'socialnetwork',
-						contextId: this.AIImageContextId,
-						analyticLabel: 'sonet_ai_image',
-						history: true,
-						onSelect: (imageUrl) => {
-							// eslint-disable-next-line promise/catch-or-return
-							ajax.runAction('socialnetwork.api.livefeed.blogpost.uploadAIImage', {
-								data: {
-									imageUrl: imageUrl,
-								},
-							}).then((response) => {
-								const userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(this.formId);
-								const uploader: Uploader = userFieldControl.getUploader();
-								uploader.addFile(response.data.fileId, {
-									events: {
-										[FileEvent.LOAD_COMPLETE]: (event) => {
-											const file = event.getTarget();
-											const item = userFieldControl.getItem(file.getId());
-											userFieldControl.getMainPostForm().getParser().insertFile(item);
-											userFieldControl.showUploaderPanel();
-										},
-									},
-								});
-							});
-						},
-						onTariffRestriction: () => {
-							// BX.UI.InfoHelper.show(`limit_sonet_ai_image`);
-						},
-					});
-					aiTextPicker.setLangSpace(Picker.LangSpace.image);
-					aiTextPicker.image();
-				},
-			});
-		}
-
-		if (this.isAITextAvailable)
-		{
-			editor.AddButton({
-				id: 'ai-text-generator',
-				name: Loc.getMessage('BLOG_POST_EDIT_EDITOR_BTN_AI_TEXT'),
-				iconClassName: 'feed-add-post-editor-btn-ai-text',
-				toolbarSort: 352,
-				disabledForTextarea: false,
-				handler: () => {
-					const aiTextPicker = new Picker({
-						moduleId: 'socialnetwork',
-						contextId: this.AITextContextId,
-						analyticLabel: 'sonet_ai_text',
-						history: true,
-						onSelect: (info) => {
-							const text = info.data;
-
-							if (editor.bbCode && editor.synchro.IsFocusedOnTextarea())
-							{
-								editor.textareaView.WrapWith(false, false, text);
-
-								editor.textareaView.Focus();
-							}
-							else
-							{
-								editor.action.actions.insertHTML.exec('insertHTML', text);
-
-								editor.Focus();
-							}
-						},
-						onTariffRestriction: () => {
-							// BX.UI.InfoHelper.show(`limit_sonet_ai_text`);
-						},
-					});
-					aiTextPicker.setLangSpace(Picker.LangSpace.text);
-					aiTextPicker.text();
-				},
-			});
 		}
 	}
 }

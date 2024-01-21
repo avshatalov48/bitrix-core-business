@@ -3,5 +3,5 @@ import AccessDenied from './access-denied';
 
 export {
 	EmptyState,
-	AccessDenied
-}
+	AccessDenied,
+};

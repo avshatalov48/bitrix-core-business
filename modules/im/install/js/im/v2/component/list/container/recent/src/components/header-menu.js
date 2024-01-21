@@ -26,8 +26,8 @@ export const HeaderMenu = {
 		},
 		unreadCounter(): number
 		{
-			return this.$store.getters['recent/getTotalChatCounter'];
-		}
+			return this.$store.getters['counters/getTotalChatCounter'];
+		},
 	},
 	methods:
 	{
@@ -43,7 +43,7 @@ export const HeaderMenu = {
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
-		}
+		},
 	},
 	template: `
 		<div @click="onIconClick" class="bx-im-list-container-recent__header-menu_icon" :class="{'--active': showPopup}" ref="icon"></div>
@@ -53,11 +53,13 @@ export const HeaderMenu = {
 				@click="onReadAllClick"
 			/>
 			<MenuItem
+				v-if="false"
 				:title="loc('IM_RECENT_HEADER_MENU_SHOW_UNREAD_ONLY')"
 				:counter="unreadCounter"
 				:disabled="true"
 			/>
 			<MenuItem
+				v-if="false"
 				:title="loc('IM_RECENT_HEADER_MENU_CHAT_GROUPS_TITLE')"
 				:subtitle="loc('IM_RECENT_HEADER_MENU_CHAT_GROUPS_SUBTITLE')"
 				:disabled="true"

@@ -9,6 +9,7 @@ use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Exceptions\GoneException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
+use Bitrix\Calendar\Sync\Exceptions\PreconditionFailedException;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Internals\ContextInterface;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
@@ -268,7 +269,7 @@ class ApiService
 					})
 				);
 			}
-			catch (NotFoundException $exception)
+			catch (NotFoundException|PreconditionFailedException $exception)
 			{
 				return [];
 			}

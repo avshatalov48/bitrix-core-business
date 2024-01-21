@@ -17,6 +17,7 @@ const RequestPermissions = {
 	created()
 	{
 		EventEmitter.subscribe(EventType.conference.requestPermissions, this.onRequestPermissions);
+		this.getApplication().callView.blockButtons(['microphone', 'camera']);
 	},
 	beforeDestroy()
 	{
@@ -38,9 +39,16 @@ const RequestPermissions = {
 		requestPermissions()
 		{
 			this.getApplication().initHardware().then(() => {
-				return navigator.mediaDevices.getUserMedia({audio: true, video: true});
+				return navigator.mediaDevices.getUserMedia({
+					audio: true,
+					video: {
+						width: { ideal: 1280 },
+						height: { ideal: 720 },
+					}
+				});
 			}).then(() => {
 				this.setPermissionsRequestedFlag();
+				this.getApplication().callView.unblockButtons(['microphone', 'camera']);
 			}).catch((error) => {
 				if (error.name === NOT_ALLOWED_ERROR_CODE)
 				{
@@ -64,6 +72,8 @@ const RequestPermissions = {
 				}
 
 				this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+			}).finally(() => {
+				BX.Call.Hardware.getCurrentDeviceList();
 			});
 		},
 		setPermissionsRequestedFlag()

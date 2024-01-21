@@ -3,7 +3,6 @@ import { Event } from 'main.core';
 
 import { RecentList } from 'im.v2.component.list.element-list.recent';
 import { ChatSearchInput } from 'im.v2.component.search.chat-search-input';
-import { SearchResult } from 'im.v2.component.search.search-result';
 import { SearchExperimental } from 'im.v2.component.search.search-experimental';
 import { Layout, EventType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
@@ -14,17 +13,20 @@ import { CreateChatMenu } from './components/create-chat-menu/create-chat-menu';
 
 import './css/recent-container.css';
 
+import type { JsonObject } from 'main.core';
+
 // @vue/component
 export const RecentListContainer = {
 	name: 'RecentListContainer',
-	components: { HeaderMenu, CreateChatMenu, ChatSearchInput, SearchResult, RecentList, SearchExperimental },
+	components: { HeaderMenu, CreateChatMenu, ChatSearchInput, RecentList, SearchExperimental },
 	emits: ['selectEntity'],
-	data()
+	data(): JsonObject
 	{
 		return {
 			searchMode: false,
 			unreadOnlyMode: false,
 			searchQuery: '',
+			isSearchLoading: false,
 		};
 	},
 	computed:
@@ -71,6 +73,10 @@ export const RecentListContainer = {
 				EventEmitter.emit(EventType.search.close);
 			}
 		},
+		onLoading(value: boolean)
+		{
+			this.isSearchLoading = value;
+		},
 	},
 	template: `
 				<div class="bx-im-list-container-recent__scope bx-im-list-container-recent__container" ref="recent-container">
@@ -79,6 +85,7 @@ export const RecentListContainer = {
 						<div class="bx-im-list-container-recent__search-input_container">
 							<ChatSearchInput 
 								:searchMode="searchMode" 
+								:isLoading="isSearchLoading"
 								@openSearch="onOpenSearch"
 								@closeSearch="onCloseSearch"
 								@updateSearch="onUpdateSearch"
@@ -90,9 +97,11 @@ export const RecentListContainer = {
 						<div class="bx-im-list-container-recent__elements">
 							<SearchExperimental 
 								v-show="searchMode" 
-								:searchMode="searchMode" 
+								:searchMode="searchMode"
+								:withMyNotes="true"
 								:searchQuery="searchQuery" 
 								:searchConfig="{}"
+								@loading="onLoading"
 							/>
 							<RecentList v-show="!searchMode && !unreadOnlyMode" @chatClick="onChatClick" key="recent" />
 		<!--					<RecentList-->

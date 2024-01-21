@@ -10,6 +10,8 @@ use Bitrix\Main\Engine\Response\Converter;
 
 class ReactionMessage implements RestConvertible, PopupDataAggregatable
 {
+	public const COUNT_DISPLAYED_USERS = 5;
+
 	private int $messageId;
 	/**
 	 * @var array<string,int> [REACTION => COUNTER, ...]
@@ -23,6 +25,8 @@ class ReactionMessage implements RestConvertible, PopupDataAggregatable
 	 * @var string[]
 	 */
 	private array $ownReactions = [];
+	private bool $haveDisplayedUsers = false;
+	private bool $haveUndisplayedUsers = false;
 
 	public function __construct(int $messageId)
 	{
@@ -37,6 +41,15 @@ class ReactionMessage implements RestConvertible, PopupDataAggregatable
 	public function addCounter(string $reaction, int $counter): self
 	{
 		$this->reactionCounters[$reaction] = $counter;
+
+		if ($counter <= self::COUNT_DISPLAYED_USERS)
+		{
+			$this->haveDisplayedUsers = true;
+		}
+		else
+		{
+			$this->haveUndisplayedUsers = true;
+		}
 
 		return $this;
 	}
@@ -60,22 +73,19 @@ class ReactionMessage implements RestConvertible, PopupDataAggregatable
 		return $this->messageId;
 	}
 
+	public function needToFillOwnReactions(): bool
+	{
+		return empty($this->ownReactions) && $this->haveUndisplayedUsers;
+	}
+
 	public function haveReactions(): bool
 	{
 		return !empty($this->reactionCounters);
 	}
 
-	public function haveDisplayedUsers(int $countDisplayedUsers): bool
+	public function haveDisplayedUsers(): bool
 	{
-		foreach ($this->reactionCounters as $reactionCounter)
-		{
-			if ($reactionCounter <= $countDisplayedUsers)
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return $this->haveDisplayedUsers;
 	}
 
 	public function toRestFormat(array $option = []): array

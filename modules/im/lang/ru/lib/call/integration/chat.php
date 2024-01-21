@@ -9,3 +9,5 @@ $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_BUSY_M"] = "#NAME# занят друг
 $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_BUSY_F"] = "#NAME# занята другим звонком";
 $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_DECLINED_M"] = "#NAME# отклонил звонок";
 $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_DECLINED_F"] = "#NAME# отклонила звонок";
+$MESS["IM_BITRIX_CALL_INVITE_TEMP"] = "[b]Начат видеозвонок[/b][br]#LINK#";
+$MESS["IM_BITRIX_CALL_INVITE_BUTTON_TEMP"] = "Подключиться к звонку";

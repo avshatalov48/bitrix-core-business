@@ -7,6 +7,14 @@ namespace Bitrix\Im\V2;
  */
 class Registry extends \ArrayObject
 {
+	public function unsetByKeys(array $keys): void
+	{
+		foreach ($keys as $key)
+		{
+			unset($this[$key]);
+		}
+	}
+
 	/**
 	 * @param callable $predicate
 	 * @return $this

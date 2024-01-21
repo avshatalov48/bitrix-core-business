@@ -7,10 +7,6 @@ use Bitrix\Main\ORM\Fields\ScalarField;
 
 abstract class MysqlCommonConnection extends Connection
 {
-	const INDEX_UNIQUE = 'UNIQUE';
-	const INDEX_FULLTEXT = 'FULLTEXT';
-	const INDEX_SPATIAL = 'SPATIAL';
-
 	protected $engine = "";
 	protected int $transactionLevel = 0;
 

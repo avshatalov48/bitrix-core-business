@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TR_FOLDER_TITLE"] = "Нажмите для перехода в папку";
 $MESS["TR_FILE_TITLE"] = "Нажмите для редактирования файла";
 $MESS["TR_UP_TITLE"] = "Нажмите для перехода на уровень выше";
@@ -29,4 +29,3 @@ $MESS["TR_INDEX_ERROR_TRANSLATION_FILE_NOT_FOUND"] = "Файл перевода 
 $MESS["TR_INDEX_TRANSLATION_FILE_OK"] = "Файл перевода присутствует";
 $MESS["TR_INDEX_ERROR_NOINDEX"] = "Для текущей папки индекс языковых файлов не найден.";
 $MESS["TR_INDEX_START_INDEXING"] = "Выполнить индексацию.";
-?>

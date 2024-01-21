@@ -5,8 +5,9 @@ export type Notification = {
 	title: string,
 	text: string,
 	params: {
-		CAN_ANSWER: 'Y' | 'N',
-		ATTACH: Object[]
+		canAnswer: 'Y' | 'N',
+		attach: Object[],
+		users: number[],
 	},
 	replaces: Object[],
 	notifyButtons: NotificationButton[],

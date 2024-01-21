@@ -3,6 +3,7 @@
 namespace Bitrix\Main\UserField\Types;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\BooleanField;
 use CUserTypeManager;
 
 Loc::loadMessages(__FILE__);
@@ -181,5 +182,15 @@ class BooleanType extends BaseType
 	public static function checkFields(array $userField, $value): array
 	{
 		return [];
+	}
+
+	public static function getEntityField($fieldName, $fieldParameters)
+	{
+		$fieldParameters['values'] = [0, 1];
+
+		$field = (new BooleanField($fieldName, $fieldParameters))
+			->configureNullable();
+
+		return $field;
 	}
 }

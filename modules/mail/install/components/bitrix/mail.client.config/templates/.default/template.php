@@ -41,8 +41,18 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 						<? else: ?>
 							onclick="showLicenseInfoPopup()"
 						<? endif ?>>
-						<? if ($settings['icon']): ?>
-							<img class="mail-add-img" src="<?=$settings['icon'] ?>" alt="<?=htmlspecialcharsbx($settings['name']) ?>">
+						<?php if ($settings['icon']): ?>
+							<div class="mail-add-image-block">
+								<div class="mail-add-image-container">
+									<img class="mail-add-img" src="<?= $settings['icon'] ?>" alt="<?= htmlspecialcharsbx($settings['name']) ?>">
+								</div>
+							</div>
+							<div class="mail-add-text-block">
+								<span class="mail-add-text mail-add-text-title"><?= htmlspecialcharsbx($settings['serviceName'] ?? ucfirst($settings['name'])) ?></span>
+								<?php if ($settings['name'] === 'other'): ?>
+									<span class="mail-add-text mail-add-text-subtitle">IMAP + SMTP</span>
+								<?php endif; ?>
+							</div>
 						<? else: ?>
 							<span class="mail-add-text <? if (mb_strlen($settings['name']) > 10): ?> mail-add-text-small"<? endif ?>">
 								&nbsp;<?=htmlspecialcharsbx($settings['name']) ?>&nbsp;

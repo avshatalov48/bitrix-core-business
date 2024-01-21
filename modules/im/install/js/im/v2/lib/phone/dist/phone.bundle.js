@@ -10,6 +10,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _settings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settings");
 	var _init = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("init");
 	var _getController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getController");
+	var _onCallCreated = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onCallCreated");
+	var _onCallDestroyed = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onCallDestroyed");
 	var _onDeviceCallStarted = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDeviceCallStarted");
 	var _onCallConnected = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onCallConnected");
 	var _getCurrentUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCurrentUser");
@@ -45,6 +47,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Object.defineProperty(this, _onDeviceCallStarted, {
 	      value: _onDeviceCallStarted2
 	    });
+	    Object.defineProperty(this, _onCallDestroyed, {
+	      value: _onCallDestroyed2
+	    });
+	    Object.defineProperty(this, _onCallCreated, {
+	      value: _onCallCreated2
+	    });
 	    Object.defineProperty(this, _getController, {
 	      value: _getController2
 	    });
@@ -77,7 +85,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller]) == null ? void 0 : _babelHelpers$classPr2.closeKeyPad();
 	  }
 	  async startCall(number, rawParams = {}) {
-	    var _params$LINE_ID;
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings].canPerformCallsByLimits) {
 	      void babelHelpers.classPrivateFieldLooseBase(this, _showCallLimitSlider)[_showCallLimitSlider]();
 	      return;
@@ -89,11 +96,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (main_core.Type.isStringFilled(params)) {
 	      params = babelHelpers.classPrivateFieldLooseBase(this, _parseStartCallParams)[_parseStartCallParams](params);
 	    }
-	    await babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].loadPhoneLines();
-	    const lineId = (_params$LINE_ID = params.LINE_ID) != null ? _params$LINE_ID : babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].defaultLineId;
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].isRestLine(lineId)) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].startCallViaRestApp(number, lineId, params);
-	    }
+
+	    // await this.#controller.loadPhoneLines();
+	    //
+	    // const lineId = params.LINE_ID ?? this.#controller.defaultLineId;
+	    // if (this.#controller.isRestLine(lineId))
+	    // {
+	    // 	this.#controller.startCallViaRestApp(number, lineId, params);
+	    // }
+
 	    this.closeKeyPad();
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].phoneCall(number, params);
 	  }
@@ -110,7 +121,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _init2(phoneSettings) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings] = phoneSettings;
-	  if (!this.canCall()) {
+	  if (!main_core.Reflection.getClass('BX.Voximplant.PhoneCallsController')) {
 	    return;
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller] = babelHelpers.classPrivateFieldLooseBase(this, _getController)[_getController](phoneSettings);
@@ -132,18 +143,36 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      hasActiveCall: () => im_v2_lib_call.CallManager.getInstance().hasCurrentCall(),
 	      repeatSound: (melodyName, time, force) => soundManager.playLoop(melodyName, time, force),
 	      stopRepeatSound: melodyName => soundManager.stop(melodyName),
-	      playSound: (melodyName, force) => soundManager.playOnce(melodyName, force),
+	      playSound: (melodyName, force) => {
+	        if (force) {
+	          soundManager.forcePlayOnce(melodyName);
+	          return;
+	        }
+	        soundManager.playOnce(melodyName);
+	      },
 	      setLocalConfig: () => {},
 	      getLocalConfig: () => {},
 	      getAvatar: userId => babelHelpers.classPrivateFieldLooseBase(this, _getUserAvatar)[_getUserAvatar](userId)
 	    },
 	    events: {
-	      // [PhoneCallsController.Events.onCallCreated]: () => this.#onCallCreated(),
+	      [voximplant_phoneCalls.PhoneCallsController.Events.onCallCreated]: () => babelHelpers.classPrivateFieldLooseBase(this, _onCallCreated)[_onCallCreated](),
 	      [voximplant_phoneCalls.PhoneCallsController.Events.onCallConnected]: event => babelHelpers.classPrivateFieldLooseBase(this, _onCallConnected)[_onCallConnected](event),
-	      // [PhoneCallsController.Events.onCallDestroyed]: () => this.#onCallDestroyed(),
+	      [voximplant_phoneCalls.PhoneCallsController.Events.onCallDestroyed]: () => babelHelpers.classPrivateFieldLooseBase(this, _onCallDestroyed)[_onCallDestroyed](),
 	      [voximplant_phoneCalls.PhoneCallsController.Events.onDeviceCallStarted]: () => babelHelpers.classPrivateFieldLooseBase(this, _onDeviceCallStarted)[_onDeviceCallStarted]()
 	    }
 	  });
+	}
+	function _onCallCreated2() {
+	  if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	    return;
+	  }
+	  im_v2_lib_desktopApi.DesktopApi.stopDiskSync();
+	}
+	function _onCallDestroyed2() {
+	  if (!im_v2_lib_desktopApi.DesktopApi.isDesktop()) {
+	    return;
+	  }
+	  im_v2_lib_desktopApi.DesktopApi.startDiskSync();
 	}
 	function _onDeviceCallStarted2() {
 	  var _DesktopApi$findWindo;

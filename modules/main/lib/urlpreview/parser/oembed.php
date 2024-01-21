@@ -71,32 +71,32 @@ class Oembed extends Parser
 				$parsedMetadata = Encoding::convertEncoding($parsedMetadata, $this->metadataEncoding, $document->getEncoding());
 			}
 
-			if($document->getTitle() == '' && $parsedMetadata['title'] != '')
+			if($document->getTitle() == '' && !empty($parsedMetadata['title']))
 			{
 				$document->setTitle($parsedMetadata['title']);
 			}
 
-			if($document->getImage() == '' && $parsedMetadata['thumbnail_url'] != '')
+			if($document->getImage() == '' && !empty($parsedMetadata['thumbnail_url']))
 			{
 				$document->setImage($parsedMetadata['thumbnail_url']);
 			}
 
-			if($document->getEmdbed() == '' && $parsedMetadata['html'] != '')
+			if($document->getEmdbed() == '' && !empty($parsedMetadata['html']))
 			{
 				$document->setEmbed($parsedMetadata['html']);
 			}
 
-			if($document->getExtraField('PROVIDER_NAME') == '' && $parsedMetadata['provider_name'] != '')
+			if($document->getExtraField('PROVIDER_NAME') == '' && !empty($parsedMetadata['provider_name']))
 			{
 				$document->setExtraField('PROVIDER_NAME', $parsedMetadata['provider_name']);
 			}
 
-			if($document->getExtraField('VIDEO_WIDTH') == '' && $parsedMetadata['width'] != '')
+			if($document->getExtraField('VIDEO_WIDTH') == '' && !empty($parsedMetadata['width']))
 			{
 				$document->setExtraField('VIDEO_WIDTH', $parsedMetadata['width']);
 			}
 
-			if($document->getExtraField('VIDEO_HEIGHT') == '' && $parsedMetadata['height'] != '')
+			if($document->getExtraField('VIDEO_HEIGHT') == '' && !empty($parsedMetadata['height']))
 			{
 				$document->setExtraField('VIDEO_HEIGHT', $parsedMetadata['height']);
 			}
@@ -109,7 +109,7 @@ class Oembed extends Parser
 	 */
 	protected function detectOembedLink(HtmlDocument $document)
 	{
-		preg_match_all('/<link.+?alternate.+?>/', $document->getHtml(), $linkElements);
+		preg_match_all('/<link[^>]*rel\s*=\s*["\']?alternate["\']?[^>]*?>/', $document->getHtml(), $linkElements);
 
 		foreach($linkElements[0] as $linkElement)
 		{

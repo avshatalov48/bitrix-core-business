@@ -14,6 +14,8 @@ class Helper
 	public const DEFAULT_HTTPS_PORT = 443;
 	public const GOOGLE_ACCOUNT_TYPE_CALDAV= 'caldav_google_oauth';
 	public const GOOGLE_ACCOUNT_TYPE_API = 'google_api_oauth';
+
+    public const CONNECTION_NAME = 'google';
 	public const HTTP_SCHEME_DEFAULT = 'https';
 	public const HTTP_SCHEME_SEPARATOR = '://';
 	public const GOOGLE_API_URL = 'www.googleapis.com';
@@ -67,7 +69,8 @@ class Helper
 	public function isMissingRequiredAuthCredential(string $errorText = null): bool
 	{
 		return !empty($errorText)
-			&& preg_match("/^\[401\] Request is missing required authentication credential.[a-z0-9 _]*/i", $errorText)
+			&& (preg_match("/^\[401\] Request is missing required authentication credential.[a-z0-9 _]*/i", $errorText)
+			|| preg_match("/^\[401\] Request had invalid authentication credentials.[a-z0-9 _]*/i", $errorText))
 		;
 	}
 

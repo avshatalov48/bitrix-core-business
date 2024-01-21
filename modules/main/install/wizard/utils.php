@@ -1,8 +1,8 @@
 <?php
 
-function InstallGetMessage($name)
+function InstallGetMessage($name, $aReplace=null)
 {
-	return GetMessage($name);
+	return GetMessage($name, $aReplace);
 }
 
 class BXInstallServices
@@ -373,33 +373,6 @@ class BXInstallServices
 		}
 		closedir($handle);
 		@rmdir($path);
-	}
-
-	public static function DeleteDbFiles($dbType)
-	{
-		if (defined("DEBUG_MODE"))
-			return;
-
-		$path = $_SERVER['DOCUMENT_ROOT']."/bitrix/modules";
-
-		if (!$handle = @opendir($path))
-			return;
-
-		while (($file = readdir($handle)) !== false)
-		{
-			if ($file == "." || $file == "..")
-				continue;
-
-			if (is_dir($path."/".$file))
-			{
-				BXInstallServices::DeleteDirRec($path."/".$file."/".$dbType);
-				BXInstallServices::DeleteDirRec($path."/".$file."/classes/".$dbType);
-				BXInstallServices::DeleteDirRec($path."/".$file."/install/".$dbType);
-				BXInstallServices::DeleteDirRec($path."/".$file."/install/db/".$dbType);
-			}
-		}
-
-		closedir($handle);
 	}
 
 	public static function VersionCompare($strCurver, $strMinver, $strMaxver = "0.0.0")

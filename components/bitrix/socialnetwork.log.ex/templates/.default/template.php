@@ -20,6 +20,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI;
 use Bitrix\Main\Page\Asset;
+use Bitrix\Socialnetwork\Livefeed\Context\Context;
 
 $targetHtml = '';
 $error = false;
@@ -63,7 +64,17 @@ UI\Extension::load([
 	'tasks.comment-action-controller',
 ]);
 
-Asset::getInstance()->setUnique('PAGE', 'live_feed_v2'.($arParams["IS_CRM"] !== "Y" ? "" : "_crm"));
+$assetsId = 'live_feed_v2';
+if ($arParams['IS_CRM'] === 'Y')
+{
+	$assetsId = 'live_feed_v2_crm';
+}
+if ($arParams['CONTEXT'] === Context::SPACES)
+{
+	$assetsId = 'live_feed_v2_spaces';
+}
+
+Asset::getInstance()->setUnique('PAGE', $assetsId);
 Asset::getInstance()->addJs("/bitrix/js/main/rating_like.js");
 
 if (
@@ -165,8 +176,12 @@ if (
 		[ "HIDE_ICONS" => "Y" ]
 	);
 
-	require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/top_forms.php");
-	require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/filter_area.php");
+
+	if ($arParams["CONTEXT"] !== Context::SPACES)
+	{
+		require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/top_forms.php");
+		require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/filter_area.php");
+	}
 
 	if (defined("BITRIX24_INDEX_COMPOSITE"))
 	{
@@ -175,7 +190,10 @@ if (
 		$dynamicArea->setStub($stub);
 	}
 
-	require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/informer.php");
+	if ($arParams["CONTEXT"] !== Context::SPACES)
+	{
+		require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/informer.php");
+	}
 
 	if ($arResult["SHOW_NOTIFICATION_NOTASKS"])
 	{
@@ -279,6 +297,7 @@ if (
 					commentFormUID: '<?= (!empty($arParams['UID']) ? CUtil::JSEscape($arParams['UID']) : '') ?>',
 					signedParameters: '<?= $this->getComponent()->getSignedParameters() ?>',
 					componentName: '<?= $this->getComponent()->getName() ?>',
+					context: '<?= $arParams['CONTEXT'] ?? Context::DEFAULT ?>',
 				});
 			});
 			<?php

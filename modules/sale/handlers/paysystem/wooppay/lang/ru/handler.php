@@ -1,5 +1,4 @@
 <?php
-$MESS["SALE_HPS_WOOPPAY_CHECKOUT_MODE"] = "Страница оплаты";
 $MESS["SALE_HPS_WOOPPAY_IFRAME_MODE"] = "Оплата во фрейме";
 $MESS["SALE_HPS_WOOPPAY_ERROR_EMPTY_RESPONSE"] = "Получен пустой ответ от сервера";
 $MESS["SALE_HPS_WOOPPAY_ERROR_DECODE_RESPONSE"] = "Ошибка декодирования строки JSON";

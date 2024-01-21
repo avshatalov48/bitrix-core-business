@@ -1,17 +1,17 @@
 <?php
-$MESS["CAT_DOC_TYPE"] = "Тип документа";
+$MESS["CAT_DOC_TYPE_MSGVER_1"] = "Тип документа";
 $MESS["CAT_DOC_NUMBER"] = "Номер";
 $MESS["CAT_DOC_DATE"] = "Дата";
 $MESS["CAT_DOC_SITE_ID"] = "Сайт";
 $MESS["CAT_DOC_CURRENCY"] = "Валюта";
-$MESS["CAT_DOC_ADD"] = "Создать документ";
-$MESS["CAT_DOC_ADD_TITLE"] = "Создать новый документ";
+$MESS["CAT_DOC_ADD_MSGVER_1"] = "Создать документ";
+$MESS["CAT_DOC_ADD_TITLE_MSGVER_1"] = "Создать новый документ";
 $MESS["CAT_DOC_CONTRACTOR"] = "Поставщик";
 $MESS["CAT_DOC_STORE_FROM"] = "Склад-источник";
 $MESS["CAT_DOC_STORE_TO"] = "Склад-получатель";
 $MESS["CAT_DOC_BARCODE"] = "Штрихкод";
 $MESS["CAT_DOC_CONTRACTOR_ADD"] = "Добавить поставщика";
-$MESS["CAT_DOC_TAB"] = "Документ";
+$MESS["CAT_DOC_TAB_MSGVER_1"] = "Документ";
 $MESS["CAT_DOCS_MSGVER_1"] = "Документы";
 $MESS["CAT_DOC_ADD_ITEMS"] = "Добавить товар";
 $MESS["CAT_DOC_PRODUCT_NAME"] = "Название";

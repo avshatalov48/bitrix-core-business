@@ -1,12 +1,16 @@
 <?php
 namespace Bitrix\Catalog\Product;
 
+use Bitrix\Catalog\Config\State;
+use Bitrix\Catalog\Product\Store\BatchManager;
+use Bitrix\Catalog\Product\Store\CostPriceCalculator;
 use Bitrix\Main;
 use Bitrix\Catalog;
 use Bitrix\Iblock;
 use Bitrix\Sale;
 use Bitrix\Sale\SaleProviderBase as Base;
 use Bitrix\Currency;
+use Bitrix\Catalog\Product\Store\DistributionStrategy;
 
 if (Main\Loader::includeModule('sale'))
 {
@@ -251,7 +255,7 @@ if (Main\Loader::includeModule('sale'))
 					'WIDTH',
 					'HEIGHT',
 					'LENGTH',
-					'BARCODE_MULTI'
+					'BARCODE_MULTI',
 				));
 			}
 			$catalogSelect = array_merge($catalogSelect, Catalog\Product\SystemField::getProviderSelectFields());
@@ -403,7 +407,7 @@ if (Main\Loader::includeModule('sale'))
 		{
 			$result->setData(
 				array(
-					$outputVariable => $resultList
+					$outputVariable => $resultList,
 				)
 			);
 
@@ -423,7 +427,7 @@ if (Main\Loader::includeModule('sale'))
 				'ID' => $list,
 				'ACTIVE_DATE' => 'Y',
 				'CHECK_PERMISSIONS' => 'Y',
-				'MIN_PERMISSION' => 'R'
+				'MIN_PERMISSION' => 'R',
 			);
 			if ($userId !== null)
 			{
@@ -518,7 +522,7 @@ if (Main\Loader::includeModule('sale'))
 					$productIndexList[$item['ITEM_ID']] = array(
 						'PRODUCT_ID' => $productId,
 						'PARENT_ID' => $parentItemid,
-						'CHILD_ID' => $childItemid
+						'CHILD_ID' => $childItemid,
 					);
 				}
 			}
@@ -651,7 +655,7 @@ if (Main\Loader::includeModule('sale'))
 										"NAME" => $propData["NAME"],
 										"CODE" => $propData["CODE"],
 										"VALUE" => $propData["VALUE"],
-										"SORT" => $propData["SORT"]
+										"SORT" => $propData["SORT"],
 									);
 								}
 							}
@@ -716,7 +720,7 @@ if (Main\Loader::includeModule('sale'))
 							$properties[] = array(
 								"NAME" => "Catalog XML_ID",
 								"CODE" => "CATALOG.XML_ID",
-								"VALUE" => $strIBlockXmlID
+								"VALUE" => $strIBlockXmlID,
 							);
 
 							$elementData['CATALOG_XML_ID'] = $strIBlockXmlID;
@@ -735,7 +739,7 @@ if (Main\Loader::includeModule('sale'))
 								$parentIterator = Iblock\ElementTable::getList(
 									array(
 										'select' => array('ID', 'XML_ID'),
-										'filter' => array('ID' => $parentSkuData['ID'])
+										'filter' => array('ID' => $parentSkuData['ID']),
 									)
 								);
 
@@ -755,7 +759,7 @@ if (Main\Loader::includeModule('sale'))
 						$properties[] = array(
 							"NAME" => "Product XML_ID",
 							"CODE" => "PRODUCT.XML_ID",
-							"VALUE" => $elementData["XML_ID"]
+							"VALUE" => $elementData["XML_ID"],
 						);
 
 						$bundleItemData = $bundleItemList[$bundleParentId]["ITEMS"][$bundleChildId];
@@ -806,7 +810,7 @@ if (Main\Loader::includeModule('sale'))
 
 				$result->setData(
 					array(
-						'BUNDLE_LIST' => $resultList
+						'BUNDLE_LIST' => $resultList,
 					)
 				);
 			}
@@ -979,7 +983,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'DELIVER_PRODUCTS_LIST' => $resultList
+						'DELIVER_PRODUCTS_LIST' => $resultList,
 					)
 				);
 			}
@@ -1017,7 +1021,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'VIEW_PRODUCTS_LIST' => $resultList
+						'VIEW_PRODUCTS_LIST' => $resultList,
 					)
 				);
 			}
@@ -1054,7 +1058,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'RECURRING_PRODUCTS_LIST' => $resultList
+						'RECURRING_PRODUCTS_LIST' => $resultList,
 					)
 				);
 			}
@@ -1088,7 +1092,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'BARCODE_CHECK_LIST' => $resultList
+						'BARCODE_CHECK_LIST' => $resultList,
 					)
 				);
 			}
@@ -1144,11 +1148,13 @@ if (Main\Loader::includeModule('sale'))
 			}
 
 			$result->setData([
-				'SHIPPED_PRODUCTS_LIST' => $resultList
+				'SHIPPED_PRODUCTS_LIST' => $resultList,
 			]);
 
 			return $result;
 		}
+
+		// private function
 
 		/**
 		 * @param array $quantityList
@@ -1182,7 +1188,7 @@ if (Main\Loader::includeModule('sale'))
 
 			$result->setData(
 				array(
-					'AMOUNT_UPDATED_LIST' => $resultList
+					'AMOUNT_UPDATED_LIST' => $resultList,
 				)
 			);
 
@@ -1432,7 +1438,7 @@ if (Main\Loader::includeModule('sale'))
 
 			$result->setData(
 				array(
-					'IS_UPDATED' => $isUpdated
+					'IS_UPDATED' => $isUpdated,
 				)
 			);
 
@@ -1708,7 +1714,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->addData(
 					array(
-						Base::FLAT_QUANTITY_LIST => $setQuantityList
+						Base::FLAT_QUANTITY_LIST => $setQuantityList,
 					)
 				);
 			}
@@ -1884,7 +1890,7 @@ if (Main\Loader::includeModule('sale'))
 				$barcodeFields = array(
 					"STORE_ID" => $storeId,
 					"BARCODE" => $barcodeValue,
-					"PRODUCT_ID" => $productId
+					"PRODUCT_ID" => $productId,
 				);
 
 				$dbres = \CCatalogStoreBarcode::GetList(
@@ -1972,7 +1978,7 @@ if (Main\Loader::includeModule('sale'))
 				$barcodeFields = array(
 					"STORE_ID" => $storeId,
 					"BARCODE" => $barcodeValue,
-					"PRODUCT_ID" => $productId
+					"PRODUCT_ID" => $productId,
 				);
 				\CCatalogStoreBarcode::Add($barcodeFields);
 			}
@@ -2013,7 +2019,7 @@ if (Main\Loader::includeModule('sale'))
 			}
 
 			$result->setData(array(
-				'RESERVED_PRODUCTS_LIST' => $resultList
+				'RESERVED_PRODUCTS_LIST' => $resultList,
 			));
 
 			return $result;
@@ -2325,7 +2331,7 @@ if (Main\Loader::includeModule('sale'))
 			$isUpdated = true;
 
 			$fields = array(
-				'QUANTITY' => $catalogQuantity
+				'QUANTITY' => $catalogQuantity,
 			);
 
 			if ($isQuantityTrace)
@@ -2420,7 +2426,7 @@ if (Main\Loader::includeModule('sale'))
 							'IBLOCK_ID' => $iblockId,
 							'ACTIVE' => 'Y',
 							'ACTIVE_DATE' => 'Y',
-							'CHECK_PERMISSIONS' => 'N'
+							'CHECK_PERMISSIONS' => 'N',
 						),
 						false,
 						false,
@@ -2489,7 +2495,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'TRY_SHIP_PRODUCTS_LIST' => array_fill_keys(array_keys($products), true)
+						'TRY_SHIP_PRODUCTS_LIST' => array_fill_keys(array_keys($products), true),
 					)
 				);
 
@@ -2517,7 +2523,7 @@ if (Main\Loader::includeModule('sale'))
 
 				$result->setData(
 					array(
-						'TRY_SHIP_PRODUCTS_LIST' => array_fill_keys($productIdList, false)
+						'TRY_SHIP_PRODUCTS_LIST' => array_fill_keys($productIdList, false),
 					)
 				);
 
@@ -2609,7 +2615,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'TRY_SHIP_PRODUCTS_LIST' => $resultList
+						'TRY_SHIP_PRODUCTS_LIST' => $resultList,
 					)
 				);
 			}
@@ -2628,7 +2634,7 @@ if (Main\Loader::includeModule('sale'))
 
 			$result->setData(
 				array(
-					'IS_NEED_SHIP' => static::isReservationEnabled()
+					'IS_NEED_SHIP' => static::isReservationEnabled(),
 				)
 			);
 			return $result;
@@ -2724,7 +2730,7 @@ if (Main\Loader::includeModule('sale'))
 			if (!empty($resultList))
 			{
 				$result->setData(array(
-					'PRODUCTS_LIST_SHIPPED' => $resultList
+					'PRODUCTS_LIST_SHIPPED' => $resultList,
 				));
 			}
 
@@ -2781,7 +2787,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->addData(
 					array(
-						'PRODUCTS_LIST_IN_STORE' => $resultList
+						'PRODUCTS_LIST_IN_STORE' => $resultList,
 					)
 				);
 			}
@@ -2876,7 +2882,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'PRODUCTS_LIST_REQUIRED_QUANTITY' => $resultList
+						'PRODUCTS_LIST_REQUIRED_QUANTITY' => $resultList,
 					)
 				);
 			}
@@ -2971,7 +2977,7 @@ if (Main\Loader::includeModule('sale'))
 								'PRODUCT_ID' => $productId,
 								'STORE_ID' => $storeId,
 								'IS_BARCODE_MULTI' => false,
-								'QUANTITY' => abs($productQuantity)
+								'QUANTITY' => abs($productQuantity),
 							);
 						}
 					}
@@ -3360,7 +3366,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'PRODUCTS_LIST_EXISTS_IN_STORE' => $resultList
+						'PRODUCTS_LIST_EXISTS_IN_STORE' => $resultList,
 					)
 				);
 			}
@@ -3406,7 +3412,7 @@ if (Main\Loader::includeModule('sale'))
 						$fields = [
 							'=STORE_ID' => static::CATALOG_PROVIDER_EMPTY_STORE_ID,
 							'=BARCODE' => $barcodeValue,
-							'=PRODUCT_ID' => $productId
+							'=PRODUCT_ID' => $productId,
 						];
 
 						if ($storeData['IS_BARCODE_MULTI'] === true)
@@ -3566,7 +3572,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'PRODUCT_CAN_AUTOSHIP_LIST' => $resultList
+						'PRODUCT_CAN_AUTOSHIP_LIST' => $resultList,
 					)
 				);
 			}
@@ -3683,7 +3689,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$result->setData(
 					array(
-						'RESULT_LIST' => $resultList
+						'RESULT_LIST' => $resultList,
 					)
 				);
 			}
@@ -3708,7 +3714,7 @@ if (Main\Loader::includeModule('sale'))
 
 			$result->setData(
 				array(
-					'STORES_COUNT' => $count
+					'STORES_COUNT' => $count,
 				)
 			);
 
@@ -3749,7 +3755,7 @@ if (Main\Loader::includeModule('sale'))
 				$iterator = Catalog\StoreTable::getList([
 					'select' => ['ID', 'SORT'],
 					'filter' => $filter,
-					'order' => ['SORT' => 'ASC', 'ID' => 'ASC']
+					'order' => ['SORT' => 'ASC', 'ID' => 'ASC'],
 				]);
 				while ($row = $iterator->fetch())
 				{
@@ -3870,7 +3876,7 @@ if (Main\Loader::includeModule('sale'))
 						'order' => [
 							'PRODUCT_ID' => 'ASC',
 							'STORE_ID' => 'ASC',
-						]
+						],
 					]);
 					while ($row = $iterator->fetch())
 					{
@@ -4098,7 +4104,7 @@ if (Main\Loader::includeModule('sale'))
 			unset($reservedList, $data);
 
 			$result->setData([
-				Base::FLAT_AVAILABLE_QUANTITY_LIST => $resultList
+				Base::FLAT_AVAILABLE_QUANTITY_LIST => $resultList,
 			]);
 
 			return $result;
@@ -4270,6 +4276,83 @@ if (Main\Loader::includeModule('sale'))
 					Base::FLAT_AVAILABLE_QUANTITY_LIST => $availableQuantityData,
 				],
 			]);
+
+			return $result;
+		}
+
+		public function writeOffProductBatches(array $products): Sale\Result
+		{
+			$result = new Sale\Result();
+
+			if (!Catalog\Config\State::isUsedInventoryManagement() || !State::isProductBatchMethodSelected())
+			{
+				return $result;
+			}
+
+			foreach ($products as $productId => $productData)
+			{
+				if (empty($productData['SHIPMENT_ITEM_LIST']) || !is_array($productData['SHIPMENT_ITEM_LIST']))
+				{
+					continue;
+				}
+
+				$productBatch = new BatchManager($productId);
+				/** @var Sale\ShipmentItem $item */
+				foreach ($productData['SHIPMENT_ITEM_LIST'] as $item)
+				{
+					/** @var Sale\ShipmentItemStore $storeItem */
+					foreach ($item->getShipmentItemStoreCollection() as $storeItem)
+					{
+						$quantity = $storeItem->getQuantity();
+						if ($quantity <= 0)
+						{
+							continue;
+						}
+
+						$distributor = new DistributionStrategy\ShipmentStore($productBatch, $storeItem);
+						$r = $distributor->writeOff($quantity);
+						if (!$r->isSuccess())
+						{
+							$result->addErrors($r->getErrors());
+						}
+					}
+				}
+			}
+
+			return $result;
+		}
+
+		public function returnProductBatches(array $products): Sale\Result
+		{
+			$result = new Sale\Result();
+
+			if (!Catalog\Config\State::isUsedInventoryManagement() || !State::isProductBatchMethodSelected())
+			{
+				return $result;
+			}
+
+			foreach ($products as $productId => $productData)
+			{
+				if (empty($productData['SHIPMENT_ITEM_LIST']) || !is_array($productData['SHIPMENT_ITEM_LIST']))
+				{
+					continue;
+				}
+
+				$productBatch = new BatchManager($productId);
+				/** @var Sale\ShipmentItem $item */
+				foreach ($productData['SHIPMENT_ITEM_LIST'] as $item)
+				{
+					foreach ($item->getShipmentItemStoreCollection() as $storeItem)
+					{
+						$distributor = new DistributionStrategy\ShipmentStore($productBatch, $storeItem);
+						$r = $distributor->return();
+						if (!$r->isSuccess())
+						{
+							$result->addErrors($r->getErrors());
+						}
+					}
+				}
+			}
 
 			return $result;
 		}
@@ -4624,7 +4707,7 @@ if (Main\Loader::includeModule('sale'))
 						if (array_key_exists('QUANTITY', $productData))
 						{
 							$quantityList = array(
-								$productData['BASKET_CODE'] => $productData['QUANTITY']
+								$productData['BASKET_CODE'] => $productData['QUANTITY'],
 							);
 						}
 						if (!empty($productData[Base::FLAT_QUANTITY_LIST]))
@@ -5073,7 +5156,7 @@ if (Main\Loader::includeModule('sale'))
 				'CURRENCY' => $config['CURRENCY'],
 				'PRECISION' => (int)Main\Config\Option::get('sale', 'value_precision'),
 				'RESULT_WITH_VAT' => true,
-				'RESULT_MODE' => Catalog\Product\Price\Calculation::RESULT_MODE_RAW
+				'RESULT_MODE' => Catalog\Product\Price\Calculation::RESULT_MODE_RAW,
 			]);
 
 			$priceDataList = \CCatalogProduct::GetOptimalPriceList(
@@ -5734,7 +5817,7 @@ if (Main\Loader::includeModule('sale'))
 					'order' => [
 						'PRODUCT_ID' => 'ASC',
 						'STORE_ID' => 'ASC',
-					]
+					],
 				]);
 				while ($row = $iterator->fetch())
 				{

@@ -9,6 +9,7 @@ class Message implements \JsonSerializable
 	public array $userList = [];
 	public array $channelList = [];
 	public ?array $body;
+	public ?string $type;
 	public array $userParams; // map: userId => {user specific params}
 	public array $dictionary; // map: key => value
 	public int $expiry;
@@ -29,6 +30,11 @@ class Message implements \JsonSerializable
 			$instance->dictionary = $arrayFields['event']['dictionary'];
 		}
 		$instance->expiry = is_int($body['expiry']) && $body['expiry'] > 0 ? $body['expiry'] : 86400;
+		// for statistics
+		$messageType = "{$body['module_id']}_{$body['command']}";
+		$messageType = preg_replace("/[^\w]/", "", $messageType);
+		$instance->type = $messageType;
+
 		unset($body['user_params']);
 		unset($body['dictionary']);
 		unset($body['expiry']);
@@ -65,6 +71,10 @@ class Message implements \JsonSerializable
 		if (isset($this->expiry))
 		{
 			$result['expiry'] = $this->expiry;
+		}
+		if (isset($this->type))
+		{
+			$result['type'] = $this->type;
 		}
 
 		return $result;

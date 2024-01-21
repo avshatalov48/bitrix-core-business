@@ -3,15 +3,19 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3;
-	var NavigationItem = /*#__PURE__*/function () {
-	  function NavigationItem(_ref) {
-	    var id = _ref.id,
-	      title = _ref.title,
-	      active = _ref.active,
-	      events = _ref.events,
-	      link = _ref.link,
-	      locked = _ref.locked;
+	let _ = t => t,
+	  _t,
+	  _t2,
+	  _t3;
+	let NavigationItem = /*#__PURE__*/function () {
+	  function NavigationItem({
+	    id,
+	    title,
+	    active,
+	    events,
+	    link,
+	    locked
+	  }) {
 	    babelHelpers.classCallCheck(this, NavigationItem);
 	    this.id = id ? id : null;
 	    this.title = main_core.Type.isString(title) ? title : null;
@@ -26,7 +30,9 @@ this.BX = this.BX || {};
 	    key: "getTitle",
 	    value: function getTitle() {
 	      if (!this.title) {
-	        this.title = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-nav-panel__item-title\">", "</div>\t\n\t\t\t"])), this.title);
+	        this.title = main_core.Tag.render(_t || (_t = _`
+				<div class="ui-nav-panel__item-title">${0}</div>	
+			`), this.title);
 	      }
 	      return this.title;
 	    }
@@ -34,8 +40,12 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.linkContainer) {
-	        var id = this.id ? "id=\"ui-nav-panel-item-".concat(this.id, "\"") : '';
-	        this.linkContainer = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div ", " class=\"ui-nav-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), id, this.title ? this.getTitle() : '');
+	        const id = this.id ? `id="ui-nav-panel-item-${this.id}"` : '';
+	        this.linkContainer = main_core.Tag.render(_t2 || (_t2 = _`
+				<div ${0} class="ui-nav-panel__item">
+					${0}
+				</div>
+			`), id, this.title ? this.getTitle() : '');
 	        this.active ? this.activate() : this.inactivate();
 	        this.locked ? this.lock() : this.unLock();
 	        this.setEvents();
@@ -45,10 +55,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "bindEvents",
 	    value: function bindEvents() {
-	      var _this = this;
-	      main_core_events.EventEmitter.subscribe('BX.UI.NavigationPanel.Item:active', function (item) {
-	        if (item.data !== _this) {
-	          _this.inactivate();
+	      main_core_events.EventEmitter.subscribe('BX.UI.NavigationPanel.Item:active', item => {
+	        if (item.data !== this) {
+	          this.inactivate();
 	        }
 	      });
 	    }
@@ -72,24 +81,24 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setEvents",
 	    value: function setEvents() {
-	      var _this2 = this;
 	      if (this.events) {
-	        var eventsKeys = Object.keys(this.events);
-	        var _loop = function _loop() {
-	          var eventKey = eventsKeys[i];
-	          _this2.getContainer().addEventListener(eventKey, function () {
-	            _this2.events[eventKey]();
+	        const eventsKeys = Object.keys(this.events);
+	        for (let i = 0; i < eventsKeys.length; i++) {
+	          let eventKey = eventsKeys[i];
+	          this.getContainer().addEventListener(eventKey, () => {
+	            this.events[eventKey]();
 	          });
-	        };
-	        for (var i = 0; i < eventsKeys.length; i++) {
-	          _loop();
 	        }
 	      }
 	      if (this.link) {
-	        this.container = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a class=\"ui-nav-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"])), this.title ? this.getTitle() : '');
-	        var linksKeys = Object.keys(this.link);
-	        for (var _i = 0; _i < linksKeys.length; _i++) {
-	          var linksKey = linksKeys[_i];
+	        this.container = main_core.Tag.render(_t3 || (_t3 = _`
+				<a class="ui-nav-panel__item">
+					${0}
+				</a>
+			`), this.title ? this.getTitle() : '');
+	        const linksKeys = Object.keys(this.link);
+	        for (let i = 0; i < linksKeys.length; i++) {
+	          const linksKey = linksKeys[i];
 	          this.container.setAttribute(linksKey, this.link[linksKey]);
 	        }
 	      }
@@ -112,8 +121,9 @@ this.BX = this.BX || {};
 	  return NavigationItem;
 	}();
 
-	var _templateObject$1;
-	var NavigationPanel = /*#__PURE__*/function () {
+	let _$1 = t => t,
+	  _t$1;
+	let NavigationPanel = /*#__PURE__*/function () {
 	  function NavigationPanel(options) {
 	    babelHelpers.classCallCheck(this, NavigationPanel);
 	    this.target = main_core.Type.isDomNode(options.target) ? options.target : null;
@@ -124,9 +134,8 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(NavigationPanel, [{
 	    key: "adjustItem",
 	    value: function adjustItem() {
-	      var _this = this;
-	      this.items = this.items.map(function (item) {
-	        _this.keys.push(item.id);
+	      this.items = this.items.map(item => {
+	        this.keys.push(item.id);
 	        return new NavigationItem({
 	          id: item.id ? item.id : null,
 	          title: item.title ? item.title : null,
@@ -141,7 +150,7 @@ this.BX = this.BX || {};
 	    key: "getItemById",
 	    value: function getItemById(value) {
 	      if (value) {
-	        var id = this.keys.indexOf(value);
+	        const id = this.keys.indexOf(value);
 	        return this.items[id];
 	      }
 	    }
@@ -149,17 +158,18 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.container) {
-	        this.container = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-nav-panel ui-nav-panel__scope\"></div>\n\t\t\t"])));
+	        this.container = main_core.Tag.render(_t$1 || (_t$1 = _$1`
+				<div class="ui-nav-panel ui-nav-panel__scope"></div>
+			`));
 	      }
 	      return this.container;
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      var _this2 = this;
-	      this.items.forEach(function (item) {
+	      this.items.forEach(item => {
 	        if (item instanceof NavigationItem) {
-	          _this2.getContainer().appendChild(item.getContainer());
+	          this.getContainer().appendChild(item.getContainer());
 	        }
 	      });
 	      main_core.Dom.clean(this.target);

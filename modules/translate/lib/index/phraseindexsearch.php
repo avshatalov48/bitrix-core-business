@@ -9,6 +9,9 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\FloatField;
 use Bitrix\Translate;
 use Bitrix\Translate\Index;
 
@@ -20,6 +23,9 @@ class PhraseIndexSearch
 	public const SEARCH_METHOD_ENTRY_WORD = 'entry_word';
 	public const SEARCH_METHOD_START_WITH = 'start_with';
 	public const SEARCH_METHOD_END_WITH = 'end_with';
+
+	// Lang code by IETF BCP 47
+	private const NON_FTS = ['th', 'zh-cn', 'zh-tw', 'ja', 'ko'];
 
 	/**
 	 * Performs search query and returns result.
@@ -60,7 +66,7 @@ class PhraseIndexSearch
 		$query = new Main\ORM\Query\Query($entity);
 
 		$query
-			->addSelect(new Main\ORM\Fields\ExpressionField('CNT', 'COUNT(1)'))
+			->addSelect(new ExpressionField('CNT', 'COUNT(1)'))
 			->setFilter($filter);
 
 		$result = $query->exec()->fetch();
@@ -174,6 +180,7 @@ class PhraseIndexSearch
 		$runtime = [];
 		$filterIn = [];
 		$filterOut = [];
+		$runtimeInx = [];
 
 		if (isset($params['filter']))
 		{
@@ -190,9 +197,9 @@ class PhraseIndexSearch
 		$enabledLanguages = Translate\Config::getEnabledLanguages();
 		$languageUpperKeys = \array_combine($enabledLanguages, \array_map('mb_strtoupper', $enabledLanguages));
 
-		/*
 		foreach ($languageUpperKeys as $langId => $langUpper)
 		{
+			$tbl = "{$langUpper}_LNG";
 			$alias = "{$langUpper}_LANG";
 
 			if (
@@ -200,18 +207,21 @@ class PhraseIndexSearch
 				|| isset($params['order'], $params['order'][$alias])
 			)
 			{
-				$tblAlias = "Phrase{$alias}";
-				$runtime[] = new Main\ORM\Fields\Relations\Reference(
-					$tblAlias,
+				$i = count($runtime);
+				$runtimeInx[$tbl] = $i;
+				$runtime[$i] = new Main\ORM\Fields\Relations\Reference(
+					$tbl,
 					Index\Internals\PhraseFts::getFtsEntityClass($langId),
 					Main\ORM\Query\Join::on('ref.PATH_ID', '=', 'this.PATH_ID')
-						->whereColumn('ref.CODE', '=', 'this.CODE')
-						->where('ref.LANG_ID', '=', $langId),
+						->whereColumn('ref.CODE', '=', 'this.CODE'),
 					['join_type' => 'LEFT']
 				);
+
+				$runtimeInx[$alias] = $i++;
+				$runtime[$i] = new ExpressionField($alias, '%s', "{$tbl}.PHRASE");
+				$select[] = $alias;
 			}
 		}
-		*/
 
 		if (!isset($filterIn['PHRASE_ENTRY']))
 		{
@@ -310,7 +320,7 @@ class PhraseIndexSearch
 			}
 			else
 			{
-				$runtime[] = new Main\ORM\Fields\ExpressionField('CODE_UPPER', 'UPPER(%s)', 'CODE');
+				$runtime[] = new ExpressionField('CODE_UPPER', 'UPPER(CONVERT(%s USING latin1))', 'CODE');
 				if (\in_array(self::SEARCH_METHOD_EQUAL, $filterIn['CODE_ENTRY']))
 				{
 					$filterOut['=CODE_UPPER'] = \mb_strtoupper($filterIn['PHRASE_CODE']);
@@ -471,9 +481,9 @@ class PhraseIndexSearch
 			$langUpper = $languageUpperKeys[$langId];
 			$tbl = "{$langUpper}_LNG";
 			$alias = "{$langUpper}_LANG";
-			$tblAlias = "{$tbl}.PHRASE_{$langUpper}";
-			$fieldAlias = "{$tblAlias}.PHRASE";
+			$fieldAlias = "{$tbl}.PHRASE";
 
+			/*
 			$runtime[] = new Main\ORM\Fields\Relations\Reference(
 				$tbl,
 				Index\Internals\PhraseIndexTable::class,
@@ -482,9 +492,23 @@ class PhraseIndexSearch
 					->where('ref.LANG_ID', '=', $langId),
 				['join_type' => 'INNER']
 			);
+			*/
 
-			$select[$alias] = "{$tblAlias}.PHRASE";
-			$select["{$langUpper}_FILE_ID"] = "{$tblAlias}.FILE_ID";
+			$i = isset($runtimeInx[$tbl]) ? $runtimeInx[$tbl] : count($runtime);
+
+			$runtime[$i] = new Main\ORM\Fields\Relations\Reference(
+				$tbl,
+				Index\Internals\PhraseFts::getFtsEntityClass($langId),
+				Main\ORM\Query\Join::on('ref.PATH_ID', '=', 'this.PATH_ID')
+					->whereColumn('ref.CODE', '=', 'this.CODE'),
+				['join_type' => 'INNER']
+			);
+
+			if (!isset($runtimeInx[$alias]))
+			{
+				$select[$alias] = $fieldAlias;
+			}
+			$select["{$langUpper}_FILE_ID"] = "{$tbl}.FILE_ID";
 
 			$exact = \in_array(self::SEARCH_METHOD_EXACT, $filterIn['PHRASE_ENTRY']);
 			$entry = \in_array(self::SEARCH_METHOD_ENTRY_WORD, $filterIn['PHRASE_ENTRY']);
@@ -507,22 +531,55 @@ class PhraseIndexSearch
 				];
 
 				// use fulltext index to help like operator
-				$minLengthFulltextWorld = self::getFullTextMinLength();
-				$fulltextIndexSearchStr = self::prepareTextForFulltextSearch($filterIn['PHRASE_TEXT']);
-				if (\mb_strlen($fulltextIndexSearchStr) > $minLengthFulltextWorld)
+				// todo: preg_replace has bug when replaces Thai unicode Non-spacing mark
+				if (!self::disallowFtsIndex($langId))
 				{
-					if ($entry)
+					$minLengthFulltextWorld = self::getFullTextMinLength();
+					$fulltextIndexSearchStr = self::prepareTextForFulltextSearch($filterIn['PHRASE_TEXT']);
+					if (\mb_strlen($fulltextIndexSearchStr) > $minLengthFulltextWorld)
 					{
-						// identical full text match
-						// MATCH(PHRASE) AGAINST ('+smth' IN BOOLEAN MODE)
-						$phraseSearch["*={$fieldAlias}"] = $fulltextIndexSearchStr;
-					}
-					else
-					{
-						// use fulltext index to help like operator
-						// partial full text match
-						// MATCH(PHRASE) AGAINST ('+smth*' IN BOOLEAN MODE)
-						$phraseSearch["*{$fieldAlias}"] = $fulltextIndexSearchStr;
+						/*
+						if ($entry)
+						{
+							// identical full text match
+							// MATCH(PHRASE) AGAINST ('+smth' IN BOOLEAN MODE)
+							//$phraseSearch["*={$fieldAlias}"] = $fulltextIndexSearchStr;
+							$fulltextIndexSearchStr = "+" . \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, " +", $fulltextIndexSearchStr);
+							$runtime[] = (new ExpressionField(
+								'PHRASE_FTS',
+								"MATCH (%s) AGAINST ('({$fulltextIndexSearchStr})')",
+								"{$fieldAlias}"
+							))->configureValueType(FloatField::class);
+						}
+						else
+						{
+							// use fulltext index to help like operator
+							// partial full text match
+							// MATCH(PHRASE) AGAINST ('+smth*' IN BOOLEAN MODE)
+							//$phraseSearch["*{$fieldAlias}"] = $fulltextIndexSearchStr;
+							$fulltextIndexSearchStr = "+" . \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, "* +", $fulltextIndexSearchStr) . "*";
+							$runtime[] = (new ExpressionField(
+								'PHRASE_FTS',
+								"MATCH (%s) AGAINST ('({$fulltextIndexSearchStr})')",
+								"{$fieldAlias}"
+							))->configureValueType(FloatField::class);
+						}
+						$phraseSearch[">PHRASE_FTS"] = 0;
+						*/
+
+						if ($entry)
+						{
+							// identical full text match
+							// MATCH(PHRASE) AGAINST ('+smth' IN BOOLEAN MODE)
+							$phraseSearch["*={$fieldAlias}"] = $fulltextIndexSearchStr;
+						}
+						else
+						{
+							// use fulltext index to help like operator
+							// partial full text match
+							// MATCH(PHRASE) AGAINST ('+smth*' IN BOOLEAN MODE)
+							$phraseSearch["*{$fieldAlias}"] = $fulltextIndexSearchStr;
+						}
 					}
 				}
 
@@ -541,6 +598,11 @@ class PhraseIndexSearch
 				elseif ($entry)
 				{
 					$likeStr = "%%{$str}%%";
+				}
+				elseif (self::disallowFtsIndex($langId))
+				{
+					//todo: preg_replace has bug when replaces Thai unicode Non-spacing mark
+					$likeStr = "%%" . \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, "%%", $str) . "%%";
 				}
 				else
 				{
@@ -633,12 +695,11 @@ class PhraseIndexSearch
 
 				// regexp binary mode works not exactly we want using like binary to fix it
 				$binarySensitive = $case ? 'BINARY' : '';
-				$runtime[] =
-					new Main\ORM\Fields\ExpressionField(
-						'PHRASE_LIKE',
-						"CASE WHEN %s LIKE {$binarySensitive} '{$likeStr}' THEN 1 ELSE 0 END",
-						"{$fieldAlias}"
-					);
+				$runtime[] = (new ExpressionField(
+					'PHRASE_LIKE',
+					"CASE WHEN %s LIKE {$binarySensitive} '{$likeStr}' THEN 1 ELSE 0 END",
+					"{$fieldAlias}"
+				))->configureValueType(IntegerField::class);
 				$phraseSearch["=PHRASE_LIKE"] = 1;
 
 				if (self::allowICURegularExpression())
@@ -646,21 +707,19 @@ class PhraseIndexSearch
 					// c meaning case-sensitive matching
 					// i meaning case-insensitive matching
 					$regCaseSensitive = $case ? 'c' : 'i';
-					$runtime[] =
-						new Main\ORM\Fields\ExpressionField(
-							'PHRASE_REGEXP',
-							"REGEXP_LIKE(%s, '{$regStr}', '{$regCaseSensitive}')",
-							"{$fieldAlias}"
-						);
+					$runtime[] = (new ExpressionField(
+						'PHRASE_REGEXP',
+						"REGEXP_LIKE(%s, '{$regStr}', '{$regCaseSensitive}')",
+						"{$fieldAlias}"
+					))->configureValueType(IntegerField::class);
 				}
 				else
 				{
-					$runtime[] =
-						new Main\ORM\Fields\ExpressionField(
-							'PHRASE_REGEXP',
-							"CASE WHEN %s REGEXP '{$regStr}' THEN 1 ELSE 0 END",
-							"{$fieldAlias}"
-						);
+					$runtime[] = (new ExpressionField(
+						'PHRASE_REGEXP',
+						"CASE WHEN %s REGEXP '{$regStr}' THEN 1 ELSE 0 END",
+						"{$fieldAlias}"
+					))->configureValueType(IntegerField::class);
 				}
 				$phraseSearch["=PHRASE_REGEXP"] = 1;
 			}
@@ -694,6 +753,35 @@ class PhraseIndexSearch
 	}
 
 	/**
+	 * Allow use fulltext index for phrase searching.
+	 * todo: preg_replace has bug when replaces Thai unicode Non-spacing mark
+	 *
+	 * @return bool
+	 */
+	public static function disallowFtsIndex(string $langId): bool
+	{
+		static $cache;
+		if (empty($cache))
+		{
+			$cache = [];
+
+			$iterator = Main\Localization\LanguageTable::getList([
+				'select' => ['ID', 'CODE'],
+				'filter' => ['=ACTIVE' => 'Y'],
+			]);
+			while ($row = $iterator->fetch())
+			{
+				if (!empty($row['CODE']))
+				{
+					$cache[mb_strtolower($row['ID'])] = trim(mb_strtolower($row['CODE']));
+				}
+			}
+		}
+
+		return isset($cache[$langId]) && in_array($cache[$langId], self::NON_FTS);
+	}
+
+	/**
 	 * MySQL8 implements regular expression support using International Components for Unicode (ICU)
 	 * against MySQL5 with Henry Spencer's implementation of regular expressions.
 	 *
@@ -713,6 +801,7 @@ class PhraseIndexSearch
 
 	/**
 	 * Prepares searching text to use with fulltext index to help like operator.
+	 * todo: preg_replace has bug when replaces Thai unicode Non-spacing mark
 	 *
 	 * @param string $text
 	 * @return string

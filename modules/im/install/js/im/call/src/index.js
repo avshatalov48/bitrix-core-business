@@ -6,7 +6,7 @@ import {FloatingScreenShare} from './floating_screenshare';
 import {FloatingScreenShareContent} from './floating_screenshare';
 import {CallHint} from './call_hint_popup'
 import {CallController} from './controller';
-import {CallEngine, CallEvent, EndpointDirection, UserState, Provider, CallType} from './engine/engine';
+import {CallEngine, CallEvent, EndpointDirection, UserState, Provider, CallType, CallState} from './engine/engine';
 import {Hardware} from './hardware';
 import Util from './util';
 import {VideoStrategy} from './video_strategy';
@@ -27,6 +27,7 @@ export {
 	CallEngine as Engine,
 	CallEvent as Event,
 	CallHint as Hint,
+	CallState as State,
 	EndpointDirection,
 	FloatingScreenShare,
 	FloatingScreenShareContent,
@@ -39,7 +40,7 @@ export {
 	Util,
 	VideoStrategy,
 	View,
-	WebScreenSharePopup
+	WebScreenSharePopup,
 };
 
 // compatibility

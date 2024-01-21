@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TR_FILE_EDIT"] = "Edit PHP Code";
 $MESS["TR_FILE_SHOW"] = "View PHP Code";
 $MESS["TR_FILE_TITLE"] = "Click to edit a file";
@@ -29,4 +29,3 @@ $MESS["TR_INDEX_VIEW_MODE_TITLE_UNTRANSLATED_FILES"] = "Untranslated files";
 $MESS["TR_MESSAGE_EDIT"] = "Edit Strings";
 $MESS["TR_PATH_GO"] = "Open Folder";
 $MESS["TR_UP_TITLE"] = "Click to go to upper level";
-?>

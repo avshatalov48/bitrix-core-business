@@ -73,13 +73,30 @@ class PushFormat
 		];
 	}
 
+	public function formatMessageUpdate(Message $message): array
+	{
+		return [
+			'module_id' => 'im',
+			'command' => 'messageUpdate',
+			'params' => [
+				'id' => $message->getId(),
+				'type' => $message->getChat()->getType() === Chat::IM_TYPE_PRIVATE ? 'private' : 'chat',
+				'text' => $message->getParsedMessage(),
+				'textLegacy' => Text::parseLegacyFormat($message->getMessage()),
+				'chatId' => $message->getChatId(),
+				'senderId' => $message->getAuthorId(),
+				'params' => $message->getEnrichedParams()->toPullFormat(['IS_EDITED', 'URL_ID', 'ATTACH', 'DATE_TEXT', 'DATE_TS']),
+			],
+			'extra' => \Bitrix\Im\Common::getPullExtra()
+		];
+	}
+
 	public function validateDataForInform(Message $message, PrivateChat $chat): Result
 	{
 		$result = new Result();
 
-		$toUserId = $chat->getCompanion()->getId();
-		$user = \CIMContactList::GetUserData(['ID' =>  [$toUserId]]);
-		$toUserStatus = $user['users'][$toUserId]['status'];
+		$toUser = $chat->getCompanion();
+		$toUserStatus = $toUser->getStatus(true);
 
 		if (!($message->getAuthorId() === $this->getContext()->getUserId()))
 		{

@@ -307,7 +307,9 @@ export default class Menu
 		return menuItem;
 	}
 
-	removeMenuItem(itemId: string): void
+	removeMenuItem(itemId: string, options = {
+		destroyEmptyPopup: true,
+	}): void
 	{
 		const item = this.getMenuItem(itemId);
 		if (!item)
@@ -335,7 +337,7 @@ export default class Menu
 				{
 					parentMenuItem.destroySubMenu();
 				}
-				else
+				else if (options.destroyEmptyPopup)
 				{
 					menuWindow.destroy();
 				}

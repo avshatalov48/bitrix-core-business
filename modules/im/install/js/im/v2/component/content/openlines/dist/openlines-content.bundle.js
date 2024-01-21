@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core,main_core_events,im_v2_lib_logger,im_v2_const) {
+(function (exports,main_core,main_core_events,im_v2_lib_logger,im_v2_lib_layout,im_v2_const) {
 	'use strict';
 
 	// @vue/component
@@ -104,8 +104,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      this.dialogIdChangedFromFrame = true;
-	      this.$store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.openlines.name,
+	      void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	        name: im_v2_const.Layout.openlines.name,
 	        entityId: event.detail
 	      });
 	    },
@@ -131,6 +131,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    unregisterSliderBindings() {
 	      var _BX$SidePanel$Instanc2;
+	      if (!this.frameDocument) {
+	        return;
+	      }
 	      if ((_BX$SidePanel$Instanc2 = BX.SidePanel.Instance) != null && _BX$SidePanel$Instanc2.unregisterAnchorListener) {
 	        BX.SidePanel.Instance.unregisterAnchorListener(this.frameDocument);
 	        return;
@@ -150,5 +153,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.OpenlinesContent = OpenlinesContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=openlines-content.bundle.js.map

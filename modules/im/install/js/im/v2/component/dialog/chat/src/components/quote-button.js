@@ -15,6 +15,8 @@ const slider = MessengerSlider.getInstance().getCurrent();
 const sliderRect = slider?.layout.container.getBoundingClientRect();
 const offsetY = sliderRect?.top ?? 0;
 
+const MESSAGE_TEXT_NODE_CLASS = '.bx-im-message-default-content__text';
+
 // @vue/component
 export const QuoteButton = {
 	name: 'QuoteButton',
@@ -77,8 +79,16 @@ export const QuoteButton = {
 			}
 
 			const range = window.getSelection().getRangeAt(0);
-			const selectedNodes = range.cloneContents().childNodes;
-			for (const node of selectedNodes)
+			const rangeContents = range.cloneContents();
+			let nodesToIterate = rangeContents.childNodes;
+
+			const messageNode = rangeContents.querySelector(MESSAGE_TEXT_NODE_CLASS);
+			if (messageNode)
+			{
+				nodesToIterate = messageNode.childNodes;
+			}
+
+			for (const node of nodesToIterate)
 			{
 				if (this.isImage(node))
 				{
@@ -88,7 +98,7 @@ export const QuoteButton = {
 				{
 					this.text += '\n';
 				}
-				else if (this.isMessageTextNode(node) || this.isText(node))
+				else
 				{
 					this.text += node.textContent;
 				}
@@ -117,10 +127,19 @@ export const QuoteButton = {
 			{
 				return false;
 			}
-			const MESSAGE_TEXT_NODE_CLASS = '.bx-im-message-default-content__text';
-			const textNode = node.querySelector(MESSAGE_TEXT_NODE_CLASS);
+			const textNode = node.matches(MESSAGE_TEXT_NODE_CLASS);
 
 			return Boolean(textNode);
+		},
+		extractTextFromMessageNode(node: HTMLElement): string
+		{
+			const textNode = node.querySelector(MESSAGE_TEXT_NODE_CLASS);
+			if (!textNode)
+			{
+				return node.textContent;
+			}
+
+			return textNode.textContent;
 		},
 		onQuoteClick()
 		{

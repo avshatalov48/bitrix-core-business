@@ -15,6 +15,8 @@ class ProductField
 	onCancelEditHandler = this.onCancelEdit.bind(this);
 	onBeforeGridRequestHandler = this.onBeforeGridRequest.bind(this);
 	onUnsubscribeEventsHandler = this.unsubscribeEvents.bind(this);
+	onSkuLoadedHandler = this.onSkuLoaded.bind(this);
+	onGridUpdateHandler = this.onGridUpdate.bind(this);
 
 	static getById(id: string): ?ProductField
 	{
@@ -44,7 +46,8 @@ class ProductField
 		EventEmitter.subscribe('Grid::thereEditedRows', this.onSelectEditHandler);
 		EventEmitter.subscribe('Grid::noEditedRows', this.onCancelEditHandler);
 		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
-		EventEmitter.subscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+		EventEmitter.subscribe('Grid::updated', this.onGridUpdateHandler);
+		EventEmitter.subscribe('BX.Catalog.SkuTree::onSkuLoaded', this.onSkuLoadedHandler);
 		EventEmitter.subscribeOnce(this.selector, 'onBeforeChange', this.onUnsubscribeEventsHandler);
 	}
 
@@ -54,7 +57,68 @@ class ProductField
 		EventEmitter.unsubscribe('Grid::noEditedRows', this.onCancelEditHandler);
 		EventEmitter.unsubscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 		EventEmitter.unsubscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+		EventEmitter.unsubscribe('BX.Catalog.SkuTree::onSkuLoaded', this.onSkuLoadedHandler);
 		this.selector.unsubscribeEvents();
+	}
+
+	onSkuLoaded(event): void
+	{
+		const currentRowElement = document.getElementById(event.data.id).closest('.main-grid-row.main-grid-row-body');
+
+		if (
+			!currentRowElement
+			|| !currentRowElement.querySelectorAll('.main-grid-fixed-column')
+			|| currentRowElement.style.height
+		)
+		{
+			return;
+		}
+
+		const inlineElementList = [...currentRowElement.querySelectorAll('.main-grid-cell')];
+
+		if (inlineElementList.length === 0)
+		{
+			return;
+		}
+
+		const maxColumnsHeight = Math.max(...(inlineElementList.map((cell) => parseInt(Dom.style(cell, 'height'), 10))));
+
+		if (!maxColumnsHeight)
+		{
+			return;
+		}
+
+		Dom.style(currentRowElement, 'height', `${maxColumnsHeight}px`);
+	}
+
+	onGridUpdate()
+	{
+		setTimeout(() => {
+			document.querySelectorAll('.main-grid-row.main-grid-row-body').forEach(currentRowElement => {
+				if (currentRowElement.style.height)
+				{
+					return;
+				}
+
+				const inlineElements = [...currentRowElement.querySelectorAll('.main-grid-cell')];
+
+				if (inlineElements.length === 0)
+				{
+					return;
+				}
+
+				const maxColumnsHeight = Math.max(...(inlineElements.map((cell) => parseInt(Dom.style(cell, 'height'), 10))));
+
+				if (!maxColumnsHeight)
+				{
+					return;
+				}
+
+				Dom.style(currentRowElement, 'height', `${maxColumnsHeight}px`);
+			});
+		}, 0);
+
+		this.onUnsubscribeEventsHandler();
 	}
 
 	getSelector(): ProductSelector

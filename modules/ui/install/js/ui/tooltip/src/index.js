@@ -3,6 +3,8 @@ import {Browser, Event, Type} from 'main.core';
 import {Tooltip} from './tooltip.js';
 import {TooltipBalloon} from './balloon.js';
 
+import './css/style.css';
+
 Event.ready(() => {
 	if (
 		Browser.isAndroid()

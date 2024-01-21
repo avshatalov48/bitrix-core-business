@@ -62,6 +62,16 @@ else
 
 $factory = new SliderFactory();
 
+// special case for comment
+if (isset($queryList['MID']))
+{
+	$getParams .= '#com' . $queryList['MID'];
+}
+if (isset($queryList['commentId']))
+{
+	$getParams .= '#com' . $queryList['commentId'];
+}
+
 try
 {
 	$factory->setAction($action)->setQueryParams($getParams);

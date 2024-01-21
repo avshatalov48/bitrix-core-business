@@ -26,7 +26,7 @@ class Bot
 	const TYPE_OPENLINE = 'O';
 
 	const CACHE_TTL = 31536000;
-	const CACHE_PATH = '/bx/im/bot/';
+	const CACHE_PATH = '/bx/im/bot/old_cache_v1/';
 
 	/**
 	 * @param array $fields
@@ -35,7 +35,7 @@ class Bot
 	public static function register(array $fields)
 	{
 		$code = isset($fields['CODE'])? $fields['CODE']: '';
-		$type = in_array($fields['TYPE'], [self::TYPE_HUMAN, self::TYPE_BOT, self::TYPE_SUPERVISOR, self::TYPE_NETWORK, self::TYPE_OPENLINE])
+		$type = in_array($fields['TYPE'], [self::TYPE_BOT, self::TYPE_SUPERVISOR, self::TYPE_NETWORK, self::TYPE_OPENLINE])
 			? $fields['TYPE']
 			: self::TYPE_BOT;
 		$moduleId = $fields['MODULE_ID'];
@@ -55,6 +55,7 @@ class Bot
 		$textPrivateWelcomeMessage = isset($fields['TEXT_PRIVATE_WELCOME_MESSAGE'])? $fields['TEXT_PRIVATE_WELCOME_MESSAGE']: '';
 		$textChatWelcomeMessage = isset($fields['TEXT_CHAT_WELCOME_MESSAGE'])? $fields['TEXT_CHAT_WELCOME_MESSAGE']: '';
 		$openline = isset($fields['OPENLINE']) && $fields['OPENLINE'] == 'Y'? 'Y': 'N';
+		$isHidden = isset($fields['HIDDEN']) && $fields['HIDDEN'] === 'Y' ? 'Y' : 'N';
 
 		/* rewrite vars for openline type */
 		if ($type == self::TYPE_OPENLINE)
@@ -178,7 +179,8 @@ class Bot
 			'TEXT_CHAT_WELCOME_MESSAGE' => $textChatWelcomeMessage,
 			'APP_ID' => $appId,
 			'VERIFIED' => $verified,
-			'OPENLINE' => $openline
+			'OPENLINE' => $openline,
+			'HIDDEN' => $isHidden,
 		));
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
@@ -357,16 +359,6 @@ class Bot
 		{
 			$update = $updateFields['PROPERTIES'];
 
-			// update user properties
-			unset(
-				$update['ACTIVE'],
-				$update['LOGIN'],
-				$update['PASSWORD'],
-				$update['CONFIRM_PASSWORD'],
-				$update['GROUP_ID'],
-				$update['UF_DEPARTMENT']
-			);
-
 			$update['EXTERNAL_AUTH_ID'] = self::EXTERNAL_AUTH_ID;
 
 			if (isset($update['NAME']) && trim($update['NAME']) == '')
@@ -379,17 +371,37 @@ class Bot
 			}
 
 			$botAvatar = false;
+			$delBotAvatar = false;
 			$previousBotAvatar = false;
-			if (isset($update['PERSONAL_PHOTO']))
+			if (
+				!empty($update['PERSONAL_PHOTO'])
+				&& is_numeric($update['PERSONAL_PHOTO'])
+				&& (int)$update['PERSONAL_PHOTO'] > 0
+			)
 			{
 				$previousBotAvatar = (int)\Bitrix\Im\User::getInstance($botId)->getAvatarId();
-
-				if (is_numeric($update['PERSONAL_PHOTO']) && (int)$update['PERSONAL_PHOTO'] > 0)
-				{
-					$botAvatar = (int)$update['PERSONAL_PHOTO'];
-					unset($update['PERSONAL_PHOTO']);
-				}
+				$botAvatar = (int)$update['PERSONAL_PHOTO'];
 			}
+			elseif (
+				!empty($update['DELETE_PERSONAL_PHOTO'])
+				&& $update['DELETE_PERSONAL_PHOTO'] == 'Y'
+			)
+			{
+				$previousBotAvatar = (int)\Bitrix\Im\User::getInstance($botId)->getAvatarId();
+				$delBotAvatar = true;
+			}
+
+			// update user properties
+			unset(
+				$update['ACTIVE'],
+				$update['LOGIN'],
+				$update['PASSWORD'],
+				$update['CONFIRM_PASSWORD'],
+				$update['GROUP_ID'],
+				$update['UF_DEPARTMENT'],
+				$update['PERSONAL_PHOTO'],
+				$update['DELETE_PERSONAL_PHOTO']
+			);
 
 			$user = new \CUser;
 			$user->Update($botId, $update);
@@ -398,6 +410,11 @@ class Bot
 			{
 				$connection = Main\Application::getConnection();
 				$connection->query("UPDATE b_user SET PERSONAL_PHOTO = ".(int)$botAvatar." WHERE ID = ".(int)$botId);
+			}
+			elseif ($delBotAvatar)
+			{
+				$connection = Main\Application::getConnection();
+				$connection->query("UPDATE b_user SET PERSONAL_PHOTO = null WHERE ID = ".(int)$botId);
 			}
 
 			if ($previousBotAvatar > 0)
@@ -458,6 +475,10 @@ class Bot
 		if (isset($updateFields['VERIFIED']))
 		{
 			$update['VERIFIED'] = $updateFields['VERIFIED'] == 'Y'? 'Y': 'N';
+		}
+		if (isset($updateFields['HIDDEN']))
+		{
+			$update['HIDDEN'] = $updateFields['HIDDEN'] === 'Y' ? 'Y' : 'N';
 		}
 		if (!empty($update))
 		{
@@ -755,7 +776,11 @@ class Bot
 		}
 		\Bitrix\Im\Model\BotTable::update($joinFields['BOT_ID'], $updateCounter);
 
-		if ($joinFields['CHAT_TYPE'] != IM_MESSAGE_PRIVATE && $bot['TYPE'] == self::TYPE_SUPERVISOR)
+		if (
+			$joinFields['CHAT_TYPE'] != IM_MESSAGE_PRIVATE
+			&& $bot['TYPE'] == self::TYPE_SUPERVISOR
+			&& (empty($joinFields['SILENT_JOIN']) || $joinFields['SILENT_JOIN'] != 'Y') // suppress any system message
+		)
 		{
 			\CIMMessenger::Add(Array(
 				'DIALOG_ID' => $dialogId,
@@ -795,6 +820,7 @@ class Bot
 			&& (
 				$joinFields['CHAT_TYPE'] == IM_MESSAGE_CHAT
 				|| $joinFields['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE
+				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT
 			)
 			&& $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID']
 		)
@@ -1340,11 +1366,7 @@ class Bot
 			$type = 'bot';
 			$code = $bot['CODE'];
 
-			if ($bot['TYPE'] == self::TYPE_HUMAN)
-			{
-				$type = 'human';
-			}
-			else if ($bot['TYPE'] == self::TYPE_NETWORK)
+			if ($bot['TYPE'] == self::TYPE_NETWORK)
 			{
 				$type = 'network';
 
@@ -1532,7 +1554,7 @@ class Bot
 		return $languageId;
 	}
 
-	public static function deleteExpiredTokenAgent()
+	public static function deleteExpiredTokenAgent(): string
 	{
 		$orm = \Bitrix\Im\Model\BotTokenTable::getList(Array(
 			'filter' => array(
@@ -1552,7 +1574,7 @@ class Bot
 			");
 		}
 
-		return "\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();";
+		return __METHOD__. '();';
 	}
 
 	/**
@@ -1595,6 +1617,7 @@ class Bot
 			if (
 				$messageFields['CHAT_ENTITY_TYPE'] === 'LINES'
 				|| $messageFields['CHAT_ENTITY_TYPE'] === 'SUPPORT24_QUESTION' /** @see \Bitrix\ImBot\Bot\Support24::CHAT_ENTITY_TYPE */
+				|| $messageFields['CHAT_ENTITY_TYPE'] === 'NETWORK_DIALOG' /** @see \Bitrix\ImBot\Bot\NETWORK::CHAT_ENTITY_TYPE */
 			)
 			{
 				$botFound = $messageFields['BOT_IN_CHAT'];

@@ -15,6 +15,7 @@ return [
 		'im.public',
 		'im.v2.lib.slider',
 		'im.v2.lib.logger',
+		'im.v2.lib.promo',
 		'im.v2.lib.sound-notification',
 		'im.v2.lib.rest',
 		'im.v2.const',

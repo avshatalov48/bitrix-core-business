@@ -1,0 +1,15 @@
+.bx-im-market-app-popup__container {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+}
+
+.bx-im-market-app-popup__loader-container {
+	height: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-market-app-popup__placement-container {
+	height: 100%;
+}

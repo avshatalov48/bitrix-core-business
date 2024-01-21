@@ -1,27 +1,28 @@
-;(function() {
-	"use strict";
+(function() {
+	'use strict';
 
-	BX.namespace("BX.Landing.UI.Button");
+	BX.namespace('BX.Landing.UI.Button');
 
-	BX.Landing.UI.Button.AlignTable = function(id, options)
+	BX.Landing.UI.Button.AlignTable = function(id, options, textNode)
 	{
 		BX.Landing.UI.Button.EditorAction.apply(this, arguments);
 		this.editPanel = null;
 		this.options = options;
 		this.id = id;
+		this.textNode = textNode;
 	};
 
 	BX.Landing.UI.Button.AlignTable.prototype = {
 		constructor: BX.Landing.UI.Button.AlignTable,
 		__proto__: BX.Landing.UI.Button.EditorAction.prototype,
 
-		onClick: function(event)
+		onClick(event)
 		{
 			event.preventDefault();
 			event.stopPropagation();
-			var id = this.id;
-			var activeClass = 'landing-ui-active';
-			this.options.alignButtons.forEach(function(alignButton) {
+			const id = this.id;
+			const activeClass = 'landing-ui-active';
+			this.options.alignButtons.forEach((alignButton) => {
 				if (alignButton.id === id)
 				{
 					alignButton.layout.classList.add(activeClass);
@@ -30,12 +31,13 @@
 				{
 					alignButton.layout.classList.remove(activeClass);
 				}
-			})
+			});
 			if (this.options.table)
 			{
-				var addedClass = null;
-				var setAlignClasses = ["text-left", "text-center", "text-right", "text-justify"];
-				switch (this.id) {
+				let addedClass = null;
+				const setAlignClasses = ['text-left', 'text-center', 'text-right', 'text-justify'];
+				switch (this.id)
+				{
 					case 'alignLeft':
 						addedClass = 'text-left';
 						break;
@@ -49,10 +51,10 @@
 						addedClass = 'text-justify';
 						break;
 				}
-				this.options.setTd.forEach(function(td) {
+				this.options.setTd.forEach((td) => {
 					if (td.nodeType === 1)
 					{
-						setAlignClasses.forEach(function(alignClass) {
+						setAlignClasses.forEach((alignClass) => {
 							if (alignClass === addedClass)
 							{
 								td.classList.add(alignClass);
@@ -61,11 +63,11 @@
 							{
 								td.classList.remove(alignClass);
 							}
-						})
+						});
 					}
-				})
+				});
 			}
-			BX.Landing.Node.Text.currentNode.onChange(true);
-		}
+			this.textNode.onChange(true);
+		},
 	};
 })();

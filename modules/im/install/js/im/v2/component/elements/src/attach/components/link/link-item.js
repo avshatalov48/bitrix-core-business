@@ -28,34 +28,34 @@ export const AttachLinkItem = {
 		},
 		link(): string
 		{
-			return this.internalConfig.LINK;
+			return this.internalConfig.link;
 		},
 		name(): string
 		{
-			return this.internalConfig.NAME ?? this.link;
+			return this.internalConfig.name ?? this.link;
 		},
 		description(): string
 		{
-			return this.internalConfig.DESC;
+			return this.internalConfig.desc;
 		},
 		html(): string
 		{
-			const content = this.internalConfig.HTML || this.description;
+			const content = this.internalConfig.html || this.description;
 
 			return Parser.decodeText(content);
 		},
 		preview(): string
 		{
-			return this.internalConfig.PREVIEW;
+			return this.internalConfig.preview;
 		},
 		imageConfig(): AttachImageConfig
 		{
 			return {
-				IMAGE: [{
-					NAME: this.internalConfig.NAME,
-					PREVIEW: this.internalConfig.PREVIEW,
-					WIDTH: this.internalConfig.WIDTH,
-					HEIGHT: this.internalConfig.HEIGHT,
+				image: [{
+					name: this.internalConfig.name,
+					preview: this.internalConfig.preview,
+					width: this.internalConfig.width,
+					height: this.internalConfig.height,
 				}]
 			};
 		}
@@ -68,7 +68,7 @@ export const AttachLinkItem = {
 			<span v-else class="bx-im-attach-link__name">
 				{{ name }}
 			</span>
-			<div v-if="internalConfig.HTML || description" class="bx-im-attach-link__desc" v-html="html"></div>
+			<div v-if="internalConfig.html || description" class="bx-im-attach-link__desc" v-html="html"></div>
 			<div v-if="preview" class="bx-im-attach-link__image">
 				<AttachImage :config="imageConfig" :color="color" />
 			</div>

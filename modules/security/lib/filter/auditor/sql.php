@@ -65,4 +65,36 @@ class Sql
 		);
 		return $result;
 	}
+
+
+	public function process($value)
+	{
+		if (preg_match("#^[0-9a-zA-Z+/]+={0,3}$#", $value))
+		{
+			return false;
+		}
+
+		static $regs = [
+			'/union.+?select/is',
+			'/select.+?from/is',
+			'/from.+?(?:where|limit)/is',
+			'/alter.+?(?:database|table|function|procedure|server|event|view|index)/is',
+			'/create.+?(?:database|table|function|procedure|server|event|view|index)/is',
+			'/drop.+?(?:database|table|function|procedure|server|event|view|index)/is',
+			'/update.+?set/is',
+			'/insert.+?(?:value|set|select|into)/is',
+			'/into.+?(?:outfile|dumpfile)/is',
+			'/load_file/is',
+		];
+
+		foreach($regs as $reg)
+		{
+			if(preg_match($reg, $value))
+			{
+				return parent::process($value);
+			}
+		}
+
+		return false;
+	}
 }

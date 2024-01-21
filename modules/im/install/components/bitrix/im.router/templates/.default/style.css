@@ -1,0 +1,52 @@
+.bx-im-online-page__scope {
+	--im-online-page__color_title: var(--ui-color-palette-black-base, #333);
+	--im-online-page__color_description: var(--ui-color-palette-gray-70, #828b95);
+	--im-online-page__font: var(--ui-font-family-system);
+	--im-online-page__background-color_button: #00ace3;
+	--im-online-page__background-color_button-hover: #33bde9;
+	--im-online-page__color_button: #fff;
+}
+
+.bx-im-online-page__container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 100px;
+}
+
+.bx-im-online-page__logo {
+	width: 185px;
+	height: 172px;
+	background: url('./images/logo.svg') no-repeat center;
+}
+
+.bx-im-online-page__title {
+	font: 24px/32px var(--im-online-page__font);
+	color: var(--im-online-page__color_title);
+	margin-top: 32px;
+	font-weight: 300;
+}
+
+.bx-im-online-page__description {
+	font: 15px/22px var(--im-online-page__font);
+	color: var(--im-online-page__color_description);
+	margin-top: 14px;
+}
+
+.bx-im-online-page__button {
+	margin-top: 30px;
+	height: 39px;
+	border-radius: 64px;
+	border: none;
+	cursor: pointer;
+	background-color: var(--im-online-page__background-color_button);
+	font: 12px/16px var(--im-online-page__font);
+	font-weight: 700;
+	color: var(--im-online-page__color_button);
+	text-transform: uppercase;
+	padding: 0 22px;
+}
+
+.bx-im-online-page__button:hover {
+	background-color: var(--im-online-page__background-color_button-hover);
+}

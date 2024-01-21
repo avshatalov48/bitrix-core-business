@@ -1,5 +1,10 @@
 <?php
 $MESS['SALE_HPS_PLATON'] = 'Platon';
+$MESS['SALE_HPS_PLATON_DESCRIPTION'] = 'Принимайте электронные платежи от клиентов через систему платежей Platon. Доступные методы платежа: оплата картой, Apple Pay, Google Pay, Приват24';
+$MESS['SALE_HPS_PLATON_MODE_CARD'] = 'Оплата картой';
+$MESS['SALE_HPS_PLATON_MODE_APPLE_PAY'] = 'Оплата Apple Pay';
+$MESS['SALE_HPS_PLATON_MODE_GOOGLE_PAY'] = 'Оплата Google Pay';
+$MESS['SALE_HPS_PLATON_MODE_PRIVAT24'] = 'Оплата Приват24';
 $MESS['SALE_HPS_PLATON_API_KEY'] = 'Ключ API';
 $MESS['SALE_HPS_PLATON_API_KEY_DESCRIPTION'] = 'Ключ предоставляется на почту мерчанту';
 $MESS['SALE_HPS_PLATON_PASSWORD'] = 'Пароль API';

@@ -166,9 +166,8 @@ export default class RobotLog
 				<div class="bizproc-debugger-automation__log-info">
 					<div class="bizproc-debugger-automation__log-info--name">
 						<span class="bizproc-debugger-automation__log-info--name-text">
-							${Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_AFTER_PREVIOUS')}
+							${Loc.getMessage('BIZPROC_JS_DEBUGGER_LOG_AFTER_PREVIOUS_MSGVER_1')}
 						</span>
-						<span>:</span>
 					</div>
 					<div class="bizproc-debugger-automation__log-info--value">
 						<span class="bizproc-debugger-automation__log-color-box --blue">

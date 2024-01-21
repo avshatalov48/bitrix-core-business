@@ -3,7 +3,6 @@
 namespace Bitrix\MessageService\Providers\Edna\WhatsApp\Old;
 
 use Bitrix\Main\Result;
-use Bitrix\Main\Web\HttpClient;
 use Bitrix\MessageService\Providers\Constants\InternalOption;
 use Bitrix\MessageService\Providers\Edna\WhatsApp;
 use Bitrix\MessageService\Providers\Edna\WhatsApp\ExternalSender;
@@ -32,9 +31,10 @@ class Utils extends WhatsApp\Utils
 
 	public function getMessageTemplates(string $subject = ''): Result
 	{
+		$result = new Result();
 		if (defined('WA_EDNA_RU_TEMPLATES_STUB') && WA_EDNA_RU_TEMPLATES_STUB === true)
 		{
-			return $this->getMessageTemplatesStub();
+			return $result->setData($this->getMessageTemplatesStub());
 		}
 
 		$params = ['imType' => 'whatsapp'];
@@ -50,20 +50,38 @@ class Utils extends WhatsApp\Utils
 		);
 
 		$templatesRequestResult = $externalSender->callExternalMethod('getOutMessageMatchers', $params);
+		if ($templatesRequestResult->isSuccess())
+		{
+			$templates = $templatesRequestResult->getData();
 
-		return $this->removeUnsupportedTemplates($templatesRequestResult);
+			$checkErrors = $this->checkForErrors($templates);
+			if ($checkErrors->isSuccess())
+			{
+				$templates = $this->removeUnsupportedTemplates($templates);
+				$result->setData($templates);
+			}
+			else
+			{
+				$result->addErrors($checkErrors->getErrors());
+			}
+		}
+		else
+		{
+			$result->addErrors($templatesRequestResult->getErrors());
+		}
+
+		return $result;
 	}
 
 	/**
 	 * Returns stub with HSM template from docs:
 	 * https://edna.docs.apiary.io/#reference/api/getoutmessagematchers
 	 *
-	 * @return Result
+	 * @return array
 	 */
-	protected function getMessageTemplatesStub(): Result
+	protected function getMessageTemplatesStub(): array
 	{
-		$result = new Result();
-		$result->setData([
+		return [
 			'result' => [
 				[
 					'id' => 206,
@@ -123,8 +141,6 @@ class Utils extends WhatsApp\Utils
 				]
 			],
 			'code' => 'ok'
-		]);
-
-		return $result;
+		];
 	}
 }

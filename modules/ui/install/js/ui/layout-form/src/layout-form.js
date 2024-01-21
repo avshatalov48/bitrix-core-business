@@ -2,6 +2,7 @@ import {Event, Dom} from "main.core";
 import 'ui.design-tokens';
 import 'ui.forms';
 import {EventEmitter} from 'main.core.events';
+import './css/style.css';
 
 type LayoutOptions = {
 	container?: HTMLElement

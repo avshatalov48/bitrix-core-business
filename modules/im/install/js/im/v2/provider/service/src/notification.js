@@ -73,7 +73,8 @@ export class NotificationService
 	delete(notificationId: number)
 	{
 		this.notificationsToDelete.add(notificationId);
-		this.store.dispatch('notifications/delete', {id: notificationId});
+		this.store.dispatch('notifications/delete', { id: notificationId });
+		this.store.dispatch('notifications/deleteFromSearch', { id: notificationId });
 
 		this.deleteWithDebounce();
 	}

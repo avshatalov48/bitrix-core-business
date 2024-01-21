@@ -1,8 +1,8 @@
 import { Loc, Reflection } from 'main.core';
 import { EntityCard } from 'catalog.entity-card';
 import { BaseEvent, EventEmitter } from 'main.core.events';
-import { MenuManager, Popup } from 'main.popup';
-import { Button } from 'ui.buttons';
+import { MenuManager } from 'main.popup';
+import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
 
 class ProductCard extends EntityCard
 {
@@ -47,32 +47,24 @@ class ProductCard extends EntityCard
 				return;
 			}
 
-			const popup = new Popup({
-				content: Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE'),
-				overlay: true,
-				titleBar: Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE_TITLE'),
-				closeByEsc: true,
-				closeIcon: true,
-				buttons: [
-					new Button({
-						text: Loc.getMessage('CPD_QUANTITY_TRACE_ACCEPT'),
-						className: 'ui-btn ui-btn-md ui-btn-primary',
-						events: {
-							click: (function()
-							{
-								this.#isQuantityTraceNoticeShown = false;
-								popup.destroy();
-							}).bind(this),
-						}
-					}),
-				],
-				events: {
-					onAfterClose: (function () {
+			MessageBox.show(
+				{
+					title: Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE_TITLE'),
+					message: Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE'),
+					buttons: MessageBoxButtons.OK,
+					okCaption: Loc.getMessage('CPD_QUANTITY_TRACE_ACCEPT'),
+					onOk: (messageBox) => {
 						this.#isQuantityTraceNoticeShown = false;
-					}).bind(this),
-				}
-			});
-			popup.show();
+						messageBox.close();
+					},
+					popupOptions: {
+						closeIcon: true,
+						events: {
+							onAfterClose: () => this.#isQuantityTraceNoticeShown = false,
+						},
+					},
+				},
+			);
 
 			this.#isQuantityTraceNoticeShown = true;
 		});
@@ -121,7 +113,7 @@ class ProductCard extends EntityCard
 		{
 			if (response.data.NOTIFY_ABOUT_NEW_VARIATION)
 			{
-				this.showNotification(Loc.getMessage('CPD_NEW_VARIATION_ADDED'));
+				this.showNotification(Loc.getMessage('CPD_NEW_VARIATION_ADDED_MSGVER_1'));
 			}
 		}
 	}

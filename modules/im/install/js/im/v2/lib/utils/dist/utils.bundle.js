@@ -86,6 +86,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  isSameDay(firstDate, secondDate) {
 	    return firstDate.getFullYear() === secondDate.getFullYear() && firstDate.getMonth() === secondDate.getMonth() && firstDate.getDate() === secondDate.getDate();
+	  },
+	  isSameHour(firstDate, secondDate) {
+	    return firstDate.getFullYear() === secondDate.getFullYear() && firstDate.getMonth() === secondDate.getMonth() && firstDate.getDate() === secondDate.getDate() && firstDate.getHours() === secondDate.getHours();
 	  }
 	};
 
@@ -461,6 +464,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const path = main_core.Extension.getSettings('im.v2.lib.utils').get('pathToUserCalendar');
 	    return path.replace('#user_id#', userId);
+	  },
+	  isNetworkUserId(userId) {
+	    if (!main_core.Type.isStringFilled(userId)) {
+	      return false;
+	    }
+	    return userId.startsWith(im_v2_const.UserIdNetworkPrefix);
 	  }
 	};
 
@@ -655,6 +664,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	      reader.readAsDataURL(file);
 	    });
+	  },
+	  resizeToFitMaxSize(width, height, maxSize) {
+	    const aspectRatio = width / height;
+	    let newWidth = width;
+	    let newHeight = height;
+	    if (newHeight > maxSize) {
+	      newHeight = maxSize;
+	      newWidth = newHeight * aspectRatio;
+	    }
+	    if (newWidth > maxSize) {
+	      newWidth = maxSize;
+	      newHeight = newWidth / aspectRatio;
+	    }
+	    return {
+	      height: newHeight,
+	      width: newWidth
+	    };
 	  }
 	};
 
@@ -739,6 +765,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return [];
 	}
 	function _checkCombination2(combination, exact = false) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _event)[_event].isComposing) {
+	    return false;
+	  }
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _checkModifiers)[_checkModifiers](combination, exact)) {
 	    return false;
 	  }
@@ -941,5 +970,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Utils = Utils;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Main,BX.Im.V2.Lib,BX.Messenger.v2.Const,BX));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX));
 //# sourceMappingURL=utils.bundle.js.map

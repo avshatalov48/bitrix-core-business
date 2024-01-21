@@ -9,6 +9,7 @@ $MESS["CALENDAR_EVENT_DO_CANCEL"] = "Отменить";
 $MESS["CALENDAR_EVENT_DO_RELEASE"] = "Отменить бронирование";
 $MESS["CALENDAR_EVENT_DO_OPEN"] = "Открыть";
 $MESS["CALENDAR_EVENT_DO_OPEN_PARENT"] = "Посмотреть событие";
+$MESS["CALENDAR_EVENT_DO_MORE"] = "Ещё";
 $MESS["CALENDAR_EVENT_WAITING_CONVERSION"] = "Происходит конвертация";
 $MESS["CALENDAR_EVENT_DO_EDIT"] = "Редактировать";
 $MESS["CALENDAR_EVENT_DO_DELETE"] = "Удалить";

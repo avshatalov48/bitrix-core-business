@@ -6,30 +6,31 @@ use Bitrix\Iblock;
 
 class CIBlockPropertyDate extends CIBlockPropertyDateTime
 {
-	public const USER_TYPE = 'Date';
+	/** @deprecated */
+	public const USER_TYPE = Iblock\PropertyTable::USER_TYPE_DATE;
 
 	private const INTERNAL_FORMAT = 'YYYY-MM-DD';
 
 	public static function GetUserTypeDescription()
 	{
 		return [
-			"PROPERTY_TYPE" => Iblock\PropertyTable::TYPE_STRING,
-			"USER_TYPE" => self::USER_TYPE,
-			"DESCRIPTION" => Loc::getMessage("IBLOCK_PROP_DATE_DESC"),
+			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_STRING,
+			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_DATE,
+			'DESCRIPTION' => Loc::getMessage('IBLOCK_PROP_DATE_DESC'),
 			//optional handlers
-			"GetPublicViewHTML" => [__CLASS__, "GetPublicViewHTML"],
-			"GetPublicEditHTML" => [__CLASS__, "GetPublicEditHTML"],
-			"GetPublicEditHTMLMulty" => [__CLASS__, "GetPublicEditHTMLMulty"],
-			"GetAdminListViewHTML" => [__CLASS__, "GetAdminListViewHTML"],
-			"GetPropertyFieldHtml" => [__CLASS__, "GetPropertyFieldHtml"],
-			"CheckFields" => [__CLASS__, "CheckFields"],
-			"ConvertToDB" => [__CLASS__, "ConvertToDB"],
-			"ConvertFromDB" => [__CLASS__, "ConvertFromDB"],
-			"GetSettingsHTML" => [__CLASS__, "GetSettingsHTML"],
-			"GetAdminFilterHTML" => [__CLASS__, "GetAdminFilterHTML"],
-			"GetPublicFilterHTML" => [__CLASS__, "GetPublicFilterHTML"],
-			"AddFilterFields" => [__CLASS__, "AddFilterFields"],
-			"GetUIFilterProperty" => [__CLASS__, "GetUIFilterProperty"],
+			'GetPublicViewHTML' => [__CLASS__, 'GetPublicViewHTML'],
+			'GetPublicEditHTML' => [__CLASS__, 'GetPublicEditHTML'],
+			'GetPublicEditHTMLMulty' => [__CLASS__, 'GetPublicEditHTMLMulty'],
+			'GetAdminListViewHTML' => [__CLASS__, 'GetAdminListViewHTML'],
+			'GetPropertyFieldHtml' => [__CLASS__, 'GetPropertyFieldHtml'],
+			'CheckFields' => [__CLASS__, 'CheckFields'],
+			'ConvertToDB' => [__CLASS__, 'ConvertToDB'],
+			'ConvertFromDB' => [__CLASS__, 'ConvertFromDB'],
+			'GetSettingsHTML' => [__CLASS__, 'GetSettingsHTML'],
+			'GetAdminFilterHTML' => [__CLASS__, 'GetAdminFilterHTML'],
+			'GetPublicFilterHTML' => [__CLASS__, 'GetPublicFilterHTML'],
+			'AddFilterFields' => [__CLASS__, 'AddFilterFields'],
+			'GetUIFilterProperty' => [__CLASS__, 'GetUIFilterProperty'],
 			'GetUIEntityEditorProperty' => [__CLASS__, 'GetUIEntityEditorProperty'],
 			//"GetORMFields" => array(__CLASS__, "GetORMFields"),
 		];
@@ -155,7 +156,7 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 	public static function GetUIFilterProperty($property, $control, &$fields)
 	{
 		parent::GetUIFilterProperty($property, $control, $fields);
-		unset($fields["time"]);
+		unset($fields['time'], $fields['data']);
 	}
 
 	/**

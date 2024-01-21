@@ -22,11 +22,8 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-
 		),
 	),
-	
-	
 	'items' => array(
 		'0' => array(
 			'code' => '34.4.two_cols_with_text_and_icons',

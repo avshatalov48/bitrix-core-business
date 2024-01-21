@@ -277,7 +277,7 @@ if (
 								$arResult["IBLOCK_ID"]),
 							$arParameter,
 							["Form" => "start_workflow_form1", "Field" => $parameterKeyExt],
-							$parametersValues[$parameterKey],
+							$parametersValues[$parameterKey] ?? null,
 							false,
 							true
 						);
@@ -419,6 +419,7 @@ $APPLICATION->IncludeComponent(
 <script type="text/javascript">
 	BX.ready(function () {
 		BX.Lists['<?=$jsClass?>'] = new BX.Lists.ListsElementEditClass({
+			formId: '<?= CUtil::JSEscape(htmlspecialcharsbx($arResult['FORM_ID'])) ?>',
 			randomString: '<?=$arResult['RAND_STRING']?>',
 			urlTabBp: '<?=$urlTabBp?>',
 			iblockTypeId: '<?=$arParams["IBLOCK_TYPE_ID"]?>',

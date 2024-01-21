@@ -441,7 +441,7 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 							?>
 							<tr valign="top" style="">
 								<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentAction['FIELDS'][$i]['NAME']?>:</label></td>
-								<td width="25%"><textarea name="ACTION_CONFIG[<?=$arCurrentAction['ID']?>][<?=$arCurrentAction['FIELDS'][$i]['ID']?>]" wrap="OFF" rows="10" cols="34"></textarea><?=$strFieldValue?></textarea></td>
+								<td width="25%"><textarea name="ACTION_CONFIG[<?=$arCurrentAction['ID']?>][<?=$arCurrentAction['FIELDS'][$i]['ID']?>]" wrap="OFF" rows="10" cols="34"><?=htmlspecialcharsbx($strFieldValue)?></textarea></td>
 							</tr>
 							<?
 						}

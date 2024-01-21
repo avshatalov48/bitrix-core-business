@@ -57,7 +57,7 @@
 						aria-controls="navBar"
 						data-toggle="collapse"
 						data-target="#navBar">
-                <span class="hamburger hamburger--slider">
+                <span class="hamburger hamburger--slider hamburger--md">
                   <span class="hamburger-box">
                     <span class="hamburger-inner"></span>
                   </span>

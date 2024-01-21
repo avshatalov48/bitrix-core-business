@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Bitrix24\License;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Socialservices\Network;
@@ -842,6 +845,13 @@ class CBitrix24NetTransport
 
 	protected function prepareRequest(array $request, $lang = null)
 	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			$license = License::getCurrent();
+			$request['license'] = $license->getCode();
+			$request['license_partner'] = $license->getPartnerId();
+		}
+
 		$request["broadcast_last_check"] = Network::getLastBroadcastCheck();
 		$request["user_lang"] = $lang ?? LANGUAGE_ID;
 		$request["auth"] = $this->access_token;
@@ -1059,6 +1069,13 @@ class CBitrix24NetPortalTransport extends CBitrix24NetTransport
 		if ($lang)
 		{
 			$request["user_lang"] = $lang;
+		}
+
+		if (Loader::includeModule('bitrix24'))
+		{
+			$license = License::getCurrent();
+			$request['license'] = $license->getCode();
+			$request['license_partner'] = $license->getPartnerId();
 		}
 
 		return $this->convertRequest($request);

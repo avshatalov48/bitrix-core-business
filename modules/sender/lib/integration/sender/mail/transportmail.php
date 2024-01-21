@@ -189,23 +189,6 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			unset($messageAttachment[$key]);
 		}
 
-		//set callback entity Id
-		if (Integration\Bitrix24\Service::isCloud())
-		{
-			if ($message->getRecipientId())
-			{
-				$this->getMailContext()->getCallback()
-					->setEntityType('rcpt')
-					->setEntityId($message->getRecipientId());
-			}
-			else
-			{
-				$this->getMailContext()->getCallback()
-					->setEntityType('test')
-					->setEntityId(time() . '.' . rand(100, 1000));
-			}
-		}
-
 		$canTrackMail = $message->getConfiguration()->get('TRACK_MAIL', $this->canTrackMails());
 		$mailMessageParams = array(
 			'EVENT' => [],
@@ -244,7 +227,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			'LINK_DOMAIN' => $message->getSiteServerName(),
 			'TRACK_READ' => $canTrackMail ? $message->getReadTracker()->getArray() : null,
 			'TRACK_CLICK' => $canTrackMail ? $message->getClickTracker()->getArray() : null,
-			'CONTEXT' => $this->getMailContext(),
+			'CONTEXT' => $this->getMailContextForMessage($message),
 		);
 		$linkDomain = $message->getReadTracker()->getLinkDomain();
 		if ($linkDomain)
@@ -381,7 +364,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 
 		return $this->mailAddress->set($address)->get();
 	}
-	
+
 	/**
 	 * @param string|null $str
 	 * @return array|string|string[]|null
@@ -399,7 +382,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 
 		return $str;
 	}
-	
+
 	/**
 	 * send Consent Message to Recipient
 	 * @param Message\Adapter $message
@@ -410,7 +393,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 	public function sendConsent(Message\Adapter $message, Consent\AbstractConsentMessageBuilder $builder)
 	{
 		$agreement = $this->getAgreement((int)$message->getConfiguration()->get('APPROVE_CONFIRMATION_CONSENT'));
-		
+
 		if (!$agreement)
 		{
 			return false;
@@ -431,7 +414,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			'APPLY_URL' => $buildedMessage['C_FIELDS']['SENDER_CONSENT_APPLY'],
 			'REJECT_URL' => $buildedMessage['C_FIELDS']['SENDER_CONSENT_REJECT'],
 		]);
-		
+
 		$mailMessageParams = array(
 			'EVENT' => [],
 			'FIELDS' => [],
@@ -449,7 +432,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		);
 		$mailMessage = Mail\EventMessageCompiler::createInstance($mailMessageParams);
 		$mailMessage->compile();
-		
+
 		$mailParams = array(
 			'TO' => $mailMessage->getMailTo(),
 			'SUBJECT' => static::replaceTemplate($mailMessage->getMailSubject()),
@@ -458,10 +441,34 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			'CHARSET' => $mailMessage->getMailCharset(),
 			'CONTENT_TYPE' => $mailMessage->getMailContentType(),
 			'MESSAGE_ID' => '',
-			'CONTEXT' => $this->getMailContext(),
+			'CONTEXT' => $this->getMailContextForMessage($message),
 		);
-		
+
 		return Mail\Mail::send($mailParams);
+	}
+
+	protected function getMailContextForMessage(Message\Adapter $message): Mail\Context
+	{
+		$context = $this->getMailContext();
+
+		//set callback entity Id
+		if (Integration\Bitrix24\Service::isCloud())
+		{
+			if ($message->getRecipientId())
+			{
+				$context->getCallback()
+					->setEntityType('rcpt')
+					->setEntityId($message->getRecipientId());
+			}
+			else
+			{
+				$context->getCallback()
+					->setEntityType('test')
+					->setEntityId(time() . '.' . rand(100, 1000));
+			}
+		}
+
+		return $context;
 	}
 
 	private function getAgreement(int $agreementId): ?Main\UserConsent\Agreement
@@ -471,7 +478,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 		{
 			return null;
 		}
-		
+
 		return $agreement;
 	}
 

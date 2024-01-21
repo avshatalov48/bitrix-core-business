@@ -564,20 +564,29 @@ class Element extends Entity
 		{
 			$list = [];
 			$iterator = \CIBlockSection::GetList(
-				['LEFT_MARGIN' => 'ASC'],
+				[
+					'LEFT_MARGIN' => 'ASC',
+				],
 				[
 					'IBLOCK_ID' => $this->getStorageItem(self::STORAGE_ENTITY_IBLOCK, 'IBLOCK_ID'),
 					'ACTIVE' => 'Y',
 					'GLOBAL_ACTIVE' => 'Y',
 					'CHECK_PERMISSIONS' => 'Y',
-					'MIN_PERMISSION' => 'R'
+					'MIN_PERMISSION' => 'R',
 				],
 				false,
-				['ID', 'NAME', 'IBLOCK_ID', 'DEPTH_LEVEL', 'LEFT_MARGIN']
+				[
+					'ID',
+					'NAME',
+					'IBLOCK_ID',
+					'DEPTH_LEVEL',
+					'LEFT_MARGIN',
+				]
 			);
 			while ($row = $iterator->Fetch())
 			{
-				$list[$row['ID']] = str_repeat('.', $row['DEPTH_LEVEL'] - 1).$row['NAME'];
+				$margin = max((int)$row['DEPTH_LEVEL'], 1) - 1;
+				$list[$row['ID']] = str_repeat('.', $margin) . $row['NAME'];
 			}
 			unset($row, $iterator);
 			$result = [
@@ -870,13 +879,31 @@ class Element extends Entity
 					{
 						$list = [];
 						$valueIterator = \CIBlockSection::GetList(
-							['LEFT_MARGIN' => 'ASC'],
-							['IBLOCK_ID' => $row['LINK_IBLOCK_ID'], 'CHECK_PERMISSIONS' => 'Y', 'MIN_PERMISSION' => 'R'],
+							[
+								'LEFT_MARGIN' => 'ASC',
+							],
+							[
+								'IBLOCK_ID' => $row['LINK_IBLOCK_ID'],
+								'CHECK_PERMISSIONS' => 'Y',
+								'MIN_PERMISSION' => 'R',
+							],
 							false,
-							['ID', 'IBLOCK_ID', 'DEPTH_LEVEL', 'NAME', 'LEFT_MARGIN']
+							[
+								'ID',
+								'IBLOCK_ID',
+								'DEPTH_LEVEL',
+								'NAME',
+								'LEFT_MARGIN',
+							]
 						);
 						while ($value = $valueIterator->Fetch())
-							$list[$value['ID']] = str_repeat('. ', $value['DEPTH_LEVEL'] - 1).'['.$value['ID'].'] '.$value['NAME'];
+						{
+							$margin = max((int)$value['DEPTH_LEVEL'], 1) - 1;
+							$list[$value['ID']] =
+								str_repeat('. ', $margin)
+								. '[' . $value['ID'] . '] '. $value['NAME']
+							;
+						}
 						unset($value, $valueIterator);
 						if (!empty($list))
 						{

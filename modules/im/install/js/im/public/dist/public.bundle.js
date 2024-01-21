@@ -69,6 +69,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  log: () => {}
 	};
 
+	const SectionNameMap = {
+	  notify: 'notification'
+	};
+	const prepareSettingsSection = legacySectionName => {
+	  var _SectionNameMap$legac;
+	  return (_SectionNameMap$legac = SectionNameMap[legacySectionName]) != null ? _SectionNameMap$legac : '';
+	};
+
 	class Messenger {
 	  constructor() {
 	    this.v2enabled = false;
@@ -101,6 +109,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    const MessengerSlider = main_core.Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
 	    return MessengerSlider == null ? void 0 : MessengerSlider.getInstance().openLines(dialogId);
+	  }
+	  async openCopilot(dialogId = '') {
+	    if (!this.v2enabled) {
+	      window.BXIM.openMessenger(dialogId);
+	      return Promise.resolve();
+	    }
+	    const DesktopManager = main_core.Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+	    const isRedirectAllowed = await (DesktopManager == null ? void 0 : DesktopManager.getInstance().checkForRedirect());
+	    if (isRedirectAllowed) {
+	      return DesktopManager == null ? void 0 : DesktopManager.getInstance().redirectToCopilot(dialogId);
+	    }
+	    const MessengerSlider = main_core.Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+	    return MessengerSlider == null ? void 0 : MessengerSlider.getInstance().openCopilot(dialogId);
 	  }
 	  async openLinesHistory(dialogId = '') {
 	    if (!this.v2enabled) {
@@ -136,7 +157,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const MessengerSlider = main_core.Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
 	    return MessengerSlider == null ? void 0 : MessengerSlider.getInstance().openRecentSearch();
 	  }
-	  openSettings(options = {}) {
+	  async openSettings(options = {}) {
+	    var _options$onlyPanel2;
 	    if (!this.v2enabled) {
 	      const params = {};
 	      if (main_core.Type.isPlainObject(options)) {
@@ -150,8 +172,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      window.BXIM.openSettings(params);
 	      return Promise.resolve();
 	    }
+	    const DesktopManager = main_core.Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+	    const isRedirectAllowed = await (DesktopManager == null ? void 0 : DesktopManager.getInstance().checkForRedirect());
+	    if (isRedirectAllowed) {
+	      var _options$onlyPanel;
+	      return DesktopManager == null ? void 0 : DesktopManager.getInstance().redirectToSettings((_options$onlyPanel = options.onlyPanel) != null ? _options$onlyPanel : '');
+	    }
 	    const MessengerSlider = main_core.Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-	    return MessengerSlider == null ? void 0 : MessengerSlider.getInstance().openSettings(options);
+	    const settingsSection = prepareSettingsSection((_options$onlyPanel2 = options.onlyPanel) != null ? _options$onlyPanel2 : '');
+	    return MessengerSlider == null ? void 0 : MessengerSlider.getInstance().openSettings(settingsSection);
 	  }
 	  async openConference(options = {}) {
 	    if (!this.v2enabled) {

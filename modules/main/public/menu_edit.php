@@ -1,10 +1,15 @@
-<?
+<?php
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
 if(!CModule::IncludeModule('fileman'))
 	die();
 
+/**
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ */
 if(!$USER->CanDoOperation('fileman_edit_menu_elements'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
@@ -19,10 +24,17 @@ $io = CBXVirtualIo::GetInstance();
 
 $path = $io->CombinePath("/", $path);
 
-$arParsedPath = CFileMan::ParsePath(Array($site, $path), true, false, "", ($_REQUEST["logical"] == "Y"));
+$arParsedPath = CFileMan::ParsePath(
+	[$site, $path],
+	true,
+	false,
+	"",
+	(isset($_REQUEST["logical"]) && $_REQUEST["logical"] === "Y")
+);
+
 $menufilename = $path;
 
-$name = preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["name"]);
+$name = preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["name"] ?? '');
 $menufilename = $io->CombinePath($path, ".".$name.".menu.php");
 $arPath_m = array($site, $menufilename);
 $abs_path = $io->CombinePath($DOC_ROOT, $menufilename);
@@ -31,7 +43,7 @@ $strWarning = "";
 $module_id = "fileman";
 
 //delete menu file
-if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
+if(isset($_REQUEST["action"]) && $_REQUEST["action"] == "delete" && check_bitrix_sessid())
 {
 	$success = false;
 	if($io->FileExists($abs_path) && $USER->CanDoFileOperation('fm_delete_file', $arPath_m))
@@ -92,7 +104,7 @@ if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
 	die();
 }
 
-if($io->FileExists($abs_path) && $new == '')
+if($io->FileExists($abs_path) && empty($new))
 	$bEdit = true;
 else
 	$bEdit = false;
@@ -120,9 +132,8 @@ else
 
 		//соберем $aMenuLinksTmp из того что пришло с формы
 		$aMenuSort = Array();
-		for($i=0; $i<count($ids); $i++)
+		foreach ($ids as $num)
 		{
-			$num = $ids[$i];
 			if (!isset($aMenuLinksTmp[$num-1]) && $only_edit)
 				continue;
 
@@ -145,9 +156,11 @@ else
 
 		$aMenuLinksTmp = $aMenuLinksTmp_;
 
-		for($i=0; $i<count($aMenuSort)-1; $i++)
-			for($j=$i+1; $j<count($aMenuSort); $j++)
-				if($aMenuSort[$i]>$aMenuSort[$j])
+		for ($i = 0, $n = count($aMenuSort); $i < $n - 1; $i++)
+		{
+			for ($j = $i + 1; $j < $n; $j++)
+			{
+				if ($aMenuSort[$i] > $aMenuSort[$j])
 				{
 					$tmpSort = $aMenuLinksTmp[$i];
 					$aMenuLinksTmp[$i] = $aMenuLinksTmp[$j];
@@ -157,6 +170,8 @@ else
 					$aMenuSort[$i] = $aMenuSort[$j];
 					$aMenuSort[$j] = $tmpSort;
 				}
+			}
+		}
 
 		//теперь $aMenuLinksTmp прямо в таком готовом виде, что хоть меню рисуй :-)
 		if (!check_bitrix_sessid())
@@ -195,7 +210,7 @@ else
 			{
 				$mt = COption::GetOptionString("fileman", "menutypes", false, $site);
 				$mt = unserialize(str_replace("\\", "", $mt), ['allowed_classes' => false]);
-				$res_log['menu_name'] = $mt[$name];
+				$res_log['menu_name'] = $mt[$name] ?? '';
 				$res_log['path'] = mb_substr($path, 1);
 				if ($bEdit)
 					CEventLog::Log(
@@ -240,7 +255,7 @@ $arMenuTypes = GetMenuTypes($site);
 $TITLE = GetMessage("MENU_EDIT_TITLE_".($bEdit ? "EDIT" : "ADD"));
 $DESCRIPTION = str_replace(
 	array("#TYPE#", "#DIR#"),
-	array($arMenuTypes[$name] <> '' ? $arMenuTypes[$name] : $name, $path),
+	array(!empty($arMenuTypes[$name]) ? $arMenuTypes[$name] : $name, $path),
 	GetMessage("MENU_EDIT_DESCRIPTION_".($bEdit ? "EDIT" : "ADD"))
 );
 
@@ -275,6 +290,7 @@ if($strWarning <> "")
 // ======================== Show content ============================= //
 $obJSPopup->StartContent();
 
+$aMenuLinksTmp = [];
 if($bEdit && $strWarning == '')
 {
 	$res = CFileMan::GetMenuArray($abs_path);
@@ -285,7 +301,7 @@ if(!is_array($aMenuLinksTmp))
 	$aMenuLinksTmp = Array();
 ?>
 	<input type="hidden" name="save" value="Y" />
-	<table border="0" cellpadding="0" cellspacing="0" class="bx-width100" class="menu-table">
+	<table border="0" cellpadding="0" cellspacing="0" class="bx-width100 menu-table">
 	<thead>
 		<tr class="section">
 			<td width="0"></td>
@@ -304,7 +320,7 @@ if(!is_array($aMenuLinksTmp))
 	for($i = 1, $n = count($aMenuLinksTmp); $i <= $n; $i++):
 		$itemcnt++;
 		$aMenuLinksItem = $aMenuLinksTmp[$i-1];
-	?><div class="bx-menu-placement" id="bx_menu_placement_<?=$i?>"><div class="bx-edit-menu-item" id="bx_menu_row_<?=$i?>"><table border="0" cellpadding="0" cellspacing="0" class="bx-width100 internal" class="menu-table"><tbody>
+	?><div class="bx-menu-placement" id="bx_menu_placement_<?=$i?>"><div class="bx-edit-menu-item" id="bx_menu_row_<?=$i?>"><table border="0" cellpadding="0" cellspacing="0" class="bx-width100 internal menu-table"><tbody>
 	<tr>
 
 		<td><input type="hidden" name="sort_<?=$i?>" value="<?echo $i*10?>" />
@@ -313,7 +329,7 @@ if(!is_array($aMenuLinksTmp))
 		<input type="hidden" name="additional_params_<?=$i?>" value="<?=htmlspecialcharsex(serialize(array($aMenuLinksItem[2], $aMenuLinksItem[3], $aMenuLinksItem[4])))?>" />
 		<span class="rowcontrol drag" title="<?=GetMessage('MENU_EDIT_TOOLTIP_DRAG')?>"></span>
 		</td>
-		</td><td>
+		<td>
 			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_text_<?=$i?>" onclick="editArea('text_<?=$i?>')" title="<?=GetMessage('MENU_EDIT_TOOLTIP_TEXT_EDIT')?>"><?=$aMenuLinksItem[0] <> '' ? htmlspecialcharsbx($aMenuLinksItem[0]) : GetMessage('MENU_EDIT_JS_NONAME')?></div>
 			<div class="edit-area" id="edit_area_text_<?=$i?>" style="display: none;"><input type="text" style="width: 220px;" name="text_<?echo $i?>" value="<?=htmlspecialcharsbx($aMenuLinksItem[0])?>" onblur="viewArea('text_<?=$i?>')" />
 </div>
@@ -361,7 +377,7 @@ var jsMenuMess = {
 	noname: '<?=CUtil::JSEscape(GetMessage('MENU_EDIT_JS_NONAME'))?>'
 }
 
-function setLink(filename, path, site)
+function setLink(filename, path)
 {
 	<?echo $obJSPopup->jsPopup?>.GetForm()['link_' + currentLink].value = ((path == '' || path == '/') ? '/' : path + '/') + filename;
 	editArea('link_' + currentLink, true);
@@ -503,7 +519,7 @@ function menuAdd()
 		'<span onclick="menuDelete(' + nums + ')" class="rowcontrol delete" title="<?=CUtil::JSEscape(GetMessage('MENU_EDIT_TOOLTIP_DELETE'))?>"></span>'
 	];
 
-	var row_content = '<table border="0" cellpadding="0" cellspacing="0" class="bx-width100 internal" class="menu-table"><tbody><tr>';
+	var row_content = '<table border="0" cellpadding="0" cellspacing="0" class="bx-width100 internal menu-table"><tbody><tr>';
 
 	for (var i = 0; i < arCellsHTML.length; i++)
 		row_content += '<td>' + arCellsHTML[i] + '</td>';
@@ -518,7 +534,7 @@ function menuAdd()
 		['sort_' + nums, 2 * nums * 10]
 	];
 
-	for (var i = 0; i<arInputs.length; i++)
+	for (i = 0; i<arInputs.length; i++)
 	{
 		var obInput = BX.create('INPUT', {
 			props: {type: 'hidden', name: arInputs[i][0], value: arInputs[i][1]}
@@ -694,7 +710,7 @@ BX.ready(function ()
 	jsDD.Reset();
 
 <?
-for($i=1; $i<=count($aMenuLinksTmp); $i++):
+for ($i = 1, $n = count($aMenuLinksTmp); $i <= $n; $i++):
 ?>
 	jsDD.registerDest(BX('bx_menu_placement_<?=$i?>'));
 
@@ -718,4 +734,3 @@ $obJSPopup->ShowStandardButtons();
 ?>
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
-?>

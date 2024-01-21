@@ -1,31 +1,31 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 class CIBlockPropertySequence
 {
-	const USER_TYPE = 'Sequence';
+	/** @deprecated */
+	public const USER_TYPE = Iblock\PropertyTable::USER_TYPE_SEQUENCE;
 
 	public static function GetUserTypeDescription()
 	{
-		return array(
-			"PROPERTY_TYPE" => Iblock\PropertyTable::TYPE_NUMBER,
-			"USER_TYPE" => self::USER_TYPE,
-			"DESCRIPTION" => Loc::getMessage("IBLOCK_PROP_SEQUENCE_DESC"),
-			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"GetPublicEditHTML" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"PrepareSettings" =>array(__CLASS__, "PrepareSettings"),
-			"GetSettingsHTML" =>array(__CLASS__, "GetSettingsHTML"),
-			"GetAdminFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
-			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
-			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
-			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty"),
-			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
-			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
-			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
-		);
+		return [
+			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_NUMBER,
+			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_SEQUENCE,
+			'DESCRIPTION' => Loc::getMessage('IBLOCK_PROP_SEQUENCE_DESC'),
+			'GetPropertyFieldHtml' => [__CLASS__, 'GetPropertyFieldHtml'],
+			'GetPublicEditHTML' => [__CLASS__, 'GetPropertyFieldHtml'],
+			'PrepareSettings' => [__CLASS__, 'PrepareSettings'],
+			'GetSettingsHTML' => [__CLASS__, 'GetSettingsHTML'],
+			'GetAdminFilterHTML' => [__CLASS__, 'GetPublicFilterHTML'],
+			'GetPublicFilterHTML' => [__CLASS__, 'GetPublicFilterHTML'],
+			'AddFilterFields' => [__CLASS__, 'AddFilterFields'],
+			'GetUIFilterProperty' => [__CLASS__, 'GetUIFilterProperty'],
+			'GetUIEntityEditorProperty' => [__CLASS__, 'GetUIEntityEditorProperty'],
+			'GetUIEntityEditorPropertyEditHtml' => [__CLASS__, 'GetUIEntityEditorPropertyEditHtml'],
+			'GetUIEntityEditorPropertyViewHtml' => [__CLASS__, 'GetUIEntityEditorPropertyViewHtml'],
+		];
 	}
 
 	public static function AddFilterFields($arProperty, $strHTMLControlName, &$arFilter, &$filtered)

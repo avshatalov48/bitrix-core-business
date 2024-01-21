@@ -36,8 +36,17 @@ class MorePhotoImage extends BaseImage
 				}
 				else
 				{
-					$values = $property->getPropertyValueCollection()->getValues();
-					$values[] = $this->getFileStructure();
+					if ($property->isMultiple())
+					{
+						$values = $property->getPropertyValueCollection()->getValues();
+						$values[] = $this->getFileStructure();
+					}
+					else
+					{
+						$values = [
+							$this->getFileStructure(),
+						];
+					}
 					$property->getPropertyValueCollection()->setValues($values);
 				}
 			}

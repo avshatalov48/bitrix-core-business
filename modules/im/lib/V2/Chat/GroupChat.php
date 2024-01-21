@@ -24,6 +24,7 @@ use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Pull\Event;
 use CPullWatch;
 
 class GroupChat extends Chat implements PopupDataAggregatable
@@ -122,8 +123,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		{
 			$params['AUTHOR_ID'] = (int)$params['AUTHOR_ID'];
 		}
-
-		if (isset($params['OWNER_ID']))
+		elseif (isset($params['OWNER_ID']))
 		{
 			$params['AUTHOR_ID'] = (int)$params['OWNER_ID'];
 		}
@@ -274,6 +274,14 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		return mb_substr($chatTitle, 0, 255);
 	}
 
+	public function sendPushUpdateMessage(Message $message): void
+	{
+		$pushFormat = new Message\PushFormat();
+		$push = $pushFormat->formatMessageUpdate($message);
+		$push['params']['dialogId'] = $this->getDialogId();
+		Event::add($this->getUsersForPush(true, false), $push);
+	}
+
 	protected function sendPushReadOpponent(MessageCollection $messages, int $lastId): array
 	{
 		$pushMessage = parent::sendPushReadOpponent($messages, $lastId);
@@ -305,7 +313,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		);
 
 		\CIMMessage::Add([
-			'MESSAGE_TYPE' => self::IM_TYPE_CHAT,
+			'MESSAGE_TYPE' => $this->getType(),
 			'TO_CHAT_ID' => $this->getChatId(),
 			'FROM_USER_ID' => $author->getId(),
 			'MESSAGE' => $messageText,
@@ -324,7 +332,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			);
 
 			\CIMMessage::Add([
-				'MESSAGE_TYPE' => self::IM_TYPE_CHAT,
+				'MESSAGE_TYPE' => $this->getType(),
 				'TO_CHAT_ID' => $this->getChatId(),
 				'FROM_USER_ID' => $author->getId(),
 				'MESSAGE' => $messageText,
@@ -343,12 +351,12 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		$author = \Bitrix\Im\V2\Entity\User\User::getInstance($authorId);
 
 		if (
-			in_array($this->getType(), [self::IM_TYPE_CHAT, self::IM_TYPE_OPEN], true)
+			in_array($this->getType(), [self::IM_TYPE_CHAT, self::IM_TYPE_OPEN, self::IM_TYPE_COPILOT], true)
 			&& empty($this->getEntityType())
 		)
 		{
 			\CIMMessage::Add([
-				'MESSAGE_TYPE' => self::IM_TYPE_CHAT,
+				'MESSAGE_TYPE' => $this->getType(),
 				'TO_CHAT_ID' => $this->getChatId(),
 				'FROM_USER_ID' => $author->getId(),
 				'MESSAGE' => Loc::getMessage('IM_CHAT_CREATE_WELCOME'),
@@ -411,7 +419,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		);
 
 		\CIMMessage::Add([
-			'MESSAGE_TYPE' => self::IM_TYPE_CHAT,
+			'MESSAGE_TYPE' => $this->getType(),
 			'TO_CHAT_ID' => $this->getChatId(),
 			'FROM_USER_ID' => $author->getId(),
 			'MESSAGE' => $messageText,
@@ -661,7 +669,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		$author = \Bitrix\Im\V2\Entity\User\User::getInstance($authorId);
 
 		\CIMMessage::Add([
-			'MESSAGE_TYPE' => self::IM_TYPE_CHAT,
+			'MESSAGE_TYPE' => $this->getType(),
 			'TO_CHAT_ID' => $this->getChatId(),
 			'FROM_USER_ID' => $author->getId(),
 			'MESSAGE' => htmlspecialcharsback($this->getDescription()),

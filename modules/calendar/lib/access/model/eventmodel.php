@@ -20,6 +20,7 @@ class EventModel implements AccessibleEvent
 	private int $parentEventSectionId = 0;
 	private string $parentEventSectionType = '';
 	private int $parentEventOwnerId = 0;
+	private int $parentEventId = 0;
 
 	public static function createFromId(int $itemId = 0): AccessibleItem
 	{
@@ -77,6 +78,11 @@ class EventModel implements AccessibleEvent
 		if (($fields['MEETING_STATUS'] ?? null) && is_string($fields['MEETING_STATUS']))
 		{
 			$model->setMeetingStatus($fields['MEETING_STATUS']);
+		}
+
+		if ((int)($fields['PARENT_ID'] ?? null))
+		{
+			$model->setParentEventId((int)$fields['PARENT_ID']);
 		}
 
 		if (
@@ -230,6 +236,13 @@ class EventModel implements AccessibleEvent
 		return $this;
 	}
 
+	public function setParentEventId(int $parentEventId): self
+	{
+		$this->parentEventId = $parentEventId;
+
+		return $this;
+	}
+
 	public function getParentEventSectionId(): int
 	{
 		return $this->parentEventSectionId;
@@ -256,5 +269,10 @@ class EventModel implements AccessibleEvent
 	public function getParentEventOwnerId(): int
 	{
 		return $this->parentEventOwnerId;
+	}
+
+	public function getParentEventId(): int
+	{
+		return $this->parentEventId;
 	}
 }

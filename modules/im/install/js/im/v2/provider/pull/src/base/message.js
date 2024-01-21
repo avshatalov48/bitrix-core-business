@@ -5,10 +5,11 @@ import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
 import { UserManager } from 'im.v2.lib.user';
 import { UuidManager } from 'im.v2.lib.uuid';
+import { WritingManager } from 'im.v2.lib.writing';
 import { EventType, DialogScrollThreshold, UserRole } from 'im.v2.const';
 import { MessageService } from 'im.v2.provider.service';
 
-import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
+import type { ImModelChat, ImModelMessage } from 'im.v2.model';
 
 import type {
 	MessageAddParams,
@@ -24,9 +25,12 @@ import type {
 } from '../types/message';
 import type { PullExtraParams, RawFile, RawUser, RawMessage } from '../types/common';
 
+type UserId = number;
+
 export class MessagePullHandler
 {
 	#store: Store;
+	#messageViews: {[messageId: string]: Set<UserId>} = {};
 
 	constructor()
 	{
@@ -39,6 +43,7 @@ export class MessagePullHandler
 		this.#setMessageChat(params);
 		this.#setUsers(params);
 		this.#setFiles(params);
+		this.#setAdditionalEntities(params);
 
 		const messageWithTemplateId = this.#store.getters['messages/isInChatCollection']({
 			messageId: params.message.templateId,
@@ -54,7 +59,7 @@ export class MessagePullHandler
 			Logger.warn('New message pull handler: we already have this message', params.message);
 			this.#store.dispatch('messages/update', {
 				id: params.message.id,
-				fields: params.message,
+				fields: { ...params.message, error: false },
 			});
 			this.#sendScrollEvent(params.chatId);
 		}
@@ -63,7 +68,7 @@ export class MessagePullHandler
 			Logger.warn('New message pull handler: we already have the TEMPORARY message', params.message);
 			this.#store.dispatch('messages/updateWithId', {
 				id: params.message.templateId,
-				fields: params.message,
+				fields: { ...params.message, error: false },
 			});
 		}
 		// it's an opponent message or our own message from somewhere else
@@ -73,8 +78,7 @@ export class MessagePullHandler
 			this.#handleAddingMessageToModel(params);
 		}
 
-		// stop writing event
-		this.#store.dispatch('dialogues/stopWriting', {
+		WritingManager.getInstance().stopWriting({
 			dialogId: params.dialogId,
 			userId: params.message.senderId,
 		});
@@ -85,7 +89,7 @@ export class MessagePullHandler
 	handleMessageUpdate(params: MessageUpdateParams)
 	{
 		Logger.warn('MessagePullHandler: handleMessageUpdate', params);
-		this.#store.dispatch('dialogues/stopWriting', {
+		WritingManager.getInstance().stopWriting({
 			dialogId: params.dialogId,
 			userId: params.senderId,
 		});
@@ -102,7 +106,7 @@ export class MessagePullHandler
 	handleMessageDelete(params: MessageDeleteParams)
 	{
 		Logger.warn('MessagePullHandler: handleMessageDelete', params);
-		this.#store.dispatch('dialogues/stopWriting', {
+		WritingManager.getInstance().stopWriting({
 			dialogId: params.dialogId,
 			userId: params.senderId,
 		});
@@ -121,7 +125,7 @@ export class MessagePullHandler
 	handleMessageDeleteComplete(params: MessageDeleteCompleteParams)
 	{
 		Logger.warn('MessagePullHandler: handleMessageDeleteComplete', params);
-		this.#store.dispatch('dialogues/stopWriting', {
+		WritingManager.getInstance().stopWriting({
 			dialogId: params.dialogId,
 			userId: params.senderId,
 		});
@@ -141,7 +145,7 @@ export class MessagePullHandler
 			dialogUpdateFields.lastMessageViews = params.lastMessageViews;
 		}
 
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: params.dialogId,
 			fields: dialogUpdateFields,
 		});
@@ -200,7 +204,7 @@ export class MessagePullHandler
 			chatId: params.chatId,
 			messageIds: params.viewedMessages,
 		}).then(() => {
-			this.#store.dispatch('dialogues/update', {
+			this.#store.dispatch('chats/update', {
 				dialogId: params.dialogId,
 				fields: {
 					counter: params.counter,
@@ -260,7 +264,7 @@ export class MessagePullHandler
 		{
 			chatToAdd.role = UserRole.member;
 		}
-		this.#store.dispatch('dialogues/set', chatToAdd);
+		this.#store.dispatch('chats/set', chatToAdd);
 	}
 
 	#setUsers(params: {users: {[userId: string]: RawUser} | []})
@@ -300,11 +304,32 @@ export class MessagePullHandler
 		});
 	}
 
+	#setAdditionalEntities(params: MessageAddParams): void
+	{
+		if (!params.message.additionalEntities)
+		{
+			return;
+		}
+
+		const {
+			additionalMessages,
+			messages,
+			files,
+			users,
+		} = params.message.additionalEntities;
+		const newMessages = [...messages, ...additionalMessages];
+		this.#store.dispatch('messages/store', newMessages);
+		this.#store.dispatch('files/set', files);
+		this.#store.dispatch('users/set', users);
+	}
+
 	#handleAddingMessageToModel(params: MessageAddParams)
 	{
 		const dialog = this.#getDialog(params.dialogId, true);
 		if (dialog.inited && dialog.hasNextPage)
 		{
+			this.#store.dispatch('messages/store', params.message);
+
 			return;
 		}
 
@@ -354,11 +379,11 @@ export class MessagePullHandler
 
 		dialogFieldsToUpdate.counter = params.counter;
 
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: params.dialogId,
 			fields: dialogFieldsToUpdate,
 		});
-		this.#store.dispatch('dialogues/clearLastMessageViews', {
+		this.#store.dispatch('chats/clearLastMessageViews', {
 			dialogId: params.dialogId,
 		});
 	}
@@ -382,17 +407,22 @@ export class MessagePullHandler
 			return;
 		}
 
+		if (this.#checkMessageViewsRegistry(params.userId, dialog.lastMessageId))
+		{
+			return;
+		}
+
 		const hasFirstViewer = Boolean(dialog.lastMessageViews.firstViewer);
 		if (hasFirstViewer)
 		{
-			this.#store.dispatch('dialogues/incrementLastMessageViews', {
+			this.#store.dispatch('chats/incrementLastMessageViews', {
 				dialogId: params.dialogId,
 			});
 
 			return;
 		}
 
-		this.#store.dispatch('dialogues/setLastMessageViews', {
+		this.#store.dispatch('chats/setLastMessageViews', {
 			dialogId: params.dialogId,
 			fields: {
 				userId: params.userId,
@@ -401,6 +431,23 @@ export class MessagePullHandler
 				messageId: dialog.lastMessageId,
 			},
 		});
+
+		this.#updateMessageViewsRegistry(params.userId, dialog.lastMessageId);
+	}
+
+	#checkMessageViewsRegistry(userId: number, messageId: number): boolean
+	{
+		return Boolean(this.#messageViews[messageId]?.has(userId));
+	}
+
+	#updateMessageViewsRegistry(userId: number, messageId: number): void
+	{
+		if (!this.#messageViews[messageId])
+		{
+			this.#messageViews[messageId] = new Set();
+		}
+
+		this.#messageViews[messageId].add(userId);
 	}
 
 	#sendScrollEvent(chatId: number)
@@ -408,8 +455,8 @@ export class MessagePullHandler
 		EventEmitter.emit(EventType.dialog.scrollToBottom, { chatId, threshold: DialogScrollThreshold.nearTheBottom });
 	}
 
-	#getDialog(dialogId: string, temporary: boolean = false): ?ImModelDialog
+	#getDialog(dialogId: string, temporary: boolean = false): ?ImModelChat
 	{
-		return this.#store.getters['dialogues/get'](dialogId, temporary);
+		return this.#store.getters['chats/get'](dialogId, temporary);
 	}
 }

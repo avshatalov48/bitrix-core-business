@@ -13,9 +13,7 @@ use Bitrix\Socialnetwork\Component\WorkgroupUserList;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Filter;
 use Bitrix\Socialnetwork\Helper;
-use Bitrix\Socialnetwork\Internals\Counter\CounterDictionary;
 use Bitrix\Socialnetwork\Item\Workgroup;
 use Bitrix\Socialnetwork\Item\Workgroup\AccessManager;
 use Bitrix\Socialnetwork\UserToGroupTable;
@@ -26,16 +24,6 @@ Loader::includeModule('socialnetwork');
 
 class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 {
-	protected const PRESET_ALL = 'all';
-	protected const PRESET_COMPANY = 'company';
-	protected const PRESET_REQUESTS_IN = 'requests_in';
-	protected const PRESET_REQUESTS_OUT = 'requests_out';
-	protected const PRESET_EXTERNAL = 'external';
-	protected const PRESET_AUTO = 'auto';
-
-	protected $gridId = 'SOCIALNETWORK_WORKGROUP_USER_LIST';
-	protected $filterId = 'SOCIALNETWORK_WORKGROUP_USER_LIST';
-
 	protected $fieldsList = [
 		'ID',
 		'FULL_NAME',
@@ -99,14 +87,18 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					'editable' => false,
 					'prevent_default' => false,
 				],
-				[
+			];
+
+			if (!$this->isInvitationFilter())
+			{
+				$columns[] = [
 					'id' => 'ROLE',
 					'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_COLUMN_ROLE'),
 					'sort' => 'ROLE',
 					'default' => true,
 					'editable' => false
-				],
-			];
+				];
+			}
 
 			if (ModuleManager::isModuleInstalled('intranet'))
 			{
@@ -179,7 +171,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 	private function clearFilter($componentResult): void
 	{
-		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filterId, $componentResult['FILTER_PRESETS']);
+		$filterOptions = new \Bitrix\Main\UI\Filter\Options(self::$filterId, $componentResult['FILTER_PRESETS']);
 		$currentPresetId = $componentResult['CURRENT_PRESET_ID'];
 		$customFilterData = $componentResult['CUSTOM_FILTER'];
 
@@ -200,133 +192,6 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 		$filterOptions->setFilterSettings($currentPresetId, $filterSettings, true, false);
 		$filterOptions->save();
-	}
-
-	private function getCurrentPresetId(): string
-	{
-		switch ($this->arParams['MODE'])
-		{
-			case 'MEMBERS':
-				$result = self::PRESET_COMPANY;
-				break;
-			case 'REQUESTS_IN':
-				$result = self::PRESET_REQUESTS_IN;
-				break;
-			case 'REQUESTS_OUT':
-				$result = self::PRESET_REQUESTS_OUT;
-				break;
-			default:
-				$result = 'tmp_filter';
-		}
-
-		return $result;
-	}
-
-	private function getCounter(): string
-	{
-		switch ($this->arParams['MODE'])
-		{
-			case 'REQUESTS_IN':
-				$result = CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN;
-				break;
-			case 'REQUESTS_OUT':
-				$result = CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT;
-				break;
-			default:
-				$result = '';
-		}
-
-		return $result;
-	}
-
-	private function getCurrentCustomFilter(): array
-	{
-		switch ($this->arParams['MODE'])
-		{
-			case 'MODERATORS':
-				$result = [
-					'ROLE' => [ UserToGroupTable::ROLE_MODERATOR ],
-				];
-				break;
-			default:
-				$result = [];
-		}
-
-		return $result;
-	}
-
-	private function getFilterPresets($componentResult): array
-	{
-		$result = [];
-
-		$currentPresetId = $componentResult['CURRENT_PRESET_ID'];
-		$extranetAvailable = \Bitrix\Main\Filter\UserDataProvider::getExtranetAvailability();
-
-		$result[self::PRESET_ALL] = [
-			'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_ALL'),
-			'fields' => [],
-			'default' => ($currentPresetId === self::PRESET_ALL),
-		];
-
-		$companyFilter = [
-			'FIRED' => 'N',
-			'ROLE' => UserToGroupTable::getRolesMember(),
-		];
-		if ($extranetAvailable)
-		{
-			$companyFilter['EXTRANET'] = 'N';
-		}
-
-		$result[self::PRESET_COMPANY] = [
-			'name' => (
-				$extranetAvailable
-					? Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_COMPANY')
-					: Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_MEMBERS')
-			),
-			'fields' => $companyFilter,
-			'default' => ($currentPresetId === self::PRESET_COMPANY),
-		];
-
-		if ($extranetAvailable)
-		{
-			$result[self::PRESET_EXTERNAL] = [
-				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_EXTERNAL'),
-				'fields' => [
-					'EXTRANET' => 'Y',
-					'FIRED' => 'N',
-					'ROLE' => UserToGroupTable::getRolesMember(),
-				],
-				'default' => false,
-			];
-		}
-
-		if ($componentResult['GROUP_PERMS']['UserCanProcessRequestsIn'] ?? null)
-		{
-			$result[self::PRESET_REQUESTS_IN] = [
-				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_REQUESTS_IN'),
-				'fields' => [
-					'ROLE' => [ UserToGroupTable::ROLE_REQUEST ],
-					'FIRED' => 'N',
-					'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_USER,
-				],
-				'default' => ($currentPresetId === self::PRESET_REQUESTS_IN),
-			];
-		}
-
-		if ($componentResult['GROUP_PERMS']['UserCanInitiate'])
-		{
-			$result[self::PRESET_REQUESTS_OUT] = [
-				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_REQUESTS_OUT'),
-				'fields' => [
-					'ROLE' => [ UserToGroupTable::ROLE_REQUEST ],
-					'FIRED' => 'N',
-					'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
-				],
-				'default' => ($currentPresetId === self::PRESET_REQUESTS_OUT),
-			];
-		}
-
-		return $result;
 	}
 
 	private function getOrder(\Bitrix\Main\Grid\Options $gridOptions, array $componentResult = []): array
@@ -403,7 +268,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			$query->registerRuntimeField('AUTO_MEMBER_DEPARTMENT',
 				new ExpressionField(
 					'AUTO_MEMBER_DEPARTMENT',
-					"(CASE WHEN %s = 'Y' THEN %s ELSE 0 END)",
+					"(CASE WHEN %s = 'Y' THEN %s ELSE '0' END)",
 					[ 'AUTO_MEMBER', 'USER.UF_DEPARTMENT' ]
 				)
 			);
@@ -925,6 +790,15 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		$params['GROUP_ID'] = (int)($params['GROUP_ID'] ?? 0);
 		$params['GROUP_USE_BAN'] = 'N';
 
+		$params['INCLUDE_TOOLBAR'] = (
+			!isset($params['INCLUDE_TOOLBAR'])
+			|| (bool) $params['INCLUDE_TOOLBAR']
+		);
+		$params['INCLUDE_COUNTERS_BELOW_TITLE'] = (
+			!isset($params['INCLUDE_COUNTERS_BELOW_TITLE'])
+			|| (bool) $params['INCLUDE_COUNTERS_BELOW_TITLE']
+		);
+
 		if (empty($params['PATH_TO_DEPARTMENT']))
 		{
 			$params['PATH_TO_DEPARTMENT'] = ($params['PATH_TO_CONPANY_DEPARTMENT'] ?? '');
@@ -972,7 +846,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		}
 
 		$request = Context::getCurrent()->getRequest();
-		$postAction = 'action_button_' .$this->gridId;
+		$postAction = 'action_button_' .self::$gridId;
 
 		if (
 			$request->getRequestMethod() === 'POST'
@@ -1169,13 +1043,6 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 		$this->initPageFilterData();
 
-		$entityFilter = Filter\Factory::createEntityFilter(
-			UserToGroupTable::getUfId(),
-			[
-				'ID' => $this->filterId,
-			]
-		);
-
 		$result['GROUP'] = $this->getGroup();
 
 		if (empty($result['GROUP']))
@@ -1224,13 +1091,11 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 				: 'N'
 		);
 
-		$result['GRID_ID'] = $this->gridId;
-		$result['FILTER_ID'] = $this->filterId;
-		$result['CURRENT_PRESET_ID'] = $this->getCurrentPresetId();
-		$result['CURRENT_COUNTER'] = $this->getCounter();
-		$result['CUSTOM_FILTER'] = $this->getCurrentCustomFilter();
-
-		$result['FILTER_PRESETS'] = $this->getFilterPresets($result);
+		$result = WorkgroupUserList::prepareFilterResult(
+			$result,
+			$result['GROUP_PERMS'],
+			$this->arParams['MODE']
+		);
 
 		$request = Context::getCurrent()->getRequest();
 
@@ -1254,7 +1119,6 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			->initFromUri();
 
 		$result['HEADERS'] = $this->getGridHeaders();
-		$result['FILTER'] = $entityFilter->getFieldArrays();
 		$result['ROWS'] = [];
 
 		$gridFilter = $this->getGridFilter([
@@ -1377,8 +1241,8 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 	{
 		if (!empty($this->arParams['FILTER_ID']))
 		{
-			$this->filterId = $this->arParams['FILTER_ID'];
-			$this->gridId = (
+			self::$filterId = $this->arParams['FILTER_ID'];
+			self::$gridId = (
 				!empty($this->arParams['GRID_ID'])
 					? $this->arParams['GRID_ID']
 					: $this->arParams['FILTER_ID']
@@ -1390,7 +1254,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 	{
 		$filterPresets = ($params['FILTER_PRESETS'] ?? []);
 		$filter = ($params['FILTER'] ?? []);
-		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filterId, $filterPresets);
+		$filterOptions = new \Bitrix\Main\UI\Filter\Options(self::$filterId, $filterPresets);
 
 		return $filterOptions->getFilter($filter);
 
@@ -1821,4 +1685,14 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		];
 	}
 
+	private function isInvitationFilter(): bool
+	{
+		$filter = $this->getGridFilter();
+		if (in_array(UserToGroupTable::ROLE_REQUEST, $filter['ROLE'] ?? [], true))
+		{
+			return true;
+		}
+
+		return ($this->arParams['MODE'] ?? '') === 'REQUESTS_IN';
+	}
 }

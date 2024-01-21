@@ -76,18 +76,18 @@ For older product editions (\"InfoPace\", \"TeamPace\", \"BizPace\", \"BizPace E
 <br /><br />
 For more details, please feel free to refer to the <a href=\"https://store.bitrix24.com/help/licensing-policy.php\">Licensing Policy</a> page.
 ";
-$MESS["prolog_main_support_wit_description_bus"] = "When your license expires, you lose access to updates, technical support and some of the system features.<br /><br />
+$MESS["prolog_main_support_wit_description_bus_MSGVER_1"] = "When your license expires, you lose access to updates, technical support and some of the system features.<br /><br />
 The following features will not be available:<br /><br />
 - Security scanner updates;<br />
-- Bitrix24.Sites Designer;<br />
-- Bitrix24.Market solutions.<br /><br />
+- Sites Designer;<br />
+- Market solutions.<br /><br />
 You can find the full list of unavailable features <a href=\"https://www.bitrix24.com/eula/limitations.php\" target=\"_blank\">here</a>.<br /><br />
 For more details, please refer to the <a href=\"#LINK#\" target=\"_blank\">License Agreement</a>.";
-$MESS["prolog_main_support_wit_description_cp"] = "When your license expires, you lose access to updates, technical support and some of the system features.<br /><br />
+$MESS["prolog_main_support_wit_description_cp_MSGVER_1"] = "When your license expires, you lose access to updates, technical support and some of the system features.<br /><br />
 The following features will not be available:<br /><br />
 - Telephony;<br />
 - Open Channels;<br />
-- Bitrix24.Market solutions.<br /><br />
+- Market solutions.<br /><br />
 You can find the full list of unavailable features <a href=\"https://www.bitrix24.com/eula/limitations.php\" target=\"_blank\">here</a>.<br /><br />
 For more details, please refer to the <a href=\"#LINK#\" target=\"_blank\">License Agreement</a>.";
 $MESS["prolog_main_timelimit_almost_expire"] = "<span class=\"required\">Attention!</span> Your license will <b>expire</b> on #FINISH_DATE#. You won't be able to use your Bitrix24 if you don't renew your license. <a href=\"#LINK#\" target=\"_blank\">Learn more</a>";

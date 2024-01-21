@@ -266,14 +266,16 @@ this.BX.UI = this.BX.UI || {};
 		>
 			<div class="ui-uploader-stack-drop-area-content">
 				<div class="ui-uploader-stack-drop-area-icon"></div>
-				<div
-					v-if="[StackWidgetSize.LARGE, StackWidgetSize.MEDIUM].includes(widgetOptions.size)"
-					class="ui-uploader-stack-drop-area-title"
-				>{{ uploadFileTitle }}</div>
-				<div
-					v-if="widgetOptions.size === StackWidgetSize.LARGE"
-					class="ui-uploader-stack-drop-area-hint"
-				>{{ dragFileHint }}</div>
+			  	<div class="ui-uploader-stack-drop-area-inner">
+                  <div
+                      v-if="[StackWidgetSize.LARGE, StackWidgetSize.MEDIUM].includes(widgetOptions.size)"
+                      class="ui-uploader-stack-drop-area-title"
+                  >{{ uploadFileTitle }}</div>
+                  <div
+                      v-if="widgetOptions.size === StackWidgetSize.LARGE"
+                      class="ui-uploader-stack-drop-area-hint"
+                  >{{ dragFileHint }}</div>
+				</div>
 			</div>
 		</div>
 	`

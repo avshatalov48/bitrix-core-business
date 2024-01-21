@@ -127,6 +127,11 @@
 	justify-content: center;
 }
 
+.bx-im-group-chat-promo__button-panel .bx-im-button__container + .bx-im-button__container {
+	margin-left: 18px;
+	margin-right: 18px;
+}
+
 .bx-im-group-chat-promo__header {
 	display: flex;
 	align-items: center;

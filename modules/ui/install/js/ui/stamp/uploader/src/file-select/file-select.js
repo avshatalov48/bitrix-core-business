@@ -52,7 +52,7 @@ export default class FileSelect extends EventEmitter
 	{
 		return this.cache.remember('selectPhotoButton', () => {
 			return new Button({
-				text: Loc.getMessage('UI_STAMP_UPLOADER_SELECT_PHOTO_BUTTON_LABEL'),
+				text: Loc.getMessage('UI_STAMP_UPLOADER_SELECT_PHOTO_BUTTON_LABEL_1'),
 				color: Button.Color.LIGHT_BORDER,
 				size: Button.Size.LARGE,
 				icon: Button.Icon.DOWNLOAD,

@@ -98,7 +98,7 @@ class Sanitizer
 	}
 
 	/**
-	 * Remove php from string with checking operations `edit_php` and `lpa_template_edit`.
+	 * Remove php from string with checking operations edit_php and lpa_template_edit
 	 *
 	 * @param string $string String.
 	 * @param User $user User instance.

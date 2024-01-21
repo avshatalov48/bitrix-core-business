@@ -66,7 +66,7 @@ else:
 ?>
 <script type="text/javascript">
 <?
-	if ($aUserOpt['fix'] == 'on'):
+	if (isset($aUserOpt['fix']) && $aUserOpt['fix'] == 'on'):
 ?>
 document.documentElement.className = 'adm-header-fixed';
 <?
@@ -517,7 +517,7 @@ if($USER->IsAuthorized()):
 				<?php endif; ?>
 			</div>
 			<?= $textMessage ?>
-			<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_description" . (IsModuleInstalled("intranet") ? "_cp" : "_bus"), ['#LINK#' => $eulaLink])?></div>
+			<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_description" . (IsModuleInstalled("intranet") ? "_cp" : "_bus") . '_MSGVER_1', ['#LINK#' => $eulaLink])?></div>
 			<?php
 			echo EndNote();
 		}

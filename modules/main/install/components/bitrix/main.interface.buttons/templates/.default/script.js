@@ -799,29 +799,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return menu;
 		},
 
-		setHome: function()
-		{
-			const homeItem = this.getHomeItem();
-			if (!homeItem)
-			{
-				return;
-			}
-
-			const { itemData, url: firstPageLink, firstVisibleItem } = homeItem;
-			if (!itemData)
-			{
-				return;
-			}
-
-			if (this.lastHomeLink !== firstPageLink)
-			{
-				this.saveOptions('firstPageLink', firstPageLink);
-				BX.onCustomEvent('BX.Main.InterfaceButtons:onFirstItemChange', [firstPageLink, firstVisibleItem]);
-			}
-
-			this.lastHomeLink = firstPageLink;
-		},
-
 		getHomeItem: function()
 		{
 			const visibleItems = this.getVisibleItems();
@@ -2586,12 +2563,27 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				return;
 			}
 
-			if (BX.Type.isDomNode(this.listContainer))
+			if (BX.Type.isDomNode(this.listContainer) && 'id' in this.listContainer)
 			{
-				if ('id' in this.listContainer)
+				this.saveOptions(paramName, JSON.stringify(settings));
+				const homeItem = this.getHomeItem();
+				if (homeItem)
 				{
-					this.saveOptions(paramName, JSON.stringify(settings));
-					this.setHome();
+					const { itemData, url: firstPageLink, firstVisibleItem } = homeItem;
+					if (itemData)
+					{
+						if (this.lastHomeLink !== firstPageLink)
+						{
+							this.saveOptions('firstPageLink', firstPageLink);
+							this.sendOptions(); // force send
+							BX.onCustomEvent(
+								'BX.Main.InterfaceButtons:onFirstItemChange',
+								[firstPageLink, firstVisibleItem],
+							);
+						}
+
+						this.lastHomeLink = firstPageLink;
+					}
 				}
 			}
 		},

@@ -5,6 +5,7 @@ namespace Bitrix\Catalog\Grid\Panel\UI\Item;
 use Bitrix\Catalog\Grid\Access\ProductRightsChecker;
 use Bitrix\Catalog\Helpers\Admin\IblockPriceChanger;
 use Bitrix\Iblock\Grid\RowType;
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Action\Action;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Result;
@@ -36,7 +37,7 @@ final class ChangePricesActionsItem implements Action
 	/**
 	 * @inheritDoc
 	 */
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter): ?Result
 	{
 		if (empty($request->get('chprice_value_changing_price')))
 		{

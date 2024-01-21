@@ -23,6 +23,7 @@ Loc::loadMessages(__FILE__);
  * <li> BASKET_ID int mandatory
  * <li> QUANTITY unknown mandatory
  * <li> RESERVED_QUANTITY unknown mandatory
+ * <li> PURCHASING_PRICE float mandatory
  * </ul>
  *
  * @package Bitrix\Sale

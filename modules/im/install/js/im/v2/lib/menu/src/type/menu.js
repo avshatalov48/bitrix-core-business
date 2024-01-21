@@ -5,6 +5,7 @@ export type MenuItem = {
 	title?: string,
 	disabled?: boolean,
 	delimiter?: boolean,
+	className?: string,
 	onclick?: () => {} | string,
-	items?: MenuItem[]
+	items?: MenuItem[],
 };

@@ -20,6 +20,8 @@
 	    babelHelpers.defineProperty(this, "onCancelEditHandler", this.onCancelEdit.bind(this));
 	    babelHelpers.defineProperty(this, "onBeforeGridRequestHandler", this.onBeforeGridRequest.bind(this));
 	    babelHelpers.defineProperty(this, "onUnsubscribeEventsHandler", this.unsubscribeEvents.bind(this));
+	    babelHelpers.defineProperty(this, "onSkuLoadedHandler", this.onSkuLoaded.bind(this));
+	    babelHelpers.defineProperty(this, "onGridUpdateHandler", this.onGridUpdate.bind(this));
 	    this.selector = new catalog_productSelector.ProductSelector(id, settings);
 	    this.columnName = settings.columnName || 'CATALOG_PRODUCT';
 	    this.componentName = settings.componentName || '';
@@ -38,7 +40,8 @@
 	      main_core_events.EventEmitter.subscribe('Grid::thereEditedRows', this.onSelectEditHandler);
 	      main_core_events.EventEmitter.subscribe('Grid::noEditedRows', this.onCancelEditHandler);
 	      main_core_events.EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
-	      main_core_events.EventEmitter.subscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+	      main_core_events.EventEmitter.subscribe('Grid::updated', this.onGridUpdateHandler);
+	      main_core_events.EventEmitter.subscribe('BX.Catalog.SkuTree::onSkuLoaded', this.onSkuLoadedHandler);
 	      main_core_events.EventEmitter.subscribeOnce(this.selector, 'onBeforeChange', this.onUnsubscribeEventsHandler);
 	    }
 	  }, {
@@ -48,7 +51,50 @@
 	      main_core_events.EventEmitter.unsubscribe('Grid::noEditedRows', this.onCancelEditHandler);
 	      main_core_events.EventEmitter.unsubscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 	      main_core_events.EventEmitter.unsubscribe('Grid::updated', this.onUnsubscribeEventsHandler);
+	      main_core_events.EventEmitter.unsubscribe('BX.Catalog.SkuTree::onSkuLoaded', this.onSkuLoadedHandler);
 	      this.selector.unsubscribeEvents();
+	    }
+	  }, {
+	    key: "onSkuLoaded",
+	    value: function onSkuLoaded(event) {
+	      var currentRowElement = document.getElementById(event.data.id).closest('.main-grid-row.main-grid-row-body');
+	      if (!currentRowElement || !currentRowElement.querySelectorAll('.main-grid-fixed-column') || currentRowElement.style.height) {
+	        return;
+	      }
+	      var inlineElementList = babelHelpers.toConsumableArray(currentRowElement.querySelectorAll('.main-grid-cell'));
+	      if (inlineElementList.length === 0) {
+	        return;
+	      }
+	      var maxColumnsHeight = Math.max.apply(Math, babelHelpers.toConsumableArray(inlineElementList.map(function (cell) {
+	        return parseInt(main_core.Dom.style(cell, 'height'), 10);
+	      })));
+	      if (!maxColumnsHeight) {
+	        return;
+	      }
+	      main_core.Dom.style(currentRowElement, 'height', "".concat(maxColumnsHeight, "px"));
+	    }
+	  }, {
+	    key: "onGridUpdate",
+	    value: function onGridUpdate() {
+	      setTimeout(function () {
+	        document.querySelectorAll('.main-grid-row.main-grid-row-body').forEach(function (currentRowElement) {
+	          if (currentRowElement.style.height) {
+	            return;
+	          }
+	          var inlineElements = babelHelpers.toConsumableArray(currentRowElement.querySelectorAll('.main-grid-cell'));
+	          if (inlineElements.length === 0) {
+	            return;
+	          }
+	          var maxColumnsHeight = Math.max.apply(Math, babelHelpers.toConsumableArray(inlineElements.map(function (cell) {
+	            return parseInt(main_core.Dom.style(cell, 'height'), 10);
+	          })));
+	          if (!maxColumnsHeight) {
+	            return;
+	          }
+	          main_core.Dom.style(currentRowElement, 'height', "".concat(maxColumnsHeight, "px"));
+	        });
+	      }, 0);
+	      this.onUnsubscribeEventsHandler();
 	    }
 	  }, {
 	    key: "getSelector",

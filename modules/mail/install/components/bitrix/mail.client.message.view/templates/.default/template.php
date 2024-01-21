@@ -13,6 +13,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.fonts.opensans',
 	'ui.icons.b24',
 	'ui.alerts',
+	'ui.sidepanel.page-swapper'
 ]);
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
@@ -47,7 +48,7 @@ if (SITE_TEMPLATE_ID == 'bitrix24' || $_REQUEST['IFRAME'] == 'Y' && $_REQUEST['I
 			<div class="mail-msg-header-control-triangle"></div>
 		</div>
 	<? endif ?>
-
+	<div id="header-page-swapper-container" style="padding: 0 8px"></div>
 	<? $APPLICATION->includeComponent(
 		'bitrix:mail.message.actions',
 		'',

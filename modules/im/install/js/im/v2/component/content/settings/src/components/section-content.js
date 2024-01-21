@@ -57,9 +57,7 @@ export const SectionContent = {
 				<div class="bx-im-settings-section-content__header_title">{{ sectionName }}</div>
 			</div>
 			<div class="bx-im-settings-section-content__background">
-				<div class="bx-im-settings-section-content__body">
-					<component :is="sectionComponentName" />
-				</div>
+				<component :is="sectionComponentName" />
 			</div>
 		</div>
 	`,

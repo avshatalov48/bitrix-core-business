@@ -71,7 +71,7 @@ BX.tooltip.hide = function(userId) {
 
 BX.tooltip.openIM = function(userId) {
 
-	const namespace = BX.Reflection.namespace('BX.Messenger.Public');
+	const namespace = top.BX.Reflection.namespace('BX.Messenger.Public');
 	if (namespace)
 	{
 		namespace.openChat(userId);
@@ -88,7 +88,7 @@ BX.tooltip.openIM = function(userId) {
 
 BX.tooltip.openCallTo = function(userId) {
 
-	const namespace = BX.Reflection.namespace('BX.Messenger.Public');
+	const namespace = top.BX.Reflection.namespace('BX.Messenger.Public');
 	if (namespace)
 	{
 		namespace.startVideoCall(userId);
@@ -100,7 +100,7 @@ BX.tooltip.checkCallTo = function(nodeId) {
 };
 
 BX.tooltip.openVideoCall = function(userId) {
-	const namespace = BX.Reflection.namespace('BX.Messenger.Public');
+	const namespace = top.BX.Reflection.namespace('BX.Messenger.Public');
 	if (namespace)
 	{
 		namespace.startVideoCall(userId);

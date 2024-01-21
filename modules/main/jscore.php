@@ -252,7 +252,7 @@ $arJSCoreConfig = array(
 		'js' => '/bitrix/js/main/spotlight/spotlight.js',
 		'css' => '/bitrix/js/main/spotlight/css/spotlight.css',
 		'lang' => $pathLang.'/js/spotlight.php',
-		'rel' => array('popup', 'ajax'),
+		'rel' => array('ui.dialogs.messagebox', 'ajax'),
 		'bundle_js' => 'spotlight',
 		'bundle_css' => 'spotlight',
 	),
@@ -262,7 +262,16 @@ $arJSCoreConfig = array(
 			'/bitrix/js/main/sidepanel/slider.js'
 		),
 		'css' => '/bitrix/js/main/sidepanel/css/sidepanel.css',
-		'rel' => array('ajax', 'fx', 'main.pageobject', 'clipboard', 'ui.fonts.opensans'),
+		'rel' => array(
+			'ajax',
+			'fx',
+			'main.pageobject',
+			'clipboard',
+			'ui.fonts.opensans',
+			'popup',
+			'ui.icon-set.actions',
+			'ui.icon-set.main',
+		),
 		'lang' => $pathLang.'/js/sidepanel.php',
 		'bundle_js' => 'sidepanel',
 		'bundle_css' => 'sidepanel'

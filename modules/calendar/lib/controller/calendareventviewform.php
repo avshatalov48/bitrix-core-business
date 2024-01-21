@@ -2,8 +2,11 @@
 
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Integration\AI;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Calendar\UserSettings;
+use Bitrix\Calendar\Util;
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Response\Component;
 use Bitrix\Main\Error;
@@ -19,6 +22,18 @@ class CalendarEventViewForm extends Controller
 	{
 		$responseParams = [];
 		$userId = \CCalendar::GetCurUserId();
+
+		if (
+			Loader::includeModule('intranet')
+			&& !ToolsManager::getInstance()->checkAvailabilityByToolId('calendar')
+		)
+		{
+			$this->addError(new Error(Loc::getMessage('EC_EVENT_NOT_FOUND')));
+
+			return [
+				'isAvailable' => false,
+			];
+		}
 
 		if ($entryId)
 		{
@@ -86,7 +101,7 @@ class CalendarEventViewForm extends Controller
 		$userId = \CCalendar::GetCurUserId();
 		$event = $params['event'];
 
-		$timezoneHint = $this->getTimezoneHint($userId, $event);
+		$timezoneHint = Util::getTimezoneHint($userId, $event);
 
 		$UF = \CCalendarEvent::GetEventUserFields($event);
 
@@ -180,7 +195,7 @@ class CalendarEventViewForm extends Controller
 
 		$params['curUserStatus'] = $curUserStatus;
 		$params['meetingHost'] = $meetingHost;
-		$params['meetingHostDisplayName'] = htmlspecialcharsbx($meetingHost['DISPLAY_NAME'] ?? null);
+		$params['meetingHostDisplayName'] = $meetingHost['DISPLAY_NAME'] ?? null;
 		$params['meetingHostWorkPosition'] = htmlspecialcharsbx($meetingHost['WORK_POSITION'] ?? null);
 
 		$meetingCreator = $this->getMeetingCreator($event);
@@ -200,6 +215,7 @@ class CalendarEventViewForm extends Controller
 		$params['location'] = htmlspecialcharsbx(\CCalendar::GetTextLocation($event['LOCATION'] ?? null));
 
 		$params['canEditCalendar'] = $event['permissions']['edit'];
+		$params['canDeleteEvent'] = $event['permissions']['delete'];
 
 		$params['showComments'] = $viewComments;
 
@@ -220,6 +236,8 @@ class CalendarEventViewForm extends Controller
 			'ID' => $params['event']['ID'],
 			'CREATED_BY' => $params['event']['CREATED_BY'],
 		];
+
+		$params['event'] = \CCalendarEvent::FixCommentsIfEventIsBroken($params['event']); //TODO: remove 30.06.2025
 
 		if (
 			isset($params['event']['RELATIONS']['COMMENT_XML_ID'])
@@ -282,41 +300,6 @@ class CalendarEventViewForm extends Controller
 		}
 
 		return $this->getCommentsView($event);
-	}
-
-	private function getTimezoneHint($userId, $event): string
-	{
-		$skipTime = $event['DT_SKIP_TIME'] === "Y";
-		$timezoneHint = '';
-		if (
-			!$skipTime
-			&& (
-				(int)$event['~USER_OFFSET_FROM'] !== 0
-				|| (int)$event['~USER_OFFSET_TO'] !== 0
-				|| $event['TZ_FROM'] !== $event['TZ_TO']
-				|| $event['TZ_FROM'] !== \CCalendar::GetUserTimezoneName($userId)
-			)
-		)
-		{
-			if ($event['TZ_FROM'] === $event['TZ_TO'])
-			{
-				$timezoneHint = \CCalendar::GetFromToHtml(
-					\CCalendar::Timestamp($event['DATE_FROM']),
-					\CCalendar::Timestamp($event['DATE_TO']),
-					false,
-					$event['DT_LENGTH']
-				);
-				if ($event['TZ_FROM'])
-				{
-					$timezoneHint .= ' (' . $event['TZ_FROM'] . ')';
-				}
-			}
-			else
-			{
-				$timezoneHint = Loc::getMessage('EC_VIEW_DATE_FROM_TO', array('#DATE_FROM#' => $event['DATE_FROM'].' ('.$event['TZ_FROM'].')', '#DATE_TO#' => $event['DATE_TO'].' ('.$event['TZ_TO'].')'));
-			}
-		}
-		return $timezoneHint;
 	}
 
 	private function getFromToHtml(array $event): string
@@ -403,7 +386,16 @@ class CalendarEventViewForm extends Controller
 			"URL_TEMPLATES_PROFILE_VIEW" => $set['path_to_user'],
 			"SHOW_RATING" => \COption::GetOptionString('main', 'rating_vote_show', 'N'),
 			"SHOW_LINK_TO_MESSAGE" => "N",
-			"BIND_VIEWER" => "Y"
+			"BIND_VIEWER" => "Y",
+			'LHE' => [
+				'isCopilotImageEnabledBySettings' => AI\Settings::isImageCommentAvailable(),
+				'isCopilotTextEnabledBySettings' => AI\Settings::isTextCommentAvailable(),
+				'copilotParams' => [
+					'moduleId' => 'calendar',
+					'contextId' => 'calendar_comments_' . $event['ENTITY_XML_ID'],
+					'category' => 'calendar_comments',
+				],
+			],
 		],
 			['HIDE_ICONS' => 'Y']
 		);

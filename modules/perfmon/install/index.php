@@ -1,233 +1,238 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
-if(class_exists("perfmon")) return;
-Class perfmon extends CModule
+if (class_exists('perfmon'))
 {
-	var $MODULE_ID = "perfmon";
-	var $MODULE_VERSION;
-	var $MODULE_VERSION_DATE;
-	var $MODULE_NAME;
-	var $MODULE_DESCRIPTION;
-	var $MODULE_CSS;
-	var $MODULE_GROUP_RIGHTS = "Y";
+	return;
+}
+class perfmon extends CModule
+{
+	public $MODULE_ID = 'perfmon';
+	public $MODULE_VERSION;
+	public $MODULE_VERSION_DATE;
+	public $MODULE_NAME;
+	public $MODULE_DESCRIPTION;
+	public $MODULE_CSS;
+	public $MODULE_GROUP_RIGHTS = 'Y';
 
 	public function __construct()
 	{
-		$arModuleVersion = array();
+		$arModuleVersion = [];
 
-		include(__DIR__.'/version.php');
+		include __DIR__ . '/version.php';
 
-		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
-		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
+		$this->MODULE_VERSION = $arModuleVersion['VERSION'];
+		$this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
 
-		$this->MODULE_NAME = GetMessage("PERF_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("PERF_MODULE_DESCRIPTION");
+		$this->MODULE_NAME = GetMessage('PERF_MODULE_NAME');
+		$this->MODULE_DESCRIPTION = GetMessage('PERF_MODULE_DESCRIPTION');
 	}
 
-	function InstallDB($arParams = array())
+	public function InstallDB($arParams = [])
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
 		// Database tables creation
-		if(!$DB->Query("SELECT 'x' FROM b_perf_hit WHERE 1=0", true))
+		if (!$DB->TableExists('b_perf_hit'))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/db/' . $connection->getType() . '/install.sql');
 		}
 
-		if($this->errors !== false)
+		if ($this->errors !== false)
 		{
-			$APPLICATION->ThrowException(implode("<br>", $this->errors));
+			$APPLICATION->ThrowException(implode('<br>', $this->errors));
 			return false;
 		}
 		else
 		{
-			RegisterModule("perfmon");
-			CModule::IncludeModule("perfmon");
-			RegisterModuleDependences("perfmon", "OnGetTableSchema", "perfmon", "perfmon", "OnGetTableSchema");
+			RegisterModule('perfmon');
+			CModule::IncludeModule('perfmon');
+			RegisterModuleDependences('perfmon', 'OnGetTableSchema', 'perfmon', 'perfmon', 'OnGetTableSchema');
 			return true;
 		}
 	}
 
-	function UnInstallDB($arParams = array())
+	public function UnInstallDB($arParams = [])
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
-		UnRegisterModuleDependences("main", "OnPageStart", "perfmon", "CPerfomanceKeeper", "OnPageStart");
-		UnRegisterModuleDependences("main", "OnEpilog", "perfmon", "CPerfomanceKeeper", "OnEpilog");
-		UnRegisterModuleDependences("main", "OnAfterEpilog", "perfmon", "CPerfomanceKeeper", "OnBeforeAfterEpilog");
-		UnRegisterModuleDependences("main", "OnAfterEpilog", "perfmon", "CPerfomanceKeeper", "OnAfterAfterEpilog");
-		UnRegisterModuleDependences("main", "OnLocalRedirect", "perfmon", "CPerfomanceKeeper", "OnAfterAfterEpilog");
-		UnRegisterModuleDependences("perfmon", "OnGetTableSchema", "perfmon", "perfmon", "OnGetTableSchema");
+		UnRegisterModuleDependences('main', 'OnPageStart', 'perfmon', 'CPerfomanceKeeper', 'OnPageStart');
+		UnRegisterModuleDependences('main', 'OnEpilog', 'perfmon', 'CPerfomanceKeeper', 'OnEpilog');
+		UnRegisterModuleDependences('main', 'OnAfterEpilog', 'perfmon', 'CPerfomanceKeeper', 'OnBeforeAfterEpilog');
+		UnRegisterModuleDependences('main', 'OnAfterEpilog', 'perfmon', 'CPerfomanceKeeper', 'OnAfterAfterEpilog');
+		UnRegisterModuleDependences('main', 'OnLocalRedirect', 'perfmon', 'CPerfomanceKeeper', 'OnAfterAfterEpilog');
+		UnRegisterModuleDependences('perfmon', 'OnGetTableSchema', 'perfmon', 'perfmon', 'OnGetTableSchema');
 
-		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
+		if (!array_key_exists('savedata', $arParams) || $arParams['savedata'] != 'Y')
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/db/' . $connection->getType() . '/uninstall.sql');
 		}
 
-		UnRegisterModule("perfmon");
+		UnRegisterModule('perfmon');
 
-		if($this->errors !== false)
+		if ($this->errors !== false)
 		{
-			$APPLICATION->ThrowException(implode("<br>", $this->errors));
+			$APPLICATION->ThrowException(implode('<br>', $this->errors));
 			return false;
 		}
 
 		return true;
 	}
 
-	function InstallEvents()
+	public function InstallEvents()
 	{
 		return true;
 	}
 
-	function UnInstallEvents()
+	public function UnInstallEvents()
 	{
 		return true;
 	}
 
-	function InstallFiles($arParams = array())
+	public function InstallFiles($arParams = [])
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if ($_ENV['COMPUTERNAME'] != 'BX')
 		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
+			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/themes', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes', true, true);
+			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/images', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/images', true, true);
 		}
 		return true;
 	}
 
-	function UnInstallFiles()
+	public function UnInstallFiles()
 	{
-		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
-		DeleteDirFilesEx("/bitrix/images/perfmon/");
+		DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/admin/', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+		DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/themes/.default/', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes/.default');
+		DeleteDirFilesEx('/bitrix/images/perfmon/');
 
 		return true;
 	}
 
-	function DoInstall()
+	public function DoInstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
-		$PERF_RIGHT = $APPLICATION->GetGroupRight("perfmon");
-		if($PERF_RIGHT >= "W")
+		global $APPLICATION, $step, $errors;
+		$PERF_RIGHT = CMain::GetGroupRight('perfmon');
+		if ($PERF_RIGHT >= 'W')
 		{
 			$step = intval($step);
-			if($step < 2)
+			if ($step < 2)
 			{
-				$APPLICATION->IncludeAdminFile(GetMessage("PERF_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/step1.php");
+				$APPLICATION->IncludeAdminFile(GetMessage('PERF_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/step1.php');
 			}
-			elseif($step==2)
+			elseif ($step == 2)
 			{
-				$this->InstallFiles(array(
-				));
-				$this->InstallDB(array(
-				));
-				$GLOBALS["errors"] = $this->errors;
-				$APPLICATION->IncludeAdminFile(GetMessage("PERF_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/step2.php");
+				$this->InstallFiles([
+				]);
+				$this->InstallDB([
+				]);
+				$errors = $this->errors;
+				$APPLICATION->IncludeAdminFile(GetMessage('PERF_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/step2.php');
 			}
 		}
 	}
 
-	function DoUninstall()
+	public function DoUninstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
-		$PERF_RIGHT = $APPLICATION->GetGroupRight("perfmon");
-		if($PERF_RIGHT == "W")
+		global $APPLICATION, $step, $errors;
+		$PERF_RIGHT = CMain::GetGroupRight('perfmon');
+		if ($PERF_RIGHT == 'W')
 		{
 			$step = intval($step);
-			if($step < 2)
+			if ($step < 2)
 			{
-				$APPLICATION->IncludeAdminFile(GetMessage("PERF_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/unstep1.php");
+				$APPLICATION->IncludeAdminFile(GetMessage('PERF_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/unstep1.php');
 			}
-			elseif($step == 2)
+			elseif ($step == 2)
 			{
-				$this->UnInstallDB(array(
-					"savedata" => $_REQUEST["savedata"],
-				));
+				$this->UnInstallDB([
+					'savedata' => $_REQUEST['savedata'],
+				]);
 				$this->UnInstallFiles();
-				$GLOBALS["errors"] = $this->errors;
-				$APPLICATION->IncludeAdminFile(GetMessage("PERF_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/unstep2.php");
+				$errors = $this->errors;
+				$APPLICATION->IncludeAdminFile(GetMessage('PERF_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/unstep2.php');
 			}
 		}
 	}
 
-	function GetModuleRightList()
+	public function GetModuleRightList()
 	{
-		$arr = array(
-			"reference_id" => array("D","R","W"),
-			"reference" => array(
-				"[D] ".GetMessage("PERF_DENIED"),
-				"[R] ".GetMessage("PERF_VIEW"),
-				"[W] ".GetMessage("PERF_ADMIN"))
-			);
+		$arr = [
+			'reference_id' => ['D','R','W'],
+			'reference' => [
+				'[D] ' . GetMessage('PERF_DENIED'),
+				'[R] ' . GetMessage('PERF_VIEW'),
+				'[W] ' . GetMessage('PERF_ADMIN'),
+			]
+		];
 		return $arr;
 	}
 
 	public static function OnGetTableSchema()
 	{
-		return array(
-			"perfmon" => array(
-				"b_perf_hit" => array(
-					"ID" => array(
-						"b_perf_component" => "HIT_ID",
-						"b_perf_sql" => "HIT_ID",
-						"b_perf_cache" => "HIT_ID",
-						"b_perf_error" => "HIT_ID",
-					),
-					"DATE_HIT" => array(
-						"~edit_mode" => "datetime", //"date"
-					),
-					"IS_ADMIN" => array(
-						"~edit_mode" => "checkbox",
-					),
-					"SCRIPT_NAME" => array(
-						"~edit_mode" => "text", //"textarea"
-					),
-					"REQUEST_URI" => array(
-						"~edit_mode" => "text",
-						"~text_size" => 80,
-					),
-					"CACHE_TYPE" => array(
-						"~edit_mode" => "select",
-						"~select_values" => array(
-							"A" => "Auto",
-							"Y" => "Yes",
-							"N" => "No",
-						),
-					),
-					"CACHE_SIZE" => array(
-						"~edit_mode" => "read_only",
-					),
-				),
-				"b_perf_component" => array(
-					"ID" => array(
-						"b_perf_sql" => "COMPONENT_ID",
-						"b_perf_cache" => "COMPONENT_ID",
-					),
-				),
-				"b_perf_sql" => array(
-					"ID" => array(
-						"b_perf_sql_backtrace" => "SQL_ID",
-						"b_perf_index_suggest_sql" => "SQL_ID",
-					),
-				),
-				"b_perf_index_suggest" => array(
-					"ID" => array(
-						"b_perf_index_suggest_sql" => "SUGGEST_ID",
-					),
-				),
-			),
-			"cluster" => array(
-				"b_cluster_dbnode" => array(
-					"ID" => array(
-						"b_perf_sql" => "NODE_ID",
-					)
-				),
-			),
-		);
+		return [
+			'perfmon' => [
+				'b_perf_hit' => [
+					'ID' => [
+						'b_perf_component' => 'HIT_ID',
+						'b_perf_sql' => 'HIT_ID',
+						'b_perf_cache' => 'HIT_ID',
+						'b_perf_error' => 'HIT_ID',
+					],
+					'DATE_HIT' => [
+						'~edit_mode' => 'datetime', //"date"
+					],
+					'IS_ADMIN' => [
+						'~edit_mode' => 'checkbox',
+					],
+					'SCRIPT_NAME' => [
+						'~edit_mode' => 'text', //"textarea"
+					],
+					'REQUEST_URI' => [
+						'~edit_mode' => 'text',
+						'~text_size' => 80,
+					],
+					'CACHE_TYPE' => [
+						'~edit_mode' => 'select',
+						'~select_values' => [
+							'A' => 'Auto',
+							'Y' => 'Yes',
+							'N' => 'No',
+						],
+					],
+					'CACHE_SIZE' => [
+						'~edit_mode' => 'read_only',
+					],
+				],
+				'b_perf_component' => [
+					'ID' => [
+						'b_perf_sql' => 'COMPONENT_ID',
+						'b_perf_cache' => 'COMPONENT_ID',
+					],
+				],
+				'b_perf_sql' => [
+					'ID' => [
+						'b_perf_sql_backtrace' => 'SQL_ID',
+						'b_perf_index_suggest_sql' => 'SQL_ID',
+					],
+				],
+				'b_perf_index_suggest' => [
+					'ID' => [
+						'b_perf_index_suggest_sql' => 'SUGGEST_ID',
+					],
+				],
+			],
+			'cluster' => [
+				'b_cluster_dbnode' => [
+					'ID' => [
+						'b_perf_sql' => 'NODE_ID',
+					]
+				],
+			],
+		];
 	}
 }
-?>

@@ -9,6 +9,8 @@ namespace Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity;
  */
 final class Address extends RequestEntity
 {
+	protected ?int $id = null;
+
 	/** @var string */
 	protected $fullname;
 
@@ -41,6 +43,13 @@ final class Address extends RequestEntity
 
 	/** @var array */
 	protected $coordinates;
+
+	public function setId(int $id): Address
+	{
+		$this->id = $id;
+
+		return $this;
+	}
 
 	/**
 	 * @return string

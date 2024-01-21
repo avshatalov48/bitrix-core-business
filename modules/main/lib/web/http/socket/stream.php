@@ -13,12 +13,12 @@ use Bitrix\Main\Web\Http;
 
 class Stream extends Http\Stream
 {
+	protected string $address;
 	protected int $socketTimeout = 30;
 	protected int $streamTimeout = 60;
-	protected int $lastTime = 0;
-
-	protected string $address;
 	protected array $contextOptions = [];
+	protected bool $async = false;
+	protected int $lastTime = 0;
 
 	/**
 	 * @param string $address
@@ -40,6 +40,10 @@ class Stream extends Http\Stream
 		{
 			$this->contextOptions = $options['contextOptions'];
 		}
+		if (isset($options['async']))
+		{
+			$this->async = (bool)$options['async'];
+		}
 	}
 
 	/**
@@ -49,7 +53,12 @@ class Stream extends Http\Stream
 	public function connect(): void
 	{
 		$context = stream_context_create($this->contextOptions);
-		$flags = STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT;
+
+		$flags = STREAM_CLIENT_CONNECT;
+		if ($this->async)
+		{
+			$flags |= STREAM_CLIENT_ASYNC_CONNECT;
+		}
 
 		// $context can be FALSE
 		if ($context)
@@ -91,6 +100,11 @@ class Stream extends Http\Stream
 			$this->lastTime = time();
 		}
 
+		if ($this->timedOut())
+		{
+			throw new \RuntimeException('Stream reading timeout has been reached.');
+		}
+
 		return $result;
 	}
 
@@ -106,6 +120,11 @@ class Stream extends Http\Stream
 			$this->lastTime = time();
 		}
 
+		if ($this->timedOut())
+		{
+			throw new \RuntimeException('Stream reading timeout has been reached.');
+		}
+
 		return $result;
 	}
 
@@ -114,11 +133,28 @@ class Stream extends Http\Stream
 	 */
 	public function write(string $string): int
 	{
-		$result = parent::write($string);
+		// Handle E_NOTICE from fwrite()
+		set_error_handler(function ($errno, $errstr) {
+			throw new \RuntimeException($errstr);
+		});
+
+		try
+		{
+			$result = parent::write($string);
+		}
+		finally
+		{
+			restore_error_handler();
+		}
 
 		if ($this->streamTimeout > 0)
 		{
 			$this->lastTime = time();
+		}
+
+		if ($this->timedOut())
+		{
+			throw new \RuntimeException('Stream writing timeout has been reached.');
 		}
 
 		return $result;

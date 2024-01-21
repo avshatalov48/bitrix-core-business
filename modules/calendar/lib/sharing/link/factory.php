@@ -1,12 +1,32 @@
 <?php
 namespace Bitrix\Calendar\Sharing\Link;
 
+use Bitrix\Calendar\Internals\SharingLinkTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Calendar\Sharing;
+use Bitrix\Calendar\Sharing\Link\Member\Member;
+use Bitrix\Main\UserTable;
 
 class Factory
 {
+	protected static ?Factory $instance = null;
+	protected const SELECT = ['*', 'MEMBERS', 'MEMBERS.USER', 'MEMBERS.IMAGE'];
+
+	/**
+	 * @return Factory
+	 */
+	public static function getInstance(): Factory
+	{
+		if (self::$instance === null)
+		{
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+
 	/**
 	 * returns public link data in array by hash
 	 *
@@ -50,9 +70,10 @@ class Factory
 	public function getLinkByHash(string $hash): ?\Bitrix\Calendar\Core\Base\EntityInterface
 	{
 		$sharingLinkEO = SharingLinkTable::query()
-			->setSelect(['*'])
+			->setSelect(self::SELECT)
 			->where('HASH', $hash)
-			->exec()->fetchObject();
+			->exec()->fetchObject()
+		;
 
 		if ($sharingLinkEO === null)
 		{
@@ -78,28 +99,22 @@ class Factory
 	}
 
 	/**
-	 * gets all user public links data in array by user id
-	 *
-	 * @param $userId
+	 * @param int $userId
 	 * @return array
 	 * @throws ArgumentException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getUserLinksArray($userId): array
+	public function getAllUserLinks(int $userId): array
 	{
-		$userLinksCollection = $this->getUserLinks($userId);
-
-		$userLinks = [];
-		foreach ($userLinksCollection as $userLink)
-		{
-			$userLinks[] = (new UserLinkMapper())->convertToArray($userLink);
-		}
-
-		return $userLinks;
+		return (new UserLinkMapper())->getMap([
+			'=OBJECT_ID' => $userId,
+			'=OBJECT_TYPE' => Helper::USER_SHARING_TYPE,
+			'=ACTIVE' => 'Y',
+		])->getCollection();
 	}
 
 	/**
-	 * gets all user public links by user id
+	 * gets user public links by user id
 	 *
 	 * @param $userId
 	 * @return array
@@ -112,6 +127,25 @@ class Factory
 			'=OBJECT_ID' => $userId,
 			'=OBJECT_TYPE' => Helper::USER_SHARING_TYPE,
 			'=ACTIVE' => 'Y',
+			'=MEMBERS_HASH' => null,
+		])->getCollection();
+	}
+
+	/**
+	 * gets user joint public links by user id
+	 *
+	 * @param $userId
+	 * @return array
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function getUserJointLinks($userId): array
+	{
+		return (new UserLinkMapper())->getMap([
+			'=OBJECT_ID' => $userId,
+			'=OBJECT_TYPE' => Helper::USER_SHARING_TYPE,
+			'=ACTIVE' => 'Y',
+			'!=MEMBERS_HASH' => null,
 		])->getCollection();
 	}
 
@@ -126,7 +160,12 @@ class Factory
 	{
 		$userLink = (new UserLink())
 			->setUserId($userId)
-			->setActive(true);
+			->setActive(true)
+			->setFrequentUse(1)
+		;
+
+		$rule = (new Rule\Factory())->getRuleBySharingLink($userLink);
+		$userLink->setSharingRule($rule);
 
 		(new UserLinkMapper())->create($userLink);
 
@@ -161,25 +200,25 @@ class Factory
 		return $eventLink;
 	}
 
-    /**
-     * creates crm deal public link for calendar sharing
-     *
-     * @param int $ownerId
-     * @param int $entityId
-     * @param int|null $contactId
-     * @param int|null $contactType
-     * @param string|null $channelId
-     * @param string|null $senderId
-     * @return CrmDealLink
-     * @throws ArgumentException
-     */
+	/**
+	 * creates crm deal public link for calendar sharing
+	 *
+	 * @param int $ownerId
+	 * @param int $entityId
+	 * @param int|null $contactId
+	 * @param int|null $contactType
+	 * @param string|null $channelId
+	 * @param string|null $senderId
+	 * @return CrmDealLink
+	 * @throws ArgumentException
+	 */
 	public function createCrmDealLink(
-		int  $ownerId,
-		int  $entityId,
+		int $ownerId,
+		int $entityId,
 		?int $contactId = null,
 		?int $contactType = null,
 		?string $channelId = null,
-        ?string $senderId = null
+		?string $senderId = null
 	): CrmDealLink
 	{
 		$crmDealLink = (new CrmDealLink())
@@ -188,7 +227,7 @@ class Factory
 			->setContactType($contactType)
 			->setContactId($contactId)
 			->setChannelId($channelId)
-            ->setSenderId($senderId)
+			->setSenderId($senderId)
 			->setActive(true)
 			->setDateExpire(
 				Sharing\Helper::createSharingLinkExpireDate(
@@ -196,6 +235,49 @@ class Factory
 					Sharing\Link\Helper::CRM_DEAL_SHARING_TYPE
 				)
 			)
+			->setFrequentUse(1)
+		;
+
+		$rule = (new Rule\Factory())->getRuleBySharingLink($crmDealLink);
+		$crmDealLink->setSharingRule($rule);
+
+		(new CrmDealLinkMapper())->create($crmDealLink);
+
+		return $crmDealLink;
+	}
+
+	public function createUserJointLink(int $userId, array $memberIds): \Bitrix\Calendar\Core\Base\EntityInterface
+	{
+		$memberHash = $this->generateMembersHash($userId, $memberIds);
+
+		if ($existJointLink = $this->getJointLinkByMembersHash($memberHash))
+		{
+			SharingLinkTable::update($existJointLink->getId(), [
+				'FREQUENT_USE' => $existJointLink->getFrequentUse() + 1,
+			]);
+
+			return $existJointLink;
+		}
+
+		$userJointLink = (new UserLink())
+			->setUserId($userId)
+			->setActive(true)
+			->setMembers($this->getMembersFromIds($memberIds))
+			->setMembersHash($memberHash)
+			->setFrequentUse(1)
+		;
+
+		(new UserLinkMapper())->create($userJointLink);
+
+		return $userJointLink;
+	}
+
+	public function createCrmDealJointLink(CrmDealLink $crmDealLink, array $memberIds): CrmDealLink
+	{
+		$crmDealLink
+			->setActive(true)
+			->setMembers($this->getMembersFromIds($memberIds))
+			->setFrequentUse(1)
 		;
 
 		(new CrmDealLinkMapper())->create($crmDealLink);
@@ -203,8 +285,49 @@ class Factory
 		return $crmDealLink;
 	}
 
+	private function getMembersFromIds(array $memberIds): array
+	{
+		$memberIds = array_map(static function ($memberId) {
+			return (int)$memberId;
+		}, $memberIds);
+
+		$result = [];
+		$users = UserTable::query()
+			->whereIn('ID', $memberIds)
+			->where('IS_REAL_USER', 'Y')
+			->setSelect(['NAME', 'LAST_NAME', 'ID'])
+			->exec()
+			->fetchCollection()
+		;
+
+		foreach ($users as $user)
+		{
+			$member = new Member();
+			$member
+				->setId($user->getId())
+				->setName($user->getName())
+				->setLastName($user->getLastName())
+			;
+			$result[] = $member;
+		}
+
+		return $result;
+	}
+
+	public function generateMembersHash(int $userId, array $memberIds): string
+	{
+		$memberIds = array_map(static function ($memberId) {
+			return (int)$memberId;
+		}, $memberIds);
+
+		sort($memberIds);
+		$implodedUsers = implode('|', $memberIds) . '|' .  $userId;
+
+		return md5($implodedUsers);
+	}
+
 	/**
-	 * gets calendar sharing event public link by enetId
+	 * gets calendar sharing event public link by eventId
 	 *
 	 * @param int $eventId
 	 * @return \Bitrix\Calendar\Core\Base\EntityInterface|null
@@ -219,7 +342,8 @@ class Factory
 			->where('OBJECT_ID', $eventId)
 			->where('OBJECT_TYPE', Helper::EVENT_SHARING_TYPE)
 			->where('ACTIVE', 'Y')
-			->exec()->fetchObject();
+			->exec()->fetchObject()
+		;
 
 		if ($sharingLinkEO === null)
 		{
@@ -241,7 +365,7 @@ class Factory
 	public function getDeletedEventLinkByEventId(int $eventId): ?\Bitrix\Calendar\Core\Base\EntityInterface
 	{
 		$sharingLinkEO = SharingLinkTable::query()
-			->setSelect(['*'])
+			->setSelect(self::SELECT)
 			->where('OBJECT_ID', $eventId)
 			->where('OBJECT_TYPE', Helper::EVENT_SHARING_TYPE)
 			->exec()->fetchObject();
@@ -274,13 +398,75 @@ class Factory
 	): ?\Bitrix\Calendar\Core\Base\EntityInterface
 	{
 		$sharingLinkEO = SharingLinkTable::query()
-			->setSelect(['*'])
+			->setSelect(self::SELECT)
 			->where('OBJECT_ID', $entityId)
 			->where('OBJECT_TYPE', Helper::CRM_DEAL_SHARING_TYPE)
 			->where('ACTIVE', 'Y')
 			->where('OWNER_ID', $ownerId)
 			->where('CONTACT_ID', $contactId)
 			->where('CONTACT_TYPE', $contactType)
+			->whereNull('MEMBERS.MEMBER_ID')
+			->exec()->fetchObject();
+
+		if ($sharingLinkEO === null)
+		{
+			return null;
+		}
+
+		return (new CrmDealLinkMapper())->getByEntityObject($sharingLinkEO);
+	}
+
+	public function getJointLinkByMembersHash(string $membersHash): ?\Bitrix\Calendar\Core\Base\EntityInterface
+	{
+		$sharingLinkEO = SharingLinkTable::query()
+			->setSelect(self::SELECT)
+			->where('MEMBERS_HASH', $membersHash)
+			->where('ACTIVE', 'Y')
+			->exec()->fetchObject()
+		;
+
+		if ($sharingLinkEO === null)
+		{
+			return null;
+		}
+
+		return (new UserLinkMapper())->getByEntityObject($sharingLinkEO);
+	}
+
+	public function getParentLinkByConferenceId(string $conferenceId): ?Joint\JointLink
+	{
+		$entityObject = SharingLinkTable::query()
+			->setSelect(['PARENT_LINK_HASH'])
+			->where('CONFERENCE_ID', $conferenceId)
+			->exec()->fetchObject()
+		;
+
+		if (is_null($entityObject))
+		{
+			return null;
+		}
+
+		$parentLink = $this->getLinkByHash($entityObject->getParentLinkHash());
+
+		return $parentLink instanceof Joint\JointLink ? $parentLink : null;
+	}
+
+	public function getCrmDealJointLink(
+		int $entityId,
+		int $ownerId,
+		?int $contactId = null,
+		?int $contactType = null
+	): ?\Bitrix\Calendar\Core\Base\EntityInterface
+	{
+		$sharingLinkEO = SharingLinkTable::query()
+			->setSelect(self::SELECT)
+			->where('OBJECT_ID', $entityId)
+			->where('OBJECT_TYPE', Helper::CRM_DEAL_SHARING_TYPE)
+			->where('ACTIVE', 'Y')
+			->where('OWNER_ID', $ownerId)
+			->where('CONTACT_ID', $contactId)
+			->where('CONTACT_TYPE', $contactType)
+			->whereNotNull('MEMBERS.MEMBER_ID')
 			->exec()->fetchObject();
 
 		if ($sharingLinkEO === null)

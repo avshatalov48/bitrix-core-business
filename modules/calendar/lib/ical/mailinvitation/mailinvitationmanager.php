@@ -16,6 +16,9 @@ use CCalendarNotify;
 /**
  * Class MailInvitationManager
  * @package Bitrix\Calendar\ICal\MailInvitation
+ *
+ * @deprecated from 06.2023
+ * Mailing functionality now uses calendar/lib/core/queue/agent/sendingemailnotificationagent.php
  */
 class MailInvitationManager
 {

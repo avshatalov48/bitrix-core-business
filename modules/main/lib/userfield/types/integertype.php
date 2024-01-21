@@ -91,7 +91,7 @@ class IntegerType extends BaseType
 		$msg = [];
 		if(
 			$value !== ''
-			&& $userField['SETTINGS']['MIN_VALUE'] > 0
+			&& $userField['SETTINGS']['MIN_VALUE'] != 0
 			&& (int)$value < $userField['SETTINGS']['MIN_VALUE']
 		)
 		{

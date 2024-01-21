@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TR_LIST_TITLE"] = "Перевод языковых файлов";
 $MESS["TR_LIST_SEARCH"] = "Поиск языковых файлов";
 $MESS["TR_LIST_COLUMN_TITLE"] = "Имя файла/папки";
@@ -41,4 +41,3 @@ $MESS["TR_LIST_GROUP_ACTION_CHOOSE"] = "Выберите действие";
 $MESS["TR_LIST_GROUP_ACTION_EXPORT"] = "Экспортировать выделенные";
 $MESS["TR_LIST_GROUP_ACTION_DELETE_ETHALON"] = "Удалить фразы, которых нет на текущем языке";
 $MESS["TR_UNCOMPATIBLE_ENCODING"] = "Текущая кодировка страницы не совместима с кодировкой локализации. Возможны искажения отображения символов. ";
-?>

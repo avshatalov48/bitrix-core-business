@@ -39,7 +39,7 @@ foreach ($arParams["UPLOADS"] as $v)
 		MPFSelectFromTheGallery : '<?=GetMessageJS("MPF_PHOTO_GALLERY")?>',
 		MPFButtonSend : '<?=GetMessageJS("MPF_SEND")?>',
 		MPFButtonCancel : '<?=GetMessageJs("MPF_CANCEL")?>',
-		MPFPostFormDisk: '<?=GetMessageJS("MOBILE_LOG_POST_FORM_DISK")?>',
+		MPFPostFormDisk: '<?=GetMessageJS("MOBILE_LOG_POST_FORM_DISK_MSGVER_1")?>',
 		MPFPostFormDiskTitle: '<?=GetMessageJS("MOBILE_LOG_POST_FORM_DISK_TITLE")?>',
 		MPFPostFormPhotoGallery : '<?=GetMessageJS("MOBILE_LOG_POST_FORM_PHOTO_GALLERY")?>',
 		MPFPostFormPhotoCamera : '<?=GetMessageJS("MOBILE_LOG_POST_FORM_PHOTO_CAMERA")?>',

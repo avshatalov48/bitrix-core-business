@@ -149,7 +149,6 @@ export class Config
 					'H',
 					'B',
 					'S',
-					'N',
 				],
 				fillDialogWithDefaultValues: false,
 			},

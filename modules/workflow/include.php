@@ -1,11 +1,10 @@
-<?
-global $DBType;
+<?php
 
 CModule::AddAutoloadClasses(
 	"workflow",
 	array(
 		"CAllWorkflow" => "classes/general/workflow.php",
-		"CWorkflow" => "classes/".$DBType."/workflow.php",
+		"CWorkflow" => "classes/mysql/workflow.php",
 		"CWorkflowStatus" => "classes/general/status.php",
 	)
 );
@@ -238,5 +237,3 @@ function getDiff($X, $Y)
 
 	return $sHTMLStart.$sHTML.$sHTMLEnd;
 }
-
-?>

@@ -35,6 +35,7 @@ Loc::loadMessages(__FILE__);
 
 class RecentTable extends Main\Entity\DataManager
 {
+	use \Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 	use UpdateByFilterTrait;
 	/**
 	 * Returns DB table name for entity.
@@ -130,6 +131,9 @@ class RecentTable extends Main\Entity\DataManager
 			'MARKED_ID' => array(
 				'data_type' => 'integer',
 				'default_value' => 0,
+			),
+			'PIN_SORT' => array(
+				'data_type' => 'integer',
 			),
 		);
 	}

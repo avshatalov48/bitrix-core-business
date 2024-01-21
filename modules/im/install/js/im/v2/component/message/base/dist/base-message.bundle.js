@@ -3,18 +3,24 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_application_core,im_v2_lib_parser,im_v2_component_message_elements,im_v2_const) {
+(function (exports,im_v2_application_core,im_v2_lib_parser,im_v2_component_message_elements) {
 	'use strict';
 
 	// @vue/component
 	const BaseMessage = {
 	  name: 'BaseMessage',
 	  components: {
-	    ContextMenu: im_v2_component_message_elements.ContextMenu
+	    ContextMenu: im_v2_component_message_elements.ContextMenu,
+	    RetryButton: im_v2_component_message_elements.RetryButton,
+	    MessageKeyboard: im_v2_component_message_elements.MessageKeyboard
 	  },
 	  props: {
 	    item: {
 	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
 	      required: true
 	    },
 	    withBackground: {
@@ -25,13 +31,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Boolean,
 	      default: true
 	    },
+	    withRetryButton: {
+	      type: Boolean,
+	      default: true
+	    },
 	    menuIsActiveForId: {
 	      type: [Number, String],
 	      default: 0
-	    },
-	    dialogId: {
-	      type: String,
-	      required: true
 	    }
 	  },
 	  computed: {
@@ -50,14 +56,22 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    containerClasses() {
 	      return {
 	        '--self': this.isSelfMessage,
-	        '--opponent': this.isOpponentMessage
+	        '--opponent': this.isOpponentMessage,
+	        '--has-after-content': Boolean(this.$slots['after-message']),
+	        '--with-context-menu': this.withDefaultContextMenu
 	      };
 	    },
 	    bodyClasses() {
 	      return {
 	        '--transparent': !this.withBackground,
-	        '--with-default-context-menu': this.withDefaultContextMenu
+	        '--has-error': this.hasError
 	      };
+	    },
+	    showRetryButton() {
+	      return this.withRetryButton && this.isSelfMessage && this.hasError;
+	    },
+	    hasError() {
+	      return this.message.error;
 	    }
 	  },
 	  methods: {
@@ -66,21 +80,31 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div 
-			:data-id="message.id"
-			class="bx-im-message-base__scope bx-im-message-base__container" 
-			:class="containerClasses"
-			@click="onContainerClick"
-		>
-			<div class="bx-im-message-base__body" :class="bodyClasses">
-				<slot></slot>
+		<div class="bx-im-message-base__scope bx-im-message-base__wrap" :class="containerClasses" :data-id="message.id">
+			<slot name="before-message"></slot>
+			<div
+				class="bx-im-message-base__container" 
+				:class="containerClasses"
+				@click="onContainerClick"
+			>
+				<div class="bx-im-message-base__body-with-retry-button">
+					<RetryButton v-if="showRetryButton" :message="message" :dialogId="dialogId"/>
+					<div class="bx-im-message-base__body" :class="bodyClasses">
+						<slot></slot>
+					</div>
+				</div>
+				<ContextMenu 
+					v-if="!hasError && withDefaultContextMenu" 
+					:message="message" 
+					:menuIsActiveForId="menuIsActiveForId" 
+				/>
 			</div>
-			<ContextMenu v-if="withDefaultContextMenu" :message="message" :menuIsActiveForId="menuIsActiveForId" />
+			<slot name="after-message"></slot>
 		</div>
 	`
 	};
 
 	exports.BaseMessage = BaseMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message));
 //# sourceMappingURL=base-message.bundle.js.map

@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Calendar\Core\Managers\Accessibility;
+use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Calendar\Util;
@@ -64,7 +65,10 @@ class CCalendarPlanner
 
 	public static function prepareData($params = [])
 	{
-		$curEventId = (int)($params['entry_id'] ?? null);
+		$parentId = (int)($params['parent_id'] ?? null);
+		$entryId = (int)($params['entry_id'] ?? null);
+
+		$skipEntryId = $parentId !== 0 ? $parentId : $entryId;
 		$curUserId = (int)($params['user_id'] ?? null);
 		$hostUserId = (int)($params['host_id'] ?? null);
 
@@ -108,7 +112,7 @@ class CCalendarPlanner
 					: '';
 
 				$userSettings = \Bitrix\Calendar\UserSettings::get($user['USER_ID']);
-				$result['entries'][] = array(
+				$result['entries'][] = [
 					'type' => 'user',
 					'id' => $user['USER_ID'],
 					'name' => CCalendar::GetUserName($user),
@@ -118,7 +122,8 @@ class CCalendarPlanner
 					'strictStatus' => $userSettings['denyBusyInvitation'],
 					'emailUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === 'email'),
 					'sharingUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === 'calendar_sharing'),
-				);
+					'timezoneName' => CCalendar::GetUserTimezoneName((int)$user['USER_ID']),
+				];
 			}
 		}
 		elseif(isset($params['entries']) && is_array($params['entries']))
@@ -152,7 +157,7 @@ class CCalendarPlanner
 		{
 			$accessibility = (new Accessibility())
 				->setCheckPermissions(false)
-				->setSkipEventId($curEventId)
+				->setSkipEventId($skipEntryId)
 				->getAccessibility($userIds, CCalendar::TimestampUTC($from), CCalendar::TimestampUTC($to))
 			;
 
@@ -183,6 +188,7 @@ class CCalendarPlanner
 						'dateFrom' => $dateFrom,
 						'dateTo' => $dateTo,
 						'isFullDay' => $entry['isFullDay'],
+						'isVacation' => $entry['isVacation'] ?? false,
 					];
 				}
 			}

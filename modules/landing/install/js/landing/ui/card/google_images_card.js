@@ -140,7 +140,8 @@
 
 			if (BX.Landing.Client.Google.allowKeyChange)
 			{
-				BX.Landing.UI.Panel.GoogleImagesSettings.getInstance().show()
+				const rootWindow = BX.Landing.PageObject.getRootWindow();
+				rootWindow.BX.Landing.UI.Panel.GoogleImagesSettings.getInstance().show()
 					.then(function() {
 						this.showPopular();
 						this.searchField.input.innerHTML = "";

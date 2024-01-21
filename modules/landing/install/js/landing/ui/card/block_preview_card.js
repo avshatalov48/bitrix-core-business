@@ -3,6 +3,8 @@
 
 	BX.namespace("BX.Landing.UI.Card");
 
+	BX.Runtime.loadExtension('ui.dialogs.messagebox');
+
 	var addClass = BX.Landing.Utils.addClass;
 	var append = BX.Landing.Utils.append;
 	var create = BX.Landing.Utils.create;
@@ -95,36 +97,34 @@
 				: false;
 			if (blockId && this.favoriteMy)
 			{
-				BX.Runtime.loadExtension('ui.dialogs.messagebox').then(() => {
-					const deleteMyButton = this.getRemoveButton();
-					deleteMyButton.onclick = event => {
-						event.stopPropagation();
-						BX.UI.Dialogs.MessageBox.show({
-							message: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_DELETE_MSG"),
-							buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
-							popupOptions: {
-								targetContainer: parent.document.body
-							},
-							onYes: () => {
-								return BX.Landing.Backend.getInstance()
-									.action(
-										"Landing::unFavoriteBlock",
-										{blockId: blockId}
-									)
-									.then(() => {
-										const mainInstance = BX.Landing.Main.getInstance();
-										mainInstance.removeBlockFromList(this.code);
-										return true;
-									})
-									.catch(function(error) {
-										console.log("error", error);
-										return false;
-									});
-							},
-						});
-					};
-					BX.append(deleteMyButton, this.getBody());
-				});
+				const deleteMyButton = this.getRemoveButton();
+				deleteMyButton.onclick = event => {
+					event.stopPropagation();
+					BX.UI.Dialogs.MessageBox.show({
+						message: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_DELETE_MSG"),
+						buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
+						popupOptions: {
+							targetContainer: parent.document.body
+						},
+						onYes: () => {
+							return BX.Landing.Backend.getInstance()
+								.action(
+									"Landing::unFavoriteBlock",
+									{blockId: blockId}
+								)
+								.then(() => {
+									const mainInstance = BX.Landing.Main.getInstance();
+									mainInstance.removeBlockFromList(this.code);
+									return true;
+								})
+								.catch(function(error) {
+									console.log("error", error);
+									return false;
+								});
+						},
+					});
+				};
+				BX.append(deleteMyButton, this.getBody());
 			}
 		}
 

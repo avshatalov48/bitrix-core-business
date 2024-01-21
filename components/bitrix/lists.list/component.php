@@ -690,7 +690,7 @@ if ($arResult["SHOW_SECTION_GRID"] == "Y" && !array_key_exists("*SEARCHABLE_CONT
 		else
 		{
 			$currentDepthLevel = (int) $arResult["SECTION"]["DEPTH_LEVEL"];
-			$sectionDepthLevel = (int) $section["DEPTH_LEVEL"];
+			$sectionDepthLevel = (int)($section["DEPTH_LEVEL"] ?? null);
 			if (
 				$sectionDepthLevel <= $currentDepthLevel
 				|| (abs($sectionDepthLevel - $currentDepthLevel) > 1)
@@ -827,6 +827,8 @@ else
 	$arUserGroupsForBP = array();
 	$arDocumentStatesForBP = array();
 }
+
+$processesWithComments = null;
 
 if ($arResult["PROCESSES"])
 {

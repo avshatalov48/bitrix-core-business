@@ -51,7 +51,7 @@ if(!empty($arParams["~AUTH_RESULT"])):
 	<div class="bx-authform-formgroup-container">
 		<div class="bx-authform-label-container"><span class="bx-authform-starrequired">*</span><?echo GetMessage("main_register_sms_code")?></div>
 		<div class="bx-authform-input-container">
-			<input type="text" name="SMS_CODE" maxlength="255" value="<?=htmlspecialcharsbx($arResult["SMS_CODE"])?>" autocomplete="off" />
+			<input type="text" name="SMS_CODE" maxlength="255" value="<?=htmlspecialcharsbx($arResult["SMS_CODE"] ?? '')?>" autocomplete="off" />
 		</div>
 	</div>
 

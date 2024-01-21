@@ -1,19 +1,4 @@
 <?php
-$MESS["SALE_HPS_YANDEX_CHECKOUT_BANK_CARDS"] = "Банковские карты";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_YANDEX_MONEY"] = "ЮMoney";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK"] = "SberPay";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS"] = "SberPay по СМС";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR"] = "SberPay QR";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_QIWI"] = "QIWI Wallet";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_ALFABANK"] = "Альфа-Клик";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_CASH"] = "Оплата наличными в терминале";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_SMART"] = "Умный платеж";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_MOBILE_BALANCE"] = "Баланс телефона";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_EMBEDDED"] = "Виджет";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_TINKOFF_BANK"] = "Тинькофф Банк";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_INSTALLMENTS"] = "Заплатить по частям";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_SBP"] = "СБП";
-
 $MESS["SALE_HPS_YANDEX_CHECKOUT_HTTP_STATUS_400"] = "Неправильный запрос. Некорректное взаимодействие с API ЮKassa";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_HTTP_STATUS_401"] = "Ошибка аутентификации. Неверный идентификатор вашего аккаунта в ЮKassa или секретный ключ. Проверьте настройки подключения платежной системы";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_HTTP_STATUS_OAUTH_401"] = "Ошибка аутентификации. Невалидный OAuth-токен: истек срок жизни токена или токен был отозвал через Яндекс.Паспорт. Запросите токен заново";
@@ -28,7 +13,6 @@ $MESS["SALE_HPS_YANDEX_CHECKOUT_ERROR_STATUS"] = "Некорректный ст�
 $MESS["SALE_HPS_YANDEX_CHECKOUT_ERROR_CHECK_IP"] = "Ошибка проверки подлинности уведомления. IP-адрес не соответствует списку разрешенных IP адресов. Уведомление пришло с адреса: #IP_ADDRESS#";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_ERROR_EXTERNAL_PAYMENT"] = "Ошибка при выставлении счета";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_ERROR_PAYMENT_CANCELED"] = "Платеж отменен";
-$MESS["SALE_HPS_YANDEX_CHECKOUT_ERROR_TERMINAL_FISCALIZATION_ENABLED"] = "Для получения оплаты через Терминал нужно отключить отправку чеков в личном кабинете ЮKassa. Обратитесь к вашему руководителю или администратору Битрикс24";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_ERROR_PAYMENT_METHOD_NOT_SUPPORT"] = "Способ оплаты \"#PAYMENT_METHOD#\" не поддерживается. Необходимо обратиться в ЮKassa";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_ERROR_EMPTY_RECEIPT"] = "Ошибка при формировании чека";
 

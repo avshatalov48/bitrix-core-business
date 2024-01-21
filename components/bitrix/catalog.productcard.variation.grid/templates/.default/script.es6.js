@@ -1,8 +1,7 @@
-import {Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type, Uri} from 'main.core';
-import {typeof BaseEvent, EventEmitter} from 'main.core.events';
-import {MenuManager, Popup, PopupManager} from 'main.popup';
-import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
-import {TagSelector} from "ui.entity-selector";
+import { Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type, Uri } from 'main.core';
+import { typeof BaseEvent, EventEmitter } from 'main.core.events';
+import { MenuManager, Popup, PopupManager } from 'main.popup';
+import { TagSelector } from 'ui.entity-selector';
 import 'ui.buttons';
 import 'ui.hint';
 
@@ -12,7 +11,7 @@ class VariationGrid
 {
 	grid = null;
 	isNew = false;
-	propertiesWithMenu = []
+	propertiesWithMenu = [];
 
 	constructor(settings = {})
 	{
@@ -93,7 +92,7 @@ class VariationGrid
 		this.onPropertySaveHandler = this.onPropertySave.bind(this);
 		EventEmitter.subscribe('SidePanel.Slider:onMessage', this.onPropertySaveHandler);
 
-		this.onAllRowsSelectHandler = this.enableEdit.bind(this)
+		this.onAllRowsSelectHandler = this.enableEdit.bind(this);
 		EventEmitter.subscribe('Grid::allRowsSelected', this.onAllRowsSelectHandler);
 
 		this.onAllRowsUnselectHandler = this.disableEdit.bind(this);
@@ -204,12 +203,12 @@ class VariationGrid
 		}
 
 		this.propertiesWithMenu.forEach(propertyId => {
-			let menu = MenuManager.getMenuById(propertyId + '_menu');
+			const menu = MenuManager.getMenuById(`${propertyId}_menu`);
 			if (menu)
 			{
 				menu.close();
 			}
-		})
+		});
 	}
 
 	onPrepareDropDownItems(event)
@@ -244,8 +243,8 @@ class VariationGrid
 		const propertyId = controlId.replace('SKU_GRID_PROPERTY_', '').replace('_control', '');
 
 		items.push({
-			'action': 'create-new',
-			'html': `
+			action: 'create-new',
+			html: `
 				<li data-role="createItem" class="catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new">
 					<label class="catalog-productcard-popup-select-label main-dropdown-item" data-pseudo="true">
 						<span class="catalog-productcard-popup-select-add"></span>
@@ -254,11 +253,11 @@ class VariationGrid
 						</span>
 					</label>
 				</li>`,
-			'onclick': () => BX.Catalog.VariationGrid.firePropertyModification(propertyId, menuId)
+			onclick: () => BX.Catalog.VariationGrid.firePropertyModification(propertyId, menuId),
 		});
 
 		requestAnimationFrame(function() {
-			const popup = document.getElementById('menu-popup-' + menuId);
+			const popup = document.getElementById(`menu-popup-${menuId}`);
 			Dom.addClass(popup, 'catalog-productcard-popup-list');
 		});
 	}
@@ -298,7 +297,7 @@ class VariationGrid
 
 	clearGridSettingsPopupStuff()
 	{
-		Dom.remove(document.getElementById(this.gridId + '-grid-settings-window'));
+		Dom.remove(document.getElementById(`${this.gridId}-grid-settings-window`));
 	}
 
 	bindCreateNewVariation()
@@ -318,6 +317,7 @@ class VariationGrid
 		if (this.isSimple)
 		{
 			Event.bind(addRowButton, 'click', this.openSimpleProductRestrictionPopup.bind(this));
+
 			return;
 		}
 
@@ -338,7 +338,7 @@ class VariationGrid
 		{
 			if (!Reflection.getClass('BX.Main.gridManager.getInstanceById'))
 			{
-				throw Error(`Cannot find grid with '${this.gridId}' id.`)
+				throw new Error(`Cannot find grid with '${this.gridId}' id.`)
 			}
 
 			this.grid = BX.Main.gridManager.getInstanceById(this.gridId);
@@ -361,7 +361,7 @@ class VariationGrid
 					Event.bind(
 						quantityNode,
 						'click',
-						this.openStoreAmountPopup.bind(this, row.getId(), quantityNode)
+						this.openStoreAmountPopup.bind(this, row.getId(), quantityNode),
 					);
 				}
 			}
@@ -382,7 +382,7 @@ class VariationGrid
 					Event.bind(
 						reservedQuantityNode,
 						'click',
-						this.openDealsWithReservedProductSlider.bind(this, row.getId())
+						this.openDealsWithReservedProductSlider.bind(this, row.getId()),
 					);
 				}
 			}
@@ -391,24 +391,23 @@ class VariationGrid
 
 	static #getSimpleProductRestrictionContent()
 	{
-
 		const text = Loc.getMessage(
-			'C_PVG_SIMPLE_PRODUCT_POPUP_TEXT',
+			'C_PVG_SIMPLE_PRODUCT_POPUP_TEXT_MSGVER_1',
 			{
-						'#COPY_BUTTON_NAME#': `<b>${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY')}</b>`,
-						'#LINK_INFO#': `<a href="">${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_DOC_LINK_INFO')}</a>`,
-				}
-			);
+				'#COPY_BUTTON_NAME#': `<b>${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY')}</b>`,
+				'#LINK_INFO#': `<a href="">${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_DOC_LINK_INFO')}</a>`,
+			},
+		);
 
 		const content = Tag.render`<span>${text}</span>`;
-		Event.bind(content.querySelector('a'), 'click', (event)=>{
-			top.BX.Helper.show("redirect=detail&code=16172654");
+		Event.bind(content.querySelector('a'), 'click', (event) => {
+			top.BX.Helper.show('redirect=detail&code=16172654');
 			event.preventDefault();
 		});
 
 		return Tag.render`
 			<div class="catalog-simple-popup-wrapper">
-				<h3>${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_TITLE')}</h3>
+				<h3>${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_TITLE_MSGVER_1')}</h3>
 				<div class="catalog-simple-popup-label-text">${content}</div>
 				<div class="catalog-simple-popup-link-block">
 					<a class="ui-link ui-link-primary " target="_blank" href="">
@@ -435,25 +434,26 @@ class VariationGrid
 					autoHide: false,
 					draggable: true,
 					overlay: true,
-					className: "bxc-popup-window",
+					closeIcon: true,
+					className: 'bxc-popup-window',
 					content: VariationGrid.#getSimpleProductRestrictionContent(),
 					buttons: [
 						new BX.UI.Button({
-							text : Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY'),
+							text: Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY'),
 							color: BX.UI.Button.Color.PRIMARY,
 							onclick: () => {
 								BX.SidePanel.Instance.open(this.productCopyLink);
 							},
 						}),
 						new BX.UI.Button({
-							text : Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_CLOSE'),
+							text: Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_CLOSE'),
 							color: BX.UI.Button.Color.LINK,
 							onclick: () => {
 								popup.close();
 							},
 						}),
 					],
-				}
+				},
 			);
 		}
 
@@ -462,7 +462,7 @@ class VariationGrid
 
 	openStoreAmountPopup(rowId, quantityNode)
 	{
-		const popupId = rowId + '-store-amount';
+		const popupId = `${rowId}-store-amount`;
 		let popup = PopupManager.getPopupById(popupId);
 
 		if (!popup)
@@ -475,12 +475,12 @@ class VariationGrid
 					draggable: false,
 					offsetLeft: -218,
 					offsetTop: 0,
-					angle: {position: 'top', offset: 250},
+					angle: { position: 'top', offset: 250 },
 					noAllPaddings: true,
-					bindOptions: {forceBindPosition: true},
+					bindOptions: { forceBindPosition: true },
 					closeByEsc: true,
-					content: this.getStoreAmountPopupContent(rowId)
-				}
+					content: this.getStoreAmountPopupContent(rowId),
+				},
 			);
 		}
 
@@ -502,7 +502,7 @@ class VariationGrid
 		}
 		BX.SidePanel.Instance.open(sliderLink.toString(), {
 			allowChangeHistory: false,
-			cacheable: false
+			cacheable: false,
 		});
 	}
 
@@ -538,12 +538,13 @@ class VariationGrid
 		const tableHeadRow = tableHead.insertRow();
 		tableHeadRow.className = 'main-grid-row-head';
 
-		this.addCellToTable(tableHeadRow,
+		this.addCellToTable(
+			tableHeadRow,
 			Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_STORE'),
 			true,
 			'left',
 		);
-		this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON1'), true);
+		this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON1_MSGVER_1'), true);
 		if (this.isShowedStoreReserve)
 		{
 			this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_RESERVED'), true);
@@ -562,7 +563,7 @@ class VariationGrid
 				Event.bind(
 					quantityReservedNode,
 					'click',
-					this.openDealsWithReservedProductSlider.bind(this, rowId, store.storeId)
+					this.openDealsWithReservedProductSlider.bind(this, rowId, store.storeId),
 				);
 				this.addCellToTable(tableRow, quantityReservedNode, false);
 				const quantityAvailable = parseInt(store.quantityAvailable, 10);
@@ -607,7 +608,7 @@ class VariationGrid
 			<span class="ui-link ui-link-secondary ui-link-dashed ui-link-open-store-amount-slider">
 				${Loc.getMessage(
 			'C_PVG_STORE_AMOUNT_POPUP_OPEN_SLIDER_BUTTON',
-			{'#STORE_COUNT#': currentSkusCount}
+			{ '#STORE_COUNT#': currentSkusCount }
 		)}
 			</span>
 		`;
@@ -621,7 +622,7 @@ class VariationGrid
 		BX.SidePanel.Instance.open(linkToDetails, {
 			width: 700,
 			allowChangeHistory: false,
-			cacheable: false
+			cacheable: false,
 		});
 	}
 
@@ -631,7 +632,7 @@ class VariationGrid
 		rows.forEach((row) => {
 			if (row.isBodyChild() && !row.isTemplate())
 			{
-				const popupId = row.getId() + '-store-amount';
+				const popupId = `${row.getId()}-store-amount`;
 				const popup = PopupManager.getPopupById(popupId);
 				popup?.destroy?.();
 			}
@@ -1163,7 +1164,10 @@ class VariationGrid
 	{
 		for (let i in newRowData)
 		{
-			if (newRowData.hasOwnProperty(i) && (i.includes('[VIEW_HTML]') || i.includes('[EDIT_HTML]')))
+			if (
+				newRowData.hasOwnProperty(i)
+				&& (i.includes('[VIEW_HTML]') || i.includes('[EDIT_HTML]') || i.includes('XML_ID'))
+			)
 			{
 				delete newRowData[i]
 			}

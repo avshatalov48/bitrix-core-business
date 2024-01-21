@@ -36,7 +36,7 @@ class CallLog
 		$filterCallId = $params['TYPE'] === self::TYPE_SEARCH? intval($params['CALL_ID']): 0;
 
 		$select = [
-			'ID', 'TYPE', 'INITIATOR_ID', 'PROVIDER', 'STATE', 'LOG_URL',
+			'ID', 'UUID', 'TYPE', 'INITIATOR_ID', 'PROVIDER', 'STATE', 'LOG_URL',
 			'ENTITY_TYPE', 'ENTITY_ID',
 			'START_DATE', 'END_DATE',
 			'CHAT_TITLE' => 'CHAT.TITLE'

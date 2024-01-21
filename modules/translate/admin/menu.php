@@ -1,4 +1,4 @@
-<?
+<?php
 use \Bitrix\Main\Localization\Loc;
 
 if ($APPLICATION->GetGroupRight("translate") <= 'D')

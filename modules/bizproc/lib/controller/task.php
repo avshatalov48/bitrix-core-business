@@ -25,12 +25,12 @@ class Task extends Base
 
 		$currentUserId = $this->getCurrentUser()->getId();
 
-		$taskService = new Bizproc\Task\Service\TaskService(
-			new Bizproc\Task\Service\AccessService($currentUserId)
+		$taskService = new Bizproc\Api\Service\TaskService(
+			new Bizproc\Api\Service\TaskAccessService($currentUserId)
 		);
 
-		$options = new Bizproc\Task\Options\DelegateTasksOptions($taskIds, $fromUserId, $toUserId, $currentUserId);
-		$delegateTaskResult = $taskService->delegateTasks($options);
+		$tasksRequest = new Bizproc\Api\Request\TaskService\DelegateTasksRequest($taskIds, $fromUserId, $toUserId, $currentUserId);
+		$delegateTaskResult = $taskService->delegateTasks($tasksRequest);
 
 		if (!$delegateTaskResult->isSuccess())
 		{
@@ -42,5 +42,100 @@ class Task extends Base
 		return [
 			'message' => $delegateTaskResult->getSuccessDelegateTaskMessage(),
 		];
+	}
+
+	/**
+	 * @internal Experimental, not ready now
+	 */
+	private function getListAction(?int $targetUserId = null): ?array
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+		if (!$targetUserId)
+		{
+			$targetUserId = $currentUserId;
+		}
+
+		// todo: check that $targetUserId > 0
+
+		$taskService = new Bizproc\Api\Service\TaskService(
+			new Bizproc\Api\Service\TaskAccessService($currentUserId)
+		);
+
+		$tasksRequest = new Bizproc\Api\Request\TaskService\GetUserTasksRequest(
+			additionalSelectFields: ['NAME', 'DESCRIPTION'],
+			filter: [
+				'USER_ID' => $targetUserId,
+			],
+		);
+		$getTasksResult = $taskService->getTasks($tasksRequest);
+		if (!$getTasksResult->isSuccess())
+		{
+			$this->addErrors($getTasksResult->getErrors());
+
+			return null;
+		}
+
+		return [
+			'tasks' => $getTasksResult->getTasks(),
+		];
+	}
+
+	public function doAction(int $taskId, array $taskRequest): ?bool
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+
+		$taskService = new Bizproc\Api\Service\TaskService(
+			new Bizproc\Api\Service\TaskAccessService($currentUserId)
+		);
+
+		//todo: send DTO ?
+		$getTasksResult = $taskService->doTask($taskId, $currentUserId, $taskRequest);
+		if (!$getTasksResult->isSuccess())
+		{
+			$this->addErrors($getTasksResult->getErrors());
+
+			return null;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param numeric[] $taskIds
+	 * @param int $newStatus
+	 * @return bool|null
+	 */
+	public function doInlineTasksAction(array $taskIds, int $newStatus): ?bool
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+
+		$preparedTaskIds = [];
+		foreach ($taskIds as $id)
+		{
+			if (is_numeric($id))
+			{
+				$preparedTaskIds[] = (int)$id;
+			}
+		}
+
+		$request = new Bizproc\Api\Request\TaskService\DoInlineTasksRequest(
+			taskIds: $preparedTaskIds,
+			userId: $currentUserId,
+			newTaskStatusId: $newStatus,
+		);
+
+		$service = new Bizproc\Api\Service\TaskService(
+			new Bizproc\Api\Service\TaskAccessService($request->userId),
+		);
+
+		$response = $service->doInlineTasks($request);
+
+		if (!$response->isSuccess())
+		{
+			$this->addErrors($response->getErrors());
+			return null;
+		}
+
+		return true;
 	}
 }

@@ -200,6 +200,10 @@
 	background-image: url(./images/menu/settings.svg?v3);
 }
 
+.bx-im-navigation__item_icon.--copilot {
+	background-image: url(./images/menu/copilot.svg?v2);
+}
+
 .bx-im-navigation__item_icon.--market {
 	background-image: url(./images/menu/market.svg?v3);
 }

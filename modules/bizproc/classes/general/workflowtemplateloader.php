@@ -321,6 +321,8 @@ class CBPWorkflowTemplateLoader
 					]
 				);
 				EventManager::getInstance()->send($event);
+
+				\Bitrix\Bizproc\Workflow\Entity\WorkflowDurationStatTable::deleteAllByTemplateId((int)$id);
 			}
 			else
 			{
@@ -778,28 +780,30 @@ class CBPWorkflowTemplateLoader
 
 	public static function searchTemplatesByDocumentType($documentType, $autoExecute = -1)
 	{
-		$result = array();
+		$result = [];
 
-		$arFilter = array("DOCUMENT_TYPE" => $documentType);
+		$arFilter = ['DOCUMENT_TYPE' => $documentType];
 		$autoExecute = intval($autoExecute);
 		if ($autoExecute >= 0)
-			$arFilter["AUTO_EXECUTE"] = $autoExecute;
+		{
+			$arFilter['AUTO_EXECUTE'] = $autoExecute;
+		}
 
 		$dbTemplatesList = self::GetList(
-			array(),
+			[],
 			$arFilter,
 			false,
 			false,
-			array("ID", "NAME", "DESCRIPTION", "AUTO_EXECUTE")
+			['ID', 'NAME', 'DESCRIPTION', 'AUTO_EXECUTE']
 		);
 		while ($arTemplatesListItem = $dbTemplatesList->Fetch())
 		{
-			$result[] = array(
-				"ID" => $arTemplatesListItem["ID"],
-				"NAME" => $arTemplatesListItem["NAME"],
-				"DESCRIPTION" => $arTemplatesListItem["DESCRIPTION"],
-				"AUTO_EXECUTE" => $arTemplatesListItem["AUTO_EXECUTE"],
-			);
+			$result[] = [
+				'ID' => $arTemplatesListItem['ID'],
+				'NAME' => $arTemplatesListItem['NAME'],
+				'DESCRIPTION' => $arTemplatesListItem['DESCRIPTION'],
+				'AUTO_EXECUTE' => $arTemplatesListItem['AUTO_EXECUTE'],
+			];
 		}
 
 		return $result;
@@ -822,7 +826,7 @@ class CBPWorkflowTemplateLoader
 				return $arWorkflowTemplate[$key];
 			}
 
-			if (is_array($value["Children"]))
+			if (is_array($value["Children"] ?? null))
 			{
 				if ($res = &self::FindActivityByName($arWorkflowTemplate[$key]["Children"], $activityName))
 				{

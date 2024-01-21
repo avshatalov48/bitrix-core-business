@@ -1,4 +1,4 @@
-<?
+<?php
 use Bitrix\Main;
 use Bitrix\Translate;
 use Bitrix\Main\Localization\LanguageTable;

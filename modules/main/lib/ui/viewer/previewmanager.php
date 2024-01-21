@@ -29,8 +29,7 @@ final class PreviewManager
 
 	private const SALT_FILE_ID = 'previewfile';
 
-	/** @var TransformerManager  */
-	private $transformer;
+	private ?TransformerManager $transformer;
 	private array $rendererList = [];
 	private static bool $disableCatchingViewByUser = false;
 
@@ -77,14 +76,14 @@ final class PreviewManager
 				continue;
 			}
 			$result = $result->getParameters();
-			if (!is_array($result))
+			if (!\is_array($result))
 			{
 				throw new SystemException('Wrong event result. Must be array.');
 			}
 
 			foreach ($result as $class)
 			{
-				if (!is_string($class) || !class_exists($class))
+				if (!\is_string($class) || !class_exists($class))
 				{
 					throw new SystemException('Wrong event result. There is not a class.');
 				}
@@ -123,7 +122,7 @@ final class PreviewManager
 			return false;
 		}
 
-		if (!is_array($file) || empty($file['ID']))
+		if (!\is_array($file) || empty($file['ID']))
 		{
 			return false;
 		}
@@ -234,7 +233,7 @@ final class PreviewManager
 
 	protected function showImage($file, $options): void
 	{
-		if (!is_array($options))
+		if (!\is_array($options))
 		{
 			$options = [];
 		}
@@ -246,12 +245,8 @@ final class PreviewManager
 	protected function sendResizedImage($file): ?Response\ResizedImage
 	{
 		$fileView = $this->getByImage($file['ID'], $this->getSourceUri());
-		if (!$fileView)
-		{
-			return null;
-		}
 
-		return $fileView->render();
+		return $fileView?->render();
 	}
 
 	protected function prepareRenderParameters($file): array
@@ -293,7 +288,7 @@ final class PreviewManager
 		]);
 	}
 
-	protected function sendPreview($file, $forceTransformation = false): Response\AjaxJson
+	protected function sendPreview($file, bool $forceTransformation = false): Response\AjaxJson
 	{
 		$render = $this->buildRenderByFile(
 			$file['ORIGINAL_NAME'],
@@ -359,7 +354,7 @@ final class PreviewManager
 		$alreadyPreview = $this->getFilePreviewEntryByFileId($fileId);
 		if (isset($alreadyPreview['ID']))
 		{
-			$result = FilePreviewTable::update($fileId, $updatedFields);
+			$result = FilePreviewTable::update($alreadyPreview['ID'], $updatedFields);
 		}
 		else
 		{
@@ -455,13 +450,13 @@ final class PreviewManager
 			return null;
 		}
 
-		if (isset($cache[$fileData['ID']]) || array_key_exists($fileData['ID'], $cache))
+		if (isset($cache[$fileData['ID']]) || \array_key_exists($fileData['ID'], $cache))
 		{
 			return $cache[$fileData['ID']];
 		}
 
 		$filePreview = $this->getFilePreviewEntryByFileId($fileData['ID']);
-		if (!$filePreview)
+		if (!$filePreview || empty($filePreview['PREVIEW_ID']))
 		{
 			$cache[$fileData['ID']] = null;
 
@@ -498,7 +493,7 @@ final class PreviewManager
 		return $reflectionClass->newInstance($originalName, $sourceUri, $options);
 	}
 
-	public function getRenderClassByFile(array $file)
+	public function getRenderClassByFile(array $file): string
 	{
 		$contentType = $file['contentType'];
 		$originalName = $file['originalName'];
@@ -541,7 +536,7 @@ final class PreviewManager
 		foreach ($this->rendererList as $rendererClass)
 		{
 			/** @var Renderer\Renderer $rendererClass */
-			if (in_array($contentType, $rendererClass::getAllowedContentTypes(), true))
+			if (\in_array($contentType, $rendererClass::getAllowedContentTypes(), true))
 			{
 				return $rendererClass;
 			}
@@ -556,19 +551,17 @@ final class PreviewManager
 	 *
 	 * @param int $fileId
 	 * @param bool $cacheCleaned
-	 * @return array|false
+	 * @return array|null
 	 */
-	protected function getFileData($fileId, $cacheCleaned = false)
+	protected function getFileData(int $fileId, bool $cacheCleaned = false): ?array
 	{
-		$fileId = (int)$fileId;
-
 		$fileData = \CFile::GetFileArray($fileId);
 		if ($fileData === false && !$cacheCleaned)
 		{
 			global $DB;
-			$strSql = "SELECT ID FROM b_file WHERE ID=" . $fileId;
-			$dbResult = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
-			if ($dbData = $dbResult->Fetch())
+			$strSql = "SELECT ID FROM b_file WHERE ID={$fileId}";
+			$dbResult = $DB->Query($strSql);
+			if ($dbResult->Fetch())
 			{
 				\CFile::CleanCache($fileId);
 
@@ -576,6 +569,6 @@ final class PreviewManager
 			}
 		}
 
-		return $fileData;
+		return $fileData ?: null;
 	}
 }

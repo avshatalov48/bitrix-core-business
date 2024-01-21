@@ -34,7 +34,11 @@ class AttendeesPropertyType extends PropertyType
 			$this->addParameter(Parameter::getInstance('CUTYPE', $this->calendarAddress->cutype));
 		}
 
-		$this->addParameter(Parameter::getInstance('RSVP', 'TRUE'));
+		if ($this->calendarAddress->rsvp)
+		{
+			$this->addParameter(Parameter::getInstance('RSVP', 'TRUE'));
+		}
+
 
 		if ($this->calendarAddress->name)
 		{

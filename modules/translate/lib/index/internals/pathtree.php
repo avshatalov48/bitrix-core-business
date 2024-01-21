@@ -2,8 +2,6 @@
 
 namespace Bitrix\Translate\Index\Internals;
 
-use Bitrix\Main;
-use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Translate;
 use Bitrix\Translate\Index;
@@ -91,10 +89,8 @@ class PathTreeTable extends DataManager
 	 */
 	public static function purge(?Translate\Filter $filter = null): void
 	{
-		if (($filterOut = static::processFilter($filter)) !== false)
-		{
-			static::bulkDelete($filterOut);
-		}
+		$filterOut = static::processFilter($filter);
+		static::bulkDelete($filterOut);
 	}
 
 	/**

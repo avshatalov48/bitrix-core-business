@@ -10,6 +10,7 @@ use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\Item\LogIndex;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Socialnetwork\LogViewTable;
+use Bitrix\Socialnetwork\Space\Toolbar\Composition;
 
 class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 {
@@ -756,6 +757,8 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			$filterOption->reset();
 		}
 
+		$this->setComposition();
+
 		if (
 			(
 				$params['TAG'] !== ''
@@ -930,7 +933,7 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 				&& ModuleManager::isModuleInstalled('crm')
 			)
 			{
-				$this->setFilterKey('!MODULE_ID', (  // can't use !@MODULE_ID because of null
+				$this->addFilter('!MODULE_ID', (  // can't use !@MODULE_ID because of null
 					Option::get('crm', 'enable_livefeed_merge', 'N') === 'Y'
 					|| (
 						!empty($this->getFilterKey('LOG_RIGHTS'))
@@ -1393,5 +1396,16 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 		$forumPostLivefeedProvider->warmUpAuxCommentsStaticCache([
 			'logEventsData' => $logEventsData,
 		]);
+	}
+
+	private function setComposition(): void
+	{
+		if (!$this->isSpace())
+		{
+			return;
+		}
+		$composition = new Composition($this->userId, $this->groupId);
+		$deselectedItems = $composition->getDeselectedSettings();
+		$this->addFilter('!' . Composition::FILTER, $deselectedItems);
 	}
 }

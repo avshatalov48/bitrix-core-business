@@ -31,7 +31,7 @@ class TenThreadsStrategy extends AbstractThreadStrategy
 			], ['join_type' => 'LEFT']
 			),
 			new ExpressionField(
-				'LAST_DIGIT', 'RIGHT(`sender_posting_recipient`.`ID`,1)'
+				'LAST_DIGIT', 'RIGHT(sender_posting_recipient.ID,1)'
 			)
 		];
 	}

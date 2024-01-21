@@ -4,8 +4,10 @@ namespace Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroup;
 
 use Bitrix\Iblock\Grid\ActionType;
 use Bitrix\Iblock\Grid\Helpers\CodeTranslator;
+use Bitrix\Iblock\Grid\Panel\UI\Actions\Helpers\ItemFinder;
 use Bitrix\Iblock\Grid\RowType;
 use Bitrix\Main\Error;
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Actions;
 use Bitrix\Main\Grid\Panel\Snippet;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
@@ -23,6 +25,7 @@ use CUtil;
 final class CreateCodeGroupChild extends BaseGroupChild
 {
 	use CodeTranslator;
+	use ItemFinder;
 
 	public static function getId(): string
 	{
@@ -31,21 +34,21 @@ final class CreateCodeGroupChild extends BaseGroupChild
 
 	public function getName(): string
 	{
-		return Loc::getMessage('IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_CREATE_CODE_NAME');
+		return Loc::getMessage('IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_CREATE_CODE_NAME_MSGVER_1');
 	}
 
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter = null): ?Result
 	{
 		$result = new Result();
 
+		$select = [
+			'ID',
+			'NAME',
+		];
+
 		if ($isSelectedAllRows)
 		{
-			$result->addErrors(
-				$this->processCodeTranslitElements(true, [])->getErrors()
-			);
-			$result->addErrors(
-				$this->processCodeTranslitSections(true, [])->getErrors()
-			);
+			[$elements, $sections] = $this->getItemsByFilter($select, $filter);
 		}
 		else
 		{
@@ -57,19 +60,24 @@ final class CreateCodeGroupChild extends BaseGroupChild
 
 			[$elementIds, $sectionIds] = RowType::parseIndexList($ids);
 
-			if ($elementIds)
-			{
-				$result->addErrors(
-					$this->processCodeTranslitElements(false, $elementIds)->getErrors()
-				);
-			}
+			$elements = $this->getElementsByIdList($select, $elementIds);
+			$sections = $this->getSectionsByIdList($select, $sectionIds);
 
-			if ($sectionIds)
-			{
-				$result->addErrors(
-					$this->processCodeTranslitSections(false, $sectionIds)->getErrors()
-				);
-			}
+			unset($elementIds, $sectionIds);
+		}
+
+		if ($elements)
+		{
+			$result->addErrors(
+				$this->processCodeTranslitElements($elements)->getErrors()
+			);
+		}
+
+		if ($sections)
+		{
+			$result->addErrors(
+				$this->processCodeTranslitSections($sections)->getErrors()
+			);
 		}
 
 		return $result;
@@ -92,33 +100,15 @@ final class CreateCodeGroupChild extends BaseGroupChild
 		]);
 	}
 
-	private function processCodeTranslitElements(bool $isSelectedAllRows, array $ids): Result
+	private function processCodeTranslitElements(array $elements): Result
 	{
 		$result = new Result();
 		$entity = new CIBlockElement();
 		$translitSettings = $this->getElementTranslitSettings();
 
-		$filter = [
-			'IBLOCK_ID' => $this->getIblockId(),
-		];
-		if (!$isSelectedAllRows)
+		foreach ($elements as $row)
 		{
-			$filter['ID'] = $ids;
-		}
-
-		$rows = CIBlockElement::GetList(
-			[],
-			$filter + ['CHECK_PERMISSIONS' => 'N'],
-			false,
-			false,
-			[
-				'ID',
-				'NAME',
-			]
-		);
-		while ($row = $rows->Fetch())
-		{
-			$id = (int)$row['ID'];
+			$id = $row['ID'];
 
 			if (!$this->getIblockRightsChecker()->canEditElement($id))
 			{
@@ -140,10 +130,10 @@ final class CreateCodeGroupChild extends BaseGroupChild
 				),
 			];
 			$updateResult = $entity->Update($id, $fields);
-			if (!$updateResult && $entity->LAST_ERROR)
+			if (!$updateResult && $entity->getLastError())
 			{
 				$result->addError(
-					new Error($entity->LAST_ERROR)
+					new Error($entity->getLastError())
 				);
 			}
 		}
@@ -151,32 +141,15 @@ final class CreateCodeGroupChild extends BaseGroupChild
 		return $result;
 	}
 
-	private function processCodeTranslitSections(bool $isSelectedAllRows, array $ids): Result
+	private function processCodeTranslitSections(array $sections): Result
 	{
 		$result = new Result();
 		$entity = new CIBlockSection();
 		$translitSettings = $this->getSectionTranslitSettings();
 
-		$filter = [
-			'IBLOCK_ID' => $this->getIblockId(),
-		];
-		if (!$isSelectedAllRows)
+		foreach ($sections as $row)
 		{
-			$filter['ID'] = $ids;
-		}
-
-		$rows = CIBlockSection::GetList(
-			[],
-			$filter + ['CHECK_PERMISSIONS' => 'N'],
-			false,
-			[
-				'ID',
-				'NAME',
-			]
-		);
-		while ($row = $rows->Fetch())
-		{
-			$id = (int)$row['ID'];
+			$id = $row['ID'];
 
 			if (!$this->getIblockRightsChecker()->canEditSection($id))
 			{
@@ -198,10 +171,10 @@ final class CreateCodeGroupChild extends BaseGroupChild
 				),
 			];
 			$updateResult = $entity->Update($id, $fields);
-			if (!$updateResult && $entity->LAST_ERROR)
+			if (!$updateResult && $entity->getLastError())
 			{
 				$result->addError(
-					new Error($entity->LAST_ERROR)
+					new Error($entity->getLastError())
 				);
 			}
 		}

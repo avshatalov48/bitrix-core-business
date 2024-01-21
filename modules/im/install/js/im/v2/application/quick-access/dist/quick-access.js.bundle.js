@@ -27,27 +27,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    // eslint-disable-next-line promise/catch-or-return
 	    this.initCore().then(() => this.initComponent()).then(() => this.initComplete()).then(() => this.checkGetParams());
 	  }
-	  initCore() {
-	    return new Promise(resolve => {
-	      // eslint-disable-next-line promise/catch-or-return
-	      im_v2_application_core.Core.ready().then(controller => {
-	        this.controller = controller;
-	        im_v2_application_core.Core.setApplicationData(this.params);
-	        resolve();
-	      });
-	    });
+	  async initCore() {
+	    im_v2_application_core.Core.setApplicationData(this.params);
+	    this.controller = await im_v2_application_core.Core.ready();
+	    return true;
 	  }
-	  initComponent() {
-	    return this.controller.createVue(this, {
+	  async initComponent() {
+	    this.vueInstance = await this.controller.createVue(this, {
 	      name: babelHelpers.classPrivateFieldLooseBase(this, _applicationName)[_applicationName],
 	      el: this.rootNode,
 	      components: {
 	        QuickAccess: im_v2_component_quickAccess.QuickAccess
 	      },
 	      template: '<QuickAccess :compactMode="true"/>'
-	    }).then(vue => {
-	      this.vueInstance = vue;
 	    });
+	    return true;
 	  }
 	  initComplete() {
 	    this.inited = true;
@@ -67,6 +61,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    } else if (urlParams.has(im_v2_const.GetParameter.openChat)) {
 	      const dialogId = urlParams.get(im_v2_const.GetParameter.openChat);
 	      im_public.Messenger.openChat(dialogId);
+	    } else if (urlParams.has(im_v2_const.GetParameter.openSettings)) {
+	      const settingsSection = urlParams.get(im_v2_const.GetParameter.openSettings);
+	      im_public.Messenger.openSettings({
+	        onlyPanel: settingsSection == null ? void 0 : settingsSection.toLowerCase()
+	      });
 	    }
 	  }
 	  ready() {

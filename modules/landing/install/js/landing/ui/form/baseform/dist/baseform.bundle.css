@@ -45,7 +45,8 @@
 }
 
 .landing-ui-form-description,
-.landing-ui-form-description a {
+.landing-ui-form-description a,
+.landing-ui-form-description .landing-ui-form-description-link {
 	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
 	line-height: 14px;
@@ -53,7 +54,8 @@
 	color: #A9ADB2;
 }
 
-.landing-ui-form-description a {
+.landing-ui-form-description a,
+.landing-ui-form-description .landing-ui-form-description-link {
 	border-bottom: 1px rgba(169, 173, 178, .65) solid;
 	padding: 0!important;
 	text-decoration: none;
@@ -66,6 +68,16 @@
 	opacity: .45;
 	color: #A9ADB2;
 	text-decoration: none;
+}
+
+.landing-ui-form-description .landing-ui-form-description-link:hover {
+	color: #A9ADB2;
+	text-decoration: none;
+}
+
+.landing-ui-form-description-link {
+	display: inline;
+	cursor: pointer;
 }
 
 .landing-ui-form-footer:empty {

@@ -13,6 +13,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\AccessException;
 use Bitrix\OAuth;
+use Bitrix\Rest\Exceptions;
 
 class CRestProvider
 	extends \IRestService
@@ -723,7 +724,7 @@ class CRestProvider
 
 		if(count($params['options']) <= 0)
 		{
-			throw new ArgumentNullException('options');
+			throw new Exceptions\ArgumentNullException('options');
 		}
 
 		if(\CRestUtil::isAdmin())

@@ -1,18 +1,21 @@
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { Store } from 'ui.vue3.vuex';
 
-import { Controller } from 'im.call';
+import { Controller, State as CallState } from 'im.call';
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { MessengerSlider } from 'im.v2.lib.slider';
 import { RecentCallStatus, Layout, EventType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
+import { PromoManager } from 'im.v2.lib.promo';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 
 import { BetaCallService } from './classes/beta-call-service';
 import { openCallUserSelector } from './functions/open-call-user-selector';
 
 import 'im_call_compatible';
+
+import type { ImModelChat } from 'im.v2.model';
 
 export class CallManager
 {
@@ -98,6 +101,16 @@ export class CallManager
 		return this.#controller.currentCall.associatedEntity.id;
 	}
 
+	getCurrentCall(): boolean
+	{
+		if (!this.#controller.hasActiveCall())
+		{
+			return false;
+		}
+
+		return this.#controller.currentCall;
+	}
+
 	hasCurrentCall(): boolean
 	{
 		return this.#controller.hasActiveCall();
@@ -144,12 +157,16 @@ export class CallManager
 				openHistory: (dialogId) => {
 					return Messenger.openChat(dialogId);
 				},
-				openSettings: () => {}, // TODO
+				openSettings: () => {
+					return Messenger.openSettings();
+				},
 				openHelpArticle: () => {}, // TODO
 				getContainer: () => document.querySelector(`.${CallManager.viewContainerClass}`),
-				getMessageCount: () => this.#store.getters['recent/getTotalChatCounter'],
+				getMessageCount: () => this.#store.getters['counters/getTotalChatCounter'],
 				getCurrentDialogId: () => this.#getCurrentDialogId(),
-				isPromoRequired: () => false,
+				isPromoRequired: (promoCode: string) => {
+					return PromoManager.getInstance().needToShow(promoCode);
+				},
 				repeatSound: (soundType, timeout, force) => {
 					SoundNotificationManager.getInstance().playLoop(soundType, timeout, force);
 				},
@@ -159,14 +176,15 @@ export class CallManager
 				showUserSelector: openCallUserSelector,
 			},
 			events: {
+				[Controller.Events.onPromoViewed]: (event) => {
+					const { code } = event.getData();
+					PromoManager.getInstance().markAsWatched(code);
+				},
 				[Controller.Events.onOpenVideoConference]: (event) => {
-					const data = event.getData();
-					const dialogId = data.dialogId;
+					const { dialogId: chatId } = event.getData();
+					const dialog: ImModelChat = Core.getStore().getters['chats/get'](`chat${chatId}`, true);
 
-					// TODO get code
-					const code = ''; // Previous realisation - this.messenger.chat[dialogId].public.code;
-
-					return Messenger.openConference({ code });
+					return Messenger.openConference({ code: dialog.public?.code });
 				},
 			},
 		});
@@ -188,11 +206,17 @@ export class CallManager
 		call.addEventListener(BX.Call.Event.onLeave, this.#onCallLeave.bind(this));
 		call.addEventListener(BX.Call.Event.onDestroy, this.#onCallDestroy.bind(this));
 
+		const state = (
+			call.state === CallState.Connected || call.state === CallState.Proceeding
+				? RecentCallStatus.joined
+				: RecentCallStatus.waiting
+		);
+
 		this.#store.dispatch('recent/calls/addActiveCall', {
 			dialogId: call.associatedEntity.id,
 			name: call.associatedEntity.name,
 			call,
-			state: RecentCallStatus.waiting,
+			state,
 		});
 	}
 
@@ -238,7 +262,7 @@ export class CallManager
 	chatCanBeCalled(dialogId: string): boolean
 	{
 		const callSupported = this.#checkCallSupport(dialogId);
-		const hasCurrentCall = this.hasCurrentCall();
+		const hasCurrentCall = this.#store.getters['recent/calls/hasActiveCall'](dialogId);
 
 		return callSupported && !hasCurrentCall;
 	}
@@ -271,7 +295,7 @@ export class CallManager
 
 	#checkChatCallSupport(dialogId: string): boolean
 	{
-		const dialog = this.#store.getters['dialogues/get'](dialogId);
+		const dialog = this.#store.getters['chats/get'](dialogId);
 		if (!dialog)
 		{
 			return false;

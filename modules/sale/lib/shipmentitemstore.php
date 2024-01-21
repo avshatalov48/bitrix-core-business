@@ -21,7 +21,7 @@ class ShipmentItemStore
 	{
 		return [
 			'ORDER_DELIVERY_BASKET_ID', 'STORE_ID', 'QUANTITY', 
-			'BARCODE', 'BASKET_ID', 'MARKING_CODE'
+			'BARCODE', 'BASKET_ID', 'MARKING_CODE',
 		];
 	}
 

@@ -1,11 +1,12 @@
 import { Store } from 'ui.vue3.vuex';
 
-import { Core } from 'im.v2.application.core';
+import { Utils } from 'im.v2.lib.utils';
 import { RestMethod } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { runAction } from 'im.v2.lib.rest';
+import { Core } from 'im.v2.application.core';
 
-import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
+import type { ImModelChat, ImModelMessage, ImModelRecentItem } from 'im.v2.model';
 
 export class DeleteService
 {
@@ -18,9 +19,17 @@ export class DeleteService
 		this.#store = Core.getStore();
 	}
 
-	deleteMessage(messageId: number)
+	deleteMessage(messageId: number | string)
 	{
 		Logger.warn('MessageService: deleteMessage', messageId);
+
+		if (Utils.text.isUuidV4(messageId))
+		{
+			this.#deleteTemporaryMessage(messageId);
+
+			return;
+		}
+
 		const message: ImModelMessage = this.#store.getters['messages/getById'](messageId);
 		if (message.viewedByOthers)
 		{
@@ -45,7 +54,7 @@ export class DeleteService
 			},
 		});
 
-		const dialog: ImModelDialog = this.#store.getters['dialogues/getByChatId'](this.#chatId);
+		const dialog: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
 		if (message.id === dialog.lastMessageId)
 		{
 			this.#store.dispatch('recent/update', {
@@ -61,35 +70,24 @@ export class DeleteService
 
 	#completeMessageDelete(message: ImModelMessage)
 	{
-		const dialog: ImModelDialog = this.#store.getters['dialogues/getByChatId'](this.#chatId);
+		const dialog: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
 		const previousMessage: ImModelMessage = this.#store.getters['messages/getPreviousMessage']({
 			messageId: message.id,
 			chatId: dialog.chatId,
 		});
 		if (message.id === dialog.lastMessageId)
 		{
-			let updatedMessage = { text: '' };
-			if (previousMessage)
-			{
-				updatedMessage = previousMessage;
-			}
-			this.#store.dispatch('recent/update', {
-				id: dialog.dialogId,
-				fields: {
-					message: updatedMessage,
-					dateUpdate: new Date(),
-				},
-			});
+			this.#updateLastMessageInRecent(message.id, dialog.dialogId);
 
 			const newLastId = previousMessage ? previousMessage.id : 0;
-			this.#store.dispatch('dialogues/update', {
+			this.#store.dispatch('chats/update', {
 				dialogId: dialog.dialogId,
 				fields: {
 					lastMessageId: newLastId,
 					lastId: newLastId,
 				},
 			});
-			this.#store.dispatch('dialogues/clearLastMessageViews', {
+			this.#store.dispatch('chats/clearLastMessageViews', {
 				dialogId: dialog.dialogId,
 			});
 		}
@@ -107,6 +105,41 @@ export class DeleteService
 			data: { id: messageId },
 		}).catch((error) => {
 			console.error('MessageService: deleteMessage error:', error);
+		});
+	}
+
+	#deleteTemporaryMessage(messageId: string)
+	{
+		const chat: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
+		const recentItem: ImModelRecentItem = this.#store.getters['recent/get'](chat.dialogId);
+		if (recentItem.message.id === messageId)
+		{
+			this.#updateLastMessageInRecent(messageId, chat.dialogId);
+		}
+
+		this.#store.dispatch('messages/delete', {
+			id: messageId,
+		});
+	}
+
+	#updateLastMessageInRecent(messageId: number | string, dialogId: string)
+	{
+		const previousMessage: ImModelMessage = this.#store.getters['messages/getPreviousMessage']({
+			messageId,
+			chatId: this.#chatId,
+		});
+		let updatedMessage = { text: '' };
+		if (previousMessage)
+		{
+			updatedMessage = previousMessage;
+		}
+
+		this.#store.dispatch('recent/update', {
+			id: dialogId,
+			fields: {
+				message: updatedMessage,
+				dateUpdate: new Date(),
+			},
 		});
 	}
 }

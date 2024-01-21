@@ -1,6 +1,8 @@
 <?
 
 use Bitrix\Main\Application;
+use Bitrix\Im\V2\Sync;
+use Bitrix\Main\Engine\Response\Converter;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -21,7 +23,7 @@ class CIMMessage
 
 	public static function Add($arFields)
 	{
-		if (!isset($arFields['MESSAGE_TYPE']) || !in_array($arFields['MESSAGE_TYPE'], Array(IM_MESSAGE_CHAT, IM_MESSAGE_OPEN, IM_MESSAGE_OPEN_LINE)))
+		if (!isset($arFields['MESSAGE_TYPE']) || !in_array($arFields['MESSAGE_TYPE'], Array(IM_MESSAGE_CHAT, IM_MESSAGE_OPEN, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)))
 			$arFields['MESSAGE_TYPE'] = IM_MESSAGE_PRIVATE;
 
 		if (isset($arFields['MESSAGE_MODULE']))
@@ -739,7 +741,7 @@ class CIMMessage
 
 		CIMMessenger::SpeedFileDelete($this->user_id, IM_SPEED_MESSAGE);
 
-		$chat = \Bitrix\Im\V2\Entity\User\User::getInstance($this->user_id)->getChatWith($fromUserId);
+		$chat = \Bitrix\Im\V2\Entity\User\User::getInstance($this->user_id)->getChatWith($fromUserId, false);
 		if ($chat === null)
 		{
 			return false;
@@ -753,7 +755,7 @@ class CIMMessage
 		if (isset($lastId))
 		{
 			$message = new \Bitrix\Im\V2\Message();
-			$message->setMessageId((int)$lastId)->setChatId($chat->getChatId());
+			$message->setMessageId((int)$lastId)->setChatId($chat->getChatId())->setChat($chat);
 			$readResult = $readService->readTo($message);
 			$counter = $readResult->getResult()['COUNTER'];
 			$viewedMessages = $readResult->getResult()['VIEWED_MESSAGES'];
@@ -904,6 +906,11 @@ class CIMMessage
 						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 				}
+
+				Sync\Logger::getInstance()->add(
+					new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, intval($arRes['CHAT_ID'])),
+					$this->user_id
+				);
 
 				return true;
 			}
@@ -1146,10 +1153,7 @@ class CIMMessage
 		$readService = new \Bitrix\Im\V2\Message\ReadService($userId);
 		$readService->getCounterService()->addStartingFrom($lastId, $ownRelation);
 		$relation = self::SetLastId($chatId, $userId, $lastId);
-		$counter = $relation['COUNTER'];
-		$time = microtime(true);
 		$readService->getViewedService()->deleteStartingFrom($message);
-		$readService->sendPush($message->getChatId(), [$userId], $counter, $time);
 
 		return $relation;
 	}
@@ -1206,6 +1210,21 @@ class CIMMessage
 			'PHONES' => 'Y',
 		));
 
+		foreach ($arUsers['users'] as $key => $user)
+		{
+			if ($user['bot'])
+			{
+				$converter = new Converter(Converter::TO_SNAKE | Converter::TO_LOWER | Converter::KEYS);
+
+				$botData = \Bitrix\Im\V2\Entity\User\Data\BotData::getInstance((int)$user["id"])->toRestFormat();
+				$arUsers['users'][$key]['bot_data'] = (!empty($botData)) ? $converter->process($botData) : null;
+			}
+			else
+			{
+				$arUsers['users'][$key]['bot_data'] = null;
+			}
+		}
+
 		$arChat = Array();
 		if (isset($arParams['TO_CHAT_ID']))
 		{
@@ -1246,6 +1265,35 @@ class CIMMessage
 			$arParams['FILE_TEMPLATE_ID'] = '';
 		}
 
+		$additionalEntitiesAdapter = new \Bitrix\Im\V2\Rest\RestAdapter();
+		$additionalPopupData = new \Bitrix\Im\V2\Rest\PopupData([]);
+
+		$forwardInfo = null;
+		if (isset($arParams['PARAMS']['FORWARD_CONTEXT_ID']))
+		{
+			$additionalUserId = (int)$arParams['PARAMS']['FORWARD_USER_ID'];
+			$additionalPopupData->add(new \Bitrix\Im\V2\Entity\User\UserPopupItem([$additionalUserId]));
+			$forwardInfo = [
+				'id' => $arParams['PARAMS']['FORWARD_CONTEXT_ID'],
+				'userId' => (int)$arParams['PARAMS']['FORWARD_USER_ID'],
+			];
+			unset($arParams['PARAMS']['FORWARD_CONTEXT_ID'], $arParams['PARAMS']['FORWARD_USER_ID'], $arParams['PARAMS']['FORWARD_ID']);
+		}
+
+		$replyIds = [];
+		if (isset($arParams['PARAMS']['REPLY_ID']))
+		{
+			$replyIds[] = (int)$arParams['PARAMS']['REPLY_ID'];
+		}
+		$messages = new Bitrix\Im\V2\MessageCollection($replyIds);
+		$messages->fillAllForRest();
+		$additionalEntitiesAdapter->addEntities($messages);
+		$additionalEntitiesAdapter->setAdditionalPopupData($additionalPopupData);
+		$additionalEntitiesRest = $additionalEntitiesAdapter->toRestFormat([
+			'WITHOUT_OWN_REACTIONS' => true,
+			'MESSAGE_ONLY_COMMON_FIELDS' => true,
+		]);
+
 		return Array(
 			'chatId' => $arParams['CHAT_ID'],
 			'dialogId' => isset($arParams['TO_CHAT_ID'])? 'chat'.$arParams['TO_CHAT_ID']: 0,
@@ -1270,6 +1318,8 @@ class CIMMessage
 				'counter' => isset($arParams['COUNTER']) && (int)$arParams['COUNTER'] > 0 ? (int)$arParams['COUNTER'] : 0,
 				'importantFor' => array_values($arParams['IMPORTANT_FOR'] ?? []),
 				'isImportant' => isset($arParams['IS_IMPORTANT']) && $arParams['IS_IMPORTANT'] === 'Y',
+				'additionalEntities' => $additionalEntitiesRest,
+				'forward' => $forwardInfo,
 			),
 			'files' => isset($arParams['FILES'])? $arParams['FILES']: [],
 			'notify' => $arParams['NOTIFY'],

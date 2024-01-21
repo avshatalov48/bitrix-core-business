@@ -27,7 +27,7 @@ export const AttachMessage = {
 		},
 		message()
 		{
-			return Parser.decodeText(this.internalConfig.MESSAGE);
+			return Parser.decodeText(this.internalConfig.message);
 		}
 	},
 	template: `

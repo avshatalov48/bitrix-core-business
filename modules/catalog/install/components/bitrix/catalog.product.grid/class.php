@@ -1585,13 +1585,15 @@ class CatalogProductGridComponent extends \CBitrixComponent
 		$button = $this->getExcelExporter()->getControl($this->request);
 
 		$link = new Uri($button->getLink());
-		$link->deleteParams(['SECTION_ID', 'find_section_section']);
+		$link->deleteParams([
+			'SECTION_ID',
+			'find_section_section',
+			'apply_filter',
+		]);
 		// TODO: remove this code after stable main 23.800.0
 		$link->addParams([
 			'ncc' => 1,
 		]);
-
-
 
 		return [
 			'text' => $button->getText(),

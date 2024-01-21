@@ -23,12 +23,11 @@ class Checkbox extends Base
 
 	public function getCost()
 	{
-		if($this->value == "Y")
-			$result = $this->getPrice();
-		else
-			$result = 0;
-
-		return $result;
+		return
+			$this->value === 'Y'
+				? (float)$this->getPrice()
+				: 0
+		;
 	}
 
 	public static function getAdminParamsName()
@@ -36,6 +35,13 @@ class Checkbox extends Base
 		return Loc::getMessage("DELIVERY_EXTRA_SERVICE_CHECKBOX_PRICE");
 	}
 
+	public static function prepareParamsToSave(array $params): array
+	{
+		$params['PARAMS']['PRICE'] ??= 0.0;
+		$params['PARAMS']['PRICE'] = (float)$params['PARAMS']['PRICE'];
+
+		return $params;
+	}
 	public static function getAdminParamsControl($name, array $params, $currency = "")
 	{
 		$currency = (string)$currency;

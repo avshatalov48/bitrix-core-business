@@ -58,11 +58,11 @@ describe('Base pull handler', function() {
 
 		it('should update existing dialog with new values', function() {
 			return setInitialData(controller.store).then(() => {
-				assert.equal(controller.store.getters['dialogues/get'](getDefaultChatData().dialogId).name, getDefaultChatData().name);
+				assert.equal(controller.store.getters['chats/get'](getDefaultChatData().dialogId).name, getDefaultChatData().name);
 
 				pullHandler.handleMessageAdd(messageAddData);
 
-				assert.equal(controller.store.getters['dialogues/get'](getDefaultChatData().dialogId).name, updatedChatData.name);
+				assert.equal(controller.store.getters['chats/get'](getDefaultChatData().dialogId).name, updatedChatData.name);
 			});
 		});
 
@@ -169,12 +169,12 @@ describe('Base pull handler', function() {
 		//TODO: skipped 'messages/readMessages' part
 		it('should read all messages and set counter to 0 if current user send new message', function() {
 			return setInitialData(controller.store).then(() => {
-				//set current user
+				// set current user
 				pullHandler.controller.setUserId(getDefaultUserData().id);
 
 				pullHandler.handleMessageAdd(messageAddData);
 
-				assert.equal(controller.store.getters['dialogues/get'](messageAddData.dialogId).counter, 0);
+				assert.equal(controller.store.getters['chats/get'](messageAddData.dialogId).counter, 0);
 			});
 		});
 
@@ -182,7 +182,7 @@ describe('Base pull handler', function() {
 			return setInitialData(controller.store).then(() => {
 				pullHandler.handleMessageAdd(messageAddData);
 
-				assert.equal(controller.store.getters['dialogues/get'](messageAddData.dialogId).counter, 1);
+				assert.equal(controller.store.getters['chats/get'](messageAddData.dialogId).counter, 1);
 			});
 		});
 	});
@@ -351,7 +351,7 @@ function getDefaultFileData(additionalData = {})
 
 async function setInitialData(store)
 {
-	await store.dispatch('dialogues/set', getDefaultChatData());
+	await store.dispatch('chats/set', getDefaultChatData());
 	await store.dispatch('recent/store', getDefaultRecentData());
 	await store.dispatch('files/add', getDefaultFileData());
 	await store.dispatch('messages/add', getDefaultMessageData());

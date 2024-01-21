@@ -1,9 +1,14 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Iblock\UserField\Types\ElementType;
 use Bitrix\Main\Text\HtmlFilter;
+
+/** @var array $arResult */
 
 if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 {
@@ -121,11 +126,7 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_CH
 
 	foreach($arResult['additionalParameters']['items'] as $itemId => $item)
 	{
-		$isSelected = (
-			(in_array($itemId, $arResult['additionalParameters']['VALUE']))
-			||
-			($arResult['userField']['ENTITY_VALUE_ID'] <= 0 && $item['DEF'] === 'Y')
-		);
+		$isSelected = in_array($itemId, $arResult['additionalParameters']['VALUE']);
 		$isWasSelect = ($isWasSelect || $isSelected);
 		$checked = ($isSelected ? ' checked' : '');
 		$editInList = ($arResult['userField']['EDIT_IN_LIST'] !== 'Y' ? ' disabled="disabled" ' : '');
@@ -179,11 +180,7 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_LI
 
 		foreach($arResult['additionalParameters']['items'] as $itemId => $item)
 		{
-			$isSelected = (
-				in_array($itemId, $arResult['additionalParameters']['VALUE'])
-				||
-				($arResult['userField']['ENTITY_VALUE_ID'] <= 0 && $item['DEF'] === 'Y')
-			);
+			$isSelected = in_array($itemId, $arResult['additionalParameters']['VALUE']);
 			$isWasSelect = ($isWasSelect || $isSelected);
 			$selected = ($isSelected ? ' selected' : '');
 			$result .= <<<EOL

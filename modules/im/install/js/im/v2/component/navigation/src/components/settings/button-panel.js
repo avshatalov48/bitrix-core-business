@@ -1,29 +1,47 @@
-import {Button, ButtonSize, ButtonColor} from 'im.v2.component.elements';
+import { Core } from 'im.v2.application.core';
+import { Utils } from 'im.v2.lib.utils';
+import { Button as ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
 
 // @vue/component
 export const ButtonPanel = {
-	components: {Button},
-	emits: ['openProfile', 'logout'],
-	data()
-	{
-		return {};
+	name: 'ButtonPanel',
+	components: { ChatButton },
+	props: {
+		isDesktopAccountManagementAvailable: {
+			type: Boolean,
+			default: false,
+		},
 	},
+	emits: ['openProfile', 'logout'],
 	computed:
 	{
 		ButtonSize: () => ButtonSize,
-		ButtonColor: () => ButtonColor
+		ButtonColor: () => ButtonColor,
+		currentUserId(): number
+		{
+			return Core.getUserId();
+		},
+		profileUri(): string
+		{
+			return Utils.user.getProfileLink(this.currentUserId);
+		},
 	},
 	methods:
 	{
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
-		}
+		},
+		onLogoutClick()
+		{
+			void DesktopApi.logout();
+		},
 	},
 	template: `
 		<div class="bx-im-user-settings-popup__button-panel">
-			<div class="bx-im-user-settings-popup__button-panel_button">
-				<Button
+			<a :href="profileUri" target="_blank" class="bx-im-user-settings-popup__user_link">
+				<ChatButton
 					:color="ButtonColor.PrimaryBorder"
 					:size="ButtonSize.M"
 					:isUppercase="false"
@@ -31,17 +49,16 @@ export const ButtonPanel = {
 					:text="loc('IM_USER_SETTINGS_OPEN_PROFILE')"
 					@click="$emit('openProfile')"
 				/>
-			</div>
-<!--			<div class="bx-im-user-settings-popup__button-panel_button">-->
-<!--				<Button-->
-<!--					:color="ButtonColor.DangerBorder"-->
-<!--					:size="ButtonSize.M"-->
-<!--					:isUppercase="false"-->
-<!--					:isRounded="true"-->
-<!--					:text="loc('IM_USER_SETTINGS_LOGOUT')"-->
-<!--					@click="$emit('logout')"-->
-<!--				/>-->
-<!--			</div>-->
+			</a>
+			<ChatButton
+				v-if="isDesktopAccountManagementAvailable" 
+				:color="ButtonColor.DangerBorder"
+				:size="ButtonSize.M"
+				:isUppercase="false"
+				:isRounded="true"
+				:text="loc('IM_USER_SETTINGS_LOGOUT')"
+				@click="onLogoutClick"
+			/>
 		</div>
-	`
+	`,
 };

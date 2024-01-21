@@ -1,7 +1,8 @@
-import {Extension, Type, Loc} from 'main.core';
-import {DateTimeFormat} from 'main.date';
+import { Extension, Type, Loc } from 'main.core';
+import { DateTimeFormat } from 'main.date';
 
-import {DateFormatter, DateCode} from 'im.v2.lib.date-formatter';
+import { DateFormatter, DateCode } from 'im.v2.lib.date-formatter';
+import { UserIdNetworkPrefix } from 'im.v2.const';
 
 const settings = Extension.getSettings('im.v2.lib.utils');
 
@@ -150,5 +151,15 @@ export const UserUtil = {
 		const path = Extension.getSettings('im.v2.lib.utils').get('pathToUserCalendar');
 
 		return path.replace('#user_id#', userId);
+	},
+
+	isNetworkUserId(userId: string): boolean
+	{
+		if (!Type.isStringFilled(userId))
+		{
+			return false;
+		}
+
+		return userId.startsWith(UserIdNetworkPrefix);
 	},
 };

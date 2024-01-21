@@ -32,11 +32,28 @@ final class ConvertToServiceItem extends BaseItem
 		$data = CUtil::PhpToJSObject([
 			'id' => $id,
 		]);
-		$confirmMessage = \CUtil::JSEscape(
-			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_SERVICE_CONFIRM_MESSAGE')
+		$confirmMessageTitle = \CUtil::JSEscape(
+			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_SERVICE_CONFIRM_MESSAGE_TITLE')
+		);
+		$confirmMessageContent = \CUtil::JSEscape(
+			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_SERVICE_CONFIRM_MESSAGE_CONTENT')
 		);
 
-		$this->onclick = "IblockGridInstance.sendActionWithConfirm('{$actionId}', {$data}, '{$confirmMessage}')";
+		$confirmButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_SERVICE_CONFIRM_BUTTON')
+		);
+		$backButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_SERVICE_BACK_BUTTON')
+		);
+
+		$this->onclick = "IblockGridInstance.sendMediumPopupWithConfirm("
+		. "'{$actionId}', "
+		. "{$data}, "
+		. "'{$confirmMessageTitle}', "
+		. "'{$confirmMessageContent}', "
+		. "'{$confirmButtonMessage}', "
+		. "'{$backButtonMessage}')"
+		;
 
 		return parent::getControl($rawFields);
 	}

@@ -7,7 +7,7 @@ import { UserManager } from 'im.v2.lib.user';
 import { Logger } from 'im.v2.lib.logger';
 import { RestMethod } from 'im.v2.const';
 
-import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
+import type { ImModelChat, ImModelMessage } from 'im.v2.model';
 import type { PaginationRestResult } from '../../types/message';
 import type { RawMessage } from '../../types/rest';
 
@@ -180,13 +180,20 @@ export class LoadService
 		Logger.warn('MessageService: loadContext for: ', messageId);
 		this.#isLoading = true;
 
-		return callBatch(query).then((data) => {
-			Logger.warn('MessageService: loadContext result', data);
+		return callBatch(query)
+			.then((data) => {
+				Logger.warn('MessageService: loadContext result', data);
 
-			return this.#handleLoadedMessages(data[RestMethod.imV2ChatMessageGetContext]);
-		}).finally(() => {
-			this.#isLoading = false;
-		});
+				return this.#handleLoadedMessages(data[RestMethod.imV2ChatMessageGetContext]);
+			})
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('MessageService: loadContext error:', error);
+				throw new Error(error);
+			})
+			.finally(() => {
+				this.#isLoading = false;
+			});
 	}
 
 	reloadMessageList(): Promise
@@ -211,40 +218,43 @@ export class LoadService
 		this.#setDialogInited(false);
 		if (targetMessageId)
 		{
-			return this.loadContext(targetMessageId).then(() => {
-				this.#setDialogInited(true, wasInitedBefore);
-			});
+			return this.loadContext(targetMessageId)
+				.catch(() => {})
+				.finally(() => {
+					this.#setDialogInited(true, wasInitedBefore);
+				});
 		}
 
-		return this.loadInitialMessages().then(() => {
-			this.#setDialogInited(true, wasInitedBefore);
-		});
+		return this.loadInitialMessages()
+			.catch(() => {})
+			.finally(() => {
+				this.#setDialogInited(true, wasInitedBefore);
+			});
 	}
 
-	loadInitialMessages(): Promise
+	async loadInitialMessages(): Promise
 	{
 		Logger.warn('MessageService: loadInitialMessages for: ', this.#chatId);
 		this.#isLoading = true;
 
-		return this.#restClient.callMethod(RestMethod.imV2ChatMessageList, {
-			chatId: this.#chatId,
-			limit: LoadService.MESSAGE_REQUEST_LIMIT,
-		}).then((result) => {
-			Logger.warn('MessageService: loadInitialMessages result', result.data());
+		const payload = {
+			data: {
+				chatId: this.#chatId,
+				limit: LoadService.MESSAGE_REQUEST_LIMIT,
+			},
+		};
+		const restResult = await runAction(RestMethod.imV2ChatMessageList, payload)
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('MessageService: loadInitialMessages error:', error);
+				this.#isLoading = false;
+				throw new Error(error);
+			});
+		Logger.warn('MessageService: loadInitialMessages result', restResult);
+		restResult.messages = this.#prepareInitialMessages(restResult.messages);
 
-			const restResult = result.data();
-			restResult.messages = this.#prepareInitialMessages(restResult.messages);
-
-			return this.#handleLoadedMessages(result.data());
-		}).then(() => {
-			this.#isLoading = false;
-
-			return true;
-		}).catch((error) => {
-			// eslint-disable-next-line no-console
-			console.error('MessageService: loadInitialMessages error:', error);
-			this.#isLoading = false;
-		});
+		await this.#handleLoadedMessages(restResult);
+		this.#isLoading = false;
 	}
 
 	#prepareInitialMessages(rawMessages: RawMessage[]): RawMessage[]
@@ -299,7 +309,7 @@ export class LoadService
 			additionalMessages,
 		} = rawData;
 
-		const dialogPromise = this.#store.dispatch('dialogues/update', {
+		const dialogPromise = this.#store.dispatch('chats/update', {
 			dialogId: this.#getDialog().dialogId,
 			fields: {
 				hasPrevPage,
@@ -330,14 +340,14 @@ export class LoadService
 			delete fields.inited;
 		}
 
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId: this.#getDialog().dialogId,
 			fields,
 		});
 	}
 
-	#getDialog(): ImModelDialog
+	#getDialog(): ImModelChat
 	{
-		return this.#store.getters['dialogues/getByChatId'](this.#chatId);
+		return this.#store.getters['chats/getByChatId'](this.#chatId);
 	}
 }

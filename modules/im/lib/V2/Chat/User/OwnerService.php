@@ -18,7 +18,7 @@ class OwnerService
 		}
 
 		\CAgent::AddAgent(
-			"\Bitrix\Im\V2\Chat\User\OwnerService::changeChatsOwnerAfterUserFiredAgent({$fields['ID']});",
+			__CLASS__. "::changeChatsOwnerAfterUserFiredAgent({$fields['ID']});",
 			'im',
 			'N',
 			self::DELAY_AFTER_USER_FIRED,
@@ -100,7 +100,7 @@ class OwnerService
 		foreach ($firedUsers as $key => $user)
 		{
 			\CAgent::AddAgent(
-				"\Bitrix\Im\V2\Chat\User\OwnerService::changeChatsOwnerAfterUserFiredAgent(" . (int)$user['ID'] . ");",
+				__CLASS__. '::changeChatsOwnerAfterUserFiredAgent(' . (int)$user['ID'] . ');',
 				'im',
 				'N',
 				self::DELAY_AFTER_USER_FIRED,

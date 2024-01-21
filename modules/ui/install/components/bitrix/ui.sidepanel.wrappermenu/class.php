@@ -40,7 +40,7 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 
 		if (empty($item['CHILDREN']))
 		{
-			$convertedItem['OPERATIVE'] = true;
+			$convertedItem['OPERATIVE'] = isset($item['OPERATIVE']) ? (bool)$item['OPERATIVE'] : true;
 		}
 		else
 		{

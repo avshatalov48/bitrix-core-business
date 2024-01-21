@@ -1,5 +1,7 @@
 <?php
 $MESS["SALE_HPS_ALFABANK"] = "Альфа-Банк";
+$MESS["SALE_HPS_ALFABANK_DESCRIPTION"] = "Прием платежей через платежные методы Альфа-банка";
+$MESS["SALE_HPS_ALFABANK_PUBLIC_DESCRIPTION"] = "Для оплаты картой укажите ее номер, срок действия, имя владельца карты и CVC.";
 $MESS["SALE_HPS_ALFABANK_LOGIN"] = "Логин";
 $MESS["SALE_HPS_ALFABANK_PASSWORD"] = "Пароль";
 $MESS["SALE_HPS_ALFABANK_MERCHANT"] = "Мерчант";

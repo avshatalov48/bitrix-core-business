@@ -1,4 +1,5 @@
 import { Type } from 'main.core';
+import { ModelFactory } from 'ui.bbcode.model';
 
 type ParsedSelector = {
 	nodeName: string,
@@ -182,5 +183,69 @@ export class AstProcessor
 		}, ast);
 
 		return reducer(ast, children);
+	}
+
+	static splitByIndex(ast, splitIndex)
+	{
+		let currentIndex = 0;
+		let leftNode = null;
+		let rightNode = null;
+
+		const traverse = (node) => {
+			if (node.getName() === '#text')
+			{
+				const textLength = node.getLength();
+				const startIndex = currentIndex;
+				const endIndex = currentIndex + textLength;
+
+				if (leftNode === null && rightNode === null)
+				{
+					// slice by end
+					if (splitIndex === endIndex)
+					{
+						leftNode = node;
+						console.log('slice by end');
+					}
+
+					// slice by start
+					if (splitIndex === startIndex)
+					{
+						rightNode = node;
+						console.log('slice by start');
+					}
+
+					// slice by text
+					if (splitIndex > startIndex && splitIndex < endIndex)
+					{
+						const content = node.getContent();
+						const leftContent = content.slice(0, splitIndex - startIndex);
+						const rightContent = content.slice(splitIndex - startIndex, endIndex);
+
+						const factory = new ModelFactory();
+						leftNode = factory.createTextNode(leftContent);
+						rightNode = factory.createTextNode(rightContent);
+
+						if (node.hasParent())
+						{
+							const parent = node.getParent();
+						}
+					}
+
+					currentIndex = endIndex;
+				}
+			}
+			else
+			{
+				node.getChildren().forEach((child) => {
+					traverse(child);
+				});
+			}
+		};
+
+		ast.getChildren().forEach((child) => {
+			traverse(child);
+		});
+
+		console.log(ast.getChildren().at(0).getChildren().at(3));
 	}
 }

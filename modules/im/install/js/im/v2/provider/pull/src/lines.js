@@ -4,6 +4,7 @@ import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
 
 import type { MessageAddParams, ReadMessageParams, UnreadMessageParams } from './types/message';
+import type { ChatHideParams } from './types/chat';
 
 export class LinesPullHandler
 {
@@ -32,6 +33,16 @@ export class LinesPullHandler
 		this.updateUnloadedLinesCounter(params);
 	}
 
+	handleChatHide(params: ChatHideParams)
+	{
+		this.updateUnloadedLinesCounter({
+			dialogId: params.dialogId,
+			chatId: params.chatId,
+			lines: params.lines,
+			counter: 0,
+		});
+	}
+
 	updateUnloadedLinesCounter(params: {
 		dialogId: string,
 		chatId: number,
@@ -46,6 +57,6 @@ export class LinesPullHandler
 		}
 
 		Logger.warn('LinesPullHandler: updateUnloadedLinesCounter:', { dialogId, chatId, counter });
-		this.store.dispatch('recent/setUnloadedLinesCounters', { [chatId]: counter });
+		this.store.dispatch('counters/setUnloadedLinesCounters', { [chatId]: counter });
 	}
 }

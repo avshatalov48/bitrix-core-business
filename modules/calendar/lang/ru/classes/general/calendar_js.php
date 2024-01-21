@@ -354,3 +354,4 @@ $MESS['EC_CALENDAR_NO_INVITATIONS_TITLE'] = 'У вас пока нет неот�
 $MESS['EC_CALENDAR_CANT_DRAG_SHARED_EVENT'] = 'Нельзя перенести встречу с внешним участником';
 
 $MESS['EC_CALENDAR_HOW_DOES_IT_WORK'] = 'Как это работает';
+$MESS["EC_JS_UNTIL_DATE"] = "до #DATE#";

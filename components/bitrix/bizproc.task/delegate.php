@@ -44,12 +44,12 @@ if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'delegate')
 	;
 	$currentUserId = (int)$USER->GetID();
 
-	$taskService = new \Bitrix\Bizproc\Task\Service\TaskService(
-		new \Bitrix\Bizproc\Task\Service\AccessService($currentUserId)
+	$taskService = new \Bitrix\Bizproc\Api\Service\TaskService(
+		new \Bitrix\Bizproc\Api\Service\TaskAccessService($currentUserId)
 	);
 
-	$options = new \Bitrix\Bizproc\Task\Options\DelegateTasksOptions($taskIds, $fromUserId, $toUserId, $currentUserId);
-	$delegateTasksResult = $taskService->delegateTasks($options);
+	$request = new \Bitrix\Bizproc\Api\Request\TaskService\DelegateTasksRequest($taskIds, $fromUserId, $toUserId, $currentUserId);
+	$delegateTasksResult = $taskService->delegateTasks($request);
 
 	$errors = $delegateTasksResult->getErrorMessages();
 	$message = $errors ? $errors[0] : $delegateTasksResult->getSuccessDelegateTaskMessage();

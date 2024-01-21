@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_message_base,im_v2_component_message_elements,im_v2_const,im_v2_lib_parser) {
+(function (exports,im_v2_component_message_base,im_v2_component_message_elements,im_v2_lib_parser) {
 	'use strict';
 
 	// @vue/component
@@ -51,7 +51,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:withBackground="false"
 			:withDefaultContextMenu="false"
 		>
-			<div class="bx-im-message-smile__container">
+			<div class="bx-im-message-smile__container bx-im-message-smile__scope">
 				<div class="bx-im-message-smile__content-container">
 					<span class="bx-im-message-smile__text" v-html="text"></span>
 					<div class="bx-im-message-smile__message-status-container">
@@ -70,5 +70,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SmileMessage = SmileMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib));
 //# sourceMappingURL=smile.bundle.js.map

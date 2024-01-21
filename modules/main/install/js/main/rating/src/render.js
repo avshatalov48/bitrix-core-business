@@ -673,6 +673,11 @@ export class RatingRender
 				},
 				transition : BX.easing.makeEaseInOut(BX.easing.transitions.cubic),
 				step: (state) => {
+					if (!this.reactionsPopup)
+					{
+						this.reactionsPopupAnimation.stop();
+						return;
+					}
 					this.reactionsPopup.style.width = `${state.width}px`;
 					this.reactionsPopup.style.left = `${state.left}px`;
 					this.reactionsPopup.style.top = `${state.top}px`;
@@ -681,14 +686,27 @@ export class RatingRender
 					this.reactionsPopupOpacityState = state.opacity;
 				},
 				complete: () => {
+					if (!this.reactionsPopup)
+					{
+						return;
+					}
 					this.reactionsPopup.style.opacity = '';
 					this.reactionsPopup.classList.add('feed-post-emoji-popup-active-final');
 					likeInstance.box.classList.add('feed-post-emoji-control-active');
+					if (Type.isFunction(params.onComplete))
+					{
+						params.onComplete();
+					}
 				},
 			});
 			this.reactionsPopupAnimation.animate();
 
 			setTimeout(() => {
+
+				if (!this.reactionsPopup)
+				{
+					return;
+				}
 
 				const reactions = this.reactionsPopup.querySelectorAll('.feed-post-emoji-icon-item');
 
@@ -1076,6 +1094,13 @@ export class RatingRender
 	{
 		return (e) => {
 
+			if (!this.reactionsPopup)
+			{
+				document.removeEventListener('mousemove', this.reactionsPopupMouseOutHandler)
+				this.reactionsPopupMouseOutHandler = null;
+				return;
+			}
+
 			const popupPosition = this.reactionsPopup.getBoundingClientRect();
 			const inverted = this.reactionsPopup.classList.contains('feed-post-emoji-popup-inverted');
 
@@ -1105,6 +1130,18 @@ export class RatingRender
 
 			const likeInstance = RatingLike.getInstance(likeId);
 
+			if (
+				this.reactionsPopup
+				&& !this.reactionsPopup?.classList.contains('feed-post-emoji-popup-invisible')
+				&& !(
+					RatingManager.mobile
+					&& this.reactionsPopup?.classList.contains('feed-post-emoji-popup-invisible-final-mobile')
+				)
+			)
+			{
+				return;
+			}
+
 			if (!this.afterClickBlockShowPopup)
 			{
 				if (this.blockShowPopup)
@@ -1120,11 +1157,12 @@ export class RatingRender
 				this.showReactionsPopup({
 					bindElement: likeInstance.box,
 					likeId: likeId,
+					onComplete: () => {
+						likeInstance.box.removeEventListener('mouseenter', likeInstance.mouseOverHandler);
+						likeInstance.box.removeEventListener('mouseleave', this.blockReactionsPopup.bind(this));
+					},
 				});
 			}
-
-			likeInstance.box.removeEventListener('mouseenter', likeInstance.mouseOverHandler);
-			likeInstance.box.removeEventListener('mouseleave', this.blockReactionsPopup.bind(this));
 		};
 	}
 

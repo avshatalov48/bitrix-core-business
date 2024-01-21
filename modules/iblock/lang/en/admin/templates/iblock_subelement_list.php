@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBEL_A_BP_H"] = "Business Processes";
 $MESS["IBEL_A_BP_PROC"] = "Process";
 $MESS["IBEL_A_BP_TASK"] = "Task";
@@ -48,7 +48,7 @@ $MESS["IBEL_CATALOG_QUANTITY_RESERVED"] = "Reserved";
 $MESS["IBEL_CATALOG_QUANTITY_TRACE"] = "Reduce quantity upon order";
 $MESS["IBEL_CATALOG_QUANTITY_TRACE_EXT"] = "Stock control";
 $MESS["IBEL_CATALOG_TYPE"] = "Product type";
-$MESS["IBEL_CATALOG_TYPE_MESS_GROUP"] = "bundle";
+$MESS["IBEL_CATALOG_TYPE_MESS_GROUP_MSGVER_1"] = "set";
 $MESS["IBEL_CATALOG_TYPE_MESS_OFFER"] = "offer";
 $MESS["IBEL_CATALOG_TYPE_TITLE"] = "Product type";
 $MESS["IBEL_CATALOG_VAT_ID"] = "Tax rate";
@@ -102,4 +102,3 @@ $MESS["IB_SE_L_REFRESH_ELEMENTS"] = "Refresh";
 $MESS["IB_SE_L_REFRESH_ELEMENTS_DESCR"] = "Refresh the SKU list";
 $MESS["IB_SE_L_REQUIRED_FIELDS_FIND"] = "SKU Generator cannot execute because there are information block fields that are set to be required. Make those fields optional to proceed.";
 $MESS["IB_SE_L_SHOW_PRICES_AFTER_COPY"] = "Please save the duplicated product before editing the SKU's.";
-?>

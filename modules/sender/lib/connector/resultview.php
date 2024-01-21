@@ -54,7 +54,7 @@ Class ResultView
 	{
 		if (!is_callable($callable))
 		{
-			throw new ArgumentException('Parameter `$callable` should be callable.');
+			throw new ArgumentException('Parameter \'callable\' should be callable.');
 		}
 
 		$this->callbacks[$name] = $callable;

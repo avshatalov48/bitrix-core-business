@@ -13,6 +13,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.icons',
 	'ui.notification',
 	'ui.tour',
+	'main.core',
 	'catalog.document-grid',
 	'catalog.store-use',
 ]);
@@ -69,7 +70,7 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		var currentSlider = BX.SidePanel.Instance.getTopSlider();
 		if (!currentSlider || !currentSlider.data.get('preventMasterSlider'))
 		{
-			(new BX.Catalog.StoreUse.Slider()).open(
+			(new BX.Catalog.StoreUse.StoreSlider()).open(
 				"<?= $arResult['MASTER_SLIDER_URL'] ?>",
 				{
 					cacheable: false,
@@ -88,7 +89,7 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 							{
 								document.location.reload();
 							}
-						}
+						},
 					}
 				}
 			);
@@ -152,6 +153,86 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		});
 	}
 
+	function showProfitReportTour()
+	{
+		let target = document.getElementById('store_documents_analytics');
+		if (BX.Main.interfaceButtonsManager.data.store_documents?.getHiddenItems().find((el) => el === target))
+		{
+			target = document.getElementById('store_documents_more_button');
+		}
+
+		BX.Runtime.loadExtension('ui.tour').then((exports) => {
+			const { Guide } = exports;
+			const guide = new Guide({
+				steps: [
+					{
+						target,
+						title: <?= CUtil::PhpToJSObject(Loc::getMessage('PROFIT_TOUR_TITLE')) ?>,
+						text: <?= CUtil::PhpToJSObject(Loc::getMessage('PROFIT_TOUR_TEXT')) ?>,
+						events: {
+							onClose: () => {
+								BX.userOptions.save('catalog', 'document-list', 'was_profit_report_tour_shown', 'Y');
+							},
+						}
+					},
+				],
+				onEvents: true,
+			});
+			guide.showNextStep();
+		});
+
+		BX.addCustomEvent('Step:onShow', (event) => {
+			event.data.guide.popup.contentContainer.parentElement.style.zIndex = 100;
+		});
+	}
+
+	function showProductBatchMethodPopup()
+	{
+		BX.Runtime.loadExtension('ui.dialogs.messagebox').then((exports) => {
+			const { MessageBox } = exports;
+
+			MessageBox.confirm(
+				BX.Tag.render`
+					<div>
+						<p>${<?= CUtil::PhpToJSObject(Loc::getMessage('BATCH_METHOD_POPUP_TEXT_1')) ?>}</p>
+						<p>
+							${<?= CUtil::PhpToJSObject(Loc::getMessage(
+								'BATCH_METHOD_POPUP_TEXT_2',
+								[
+									'[link]' => '<a href="#" onclick="openHelpdesk()">',
+									'[/link]' => '</a>',
+								],
+							)) ?>}
+						</p>
+					</div>
+				`,
+				<?= CUtil::PhpToJSObject(Loc::getMessage('BATCH_METHOD_POPUP_TITLE')) ?>,
+				(messageBox) => {
+					BX.Runtime.loadExtension('crm.config.catalog').then((exports) => {
+						const { Slider } = exports;
+						Slider.open(<?= CUtil::PhpToJSObject($arResult['INVENTORY_MANAGEMENT_SOURCE']) ?>);
+					});
+					messageBox.close();
+					BX.userOptions.save('catalog', 'document-list', 'was_batch_method_popup_shown', 'Y');
+				},
+				<?= CUtil::PhpToJSObject(Loc::getMessage('BATCH_METHOD_POPUP_GO_TO_SETTINGS')) ?>,
+				(messageBox) => {
+					messageBox.close();
+					BX.userOptions.save('catalog', 'document-list', 'was_batch_method_popup_shown', 'Y');
+				},
+				<?= CUtil::PhpToJSObject(Loc::getMessage('BATCH_METHOD_POPUP_LATER')) ?>,
+			);
+		});
+	}
+
+	function openHelpdesk(event)
+	{
+		if (top.BX.Helper)
+		{
+			top.BX.Helper.show("redirect=detail&code=17858278");
+		}
+	}
+
 	function resetAddDocumentButton()
 	{
 		const addDocumentButton = document.querySelector('.add-document-button');
@@ -176,6 +257,18 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		if (isShowGuide)
 		{
 			showAddDocumentGuide();
+		}
+
+		const isShowProfitReportTour = <?= CUtil::PhpToJSObject($arResult['IS_SHOW_PROFIT_REPORT_TOUR']) ?>;
+		if (isShowProfitReportTour)
+		{
+			showProfitReportTour();
+		}
+
+		const isShowProductBatchMethodPopup = <?= CUtil::PhpToJSObject($arResult['IS_SHOW_PRODUCT_BATCH_METHOD_POPUP']) ?>;
+		if (isShowProductBatchMethodPopup)
+		{
+			showProductBatchMethodPopup();
 		}
 
 		BX.Catalog.DocumentGridManager.Instance = new BX.Catalog.DocumentGridManager({
@@ -243,4 +336,5 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 	top.BX.addCustomEvent('CatalogWarehouseMasterClear:resetDocuments', function(event) {
 		reloadGrid();
 	});
+
 </script>

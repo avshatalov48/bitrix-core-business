@@ -157,7 +157,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$ibtypelang = CIBlockType::GetByIDLang($f_ID, LANGUAGE_ID);
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
-	$row->AddViewField("NAME", $ibtypelang["NAME"]);
+	$row->AddViewField("NAME", $ibtypelang["NAME"] ?? '');
 	if($USER->IsAdmin())
 	{
 		$row->AddInputField("SORT");

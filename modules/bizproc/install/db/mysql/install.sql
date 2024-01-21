@@ -95,6 +95,7 @@ CREATE TABLE b_bp_task (
 	WORKFLOW_ID varchar(32) NOT NULL,
 	ACTIVITY varchar(128) NOT NULL,
 	ACTIVITY_NAME varchar(128) NOT NULL,
+	CREATED_DATE datetime,
 	MODIFIED datetime NOT NULL,
 	OVERDUE_DATE datetime NULL,
 	NAME varchar(128) NOT NULL,
@@ -337,4 +338,37 @@ CREATE TABLE `b_bp_debugger_session_template_shards` (
 	`TEMPLATE_TYPE` tinyint unsigned,
 	`MODIFIED` datetime NOT NULL,
 	PRIMARY KEY(`ID`)
+);
+
+CREATE TABLE b_bp_workflow_duration_stat (
+	ID int unsigned NOT NULL auto_increment,
+	WORKFLOW_ID varchar(32) NOT NULL,
+	TEMPLATE_ID int unsigned NOT NULL,
+	DURATION int unsigned NOT NULL,
+	primary key (ID),
+	index ix_bp_wf_dur_stat_template(TEMPLATE_ID)
+);
+
+CREATE TABLE b_bp_workflow_user
+(
+	USER_ID int NOT NULL DEFAULT 0,
+	WORKFLOW_ID char(32) NOT NULL,
+	IS_AUTHOR int NOT NULL DEFAULT 1,
+	WORKFLOW_STATUS int NOT NULL DEFAULT 0,
+	TASK_STATUS int NOT NULL DEFAULT 0,
+	MODIFIED datetime NOT NULL,
+	primary key (USER_ID, WORKFLOW_ID),
+	index ix_bp_wu_status (USER_ID, WORKFLOW_STATUS, TASK_STATUS, MODIFIED),
+	index ix_bp_wu_my (USER_ID, IS_AUTHOR, TASK_STATUS, MODIFIED),
+	index ix_bp_wu_my_task (USER_ID, TASK_STATUS, MODIFIED),
+	index ix_bp_wu_wf(WORKFLOW_ID)
+);
+
+CREATE TABLE b_bp_workflow_meta
+(
+	ID bigint unsigned NOT NULL auto_increment,
+	WORKFLOW_ID char(32) NOT NULL,
+	START_DURATION int unsigned,
+	PRIMARY KEY (ID),
+	index ix_bp_wf_meta_wf_id(WORKFLOW_ID)
 );

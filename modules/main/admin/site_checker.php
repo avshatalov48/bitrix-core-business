@@ -210,7 +210,7 @@ if (isset($_REQUEST['unique_id']) && $_REQUEST['unique_id'])
 		if (file_exists(DEBUG_FLAG))
 			$oTest->timeout = 30;
 
-		if ($_REQUEST['global_test_vars'] && ($d = base64_decode($_REQUEST['global_test_vars'])))
+		if (!empty($_REQUEST['global_test_vars']) && ($d = base64_decode($_REQUEST['global_test_vars'])))
 			$oTest->arTestVars = unserialize($d, ['allowed_classes' => false]);
 		else
 			$oTest->arTestVars = array();

@@ -1,0 +1,22 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100% 100%"
+    preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 100%; background: url(http://24.tyutereva.bx/bitrix/templates/bitrix24/themes/light/milky-way/milky-way.jpg);">
+    <svg width="375px" height="61px" id="animated-elements">
+        <g id="block-line-1">
+            <rect x="10" y="12.5" width="48" height="48" rx="8" fill="#e5e5e5"/>
+            <rect x="70" y="18" width="241" height="7" rx="3.5" fill="#e5e5e5"/>
+            <rect x="70" y="37" width="190" height="7" rx="3.5" fill="#e5e5e5"/>
+            <rect x="70" y="52" width="189" height="7" rx="3.5" fill="#e5e5e5"/>
+        </g>
+    </svg>
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1270"/>
+    <mask id="headerMsk" fill="white">
+        <use xlink:href="#animated-elements"/>
+        <use xlink:href="#animated-elements-2"/>
+    </mask>
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

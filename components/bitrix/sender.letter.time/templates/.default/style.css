@@ -51,12 +51,25 @@
 	box-sizing: border-box;
 }
 
+.sender-letter-time-act-button {
+	display: flex;
+	gap: 5px;
+}
+
 .sender-letter-time-button-name,
 .sender-letter-time-link {
 	display: inline-block;
 }
 
+.sender-letter-time-link-container {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .sender-letter-time-link {
+	display: inline;
 	border-bottom: 2px dashed rgba(0,99,198,5);
 	color: #0063C6;
 	transition: border-bottom .3s;

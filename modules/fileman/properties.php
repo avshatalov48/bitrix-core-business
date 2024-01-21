@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Loader;
 
@@ -8,6 +8,7 @@ $GLOBALS['YANDEX_MAP_PROPERTY'] = array();
 
 abstract class CIBlockPropertyMapInterface
 {
+	protected const VALUE_SEPARATOR = ',';
 	abstract public static function GetUserTypeDescription();
 
 	abstract public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName);
@@ -21,18 +22,24 @@ abstract class CIBlockPropertyMapInterface
 
 	public static function ConvertFromDB($arProperty, $value)
 	{
-		$arResult = array('VALUE' => '');
+		$arResult = ['VALUE' => ''];
 
 		$value['VALUE'] ??= null;
-		if ($value['VALUE'] <> '')
+		if (!is_string($value['VALUE']))
 		{
-			$arCoords = explode(',', $value['VALUE'], 2);
+			$value['VALUE'] = '';
+		}
+		if ($value['VALUE'] !== '')
+		{
+			$arCoords = explode(self::VALUE_SEPARATOR, $value['VALUE'], 2);
 
-			$lat = doubleval($arCoords[0]);
-			$lng = doubleval($arCoords[1]);
+			$lat = (float)($arCoords[0] ?? 0);
+			$lng = (float)($arCoords[1] ?? 0);
 
 			if ($lat && $lng)
-				$arResult['VALUE'] = $lat.','.$lng;
+			{
+				$arResult['VALUE'] = $lat . self::VALUE_SEPARATOR . $lng;
+			}
 		}
 
 		return $arResult;
@@ -40,18 +47,24 @@ abstract class CIBlockPropertyMapInterface
 
 	public static function ConvertToDB($arProperty, $value)
 	{
-		$arResult = array('VALUE' => '');
+		$arResult = ['VALUE' => ''];
 
 		$value['VALUE'] ??= null;
-		if ($value['VALUE'] <> '')
+		if (!is_string($value['VALUE']))
 		{
-			$arCoords = explode(',', $value['VALUE'], 2);
+			$value['VALUE'] = '';
+		}
+		if ($value['VALUE'] !== '')
+		{
+			$arCoords = explode(self::VALUE_SEPARATOR, $value['VALUE'], 2);
 
-			$lat = doubleval($arCoords[0]);
-			$lng = doubleval($arCoords[1]);
+			$lat = (float)($arCoords[0] ?? 0);
+			$lng = (float)($arCoords[1] ?? 0);
 
 			if ($lat && $lng)
-				$arResult['VALUE'] = $lat.','.$lng;
+			{
+				$arResult['VALUE'] = $lat . self::VALUE_SEPARATOR . $lng;
+			}
 		}
 
 		return $arResult;
@@ -2322,7 +2335,7 @@ jsUtils.loadJSFile("/bitrix/components/bitrix/player/js/prop_skin_selector.js", 
 	</td>
 </tr>
 <?
-		$result .= ob_get_contents();
+		$result = ob_get_contents();
 		ob_end_clean();
 		return $result;
 	}

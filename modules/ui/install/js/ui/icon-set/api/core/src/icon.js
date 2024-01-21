@@ -374,6 +374,7 @@ export const Main = Object.freeze({
 	GANTT_GRAPHS: 'gantt-graphs',
 	FILTER_PLUS: 'filter-plus',
 	BACKSPACE: 'backspace',
+	ELEMENTS: 'elements',
 	BOOK_OPENED_WITH_ARROW: 'book-opened-with-arrow',
 	DOUBLE_ARROW_COUNTER_CLOCKWISE_SCRUM: 'double-arrow-counter-clockwise-scrum',
 	BARCODE: 'barcode',

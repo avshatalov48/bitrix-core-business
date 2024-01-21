@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\Grid\Panel\Action\Group;
 
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Result;
@@ -12,7 +13,7 @@ abstract class GroupChildAction
 
 	abstract public function getName(): string;
 
-	abstract public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result;
+	abstract public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter): ?Result;
 
 	abstract protected function getOnchange(): Onchange;
 

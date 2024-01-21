@@ -25,11 +25,10 @@ return [
 		'im.v2.lib.phone',
 		'im.v2.lib.utils',
 		'im.v2.lib.desktop',
+		'im.v2.lib.layout',
 		'im.v2.provider.service',
 		'ui.notification',
 	],
-	'settings' => [
-		'v2enabled' => \Bitrix\Im\Settings::isBetaActivated()
-	],
+	'settings' => ['v2enabled' => !\Bitrix\Im\Settings::isLegacyChatActivated()],
 	'skip_core' => false,
 ];

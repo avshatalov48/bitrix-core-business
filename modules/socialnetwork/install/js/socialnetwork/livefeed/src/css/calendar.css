@@ -22,6 +22,8 @@
 
 .bxcal-more-attendees-popup {
 	width: 180px;
+	max-height: 255px;
+	overflow-y: auto;
 }
 
 .bxcal-att-popup-img {

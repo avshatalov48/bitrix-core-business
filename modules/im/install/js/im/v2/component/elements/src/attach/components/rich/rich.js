@@ -34,7 +34,7 @@ export const AttachRich = {
 	template: `
 		<div class="bx-im-attach-rich__container">
 			<AttachRichItem 
-				v-for="(rich, index) in internalConfig.RICH_LINK" 
+				v-for="(rich, index) in internalConfig.richLink" 
 				:config="rich" 
 				:color="color" 
 				:key="index" 

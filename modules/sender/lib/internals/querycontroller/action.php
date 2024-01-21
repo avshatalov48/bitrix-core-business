@@ -73,7 +73,7 @@ class Action extends Base
 	{
 		if (!is_callable($handler))
 		{
-			throw new ArgumentException("Argument `handler` should be callabe.");
+			throw new ArgumentException("Argument 'handler' should be callabe.");
 		}
 
 		$this->handler = $handler;

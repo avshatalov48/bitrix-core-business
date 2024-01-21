@@ -8,7 +8,6 @@ use Bitrix\Main\Entity\Result;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class PushTable
@@ -68,43 +67,43 @@ class PushTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('PUSH_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_ID_FIELD'),
 			),
 			'USER_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('PUSH_ENTITY_USER_ID_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_USER_ID_FIELD'),
 			),
 			'DEVICE_TYPE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateDeviceType'),
-				'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_TYPE_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_TYPE_FIELD'),
 			),
 			'APP_ID' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateAppId'),
-				'title' => Loc::getMessage('PUSH_ENTITY_APP_ID_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_APP_ID_FIELD'),
 			),
 			'UNIQUE_HASH' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateUniqueHash'),
-				'title' => Loc::getMessage('PUSH_ENTITY_UNIQUE_HASH_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_UNIQUE_HASH_FIELD'),
 			),
 			'DEVICE_ID' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateDeviceId'),
-				'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_ID_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_ID_FIELD'),
 			),
 			'DEVICE_NAME' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateDeviceName'),
-				'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_NAME_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_NAME_FIELD'),
 			),
 			'DEVICE_TOKEN' => array(
 				'data_type' => 'string',
 				'required' => false,
 				'validation' => array(__CLASS__, 'validateDeviceToken'),
-				'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_TOKEN_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_TOKEN_FIELD'),
 			),
 			'VOIP_TYPE' => array(
 				'data_type' => 'string',
@@ -116,12 +115,12 @@ class PushTable extends Main\Entity\DataManager
 				'data_type' => 'datetime',
 				'required' => true,
 				'default_value' => new \Bitrix\Main\Type\DateTime,
-				'title' => Loc::getMessage('PUSH_ENTITY_DATE_CREATE_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_DATE_CREATE_FIELD'),
 			),
 			'DATE_AUTH' => array(
 				'data_type' => 'datetime',
 				'default_value' => new \Bitrix\Main\Type\DateTime,
-				'title' => Loc::getMessage('PUSH_ENTITY_DATE_AUTH_FIELD'),
+				//'title' => Loc::getMessage('PUSH_ENTITY_DATE_AUTH_FIELD'),
 			),
 			'USER' => array(
 				'data_type' => 'Bitrix\Main\User',

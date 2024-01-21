@@ -1,5 +1,5 @@
 <?php
-$MESS["CPD_NEW_VARIATION_ADDED"] = "Вариация успешно добавлена";
+$MESS["CPD_NEW_VARIATION_ADDED_MSGVER_1"] = "Вариация успешно добавлена";
 $MESS["CPD_NEW_PROPERTY_ADDED"] = "Свойство успешно добавлено";
 $MESS["CPD_SETTING_ENABLED"] = "Настройка \"#NAME#\" включена";
 $MESS["CPD_SETTING_DISABLED"] = "Настройка \"#NAME#\" выключена";

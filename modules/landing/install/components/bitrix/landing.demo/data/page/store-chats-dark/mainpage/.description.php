@@ -23,7 +23,6 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-
 			'BACKGROUND_USE' => 'Y',
 			'BACKGROUND_POSITION' => 'center',
 			'BACKGROUND_PICTURE' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1920/img5.jpg',
@@ -32,9 +31,7 @@ return array(
 	'layout' => array(
 		'code' => 'empty',
 	),
-	
 	'disable_import' => 'Y',
-
 	'items' => array(
 		'0' => array(
 			'code' => '35.10.header_shop_top_and_phone_bottom',
@@ -88,23 +85,23 @@ return array(
 			'nodes' => [
 				'.landing-block-node-link' => [
 					0 => [
-						'href' => '#landing1',
+						'href' => '#landing@landing[store-chats-dark/about]',
 						'target' => '_self',
 					],
 					1 => [
-						'href' => '#landing2',
+						'href' => '#landing@landing[store-chats-dark/contacts]',
 						'target' => '_self',
 					],
 					2 => [
-						'href' => '#landing3',
+						'href' => '#landing@landing[store-chats-dark/cutaway]',
 						'target' => '_self',
 					],
 					3 => [
-						'href' => '#landing8',
+						'href' => '#landing@landing[store-chats-dark/payinfo]',
 						'target' => '_self',
 					],
 					4 => [
-						'href' => '#landing9',
+						'href' => '#landing@landing[store-chats-dark/webform]',
 						'target' => '_self',
 					],
 				],

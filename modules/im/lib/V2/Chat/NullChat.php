@@ -7,6 +7,7 @@ use Bitrix\Im\V2\Entity\User\NullUser;
 use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
 
 class NullChat extends Chat
@@ -61,6 +62,11 @@ class NullChat extends Chat
 	public function hasAccess($user = null): bool
 	{
 		return false;
+	}
+
+	public function readMessages(?MessageCollection $messages, bool $byEvent = false): Result
+	{
+		return new Result();
 	}
 
 	public function createChatIfNotExists(array $params): self

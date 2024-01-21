@@ -136,7 +136,7 @@ class ProductTable extends DataManager
 					],
 					'default_value' => self::STATUS_DEFAULT,
 					'fetch_data_modification' => [__CLASS__, 'modifyQuantityTrace'],
-					'title' => Loc::getMessage('PRODUCT_ENTITY_QUANTITY_TRACE_FIELD'),
+					'title' => Loc::getMessage('PRODUCT_ENTITY_QUANTITY_TRACE_FIELD_MSGVER_1'),
 				]
 			),
 			'QUANTITY_TRACE_ORIG' => new Main\Entity\ExpressionField(
@@ -827,7 +827,7 @@ class ProductTable extends DataManager
 		{
 			return [
 				self::TYPE_PRODUCT => Loc::getMessage('PRODUCT_ENTITY_TYPE_PRODUCT'),
-				self::TYPE_SET => Loc::getMessage('PRODUCT_ENTITY_TYPE_SET'),
+				self::TYPE_SET => Loc::getMessage('PRODUCT_ENTITY_TYPE_SET_MSGVER_1'),
 				self::TYPE_SKU => Loc::getMessage('PRODUCT_ENTITY_TYPE_SKU'),
 				self::TYPE_EMPTY_SKU => Loc::getMessage('PRODUCT_ENTITY_TYPE_EMPTY_SKU'),
 				self::TYPE_OFFER => Loc::getMessage('PRODUCT_ENTITY_TYPE_OFFER'),

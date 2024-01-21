@@ -92,7 +92,7 @@ if (check_bitrix_sessid())
 	}
 	elseif ($action == 'FAVORITES')
 	{
-		$value = (isset($_POST["params"]["value"]) && isset($_POST["params"]["value"]) ? $_POST["params"]["value"] : 'Y');
+		$value = (isset($_POST["params"]["value"]) && $_POST["params"]["value"] ? $_POST["params"]["value"] : 'Y');
 
 		$res = false;
 		try

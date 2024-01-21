@@ -883,4 +883,9 @@ HTML;
 
 		return $value;
 	}
+
+	public static function convertPropertyToView(FieldType $fieldType, int $viewMode, array $property): array
+	{
+		return $property;
+	}
 }

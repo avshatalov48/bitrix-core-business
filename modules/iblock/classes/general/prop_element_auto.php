@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 
@@ -7,13 +8,14 @@ const BT_UT_AUTOCOMPLETE_REP_SYM_OTHER = 'other';
 
 class CIBlockPropertyElementAutoComplete
 {
-	public const USER_TYPE = 'EAutocomplete';
+	/** @deprecated */
+	public const USER_TYPE = Iblock\PropertyTable::USER_TYPE_ELEMENT_AUTOCOMPLETE;
 
 	public static function GetUserTypeDescription()
 	{
 		return [
 			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_ELEMENT,
-			'USER_TYPE' => self::USER_TYPE,
+			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_ELEMENT_AUTOCOMPLETE,
 			'DESCRIPTION' => Loc::getMessage('BT_UT_EAUTOCOMPLETE_DESCR'),
 			'GetPropertyFieldHtml' => [__CLASS__, 'GetPropertyFieldHtml'],
 			'GetPropertyFieldHtmlMulty' => [__CLASS__,'GetPropertyFieldHtmlMulty'],
@@ -781,11 +783,7 @@ class CIBlockPropertyElementAutoComplete
 			}
 		}
 
-		foreach ($arFilterValues as $key => $value)
-		{
-			if ((int)($value) <= 0)
-				unset($arFilterValues[$key]);
-		}
+		Main\Type\Collection::normalizeArrayValuesByInt($arFilterValues, false);
 
 		if (!empty($arFilterValues))
 		{
@@ -806,11 +804,11 @@ class CIBlockPropertyElementAutoComplete
 		$fields["property"] = $property;
 		$fields["customRender"] = ["\Bitrix\Iblock\Helpers\Filter\Property", "render"];
 		$fields["customFilter"] = ["Bitrix\Iblock\Helpers\Filter\Property", "addFilter"];
-		$fields["operators"] = array(
+		$fields["operators"] = [
 			"default" => "=",
 			"exact" => "=",
-			"enum" => "@"
-		);
+			"enum" => "@",
+		];
 	}
 
 	protected static function GetLinkElement($elementId, $iblockId)
@@ -925,13 +923,13 @@ class CIBlockPropertyElementAutoComplete
 		$otherRepSym = $arSettings['OTHER_REP_SYM'] ?? '';
 		$strRepSym = (BT_UT_AUTOCOMPLETE_REP_SYM_OTHER == $repSym ? $otherRepSym : $repSym);
 		$arBanSym = str_split($strBanSym,1);
-		$arResult = array(
+
+		return [
 			'BAN_SYM' => $arBanSym,
 			'REP_SYM' => array_fill(0,sizeof($arBanSym),$strRepSym),
 			'BAN_SYM_STRING' => $strBanSym,
 			'REP_SYM_STRING' => $strRepSym,
-		);
-		return $arResult;
+		];
 	}
 
 	/**
@@ -948,131 +946,32 @@ class CIBlockPropertyElementAutoComplete
 	public static function GetUIEntityEditorProperty($settings, $value)
 	{
 		return [
-			'type' => 'custom'
+			'type' => 'custom',
 		];
 	}
 
 	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
 	{
-		$settings = $params['SETTINGS'] ?? [];
-
-		\Bitrix\Main\UI\Extension::load(['ui.entity-selector', 'ui.buttons', 'ui.forms']);
-		$fieldName = htmlspecialcharsbx($params['FIELD_NAME']);
-		$containerId = $fieldName . '_container';
-		$inputsContainerId = $fieldName . '_inputs_container';
-
-		$isMultiple = $settings['MULTIPLE'] === 'Y';
-		$isMultiple = CUtil::PhpToJSObject($isMultiple);
-
-		if (!is_array($params['VALUE']))
-		{
-			$params['VALUE'] = (!empty($params['VALUE'])) ? [$params['VALUE']] : [];
-		}
-
-		$preselectedItems = [];
-		foreach ($params['VALUE'] as $value)
-		{
-			if (!$value)
-			{
-				continue;
-			}
-			$preselectedItems[] = ['iblock-element', (int)$value];
-		}
-		$iblockId = (int)$params['SETTINGS']['LINK_IBLOCK_ID'];
-		$preselectedItems = CUtil::PhpToJSObject($preselectedItems);
-
-		$messages = [
-			'NOT_FOUND' => Loc::getMessage('BT_UT_EAUTOCOMPLETE_SEARCH_NOT_FOUND'),
-			'CHANGE_QUERY' => Loc::getMessage('BT_UT_EAUTOCOMPLETE_SEARCH_CHANGE_QUERY'),
-			'ENTER_QUERY' => Loc::getMessage('BT_UT_EAUTOCOMPLETE_SEARCH_ENTER_QUERY'),
-			'ENTER_QUERY_SUBTITLE' => Loc::getMessage('BT_UT_EAUTOCOMPLETE_SEARCH_ENTER_QUERY_SUBTITLE'),
+		$property = [
+			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_ELEMENT,
+			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_ELEMENT_AUTOCOMPLETE,
+			'LINK_IBLOCK_ID' => (int)($params['SETTINGS']['LINK_IBLOCK_ID'] ?? 0),
+			'MULTIPLE' => ($params['SETTINGS']['MULTIPLE'] ?? 'N') === 'Y' ? 'Y' : 'N',
 		];
-		$propertyType = self::USER_TYPE;
 
-		return <<<HTML
-			<div id="{$containerId}" name="{$containerId}"></div>
-			<div id="{$inputsContainerId}" name="{$inputsContainerId}"></div>
-			<script>
-				(function() {
-					var selector = new BX.UI.EntitySelector.TagSelector({
-						id: '{$containerId}',
-						multiple: {$isMultiple},
+		$config = [
+			'FIELD_NAME' => $params['FIELD_NAME'],
+			'CHANGE_EVENTS' => [
+				'onChangeIblockElement',
+			],
+			'ENTITY_ID' => 'iblock-property-element',
+		];
 
-						dialogOptions: {
-							height: 300,
-							id: '{$containerId}',
-							multiple: {$isMultiple},
-							preselectedItems: {$preselectedItems},
-							entities: [
-								{
-									id: 'iblock-element',
-									dynamicLoad: true,
-									dynamicSearch: true,
-									options: {
-										iblockId: {$iblockId},
-										propertyType: '{$propertyType}',
-									},
-								}
-							],
-							searchOptions: {
-								allowCreateItem: false,
-							},
-							searchTabOptions: {
-								stub: true,
-								stubOptions: {
-									title: '{$messages['NOT_FOUND']}',
-									subtitle: '{$messages['CHANGE_QUERY']}',
-									arrow: false,
-								}
-							},
-							recentTabOptions: {
-								stub: true,
-								stubOptions: {
-									title: '{$messages['ENTER_QUERY']}',
-									subtitle: '{$messages['ENTER_QUERY_SUBTITLE']}',
-									arrow: false,
-								}
-							},
-							events: {
-								'Item:onSelect': setSelectedInputs.bind(this, 'Item:onSelect'),
-								'Item:onDeselect': setSelectedInputs.bind(this, 'Item:onDeselect'),
-							},
-						},
-					})
-
-					function setSelectedInputs(eventName, event)
-					{
-						var dialog = event.getData().item.getDialog();
-						if (!dialog.isMultiple())
-						{
-							dialog.hide();
-						}
-						var selectedItems = dialog.getSelectedItems();
-						if (Array.isArray(selectedItems))
-						{
-							var htmlInputs = '';
-							selectedItems.forEach(function(item)
-							{
-								htmlInputs +=
-									'<input type="hidden" name="{$fieldName}[]" value="' + item['id'] + '" />'
-								;
-							});
-							if (htmlInputs === '')
-							{
-								htmlInputs =
-									'<input type="hidden" name="{$fieldName}[]" value="" />'
-								;
-							}
-							document.getElementById('{$inputsContainerId}').innerHTML = htmlInputs;
-							BX.Event.EventEmitter.emit('onChangeIblockElement');
-						}
-					}
-
-					selector.renderTo(document.getElementById("{$containerId}"));
-				})();
-
-			</script>
-HTML;
+		return Iblock\UI\Input\Element::renderSelector(
+			$property,
+			$params['VALUE'] ?? null,
+			$config
+		);
 	}
 
 	public static function GetUIEntityEditorPropertyViewHtml(array $params = []): string
@@ -1112,4 +1011,4 @@ HTML;
 }
 
 /** @deprecated */
-const BT_UT_AUTOCOMPLETE_CODE = CIBlockPropertyElementAutoComplete::USER_TYPE;
+const BT_UT_AUTOCOMPLETE_CODE = Iblock\PropertyTable::USER_TYPE_ELEMENT_AUTOCOMPLETE;

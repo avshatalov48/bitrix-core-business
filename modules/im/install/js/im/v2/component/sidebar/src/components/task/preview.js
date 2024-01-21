@@ -1,4 +1,4 @@
-import { ImModelSidebarTaskItem, ImModelDialog } from 'im.v2.model';
+import { ImModelSidebarTaskItem, ImModelChat } from 'im.v2.model';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
 import { SidebarBlock, SidebarDetailBlock } from 'im.v2.const';
@@ -33,9 +33,9 @@ export const TaskPreview = {
 		{
 			return this.$store.getters['sidebar/tasks/get'](this.chatId)[0];
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		chatId(): number
 		{

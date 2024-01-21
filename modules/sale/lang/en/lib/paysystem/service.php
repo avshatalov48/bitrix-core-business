@@ -1,6 +1,7 @@
 <?php
 $MESS["SALE_PS_SERVICE_ERROR_CONNECT_PS"] = "Error connecting to payment system";
 $MESS["SALE_PS_SERVICE_ERROR_HOLD_IS_NOT_SUPPORTED"] = "Payment handler does not support authorization holds";
+$MESS["SALE_PS_SERVICE_ERROR_ON_BEFORE_INITIATE_PAY"] = "Payment error";
 $MESS["SALE_PS_SERVICE_ERROR_PARTIAL_CONFIRM_IS_NOT_SUPPORTED"] = "Payment handler does not support partial authorization";
 $MESS["SALE_PS_SERVICE_ORDER_CANCELED"] = "Order ##ORDER_ID# canceled";
 $MESS["SALE_PS_SERVICE_ORDER_ERROR"] = "Order ##ORDER_ID# does not exist";

@@ -1053,7 +1053,13 @@ class CIBlockDocument
 
 		$id = (int)mb_substr($documentType, 7);
 
-		$result = (CIBlock::GetList(false, ['ID' => $id]))->fetch();
+		$result = (CIBlock::GetList(
+			false,
+			[
+				'ID' => $id,
+				'CHECK_PERMISSIONS' => 'N'
+			])
+		)->fetch();
 		if (!$result)
 		{
 			return $documentType;
@@ -1563,15 +1569,11 @@ class CIBlockDocument
 
 		$ignoredTypes = array('map_yandex', 'directory', 'SectionAuto', 'SKU', 'EAutocomplete');
 
-		//TODO: remove class_exists, add version_control
-		if (class_exists('\Bitrix\Bizproc\BaseType\InternalSelect'))
-		{
-			$arResult[\Bitrix\Bizproc\FieldType::INTERNALSELECT] = array(
-				"Name" => GetMessage("BPCGHLP_PROP_SELECT_INTERNAL"),
-				"BaseType" => "string",
-				"Complex" => true,
-			);
-		}
+		$arResult[\Bitrix\Bizproc\FieldType::INTERNALSELECT] = array(
+			"Name" => GetMessage("BPCGHLP_PROP_SELECT_INTERNAL"),
+			"BaseType" => "string",
+			"Complex" => true,
+		);
 
 		foreach (CIBlockProperty::GetUserType() as  $ar)
 		{
@@ -1594,9 +1596,12 @@ class CIBlockDocument
 			$arResult[$t] = array("Name" => $ar["DESCRIPTION"], "BaseType" => "string", 'typeClass' => '\Bitrix\Iblock\BizprocType\UserTypeProperty');
 			if ($t == "S:employee")
 			{
-				if (COption::GetOptionString("bizproc", "employee_compatible_mode", "N") != "Y")
-					$arResult[$t]["BaseType"] = "user";
 				$arResult[$t]['typeClass'] = '\Bitrix\Iblock\BizprocType\UserTypePropertyEmployee';
+				if (COption::GetOptionString("bizproc", "employee_compatible_mode", "N") != "Y")
+				{
+					$arResult[$t]["BaseType"] = "user";
+					$arResult[$t]['typeClass'] = \Bitrix\Bizproc\BaseType\User::class;
+				}
 			}
 			elseif ($t == "E:EList")
 			{

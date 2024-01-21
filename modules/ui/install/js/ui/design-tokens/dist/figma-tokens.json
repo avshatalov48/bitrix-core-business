@@ -304,6 +304,9 @@
 					"10": {
 						"value": "#fafded"
 					},
+					"15": {
+						"value": "#f5fcde"
+					},
 					"20": {
 						"value": "#f1fbd0"
 					},
@@ -323,7 +326,7 @@
 						"value": "#9dcf00"
 					},
 					"55": {
-						"value": "#9dcf00"
+						"value": "#95c500"
 					},
 					"60": {
 						"value": "#8dbb00"
@@ -344,6 +347,9 @@
 				"orange": {
 					"10": {
 						"value": "#fffaf0"
+					},
+					"15": {
+						"value": "#fff5e3"
 					},
 					"20": {
 						"value": "#fff1d6"
@@ -379,6 +385,9 @@
 				"red": {
 					"10": {
 						"value": "#fff8f8"
+					},
+					"15": {
+						"value": "#fff0f0"
 					},
 					"20": {
 						"value": "#ffe8e8"
@@ -1017,14 +1026,26 @@
 			"2xs": {
 				"value": "4px"
 			},
+			"2xs2": {
+				"value": "6px"
+			},
 			"xs": {
 				"value": "8px"
+			},
+			"xs2": {
+				"value": "10px"
 			},
 			"sm": {
 				"value": "12px"
 			},
+			"sm2": {
+				"value": "14px"
+			},
 			"md": {
 				"value": "16px"
+			},
+			"md2": {
+				"value": "18px"
 			},
 			"lg": {
 				"value": "20px"
@@ -1066,14 +1087,26 @@
 				"2xs": {
 					"value": "4px"
 				},
+				"2xs2": {
+					"value": "6px"
+				},
 				"xs": {
 					"value": "8px"
+				},
+				"xs2": {
+					"value": "10px"
 				},
 				"sm": {
 					"value": "12px"
 				},
+				"sm2": {
+					"value": "14px"
+				},
 				"md": {
 					"value": "16px"
+				},
+				"md2": {
+					"value": "18px"
 				},
 				"lg": {
 					"value": "20px"
@@ -1108,14 +1141,26 @@
 				"2xs-neg": {
 					"value": "-4px"
 				},
+				"2xs2-neg": {
+					"value": "-6px"
+				},
 				"xs-neg": {
 					"value": "-8px"
+				},
+				"xs2-neg": {
+					"value": "-10px"
 				},
 				"sm-neg": {
 					"value": "-12px"
 				},
+				"sm2-neg": {
+					"value": "-14px"
+				},
 				"md-neg": {
 					"value": "-16px"
+				},
+				"md2-neg": {
+					"value": "-18px"
 				},
 				"lg-neg": {
 					"value": "-20px"
@@ -1155,14 +1200,26 @@
 				"2xs": {
 					"value": "4px"
 				},
+				"2xs2": {
+					"value": "6px"
+				},
 				"xs": {
 					"value": "8px"
+				},
+				"xs2": {
+					"value": "10px"
 				},
 				"sm": {
 					"value": "12px"
 				},
+				"sm2": {
+					"value": "14px"
+				},
 				"md": {
 					"value": "16px"
+				},
+				"md2": {
+					"value": "18px"
 				},
 				"lg": {
 					"value": "20px"
@@ -1197,14 +1254,26 @@
 				"2xs-neg": {
 					"value": "-4px"
 				},
+				"2xs2-neg": {
+					"value": "-6px"
+				},
 				"xs-neg": {
 					"value": "-8px"
+				},
+				"xs2-neg": {
+					"value": "-10px"
 				},
 				"sm-neg": {
 					"value": "-12px"
 				},
+				"sm2-neg": {
+					"value": "-14px"
+				},
 				"md-neg": {
 					"value": "-16px"
+				},
+				"md2-neg": {
+					"value": "-18px"
 				},
 				"lg-neg": {
 					"value": "-20px"
@@ -1244,14 +1313,26 @@
 				"2xs": {
 					"value": "4px"
 				},
+				"2xs2": {
+					"value": "6px"
+				},
 				"xs": {
 					"value": "8px"
+				},
+				"xs2": {
+					"value": "10px"
 				},
 				"sm": {
 					"value": "12px"
 				},
+				"sm2": {
+					"value": "14px"
+				},
 				"md": {
 					"value": "16px"
+				},
+				"md2": {
+					"value": "18px"
 				},
 				"lg": {
 					"value": "20px"

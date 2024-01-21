@@ -34,6 +34,11 @@ export const Layout = Object.freeze({
 		list: '',
 		content: 'SettingsContent',
 	},
+	copilot: {
+		name: 'copilot',
+		list: 'CopilotListContainer',
+		content: 'CopilotContent',
+	},
 	market: {
 		name: 'market',
 		list: '',

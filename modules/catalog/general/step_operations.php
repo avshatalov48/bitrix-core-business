@@ -1608,7 +1608,7 @@ class CCatalogProductSettings extends CCatalogProductAvailable
 			CCatalogProductSet::recalculateSet($productSet['ID'], $productSet['ITEM_ID']);
 			$arTimeFields = array(
 				'~TIMESTAMP_X' => $DB->CharToDateFunction($productSet['TIMESTAMP_X'], "FULL"),
-				'~MODIFIED_BY' => $productSet['MODIFIED_BY']
+				'MODIFIED_BY' => $productSet['MODIFIED_BY']
 			);
 			$strUpdate = $DB->PrepareUpdate($tableName, $arTimeFields);
 			if (!empty($strUpdate))

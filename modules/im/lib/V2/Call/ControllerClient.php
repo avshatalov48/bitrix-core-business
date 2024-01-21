@@ -2,7 +2,7 @@
 
 namespace Bitrix\Im\V2\Call;
 
-use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Service\MicroService\BaseSender;
 class ControllerClient extends BaseSender
 {
@@ -23,8 +23,7 @@ class ControllerClient extends BaseSender
 	{
 		if (is_null($this->endpoint))
 		{
-			$settings = Configuration::getValue('im');
-			$endpoint  = $settings['call']['beta_server_url'] ?? '';
+			$endpoint = Option::get('im', 'call_server_url');
 
 			if (!empty($endpoint))
 			{

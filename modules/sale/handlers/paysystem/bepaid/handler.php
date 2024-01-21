@@ -40,10 +40,7 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 */
 	public static function getHandlerModeList(): array
 	{
-		return array(
-			static::MODE_CHECKOUT => Loc::getMessage('SALE_HPS_BEPAID_CHECKOUT_MODE'),
-			static::MODE_WIDGET => Loc::getMessage('SALE_HPS_BEPAID_WIDGET_MODE'),
-		);
+		return PaySystem\Manager::getHandlerDescription('bePaid')['HANDLER_MODE_LIST'];
 	}
 
 	/**

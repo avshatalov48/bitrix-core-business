@@ -28,6 +28,8 @@ Loc::loadMessages(__FILE__);
 global $adminPage;
 /** @global CAdminSidePanelHelper $adminSidePanelHelper */
 global $adminSidePanelHelper;
+/** @global CUserTypeManager $USER_FIELD_MANAGER */
+global $USER_FIELD_MANAGER;
 
 function showStoreDocumentDate($field, string $name, bool $isNew, bool $readOnly): string
 {
@@ -389,8 +391,15 @@ while ($row = $iterator->fetch())
 }
 unset($row, $iterator);
 
+$entityId = '';
+$tableClass = Catalog\Document\StoreDocumentTableManager::getTableClassByType($docType);
+if ($tableClass)
+{
+	$entityId = $tableClass::getUfId();
+}
 $errorList = '';
 $error = false;
+$refillForm = false;
 $arGeneral = [];
 if (
 	$request->isPost()
@@ -504,6 +513,11 @@ if (
 		}
 
 		$arGeneral = array_intersect_key($arGeneral, $documentFields);
+
+		if ($entityId)
+		{
+			$USER_FIELD_MANAGER->EditFormAddFields($entityId, $arGeneral);
+		}
 
 		if ($ID > 0)
 		{
@@ -681,6 +695,7 @@ if (
 				require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
 				CAdminMessage::ShowMessage($strError);
 				$error = true;
+				$refillForm = true;
 			}
 			else
 			{
@@ -1367,6 +1382,23 @@ unset($currencyFormat, $currency, $currencyIterator);
 $actionUrl = $APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&DOCUMENT_TYPE=".htmlspecialcharsbx($docType);
 $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 
+$fieldsTabs = [
+	[
+		'DIV' => 'main_tab',
+		'TAB' => Loc::getMessage('CAT_DOC_MAIN_TAB'),
+		'ICON' => 'catalog',
+		'TITLE' => Loc::getMessage('CAT_DOC_MAIN_TAB_DESC'),
+	],
+	[
+		'DIV' => 'user_fields_tab',
+		'TAB' => Loc::getMessage('CAT_DOC_UF_TAB'),
+		'ICON' => 'catalog',
+		'TITLE' => Loc::getMessage('CAT_DOC_UF_TAB_DESC'),
+	],
+];
+
+$fieldsTabControl = new CAdminTabControl("fieldsTabControl", $fieldsTabs);
+
 if (!$isAjaxDocumentRequest):
 ?>
 <form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" id="form_b_catalog_store_docs" name="form_b_catalog_store_docs" onsubmit="return checkBarcodeSearch();">
@@ -1374,292 +1406,322 @@ if (!$isAjaxDocumentRequest):
 	echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="apply" value="Y">
-	<input type="hidden" name="lang" value="<?php echo LANGUAGE_ID; ?>">
-	<input type="hidden" name="ID" value="<?php echo $ID ?>">
-	<input type="hidden" name="DOCUMENT_TYPE" id="DOCUMENT_TYPE" value="<?php echo htmlspecialcharsbx($docType);?>">
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID; ?>">
+	<input type="hidden" name="ID" value="<?= $ID ?>">
+	<input type="hidden" name="DOCUMENT_TYPE" id="DOCUMENT_TYPE" value="<?= htmlspecialcharsbx($docType);?>">
 	<input type="hidden" name="productAdd" id="productAdd" value="N">
 	<input value="<?=$maxId?>" type="hidden" id="ROW_MAX_ID">
 	<?=bitrix_sessid_post()?>
-	<div class="adm-detail-block" id="tabControl_layout">
-		<div class="adm-detail-content-wrap">
-			<div class="adm-detail-content-item-block">
-				<table class="adm-detail-content-table edit-table" id="cat-doc-table">
-					<tbody>
-					<?php
-					if (isset($documentFields['STATUS'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'STATUS'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><span class="cat-doc-status-left-<?=$fields['STATUS'];?>"><?=Loc::getMessage('CAT_DOC_STATUS')?>:</span></td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
-							<span class="cat-doc-status-right-<?=$fields['STATUS']?>">
-								<?php
-								if ($fields['STATUS'] === 'Y')
-								{
-									$status = Catalog\StoreDocumentTable::STATUS_CONDUCTED;
-								}
-								else
-								{
-									$status = $fields['WAS_CANCELLED'] === 'Y'
-										? Catalog\StoreDocumentTable::STATUS_CANCELLED
-										: Catalog\StoreDocumentTable::STATUS_DRAFT
-									;
-								}
-								echo Catalog\StoreDocumentTable::getStatusName($status);
-								?>
-							</span>
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['TITLE'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'TITLE'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_TITLE')?>:</td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
-							<input type="text" name="TITLE" value="<?=htmlspecialcharsbx($fields['TITLE']); ?>" <?=$isDisable?> maxlenght="255" size="50">
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['DOC_NUMBER'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'DOC_NUMBER'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_DOC_NUMBER')?>:</td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
-							<input type="text" name="DOC_NUMBER" value="<?=htmlspecialcharsbx($fields['DOC_NUMBER']); ?>" <?=$isDisable?> maxlenght="64" size="50">
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['DATE_DOCUMENT'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'DATE_DOCUMENT'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_DATE_DOCUMENT')?>:</td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
-							<?php
-							echo showStoreDocumentDate(
-								$fields['DATE_DOCUMENT'],
-								'DATE_DOCUMENT',
-								$ID === 0,
-								$bReadOnly
-							);
-							?>
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['DOCUMENT_FILES'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'DOCUMENT_FILES'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage('CAT_DOC_DOCUMENT_FILES') ?></td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
+	<?php
+	$fieldsTabControl->Begin();
+	$fieldsTabControl->BeginNextTab();
+	?>
+	<?php
+	if (isset($documentFields['STATUS'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'STATUS'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><span class="cat-doc-status-left-<?=$fields['STATUS'];?>"><?=Loc::getMessage('CAT_DOC_STATUS')?>:</span></td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+			<span class="cat-doc-status-right-<?=$fields['STATUS']?>">
+				<?php
+				if ($fields['STATUS'] === 'Y')
+				{
+					$status = Catalog\StoreDocumentTable::STATUS_CONDUCTED;
+				}
+				else
+				{
+					$status = $fields['WAS_CANCELLED'] === 'Y'
+						? Catalog\StoreDocumentTable::STATUS_CANCELLED
+						: Catalog\StoreDocumentTable::STATUS_DRAFT
+					;
+				}
+				echo Catalog\StoreDocumentTable::getStatusName($status);
+				?>
+			</span>
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['TITLE'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'TITLE'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_TITLE')?>:</td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+			<input type="text" name="TITLE" value="<?=htmlspecialcharsbx($fields['TITLE']); ?>" <?=$isDisable?> maxlenght="255" size="50">
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['DOC_NUMBER'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'DOC_NUMBER'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_DOC_NUMBER')?>:</td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+			<input type="text" name="DOC_NUMBER" value="<?=htmlspecialcharsbx($fields['DOC_NUMBER']); ?>" <?=$isDisable?> maxlenght="64" size="50">
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['DATE_DOCUMENT'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'DATE_DOCUMENT'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_DATE_DOCUMENT')?>:</td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+			<?php
+			echo showStoreDocumentDate(
+				$fields['DATE_DOCUMENT'],
+				'DATE_DOCUMENT',
+				$ID === 0,
+				$bReadOnly
+			);
+			?>
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['DOCUMENT_FILES'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'DOCUMENT_FILES'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage('CAT_DOC_DOCUMENT_FILES') ?></td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+		<?php
+			$baseConfig = [
+				'name' => 'DOCUMENT_FILES[n#IND#]',
+				'description' => false,
+				'allowUpload' => FileInput::UPLOAD_ANY_FILES,
+				'allowUploadExt' => '',
+			];
+			if ($bReadOnly)
+			{
+				$uploadConfig = [
+					'upload' => false,
+					'medialib' => false,
+					'fileDialog' => false,
+					'cloud' => false,
+					'delete' => false,
+				];
+			}
+			else
+			{
+				$uploadConfig = [
+					'upload' => true,
+					'medialib' => false,
+					'fileDialog' => true,
+					'cloud' => false,
+					'delete' => true,
+				];
+			}
+
+			$fileInput = FileInput::createInstance(
+				$baseConfig
+				+ $uploadConfig
+			);
+
+			$showFiles = [];
+			foreach ($fields['DOCUMENT_FILES'] as $fileRowId => $fileId)
+			{
+				$showFiles['DOCUMENT_FILES[' . $fileRowId . ']'] = $fileId;
+			}
+
+			echo $fileInput->show($showFiles, $error);
+		?>
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['SITE_ID'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'SITE_ID'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_SITE_ID") ?>:</td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+			<select id="SITE_ID" name="SITE_ID" <?=$isDisable?>>
+				<?php
+				foreach($shopSites as $key => $val)
+				{
+					$selected = ($val['ID'] == $fields['SITE_ID']) ? 'selected' : '';
+					echo '<option ' . $selected . ' value="' . htmlspecialcharsbx($val['ID']) . '">'
+						. htmlspecialcharsbx($val['NAME'] . ' (' . $val['ID'] . ')') . '</option>'
+					;
+				}
+			?>
+			</select>
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields["CONTRACTOR_ID"])):
+	?>
+		<tr<?= getRequiredFieldCssClass($documentFields, 'CONTRACTOR_ID'); ?>>
+			<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_CONTRACTOR") ?>:</td>
+			<td style="width: 60%;" class="adm-detail-content-cell-r">
+				<?php
+				if (!empty($arContractors) && is_array($arContractors)):?>
+					<select style="max-width:300px"  name="CONTRACTOR_ID" <?=$isDisable?>>
 						<?php
-							$baseConfig = [
-								'name' => 'DOCUMENT_FILES[n#IND#]',
-								'description' => false,
-								'allowUpload' => FileInput::UPLOAD_ANY_FILES,
-								'allowUploadExt' => '',
-							];
-							if ($bReadOnly)
-							{
-								$uploadConfig = [
-									'upload' => false,
-									'medialib' => false,
-									'fileDialog' => false,
-									'cloud' => false,
-									'delete' => false,
-								];
-							}
-							else
-							{
-								$uploadConfig = [
-									'upload' => true,
-									'medialib' => false,
-									'fileDialog' => true,
-									'cloud' => false,
-									'delete' => true,
-								];
-							}
+						foreach($arContractors as $key => $val)
+						{
+							$selected = ($val['ID'] == $fields['CONTRACTOR_ID']) ? 'selected' : '';
+							$companyName = ($val["PERSON_TYPE"] == CONTRACTOR_INDIVIDUAL) ? htmlspecialcharsbx($val["PERSON_NAME"]) : htmlspecialcharsbx($val["COMPANY"]." (".$val["PERSON_NAME"].")");
+							echo '<option ' . $selected . ' value="' . $val['ID'] . '">'
+								. $companyName . '</option>'
+							;
+						}
+					?>
+					</select>
+				<?php
+				else:?>
+					<?php
+						$contractorEditUrl = $selfFolderUrl."cat_contractor_edit.php?lang=".LANGUAGE_ID;
+						$contractorEditUrl = $adminSidePanelHelper->editUrlToPublicPage($contractorEditUrl);
+					?>
+					<a target="_top" href="<?=$contractorEditUrl?>"><?=Loc::getMessage("CAT_DOC_CONTRACTOR_ADD")?></a>
+				<?php
+				endif;?>
+			</td>
+		</tr>
+	<?php
+	endif;
+	if (isset($documentFields["CURRENCY"])):
+	?>
+		<tr<?= getRequiredFieldCssClass($documentFields, 'CURRENCY'); ?>>
+			<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_CURRENCY") ?>:</td>
+			<td style="width: 60%;" class="adm-detail-content-cell-r"><?php
+				echo CCurrency::SelectBox("CURRENCY", $fields['CURRENCY'], "", true, "", 'onChange="recalculateAllRows();" id="CAT_CURRENCY_STORE"'.$isDisable);?>
+			</td>
+		</tr>
+	<?php
+	endif;
+	if (isset($documentFields['ITEMS_ORDER_DATE'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'ITEMS_ORDER_DATE'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_ITEMS_ORDER_DATE')?>:</td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+			<?php
+			echo showStoreDocumentDate(
+				$fields['ITEMS_ORDER_DATE'],
+				'ITEMS_ORDER_DATE',
+				$ID === 0,
+				$bReadOnly
+			);
+			?>
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['ITEMS_RECEIVED_DATE'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'ITEMS_RECEIVED_DATE'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_ITEMS_RECEIVED_DATE')?>:</td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r">
+			<?php
+			echo showStoreDocumentDate(
+				$fields['ITEMS_RECEIVED_DATE'],
+				'ITEMS_RECEIVED_DATE',
+				$ID === 0,
+				$bReadOnly
+			)
+			?>
+		</td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['RESPONSIBLE_ID'])):
+	?>
+	<tr<?= getRequiredFieldCssClass($documentFields, 'RESPONSIBLE_ID'); ?>>
+		<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage('CAT_DOC_RESPONSIBLE_ID'); ?>:</td>
+		<td style="width: 60%;" class="adm-detail-content-cell-r"><?php
+			?><input type="text" size="7" id="RESPONSIBLE_ID" name="RESPONSIBLE_ID" value="<?= htmlspecialcharsbx($fields['RESPONSIBLE_ID']); ?>"><?php
+			if ($canViewUserList)
+			{
+				?>&nbsp;<input type="button" id="RESPONSIBLE_ID_BTN" value="<?php
+					echo htmlspecialcharsbx(Loc::getMessage('CAT_DOC_RESPONSIBLE_ID_BTN_VALUE'));
+				?>" title="<?php
+					echo htmlspecialcharsbx(Loc::getMessage('CAT_DOC_RESPONSIBLE_ID_BTN_TITLE'));
+				?>"><?php
+			}
+			?>&nbsp;<span id="RESPONSIBLE_NAME"><?php
+			if ($fields['RESPONSIBLE_ID'] > 0)
+			{
+				$userIterator = UserTable::getList([
+					'select' => [
+						'ID',
+						'LOGIN',
+						'NAME',
+						'LAST_NAME',
+						'SECOND_NAME',
+						'EMAIL',
+						'TITLE',
+					],
+					'filter' => [
+						'=ID' => $fields['RESPONSIBLE_ID'],
+					],
+				]);
+				$userData = $userIterator->fetch();
+				unset($userIterator);
+				if (!empty($userData))
+				{
+					echo CUser::FormatName(
+						CSite::GetNameFormat(true),
+						$userData,
+						true,
+						true
+					);
+				}
+			}
+			?></span><?php
+		?></td>
+	</tr>
+	<?php
+	endif;
+	if (isset($documentFields['COMMENTARY'])):
+		?>
+		<tr<?= getRequiredFieldCssClass($documentFields, 'COMMENTARY'); ?>>
+			<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage('CAT_DOC_COMMENT'); ?>:</td>
+			<td style="width: 60%;" class="adm-detail-content-cell-r">
+				<textarea cols="80" rows="4" class="typearea" name="COMMENTARY" <?=$isDisable?>><?php
+					echo htmlspecialcharsbx($fields['COMMENTARY']);
+				?></textarea>
+			</td>
+		</tr>
+	<?php
+	endif;
+	$fieldsTabControl->BeginNextTab();
+	$userFieldUrl = $selfFolderUrl."userfield_edit.php?lang=".LANGUAGE_ID."&ENTITY_ID=".$entityId;
+	$userFieldUrl = $adminSidePanelHelper->editUrlToPublicPage($userFieldUrl);
+	$userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', ['bxpublic'])."&tabControl_active_tab=user_fields_tab");
+	?>
+	<tr>
+		<td align="left" colspan="2">
+			<a href="<?= $userFieldUrl ?>"><?= Loc::getMessage('CAT_DOC_UF_ADD') ?></a>
+		</td>
+	</tr>
+	<?php
+	if ($entityId)
+	{
+		$arUserFields = $USER_FIELD_MANAGER->GetUserFields($entityId, $ID, LANGUAGE_ID);
+		foreach ($arUserFields as $FIELD_NAME => $arUserField)
+		{
+			$arUserField["VALUE_ID"] = $ID;
+			$strLabel = $arUserField["EDIT_FORM_LABEL"]?: $arUserField["FIELD_NAME"];
+			$arUserField["EDIT_FORM_LABEL"] = $strLabel;
 
-							$fileInput = FileInput::createInstance(
-								$baseConfig
-								+ $uploadConfig
-							);
+			echo $USER_FIELD_MANAGER->GetEditFormHTML($refillForm, $GLOBALS[$FIELD_NAME], $arUserField);
 
-							$showFiles = [];
-							foreach ($fields['DOCUMENT_FILES'] as $fileRowId => $fileId)
-							{
-								$showFiles['DOCUMENT_FILES[' . $fileRowId . ']'] = $fileId;
-							}
-
-							echo $fileInput->show($showFiles, $error);
-						?>
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['SITE_ID'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'SITE_ID'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_SITE_ID") ?>:</td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
-							<select id="SITE_ID" name="SITE_ID" <?=$isDisable?>>
-								<?php
-								foreach($shopSites as $key => $val)
-								{
-									$selected = ($val['ID'] == $fields['SITE_ID']) ? 'selected' : '';
-									echo '<option ' . $selected . ' value="' . htmlspecialcharsbx($val['ID']) . '">'
-										. htmlspecialcharsbx($val['NAME'] . ' (' . $val['ID'] . ')') . '</option>'
-									;
-								}
-							?>
-							</select>
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields["CONTRACTOR_ID"])):
-					?>
-						<tr<?php echo getRequiredFieldCssClass($documentFields, 'CONTRACTOR_ID'); ?>>
-							<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_CONTRACTOR") ?>:</td>
-							<td style="width: 60%;" class="adm-detail-content-cell-r">
-								<?php
-								if (!empty($arContractors) && is_array($arContractors)):?>
-									<select style="max-width:300px"  name="CONTRACTOR_ID" <?=$isDisable?>>
-										<?php
-										foreach($arContractors as $key => $val)
-										{
-											$selected = ($val['ID'] == $fields['CONTRACTOR_ID']) ? 'selected' : '';
-											$companyName = ($val["PERSON_TYPE"] == CONTRACTOR_INDIVIDUAL) ? htmlspecialcharsbx($val["PERSON_NAME"]) : htmlspecialcharsbx($val["COMPANY"]." (".$val["PERSON_NAME"].")");
-											echo '<option ' . $selected . ' value="' . $val['ID'] . '">'
-												. $companyName . '</option>'
-											;
-										}
-									?>
-									</select>
-								<?php
-								else:?>
-									<?php
-										$contractorEditUrl = $selfFolderUrl."cat_contractor_edit.php?lang=".LANGUAGE_ID;
-										$contractorEditUrl = $adminSidePanelHelper->editUrlToPublicPage($contractorEditUrl);
-									?>
-									<a target="_top" href="<?=$contractorEditUrl?>"><?=Loc::getMessage("CAT_DOC_CONTRACTOR_ADD")?></a>
-								<?php
-								endif;?>
-							</td>
-						</tr>
-					<?php
-					endif;
-					if (isset($documentFields["CURRENCY"])):
-					?>
-						<tr<?php echo getRequiredFieldCssClass($documentFields, 'CURRENCY'); ?>>
-							<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_CURRENCY") ?>:</td>
-							<td style="width: 60%;" class="adm-detail-content-cell-r"><?php
-								echo CCurrency::SelectBox("CURRENCY", $fields['CURRENCY'], "", true, "", 'onChange="recalculateAllRows();" id="CAT_CURRENCY_STORE"'.$isDisable);?>
-							</td>
-						</tr>
-					<?php
-					endif;
-					if (isset($documentFields['ITEMS_ORDER_DATE'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'ITEMS_ORDER_DATE'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_ITEMS_ORDER_DATE')?>:</td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
-							<?php
-							echo showStoreDocumentDate(
-								$fields['ITEMS_ORDER_DATE'],
-								'ITEMS_ORDER_DATE',
-								$ID === 0,
-								$bReadOnly
-							);
-							?>
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['ITEMS_RECEIVED_DATE'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'ITEMS_RECEIVED_DATE'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_ITEMS_RECEIVED_DATE')?>:</td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r">
-							<?php
-							echo showStoreDocumentDate(
-								$fields['ITEMS_RECEIVED_DATE'],
-								'ITEMS_RECEIVED_DATE',
-								$ID === 0,
-								$bReadOnly
-							)
-							?>
-						</td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['RESPONSIBLE_ID'])):
-					?>
-					<tr<?php echo getRequiredFieldCssClass($documentFields, 'RESPONSIBLE_ID'); ?>>
-						<td style="width: 40%;" class="adm-detail-content-cell-l"><?php echo Loc::getMessage('CAT_DOC_RESPONSIBLE_ID'); ?>:</td>
-						<td style="width: 60%;" class="adm-detail-content-cell-r"><?php
-							?><input type="text" size="7" id="RESPONSIBLE_ID" name="RESPONSIBLE_ID" value="<?php echo htmlspecialcharsbx($fields['RESPONSIBLE_ID']); ?>"><?php
-							if ($canViewUserList)
-							{
-								?>&nbsp;<input type="button" id="RESPONSIBLE_ID_BTN" value="<?php
-									echo htmlspecialcharsbx(Loc::getMessage('CAT_DOC_RESPONSIBLE_ID_BTN_VALUE'));
-								?>" title="<?php
-									echo htmlspecialcharsbx(Loc::getMessage('CAT_DOC_RESPONSIBLE_ID_BTN_TITLE'));
-								?>"><?php
-							}
-							?>&nbsp;<span id="RESPONSIBLE_NAME"><?php
-							if ($fields['RESPONSIBLE_ID'] > 0)
-							{
-								$userIterator = UserTable::getList([
-									'select' => [
-										'ID',
-										'LOGIN',
-										'NAME',
-										'LAST_NAME',
-										'SECOND_NAME',
-										'EMAIL',
-										'TITLE',
-									],
-									'filter' => [
-										'=ID' => $fields['RESPONSIBLE_ID'],
-									],
-								]);
-								$userData = $userIterator->fetch();
-								unset($userIterator);
-								if (!empty($userData))
-								{
-									echo CUser::FormatName(
-										CSite::GetNameFormat(true),
-										$userData,
-										true,
-										true
-									);
-								}
-							}
-							?></span><?php
-						?></td>
-					</tr>
-					<?php
-					endif;
-					if (isset($documentFields['COMMENTARY'])):
-						?>
-						<tr<?php echo getRequiredFieldCssClass($documentFields, 'COMMENTARY'); ?>>
-							<td style="width: 40%;" class="adm-detail-content-cell-l"><?php echo Loc::getMessage('CAT_DOC_COMMENT'); ?>:</td>
-							<td style="width: 60%;" class="adm-detail-content-cell-r">
-								<textarea cols="80" rows="4" class="typearea" name="COMMENTARY" <?=$isDisable?>><?php
-									echo htmlspecialcharsbx($fields['COMMENTARY']);
-								?></textarea>
-							</td>
-						</tr>
-					<?php
-					endif;
-					?>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+			$form_value = $GLOBALS[$FIELD_NAME];
+			if (!$refillForm)
+			{
+				$form_value = $arUserField["VALUE"];
+			}
+			elseif ($arUserField["USER_TYPE"]["BASE_TYPE"] === "file")
+			{
+				$form_value = $GLOBALS[$arUserField["FIELD_NAME"]."_old_id"];
+			}
+		}
+	}
+	?>
+	<?php
+		$fieldsTabControl->End();
+	?>
 	<?php
 
 $aTabs = array();
@@ -1691,19 +1753,19 @@ if ($adminSidePanelHelper->isSidePanelFrame())
 	{
 		?>
 		<span style="display:inline-block; width:20px; height: 22px;"></span>
-		<input type="button" class="adm-btn-save" name="save_and_conduct" value="<?php echo Loc::getMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
-		<input type="button" class="adm-btn" name="save_document" value="<?php echo Loc::getMessage("CAT_DOC_SAVE") ?>">
+		<input type="button" class="adm-btn-save" name="save_and_conduct" value="<?= Loc::getMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
+		<input type="button" class="adm-btn" name="save_document" value="<?= Loc::getMessage("CAT_DOC_SAVE") ?>">
 		<?php
 	}
 	elseif($isDocumentConduct)
 	{
 		?>
 		<span class="hor-spacer"></span>
-		<input type="button" class="adm-btn" name="cancellation" value="<?php echo Loc::getMessage("CAT_DOC_CANCELLATION_EXT") ?>">
+		<input type="button" class="adm-btn" name="cancellation" value="<?= Loc::getMessage("CAT_DOC_CANCELLATION_EXT") ?>">
 		<?php
 	}
 	?>
-	<input type="button" class="adm-btn" name="dontsave" value="<?php echo Loc::getMessage("CAT_DOC_CANCEL") ?>">
+	<input type="button" class="adm-btn" name="dontsave" value="<?= Loc::getMessage("CAT_DOC_CANCEL") ?>">
 	<?php
 }
 else
@@ -1712,8 +1774,8 @@ else
 	{
 		?>
 		<span style="display:inline-block; width:20px; height: 22px;"></span>
-		<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?php echo Loc::getMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
-		<input type="submit" class="adm-btn" name="save_document" value="<?php echo Loc::getMessage("CAT_DOC_SAVE") ?>">
+		<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?= Loc::getMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
+		<input type="submit" class="adm-btn" name="save_document" value="<?= Loc::getMessage("CAT_DOC_SAVE") ?>">
 		<?php
 	}
 	elseif($isDocumentConduct)
@@ -1721,18 +1783,18 @@ else
 		?>
 		<span class="hor-spacer"></span>
 		<input type="hidden" name="cancellation" id="cancellation" value = "0">
-		<input type="button" class="adm-btn" onclick="if(confirm('<?=Loc::getMessage("CAT_DOC_CANCELLATION_CONFIRM_EXT")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?php echo Loc::getMessage("CAT_DOC_CANCELLATION_EXT") ?>">
+		<input type="button" class="adm-btn" onclick="if(confirm('<?=Loc::getMessage("CAT_DOC_CANCELLATION_CONFIRM_EXT")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?= Loc::getMessage("CAT_DOC_CANCELLATION_EXT") ?>">
 		<?php
 	}
 	?>
-	<input type="submit" class="adm-btn" name="dontsave" id="dontsave" value="<?php echo Loc::getMessage("CAT_DOC_CANCEL") ?>">
+	<input type="submit" class="adm-btn" name="dontsave" id="dontsave" value="<?= Loc::getMessage("CAT_DOC_CANCEL") ?>">
 	<?php
 }
 
 $tabControl->End();
 ?></form>
 <script type="text/javascript">
-BX.Currency.setCurrencies(<?php echo CUtil::PhpToJSObject($currencyList, false, true, true); ?>);
+BX.Currency.setCurrencies(<?= CUtil::PhpToJSObject($currencyList, false, true, true); ?>);
 if (typeof showTotalSum === 'undefined')
 {
 	function showTotalSum()
@@ -1877,8 +1939,8 @@ if (typeof showTotalSum === 'undefined')
 		var data = {
 			lang: BX.message('LANGUAGE_ID'),
 			sessid: BX.bitrix_sessid(),
-			ID: <?php echo $ID; ?>,
-			DOCUMENT_TYPE: '<?php echo CUtil::JSEscape($docType); ?>',
+			ID: <?= $ID; ?>,
+			DOCUMENT_TYPE: '<?= CUtil::JSEscape($docType); ?>',
 			AJAX_MODE: 'Y'
 		};
 		var obProductAdd = BX('productAdd');
@@ -1993,7 +2055,7 @@ if (typeof showTotalSum === 'undefined')
 
 	function productSearch(barcode)
 	{
-		var dateURL = '<?=bitrix_sessid_get()?>&BARCODE_AJAX=Y&BARCODE='+barcode+'&lang=<?php echo LANGUAGE_ID; ?>';
+		var dateURL = '<?=bitrix_sessid_get()?>&BARCODE_AJAX=Y&BARCODE='+barcode+'&lang=<?= LANGUAGE_ID; ?>';
 
 		BX.showWait();
 		BX.ajax.post('<?=$actionUrl?>', dateURL, fSearchProductResult);
@@ -2354,7 +2416,7 @@ if (typeof showTotalSum === 'undefined')
 
 	function selectResposible()
 	{
-		window.open('<?php echo CUtil::JSEscape($userSearchUrl); ?>', '', 'scrollbars=yes,resizable=yes,width=900,height=600');
+		window.open('<?= CUtil::JSEscape($userSearchUrl); ?>', '', 'scrollbars=yes,resizable=yes,width=900,height=600');
 	}
 
 	function responsibleRequest()
@@ -2366,7 +2428,7 @@ if (typeof showTotalSum === 'undefined')
 			{
 				BX.showWait();
 				BX.ajax.loadJSON(
-					'<?php echo $selfFolderUrl; ?>get_user.php',
+					'<?= $selfFolderUrl; ?>get_user.php',
 					{
 						lang: BX.message('LANGUAGE_ID'),
 						sessid: BX.bitrix_sessid(),
@@ -2453,7 +2515,7 @@ if (!empty($readyFunc))
 {
 ?>
 	BX.ready(BX.defer(function(){
-		<?php echo implode("\n", $readyFunc); ?>
+		<?= implode("\n", $readyFunc); ?>
 	}));
 <?php
 }

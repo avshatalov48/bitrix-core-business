@@ -33,6 +33,7 @@ class Color
 		'MARENGO' => '#556574',
 		'GRAY' => '#909090',
 		'GRAPHITE' => '#5e5f5e',
+		'COPILOT' => '#8d51eb',
 	);
 
 	private static $replaceColors = Array(

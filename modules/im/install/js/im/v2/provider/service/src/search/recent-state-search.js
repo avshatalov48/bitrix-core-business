@@ -1,16 +1,15 @@
 import { Store } from 'ui.vue3.vuex';
 
 import { Core } from 'im.v2.application.core';
-import { DialogType } from 'im.v2.const';
+import { ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
-import type { ImModelUser, ImModelDialog, ImModelRecentItem } from 'im.v2.model';
+import type { ImModelUser, ImModelChat, ImModelRecentItem } from 'im.v2.model';
 
 export type RecentItem = {
 	dialogId: string,
-	dialog: ImModelDialog,
+	dialog: ImModelChat,
 	user?: ImModelUser,
-	dateUpdate: string,
 }
 type RecentCollection = Map<string, RecentItem>;
 
@@ -63,20 +62,21 @@ export class RecentStateSearch
 
 	#getSearchSessionListItems(): RecentItem[]
 	{
-		return this.#store.getters['recent/search/getCollection'].map((item: ImModelRecentItem) => {
+		return this.#store.getters['recent/search/getDialogIds'].map((dialogId: string) => {
+			const item = this.#store.getters['recent/get'](dialogId);
+
 			return this.#prepareRecentItem(item);
 		});
 	}
 
 	#prepareRecentItem(item: ImModelRecentItem): RecentItem[]
 	{
-		const dialog = this.#store.getters['dialogues/get'](item.dialogId, true);
-		const isUser = dialog.type === DialogType.user;
+		const dialog = this.#store.getters['chats/get'](item.dialogId, true);
+		const isUser = dialog.type === ChatType.user;
 
 		const recentItem = {
 			dialogId: item.dialogId,
 			dialog,
-			dateUpdate: item.dateUpdate,
 		};
 
 		if (isUser)

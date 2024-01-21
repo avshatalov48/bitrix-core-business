@@ -1,10 +1,16 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
-\Bitrix\Main\UI\Extension::load(['im.public', 'translit']);
+\Bitrix\Main\UI\Extension::load(['im.public', 'translit', 'ui.design-tokens']);
 ?>
-<div class="bx-messenger-box-hello-wrap">
-	<div class="bx-messenger-box-hello"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE');?></div>
+<div class="bx-im-online-page__container bx-im-online-page__scope">
+	<div class="bx-im-online-page__logo"></div>
+	<div class="bx-im-online-page__title"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE_TITLE')?></div>
+	<div class="bx-im-online-page__description"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE_DESCRIPTION')?></div>
+	<button class="bx-im-online-page__button"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE_BUTTON_TITLE')?></button>
 </div>
 <script type="text/javascript">
 BX.Messenger.Public.disableDesktopRedirect();
@@ -22,6 +28,14 @@ BX.Messenger.Public.disableDesktopRedirect();
 	BX.addCustomEvent('onImInit', function(im){
 		im.messenger.openMessenger();
 	});
+
+	const button = document.querySelector('.bx-im-online-page__button');
+	if (button)
+	{
+		button.addEventListener('click', function() {
+			BX.Messenger.Public.openChat();
+		});
+	}
 
 	<?if (isset($arResult['MESSENGER_V2']) && $arResult['MESSENGER_V2'] === 'Y'):?>
 		BX.Messenger.Public.openChat();

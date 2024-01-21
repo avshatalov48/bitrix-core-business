@@ -37,12 +37,12 @@ export class StoreUpdater
 
 	#addDialoguesToModel(dialogues): Promise
 	{
-		return this.#store.dispatch('dialogues/add', dialogues);
+		return this.#store.dispatch('chats/add', dialogues);
 	}
 
 	#setDialoguesToModel(dialogues): Promise
 	{
-		return this.#store.dispatch('dialogues/set', dialogues);
+		return this.#store.dispatch('chats/set', dialogues);
 	}
 
 	#removeActivityData(users: Object[])

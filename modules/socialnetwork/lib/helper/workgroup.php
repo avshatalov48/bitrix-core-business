@@ -485,15 +485,51 @@ class Workgroup
 			|| !($result[$userId][$groupId] ?? null)
 		)
 		{
-			$groupFields = Item\Workgroup::getById($groupId)->getFields();
+			$group = Item\Workgroup::getById($groupId);
+			if (!$group)
+			{
+				return self::getEmptyPermissions();
+			}
+			$groupFields = $group->getFields();
+			if (empty($groupFields))
+			{
+				return self::getEmptyPermissions();
+			}
+
 			$result[$userId][$groupId] = \CSocNetUserToGroup::initUserPerms(
 				$userId,
 				$groupFields,
-				\CSocNetUser::isCurrentUserModuleAdmin()
+				\CSocNetUser::isCurrentUserModuleAdmin(),
 			);
 		}
 
-		return $result[$userId][$groupId];
+		if (is_array($result[$userId][$groupId]))
+		{
+			return $result[$userId][$groupId];
+		}
+
+		return self::getEmptyPermissions();
+	}
+
+	public static function getEmptyPermissions(): array
+	{
+		return [
+			'Operations' => false,
+			'UserRole' => false,
+			'UserIsMember' => false,
+			'UserIsAutoMember' => false,
+			'InitiatedByType' => false,
+			'InitiatedByUserId' => false,
+			'UserIsOwner' => false,
+			'UserIsScrumMaster' => false,
+			'UserCanInitiate' => false,
+			'UserCanProcessRequestsIn' => false,
+			'UserCanViewGroup' => false,
+			'UserCanAutoJoinGroup' => false,
+			'UserCanModifyGroup' => false,
+			'UserCanModerateGroup' => false,
+			'UserCanSpamGroup' => false,
+		];
 	}
 
 	public static function isGroupCopyFeatureEnabled(): bool
@@ -1323,6 +1359,52 @@ class Workgroup
 		return true;
 	}
 
+	public static function acceptOutgoingRequest(array $fields = []): bool
+	{
+		global $APPLICATION;
+
+		$groupId = (int) ($fields['groupId'] ?? 0);
+		$userId = (int) ($fields['userId'] ?? 0);
+
+		if ($groupId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_GROUP_ID'));
+		}
+
+		if ($userId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_USER_ID'));
+		}
+
+		try
+		{
+			$relation = static::getRelation([
+				'=GROUP_ID' => $groupId,
+				'=USER_ID' => $userId,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception($e->getMessage(), $e->getCode());
+		}
+
+		if (!\CSocNetUserToGroup::UserConfirmRequestToBeMember($userId, $relation->getId()))
+		{
+			if ($ex = $APPLICATION->getException())
+			{
+				$errorMessage = $ex->getString();
+			}
+			else
+			{
+				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
+			}
+
+			throw new \Exception($errorMessage, 100);
+		}
+
+		return true;
+	}
+
 	public static function rejectOutgoingRequest(array $fields = []): bool
 	{
 		global $APPLICATION;
@@ -1858,8 +1940,8 @@ class Workgroup
 			$result['group-landing'] = [
 				'SORT' => $sort += 10,
 				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING2'),
-				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2'),
-				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2'),
+				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2_MSGVER_1'),
+				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2_MSGVER_1'),
 				'VISIBLE' => 'N',
 				'OPENED' => 'N',
 				'PROJECT' => 'N',
@@ -2119,9 +2201,9 @@ class Workgroup
 		{
 			$result['group-landing'] = array(
 				'SORT' => $sort += 10,
-				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING'),
-				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
-				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
+				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_MSGVER_1'),
+				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC_MSGVER_1'),
+				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC_MSGVER_1'),
 				'VISIBLE' => 'N',
 				'OPENED' => 'N',
 				'PROJECT' => 'N',
@@ -2145,37 +2227,75 @@ class Workgroup
 
 	public static function getAvatarTypes(): array
 	{
+		return array_merge(self::getDefaultAvatarTypes(), self::getColoredAvatarTypes());
+	}
+
+	public static function getDefaultAvatarTypes(): array
+	{
 		return [
 			'folder' => [
 				'sort' => 100,
-				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/form/mobile/folder.png',
+				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/folder.png',
 				'webCssClass' => 'folder',
-				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/entity-selector/folder.png',
+				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/folder.png',
 			],
 			'checks' => [
 				'sort' => 200,
-				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/form/mobile/checks.png',
+				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/checks.png',
 				'webCssClass' => 'tasks',
-				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/entity-selector/tasks.png',
+				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/checks.png',
 			],
 			'pie' => [
 				'sort' => 300,
-				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/form/mobile/pie.png',
+				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/pie.png',
 				'webCssClass' => 'chart',
-				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/entity-selector/chart.png',
+				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/pie.png',
 			],
 			'bag' => [
 				'sort' => 400,
-				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/form/mobile/bag.png',
+				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/bag.png',
 				'webCssClass' => 'briefcase',
-				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/entity-selector/briefcase.png',
+				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/bag.png',
 			],
 			'members' => [
 				'sort' => 500,
-				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/form/mobile/members.png',
+				'mobileUrl' => '/bitrix/images/socialnetwork/workgroup/members.png',
 				'webCssClass' => 'group',
-				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/entity-selector/group.png',
+				'entitySelectorUrl' => '/bitrix/images/socialnetwork/workgroup/members.png',
 			],
+		];
+	}
+
+	public static function getColoredAvatarTypes(): array
+	{
+		$colors = self::getAvatarColors();
+
+		$avatarTypes = [];
+		foreach ($colors as $color)
+		{
+			$avatarTypes["space_$color"] = [
+				'sort' => 600,
+				'mobileUrl' => "/bitrix/images/socialnetwork/workgroup/space_$color.png",
+				'webCssClass' => "space_$color",
+				'entitySelectorUrl' => "/bitrix/images/socialnetwork/workgroup/space_$color.png",
+			];
+		}
+
+		return $avatarTypes;
+	}
+
+	public static function getAvatarColors(): array
+	{
+		return [
+			'55D0E0',
+			'FB6DBA',
+			'29AD49',
+			'C27D3C',
+			'05B5AB',
+			'A77BDE',
+			'90BF00',
+			'559BE6',
+			'D959CC',
 		];
 	}
 

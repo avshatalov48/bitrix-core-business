@@ -27,6 +27,20 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_BEPAID'),
+	'HANDLER_MODE_LIST' => [
+		'checkout' => Loc::getMessage('SALE_HPS_BEPAID_CHECKOUT_MODE'),
+		'widget' => Loc::getMessage('SALE_HPS_BEPAID_WIDGET_MODE'),
+	],
+	'HANDLER_MODE_DESCRIPTION_LIST' => [
+		'checkout' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_BEPAID_CHECKOUT_MODE_DESCRIPTION'),
+			'PUBLIC' => '',
+		],
+		'widget' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_BEPAID_WIDGET_MODE_DESCRIPTION'),
+			'PUBLIC' => '',
+		],
+	],
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

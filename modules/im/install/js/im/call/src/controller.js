@@ -162,12 +162,16 @@ export class CallController extends EventEmitter
 
 		this._callViewState = ViewState.Closed;
 
+		this.answeredOrDeclinedCalls = new Set();
+
 		// event handlers
 		this._onCallUserInvitedHandler = this._onCallUserInvited.bind(this);
 		this._onCallDestroyHandler = this._onCallDestroy.bind(this);
 		this._onCallUserStateChangedHandler = this._onCallUserStateChanged.bind(this);
 		this._onCallUserMicrophoneStateHandler = this._onCallUserMicrophoneState.bind(this);
 		this._onCallUserCameraStateHandler = this._onCallUserCameraState.bind(this);
+		this._onCameraPublishingHandler = this._onCameraPublishing.bind(this);
+		this._onMicrophonePublishingdHandler = this._onMicrophonePublishingd.bind(this);
 		this._onCallUserVideoPausedHandler = this._onCallUserVideoPaused.bind(this);
 		this._onCallLocalMediaReceivedHandler = this._onCallLocalMediaReceived.bind(this);
 		this._onCallLocalMediaStoppedHandler = this._onCallLocalMediaStopped.bind(this);
@@ -176,8 +180,10 @@ export class CallController extends EventEmitter
 		this._onCallRemoteMediaReceivedHandler = this._onCallRemoteMediaReceived.bind(this);
 		this._onCallRemoteMediaStoppedHandler = this._onCallRemoteMediaStopped.bind(this);
 		this._onCallBadNetworkIndicatorHandler = this._onCallBadNetworkIndicator.bind(this);
+		this._onCallConnectionQualityChangedHandler = this._onCallConnectionQualityChanged.bind(this);
 		this._onCallUserVoiceStartedHandler = this._onCallUserVoiceStarted.bind(this);
 		this._onCallUserVoiceStoppedHandler = this._onCallUserVoiceStopped.bind(this);
+		this._onUserStatsReceivedHandler = this._onUserStatsReceived.bind(this);
 		this._onCallUserScreenStateHandler = this._onCallUserScreenState.bind(this);
 		this._onCallUserRecordStateHandler = this._onCallUserRecordState.bind(this);
 		this.onCallUserFloorRequestHandler = this._onCallUserFloorRequest.bind(this);
@@ -193,6 +199,7 @@ export class CallController extends EventEmitter
 		this._onTransferRoomSpeakerHandler = this._onTransferRoomSpeaker.bind(this);
 		this._onCallLeaveHandler = this._onCallLeave.bind(this);
 		this._onCallJoinHandler = this._onCallJoin.bind(this);
+		this._onGetUserMediaEndedHandler = this._onGetUserMediaEnded.bind(this);
 		// todo: remove after adding new provider to mobile apps
 		this._onCallUserFromWebHandler = this._onCallUserFromWeb.bind(this);
 
@@ -423,7 +430,7 @@ export class CallController extends EventEmitter
 
 		if (!isCurrentCallActive)
 		{
-			if (this.callView)
+			if (this.callView || this.answeredOrDeclinedCalls.has(newCall.id))
 			{
 				return;
 			}
@@ -511,6 +518,7 @@ export class CallController extends EventEmitter
 				if (!this.childCall)
 				{
 					this.childCall = newCall;
+					this.callView.removeScreenUsers();
 					this.childCall.users.forEach((userId) => this.callView.addUser(userId, UserState.Calling))
 					this.updateCallViewUsers(newCall.id, this.childCall.users);
 
@@ -533,6 +541,8 @@ export class CallController extends EventEmitter
 		this.currentCall.addEventListener(CallEvent.onUserStateChanged, this._onCallUserStateChangedHandler);
 		this.currentCall.addEventListener(CallEvent.onUserMicrophoneState, this._onCallUserMicrophoneStateHandler);
 		this.currentCall.addEventListener(CallEvent.onUserCameraState, this._onCallUserCameraStateHandler);
+		this.currentCall.addEventListener(CallEvent.onCameraPublishing, this._onCameraPublishingHandler);
+		this.currentCall.addEventListener(CallEvent.onMicrophonePublishing, this._onMicrophonePublishingdHandler);
 		this.currentCall.addEventListener(CallEvent.onUserVideoPaused, this._onCallUserVideoPausedHandler);
 		this.currentCall.addEventListener(CallEvent.onUserScreenState, this._onCallUserScreenStateHandler);
 		this.currentCall.addEventListener(CallEvent.onUserRecordState, this._onCallUserRecordStateHandler);
@@ -542,8 +552,10 @@ export class CallController extends EventEmitter
 		this.currentCall.addEventListener(CallEvent.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
 		this.currentCall.addEventListener(CallEvent.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
 		this.currentCall.addEventListener(CallEvent.onBadNetworkIndicator, this._onCallBadNetworkIndicatorHandler);
+		this.currentCall.addEventListener(CallEvent.onConnectionQualityChanged, this._onCallConnectionQualityChangedHandler);
 		this.currentCall.addEventListener(CallEvent.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 		this.currentCall.addEventListener(CallEvent.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
+		this.currentCall.addEventListener(CallEvent.onUserStatsReceived, this._onUserStatsReceivedHandler);
 		this.currentCall.addEventListener(CallEvent.onCallFailure, this._onCallFailureHandler);
 		this.currentCall.addEventListener(CallEvent.onNetworkProblem, this._onNetworkProblemHandler);
 		this.currentCall.addEventListener(CallEvent.onMicrophoneLevel, this._onMicrophoneLevelHandler);
@@ -556,6 +568,7 @@ export class CallController extends EventEmitter
 		this.currentCall.addEventListener(CallEvent.onTransferRoomSpeaker, this._onTransferRoomSpeakerHandler);
 		this.currentCall.addEventListener(CallEvent.onJoin, this._onCallJoinHandler);
 		this.currentCall.addEventListener(CallEvent.onLeave, this._onCallLeaveHandler);
+		this.currentCall.addEventListener(CallEvent.onGetUserMediaEnded, this._onGetUserMediaEndedHandler);
 		// todo: remove after adding new provider to mobile apps
 		this.currentCall.addEventListener('onUserFromWeb', this._onCallUserFromWebHandler);
 	}
@@ -567,6 +580,8 @@ export class CallController extends EventEmitter
 		this.currentCall.removeEventListener(CallEvent.onUserStateChanged, this._onCallUserStateChangedHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserMicrophoneState, this._onCallUserMicrophoneStateHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserCameraState, this._onCallUserCameraStateHandler);
+		this.currentCall.removeEventListener(CallEvent.onCameraPublishing, this._onCameraPublishingHandler);
+		this.currentCall.removeEventListener(CallEvent.onMicrophonePublishing, this._onMicrophonePublishingdHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserVideoPaused, this._onCallUserVideoPausedHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserScreenState, this._onCallUserScreenStateHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserRecordState, this._onCallUserRecordStateHandler);
@@ -576,8 +591,10 @@ export class CallController extends EventEmitter
 		this.currentCall.removeEventListener(CallEvent.onRemoteMediaReceived, this._onCallRemoteMediaReceivedHandler);
 		this.currentCall.removeEventListener(CallEvent.onRemoteMediaStopped, this._onCallRemoteMediaStoppedHandler);
 		this.currentCall.removeEventListener(CallEvent.onBadNetworkIndicator, this._onCallBadNetworkIndicatorHandler);
+		this.currentCall.removeEventListener(CallEvent.onConnectionQualityChanged, this._onCallConnectionQualityChangedHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserVoiceStarted, this._onCallUserVoiceStartedHandler);
 		this.currentCall.removeEventListener(CallEvent.onUserVoiceStopped, this._onCallUserVoiceStoppedHandler);
+		this.currentCall.removeEventListener(CallEvent.onUserStatsReceived, this._onUserStatsReceivedHandler);
 		this.currentCall.removeEventListener(CallEvent.onCallFailure, this._onCallFailureHandler);
 		this.currentCall.removeEventListener(CallEvent.onNetworkProblem, this._onNetworkProblemHandler);
 		this.currentCall.removeEventListener(CallEvent.onMicrophoneLevel, this._onMicrophoneLevelHandler);
@@ -586,6 +603,7 @@ export class CallController extends EventEmitter
 		this.currentCall.removeEventListener(CallEvent.onCustomMessage, this._onCustomMessageHandler);
 		this.currentCall.removeEventListener(CallEvent.onJoin, this._onCallJoinHandler);
 		this.currentCall.removeEventListener(CallEvent.onLeave, this._onCallLeaveHandler);
+		this.currentCall.removeEventListener(CallEvent.onGetUserMediaEnded, this._onGetUserMediaEndedHandler);
 	}
 
 	bindCallViewEvents()
@@ -986,6 +1004,7 @@ export class CallController extends EventEmitter
 
 		if (this.callView || this.currentCall)
 		{
+			this.unfold();
 			return;
 		}
 
@@ -997,11 +1016,7 @@ export class CallController extends EventEmitter
 		let provider = Provider.Plain;
 		if (dialogId.toString().startsWith("chat"))
 		{
-			provider = Util.isBitrixCallServerAllowed()
-				? Provider.Bitrix
-				: (Util.isVoximplantCallServerAllowed()
-					? Provider.Voximplant
-					: provider);
+			provider = Util.getConferenceProvider();
 		}
 
 		const debug1 = +(new Date());
@@ -1261,7 +1276,7 @@ export class CallController extends EventEmitter
 		return this.canRecord() && this.callRecordState != View.RecordState.Stopped;
 	}
 
-	useDevicesInCurrentCall(deviceList)
+	useDevicesInCurrentCall(deviceList, isForceUse = false)
 	{
 		if (!this.currentCall || !this.currentCall.ready)
 		{
@@ -1275,15 +1290,28 @@ export class CallController extends EventEmitter
 			switch (deviceInfo.kind)
 			{
 				case "audioinput":
-					this.currentCall.setMicrophoneId(deviceInfo.deviceId);
+					if (deviceInfo.deviceId === 'default' || isForceUse)
+					{
+						const newDeviceId = Hardware.getDefaultDeviceIdByGroupId(deviceInfo.groupId, 'audioinput');
+						this.currentCall.setMicrophoneId(newDeviceId);
+
+						if (this.currentCall instanceof BitrixCall)
+						{
+							this.callView.setMicrophoneId(newDeviceId);
+						}
+					}
 					break;
 				case "videoinput":
-					this.currentCall.setCameraId(deviceInfo.deviceId);
+					if (deviceInfo.deviceId === 'default' || isForceUse)
+					{
+						this.currentCall.setCameraId(deviceInfo.deviceId);
+					}
 					break;
 				case "audiooutput":
-					if (this.callView)
+					if (this.callView && deviceInfo.deviceId === 'default' || isForceUse)
 					{
-						this.callView.setSpeakerId(deviceInfo.deviceId);
+						const newDeviceId = Hardware.getDefaultDeviceIdByGroupId(deviceInfo.groupId, 'audiooutput');
+						this.callView.setSpeakerId(newDeviceId);
 					}
 					break;
 			}
@@ -1307,7 +1335,24 @@ export class CallController extends EventEmitter
 					if (this.currentCall.microphoneId == deviceInfo.deviceId)
 					{
 						const microphoneIds = Object.keys(Hardware.microphoneList);
-						this.currentCall.setMicrophoneId(microphoneIds.length > 0 ? microphoneIds[0] : "");
+						let deviceId;
+
+						if (microphoneIds.includes('default'))
+						{
+							const deviceGroup = Hardware.getDeviceGroupIdByDeviceId('default', 'audioinput');
+							deviceId = Hardware.getDefaultDeviceIdByGroupId(deviceGroup, 'audioinput');
+						}
+						else
+						{
+							deviceId = microphoneIds.length > 0 ? microphoneIds[0] : "";
+						}
+
+						this.currentCall.setMicrophoneId(deviceId);
+
+						if (this.currentCall instanceof BitrixCall)
+						{
+							this.callView.setMicrophoneId(deviceId);
+						}
 					}
 					break;
 				case "videoinput":
@@ -1321,7 +1366,18 @@ export class CallController extends EventEmitter
 					if (this.callView && this.callView.speakerId == deviceInfo.deviceId)
 					{
 						const speakerIds = Object.keys(Hardware.audioOutputList);
-						this.callView.setSpeakerId(speakerIds.length > 0 ? speakerIds[0] : "");
+
+						if (speakerIds.includes('default'))
+						{
+							const deviceGroup = Hardware.getDeviceGroupIdByDeviceId('default', 'audiooutput');
+							const deviceId = Hardware.getDefaultDeviceIdByGroupId(deviceGroup, 'audiooutput');
+
+							this.callView.setSpeakerId(deviceId);
+						}
+						else
+						{
+							this.callView.setSpeakerId(speakerIds.length > 0 ? speakerIds[0] : "");
+						}
 					}
 					break;
 			}
@@ -1361,7 +1417,10 @@ export class CallController extends EventEmitter
 		}
 
 		this.folded = true;
-		this.resizeObserver.unobserve(this.container);
+		if (this.resizeObserver)
+		{
+			this.resizeObserver.unobserve(this.container);
+		}
 		this.container.classList.add('bx-messenger-call-overlay-folded');
 		this.callView.setTitle(foldedCallTitle);
 		this.callView.setSize(View.Size.Folded);
@@ -1631,7 +1690,10 @@ export class CallController extends EventEmitter
 				alert(BX.message("IM_F_ERROR"));
 			});
 
-		this.resizeObserver.observe(this.container);
+		if (this.resizeObserver)
+		{
+			this.resizeObserver.observe(this.container);
+		}
 	}
 
 	closeDocumentEditor()
@@ -1642,7 +1704,7 @@ export class CallController extends EventEmitter
 			{
 				this.docEditor.onCloseIframe(this.docEditorIframe);
 			}
-			if (this.container)
+			if (this.container && this.resizeObserver)
 			{
 				this.resizeObserver.unobserve(this.container);
 			}
@@ -1834,7 +1896,10 @@ export class CallController extends EventEmitter
 			if (this.sidebar)
 			{
 				this.sidebar.toggleHidden(false);
-				this.resizeObserver.observe(this.container);
+				if (this.resizeObserver)
+				{
+					this.resizeObserver.observe(this.container);
+				}
 			}
 		}
 		BX.onCustomEvent(this, "CallController::onUnfold", {});
@@ -2027,6 +2092,7 @@ export class CallController extends EventEmitter
 
 	_onCallNotificationDestroy()
 	{
+		this.messengerFacade.stopRepeatSound('ringtone');
 		this.callNotification = null;
 	}
 
@@ -2038,11 +2104,16 @@ export class CallController extends EventEmitter
 		switch (data.button)
 		{
 			case "answer":
+				if (this.currentCall)
+				{
+					this.answeredOrDeclinedCalls.add(this.currentCall.id);
+				}
 				this._onAnswerButtonClick(data.video);
 				break;
 			case "decline":
 				if (this.currentCall)
 				{
+					this.answeredOrDeclinedCalls.add(this.currentCall.id);
 					this.removeVideoStrategy();
 					this.removeCallEvents();
 					this.currentCall.decline();
@@ -2159,6 +2230,7 @@ export class CallController extends EventEmitter
 			case "answerConference":
 				if (this.currentCall && 'id' in this.currentCall.associatedEntity)
 				{
+					this.answeredOrDeclinedCalls.add(this.currentCall.id);
 					let dialogId = this.currentCall.associatedEntity.id.toString();
 					if (dialogId.startsWith('chat'))
 					{
@@ -2170,6 +2242,7 @@ export class CallController extends EventEmitter
 			case "skipConference":
 				if (this.currentCall)
 				{
+					this.answeredOrDeclinedCalls.add(this.currentCall.id);
 					this.removeVideoStrategy();
 					this.removeCallEvents();
 					this.currentCall.decline();
@@ -2632,7 +2705,7 @@ export class CallController extends EventEmitter
 			this.currentCall.setMicrophoneId(e.deviceId)
 		}
 
-		if (this.currentCall instanceof VoximplantCall)
+		if (this.currentCall instanceof VoximplantCall || this.currentCall instanceof BitrixCall)
 		{
 			this.callView.setMicrophoneId(e.deviceId);
 		}
@@ -2875,6 +2948,44 @@ export class CallController extends EventEmitter
 		this.callView.setUserCameraState(e.userId, e.cameraState);
 	}
 
+	_onCameraPublishing(e)
+	{
+		if (!this.callView)
+		{
+			return;
+		}
+
+		if (e.publishing)
+		{
+			this.callView.blockSwitchCamera();
+			this.callView.updateButtons();
+		}
+		else
+		{
+			this.callView.unblockSwitchCamera();
+			this.callView.updateButtons();
+		}
+	}
+
+	_onMicrophonePublishingd(e)
+	{
+		if (!this.callView)
+		{
+			return;
+		}
+
+		if (e.publishing)
+		{
+			this.callView.blockSwitchMicrophone();
+			this.callView.updateButtons();
+		}
+		else
+		{
+			this.callView.unblockSwitchMicrophone();
+			this.callView.updateButtons();
+		}
+	}
+
 	_onCallUserVideoPaused(e)
 	{
 		if (!this.callView)
@@ -2889,13 +3000,13 @@ export class CallController extends EventEmitter
 		this.log("Received local media stream " + e.tag);
 		if (this.callView)
 		{
-			const flipVideo = e.tag == "main" ? Hardware.enableMirroring : false;
+			const flipVideo = (e.tag == "main" || e.mediaRenderer) ? Hardware.enableMirroring : false;
 
-			this.callView.setLocalStream(e.stream);
+			this.callView.setLocalStream(e);
 			this.callView.flipLocalVideo(flipVideo);
 
-			this.callView.setButtonActive("screen", e.tag == "screen");
-			if (e.tag == "screen")
+			this.callView.setButtonActive("screen", this.currentCall.isScreenSharingStarted());
+			if (this.currentCall.isScreenSharingStarted())
 			{
 				if (!DesktopApi.isDesktop())
 				{
@@ -2927,7 +3038,7 @@ export class CallController extends EventEmitter
 			}
 		}
 
-		if (this.currentCall && this.currentCall.videoEnabled && e.stream.getVideoTracks().length === 0)
+		if (this.currentCall && this.currentCall.videoEnabled && e.tag === 'main' && e.stream.getVideoTracks().length === 0)
 		{
 			this.showNotification(BX.message("IM_CALL_CAMERA_ERROR_FALLBACK_TO_MIC"));
 			this.currentCall.setVideoEnabled(false);
@@ -2980,7 +3091,8 @@ export class CallController extends EventEmitter
 			{
 				if (e.kind === 'video' || e.kind === 'sharing')
 				{
-					this.callView.setVideoRenderer(e.userId, null);
+					e.mediaRenderer.stream = null;
+					this.callView.setVideoRenderer(e.userId, e.mediaRenderer);
 				}
 			}
 			else
@@ -2995,6 +3107,14 @@ export class CallController extends EventEmitter
 		if (this.callView)
 		{
 			this.callView.setBadNetworkIndicator(e.userId, e.badNetworkIndicator);
+		}
+	}
+
+	_onCallConnectionQualityChanged(e)
+	{
+		if (this.callView)
+		{
+			this.callView.setUserHasConnectionProblem(e.userId, e.hasConnectionProblem);
 		}
 	}
 
@@ -3045,6 +3165,14 @@ export class CallController extends EventEmitter
 			{
 				return Number(id);
 			}));
+		}
+	}
+
+	_onUserStatsReceived(e)
+	{
+		if (this.callView)
+		{
+			this.callView.setUserStats(e.userId, e.report);
 		}
 	}
 
@@ -3255,8 +3383,13 @@ export class CallController extends EventEmitter
 
 	_onReconnecting()
 	{
-		// todo: restore after fixing balloon resurrection issue
-		return false;
+		if (!(this.currentCall instanceof BitrixCall || this.currentCall instanceof PlainCall))
+		{
+			// todo: restore after fixing balloon resurrection issue
+			// related to multiple simultaneous calls to the balloon manager
+			// now it's enabled for Bitrix24 calls as a temp solution
+			return false;
+		}
 
 		// noinspection UnreachableCodeJS
 		if (this.reconnectionBaloon)
@@ -3274,8 +3407,13 @@ export class CallController extends EventEmitter
 
 	_onReconnected()
 	{
-		// todo: restore after fixing balloon resurrection issue
-		return false;
+		if (!(this.currentCall instanceof BitrixCall || this.currentCall instanceof PlainCall))
+		{
+			// todo: restore after fixing balloon resurrection issue
+			// related to multiple simultaneous calls to the balloon manager
+			// now it's enabled for Bitrix24 calls as a temp solution
+			return false;
+		}
 
 		// noinspection UnreachableCodeJS
 		this._closeReconnectionBaloon();
@@ -3397,6 +3535,7 @@ export class CallController extends EventEmitter
 		}
 
 		this.messengerFacade.stopRepeatSound('dialtone');
+		this.messengerFacade.stopRepeatSound('ringtone');
 	}
 
 	_onCallLeave(e)
@@ -3479,6 +3618,11 @@ export class CallController extends EventEmitter
 		})
 	}
 
+	_onGetUserMediaEnded()
+	{
+		Hardware.getCurrentDeviceList();
+	}
+
 	// todo: remove after adding new provider to mobile apps
 	_onCallUserFromWeb(event)
 	{
@@ -3531,7 +3675,7 @@ export class CallController extends EventEmitter
 			this.removeCallEvents();
 			CallEngine.createChildCall(
 				this.currentCall.id,
-				Provider.Voximplant,
+				Util.getConferenceProvider(),
 				[userId]
 			).then((e) =>
 			{
@@ -3555,6 +3699,8 @@ export class CallController extends EventEmitter
 				});
 
 			});
+
+			this.callView.removeScreenUsers();
 			this.callView.addUser(userId, UserState.Calling);
 			this.callView.updateUserData({
 				[userId]: e.user
@@ -3667,8 +3813,10 @@ export class CallController extends EventEmitter
 			return;
 		}
 
-		const added = e.data.added;
-		const removed = e.data.removed;
+		const allAddedDevice = e.data.added;
+		const allRemovedDevice = e.data.removed
+		const added = Hardware.removeDevicesByDefaultGroup(e.data.added);
+		const removed = Hardware.removeDevicesByDefaultGroup(e.data.removed);
 		if (added.length > 0)
 		{
 			this.log("New devices: ", added);
@@ -3678,10 +3826,19 @@ export class CallController extends EventEmitter
 					return "<li>" + deviceInfo.label
 				}) + "</ul>",
 				position: "top-right",
-				autoHideDelay: 10000,
+				autoHideDelay: 20000,
 				closeButton: true,
 				//category: "call-device-change",
 				actions: [
+					{
+						title: BX.message("IM_CALL_DEVICES_USE"),
+						events: {
+							click: (event, balloon) => {
+								this.useDevicesInCurrentCall(added, true);
+								balloon.close();
+							}
+						}
+					},
 					{
 						title: BX.message("IM_CALL_DEVICES_CLOSE"),
 						events: {
@@ -3690,7 +3847,11 @@ export class CallController extends EventEmitter
 					}
 				]
 			});
-			setTimeout(() => this.useDevicesInCurrentCall(added), 500);
+		}
+
+		if (allAddedDevice)
+		{
+			setTimeout(() => this.useDevicesInCurrentCall(allAddedDevice), 500);
 		}
 
 		if (removed.length > 0)
@@ -3715,7 +3876,11 @@ export class CallController extends EventEmitter
 					}
 				}]
 			});
-			setTimeout(() => this.removeDevicesFromCurrentCall(removed), 500)
+		}
+
+		if (allRemovedDevice)
+		{
+			setTimeout(() => this.removeDevicesFromCurrentCall(allRemovedDevice), 500);
 		}
 	}
 
@@ -3917,7 +4082,10 @@ export class CallController extends EventEmitter
 		}).then((s) =>
 		{
 			this.stream = s;
-			this.callView.setLocalStream(this.stream);
+			const streamData = {
+				stream: this.stream,
+			};
+			this.callView.setLocalStream(streamData);
 			users.forEach(userId => this.callView.addUser(userId, UserState.Connected));
 
 			if (audioOptions !== false)

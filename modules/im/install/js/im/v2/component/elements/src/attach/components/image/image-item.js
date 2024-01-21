@@ -1,23 +1,23 @@
-import {Dom} from 'main.core';
-import {lazyload} from 'ui.vue3.directives.lazyload';
+import { Dom } from 'main.core';
+import { lazyload } from 'ui.vue3.directives.lazyload';
 
-import type {AttachImageItemConfig} from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
 
-const MAX_IMAGE_SIZE = 250;
+import type { JsonObject } from 'main.core';
+import type { AttachImageItemConfig } from 'im.v2.const';
+
+const MAX_IMAGE_SIZE = 272;
 
 // @vue/component
 export const AttachImageItem = {
 	name: 'AttachImageItem',
-	directives:
-	{
-		lazyload
-	},
+	directives: { lazyload },
 	props:
 	{
 		config: {
 			type: Object,
-			default: () => {}
-		}
+			default: () => {},
+		},
 	},
 	computed:
 	{
@@ -27,48 +27,47 @@ export const AttachImageItem = {
 		},
 		width(): number
 		{
-			return this.internalConfig.WIDTH;
+			return this.internalConfig.width || 0;
 		},
 		height(): number
 		{
-			return this.internalConfig.HEIGHT;
+			return this.internalConfig.height || 0;
 		},
 		link(): string
 		{
-			return this.internalConfig.LINK;
+			return this.internalConfig.link;
 		},
 		name(): string
 		{
-			return this.internalConfig.NAME;
+			return this.internalConfig.name;
 		},
 		preview(): string
 		{
-			return this.internalConfig.PREVIEW;
+			return this.internalConfig.preview;
 		},
-		source()
+		source(): string
 		{
 			return this.preview ?? this.link;
 		},
-		imageSize(): Object
+		imageSize(): JsonObject
 		{
-			if (!this.width && !this.height)
+			if (this.width === 0 || this.height === 0)
 			{
 				return {};
 			}
 
-			const aspectRatio = this.width > MAX_IMAGE_SIZE ? MAX_IMAGE_SIZE / this.width : 1;
-
-			const sizes = {
-				width: this.width * aspectRatio,
-				height: this.height * aspectRatio
-			};
+			const sizes = Utils.file.resizeToFitMaxSize(this.width, this.height, MAX_IMAGE_SIZE);
 
 			return {
 				width: `${sizes.width}px`,
 				height: `${sizes.height}px`,
-				backgroundSize: (sizes.width < 100 || sizes.height < 100)? 'contain': 'initial'
+				'object-fit': (sizes.width < 100 || sizes.height < 100) ? 'cover' : 'contain',
 			};
-		}
+		},
+		hasWidth(): boolean
+		{
+			return Boolean(this.imageSize.width);
+		},
 	},
 	methods:
 	{
@@ -76,18 +75,19 @@ export const AttachImageItem = {
 		{
 			if (!this.link)
 			{
-				return false;
+				return;
 			}
 
 			window.open(this.link, '_blank');
 		},
 		lazyLoadCallback(event: {element: HTMLElement, state: string})
 		{
-			const {element} = event;
+			const { element } = event;
 			if (!Dom.style(element, 'width'))
 			{
 				Dom.style(element, 'width', `${element.offsetWidth}px`);
 			}
+
 			if (!Dom.style(element, 'height'))
 			{
 				Dom.style(element, 'height', `${element.offsetHeight}px`);
@@ -95,7 +95,7 @@ export const AttachImageItem = {
 		},
 	},
 	template: `
-		<div class="bx-im-attach-image__item" @click="open">
+		<div class="bx-im-attach-image__item" :class="{'--with-width': hasWidth }" @click="open">
 			<img
 				v-lazyload="{callback: lazyLoadCallback}"
 				:data-lazyload-src="source"
@@ -105,5 +105,5 @@ export const AttachImageItem = {
 				class="bx-im-attach-image__source"
 			/>
 		</div>
-	`
+	`,
 };

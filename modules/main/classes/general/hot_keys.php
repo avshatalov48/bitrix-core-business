@@ -224,11 +224,6 @@ class CHotKeysCode
 
 	}
 
-	protected function ErrOrig()
-	{
-		return "<br>Class: CHotKeysCode File: ".__FILE__."<br>";
-	}
-
 	public function Delete($ID)
 	{
 		global $DB;
@@ -236,14 +231,14 @@ class CHotKeysCode
 		$this->CleanCache();
 
 		$strSql = "SELECT ID FROM b_hot_keys WHERE CODE_ID=".intval($ID);
-		$res = $DB->Query($strSql, false, $this->ErrOrig()." Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		while($arHK = $res->Fetch())
 			CHotKeys::GetInstance()->Delete($arHK["ID"]);
 
 		$sql = "DELETE FROM b_hot_keys_code WHERE ID=".intval($ID);
 
-		return $DB->Query($sql, false, $this->ErrOrig()." Line: ".__LINE__);
+		return $DB->Query($sql);
 	}
 
 	public function Update($ID, $arFields)
@@ -356,7 +351,7 @@ class CHotKeysCode
 			".$strSqlSearch."
 			".$strSqlOrder;
 
-		$res = $DB->Query($strSql, false, $this->ErrOrig()." Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 }
@@ -448,7 +443,7 @@ class CHotKeys
 			self::$instance = new $c;
 			self::$codes = new CHotKeysCode;
 			self::$optUse = COption::GetOptionString('main', "use_hot_keys", "Y") == "Y";
-			self::$ExpImpFileName = "hk_export_".$_SERVER['HTTP_HOST'].".srl";
+			self::$ExpImpFileName = "hk_export_" . ($_SERVER['HTTP_HOST'] ?? 'CLI') . ".srl";
 			self::$cacheId = "b_hot_keys".$USER->GetID().LANGUAGE_ID;
 			if(self::$optUse)
 			{
@@ -457,11 +452,6 @@ class CHotKeys
 		}
 
 		return self::$instance;
-	}
-
-	protected function ErrOrig()
-	{
-		return "<br>Class: CHotKeys File: ".__FILE__."<br>";
 	}
 
 	protected function LoadToCache()
@@ -810,7 +800,7 @@ class CHotKeys
 			WHERE
 			".$strSqlSearch."
 			".$strSqlOrder;
-		$res = $DB->Query($strSql, false, $this->ErrOrig()." Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
@@ -862,9 +852,55 @@ class CHotKeys
 		$this->CleanCache();
 
 		$sql = "DELETE FROM b_hot_keys WHERE ID=".intval($ID);
-		$res = $DB->Query($sql, false, $this->ErrOrig()." Line: ".__LINE__);
+		$res = $DB->Query($sql);
 
 		return $res->AffectedRowsCount();
+	}
+
+	public function DeleteByUser($USER_ID)
+	{
+		global $DB;
+
+		$this->CleanCache();
+
+		$sql = 'DELETE FROM b_hot_keys WHERE USER_ID = ' . intval($USER_ID);
+		$res = $DB->Query($sql);
+
+		return $res->AffectedRowsCount();
+	}
+
+	public static function CleanUp($USER_ID = 0)
+	{
+		global $DB;
+
+		$etime = microtime(1) + 1; //1 sec
+		do
+		{
+			$res = $DB->Query('SELECT MIN(USER_ID) MIN_USER_ID FROM b_hot_keys WHERE USER_ID > ' . intval($USER_ID));
+			$next_user = $res->Fetch();
+			if (!$next_user || !$next_user['MIN_USER_ID'])
+			{
+				return '';
+			}
+
+			$res = \Bitrix\Main\UserTable::getList(
+				[
+					'filter' => [
+						'=ID' => $next_user['MIN_USER_ID'],
+					],
+					'select' => ['ID']
+				]
+			);
+			if (!$res->fetch())
+			{
+				$DB->Query('DELETE FROM b_hot_keys WHERE USER_ID = ' . $next_user['MIN_USER_ID']);
+			}
+		}
+		while (microtime(1) < $etime);
+
+		CHotKeys::GetInstance()->CleanCache();
+
+		return 'CHotKeys::CleanUp(' . $next_user['MIN_USER_ID'] . ');';
 	}
 
 	//sets (copy) keys_strings from user with id=0 to userID
@@ -877,7 +913,7 @@ class CHotKeys
 		unset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]);
 
 		$sql = "DELETE FROM b_hot_keys WHERE USER_ID=".$uid;
-		$delRes = $DB->Query($sql, false, $this->ErrOrig()." Line: ".__LINE__);
+		$delRes = $DB->Query($sql);
 
 		$listRes = $this->GetList(array(), array("USER_ID"=>"0"));
 
@@ -1045,7 +1081,7 @@ class CHotKeys
 			return false;
 
 		$strSql = "SELECT ID FROM b_hot_keys WHERE USER_ID=0 AND ( CODE_ID=87 OR CODE_ID=88 OR CODE_ID=89)";
-		$res = $DB->Query($strSql, false, $this->ErrOrig()." Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		if(!$res->Fetch())
 		{
@@ -1109,7 +1145,7 @@ class CHotKeys
 
 		//all users wich using hot-keys
 		$strSql = "SELECT DISTINCT USER_ID FROM b_hot_keys";
-		$res = $DB->Query($strSql, false, $this->ErrOrig()." Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		$added = 0;
 

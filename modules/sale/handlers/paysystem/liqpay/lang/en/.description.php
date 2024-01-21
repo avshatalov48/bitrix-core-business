@@ -1,6 +1,8 @@
 <?php
 $MESS["SALE_HPS_LIQPAY_CURRENCY"] = "Order currency";
+$MESS["SALE_HPS_LIQPAY_DESCRIPTION"] = "LiqPay payment";
 $MESS["SALE_HPS_LIQPAY_MERCHANT_ID"] = "Merchant ID";
+$MESS["SALE_HPS_LIQPAY_NAME"] = "LiqPay";
 $MESS["SALE_HPS_LIQPAY_ORDER_ID"] = "Order #";
 $MESS["SALE_HPS_LIQPAY_PATH_TO_RESULT_URL"] = "Back to shop path";
 $MESS["SALE_HPS_LIQPAY_PATH_TO_RESULT_URL_DESC"] = "The page to which a customer will be redirected.";

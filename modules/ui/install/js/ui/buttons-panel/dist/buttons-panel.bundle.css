@@ -3,12 +3,8 @@
 }
 
 .ui-button-panel__container {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 }
 
 .ui-button-panel__container .ui-btn,

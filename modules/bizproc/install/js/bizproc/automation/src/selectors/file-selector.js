@@ -250,7 +250,7 @@ export class FileSelector extends InlineSelector
 						'diskAttachFiles' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACH_FILE'),
 						'diskAttachedFiles' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACHED_FILES'),
 						'diskSelectFile' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE'),
-						'diskSelectFileLegend' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND'),
+						'diskSelectFileLegend' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND_MSGVER_1'),
 						'diskUploadFile' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE'),
 						'diskUploadFileLegend' : Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND')
 					}

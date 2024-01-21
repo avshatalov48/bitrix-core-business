@@ -3,8 +3,10 @@
 namespace Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroup;
 
 use Bitrix\Iblock\Grid\ActionType;
+use Bitrix\Iblock\Grid\Panel\UI\Actions\Helpers\ItemFinder;
 use Bitrix\Iblock\Grid\RowType;
 use Bitrix\Main\Error;
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Actions;
 use Bitrix\Main\Grid\Panel\Snippet;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
@@ -18,6 +20,8 @@ use CIBlockElement;
  */
 final class ClearCounterGroupChild extends BaseGroupChild
 {
+	use ItemFinder;
+
 	public static function getId(): string
 	{
 		return ActionType::CLEAR_COUNTER;
@@ -28,15 +32,13 @@ final class ClearCounterGroupChild extends BaseGroupChild
 		return Loc::getMessage('IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_CLEAR_COUNTER_NAME');
 	}
 
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter = null): ?Result
 	{
 		$result = new Result();
 
 		if ($isSelectedAllRows)
 		{
-			$result->addErrors(
-				$this->processClearCounterElements(true, [])->getErrors()
-			);
+			$elementIds = $this->getElementIdsByFilter($filter);
 		}
 		else
 		{
@@ -47,13 +49,13 @@ final class ClearCounterGroupChild extends BaseGroupChild
 			}
 
 			[$elementIds,] = RowType::parseIndexList($ids);
-
-			if ($elementIds)
-			{
-				$result->addErrors(
-					$this->processClearCounterElements(false, $elementIds)->getErrors()
-				);
-			}
+			$elementIds = $this->validateElementIds($elementIds);
+		}
+		if ($elementIds)
+		{
+			$result->addErrors(
+				$this->processClearCounterElements($elementIds)->getErrors()
+			);
 		}
 
 		return $result;
@@ -74,32 +76,13 @@ final class ClearCounterGroupChild extends BaseGroupChild
 		]);
 	}
 
-	private function processClearCounterElements(bool $isSelectedAllRows, array $ids): Result
+	private function processClearCounterElements(array $ids): Result
 	{
 		$result = new Result();
 		$entity = new CIBlockElement();
 
-		$filter = [
-			'IBLOCK_ID' => $this->getIblockId(),
-		];
-		if (!$isSelectedAllRows)
+		foreach ($ids as $id)
 		{
-			$filter['ID'] = $ids;
-		}
-
-		$rows = CIBlockElement::GetList(
-			[],
-			$filter + ['CHECK_PERMISSIONS' => 'N'],
-			false,
-			false,
-			[
-				'ID',
-			]
-		);
-		while ($row = $rows->Fetch())
-		{
-			$id = (int)$row['ID'];
-
 			if (!$this->getIblockRightsChecker()->canEditElement($id))
 			{
 				$message = Loc::getMessage('IBLOCK_GRID_PANEL_ELEMENT_ACTION_PANEL_ERROR_ACCESS_DENIED', [
@@ -117,10 +100,10 @@ final class ClearCounterGroupChild extends BaseGroupChild
 				'SHOW_COUNTER_START' => false,
 			];
 			$updateResult = $entity->Update($id, $fields);
-			if (!$updateResult && $entity->LAST_ERROR)
+			if (!$updateResult && $entity->getLastError())
 			{
 				$result->addError(
-					new Error($entity->LAST_ERROR)
+					new Error($entity->getLastError())
 				);
 			}
 		}

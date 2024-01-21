@@ -142,8 +142,10 @@ class Sender extends Providers\Edna\Sender
 	 */
 	private function getHSMContent(array $messageFields): array
 	{
-		$params['contentType'] = Providers\Edna\Constants\ContentType::TEXT;
-		$params['text'] = $messageFields['MESSAGE_HEADERS']['template']['text'];
+		$params = [
+			'contentType' => Providers\Edna\Constants\ContentType::TEXT,
+			'text' => $messageFields['MESSAGE_HEADERS']['template']['text']
+		];
 
 		foreach (['header', 'footer', 'keyboard'] as $templateField)
 		{
@@ -156,9 +158,7 @@ class Sender extends Providers\Edna\Sender
 			}
 		}
 
-		$params = $this->emoji->convertEmojiInTemplate($params, InternalOption::EMOJI_DECODE);
-
-		return $params;
+		return $this->emoji->convertEmojiInTemplate($params, InternalOption::EMOJI_DECODE);
 	}
 
 	/**

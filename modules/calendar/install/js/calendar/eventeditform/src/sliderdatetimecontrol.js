@@ -1,12 +1,14 @@
 "use strict";
-import {Loc, Dom} from 'main.core';
+import {Loc, Dom, Tag, Type} from 'main.core';
 import {DateTimeControl, TimeSelector} from 'calendar.controls';
+import {Util} from "calendar.util";
 
 export class SliderDateTimeControl extends DateTimeControl
 {
 	create()
 	{
 		this.DOM.dateTimeWrap = this.DOM.outerContent.querySelector(`#${this.UID}_datetime_container`);
+		this.DOM.editor = this.DOM.outerContent.querySelector(`#${this.UID}_datetime_editor`);
 		this.DOM.fromDate = this.DOM.outerContent.querySelector(`#${this.UID}_date_from`);
 		this.DOM.toDate = this.DOM.outerContent.querySelector(`#${this.UID}_date_to`);
 		this.DOM.fromTime = this.DOM.outerContent.querySelector(`#${this.UID}_time_from`);
@@ -56,5 +58,58 @@ export class SliderDateTimeControl extends DateTimeControl
 		Dom.adjust(this.DOM.toDate, {props: {autocomplete: 'off'}});
 		Dom.adjust(this.DOM.fromTime, {props: {autocomplete: 'off'}});
 		Dom.adjust(this.DOM.toTime, {props: {autocomplete: 'off'}});
+	}
+
+	setReadonly(timezoneHint)
+	{
+		const value = this.getValue();
+		let result = '';
+		const dateFrom = Util.formatDateUsable(value.from, true, true);
+		const dateTo = Util.formatDateUsable(value.to, true, true);
+		const timeFrom = this.DOM.fromTime.value;
+		const timeTo = this.DOM.toTime.value;
+		result += dateFrom + ', ';
+
+		if (value.fullDay)
+		{
+			if (dateFrom === dateTo)
+			{
+				result += Loc.getMessage('EC_ALL_DAY');
+			}
+			else
+			{
+				result += ' - '
+			}
+		}
+		else
+		{
+			result += timeFrom + ' - ' + timeTo;
+		}
+
+		if (!value.fullDay && dateFrom !== dateTo)
+		{
+			result += ', ' + dateTo;
+		}
+
+		let timezoneIcon = '';
+		if (Type.isStringFilled(timezoneHint))
+		{
+			timezoneIcon = Tag.render`
+				<div class="calendar-date-selector-readonly-timezone" title="${timezoneHint}">
+					<div class="calendar-date-selector-readonly-timezone-icon"></div>
+				</div>
+			`;
+		}
+
+		Dom.style(this.DOM.editor, 'display', 'none');
+		const readonlyElement = Tag.render`
+			<div class="calendar-options-item-column-right">
+				<div class="calendar-field calendar-date-selector-readonly">
+					${result}
+					${timezoneIcon}
+				</div>
+			</div>
+		`;
+		Dom.append(readonlyElement, this.DOM.dateTimeWrap);
 	}
 }

@@ -193,7 +193,7 @@ class CountLimiter implements iLimiter
 	{
 		if (!is_callable($callable))
 		{
-			throw new ArgumentException('Wrong type of parameter `callable`.');
+			throw new ArgumentException('Wrong type of parameter \'callable\'.');
 		}
 
 		$this->current = $callable;

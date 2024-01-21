@@ -22,7 +22,7 @@ export default class SlotItem
 		this.#layout = {
 			wrapper: null,
 			value: null,
-			select: null
+			select: null,
 		};
 		this.#value = options.value;
 
@@ -55,7 +55,7 @@ export default class SlotItem
 
 	showForm()
 	{
-		EventEmitter.emit('confirmedSelectSlot', {value: this.#value});
+		EventEmitter.emit('confirmedSelectSlot', { value: this.#value });
 	}
 
 	#getNodeSelect(): HTMLElement
@@ -82,7 +82,7 @@ export default class SlotItem
 		if (!this.#layout.value)
 		{
 			let value = Util.formatTimeInterval(this.#value.from, this.#value.to);
-			value = value.replace(/(am|pm)/g, `<span class="calendar-sharing-am-pm">$1</span>`)
+			value = value.replace(/(am|pm)/g, '<span class="calendar-sharing-am-pm">$1</span>');
 
 			this.#layout.value = Tag.render`
 				<div class="calendar-sharing__slot-value">${value}</div>

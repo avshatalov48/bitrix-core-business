@@ -365,6 +365,11 @@ class Binder
 
 				if ($constructedValue === null)
 				{
+					if ($parameter->allowsNull())
+					{
+						return null;
+					}
+
 					if ($parameter->isDefaultValueAvailable())
 					{
 						return $parameter->getDefaultValue();
@@ -420,11 +425,10 @@ class Binder
 					$parameter
 				);
 			}
-		}
-
-		if ($parameter->isArray())
-		{
-			$value = (array)$value;
+			if ($declarationChecker->isArray())
+			{
+				$value = (array)$value;
+			}
 		}
 
 		return $value;

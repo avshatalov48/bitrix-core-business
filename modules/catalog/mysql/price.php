@@ -1,5 +1,7 @@
-<?
+<?php
+
 use Bitrix\Main\Config\Option;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/price.php");
 
 class CPrice extends CAllPrice
@@ -36,6 +38,10 @@ class CPrice extends CAllPrice
 		if (empty($arSelectFields))
 			$arSelectFields = array("ID", "PRODUCT_ID", "EXTRA_ID", "CATALOG_GROUP_ID", "PRICE", "CURRENCY", "TIMESTAMP_X", "QUANTITY_FROM", "QUANTITY_TO", "BASE", "SORT", "CATALOG_GROUP_NAME", "CAN_ACCESS", "CAN_BUY");
 
+		$quantityTrace = Option::get('catalog','default_quantity_trace');
+		$canBuyZero = Option::get('catalog','default_can_buy_zero');
+		$amountTrace = Option::get('catalog','allow_negative_amount');
+
 		$arFields = array(
 			"ID" => array("FIELD" => "P.ID", "TYPE" => "int"),
 			"PRODUCT_ID" => array("FIELD" => "P.PRODUCT_ID", "TYPE" => "int"),
@@ -52,21 +58,33 @@ class CPrice extends CAllPrice
 			"BASE" => array("FIELD" => "CG.BASE", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_group CG ON (P.CATALOG_GROUP_ID = CG.ID)"),
 			"SORT" => array("FIELD" => "CG.SORT", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_group CG ON (P.CATALOG_GROUP_ID = CG.ID)"),
 			"PRODUCT_QUANTITY" => array("FIELD" => "CP.QUANTITY", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
-			"PRODUCT_QUANTITY_TRACE" => array("FIELD" => "IF (CP.QUANTITY_TRACE = 'D', '".$DB->ForSql((string)Option::get('catalog','default_quantity_trace','N'))."', CP.QUANTITY_TRACE)", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
-			"PRODUCT_CAN_BUY_ZERO" => array("FIELD" => "IF (CP.CAN_BUY_ZERO = 'D', '".$DB->ForSql((string)Option::get('catalog','default_can_buy_zero','N'))."', CP.CAN_BUY_ZERO)", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
-			"PRODUCT_NEGATIVE_AMOUNT_TRACE" => array("FIELD" => "IF (CP.NEGATIVE_AMOUNT_TRACE = 'D', '".$DB->ForSql((string)Option::get('catalog','allow_negative_amount','N'))."', CP.NEGATIVE_AMOUNT_TRACE)", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
+			"PRODUCT_QUANTITY_TRACE" => array(
+				"FIELD" => "CASE WHEN CP.QUANTITY_TRACE = 'D' THEN '".$DB->ForSql($quantityTrace)."' ELSE CP.QUANTITY_TRACE END",
+				"TYPE" => "char",
+				"FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)",
+			),
+			"PRODUCT_CAN_BUY_ZERO" => array(
+				"FIELD" => "CASE WHEN CP.CAN_BUY_ZERO = 'D' THEN '".$DB->ForSql($canBuyZero)."' ELSE CP.CAN_BUY_ZERO END",
+				"TYPE" => "char",
+				"FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)",
+			),
+			"PRODUCT_NEGATIVE_AMOUNT_TRACE" => array(
+				"FIELD" => "CASE WHEN CP.NEGATIVE_AMOUNT_TRACE = 'D' THEN '".$DB->ForSql($amountTrace)."' ELSE CP.NEGATIVE_AMOUNT_TRACE END",
+				"TYPE" => "char",
+				"FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)",
+			),
 			"PRODUCT_WEIGHT" => array("FIELD" => "CP.WEIGHT", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
 			"ELEMENT_IBLOCK_ID" => array("FIELD" => "IE.IBLOCK_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_iblock_element IE ON (P.PRODUCT_ID = IE.ID)"),
 			"CATALOG_GROUP_NAME" => array("FIELD" => "CGL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_catalog_group_lang CGL ON (P.CATALOG_GROUP_ID = CGL.CATALOG_GROUP_ID AND CGL.LANG = '".LANGUAGE_ID."')"),
 		);
 
 		$arFields["CAN_ACCESS"] = array(
-			"FIELD" => "IF(CGG.ID IS NULL, 'N', 'Y')",
+			"FIELD" => "CASE WHEN CGG.ID IS NULL THEN 'N' ELSE 'Y' END",
 			"TYPE" => "char",
 			"FROM" => "LEFT JOIN b_catalog_group2group CGG ON (P.CATALOG_GROUP_ID = CGG.CATALOG_GROUP_ID AND CGG.GROUP_ID IN (".$strUserGroups.") AND CGG.BUY <> 'Y')"
 		);
 		$arFields["CAN_BUY"] = array(
-			"FIELD" => "IF(CGG1.ID IS NULL, 'N', 'Y')",
+			"FIELD" => "CASE WHEN CGG1.ID IS NULL THEN 'N' ELSE 'Y' END",
 			"TYPE" => "char",
 			"FROM" => "LEFT JOIN b_catalog_group2group CGG1 ON (P.CATALOG_GROUP_ID = CGG1.CATALOG_GROUP_ID AND CGG1.GROUP_ID IN (".$strUserGroups.") AND CGG1.BUY = 'Y')"
 		);
@@ -166,6 +184,10 @@ class CPrice extends CAllPrice
 		if (empty($arSelectFields))
 			$arSelectFields = array("ID", "PRODUCT_ID", "EXTRA_ID", "CATALOG_GROUP_ID", "PRICE", "CURRENCY", "TIMESTAMP_X", "QUANTITY_FROM", "QUANTITY_TO", "TMP_ID");
 
+		$quantityTrace = Option::get('catalog','default_quantity_trace');
+		$canBuyZero = Option::get('catalog','default_can_buy_zero');
+		$amountTrace = Option::get('catalog','allow_negative_amount');
+
 		$arFields = array(
 			"ID" => array("FIELD" => "P.ID", "TYPE" => "int"),
 			"PRODUCT_ID" => array("FIELD" => "P.PRODUCT_ID", "TYPE" => "int"),
@@ -180,9 +202,21 @@ class CPrice extends CAllPrice
 			"PRICE_BASE_RATE" => array("FIELD" => "P.PRICE_SCALE", "TYPE" => "double"),
 			"PRICE_SCALE" => array("FIELD" => "P.PRICE_SCALE", "TYPE" => "double"),
 			"PRODUCT_QUANTITY" => array("FIELD" => "CP.QUANTITY", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
-			"PRODUCT_QUANTITY_TRACE" => array("FIELD" => "IF (CP.QUANTITY_TRACE = 'D', '".$DB->ForSql((string)Option::get('catalog','default_quantity_trace','N'))."', CP.QUANTITY_TRACE)", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
-			"PRODUCT_CAN_BUY_ZERO" => array("FIELD" => "IF (CP.CAN_BUY_ZERO = 'D', '".$DB->ForSql((string)Option::get('catalog','default_can_buy_zero','N'))."', CP.CAN_BUY_ZERO)", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
-			"PRODUCT_NEGATIVE_AMOUNT_TRACE" => array("FIELD" => "IF (CP.NEGATIVE_AMOUNT_TRACE = 'D', '".$DB->ForSql((string)Option::get('catalog','allow_negative_amount','N'))."', CP.NEGATIVE_AMOUNT_TRACE)", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
+			"PRODUCT_QUANTITY_TRACE" => array(
+				"FIELD" => "CASE WHEN CP.QUANTITY_TRACE = 'D' THEN '".$DB->ForSql($quantityTrace)."' ELSE CP.QUANTITY_TRACE END",
+				"TYPE" => "char",
+				"FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)",
+			),
+			"PRODUCT_CAN_BUY_ZERO" => array(
+				"FIELD" => "CASE WHEN CP.CAN_BUY_ZERO = 'D' THEN '".$DB->ForSql($canBuyZero)."' ELSE CP.CAN_BUY_ZERO END",
+				"TYPE" => "char",
+				"FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)",
+			),
+			"PRODUCT_NEGATIVE_AMOUNT_TRACE" => array(
+				"FIELD" => "CASE WHEN CP.NEGATIVE_AMOUNT_TRACE = 'D' THEN '".$DB->ForSql($amountTrace)."' ELSE CP.NEGATIVE_AMOUNT_TRACE END",
+				"TYPE" => "char",
+				"FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)",
+			),
 			"PRODUCT_WEIGHT" => array("FIELD" => "CP.WEIGHT", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_product CP ON (P.PRODUCT_ID = CP.ID)"),
 			"ELEMENT_IBLOCK_ID" => array("FIELD" => "IE.IBLOCK_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_iblock_element IE ON (P.PRODUCT_ID = IE.ID)"),
 			"ELEMENT_NAME" => array("FIELD" => "IE.NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_iblock_element IE ON (P.PRODUCT_ID = IE.ID)"),

@@ -6,7 +6,7 @@ class CommitOptions
 {
 	protected string $moduleId = '';
 	protected string $savePath = '';
-	protected bool $forceRandom = false;
+	protected bool $forceRandom = true;
 	protected bool $skipExtension = false;
 	protected string $addDirectory = '';
 

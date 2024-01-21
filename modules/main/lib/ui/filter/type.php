@@ -111,7 +111,9 @@ class Type
 		{
 			$filter = array_merge(
 				FieldAdapter::adapt($sourceField),
-				array("STRICT" => $sourceField["strict"] === true)
+				[
+					"STRICT" => isset($sourceField["strict"]) && $sourceField["strict"] === true
+				]
 			);
 			/*
 			 * @todo Make a default type and use it. Not this condition.

@@ -31,7 +31,6 @@ $MESS["MAIN_MAIL_CONFIRM_INVALID_SMTP_SERVER"] = "Adresse des SMTP-Servers ist u
 $MESS["MAIN_MAIL_CONFIRM_MENU"] = "Absender hinzufügen";
 $MESS["MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER"] = "Standardabsender (\"Von\")";
 $MESS["MAIN_MAIL_CONFIRM_MENU_UNKNOWN"] = "Absender auswählen";
-$MESS["MAIN_MAIL_CONFIRM_NAME"] = "Name";
 $MESS["MAIN_MAIL_CONFIRM_NAME_HINT_GENERAL"] = "Der Absendername ist das Erste, was dem Empfänger angezeigt wird. Helfen Sie Ihren Kontakten, Sie zu erkennen.";
 $MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANTS"] = "Die häufigsten Absendernamen sind:";
 $MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANT_COMPANY"] = "Unternehmensname";

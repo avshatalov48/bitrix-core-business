@@ -38,3 +38,7 @@ DROP TABLE if exists b_sonet_user_tag;
 DROP TABLE if exists b_sonet_group_tag;
 DROP TABLE if exists b_sonet_user_welltory;
 DROP TABLE if exists b_sonet_user_welltory_disclaimer;
+DROP TABLE if exists b_sonet_space_composition;
+DROP TABLE if exists b_sonet_scorer;
+DROP TABLE if exists b_sonet_scorer_queue;
+DROP TABLE if exists b_sonet_scorer_event;

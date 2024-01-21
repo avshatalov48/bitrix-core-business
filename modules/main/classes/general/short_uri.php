@@ -50,7 +50,7 @@ abstract class CBXAllShortUri
 			"	".$strUpdate.", ".
 			"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = ".$id;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $id;
 	}
@@ -111,7 +111,7 @@ abstract class CBXAllShortUri
 			"	NUMBER_USED = NUMBER_USED + 1, ".
 			"	LAST_USED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = ".intval($id);
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 	}
 
 	public static function Delete($id)

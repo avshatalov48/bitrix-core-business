@@ -79,7 +79,7 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 			$type = Params::getType($this->name);
 			if (isset($type['loadValueFilter']) && is_callable($type['loadValueFilter']))
 			{
-				$this->value = \call_user_func($type['loadValueFilter'], [$this->value]);
+				$this->value = \call_user_func($type['loadValueFilter'], $this->value);
 			}
 		}
 
@@ -230,6 +230,11 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 		}
 
 		return $this;
+	}
+
+	public function isHidden(): bool
+	{
+		return Params::getType($this->name)['isHidden'] ?? false;
 	}
 
 	/**
@@ -430,6 +435,11 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 	public function setPrimaryId(int $primaryId): self
 	{
 		return $this->setParamId($primaryId);
+	}
+
+	public function isValid(): Result
+	{
+		return new Result();
 	}
 
 	/**

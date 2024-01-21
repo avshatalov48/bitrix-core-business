@@ -75,6 +75,10 @@ $MESS["SC_T_MYSQL_VER"] = "Версия MySQL-сервера";
 $MESS["SC_T_TIME"] = "Время на БД и веб-сервере";
 $MESS["SC_T_SQL_MODE"] = "Режим работы MySQL";
 $MESS["SC_T_CHARSET"] = "Кодировки таблиц в БД";
+$MESS["SC_T_FORMAT"] = "Формат хранения таблиц в БД";
+$MESS["SC_TABLE_ROW_FORMAT"] = "Формат хранения таблицы &quot;#TABLE#&quot; не InnoDB или формат хранения строк не Dynamic";
+$MESS["SC_TABLE_ROW_FORMAT_ERRORS"] = "Не все таблицы InnoDB или не имеют формат хранения Dynamic, общее число ошибок: #VAL#, из них автоматически могут быть исправлены: #VAL1#.";
+$MESS["SC_TABLE_ROW_FORMAT_NA"] = "Не проверено из-за ошибок формата хранения таблиц";
 $MESS["SC_T_STRUCTURE"] = "Структура базы данных";
 $MESS["SC_DB_CHARSET"] = "Кодировка базы данных";
 $MESS["SC_MBSTRING_NA"] = "Не удалось проверить из-за ошибок в настройке UTF";
@@ -88,6 +92,9 @@ $MESS["SC_SEC"] = "сек.";
 $MESS["SC_DB_ERR"] = "Проблемная версия БД:";
 $MESS["SC_DB_ERR_MODE"] = "Переменная sql_mode в MySQL должна быть пустая, текущее значение:";
 $MESS["SC_DB_ERR_INNODB_STRICT"] = "innodb_strict_mode=#VALUE#, требуется OFF";
+$MESS["SC_DB_ERR_INNODB_LARGE_PREFIX"] = "innodb_large_prefix=#VALUE#, требуется ON";
+$MESS["SC_DB_ERR_INNODB_DEFAULT_ROW_FORMAT"] = "innodb_default_row_format=#VALUE#, требуется DYNAMIC";
+$MESS["SC_DB_ERR_DEFAULT_STORAGE_ENGINE"] = "default_storage_engine=#VALUE#, требуется InnoDB";
 $MESS["SC_NO_PROXY"] = "Нет соединения с прокси сервером";
 $MESS["SC_PROXY_ERR_RESP"] = "Ошибочный ответ сервера обновлений через прокси";
 $MESS["SC_UPDATE_ERR_RESP"] = "Ошибочный ответ сервера обновлений";
@@ -151,6 +158,7 @@ $MESS["SC_FIX_MBSTRING_CONFIRM"] = "Внимание!
 Продолжить?";
 $MESS["SC_CHECK_TABLES_ERRORS"] = "Кодировки таблиц имеют ошибки, общее число ошибок: #VAL#, из них автоматически могут быть исправлены: #VAL1#.";
 $MESS["SC_CONNECTION_CHARSET_NA"] = "Не удалось проверить из-за ошибки кодировки соединения";
+$MESS["SC_DATABASE_LC_CTYPE"] = "Сравнение для базы (#VAL0#) не UTF-8, часть функций будет работать неверно. Для исправления необходимо экспортировать базу данных, затем создать новую \"CREATE DATABASE newDB lc_ctype='C.UTF-8' template template0\" и импортировать данные в неё. После чего изменить подключение сайта на использование новой базы данных.";
 $MESS["SC_DATABASE_COLLATION_DIFF"] = "Сравнение для базы (#VAL1#) отличается от сравнения для соединения (#VAL0#).";
 $MESS["SC_DATABASE_CHARSET_DIFF"] = "Кодировка базы (#VAL1#) отличается от кодировки соединения (#VAL0#).";
 $MESS["SC_HELP_NOTOPIC"] = "К сожалению, информации по данному вопросу нет.";
@@ -333,7 +341,6 @@ $MESS["SC_HELP_CHECK_MYSQL_CONNECTION_CHARSET"] = "Проверяется код
 $MESS["SC_READ_MORE_ANC"] = "Подробности в <a href=\"#LINK#\" target=_blank>журнале проверки системы</a>.";
 $MESS["SC_CHARSET_CONN_VS_RES"] = "Кодировка соединения (#CONN#) отличается от кодировки результата (#RES#)";
 $MESS["SC_STRLEN_FAIL_PHP56"] = "Строковая функция strlen работает некорректно.";
-$MESS["SC_STRTOUPPER_FAIL"] = "Строковые функции strtoupper и strtolower работают некорректно";
 $MESS["SC_T_RECURSION"] = "Размер стека и pcre.recursion_limit";
 $MESS["SC_HELP_CHECK_PCRE_RECURSION"] = "Если параметр <i>pcre.recursion_limit</i> превышает системный размер стека (обычно 8 Мб), то PHP падает с ошибкой <i>Segmentation fault</i> при выполнении сложных регулярных выражений.
 
@@ -532,7 +539,7 @@ $MESS["MAIN_SC_TEST_MOBILE"] = "Мобильное приложение Битр
 $MESS["MAIN_SC_TEST_MAIL_PUSH"] = "Публикация сообщений в живую ленту из почты";
 $MESS["MAIN_SC_TEST_PUSH"] = "Уведомления пользователям на мобильные устройства (push уведомления)";
 $MESS["MAIN_SC_TEST_DOCS"] = "Работа с документами через Google Docs и MS Office Online";
-$MESS["MAIN_SC_TEST_FAST_FILES"] = "Битрикс24.Диск. Быстрая работа с файлами";
+$MESS["MAIN_SC_TEST_FAST_FILES_MSGVER_1"] = "Битрикс24.Диск. Быстрая работа с файлами";
 $MESS["MAIN_SC_TEST_SEARCH_CONTENTS"] = "Поиск по содержимому документов";
 $MESS["MAIN_SC_TEST_MAIL_INTEGRATION"] = "Интеграция с почтой внутри компании";
 $MESS["MAIN_SC_TEST_SOCNET_INTEGRATION"] = "Интеграция с соцсетями";

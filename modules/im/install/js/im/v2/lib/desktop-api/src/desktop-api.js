@@ -10,6 +10,9 @@ import { notificationFunctions } from './functions/notifications';
 import { loggerFunctions } from './functions/logger';
 import { callMaskFunctions } from './functions/call/mask';
 import { callBackgroundFunctions } from './functions/call/background';
+import { accountFunctions } from './functions/account';
+import { diskFunctions } from './functions/disk';
+import { debugFunctions } from './functions/debug';
 
 export { DesktopFeature } from './features';
 export { DesktopSettingsKey } from './functions/settings';
@@ -27,4 +30,9 @@ export const DesktopApi = {
 	...callBackgroundFunctions,
 	...callMaskFunctions,
 	...loggerFunctions,
+	...accountFunctions,
+	...diskFunctions,
+	...debugFunctions,
 };
+
+export type { DesktopAccount } from './types/account';

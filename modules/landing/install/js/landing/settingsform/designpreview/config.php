@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'main.core.events',
 		'ui.design-tokens',
+		'main.polyfill.intersectionobserver',
 	],
 	'skip_core' => false,
 ];

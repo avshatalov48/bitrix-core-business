@@ -1,5 +1,5 @@
 /* eslint-disable */
-(function (exports,main_core,catalog_entityCard,main_core_events,main_popup,ui_buttons) {
+(function (exports,main_core,catalog_entityCard,main_core_events,main_popup,ui_dialogs_messagebox) {
 	'use strict';
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
@@ -48,29 +48,24 @@
 	        if (field.getId() !== 'QUANTITY_TRACE' || field._selectedValue !== 'N') {
 	          return;
 	        }
-	        var popup = new main_popup.Popup({
-	          content: main_core.Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE'),
-	          overlay: true,
-	          titleBar: main_core.Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE_TITLE'),
-	          closeByEsc: true,
-	          closeIcon: true,
-	          buttons: [new ui_buttons.Button({
-	            text: main_core.Loc.getMessage('CPD_QUANTITY_TRACE_ACCEPT'),
-	            className: 'ui-btn ui-btn-md ui-btn-primary',
+	        ui_dialogs_messagebox.MessageBox.show({
+	          title: main_core.Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE_TITLE'),
+	          message: main_core.Loc.getMessage('CPD_QUANTITY_TRACE_NOTICE'),
+	          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK,
+	          okCaption: main_core.Loc.getMessage('CPD_QUANTITY_TRACE_ACCEPT'),
+	          onOk: function onOk(messageBox) {
+	            babelHelpers.classPrivateFieldSet(_this2, _isQuantityTraceNoticeShown, false);
+	            messageBox.close();
+	          },
+	          popupOptions: {
+	            closeIcon: true,
 	            events: {
-	              click: function () {
-	                babelHelpers.classPrivateFieldSet(this, _isQuantityTraceNoticeShown, false);
-	                popup.destroy();
-	              }.bind(_this2)
+	              onAfterClose: function onAfterClose() {
+	                return babelHelpers.classPrivateFieldSet(_this2, _isQuantityTraceNoticeShown, false);
+	              }
 	            }
-	          })],
-	          events: {
-	            onAfterClose: function () {
-	              babelHelpers.classPrivateFieldSet(this, _isQuantityTraceNoticeShown, false);
-	            }.bind(_this2)
 	          }
 	        });
-	        popup.show();
 	        babelHelpers.classPrivateFieldSet(_this2, _isQuantityTraceNoticeShown, true);
 	      });
 	      section === null || section === void 0 ? void 0 : section.getChildren().forEach(function (field) {
@@ -112,7 +107,7 @@
 	        response = _event$getCompatData6[1];
 	      if (response.data) {
 	        if (response.data.NOTIFY_ABOUT_NEW_VARIATION) {
-	          this.showNotification(main_core.Loc.getMessage('CPD_NEW_VARIATION_ADDED'));
+	          this.showNotification(main_core.Loc.getMessage('CPD_NEW_VARIATION_ADDED_MSGVER_1'));
 	        }
 	      }
 	    }
@@ -156,5 +151,5 @@
 	}(catalog_entityCard.EntityCard);
 	main_core.Reflection.namespace('BX.Catalog').ProductCard = ProductCard;
 
-}((this.window = this.window || {}),BX,BX.Catalog.EntityCard,BX.Event,BX.Main,BX.UI));
+}((this.window = this.window || {}),BX,BX.Catalog.EntityCard,BX.Event,BX.Main,BX.UI.Dialogs));
 //# sourceMappingURL=script.js.map

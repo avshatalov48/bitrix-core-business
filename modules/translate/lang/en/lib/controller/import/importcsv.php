@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TR_IMPORT_EMPTY_FILE_ERROR"] = "No import file specified";
 $MESS["TR_IMPORT_ERROR_BAD_FILEPATH"] = "Incorrect path \"#FILE#\"";
 $MESS["TR_IMPORT_ERROR_CREATE_BACKUP"] = "Failed to create backup for file \"#FILE#\"";
@@ -14,4 +14,3 @@ $MESS["TR_IMPORT_ERR_DESTINATION_FIELD_ABSENT"] = "\"file\" field is missing";
 $MESS["TR_IMPORT_ERR_EMPTY_FIRST_ROW"] = "Header row is empty or contains invalid data";
 $MESS["TR_IMPORT_ERR_LANGUAGE_LIST_ABSENT"] = "file doesn't contain active languages";
 $MESS["TR_IMPORT_ERR_PHRASE_CODE_FIELD_ABSENT"] = "\"key\" field is missing";
-?>

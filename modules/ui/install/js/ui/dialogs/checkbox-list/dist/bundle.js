@@ -3,43 +3,87 @@ this.BX = this.BX || {};
 (function (exports,ui_designTokens,main_popup,ui_vue3,ui_switcher,ui_forms,main_core_events,main_core) {
 	'use strict';
 
-	var CheckboxListSections = {
+	const CheckboxListSections = {
 	  props: ['sections'],
 	  methods: {
-	    handleClick: function handleClick(key) {
+	    handleClick(key) {
 	      this.$emit('sectionToggled', key);
 	    },
-	    getSectionsItemClassName: function getSectionsItemClassName(sectionValue) {
+	    getSectionsItemClassName(sectionValue) {
 	      return ['ui-checkbox-list__sections-item', {
 	        '--checked': sectionValue
 	      }];
 	    }
 	  },
-	  template: "\n\t\t<div class=\"ui-checkbox-list__sections\">\n\t\t\t<div \n\t\t\t\tv-for=\"section in sections\"\n\t\t\t\t:key=\"section.key\"\n\t\t\t\t:title=\"section.title\"\n\t\t\t\t:class=\"getSectionsItemClassName(section.value)\"\n\t\t\t\t@click=\"handleClick(section.key)\"\n\t\t\t>\n\t\t\t\t<div class=\"ui-checkbox-list__check-box\"></div>\n\t\t\t\t{{ section.title }}\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="ui-checkbox-list__sections">
+			<div 
+				v-for="section in sections"
+				:key="section.key"
+				:title="section.title"
+				:class="getSectionsItemClassName(section.value)"
+				@click="handleClick(section.key)"
+			>
+				<div class="ui-checkbox-list__check-box"></div>
+				{{ section.title }}
+			</div>
+		</div>
+	`
 	};
 
-	var CheckboxListCategory = {
+	const CheckboxListCategory = {
 	  props: ['columnCount', 'category', 'options'],
 	  methods: {
-	    handleCheckBox: function handleCheckBox(id) {
+	    handleCheckBox(id) {
 	      this.$emit('changeOption', id);
 	    },
-	    getOptionClassName: function getOptionClassName(optionValue) {
+	    getOptionClassName(optionValue) {
 	      return ['ui-ctl', 'ui-ctl-checkbox', 'ui-checkbox-list__field-item_label', {
 	        '--checked': optionValue
 	      }];
 	    }
 	  },
-	  template: "\n\t\t<div class=\"ui-checkbox-list__category\">\n\t\t\t<div class=\"ui-checkbox-list__categories-title\">\n\t\t\t\t{{ category.title }}\n\t\t\t</div>\n\t\t\t<div \n\t\t\t\tclass=\"ui-checkbox-list__options\"\n\t\t\t\t:style=\"{'-webkit-column-count': columnCount, \n\t\t\t\t\t\t '-moz-column-count': columnCount, \n\t\t\t\t\t\t 'column-count': columnCount,\n\t\t\t\t\t\t }\"\n\t\t\t>\n\t\t\t\t<div\n\t\t\t\t\tv-for=\"option in options\"\n\t\t\t\t\t:key=\"option.id\"\n\t\t\t\t>\n\t\t\t\t\t<label\n\t\t\t\t\t\t:title=\"option.title\"\n\t\t\t\t\t\t:class=\"getOptionClassName(option.value)\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<input\n\t\t\t\t\t\t\ttype=\"checkbox\"\n\t\t\t\t\t\t\tclass=\"ui-ctl-element ui-checkbox-list__field-item_input\"\n\t\t\t\t\t\t\t:checked=\"option.value\"\n\t\t\t\t\t\t\t@click=\"handleCheckBox(option.id)\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"ui-ctl-label-text ui-checkbox-list__field-item_text\">{{ option.title }}</div>\n\t\t\t\t\t</label>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="ui-checkbox-list__category">
+			<div class="ui-checkbox-list__categories-title">
+				{{ category.title }}
+			</div>
+			<div 
+				class="ui-checkbox-list__options"
+				:style="{'-webkit-column-count': columnCount, 
+						 '-moz-column-count': columnCount, 
+						 'column-count': columnCount,
+						 }"
+			>
+				<div
+					v-for="option in options"
+					:key="option.id"
+				>
+					<label
+						:title="option.title"
+						:class="getOptionClassName(option.value)"
+					>
+						<input
+							type="checkbox"
+							class="ui-ctl-element ui-checkbox-list__field-item_input"
+							:checked="option.value"
+							@click="handleCheckBox(option.id)"
+						>
+						<div class="ui-ctl-label-text ui-checkbox-list__field-item_text">{{ option.title }}</div>
+					</label>
+				</div>
+			</div>
+		</div>
+	`
 	};
 
-	var Content = {
+	const Content = {
 	  components: {
-	    CheckboxListSections: CheckboxListSections,
-	    CheckboxListCategory: CheckboxListCategory
+	    CheckboxListSections,
+	    CheckboxListCategory
 	  },
 	  props: ['dialog', 'popup', 'columnCount', 'compactField', 'lang', 'sections', 'categories', 'options'],
-	  data: function data() {
+	  data() {
 	    return {
 	      dataSections: this.sections,
 	      dataCategories: this.categories,
@@ -52,114 +96,91 @@ this.BX = this.BX || {};
 	    };
 	  },
 	  methods: {
-	    renderSwitcher: function renderSwitcher() {
-	      var _this = this;
+	    renderSwitcher() {
 	      if (this.dataCompactField) {
-	        var switcher = new BX.UI.Switcher({
+	        const switcher = new BX.UI.Switcher({
 	          node: this.$refs.switcher,
 	          checked: this.dataCompactField.value,
 	          size: 'small',
 	          handlers: {
-	            toggled: function toggled() {
-	              return _this.handleSwitcherToggled();
-	            }
+	            toggled: () => this.handleSwitcherToggled()
 	          }
 	        });
 	      }
 	    },
-	    handleSwitcherToggled: function handleSwitcherToggled() {
+	    handleSwitcherToggled() {
 	      this.dataCompactField.value = !this.dataCompactField.value;
 	    },
-	    handleCheckBoxToggled: function handleCheckBoxToggled(id) {
-	      var item = this.dataOptions.find(function (option) {
-	        return option.id === id;
-	      });
+	    handleCheckBoxToggled(id) {
+	      const item = this.dataOptions.find(option => option.id === id);
 	      if (item) {
 	        item.value = !item.value;
 	      }
 	    },
-	    clearSearch: function clearSearch() {
+	    clearSearch() {
 	      this.search = '';
 	    },
-	    handleClearSearchButtonClick: function handleClearSearchButtonClick() {
+	    handleClearSearchButtonClick() {
 	      this.$refs.searchInput.focus();
 	      this.clearSearch();
 	    },
-	    handleSectionsToggled: function handleSectionsToggled(key) {
-	      var section = this.dataSections.find(function (section) {
-	        return section.key === key;
-	      });
+	    handleSectionsToggled(key) {
+	      const section = this.dataSections.find(section => section.key === key);
 	      if (section) {
 	        section.value = !section.value;
 	      }
 	    },
-	    getOptionsByCategory: function getOptionsByCategory(category) {
-	      return this.optionsByTitle.filter(function (item) {
-	        return item.categoryKey === category;
-	      });
+	    getOptionsByCategory(category) {
+	      return this.optionsByTitle.filter(item => item.categoryKey === category);
 	    },
-	    getCheckedOptionsId: function getCheckedOptionsId() {
-	      return this.dataOptions.filter(function (option) {
-	        return option.value === true;
-	      }).map(function (option) {
-	        return option.id;
-	      });
+	    getCheckedOptionsId() {
+	      return this.dataOptions.filter(option => option.value === true).map(option => option.id);
 	    },
-	    checkLongContent: function checkLongContent() {
+	    checkLongContent() {
 	      if (this.$refs.container) {
 	        this.longContent = this.$refs.container.clientHeight < this.$refs.container.scrollHeight;
 	      } else {
 	        this.longContent = false;
 	      }
 	    },
-	    getBottomIndent: function getBottomIndent() {
+	    getBottomIndent() {
 	      this.scrollIsBottom = !(this.$refs.container.scrollTop + this.$refs.container.clientHeight >= this.$refs.container.scrollHeight - 10);
 	    },
-	    getTopIndent: function getTopIndent() {
+	    getTopIndent() {
 	      this.scrollIsTop = this.$refs.container.scrollTop;
 	    },
-	    handleScroll: function handleScroll() {
+	    handleScroll() {
 	      this.getBottomIndent();
 	      this.getTopIndent();
 	    },
-	    handleSearchEscKeyUp: function handleSearchEscKeyUp() {
+	    handleSearchEscKeyUp() {
 	      this.$refs.container.focus();
 	      this.clearSearch();
 	    },
-	    defaultSettings: function defaultSettings() {
+	    defaultSettings() {
 	      this.clearSearch();
 	      if (this.dataCompactField && this.dataCompactField.value !== this.dataCompactField.defaultValue) {
 	        this.$refs.switcher.click();
 	      }
-	      this.dataOptions.forEach(function (option) {
-	        return option.value = option.defaultValue;
-	      });
+	      this.dataOptions.forEach(option => option.value = option.defaultValue);
 	      if (Array.isArray(this.dataSections)) {
-	        this.dataSections.forEach(function (sections) {
-	          return sections.value = true;
-	        });
+	        this.dataSections.forEach(sections => sections.value = true);
 	      }
 	    },
-	    selectAll: function selectAll() {
-	      var _this2 = this;
-	      this.categoryBySection.forEach(function (category) {
-	        _this2.getOptionsByCategory(category.key).forEach(function (option) {
-	          return option.value = true;
-	        });
+	    selectAll() {
+	      this.categoryBySection.forEach(category => {
+	        this.getOptionsByCategory(category.key).forEach(option => option.value = true);
 	      });
 	    },
-	    deselectAll: function deselectAll() {
-	      var _this3 = this;
-	      this.categoryBySection.forEach(function (category) {
-	        _this3.getOptionsByCategory(category.key).forEach(function (option) {
-	          return option.value = false;
-	        });
+	    deselectAll() {
+	      this.categoryBySection.forEach(category => {
+	        this.getOptionsByCategory(category.key).forEach(option => option.value = false);
 	      });
 	    },
-	    cancel: function cancel() {
+	    cancel() {
 	      this.popup.destroy();
 	    },
-	    apply: function apply() {
+	    apply() {
 	      main_core_events.EventEmitter.emit(this.dialog, 'onApply', {
 	        switcher: this.dataCompactField,
 	        fields: this.getCheckedOptionsId()
@@ -168,70 +189,53 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  watch: {
-	    search: function search() {
-	      var _this4 = this;
-	      this.$nextTick(function () {
-	        _this4.checkLongContent();
+	    search() {
+	      this.$nextTick(() => {
+	        this.checkLongContent();
 	      });
 	    },
-	    categoryBySection: function categoryBySection() {
-	      var _this5 = this;
-	      this.$nextTick(function () {
-	        _this5.checkLongContent();
+	    categoryBySection() {
+	      this.$nextTick(() => {
+	        this.checkLongContent();
 	      });
 	    }
 	  },
 	  computed: {
-	    visibleOptions: function visibleOptions() {
-	      var _this6 = this;
+	    visibleOptions() {
 	      if (!Array.isArray(this.dataSections) || !this.dataSections.length) {
 	        return this.optionsByTitle;
 	      }
-	      return this.optionsByTitle.filter(function (option) {
-	        var category = _this6.dataCategories.find(function (category) {
-	          return category.key === option.categoryKey;
-	        });
-	        var section = _this6.dataSections.find(function (section) {
-	          return section.key === category.sectionKey;
-	        });
-	        return section === null || section === void 0 ? void 0 : section.value;
+	      return this.optionsByTitle.filter(option => {
+	        const category = this.dataCategories.find(category => category.key === option.categoryKey);
+	        const section = this.dataSections.find(section => section.key === category.sectionKey);
+	        return section == null ? void 0 : section.value;
 	      });
 	    },
-	    isEmptyContent: function isEmptyContent() {
+	    isEmptyContent() {
 	      return this.visibleOptions.length > 0;
 	    },
-	    isSearchDisabled: function isSearchDisabled() {
+	    isSearchDisabled() {
 	      if (this.dataSections && this.dataSections.length) {
-	        return !this.dataSections.some(function (section) {
-	          return section.value;
-	        });
+	        return !this.dataSections.some(section => section.value);
 	      }
 	      return false;
 	    },
-	    isCheckedCheckboxes: function isCheckedCheckboxes() {
-	      return !this.dataOptions.filter(function (option) {
-	        return option.value === true;
-	      }).length;
+	    isCheckedCheckboxes() {
+	      return !this.dataOptions.filter(option => option.value === true).length;
 	    },
-	    optionsByTitle: function optionsByTitle() {
-	      var _this7 = this;
-	      return this.dataOptions.filter(function (item) {
-	        return item.title.toLowerCase().indexOf(_this7.search.toLowerCase()) !== -1;
-	      });
+	    optionsByTitle() {
+	      return this.dataOptions.filter(item => item.title.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
 	    },
-	    categoryBySection: function categoryBySection() {
-	      var _this8 = this;
+	    categoryBySection() {
 	      if (!Array.isArray(this.dataSections) || !main_core.Type.isArrayFilled(this.dataSections)) {
 	        return this.dataCategories;
 	      }
-	      return this.dataCategories.filter(function (category) {
-	        var section = _this8.dataSections.find(function (section) {
-	          return category.sectionKey === section.key;
-	        });
-	        return section === null || section === void 0 ? void 0 : section.value;
+	      return this.dataCategories.filter(category => {
+	        const section = this.dataSections.find(section => category.sectionKey === section.key);
+	        return section == null ? void 0 : section.value;
 	      });
 	    },
-	    wrapperClassName: function wrapperClassName() {
+	    wrapperClassName() {
 	      return ['ui-checkbox-list__wrapper', {
 	        '--long': this.longContent
 	      }, {
@@ -240,127 +244,233 @@ this.BX = this.BX || {};
 	        '--top': this.scrollIsTop
 	      }];
 	    },
-	    searchClassName: function searchClassName() {
+	    searchClassName() {
 	      return ['ui-checkbox-list__search', {
 	        '--disabled': this.isSearchDisabled
 	      }];
 	    },
-	    applyClassName: function applyClassName() {
+	    applyClassName() {
 	      return ['ui-btn ui-btn-success', {
 	        'ui-btn-disabled': this.isCheckedCheckboxes
 	      }];
 	    },
-	    SwitcherText: function SwitcherText() {
+	    SwitcherText() {
 	      return main_core.Type.isStringFilled(this.lang.switcher) ? this.lang.switcher : main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_SETTINGS_SWITCHER');
 	    },
-	    placeholderText: function placeholderText() {
+	    placeholderText() {
 	      return main_core.Type.isStringFilled(this.lang.placeholder) ? this.lang.placeholder : main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_SETTINGS_PLACEHOLDER');
 	    },
-	    defaultSettingsBtnText: function defaultSettingsBtnText() {
+	    defaultSettingsBtnText() {
 	      return main_core.Type.isStringFilled(this.lang.defaultBtn) ? this.lang.defaultBtn : main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_SETTINGS');
 	    },
-	    applyBtnText: function applyBtnText() {
+	    applyBtnText() {
 	      return main_core.Type.isStringFilled(this.lang.acceptBtn) ? this.lang.acceptBtn : main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_ACCEPT_BUTTON');
 	    },
-	    cancelBtnText: function cancelBtnText() {
+	    cancelBtnText() {
 	      return main_core.Type.isStringFilled(this.lang.cancelBtn) ? this.lang.cancelBtn : main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_CANCEL_BUTTON');
 	    },
-	    selectAllBtnText: function selectAllBtnText() {
+	    selectAllBtnText() {
 	      return main_core.Type.isStringFilled(this.lang.selectAllBtn) ? this.lang.selectAllBtn : main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_SELECT_ALL');
 	    },
-	    deselectAllBtnText: function deselectAllBtnText() {
+	    deselectAllBtnText() {
 	      return main_core.Type.isStringFilled(this.lang.deselectAllBtn) ? this.lang.deselectAllBtn : main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_SETTINGS_DESELECT_ALL');
 	    },
-	    emptyStateTitleText: function emptyStateTitleText() {
+	    emptyStateTitleText() {
 	      return main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_SETTINGS_EMPTY_STATE_TITLE');
 	    },
-	    emptyStateDescriptionText: function emptyStateDescriptionText() {
+	    emptyStateDescriptionText() {
 	      return main_core.Loc.getMessage('UI_CHECKBOX_LIST_DEFAULT_SETTINGS_EMPTY_STATE_DESCRIPTION');
 	    }
 	  },
-	  mounted: function mounted() {
-	    var _this9 = this;
+	  mounted() {
 	    this.renderSwitcher();
-	    this.$nextTick(function () {
-	      _this9.checkLongContent();
+	    this.$nextTick(() => {
+	      this.checkLongContent();
 	    });
 	  },
-	  template: "\n\t\t<div class=\"ui-checkbox-list\">\n\t\t<div class=\"ui-checkbox-list__header\">\n\n\t\t\t<checkbox-list-sections\n\t\t\t\tv-if=\"sections\"\n\t\t\t\t:sections=\"dataSections\"\n\t\t\t\t@sectionToggled=\"handleSectionsToggled\"\n\t\t\t/>\n\n\t\t\t<div class=\"ui-checkbox-list__header_options\">\n\t\t\t\t<div\n\t\t\t\t\tv-if=\"compactField\"\n\t\t\t\t\tclass=\"ui-checkbox-list__switcher\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"ui-checkbox-list__switcher-text\">\n\t\t\t\t\t\t{{ SwitcherText }}\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"switcher\" ref=\"switcher\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div\n\t\t\t\t\t:class=\"searchClassName\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"ui-checkbox-list__search-wrapper\">\n\t\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon ui-ctl-w100\">\n\n\t\t\t\t\t\t\t<div class=\"ui-ctl-before ui-ctl-icon-search\"></div>\n\t\t\t\t\t\t\t<button\n\t\t\t\t\t\t\t\t@click=\"handleClearSearchButtonClick\"\n\t\t\t\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-clear ui-checkbox-list__search-clear\"\n\t\t\t\t\t\t\t></button>\n\t\t\t\t\t\t\t<input\n\t\t\t\t\t\t\t\t:placeholder=\"placeholderText\"\n\t\t\t\t\t\t\t\ttype=\"text\"\n\t\t\t\t\t\t\t\tclass=\"ui-ctl-element\"\n\t\t\t\t\t\t\t\tv-model=\"search\"\n\t\t\t\t\t\t\t\t@keyup.esc.stop=\"handleSearchEscKeyUp\"\n\t\t\t\t\t\t\t\tref=\"searchInput\"\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div\n\t\t\tref=\"wrapper\"\n\t\t\t:class=\"wrapperClassName\"\n\t\t>\n\t\t\t<div\n\t\t\t\tref=\"container\"\n\t\t\t\tclass=\"ui-checkbox-list__container\"\n\t\t\t\t@scroll=\"handleScroll\"\n\t\t\t\ttabindex=\"0\"\n\t\t\t\tv-if=\"isEmptyContent\"\n\t\t\t>\n\t\t\t\t<checkbox-list-category\n\t\t\t\t\tv-for=\"category in categoryBySection\"\n\t\t\t\t\t:key=\"category.key\"\n\t\t\t\t\t:category=\"category\"\n\t\t\t\t\t:columnCount=\"columnCount\"\n\t\t\t\t\t:options=\"getOptionsByCategory(category.key)\"\n\t\t\t\t\t@changeOption=\"handleCheckBoxToggled\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t\t<div\n\t\t\t\tv-else\n\t\t\t\tclass=\"ui-checkbox-list__empty\"\n\t\t\t>\n\t\t\t\t<img\n\t\t\t\t\tsrc=\"/bitrix/js/ui/dialogs/checkbox-list/images/ui-checkbox-list-empty.svg\"\n\t\t\t\t\t:alt=\"emptyStateTitleText\">\n\t\t\t\t<div class=\"ui-checkbox-list__empty-title\">\n\t\t\t\t\t{{ emptyStateTitleText }}\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-checkbox-list__empty-description\">\n\t\t\t\t\t{{ emptyStateDescriptionText }}\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"ui-checkbox-list__footer\">\n\t\t\t<div class=\"ui-checkbox-list__footer-block\">\n\t\t\t\t<div\n\t\t\t\t\tclass=\"ui-checkbox-list__footer-link --default\"\n\t\t\t\t\t@click=\"defaultSettings()\"\n\t\t\t\t>\n\t\t\t\t\t{{ defaultSettingsBtnText }}\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"ui-checkbox-list__footer-block\">\n\t\t\t\t<button\n\t\t\t\t\t@click=\"apply()\"\n\t\t\t\t\t:class=\"applyClassName\"\n\t\t\t\t>\n\t\t\t\t\t{{ applyBtnText }}\n\t\t\t\t</button>\n\t\t\t\t<button\n\t\t\t\t\t@click=\"cancel()\"\n\t\t\t\t\tclass=\"ui-btn ui-btn-link\"\n\t\t\t\t>\n\t\t\t\t\t{{ cancelBtnText }}\n\t\t\t\t</button>\n\t\t\t</div>\n\t\t\t<div class=\"ui-checkbox-list__footer-block --right\">\n\t\t\t\t<div\n\t\t\t\t\t@click=\"selectAll()\"\n\t\t\t\t\tclass=\"ui-checkbox-list__footer-link\"\n\t\t\t\t>\n\t\t\t\t\t{{ selectAllBtnText }}\n\t\t\t\t</div>\n\t\t\t\t<div\n\t\t\t\t\t@click=\"deselectAll()\"\n\t\t\t\t\tclass=\"ui-checkbox-list__footer-link\"\n\t\t\t\t>\n\t\t\t\t\t{{ deselectAllBtnText }}\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="ui-checkbox-list">
+		<div class="ui-checkbox-list__header">
+
+			<checkbox-list-sections
+				v-if="sections"
+				:sections="dataSections"
+				@sectionToggled="handleSectionsToggled"
+			/>
+
+			<div class="ui-checkbox-list__header_options">
+				<div
+					v-if="compactField"
+					class="ui-checkbox-list__switcher"
+				>
+					<div class="ui-checkbox-list__switcher-text">
+						{{ SwitcherText }}
+					</div>
+					<div class="switcher" ref="switcher"></div>
+				</div>
+				<div
+					:class="searchClassName"
+				>
+					<div class="ui-checkbox-list__search-wrapper">
+						<div class="ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon ui-ctl-w100">
+
+							<div class="ui-ctl-before ui-ctl-icon-search"></div>
+							<button
+								@click="handleClearSearchButtonClick"
+								class="ui-ctl-after ui-ctl-icon-clear ui-checkbox-list__search-clear"
+							></button>
+							<input
+								:placeholder="placeholderText"
+								type="text"
+								class="ui-ctl-element"
+								v-model="search"
+								@keyup.esc.stop="handleSearchEscKeyUp"
+								ref="searchInput"
+							>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			ref="wrapper"
+			:class="wrapperClassName"
+		>
+			<div
+				ref="container"
+				class="ui-checkbox-list__container"
+				@scroll="handleScroll"
+				tabindex="0"
+				v-if="isEmptyContent"
+			>
+				<checkbox-list-category
+					v-for="category in categoryBySection"
+					:key="category.key"
+					:category="category"
+					:columnCount="columnCount"
+					:options="getOptionsByCategory(category.key)"
+					@changeOption="handleCheckBoxToggled"
+				/>
+			</div>
+			<div
+				v-else
+				class="ui-checkbox-list__empty"
+			>
+				<img
+					src="/bitrix/js/ui/dialogs/checkbox-list/images/ui-checkbox-list-empty.svg"
+					:alt="emptyStateTitleText">
+				<div class="ui-checkbox-list__empty-title">
+					{{ emptyStateTitleText }}
+				</div>
+				<div class="ui-checkbox-list__empty-description">
+					{{ emptyStateDescriptionText }}
+				</div>
+			</div>
+		</div>
+
+		<div class="ui-checkbox-list__footer">
+			<div class="ui-checkbox-list__footer-block">
+				<div
+					class="ui-checkbox-list__footer-link --default"
+					@click="defaultSettings()"
+				>
+					{{ defaultSettingsBtnText }}
+				</div>
+			</div>
+			<div class="ui-checkbox-list__footer-block">
+				<button
+					@click="apply()"
+					:class="applyClassName"
+				>
+					{{ applyBtnText }}
+				</button>
+				<button
+					@click="cancel()"
+					class="ui-btn ui-btn-link"
+				>
+					{{ cancelBtnText }}
+				</button>
+			</div>
+			<div class="ui-checkbox-list__footer-block --right">
+				<div
+					@click="selectAll()"
+					class="ui-checkbox-list__footer-link"
+				>
+					{{ selectAllBtnText }}
+				</div>
+				<div
+					@click="deselectAll()"
+					class="ui-checkbox-list__footer-link"
+				>
+					{{ deselectAllBtnText }}
+				</div>
+			</div>
+		</div>
+		</div>
+	`
 	};
 
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-	var CheckboxList = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(CheckboxList, _EventEmitter);
-	  function CheckboxList(options) {
-	    var _this;
-	    babelHelpers.classCallCheck(this, CheckboxList);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CheckboxList).call(this));
-	    _this.setEventNamespace('BX.UI.Dialogs.CheckboxList');
-	    _this.subscribeFromOptions(options.events);
+	class CheckboxList extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.UI.Dialogs.CheckboxList');
+	    this.subscribeFromOptions(options.events);
 	    if (!main_core.Type.isArrayFilled(options.categories)) {
 	      throw new Error('CheckboxList: "categories" parameter is required.');
 	    }
-	    _this.categories = options.categories;
+	    this.categories = options.categories;
 	    if (!main_core.Type.isArrayFilled(options.options)) {
 	      throw new Error('CheckboxList: "options" parameter is required.');
 	    }
-	    _this.options = options.options;
-	    _this.compactField = main_core.Type.isPlainObject(options.compactField) ? options.compactField : null;
-	    _this.sections = main_core.Type.isArray(options.sections) ? options.sections : null;
-	    _this.lang = main_core.Type.isPlainObject(options.lang) ? options.lang : {};
-	    _this.popup = null;
-	    _this.columnCount = main_core.Type.isNumber(options.columnCount) ? options.columnCount : 4;
-	    _this.popupOptions = main_core.Type.isPlainObject(options.popupOptions) ? options.popupOptions : {};
-	    return _this;
+	    this.options = options.options;
+	    this.compactField = main_core.Type.isPlainObject(options.compactField) ? options.compactField : null;
+	    this.sections = main_core.Type.isArray(options.sections) ? options.sections : null;
+	    this.lang = main_core.Type.isPlainObject(options.lang) ? options.lang : {};
+	    this.popup = null;
+	    this.columnCount = main_core.Type.isNumber(options.columnCount) ? options.columnCount : 4;
+	    this.popupOptions = main_core.Type.isPlainObject(options.popupOptions) ? options.popupOptions : {};
 	  }
-	  babelHelpers.createClass(CheckboxList, [{
-	    key: "getPopup",
-	    value: function getPopup() {
-	      var container = main_core.Dom.create('div');
-	      main_core.Dom.addClass(container, 'ui-checkbox-list__app-container');
-	      if (!this.popup) {
-	        this.popup = new main_popup.Popup(_objectSpread({
-	          className: 'ui-checkbox-list-popup',
-	          width: 997,
-	          overlay: true,
-	          autoHide: true,
-	          minHeight: 422,
-	          borderRadius: 20,
-	          contentPadding: 0,
-	          contentBackground: 'transparent',
-	          animation: 'fading-slide',
-	          titleBar: this.lang.title,
-	          content: container,
-	          closeIcon: true,
-	          closeByEsc: true
-	        }, this.popupOptions));
-	        ui_vue3.BitrixVue.createApp(Content, {
-	          compactField: this.compactField,
-	          lang: this.lang,
-	          sections: this.sections,
-	          categories: this.categories,
-	          options: this.options,
-	          popup: this.popup,
-	          columnCount: this.columnCount,
-	          dialog: this
-	        }).mount(container);
-	      }
-	      return this.popup;
+	  getPopup() {
+	    const container = main_core.Dom.create('div');
+	    main_core.Dom.addClass(container, 'ui-checkbox-list__app-container');
+	    if (!this.popup) {
+	      this.popup = new main_popup.Popup({
+	        className: 'ui-checkbox-list-popup',
+	        width: 997,
+	        overlay: true,
+	        autoHide: true,
+	        minHeight: 422,
+	        borderRadius: 20,
+	        contentPadding: 0,
+	        contentBackground: 'transparent',
+	        animation: 'fading-slide',
+	        titleBar: this.lang.title,
+	        content: container,
+	        closeIcon: true,
+	        closeByEsc: true,
+	        ...this.popupOptions
+	      });
+	      ui_vue3.BitrixVue.createApp(Content, {
+	        compactField: this.compactField,
+	        lang: this.lang,
+	        sections: this.sections,
+	        categories: this.categories,
+	        options: this.options,
+	        popup: this.popup,
+	        columnCount: this.columnCount,
+	        dialog: this
+	      }).mount(container);
 	    }
-	  }, {
-	    key: "show",
-	    value: function show() {
-	      this.getPopup().show();
-	    }
-	  }, {
-	    key: "hide",
-	    value: function hide() {
-	      this.getPopup().hide();
-	    }
-	  }]);
-	  return CheckboxList;
-	}(main_core_events.EventEmitter);
+	    return this.popup;
+	  }
+	  show() {
+	    this.getPopup().show();
+	  }
+	  hide() {
+	    this.getPopup().hide();
+	  }
+	}
 
 	exports.CheckboxList = CheckboxList;
 

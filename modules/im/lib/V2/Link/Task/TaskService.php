@@ -16,6 +16,9 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Tasks\Slider\Path\PathMaker;
+use Bitrix\Tasks\Slider\Path\TaskPathMaker;
 
 class TaskService
 {
@@ -148,11 +151,14 @@ class TaskService
 
 		$data = ['PARAMS' => []];
 
-		$data['LINK'] = str_replace(
-			['#USER_ID#', '#ID#'],
-			$userId,
-			\Bitrix\Main\Config\Option::get('intranet', 'search_user_url', SITE_DIR . 'company/personal/user/#USER_ID#/')
-		) . 'tasks/task/edit/0/';
+		$taskPath = (new TaskPathMaker(0, PathMaker::EDIT_ACTION, $userId))->makeEntityPath();
+		$link = new Uri($taskPath);
+		$link->addParams([
+			'ta_sec' => 'chat',
+			'ta_el' => 'create_button',
+		]);
+
+		$data['LINK'] = $link->getUri();
 
 		$data['PARAMS']['RESPONSIBLE_ID'] = $userId;
 		$data['PARAMS']['IM_CHAT_ID'] = $chat->getChatId();

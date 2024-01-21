@@ -588,6 +588,16 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				 ['id' => $item['MID']]
 			 ).'",{printable: true})';
 
+			$messagePath =  \CComponentEngine::makePathFromTemplate(
+				$this->arParams['PATH_TO_MAIL_MSG_VIEW'],
+				['id' => $item['MID']]
+			);
+
+			$this->arResult['MESSAGE_HREF_LIST'][] = [
+				'ID' => $item['MID'],
+				'HREF' => $messagePath,
+			];
+
 			$onclickEventOpenMessageMethod = 'BX.onCustomEvent(
 			`mail:openMessageForView`,
 			[{

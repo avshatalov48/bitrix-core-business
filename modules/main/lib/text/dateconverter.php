@@ -1095,12 +1095,15 @@ class DateConverter
 		}
 
 		$positions = array();
-		foreach($needle as $query)
+		if ($offset < mb_strlen($haystack))
 		{
-			$result = mb_strpos($haystack, $query, $offset);
-			if ($result !== false)
+			foreach ($needle as $query)
 			{
-				$positions[] = $result;
+				$result = mb_strpos($haystack, $query, $offset);
+				if ($result !== false)
+				{
+					$positions[] = $result;
+				}
 			}
 		}
 

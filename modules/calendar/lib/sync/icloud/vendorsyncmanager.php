@@ -7,8 +7,11 @@ use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromArray;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Util;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Calendar\Sync\Managers\NotificationManager;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\SystemException;
 
 class VendorSyncManager
 {
@@ -113,17 +116,26 @@ class VendorSyncManager
 	}
 
 	/**
-	 * @param array $connectionRaw
-	 *
+	 * @param string $appleId
+	 * @param string $appPassword
 	 * @return int|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
-	public function initConnection(array $connectionRaw): ?int
+	public function initConnection(string $appleId, string $appPassword): ?int
 	{
+		$params = [
+			'ENTITY_ID' => \CCalendar::GetCurUserId(),
+			'ENTITY_TYPE' => Core\Role\User::TYPE,
+			'SERVER_HOST' => $this->helper::SERVER_PATH,
+			'SERVER_USERNAME' => $appleId,
+			'SERVER_PASSWORD' => $appPassword,
+			'NAME' => str_replace('#NAME#', $appleId, $this->helper::CONNECTION_NAME)
+		];
+
 		$connection = null;
-		$calendarPath = $this->getSyncService()->getCalendarServerPath($connectionRaw);
+		$calendarPath = $this->getSyncService()->getCalendarServerPath($params);
 		if (!$calendarPath)
 		{
 			$this->error = 'Error while trying to get calendars path';
@@ -154,14 +166,14 @@ class VendorSyncManager
 			if ($connection->isDeleted())
 			{
 				$connection->setDeleted(false);
-				$connection->getServer()->setPassword($connectionRaw['SERVER_PASSWORD']);
+				$connection->getServer()->setPassword($appPassword);
 			}
 
 			$connectionManager->update($connection);
 			return $connection->getId();
 		}
 
-		return $this->addConnection($connectionRaw, $calendarPath);
+		return $this->addConnection($params, $calendarPath);
 	}
 
 	/**

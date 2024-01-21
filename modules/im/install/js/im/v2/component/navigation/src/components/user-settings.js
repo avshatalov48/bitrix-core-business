@@ -1,5 +1,5 @@
 import { Core } from 'im.v2.application.core';
-import { UserStatus as UserStatusType } from 'im.v2.const';
+import { Settings, UserStatus as UserStatusType } from 'im.v2.const';
 import { Avatar, AvatarSize } from 'im.v2.component.elements';
 
 import { UserSettingsPopup } from './settings/user-settings-popup';
@@ -28,10 +28,10 @@ export const UserSettings = {
 		},
 		userStatus(): string
 		{
-			const user = this.$store.getters['users/get'](this.currentUserId, true);
-			if (user)
+			const status = this.$store.getters['application/settings/get'](Settings.user.status);
+			if (status)
 			{
-				return user.status;
+				return status;
 			}
 
 			return UserStatusType.online;

@@ -136,6 +136,18 @@ class OpenLineChat extends EntityChat
 		);
 	}
 
+	public function canUpdateOwnMessage(): bool
+	{
+		if (!Loader::includeModule('imopenlines'))
+		{
+			return false;
+		}
+
+		[$connectorType] = explode("|", $this->getEntityId() ?? '');
+
+		return in_array($connectorType, \Bitrix\ImOpenlines\Connector::getListCanUpdateOwnMessage(), true);
+	}
+
 	protected function prepareParams(array $params = []): Result
 	{
 		$params['AUTHOR_ID'] = 0;
@@ -291,5 +303,14 @@ class OpenLineChat extends EntityChat
 		ChatIndexTable::updateIndex($this->getId(), $this->getTitle());
 
 		return $this;
+	}
+
+	public function sendPushUpdateMessage(Message $message): void
+	{
+		parent::sendPushUpdateMessage($message);
+		$pushFormat = new Message\PushFormat();
+		$push = $pushFormat->formatMessageUpdate($message);
+		$push['params']['dialogId'] = $this->getDialogId();
+		\CPullWatch::AddToStack('IM_PUBLIC_' . $message->getChatId(), $push);
 	}
 }

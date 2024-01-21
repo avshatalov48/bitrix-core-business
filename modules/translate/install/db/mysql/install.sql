@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS b_translate_path
 	DEPTH_LEVEL int(18) not null default '0',
 	SORT int(18) not null default '0',
 	PATH varchar(500) not null,
-	NAME varchar(255) BINARY not null,
+	NAME varbinary(255) not null,
 	IS_LANG enum('Y','N') not null default 'N',
 	IS_DIR enum('Y','N') not null default 'N',
 	OBLIGATORY_LANGS char(50) null default null,
@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS b_translate_path
 	INDEXED_TIME datetime null default null,
 	MODULE_ID varchar(50) null default null,
 	ASSIGNMENT varchar(50) null default null,
-
 	PRIMARY KEY (ID),
 	UNIQUE KEY IX_TRNSL_PTH_NAME (PARENT_ID, NAME),
 	KEY IX_TRNSL_PTH_PARENT (PARENT_ID, IS_DIR, IS_LANG),
@@ -39,7 +38,6 @@ CREATE TABLE IF NOT EXISTS b_translate_file
 	PHRASE_COUNT INT(18) not null default '0',
 	INDEXED enum('Y','N') not null default 'N',
 	INDEXED_TIME datetime null default null,
-
 	PRIMARY KEY (ID),
 	UNIQUE KEY IX_TRNSL_FL_PATH (PATH_ID, LANG_ID),
 	KEY IX_TRNSL_FULL_PATH (FULL_PATH(255))
@@ -51,7 +49,7 @@ CREATE TABLE IF NOT EXISTS b_translate_phrase
 	FILE_ID int(18) not null,
 	PATH_ID int(18) not null,
 	LANG_ID char(2) not null,
-	CODE varchar(255) BINARY not null,
+	CODE varbinary(255) not null,
 	PRIMARY KEY (ID),
 	UNIQUE KEY IXU_TRNSL_PHR_PATH_CODE (PATH_ID, LANG_ID, CODE),
 	KEY IX_TRNSL_PHR_PATH (PATH_ID, CODE),

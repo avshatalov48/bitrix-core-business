@@ -22,7 +22,7 @@ use Bitrix\Main\UserField\Types\BaseType;
 $arParams["bVarsFromForm"] = isset($arParams["bVarsFromForm"]) && $arParams["bVarsFromForm"];
 $arResult["VALUE"] = false;
 
-if($arParams["arUserField"]["USER_TYPE"])
+if(!empty($arParams["arUserField"]["USER_TYPE"]))
 {
 	$arResult["VALUE"] = $arParams["~arUserField"]["VALUE"];
 

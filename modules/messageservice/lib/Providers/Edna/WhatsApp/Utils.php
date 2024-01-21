@@ -33,9 +33,12 @@ class Utils extends EdnaUtils
 
 	public function getMessageTemplates(string $subject = ''): Result
 	{
+		$result = new Result();
+
 		if ($this->optionManager->getOption('enable_templates_stub', 'N') === 'Y')
 		{
-			return $this->removeUnsupportedTemplates($this->getMessageTemplatesStub());
+			$templates = $this->removeUnsupportedTemplates($this->getMessageTemplatesStub());
+			return $result->setData($templates);
 		}
 		
 		$subjectList = [$subject];
@@ -60,8 +63,7 @@ class Utils extends EdnaUtils
 			];
 
 			$templatesRequestResult =
-				$this->externalSender->callExternalMethod(Providers\Edna\Constants\Method::GET_TEMPLATES, $requestParams)
-			;
+				$this->externalSender->callExternalMethod(Providers\Edna\Constants\Method::GET_TEMPLATES, $requestParams);
 
 			if ($templatesRequestResult->isSuccess())
 			{
@@ -69,10 +71,19 @@ class Utils extends EdnaUtils
 			}
 		}
 
-		$result = new Result();
-		$result->setData($templates);
+		$checkErrors = $this->checkForErrors($templates);
+		if ($checkErrors->isSuccess())
+		{
+			$templates = $this->removeUnsupportedTemplates($templates);
+			$templates = $this->checkForPlaceholders($templates);
+			$result->setData($templates);
+		}
+		else
+		{
+			$result->addErrors($checkErrors->getErrors());
+		}
 
-		return $this->removeUnsupportedTemplates($result);
+		return $result;
 	}
 
 	public function prepareTemplateMessageText(array $message): string
@@ -117,10 +128,9 @@ class Utils extends EdnaUtils
 		return $this->prepareTemplateMessageText($message);
 	}
 
-	protected function getMessageTemplatesStub(): Result
+	protected function getMessageTemplatesStub(): array
 	{
-		$result = new Result();
-		$result->setData([
+		return [
 			[
 				'id' => 242,
 				'name' => 'only text',
@@ -239,9 +249,7 @@ class Utils extends EdnaUtils
 				'createdAt' => '2021-07-20T09:21:42.444454Z',
 				'updatedAt' => '2021-07-20T09:21:42.444454Z',
 			],
-		]);
-
-		return $result;
+		];
 	}
 
 	private function getVerifiedSubjectIdList(array $subjectList): Result
@@ -281,43 +289,86 @@ class Utils extends EdnaUtils
 	{
 		return isset($template['status']) && $template['status'] === Providers\Edna\Constants\TemplateStatus::APPROVED;
 	}
-	protected function checkForPlaceholders($template): bool
+
+	protected function checkForPlaceholders(array $templates): array
 	{
-		return
-			$this->hasPlaceholder($template['content']['header']['text'] ?? '')
-			|| $this->hasPlaceholder($template['content']['text'] ?? '')
-			|| $this->hasPlaceholder($template['content']['footer']['text'] ?? '')
-			;
+		foreach ($templates as &$template)
+		{
+			$template['placeholders'] = [];
+
+			if (
+				!empty($template['content']['header']['text'])
+				&& $this->hasPlaceholder($template['content']['header']['text'])
+			)
+			{
+				$template['placeholders']['header'] = $this->extractPlaceholders($template['content']['header']['text']);
+			}
+
+			if (
+				!empty($template['content']['text'])
+				&& $this->hasPlaceholder($template['content']['text'])
+			)
+			{
+				$template['placeholders']['text'] = $this->extractPlaceholders($template['content']['text']);
+			}
+
+			if (
+				!empty($template['content']['footer']['text'])
+				&& $this->hasPlaceholder($template['content']['footer']['text'])
+			)
+			{
+				$template['placeholders']['footer'] = $this->extractPlaceholders($template['content']['footer']['text']);
+			}
+		}
+
+		return $templates;
 	}
 
 	protected function hasPlaceholder(string $text): bool
 	{
-		$placeholder = '{{1}}';
-
-		return strpos($text, $placeholder) !== false;
+		return !empty($text) && preg_match("/{{[\d]+}}/", $text);
 	}
 
-	protected function removeUnsupportedTemplates(Result $templates): Result
+	protected function extractPlaceholders(string $text): array
 	{
-		if (!$templates->isSuccess())
+		preg_match_all("/({{[\d]+}})/", $text, $matches);
+
+		return !empty($matches[0]) ? $matches[0] : [];
+	}
+
+	protected function checkForErrors(array $templates): Result
+	{
+		$checkResult = new Result();
+		foreach ($templates as $template)
 		{
-			return $templates;
+			if (!is_array($template))
+			{
+				$exception = new \Bitrix\Main\SystemException(
+					'Incorrect response from the Edna service: ' . var_export($templates, true)
+				);
+
+				\Bitrix\Main\Application::getInstance()->getExceptionHandler()->writeToLog($exception);
+
+				return $checkResult->addError(
+					new Error('Incorrect response from the Edna service.', 400, $templates)
+				);
+			}
 		}
 
-		$templatesData = $templates->getData();
-		if (!$templatesData)
-		{
-			return $templates;
-		}
+		return $checkResult;
+	}
 
+	protected function removeUnsupportedTemplates(array $templates): array
+	{
 		$filteredTemplates = [];
-		foreach ($templatesData as $template)
+		foreach ($templates as $template)
 		{
-			if (!$this->checkApprovedStatus($template))
+			if (!is_array($template))
 			{
 				continue;
 			}
-			if ($this->checkForPlaceholders($template))
+
+			if (!$this->checkApprovedStatus($template))
 			{
 				continue;
 			}
@@ -325,10 +376,6 @@ class Utils extends EdnaUtils
 			$filteredTemplates[] = $template;
 		}
 
-		$templatesData = $filteredTemplates;
-		$result = new Result();
-		$result->setData($templatesData);
-
-		return $result;
+		return $filteredTemplates;
 	}
 }

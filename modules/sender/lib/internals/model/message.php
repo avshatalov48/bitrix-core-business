@@ -52,7 +52,7 @@ class MessageTable extends Entity\DataManager
 			'ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
-				'autoincrement' => true,
+				'autocomplete' => true,
 			),
 			'CODE' => array(
 				'data_type' => 'string',

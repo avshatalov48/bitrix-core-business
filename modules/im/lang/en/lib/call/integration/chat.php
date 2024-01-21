@@ -9,4 +9,6 @@ $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_BUSY_F"] = "#NAME# is busy on another 
 $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_BUSY_M"] = "#NAME# is busy on another call";
 $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_DECLINED_F"] = "#NAME# declined the call";
 $MESS["IM_CALL_INTEGRATION_CHAT_CALL_USER_DECLINED_M"] = "#NAME# declined the call";
+$MESS["IM_BITRIX_CALL_INVITE_TEMP"] = "[b]Video call started[/b][br]#LINK#";
+$MESS["IM_BITRIX_CALL_INVITE_BUTTON_TEMP"] = "Join call";
 ?>

@@ -137,6 +137,10 @@ $MESS["INS_INSTALL"] = "&nbsp;&nbsp;Следующий&nbsp;&nbsp;шаг&nbsp;&n
 $MESS["INS_INSTALL1"] = "&nbsp;&nbsp;Начать&nbsp;&nbsp;установку&nbsp;&nbsp;&gt;&gt;&nbsp;&nbsp;";
 $MESS["INS_RESET"] = "Отмена";
 $MESS["ERR_CONNECT2MYSQL"] = "Ошибка соединения с сервером баз данных. Проверьте правильность введенных параметров. ";
+$MESS["ERR_DB_MIN_VERSION_MYSQL"] = "Для установки требуется версия MySql не ниже #MIN_VERSION#.";
+$MESS["ERR_DB_MYSQL_DEFAULT_STORAGE_ENGINE"] = "default_storage_engine=#VALUE#, требуется InnoDB";
+$MESS["ERR_DB_MYSQL_INNODB_LARGE_PREFIX"] = "innodb_large_prefix=#VALUE#, требуется ON";
+$MESS["ERR_DB_MYSQL_INNODB_DEFAULT_ROW_FORMAT"] = "innodb_default_row_format=#VALUE#, требуется DYNAMIC";
 $MESS["ERR_CREATE_DB1"] = "Ошибка создания базы \"#DB#\". ";
 $MESS["ERR_CONNECT_DB1"] = "Ошибка соединения с базой \"#DB#\". Проверьте правильность введенных параметров. ";
 $MESS["ERR_EXISTS_DB1"] = "База \"#DB#\" уже существует. Снимите флажок \"Создать базу данных\" или введите другое значение в поле \"База данных\". ";
@@ -209,6 +213,7 @@ $MESS["SC_DB_VERS_MYSQL"] = "Версия MySql";
 $MESS["SC_DB_VERS_MYSQL_ER"] = "Ваша версия MySql не удовлетворяет минимальным техническим требованиям продукта.";
 $MESS["SC_DB_PGSQL_VERSION_ER"] = "Ваша версия PostgreSQL не удовлетворяет минимальным техническим требованиям продукта.";
 $MESS["SC_DB_PGSQL_PGCRYPTO_ER"] = "В указанную базу данных необходимо установить расширение pgcrypto.";
+$MESS["SC_DB_PGSQL_DATABASE_CTYPE_ER"] = "Указанная база данных имеет несовместимый LC_TYPE (должен быть C.UTF-8).";
 $MESS["INS_ROOT_USER_DESCR"] = "Логин администратора необходим для создания новой базы данных или пользователя";
 $MESS["INS_ROOT_PASSWORD_DESCR"] = "Пароль администратора баз данных";
 $MESS["INS_ROOT_USER"] = "Логин:";

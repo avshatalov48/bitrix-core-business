@@ -1644,7 +1644,7 @@ class CIMDisk
 					])
 					->addAction([
 						'type' => 'copyToMe',
-						'text' => Loc::getMessage('IM_DISK_ACTION_SAVE_TO_OWN_FILES'),
+						'text' => Loc::getMessage('IM_DISK_ACTION_SAVE_TO_OWN_FILES_MSGVER_1'),
 						'action' => 'BXIM.disk.saveToDiskAction',
 						'params' => [
 							'fileId' => $fileModel->getId(),
@@ -2290,7 +2290,7 @@ class CIMDisk
 	/**
 	 * @return string
 	 */
-	public static function RemoveTmpFileAgent()
+	public static function RemoveTmpFileAgent(): string
 	{
 		$storageModel = self::GetStorage();
 		if (!$storageModel)
@@ -2314,7 +2314,7 @@ class CIMDisk
 			$fileModel->delete(\Bitrix\Disk\SystemUser::SYSTEM_USER_ID);
 		}
 
-		return "CIMDisk::RemoveTmpFileAgent();";
+		return __METHOD__. '();';
 	}
 
 	/**

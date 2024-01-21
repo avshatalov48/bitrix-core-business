@@ -1,7 +1,9 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core,main_popup,ui_buttons,catalog_storeUse) {
+(function (exports,main_core,main_popup,ui_buttons,catalog_storeUse,ui_dialogs_messagebox) {
 	'use strict';
 
+	var _templateObject, _templateObject2;
 	var DocumentGridManager = /*#__PURE__*/function () {
 	  function DocumentGridManager(options) {
 	    babelHelpers.classCallCheck(this, DocumentGridManager);
@@ -27,43 +29,29 @@ this.BX = this.BX || {};
 	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
 	        return;
 	      }
-	      var popup = new main_popup.Popup({
-	        id: 'catalog_delete_document_popup',
-	        titleBar: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_TITLE'),
-	        content: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT'),
-	        buttons: [new ui_buttons.Button({
-	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
-	          color: ui_buttons.ButtonColor.SUCCESS,
-	          onclick: function onclick(button, event) {
-	            button.setDisabled();
-	            main_core.ajax.runAction('catalog.document.deleteList', {
-	              data: {
-	                documentIds: [documentId]
-	              },
-	              analyticsLabel: {
-	                inventoryManagementSource: _this.inventoryManagementSource
-	              }
-	            }).then(function (response) {
-	              popup.destroy();
-	              _this.grid.reload();
-	            })["catch"](function (response) {
-	              if (response.errors) {
-	                BX.UI.Notification.Center.notify({
-	                  content: response.errors[0].message
-	                });
-	              }
-	              popup.destroy();
+	      ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT'), function (messageBox, button) {
+	        button.setWaiting();
+	        main_core.ajax.runAction('catalog.document.deleteList', {
+	          data: {
+	            documentIds: [documentId]
+	          },
+	          analyticsLabel: {
+	            inventoryManagementSource: _this.inventoryManagementSource
+	          }
+	        }).then(function () {
+	          messageBox.close();
+	          _this.grid.reload();
+	        })["catch"](function (response) {
+	          if (response.errors) {
+	            BX.UI.Notification.Center.notify({
+	              content: response.errors[0].message
 	            });
 	          }
-	        }), new ui_buttons.Button({
-	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CANCEL'),
-	          color: ui_buttons.ButtonColor.DANGER,
-	          onclick: function onclick(button, event) {
-	            popup.destroy();
-	          }
-	        })]
-	      });
-	      popup.show();
+	          messageBox.close();
+	        });
+	      }, main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_BUTTON_CONFIRM'), function (messageBox) {
+	        return messageBox.close();
+	      }, main_core.Loc.getMessage('DOCUMENT_GRID_BUTTON_BACK'));
 	    }
 	  }, {
 	    key: "conductDocument",
@@ -90,36 +78,22 @@ this.BX = this.BX || {};
 	      }
 	      actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 	      actionConfig.analyticsLabel.mode = 'single';
-	      var popup = new main_popup.Popup({
-	        id: 'catalog_delete_document_popup',
-	        titleBar: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_TITLE'),
-	        content: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT'),
-	        buttons: [new ui_buttons.Button({
-	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
-	          color: ui_buttons.ButtonColor.SUCCESS,
-	          onclick: function onclick(button, event) {
-	            button.setDisabled();
-	            main_core.ajax.runAction('catalog.document.conductList', actionConfig).then(function (response) {
-	              popup.destroy();
-	              _this2.grid.reload();
-	            })["catch"](function (response) {
-	              if (response.errors) {
-	                BX.UI.Notification.Center.notify({
-	                  content: response.errors[0].message
-	                });
-	              }
-	              popup.destroy();
+	      ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT'), function (messageBox, button) {
+	        button.setWaiting();
+	        main_core.ajax.runAction('catalog.document.conductList', actionConfig).then(function () {
+	          messageBox.close();
+	          _this2.grid.reload();
+	        })["catch"](function (response) {
+	          if (response.errors) {
+	            BX.UI.Notification.Center.notify({
+	              content: response.errors[0].message
 	            });
 	          }
-	        }), new ui_buttons.Button({
-	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CANCEL'),
-	          color: ui_buttons.ButtonColor.DANGER,
-	          onclick: function onclick(button, event) {
-	            popup.destroy();
-	          }
-	        })]
-	      });
-	      popup.show();
+	          messageBox.close();
+	        });
+	      }, main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_BUTTON_CONFIRM'), function (messageBox) {
+	        return messageBox.close();
+	      }, main_core.Loc.getMessage('DOCUMENT_GRID_BUTTON_BACK'));
 	    }
 	  }, {
 	    key: "cancelDocument",
@@ -134,6 +108,7 @@ this.BX = this.BX || {};
 	        this.openStoreMasterSlider();
 	        return;
 	      }
+	      var settings = main_core.Extension.getSettings('catalog.document-grid');
 	      var actionConfig = {
 	        data: {
 	          documentIds: [documentId]
@@ -146,36 +121,35 @@ this.BX = this.BX || {};
 	      }
 	      actionConfig.analyticsLabel.mode = 'single';
 	      actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
-	      var popup = new main_popup.Popup({
-	        id: 'catalog_delete_document_popup',
-	        titleBar: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_TITLE'),
-	        content: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT'),
-	        buttons: [new ui_buttons.Button({
-	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CONTINUE'),
-	          color: ui_buttons.ButtonColor.SUCCESS,
-	          onclick: function onclick(button, event) {
-	            button.setDisabled();
-	            main_core.ajax.runAction('catalog.document.cancelList', actionConfig).then(function (response) {
-	              popup.destroy();
-	              _this3.grid.reload();
-	            })["catch"](function (response) {
-	              if (response.errors) {
-	                BX.UI.Notification.Center.notify({
-	                  content: response.errors[0].message
-	                });
-	              }
-	              popup.destroy();
+	      var content = main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT');
+	      if (settings.get('isProductBatchMethodSelected')) {
+	        var text = main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT', {
+	          '#HELP_LINK#': '<help-link></help-link>'
+	        });
+	        content = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>\n\t\t\t\t\t<div>", "</div>\n\t\t\t\t\t<div>", "</div>\n\t\t\t\t</div>\n\t\t\t"])), content, text);
+	        var moreLink = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"#\" class=\"ui-form-link\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"])), main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT_LINK'));
+	        main_core.Event.bind(moreLink, 'click', function () {
+	          var articleId = 17858278;
+	          top.BX.Helper.show("redirect=detail&code=".concat(articleId));
+	        });
+	        main_core.Dom.replace(content.querySelector('help-link'), moreLink);
+	      }
+	      ui_dialogs_messagebox.MessageBox.confirm(content, function (messageBox, button) {
+	        button.setWaiting();
+	        main_core.ajax.runAction('catalog.document.cancelList', actionConfig).then(function () {
+	          messageBox.close();
+	          _this3.grid.reload();
+	        })["catch"](function (response) {
+	          if (response.errors) {
+	            BX.UI.Notification.Center.notify({
+	              content: response.errors[0].message
 	            });
 	          }
-	        }), new ui_buttons.Button({
-	          text: main_core.Loc.getMessage('DOCUMENT_GRID_CANCEL'),
-	          color: ui_buttons.ButtonColor.DANGER,
-	          onclick: function onclick(button, event) {
-	            popup.destroy();
-	          }
-	        })]
-	      });
-	      popup.show();
+	          messageBox.close();
+	        });
+	      }, main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_BUTTON_CONFIRM'), function (messageBox) {
+	        return messageBox.close();
+	      }, main_core.Loc.getMessage('DOCUMENT_GRID_BUTTON_BACK'));
 	    }
 	  }, {
 	    key: "deleteSelectedDocuments",
@@ -336,7 +310,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "openStoreMasterSlider",
 	    value: function openStoreMasterSlider() {
-	      new catalog_storeUse.Slider().open(this.masterSliderUrl, {
+	      new catalog_storeUse.StoreSlider().open(this.masterSliderUrl, {
 	        data: {
 	          openGridOnDone: false
 	        },
@@ -353,11 +327,26 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
+	  }], [{
+	    key: "hideSettingsMenu",
+	    value: function hideSettingsMenu() {
+	      main_popup.PopupManager.getPopupById('docFieldsSettingsMenu').close();
+	    }
+	  }, {
+	    key: "openUfSlider",
+	    value: function openUfSlider(e, item) {
+	      e.preventDefault();
+	      DocumentGridManager.hideSettingsMenu();
+	      BX.SidePanel.Instance.open(item.options.href, {
+	        allowChangeHistory: false,
+	        cacheable: false
+	      });
+	    }
 	  }]);
 	  return DocumentGridManager;
 	}();
 
 	exports.DocumentGridManager = DocumentGridManager;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.Main,BX.UI,BX.Catalog.StoreUse));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.Main,BX.UI,BX.Catalog.StoreUse,BX.UI.Dialogs));
 //# sourceMappingURL=document-grid.bundle.js.map

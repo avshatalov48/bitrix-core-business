@@ -2,9 +2,7 @@
 
 namespace Bitrix\Calendar\Sharing;
 
-use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
-use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Sharing\Link\EventLink;
 use Bitrix\Calendar\Sharing\Link\EventLinkMapper;
 use Bitrix\Main\Loader;
@@ -50,6 +48,8 @@ class SharingConference
 			return null;
 		}
 
+		Analytics::getInstance()->sendChatCreated($this->eventLink, Analytics::MANAGER_STARTED);
+
 		$this->eventLink->setConferenceId($conference->getData()['ALIAS_DATA']['ALIAS']);
 
 		(new EventLinkMapper())->update($this->eventLink);
@@ -81,6 +81,8 @@ class SharingConference
 		{
 			return null;
 		}
+
+		Analytics::getInstance()->sendChatCreated($this->eventLink, Analytics::CLIENT_STARTED);
 
 		$this->eventLink->setConferenceId($conference->getData()['ALIAS_DATA']['ALIAS']);
 
@@ -119,6 +121,7 @@ class SharingConference
 			if (
 				isset($attendee['id'])
 				&& in_array($attendee['status'] ?? null, Dictionary::MEETING_STATUS, true)
+				&& $attendee['status'] !== Dictionary::MEETING_STATUS['No']
 				&& $attendee['status'] !== Dictionary::MEETING_STATUS['Host']
 			)
 			{
@@ -126,9 +129,15 @@ class SharingConference
 			}
 		}
 
+		if (empty($attendeesId))
+		{
+			return null;
+		}
+
 		$conference = \Bitrix\Im\Call\Conference::add([
 			'USERS' => $attendeesId,
 			'TITLE' => $event['NAME'],
+			'AUTHOR_ID' => $attendeesId[0],
 		]);
 
 		if ($conference->getErrors())

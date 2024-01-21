@@ -113,9 +113,7 @@ class EmailUsers extends \Bitrix\Main\UI\Selector\EntityBase
 				{
 					$code = 'U'.$selectedUserId;
 					if (
-						isset($result['ITEMS'][$code])
-						&& isset($result['ITEMS'][$code])
-						&& isset($result['ITEMS'][$code]['isEmail'])
+						isset($result['ITEMS'][$code]['isEmail'])
 						&& $result['ITEMS'][$code]['isEmail'] == 'Y'
 						&& !in_array($code, $mySelectedEmailUserIdList)
 					)

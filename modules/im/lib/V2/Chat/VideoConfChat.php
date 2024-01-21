@@ -30,23 +30,6 @@ class VideoConfChat extends GroupChat
 
 	public function add(array $params, ?Context $context = null): Result
 	{
-		$result = new Result();
-
-		$paramsResult = $this->prepareParams($params);
-		if ($paramsResult->isSuccess())
-		{
-			$params = $paramsResult->getResult();
-		}
-		else
-		{
-			return $result->addErrors($paramsResult->getErrors());
-		}
-
-			if (!$params['TITLE'])
-		{
-			$params['TITLE'] = $this->generateTitle();
-		}
-
 		$addResult = parent::add($params, $context);
 		if (!$addResult->isSuccess() || !$addResult->hasResult())
 		{
@@ -170,10 +153,11 @@ class VideoConfChat extends GroupChat
 
 		$params['SEARCHABLE'] = 'N';
 
-		$params['MANAGE_UI'] = $params['MANAGE_UI'] ?? self::getDefaultManageUI();
-		$params['MANAGE_SETTINGS'] = $params['MANAGE_SETTINGS'] ?? self::getDefaultManageSettings();
-		$params['MANAGE_USERS'] = $params['MANAGE_USERS'] ?? self::getDefaultManageUsers();
-		$params['CAN_POST'] = $params['CAN_POST'] ?? self::getDefaultCanPost();
+		$params['MANAGE_UI'] = $params['MANAGE_UI'] ?? $this->getDefaultManageUI();
+		$params['MANAGE_SETTINGS'] = $params['MANAGE_SETTINGS'] ?? $this->getDefaultManageSettings();
+		$params['MANAGE_USERS_ADD'] = $params['MANAGE_USERS_ADD'] ?? $this->getDefaultManageUsersAdd();
+		$params['MANAGE_USERS_DELETE'] = $params['MANAGE_USERS_DELETE'] ?? $this->getDefaultManageUsersDelete();
+		$params['CAN_POST'] = $params['CAN_POST'] ?? $this->getDefaultCanPost();
 
 		$params = parent::prepareParams($params);
 		if (!$params->isSuccess())

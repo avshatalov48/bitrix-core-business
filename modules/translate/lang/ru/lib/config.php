@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS ['TRANSLATE_ENCODING_UTF_8'] = "Юникод";
 $MESS ['TRANSLATE_ENCODING_WINDOWS_1250'] = "Центрально-Европейская";
 $MESS ['TRANSLATE_ENCODING_WINDOWS_1251'] = "Кириллица";
@@ -21,4 +21,3 @@ $MESS ['TRANSLATE_ENCODING_ISO_8859_9'] = "Турецкая";
 $MESS ['TRANSLATE_ENCODING_ISO_8859_10'] = "Северо-Европейская";
 $MESS ['TRANSLATE_ENCODING_ISO_8859_13'] = "Балтийская";
 $MESS ['TRANSLATE_ENCODING_ISO_8859_15'] = "Западно-Европейская";
-?>

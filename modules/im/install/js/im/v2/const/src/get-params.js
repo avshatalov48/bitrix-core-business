@@ -3,6 +3,7 @@ export const GetParameter = {
 	openHistory: 'IM_HISTORY',
 	openChat: 'IM_DIALOG',
 	openLines: 'IM_LINES',
+	openSettings: 'IM_SETTINGS',
 
 	desktopChatTabMode: 'IM_TAB',
 

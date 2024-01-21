@@ -32,7 +32,7 @@ class Dictionary
 	{
 		// this condition a bit faster
 		// it is possible to omit array_key_exists here, but for uniformity...
-		if (isset($this->values[$name]) || array_key_exists($name, $this->values))
+		if (isset($this->values[$name]) || \array_key_exists($name, $this->values))
 		{
 			return $this->values[$name];
 		}
@@ -42,7 +42,7 @@ class Dictionary
 
 	public function set($name, $value = null)
 	{
-		if (is_array($name))
+		if (\is_array($name))
 		{
 			$this->values = $name;
 		}
@@ -75,6 +75,8 @@ class Dictionary
 
 	/**
 	 * Return the current element
+	 * @internal
+	 * @deprecated
 	 */
 	#[\ReturnTypeWillChange]
 	public function current()
@@ -84,6 +86,8 @@ class Dictionary
 
 	/**
 	 * Move forward to next element
+	 * @internal
+	 * @deprecated
 	 */
 	public function next(): void
 	{
@@ -92,6 +96,8 @@ class Dictionary
 
 	/**
 	 * Return the key of the current element
+	 * @internal
+	 * @deprecated
 	 */
 	#[\ReturnTypeWillChange]
 	public function key()
@@ -101,6 +107,8 @@ class Dictionary
 
 	/**
 	 * Checks if current position is valid
+	 * @internal
+	 * @deprecated
 	 */
 	public function valid(): bool
 	{
@@ -109,6 +117,8 @@ class Dictionary
 
 	/**
 	 * Rewind the Iterator to the first element
+	 * @internal
+	 * @deprecated
 	 */
 	public function rewind(): void
 	{
@@ -117,19 +127,23 @@ class Dictionary
 
 	/**
 	 * Whether a offset exists
+	 * @internal
+	 * @deprecated
 	 */
 	public function offsetExists($offset): bool
 	{
-		return isset($this->values[$offset]) || array_key_exists($offset, $this->values);
+		return isset($this->values[$offset]) || \array_key_exists($offset, $this->values);
 	}
 
 	/**
 	 * Offset to retrieve
+	 * @internal
+	 * @deprecated
 	 */
 	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
-		if (isset($this->values[$offset]) || array_key_exists($offset, $this->values))
+		if (isset($this->values[$offset]) || \array_key_exists($offset, $this->values))
 		{
 			return $this->values[$offset];
 		}
@@ -139,6 +153,8 @@ class Dictionary
 
 	/**
 	 * Offset to set
+	 * @internal
+	 * @deprecated
 	 */
 	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
@@ -155,6 +171,8 @@ class Dictionary
 
 	/**
 	 * Offset to unset
+	 * @internal
+	 * @deprecated
 	 */
 	public function offsetUnset($offset): void
 	{
@@ -163,10 +181,12 @@ class Dictionary
 
 	/**
 	 * Count elements of an object
+	 * @internal
+	 * @deprecated
 	 */
 	public function count(): int
 	{
-		return count($this->values);
+		return \count($this->values);
 	}
 
 	/**

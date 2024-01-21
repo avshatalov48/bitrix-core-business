@@ -1,5 +1,5 @@
 import {Type} from 'main.core';
-import {SearchEntityIdTypes, DialogType} from 'im.v2.const';
+import {SearchEntityIdTypes, ChatType} from 'im.v2.const';
 import {SearchUtils} from './search-utils';
 
 export class SearchItem
@@ -115,7 +115,7 @@ export class SearchItem
 		{
 			const {type} = itemOptions.dialog;
 
-			if (type === DialogType.user)
+			if (type === ChatType.user)
 			{
 				this.entityType = itemOptions.user.extranet ? 'extranet' : 'employee';
 			}

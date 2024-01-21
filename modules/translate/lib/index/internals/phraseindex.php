@@ -89,7 +89,7 @@ class PhraseIndexTable extends DataManager
 					'data_type' => 'integer',
 				],
 				'PATH_ID' => [
-					'data_type' => 'string',
+					'data_type' => 'integer',
 				],
 				'LANG_ID' => [
 					'data_type' => 'string',
@@ -113,14 +113,14 @@ class PhraseIndexTable extends DataManager
 				],
 			];
 
-			foreach (Translate\Config::getLanguages() as $langId)
+			foreach (Translate\Config::getEnabledLanguages() as $langId)
 			{
 				$fields['PHRASE_' . mb_strtoupper($langId)] = [
 					'data_type' => Index\Internals\PhraseFts::getFtsEntityClass($langId),
 					'reference' => [
 						'=this.ID' => 'ref.ID',
 					],
-					'join_type' => 'INNER',
+					'join_type' => 'LEFT',
 				];
 			}
 		}
@@ -137,10 +137,15 @@ class PhraseIndexTable extends DataManager
 	 */
 	public static function purge(?Translate\Filter $filter = null): void
 	{
-		if (($filterOut = static::processFilter($filter)) !== false)
+		$langs = isset($filter, $filter->langId) ? $filter->langId : Translate\Config::getEnabledLanguages();
+		foreach ($langs as $langId)
 		{
-			static::bulkDelete($filterOut);
+			$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
+			$ftsClass::purge($filter);
 		}
+
+		$filterOut = static::processFilter($filter);
+		static::bulkDelete($filterOut);
 	}
 
 	/**

@@ -44,7 +44,7 @@ export const RadioOption = {
 	},
 	methods:
 	{
-		onInput(option: RadioOptionItem)
+		onInput(option: RadioOptionItem): void
 		{
 			this.$emit('change', option.value);
 		},

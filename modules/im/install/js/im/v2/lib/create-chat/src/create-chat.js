@@ -1,6 +1,6 @@
 import { EventEmitter } from 'main.core.events';
 
-import { UserRole, DialogType } from 'im.v2.const';
+import { UserRole, ChatType } from 'im.v2.const';
 
 const EVENT_NAMESPACE = 'BX.Messenger.v2.CreateChatManager';
 
@@ -21,7 +21,7 @@ type ChatFields = {
 		manageUi: UserRoleItem,
 	},
 };
-type ChatTypeItem = $Values<typeof DialogType>;
+type ChatTypeItem = $Values<typeof ChatType>;
 
 export class CreateChatManager extends EventEmitter
 {
@@ -35,7 +35,7 @@ export class CreateChatManager extends EventEmitter
 	static #instance: CreateChatManager;
 
 	#isCreating: boolean = false;
-	#chatType: ChatTypeItem = DialogType.chat;
+	#chatType: ChatTypeItem = ChatType.chat;
 	#chatTitle: string = '';
 	#chatAvatarFile: File = null;
 	#chatFields: ChatFields;

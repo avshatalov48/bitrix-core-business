@@ -1,10 +1,8 @@
-import { Tag, Type, Dom, Loc, Event } from 'main.core';
+import { Tag, Type, Dom } from 'main.core';
 import Welcome from './components/welcome';
 import { Calendar } from './components/calendar/index';
 import { SlotSelector } from './components/slot-selector/index';
 import { EventEmitter } from 'main.core.events';
-import { Form } from 'components/slot-selector/form/index';
-
 
 import 'ui.design-tokens';
 import './style.css';
@@ -27,9 +25,12 @@ export default class PublicV2
 	#calendar;
 	#slotsBlock;
 
+	#linkMembers;
+	#eventMembers;
+
 	constructor(options: PublicOptions)
 	{
-		this.#owner = options.owner ? options.owner : null;
+		this.#owner = options.owner || null;
 		this.target = Type.isDomNode(options.target) ? options.target : null;
 		this.#layout = {
 			wrapper: null,
@@ -38,6 +39,9 @@ export default class PublicV2
 		this.#welcomePage = null;
 		this.#calendar = null;
 		this.#slotsBlock = null;
+
+		this.#linkMembers = (options.parentLink || options.link).members;
+		this.#eventMembers = options.link.members ?? options.event.members;
 
 		this.#init();
 		this.#bindEvents();
@@ -68,19 +72,16 @@ export default class PublicV2
 				this.#slotsBlock.openAccessDenied();
 			}
 		}
+		else if (options.link.active === true)
+		{
+			this.#renderFreeSlots(options);
+		}
 		else
 		{
-			if (options.link.active === true)
-			{
-				this.#renderFreeSlots(options);
-			}
-			else
-			{
-				this.#renderSlotsSelector(options);
-				this.#welcomePage.handleWelcomePageButtonClick();
-				this.#welcomePage.hideButton();
-				this.#slotsBlock.openAccessDenied();
-			}
+			this.#renderSlotsSelector(options);
+			this.#welcomePage.handleWelcomePageButtonClick();
+			this.#welcomePage.hideButton();
+			this.#slotsBlock.openAccessDenied();
 		}
 
 		// this.showFreeSlots();
@@ -102,7 +103,8 @@ export default class PublicV2
 		this.#welcomePage = new Welcome({
 			owner: options.owner,
 			link: options.link,
-			currentLang: options.currentLang
+			currentLang: options.currentLang,
+			members: this.#linkMembers,
 		});
 
 		Dom.append(this.#welcomePage.render(), this.#getNodeWrapper());
@@ -111,10 +113,11 @@ export default class PublicV2
 	#renderFreeSlots(options)
 	{
 		this.#calendar = new Calendar({
-			owner: options.owner,
+			userIds: options.link.userIds,
 			accessibility: options.userAccessibility,
 			timezoneList: options.timezoneList,
 			calendarSettings: options.calendarSettings,
+			rule: options.link.rule,
 		});
 
 		let eventLinkHash = null;
@@ -127,12 +130,13 @@ export default class PublicV2
 			selectedTimezoneId: this.#calendar.getSelectedTimezoneId(),
 			owner: this.#owner,
 			link: options.parentLink || options.link,
+			members: this.#eventMembers,
 			sharingUser: options.sharingUser,
 			hasContactData: options.hasContactData,
 			calendarSettings: options.calendarSettings,
 			event: options.event,
 			showBackCalendarButtons: true,
-			eventLinkHash: eventLinkHash,
+			eventLinkHash,
 			action: options.action,
 		});
 
@@ -151,7 +155,7 @@ export default class PublicV2
 			</div>
 		`;
 
-		EventEmitter.subscribe('selectorTypeChange', (ev)=> {
+		EventEmitter.subscribe('selectorTypeChange', (ev) => {
 			if (ev.data === 'form' || ev.data === 'event')
 			{
 				Dom.addClass(firstNodeWrapper, '--hidden');
@@ -188,7 +192,7 @@ export default class PublicV2
 			event: options.event,
 			showBackCalendarButtons: false,
 			action: options.action,
-			eventLinkHash: eventLinkHash,
+			eventLinkHash,
 		});
 
 		this.#layout.animate = Tag.render`
@@ -219,6 +223,11 @@ export default class PublicV2
 			this.#layout.wrapper = Tag.render`
 				<div class="calendar-pub__wrapper calendar-pub__state --hide"></div>
 			`;
+
+			if (Type.isArrayFilled(this.#linkMembers) || Type.isArrayFilled(this.#eventMembers))
+			{
+				Dom.addClass(this.#layout.wrapper, '--large');
+			}
 		}
 
 		return this.#layout.wrapper;
@@ -229,6 +238,7 @@ export default class PublicV2
 		if (!this.target)
 		{
 			console.warn('BX.Calendar.Sharing: "target" is not defined');
+
 			return;
 		}
 

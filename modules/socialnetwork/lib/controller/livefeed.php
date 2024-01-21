@@ -3,12 +3,14 @@
 namespace Bitrix\Socialnetwork\Controller;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Engine\Response\Component;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Helper\ServiceComment;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Socialnetwork\CommentAux;
+use Bitrix\Socialnetwork\Livefeed\Context\Context;
 
 class Livefeed extends Base
 {
@@ -384,7 +386,7 @@ class Livefeed extends Base
 		];
 	}
 
-	public function mobileGetDetailAction($logId): ?\Bitrix\Main\Engine\Response\Component
+	public function mobileGetDetailAction($logId): ?Component
 	{
 		$logId = (int)$logId;
 		if ($logId <= 0)
@@ -393,7 +395,7 @@ class Livefeed extends Base
 			return null;
 		}
 
-		return new \Bitrix\Main\Engine\Response\Component('bitrix:mobile.socialnetwork.log.ex', '', [
+		return new Component('bitrix:mobile.socialnetwork.log.ex', '', [
 			'LOG_ID' => $logId,
 			'SITE_TEMPLATE_ID' => 'mobile_app',
 			'TARGET' => 'postContent',
@@ -419,29 +421,37 @@ class Livefeed extends Base
 		return [ 'LAST_TS', 'LAST_ID', 'EMPTY', 'FILTER_USED', 'FORCE_PAGE_REFRESH' ];
 	}
 
-	public function getNextPageAction(array $params = []): \Bitrix\Main\Engine\Response\Component
+	public function getNextPageAction(array $params = []): Component
 	{
 		$componentParameters = $this->getUnsignedParameters();
 		if (!is_array($componentParameters))
 		{
 			$componentParameters = [];
 		}
-
+		$context = $params['context'] ?? '';
 		$requestParameters = [
 			'TARGET' => 'page',
 			'PAGE_NUMBER' => (isset($params['PAGE_NUMBER']) && (int)$params['PAGE_NUMBER'] >= 1 ? (int)$params['PAGE_NUMBER'] : 1),
 			'LAST_LOG_TIMESTAMP' => (isset($params['LAST_LOG_TIMESTAMP']) && (int)$params['LAST_LOG_TIMESTAMP'] > 0 ? (int)$params['LAST_LOG_TIMESTAMP'] : 0),
 			'PREV_PAGE_LOG_ID' => ($params['PREV_PAGE_LOG_ID'] ?? ''),
+			'CONTEXT' => $context,
 			'useBXMainFilter' =>  ($params['useBXMainFilter'] ?? 'N'),
 			'siteTemplateId' =>  ($params['siteTemplateId'] ?? 'bitrix24'),
 			'preset_filter_top_id' =>  ($params['preset_filter_top_id'] ?? ''),
-			'preset_filter_id' =>  ($params['preset_filter_id'] ?? '')
+			'preset_filter_id' =>  ($params['preset_filter_id'] ?? ''),
 		];
 
-		return new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
+		if ($context === Context::SPACES)
+		{
+			$requestParameters['SPACE_USER_ID'] = (int)($params['userId'] ?? $this->userId);
+			$requestParameters['GROUP_ID'] = (int)($componentParameters['GROUP_ID'] ?? $params['spaceId']);
+		}
+
+
+		return new Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
 	}
 
-	public function refreshAction(array $params = []): \Bitrix\Main\Engine\Response\Component
+	public function refreshAction(array $params = []): Component
 	{
 		$componentParameters = $this->getUnsignedParameters();
 		if (!is_array($componentParameters))
@@ -449,16 +459,25 @@ class Livefeed extends Base
 			$componentParameters = [];
 		}
 
+		$context = $params['context'] ?? '';
 		$requestParameters = [
 			'TARGET' => 'page',
 			'PAGE_NUMBER' => 1,
 			'RELOAD' => 'Y',
+			'CONTEXT' => $context,
+			'composition' => $params['composition'] ?? [],
 			'useBXMainFilter' => ($params['useBXMainFilter'] ?? 'N'),
 			'siteTemplateId' => ($params['siteTemplateId'] ?? 'bitrix24'),
 			'assetsCheckSum' => ($params['assetsCheckSum'] ?? '')
 		];
 
-		return new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
+		if ($context === Context::SPACES)
+		{
+			$requestParameters['SPACE_USER_ID'] = (int)($params['userId'] ?? $this->userId);
+			$requestParameters['GROUP_ID'] = (int)($componentParameters['GROUP_ID'] ?? $params['spaceId']);
+		}
+
+		return new Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
 	}
 
 	public function mobileCreateNotificationLinkAction($tag): string

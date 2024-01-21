@@ -1,5 +1,6 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_core,main_popup,ui_buttons) {
+(function (exports,main_core_events,main_core,ui_dialogs_messagebox) {
 	'use strict';
 
 	class AgentContractController extends BX.UI.EntityEditorController {
@@ -86,41 +87,25 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  delete(id) {
-	    let popup = new main_popup.Popup({
-	      id: 'catalog_agent_contract_list_delete_popup',
-	      titleBar: main_core.Loc.getMessage('CATALOG_AGENT_CONTRACT_TITLE_DELETE_TITLE'),
-	      content: main_core.Loc.getMessage('CATALOG_AGENT_CONTRACT_TITLE_DELETE_CONTENT'),
-	      buttons: [new ui_buttons.Button({
-	        text: main_core.Loc.getMessage('CATALOG_AGENT_CONTRACT_BUTTON_CONTINUE'),
-	        color: ui_buttons.ButtonColor.SUCCESS,
-	        onclick: (button, event) => {
-	          button.setDisabled();
-	          main_core.ajax.runAction('catalog.agentcontract.entity.delete', {
-	            data: {
-	              id: id
-	            }
-	          }).then(response => {
-	            var _this$grid2;
-	            popup.destroy();
-	            (_this$grid2 = this.grid) == null ? void 0 : _this$grid2.reload();
-	          }).catch(response => {
-	            if (response.errors) {
-	              BX.UI.Notification.Center.notify({
-	                content: BX.util.htmlspecialchars(response.errors[0].message)
-	              });
-	            }
-	            popup.destroy();
+	    ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('CATALOG_AGENT_CONTRACT_TITLE_DELETE_CONTENT'), (messageBox, button) => {
+	      button.setWaiting();
+	      main_core.ajax.runAction('catalog.agentcontract.entity.delete', {
+	        data: {
+	          id
+	        }
+	      }).then(() => {
+	        var _this$grid2;
+	        messageBox.close();
+	        (_this$grid2 = this.grid) == null ? void 0 : _this$grid2.reload();
+	      }).catch(response => {
+	        if (response.errors) {
+	          BX.UI.Notification.Center.notify({
+	            content: BX.util.htmlspecialchars(response.errors[0].message)
 	          });
 	        }
-	      }), new ui_buttons.Button({
-	        text: main_core.Loc.getMessage('CATALOG_AGENT_CONTRACT_BUTTON_CANCEL'),
-	        color: ui_buttons.ButtonColor.DANGER,
-	        onclick: (button, event) => {
-	          popup.destroy();
-	        }
-	      })]
-	    });
-	    popup.show();
+	        messageBox.close();
+	      });
+	    }, main_core.Loc.getMessage('CATALOG_AGENT_CONTRACT_BUTTON_CONFIRM'), messageBox => messageBox.close(), main_core.Loc.getMessage('CATALOG_AGENT_CONTRACT_BUTTON_BACK'));
 	  }
 	  deleteList() {
 	    let ids = this.grid.getRows().getSelectedIds();
@@ -151,5 +136,5 @@ this.BX = this.BX || {};
 	exports.ModelFactory = ModelFactory;
 	exports.GridActions = GridActions;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX.Event,BX,BX.Main,BX.UI));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX.Event,BX,BX.UI.Dialogs));
 //# sourceMappingURL=agent-contract.bundle.js.map

@@ -1,8 +1,9 @@
+import { Event } from 'main.core';
 import Sensor from '../sensor';
-import {DragStartSensorEvent} from '../events/drag.start.sensor.event';
-import {DragMoveSensorEvent} from '../events/drag.move.sensor.event';
-import {DragEndSensorEvent} from '../events/drag.end.sensor.event';
-import {DragDropSensorEvent} from '../events/drag.drop.sensor.event';
+import { DragStartSensorEvent } from '../events/drag.start.sensor.event';
+import { DragMoveSensorEvent } from '../events/drag.move.sensor.event';
+import { DragEndSensorEvent } from '../events/drag.end.sensor.event';
+import { DragDropSensorEvent } from '../events/drag.drop.sensor.event';
 
 export default class MouseSensor extends Sensor
 {
@@ -20,52 +21,52 @@ export default class MouseSensor extends Sensor
 
 	enable()
 	{
-		this.getDocument().addEventListener('mousedown', this.onMouseDown, true);
+		Event.bind(this.getDocument(), 'mousedown', this.onMouseDown, { capture: true });
 	}
 
 	disable()
 	{
-		this.getDocument().removeEventListener('mousedown', this.onMouseDown, true);
+		Event.unbind(this.getDocument(), 'mousedown', this.onMouseDown, { capture: true });
 	}
 
 	startHandleMouseUp()
 	{
-		this.getDocument().addEventListener('mouseup', this.onMouseUp);
+		Event.bind(this.getDocument(), 'mouseup', this.onMouseUp);
 	}
 
 	stopHandleMouseUp()
 	{
-		this.getDocument().removeEventListener('mouseup', this.onMouseUp);
+		Event.unbind(this.getDocument(), 'mouseup', this.onMouseUp);
 	}
 
 	startHandleMouseMove()
 	{
-		this.getDocument().addEventListener('mousemove', this.onMouseMove);
+		Event.bind(this.getDocument(), 'mousemove', this.onMouseMove);
 	}
 
 	stopHandleMouseMove()
 	{
-		this.getDocument().removeEventListener('mousemove', this.onMouseMove);
+		Event.unbind(this.getDocument(), 'mousemove', this.onMouseMove);
 	}
 
 	startPreventContextMenu()
 	{
-		this.getDocument().addEventListener('contextmenu', this.preventDefaultEventAction, true);
+		Event.bind(this.getDocument(), 'contextmenu', this.preventDefaultEventAction, { capture: true });
 	}
 
 	stopPreventContextMenu()
 	{
-		this.getDocument().removeEventListener('contextmenu', this.preventDefaultEventAction, true);
+		Event.unbind(this.getDocument(), 'contextmenu', this.preventDefaultEventAction, { capture: true });
 	}
 
 	startPreventNativeDragAndDrop()
 	{
-		this.getDocument().addEventListener('dragstart', this.preventDefaultEventAction);
+		Event.bind(this.getDocument(), 'dragstart', this.preventDefaultEventAction);
 	}
 
 	stopPreventNativeDragAndDrop()
 	{
-		this.getDocument().removeEventListener('dragstart', this.preventDefaultEventAction);
+		Event.unbind(this.getDocument(), 'dragstart', this.preventDefaultEventAction);
 	}
 
 	onMouseDown(event: MouseEvent)
@@ -118,10 +119,10 @@ export default class MouseSensor extends Sensor
 	{
 		if (this.isDragging())
 		{
-			const {clientX, clientY} = originalEvent;
+			const { clientX, clientY } = originalEvent;
 			const over = this.getElementFromPoint(clientX, clientY);
 			const overContainer = this.getContainerByChild(over);
-			const {originalSource, sourceContainer} = this.dragStartEvent.data;
+			const { originalSource, sourceContainer } = this.dragStartEvent.data;
 
 			const dragMoveEvent = new DragMoveSensorEvent({
 				clientX,
@@ -146,10 +147,10 @@ export default class MouseSensor extends Sensor
 
 		if (this.isDragging())
 		{
-			const {clientX, clientY} = originalEvent;
+			const { clientX, clientY } = originalEvent;
 			const over = this.getElementFromPoint(clientX, clientY);
 			const overContainer = this.getContainerByChild(over);
-			const {originalSource, sourceContainer} = this.dragStartEvent.data;
+			const { originalSource, sourceContainer } = this.dragStartEvent.data;
 
 			const dragEndEvent = new DragEndSensorEvent({
 				clientX,

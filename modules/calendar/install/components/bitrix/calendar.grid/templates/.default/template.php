@@ -1,6 +1,17 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
-use \Bitrix\Main\Localization\Loc;
+<?php
+
+use Bitrix\Calendar\Integration\SocialNetwork\Context\Context;
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Main\Localization\Loc;
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
@@ -8,72 +19,100 @@ use \Bitrix\Main\Localization\Loc;
 	'ui.icons.b24',
 ]);
 
+if (($arResult['IS_TOOL_AVAILABLE'] ?? null) === false)
+{
+	$componentParameters = [
+		'LIMIT_CODE' => 'limit_office_calendar_off',
+		'MODULE' => 'calendar',
+		'SOURCE' => 'grid',
+	];
+
+	$APPLICATION->IncludeComponent(
+		"bitrix:ui.sidepanel.wrapper",
+		"",
+		[
+			'POPUP_COMPONENT_NAME' => 'bitrix:intranet.settings.tool.stub',
+			'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+			'POPUP_COMPONENT_PARAMS' => $componentParameters,
+		],
+	);
+
+	return;
+}
+
 $APPLICATION->SetPageProperty('BodyClass', $APPLICATION->GetPageProperty('BodyClass').' pagetitle-toolbar-field-view calendar-pagetitle-view no-background');
 
 $isBitrix24Template = (SITE_TEMPLATE_ID === "bitrix24");
-if($isBitrix24Template)
-{
-$this->SetViewTarget("inside_pagetitle");
-}
-?>
-<div id="<?= $arResult['ID']?>-add-button-container" class="pagetitle-container" style="margin-right: 12px"></div>
 
-<? if ($arParams["SHOW_FILTER"]):?>
-	<div id="<?= $arResult['ID']?>-search-container" class="pagetitle-container pagetitle-flexible-space<?= $isBitrix24Template ? '' : ' calendar-default-search-wrap' ?>">
-	<?
-	// Reset filter to default state
-	$filterOption = new \Bitrix\Main\UI\Filter\Options($arParams["FILTER_ID"]);
-	$filterOption->reset();
+if ($arResult['CONTEXT'] !== Context::getSpaces()):
 
-	$APPLICATION->IncludeComponent(
-		"bitrix:main.ui.filter",
-		"",
-		array(
-			"FILTER_ID" => $arParams["FILTER_ID"],
-			"FILTER" => $arParams["FILTER"],
-			"FILTER_PRESETS" => $arParams["FILTER_PRESETS"],
-			'ENABLE_LIVE_SEARCH' => true,
-			"ENABLE_LABEL" => true,
-			'THEME' => Bitrix\Main\UI\Filter\Theme::MUTED,
-		),
-		$component,
-		array("HIDE_ICONS" => true)
-	);
+	if($isBitrix24Template)
+	{
+		$this->SetViewTarget("inside_pagetitle");
+	}
 	?>
-</div>
-<? endif;?>
-<div id="<?= $arResult['ID']?>-buttons-container" class="pagetitle-container pagetitle-align-right-container<?= $isBitrix24Template ? '' : ' calendar-default-buttons-container' ?>"></div>
-<?
-if($isBitrix24Template)
-{
-	$this->EndViewTarget();
-	$this->SetViewTarget("below_pagetitle");
-}
-?>
-<div class="calendar-interface-toolbar">
-	<div class="calendar-view-switcher">
-		<div id="<?= $arResult['ID']?>-view-switcher-container"></div>
+
+	<div id="<?= $arResult['ID']?>-add-button-container" class="pagetitle-container" style="margin-right: 12px"></div>
+
+	<?php if ($arParams["SHOW_FILTER"]):?>
+	<div id="<?= $arResult['ID']?>-search-container" class="pagetitle-container pagetitle-flexible-space<?= $isBitrix24Template ? '' : ' calendar-default-search-wrap' ?>">
+		<?php
+		// Reset filter to default state
+		$filterOption = new \Bitrix\Main\UI\Filter\Options($arParams["FILTER_ID"]);
+		$filterOption->reset();
+
+		$APPLICATION->IncludeComponent(
+			"bitrix:main.ui.filter",
+			"",
+			[
+				"FILTER_ID" => $arParams['FILTER_ID'],
+				"FILTER" => $arParams["FILTER"],
+				"FILTER_PRESETS" => $arParams["FILTER_PRESETS"],
+				'ENABLE_LIVE_SEARCH' => true,
+				"ENABLE_LABEL" => true,
+				'THEME' => Bitrix\Main\UI\Filter\Theme::MUTED,
+			],
+			$component,
+			[
+					"HIDE_ICONS" => true
+			]
+		);
+		?>
+	</div>
+	<?php endif;?>
+	<div id="<?= $arResult['ID']?>-buttons-container" class="pagetitle-container pagetitle-align-right-container<?= $isBitrix24Template ? '' : ' calendar-default-buttons-container' ?>"></div>
+	<?php
+	if($isBitrix24Template)
+	{
+		$this->EndViewTarget();
+		$this->SetViewTarget("below_pagetitle");
+	}
+	?>
+	<div class="calendar-interface-toolbar">
+		<div class="calendar-view-switcher">
+			<div id="<?= $arResult['ID']?>-view-switcher-container"></div>
+		</div>
+
+		<?php if (
+			$arParams["SHOW_FILTER"]
+			&& $arParams['CALENDAR_TYPE'] === 'user'
+			&& (int)$arParams['OWNER_ID'] === (int)$arParams['USER_ID']
+		):
+			?>
+			<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container calendar-counter"></div>
+		<?php endif;?>
+
+		<div id="<?= $arResult['ID']?>-sync-container" style="margin: auto 0 auto auto"></div>
+		<div id="<?= $arResult['ID']?>-sharing-container" style="margin: auto 0 auto 5px"></div>
 	</div>
 
-	<? if (
-		$arParams["SHOW_FILTER"]
-		&& $arParams['CALENDAR_TYPE'] === 'user'
-		&& (int)$arParams['OWNER_ID'] === (int)$arParams['USER_ID']
-	):?>
-		<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container calendar-counter"></div>
-	<? endif;?>
+	<?php if($isBitrix24Template)
+	{
+		$this->EndViewTarget();
+	}
 
-	<div id="<?= $arResult['ID']?>-sync-container" style="margin: auto 0 auto auto"></div>
-	<div id="<?= $arResult['ID']?>-sharing-container" style="margin: auto 0 auto 5px"></div>
-</div>
-<?
-if($isBitrix24Template)
-{
-	$this->EndViewTarget();
-}
-?>
+endif;
 
-<?
 $arResult['CALENDAR']->Show();
 
 if($ex = $APPLICATION->GetException())

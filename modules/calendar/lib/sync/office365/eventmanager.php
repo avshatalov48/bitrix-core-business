@@ -283,7 +283,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		}
 		catch (ApiException $exception)
 		{
-			if ((int)$exception->getCode() !== 400 && (int)$exception->getCode() !== 404)
+			if (!in_array((int)$exception->getCode(), [400, 404], true))
 			{
 				throw $exception;
 			}

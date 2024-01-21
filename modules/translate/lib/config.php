@@ -181,7 +181,7 @@ final class Config
 			}
 		}
 
-		return $cultureEncoding[$languageId] ?: null;
+		return ($cultureEncoding[$languageId] ?? null) ?: null;
 	}
 
 	/**

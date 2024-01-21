@@ -129,7 +129,7 @@ $this->addExternalJs($templateFolder."/utils.js");
 						?></span><?
 					endif;
 					if ($arItem["SUB_LINK"]):
-						?><a class="main-buttons-item-sublink<?=" ".$arItem["SUB_LINK"]["CLASS"]?>" href="<?=htmlspecialcharsbx($arItem["SUB_LINK"]["URL"])?>"></a><?
+						?><a class="main-buttons-item-sublink<?=" ".($arItem["SUB_LINK"]["CLASS"] ?? '')?>" href="<?=htmlspecialcharsbx($arItem["SUB_LINK"]["URL"])?>"></a><?
 					endif;
 				else:
 					echo $arItem["HTML"];
@@ -249,7 +249,7 @@ $this->addExternalJs($templateFolder."/utils.js");
 									endif;
 
 									if ($arChildItem["SUB_LINK"]):
-										?><a class="main-buttons-item-sublink<?=" ".$arChildItem["SUB_LINK"]["CLASS"]?>" href="<?=htmlspecialcharsbx($arChildItem["SUB_LINK"]["URL"])?>"></a><?
+										?><a class="main-buttons-item-sublink<?=" ".($arChildItem["SUB_LINK"]["CLASS"] ?? '')?>" href="<?=htmlspecialcharsbx($arChildItem["SUB_LINK"]["URL"])?>"></a><?
 									endif;
 								else:
 									echo $arChildItem["HTML"];

@@ -17,6 +17,7 @@ use Bitrix\Sale\Delivery\Services\Base;
 use Bitrix\Sale\Repository\ShipmentRepository;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Api;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
+use Sale\Handlers\Delivery\YandexTaxi\ClaimBuilder\ClaimBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\EventJournal\JournalProcessor;
 use Sale\Handlers\Delivery\YandexTaxi\Internals\ClaimsTable;
 
@@ -29,7 +30,7 @@ class RequestHandler extends HandlerBase
 	/** @var Api */
 	private $api;
 
-	/** @var ClaimBuilder\ClaimBuilder */
+	/** @var ClaimBuilder */
 	private $claimBuilder;
 
 	/** @var JournalProcessor */
@@ -80,6 +81,18 @@ class RequestHandler extends HandlerBase
 
 		/** @var Claim $claim */
 		$claim = $claimBuildingResult->getData()['RESULT'];
+
+		$taxiClass = $claim->getClientRequirements()->getTaxiClass();
+
+		if (ClaimBuilder::isOffersCalculateMethod($taxiClass))
+		{
+			$offerData = ServiceContainer::getRateCalculator()->calculateRate($shipment)->getData();
+
+			if (isset($offerData['offerPayload']))
+			{
+				$claim->setOfferPayload($offerData['offerPayload']);
+			}
+		}
 
 		$claimCreationResult = $this->api->createClaim($claim);
 

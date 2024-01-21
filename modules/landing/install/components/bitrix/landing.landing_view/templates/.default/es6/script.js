@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 (function (exports,main_core,main_popup) {
@@ -989,14 +988,17 @@ this.BX.Landing = this.BX.Landing || {};
 	  return DeviceUI;
 	}();
 
+	var _templateObject$2;
 	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _options = /*#__PURE__*/new WeakMap();
 	var _frameUrl = /*#__PURE__*/new WeakMap();
 	var _editorFrameWrapper = /*#__PURE__*/new WeakMap();
 	var _previewElement = /*#__PURE__*/new WeakMap();
 	var _previewWindow = /*#__PURE__*/new WeakMap();
+	var _previewLoader = /*#__PURE__*/new WeakMap();
 	var _currentDevice = /*#__PURE__*/new WeakMap();
 	var _editorEnabled = /*#__PURE__*/new WeakMap();
 	var _pendingReload = /*#__PURE__*/new WeakMap();
@@ -1006,6 +1008,9 @@ this.BX.Landing = this.BX.Landing || {};
 	var _reloadPreviewWindow = /*#__PURE__*/new WeakSet();
 	var _scrollDevice = /*#__PURE__*/new WeakSet();
 	var _resolveDeviceByType = /*#__PURE__*/new WeakSet();
+	var _getPreviewNode = /*#__PURE__*/new WeakSet();
+	var _setPreview = /*#__PURE__*/new WeakSet();
+	var _removePreview = /*#__PURE__*/new WeakSet();
 	var _setDevice = /*#__PURE__*/new WeakSet();
 	var _adjustPreviewScroll = /*#__PURE__*/new WeakSet();
 	var _buildPreview = /*#__PURE__*/new WeakSet();
@@ -1020,7 +1025,7 @@ this.BX.Landing = this.BX.Landing || {};
 	 *
 	 * @param {Options} options Constructor options.
 	 */
-	function Device(_options) {
+	function Device(_options2) {
 	  babelHelpers.classCallCheck(this, Device);
 	  _classPrivateMethodInitSpec$2(this, _hidePreview);
 	  _classPrivateMethodInitSpec$2(this, _showPreview);
@@ -1028,11 +1033,18 @@ this.BX.Landing = this.BX.Landing || {};
 	  _classPrivateMethodInitSpec$2(this, _buildPreview);
 	  _classPrivateMethodInitSpec$2(this, _adjustPreviewScroll);
 	  _classPrivateMethodInitSpec$2(this, _setDevice);
+	  _classPrivateMethodInitSpec$2(this, _removePreview);
+	  _classPrivateMethodInitSpec$2(this, _setPreview);
+	  _classPrivateMethodInitSpec$2(this, _getPreviewNode);
 	  _classPrivateMethodInitSpec$2(this, _resolveDeviceByType);
 	  _classPrivateMethodInitSpec$2(this, _scrollDevice);
 	  _classPrivateMethodInitSpec$2(this, _reloadPreviewWindow);
 	  _classPrivateMethodInitSpec$2(this, _backendAction);
 	  _classPrivateMethodInitSpec$2(this, _registerListeners);
+	  _classPrivateFieldInitSpec$2(this, _options, {
+	    writable: true,
+	    value: void 0
+	  });
 	  _classPrivateFieldInitSpec$2(this, _frameUrl, {
 	    writable: true,
 	    value: void 0
@@ -1046,6 +1058,10 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: void 0
 	  });
 	  _classPrivateFieldInitSpec$2(this, _previewWindow, {
+	    writable: true,
+	    value: void 0
+	  });
+	  _classPrivateFieldInitSpec$2(this, _previewLoader, {
 	    writable: true,
 	    value: void 0
 	  });
@@ -1067,10 +1083,11 @@ this.BX.Landing = this.BX.Landing || {};
 	    ]
 	  });
 
-	  babelHelpers.classPrivateFieldSet(this, _frameUrl, _options.frameUrl);
-	  babelHelpers.classPrivateFieldSet(this, _editorFrameWrapper, _options.editorFrameWrapper);
-	  _classPrivateMethodGet$2(this, _registerListeners, _registerListeners2).call(this, _options);
-	  _classPrivateMethodGet$2(this, _buildPreview, _buildPreview2).call(this, _options);
+	  babelHelpers.classPrivateFieldSet(this, _frameUrl, _options2.frameUrl);
+	  babelHelpers.classPrivateFieldSet(this, _editorFrameWrapper, _options2.editorFrameWrapper);
+	  babelHelpers.classPrivateFieldSet(this, _options, _options2);
+	  _classPrivateMethodGet$2(this, _registerListeners, _registerListeners2).call(this, _options2);
+	  _classPrivateMethodGet$2(this, _buildPreview, _buildPreview2).call(this, _options2);
 	  _classPrivateMethodGet$2(this, _showPreview, _showPreview2).call(this);
 	  _classPrivateMethodGet$2(this, _setDevice, _setDevice2).call(this, _classPrivateMethodGet$2(this, _resolveDeviceByType, _resolveDeviceByType2).call(this, 'mobile'));
 	}
@@ -1150,7 +1167,28 @@ this.BX.Landing = this.BX.Landing || {};
 	  }
 	  return Devices.devices[deviceCode];
 	}
+	function _getPreviewNode2() {
+	  if (!babelHelpers.classPrivateFieldGet(this, _previewLoader)) {
+	    Loc.loadMessages(babelHelpers.classPrivateFieldGet(this, _options).messages);
+	    babelHelpers.classPrivateFieldSet(this, _previewLoader, main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-device-loader\">\n\t\t\t\t\t<div class=\"landing-device-loader-icon\"></div>\n\t\t\t\t\t<div class=\"landing-device-loader-text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), Loc.getMessage('LANDING_TPL_PREVIEW_LOADING')));
+	  }
+	  return babelHelpers.classPrivateFieldGet(this, _previewLoader);
+	}
+	function _setPreview2(target) {
+	  if (!target) {
+	    return;
+	  }
+	  main_core.Dom.append(_classPrivateMethodGet$2(this, _getPreviewNode, _getPreviewNode2).call(this), target);
+	}
+	function _removePreview2() {
+	  var _this2 = this;
+	  main_core.Dom.addClass(_classPrivateMethodGet$2(this, _getPreviewNode, _getPreviewNode2).call(this), '--hide');
+	  main_core.Event.bind(_classPrivateMethodGet$2(this, _getPreviewNode, _getPreviewNode2).call(this), 'transitionend', function () {
+	    main_core.Dom.remove(_classPrivateMethodGet$2(_this2, _getPreviewNode, _getPreviewNode2).call(_this2));
+	  });
+	}
 	function _setDevice2(newDevice) {
+	  var _this3 = this;
 	  if (!newDevice) {
 	    return;
 	  }
@@ -1166,6 +1204,9 @@ this.BX.Landing = this.BX.Landing || {};
 	  babelHelpers.classPrivateFieldGet(this, _previewElement).querySelector('[data-role="device-orientation"]').innerHTML = localStorage.getItem('deviceOrientation');
 	  var frame = babelHelpers.classPrivateFieldGet(this, _previewElement).querySelector('[data-role="landing-device-preview-iframe"]');
 	  var frameWrapper = babelHelpers.classPrivateFieldGet(this, _previewElement).querySelector('[data-role="landing-device-preview"]');
+	  frame.onload = function () {
+	    return _classPrivateMethodGet$2(_this3, _removePreview, _removePreview2).call(_this3);
+	  };
 
 	  // scale for device
 	  if (frame && frameWrapper && babelHelpers.classPrivateFieldGet(this, _currentDevice).width && babelHelpers.classPrivateFieldGet(this, _currentDevice).height) {
@@ -1218,6 +1259,7 @@ this.BX.Landing = this.BX.Landing || {};
 	}
 	function _showPreview2() {
 	  main_core.Dom.show(babelHelpers.classPrivateFieldGet(this, _previewElement));
+	  _classPrivateMethodGet$2(this, _setPreview, _setPreview2).call(this, babelHelpers.classPrivateFieldGet(this, _previewElement));
 	}
 
 	exports.ExternalControls = ExternalControls;

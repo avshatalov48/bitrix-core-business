@@ -37,14 +37,9 @@
 	}
 }
 
-.main-spot-light-popup {
-	max-width: 400px;
-	padding: 20px 20px 8px 20px;
-	font-size: 14px;
-	line-height: 19px;
-	color: #535C69;
-	-webkit-animation: spotLightPopupShow .2s 1 linear;
-	animation: spotLightPopupShow .2s 1 linear;
+.main-spot-light-popup-animation {
+	-webkit-animation: main-spot-light-popup-animation .2s 1 linear;
+	animation: main-spot-light-popup-animation .2s 1 linear;
 }
 
 .main-spot-light-popup .popup-window-buttons {
@@ -71,7 +66,7 @@
 	border-bottom: 1px solid #828B95;
 }
 
-@-webkit-keyframes spotLightPopupShow {
+@-webkit-keyframes main-spot-light-popup-animation {
 	0% {
 		opacity: 0;
 		-webkit-transform: translateY(5px);
@@ -84,7 +79,7 @@
 	}
 }
 
-@keyframes spotLightPopupShow {
+@keyframes main-spot-light-popup-animation {
 	0% {
 		opacity: 0;
 		-webkit-transform: translateY(5px);

@@ -151,16 +151,8 @@ class Handler extends Http\Handler
 						// all headers received
 						$this->log("\n<<<RESPONSE\n" . $this->responseHeaders . "\n", Web\HttpDebug::RESPONSE_HEADERS);
 
-						try
-						{
-							// build the response for the next stage
-							$this->response = $this->responseBuilder->createFromString($this->responseHeaders);
-						}
-						catch (\InvalidArgumentException $e)
-						{
-//							throw new Http\NetworkException($request, 'Incorrect response header: ' . $e->getMessage());
-							throw new \InvalidArgumentException($e->getMessage() . ' ' . $request->getUri());
-						}
+						// build the response for the next stage
+						$this->response = $this->responseBuilder->createFromString($this->responseHeaders);
 
 						$fetchBody = $this->waitResponse;
 
@@ -229,12 +221,7 @@ class Handler extends Http\Handler
 		}
 		catch (\RuntimeException $e)
 		{
-			throw new Http\NetworkException($this->request, $error);
-		}
-
-		if ($this->socket->timedOut())
-		{
-			throw new Http\NetworkException($this->request, 'Stream writing timeout has been reached.');
+			throw new Http\NetworkException($this->request, $error . ' ' . $e->getMessage());
 		}
 
 		return $result;
@@ -262,7 +249,9 @@ class Handler extends Http\Handler
 
 		// blocking is critical for headers
 		$this->socket->setBlocking();
+
 		$this->write($requestHeaders, 'Error sending CONNECT to proxy.');
+
 		$this->socket->setBlocking(false);
 	}
 
@@ -322,11 +311,13 @@ class Handler extends Http\Handler
 	{
 		while (!$this->socket->eof())
 		{
-			$line = $this->socket->gets();
-
-			if ($this->socket->timedOut())
+			try
 			{
-				throw new Http\NetworkException($this->request, 'Stream reading timeout has been reached.');
+				$line = $this->socket->gets();
+			}
+			catch (\RuntimeException $e)
+			{
+				throw new Http\NetworkException($this->request, $e->getMessage());
 			}
 
 			if ($line === false)
@@ -366,14 +357,9 @@ class Handler extends Http\Handler
 			{
 				$buf = $this->socket->read(self::BUF_READ_LEN);
 			}
-			catch (\RuntimeException $e)
+			catch (\RuntimeException)
 			{
 				throw new Http\NetworkException($request, 'Stream reading error.');
-			}
-
-			if ($this->socket->timedOut())
-			{
-				throw new Http\NetworkException($request, 'Stream reading timeout has been reached.');
 			}
 
 			if ($buf === '')
@@ -386,7 +372,7 @@ class Handler extends Http\Handler
 			{
 				$body->write($buf);
 			}
-			catch (\RuntimeException $e)
+			catch (\RuntimeException)
 			{
 				throw new Http\NetworkException($request, 'Error writing to response body stream.');
 			}
@@ -447,6 +433,7 @@ class Handler extends Http\Handler
 				'socketTimeout' => $options['socketTimeout'] ?? null,
 				'streamTimeout' => $options['streamTimeout'] ?? null,
 				'contextOptions' => $contextOptions,
+				'async' => $options['async'] ?? null,
 			]
 		);
 

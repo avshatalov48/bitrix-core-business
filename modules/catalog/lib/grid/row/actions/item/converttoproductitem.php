@@ -33,10 +33,17 @@ final class ConvertToProductItem extends BaseItem
 			'id' => $id,
 		]);
 		$confirmMessage = \CUtil::JSEscape(
-			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_PRODUCT_CONFIRM_MESSAGE')
+			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_PRODUCT_CONFIRM_MESSAGE_MSGVER_1')
 		);
 
-		$this->onclick = "IblockGridInstance.sendActionWithConfirm('{$actionId}', {$data}, '{$confirmMessage}')";
+		$confirmButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_PRODUCT_CONFIRM_BUTTON')
+		);
+		$backButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('CATALOG_GRID_ROW_ACTIONS_CONVERT_TO_PRODUCT_BACK_BUTTON')
+		);
+
+		$this->onclick = "IblockGridInstance.sendSmallPopupWithConfirm('{$actionId}', {$data}, '{$confirmMessage}', '{$confirmButtonMessage}', '{$backButtonMessage}')";
 
 		return parent::getControl($rawFields);
 	}

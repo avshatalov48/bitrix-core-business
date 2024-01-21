@@ -1,0 +1,108 @@
+.landing-crm-requisites__wrap {
+	padding: 24px;
+}
+
+.landing-crm-requisites__title {
+	display: block;
+	padding-bottom: 24px;
+	margin-bottom: 25px;
+	border-bottom: 1px solid rgba(var(--ui-color-base-90-rgb), .08);
+	font-size: 28px;
+	text-align: center;
+	font-weight: var(--ui-font-weight-semi-bold);
+}
+
+.landing-crm-requisites_inner,
+.landing-crm-requisites__box,
+.landing-crm-requisites_main {
+	display: flex;
+}
+
+.landing-crm-requisites_inner {
+	flex-wrap: wrap;
+}
+
+.landing-crm-requisites__box {
+	position: relative;
+	align-items: center;
+	flex: 1;
+	margin: 0 15px 20px 0;
+}
+
+.landing-crm-requisites__box:after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	right: 0;
+	width: 1px;
+	height: 30px;
+	background-color: rgba(var(--ui-color-base-90-rgb), var(--ui-opacity-10));
+	transform: translateY(-50%);
+}
+
+.landing-crm-requisites__box:last-child {
+	padding-right: 0;
+	margin: 0 0 20px 0;
+}
+
+.landing-crm-requisites__box:last-child:after {
+	display: none;
+}
+
+.landing-crm-requisites_main {
+	flex-direction: column;
+	width: calc(100% - 62px);
+}
+
+.landing-crm-requisites_icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-right: 16px;
+	min-width: 46px;
+	height: 46px;
+	border-radius: var(--ui-border-radius-circle);
+	background-color: var(--ui-color-base-02);
+}
+
+.landing-crm-requisites__name,
+.landing-crm-requisites__table_cell:first-child {
+	font-size: var(--ui-font-size-md);
+	opacity: .5;
+}
+
+.landing-crm-requisites__value {
+	width: 100%;
+	overflow-wrap: break-word;
+	font-size: var(--ui-font-size-xl);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--ui-color-base-90);
+}
+
+.landing-crm-requisites__table {
+	display: table;
+	table-layout: fixed;
+}
+
+.landing-crm-requisites__table_row {
+	display: table-row;
+}
+
+.landing-crm-requisites__table_cell {
+	display: table-cell;
+	line-height: 16px;
+	padding-bottom: 16px;
+	font-size: var(--ui-font-size-lg);
+}
+
+.landing-crm-requisites__table_cell:first-child {
+	padding-right: 50px;
+}
+
+.landing-crm-requisites__value a {
+	display: block;
+	width: fit-content;
+	max-width: 250px;
+	border-bottom: 1px solid rgba(var(--ui-color-base-90-rgb), var(--ui-opacity-20));
+	color: var(--color);
+}

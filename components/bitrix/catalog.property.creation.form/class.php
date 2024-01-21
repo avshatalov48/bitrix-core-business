@@ -125,7 +125,7 @@ class CatalogPropertyCreationFormComponent extends \CBitrixComponent
 			}
 			else
 			{
-				$title = Loc::getMessage('CATALOG_CREATE_VARIATION_PROPERTY_TITLE');
+				$title = Loc::getMessage('CATALOG_CREATE_VARIATION_PROPERTY_TITLE_MSGVER_1');
 			}
 
 			$GLOBALS['APPLICATION']->setTitle($title);

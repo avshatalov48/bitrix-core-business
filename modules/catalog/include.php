@@ -1,22 +1,20 @@
 <?php
-/** @global \CMain $APPLICATION */
-use Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main,
-	Bitrix\Iblock,
-	Bitrix\Sale,
-	Bitrix\Catalog;
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Iblock;
+use Bitrix\Sale;
+use Bitrix\Catalog;
 
 const CATALOG_CONTAINER_PATH = 'modules/catalog/.container.php';
 
-const CATALOG_PATH2EXPORTS = "/bitrix/php_interface/include/catalog_export/";
-const CATALOG_PATH2EXPORTS_DEF = "/bitrix/modules/catalog/load/";
+const CATALOG_PATH2EXPORTS = '/bitrix/php_interface/include/catalog_export/';
+const CATALOG_PATH2EXPORTS_DEF = '/bitrix/modules/catalog/load/';
 const CATALOG_DEFAULT_EXPORT_PATH = '/bitrix/catalog_export/';
 
-const CATALOG_PATH2IMPORTS = "/bitrix/php_interface/include/catalog_import/";
-const CATALOG_PATH2IMPORTS_DEF = "/bitrix/modules/catalog/load_import/";
+const CATALOG_PATH2IMPORTS = '/bitrix/php_interface/include/catalog_import/';
+const CATALOG_PATH2IMPORTS_DEF = '/bitrix/modules/catalog/load_import/';
 
 const YANDEX_SKU_EXPORT_ALL = 1;
 const YANDEX_SKU_EXPORT_MIN_PRICE = 2;
@@ -78,26 +76,33 @@ const DOC_INVENTORY = 'I';
 
 //**********************************//
 
+/** @global \CMain $APPLICATION */
 global $APPLICATION;
 
-if (!Loader::includeModule("iblock"))
+if (!Loader::includeModule('iblock'))
 {
 	$APPLICATION->ThrowException(Loc::getMessage('CAT_ERROR_IBLOCK_NOT_INSTALLED'));
+
 	return false;
 }
 
-if (!Loader::includeModule("currency"))
+if (!Loader::includeModule('currency'))
 {
 	$APPLICATION->ThrowException(Loc::getMessage('CAT_ERROR_CURRENCY_NOT_INSTALLED'));
+
 	return false;
 }
 
-$arTreeDescr = array(
+$arTreeDescr = [
 	'js' => '/bitrix/js/catalog/core_tree.js',
 	'css' => '/bitrix/panel/catalog/catalog_cond.css',
 	'lang' => '/bitrix/modules/catalog/lang/'.LANGUAGE_ID.'/js_core_tree.php',
-	'rel' => array('core', 'date', 'window')
-);
+	'rel' => [
+		'core',
+		'date',
+		'window',
+	],
+];
 CJSCore::RegisterExt('core_condtree', $arTreeDescr);
 
 const CATALOG_VALUE_EPSILON = 1e-6;
@@ -105,7 +110,7 @@ const CATALOG_VALUE_PRECISION = 2;
 const CATALOG_CACHE_DEFAULT_TIME = 10800;
 const CATALOG_PAGE_SIZE = 500;
 
-require_once __DIR__.'/autoload.php';
+require_once __DIR__ . '/autoload.php';
 
 if (defined('CATALOG_GLOBAL_VARS') && CATALOG_GLOBAL_VARS == 'Y')
 {
@@ -176,8 +181,7 @@ function GetCatalogGroups($by = "SORT", $order = "ASC")
  */
 function GetCatalogGroup($CATALOG_GROUP_ID)
 {
-	$CATALOG_GROUP_ID = intval($CATALOG_GROUP_ID);
-	return CCatalogGroup::GetByID($CATALOG_GROUP_ID);
+	return CCatalogGroup::GetByID((int)$CATALOG_GROUP_ID);
 }
 
 /**
@@ -189,9 +193,9 @@ function GetCatalogGroup($CATALOG_GROUP_ID)
  */
 function GetCatalogGroupName($CATALOG_GROUP_ID)
 {
-	/** @noinspection PhpDeprecationInspection */
-	$rn = GetCatalogGroup($CATALOG_GROUP_ID);
-	return $rn["NAME_LANG"];
+	$rn = CCatalogGroup::GetByID((int)$CATALOG_GROUP_ID);
+
+	return $rn["NAME_LANG"] ?? null;
 }
 
 /**
@@ -203,8 +207,7 @@ function GetCatalogGroupName($CATALOG_GROUP_ID)
  */
 function GetCatalogProduct($PRODUCT_ID)
 {
-	$PRODUCT_ID = intval($PRODUCT_ID);
-	return CCatalogProduct::GetByID($PRODUCT_ID);
+	return CCatalogProduct::GetByID((int)$PRODUCT_ID);
 }
 
 /**
@@ -217,8 +220,7 @@ function GetCatalogProduct($PRODUCT_ID)
  */
 function GetCatalogProductEx($PRODUCT_ID, $boolAllValues = false)
 {
-	$PRODUCT_ID = intval($PRODUCT_ID);
-	return CCatalogProduct::GetByIDEx($PRODUCT_ID, $boolAllValues);
+	return CCatalogProduct::GetByIDEx((int)$PRODUCT_ID, $boolAllValues);
 }
 
 /**
@@ -231,15 +233,17 @@ function GetCatalogProductEx($PRODUCT_ID, $boolAllValues = false)
  */
 function GetCatalogProductPrice($PRODUCT_ID, $CATALOG_GROUP_ID)
 {
-	$PRODUCT_ID = intval($PRODUCT_ID);
-	$CATALOG_GROUP_ID = intval($CATALOG_GROUP_ID);
+	$db_res = CPrice::GetList(
+		[
+			'CATALOG_GROUP_ID' => 'ASC',
+		],
+		[
+			'PRODUCT_ID' => (int)$PRODUCT_ID,
+			'CATALOG_GROUP_ID' => (int)$CATALOG_GROUP_ID,
+		]
+	);
 
-	$db_res = CPrice::GetList(($by="CATALOG_GROUP_ID"), ($order="ASC"), array("PRODUCT_ID"=>$PRODUCT_ID, "CATALOG_GROUP_ID"=>$CATALOG_GROUP_ID));
-
-	if ($res = $db_res->Fetch())
-		return $res;
-
-	return false;
+	return $db_res->Fetch();
 }
 
 /**
@@ -253,18 +257,21 @@ function GetCatalogProductPrice($PRODUCT_ID, $CATALOG_GROUP_ID)
  */
 function GetCatalogProductPriceList($PRODUCT_ID, $by = "SORT", $order = "ASC")
 {
-	$PRODUCT_ID = intval($PRODUCT_ID);
-
 	$db_res = CPrice::GetList(
-		array($by => $order),
-		array("PRODUCT_ID" => $PRODUCT_ID)
+		[
+			$by => $order,
+		],
+		[
+			'PRODUCT_ID' => (int)$PRODUCT_ID,
+		]
 	);
 
-	$arPrice = array();
+	$arPrice = [];
 	while ($res = $db_res->Fetch())
 	{
 		$arPrice[] = $res;
 	}
+	unset($db_res);
 
 	return $arPrice;
 }
@@ -309,15 +316,15 @@ function FormatCurrency($fSum, $strCurrency)
  */
 function CatalogBasketCallback($productID, $quantity = 0, $renewal = "N", $intUserID = 0, $strSiteID = false)
 {
-	$arParams = array(
+	$arParams = [
 		'PRODUCT_ID' => $productID,
 		'QUANTITY' => $quantity,
 		'RENEWAL' => $renewal,
 		'USER_ID' => $intUserID,
 		'SITE_ID' => $strSiteID,
 		'CHECK_QUANTITY' => 'Y',
-		'AVAILABLE_QUANTITY' => 'Y'
-	);
+		'AVAILABLE_QUANTITY' => 'Y',
+	];
 
 	return CCatalogProductProvider::GetProductData($arParams);
 }
@@ -335,19 +342,20 @@ function CatalogBasketCallback($productID, $quantity = 0, $renewal = "N", $intUs
  */
 function CatalogBasketOrderCallback($productID, $quantity, $renewal = "N", $intUserID = 0, $strSiteID = false)
 {
-	$arParams = array(
+	$arParams = [
 		'PRODUCT_ID' => $productID,
 		'QUANTITY' => $quantity,
 		'RENEWAL' => $renewal,
 		'USER_ID' => $intUserID,
 		'SITE_ID' => $strSiteID
-	);
+	];
 
 	$arResult = CCatalogProductProvider::OrderProduct($arParams);
 	if (!empty($arResult) && is_array($arResult) && isset($arResult['QUANTITY']))
 	{
 		CCatalogProduct::QuantityTracer($productID, $arResult['QUANTITY']);
 	}
+
 	return $arResult;
 }
 

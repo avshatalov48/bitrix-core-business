@@ -1,4 +1,6 @@
 <?php
+$MESS["IM_CHAT_ACCESS_DENIED_EXTEND_USERS"] = "Insufficient permission to add chat members.";
+$MESS["IM_CHAT_ACCESS_DENIED_KICK_USERS"] = "Insufficient permission to kick chat members.";
 $MESS["IM_CHAT_CHANGE_COLOR_F"] = "#USER_NAME# changed chat color to \"#CHAT_COLOR#\"";
 $MESS["IM_CHAT_CHANGE_COLOR_M"] = "#USER_NAME# changed chat color to \"#CHAT_COLOR#\"";
 $MESS["IM_CHAT_CHANGE_TITLE"] = "Chat \"#CHAT_TITLE#\" subject changed";
@@ -44,7 +46,7 @@ $MESS["IM_ERROR_USER_NOT_FOUND"] = "The specified user is not in chat.";
 $MESS["IM_ERROR_VIDEOCONF_MAX_USER"] = "Video conference cannot accommodate for more than #COUNT# persons";
 $MESS["IM_GENERAL_CREATE_BY_USER_NEW"] = "#USER_NAME# invites to a new public chat ";
 $MESS["IM_GENERAL_CREATE_NEW"] = "Public chat was created";
-$MESS["IM_GENERAL_DESCRIPTION"] = "A General chat is open to all of your colleagues. Use this chat to discuss topics that are of importance to anybody in your company.";
+$MESS["IM_GENERAL_DESCRIPTION"] = "The General chat is visible to everyone. Use this chat to discuss topics that are of importance to anybody in your company.";
 $MESS["IM_GENERAL_TITLE"] = "General chat";
 $MESS["IM_MESSAGE_DELETED"] = "This message has been deleted.";
 $MESS["IM_MESSAGE_FORMAT_DATE"] = "g:i a, d F Y";

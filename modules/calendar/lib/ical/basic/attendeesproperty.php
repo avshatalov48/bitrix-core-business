@@ -11,6 +11,7 @@ class AttendeesProperty
 	public $role = null;
 	public $cutype = null;
 	public $mailto;
+	public $rsvp = true;
 
 	public function __construct(
 		string $email = null,
@@ -18,7 +19,8 @@ class AttendeesProperty
 		string $participationStatus = null,
 		string $role = null,
 		string $cutype = null,
-		string $mailto = null
+		string $mailto = null,
+		bool $rsvp = true
 	)
 	{
 		$this->email = $email;
@@ -27,5 +29,6 @@ class AttendeesProperty
 		$this->role = $role;
 		$this->cutype = $cutype;
 		$this->mailto = $mailto;
+		$this->rsvp = $rsvp;
 	}
 }

@@ -78,7 +78,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 *
 	 * @param string $fileName Absolute physical path.
 	 *
-	 * @return boolean
+	 * @return void
 	 */
 	private static function unlink($fileName)
 	{
@@ -91,11 +91,8 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 		if (file_exists($fileName))
 		{
 			@chmod($fileName, BX_FILE_PERMISSIONS);
-			if (@unlink($fileName))
-				return true;
+			@unlink($fileName);
 		}
-
-		return false;
 	}
 
 	/**
@@ -161,11 +158,7 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 		$documentRoot = Main\Loader::getDocumentRoot();
 		if (($filename !== false) && ($filename !== ""))
 		{
-			$result = static::unlink($documentRoot.$baseDir.$initDir.$filename);
-			if ($result)
-			{
-				Main\Application::resetAccelerator();
-			}
+			static::unlink($documentRoot.$baseDir.$initDir.$filename);
 		}
 		else
 		{
@@ -222,14 +215,12 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 					static::addAgent();
 				else
 					DeleteDirFilesEx($baseDir.$initDir);
-
-				Main\Application::resetAccelerator();
 			}
 		}
 	}
 
 	/**
-	 * Tries to put non blocking exclusive lock on the file.
+	 * Tries to put non-blocking exclusive lock on the file.
 	 * Returns true if file not exists, or lock was successfully got.
 	 *
 	 * @param string $fileName Absolute cache file path.
@@ -238,7 +229,6 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 */
 	protected function lock($fileName)
 	{
-
 		$wouldBlock = 0;
 		self::$lockHandles[$fileName] = @fopen($fileName, "r+");
 		if (self::$lockHandles[$fileName])
@@ -520,66 +510,45 @@ class CacheEngineFiles implements CacheEngineInterface, CacheEngineStatInterface
 	 */
 	public static function delayedDelete($count = 1)
 	{
-		$con = Main\Application::getConnection();
-
+		$delta = 10;
+		$deleted = 0;
 		$etime = time() + 2;
-		if ($count > 0)
-		{
-			$rs = $con->query("SELECT * from b_cache_tag WHERE TAG='*'", 0, $count);
-			while ($ar = $rs->fetch())
-			{
-				static::deleteOneDir($etime, $ar);
-				if (time() > $etime)
-					break;
-			}
-		}
 
-		//try to adjust cache cleanup speed to cache cleanups
-		$rs = $con->query("SELECT SITE_ID, CACHE_SALT, RELATIVE_PATH, TAG from b_cache_tag WHERE TAG='**'");
-		if ($ar = $rs->fetch())
-		{
-			$statRecFound = true;
-			$lastCount = intval($ar["RELATIVE_PATH"]);
-			if (preg_match("/:(\\d+)$/", $ar["RELATIVE_PATH"], $m))
-				$lastTime = intval($m[1]);
-			else
-				$lastTime = 0;
-		}
-		else
-		{
-			$statRecFound = false;
-			$lastCount = 0;
-			$lastTime = 0;
-		}
-
-		$toDeleteCount = $con->queryScalar("SELECT count(1) CNT from b_cache_tag WHERE TAG='*'");
-
-		$delta = $toDeleteCount - $lastCount;
-		if ($delta > 0)
-		{
-			$timeStep = ($lastTime > 0? time() - $lastTime: 0);
-			if ($timeStep <= 0)
-				$timeStep = 1;
-			$count = intval($toDeleteCount * $timeStep / 3600) + 1; //Rest of the queue in an hour
-		}
-		elseif ($count < 1)
+		$count = (int) $count;
+		if ($count < 1)
 		{
 			$count = 1;
 		}
 
-		if ($statRecFound)
+		$con = Main\Application::getConnection();
+		$rs = $con->query("SELECT * from b_cache_tag WHERE TAG='*'", 0, $count + $delta);
+		while ($ar = $rs->fetch())
 		{
-			if ($lastCount != $toDeleteCount)
-				$con->queryExecute("UPDATE b_cache_tag SET RELATIVE_PATH='".$toDeleteCount.":".time()."' WHERE TAG='**'");
-		}
-		else
-		{
-			$con->queryExecute("INSERT INTO b_cache_tag (TAG, RELATIVE_PATH) VALUES ('**', '".$toDeleteCount.":".time()."')");
+			$deleted++;
+			static::deleteOneDir($etime, $ar);
+
+			if (time() > $etime)
+			{
+				break;
+			}
 		}
 
-		if ($toDeleteCount > 0)
-			return "\\Bitrix\\Main\\Data\\CacheEngineFiles::delayedDelete(".$count.");";
+		if ($deleted > $count)
+		{
+			$count = $deleted;
+		}
+		elseif ($deleted < $count && $count > 1)
+		{
+			$count--;
+		}
+
+		if ($deleted > 0)
+		{
+			return "\\Bitrix\\Main\\Data\\CacheEngineFiles::delayedDelete(" . $count . ");";
+		}
 		else
+		{
 			return "";
+		}
 	}
 }

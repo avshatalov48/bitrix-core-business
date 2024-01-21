@@ -19,7 +19,6 @@ $MESS["MAIL_DISK_FILE_DOWNLOAD_ARCHIVE"] = "Alle Dateien als Archiv herunterlade
 $MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY"] = "Die Anzahl der Mailboxen pro Mitarbeiter hängt vom jeweiligen Bitrix24 Tarif ab.
 <br><br>
 Ihr aktueller Tarif erlaubt #LIMIT# Mailboxen pro Mitarbeiter.";
-$MESS["MAIL_MAILBOX_TEMPORARY_ALERT_MSG_1"] = "Es können einige Probleme beim Empfang der E-Mails via Gmail in Ihrem Bitrix24 Account auftreten.<br>Wir empfehlen Ihnen, Ihre E-Mails direkt auf der Website #LINK# oder in Ihrer E-Mail-App abzurufen, damit Sie keine E-Mails verpassen.";
 $MESS["MAIL_MESSAGE_ATTACHES"] = "Dateien";
 $MESS["MAIL_MESSAGE_BAD_SENDER"] = "Ungültiger Absender";
 $MESS["MAIL_MESSAGE_BTN_DEL"] = "Löschen";

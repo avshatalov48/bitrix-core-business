@@ -7,7 +7,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { UuidManager } from 'im.v2.lib.uuid';
 import { runAction } from 'im.v2.lib.rest';
 
-import type { ImModelDialog, ImModelRecentItem } from 'im.v2.model';
+import type { ImModelChat, ImModelRecentItem } from 'im.v2.model';
 
 type ReadResult = {
 	chatId: number,
@@ -23,7 +23,7 @@ export class ReadService
 	#store: Store;
 	#restClient: RestClient;
 
-	#messagesToRead: {[chatId: string]: Set<messageId>} = {};
+	#messagesToRead: {[chatId: string]: Set<number>} = {};
 
 	constructor()
 	{
@@ -34,12 +34,14 @@ export class ReadService
 	readAll(): Promise
 	{
 		Logger.warn('ReadService: readAll');
-		this.#store.dispatch('dialogues/clearCounters');
+		this.#store.dispatch('chats/clearCounters');
 		this.#store.dispatch('recent/clearUnread');
 
-		return this.#restClient.callMethod(RestMethod.imV2ChatReadAll).catch(error => {
-			console.error('ReadService: readAll error', error);
-		});
+		return this.#restClient.callMethod(RestMethod.imV2ChatReadAll)
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('ReadService: readAll error', error);
+			});
 	}
 
 	readDialog(dialogId: string)
@@ -50,13 +52,15 @@ export class ReadService
 			action: false,
 			dateUpdate: new Date(),
 		});
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId,
-			fields: {counter: 0}
+			fields: { counter: 0 },
 		});
-		this.#restClient.callMethod(RestMethod.imV2ChatRead, {dialogId}).catch(error => {
-			console.error('ReadService: error reading chat', error);
-		});
+		this.#restClient.callMethod(RestMethod.imV2ChatRead, { dialogId })
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('ReadService: error reading chat', error);
+			});
 	}
 
 	unreadDialog(dialogId: string)
@@ -67,10 +71,12 @@ export class ReadService
 			action: true,
 			dateUpdate: new Date(),
 		});
-		this.#restClient.callMethod(RestMethod.imV2ChatUnread, {dialogId}).catch(error => {
-			console.error('ReadService: error setting chat as unread', error);
-			this.#store.dispatch('recent/unread', {id: dialogId, action: false});
-		});
+		this.#restClient.callMethod(RestMethod.imV2ChatUnread, { dialogId })
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('ReadService: error setting chat as unread', error);
+				this.#store.dispatch('recent/unread', { id: dialogId, action: false });
+			});
 	}
 
 	readMessage(chatId: number, messageId: number)
@@ -83,35 +89,42 @@ export class ReadService
 
 		clearTimeout(this.readTimeout);
 		this.readTimeout = setTimeout(() => {
-			Object.entries(this.#messagesToRead).forEach(([queueChatId, messageIds]) => {
-				queueChatId = +queueChatId;
-				Logger.warn('ReadService: readMessages', messageIds);
-				if (messageIds.size === 0)
-				{
-					return;
-				}
-
-				const copiedMessageIds = [...messageIds];
-				delete this.#messagesToRead[queueChatId];
-
-				this.#readMessageOnClient(queueChatId, copiedMessageIds).then((readMessagesCount: number) => {
-					Logger.warn('ReadService: readMessage, need to reduce counter by', readMessagesCount);
-					return this.#decreaseChatCounter(queueChatId, readMessagesCount);
-				}).then(() => {
-					return this.#readMessageOnServer(queueChatId, copiedMessageIds);
-				}).then((readResult: ReadResult) => {
-					this.#checkChatCounter(readResult);
-				}).catch(error => {
-					console.error('ReadService: error reading message', error);
-				});
+			Object.entries(this.#messagesToRead).forEach(([rawChatId, messageIds]) => {
+				this.#readMessagesForChat(rawChatId, messageIds);
 			});
 		}, READ_TIMEOUT);
+	}
+
+	async #readMessagesForChat(rawChatId: string, messageIds: Set<number>)
+	{
+		const queueChatId = Number.parseInt(rawChatId, 10);
+		Logger.warn('ReadService: readMessages', messageIds);
+		if (messageIds.size === 0)
+		{
+			return;
+		}
+
+		const copiedMessageIds = [...messageIds];
+		delete this.#messagesToRead[queueChatId];
+
+		const readMessagesCount = await this.#readMessageOnClient(queueChatId, copiedMessageIds);
+
+		Logger.warn('ReadService: readMessage, need to reduce counter by', readMessagesCount);
+		await this.#decreaseChatCounter(queueChatId, readMessagesCount);
+
+		const readResult = await this.#readMessageOnServer(queueChatId, copiedMessageIds)
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('ReadService: error reading message', error);
+			});
+
+		this.#checkChatCounter(readResult);
 	}
 
 	clearDialogMark(dialogId: string)
 	{
 		Logger.warn('ReadService: clear dialog mark', dialogId);
-		const dialog: ImModelDialog = this.#store.getters['dialogues/get'](dialogId);
+		const dialog: ImModelChat = this.#store.getters['chats/get'](dialogId);
 		const recentItem: ImModelRecentItem = this.#store.getters['recent/get'](dialogId);
 		if (dialog.markedId === 0 && !recentItem?.unread)
 		{
@@ -122,7 +135,7 @@ export class ReadService
 			action: false,
 			dateUpdate: new Date(),
 		});
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId,
 			fields: {
 				markedId: 0,
@@ -131,7 +144,8 @@ export class ReadService
 		this.#restClient.callMethod(RestMethod.imV2ChatRead, {
 			dialogId,
 			onlyRecent: 'Y',
-		}).catch(error => {
+		}).catch((error) => {
+			// eslint-disable-next-line no-console
 			console.error('ReadService: error clearing dialog mark', error);
 		});
 	}
@@ -142,58 +156,66 @@ export class ReadService
 		const dialog = this.#getDialogByChatId(chatId);
 		if (maxMessageId > dialog.lastReadId)
 		{
-			this.#store.dispatch('dialogues/update', {
+			this.#store.dispatch('chats/update', {
 				dialogId: this.#getDialogIdByChatId(chatId),
 				fields: {
-					lastId: maxMessageId
-				}
+					lastId: maxMessageId,
+				},
 			});
 		}
 
 		return this.#store.dispatch('messages/readMessages', {
 			chatId,
-			messageIds
+			messageIds,
 		});
 	}
 
 	#decreaseChatCounter(chatId: number, readMessagesCount: number): Promise
 	{
-		return this.#store.dispatch('dialogues/decreaseCounter', {
+		const chat = this.#getDialogByChatId(chatId);
+		let newCounter = chat.counter - readMessagesCount;
+		if (newCounter < 0)
+		{
+			newCounter = 0;
+		}
+
+		return this.#store.dispatch('chats/update', {
 			dialogId: this.#getDialogIdByChatId(chatId),
-			count: readMessagesCount
+			fields: { counter: newCounter },
 		});
 	}
 
 	#readMessageOnServer(chatId: number, messageIds: number[]): Promise
 	{
 		Logger.warn('ReadService: readMessages on server', messageIds);
+
 		return runAction(RestMethod.imV2ChatMessageRead, {
 			data: {
 				chatId,
 				ids: messageIds,
-				actionUuid: UuidManager.getInstance().getActionUuid()
-			}
+				actionUuid: UuidManager.getInstance().getActionUuid(),
+			},
 		});
 	}
 
 	#checkChatCounter(readResult: ReadResult)
 	{
-		const {chatId, counter} = readResult;
+		const { chatId, counter } = readResult;
 
 		const dialog = this.#getDialogByChatId(chatId);
 		if (dialog.counter > counter)
 		{
 			Logger.warn('ReadService: counter from server is lower than local one', dialog.counter, counter);
-			this.#store.dispatch('dialogues/update', {
+			this.#store.dispatch('chats/update', {
 				dialogId: dialog.dialogId,
-				fields: {counter}
+				fields: { counter },
 			});
 		}
 	}
 
 	#getDialogIdByChatId(chatId: number): number
 	{
-		const dialog = this.#store.getters['dialogues/getByChatId'](chatId);
+		const dialog = this.#store.getters['chats/getByChatId'](chatId);
 		if (!dialog)
 		{
 			return 0;
@@ -202,8 +224,8 @@ export class ReadService
 		return dialog.dialogId;
 	}
 
-	#getDialogByChatId(chatId: number): ?ImModelDialog
+	#getDialogByChatId(chatId: number): ?ImModelChat
 	{
-		return this.#store.getters['dialogues/getByChatId'](chatId);
+		return this.#store.getters['chats/getByChatId'](chatId);
 	}
 }

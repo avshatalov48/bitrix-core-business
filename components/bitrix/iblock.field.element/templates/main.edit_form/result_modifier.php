@@ -1,21 +1,26 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Iblock\UserField\Types\ElementType;
 use Bitrix\Main\Web\Json;
 
+/** @var array $arResult */
+
 if(
-	($arResult['userField']['ENTITY_VALUE_ID'] < 1)
-	&&
-	mb_strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+	((int)($arResult['userField']['ENTITY_VALUE_ID'] ?? 0) < 1)
+	&& (int)($arResult['userField']['SETTINGS']['DEFAULT_VALUE'] ?? 0) > 0
 )
 {
 	$arResult['additionalParameters']['VALUE'] =
-		(int)$arResult['userField']['SETTINGS']['DEFAULT_VALUE'];
+		(int)$arResult['userField']['SETTINGS']['DEFAULT_VALUE']
+	;
 }
 
-if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
+if ($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 {
 	CJSCore::Init('ui');
 
@@ -30,7 +35,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 
 	$startValue = [];
 
-	if($arUserField['MANDATORY'] !== 'Y')
+	if ((string)($arResult['userField']['MANDATORY'] ?? 'N') !== 'Y')
 	{
 		$itemList[] = $emptyValue;
 	}

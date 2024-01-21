@@ -1,0 +1,61 @@
+.bx-im-settings-expert-notifications__container {
+	--im-settings-expert-notifications__width_title-column: 260px;
+	--im-settings-expert-notifications__width_type-column: 156px;
+	--im-settings-expert-notifications__background-color_border: var(--im-color-palette-gray-10);
+	--im-settings-expert-notifications__background-color_column-highlight: var(--im-color-palette-gray-02);
+	--im-settings-expert-notifications__font-color_header-type: var(--im-color-palette-gray-90);
+	--im-settings-expert-notifications__font-color_item-title: var(--im-color-palette-gray-90);
+}
+
+.bx-im-settings-expert-notifications__header {
+	display: flex;
+	justify-content: flex-start;
+	height: 50px;
+	width: max-content;
+	border-top: 1px solid var(--im-settings-expert-notifications__background-color_border);
+	border-bottom: 1px solid var(--im-settings-expert-notifications__background-color_border);
+}
+
+.bx-im-settings-expert-notifications__header_title {
+	width: var(--im-settings-expert-notifications__width_title-column);
+}
+
+.bx-im-settings-expert-notifications__header_type {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: var(--im-settings-expert-notifications__width_type-column);
+	border-left: 1px solid var(--im-settings-expert-notifications__background-color_border);
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-settings-expert-notifications__font-color_header-type);
+	text-align: center;
+	overflow: hidden;
+}
+
+.bx-im-settings-expert-notifications-item__container {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	height: 48px;
+	width: max-content;
+}
+
+.bx-im-settings-expert-notifications-item__title {
+	width: var(--im-settings-expert-notifications__width_title-column);
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-settings-expert-notifications__font-color_item-title);
+}
+
+.bx-im-settings-expert-notifications-item__type {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: var(--im-settings-expert-notifications__width_type-column);
+	height: 100%;
+}
+
+.bx-im-settings-expert-notifications-item__type.--web,
+.bx-im-settings-expert-notifications-item__type.--push {
+	background-color: var(--im-settings-expert-notifications__background-color_column-highlight);
+}

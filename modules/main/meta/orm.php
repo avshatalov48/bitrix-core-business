@@ -107,6 +107,8 @@ namespace Bitrix\Main\Analytics {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CounterData_Collection merge(?EO_CounterData_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CounterData_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Analytics\CounterDataTable */
@@ -356,6 +358,8 @@ namespace Bitrix\Main\Authentication {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ApplicationPassword_Collection merge(?EO_ApplicationPassword_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ApplicationPassword_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\ApplicationPasswordTable */
@@ -388,6 +392,136 @@ namespace Bitrix\Main\Authentication {
 	 * @method \Bitrix\Main\Authentication\EO_ApplicationPassword_Collection wakeUpCollection($rows)
 	 */
 	class EO_ApplicationPassword_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\GroupSubordinateTable:main/lib/authentication/internal/groupsubordinatetable.php */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_GroupSubordinate
+	 * @see \Bitrix\Main\Authentication\Internal\GroupSubordinateTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getArSubgroupId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate setArSubgroupId(\string|\Bitrix\Main\DB\SqlExpression $arSubgroupId)
+	 * @method bool hasArSubgroupId()
+	 * @method bool isArSubgroupIdFilled()
+	 * @method bool isArSubgroupIdChanged()
+	 * @method \string remindActualArSubgroupId()
+	 * @method \string requireArSubgroupId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate resetArSubgroupId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate unsetArSubgroupId()
+	 * @method \string fillArSubgroupId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate wakeUp($data)
+	 */
+	class EO_GroupSubordinate {
+		/* @var \Bitrix\Main\Authentication\Internal\GroupSubordinateTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\GroupSubordinateTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_GroupSubordinate_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getArSubgroupIdList()
+	 * @method \string[] fillArSubgroupId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_GroupSubordinate $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_GroupSubordinate $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_GroupSubordinate $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_GroupSubordinate_Collection merge(?EO_GroupSubordinate_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_GroupSubordinate_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\GroupSubordinateTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\GroupSubordinateTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_GroupSubordinate_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_GroupSubordinate_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection fetchCollection()
+	 */
+	class EO_GroupSubordinate_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_GroupSubordinate_Collection wakeUpCollection($rows)
+	 */
+	class EO_GroupSubordinate_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\ModuleGroupTable:main/lib/authentication/internal/modulegrouptable.php */
 namespace Bitrix\Main\Authentication\Internal {
@@ -533,6 +667,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_ModuleGroup_Collection merge(?EO_ModuleGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_ModuleGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\ModuleGroupTable */
@@ -716,6 +852,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserAuthCode_Collection merge(?EO_UserAuthCode_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserAuthCode_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserAuthCodeTable */
@@ -793,66 +931,66 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetIp()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetIp()
 	 * @method \string fillIp()
-	 * @method \int getCityGeoid()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCityGeoid(\int|\Bitrix\Main\DB\SqlExpression $cityGeoid)
+	 * @method ?\int getCityGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCityGeoid(?\int|\Bitrix\Main\DB\SqlExpression $cityGeoid)
 	 * @method bool hasCityGeoid()
 	 * @method bool isCityGeoidFilled()
 	 * @method bool isCityGeoidChanged()
-	 * @method \int remindActualCityGeoid()
-	 * @method \int requireCityGeoid()
+	 * @method ?\int remindActualCityGeoid()
+	 * @method ?\int requireCityGeoid()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCityGeoid()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCityGeoid()
-	 * @method \int fillCityGeoid()
-	 * @method \int getRegionGeoid()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setRegionGeoid(\int|\Bitrix\Main\DB\SqlExpression $regionGeoid)
+	 * @method ?\int fillCityGeoid()
+	 * @method ?\int getRegionGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setRegionGeoid(?\int|\Bitrix\Main\DB\SqlExpression $regionGeoid)
 	 * @method bool hasRegionGeoid()
 	 * @method bool isRegionGeoidFilled()
 	 * @method bool isRegionGeoidChanged()
-	 * @method \int remindActualRegionGeoid()
-	 * @method \int requireRegionGeoid()
+	 * @method ?\int remindActualRegionGeoid()
+	 * @method ?\int requireRegionGeoid()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetRegionGeoid()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetRegionGeoid()
-	 * @method \int fillRegionGeoid()
-	 * @method \string getCountryIsoCode()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCountryIsoCode(\string|\Bitrix\Main\DB\SqlExpression $countryIsoCode)
+	 * @method ?\int fillRegionGeoid()
+	 * @method ?\string getCountryIsoCode()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCountryIsoCode(?\string|\Bitrix\Main\DB\SqlExpression $countryIsoCode)
 	 * @method bool hasCountryIsoCode()
 	 * @method bool isCountryIsoCodeFilled()
 	 * @method bool isCountryIsoCodeChanged()
-	 * @method \string remindActualCountryIsoCode()
-	 * @method \string requireCountryIsoCode()
+	 * @method ?\string remindActualCountryIsoCode()
+	 * @method ?\string requireCountryIsoCode()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCountryIsoCode()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCountryIsoCode()
-	 * @method \string fillCountryIsoCode()
-	 * @method \int getAppPasswordId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setAppPasswordId(\int|\Bitrix\Main\DB\SqlExpression $appPasswordId)
+	 * @method ?\string fillCountryIsoCode()
+	 * @method ?\int getAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setAppPasswordId(?\int|\Bitrix\Main\DB\SqlExpression $appPasswordId)
 	 * @method bool hasAppPasswordId()
 	 * @method bool isAppPasswordIdFilled()
 	 * @method bool isAppPasswordIdChanged()
-	 * @method \int remindActualAppPasswordId()
-	 * @method \int requireAppPasswordId()
+	 * @method ?\int remindActualAppPasswordId()
+	 * @method ?\int requireAppPasswordId()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetAppPasswordId()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetAppPasswordId()
-	 * @method \int fillAppPasswordId()
-	 * @method \int getStoredAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setStoredAuthId(\int|\Bitrix\Main\DB\SqlExpression $storedAuthId)
+	 * @method ?\int fillAppPasswordId()
+	 * @method ?\int getStoredAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setStoredAuthId(?\int|\Bitrix\Main\DB\SqlExpression $storedAuthId)
 	 * @method bool hasStoredAuthId()
 	 * @method bool isStoredAuthIdFilled()
 	 * @method bool isStoredAuthIdChanged()
-	 * @method \int remindActualStoredAuthId()
-	 * @method \int requireStoredAuthId()
+	 * @method ?\int remindActualStoredAuthId()
+	 * @method ?\int requireStoredAuthId()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetStoredAuthId()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetStoredAuthId()
-	 * @method \int fillStoredAuthId()
-	 * @method \int getHitAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setHitAuthId(\int|\Bitrix\Main\DB\SqlExpression $hitAuthId)
+	 * @method ?\int fillStoredAuthId()
+	 * @method ?\int getHitAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setHitAuthId(?\int|\Bitrix\Main\DB\SqlExpression $hitAuthId)
 	 * @method bool hasHitAuthId()
 	 * @method bool isHitAuthIdFilled()
 	 * @method bool isHitAuthIdChanged()
-	 * @method \int remindActualHitAuthId()
-	 * @method \int requireHitAuthId()
+	 * @method ?\int remindActualHitAuthId()
+	 * @method ?\int requireHitAuthId()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetHitAuthId()
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetHitAuthId()
-	 * @method \int fillHitAuthId()
+	 * @method ?\int fillHitAuthId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -903,18 +1041,18 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method \Bitrix\Main\Type\DateTime[] fillLoginDate()
 	 * @method \string[] getIpList()
 	 * @method \string[] fillIp()
-	 * @method \int[] getCityGeoidList()
-	 * @method \int[] fillCityGeoid()
-	 * @method \int[] getRegionGeoidList()
-	 * @method \int[] fillRegionGeoid()
-	 * @method \string[] getCountryIsoCodeList()
-	 * @method \string[] fillCountryIsoCode()
-	 * @method \int[] getAppPasswordIdList()
-	 * @method \int[] fillAppPasswordId()
-	 * @method \int[] getStoredAuthIdList()
-	 * @method \int[] fillStoredAuthId()
-	 * @method \int[] getHitAuthIdList()
-	 * @method \int[] fillHitAuthId()
+	 * @method ?\int[] getCityGeoidList()
+	 * @method ?\int[] fillCityGeoid()
+	 * @method ?\int[] getRegionGeoidList()
+	 * @method ?\int[] fillRegionGeoid()
+	 * @method ?\string[] getCountryIsoCodeList()
+	 * @method ?\string[] fillCountryIsoCode()
+	 * @method ?\int[] getAppPasswordIdList()
+	 * @method ?\int[] fillAppPasswordId()
+	 * @method ?\int[] getStoredAuthIdList()
+	 * @method ?\int[] fillStoredAuthId()
+	 * @method ?\int[] getHitAuthIdList()
+	 * @method ?\int[] fillHitAuthId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -940,6 +1078,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserDeviceLogin_Collection merge(?EO_UserDeviceLogin_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserDeviceLogin_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
@@ -1140,6 +1280,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserDevice_Collection merge(?EO_UserDevice_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserDevice_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
@@ -1341,6 +1483,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserHitAuth_Collection merge(?EO_UserHitAuth_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserHitAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserHitAuthTable */
@@ -1506,6 +1650,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserPassword_Collection merge(?EO_UserPassword_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserPassword_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserPasswordTable */
@@ -1694,6 +1840,8 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserStoredAuth_Collection merge(?EO_UserStoredAuth_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserStoredAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Authentication\Internal\UserStoredAuthTable */
@@ -1918,6 +2066,8 @@ namespace Bitrix\Main\Component {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Parameters_Collection merge(?EO_Parameters_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Parameters_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Component\ParametersTable */
@@ -2164,6 +2314,8 @@ namespace Bitrix\Main\Composite\Debug\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Log_Collection merge(?EO_Log_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Log_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Composite\Debug\Model\LogTable */
@@ -2400,6 +2552,8 @@ namespace Bitrix\Main\Composite\Internals\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Page_Collection merge(?EO_Page_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Page_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Composite\Internals\Model\PageTable */
@@ -2804,6 +2958,8 @@ namespace Bitrix\Main\Localization {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Culture_Collection merge(?EO_Culture_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Culture_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Localization\CultureTable */
@@ -3064,6 +3220,8 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EventLog_Collection merge(?EO_EventLog_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EventLog_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\EventLog\Internal\EventLogTable */
@@ -3241,6 +3399,8 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LogNotificationAction_Collection merge(?EO_LogNotificationAction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LogNotificationAction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\EventLog\Internal\LogNotificationActionTable */
@@ -3503,6 +3663,8 @@ namespace Bitrix\Main\EventLog\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_LogNotification_Collection merge(?EO_LogNotification_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_LogNotification_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\EventLog\Internal\LogNotificationTable */
@@ -3649,6 +3811,8 @@ namespace Bitrix\Main\File\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_FileDuplicate_Collection merge(?EO_FileDuplicate_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_FileDuplicate_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\File\Internal\FileDuplicateTable */
@@ -3802,6 +3966,8 @@ namespace Bitrix\Main\File\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_FileHash_Collection merge(?EO_FileHash_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_FileHash_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\File\Internal\FileHashTable */
@@ -3942,6 +4108,8 @@ namespace Bitrix\Main\File\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_FileVersion_Collection merge(?EO_FileVersion_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_FileVersion_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\File\Internal\FileVersionTable */
@@ -4215,6 +4383,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_File_Collection merge(?EO_File_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_File_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\FileTable */
@@ -4451,6 +4621,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_FinderDest_Collection merge(?EO_FinderDest_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_FinderDest_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\FinderDestTable */
@@ -4687,6 +4859,8 @@ namespace Bitrix\Main\UI\EntitySelector {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EntityUsage_Collection merge(?EO_EntityUsage_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EntityUsage_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UI\EntitySelector\EntityUsageTable */
@@ -4804,6 +4978,16 @@ namespace Bitrix\Main {
 	 * @method \Bitrix\Main\EO_Group resetDescription()
 	 * @method \Bitrix\Main\EO_Group unsetDescription()
 	 * @method \string fillDescription()
+	 * @method \string getSecurityPolicy()
+	 * @method \Bitrix\Main\EO_Group setSecurityPolicy(\string|\Bitrix\Main\DB\SqlExpression $securityPolicy)
+	 * @method bool hasSecurityPolicy()
+	 * @method bool isSecurityPolicyFilled()
+	 * @method bool isSecurityPolicyChanged()
+	 * @method \string remindActualSecurityPolicy()
+	 * @method \string requireSecurityPolicy()
+	 * @method \Bitrix\Main\EO_Group resetSecurityPolicy()
+	 * @method \Bitrix\Main\EO_Group unsetSecurityPolicy()
+	 * @method \string fillSecurityPolicy()
 	 * @method \string getStringId()
 	 * @method \Bitrix\Main\EO_Group setStringId(\string|\Bitrix\Main\DB\SqlExpression $stringId)
 	 * @method bool hasStringId()
@@ -4872,6 +5056,8 @@ namespace Bitrix\Main {
 	 * @method \string[] fillName()
 	 * @method \string[] getDescriptionList()
 	 * @method \string[] fillDescription()
+	 * @method \string[] getSecurityPolicyList()
+	 * @method \string[] fillSecurityPolicy()
 	 * @method \string[] getStringIdList()
 	 * @method \string[] fillStringId()
 	 *
@@ -4899,6 +5085,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Group_Collection merge(?EO_Group_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Group_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\GroupTable */
@@ -5059,6 +5247,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_GroupTask_Collection merge(?EO_GroupTask_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_GroupTask_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\GroupTaskTable */
@@ -5278,6 +5468,8 @@ namespace Bitrix\Main\Localization {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Language_Collection merge(?EO_Language_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Language_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Localization\LanguageTable */
@@ -5430,6 +5622,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Blacklist_Collection merge(?EO_Blacklist_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Blacklist_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\BlacklistTable */
@@ -5654,6 +5848,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Event_Collection merge(?EO_Event_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Event_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventTable */
@@ -5807,6 +6003,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EventAttachment_Collection merge(?EO_EventAttachment_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EventAttachment_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventAttachmentTable */
@@ -6200,6 +6398,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EventMessage_Collection merge(?EO_EventMessage_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EventMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventMessageTable */
@@ -6322,6 +6522,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EventMessageAttachment_Collection merge(?EO_EventMessageAttachment_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EventMessageAttachment_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventMessageAttachmentTable */
@@ -6374,11 +6576,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method bool hasSiteId()
 	 * @method bool isSiteIdFilled()
 	 * @method bool isSiteIdChanged()
-	 * @method \string remindActualSiteId()
-	 * @method \string requireSiteId()
-	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageSite resetSiteId()
-	 * @method \Bitrix\Main\Mail\Internal\EO_EventMessageSite unsetSiteId()
-	 * @method \string fillSiteId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -6424,7 +6621,6 @@ namespace Bitrix\Main\Mail\Internal {
 	 *
 	 * @method \int[] getEventMessageIdList()
 	 * @method \string[] getSiteIdList()
-	 * @method \string[] fillSiteId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -6450,6 +6646,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EventMessageSite_Collection merge(?EO_EventMessageSite_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EventMessageSite_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventMessageSiteTable */
@@ -6638,6 +6836,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_EventType_Collection merge(?EO_EventType_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_EventType_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\EventTypeTable */
@@ -6826,6 +7026,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Sender_Collection merge(?EO_Sender_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Sender_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\SenderTable */
@@ -6960,6 +7162,8 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SenderSendCounter_Collection merge(?EO_SenderSendCounter_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SenderSendCounter_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Mail\Internal\SenderSendCounterTable */
@@ -7087,6 +7291,16 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator resetUpdatedBy()
 	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator unsetUpdatedBy()
 	 * @method \int fillUpdatedBy()
+	 * @method ?\string getCode()
+	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator setCode(?\string|\Bitrix\Main\DB\SqlExpression $code)
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method bool isCodeChanged()
+	 * @method ?\string remindActualCode()
+	 * @method ?\string requireCode()
+	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator resetCode()
+	 * @method \Bitrix\Main\Numerator\Model\EO_Numerator unsetCode()
+	 * @method ?\string fillCode()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -7147,6 +7361,8 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method \Bitrix\Main\Type\DateTime[] fillUpdatedAt()
 	 * @method \int[] getUpdatedByList()
 	 * @method \int[] fillUpdatedBy()
+	 * @method ?\string[] getCodeList()
+	 * @method ?\string[] fillCode()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -7172,6 +7388,8 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Numerator_Collection merge(?EO_Numerator_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Numerator_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Numerator\Model\NumeratorTable */
@@ -7330,6 +7548,8 @@ namespace Bitrix\Main\Numerator\Model {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_NumeratorSequence_Collection merge(?EO_NumeratorSequence_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_NumeratorSequence_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Numerator\Model\NumeratorSequenceTable */
@@ -7494,6 +7714,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Operation_Collection merge(?EO_Operation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Operation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\OperationTable */
@@ -7742,6 +7964,8 @@ namespace Bitrix\Main\Rating {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Rating_Collection merge(?EO_Rating_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Rating_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Rating\RatingTable */
@@ -7955,6 +8179,8 @@ namespace Bitrix\Main\Rating {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Results_Collection merge(?EO_Results_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Results_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Rating\ResultsTable */
@@ -8119,6 +8345,8 @@ namespace Bitrix\Main\Service\GeoIp {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Handler_Collection merge(?EO_Handler_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Handler_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Service\GeoIp\HandlerTable */
@@ -8253,6 +8481,8 @@ namespace Bitrix\Main\Service\GeoIp\Internal {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Geoname_Collection merge(?EO_Geoname_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Geoname_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Service\GeoIp\Internal\GeonameTable */
@@ -8393,6 +8623,8 @@ namespace Bitrix\Main\Session\Handlers\Table {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserSession_Collection merge(?EO_UserSession_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserSession_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Session\Handlers\Table\UserSessionTable */
@@ -8425,6 +8657,387 @@ namespace Bitrix\Main\Session\Handlers\Table {
 	 * @method \Bitrix\Main\Session\Handlers\Table\EO_UserSession_Collection wakeUpCollection($rows)
 	 */
 	class EO_UserSession_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\SidePanel\ToolbarItemTable:main/lib/sidepanel/toolbaritemtable.php */
+namespace Bitrix\Main\SidePanel {
+	/**
+	 * EO_ToolbarItem
+	 * @see \Bitrix\Main\SidePanel\ToolbarItemTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getToolbarId()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setToolbarId(\int|\Bitrix\Main\DB\SqlExpression $toolbarId)
+	 * @method bool hasToolbarId()
+	 * @method bool isToolbarIdFilled()
+	 * @method bool isToolbarIdChanged()
+	 * @method \int remindActualToolbarId()
+	 * @method \int requireToolbarId()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem resetToolbarId()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unsetToolbarId()
+	 * @method \int fillToolbarId()
+	 * @method \string getUrl()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setUrl(\string|\Bitrix\Main\DB\SqlExpression $url)
+	 * @method bool hasUrl()
+	 * @method bool isUrlFilled()
+	 * @method bool isUrlChanged()
+	 * @method \string remindActualUrl()
+	 * @method \string requireUrl()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem resetUrl()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unsetUrl()
+	 * @method \string fillUrl()
+	 * @method \string getTitle()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
+	 * @method bool hasTitle()
+	 * @method bool isTitleFilled()
+	 * @method bool isTitleChanged()
+	 * @method \string remindActualTitle()
+	 * @method \string requireTitle()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem resetTitle()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unsetTitle()
+	 * @method \string fillTitle()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem resetEntityType()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \string getEntityId()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setEntityId(\string|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \string remindActualEntityId()
+	 * @method \string requireEntityId()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem resetEntityId()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unsetEntityId()
+	 * @method \string fillEntityId()
+	 * @method \Bitrix\Main\Type\DateTime getCreatedDate()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setCreatedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $createdDate)
+	 * @method bool hasCreatedDate()
+	 * @method bool isCreatedDateFilled()
+	 * @method bool isCreatedDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime requireCreatedDate()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem resetCreatedDate()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unsetCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime fillCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime getLastUseDate()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem setLastUseDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastUseDate)
+	 * @method bool hasLastUseDate()
+	 * @method bool isLastUseDateFilled()
+	 * @method bool isLastUseDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLastUseDate()
+	 * @method \Bitrix\Main\Type\DateTime requireLastUseDate()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem resetLastUseDate()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unsetLastUseDate()
+	 * @method \Bitrix\Main\Type\DateTime fillLastUseDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem set($fieldName, $value)
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem reset($fieldName)
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\SidePanel\EO_ToolbarItem wakeUp($data)
+	 */
+	class EO_ToolbarItem {
+		/* @var \Bitrix\Main\SidePanel\ToolbarItemTable */
+		static public $dataClass = '\Bitrix\Main\SidePanel\ToolbarItemTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\SidePanel {
+	/**
+	 * EO_ToolbarItem_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getToolbarIdList()
+	 * @method \int[] fillToolbarId()
+	 * @method \string[] getUrlList()
+	 * @method \string[] fillUrl()
+	 * @method \string[] getTitleList()
+	 * @method \string[] fillTitle()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \string[] getEntityIdList()
+	 * @method \string[] fillEntityId()
+	 * @method \Bitrix\Main\Type\DateTime[] getCreatedDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime[] getLastUseDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLastUseDate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\SidePanel\EO_ToolbarItem $object)
+	 * @method bool has(\Bitrix\Main\SidePanel\EO_ToolbarItem $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem getByPrimary($primary)
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem[] getAll()
+	 * @method bool remove(\Bitrix\Main\SidePanel\EO_ToolbarItem $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\SidePanel\EO_ToolbarItem_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_ToolbarItem_Collection merge(?EO_ToolbarItem_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_ToolbarItem_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\SidePanel\ToolbarItemTable */
+		static public $dataClass = '\Bitrix\Main\SidePanel\ToolbarItemTable';
+	}
+}
+namespace Bitrix\Main\SidePanel {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_ToolbarItem_Result exec()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem fetchObject()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_ToolbarItem_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem fetchObject()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem_Collection fetchCollection()
+	 */
+	class EO_ToolbarItem_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem_Collection createCollection()
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem wakeUpObject($row)
+	 * @method \Bitrix\Main\SidePanel\EO_ToolbarItem_Collection wakeUpCollection($rows)
+	 */
+	class EO_ToolbarItem_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\SidePanel\ToolbarTable:main/lib/sidepanel/toolbartable.php */
+namespace Bitrix\Main\SidePanel {
+	/**
+	 * EO_Toolbar
+	 * @see \Bitrix\Main\SidePanel\ToolbarTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar resetUserId()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getContext()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar setContext(\string|\Bitrix\Main\DB\SqlExpression $context)
+	 * @method bool hasContext()
+	 * @method bool isContextFilled()
+	 * @method bool isContextChanged()
+	 * @method \string remindActualContext()
+	 * @method \string requireContext()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar resetContext()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar unsetContext()
+	 * @method \string fillContext()
+	 * @method \boolean getCollapsed()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar setCollapsed(\boolean|\Bitrix\Main\DB\SqlExpression $collapsed)
+	 * @method bool hasCollapsed()
+	 * @method bool isCollapsedFilled()
+	 * @method bool isCollapsedChanged()
+	 * @method \boolean remindActualCollapsed()
+	 * @method \boolean requireCollapsed()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar resetCollapsed()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar unsetCollapsed()
+	 * @method \boolean fillCollapsed()
+	 * @method \Bitrix\Main\Type\DateTime getCreatedDate()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar setCreatedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $createdDate)
+	 * @method bool hasCreatedDate()
+	 * @method bool isCreatedDateFilled()
+	 * @method bool isCreatedDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime requireCreatedDate()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar resetCreatedDate()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar unsetCreatedDate()
+	 * @method \Bitrix\Main\Type\DateTime fillCreatedDate()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar resetUser()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar set($fieldName, $value)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar reset($fieldName)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\SidePanel\EO_Toolbar wakeUp($data)
+	 */
+	class EO_Toolbar {
+		/* @var \Bitrix\Main\SidePanel\ToolbarTable */
+		static public $dataClass = '\Bitrix\Main\SidePanel\ToolbarTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\SidePanel {
+	/**
+	 * EO_Toolbar_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getContextList()
+	 * @method \string[] fillContext()
+	 * @method \boolean[] getCollapsedList()
+	 * @method \boolean[] fillCollapsed()
+	 * @method \Bitrix\Main\Type\DateTime[] getCreatedDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCreatedDate()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\SidePanel\EO_Toolbar $object)
+	 * @method bool has(\Bitrix\Main\SidePanel\EO_Toolbar $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar getByPrimary($primary)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar[] getAll()
+	 * @method bool remove(\Bitrix\Main\SidePanel\EO_Toolbar $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\SidePanel\EO_Toolbar_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_Toolbar_Collection merge(?EO_Toolbar_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_Toolbar_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\SidePanel\ToolbarTable */
+		static public $dataClass = '\Bitrix\Main\SidePanel\ToolbarTable';
+	}
+}
+namespace Bitrix\Main\SidePanel {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Toolbar_Result exec()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar fetchObject()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Toolbar_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar fetchObject()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar_Collection fetchCollection()
+	 */
+	class EO_Toolbar_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar_Collection createCollection()
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar wakeUpObject($row)
+	 * @method \Bitrix\Main\SidePanel\EO_Toolbar_Collection wakeUpCollection($rows)
+	 */
+	class EO_Toolbar_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Main\SiteTable:main/lib/site.php */
 namespace Bitrix\Main {
@@ -8706,6 +9319,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Site_Collection merge(?EO_Site_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Site_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SiteTable */
@@ -8850,6 +9465,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SiteDomain_Collection merge(?EO_SiteDomain_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SiteDomain_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SiteDomainTable */
@@ -9027,6 +9644,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_SiteTemplate_Collection merge(?EO_SiteTemplate_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_SiteTemplate_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\SiteTemplateTable */
@@ -9229,6 +9848,8 @@ namespace Bitrix\Main\Sms {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Template_Collection merge(?EO_Template_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Template_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Sms\TemplateTable */
@@ -9417,6 +10038,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Task_Collection merge(?EO_Task_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Task_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\TaskTable */
@@ -9565,6 +10188,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_TaskOperation_Collection merge(?EO_TaskOperation_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_TaskOperation_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\TaskOperationTable */
@@ -9719,6 +10344,8 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Author_Collection merge(?EO_Author_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Author_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\AuthorTable */
@@ -9936,6 +10563,8 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method Books merge(?Books $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Book_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\BookTable */
@@ -10090,6 +10719,8 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Publisher_Collection merge(?EO_Publisher_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Publisher_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\PublisherTable */
@@ -10250,6 +10881,8 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_StoreBook_Collection merge(?EO_StoreBook_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_StoreBook_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\StoreBookTable */
@@ -10392,6 +11025,8 @@ namespace Bitrix\Main\Test\Typography {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Store_Collection merge(?EO_Store_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Store_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Test\Typography\StoreTable */
@@ -10607,6 +11242,8 @@ namespace Bitrix\Main\UI\Viewer {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_FilePreview_Collection merge(?EO_FilePreview_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_FilePreview_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UI\Viewer\FilePreviewTable */
@@ -10747,6 +11384,8 @@ namespace Bitrix\Main\Update {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_VersionHistory_Collection merge(?EO_VersionHistory_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_VersionHistory_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\Update\VersionHistoryTable */
@@ -10911,6 +11550,8 @@ namespace Bitrix\Main\UrlPreview {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Route_Collection merge(?EO_Route_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Route_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UrlPreview\RouteTable */
@@ -11147,6 +11788,8 @@ namespace Bitrix\Main\UrlPreview {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UrlMetadata_Collection merge(?EO_UrlMetadata_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UrlMetadata_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UrlPreview\UrlMetadataTable */
@@ -12043,6 +12686,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_User_Collection merge(?EO_User_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_User_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserTable */
@@ -12171,6 +12816,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserAccess_Collection merge(?EO_UserAccess_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserAccess_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserAccessTable */
@@ -12347,6 +12994,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserAuthAction_Collection merge(?EO_UserAuthAction_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserAuthAction_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserAuthActionTable */
@@ -12619,6 +13268,8 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Agreement_Collection merge(?EO_Agreement_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Agreement_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\AgreementTable */
@@ -12846,6 +13497,8 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Consent_Collection merge(?EO_Consent_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Consent_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\ConsentTable */
@@ -12998,6 +13651,8 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Field_Collection merge(?EO_Field_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Field_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\FieldTable */
@@ -13151,6 +13806,8 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserConsentItem_Collection merge(?EO_UserConsentItem_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserConsentItem_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserConsent\Internals\UserConsentItemTable */
@@ -13364,6 +14021,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserCounter_Collection merge(?EO_UserCounter_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserCounter_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserCounterTable */
@@ -13566,6 +14225,8 @@ namespace Bitrix\Main\UserField\Access\Permission {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserFieldPermission_Collection merge(?EO_UserFieldPermission_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserFieldPermission_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserField\Access\Permission\UserFieldPermissionTable */
@@ -13826,6 +14487,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserField_Collection merge(?EO_UserField_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserField_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserFieldTable */
@@ -14014,6 +14677,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserFieldConfirm_Collection merge(?EO_UserFieldConfirm_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserFieldConfirm_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserFieldConfirmTable */
@@ -14209,6 +14874,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserFieldLang_Collection merge(?EO_UserFieldLang_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserFieldLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserFieldLangTable */
@@ -14381,6 +15048,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserGroup_Collection merge(?EO_UserGroup_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserGroupTable */
@@ -14593,6 +15262,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserIndex_Collection merge(?EO_UserIndex_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserIndex_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserIndexTable */
@@ -14782,6 +15453,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserPhoneAuth_Collection merge(?EO_UserPhoneAuth_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserPhoneAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserPhoneAuthTable */
@@ -14982,6 +15655,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserProfileHistory_Collection merge(?EO_UserProfileHistory_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserProfileHistory_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserProfileHistoryTable */
@@ -15147,6 +15822,8 @@ namespace Bitrix\Main {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_UserProfileRecord_Collection merge(?EO_UserProfileRecord_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_UserProfileRecord_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Main\UserProfileRecordTable */

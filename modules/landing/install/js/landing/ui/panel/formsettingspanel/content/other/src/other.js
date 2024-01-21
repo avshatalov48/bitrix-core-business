@@ -45,7 +45,7 @@ export default class Other extends ContentWrapper
 		});
 		const id = this.options.formOptions.id;
 		Dom.append(
-			Tag.render`<div>${Loc.getMessage('LANDING_CRM_FORM_ID')}: ${id}</div>`,
+			Tag.render`<div>${Loc.getMessage('LANDING_CRM_FORM_ID_MSGVER_1')} ${id}</div>`,
 			idCard.getBody()
 		);
 		this.addItem(idCard);
@@ -77,7 +77,7 @@ export default class Other extends ContentWrapper
 				items: [
 					{
 						value: 'useSign',
-						html: `${Loc.getMessage('LANDING_HEADER_AND_BUTTONS_SHOW_SIGN')}${this.createCopyRight()}`,
+						html: `${Loc.getMessage('LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN_B_24')}`,
 						name: '',
 					},
 				],
@@ -130,18 +130,6 @@ export default class Other extends ContentWrapper
 				content: this.options.formOptions.data.language,
 			});
 		});
-	}
-
-	// eslint-disable-next-line class-methods-use-this
-	createCopyRight(): string
-	{
-		return `
-			<span class="landing-ui-signin">
-				<span class="landing-ui-sign">${Loc.getMessage('LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN')}</span>
-				<span class="landing-ui-sign-in">${Loc.getMessage('LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN_BY')}</span>
-				<span class="landing-ui-sign-24">24</span>
-			</span>
-		`;
 	}
 
 	valueReducer(value: {[key: string]: any}): {[key: string]: any}

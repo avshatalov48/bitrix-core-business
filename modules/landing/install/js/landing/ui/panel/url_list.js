@@ -544,6 +544,10 @@
 										var landingId = BX.Dom.attr(mainNode, 'data-landing');
 										this.onBlockClick(parseInt(wrapper.id.replace("block", "")), event, landingId);
 									}.bind(this));
+									removeClass(
+										wrapper.firstElementChild,
+										['l-d-lg-none', 'l-d-md-none', 'l-d-xs-none']
+									);
 								}, this);
 							[].slice.call(contentDocument.querySelectorAll(".block-wrapper"))
 								.forEach(function(wrapper) {
@@ -607,7 +611,15 @@
 				new Promise(function(resolve) {
 					if (!this.previewFrame)
 					{
-						this.previewFrame = create("iframe", {});
+						const containerWidth = this.content.clientWidth - 40;
+						const styleStr = 'width: 1000px;'
+							+ `height: calc((100vh - 113px) * (100 / ${(containerWidth / 1000) * 100}));`
+							+ `transform: scale(${containerWidth / 1000}) translateZ(0);`
+							+ 'transform-origin: top left;'
+							+ 'border: none;';
+						this.previewFrame = create('iframe', {
+							attrs: { style: styleStr },
+						});
 						this.previewFrameWrapper = create("div", {
 							attrs: {style: "width: 100%; height: 100%; overflow: hidden;"}
 						});
@@ -615,18 +627,6 @@
 						this.content.innerHTML = "";
 						this.content.appendChild(this.previewFrameWrapper);
 						this.showPreviewLoader();
-
-						requestAnimationFrame(function() {
-							var containerWidth = this.content.clientWidth - 40;
-
-							void style(this.previewFrame, {
-								"width": "1000px",
-								"height": "calc((100vh - 113px) * (100 / "+((containerWidth/1000)*100)+"))",
-								"transform": "scale("+(containerWidth/1000)+") translateZ(0)",
-								"transform-origin": "top left",
-								"border": "none"
-							});
-						}.bind(this));
 					}
 
 					resolve(this.previewFrame);

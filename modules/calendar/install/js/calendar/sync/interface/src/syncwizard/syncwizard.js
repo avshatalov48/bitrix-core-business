@@ -402,13 +402,6 @@ export default class SyncWizard extends EventEmitter
 				slider.close();
 			}
 		});
-
-		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-			analyticsLabel: {
-				calendarAction: 'complete_wizard_close',
-				connection_type: this.TYPE
-			}
-		});
 	}
 
 	handleUpdateState(stateData)

@@ -1,28 +1,3 @@
 <?php
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_1"] = "Bestandsverwaltung aktivieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_2"] = "Bestandsverwaltung deaktivieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_3"] = "Bestandsverwaltung in Bitrix24 aktivieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_4"] = "Aktivieren Sie die verfügbaren Optionen, um mit der Bestandsverwaltung zu arbeiten. Jede Option bietet bestimmte Konfiguration, urspügliche Einstellungen und Automatisierungstypen.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_5"] = "Mehr";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_6"] = "Bald";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_7"] = "ein";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_8"] = "aus";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_9"] = "Bestandsverwaltung in Bitrix24 deaktivieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_10"] = "Einstellungen der Bestandsverwaltung";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_12"] = "Abbrechen";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_13"] = "Bestand zurücksetzen";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_14"] = "Bestand zurücksetzen";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_15"] = "Es wurden Produkte gefunden, die aktuell keinen Nullbestand aufweisen. Sie müssen die Bestandswerte zurücksetzen, bevor Sie die Bestandsverwaltung aktivieren.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_16"] = "Sie können Lagerwerte aktualisieren, nachdem Sie die Bestandsverwaltung aktivieren.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_17"] = "Aktivieren und Daten aus anderen Systemen migrieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_18"] = "Sie haben nicht genügend Rechte, um die Bestandsverwaltung zu aktivieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_19"] = "Speichern";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CLOSE"] = "Schließen";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST"] = "Es gibt verarbeitete Bestandselemente. Bestandsverwaltung kann nicht deaktiviert werden, wenn diese Bestandselemente existieren.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE"] = "Deaktivieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_CONFIRMATION_TEXT"] = "Möchten Sie Bestandsverwaltung wirklich deaktivieren?";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE"] = "Bestandsverwaltung deaktivieren";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_ENABLED"] = "Bestandsverwaltung aktiviert";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_RIGHTS_RESTRICTED"] = "Sie haben nicht genügend Rechte, um die Bestandsverwaltung zu nutzen. Wenden Sie sich bitte an Ihren Bitrix24 Administrator.";
-$MESS["CAT_WAREHOUSE_MASTER_STORE_LEAD_ENABLED_MODE_ERROR"] = "Bestandsverwaltung kann nur im Modus \"Basis-CRM\" genutzt werden.";
-$MESS["CAT_WAREHOUSE_MASTER_STORE_ORDER_DEAL_MODE_ERROR"] = "Bestandsverwaltung kann nicht im Modus \"Aufträge & Bestellungen\" genutzt werden. Sie müssen den Modus \"Aufträge\" einschalten, um Bestandsverwaltung nutzen zu können.";
+
+$MESS["CAT_WAREHOUSE_MASTER_NEW_TITLE"] = "Bitrix24 Bestandsverwaltung";

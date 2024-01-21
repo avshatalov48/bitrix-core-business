@@ -57,6 +57,8 @@ export class UserPlannerSelector extends EventEmitter
 		this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 
 		this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
+		this.isEditableSharingEvent = !!params.isEditableSharingEvent;
+		this.openEditFormCallback = params.openEditFormCallback;
 		this.create();
 	}
 
@@ -64,52 +66,57 @@ export class UserPlannerSelector extends EventEmitter
 	{
 		if (this.DOM.changeLink && !this.isReadOnly())
 		{
-			Event.bind(this.DOM.changeLink, 'click', () => {
-				if (!this.userSelectorDialog)
-				{
-					this.userSelectorDialog = new EntitySelectorDialog({
-						targetNode: this.DOM.changeLink,
-						context: 'CALENDAR',
-						preselectedItems: this.attendeesPreselectedItems,
-						enableSearch: true,
-						zIndex: this.zIndex + 10,
-						events: {
-							'Item:onSelect': this.handleUserSelectorChanges.bind(this),
-							'Item:onDeselect': this.handleUserSelectorChanges.bind(this),
-						},
-						entities: [
-							{
-								id: 'user',
-								options: {
-									inviteGuestLink: true,
-									emailUsers: true,
+			let clickAction;
+			if (!this.isEditableSharingEvent)
+			{
+				clickAction = () => {
+					if (!this.userSelectorDialog)
+					{
+						this.userSelectorDialog = new EntitySelectorDialog({
+							targetNode: this.DOM.changeLink,
+							context: 'CALENDAR',
+							preselectedItems: this.attendeesPreselectedItems,
+							enableSearch: true,
+							zIndex: this.zIndex + 10,
+							events: {
+								'Item:onSelect': this.handleUserSelectorChanges.bind(this),
+								'Item:onDeselect': this.handleUserSelectorChanges.bind(this),
+							},
+							entities: [
+								{
+									id: 'user',
+									options: {
+										inviteGuestLink: true,
+										emailUsers: true,
+									}
+								},
+								{
+									id: 'project'
+								},
+								{
+									id: 'department',
+									options: {selectMode: 'usersAndDepartments'}
+								},
+								{
+									id: 'meta-user',
+									options: { 'all-users': true }
+								}
+							],
+							searchTabOptions: {
+								stubOptions: {
+									title: Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
+									subtitle: Loc.getMessage('EC_USER_DIALOG_404_SUBTITLE'),
+									icon: '/bitrix/images/calendar/search-email.svg',
+									iconOpacity: 100,
+									arrow: true,
 								}
 							},
-							{
-								id: 'project'
-							},
-							{
-								id: 'department',
-								options: {selectMode: 'usersAndDepartments'}
-							},
-							{
-								id: 'meta-user',
-								options: { 'all-users': true }
-							}
-						],
-						searchTabOptions: {
-							stubOptions: {
-								title: Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
-								subtitle: Loc.getMessage('EC_USER_DIALOG_404_SUBTITLE'),
-								icon: '/bitrix/images/calendar/search-email.svg',
-								iconOpacity: 100,
-								arrow: true,
-							}
-						},
-					});
-				}
-				this.userSelectorDialog.show();
-			});
+						});
+					}
+					this.userSelectorDialog.show();
+				};
+				Event.bind(this.DOM.changeLink, 'click', clickAction);
+			}
 		}
 
 		if (this.DOM.moreLink)
@@ -277,6 +284,11 @@ export class UserPlannerSelector extends EventEmitter
 			Dom.addClass(this.DOM.outerWrap, 'user-selector-edit-mode');
 			this.planner.show();
 			this.planner.showLoader();
+
+			if (this.entry.isFullDay())
+			{
+				this.planner.updateSelector(this.planner.currentFromDate, this.planner.currentToDate, true);
+			}
 		}
 	}
 
@@ -718,5 +730,33 @@ export class UserPlannerSelector extends EventEmitter
 				return null;
 			}
 		);
+	}
+
+	setEditableSharingEventMode()
+	{
+		Dom.style(this.DOM.changeLink, 'display', 'inline-block');
+		const clickAction = () => {
+			if (Type.isFunction(this.openEditFormCallback()))
+			{
+				this.openEditFormCallback();
+			}
+		};
+		Event.bind(this.DOM.changeLink, 'click', clickAction);
+		if (this.attendeesPreselectedItems.length <= 2)
+		{
+			const hintPopup = new BX.PopupWindow('ui-hint-popup-' + (+new Date()), this.DOM.changeLink, {
+				darkMode: true,
+				content: Loc.getMessage('EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'),
+				angle: {position: 'top', offset: 50},
+				autoHide: true,
+				animation: {
+					showClassName: "calendar-edit-sharing-events-feature-popup-animation-open",
+					closeClassName: "calendar-edit-sharing-events-feature-popup-animation-close",
+					closeAnimationType: "animation"
+				},
+			});
+			setTimeout(() => hintPopup.show(), 500);
+			setTimeout(() => hintPopup.close(), 5000);
+		}
 	}
 }

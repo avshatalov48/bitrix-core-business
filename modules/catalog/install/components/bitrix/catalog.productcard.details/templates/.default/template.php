@@ -112,6 +112,7 @@ $cardParameters = [
 	'hiddenFields' => $arResult['HIDDEN_FIELDS'],
 	'isWithOrdersMode' => $arResult['IS_WITH_ORDERS_MODE'],
 	'isInventoryManagementUsed' => $arResult['IS_INVENTORY_MANAGEMENT_USED'],
+	'isInventoryManagementToolEnabled' => $arResult['IS_INVENTORY_MANAGEMENT_TOOL_ENABLED'],
 	'createDocumentButtonId' => $createDocumentButtonId,
 	'createDocumentButtonMenuPopupItems' => $arResult['CREATE_DOCUMENT_BUTTON']['POPUP_ITEMS'] ?? [],
 	'feedbackUrl' => $arParams['PATH_TO']['FEEDBACK'] ?? '',

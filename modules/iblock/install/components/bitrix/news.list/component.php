@@ -16,10 +16,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @global CIntranetToolbar $INTRANET_TOOLBAR */
 global $INTRANET_TOOLBAR;
 
-use Bitrix\Main\Context,
-	Bitrix\Main\Type\DateTime,
-	Bitrix\Main\Loader,
-	Bitrix\Iblock;
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Type\Collection;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Iblock;
 
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 
@@ -39,6 +40,7 @@ $arParams["PARENT_SECTION_CODE"] ??= '';
 $arParams["INCLUDE_SUBSECTIONS"] = ($arParams["INCLUDE_SUBSECTIONS"] ?? '') !== "N";
 $arParams["SET_LAST_MODIFIED"] = ($arParams["SET_LAST_MODIFIED"] ?? '') === "Y";
 
+$orderExpression = '/^(asc|desc|nulls)(,asc|,desc|,nulls)?$/i';
 $arParams["SORT_BY1"] = trim($arParams["SORT_BY1"] ?? '');
 if (empty($arParams["SORT_BY1"]))
 {
@@ -46,10 +48,10 @@ if (empty($arParams["SORT_BY1"]))
 }
 if (
 	!isset($arParams["SORT_ORDER1"])
-	|| !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"])
+	|| !preg_match($orderExpression, $arParams["SORT_ORDER1"])
 )
 {
-	$arParams["SORT_ORDER1"]="DESC";
+	$arParams["SORT_ORDER1"] = "DESC";
 }
 
 $arParams["SORT_BY2"] = trim($arParams["SORT_BY2"] ?? '');
@@ -67,11 +69,12 @@ if (empty($arParams["SORT_BY2"]))
 }
 if (
 	!isset($arParams["SORT_ORDER2"])
-	|| !preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"])
+	|| !preg_match($orderExpression, $arParams["SORT_ORDER2"])
 )
 {
-	$arParams["SORT_ORDER2"]="ASC";
+	$arParams["SORT_ORDER2"] = "ASC";
 }
+$arParams['CUSTOM_ELEMENT_SORT'] ??= [];
 
 $arrFilter = [];
 if (!empty($arParams["FILTER_NAME"]) && preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
@@ -346,12 +349,51 @@ if($this->startResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 		$arResult["SECTION"]= false;
 	}
 	//ORDER BY
-	$arSort = array(
-		$arParams["SORT_BY1"]=>$arParams["SORT_ORDER1"],
-		$arParams["SORT_BY2"]=>$arParams["SORT_ORDER2"],
-	);
-	if(!array_key_exists("ID", $arSort))
-		$arSort["ID"] = "DESC";
+	$arSort = [];
+	if (!empty($arParams['CUSTOM_ELEMENT_SORT']) && is_array($arParams['CUSTOM_ELEMENT_SORT']))
+	{
+		foreach ($arParams['CUSTOM_ELEMENT_SORT'] as $field => $value)
+		{
+			$field = strtoupper($field);
+			if (isset($arSort[$field]))
+			{
+				continue;
+			}
+			if ($field === 'ID' && !empty($value) && is_array($value))
+			{
+				Collection::normalizeArrayValuesByInt($value, false);
+				if (empty($value))
+				{
+					continue;
+				}
+			}
+			else
+			{
+				if (!is_string($value))
+				{
+					continue;
+				}
+				if (!preg_match($orderExpression, $value))
+				{
+					continue;
+				}
+			}
+
+			$arSort[$field] = $value;
+		}
+		unset($field, $value);
+	}
+	if (empty($arSort))
+	{
+		$arSort = [
+			$arParams['SORT_BY1'] => $arParams['SORT_ORDER1'],
+			$arParams['SORT_BY2'] => $arParams['SORT_ORDER2'],
+		];
+	}
+	if (!isset($arSort['ID']))
+	{
+		$arSort['ID'] = 'DESC';
+	}
 
 	$shortSelect = array('ID', 'IBLOCK_ID');
 	foreach (array_keys($arSort) as $index)

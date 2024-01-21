@@ -1,14 +1,14 @@
 <?php
 namespace Bitrix\Pull;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
 use Bitrix\Pull\Rest\GuestAuth;
 
 if(!\Bitrix\Main\Loader::includeModule('rest'))
+{
 	return;
+}
 
-Loc::loadMessages(__FILE__);
 
 class Rest extends \IRestService
 {

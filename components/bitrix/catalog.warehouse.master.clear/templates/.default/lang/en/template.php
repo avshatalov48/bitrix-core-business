@@ -1,28 +1,3 @@
 <?php
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_1"] = "Enable inventory management";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_2"] = "Disable inventory management";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_3"] = "Enable inventory management in Bitrix24";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_4"] = "Enable the available options to work with Inventory management. Each option offers specific configuration, initial settings and types of automation.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_5"] = "Learn more";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_6"] = "Soon";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_7"] = "on";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_8"] = "off";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_9"] = "Disable inventory management in Bitrix24";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_10"] = "Inventory management settings";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_12"] = "Cancel";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_13"] = "Reset stock";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_14"] = "Reset stock";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_15"] = "There are products with non-zero current stock. You have to reset stock values before enabling inventory management.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_16"] = "You can update stock values after you have enabled inventory management.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_17"] = "Enable and migrate data from other systems";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_18"] = "Insufficient permisions to enable inventory management";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_19"] = "Save";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CLOSE"] = "Close";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST"] = "There are processed inventory objects. Inventory management cannot be disabled while those inventory objects exist.";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE"] = "Disable";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_CONFIRMATION_TEXT"] = "Are you sure you want to disable inventory management?";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE"] = "Disable inventory management";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_ENABLED"] = "Inventory management enabled";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_RIGHTS_RESTRICTED"] = "Insufficient permission to use Inventory Management. Please contact your Bitrix24 administrator.";
-$MESS["CAT_WAREHOUSE_MASTER_STORE_LEAD_ENABLED_MODE_ERROR"] = "Inventory management can only be used with the \"Simple CRM\" mode.";
-$MESS["CAT_WAREHOUSE_MASTER_STORE_ORDER_DEAL_MODE_ERROR"] = "Inventory management cannot be used with the \"Deals & Orders\" mode. You have to switch to the \"Deals\" mode to use inventory management.";
+
+$MESS["CAT_WAREHOUSE_MASTER_NEW_TITLE"] = "Bitrix24 Inventory Management";

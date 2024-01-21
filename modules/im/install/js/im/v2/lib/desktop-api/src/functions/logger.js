@@ -46,4 +46,8 @@ export const loggerFunctions = {
 		const promptMessage = Loc.getMessage('IM_LIB_DESKTOP_API_WELCOME_PROMPT', { '#VERSION#': version, '#OS#': osName });
 		Logger.desktop(promptMessage);
 	},
+	setLogInfo(logFunction: Function)
+	{
+		BXDesktopSystem.LogInfo = logFunction;
+	},
 };

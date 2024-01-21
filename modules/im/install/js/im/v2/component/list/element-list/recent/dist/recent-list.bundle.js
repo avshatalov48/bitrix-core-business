@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_designTokens,main_polyfill_intersectionobserver,im_v2_provider_service,im_v2_lib_menu,im_v2_lib_draft,main_popup,im_v2_lib_slider,im_public,main_date,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_component_elements,im_v2_lib_call,im_v2_lib_createChat,main_core,im_v2_lib_utils,main_core_events,im_v2_application_core,im_v2_const) {
+(function (exports,ui_designTokens,main_polyfill_intersectionobserver,im_v2_provider_service,im_v2_lib_menu,im_v2_lib_draft,main_popup,im_v2_lib_slider,im_public,main_date,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_lib_call,im_v2_lib_createChat,im_v2_lib_layout,im_v2_component_elements,main_core,im_v2_lib_utils,main_core_events,im_v2_application_core,im_v2_const) {
 	'use strict';
 
 	// @vue/component
@@ -77,7 +77,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.item;
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.recentItem.dialogId, true);
+	      return this.$store.getters['chats/get'](this.recentItem.dialogId, true);
 	    },
 	    user() {
 	      return this.$store.getters['users/get'](this.recentItem.dialogId, true);
@@ -110,7 +110,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.recentItem.message.senderId === im_v2_application_core.Core.getUserId();
 	    },
 	    lastMessageAuthorAvatar() {
-	      const authorDialog = this.$store.getters['dialogues/get'](this.recentItem.message.senderId);
+	      const authorDialog = this.$store.getters['chats/get'](this.recentItem.message.senderId);
 	      if (!authorDialog) {
 	        return '';
 	      }
@@ -151,7 +151,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return main_date.DateTimeFormat.format('d.m.Y', this.user.absent);
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    isChat() {
 	      return !this.isUser;
@@ -220,7 +220,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['users/get'](this.recentItem.dialogId, true);
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.recentItem.dialogId, true);
+	      return this.$store.getters['chats/get'](this.recentItem.dialogId, true);
 	    },
 	    messageStatus() {
 	      if (this.recentItem.message.sending) {
@@ -232,7 +232,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return im_v2_const.OwnMessageStatus.sent;
 	    },
 	    statusIcon() {
-	      if (!this.isLastMessageAuthor || this.isBot || this.needsBirthdayPlaceholder) {
+	      if (!this.isLastMessageAuthor || this.isBot || this.needsBirthdayPlaceholder || this.hasDraft) {
 	        return StatusIcon.none;
 	      }
 	      if (this.isSelfChat) {
@@ -253,13 +253,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.isUser && this.user.id === im_v2_application_core.Core.getUserId();
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    isBot() {
 	      if (this.isUser) {
 	        return this.user.bot;
 	      }
 	      return false;
+	    },
+	    hasDraft() {
+	      return Boolean(this.recentItem.draft.text);
 	    },
 	    needsBirthdayPlaceholder() {
 	      if (!this.isUser) {
@@ -322,13 +325,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['users/get'](this.recentItem.dialogId, true);
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.recentItem.dialogId, true);
+	      return this.$store.getters['chats/get'](this.recentItem.dialogId, true);
 	    },
 	    layout() {
 	      return this.$store.getters['application/getLayout'];
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    isChat() {
 	      return !this.isUser;
@@ -470,7 +473,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-list-recent-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-item__avatar_invitation"></div>
 					<div v-else class="bx-im-list-recent-item__avatar_content">
-						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withStatus="!isSomeoneTyping" :withSpecialTypes="!isSomeoneTyping" />
+						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withStatus="!isSomeoneTyping" :withSpecialTypeIcon="!isSomeoneTyping" />
 						<div v-if="isSomeoneTyping" class="bx-im-list-recent-item__avatar_typing"></div>
 					</div>
 				</div>
@@ -561,7 +564,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      };
 	    },
 	    isTabWithActiveCall() {
-	      return !!this.getCallManager().hasCurrentCall();
+	      return this.$store.getters['recent/calls/hasActiveCall']() && !!this.getCallManager().hasCurrentCall();
 	    },
 	    hasJoined() {
 	      return this.activeCall.state === im_v2_const.RecentCallStatus.joined;
@@ -575,9 +578,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.getCallManager().leaveCurrentCall();
 	    },
 	    onClick(event) {
-	      if (!this.isTabWithActiveCall) {
-	        return;
-	      }
 	      const recentItem = this.$store.getters['recent/get'](this.activeCall.dialogId);
 	      if (!recentItem) {
 	        return;
@@ -639,8 +639,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	const DefaultTitleByChatType = {
-	  [im_v2_const.DialogType.chat]: main_core.Loc.getMessage('IM_LIST_RECENT_CREATE_CHAT_DEFAULT_TITLE'),
-	  [im_v2_const.DialogType.videoconf]: main_core.Loc.getMessage('IM_LIST_RECENT_CREATE_CONFERENCE_DEFAULT_TITLE')
+	  [im_v2_const.ChatType.chat]: main_core.Loc.getMessage('IM_LIST_RECENT_CREATE_CHAT_DEFAULT_TITLE'),
+	  [im_v2_const.ChatType.videoconf]: main_core.Loc.getMessage('IM_LIST_RECENT_CREATE_CONFERENCE_DEFAULT_TITLE')
 	};
 
 	// @vue/component
@@ -694,8 +694,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    onClick() {
-	      this.$store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.createChat.name,
+	      void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	        name: im_v2_const.Layout.createChat.name,
 	        entityId: this.chatType
 	      });
 	    },
@@ -725,6 +725,65 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					</div>
 				</div>
 			</div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const EmptyState = {
+	  name: 'EmptyState',
+	  components: {
+	    MessengerButton: im_v2_component_elements.Button
+	  },
+	  props: {
+	    compactMode: {
+	      type: Boolean,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    ButtonSize: () => im_v2_component_elements.ButtonSize,
+	    ButtonColor: () => im_v2_component_elements.ButtonColor,
+	    inviteUsersLink() {
+	      const AJAX_PATH = '/bitrix/services/main/ajax.php';
+	      const COMPONENT_NAME = 'bitrix:intranet.invitation';
+	      const ACTION_NAME = 'getSliderContent';
+	      const params = new URLSearchParams({
+	        action: ACTION_NAME,
+	        site_id: im_v2_application_core.Core.getSiteId(),
+	        c: COMPONENT_NAME,
+	        mode: 'ajax'
+	      });
+	      return `${AJAX_PATH}?${params.toString()}`;
+	    }
+	  },
+	  methods: {
+	    onInviteUsersClick() {
+	      BX.SidePanel.Instance.open(this.inviteUsersLink);
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div v-if="!compactMode" class="bx-im-list-recent-empty-state__container">
+			<div class="bx-im-list-recent-empty-state__image"></div>
+			<div class="bx-im-list-recent-empty-state__title">{{ loc('IM_LIST_RECENT_EMPTY_STATE_TITLE') }}</div>
+			<div class="bx-im-list-recent-empty-state__subtitle">{{ loc('IM_LIST_RECENT_EMPTY_STATE_SUBTITLE') }}</div>
+			<div class="bx-im-list-recent-empty-state__button">
+				<MessengerButton
+					:size="ButtonSize.L"
+					:isRounded="true"
+					:text="loc('IM_LIST_RECENT_EMPTY_STATE_INVITE_USERS')"
+					@click="onInviteUsersClick"
+				/>
+			</div>
+		</div>
+		<div v-else class="bx-im-list-recent__empty">
+			{{ loc('IM_LIST_RECENT_EMPTY') }}
 		</div>
 	`
 	};
@@ -808,7 +867,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    LoadingState: im_v2_component_elements.RecentLoadingState,
 	    RecentItem,
 	    ActiveCall,
-	    CreateChat
+	    CreateChat,
+	    EmptyState
 	  },
 	  directives: {
 	    'recent-list-observer': {
@@ -848,8 +908,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        if (!this.showBirthdays && item.options.birthdayPlaceholder) {
 	          return false;
 	        }
-	        const dialog = this.$store.getters['dialogues/get'](item.dialogId, true);
-	        const isUser = dialog.type === im_v2_const.DialogType.user;
+	        const dialog = this.$store.getters['chats/get'](item.dialogId, true);
+	        const isUser = dialog.type === im_v2_const.ChatType.user;
 	        const hasBirthday = isUser && this.showBirthdays && this.$store.getters['users/hasBirthday'](item.dialogId);
 	        const isInvited = item.options.defaultUserRecord === true;
 	        const needToShowInvited = this.showInvited || hasBirthday;
@@ -930,10 +990,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    onClick(item, event) {
-	      if (im_v2_lib_utils.Utils.key.isCmdOrCtrl(event)) {
-	        im_v2_lib_slider.MessengerSlider.getInstance().openNewTab(im_v2_const.PathPlaceholder.dialog.replace('#DIALOG_ID#', item.dialogId));
-	        return;
-	      }
 	      if (this.compactMode) {
 	        im_public.Messenger.openChat(item.dialogId);
 	        return;
@@ -1081,9 +1137,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					/>
 				</div>	
 				<LoadingState v-if="isLoading" :compactMode="compactMode" />
-				<div v-if="collection.length === 0" class="bx-im-list-recent__empty">
-					{{ loc('IM_LIST_RECENT_EMPTY') }}
-				</div>
+				<EmptyState v-if="collection.length === 0" :compactMode="compactMode" />
 			</div>
 		</div>
 	`
@@ -1091,5 +1145,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.RecentList = RecentList;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX,BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Im.V2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX,BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
 //# sourceMappingURL=recent-list.bundle.js.map

@@ -238,6 +238,13 @@ class CAllSocNetLogComments
 
 					if ((int)$arComment["LOG_ID"] > 0)
 					{
+						\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+							\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_DEL,
+							[
+								'SONET_LOG_ID' => (int)$arComment['LOG_ID'],
+							]
+						);
+
 						CSocNetLogComments::UpdateLogData($arComment["LOG_ID"], false, true);
 
 						$cache = new CPHPCache;

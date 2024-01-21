@@ -129,6 +129,7 @@ class CJSCore
 			$coreLang = self::_loadLang($config['lang'], true);
 			$coreSettings = self::loadSettings('main.core', $config['settings'], true);
             $coreJs = self::_loadJS($config['js'], true);
+            $registerExtension = self::registerExtensionAsLoaded('main.core', true);
 
 			if ($bReturn)
 			{
@@ -136,6 +137,7 @@ class CJSCore
 			    $ret .= $coreSettings;
 				$ret .= $relativities;
 			    $ret .= $coreJs;
+			    $ret .= $registerExtension;
 			    $ret .= $includes;
             }
 
@@ -144,6 +146,7 @@ class CJSCore
 			$asset->addString($coreSettings, true, AssetLocation::AFTER_CSS);
             $asset->addString($relativities, true, AssetLocation::AFTER_CSS);
             $asset->addString($coreJs, true, AssetLocation::AFTER_CSS);
+            $asset->addString($registerExtension, true, AssetLocation::AFTER_CSS);
             $asset->addString($includes, true, AssetLocation::AFTER_CSS);
 		}
 
@@ -473,8 +476,43 @@ JS;
 			}
 		}
 
+        $ret .= self::registerExtensionAsLoaded($ext, $bReturn);
+
 		return $ret;
 	}
+
+    public static function registerExtensionAsLoaded($extension, $bReturn = false): string
+    {
+        if (self::isCoreLoaded())
+        {
+            $options = [
+                'name' => $extension,
+                'namespace' => 'window',
+                'loaded' => true,
+            ];
+
+            $bundleConfig = Extension::getBundleConfig($extension);
+            if (is_array($bundleConfig))
+            {
+                if (isset($bundleConfig['namespace']) && is_string($bundleConfig['namespace']))
+                {
+                    $options['namespace'] = $bundleConfig['namespace'];
+                }
+            }
+
+            $jsOptions = \CUtil::phpToJSObject($options);
+            $result = '<script>BX.Runtime.registerExtension(' . $jsOptions . ');</script>';
+
+            if ($bReturn)
+            {
+                return $result;
+            }
+
+            Asset::getInstance()->addString($result, true, AssetLocation::AFTER_CSS);
+        }
+
+        return '';
+    }
 
 	public static function ShowTimer($params)
 	{
@@ -528,7 +566,7 @@ JS;
 
 				if ($fullPath)
 				{
-					$res .= '<script type="text/javascript" src="'.$fullPath.'"></script>'."\r\n";
+					$res .= '<script src="'.$fullPath.'"></script>'."\r\n";
 				}
 			}
 			return $res;
@@ -573,7 +611,7 @@ JS;
 
 		if ($jsMsg !== '')
 		{
-			$jsMsg = '<script type="text/javascript">'.$jsMsg.'</script>';
+			$jsMsg = '<script>'.$jsMsg.'</script>';
 			if ($bReturn)
 			{
 				return $jsMsg."\r\n";

@@ -549,29 +549,18 @@ class CLists
 		}
 		else
 		{
-			$errors = array();
-			if (isset($documentStates[$workflowId]['WORKFLOW_STATUS']) &&
-				$documentStates[$workflowId]['WORKFLOW_STATUS'] !== null)
+			$errors = CBPDocument::killWorkflow($workflowId);
+			foreach ($errors as $error)
 			{
-				CBPDocument::terminateWorkflow(
-					$workflowId,
-					$documentId,
-					$errors
-				);
+				$stringError .= $error['message'];
 			}
 
-			if (!empty($errors))
+			if ($errors)
 			{
-				$stringError = '';
-				foreach ($errors as $error)
-					$stringError .= $error['message'];
-				$listError[] = array('id' => 'stopBizproc', 'text' => $stringError);
-			}
-			else
-			{
-				CBPTaskService::deleteByWorkflow($workflowId);
-				CBPTrackingService::deleteByWorkflow($workflowId);
-				CBPStateService::deleteWorkflow($workflowId);
+				$listError[] = [
+					'id' => 'stopBizproc',
+					'text' => $stringError
+				];
 			}
 		}
 
@@ -1162,7 +1151,7 @@ class CLists
 
 		foreach($listSection as $sectionId => $section)
 		{
-			if($section['PARENT_ID'] == $baseSectionId)
+			if(($section['PARENT_ID'] ?? null) == $baseSectionId)
 			{
 				$listChildSection[] = $sectionId;
 				self::getChildSection($sectionId, $listSection, $listChildSection);

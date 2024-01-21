@@ -84,7 +84,7 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 				$arTable = array_shift($arTables);
 
 				$bCheckOK = true;
-				$start_check = getmicrotime();
+				$start_check = microtime(true);
 				if($op == "check")
 				{
 					$rsStatus = $DB->Query('check table `'.$arTable["Name"].'`');
@@ -94,7 +94,7 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 							$bCheckOK = false;
 					}
 				}
-				$end_check = getmicrotime();
+				$end_check = microtime(true);
 				$check_time = $end_check - $start_check;
 
 				//When check time was less when 5 seconds we'll optimize and analyze table on the same hit

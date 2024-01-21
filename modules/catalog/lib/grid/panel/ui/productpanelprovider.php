@@ -21,11 +21,17 @@ class ProductPanelProvider extends ElementPanelProvider
 	{
 		$elementActions = parent::prepareActions();
 
+		$listMode = $this->getListMode();
+
 		foreach ($elementActions as &$actionItem)
 		{
 			if ($actionItem instanceof ElementGroupActionsItem)
 			{
-				$actionItem = new ProductGroupActionsItem($this->getIblockId(), $this->getIblockRightsChecker());
+				$actionItem = new ProductGroupActionsItem(
+					$this->getIblockId(),
+					$this->getIblockRightsChecker(),
+					$listMode
+				);
 			}
 			elseif ($actionItem instanceof \Bitrix\Iblock\Grid\Panel\UI\Actions\Item\EditActionsItem)
 			{

@@ -161,11 +161,6 @@ class forum extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = FORUM_VERSION;
-			$this->MODULE_VERSION_DATE = FORUM_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("FORUM_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("FORUM_MODULE_DESCRIPTION");

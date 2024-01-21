@@ -10,7 +10,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { UploaderWrapper } from './classes/uploading/uploader-wrapper';
 import { SendingService } from './registry';
 
-import type { ImModelDialog, ImModelUser } from 'im.v2.model';
+import type { ImModelChat, ImModelUser } from 'im.v2.model';
 import type { UploaderFile, UploaderError } from 'ui.uploader.core';
 import type { Store } from 'ui.vue3.vuex';
 import type { RestClient } from 'rest.client';
@@ -54,6 +54,8 @@ type UploadFilesParams = {
 	autoUpload: boolean,
 	sendAsFile: boolean
 }
+
+type UploaderId = string;
 
 export class UploadingService
 {
@@ -263,6 +265,7 @@ export class UploadingService
 		this.#uploaderWrapper.subscribe(UploaderWrapper.events.onFileUploadError, (event: BaseEvent) => {
 			const { file, error } = event.getData();
 			this.#updateFileProgress(file.getId(), 0, FileStatus.error);
+			this.#setMessageError(file.getCustomData('tempMessageId'));
 			this.#showError(error);
 			Logger.error('UploadingService: upload error', error);
 		});
@@ -298,7 +301,7 @@ export class UploadingService
 			this.#restClient.callMethod(RestMethod.imDiskFolderGet, { chat_id: chatId }).then((response) => {
 				const { ID: diskFolderId } = response.data();
 				this.#isRequestingDiskFolderId = false;
-				this.#store.commit('dialogues/update', {
+				this.#store.commit('chats/update', {
 					dialogId,
 					fields: {
 						diskFolderId,
@@ -334,6 +337,8 @@ export class UploadingService
 			as_file: sendAsFile ? 'Y' : 'N',
 			...fileIdParams,
 		}).catch((error) => {
+			this.#setMessageError(tempMessageId);
+			this.#updateFileProgress(temporaryFileId, 0, FileStatus.error);
 			Logger.error('commitFile error', error);
 		});
 	}
@@ -499,9 +504,9 @@ export class UploadingService
 		return file.name.split('.').splice(-1)[0];
 	}
 
-	#getDialog(dialogId: string): ImModelDialog
+	#getDialog(dialogId: string): ImModelChat
 	{
-		return this.#store.getters['dialogues/get'](dialogId);
+		return this.#store.getters['chats/get'](dialogId);
 	}
 
 	#getCurrentUser(): ImModelUser
@@ -657,6 +662,16 @@ export class UploadingService
 				content: `${error.getMessage()}<br>${error.getDescription()}`,
 			});
 		}
+	}
+
+	#setMessageError(tempMessageId: string)
+	{
+		this.#store.dispatch('messages/update', {
+			id: tempMessageId,
+			fields: {
+				error: true,
+			},
+		});
 	}
 
 	destroy()

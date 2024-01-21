@@ -1,0 +1,2 @@
+<?php
+$MESS["SOCIALNETWORK_SPACES_LIST_COMMON_SPACE_NAME"] = "Shared space";

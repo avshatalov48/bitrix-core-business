@@ -1,5 +1,5 @@
 "use strict";
-import {Loc, Runtime, Type, Uri} from "main.core";
+import { Loc, Runtime, Type, Uri } from "main.core";
 import { DeletedViewForm } from "calendar.sharing.deletedviewform";
 
 export class SliderLoader
@@ -11,7 +11,7 @@ export class SliderLoader
 				Type.isString(entryId)
 				&& (
 					entryId === 'NEW'
-					|| entryId.substr(0, 4) === 'EDIT'
+					|| entryId.substring(0, 4) === 'EDIT'
 				)
 			)
 			|| !parseInt(entryId)
@@ -21,8 +21,8 @@ export class SliderLoader
 
 		this.sliderId = options.sliderId || "calendar:slider-" + Math.random();
 
-		entryId = (Type.isString(entryId) && entryId.substr(0, 4) === 'EDIT')
-			? parseInt(entryId.substr(4))
+		entryId = (Type.isString(entryId) && entryId.substring(0, 4) === 'EDIT')
+			? parseInt(entryId.substring(4))
 			: parseInt(entryId);
 
 		this.extensionParams = {
@@ -108,6 +108,11 @@ export class SliderLoader
 		if (Type.isBoolean(options.isSharing) && options.isSharing === true)
 		{
 			this.isSharing = true;
+		}
+
+		if (Type.isStringFilled(options.jumpToControl))
+		{
+			this.extensionParams.jumpToControl = options.jumpToControl;
 		}
 	}
 

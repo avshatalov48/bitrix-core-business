@@ -117,27 +117,22 @@ class FileIndexTable extends DataManager
 	 * Drop index.
 	 *
 	 * @param Translate\Filter|null $filter Params to filter file list.
-	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return void
 	 */
-	public static function purge(?Translate\Filter $filter = null, bool $recursively = true): void
+	public static function purge(?Translate\Filter $filter = null): void
 	{
-		if (($filterOut = static::processFilter($filter)) !== false)
-		{
-			if ($recursively)
-			{
-				Index\Internals\PhraseIndexTable::purge($filter);
-			}
+		Index\Internals\PhraseIndexTable::purge($filter);
 
-			static::bulkDelete($filterOut);
-		}
+		$filterOut = static::processFilter($filter);
+
+		static::bulkDelete($filterOut);
 	}
 
 	/**
 	 * Processes filter params to convert them into orm type.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return array
 	 */

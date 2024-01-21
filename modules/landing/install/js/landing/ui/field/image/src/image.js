@@ -30,7 +30,10 @@ export class Image extends TextField
 		this.type = this.content.type || "image";
 		this.contextType = data.contextType || Image.CONTEXT_TYPE_CONTENT;
 		this.allowClear = data.allowClear;
-		this.allowAiImage = Type.isBoolean(data.allowAiImage) ? data.allowAiImage : false;
+		this.isAiImageAvailable = Type.isBoolean(data.isAiImageAvailable) ? data.isAiImageAvailable : false;
+		this.isAiImageActive = Type.isBoolean(data.isAiImageActive) ? data.isAiImageActive : false;
+		this.aiUnactiveInfoCode = Type.isString(data.aiUnactiveInfoCode) ? data.aiUnactiveInfoCode : null;
+
 		this.input.innerText = this.content.src;
 		this.input.hidden = true;
 		this.input2x = this.createInput();
@@ -121,12 +124,21 @@ export class Image extends TextField
 		this.aiButton = null;
 		this.aiPicker = null;
 		if (
-			this.allowAiImage
+			this.isAiImageAvailable
 			&& (this.type === "background" || this.type === "image")
 		)
 		{
 			this.aiButton = Image.createAiButton(this.compactMode);
-			this.aiButton.on("click", this.onAiClick.bind(this));
+			this.aiButton.on("click", () => {
+				if (this.isAiImageActive)
+				{
+					this.onAiClick();
+				}
+				else if (this.aiUnactiveInfoCode && this.aiUnactiveInfoCode.length > 0)
+				{
+					BX.UI.InfoHelper.show(this.aiUnactiveInfoCode);
+				}
+			});
 			this.right.appendChild(this.aiButton.layout);
 		}
 

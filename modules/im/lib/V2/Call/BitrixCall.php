@@ -3,14 +3,19 @@
 namespace Bitrix\Im\V2\Call;
 
 use Bitrix\Im\Call\Call;
+use Bitrix\Im\Call\Util;
+use Bitrix\Main\Security\Random;
 use Bitrix\Main\Web\JWT;
 
 class BitrixCall extends Call
 {
-	protected function initCall(bool $isNew = false)
+	protected function initCall()
 	{
-		if ($isNew)
+		if (!$this->endpoint)
 		{
+			$this->uuid = Util::generateUUID();
+			$this->secretKey = Random::getString(10, true);
+
 			$callControllerClient = new ControllerClient();
 			$createResult = $callControllerClient->createCall(
 				$this->getUuid(),
@@ -52,7 +57,7 @@ class BitrixCall extends Call
 	{
 		return [
 			'endpoint' => $this->endpoint ?: null,
-			'jwt' => $this->generateJwt($userId)
+			'jwt' => $this->generateJwt($userId),
 		];
 	}
 
@@ -69,5 +74,10 @@ class BitrixCall extends Call
 				$sendPush
 			);
 		}
+	}
+
+	public function getMaxUsers()
+	{
+		return static::getMaxCallServerParticipants();
 	}
 }

@@ -2,7 +2,7 @@ import 'main.date';
 import {PopupManager} from 'main.popup';
 
 import {Core} from 'im.v2.application.core';
-import {DialogType, Settings, Layout} from 'im.v2.const';
+import {ChatType, Settings, Layout} from 'im.v2.const';
 import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
 import {MessengerSlider} from 'im.v2.lib.slider';
 import {Messenger} from 'im.public';
@@ -14,7 +14,7 @@ import {DateFormatter, DateTemplate} from 'im.v2.lib.date-formatter';
 
 import '../css/recent-item.css';
 
-import type {ImModelRecentItem, ImModelDialog, ImModelUser} from 'im.v2.model';
+import type {ImModelRecentItem, ImModelChat, ImModelUser} from 'im.v2.model';
 
 const NEW_USER_POPUP_ID = 'im-new-user-popup';
 
@@ -66,9 +66,9 @@ export const RecentItem = {
 		{
 			return this.$store.getters['users/get'](this.recentItem.dialogId, true);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.recentItem.dialogId, true);
+			return this.$store.getters['chats/get'](this.recentItem.dialogId, true);
 		},
 		layout(): {name: string, entityId: string}
 		{
@@ -76,7 +76,7 @@ export const RecentItem = {
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
 		},
 		isChat(): boolean
 		{
@@ -254,7 +254,7 @@ export const RecentItem = {
 				<div class="bx-im-list-recent-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-item__avatar_invitation"></div>
 					<div v-else class="bx-im-list-recent-item__avatar_content">
-						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withStatus="!isSomeoneTyping" :withSpecialTypes="!isSomeoneTyping" />
+						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withStatus="!isSomeoneTyping" :withSpecialTypeIcon="!isSomeoneTyping" />
 						<div v-if="isSomeoneTyping" class="bx-im-list-recent-item__avatar_typing"></div>
 					</div>
 				</div>

@@ -1,17 +1,16 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,landing_node,TableEditor) {
+(function (exports,main_core,landing_node_base,landing_node_tableeditor) {
 	'use strict';
 
-	TableEditor = TableEditor && TableEditor.hasOwnProperty('default') ? TableEditor['default'] : TableEditor;
-
 	const escapeText = BX.Landing.Utils.escapeText;
-	const headerTagMatcher = BX.Landing.Utils.Matchers.headerTag;
+	const matchers = BX.Landing.Utils.Matchers;
 	const changeTagName = BX.Landing.Utils.changeTagName;
 	const textToPlaceholders = BX.Landing.Utils.textToPlaceholders;
-	class Text extends landing_node.Node {
+	class Text extends landing_node_base.Base {
 	  constructor(options) {
 	    super(options);
+	    this.currentNode = null;
 	    this.type = 'text';
 	    this.tableBaseFontSize = '22';
 	    this.onClick = this.onClick.bind(this);
@@ -23,13 +22,16 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.onMouseup = this.onMouseup.bind(this);
 
 	    // Bind on node events
-	    this.node.addEventListener('mousedown', this.onMousedown);
-	    this.node.addEventListener('click', this.onClick);
-	    this.node.addEventListener('paste', this.onPaste);
-	    this.node.addEventListener('drop', this.onDrop);
-	    this.node.addEventListener('input', this.onInput);
-	    this.node.addEventListener('keydown', this.onKeyDown);
-	    document.addEventListener('mouseup', this.onMouseup);
+	    this.bindEvents(this.node);
+	    main_core.Event.bind(document, 'mouseup', this.onMouseup);
+	  }
+	  bindEvents(node) {
+	    main_core.Event.bind(node, 'mousedown', this.onMousedown);
+	    main_core.Event.bind(node, 'click', this.onClick);
+	    main_core.Event.bind(node, 'paste', this.onPaste);
+	    main_core.Event.bind(node, 'drop', this.onDrop);
+	    main_core.Event.bind(node, 'input', this.onInput);
+	    main_core.Event.bind(node, 'keydown', this.onKeyDown);
 	  }
 
 	  /**
@@ -87,7 +89,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  onEscapePress() {
 	    // Hide editor by press on Escape button
 	    if (this.isEditable()) {
-	      if (this === BX.Landing.Node.Text.currentNode) {
+	      if (this === this.currentNode) {
 	        BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 	      }
 	      this.disableEdit();
@@ -140,6 +142,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.fromNode = false;
 	  }
 	  onMousedown(event) {
+	    BX.Event.EventEmitter.emit('BX.Landing.Node.Text:onMousedown');
 	    if (!this.manifest.group) {
 	      this.fromNode = true;
 	      if (this.manifest.allowInlineEdit !== false && BX.Landing.Main.getInstance().isControlsEnabled()) {
@@ -147,7 +150,7 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.enableEdit();
 	        if (this.isTable(event)) {
 	          this.disableEdit();
-	          BX.Landing.Node.Text.currentNode.node.querySelectorAll('.landing-table-container').forEach(table => {
+	          this.currentNode.node.querySelectorAll('.landing-table-container').forEach(table => {
 	            if (!table.hasAttribute('table-prepare')) {
 	              this.prepareNewTable(table);
 	            }
@@ -162,8 +165,8 @@ this.BX.Landing = this.BX.Landing || {};
 	          if (!this.manifest.textOnly && !BX.Landing.UI.Panel.StylePanel.getInstance().isShown()) {
 	            BX.Landing.UI.Panel.EditorPanel.getInstance().show(this.node, null, this.buttons);
 	          }
-	          if (BX.Landing.Node.Text.nodeTableContainerList) {
-	            BX.Landing.Node.Text.nodeTableContainerList.forEach(tableContainer => {
+	          if (this.nodeTableContainerList) {
+	            this.nodeTableContainerList.forEach(tableContainer => {
 	              tableContainer.tableEditor.unselect(tableContainer.tableEditor);
 	            });
 	          }
@@ -216,29 +219,27 @@ this.BX.Landing = this.BX.Landing || {};
 	   * Enables edit mode
 	   */
 	  enableEdit() {
-	    const currentNode = BX.Landing.Node.Text.currentNode;
+	    const currentNode = this.currentNode;
 	    if (currentNode) {
-	      const node = BX.Landing.Node.Text.currentNode.node;
+	      const node = this.currentNode.node;
 	      const nodeTableContainerList = node.querySelectorAll('.landing-table-container');
 	      if (nodeTableContainerList.length > 0) {
 	        nodeTableContainerList.forEach(nodeTableContainer => {
 	          if (!nodeTableContainer.tableEditor) {
-	            nodeTableContainer.tableEditor = new TableEditor(nodeTableContainer);
+	            nodeTableContainer.tableEditor = new landing_node_tableeditor.TableEditor(nodeTableContainer, this.currentNode);
 	          }
 	        });
-	        BX.Landing.Node.Text.nodeTableContainerList = nodeTableContainerList;
+	        this.nodeTableContainerList = nodeTableContainerList;
 	      }
 	    }
 	    if (!this.isEditable() && !BX.Landing.UI.Panel.StylePanel.getInstance().isShown()) {
-	      if (this !== BX.Landing.Node.Text.currentNode && BX.Landing.Node.Text.currentNode !== null) {
-	        BX.Landing.Node.Text.currentNode.disableEdit();
+	      if (this !== this.currentNode && this.currentNode !== null) {
+	        this.disableEdit();
 	      }
-	      BX.Landing.Node.Text.currentNode = this;
+	      this.currentNode = this;
+	      BX.Landing.Node.Text.currentNode = this.currentNode;
 	      this.buttons = [];
 	      this.buttons.push(this.getDesignButton());
-	      if (BX.Landing.Main.getInstance().options.allow_ai_text) {
-	        this.buttons.push(this.getAiTextButton());
-	      }
 	      if (this.isHeader()) {
 	        this.buttons.push(this.getChangeTagButton());
 	        this.getChangeTagButton().onChangeHandler = this.onChangeTag.bind(this);
@@ -267,28 +268,8 @@ this.BX.Landing = this.BX.Landing || {};
 	        }.bind(this)
 	      });
 	    }
+	    this.designButton.insertBefore = 'ai_copilot';
 	    return this.designButton;
-	  }
-
-	  /**
-	   * Gets AI (text) button for editor
-	   * @return {BX.Landing.UI.Button.AiText}
-	   */
-	  getAiTextButton() {
-	    if (!this.aiTextButton) {
-	      this.aiTextButton = new BX.Landing.UI.Button.AiText.getInstance('ai_text', {
-	        html: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT'),
-	        attrs: {
-	          title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_AI_TEXT')
-	        },
-	        sections: this.manifest.sections,
-	        onSelect: function (item) {
-	          this.node.innerHTML = item.data.replaceAll(/(\r\n|\r|\n)/g, '<br>');
-	          this.onChange();
-	        }.bind(this)
-	      });
-	    }
-	    return this.aiTextButton;
 	  }
 
 	  /**
@@ -361,7 +342,7 @@ this.BX.Landing = this.BX.Landing || {};
 	   * @return {boolean}
 	   */
 	  isHeader() {
-	    return headerTagMatcher.test(this.node.nodeName);
+	    return matchers.headerTag.test(this.node.nodeName);
 	  }
 
 	  /**
@@ -370,8 +351,8 @@ this.BX.Landing = this.BX.Landing || {};
 	   */
 	  isTable(event) {
 	    let nodeIsTable = false;
-	    if (BX.Landing.Node.Text.currentNode && event) {
-	      BX.Landing.Node.Text.currentNode.node.querySelectorAll('.landing-table-container').forEach(table => {
+	    if (this.currentNode && event) {
+	      this.currentNode.node.querySelectorAll('.landing-table-container').forEach(table => {
 	        if (table.contains(event.srcElement)) {
 	          nodeIsTable = true;
 	        }
@@ -388,7 +369,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      tdTag.remove();
 	    });
 	    table.setAttribute('table-prepare', 'true');
-	    BX.Landing.Node.Text.currentNode.onChange(true);
+	    this.currentNode.onChange(true);
 	  }
 	  addTableButtons(event) {
 	    const buttons = [];
@@ -396,7 +377,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    let setTd = [];
 	    const tableButtons = this.getTableButtons();
 	    const tableAlignButtons = [tableButtons[0], tableButtons[1], tableButtons[2], tableButtons[3]];
-	    const node = BX.Landing.Node.Text.currentNode.node;
+	    const node = this.currentNode.node;
 	    let table = null;
 	    let isCell = false;
 	    let isButtonAddRow = false;
@@ -585,60 +566,60 @@ this.BX.Landing = this.BX.Landing || {};
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_LEFT')
 	      }
-	    }), new BX.Landing.UI.Button.AlignTable('alignCenter', {
+	    }, this.currentNode), new BX.Landing.UI.Button.AlignTable('alignCenter', {
 	      html: '<span class="landing-ui-icon-editor-center"></span>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_CENTER')
 	      }
-	    }), new BX.Landing.UI.Button.AlignTable('alignRight', {
+	    }, this.currentNode), new BX.Landing.UI.Button.AlignTable('alignRight', {
 	      html: '<span class="landing-ui-icon-editor-right"></span>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_RIGHT')
 	      }
-	    }), new BX.Landing.UI.Button.AlignTable('alignJustify', {
+	    }, this.currentNode), new BX.Landing.UI.Button.AlignTable('alignJustify', {
 	      html: '<span class="landing-ui-icon-editor-justify"></span>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_ALIGN_JUSTIFY')
 	      }
-	    }), new BX.Landing.UI.Button.TableColorAction('tableTextColor', {
+	    }, this.currentNode), new BX.Landing.UI.Button.TableColorAction('tableTextColor', {
 	      text: BX.Landing.Loc.getMessage('EDITOR_ACTION_SET_FORE_COLOR'),
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_COLOR')
 	      }
-	    }), new BX.Landing.UI.Button.TableColorAction('tableBgColor', {
+	    }, this.currentNode), new BX.Landing.UI.Button.TableColorAction('tableBgColor', {
 	      html: '<i class="landing-ui-icon-editor-fill-color"></i>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_CELL_BG')
 	      }
-	    }), new BX.Landing.UI.Button.DeleteElementTable('deleteRow', {
+	    }, this.currentNode), new BX.Landing.UI.Button.DeleteElementTable('deleteRow', {
 	      html: '<span class="landing-ui-icon-editor-delete"></span>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_DELETE_ROW_TABLE')
 	      }
-	    }), new BX.Landing.UI.Button.DeleteElementTable('deleteCol', {
+	    }, this.currentNode), new BX.Landing.UI.Button.DeleteElementTable('deleteCol', {
 	      html: '<span class="landing-ui-icon-editor-delete"></span>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_DELETE_COL_TABLE')
 	      }
-	    }), new BX.Landing.UI.Button.StyleTable('styleTable', {
+	    }, this.currentNode), new BX.Landing.UI.Button.StyleTable('styleTable', {
 	      html: `
-					${BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_STYLE')}
-						<i class="fas fa-chevron-down g-ml-8"></i>
-				`,
+						${BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_STYLE')}
+							<i class="fas fa-chevron-down g-ml-8"></i>
+					`,
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_STYLE')
 	      }
-	    }), new BX.Landing.UI.Button.CopyTable('copyTable', {
+	    }, this.currentNode), new BX.Landing.UI.Button.CopyTable('copyTable', {
 	      text: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_COPY'),
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_COPY')
 	      }
-	    }), new BX.Landing.UI.Button.DeleteTable('deleteTable', {
+	    }, this.currentNode), new BX.Landing.UI.Button.DeleteTable('deleteTable', {
 	      html: '<span class="landing-ui-icon-editor-delete"></span>',
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_EDITOR_ACTION_TABLE_DELETE')
 	      }
-	    }));
+	    }, this.currentNode));
 	    return this.buttons;
 	  }
 
@@ -649,12 +630,7 @@ this.BX.Landing = this.BX.Landing || {};
 	   */
 	  onChangeTag(value, preventHistory) {
 	    this.node = changeTagName(this.node, value);
-	    this.node.addEventListener('mousedown', this.onMousedown);
-	    this.node.addEventListener('click', this.onClick);
-	    this.node.addEventListener('paste', this.onPaste);
-	    this.node.addEventListener('drop', this.onDrop);
-	    this.node.addEventListener('input', this.onInput);
-	    this.node.addEventListener('keydown', this.onInput);
+	    this.bindEvents(this.node);
 	    if (!this.getField().isEditable() && !preventHistory) {
 	      this.disableEdit();
 	      this.enableEdit();
@@ -724,10 +700,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    return `<a class='g-bg-transparent' href='${text}' target='_blank'> ${text} </a>`;
 	  }
 	}
-	BX.Landing.Node.Text = Text;
-	BX.Landing.Node.Text.currentNode = null;
 
 	exports.Text = Text;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing,BX.Landing.Node.Text.TableEditor));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX,BX.Landing.Node,BX.Landing.Node.TableEditor));
 //# sourceMappingURL=text.bundle.js.map

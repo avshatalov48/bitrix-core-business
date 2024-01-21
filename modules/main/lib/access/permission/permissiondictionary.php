@@ -92,6 +92,7 @@ abstract class PermissionDictionary
 				'VALUE_YES',
 				'DELIMITER',
 				'TYPE_VARIABLES',
+				'TYPE_MULTIVARIABLES',
 				'TYPE_TOGGLER',
 				'HINT_PREFIX'
 			]))

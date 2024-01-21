@@ -1,8 +1,8 @@
 import {EventEmitter} from 'main.core.events';
-import {DialogType, EventType} from 'im.v2.const';
+import {ChatType, EventType} from 'im.v2.const';
 import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
 import '../css/search-result-item.css';
-import type {ImModelDialog, ImModelUser} from 'im.v2.model';
+import type {ImModelChat, ImModelUser} from 'im.v2.model';
 import type {SearchItem} from '../classes/search-item';
 
 // @vue/component
@@ -45,9 +45,9 @@ export const SearchResultItem = {
 		{
 			return this.$store.getters['users/get'](this.dialogId, true);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		isChat(): boolean
 		{
@@ -55,19 +55,13 @@ export const SearchResultItem = {
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
 		},
 		userItemText(): string
 		{
 			if (!this.isUser)
 			{
 				return '';
-			}
-
-			const status = this.$store.getters['users/getLastOnline'](this.dialogId);
-			if (status)
-			{
-				return status;
 			}
 
 			return this.$store.getters['users/getPosition'](this.dialogId);

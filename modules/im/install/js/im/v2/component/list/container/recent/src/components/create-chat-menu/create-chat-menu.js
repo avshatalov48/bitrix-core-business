@@ -1,7 +1,8 @@
 import { MessengerMenu, MenuItem, MenuItemIcon } from 'im.v2.component.elements';
-import { Layout, PromoId, DialogType } from 'im.v2.const';
+import { Layout, PromoId, ChatType } from 'im.v2.const';
 import { PromoManager } from 'im.v2.lib.promo';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
+import { LayoutManager } from 'im.v2.lib.layout';
 
 import { CreateChatHelp } from './create-chat-help';
 import { CreateChatPromo } from './promo/create-chat';
@@ -11,8 +12,8 @@ import type { JsonObject } from 'main.core';
 import type { MenuOptions } from 'main.popup';
 
 const PromoByChatType = {
-	[DialogType.chat]: PromoId.createGroupChat,
-	[DialogType.videoconf]: PromoId.createConference,
+	[ChatType.chat]: PromoId.createGroupChat,
+	[ChatType.videoconf]: PromoId.createConference,
 };
 
 // @vue/component
@@ -27,7 +28,7 @@ export const CreateChatMenu = {
 	},
 	computed:
 	{
-		DialogType: () => DialogType,
+		ChatType: () => ChatType,
 		MenuItemIcon: () => MenuItemIcon,
 		menuConfig(): MenuOptions
 		{
@@ -42,7 +43,7 @@ export const CreateChatMenu = {
 	},
 	methods:
 	{
-		onChatCreateClick(type: $Values<typeof DialogType>)
+		onChatCreateClick(type: $Values<typeof ChatType>)
 		{
 			this.chatTypeToCreate = type;
 
@@ -74,8 +75,8 @@ export const CreateChatMenu = {
 				return;
 			}
 			CreateChatManager.getInstance().setCreationStatus(false);
-			this.$store.dispatch('application/setLayout', {
-				layoutName: Layout.createChat.name,
+			void LayoutManager.getInstance().setLayout({
+				name: Layout.createChat.name,
 				entityId: this.chatTypeToCreate,
 			});
 		},
@@ -100,15 +101,16 @@ export const CreateChatMenu = {
 				:icon="MenuItemIcon.chat"
 				:title="loc('IM_RECENT_CREATE_GROUP_CHAT_TITLE_V2')"
 				:subtitle="loc('IM_RECENT_CREATE_GROUP_CHAT_SUBTITLE')"
-				@click="onChatCreateClick(DialogType.chat)"
+				@click="onChatCreateClick(ChatType.chat)"
 			/>
 			<MenuItem
 				:icon="MenuItemIcon.conference"
 				:title="loc('IM_RECENT_CREATE_CONFERENCE_TITLE')"
 				:subtitle="loc('IM_RECENT_CREATE_CONFERENCE_SUBTITLE')"
-				@click="onChatCreateClick(DialogType.videoconf)"
+				@click="onChatCreateClick(ChatType.videoconf)"
 			/>
 			<MenuItem
+				v-if="false"
 				:icon="MenuItemIcon.channel"
 				:title="loc('IM_RECENT_CREATE_CHANNEL_TITLE_V2')"
 				:subtitle="loc('IM_RECENT_CREATE_CHANNEL_SUBTITLE_V2')"

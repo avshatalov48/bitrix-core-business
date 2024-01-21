@@ -24,7 +24,7 @@ export const NotificationItemContent = {
 		},
 		hasQuickAnswer(): boolean
 		{
-			return !!this.notification.params?.CAN_ANSWER && this.notification.params.CAN_ANSWER === 'Y';
+			return Boolean(this.notification.params?.canAnswer === 'Y');
 		},
 		content(): string
 		{
@@ -32,7 +32,7 @@ export const NotificationItemContent = {
 		},
 		attachList(): ?Array
 		{
-			return this.notification.params?.ATTACH;
+			return this.notification.params?.attach;
 		},
 	},
 	methods:

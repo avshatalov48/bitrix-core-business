@@ -31,7 +31,7 @@ export const AttachGrid = {
 	template: `
 		<div class="bx-im-attach-grid__container">
 			<AttachGridItem
-				v-for="(gridItem, index) in internalConfig.GRID"
+				v-for="(gridItem, index) in internalConfig.grid"
 				:config="gridItem"
 				:key="index"
 			/>

@@ -85,9 +85,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME AddSites.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME AddSites.getHTTPPage ".round(microtime(true)-$stime,3)." sec");
 
 			if ($content == '')
 				$strError_tmp .= "[UAS02] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
@@ -164,9 +164,9 @@ class CUpdateSystem
 
 		CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-		$stime = CUpdateSystem::getmicrotime();
+		$stime = microtime(true);
 		$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-		CUpdateSystem::AddMessage2Log("TIME ActivateLicenseKey.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		CUpdateSystem::AddMessage2Log("TIME ActivateLicenseKey.getHTTPPage ".round(microtime(true)-$stime,3)." sec");
 
 		if ($content == '')
 			$strError_tmp .= "[UALK01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
@@ -238,9 +238,9 @@ class CUpdateSystem
 
 		CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-		$stime = CUpdateSystem::getmicrotime();
+		$stime = microtime(true);
 		$fcontent = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-		CUpdateSystem::AddMessage2Log("TIME RegisterVersion.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		CUpdateSystem::AddMessage2Log("TIME RegisterVersion.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 
 		if ($fcontent == '')
 			$strError_tmp .= "[URV01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
@@ -557,9 +557,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$fcontent = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME LoadSources.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME LoadSources.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 
 			if ($fcontent == '')
 				$strError_tmp .= "[ULS01] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
@@ -735,9 +735,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME GetAvailableUpdateTypes.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME GetAvailableUpdateTypes.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 		}
 
 		if ($strError_tmp == '')
@@ -854,9 +854,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME GetServerModuleUpdates.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME GetServerModuleUpdates.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 		}
 
 		if ($strError_tmp == '')
@@ -959,9 +959,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME GetServerLangsUpdates.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME GetServerLangsUpdates.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 		}
 
 		if ($strError_tmp == '')
@@ -1064,9 +1064,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME GetServerHelpUpdates.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME GetServerHelpUpdates.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 		}
 
 		if ($strError_tmp == '')
@@ -1186,9 +1186,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME LoadModuleUpdates.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME LoadModuleUpdates.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 
 			if ($content == '')
 				$strError_tmp .= "[ULMU03] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
@@ -1277,9 +1277,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME LoadLangsUpdates.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME LoadLangsUpdates.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 
 			if ($content == '')
 				$strError_tmp .= "[ULLU03] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
@@ -1369,9 +1369,9 @@ class CUpdateSystem
 
 			CUpdateSystem::AddMessage2Log(preg_replace("/LICENSE_KEY=[^&]*/i", "LICENSE_KEY=X", $strVars));
 
-			$stime = CUpdateSystem::getmicrotime();
+			$stime = microtime(true);
 			$content = CUpdateSystem::getHTTPPage("bit_sysserver.php", $strVars, $strError_tmp);
-			CUpdateSystem::AddMessage2Log("TIME LoadHelpUpdates.getHTTPPage ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+			CUpdateSystem::AddMessage2Log("TIME LoadHelpUpdates.getHTTPPage ".round(microtime(true)-$stime, 3)." sec");
 
 			if ($content == '')
 				$strError_tmp .= "[ULHU03] ".GetMessage("SUPP_AS_EMPTY_RESP").".<br>";
@@ -1411,7 +1411,7 @@ class CUpdateSystem
 		$strError_tmp = "";
 
 		CUpdateSystem::AddMessage2Log("exec CUpdateSystem::UnGzipArchive");
-		$stime = CUpdateSystem::getmicrotime();
+		$stime = microtime(true);
 
 		if ($DelArch!="Y")
 			$DelArch = "N";
@@ -1587,7 +1587,7 @@ class CUpdateSystem
 				@unlink($archiveFileName);
 		}
 
-		CUpdateSystem::AddMessage2Log("TIME UnGzipArchive ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		CUpdateSystem::AddMessage2Log("TIME UnGzipArchive ".round(microtime(true)-$stime, 3)." sec");
 
 		if ($strError_tmp <> '')
 		{
@@ -1606,7 +1606,7 @@ class CUpdateSystem
 	{
 		$strError_tmp = "";
 
-		$stime = CUpdateSystem::getmicrotime();
+		$stime = microtime(true);
 
 		if (!is_array($arRes)
 			|| !isset($arRes["MODULES"])
@@ -1708,7 +1708,7 @@ class CUpdateSystem
 			}
 		}
 
-		CUpdateSystem::AddMessage2Log("TIME CheckVersions ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		CUpdateSystem::AddMessage2Log("TIME CheckVersions ".round(microtime(true)-$stime, 3)." sec");
 
 		if ($strError_tmp <> '')
 		{
@@ -1802,14 +1802,14 @@ class CUpdateSystem
 		$strError_tmp = "";
 
 		$destFolder = str_replace("\\", "/", $destFolder);
-		$destFolder = Trim($destFolder, " \t\n\r\0\x0B/\\");
+		$destFolder = trim($destFolder," \t\n\r\0\x0B/\\");
 		if ($destFolder <> '')
 			$destFolder = "/".$destFolder;
 
 		if ($srcFolder && $srcFolder <> '')
 		{
 			$srcFolder = str_replace("\\", "/", $srcFolder);
-			$srcFolder = Trim($srcFolder, " \t\n\r\0\x0B/\\");
+			$srcFolder = trim($srcFolder," \t\n\r\0\x0B/\\");
 			if ($srcFolder <> '')
 				$srcFolder = "/".$srcFolder;
 
@@ -2206,7 +2206,7 @@ class CUpdateSystem
 		global $DB;
 		$strError_tmp = "";
 
-		$stime = CUpdateSystem::getmicrotime();
+		$stime = microtime(true);
 
 		$updates_dir_full = $_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/".$updates_dir;
 
@@ -2392,7 +2392,7 @@ class CUpdateSystem
 			CUpdateSystem::DeleteDirFilesEx($updates_dir_full);
 		}
 
-		CUpdateSystem::AddMessage2Log("TIME UpdateKernel ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		CUpdateSystem::AddMessage2Log("TIME UpdateKernel ".round(microtime(true)-$stime, 3)." sec");
 
 		if ($strError_tmp <> '')
 		{
@@ -2411,7 +2411,7 @@ class CUpdateSystem
 		global $DB;
 		$strError_tmp = "";
 
-		$stime = CUpdateSystem::getmicrotime();
+		$stime = microtime(true);
 
 		$updates_dir_full = $_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/".$updates_dir;
 
@@ -2647,7 +2647,7 @@ class CUpdateSystem
 			CUpdateSystem::DeleteDirFilesEx($updates_dir_full);
 		}
 
-		CUpdateSystem::AddMessage2Log("TIME UpdateLangs ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		CUpdateSystem::AddMessage2Log("TIME UpdateLangs ".round(microtime(true)-$stime, 3)." sec");
 
 		if ($strError_tmp <> '')
 		{
@@ -2666,7 +2666,7 @@ class CUpdateSystem
 		$strError_tmp = "";
 
 		CUpdateSystem::AddMessage2Log("exec CUpdateSystem::UpdateHelp");
-		$stime = CUpdateSystem::getmicrotime();
+		$stime = microtime(true);
 
 		$updates_dir_full = $_SERVER["DOCUMENT_ROOT"]."/bitrix/updates/".$updates_dir;
 		$help_dir_full = $_SERVER["DOCUMENT_ROOT"]."/bitrix/help";
@@ -2790,7 +2790,7 @@ class CUpdateSystem
 			CUpdateSystem::DeleteDirFilesEx($updates_dir_full);
 		}
 
-		CUpdateSystem::AddMessage2Log("TIME UpdateHelp ".Round(CUpdateSystem::getmicrotime()-$stime, 3)." sec");
+		CUpdateSystem::AddMessage2Log("TIME UpdateHelp ".round(microtime(true)-$stime, 3)." sec");
 
 		if ($strError_tmp <> '')
 		{
@@ -3384,12 +3384,12 @@ class CUpdateSystem
 				$maxReadSize = 4096;
 
 				$length = 0;
-				$line = FGets($FP, $maxReadSize);
-				$line = StrToLower($line);
+				$line = fgets($FP,$maxReadSize);
+				$line = strtolower($line);
 
 				$strChunkSize = "";
 				$i = 0;
-				while ($i < StrLen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
+				while ($i < strlen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
 				{
 					$strChunkSize .= $line[$i];
 					$i++;
@@ -3405,20 +3405,20 @@ class CUpdateSystem
 					while ($readSize > 0 && $line = fread($FP, $readSize))
 					{
 						$content .= $line;
-						$processedSize += StrLen($line);
+						$processedSize += strlen($line);
 						$newSize = $chunkSize - $processedSize;
 						$readSize = (($newSize > $maxReadSize) ? $maxReadSize : $newSize);
 					}
 					$length += $chunkSize;
 
-					$line = FGets($FP, $maxReadSize);
+					$line = fgets($FP,$maxReadSize);
 
-					$line = FGets($FP, $maxReadSize);
-					$line = StrToLower($line);
+					$line = fgets($FP,$maxReadSize);
+					$line = strtolower($line);
 
 					$strChunkSize = "";
 					$i = 0;
-					while ($i < StrLen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
+					while ($i < strlen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
 					{
 						$strChunkSize .= $line[$i];
 						$i++;
@@ -3441,7 +3441,7 @@ class CUpdateSystem
 			$strError .= GetMessage("SUPP_GHTTP_ER").": [".$errno."] ".$errstr.". ";
 			if (intval($errno)<=0) $strError .= GetMessage("SUPP_GHTTP_ER_DEF")." ";
 
-			CUpdateSystem::AddMessage2Log("Error connecting 2 ".$ServerIP.": [".$errno."] ".$errstr."", "ERRCONN");
+			CUpdateSystem::AddMessage2Log("Error connecting 2 ".$ServerIP.": [".$errno."] ".$errstr, "ERRCONN");
 		}
 		return $content;
 	}
@@ -3709,7 +3709,7 @@ class CUpdateSystem
 		$path = str_replace("\\", "/", $path);
 		$updaterPath = dirname($path);
 		$updaterPath = substr($updaterPath, strlen($_SERVER["DOCUMENT_ROOT"]));
-		$updaterPath = Trim($updaterPath, " \t\n\r\0\x0B/\\");
+		$updaterPath = trim($updaterPath," \t\n\r\0\x0B/\\");
 		if ($updaterPath <> '')
 			$updaterPath = "/".$updaterPath;
 
@@ -3718,7 +3718,7 @@ class CUpdateSystem
 		CUpdateSystem::AddMessage2Log("Run updater '".$updaterName."'", "CSURUS1");
 
 		$updater = new CUpdater();
-		$updater->Init($updaterPath, $DBType, $updaterName, $from_dir, $moduleID, "ALL");
+		$updater->Init($updaterPath, $DB->type, $updaterName, $from_dir, $moduleID, "ALL");
 
 		$errorMessage = "";
 
@@ -3749,10 +3749,12 @@ class CUpdateSystem
 		return $GLOBALS["CACHE4UPDATESYS_LICENSE_KEY"];
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function getmicrotime()
 	{
-		list($usec, $sec) = explode(" ", microtime());
-		return ((float)$usec + (float)$sec);
+		return microtime(true);
 	}
 
 	public static function InsertSpaces($sText, $iMaxChar=80)
@@ -4310,8 +4312,8 @@ class CUpdatesXML
 	protected function replaceSpecialChars($content)
 	{
 		return str_replace(
-			["&gt;", "&lt;", "&apos;", "&quot;", "&amp;"],
-			[">", "<", "'", '"', "&"],
+			array("&gt;", "&lt;", "&apos;", "&quot;", "&amp;"),
+			array(">", "<", "'", '"', "&"),
 			$content
 		);
 	}
@@ -4378,7 +4380,7 @@ class CUpdater
 	{
 		$this->errorMessage = array();
 		$this->curPath = $curPath;
-		$this->dbType = StrToUpper($dbType);
+		$this->dbType = strtoupper($dbType);
 		$this->updater = $updater;
 		$this->curModulePath = $curDir;
 		$this->moduleID = $moduleID;
@@ -4678,7 +4680,7 @@ class CUpdater
 			{
 				foreach ($query as $key => $value)
 				{
-					if ($this->dbType == StrToUpper($key))
+					if ($this->dbType == strtoupper($key))
 					{
 						$strQuery = $value;
 						break;
@@ -4729,7 +4731,7 @@ class CUpdater
 			{
 				foreach ($queryPath as $key => $value)
 				{
-					if ($this->dbType == StrToUpper($key))
+					if ($this->dbType == strtoupper($key))
 					{
 						$strQueryPath = $value;
 						break;

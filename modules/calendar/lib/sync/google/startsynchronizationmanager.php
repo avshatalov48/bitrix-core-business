@@ -5,7 +5,11 @@ namespace Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Base\Result;
 use Bitrix\Calendar\Core\Mappers;
+use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Core\Role\User;
+use Bitrix\Calendar\Sync\Managers\NotificationManager;
+use Bitrix\Calendar\Sync\Util\FlagRegistry;
 use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Factories\SyncSectionFactory;
@@ -13,6 +17,7 @@ use Bitrix\Calendar\Sync\Handlers\MasterPushHandler;
 use Bitrix\Calendar\Sync\Managers\OutgoingManager;
 use Bitrix\Calendar\Sync\Managers\StartSynchronization;
 use Bitrix\Calendar\Sync\Managers\VendorDataExchangeManager;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\ObjectException;
@@ -47,6 +52,55 @@ class StartSynchronizationManager implements StartSynchronization
 	{
 		$this->user = \Bitrix\Calendar\Core\Role\Helper::getUserRole($userId);
 		$this->mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+	}
+
+	/**
+	 * @return array|string[]
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function synchronize(): array
+	{
+		$response = [
+			'status' => 'error',
+			'message' => 'Could not finish sync.',
+		];
+
+		$owner = Helper::getRole(\CCalendar::GetUserId(), User::TYPE);
+		$pusher = static function ($result) use ($owner)
+		{
+			Util::addPullEvent(
+				'process_sync_connection',
+				$owner->getId(),
+				(array) $result
+			);
+
+			if ($result['stage'] === 'export_finished')
+			{
+				NotificationManager::addFinishedSyncNotificationAgent(
+					$owner->getId(),
+					$result['vendorName']
+				);
+			}
+		};
+
+		try
+		{
+			if ($connection = $this->addStatusHandler($pusher)->start())
+			{
+				$response = [
+					'status' => 'success',
+					'message' => 'CONNECTION_CREATED',
+					'connectionId' => $connection->getId(),
+				];
+			}
+		}
+		catch (BaseException $e)
+		{
+		}
+
+		return $response;
 	}
 
 	/**

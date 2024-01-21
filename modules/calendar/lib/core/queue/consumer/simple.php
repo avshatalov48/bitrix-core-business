@@ -45,6 +45,7 @@ class Simple implements Interfaces\Consumer
 		{
 			$message = $row->getMessage();
 			$message->setHeader(self::HANDLED_MESSAGE_HEADER_NAME, $row->getId());
+			return $message;
 		}
 
 		return null;

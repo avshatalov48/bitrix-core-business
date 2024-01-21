@@ -9,3 +9,4 @@ export { UploadingService } from './uploading';
 export { SettingsService } from './settings';
 export { LinesService } from './lines';
 export { SearchService } from './search';
+export { CopilotService } from './copilot';

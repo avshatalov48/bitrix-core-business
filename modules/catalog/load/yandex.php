@@ -1,4 +1,6 @@
-<?
+<?php
+
+use Bitrix\Main;
 use Bitrix\Currency;
 
 global $APPLICATION;
@@ -54,21 +56,23 @@ if (!function_exists("yandex_text2xml"))
 	}
 }
 
-$usedProtocol = (CMain::IsHTTPS() ? 'https://' : 'http://');
+$usedProtocol = (Main\Context::getCurrent()->getRequest()->isHttps() ? 'https://' : 'http://');
 
-$strAll = '<?if (!isset($_GET["referer1"]) || $_GET["referer1"] == "") $_GET["referer1"] = "yandext"?>';
-$strAll .= '<? $strReferer1 = htmlspecialchars($_GET["referer1"]); ?>';
-$strAll .= '<?if (!isset($_GET["referer2"]) || $_GET["referer2"] == "") $_GET["referer2"] = "";?>';
-$strAll .= '<? $strReferer2 = htmlspecialchars($_GET["referer2"]); ?>';
-$strAll .= '<? header("Content-Type: text/xml; charset=windows-1251");?>';
-$strAll.= '<?echo "<?xml version=\"1.0\" encoding=\"windows-1251\"?>"?>';
-$strAll.= "\n<!DOCTYPE yml_catalog SYSTEM \"shops.dtd\">\n";
-$strAll.= "<yml_catalog date=\"".date("Y-m-d H:i")."\">\n";
-$strAll.= "<shop>\n";
-$strAll.= "<name>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</name>\n";
-$strAll.= "<company>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</company>\n";
-$strAll.= "<url>".$usedProtocol.htmlspecialcharsbx(COption::GetOptionString("main", "server_name", ""))."</url>\n";
-$strAll.= "<platform>1C-Bitrix</platform>\n";
+$strAll = '<?php' . "\n";
+$strAll .= 'if (!isset($_GET["referer1"]) || $_GET["referer1"] == "") $_GET["referer1"] = "yandext";' . "\n";
+$strAll .= '$strReferer1 = htmlspecialchars($_GET["referer1"]);' . "\n";
+$strAll .= 'if (!isset($_GET["referer2"]) || $_GET["referer2"] == "") $_GET["referer2"] = "";' . "\n";
+$strAll .= '$strReferer2 = htmlspecialchars($_GET["referer2"]);' . "\n";
+$strAll .= 'header("Content-Type: text/xml; charset=windows-1251");' . "\n";
+$strAll .= '?>' . "\n";
+$strAll .= '<?xml version="1.0" encoding="windows-1251"?>' . "\n";
+$strAll .= "<!DOCTYPE yml_catalog SYSTEM \"shops.dtd\">\n";
+$strAll .= "<yml_catalog date=\"".date("Y-m-d H:i")."\">\n";
+$strAll .= "<shop>\n";
+$strAll .= "<name>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</name>\n";
+$strAll .= "<company>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</company>\n";
+$strAll .= "<url>".$usedProtocol.htmlspecialcharsbx(COption::GetOptionString("main", "server_name", ""))."</url>\n";
+$strAll .= "<platform>1C-Bitrix</platform>\n";
 
 //*****************************************//
 

@@ -46,7 +46,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 				self::TAB_CATALOG => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_CATALOG'),
 				self::TAB_SKU => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_SKU'),
 				self::TAB_SET => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_SET'),
-				self::TAB_GROUP => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_GROUP'),
+				self::TAB_GROUP => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_GROUP_MSGVER_1'),
 				self::TAB_SERVICE => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_SERVICE'),
 			];
 		}
@@ -81,8 +81,8 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 				'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_SET'),
 			],
 			self::TAB_GROUP => [
-				'NAME' => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_GROUP'),
-				'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_GROUP'),
+				'NAME' => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_GROUP_MSGVER_1'),
+				'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_GROUP_MSGVER_1'),
 			],
 			self::TAB_SERVICE => [
 				'NAME' => Loc::getMessage('BT_CAT_ADM_TOOLS_TAB_SERVICE'),
@@ -349,7 +349,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 						if (CCatalogSku::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
 						{
 							$arItems[] = array(
-								'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SET'),
+								'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SET_MSGVER_2'),
 								'LINK' => $urlBuilder->getElementDetailUrl(
 									0,
 									self::getParamsWithTab($arParams, self::TAB_SET)
@@ -358,7 +358,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 							);
 						}
 						$arItems[] = array(
-							'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_GROUP'),
+							'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_GROUP_MSGVER_1'),
 							'LINK' => $urlBuilder->getElementDetailUrl(
 								0,
 								self::getParamsWithTab($arParams, self::TAB_GROUP)
@@ -374,13 +374,13 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 							if (CCatalogSku::TYPE_OFFERS != $arCatalog['CATALOG_TYPE'])
 							{
 								$arItems[] = [
-									'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SET'),
+									'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SET_MSGVER_2'),
 									$helpLink['TYPE'] => $helpLink['LINK'],
 									'ICON' => 'btn_lock',
 								];
 							}
 							$arItems[] = [
-								'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_GROUP'),
+								'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_GROUP_MSGVER_1'),
 								$helpLink['TYPE'] => $helpLink['LINK'],
 								'ICON' => 'btn_lock',
 							];

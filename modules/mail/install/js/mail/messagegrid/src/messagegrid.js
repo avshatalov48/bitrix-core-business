@@ -10,6 +10,7 @@ export class MessageGrid
 	EXPAND_LICENSE_URL = '/settings/license_all.php';
 	#loadingMessagesStubInGridWrapper;
 	#gridWrapper;
+	#gridStub;
 	#id;
 	#allRowsSelectedStatus = false;
 	#panel;
@@ -71,6 +72,11 @@ export class MessageGrid
 		return MessageGrid.instance
 	}
 
+	setGridStub(gridStub)
+	{
+		this.#gridStub = gridStub;
+	}
+
 	setGridWrapper(gridWrapper)
 	{
 		this.#gridWrapper = gridWrapper;
@@ -81,11 +87,18 @@ export class MessageGrid
 		return this.#gridWrapper;
 	}
 
+	getGridStub()
+	{
+		return this.#gridStub;
+	}
+
 	enableLoadingMessagesStub()
 	{
 		if(this.getGridWrapper()!==undefined)
 		{
-			this.#loadingMessagesStubInGridWrapper = this.getGridWrapper().appendChild(
+
+			Dom.addClass(this.getGridWrapper(), 'mail-msg-list-grid-hidden');
+			this.#loadingMessagesStubInGridWrapper = this.getGridStub().appendChild(
 				Tag.render`
 					<div class="mail-msg-list-grid-loader mail-msg-list-grid-loader-animate">
 						<div class="mail-msg-list-grid-loader-inner">
@@ -98,6 +111,7 @@ export class MessageGrid
 				if(this.#loadingMessagesStubInGridWrapper !== undefined)
 				{
 					this.#loadingMessagesStubInGridWrapper.remove();
+					Dom.removeClass(this.getGridWrapper(), 'mail-msg-list-grid-hidden');
 				}
 			}, 15000);
 		}

@@ -22,6 +22,7 @@ $is_unread = $is_unread ?? false;
 
 $arComponentParams = [
 	"MODE" => $arParams["MODE"],
+	"CONTEXT" => $arParams["CONTEXT"],
 	"PATH_TO_BLOG" => $arParams["PATH_TO_USER_BLOG"] ?? '',
 	"PATH_TO_POST" => $arParams["PATH_TO_USER_MICROBLOG_POST"] ?? '',
 	"PATH_TO_POST_IMPORTANT" => $arParams["PATH_TO_USER_BLOG_POST_IMPORTANT"] ?? '',
@@ -53,7 +54,7 @@ $arComponentParams = [
 	"EVENT_ID" => $arEvent["EVENT_ID"],
 	"EVENT_ID_FULLSET" => $arEvent["EVENT_ID_FULLSET"],
 	"IND" => $ind,
-	"GROUP_ID" => $arParams["BLOG_GROUP_ID"],
+	"GROUP_ID" => $arParams["BLOG_GROUP_ID"] ?? null,
 	"SONET_GROUP_ID" => $arParams["GROUP_ID"],
 	"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],

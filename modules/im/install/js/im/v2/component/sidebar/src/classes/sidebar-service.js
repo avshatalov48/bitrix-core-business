@@ -15,10 +15,23 @@ import { Brief } from './blocks/brief';
 import { Meeting } from './blocks/meeting';
 import { FileUnsorted } from './blocks/file-unsorted';
 import { MessageSearch } from './blocks/message-search';
+import { ChatsWithUser } from './blocks/chats-with-user';
 import { AvailabilityManager } from './availability-manager';
 
 const BlockClasses = {
-	Main, Favorite, Link, Task, Media, Audio, Document, Other, Brief, Meeting, FileUnsorted, MessageSearch,
+	Main,
+	Favorite,
+	Link,
+	Task,
+	Media,
+	Audio,
+	Document,
+	Other,
+	Brief,
+	Meeting,
+	FileUnsorted,
+	MessageSearch,
+	ChatsWithUser,
 };
 
 const BlockToServices = Object.freeze({
@@ -35,6 +48,7 @@ const BlockToServices = Object.freeze({
 	],
 	[SidebarBlock.fileUnsorted]: [SidebarDetailBlock.fileUnsorted],
 	[SidebarBlock.messageSearch]: [SidebarDetailBlock.messageSearch],
+	[SidebarBlock.chatsWithUser]: [SidebarDetailBlock.chatsWithUser],
 });
 
 type BlockService = {

@@ -1,8 +1,17 @@
-import {Dom, Text} from 'main.core';
+import { Messenger } from 'im.public';
+import { Dom, Text } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import {getUtils} from '../utils/core-proxy';
+import { getConst, getUtils } from '../utils/core-proxy';
+
+const { EventType } = getConst();
 
 const atomRegExpPart = '\\d{4}-\\d{2}-\\d{2}T[0-2]\\d:[0-5]\\d:[0-5]\\d[+-][0-2]\\d:[0-5]\\d';
+
+const ActionType = {
+	put: 'put',
+	send: 'send',
+};
 
 export const ParserAction = {
 
@@ -129,6 +138,35 @@ export const ParserAction = {
 				}),
 			]
 		}).outerHTML;
-	}
-}
+	},
 
+	executeClickEvent(event: PointerEvent)
+	{
+		if (!Dom.hasClass(event.target, 'bx-im-message-command'))
+		{
+			return;
+		}
+
+		const element: HTMLSpanElement = event.target;
+		if (element.dataset.entity === ActionType.put)
+		{
+			const { innerText: textToInsert = '' } = element.parentElement.querySelector('.bx-im-message-command-data');
+			if (!textToInsert)
+			{
+				return;
+			}
+
+			EventEmitter.emit(EventType.textarea.insertText, { text: textToInsert });
+		}
+		else if (element.dataset.entity === ActionType.send)
+		{
+			const { innerText: textToSend = '' } = element.parentElement.querySelector('.bx-im-message-command-data');
+			if (!textToSend)
+			{
+				return;
+			}
+
+			EventEmitter.emit(EventType.textarea.sendMessage, { text: textToSend });
+		}
+	},
+};

@@ -5,8 +5,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use \Bitrix\Crm\Integration\Landing\FormLanding;
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
+use Bitrix\Landing\Restriction\ToolAvailabilityManager;
 use \Bitrix\Landing\Site;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Application;
@@ -15,6 +17,7 @@ use \Bitrix\Main\Error;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Service\GeoIp;
+use Bitrix\Main\UI\Extension;
 use \Bitrix\Main\UI\PageNavigation;
 use Bitrix\UI\Fonts;
 use Bitrix\Main\Web\Uri;
@@ -572,7 +575,7 @@ class LandingBaseComponent extends \CBitrixComponent
 	 */
 	public function request($var)
 	{
-		$result = $this->currentRequest[$var];
+		$result = $this->currentRequest[$var] ?? null;
 		return ($result !== null ? $result : '');
 	}
 
@@ -1366,7 +1369,7 @@ class LandingBaseComponent extends \CBitrixComponent
 		$replace = [
 			0,
 			0,
-			$this->arParams['SITE_ID'] ?? 0
+			$this->arParams['SITE_ID'] ?? '#site_show#'
 		];
 		$param = $this->arParams['~' . $paramName] ?? $this->arParams[$paramName];
 		$urlTemplate =
@@ -1434,6 +1437,81 @@ class LandingBaseComponent extends \CBitrixComponent
 			&& Manager::isB24()
 			&& Loader::includeModule('market')
 		;
+	}
+
+	/**
+	 * Check if current tool available by intranet tool settings
+	 * @return bool
+	 */
+	public function isToolAvailable(): bool
+	{
+		if (!Loader::includeModule('intranet'))
+		{
+			return true;
+		}
+
+		// crm forms always available
+		if (
+			isset($this->arParams['LANDING_ID'])
+			&& (int)$this->arParams['LANDING_ID'] > 0
+		)
+		{
+			$landing = \Bitrix\Landing\Landing::createInstance($this->arParams['LANDING_ID']);
+			if (
+				$landing->exist()
+				&& $this->getSpecialTypeSiteByLanding($landing) === 'crm_forms'
+			)
+			{
+				return true;
+			}
+		}
+
+		$toolIds = [
+			'PAGE' => 'sites',
+			'STORE' => 'sites',
+			'KNOWLEDGE' => 'knowledge_base',
+		];
+		$toolIds['GROUP'] = $toolIds['KNOWLEDGE'];
+
+		$type = $this->arParams['TYPE'];
+		if (isset($toolIds[$type]))
+		{
+			return ToolAvailabilityManager::getInstance()->check($toolIds[$type]);
+		}
+
+		return true;
+	}
+
+	public function getToolUnavailableInfoScript(): string
+	{
+		$script = '';
+
+		$infoHelperCodes = [
+			'PAGE' => 'limit_sites_off',
+			'STORE' => 'limit_sites_off',
+			'KNOWLEDGE' => 'limit_office_knowledge_base_off',
+		];
+		$infoHelperCodes['GROUP'] = $infoHelperCodes['KNOWLEDGE'];
+
+		$type = $this->arParams['TYPE'];
+		if (
+			isset($infoHelperCodes[$type])
+			&& Loader::includeModule('ui')
+		)
+		{
+			$script = ToolAvailabilityManager::getInstance()->getStubComponentContent($infoHelperCodes[$type]);
+		}
+
+		return $script;
+	}
+
+	/**
+	 * Return code for info slider, when AI tool is disable for landing
+	 * @return string
+	 */
+	public static function getAiUnactiveInfoCode(): string
+	{
+		return 'limit_copilot_off';
 	}
 
 	/**

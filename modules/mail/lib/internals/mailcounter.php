@@ -4,6 +4,22 @@ namespace Bitrix\Mail\Internals;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class MailCounterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailCounter_Query query()
+ * @method static EO_MailCounter_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_MailCounter_Result getById($id)
+ * @method static EO_MailCounter_Result getList(array $parameters = [])
+ * @method static EO_MailCounter_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\EO_MailCounter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_MailCounter_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\EO_MailCounter wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_MailCounter_Collection wakeUpCollection($rows)
+ */
 class MailCounterTable extends Entity\DataManager
 {
 	const DIR = 'DIR';

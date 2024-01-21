@@ -23,11 +23,6 @@ class seo extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = SEO_VERSION;
-			$this->MODULE_VERSION_DATE = SEO_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("SEO_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("SEO_MODULE_DESCRIPTION");
@@ -59,7 +54,7 @@ class seo extends CModule
 
 		RegisterModule("seo");
 
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/tasks/install.php");
+		$this->InstallTasks();
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 
@@ -108,7 +103,7 @@ class seo extends CModule
 				$arFilter['NAME'] .= '|Yandex';
 
 			$strSearchers = '';
-			$dbRes = CSearcher::GetList($by = 's_id', $order = 'asc', $arFilter);
+			$dbRes = CSearcher::GetList('s_id', 'asc', $arFilter);
 			while ($arRes = $dbRes->Fetch())
 			{
 				$strSearchers .= ($strSearchers == '' ? '' : ',').$arRes['ID'];
@@ -117,9 +112,9 @@ class seo extends CModule
 			COption::SetOptionString('seo', 'searchers_list', $strSearchers);
 		}
 
-		\CAgent::AddAgent("Bitrix\\Seo\\Engine\\YandexDirect::updateAgent();","seo", "N", 3600);
-		\CAgent::AddAgent("Bitrix\\Seo\\Adv\\LogTable::clean();","seo", "N", 86400);
-		\CAgent::AddAgent("Bitrix\\Seo\\Adv\\Auto::checkQuantityAgent();","seo", "N", 3600);
+		CAgent::AddAgent("Bitrix\\Seo\\Engine\\YandexDirect::updateAgent();","seo", "N", 3600);
+		CAgent::AddAgent("Bitrix\\Seo\\Adv\\LogTable::clean();","seo", "N", 86400);
+		CAgent::AddAgent("Bitrix\\Seo\\Adv\\Auto::checkQuantityAgent();","seo", "N", 3600);
 
 		return true;
 	}
@@ -158,7 +153,7 @@ class seo extends CModule
 			));
 			$this->UnInstallFiles();
 
-			\CAgent::RemoveModuleAgents('seo');
+			CAgent::RemoveModuleAgents('seo');
 
 			$APPLICATION->IncludeAdminFile(GetMessage("SEO_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/seo/install/unstep2.php");
 		}
@@ -186,7 +181,7 @@ class seo extends CModule
 			return false;
 		}
 
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/tasks/uninstall.php");
+		$this->UnInstallTasks();
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->unRegisterEventHandler('main', 'OnPanelCreate', 'seo');
@@ -243,9 +238,6 @@ class seo extends CModule
 
 	function UnInstallFiles($arParams = array())
 	{
-		global $DB;
-
-		// Delete files
 		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/tools/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools");
 		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/images/seo", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/seo");
@@ -259,19 +251,6 @@ class seo extends CModule
 		return true;
 	}
 
-	function GetModuleRightList()
-	{
-		global $MESS;
-		$arr = array(
-			"reference_id" => array("D","R","W"),
-			"reference" => array(
-				"[D] ".GetMessage("SEO_DENIED"),
-				"[R] ".GetMessage("SEO_OPENED"),
-				"[W] ".GetMessage("SEO_FULL"))
-			);
-		return $arr;
-	}
-
 	/**
 	 * Method for migrate from cloud version.
 	 * @return void
@@ -283,5 +262,31 @@ class seo extends CModule
 		{
 			\Bitrix\Seo\Service::changeRegisteredDomain();
 		}
+	}
+
+	public function GetModuleTasks()
+	{
+		return [
+			'seo_denied' => [
+				'LETTER' => 'D',
+				'BINDING' => 'module',
+				'OPERATIONS' => [],
+			],
+			'seo_edit' => [
+				'LETTER' => 'F',
+				'BINDING' => 'module',
+				'OPERATIONS' => [
+					'seo_tools',
+				],
+			],
+			'seo_full_access' => [
+				'LETTER' => 'W',
+				'BINDING' => 'module',
+				'OPERATIONS' => [
+					'seo_tools',
+					'seo_settings',
+				],
+			],
+		];
 	}
 }

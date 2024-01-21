@@ -27,6 +27,9 @@ export const ViewEventSlider = {
 			meetingHostWorkPosition: this.params.meetingHostWorkPosition,
 			avatarSize: this.params.avatarSize,
 			attendees: this.params.attendees,
+			avatarUsers: [],
+			avatarMoreUsers: [],
+			avatarMoreCount: 0,
 			userList: {y : [], i: [], q: [], n: []},
 			curUserStatus: this.params.curUserStatus,
 			meetingCreatorUrl: this.params.meetingCreatorUrl,
@@ -43,6 +46,7 @@ export const ViewEventSlider = {
 			isPrivate: this.params.isPrivate,
 			location: this.params.location,
 			canEditCalendar: this.params.canEditCalendar,
+			canDeleteEvent: this.params.canDeleteEvent,
 			showComments: this.params.showComments,
 			filesView: this.getComponentHTML(this.params.filesView),
 			crmView: this.getComponentHTML(this.params.crmView),
@@ -73,6 +77,8 @@ export const ViewEventSlider = {
 			}
 			Event.bind(document, 'visibilitychange', this.handleBackgroundPulls);
 		}
+		Event.bind(this.$refs.sliderDetailContent, 'mouseup', this.quote);
+		EventEmitter.subscribe('AI.Copilot.Menu:open', this.handleCopilotMenuShow);
 	},
 	beforeMount()
 	{
@@ -88,7 +94,15 @@ export const ViewEventSlider = {
 		{
 			EventEmitter.unsubscribe('onPullEvent-calendar', this.handlePullEvent);
 			EventEmitter.unsubscribe(`MeetingStatusControl_${this.id}:onSetStatus`, this.handleStatusUpdate);
+			Event.unbind(this.$refs.sliderDetailContent, 'mouseup', this.quote);
+			EventEmitter.unsubscribe('AI.Copilot.Menu:open', this.handleCopilotMenuShow);
 		}
+	},
+	computed: {
+		authorNodeId()
+		{
+			return this.id + '_detail-author-info';
+		},
 	},
 	methods: {
 		getComponentHTML(json)
@@ -130,6 +144,10 @@ export const ViewEventSlider = {
 			//remove script elements
 			// element.querySelectorAll('script').forEach(e => e.remove());
 		},
+		quote(e)
+		{
+			window.mplCheckForQuote(e, e.currentTarget, 'EVENT_' + this.eventId, this.authorNodeId);
+		},
 		updateUserList()
 		{
 			this.userList = {y : [], i: [], q: [], n: []};
@@ -145,6 +163,24 @@ export const ViewEventSlider = {
 						this.userList[user.STATUS.toLowerCase()].push(user);
 					}
 				}, this);
+			}
+
+			const accepted = this.attendees.y?.filter(a => parseInt(this.meetingHost.ID) !== parseInt(a.ID)) ?? [];
+			if (accepted.length <= 11)
+			{
+				this.avatarUsers = accepted.slice(0, 11);
+				this.avatarMoreUsers = [];
+			}
+			else
+			{
+				this.avatarUsers = accepted.slice(0, 10);
+				this.avatarMoreUsers = accepted.slice(10);
+			}
+
+			this.avatarMoreCount = this.avatarMoreUsers.length;
+			if (this.avatarMoreCount >= 1000)
+			{
+				this.avatarMoreCount = `${parseInt(this.avatarMoreUsers.length / 1000)}K`;
 			}
 		},
 		reloadPlanner()
@@ -244,6 +280,7 @@ export const ViewEventSlider = {
 				this.isPrivate = newData.isPrivate;
 				this.location = newData.location;
 				this.canEditCalendar = newData.canEditCalendar;
+				this.canDeleteEvent = newData.canDeleteEvent;
 				this.showComments = newData.showComments;
 				this.filesView = this.getComponentHTML(newData.filesView);
 				if (this.filesView)
@@ -257,6 +294,20 @@ export const ViewEventSlider = {
 				this.updateUserList();
 				this.reloadPlanner();
 			});
+		},
+		handleCopilotMenuShow()
+		{
+			const copilotPopups = [...document.querySelectorAll('.ai__copilot-menu-popup')];
+			const menu = copilotPopups.find((popup) => popup.offsetHeight > 0);
+
+			const offset = menu.getBoundingClientRect().bottom - this.$refs.comments.getBoundingClientRect().bottom;
+
+			const marginBottom = parseInt(this.$refs.comments.style.marginBottom);
+
+			if ((isNaN(marginBottom) && offset > 0) || (!isNaN(marginBottom) && marginBottom < offset))
+			{
+				this.$refs.comments.style.marginBottom = `${offset}px`;
+			}
 		},
 		highlightChange(element)
 		{
@@ -325,24 +376,37 @@ export const ViewEventSlider = {
 								</div>
 							</div>
 							<div class="calendar-slider-sidebar-layout-main">
-								
 								<div class="calendar-slider-sidebar-user-block">
 								<div v-if="isMeeting">
-									<div class="calendar-slider-sidebar-user-container">
-										<div class="calendar-slider-sidebar-user-block-avatar">
-											<a :href="meetingHost.URL">
-												<UserAvatar :user="meetingHost" :avatarSize="avatarSize"/>
-												<div class="calendar-slider-sidebar-user-icon-top"></div>
-												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
-											</a>
+									<div class="calendar-slider-sidebar-user-container-holder">
+										<div class="calendar-slider-sidebar-user-container">
+											<div class="calendar-slider-sidebar-user-block-avatar">
+												<a :href="meetingHost.URL">
+													<UserAvatar :user="meetingHost" :avatarSize="avatarSize"/>
+													<div class="calendar-slider-sidebar-user-icon-top"></div>
+													<div class="calendar-slider-sidebar-user-icon-bottom"></div>
+												</a>
+											</div>
 										</div>
-									</div>
-									<div class="calendar-slider-sidebar-user-container" v-for="att in attendees.y.slice(0,10)">
-										<div class="calendar-slider-sidebar-user-block-avatar" v-if="meetingHost.ID != att.ID">
-											<a :href="att.URL">
-												<UserAvatar :user="att" :avatarSize="avatarSize"/>
-												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
-											</a>
+										<div
+											class="calendar-slider-sidebar-user-container"
+											v-for="att in avatarUsers"
+										>
+											<div class="calendar-slider-sidebar-user-block-avatar">
+												<a :href="att.URL">
+													<UserAvatar :user="att" :avatarSize="avatarSize"/>
+													<div class="calendar-slider-sidebar-user-icon-bottom"></div>
+												</a>
+											</div>
+										</div>
+										<div
+											v-if="avatarMoreUsers.length > 0"
+											class="calendar-slider-sidebar-user-more-container" ref="attendeesMore"
+											@click="showUserListPopupCallback($refs.attendeesMore, avatarMoreUsers)"
+										>
+											<div class="calendar-slider-sidebar-user-more">
+												+{{avatarMoreCount}}
+											</div>
 										</div>
 									</div>
 									<div class="calendar-slider-sidebar-row calendar-slider-sidebar-border-bottom" v-if="meetingCreatorUrl">
@@ -443,7 +507,14 @@ export const ViewEventSlider = {
 								</div>
 							</div>
 
-							<div class="calendar-slider-detail-content">
+							<div class="calendar-slider-detail-content" ref="sliderDetailContent">
+								<span
+									class="calendar-detail-author-info"
+									:id="authorNodeId"
+									:bx-post-author-id="meetingHost.ID"
+								>
+									{{meetingCreatorDisplayName ?? meetingHostDisplayName}}
+								</span>
 								<div id="calendar-slider-detail-description" class="calendar-slider-detail-description" v-if="description"
 									 ref="highlightDescription" v-html="description">
 								</div>
@@ -487,9 +558,9 @@ export const ViewEventSlider = {
 										<input type="hidden" :id="id + '_current_status'" :value="curUserStatus"/>
 										<span :id="id + '_status_buttonset'"></span>
 
-										<div v-if="canEditCalendar">
-											<button :id="id + '_but_edit'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EDIT')}}</button>
-											<button :id="id + '_but_del'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_DEL')}}</button>
+										<div>
+											<button v-if="canEditCalendar" :id="id + '_but_edit'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EDIT')}}</button>
+											<button v-if="canDeleteEvent" :id="id + '_but_del'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_DEL')}}</button>
 										</div>
 										
 									</div>
@@ -497,7 +568,7 @@ export const ViewEventSlider = {
 							</div>
 						</div>
 						
-						<div class="calendar-slider-comments" v-if="showComments">
+						<div class="calendar-slider-comments" v-if="showComments" ref="comments">
 							<div class="calendar-slider-comments-title">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_COMMENTS')}}</div>
 							<div class="calendar-slider-comments-main" :id="id + 'comments-cont'" style="opacity: 1;">
 								<div ref="commentsView"></div>

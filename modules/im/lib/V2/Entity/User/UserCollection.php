@@ -25,13 +25,13 @@ class UserCollection extends EntityCollection
 		}
 	}
 
-	public function fillOnlineData(): void
+	public function fillOnlineData(bool $withStatus = false): void
 	{
 		$idsUsersWithoutOnlineData = [];
 
 		foreach ($this as $user)
 		{
-			if (!$user->isOnlineDataFilled())
+			if (!$user->isOnlineDataFilled($withStatus))
 			{
 				$idsUsersWithoutOnlineData[] = $user->getId();
 			}
@@ -44,23 +44,27 @@ class UserCollection extends EntityCollection
 			return;
 		}
 
-		$statusesData = UserTable::query()
-			->setSelect(User::ONLINE_DATA_SELECTED_FIELDS)
-			->registerRuntimeField(
+		$select = $withStatus ? User::ONLINE_DATA_SELECTED_FIELDS : User::ONLINE_DATA_SELECTED_FIELDS_WITHOUT_STATUS;
+		$query = UserTable::query()
+			->setSelect($select)
+			->whereIn('ID', $idsUsersWithoutOnlineData)
+		;
+		if ($withStatus)
+		{
+			$query->registerRuntimeField(
 				new Reference(
 					'STATUS',
 					StatusTable::class,
 					Join::on('this.ID', 'ref.USER_ID'),
 					['join_type' => Join::TYPE_LEFT]
 				)
-			)
-			->whereIn('ID', $idsUsersWithoutOnlineData)
-			->fetchAll() ?: []
-		;
+			);
+		}
+		$statusesData = $query->fetchAll() ?: [];
 
 		foreach ($statusesData as $statusData)
 		{
-			$this->getById((int)$statusData['USER_ID'])->setOnlineData($statusData);
+			$this->getById((int)$statusData['USER_ID'])->setOnlineData($statusData, $withStatus);
 		}
 	}
 

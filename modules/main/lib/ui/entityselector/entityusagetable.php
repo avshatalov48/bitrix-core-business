@@ -115,6 +115,11 @@ class EntityUsageTable extends Data\DataManager
 				['ENTITY_ID', 'ITEM_ID_INT']
 			),
 
+			new Fields\ExpressionField(
+				'MAX_LAST_USE_DATE',
+				'MAX(%s)', ['LAST_USE_DATE']
+			),
+
 			new Reference(
 				"CODE_USER",
 				UserTable::class,

@@ -107,7 +107,7 @@ abstract class CacheEngine implements CacheEngineInterface, LocalStorage\Storage
 		{
 			$config['servers'][] = [
 				'host' => $cacheConfig[$type]['host'],
-				'port' => (int) $cacheConfig[$type]['port']
+				'port' => (int) ($cacheConfig[$type]['port'] ?? 0)
 			];
 		}
 

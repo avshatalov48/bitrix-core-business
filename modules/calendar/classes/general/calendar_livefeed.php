@@ -855,6 +855,7 @@ class CCalendarLiveFeed
 				$arSoFields = array_merge($arSoFields, array(
 					"ENTITY_TYPE" => SONET_SUBSCRIBE_ENTITY_USER,
 					"EVENT_ID" => "calendar",
+					'MODULE_ID' => 'calendar',
 					"SITE_ID" => SITE_ID,
 					"SOURCE_ID" => $eventId,
 					"ENABLE_COMMENTS" => "Y",

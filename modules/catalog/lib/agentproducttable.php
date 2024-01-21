@@ -21,7 +21,20 @@ use Bitrix\Main\ORM\Query\Join;
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_AgentProduct_Query query()
+ * @method static EO_AgentProduct_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_AgentProduct_Result getById($id)
+ * @method static EO_AgentProduct_Result getList(array $parameters = [])
+ * @method static EO_AgentProduct_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_AgentProduct createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_AgentProduct_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_AgentProduct wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_AgentProduct_Collection wakeUpCollection($rows)
+ */
 
 class AgentProductTable extends DataManager
 {

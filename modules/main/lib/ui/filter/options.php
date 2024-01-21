@@ -389,7 +389,7 @@ class Options
 	 *
 	 * @return array|null
 	 */
-	public static function fetchSettingsFromQuery($fields = array(), HttpRequest $request)
+	public static function fetchSettingsFromQuery($fields, HttpRequest $request)
 	{
 		$result = array("fields" => array(), "rows" => array());
 
@@ -949,7 +949,7 @@ class Options
 	 * @param array $options
 	 * @param $userId
 	 */
-	public function saveOptionsForUser($options = array(), $userId)
+	public function saveOptionsForUser($options, $userId)
 	{
 		if ($this->isUseCommonPresets())
 		{
@@ -1006,7 +1006,7 @@ class Options
 	 * @param string $presetId
 	 * @param $rows
 	 */
-	public function setFilterRows($presetId = "", $rows)
+	public function setFilterRows($presetId, $rows)
 	{
 		$aColsTmp = explode(",", $rows);
 		$aCols = array();

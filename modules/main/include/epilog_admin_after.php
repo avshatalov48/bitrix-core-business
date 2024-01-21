@@ -24,7 +24,7 @@ foreach(GetModuleEvents("main", "OnEpilog", true) as $arEvent)
 $buffer = $APPLICATION->EndBufferContentMan();
 
 //used in debug_info.php
-$main_exec_time = round((getmicrotime()-START_EXEC_TIME), 4);
+$main_exec_time = round((microtime(true)-START_EXEC_TIME), 4);
 
 if(!defined("ADMIN_AJAX_MODE") && (($_REQUEST["mode"] ?? '') != 'excel'))
 {

@@ -1,6 +1,7 @@
 import { MessageComponent } from 'im.v2.const';
 
-import type { AttachConfig } from 'im.v2.const';
+import type { JsonObject } from 'main.core';
+import type { AttachConfig, KeyboardButtonConfig } from 'im.v2.const';
 
 export type Message = {
 	id: number | string,
@@ -8,17 +9,17 @@ export type Message = {
 	authorId: number,
 	date: Date,
 	text: string,
-	replaces: Object[],
 	unread: boolean,
 	viewed: boolean,
 	viewedByOthers: boolean,
 	sending: boolean,
 	error: boolean,
-	retry: boolean,
 	componentId: $Values<typeof MessageComponent>,
 	componentParams: Object,
+	forward: {userId: number, id: string},
 	files: number[],
 	attach: AttachConfig[] | boolean | string,
+	keyboard: KeyboardButtonConfig[],
 	isEdited: boolean,
 	replyId: number,
 	isDeleted: boolean,
@@ -33,34 +34,11 @@ export type RawMessage = {
 	date: string,
 	id: number,
 	isSystem: boolean,
-	params: RawMessageParams,
+	params: JsonObject,
 	replaces: Array,
 	text: string,
 	unread: boolean,
 	uuid: string | null,
 	viewed: boolean,
 	viewedByOthers: boolean
-};
-
-export type RawMessageParams = {
-	COMPONENT_ID?: string,
-	COMPONENT_PARAMS?: Object,
-	FILE_ID?: number[],
-	IS_EDITED?: 'Y' | 'N',
-	IS_DELETED?: 'Y' | 'N',
-	REPLY_ID?: string,
-	ATTACH?: AttachConfig[],
-	LINK_ACTIVE: number[],
-};
-
-export type PreparedMessageParams = {
-	componentId: string,
-	componentParams: Object,
-	extensionId: string,
-	extensionParams: Object,
-	files: number[],
-	isEdited: boolean,
-	isDeleted: boolean,
-	replyId: number,
-	attach: AttachConfig[]
 };

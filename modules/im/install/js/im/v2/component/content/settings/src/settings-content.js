@@ -1,16 +1,25 @@
 import { Logger } from 'im.v2.lib.logger';
-import { Settings } from 'im.v2.const';
+import { Settings, SettingsSection } from 'im.v2.const';
 
 import { SectionList } from './components/section-list';
 import { SectionContent } from './components/section-content';
 
 import './css/settings-content.css';
 
+import type { JsonObject } from 'main.core';
+
 // @vue/component
 export const SettingsContent = {
 	name: 'SettingsContent',
 	components: { SectionList, SectionContent },
-	data()
+	props:
+	{
+		entityId: {
+			type: String,
+			required: true,
+		},
+	},
+	data(): JsonObject
 	{
 		return {
 			activeSection: '',
@@ -30,8 +39,15 @@ export const SettingsContent = {
 	},
 	methods:
 	{
-		setInitialSection()
+		setInitialSection(): void
 		{
+			if (this.entityId && SettingsSection[this.entityId])
+			{
+				this.activeSection = this.entityId;
+
+				return;
+			}
+
 			this.activeSection = this.sections[0];
 		},
 		onSectionClick(sectionId: string)

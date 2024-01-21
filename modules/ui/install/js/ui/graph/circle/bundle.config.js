@@ -1,5 +1,6 @@
 module.exports = {
 	input: 'src/ui.circle.js',
-	output: 'ui.circle.bundle.js',
-	namespace: 'BX.UI.Graph'
+	output: 'dist/ui.circle.bundle.js',
+	namespace: 'BX.UI.Graph',
+	browserslist: true,
 };

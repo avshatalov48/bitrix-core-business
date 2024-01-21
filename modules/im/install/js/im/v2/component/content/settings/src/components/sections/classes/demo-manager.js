@@ -2,13 +2,13 @@ import { Loc } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { UserManager } from 'im.v2.lib.user';
-import { DialogType, UserRole } from 'im.v2.const';
+import { ChatType, UserRole } from 'im.v2.const';
 
 const DEMO_DIALOG_ID = 'settings';
 const demoChat = {
 	dialogId: DEMO_DIALOG_ID,
 	chatId: -1,
-	type: DialogType.chat,
+	type: ChatType.chat,
 	inited: true,
 	role: UserRole.guest,
 };
@@ -44,7 +44,7 @@ const demoMessage3 = {
 export const DemoManager = {
 	initModels()
 	{
-		Core.getStore().dispatch('dialogues/set', demoChat);
+		Core.getStore().dispatch('chats/set', demoChat);
 
 		const userManager = new UserManager();
 		userManager.addUsersToModel([demoUser]);

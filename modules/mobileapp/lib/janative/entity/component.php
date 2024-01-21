@@ -23,8 +23,8 @@ use Exception;
 class Component extends Base
 {
 	const VERSION = 2;
-	protected static $modificationDates = [];
-	protected static $dependencies = [];
+	protected static array $modificationDates = [];
+	protected static array $dependencies = [];
 	private $version = null;
 	public $isBundleEnabled = false;
 

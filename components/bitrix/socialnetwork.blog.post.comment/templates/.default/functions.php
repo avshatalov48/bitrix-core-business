@@ -192,7 +192,6 @@ function socialnetworkBlogPostCommentWeb(
 		"~POST_MESSAGE_TEXT" => $comment["POST_TEXT"],
 		"CLASSNAME" => (
 			!empty($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"])
-			&& !empty($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"])
 			&& !empty($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"]["UF_BLOG_COMM_URL_PRV"])
 			&& !empty($comment["COMMENT_PROPERTIES"]["HIDDEN_DATA"]["UF_BLOG_COMM_URL_PRV"]["VALUE"])
 				? "feed-com-block-urlpreview"

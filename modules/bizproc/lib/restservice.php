@@ -48,7 +48,7 @@ class RestService extends \IRestService
 	{
 		$map = [];
 
-		if (\CBPRuntime::isFeatureEnabled())
+		if (self::isEnabled())
 		{
 			$map = [
 				//activity
@@ -85,11 +85,11 @@ class RestService extends \IRestService
 		}
 
 		if (
-			\CBPRuntime::isFeatureEnabled()
-			|| \CBPRuntime::isFeatureEnabled('crm_automation_lead')
-			|| \CBPRuntime::isFeatureEnabled('crm_automation_deal')
-			|| \CBPRuntime::isFeatureEnabled('crm_automation_order')
-			|| \CBPRuntime::isFeatureEnabled('tasks_automation')
+			self::isEnabled()
+			|| self::isEnabled('crm_automation_lead')
+			|| self::isEnabled('crm_automation_deal')
+			|| self::isEnabled('crm_automation_order')
+			|| self::isEnabled('tasks_automation')
 		)
 		{
 			$map = array_merge($map, array(
@@ -117,6 +117,16 @@ class RestService extends \IRestService
 		return [
 			static::SCOPE => $map,
 		];
+	}
+
+	private static function isEnabled(string $feature = 'bizproc'): bool
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			return \Bitrix\Bitrix24\Feature::isFeatureEnabled($feature);
+		}
+
+		return true;
 	}
 
 	/**
@@ -545,15 +555,23 @@ class RestService extends \IRestService
 		if (empty($logMessage))
 			throw new RestException('Empty log message!', self::ERROR_EMPTY_LOG_MESSAGE);
 
-		\CBPRuntime::sendExternalEvent(
+		$errors = [];
+		\CBPDocument::sendExternalEvent(
 			$workflowId,
 			$activityName,
-			array(
+			[
 				'EVENT_ID' => $eventId,
 				'LOG_ACTION' => true,
 				'LOG_MESSAGE' => $logMessage
-			)
+			],
+			$errors,
 		);
+
+		if ($errors)
+		{
+			$error = current($errors);
+			throw new RestException($error['message'], $error['code']);
+		}
 
 		return true;
 	}
@@ -1176,7 +1194,10 @@ class RestService extends \IRestService
 			if ($fieldTypeObject)
 			{
 				$fieldTypeObject->setDocumentId($task["PARAMETERS"]["DOCUMENT_ID"]);
-				$property['Default'] = $fieldTypeObject->externalizeValue('rest', $property['Default']);
+				$property['Default'] = $fieldTypeObject->externalizeValue(
+					FieldType::VALUE_CONTEXT_REST,
+					$property['Default']
+				);
 			}
 
 			$result[] = $property;
@@ -1201,7 +1222,7 @@ class RestService extends \IRestService
 			if ($fieldTypeObject)
 			{
 				$fieldTypeObject->setDocumentId($task["PARAMETERS"]["DOCUMENT_ID"]);
-				$result[$property['Name']] = $fieldTypeObject->internalizeValue('rest', $values[$property['Name']]);
+				$result[$property['Name']] = $fieldTypeObject->internalizeValue(FieldType::VALUE_CONTEXT_REST, $values[$property['Name']]);
 			}
 		}
 		return $result;

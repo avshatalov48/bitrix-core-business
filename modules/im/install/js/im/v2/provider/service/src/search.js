@@ -1,12 +1,12 @@
 import { Core } from 'im.v2.application.core';
 
-import { DialogType } from 'im.v2.const';
+import { ChatType } from 'im.v2.const';
 import { RecentStateSearch } from './search/recent-state-search';
 import { BaseServerSearch } from './search/base-server-search';
 import { ChatParticipants } from './search/chat-participants';
 
 import type { Store } from 'ui.vue3.vuex';
-import type { ImModelUser, ImModelDialog } from 'im.v2.model';
+import type { ImModelUser, ImModelChat } from 'im.v2.model';
 
 export class SearchService
 {
@@ -15,10 +15,10 @@ export class SearchService
 	#baseServerSearch: BaseServerSearch;
 	#chatParticipants: ChatParticipants;
 
-	constructor()
+	constructor(options: {findByParticipants: boolean})
 	{
 		this.#recentStateSearch = new RecentStateSearch();
-		this.#baseServerSearch = new BaseServerSearch();
+		this.#baseServerSearch = new BaseServerSearch(options);
 		this.#chatParticipants = new ChatParticipants();
 		this.#store = Core.getStore();
 	}
@@ -63,12 +63,12 @@ export class SearchService
 	sortByDate(items: string[]): string[]
 	{
 		items.sort((firstItem, secondItem) => {
-			const dateUpdate1 = this.#store.getters['recent/get'](firstItem).dateUpdate;
-			const dateUpdate2 = this.#store.getters['recent/get'](secondItem).dateUpdate;
+			const messageDate1 = this.#store.getters['recent/get'](firstItem, true).message?.date;
+			const messageDate2 = this.#store.getters['recent/get'](secondItem, true).message?.date;
 
-			if (!dateUpdate1 || !dateUpdate2)
+			if (!messageDate1 || !messageDate2)
 			{
-				if (!dateUpdate1 && !dateUpdate2)
+				if (!messageDate1 && !messageDate2)
 				{
 					if (this.#isExtranet(firstItem))
 					{
@@ -83,10 +83,10 @@ export class SearchService
 					return 0;
 				}
 
-				return dateUpdate1 ? -1 : 1;
+				return messageDate1 ? -1 : 1;
 			}
 
-			return dateUpdate2 - dateUpdate1;
+			return messageDate2 - messageDate1;
 		});
 
 		return items;
@@ -94,13 +94,13 @@ export class SearchService
 
 	#isExtranet(dialogId: string): boolean
 	{
-		const dialog: ImModelDialog = this.#store.getters['dialogues/get'](dialogId);
+		const dialog: ImModelChat = this.#store.getters['chats/get'](dialogId);
 		if (!dialog)
 		{
 			return false;
 		}
 
-		if (dialog.type === DialogType.user)
+		if (dialog.type === ChatType.user)
 		{
 			const user: ImModelUser = this.#store.getters['users/get'](dialogId);
 

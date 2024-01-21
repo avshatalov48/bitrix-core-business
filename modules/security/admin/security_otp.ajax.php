@@ -10,7 +10,7 @@ use Bitrix\Security\Mfa\RecoveryCodesTable;
  * @global CMain $APPLICATION
  */
 
-header('Content-Type: application/json', true);
+header('Content-Type: application/json');
 
 $request = Bitrix\Main\Context::getCurrent()->getRequest();
 
@@ -82,9 +82,17 @@ switch($request->getPost('action'))
 				'USER_ID' => $userId,
 				'SECRET' => $_POST['secret'],
 				'TYPE' => $_POST['type'],
+				'INIT_PARAMS' => [],
 				'SYNC1' => $_POST['sync1'],
-				'SYNC2' => $_POST['sync2'],
+				'SYNC2' => $_POST['sync2'] ?? '',
 			);
+
+			if ($_POST['type'] === Otp::TYPE_TOTP)
+			{
+				$fields['INIT_PARAMS'] = [
+					'startTimestamp' => (int)($_POST['startTimestamp'] ?? 0),
+				];
+			}
 
 			$result = checkAndActivate($fields);
 		}
@@ -126,8 +134,7 @@ switch($request->getPost('action'))
 
 function response($result)
 {
-	echo Json::encode($result);
-	die;
+	CMain::FinalActions(Json::encode($result));
 }
 
 function getViewParams($userId, $type = null)
@@ -153,6 +160,7 @@ function checkAndActivate($fields)
 	try
 	{
 		$otp = Otp::getByUser($fields['USER_ID']);
+
 		if(preg_match("/[^[:xdigit:]]/i", $fields['SECRET']))
 		{
 			$binarySecret = $fields['SECRET'];
@@ -161,9 +169,11 @@ function checkAndActivate($fields)
 		{
 			$binarySecret = pack('H*', $fields['SECRET']);
 		}
+
 		$otp
 			->regenerate($binarySecret)
 			->setType($fields['TYPE'])
+			->setInitParams($fields['INIT_PARAMS'])
 			->syncParameters($fields['SYNC1'], $fields['SYNC2'])
 			->save()
 		;
@@ -292,7 +302,7 @@ function getRecoveryCodes($userId, $isRegenerationAllowed = false)
 		$normalizedCodes[] = array(
 			'value' => $code['CODE'],
 			'used' => $code['USED'] === 'Y',
-			'using_date' => $date? $date->getTimestamp(): null
+			'using_date' => $date?->getTimestamp(),
 		);
 	}
 
@@ -312,5 +322,5 @@ function regenerateRecoveryCodes($userId)
 
 	CUserOptions::SetOption('security', 'recovery_codes_generated', time());
 	RecoveryCodesTable::regenerateCodes($userId);
-	return getRecoveryCodes($userId, false);
+	return getRecoveryCodes($userId);
 }

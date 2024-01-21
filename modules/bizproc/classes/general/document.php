@@ -529,6 +529,7 @@ class CBPDocument
 			Bizproc\Workflow\Entity\WorkflowInstanceTable::delete($workflowId);
 			CBPTaskService::DeleteByWorkflow($workflowId);
 			CBPStateService::DeleteWorkflow($workflowId);
+			Bizproc\Workflow\Entity\WorkflowMetadataTable::deleteByWorkflowId($workflowId);
 
 			if (!Bizproc\Debugger\Session\Manager::isDebugWorkflow($workflowId))
 			{
@@ -677,6 +678,7 @@ class CBPDocument
 		$found = false;
 		$trackingService = null;
 		$sendImNotify = (CModule::IncludeModule("im"));
+		$workflowIdsToSync = [];
 
 		while ($task = $iterator->fetch())
 		{
@@ -715,6 +717,7 @@ class CBPDocument
 						'#TO#' => '{=user:user_'.$toUserId.'}'
 					))
 				);
+				$workflowIdsToSync[$task['WORKFLOW_ID']] = true;
 
 				if ($sendImNotify)
 				{
@@ -734,6 +737,15 @@ class CBPDocument
 				}
 			}
 		}
+
+		if ($workflowIdsToSync)
+		{
+			foreach (array_keys($workflowIdsToSync) as $workflowId)
+			{
+				Bizproc\Workflow\Entity\WorkflowUserTable::syncOnTaskUpdated($workflowId);
+			}
+		}
+
 		return $found;
 	}
 

@@ -1,0 +1,8 @@
+<?php
+$MESS["LANDING_BLOCK_CRM_REQ_CONTACTS_MAIL"] = "E-Mail";
+$MESS["LANDING_BLOCK_CRM_REQ_CONTACTS_PHONE"] = "Telefon";
+$MESS["LANDING_BLOCK_CRM_REQ_CONTACTS_SITE"] = "Website";
+$MESS["LANDING_BLOCK_CRM_REQ_EMPTY"] = "Nicht ausgewählt";
+$MESS["LANDING_BLOCK_CRM_REQ_HIDE_FIELDS"] = "Felder nicht anzeigen";
+$MESS["LANDING_BLOCK_CRM_REQ_ICON_COLOR"] = "Icons in Farbe des Themas";
+$MESS["LANDING_BLOCK_CRM_REQ_SELECT"] = "Unternehmen auswählen";

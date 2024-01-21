@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2\Entity\Url;
 
 use Bitrix\Im\Common;
+use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Rest\RestEntity;
 use Bitrix\Main\UrlPreview\UrlMetadataTable;
 use Bitrix\Main\UrlPreview\UrlPreview;
@@ -56,10 +57,17 @@ class UrlItem implements RestEntity
 		return (new static())->setMetadata($metadata)->setUrl($metadata['URL']);
 	}
 
-	public static function initByPreviewUrlId(int $previewUrlId): ?self
+	public static function initByPreviewUrlId(int $previewUrlId, bool $withHtml = true): ?self
 	{
-		$metadata = UrlPreview::getMetadataAndHtmlByIds([$previewUrlId]);
-		if ($metadata === false)
+		if ($withHtml)
+		{
+			$metadata = UrlPreview::getMetadataAndHtmlByIds([$previewUrlId]);
+		}
+		else
+		{
+			$metadata = UrlPreview::getMetadataByIds([$previewUrlId]);
+		}
+		if ($metadata === false || !isset($metadata[$previewUrlId]))
 		{
 			return null;
 		}
@@ -108,6 +116,23 @@ class UrlItem implements RestEntity
 		);
 
 		return $result;
+	}
+
+	public static function getFirstUrlFromText(?string $text): ?string
+	{
+		return self::getUrlsFromText($text)[0] ?? null;
+	}
+
+	public static function getByMessage(Message $message): ?self
+	{
+		$firstUrl = self::getFirstUrlFromText($message->getMessage());
+
+		if ($firstUrl === null)
+		{
+			return null;
+		}
+
+		return new self($firstUrl);
 	}
 
 	public function getId(): ?int
@@ -261,7 +286,7 @@ class UrlItem implements RestEntity
 		{
 			if ($this->isRich())
 			{
-				$this->urlAttach = \CIMMessageLink::formatAttach($this->getMetadata());
+				$this->urlAttach = \CIMMessageLink::formatAttach($this->getMetadata()) ?: null;
 			}
 		}
 

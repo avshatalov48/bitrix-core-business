@@ -1,14 +1,14 @@
 import { EventEmitter } from 'main.core.events';
 import { Text } from 'main.core';
 
-import { DialogType, EventType } from 'im.v2.const';
+import { ChatType, EventType } from 'im.v2.const';
 import { Avatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 import { highlightText } from 'im.v2.lib.text-highlighter';
 
 import '../css/search-experimental-item.css';
 
-import type { ImModelDialog, ImModelRecentItem, ImModelUser } from 'im.v2.model';
+import type { ImModelChat, ImModelRecentItem, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const SearchExperimentalItem = {
@@ -36,9 +36,9 @@ export const SearchExperimentalItem = {
 		{
 			return this.$store.getters['users/get'](this.dialogId, true);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		recentItem(): ImModelRecentItem
 		{
@@ -50,7 +50,7 @@ export const SearchExperimentalItem = {
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
 		},
 		position(): string
 		{
@@ -65,19 +65,28 @@ export const SearchExperimentalItem = {
 		{
 			if (!this.position)
 			{
-				return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_USER_TYPE_GROUP_V2');
+				return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_USER_TYPE_GROUP_V2');
 			}
 
 			return highlightText(Text.encode(this.position), this.query);
 		},
 		chatItemText(): string
 		{
-			if (this.isUser)
+			if (this.isFoundByUser)
 			{
-				return '';
+				return `<span class="--highlight">${this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_FOUND_BY_USER')}</span>`;
 			}
 
-			return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
+			return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
+		},
+		chatItemTextForTitle(): string
+		{
+			if (this.isFoundByUser)
+			{
+				return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_FOUND_BY_USER');
+			}
+
+			return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
 		},
 		itemText(): string
 		{
@@ -85,16 +94,26 @@ export const SearchExperimentalItem = {
 		},
 		itemTextForTitle(): string
 		{
-			return this.isUser ? this.position : this.chatItemText;
+			return this.isUser ? this.position : this.chatItemTextForTitle;
 		},
 		formattedDate(): string
 		{
-			if (!this.recentItem.dateUpdate)
+			if (!this.recentItem.message.date)
 			{
 				return '';
 			}
 
-			return this.formatDate(this.recentItem.dateUpdate);
+			return this.formatDate(this.recentItem.message.date);
+		},
+		isFoundByUser(): boolean
+		{
+			const searchRecentItem = this.$store.getters['recent/search/get'](this.dialogId);
+			if (!searchRecentItem)
+			{
+				return false;
+			}
+
+			return Boolean(searchRecentItem.foundByUser);
 		},
 	},
 	methods:
@@ -119,6 +138,10 @@ export const SearchExperimentalItem = {
 		formatDate(date: Date): string
 		{
 			return DateFormatter.formatByTemplate(date, DateTemplate.recent);
+		},
+		loc(phraseCode: string): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
 	},
 	template: `

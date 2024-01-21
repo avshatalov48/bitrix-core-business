@@ -2,6 +2,8 @@
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log.php");
 
+use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
+use Bitrix\Socialnetwork\Internals\EventService\Service;
 use Bitrix\Socialnetwork\Item\LogIndex;
 use Bitrix\Socialnetwork\LogIndexTable;
 use Bitrix\Socialnetwork\LogRightTable;
@@ -131,6 +133,13 @@ class CSocNetLog extends CAllSocNetLog
 		}
 
 		CSocNetLogTools::SetCacheLastLogID("log", $ID);
+
+		\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+			\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_POST_ADD,
+			[
+				'SONET_LOG_ID' => (int)$ID,
+			]
+		);
 
 		return $ID;
 	}
@@ -280,6 +289,13 @@ class CSocNetLog extends CAllSocNetLog
 				}
 			}
 		}
+
+		\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+			\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_POST_UPD,
+			[
+				'SONET_LOG_ID' => (int)$ID,
+			]
+		);
 
 		return $ID;
 	}
@@ -1294,6 +1310,13 @@ class CSocNetLog extends CAllSocNetLog
 			$cache->CleanDir("/sonet/log/" . (int)($ID / 1000) . "/" . $ID . "/comments/");
 		}
 
+		\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+			\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_POST_DEL,
+			[
+				'SONET_LOG_ID' => (int)$ID,
+			]
+		);
+
 		return $bSuccess;
 	}
 
@@ -1316,6 +1339,14 @@ class CSocNetLog extends CAllSocNetLog
 		$DB->Query("DELETE FROM b_sonet_log_view WHERE USER_ID = ".$userID, true);
 
 		$DB->Query("DELETE FROM b_sonet_log WHERE ENTITY_TYPE = '".SONET_ENTITY_USER."' AND ENTITY_ID = ".$userID, true);
+
+		Service::addEvent(
+			EventDictionary::EVENT_SPACE_LIVEFEED_READ_ALL, [
+				'USER_ID' => $userID,
+				'GROUP_ID' => 0,
+				'FEATURE_ID' => \Bitrix\Socialnetwork\Space\List\Dictionary::FEATURE_DISCUSSIONS,
+			]
+		);
 
 		return true;
 	}

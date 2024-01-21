@@ -1,0 +1,38 @@
+.bx-im-message-retry-button__scope {
+	--im-message-retry-button__background-color_button: rgb(82 92 105 / 20%);
+	--im-message-retry-button__background-color_button-hover: rgb(82 92 105 / 40%);
+}
+
+.bx-im-message-retry-button__container {
+	display: flex;
+	place-items: center;
+	width: 46px;
+	align-self: stretch;
+	flex-shrink: 0;
+}
+
+.--center-align .bx-im-message-retry-button__container {
+	flex-direction: row-reverse;
+}
+
+.bx-im-message-retry-button__arrow {
+	border: none;
+	position: sticky;
+	top: 45px;
+	border-radius: 50%;
+	background: var(--im-message-retry-button__background-color_button) url("./images/arrow.svg") no-repeat center;
+	text-align: center;
+	user-select: none;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+	transition: background-color .2s;
+}
+
+.bx-im-message-retry-button__arrow:hover {
+	background-color: var(--im-message-retry-button__background-color_button-hover);
+}
+
+.bx-im-message-retry-button__context-menu-delete {
+	color: var(--im-color-palette-red-50, #ff5752);
+}

@@ -1,10 +1,13 @@
 <?php
 
+use Bitrix\Mail\Helper\Mailbox;
+use Bitrix\Mail\Helper\Mailbox\MailboxConnector;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Mail;
 use Bitrix\Mail\Helper\LicenseManager;
 use Bitrix\Main\Config\Configuration;
+use Bitrix\Mail\MailServicesTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -14,6 +17,8 @@ Loc::loadMessages(__DIR__ . '/../mail.client/class.php');
 
 class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine\Contract\Controllerable, Main\Errorable
 {
+	private const NEGATIVE_ANSWER = 'N';
+	private const POSITIVE_ANSWER = 'Y';
 
 	public function configureActions()
 	{
@@ -58,61 +63,8 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$APPLICATION->setTitle(Loc::getMessage('MAIL_CLIENT_CONFIG_TITLE'));
 
 		$this->arResult['MAX_ALLOWED_CONNECTED_MAILBOXES'] = LicenseManager::getUserMailboxesLimit();
-		$this->arResult['CAN_CONNECT_NEW_MAILBOX'] = $this->canConnectNewMailbox();
-
-		$res = Mail\MailServicesTable::getList(array(
-			'filter' => array(
-				'=ACTIVE' => 'Y',
-				'=SITE_ID' => SITE_ID,
-			),
-			'order' => array(
-				'SORT' => 'ASC',
-				'NAME' => 'ASC',
-			),
-		));
-
-		$this->arParams['SERVICES'] = array();
-
-		$mailServicesOnlyForTheRuZone = [
-			'yandex',
-			'mail.ru',
-		];
-
-		$isRuZone = \Bitrix\Main\Loader::includeModule('bitrix24')
-			? in_array(\CBitrix24::getPortalZone(), ['ru', 'kz', 'by'])
-			: in_array(LANGUAGE_ID, ['ru', 'kz', 'by'])
-		;
-
-		$imapServiceStructure = [];
-
-		while ($service = $res->fetch())
-		{
-			if(!$isRuZone && in_array($service['NAME'],$mailServicesOnlyForTheRuZone))
-			{
-				continue;
-			}
-
-			$serviceFinal = [
-				'id'         => $service['ID'],
-				'type'       => $service['SERVICE_TYPE'],
-				'name'       => $service['NAME'],
-				'link'       => $service['LINK'],
-				'icon'       => Mail\MailServicesTable::getIconSrc($service['NAME'], $service['ICON']),
-				'server'     => $service['SERVER'],
-				'port'       => $service['PORT'],
-				'encryption' => $service['ENCRYPTION'],
-				'token'      => $service['TOKEN'],
-				'flags'      => $service['FLAGS'],
-				'sort'       => $service['SORT']
-			];
-
-			if($serviceFinal['name'] === 'other')
-			{
-				$imapServiceStructure = $serviceFinal;
-			}
-
-			$this->arParams['SERVICES'][] = $serviceFinal;
-		}
+		$this->arResult['CAN_CONNECT_NEW_MAILBOX'] = MailboxConnector::canConnectNewMailbox();
+		$this->arParams['SERVICES'] = self::prepareMailServices();
 
 		$this->includeComponentTemplate();
 	}
@@ -127,7 +79,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 		if ($new)
 		{
-			if (!$this->canConnectNewMailbox())
+			if (!MailboxConnector::canConnectNewMailbox())
 			{
 				showError(Loc::getMessage('MAIL_CLIENT_DENIED'));
 				return;
@@ -200,6 +152,10 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			$serviceId = $mailbox['SERVICE_ID'];
 		}
 
+		$this->arParams['IS_CALENDAR_AVAILABLE'] = \Bitrix\Main\Loader::includeModule('calendar');
+		$this->arParams['IS_ICAL_CHECK'] = $mailbox['OPTIONS']['ical_access'] === self::POSITIVE_ANSWER;
+
+
 		$res = Mail\MailServicesTable::getList(array(
 			'filter' => array(
 				'=ID' => $serviceId,
@@ -210,7 +166,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$this->arParams['SERVICE'] = array();
 		if ($service = $res->fetch())
 		{
-			$this->arParams['SERVICE'] = array(
+			$this->arParams['SERVICE'] = [
 				'active' => $service['ACTIVE'],
 				'id' => $service['ID'],
 				'type' => $service['SERVICE_TYPE'],
@@ -221,7 +177,9 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				'port' => $service['PORT'],
 				'encryption' => $service['ENCRYPTION'],
 				'upload_outgoing' => $service['UPLOAD_OUTGOING'],
-			);
+			];
+			$this->arParams['SERVICE'] = self::prepareMailServices([$this->arParams['SERVICE']])[0];
+
 			$serviceSmtp = [];
 			if(!empty($service['SMTP_SERVER']))
 			{
@@ -256,8 +214,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				$this->arParams['SERVICE']['oauth'] = Mail\MailServicesTable::getOAuthHelper($service);
 			}
 		}
-		$this->arParams['SERVICE']['oauth_smtp_enabled'] = !empty($this->arParams['SERVICE']['oauth'])
-			&& $this->isOauthSmtpEnabled($this->arParams['SERVICE']['name']);
+		$this->arParams['SERVICE']['oauth_smtp_enabled'] = !empty($this->arParams['SERVICE']['oauth']);
 
 		$ownerId = $new ? $USER->getId() : $mailbox['USER_ID'];
 		$access = array(
@@ -432,6 +389,8 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			$this->arResult['LAST_MAIL_CHECK_STATUS'] = $mailboxSyncManager->getLastMailboxSyncIsSuccessStatus($mailbox['ID']);
 		}
 
+		$this->arResult['MICROSOFT_SERVICE_NAMES'] = $this->getMicrosoftServiceNames();
+
 		$this->includeComponentTemplate('edit');
 	}
 
@@ -474,34 +433,6 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$defaultMailConfiguration = Configuration::getValue("smtp");
 		$this->arParams['IS_SMTP_AVAILABLE'] = Main\ModuleManager::isModuleInstalled('bitrix24')
 			|| $defaultMailConfiguration['enabled'];
-	}
-
-	/**
-	 * Is OAuth for SMTP enabled for service
-	 *
-	 * @param string $serviceName Service name
-	 *
-	 * @return bool
-	 *
-	 * @throws Main\ArgumentNullException
-	 */
-	private function isOauthSmtpEnabled(string $serviceName): bool
-	{
-		switch ($serviceName)
-		{
-			case 'gmail':
-				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_gmail', '');
-			case 'yandex':
-				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_yandex', '');
-			case 'mail.ru':
-				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_mailru', '');
-			case 'office365':
-			case 'outlook.com':
-			case 'exchangeOnline':
-				return (bool)\Bitrix\Main\Config\Option::getRealValue('mail', '~smtp_oauth_enabled_outlook', '');
-			default:
-				return false;
-		}
 	}
 
 	public function saveAction($fields)
@@ -575,7 +506,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			{
 				return $this->error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR'));
 			}
-			if (!$this->canConnectNewMailbox())
+			if (!MailboxConnector::canConnectNewMailbox())
 			{
 				return $this->error(Loc::getMessage('MAIL_CLIENT_DENIED'));
 			}
@@ -648,6 +579,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 		$mailboxData['OPTIONS']['name'] = $mailboxData['USERNAME'];
 
+		$isOAuth = false;
 		if ($fields['oauth_uid'])
 		{
 			if (!empty($mailbox) && 'S' == $fields['oauth_mode'])
@@ -663,6 +595,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 					$mailboxData['LOGIN'] = $mailboxData['EMAIL'];
 					$mailboxData['PASSWORD'] = $oauthHelper->buildMeta();
+					$isOAuth = true;
 				}
 			}
 
@@ -711,7 +644,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 			$mailboxData['SERVER'] = $matches[1];
 
-			if (!self::isValidMailHost($mailboxData['SERVER']))
+			if (!MailboxConnector::isValidMailHost($mailboxData['SERVER']))
 			{
 				return $this->error(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_SERVER_BAD'));
 			}
@@ -771,11 +704,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$unseen = Mail\Helper::getImapUnseen($mailboxData, 'inbox', $error, $errors);
 		if ($unseen === false)
 		{
-			return $this->error($errors instanceof Main\ErrorCollection ? $errors : $error);
+			return $this->error($errors instanceof Main\ErrorCollection ? $errors : $error, $isOAuth);
 		}
 
-		$isSmtpOauthEnabled = $this->isOauthSmtpEnabled($service['NAME']);
-		$useSmtp = !empty($fields['use_smtp']) || $isSmtpOauthEnabled;
+		$useSmtp = !empty($fields['use_smtp'])
+			|| (!empty(MailServicesTable::getOAuthHelper($service)) && $this->isNotMicrosoftService($service));
 
 		if ($this->arParams['IS_SMTP_AVAILABLE'] && !$useSmtp && !empty($mailbox))
 		{
@@ -866,10 +799,10 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				$smtpConfig = array_filter($smtpConfig) + $smtpConfirmed;
 			}
 
-			if ($service['SMTP_PASSWORD_AS_IMAP'] == 'Y' && (!$fields['oauth_uid'] || $isSmtpOauthEnabled))
+			if ($service['SMTP_PASSWORD_AS_IMAP'] === 'Y')
 			{
 				$smtpConfig['password'] = $mailboxData['PASSWORD'];
-				$smtpConfig['isOauth'] = !empty($fields['oauth_uid']) && $isSmtpOauthEnabled;
+				$smtpConfig['isOauth'] = !empty($fields['oauth_uid']);
 			}
 			else if ($fields['pass_smtp'] <> '' && $fields['pass_smtp'] != $fields['pass_placeholder'])
 			{
@@ -895,7 +828,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 				$smtpConfig['server'] = $matches[1];
 
-				if (!self::isValidMailHost($smtpConfig['server']))
+				if (!MailboxConnector::isValidMailHost($smtpConfig['server']))
 				{
 					return $this->error(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_SERVER_BAD'));
 				}
@@ -1020,15 +953,15 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 		if (!empty($senderFields) && empty($senderFields['IS_CONFIRMED']))
 		{
-			$result = $this->appendSender($senderFields, (string)($fields['user_principal_name'] ?? ''));
+			$result = MailboxConnector::appendSender($senderFields, (string)($fields['user_principal_name'] ?? ''));
 
 			if (!empty($result['errors']) && $result['errors'] instanceof Main\ErrorCollection)
 			{
-				return $this->error($result['errors']);
+				return $this->error($result['errors'], $isOAuth, true);
 			}
 			else if (!empty($result['error']))
 			{
-				return $this->error($result['error']);
+				return $this->error($result['error'], $isOAuth, true);
 			}
 			else if (empty($result['confirmed']))
 			{
@@ -1036,11 +969,23 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			}
 		}
 
+		if (Main\Loader::includeModule('calendar'))
+		{
+			if (!isset($fields['ical_access']))
+			{
+				$mailboxData['OPTIONS']['ical_access'] = self::NEGATIVE_ANSWER;
+			}
+			else if (($fields['ical_access'] === self::POSITIVE_ANSWER))
+			{
+				$mailboxData['OPTIONS']['ical_access'] = self::POSITIVE_ANSWER;
+			}
+		}
+
 		$mailboxData['OPTIONS']['version'] = 6;
 
 		if (empty($mailbox))
 		{
-			$mailboxData = array_merge(array(
+			$mailboxData = array_merge([
 				'LID'         => $currentSite['LID'],
 				'ACTIVE'      => 'Y',
 				'SERVICE_ID'  => $service['ID'],
@@ -1048,7 +993,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				'CHARSET'     => $currentSite['CHARSET'],
 				'USER_ID'     => $USER->getId(),
 				'SYNC_LOCK'   => time()
-			), $mailboxData);
+			], $mailboxData);
 
 			$result = $mailboxId = \CMailbox::add($mailboxData);
 
@@ -1131,7 +1076,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			));
 		}
 
-		$mailboxHelper = Mail\Helper\Mailbox::createInstance($mailboxId);
+		$mailboxHelper = Mailbox::createInstance($mailboxId);
 		$mailboxHelper->cacheDirs();
 
 		$res = Mail\MailFilterTable::getList(array(
@@ -1163,33 +1108,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			// @TODO: process old messages
 		}
 
-		return array('id' => $mailboxId);
-	}
-
-	/**
-	 * Append SMTP sender, with two attempts for outlook
-	 *
-	 * @param array $senderFields Sender fields data
-	 * @param string $userPrincipalName User Principal Name, appears in outlook oauth data only
-	 *
-	 * @return array
-	 */
-	private function appendSender(array $senderFields, string $userPrincipalName): array
-	{
-		$result = Main\Mail\Sender::add($senderFields);
-
-		if (empty($result['confirmed']) && $userPrincipalName)
-		{
-			$address = new \Bitrix\Main\Mail\Address($userPrincipalName);
-			$currentSmtpLogin = $senderFields['OPTIONS']['smtp']['login'] ?? '';
-			if ($currentSmtpLogin && $currentSmtpLogin !== $userPrincipalName && $address->validate())
-			{
-				// outlook workaround, sometimes SMTP auth only works with userPrincipalName
-				$senderFields['OPTIONS']['smtp']['login'] = $userPrincipalName;
-				$result = Main\Mail\Sender::add($senderFields);
-			}
-		}
-		return $result;
+		return ['id' => $mailboxId];
 	}
 
 	public function deleteAction($id)
@@ -1223,39 +1142,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		\CAgent::addAgent(sprintf('Bitrix\Mail\Helper::deleteMailboxAgent(%u);', $mailbox['ID']), 'mail', 'N', 60);
 	}
 
-	protected function canConnectNewMailbox()
-	{
-		$userMailboxesLimit = LicenseManager::getUserMailboxesLimit();
-		if ($userMailboxesLimit >= 0)
-		{
-			if ($this->getUserOwnedMailboxCount() >= $userMailboxesLimit)
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	protected function getUserOwnedMailboxCount()
-	{
-		global $USER;
-
-		$res = Mail\MailboxTable::getList(array(
-			'select' => array(
-				new Main\Entity\ExpressionField('OWNED', 'COUNT(%s)', 'ID'),
-			),
-			'filter' => array(
-				'=ACTIVE' => 'Y',
-				'=USER_ID' => $USER->getId(),
-				'=SERVER_TYPE' => 'imap',
-			),
-		))->fetch();
-
-		return $res['OWNED'];
-	}
-
-	protected function error($error)
+	protected function error($error, $isOAuth = false, $isSender = false)
 	{
 		if ($error instanceof Main\ErrorCollection)
 		{
@@ -1269,8 +1156,18 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 			if (count($messages) == 1 && reset($messages)->getCode() == Mail\Imap::ERR_AUTH)
 			{
+				$authError = Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT');
+				if  ($isOAuth && Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH'))
+				{
+					$authError = Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH');
+				}
+				if  ($isOAuth && $isSender && Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH_SMTP'))
+				{
+					$authError = Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_OAUTH_SMTP');
+				}
+
 				$messages = array(
-					new Main\Error(getMessage('MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT'), Mail\Imap::ERR_AUTH),
+					new Main\Error($authError, Mail\Imap::ERR_AUTH),
 				);
 
 				$moreDetailsSection = false;
@@ -1312,33 +1209,61 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 	 * Getting array of errors.
 	 * @return Error[]
 	 */
-	final public function getErrors()
+	final public function getErrors(): array
 	{
 		return $this->errorCollection->toArray();
 	}
 
 	/**
 	 * Getting once error with the necessary code.
+	 *
 	 * @param string $code Code of error.
-	 * @return Error
+	 * @return Main\Error
 	 */
-	final public function getErrorByCode($code)
+	final public function getErrorByCode($code): Main\Error
 	{
 		return $this->errorCollection->getErrorByCode($code);
 	}
 
-	private static function isValidMailHost(string $host): bool
+	/**
+	 * Prepares mail services and their names for the mail providers showcase and connected mailbox settings page
+	 *
+	 * @param array|null $mailboxes
+	 * @return array
+	 */
+	private static function prepareMailServices(array $mailboxes = null): array
 	{
-		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+		$mailboxes = $mailboxes ?? Mailbox::getServices();
+
+		foreach ($mailboxes as &$mailbox)
 		{
-			// Private addresses can't be used in the cloud
-			$ip = \Bitrix\Main\Web\IpAddress::createByName($host);
-			if ($ip->isPrivate())
+			$mailbox['serviceName'] = match ($mailbox['name'])
 			{
-				return false;
-			}
+				'icloud' => 'iCloud',
+				'yandex' => Loc::getMessage('MAIL_MAILBOX_SERVICE_NAME_YANDEX'),
+				'outlook.com' => 'Outlook',
+				'exchangeOnline' => 'Exchange',
+				'other' => Loc::getMessage('MAIL_MAILBOX_SERVICE_NAME_IMAP'),
+				default => ucfirst($mailbox['name']),
+			};
 		}
 
-		return true;
+		return $mailboxes;
+	}
+
+	private function isNotMicrosoftService(?array $service): bool
+	{
+		$serviceName = $service['NAME'] ?? null;
+
+		return !in_array($serviceName, $this->getMicrosoftServiceNames(), true);
+	}
+
+	private function getMicrosoftServiceNames(): array
+	{
+		return [
+			'office365',
+			'exchangeOnline',
+			'outlook.com',
+		];
 	}
 }

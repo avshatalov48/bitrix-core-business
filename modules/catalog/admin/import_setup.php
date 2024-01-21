@@ -96,6 +96,8 @@ function GetReportsList($strPath2Import)
 {
 	$arReports = array();
 
+	$isMysql = \Bitrix\Main\Application::getConnection()->getType() === 'mysql';
+
 	CheckDirPath($_SERVER["DOCUMENT_ROOT"].$strPath2Import);
 	if ($handle = opendir($_SERVER["DOCUMENT_ROOT"].$strPath2Import))
 	{
@@ -104,7 +106,10 @@ function GetReportsList($strPath2Import)
 			if ($file == "." || $file == "..")
 				continue;
 
-			if (is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Import.$file) && mb_substr($file, mb_strlen($file) - 8) == "_run.php")
+			if (
+				is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Import.$file)
+				&& mb_substr($file, mb_strlen($file) - 8) == "_run.php"
+			)
 			{
 				$import_name = mb_substr($file, 0, mb_strlen($file) - 8);
 
@@ -119,6 +124,11 @@ function GetReportsList($strPath2Import)
 					$arMatches[1] = Trim($arMatches[1]);
 					if ($arMatches[1] <> '')
 						$rep_title = $arMatches[1];
+				}
+
+				if ($rep_title === 'CommerceML MySql Fast - BETA VERS' && !$isMysql)
+				{
+					continue;
 				}
 
 				$arReports[$import_name] = array(

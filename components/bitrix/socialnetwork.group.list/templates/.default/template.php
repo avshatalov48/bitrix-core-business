@@ -8,6 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Grid\Panel;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Integration\Intranet\Settings;
 use Bitrix\Socialnetwork\Internals\Counter\CounterDictionary;
 
 /** @var CBitrixComponentTemplate $this */
@@ -58,6 +59,28 @@ $isTasksScope = (
 	&& Loader::includeModule('tasks')
 );
 
+$settings = new Settings();
+if (!$settings->isToolAvailable(Settings::SONET_TOOLS['workgroups']) && !$isTasksScope)
+{
+	$componentParameters = [
+		'LIMIT_CODE' => Settings::LIMIT_CODES['workgroups'],
+		'MODULE' => 'socialnetwork',
+		'SOURCE' => 'groupList',
+	];
+
+	$APPLICATION->IncludeComponent(
+		"bitrix:ui.sidepanel.wrapper",
+		"",
+		[
+			'POPUP_COMPONENT_NAME' => 'bitrix:intranet.settings.tool.stub',
+			'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+			'POPUP_COMPONENT_PARAMS' => $componentParameters,
+		],
+	);
+
+	return;
+}
+
 if ($isTasksScope)
 {
 	$scope = (
@@ -65,6 +88,30 @@ if ($isTasksScope)
 			? ScopeDictionary::SCOPE_SCRUM_PROJECTS_GRID
 			: ScopeDictionary::SCOPE_PROJECTS_GRID
 	);
+
+	if ($scope === ScopeDictionary::SCOPE_SCRUM_PROJECTS_GRID)
+	{
+		$isAvailable = $settings->isToolAvailable(Settings::TASKS_TOOLS['scrum']);
+		$limitCode = Settings::LIMIT_CODES['scrum'];
+		$limitScope = Settings::TASKS_TOOLS['scrum'];
+	}
+	else
+	{
+		$isAvailable = $settings->isToolAvailable(Settings::TASKS_TOOLS['projects']);
+		$limitCode = Settings::LIMIT_CODES['projects'];
+		$limitScope = Settings::TASKS_TOOLS['projects'];
+	}
+
+	if (!$isAvailable)
+	{
+		$APPLICATION->IncludeComponent('bitrix:tasks.error', 'limit',
+			[
+				'SCOPE' => $limitScope,
+				'LIMIT_CODE' => $limitCode,
+			]
+		);
+		return;
+	}
 
 	$APPLICATION->IncludeComponent(
 		'bitrix:tasks.interface.topmenu',

@@ -87,6 +87,8 @@ abstract class PayableItem extends Internals\CollectableEntity
 		return (float)$this->getField('QUANTITY');
 	}
 
+	abstract public function getPrice() : float;
+
 	/**
 	 * @return string
 	 */

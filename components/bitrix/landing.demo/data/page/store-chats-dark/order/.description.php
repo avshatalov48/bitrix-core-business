@@ -38,7 +38,6 @@ return [
 	'layout' => [
 		'code' => 'empty',
 	],
-	
 	'items' => [
 		'0' => [
 			'code' => 'store.salescenter.order.details',

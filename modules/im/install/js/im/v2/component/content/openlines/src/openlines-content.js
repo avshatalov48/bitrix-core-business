@@ -2,6 +2,7 @@ import { Event } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Logger } from 'im.v2.lib.logger';
+import { LayoutManager } from 'im.v2.lib.layout';
 import { EventType, Layout } from 'im.v2.const';
 
 import { OpenlinesLoader } from './components/loader';
@@ -119,8 +120,9 @@ export const OpenlinesContent = {
 				return;
 			}
 			this.dialogIdChangedFromFrame = true;
-			this.$store.dispatch('application/setLayout', {
-				layoutName: Layout.openlines.name,
+
+			void LayoutManager.getInstance().setLayout({
+				name: Layout.openlines.name,
 				entityId: event.detail,
 			});
 		},
@@ -148,6 +150,11 @@ export const OpenlinesContent = {
 		},
 		unregisterSliderBindings()
 		{
+			if (!this.frameDocument)
+			{
+				return;
+			}
+
 			if (BX.SidePanel.Instance?.unregisterAnchorListener)
 			{
 				BX.SidePanel.Instance.unregisterAnchorListener(this.frameDocument);

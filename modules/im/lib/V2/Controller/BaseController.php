@@ -14,6 +14,7 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\MessageError;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Im\V2\Rest\RestConvertible;
+use Bitrix\Main\Context;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Response\Converter;
@@ -97,6 +98,22 @@ abstract class BaseController extends Controller
 		return $data;
 	}
 
+	//todo: think about recursion in method.
+	protected function checkWhiteList(array $fields, array $whiteList): array
+	{
+		$filteredFields = [];
+
+		foreach ($whiteList as $allowedField)
+		{
+			if (isset($fields[$allowedField]))
+			{
+				$filteredFields[$allowedField] = $fields[$allowedField];
+			}
+		}
+
+		return $filteredFields;
+	}
+
 	protected function getMessageById(int $id): ?Message
 	{
 		$message = new \Bitrix\Im\V2\Message($id);
@@ -123,5 +140,10 @@ abstract class BaseController extends Controller
 		}
 
 		return $default;
+	}
+
+	protected function getRawValue(string $key)
+	{
+		return $this->request->getPostList()->getRaw($key) ?? $this->request->getQueryList()->getRaw($key) ?? null;
 	}
 }

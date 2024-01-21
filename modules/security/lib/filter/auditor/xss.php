@@ -152,7 +152,7 @@ class Xss
 
 			"=" => array(
 				'search' => array(
-					"/{$_Al}(s{$_M}t{$_M})(y{$_M}l{$_M}e{$_WS_OPT}\=)
+					/*"/{$_Al}(s{$_M}t{$_M})(y{$_M}l{$_M}e{$_WS_OPT}\=)
 						(?!\\s*
 							(?P<quot>\"|&quot;|'|\"|\\\\\"|\\\\')
 							(
@@ -168,7 +168,7 @@ class Xss
 						(?!\\s*
 							[a-z]+;
 						)
-					/xis",
+					/xis", */
 					"/{$_Al}(f{$_M}o{$_M}r{$_M})(m{$_M}a{$_M}c{$_M}t{$_M}i{$_M}o{$_M}n{$_WS_OPT}=)/is",
 					"/{$_Al}(o{$_M}n{$_M}(?:[a-z]{$_M})*?)(([a-z]{$_M}){3}{$_WS_OPT}=)/is",
 					"/{$_Al}(s{$_M}e{$_M}e{$_M})(k{$_M}S{$_M}e{$_M}g{$_M}m{$_M}e{$_M}n{$_M}t{$_M}T{$_M}i{$_M}m{$_M}e{$_WS_OPT}=)/is",
@@ -180,7 +180,7 @@ class Xss
 			":" => array(
 				'search' => array(
 					"/(u{$_M}r{$_M}n{$_M2}:{$_M2}s{$_M})(c{$_M}h{$_M}e{$_M}m{$_M}a{$_M}s{$_M}-{$_M}m{$_M}i{$_M}c{$_M}r{$_M}o{$_M}s{$_M}o{$_M}f{$_M}t{$_M}-{$_M}c{$_M}o{$_M}m{$_M2}:)/",
-					"/((?:'|\"|=|:){$_M3}d{$_M}a{$_M}t{$_M})(a{$_M}:)(?![0-9]|image)/is",
+					"/((?:'|\"|=|:|;){$_M3}d{$_M}a{$_M}t{$_M})(a{$_M}:)(?![0-9]|image)/is",
 				),
 				'replace' => $replacePattern
 			),

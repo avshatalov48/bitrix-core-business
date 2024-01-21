@@ -1,4 +1,4 @@
-<?
+<?php
 ##############################################
 # Bitrix Site Manager                        #
 # Copyright (c) 2002-2007 Bitrix             #
@@ -6,6 +6,11 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 require_once(__DIR__."/../include/prolog_admin_before.php");
+
+/**
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ */
 
 if(!($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -51,7 +56,7 @@ $arFilterFields = Array(
 	"find_email",
 	"find_keywords",
 	"find_group_id"
-	);
+);
 
 $lAdmin->InitFilter($arFilterFields);
 
@@ -118,7 +123,7 @@ if(CheckFilter($arFilterFields))
 		"EMAIL"			=>	($find!='' && $find_type == "email"? $find: $find_email),
 		"KEYWORDS"		=> $find_keywords,
 		"GROUPS_ID"		=> $find_group_id
-		);
+	);
 }
 
 if(!$USER->CanDoOperation('view_all_users'))
@@ -130,8 +135,7 @@ if(!$USER->CanDoOperation('view_all_users'))
 	}
 }
 
-// инициализация списка - выборка данных
-$rsData = CUser::GetList('', '', $arFilter, array(
+$rsData = CUser::GetList($oSort->getField(), $oSort->getOrder(), $arFilter, array(
 	"NAV_PARAMS"=> array("nPageSize"=>CAdminResult::GetNavSize($sTableID)),
 ));
 $rsData = new CAdminResult($rsData, $sTableID);
@@ -314,4 +318,3 @@ $oFilter->End();
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");
-?>

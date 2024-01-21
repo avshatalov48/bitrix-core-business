@@ -1,0 +1,96 @@
+.calendar-sharing__user-selector-main {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	background-color: var(--ui-color-palette-gray-02, #F8FAFB);
+	border-radius: 10px;
+	padding: 10px 17px;
+	margin-top: 20px;
+}
+
+.calendar-sharing__user-selector-wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 5px 0;
+}
+
+.calendar-sharing__user-selector-title {
+	margin-bottom: 5px;
+}
+
+.calendar-sharing__user-selector-title-text {
+	align-items: center;
+	color: #333333;
+}
+
+.calendar-sharing__user-selector-title-text span {
+	padding-bottom: 1px;
+	color: var(--ui-color-base-90);
+	border-bottom: 1px dashed #adadad;
+	cursor: pointer;
+}
+
+.calendar-sharing__user-selector-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	margin-left: 6px;
+}
+
+.calendar-sharing__user-selector-container div:nth-child(n + 11) {
+	display: none;
+}
+
+.calendar-sharing__user-selector-entity-container {
+	display: flex;
+}
+
+.calendar-sharing__user-selector-entity {
+	z-index: 10;
+	display: inline-block;
+	width: 36px;
+	height: 36px;
+	border-radius: var(--ui-border-radius-circle, 50%);
+	border: solid white 2px;
+	margin-left: -6px;
+}
+
+.calendar-sharing__user-selector-add {
+	z-index: 100;
+	display: inline-block;
+	margin-left: -15px;
+	width: 32px;
+	height: 32px;
+	background: url(../image/calendar-sharing-dialog-add.svg) center no-repeat;
+	cursor: pointer;
+}
+
+.calendar-sharing__user-selector-hint-wrapper {
+	align-items: center;
+	display: flex;
+	padding: 10px;
+}
+
+.calendar-sharing__user-selector-hint-text-wrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	max-width: 301px;
+}
+
+.calendar-sharing__user-selector-hint-text-title {
+	font: var(--ui-font-size-2xl)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.calendar-sharing__user-selector-hint-text-desc {
+	margin-top: 5px;
+	font: var(--ui-typography-text-md-font-size)/var(--ui-typography-text-md-line-height) var(--ui-font-family-system);
+}
+
+.calendar-sharing__user-selector-hint-icon {
+	width: 87px;
+	height: 72px;
+	background: url(../image/calendar-sharing-dialog-shared-calendar.svg) center no-repeat;
+}

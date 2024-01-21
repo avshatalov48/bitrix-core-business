@@ -101,4 +101,3 @@ class CAllPullStack
 		return self::AddShared($arMessage);
 	}
 }
-?>

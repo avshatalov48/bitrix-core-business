@@ -4,7 +4,6 @@ $MESS["CT_BLLE_COPY_CONFIRM_BUTTON"] = "Ja, kopieren";
 $MESS["CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"] = "Kopieren";
 $MESS["CT_BLLE_COPY_POPUP_CANCEL_BUTTON"] = "Abbrechen";
 $MESS["CT_BLLE_COPY_POPUP_CONTENT"] = "Möchten Sie diese Information wirklich kopieren?";
-$MESS["CT_BLLE_COPY_POPUP_CONTENT_1"] = "Möchten Sie den Workflow wirklich kopieren?";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS"] = "Liste wurde kopiert. <a href=\"#URL#\">Die Parameter der neuen Liste bearbeiten</a>";
 $MESS["CT_BLLE_COPY_POPUP_COPIED_SUCCESS_PROCESS"] = "Workflow wurde kopiert. <a href=\"#URL#\">Die Parameter des neuen Workflows bearbeiten</a>";
 $MESS["CT_BLLE_COPY_POPUP_TEXT"] = "Möchten Sie diese Liste wirklich kopieren?";

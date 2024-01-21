@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Grid\Panel\UI\Item\Group;
 
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Action\Group\GroupChildAction;
 use Bitrix\Main\Grid\Panel\Actions;
 use Bitrix\Main\Grid\Panel\Snippet;
@@ -32,7 +33,7 @@ final class ChangePricesGroupChild extends GroupChildAction
 		return Loc::getMessage('CATALOG_GRID_PANEL_UI_PRODUCT_ACTION_CHANGE_PRICES_NAME');
 	}
 
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter): ?Result
 	{
 		return null;
 	}

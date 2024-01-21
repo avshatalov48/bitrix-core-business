@@ -8,11 +8,11 @@ use Bitrix\Im\Dialog;
 use Bitrix\Im\Model\AliasTable;
 use Bitrix\Im\Model\CallTable;
 use Bitrix\Im\Model\CallUserTable;
+use Bitrix\Im\V2\Call\CallFactory;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
-use Bitrix\Main\Security\Random;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Event;
 use Bitrix\Main\UserTable;
@@ -423,16 +423,14 @@ class Call
 
 	public function makeClone($newProvider = null)
 	{
-		$instance = static::createWithArray($this->toArray());
-		$instance->id = null;
-		$instance->publicId = randString(10);
-		$instance->state = static::STATE_NEW;
-		if($newProvider)
-		{
-			$instance->provider = $newProvider;
-		}
-		$instance->parentId = $this->id;
+		$callFields = $this->toArray();
+		$callFields['ID'] = null;
+		$callFields['PUBLIC_ID'] = randString(10);
+		$callFields['STATE'] = static::STATE_NEW;
+		$callFields['PROVIDER'] = $newProvider ?? $callFields['PROVIDER'];
+		$callFields['PARENT_ID'] = $this->id;
 
+		$instance = CallFactory::createWithArray($callFields['PROVIDER'], $callFields);
 		$instance->save();
 
 		$instance->users = [];
@@ -678,10 +676,11 @@ class Call
 
 		$instance->associatedEntity = Integration\EntityFactory::createEntity($instance, $entityType, $entityId);
 		$instance->chatId = $instance->associatedEntity->getChatId();
-		$instance->uuid = Util::generateUUID();
-		$instance->secretKey = Random::getString(10, true);
 
 		$instance->save();
+
+		// todo: remove when the calls are supported in the mobile
+		$instance->associatedEntity->onCallCreate();
 
 		$instance->users = [];
 		foreach ($instance->associatedEntity->getUsers() as $userId)
@@ -695,7 +694,7 @@ class Call
 			$instance->users[$userId]->save();
 		}
 
-		$instance->initCall(true);
+		$instance->initCall();
 
 		$event = new Event(
 			'im',
@@ -717,7 +716,7 @@ class Call
 		return $instance;
 	}
 
-	protected function initCall(bool $isNew = false)
+	protected function initCall()
 	{
 		// to be overridden
 	}
@@ -869,9 +868,9 @@ class Call
 
 	public static function isBitrixCallServerEnabled()
 	{
-		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
+		$isBeta = Option::get('im', 'bitrix_call_enabled', 'N');
 
-		return (bool)$settings['call']['beta'] ?? false;
+		return $isBeta === 'Y';
 	}
 
 	public static function isVoximplantCallServerEnabled()

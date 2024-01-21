@@ -10,6 +10,7 @@ namespace Bitrix\Sender\Posting;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Consent\Consent;
 use Bitrix\Sender\ContactTable;
@@ -162,7 +163,7 @@ class Builder
 		$this->checkDuplicates = $checkDuplicates;
 		$this->postingId = $postingId;
 		$this->groupCount = array();
-		
+
 		try
 		{
 			$this->messageConfiguration = Message\Adapter::getInstance($postingData['MESSAGE_TYPE'])
@@ -172,7 +173,7 @@ class Builder
 		{
 			return true;
 		}
-		
+
 		if(!$checkDuplicates)
 		{
 			if($this->postingData['STATUS'] === PostingTable::STATUS_NEW)
@@ -554,19 +555,17 @@ class Builder
 
 		// add new contacts
 		$list = array_diff($codes, $existed);
-		$batch = array();
-		$sqlDateTimeFunction = Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction();
-		$updateFieldsOnDuplicate = array(
-			array('NAME' => 'DATE_UPDATE', 'VALUE' => $sqlDateTimeFunction),
-		);
+		$batch = [];
+		$insertDate = new DateTime();
+		$updateFieldsOnDuplicate = ['DATE_UPDATE'];
 		foreach ($list as $code)
 		{
-			$batchItem = array(
+			$batchItem = [
 				'TYPE_ID' => $this->typeId,
 				'CODE' => $code,
-				'DATE_INSERT' => array('VALUE' => $sqlDateTimeFunction),
-				'DATE_UPDATE' => array('VALUE' => $sqlDateTimeFunction),
-			);
+				'DATE_INSERT' => $insertDate,
+				'DATE_UPDATE' => $insertDate,
+			];
 
 			$key = 'NAME';
 			if (isset($dataList[$key]) && $dataList[$key])
@@ -582,7 +581,7 @@ class Builder
 		}
 
 
-		SqlBatch::insert($tableName, $batch, $updateFieldsOnDuplicate);
+		SqlBatch::insert($tableName, $batch, $updateFieldsOnDuplicate, ContactTable::getConflictFields());
 
 
 		$recipientDb = $connection->query(
@@ -860,7 +859,8 @@ class Builder
 		SqlBatch::insert(
 			PostingRecipientTable::getTableName(),
 			$dataList,
-			array('USER_ID', 'FIELDS')
+			['USER_ID', 'FIELDS'],
+			PostingRecipientTable::getConflictFields(),
 		);
 	}
 

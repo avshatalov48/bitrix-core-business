@@ -3,7 +3,8 @@ namespace Bitrix\Perfmon\Sql;
 
 class Constraint extends BaseObject
 {
-	public $columns = array();
+	public $columns = [];
+
 	/**
 	 * Creates constraint object from tokens.
 	 * <p>
@@ -56,10 +57,14 @@ class Constraint extends BaseObject
 				$column .= $token->text;
 			}
 
-			if ($token->level == $level && $token->text == ',')
+			if ($token->level == $level && $token->text === ',')
+			{
 				break;
-			if ($token->level < $level && $token->text == ')')
+			}
+			if ($token->level < $level && $token->text === ')')
+			{
 				break;
+			}
 
 			$constraintDefinition .= $token->text;
 
@@ -83,14 +88,12 @@ class Constraint extends BaseObject
 	{
 		switch ($dbType)
 		{
-		case "MYSQL":
-			return "ALTER TABLE ".$this->parent->name." ADD CONSTRAINT ".$this->name." ".$this->body;
-		case "MSSQL":
-			return "ALTER TABLE ".$this->parent->name." ADD CONSTRAINT ".$this->name." ".$this->body;
-		case "ORACLE":
-			return "ALTER TABLE ".$this->parent->name." ADD CONSTRAINT ".$this->name." ".$this->body;
+		case 'MYSQL':
+		case 'MSSQL':
+		case 'ORACLE':
+			return 'ALTER TABLE ' . $this->parent->name . ' ADD CONSTRAINT ' . $this->name . ' ' . $this->body;
 		default:
-			return "// ".get_class($this).":getCreateDdl for database type [".$dbType."] not implemented";
+			return '// ' . get_class($this) . ':getCreateDdl for database type [' . $dbType . '] not implemented';
 		}
 	}
 
@@ -105,14 +108,12 @@ class Constraint extends BaseObject
 	{
 		switch ($dbType)
 		{
-		case "MYSQL":
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
-		case "MSSQL":
-			return "ALTER TABLE ".$this->parent->name." DROP CONSTRAINT ".$this->name;
-		case "ORACLE":
-			return "ALTER TABLE ".$this->parent->name." DROP CONSTRAINT ".$this->name;
+		case 'MSSQL':
+		case 'ORACLE':
+			return 'ALTER TABLE ' . $this->parent->name . ' DROP CONSTRAINT ' . $this->name;
+		case 'MYSQL':
 		default:
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
+			return '// ' . get_class($this) . ':getDropDdl for database type [' . $dbType . '] not implemented';
 		}
 	}
 
@@ -126,9 +127,9 @@ class Constraint extends BaseObject
 	 */
 	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
-		return array(
+		return [
 			$this->getDropDdl($dbType),
 			$target->getCreateDdl($dbType),
-		);
+		];
 	}
 }

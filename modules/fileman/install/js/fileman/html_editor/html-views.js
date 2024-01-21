@@ -330,14 +330,23 @@ BXEditorTextareaView.prototype.GetCursorPosition = function()
 
 class BXEditorIframeCopilot
 {
+	copilotParams = {};
 	copilotLoaded = false;
 	selectionTypeCaret = 'Caret';
 	resultNodeAttr = 'bxhtmled-copilot-result-node';
 	resultColor = '#8d52ec';
 
+	invitationLineModes = {
+		NONE: 'none',
+		LAST_LINE: 'lastLine',
+		EACH_LINE: 'eachLine',
+	};
+
+	invitationLineMode = this.invitationLineModes.LAST_LINE;
+
 	/**
 	 * @param iframeView BXEditorIframeView
-	 * @param copilotParams {{moduleId, contextId, category, contextParameters}}
+	 * @param copilotParams {{moduleId, contextId, category, contextParameters, invitationLineMode, isMentionUnavailable}}
 	 */
 	constructor(iframeView, copilotParams = {})
 	{
@@ -345,8 +354,12 @@ class BXEditorIframeCopilot
 		this.iframeContainer = iframeView.container;
 		this.contentEditable = iframeView.element;
 
+		this.copilotParams = copilotParams;
+
+		this.invitationLineMode = copilotParams.invitationLineMode ?? this.invitationLineModes.LAST_LINE;
 		this.invitationLine = this.renderInvitationLine();
 		this.invitationLineAbsolute = this.renderInvitationLine();
+		this.insertResultNode = this.renderInsertResultNode();
 
 		this.copilot = new BX.AI.Copilot({
 			moduleId: copilotParams.moduleId,
@@ -364,8 +377,21 @@ class BXEditorIframeCopilot
 
 	renderInvitationLine()
 	{
+		let placeHolder = BX.message('BXEdCopilotPlaceholder_MSGVER_2');
+		if (this.copilotParams.isMentionUnavailable)
+		{
+			placeHolder = BX.message('BXEdCopilotPlaceholderWithoutMention_MSGVER_1');
+		}
+
 		return BX.Tag.render`
-			<div class="bxhtmled-copilot" placeholder="${BX.message('BXEdCopilotPlaceholder')}"></div>
+			<div class="bxhtmled-copilot" placeholder="${placeHolder}"></div>
+		`;
+	}
+
+	renderInsertResultNode()
+	{
+		return BX.Tag.render`
+			<span class="bxhtmled-insert-result"></span>
 		`;
 	}
 
@@ -446,13 +472,13 @@ class BXEditorIframeCopilot
 			BX.Dom.style(lastResultSpan, 'color', this.resultColor);
 			BX.Dom.attr(lastResultSpan, this.resultNodeAttr, 'true');
 
-			BX.Dom.append(lastResultSpan, this.contentEditable);
-			BX.Dom.append(BX.Tag.render`<br>`, this.contentEditable);
-
-			if (lastResultSpan.previousSibling?.tagName === 'BR')
+			if (this.invitationLineMode === this.invitationLineModes.LAST_LINE)
 			{
-				lastResultSpan.previousSibling.remove();
+				this.insertResultNode.after(BX.Tag.render`<br>`);
 			}
+
+			this.insertResultNode.after(lastResultSpan);
+			this.insertResultNode.remove();
 		}
 
 		this.iframeView.ScrollToInsertedText();
@@ -514,6 +540,7 @@ class BXEditorIframeCopilot
 
 	cancelHandler()
 	{
+		[...this.getResultNodes()][0]?.before(this.insertResultNode);
 		this.removeResultNodes();
 		if (this.showRect)
 		{
@@ -562,6 +589,7 @@ class BXEditorIframeCopilot
 
 	onContentEditableMouseDown()
 	{
+		this.insertResultNode.remove();
 		this.hideInvitationLine();
 		this.hideCopilotButton();
 	}
@@ -573,13 +601,19 @@ class BXEditorIframeCopilot
 
 	onContentEditableKeyDown()
 	{
+		this.insertResultNode.remove();
 		this.updatePopup();
 		this.hideInvitationLine();
 		this.hideCopilotButton();
 	}
 
-	onContentEditableKeyUp()
+	onContentEditableKeyUp(e)
 	{
+		if (e.key === ' ')
+		{
+			return;
+		}
+
 		this.update();
 	}
 
@@ -642,6 +676,9 @@ class BXEditorIframeCopilot
 	{
 		this.copilot.setContext(this.contentEditable.innerText);
 
+		this.insertResultNode.remove();
+		this.getSelection().getRangeAt(0).insertNode(this.insertResultNode);
+
 		const bindElement = {
 			top: parseInt(this.invitationLineAbsolute.style.top),
 			left: parseInt(this.invitationLineAbsolute.style.left),
@@ -672,16 +709,20 @@ class BXEditorIframeCopilot
 	{
 		this.copilot.setContext(this.contentEditable.innerText);
 
+		this.insertResultNode.remove();
+
+		let emptyBr;
 		let emptyLine;
 		if (this.needToAppendEmptyElement())
 		{
+			emptyBr = BX.Tag.render`<br>`;
 			emptyLine = BX.Tag.render`<div></div>`;
 			const lastNode = this.getFilteredChildNodes(this.contentEditable).pop();
 			if (this.contentEditable.innerText !== '' && lastNode?.tagName !== 'BR')
 			{
 				this.contentEditable.append(BX.Tag.render`<br>`);
 			}
-			this.contentEditable.append(BX.Tag.render`<br>`);
+			this.contentEditable.append(emptyBr);
 			this.contentEditable.append(emptyLine);
 		}
 
@@ -691,6 +732,15 @@ class BXEditorIframeCopilot
 		emptyLine?.remove();
 
 		this.showRect = this.adjustmentRect;
+
+		if (emptyBr)
+		{
+			emptyBr.before(this.insertResultNode);
+		}
+		else
+		{
+			this.contentEditable.append(this.insertResultNode);
+		}
 
 		this.copilot.show({
 			bindElement,
@@ -871,7 +921,9 @@ class BXEditorIframeCopilot
 
 	updateInvitationLine()
 	{
-		if (this.isCursorAtNewLine(this.getSelection()) && this.copilotLoaded)
+		this.insertResultNode.remove();
+
+		if (this.shouldShowInvitationLine() && this.copilotLoaded)
 		{
 			this.showInvitationLine();
 		}
@@ -912,6 +964,13 @@ class BXEditorIframeCopilot
 		this.hideInvitationLine();
 		document.body.append(this.invitationLineAbsolute);
 
+		if (!this.invitationLineAbsolute.registered)
+		{
+			BX.ZIndexManager.register(this.invitationLineAbsolute);
+			BX.ZIndexManager.bringToFront(this.invitationLineAbsolute);
+			this.invitationLineAbsolute.registered = true;
+		}
+
 		if (!this.shouldDisplayInvitationLine())
 		{
 			this.invitationLineAbsolute.style.display = 'none';
@@ -939,6 +998,70 @@ class BXEditorIframeCopilot
 	getSelection()
 	{
 		return this.iframeView.GetSelection();
+	}
+
+	shouldShowInvitationLine()
+	{
+		if (this.invitationLineMode === this.invitationLineModes.NONE)
+		{
+			return false;
+		}
+
+		if (this.invitationLineMode === this.invitationLineModes.EACH_LINE)
+		{
+			return this.isCursorAtStartOfLine(this.getSelection());
+		}
+
+		return this.isCursorAtNewLine(this.getSelection());
+	}
+
+	isCursorAtStartOfLine(selection)
+	{
+		if (selection.type !== this.selectionTypeCaret)
+		{
+			return false;
+		}
+
+		this.removeZwnbspSequence();
+
+		const range = selection.getRangeAt(0);
+		const tmpNode = BX.Tag.render`<span style="width: 10px; height: 10px;"></span>`;
+		range.insertNode(tmpNode);
+
+		const previousNode = tmpNode.previousSibling;
+		const nextNode = tmpNode.nextSibling;
+		const offset = tmpNode.getBoundingClientRect().x - parseInt(getComputedStyle(this.contentEditable).paddingLeft);
+
+		if (
+			selection.focusNode === this.contentEditable
+			&& nextNode === null
+			&& (
+				previousNode?.tagName === 'DIV' || this.isZwnbspNode(previousNode)
+			)
+		)
+		{
+			if (this.isZwnbspNode(previousNode))
+			{
+				if (!previousNode.nextSibling)
+				{
+					previousNode.replaceWith(BX.Tag.render`<br>`);
+				}
+				else
+				{
+					previousNode.remove();
+				}
+			}
+
+			tmpNode.remove();
+			return false;
+		}
+
+		const afterBr = !previousNode || this.doesNodeMakeLine(previousNode) || tmpNode.nodeName !== '#text' && tmpNode.textContent === '';
+		const beforeBr = !nextNode || this.doesNodeMakeLine(nextNode) && nextNode.tagName !== 'TABLE';
+		const atStart = offset === 0;
+		tmpNode.remove();
+
+		return ((afterBr && beforeBr) || (this.isZwnbspNode(previousNode) && nextNode?.nodeName === '#text')) && atStart;
 	}
 
 	isCursorAtNewLine(selection)
@@ -1098,7 +1221,10 @@ BXEditorIframeView.prototype.OnCreateIframe = function()
 
 	if (this.config.isCopilotEnabled && BX.AI?.Copilot)
 	{
-		this.copilot = new BXEditorIframeCopilot(this, this.config.copilotParams);
+		this.copilot = new BXEditorIframeCopilot(this, {
+			...this.config.copilotParams,
+			isMentionUnavailable: this.config.isMentionUnavailable,
+		});
 	}
 
 	this.Enable();
@@ -1142,7 +1268,8 @@ BXEditorIframeView.prototype.Clear = function()
 BXEditorIframeView.prototype.GetValue = function(bParse, bFormat)
 {
 	this.iframeValue = this.IsEmpty() ? "" : this.editor.GetInnerHtml(this.element);
-	this.iframeValue = this.iframeValue.replace(/<span style="font-family: var\(--ui-font-family-primary, var\(--ui-font-family-helvetica\)\);">(.*?)<\/span>/g, '$1');
+	this.iframeValue = this.iframeValue.replaceAll(/<span style="font-family: var\(--ui-font-family-primary, var\(--ui-font-family-helvetica\)\);">(.*?)<\/span>/g, '$1');
+	this.iframeValue = this.iframeValue.replace(/<span class="bxhtmled-insert-result"><\/span>/g, '');
 	this.editor.On('OnIframeBeforeGetValue', [this.iframeValue]);
 	if (bParse)
 	{
@@ -1594,7 +1721,7 @@ var focusWithoutScrolling = function(element)
 				_this.stopBugusScrollTimeout = setTimeout(function(){_this.stopBugusScroll = false;}, 200);
 			}
 
-			_this.copilot?.onContentEditableKeyUp();
+			_this.copilot?.onContentEditableKeyUp(e);
 		});
 
 		BX.bind(this.document, 'scroll', () => this.copilot?.onScrollHandler());

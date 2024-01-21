@@ -23,6 +23,7 @@ $MESS["EC_DESIDE_BUT_OWNER_N"] = "Don't attend";
 $MESS["EC_DESIDE_BUT_Y"] = "Attend";
 $MESS["EC_DONT_NOTIFY_OPTION"] = "Don't notify about decision";
 $MESS["EC_EDIT_REC_EVENT"] = "Edit recurring event";
+$MESS["EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT"] = "Invite your colleagues to the meeting";
 $MESS["EC_EMAIL_LIMIT_5"] = "You can create on your current plan five more meetings with guests invited via email";
 $MESS["EC_EMAIL_LIMIT_9"] = "You can create on your current plan one more meeting with guests invited via email. This type of invitation will then be unavailable";
 $MESS["EC_EMAIL_LIMIT_DENY"] = "You have reached the maximum number of meetings you can create in your Bitrix24 with guests invited via email";

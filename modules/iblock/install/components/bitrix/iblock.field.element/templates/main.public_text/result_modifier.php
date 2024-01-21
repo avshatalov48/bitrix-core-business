@@ -8,6 +8,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Iblock\UserField\Types\ElementType;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Type\Collection;
+use Bitrix\Main\UserField\Types\BaseType;
 
 $userField = $arResult['userField'];
 
@@ -22,7 +23,8 @@ if (!empty($value))
 	ElementType::getEnumList(
 		$userField,
 		[
-			'CURRENT_VALUES' => $value,
+			'mode' => BaseType::MODE_VIEW,
+			'VALUE' => $value,
 		]
 	);
 

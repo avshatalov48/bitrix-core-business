@@ -70,18 +70,21 @@ export default class Office365SyncWizard extends SyncWizard
 		super.updateState(stateData);
 
 		this.getSyncStages().forEach(stage => {
-			if (stateData.stage === 'connection_created'
-				&& stage.name === this.STAGE_1_CODE)
-			{
-				stage.setDone();
-			}
-			else if (stateData.stage === this.STAGE_2_CODE
-			 && (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
+			if (
+				stateData.stage === 'connection_created'
+				&& stage.name === this.STAGE_1_CODE
 			)
 			{
 				stage.setDone();
 			}
-			else if (stateData.stage === this.STAGE_3_CODE)
+			else if (
+				stateData.stage === 'import_finished'
+			 	&& (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
+			)
+			{
+				stage.setDone();
+			}
+			else if (stateData.stage === 'export_finished')
 			{
 				stage.setDone();
 				this.setActiveStatusFinished();

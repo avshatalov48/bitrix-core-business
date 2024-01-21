@@ -6,3 +6,4 @@ $MESS["IM_ELEMENTS_CHAT_INFO_POPUP_NO_ACCESS"] = "Нет доступа";
 $MESS["IM_ELEMENTS_MEDIA_IMAGE_TITLE"] = "Открыть полную версию: #NAME# (#SIZE#)";
 $MESS["IM_ELEMENTS_CHAT_INFO_POPUP_HISTORY"] = "История";
 $MESS["IM_ELEMENTS_ATTACH_RICH_LINK_DELETE"] = "Убрать предпросмотр ссылки";
+$MESS["IM_ELEMENTS_KEYBOARD_BUTTON_ACTION_COPY_SUCCESS"] = "Текст успешно скопирован";

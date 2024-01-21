@@ -12,8 +12,11 @@ class Tag
 		$result = [];
 
 		$blogId = (int)($params['blogId'] ?? 0);
+		$inputTags = (string) ($params['tags'] ?? '');
 
-		if (!empty($_POST['TAGS']))
+		$inputTags = !empty($_POST['TAGS']) ? $_POST['TAGS'] : $inputTags;
+
+		if ($inputTags)
 		{
 			$blogCategoryList = [];
 
@@ -23,7 +26,7 @@ class Tag
 				$blogCategoryList[ToLower($blogCategoryFields['NAME'])] = (int)$blogCategoryFields['ID'];
 			}
 
-			$tags = explode(',', $_POST['TAGS']);
+			$tags = explode(',', $inputTags);
 			foreach ($tags as $tg)
 			{
 				$tg = trim($tg);

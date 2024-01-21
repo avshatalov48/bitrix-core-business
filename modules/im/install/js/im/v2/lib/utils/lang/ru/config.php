@@ -1,7 +1,7 @@
 <?
 $MESS["IM_STATUS_ONLINE"] = "Онлайн";
 $MESS["IM_STATUS_BOT"] = "Чат-бот";
-$MESS["IM_STATUS_NETWORK"] = "Битрикс24.Network";
+$MESS["IM_STATUS_NETWORK_MSGVER_1"] = "Битрикс24 Network";
 $MESS["IM_STATUS_OFFLINE"] = "Не в сети";
 $MESS["IM_STATUS_BREAK"] = "Перерыв";
 $MESS["IM_STATUS_AWAY"] = "Отсутствую";

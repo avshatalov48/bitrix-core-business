@@ -24,7 +24,7 @@ export default class Type
 	 */
 	static isStringFilled(value: any): boolean
 	{
-		return this.isString(value) && value !== '';
+		return Type.isString(value) && value !== '';
 	}
 
 	/**
@@ -150,7 +150,7 @@ export default class Type
 	 */
 	static isArrayFilled(value: any): boolean
 	{
-		return this.isArray(value) && value.length > 0;
+		return Type.isArray(value) && value.length > 0;
 	}
 
 	/**

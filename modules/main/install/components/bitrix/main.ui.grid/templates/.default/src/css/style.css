@@ -193,7 +193,6 @@
 .main-grid-container {
 	overflow-x: auto;
 	overflow-y: hidden;
-	transform: translateZ(0);
 	border-radius: var(--main-grid-top-border-radius);
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
@@ -214,7 +213,6 @@
 	table-layout: fixed;
 	opacity: 1;
 	transition: opacity 150ms linear;
-	transform: translateZ(0);
 }
 
 .main-grid-with-sticked.main-grid-container,
@@ -2157,7 +2155,7 @@ label.main-grid-checkbox {
 
 .main-grid-ear {
 	position: absolute;
-	z-index: 1;
+	z-index: 20;
 	margin-bottom: -80px;
 	width: 50px;
 	height: 160px;

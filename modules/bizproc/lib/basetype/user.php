@@ -307,9 +307,16 @@ HTML;
 	public static function externalizeValue(FieldType $fieldType, $context, $value)
 	{
 		$useExtraction = $fieldType->getSettings()['ExternalExtract'] ?? false;
+
+		if ($context === FieldType::VALUE_CONTEXT_JN_MOBILE)
+		{
+			$useExtraction = true;
+		}
+
 		if ($useExtraction && $value)
 		{
 			$docId = $fieldType->getDocumentId() ?: $fieldType->getDocumentType();
+
 			return \CBPHelper::ExtractUsers($value, $docId, true);
 		}
 
@@ -319,6 +326,12 @@ HTML;
 	public static function externalizeValueMultiple(FieldType $fieldType, $context, $value)
 	{
 		$useExtraction = $fieldType->getSettings()['ExternalExtract'] ?? false;
+
+		if ($context === FieldType::VALUE_CONTEXT_JN_MOBILE)
+		{
+			$useExtraction = true;
+		}
+
 		if ($useExtraction && $value)
 		{
 			$docId = $fieldType->getDocumentId() ?: $fieldType->getDocumentType();
@@ -328,7 +341,17 @@ HTML;
 		return parent::externalizeValueMultiple($fieldType, $context, $value);
 	}
 
-	private static function getSelectedItems(array $value, array $settings): ?array
+	public static function internalizeValue(FieldType $fieldType, $context, $value)
+	{
+		if ($context === FieldType::VALUE_CONTEXT_JN_MOBILE && is_numeric($value))
+		{
+			$value = 'user_' . $value;
+		}
+
+		return parent::internalizeValue($fieldType, $context, $value);
+	}
+
+	private static function getSelectedItems(array $value, array $settings = []): ?array
 	{
 		if (!class_exists(\Bitrix\UI\EntitySelector\Dialog::class))
 		{
@@ -413,6 +436,20 @@ HTML;
 		$value = array_filter($value, static fn($v) => ($v !== null));
 
 		return array_values(array_unique($value));
+	}
+
+	public static function convertPropertyToView(FieldType $fieldType, int $viewMode, array $property): array
+	{
+		if ($viewMode === FieldType::RENDER_MODE_JN_MOBILE && $fieldType->getValue())
+		{
+			$value = \CBPHelper::flatten($fieldType->getValue());
+			$value = array_values(array_filter($value, fn($v) => strpos($v, 'user_') !== false));
+
+			$property['Settings'] = ['entityList' => static::getSelectedItems($value)];
+			$property['Type'] = static::getType();
+		}
+
+		return parent::convertPropertyToView($fieldType, $viewMode, $property);
 	}
 
 	private static function isRawValue($value): bool

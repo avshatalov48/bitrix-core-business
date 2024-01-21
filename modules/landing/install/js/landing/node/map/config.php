@@ -9,7 +9,7 @@ return [
 	'js' => 'dist/map.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
-		'landing.node',
+		'landing.node.base',
 	],
 	'skip_core' => true,
 ];

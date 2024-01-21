@@ -1775,13 +1775,17 @@ function TrimArr(&$arr, $trim_value=false)
 	return ($found) ? true : false;
 }
 
-function is_set(&$a, $k=false)
+function is_set($a, $k = false)
 {
-	if ($k===false)
+	if ($k === false && func_num_args() == 1)
+	{
 		return isset($a);
+	}
 
-	if(is_array($a))
-		return array_key_exists($k, $a);
+	if (is_array($a))
+	{
+		return isset($a[$k]) || array_key_exists($k, $a);
+	}
 
 	return false;
 }
@@ -2260,7 +2264,6 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 		"'&(quot|#34);'i",
 		"'&(iexcl|#161);'i",
 		"'&(cent|#162);'i",
-		"'&(pound|#163);'i",
 		"'&(copy|#169);'i",
 	);
 
@@ -2270,10 +2273,9 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 		"",
 		"",
 		"\"",
-		"\xa1",
-		"\xa2",
-		"\xa3",
-		"\xa9",
+		"!",
+		"c",
+		"(c)",
 	);
 
 	$str = preg_replace($search, $replace, $str);
@@ -2282,32 +2284,34 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 	$str = preg_replace("#<div[^>]*>#i", "\r\n", $str);
 	$str = preg_replace("#<[/]{0,1}(font|div|span)[^>]*>#i", "", $str);
 
-	//ищем списки
+	//replace lists
 	$str = preg_replace("#<ul[^>]*>#i", "\r\n", $str);
 	$str = preg_replace("#<li[^>]*>#i", "\r\n  - ", $str);
 
-	//удалим то что заданно
-	foreach($aDelete as $del_reg)
+	//delete by function parameter
+	foreach ($aDelete as $del_reg)
+	{
 		$str = preg_replace($del_reg, "", $str);
+	}
 
-	//ищем картинки
+	//replace images
 	$str = preg_replace("/(<img\\s[^>]*?src\\s*=\\s*)([\"']?)(\\/.*?)(\\2)(\\s.+?>|\\s*>)/is", "[".chr(1).$strSiteUrl."\\3".chr(1)."] ", $str);
 	$str = preg_replace("/(<img\\s[^>]*?src\\s*=\\s*)([\"']?)(.*?)(\\2)(\\s.+?>|\\s*>)/is", "[".chr(1)."\\3".chr(1)."] ", $str);
 
-	//ищем ссылки
+	//replace links
 	$str = preg_replace("/(<a\\s[^>]*?href\\s*=\\s*)([\"']?)(\\/.*?)(\\2)(.*?>)(.*?)<\\/a>/is", "\\6 [".chr(1).$strSiteUrl."\\3".chr(1)."] ", $str);
 	$str = preg_replace("/(<a\\s[^>]*?href\\s*=\\s*)([\"']?)(.*?)(\\2)(.*?>)(.*?)<\\/a>/is", "\\6 [".chr(1)."\\3".chr(1)."] ", $str);
 
-	//ищем <br>
+	//replace <br>
 	$str = preg_replace("#<br[^>]*>#i", "\r\n", $str);
 
-	//ищем <p>
+	//replace <p>
 	$str = preg_replace("#<p[^>]*>#i", "\r\n\r\n", $str);
 
-	//ищем <hr>
+	//replace <hr>
 	$str = preg_replace("#<hr[^>]*>#i", "\r\n----------------------\r\n", $str);
 
-	//ищем таблицы
+	//replace tables
 	$str = preg_replace("#<[/]{0,1}(thead|tbody)[^>]*>#i", "", $str);
 	$str = preg_replace("#<([/]{0,1})th[^>]*>#i", "<\\1td>", $str);
 
@@ -2317,17 +2321,20 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 
 	$str = preg_replace("#\r\n[ ]+#", "\r\n", $str);
 
-	//мочим вообще все оставшиеся тэги
+	//remove all tags
 	$str = preg_replace("#<[/]{0,1}[^>]+>#i", "", $str);
 
 	$str = preg_replace("#[ ]+ #", " ", $str);
 	$str = str_replace("\t", "    ", $str);
 
-	//переносим длинные строки
-	if($maxlen > 0)
+	//wrap long lines
+	if ($maxlen > 0)
+	{
 		$str = preg_replace("#(^|[\\r\\n])([^\\n\\r]{".intval($maxlen)."}[^ \\r\\n]*[\\] ])([^\\r])#", "\\1\\2\r\n\\3", $str);
+	}
 
 	$str = str_replace(chr(1), " ", $str);
+
 	return trim($str);
 }
 
@@ -2929,12 +2936,9 @@ function GetMessage($name, $aReplace=null)
 	{
 		$s = $MESS[$name];
 
-		if ($aReplace !== null && is_array($aReplace))
+		if (is_array($aReplace))
 		{
-			foreach($aReplace as $search => $replace)
-			{
-				$s = str_replace($search, $replace, $s);
-			}
+			$s = strtr($s, $aReplace);
 		}
 
 		return $s;
@@ -2981,7 +2985,7 @@ function GetLangFileName($before, $after, $lang=false)
 	if(strpos($before, "/bitrix/modules/") === false)
 		return $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/en/tools.php";
 
-	$old_path = Rtrim($before, "/");
+	$old_path = rtrim($before,"/");
 	$old_path = mb_substr($old_path, mb_strlen($_SERVER["DOCUMENT_ROOT"]));
 	$path = mb_substr($old_path, 16);
 	$module = mb_substr($path, 0, mb_strpos($path, "/"));
@@ -3014,7 +3018,7 @@ function __IncludeLang($path, $bReturnArray=false, $bFileChecked=false)
 		static $encodingCache = array();
 		if (isset($encodingCache[$language]))
 		{
-			list($convertEncoding, $targetEncoding, $sourceEncoding) = $encodingCache[$language];
+			[$convertEncoding, $targetEncoding, $sourceEncoding] = $encodingCache[$language];
 		}
 		else
 		{
@@ -4015,8 +4019,10 @@ function ShowMessage($arMess)
 
 function DeleteParam($ParamNames)
 {
-	if(count($_GET) < 1)
-		return "";
+	if (empty($_GET))
+	{
+		return '';
+	}
 
 	$aParams = $_GET;
 	foreach(array_keys($aParams) as $key)
@@ -4253,7 +4259,7 @@ function ParseFileContent($filesrc, $params = array())
 	$php_st = "<"."?";
 	$php_ed = "?".">";
 
-	if($params["use_php_parser"] && mb_substr($filesrc, 0, 2) == $php_st)
+	if(!empty($params["use_php_parser"]) && mb_substr($filesrc, 0, 2) == $php_st)
 	{
 		$phpChunks = PHPParser::getPhpChunks($filesrc);
 		if (!empty($phpChunks))
@@ -4515,14 +4521,12 @@ function bxmail($to, $subject, $message, $additional_headers="", $additional_par
 	return @mail($to, $subject, $message, $additional_headers);
 }
 
+/**
+ * @deprecated Use \Bitrix\Main\Application::resetAccelerator().
+ */
 function bx_accelerator_reset()
 {
-	if(defined("BX_NO_ACCELERATOR_RESET"))
-		return;
-	if(function_exists("accelerator_reset"))
-		accelerator_reset();
-	elseif(function_exists("opcache_reset"))
-		opcache_reset();
+	Application::resetAccelerator();
 }
 
 /**

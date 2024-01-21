@@ -17,7 +17,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.type = _this.content.type || "image";
 	    _this.contextType = data.contextType || Image.CONTEXT_TYPE_CONTENT;
 	    _this.allowClear = data.allowClear;
-	    _this.allowAiImage = main_core.Type.isBoolean(data.allowAiImage) ? data.allowAiImage : false;
+	    _this.isAiImageAvailable = main_core.Type.isBoolean(data.isAiImageAvailable) ? data.isAiImageAvailable : false;
+	    _this.isAiImageActive = main_core.Type.isBoolean(data.isAiImageActive) ? data.isAiImageActive : false;
+	    _this.aiUnactiveInfoCode = main_core.Type.isString(data.aiUnactiveInfoCode) ? data.aiUnactiveInfoCode : null;
 	    _this.input.innerText = _this.content.src;
 	    _this.input.hidden = true;
 	    _this.input2x = _this.createInput();
@@ -87,9 +89,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    // ai images
 	    _this.aiButton = null;
 	    _this.aiPicker = null;
-	    if (_this.allowAiImage && (_this.type === "background" || _this.type === "image")) {
+	    if (_this.isAiImageAvailable && (_this.type === "background" || _this.type === "image")) {
 	      _this.aiButton = Image.createAiButton(_this.compactMode);
-	      _this.aiButton.on("click", _this.onAiClick.bind(babelHelpers.assertThisInitialized(_this)));
+	      _this.aiButton.on("click", function () {
+	        if (_this.isAiImageActive) {
+	          _this.onAiClick();
+	        } else if (_this.aiUnactiveInfoCode && _this.aiUnactiveInfoCode.length > 0) {
+	          BX.UI.InfoHelper.show(_this.aiUnactiveInfoCode);
+	        }
+	      });
 	      _this.right.appendChild(_this.aiButton.layout);
 	    }
 	    _this.right.appendChild(_this.uploadButton.layout);

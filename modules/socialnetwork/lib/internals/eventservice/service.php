@@ -6,25 +6,22 @@ use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Socialnetwork\Internals\EventService;
 
-/**
- * Class Service
- *
- * @package Bitrix\Socialnetwork\Internals\EventService\Service
- */
 class Service
 {
-	protected static $instance;
-	private static $isJobOn = false;
-
-	protected $oldFields = [];
-	protected $newFields = [];
+	private const JOB_PRIORITY = Application::JOB_PRIORITY_LOW - 2;
+	private const LOCK_KEY = 'sonet.eventlock';
+	private static Service|null $instance = null;
+	private static bool $isJobOn = false;
+	private static string $hitId;
 
 	/**
 	 * EventService constructor.
 	 */
 	private function __construct()
 	{
+		self::$hitId = $this->generateHid();
 		$this->enableJob();
+		$this->handleLostEvents();
 	}
 
 	/**
@@ -49,51 +46,65 @@ class Service
 		self::getInstance()->storeEvent($type, $data);
 	}
 
+	public static function proceedEvents(): void
+	{
+		if ((EventCollection::getInstance())->isEmpty())
+		{
+			Application::getConnection()->unlock(self::LOCK_KEY);
+			return;
+		}
+
+		$service = self::getInstance();
+
+		(new EventService\Processors\WorkGroupEventProcessor())->process();
+		(new EventService\Processors\SpaceEventProcessor())->process();
+
+		$service->done();
+	}
+
 	/**
 	 * @param string $type
 	 * @param array $data
 	 */
 	private function storeEvent(string $type, array $data = []): void
 	{
-		$event = $this->getEventInstance($type);
-		$event->setData($data);
+		$event = EventService\Event\Factory::buildEvent(self::$hitId, $type, $data);
+
+		if ($this->getEventCollection()->isDuplicate($event))
+		{
+			return;
+		}
+
+		$eventId = $this->saveToDb($event);
+		$event->setId($eventId);
 
 		$this->getEventCollection()->push($event);
 	}
 
-	private function getEventInstance($type): Event
+	private function handleLostEvents(): void
 	{
-		switch ($type)
+		if (!Application::getConnection()->lock(self::LOCK_KEY))
 		{
-			case EventDictionary::EVENT_WORKGROUP_ADD:
-			case EventDictionary::EVENT_WORKGROUP_BEFORE_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_DELETE:
-				$event = new EventService\Event\WorkgroupEvent($type);
-				break;
-			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
-			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
-			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
-				$event = new EventService\Event\WorkgroupUserEvent($type);
-				break;
-			default:
-				$event = new EventService\Event($type);
+			return;
 		}
 
-		return $event;
-	}
+		$events = EventTable::getLostEvents();
+		if (empty($events))
+		{
+			return;
+		}
 
-	/**
-	 * @throws Main\ArgumentException
-	 * @throws Main\DB\SqlQueryException
-	 * @throws Main\LoaderException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	public static function proceedEvents(): void
-	{
-		(new Event\WorkgroupEvent())->process();
-//		(new Event\WorkgroupUserEvent())->process();
+		foreach ($events as $row)
+		{
+			$event = EventService\Event\Factory::buildEvent(
+				$row['HID'],
+				$row['TYPE'],
+				Main\Web\Json::decode($row['DATA']),
+				$row['ID']
+			);
+
+			$this->getEventCollection()->push($event);
+		}
 	}
 
 	/**
@@ -107,7 +118,7 @@ class Service
 			$application && $application->addBackgroundJob(
 				[ __CLASS__, 'proceedEvents' ],
 				[],
-				Application::JOB_PRIORITY_LOW - 2
+				self::JOB_PRIORITY
 			);
 
 			self::$isJobOn = true;
@@ -122,23 +133,53 @@ class Service
 		return EventCollection::getInstance();
 	}
 
-	public function setOldFields($oldFields): void
+	/**
+	 * @param string $type
+	 * @param array $data
+	 * @return int
+	 */
+	private function saveToDb(Event $event): int
 	{
-		$this->oldFields = $oldFields;
+		try
+		{
+			$res = EventTable::add([
+				'HID' => self::$hitId,
+				'TYPE' => $event->getType(),
+				'DATA' => Main\Web\Json::encode($event->getData()),
+				'LOG_DATA' => null,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			return 0;
+		}
+
+		return (int)$res->getId();
 	}
 
-	public function getOldFields(): array
+	/**
+	 *
+	 */
+	private function done(): void
 	{
-		return $this->oldFields;
+		$ids = $this->getEventCollection()->getEventsId();
+		if (empty($ids))
+		{
+			return;
+		}
+
+		EventTable::markProcessed([
+			'@ID' => $ids
+		]);
+
+		Application::getConnection()->unlock(self::LOCK_KEY);
 	}
 
-	public function setNewFields($newFields): void
+	/**
+	 * @return string
+	 */
+	private function generateHid(): string
 	{
-		$this->newFields = $newFields;
-	}
-
-	public function getNewFields(): array
-	{
-		return $this->newFields;
+		return sha1(microtime(true) . mt_rand(10000, 99999));
 	}
 }

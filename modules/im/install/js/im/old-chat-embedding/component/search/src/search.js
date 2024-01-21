@@ -478,7 +478,7 @@ export const Search = {
 									@click="onClickLoadNetworkResult"
 									class="bx-im-search-network-button"
 								>
-									{{$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON')}}
+									{{$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON_MSGVER_1')}}
 								</div>
 								<div v-else class="bx-search-network-loader-wrapper">
 									<div class="bx-search-loader bx-search-loader-large-size"></div>

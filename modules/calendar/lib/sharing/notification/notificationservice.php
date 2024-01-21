@@ -61,6 +61,12 @@ class NotificationService extends Service
 		return $this->sendMessage($to, $templateCode, $placeholders);
 	}
 
+	public function notifyAboutSharingEventEdit(string $to): bool
+	{
+		//TODO: add logic
+		return true;
+	}
+
 	/**
 	 * @param string $to
 	 * @return bool

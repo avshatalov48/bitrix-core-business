@@ -66,7 +66,7 @@ if($arParams['CAN_EDIT']): ?>
 		<span class="bp-bx-application-link">
 			<a href="<?= $item["LIST_URL"]?>"  class="bp-bx-application-icon"><?= $item["IMAGE"] ?></a>
 			<span class="bp-bx-application-title-wrapper">
-				<a href="<?= $item["LIST_URL"]?>"  class="bp-bx-application-title"><?= $item["NAME"] ?></a>
+				<a href="<?= $item["LIST_URL"]?>"  class="bp-bx-application-title"><?= htmlspecialcharsbx($item['NAME']) ?></a>
 				<? if($claim && $arParams['CAN_EDIT']): ?>
 					<span class="bp-bx-application-check">
 						<input

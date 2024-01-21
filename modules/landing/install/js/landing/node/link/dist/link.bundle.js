@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,landing_node,main_core) {
+(function (exports,landing_node_base,main_core) {
 	'use strict';
 
 	const trim = BX.Landing.Utils.trim;
@@ -10,7 +10,7 @@ this.BX.Landing = this.BX.Landing || {};
 	const create = BX.Landing.Utils.create;
 	const escapeText = BX.Landing.Utils.escapeText;
 	const decodeDataValue = BX.Landing.Utils.decodeDataValue;
-	class Link extends landing_node.Node {
+	class Link extends landing_node_base.Base {
 	  constructor(options) {
 	    super(options);
 	    this.type = 'link';
@@ -171,5 +171,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Link = Link;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing,BX));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing.Node,BX));
 //# sourceMappingURL=link.bundle.js.map

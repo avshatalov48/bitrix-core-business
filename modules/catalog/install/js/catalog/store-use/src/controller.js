@@ -1,83 +1,83 @@
-import {Type, ajax} from 'main.core';
+import { Type, ajax } from 'main.core';
 
 export class Controller
 {
-	inventoryManagementAnalyticsFromLanding(data={})
+	inventoryManagementAnalyticsFromLanding(data = {})
 	{
 		this.sendAnalyticsLabel(data)
 			.then(() => {
-				this.unRegisterOnProlog()
+				this.unRegisterOnProlog();
 			})
+			.catch(() => {});
 	}
 
-	sendAnalyticsLabel(data={})
+	sendAnalyticsLabel(data = {}): Promise
 	{
-		let analytics = this.#makeAnalyticsData(data);
+		const analytics = this.makeAnalyticsData(data);
 
 		return ajax.runAction(
 			'catalog.analytics.sendAnalyticsLabel',
 			{
 				analyticsLabel: analytics,
-				data: {}
-			}
-		)
+			},
+		);
 	}
 
-	unRegisterOnProlog()
+	unRegisterOnProlog(): Promise
 	{
 		return ajax.runAction('catalog.config.unRegisterOnProlog');
 	}
 
-	inventoryManagementEnabled(data={})
+	inventoryManagementEnabled(data = {}): Promise
 	{
-		let analytics = this.#makeAnalyticsData(data);
+		const analytics = this.makeAnalyticsData(data);
 
 		return ajax.runAction(
 			'catalog.config.inventoryManagementYAndResetQuantity',
 			{
 				analyticsLabel: analytics,
-				data:{
-					preset: data.preset
-				}
-			}
-		)
+			},
+		);
 	}
 
-	inventoryManagementEnableWithResetDocuments(data={})
+	inventoryManagementEnableWithResetDocuments(data = {}): Promise
 	{
 		return ajax.runAction(
 			'catalog.config.inventoryManagementYAndResetQuantityWithDocuments',
 			{
-				analyticsLabel: this.#makeAnalyticsData(data),
-				data:{
-					preset: data.preset
-				}
-			}
+				analyticsLabel: this.makeAnalyticsData(data),
+				data: {
+					costPriceCalculationMethod: data.costPriceAccountingMethod,
+				},
+			},
 		)
 			.then((response) => {
 				top.BX.onCustomEvent('CatalogWarehouseMasterClear:resetDocuments');
 
 				return response;
 			})
-			;
+		;
 	}
 
-	inventoryManagementEnableWithoutReset(data={})
+	inventoryManagementEnableWithoutReset(data = {}): Promise
 	{
 		return ajax.runAction(
 			'catalog.config.inventoryManagementY',
 			{
-				analyticsLabel: this.#makeAnalyticsData(data),
-				data:{
-					preset: data.preset
-				}
-			}
-		)
+				analyticsLabel: this.makeAnalyticsData(data),
+				data: {
+					costPriceCalculationMethod: data.costPriceAccountingMethod,
+				},
+			},
+		);
 	}
 
-	#makeAnalyticsData(data={})
+	makeAnalyticsData(data = {}): Object
 	{
-		const analyticsData = {iME: 'inventoryManagementEnabled' + '_' + data.preset?.sort().join('_')};
+		const analyticsData = {
+			iME: 'inventoryManagementEnabled',
+		};
+
 		if (Type.isStringFilled(data.inventoryManagementSource))
 		{
 			analyticsData.inventoryManagementSource = data.inventoryManagementSource;
@@ -86,23 +86,11 @@ export class Controller
 		return analyticsData;
 	}
 
-	inventoryManagementDisabled()
+	inventoryManagementDisabled(): Promise
 	{
 		return ajax.runAction(
 			'catalog.config.inventoryManagementN',
-			{}
-		)
-	}
-
-	inventoryManagementInstallPreset(data={})
-	{
-		return ajax.runAction(
-			'catalog.config.inventoryManagementInstallPreset',
-			{
-				data:{
-					preset: data.preset
-				}
-			}
-		)
+			{},
+		);
 	}
 }

@@ -28,7 +28,8 @@ class CSecuritySystemInformation
 	{
 		$additionalInformation = array(
 			'pulling' => static::getPullingInfo(),
-			'sites' => static::getSites()
+			'sites' => static::getSites(),
+			'modules' => static::getModulesInfo()
 		);
 		return $additionalInformation;
 	}
@@ -161,8 +162,54 @@ class CSecuritySystemInformation
 		}
 		return $result;
 	}
+	/**
+	 * Return information about installed modules and versions
+	 *
+	 * @return array
+	 */
+	protected static function getModulesInfo()
+	{
+		$modules = ['main' => SM_VERSION];
 
+		$folders = array(
+			"/local/modules",
+			"/bitrix/modules",
+		);
 
+		foreach ($folders as $folder)
+		{
+			if (!file_exists($_SERVER["DOCUMENT_ROOT"].$folder))
+			{
+				continue;
+			}
+
+			$handle = @opendir($_SERVER["DOCUMENT_ROOT"].$folder);
+			if ($handle)
+			{
+				while (false !== ($dir = readdir($handle)))
+				{
+					if (
+						!isset($modules[$dir])
+						&& is_dir($_SERVER["DOCUMENT_ROOT"] . $folder . "/" . $dir)
+						&& !in_array($dir, ['.', '..', 'main'], true)
+						&& strpos($dir, ".") === false
+					)
+					{
+						if ($info = CModule::CreateModuleObject($dir))
+						{
+							if ($info->IsInstalled())
+							{
+								$modules[$dir] = $info->MODULE_VERSION;
+							}
+						}
+					}
+				}
+				closedir($handle);
+			}
+		}
+
+		return $modules;
+	}
 	/**
 	 * Return some information about P&P, such as publish url
 	 *

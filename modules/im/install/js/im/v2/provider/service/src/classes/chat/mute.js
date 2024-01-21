@@ -26,7 +26,7 @@ export class MuteService
 	muteChat(dialogId: string)
 	{
 		Logger.warn('ChatService: muteChat', dialogId);
-		this.#store.dispatch('dialogues/mute', {dialogId});
+		this.#store.dispatch('chats/mute', {dialogId});
 		const queryParams = {'dialog_id': dialogId, 'action': 'Y'};
 
 		this.#sendMuteRequestDebounced(queryParams);
@@ -35,7 +35,7 @@ export class MuteService
 	unmuteChat(dialogId: string)
 	{
 		Logger.warn('ChatService: unmuteChat', dialogId);
-		this.#store.dispatch('dialogues/unmute', {dialogId});
+		this.#store.dispatch('chats/unmute', {dialogId});
 		const queryParams = {'dialog_id': dialogId, 'action': 'N'};
 
 		this.#sendMuteRequestDebounced(queryParams);
@@ -47,7 +47,7 @@ export class MuteService
 		return this.#restClient.callMethod(RestMethod.imChatMute, queryParams).catch(error => {
 			const actionText = action === 'Y' ? 'muting' : 'unmuting';
 			console.error(`Im.RecentList: error ${actionText} chat`, error);
-			const actionType = action === 'Y' ? 'dialogues/unmute' : 'dialogues/mute';
+			const actionType = action === 'Y' ? 'chats/unmute' : 'chats/mute';
 			this.#store.dispatch(actionType, {dialogId});
 		});
 	}

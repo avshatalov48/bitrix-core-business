@@ -41,6 +41,10 @@ class Line
 		$valuePos = (int) mb_strpos($line, ':');
 		$parts = explode(';', mb_substr($line, 0, $valuePos));
 		$name = mb_strtolower(array_shift($parts));
+		if ($name === 'attendee')
+		{
+			$valuePos = (int) mb_strrpos($this->line, ':');
+		}
 		$value = $this->getValueFromString($valuePos);
 
 		$params = [];
@@ -134,8 +138,7 @@ class Line
 	{
 		$replacements = array('from'=>['\\,', '\\n', '\\;', '\\:', '\\"'], 'to'=>[',', "\n", ';', ':', '"']);
 		$tmp = trim(mb_substr($this->line, $valuePos+1));
-		$tmp = str_replace($replacements['from'], $replacements['to'], $tmp);
 
-		return  $tmp;
+		return str_replace($replacements['from'], $replacements['to'], $tmp);
 	}
 }

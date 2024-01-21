@@ -104,7 +104,7 @@ CModule::AddAutoloadClasses(
 	)
 );
 
-$isBetaActivated = \Bitrix\Im\Settings::isBetaActivated();
+$isLegacyChatActivated = \Bitrix\Im\Settings::isLegacyChatActivated();
 
 $jsCoreRel = [
 	'ui.design-tokens',
@@ -229,7 +229,7 @@ CJSCore::RegisterExt('im_timecontrol', array(
 	'rel' => array('timecontrol'),
 ));
 
-if (!$isBetaActivated)
+if ($isLegacyChatActivated)
 {
 	$GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
 	$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css', '/bitrix/js/im/css/call/sidebar.css', '/bitrix/js/im/css/call/promo-popup.css'));

@@ -485,12 +485,10 @@ export class ConnectionProvider extends EventEmitter
 		this.status = options.syncInfo.status || false;
 		this.connected = options.syncInfo.connected || false;
 		this.id = options.syncInfo.id || null;
-		
 		if (options.syncLink)
 		{
 			this.syncLink = options.syncLink;
 		}
-
 		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setSections(options.sections);
 		this.clearConnections();

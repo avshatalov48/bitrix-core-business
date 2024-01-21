@@ -4,17 +4,14 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_popup,main_core_collections,main_core_events,main_core,main_loader) {
 	'use strict';
 
-	var ItemNodeComparator = /*#__PURE__*/function () {
+	let ItemNodeComparator = /*#__PURE__*/function () {
 	  function ItemNodeComparator() {
 	    babelHelpers.classCallCheck(this, ItemNodeComparator);
 	  }
 	  babelHelpers.createClass(ItemNodeComparator, null, [{
 	    key: "makeMultipleComparator",
 	    value: function makeMultipleComparator(order) {
-	      var _this = this;
-	      var props = Object.keys(order).map(function (property) {
-	        return "get".concat(main_core.Text.capitalize(property));
-	      });
+	      const props = Object.keys(order).map(property => `get${main_core.Text.capitalize(property)}`);
 
 	      /*
 	      asc *
@@ -24,13 +21,13 @@ this.BX.UI = this.BX.UI || {};
 	      desc nulls first *
 	      desc nulls last
 	      */
-	      var directions = [];
-	      Object.values(order).forEach(function (element) {
-	        var direction = element.toLowerCase().trim();
+	      const directions = [];
+	      Object.values(order).forEach(element => {
+	        const direction = element.toLowerCase().trim();
 
 	        // Default sorting: 'asc' || 'asc nulls last'
-	        var ascOrdering = true;
-	        var nullsOrdering = true;
+	        let ascOrdering = true;
+	        let nullsOrdering = true;
 	        if (direction === 'desc' || direction === 'desc nulls first') {
 	          ascOrdering = false;
 	        } else if (direction === 'asc nulls first') {
@@ -40,18 +37,18 @@ this.BX.UI = this.BX.UI || {};
 	          nullsOrdering = false;
 	        }
 	        directions.push({
-	          ascOrdering: ascOrdering,
-	          nullsOrdering: nullsOrdering
+	          ascOrdering,
+	          nullsOrdering
 	        });
 	      });
-	      var numberOfProperties = props.length;
-	      return function (nodeA, nodeB) {
-	        var i = 0;
-	        var result = 0;
+	      const numberOfProperties = props.length;
+	      return (nodeA, nodeB) => {
+	        let i = 0;
+	        let result = 0;
 	        while (result === 0 && i < numberOfProperties) {
-	          var propertyGetter = props[i];
-	          var direction = directions[i];
-	          result = _this.compareItemNodes(nodeA, nodeB, propertyGetter, direction.ascOrdering, direction.nullsOrdering);
+	          const propertyGetter = props[i];
+	          const direction = directions[i];
+	          result = this.compareItemNodes(nodeA, nodeB, propertyGetter, direction.ascOrdering, direction.nullsOrdering);
 	          i += 1;
 	        }
 	        return result;
@@ -60,12 +57,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "compareItemNodes",
 	    value: function compareItemNodes(nodeA, nodeB, propertyGetter, ascOrdering, nullsOrdering) {
-	      var itemA = nodeA.getItem();
-	      var itemB = nodeB.getItem();
+	      const itemA = nodeA.getItem();
+	      const itemB = nodeB.getItem();
 	      itemA.getCustomData().get();
-	      var valueA = itemA[propertyGetter]();
-	      var valueB = itemB[propertyGetter]();
-	      var result = 0;
+	      const valueA = itemA[propertyGetter]();
+	      const valueB = itemB[propertyGetter]();
+	      let result = 0;
 	      if (valueA !== null && valueB === null) {
 	        result = nullsOrdering ? -1 : 1;
 	      } else if (valueA === null && valueB !== null) {
@@ -79,14 +76,14 @@ this.BX.UI = this.BX.UI || {};
 	          result = valueA - valueB;
 	        }
 	      }
-	      var sortOrder = ascOrdering ? 1 : -1;
+	      const sortOrder = ascOrdering ? 1 : -1;
 	      return result * sortOrder;
 	    }
 	  }]);
 	  return ItemNodeComparator;
 	}();
 
-	var TextNodeType = /*#__PURE__*/function () {
+	let TextNodeType = /*#__PURE__*/function () {
 	  function TextNodeType() {
 	    babelHelpers.classCallCheck(this, TextNodeType);
 	  }
@@ -101,7 +98,7 @@ this.BX.UI = this.BX.UI || {};
 	babelHelpers.defineProperty(TextNodeType, "TEXT", 'text');
 	babelHelpers.defineProperty(TextNodeType, "HTML", 'html');
 
-	var TextNode = /*#__PURE__*/function () {
+	let TextNode = /*#__PURE__*/function () {
 	  function TextNode(options) {
 	    babelHelpers.classCallCheck(this, TextNode);
 	    babelHelpers.defineProperty(this, "text", null);
@@ -135,7 +132,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderTo",
 	    value: function renderTo(element) {
-	      var text = this.getText();
+	      const text = this.getText();
 	      if (text === null) {
 	        return;
 	      }
@@ -167,14 +164,14 @@ this.BX.UI = this.BX.UI || {};
 	  return TextNode;
 	}();
 
-	var Highlighter = /*#__PURE__*/function () {
+	let Highlighter = /*#__PURE__*/function () {
 	  function Highlighter() {
 	    babelHelpers.classCallCheck(this, Highlighter);
 	  }
 	  babelHelpers.createClass(Highlighter, null, [{
 	    key: "mark",
 	    value: function mark(text, matches) {
-	      var encode = true;
+	      let encode = true;
 	      if (text instanceof TextNode) {
 	        if (text.getType() === 'html') {
 	          encode = false;
@@ -184,10 +181,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(text) || !matches || matches.count() === 0) {
 	        return text;
 	      }
-	      var result = '';
-	      var offset = 0;
-	      var chunk = '';
-	      matches.forEach(function (match) {
+	      let result = '';
+	      let offset = 0;
+	      let chunk = '';
+	      matches.forEach(match => {
 	        if (offset > match.getStartIndex()) {
 	          return;
 	        }
@@ -207,14 +204,14 @@ this.BX.UI = this.BX.UI || {};
 	  return Highlighter;
 	}();
 
-	var ItemBadge = /*#__PURE__*/function () {
+	let ItemBadge = /*#__PURE__*/function () {
 	  function ItemBadge(badgeOptions) {
 	    babelHelpers.classCallCheck(this, ItemBadge);
 	    babelHelpers.defineProperty(this, "title", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
 	    babelHelpers.defineProperty(this, "bgColor", null);
 	    babelHelpers.defineProperty(this, "containers", new WeakMap());
-	    var options = main_core.Type.isPlainObject(badgeOptions) ? badgeOptions : {};
+	    const options = main_core.Type.isPlainObject(badgeOptions) ? badgeOptions : {};
 	    this.setTitle(options.title);
 	    this.setTextColor(options.textColor);
 	    this.setBgColor(options.bgColor);
@@ -222,7 +219,7 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(ItemBadge, [{
 	    key: "getTitle",
 	    value: function getTitle() {
-	      var titleNode = this.getTitleNode();
+	      const titleNode = this.getTitleNode();
 	      return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
 	    }
 	  }, {
@@ -264,7 +261,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer(target) {
-	      var container = this.containers.get(target);
+	      let container = this.containers.get(target);
 	      if (!container) {
 	        container = document.createElement('span');
 	        container.className = 'ui-selector-item-badge';
@@ -275,8 +272,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderTo",
 	    value: function renderTo(target) {
-	      var container = this.getContainer(target);
-	      var titleNode = this.getTitleNode();
+	      const container = this.getContainer(target);
+	      const titleNode = this.getTitleNode();
 	      if (titleNode) {
 	        this.getTitleNode().renderTo(container);
 	      } else {
@@ -299,7 +296,7 @@ this.BX.UI = this.BX.UI || {};
 	  return ItemBadge;
 	}();
 
-	var SearchField = /*#__PURE__*/function () {
+	let SearchField = /*#__PURE__*/function () {
 	  function SearchField(fieldOptions) {
 	    babelHelpers.classCallCheck(this, SearchField);
 	    babelHelpers.defineProperty(this, "name", null);
@@ -307,7 +304,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "searchable", true);
 	    babelHelpers.defineProperty(this, "system", false);
 	    babelHelpers.defineProperty(this, "sort", null);
-	    var options = main_core.Type.isPlainObject(fieldOptions) ? fieldOptions : {};
+	    const options = main_core.Type.isPlainObject(fieldOptions) ? fieldOptions : {};
 	    if (!main_core.Type.isStringFilled(options.name)) {
 	      throw new Error('EntitySelector.SearchField: "name" parameter is required.');
 	    }
@@ -379,7 +376,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchField;
 	}();
 
-	var MatchIndex = /*#__PURE__*/function () {
+	let MatchIndex = /*#__PURE__*/function () {
 	  function MatchIndex(field, queryWord, startIndex) {
 	    babelHelpers.classCallCheck(this, MatchIndex);
 	    babelHelpers.defineProperty(this, "field", null);
@@ -415,16 +412,15 @@ this.BX.UI = this.BX.UI || {};
 	  return MatchIndex;
 	}();
 
-	var comparator = function comparator(a, b) {
+	const comparator = (a, b) => {
 	  if (a.getStartIndex() === b.getStartIndex()) {
 	    return a.getEndIndex() > b.getEndIndex() ? -1 : 1;
 	  } else {
 	    return a.getStartIndex() > b.getStartIndex() ? 1 : -1;
 	  }
 	};
-	var MatchField = /*#__PURE__*/function () {
-	  function MatchField(field) {
-	    var indexes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+	let MatchField = /*#__PURE__*/function () {
+	  function MatchField(field, indexes = []) {
 	    babelHelpers.classCallCheck(this, MatchField);
 	    babelHelpers.defineProperty(this, "field", null);
 	    babelHelpers.defineProperty(this, "matchIndexes", new main_core_collections.OrderedArray(comparator));
@@ -449,10 +445,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "addIndexes",
 	    value: function addIndexes(matchIndexes) {
-	      var _this = this;
 	      if (main_core.Type.isArray(matchIndexes)) {
-	        matchIndexes.forEach(function (matchIndex) {
-	          _this.addIndex(matchIndex);
+	        matchIndexes.forEach(matchIndex => {
+	          this.addIndex(matchIndex);
 	        });
 	      }
 	    }
@@ -460,20 +455,20 @@ this.BX.UI = this.BX.UI || {};
 	  return MatchField;
 	}();
 
-	var Animation = /*#__PURE__*/function () {
+	let Animation = /*#__PURE__*/function () {
 	  function Animation() {
 	    babelHelpers.classCallCheck(this, Animation);
 	  }
 	  babelHelpers.createClass(Animation, null, [{
 	    key: "handleTransitionEnd",
 	    value: function handleTransitionEnd(element, propertyName) {
-	      var properties = main_core.Type.isArray(propertyName) ? new Set(propertyName) : new Set([propertyName]);
+	      const properties = main_core.Type.isArray(propertyName) ? new Set(propertyName) : new Set([propertyName]);
 	      return new Promise(function (resolve) {
-	        var handler = function handler(event) {
+	        const handler = event => {
 	          if (event.target !== element || !properties.has(event.propertyName)) {
 	            return;
 	          }
-	          properties["delete"](event.propertyName);
+	          properties.delete(event.propertyName);
 	          if (properties.size === 0) {
 	            resolve(event);
 	            main_core.Event.unbind(element, 'transitionend', handler);
@@ -485,8 +480,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleAnimationEnd",
 	    value: function handleAnimationEnd(element, animationName) {
-	      return new Promise(function (resolve) {
-	        var handler = function handler(event) {
+	      return new Promise(resolve => {
+	        const handler = event => {
 	          if (!animationName || event.animationName === animationName) {
 	            resolve(event);
 	            main_core.Event.unbind(element, 'animationend', handler);
@@ -499,8 +494,8 @@ this.BX.UI = this.BX.UI || {};
 	  return Animation;
 	}();
 
-	var regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/;
-	var isDataUri = function isDataUri(str) {
+	const regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/;
+	const isDataUri = str => {
 	  return typeof str === 'string' ? str.match(regexp) : false;
 	};
 	function encodeUrl(url) {
@@ -515,14 +510,14 @@ this.BX.UI = this.BX.UI || {};
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var RenderMode = function RenderMode() {
+	let RenderMode = function RenderMode() {
 	  babelHelpers.classCallCheck(this, RenderMode);
 	};
 	babelHelpers.defineProperty(RenderMode, "PARTIAL", 'partial');
 	babelHelpers.defineProperty(RenderMode, "OVERRIDE", 'override');
 	var _setHidden = /*#__PURE__*/new WeakSet();
 	var _makeEllipsisTitle = /*#__PURE__*/new WeakSet();
-	var ItemNode = /*#__PURE__*/function () {
+	let ItemNode = /*#__PURE__*/function () {
 	  // for the fast access
 
 	  function ItemNode(item, nodeOptions) {
@@ -558,11 +553,11 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "hidden", false);
 	    babelHelpers.defineProperty(this, "highlights", []);
 	    babelHelpers.defineProperty(this, "renderWithDebounce", main_core.Runtime.debounce(this.render, 50, this));
-	    var options = main_core.Type.isPlainObject(nodeOptions) ? nodeOptions : {};
+	    const options = main_core.Type.isPlainObject(nodeOptions) ? nodeOptions : {};
 	    if (main_core.Type.isObject(item)) {
 	      this.item = item;
 	    }
-	    var comparator = null;
+	    let comparator = null;
 	    if (main_core.Type.isFunction(options.itemOrder)) {
 	      comparator = options.itemOrder;
 	    } else if (main_core.Type.isPlainObject(options.itemOrder)) {
@@ -652,8 +647,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getParentNode()) {
 	        return null;
 	      }
-	      var siblings = this.getParentNode().getChildren();
-	      var index = siblings.getIndex(this);
+	      const siblings = this.getParentNode().getChildren();
+	      const index = siblings.getIndex(this);
 	      return siblings.getByIndex(index + 1);
 	    }
 	  }, {
@@ -662,21 +657,20 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getParentNode()) {
 	        return null;
 	      }
-	      var siblings = this.getParentNode().getChildren();
-	      var index = siblings.getIndex(this);
+	      const siblings = this.getParentNode().getChildren();
+	      const index = siblings.getIndex(this);
 	      return siblings.getByIndex(index - 1);
 	    }
 	  }, {
 	    key: "addChildren",
 	    value: function addChildren(children) {
-	      var _this = this;
 	      if (!main_core.Type.isArray(children)) {
 	        return;
 	      }
-	      children.forEach(function (childOptions) {
+	      children.forEach(childOptions => {
 	        delete childOptions.tabs;
-	        var childItem = _this.getDialog().addItem(childOptions);
-	        var childNode = _this.addItem(childItem, childOptions.nodeOptions);
+	        const childItem = this.getDialog().addItem(childOptions);
+	        const childNode = this.addItem(childItem, childOptions.nodeOptions);
 	        childNode.addChildren(childOptions.children);
 	      });
 	    }
@@ -709,7 +703,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "addItem",
 	    value: function addItem(item, nodeOptions) {
-	      var itemNode = this.childItems.get(item);
+	      let itemNode = this.childItems.get(item);
 	      if (!itemNode) {
 	        itemNode = item.createNode(nodeOptions);
 	        this.addChild(itemNode);
@@ -719,14 +713,13 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "addItems",
 	    value: function addItems(items) {
-	      var _this2 = this;
 	      if (main_core.Type.isArray(items)) {
 	        this.disableRender();
-	        items.forEach(function (item) {
+	        items.forEach(item => {
 	          if (main_core.Type.isArray(item) && item.length === 2) {
-	            _this2.addItem(item[0], item[1]);
+	            this.addItem(item[0], item[1]);
 	          } else if (item instanceof Item) {
-	            _this2.addItem(item);
+	            this.addItem(item);
 	          }
 	        });
 	        this.enableRender();
@@ -752,8 +745,8 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      child.setParentNode(null);
 	      child.getItem().removeNode(child);
-	      this.getChildren()["delete"](child);
-	      this.childItems["delete"](child.getItem());
+	      this.getChildren().delete(child);
+	      this.childItems.delete(child.getItem());
 	      if (this.isRendered()) {
 	        main_core.Dom.remove(child.getOuterContainer());
 	      }
@@ -765,7 +758,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.hasChildren()) {
 	        return;
 	      }
-	      this.getChildren().forEach(function (node) {
+	      this.getChildren().forEach(node => {
 	        node.removeChildren();
 	        if (node.isFocused()) {
 	          node.unfocus();
@@ -791,7 +784,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "isChildOf",
 	    value: function isChildOf(parent) {
-	      var parentNode = this.getParentNode();
+	      let parentNode = this.getParentNode();
 	      while (parentNode !== null) {
 	        if (parentNode === parent) {
 	          return true;
@@ -823,7 +816,6 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "loadChildren",
 	    value: function loadChildren() {
-	      var _this3 = this;
 	      if (!this.isDynamic()) {
 	        throw new Error('EntitySelector.ItemNode.loadChildren: an item node is not dynamic.');
 	      }
@@ -839,16 +831,16 @@ this.BX.UI = this.BX.UI || {};
 	          context: this.getDialog().getContext()
 	        }
 	      });
-	      this.dynamicPromise.then(function (response) {
+	      this.dynamicPromise.then(response => {
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
-	          _this3.addChildren(response.data.dialog.items);
-	          _this3.render();
+	          this.addChildren(response.data.dialog.items);
+	          this.render();
 	        }
-	        _this3.loaded = true;
+	        this.loaded = true;
 	      });
-	      this.dynamicPromise["catch"](function (error) {
-	        _this3.loaded = false;
-	        _this3.dynamicPromise = null;
+	      this.dynamicPromise.catch(error => {
+	        this.loaded = false;
+	        this.dynamicPromise = null;
 	        console.error(error);
 	      });
 	      return this.dynamicPromise;
@@ -931,14 +923,13 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "expand",
 	    value: function expand() {
-	      var _this4 = this;
 	      if (this.isOpen() || !this.hasChildren() && !this.isDynamic()) {
 	        return;
 	      }
 	      if (this.isDynamic() && !this.isLoaded()) {
-	        this.loadChildren().then(function () {
-	          _this4.destroyLoader();
-	          _this4.expand();
+	        this.loadChildren().then(() => {
+	          this.destroyLoader();
+	          this.expand();
 	        });
 	        this.showLoader();
 	        return;
@@ -946,15 +937,15 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-open');
 	      main_core.Dom.style(this.getChildrenContainer(), 'height', '0px');
 	      main_core.Dom.style(this.getChildrenContainer(), 'opacity', 0);
-	      requestAnimationFrame(function () {
-	        requestAnimationFrame(function () {
-	          main_core.Dom.style(_this4.getChildrenContainer(), 'height', "".concat(_this4.getChildrenContainer().scrollHeight, "px"));
-	          main_core.Dom.style(_this4.getChildrenContainer(), 'opacity', 1);
-	          Animation.handleTransitionEnd(_this4.getChildrenContainer(), 'height').then(function () {
-	            main_core.Dom.style(_this4.getChildrenContainer(), 'height', null);
-	            main_core.Dom.style(_this4.getChildrenContainer(), 'opacity', null);
-	            main_core.Dom.addClass(_this4.getOuterContainer(), 'ui-selector-item-box-open');
-	            _this4.setOpen(true);
+	      requestAnimationFrame(() => {
+	        requestAnimationFrame(() => {
+	          main_core.Dom.style(this.getChildrenContainer(), 'height', `${this.getChildrenContainer().scrollHeight}px`);
+	          main_core.Dom.style(this.getChildrenContainer(), 'opacity', 1);
+	          Animation.handleTransitionEnd(this.getChildrenContainer(), 'height').then(() => {
+	            main_core.Dom.style(this.getChildrenContainer(), 'height', null);
+	            main_core.Dom.style(this.getChildrenContainer(), 'opacity', null);
+	            main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-open');
+	            this.setOpen(true);
 	          });
 	        });
 	      });
@@ -962,118 +953,115 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "collapse",
 	    value: function collapse() {
-	      var _this5 = this;
 	      if (!this.isOpen()) {
 	        return;
 	      }
-	      main_core.Dom.style(this.getChildrenContainer(), 'height', "".concat(this.getChildrenContainer().offsetHeight, "px"));
-	      requestAnimationFrame(function () {
-	        requestAnimationFrame(function () {
-	          main_core.Dom.style(_this5.getChildrenContainer(), 'height', '0px');
-	          main_core.Dom.style(_this5.getChildrenContainer(), 'opacity', 0);
-	          Animation.handleTransitionEnd(_this5.getChildrenContainer(), 'height').then(function () {
-	            main_core.Dom.style(_this5.getChildrenContainer(), 'height', null);
-	            main_core.Dom.style(_this5.getChildrenContainer(), 'opacity', null);
-	            main_core.Dom.removeClass(_this5.getOuterContainer(), 'ui-selector-item-box-open');
-	            _this5.setOpen(false);
+	      main_core.Dom.style(this.getChildrenContainer(), 'height', `${this.getChildrenContainer().offsetHeight}px`);
+	      requestAnimationFrame(() => {
+	        requestAnimationFrame(() => {
+	          main_core.Dom.style(this.getChildrenContainer(), 'height', '0px');
+	          main_core.Dom.style(this.getChildrenContainer(), 'opacity', 0);
+	          Animation.handleTransitionEnd(this.getChildrenContainer(), 'height').then(() => {
+	            main_core.Dom.style(this.getChildrenContainer(), 'height', null);
+	            main_core.Dom.style(this.getChildrenContainer(), 'opacity', null);
+	            main_core.Dom.removeClass(this.getOuterContainer(), 'ui-selector-item-box-open');
+	            this.setOpen(false);
 	          });
 	        });
 	      });
 	    }
 	  }, {
 	    key: "render",
-	    value: function render() {
-	      var _this6 = this;
-	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+	    value: function render(appendChildren = false) {
 	      if (this.isRoot()) {
 	        this.renderRoot(appendChildren);
 	        return;
 	      }
-	      var titleNode = this.getTitleNode();
+	      const titleNode = this.getTitleNode();
 	      if (titleNode) {
 	        titleNode.renderTo(this.getTitleContainer());
 	      } else {
 	        this.getTitleContainer().textContent = '';
 	      }
-	      var supertitleNode = this.getSupertitleNode();
+	      const supertitleNode = this.getSupertitleNode();
 	      if (supertitleNode) {
 	        supertitleNode.renderTo(this.getSupertitleContainer());
 	      } else {
 	        this.getSupertitleContainer().textContent = '';
 	      }
-	      var subtitleNode = this.getSubtitleNode();
+	      const subtitleNode = this.getSubtitleNode();
 	      if (subtitleNode) {
 	        subtitleNode.renderTo(this.getSubtitleContainer());
 	      } else {
 	        this.getSubtitleContainer().textContent = '';
 	      }
-	      var captionNode = this.getCaptionNode();
+	      const captionNode = this.getCaptionNode();
 	      if (captionNode) {
 	        captionNode.renderTo(this.getCaptionContainer());
 	      } else {
 	        this.getCaptionContainer().textContent = '';
 	      }
-	      var captionFitContent = this.getCaptionOption('fitContent');
+	      const captionFitContent = this.getCaptionOption('fitContent');
 	      if (main_core.Type.isBoolean(captionFitContent)) {
 	        main_core.Dom.style(this.getCaptionContainer(), 'flex-shrink', captionFitContent ? 0 : null);
 	      }
-	      var captionMaxWidth = this.getCaptionOption('maxWidth');
+	      const captionMaxWidth = this.getCaptionOption('maxWidth');
 	      if (main_core.Type.isString(captionMaxWidth) || main_core.Type.isNumber(captionMaxWidth)) {
-	        main_core.Dom.style(this.getCaptionContainer(), 'max-width', main_core.Type.isNumber(captionMaxWidth) ? "".concat(captionMaxWidth, "px") : captionMaxWidth);
+	        main_core.Dom.style(this.getCaptionContainer(), 'max-width', main_core.Type.isNumber(captionMaxWidth) ? `${captionMaxWidth}px` : captionMaxWidth);
 	      }
 	      if (main_core.Type.isStringFilled(this.getTextColor())) {
 	        this.getTitleContainer().style.color = this.getTextColor();
 	      } else {
 	        this.getTitleContainer().style.removeProperty('color');
 	      }
-	      var avatar = this.getAvatar();
+	      const avatar = this.getAvatar();
 	      if (main_core.Type.isStringFilled(avatar)) {
-	        this.getAvatarContainer().style.backgroundImage = "url('".concat(encodeUrl(avatar), "')");
+	        this.getAvatarContainer().style.backgroundImage = `url('${encodeUrl(avatar)}')`;
 	      } else {
-	        var bgImage = this.getAvatarOption('bgImage');
+	        const bgImage = this.getAvatarOption('bgImage');
 	        if (main_core.Type.isStringFilled(bgImage)) {
 	          this.getAvatarContainer().style.backgroundImage = bgImage;
 	        } else {
 	          this.getAvatarContainer().style.removeProperty('background-image');
 	        }
 	      }
-	      var bgColor = this.getAvatarOption('bgColor');
+	      const bgColor = this.getAvatarOption('bgColor');
 	      if (main_core.Type.isStringFilled(bgColor)) {
 	        this.getAvatarContainer().style.backgroundColor = bgColor;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('background-color');
 	      }
-	      var bgSize = this.getAvatarOption('bgSize');
+	      const bgSize = this.getAvatarOption('bgSize');
 	      if (main_core.Type.isStringFilled(bgSize)) {
 	        this.getAvatarContainer().style.backgroundSize = bgSize;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('background-size');
 	      }
-	      var border = this.getAvatarOption('border');
+	      const border = this.getAvatarOption('border');
 	      if (main_core.Type.isStringFilled(border)) {
 	        this.getAvatarContainer().style.border = border;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('border');
 	      }
-	      var borderRadius = this.getAvatarOption('borderRadius');
+	      const borderRadius = this.getAvatarOption('borderRadius');
 	      if (main_core.Type.isStringFilled(borderRadius)) {
 	        this.getAvatarContainer().style.borderRadius = borderRadius;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('border-radius');
 	      }
 	      main_core.Dom.clean(this.getBadgeContainer());
-	      this.getBadges().forEach(function (badge) {
-	        badge.renderTo(_this6.getBadgeContainer());
+	      this.getBadges().forEach(badge => {
+	        badge.renderTo(this.getBadgeContainer());
 	      });
-	      var badgesFitContent = this.getBadgesOption('fitContent');
+	      const badgesFitContent = this.getBadgesOption('fitContent');
 	      if (main_core.Type.isBoolean(badgesFitContent)) {
 	        main_core.Dom.style(this.getBadgeContainer(), 'flex-shrink', badgesFitContent ? 0 : null);
 	      }
-	      var badgesMaxWidth = this.getBadgesOption('maxWidth');
+	      const badgesMaxWidth = this.getBadgesOption('maxWidth');
 	      if (main_core.Type.isString(badgesMaxWidth) || main_core.Type.isNumber(badgesMaxWidth)) {
-	        main_core.Dom.style(this.getBadgeContainer(), 'max-width', main_core.Type.isNumber(badgesMaxWidth) ? "".concat(badgesMaxWidth, "px") : badgesMaxWidth);
+	        main_core.Dom.style(this.getBadgeContainer(), 'max-width', main_core.Type.isNumber(badgesMaxWidth) ? `${badgesMaxWidth}px` : badgesMaxWidth);
 	      }
-	      var linkTitleNode = this.getLinkTitleNode();
+	      const linkTitleNode = this.getLinkTitleNode();
 	      if (linkTitleNode) {
 	        linkTitleNode.renderTo(this.getLinkTextContainer());
 	      } else {
@@ -1088,7 +1076,7 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.removeClass(this.getOuterContainer(), ['ui-selector-item-box-has-children', 'ui-selector-item-box-max-depth']);
 	      }
 	      if (this.hasChildren()) {
-	        var hasVisibleChild = this.getChildren().getAll().some(function (child) {
+	        const hasVisibleChild = this.getChildren().getAll().some(child => {
 	          return child.isHidden() !== true;
 	        });
 	        if (!hasVisibleChild) {
@@ -1100,9 +1088,9 @@ this.BX.UI = this.BX.UI || {};
 	      this.renderChildren(appendChildren);
 	      if (this.isAutoOpen()) {
 	        this.setAutoOpen(false);
-	        requestAnimationFrame(function () {
-	          requestAnimationFrame(function () {
-	            _this6.expand();
+	        requestAnimationFrame(() => {
+	          requestAnimationFrame(() => {
+	            this.expand();
 	          });
 	        });
 	      }
@@ -1113,11 +1101,10 @@ this.BX.UI = this.BX.UI || {};
 	     */
 	  }, {
 	    key: "renderRoot",
-	    value: function renderRoot() {
-	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+	    value: function renderRoot(appendChildren = false) {
 	      this.renderChildren(appendChildren);
 	      this.rendered = true;
-	      var stub = this.getTab().getStub();
+	      const stub = this.getTab().getStub();
 	      if (stub && stub.isAutoShow() && (this.getDialog().isLoaded() || !this.getDialog().hasDynamicLoad())) {
 	        if (this.hasChildren()) {
 	          stub.hide();
@@ -1131,9 +1118,7 @@ this.BX.UI = this.BX.UI || {};
 	     */
 	  }, {
 	    key: "renderChildren",
-	    value: function renderChildren() {
-	      var _this7 = this;
-	      var appendChildren = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+	    value: function renderChildren(appendChildren = false) {
 	      if (!appendChildren) {
 	        if (main_core.Browser.isIE()) {
 	          main_core.Dom.clean(this.getChildrenContainer());
@@ -1142,18 +1127,18 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }
 	      if (this.hasChildren()) {
-	        var previousSibling = null;
-	        this.getChildren().forEach(function (child) {
+	        let previousSibling = null;
+	        this.getChildren().forEach(child => {
 	          child.render(appendChildren);
-	          var container = child.getOuterContainer();
+	          const container = child.getOuterContainer();
 	          if (!appendChildren) {
-	            main_core.Dom.append(container, _this7.getChildrenContainer());
+	            main_core.Dom.append(container, this.getChildrenContainer());
 	          }
 	          if (!container.parentNode) {
 	            if (previousSibling !== null) {
 	              main_core.Dom.insertAfter(container, previousSibling.getOuterContainer());
 	            } else {
-	              main_core.Dom.append(container, _this7.getChildrenContainer());
+	              main_core.Dom.append(container, this.getChildrenContainer());
 	            }
 	          }
 	          previousSibling = child;
@@ -1194,11 +1179,11 @@ this.BX.UI = this.BX.UI || {};
 	      _classPrivateMethodGet(this, _setHidden, _setHidden2).call(this, flag);
 	      if (this.isRendered()) {
 	        this.toggleVisibility();
-	        var parentNode = this.getParentNode();
-	        var isHidden = this.isHidden();
+	        let parentNode = this.getParentNode();
+	        const isHidden = this.isHidden();
 	        while (parentNode.isRoot() === false) {
 	          if (isHidden) {
-	            var hasVisibleChild = parentNode.getChildren().getAll().some(function (child) {
+	            const hasVisibleChild = parentNode.getChildren().getAll().some(child => {
 	              return child.isHidden() !== true;
 	            });
 	            if (!hasVisibleChild) {
@@ -1230,7 +1215,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
-	      var titleNode = this.getTitleNode();
+	      const titleNode = this.getTitleNode();
 	      return titleNode !== null ? titleNode.getText() : null;
 	    }
 	  }, {
@@ -1250,7 +1235,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSubtitle",
 	    value: function getSubtitle() {
-	      var subtitleNode = this.getSubtitleNode();
+	      const subtitleNode = this.getSubtitleNode();
 	      return subtitleNode !== null ? subtitleNode.getText() : null;
 	    }
 	  }, {
@@ -1270,7 +1255,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSupertitle",
 	    value: function getSupertitle() {
-	      var supertitleNode = this.getSupertitleNode();
+	      const supertitleNode = this.getSupertitleNode();
 	      return supertitleNode !== null ? supertitleNode.getText() : null;
 	    }
 	  }, {
@@ -1290,7 +1275,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getCaption",
 	    value: function getCaption() {
-	      var caption = this.getCaptionNode();
+	      const caption = this.getCaptionNode();
 	      return caption !== null ? caption.getText() : null;
 	    }
 	  }, {
@@ -1325,10 +1310,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setCaptionOptions",
 	    value: function setCaptionOptions(options) {
-	      var _this8 = this;
 	      if (main_core.Type.isPlainObject(options)) {
-	        Object.keys(options).forEach(function (option) {
-	          _this8.setCaptionOption(option, options[option]);
+	        Object.keys(options).forEach(option => {
+	          this.setCaptionOption(option, options[option]);
 	        });
 	      }
 	    }
@@ -1362,10 +1346,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setAvatarOptions",
 	    value: function setAvatarOptions(avatarOptions) {
-	      var _this9 = this;
 	      if (main_core.Type.isPlainObject(avatarOptions)) {
-	        Object.keys(avatarOptions).forEach(function (option) {
-	          _this9.setAvatarOption(option, avatarOptions[option]);
+	        Object.keys(avatarOptions).forEach(option => {
+	          this.setAvatarOption(option, avatarOptions[option]);
 	        });
 	      }
 	    }
@@ -1396,7 +1379,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLinkTitle",
 	    value: function getLinkTitle() {
-	      var linkTitle = this.getLinkTitleNode();
+	      const linkTitle = this.getLinkTitleNode();
 	      return linkTitle !== null ? linkTitle.getText() : null;
 	    }
 	  }, {
@@ -1421,11 +1404,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadges",
 	    value: function setBadges(badges) {
-	      var _this10 = this;
 	      if (main_core.Type.isArray(badges)) {
 	        this.badges = [];
-	        badges.forEach(function (badge) {
-	          _this10.badges.push(new ItemBadge(badge));
+	        badges.forEach(badge => {
+	          this.badges.push(new ItemBadge(badge));
 	        });
 	      } else if (badges === null) {
 	        this.badges = null;
@@ -1449,34 +1431,32 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadgesOptions",
 	    value: function setBadgesOptions(options) {
-	      var _this11 = this;
 	      if (main_core.Type.isPlainObject(options)) {
-	        Object.keys(options).forEach(function (option) {
-	          _this11.setBadgesOption(option, options[option]);
+	        Object.keys(options).forEach(option => {
+	          this.setBadgesOption(option, options[option]);
 	        });
 	      }
 	    }
 	  }, {
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
-	      var _this12 = this;
-	      return this.cache.remember('outer-container', function () {
-	        var className = '';
-	        if (_this12.hasChildren() || _this12.isDynamic()) {
+	      return this.cache.remember('outer-container', () => {
+	        let className = '';
+	        if (this.hasChildren() || this.isDynamic()) {
 	          className += ' ui-selector-item-box-has-children';
-	          if (_this12.getDepthLevel() >= _this12.getTab().getItemMaxDepth()) {
+	          if (this.getDepthLevel() >= this.getTab().getItemMaxDepth()) {
 	            className += ' ui-selector-item-box-max-depth';
 	          }
-	        } else if (_this12.getItem().isSelected()) {
+	        } else if (this.getItem().isSelected()) {
 	          className += ' ui-selector-item-box-selected';
 	        }
-	        if (_this12.isOpen()) {
+	        if (this.isOpen()) {
 	          className += ' ui-selector-item-box-open';
 	        }
-	        var div = document.createElement('div');
-	        div.className = "ui-selector-item-box".concat(className);
-	        div.appendChild(_this12.getContainer());
-	        div.appendChild(_this12.getChildrenContainer());
+	        const div = document.createElement('div');
+	        div.className = `ui-selector-item-box${className}`;
+	        div.appendChild(this.getContainer());
+	        div.appendChild(this.getChildrenContainer());
 	        return div;
 	      });
 	    }
@@ -1486,8 +1466,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.isRoot() && this.getTab()) {
 	        return this.getTab().getItemsContainer();
 	      }
-	      return this.cache.remember('children-container', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('children-container', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-children';
 	        return div;
 	      });
@@ -1495,18 +1475,17 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this13 = this;
-	      return this.cache.remember('container', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('container', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item';
-	        main_core.Event.bind(div, 'click', _this13.handleClick.bind(_this13));
-	        main_core.Event.bind(div, 'mouseenter', _this13.handleMouseEnter.bind(_this13));
-	        main_core.Event.bind(div, 'mouseleave', _this13.handleMouseLeave.bind(_this13));
-	        div.appendChild(_this13.getAvatarContainer());
-	        div.appendChild(_this13.getTitlesContainer());
-	        div.appendChild(_this13.getIndicatorContainer());
-	        if (main_core.Type.isStringFilled(_this13.getLink())) {
-	          div.appendChild(_this13.getLinkContainer());
+	        main_core.Event.bind(div, 'click', this.handleClick.bind(this));
+	        main_core.Event.bind(div, 'mouseenter', this.handleMouseEnter.bind(this));
+	        main_core.Event.bind(div, 'mouseleave', this.handleMouseLeave.bind(this));
+	        div.appendChild(this.getAvatarContainer());
+	        div.appendChild(this.getTitlesContainer());
+	        div.appendChild(this.getIndicatorContainer());
+	        if (main_core.Type.isStringFilled(this.getLink())) {
+	          div.appendChild(this.getLinkContainer());
 	        }
 	        return div;
 	      });
@@ -1514,8 +1493,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getAvatarContainer",
 	    value: function getAvatarContainer() {
-	      return this.cache.remember('avatar', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('avatar', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-avatar';
 	        return div;
 	      });
@@ -1523,34 +1502,32 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitlesContainer",
 	    value: function getTitlesContainer() {
-	      var _this14 = this;
-	      return this.cache.remember('titles', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('titles', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-titles';
-	        div.appendChild(_this14.getSupertitleContainer());
-	        div.appendChild(_this14.getTitleBoxContainer());
-	        div.appendChild(_this14.getSubtitleContainer());
+	        div.appendChild(this.getSupertitleContainer());
+	        div.appendChild(this.getTitleBoxContainer());
+	        div.appendChild(this.getSubtitleContainer());
 	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getTitleBoxContainer",
 	    value: function getTitleBoxContainer() {
-	      var _this15 = this;
-	      return this.cache.remember('title-box', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('title-box', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-title-box';
-	        div.appendChild(_this15.getTitleContainer());
-	        div.appendChild(_this15.getBadgeContainer());
-	        div.appendChild(_this15.getCaptionContainer());
+	        div.appendChild(this.getTitleContainer());
+	        div.appendChild(this.getBadgeContainer());
+	        div.appendChild(this.getCaptionContainer());
 	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getTitleContainer",
 	    value: function getTitleContainer() {
-	      return this.cache.remember('title', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('title', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-title';
 	        return div;
 	      });
@@ -1558,8 +1535,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSubtitleContainer",
 	    value: function getSubtitleContainer() {
-	      return this.cache.remember('subtitle', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('subtitle', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-subtitle';
 	        return div;
 	      });
@@ -1567,8 +1544,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSupertitleContainer",
 	    value: function getSupertitleContainer() {
-	      return this.cache.remember('supertitle', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('supertitle', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-supertitle';
 	        return div;
 	      });
@@ -1576,8 +1553,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getCaptionContainer",
 	    value: function getCaptionContainer() {
-	      return this.cache.remember('caption', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('caption', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-caption';
 	        return div;
 	      });
@@ -1585,8 +1562,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getIndicatorContainer",
 	    value: function getIndicatorContainer() {
-	      return this.cache.remember('indicator', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('indicator', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-indicator';
 	        return div;
 	      });
@@ -1594,8 +1571,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getBadgeContainer",
 	    value: function getBadgeContainer() {
-	      return this.cache.remember('badge', function () {
-	        var div = document.createElement('div');
+	      return this.cache.remember('badge', () => {
+	        const div = document.createElement('div');
 	        div.className = 'ui-selector-item-badges';
 	        return div;
 	      });
@@ -1603,23 +1580,22 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLinkContainer",
 	    value: function getLinkContainer() {
-	      var _this16 = this;
-	      return this.cache.remember('link', function () {
-	        var anchor = document.createElement('a');
+	      return this.cache.remember('link', () => {
+	        const anchor = document.createElement('a');
 	        anchor.className = 'ui-selector-item-link';
-	        anchor.href = _this16.getLink();
+	        anchor.href = this.getLink();
 	        anchor.target = '_blank';
 	        anchor.title = '';
-	        main_core.Event.bind(anchor, 'click', _this16.handleLinkClick.bind(_this16));
-	        anchor.appendChild(_this16.getLinkTextContainer());
+	        main_core.Event.bind(anchor, 'click', this.handleLinkClick.bind(this));
+	        anchor.appendChild(this.getLinkTextContainer());
 	        return anchor;
 	      });
 	    }
 	  }, {
 	    key: "getLinkTextContainer",
 	    value: function getLinkTextContainer() {
-	      return this.cache.remember('link-text', function () {
-	        var span = document.createElement('span');
+	      return this.cache.remember('link-text', () => {
+	        const span = document.createElement('span');
 	        span.className = 'ui-selector-item-link-text';
 	        return span;
 	      });
@@ -1627,12 +1603,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "showLink",
 	    value: function showLink() {
-	      var _this17 = this;
 	      if (main_core.Type.isStringFilled(this.getLink())) {
 	        main_core.Dom.addClass(this.getLinkContainer(), 'ui-selector-item-link--show');
-	        requestAnimationFrame(function () {
-	          requestAnimationFrame(function () {
-	            main_core.Dom.addClass(_this17.getLinkContainer(), 'ui-selector-item-link--animate');
+	        requestAnimationFrame(() => {
+	          requestAnimationFrame(() => {
+	            main_core.Dom.addClass(this.getLinkContainer(), 'ui-selector-item-link--animate');
 	          });
 	        });
 	      }
@@ -1657,19 +1632,18 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "highlight",
 	    value: function highlight() {
-	      var _this18 = this;
-	      this.getHighlights().forEach(function (matchField) {
-	        var field = matchField.getField();
-	        var fieldName = field.getName();
+	      this.getHighlights().forEach(matchField => {
+	        const field = matchField.getField();
+	        const fieldName = field.getName();
 	        if (field.isCustom()) {
-	          var text = _this18.getItem().getCustomData().get(fieldName);
-	          _this18.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
+	          const text = this.getItem().getCustomData().get(fieldName);
+	          this.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
 	        } else if (field.getName() === 'title') {
-	          _this18.getTitleContainer().innerHTML = Highlighter.mark(_this18.getItem().getTitleNode(), matchField.getMatches());
+	          this.getTitleContainer().innerHTML = Highlighter.mark(this.getItem().getTitleNode(), matchField.getMatches());
 	        } else if (field.getName() === 'subtitle') {
-	          _this18.getSubtitleContainer().innerHTML = Highlighter.mark(_this18.getItem().getSubtitleNode(), matchField.getMatches());
+	          this.getSubtitleContainer().innerHTML = Highlighter.mark(this.getItem().getSubtitleNode(), matchField.getMatches());
 	        } else if (field.getName() === 'supertitle') {
-	          _this18.getSupertitleContainer().innerHTML = Highlighter.mark(_this18.getItem().getSupertitleNode(), matchField.getMatches());
+	          this.getSupertitleContainer().innerHTML = Highlighter.mark(this.getItem().getSupertitleNode(), matchField.getMatches());
 	        }
 	      });
 	    }
@@ -1750,11 +1724,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "scrollIntoView",
 	    value: function scrollIntoView() {
-	      var tabContainer = this.getTab().getContainer();
-	      var nodeContainer = this.getContainer();
-	      var tabRect = main_core.Dom.getPosition(tabContainer);
-	      var nodeRect = main_core.Dom.getPosition(nodeContainer);
-	      var margin = 9; // 'ui-selector-items' padding - 'ui-selector-item' margin = 10 - 1
+	      const tabContainer = this.getTab().getContainer();
+	      const nodeContainer = this.getContainer();
+	      const tabRect = main_core.Dom.getPosition(tabContainer);
+	      const nodeRect = main_core.Dom.getPosition(nodeContainer);
+	      const margin = 9; // 'ui-selector-items' padding - 'ui-selector-item' margin = 10 - 1
 
 	      if (nodeRect.top < tabRect.top)
 	        // scroll up
@@ -1776,7 +1750,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function handleLinkClick(event) {
 	      this.getDialog().emit('ItemNode:onLinkClick', {
 	        node: this,
-	        event: event
+	        event
 	      });
 	      event.stopPropagation();
 	    }
@@ -1802,7 +1776,6 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 	function _makeEllipsisTitle2() {
-	  var _this19 = this;
 	  var _this$constructor;
 	  if (_classStaticPrivateMethodGet(_this$constructor = this.constructor, ItemNode, _isEllipsisActive).call(_this$constructor, this.getTitleContainer())) {
 	    var _this$constructor2;
@@ -1810,14 +1783,12 @@ this.BX.UI = this.BX.UI || {};
 	  } else {
 	    main_core.Dom.attr(this.getContainer(), 'title', null);
 	  }
-	  var containers = [this.getSupertitleContainer(), this.getSubtitleContainer(), this.getCaptionContainer()].concat(babelHelpers.toConsumableArray(this.getBadges().map(function (badge) {
-	    return badge.getContainer(_this19.getBadgeContainer());
-	  })));
-	  containers.forEach(function (container) {
+	  const containers = [this.getSupertitleContainer(), this.getSubtitleContainer(), this.getCaptionContainer(), ...this.getBadges().map(badge => badge.getContainer(this.getBadgeContainer()))];
+	  containers.forEach(container => {
 	    var _this$constructor3;
-	    if (_classStaticPrivateMethodGet(_this$constructor3 = _this19.constructor, ItemNode, _isEllipsisActive).call(_this$constructor3, container)) {
+	    if (_classStaticPrivateMethodGet(_this$constructor3 = this.constructor, ItemNode, _isEllipsisActive).call(_this$constructor3, container)) {
 	      var _this$constructor4;
-	      container.setAttribute('title', _classStaticPrivateMethodGet(_this$constructor4 = _this19.constructor, ItemNode, _sanitizeTitle).call(_this$constructor4, container.textContent));
+	      container.setAttribute('title', _classStaticPrivateMethodGet(_this$constructor4 = this.constructor, ItemNode, _sanitizeTitle).call(_this$constructor4, container.textContent));
 	    } else {
 	      main_core.Dom.attr(container, 'title', null);
 	    }
@@ -1830,9 +1801,8 @@ this.BX.UI = this.BX.UI || {};
 	  return text.replace(/[\t ]+/gm, ' ').replace(/\n+/gm, '\n').trim();
 	}
 
-	var SearchFieldIndex = /*#__PURE__*/function () {
-	  function SearchFieldIndex(field) {
-	    var indexes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+	let SearchFieldIndex = /*#__PURE__*/function () {
+	  function SearchFieldIndex(field, indexes = []) {
 	    babelHelpers.classCallCheck(this, SearchFieldIndex);
 	    babelHelpers.defineProperty(this, "field", null);
 	    babelHelpers.defineProperty(this, "indexes", []);
@@ -1857,16 +1827,15 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "addIndexes",
 	    value: function addIndexes(indexes) {
-	      var _this = this;
-	      indexes.forEach(function (index) {
-	        _this.addIndex(index);
+	      indexes.forEach(index => {
+	        this.addIndex(index);
 	      });
 	    }
 	  }]);
 	  return SearchFieldIndex;
 	}();
 
-	var WordIndex = /*#__PURE__*/function () {
+	let WordIndex = /*#__PURE__*/function () {
 	  function WordIndex(word, startIndex) {
 	    babelHelpers.classCallCheck(this, WordIndex);
 	    babelHelpers.defineProperty(this, "word", '');
@@ -1914,59 +1883,59 @@ this.BX.UI = this.BX.UI || {};
 	 */
 
 	/** Used to compose unicode character classes. */
-	var rsAstralRange = "\\ud800-\\udfff";
-	var rsComboMarksRange = "\\u0300-\\u036f";
-	var reComboHalfMarksRange = "\\ufe20-\\ufe2f";
-	var rsComboSymbolsRange = "\\u20d0-\\u20ff";
-	var rsComboMarksExtendedRange = "\\u1ab0-\\u1aff";
-	var rsComboMarksSupplementRange = "\\u1dc0-\\u1dff";
-	var rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange + rsComboMarksExtendedRange + rsComboMarksSupplementRange;
-	var rsDingbatRange = "\\u2700-\\u27bf";
-	var rsLowerRange = 'a-z\\xdf-\\xf6\\xf8-\\xff';
-	var rsMathOpRange = '\\xac\\xb1\\xd7\\xf7';
-	var rsNonCharRange = '\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf';
-	var rsPunctuationRange = "\\u2000-\\u206f";
-	var rsSpaceRange = " \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000";
-	var rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde';
-	var rsVarRange = "\\ufe0e\\ufe0f";
-	var rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+	const rsAstralRange = '\\ud800-\\udfff';
+	const rsComboMarksRange = '\\u0300-\\u036f';
+	const reComboHalfMarksRange = '\\ufe20-\\ufe2f';
+	const rsComboSymbolsRange = '\\u20d0-\\u20ff';
+	const rsComboMarksExtendedRange = '\\u1ab0-\\u1aff';
+	const rsComboMarksSupplementRange = '\\u1dc0-\\u1dff';
+	const rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange + rsComboMarksExtendedRange + rsComboMarksSupplementRange;
+	const rsDingbatRange = '\\u2700-\\u27bf';
+	const rsLowerRange = 'a-z\\xdf-\\xf6\\xf8-\\xff';
+	const rsMathOpRange = '\\xac\\xb1\\xd7\\xf7';
+	const rsNonCharRange = '\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf';
+	const rsPunctuationRange = '\\u2000-\\u206f';
+	const rsSpaceRange = ' \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000';
+	const rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde';
+	const rsVarRange = '\\ufe0e\\ufe0f';
+	const rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
 
 	/** Used to compose unicode capture groups. */
-	var rsApos = "['\u2019]";
-	var rsBreak = "[".concat(rsBreakRange, "]");
-	var rsCombo = "[".concat(rsComboRange, "]");
-	var rsDigit = '\\d';
-	var rsDingbat = "[".concat(rsDingbatRange, "]");
-	var rsLower = "[".concat(rsLowerRange, "]");
-	var rsMisc = "[^".concat(rsAstralRange).concat(rsBreakRange + rsDigit + rsDingbatRange + rsLowerRange + rsUpperRange, "]");
-	var rsFitz = "\\ud83c[\\udffb-\\udfff]";
-	var rsModifier = "(?:".concat(rsCombo, "|").concat(rsFitz, ")");
-	var rsNonAstral = "[^".concat(rsAstralRange, "]");
-	var rsRegional = "(?:\\ud83c[\\udde6-\\uddff]){2}";
-	var rsSurrPair = "[\\ud800-\\udbff][\\udc00-\\udfff]";
-	var rsUpper = "[".concat(rsUpperRange, "]");
-	var rsZWJ = "\\u200d";
+	const rsApos = '[\'\u2019]';
+	const rsBreak = `[${rsBreakRange}]`;
+	const rsCombo = `[${rsComboRange}]`;
+	const rsDigit = '\\d';
+	const rsDingbat = `[${rsDingbatRange}]`;
+	const rsLower = `[${rsLowerRange}]`;
+	const rsMisc = `[^${rsAstralRange}${rsBreakRange + rsDigit + rsDingbatRange + rsLowerRange + rsUpperRange}]`;
+	const rsFitz = '\\ud83c[\\udffb-\\udfff]';
+	const rsModifier = `(?:${rsCombo}|${rsFitz})`;
+	const rsNonAstral = `[^${rsAstralRange}]`;
+	const rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}';
+	const rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]';
+	const rsUpper = `[${rsUpperRange}]`;
+	const rsZWJ = '\\u200d';
 
 	/** Used to compose unicode regexes. */
-	var rsMiscLower = "(?:".concat(rsLower, "|").concat(rsMisc, ")");
-	var rsMiscUpper = "(?:".concat(rsUpper, "|").concat(rsMisc, ")");
-	var rsOptContrLower = "(?:".concat(rsApos, "(?:d|ll|m|re|s|t|ve))?");
-	var rsOptContrUpper = "(?:".concat(rsApos, "(?:D|LL|M|RE|S|T|VE))?");
-	var reOptMod = "".concat(rsModifier, "?");
-	var rsOptVar = "[".concat(rsVarRange, "]?");
-	var rsOptJoin = "(?:".concat(rsZWJ, "(?:").concat([rsNonAstral, rsRegional, rsSurrPair].join('|'), ")").concat(rsOptVar + reOptMod, ")*");
-	var rsOrdLower = '\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])';
-	var rsOrdUpper = '\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])';
-	var rsSeq = rsOptVar + reOptMod + rsOptJoin;
-	var rsEmoji = "(?:".concat([rsDingbat, rsRegional, rsSurrPair].join('|'), ")").concat(rsSeq);
-	var unicodeWordsRegExp = new RegExp(["".concat(rsUpper, "?").concat(rsLower, "+").concat(rsOptContrLower, "(?=").concat([rsBreak, rsUpper, '$'].join('|'), ")"), "".concat(rsMiscUpper, "+").concat(rsOptContrUpper, "(?=").concat([rsBreak, rsUpper + rsMiscLower, '$'].join('|'), ")"), "".concat(rsUpper, "?").concat(rsMiscLower, "+").concat(rsOptContrLower), "".concat(rsUpper, "+").concat(rsOptContrUpper), rsOrdUpper, rsOrdLower, "".concat(rsDigit, "+"), rsEmoji].join('|'), 'g');
+	const rsMiscLower = `(?:${rsLower}|${rsMisc})`;
+	const rsMiscUpper = `(?:${rsUpper}|${rsMisc})`;
+	const rsOptContrLower = `(?:${rsApos}(?:d|ll|m|re|s|t|ve))?`;
+	const rsOptContrUpper = `(?:${rsApos}(?:D|LL|M|RE|S|T|VE))?`;
+	const reOptMod = `${rsModifier}?`;
+	const rsOptVar = `[${rsVarRange}]?`;
+	const rsOptJoin = `(?:${rsZWJ}(?:${[rsNonAstral, rsRegional, rsSurrPair].join('|')})${rsOptVar + reOptMod})*`;
+	const rsOrdLower = '\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])';
+	const rsOrdUpper = '\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])';
+	const rsSeq = rsOptVar + reOptMod + rsOptJoin;
+	const rsEmoji = `(?:${[rsDingbat, rsRegional, rsSurrPair].join('|')})${rsSeq}`;
+	const unicodeWordsRegExp = new RegExp([`${rsUpper}?${rsLower}+${rsOptContrLower}(?=${[rsBreak, rsUpper, '$'].join('|')})`, `${rsMiscUpper}+${rsOptContrUpper}(?=${[rsBreak, rsUpper + rsMiscLower, '$'].join('|')})`, `${rsUpper}?${rsMiscLower}+${rsOptContrLower}`, `${rsUpper}+${rsOptContrUpper}`, rsOrdUpper, rsOrdLower, `${rsDigit}+`, rsEmoji].join('|'), 'g');
 
-	var asciiWordRegExp = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
-	var hasUnicodeWordRegExp = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
-	var nonWhitespaceRegExp = /[^\s]+/g;
-	var specialChars = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}";
-	var specialCharsRegExp = new RegExp("[".concat(specialChars, "]"));
-	var SearchIndex = /*#__PURE__*/function () {
+	const asciiWordRegExp = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+	const hasUnicodeWordRegExp = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+	const nonWhitespaceRegExp = /[^\s]+/g;
+	const specialChars = `!"#$%&'()*+,-.\/:;<=>?@[\\]^_\`{|}`;
+	const specialCharsRegExp = new RegExp(`[${specialChars}]`);
+	let SearchIndex = /*#__PURE__*/function () {
 	  function SearchIndex() {
 	    babelHelpers.classCallCheck(this, SearchIndex);
 	    babelHelpers.defineProperty(this, "indexes", []);
@@ -1986,35 +1955,34 @@ this.BX.UI = this.BX.UI || {};
 	  }], [{
 	    key: "create",
 	    value: function create(item) {
-	      var _this = this;
-	      var index = new SearchIndex();
-	      var entity = item.getEntity();
+	      const index = new SearchIndex();
+	      const entity = item.getEntity();
 	      if (!item.isSearchable() || !entity.isSearchable() || item.isHidden()) {
 	        return index;
 	      }
-	      var searchFields = entity.getSearchFields();
-	      searchFields.forEach(function (field) {
+	      const searchFields = entity.getSearchFields();
+	      searchFields.forEach(field => {
 	        if (!field.isSearchable()) {
 	          return;
 	        }
 	        if (field.isSystem()) {
 	          if (field.getName() === 'title') {
-	            var textNode = item.getTitleNode();
-	            var stripTags = textNode !== null && textNode.getType() === 'html';
-	            index.addIndex(_this.createIndex(field, item.getTitle(), stripTags));
+	            const textNode = item.getTitleNode();
+	            const stripTags = textNode !== null && textNode.getType() === 'html';
+	            index.addIndex(this.createIndex(field, item.getTitle(), stripTags));
 	          } else if (field.getName() === 'subtitle') {
-	            var _textNode = item.getSubtitleNode();
-	            var _stripTags = _textNode !== null && _textNode.getType() === 'html';
-	            index.addIndex(_this.createIndex(field, item.getSubtitle(), _stripTags));
+	            const textNode = item.getSubtitleNode();
+	            const stripTags = textNode !== null && textNode.getType() === 'html';
+	            index.addIndex(this.createIndex(field, item.getSubtitle(), stripTags));
 	          } else if (field.getName() === 'supertitle') {
-	            var _textNode2 = item.getSupertitleNode();
-	            var _stripTags2 = _textNode2 !== null && _textNode2.getType() === 'html';
-	            index.addIndex(_this.createIndex(field, item.getSupertitle(), _stripTags2));
+	            const textNode = item.getSupertitleNode();
+	            const stripTags = textNode !== null && textNode.getType() === 'html';
+	            index.addIndex(this.createIndex(field, item.getSupertitle(), stripTags));
 	          }
 	        } else {
-	          var customData = item.getCustomData().get(field.getName());
+	          const customData = item.getCustomData().get(field.getName());
 	          if (!main_core.Type.isUndefined(customData)) {
-	            index.addIndex(_this.createIndex(field, customData));
+	            index.addIndex(this.createIndex(field, customData));
 	          }
 	        }
 	      });
@@ -2022,22 +1990,17 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "createIndex",
-	    value: function createIndex(field, text) {
-	      var stripTags = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+	    value: function createIndex(field, text, stripTags = false) {
 	      if (!main_core.Type.isStringFilled(text)) {
 	        return null;
 	      }
 	      if (stripTags) {
-	        text = text.replace(/<\/?[^>]+>/g, function (match) {
-	          return ' '.repeat(match.length);
-	        });
-	        text = text.replace(/&(?:#\d+|#x[\da-fA-F]+|[0-9a-zA-Z]+);/g, function (match) {
-	          return ' '.repeat(match.length);
-	        });
+	        text = text.replace(/<\/?[^>]+>/g, match => ' '.repeat(match.length));
+	        text = text.replace(/&(?:#\d+|#x[\da-fA-F]+|[0-9a-zA-Z]+);/g, match => ' '.repeat(match.length));
 	      }
-	      var index = null;
+	      let index = null;
 	      if (field.getType() === 'string') {
-	        var wordIndexes = this.splitText(text);
+	        const wordIndexes = this.splitText(text);
 	        if (main_core.Type.isArrayFilled(wordIndexes)) {
 	          // "GoPro111 Leto15"
 	          // [go, pro, 111, leto, 15] + [gopro111, leto15]
@@ -2046,7 +2009,7 @@ this.BX.UI = this.BX.UI || {};
 	          index = new SearchFieldIndex(field, wordIndexes);
 	        }
 	      } else if (field.getType() === 'email') {
-	        var position = text.indexOf('@');
+	        const position = text.indexOf('@');
 	        if (position !== -1) {
 	          index = new SearchFieldIndex(field, [new WordIndex(text.toLowerCase(), 0), new WordIndex(text.substr(position + 1).toLowerCase(), position + 1)]);
 	        }
@@ -2079,8 +2042,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "splitTextInternal",
 	    value: function splitTextInternal(text, regExp) {
-	      var match;
-	      var result = [];
+	      let match;
+	      const result = [];
 	      regExp.lastIndex = 0;
 	      while ((match = regExp.exec(text)) !== null) {
 	        if (match.index === regExp.lastIndex) {
@@ -2099,12 +2062,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (indexes.length < 2) {
 	        return;
 	      }
-	      var complexWord = null;
-	      var startIndex = null;
-	      indexes.forEach(function (currentIndex, currentArrayIndex) {
-	        var nextIndex = indexes[currentArrayIndex + 1];
+	      let complexWord = null;
+	      let startIndex = null;
+	      indexes.forEach((currentIndex, currentArrayIndex) => {
+	        const nextIndex = indexes[currentArrayIndex + 1];
 	        if (nextIndex) {
-	          var sameWord = currentIndex.getStartIndex() + currentIndex.getWord().length === nextIndex.getStartIndex();
+	          const sameWord = currentIndex.getStartIndex() + currentIndex.getWord().length === nextIndex.getStartIndex();
 	          if (sameWord) {
 	            if (complexWord === null) {
 	              complexWord = currentIndex.getWord();
@@ -2132,20 +2095,20 @@ this.BX.UI = this.BX.UI || {};
 	      if (!specialCharsRegExp.test(text)) {
 	        return;
 	      }
-	      var match;
+	      let match;
 	      while ((match = nonWhitespaceRegExp.exec(text)) !== null) {
 	        if (match.index === nonWhitespaceRegExp.lastIndex) {
 	          nonWhitespaceRegExp.lastIndex++;
 	        }
-	        var word = match[0];
+	        const word = match[0];
 	        if (specialCharsRegExp.test(word)) {
 	          indexes.push(new WordIndex(word.toLowerCase(), match.index));
-	          for (var i = 0; i < word.length; i++) {
-	            var _char = word[i];
-	            if (!specialChars.includes(_char)) {
+	          for (let i = 0; i < word.length; i++) {
+	            const char = word[i];
+	            if (!specialChars.includes(char)) {
 	              break;
 	            }
-	            var wordToIndex = word.substr(i + 1);
+	            const wordToIndex = word.substr(i + 1);
 	            if (wordToIndex.length) {
 	              indexes.push(new WordIndex(wordToIndex.toLowerCase(), match.index + i + 1));
 	            }
@@ -2158,12 +2121,12 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchIndex;
 	}();
 
-	var EntityFilter = /*#__PURE__*/function () {
+	let EntityFilter = /*#__PURE__*/function () {
 	  function EntityFilter(filterOptions) {
 	    babelHelpers.classCallCheck(this, EntityFilter);
 	    babelHelpers.defineProperty(this, "id", null);
 	    babelHelpers.defineProperty(this, "options", {});
-	    var options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
+	    const options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
 	    this.id = options.id;
 	    this.options = options.options;
 	  }
@@ -2192,9 +2155,8 @@ this.BX.UI = this.BX.UI || {};
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-	var Entity = /*#__PURE__*/function () {
+	let Entity = /*#__PURE__*/function () {
 	  function Entity(entityOptions) {
-	    var _this = this;
 	    babelHelpers.classCallCheck(this, Entity);
 	    babelHelpers.defineProperty(this, "id", null);
 	    babelHelpers.defineProperty(this, "options", {});
@@ -2209,11 +2171,11 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "tagOptions", {});
 	    babelHelpers.defineProperty(this, "badgeOptions", []);
 	    babelHelpers.defineProperty(this, "textNodes", new Map());
-	    var options = main_core.Type.isPlainObject(entityOptions) ? entityOptions : {};
+	    let options = main_core.Type.isPlainObject(entityOptions) ? entityOptions : {};
 	    if (!main_core.Type.isStringFilled(options.id)) {
 	      throw new Error('EntitySelector.Entity: "id" parameter is required.');
 	    }
-	    var defaultOptions = this.constructor.getEntityDefaultOptions(options.id) || {};
+	    const defaultOptions = this.constructor.getEntityDefaultOptions(options.id) || {};
 	    options = main_core.Runtime.merge(JSON.parse(JSON.stringify(defaultOptions)), options);
 	    this.id = options.id.toLowerCase();
 	    this.options = main_core.Type.isPlainObject(options.options) ? options.options : {};
@@ -2222,11 +2184,11 @@ this.BX.UI = this.BX.UI || {};
 	    this.badgeOptions = main_core.Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
 	    this.substituteEntityId = main_core.Type.isStringFilled(options.substituteEntityId) ? options.substituteEntityId : null;
 	    if (main_core.Type.isArray(options.filters)) {
-	      options.filters.forEach(function (filterOptions) {
-	        _this.addFilter(filterOptions);
+	      options.filters.forEach(filterOptions => {
+	        this.addFilter(filterOptions);
 	      });
 	    }
-	    this.searchFields = new main_core_collections.OrderedArray(function (fieldA, fieldB) {
+	    this.searchFields = new main_core_collections.OrderedArray((fieldA, fieldB) => {
 	      if (fieldA.getSort() !== null && fieldB.getSort() === null) {
 	        return -1;
 	      } else if (fieldA.getSort() === null && fieldB.getSort() !== null) {
@@ -2276,11 +2238,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getBadges",
 	    value: function getBadges(item) {
-	      var entityTypeBadges = this.getItemOption('badges', item.getEntityType()) || [];
-	      var badges = babelHelpers.toConsumableArray(entityTypeBadges);
-	      this.badgeOptions.forEach(function (badge) {
+	      const entityTypeBadges = this.getItemOption('badges', item.getEntityType()) || [];
+	      const badges = [...entityTypeBadges];
+	      this.badgeOptions.forEach(badge => {
 	        if (main_core.Type.isPlainObject(badge.conditions)) {
-	          for (var condition in badge.conditions) {
+	          for (const condition in badge.conditions) {
 	            if (item.getCustomData().get(condition) !== badge.conditions[condition]) {
 	              return;
 	            }
@@ -2299,14 +2261,14 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isString(entityType)) {
 	        entityType = 'default';
 	      }
-	      var optionNodes = this.textNodes.get(option);
-	      var node = optionNodes ? optionNodes.get(entityType) : undefined;
+	      let optionNodes = this.textNodes.get(option);
+	      let node = optionNodes ? optionNodes.get(entityType) : undefined;
 	      if (main_core.Type.isUndefined(node)) {
 	        if (!optionNodes) {
 	          optionNodes = new Map();
 	          this.textNodes.set(option, optionNodes);
 	        }
-	        var itemOption = this.getItemOption(option, entityType);
+	        const itemOption = this.getItemOption(option, entityType);
 	        node = main_core.Type.isString(itemOption) || main_core.Type.isPlainObject(itemOption) ? new TextNode(itemOption) : null;
 	        optionNodes.set(entityType, node);
 	      }
@@ -2332,17 +2294,16 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setSearchFields",
 	    value: function setSearchFields(searchFields) {
-	      var _this2 = this;
 	      this.searchFields.clear();
 
 	      // Default Search Fields
-	      var titleField = new SearchField({
+	      const titleField = new SearchField({
 	        name: 'title',
 	        searchable: true,
 	        system: true,
 	        type: 'string'
 	      });
-	      var subtitleField = new SearchField({
+	      const subtitleField = new SearchField({
 	        name: 'subtitle',
 	        searchable: true,
 	        system: true,
@@ -2352,33 +2313,32 @@ this.BX.UI = this.BX.UI || {};
 	      this.searchFields.add(subtitleField);
 
 	      // Custom Search Fields
-	      var customFields = main_core.Type.isArray(searchFields) ? searchFields : [];
-	      customFields.forEach(function (fieldOptions) {
-	        var field = new SearchField(fieldOptions);
+	      const customFields = main_core.Type.isArray(searchFields) ? searchFields : [];
+	      customFields.forEach(fieldOptions => {
+	        const field = new SearchField(fieldOptions);
 	        if (field.isSystem())
 	          // Entity can override default fields.
 	          {
 	            // delete a default title field
 	            if (field.getName() === 'title') {
-	              _this2.searchFields["delete"](titleField);
+	              this.searchFields.delete(titleField);
 	            } else if (field.getName() === 'subtitle') {
-	              _this2.searchFields["delete"](subtitleField);
+	              this.searchFields.delete(subtitleField);
 	            }
 	          }
-	        _this2.searchFields.add(field);
+	        this.searchFields.add(field);
 	      });
-	      this.searchFields.forEach(function (field, index) {
+	      this.searchFields.forEach((field, index) => {
 	        field.setSort(index);
 	      });
 	    }
 	  }, {
 	    key: "setSearchCacheLimits",
 	    value: function setSearchCacheLimits(limits) {
-	      var _this3 = this;
 	      if (main_core.Type.isArrayFilled(limits)) {
-	        limits.forEach(function (limit) {
+	        limits.forEach(limit => {
 	          if (main_core.Type.isStringFilled(limit)) {
-	            _this3.searchCacheLimits.push(new RegExp(limit, 'i'));
+	            this.searchCacheLimits.push(new RegExp(limit, 'i'));
 	          }
 	        });
 	      }
@@ -2420,10 +2380,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "addFilters",
 	    value: function addFilters(filters) {
-	      var _this4 = this;
 	      if (main_core.Type.isArray(filters)) {
-	        filters.forEach(function (filterOptions) {
-	          _this4.addFilter(filterOptions);
+	        filters.forEach(filterOptions => {
+	          this.addFilter(filterOptions);
 	        });
 	      }
 	    }
@@ -2431,7 +2390,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addFilter",
 	    value: function addFilter(filterOptions) {
 	      if (main_core.Type.isPlainObject(filterOptions)) {
-	        var filter = new EntityFilter(filterOptions);
+	        const filter = new EntityFilter(filterOptions);
 	        this.filters.set(filter.getId(), filter);
 	      }
 	    }
@@ -2461,15 +2420,14 @@ this.BX.UI = this.BX.UI || {};
 	  }], [{
 	    key: "getDefaultOptions",
 	    value: function getDefaultOptions() {
-	      var _this5 = this;
 	      if (this.defaultOptions === null) {
 	        this.defaultOptions = {};
-	        this.getExtensions().forEach(function (extension) {
-	          var settings = main_core.Extension.getSettings(extension);
-	          var entities = settings.get('entities', []);
-	          entities.forEach(function (entity) {
+	        this.getExtensions().forEach(extension => {
+	          const settings = main_core.Extension.getSettings(extension);
+	          const entities = settings.get('entities', []);
+	          entities.forEach(entity => {
 	            if (main_core.Type.isStringFilled(entity.id) && main_core.Type.isPlainObject(entity.options)) {
-	              _this5.defaultOptions[entity.id] = JSON.parse(JSON.stringify(entity.options)); // clone
+	              this.defaultOptions[entity.id] = JSON.parse(JSON.stringify(entity.options)); // clone
 	            }
 	          });
 	        });
@@ -2481,7 +2439,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getExtensions",
 	    value: function getExtensions() {
 	      if (this.extensions === null) {
-	        var settings = main_core.Extension.getSettings('ui.entity-selector');
+	        const settings = main_core.Extension.getSettings('ui.entity-selector');
 	        this.extensions = settings.get('extensions', []);
 	      }
 	      return this.extensions;
@@ -2497,8 +2455,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(entityId)) {
 	        return null;
 	      }
-	      var options = this.getEntityDefaultOptions(entityId);
-	      var itemOptions = options && options['itemOptions'] ? options['itemOptions'] : null;
+	      const options = this.getEntityDefaultOptions(entityId);
+	      const itemOptions = options && options['itemOptions'] ? options['itemOptions'] : null;
 	      if (main_core.Type.isUndefined(entityType)) {
 	        return itemOptions;
 	      } else {
@@ -2511,8 +2469,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isStringFilled(entityId)) {
 	        return null;
 	      }
-	      var options = this.getEntityDefaultOptions(entityId);
-	      var tagOptions = options && options['tagOptions'] ? options['tagOptions'] : null;
+	      const options = this.getEntityDefaultOptions(entityId);
+	      const tagOptions = options && options['tagOptions'] ? options['tagOptions'] : null;
 	      if (main_core.Type.isUndefined(entityType)) {
 	        return tagOptions;
 	      } else {
@@ -2548,7 +2506,7 @@ this.BX.UI = this.BX.UI || {};
 	babelHelpers.defineProperty(Entity, "extensions", null);
 	babelHelpers.defineProperty(Entity, "defaultOptions", null);
 
-	var TypeUtils = /*#__PURE__*/function () {
+	let TypeUtils = /*#__PURE__*/function () {
 	  function TypeUtils() {
 	    babelHelpers.classCallCheck(this, TypeUtils);
 	  }
@@ -2558,9 +2516,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isPlainObject(options)) {
 	        return new Map(Object.entries(options));
 	      }
-	      var map = new Map();
+	      const map = new Map();
 	      if (main_core.Type.isArrayFilled(options)) {
-	        options.forEach(function (element) {
+	        options.forEach(element => {
 	          if (main_core.Type.isArray(element) && element.length === 2 && main_core.Type.isString(element[0])) {
 	            map.set(element[0], element[1]);
 	          }
@@ -2571,9 +2529,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "convertMapToObject",
 	    value: function convertMapToObject(map) {
-	      var obj = {};
+	      const obj = {};
 	      if (main_core.Type.isMap(map)) {
-	        map.forEach(function (value, key) {
+	        map.forEach((value, key) => {
 	          if (main_core.Type.isString(key)) {
 	            obj[key] = value;
 	          }
@@ -2593,7 +2551,7 @@ this.BX.UI = this.BX.UI || {};
 	 * @memberof BX.UI.EntitySelector
 	 * @package ui.entity-selector
 	 */
-	var Item = /*#__PURE__*/function () {
+	let Item = /*#__PURE__*/function () {
 	  function Item(itemOptions) {
 	    babelHelpers.classCallCheck(this, Item);
 	    _classPrivateMethodInitSpec$1(this, _renderNodes);
@@ -2625,7 +2583,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "sort", null);
 	    babelHelpers.defineProperty(this, "contextSort", null);
 	    babelHelpers.defineProperty(this, "globalSort", null);
-	    var options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
+	    const options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
 	    if (!main_core.Type.isStringFilled(options.id) && !main_core.Type.isNumber(options.id)) {
 	      throw new Error('EntitySelector.Item: "id" parameter is required.');
 	    }
@@ -2671,7 +2629,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getEntity",
 	    value: function getEntity() {
-	      var entity = this.getDialog().getEntity(this.getEntityId());
+	      let entity = this.getDialog().getEntity(this.getEntityId());
 	      if (entity === null) {
 	        entity = new Entity({
 	          id: this.getEntityId()
@@ -2688,7 +2646,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
-	      var titleNode = this.getTitleNode();
+	      const titleNode = this.getTitleNode();
 	      return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
 	    }
 	  }, {
@@ -2708,7 +2666,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSubtitle",
 	    value: function getSubtitle() {
-	      var subtitleNode = this.getSubtitleNode();
+	      const subtitleNode = this.getSubtitleNode();
 	      return subtitleNode !== null ? subtitleNode.getText() : null;
 	    }
 	  }, {
@@ -2728,7 +2686,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getSupertitle",
 	    value: function getSupertitle() {
-	      var supertitleNode = this.getSupertitleNode();
+	      const supertitleNode = this.getSupertitleNode();
 	      return supertitleNode !== null ? supertitleNode.getText() : null;
 	    }
 	  }, {
@@ -2748,7 +2706,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getCaption",
 	    value: function getCaption() {
-	      var captionNode = this.getCaptionNode();
+	      const captionNode = this.getCaptionNode();
 	      return captionNode !== null ? captionNode.getText() : null;
 	    }
 	  }, {
@@ -2771,7 +2729,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isUndefined(this.captionOptions[option])) {
 	        return this.captionOptions[option];
 	      }
-	      var captionOptions = this.getEntityItemOption('captionOptions');
+	      const captionOptions = this.getEntityItemOption('captionOptions');
 	      if (main_core.Type.isPlainObject(captionOptions) && !main_core.Type.isUndefined(captionOptions[option])) {
 	        return captionOptions[option];
 	      }
@@ -2788,10 +2746,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setCaptionOptions",
 	    value: function setCaptionOptions(options) {
-	      var _this = this;
 	      if (main_core.Type.isPlainObject(options)) {
-	        Object.keys(options).forEach(function (option) {
-	          _this.setCaptionOption(option, options[option]);
+	        Object.keys(options).forEach(option => {
+	          this.setCaptionOption(option, options[option]);
 	        });
 	      }
 	    }
@@ -2814,7 +2771,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.avatarOptions !== null && !main_core.Type.isUndefined(this.avatarOptions[option])) {
 	        return this.avatarOptions[option];
 	      }
-	      var avatarOptions = this.getEntityItemOption('avatarOptions');
+	      const avatarOptions = this.getEntityItemOption('avatarOptions');
 	      if (main_core.Type.isPlainObject(avatarOptions) && !main_core.Type.isUndefined(avatarOptions[option])) {
 	        return avatarOptions[option];
 	      }
@@ -2834,10 +2791,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setAvatarOptions",
 	    value: function setAvatarOptions(options) {
-	      var _this2 = this;
 	      if (main_core.Type.isPlainObject(options)) {
-	        Object.keys(options).forEach(function (option) {
-	          _this2.setAvatarOption(option, options[option]);
+	        Object.keys(options).forEach(option => {
+	          this.setAvatarOption(option, options[option]);
 	        });
 	      }
 	    }
@@ -2857,7 +2813,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLink",
 	    value: function getLink() {
-	      var link = this.link !== null ? this.link : this.getEntityItemOption('link');
+	      const link = this.link !== null ? this.link : this.getEntityItemOption('link');
 	      return this.replaceMacros(link);
 	    }
 	  }, {
@@ -2871,7 +2827,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLinkTitle",
 	    value: function getLinkTitle() {
-	      var linkTitleNode = this.getLinkTitleNode();
+	      const linkTitleNode = this.getLinkTitleNode();
 	      return linkTitleNode !== null ? linkTitleNode.getText() : main_core.Loc.getMessage('UI_SELECTOR_ITEM_LINK_TITLE');
 	    }
 	  }, {
@@ -2893,7 +2849,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.badges !== null) {
 	        return this.badges;
 	      }
-	      var badges = this.getEntity().getBadges(this);
+	      const badges = this.getEntity().getBadges(this);
 	      if (main_core.Type.isArray(badges)) {
 	        this.setBadges(badges);
 	      } else {
@@ -2904,11 +2860,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadges",
 	    value: function setBadges(badges) {
-	      var _this3 = this;
 	      if (main_core.Type.isArray(badges)) {
 	        this.badges = [];
-	        badges.forEach(function (badge) {
-	          _this3.badges.push(new ItemBadge(badge));
+	        badges.forEach(badge => {
+	          this.badges.push(new ItemBadge(badge));
 	        });
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
 	      } else if (badges === null) {
@@ -2922,7 +2877,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isUndefined(this.badgesOptions[option])) {
 	        return this.badgesOptions[option];
 	      }
-	      var badgesOptions = this.getEntityItemOption('badgesOptions');
+	      const badgesOptions = this.getEntityItemOption('badgesOptions');
 	      if (main_core.Type.isPlainObject(badgesOptions) && !main_core.Type.isUndefined(badgesOptions[option])) {
 	        return badgesOptions[option];
 	      }
@@ -2939,10 +2894,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadgesOptions",
 	    value: function setBadgesOptions(options) {
-	      var _this4 = this;
 	      if (main_core.Type.isPlainObject(options)) {
-	        Object.keys(options).forEach(function (option) {
-	          _this4.setBadgesOption(option, options[option]);
+	        Object.keys(options).forEach(option => {
+	          this.setBadgesOption(option, options[option]);
 	        });
 	      }
 	    }
@@ -2962,14 +2916,14 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "createNode",
 	    value: function createNode(nodeOptions) {
-	      var itemNode = new ItemNode(this, nodeOptions);
+	      const itemNode = new ItemNode(this, nodeOptions);
 	      this.nodes.add(itemNode);
 	      return itemNode;
 	    }
 	  }, {
 	    key: "removeNode",
 	    value: function removeNode(node) {
-	      this.nodes["delete"](node);
+	      this.nodes.delete(node);
 	    }
 	  }, {
 	    key: "getNodes",
@@ -2978,15 +2932,14 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "select",
-	    value: function select() {
-	      var preselectedMode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+	    value: function select(preselectedMode = false) {
 	      if (this.selected) {
 	        return;
 	      }
-	      var dialog = this.getDialog();
-	      var emitEvents = dialog && !preselectedMode;
+	      const dialog = this.getDialog();
+	      const emitEvents = dialog && !preselectedMode;
 	      if (emitEvents) {
-	        var event = new main_core_events.BaseEvent({
+	        const event = new main_core_events.BaseEvent({
 	          data: {
 	            item: this
 	          }
@@ -3001,7 +2954,7 @@ this.BX.UI = this.BX.UI || {};
 	        dialog.handleItemSelect(this, !preselectedMode);
 	      }
 	      if (this.isRendered()) {
-	        this.getNodes().forEach(function (node) {
+	        this.getNodes().forEach(node => {
 	          node.select();
 	        });
 	      }
@@ -3018,9 +2971,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.selected) {
 	        return;
 	      }
-	      var dialog = this.getDialog();
+	      const dialog = this.getDialog();
 	      if (dialog) {
-	        var event = new main_core_events.BaseEvent({
+	        const event = new main_core_events.BaseEvent({
 	          data: {
 	            item: this
 	          }
@@ -3032,7 +2985,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      this.selected = false;
 	      if (this.isRendered()) {
-	        this.getNodes().forEach(function (node) {
+	        this.getNodes().forEach(node => {
 	          node.deselect();
 	        });
 	      }
@@ -3078,7 +3031,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.deselectable = flag;
 	        if (this.getDialog() && this.getDialog().getTagSelector()) {
-	          var tag = this.getDialog().getTagSelector().getTag({
+	          const tag = this.getDialog().getTagSelector().getTag({
 	            id: this.getId(),
 	            entityId: this.getEntityId()
 	          });
@@ -3099,7 +3052,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.hidden = flag;
 	        if (this.isRendered()) {
-	          this.getNodes().forEach(function (node) {
+	          this.getNodes().forEach(node => {
 	            node.setHidden(flag);
 	          });
 	        }
@@ -3192,7 +3145,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTagOption",
 	    value: function getTagOption(option) {
-	      var value = this.getTagOptions().get(option);
+	      const value = this.getTagOptions().get(option);
 	      if (!main_core.Type.isUndefined(value)) {
 	        return value;
 	      }
@@ -3200,17 +3153,16 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "getTagGlobalOption",
-	    value: function getTagGlobalOption(option) {
-	      var useItemOptions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+	    value: function getTagGlobalOption(option, useItemOptions = false) {
 	      if (!main_core.Type.isStringFilled(option)) {
 	        return null;
 	      }
-	      var value = this.getTagOption(option);
+	      let value = this.getTagOption(option);
 	      if (value === null && useItemOptions === true && this[option] !== null) {
 	        value = this[option];
 	      }
 	      if (value === null && this.getDialog().getTagSelector()) {
-	        var fn = "getTag".concat(main_core.Text.toPascalCase(option));
+	        const fn = `getTag${main_core.Text.toPascalCase(option)}`;
 	        if (main_core.Type.isFunction(this.getDialog().getTagSelector()[fn])) {
 	          value = this.getDialog().getTagSelector()[fn]();
 	        }
@@ -3328,14 +3280,15 @@ this.BX.UI = this.BX.UI || {};
 	}();
 	function _renderNodes2() {
 	  if (this.isRendered()) {
-	    this.getNodes().forEach(function (node) {
+	    this.getNodes().forEach(node => {
 	      node.render();
 	    });
 	  }
 	}
 
-	var _templateObject;
-	var BaseStub = /*#__PURE__*/function () {
+	let _ = t => t,
+	  _t;
+	let BaseStub = /*#__PURE__*/function () {
 	  function BaseStub(tab, options) {
 	    babelHelpers.classCallCheck(this, BaseStub);
 	    babelHelpers.defineProperty(this, "tab", null);
@@ -3363,9 +3316,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
-	      var _this = this;
-	      return this.cache.remember('outer-container', function () {
-	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-stub\">", "</div>\n\t\t\t"])), _this.render());
+	      return this.cache.remember('outer-container', () => {
+	        return main_core.Tag.render(_t || (_t = _`
+				<div class="ui-selector-tab-stub">${0}</div>
+			`), this.render());
 	      });
 	    }
 	  }, {
@@ -3406,8 +3360,12 @@ this.BX.UI = this.BX.UI || {};
 	  return BaseStub;
 	}();
 
-	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4;
-	var DefaultStub = /*#__PURE__*/function (_BaseStub) {
+	let _$1 = t => t,
+	  _t$1,
+	  _t2,
+	  _t3,
+	  _t4;
+	let DefaultStub = /*#__PURE__*/function (_BaseStub) {
 	  babelHelpers.inherits(DefaultStub, _BaseStub);
 	  function DefaultStub(tab, options) {
 	    var _this;
@@ -3419,25 +3377,34 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(DefaultStub, [{
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this2 = this;
-	      return this.cache.remember('container', function () {
-	        var subtitle = _this2.getOption('subtitle');
-	        var title = main_core.Type.isStringFilled(_this2.getOption('title')) ? _this2.getOption('title') : _this2.getDefaultTitle();
-	        var icon = _this2.getOption('icon') || _this2.getTab().getIcon('default');
-	        var iconOpacity = 35;
-	        if (main_core.Type.isNumber(_this2.getOption('iconOpacity'))) {
-	          iconOpacity = Math.min(100, Math.max(0, _this2.getOption('iconOpacity')));
+	      return this.cache.remember('container', () => {
+	        const subtitle = this.getOption('subtitle');
+	        const title = main_core.Type.isStringFilled(this.getOption('title')) ? this.getOption('title') : this.getDefaultTitle();
+	        const icon = this.getOption('icon') || this.getTab().getIcon('default');
+	        let iconOpacity = 35;
+	        if (main_core.Type.isNumber(this.getOption('iconOpacity'))) {
+	          iconOpacity = Math.min(100, Math.max(0, this.getOption('iconOpacity')));
 	        }
-	        var iconStyle = main_core.Type.isStringFilled(icon) ? "style=\"background-image: url('".concat(encodeUrl(icon), "'); opacity: ").concat(iconOpacity / 100, ";\"") : '';
-	        var arrow = _this2.getOption('arrow', false) && _this2.getTab().getDialog().getActiveFooter() !== null;
-	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-default-stub\">\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-icon\" ", "></div>\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-titles\">\n\t\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), iconStyle, title, subtitle ? main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-subtitle\">", "</div>"])), subtitle) : '', arrow ? main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-arrow\"></div>"]))) : '');
+	        const iconStyle = main_core.Type.isStringFilled(icon) ? `style="background-image: url('${encodeUrl(icon)}'); opacity: ${iconOpacity / 100};"` : '';
+	        const arrow = this.getOption('arrow', false) && this.getTab().getDialog().getActiveFooter() !== null;
+	        return main_core.Tag.render(_t$1 || (_t$1 = _$1`
+				<div class="ui-selector-tab-default-stub">
+					<div class="ui-selector-tab-default-stub-icon" ${0}></div>
+					<div class="ui-selector-tab-default-stub-titles">
+						<div class="ui-selector-tab-default-stub-title">${0}</div>
+						${0}
+					</div>
+					
+					${0}
+				</div>
+			`), iconStyle, title, subtitle ? main_core.Tag.render(_t2 || (_t2 = _$1`<div class="ui-selector-tab-default-stub-subtitle">${0}</div>`), subtitle) : '', arrow ? main_core.Tag.render(_t3 || (_t3 = _$1`<div class="ui-selector-tab-default-stub-arrow"></div>`)) : '');
 	      });
 	    }
 	  }, {
 	    key: "getDefaultTitle",
 	    value: function getDefaultTitle() {
-	      var titleNode = this.getTab().getTitleNode();
-	      var titleContainer = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-selector-tab-default-stub-title\"></span>"])));
+	      const titleNode = this.getTab().getTitleNode();
+	      const titleContainer = main_core.Tag.render(_t4 || (_t4 = _$1`<span class="ui-selector-tab-default-stub-title"></span>`));
 	      titleNode.renderTo(titleContainer);
 	      return main_core.Loc.getMessage('UI_SELECTOR_TAB_STUB_TITLE').replace(/#TAB_TITLE#/, titleContainer.innerHTML);
 	    }
@@ -3450,8 +3417,9 @@ this.BX.UI = this.BX.UI || {};
 	  return DefaultStub;
 	}(BaseStub);
 
-	var _templateObject$2;
-	var BaseHeader = /*#__PURE__*/function () {
+	let _$2 = t => t,
+	  _t$2;
+	let BaseHeader = /*#__PURE__*/function () {
 	  function BaseHeader(context, options) {
 	    babelHelpers.classCallCheck(this, BaseHeader);
 	    babelHelpers.defineProperty(this, "dialog", null);
@@ -3505,7 +3473,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (this.container === null) {
-	        this.container = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-header\">", "</div>\n\t\t\t"])), this.render());
+	        this.container = main_core.Tag.render(_t$2 || (_t$2 = _$2`
+				<div class="ui-selector-header">${0}</div>
+			`), this.render());
 	      }
 	      return this.container;
 	    }
@@ -3521,8 +3491,9 @@ this.BX.UI = this.BX.UI || {};
 	  return BaseHeader;
 	}();
 
-	var _templateObject$3;
-	var BaseFooter = /*#__PURE__*/function () {
+	let _$3 = t => t,
+	  _t$3;
+	let BaseFooter = /*#__PURE__*/function () {
 	  function BaseFooter(context, options) {
 	    babelHelpers.classCallCheck(this, BaseFooter);
 	    babelHelpers.defineProperty(this, "dialog", null);
@@ -3576,7 +3547,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (this.container === null) {
-	        this.container = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"])), this.render());
+	        this.container = main_core.Tag.render(_t$3 || (_t$3 = _$3`
+				<div class="ui-selector-footer">${0}</div>
+			`), this.render());
 	      }
 	      return this.container;
 	    }
@@ -3592,11 +3565,16 @@ this.BX.UI = this.BX.UI || {};
 	  return BaseFooter;
 	}();
 
-	var _templateObject$4, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5;
+	let _$4 = t => t,
+	  _t$4,
+	  _t2$1,
+	  _t3$1,
+	  _t4$1,
+	  _t5;
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-	var Tab = /*#__PURE__*/function () {
+	let Tab = /*#__PURE__*/function () {
 	  function Tab(dialog, tabOptions) {
 	    babelHelpers.classCallCheck(this, Tab);
 	    babelHelpers.defineProperty(this, "id", null);
@@ -3619,7 +3597,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "showDefaultFooter", true);
 	    babelHelpers.defineProperty(this, "showAvatars", null);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
-	    var options = main_core.Type.isPlainObject(tabOptions) ? tabOptions : {};
+	    const options = main_core.Type.isPlainObject(tabOptions) ? tabOptions : {};
 	    if (!main_core.Type.isStringFilled(options.id)) {
 	      throw new Error('EntitySelector.Tab: "id" parameter is required.');
 	    }
@@ -3668,10 +3646,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setStub",
 	    value: function setStub(stub, stubOptions) {
-	      var instance = null;
-	      var options = main_core.Type.isPlainObject(stubOptions) ? stubOptions : {};
+	      let instance = null;
+	      const options = main_core.Type.isPlainObject(stubOptions) ? stubOptions : {};
 	      if (main_core.Type.isString(stub) || main_core.Type.isFunction(stub)) {
-	        var className = main_core.Type.isString(stub) ? main_core.Reflection.getClass(stub) : stub;
+	        const className = main_core.Type.isString(stub) ? main_core.Reflection.getClass(stub) : stub;
 	        if (main_core.Type.isFunction(className)) {
 	          instance = new className(this, options);
 	          if (!(instance instanceof BaseStub)) {
@@ -3694,7 +3672,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setHeader",
 	    value: function setHeader(headerContent, headerOptions) {
 	      /** @var {BaseHeader} */
-	      var header = null;
+	      let header = null;
 	      if (headerContent !== null) {
 	        header = Dialog.createHeader(this, headerContent, headerOptions);
 	        if (header === null) {
@@ -3737,7 +3715,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setFooter",
 	    value: function setFooter(footerContent, footerOptions) {
 	      /** @var {BaseFooter} */
-	      var footer = null;
+	      let footer = null;
 	      if (footerContent !== null) {
 	        footer = Dialog.createFooter(this, footerContent, footerOptions);
 	        if (footer === null) {
@@ -3805,7 +3783,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitle",
 	    value: function getTitle() {
-	      var titleNode = this.getTitleNode();
+	      const titleNode = this.getTitleNode();
 	      return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
 	    }
 	  }, {
@@ -3849,12 +3827,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setProperty",
 	    value: function setProperty(name, states) {
-	      var property = this[name];
+	      const property = this[name];
 	      if (!property) {
 	        return;
 	      }
 	      if (main_core.Type.isPlainObject(states)) {
-	        Object.keys(states).forEach(function (state) {
+	        Object.keys(states).forEach(state => {
 	          if (main_core.Type.isStringFilled(states[state])) {
 	            property[state] = states[state];
 	          }
@@ -3869,8 +3847,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getPropertyByState",
 	    value: function getPropertyByState(name, state) {
-	      var property = this[name];
-	      var labelState = main_core.Type.isStringFilled(state) ? state : 'default';
+	      const property = this[name];
+	      const labelState = main_core.Type.isStringFilled(state) ? state : 'default';
 	      if (!main_core.Type.isUndefined(property) && !main_core.Type.isUndefined(property[labelState])) {
 	        return property[labelState];
 	      }
@@ -3882,15 +3860,15 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getPropertyByCurrentState",
 	    value: function getPropertyByCurrentState(name) {
-	      var property = this[name];
+	      const property = this[name];
 	      if (this.isSelected() && this.isHovered() && property.selectedHovered) {
 	        return property.selectedHovered;
 	      } else if (this.isSelected() && property.selected) {
 	        return property.selected;
 	      } else if (this.isHovered() && property.hovered) {
 	        return property.hovered;
-	      } else if (property["default"]) {
-	        return property["default"];
+	      } else if (property.default) {
+	        return property.default;
 	      }
 	      return null;
 	    }
@@ -3909,39 +3887,55 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this = this;
-	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-content\">", "</div>\n\t\t\t"])), _this.getItemsContainer());
+	      return this.cache.remember('container', () => {
+	        return main_core.Tag.render(_t$4 || (_t$4 = _$4`
+				<div class="ui-selector-tab-content">${0}</div>
+			`), this.getItemsContainer());
 	      });
 	    }
 	  }, {
 	    key: "getLabelContainer",
 	    value: function getLabelContainer() {
-	      var _this2 = this;
-	      return this.cache.remember('label', function () {
-	        var className = _this2.isVisible() ? '' : ' ui-selector-tab-label-hidden';
-	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-label", "\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this2.handleLabelClick.bind(_this2), _this2.handleLabelMouseEnter.bind(_this2), _this2.handleLabelMouseLeave.bind(_this2), _this2.getIconContainer(), _this2.getTitleContainer());
+	      return this.cache.remember('label', () => {
+	        const className = this.isVisible() ? '' : ' ui-selector-tab-label-hidden';
+	        return main_core.Tag.render(_t2$1 || (_t2$1 = _$4`
+				<div 
+					class="ui-selector-tab-label${0}" 
+					onclick="${0}"
+					onmouseenter="${0}"
+					onmouseleave="${0}"
+				>
+					${0}
+					${0}
+				</div>
+			`), className, this.handleLabelClick.bind(this), this.handleLabelMouseEnter.bind(this), this.handleLabelMouseLeave.bind(this), this.getIconContainer(), this.getTitleContainer());
 	      });
 	    }
 	  }, {
 	    key: "getIconContainer",
 	    value: function getIconContainer() {
-	      return this.cache.remember('icon', function () {
-	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-icon\"></div>\n\t\t\t"])));
+	      return this.cache.remember('icon', () => {
+	        return main_core.Tag.render(_t3$1 || (_t3$1 = _$4`
+				<div class="ui-selector-tab-icon"></div>
+			`));
 	      });
 	    }
 	  }, {
 	    key: "getTitleContainer",
 	    value: function getTitleContainer() {
-	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-title\"></div>\n\t\t\t"])));
+	      return this.cache.remember('title', () => {
+	        return main_core.Tag.render(_t4$1 || (_t4$1 = _$4`
+				<div class="ui-selector-tab-title"></div>
+			`));
 	      });
 	    }
 	  }, {
 	    key: "getItemsContainer",
 	    value: function getItemsContainer() {
-	      return this.cache.remember('items', function () {
-	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-items\"></div>\n\t\t\t"])));
+	      return this.cache.remember('items', () => {
+	        return main_core.Tag.render(_t5 || (_t5 = _$4`
+				<div class="ui-selector-items"></div>
+			`));
 	      });
 	    }
 	  }, {
@@ -3955,9 +3949,9 @@ this.BX.UI = this.BX.UI || {};
 	    value: function renderLabel() {
 	      main_core.Dom.style(this.getTitleContainer(), 'color', this.getPropertyByCurrentState('textColor'));
 	      main_core.Dom.style(this.getLabelContainer(), 'background-color', this.getPropertyByCurrentState('bgColor'));
-	      var icon = this.getPropertyByCurrentState('icon');
-	      main_core.Dom.style(this.getIconContainer(), 'background-image', icon ? "url('".concat(encodeUrl(icon), "')") : null);
-	      var titleNode = this.getTitleNode();
+	      const icon = this.getPropertyByCurrentState('icon');
+	      main_core.Dom.style(this.getIconContainer(), 'background-image', icon ? `url('${encodeUrl(icon)}')` : null);
+	      const titleNode = this.getTitleNode();
 	      if (titleNode) {
 	        this.getTitleNode().renderTo(this.getTitleContainer());
 	      } else {
@@ -3967,7 +3961,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderContainer",
 	    value: function renderContainer() {
-	      var className = 'ui-selector-tab-content--hide-avatars';
+	      const className = 'ui-selector-tab-content--hide-avatars';
 	      if (this.shouldShowAvatars()) {
 	        main_core.Dom.removeClass(this.getContainer(), className);
 	      } else {
@@ -4119,8 +4113,14 @@ this.BX.UI = this.BX.UI || {};
 	  return Tab;
 	}();
 
-	var _templateObject$5, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6;
-	var TagItem = /*#__PURE__*/function () {
+	let _$5 = t => t,
+	  _t$5,
+	  _t2$2,
+	  _t3$2,
+	  _t4$2,
+	  _t5$1,
+	  _t6;
+	let TagItem = /*#__PURE__*/function () {
 	  function TagItem(itemOptions) {
 	    babelHelpers.classCallCheck(this, TagItem);
 	    babelHelpers.defineProperty(this, "id", null);
@@ -4140,7 +4140,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
 	    babelHelpers.defineProperty(this, "selector", null);
 	    babelHelpers.defineProperty(this, "rendered", false);
-	    var options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
+	    const options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
 	    if (!main_core.Type.isStringFilled(options.id) && !main_core.Type.isNumber(options.id)) {
 	      throw new Error('TagSelector.TagItem: "id" parameter is required.');
 	    }
@@ -4229,15 +4229,15 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.avatarOptions !== null && !main_core.Type.isUndefined(this.avatarOptions[option])) {
 	        return this.avatarOptions[option];
 	      }
-	      var selectorAvatarOption = this.getSelector().getTagAvatarOption(option);
+	      const selectorAvatarOption = this.getSelector().getTagAvatarOption(option);
 	      if (selectorAvatarOption !== null) {
 	        return selectorAvatarOption[option];
 	      }
-	      var entityTagAvatarOptions = this.getEntityTagOption('avatarOptions');
+	      const entityTagAvatarOptions = this.getEntityTagOption('avatarOptions');
 	      if (main_core.Type.isPlainObject(entityTagAvatarOptions) && !main_core.Type.isUndefined(entityTagAvatarOptions[option])) {
 	        return entityTagAvatarOptions[option];
 	      }
-	      var entityItemAvatarOptions = this.getEntityItemOption('avatarOptions');
+	      const entityItemAvatarOptions = this.getEntityItemOption('avatarOptions');
 	      if (main_core.Type.isPlainObject(entityItemAvatarOptions) && !main_core.Type.isUndefined(entityItemAvatarOptions[option])) {
 	        return entityItemAvatarOptions[option];
 	      }
@@ -4256,10 +4256,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setAvatarOptions",
 	    value: function setAvatarOptions(options) {
-	      var _this = this;
 	      if (main_core.Type.isPlainObject(options)) {
-	        Object.keys(options).forEach(function (option) {
-	          _this.setAvatarOption(option, options[option]);
+	        Object.keys(options).forEach(option => {
+	          this.setAvatarOption(option, options[option]);
 	        });
 	      }
 	    }
@@ -4361,7 +4360,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      var titleNode = this.getTitleNode();
+	      const titleNode = this.getTitleNode();
 	      if (titleNode) {
 	        titleNode.renderTo(this.getTitleContainer());
 
@@ -4370,30 +4369,30 @@ this.BX.UI = this.BX.UI || {};
 	        this.getTitleContainer().textContent = '';
 	        main_core.Dom.attr(this.getContentContainer(), 'title', '');
 	      }
-	      var avatar = this.getAvatar();
-	      var bgImage = this.getAvatarOption('bgImage');
+	      const avatar = this.getAvatar();
+	      const bgImage = this.getAvatarOption('bgImage');
 	      if (main_core.Type.isStringFilled(avatar)) {
-	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', "url('".concat(encodeUrl(avatar), "')"));
+	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', `url('${encodeUrl(avatar)}')`);
 	      } else {
 	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', bgImage);
 	      }
-	      var bgColor = this.getAvatarOption('bgColor');
-	      var bgSize = this.getAvatarOption('bgSize');
-	      var border = this.getAvatarOption('border');
-	      var borderRadius = this.getAvatarOption('borderRadius');
+	      const bgColor = this.getAvatarOption('bgColor');
+	      const bgSize = this.getAvatarOption('bgSize');
+	      const border = this.getAvatarOption('border');
+	      const borderRadius = this.getAvatarOption('borderRadius');
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
 	      main_core.Dom.style(this.getAvatarContainer(), 'border', border);
 	      main_core.Dom.style(this.getAvatarContainer(), 'border-radius', borderRadius);
-	      var hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none';
+	      const hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none';
 	      if (hasAvatar) {
 	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
 	      } else {
 	        main_core.Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
 	      }
-	      var maxWidth = this.getMaxWidth();
+	      const maxWidth = this.getMaxWidth();
 	      if (maxWidth > 0) {
-	        main_core.Dom.style(this.getContainer(), 'max-width', "".concat(maxWidth, "px"));
+	        main_core.Dom.style(this.getContainer(), 'max-width', `${maxWidth}px`);
 	      } else {
 	        main_core.Dom.style(this.getContainer(), 'max-width', null);
 	      }
@@ -4410,44 +4409,70 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this2 = this;
-	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getContentContainer(), _this2.getRemoveIcon());
+	      return this.cache.remember('container', () => {
+	        return main_core.Tag.render(_t$5 || (_t$5 = _$5`
+				<div class="ui-tag-selector-item ui-tag-selector-tag">
+					${0}
+					${0}
+				</div>`), this.getContentContainer(), this.getRemoveIcon());
 	      });
 	    }
 	  }, {
 	    key: "getContentContainer",
 	    value: function getContentContainer() {
-	      var _this3 = this;
-	      return this.cache.remember('content-container', function () {
-	        if (main_core.Type.isStringFilled(_this3.getLink())) {
-	          return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a\n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\thref=\"", "\"\n\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), _this3.handleContainerClick.bind(_this3), _this3.getLink(), _this3.getAvatarContainer(), _this3.getTitleContainer());
+	      return this.cache.remember('content-container', () => {
+	        if (main_core.Type.isStringFilled(this.getLink())) {
+	          return main_core.Tag.render(_t2$2 || (_t2$2 = _$5`
+					<a
+						class="ui-tag-selector-tag-content"
+						onclick="${0}"
+						href="${0}"
+						target="_blank"
+					>
+						${0}
+						${0}
+					</a>
+				`), this.handleContainerClick.bind(this), this.getLink(), this.getAvatarContainer(), this.getTitleContainer());
 	        } else {
-	          var className = main_core.Type.isFunction(_this3.getOnclick()) ? ' ui-tag-selector-tag-content--clickable' : '';
-	          return main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content", "\" \n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t"])), className, _this3.handleContainerClick.bind(_this3), _this3.getAvatarContainer(), _this3.getTitleContainer());
+	          const className = main_core.Type.isFunction(this.getOnclick()) ? ' ui-tag-selector-tag-content--clickable' : '';
+	          return main_core.Tag.render(_t3$2 || (_t3$2 = _$5`
+					<div 
+						class="ui-tag-selector-tag-content${0}" 
+						onclick="${0}"
+					>
+						${0}
+						${0}
+					</div>
+					
+				`), className, this.handleContainerClick.bind(this), this.getAvatarContainer(), this.getTitleContainer());
 	        }
 	      });
 	    }
 	  }, {
 	    key: "getAvatarContainer",
 	    value: function getAvatarContainer() {
-	      return this.cache.remember('avatar', function () {
-	        return main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-avatar\"></div>\n\t\t\t"])));
+	      return this.cache.remember('avatar', () => {
+	        return main_core.Tag.render(_t4$2 || (_t4$2 = _$5`
+				<div class="ui-tag-selector-tag-avatar"></div>
+			`));
 	      });
 	    }
 	  }, {
 	    key: "getTitleContainer",
 	    value: function getTitleContainer() {
-	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-title\"></div>\n\t\t\t"])));
+	      return this.cache.remember('title', () => {
+	        return main_core.Tag.render(_t5$1 || (_t5$1 = _$5`
+				<div class="ui-tag-selector-tag-title"></div>
+			`));
 	      });
 	    }
 	  }, {
 	    key: "getRemoveIcon",
 	    value: function getRemoveIcon() {
-	      var _this4 = this;
-	      return this.cache.remember('remove-icon', function () {
-	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-remove\" onclick=\"", "\"></div>\n\t\t\t"])), _this4.handleRemoveIconClick.bind(_this4));
+	      return this.cache.remember('remove-icon', () => {
+	        return main_core.Tag.render(_t6 || (_t6 = _$5`
+				<div class="ui-tag-selector-tag-remove" onclick="${0}"></div>
+			`), this.handleRemoveIconClick.bind(this));
 	      });
 	    }
 	  }, {
@@ -4467,18 +4492,16 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "remove",
-	    value: function remove() {
-	      var _this5 = this;
-	      var animate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	    value: function remove(animate = true) {
 	      if (animate === false) {
 	        main_core.Dom.remove(this.getContainer());
 	        return Promise.resolve();
 	      }
-	      return new Promise(function (resolve) {
-	        main_core.Dom.style(_this5.getContainer(), 'width', "".concat(_this5.getContainer().offsetWidth, "px"));
-	        main_core.Dom.addClass(_this5.getContainer(), 'ui-tag-selector-tag--remove');
-	        Animation.handleAnimationEnd(_this5.getContainer(), 'ui-tag-selector-tag-remove').then(function () {
-	          main_core.Dom.remove(_this5.getContainer());
+	      return new Promise(resolve => {
+	        main_core.Dom.style(this.getContainer(), 'width', `${this.getContainer().offsetWidth}px`);
+	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--remove');
+	        Animation.handleAnimationEnd(this.getContainer(), 'ui-tag-selector-tag-remove').then(() => {
+	          main_core.Dom.remove(this.getContainer());
 	          resolve();
 	        });
 	      });
@@ -4486,11 +4509,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "show",
 	    value: function show() {
-	      var _this6 = this;
-	      return new Promise(function (resolve) {
-	        main_core.Dom.addClass(_this6.getContainer(), 'ui-tag-selector-tag--show');
-	        Animation.handleAnimationEnd(_this6.getContainer(), 'ui-tag-selector-tag-show').then(function () {
-	          main_core.Dom.removeClass(_this6.getContainer(), 'ui-tag-selector-tag--show');
+	      return new Promise(resolve => {
+	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--show');
+	        Animation.handleAnimationEnd(this.getContainer(), 'ui-tag-selector-tag-show').then(() => {
+	          main_core.Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag--show');
 	          resolve();
 	        });
 	      });
@@ -4498,7 +4520,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleContainerClick",
 	    value: function handleContainerClick() {
-	      var fn = this.getOnclick();
+	      const fn = this.getOnclick();
 	      if (main_core.Type.isFunction(fn)) {
 	        fn(this);
 	      }
@@ -4515,11 +4537,18 @@ this.BX.UI = this.BX.UI || {};
 	  return TagItem;
 	}();
 
-	var _templateObject$6, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7;
+	let _$6 = t => t,
+	  _t$6,
+	  _t2$3,
+	  _t3$3,
+	  _t4$3,
+	  _t5$2,
+	  _t6$1,
+	  _t7;
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-	var TagSelector = /*#__PURE__*/function (_EventEmitter) {
+	let TagSelector = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(TagSelector, _EventEmitter);
 	  function TagSelector(selectorOptions) {
 	    var _this;
@@ -4550,8 +4579,8 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagMaxWidth", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dialog", null);
 	    _this.setEventNamespace('BX.UI.EntitySelector.TagSelector');
-	    var options = main_core.Type.isPlainObject(selectorOptions) ? selectorOptions : {};
-	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : "ui-tag-selector-".concat(main_core.Text.getRandom().toLowerCase());
+	    const options = main_core.Type.isPlainObject(selectorOptions) ? selectorOptions : {};
+	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : `ui-tag-selector-${main_core.Text.getRandom().toLowerCase()}`;
 	    _this.multiple = main_core.Type.isBoolean(options.multiple) ? options.multiple : true;
 	    _this.addButtonVisible = options.showAddButton !== false;
 	    _this.createButtonVisible = options.showCreateButton === true;
@@ -4573,19 +4602,19 @@ this.BX.UI = this.BX.UI || {};
 	    _this.setTagBgColor(options.tagBgColor);
 	    _this.setTagFontWeight(options.tagFontWeight);
 	    if (main_core.Type.isPlainObject(options.dialogOptions)) {
-	      var selectedItems = main_core.Type.isArray(options.items) ? options.items : [];
+	      let selectedItems = main_core.Type.isArray(options.items) ? options.items : [];
 	      if (main_core.Type.isArray(options.dialogOptions.selectedItems)) {
 	        selectedItems = selectedItems.concat(options.dialogOptions.selectedItems);
 	      }
-	      var dialogOptions = Object.assign({}, options.dialogOptions, {
+	      const dialogOptions = Object.assign({}, options.dialogOptions, {
 	        tagSelectorOptions: null,
-	        selectedItems: selectedItems,
+	        selectedItems,
 	        multiple: _this.isMultiple(),
 	        tagSelector: babelHelpers.assertThisInitialized(_this)
 	      });
 	      new Dialog(dialogOptions);
 	    } else if (main_core.Type.isArray(options.items)) {
-	      options.items.forEach(function (item) {
+	      options.items.forEach(item => {
 	        _this.addTag(item);
 	      });
 	    }
@@ -4667,7 +4696,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setDeselectable",
 	    value: function setDeselectable(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
-	        var changed = this.deselectable !== flag;
+	        const changed = this.deselectable !== flag;
 	        this.deselectable = flag;
 	        if (changed) {
 	          this.updateTags();
@@ -4683,33 +4712,30 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTag",
 	    value: function getTag(tagItem) {
 	      if (tagItem instanceof TagItem) {
-	        return this.getTags().find(function (tag) {
-	          return tag === tagItem;
-	        });
+	        return this.getTags().find(tag => tag === tagItem);
 	      } else if (main_core.Type.isPlainObject(tagItem)) {
-	        var id = tagItem.id,
-	          entityId = tagItem.entityId;
-	        return this.getTags().find(function (tag) {
-	          return tag.getId() === id && tag.getEntityId() === entityId;
-	        });
+	        const {
+	          id,
+	          entityId
+	        } = tagItem;
+	        return this.getTags().find(tag => tag.getId() === id && tag.getEntityId() === entityId);
 	      }
 	      return null;
 	    }
 	  }, {
 	    key: "addTag",
 	    value: function addTag(tagOptions) {
-	      var _this2 = this;
 	      if (!main_core.Type.isObjectLike(tagOptions)) {
 	        throw new Error('TagSelector.addTag: wrong item options.');
 	      }
 	      if (this.getTag(tagOptions)) {
 	        return null;
 	      }
-	      var tag = new TagItem(tagOptions);
+	      const tag = new TagItem(tagOptions);
 	      tag.setSelector(this);
-	      var event = new main_core_events.BaseEvent({
+	      const event = new main_core_events.BaseEvent({
 	        data: {
-	          tag: tag
+	          tag
 	        }
 	      });
 	      this.emit('onBeforeTagAdd', event);
@@ -4721,41 +4747,39 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      this.tags.push(tag);
 	      this.emit('onTagAdd', {
-	        tag: tag
+	        tag
 	      });
 	      if (this.isRendered()) {
 	        tag.render();
 	        this.getItemsContainer().insertBefore(tag.getContainer(), this.getTextBox());
 	        if (tagOptions.animate !== false) {
-	          tag.show().then(function () {
-	            _this2.getContainer().scrollTop = _this2.getContainer().scrollHeight - _this2.getContainer().offsetHeight;
-	            _this2.emit('onAfterTagAdd', {
-	              tag: tag
+	          tag.show().then(() => {
+	            this.getContainer().scrollTop = this.getContainer().scrollHeight - this.getContainer().offsetHeight;
+	            this.emit('onAfterTagAdd', {
+	              tag
 	            });
 	          });
 	        } else {
 	          this.emit('onAfterTagAdd', {
-	            tag: tag
+	            tag
 	          });
 	        }
 	        this.toggleAddButtonCaption();
 	      } else {
 	        this.emit('onAfterTagAdd', {
-	          tag: tag
+	          tag
 	        });
 	      }
 	      return tag;
 	    }
 	  }, {
 	    key: "removeTag",
-	    value: function removeTag(item) {
-	      var _this3 = this;
-	      var animate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-	      var tagItem = this.getTag(item);
+	    value: function removeTag(item, animate = true) {
+	      const tagItem = this.getTag(item);
 	      if (!tagItem) {
 	        return;
 	      }
-	      var event = new main_core_events.BaseEvent({
+	      const event = new main_core_events.BaseEvent({
 	        data: {
 	          tag: tagItem
 	        }
@@ -4764,16 +4788,14 @@ this.BX.UI = this.BX.UI || {};
 	      if (event.isDefaultPrevented()) {
 	        return;
 	      }
-	      this.tags = this.tags.filter(function (el) {
-	        return el !== tagItem;
-	      });
+	      this.tags = this.tags.filter(el => el !== tagItem);
 	      this.emit('onTagRemove', {
 	        tag: tagItem
 	      });
 	      if (this.isRendered()) {
-	        tagItem.remove(animate).then(function () {
-	          _this3.toggleAddButtonCaption();
-	          _this3.emit('onAfterTagRemove', {
+	        tagItem.remove(animate).then(() => {
+	          this.toggleAddButtonCaption();
+	          this.emit('onAfterTagRemove', {
 	            tag: tagItem
 	          });
 	        });
@@ -4786,9 +4808,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "removeTags",
 	    value: function removeTags() {
-	      var _this4 = this;
-	      this.getTags().forEach(function (tag) {
-	        _this4.removeTag(tag, false);
+	      this.getTags().forEach(tag => {
+	        this.removeTag(tag, false);
 	      });
 	    }
 	  }, {
@@ -4799,11 +4820,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderTo",
 	    value: function renderTo(node) {
-	      var _this5 = this;
 	      this.rendered = true;
-	      this.getTags().forEach(function (tag) {
+	      this.getTags().forEach(tag => {
 	        tag.render();
-	        _this5.getItemsContainer().insertBefore(tag.getContainer(), _this5.getTextBox());
+	        this.getItemsContainer().insertBefore(tag.getContainer(), this.getTextBox());
 	      });
 	      if (main_core.Type.isDomNode(node)) {
 	        main_core.Dom.append(this.getOuterContainer(), node);
@@ -4821,7 +4841,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "updateTags",
 	    value: function updateTags() {
 	      if (this.isRendered()) {
-	        this.getTags().forEach(function (tag) {
+	        this.getTags().forEach(tag => {
 	          tag.render();
 	        });
 	      }
@@ -4829,42 +4849,66 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
-	      var _this6 = this;
-	      return this.cache.remember('outer-container', function () {
-	        var className = _this6.isReadonly() ? ' ui-tag-selector-container-readonly' : '';
-	        className += _this6.isLocked() ? ' ui-tag-selector-container-locked' : '';
-	        return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-outer-container", "\">", "</div>\n\t\t\t"])), className, _this6.getContainer());
+	      return this.cache.remember('outer-container', () => {
+	        let className = this.isReadonly() ? ' ui-tag-selector-container-readonly' : '';
+	        className += this.isLocked() ? ' ui-tag-selector-container-locked' : '';
+	        return main_core.Tag.render(_t$6 || (_t$6 = _$6`
+				<div class="ui-tag-selector-outer-container${0}">${0}</div>
+			`), className, this.getContainer());
 	      });
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this7 = this;
-	      return this.cache.remember('container', function () {
-	        var style = _this7.getMaxHeight() ? " style=\"max-height: ".concat(_this7.getMaxHeight(), "px; -ms-overflow-style: -ms-autohiding-scrollbar;\"") : '';
-	        return main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-tag-selector-container\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this7.handleContainerClick.bind(_this7), style, _this7.getItemsContainer(), _this7.getCreateButton());
+	      return this.cache.remember('container', () => {
+	        const style = this.getMaxHeight() ? ` style="max-height: ${this.getMaxHeight()}px; -ms-overflow-style: -ms-autohiding-scrollbar;"` : '';
+	        return main_core.Tag.render(_t2$3 || (_t2$3 = _$6`
+				<div 
+					class="ui-tag-selector-container" 
+					onclick="${0}"
+					${0}
+				>
+					${0}
+					${0}
+				</div>
+			`), this.handleContainerClick.bind(this), style, this.getItemsContainer(), this.getCreateButton());
 	      });
 	    }
 	  }, {
 	    key: "getItemsContainer",
 	    value: function getItemsContainer() {
-	      var _this8 = this;
-	      return this.cache.remember('items-container', function () {
-	        return main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-items\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this8.getTextBox(), _this8.getAddButton());
+	      return this.cache.remember('items-container', () => {
+	        return main_core.Tag.render(_t3$3 || (_t3$3 = _$6`
+				<div class="ui-tag-selector-items">
+					${0}
+					${0}
+				</div>
+			`), this.getTextBox(), this.getAddButton());
 	      });
 	    }
 	  }, {
 	    key: "getTextBox",
 	    value: function getTextBox() {
-	      var _this9 = this;
-	      return this.cache.remember('text-box', function () {
-	        var className = _this9.textBoxVisible ? '' : ' ui-tag-selector-item-hidden';
-	        var input = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tclass=\"ui-tag-selector-item ui-tag-selector-text-box", "\" \n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\toninput=\"", "\"\n\t\t\t\t\tonblur=\"", "\"\n\t\t\t\t\tonkeyup=\"", "\"\n\t\t\t\t\tonkeydown=\"", "\"\n\t\t\t\t\tvalue=\"\"\n\t\t\t\t>\n\t\t\t"])), className, main_core.Text.encode(_this9.getPlaceholder()), _this9.handleTextBoxInput.bind(_this9), _this9.handleTextBoxBlur.bind(_this9), _this9.handleTextBoxKeyUp.bind(_this9), _this9.handleTextBoxKeyDown.bind(_this9));
-	        var width = _this9.getTextBoxWidth();
+	      return this.cache.remember('text-box', () => {
+	        const className = this.textBoxVisible ? '' : ' ui-tag-selector-item-hidden';
+	        const input = main_core.Tag.render(_t4$3 || (_t4$3 = _$6`
+				<input 
+					type="text" 
+					class="ui-tag-selector-item ui-tag-selector-text-box${0}" 
+					autocomplete="off"
+					placeholder="${0}"
+					oninput="${0}"
+					onblur="${0}"
+					onkeyup="${0}"
+					onkeydown="${0}"
+					value=""
+				>
+			`), className, main_core.Text.encode(this.getPlaceholder()), this.handleTextBoxInput.bind(this), this.handleTextBoxBlur.bind(this), this.handleTextBoxKeyUp.bind(this), this.handleTextBoxKeyDown.bind(this));
+	        const width = this.getTextBoxWidth();
 	        if (width !== null) {
-	          main_core.Dom.style(input, 'width', main_core.Type.isStringFilled(width) ? width : "".concat(width, "px"));
+	          main_core.Dom.style(input, 'width', main_core.Type.isStringFilled(width) ? width : `${width}px`);
 	        }
-	        if (_this9.isLocked()) {
+	        if (this.isLocked()) {
 	          input.disabled = true;
 	        }
 	        return input;
@@ -4934,7 +4978,7 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (main_core.Type.isNumber(width) && width > 0) {
 	        this.textBoxWidth = width;
 	        if (this.isRendered()) {
-	          main_core.Dom.style(this.getTextBox(), 'width', "".concat(width, "px"));
+	          main_core.Dom.style(this.getTextBox(), 'width', `${width}px`);
 	        }
 	      }
 	    }
@@ -4991,10 +5035,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setTagAvatarOptions",
 	    value: function setTagAvatarOptions(options) {
-	      var _this10 = this;
 	      if (main_core.Type.isPlainObject(options)) {
-	        Object.keys(options).forEach(function (option) {
-	          _this10.setTagAvatarOption(option, options[option]);
+	        Object.keys(options).forEach(option => {
+	          this.setTagAvatarOption(option, options[option]);
 	        });
 	      }
 	    }
@@ -5068,7 +5111,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isNumber(height) && height > 0 || height === null) {
 	        this.maxHeight = height;
 	        if (this.isRendered()) {
-	          main_core.Dom.style(this.getContainer(), 'max-height', height > 0 ? "".concat(height, "px") : null);
+	          main_core.Dom.style(this.getContainer(), 'max-height', height > 0 ? `${height}px` : null);
 	          main_core.Dom.style(this.getContainer(), '-ms-overflow-style', height > 0 ? '-ms-autohiding-scrollbar' : null);
 	        }
 	      }
@@ -5076,19 +5119,25 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getAddButton",
 	    value: function getAddButton() {
-	      var _this11 = this;
-	      return this.cache.remember('add-button', function () {
-	        var className = _this11.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), className, _this11.getAddButtonLink());
+	      return this.cache.remember('add-button', () => {
+	        const className = this.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
+	        return main_core.Tag.render(_t5$2 || (_t5$2 = _$6`
+				<span class="ui-tag-selector-item ui-tag-selector-add-button${0}">
+					${0}
+				</span>
+			`), className, this.getAddButtonLink());
 	      });
 	    }
 	  }, {
 	    key: "getAddButtonLink",
 	    value: function getAddButtonLink() {
-	      var _this12 = this;
-	      return this.cache.remember('add-button-link', function () {
-	        var caption = main_core.Text.encode(_this12.getActualButtonCaption());
-	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t"])), _this12.handleAddButtonClick.bind(_this12), caption);
+	      return this.cache.remember('add-button-link', () => {
+	        const caption = main_core.Text.encode(this.getActualButtonCaption());
+	        return main_core.Tag.render(_t6$1 || (_t6$1 = _$6`
+				<span 
+					class="ui-tag-selector-add-button-caption" 
+					onclick="${0}">${0}</span>
+			`), this.handleAddButtonClick.bind(this), caption);
 	      });
 	    }
 	  }, {
@@ -5149,10 +5198,16 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getCreateButton",
 	    value: function getCreateButton() {
-	      var _this13 = this;
-	      return this.cache.remember('create-button', function () {
-	        var className = _this13.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), className, _this13.handleCreateButtonClick.bind(_this13), main_core.Text.encode(_this13.getCreateButtonCaption()));
+	      return this.cache.remember('create-button', () => {
+	        const className = this.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
+	        return main_core.Tag.render(_t7 || (_t7 = _$6`
+				<div class="ui-tag-selector-create-button${0}">
+					<span 
+						class="ui-tag-selector-create-button-caption"
+						onclick="${0}"
+					>${0}</span>
+				</div>
+			`), className, this.handleCreateButtonClick.bind(this), main_core.Text.encode(this.getCreateButtonCaption()));
 	      });
 	    }
 	  }, {
@@ -5186,17 +5241,17 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleContainerClick",
 	    value: function handleContainerClick(event) {
 	      this.emit('onContainerClick', {
-	        event: event
+	        event
 	      });
 	    }
 	  }, {
 	    key: "handleTextBoxInput",
 	    value: function handleTextBoxInput(event) {
-	      var newValue = this.getTextBoxValue();
+	      const newValue = this.getTextBoxValue();
 	      if (newValue !== this.textBoxOldValue) {
 	        this.textBoxOldValue = newValue;
 	        this.emit('onInput', {
-	          event: event
+	          event
 	        });
 	      }
 	    }
@@ -5204,7 +5259,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleTextBoxBlur",
 	    value: function handleTextBoxBlur(event) {
 	      this.emit('onBlur', {
-	        event: event
+	        event
 	      });
 	      if (this.textBoxAutoHide) {
 	        this.clearTextBox();
@@ -5216,11 +5271,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleTextBoxKeyUp",
 	    value: function handleTextBoxKeyUp(event) {
 	      this.emit('onKeyUp', {
-	        event: event
+	        event
 	      });
 	      if (event.key === 'Enter') {
 	        this.emit('onEnter', {
-	          event: event
+	          event
 	        });
 	        if (this.textBoxAutoHide) {
 	          this.clearTextBox();
@@ -5237,12 +5292,12 @@ this.BX.UI = this.BX.UI || {};
 	        event.preventDefault();
 	        if (main_core.Browser.isMac() && event.metaKey || event.ctrlKey) {
 	          this.emit('onMetaEnter', {
-	            event: event
+	            event
 	          });
 	        }
 	      }
 	      this.emit('onKeyDown', {
-	        event: event
+	        event
 	      });
 	    }
 	  }, {
@@ -5252,21 +5307,21 @@ this.BX.UI = this.BX.UI || {};
 	      this.showTextBox();
 	      this.focusTextBox();
 	      this.emit('onAddButtonClick', {
-	        event: event
+	        event
 	      });
 	    }
 	  }, {
 	    key: "handleCreateButtonClick",
 	    value: function handleCreateButtonClick(event) {
 	      this.emit('onCreateButtonClick', {
-	        event: event
+	        event
 	      });
 	    }
 	  }]);
 	  return TagSelector;
 	}(main_core_events.EventEmitter);
 
-	var Navigation = /*#__PURE__*/function () {
+	let Navigation = /*#__PURE__*/function () {
 	  // IE/Edge compatible event names
 
 	  function Navigation(dialog) {
@@ -5324,8 +5379,8 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getActiveNode()) {
 	        return null;
 	      }
-	      var nextNode = null;
-	      var currentNode = this.getActiveNode();
+	      let nextNode = null;
+	      let currentNode = this.getActiveNode();
 	      if (currentNode.hasChildren() && currentNode.isOpen()) {
 	        nextNode = currentNode.getFirstChild();
 	      }
@@ -5344,10 +5399,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.getActiveNode()) {
 	        return null;
 	      }
-	      var previousNode = this.getActiveNode().getPreviousSibling();
+	      let previousNode = this.getActiveNode().getPreviousSibling();
 	      if (previousNode) {
 	        while (previousNode.hasChildren() && previousNode.isOpen()) {
-	          var lastChild = previousNode.getLastChild();
+	          const lastChild = previousNode.getLastChild();
 	          if (lastChild === null) {
 	            break;
 	          }
@@ -5363,20 +5418,20 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getFirstNode",
 	    value: function getFirstNode() {
-	      var tab = this.getDialog().getActiveTab();
+	      const tab = this.getDialog().getActiveTab();
 	      return tab && tab.getRootNode().getFirstChild();
 	    }
 	  }, {
 	    key: "getLastNode",
 	    value: function getLastNode() {
-	      var tab = this.getDialog().getActiveTab();
+	      const tab = this.getDialog().getActiveTab();
 	      if (!tab) {
 	        return null;
 	      }
-	      var lastNode = tab.getRootNode().getLastChild();
+	      let lastNode = tab.getRootNode().getLastChild();
 	      if (lastNode !== null) {
 	        while (lastNode.hasChildren() && lastNode.isOpen()) {
-	          var lastChild = lastNode.getLastChild();
+	          const lastChild = lastNode.getLastChild();
 	          if (lastChild === null) {
 	            break;
 	          }
@@ -5401,7 +5456,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "lockTab",
 	    value: function lockTab() {
-	      var activeTab = this.getDialog().getActiveTab();
+	      const activeTab = this.getDialog().getActiveTab();
 	      if (this.lockedTab === activeTab) {
 	        return;
 	      } else if (this.lockedTab !== null) {
@@ -5451,15 +5506,15 @@ this.BX.UI = this.BX.UI || {};
 	      if (event.metaKey || event.ctrlKey || event.altKey) {
 	        return;
 	      }
-	      var activeTab = this.getDialog().getActiveTab();
+	      const activeTab = this.getDialog().getActiveTab();
 	      if (!activeTab) {
 	        return;
 	      }
-	      var keyName = this.constructor.keyMap[event.key] || event.key;
+	      const keyName = this.constructor.keyMap[event.key] || event.key;
 	      if (activeTab === this.getDialog().getSearchTab() && ['ArrowLeft', 'ArrowRight'].includes(keyName)) {
 	        return;
 	      }
-	      var handler = this["handle".concat(keyName, "Press")];
+	      const handler = this[`handle${keyName}Press`];
 	      if (handler) {
 	        handler.call(this, event);
 	        this.lockTab(activeTab);
@@ -5470,15 +5525,15 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleArrowDownPress",
 	    value: function handleArrowDownPress() {
 	      if (!this.getActiveNode()) {
-	        var firstNode = this.getFirstNode();
+	        const firstNode = this.getFirstNode();
 	        this.focusOnNode(firstNode);
 	      } else {
-	        var nextNode = this.getNextNode();
+	        const nextNode = this.getNextNode();
 	        if (nextNode) {
 	          this.focusOnNode(nextNode);
 	        } else {
-	          var _firstNode = this.getFirstNode();
-	          this.focusOnNode(_firstNode);
+	          const firstNode = this.getFirstNode();
+	          this.focusOnNode(firstNode);
 	        }
 	      }
 	    }
@@ -5486,15 +5541,15 @@ this.BX.UI = this.BX.UI || {};
 	    key: "handleArrowUpPress",
 	    value: function handleArrowUpPress() {
 	      if (!this.getActiveNode()) {
-	        var lastNode = this.getLastNode();
+	        const lastNode = this.getLastNode();
 	        this.focusOnNode(lastNode);
 	      } else {
-	        var previousNode = this.getPreviousNode();
+	        const previousNode = this.getPreviousNode();
 	        if (previousNode) {
 	          this.focusOnNode(previousNode);
 	        } else {
-	          var _lastNode = this.getLastNode();
-	          this.focusOnNode(_lastNode);
+	          const lastNode = this.getLastNode();
+	          this.focusOnNode(lastNode);
 	        }
 	      }
 	    }
@@ -5514,7 +5569,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getActiveNode().isOpen()) {
 	        this.getActiveNode().collapse();
 	      } else {
-	        var parentNode = this.getActiveNode().getParentNode();
+	        const parentNode = this.getActiveNode().getParentNode();
 	        if (parentNode && !parentNode.isRoot()) {
 	          this.focusOnNode(parentNode);
 	        }
@@ -5539,20 +5594,20 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleTabPress",
 	    value: function handleTabPress(event) {
-	      var activeTab = this.getDialog().getActiveTab();
+	      const activeTab = this.getDialog().getActiveTab();
 	      if (!activeTab) {
 	        this.getDialog().selectFirstTab();
 	        return;
 	      }
 	      if (event.shiftKey) {
-	        var previousTab = this.getDialog().getPreviousTab();
+	        const previousTab = this.getDialog().getPreviousTab();
 	        if (previousTab) {
 	          this.getDialog().selectTab(previousTab.getId());
 	        } else {
 	          this.getDialog().selectLastTab();
 	        }
 	      } else {
-	        var nextTab = this.getDialog().getNextTab();
+	        const nextTab = this.getDialog().getNextTab();
 	        if (nextTab) {
 	          this.getDialog().selectTab(nextTab.getId());
 	        } else {
@@ -5572,7 +5627,7 @@ this.BX.UI = this.BX.UI || {};
 	  ' ': 'Space' // For all browsers
 	});
 
-	var SliderIntegration = /*#__PURE__*/function () {
+	let SliderIntegration = /*#__PURE__*/function () {
 	  function SliderIntegration(dialog) {
 	    babelHelpers.classCallCheck(this, SliderIntegration);
 	    babelHelpers.defineProperty(this, "dialog", null);
@@ -5640,10 +5695,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleSliderOpen",
 	    value: function handleSliderOpen(event) {
-	      var _event$getData = event.getData(),
-	        _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
-	        sliderEvent = _event$getData2[0];
-	      var slider = sliderEvent.getSlider();
+	      const [sliderEvent] = event.getData();
+	      const slider = sliderEvent.getSlider();
 	      if (!this.isDialogInSlider(slider)) {
 	        this.sliders.add(slider);
 	        this.getDialog().freeze();
@@ -5652,11 +5705,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleSliderClose",
 	    value: function handleSliderClose(event) {
-	      var _event$getData3 = event.getData(),
-	        _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	        sliderEvent = _event$getData4[0];
-	      var slider = sliderEvent.getSlider();
-	      this.sliders["delete"](slider);
+	      const [sliderEvent] = event.getData();
+	      const slider = sliderEvent.getSlider();
+	      this.sliders.delete(slider);
 	      if (this.sliders.size === 0) {
 	        this.getDialog().unfreeze();
 	      }
@@ -5664,15 +5715,13 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleSliderDestroy",
 	    value: function handleSliderDestroy(event) {
-	      var _event$getData5 = event.getData(),
-	        _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 1),
-	        sliderEvent = _event$getData6[0];
-	      var slider = sliderEvent.getSlider();
+	      const [sliderEvent] = event.getData();
+	      const slider = sliderEvent.getSlider();
 	      if (this.isDialogInSlider(slider)) {
 	        this.unbindEvents();
 	        this.dialog.destroy();
 	      } else {
-	        this.sliders["delete"](slider);
+	        this.sliders.delete(slider);
 	        if (this.sliders.size === 0) {
 	          this.getDialog().unfreeze();
 	        }
@@ -5682,8 +5731,9 @@ this.BX.UI = this.BX.UI || {};
 	  return SliderIntegration;
 	}();
 
-	var _templateObject$7;
-	var DefaultHeader = /*#__PURE__*/function (_BaseHeader) {
+	let _$7 = t => t,
+	  _t$7;
+	let DefaultHeader = /*#__PURE__*/function (_BaseHeader) {
 	  babelHelpers.inherits(DefaultHeader, _BaseHeader);
 	  function DefaultHeader(context, options) {
 	    var _this;
@@ -5696,9 +5746,13 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(DefaultHeader, [{
 	    key: "render",
 	    value: function render() {
-	      var container = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
-	      var className = this.getOption('containerClass', 'ui-selector-header-default');
-	      var containerStyles = this.getOption('containerStyles', {});
+	      const container = main_core.Tag.render(_t$7 || (_t$7 = _$7`
+			<div>
+				${0}
+			</div>
+		`), this.getContent() ? this.getContent() : '');
+	      const className = this.getOption('containerClass', 'ui-selector-header-default');
+	      const containerStyles = this.getOption('containerStyles', {});
 	      main_core.Dom.addClass(container, className);
 	      main_core.Dom.style(container, containerStyles);
 	      return container;
@@ -5719,8 +5773,9 @@ this.BX.UI = this.BX.UI || {};
 	  return DefaultHeader;
 	}(BaseHeader);
 
-	var _templateObject$8;
-	var DefaultFooter = /*#__PURE__*/function (_BaseFooter) {
+	let _$8 = t => t,
+	  _t$8;
+	let DefaultFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(DefaultFooter, _BaseFooter);
 	  function DefaultFooter(context, options) {
 	    var _this;
@@ -5733,9 +5788,13 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(DefaultFooter, [{
 	    key: "render",
 	    value: function render() {
-	      var container = main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
-	      var className = this.getOption('containerClass', 'ui-selector-footer-default');
-	      var containerStyles = this.getOption('containerStyles', {});
+	      const container = main_core.Tag.render(_t$8 || (_t$8 = _$8`
+			<div>
+				${0}
+			</div>
+		`), this.getContent() ? this.getContent() : '');
+	      const className = this.getOption('containerClass', 'ui-selector-footer-default');
+	      const containerStyles = this.getOption('containerStyles', {});
 	      main_core.Dom.addClass(container, className);
 	      main_core.Dom.style(container, containerStyles);
 	      return container;
@@ -5756,12 +5815,12 @@ this.BX.UI = this.BX.UI || {};
 	  return DefaultFooter;
 	}(BaseFooter);
 
-	var RecentTab = /*#__PURE__*/function (_Tab) {
+	let RecentTab = /*#__PURE__*/function (_Tab) {
 	  babelHelpers.inherits(RecentTab, _Tab);
 	  function RecentTab(dialog, tabOptions) {
 	    babelHelpers.classCallCheck(this, RecentTab);
-	    var icon = 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20fill%3D%' + '22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M14.432%2013.985a.96.' + '96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.432%2011.' + '009a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.' + '432%208.033a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.' + '96z%22%20fill%3D%22%23ABB1B8%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd' + '%22%20d%3D%22M10.988%2019.52c1.8%200%203.469-.558%204.844-1.51l2.205%202.204a1.525%201.525%200%20' + '102.157-2.157l-2.205-2.205a8.512%208.512%200%2010-7%203.668zm0-2.403a6.108%206.108%200%20100-12.2' + '16%206.108%206.108%200%20000%2012.216z%22%20fill%3D%22%23ABB1B8%22/%3E%3C/svg%3E';
-	    var defaults = {
+	    const icon = 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20fill%3D%' + '22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M14.432%2013.985a.96.' + '96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.432%2011.' + '009a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.' + '432%208.033a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.' + '96z%22%20fill%3D%22%23ABB1B8%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd' + '%22%20d%3D%22M10.988%2019.52c1.8%200%203.469-.558%204.844-1.51l2.205%202.204a1.525%201.525%200%20' + '102.157-2.157l-2.205-2.205a8.512%208.512%200%2010-7%203.668zm0-2.403a6.108%206.108%200%20100-12.2' + '16%206.108%206.108%200%20000%2012.216z%22%20fill%3D%22%23ABB1B8%22/%3E%3C/svg%3E';
+	    const defaults = {
 	      title: main_core.Loc.getMessage('UI_SELECTOR_RECENT_TAB_TITLE'),
 	      itemOrder: {
 	        sort: 'asc'
@@ -5771,20 +5830,19 @@ this.BX.UI = this.BX.UI || {};
 	      icon: {
 	        //default: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon.svg',
 	        //selected: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon-selected.svg'
-	        "default": icon,
+	        default: icon,
 	        selected: icon.replace(/ABB1B8/g, 'fff')
 	      }
 	    };
-	    var options = Object.assign({}, defaults, tabOptions);
+	    const options = Object.assign({}, defaults, tabOptions);
 	    options.id = 'recents';
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RecentTab).call(this, dialog, options));
 	  }
 	  return RecentTab;
 	}(Tab);
 
-	var MatchResult = /*#__PURE__*/function () {
-	  function MatchResult(item, queryWords) {
-	    var matchIndexes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+	let MatchResult = /*#__PURE__*/function () {
+	  function MatchResult(item, queryWords, matchIndexes = []) {
 	    babelHelpers.classCallCheck(this, MatchResult);
 	    babelHelpers.defineProperty(this, "item", null);
 	    babelHelpers.defineProperty(this, "queryWords", null);
@@ -5817,11 +5875,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "addIndex",
 	    value: function addIndex(matchIndex) {
-	      var matchField = this.matchFields.get(matchIndex.getField());
+	      let matchField = this.matchFields.get(matchIndex.getField());
 	      if (!matchField) {
 	        matchField = new MatchField(matchIndex.getField());
 	        this.matchFields.set(matchIndex.getField(), matchField);
-	        var fieldSort = matchIndex.getField().getSort();
+	        const fieldSort = matchIndex.getField().getSort();
 	        if (fieldSort !== null) {
 	          this.sort = this.sort === null ? fieldSort : Math.min(this.sort, fieldSort);
 	        }
@@ -5831,37 +5889,36 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "addIndexes",
 	    value: function addIndexes(matchIndexes) {
-	      var _this = this;
-	      matchIndexes.forEach(function (matchIndex) {
-	        _this.addIndex(matchIndex);
+	      matchIndexes.forEach(matchIndex => {
+	        this.addIndex(matchIndex);
 	      });
 	    }
 	  }]);
 	  return MatchResult;
 	}();
 
-	var collator = new Intl.Collator(undefined, {
+	const collator = new Intl.Collator(undefined, {
 	  sensitivity: 'base'
 	});
-	var SearchEngine = /*#__PURE__*/function () {
+	let SearchEngine = /*#__PURE__*/function () {
 	  function SearchEngine() {
 	    babelHelpers.classCallCheck(this, SearchEngine);
 	  }
 	  babelHelpers.createClass(SearchEngine, null, [{
 	    key: "matchItems",
 	    value: function matchItems(items, searchQuery) {
-	      var matchResults = [];
-	      var queryWords = searchQuery.getQueryWords();
-	      var limit = searchQuery.getResultLimit();
-	      for (var i = 0; i < items.length; i++) {
+	      const matchResults = [];
+	      const queryWords = searchQuery.getQueryWords();
+	      let limit = searchQuery.getResultLimit();
+	      for (let i = 0; i < items.length; i++) {
 	        if (limit === 0) {
 	          break;
 	        }
-	        var item = items[i];
+	        const item = items[i];
 	        if (item.isSelected() || !item.isSearchable() || item.isHidden() || !item.getEntity().isSearchable()) {
 	          continue;
 	        }
-	        var matchResult = this.matchItem(item, queryWords);
+	        const matchResult = this.matchItem(item, queryWords);
 	        if (matchResult) {
 	          matchResults.push(matchResult);
 	          limit--;
@@ -5872,10 +5929,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "matchItem",
 	    value: function matchItem(item, queryWords) {
-	      var matches = [];
-	      for (var i = 0; i < queryWords.length; i++) {
-	        var queryWord = queryWords[i];
-	        var results = this.matchWord(item, queryWord);
+	      let matches = [];
+	      for (let i = 0; i < queryWords.length; i++) {
+	        const queryWord = queryWords[i];
+	        const results = this.matchWord(item, queryWord);
 	        //const match = this.matchWord(item, queryWord);
 	        //if (match === null)
 	        if (results.length === 0) {
@@ -5895,14 +5952,14 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "matchWord",
 	    value: function matchWord(item, queryWord) {
-	      var searchIndexes = item.getSearchIndex().getIndexes();
-	      var matches = [];
-	      for (var i = 0; i < searchIndexes.length; i++) {
-	        var fieldIndex = searchIndexes[i];
-	        var indexes = fieldIndex.getIndexes();
-	        for (var j = 0; j < indexes.length; j++) {
-	          var index = indexes[j];
-	          var word = index.getWord().substring(0, queryWord.length);
+	      const searchIndexes = item.getSearchIndex().getIndexes();
+	      const matches = [];
+	      for (let i = 0; i < searchIndexes.length; i++) {
+	        const fieldIndex = searchIndexes[i];
+	        const indexes = fieldIndex.getIndexes();
+	        for (let j = 0; j < indexes.length; j++) {
+	          const index = indexes[j];
+	          const word = index.getWord().substring(0, queryWord.length);
 	          if (collator.compare(queryWord, word) === 0) {
 	            matches.push(new MatchIndex(fieldIndex.getField(), queryWord, index.getStartIndex()));
 	            //return new MatchIndex(field, queryWord, index[i][1]);
@@ -5920,7 +5977,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchEngine;
 	}();
 
-	var SearchQuery = /*#__PURE__*/function () {
+	let SearchQuery = /*#__PURE__*/function () {
 	  function SearchQuery(query) {
 	    babelHelpers.classCallCheck(this, SearchQuery);
 	    babelHelpers.defineProperty(this, "queryWords", []);
@@ -5983,11 +6040,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setDynamicSearchEntities",
 	    value: function setDynamicSearchEntities(entities) {
-	      var _this = this;
 	      if (main_core.Type.isArrayFilled(entities)) {
-	        entities.forEach(function (entityId) {
-	          if (main_core.Type.isStringFilled(entityId) && !_this.hasDynamicSearchEntity(entityId)) {
-	            _this.dynamicSearchEntities.push(entityId);
+	        entities.forEach(entityId => {
+	          if (main_core.Type.isStringFilled(entityId) && !this.hasDynamicSearchEntity(entityId)) {
+	            this.dynamicSearchEntities.push(entityId);
 	          }
 	        });
 	      }
@@ -6016,8 +6072,13 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchQuery;
 	}();
 
-	var _templateObject$9, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$3;
-	var SearchLoader = /*#__PURE__*/function () {
+	let _$9 = t => t,
+	  _t$9,
+	  _t2$4,
+	  _t3$4,
+	  _t4$4,
+	  _t5$3;
+	let SearchLoader = /*#__PURE__*/function () {
 	  function SearchLoader(tab) {
 	    babelHelpers.classCallCheck(this, SearchLoader);
 	    babelHelpers.defineProperty(this, "tab", null);
@@ -6044,51 +6105,59 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this = this;
-	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.getBoxContainer(), _this.getSpacerContainer());
+	      return this.cache.remember('container', () => {
+	        return main_core.Tag.render(_t$9 || (_t$9 = _$9`
+				<div class="ui-selector-search-loader">
+					${0}
+					${0}
+				</div>
+			`), this.getBoxContainer(), this.getSpacerContainer());
 	      });
 	    }
 	  }, {
 	    key: "getBoxContainer",
 	    value: function getBoxContainer() {
-	      var _this2 = this;
-	      return this.cache.remember('box-container', function () {
-	        return main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getIconContainer(), _this2.getTextContainer());
+	      return this.cache.remember('box-container', () => {
+	        return main_core.Tag.render(_t2$4 || (_t2$4 = _$9`
+				<div class="ui-selector-search-loader-box">
+					${0}
+					${0}
+				</div>`), this.getIconContainer(), this.getTextContainer());
 	      });
 	    }
 	  }, {
 	    key: "getIconContainer",
 	    value: function getIconContainer() {
-	      return this.cache.remember('icon', function () {
-	        return main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search-loader-icon\"></div>"])));
+	      return this.cache.remember('icon', () => {
+	        return main_core.Tag.render(_t3$4 || (_t3$4 = _$9`<div class="ui-selector-search-loader-icon"></div>`));
 	      });
 	    }
 	  }, {
 	    key: "getTextContainer",
 	    value: function getTextContainer() {
-	      return this.cache.remember('text', function () {
-	        return main_core.Tag.render(_templateObject4$4 || (_templateObject4$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader-text\">", "</div>\n\t\t\t"])), main_core.Loc.getMessage('UI_SELECTOR_SEARCH_LOADER_TEXT'));
+	      return this.cache.remember('text', () => {
+	        return main_core.Tag.render(_t4$4 || (_t4$4 = _$9`
+				<div class="ui-selector-search-loader-text">${0}</div>
+			`), main_core.Loc.getMessage('UI_SELECTOR_SEARCH_LOADER_TEXT'));
 	      });
 	    }
 	  }, {
 	    key: "getSpacerContainer",
 	    value: function getSpacerContainer() {
-	      return this.cache.remember('spacer', function () {
-	        return main_core.Tag.render(_templateObject5$3 || (_templateObject5$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search-loader-spacer\"></div>"])));
+	      return this.cache.remember('spacer', () => {
+	        return main_core.Tag.render(_t5$3 || (_t5$3 = _$9`<div class="ui-selector-search-loader-spacer"></div>`));
 	      });
 	    }
 	  }, {
 	    key: "show",
 	    value: function show() {
-	      var _this3 = this;
 	      if (!this.getContainer().parentNode) {
 	        main_core.Dom.append(this.getContainer(), this.getTab().getContainer());
 	      }
 	      void this.getLoader().show();
 	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-search-loader--show');
-	      requestAnimationFrame(function () {
-	        main_core.Dom.addClass(_this3.getContainer(), 'ui-selector-search-loader--animate');
+	      requestAnimationFrame(() => {
+	        main_core.Dom.addClass(this.getContainer(), 'ui-selector-search-loader--animate');
 	      });
 	    }
 	  }, {
@@ -6109,8 +6178,12 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchLoader;
 	}();
 
-	var _templateObject$a, _templateObject2$5, _templateObject3$5, _templateObject4$5;
-	var SearchTabFooter = /*#__PURE__*/function (_BaseFooter) {
+	let _$a = t => t,
+	  _t$a,
+	  _t2$5,
+	  _t3$5,
+	  _t4$5;
+	let SearchTabFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(SearchTabFooter, _BaseFooter);
 	  function SearchTabFooter(tab, options) {
 	    var _this;
@@ -6118,7 +6191,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTabFooter).call(this, tab, options));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "loader", null);
 	    _this.getDialog().subscribe('onSearch', _this.handleOnSearch.bind(babelHelpers.assertThisInitialized(_this)));
-	    var tagSelector = _this.getDialog().getTagSelector();
+	    const tagSelector = _this.getDialog().getTagSelector();
 	    if (tagSelector) {
 	      tagSelector.subscribe('onMetaEnter', _this.handleMetaEnter.bind(babelHelpers.assertThisInitialized(_this)));
 	    }
@@ -6127,7 +6200,16 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(SearchTabFooter, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-search-footer\" onclick=\"", "\">\n\t\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-selector-search-footer-cmd\">", "</div>\n\t\t\t</div>\n\t\t"])), this.handleClick.bind(this), this.getLabelContainer(), this.getQueryContainer(), this.getLoaderContainer(), main_core.Browser.isMac() ? '&#8984;+Enter' : 'Ctrl+Enter');
+	      return main_core.Tag.render(_t$a || (_t$a = _$a`
+			<div class="ui-selector-search-footer" onclick="${0}">
+				<div class="ui-selector-search-footer-box">
+					${0}
+					${0}
+					${0}
+				</div>
+				<div class="ui-selector-search-footer-cmd">${0}</div>
+			</div>
+		`), this.handleClick.bind(this), this.getLabelContainer(), this.getQueryContainer(), this.getLoaderContainer(), main_core.Browser.isMac() ? '&#8984;+Enter' : 'Ctrl+Enter');
 	    }
 	  }, {
 	    key: "getLoader",
@@ -6161,38 +6243,42 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLabelContainer",
 	    value: function getLabelContainer() {
-	      var _this2 = this;
-	      return this.cache.remember('label', function () {
-	        return main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-label\">", "</span>\n\t\t\t"])), _this2.getOption('label', main_core.Loc.getMessage('UI_SELECTOR_CREATE_ITEM_LABEL')));
+	      return this.cache.remember('label', () => {
+	        return main_core.Tag.render(_t2$5 || (_t2$5 = _$a`
+				<span class="ui-selector-search-footer-label">${0}</span>
+			`), this.getOption('label', main_core.Loc.getMessage('UI_SELECTOR_CREATE_ITEM_LABEL')));
 	      });
 	    }
 	  }, {
 	    key: "getQueryContainer",
 	    value: function getQueryContainer() {
-	      return this.cache.remember('name-container', function () {
-	        return main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-selector-search-footer-query\"></span>\n\t\t\t"])));
+	      return this.cache.remember('name-container', () => {
+	        return main_core.Tag.render(_t3$5 || (_t3$5 = _$a`
+				<span class="ui-selector-search-footer-query"></span>
+			`));
 	      });
 	    }
 	  }, {
 	    key: "getLoaderContainer",
 	    value: function getLoaderContainer() {
-	      return this.cache.remember('loader', function () {
-	        return main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-footer-loader\"></div>\n\t\t\t"])));
+	      return this.cache.remember('loader', () => {
+	        return main_core.Tag.render(_t4$5 || (_t4$5 = _$a`
+				<div class="ui-selector-search-footer-loader"></div>
+			`));
 	      });
 	    }
 	  }, {
 	    key: "createItem",
 	    value: function createItem() {
-	      var _this3 = this;
-	      var tagSelector = this.getDialog().getTagSelector();
+	      const tagSelector = this.getDialog().getTagSelector();
 	      if (tagSelector && tagSelector.isLocked()) {
 	        return;
 	      }
-	      var finalize = function finalize() {
-	        _this3.hideLoader();
-	        if (_this3.getDialog().getTagSelector()) {
-	          _this3.getDialog().getTagSelector().unlock();
-	          _this3.getDialog().focusSearch();
+	      const finalize = () => {
+	        this.hideLoader();
+	        if (this.getDialog().getTagSelector()) {
+	          this.getDialog().getTagSelector().unlock();
+	          this.getDialog().focusSearch();
 	        }
 	      };
 	      event.preventDefault();
@@ -6202,14 +6288,14 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      this.getDialog().emitAsync('Search:onItemCreateAsync', {
 	        searchQuery: this.getTab().getLastSearchQuery()
-	      }).then(function () {
-	        _this3.getTab().clearResults();
-	        _this3.getDialog().clearSearch();
-	        if (_this3.getDialog().getActiveTab() === _this3.getTab()) {
-	          _this3.getDialog().selectFirstTab();
+	      }).then(() => {
+	        this.getTab().clearResults();
+	        this.getDialog().clearSearch();
+	        if (this.getDialog().getActiveTab() === this.getTab()) {
+	          this.getDialog().selectFirstTab();
 	        }
 	        finalize();
-	      })["catch"](function () {
+	      }).catch(() => {
 	        finalize();
 	      });
 	    }
@@ -6229,20 +6315,21 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleOnSearch",
 	    value: function handleOnSearch(event) {
-	      var _event$getData = event.getData(),
-	        query = _event$getData.query;
+	      const {
+	        query
+	      } = event.getData();
 	      this.getQueryContainer().textContent = query;
 	    }
 	  }]);
 	  return SearchTabFooter;
 	}(BaseFooter);
 
-	var SearchTab = /*#__PURE__*/function (_Tab) {
+	let SearchTab = /*#__PURE__*/function (_Tab) {
 	  babelHelpers.inherits(SearchTab, _Tab);
 	  function SearchTab(dialog, tabOptions, searchOptions) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, SearchTab);
-	    var defaults = {
+	    const defaults = {
 	      title: main_core.Loc.getMessage('UI_SELECTOR_SEARCH_TAB_TITLE'),
 	      visible: false,
 	      stub: true,
@@ -6252,7 +6339,7 @@ this.BX.UI = this.BX.UI || {};
 	        subtitle: main_core.Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE')
 	      }
 	    };
-	    var options = Object.assign({}, defaults, tabOptions);
+	    const options = Object.assign({}, defaults, tabOptions);
 	    options.id = 'search';
 	    options.stubOptions.autoShow = false;
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTab).call(this, dialog, options));
@@ -6263,7 +6350,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "allowCreateItem", false);
 	    searchOptions = main_core.Type.isPlainObject(searchOptions) ? searchOptions : {};
 	    _this.setAllowCreateItem(searchOptions.allowCreateItem, searchOptions.footerOptions);
-	    _this.loadWithDebounce = main_core.Runtime.debounce(function () {
+	    _this.loadWithDebounce = main_core.Runtime.debounce(() => {
 	      _this.load(_this.getLastSearchQuery());
 	    }, 500);
 	    return _this;
@@ -6271,15 +6358,15 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(SearchTab, [{
 	    key: "search",
 	    value: function search(query) {
-	      var searchQuery = new SearchQuery(query);
-	      var dynamicEntities = this.getDynamicEntities(searchQuery);
+	      const searchQuery = new SearchQuery(query);
+	      const dynamicEntities = this.getDynamicEntities(searchQuery);
 	      searchQuery.setDynamicSearchEntities(dynamicEntities);
 	      if (searchQuery.isEmpty()) {
 	        this.getSearchLoader().hide();
 	        return;
 	      }
 	      this.lastSearchQuery = searchQuery;
-	      var matchResults = SearchEngine.matchItems(this.getDialog().getItems(), searchQuery);
+	      const matchResults = SearchEngine.matchItems(this.getDialog().getItems(), searchQuery);
 	      this.clearResults();
 	      this.appendResults(matchResults);
 	      if (this.getDialog().shouldFocusOnFirst()) {
@@ -6321,10 +6408,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "appendResults",
 	    value: function appendResults(matchResults) {
-	      var _this2 = this;
-	      matchResults.sort(function (a, b) {
-	        var matchSortA = a.getSort();
-	        var matchSortB = b.getSort();
+	      matchResults.sort((a, b) => {
+	        const matchSortA = a.getSort();
+	        const matchSortB = b.getSort();
 	        if (matchSortA !== null && matchSortB !== null && matchSortA !== matchSortB) {
 	          return matchSortA - matchSortB;
 	        }
@@ -6333,8 +6419,8 @@ this.BX.UI = this.BX.UI || {};
 	        } else if (matchSortA === null && matchSortB !== null) {
 	          return 1;
 	        }
-	        var contextSortA = a.getItem().getContextSort();
-	        var contextSortB = b.getItem().getContextSort();
+	        const contextSortA = a.getItem().getContextSort();
+	        const contextSortB = b.getItem().getContextSort();
 	        if (contextSortA !== null && contextSortB === null) {
 	          return -1;
 	        } else if (contextSortA === null && contextSortB !== null) {
@@ -6342,8 +6428,8 @@ this.BX.UI = this.BX.UI || {};
 	        } else if (contextSortA !== null && contextSortB !== null) {
 	          return contextSortB - contextSortA;
 	        } else {
-	          var globalSortA = a.getItem().getGlobalSort();
-	          var globalSortB = b.getItem().getGlobalSort();
+	          const globalSortA = a.getItem().getGlobalSort();
+	          const globalSortB = b.getItem().getGlobalSort();
 	          if (globalSortA !== null && globalSortB === null) {
 	            return -1;
 	          } else if (globalSortA === null && globalSortB !== null) {
@@ -6355,10 +6441,10 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      });
 	      this.getRootNode().disableRender();
-	      matchResults.forEach(function (matchResult) {
-	        var item = matchResult.getItem();
-	        if (!_this2.getRootNode().hasItem(item)) {
-	          var node = _this2.getRootNode().addItem(item);
+	      matchResults.forEach(matchResult => {
+	        const item = matchResult.getItem();
+	        if (!this.getRootNode().hasItem(item)) {
+	          const node = this.getRootNode().addItem(item);
 	          node.setHighlights(matchResult.getMatchFields());
 	        }
 	      });
@@ -6368,10 +6454,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getDynamicEntities",
 	    value: function getDynamicEntities(searchQuery) {
-	      var result = [];
-	      this.getDialog().getEntities().forEach(function (entity) {
+	      const result = [];
+	      this.getDialog().getEntities().forEach(entity => {
 	        if (entity.isSearchable()) {
-	          var hasCacheLimit = entity.getSearchCacheLimits().some(function (pattern) {
+	          const hasCacheLimit = entity.getSearchCacheLimits().some(pattern => {
 	            return pattern.test(searchQuery.getQuery());
 	          });
 	          if (hasCacheLimit) {
@@ -6389,8 +6475,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "isQueryLoaded",
 	    value: function isQueryLoaded(searchQuery) {
-	      var found = false;
-	      this.queryCache.forEach(function (query) {
+	      let found = false;
+	      this.queryCache.forEach(query => {
 	        if (found === false && searchQuery.getQuery().startsWith(query)) {
 	          found = true;
 	        }
@@ -6407,7 +6493,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "removeCacheQuery",
 	    value: function removeCacheQuery(searchQuery) {
-	      this.queryCache["delete"](searchQuery.getQuery());
+	      this.queryCache.delete(searchQuery.getQuery());
 	    }
 	  }, {
 	    key: "shouldLoad",
@@ -6423,7 +6509,6 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "load",
 	    value: function load(searchQuery) {
-	      var _this3 = this;
 	      if (!this.shouldLoad(searchQuery)) {
 	        return;
 	      }
@@ -6440,48 +6525,48 @@ this.BX.UI = this.BX.UI || {};
 	          dialog: this.getDialog().getAjaxJson(),
 	          searchQuery: searchQuery.getAjaxJson()
 	        },
-	        onrequeststart: function onrequeststart(xhr) {
-	          _this3.queryXhr = xhr;
+	        onrequeststart: xhr => {
+	          this.queryXhr = xhr;
 	        },
 	        getParameters: {
 	          context: this.getDialog().getContext()
 	        }
-	      }).then(function (response) {
-	        _this3.getSearchLoader().hide();
+	      }).then(response => {
+	        this.getSearchLoader().hide();
 	        if (!response || !response.data || !response.data.dialog || !response.data.dialog.items) {
-	          _this3.removeCacheQuery(searchQuery);
-	          _this3.toggleEmptyResult();
-	          _this3.getDialog().emit('SearchTab:onLoad', {
-	            searchTab: _this3
+	          this.removeCacheQuery(searchQuery);
+	          this.toggleEmptyResult();
+	          this.getDialog().emit('SearchTab:onLoad', {
+	            searchTab: this
 	          });
 	          return;
 	        }
 	        if (response.data.searchQuery && response.data.searchQuery.cacheable === false) {
-	          _this3.removeCacheQuery(searchQuery);
+	          this.removeCacheQuery(searchQuery);
 	        }
 	        if (main_core.Type.isArrayFilled(response.data.dialog.items)) {
-	          var items = new Set();
-	          response.data.dialog.items.forEach(function (itemOptions) {
+	          const items = new Set();
+	          response.data.dialog.items.forEach(itemOptions => {
 	            delete itemOptions.tabs;
 	            delete itemOptions.children;
-	            var item = _this3.getDialog().addItem(itemOptions);
+	            const item = this.getDialog().addItem(itemOptions);
 	            items.add(item);
 	          });
-	          var isTabEmpty = _this3.isEmptyResult();
-	          var matchResults = SearchEngine.matchItems(Array.from(items.values()), _this3.getLastSearchQuery());
-	          _this3.appendResults(matchResults);
-	          if (isTabEmpty && _this3.getDialog().shouldFocusOnFirst()) {
-	            _this3.getDialog().focusOnFirstNode();
+	          const isTabEmpty = this.isEmptyResult();
+	          const matchResults = SearchEngine.matchItems(Array.from(items.values()), this.getLastSearchQuery());
+	          this.appendResults(matchResults);
+	          if (isTabEmpty && this.getDialog().shouldFocusOnFirst()) {
+	            this.getDialog().focusOnFirstNode();
 	          }
 	        }
-	        _this3.toggleEmptyResult();
-	        _this3.getDialog().emit('SearchTab:onLoad', {
-	          searchTab: _this3
+	        this.toggleEmptyResult();
+	        this.getDialog().emit('SearchTab:onLoad', {
+	          searchTab: this
 	        });
-	      })["catch"](function (error) {
-	        _this3.removeCacheQuery(searchQuery);
-	        _this3.getSearchLoader().hide();
-	        _this3.toggleEmptyResult();
+	      }).catch(error => {
+	        this.removeCacheQuery(searchQuery);
+	        this.getSearchLoader().hide();
+	        this.toggleEmptyResult();
 	        console.error(error);
 	      });
 	    }
@@ -6513,24 +6598,31 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchTab;
 	}(Tab);
 
-	var _templateObject$b, _templateObject2$6, _templateObject3$6, _templateObject4$6, _templateObject5$4, _templateObject6$2, _templateObject7$1;
-	var LoadState = function LoadState() {
+	let _$b = t => t,
+	  _t$b,
+	  _t2$6,
+	  _t3$6,
+	  _t4$6,
+	  _t5$4,
+	  _t6$2,
+	  _t7$1;
+	let LoadState = function LoadState() {
 	  babelHelpers.classCallCheck(this, LoadState);
 	};
 	babelHelpers.defineProperty(LoadState, "UNSENT", 'UNSENT');
 	babelHelpers.defineProperty(LoadState, "LOADING", 'LOADING');
 	babelHelpers.defineProperty(LoadState, "DONE", 'DONE');
-	var TagSelectorMode = function TagSelectorMode() {
+	let TagSelectorMode = function TagSelectorMode() {
 	  babelHelpers.classCallCheck(this, TagSelectorMode);
 	};
 	babelHelpers.defineProperty(TagSelectorMode, "INSIDE", 'INSIDE');
 	babelHelpers.defineProperty(TagSelectorMode, "OUTSIDE", 'OUTSIDE');
-	var instances = new Map();
+	const instances = new Map();
 
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
-	var Dialog = /*#__PURE__*/function (_EventEmitter) {
+	let Dialog = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Dialog, _EventEmitter);
 	  babelHelpers.createClass(Dialog, null, [{
 	    key: "getById",
@@ -6598,15 +6690,15 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "clearUnavailableItems", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlappingObserver", null);
 	    _this.setEventNamespace('BX.UI.EntitySelector.Dialog');
-	    var options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
-	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : "ui-selector-".concat(main_core.Text.getRandom().toLowerCase());
+	    const options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
+	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : `ui-selector-${main_core.Text.getRandom().toLowerCase()}`;
 	    _this.multiple = main_core.Type.isBoolean(options.multiple) ? options.multiple : true;
 	    _this.context = main_core.Type.isStringFilled(options.context) ? options.context : null;
 	    _this.clearUnavailableItems = options.clearUnavailableItems === true;
 	    _this.compactView = options.compactView === true;
 	    _this.dropdownMode = main_core.Type.isBoolean(options.dropdownMode) ? options.dropdownMode : false;
 	    if (main_core.Type.isArray(options.entities)) {
-	      options.entities.forEach(function (entity) {
+	      options.entities.forEach(entity => {
 	        _this.addEntity(entity);
 	      });
 	    }
@@ -6614,21 +6706,21 @@ this.BX.UI = this.BX.UI || {};
 	      _this.tagSelectorMode = TagSelectorMode.OUTSIDE;
 	      _this.setTagSelector(options.tagSelector);
 	    } else if (options.enableSearch === true) {
-	      var defaultOptions = {
+	      const defaultOptions = {
 	        placeholder: main_core.Loc.getMessage('UI_TAG_SELECTOR_SEARCH_PLACEHOLDER'),
 	        maxHeight: 99,
 	        textBoxWidth: 105
 	      };
-	      var customOptions = main_core.Type.isPlainObject(options.tagSelectorOptions) ? options.tagSelectorOptions : {};
-	      var mandatoryOptions = {
+	      const customOptions = main_core.Type.isPlainObject(options.tagSelectorOptions) ? options.tagSelectorOptions : {};
+	      const mandatoryOptions = {
 	        dialogOptions: null,
 	        showTextBox: true,
 	        showAddButton: false,
 	        showCreateButton: false,
 	        multiple: _this.isMultiple()
 	      };
-	      var tagSelectorOptions = Object.assign(defaultOptions, customOptions, mandatoryOptions);
-	      var tagSelector = new TagSelector(tagSelectorOptions);
+	      const tagSelectorOptions = Object.assign(defaultOptions, customOptions, mandatoryOptions);
+	      const tagSelector = new TagSelector(tagSelectorOptions);
 	      _this.tagSelectorMode = TagSelectorMode.INSIDE;
 	      _this.setTagSelector(tagSelector);
 	    }
@@ -6654,14 +6746,14 @@ this.BX.UI = this.BX.UI || {};
 	    _this.setPreselectedItems(options.preselectedItems);
 	    _this.setUndeselectedItems(options.undeselectedItems);
 	    _this.setOptions(options);
-	    var preload = options.preload === true || _this.getPreselectedItems().length > 0;
+	    const preload = options.preload === true || _this.getPreselectedItems().length > 0;
 	    if (preload) {
 	      _this.load();
 	    }
 	    if (main_core.Type.isPlainObject(options.popupOptions)) {
-	      var allowedOptions = ['overlay', 'bindOptions', 'targetContainer', 'zIndexOptions'];
-	      var popupOptions = {};
-	      Object.keys(options.popupOptions).forEach(function (option) {
+	      const allowedOptions = ['overlay', 'bindOptions', 'targetContainer', 'zIndexOptions'];
+	      const popupOptions = {};
+	      Object.keys(options.popupOptions).forEach(option => {
 	        if (allowedOptions.includes(option)) {
 	          popupOptions[option] = options.popupOptions[option];
 	        }
@@ -6696,11 +6788,11 @@ this.BX.UI = this.BX.UI || {};
 	      this.destroying = true;
 	      this.emit('onDestroy');
 	      this.disconnectTabOverlapping();
-	      instances["delete"](this.getId());
+	      instances.delete(this.getId());
 	      if (this.isRendered()) {
 	        this.getPopup().destroy();
 	      }
-	      for (var property in this) {
+	      for (const property in this) {
 	        if (this.hasOwnProperty(property)) {
 	          delete this[property];
 	        }
@@ -6722,10 +6814,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "search",
 	    value: function search(queryString) {
-	      var query = main_core.Type.isStringFilled(queryString) ? queryString.trim() : '';
-	      var event = new main_core_events.BaseEvent({
+	      const query = main_core.Type.isStringFilled(queryString) ? queryString.trim() : '';
+	      const event = new main_core_events.BaseEvent({
 	        data: {
-	          query: query
+	          query
 	        }
 	      });
 	      this.emit('onBeforeSearch', event);
@@ -6742,33 +6834,32 @@ this.BX.UI = this.BX.UI || {};
 	        this.getSearchTab().search(query);
 	      }
 	      this.emit('onSearch', {
-	        query: query
+	        query
 	      });
 	    }
 	  }, {
 	    key: "addItem",
 	    value: function addItem(options) {
-	      var _this2 = this;
 	      if (!main_core.Type.isPlainObject(options)) {
 	        throw new Error('EntitySelector.addItem: wrong item options.');
 	      }
-	      var item = this.getItem(options);
+	      let item = this.getItem(options);
 	      if (!item) {
 	        item = new Item(options);
-	        var undeselectable = this.getUndeselectedItems().some(function (itemId) {
+	        const undeselectable = this.getUndeselectedItems().some(itemId => {
 	          return itemId[0] === item.getEntityId() && String(itemId[1]) === String(item.getId());
 	        });
 	        if (undeselectable) {
 	          item.setDeselectable(false);
 	        }
 	        item.setDialog(this);
-	        var entity = this.getEntity(item.getEntityId());
+	        const entity = this.getEntity(item.getEntityId());
 	        if (entity === null) {
 	          this.addEntity({
 	            id: item.getEntityId()
 	          });
 	        }
-	        var entityItems = this.items.get(item.getEntityId());
+	        let entityItems = this.items.get(item.getEntityId());
 	        if (!entityItems) {
 	          entityItems = new Map();
 	          this.items.set(item.getEntityId(), entityItems);
@@ -6778,17 +6869,17 @@ this.BX.UI = this.BX.UI || {};
 	          this.handleItemSelect(item);
 	        }
 	      }
-	      var tabs = [];
+	      let tabs = [];
 	      if (main_core.Type.isArray(options.tabs)) {
 	        tabs = options.tabs;
 	      } else if (main_core.Type.isStringFilled(options.tabs)) {
 	        tabs = [options.tabs];
 	      }
-	      var children = main_core.Type.isArray(options.children) ? options.children : [];
-	      tabs.forEach(function (tabId) {
-	        var tab = _this2.getTab(tabId);
+	      const children = main_core.Type.isArray(options.children) ? options.children : [];
+	      tabs.forEach(tabId => {
+	        const tab = this.getTab(tabId);
 	        if (tab) {
-	          var itemNode = tab.getRootNode().addItem(item, options.nodeOptions);
+	          const itemNode = tab.getRootNode().addItem(item, options.nodeOptions);
 	          itemNode.addChildren(children);
 	        }
 	      });
@@ -6800,14 +6891,14 @@ this.BX.UI = this.BX.UI || {};
 	      item = this.getItem(item);
 	      if (item) {
 	        this.handleItemDeselect(item);
-	        item.getNodes().forEach(function (node) {
+	        item.getNodes().forEach(node => {
 	          node.getParentNode().removeChild(node);
 	        });
-	        var entityItems = this.getEntityItemsInternal(item.getEntityId());
+	        const entityItems = this.getEntityItemsInternal(item.getEntityId());
 	        if (entityItems) {
-	          entityItems["delete"](String(item.getId()));
+	          entityItems.delete(String(item.getId()));
 	          if (entityItems.size === 0) {
-	            this.items["delete"](item.getEntityId());
+	            this.items.delete(item.getEntityId());
 	          }
 	        }
 	      }
@@ -6816,30 +6907,29 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "removeItems",
 	    value: function removeItems() {
-	      var _this3 = this;
-	      this.getItemsInternal().forEach(function (items) {
-	        items.forEach(function (item) {
-	          _this3.removeItem(item);
+	      this.getItemsInternal().forEach(items => {
+	        items.forEach(item => {
+	          this.removeItem(item);
 	        });
 	      });
 	    }
 	  }, {
 	    key: "getItem",
 	    value: function getItem(item) {
-	      var id = null;
-	      var entityId = null;
+	      let id = null;
+	      let entityId = null;
 	      if (main_core.Type.isArray(item) && item.length === 2) {
-	        var _item = babelHelpers.slicedToArray(item, 2);
-	        entityId = _item[0];
-	        id = _item[1];
+	        [entityId, id] = item;
 	      } else if (item instanceof Item) {
 	        id = item.getId();
 	        entityId = item.getEntityId();
 	      } else if (main_core.Type.isObjectLike(item)) {
-	        id = item.id;
-	        entityId = item.entityId;
+	        ({
+	          id,
+	          entityId
+	        } = item);
 	      }
-	      var entityItems = this.getEntityItemsInternal(entityId);
+	      const entityItems = this.getEntityItemsInternal(entityId);
 	      if (entityItems) {
 	        return entityItems.get(String(id)) || null;
 	      }
@@ -6853,8 +6943,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getItems",
 	    value: function getItems() {
-	      var items = [];
-	      this.getItemsInternal().forEach(function (entityItems) {
+	      const items = [];
+	      this.getItemsInternal().forEach(entityItems => {
 	        Array.prototype.push.apply(items, Array.from(entityItems.values()));
 	      });
 	      return items;
@@ -6870,7 +6960,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getEntityItems",
 	    value: function getEntityItems(entityId) {
-	      var items = this.getEntityItemsInternal(entityId);
+	      const items = this.getEntityItemsInternal(entityId);
 	      return items === null ? [] : Array.from(items.values());
 	    }
 	    /**
@@ -6890,14 +6980,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (!main_core.Type.isArrayFilled(itemIds)) {
 	        return [];
 	      }
-	      var result = [];
-	      itemIds.forEach(function (itemId) {
+	      const result = [];
+	      itemIds.forEach(itemId => {
 	        if (!main_core.Type.isArray(itemId) || itemId.length !== 2) {
 	          return;
 	        }
-	        var _itemId = babelHelpers.slicedToArray(itemId, 2),
-	          entityId = _itemId[0],
-	          id = _itemId[1];
+	        const [entityId, id] = itemId;
 	        if (main_core.Type.isStringFilled(entityId) && (main_core.Type.isStringFilled(id) || main_core.Type.isNumber(id))) {
 	          result.push(itemId);
 	        }
@@ -6914,7 +7002,7 @@ this.BX.UI = this.BX.UI || {};
 	        throw new Error('EntitySelector: a tab must be an instance of EntitySelector.Tab.');
 	      }
 	      if (this.getTab(tab.getId())) {
-	        console.error("EntitySelector: the \"".concat(tab.getId(), "\" tab is already existed."));
+	        console.error(`EntitySelector: the "${tab.getId()}" tab is already existed.`);
 	        return tab;
 	      }
 	      tab.setDialog(this);
@@ -6947,8 +7035,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "selectTab",
 	    value: function selectTab(id) {
-	      var _this4 = this;
-	      var newActiveTab = this.getTab(id);
+	      const newActiveTab = this.getTab(id);
 	      if (!newActiveTab || newActiveTab === this.getActiveTab()) {
 	        return newActiveTab;
 	      }
@@ -6960,9 +7047,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (!newActiveTab.isRendered()) {
 	        newActiveTab.render();
 	      }
-	      requestAnimationFrame(function () {
-	        requestAnimationFrame(function () {
-	          _this4.focusSearch();
+	      requestAnimationFrame(() => {
+	        requestAnimationFrame(() => {
+	          this.focusSearch();
 	        });
 	      });
 	      this.clearNodeFocus();
@@ -6992,11 +7079,10 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "selectFirstTab",
-	    value: function selectFirstTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-	      var tabs = this.getTabs();
-	      for (var i = 0; i < tabs.length; i++) {
-	        var tab = tabs[i];
+	    value: function selectFirstTab(onlyVisible = true) {
+	      const tabs = this.getTabs();
+	      for (let i = 0; i < tabs.length; i++) {
+	        const tab = tabs[i];
 	        if (onlyVisible === false || tab.isVisible()) {
 	          return this.selectTab(tab.getId());
 	        }
@@ -7008,11 +7094,10 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "selectLastTab",
-	    value: function selectLastTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-	      var tabs = this.getTabs();
-	      for (var i = tabs.length - 1; i >= 0; i--) {
-	        var tab = tabs[i];
+	    value: function selectLastTab(onlyVisible = true) {
+	      const tabs = this.getTabs();
+	      for (let i = tabs.length - 1; i >= 0; i--) {
+	        const tab = tabs[i];
 	        if (onlyVisible === false || tab.isVisible()) {
 	          return this.selectTab(tab.getId());
 	        }
@@ -7029,13 +7114,12 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "getNextTab",
-	    value: function getNextTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-	      var nextTab = null;
-	      var activeFound = false;
-	      var tabs = this.getTabs();
-	      for (var i = 0; i < tabs.length; i++) {
-	        var tab = tabs[i];
+	    value: function getNextTab(onlyVisible = true) {
+	      let nextTab = null;
+	      let activeFound = false;
+	      const tabs = this.getTabs();
+	      for (let i = 0; i < tabs.length; i++) {
+	        const tab = tabs[i];
 	        if (onlyVisible && !tab.isVisible()) {
 	          continue;
 	        }
@@ -7050,13 +7134,12 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "getPreviousTab",
-	    value: function getPreviousTab() {
-	      var onlyVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-	      var previousTab = null;
-	      var activeFound = false;
-	      var tabs = this.getTabs();
-	      for (var i = tabs.length - 1; i >= 0; i--) {
-	        var tab = tabs[i];
+	    value: function getPreviousTab(onlyVisible = true) {
+	      let previousTab = null;
+	      let activeFound = false;
+	      const tabs = this.getTabs();
+	      for (let i = tabs.length - 1; i >= 0; i--) {
+	        const tab = tabs[i];
 	        if (onlyVisible && !tab.isVisible()) {
 	          continue;
 	        }
@@ -7072,12 +7155,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "removeTab",
 	    value: function removeTab(id) {
-	      var tab = this.getTab(id);
+	      const tab = this.getTab(id);
 	      if (!tab) {
 	        return;
 	      }
 	      tab.getRootNode().removeChildren();
-	      this.tabs["delete"](id);
+	      this.tabs.delete(id);
 	      main_core.Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
 	      main_core.Dom.remove(tab.getContainer(), this.getTabContentsContainer());
 	      if (tab.getHeader()) {
@@ -7098,7 +7181,7 @@ this.BX.UI = this.BX.UI || {};
 	        throw new Error('EntitySelector: an entity must be an instance of EntitySelector.Entity.');
 	      }
 	      if (this.hasEntity(entity.getId())) {
-	        console.error("EntitySelector: the \"".concat(entity.getId(), "\" entity is already existed."));
+	        console.error(`EntitySelector: the "${entity.getId()}" entity is already existed.`);
 	        return entity;
 	      }
 	      this.entities.set(entity.getId(), entity);
@@ -7123,16 +7206,15 @@ this.BX.UI = this.BX.UI || {};
 	    key: "removeEntity",
 	    value: function removeEntity(id) {
 	      this.removeEntityItems(id);
-	      this.entities["delete"](id);
+	      this.entities.delete(id);
 	    }
 	  }, {
 	    key: "removeEntityItems",
 	    value: function removeEntityItems(id) {
-	      var _this5 = this;
-	      var items = this.getEntityItemsInternal(id);
+	      const items = this.getEntityItemsInternal(id);
 	      if (items) {
-	        items.forEach(function (item) {
-	          _this5.removeItem(item);
+	        items.forEach(item => {
+	          this.removeItem(item);
 	        });
 	      }
 	    }
@@ -7180,7 +7262,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setHeader",
 	    value: function setHeader(headerContent, headerOptions) {
 	      /** @var {BaseHeader} */
-	      var header = null;
+	      let header = null;
 	      if (headerContent !== null) {
 	        header = this.constructor.createHeader(this, headerContent, headerOptions);
 	        if (header === null) {
@@ -7255,7 +7337,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setFooter",
 	    value: function setFooter(footerContent, footerOptions) {
 	      /** @var {BaseFooter} */
-	      var footer = null;
+	      let footer = null;
 	      if (footerContent !== null) {
 	        footer = this.constructor.createFooter(this, footerContent, footerOptions);
 	        if (footer === null) {
@@ -7304,7 +7386,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "deselectAll",
 	    value: function deselectAll() {
-	      this.getSelectedItems().forEach(function (item) {
+	      this.getSelectedItems().forEach(item => {
 	        item.deselect();
 	      });
 	    }
@@ -7398,7 +7480,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.showAvatars = flag;
 	        if (this.isRendered()) {
-	          this.getTabs().forEach(function (tab) {
+	          this.getTabs().forEach(tab => {
 	            tab.renderContainer();
 	          });
 	        }
@@ -7462,7 +7544,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isNumber(width) && width > 0) {
 	        this.width = width;
 	        if (this.isRendered()) {
-	          main_core.Dom.style(this.getContainer(), 'width', "".concat(width, "px"));
+	          main_core.Dom.style(this.getContainer(), 'width', `${width}px`);
 	        }
 	      }
 	    }
@@ -7477,7 +7559,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isNumber(height) && height > 0) {
 	        this.height = height;
 	        if (this.isRendered()) {
-	          main_core.Dom.style(this.getContainer(), 'height', "".concat(height, "px"));
+	          main_core.Dom.style(this.getContainer(), 'height', `${height}px`);
 	          return Animation.handleTransitionEnd(this.getContainer(), 'height');
 	        } else {
 	          return Promise.resolve();
@@ -7558,7 +7640,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "focusOnFirstNode",
 	    value: function focusOnFirstNode() {
 	      if (this.getActiveTab()) {
-	        var itemNode = this.getActiveTab().getRootNode().getFirstChild();
+	        const itemNode = this.getActiveTab().getRootNode().getFirstChild();
 	        if (itemNode) {
 	          itemNode.focus();
 	          return itemNode;
@@ -7610,23 +7692,22 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setOptions",
 	    value: function setOptions(dialogOptions) {
-	      var _this6 = this;
-	      var options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
+	      const options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
 	      if (main_core.Type.isArray(options.tabs)) {
-	        options.tabs.forEach(function (tab) {
-	          _this6.addTab(tab);
+	        options.tabs.forEach(tab => {
+	          this.addTab(tab);
 	        });
 	      }
 	      if (main_core.Type.isArray(options.selectedItems)) {
-	        options.selectedItems.forEach(function (itemOptions) {
-	          var options = Object.assign({}, main_core.Type.isPlainObject(itemOptions) ? itemOptions : {});
+	        options.selectedItems.forEach(itemOptions => {
+	          const options = Object.assign({}, main_core.Type.isPlainObject(itemOptions) ? itemOptions : {});
 	          options.selected = true;
-	          _this6.addItem(options);
+	          this.addItem(options);
 	        });
 	      }
 	      if (main_core.Type.isArray(options.items)) {
-	        options.items.forEach(function (itemOptions) {
-	          _this6.addItem(itemOptions);
+	        options.items.forEach(itemOptions => {
+	          this.addItem(itemOptions);
 	        });
 	      }
 	      this.setHeader(options.header, options.headerOptions);
@@ -7736,12 +7817,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getPopup",
 	    value: function getPopup() {
-	      var _this7 = this;
 	      if (this.popup !== null) {
 	        return this.popup;
 	      }
-	      this.getTabs().forEach(function (tab) {
-	        _this7.insertTab(tab);
+	      this.getTabs().forEach(tab => {
+	        this.insertTab(tab);
 	      });
 	      this.popup = new main_popup.Popup(Object.assign({
 	        contentPadding: 0,
@@ -7781,56 +7861,76 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this8 = this;
-	      return this.cache.remember('container', function () {
-	        var searchContainer = '';
-	        if (_this8.getTagSelectorMode() === TagSelectorMode.INSIDE) {
-	          searchContainer = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search\"></div>"])));
-	          _this8.getTagSelector().renderTo(searchContainer);
+	      return this.cache.remember('container', () => {
+	        let searchContainer = '';
+	        if (this.getTagSelectorMode() === TagSelectorMode.INSIDE) {
+	          searchContainer = main_core.Tag.render(_t$b || (_t$b = _$b`<div class="ui-selector-search"></div>`));
+	          this.getTagSelector().renderTo(searchContainer);
 	        }
-	        var className = _this8.isCompactView() ? ' ui-selector-dialog--compact-view' : '';
-	        return main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-dialog", "\" \n\t\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this8.getWidth(), _this8.getHeight(), _this8.getHeaderContainer(), searchContainer, _this8.getTabsContainer(), _this8.getFooterContainer());
+	        const className = this.isCompactView() ? ' ui-selector-dialog--compact-view' : '';
+	        return main_core.Tag.render(_t2$6 || (_t2$6 = _$b`
+				<div 
+					class="ui-selector-dialog${0}" 
+					style="width:${0}px; height:${0}px;"
+				>
+					${0}
+					${0}
+					${0}
+					${0}
+				</div>
+			`), className, this.getWidth(), this.getHeight(), this.getHeaderContainer(), searchContainer, this.getTabsContainer(), this.getFooterContainer());
 	      });
 	    }
 	  }, {
 	    key: "getTabsContainer",
 	    value: function getTabsContainer() {
-	      var _this9 = this;
-	      return this.cache.remember('tabs-container', function () {
-	        return main_core.Tag.render(_templateObject3$6 || (_templateObject3$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tabs\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this9.getTabContentsContainer(), _this9.getLabelsContainer());
+	      return this.cache.remember('tabs-container', () => {
+	        return main_core.Tag.render(_t3$6 || (_t3$6 = _$b`
+				<div class="ui-selector-tabs">
+					${0}
+					${0}
+				</div>
+			`), this.getTabContentsContainer(), this.getLabelsContainer());
 	      });
 	    }
 	  }, {
 	    key: "getTabContentsContainer",
 	    value: function getTabContentsContainer() {
-	      return this.cache.remember('tab-contents', function () {
-	        return main_core.Tag.render(_templateObject4$6 || (_templateObject4$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-contents\"></div>"])));
+	      return this.cache.remember('tab-contents', () => {
+	        return main_core.Tag.render(_t4$6 || (_t4$6 = _$b`<div class="ui-selector-tab-contents"></div>`));
 	      });
 	    }
 	  }, {
 	    key: "getLabelsContainer",
 	    value: function getLabelsContainer() {
-	      var _this10 = this;
-	      return this.cache.remember('labels-container', function () {
-	        return main_core.Tag.render(_templateObject5$4 || (_templateObject5$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-tab-labels\"\n\t\t\t\t\tonmouseenter=\"", "\"\n\t\t\t\t\tonmouseleave=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), _this10.handleLabelsMouseEnter.bind(_this10), _this10.handleLabelsMouseLeave.bind(_this10));
+	      return this.cache.remember('labels-container', () => {
+	        return main_core.Tag.render(_t5$4 || (_t5$4 = _$b`
+				<div 
+					class="ui-selector-tab-labels"
+					onmouseenter="${0}"
+					onmouseleave="${0}"
+				></div>
+			`), this.handleLabelsMouseEnter.bind(this), this.handleLabelsMouseLeave.bind(this));
 	      });
 	    }
 	  }, {
 	    key: "getHeaderContainer",
 	    value: function getHeaderContainer() {
-	      var _this11 = this;
-	      return this.cache.remember('header', function () {
-	        var header = _this11.getHeader() && _this11.getHeader().getContainer();
-	        return main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-header-container\">", "</div>\n\t\t\t"])), header ? header : '');
+	      return this.cache.remember('header', () => {
+	        const header = this.getHeader() && this.getHeader().getContainer();
+	        return main_core.Tag.render(_t6$2 || (_t6$2 = _$b`
+				<div class="ui-selector-header-container">${0}</div>
+			`), header ? header : '');
 	      });
 	    }
 	  }, {
 	    key: "getFooterContainer",
 	    value: function getFooterContainer() {
-	      var _this12 = this;
-	      return this.cache.remember('footer', function () {
-	        var footer = _this12.getFooter() && _this12.getFooter().getContainer();
-	        return main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-container\">", "</div>\n\t\t\t"])), footer ? footer : '');
+	      return this.cache.remember('footer', () => {
+	        const footer = this.getFooter() && this.getFooter().getContainer();
+	        return main_core.Tag.render(_t7$1 || (_t7$1 = _$b`
+				<div class="ui-selector-footer-container">${0}</div>
+			`), footer ? footer : '');
 	      });
 	    }
 	  }, {
@@ -7869,18 +7969,17 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "hasRecentItems",
 	    value: function hasRecentItems() {
-	      var _this13 = this;
-	      return new Promise(function (resolve, reject) {
+	      return new Promise((resolve, reject) => {
 	        main_core.ajax.runAction('ui.entityselector.load', {
 	          json: {
-	            dialog: _this13.getAjaxJson()
+	            dialog: this.getAjaxJson()
 	          },
 	          getParameters: {
-	            context: _this13.getContext()
+	            context: this.getContext()
 	          }
-	        }).then(function (response) {
+	        }).then(response => {
 	          resolve(response.data && response.data.dialog && main_core.Type.isArrayFilled(response.data.dialog.recentItems));
-	        })["catch"](function (error) {
+	        }).catch(error => {
 	          reject(error);
 	        });
 	      });
@@ -7888,16 +7987,15 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "load",
 	    value: function load() {
-	      var _this14 = this;
 	      if (this.loadState !== LoadState.UNSENT || !this.hasDynamicLoad()) {
 	        return;
 	      }
 	      if (this.getTagSelector()) {
 	        this.getTagSelector().lock();
 	      }
-	      setTimeout(function () {
-	        if (_this14.isLoading()) {
-	          _this14.showLoader();
+	      setTimeout(() => {
+	        if (this.isLoading()) {
+	          this.showLoader();
 	        }
 	      }, 400);
 	      this.loadState = LoadState.LOADING;
@@ -7908,72 +8006,72 @@ this.BX.UI = this.BX.UI || {};
 	        getParameters: {
 	          context: this.getContext()
 	        }
-	      }).then(function (response) {
+	      }).then(response => {
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
-	          _this14.loadState = LoadState.DONE;
-	          var entities = main_core.Type.isArrayFilled(response.data.dialog.entities) ? response.data.dialog.entities : [];
-	          entities.forEach(function (entityOptions) {
-	            var entity = _this14.getEntity(entityOptions.id);
+	          this.loadState = LoadState.DONE;
+	          const entities = main_core.Type.isArrayFilled(response.data.dialog.entities) ? response.data.dialog.entities : [];
+	          entities.forEach(entityOptions => {
+	            const entity = this.getEntity(entityOptions.id);
 	            if (entity) {
 	              entity.setDynamicSearch(entityOptions.dynamicSearch);
 	            }
 	          });
-	          _this14.setOptions(response.data.dialog);
-	          _this14.getPreselectedItems().forEach(function (preselectedItem) {
-	            var item = _this14.getItem(preselectedItem);
+	          this.setOptions(response.data.dialog);
+	          this.getPreselectedItems().forEach(preselectedItem => {
+	            const item = this.getItem(preselectedItem);
 	            if (item) {
 	              item.select(true);
 	            }
 	          });
-	          var recentItems = response.data.dialog.recentItems;
+	          const recentItems = response.data.dialog.recentItems;
 	          if (main_core.Type.isArray(recentItems)) {
-	            var nodeOptionsMap = new Map();
-	            var itemsOptions = response.data.dialog.items;
+	            const nodeOptionsMap = new Map();
+	            const itemsOptions = response.data.dialog.items;
 	            if (main_core.Type.isArray(itemsOptions)) {
-	              itemsOptions.forEach(function (itemOptions) {
+	              itemsOptions.forEach(itemOptions => {
 	                if (itemOptions.nodeOptions) {
-	                  var item = _this14.getItem(itemOptions);
+	                  const item = this.getItem(itemOptions);
 	                  if (item) {
 	                    nodeOptionsMap.set(item, itemOptions.nodeOptions);
 	                  }
 	                }
 	              });
 	            }
-	            var items = recentItems.map(function (recentItem) {
-	              var item = _this14.getItem(recentItem);
+	            const items = recentItems.map(recentItem => {
+	              const item = this.getItem(recentItem);
 	              return [item, nodeOptionsMap.get(item)];
 	            });
-	            _this14.getRecentTab().getRootNode().addItems(items);
+	            this.getRecentTab().getRootNode().addItems(items);
 	          }
-	          if (!_this14.getRecentTab().getRootNode().hasChildren() && _this14.getRecentTab().getStub()) {
-	            _this14.getRecentTab().getStub().show();
+	          if (!this.getRecentTab().getRootNode().hasChildren() && this.getRecentTab().getStub()) {
+	            this.getRecentTab().getStub().show();
 	          }
-	          if (_this14.getTagSelector()) {
-	            _this14.getTagSelector().unlock();
+	          if (this.getTagSelector()) {
+	            this.getTagSelector().unlock();
 	          }
-	          if (_this14.isRendered()) {
-	            if (_this14.isDropdownMode() && _this14.getActiveTab() === _this14.getRecentTab()) {
-	              _this14.selectFirstTab();
-	            } else if (!_this14.getActiveTab()) {
-	              _this14.selectFirstTab();
+	          if (this.isRendered()) {
+	            if (this.isDropdownMode() && this.getActiveTab() === this.getRecentTab()) {
+	              this.selectFirstTab();
+	            } else if (!this.getActiveTab()) {
+	              this.selectFirstTab();
 	            }
 	          }
-	          _this14.focusSearch();
-	          _this14.destroyLoader();
-	          if (_this14.shouldFocusOnFirst()) {
-	            _this14.focusOnFirstNode();
+	          this.focusSearch();
+	          this.destroyLoader();
+	          if (this.shouldFocusOnFirst()) {
+	            this.focusOnFirstNode();
 	          }
-	          _this14.emit('onLoad');
+	          this.emit('onLoad');
 	        }
-	      })["catch"](function (error) {
-	        _this14.loadState = LoadState.UNSENT;
-	        if (_this14.getTagSelector()) {
-	          _this14.getTagSelector().unlock();
+	      }).catch(error => {
+	        this.loadState = LoadState.UNSENT;
+	        if (this.getTagSelector()) {
+	          this.getTagSelector().unlock();
 	        }
-	        _this14.focusSearch();
-	        _this14.destroyLoader();
-	        _this14.emit('onLoadError', {
-	          error: error
+	        this.focusSearch();
+	        this.destroyLoader();
+	        this.emit('onLoadError', {
+	          error
 	        });
 	        console.error(error);
 	      });
@@ -7991,8 +8089,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "hasDynamicLoad",
 	    value: function hasDynamicLoad() {
-	      var hasDynamicLoad = false;
-	      this.entities.forEach(function (entity) {
+	      let hasDynamicLoad = false;
+	      this.entities.forEach(entity => {
 	        hasDynamicLoad = hasDynamicLoad || entity.hasDynamicLoad();
 	      });
 	      return hasDynamicLoad;
@@ -8000,8 +8098,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "hasDynamicSearch",
 	    value: function hasDynamicSearch() {
-	      var hasDynamicSearch = false;
-	      this.entities.forEach(function (entity) {
+	      let hasDynamicSearch = false;
+	      this.entities.forEach(entity => {
 	        hasDynamicSearch = hasDynamicSearch || entity.isSearchable() && entity.hasDynamicSearch();
 	      });
 	      return hasDynamicSearch;
@@ -8027,14 +8125,12 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.ajax.runAction('ui.entityselector.saveRecentItems', {
 	        json: {
 	          dialog: this.getAjaxJson(),
-	          recentItems: this.recentItemsToSave.map(function (item) {
-	            return item.getAjaxJson();
-	          })
+	          recentItems: this.recentItemsToSave.map(item => item.getAjaxJson())
 	        },
 	        getParameters: {
 	          context: this.getContext()
 	        }
-	      }).then(function (response) {})["catch"](function (error) {
+	      }).then(response => {}).catch(error => {
 	        console.error(error);
 	      });
 	      this.recentItemsToSave = [];
@@ -8053,7 +8149,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE && !this.isOpen()) {
 	        this.show();
 	      }
-	      var query = this.getTagSelector().getTextBoxValue();
+	      const query = this.getTagSelector().getTextBoxValue();
 	      this.search(query);
 	    }
 	    /**
@@ -8070,9 +8166,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleTagSelectorTagRemove",
 	    value: function handleTagSelectorTagRemove(event) {
-	      var _event$getData = event.getData(),
-	        tag = _event$getData.tag;
-	      var item = this.getItem({
+	      const {
+	        tag
+	      } = event.getData();
+	      const item = this.getItem({
 	        id: tag.getId(),
 	        entityId: tag.getEntityId()
 	      });
@@ -8103,18 +8200,17 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "adjustByTagSelector",
 	    value: function adjustByTagSelector() {
-	      var _this15 = this;
 	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
 	        this.adjustPosition();
 	      } else if (this.getTagSelectorMode() === TagSelectorMode.INSIDE) {
-	        var newTagSelectorHeight = this.getTagSelector().calcHeight();
+	        const newTagSelectorHeight = this.getTagSelector().calcHeight();
 	        if (newTagSelectorHeight > 0) {
-	          var offset = newTagSelectorHeight - (this.tagSelectorHeight || this.getTagSelector().getMinHeight());
+	          const offset = newTagSelectorHeight - (this.tagSelectorHeight || this.getTagSelector().getMinHeight());
 	          this.tagSelectorHeight = newTagSelectorHeight;
 	          if (offset !== 0) {
-	            var height = this.getHeight();
-	            this.setHeight(height + offset).then(function () {
-	              _this15.adjustPosition();
+	            const height = this.getHeight();
+	            this.setHeight(height + offset).then(() => {
+	              this.adjustPosition();
 	            });
 	          }
 	        }
@@ -8133,9 +8229,8 @@ this.BX.UI = this.BX.UI || {};
 	     */
 	  }, {
 	    key: "handleItemSelect",
-	    value: function handleItemSelect(item) {
-	      var animate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-	      var shouldAnimate = this.isMultiple() ? animate : this.getSelectedItems().length === 0;
+	    value: function handleItemSelect(item, animate = true) {
+	      const shouldAnimate = this.isMultiple() ? animate : this.getSelectedItems().length === 0;
 	      if (!this.isMultiple()) {
 	        this.deselectAll();
 	        if (this.getSelectedItems().length > 0) {
@@ -8143,7 +8238,7 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }
 	      if (this.getTagSelector() && this.shouldAddTagOnSelect()) {
-	        var tag = item.createTag();
+	        const tag = item.createTag();
 	        tag.animate = shouldAnimate;
 	        this.getTagSelector().addTag(tag);
 	      }
@@ -8155,8 +8250,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleItemDeselect",
 	    value: function handleItemDeselect(item) {
-	      var shouldAnimate = this.isMultiple();
-	      this.selectedItems["delete"](item);
+	      const shouldAnimate = this.isMultiple();
+	      this.selectedItems.delete(item);
 	      if (this.getTagSelector()) {
 	        this.getTagSelector().removeTag({
 	          id: item.getId(),
@@ -8180,11 +8275,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handlePopupFirstShow",
 	    value: function handlePopupFirstShow() {
-	      var _this16 = this;
 	      this.emit('onFirstShow');
-	      requestAnimationFrame(function () {
-	        requestAnimationFrame(function () {
-	          main_core.Dom.addClass(_this16.getPopup().getPopupContainer(), 'ui-selector-popup-container');
+	      requestAnimationFrame(() => {
+	        requestAnimationFrame(() => {
+	          main_core.Dom.addClass(this.getPopup().getPopupContainer(), 'ui-selector-popup-container');
 	        });
 	      });
 	      this.observeTabOverlapping();
@@ -8195,8 +8289,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleAutoHide",
 	    value: function handleAutoHide(event) {
-	      var target = event.target;
-	      var el = this.getPopup().getPopupContainer();
+	      const target = event.target;
+	      const el = this.getPopup().getPopupContainer();
 	      if (target === el || el.contains(target)) {
 	        return false;
 	      }
@@ -8204,7 +8298,7 @@ this.BX.UI = this.BX.UI || {};
 	        return false;
 	      }
 	      if (this.autoHideHandler !== null) {
-	        var result = this.autoHideHandler(event, this);
+	        const result = this.autoHideHandler(event, this);
 	        if (main_core.Type.isBoolean(result)) {
 	          return result;
 	        }
@@ -8217,13 +8311,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "observeTabOverlapping",
 	    value: function observeTabOverlapping() {
-	      var _this17 = this;
 	      this.disconnectTabOverlapping();
-	      this.overlappingObserver = new MutationObserver(function () {
-	        if (_this17.getLabelsContainer().offsetWidth > 0) {
-	          var left = parseInt(_this17.getPopup().getPopupContainer().style.left, 10);
-	          if (left < _this17.getMinLabelWidth()) {
-	            main_core.Dom.style(_this17.getPopup().getPopupContainer(), 'left', "".concat(_this17.getMinLabelWidth(), "px"));
+	      this.overlappingObserver = new MutationObserver(() => {
+	        if (this.getLabelsContainer().offsetWidth > 0) {
+	          const left = parseInt(this.getPopup().getPopupContainer().style.left, 10);
+	          if (left < this.getMinLabelWidth()) {
+	            main_core.Dom.style(this.getPopup().getPopupContainer(), 'left', `${this.getMinLabelWidth()}px`);
 	          }
 	        }
 	      });
@@ -8272,16 +8365,15 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseEnter",
 	    value: function handleLabelsMouseEnter() {
-	      var _this18 = this;
-	      var rect = main_core.Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
-	      var freeSpace = rect.right;
+	      const rect = main_core.Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
+	      const freeSpace = rect.right;
 	      if (freeSpace > this.getMinLabelWidth()) {
 	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	        main_core.Dom.style(this.getLabelsContainer(), 'max-width', "".concat(Math.min(freeSpace, this.getMaxLabelWidth()), "px"));
-	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	          main_core.Dom.removeClass(_this18.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	          main_core.Dom.addClass(_this18.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	        main_core.Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
+	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+	          main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	          main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
 	        });
 	      } else {
 	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
@@ -8293,12 +8385,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseLeave",
 	    value: function handleLabelsMouseLeave() {
-	      var _this19 = this;
 	      main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-	      Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	        main_core.Dom.removeClass(_this19.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	      Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	      });
 	      main_core.Dom.style(this.getLabelsContainer(), 'max-width', null);
 	    }
@@ -8308,8 +8399,9 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleItemNodeFocus",
 	    value: function handleItemNodeFocus(event) {
-	      var _event$getData2 = event.getData(),
-	        node = _event$getData2.node;
+	      const {
+	        node
+	      } = event.getData();
 	      if (this.focusedNode === node) {
 	        return;
 	      }
@@ -8343,10 +8435,10 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      /** @var {BaseHeader} */
-	      var header = null;
-	      var options = main_core.Type.isPlainObject(headerOptions) ? headerOptions : {};
+	      let header = null;
+	      const options = main_core.Type.isPlainObject(headerOptions) ? headerOptions : {};
 	      if (main_core.Type.isFunction(headerContent) || main_core.Type.isString(headerContent)) {
-	        var className = main_core.Type.isString(headerContent) ? main_core.Reflection.getClass(headerContent) : headerContent;
+	        const className = main_core.Type.isString(headerContent) ? main_core.Reflection.getClass(headerContent) : headerContent;
 	        if (main_core.Type.isFunction(className)) {
 	          header = new className(context, options);
 	          if (!(header instanceof BaseHeader)) {
@@ -8370,10 +8462,10 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      /** @var {BaseFooter} */
-	      var footer = null;
-	      var options = main_core.Type.isPlainObject(footerOptions) ? footerOptions : {};
+	      let footer = null;
+	      const options = main_core.Type.isPlainObject(footerOptions) ? footerOptions : {};
 	      if (main_core.Type.isFunction(footerContent) || main_core.Type.isString(footerContent)) {
-	        var className = main_core.Type.isString(footerContent) ? main_core.Reflection.getClass(footerContent) : footerContent;
+	        const className = main_core.Type.isString(footerContent) ? main_core.Reflection.getClass(footerContent) : footerContent;
 	        if (main_core.Type.isFunction(className)) {
 	          footer = new className(context, options);
 	          if (!(footer instanceof BaseFooter)) {
@@ -8393,18 +8485,18 @@ this.BX.UI = this.BX.UI || {};
 	  return Dialog;
 	}(main_core_events.EventEmitter);
 
-	var EntitySelector = {
-	  Dialog: Dialog,
-	  Item: Item,
-	  Tab: Tab,
-	  Entity: Entity,
-	  TagSelector: TagSelector,
-	  BaseHeader: BaseHeader,
-	  DefaultHeader: DefaultHeader,
-	  BaseFooter: BaseFooter,
-	  DefaultFooter: DefaultFooter,
-	  BaseStub: BaseStub,
-	  DefaultStub: DefaultStub
+	const EntitySelector = {
+	  Dialog,
+	  Item,
+	  Tab,
+	  Entity,
+	  TagSelector,
+	  BaseHeader,
+	  DefaultHeader,
+	  BaseFooter,
+	  DefaultFooter,
+	  BaseStub,
+	  DefaultStub
 	};
 
 	exports.EntitySelector = EntitySelector;

@@ -34,7 +34,7 @@ abstract class PhraseFts extends DataManager
 				'data_type' => 'integer',
 			],
 			'PATH_ID' => [
-				'data_type' => 'string',
+				'data_type' => 'integer',
 			],
 			'CODE' => [
 				'data_type' => 'string',
@@ -60,9 +60,8 @@ abstract class PhraseFts extends DataManager
 	}
 
 	/**
+	 * Checks and restore FTS tables.
 	 * @return void
-	 * @throws ArgumentException
-	 * @throws SqlQueryException
 	 */
 	public static function checkTables(): void
 	{
@@ -74,9 +73,9 @@ abstract class PhraseFts extends DataManager
 			$langId = substr($tableName, -2);
 			$tables[$langId] = $tableName;
 		}
-		foreach (Translate\Config::getLanguages() as $langId)
+		foreach (Translate\Config::getEnabledLanguages() as $langId)
 		{
-			if (!preg_match("/[a-z]{2}/i", $langId))
+			if (!preg_match("/[a-z0-9]{2}/i", $langId))
 			{
 				continue;
 			}
@@ -127,7 +126,7 @@ abstract class PhraseFts extends DataManager
 				`ID` int not null,
 				`FILE_ID` int not null,
 				`PATH_ID` int not null,
-				`CODE` varchar(255) BINARY not null,
+				`CODE` varbinary(255) not null,
 				`PHRASE` text,
 				PRIMARY KEY (`ID`),
 				UNIQUE KEY `IXU_TRNSL_FTS_PT_{$suffix}` (`PATH_ID`, `CODE`),
@@ -174,7 +173,7 @@ abstract class PhraseFts extends DataManager
 	 */
 	public static function getFtsEntity(string $langId): ORM\Entity
 	{
-		if (!in_array($langId, Translate\Config::getLanguages(), true))
+		if (!in_array($langId, Translate\Config::getEnabledLanguages(), true))
 		{
 			throw new ArgumentException('Parameter langId has wrong value');
 		}
@@ -197,28 +196,26 @@ abstract class PhraseFts extends DataManager
 	/**
 	 * Drop index.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
 	 * @return void
 	 */
-	public static function purge(Translate\Filter $filter = null)
+	public static function purge(?Translate\Filter $filter = null): void
 	{
-		if (($filterOut = static::processFilter($filter)) !== false)
-		{
-			static::bulkDelete($filterOut);
-		}
+		$filterOut = static::processFilter($filter);
+		static::bulkDelete($filterOut);
 	}
 
 	/**
 	 * Processes filter params to convert them into orm type.
 	 *
-	 * @param Translate\Filter $filter Params to filter file list.
+	 * @param Translate\Filter|null $filter Params to filter file list.
 	 *
-	 * @return array|bool
+	 * @return array
 	 */
-	public static function processFilter(Translate\Filter $filter = null)
+	public static function processFilter(?Translate\Filter $filter = null): array
 	{
-		$filterOut = array();
+		$filterOut = [];
 
 		if ($filter !== null)
 		{

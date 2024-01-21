@@ -481,3 +481,48 @@ create table b_sonet_log_pinned
 	primary key (LOG_ID, USER_ID),
 	index IX_SONET_LOG_PINNED_1(`PINNED_DATE`)
 );
+
+create table if not exists b_sonet_space_composition
+(
+	ID       int(11) unsigned not null auto_increment,
+	USER_ID  int(11) unsigned not null,
+	SPACE_ID int(11) unsigned not null,
+	SETTINGS text             not null,
+	primary key (ID),
+	unique index ix_sonet_space_composition_user_id_space_id (USER_ID, SPACE_ID)
+);
+
+CREATE TABLE IF NOT EXISTS b_sonet_scorer (
+	`ID` INT(11) NOT NULL AUTO_INCREMENT,
+	`USER_ID` INT(11) NOT NULL DEFAULT '0',
+	`SONET_LOG_ID` INT(11) NOT NULL DEFAULT '0',
+	`GROUP_ID` INT(11) NOT NULL DEFAULT '0',
+	`TYPE` VARCHAR(64) NOT NULL DEFAULT '0',
+	`VALUE` INT(11) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`ID`),
+	INDEX `ix_sonet_scorer_group` (`GROUP_ID`),
+	INDEX `ix_sonet_scorer_utype` (`USER_ID`, `TYPE`, `SONET_LOG_ID`)
+);
+
+CREATE TABLE IF NOT EXISTS `b_sonet_scorer_queue` (
+	`ID` INT(10) NOT NULL AUTO_INCREMENT,
+	`USER_ID` INT(10) NOT NULL,
+	`TYPE` VARCHAR(32) NOT NULL DEFAULT '',
+	`SONET_LOG_ID` INT(10) NOT NULL,
+	`DATETIME` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`ID`),
+	INDEX `ix_sonet_scorer_queue` (`USER_ID`, `TYPE`)
+);
+
+CREATE TABLE IF NOT EXISTS `b_sonet_scorer_event` (
+	`ID` INT(10) NOT NULL AUTO_INCREMENT,
+	`HID` VARCHAR(64) NOT NULL,
+	`TYPE` VARCHAR(64) NOT NULL,
+	`DATA` MEDIUMTEXT NOT NULL,
+	`LOG_DATA` MEDIUMTEXT NULL,
+	`CREATED` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`PROCESSED` DATETIME NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `HID` (`HID`),
+	INDEX `PROCESSED` (`PROCESSED`)
+);

@@ -85,4 +85,6 @@ $MESS["EC_DAY_SHORT"] = 'д.';
 
 $MESS['EC_CONFERENCE_START'] = 'Начать видеоконференцию';
 $MESS['EC_CONFERENCE_ERROR'] = 'Не удалось начать видеоконференцию';
+
+$MESS['EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'] = 'Пригласите на встречу коллег, если это необходимо';
 ?>

@@ -319,11 +319,11 @@ class SenderTolokaEditComponent extends \Bitrix\Sender\Internals\CommonSenderCom
 
 	public function getEditAction()
 	{
-		return \Bitrix\Sender\Access\ActionDictionary::ACTION_MAILING_EMAIL_EDIT;
+		return \Bitrix\Sender\Access\ActionDictionary::ACTION_RC_EDIT;
 	}
 
 	public function getViewAction()
 	{
-		return \Bitrix\Sender\Access\ActionDictionary::ACTION_MAILING_VIEW;
+		return \Bitrix\Sender\Access\ActionDictionary::ACTION_RC_VIEW;
 	}
 }

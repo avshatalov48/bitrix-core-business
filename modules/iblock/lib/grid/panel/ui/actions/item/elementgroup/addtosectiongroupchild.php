@@ -3,10 +3,12 @@
 namespace Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroup;
 
 use Bitrix\Iblock\Grid\ActionType;
+use Bitrix\Iblock\Grid\Panel\UI\Actions\Helpers\ItemFinder;
 use Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroup\Helpers\SectionSelectControl;
 use Bitrix\Iblock\Grid\RowType;
 use Bitrix\Iblock\InheritedProperty\ElementValues;
 use Bitrix\Main\Error;
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Actions;
 use Bitrix\Main\Grid\Panel\Snippet;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
@@ -21,6 +23,7 @@ use CIBlockElement;
 final class AddToSectionGroupChild extends BaseGroupChild
 {
 	use SectionSelectControl;
+	use ItemFinder;
 
 	public static function getId(): string
 	{
@@ -32,7 +35,7 @@ final class AddToSectionGroupChild extends BaseGroupChild
 		return Loc::getMessage('IBLOCK_GRID_PANEL_UI_ACTIONS_ELEMENT_GROUP_ADD_TO_SECTION_NAME');
 	}
 
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter = null): ?Result
 	{
 		$result = new Result();
 
@@ -50,9 +53,7 @@ final class AddToSectionGroupChild extends BaseGroupChild
 
 		if ($isSelectedAllRows)
 		{
-			$result->addErrors(
-				$this->addElementsToSection($sectionId, true, [])->getErrors()
-			);
+			$elementIds = $this->getElementIdsByFilter($filter);
 		}
 		else
 		{
@@ -63,13 +64,14 @@ final class AddToSectionGroupChild extends BaseGroupChild
 			}
 
 			[$elementIds,] = RowType::parseIndexList($ids);
+			$elementIds = $this->validateElementIds($elementIds);
+		}
 
-			if ($elementIds)
-			{
-				$result->addErrors(
-					$this->addElementsToSection($sectionId, false, $elementIds)->getErrors()
-				);
-			}
+		if ($elementIds)
+		{
+			$result->addErrors(
+				$this->addElementsToSection($sectionId, $elementIds)->getErrors()
+			);
 		}
 
 		return $result;
@@ -91,7 +93,7 @@ final class AddToSectionGroupChild extends BaseGroupChild
 		]);
 	}
 
-	private function addElementsToSection(int $sectionId, bool $isSelectedAllRows, array $ids): Result
+	private function addElementsToSection(int $sectionId, array $ids): Result
 	{
 		$result = new Result();
 		$entity = new CIBlockElement();
@@ -108,27 +110,8 @@ final class AddToSectionGroupChild extends BaseGroupChild
 			return $result;
 		}
 
-		$filter = [
-			'IBLOCK_ID' => $this->getIblockId(),
-		];
-		if (!$isSelectedAllRows)
+		foreach ($ids as $id)
 		{
-			$filter['ID'] = $ids;
-		}
-
-		$rows = CIBlockElement::GetList(
-			[],
-			$filter + ['CHECK_PERMISSIONS' => 'N'],
-			false,
-			false,
-			[
-				'ID',
-			]
-		);
-		while ($row = $rows->Fetch())
-		{
-			$id = (int)$row['ID'];
-
 			if (!$this->getIblockRightsChecker()->canEditElement($id))
 			{
 				$message = Loc::getMessage('IBLOCK_GRID_PANEL_UI_ADD_TO_SECTION_GROUP_CHILD_ACCESS_DENIED_EDIT_ELEMENT', [
@@ -150,10 +133,10 @@ final class AddToSectionGroupChild extends BaseGroupChild
 			$updateResult = $entity->Update($id, $fields);
 			if (!$updateResult)
 			{
-				if ($entity->LAST_ERROR)
+				if ($entity->getLastError())
 				{
 					$result->addError(
-						new Error($entity->LAST_ERROR)
+						new Error($entity->getLastError())
 					);
 				}
 			}
@@ -176,6 +159,7 @@ final class AddToSectionGroupChild extends BaseGroupChild
 		{
 			$result[] = (int)$row['ID'];
 		}
+		unset($rows);
 
 		return $result;
 	}

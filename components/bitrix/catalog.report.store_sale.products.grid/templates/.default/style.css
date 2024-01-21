@@ -17,3 +17,7 @@
 .main-grid-cell-content-store-amount-reserved-quantity:hover {
 	text-decoration: none !important;
 }
+
+.main-grid-container {
+	overflow: hidden !important;
+}

@@ -1,9 +1,11 @@
 import { Core } from 'im.v2.application.core';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
-import { SoundType, UserStatus } from 'im.v2.const';
+import { SoundType, UserStatus, LocalStorageKey, Settings, RawSettings } from 'im.v2.const';
+import { Logger } from 'im.v2.lib.logger';
 import { NotifierManager } from 'im.v2.lib.notifier';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { CallManager } from 'im.v2.lib.call';
+import { LocalStorageManager } from 'im.v2.lib.local-storage';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 
 import type { MessageAddParams } from './types/message';
@@ -11,9 +13,14 @@ import type { NotifyAddParams } from './types/notification';
 
 export class NotifierPullHandler
 {
+	lastNotificationId: number = 0;
+
 	constructor()
 	{
 		this.store = Core.getStore();
+
+		this.#setCurrentUserStatus();
+		this.#restoreLastNotificationId();
 	}
 
 	getModuleId(): string
@@ -21,19 +28,19 @@ export class NotifierPullHandler
 		return 'im';
 	}
 
-	handleMessage(params)
+	handleMessage(params, extraData)
 	{
-		this.handleMessageAdd(params);
+		this.handleMessageAdd(params, extraData);
 	}
 
-	handleMessageChat(params)
+	handleMessageChat(params, extraData)
 	{
-		this.handleMessageAdd(params);
+		this.handleMessageAdd(params, extraData);
 	}
 
-	handleMessageAdd(params: MessageAddParams)
+	handleMessageAdd(params: MessageAddParams, extraData: PullExtraData)
 	{
-		if (!this.#shouldShowNotification(params))
+		if (!this.#shouldShowNotification(params, extraData))
 		{
 			return;
 		}
@@ -49,7 +56,7 @@ export class NotifierPullHandler
 		this.#flashDesktopIcon();
 
 		const message = this.store.getters['messages/getById'](params.message.id);
-		const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
+		const dialog = this.store.getters['chats/get'](params.dialogId, true);
 		const user = this.store.getters['users/get'](message.authorId);
 
 		NotifierManager.getInstance().showMessage({
@@ -58,10 +65,26 @@ export class NotifierPullHandler
 			user,
 			lines: Boolean(params.lines),
 		});
+
+		this.#updateLastNotificationId(params.message.id);
 	}
 
-	handleNotifyAdd(params: NotifyAddParams)
+	handleNotifyAdd(params: NotifyAddParams, extraData: PullExtraData)
 	{
+		if (extraData.server_time_ago > 10)
+		{
+			Logger.warn('NotifierPullHandler: notification arrived to the user 30 seconds after it was actually sent, ignore notification');
+
+			return;
+		}
+
+		if (params.id <= this.lastNotificationId)
+		{
+			Logger.warn('NotifierPullHandler: new notification id is smaller than lastNotificationId');
+
+			return;
+		}
+
 		if (
 			params.onlyFlash === true
 			|| this.#isUserDnd()
@@ -92,10 +115,26 @@ export class NotifierPullHandler
 		this.#flashDesktopIcon();
 
 		NotifierManager.getInstance().showNotification(notification, user);
+
+		this.#updateLastNotificationId(params.id);
 	}
 
-	#shouldShowNotification(params: MessageAddParams): boolean
+	#shouldShowNotification(params: MessageAddParams, extraData: PullExtraData): boolean
 	{
+		if (extraData.server_time_ago > 10)
+		{
+			Logger.warn('NotifierPullHandler: message arrived to the user 30 seconds after it was actually sent, ignore message');
+
+			return false;
+		}
+
+		if (params.message.id <= this.lastNotificationId)
+		{
+			Logger.warn('NotifierPullHandler: new message id is smaller than lastNotificationId');
+
+			return false;
+		}
+
 		if (Core.getUserId() === params.message.senderId)
 		{
 			return false;
@@ -140,7 +179,7 @@ export class NotifierPullHandler
 			return true;
 		}
 
-		const counter = this.store.getters['recent/getSpecificLinesCounter'](params.chatId);
+		const counter = this.store.getters['counters/getSpecificLinesCounter'](params.chatId);
 
 		return counter === 0;
 	}
@@ -173,7 +212,7 @@ export class NotifierPullHandler
 			return true;
 		}
 
-		const dialog = this.store.getters['dialogues/get'](params.dialogId, true);
+		const dialog = this.store.getters['chats/get'](params.dialogId, true);
 		const isMuted = dialog.muteList.includes(Core.getUserId());
 
 		return !this.#isUserDnd() && !isMuted;
@@ -181,9 +220,9 @@ export class NotifierPullHandler
 
 	#isUserDnd(): boolean
 	{
-		const currentUser = this.store.getters['users/get'](Core.getUserId(), true);
+		const status = this.store.getters['application/settings/get'](Settings.user.status);
 
-		return currentUser.status === UserStatus.dnd;
+		return status === UserStatus.dnd;
 	}
 
 	#desktopWillShowNotification(): boolean
@@ -225,5 +264,36 @@ export class NotifierPullHandler
 		}
 
 		SoundNotificationManager.getInstance().playOnce(SoundType.newMessage1);
+	}
+
+	#restoreLastNotificationId()
+	{
+		const rawLastNotificationId = LocalStorageManager.getInstance().get(LocalStorageKey.lastNotificationId, 0);
+
+		this.lastNotificationId = Number.parseInt(rawLastNotificationId, 10);
+	}
+
+	#updateLastNotificationId(notificationId: number)
+	{
+		const WRITE_TO_STORAGE_TIMEOUT = 2000;
+
+		this.lastNotificationId = notificationId;
+		clearTimeout(this.writeToStorageTimeout);
+		this.writeToStorageTimeout = setTimeout(() => {
+			LocalStorageManager.getInstance().set(LocalStorageKey.lastNotificationId, notificationId);
+		}, WRITE_TO_STORAGE_TIMEOUT);
+	}
+
+	#setCurrentUserStatus()
+	{
+		const applicationData: { settings: RawSettings } = Core.getApplicationData();
+		if (!applicationData.settings?.status)
+		{
+			return;
+		}
+
+		Core.getStore().dispatch('application/settings/set', {
+			[Settings.user.status]: applicationData.settings.status,
+		});
 	}
 }

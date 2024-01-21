@@ -13,6 +13,9 @@
 		this.fields = fields;
 		this.options = options;
 
+		this.helpDeskCalendarCode = 17198666;
+		this.helpDeskCRMCalendarCode = 17502612;
+
 		BXMainMailForm.__forms[this.id] = this;
 	};
 
@@ -144,6 +147,9 @@
 		this.quoteNodeId = this.formId + '_quote_' + this.timestamp.toString(16);
 		this.signatureNodeId = this.formId + '_signature_' + this.timestamp.toString(16);
 
+		this.sharingLinkClassPrefix = '_sharing_calendar_link';
+		this.sharingLinkNodeClass = this.formId + this.sharingLinkClassPrefix;
+
 		// insert signature on change 'from' field
 		BX.addCustomEvent(this, 'MailForm::from::change', BX.proxy(function(field, signature)
 		{
@@ -159,6 +165,7 @@
 			}
 			this.rebuildSignatureMenu(currentSignatures, field.params);
 			this.insertSignature(signature);
+			this.appendCalendarLinkButton(field.params);
 		}, this));
 
 		this.initFields();
@@ -169,7 +176,21 @@
 		this.__inited = true;
 
 		BX.onCustomEvent(BXMainMailForm, 'MailForm:init:'+this.id, [this]);
-	}
+
+		BX.addCustomEvent(this, 'MailForm::editor::init', () => {
+			this.showCalendarSharingInitialTour();
+			BX(this.editor.GetIframeDoc()).onmouseup = () => {
+				this.userSelection = this.editor.GetIframeDoc().body;
+			};
+			this.userSelection = this.editor.GetIframeDoc().body;
+		});
+
+		document.addEventListener('selectionchange', () => {
+			this.userSelection = document.getSelection();
+		});
+
+		this.hideAiImageGeneratorButton();
+	};
 
 	BXMainMailForm.prototype.initScrollable = function()
 	{
@@ -375,6 +396,13 @@
 				{
 					BX.remove(signatureNode);
 				}
+
+				const quoteNode = this.editor.GetIframeDoc().getElementById(this.quoteNodeId);
+				if (quoteNode && !quoteNode.previousSibling)
+				{
+					BX.Dom.insertBefore(BX.Tag.render`<br>`, quoteNode);
+				}
+
 				return;
 			}
 			var signatureHtml = '--<br />' + signature;
@@ -917,15 +945,22 @@
 		var postForm = field.form.postForm;
 		var editor = field.form.editor;
 
-		if (field.params.value === null || field.params.value === undefined)
-			field.params.value = '';
-
-		field.quoteNode = document.createElement('DIV');
-		var quoteContentNode = document.createElement('DIV');
-		quoteContentNode.setAttribute('id', field.form.quoteNodeId);
-		quoteContentNode.innerHTML = field.params.value;
-		field.quoteNode.appendChild(quoteContentNode);
-		field.quoteNode.__folded = field.form.options.foldQuote;
+		field.quoteNode = document.createElement('div');
+		if (field.form.options.foldQuote || field.params.value)
+		{
+			const quoteContentNode = document.createElement('div');
+			quoteContentNode.setAttribute('id', field.form.quoteNodeId);
+			if (field.params.value)
+			{
+				quoteContentNode.innerHTML = field.params.value;
+			}
+			else
+			{
+				quoteContentNode.innerHTML = '<br>';
+			}
+			BX.Dom.append(quoteContentNode, field.quoteNode);
+		}
+		field.quoteNode.__folded = field.form.options.foldQuote ?? false;
 
 		//postForm.controllerInit('hide');
 		BX.onCustomEvent(postForm.eventNode, 'OnShowLHE', ['justShow']);
@@ -961,6 +996,18 @@
 				editor.Focus(false);
 
 				BX.hide(quoteButton.parentNode.parentNode || quoteButton.parentNode)
+
+				const editorIframeCopilot = editor.iframeView?.copilot;
+				if (
+					!editorIframeCopilot
+					|| BX.Type.isFunction(editorIframeCopilot?.copilot?.setContextParameters)
+				)
+				{
+					return;
+				}
+				const newContextParams = editorIframeCopilot.copilotParams?.contextParameters ?? {};
+				newContextParams.isAddedQuote = true;
+				editorIframeCopilot.copilot.setContextParameters(newContextParams);
 			}
 		};
 		BX.bind(quoteButton, 'click', quoteHandler);
@@ -1321,10 +1368,10 @@
 			BODY: '<i></i>' + title,
 			ID: id,
 		});
-		this.signatureSelectButton = this.getSignatureSelectButton(id);
+		this.signatureSelectButton = this.getSelectButton(id);
 	};
 
-	BXMainMailForm.prototype.getSignatureSelectButton = function(id)
+	BXMainMailForm.prototype.getSelectButton = function(id)
 	{
 		var items = this.postForm.getToolbar().getItems();
 		for (var i in items)
@@ -1357,6 +1404,7 @@
 						{
 							item.getMenuWindow().close();
 							BX.SidePanel.Instance.open(configurePath, {
+								cacheable: false,
 								events: {
 									onCloseComplete: function()
 									{
@@ -1375,6 +1423,7 @@
 					signatureSelectMenu.show();
 				} else {
 					BX.SidePanel.Instance.open(configurePath, {
+						cacheable: false,
 						events: {
 							onCloseComplete: function()
 							{
@@ -1521,9 +1570,268 @@
 					delimiter: true,
 				})
 			}
-
 		}
 		return signatureSelectItems;
+	};
+
+	BXMainMailForm.prototype.appendCalendarLinkButton = function(params)
+	{
+		if (BX.type.isNotEmptyObject(params)
+			&& BX.type.isBoolean(params.showCalendarSharingButton)
+			&& !this.calendarSharingLinkButton)
+		{
+			const id = 'calendar-sharing-link';
+			this.postForm.getToolbar().insertAfter({
+				BODY: `<i></i>${BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_SELECT')}`,
+				ID: id,
+			});
+			this.calendarSharingLinkButton = this.getSelectButton(id);
+			BX.Event.bind(this.calendarSharingLinkButton, 'click', this.insertCalendarSharingLink.bind(this));
+			this.calendarSharingLoader = new BX.Loader({
+				target: this.calendarSharingLinkButton,
+				size: 20,
+				mode: 'inline',
+				offset: {
+					left: '4%',
+					top: '-2%',
+				},
+			});
+			this.initPopupOpenCalendar();
+		}
+	};
+
+	BXMainMailForm.prototype.insertCalendarSharingLink = function()
+	{
+		const ownerId = this.options.ownerId ?? null;
+		const ownerType = this.options.ownerType ?? null;
+
+		this.calendarSharingLoader.show();
+		BX.ajax.runComponentAction(
+			'bitrix:main.mail.form',
+			'getCalendarSharingLink',
+			{
+				mode: 'class',
+				data: {
+					entityId: ownerId,
+					entityType: ownerType,
+				},
+			},
+		).then((response) => {
+			if (BX.type.isNotEmptyObject(response)
+				&& BX.type.isNotEmptyObject(response.data)
+				&& Object.hasOwn(response.data, 'isSharingFeatureEnabled'))
+			{
+				if (response.data.isSharingFeatureEnabled === true)
+				{
+					const sharingLink = BX.Text.encode(response.data.sharingUrl);
+					const sharingTextNode = this.getCalendarSharingText(sharingLink);
+					this.insertCalendarSharingMessage(sharingTextNode);
+					const range = this.editor.selection.GetRange();
+					range.setStartAfter(sharingTextNode);
+					range.setEndAfter(sharingTextNode);
+					this.editor.selection.SetSelection(range);
+				}
+				else
+				{
+					this.popupOpenCalendar.show();
+				}
+			}
+			this.calendarSharingLoader.hide();
+		});
+	};
+
+	BXMainMailForm.prototype.insertCalendarSharingMessage = function(sharingLinkNode)
+	{
+		const range = this.editor.selection.GetRange();
+		if (this.userSelection === this.editor.GetIframeDoc().body)
+		{
+			const containerTags = ['DIV', 'HTML', 'BODY'];
+			const parentTag = range.endContainer.parentElement.tagName;
+			if (containerTags.includes(parentTag))
+			{
+				this.editor.selection.InsertNode(sharingLinkNode, range);
+
+				return;
+			}
+			range.endContainer.parentElement.after(sharingLinkNode);
+
+			return;
+		}
+		const signatureNode = this.editor.GetIframeDoc().getElementById(this.signatureNodeId);
+
+		if (signatureNode)
+		{
+			signatureNode.before(sharingLinkNode);
+
+			return;
+		}
+		const quoteNode = this.editor.GetIframeDoc().getElementById(this.quoteNodeId);
+		if (quoteNode)
+		{
+			quoteNode.before(sharingLinkNode);
+
+			return;
+		}
+
+		range.setStartAfter(this.editor.GetIframeDoc().body.lastChild);
+		range.setEndAfter(this.editor.GetIframeDoc().body.lastChild);
+		this.editor.selection.SetSelection(range);
+		this.editor.selection.InsertNode(sharingLinkNode, range);
+	};
+
+	BXMainMailForm.prototype.getCalendarSharingText = function(sharingLink)
+	{
+		return BX.Tag.render`
+			<span>
+				${BX.Loc.getMessage(
+					'MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_TEXT_MSGVER_1',
+					{
+						'[sharing_link]': `<a class="${this.sharingLinkNodeClass}" href="${sharingLink}">`,
+						'[/sharing_link]': '</a>',
+						'#SHARING_LINK#': sharingLink,
+					},
+				)}
+			</span>
+		`;
+	};
+
+	BXMainMailForm.prototype.initPopupOpenCalendar = function()
+	{
+		this.popupOpenCalendar = BX.Main.PopupManager.create(
+			{
+				id: 'popup-calendar-sharing-link',
+				titleBar: BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_POPUP_CALENDAR_TITLE'),
+				content: BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_POPUP_CALENDAR_TEXT'),
+				width: 400,
+				angle: true,
+				overlay: true,
+				bindElement: this.calendarSharingLinkButton,
+				offsetLeft: 40,
+				buttons: [
+					new BX.UI.CloseButton({
+						text: BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_POPUP_CALENDAR_OPEN_BUTTON'),
+						color: BX.UI.ButtonColor.PRIMARY,
+						events: {
+							click: () => {
+								BX.SidePanel.Instance.open(
+									this.options.userCalendarPath,
+								);
+								this.popupOpenCalendar.close();
+							},
+						},
+					}),
+					new BX.UI.CancelButton({
+						events: {
+							click: () => {
+								this.popupOpenCalendar.close();
+							},
+						},
+					}),
+				],
+			},
+		);
+	};
+
+	BXMainMailForm.prototype.needShowCalendarTour = function()
+	{
+		const hasShowParam = function hasShowCalendarSharingTour(field)
+		{
+			return BX.type.isNotEmptyObject(field)
+				&& Object.hasOwn(field.params, 'showCalendarSharingTour');
+		};
+
+		return this.fields.find((element) => hasShowParam(element))?.params?.showCalendarSharingTour ?? false;
+	};
+
+	BXMainMailForm.prototype.showCalendarSharingInitialTour = function()
+	{
+		if (!this.needShowCalendarTour())
+		{
+			return;
+		}
+
+		const tourId = this.options.calendarSharingTourId;
+		const ownerType = this.options.ownerType;
+
+		BX.ajax.runComponentAction(
+			'bitrix:main.mail.form',
+			'getCalendarSharingLink',
+			{ mode: 'class' },
+		).then((response) => {
+			if (BX.type.isNotEmptyObject(response)
+				&& BX.type.isNotEmptyObject(response.data)
+				&& Object.hasOwn(response.data, 'isSharingFeatureEnabled'))
+			{
+				let titleText = BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_TOUR_TITLE');
+				let tourText = '';
+				let helpDeskCode = this.helpDeskCalendarCode;
+				if (ownerType === 'DEAL' && response.data.sharingLink !== '')
+				{
+					titleText = BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_TOUR_DEAL_TITLE');
+					tourText = BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_TOUR_DEAL_TEXT');
+					helpDeskCode = this.helpDeskCRMCalendarCode;
+				}
+				else if (response.data.isSharingFeatureEnabled === true)
+				{
+					tourText = BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_TOUR_SETTING_IS_ACTIVATE_TEXT');
+				}
+				else
+				{
+					tourText = BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_TOUR_SETTING_IS_DEACTIVATE_TEXT');
+				}
+
+				const guide = new BX.UI.Tour.Guide({
+					id: tourId,
+					autoSave: true,
+					simpleMode: true,
+					steps: [{
+						target: this.calendarSharingLinkButton,
+						position: 'top',
+						title: titleText,
+						text: tourText,
+						article: helpDeskCode,
+					}],
+				});
+				const guidePopup = guide.getPopup();
+				guidePopup.setWidth(400);
+				setTimeout(() => {
+					window.scrollTo(0, this.calendarSharingLinkButton.getBoundingClientRect().y + window.pageYOffset);
+					guide.start();
+				}, 1500);
+			}
+		});
+	};
+
+	BXMainMailForm.prototype.updateSharingLinkNode = function(text, sharingLink = null) {
+		const element = new DOMParser().parseFromString(text, 'text/html');
+		const sharingLinkNodes = element.getElementsByClassName(this.sharingLinkNodeClass);
+		for (const sharingLinkNode of sharingLinkNodes)
+		{
+			if (sharingLink)
+			{
+				sharingLinkNode.innerText = sharingLink;
+				sharingLinkNode.href = sharingLink;
+			}
+			else
+			{
+				sharingLinkNode.remove();
+			}
+		}
+
+		return element.documentElement.innerHTML;
+	};
+
+	BXMainMailForm.prototype.hideAiImageGeneratorButton = function() {
+		if (this.editorInited)
+		{
+			this.editor.toolbar.HideControl('ai-image-generator');
+		}
+		else
+		{
+			BX.addCustomEvent(this, 'MailForm::editor::init', () => {
+				this.editor.toolbar.HideControl('ai-image-generator');
+			});
+		}
 	};
 
 	window.BXMainMailForm = BXMainMailForm;

@@ -43,6 +43,8 @@ drop table if exists b_catalog_exported_product_queue;
 drop table if exists b_catalog_role;
 drop table if exists b_catalog_role_relation;
 drop table if exists b_catalog_permission;
+drop table if exists b_catalog_store_batch;
+drop table if exists b_catalog_store_batch_docs_element;
 drop table if exists b_catalog_agent_contract;
 drop table if exists b_catalog_agent_product;
 drop table if exists b_catalog_agent_contract_file;

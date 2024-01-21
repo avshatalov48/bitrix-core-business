@@ -3,6 +3,8 @@ namespace Bitrix\Calendar\Sharing\Link;
 
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Mappers\Mapper;
+use Bitrix\Calendar\Internals\SharingLinkMemberTable;
+use Bitrix\Calendar\Internals\SharingLinkTable;
 use Bitrix\Main\ORM\Query\Result;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Json;
@@ -31,7 +33,7 @@ abstract class LinkMapper extends Mapper
 	protected function getOneEntityByFilter(array $filter): ?object
 	{
 		$sharingLinkEO = SharingLinkTable::query()
-			->setSelect(['*'])
+			->setSelect(static::DEFAULT_SELECT)
 			->setFilter($filter)
 			->exec()
 			->fetchObject();
@@ -57,13 +59,18 @@ abstract class LinkMapper extends Mapper
 			'DATE_CREATE' => new DateTime(),
 			'ACTIVE' => $entity->isActive(),
 			'DATE_EXPIRE' => $entity->getDateExpire(),
+			'JOINT' => $entity->isJoint(),
+			'FREQUENT_USE' => $entity->getFrequentUse(),
 		];
 		$data = array_merge($data, $this->getSpecificFields($entity));
 
 		$result = SharingLinkTable::add($data);
+
 		if ($result->isSuccess())
 		{
-			return $entity->setId($result->getId());
+			$entity->setId($result->getId());
+			$this->createRelated($entity);
+			return $entity;
 		}
 
 		return null;
@@ -78,6 +85,7 @@ abstract class LinkMapper extends Mapper
 			'OPTIONS' => $this->getOptionsJSON($entity),
 			'ACTIVE' => $entity->isActive(),
 			'DATE_EXPIRE' => $entity->getDateExpire(),
+			'FREQUENT_USE' => $entity->getFrequentUse(),
 		];
 		$data = array_merge($data, $this->getSpecificFields($entity));
 
@@ -99,6 +107,7 @@ abstract class LinkMapper extends Mapper
 	protected function deleteEntity(EntityInterface $entity, array $params): ?Link
 	{
 		SharingLinkTable::delete($entity->getId());
+		$this->deleteRelated($entity);
 
 		return null;
 	}
@@ -116,6 +125,7 @@ abstract class LinkMapper extends Mapper
 			'hash' => $sharingLink->getHash(),
 			'url' => $sharingLink->getUrl(),
 			'active' => $sharingLink->isActive(),
+			'frequentUse' => $sharingLink->getFrequentUse(),
 		];
 	}
 
@@ -147,4 +157,14 @@ abstract class LinkMapper extends Mapper
 	 * @return array
 	 */
 	abstract protected function getSpecificFields($entity): array;
+
+	protected function deleteRelated(EntityInterface $entity): void
+	{
+
+	}
+
+	protected function createRelated($entity): void
+	{
+
+	}
 }

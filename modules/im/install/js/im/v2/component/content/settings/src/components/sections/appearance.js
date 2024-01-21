@@ -43,23 +43,25 @@ export const AppearanceSection = {
 		},
 	},
 	template: `
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-content-chat__container bx-im-settings-appearance__demo-chat_container" :class="containerClasses" :style="backgroundStyle">
-				<ChatDialog :dialogId="'settings'" />
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-content-chat__container bx-im-settings-appearance__demo-chat_container" :class="containerClasses" :style="backgroundStyle">
+					<ChatDialog :dialogId="'settings'" />
+				</div>
 			</div>
-		</div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_BACKGROUND') }}
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_BACKGROUND') }}
+				</div>
+				<ChatBackground />
 			</div>
-			<ChatBackground />
-		</div>
-		<div class="bx-im-settings-section-content__separator"></div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_ALIGNMENT') }}
+			<div class="bx-im-settings-section-content__separator"></div>
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_APPEARANCE_ALIGNMENT') }}
+				</div>
+				<ChatAlignment />
 			</div>
-			<ChatAlignment />
 		</div>
 	`,
 };

@@ -1,6 +1,6 @@
 <?php
 
-use Bitrix\Catalog\StoreTable;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\UI\Util;
 
@@ -17,15 +17,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var CBitrixComponentTemplate $this
  */
 
+$detailUrl = '/configs/userfield.php';
+if (ModuleManager::isModuleInstalled('bitrix24'))
+{
+	$detailUrl = '/settings/' . $detailUrl;
+}
+
 $APPLICATION->IncludeComponent('bitrix:main.field.config.list', '', [
 	'moduleId' => 'catalog',
-	'entityId' => StoreTable::getUfId(),
+	'entityId' => $arParams['ENTITY_ID'],
 	'title' => Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_TITLE_MSGVER_1'),
-	'detailUrl' => '/settings/configs/userfield.php',
+	'detailUrl' => $detailUrl,
 ]);
 
 $hint = Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_HINT_MSGVER_1', [
-	'#LINK_START#' => '<a href="' . Util::getArticleUrlByCode('17415624') . '">',
+	'#LINK_START#' => '<a href="' . Util::getArticleUrlByCode((string)$arParams['HELPDESK_ARTICLE_ID']) . '">',
 	'#LINK_END#' => '</a>',
 ]);
 

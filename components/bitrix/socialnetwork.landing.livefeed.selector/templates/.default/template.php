@@ -19,7 +19,10 @@ $APPLICATION->SetTitle(Loc::getMessage("SLLS_TEMPLATE_PAGE_TITLE"));
 	});
 	BX.ready(function() {
 		BX.SocialnetworkLandingLivefeedSelector.create('<?=\CUtil::jsEscape($arResult["FILTER_ID"])?>', {
-			filterValue: <?=(!empty($arResult['FILTER_INIT_VALUE']) ? \CUtil::phpToJSObject($arResult['FILTER_INIT_VALUE']) : [])?>,
+			filterValue: <?=(!empty($arResult['FILTER_INIT_VALUE'])
+				? \CUtil::phpToJSObject($arResult['FILTER_INIT_VALUE'])
+				: \CUtil::phpToJSObject([])
+			)?>,
 			urlToGroupCreate: '<?=\CUtil::jsEscape($arResult["URL_GROUP_CREATE"])?>'
 		});
 	});
@@ -55,7 +58,7 @@ if (!empty($arResult["URL_GROUP_CREATE"]))
 		),
 		"text" => Loc::getMessage('SLLS_TEMPLATE_CREATE_GROUP_BUTTON')
 	]);
-	$menuButton->addAttribute('id', $buttonID);
+	$menuButton->addAttribute('id', 'landing-livefeed-selector');
 	Toolbar::addButton($menuButton);
 }
 
@@ -70,7 +73,7 @@ if (
 	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."landing-livefeed-selector-wrapper-empty");
 
 	?><div class="landing-livefeed-selector-content landing-livefeed-selector-content-empty">
-		<div class="landing-livefeed-selector-content-message"><?=Loc::getMessage("SLLS_TEMPLATE_NO_GROUPS")?></div>
+		<div class="landing-livefeed-selector-content-message"><?=Loc::getMessage("SLLS_TEMPLATE_NO_GROUPS_MSGVER_1")?></div>
 		<?
 		if (!empty($arResult["URL_GROUP_CREATE"]))
 		{

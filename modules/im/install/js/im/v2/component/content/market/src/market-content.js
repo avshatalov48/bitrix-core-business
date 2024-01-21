@@ -68,7 +68,11 @@ export const MarketContent = {
 			<div v-if="isLoading" class="bx-content-market__loader-container">
 				<Spinner :size="SpinnerSize.L" />
 			</div>
-			<div v-show="!isLoading" ref="im-messenger-placement"></div>
+			<div 
+				v-show="!isLoading" 
+				class="bx-content-market__placement-container" 
+				ref="im-messenger-placement"
+			></div>
 		</div>
 	`
 };

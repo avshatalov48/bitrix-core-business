@@ -145,7 +145,7 @@ class CAllUserTypeEntity extends CDBResult
 			$rsUserField = CUserTypeEntity::GetList(array(), array("ID" => intval($ID)));
 			if($arUserField = $rsUserField->Fetch())
 			{
-				$rs = $DB->Query("SELECT * FROM b_user_field_lang WHERE USER_FIELD_ID = " . intval($ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+				$rs = $DB->Query("SELECT * FROM b_user_field_lang WHERE USER_FIELD_ID = " . intval($ID));
 				while($ar = $rs->Fetch())
 				{
 					foreach($arLabels as $label)
@@ -278,12 +278,12 @@ class CAllUserTypeEntity extends CDBResult
 
 		if(CACHED_b_user_field === false)
 		{
-			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 		else
 		{
 			$arResult = array();
-			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
+			$res = $DB->Query($strSql);
 			while($ar = $res->Fetch())
 				$arResult[] = $ar;
 
@@ -699,7 +699,7 @@ class CAllUserTypeEntity extends CDBResult
 
 			if(!empty($arLangs))
 			{
-				$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+				$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID);
 
 				foreach($arLangs as $lang => $arLangFields)
 				{
@@ -785,10 +785,10 @@ class CAllUserTypeEntity extends CDBResult
 				{
 					// only if we store values
 					if($arField["MULTIPLE"] == "Y")
-						$strSql = "SELECT VALUE_INT VALUE FROM b_utm_".mb_strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID=" . $arField["ID"];
+						$strSql = "SELECT VALUE_INT AS VALUE FROM b_utm_".mb_strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID=" . $arField["ID"];
 					else
-						$strSql = "SELECT ".$arField["FIELD_NAME"]." VALUE FROM b_uts_".mb_strtolower($arField["ENTITY_ID"]);
-					$rsFile = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+						$strSql = "SELECT ".$arField["FIELD_NAME"]." AS VALUE FROM b_uts_".mb_strtolower($arField["ENTITY_ID"]);
+					$rsFile = $DB->Query($strSql);
 					while($arFile = $rsFile->Fetch())
 					{
 						CFile::Delete($arFile["VALUE"]);
@@ -802,9 +802,9 @@ class CAllUserTypeEntity extends CDBResult
 			}
 
 			if(CACHED_b_user_field !== false) $CACHE_MANAGER->CleanDir("b_user_field");
-			$rs = $DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+			$rs = $DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID);
 			if($rs)
-				$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $ID, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+				$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $ID);
 
 			if($rs && $commonEventResult['PROVIDE_STORAGE'])
 			{
@@ -813,13 +813,13 @@ class CAllUserTypeEntity extends CDBResult
 				if($rs->Fetch()) // more than one
 				{
 					foreach($this->DropColumnSQL("b_uts_".mb_strtolower($arField["ENTITY_ID"]), array($arField["FIELD_NAME"])) as $strSql)
-						$DB->Query($strSql, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
-					$rs = $DB->Query("DELETE FROM b_utm_".mb_strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID = '" . $ID . "'", false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+						$DB->Query($strSql);
+					$rs = $DB->Query("DELETE FROM b_utm_".mb_strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID = '" . $ID . "'");
 				}
 				else
 				{
-					$DB->Query("DROP TABLE IF EXISTS b_uts_".mb_strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
-					$rs = $DB->Query("DROP TABLE IF EXISTS b_utm_".mb_strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+					$DB->Query("DROP TABLE IF EXISTS b_uts_".mb_strtolower($arField["ENTITY_ID"]));
+					$rs = $DB->Query("DROP TABLE IF EXISTS b_utm_".mb_strtolower($arField["ENTITY_ID"]));
 				}
 			}
 
@@ -862,15 +862,15 @@ class CAllUserTypeEntity extends CDBResult
 		while($arField = $rsFields->Fetch())
 		{
 			$bDropTable = true;
-			$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $arField["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
-			$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $arField["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+			$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $arField["ID"]);
+			$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $arField["ID"]);
 		}
 
 		if($bDropTable)
 		{
-			$DB->Query("DROP SEQUENCE SQ_B_UTM_" . $entity_id, true);
-			$DB->Query("DROP TABLE b_uts_".mb_strtolower($entity_id), true, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
-			$rs = $DB->Query("DROP TABLE b_utm_".mb_strtolower($entity_id), true, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+			$DB->Query("DROP SEQUENCE IF EXISTS SQ_B_UTM_" . $entity_id, true);
+			$DB->Query("DROP TABLE IF EXISTS b_uts_".mb_strtolower($entity_id), true);
+			$rs = $DB->Query("DROP TABLE IF EXISTS b_utm_".mb_strtolower($entity_id), true);
 		}
 
 		if(CACHED_b_user_field !== false)

@@ -1551,6 +1551,10 @@ class CWizardAdminTemplate extends CWizardTemplate
 				padding-left: 2px;
 			}
 
+			.step-buttons input:enabled {
+				color:#3f4b54;
+			}
+
 			.step-buttons input {
 				-webkit-border-radius: 4px;
 				border-radius: 4px;
@@ -1563,7 +1567,6 @@ class CWizardAdminTemplate extends CWizardTemplate
 				background-image: -ms-linear-gradient(bottom, #d7e3e7, #fff)!important;
 				background-image: -o-linear-gradient(bottom, #d7e3e7, #fff)!important;
 				background-image: linear-gradient(bottom, #d7e3e7, #fff)!important;
-				color:#3f4b54;
 				cursor:pointer;
 				display:inline-block;
 				font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;

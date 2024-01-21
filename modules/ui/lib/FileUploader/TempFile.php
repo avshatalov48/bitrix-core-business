@@ -160,6 +160,7 @@ final class TempFile extends EO_TempFile
 				'MODULE_ID' => $commitOptions->getModuleId(),
 				'width' => $this->getWidth(),
 				'height' => $this->getHeight(),
+				'size' => $this->getSize(),
 			],
 			$commitOptions->getSavePath(),
 			$commitOptions->isForceRandom(),

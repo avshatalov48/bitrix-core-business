@@ -112,6 +112,9 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 				}
 			);
 
+			// reset fieldsPopupItems cache to update items DOM elements
+			this.fieldsPopupItems = null;
+
 			this._popup.show();
 		},
 		close: function()

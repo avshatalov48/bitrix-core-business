@@ -54,11 +54,6 @@ class AddressBook extends Controller
 		return (bool)($USER->isAdmin() || $USER->canDoOperation('bitrix24_config'));
 	}
 
-	private function checkAccess()
-	{
-		return (check_bitrix_sessid() && Loader::includeModule('mail'));
-	}
-
 	/**
 	 * @param $idSet
 	 *
@@ -67,7 +62,7 @@ class AddressBook extends Controller
 	 */
 	public function removeContactsAction($idSet)
 	{
-		if (!$this->checkAccess())
+		if (!Loader::includeModule('mail'))
 		{
 			return false;
 		}
@@ -88,7 +83,7 @@ class AddressBook extends Controller
 	 */
 	public function saveContactAction($contactData)
 	{
-		if (!$this->checkAccess())
+		if (!Loader::includeModule('mail'))
 		{
 			return false;
 		}

@@ -1,4 +1,4 @@
-import { Runtime, ajax, Uri, Loc, Type } from 'main.core';
+import { Runtime, ajax, Loc, Type } from 'main.core';
 import { MessageBox } from 'ui.dialogs.messagebox';
 import { Buttons } from './buttons';
 import { Errors } from './errors';
@@ -71,7 +71,7 @@ export class PropertyDetails
 	{
 		return Array.prototype.find.call(
 			this.getTabs(),
-			(node: HTMLElement) => node.dataset.tab === 'additional'
+			(node: HTMLElement) => node.dataset.tab === 'additional',
 		);
 	}
 
@@ -115,7 +115,7 @@ export class PropertyDetails
 
 					return true;
 				},
-				Loc.getMessage('IBLOCK_PROPERTY_DETAILS_POPUP_OPEN_SLIDER_CONFIRM_SAVE_BUTTON')
+				Loc.getMessage('IBLOCK_PROPERTY_DETAILS_POPUP_OPEN_SLIDER_CONFIRM_SAVE_BUTTON'),
 			);
 		}
 		else
@@ -162,7 +162,7 @@ export class PropertyDetails
 				this.progress.stop();
 
 				this.errors.show(
-					response.errors
+					response.errors,
 				);
 			})
 		;
@@ -229,15 +229,15 @@ export class PropertyDetails
 
 	stylizationSettingsControls(): void
 	{
-		const buttonInputTypes = [
+		const buttonInputTypes = new Set([
 			'button',
 			'submit',
 			'reset',
-		];
-		const flagInputTypes = [
+		]);
+		const flagInputTypes = new Set([
 			'checkbox',
 			'radio',
-		];
+		]);
 
 		const isOnlyChild = function(control) {
 			let childs = control.parentNode.childNodes;
@@ -253,6 +253,7 @@ export class PropertyDetails
 
 			return childs.length === 1;
 		};
+
 		const prepareControl = function(control) {
 			// skip `ui.forms` controls
 			if (control.classList.contains('ui-ctl-element'))
@@ -260,46 +261,53 @@ export class PropertyDetails
 				return;
 			}
 
-			if (control.nodeName === 'INPUT')
+			switch (control.nodeName)
 			{
-				const type = control.type || 'text';
-				if (buttonInputTypes.includes(type))
-				{
-					return;
-				}
-				else if (flagInputTypes.includes(type))
-				{
+				case 'INPUT': {
+					const type = control.type || 'text';
+					if (buttonInputTypes.has(type))
+					{}
+					else if (flagInputTypes.has(type))
+					{
 					// pass
-				}
-				else if (type === 'hidden')
-				{
+					}
+					else if (type === 'hidden')
+					{
 					// pass
+					}
+					else
+					{
+						control.classList.add('ui-ctl-element');
+						if (isOnlyChild(control))
+						{
+							control.classList.add('ui-ctl-w100');
+						}
+						else
+						{
+							control.classList.add('ui-ctl-inline');
+						}
+					}
+
+					break;
 				}
-				else
-				{
+
+				case 'SELECT': {
 					control.classList.add('ui-ctl-element');
 					if (!isOnlyChild(control))
 					{
 						control.classList.add('ui-ctl-inline');
 					}
-					else
-					{
-						control.classList.add('ui-ctl-w100');
-					}
+
+					break;
 				}
-			}
-			else if (control.nodeName === 'SELECT')
-			{
-				control.classList.add('ui-ctl-element');
-				if (!isOnlyChild(control))
-				{
-					control.classList.add('ui-ctl-inline');
+
+				case 'TEXTAREA': {
+					control.classList.add('ui-ctl-element');
+					control.classList.add('ui-ctl-textarea');
+
+					break;
 				}
-			}
-			else if (control.nodeName === 'TEXTAREA')
-			{
-				control.classList.add('ui-ctl-element');
-				control.classList.add('ui-ctl-textarea');
+			// No default
 			}
 		};
 
@@ -330,7 +338,7 @@ export class PropertyDetails
 		let m;
 		const regex = /^(.+?)(\[.+)$/;
 		const formData = new FormData(
-			this.container.querySelector('form')
+			this.container.querySelector('form'),
 		);
 		for (const pair of formData.entries())
 		{
@@ -378,12 +386,15 @@ export class PropertyDetails
 				if (response.errors.length > 0)
 				{
 					this.errors.show(
-						response.errors
+						response.errors,
 					);
 
 					return false;
 				}
 
+				top.BX.Event.EventEmitter.emit('IblockPropertyDetails:saved', [
+					response.data,
+				]);
 				this.#getSlider().close();
 
 				return true;
@@ -392,7 +403,7 @@ export class PropertyDetails
 				this.progress.stop();
 
 				this.errors.show(
-					response.errors
+					response.errors,
 				);
 
 				return false;
@@ -420,7 +431,7 @@ export class PropertyDetails
 				this.progress.stop();
 
 				this.errors.show(
-					response.errors
+					response.errors,
 				);
 
 				return false;

@@ -290,10 +290,6 @@ class Manager
 			?? $params['parentParams']['arFields']['MEETING_HOST']
 			?? null
 		;
-		$userId = $params['parentParams']['userId']
-			?? $params['parentParams']['arFields']['userId']
-			?? null
-		;
 
 		$arFields = [
 			'ID' => $params['room_event_id'] ?? null,
@@ -310,7 +306,7 @@ class Manager
 		if (!$params['room_event_id'])
 		{
 			$arFields['CREATED_BY'] = $createdBy;
-			$arFields['NAME'] = \CCalendar::GetUserName($userId);
+			$arFields['NAME'] = \CCalendar::GetUserName($createdBy);
 			$arFields['CAL_TYPE'] = self::TYPE;
 		}
 
@@ -751,7 +747,7 @@ class Manager
 			return $this;
 		}
 
-		\CCalendarEvent::DeleteEmpty();
+		\CCalendarEvent::DeleteEmpty($this->room->getId());
 
 		return $this;
 	}

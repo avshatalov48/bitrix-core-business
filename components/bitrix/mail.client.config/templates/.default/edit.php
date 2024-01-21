@@ -104,11 +104,10 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 				<div class="mail-connect-img-block">
 					<? if ($settings['icon']): ?>
 						<img class="mail-connect-img" src="<?=$settings['icon'] ?>" alt="<?=htmlspecialcharsbx($settings['name']) ?>">
-					<? else: ?>
-						<span class="mail-connect-text <? if (mb_strlen($settings['name']) > 10): ?> mail-connect-text-small"<? endif ?>">
-							&nbsp;<?=htmlspecialcharsbx($settings['name']) ?>&nbsp;
+					<?php endif; ?>
+						<span class="mail-connect-text <? if (mb_strlen($settings['serviceName'] ?? $settings['name']) > 10): ?> mail-connect-text-small"<? endif ?>">
+							<?= htmlspecialcharsbx($settings['serviceName'] ?? ucfirst($settings['name'])) ?>
 						</span>
-					<? endif ?>
 				</div>
 			</div>
 		<? endif ?>
@@ -151,11 +150,10 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					<div class="mail-connect-img-block">
 						<? if ($settings['icon']): ?>
 							<img class="mail-connect-img" src="<?=$settings['icon'] ?>" alt="<?=htmlspecialcharsbx($settings['name']) ?>">
-						<? else: ?>
-							<span class="mail-connect-text <? if (mb_strlen($settings['name']) > 10): ?> mail-connect-text-small"<? endif ?>">
-								&nbsp;<?=htmlspecialcharsbx($settings['name']) ?>&nbsp;
-							</span>
-						<? endif ?>
+						<? endif; ?>
+						<span class="mail-connect-text">
+							<?= htmlspecialcharsbx($settings['serviceName'] ?? ucfirst($settings['name'])) ?>
+						</span>
 					</div>
 					<button class="ui-btn ui-btn-primary" id="mail_connect_mb_oauth_btn" type="button"
 						<? if (!empty($settings['oauth_user'])): ?> style="display: none; "<? endif ?>><?=Loc::getMessage('MAIL_CLIENT_CONFIG_OAUTH_CONNECT') ?></button>
@@ -163,7 +161,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 						<? if (empty($settings['oauth_user'])): ?> style="display: none; "<? endif ?>>
 						<div id="mail-connect-email-inner" class="mail-connect-email-inner">
 							<span class="mail-connect-email-img" id="mail_connect_mb_oauth_status_image"></span>
-							<a class="mail-connect-email-text" id="mail_connect_mb_oauth_status_email">
+							<a class="mail-connect-email-text" title="<?= htmlspecialcharsbx($settings['oauth_user']['email']); ?>" id="mail_connect_mb_oauth_status_email">
 								<? if (!empty($settings['oauth_user'])) echo htmlspecialcharsbx($settings['oauth_user']['email']); ?>
 							</a>
 						</div>
@@ -336,8 +334,10 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					name="fields[user_principal_name]"
 					id="mail_user_principal_name"
 					value="<?=htmlspecialcharsbx($mailbox['__smtp']['login'] ?? '') ?>">
-			<?php else: ?>
-			<? $hasSmtpFields = empty($settings['smtp']['server']) || !$settings['smtp']['login'] || !$settings['smtp']['password'] || !empty($settings['oauth']); ?>
+			<?php endif; ?>
+			<?php $isExchangeService = in_array($settings['name'], $arResult['MICROSOFT_SERVICE_NAMES'], true); ?>
+			<?php if (empty($settings['oauth_smtp_enabled']) || $isExchangeService): ?>
+			<?php $hasSmtpFields = empty($settings['smtp']['server']) || !$settings['smtp']['login'] || !$settings['smtp']['password']; ?>
 			<div class="mail-connect-section-block">
 				<div class="mail-connect-title-block">
 					<div class="mail-connect-title"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP') ?></div>
@@ -346,7 +346,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					<div class="mail-connect-option-email">
 						<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
 							name="fields[use_smtp]" value="1" id="mail_connect_mb_server_smtp_switch"
-							<? if ((empty($mailbox) && (empty($settings['oauth']) || !in_array($settings['name'], ['office365', 'exchangeOnline']))) || !empty($mailbox['__smtp'])): ?> checked <? endif ?>
+							<?php if ((empty($mailbox) && (empty($settings['oauth']) || !$isExchangeService)) || !empty($mailbox['__smtp'])): ?> checked <?php endif ?>
 							onchange="BX('mail_connect_mb_server_smtp_form').style.display = this.checked ? '' : 'none'; ">
 						<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_server_smtp_switch">
 							<?=htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_ACTIVE')) ?>
@@ -407,7 +407,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 								<div class="mail-connect-form-error"></div>
 							</div>
 						<? endif ?>
-						<? if (!$settings['smtp']['password'] || !empty($settings['oauth'])): ?>
+						<? if (!$settings['smtp']['password']): ?>
 							<div class="mail-connect-form-item">
 								<label class="mail-connect-form-label" for="mail_connect_mb_pass_smtp_field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_PASS') ?></label>
 								<input class="mail-connect-form-input" type="password"
@@ -606,6 +606,25 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 				</div>
 			</div>
 		<? endif ?>
+
+		<?php if ($arParams['IS_CALENDAR_AVAILABLE']): ?>
+			<div class="mail-connect-section-block">
+				<div class="mail-connect-title-block">
+					<div class="mail-connect-title"><?= htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_ICAL_OPTIONS')) ?></div>
+				</div>
+				<div class="mail-connect-form-hidden-block">
+					<div class="mail-connect-option-email">
+						<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
+							   name="fields[ical_access]" value="Y" id="mail_connect_mb_server_ical_switch"
+							<?php if (empty($mailbox) || $arParams['IS_ICAL_CHECK']): ?> checked <?php endif; ?>
+						/>
+						<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_server_ical_switch">
+							<?= htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_ICAL_ACTIVE')) ?>
+						</label>
+					</div>
+				</div>
+			</div>
+		<?php endif; ?>
 
 		<div class="mail-connect-section-block">
 			<div class="mail-connect-title-block">

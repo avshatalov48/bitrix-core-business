@@ -1321,4 +1321,87 @@
 .ui-btn-icon-cancel.ui-btn-secondary,
 .ui-btn-icon-cancel.ui-btn-light-border,
 .bitrix24-dark-theme .ui-btn-icon-cancel.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-cancel-dark.svg); }
+
+.ui-btn-icon-ai {
+	--ui-btn-icon: var(--ui-icon-set__path_copilot-ai);
+}
+.ui-btn-icon-ai::after {
+	background-image: none;
+	background-color: var(--ui-color-on-primary);
+	mask-image: var(--ui-btn-icon);
+	-webkit-mask-image: var(--ui-btn-icon);
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	-webkit-mask-size: contain;
+}
+
+/*endregion*/
+
+/*region ui-btn-icon-arrow-back*/
+.ui-btn-icon-arrow-back.ui-btn,
+.ui-btn-icon-arrow-back.ui-btn-split,
+.ui-btn-icon-arrow-back.ui-btn-danger,
+.ui-btn-icon-arrow-back.ui-btn-primary,
+.ui-btn-icon-arrow-back.ui-btn-default,
+.ui-btn-icon-arrow-back.ui-btn-danger-dark,
+.ui-btn-icon-arrow-back.ui-btn-success-dark,
+.ui-btn-icon-arrow-back.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-arrow-back.ui-btn-themes {
+	--ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-arrow-back-light.svg);
+}
+
+.ui-btn-icon-arrow-back.ui-btn-link,
+.ui-btn-icon-arrow-back.ui-btn-light,
+.ui-btn-icon-arrow-back.ui-btn-success,
+.ui-btn-icon-arrow-back.ui-btn-secondary,
+.ui-btn-icon-arrow-back.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-arrow-back.ui-btn-themes {
+	--ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-arrow-back-dark.svg);
+}
+/*endregion*/
+
+/*region ui-btn-icon-repeat*/
+.ui-btn-icon-repeat.ui-btn,
+.ui-btn-icon-repeat.ui-btn-split,
+.ui-btn-icon-repeat.ui-btn-danger,
+.ui-btn-icon-repeat.ui-btn-primary,
+.ui-btn-icon-repeat.ui-btn-default,
+.ui-btn-icon-repeat.ui-btn-danger-dark,
+.ui-btn-icon-repeat.ui-btn-success-dark,
+.ui-btn-icon-repeat.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-repeat.ui-btn-themes {
+	--ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-repeat-light.svg);
+}
+
+.ui-btn-icon-repeat.ui-btn-link,
+.ui-btn-icon-repeat.ui-btn-light,
+.ui-btn-icon-repeat.ui-btn-success,
+.ui-btn-icon-repeat.ui-btn-secondary,
+.ui-btn-icon-repeat.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-repeat.ui-btn-themes {
+	--ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-repeat-dark.svg);
+}
+/*endregion*/
+
+/*region ui-btn-qr*/
+.ui-btn-icon-qr.ui-btn,
+.ui-btn-icon-qr.ui-btn-split,
+.ui-btn-icon-qr.ui-btn-danger,
+.ui-btn-icon-qr.ui-btn-primary,
+.ui-btn-icon-qr.ui-btn-default,
+.ui-btn-icon-qr.ui-btn-danger-dark,
+.ui-btn-icon-qr.ui-btn-success-dark,
+.ui-btn-icon-qr.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-qr.ui-btn-themes {
+	--ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-qr-light.svg);
+}
+
+.ui-btn-icon-qr.ui-btn-link,
+.ui-btn-icon-qr.ui-btn-light,
+.ui-btn-icon-qr.ui-btn-success,
+.ui-btn-icon-qr.ui-btn-secondary,
+.ui-btn-icon-qr.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-qr.ui-btn-themes {
+	--ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-qr-dark.svg);
+}
 /*endregion*/

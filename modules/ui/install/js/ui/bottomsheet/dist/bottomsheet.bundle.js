@@ -3,38 +3,45 @@ this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
 
-	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var _bindEvents = /*#__PURE__*/new WeakSet();
-	var _dragStart = /*#__PURE__*/new WeakSet();
-	var _dragEnd = /*#__PURE__*/new WeakSet();
-	var _dragMove = /*#__PURE__*/new WeakSet();
-	var TouchDragListener = function TouchDragListener(_ref) {
-	  var element = _ref.element,
-	    touchStartCallback = _ref.touchStartCallback,
-	    touchEndCallback = _ref.touchEndCallback,
-	    touchMoveCallback = _ref.touchMoveCallback;
-	  babelHelpers.classCallCheck(this, TouchDragListener);
-	  _classPrivateMethodInitSpec(this, _dragMove);
-	  _classPrivateMethodInitSpec(this, _dragEnd);
-	  _classPrivateMethodInitSpec(this, _dragStart);
-	  _classPrivateMethodInitSpec(this, _bindEvents);
-	  this.element = main_core.Type.isDomNode(element) ? element : null;
-	  this.touchStartCallback = touchStartCallback;
-	  this.touchEndCallback = touchEndCallback;
-	  this.touchMoveCallback = touchMoveCallback;
-	  this.active = false;
-	  this.currentY = null;
-	  this.initialY = null;
-	  this.yOffset = 0;
-	  _classPrivateMethodGet(this, _bindEvents, _bindEvents2).call(this);
-	};
+	var _bindEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindEvents");
+	var _dragStart = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dragStart");
+	var _dragEnd = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dragEnd");
+	var _dragMove = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dragMove");
+	class TouchDragListener {
+	  constructor({
+	    element,
+	    touchStartCallback,
+	    touchEndCallback,
+	    touchMoveCallback
+	  }) {
+	    Object.defineProperty(this, _dragMove, {
+	      value: _dragMove2
+	    });
+	    Object.defineProperty(this, _dragEnd, {
+	      value: _dragEnd2
+	    });
+	    Object.defineProperty(this, _dragStart, {
+	      value: _dragStart2
+	    });
+	    Object.defineProperty(this, _bindEvents, {
+	      value: _bindEvents2
+	    });
+	    this.element = main_core.Type.isDomNode(element) ? element : null;
+	    this.touchStartCallback = touchStartCallback;
+	    this.touchEndCallback = touchEndCallback;
+	    this.touchMoveCallback = touchMoveCallback;
+	    this.active = false;
+	    this.currentY = null;
+	    this.initialY = null;
+	    this.yOffset = 0;
+	    babelHelpers.classPrivateFieldLooseBase(this, _bindEvents)[_bindEvents]();
+	  }
+	}
 	function _bindEvents2() {
 	  if (this.element) {
-	    this.element.addEventListener('touchstart', _classPrivateMethodGet(this, _dragStart, _dragStart2).bind(this));
-	    this.element.addEventListener('touchend', _classPrivateMethodGet(this, _dragEnd, _dragEnd2).bind(this));
-	    this.element.addEventListener('touchmove', _classPrivateMethodGet(this, _dragMove, _dragMove2).bind(this));
+	    this.element.addEventListener('touchstart', babelHelpers.classPrivateFieldLooseBase(this, _dragStart)[_dragStart].bind(this));
+	    this.element.addEventListener('touchend', babelHelpers.classPrivateFieldLooseBase(this, _dragEnd)[_dragEnd].bind(this));
+	    this.element.addEventListener('touchmove', babelHelpers.classPrivateFieldLooseBase(this, _dragMove)[_dragMove].bind(this));
 	  }
 	}
 	function _dragStart2(ev) {
@@ -93,30 +100,46 @@ this.BX = this.BX || {};
 	  });
 	}
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
-	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var _getOverlay = /*#__PURE__*/new WeakSet();
-	var _getHelp = /*#__PURE__*/new WeakSet();
-	var _getClose = /*#__PURE__*/new WeakSet();
-	var _getPanel = /*#__PURE__*/new WeakSet();
-	var _getContent = /*#__PURE__*/new WeakSet();
-	var _getWrapper = /*#__PURE__*/new WeakSet();
-	var BottomSheet = /*#__PURE__*/function () {
-	  function BottomSheet(_ref) {
-	    var _this = this;
-	    var content = _ref.content,
-	      help = _ref.help,
-	      className = _ref.className,
-	      _padding = _ref.padding;
-	    babelHelpers.classCallCheck(this, BottomSheet);
-	    _classPrivateMethodInitSpec$1(this, _getWrapper);
-	    _classPrivateMethodInitSpec$1(this, _getContent);
-	    _classPrivateMethodInitSpec$1(this, _getPanel);
-	    _classPrivateMethodInitSpec$1(this, _getClose);
-	    _classPrivateMethodInitSpec$1(this, _getHelp);
-	    _classPrivateMethodInitSpec$1(this, _getOverlay);
+	let _ = t => t,
+	  _t,
+	  _t2,
+	  _t3,
+	  _t4,
+	  _t5,
+	  _t6,
+	  _t7,
+	  _t8;
+	var _getOverlay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getOverlay");
+	var _getHelp = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getHelp");
+	var _getClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getClose");
+	var _getPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPanel");
+	var _getContent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getContent");
+	var _getWrapper = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getWrapper");
+	class BottomSheet {
+	  constructor({
+	    content,
+	    help,
+	    className,
+	    padding: _padding
+	  }) {
+	    Object.defineProperty(this, _getWrapper, {
+	      value: _getWrapper2
+	    });
+	    Object.defineProperty(this, _getContent, {
+	      value: _getContent2
+	    });
+	    Object.defineProperty(this, _getPanel, {
+	      value: _getPanel2
+	    });
+	    Object.defineProperty(this, _getClose, {
+	      value: _getClose2
+	    });
+	    Object.defineProperty(this, _getHelp, {
+	      value: _getHelp2
+	    });
+	    Object.defineProperty(this, _getOverlay, {
+	      value: _getOverlay2
+	    });
 	    this.content = main_core.Type.isDomNode(content) ? content : null;
 	    this.className = main_core.Type.isString(className) ? className : '';
 	    this.padding = main_core.Type.isString(_padding) || main_core.Type.isNumber(_padding) ? _padding : null;
@@ -140,34 +163,37 @@ this.BX = this.BX || {};
 	    this.halfOfHeight = 0;
 	    this.currentHeight = null;
 	    this.sheetListener = new TouchDragListener({
-	      element: _classPrivateMethodGet$1(this, _getPanel, _getPanel2).call(this),
-	      touchStartCallback: function touchStartCallback(_ref2) {
-	        var element = _ref2.element,
-	          active = _ref2.active,
-	          initialY = _ref2.initialY,
-	          currentY = _ref2.currentY,
-	          yOffset = _ref2.yOffset;
+	      element: babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel](),
+	      touchStartCallback: ({
+	        element,
+	        active,
+	        initialY,
+	        currentY,
+	        yOffset
+	      }) => {
 	        element.style.setProperty('--translateY', 'translateY(0)');
 	        element.style.setProperty('transition', 'unset');
 	      },
-	      touchEndCallback: function touchEndCallback(_ref3) {
-	        var element = _ref3.element,
-	          active = _ref3.active,
-	          initialY = _ref3.initialY,
-	          currentY = _ref3.currentY,
-	          yOffset = _ref3.yOffset;
+	      touchEndCallback: ({
+	        element,
+	        active,
+	        initialY,
+	        currentY,
+	        yOffset
+	      }) => {
 	        element.style.setProperty('transition', 'transform .3s');
 	        element.style.setProperty('--translateY', 'translateY(' + currentY + 'px)');
-	        if (parseInt(currentY) > _this.halfOfHeight) {
-	          _this.close();
+	        if (parseInt(currentY) > this.halfOfHeight) {
+	          this.close();
 	        }
 	      },
-	      touchMoveCallback: function touchMoveCallback(_ref4) {
-	        var element = _ref4.element,
-	          active = _ref4.active,
-	          initialY = _ref4.initialY,
-	          currentY = _ref4.currentY,
-	          yOffset = _ref4.yOffset;
+	      touchMoveCallback: ({
+	        element,
+	        active,
+	        initialY,
+	        currentY,
+	        yOffset
+	      }) => {
 	        if (currentY <= 0) {
 	          return;
 	        }
@@ -181,93 +207,87 @@ this.BX = this.BX || {};
 	      this.setContent(this.content);
 	    }
 	  }
-	  babelHelpers.createClass(BottomSheet, [{
-	    key: "setContent",
-	    value: function setContent(content) {
-	      if (main_core.Type.isDomNode(content)) {
-	        main_core.Dom.clean(_classPrivateMethodGet$1(this, _getContent, _getContent2).call(this));
-	        _classPrivateMethodGet$1(this, _getContent, _getContent2).call(this).appendChild(content);
-	      }
-	      if (main_core.Type.isString(content)) {
-	        main_core.Dom.clean(_classPrivateMethodGet$1(this, _getContent, _getContent2).call(this));
-	        _classPrivateMethodGet$1(this, _getContent, _getContent2).call(this).innerText = content;
-	      }
+	  setContent(content) {
+	    if (main_core.Type.isDomNode(content)) {
+	      main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _getContent)[_getContent]());
+	      babelHelpers.classPrivateFieldLooseBase(this, _getContent)[_getContent]().appendChild(content);
 	    }
-	  }, {
-	    key: "adjustPosition",
-	    value: function adjustPosition() {}
-	  }, {
-	    key: "adjustSize",
-	    value: function adjustSize() {
-	      var _this2 = this;
-	      if (this.currentHeight !== _classPrivateMethodGet$1(this, _getPanel, _getPanel2).call(this).offsetHeight) {
-	        var currentHeight = this.currentHeight;
-	        var newHeight = _classPrivateMethodGet$1(this, _getPanel, _getPanel2).call(this).offsetHeight;
-	        _classPrivateMethodGet$1(this, _getPanel, _getPanel2).call(this).style.setProperty('height', currentHeight + 'px');
-	        setTimeout(function () {
-	          currentHeight = _classPrivateMethodGet$1(_this2, _getPanel, _getPanel2).call(_this2).offsetHeight;
-	          _classPrivateMethodGet$1(_this2, _getPanel, _getPanel2).call(_this2).style.setProperty('height', newHeight + 'px');
-	          var adjustHeight = function adjustHeight() {
-	            _classPrivateMethodGet$1(_this2, _getPanel, _getPanel2).call(_this2).style.removeProperty('height', newHeight + 'px');
-	            _classPrivateMethodGet$1(_this2, _getPanel, _getPanel2).call(_this2).removeEventListener('transitionend', adjustHeight);
-	          };
-	          _classPrivateMethodGet$1(_this2, _getPanel, _getPanel2).call(_this2).addEventListener('transitionend', adjustHeight);
-	          _this2.currentHeight = newHeight;
-	          _this2.halfOfHeight = _this2.currentHeight / 2;
-	        });
-	      }
+	    if (main_core.Type.isString(content)) {
+	      main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _getContent)[_getContent]());
+	      babelHelpers.classPrivateFieldLooseBase(this, _getContent)[_getContent]().innerText = content;
 	    }
-	  }, {
-	    key: "close",
-	    value: function close() {
-	      var _this3 = this;
-	      if (_classPrivateMethodGet$1(this, _getWrapper, _getWrapper2).call(this).parentNode) {
-	        _classPrivateMethodGet$1(this, _getPanel, _getPanel2).call(this).classList.remove('--show');
-	        _classPrivateMethodGet$1(this, _getOverlay, _getOverlay2).call(this).classList.remove('--show');
-	        var animationProgress = function animationProgress() {
-	          _classPrivateMethodGet$1(_this3, _getWrapper, _getWrapper2).call(_this3).classList.remove('--show');
-	          _classPrivateMethodGet$1(_this3, _getPanel, _getPanel2).call(_this3).removeEventListener('transitionend', animationProgress);
+	  }
+	  adjustPosition() {}
+	  adjustSize() {
+	    if (this.currentHeight !== babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().offsetHeight) {
+	      let currentHeight = this.currentHeight;
+	      let newHeight = babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().offsetHeight;
+	      babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().style.setProperty('height', currentHeight + 'px');
+	      setTimeout(() => {
+	        currentHeight = babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().offsetHeight;
+	        babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().style.setProperty('height', newHeight + 'px');
+	        const adjustHeight = () => {
+	          babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().style.removeProperty('height', newHeight + 'px');
+	          babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().removeEventListener('transitionend', adjustHeight);
 	        };
-	        _classPrivateMethodGet$1(this, _getPanel, _getPanel2).call(this).addEventListener('transitionend', animationProgress);
-	      }
-	    }
-	  }, {
-	    key: "show",
-	    value: function show() {
-	      var _this4 = this;
-	      if (!_classPrivateMethodGet$1(this, _getWrapper, _getWrapper2).call(this).parentNode) {
-	        _classPrivateMethodGet$1(this, _getWrapper, _getWrapper2).call(this).appendChild(_classPrivateMethodGet$1(this, _getOverlay, _getOverlay2).call(this));
-	        _classPrivateMethodGet$1(this, _getWrapper, _getWrapper2).call(this).appendChild(_classPrivateMethodGet$1(this, _getPanel, _getPanel2).call(this));
-	        document.body.appendChild(_classPrivateMethodGet$1(this, _getWrapper, _getWrapper2).call(this));
-	      }
-	      _classPrivateMethodGet$1(this, _getWrapper, _getWrapper2).call(this).classList.add('--show');
-	      setTimeout(function () {
-	        _this4.currentHeight = _classPrivateMethodGet$1(_this4, _getPanel, _getPanel2).call(_this4).offsetHeight;
-	        _this4.halfOfHeight = _this4.currentHeight / 2;
-	        _classPrivateMethodGet$1(_this4, _getPanel, _getPanel2).call(_this4).classList.add('--show');
-	        _classPrivateMethodGet$1(_this4, _getOverlay, _getOverlay2).call(_this4).classList.add('--show');
+	        babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().addEventListener('transitionend', adjustHeight);
+	        this.currentHeight = newHeight;
+	        this.halfOfHeight = this.currentHeight / 2;
 	      });
 	    }
-	  }]);
-	  return BottomSheet;
-	}();
+	  }
+	  close() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _getWrapper)[_getWrapper]().parentNode) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().classList.remove('--show');
+	      babelHelpers.classPrivateFieldLooseBase(this, _getOverlay)[_getOverlay]().classList.remove('--show');
+	      const animationProgress = () => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _getWrapper)[_getWrapper]().classList.remove('--show');
+	        babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().removeEventListener('transitionend', animationProgress);
+	      };
+	      babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().addEventListener('transitionend', animationProgress);
+	    }
+	  }
+	  show() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _getWrapper)[_getWrapper]().parentNode) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _getWrapper)[_getWrapper]().appendChild(babelHelpers.classPrivateFieldLooseBase(this, _getOverlay)[_getOverlay]());
+	      babelHelpers.classPrivateFieldLooseBase(this, _getWrapper)[_getWrapper]().appendChild(babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]());
+	      document.body.appendChild(babelHelpers.classPrivateFieldLooseBase(this, _getWrapper)[_getWrapper]());
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _getWrapper)[_getWrapper]().classList.add('--show');
+	    setTimeout(() => {
+	      this.currentHeight = babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().offsetHeight;
+	      this.halfOfHeight = this.currentHeight / 2;
+	      babelHelpers.classPrivateFieldLooseBase(this, _getPanel)[_getPanel]().classList.add('--show');
+	      babelHelpers.classPrivateFieldLooseBase(this, _getOverlay)[_getOverlay]().classList.add('--show');
+	    });
+	  }
+	}
 	function _getOverlay2() {
 	  if (!this.layout.overlay) {
-	    this.layout.overlay = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-bottomsheet__overlay\"></div>\n\t\t\t"])));
+	    this.layout.overlay = main_core.Tag.render(_t || (_t = _`
+				<div class="ui-bottomsheet__overlay"></div>
+			`));
 	    this.layout.overlay.addEventListener('click', this.close.bind(this));
 	  }
 	  return this.layout.overlay;
 	}
 	function _getHelp2() {
-	  var _this5 = this;
 	  if (!this.layout.help) {
 	    if (main_core.Type.isString(this.help)) {
-	      this.layout.help = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" class=\"ui-bottomsheet__panel-control--item --cursor-pointer\">\n\t\t\t\t\t\t<span class=\"ui-bottomsheet__panel-control--item-text\">", "</span>\n\t\t\t\t\t</a>\n\t\t\t\t"])), this.help, main_core.Loc.getMessage('UI_BOTTOMSHEET_HELP'));
+	      this.layout.help = main_core.Tag.render(_t2 || (_t2 = _`
+					<a href="${0}" class="ui-bottomsheet__panel-control--item --cursor-pointer">
+						<span class="ui-bottomsheet__panel-control--item-text">${0}</span>
+					</a>
+				`), this.help, main_core.Loc.getMessage('UI_BOTTOMSHEET_HELP'));
 	    }
 	    if (main_core.Type.isFunction(this.help)) {
-	      this.layout.help = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-bottomsheet__panel-control--item --cursor-pointer\">\n\t\t\t\t\t\t<div class=\"ui-bottomsheet__panel-control--item-text\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('UI_BOTTOMSHEET_HELP'));
-	      this.layout.help.addEventListener('click', function () {
-	        _this5.help();
+	      this.layout.help = main_core.Tag.render(_t3 || (_t3 = _`
+					<div class="ui-bottomsheet__panel-control--item --cursor-pointer">
+						<div class="ui-bottomsheet__panel-control--item-text">${0}</div>
+					</div>
+				`), main_core.Loc.getMessage('UI_BOTTOMSHEET_HELP'));
+	      this.layout.help.addEventListener('click', () => {
+	        this.help();
 	      });
 	    }
 	  }
@@ -275,16 +295,24 @@ this.BX = this.BX || {};
 	}
 	function _getClose2() {
 	  if (!this.layout.close) {
-	    this.layout.close = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-bottomsheet__panel-control--item --cursor-pointer --close\">\n\t\t\t\t\t<div class=\"ui-bottomsheet__panel-control--item-text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('UI_BOTTOMSHEET_CLOSE'));
+	    this.layout.close = main_core.Tag.render(_t4 || (_t4 = _`
+				<div class="ui-bottomsheet__panel-control--item --cursor-pointer --close">
+					<div class="ui-bottomsheet__panel-control--item-text">${0}</div>
+				</div>
+			`), main_core.Loc.getMessage('UI_BOTTOMSHEET_CLOSE'));
 	    this.layout.close.addEventListener('click', this.close.bind(this));
 	  }
 	  return this.layout.close;
 	}
 	function _getPanel2() {
 	  if (!this.layout.container) {
-	    var panelWrapper = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-bottomsheet__panel-wrapper\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _classPrivateMethodGet$1(this, _getContent, _getContent2).call(this));
+	    const panelWrapper = main_core.Tag.render(_t5 || (_t5 = _`
+				<div class="ui-bottomsheet__panel-wrapper">
+					${0}
+				</div>
+			`), babelHelpers.classPrivateFieldLooseBase(this, _getContent)[_getContent]());
 	    if (this.padding || this.padding === 0) {
-	      var padding;
+	      let padding;
 	      switch (true) {
 	        case main_core.Type.isString(this.padding):
 	          padding = this.padding;
@@ -295,19 +323,32 @@ this.BX = this.BX || {};
 	      }
 	      panelWrapper.style.setProperty('padding', padding);
 	    }
-	    this.layout.container = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-bottomsheet__panel\">\n\t\t\t\t\t<div class=\"ui-bottomsheet__panel-control\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<div class=\"ui-bottomsheet__panel-handler\"></div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.help ? _classPrivateMethodGet$1(this, _getHelp, _getHelp2).call(this) : '', _classPrivateMethodGet$1(this, _getClose, _getClose2).call(this), panelWrapper);
+	    this.layout.container = main_core.Tag.render(_t6 || (_t6 = _`
+				<div class="ui-bottomsheet__panel">
+					<div class="ui-bottomsheet__panel-control">
+						${0}
+						<div class="ui-bottomsheet__panel-handler"></div>
+						${0}
+					</div>
+					${0}
+				</div>
+			`), this.help ? babelHelpers.classPrivateFieldLooseBase(this, _getHelp)[_getHelp]() : '', babelHelpers.classPrivateFieldLooseBase(this, _getClose)[_getClose](), panelWrapper);
 	  }
 	  return this.layout.container;
 	}
 	function _getContent2() {
 	  if (!this.layout.content) {
-	    this.layout.content = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-bottomsheet__panel-content\"></div>\n\t\t\t"])));
+	    this.layout.content = main_core.Tag.render(_t7 || (_t7 = _`
+				<div class="ui-bottomsheet__panel-content"></div>
+			`));
 	  }
 	  return this.layout.content;
 	}
 	function _getWrapper2() {
 	  if (!this.layout.wrapper) {
-	    this.layout.wrapper = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-bottomsheet ui-bottomsheet__scope ", "\"></div>\n\t\t\t"])), this.className);
+	    this.layout.wrapper = main_core.Tag.render(_t8 || (_t8 = _`
+				<div class="ui-bottomsheet ui-bottomsheet__scope ${0}"></div>
+			`), this.className);
 	  }
 	  return this.layout.wrapper;
 	}

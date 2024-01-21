@@ -8,6 +8,7 @@ Loc::loadMessages(__FILE__);
 
 $data = array(
 	'NAME' => Loc::getMessage("SALE_HPS_CASH"),
+	'DESCRIPTION' => Loc::getMessage('SALE_HPS_CASH_DESCRIPTION'),
 	'SORT' => 100,
 	'CODES' => array()
 );

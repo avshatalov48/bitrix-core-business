@@ -18,6 +18,6 @@ $MESS["BLOG_C_HIDE"] = "Свернуть комментарии";
 $MESS["INCORRECT_SERVER_RESPONSE"] = "Некорректный ответ сервера.";
 $MESS["INCORRECT_SERVER_RESPONSE_2"] = "Произошла ошибка, попробуйте позже.";
 $MESS["MPL_MOBILE_PUBLISHING"] = "Публикуется&hellip;";
-$MESS["MPL_SHOW_COLLAPSED_COMMENTS"] = "Показать пинги";
-$MESS["MPL_HIDE_COLLAPSED_COMMENTS"] = "Скрыть пинги";
+$MESS["MPL_SHOW_COLLAPSED_COMMENTS_MSGVER_1"] = "Показать пинги (#COLLAPSED_MESSAGES_COUNT#)";
+$MESS["MPL_HIDE_COLLAPSED_COMMENTS_MSGVER_1"] = "Скрыть пинги (#COLLAPSED_MESSAGES_COUNT#)";
 ?>

@@ -167,6 +167,28 @@ class SectionType extends ElementType
 
 	/**
 	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return array
+	 */
+	public static function getGroupActionData(array $userField, ?array $additionalParameters): array
+	{
+		$result = [];
+		$enum = call_user_func([$userField['USER_TYPE']['CLASS_NAME'], 'getlist'], $userField);
+		if(!$enum)
+		{
+			return $result;
+		}
+
+		while($item = $enum->GetNext())
+		{
+			$result[] = ['NAME' => $item['VALUE'], 'VALUE' => $item['ID']];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $userField
 	 * @param array $additionalParameters
 	 * @return array|string
 	 */

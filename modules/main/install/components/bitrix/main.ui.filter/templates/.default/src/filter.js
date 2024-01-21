@@ -1831,12 +1831,25 @@
 			if (this.isEditEnabled())
 			{
 				var preset = this.getPreset();
-				var presetNode = preset.getPresetNodeById(preset.getCurrentPresetId());
+				var currentPresetId = preset.getCurrentPresetId();
+				var presetNode = preset.getPresetNodeById(currentPresetId);
 				var presetNameInput = preset.getPresetInput(presetNode);
 
-				if (presetNameInput.value.length)
+				if (
+					presetNameInput.value.length === 0
+					&& currentPresetId === 'default_filter'
+				)
 				{
-					preset.updateEditablePreset(preset.getCurrentPresetId());
+					var currentPresetData = preset.getCurrentPresetData();
+					if (currentPresetData)
+					{
+						BX.Dom.attr(presetNameInput, 'value', currentPresetData.TITLE);
+					}
+				}
+
+				if (presetNameInput.value.length > 0)
+				{
+					preset.updateEditablePreset(currentPresetId);
 					this.saveUserSettings(forAll);
 
 					if (!forAll)
@@ -2660,7 +2673,6 @@
 		{
 			this.setIsSetOutsideState(isSetOutside);
 
-			var presetId = this.getPresetId(clear, applyPreset);
 			var filterId = this.getParam('FILTER_ID');
 			var promise = new BX.Promise(null, this);
 			var Preset = this.getPreset();
@@ -2685,6 +2697,8 @@
 			var action = clear ? "clear" : "apply";
 
 			BX.onCustomEvent(window, 'BX.Main.Filter:beforeApply', [filterId, {action: action}, this, promise]);
+			// presetId defined  after `beforeApply` because current preset may be changed by the event's handlers
+			const presetId = this.getPresetId(clear, applyPreset);
 
 			this.updatePreset(presetId, null, clear, null).then(function() {
 				Search.updatePreset(Preset.getPreset(presetId));

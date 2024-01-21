@@ -2,6 +2,7 @@ import {Type, Loc, Tag, Dom} from 'main.core';
 import {Popup} from 'main.popup';
 import {Button} from 'ui.buttons';
 import {MenuManager} from 'main.popup';
+import { PostForm } from 'socialnetwork.post-form';
 
 import {FeedInstance, PinnedPanelInstance} from './feed';
 import {TaskCreator} from './taskcreator';
@@ -460,6 +461,31 @@ class Post
 		return `post-menu-${ind}`;
 	}
 
+	static editSpacesPost(postId: number, groupId: number)
+	{
+		if (Type.isUndefined(window.listPostForms))
+		{
+			window.listPostForms = new Map();
+		}
+
+		if (window.listPostForms.has(postId))
+		{
+			const postForm: PostForm = window.listPostForms.get(postId);
+
+			postForm.show();
+		}
+		else
+		{
+			const postForm = new PostForm({
+				postId,
+				groupId,
+			});
+
+			window.listPostForms.set(postId, postForm);
+
+			postForm.show();
+		}
+	}
 }
 
 export {

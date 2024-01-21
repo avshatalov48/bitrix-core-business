@@ -15,7 +15,6 @@ use Psr\Http\Message\StreamInterface;
 
 class Message implements MessageInterface
 {
-	protected string $protocolVersion = '1.1';
 	protected HttpHeaders $headers;
 	protected StreamInterface $body;
 
@@ -30,7 +29,7 @@ class Message implements MessageInterface
 
 		if ($version !== null)
 		{
-			$this->protocolVersion = $version;
+			$this->headers->setVersion($version);
 		}
 
 		$this->body = $body ?? new Stream('php://temp', 'r+');
@@ -41,7 +40,7 @@ class Message implements MessageInterface
 	 */
 	public function getProtocolVersion(): string
 	{
-		return $this->protocolVersion;
+		return $this->headers->getVersion();
 	}
 
 	/**
@@ -49,13 +48,13 @@ class Message implements MessageInterface
 	 */
 	public function withProtocolVersion(string $version): MessageInterface
 	{
-		if ($this->protocolVersion == $version)
+		if ($this->getProtocolVersion() === $version)
 		{
 			return $this;
 		}
 
 		$new = clone $this;
-		$new->protocolVersion = $version;
+		$new->headers->setVersion($version);
 
 		return $new;
 	}

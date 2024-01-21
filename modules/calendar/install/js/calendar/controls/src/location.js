@@ -424,10 +424,13 @@ export class Location
 	{
 		this.getLocationAccessibility(params.from, params.to)
 		.then(()=> {
-			let eventTsFrom;
-			let eventTsTo;
-			let fromTs = params.from.getTime();
-			let toTs = params.to.getTime();
+			const timezone = (params.timezone && params.timezone !== '')
+				? params.timezone
+				: Util.getUserSettings().timezoneName
+			;
+			const timezoneOffset = Util.getTimeZoneOffset(timezone) * 60 * 1000;
+			const fromTs = new Date(params.from.getTime() + timezoneOffset).getTime();
+			let toTs = new Date(params.to.getTime() + timezoneOffset).getTime();
 			if (params.fullDay)
 			{
 				toTs += Location.DAY_LENGTH;
@@ -439,7 +442,10 @@ export class Location
 				let roomId = Location.locationList[index].ID;
 				for (const date of this.datesRange)
 				{
-					if (Type.isUndefined(Location.accessibility[date][roomId]))
+					if (
+						Type.isUndefined(Location.accessibility[date])
+						|| !Type.isArrayFilled(Location.accessibility[date][roomId])
+					)
 					{
 						continue;
 					}
@@ -451,14 +457,15 @@ export class Location
 							continue;
 						}
 
-						eventTsFrom = Util.parseDate(event.DATE_FROM).getTime();
-						eventTsTo = Util.parseDate(event.DATE_TO).getTime();
-						if (event.DT_SKIP_TIME !== 'Y')
+						let eventTimezoneOffset = 0;
+						if (event.DT_SKIP_TIME === 'N')
 						{
-							eventTsFrom -= event['~USER_OFFSET_FROM'] * 1000;
-							eventTsTo -= event['~USER_OFFSET_TO'] * 1000;
+							eventTimezoneOffset = Util.getTimeZoneOffset(event.TZ_FROM) * 60 * 1000;
 						}
-						else
+
+						const eventTsFrom = new Date(Util.parseDate(event.DATE_FROM).getTime() + eventTimezoneOffset).getTime();
+						let eventTsTo = new Date(Util.parseDate(event.DATE_TO).getTime() + eventTimezoneOffset).getTime();
+						if (event.DT_SKIP_TIME === 'Y')
 						{
 							eventTsTo += Location.DAY_LENGTH;
 						}
@@ -1009,8 +1016,8 @@ export class Location
 
 	static getDatesRange(from, to)
 	{
-		let fromDate = new Date(from);
-		let toDate = new Date(to);
+		const fromDate = new Date(from.getTime() - Util.getDayLength());
+		const toDate = new Date(to.getTime() + Util.getDayLength());
 		let startDate = fromDate.setHours(0, 0, 0, 0);
 		let finishDate = toDate.setHours(0, 0, 0, 0);
 		let result = [];

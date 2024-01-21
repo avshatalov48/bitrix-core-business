@@ -2,9 +2,6 @@
 
 namespace Bitrix\Main\UserField\Types;
 
-use Bitrix\Main\UserField\Access\ActionDictionary;
-use Bitrix\Main\UserField\Access\UserFieldAccessController;
-
 abstract class BaseType
 {
 	public const
@@ -49,7 +46,7 @@ abstract class BaseType
 			'CLASS_NAME' => static::class,
 			'EDIT_CALLBACK' => [static::class, 'renderEdit'],
 			'VIEW_CALLBACK' => [static::class, 'renderView'],
-			'USE_FIELD_COMPONENT' => true
+			'USE_FIELD_COMPONENT' => true,
 		];
 	}
 
@@ -72,7 +69,7 @@ abstract class BaseType
 	 * in the property metadata or system bitrix: system.field.view
 	 *
 	 * @param array $userField An array describing the field.
-	 * @param array $additionalParameters Additional parameters (e.g. context).
+	 * @param array|null $additionalParameters Additional parameters (e.g. context).
 	 * @return string
 	 */
 	public static function renderView(array $userField, ?array $additionalParameters = []): string
@@ -89,7 +86,7 @@ abstract class BaseType
 	 * in the property metadata or system bitrix: system.field.edit
 	 *
 	 * @param array $userField An array describing the field.
-	 * @param array $additionalParameters Additional parameters (e.g. context).
+	 * @param array|null $additionalParameters Additional parameters (e.g. context).
 	 * @return string HTML для вывода.
 	 */
 	public static function renderEdit(array $userField, ?array $additionalParameters = []): string
@@ -104,8 +101,8 @@ abstract class BaseType
 	 * Returns html for embedding in a 2-column table in the form usertype_edit.php
 	 *
 	 * @param bool|array $userField An array describing the field. For a new (not yet added field - false)
-	 * @param array $additionalParameters Array of advanced parameters
-	 * @param bool $bVarsFromForm
+	 * @param array|null $additionalParameters Array of advanced parameters
+	 * @param $varsFromForm
 	 * @return string HTML
 	 */
 	public static function renderSettings($userField, ?array $additionalParameters, $varsFromForm): string
@@ -122,8 +119,8 @@ abstract class BaseType
 	 * Returns html for embedding in a table cell in the entity editing form
 	 * (on the "Advanced Properties" tab).
 	 *
-	 * @param array $userField An array describing the field..
-	 * @param array $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
+	 * @param array $userField An array describing the field.
+	 * @param array|null $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
 	 * @return string
 	 */
 	public static function renderEditForm(array $userField, ?array $additionalParameters): string
@@ -140,7 +137,7 @@ abstract class BaseType
 	 * $AdditionalParameters elements are converted to html safe mode.
 	 *
 	 * @param array $userField An array describing the field.
-	 * @param array $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
+	 * @param array|null $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
 	 * @return string HTML
 	 */
 	public static function renderAdminListView(array $userField, ?array $additionalParameters): string
@@ -155,7 +152,7 @@ abstract class BaseType
 	 * Returns html to embed in a table cell.
 	 * $AdditionalParameters elements are converted to html safe mode.
 	 * @param array $userField An array describing the field.
-	 * @param array $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
+	 * @param array|null $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
 	 * @return string HTML
 	 */
 	public static function renderAdminListEdit(array $userField, ?array $additionalParameters)
@@ -171,7 +168,7 @@ abstract class BaseType
 	 * $additionalParameters elements are html safe.
 	 *
 	 * @param array $userField An array describing the field.
-	 * @param array $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
+	 * @param array|null $additionalParameters An array of controls from the form. Contains the elements NAME and VALUE.
 	 * @return string
 	 */
 	public static function renderFilter(array $userField, ?array $additionalParameters): string
@@ -218,7 +215,7 @@ abstract class BaseType
 	 */
 	private static function getComponentName(): string
 	{
-		if(mb_strpos(static::RENDER_COMPONENT, ':'))
+		if (str_contains(static::RENDER_COMPONENT, ':'))
 		{
 			return static::RENDER_COMPONENT;
 		}

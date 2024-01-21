@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'main.core.events',
 		'im.v2.lib.logger',
+		'im.v2.lib.layout',
 		'im.v2.const',
 	],
 	'skip_core' => false,

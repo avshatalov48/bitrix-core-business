@@ -15,6 +15,14 @@
 	cursor: pointer;
 }
 
+.bx-im-settings-checkbox__container .ui-ctl-checkbox .ui-ctl-element {
+	cursor: pointer;
+}
+
+.bx-im-settings-checkbox__container .ui-ctl-checkbox .ui-ctl-element[disabled] {
+	cursor: not-allowed;
+}
+
 .bx-im-settings-checkbox__container .ui-ctl-label-text {
 	font: var(--im-font-size-md) var(--im-font-family-system);
 	color: var(--im-settings-section_content__font-color_label);
@@ -23,4 +31,8 @@
 .bx-im-settings-checkbox__container .bx-im-settings-radio__label {
 	display: flex;
 	flex-direction: column;
+}
+
+.bx-im-settings-checkbox__container.--no-text .ui-ctl-checkbox .ui-ctl-element {
+	margin-right: 0;
 }

@@ -61,7 +61,7 @@ class Accessibility
 					$itemTo -= $timezoneOffset;
 				}
 
-				if ($this->doIntervalsIntersect($timestampFromUTC, $timestampToUTC, $itemFrom, $itemTo))
+				if (Util::doIntervalsIntersect($timestampFromUTC, $timestampToUTC, $itemFrom, $itemTo))
 				{
 					$busyUsersList[] = $userId;
 				}
@@ -116,32 +116,8 @@ class Accessibility
 				'OWNER_ID' => $userIds,
 				'ACTIVE_SECTION' => 'Y'
 			],
-			'arSelect' => [
-				'ID',
-				'PARENT_ID',
-				'OWNER_ID',
-				'EVENT_TYPE',
-				'NAME',
-				'DATE_FROM',
-				'DATE_TO',
-				'TZ_FROM',
-				'TZ_TO',
-				'TZ_OFFSET_FROM',
-				'TZ_OFFSET_TO',
-				'DATE_FROM_TS_UTC',
-				'DATE_TO_TS_UTC',
-				'DT_SKIP_TIME',
-				'ACCESSIBILITY',
-				'IMPORTANCE',
-				'RRULE',
-				'EXDATE',
-				'SECTION_ID',
-				'CAL_TYPE',
-				'MEETING_STATUS',
-				'IS_MEETING',
-				'DT_LENGTH',
-				'PRIVATE_EVENT'
-			],
+			'arSelect' => \CCalendarEvent::$defaultSelectEvent,
+			'getUserfields' => false,
 			'parseRecursion' => true,
 			'fetchAttendees' => false,
 			'fetchSection' => true,
@@ -245,6 +221,13 @@ class Accessibility
 			BX_INTRANET_ABSENCE_HR
 		);
 
+		$absenceTypes = \Bitrix\Intranet\UserAbsence::getVacationTypes();
+		$vacationTypes = array_filter(
+			$absenceTypes,
+			fn ($type) => in_array($type['ID'], ['VACATION', 'LEAVESICK', 'LEAVEMATERINITY', 'LEAVEUNPAYED'], true),
+		);
+		$vacationTypesIds = array_map(fn ($type) => (int)$type['ENUM_ID'], $vacationTypes);
+
 		$serverOffset = (int)date('Z');
 		$userOffset = \CCalendar::GetOffset(\CCalendar::GetUserId());
 		$accessibility = $this->initAccessibility($userIds);
@@ -275,6 +258,7 @@ class Accessibility
 					'to' => $to,
 					'isFullDay' => $isFullDay,
 					'name' => $event['PROPERTY_ABSENCE_TYPE_VALUE'] ?? null,
+					'isVacation' => in_array((int)$event['PROPERTY_ABSENCE_TYPE_ENUM_ID'], $vacationTypesIds, true),
 				];
 			}
 		}
@@ -310,20 +294,5 @@ class Accessibility
 		}
 
 		return $accessibility;
-	}
-
-	private function doIntervalsIntersect($from1, $to1, $from2, $to2): bool
-	{
-		return $this->oneIntervalIntersectsAnother($from1, $to1, $from2, $to2)
-			|| $this->oneIntervalIntersectsAnother($from2, $to2, $from1, $to1);
-	}
-
-	private function oneIntervalIntersectsAnother($from1, $to1, $from2, $to2): bool
-	{
-		$startsInside = $from2 <= $from1 && $from1 < $to2;
-		$endsInside = $from2 < $to1 && $to1 <= $to2;
-		$startsBeforeEndsAfter = $from1 <= $from2 && $to1 >= $to2;
-
-		return $startsInside || $endsInside || $startsBeforeEndsAfter;
 	}
 }

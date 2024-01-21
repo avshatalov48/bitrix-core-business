@@ -158,6 +158,7 @@ if ($formEditor)
 {
 	$formHooks = [
 		'METAOG',
+		'METAMAIN',
 		'YACOUNTER',
 		'GACOUNTER',
 		'GTM',
@@ -313,14 +314,12 @@ if ($arParams['SUCCESS_SAVE'])
 								}
 								$link2 = $link1 ? '</a>' : '';
 								?>
-								<?php if (!$formEditor): ?>
 								<div class="landing-form-field-description">
 									<?= $component->getMessageType('LANDING_TPL_CODE_SETTINGS', [
 										'#LINK1#' => $link1,
 										'#LINK2#' => $link2,
 									]) ?>
 								</div>
-								<?php endif; ?>
 								<?php if (!$isAjax && $arParams['PAGE_URL_SITE_EDIT']): ?>
 									<script>
 										BX.ready(function()
@@ -412,7 +411,9 @@ if ($arParams['SUCCESS_SAVE'])
 												node: BX('<?=$template->getFieldId('EDITABLE_PAGE_TITLE') ?>'),
 												isEventTargetNode: true,
 												display: true,
-												isAiAllowed: <?=empty($arResult['ALLOW_AI_TEXT']) ? 0 : $arResult['ALLOW_AI_TEXT']?>,
+												isAiAvailable: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_AVAILABLE']) ?>,
+												isAiActive: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_ACTIVE']) ?>,
+												aiUnactiveInfoCode: <?= \CUtil::PhpToJSObject($arResult['AI_UNACTIVE_INFO_CODE']) ?>,
 												siteId: '<?= $row['SITE_ID']['CURRENT'] ?>',
 											});
 										});
@@ -455,7 +456,9 @@ if ($arParams['SUCCESS_SAVE'])
 											new BX.Landing.EditTitleForm({
 												node: BX('<?=$template->getFieldId('EDITABLE_PAGE_TEXT') ?>'),
 												isEventTargetNode: true,
-												isAiAllowed: <?=empty($arResult['ALLOW_AI_TEXT']) ? 0 : $arResult['ALLOW_AI_TEXT']?>,
+												isAiAvailable: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_AVAILABLE']) ?>,
+												isAiActive: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_ACTIVE']) ?>,
+												aiUnactiveInfoCode: <?= \CUtil::PhpToJSObject($arResult['AI_UNACTIVE_INFO_CODE']) ?>,
 												siteId: '<?= $row['SITE_ID']['CURRENT'] ?>',
 												display: true,
 											});

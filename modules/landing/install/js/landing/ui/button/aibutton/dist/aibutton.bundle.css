@@ -1,0 +1,19 @@
+.landing-ui-button.landing-ui-button-ai,
+.landing-ui-button.landing-ui-button-ai:hover {
+	height: 26px;
+	border-radius: 20px;
+	line-height: 26px;
+	font-weight: 600;
+	font-size: 13px;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-style: normal;
+	background: -o-linear-gradient(bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), -o-linear-gradient(bottom, rgba(167, 87, 233, 0.5), rgba(167, 87, 233, 0.5)), -o-linear-gradient(130.33deg, #B130DE -39.68%, #D65FFA 10.09%, #DD8AF0 24.69%, #705AF7 99.78%), -o-linear-gradient(bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), -o-linear-gradient(bottom, rgba(47, 198, 246, 0.2), rgba(47, 198, 246, 0.2)), -o-linear-gradient(136.45deg, #1480FB 14.47%, #2ADBFB 44.51%, #2FDCFB 53.33%, #008DBA 98.66%);
+	background: linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), linear-gradient(0deg, rgba(167, 87, 233, 0.5), rgba(167, 87, 233, 0.5)), linear-gradient(319.67deg, #B130DE -39.68%, #D65FFA 10.09%, #DD8AF0 24.69%, #705AF7 99.78%), linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(0deg, rgba(47, 198, 246, 0.2), rgba(47, 198, 246, 0.2)), linear-gradient(313.55deg, #1480FB 14.47%, #2ADBFB 44.51%, #2FDCFB 53.33%, #008DBA 98.66%);
+}
+
+.landing-ui-button.landing-ui-button-ai .landing-ui-button-text,
+.landing-ui-button.landing-ui-button-ai .landing-ui-button-text:hover {
+	text-transform: none;
+	color: #fff;
+	line-height: 26px;
+}

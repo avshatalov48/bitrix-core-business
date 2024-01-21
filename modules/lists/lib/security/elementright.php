@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Lists\Security;
 
 use Bitrix\Main\Error;
@@ -17,6 +18,7 @@ class ElementRight implements RightEntity, Errorable
 	const EDIT = "canEdit";
 	const DELETE = "canDelete";
 	const FULL_EDIT = "canFullEdit";
+	public const EDIT_RIGHTS = 'canEditRights';
 
 	private $listsPermission;
 	private $rightParam;
@@ -76,13 +78,15 @@ class ElementRight implements RightEntity, Errorable
 	 */
 	public function canEdit()
 	{
+		$sectionId = $this->rightParam->getSectionId() ?? $this->rightParam->getEntityId(); // compatibility
+
 		$canEdit = (
 			!$this->socnetGroupClosed && ((
 				$this->rightParam->getEntityId() > 0 &&
 				(
 					$this->listsPermission >= \CListPermissions::CAN_WRITE ||
 					\CIBlockElementRights::UserHasRightTo(
-						$this->rightParam->getIblockId(), $this->rightParam->getEntityId(), "element_edit")
+						$this->rightParam->getIblockId(), $this->rightParam->getEntityId(), 'element_edit')
 				)
 			)
 			|| (
@@ -90,7 +94,7 @@ class ElementRight implements RightEntity, Errorable
 				&& (
 					$this->listsPermission >= \CListPermissions::CAN_WRITE ||
 					\CIBlockSectionRights::UserHasRightTo(
-						$this->rightParam->getIblockId(), $this->rightParam->getEntityId(), "section_element_bind")
+						$this->rightParam->getIblockId(), $sectionId, 'section_element_bind')
 				)
 			))
 		);
@@ -113,12 +117,15 @@ class ElementRight implements RightEntity, Errorable
 	 */
 	public function canAdd()
 	{
+		$sectionId = $this->rightParam->getSectionId() ?? $this->rightParam->getEntityId(); // compatibility
+
 		$canAdd = (
 			!$this->socnetGroupClosed &&
 			(
-				$this->listsPermission > \CListPermissions::CAN_READ ||
-				\CIBlockSectionRights::UserHasRightTo(
-					$this->rightParam->getIblockId(), $this->rightParam->getEntityId(), "section_element_bind")
+				$this->listsPermission > \CListPermissions::CAN_READ
+				|| \CIBlockSectionRights::UserHasRightTo(
+					$this->rightParam->getIblockId(), $sectionId, 'section_element_bind'
+				)
 			)
 		);
 
@@ -128,7 +135,8 @@ class ElementRight implements RightEntity, Errorable
 		}
 		else
 		{
-			$this->errorCollection->setError(new Error("Access denied", self::ACCESS_DENIED));
+			$this->errorCollection->setError(new Error('Access denied', self::ACCESS_DENIED));
+
 			return false;
 		}
 	}
@@ -141,12 +149,13 @@ class ElementRight implements RightEntity, Errorable
 	public function canDelete()
 	{
 		$canDelete = (
-			!$this->socnetGroupClosed &&
-			$this->rightParam->getEntityId() &&
-			(
-				$this->listsPermission >= \CListPermissions::CAN_WRITE ||
-				\CIBlockElementRights::UserHasRightTo(
-					$this->rightParam->getIblockId(), $this->rightParam->getEntityId(), "element_delete")
+			!$this->socnetGroupClosed
+			&& $this->rightParam->getEntityId()
+			&& (
+				$this->listsPermission >= \CListPermissions::CAN_WRITE
+				|| \CIBlockElementRights::UserHasRightTo(
+					$this->rightParam->getIblockId(), $this->rightParam->getEntityId(), 'element_delete'
+				)
 			)
 		);
 
@@ -168,12 +177,13 @@ class ElementRight implements RightEntity, Errorable
 	 */
 	public function canFullEdit()
 	{
-		$canFullEdit =(
-			!$this->socnetGroupClosed &&
-			(
-				$this->listsPermission >= \CListPermissions::IS_ADMIN ||
-				\CIBlockRights::UserHasRightTo(
-					$this->rightParam->getIblockId(), $this->rightParam->getIblockId(), "iblock_edit")
+		$canFullEdit = (
+			!$this->socnetGroupClosed
+			&& (
+				$this->listsPermission >= \CListPermissions::IS_ADMIN
+				|| \CIBlockRights::UserHasRightTo(
+					$this->rightParam->getIblockId(), $this->rightParam->getIblockId(), 'iblock_edit'
+				)
 			)
 		);
 
@@ -186,5 +196,42 @@ class ElementRight implements RightEntity, Errorable
 			$this->errorCollection->setError(new Error("Access denied", self::ACCESS_DENIED));
 			return false;
 		}
+	}
+
+	/**
+	 * Checks the edit rights access to the element
+	 */
+	public function canEditRights()
+	{
+		$canEditRights = (
+			!$this->socnetGroupClosed
+			&& (
+				(
+					$this->rightParam->getEntityId() > 0
+					&& \CIBlockElementRights::UserHasRightTo(
+						$this->rightParam->getIblockId(),
+						$this->rightParam->getEntityId(),
+						'element_rights_edit'
+					)
+				)
+				|| (
+					$this->rightParam->getEntityId() === 0
+					&& \CIBlockSectionRights::UserHasRightTo(
+						$this->rightParam->getIblockId(),
+						$this->rightParam->getSectionId() ?? 0,
+						'element_rights_edit'
+					)
+				)
+			)
+		);
+
+		if ($canEditRights)
+		{
+			return true;
+		}
+
+		$this->errorCollection->setError(new Error('Access denied', self::ACCESS_DENIED));
+
+		return false;
 	}
 }

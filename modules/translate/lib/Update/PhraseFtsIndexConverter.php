@@ -85,7 +85,7 @@ final class PhraseFtsIndexConverter extends \Bitrix\Main\Update\Stepper
 			while ($row = $langList->fetch())
 			{
 				$langId = mb_strtolower($row['ID']);
-				if (!preg_match("/[a-z]{2}/i", $langId))
+				if (!preg_match("/[a-z0-9]{2}/i", $langId))
 				{
 					continue;
 				}

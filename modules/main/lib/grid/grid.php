@@ -309,7 +309,7 @@ abstract class Grid
 		$panel = $this->getPanel();
 		if (isset($panel))
 		{
-			$response = $panel->processRequest($gridRequest);
+			$response = $panel->processRequest($gridRequest, $this->getFilter());
 			if ($response instanceof GridResponse)
 			{
 				if ($response->isSendable())

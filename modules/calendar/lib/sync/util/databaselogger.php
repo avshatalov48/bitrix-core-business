@@ -27,19 +27,19 @@ class DatabaseLogger extends Main\Diag\Logger
 	public function logToDatabase(array $context)
 	{
 		$fields = [];
-		if ($context['serviceName'])
+		if (isset($context['serviceName']))
 		{
 			$fields['TYPE'] = (string)$context['serviceName'];
 			unset($context['serviceName']);
 		}
 
-		if ($context['userId'])
+		if (isset($context['userId']))
 		{
 			$fields['USER_ID'] = (int)$context['userId'];
 			unset($context['userId']);
 		}
 
-		if ($context['loggerUuid'])
+		if (isset($context['loggerUuid']))
 		{
 			$fields['UUID'] = (string)$context['loggerUuid'];
 			unset($context['loggerUuid']);

@@ -78,6 +78,17 @@ class UserProvider extends BaseProvider
 			$this->options['intranetUsersOnly'] = $options['intranetUsersOnly'];
 		}
 
+		if (isset($options['footerInviteIntranetOnly']) && is_bool($options['footerInviteIntranetOnly']))
+		{
+			$this->options['footerInviteIntranetOnly'] = $options['footerInviteIntranetOnly'];
+		}
+
+		$this->options['showInvitationFooter'] = true;
+		if (isset($options['showInvitationFooter']) && is_bool($options['showInvitationFooter']))
+		{
+			$this->options['showInvitationFooter'] = $options['showInvitationFooter'];
+		}
+
 		$this->options['emailUsers'] = false;
 		if (isset($options['emailUsers']) && is_bool($options['emailUsers']))
 		{
@@ -128,26 +139,23 @@ class UserProvider extends BaseProvider
 			$this->options['inviteGuestLink'] = $options['inviteGuestLink'];
 		}
 
+		// User Whitelist
 		if (isset($options['userId']))
 		{
-			if (is_array($options['userId']))
+			$ids = static::prepareUserIds($options['userId']);
+			if (!empty($ids))
 			{
-				$this->options['userId'] = $options['userId'];
-			}
-			elseif (is_string($options['userId']) || is_int($options['userId']))
-			{
-				$this->options['userId'] = (int)$options['userId'];
+				$this->options['userId'] = $ids;
 			}
 		}
-		elseif (isset($options['!userId']))
+
+		// User Blacklist
+		if (isset($options['!userId']))
 		{
-			if (is_array($options['!userId']))
+			$ids = static::prepareUserIds($options['!userId']);
+			if (!empty($ids))
 			{
-				$this->options['!userId'] = $options['!userId'];
-			}
-			elseif (is_string($options['!userId']) || is_int($options['!userId']))
-			{
-				$this->options['!userId'] = (int)$options['!userId'];
+				$this->options['!userId'] = $ids;
 			}
 		}
 
@@ -210,6 +218,7 @@ class UserProvider extends BaseProvider
 	{
 		return $this->getUserItems([
 			'userId' => $ids,
+			'ignoreUserWhitelist' => true,
 			'activeUsers' => null // to see fired employees
 		]);
 	}
@@ -266,15 +275,17 @@ class UserProvider extends BaseProvider
 		$dialog->addRecentItems($this->makeUserItems($recentUsers));
 
 		// Footer
-		if (Loader::includeModule('intranet'))
+		if ($this->options['showInvitationFooter'] && Loader::includeModule('intranet'))
 		{
 			$inviteEmployeeLink = null;
 			$employeeInvitationAvailable = Invitation::canCurrentUserInvite();
 			$intranetUsersOnly = $this->options['intranetUsersOnly'] ?? false;
+			$footerInviteIntranetOnly = $this->options['footerInviteIntranetOnly'] ?? false;
 			$extranetInvitationAvailable = (
 				ModuleManager::isModuleInstalled('extranet')
 				&& Option::get('extranet', 'extranet_site')
 				&& !$intranetUsersOnly
+				&& !$footerInviteIntranetOnly
 			);
 
 			if (
@@ -407,7 +418,14 @@ class UserProvider extends BaseProvider
 
 	public function getUserCollection(array $options = []): EO_User_Collection
 	{
-		$options = array_merge($this->getOptions(), $options);
+		$dialogOptions = $this->getOptions();
+		$options = array_merge($dialogOptions, $options);
+
+		$ignoreUserWhitelist = isset($options['ignoreUserWhitelist']) && $options['ignoreUserWhitelist'] === true;
+		if (!empty($dialogOptions['userId']) && !$ignoreUserWhitelist)
+		{
+			$options['userId'] = $dialogOptions['userId'];
+		}
 
 		return static::getUsers($options);
 	}
@@ -722,10 +740,12 @@ class UserProvider extends BaseProvider
 
 			$query->registerRuntimeField(new ExpressionField(
 				'IS_INTRANET_USER',
-				'IF(
+				'CASE WHEN
 					(%s IS NOT NULL AND %s != \'' . $emptyValue . '\' AND %s != \'' . $emptyValue2 . '\') AND
-					(%s IS NULL OR %s NOT IN (\'' . implode('\', \'', UserTable::getExternalUserTypes()) . '\')), \'Y\', \'N\'
-				)',
+					(%s IS NULL OR %s NOT IN (\'' . implode('\', \'', UserTable::getExternalUserTypes()) . '\'))
+					THEN \'Y\'
+					ELSE \'N\'
+				END',
 				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
 			);
 
@@ -883,49 +903,22 @@ class UserProvider extends BaseProvider
 			$query->addFilter('!=EXTERNAL_AUTH_ID', UserTable::getExternalUserTypes());
 		}
 
-		$userIds = [];
-		$userFilter = isset($options['userId']) ? 'userId' : (isset($options['!userId']) ? '!userId' : null);
-		if (isset($options[$userFilter]))
+		$userIds = self::prepareUserIds($options['userId'] ?? []);
+		$notUserIds = self::prepareUserIds($options['!userId'] ?? []);
+
+		// User Whitelist
+		if (!empty($userIds))
 		{
-			if (is_array($options[$userFilter]) && !empty($options[$userFilter]))
-			{
-				foreach ($options[$userFilter] as $id)
-				{
-					$userIds[] = (int)$id;
-				}
-
-				$userIds = array_unique($userIds);
-
-				if (!empty($userIds))
-				{
-					if ($userFilter === 'userId')
-					{
-						$query->whereIn('ID', $userIds);
-					}
-					else
-					{
-						$query->whereNotIn('ID', $userIds);
-					}
-				}
-			}
-			else if (!is_array($options[$userFilter]) && (int)$options[$userFilter] > 0)
-			{
-				if ($userFilter === 'userId')
-				{
-					$query->where('ID', (int)$options[$userFilter]);
-				}
-				else
-				{
-					$query->whereNot('ID', (int)$options[$userFilter]);
-				}
-			}
+			$query->whereIn('ID', $userIds);
 		}
 
-		if (
-			$userFilter === 'userId'
-			&& empty($options['order'])
-			&& count($userIds) > 1
-		)
+		// User Blacklist
+		if (!empty($notUserIds))
+		{
+			$query->whereNotIn('ID', $notUserIds);
+		}
+
+		if (empty($options['order']) && count($userIds) > 1)
 		{
 			$query->registerRuntimeField(
 				new ExpressionField(
@@ -950,12 +943,35 @@ class UserProvider extends BaseProvider
 		{
 			$query->setLimit($options['limit']);
 		}
-		elseif ($userFilter !== 'userId' || empty($userIds))
+		elseif (empty($userIds)) // no limit if we filter users by ids
 		{
 			$query->setLimit(100);
 		}
 
 		return $query;
+	}
+
+	private static function prepareUserIds($items): array
+	{
+		$ids = [];
+		if (is_array($items) && !empty($items))
+		{
+			foreach ($items as $id)
+			{
+				if ((int)$id > 0)
+				{
+					$ids[] = (int)$id;
+				}
+			}
+
+			$ids = array_unique($ids);
+		}
+		else if (!is_array($items) && (int)$items > 0)
+		{
+			$ids = [(int)$items];
+		}
+
+		return $ids;
 	}
 
 	protected static function getExtranetUsersQuery(int $currentUserId): ?Query

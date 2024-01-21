@@ -54,4 +54,17 @@ class QueueTable extends Entity\DataManager
 			),
 		);
 	}
+
+	/**
+	 * Get primary key fields
+	 *
+	 * @return array|string[]
+	 */
+	public static function getConflictFields(): array
+	{
+		return [
+			'ENTITY_TYPE',
+			'ENTITY_ID',
+		];
+	}
 }

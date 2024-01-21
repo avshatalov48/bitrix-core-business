@@ -1,5 +1,23 @@
 .calendar-sharing__dialog-wrapper {
+	display: flex;
 	padding: var(--ui-space-inset-md) var(--ui-space-inset-xl);
+}
+
+.calendar-sharing__dialog-content-wrapper {
+	display: inline-flex;
+	flex-direction: column;
+	transition: .5s;
+	transform: translateX(-20%);
+	white-space: normal;
+	pointer-events: none;
+	min-width: 100%;
+	opacity: 0;
+}
+
+.calendar-sharing__dialog-content-wrapper.--show {
+	opacity: 1;
+	pointer-events: auto;
+	transform: translateX(0);
 }
 
 .calendar-sharing__dialog-top {
@@ -28,6 +46,7 @@
 	background: url(../image/calendar-sharing-dialog-help.svg) center no-repeat;
 	opacity: .5;
 	transition: .1s;
+	transform: translateY(1px);
 	cursor: pointer;
 }
 
@@ -62,14 +81,32 @@
 }
 
 .calendar-sharing__dialog-body {
-	display: flex;
 	margin-bottom: 20px;
-	padding-bottom: 27px;
-	border-bottom: 1px solid var(--ui-color-base-05);
+}
+
+.calendar-sharing__dialog-message {
+	display: flex;
+	align-items: center;
 }
 
 .calendar-sharing__dialog-body:last-child {
 	margin-bottom: unset;
+}
+
+.calendar-sharing__dialog-info-icon-container {
+	display: inline-grid;
+	place-content: center;
+	min-width: 16px;
+	height: 16px;
+	margin-right: 10px;
+	border-radius: 50px;
+	background: var(--ui-color-palette-blue-50);
+}
+
+.calendar-sharing__dialog-info-icon {
+	width: 11px;
+	height: 11px;
+	background: url(../image/calendar-sharing-dialog-info.svg) center no-repeat;
 }
 
 .calendar-sharing__dialog-userpic {
@@ -82,42 +119,25 @@
 }
 
 .calendar-sharing__dialog-notify {
-	flex: 1;
-	position: relative;
-	padding: 10px 15px;
-	background: var(--ui-color-background-info);
-	/*border: 1px solid var(--ui-color-primary);*/
-	border-radius: 12px;
-}
-
-.calendar-sharing__dialog-notify:before {
-	content: '';
-	position: absolute;
-	top: 7px;
-	left: -7px;
-	width: 15px;
-	height: 14px;
-	background: url(../image/calendar-sharing-dialog-angle.svg) center no-repeat;
-}
-
-.calendar-sharing__dialog-notify_content {
 	position: relative;
 	z-index: 1;
 }
 
-.calendar-sharing__dialog-notify_content {
+.calendar-sharing__dialog-notify {
 	font: var(--ui-typography-text-md-font-size)/18px var(--ui-font-family-system);
 	color: var(--ui-color-base-default);
-}
-
-.calendar-sharing__dialog-notify_content span {
-	color: var(--ui-color-link-primary-base);
-	border-bottom: 1px solid transparent;
 	cursor: pointer;
-	transition: .1s;
 }
 
-.calendar-sharing__dialog-notify_content span:hover {
+.calendar-sharing__dialog-notify a {
+	padding-bottom: 1px;
+	color: var(--ui-color-link-primary-base);
+	transition: .1s;
+	border-bottom: 1px dashed #a6c2df;
+	pointer-events: none;
+}
+
+.calendar-sharing__dialog-notify a:hover {
 	border-color: rgba(var(--ui-color-link-primary-base-rgb), .7);
 }
 
@@ -138,8 +158,20 @@
 	transition: unset;
 }
 
-.calendar-sharing__dialog-bottom .calendar-sharing__dialog-link {
+.calendar-sharing__dialog-bottom .calendar-sharing__dialog-link,
+.calendar-sharing__dialog-bottom .calendar-sharing__dialog-people {
 	margin-left: 20px;
+}
+
+.calendar-sharing__dialog-people {
+	display: inline-flex;
+	--ui-btn-icon: url(../image/calendar-sharing-dialog-people-icon.svg);
+	padding-left: calc(var(--ui-btn-height) + 5px );
+}
+
+.calendar-sharing__dialog-copy {
+	--ui-btn-icon: url(../image/calendar-sharing-dialog-copy-icon.svg);
+	padding-left: calc(var(--ui-btn-height) + 5px );
 }
 
 .calendar-sharing__qr-content {

@@ -246,7 +246,7 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 				'id' => 'SENDER_LETTER_BUTTON_ADD',
 				'caption' => Loc::getMessage('SENDER_YANDEX_TOLOKA_TASK_ADD'),
 				'href' => $arResult['IS_AVAILABLE'] ? $arParams['PATH_TO_ADD'] : '#',
-				'onclick' => $arResult['IS_AVAILABLE'] ? '': "BX.UI.InfoHelper.show('limit_crm_marketing_toloka')"
+				'onclick' => $arResult['IS_AVAILABLE'] ? '': "BX.UI.InfoHelper.show('limit_integration_yandex_toloka')"
 			]
 			:
 			null

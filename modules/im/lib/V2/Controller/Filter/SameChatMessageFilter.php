@@ -35,13 +35,17 @@ class SameChatMessageFilter extends Base
 
 	private function filterMessageByChatId(MessageCollection $messages, int $chatId): void
 	{
-		foreach ($messages as $message)
+		$keysToUnset = [];
+
+		foreach ($messages as $key => $message)
 		{
 			if ($message->getChatId() !== $chatId)
 			{
-				unset($messages[$message->getMessageId()]);
+				$keysToUnset[$key] = $key;
 			}
 		}
+
+		$messages->unsetByKeys($keysToUnset);
 	}
 
 }

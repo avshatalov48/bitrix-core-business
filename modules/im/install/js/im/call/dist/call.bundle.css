@@ -1031,6 +1031,109 @@
 	background-size: 14px 14px;
 }
 
+.bx-messenger-videocall-user-debug-panel {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	position: absolute;
+	height: 24px;
+	top: 8px;
+	left: 0;
+	z-index: 11;
+	margin: 0 8px;
+	gap: 5px;
+	-webkit-transition: opacity .2s ease-out;
+	-o-transition: opacity .2s ease-out;
+	transition: opacity .2s ease-out;
+}
+
+.bx-messenger-videocall-user-debug-panel.under-other-panels {
+	top: 48px;
+}
+
+.bx-messenger-videocall-user-debug-panel-button {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	height: 30px;
+	width: 30px;
+	right: 8px;
+	opacity: 0.5;
+	border-radius: 50%;
+	overflow: hidden;
+}
+
+.bx-messenger-videocall-user-debug-panel-button:hover {
+	opacity: 1;
+}
+
+.bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-debug-panel-button.connection-stats {
+	display: none;
+}
+
+.bx-messenger-videocall-user-debug-panel-button-icon.connection-stats-icon {
+	display: inline-block;
+	width: 26px;
+	height: 26px;
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGbSURBVHgBtZZNSsNAFMdfq7RF+rEQIhYCrrrqLgvRRfACHsALBLyCB/AQuUHceoHshEJB0EVwY03AQkOERDcWBOdvJm2Ik3TSpD/40+ZN5r35ePMmDSqmzTRmGjJ1mXrc/s30wfTK9Mb0meegkWOHowumY5LjhWkqCiQKgBFrFI++DEse5Clt3Mu8BMenTPtUHvhS+f952pgw5s6rgv3CbBZ4aHIj1lyj+tC4z1WAbda8iBbFSfK31og0yr5hmuaZqqqHJIHneYFhGA8ZMzKwjSzC2p9nO4VheNvv96UCRFEUDAaDG0HTFAEuST7fyzLHHkiNcku62IOWqMVxnOtOp3NAEriu6+m6fido6jXzOvm+H5AkiqLkrgL24IrWRaxulpjBF+2OAHvwToIsqilNZwiA6vevTFiWdV/moOU0zZJyvYuzgDvCTrLIprgC1kVyN6zKNQw/tK7nVZkweekAYMF/h1QNjPwxecjeaLiJMJsjQdsm0G+Sdg6KLn1k1ojkwMBskrz0s4FOuJCySd2CIxxQnKFnij9jhPwClYBdOQ5Z+OUAAAAASUVORK5CYII=') no-repeat center center;
+	background-size: contain;
+}
+
+.bx-messenger-videocall-user-debug-panel-button.connection-problem {
+	display: none;
+}
+
+.bx-messenger-videocall-user-debug-panel-button.connection-problem-visible {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	opacity: 1;
+}
+
+.bx-messenger-videocall-user-debug-panel-button-icon.connection-problem-icon {
+	display: inline-block;
+	width: 26px;
+	height: 26px;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' fill='%23FF5752' r='12'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M18.275 9.225a.582.582 0 01-.026.829c-.254.243-.659.22-.908-.027a7.544 7.544 0 00-6.458-2.12L9.826 6.852a8.758 8.758 0 018.45 2.375zM8.51 7.305A8.875 8.875 0 005.725 9.23c-.23.235-.21.61.027.838.258.247.669.223.921-.028A7.622 7.622 0 019.47 8.264l-.96-.96zm2.154 2.154a6.365 6.365 0 00-3.024 1.6c-.24.225-.222.602.016.83.252.241.653.22.913-.013a5.137 5.137 0 013.193-1.32L10.663 9.46zm1.636-.135l1.576 1.576a5.19 5.19 0 011.569.965c.256.229.652.249.9.01.236-.225.253-.598.016-.822a6.338 6.338 0 00-4.061-1.73zm1.308 3.08l.92.919a.632.632 0 01-.2.567.607.607 0 01-.867-.054 5.637 5.637 0 01-.044-.04c-.207-.192-.521-.483-1.422-.483-.589 0-1.06.17-1.5.56a.607.607 0 01-.87-.018.634.634 0 01.018-.885 2.98 2.98 0 01.799-.588c.393-.194.893-.32 1.553-.32.704 0 1.225.144 1.613.341zm-.108 3.673a1.471 1.471 0 10-2.942 0 1.471 1.471 0 002.942 0z' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M7.639 6.42l9.176 9.177a.617.617 0 11-.872.872L6.767 7.292a.617.617 0 01.872-.872z' fill='%23fff'/%3E%3C/svg%3E") no-repeat center center;
+	background-size: contain;
+}
+
+.bx-messenger-videocall-user-stats-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 11;
+	display: none;
+	max-width: 100%;
+	max-height: 100%;
+	overflow: auto;
+	padding: 40px 8px 8px;
+	background: rgba(0, 0, 0, 0.4);
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	color: rgba(255, 255, 255, .89);
+	text-align: left;
+}
+
+.bx-messenger-videocall-user-stats-overlay.under-other-panels {
+	top: 40px;
+	max-height: calc(100% - 40px);
+}
+
+.bx-messenger-videocall-user-stats-overlay.stats-overlay-visble {
+	display: block;
+}
+
+.bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-stats-overlay {
+	display: none;
+}
+
 .bx-messenger-videocall-local-user-mobile .bx-messenger-videocall-user-bottom {
 	display: none;
 }
@@ -1896,6 +1999,10 @@
 	border-radius: 50%;
 	padding: 3px;
 	border: 3px solid rgba(151, 151, 151, .28);
+}
+
+.bx-messenger-videocall-central-user .bx-messenger-videocall-user-avatar-border{
+	top: 50%;
 }
 
 .bx-messenger-videocall-user-avatar {
@@ -3994,6 +4101,11 @@
 	border-right: 1px solid rgba(0, 0, 0, .03);
 	padding-right: 10px;
 	margin-right: 10px	;
+}
+
+.bx-call-view-device-selector-menu-container-blocked {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 .bx-call-view-device-selector-switch-wrapper{

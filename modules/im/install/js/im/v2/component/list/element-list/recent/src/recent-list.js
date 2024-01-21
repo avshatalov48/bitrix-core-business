@@ -4,7 +4,7 @@ import 'main.polyfill.intersectionobserver';
 import { BaseEvent } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
-import { DialogType, PathPlaceholder, Settings } from 'im.v2.const';
+import { ChatType, Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { RecentService } from 'im.v2.provider.service';
 import { RecentLoadingState } from 'im.v2.component.elements';
@@ -12,11 +12,11 @@ import { RecentMenu } from 'im.v2.lib.menu';
 import { DraftManager } from 'im.v2.lib.draft';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
 import { Messenger } from 'im.public';
-import { MessengerSlider } from 'im.v2.lib.slider';
 
 import { RecentItem } from './components/recent-item';
 import { ActiveCall } from './components/active-call';
 import { CreateChat } from './components/create-chat';
+import { EmptyState } from './components/empty-state';
 
 import { BroadcastManager } from './classes/broadcast-manager';
 import { LikeManager } from './classes/like-manager';
@@ -25,12 +25,13 @@ import './css/recent-list.css';
 import './css/recent-compact.css';
 import './css/recent-context-menu.css';
 
+import type { JsonObject } from 'main.core';
 import type { ImModelRecentItem, ImModelCallItem } from 'im.v2.model';
 
 // @vue/component
 export const RecentList = {
 	name: 'RecentList',
-	components: { LoadingState: RecentLoadingState, RecentItem, ActiveCall, CreateChat },
+	components: { LoadingState: RecentLoadingState, RecentItem, ActiveCall, CreateChat, EmptyState },
 	directives: {
 		'recent-list-observer':
 		{
@@ -54,7 +55,7 @@ export const RecentList = {
 		},
 	},
 	emits: ['chatClick'],
-	data()
+	data(): JsonObject
 	{
 		return {
 			isLoading: false,
@@ -63,7 +64,8 @@ export const RecentList = {
 			isCreatingChat: false,
 		};
 	},
-	computed: {
+	computed:
+	{
 		collection(): ImModelRecentItem[]
 		{
 			return this.getRecentService().getCollection();
@@ -76,8 +78,8 @@ export const RecentList = {
 					return false;
 				}
 
-				const dialog = this.$store.getters['dialogues/get'](item.dialogId, true);
-				const isUser = dialog.type === DialogType.user;
+				const dialog = this.$store.getters['chats/get'](item.dialogId, true);
+				const isUser = dialog.type === ChatType.user;
 				const hasBirthday = isUser && this.showBirthdays && this.$store.getters['users/hasBirthday'](item.dialogId);
 
 				const isInvited = item.options.defaultUserRecord === true;
@@ -155,7 +157,8 @@ export const RecentList = {
 		this.destroyLikeManager();
 		this.destroyCreateChatManager();
 	},
-	methods: {
+	methods:
+	{
 		onScroll(event)
 		{
 			this.listIsScrolled = event.target.scrollTop > 0;
@@ -174,15 +177,6 @@ export const RecentList = {
 		},
 		onClick(item, event)
 		{
-			if (Utils.key.isCmdOrCtrl(event))
-			{
-				MessengerSlider.getInstance().openNewTab(
-					PathPlaceholder.dialog.replace('#DIALOG_ID#', item.dialogId),
-				);
-
-				return;
-			}
-
 			if (this.compactMode)
 			{
 				Messenger.openChat(item.dialogId);
@@ -357,9 +351,7 @@ export const RecentList = {
 					/>
 				</div>	
 				<LoadingState v-if="isLoading" :compactMode="compactMode" />
-				<div v-if="collection.length === 0" class="bx-im-list-recent__empty">
-					{{ loc('IM_LIST_RECENT_EMPTY') }}
-				</div>
+				<EmptyState v-if="collection.length === 0" :compactMode="compactMode" />
 			</div>
 		</div>
 	`,

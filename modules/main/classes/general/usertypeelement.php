@@ -10,6 +10,7 @@ Loader::includeModule('iblock');
 /**
  * Class CUserTypeIBlockElement
  * @deprecated deprecated since main 20.0.800
+ * @see ElementType
  */
 class CUserTypeIBlockElement extends CUserTypeEnum
 {

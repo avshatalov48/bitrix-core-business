@@ -91,7 +91,7 @@ export const DocumentDetailItem = {
 			</div>
 			<div class="bx-im-sidebar-file-document-detail-item__content-container" v-bind="viewerAttributes">
 				<div class="bx-im-sidebar-file-document-detail-item__content">
-					<div class="bx-im-sidebar-file-document-detail-item__document-title" @click="download">
+					<div class="bx-im-sidebar-file-document-detail-item__document-title" @click="download" :title="file.name">
 						<span class="bx-im-sidebar-file-document-detail-item__document-title-text">{{fileShortName}}</span>
 						<span class="bx-im-sidebar-file-document-detail-item__document-size">{{fileSize}}</span>
 					</div>

@@ -5,6 +5,8 @@ use Bitrix\Im\Bot;
 use Bitrix\Im\Integration\UI\EntitySelector\Helper;
 use Bitrix\Im\Model\BotTable;
 use Bitrix\Im\User;
+use Bitrix\Im\V2\Entity\User\Data\BotData;
+use Bitrix\Im\V2\Entity\User\UserBot;
 use Bitrix\Main\EO_User;
 use Bitrix\Main\EO_User_Collection;
 use Bitrix\Main\ModuleManager;
@@ -56,6 +58,8 @@ class BotProvider extends BaseProvider
 			'limit' => $limit
 		]);
 
+		$items = $this->filterHiddenBots($items);
+
 		$limitExceeded = $limit <= count($items);
 		if ($limitExceeded)
 		{
@@ -63,6 +67,25 @@ class BotProvider extends BaseProvider
 		}
 
 		$dialog->addItems($items);
+	}
+
+	private function filterHiddenBots(array $items): array
+	{
+		foreach ($items as $key => $item)
+		{
+			$user = \Bitrix\Im\V2\Entity\User\User::getInstance((int)$item->getId());
+			if ($user instanceof UserBot && $user->isBot())
+			{
+				$botData = $user->getBotData()->toRestFormat();
+
+				if ($botData['isHidden'])
+				{
+					unset($items[$key]);
+				}
+			}
+		}
+
+		return $items;
 	}
 
 	public function shouldFillDialog(): bool
@@ -273,10 +296,28 @@ class BotProvider extends BaseProvider
 			. '.9628342%2016.0191544%2C14.4269902%20Z%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E%0A'
 		;
 
+		$imBot = Bot::getCache($bot->getId());
 		$customData = [
 			'imUser' => User::getInstance($bot->getId())->getArray(),
-			'imBot' => Bot::getCache($bot->getId()),
+			'imBot' => [
+				'APP_ID' => $imBot['APP_ID'] ?? null,
+				'BOT_ID' => $imBot['BOT_ID'] ?? null,
+				'CODE' => $imBot['CODE'] ?? null,
+				'HIDDEN' => $imBot['HIDDEN'] ?? null,
+				'LANG' => $imBot['LANG'] ?? null,
+				'MODULE_ID' => $imBot['MODULE_ID'] ?? null,
+				'OPENLINE' => $imBot['OPENLINE'] ?? null,
+				'TYPE' => $imBot['TYPE'] ?? null,
+				'VERIFIED' => $imBot['VERIFIED'] ?? null,
+			],
 		];
+
+		if ($bot->getId() !== null)
+		{
+			$botData = BotData::getInstance($bot->getId())->toRestFormat();
+		}
+
+		$customData['imUser']['BOT_DATA'] = (!empty($botData)) ? $botData : null;
 
 		$avatar = Helper\User::makeAvatar($bot);
 		if (!$avatar)

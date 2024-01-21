@@ -104,6 +104,9 @@ class CatalogReportStoreSaleProductsGridComponent extends \Bitrix\Catalog\Compon
 				'sort' => 'PRODUCT_ID',
 				'default' => true,
 				'type' => 'custom',
+				'sticked' => true,
+				'width' => 400,
+				'resizeable' => false,
 			],
 			[
 				'id' => 'STARTING_QUANTITY',
@@ -111,6 +114,7 @@ class CatalogReportStoreSaleProductsGridComponent extends \Bitrix\Catalog\Compon
 				'hint' => Loc::getMessage('STORE_SALE_PRODUCTS_REPORT_GRID_STARTING_QUANTITY_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,
+				'align' => 'right',
 				'width' => 200,
 			],
 			[
@@ -119,6 +123,7 @@ class CatalogReportStoreSaleProductsGridComponent extends \Bitrix\Catalog\Compon
 				'hint' => Loc::getMessage('STORE_SALE_PRODUCTS_REPORT_GRID_RECEIVED_QUANTITY_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,
+				'align' => 'right',
 				'width' => 200,
 			],
 			[
@@ -127,6 +132,7 @@ class CatalogReportStoreSaleProductsGridComponent extends \Bitrix\Catalog\Compon
 				'hint' => Loc::getMessage('STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_SOLD_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,
+				'align' => 'right',
 				'width' => 200,
 			],
 			[
@@ -135,6 +141,7 @@ class CatalogReportStoreSaleProductsGridComponent extends \Bitrix\Catalog\Compon
 				'hint' => Loc::getMessage('STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_COLUMN_HINT'),
 				'sort' => false,
 				'default' => true,
+				'align' => 'right',
 				'width' => 200,
 			],
 		];

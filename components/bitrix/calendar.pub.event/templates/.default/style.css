@@ -189,6 +189,10 @@
 	box-shadow: none!important;
 }
 
+.flexible-mode--linear-blue--v2 .main-wrapper-footer {
+	display: none;
+}
+
 .calendar-pub-event-info {
 	margin-bottom: 57px;
 	text-align: center;

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Bitrix\Sale\Helpers\Admin;
 
 use Bitrix\Catalog;
@@ -739,9 +739,16 @@ class Product
 		}
 
 		$propertyImage = 0;
-		if (isset($product['PROPERTY_MORE_PHOTO_VALUE']) && (int)$product['PROPERTY_MORE_PHOTO_VALUE'] > 0)
+		if (isset($product['PROPERTY_MORE_PHOTO_VALUE']))
 		{
-			$propertyImage = (int)$product['PROPERTY_MORE_PHOTO_VALUE'];
+			if (is_array($product['PROPERTY_MORE_PHOTO_VALUE']))
+			{
+				$propertyImage = (int)reset($product['PROPERTY_MORE_PHOTO_VALUE']);
+			}
+			elseif ((int)$product['PROPERTY_MORE_PHOTO_VALUE'] > 0)
+			{
+				$propertyImage = (int)$product['PROPERTY_MORE_PHOTO_VALUE'];
+			}
 		}
 
 		if ($this->useSliderCard)

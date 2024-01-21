@@ -256,7 +256,7 @@ class Configuration
 		];
 		if (in_array($option->getType(), $uniqueTypes, true) && $this->hasOptionsOfType($option->getType()))
 		{
-			throw new ArgumentException('Option with type `' . $option->getType() . '` already exists.');
+			throw new ArgumentException('Option with type \'' . $option->getType() . '\' already exists.');
 		}
 
 		if ($targetOptionCode)

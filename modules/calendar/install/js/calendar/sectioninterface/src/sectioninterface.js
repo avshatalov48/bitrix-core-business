@@ -3,7 +3,7 @@ import { Util } from 'calendar.util';
 import { IcalSyncPopup } from 'calendar.sync.interface';
 import { Dom, Event, Loc, Tag, Text, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
-import { MenuItem } from 'main.popup';
+import { MenuItem, MenuManager } from 'main.popup';
 import { EditForm } from './editform';
 import { TrackingUsersForm } from './trackingusersform';
 import { TrackingGroupsForm } from './trackinggroupsform';
@@ -195,6 +195,7 @@ export class SectionInterface extends EventEmitter
 		if (
 			calendarContext
 			&& !this.readonly
+			&& !this.calendarContext?.util?.isExtranetUser()
 			&&
 			(
 				!calendarContext.util.isUserCalendar()
@@ -649,7 +650,7 @@ export class SectionInterface extends EventEmitter
 			}
 		];
 
-		this.addBtnMenu = this.BX.PopupMenu.create(
+		this.addBtnMenu = MenuManager.create(
 			'add-btn-' + Util.getRandomInt(),
 			this.DOM.addButtonMore,
 			menuItems,
@@ -836,7 +837,12 @@ export class SectionInterface extends EventEmitter
 			});
 		}
 
-		if (!this.readonly && section.canDo('edit_section') && !section.isPseudo())
+		if (
+			!this.readonly
+			&& section.canDo('edit_section')
+			&& !section.isPseudo()
+			&& !this.calendarContext?.util?.isExtranetUser()
+		)
 		{
 			menuItems.push({
 				text : Loc.getMessage('EC_SEC_EDIT'),
@@ -875,6 +881,7 @@ export class SectionInterface extends EventEmitter
 			&& section.data.EXPORT
 			&& section.data.EXPORT.LINK
 			&& section.data['EXTERNAL_TYPE'] === 'local'
+			&& !this.calendarContext?.util?.isExtranetUser()
 		)
 		{
 			menuItems.push({
@@ -913,7 +920,9 @@ export class SectionInterface extends EventEmitter
 			section.canDo('edit_section')
 			&& section.belongsToView()
 			&& !section.isPseudo()
-			&& ((!section.isGoogle() && !connection)
+			&& !this.calendarContext?.util?.isExtranetUser()
+			&& (
+				(!section.isGoogle() && !connection)
 				|| section.data['EXTERNAL_TYPE'] === 'local'
 				|| !connection
 			)
@@ -996,7 +1005,7 @@ export class SectionInterface extends EventEmitter
 
 		if (menuItems && menuItems.length > 0)
 		{
-			this.sectionActionMenu = top.BX.PopupMenu.create(
+			this.sectionActionMenu = MenuManager.create(
 				'section-menu-' + Util.getRandomInt(),
 				menuItemNode,
 				menuItems,
@@ -1064,6 +1073,11 @@ export class SectionInterface extends EventEmitter
 
 	showEditSectionForm(params ={})
 	{
+		if (!this.DOM.sectionFormWrap)
+		{
+			return;
+		}
+
 		this.closeForms();
 		const formTitleNode = this.DOM.sectionFormWrap.querySelector('.calendar-list-slider-card-widget-title-text');
 

@@ -18,33 +18,41 @@ define('BX_UTF_PCRE_MODIFIER', (defined('BX_UTF') ? 'u' : ''));
  * All constants can be defined in dbconn.php
  * @todo Should be in .settings.php
  */
+
+/** @var int | bool $_hour */
+$_hour = 3600;
+/** @var int | bool $_day */
+$_day = 86400;
+/** @var int | bool $_year */
+$_year = 31536000;
+
 if (!defined('CACHED_b_lang'))
 {
-	define('CACHED_b_lang', 3600);
+	define('CACHED_b_lang', $_hour);
 }
 if (!defined('CACHED_b_option'))
 {
-	define('CACHED_b_option', 3600);
+	define('CACHED_b_option', $_hour);
 }
 if (!defined('CACHED_b_lang_domain'))
 {
-	define('CACHED_b_lang_domain', 3600);
+	define('CACHED_b_lang_domain', $_hour);
 }
 if (!defined('CACHED_b_site_template'))
 {
-	define('CACHED_b_site_template', 3600);
+	define('CACHED_b_site_template', $_hour);
 }
 if (!defined('CACHED_b_event'))
 {
-	define('CACHED_b_event', 3600);
+	define('CACHED_b_event', $_hour);
 }
 if (!defined('CACHED_b_agent'))
 {
-	define('CACHED_b_agent', 3660);
+	define('CACHED_b_agent', $_hour);
 }
 if (!defined('CACHED_menu'))
 {
-	define('CACHED_menu', 3600);
+	define('CACHED_menu', $_hour);
 }
 if (!defined('CACHED_b_file'))
 {
@@ -54,33 +62,21 @@ if (!defined('CACHED_b_file_bucket_size'))
 {
 	define('CACHED_b_file_bucket_size', 100);
 }
-if (!defined('CACHED_b_group'))
-{
-	define('CACHED_b_group', 3600);
-}
 if (!defined('CACHED_b_user_field'))
 {
-	define('CACHED_b_user_field', 3600);
+	define('CACHED_b_user_field', $_hour);
 }
 if (!defined('CACHED_b_user_field_enum'))
 {
-	define('CACHED_b_user_field_enum', 3600);
-}
-if (!defined('CACHED_b_task'))
-{
-	define('CACHED_b_task', 3600);
-}
-if (!defined('CACHED_b_task_operation'))
-{
-	define('CACHED_b_task_operation', 3600);
+	define('CACHED_b_user_field_enum', $_hour);
 }
 if (!defined('CACHED_b_rating'))
 {
-	define('CACHED_b_rating', 3600);
+	define('CACHED_b_rating', $_hour);
 }
 if (!defined('CACHED_b_rating_vote'))
 {
-	define('CACHED_b_rating_vote', 86400);
+	define('CACHED_b_rating_vote', $_day);
 }
 if (!defined('CACHED_b_rating_bucket_size'))
 {
@@ -88,19 +84,15 @@ if (!defined('CACHED_b_rating_bucket_size'))
 }
 if (!defined('CACHED_b_user_access_check'))
 {
-	define('CACHED_b_user_access_check', 3600);
+	define('CACHED_b_user_access_check', $_hour);
 }
 if (!defined('CACHED_b_user_counter'))
 {
-	define('CACHED_b_user_counter', 3600);
-}
-if (!defined('CACHED_b_group_subordinate'))
-{
-	define('CACHED_b_group_subordinate', 31536000);
+	define('CACHED_b_user_counter', $_hour);
 }
 if (!defined('CACHED_b_smile'))
 {
-	define('CACHED_b_smile', 31536000);
+	define('CACHED_b_smile', $_year);
 }
 if (!defined('TAGGED_user_card_size'))
 {

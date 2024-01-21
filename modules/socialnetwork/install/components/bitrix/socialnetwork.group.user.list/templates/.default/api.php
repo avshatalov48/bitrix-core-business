@@ -190,7 +190,7 @@ class WorkgroupUserListTemplate
 			}
 			elseif ($type === UserToGroupTable::INITIATED_BY_USER)
 			{
-				$classList[] = '--request-yellow';
+				$classList[] = '--request-red';
 			}
 
 			$result = '<span class="' . implode(' ', $classList) . '"><span class="ui-label-inner">' . $result . '</span></span>';
@@ -225,8 +225,9 @@ class WorkgroupUserListTemplate
 
 		if (in_array(WorkgroupUserList::AVAILABLE_ACTION_PROCESS_INCOMING_REQUEST, $actions, true))
 		{
-			$actionsList[] = '<span class="sonet-group-user-grid-action" data-bx-action="' . WorkgroupUserList::AJAX_ACTION_ACCEPT_INCOMING_REQUEST. '" data-bx-user-id="' . $fields['ID'] . '">' . Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ROW_ACTION_ACCEPT_INCOMING_REQUEST') . '</span>';
-			$actionsList[] = '<span class="sonet-group-user-grid-action --red" data-bx-action="' . WorkgroupUserList::AJAX_ACTION_REJECT_INCOMING_REQUEST. '" data-bx-user-id="' . $fields['ID'] . '">' . Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ROW_ACTION_REJECT_INCOMING_REQUEST') . '</span>';
+			$actionsList[] = '<span class="ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-icon-done" data-bx-action="' . WorkgroupUserList::AJAX_ACTION_ACCEPT_INCOMING_REQUEST. '" data-bx-user-id="' . $fields['ID'] . '">' . Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ROW_ACTION_ACCEPT_INCOMING_REQUEST') . '</span>';
+			$actionsList[] = '<span class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round ui-btn-icon-cancel sonet-group-user-grid-action__btn-cancel" data-bx-action="' . WorkgroupUserList::AJAX_ACTION_REJECT_INCOMING_REQUEST. '" data-bx-user-id="' . $fields['ID'] . '"  title="' . Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ROW_ACTION_REJECT_INCOMING_REQUEST') . '" ></span>';
+			$actionsList[] = '<span class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round" data-bx-action="" data-bx-user-id="' . $fields['ID'] . '"  >delete user</span>';
 		}
 
 		if (in_array(WorkgroupUserList::AVAILABLE_ACTION_REINVITE, $actions, true))

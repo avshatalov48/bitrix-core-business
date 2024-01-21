@@ -7,6 +7,7 @@ use Bitrix\Im\Dialog;
 use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Chat\ChatFactory;
+use Bitrix\Im\V2\Chat\GeneralChat;
 use Bitrix\Im\V2\Chat\OpenChat;
 use Bitrix\Im\V2\Chat\OpenLineChat;
 use Bitrix\Im\V2\Chat\PrivateChat;
@@ -31,9 +32,6 @@ use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Intranet\ActionFilter\IntranetUser;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Pull\Event;
-use CFile;
-use CRestUtil;
 
 class Chat extends BaseController
 {
@@ -98,7 +96,7 @@ class Chat extends BaseController
 					new CheckChatUpdate(),
 				]
 			],
-			'removeUsers' => [
+			'deleteUser' => [
 				'+prefilters' => [
 					new CheckChatAccess(),
 					new CheckChatUpdate(),
@@ -110,7 +108,14 @@ class Chat extends BaseController
 					new CheckChatUpdate(),
 				]
 			],
-			'setManageUsers' => [
+			'setManageUsersAdd' => [
+				'+prefilters' => [
+					new CheckChatAccess(),
+					new CheckChatManageUpdate(),
+					new CheckChatUpdate(),
+				]
+			],
+			'setManageUsersDelete' => [
 				'+prefilters' => [
 					new CheckChatAccess(),
 					new CheckChatManageUpdate(),
@@ -163,7 +168,7 @@ class Chat extends BaseController
 			],
 			'join' => [
 				'+prefilters' => [
-					new ChatTypeFilter([OpenChat::class, OpenLineChat::class]),
+					new ChatTypeFilter([OpenChat::class, OpenLineChat::class, GeneralChat::class]),
 				],
 			],
 			'extendPullWatch' => [
@@ -252,6 +257,30 @@ class Chat extends BaseController
 	}
 
 	/**
+	 * @restMethod im.v2.Chat.listShared
+	 */
+	public function listSharedAction(array $filter, int $limit = self::DEFAULT_LIMIT, int $offset = 0): ?array
+	{
+		if (!isset($filter['userId']))
+		{
+			$this->addError(new ChatError(ChatError::USER_ID_EMPTY_ERROR));
+
+			return null;
+		}
+		$userId = (int)$filter['userId'];
+		$chats = \Bitrix\Im\V2\Chat::getSharedChatsWithUser($userId, $this->getLimit($limit), $offset);
+		\Bitrix\Im\V2\Chat::fillRole($chats);
+		$result = ['chats' => []];
+
+		foreach ($chats as $chat)
+		{
+			$result['chats'][] = $chat->toRestFormat(['CHAT_SHORT_FORMAT' => true, 'CHAT_WITH_DATE_MESSAGE' => true]);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @restMethod im.v2.Chat.getDialogId
 	 * @internal
 	 */
@@ -314,7 +343,7 @@ class Chat extends BaseController
 	 */
 	public function addAction(array $fields): ?array
 	{
-		$fields['type'] = ($fields['type'] === 'CHANNEL') ? \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL : \Bitrix\Im\V2\Chat::IM_TYPE_CHAT;
+		$fields['type'] = $this->getValidatedType($fields['type'] ?? null);
 
 		if (
 			!isset($fields['entityType'])
@@ -401,9 +430,13 @@ class Chat extends BaseController
 			{
 				$chat->setAuthorId($fields['ownerId']);
 			}
-			if (isset($fields['manageUsers']))
+			if (isset($fields['manageUsersAdd']))
 			{
-				$chat->setManageUsers($fields['manageUsers']);
+				$chat->setManageUsersAdd($fields['manageUsersAdd']);
+			}
+			if (isset($fields['manageUsersDelete']))
+			{
+				$chat->setManageUsersDelete($fields['manageUsersDelete']);
 			}
 			if (isset($fields['manageUI']))
 			{
@@ -571,38 +604,14 @@ class Chat extends BaseController
 	 */
 	public function setAvatarIdAction(\Bitrix\Im\V2\Chat $chat, int $avatarId)
 	{
-		$chat->setAvatarId($avatarId);
-		$result = $chat->save();
+		$result = $chat->updateAvatarId($avatarId);
 
 		if (!$result->isSuccess())
 		{
 			return $this->convertKeysToCamelCase($result->getErrors());
 		}
 
-		$avatarFile = CFile::ResizeImageGet(
-			$avatarId,
-			[],
-			BX_RESIZE_IMAGE_EXACT,
-			false,
-			false,
-			true
-		);
-		if (!empty($avatarFile['src']))
-		{
-			$imageUrl = $avatarFile['src'];
-
-			Event::add($chat->getRelations()->getUserIds(), [
-				'module_id' => 'im',
-				'command' => 'chatAvatar',
-				'params' => [
-					'chatId' => $chat->getChatId(),
-					'avatar' => $imageUrl,
-				],
-				'extra' => Common::getPullExtra()
-			]);
-		}
-
-		return $result->isSuccess();
+		return ['result' => true];
 	}
 
 	/**
@@ -610,67 +619,14 @@ class Chat extends BaseController
 	 */
 	public function setAvatarAction(\Bitrix\Im\V2\Chat $chat, string $avatarBase64)
 	{
-		if (isset($avatarBase64) && $avatarBase64)
-		{
-			$avatar = CRestUtil::saveFile($avatarBase64);
-			$imageCheck = (new \Bitrix\Main\File\Image($avatar["tmp_name"]))->getInfo();
-			if(
-				!$imageCheck
-				|| !$imageCheck->getWidth()
-				|| $imageCheck->getWidth() > 5000
-				|| !$imageCheck->getHeight()
-				|| $imageCheck->getHeight() > 5000
-			)
-			{
-				$avatar = null;
-			}
-			if (!$avatar || mb_strpos($avatar['type'], "image/") !== 0)
-			{
-				$avatarId = 0;
-			}
-			else
-			{
-				$avatar['MODULE_ID'] = 'im';
-				$avatarId = CFile::saveFile($avatar, 'im');
-			}
-		}
-		else
-		{
-			$avatarId = 0;
-		}
-
-		$chat->setAvatarId($avatarId);
-		$result = $chat->save();
+		$result = $chat->updateAvatar($avatarBase64);
 
 		if (!$result->isSuccess())
 		{
 			return $this->convertKeysToCamelCase($result->getErrors());
 		}
 
-		$avatarFile = CFile::ResizeImageGet(
-			$avatarId,
-			[],
-			BX_RESIZE_IMAGE_EXACT,
-			false,
-			false,
-			true
-		);
-		if (!empty($avatarFile['src']))
-		{
-			$imageUrl = $avatarFile['src'];
-
-			Event::add($chat->getRelations()->getUserIds(), [
-				'module_id' => 'im',
-				'command' => 'chatAvatar',
-				'params' => [
-					'chatId' => $chat->getChatId(),
-					'avatar' => $imageUrl,
-				],
-				'extra' => Common::getPullExtra()
-			]);
-		}
-
-		return $avatarId;
+		return ['avatarId' => $result->getResult()];
 	}
 	//endregion
 
@@ -720,11 +676,26 @@ class Chat extends BaseController
 	}
 
 	/**
-	 * @restMethod im.v2.Chat.setManageUsers
+	 * @restMethod im.v2.Chat.setManageUsersAdd
 	 */
-	public function setManageUsersAction(\Bitrix\Im\V2\Chat $chat, string $rightsLevel)
+	public function setManageUsersAddAction(\Bitrix\Im\V2\Chat $chat, string $rightsLevel)
 	{
-		$chat->setManageUsers($rightsLevel);
+		$chat->setManageUsersAdd($rightsLevel);
+		$result = $chat->save();
+		if (!$result->isSuccess())
+		{
+			return $this->convertKeysToCamelCase($result->getErrors());
+		}
+
+		return $result->isSuccess();
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.setManageUsersDelete
+	 */
+	public function setManageUsersDeleteAction(\Bitrix\Im\V2\Chat $chat, string $rightsLevel)
+	{
+		$chat->setManageUsersDelete($rightsLevel);
 		$result = $chat->save();
 		if (!$result->isSuccess())
 		{
@@ -780,6 +751,50 @@ class Chat extends BaseController
 		return $result->isSuccess();
 	}
 
+	/**
+	 * @restMethod im.v2.Chat.pin
+	 */
+	public function pinAction(\Bitrix\Im\V2\Chat $chat, CurrentUser $user): ?array
+	{
+		Recent::pin($chat->getDialogId(), true, $user->getId());
+
+		if (Recent::isLimitError())
+		{
+			$this->addError(new ChatError(ChatError::MAX_PINNED_CHATS_ERROR));
+
+			return null;
+		}
+
+		return ['result' => true];
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.unpin
+	 */
+	public function unpinAction(\Bitrix\Im\V2\Chat $chat, CurrentUser $user): ?array
+	{
+		Recent::pin($chat->getDialogId(), false, $user->getId());
+
+		return ['result' => true];
+	}
+
+	/**
+	 * @restMethod im.v2.Chat.sortPin
+	 */
+	public function sortPinAction(\Bitrix\Im\V2\Chat $chat, int $newPosition, CurrentUser $user): ?array
+	{
+		if ($newPosition <= 0 || $newPosition > Recent::getPinLimit())
+		{
+			$this->addError(new ChatError(ChatError::INVALID_PIN_POSITION));
+
+			return null;
+		}
+
+		Recent::sortPin($chat, $newPosition, $user->getId());
+
+		return ['result' => true];
+	}
+
 	private function load(\Bitrix\Im\V2\Chat $chat, CurrentUser $user, int $messageLimit, int $pinLimit, ?Message $targetMessage = null): array
 	{
 		$messageLimit = $this->getLimit($messageLimit);
@@ -796,6 +811,20 @@ class Chat extends BaseController
 		$rest = $restAdapter->toRestFormat();
 
 		return $messageService->fillContextPaginationData($rest, $messages, $messageLimit);
+	}
+
+	private function getValidatedType(?string $type): string
+	{
+		if ($type === 'CHANNEL')
+		{
+			return \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL;
+		}
+		if ($type === 'COPILOT')
+		{
+			return \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT;
+		}
+
+		return \Bitrix\Im\V2\Chat::IM_TYPE_CHAT;
 	}
 	//endregion
 	//endregion

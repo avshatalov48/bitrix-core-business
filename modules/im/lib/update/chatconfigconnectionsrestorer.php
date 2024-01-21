@@ -173,37 +173,6 @@ class ChatConfigConnectionsRestorer extends Stepper
 			return (int)$defaultGroupId['ID'];
 		}
 
-		return $this->installDefaultPreset();
-	}
-
-	public function installDefaultPreset(): int
-	{
-		$defaultGroupId =
-			\Bitrix\Im\Model\OptionGroupTable::add([
-				'NAME' => Configuration::DEFAULT_PRESET_NAME,
-				'SORT' => 0,
-				'CREATE_BY_ID' => 0,
-			])
-				->getId()
-		;
-
-		$generalDefaultSettings = General::getDefaultSettings();
-		General::setSettings($defaultGroupId, $generalDefaultSettings);
-
-		$notifySettings = Notification::getSimpleNotifySettings($generalDefaultSettings);
-		Notification::setSettings($defaultGroupId, $notifySettings);
-
-		if (Loader::includeModule('intranet'))
-		{
-			$topDepartmentId = Department::getTopDepartmentId();
-			OptionAccessTable::add([
-				'GROUP_ID' => $defaultGroupId,
-				'ACCESS_CODE' => $topDepartmentId ? 'DR' . $topDepartmentId : 'AU'
-			]);
-		}
-
-		Option::set('im', Configuration::DEFAULT_PRESET_SETTING_NAME, (int)$defaultGroupId);
-
-		return (int)$defaultGroupId;
+		return Configuration::createDefaultPreset();
 	}
 }

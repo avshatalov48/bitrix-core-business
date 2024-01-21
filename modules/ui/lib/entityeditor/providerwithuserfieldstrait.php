@@ -16,12 +16,21 @@ use CUserTypeManager;
  */
 trait ProviderWithUserFieldsTrait
 {
+	protected $userFieldInfos = null;
+
 	/**
 	 * User field ENTITY_ID
 	 *
 	 * @return string
 	 */
 	abstract public function getUfEntityId(): string;
+
+	/**
+	 * The prefix for UF codes
+	 *
+	 * @return string
+	 */
+	abstract public function getUfPrefix(): string;
 
 	/**
 	 * User field dispatcher.
@@ -70,7 +79,7 @@ trait ProviderWithUserFieldsTrait
 		$fields['ENABLE_USER_FIELD_CREATION'] = true;
 		$fields['ENABLE_USER_FIELD_MANDATORY_CONTROL'] = true;
 		$fields['USER_FIELD_ENTITY_ID'] = $this->getUfEntityId();
-		$fields['USER_FIELD_PREFIX'] = $this->getUfEntityId();
+		$fields['USER_FIELD_PREFIX'] = $this->getUfPrefix();
 		$fields['USER_FIELD_CREATE_SIGNATURE'] = $this->getUfDispatcher()->getCreateSignature([
 			'ENTITY_ID' => $this->getUfEntityId(),
 		]);
@@ -88,6 +97,11 @@ trait ProviderWithUserFieldsTrait
 	 */
 	protected function getUfEntityFields(): array
 	{
+		if (!is_null($this->userFieldInfos))
+		{
+			return $this->userFieldInfos;
+		}
+
 		$result = [];
 
 		$userFieldsInfos = $this->getUfTypeManager()->GetUserFields(
@@ -98,72 +112,47 @@ trait ProviderWithUserFieldsTrait
 		foreach ($userFieldsInfos as $userFieldInfo)
 		{
 			$fieldName = $userFieldInfo['FIELD_NAME'];
-			$result[] = [
+			$fieldInfo = [
+				'USER_TYPE_ID' => $userFieldInfo['USER_TYPE_ID'],
+				'ENTITY_ID' => $this->getUfEntityId(),
+				'ENTITY_VALUE_ID' => $this->getEntityId() ?? 0,
+				'FIELD' => $fieldName,
+				'MULTIPLE' => $userFieldInfo['MULTIPLE'],
+				'MANDATORY' => $userFieldInfo['MANDATORY'],
+				'SETTINGS' => $userFieldInfo['SETTINGS'] ?? null,
+			];
+
+			// required for the enum fields to work on mobile
+			if ($fieldInfo['USER_TYPE_ID'] === 'enumeration')
+			{
+				$fieldInfo['ENUM'] = [];
+				$enumDbResult = \CUserFieldEnum::GetList(
+					[],
+					[
+						'USER_FIELD_ID' => $userFieldInfo['ID'],
+					]
+				);
+				while ($enum = $enumDbResult->Fetch())
+				{
+					$fieldInfo['ENUM'][] = [
+						'ID' => $enum['ID'],
+						'VALUE' => $enum['VALUE'],
+					];
+				}
+			}
+
+			$result[$fieldName] = [
 				'name' => $fieldName,
 				'title' => $userFieldInfo['EDIT_FORM_LABEL'] ?? $fieldName,
 				'type' => 'userField',
-				'data' => [
-					'fieldInfo' => [
-						'USER_TYPE_ID' => $userFieldInfo['USER_TYPE_ID'],
-						'ENTITY_ID' => $this->getUfEntityId(),
-						'ENTITY_VALUE_ID' => $this->getEntityId(),
-						'FIELD' => $fieldName,
-						'MULTIPLE' => $userFieldInfo['MULTIPLE'],
-						'MANDATORY' => $userFieldInfo['MANDATORY'],
-						'SETTINGS' => $userFieldInfo['SETTINGS'] ?? null,
-					],
-				],
+				'data' => ['fieldInfo' => $fieldInfo],
+				'editable' => $userFieldInfo['EDIT_IN_LIST'] === 'Y',
+				'required' => isset($userFieldInfo['MANDATORY']) && $userFieldInfo['MANDATORY'] === 'Y',
 			];
 		}
 
+		$this->userFieldInfos = $result;
 		return $result;
-	}
-
-	/**
-	 * Value user field for `ENTITY_DATA` component param.
-	 *
-	 * @param array $field
-	 *
-	 * @return void
-	 */
-	protected function getUfEntityDataValue(array $field)
-	{
-		$fieldInfo = $field['data']['fieldInfo'];
-		$fieldName = $fieldInfo['FIELD'] ?? null;
-		if (!$fieldName)
-		{
-			$value = null;
-		}
-		else
-		{
-			$value = $this->getUfTypeManager()->GetUserFieldValue(
-				$this->getUfEntityId(),
-				$fieldName,
-				$this->getEntityId()
-			);
-		}
-
-		if (!empty($value))
-		{
-			$fieldInfo['VALUE'] = $value;
-		}
-
-		$userFieldDispatcher = \Bitrix\Main\UserField\Dispatcher::instance();
-		$signatire = $userFieldDispatcher->getSignature($fieldInfo);
-
-		if (empty($value))
-		{
-			return [
-				'IS_EMPTY' => true,
-				'SIGNATURE' => $signatire,
-			];
-		}
-
-		return [
-			'IS_EMPTY' => false,
-			'VALUE' => $value,
-			'SIGNATURE' => $signatire,
-		];
 	}
 
 	/**
@@ -192,14 +181,14 @@ trait ProviderWithUserFieldsTrait
 	 */
 	protected function fillUfEntityFields(array $fields): array
 	{
-		array_push($fields, ... $this->getUfEntityFields());
+		array_push($fields, ...array_values($this->getUfEntityFields()));
 
 		return $fields;
 	}
 
-    /**
-     * Filling in entity data of UF data.
-     *
+	/**
+	 * Filling in entity data of UF data.
+	 *
 	 * Example:
 	 * ```php
 		public function getEntityData(): array
@@ -214,19 +203,75 @@ trait ProviderWithUserFieldsTrait
 		}
 	 * ```
 	 *
-     * @param array $entityData
-     *
-     * @return array
-     */
+	 * @param array $entityData
+	 *
+	 * @return array
+	 */
 	protected function fillUfEntityData(array $entityData): array
 	{
-		$ufFields = $this->getUfEntityFields();
-		foreach ($ufFields as $item)
+		return array_merge($entityData, $this->getUfEntityData());
+	}
+
+	/**
+	 * Returns formatted values for the ENTITY_DATA parameter.
+	 *
+	 * @param array $field
+	 *
+	 * @return array
+	 */
+	protected function getUfEntityData(): array
+	{
+		$userFields =
+			$this
+				->getUfTypeManager()
+				->GetUserFields(
+					$this->getUfEntityId(),
+					$this->getEntityId() ?? 0,
+					LANGUAGE_ID
+				)
+		;
+		$userFieldInfos = $this->getUfEntityFields();
+
+		$userFieldValues = [];
+		foreach($userFields as $fieldName => $userField)
 		{
-			$fieldName = $item['name'];
-			$entityData[$fieldName] = $this->getUfEntityDataValue($item);
+			$fieldValue = $userField['VALUE'] ?? '';
+			$fieldData = $userFieldInfos[$fieldName] ?? null;
+
+			if (!is_array($fieldData))
+			{
+				continue;
+			}
+
+			$isEmptyField = true;
+			$fieldParams = $fieldData['data']['fieldInfo'];
+			if (
+				(is_string($fieldValue) && $fieldValue !== '')
+				|| (is_array($fieldValue) && !empty($fieldValue))
+			)
+			{
+				$fieldParams['VALUE'] = $fieldValue;
+				$isEmptyField = false;
+			}
+
+			$fieldSignature = $this->getUfDispatcher()->getSignature($fieldParams);
+			if ($isEmptyField)
+			{
+				$userFieldValues[$fieldName] = array(
+					'SIGNATURE' => $fieldSignature,
+					'IS_EMPTY' => true
+				);
+			}
+			else
+			{
+				$userFieldValues[$fieldName] = array(
+					'VALUE' => $fieldValue,
+					'SIGNATURE' => $fieldSignature,
+					'IS_EMPTY' => false
+				);
+			}
 		}
 
-		return $entityData;
+		return $userFieldValues;
 	}
 }

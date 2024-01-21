@@ -91,6 +91,7 @@ class CalendarFilter
 		if ($type === 'user')
 		{
 			$presets[self::PRESET_INVITED] = [
+				'id' => self::PRESET_INVITED,
 				'name' => Loc::getMessage('CALENDAR_PRESET_MEETING_STATUS_Q'),
 				'default' => false,
 				'fields' => [
@@ -101,15 +102,16 @@ class CalendarFilter
 		}
 
 		$presets[self::PRESET_HOST] = [
+			'id' => self::PRESET_HOST,
 			'name' => Loc::getMessage('CALENDAR_PRESET_I_AM_HOST'),
 			'default' => false,
 			'fields' => [
-				'IS_MEETING' => 'Y',
 				'MEETING_STATUS' => 'H',
 			]
 		];
 
 		$presets[self::PRESET_ATTENDEE] = [
+			'id' => self::PRESET_ATTENDEE,
 			'name' => Loc::getMessage('CALENDAR_PRESET_I_AM_ATTENDEE'),
 			'default' => false,
 			'fields' => [
@@ -119,6 +121,7 @@ class CalendarFilter
 		];
 
 		$presets[self::PRESET_DECLINED] = [
+			'id' => self::PRESET_DECLINED,
 			'name' => Loc::getMessage('CALENDAR_PRESET_I_DECLINED'),
 			'default' => false,
 			'fields' => [
@@ -360,7 +363,7 @@ class CalendarFilter
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function getFilterUserData(string $type, int $userId, int $ownerId, $fields): array
+	public static function getFilterUserData(string $type, int $userId, int $ownerId, $fields): array
 	{
 		$counters = false;
 		$entries = [];

@@ -1,14 +1,14 @@
 <?php
 namespace Bitrix\Calendar\UserField;
 
-use Bitrix\Main\Loader;
-use Bitrix\Main\Type;
+use Bitrix\Bitrix24;
 use Bitrix\Calendar\Internals;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
-use Bitrix\Bitrix24;
-use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Type;
 use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
 
 Loc::loadMessages(__FILE__);
@@ -122,14 +122,15 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$serviceName = '';
 		$entityTitle = '';
 		$fields = [];
+		$entity = null;
 
-		$resourseList = Internals\ResourceTable::getList([
-			"filter" => [
-				"PARENT_TYPE" => $userField['ENTITY_ID'],
-				"PARENT_ID" => $userField['VALUE_ID'],
-				"UF_ID" => $userField['ID']
-			]
-		]);
+		$resourseList = Internals\ResourceTable::query()
+			->setSelect(['*'])
+			->where('PARENT_TYPE', $userField['ENTITY_ID'])
+			->where('PARENT_ID', $userField['VALUE_ID'])
+			->where('UF_ID', $userField['ID'])
+			->exec()
+		;
 
 		$currentEntriesIndex = [];
 		while ($resourse = $resourseList->fetch())
@@ -141,7 +142,19 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		{
 			if ($userField['ENTITY_ID'] === self::CRM_DEAL_ENTITY_ID)
 			{
-				$entity = \CCrmDeal::GetByID($userField['VALUE_ID'], false);
+				$dealResult = \CCrmDeal::GetListEx(
+					[],
+					['=ID' => $userField['VALUE_ID'], 'CHECK_PERMISSIONS' => 'N'],
+					false,
+					false,
+					['TITLE'],
+				);
+
+				if (!empty($dealResult))
+				{
+					$entity = $dealResult->Fetch();
+				}
+
 				if (!empty($entity) && $entity['TITLE'])
 				{
 					$entityTitle = Loc::getMessage("USER_TYPE_RESOURCE_EVENT_TITLE").': '.$entity['TITLE'];
@@ -149,7 +162,19 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			}
 			elseif ($userField['ENTITY_ID'] === self::CRM_LEAD_ENTITY_ID)
 			{
-				$entity = \CCrmLead::GetByID($userField['VALUE_ID'], false);
+				$leadResult = \CCrmLead::GetListEx(
+					[],
+					['=ID' => $userField['VALUE_ID'], 'CHECK_PERMISSIONS' => 'N'],
+					false,
+					false,
+					['TITLE'],
+				);
+
+				if (!empty($leadResult))
+				{
+					$entity = $leadResult->Fetch();
+				}
+
 				if (!empty($entity) && $entity['TITLE'])
 				{
 					$entityTitle = Loc::getMessage("USER_TYPE_RESOURCE_EVENT_TITLE").': '.$entity['TITLE'];
@@ -868,7 +893,11 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 				<?
 				$html = ob_get_clean();
 			}
+		}
 
+		if ($context === 'UI_EDITOR')
+		{
+			$html = '<span class="field-item">' . $html . '</span>';
 		}
 
 		return static::getHelper()->wrapDisplayResult($html);

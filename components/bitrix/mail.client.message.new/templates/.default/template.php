@@ -118,14 +118,6 @@ else
 	$rcptSelected = $prepareReply($message['__rcpt']);
 }
 
-$messageHtml = trim($message['BODY_HTML'])
-	? $message['BODY_HTML']
-	: preg_replace(
-		'/(\s*(\r\n|\n|\r))+/',
-		'<br>',
-		htmlspecialcharsbx($message['BODY'])
-	);
-
 $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 
 ?>
@@ -146,8 +138,23 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 			<? endif ?>
 			<?
 
+			$messageSanitized = true;
+			if ($message['__parent'] > 0 && trim($message['BODY_HTML']))
+			{
+				$messageHtml = (new Bitrix\Mail\Helper\Cache\SanitizedBodyCache())->get($message['__parent']);
+				if (!$messageHtml)
+				{
+					$messageHtml = $message['BODY_HTML'];
+					$messageSanitized = false;
+				}
+			}
+			else
+			{
+				$messageHtml = preg_replace('/(\s*(\r\n|\n|\r))+/', '<br>', htmlspecialcharsbx($message['BODY']));
+			}
+
 			$inlineFiles = [];
-			$quote = preg_replace_callback(
+			preg_replace_callback(
 				'#(\?|&)__bxacid=(n?\d+)#i',
 				function($matches) use (&$inlineFiles) {
 					$inlineFiles[] = $matches[2];
@@ -156,8 +163,15 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 				},
 				$messageHtml
 			);
-			$quote = $messageHtml;
-			$messageQuote = Message::wrapTheMessageWithAQuote($quote, $message['SUBJECT'], $message['FIELD_DATE'], $message['__from'], $message['__to'], $message['__cc']);
+			$messageQuote = Message::wrapTheMessageWithAQuote(
+				$messageHtml,
+				$message['ORIGINAL_SUBJECT'] ?? $message['SUBJECT'],
+				$message['FIELD_DATE'],
+				$message['__from'],
+				$message['__to'],
+				$message['__cc'],
+				$messageSanitized,
+			);
 
 			$attachedFiles = [];
 			foreach ((array)$message['__files'] as $item)
@@ -204,6 +218,8 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 					'FOLD_FILES' => !empty($message['MSG_ID']),
 					'EDITOR_TOOLBAR' => true,
 					'USE_SIGNATURES' => true,
+					'USE_CALENDAR_SHARING' => true,
+					'COPILOT_PARAMS' => $arResult['COPILOT_PARAMS'],
 					'FIELDS' => [
 						[
 							'name' => 'data[from]',

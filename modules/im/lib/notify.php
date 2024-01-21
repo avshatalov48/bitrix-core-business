@@ -269,17 +269,9 @@ class Notify
 						? date('c', $notifyItem['USER_LAST_ACTIVITY_DATE']->getTimestamp())
 						: false
 				;
-				$user['desktop_last_date'] =
-					$notifyItem['USER_DESKTOP_LAST_DATE']
-						? date('c', $notifyItem['USER_DESKTOP_LAST_DATE']->getTimestamp())
-						: false
-				;
-				$user['mobile_last_date'] =
-					$notifyItem['USER_MOBILE_LAST_DATE']
-						? date('c', $notifyItem['USER_MOBILE_LAST_DATE']->getTimestamp())
-						: false
-				;
-				$user['idle'] = $notifyItem['USER_IDLE'] ?: false;
+				$user['desktop_last_date'] = false;
+				$user['mobile_last_date'] = false;
+				$user['idle'] = false;
 
 				$this->users[$notifyItem['AUTHOR_ID']] = $user;
 			}
@@ -402,9 +394,6 @@ class Notify
 	 * Agent for deleting old notifications.
 	 *
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function cleanNotifyAgent(): string
 	{
@@ -453,10 +442,7 @@ class Notify
 			$counterService->deleteByMessageIdsForAll($batch);
 		}
 
-
-		//\Bitrix\Im\Counter::clearCache();
-
-		return '\Bitrix\Im\Notify::cleanNotifyAgent();';
+		return __METHOD__. '();';
 	}
 
 	private function requestSearchTotalCount(): int
@@ -609,9 +595,9 @@ class Notify
 				//'NOTIFY_READ',
 				'NOTIFY_BUTTONS',
 				'USER_LAST_ACTIVITY_DATE' => 'AUTHOR.LAST_ACTIVITY_DATE',
-				'USER_IDLE' => 'STATUS.IDLE',
-				'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
-				'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
+				//'USER_IDLE' => 'STATUS.IDLE',
+				//'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
+				//'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
 			],
 			'filter' => ['=ID' => $ids],
 			'order' => ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'],

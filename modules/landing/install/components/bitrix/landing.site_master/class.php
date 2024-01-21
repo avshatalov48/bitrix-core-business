@@ -225,7 +225,7 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 	{
 		if (
 			Main\Loader::includeModule('iblock')
-			&& Main\Loader::includeModule('iblock')
+			&& Main\Loader::includeModule('catalog')
 			&& Main\Loader::includeModule('crm')
 		)
 		{
@@ -233,38 +233,21 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 			$fieldSectionId = $settings['SETTINGS_SECTION_ID'] ?? null;
 			if ($fieldSectionId)
 			{
-				$useBitrix24 = \Bitrix\Main\Loader::includeModule('bitrix24');
-				if ($useBitrix24)
-				{
-					Main\Config\Option::set('catalog', 'product_card_slider_enabled', 'Y', '');
-					$urlBuilder = AdminPage\BuilderManager::getInstance()->getBuilder(
-						Product\Url\ProductBuilder::TYPE_ID
-					);
-				}
-				else
-				{
-					$urlBuilder = AdminPage\BuilderManager::getInstance()->getBuilder(
-						Catalog\Url\ShopBuilder::TYPE_ID
-					);
-				}
+				$urlBuilder = AdminPage\BuilderManager::getInstance()->getBuilder(
+					Product\Url\ProductBuilder::TYPE_ID
+				);
 				if ($urlBuilder)
 				{
-					$urlBuilder->setIblockId(\CCrmCatalog::getDefaultID());
-					if ($useBitrix24)
-					{
-						$urlBuilder->setSeparateIblockList();
-						CBitrixComponent::includeComponentClass('bitrix:crm.catalog.controller');
-						$params = \CrmCatalogControllerComponent::getViewModeParams();
-						// to define('PUBLIC_MODE', 1) in main/include/prolog_admin_before.php
-						$params['public'] = 'Y';
-						// to disable redirect by $arResult['IS_SIDE_PANEL'] in crm.admin.page.include
-						$params['disableRedirect'] = 'Y';
-					}
-					else
-					{
-						$params = [];
-						$urlBuilder->setSliderMode(false);
-					}
+					$urlBuilder->setIblockId((int)Crm\Product\Catalog::getDefaultId());
+
+					$urlBuilder->setSeparateIblockList();
+					CBitrixComponent::includeComponentClass('bitrix:crm.catalog.controller');
+					$params = \CrmCatalogControllerComponent::getViewModeParams();
+					// to define('PUBLIC_MODE', 1) in main/include/prolog_admin_before.php
+					$params['public'] = 'Y';
+					// to disable redirect by $arResult['IS_SIDE_PANEL'] in crm.admin.page.include
+					$params['disableRedirect'] = 'Y';
+
 					$params['by'] = 'ID';
 					$params['order'] = 'ASC';
 					$urlBuilder->setUrlParams($params);

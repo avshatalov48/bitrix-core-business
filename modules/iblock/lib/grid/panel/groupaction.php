@@ -582,7 +582,7 @@ class GroupAction
 	{
 		$name = (isset($params['NAME']) && $params['NAME'] !== ''
 			? $params['NAME']
-			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CODE_TRANSLITERATION')
+			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CODE_TRANSLITERATION_MSGVER_1')
 		);
 
 		$params['APPLY_BUTTON_ID'] = 'code_translit_confirm';

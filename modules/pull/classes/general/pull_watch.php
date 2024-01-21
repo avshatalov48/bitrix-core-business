@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CAllPullWatch
 {
 	const bucket_size = 100;
@@ -22,7 +23,7 @@ class CAllPullWatch
 		{
 			CTimeZone::Disable();
 			$strSql = "
-					SELECT ID, USER_ID, TAG, ".$DB->DatetimeToTimestampFunction("DATE_CREATE")." DATE_CREATE
+					SELECT ID, USER_ID, TAG, ".$DB->DatetimeToTimestampFunction("DATE_CREATE")." AS DATE_CREATE
 					FROM b_pull_watch
 					WHERE USER_ID = ".intval($userId)."
 			";
@@ -258,4 +259,3 @@ class CAllPullWatch
 		return $arUsers;
 	}
 }
-?>

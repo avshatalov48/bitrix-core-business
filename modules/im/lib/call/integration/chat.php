@@ -6,6 +6,8 @@ use Bitrix\Im\Call\Call;
 use Bitrix\Im\Call\CallUser;
 use Bitrix\Im\Common;
 use Bitrix\Im\Dialog;
+use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\Message\Params;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
@@ -34,7 +36,7 @@ class Chat extends AbstractEntity
 
 		$result = \CIMChat::GetChatData([
 			'ID' => $chatId,
-			'USER_ID' => $this->initiatorId
+			'USER_ID' => $this->getCurrentUserId(),
 		]);
 
 		if ($result['chat'][$chatId])
@@ -220,7 +222,7 @@ class Chat extends AbstractEntity
 		return $this->chatFields && $this->chatFields['message_type'] === IM_MESSAGE_PRIVATE;
 	}
 
-	public function onUserAdd($userId)
+	public function onUserAdd($userId): bool
 	{
 		if (!$this->canExtendChat())
 		{
@@ -242,6 +244,11 @@ class Chat extends AbstractEntity
 			if($this->call)
 			{
 				$this->call->setAssociatedEntity(static::getEntityType(), 'chat'.$chatId);
+				// todo: remove when the calls are supported in the mobile
+				if ($this->call->getAssociatedEntity())
+				{
+					$this->call->getAssociatedEntity()->onCallCreate();
+				}
 			}
 		}
 		else
@@ -254,15 +261,32 @@ class Chat extends AbstractEntity
 		return true;
 	}
 
+	public function onExistingUserInvite($userId): bool
+	{
+		if (isset($this->chatFields['message_type']) && $this->chatFields['message_type'] === IM_MESSAGE_PRIVATE)
+		{
+			return true;
+		}
+
+		if (!$this->canExtendChat())
+		{
+			return false;
+		}
+
+		$chat = new \CIMChat();
+		$chatId = \Bitrix\Im\Dialog::getChatId($this->getEntityId());
+
+		return $chat->addUser($chatId, $userId);
+	}
+
 	public function onStateChange($state, $prevState)
 	{
 		$initiatorId = $this->call->getInitiatorId();
 		$initiator = \Bitrix\Im\User::getInstance($initiatorId);
 		if($state === Call::STATE_INVITING && $prevState === Call::STATE_NEW)
 		{
-			$this->sendMessageDeferred(Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_STARTED", [
-				"#ID#" => '[B]'.$this->call->getId().'[/B]'
-			]), self::MUTE_MESSAGE);
+			// todo: return the call method when the calls are supported in the mobile
+			//$this->sendMessagesCallStart();
 		}
 		else if($state === Call::STATE_FINISHED)
 		{
@@ -302,6 +326,20 @@ class Chat extends AbstractEntity
 
 			$this->sendMessageDeferred($message, $mute);
 		}
+	}
+
+	public function onCallCreate(): bool
+	{
+		$this->sendMessagesCallStart();
+
+		return true;
+	}
+
+	public function sendMessagesCallStart(): void
+	{
+		$this->sendMessageDeferred(Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_STARTED", [
+			"#ID#" => '[B]'.$this->call->getId().'[/B]'
+		]), self::MUTE_MESSAGE);
 	}
 
 	public function sendMessageDeferred($message, $muted = false)

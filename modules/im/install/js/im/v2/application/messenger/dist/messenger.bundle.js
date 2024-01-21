@@ -24,47 +24,41 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    this.params = params;
 	    this.rootNode = this.params.node || document.createElement('div');
-	    this.initCore()
-	    // .then(() => this.initComponent())
-	    .then(() => this.initPullHandlers()).then(() => this.initComplete());
+
+	    // eslint-disable-next-line promise/catch-or-return
+	    this.initCore().then(() => this.initPullHandlers()).then(() => this.initComplete());
 	  }
-	  initCore() {
-	    return new Promise(resolve => {
-	      im_v2_application_core.Core.ready().then(controller => {
-	        this.controller = controller;
-	        im_v2_application_core.Core.setApplicationData(this.params);
-	        resolve();
-	      });
-	    });
+	  async initCore() {
+	    im_v2_application_core.Core.setApplicationData(this.params);
+	    this.controller = await im_v2_application_core.Core.ready();
+	    return true;
 	  }
-	  initComponent(node) {
-	    this.unmountComponent();
-	    return this.controller.createVue(this, {
-	      name: 'Messenger',
-	      el: node || this.rootNode,
-	      components: {
-	        MessengerComponent: im_v2_component_messenger.Messenger
-	      },
-	      template: `<MessengerComponent />`
-	    }).then(vue => {
-	      this.vueInstance = vue;
-	      return Promise.resolve();
-	    });
-	  }
-	  unmountComponent() {
-	    if (!this.vueInstance) {
-	      return false;
-	    }
-	    this.bitrixVue.unmount();
-	    this.vueInstance = null;
+	  initPullHandlers() {
+	    this.controller.pullClient.subscribe(new im_v2_provider_pull.SidebarPullHandler());
+	    return Promise.resolve();
 	  }
 	  initComplete() {
 	    this.inited = true;
 	    this.initPromiseResolver(this);
 	  }
-	  initPullHandlers() {
-	    this.controller.pullClient.subscribe(new im_v2_provider_pull.SidebarPullHandler());
-	    return Promise.resolve();
+	  async initComponent(node) {
+	    this.unmountComponent();
+	    this.vueInstance = await this.controller.createVue(this, {
+	      name: babelHelpers.classPrivateFieldLooseBase(this, _applicationName)[_applicationName],
+	      el: node || this.rootNode,
+	      components: {
+	        MessengerComponent: im_v2_component_messenger.Messenger
+	      },
+	      template: '<MessengerComponent />'
+	    });
+	    return true;
+	  }
+	  unmountComponent() {
+	    if (!this.vueInstance) {
+	      return;
+	    }
+	    this.bitrixVue.unmount();
+	    this.vueInstance = null;
 	  }
 	  ready() {
 	    if (this.inited) {

@@ -5,7 +5,8 @@ namespace Bitrix\Catalog\Integration\Report\Dashboard;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Permission\PermissionDictionary;
-use Bitrix\Catalog\Integration\Report\View\CatalogView;
+use Bitrix\Catalog\Integration\Report\View\ViewRenderable;
+use Bitrix\Catalog\Restriction\ToolAvailabilityManager;
 use Bitrix\Main\Loader;
 
 final class DashboardManager
@@ -38,10 +39,13 @@ final class DashboardManager
 
 	public static function getCatalogDashboardList(): array
 	{
-		return [
+		$dashboards =  [
+			new StoreProfitDashboard(),
 			new StoreStockDashboard(),
 			new StoreSaleDashboard(),
 		];
+
+		return $dashboards;
 	}
 
 	public function getActiveViewList(): array
@@ -74,7 +78,7 @@ final class DashboardManager
 		foreach ($this->getAllowedDashboards() as $dashboard)
 		{
 			/** @var array $viewHandlers */
-			$viewHandlers = array_map(static function(CatalogView $view) {
+			$viewHandlers = array_map(static function(ViewRenderable $view) {
 				return $view->getViewHandler();
 			}, $dashboard->getActiveViewList());
 
@@ -108,6 +112,11 @@ final class DashboardManager
 			return [];
 		}
 
+		if (!ToolAvailabilityManager::getInstance()->checkInventoryManagementAvailability())
+		{
+			return [];
+		}
+
 		$boards = [];
 		/** @var CatalogDashboard $dashboard */
 		foreach ($this->getAllowedDashboards() as $dashboard)
@@ -121,6 +130,11 @@ final class DashboardManager
 	public function getAnalyticBoardBatchList(): array
 	{
 		if (!self::checkAccessRights())
+		{
+			return [];
+		}
+
+		if (!ToolAvailabilityManager::getInstance()->checkInventoryManagementAvailability())
 		{
 			return [];
 		}

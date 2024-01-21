@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 use Bitrix\Main\Localization\CultureTable;
@@ -66,10 +66,14 @@ class main extends CModule
 		$result = $DB->Query("SELECT * FROM b_module WHERE ID='main'", true, "", array("fixed_connection"=>true));
 		$success = $result && $result->Fetch();
 		if ($success)
+		{
 			return true;
+		}
 
 		if (defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
+		{
 			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
+		}
 
 		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/" . $connectionType ."/install.sql");
 		if ($errors !== false)
@@ -207,6 +211,7 @@ class main extends CModule
 		COption::SetOptionString("main", "GROUP_DEFAULT_TASK", "1");
 		COption::SetOptionString("main", "admin_lid", LANGUAGE_ID);
 		COption::SetOptionString("main", "update_site_ns", "Y");
+		COption::SetOptionString("main", "update_use_https", "Y");
 		COption::SetOptionString("main", "optimize_css_files", "Y");
 		COption::SetOptionString("main", "optimize_js_files", "Y");
 		COption::SetOptionString("main", "control_file_duplicates", "Y");
@@ -243,7 +248,7 @@ class main extends CModule
 
 	protected function InstallGroups()
 	{
-		global $APPLICATION, $DB;
+		global $APPLICATION;
 
 		$group = new CGroup;
 
@@ -965,7 +970,7 @@ class main extends CModule
 
 		// rating default config
 		COption::SetOptionString("main", "rating_community_size", 1);
-		COption::SetOptionString("main", "rating_community_authority", round(1*3*10, 4));
+		COption::SetOptionString("main", "rating_community_authority", round(3 * 10, 4));
 		COption::SetOptionString("main", "rating_vote_weight", 10);
 		COption::SetOptionString("main", "rating_normalization_type", "auto");
 		COption::SetOptionString("main", "rating_normalization", 10);
@@ -989,7 +994,7 @@ class main extends CModule
 		$info_table .= '<tr>';
 		$info_table .= '	<td class="bx-gadget-gray">'.GetMessage("MAIN_DESKTOP_CREATEDBY_KEY").':</td>';
 		$info_table .= '	<td>'.GetMessage("MAIN_DESKTOP_CREATEDBY_VALUE").'</td>';
-		$info_table .= '	<td class="bx-gadgets-info-site-logo" rowspan="5"><img src="'.'/bitrix/components/bitrix/desktop/templates/admin/images/site_logo.png'.'"></td>';
+		$info_table .= '	<td class="bx-gadgets-info-site-logo" rowspan="5"><img src="'.'/bitrix/components/bitrix/desktop/templates/admin/images/site_logo.png'.'" alt=""></td>';
 		$info_table .= '</tr>';
 		$info_table .= '<tr>';
 		$info_table .= '	<td class="bx-gadget-gray">'.GetMessage("MAIN_DESKTOP_URL_KEY").':</td>';
@@ -1766,7 +1771,7 @@ class main extends CModule
 		global $DB;
 
 		COption::SetOptionInt("main", "disk_space", 0);
-		COption::SetOptionString("main", "server_name", "");
+		COption::SetOptionString("main", "server_name");
 		COption::SetOptionString("main", "~sale_converted_15", 'Y');
 
 		CControllerClient::Unlink();

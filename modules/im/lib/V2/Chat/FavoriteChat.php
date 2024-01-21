@@ -173,10 +173,12 @@ class FavoriteChat extends PrivateChat
 		{
 			$chat = new static($params);
 			$chat
-				->setTitle(Loc::getMessage('IM_CHAT_FAVORITE_TITLE_V2'))
-				->setDescription(Loc::getMessage('IM_CHAT_FAVORITE_DESCRIPTION'))
+				->setTitle(Loc::getMessage('IM_CHAT_FAVORITE_TITLE_V3'))
+				->setDescription(Loc::getMessage('IM_CHAT_FAVORITE_DESCRIPTION_V2'))
 				->save()
 			;
+
+			$chat->sendBanner();
 
 			if (!$chat->getChatId())
 			{
@@ -200,6 +202,27 @@ class FavoriteChat extends PrivateChat
 		]);
 
 		return $result;
+	}
+
+	public static function getTitlePhrase(): string
+	{
+		return Loc::getMessage('IM_CHAT_FAVORITE_TITLE_V3') ?? '';
+	}
+
+	protected function sendBanner(): void
+	{
+		$messageText = Loc::getMessage('IM_CHAT_FAVORITE_CREATE_WELCOME');
+		\CIMMessage::Add([
+			'MESSAGE_TYPE' => $this->getType(),
+			'TO_CHAT_ID' => $this->getChatId(),
+			'FROM_USER_ID' => $this->getAuthorId(),
+			'MESSAGE' => $messageText,
+			'SYSTEM' => 'Y',
+			'PUSH' => 'N',
+			'PARAMS' => [
+				'COMPONENT_ID' => 'OwnChatCreationMessage',
+			],
+		]);
 	}
 
 	protected function prepareParams(array $params = []): Result

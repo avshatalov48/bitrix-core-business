@@ -12,11 +12,16 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
+use Exception;
 
 Loc::loadMessages(__FILE__);
 
 class Subscription
 {
+	public const AVAILABLE_VALUES = [
+		'Y', 'N'
+	];
+
 	public static function onContentViewed(array $params)
 	{
 		if (
@@ -38,7 +43,7 @@ class Subscription
 	 * Adds/deletes a subscription on a worgroup GROUP_ID for a user USER_ID
 	 * @param array $params
 	 * @return bool
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public static function set(array $params = [])
 	{

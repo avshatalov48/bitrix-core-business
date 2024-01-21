@@ -49,7 +49,7 @@ class File extends Translate\IO\File implements \Iterator, \Countable, \ArrayAcc
 	 */
 	public static function instantiateByPath(string $path): self
 	{
-		if (empty($path) || !Translate\IO\Path::isPhpFile($path) || !\preg_match("#.+/lang/[a-z]{2}/.+\.php$#", $path))
+		if (empty($path) || !Translate\IO\Path::isPhpFile($path) || !\preg_match("#.+/lang/[a-z0-9]{2}/.+\.php$#", $path))
 		{
 			throw new Main\ArgumentException("Parameter 'path' has a wrong value");
 		}
@@ -894,7 +894,7 @@ class File extends Translate\IO\File implements \Iterator, \Countable, \ArrayAcc
 
 			Index\Internals\PhraseIndexTable::purge($filter);
 
-			foreach (Translate\Config::getLanguages() as $langId)
+			foreach (Translate\Config::getEnabledLanguages() as $langId)
 			{
 				$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
 				$ftsClass::purge($filter);
@@ -935,7 +935,7 @@ class File extends Translate\IO\File implements \Iterator, \Countable, \ArrayAcc
 
 			Index\Internals\FileIndexTable::purge($filter);
 
-			foreach (Translate\Config::getLanguages() as $langId)
+			foreach (Translate\Config::getEnabledLanguages() as $langId)
 			{
 				$ftsClass = Index\Internals\PhraseFts::getFtsEntityClass($langId);
 				$ftsClass::purge($filter);

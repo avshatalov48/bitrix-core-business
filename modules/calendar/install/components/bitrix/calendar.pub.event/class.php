@@ -380,7 +380,8 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 			null,
 			null,
 			null,
-			$organizer['EMAIL']
+			$organizer['EMAIL'],
+			false
 		);
 	}
 

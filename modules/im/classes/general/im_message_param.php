@@ -464,7 +464,7 @@ class CIMMessageParam
 			{
 				$value = $ar["PARAM_VALUE"];
 			}
-			if (in_array($ar["PARAM_NAME"], Array('KEYBOARD', 'MENU')))
+			if (in_array($ar["PARAM_NAME"], Array('KEYBOARD', 'MENU', 'COMPONENT_PARAMS')))
 			{
 				$arResult[$ar["MESSAGE_ID"]][$ar["PARAM_NAME"]] = $value;
 			}
@@ -722,6 +722,7 @@ class CIMMessageParam
 		$arDefault = [
 			'TYPE' => '',
 			'COMPONENT_ID' => '',
+			'COMPONENT_PARAMS' => [],
 			'CODE' => '',
 			'FAVORITE' => [],
 			'LIKE' => [],
@@ -747,6 +748,7 @@ class CIMMessageParam
 			'IS_PINNED' => 'N',
 			'CLASS' => '',
 			'CALL_ID' => 0,
+			'FORWARD_ID' => 0,
 			'USER_ID' => '',
 			'NAME' => '',
 			'AVATAR' => '',
@@ -984,6 +986,10 @@ class CIMMessageParamAttach
 		if (isset($params['PREVIEW']) && preg_match('#^(?:/|https?://)#', $params['PREVIEW']))
 		{
 			$add['PREVIEW'] = $params['PREVIEW'];
+			$add['PREVIEW_SIZE'] = [
+				'HEIGHT' => $params['PREVIEW_SIZE']['HEIGHT'] ?? 0,
+				'WIDTH' => $params['PREVIEW_SIZE']['WIDTH'] ?? 0,
+			];
 		}
 		else if (isset($params['EXTRA_IMAGE']) && preg_match('#^(?:/|https?://)#', $params['EXTRA_IMAGE']))
 		{
@@ -1585,15 +1591,19 @@ class CIMMessageLink
 					$linkParam['IMAGE_ID'],
 					array('width' => 450, 'height' => 120),
 					BX_RESIZE_IMAGE_PROPORTIONAL,
-					false,
+					true,
 					false,
 					true
 				);
 				$linkParam['IMAGE_ID'] = empty($image['src'])? '': $image['src'];
+				$linkParam['IMAGE_SIZE']['HEIGHT'] = $image['height'] ?? 0;
+				$linkParam['IMAGE_SIZE']['WIDTH'] = $image['width'] ?? 0;
 			}
 			else if ($linkParam['IMAGE'] <> '')
 			{
 				$linkParam['IMAGE_ID'] = $linkParam['IMAGE'];
+				$linkParam['IMAGE_SIZE']['HEIGHT'] = $linkParam['EXTRA']['IMAGE_INFO']['HEIGHT'] ?? 0;
+				$linkParam['IMAGE_SIZE']['WIDTH'] = $linkParam['EXTRA']['IMAGE_INFO']['WIDTH'] ?? 0;
 			}
 			else if (!empty($linkParam['EXTRA']['IMAGES']))
 			{
@@ -1611,6 +1621,7 @@ class CIMMessageLink
 				"DESC" => $linkParam['DESCRIPTION'],
 				"LINK" => $linkParam['URL'],
 				"PREVIEW" => $linkParam['IMAGE_ID'],
+				"PREVIEW_SIZE" => $linkParam['IMAGE_SIZE'],
 				"EXTRA_IMAGE" => $extraImageLinkParam,
 			));
 		}

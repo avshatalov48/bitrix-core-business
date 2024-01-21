@@ -6,6 +6,7 @@ import { Quote } from 'im.v2.lib.quote';
 
 import './context-menu.css';
 
+import type { ImModelMessage } from 'im.v2.model';
 
 // @vue/component
 export const ContextMenu = {
@@ -29,6 +30,14 @@ export const ContextMenu = {
 				'IM_MESSENGER_MESSAGE_MENU_TITLE',
 				{ '#SHORTCUT#': Utils.platform.isMac() ? 'CMD' : 'CTRL' },
 			);
+		},
+		messageItem(): ImModelMessage
+		{
+			return this.message;
+		},
+		messageHasError(): boolean
+		{
+			return this.messageItem.error;
 		},
 	},
 	methods:
@@ -65,7 +74,7 @@ export const ContextMenu = {
 		},
 	},
 	template: `
-		<div class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
+		<div v-if="!messageHasError" class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
 			<button
 				:title="menuTitle"
 				@click="onMenuClick"

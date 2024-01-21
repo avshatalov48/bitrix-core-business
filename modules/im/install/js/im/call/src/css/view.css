@@ -699,6 +699,96 @@
 	background-size: 14px 14px;
 }
 
+.bx-messenger-videocall-user-debug-panel {
+	display: flex;
+	position: absolute;
+	height: 24px;
+	top: 8px;
+	left: 0;
+	z-index: 11;
+	margin: 0 8px;
+	gap: 5px;
+	transition: opacity .2s ease-out;
+}
+
+.bx-messenger-videocall-user-debug-panel.under-other-panels {
+	top: 48px;
+}
+
+.bx-messenger-videocall-user-debug-panel-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 30px;
+	width: 30px;
+	right: 8px;
+	opacity: 0.5;
+	border-radius: 50%;
+	overflow: hidden;
+}
+
+.bx-messenger-videocall-user-debug-panel-button:hover {
+	opacity: 1;
+}
+
+.bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-debug-panel-button.connection-stats {
+	display: none;
+}
+
+.bx-messenger-videocall-user-debug-panel-button-icon.connection-stats-icon {
+	display: inline-block;
+	width: 26px;
+	height: 26px;
+	background: url('./images/connection/stats-menu.png') no-repeat center center;
+	background-size: contain;
+}
+
+.bx-messenger-videocall-user-debug-panel-button.connection-problem {
+	display: none;
+}
+
+.bx-messenger-videocall-user-debug-panel-button.connection-problem-visible {
+	display: flex;
+	opacity: 1;
+}
+
+.bx-messenger-videocall-user-debug-panel-button-icon.connection-problem-icon {
+	display: inline-block;
+	width: 26px;
+	height: 26px;
+	background: url('./images/connection/network-problem.svg') no-repeat center center;
+	background-size: contain;
+}
+
+.bx-messenger-videocall-user-stats-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 11;
+	display: none;
+	max-width: 100%;
+	max-height: 100%;
+	overflow: auto;
+	padding: 40px 8px 8px;
+	background: rgba(0, 0, 0, 0.4);
+	box-sizing: border-box;
+	color: rgba(255, 255, 255, .89);
+	text-align: left;
+}
+
+.bx-messenger-videocall-user-stats-overlay.under-other-panels {
+	top: 40px;
+	max-height: calc(100% - 40px);
+}
+
+.bx-messenger-videocall-user-stats-overlay.stats-overlay-visble {
+	display: block;
+}
+
+.bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-stats-overlay {
+	display: none;
+}
+
 .bx-messenger-videocall-local-user-mobile .bx-messenger-videocall-user-bottom {
 	display: none;
 }
@@ -1454,6 +1544,10 @@
 	border-radius: 50%;
 	padding: 3px;
 	border: 3px solid rgba(151, 151, 151, .28);
+}
+
+.bx-messenger-videocall-central-user .bx-messenger-videocall-user-avatar-border{
+	top: 50%;
 }
 
 .bx-messenger-videocall-user-avatar {
@@ -3178,6 +3272,11 @@
 	border-right: 1px solid rgba(0, 0, 0, .03);
 	padding-right: 10px;
 	margin-right: 10px	;
+}
+
+.bx-call-view-device-selector-menu-container-blocked {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 .bx-call-view-device-selector-switch-wrapper{

@@ -1,9 +1,12 @@
 import {Type, Tag, Loc, Dom, bind, onCustomEvent} from 'main.core';
 import 'ui.design-tokens';
 
+import './css/style.css';
+
 export const SwitcherSize = Object.freeze({
 	medium: 'medium',
 	small: 'small',
+	extraSmall: 'extra-small',
 });
 
 export const SwitcherColor = Object.freeze({
@@ -25,6 +28,7 @@ export type SwitcherOptions = {
 
 export class Switcher {
 	#classNameSize = {
+		[SwitcherSize.extraSmall]: 'ui-switcher-size-xs',
 		[SwitcherSize.small]: 'ui-switcher-size-sm',
 		[SwitcherSize.medium]: '',
 	}

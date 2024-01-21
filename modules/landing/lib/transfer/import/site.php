@@ -175,7 +175,7 @@ class Site
 		// if only current step add page
 		$isPageStep = false;
 		// if replace landing, not import
-		$isReplaceLanding = $additional && (int)$additional['replaceLid'] > 0;
+		$isReplaceLanding = $additional && (int)($additional['replaceLid'] ?? 0) > 0;
 		if (isset($ratio[$code]['SITE_ID']) && (int)$ratio[$code]['SITE_ID'] > 0)
 		{
 			$isPageStep = true;
@@ -295,21 +295,24 @@ class Site
 	 */
 	protected static function prepareAdditionalFields(array $data, ?array $additional): array
 	{
-		if ($additional && $additional['theme'])
+		if ($additional)
 		{
-			$color = $additional['theme'];
-			if ($color[0] !== '#')
+			if (isset($additional['theme']) && $additional['theme'])
 			{
-				$color = '#' . $color;
+				$color = $additional['theme'];
+				if ($color[0] !== '#')
+				{
+					$color = '#' . $color;
+				}
+				$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
+				unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
+				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
 			}
-			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
-			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
-			$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
-		}
 
-		if ($additional && $additional['title'])
-		{
-			$data['TITLE'] = $additional['title'];
+			if (isset($additional['title']) && $additional['title'])
+			{
+				$data['TITLE'] = $additional['title'];
+			}
 		}
 
 		//default widget value
@@ -490,14 +493,14 @@ class Site
 			$specialPages = $ratio['LANDING']['SPECIAL_PAGES'];
 			$sysPages = $ratio['LANDING']['SYS_PAGES'];
 			$foldersNew = $ratio['LANDING']['FOLDERS_NEW'];
-			$additional = $event->getParameter('ADDITIONAL_OPTION');
+			$additional = $event->getParameter('ADDITIONAL_OPTION') ?? [];
 
 			// if import just page in existing site
 			$isPageImport = false;
-			$isReplaceLanding = (int)$additional['replaceLid'] > 0;
+			$isReplaceLanding = isset($additional['replaceLid']) && (int)$additional['replaceLid'] > 0;
 			if (
-				$additional
-				&& ((int)$additional['siteId'] > 0 || $isReplaceLanding)
+				(isset($additional['siteId']) && (int)$additional['siteId'] > 0)
+				|| $isReplaceLanding
 			)
 			{
 				$isPageImport = true;
@@ -725,7 +728,7 @@ class Site
 
 			if ($isReplaceLanding)
 			{
-				$linkAttrs['data-replace-lid'] .= (int)$additional['replaceLid'];
+				$linkAttrs['data-replace-lid'] = (int)$additional['replaceLid'];
 			}
 
 			$domList = [
@@ -748,12 +751,54 @@ class Site
 				];
 			}
 
+			$isNewAnalytic = false;
+			if (
+				!empty($additional)
+				&& array_key_exists('st_category', $additional)
+				&& array_key_exists('st_event', $additional)
+			)
+			{
+				$isNewAnalytic = true;
+
+				$analyticData = [
+					'category' => $additional['st_category'],
+					'event' => $additional['st_event'],
+				];
+				if (array_key_exists('st_section', $additional))
+				{
+					$analyticData['c_section'] = $additional['st_section'];
+				}
+				if (array_key_exists('st_element', $additional))
+				{
+					$analyticData['c_element'] = $additional['st_element'];
+				}
+				if (array_key_exists('app_code', $additional))
+				{
+					$analyticData['params'] = [
+						'appCode' => $additional['app_code'],
+					];
+				}
+
+				$script = "if (typeof BX.Landing.Metrika !== 'undefined') {";
+				$script  .= "const metrika = new BX.Landing.Metrika(true);";
+				$script  .= "metrika.sendData(" . \CUtil::PhpToJSObject($analyticData) . ")";
+				$script  .= "}";
+				$domList[] = [
+					'TAG' => 'script',
+					'DATA' => [
+						'html' => $script,
+					]
+				];
+			}
+
 			return [
 				'CREATE_DOM_LIST' => $domList,
 				'ADDITIONAL' => [
 					'id' => $siteId,
 					'publicUrl' => \Bitrix\Landing\Site::getPublicUrl($siteId),
-					'imageUrl' => Manager::getUrlFromFile(\Bitrix\Landing\Site::getPreview($siteId))
+					'imageUrl' => Manager::getUrlFromFile(\Bitrix\Landing\Site::getPreview($siteId)),
+					// tmp param - del when all analytic will be new
+					'isNewAnalytic' => $isNewAnalytic ? 'Y' : 'N',
 				]
 			];
 		}
@@ -763,14 +808,14 @@ class Site
 		return [];
 	}
 
-	protected static function setAdditionalPageFields($landingId, $additional)
+	protected static function setAdditionalPageFields($landingId, array $additional): void
 	{
 		$additionalFields = [];
 
 		// set Title and Description to mainpage
 		if (!empty($additional))
 		{
-			if ($additional['title'])
+			if (isset($additional['title']))
 			{
 				$additionalFields['METAMAIN_TITLE'] = $additional['title'];
 				$additionalFields['METAOG_TITLE'] = $additional['title'];
@@ -779,7 +824,7 @@ class Site
 					'TITLE' => $additional['title']
 				]);
 			}
-			if ($additional['description'])
+			if (isset($additional['description']))
 			{
 				$additionalFields['METAMAIN_DESCRIPTION'] = $additional['description'];
 				$additionalFields['METAOG_DESCRIPTION'] = $additional['description'];

@@ -14,6 +14,8 @@ $description = [
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_NAME'),
+	'DESCRIPTION' => Loc::getMessage('SALE_HPS_PAYPAL_DESCRIPTION'),
+	'PUBLIC_DESCRIPTION' => Loc::getMessage('SALE_HPS_PAYPAL_PUBLIC_DESCRIPTION'),
 	'SORT' => 1000,
 	'CODES' => [
 		'PAYPAL_USER'  => [

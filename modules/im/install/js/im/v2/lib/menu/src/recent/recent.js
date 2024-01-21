@@ -1,9 +1,10 @@
 import { MessengerSlider } from 'im.v2.lib.slider';
 import { Loc, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
 
 import { Core } from 'im.v2.application.core';
-import { ChatActionType, PathPlaceholder } from 'im.v2.const';
+import { ChatActionType, EventType, PathPlaceholder, SidebarDetailBlock } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { ChatService, RecentService } from 'im.v2.provider.service';
 import { Utils } from 'im.v2.lib.utils';
@@ -15,7 +16,7 @@ import { BaseMenu } from '../base/base';
 import { InviteManager } from './invite-manager';
 
 import type { MenuItem } from 'im.v2.lib.menu';
-import type { ImModelRecentItem } from 'im.v2.model';
+import type { ImModelRecentItem, ImModelUser } from 'im.v2.model';
 
 export class RecentMenu extends BaseMenu
 {
@@ -63,6 +64,7 @@ export class RecentMenu extends BaseMenu
 			this.getMuteItem(),
 			this.getCallItem(),
 			this.getOpenProfileItem(),
+			this.getChatsWithUserItem(),
 			this.getHideItem(),
 			this.getLeaveItem(),
 		];
@@ -105,7 +107,7 @@ export class RecentMenu extends BaseMenu
 
 	getUnreadMessageItem(): MenuItem
 	{
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+		const dialog = this.store.getters['chats/get'](this.context.dialogId, true);
 		const showReadOption = this.context.unread || dialog.counter > 0;
 
 		return {
@@ -152,7 +154,7 @@ export class RecentMenu extends BaseMenu
 			return null;
 		}
 
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+		const dialog = this.store.getters['chats/get'](this.context.dialogId, true);
 		const isMuted = dialog.muteList.includes(Core.getUserId());
 
 		return {
@@ -191,8 +193,7 @@ export class RecentMenu extends BaseMenu
 
 	getOpenProfileItem(): ?MenuItem
 	{
-		const isUser = this.store.getters['dialogues/isUser'](this.context.dialogId);
-		if (!isUser)
+		if (!this.isUser() || this.isBot())
 		{
 			return null;
 		}
@@ -242,6 +243,23 @@ export class RecentMenu extends BaseMenu
 				{
 					this.chatService.leaveChat(this.context.dialogId);
 				}
+			},
+		};
+	}
+
+	getChatsWithUserItem(): ?MenuItem
+	{
+		if (!this.isUser() || this.isBot())
+		{
+			return null;
+		}
+
+		return {
+			text: Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER'),
+			onclick: async () => {
+				await Messenger.openChat(this.context.dialogId);
+				EventEmitter.emit(EventType.sidebar.open, { detailBlock: SidebarDetailBlock.chatsWithUser });
+				this.menuInstance.close();
 			},
 		};
 	}
@@ -315,5 +333,22 @@ export class RecentMenu extends BaseMenu
 	getDelimiter(): Object
 	{
 		return { delimiter: true };
+	}
+
+	isUser(): boolean
+	{
+		return this.store.getters['chats/isUser'](this.context.dialogId);
+	}
+
+	isBot(): boolean
+	{
+		if (!this.isUser())
+		{
+			return false;
+		}
+
+		const user: ImModelUser = this.store.getters['users/get'](this.context.dialogId);
+
+		return user.bot === true;
 	}
 }

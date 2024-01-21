@@ -24,7 +24,7 @@ BX.ready( function(){
 <div class="blog-comments" id="blg-comment-<?=$arParams["ID"]?>">
 <a name="comments"></a>
 <?
-if($arResult["is_ajax_post"] != "Y")
+if(!isset($arResult["is_ajax_post"]) || $arResult["is_ajax_post"] != "Y")
 {
 	include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/script.php");
 	include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/scripts_for_editor.php");

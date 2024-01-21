@@ -753,7 +753,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 			$isConfirmed = $this->isSucceed($this->siteId, $this->ebaySettings);
 
 			return
-				self::getLampHtml($isConfirmed).' '.Loc::getMessage('SALE_EBAY_W_STEP_CONTACTS_DETAILS').' '.($isConfirmed ? Loc::getMessage('SALE_EBAY_W_STEP_CONFIRMED') : Loc::getMessage('SALE_EBAY_W_STEP_CONFIRMED')).'.'.
+				self::getLampHtml($isConfirmed).' '.Loc::getMessage('SALE_EBAY_W_STEP_CONTACTS_DETAILS').' '.($isConfirmed ? Loc::getMessage('SALE_EBAY_W_STEP_CONFIRMED') : Loc::getMessage('SALE_EBAY_W_STEP_NOT_CONFIRMED')).'.'.
 				'<br><br><hr><br>'.
 				Loc::getMessage('SALE_EBAY_W_STEP_CONFIRMED_DETAIL',array(
 					'#C1#' => '<a href="http://scgi.ebay.com/ws/eBayISAPI.dll?SellerSignin2&clientapptype=7" target="blank">',

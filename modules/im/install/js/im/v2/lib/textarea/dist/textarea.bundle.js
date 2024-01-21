@@ -2,8 +2,56 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports) {
+(function (exports,main_core,main_core_events) {
 	'use strict';
+
+	const EVENT_NAMESPACE = 'BX.Messenger.v2.Textarea.ResizeManager';
+	var _observer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observer");
+	var _textareaHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("textareaHeight");
+	var _initObserver = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initObserver");
+	class ResizeManager extends main_core_events.EventEmitter {
+	  constructor() {
+	    super();
+	    Object.defineProperty(this, _initObserver, {
+	      value: _initObserver2
+	    });
+	    Object.defineProperty(this, _observer, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _textareaHeight, {
+	      writable: true,
+	      value: void 0
+	    });
+	    this.setEventNamespace(EVENT_NAMESPACE);
+	    babelHelpers.classPrivateFieldLooseBase(this, _initObserver)[_initObserver]();
+	  }
+	  observeTextarea(element) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].observe(element);
+	    babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight] = element.clientHeight;
+	  }
+	  unobserveTextarea(element) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].unobserve(element);
+	    babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight] = 0;
+	  }
+	}
+	function _initObserver2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer] = new ResizeObserver(entries => {
+	    entries.forEach(entry => {
+	      var _entry$borderBoxSize;
+	      const height = (_entry$borderBoxSize = entry.borderBoxSize) == null ? void 0 : _entry$borderBoxSize[0].blockSize;
+	      if (main_core.Type.isNumber(height) && height !== babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight]) {
+	        this.emit(ResizeManager.events.onHeightChange, {
+	          newHeight: height
+	        });
+	        babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight] = height;
+	      }
+	    });
+	  });
+	}
+	ResizeManager.events = {
+	  onHeightChange: 'onHeightChange'
+	};
 
 	const TAB = '\t';
 	const NEW_LINE = '\n';
@@ -95,6 +143,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	exports.Textarea = Textarea;
+	exports.ResizeManager = ResizeManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {})));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event));
 //# sourceMappingURL=textarea.bundle.js.map

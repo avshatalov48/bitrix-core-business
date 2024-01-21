@@ -5,19 +5,26 @@ namespace Bitrix\Calendar\ICal;
 
 
 use Bitrix\Calendar\ICal\Basic\{AttachmentManager, Dictionary, ICalUtil};
+use Bitrix\Calendar\ICal\MailInvitation\Helper;
 use Bitrix\Mail\User;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Calendar\ICal\Builder\{Calendar, Event, StandardObservances, Timezone};
+use Bitrix\Calendar\ICal\Builder\
+{
+	AttendeesCollection,
+	Calendar,
+	Event,
+	StandardObservances,
+	Timezone};
 use Bitrix\Calendar\Util;
 
 class OutcomingAttachmentManager extends AttachmentManager
 {
-	private $event = [];
-	private $attendees = [];
-	private $attachment = '';
-	private $method = '';
-	private $uid = '';
+	private ?array $event = [];
+	private ?AttendeesCollection $attendees;
+	private ?string $attachment = '';
+	private ?string $method = '';
+	private ?string $uid = '';
 
 	public function __construct($data, $attendees, $method)
 	{
@@ -31,17 +38,17 @@ class OutcomingAttachmentManager extends AttachmentManager
 		$event = $this->prepareRequestEvent();
 		$this->uid = isset($event['DAV_XML_ID']) ? $event['DAV_XML_ID'] : ICalUtil::getUniqId();
 
-		$this->attachment = Calendar::getInstance()
+		$this->attachment = Calendar::createInstance()
 			->setMethod(Dictionary::METHODS[$this->method])
-			->setTimezones(Timezone::getInstance()
+			->setTimezones(Timezone::createInstance()
 				->setTimezoneId($event['TZ_FROM'])
-				->setObservance(StandardObservances::getInstance()
+				->setObservance(StandardObservances::createInstance()
 					->setOffsetFrom($event['TZ_FROM'])
 					->setOffsetTo($event['TZ_TO'])
 					->setDTStart()
 				)
 			)
-			->setEvent(Event::getInstance($this->uid)
+			->addEvent(Event::createInstance($this->uid)
 				->setName($event['NAME'])
 				->setAttendees($this->attendees)
 				->setStartsAt(Util::getDateObject($event['DATE_FROM'], $event['SKIP_TIME'], $event['TZ_FROM']))
@@ -55,7 +62,7 @@ class OutcomingAttachmentManager extends AttachmentManager
 				->setDescription($event['DESCRIPTION'])
 				->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']])
 				->setRRule($event['RRULE'])
-				->setExdates($event['EXDATE'], $event['TZ_FROM'])
+				->setExdates($event['EXDATE'])
 				->setLocation($event['TEXT_LOCATION'])
 				->setSequence((int)$event['VERSION'])
 				->setStatus(Dictionary::INVITATION_STATUS['confirmed'])
@@ -80,24 +87,29 @@ class OutcomingAttachmentManager extends AttachmentManager
 		$event = $this->event;
 		$this->uid = $event['DAV_XML_ID'];
 
-		$this->attachment = Calendar::getInstance()
+		$this->attachment = Calendar::createInstance()
 			->setMethod(Dictionary::METHODS[$this->method])
-			->setEvent(Event::getInstance($event['DAV_XML_ID'])
+			->addEvent(Event::createInstance($event['DAV_XML_ID'])
 				->setName($event['NAME'])
-				->setAttendees([$this->attendees[$event['OWNER_ID']]])
+				->setAttendees($this->attendees)
 				->setStartsAt(Util::getDateObject($event['DATE_FROM'], $event['SKIP_TIME'], $event['TZ_FROM']))
-				->setEndsAt(Util::getDateObject($event['DATE_TO'], $event['SKIP_TIME'], $event['TZ_TO']))
-				->setCreatedAt(Util::getDateObject($event['DATE_CREATE'], false, $event['TZ_FROM']))
-				->setDtStamp(ICalUtil::getIcalDateTime())
-				->setModified(ICalUtil::getIcalDateTime())
+				->setEndsAt($this->getEndDate($event))
+				// ->setCreatedAt(Util::getDateObject($event['DATE_CREATE'], false, $event['TZ_FROM']))
+				// ->setDtStamp(Helper::getIcalDateTime())
+				->setDtStamp(Helper::getIcalDateTime('20230828T200641Z'))
+				->setCreatedAt(Helper::getIcalDateTime('20230828T200631Z'))
+				// ->setModified(Helper::getIcalDateTime())
+				->setModified(Helper::getIcalDateTime('20230828T200639Z'))
 				->setWithTimezone(!$event['SKIP_TIME'])
 				->setWithTime(!$event['SKIP_TIME'])
-				->setOrganizer($event['ORGANIZER_MAIL'], $event['ORGANIZER_MAIL']['MAILTO'])
-				->setDescription($event['DESCRIPTION'])
-				->setTransparent($event['ACCESSIBILITY'])
+				->setOrganizer(
+					$event['ICAL_ORGANIZER'],
+						$event['ORGANIZER_MAIL']['MAILTO'] ?? $event['ORGANIZER_MAIL']['EMAIL']
+				)
+				->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']])
 //				->setRRule($event['RRULE'])
-				->setLocation($event['TEXT_LOCATION'])
-				->setSequence((int)$event['VERSION'])
+// 				->setLocation($event['TEXT_LOCATION'])
+				->setSequence(((int)$event['VERSION']))
 				->setStatus(Dictionary::INVITATION_STATUS['confirmed'])
 				->setUrl($event['URL'])
 			)
@@ -111,15 +123,15 @@ class OutcomingAttachmentManager extends AttachmentManager
 		$event = $this->event;
 		$fullDay = $event['DT_SKIP_TIME'] === 'Y';
 
-		$this->attachment = Calendar::getInstance()
+		$this->attachment = Calendar::createInstance()
 			->setMethod(Dictionary::METHODS[$this->method])
-			->setEvent(Event::getInstance($event['DAV_XML_ID'])
+			->addEvent(Event::createInstance($event['DAV_XML_ID'])
 				->setName($event['NAME'])
 				->setAttendees($this->attendees)
 				->setStartsAt(Util::getDateObject($event['DATE_FROM'], $fullDay, $event['TZ_FROM']))
 				->setEndsAt(Util::getDateObject($event['DATE_TO'], $fullDay, $event['TZ_TO']))
 				->setCreatedAt(Util::getDateObject($event['DATE_CREATE'], false, $event['TZ_FROM']))
-				->setDtStamp(ICalUtil::getIcalDateTime())
+				->setDtStamp(Helper::getIcalDateTime())
 				->setModified(Util::getDateObject($event['TIMESTAMP_X'], false, $event['TZ_FROM']))
 				->setWithTimezone(!$fullDay)
 				->setWithTime(!$fullDay)
@@ -140,7 +152,7 @@ class OutcomingAttachmentManager extends AttachmentManager
 	{
 		if (Loader::includeModule('mail'))
 		{
-			list($replyTo, $backUrl) = User::getReplyTo(
+			[$replyTo, $backUrl] = User::getReplyTo(
 				SITE_ID,
 				$this->event['OWNER_ID'],
 				'ICAL_INVENT',
@@ -172,5 +184,17 @@ class OutcomingAttachmentManager extends AttachmentManager
 		}
 
 		return $event;
+	}
+
+	private function getEndDate($event)
+	{
+		if ($event['SKIP_TIME'])
+		{
+			return (Util::getDateObject($event['DATE_TO']))->add('1 days');
+		}
+		else
+		{
+			return Util::getDateObject($event['DATE_TO'], false, $event['TZ_TO']);
+		}
 	}
 }

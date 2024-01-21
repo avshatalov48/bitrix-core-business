@@ -336,7 +336,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const {
 	      type
 	    } = itemOptions.dialog;
-	    if (type === im_v2_const.DialogType.user) {
+	    if (type === im_v2_const.ChatType.user) {
 	      this.entityType = itemOptions.user.extranet ? 'extranet' : 'employee';
 	    } else {
 	      this.entityType = type;
@@ -571,7 +571,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return {
 	    id: 'im-bot',
 	    options: {
-	      searchableBotTypes: ['H', 'B', 'S', 'N'],
+	      searchableBotTypes: ['H', 'B', 'S'],
 	      fillDialogWithDefaultValues: false
 	    },
 	    dynamicLoad: true,
@@ -733,10 +733,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 	function _addDialoguesToModel2(dialogues) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('dialogues/add', dialogues);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('chats/add', dialogues);
 	}
 	function _setDialoguesToModel2(dialogues) {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('dialogues/set', dialogues);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _store$1)[_store$1].dispatch('chats/set', dialogues);
 	}
 	function _removeActivityData2(users) {
 	  return users.map(user => {
@@ -932,7 +932,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  load() {
 	    const recentUsers = [];
 	    babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['recent/getSortedCollection'].forEach(recentItem => {
-	      const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['dialogues/get'](recentItem.dialogId, true);
+	      const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['chats/get'](recentItem.dialogId, true);
 	      const user = babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['users/get'](recentItem.dialogId, true);
 	      recentUsers.push({
 	        dialogId: recentItem.dialogId,
@@ -971,8 +971,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getRecentListItems() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['recent/getSortedCollection'].map(item => {
-	      const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['dialogues/get'](item.dialogId, true);
-	      const isUser = dialog.type === im_v2_const.DialogType.user;
+	      const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$3)[_store$3].getters['chats/get'](item.dialogId, true);
+	      const isUser = dialog.type === im_v2_const.ChatType.user;
 	      const recentListItem = {
 	        dialogId: item.dialogId,
 	        dialog
@@ -1041,19 +1041,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  constructor(currentUserId) {
 	    /** @type {Dexie} */
 	    this.db = new ui_dexie.Dexie('bx-im-search-results');
-	    this.db.version(2).stores({
-	      items: 'id, *title, *name, *lastName, *secondName, *position, date',
+	    this.db.version(6).stores({
+	      items: 'id, *title, *name, *lastName, *position, date',
 	      recentItems: '++id, cacheId, date',
 	      settings: '&name'
 	    }).upgrade(transaction => {
 	      const clearItemsPromise = transaction.table('items').clear();
 	      const clearRecentItemsPromise = transaction.table('recentItems').clear();
 	      return ui_dexie.Dexie.Promise.all([clearItemsPromise, clearRecentItemsPromise]);
-	    });
-	    this.db.version(3).stores({
-	      items: 'id, *title, *name, *lastName, *position, date',
-	      recentItems: '++id, cacheId, date',
-	      settings: '&name'
 	    });
 	    this.checkTables(currentUserId);
 	    this.onAccessDeniedHandler = this.onAccessDenied.bind(this);
@@ -2006,21 +2001,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    isChat() {
 	      return !this.isUser;
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    userItemText() {
 	      if (!this.isUser) {
 	        return '';
-	      }
-	      const status = this.$store.getters['users/getLastOnline'](this.dialogId);
-	      if (status) {
-	        return status;
 	      }
 	      return this.$store.getters['users/getPosition'](this.dialogId);
 	    },
@@ -2627,7 +2618,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 						<div class="bx-im-search-result__network-button-container">
 							<MessengerButton
 								v-if="!isNetworkButtonClicked"
-								:text="$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON')"
+								:text="$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON_MSGVER_1')"
 								:color="ButtonColor.Primary"
 								:size="ButtonSize.L"
 								:isLoading="isNetworkLoading"

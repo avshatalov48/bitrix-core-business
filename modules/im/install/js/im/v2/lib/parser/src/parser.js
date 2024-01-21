@@ -14,6 +14,7 @@ import { ParserCommon } from './functions/common';
 import { ParserIcon } from './functions/icon';
 import { ParserDisk } from './functions/disk';
 import { ParserRecursionPrevention } from './utils/recursion-prevention';
+import { ParserUtils } from './utils/utils';
 
 import { getCore, getLogger } from './utils/core-proxy';
 
@@ -45,7 +46,7 @@ export const Parser = {
 	{
 		return this.decode({
 			text: notification.text,
-			attach: notification.params.ATTACH ?? false,
+			attach: notification.params.attach ?? false,
 			replaces: notification.replaces,
 			showIconIfEmptyText: false,
 			showImageFromLink: false,
@@ -180,7 +181,7 @@ export const Parser = {
 
 		return this.purify({
 			text: notification.text,
-			attach: notification.params.ATTACH ?? false,
+			attach: notification.params.attach ?? false,
 			files: messageFiles,
 		});
 	},
@@ -281,7 +282,10 @@ export const Parser = {
 		text = ParserQuote.purifyCode(text, ' ');
 		text = ParserQuote.purifyQuote(text, ' ');
 		text = ParserQuote.purifyArrowQuote(text, ' ');
-		text = ParserIcon.addIconToShortText({ text, attach, files });
+		if (quoteText === '')
+		{
+			text = ParserIcon.addIconToShortText({ text, attach, files });
+		}
 
 		text = text.length > 0 ? Text.decode(text) : Loc.getMessage('IM_PARSER_MESSAGE_DELETED');
 
@@ -298,6 +302,15 @@ export const Parser = {
 	},
 
 	prepareCopy(message: ImModelMessage): string
+	{
+		let { text } = message;
+
+		text = ParserUrl.removeSimpleUrlTag(text);
+
+		return text.trim();
+	},
+
+	prepareCopyFile(message: ImModelMessage): string
 	{
 		const { id } = message;
 
@@ -343,5 +356,11 @@ export const Parser = {
 	{
 		ParserMention.executeClickEvent(event);
 		ParserQuote.executeClickEvent(event);
+		ParserAction.executeClickEvent(event);
+	},
+
+	getContextCodeFromForwardId(forwardId: string): string
+	{
+		return ParserUtils.getFinalContextTag(forwardId);
 	},
 };

@@ -4,32 +4,17 @@ namespace Bitrix\Socialnetwork\Integration\AI;
 
 use Bitrix\AI\Context;
 use Bitrix\AI\Engine;
+use Bitrix\Forum\MessageTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Integration\AI\User\Author;
 
 final class Controller
 {
 	private static array $listMessages = [];
-
-	const TEXT_CATEGORY = 'text';
-	const IMAGE_CATEGORY = 'image';
-
-	public static function isAvailable(string $category, string $contextId = ''): bool
-	{
-		if (!Loader::includeModule('ai'))
-		{
-			return false;
-		}
-
-		$engine = Engine::getByCategory($category, new Context('socialnetwork', $contextId));
-		if (is_null($engine))
-		{
-			return false;
-		}
-
-		return Option::get('socialnetwork', 'ai_base_enabled', 'N') === 'Y';
-	}
+	private static int $blogAuthorId = 0;
+	private const LIMIT = 20;
 
 	public static function onContextGetMessages(Event $event): array
 	{
@@ -57,26 +42,29 @@ final class Controller
 				return ['messages' => self::$listMessages[$xmlId]];
 			}
 
-			if (str_starts_with($xmlId, 'BLOG_'))
+			if (str_starts_with($xmlId, 'BLOG_') && Loader::includeModule('blog'))
 			{
-				$blogId = (int) mb_substr($xmlId, 5);
-				$postMessages = self::getPostContext($blogId);
+				$postId = (int) mb_substr($xmlId, 5);
+				$postMessages = self::getPostContext($postId);
 				foreach ($postMessages as $postMessage)
 				{
 					$messages[] = ['content' => $postMessage];
 				}
 			}
-			else if (str_starts_with($xmlId, 'TASK_') && Loader::includeModule('tasks'))
+			else if (
+				str_starts_with($xmlId, 'TASK_')
+				&& Loader::includeModule('tasks')
+				&& Loader::includeModule('forum')
+			)
 			{
-				$taskId = (int) mb_substr($xmlId, 5);
-				$postMessages = self::getTaskContext($taskId);
+				$postMessages = self::getTaskContext($xmlId);
 				foreach ($postMessages as $postMessage)
 				{
 					$messages[] = ['content' => $postMessage];
 				}
 			}
 
-			$messages[0]['is_original_message'] = true;
+			$messages[0] = self::modifyOriginalMessage($messages[0] ?? []);
 
 			if ($messages)
 			{
@@ -89,31 +77,20 @@ final class Controller
 		return ['messages' => []];
 	}
 
-	private static function getPostContext(int $blogId): array
+	private static function getPostContext(int $postId): array
 	{
 		$messages = [];
 
-		$provider = new \Bitrix\Socialnetwork\Livefeed\BlogPost();
-
 		$textParser = new \CTextParser();
 
-		$queryPostObject = \CSocNetLog::getList(
-			[],
-			[
-				'EVENT_ID' => $provider->getEventId(),
-				'SOURCE_ID' => $blogId,
-			],
-			false,
-			false,
-			['ID', 'TEXT_MESSAGE'],
-		);
-		if ($logData = $queryPostObject->fetch())
+		$post = \CBlogPost::getByID($postId);
+		if ($post)
 		{
-			$logId = (int) $logData['ID'];
+			self::setBlogAuthorId((int)$post['AUTHOR_ID']);
 
-			$messages[] = $textParser->clearAllTags($logData['TEXT_MESSAGE']);
+			$messages[] = $textParser->clearAllTags($post['DETAIL_TEXT']);
 
-			$comments = self::getLastComments($logId);
+			$comments = self::getLastComments($postId);
 
 			$messages = array_merge($messages, $comments);
 		}
@@ -121,13 +98,16 @@ final class Controller
 		return $messages;
 	}
 
-	private static function getTaskContext(int $taskId): array
+	private static function getTaskContext(string $xmlId): array
 	{
+		$taskId = (int) mb_substr($xmlId, 5);
+
 		$textParser = new \CTextParser();
 
 		$messages = [];
 
 		$task = \Bitrix\Tasks\Internals\Registry\TaskRegistry::getInstance()->getObject($taskId);
+		self::setBlogAuthorId($task->getCreatedBy());
 		$messages[] = $textParser->clearAllTags($task->getDescription());
 
 		$liveFeedEntity = \Bitrix\Socialnetwork\Livefeed\Provider::init([
@@ -139,7 +119,7 @@ final class Controller
 			$logId = (int) $liveFeedEntity->getLogId();
 			if ($logId)
 			{
-				$comments = self::getLastComments($logId);
+				$comments = self::getForumComments($xmlId);
 
 				$messages = array_merge($messages, array_reverse($comments));
 			}
@@ -148,27 +128,72 @@ final class Controller
 		return $messages;
 	}
 
-	private static function getLastComments(int $logId, int $limit = 10): array
+	private static function getForumComments(string $xmlId): array
 	{
 		$textParser = new \CTextParser();
 
 		$comments = [];
 
-		$queryCommentObject = \CSocNetLogComments::getList(
-			['ID' => 'DESC'],
-			[
-				'LOG_ID' => $logId,
-				'!=MESSAGE' => \Bitrix\Socialnetwork\CommentAux\TaskInfo::POST_TEXT,
-			],
-			false,
-			['nTopCount' => $limit],
-			['TEXT_MESSAGE']
-		);
-		while ($logCommentData = $queryCommentObject->fetch())
+		$query = MessageTable::query();
+		$query
+			->setSelect(['ID', 'POST_MESSAGE'])
+			->where('XML_ID', $xmlId)
+			->whereNull('SERVICE_TYPE')
+			->whereNull('PARAM1')
+			->setOrder(['POST_DATE' => 'desc'])
+			->setLimit(self::LIMIT);
+
+		$postMessages = $query->exec()->fetchCollection();
+		foreach ($postMessages as $postMessage)
 		{
-			$comments[] = $textParser->clearAllTags($logCommentData['TEXT_MESSAGE']);
+			$comments[] = $textParser->clearAllTags($postMessage->getPostMessage());
 		}
 
 		return $comments;
+	}
+
+	private static function getLastComments(int $postId): array
+	{
+		$textParser = new \CTextParser();
+
+		$comments = [];
+
+		$queryCommentObject = \CBlogComment::getList(
+			['ID' => 'DESC'],
+			[
+				'PUBLISH_STATUS' => BLOG_PUBLISH_STATUS_PUBLISH,
+				'POST_ID' => $postId,
+				'!=POST_TEXT' => \Bitrix\Socialnetwork\CommentAux\TaskInfo::POST_TEXT,
+			],
+			false,
+			[
+				'nTopCount' => self::LIMIT
+			],
+			['POST_TEXT']
+		);
+		while ($commentData = $queryCommentObject->fetch())
+		{
+			$comments[] = $textParser->clearAllTags($commentData['POST_TEXT']);
+		}
+
+		return $comments;
+	}
+
+	private static function modifyOriginalMessage(array $message): array
+	{
+		$message['is_original_message'] = true;
+
+		if (self::$blogAuthorId)
+		{
+			$author = new Author(self::$blogAuthorId);
+			$message['meta'] = $author->toMeta();
+		}
+
+		return $message;
+	}
+
+	private static function setBlogAuthorId(int $userId): void
+	{
+		self::$blogAuthorId = $userId;
 	}
 }

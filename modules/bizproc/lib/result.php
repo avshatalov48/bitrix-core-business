@@ -9,7 +9,7 @@ class Result extends \Bitrix\Main\Result
 		return static::createError(Error::fromCode($code, $customData));
 	}
 
-	public static function createError(Error $error): self
+	public static function createError(Error $error): static
 	{
 		$res = new static();
 		$res->addError($error);
@@ -17,7 +17,7 @@ class Result extends \Bitrix\Main\Result
 		return $res;
 	}
 
-	public static function createOk(?array $data = null): self
+	public static function createOk(?array $data = null): static
 	{
 		$res = new static();
 
@@ -37,5 +37,13 @@ class Result extends \Bitrix\Main\Result
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @return \Bitrix\Bizproc\Error[]
+	 */
+	public function getErrors(): array
+	{
+		return $this->errors->toArray();
 	}
 }

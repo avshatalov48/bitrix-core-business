@@ -51,7 +51,12 @@ abstract class AbstractEntity
 
 	abstract public function getName($currentUserId);
 
-	abstract public function onUserAdd($userId);
+	// todo: remove when the calls are supported in the mobile
+	abstract public function onCallCreate(): bool;
+
+	abstract public function onUserAdd($userId): bool;
+
+	abstract public function onExistingUserInvite($userId): bool;
 
 	abstract public function onStateChange($state, $prevState);
 

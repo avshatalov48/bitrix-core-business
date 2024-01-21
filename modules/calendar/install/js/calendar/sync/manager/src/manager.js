@@ -18,11 +18,12 @@ import {Util} from "calendar.util";
 import { Runtime } from 'main.core';
 
 type ManagerOptions = {
+	calendar: any,
 	wrapper: string,
-	syncInfo: Array,
+	syncInfo: any,
 	userId: number,
-	syncLinks: Array,
-	section: Array,
+	syncLinks: any,
+	sections: any,
 	portalAddress: string,
 	isRuZone: boolean,
 	calendarInstance: window.BXEventCalendar.Core,
@@ -44,7 +45,7 @@ export default class Manager extends EventEmitter
 	REFRESH_CONTENT_DELAY = 300;
 	WIZARD_SLIDER_PREFIX = 'calendar:sync-wizard';
 
-	constructor(options)
+	constructor(options: ManagerOptions)
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.Sync.Manager.Manager');
@@ -138,8 +139,8 @@ export default class Manager extends EventEmitter
 
 		this.connectionsProviders = {
 			google: this.getGoogleProvider(),
-			office365: this.getOffice365Provider(),
 			icloud: this.getIcloudProvider(),
+			office365: this.getOffice365Provider(),
 			caldav: this.getCaldavProvider(caldavConnections),
 			iphone: this.getIphoneProvider(),
 			android: this.getAndroidProvider(),

@@ -27,7 +27,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _chatType, {
 	      writable: true,
-	      value: im_v2_const.DialogType.chat
+	      value: im_v2_const.ChatType.chat
 	    });
 	    Object.defineProperty(this, _chatTitle, {
 	      writable: true,

@@ -1,7 +1,6 @@
-<?
+<?php
 
 namespace Bitrix\Main\Grid;
-
 
 use Bitrix\Main\Application;
 
@@ -60,7 +59,7 @@ class Options extends \CGridOptions
 
 	/**
 	 * Sets width of grid columns
-	 * @param number $expand
+	 * @param number | null $expand
 	 * @param array $sizes
 	 */
 	public function setColumnsSizes($expand, $sizes)
@@ -115,7 +114,7 @@ class Options extends \CGridOptions
 
 	/**
 	 * Sets ids of expanded rows
-	 * @param array [$ids = array()]
+	 * @param array $ids
 	 */
 	public function setExpandedRows($ids = array())
 	{
@@ -211,7 +210,7 @@ class Options extends \CGridOptions
 
 	/**
 	 * Gets current grid sorting
-	 * @param array [$default = array()] - Default value
+	 * @param array $default - Default value
 	 * @return array
 	 */
 	public function getSorting($default = array())

@@ -52,8 +52,9 @@ class UrlRewriter
 		]);
 		$event->send();
 
-		IO\File::putFileContents($docRoot."/urlrewrite.php", "<"."?php\n\$arUrlRewrite=".$data.";\n");
-		Application::resetAccelerator();
+		$filename = $docRoot . "/urlrewrite.php";
+		IO\File::putFileContents($filename, "<"."?php\n\$arUrlRewrite=".$data.";\n");
+		Application::resetAccelerator($filename);
 	}
 
 	public static function getList($siteId, $arFilter = array(), $arOrder = array())
@@ -203,7 +204,6 @@ class UrlRewriter
 		uasort($arUrlRewrite, array('\Bitrix\Main\UrlRewriter', "recordsCompare"));
 
 		static::saveRules($siteId, $arUrlRewrite);
-		Application::resetAccelerator();
 	}
 
 	public static function delete($siteId, $arFilter)
@@ -220,7 +220,6 @@ class UrlRewriter
 		uasort($arUrlRewrite, array('\Bitrix\Main\UrlRewriter', "recordsCompare"));
 
 		static::saveRules($siteId, $arUrlRewrite);
-		Application::resetAccelerator();
 	}
 
 	public static function reindexAll($maxExecutionTime = 0, $ns = array())
@@ -399,7 +398,7 @@ class UrlRewriter
 				}
 
 				if ($maxExecutionTime > 0
-					&& (getmicrotime() - START_EXEC_TIME > $maxExecutionTime))
+					&& (microtime(true) - START_EXEC_TIME > $maxExecutionTime))
 				{
 					$ns["FLG"] = "Y";
 					$ns["ID"] = $child->getPath();

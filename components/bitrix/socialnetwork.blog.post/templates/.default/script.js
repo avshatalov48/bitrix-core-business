@@ -253,6 +253,9 @@ function __blogPostSetFollow(log_id)
 			return false;
 		}
 
+		const context = params.context ? params.context : '';
+		const sonetGroupId = params.sonetGroupId ? parseInt(params.sonetGroupId, 10) : 0;
+
 		BX.PopupMenu.destroy('blog-post-' + postId);
 
 		var isPublicPage = menuNode.getAttribute('data-bx-public-page');
@@ -445,7 +448,13 @@ function __blogPostSetFollow(log_id)
 				var editParams = {
 					text: BX.message('BLOG_BLOG_BLOG_EDIT'),
 				};
-				if (BX.type.isNotEmptyString(postData.backgroundCode))
+				if (context === 'spaces')
+				{
+					editParams.onclick = function() {
+						BX.Livefeed.Post.editSpacesPost(postId, sonetGroupId);
+					};
+				}
+				else if (BX.type.isNotEmptyString(postData.backgroundCode))
 				{
 					editParams.onclick = function() {
 						BX.Livefeed.Post.showBackgroundWarning({

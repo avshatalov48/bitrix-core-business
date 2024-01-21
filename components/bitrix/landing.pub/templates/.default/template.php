@@ -31,6 +31,15 @@ if (isset($arResult['LANDING']))
 	);
 }
 
+// Tool availability (by intranet settings) - only kb
+if ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP')
+{
+	if (!$component->isToolAvailable())
+	{
+		echo $component->getToolUnavailableInfoScript();
+	}
+}
+
 Manager::setPageTitle(
 	Loc::getMessage('LANDING_TPL_TITLE')
 );

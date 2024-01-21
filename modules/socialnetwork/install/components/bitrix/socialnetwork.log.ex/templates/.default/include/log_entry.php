@@ -17,6 +17,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 $component = $this->getComponent();
 
+$ind = $ind ?? null;
+$is_unread = $is_unread ?? null;
+
 $arComponentParams = array_merge($arParams, [
 	"LOG_ID" => $arEvent["ID"],
 	"LAST_LOG_TS" => (

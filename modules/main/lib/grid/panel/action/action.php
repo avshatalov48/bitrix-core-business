@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\Grid\Panel\Action;
 
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Result;
 
@@ -27,10 +28,11 @@ interface Action
 	 *
 	 * @param HttpRequest $request
 	 * @param bool $isSelectedAllRows
+	 * @param Filter|null $filter if is selected all rows, MUST BE to use a filter to get a list of items.
 	 *
 	 * @return Result|null `null` is returned if the action does not have a handler, or the action cannot return the result object.
 	 */
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result;
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter): ?Result;
 
 	/**
 	 * Panel control.

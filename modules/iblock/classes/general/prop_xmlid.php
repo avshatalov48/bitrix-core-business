@@ -1,27 +1,27 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 class CIBlockPropertyXmlID
 {
-	const USER_TYPE = 'ElementXmlID';
+	/** @deprecated  */
+	const USER_TYPE = Iblock\PropertyTable::USER_TYPE_XML_ID;
 
 	public static function GetUserTypeDescription()
 	{
-		return array(
-			"PROPERTY_TYPE" => Iblock\PropertyTable::TYPE_STRING,
-			"USER_TYPE" => self::USER_TYPE,
-			"DESCRIPTION" => Loc::getMessage("IBLOCK_PROP_XMLID_DESC"),
-			"GetPublicViewHTML" => array(__CLASS__, "GetPublicViewHTML"),
-			"GetAdminListViewHTML" => array(__CLASS__, "GetAdminListViewHTML"),
-			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
-			"GetSettingsHTML" => array(__CLASS__, "GetSettingsHTML"),
-			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
-			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
-			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
-		);
+		return [
+			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_STRING,
+			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_XML_ID,
+			'DESCRIPTION' => Loc::getMessage('IBLOCK_PROP_XMLID_DESC'),
+			'GetPublicViewHTML' => [__CLASS__, 'GetPublicViewHTML'],
+			'GetAdminListViewHTML' => [__CLASS__, 'GetAdminListViewHTML'],
+			'GetPropertyFieldHtml' => [__CLASS__, 'GetPropertyFieldHtml'],
+			'GetSettingsHTML' => [__CLASS__, 'GetSettingsHTML'],
+			'GetUIEntityEditorProperty' => [__CLASS__, 'GetUIEntityEditorProperty'],
+			'GetUIEntityEditorPropertyEditHtml' => [__CLASS__, 'GetUIEntityEditorPropertyEditHtml'],
+			'GetUIEntityEditorPropertyViewHtml' => [__CLASS__, 'GetUIEntityEditorPropertyViewHtml'],
+		];
 	}
 
 	public static function GetPublicViewHTML($arProperty, $value, $strHTMLControlName)
@@ -180,7 +180,7 @@ class CIBlockPropertyXmlID
 			$element = self::getElementByXmlId($value);
 			if ($element)
 			{
-				$preselectedItems[] = ['iblock-element-xml', (string)$element['ID']];
+				$preselectedItems[] = ['iblock-property-element-xml', (string)$element['ID']];
 			}
 		}
 
@@ -191,7 +191,7 @@ class CIBlockPropertyXmlID
 			'ENTER_QUERY' => Loc::getMessage('BT_UT_XML_ID_SEARCH_ENTER_QUERY'),
 			'ENTER_QUERY_SUBTITLE' => Loc::getMessage('BT_UT_XML_ID_SEARCH_ENTER_QUERY_SUBTITLE'),
 		];
-		$propertyType = self::USER_TYPE;
+		$propertyType = Iblock\PropertyTable::USER_TYPE_XML_ID;
 
 		return <<<HTML
 			<div id="{$containerId}" name="{$containerId}"></div>
@@ -209,7 +209,7 @@ class CIBlockPropertyXmlID
 							preselectedItems: {$preselectedItems},
 							entities: [
 								{
-									id: 'iblock-element-xml',
+									id: 'iblock-property-element-xml',
 									dynamicLoad: true,
 									dynamicSearch: true,
 									options: {
@@ -317,12 +317,12 @@ HTML;
 	 * @param string $xmlId
 	 * @return array|false
 	 */
-	private static function getElementByXmlId(string $xmlId)
+	private static function getElementByXmlId(string $xmlId): bool|array
 	{
 		$filter = [
 			'CHECK_PERMISSIONS' => 'Y',
 			'MIN_PERMISSION' => 'R',
-			'XML_ID' => $xmlId,
+			'=XML_ID' => $xmlId,
 			'ACTIVE' => 'Y',
 		];
 

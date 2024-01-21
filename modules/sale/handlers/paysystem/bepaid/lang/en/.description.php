@@ -1,8 +1,10 @@
-<?
+<?php
 $MESS["SALE_HPS_BEPAID"] = "BePaid";
 $MESS["SALE_HPS_BEPAID_CANCEL_URL"] = "Redirect customer to this URL when the transaction is canceled";
 $MESS["SALE_HPS_BEPAID_CANCEL_URL_DESC"] = "Leave empty to auto redirect the customer to a page they were seeing before payment";
 $MESS["SALE_HPS_BEPAID_CHANGE_STATUS_PAY"] = "Auto change order status to paid when payment success status is received";
+$MESS["SALE_HPS_BEPAID_CHECKOUT_MODE"] = "Use the bePaid payment page for secure banking card processing in real time";
+$MESS["SALE_HPS_BEPAID_CHECKOUT_MODE_DESCRIPTION"] = "Use the bePaid payment page for secure banking card processing in real time";
 $MESS["SALE_HPS_BEPAID_DECLINE_URL"] = "Redirect customer to this URL when a bank declines the transaction";
 $MESS["SALE_HPS_BEPAID_DECLINE_URL_DESC"] = "Leave empty to auto redirect the customer to a page they were seeing before payment";
 $MESS["SALE_HPS_BEPAID_FAIL_URL"] = "Redirect customer to this URL upon failed transaction";
@@ -16,4 +18,5 @@ $MESS["SALE_HPS_BEPAID_PAYMENT_DESCRIPTION_TEMPLATE"] = "Payment ##PAYMENT_NUMBE
 $MESS["SALE_HPS_BEPAID_SECRET_KEY"] = "Store secret key";
 $MESS["SALE_HPS_BEPAID_SUCCESS_URL"] = "Redirect customer to this URL upon successful transaction";
 $MESS["SALE_HPS_BEPAID_SUCCESS_URL_DESC"] = "Leave empty to auto redirect the customer to a page they were seeing before payment";
-?>
+$MESS["SALE_HPS_BEPAID_WIDGET_MODE"] = "Widget ";
+$MESS["SALE_HPS_BEPAID_WIDGET_MODE_DESCRIPTION"] = "Use the bePaid widget to accept payments without redirecting a customer to a dedicated payment page";

@@ -18,7 +18,9 @@ class CatalogReportStoreSaleGridComponent extends ReportStoreList
 				'name' => Loc::getMessage('STORE_SALE_REPORT_GRID_TITLE_COLUMN'),
 				'sort' => false,
 				'default' => true,
-				'width' => 210,
+				'width' => 350,
+				'resizeable' => false,
+				'sticked' => true,
 			],
 			[
 				'id' => 'STARTING_QUANTITY',

@@ -9,6 +9,7 @@ export const SidebarBlock = Object.freeze({
 	meeting: 'meeting',
 	market: 'market',
 	messageSearch: 'messageSearch',
+	chatsWithUser: 'chatsWithUser',
 });
 
 export const SidebarDetailBlock = Object.freeze({
@@ -26,6 +27,7 @@ export const SidebarDetailBlock = Object.freeze({
 	meeting: 'meeting',
 	market: 'market',
 	messageSearch: 'messageSearch',
+	chatsWithUser: 'chatsWithUser',
 });
 
 export const SidebarFileTypes = Object.freeze({

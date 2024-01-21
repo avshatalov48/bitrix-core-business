@@ -59,4 +59,5 @@ export default class ButtonIcon
 	static FUNNEL = 'ui-btn-icon-funnel';
 	static FORWARD = 'ui-btn-icon-forward';
 	static COPY = 'ui-btn-icon-copy';
+	static AI = 'ui-btn-icon-ai ui-icon-set__scope';
 }

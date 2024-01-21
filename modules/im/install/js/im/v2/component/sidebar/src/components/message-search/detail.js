@@ -148,8 +148,6 @@ export const MessageSearchDetail = {
 		},
 		onScroll(event)
 		{
-			this.contextMenu.destroy();
-
 			if (this.isLoading)
 			{
 				return;

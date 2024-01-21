@@ -11,10 +11,11 @@ use Bitrix\Catalog\Product\SystemField;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\VatTable;
 use Bitrix\Currency\CurrencyManager;
+use Bitrix\Iblock\Grid\Panel\UI\Actions\Helpers\ItemFinder;
 use Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroup\BaseGroupChild;
-use Bitrix\Iblock\Grid\RowType;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Grid\Panel\Actions;
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Snippet;
 use Bitrix\Main\Grid\Panel\Snippet\Onchange;
 use Bitrix\Main\Grid\Panel\Types;
@@ -30,6 +31,8 @@ Loader::requireModule('iblock');
 
 final class SetParametersGroupChild extends BaseGroupChild
 {
+	use ItemFinder;
+
 	private Entity $productEntity;
 	private bool $isCatalogTypeProduct;
 
@@ -107,7 +110,7 @@ final class SetParametersGroupChild extends BaseGroupChild
 		return $fields;
 	}
 
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter = null): ?Result
 	{
 		$result = new Result();
 
@@ -117,35 +120,20 @@ final class SetParametersGroupChild extends BaseGroupChild
 			return null;
 		}
 
-		if ($isSelectedAllRows)
+		[$elementIds, $sectionIds] = $this->prepareItemIds($request, $isSelectedAllRows, $filter);
+
+		if ($elementIds)
 		{
 			$result->addErrors(
-				$this->updateProductFieldByIds(true, [], $fields)->getErrors()
+				ProductAction::updateElementList($this->getIblockId(), $elementIds, $fields)->getErrors()
 			);
 		}
-		else
+
+		if ($sectionIds)
 		{
-			$ids = $this->getRequestRows($request);
-			if (empty($ids))
-			{
-				return null;
-			}
-
-			[$elementIds, $sectionIds] = RowType::parseIndexList($ids);
-
-			if ($elementIds)
-			{
-				$result->addErrors(
-					$this->updateProductFieldByIds(false, $elementIds, $fields)->getErrors()
-				);
-			}
-
-			if ($sectionIds)
-			{
-				$result->addErrors(
-					$this->updateProductFieldBySections($sectionIds, $fields)->getErrors()
-				);
-			}
+			$result->addErrors(
+				ProductAction::updateSectionList($this->getIblockId(), $sectionIds, $fields)->getErrors()
+			);
 		}
 
 		return $result;
@@ -431,34 +419,6 @@ final class SetParametersGroupChild extends BaseGroupChild
 		}
 
 		return $result;
-	}
-
-	private function updateProductFieldByIds(bool $isSelectedAllRows, array $ids, array $fields): Result
-	{
-		if ($isSelectedAllRows)
-		{
-			$ids = [];
-
-			$rows = ProductTable::getList([
-				'select' => [
-					'ID',
-				],
-				'filter' => [
-					'IBLOCK_ELEMENT.IBLOCK_ID' => $this->getIblockId(),
-				],
-			]);
-			foreach ($rows as $row)
-			{
-				$ids[] = (int)$row['ID'];
-			}
-		}
-
-		return ProductAction::updateElementList($this->getIblockId(), $ids, $fields);
-	}
-
-	private function updateProductFieldBySections(array $ids, array $fields): Result
-	{
-		return ProductAction::updateSectionList($this->getIblockId(), $ids, $fields);
 	}
 
 	private function isAvailableField(string $fieldName): bool

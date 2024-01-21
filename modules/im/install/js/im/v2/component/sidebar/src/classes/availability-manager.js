@@ -1,5 +1,3 @@
-import {Store} from 'ui.vue3.vuex';
-
 import {Core} from 'im.v2.application.core';
 import {PlacementType, SidebarBlock} from 'im.v2.const';
 import {MarketManager} from 'im.v2.lib.market';
@@ -19,13 +17,11 @@ const BLOCKS_ORDER = {
 export class AvailabilityManager
 {
 	#settingsManager: SettingsManager = null;
-	#store: Store;
 	#dialogId: string;
 
 	constructor(settingsManager: SettingsManager, dialogId: string)
 	{
 		this.#settingsManager = settingsManager;
-		this.#store = Core.getStore();
 		this.#dialogId = dialogId;
 	}
 
@@ -61,6 +57,12 @@ export class AvailabilityManager
 			blocksSet.delete(SidebarBlock.market);
 		}
 
+		if (this.#isBot())
+		{
+			blocksSet.delete(SidebarBlock.task);
+			blocksSet.delete(SidebarBlock.meeting);
+		}
+
 		return [...blocksSet];
 	}
 
@@ -84,5 +86,12 @@ export class AvailabilityManager
 		return [...availableBlocks].sort((block1, block2) => {
 			return BLOCKS_ORDER[block1] - BLOCKS_ORDER[block2];
 		});
+	}
+
+	#isBot(): boolean
+	{
+		const user = Core.getStore().getters['users/get'](this.#dialogId);
+
+		return user?.bot === true;
 	}
 }

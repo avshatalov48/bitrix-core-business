@@ -1,5 +1,5 @@
 import 'ui.fonts.opensans';
-import './style.css';
+import './css/style.css';
 import 'sidepanel';
 import {Dom, Tag, Type, BaseError, Event, Runtime} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';

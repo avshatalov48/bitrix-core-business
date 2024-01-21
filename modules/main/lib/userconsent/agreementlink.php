@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2017 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
+
 namespace Bitrix\Main\UserConsent;
 
 use Bitrix\Main\Error;
@@ -24,7 +26,7 @@ class AgreementLink
 	const SIGN_SALT = 'user_consent';
 
 	/** @var array $errors Errors. */
-	protected static $errors = array();
+	protected static $errors = [];
 
 	/**
 	 * Return Uri parameters.
@@ -32,23 +34,23 @@ class AgreementLink
 	 * @param integer $agreementId Agreement ID.
 	 * @param array $replace Replace data.
 	 * @param string $baseUri Base Uri.
-	 * @return array
+	 * @return string
 	 */
-	public static function getUri($agreementId, array $replace = array(), $baseUri = '')
+	public static function getUri($agreementId, array $replace = [], $baseUri = '')
 	{
 		self::clearErrors();
 
 		$agreement = new Agreement($agreementId, $replace);
 		$signer = new Signer();
-		$data = array(
+		$data = [
 			'id' => $agreement->getId(),
 			'replace' => $replace,
-		);
+		];
 		$data = Json::encode($data);
-		$parameters = array(
+		$parameters = [
 			'data' => base64_encode($data),
-			'sec' => base64_encode($signer->getSignature($data, self::SIGN_SALT))
-		);
+			'sec' => base64_encode($signer->getSignature($data, self::SIGN_SALT)),
+		];
 		$uri = new Uri($baseUri);
 		$uri->addParams($parameters);
 
@@ -61,13 +63,13 @@ class AgreementLink
 	 * @param array $parameters Uri parameters.
 	 * @return Agreement
 	 */
-	public static function getAgreementFromUriParameters(array $parameters = array())
+	public static function getAgreementFromUriParameters(array $parameters = [])
 	{
 		self::clearErrors();
 
-		$data =$parameters['data'];
+		$data = $parameters['data'];
 		$sec = $parameters['sec'];
-		if (!$data || !$sec)
+		if (!$data || !$sec || !is_string($data) || !is_string($sec))
 		{
 			self::$errors[] = new Error('Parameters not found', 1);
 			return null;
@@ -100,7 +102,7 @@ class AgreementLink
 		{
 			$data = Json::decode($data);
 		}
-		catch (\Exception $exception)
+		catch (\Exception)
 		{
 			$data = null;
 		}
@@ -127,7 +129,7 @@ class AgreementLink
 
 	protected static function clearErrors()
 	{
-		self::$errors = array();
+		self::$errors = [];
 	}
 
 	/**

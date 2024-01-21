@@ -5,6 +5,8 @@ import ProgressRound from './progressround';
 import ProgressRoundColor from './progressround-color';
 import ProgressRoundStatus from './progressround-status';
 
+import './css/style.css';
+
 export {
 	ProgressRound,
 	ProgressRoundColor,

@@ -61,7 +61,7 @@ if (isset($_REQUEST['bxsender']))
 if(
 	$arAuthResult
 	&& defined('ADMIN_SECTION_LOAD_AUTH')
-	&& ADMIN_SECTION_LOAD_AUTH || $_REQUEST['AUTH_FORM']
+	&& ADMIN_SECTION_LOAD_AUTH || !empty($_REQUEST['AUTH_FORM'])
 )
 {
 	$APPLICATION->RestartBuffer();

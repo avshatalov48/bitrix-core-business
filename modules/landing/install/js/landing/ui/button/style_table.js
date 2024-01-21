@@ -3,17 +3,18 @@
 
 	BX.namespace('BX.Landing.UI.Button');
 
-	BX.Landing.UI.Button.StyleTable = function(id, options)
+	BX.Landing.UI.Button.StyleTable = function(id, options, textNode)
 	{
 		BX.Landing.UI.Button.EditorAction.apply(this, arguments);
 		this.options = options;
+		this.textNode = textNode;
 	};
 
 	BX.Landing.UI.Button.StyleTable.prototype = {
 		constructor: BX.Landing.UI.Button.StyleTable,
 		__proto__: BX.Landing.UI.Button.EditorAction.prototype,
 
-		onClick: function(event)
+		onClick(event)
 		{
 			event.preventDefault();
 			event.stopPropagation();
@@ -29,76 +30,81 @@
 					id: `change-table-style-menu-${BX.Text.getRandom()}`,
 					bindElement: this.layout,
 					zIndex: -678,
+					events: {
+						onPopupClose: function() {
+							this.textNode.onChange(true);
+						}.bind(this),
+					},
 					items: [
 						new BX.PopupMenuItem({
 							id: 'style1',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_1'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style2',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_2'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style3',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_3'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style4',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_4'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style5',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_5'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style6',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_6'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style7',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_7'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style8',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_8'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style9',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_9'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 						new BX.PopupMenuItem({
 							id: 'style10',
 							text: BX.Landing.Loc.getMessage('LANDING_TABLE_STYLE_10'),
-							onclick: this.onChange,
-							table: table,
-							options: options,
+							onclick: this.onChangeStyle,
+							table,
+							options,
 						}),
 					],
 				});
@@ -157,20 +163,30 @@
 			if (this.menu.popupWindow.isShown())
 			{
 				this.menu.close();
+				BX.Dom.style(
+					this.menu.popupWindow.popupContainer,
+					'top',
+					`${parseInt(BX.Dom.style(this.menu.popupWindow.popupContainer, 'top'), 10) + 60}px`,
+				);
 			}
 			else
 			{
 				this.menu.show();
+				BX.Dom.style(
+					this.menu.popupWindow.popupContainer,
+					'top',
+					`${parseInt(BX.Dom.style(this.menu.popupWindow.popupContainer, 'top'), 10) - 60}px`,
+				);
 			}
 		},
 
-		onChange: function(event, menuItem)
+		onChangeStyle(event, menuItem)
 		{
 			event.stopPropagation();
 			menuItem.menuWindow.close();
 
-			let newTableStyle;
-			let styleNumber;
+			let newTableStyle = '';
+			let styleNumber = '';
 			const setTableStyles = [
 				'landing-table-style-1',
 				'landing-table-style-2',
@@ -246,10 +262,9 @@
 
 				context.applyTableStyles(setTableStyles, newTableStyle, styleNumber, menuItem);
 			}
-			BX.Landing.Node.Text.currentNode.onChange(true);
 		},
 
-		applyTableStyles: function(tableStyles, newTableStyle, styleNumber, menuItem)
+		applyTableStyles(tableStyles, newTableStyle, styleNumber, menuItem)
 		{
 			tableStyles.forEach((tableStyle) => {
 				if (tableStyle === newTableStyle)

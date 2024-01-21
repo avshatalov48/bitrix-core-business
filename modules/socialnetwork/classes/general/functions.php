@@ -1346,6 +1346,9 @@ class CSocNetTools
 		}
 	}
 
+	/**
+	 * @deprecated Use CUser::GetSubordinateGroups() from main 23.600.0
+	 */
 	public static function GetSubordinateGroups($userID = false)
 	{
 		global $USER;
@@ -1368,14 +1371,7 @@ class CSocNetTools
 		}
 		else
 		{
-			$arUserSubordinateGroups = Array(2);
-			$arUserGroups_u = CUser::GetUserGroup($userID);
-			for ($j = 0,$len = count($arUserGroups_u); $j < $len; $j++)
-			{
-				$arSubordinateGroups = CGroup::GetSubordinateGroups($arUserGroups_u[$j]);
-				$arUserSubordinateGroups = array_merge ($arUserSubordinateGroups, $arSubordinateGroups);
-			}
-			$arUserSubordinateGroups = array_unique($arUserSubordinateGroups);
+			$arUserSubordinateGroups = CGroup::GetSubordinateGroups(CUser::GetUserGroup($userID));
 
 			$arSubordinateGroupsByUser[$userID] = $arUserSubordinateGroups;
 		}

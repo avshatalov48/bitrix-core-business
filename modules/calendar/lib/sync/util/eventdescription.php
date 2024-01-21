@@ -20,7 +20,7 @@ class EventDescription
 	 */
 	public function prepareForExport(Event $event): ?string
 	{
-		$languageId = \CCalendar::getUserLanguageId($event->getOwner()->getId());
+		$languageId = \CCalendar::getUserLanguageId($event->getOwner()?->getId());
 		$description = $this->addAttendeesInfo($event->getDescription(), $event, $languageId);
 
 		return $this->addSpecialInfo($description, $event, $languageId);

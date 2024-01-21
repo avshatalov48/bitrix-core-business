@@ -24,7 +24,7 @@ class XScanResultTable extends \Bitrix\Main\Entity\DataManager
 {
 	public static function getTableName()
 	{
-		return 'b_xscan_results';
+		return 'b_sec_xscan_results';
 	}
 
 	public static function getMap()

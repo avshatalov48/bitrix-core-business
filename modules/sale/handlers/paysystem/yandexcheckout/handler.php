@@ -29,7 +29,8 @@ class YandexCheckoutHandler
 	PaySystem\IPartialHold,
 	PaySystem\Domain\Verification\IVerificationable,
 	PaySystem\IRecurring,
-	PaySystem\Cashbox\ISupportPrintCheck
+	PaySystem\Cashbox\ISupportPrintCheck,
+	PaySystem\Cashbox\IFiscalizationAware
 {
 	const CMS_NAME = 'api_1c-bitrix';
 
@@ -118,13 +119,6 @@ class YandexCheckoutHandler
 		}
 
 		$result = new PaySystem\ServiceResult();
-
-		$checkYandexSettingsResult = $this->checkYandexSettings($payment);
-		if (!$checkYandexSettingsResult->isSuccess())
-		{
-			$result->addErrors($checkYandexSettingsResult->getErrors());
-			return $result;
-		}
 
 		$yandexPaymentData = [];
 
@@ -1027,121 +1021,6 @@ class YandexCheckoutHandler
 
 	/**
 	 * @param Payment $payment
-	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 */
-	private function getYandexSettings(Payment $payment): PaySystem\ServiceResult
-	{
-		$result = new PaySystem\ServiceResult();
-
-		$url = $this->getUrl($payment, 'settings');
-		$headers = $this->getHeaders($payment);
-
-		$sendResult = $this->send(self::SEND_METHOD_HTTP_GET, $url, $headers);
-		if ($sendResult->isSuccess())
-		{
-			$result->setData($sendResult->getData());
-		}
-		else
-		{
-			$result->addErrors($sendResult->getErrors());
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param Payment $payment
-	 * @return PaySystem\ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
-	 */
-	private function checkYandexSettings(Payment $payment): PaySystem\ServiceResult
-	{
-		$result = new PaySystem\ServiceResult();
-
-		$yandexSettingsResult = $this->getYandexSettings($payment);
-		if ($yandexSettingsResult->isSuccess())
-		{
-			$yandexSettingsData = $yandexSettingsResult->getData();
-
-			if (
-				$yandexSettingsData['fiscalization_enabled']
-				&& $this->isTerminalPayment($payment)
-			)
-			{
-				$result->addError(
-					PaySystem\Error::create(
-						Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_TERMINAL_FISCALIZATION_ENABLED'),
-						'fiscalization_enabled'
-					)
-				);
-
-				return $result;
-			}
-
-			$paymentMethods = $yandexSettingsData['payment_methods'];
-			$psMode = $this->getYandexHandlerType($this->service->getField('PS_MODE'));
-			if ($psMode
-				&& !in_array($psMode, $paymentMethods, true)
-				&& !$this->isSetEmbeddedPaymentType()
-			)
-			{
-				$psModeList = static::getHandlerModeList();
-
-				if (!isset($psModeList[$psMode]))
-				{
-					$psModeList[$psMode] = $psMode;
-				}
-
-				$result->addError(
-					PaySystem\Error::create(
-						Localization\Loc::getMessage(
-							'SALE_HPS_YANDEX_CHECKOUT_ERROR_PAYMENT_METHOD_NOT_SUPPORT',
-							[
-								'#PAYMENT_METHOD#' => $psModeList[$psMode],
-							]
-						)
-					)
-				);
-			}
-		}
-		else
-		{
-			$result->addErrors($yandexSettingsResult->getErrors());
-		}
-
-		return $result;
-	}
-
-	private function isTerminalPayment(Payment $payment): bool
-	{
-		$order = $payment->getOrder();
-		if ($order instanceof \Bitrix\Crm\Order\Order)
-		{
-			/** @var \Bitrix\Sale\TradeBindingEntity $entity */
-			foreach ($order->getTradeBindingCollection() as $entity)
-			{
-				$platform = $entity->getTradePlatform();
-				if ($platform && $platform->getCode() === \Bitrix\Crm\Order\TradingPlatform\Terminal::TRADING_PLATFORM_CODE)
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param Payment $payment
 	 * @param $refundableSum
 	 * @return PaySystem\ServiceResult
 	 * @throws Main\ArgumentNullException
@@ -1366,21 +1245,7 @@ class YandexCheckoutHandler
 	 */
 	public static function getHandlerModeList()
 	{
-		return [
-			static::MODE_SMART => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SMART'),
-			static::MODE_BANK_CARD=> Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_BANK_CARDS'),
-			static::MODE_YANDEX_MONEY => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_YANDEX_MONEY'),
-			static::MODE_SBERBANK => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK'),
-			static::MODE_SBERBANK_SMS => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS'),
-			static::MODE_SBERBANK_QR => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR'),
-			static::MODE_QIWI => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI'),
-			static::MODE_ALFABANK => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK'),
-			static::MODE_CASH => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_CASH'),
-			static::MODE_EMBEDDED => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_EMBEDDED'),
-			static::MODE_TINKOFF_BANK => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TINKOFF_BANK'),
-			static::MODE_INSTALLMENTS => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_INSTALLMENTS'),
-			static::MODE_SBP => Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBP'),
-		];
+		return PaySystem\Manager::getHandlerDescription('YandexCheckout')['HANDLER_MODE_LIST'];
 	}
 
 	/**
@@ -1726,5 +1591,24 @@ class YandexCheckoutHandler
 	public static function getCashboxClass(): string
 	{
 		return '\\'.Cashbox\CashboxYooKassa::class;
+	}
+
+	public function isFiscalizationEnabled(Payment $payment): ?bool
+	{
+		$url = $this->getUrl($payment, 'settings');
+		$headers = $this->getHeaders($payment);
+
+		$sendResult = $this->send(self::SEND_METHOD_HTTP_GET, $url, $headers);
+		if ($sendResult->isSuccess())
+		{
+			$data = $sendResult->getData();
+
+			if (isset($data['fiscalization_enabled']))
+			{
+				return (bool)$data['fiscalization_enabled'];
+			}
+		}
+
+		return null;
 	}
 }

@@ -3168,7 +3168,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      disableLink: true,
 	      disableAltField: true,
 	      allowClear: true,
-	      allowAiImage: landing_env.Env.getInstance().getOptions()['allow_ai_image'],
+	      isAiImageAvailable: landing_env.Env.getInstance().getOptions()['ai_image_available'],
+	      isAiImageActive: landing_env.Env.getInstance().getOptions()['ai_image_active'],
+	      aiUnactiveInfoCode: landing_env.Env.getInstance().getOptions()['ai_unactive_info_code'],
 	      dimensions: {
 	        width: 1920
 	      },

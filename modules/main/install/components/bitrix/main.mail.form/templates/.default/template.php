@@ -9,6 +9,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.alerts',
 	'ui.buttons',
 	'ui.entity-selector',
+	'calendar.util',
+	'ui.tour',
 ]);
 
 $htmlFormId = htmlspecialcharsbx('main_mail_form_'.$arParams['FORM_ID']);
@@ -403,7 +405,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 					'CreateLink', 'Image', 'UploadImage',
 					'Justify', 'InsertOrderedList', 'InsertUnorderedList',
 				),
-				'BUTTONS' => ['UploadImage', 'UploadFile'],
+				'BUTTONS' => $arParams['POST_FORM_BUTTONS'],
 				'BUTTONS_HTML' => (!empty($arParams['FOLD_QUOTE']) ?
 					['ReplyQuote' => '<span class="main-mail-form-quote-button-wrapper"><span class="main-mail-form-quote-button">...</span></span>'] : []
 				),
@@ -462,6 +464,11 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 						array('id' => 'BbCode', 'compact' => false, 'sort' => 220),
 						array('id' => 'More', 'compact' => true, 'sort' => 400),
 					),
+					'isMentionUnavailable' => true,
+					'isCopilotEnabled' => $arParams['IS_COPILOT_ENABLED'],
+					'copilotParams' => $arParams['COPILOT_PARAMS'] ?? null,
+					'isCopilotImageEnabledBySettings' => $arParams['IS_COPILOT_IMAGE_ENABLED'] ?? false,
+					'isCopilotTextEnabledBySettings' => $arParams['IS_COPILOT_TEXT_ENABLED'] ?? false,
 				),
 			),
 			false,
@@ -536,6 +543,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 
 BX.ready(function()
 {
+	BX.message(<?= \Bitrix\Main\Web\Json::encode(\Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__)) ?>);
 	var form = new BXMainMailForm(
 		'<?=\CUtil::jsEscape($arParams['FORM_ID']) ?>',
 		<?=\Bitrix\Main\Web\Json::encode(array_merge(
@@ -546,10 +554,11 @@ BX.ready(function()
 			'submitAjax' => !empty($arParams['SUBMIT_AJAX']),
 			'foldQuote'  => !empty($arParams['FOLD_QUOTE']),
 			'foldFiles'  => !empty($arParams['FOLD_FILES']),
-			'version'  => $arParams['VERSION']
+			'version'  => $arParams['VERSION'],
+			'calendarSharingTourId' => $arParams['CALENDAR_SHARING_TOUR_ID'],
+			'userCalendarPath' => $arParams['USER_CALENDAR_PATH'],
 		)) ?>
 	);
-
 	<? if (empty($arParams['LAYOUT_ONLY'])): ?>
 		form.init();
 	<? endif ?>

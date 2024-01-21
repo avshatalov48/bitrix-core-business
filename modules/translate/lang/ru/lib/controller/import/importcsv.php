@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TR_IMPORT_EMPTY_FILE_ERROR"] = "Нет файла для импорта";
 $MESS["TR_IMPORT_ERR_EMPTY_FIRST_ROW"] = "Строка заголовка пуста или содержит некорректные данные";
 $MESS["TR_IMPORT_ERR_DESTINATION_FIELD_ABSENT"] = "Отсутствует поле файла назначения в заголовке";
@@ -14,4 +14,3 @@ $MESS["TR_IMPORT_ERROR_BAD_FILEPATH"] = "Некорректный путь \"#FI
 $MESS["TR_IMPORT_ERROR_CREATE_BACKUP"] = "Не удалось создать бэкап файла \"#FILE#\"";
 $MESS["TR_IMPORT_ERROR_WRITE_CREATE"] = "Не удалось создать файл \"#FILE#\"";
 $MESS["TR_IMPORT_ERROR_WRITE_UPDATE"] = "Невозможно перезаписать файл \"#FILE#\"";
-?>

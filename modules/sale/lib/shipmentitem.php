@@ -28,7 +28,7 @@ class ShipmentItem
 	 */
 	public static function getAvailableFields()
 	{
-		return ["QUANTITY", "RESERVED_QUANTITY", "XML_ID"];
+		return ['QUANTITY', 'RESERVED_QUANTITY', 'XML_ID'];
 	}
 
 	/**

@@ -915,9 +915,8 @@ class CAdminUiList extends CAdminList
 			$defaultSort = array("sort" => array($this->sort->getField() => $this->sort->getOrder()));
 		}
 		$sorting = $gridOptions->GetSorting($defaultSort);
-		$gridParameters["SORT"] = $sorting["sort"];
+		$gridParameters["SORT"] = !isset($_GET[$sorting['vars']['by']]) || !isset($_GET[$sorting['vars']['order']]) ? $sorting["sort"] : $defaultSort['sort'];
 		$gridParameters["SORT_VARS"] = $sorting["vars"];
-
 		$gridColumns = $gridOptions->getVisibleColumns();
 		if (empty($gridColumns))
 			$gridColumns = array_keys($this->aVisibleHeaders);

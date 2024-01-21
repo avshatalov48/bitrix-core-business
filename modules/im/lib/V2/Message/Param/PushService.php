@@ -23,7 +23,7 @@ class PushService
 		}
 
 		$chat = $message->getChat();
-		$params = $message->getParams();
+		$params = $message->getEnrichedParams();
 
 		$pullParams = $this->getPullFormatParams($message);
 		$users = $chat->getRelations()->getUserIds();

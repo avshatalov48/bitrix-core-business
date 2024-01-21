@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
@@ -11,6 +11,7 @@ use Bitrix\Sender\ContactListTable;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Integration\Crm;
+use Bitrix\Sender\Integration\Crm\Connectors\Client;
 use Bitrix\Sender\ListTable;
 use Bitrix\Sender\Posting\SegmentDataBuilder;
 use Bitrix\Sender\Security;
@@ -90,7 +91,7 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 			'ENDPOINTS' => Connector\Manager::getEndpointFromFields($settings)
 		);
 
-		foreach ($data["ENDPOINTS"] as $endpoint)
+		foreach ($data["ENDPOINTS"] as &$endpoint)
 		{
 			if(
 				$endpoint["CODE"] === 'crm_client'
@@ -98,11 +99,22 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 				&& !isset($endpoint["FIELDS"]["DEAL_CATEGORY_ID"])
 			)
 			{
-				$this->errors->add(
-					[
-						new \Bitrix\Main\Error(Loc::getMessage('SENDER_SEGMENT_FILTER_DEAL_CATEGORY_ID_ERROR'))
-					]
-				);
+				$categories = \Bitrix\Crm\Category\DealCategory::getAllIDs();
+				if (count($categories) < 2)
+				{
+					foreach ($categories as $categoryId)
+					{
+						$endpoint['FIELDS'][Client::DEAL_CATEGORY_ID] = [(string)$categoryId];
+					}
+				}
+				else
+				{
+					$this->errors->add(
+						[
+							new \Bitrix\Main\Error(Loc::getMessage('SENDER_SEGMENT_FILTER_DEAL_CATEGORY_ID_ERROR_MSG_1'))
+						]
+					);
+				}
 			}
 
 		}
@@ -641,14 +653,6 @@ class SenderSegmentEditComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		}
 
 		return $fieldValues;
-	}
-
-	protected function printErrors()
-	{
-		foreach ($this->errors as $error)
-		{
-			ShowError($error);
-		}
 	}
 
 	public function executeComponent()

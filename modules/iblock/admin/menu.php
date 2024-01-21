@@ -385,30 +385,30 @@ function _get_types_admin_menu($arTypes, $bUserIsAdmin)
 	return $arResult;
 }
 
-$aMenu = array();
+$aMenu = [];
 
 //Read all necessary data from database
 
 global $USER;
 $bUserIsAdmin = $USER->IsAdmin();
 
-$arTypes = array();
+$arTypes = [];
 $rsTypes = CIBlockType::GetList(array("SORT"=>"ASC"));
 while($arType = $rsTypes->Fetch())
 {
-	$arType = CIBlockType::GetByIDLang($arType["ID"], LANGUAGE_ID);
-	$arTypes[$arType["ID"]] = array(
+	$arTypeLang = CIBlockType::GetByIDLang($arType["ID"], LANGUAGE_ID);
+	$arTypes[$arType["ID"]] = [
 		"ID" => $arType["ID"],
-		"NAME" => $arType["NAME"],
-		"NAME~" => $arType["NAME"],
-		"ELEMENT_NAME" => $arType["ELEMENT_NAME"],
+		"NAME" => $arTypeLang["NAME"] ?? $arType["ID"],
+		"NAME~" => $arTypeLang["NAME"] ?? $arType["ID"],
+		"ELEMENT_NAME" => $arTypeLang["ELEMENT_NAME"] ?? '',
 		"SECTIONS" => $arType["SECTIONS"],
-		"IBLOCKS" => array(
-			"S" => array(),
-			"W" => array(),
-			"X" => array(),
-		),
-	);
+		"IBLOCKS" => [
+			"S" => [],
+			"W" => [],
+			"X" => [],
+		],
+	];
 }
 
 $bHasXRight = false;

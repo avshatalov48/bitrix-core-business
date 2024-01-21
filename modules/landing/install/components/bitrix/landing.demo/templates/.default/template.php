@@ -331,14 +331,18 @@ if (!$component->isAjax())
 	Manager::isB24()
 	&& $arParams['TYPE'] !== 'PAGE'
 ):?>
-<a class="landing-license-banner" href="javascript:void(0)" onclick="BX.SidePanel.Instance.open('<?= SITE_DIR;?>marketplace/?placement=site_templates');">
-	<div class="landing-license-banner-icon">
-		<div class="landing-license-banner-icon-arrow"></div>
-	</div>
-	<div class="landing-license-banner-title">
-		<?= Loc::getMessage('LANDING_TPL_LOAD_APP_TEMPLATE_2');?>
-	</div>
-</a>
+	<a
+		class="landing-license-banner"
+		href="javascript:void(0)"
+		onclick="BX.SidePanel.Instance.open('<?= SITE_DIR;?>market/collection/online_stores/');"
+	>
+		<div class="landing-license-banner-icon">
+			<div class="landing-license-banner-icon-arrow"></div>
+		</div>
+		<div class="landing-license-banner-title">
+			<?= Loc::getMessage('LANDING_TPL_LOAD_APP_TEMPLATE_2');?>
+		</div>
+	</a>
 <?endif;?>
 
 <script type="text/javascript">

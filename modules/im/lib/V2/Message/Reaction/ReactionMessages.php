@@ -11,6 +11,7 @@ use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\RestConvertible;
 
 /**
+ * @implements \IteratorAggregate<int,ReactionMessage>
  * @method ReactionMessage next()
  * @method ReactionMessage current()
  * @method ReactionMessage offsetGet($offset)
@@ -18,8 +19,6 @@ use Bitrix\Im\V2\Rest\RestConvertible;
 class ReactionMessages extends Registry implements RestConvertible, PopupDataAggregatable
 {
 	use ContextCustomer;
-
-	private const COUNT_DISPLAYED_USERS = 5;
 
 	private bool $withOwnReactions;
 
@@ -74,6 +73,21 @@ class ReactionMessages extends Registry implements RestConvertible, PopupDataAgg
 		return $messageIds;
 	}
 
+	private function getMessageIdsToFillOwnReaction(): array
+	{
+		$messageIds = [];
+
+		foreach ($this as $reactionMessage)
+		{
+			if ($reactionMessage->needToFillOwnReactions())
+			{
+				$messageIds[] = $reactionMessage->getMessageId();
+			}
+		}
+
+		return $messageIds;
+	}
+
 	public static function getRestEntityName(): string
 	{
 		return 'reactions';
@@ -82,7 +96,10 @@ class ReactionMessages extends Registry implements RestConvertible, PopupDataAgg
 	public function toRestFormat(array $option = []): array
 	{
 		$rest = [];
-		$option['WITHOUT_OWN_REACTIONS'] = !$this->withOwnReactions;
+		if (!isset($option['WITHOUT_OWN_REACTIONS']))
+		{
+			$option['WITHOUT_OWN_REACTIONS'] = !$this->withOwnReactions;
+		}
 
 		foreach ($this as $reactionMessage)
 		{
@@ -137,7 +154,7 @@ class ReactionMessages extends Registry implements RestConvertible, PopupDataAgg
 
 		foreach ($this as $reactionMessage)
 		{
-			if ($reactionMessage->haveDisplayedUsers(self::COUNT_DISPLAYED_USERS))
+			if ($reactionMessage->haveDisplayedUsers())
 			{
 				$messagesNeedFillUsers[] = $reactionMessage->getMessageId();
 			}
@@ -151,14 +168,18 @@ class ReactionMessages extends Registry implements RestConvertible, PopupDataAgg
 		$result = ReactionTable::query()
 			->setSelect(['MESSAGE_ID', 'REACTION', 'USERS_GROUP'])
 			->whereIn('MESSAGE_ID', $messagesNeedFillUsers)
-			->having('COUNT', '<=', self::COUNT_DISPLAYED_USERS)
+			->having('COUNT', '<=', ReactionMessage::COUNT_DISPLAYED_USERS)
 			->fetchAll()
 		;
 
 		foreach ($result as $row)
 		{
 			$userIds = array_map('intval', explode(',', $row['USERS_GROUP']));
-			$this->getReactionMessage((int)$row['MESSAGE_ID'])->addUsers($row['REACTION'], $userIds);
+			$reactionMessage = $this->getReactionMessage((int)$row['MESSAGE_ID'])->addUsers($row['REACTION'], $userIds);
+			if ($this->withOwnReactions && in_array($this->getContext()->getUserId(), $userIds, true))
+			{
+				$reactionMessage->addOwnReaction($row['REACTION']);
+			}
 		}
 
 		return $this;
@@ -171,7 +192,7 @@ class ReactionMessages extends Registry implements RestConvertible, PopupDataAgg
 			return $this;
 		}
 
-		$messageIds = $this->getMessageIds();
+		$messageIds = $this->getMessageIdsToFillOwnReaction();
 
 		if (empty($messageIds))
 		{

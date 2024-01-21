@@ -41,6 +41,7 @@ $im_default_option = array(
 	'message_history_index' => false,
 	'call_log_service' => '',
 	'call_log_secret' => '',
+	'call_server_url' => 'https://call.bitrix.info',
 );
 
 if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/im_options.php"))

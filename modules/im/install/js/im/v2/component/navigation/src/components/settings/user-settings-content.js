@@ -1,30 +1,30 @@
+import { MenuManager } from 'main.popup';
+
 import { Core } from 'im.v2.application.core';
-import { Avatar, AvatarSize, UserStatus, UserStatusSize } from 'im.v2.component.elements';
+import { Avatar, AvatarSize, UserStatus, UserStatusSize, ScrollWithGradient } from 'im.v2.component.elements';
+import { DesktopApi, DesktopFeature } from 'im.v2.lib.desktop-api';
 import { Utils } from 'im.v2.lib.utils';
 import { DesktopManager } from 'im.v2.lib.desktop';
-import { Logger } from 'im.v2.lib.logger';
-import { Extension } from 'main.core';
+import { PopupType, Settings, UserStatus as UserStatusType } from 'im.v2.const';
 
 import { ButtonPanel } from './button-panel';
 import { UserStatusPopup } from '../status/user-status-popup';
-import { VersionService } from '../../classes/version-service';
+import { DesktopAccountList } from './desktop-account-list/desktop-account-list';
 
 import 'ui.buttons';
 import 'ui.feedback.form';
 
 import type { ImModelUser } from 'im.v2.model';
-import { UserStatus as UserStatusType } from 'im.v2.const';
 
 // @vue/component
 export const UserSettingsContent = {
 	name: 'UserSettingsContent',
-	components: { Avatar, UserStatus, ButtonPanel, UserStatusPopup },
+	components: { Avatar, UserStatus, ButtonPanel, UserStatusPopup, DesktopAccountList, ScrollWithGradient },
 	emits: ['closePopup', 'enableAutoHide', 'disableAutoHide'],
 	data(): Object
 	{
 		return {
 			showStatusPopup: false,
-			isChangingVersion: false,
 		};
 	},
 	computed:
@@ -45,10 +45,10 @@ export const UserSettingsContent = {
 		},
 		userStatus(): string
 		{
-			const user = this.$store.getters['users/get'](this.currentUserId, true);
-			if (user)
+			const status = this.$store.getters['application/settings/get'](Settings.user.status);
+			if (status)
 			{
-				return user.status;
+				return status;
 			}
 
 			return UserStatusType.online;
@@ -59,37 +59,15 @@ export const UserSettingsContent = {
 		},
 		userStatusText(): string
 		{
-			return Utils.user.getStatusText(this.currentUser.status);
+			return Utils.user.getStatusText(this.userStatus);
 		},
-		profileUri(): string
+		isDesktopAccountManagementAvailable(): boolean
 		{
-			return Utils.user.getProfileLink(this.currentUserId);
-		},
-		showOldChatButton(): boolean
-		{
-			const settings = Extension.getSettings('im.v2.component.navigation');
-
-			return Boolean(settings.get('force_beta')) === false;
+			return DesktopApi.isFeatureSupported(DesktopFeature.accountManagement.id);
 		},
 	},
 	methods:
 	{
-		onBackToOldChatClick()
-		{
-			this.isChangingVersion = true;
-			this.getVersionService().disableBeta().then(() => {
-				if (DesktopManager.isDesktop())
-				{
-					window.location.reload();
-				}
-				else
-				{
-					window.location.replace('/online/');
-				}
-			}).catch((error) => {
-				Logger.error('Error while switching version', error);
-			});
-		},
 		onStatusClick()
 		{
 			this.showStatusPopup = true;
@@ -100,18 +78,13 @@ export const UserSettingsContent = {
 			this.showStatusPopup = false;
 			this.$emit('enableAutoHide');
 		},
-		getVersionService(): VersionService
-		{
-			if (!this.versionService)
-			{
-				this.versionService = new VersionService();
-			}
-
-			return this.versionService;
-		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
+		},
+		onScroll()
+		{
+			MenuManager.getMenuById(PopupType.desktopItemMenu)?.close();
 		},
 	},
 	template: `
@@ -124,32 +97,32 @@ export const UserSettingsContent = {
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>
 					<div class="bx-im-user-settings-popup__user_name" :title="currentUser.name">{{ currentUser.name }}</div>
 					<div class="bx-im-user-settings-popup__user_title" :title="currentUserPosition">{{ currentUserPosition }}</div>
-					<a :href="profileUri" target="_blank" class="bx-im-user-settings-popup__user_link">
-						<ButtonPanel @openProfile="$emit('closePopup')" />
-					</a>
+					<ButtonPanel 
+						:isDesktopAccountManagementAvailable="isDesktopAccountManagementAvailable"
+						@openProfile="$emit('closePopup')" 
+					/>
 				</div>
 			</div>
-			<div class="bx-im-user-settings-popup__list">
-				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Status select -->
-				<div @click="onStatusClick" class="bx-im-user-settings-popup__list-item --with-icon">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_status">
-							<UserStatus :status="userStatus" :size="UserStatusSize.M" />
+			<ScrollWithGradient :containerMaxHeight="328" :gradientHeight="24" @scroll="onScroll">
+				<div class="bx-im-user-settings-popup__list">
+					<div class="bx-im-user-settings-popup__separator"></div>
+					<!-- Status select -->
+					<div @click="onStatusClick" class="bx-im-user-settings-popup__list-item --with-icon">
+						<div class="bx-im-user-settings-popup__list-item_left">
+							<div class="bx-im-user-settings-popup__list-item_status">
+								<UserStatus :status="userStatus" :size="UserStatusSize.M" />
+							</div>
+							<div class="bx-im-user-settings-popup__list-item_text">{{ userStatusText }}</div>
 						</div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ userStatusText }}</div>
+						<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="status-select"></div>
 					</div>
-					<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="status-select"></div>
 				</div>
 				<div class="bx-im-user-settings-popup__separator"></div>
-			</div>
-			<!-- Back to old chat -->
-			<div v-if="showOldChatButton" class="bx-im-user-settings-popup__old-chat" :class="{'--loading': isChangingVersion}" @click="onBackToOldChatClick">
-				<div class="bx-im-user-settings-popup__list-item_icon --arrow-left"></div>
-				<div class="bx-im-user-settings-popup__old-chat_text">
-					{{ loc('IM_USER_SETTINGS_OLD_CHAT') }}
-				</div>
-			</div>
+				<DesktopAccountList 
+					v-if="isDesktopAccountManagementAvailable"
+					@openContextMenu="$emit('disableAutoHide')"
+				/>
+			</ScrollWithGradient>
 		</div>
 		<UserStatusPopup
 			v-if="showStatusPopup"

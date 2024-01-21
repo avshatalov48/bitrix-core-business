@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 class PHPParser
@@ -770,7 +770,7 @@ class PHPParser
 		foreach($arVals as $key => $val)
 		{
 			$res .= "\t\t\"".EscapePHPString($key)."\" => ";
-			$comm = ($arParams[$key]["NAME"] <> ''? "\t// ".$arParams[$key]["NAME"] : "");
+			$comm = (!empty($arParams[$key]["NAME"]) ? "\t// ".$arParams[$key]["NAME"] : "");
 			$res .= PHPParser::ReturnPHPStrRec($val, 1, $comm);
 		}
 

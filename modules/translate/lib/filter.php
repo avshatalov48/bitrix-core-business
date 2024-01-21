@@ -13,6 +13,7 @@ namespace Bitrix\Translate;
  * @property int $nextFileId File Id.
  * @property string $path File stricture path.
  * @property int $tabId Storage Id.
+ * @property bool $recursively Perform process recursively.
  *
  */
 class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess

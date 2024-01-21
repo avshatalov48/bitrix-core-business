@@ -1,4 +1,4 @@
-import { DialogType } from 'im.v2.const';
+import { ChatType } from 'im.v2.const';
 
 import { GroupChatCreation } from './components/group-chat';
 import { ConferenceCreation } from './components/conference';
@@ -22,16 +22,16 @@ export const CreateChatContent = {
 	},
 	computed:
 	{
-		DialogType: () => DialogType,
-		chatType(): $Values<typeof DialogType>
+		ChatType: () => ChatType,
+		chatType(): $Values<typeof ChatType>
 		{
 			return this.entityId;
 		},
 	},
 	template: `
 		<div class="bx-im-content-create-chat__container bx-im-content-create-chat__scope">
-			<GroupChatCreation v-if="chatType === DialogType.chat" />
-			<ConferenceCreation v-else-if="chatType === DialogType.videoconf" />
+			<GroupChatCreation v-if="chatType === ChatType.chat" />
+			<ConferenceCreation v-else-if="chatType === ChatType.videoconf" />
 		</div>
 	`,
 };

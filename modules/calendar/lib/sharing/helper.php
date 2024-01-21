@@ -21,10 +21,8 @@ use Bitrix\Calendar\Sharing;
 
 class Helper
 {
-	private const PAY_ATTENTION_TO_NEW_SHARING_FEATURE_OPTION_NAME = 'payAttentionToNewSharingFeature';
-	private const PAY_ATTENTION_TO_NEW_FEATURE_FIRST = 'first-feature';
-	private const PAY_ATTENTION_TO_NEW_FEATURE_NEW = 'new-feature';
-	private const PAY_ATTENTION_TO_NEW_FEATURE_REMIND = 'remind-feature';
+	private const PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME = 'payAttentionToNewSharingJointFeature';
+	private const PAY_ATTENTION_TO_NEW_FEATURE_JOINT = 'joint-sharing';
 	private const WEEK_TIMESTAMP = 604800; // 86400 * 7
 
 	public const ACTION = 'action';
@@ -45,55 +43,34 @@ class Helper
 	 */
 	public static function payAttentionToNewSharingFeature(): ?string
 	{
+		$now = time();
 		$defaultValue = 'unset';
 		$optionValue = CUserOptions::getOption(
-			"calendar",
-			self::PAY_ATTENTION_TO_NEW_SHARING_FEATURE_OPTION_NAME,
+			'calendar',
+			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
 			$defaultValue
 		);
 
-		if ($optionValue === $defaultValue && (new Sharing\Sharing(\CCalendar::GetUserId()))->isEnabled())
-		{
-			CUserOptions::setOption(
-				"calendar",
-				self::PAY_ATTENTION_TO_NEW_SHARING_FEATURE_OPTION_NAME,
-				'Y'
-			);
-			$optionValue = 'Y';
-		}
-
 		if ($optionValue === $defaultValue)
 		{
-			return self::PAY_ATTENTION_TO_NEW_FEATURE_FIRST;
+			CUserOptions::setOption(
+				'calendar',
+				self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
+				$now
+			);
+
+			return null;
 		}
 
-		if ($optionValue === 'Y')
-		{
-			return self::PAY_ATTENTION_TO_NEW_FEATURE_NEW;
-		}
-
-		if (!is_string($optionValue) || $optionValue === 'N')
+		if ($optionValue === 'N')
 		{
 			return null;
 		}
 
-		$values = explode(',', $optionValue);
-		$valuesCount = count($values);
-		if ($valuesCount >= 4)
+		$timestamp = (int)$optionValue;
+		if ($timestamp && ($now > $timestamp + self::WEEK_TIMESTAMP))
 		{
-			return null;
-		}
-
-		$now = time();
-		$lastValue = (int)$values[$valuesCount - 1];
-		if ($lastValue && $now > $lastValue + self::WEEK_TIMESTAMP)
-		{
-			if (self::hasSharingEvent())
-			{
-				return self::PAY_ATTENTION_TO_NEW_FEATURE_REMIND;
-			}
-
-			return self::PAY_ATTENTION_TO_NEW_FEATURE_NEW;
+			return self::PAY_ATTENTION_TO_NEW_FEATURE_JOINT;
 		}
 
 		return null;
@@ -105,67 +82,24 @@ class Helper
 	 */
 	public static function disableOptionPayAttentionToNewSharingFeature(): void
 	{
+		$value = 'N';
 		$defaultValue = 'unset';
 		$optionValue = CUserOptions::getOption(
-			"calendar",
-			self::PAY_ATTENTION_TO_NEW_SHARING_FEATURE_OPTION_NAME,
+			'calendar',
+			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
 			$defaultValue
 		);
 
 		if ($optionValue === $defaultValue)
 		{
-			CUserOptions::setOption(
-				"calendar",
-				self::PAY_ATTENTION_TO_NEW_SHARING_FEATURE_OPTION_NAME,
-				'Y'
-			);
-			return;
-		}
-
-		$timestamps = [];
-		if ($optionValue !== 'Y')
-		{
-			$timestamps = explode(',', $optionValue);
-		}
-		$timestamps[] = time();
-
-		if (count($timestamps) >= 4)
-		{
-			$optionResult = 'N';
-		}
-		else
-		{
-			$optionResult = implode(',', $timestamps);
+			$value = time();
 		}
 
 		CUserOptions::setOption(
-			"calendar",
-			self::PAY_ATTENTION_TO_NEW_SHARING_FEATURE_OPTION_NAME,
-			$optionResult
+			'calendar',
+			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
+			$value
 		);
-	}
-
-	private static function hasSharingEvent(): bool
-	{
-		$result = false;
-		$userId = \CCalendar::GetUserId();
-
-		if ($userId)
-		{
-			$queryResult = EventTable::query()
-				->setSelect(['ID'])
-				->where('EVENT_TYPE', Dictionary::EVENT_TYPE['shared'])
-				->where('OWNER_ID', $userId)
-				->setLimit(1)
-			;
-
-			if ($queryResult->fetch())
-			{
-				$result = true;
-			}
-		}
-
-		return $result;
 	}
 
 	/**
@@ -207,14 +141,14 @@ class Helper
 	 * @param string $lastName
 	 * @return string
 	 */
-	public static function getPersonFullNameLoc(string $name, string $lastName): string
+	public static function getPersonFullNameLoc(?string $name, ?string $lastName): string
 	{
 		$culture = Main\Application::getInstance()->getContext()->getCulture();
 		$nameFormat = is_null($culture) ? '#NAME# #LAST_NAME#' : $culture->getNameFormat();
 
 		return trim(str_replace(
 			['#NAME#', '#LAST_NAME#'],
-			[$name, $lastName],
+			[$name ?? '', $lastName ?? ''],
 			$nameFormat,
 		));
 	}
@@ -264,6 +198,25 @@ class Helper
 		$weekDay = mb_strtolower(FormatDate($weekDayFormat, $timestampUTCWithServerOffset));
 
 		return "$dayMonth $time, $weekDay";
+	}
+
+	/**
+	 * examples:
+	 * DAY_MONTH_FORMAT "December 31"
+	 * @param Date $date
+	 * @return string
+	 */
+	public static function formatDateWithoutTime(Date $date): string
+	{
+		$culture = Main\Application::getInstance()->getContext()->getCulture();
+		$dayMonthFormat = Main\Type\Date::convertFormatToPhp($culture->get('DAY_MONTH_FORMAT'));
+		$weekDayFormat = 'l';
+
+		$timestamp = $date->getTimestamp();
+		$dayMonth = FormatDate($dayMonthFormat, $timestamp);
+		$weekDay = mb_strtolower(FormatDate($weekDayFormat, $timestamp));
+
+		return "$dayMonth, $weekDay";
 	}
 
 	/**
@@ -397,12 +350,22 @@ class Helper
 			return null;
 		}
 
-		if (array_key_exists($linkType, Sharing\Link\Helper::LIFETIME_AFTER_NEED))
+		if (array_key_exists($linkType, Sharing\Link\Helper::LIFETIME))
 		{
-			$result = $dateTime->add(Sharing\Link\Helper::LIFETIME_AFTER_NEED[$linkType]);
+			$result = $dateTime->add(Sharing\Link\Helper::LIFETIME[$linkType]);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * returns the expiration date of sharing multi link
+	 * @param DateTime|null $dateTime
+	 * @return DateTime|null
+	 */
+	public static function createSharingJointLinkExpireDate(?DateTime $dateTime): ?DateTime
+	{
+		return $dateTime?->add(Sharing\Link\Helper::LIFETIME[Sharing\Link\Helper::MULTI_LINK_TYPE]);
 	}
 
 	public static function getPageAbuseLink(int $ownerId, string $calendarLink): ?string

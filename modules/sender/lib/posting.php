@@ -841,4 +841,17 @@ class PostingRecipientTable extends Entity\DataManager
 
 		return $res;
 	}
+
+	/**
+	 * Get fields with unique key
+	 *
+	 * @return array|string[]
+	 */
+	public static function getConflictFields(): array
+	{
+		return [
+			'POSTING_ID',
+			'CONTACT_ID',
+		];
+	}
 }

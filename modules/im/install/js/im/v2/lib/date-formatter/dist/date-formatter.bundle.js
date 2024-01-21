@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-this.BX.Im = this.BX.Im || {};
-this.BX.Im.V2 = this.BX.Im.V2 || {};
+this.BX.Messenger = this.BX.Messenger || {};
+this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,main_date) {
 	'use strict';
 
@@ -180,5 +180,5 @@ this.BX.Im.V2 = this.BX.Im.V2 || {};
 	exports.DateTemplate = DateTemplate;
 	exports.DateCode = DateCode;
 
-}((this.BX.Im.V2.Lib = this.BX.Im.V2.Lib || {}),BX.Main));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Main));
 //# sourceMappingURL=date-formatter.bundle.js.map

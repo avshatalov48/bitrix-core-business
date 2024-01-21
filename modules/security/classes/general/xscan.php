@@ -132,7 +132,7 @@ class CBitrixXscan
 	function clean()
 	{
 		global $DB;
-		$DB->Query("TRUNCATE TABLE b_xscan_results", true);
+		$DB->Query("TRUNCATE TABLE b_sec_xscan_results", true);
 		$this->errors = [];
 	}
 

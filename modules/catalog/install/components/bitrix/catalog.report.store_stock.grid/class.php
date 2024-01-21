@@ -18,6 +18,9 @@ class CatalogReportStoreStockGridComponent extends ReportStoreList
 				'name' => Loc::getMessage('STORE_STOCK_REPORT_GRID_TITLE_COLUMN'),
 				'sort' => false,
 				'default' => true,
+				'sticked' => true,
+				'width' => 350,
+				'resizeable' => false,
 			],
 			[
 				'id' => 'AMOUNT_SUM',

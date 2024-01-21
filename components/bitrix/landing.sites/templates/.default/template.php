@@ -10,6 +10,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arParams */
 /** @var array $arResult */
 
+// Tool availability (by intranet settings)
+if (!$component->isToolAvailable())
+{
+	echo $component->getToolUnavailableInfoScript();
+
+	return;
+}
+
 use \Bitrix\Crm\Integration\NotificationsManager;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Restriction;
@@ -291,10 +299,12 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 	}
 	else
 	{
+		$urlCreatePage = $component->getUrlAdd(false);
+		$urlCreatePage = str_replace('%23', '#', $urlCreatePage);
 		$menuItems = [
 			[
 				'text' => Loc::getMessage('LANDING_TPL_ACTION_ADDPAGE2'),
-				'href' => $arParams['~PAGE_URL_LANDING_EDIT'],
+				'href' => $urlCreatePage,
 				'access' => 'edit',
 				'sidepanel' => true
 			],
@@ -364,6 +374,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 			'FEEDBACK_CODE' => $formCode ?? null,
 			'PAGE_URL_SITE_ADD' => $urlAdd,
 			'PAGE_URL_SITE' => $arParams['~PAGE_URL_SITE'],
+			'PAGE_URL_SITE_EDIT' => $arParams['~PAGE_URL_SITE_EDIT'],
 			'PAGE_URL_DOMAIN' => $arParams['~PAGE_URL_SITE_DOMAIN'],
 			'PAGE_URL_CONTACTS' => $arParams['~PAGE_URL_SITE_CONTACTS'],
 			'PAGE_URL_SITE_DOMAIN_SWITCH' => $arParams['~PAGE_URL_SITE_DOMAIN_SWITCH'],
@@ -426,7 +437,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				</span>
 			</span>
 		</div>
-		<?php endif;?>
+		<?php endif; ?>
 
 		<?php foreach ($arResult['SITES'] as $item):
 

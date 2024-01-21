@@ -1,0 +1,15 @@
+<?php
+$MESS["SN_SPACES_FILES_ADD_FILE"] = "Datei hochladen";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_DOC"] = "Dokument";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_FILE"] = "Datei";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_FOLDER"] = "Ordner";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_PRESENTATION"] = "Präsentation";
+$MESS["SN_SPACES_FILES_ADD_SETTINGS_TABLE"] = "Tabelle";
+$MESS["SN_SPACES_FILES_BIZPROC"] = "Workflows";
+$MESS["SN_SPACES_FILES_CLEAN_BTN"] = "Papierkorb leeren";
+$MESS["SN_SPACES_FILES_SETTINGS_BIZPROC"] = "Workflows bearbeiten";
+$MESS["SN_SPACES_FILES_SETTINGS_CLEAN"] = "Drive-Bereinigung";
+$MESS["SN_SPACES_FILES_SETTINGS_DOC"] = "Einstellungen der Arbeit mit Dokumenten";
+$MESS["SN_SPACES_FILES_SETTINGS_NETWORK"] = "Netzwerklaufwerk";
+$MESS["SN_SPACES_FILES_SETTINGS_RIGHTS"] = "Zugriffsrechte definieren";
+$MESS["SN_SPACES_FILES_SETTINGS_TRASH"] = "Papierkorb";

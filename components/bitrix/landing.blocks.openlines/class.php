@@ -32,8 +32,7 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 
 		if ($this->checkWidgetId())
 		{
-			$widgetsData = $this->getWidgetsForButton($this->arParams['BUTTON_ID']);
-			$this->arParams['WIDGETS'] = $widgetsData['widgets'];
+			$this->arParams['WIDGETS'] = $this->getWidgetsForButton($this->arParams['BUTTON_ID']);
 			$this->arParams['IS_MOBILE'] = $this->isMobile();
 			$this->prepareWidgetsToPrint();
 		}
@@ -134,10 +133,6 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 	 * Get all channels for widget by ID
 	 * @param $buttonId
 	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	protected function getWidgetsForButton($buttonId): array
 	{
@@ -149,7 +144,7 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 			$button->configure();
 			foreach ($button->getWidgets() as $widget)
 			{
-				$widgets['widgets'][] = $widget;
+				$widgets[] = $widget;
 			}
 		}
 
@@ -167,9 +162,13 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 				);
 				if (empty($resWidgets['error']))
 				{
-					if (isset($resWidgets['result']) && is_array($resWidgets['result']))
+					if (
+						isset($resWidgets['result'])
+						&& is_array($resWidgets['result'])
+						&& is_array($resWidgets['result']['widgets'])
+					)
 					{
-						$widgets = $resWidgets['result'];
+						$widgets = $resWidgets['result']['widgets'];
 					}
 				}
 				elseif ($resWidgets['error'] === 'ERROR_METHOD_NOT_FOUND')
@@ -189,6 +188,14 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 			}
 		}
 
+		if (empty($widgets))
+		{
+			$this->arParams['ERRORS'][] = [
+				'title' => Loc::getMessage('LANDING_CMP_OL_NO_WIDGETS'),
+				'text' => Loc::getMessage('LANDING_CMP_OL_NO_WIDGETS'),
+			];
+		}
+
 		return $widgets;
 	}
 
@@ -204,6 +211,15 @@ class LandingBlocksOlComponent extends \CBitrixComponent
 			if (!in_array($widget['type'], self::getAvailableChannelTypes(), true))
 			{
 				unset($this->arParams['WIDGETS'][$key]);
+
+				if (empty($this->arParams['WIDGETS']))
+				{
+					$this->arParams['ERRORS'][] = [
+						'title' => Loc::getMessage('LANDING_CMP_OL_NO_WIDGETS'),
+						'text' => Loc::getMessage('LANDING_CMP_OL_NO_WIDGETS'),
+					];
+				}
+
 				continue;
 			}
 			$classList = 'landing-b24-widget-button-social-item ' . implode(' ', $widget['classList']) . ' ';

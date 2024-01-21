@@ -237,7 +237,7 @@ if ($arParams['SUCCESS_SAVE'])
 
 		<div class="ui-form ui-form-section">
 			<!--Domain-->
-			<?php if ($isIntranet && !$formEditor):?>
+			<?php if ($isIntranet):?>
 				<div class="ui-form-row">
 					<div class="ui-form-label">
 						<div class="ui-ctl-label-text">
@@ -252,7 +252,7 @@ if ($arParams['SUCCESS_SAVE'])
 						<span class="landing-form-site-name-label">/</span>
 					</div>
 				</div>
-			<?php elseif ($domain && !$formEditor):?>
+			<?php elseif ($domain):?>
 				<div class="ui-form-row ui-form-row-middle-input">
 					<div class="ui-form-label">
 						<div class="ui-ctl-label-text">

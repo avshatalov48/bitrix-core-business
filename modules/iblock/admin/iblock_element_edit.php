@@ -56,6 +56,9 @@ const MODULE_ID = "iblock";
 const ENTITY = "CIBlockDocument";
 define("DOCUMENT_TYPE", "iblock_" . $IBLOCK_ID);
 
+// TODO: remove this code after remove admin form from public catalof
+$internalAdminPage = defined('INTERNAL_ADMIN_PAGE') && INTERNAL_ADMIN_PAGE === 'Y';
+
 $bCustomForm = false;
 $customFormFile = '';
 
@@ -68,9 +71,19 @@ if ($urlBuilder === null)
 		$APPLICATION->SetTitle($iblockType['NAME']);
 	}
 	unset($iblockType);
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	if ($internalAdminPage)
+	{
+		require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_popup_admin.php';
+	}
+	else
+	{
+		require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
+	}
 	ShowError(GetMessage("IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	if (!$internalAdminPage)
+	{
+		require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';
+	}
 	die();
 }
 $urlBuilderId = $urlBuilder->getId();
@@ -84,6 +97,7 @@ if ($strLookup != '')
 	define('BT_UT_AUTOCOMPLETE', 1);
 }
 $bAutocomplete = defined('BT_UT_AUTOCOMPLETE') && (BT_UT_AUTOCOMPLETE == 1);
+$errorPopupProlog = $bAutocomplete || $internalAdminPage;
 
 /* property ajax */
 $bPropertyAjax = (isset($_REQUEST["ajax_action"]) && $_REQUEST["ajax_action"] === "section_property");
@@ -1587,12 +1601,21 @@ if ($error)
 
 if($error && $error->err_level==1)
 {
-	if ($bAutocomplete)
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+	if ($errorPopupProlog)
+	{
+		require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_popup_admin.php';
+	}
 	else
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	{
+		require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
+	}
 
 	CAdminMessage::ShowOldStyleError($error->GetErrorText());
+
+	if ($internalAdminPage)
+	{
+		die;
+	}
 }
 else
 {
@@ -3954,6 +3977,7 @@ if (
 endif;
 
 }
+
 if ($bAutocomplete)
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");

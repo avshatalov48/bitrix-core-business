@@ -23,11 +23,21 @@
 	    }
 	    dialogInstance.Show();
 	  };
-	  grid.sendActionWithConfirm = function (action, data, confirmMessage) {
+	  grid.sendSmallPopupWithConfirm = function (action, data, confirmMessage, confirmButtonMessage, backButtonMessage) {
 	    BX.UI.Dialogs.MessageBox.confirm(confirmMessage, function (messageBox) {
 	      grid.sendRowAction(action, data);
 	      messageBox.close();
-	    }, BX.Loc.getMessage('UI_MESSAGE_BOX_YES_CAPTION'));
+	    }, confirmButtonMessage, function (messageBox) {
+	      messageBox.close();
+	    }, backButtonMessage);
+	  };
+	  grid.sendMediumPopupWithConfirm = function (action, data, titleMessage, confirmMessage, confirmButtonMessage, backButtonMessage) {
+	    BX.UI.Dialogs.MessageBox.confirm(confirmMessage, titleMessage, function (messageBox) {
+	      grid.sendRowAction(action, data);
+	      messageBox.close();
+	    }, confirmButtonMessage, function (messageBox) {
+	      messageBox.close();
+	    }, backButtonMessage);
 	  };
 	  return grid;
 	};

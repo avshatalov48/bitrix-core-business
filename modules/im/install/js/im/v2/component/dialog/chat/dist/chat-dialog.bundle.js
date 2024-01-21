@@ -3,166 +3,8 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_popup,pull_vue3_status,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_conferenceCreation,im_v2_lib_call,im_v2_lib_smileManager,im_v2_lib_animation,im_v2_lib_entityCreator,im_v2_lib_market,ui_notification,im_public,im_v2_lib_menu,im_v2_lib_permission,im_v2_lib_confirm,im_v2_provider_service,main_polyfill_intersectionobserver,main_core_events,im_v2_lib_rest,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_component_elements,im_v2_application_core,im_v2_const,im_v2_lib_user,im_v2_lib_logger,main_core,im_v2_lib_quote,im_v2_lib_utils,im_v2_lib_slider) {
+(function (exports,main_popup,pull_vue3_status,im_v2_component_messageList,im_v2_component_entitySelector,im_v2_lib_call,im_v2_provider_service,im_v2_lib_logger,im_v2_lib_animation,main_polyfill_intersectionobserver,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_rest,im_v2_lib_parser,main_core,im_v2_lib_quote,im_v2_lib_utils,im_v2_lib_slider) {
 	'use strict';
-
-	var _message = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("message");
-	var _hasFiles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasFiles");
-	var _hasText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasText");
-	var _hasAttach = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasAttach");
-	var _isEmptyMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isEmptyMessage");
-	var _isDeletedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
-	var _isSystemMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isSystemMessage");
-	var _isUnsupportedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUnsupportedMessage");
-	var _isChatCreationMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChatCreationMessage");
-	var _isConferenceCreationMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isConferenceCreationMessage");
-	var _isCallInviteMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCallInviteMessage");
-	var _isEmojiOnly = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isEmojiOnly");
-	var _hasSmilesOnly = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasSmilesOnly");
-	var _hasOnlyText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasOnlyText");
-	class MessageComponentManager {
-	  constructor(message) {
-	    Object.defineProperty(this, _hasOnlyText, {
-	      value: _hasOnlyText2
-	    });
-	    Object.defineProperty(this, _hasSmilesOnly, {
-	      value: _hasSmilesOnly2
-	    });
-	    Object.defineProperty(this, _isEmojiOnly, {
-	      value: _isEmojiOnly2
-	    });
-	    Object.defineProperty(this, _isCallInviteMessage, {
-	      value: _isCallInviteMessage2
-	    });
-	    Object.defineProperty(this, _isConferenceCreationMessage, {
-	      value: _isConferenceCreationMessage2
-	    });
-	    Object.defineProperty(this, _isChatCreationMessage, {
-	      value: _isChatCreationMessage2
-	    });
-	    Object.defineProperty(this, _isUnsupportedMessage, {
-	      value: _isUnsupportedMessage2
-	    });
-	    Object.defineProperty(this, _isSystemMessage, {
-	      value: _isSystemMessage2
-	    });
-	    Object.defineProperty(this, _isDeletedMessage, {
-	      value: _isDeletedMessage2
-	    });
-	    Object.defineProperty(this, _isEmptyMessage, {
-	      value: _isEmptyMessage2
-	    });
-	    Object.defineProperty(this, _hasAttach, {
-	      value: _hasAttach2
-	    });
-	    Object.defineProperty(this, _hasText, {
-	      value: _hasText2
-	    });
-	    Object.defineProperty(this, _hasFiles, {
-	      value: _hasFiles2
-	    });
-	    Object.defineProperty(this, _message, {
-	      writable: true,
-	      value: void 0
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message] = message;
-	  }
-	  getName() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
-	      return im_v2_const.MessageComponent.deleted;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isCallInviteMessage)[_isCallInviteMessage]()) {
-	      return im_v2_const.MessageComponent.callInvite;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isUnsupportedMessage)[_isUnsupportedMessage]()) {
-	      return im_v2_const.MessageComponent.unsupported;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isChatCreationMessage)[_isChatCreationMessage]()) {
-	      return im_v2_const.MessageComponent.chatCreation;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isConferenceCreationMessage)[_isConferenceCreationMessage]()) {
-	      return im_v2_const.MessageComponent.conferenceCreation;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isSystemMessage)[_isSystemMessage]()) {
-	      return im_v2_const.MessageComponent.system;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _hasFiles)[_hasFiles]()) {
-	      return im_v2_const.MessageComponent.file;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isEmojiOnly)[_isEmojiOnly]() || babelHelpers.classPrivateFieldLooseBase(this, _hasSmilesOnly)[_hasSmilesOnly]()) {
-	      return im_v2_const.MessageComponent.smile;
-	    }
-	    return im_v2_const.MessageComponent.default;
-	  }
-	}
-	function _hasFiles2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].files.length > 0;
-	}
-	function _hasText2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text.length > 0;
-	}
-	function _hasAttach2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].attach.length > 0;
-	}
-	function _isEmptyMessage2() {
-	  return !babelHelpers.classPrivateFieldLooseBase(this, _hasText)[_hasText]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasFiles)[_hasFiles]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasAttach)[_hasAttach]();
-	}
-	function _isDeletedMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].isDeleted || babelHelpers.classPrivateFieldLooseBase(this, _isEmptyMessage)[_isEmptyMessage]();
-	}
-	function _isSystemMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].authorId === 0;
-	}
-	function _isUnsupportedMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].componentId === im_v2_const.MessageComponent.unsupported;
-	}
-	function _isChatCreationMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].componentId === im_v2_const.MessageComponent.chatCreation;
-	}
-	function _isConferenceCreationMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].componentId === im_v2_const.MessageComponent.conferenceCreation;
-	}
-	function _isCallInviteMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].componentId === im_v2_const.MessageComponent.callInvite;
-	}
-	function _isEmojiOnly2() {
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].replyId > 0) {
-	    return false;
-	  }
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _hasOnlyText)[_hasOnlyText]()) {
-	    return false;
-	  }
-	  return im_v2_lib_utils.Utils.text.isEmojiOnly(babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text);
-	}
-	function _hasSmilesOnly2() {
-	  var _smileManager$smileLi, _smileManager$smileLi2;
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].replyId > 0) {
-	    return false;
-	  }
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _hasOnlyText)[_hasOnlyText]()) {
-	    return false;
-	  }
-
-	  // todo: need to sync with getSmileRatio in lib/parser/src/functions/smile.js
-	  const smileManager = im_v2_lib_smileManager.SmileManager.getInstance();
-	  const smiles = (_smileManager$smileLi = (_smileManager$smileLi2 = smileManager.smileList) == null ? void 0 : _smileManager$smileLi2.smiles) != null ? _smileManager$smileLi : [];
-	  const sortedSmiles = [...smiles].sort((a, b) => {
-	    return b.typing.localeCompare(a.typing);
-	  });
-	  const pattern = sortedSmiles.map(smile => {
-	    return im_v2_lib_utils.Utils.text.escapeRegex(smile.typing);
-	  }).join('|');
-	  const replacedText = babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text.replaceAll(new RegExp(pattern, 'g'), '');
-	  const hasOnlySmiles = replacedText.trim().length === 0;
-	  const matchOnlySmiles = new RegExp(`(?:(?:${pattern})\\s*){4,}`);
-	  return hasOnlySmiles && !matchOnlySmiles.test(babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text);
-	}
-	function _hasOnlyText2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _hasText)[_hasText]()) {
-	    return false;
-	  }
-	  return !babelHelpers.classPrivateFieldLooseBase(this, _hasFiles)[_hasFiles]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasAttach)[_hasAttach]();
-	}
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.Dialog.ScrollManager';
 	const SCROLLING_THRESHOLD = 1500;
@@ -291,450 +133,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  onScrollTriggerDown: 'onScrollTriggerDown',
 	  onScrollThresholdPass: 'onScrollThresholdPass'
 	};
-
-	class CollectionManager {
-	  constructor(dialogId) {
-	    this.firstIteration = true;
-	    this.cachedDateGroups = {};
-	    this.store = im_v2_application_core.Core.getStore();
-	    this.dialogId = dialogId;
-	  }
-	  formatMessageCollection(messageCollection) {
-	    const dateGroups = {};
-	    const collection = [];
-	    let lastDateItems = null;
-	    let lastAuthorId = null;
-	    let lastAuthorItems = null;
-	    const dialog = this.store.getters['dialogues/get'](this.dialogId);
-	    const {
-	      markedId,
-	      inited
-	    } = dialog;
-	    let markInserted = false;
-	    const lastReadId = this.store.getters['dialogues/getLastReadId'](this.dialogId);
-	    if (this.firstIteration) {
-	      this.initialLastReadMessage = lastReadId;
-	      this.initialMarkedId = markedId;
-	    }
-	    if (markedId !== this.initialMarkedId && markedId !== 0) {
-	      this.initialMarkedId = markedId;
-	      this.initialLastReadMessage = null;
-	    }
-	    messageCollection.forEach((message, index) => {
-	      const dateGroup = this.getDateGroup(message.date);
-	      // new date = new date group + new author group
-	      if (!dateGroups[dateGroup.title]) {
-	        dateGroups[dateGroup.title] = dateGroup.id;
-	        lastDateItems = [];
-	        collection.push({
-	          type: im_v2_const.DialogBlockType.dateGroup,
-	          date: dateGroup,
-	          items: lastDateItems
-	        });
-	        lastAuthorId = null;
-	      }
-
-	      // marked messages
-	      if (message.id === this.initialMarkedId) {
-	        lastDateItems.push({
-	          type: im_v2_const.DialogBlockType.markedMessages
-	        });
-	        lastAuthorId = null;
-	        markInserted = true;
-	      }
-
-	      // new author = new author group
-	      if (message.authorId !== lastAuthorId) {
-	        lastAuthorId = message.authorId;
-	        lastAuthorItems = [];
-	        lastDateItems.push({
-	          type: im_v2_const.DialogBlockType.authorGroup,
-	          userId: message.authorId,
-	          avatar: this.getAvatarConfig(message),
-	          messageType: this.getMessageType(message),
-	          items: lastAuthorItems
-	        });
-	      }
-
-	      // add current message to last active author group
-	      lastAuthorItems.push(message);
-
-	      // new messages block
-	      const isLastMessage = index === messageCollection.length - 1;
-	      if (!markInserted && !isLastMessage && message.id === this.initialLastReadMessage) {
-	        lastDateItems.push({
-	          type: im_v2_const.DialogBlockType.newMessages
-	        });
-	        lastAuthorId = null;
-	      }
-	    });
-	    if (inited) {
-	      this.firstIteration = false;
-	    }
-	    return collection;
-	  }
-	  getDateGroup(date) {
-	    const INDEX_BETWEEN_DATE_AND_TIME = 10;
-	    // 2022-10-25T14:58:44.000Z => 2022-10-25
-	    const shortDate = date.toJSON().slice(0, INDEX_BETWEEN_DATE_AND_TIME);
-	    if (this.cachedDateGroups[shortDate]) {
-	      return this.cachedDateGroups[shortDate];
-	    }
-	    this.cachedDateGroups[shortDate] = {
-	      id: shortDate,
-	      title: im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(date, im_v2_lib_dateFormatter.DateTemplate.dateGroup)
-	    };
-	    return this.cachedDateGroups[shortDate];
-	  }
-	  getAvatarConfig(message) {
-	    const messageType = this.getMessageType(message);
-	    const isSystem = messageType === im_v2_const.MessageType.system;
-	    const isSelf = messageType === im_v2_const.MessageType.self;
-	    const alignment = this.store.getters['application/settings/get'](im_v2_const.Settings.appearance.alignment);
-	    let isNeeded = true;
-	    if (alignment === im_v2_const.DialogAlignment.left) {
-	      isNeeded = !isSystem;
-	    } else if (alignment === im_v2_const.DialogAlignment.center) {
-	      isNeeded = !isSelf && !isSystem;
-	    }
-	    return {
-	      isNeeded,
-	      avatarId: message.authorId.toString()
-	    };
-	  }
-	  getMessageType(message) {
-	    if (!message.authorId) {
-	      return im_v2_const.MessageType.system;
-	    }
-	    if (message.authorId === im_v2_application_core.Core.getUserId()) {
-	      return im_v2_const.MessageType.self;
-	    }
-	    return im_v2_const.MessageType.opponent;
-	  }
-	}
-
-	var _isOwnMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOwnMessage");
-	var _isDeletedMessage$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
-	var _getMessageFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageFile");
-	class MessageMenu extends im_v2_lib_menu.BaseMenu {
-	  constructor() {
-	    super();
-	    Object.defineProperty(this, _getMessageFile, {
-	      value: _getMessageFile2
-	    });
-	    Object.defineProperty(this, _isDeletedMessage$1, {
-	      value: _isDeletedMessage2$1
-	    });
-	    Object.defineProperty(this, _isOwnMessage, {
-	      value: _isOwnMessage2
-	    });
-	    this.id = 'bx-im-message-context-menu';
-	    this.diskService = new im_v2_provider_service.DiskService();
-	    this.marketManager = im_v2_lib_market.MarketManager.getInstance();
-	  }
-	  getMenuOptions() {
-	    return {
-	      ...super.getMenuOptions(),
-	      className: this.getMenuClassName(),
-	      angle: true,
-	      offsetLeft: 11
-	    };
-	  }
-	  getMenuItems() {
-	    return [this.getReplyItem(), this.getCopyItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDisk(), this.getPinItem(), this.getFavoriteItem(), this.getMarkItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getEditItem(), this.getDelimiter(), this.getDeleteItem()];
-	  }
-	  getReplyItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_REPLY'),
-	      onclick: () => {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.replyMessage, {
-	          messageId: this.context.id
-	        });
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getCopyItem() {
-	    if (this.context.files.length === 0) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_FILE'),
-	      onclick: () => {
-	        var _BX$clipboard;
-	        const textToCopy = im_v2_lib_parser.Parser.prepareCopy(this.context);
-	        if ((_BX$clipboard = BX.clipboard) != null && _BX$clipboard.copy(textToCopy)) {
-	          BX.UI.Notification.Center.notify({
-	            content: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_FILE_SUCCESS')
-	          });
-	        }
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getPinItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
-	      return null;
-	    }
-	    const isPinned = this.store.getters['messages/pin/isPinned']({
-	      chatId: this.context.chatId,
-	      messageId: this.context.id
-	    });
-	    return {
-	      text: isPinned ? main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_UNPIN') : main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_PIN'),
-	      onclick: () => {
-	        const messageService = new im_v2_provider_service.MessageService({
-	          chatId: this.context.chatId
-	        });
-	        if (isPinned) {
-	          messageService.unpinMessage(this.context.chatId, this.context.id);
-	        } else {
-	          messageService.pinMessage(this.context.chatId, this.context.id);
-	        }
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getFavoriteItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
-	      return null;
-	    }
-	    const isInFavorite = this.store.getters['sidebar/favorites/isFavoriteMessage'](this.context.chatId, this.context.id);
-	    const menuItemText = isInFavorite ? main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_REMOVE_FROM_SAVED') : main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE');
-	    return {
-	      text: menuItemText,
-	      onclick: () => {
-	        const messageService = new im_v2_provider_service.MessageService({
-	          chatId: this.context.chatId
-	        });
-	        if (isInFavorite) {
-	          messageService.removeMessageFromFavorite(this.context.id);
-	        } else {
-	          messageService.addMessageToFavorite(this.context.id);
-	        }
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getMarkItem() {
-	    const canUnread = this.context.viewed && !babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]();
-	    const dialog = this.store.getters['dialogues/getByChatId'](this.context.chatId);
-	    const isMarked = this.context.id === dialog.markedId;
-	    if (!canUnread || isMarked) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_MARK'),
-	      onclick: () => {
-	        const messageService = new im_v2_provider_service.MessageService({
-	          chatId: this.context.chatId
-	        });
-	        messageService.markMessage(this.context.id);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getCreateItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE'),
-	      items: [this.getCreateTaskItem(), this.getCreateMeetingItem(), ...this.getMarketItems()]
-	    };
-	  }
-	  getCreateTaskItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE_TASK'),
-	      onclick: () => {
-	        const entityCreator = new im_v2_lib_entityCreator.EntityCreator(this.context.chatId);
-	        void entityCreator.createTaskForMessage(this.context.id);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getCreateMeetingItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_CREATE_MEETING'),
-	      onclick: () => {
-	        const entityCreator = new im_v2_lib_entityCreator.EntityCreator(this.context.chatId);
-	        void entityCreator.createMeetingForMessage(this.context.id);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getEditItem() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_EDIT'),
-	      onclick: () => {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.editMessage, {
-	          messageId: this.context.id
-	        });
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getDeleteItem() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_DELETE'),
-	      onclick: () => {
-	        const messageService = new im_v2_provider_service.MessageService({
-	          chatId: this.context.chatId
-	        });
-	        messageService.deleteMessage(this.context.id);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getMarketItems() {
-	    const {
-	      dialogId,
-	      id
-	    } = this.context;
-	    const placements = this.marketManager.getAvailablePlacementsByType(im_v2_const.PlacementType.contextMenu, dialogId);
-	    const marketMenuItem = [];
-	    if (placements.length > 0) {
-	      marketMenuItem.push(this.getDelimiter());
-	    }
-	    const context = {
-	      messageId: id,
-	      dialogId
-	    };
-	    placements.forEach(placement => {
-	      marketMenuItem.push({
-	        text: placement.title,
-	        onclick: () => {
-	          im_v2_lib_market.MarketManager.openSlider(placement, context);
-	          this.menuInstance.close();
-	        }
-	      });
-	    });
-
-	    // (10 items + 1 delimiter), because we don't want to show long context menu.
-	    const itemLimit = 11;
-	    return marketMenuItem.slice(0, itemLimit);
-	  }
-	  getDownloadFileItem() {
-	    const file = babelHelpers.classPrivateFieldLooseBase(this, _getMessageFile)[_getMessageFile]();
-	    if (!file) {
-	      return null;
-	    }
-	    return {
-	      html: im_v2_lib_utils.Utils.file.createDownloadLink(main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_DOWNLOAD_FILE'), file.urlDownload, file.name),
-	      onclick: function () {
-	        this.menuInstance.close();
-	      }.bind(this)
-	    };
-	  }
-	  getSaveToDisk() {
-	    const file = babelHelpers.classPrivateFieldLooseBase(this, _getMessageFile)[_getMessageFile]();
-	    if (!file) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK'),
-	      onclick: function () {
-	        void this.diskService.save(file.id).then(() => {
-	          BX.UI.Notification.Center.notify({
-	            content: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_SAVE_ON_DISK_SUCCESS')
-	          });
-	        });
-	        this.menuInstance.close();
-	      }.bind(this)
-	    };
-	  }
-	  getDelimiter() {
-	    return {
-	      delimiter: true
-	    };
-	  }
-	}
-	function _isOwnMessage2() {
-	  return this.context.authorId === im_v2_application_core.Core.getUserId();
-	}
-	function _isDeletedMessage2$1() {
-	  return this.context.isDeleted;
-	}
-	function _getMessageFile2() {
-	  if (this.context.files.length === 0) {
-	    return null;
-	  }
-
-	  // for now, we have only one file in one message. In the future we need to change this logic.
-	  return this.store.getters['files/get'](this.context.files[0]);
-	}
-
-	class AvatarMenu extends im_v2_lib_menu.BaseMenu {
-	  constructor() {
-	    super();
-	    this.id = 'bx-im-avatar-context-menu';
-	    this.permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
-	  }
-	  getMenuOptions() {
-	    return {
-	      ...super.getMenuOptions(),
-	      className: this.getMenuClassName(),
-	      angle: true,
-	      offsetLeft: 21
-	    };
-	  }
-	  getMenuItems() {
-	    return [this.getMentionItem(), this.getSendItem(), this.getProfileItem(), this.getKickItem()];
-	  }
-	  getMentionItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_MENTION_2'),
-	      onclick: () => {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
-	          mentionText: this.context.user.name,
-	          mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(this.context.user.id, this.context.user.name)
-	        });
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getSendItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_SEND_MESSAGE'),
-	      onclick: () => {
-	        im_public.Messenger.openChat(this.context.user.id);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getProfileItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_OPEN_PROFILE'),
-	      href: im_v2_lib_utils.Utils.user.getProfileLink(this.context.user.id),
-	      onclick: () => {
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getKickItem() {
-	    const canKick = this.permissionManager.canPerformKick(this.context.dialog.dialogId, this.context.user.id);
-	    if (!canKick) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_KICK'),
-	      onclick: async () => {
-	        this.menuInstance.close();
-	        const userChoice = await im_v2_lib_confirm.showKickUserConfirm();
-	        if (userChoice === true) {
-	          const chatService = new im_v2_provider_service.ChatService();
-	          chatService.kickUserFromChat(this.context.dialog.dialogId, this.context.user.id);
-	        }
-	      }
-	    };
-	  }
-	}
 
 	const EVENT_NAMESPACE$1 = 'BX.Messenger.v2.Dialog.ObserverManager';
 	var _observer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observer");
@@ -874,7 +272,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog] = im_v2_application_core.Core.getStore().getters['dialogues/get'](dialogId);
+	    babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog] = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
 	    babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient] = im_v2_application_core.Core.getPullClient();
 	  }
 	  onChatLoad() {
@@ -905,60 +303,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  });
 	}
 	function _isGuest2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].role === im_v2_const.UserRole.guest && babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].dialogId !== 'settings';
+	  var _babelHelpers$classPr, _babelHelpers$classPr2;
+	  return ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr.role) === im_v2_const.UserRole.guest && ((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr2.dialogId) !== 'settings';
 	}
-
-	// @vue/component
-	const NewMessagesBlock = {
-	  data() {
-	    return {};
-	  },
-	  methods: {
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-dialog-chat__new-message-block">
-			<div class="bx-im-dialog-chat__new-message-block_text">{{ loc('IM_DIALOG_CHAT_BLOCK_NEW_MESSAGES_2') }}</div>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const MarkedMessagesBlock = {
-	  data() {
-	    return {};
-	  },
-	  methods: {
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-dialog-chat__new-message-block">
-			<div class="bx-im-dialog-chat__new-message-block_text">{{ loc('IM_DIALOG_CHAT_BLOCK_MARKED_MESSAGES') }}</div>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const DateGroupTitle = {
-	  props: {
-	    title: {
-	      type: String,
-	      required: true
-	    }
-	  },
-	  data() {
-	    return {};
-	  },
-	  template: `
-		<div class="bx-im-dialog-chat__date-group_title_container">
-			<div class="bx-im-dialog-chat__date-group_title">{{ title }}</div>
-		</div>
-	`
-	};
 
 	// @vue/component
 	const PinnedMessage = {
@@ -1034,273 +381,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _restClient = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
-	var _userManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userManager");
-	class UserService {
-	  constructor() {
-	    Object.defineProperty(this, _store, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _restClient, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _userManager, {
-	      writable: true,
-	      value: void 0
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient] = im_v2_application_core.Core.getRestClient();
-	    babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager] = new im_v2_lib_user.UserManager();
-	  }
-	  loadReadUsers(messageId) {
-	    let users = [];
-	    im_v2_lib_logger.Logger.warn('Dialog: UserService: loadReadUsers', messageId);
-	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient)[_restClient].callMethod(im_v2_const.RestMethod.imV2ChatMessageTailViewers, {
-	      id: messageId
-	    }).then(response => {
-	      users = response.data().users;
-	      return babelHelpers.classPrivateFieldLooseBase(this, _userManager)[_userManager].setUsersToModel(Object.values(users));
-	    }).then(() => {
-	      return users.map(user => user.id);
-	    }).catch(error => {
-	      console.error('Dialog: UserService: loadReadUsers error', error);
-	      throw new Error(error);
-	    });
-	  }
-	}
-
-	// @vue/component
-	const AdditionalUsers = {
-	  components: {
-	    UserListPopup: im_v2_component_elements.UserListPopup
-	  },
-	  props: {
-	    dialogId: {
-	      type: String,
-	      required: true
-	    },
-	    show: {
-	      type: Boolean,
-	      required: true
-	    },
-	    bindElement: {
-	      type: Object,
-	      required: true
-	    }
-	  },
-	  emits: ['close'],
-	  data() {
-	    return {
-	      showPopup: false,
-	      loadingAdditionalUsers: false,
-	      additionalUsers: []
-	    };
-	  },
-	  computed: {
-	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
-	    }
-	  },
-	  watch: {
-	    show(newValue, oldValue) {
-	      if (!oldValue && newValue) {
-	        this.showPopup = true;
-	        this.loadUsers();
-	      }
-	    }
-	  },
-	  methods: {
-	    loadUsers() {
-	      this.loadingAdditionalUsers = true;
-	      this.getUserService().loadReadUsers(this.dialog.lastMessageId).then(userIds => {
-	        this.additionalUsers = this.prepareAdditionalUsers(userIds);
-	        this.loadingAdditionalUsers = false;
-	      }).catch(() => {
-	        this.loadingAdditionalUsers = false;
-	      });
-	    },
-	    onPopupClose() {
-	      this.showPopup = false;
-	      this.$emit('close');
-	    },
-	    prepareAdditionalUsers(userIds) {
-	      const firstViewerId = this.dialog.lastMessageViews.firstViewer.userId;
-	      return userIds.filter(userId => {
-	        return userId !== im_v2_application_core.Core.getUserId() && userId !== firstViewerId;
-	      });
-	    },
-	    getUserService() {
-	      if (!this.userService) {
-	        this.userService = new UserService();
-	      }
-	      return this.userService;
-	    }
-	  },
-	  template: `
-		<UserListPopup
-			id="bx-im-dialog-read-users"
-			:showPopup="showPopup"
-			:loading="loadingAdditionalUsers"
-			:userIds="additionalUsers"
-			:bindElement="bindElement || {}"
-			:withAngle="false"
-			:forceTop="true"
-			@close="onPopupClose"
-		/>
-	`
-	};
-
-	const TYPING_USERS_COUNT = 3;
-	const MORE_USERS_CSS_CLASS = 'bx-im-dialog-chat-status__user-count';
-
-	// @vue/component
-	const DialogStatus = {
-	  components: {
-	    AdditionalUsers
-	  },
-	  props: {
-	    dialogId: {
-	      required: true,
-	      type: String
-	    }
-	  },
-	  data() {
-	    return {
-	      showAdditionalUsers: false,
-	      additionalUsersLinkElement: null
-	    };
-	  },
-	  computed: {
-	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
-	    },
-	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
-	    },
-	    isChat() {
-	      return !this.isUser;
-	    },
-	    typingStatus() {
-	      if (!this.dialog.inited || this.dialog.writingList.length === 0) {
-	        return '';
-	      }
-	      const firstTypingUsers = this.dialog.writingList.slice(0, TYPING_USERS_COUNT);
-	      const text = firstTypingUsers.map(element => element.userName).join(', ');
-	      const remainingUsersCount = this.dialog.writingList.length - TYPING_USERS_COUNT;
-	      if (remainingUsersCount > 0) {
-	        return this.loc('IM_DIALOG_CHAT_STATUS_TYPING_PLURAL', {
-	          '#USER#': text,
-	          '#COUNT#': remainingUsersCount
-	        });
-	      }
-	      return this.loc('IM_DIALOG_CHAT_STATUS_TYPING', {
-	        '#USER#': text
-	      });
-	    },
-	    readStatus() {
-	      if (!this.dialog.inited) {
-	        return '';
-	      }
-	      if (this.lastMessageViews.countOfViewers === 0) {
-	        return '';
-	      }
-	      if (this.isUser) {
-	        return this.formatUserViewStatus();
-	      }
-	      return this.formatChatViewStatus();
-	    },
-	    lastMessageViews() {
-	      return this.dialog.lastMessageViews;
-	    }
-	  },
-	  methods: {
-	    formatUserViewStatus() {
-	      const {
-	        date
-	      } = this.lastMessageViews.firstViewer;
-	      return this.loc('IM_DIALOG_CHAT_STATUS_READ_USER', {
-	        '#DATE#': im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(date, im_v2_lib_dateFormatter.DateTemplate.messageReadStatus)
-	      });
-	    },
-	    formatChatViewStatus() {
-	      const {
-	        countOfViewers,
-	        firstViewer
-	      } = this.lastMessageViews;
-	      if (countOfViewers === 1) {
-	        return this.loc('IM_DIALOG_CHAT_STATUS_READ_CHAT', {
-	          '#USER#': firstViewer.userName
-	        });
-	      }
-	      return this.loc('IM_DIALOG_CHAT_STATUS_READ_CHAT_PLURAL', {
-	        '#USERS#': main_core.Text.encode(firstViewer.userName),
-	        '#LINK_START#': `<span class="${MORE_USERS_CSS_CLASS}" ref="moreUsersLink">`,
-	        '#COUNT#': countOfViewers - 1,
-	        '#LINK_END#': '</span>'
-	      });
-	    },
-	    onClick(event) {
-	      if (!event.target.matches(`.${MORE_USERS_CSS_CLASS}`)) {
-	        return;
-	      }
-	      this.onMoreUsersClick();
-	    },
-	    onMoreUsersClick() {
-	      this.additionalUsersLinkElement = document.querySelector(`.${MORE_USERS_CSS_CLASS}`);
-	      this.showAdditionalUsers = true;
-	    },
-	    loc(phraseCode, replacements = {}) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
-	    }
-	  },
-	  template: `
-		<div @click="onClick" class="bx-im-dialog-chat-status__container">
-			<div v-if="typingStatus" class="bx-im-dialog-chat-status__content">
-				<div class="bx-im-dialog-chat-status__icon --typing"></div>
-				<div class="bx-im-dialog-chat-status__text">{{ typingStatus }}</div>
-			</div>
-			<div v-else-if="readStatus" class="bx-im-dialog-chat-status__content">
-				<div class="bx-im-dialog-chat-status__icon --read"></div>
-				<div v-html="readStatus" class="bx-im-dialog-chat-status__text"></div>
-			</div>
-			<AdditionalUsers
-				:dialogId="dialogId"
-				:show="showAdditionalUsers"
-				:bindElement="additionalUsersLinkElement || {}"
-				@close="showAdditionalUsers = false"
-			/>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const DialogLoader = {
-	  name: 'DialogLoader',
-	  props: {
-	    fullHeight: {
-	      type: Boolean,
-	      default: true
-	    }
-	  },
-	  data() {
-	    return {};
-	  },
-	  methods: {
-	    loc(phraseCode) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode);
-	    }
-	  },
-	  template: `
-		<div class="bx-im-dialog-loader__container" :class="{'--full-height': fullHeight}">
-			<div class="bx-im-dialog-loader__spinner"></div>
-			<div class="bx-im-dialog-loader__text">{{ loc('IM_DIALOG_CHAT_LOADER_TEXT') }}</div>
-		</div>
-	`
-	};
-
 	var _sliderRect$top;
 	const CONTAINER_HEIGHT = 44;
 	const CONTAINER_WIDTH = 60;
@@ -1308,6 +388,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const slider = im_v2_lib_slider.MessengerSlider.getInstance().getCurrent();
 	const sliderRect = slider == null ? void 0 : slider.layout.container.getBoundingClientRect();
 	const offsetY = (_sliderRect$top = sliderRect == null ? void 0 : sliderRect.top) != null ? _sliderRect$top : 0;
+	const MESSAGE_TEXT_NODE_CLASS = '.bx-im-message-default-content__text';
 
 	// @vue/component
 	const QuoteButton = {
@@ -1356,14 +437,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      const range = window.getSelection().getRangeAt(0);
-	      const selectedNodes = range.cloneContents().childNodes;
-	      for (const node of selectedNodes) {
+	      const rangeContents = range.cloneContents();
+	      let nodesToIterate = rangeContents.childNodes;
+	      const messageNode = rangeContents.querySelector(MESSAGE_TEXT_NODE_CLASS);
+	      if (messageNode) {
+	        nodesToIterate = messageNode.childNodes;
+	      }
+	      for (const node of nodesToIterate) {
 	        if (this.isImage(node)) {
 	          var _node$getAttribute;
 	          this.text += (_node$getAttribute = node.getAttribute('data-code')) != null ? _node$getAttribute : node.getAttribute('alt');
 	        } else if (this.isLineBreak(node)) {
 	          this.text += '\n';
-	        } else if (this.isMessageTextNode(node) || this.isText(node)) {
+	        } else {
 	          this.text += node.textContent;
 	        }
 	      }
@@ -1384,9 +470,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!(node instanceof HTMLElement)) {
 	        return false;
 	      }
-	      const MESSAGE_TEXT_NODE_CLASS = '.bx-im-message-default-content__text';
-	      const textNode = node.querySelector(MESSAGE_TEXT_NODE_CLASS);
+	      const textNode = node.matches(MESSAGE_TEXT_NODE_CLASS);
 	      return Boolean(textNode);
+	    },
+	    extractTextFromMessageNode(node) {
+	      const textNode = node.querySelector(MESSAGE_TEXT_NODE_CLASS);
+	      if (!textNode) {
+	        return node.textContent;
+	      }
+	      return textNode.textContent;
 	    },
 	    onQuoteClick() {
 	      im_v2_lib_quote.Quote.sendQuoteEvent(this.message, this.text);
@@ -1408,35 +500,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ChatDialog = {
 	  name: 'ChatDialog',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar,
-	    DefaultMessage: im_v2_component_message_default.DefaultMessage,
-	    FileMessage: im_v2_component_message_file.FileMessage,
-	    SmileMessage: im_v2_component_message_smile.SmileMessage,
-	    CallInviteMessage: im_v2_component_message_callInvite.CallInviteMessage,
-	    DeletedMessage: im_v2_component_message_deleted.DeletedMessage,
-	    SystemMessage: im_v2_component_message_system.SystemMessage,
-	    UnsupportedMessage: im_v2_component_message_unsupported.UnsupportedMessage,
-	    ChatCreationMessage: im_v2_component_message_chatCreation.ChatCreationMessage,
-	    ConferenceCreationMessage: im_v2_component_message_conferenceCreation.ConferenceCreationMessage,
+	    MessageList: im_v2_component_messageList.MessageList,
 	    PinnedMessages,
-	    NewMessagesBlock,
-	    MarkedMessagesBlock,
-	    DateGroupTitle,
-	    ChatInfoPopup: im_v2_component_elements.ChatInfoPopup,
-	    DialogStatus,
-	    DialogLoader,
 	    QuoteButton,
-	    PullStatus: pull_vue3_status.PullStatus
-	  },
-	  directives: {
-	    'message-observer': {
-	      mounted(element, binding) {
-	        binding.instance.observerManager.observeMessage(element);
-	      },
-	      beforeUnmount(element, binding) {
-	        binding.instance.observerManager.unobserveMessage(element);
-	      }
-	    }
+	    PullStatus: pull_vue3_status.PullStatus,
+	    ForwardPopup: im_v2_component_entitySelector.ForwardPopup
 	  },
 	  props: {
 	    dialogId: {
@@ -1450,11 +518,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  data() {
 	    return {
-	      messageMenuIsActiveForId: 0,
-	      chatInfoPopup: {
-	        element: null,
-	        dialogId: 0,
-	        show: false
+	      forwardPopup: {
+	        show: false,
+	        messageId: 0
 	      },
 	      contextMode: {
 	        active: false,
@@ -1470,22 +536,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  },
 	  computed: {
-	    BlockType: () => im_v2_const.DialogBlockType,
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    layout() {
 	      return this.$store.getters['application/getLayout'];
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    dialogInited() {
 	      return this.dialog.inited;
-	    },
-	    formattedCollection() {
-	      if (!this.dialogInited && this.messageCollection.length === 0) {
-	        return [];
-	      }
-	      return this.getCollectionManager().formatMessageCollection(this.messageCollection);
 	    },
 	    messageCollection() {
 	      return this.$store.getters['messages/get'](this.dialog.chatId);
@@ -1516,10 +574,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      return String(this.dialog.counter);
 	    },
-	    showDialogStatus() {
-	      return this.messageCollection.some(message => {
-	        return message.id === this.dialog.lastMessageId;
-	      });
+	    messageListComponent() {
+	      return im_v2_component_messageList.MessageList;
 	    },
 	    showScrollButton() {
 	      return this.isScrolledUp || this.dialog.hasNextPage;
@@ -1545,8 +601,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  created() {
 	    im_v2_lib_logger.Logger.warn('Dialog: Chat created', this.dialogId);
-	    this.getCollectionManager();
-	    this.initContextMenu();
 	    this.initObserverManager();
 	    this.initContextMode();
 	  },
@@ -1565,13 +619,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.subscribeToEvents();
 	  },
 	  beforeUnmount() {
-	    this.closeMessageMenu();
 	    this.unsubscribeFromEvents();
 	    if (this.dialogInited) {
 	      this.saveScrollPosition();
 	      this.loadMessagesOnExit();
 	    }
 	    this.getPullWatchManager().onChatExit();
+	    this.closeDialogPopups();
+	    this.forwardPopup.show = false;
 	  },
 	  methods: {
 	    readVisibleMessages() {
@@ -1594,7 +649,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        }
 	        // chat was loaded before
 	        else if (this.contextMode.active && !this.contextMode.messageIsLoaded) {
-	          void this.goToMessageContext(this.layout.contextId);
+	          this.goToMessageContext(this.layout.contextId);
 	        }
 	        // marked message
 	        else if (this.dialog.markedId) {
@@ -1606,7 +661,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	          this.getScrollManager().scrollToMessage(this.dialog.savedPositionMessageId);
 	        }
 	        // unread message
-	        else if (this.$store.getters['dialogues/getLastReadId'](this.dialogId)) {
+	        else if (this.$store.getters['chats/getLastReadId'](this.dialogId)) {
 	          this.getScrollManager().scrollToMessage(im_v2_const.DialogBlockType.newMessages, -FLOATING_DATE_OFFSET);
 	        }
 	        // new chat with unread messages
@@ -1617,29 +672,24 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        }
 	      });
 	    },
-	    goToMessageContext(messageId) {
+	    async goToMessageContext(messageId) {
 	      const hasMessage = this.$store.getters['messages/hasMessage']({
 	        chatId: this.dialog.chatId,
 	        messageId
 	      });
 	      if (hasMessage) {
 	        im_v2_lib_logger.Logger.warn('Dialog: we have this message, scrolling to it', messageId);
-	        return this.getScrollManager().animatedScrollToMessage(messageId, -FLOATING_DATE_OFFSET).then(() => {
-	          this.highlightMessage(messageId);
-	          return true;
-	        });
-	      }
-	      return this.getMessageService().loadContext(messageId).then(() => {
-	        return this.$nextTick();
-	      }).then(() => {
-	        this.getScrollManager().scrollToMessage(messageId, -FLOATING_DATE_OFFSET);
-	        return this.$nextTick();
-	      }).then(() => {
+	        await this.getScrollManager().animatedScrollToMessage(messageId, -FLOATING_DATE_OFFSET);
 	        this.highlightMessage(messageId);
-	        return true;
-	      }).catch(error => {
+	        return;
+	      }
+	      await this.getMessageService().loadContext(messageId).catch(error => {
 	        im_v2_lib_logger.Logger.error('goToMessageContext error', error);
 	      });
+	      await this.$nextTick();
+	      this.getScrollManager().scrollToMessage(messageId, -FLOATING_DATE_OFFSET);
+	      await this.$nextTick();
+	      this.highlightMessage(messageId);
 	    },
 	    highlightMessage(messageId) {
 	      const HIGHLIGHT_CLASS = 'bx-im-dialog-chat__highlighted-message';
@@ -1658,7 +708,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.getScrollManager().isAroundBottom()) {
 	        savedPositionMessageId = 0;
 	      }
-	      this.$store.dispatch('dialogues/update', {
+	      this.$store.dispatch('chats/update', {
 	        dialogId: this.dialogId,
 	        fields: {
 	          savedPositionMessageId
@@ -1680,13 +730,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      // if chat wasn't loaded before - we load it with context
 	      this.contextMode.messageIsLoaded = !this.dialogInited;
 	    },
-	    initContextMenu() {
-	      this.messageMenu = new MessageMenu();
-	      this.messageMenu.subscribe(MessageMenu.events.onCloseMenu, () => {
-	        this.messageMenuIsActiveForId = 0;
-	      });
-	      this.avatarMenu = new AvatarMenu();
-	    },
 	    initObserverManager() {
 	      this.observerManager = new ObserverManager();
 	      this.observerManager.subscribe(ObserverManager.events.onMessageIsVisible, () => {
@@ -1695,12 +738,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getObserverManager() {
 	      return this.observerManager;
-	    },
-	    getCollectionManager() {
-	      if (!this.collectionManager) {
-	        this.collectionManager = new CollectionManager(this.dialogId);
-	      }
-	      return this.collectionManager;
 	    },
 	    getMessageService() {
 	      if (!this.messageService) {
@@ -1802,7 +839,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.getScrollManager().checkIfChatIsScrolledUp();
 	      }
 	    },
-	    onScrollToBottom(event) {
+	    async onScrollToBottom(event) {
 	      const {
 	        chatId,
 	        threshold = im_v2_const.DialogScrollThreshold.halfScreenUp,
@@ -1814,9 +851,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!this.windowFocused || this.hasVisibleCall()) {
 	        const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
 	        if (firstUnreadId) {
-	          void this.$nextTick(() => {
-	            this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
-	          });
+	          await this.$nextTick();
+	          this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
 	          return;
 	        }
 	      }
@@ -1827,13 +863,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (threshold === im_v2_const.DialogScrollThreshold.nearTheBottom && !this.getScrollManager().isAroundBottom()) {
 	        return;
 	      }
-	      void this.$nextTick(() => {
-	        if (animation) {
-	          this.getScrollManager().animatedScrollToBottom();
-	          return;
-	        }
-	        this.getScrollManager().scrollToBottom();
-	      });
+	      await this.$nextTick();
+	      if (animation) {
+	        this.getScrollManager().animatedScrollToBottom();
+	        return;
+	      }
+	      this.getScrollManager().scrollToBottom();
 	    },
 	    onGoToMessageContext(event) {
 	      const {
@@ -1843,34 +878,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.dialog.dialogId !== dialogId) {
 	        return;
 	      }
-	      void this.goToMessageContext(messageId);
-	    },
-	    onOpenChatInfo(event) {
-	      const {
-	        dialogId,
-	        event: $event
-	      } = event.getData();
-	      this.chatInfoPopup.element = $event.target;
-	      this.chatInfoPopup.dialogId = dialogId;
-	      this.chatInfoPopup.show = true;
+	      this.goToMessageContext(messageId);
 	    },
 	    onPinnedMessageClick(messageId) {
-	      void this.goToMessageContext(messageId);
+	      this.goToMessageContext(messageId);
 	    },
 	    onPinnedMessageUnpin(messageId) {
 	      this.getMessageService().unpinMessage(this.dialog.chatId, messageId);
-	    },
-	    onMessageContextMenuClick(eventData) {
-	      const {
-	        message,
-	        event
-	      } = eventData.getData();
-	      const context = {
-	        dialogId: this.dialogId,
-	        ...message
-	      };
-	      this.messageMenu.openMenu(context, event.currentTarget);
-	      this.messageMenuIsActiveForId = message.id;
 	    },
 	    onScroll(event) {
 	      this.closeDialogPopups();
@@ -1901,24 +915,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onWindowBlur() {
 	      this.windowFocused = false;
 	    },
-	    onAvatarClick(dialogId, event) {
-	      const user = this.$store.getters['users/get'](dialogId);
-	      const userId = Number.parseInt(dialogId, 10);
-	      if (!user || im_v2_application_core.Core.getUserId() === userId) {
-	        return;
-	      }
-	      if (im_v2_lib_utils.Utils.key.isAltOrOption(event)) {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
-	          mentionText: user.name,
-	          mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(user.id, user.name)
-	        });
-	        return;
-	      }
-	      this.avatarMenu.openMenu({
-	        user,
-	        dialog: this.dialog
-	      }, event.currentTarget);
-	    },
 	    onCallFold() {
 	      const callDialogId = im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId();
 	      if (callDialogId !== this.dialogId) {
@@ -1930,6 +926,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.isGuest) {
 	        event.stopPropagation();
 	      }
+	    },
+	    async onShowQuoteButton(message, event) {
+	      this.showQuoteButton = true;
+	      await this.$nextTick();
+	      this.$refs.quoteButton.onMessageMouseUp(message, event);
 	    },
 	    handleSecondScrollButtonClick() {
 	      this.getScrollManager().scrollButtonClicked = false;
@@ -1950,52 +951,43 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return im_v2_lib_call.CallManager.getInstance().hasVisibleCall();
 	    },
 	    closeDialogPopups() {
-	      var _PopupManager$getPopu, _PopupManager$getPopu2, _PopupManager$getPopu3;
-	      this.closeMessageMenu();
-	      this.chatInfoPopup.show = false;
+	      var _PopupManager$getPopu, _PopupManager$getPopu2, _PopupManager$getPopu3, _PopupManager$getPopu4, _PopupManager$getPopu5;
 	      this.showQuoteButton = false;
-	      this.avatarMenu.close();
-	      (_PopupManager$getPopu = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.dialogReactionUsers)) == null ? void 0 : _PopupManager$getPopu.close();
-	      (_PopupManager$getPopu2 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.dialogReadUsers)) == null ? void 0 : _PopupManager$getPopu2.close();
-	      (_PopupManager$getPopu3 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.messageBaseFileMenu)) == null ? void 0 : _PopupManager$getPopu3.close();
-	    },
-	    closeMessageMenu() {
-	      this.messageMenu.close();
-	      this.messageMenuIsActiveForId = 0;
+	      (_PopupManager$getPopu = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.dialogAvatarMenu)) == null ? void 0 : _PopupManager$getPopu.close();
+	      (_PopupManager$getPopu2 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.dialogMessageMenu)) == null ? void 0 : _PopupManager$getPopu2.close();
+	      (_PopupManager$getPopu3 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.dialogReactionUsers)) == null ? void 0 : _PopupManager$getPopu3.close();
+	      (_PopupManager$getPopu4 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.dialogReadUsers)) == null ? void 0 : _PopupManager$getPopu4.close();
+	      (_PopupManager$getPopu5 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.messageBaseFileMenu)) == null ? void 0 : _PopupManager$getPopu5.close();
 	    },
 	    subscribeToEvents() {
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.scrollToBottom, this.onScrollToBottom);
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
-	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.mention.openChatInfo, this.onOpenChatInfo);
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.call.onFold, this.onCallFold);
-	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
+	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.showForwardPopup, this.onShowForwardPopup);
 	      main_core.Event.bind(window, 'focus', this.onWindowFocus);
 	      main_core.Event.bind(window, 'blur', this.onWindowBlur);
 	    },
 	    unsubscribeFromEvents() {
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.scrollToBottom, this.onScrollToBottom);
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
-	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.mention.openChatInfo, this.onOpenChatInfo);
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.call.onFold, this.onCallFold);
-	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
+	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.showForwardPopup, this.onShowForwardPopup);
 	      main_core.Event.unbind(window, 'focus', this.onWindowFocus);
 	      main_core.Event.unbind(window, 'blur', this.onWindowBlur);
 	    },
 	    getContainer() {
 	      return this.$refs.container;
 	    },
-	    async onMessageMouseUp(message, event) {
-	      await im_v2_lib_utils.Utils.browser.waitForSelectionToUpdate();
-	      const selection = window.getSelection().toString().trim();
-	      if (selection.length === 0 || this.isGuest) {
-	        return;
-	      }
-	      this.showQuoteButton = true;
-	      await this.$nextTick();
-	      this.$refs.quoteButton.onMessageMouseUp(message, event);
+	    onShowForwardPopup(event) {
+	      const {
+	        messageId
+	      } = event.getData();
+	      this.forwardPopup.messageId = messageId;
+	      this.forwardPopup.show = true;
 	    },
-	    getMessageComponentName(message) {
-	      return new MessageComponentManager(message).getName();
+	    onCloseForwardPopup() {
+	      this.forwardPopup.messageId = 0;
+	      this.forwardPopup.show = false;
 	    }
 	  },
 	  template: `
@@ -2008,77 +1000,38 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			/>
 			<PullStatus/>
 			<div @scroll="onScroll" @click.capture="onChatClick" class="bx-im-dialog-chat__scroll-container" ref="container">
-				<div class="bx-im-dialog-chat__content">
-					<!-- Loader -->
-					<DialogLoader v-if="!dialogInited" :fullHeight="formattedCollection.length === 0" />
-					<!-- Date groups -->
-					<div v-for="dateGroup in formattedCollection" :key="dateGroup.date.id" class="bx-im-dialog-chat__date-group_container">
-						<!-- Date mark -->
-						<DateGroupTitle :title="dateGroup.date.title" />
-						<!-- Single date group -->
-						<template v-for="dateGroupItem in dateGroup.items">
-							<!-- 'New messages' mark -->
-							<MarkedMessagesBlock v-if="dateGroupItem.type === BlockType.markedMessages" data-id="newMessages" />
-							<NewMessagesBlock v-else-if="dateGroupItem.type === BlockType.newMessages" data-id="newMessages" />
-							<!-- Author group -->
-							<div v-else-if="dateGroupItem.type === BlockType.authorGroup" :class="'--' + dateGroupItem.messageType" class="bx-im-dialog-chat__author-group_container">
-								<!-- Author group avatar -->
-								<div v-if="dateGroupItem.avatar.isNeeded" class="bx-im-dialog-chat__author-group_avatar">
-									<Avatar
-										:dialogId="dateGroupItem.avatar.avatarId"
-										:size="AvatarSize.L"
-										:withStatus="false"
-										@click="onAvatarClick(dateGroupItem.avatar.avatarId, $event)"
-									/>
-								</div>
-								<!-- Messages -->
-								<div class="bx-im-dialog-chat__messages_container">
-									<component
-										v-for="(message, index) in dateGroupItem.items"
-										v-message-observer
-										:is="getMessageComponentName(message)"
-										:withTitle="index === 0"
-										:item="message"
-										:dialogId="dialogId"
-										:key="message.id"
-										:menuIsActiveForId="messageMenuIsActiveForId"
-										:withAvatar="dateGroupItem.avatar.isNeeded"
-										:data-viewed="message.viewed"
-										@mouseup="onMessageMouseUp(message, $event)"
-									>
-									</component>
-								</div>
-							</div>
-						</template>
-					</div>
-					<DialogStatus v-if="showDialogStatus" :dialogId="dialogId" />
-				</div>
+				<component
+					:is="messageListComponent"
+					:dialogId="dialogId"
+					:messages="messageCollection"
+					:observer="getObserverManager()"
+					@readMessages="debouncedReadHandler"
+					@showQuoteButton="onShowQuoteButton"
+				/>
 			</div>
 			<Transition name="scroll-button-transition">
 				<div v-if="showScrollButton" @click="onScrollButtonClick" class="bx-im-dialog-chat__scroll-button">
 					<div v-if="dialog.counter" class="bx-im-dialog-chat__scroll-button_counter">{{ formattedCounter }}</div>
 				</div>
 			</Transition>
-			<ChatInfoPopup
-				v-if="chatInfoPopup.show"
-				:dialogId="chatInfoPopup.dialogId"
-				:bindElement="chatInfoPopup.element"
-				:showPopup="chatInfoPopup.show"
-				@close="chatInfoPopup.show = false"
+			<ForwardPopup
+				:showPopup="forwardPopup.show"
+				:messageId="forwardPopup.messageId"
+				@close="onCloseForwardPopup"
 			/>
-            <Transition name="fade-up">
+			<Transition name="fade-up">
 				<QuoteButton 
 					v-if="showQuoteButton" 
 					ref="quoteButton"
 					@close="showQuoteButton = false" 
 					class="bx-im-message-base__quote-button" 
 				/>
-            </Transition>
+			</Transition>
 		</div>
 	`
 	};
 
 	exports.ChatDialog = ChatDialog;
 
-}((this.BX.Messenger.v2.Component.Dialog = this.BX.Messenger.v2.Component.Dialog || {}),BX.Main,window,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Im.V2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Dialog = this.BX.Messenger.v2.Component.Dialog || {}),BX.Main,window,BX.Messenger.v2.Component,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=chat-dialog.bundle.js.map

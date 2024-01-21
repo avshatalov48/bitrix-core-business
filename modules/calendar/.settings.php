@@ -48,7 +48,17 @@
 						'id' => 'calendar.roomFilter',
 						'entityId' => 'room',
 						'className' => '\\Bitrix\\Calendar\\Integration\\UI\\EntitySelector\\RoomFilter',
-					]
+					],
+					[
+						'id' => 'calendar.attendeeFilter',
+						'entityId' => 'user',
+						'className' => '\\Bitrix\\Calendar\\Integration\\UI\\EntitySelector\\Attendee\\Filter',
+					],
+					[
+						'id' => 'calendar.jointSharingFilter',
+						'entityId' => 'user',
+						'className' => '\\Bitrix\\Calendar\\Integration\\UI\\EntitySelector\\JointSharing\\Filter',
+					],
 				],
 			],
 			'readonly' => true,

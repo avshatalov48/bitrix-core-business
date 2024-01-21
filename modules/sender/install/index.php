@@ -25,11 +25,6 @@ class sender extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = SENDER_VERSION;
-			$this->MODULE_VERSION_DATE = SENDER_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("SENDER_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("SENDER_MODULE_DESC");

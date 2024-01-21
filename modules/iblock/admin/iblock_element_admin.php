@@ -37,6 +37,8 @@ $publicMode = $adminPage->publicMode;
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
+$internalAdminPage = defined('INTERNAL_ADMIN_PAGE') && INTERNAL_ADMIN_PAGE === 'Y';
+
 $bSearch = false;
 $bCurrency = false;
 $arCurrencyList = array();
@@ -76,11 +78,23 @@ else
 if($bBadBlock)
 {
 	$APPLICATION->SetTitle($arIBTYPE["NAME"]);
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-	ShowError(GetMessage("IBLOCK_BAD_IBLOCK"));?>
-	<a href="<?echo htmlspecialcharsbx("iblock_admin.php?lang=".LANGUAGE_ID."&type=".urlencode($_REQUEST["type"]))?>"><?echo GetMessage("IBLOCK_BACK_TO_ADMIN")?></a>
-	<?php
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	if ($internalAdminPage)
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+	}
+	else
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	}
+	//require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	ShowError(GetMessage("IBLOCK_BAD_IBLOCK"));
+	if (!$internalAdminPage)
+	{
+		?>
+		<a href="<?= htmlspecialcharsbx("iblock_admin.php?lang=".LANGUAGE_ID."&type=".urlencode($_REQUEST["type"]))?>"><?= GetMessage("IBLOCK_BACK_TO_ADMIN")?></a>
+		<?php
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	}
 	die();
 }
 
@@ -102,9 +116,20 @@ unset($urlBuilderManager);
 if ($urlBuilder === null)
 {
 	$APPLICATION->SetTitle($arIBTYPE["NAME"]);
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	if ($internalAdminPage)
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+	}
+	else
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	}
+	//require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(GetMessage("IBEL_ERR_BUILDER_ADSENT"));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	if (!$internalAdminPage)
+	{
+		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	}
 	die();
 }
 $urlBuilderId = $urlBuilder->getId();
@@ -4442,7 +4467,7 @@ foreach($arRows as $idRow => $row)
 		if (isset($productTypeList[$row->arRes["CATALOG_TYPE"]]))
 			$strProductType = $productTypeList[$row->arRes["CATALOG_TYPE"]];
 		if ($row->arRes['CATALOG_BUNDLE'] == 'Y' && $boolCatalogSet)
-			$strProductType .= ('' != $strProductType ? ', ' : '').GetMessage('IBEL_CATALOG_TYPE_MESS_GROUP');
+			$strProductType .= ('' != $strProductType ? ', ' : '').GetMessage('IBEL_CATALOG_TYPE_MESS_GROUP_MSGVER_1');
 		$row->AddViewField('CATALOG_TYPE', $strProductType);
 	}
 	if ($bCatalog && isset($arSelectedFieldsMap['CATALOG_MEASURE']) && ($showCatalogWithOffers || $row->arRes['CATALOG_TYPE'] != Catalog\ProductTable::TYPE_SKU))

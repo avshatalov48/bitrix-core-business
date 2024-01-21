@@ -236,6 +236,7 @@ if (!empty($htmlEditorConfigs))
 						initialMode: "<?=CUtil::JSEscape($arResult['INITIAL_MODE'])?>",
 						enableModeToggle: <?=$arResult['ENABLE_MODE_TOGGLE'] ? 'true' : 'false'?>,
 						enableConfigControl: <?=$arResult['ENABLE_CONFIG_CONTROL'] ? 'true' : 'false'?>,
+						enableShowAlwaysFeauture: <?=$arResult['ENABLE_SHOW_ALWAYS_FEAUTURE'] ? 'true' : 'false'?>,
 						enableVisibilityPolicy: <?=$arResult['ENABLE_VISIBILITY_POLICY'] ? 'true' : 'false'?>,
 						enableToolPanel: <?=$arResult['ENABLE_TOOL_PANEL'] ? 'true' : 'false'?>,
 						isToolPanelAlwaysVisible: <?=$arResult['IS_TOOL_PANEL_ALWAYS_VISIBLE'] ? 'true' : 'false'?>,

@@ -27,6 +27,30 @@ $protocol = $request->isHttps() ? 'https' : 'http';
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_PLATON'),
+	'HANDLER_MODE_LIST' => [
+		'bank_card' => Loc::getMessage('SALE_HPS_PLATON_MODE_CARD'),
+		'google_pay' => Loc::getMessage('SALE_HPS_PLATON_MODE_GOOGLE_PAY'),
+		'apple_pay' => Loc::getMessage('SALE_HPS_PLATON_MODE_APPLE_PAY'),
+		'privat24' => Loc::getMessage('SALE_HPS_PLATON_MODE_PRIVAT24'),
+	],
+	'HANDLER_MODE_DESCRIPTION_LIST' => [
+		'bank_card' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_PLATON_DESCRIPTION'),
+			'PUBLIC' => '',
+		],
+		'google_pay' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_PLATON_DESCRIPTION'),
+			'PUBLIC' => '',
+		],
+		'apple_pay' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_PLATON_DESCRIPTION'),
+			'PUBLIC' => '',
+		],
+		'privat24' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_PLATON_DESCRIPTION'),
+			'PUBLIC' => '',
+		],
+	],
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

@@ -88,7 +88,7 @@ class Redirect extends Main\HttpResponse
 		global $APPLICATION;
 
 		$isExternal = $this->isExternalUrl($url);
-		if(!$isExternal && strpos($url, "/") !== 0)
+		if (!$isExternal && !str_starts_with($url, "/"))
 		{
 			$url = $APPLICATION->GetCurDir() . $url;
 		}
@@ -133,7 +133,7 @@ class Redirect extends Main\HttpResponse
 		$isExternal = $this->isExternalUrl($url);
 		$url = $this->modifyBySecurity($url);
 
-		/*patchvalidationapp3*/
+		
 		foreach (GetModuleEvents("main", "OnBeforeLocalRedirect", true) as $event)
 		{
 			ExecuteModuleEventEx($event, [&$url, $this->isSkippedSecurity(), &$isExternal, $this]);

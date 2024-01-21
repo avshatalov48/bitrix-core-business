@@ -121,4 +121,12 @@ export type RawMessage = {
 	textLegacy: string,
 	isImportant: boolean,
 	importantFor: number[],
+	additionalEntities: {
+		additionalMessages: RawMessage[],
+		files: RawFile[],
+		messages: RawMessage[],
+		reactions: RawReaction[],
+		users: RawUser[],
+		usersShort: RawShortUser[],
+	},
 };

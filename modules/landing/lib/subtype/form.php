@@ -437,11 +437,12 @@ class Form
 				// if block copy - not update params
 				if (
 					($attrsExists = $node->getAttributes())
+					&& isset($attrsExists[self::ATTR_FORM_PARAMS])
 					&& $attrsExists[self::ATTR_FORM_PARAMS]
-					&& $formParamsExists = $attrsExists[self::ATTR_FORM_PARAMS]->getValue()
+					&& $attrsExists[self::ATTR_FORM_PARAMS]->getValue()
 				)
 				{
-					$attrsToSet[self::ATTR_FORM_PARAMS] = $formParamsExists;
+					$attrsToSet[self::ATTR_FORM_PARAMS] = $attrsExists[self::ATTR_FORM_PARAMS]->getValue();
 				}
 				else
 				{

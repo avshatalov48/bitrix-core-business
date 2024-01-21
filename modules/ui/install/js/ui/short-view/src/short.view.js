@@ -36,7 +36,7 @@ export class ShortView extends EventEmitter
 		const checked = (this.getShortView() === 'Y' ? 'checked' : '');
 
 		this.node = Tag.render`
-			<div class="tasks-scrum__switcher--container tasks-scrum__scope-switcher">
+			<div class="tasks-scrum__switcher--container tasks-scrum__scope-switcher" title="${Loc.getMessage('UI_SHORT_VIEW_LABEL')}">
 				<label class="tasks-scrum__switcher--label">
 				<div class="tasks-scrum__switcher--label-text">
 					${Loc.getMessage('UI_SHORT_VIEW_LABEL')}

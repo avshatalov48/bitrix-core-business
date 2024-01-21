@@ -472,7 +472,8 @@ HTML
 						array('id' => 'Fullscreen',  'compact' => false, 'sort' => 320),
 						array('id' => 'BbCode',  'compact' => true, 'sort' => 340),
 						array('id' => 'More',  'compact' => true, 'sort' => 400)
-					)
+					),
+					'isCopilotEnabled' => false,
 				),
 				array(
 					'name' => 'BX_BLOCK_EDITOR_CONTENT_' . $this->id,

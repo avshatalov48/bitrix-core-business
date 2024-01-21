@@ -16,6 +16,10 @@
 	{
 		const cards = block.querySelectorAll('.landing-block-card');
 		cards.forEach(function(card) {
+			if (BX.Dom.hasClass(card, 'active'))
+			{
+				BX.Dom.removeClass(card, 'active');
+			}
 			if (card.querySelector('.landing-block-faq-visible'))
 			{
 				card.querySelector('.landing-block-faq-visible').onclick = function() {

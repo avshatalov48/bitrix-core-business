@@ -1,4 +1,5 @@
 import { reactionType as Reaction } from 'ui.reactions-select';
+import { MessageStatus, DialogType } from 'im.v2.const';
 
 export type ChatLoadRestResult = {
 	additionalMessages: RawMessage[],
@@ -156,4 +157,39 @@ export type RawShortUser = {
 	id: number,
 	name: string,
 	avatar: string
+};
+
+// Recent
+
+export type RecentRestResult = {
+	birthdayList: RawUser[],
+	hasMore: boolean,
+	hasMorePages: boolean,
+	items: RawRecentItem[],
+};
+
+export type RawRecentItem = {
+	id: string, // dialogId
+	chat_id: number,
+	chat: RawChat,
+	user: RawUser,
+	message: {
+		attach: boolean,
+		author_id: number,
+		date: string,
+		file: boolean,
+		id: number,
+		status: $Keys<typeof MessageStatus>,
+		text: string,
+		uuid: string,
+	},
+	type: $Keys<typeof DialogType>,
+	title: string,
+	counter: number,
+	date_update: string,
+	avatar: { url: string, color: string },
+	pinned: boolean,
+	unread: boolean,
+	has_reminder: boolean,
+	options: {},
 };

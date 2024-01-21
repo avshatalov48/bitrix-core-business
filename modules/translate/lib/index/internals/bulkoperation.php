@@ -17,9 +17,6 @@ trait BulkOperation
 	 * @param string|string[] $primary Primary key field name.
 	 *
 	 * @return void
-	 *
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\DB\SqlQueryException
 	 */
 	public static function bulkAdd(array $rows, $primary = null): void
 	{
@@ -54,6 +51,7 @@ trait BulkOperation
 		}
 		unset($data);
 
+		$tableName = $sqlHelper->quote($tableName);
 		$sql = "INSERT INTO {$tableName} (".\implode(', ', $columns).") VALUES ".\implode(', ', $sqlValues);
 
 		$checkPrimary = false;
@@ -88,7 +86,6 @@ trait BulkOperation
 	 * @param array $filter Filter what to update.
 	 *
 	 * @return void
-	 * @throws Main\DB\SqlQueryException
 	 */
 	public static function bulkUpdate(array $fields, array $filter = []): void
 	{
@@ -105,6 +102,7 @@ trait BulkOperation
 
 		if (!empty($valuesSql))
 		{
+			$tableName = $helper->quote($tableName);
 			if (!empty($filter))
 			{
 				$hasSubQuery = false;
@@ -146,12 +144,11 @@ trait BulkOperation
 	 * @param array $filter Filter looks like filter in getList.
 	 *
 	 * @return void
-	 * @throws Main\DB\SqlQueryException
 	 */
 	public static function bulkDelete(array $filter = []): void
 	{
-		$tableName = static::getTableName();
 		$connection = Main\Application::getConnection();
+		$tableName = $connection->getSqlHelper()->quote(static::getTableName());
 
 		if (!empty($filter))
 		{

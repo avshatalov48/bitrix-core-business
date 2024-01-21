@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Security\Mfa;
 
 use Bitrix\Main\Application;
@@ -37,6 +38,7 @@ class Otp
 		self::TYPE_TOTP => '\Bitrix\Main\Security\Mfa\TotpAlgorithm',
 	);
 	protected $algorithmClass = null;
+	protected array $initParams = [];
 	protected $regenerated = false;
 	/* @var \Bitrix\Main\Context $context */
 	protected $context = null;
@@ -91,7 +93,7 @@ class Otp
 
 		$userInfo = UserTable::getList(array(
 			'filter' => array('=USER_ID' => $userId),
-			'select' => array('ACTIVE', 'USER_ID', 'SECRET', 'PARAMS', 'TYPE', 'ATTEMPTS', 'INITIAL_DATE', 'SKIP_MANDATORY', 'DEACTIVATE_UNTIL', 'USER_ACTIVE' => 'USER.ACTIVE')
+			'select' => array('ACTIVE', 'USER_ID', 'SECRET', 'INIT_PARAMS', 'PARAMS', 'TYPE', 'ATTEMPTS', 'INITIAL_DATE', 'SKIP_MANDATORY', 'DEACTIVATE_UNTIL', 'USER_ACTIVE' => 'USER.ACTIVE')
 		));
 
 		$userInfo = $userInfo->fetch();
@@ -105,7 +107,7 @@ class Otp
 		}
 		else
 		{
-			$type = $userInfo['TYPE']?: self::TYPE_DEFAULT;
+			$type = $userInfo['TYPE'] ?: self::TYPE_DEFAULT;
 			$userInfo['SECRET'] = pack('H*', $userInfo['SECRET']);
 			$userInfo['ACTIVE'] = ($userInfo['ACTIVE'] === 'Y');
 			$userInfo['USER_ACTIVE'] = ($userInfo['USER_ACTIVE'] === 'Y');
@@ -122,7 +124,7 @@ class Otp
 	 * Return new instance with needed OtpAlgorithm type
 	 *
 	 * @param string $type Type of OtpAlgorithm (see getAvailableTypes).
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws ArgumentOutOfRangeException
 	 * @return static New instance
 	 */
 	public static function getByType($type)
@@ -155,6 +157,28 @@ class Otp
 	}
 
 	/**
+	 * Sets initialization parameters for algorithms.
+	 *
+	 * @param array $params
+	 * @return $this
+	 */
+	public function setInitParams(array $params)
+	{
+		$this->initParams = $params;
+		return $this;
+	}
+
+	/**
+	 * Returns initialization parameters for algorithms.
+	 *
+	 * @return array
+	 */
+	public function getInitParams(): array
+	{
+		return $this->initParams;
+	}
+
+	/**
 	 * Return used OtpAlgorithm type
 	 *
 	 * @return string
@@ -172,8 +196,10 @@ class Otp
 	public function getAlgorithm()
 	{
 		/** @var OtpAlgorithm $algorithm */
-		$algorithm = new $this->algorithmClass;
-		return $algorithm->setSecret($this->getSecret());
+		$algorithm = new $this->algorithmClass($this->getInitParams());
+		$algorithm->setSecret($this->getSecret());
+
+		return $algorithm;
 	}
 
 	/**
@@ -231,7 +257,7 @@ class Otp
 	 */
 	public function verify($input, $updateParams = true)
 	{
-		list($result, $newParams) = $this->getAlgorithm()->verify($input, $this->getParams());
+		[$result, $newParams] = $this->getAlgorithm()->verify($input, $this->getParams());
 
 		if (
 			$updateParams
@@ -257,7 +283,7 @@ class Otp
 	{
 		$attempts  = $this->getAttempts();
 		$maxAttempts = $this->getMaxLoginAttempts();
-		return (bool) (
+		return (
 			$maxAttempts > 0
 			&& $attempts >= $maxAttempts
 		);
@@ -305,7 +331,7 @@ class Otp
 		{
 			$params = $this->getSyncParameters($inputA, $inputB);
 		}
-		catch (\Bitrix\Main\Security\OtpException $e)
+		catch (\Bitrix\Main\Security\OtpException)
 		{
 			throw new OtpException(Loc::getMessage('SECURITY_OTP_ERROR_SYNC_ERROR'));
 		}
@@ -326,6 +352,7 @@ class Otp
 		$fields = array(
 			'ACTIVE' => $this->isActivated()? 'Y': 'N',
 			'TYPE' => $this->getType(),
+			'INIT_PARAMS' => $this->getInitParams(),
 			'ATTEMPTS' => $this->getAttempts(),
 			'SECRET' => $this->getHexSecret(),
 			'INITIAL_DATE' => $this->getInitialDate()?: new Type\DateTime,
@@ -342,7 +369,6 @@ class Otp
 			// Clear recovery codes when we connect new device
 			RecoveryCodesTable::clearByUser($this->getUserId());
 		}
-
 
 		if ($this->isDbRecordExists())
 		{
@@ -374,8 +400,8 @@ class Otp
 	}
 
 	/**
-	 * Activate user OTP
-	 * OTP must be initialized (have secret, params, etc) before activate
+	 * Activates user's OTP.
+	 * OTP must be initialized (have secret, params, etc.) before activate
 	 *
 	 * @return $this
 	 * @throws OtpException
@@ -406,7 +432,7 @@ class Otp
 			throw new OtpException('Otp not activated. Do your mean deffer?');
 
 		$this->setActive(false);
-		$this->setSkipMandatory(true);
+		$this->setSkipMandatory();
 
 		if ($days <= 0)
 		{
@@ -435,7 +461,7 @@ class Otp
 		if ($this->isActivated())
 			throw new OtpException('Otp already activated. Do your mean deactivate?');
 
-		$this->setSkipMandatory(true);
+		$this->setSkipMandatory();
 		if ($days <= 0)
 		{
 			$this->setDeactivateUntil(null);
@@ -467,13 +493,16 @@ class Otp
 	 */
 	public function setUserInfo(array $userInfo)
 	{
-		$this->setActive($userInfo['ACTIVE']);
-		$this->setUserActive($userInfo['USER_ACTIVE']);
-		$this->setUserId($userInfo['USER_ID']);
-		$this->setAttempts($userInfo['ATTEMPTS']);
-		$this->setSecret($userInfo['SECRET']);
-		$this->setParams($userInfo['PARAMS']);
-		$this->setSkipMandatory($userInfo['SKIP_MANDATORY']);
+		$this
+			->setActive($userInfo['ACTIVE'])
+			->setUserActive($userInfo['USER_ACTIVE'])
+			->setUserId($userInfo['USER_ID'])
+			->setAttempts($userInfo['ATTEMPTS'])
+			->setSecret($userInfo['SECRET'])
+			->setInitParams($userInfo['INIT_PARAMS'])
+			->setParams($userInfo['PARAMS'])
+			->setSkipMandatory($userInfo['SKIP_MANDATORY'])
+		;
 
 		// Old users haven't INITIAL_DATE and DEACTIVATE_UNTIL
 		// ToDo: maybe it's not the best approach, think about it later
@@ -1004,7 +1033,7 @@ class Otp
 				->setKey($this->getSecret())
 				->unsign($signedValue, 'MFA_SAVE');
 		}
-		catch (BadSignatureException $e)
+		catch (BadSignatureException)
 		{
 			return false;
 		}
@@ -1136,7 +1165,7 @@ class Otp
 				// Grace full period ends. We must reject authorization and defer reject reason
 				if (!$otp->isDbRecordExists() && static::getSkipMandatoryDays())
 				{
-					// If mandatory enabled and user never use OTP - let's deffer initialization
+					// If mandatory enabled and user never use OTP - let us deffer initialization
 					$otp->defer(static::getSkipMandatoryDays());
 
 					// We forgive the user for the first time
@@ -1144,7 +1173,7 @@ class Otp
 					return true;
 				}
 
-				// Save a flag which indicates that a OTP is required, but user doesn't use it :-(
+				// Save a flag which indicates that an OTP is required, but user doesn't use it :-(
 				$params[static::REJECTED_KEY] = static::REJECT_BY_MANDATORY;
 				static::setDeferredParams($params);
 				return false;
@@ -1154,7 +1183,7 @@ class Otp
 		{
 			if (!$otp->isUserActive())
 			{
-				//non-active user can't login by OTP
+				//non-active user can't log in by OTP
 				return false;
 			}
 		}
@@ -1186,13 +1215,13 @@ class Otp
 			$isOtpPassword = (bool) preg_match('/^\d{6}$/D', $params['OTP']);
 			$isRecoveryCode = (
 				static::isRecoveryCodesEnabled()
-				&& (bool) preg_match(RecoveryCodesTable::CODE_PATTERN, $params['OTP'])
+				&& preg_match(RecoveryCodesTable::CODE_PATTERN, $params['OTP'])
 			);
 
 			if ($isCaptchaChecked && ($isOtpPassword || $isRecoveryCode))
 			{
 				if ($isOtpPassword)
-					$isSuccess = $otp->verify($params['OTP'], true);
+					$isSuccess = $otp->verify($params['OTP']);
 				elseif ($isRecoveryCode)
 					$isSuccess = RecoveryCodesTable::useCode($otp->getUserId(), $params['OTP']);
 				else
@@ -1345,7 +1374,7 @@ class Otp
 		}
 		else
 		{
-			// Probably we does not need save password in deferred params
+			// Probably we do not need saving password in deferred params
 			// Or need? I don't know right now...
 			if (isset($params['PASSWORD']))
 				unset($params['PASSWORD']);
@@ -1393,7 +1422,7 @@ class Otp
 	 */
 	public static function isMandatoryUsing()
 	{
-		return (bool) (Option::get('security', 'otp_mandatory_using') === 'Y');
+		return (Option::get('security', 'otp_mandatory_using') === 'Y');
 	}
 
 	/**
@@ -1486,7 +1515,7 @@ class Otp
 	 */
 	public static function isOtpEnabled()
 	{
-		return (bool) (Option::get('security', 'otp_enabled') === 'Y');
+		return (Option::get('security', 'otp_enabled') === 'Y');
 	}
 
 	/**
@@ -1496,6 +1525,6 @@ class Otp
 	 */
 	public static function isRecoveryCodesEnabled()
 	{
-		return (bool) (Option::get('security', 'otp_allow_recovery_codes') === 'Y');
+		return (Option::get('security', 'otp_allow_recovery_codes') === 'Y');
 	}
 }

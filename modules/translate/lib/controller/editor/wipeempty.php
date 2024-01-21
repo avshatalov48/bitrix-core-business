@@ -191,7 +191,7 @@ class WipeEmpty
 
 			if ($isOk)
 			{
-				Translate\Index\Internals\PathIndexTable::purge(new Translate\Filter(['path' => $testPath]), false);
+				Translate\Index\Internals\PathIndexTable::purge(new Translate\Filter(['path' => $testPath, 'recursively' => true]));
 			}
 
 

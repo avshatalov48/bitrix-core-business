@@ -61,11 +61,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const DefaultMessage = {
 	  name: 'DefaultMessage',
 	  components: {
-	    AuthorTitle: im_v2_component_message_elements.AuthorTitle,
+	    MessageHeader: im_v2_component_message_elements.MessageHeader,
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    Reply
+	    Reply,
+	    MessageKeyboard: im_v2_component_message_elements.MessageKeyboard
 	  },
 	  props: {
 	    item: {
@@ -85,21 +86,27 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    message() {
 	      return this.item;
 	    },
-	    canSetReactions() {
-	      return main_core.Type.isNumber(this.message.id);
-	    },
 	    isReply() {
 	      return this.message.replyId !== 0;
+	    },
+	    hasKeyboard() {
+	      return this.message.keyboard.length > 0;
 	    }
 	  },
 	  template: `
 		<BaseMessage :item="item" :dialogId="dialogId">
+			<template #before-message v-if="$slots['before-message']">
+				<slot name="before-message"></slot>
+			</template>
 			<div class="bx-im-message-default__container">
-				<AuthorTitle v-if="withTitle" :item="item" />
+				<MessageHeader :withTitle="withTitle" :item="item" />
 				<Reply v-if="isReply" :dialogId="dialogId" :replyId="message.replyId" />
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
 				<ReactionSelector :messageId="message.id" />
 			</div>
+			<template #after-message v-if="hasKeyboard">
+				<MessageKeyboard :item="item" :dialogId="dialogId" />
+			</template>
 		</BaseMessage>
 	`
 	};

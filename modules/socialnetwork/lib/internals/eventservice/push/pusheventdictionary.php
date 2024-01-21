@@ -22,6 +22,8 @@ class PushEventDictionary
 	public const EVENT_WORKGROUP_USER_DELETE = 'workgroup_user_delete';
 	public const EVENT_WORKGROUP_FAVORITES_CHANGED = 'workgroup_favorites_changed';
 	public const EVENT_WORKGROUP_PIN_CHANGED = 'workgroup_pin_changed';
+	public const EVENT_WORKGROUP_SUBSCRIBE_CHANGED = 'workgroup_subscribe_changed';
+	public const EVENT_SPACE_USER_ROLE_CHANGE = 'space_user_role_change';
 
 	public static function getPushEventType(string $eventType): ?string
 	{
@@ -55,6 +57,12 @@ class PushEventDictionary
 				break;
 			case EventDictionary::EVENT_WORKGROUP_PIN_CHANGED:
 				$result = self::EVENT_WORKGROUP_PIN_CHANGED;
+				break;
+			case EventDictionary::EVENT_WORKGROUP_SUBSCRIBE_CHANGED:
+				$result = self::EVENT_WORKGROUP_SUBSCRIBE_CHANGED;
+				break;
+			case EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE:
+				$result = self::EVENT_SPACE_USER_ROLE_CHANGE;
 				break;
 			default:
 		}

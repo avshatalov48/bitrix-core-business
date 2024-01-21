@@ -6,6 +6,7 @@ use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\LanguageTable;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
@@ -98,7 +99,7 @@ class Util
 	 * @return Date
 	 * @throws Main\ObjectException
 	 */
-	public static function getDateObject(string $date = null, $fullDay = true, $tz = 'UTC'): Date
+	public static function getDateObject(string $date = null, ?bool $fullDay = true, ?string $tz = 'UTC'): Date
 	{
 		$preparedDate = $date;
 		if ($date)
@@ -757,11 +758,62 @@ class Util
 		return "$eventDate $eventTime";
 	}
 
+	public static function getTimezoneHint(int $userId, array $event): string
+	{
+		$skipTime = $event['DT_SKIP_TIME'] === "Y";
+		$timezoneHint = '';
+		if (
+			!$skipTime
+			&& (
+				(int)$event['~USER_OFFSET_FROM'] !== 0
+				|| (int)$event['~USER_OFFSET_TO'] !== 0
+				|| $event['TZ_FROM'] !== $event['TZ_TO']
+				|| $event['TZ_FROM'] !== \CCalendar::GetUserTimezoneName($userId)
+			)
+		)
+		{
+			if ($event['TZ_FROM'] === $event['TZ_TO'])
+			{
+				$timezoneHint = \CCalendar::GetFromToHtml(
+					\CCalendar::Timestamp($event['DATE_FROM']),
+					\CCalendar::Timestamp($event['DATE_TO']),
+					false,
+					$event['DT_LENGTH']
+				);
+				if ($event['TZ_FROM'])
+				{
+					$timezoneHint .= ' (' . $event['TZ_FROM'] . ')';
+				}
+			}
+			else
+			{
+				$timezoneHint = Loc::getMessage('EC_VIEW_DATE_FROM_TO', array('#DATE_FROM#' => $event['DATE_FROM'].' ('.$event['TZ_FROM'].')', '#DATE_TO#' => $event['DATE_TO'].' ('.$event['TZ_TO'].')'));
+			}
+		}
+
+		return $timezoneHint;
+	}
+
 	public static function formatEventDate(DateTime $dateTime): string
 	{
 		$culture = Main\Application::getInstance()->getContext()->getCulture();
 		$dayMonthFormat = Main\Type\Date::convertFormatToPhp($culture->getDateFormat());
 
 		return FormatDate($dayMonthFormat, $dateTime->getTimestamp());
+	}
+
+	public static function doIntervalsIntersect($from1, $to1, $from2, $to2): bool
+	{
+		return self::oneIntervalIntersectsAnother($from1, $to1, $from2, $to2)
+			|| self::oneIntervalIntersectsAnother($from2, $to2, $from1, $to1);
+	}
+
+	public static function oneIntervalIntersectsAnother($from1, $to1, $from2, $to2): bool
+	{
+		$startsInside = $from2 <= $from1 && $from1 < $to2;
+		$endsInside = $from2 < $to1 && $to1 <= $to2;
+		$startsBeforeEndsAfter = $from1 <= $from2 && $to1 >= $to2;
+
+		return $startsInside || $endsInside || $startsBeforeEndsAfter;
 	}
 }

@@ -25,6 +25,10 @@ $MESS["ERR_C_CREATE_TBL"] = "Unable to create the table in the database. Please 
 $MESS["ERR_C_DROP_TBL"] = "Unable to delete the table from the database. Please ensure that you have enough permissions to delete tables. ";
 $MESS["ERR_C_SAVE_DBCONN"] = "Cannot save the database connection parameters. Please ensure that the PHP is given permissions to write to any subfolder of the folder #ROOT#. ";
 $MESS["ERR_DATABASE_NAME"] = "Incorrect database name.";
+$MESS["ERR_DB_MIN_VERSION_MYSQL"] = "MySQL version #MIN_VERSION# or higher is required to install this module.";
+$MESS["ERR_DB_MYSQL_DEFAULT_STORAGE_ENGINE"] = "default_storage_engine=#VALUE#, InnoDB is required";
+$MESS["ERR_DB_MYSQL_INNODB_DEFAULT_ROW_FORMAT"] = "innodb_default_row_format=#VALUE#, DYNAMIC is required";
+$MESS["ERR_DB_MYSQL_INNODB_LARGE_PREFIX"] = "innodb_large_prefix=#VALUE#, ON is required";
 $MESS["ERR_EXISTS_DB1"] = "Database \"#DB#\" already exists. Please clear the checkbox \"Create database\" or provide another value in the \"Database\" field. ";
 $MESS["ERR_GRANT_USER"] = "Error grant privileges to user. ";
 $MESS["ERR_INTERNAL_NODEF"] = "Internal error: database not specified. ";
@@ -211,6 +215,7 @@ $MESS["SC_CAN_WRITE"] = "accessible for writing";
 $MESS["SC_CAN_WRITE1"] = "accessible for writing";
 $MESS["SC_CATALOG"] = "Folder";
 $MESS["SC_CURRENT"] = "Current value";
+$MESS["SC_DB_PGSQL_DATABASE_CTYPE_ER"] = "The database you selected has incompatible LC_TYPE (C.UTF-8 is required).";
 $MESS["SC_DB_PGSQL_PGCRYPTO_ER"] = "The pgcrypto extension has to be installed to the database.";
 $MESS["SC_DB_PGSQL_VERSION_ER"] = "Your version of PostgreSQL is outdated and does not meet the minimum system requirements.";
 $MESS["SC_DB_VERS"] = "Database version <b>#DB#</b>";

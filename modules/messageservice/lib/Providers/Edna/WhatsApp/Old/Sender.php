@@ -3,6 +3,7 @@
 namespace Bitrix\MessageService\Providers\Edna\WhatsApp\Old;
 
 use Bitrix\Main\Error;
+use Bitrix\Main\Result;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\MessageService\Providers;
 use Bitrix\MessageService\Providers\Constants\InternalOption;
@@ -35,7 +36,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 			return $result;
 		}
 
-		$requestParams = $this->getSendMessageParams($messageFields);
+		$requestParams = $this->getSendMessageParams($messageFields)->getData();
 		$method = $this->getSendMessageMethod($messageFields);
 
 		if ($method === 'imOutHSM')
@@ -117,9 +118,9 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 	 * Returns request params for sending template or simple message.
 	 * @param array $messageFields Message fields.
 	 *
-	 * @return array
+	 * @return Result
 	 */
-	private function getSendMessageParams(array $messageFields): array
+	protected function getSendMessageParams(array $messageFields): Result
 	{
 		$messageFields['MESSAGE_BODY'] = $this->emoji->convertEmoji($messageFields['MESSAGE_BODY'], Providers\Constants\InternalOption::EMOJI_DECODE);
 		$params = [
@@ -151,7 +152,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 			$params = $this->emoji->convertEmojiInTemplate($params, InternalOption::EMOJI_DECODE);
 		}
 
-		return $params;
+		return (new Result)->setData($params);
 	}
 
 	/**

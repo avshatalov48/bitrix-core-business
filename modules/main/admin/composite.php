@@ -1,4 +1,6 @@
-<?
+<?php
+
+use Bitrix\Main\Application;
 use Bitrix\Main\Composite;
 use Bitrix\Main\Composite\Helper;
 use Bitrix\Main\Composite\Internals\AutomaticArea;
@@ -274,7 +276,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 		}
 
 		Helper::setOptions($compositeOptions);
-		bx_accelerator_reset();
+		Application::resetAccelerator();
 		LocalRedirect("/bitrix/admin/composite.php?lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 	}
 }

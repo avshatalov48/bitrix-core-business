@@ -6,8 +6,8 @@ use Bitrix\Calendar\Core\Managers\Accessibility;
 
 class SharingAccessibilityManager
 {
-	/** @var int  */
-	private int $userId;
+	/** @var array  */
+	private array $userIds;
 	/** @var int  */
 	private int $timestampFrom;
 	/** @var int  */
@@ -18,7 +18,7 @@ class SharingAccessibilityManager
 	 */
 	public function __construct($options)
 	{
-		$this->userId = $options['userId'];
+		$this->userIds = $options['userIds'];
 		$this->timestampFrom = $options['timestampFrom'];
 		$this->timestampTo = $options['timestampTo'];
 	}
@@ -26,11 +26,11 @@ class SharingAccessibilityManager
 	/**
 	 * @return bool
 	 */
-	public function checkUserAccessibility(): bool
+	public function checkUsersAccessibility(): bool
 	{
 		$busyUserIds = (new Accessibility())
 			->setCheckPermissions(false)
-			->getBusyUsersIds([$this->userId], $this->timestampFrom, $this->timestampTo)
+			->getBusyUsersIds($this->userIds, $this->timestampFrom, $this->timestampTo)
 		;
 
 		return empty($busyUserIds);
@@ -40,13 +40,13 @@ class SharingAccessibilityManager
 	 * @return array
 	 * @throws \Bitrix\Main\ObjectException
 	 */
-	public function getUserAccessibilitySegmentsInUtc(): array
+	public function getUsersAccessibilitySegmentsInUtc(): array
 	{
 		$accessibility = (new Accessibility())
 			->setCheckPermissions(false)
-			->getAccessibility([$this->userId], $this->timestampFrom, $this->timestampTo)
+			->getAccessibility($this->userIds, $this->timestampFrom, $this->timestampTo)
 		;
 
-		return $accessibility[$this->userId];
+		return array_merge(...$accessibility);
 	}
 }

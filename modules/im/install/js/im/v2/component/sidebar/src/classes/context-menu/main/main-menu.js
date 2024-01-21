@@ -1,11 +1,11 @@
 import { Loc } from 'main.core';
 import { RecentMenu } from 'im.v2.lib.menu';
 import { Utils } from 'im.v2.lib.utils';
-import { DialogType, ChatActionType } from 'im.v2.const';
+import { ChatType, ChatActionType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 
 import type { MenuItem } from 'im.v2.lib.menu';
-import type { ImModelRecentItem } from 'im.v2.model';
+import type { ImModelRecentItem, ImModelUser } from 'im.v2.model';
 
 export class MainMenu extends RecentMenu
 {
@@ -39,6 +39,7 @@ export class MainMenu extends RecentMenu
 			this.getCallItem(),
 			this.getOpenProfileItem(),
 			this.getOpenUserCalendarItem(),
+			this.getChatsWithUserItem(),
 			this.getAddMembersToChatItem(),
 			this.getHideItem(),
 			this.getLeaveItem(),
@@ -47,7 +48,7 @@ export class MainMenu extends RecentMenu
 
 	getOpenUserCalendarItem(): ?MenuItem
 	{
-		const isUser = this.store.getters['dialogues/isUser'](this.context.dialogId);
+		const isUser = this.store.getters['chats/isUser'](this.context.dialogId);
 		if (!isUser)
 		{
 			return null;
@@ -71,6 +72,11 @@ export class MainMenu extends RecentMenu
 
 	getAddMembersToChatItem(): MenuItem
 	{
+		const user: ImModelUser = this.store.getters['users/get'](this.context.dialogId);
+		if (user?.bot === true)
+		{
+			return null;
+		}
 		const canExtend = this.permissionManager.canPerformAction(ChatActionType.extend, this.context.dialogId);
 		if (!canExtend)
 		{
@@ -88,8 +94,8 @@ export class MainMenu extends RecentMenu
 
 	getJoinChatItem(): ?MenuItem
 	{
-		const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
-		const isUser = dialog.type === DialogType.user;
+		const dialog = this.store.getters['chats/get'](this.context.dialogId);
+		const isUser = dialog.type === ChatType.user;
 		if (isUser)
 		{
 			return null;

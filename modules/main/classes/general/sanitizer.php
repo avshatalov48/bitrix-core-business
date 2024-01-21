@@ -866,7 +866,7 @@
 				}
 				else
 				{
-					if(in_array($segt['tagName'], $this->delTagsWithContent))
+					if(isset($segt['tagName']) && in_array($segt['tagName'], $this->delTagsWithContent))
 					{
 						$flagDeleteContent = $segt['tagType'] == 'open';
 					}

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\Grid\Panel\Action;
 
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Panel\Action\Group\GroupChildAction;
 use Bitrix\Main\Grid\Panel\Actions;
 use Bitrix\Main\Grid\Panel\Types;
@@ -93,7 +94,7 @@ abstract class GroupAction implements Action
 	/**
 	 * @inheritDoc
 	 */
-	final public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	final public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter): ?Result
 	{
 		$controls = $request->getPost('controls');
 		$itemId = (string)($controls[static::getId()] ?? '');
@@ -106,7 +107,7 @@ abstract class GroupAction implements Action
 		{
 			if ($item::getId() === $itemId)
 			{
-				return $item->processRequest($request, $isSelectedAllRows);
+				return $item->processRequest($request, $isSelectedAllRows, $filter);
 			}
 		}
 

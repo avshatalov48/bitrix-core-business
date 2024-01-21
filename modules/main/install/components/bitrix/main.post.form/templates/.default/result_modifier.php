@@ -308,7 +308,7 @@ if ($arParams["DESTINATION_SHOW"] === "Y")
 
 
 	$arResult['DESTINATION'] = [
-		'ENTITIES_PRESELECTED' => EntitySelector\Converter::sortEntities(EntitySelector\Converter::convertFromFinderCodes(is_array($arParams["DESTINATION"]["SELECTED"]) ? array_keys($arParams["DESTINATION"]["SELECTED"]) : []))
+		'ENTITIES_PRESELECTED' => EntitySelector\Converter::sortEntities(EntitySelector\Converter::convertFromFinderCodes(isset($arParams["DESTINATION"]["SELECTED"]) && is_array($arParams["DESTINATION"]["SELECTED"]) ? array_keys($arParams["DESTINATION"]["SELECTED"]) : []))
 	];
 }
 

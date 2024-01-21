@@ -1,9 +1,9 @@
-import {LoadService} from './classes/message/load';
-import {PinService} from './classes/message/pin';
-import {EditService} from './classes/message/edit';
-import {DeleteService} from './classes/message/delete';
-import {MarkService} from './classes/message/mark';
-import {FavoriteService} from './classes/message/favorite';
+import { LoadService } from './classes/message/load';
+import { PinService } from './classes/message/pin';
+import { EditService } from './classes/message/edit';
+import { DeleteService } from './classes/message/delete';
+import { MarkService } from './classes/message/mark';
+import { FavoriteService } from './classes/message/favorite';
 
 export class MessageService
 {
@@ -21,7 +21,7 @@ export class MessageService
 
 	constructor(params: {chatId: number})
 	{
-		const {chatId} = params;
+		const { chatId } = params;
 		this.#initServices(chatId);
 	}
 
@@ -130,7 +130,7 @@ export class MessageService
 	// endregion 'edit'
 
 	// region 'delete'
-	deleteMessage(messageId: number)
+	deleteMessage(messageId: number | string)
 	{
 		this.#deleteService.deleteMessage(messageId);
 	}

@@ -4,6 +4,8 @@ namespace Bitrix\Catalog\v2\Integration\UI\EntityEditor;
 
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Document\StoreDocumentTableManager;
+use Bitrix\Catalog\Document\Type\StoreDocumentSpecificTable;
 use Bitrix\Catalog\StoreDocumentFileTable;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Catalog\v2\Contractor;
@@ -11,14 +13,20 @@ use Bitrix\Catalog\v2\Integration\UI\EntityEditor\Product\StoreDocumentProductPo
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Currency\CurrencyTable;
 use Bitrix\Main;
+use Bitrix\Intranet;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
 use Bitrix\UI\EntityEditor\BaseProvider;
+use Bitrix\UI\EntityEditor\ProviderWithUserFieldsTrait;
 use CCurrencyLang;
 
 class StoreDocumentProvider extends BaseProvider
 {
+	use ProviderWithUserFieldsTrait {
+		getUfComponentFields as getUfComponentFieldsParent;
+	}
+
 	protected const DEFAULT_TYPE = StoreDocumentTable::TYPE_ARRIVAL;
 	protected const GUID_PREFIX = 'STORE_DOCUMENT_DETAIL_';
 	protected const ENTITY_TYPE_NAME = 'store_document';
@@ -26,11 +34,15 @@ class StoreDocumentProvider extends BaseProvider
 
 	protected $document;
 	protected $config;
+	protected $userFieldInfos = null;
+	protected $createUfUrl = '';
 
 	/** @var Contractor\Provider\IProvider|null */
 	protected ?Contractor\Provider\IProvider $contractorsProvider;
 
-	private function __construct(array $documentFields, array $config = [])
+	protected static array $users = [];
+
+	protected function __construct(array $documentFields, array $config = [])
 	{
 		$this->document = $documentFields;
 		$this->config = $config;
@@ -99,17 +111,28 @@ class StoreDocumentProvider extends BaseProvider
 	{
 		if (!$this->isNewDocument())
 		{
-			$document = StoreDocumentTable::getList([
+			$documentType = StoreDocumentTable::getRow(['select' => ['DOC_TYPE'], 'filter' => ['=ID' => $this->getDocumentId()]]);
+			if (!$documentType)
+			{
+				$this->document = [];
+				return;
+			}
+
+			$documentType = $documentType['DOC_TYPE'];
+
+			$tableClass = StoreDocumentTableManager::getTableClassByType($documentType) ?: StoreDocumentTable::class;
+			$document = $tableClass::getRow([
 				'select' => [
 					'*',
+					'UF_*',
 					'CONTRACTOR_REF_' => 'CONTRACTOR',
 				],
 				'filter' => [
 					'=ID' => $this->getDocumentId(),
 				],
-			])->fetch();
+			]);
 
-			$this->document = $document ?: [];
+			$this->document = $document ? array_merge($this->document, $document) : [];
 		}
 	}
 
@@ -373,7 +396,46 @@ class StoreDocumentProvider extends BaseProvider
 				break;
 		}
 
+		$fields = $this->fillUfEntityFields($fields);
+
 		return $fields;
+	}
+
+	protected function getUfComponentFields(): array
+	{
+		$result = $this->getUfComponentFieldsParent();
+		$result['USER_FIELD_CREATE_PAGE_URL'] = $this->createUfUrl;
+
+		return $result;
+	}
+
+	public function setCreateUfUrl(string $url): void
+	{
+		$this->createUfUrl = $url;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUfEntityId(): string
+	{
+		/* @var StoreDocumentSpecificTable $tableClass */
+		$tableClass = StoreDocumentTableManager::getTableClassByType($this->getDocumentType());
+
+		if ($tableClass)
+		{
+			return $tableClass::getUfId();
+		}
+
+		return '';
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getUfPrefix(): string
+	{
+		return 'CATALOG';
 	}
 
 	protected function getDefaultDocumentTitle(string $documentNumber = '')
@@ -465,6 +527,13 @@ class StoreDocumentProvider extends BaseProvider
 
 	public function getMainSectionElements()
 	{
+		$ufSectionElements = [];
+		$ufInfos = $this->getUfEntityFields();
+		foreach ($ufInfos as $userField)
+		{
+			$ufSectionElements[] = ['name' => $userField['name']];
+		}
+
 		switch ($this->getDocumentType())
 		{
 			case StoreDocumentTable::TYPE_ARRIVAL:
@@ -476,24 +545,28 @@ class StoreDocumentProvider extends BaseProvider
 					['name' => 'DATE_DOCUMENT'],
 					['name' => 'ITEMS_RECEIVED_DATE'],
 					['name' => 'DOCUMENT_FILES'],
+					...$ufSectionElements,
 				];
 			case StoreDocumentTable::TYPE_STORE_ADJUSTMENT:
 				return [
 					['name' => 'TITLE'],
 					['name' => 'TOTAL_WITH_CURRENCY'],
+					...$ufSectionElements,
 				];
 			case StoreDocumentTable::TYPE_MOVING:
 				return [
 					['name' => 'TITLE'],
 					['name' => 'TOTAL_WITH_CURRENCY'],
+					...$ufSectionElements,
 				];
 			case StoreDocumentTable::TYPE_DEDUCT:
 				return [
 					['name' => 'TITLE'],
 					['name' => 'TOTAL_WITH_CURRENCY'],
+					...$ufSectionElements,
 				];
 			default:
-				return [];
+				return $ufSectionElements;
 		}
 	}
 
@@ -548,6 +621,8 @@ class StoreDocumentProvider extends BaseProvider
 				}
 			}
 		}
+
+		$document = $this->fillUfEntityData($document);
 
 		return $this->getAdditionalDocumentData($document);
 	}
@@ -699,28 +774,55 @@ class StoreDocumentProvider extends BaseProvider
 
 	protected function getUsersInfo(array $userIds): array
 	{
+		Main\Type\Collection::normalizeArrayValuesByInt($userIds);
+		if (empty($userIds))
+		{
+			return [];
+		}
+
 		$usersInfo = [];
 
-		$userIds = array_filter(array_unique(array_values($userIds)));
+		$newUsers = [];
+		foreach ($userIds as $id)
+		{
+			if (isset(static::$users[$id]))
+			{
+				$usersInfo[$id] = static::$users[$id];
+			}
+			else
+			{
+				$newUsers[] = $id;
+			}
+		}
 
-		if (!empty($userIds))
+		if (empty($newUsers))
+		{
+			return $usersInfo;
+		}
+
+		foreach (array_chunk($newUsers, CATALOG_PAGE_SIZE) as $pageIds)
 		{
 			$userList = UserTable::getList([
-				'filter' => ['=ID' => $userIds],
 				'select' => [
 					'ID',
 					'LOGIN',
-					'PERSONAL_PHOTO',
 					'NAME',
 					'SECOND_NAME',
 					'LAST_NAME',
+					'PERSONAL_PHOTO',
 					'WORK_POSITION',
+				],
+				'filter' => [
+					'@ID' => $pageIds,
 				],
 			]);
 			while ($user = $userList->fetch())
 			{
-				$usersInfo[$user['ID']] = $user;
+				$id = (int)$user['ID'];
+				$usersInfo[$id] = $user;
+				static::$users[$id] = $user;
 			}
+			unset($userList);
 		}
 
 		return $usersInfo;
@@ -742,8 +844,9 @@ class StoreDocumentProvider extends BaseProvider
 			);
 
 			$document[$fieldName . '_FORMATTED_NAME'] = \CUser::FormatName(
-				\CSite::GetNameFormat(false),
+				\CSite::GetNameFormat(),
 				[
+					'ID' => $user['ID'] ?? '',
 					'LOGIN' => $user['LOGIN'],
 					'NAME' => $user['NAME'],
 					'LAST_NAME' => $user['LAST_NAME'],
@@ -753,10 +856,11 @@ class StoreDocumentProvider extends BaseProvider
 				false
 			);
 
-			if ((int)$user['PERSONAL_PHOTO'] > 0)
+			$personalPhoto = (int)($user['PERSONAL_PHOTO'] ?? 0);
+			if ($personalPhoto > 0)
 			{
 				$fileInfo = \CFile::ResizeImageGet(
-					(int)$user['PERSONAL_PHOTO'],
+					$personalPhoto,
 					[
 						'width' => 60,
 						'height' => 60,

@@ -5,6 +5,8 @@ import ProgressBarColor from './progressbar-color';
 import ProgressBarSize from './progressbar-size';
 import ProgressBarStatus from './progressbar-status';
 
+import './css/style.css';
+
 type ProgressBarOptions = {
 	value: number;
 	maxValue: number;

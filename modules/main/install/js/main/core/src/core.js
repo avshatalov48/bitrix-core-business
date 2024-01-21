@@ -35,10 +35,11 @@ export {
 	BaseError,
 	Extension,
 	ZIndexManager,
-	Collections
+	Collections,
 };
 
 export * from './core-compatibility';
+export type * from './lib/types/index';
 
 if (typeof global === 'object' && global.window && global.window.BX)
 {

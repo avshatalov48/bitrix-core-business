@@ -16,9 +16,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _getGroupByAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getGroupByAction");
 	var _prepareChatTypePermissions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareChatTypePermissions");
 	var _checkMinimalRole = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkMinimalRole");
-	var _canPerformKickByHierarchy = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("canPerformKickByHierarchy");
 	var _getDialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
-	var _getUserRole = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUserRole");
 	class PermissionManager {
 	  static getInstance() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _instance)[_instance]) {
@@ -30,14 +28,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    PermissionManager.getInstance();
 	  }
 	  constructor() {
-	    Object.defineProperty(this, _getUserRole, {
-	      value: _getUserRole2
-	    });
 	    Object.defineProperty(this, _getDialog, {
 	      value: _getDialog2
-	    });
-	    Object.defineProperty(this, _canPerformKickByHierarchy, {
-	      value: _canPerformKickByHierarchy2
 	    });
 	    Object.defineProperty(this, _checkMinimalRole, {
 	      value: _checkMinimalRole2
@@ -77,9 +69,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  canPerformAction(actionType, dialogId) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _canPerformActionByChatType)[_canPerformActionByChatType](actionType, dialogId) && babelHelpers.classPrivateFieldLooseBase(this, _canPerformActionByChatSettings)[_canPerformActionByChatSettings](actionType, dialogId);
-	  }
-	  canPerformKick(dialogId, userId) {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _canPerformActionByChatType)[_canPerformActionByChatType](im_v2_const.ChatActionType.kick, dialogId) && babelHelpers.classPrivateFieldLooseBase(this, _canPerformActionByChatSettings)[_canPerformActionByChatSettings](im_v2_const.ChatActionType.kick, dialogId) && babelHelpers.classPrivateFieldLooseBase(this, _canPerformKickByHierarchy)[_canPerformKickByHierarchy](dialogId, userId);
 	  }
 	  getDefaultRolesForActionGroups() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _actionGroupsDefaultRoles)[_actionGroupsDefaultRoles];
@@ -129,7 +118,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    type: chatType,
 	    permissions: chatPermissions
 	  } = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog](dialogId);
-	  if (chatType === im_v2_const.DialogType.user) {
+	  if (chatType === im_v2_const.ChatType.user) {
 	    return true;
 	  }
 	  if (actionType === im_v2_const.ChatActionType.send) {
@@ -159,7 +148,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const preparedPermissions = {
 	    ...permissionsByChatType
 	  };
-	  preparedPermissions[im_v2_const.DialogType.user] = {
+	  preparedPermissions[im_v2_const.ChatType.user] = {
 	    [im_v2_const.ChatActionType.avatar]: im_v2_const.UserRole.none,
 	    [im_v2_const.ChatActionType.call]: im_v2_const.UserRole.member,
 	    [im_v2_const.ChatActionType.extend]: im_v2_const.UserRole.member,
@@ -181,29 +170,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	  return roleWeights[roleToCheck] >= roleWeights[minimalRole];
 	}
-	function _canPerformKickByHierarchy2(dialogId, userId) {
-	  const preparedUserId = Number.parseInt(userId, 10);
-	  const {
-	    role: userRole
-	  } = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog](dialogId);
-	  const targetUserRole = babelHelpers.classPrivateFieldLooseBase(this, _getUserRole)[_getUserRole](dialogId, preparedUserId);
-	  return babelHelpers.classPrivateFieldLooseBase(this, _checkMinimalRole)[_checkMinimalRole](targetUserRole, userRole);
-	}
 	function _getDialog2(dialogId) {
-	  return im_v2_application_core.Core.getStore().getters['dialogues/get'](dialogId, true);
-	}
-	function _getUserRole2(dialogId, userId) {
-	  const {
-	    owner,
-	    managerList
-	  } = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog](dialogId);
-	  if (userId === owner) {
-	    return im_v2_const.UserRole.owner;
-	  }
-	  if (managerList.includes(userId)) {
-	    return im_v2_const.UserRole.manager;
-	  }
-	  return im_v2_const.UserRole.member;
+	  return im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
 	}
 	Object.defineProperty(PermissionManager, _instance, {
 	  writable: true,

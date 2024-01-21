@@ -11,3 +11,5 @@ $MESS["SOCNET_ENTITY_SELECTOR_EMPLOYEE_OR_PROJECT_OR_GUEST"] = "<employee>При
 $MESS["SOCNET_ENTITY_SELECTOR_INVITED_USERS_TAB_TITLE"] = "Приглашенные";
 $MESS["SOCNET_ENTITY_SELECTOR_INVITED_GUEST_HINT"] = "Вы можете добавить не только сотрудника, но и партнера или клиента по электронной почте.";
 $MESS["SOCNET_ENTITY_SELECTOR_TAG_FOOTER_LABEL"] = "Начните ввод, чтобы создать новый тег";
+$MESS["SOCNET_ENTITY_SELECTOR_CREATE"] = "Создать";
+$MESS["SOCNET_ENTITY_SELECTOR_CANCEL"] = "Отмена";

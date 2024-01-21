@@ -15,7 +15,6 @@ export default class Editor
 	eventNode: Element;
 	toolbar: Toolbar;
 	jobs: Map = new Map();
-	isCopilotEnabled: true;
 
 	editorParams = {
 		height: 100,
@@ -407,34 +406,6 @@ export default class Editor
 				htmlEditor.iframeView.container.dispatchEvent(event);
 			}
 		);
-
-		EventEmitter.subscribe(this.getEditor(), 'OnSetViewAfter', (data) => {
-			if (this.getEditor() === data.target)
-			{
-				this.OnEditorSetViewAfter();
-			}
-		});
-	}
-
-	OnEditorSetViewAfter(): void
-	{
-		const copilot = this.toolbar.container.querySelector('[data-id="copilot"]');
-
-		if (copilot)
-		{
-			if (this.getEditor().GetViewMode() === 'code')
-			{
-				this.isCopilotEnabled = false;
-				Dom.attr(copilot, 'title', Loc.getMessage('MPF_COPILOT_BB_CODE'));
-				Dom.addClass(copilot, 'disabled');
-			}
-			else
-			{
-				this.isCopilotEnabled = true;
-				Dom.attr(copilot, 'title', '');
-				Dom.removeClass(copilot, 'disabled');
-			}
-		}
 	}
 
 	getEditor()
@@ -786,10 +757,22 @@ export default class Editor
 
 	showCopilot(): void
 	{
-		if (this.isCopilotEnabled)
-		{
-			this.getEditor().ShowCopilotAtTheBottom();
-		}
+		this.getEditor().SetView('wysiwyg');
+		this.getEditor().ShowCopilotAtTheBottom();
+	}
+
+	isTextCopilotEnabledBySettings()
+	{
+		const isEnabled = this.getEditor().config.isCopilotTextEnabledBySettings;
+
+		return Type.isNil(isEnabled) || isEnabled;
+	}
+
+	isImageCopilotEnabledBySettings()
+	{
+		const isEnabled = this.getEditor().config.isCopilotImageEnabledBySettings;
+
+		return Type.isNil(isEnabled) || isEnabled;
 	}
 
 	get controllers()

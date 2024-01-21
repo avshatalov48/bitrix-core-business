@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
@@ -378,6 +377,7 @@ this.BX.UI = this.BX.UI || {};
 	  GANTT_GRAPHS: 'gantt-graphs',
 	  FILTER_PLUS: 'filter-plus',
 	  BACKSPACE: 'backspace',
+	  ELEMENTS: 'elements',
 	  BOOK_OPENED_WITH_ARROW: 'book-opened-with-arrow',
 	  DOUBLE_ARROW_COUNTER_CLOCKWISE_SCRUM: 'double-arrow-counter-clockwise-scrum',
 	  BARCODE: 'barcode',

@@ -102,10 +102,12 @@ $filterValue = $arResult["LIMITS_ENABLED"] ? '' : HtmlFilter::encode($arResult["
 	<div class="sn-spaces__toolbar-space_search main-ui-filter-search ui-ctl-element <?=$filterSearchClass?>"
 		 id="<?=$arParams["FILTER_ID"]?>_search_container"
 	>
-		<input id="<?=$arParams["FILTER_ID"]?>_search"
-			   type="text"
-			   class="sn-spaces__toolbar-space_search-input ui-ctl-element"
-			   placeholder="<?=Loc::getMessage($placeholder)?>"
+		<input
+			id="<?=$arParams["FILTER_ID"]?>_search"
+			type="text"
+			class="sn-spaces__toolbar-space_search-input ui-ctl-element"
+			placeholder="<?=Loc::getMessage($placeholder)?>"
+			autocomplete="off"
 		>
 		<div class="sn-spaces__toolbar-search-btn ui-ctl-after">
 			<div class="ui-icon-set --search-2 sn-spaces__toolbar-search-icon"></div>

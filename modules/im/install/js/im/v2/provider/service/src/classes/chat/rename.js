@@ -23,7 +23,7 @@ export class RenameService
 		{
 			return Promise.resolve();
 		}
-		const dialog = this.#store.getters['dialogues/get'](dialogId);
+		const dialog = this.#store.getters['chats/get'](dialogId);
 		const oldName = dialog.name;
 
 		this.#updateChatTitleInModel(dialogId, newName);
@@ -43,7 +43,7 @@ export class RenameService
 
 	#updateChatTitleInModel(dialogId: string, title: string)
 	{
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId,
 			fields: {
 				name: title

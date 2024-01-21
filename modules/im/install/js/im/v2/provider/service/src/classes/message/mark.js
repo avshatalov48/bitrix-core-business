@@ -21,13 +21,13 @@ export class MarkService
 	markMessage(messageId: number)
 	{
 		Logger.warn('MessageService: markMessage', messageId);
-		const {dialogId} = this.#store.getters['dialogues/getByChatId'](this.#chatId);
+		const {dialogId} = this.#store.getters['chats/getByChatId'](this.#chatId);
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
 			action: true,
 			dateUpdate: new Date(),
 		});
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId,
 			fields: {
 				markedId: messageId

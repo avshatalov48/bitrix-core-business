@@ -62,10 +62,15 @@ class Lead extends ConnectorBaseFilter implements Connector\IncrementallyConnect
 		);
 		$runtime = Helper::getRuntimeByEntity(null);
 
+		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
+
 		$nameExprField = new Entity\ExpressionField(
-			'`NAME`',
-			'CASE %2$s WHEN \'Y\' ' .
-			'THEN if (%3$s>0, %4$s, if (%5$s>0, %6$s, %1$s)) ELSE %1$s END',
+			$sqlHelper->quote('NAME'),
+			'CASE 
+			WHEN %2$s=\'Y\' AND %3$s>0 THEN %4$s
+			WHEN %2$s=\'Y\' AND %5$s>0 THEN %6$s
+			ELSE %1$s
+			END',
 			[
 				'NAME', 'IS_RETURN_CUSTOMER',
 				'CONTACT_ID', 'CONTACT.NAME',

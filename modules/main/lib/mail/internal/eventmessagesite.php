@@ -3,12 +3,12 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data;
 
 /**
  * Class EventMessageSiteTable
@@ -26,8 +26,9 @@ use Bitrix\Main\Entity;
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite_Collection wakeUpCollection($rows)
  */
-class EventMessageSiteTable extends Entity\DataManager
+class EventMessageSiteTable extends Data\DataManager
 {
+	use Data\Internal\DeleteByFilterTrait;
 
 	/**
 	 * @return string
@@ -46,14 +47,12 @@ class EventMessageSiteTable extends Entity\DataManager
 			'EVENT_MESSAGE_ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
-				'autocomplete' => true,
 			),
 
 			'SITE_ID' => array(
 				'data_type' => 'string',
-				'required' => true,
+				'primary' => true,
 			),
 		);
 	}
-
 }

@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 /** @global CDatabase $DB */
@@ -14,117 +19,134 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var string $parentComponentTemplate */
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Web\Uri;
 
 $this->setFrameMode(false);
+
+$arResult = [];
 
 /** @var CCacheManager $CACHE_MANAGER */
 global $CACHE_MANAGER;
 
 if(!CModule::IncludeModule('lists'))
 {
-	ShowError(GetMessage("CC_BLLE_MODULE_NOT_INSTALLED"));
+	ShowError(Loc::getMessage('CC_BLLE_MODULE_NOT_INSTALLED'));
+
 	return;
 }
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/admin_tools.php");
-$APPLICATION->AddHeadScript('/bitrix/js/iblock/iblock_edit.js');
+
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/iblock/admin_tools.php');
+Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 
 $lists_perm = CListPermissions::CheckAccess(
 	$USER,
-	$arParams["~IBLOCK_TYPE_ID"],
-	$arParams["~IBLOCK_ID"] > 0? $arParams["~IBLOCK_ID"]: false,
-	$arParams["~SOCNET_GROUP_ID"] ?? null
+	$arParams['~IBLOCK_TYPE_ID'],
+	$arParams['~IBLOCK_ID'] > 0? $arParams['~IBLOCK_ID']: false,
+	$arParams['~SOCNET_GROUP_ID'] ?? null
 );
 if($lists_perm < 0)
 {
 	switch($lists_perm)
 	{
 	case CListPermissions::WRONG_IBLOCK_TYPE:
-		ShowError(GetMessage("CC_BLLE_WRONG_IBLOCK_TYPE"));
+		ShowError(Loc::getMessage('CC_BLLE_WRONG_IBLOCK_TYPE'));
 		return;
 	case CListPermissions::WRONG_IBLOCK:
-		ShowError(GetMessage("CC_BLLE_WRONG_IBLOCK"));
+		ShowError(Loc::getMessage('CC_BLLE_WRONG_IBLOCK'));
 		return;
 	case CListPermissions::LISTS_FOR_SONET_GROUP_DISABLED:
-		ShowError(GetMessage("CC_BLLE_LISTS_FOR_SONET_GROUP_DISABLED"));
+		ShowError(Loc::getMessage('CC_BLLE_LISTS_FOR_SONET_GROUP_DISABLED'));
 		return;
 	default:
-		ShowError(GetMessage("CC_BLLE_UNKNOWN_ERROR"));
+		ShowError(Loc::getMessage('CC_BLLE_UNKNOWN_ERROR'));
 		return;
 	}
 }
 elseif(
 	(
-		$arParams["~IBLOCK_ID"] > 0
+		$arParams['~IBLOCK_ID'] > 0
 		&& $lists_perm < CListPermissions::IS_ADMIN
-		&& !CIBlockRights::UserHasRightTo($arParams["~IBLOCK_ID"], $arParams["~IBLOCK_ID"], "iblock_edit")
+		&& !CIBlockRights::UserHasRightTo($arParams['~IBLOCK_ID'], $arParams['~IBLOCK_ID'], 'iblock_edit')
 	) || (
-		$arParams["~IBLOCK_ID"] == 0
+		$arParams['~IBLOCK_ID'] == 0
 		&& $lists_perm < CListPermissions::IS_ADMIN
 	)
 )
 {
-	ShowError(GetMessage("CC_BLLE_ACCESS_DENIED"));
+	ShowError(Loc::getMessage('CC_BLLE_ACCESS_DENIED'));
 	return;
 }
 
-$arParams["CAN_EDIT"] =
+$arParams['CAN_EDIT'] =
 	$lists_perm >= CListPermissions::IS_ADMIN
 	|| (
-		$arParams["~IBLOCK_ID"] > 0
-		&& CIBlockRights::UserHasRightTo($arParams["~IBLOCK_ID"], $arParams["~IBLOCK_ID"], "iblock_edit")
+		$arParams['~IBLOCK_ID'] > 0
+		&& CIBlockRights::UserHasRightTo($arParams['~IBLOCK_ID'], $arParams['~IBLOCK_ID'], 'iblock_edit')
 	)
 ;
 
-$bBizProc = CModule::IncludeModule('bizproc') && CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"]);
-$arIBlock = CIBlock::GetArrayByID(intval($arParams["~IBLOCK_ID"]));
+$bBizProc = CModule::IncludeModule('bizproc') && CLists::isBpFeatureEnabled($arParams['IBLOCK_TYPE_ID']);
+$arIBlock = CIBlock::GetArrayByID((int)$arParams['~IBLOCK_ID']);
 
 if($arIBlock)
 {
-	$arResult["~IBLOCK"] = $arIBlock;
-	$arResult["IBLOCK"] = htmlspecialcharsex($arIBlock);
-	$arResult["IBLOCK_ID"] = $arIBlock["ID"];
+	$arResult['~IBLOCK'] = $arIBlock;
+	$arResult['IBLOCK'] = htmlspecialcharsex($arIBlock);
+	$arResult['IBLOCK_ID'] = $arIBlock['ID'];
 }
 else
 {
-	$arResult["IBLOCK"] = false;
-	$arResult["IBLOCK_ID"] = false;
+	$arResult['IBLOCK'] = false;
+	$arResult['IBLOCK_ID'] = false;
 }
 
-if(isset($arParams["SOCNET_GROUP_ID"]) && $arParams["SOCNET_GROUP_ID"] > 0)
-	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
+if(isset($arParams['SOCNET_GROUP_ID']) && $arParams['SOCNET_GROUP_ID'] > 0)
+{
+	$arParams['SOCNET_GROUP_ID'] = (int)$arParams['SOCNET_GROUP_ID'];
+}
 else
-	$arParams["SOCNET_GROUP_ID"] = "";
+{
+	$arParams['SOCNET_GROUP_ID'] = '';
+}
 
-$arResult["GRID_ID"] = "lists_fields";
-$arResult["FORM_ID"] = "lists_list_edit";
+$arResult['GRID_ID'] = 'lists_fields';
+$arResult['FORM_ID'] = 'lists_list_edit';
 
-$arResult["~LISTS_URL"] = str_replace(
-	array("#list_id#", "#group_id#"),
-	array("0", $arParams["SOCNET_GROUP_ID"]),
-	$arParams["~LISTS_URL"]
+$arResult['~LISTS_URL'] = str_replace(
+	['#list_id#', '#group_id#'],
+	['0', $arParams['SOCNET_GROUP_ID']],
+	$arParams['~LISTS_URL']
 );
-$arResult["LISTS_URL"] = htmlspecialcharsbx($arResult["~LISTS_URL"]);
+$arResult['LISTS_URL'] = htmlspecialcharsbx($arResult['~LISTS_URL']);
 
-$arResult["~LIST_URL"] = CHTTP::urlAddParams(str_replace(
-	array("#list_id#", "#section_id#", "#group_id#"),
-	array($arResult["IBLOCK_ID"], "0", $arParams["SOCNET_GROUP_ID"]),
-	$arParams["~LIST_URL"]
-), array("list_section_id" => ""));
-$arResult["LIST_URL"] = htmlspecialcharsbx($arResult["~LIST_URL"]);
+$arResult['~LIST_URL'] =
+	(new Uri(
+		str_replace(
+			['#list_id#', '#section_id#', '#group_id#'],
+			[$arResult['IBLOCK_ID'], '0', $arParams['SOCNET_GROUP_ID']],
+			$arParams['~LIST_URL']
+		)
+	))
+		->addParams(['list_section_id' => ''])
+		->getUri()
+;
+$arResult['LIST_URL'] = htmlspecialcharsbx($arResult['~LIST_URL']);
 
-$arResult["~LIST_EDIT_URL"] = str_replace(
-	array("#list_id#", "#group_id#"),
-	array($arResult["IBLOCK_ID"], $arParams["SOCNET_GROUP_ID"]),
-	$arParams["~LIST_EDIT_URL"]
+$arResult['~LIST_EDIT_URL'] = str_replace(
+	['#list_id#', '#group_id#'],
+	[$arResult['IBLOCK_ID'], $arParams['SOCNET_GROUP_ID']],
+	$arParams['~LIST_EDIT_URL']
 );
-$arResult["LIST_EDIT_URL"] = htmlspecialcharsbx($arResult["~LIST_EDIT_URL"]);
+$arResult['LIST_EDIT_URL'] = htmlspecialcharsbx($arResult['~LIST_EDIT_URL']);
 
-$arResult["~LIST_FIELDS_URL"] = str_replace(
-	array("#list_id#", "#group_id#"),
-	array($arResult["IBLOCK_ID"], $arParams["SOCNET_GROUP_ID"]),
-	$arParams["~LIST_FIELDS_URL"]
+$arResult['~LIST_FIELDS_URL'] = str_replace(
+	['#list_id#', '#group_id#'],
+	[$arResult['IBLOCK_ID'], $arParams['SOCNET_GROUP_ID']],
+	$arParams['~LIST_FIELDS_URL']
 );
-$arResult["LIST_FIELDS_URL"] = htmlspecialcharsbx($arResult["~LIST_FIELDS_URL"]);
+$arResult['LIST_FIELDS_URL'] = htmlspecialcharsbx($arResult['~LIST_FIELDS_URL']);
 
 //Assume there was no error
 $bVarsFromForm = false;
@@ -155,29 +177,43 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 		);
 
 		if($arParams["SOCNET_GROUP_ID"])
+		{
 			$arFields["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
+		}
 
 		if($bBizProc)
-			$arFields["BIZPROC"] = $_POST["BIZPROC"]=="Y"? "Y": "N";
+		{
+			$arFields["BIZPROC"] = $_POST["BIZPROC"] == "Y" ? "Y" : "N";
+		}
 
 		$arSites = array(SITE_ID);
 		if($arIBlock)
 		{
 			$rsSite = CIBlock::GetSite($arIBlock["ID"]);
 			while($ar = $rsSite->Fetch())
+			{
 				$arSites[] = $ar["SITE_ID"];
+			}
 		}
 		$arFields["SITE_ID"] = $arSites;
 
 		if(isset($_FILES["PICTURE"]))
+		{
 			$arFields["PICTURE"] = $_FILES["PICTURE"];
+		}
 		if(isset($_POST["PICTURE_del"]))
+		{
 			$arFields["PICTURE"]["del"] = "Y";
+		}
 
 		if(is_array($_POST["RIGHTS"] ?? null))
+		{
 			$postRights = CIBlockRights::Post2Array($_POST["RIGHTS"]);
+		}
 		else
-			$postRights = array();
+		{
+			$postRights = [];
+		}
 
 		$rights = array();
 		if($arIBlock)
@@ -190,11 +226,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 				foreach($arIBlockPerms as $group_id => $letter)
 				{
 					if($letter > "W")
-						$rights['n_'.($i++)] = array(
+					{
+						$rights['n_' . ($i++)] = [
 							"GROUP_CODE" => "G".$group_id,
 							"IS_INHERITED" => "N",
 							"TASK_ID" => CIBlockRights::LetterToTask($letter),
-						);
+						];
+					}
 				}
 			}
 			else
@@ -210,10 +248,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 		foreach($rights as $rightId => $right)
 		{
 			if(array_key_exists($rightId, $postRights))
+			{
 				$arFields["RIGHTS"][$rightId] = $right;
+			}
 		}
 		foreach($postRights as $rightId => $right)
+		{
 			$arFields["RIGHTS"][$rightId] = $right;
+		}
 
 		//Update existing or add new
 		$ob = new CIBlock;
@@ -221,7 +263,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 		{
 			$res = $ob->Update($arIBlock["ID"], $arFields);
 			if($res)
+			{
 				$res = $arIBlock["ID"];
+			}
 		}
 		else
 		{
@@ -231,7 +275,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 				$obList = new CList($res);
 				$obList->AddField(array(
 					"SORT" => 10,
-					"NAME" => GetMessage("CC_BLLE_NAME_FIELD"),
+					"NAME" => Loc::getMessage("CC_BLLE_NAME_FIELD"),
 					"IS_REQUIRED" => "Y",
 					"MULTIPLE" => "N",
 					"TYPE" => "NAME",
@@ -300,7 +344,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			{
 				$url = $arResult["LIST_URL"];
 				if(isset($_POST["apply"]))
+				{
 					$url = $arResult["LIST_EDIT_URL"];
+				}
 				LocalRedirect(CHTTP::urlAddParams(
 					$url,
 					array($tab_name => $_POST[$tab_name]),
@@ -375,9 +421,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 $data = array();
 
 if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
+{
 	$typeTranslation = '_PROCESS';
+}
 else
+{
 	$typeTranslation = '';
+}
 
 if($bVarsFromForm)
 {//There was an error so display form values
@@ -386,7 +436,9 @@ if($bVarsFromForm)
 	$data["DESCRIPTION"] = $_POST["DESCRIPTION"];
 	$data["SORT"] = $_POST["SORT"];
 	if($bBizProc)
+	{
 		$data["BIZPROC"] = $_POST["BIZPROC"];
+	}
 	$data["PICTURE"] = $arIBlock? $arIBlock["PICTURE"]: "";
 	$data["ELEMENTS_NAME"] = $_POST["ELEMENTS_NAME"];
 	$data["ELEMENT_NAME"] = $_POST["ELEMENT_NAME"];
@@ -407,7 +459,9 @@ elseif($arIBlock)
 	$data["DESCRIPTION"] = $arIBlock["DESCRIPTION"];
 	$data["SORT"] = $arIBlock["SORT"];
 	if($bBizProc)
+	{
 		$data["BIZPROC"] = $arIBlock["BIZPROC"];
+	}
 	$data["PICTURE"] = $arIBlock["PICTURE"];
 	$data["ELEMENTS_NAME"] = $arIBlock["ELEMENTS_NAME"];
 	$data["ELEMENT_NAME"] = $arIBlock["ELEMENT_NAME"];
@@ -431,10 +485,12 @@ elseif($arIBlock)
 else
 {//New one
 	$data["ID"] = "";
-	$data["NAME"] = GetMessage("CC_BLLE_FIELD_NAME_DEFAULT".$typeTranslation);
+	$data["NAME"] = Loc::getMessage("CC_BLLE_FIELD_NAME_DEFAULT".$typeTranslation);
 	$data["SORT"] = 500;
 	if($bBizProc)
+	{
 		$data["BIZPROC"] = "Y";
+	}
 	$data["PICTURE"] = "";
 	$arMessages = CIBlock::GetMessages(0, $arParams["~IBLOCK_TYPE_ID"]);
 	$data["ELEMENTS_NAME"] = $arMessages["ELEMENTS_NAME"];
@@ -458,11 +514,17 @@ foreach($data as $key => $value)
 }
 
 if($arResult["IBLOCK_ID"] > 0)
+{
 	$RIGHTS_MODE = CIBlock::GetArrayByID($arResult["IBLOCK_ID"], "RIGHTS_MODE");
+}
 elseif($arParams["SOCNET_GROUP_ID"])
+{
 	$RIGHTS_MODE = 'S';
+}
 else
+{
 	$RIGHTS_MODE = 'E';
+}
 
 $arResult["RIGHTS"] = array();
 if($RIGHTS_MODE != 'E')
@@ -474,7 +536,9 @@ if($RIGHTS_MODE != 'E')
 		foreach($arSocnetPerm as $role => $permission)
 		{
 			if($permission > "W")
+			{
 				$permission = "W";
+			}
 			switch($role)
 			{
 			case "A":
@@ -507,11 +571,13 @@ if($RIGHTS_MODE != 'E')
 	{
 		$arIBlockPerms = CIBlock::GetGroupPermissions($arResult["IBLOCK_ID"]);
 		foreach($arIBlockPerms as $group_id => $letter)
-			$arResult["RIGHTS"]['n'.($i++)] = array(
+		{
+			$arResult["RIGHTS"]['n'.($i++)] = [
 				"GROUP_CODE" => "G".$group_id,
 				"IS_INHERITED" => "N",
 				"TASK_ID" => CIBlockRights::LetterToTask($letter),
-			);
+			];
+		}
 	}
 }
 elseif($arResult["IBLOCK_ID"] > 0)
@@ -526,12 +592,18 @@ $arResult['RAND_STRING'] = $this->randString();
 $this->IncludeComponentTemplate();
 
 if($arIBlock)
-	$APPLICATION->SetTitle(GetMessage("CC_BLLE_TITLE_EDIT".$typeTranslation, array("#NAME#" => $arResult["IBLOCK"]["NAME"])));
+{
+	$APPLICATION->SetTitle(Loc::getMessage('CC_BLLE_TITLE_EDIT' . $typeTranslation, ['#NAME#' => $arResult['IBLOCK']['NAME']]));
+}
 else
-	$APPLICATION->SetTitle(GetMessage("CC_BLLE_TITLE_NEW".$typeTranslation));
+{
+	$APPLICATION->SetTitle(Loc::getMessage('CC_BLLE_TITLE_NEW' . $typeTranslation));
+}
 
-if($arResult["IBLOCK_ID"])
-	$APPLICATION->AddChainItem($arResult["IBLOCK"]["NAME"], $arResult["~LIST_URL"]);
+if($arResult['IBLOCK_ID'])
+{
+	$APPLICATION->AddChainItem($arResult['IBLOCK']['NAME'], $arResult['~LIST_URL']);
+}
 
-$APPLICATION->AddChainItem(GetMessage("CC_BLLE_CHAIN_EDIT"), $arResult["~LIST_EDIT_URL"]);
+$APPLICATION->AddChainItem(Loc::getMessage('CC_BLLE_CHAIN_EDIT'), $arResult['~LIST_EDIT_URL']);
 ?>

@@ -2385,6 +2385,7 @@
 	const LOADING = 3;
 	const LOADED = 4;
 	const assets = {};
+	const loadingAssetCallbacks = {};
 
 	BX.load = function(items, callback, doc)
 	{
@@ -2476,6 +2477,18 @@
 			return;
 		}
 
+		if (asset.state === LOADING)
+		{
+			if (!BX.Type.isArray(loadingAssetCallbacks[asset.name]))
+			{
+				loadingAssetCallbacks[asset.name] = [];
+			}
+
+			loadingAssetCallbacks[asset.name].push(callback);
+
+			return;
+		}
+
 		asset.state = LOADING;
 
 		loadAsset(
@@ -2483,6 +2496,15 @@
 			function () {
 				asset.state = LOADED;
 				callback();
+				if (BX.Type.isArrayFilled(loadingAssetCallbacks[asset.name]))
+				{
+					for (const cb of loadingAssetCallbacks[asset.name])
+					{
+						cb();
+					}
+				}
+
+				delete loadingAssetCallbacks[asset.name];
 			},
 			doc
 		);
@@ -2494,6 +2516,8 @@
 
 		function error(event)
 		{
+			window.clearTimeout(asset.errorTimeout);
+			window.clearTimeout(asset.cssTimeout);
 			ele.onload = ele.onreadystatechange = ele.onerror = null;
 			callback();
 		}

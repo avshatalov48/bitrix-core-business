@@ -3,18 +3,17 @@
 namespace Bitrix\Im\V2\Message\Update;
 
 use Bitrix\Im\Bot;
-use Bitrix\Im\Common;
 use Bitrix\Im\Model\MessageTable;
-use Bitrix\Im\Text;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
+use Bitrix\Im\V2\Link\File\FileService;
 use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Params;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Pull\Event;
 
 class UpdateService
 {
@@ -26,6 +25,7 @@ class UpdateService
 	private ?array $chatLastMessage = null;
 	private bool $urlPreview = true;
 	private bool $byEvent = false;
+	private bool $withCheckAccess = true;
 
 
 	public function __construct(Message $message)
@@ -54,208 +54,87 @@ class UpdateService
 		return $this;
 	}
 
-	public function update(?string $messageText): Result
+	public function withoutCheckAccess(): self
 	{
-		if (!$this->canUpdate())
+		$this->withCheckAccess = false;
+
+		return $this;
+	}
+
+	public function update(array $fieldsToUpdate): Result
+	{
+		if ($this->withCheckAccess && !$this->canUpdate())
 		{
 			return (new Result())->addError(new Message\MessageError(Message\MessageError::MESSAGE_ACCESS_ERROR));
 		}
 
-		if (!$messageText)
+		$this->message->fill($fieldsToUpdate);
+
+		if ($this->message->isCompletelyEmpty())
 		{
-			$deleteService = new Message\Delete\DeleteService($this->message);
-			return $deleteService->delete();
+			return (new Message\Delete\DeleteService($this->message))->delete();
 		}
-
-		$this->message->setMessage($messageText);
-
-		$result = $this->message->save();
-		if (!$result->isSuccess())
-		{
-			return $result;
-		}
-
-		$this->updateParams();
-
-		(Application::getConnection())->queryExecute("
-			UPDATE b_im_recent
-			SET DATE_UPDATE = NOW()
-			WHERE ITEM_MID = " . $this->message->getId()
-		);
-
-		MessageTable::indexRecord($this->message->getId());
-
-		(new UrlService())->updateUrlsFromMessage($this->message);
-
-		$this->sendEvents();
-
-		return $result;
-	}
-
-	private function updateParams(): void
-	{
-		$this->message->getParams()->get(Params::URL_ID)->unsetValue();
-		$this->message->getParams()->get(Params::URL_ONLY)->unsetValue();
-		$this->message->getParams()->get(Params::LARGE_FONT)->unsetValue();
-		$this->message->getParams()->get(Params::DATE_TEXT)->unsetValue();
-		$this->message->getParams()->get(Params::DATE_TS)->unsetValue();
 
 		if ($this->message->isViewedByOthers())
 		{
 			$this->message->getParams()->get(Params::IS_EDITED)->setValue(true);
 		}
 
-		if (Text::isOnlyEmoji($this->message->getMessage()))
+		$filesFromText = $this->message->autocompleteParams($this->urlPreview)->uploadFileFromText();
+		$result = $this->message->save();
+		if (!$result->isSuccess())
 		{
-			$this->message->getParams()->get(Params::LARGE_FONT)->setValue(true);
+			return $result;
 		}
 
-		if ($this->urlPreview)
-		{
-			$results = Text::getDateConverterParams($this->message->getMessage());
-			foreach ($results as $result)
-			{
-				$dateText = $result->getText();
-				$dateTs = $result->getDate()->getTimestamp();
-			}
+		Application::getConnection()->queryExecute("
+			UPDATE b_im_recent
+			SET DATE_UPDATE = NOW()
+			WHERE ITEM_MID = " . $this->message->getId()
+		);
 
-			$link = new \CIMMessageLink();
-			$urlPrepare = $link->prepareInsert($this->message->getMessage());
-			if ($urlPrepare['RESULT'])
-			{
-				if ($urlPrepare['URL_ID'])
-				{
-					$this->message->getParams()->get(Params::URL_ID)->setValue($urlPrepare['URL_ID']);
-				}
-				if ($urlPrepare['MESSAGE_IS_LINK'])
-				{
-					$this->message->getParams()->get(Params::URL_ONLY)->setValue(true);
-				}
+		$this->message->getChat()->sendPushUpdateMessage($this->message);
+		(new Message\Param\PushService())->sendPull($this->message, ['KEYBOARD', 'ATTACH', 'MENU']);
 
-				$this->message->getParams()->get(Params::DATE_TEXT)->setValue($dateText);
-				$this->message->getParams()->get(Params::DATE_TS)->setValue($dateTs);
-			}
+		MessageTable::indexRecord($this->message->getId());
 
-		}
+		(new UrlService())->updateUrlsFromMessage($this->message);
+		(new FileService())->saveFilesFromMessage($filesFromText, $this->message);
 
-		$this->message->getParams()->save();
-		$this->message->save();
-	}
+		$this->fireEventAfterMessageUpdate();
 
-	private function sendEvents()
-	{
-		$pullMessage = [
-			'id' => (int)$this->message->getId(),
-			'type' => $this->message->getChat()->getType() == Chat::IM_TYPE_PRIVATE ? 'private' : 'chat',
-			'text' => Text::parse($this->message->getMessage()),
-			'params' => $this->message->getParams()->toRestFormat(),
-		];
-
-		$relations = $this->message->getChat()->getRelations();
-		$relationIds = [];
-		$botInChat = [];
-
-		if ($pullMessage['type'] == Chat::IM_TYPE_PRIVATE)
-		{
-			foreach ($relations as $relation)
-			{
-				$relationIds[] = $relation->getUserId();
-				if ($relation->getUserId() !== $this->message->getAuthorId())
-				{
-					$recipientId = $relation->getUserId();
-				}
-			}
-
-			$pullMessage['fromUserId'] = $this->message->getAuthorId();
-			$pullMessage['toUserId'] = $recipientId;
-			$pullMessage['senderId'] = $this->message->getAuthorId();
-			$pullMessage['chatId'] = $this->message->getChatId();
-		}
-		else
-		{
-			$pullMessage['chatId'] = $this->message->getChatId();
-			$pullMessage['dialogId'] = 'chat' . $pullMessage['chatId'];
-			$pullMessage['senderId'] = $this->message->getAuthorId();
-
-			foreach ($relations as $relation)
-			{
-				$relationIds[] = $relation->getUserId();
-				if ($this->message->getChat()->getEntityType() === Chat::ENTITY_TYPE_LINE)
-				{
-					if ($relation->getUser()->getExternalAuthId() === 'imconnector')
-					{
-						unset($relationIds[$relation->getUserId()]);
-						continue;
-					}
-				}
-				if ($relation->getUser()->getExternalAuthId() === Bot::EXTERNAL_AUTH_ID)
-				{
-					$botInChat[$relation->getUserId()] = $relation->getUserId();
-					unset($relationIds[$relation->getUserId()]);
-				}
-			}
-		}
-
-		if ($pullMessage['type'] == Chat::IM_TYPE_PRIVATE)
-		{
-			Event::add($pullMessage['toUserId'], [
-				'module_id' => 'im',
-				'command' => 'messageUpdate',
-				'params' => $pullMessage,
-				'extra' => Common::getPullExtra()
-			]);
-
-			$pullMessage['fromUserId'] = $pullMessage['toUserId'];
-			$pullMessage['toUserId'] = $pullMessage['fromUserId'];
-			$pullMessage['senderId'] = $pullMessage['toUserId'];
-
-			Event::add($pullMessage['toUserId'], [
-				'module_id' => 'im',
-				'command' => 'messageUpdate',
-				'params' => $pullMessage,
-				'extra' => Common::getPullExtra()
-			]);
-		}
-		else
-		{
-			Event::add($relationIds, [
-				'module_id' => 'im',
-				'command' => 'messageUpdate',
-				'params' => $pullMessage,
-				'extra' => Common::getPullExtra()
-			]);
-		}
-
-		if (in_array($this->message->getChat()->getType(), [IM_MESSAGE_OPEN, IM_MESSAGE_OPEN_LINE], true))
-		{
-			\CPullWatch::AddToStack('IM_PUBLIC_' . $this->message->getChatId(), [
-				'module_id' => 'im',
-				'command' => 'messageUpdate',
-				'params' => $pullMessage,
-				'extra' => Common::getPullExtra()
-			]);
-		}
-
-		$this->fireEventAfterMessageUpdate($botInChat);
+		return $result;
 	}
 
 	public function canUpdate(): bool
 	{
-		global $USER;
-		if ($USER->IsAdmin())
-		{
-			return true;
-		}
+		$isMessageDelete = $this->message->getParams()->get(Params::IS_DELETED)->getValue() === true;
+		$isForward = $this->message->getParams()->isSet(Params::FORWARD_ID);
 
-		$chat = $this->message->getChat();
-		$userId = $this->getContext()->getUserId();
-
-		if (!$chat->hasAccess($userId))
+		if ($isMessageDelete || $isForward)
 		{
 			return false;
 		}
 
-		if ($this->message->getAuthorId() === $userId)
+		$user = $this->getContext()->getUser();
+		$chat = $this->message->getChat();
+
+		if ($chat instanceof Chat\OpenLineChat && Loader::includeModule('imopenlines'))
+		{
+			if ($user->isBot())
+			{
+				return true;
+			}
+
+			if ($user->getId() === $this->message->getAuthorId())
+			{
+				return $chat->canUpdateOwnMessage();
+			}
+
+			return false;
+		}
+
+		if ($this->message->getAuthorId() === $user->getId())
 		{
 			return true;
 		}
@@ -263,49 +142,79 @@ class UpdateService
 		return false;
 	}
 
-	private function fireEventAfterMessageUpdate(array $botInChat = []): Result
+	private function getBotInChat(): array
 	{
-		$result = new Result;
+		$result = [];
+		$users = $this->message->getChat()->getRelations()->getUsers();
 
-		$messageFields = $this->message->toArray();
-
-		$param = \CIMMessageParam::Get($messageFields['ID']);
-		$messageFields['PARAMS'] = $param ?: [];
-		if ($messageFields && ($params['WITH_FILES'] ?? null) === 'Y')
+		foreach ($users as $user)
 		{
-			$files = [];
-			if (isset($messageFields['PARAMS']['FILE_ID']))
+			if ($user->isBot())
 			{
-				foreach ($messageFields['PARAMS']['FILE_ID'] as $fileId)
-				{
-					$files[$fileId] = $fileId;
-				}
+				$result[$user->getId()] = $user->getId();
 			}
-			$messageFields['FILES'] = \CIMDisk::GetFiles($messageFields['CHAT_ID'], $files, false);
-		}
-
-		$messageFields['DATE_MODIFY'] = new DateTime();
-		if ($this->message->getChat()->getType() != Chat::IM_TYPE_PRIVATE)
-		{
-			$messageFields['BOT_IN_CHAT'] = $botInChat;
-		}
-
-		foreach(GetModuleEvents('im', self::EVENT_AFTER_MESSAGE_UPDATE, true) as $event)
-		{
-			$updateFlags = [
-				'ID' => $this->message->getId(),
-				'TEXT' => $this->message->getMessage(),
-				'URL_PREVIEW' => $this->urlPreview,
-				'EDIT_FLAG' => $this->message->isViewedByOthers(),
-				'USER_ID' => $this->getContext()->getUserId(),
-				'BY_EVENT' => false,
-			];
-
-			ExecuteModuleEventEx($event, [$this->message->getId(), $messageFields, $updateFlags]);
-
-			Bot::onMessageUpdate($this->message->getId(), $messageFields);
 		}
 
 		return $result;
+	}
+
+	private function fireEventAfterMessageUpdate(): void
+	{
+		$chat = $this->message->getChat();
+		$messageFields = [
+			'ID' => $this->message->getId(),
+			'CHAT_ID' => $this->message->getChatId(),
+			'AUTHOR_ID' => $this->message->getAuthorId(),
+			'MESSAGE' => $this->message->getMessage(),
+			'MESSAGE_OUT' => $this->message->getMessageOut(),
+			'DATE_CREATE' => $this->message->getDateCreate()->getTimestamp(),
+			'EMAIL_TEMPLATE' => $this->message->getEmailTemplate(),
+			'NOTIFY_TYPE' => $this->message->getNotifyType(),
+			'NOTIFY_MODULE' => $this->message->getNotifyModule(),
+			'NOTIFY_EVENT' => $this->message->getNotifyEvent(),
+			'NOTIFY_TAG' => $this->message->getNotifyTag(),
+			'NOTIFY_SUB_TAG' => $this->message->getNotifySubTag(),
+			'NOTIFY_TITLE' => $this->message->getNotifyTitle(),
+			'NOTIFY_BUTTONS' => $this->message->getNotifyButtons(),
+			'NOTIFY_READ' => $this->message->isNotifyRead(),
+			'IMPORT_ID' => $this->message->getImportId(),
+			'MESSAGE_TYPE' => $chat->getType(),
+			'CHAT_AUTHOR_ID' => $chat->getAuthorId(),
+			'CHAT_ENTITY_TYPE' => $chat->getEntityType(),
+			'CHAT_ENTITY_ID' => $chat->getEntityId(),
+			'CHAT_PARENT_ID' => $chat->getParentChatId(),
+			'CHAT_PARENT_MID' => $chat->getParentMessageId(),
+			'CHAT_ENTITY_DATA_1' => $chat->getEntityData1(),
+			'CHAT_ENTITY_DATA_2' => $chat->getEntityData2(),
+			'CHAT_ENTITY_DATA_3' => $chat->getEntityData3(),
+			'PARAMS' => $this->message->getParams()->toRestFormat(),
+			'DATE_MODIFY' => new DateTime()
+		];
+
+		if ($chat instanceof Chat\PrivateChat)
+		{
+			$messageFields['FROM_USER_ID'] = $this->message->getAuthorId();
+			$messageFields['TO_USER_ID'] = $chat->getCompanion($this->message->getAuthorId())->getId();
+		}
+		else
+		{
+			$messageFields['BOT_IN_CHAT'] = $this->getBotInChat();
+		}
+
+		$updateFlags = [
+			'ID' => $this->message->getId(),
+			'TEXT' => $this->message->getMessage(),
+			'URL_PREVIEW' => $this->urlPreview,
+			'EDIT_FLAG' => $this->message->getParams()->get(Params::IS_EDITED)->getValue(),
+			'USER_ID' => $this->message->getAuthorId(),
+			'BY_EVENT' => $this->byEvent,
+		];
+
+		foreach(GetModuleEvents('im', self::EVENT_AFTER_MESSAGE_UPDATE, true) as $event)
+		{
+			ExecuteModuleEventEx($event, [$this->message->getId(), $messageFields, $updateFlags]);
+		}
+
+		Bot::onMessageUpdate($this->message->getId(), $messageFields);
 	}
 }

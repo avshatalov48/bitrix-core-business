@@ -21,7 +21,14 @@ endif;
 /***************** BASE ********************************************/
 $GLOBALS["FID"] = $arParams["FID"] = intval($arParams["FID"]);
 $arParams["TID"] = intval((intval($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]));
-$arParams["MID_UNREAD"] = (trim($arParams["MID"] ?? '') == '' ? $_REQUEST["MID"] ?? '' : $arParams["MID"]);
+$arParams["MID_UNREAD"] = (
+	(
+		trim($arParams["MID"] ?? '') == ''
+		|| is_array($arParams["MID"] ?? '')
+	)
+		? $_REQUEST["MID"] ?? ''
+		: $arParams["MID"]
+);
 $arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intval($arParams["MID"]));
 if (mb_strtolower($arParams["MID_UNREAD"]) == "unread_mid")
 	$arParams["MID"] = intval(ForumGetFirstUnreadMessage($arParams["FID"], $arParams["TID"]));

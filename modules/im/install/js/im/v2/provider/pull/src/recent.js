@@ -3,9 +3,11 @@ import { Type, Loc } from 'main.core';
 import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
 import { UserManager } from 'im.v2.lib.user';
-import { MessageStatus } from 'im.v2.const';
+import { MessageStatus, ChatType } from 'im.v2.const';
 
-import type { AddReactionParams, MessageDeleteCompleteParams } from './types/message';
+import type { JsonObject } from 'main.core';
+import type { MessageAddParams, AddReactionParams, MessageDeleteCompleteParams, ReadMessageParams, UnreadMessageParams } from './types/message';
+import type { UserInviteParams } from './types/user';
 
 export class RecentPullHandler
 {
@@ -30,9 +32,9 @@ export class RecentPullHandler
 		this.handleMessageAdd(params);
 	}
 
-	handleMessageAdd(params)
+	handleMessageAdd(params: MessageAddParams)
 	{
-		if (params.lines)
+		if (!this.checkChatType(params))
 		{
 			return;
 		}
@@ -87,17 +89,17 @@ export class RecentPullHandler
 
 		const { senderId } = params.message;
 		const usersModel = this.store.state.users;
-		if (usersModel?.botList[senderId] && usersModel.botList[senderId].type === 'human')
-		{
-			const { text } = params.message;
-			setTimeout(() => {
-				this.store.dispatch('recent/setRecent', newRecentItem);
-			}, this.getWaitTimeForHumanBot(text));
+		// if (usersModel?.botList[senderId] && usersModel.botList[senderId].type === 'human')
+		// {
+		// 	const { text } = params.message;
+		// 	setTimeout(() => {
+		// 		this.setRecentItem(newRecentItem);
+		// 	}, this.getWaitTimeForHumanBot(text));
+		//
+		// 	return;
+		// }
 
-			return;
-		}
-
-		this.store.dispatch('recent/setRecent', newRecentItem);
+		this.setRecentItem(newRecentItem);
 	}
 
 	handleMessageUpdate(params, extra, command)
@@ -158,26 +160,22 @@ export class RecentPullHandler
 	}
 
 	/* region Counters handling */
-	handleReadMessage(params)
+	handleReadMessage(params: ReadMessageParams)
 	{
 		this.updateUnloadedChatCounter(params);
 	}
 
-	handleReadMessageChat(params)
-	{
-		if (params.lines)
-		{
-			return;
-		}
-		this.updateUnloadedChatCounter(params);
-	}
-
-	handleUnreadMessage(params)
+	handleReadMessageChat(params: ReadMessageParams)
 	{
 		this.updateUnloadedChatCounter(params);
 	}
 
-	handleUnreadMessageChat(params)
+	handleUnreadMessage(params: UnreadMessageParams)
+	{
+		this.updateUnloadedChatCounter(params);
+	}
+
+	handleUnreadMessageChat(params: UnreadMessageParams)
 	{
 		this.updateUnloadedChatCounter(params);
 	}
@@ -351,12 +349,15 @@ export class RecentPullHandler
 		});
 	}
 
-	handleUserInvite(params)
+	handleUserInvite(params: UserInviteParams)
 	{
 		Logger.warn('RecentPullHandler: handleUserInvite', params);
 		this.store.dispatch('recent/setRecent', {
 			id: params.user.id,
 			invited: params.invited ?? false,
+			message: {
+				date: params.date,
+			},
 		});
 		this.userManager.setUsersToModel([params.user]);
 	}
@@ -381,10 +382,16 @@ export class RecentPullHandler
 		chatId: number,
 		counter: number,
 		muted: boolean,
-		unread: boolean
+		unread: boolean,
+		lines: boolean
 	})
 	{
-		const { dialogId, chatId, counter, muted, unread } = params;
+		const { dialogId, chatId, counter, muted, unread, lines = false } = params;
+		if (lines)
+		{
+			return;
+		}
+
 		const recentItem = this.store.getters['recent/get'](dialogId);
 		if (recentItem)
 		{
@@ -409,6 +416,31 @@ export class RecentPullHandler
 		{
 			newCounter = counter;
 		}
-		this.store.dispatch('recent/setUnloadedChatCounters', { [chatId]: newCounter });
+
+		this.store.dispatch('counters/setUnloadedChatCounters', { [chatId]: newCounter });
+	}
+
+	setRecentItem(newRecentItem: JsonObject)
+	{
+		this.store.dispatch('recent/setRecent', newRecentItem);
+	}
+
+	checkChatType(params: MessageAddParams): boolean
+	{
+		const CHAT_TYPES_TO_SKIP = new Set([ChatType.copilot]);
+
+		if (params.lines)
+		{
+			return false;
+		}
+
+		const newMessageChatType = params.chat[params.chatId]?.type;
+		// noinspection RedundantIfStatementJS
+		if (CHAT_TYPES_TO_SKIP.has(newMessageChatType))
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

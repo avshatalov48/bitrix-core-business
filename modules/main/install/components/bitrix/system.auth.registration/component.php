@@ -79,11 +79,11 @@ $arRequestParams = array(
 
 foreach ($arRequestParams as $param)
 {
-	$arResult[$param] = $_REQUEST[$param] <> '' ? $_REQUEST[$param] : "";
+	$arResult[$param] = !empty($_REQUEST[$param]) ? $_REQUEST[$param] : "";
 	$arResult[$param] = htmlspecialcharsbx($arResult[$param]);
 }
 
-$arResult["USER_EMAIL"] = htmlspecialcharsbx($_REQUEST["sf_EMAIL"] <> '' ? $_REQUEST["sf_EMAIL"] : $_REQUEST["USER_EMAIL"]);
+$arResult["USER_EMAIL"] = htmlspecialcharsbx(!empty($_REQUEST["sf_EMAIL"]) ? $_REQUEST["sf_EMAIL"] : ($_REQUEST["USER_EMAIL"] ?? ''));
 
 // ********************* User properties ***************************************************
 $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
@@ -154,7 +154,7 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 }
 
 // verify phone code
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["code_submit_button"] <> '' && !$USER->IsAuthorized())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["code_submit_button"]) && !$USER->IsAuthorized())
 {
 	if (!empty($_REQUEST["SIGNED_DATA"]))
 	{

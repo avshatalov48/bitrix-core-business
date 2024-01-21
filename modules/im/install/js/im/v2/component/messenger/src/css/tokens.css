@@ -67,6 +67,8 @@
 	--im-font-family-system: var(--ui-font-family-system, var(--im-messenger__font_system));
 
 	--im-font-size-5xl: var(--ui-font-size-5xl, 28px);
+	--im-font-size-4xl: var(--ui-font-size-4xl, 24px);
+	--im-font-size-3xl: var(--ui-font-size-3xl, 22px);
 	--im-font-size-2xl: var(--ui-font-size-2xl, 18px);
 	--im-font-size-xl: var(--ui-font-size-xl, 16px);
 	--im-font-size-lg: var(--ui-font-size-lg, 15px);
@@ -97,7 +99,7 @@
 	--im-color-palette-black-solid-rgb: 0, 0, 0;
 	--im-color-palette-black-base: var(--ui-color-palette-black-base, #333);
 	--im-color-palette-black-base-rgb: 51, 51, 51;
-	--im-color-palette-gray-02: var(--ui-color-palette-gray-03, #f8fafb);
+	--im-color-palette-gray-02: var(--ui-color-palette-gray-02, #f8fafb);
 	--im-color-palette-gray-02-rgb: 248, 250, 251;
 	--im-color-palette-gray-03: var(--ui-color-palette-gray-03, #f5f7f8);
 	--im-color-palette-gray-03-rgb: 245, 247, 248;
@@ -129,6 +131,8 @@
 	--im-color-palette-red-solid-rgb: 240, 55, 27;
 	--im-color-palette-red-50: var(--ui-color-palette-red-50, #ff5752);
 	--im-color-palette-red-50-rgb: 255, 87, 82;
+	--im-color-palette-red-20: var(--ui-color-palette-red-20, #ffe8e8);
+	--im-color-palette-red-20-rgb: 255, 232, 232;
 	--im-color-palette-green-70: var(--ui-color-palette-green-70, #7fa800);
 	--im-color-palette-green-70-rgb: 127, 168, 0;
 	--im-color-palette-green-50: var(--ui-color-palette-green-50, #9dcf00);
@@ -137,8 +141,8 @@
 	--im-color-palette-green-25-rgb: 250, 246, 195;
 	--im-color-palette-blue-90: var(--ui-color-palette-blue-90, #006484);
 	--im-color-palette-blue-90-rgb: 0, 100, 132;
-	--im-color-palette-blue-60: var(--ui-color-palette-blue-60, #1aa9d6);
-	--im-color-palette-blue-60-rgb: 26, 169, 214;
+	--im-color-palette-blue-60: var(--ui-color-palette-blue-60, #1aa9d9);
+	--im-color-palette-blue-60-rgb: 17, 169, 217;
 	--im-color-palette-blue-50: var(--ui-color-palette-blue-50, #2fc6f6);
 	--im-color-palette-blue-50-rgb: 47, 198, 246;
 	--im-color-palette-blue-30: var(--ui-color-palette-blue-30, #c1eefd);

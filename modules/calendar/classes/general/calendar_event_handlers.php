@@ -32,6 +32,35 @@ class CCalendarEventHandlers
 		{
 			return false;
 		}
+		
+		$arEvents = [];
+		$eventTime = -1;
+		
+		$now = time() + CCalendar::GetOffset($userId);
+		
+		if (($params['FULL'] ?? null) !== true)
+		{
+			$eventTimeCalculated = self::calculateEventTime($userId);
+
+			CJSCore::RegisterExt('calendar_planner_handler', array(
+				'js' => '/bitrix/js/calendar/core_planner_handler.js',
+				'css' => '/bitrix/js/calendar/core_planner_handler.css',
+				'lang' => BX_ROOT.'/modules/calendar/lang/'.LANGUAGE_ID.'/core_planner_handler.php',
+				'rel' => array('date', 'timer')
+			));
+			
+			return [
+				'DATA' => [
+					'CALENDAR_ENABLED' => true,
+					'EVENTS' => $arEvents,
+					'EVENT_TIME' => $eventTimeCalculated < 0
+						? ''
+						: (FormatDate(IsAmPmMode() ? "g:i a" : "H:i", $eventTimeCalculated))
+					,
+				],
+				'SCRIPTS' => ['calendar_planner_handler']
+			];
+		}
 
 		$CACHE_MANAGER->RegisterTag('calendar_user_'.$userId);
 		$pathToCalendar = CHTTP::urlDeleteParams(CCalendar::GetPathForCalendarEx($userId), [
@@ -46,10 +75,7 @@ class CCalendarEventHandlers
 		$date_from = CCalendar::Date($ts_date_from);
 		$ts_date_to = $ts_date_from + CCalendar::GetDayLen() - 1;
 		$date_to = $date_from;
-
-		$arEvents = [];
-		$eventTime = -1;
-
+		
 		$arNewEvents = CCalendarEvent::GetList([
 			'arFilter' => [
 				'CAL_TYPE' => 'user',
@@ -58,18 +84,18 @@ class CCalendarEventHandlers
 				'TO_LIMIT' => $date_to,
 				'ACTIVE_SECTION' => 'Y'
 			],
-			'arOrder' => ['DATE_FROM_TS_UTC' => 'asc'],
+			'arSelect' => \CCalendarEvent::$defaultSelectEvent,
 			'parseRecursion' => true,
 			'preciseLimits' => true,
 			'userId' => $userId,
 			'skipDeclined' => true,
 			'fetchAttendees' => false,
-			'fetchMeetings' => true
+			'fetchMeetings' => true,
+			'getUserfields' => false,
 		]);
 
 		if (!empty($arNewEvents))
 		{
-			$now = time() + CTimeZone::GetOffset($userId);
 			$today = ConvertTimeStamp($now, 'SHORT');
 
 			$format = $DB::dateFormatToPHP(IsAmPmMode() ? 'H:MI T' : 'HH:MI');
@@ -84,7 +110,6 @@ class CCalendarEventHandlers
 				$fromTo = CCalendarEvent::GetEventFromToForUser($arEvent, $userId);
 
 				$ts_from = $fromTo['TS_FROM'];
-				//$ts_to = $fromTo['TS_TO'];
 
 				$ts_from_utc = $arEvent['DATE_FROM_TS_UTC'];
 				$ts_to_utc = $arEvent['DATE_TO_TS_UTC'];
@@ -123,8 +148,8 @@ class CCalendarEventHandlers
 						'TIME_TO' => FormatDate($format, $fromTo['TS_TO']),
 						'IMPORTANCE' => $arEvent['IMPORTANCE'],
 						'ACCESSIBILITY' => $arEvent['ACCESSIBILITY'],
-						'DATE_FROM_TODAY' => $today == ConvertTimeStamp($fromTo['TS_FROM'], 'SHORT'),
-						'DATE_TO_TODAY' => $today == ConvertTimeStamp($fromTo['TS_TO'], 'SHORT'),
+						'DATE_FROM_TODAY' => $today === ConvertTimeStamp($fromTo['TS_FROM'], 'SHORT'),
+						'DATE_TO_TODAY' => $today === ConvertTimeStamp($fromTo['TS_TO'], 'SHORT'),
 						'SORT' => $fromTo['TS_FROM'],
 						'EVENT_PATH' => $eventPath
 					];
@@ -150,6 +175,89 @@ class CCalendarEventHandlers
 			],
 			'SCRIPTS' => ['calendar_planner_handler']
 		];
+	}
+
+	private static function calculateEventTime($userId)
+	{
+		$now = time() + CCalendar::GetOffset($userId);
+		$eventTime = -1;
+
+		$date_from = CCalendar::Date(time() - date('Z') + CCalendar::GetCurrentOffsetUTC($userId), false);
+		$ts_date_from = CCalendar::Timestamp($date_from) - CCalendar::GetCurrentOffsetUTC($userId);
+		$date_from = CCalendar::Date($ts_date_from);
+		$ts_date_to = $ts_date_from + CCalendar::GetDayLen() - 1;
+		$date_to = $date_from;
+
+		$arNewEvents = CCalendarEvent::GetList([
+			'arFilter' => [
+				'CAL_TYPE' => 'user',
+				'OWNER_ID' => $userId,
+				'FROM_LIMIT' => $date_from,
+				'TO_LIMIT' => $date_to,
+				'ACTIVE_SECTION' => 'Y'
+			],
+			'arSelect' => [
+				'OWNER_ID',
+				'SECTION_ID',
+				'DATE_FROM',
+				'DATE_TO',
+				'TZ_FROM',
+				'TZ_TO',
+				'TZ_OFFSET_FROM',
+				'TZ_OFFSET_TO',
+				'DATE_FROM_TS_UTC',
+				'DATE_TO_TS_UTC',
+				'DT_SKIP_TIME',
+				'DT_LENGTH',
+				'CAL_TYPE',
+				'MEETING_STATUS',
+				'IS_MEETING',
+				'RRULE',
+				'EXDATE',
+			],
+			'parseRecursion' => true,
+			'preciseLimits' => true,
+			'userId' => $userId,
+			'skipDeclined' => true,
+			'fetchAttendees' => false,
+			'getUserfields' => false,
+			'checkPermissions' => false,
+		]);
+
+		if (!empty($arNewEvents))
+		{
+			foreach ($arNewEvents as $arEvent)
+			{
+				if ($arEvent['IS_MEETING'] && $arEvent['MEETING_STATUS'] === 'N')
+				{
+					continue;
+				}
+
+				$fromTo = CCalendarEvent::GetEventFromToForUser($arEvent, $userId);
+				$ts_from = $fromTo['TS_FROM'];
+
+				$ts_from_utc = $arEvent['DATE_FROM_TS_UTC'];
+				$ts_to_utc = $arEvent['DATE_TO_TS_UTC'];
+
+				if ($arEvent['RRULE'])
+				{
+					$ts_from_utc = $fromTo['TS_FROM'] - CCalendar::GetCurrentOffsetUTC($userId);
+					$ts_to_utc = $ts_from_utc + $arEvent['DT_LENGTH'];
+				}
+
+				if ($arEvent['RRULE'] && ($ts_to_utc <= $ts_date_from || $ts_from_utc >= $ts_date_to))
+				{
+					continue;
+				}
+
+				if(($eventTime < 0 || $eventTime > $ts_from) && $ts_from >= $now)
+				{
+					$eventTime = $ts_from;
+				}
+			}
+		}
+
+		return $eventTime;
 	}
 
 	public static function OnPlannerAction($action, $params)
@@ -183,7 +291,7 @@ class CCalendarEventHandlers
 		global $USER;
 
 		$userId = $USER->GetID();
-		$date_from = CCalendar::Date(time() - date('Z', time()) + CCalendar::GetCurrentOffsetUTC(), false);
+		$date_from = CCalendar::Date(time() - date('Z') + CCalendar::GetCurrentOffsetUTC(), false);
 		$ts_date_from = CCalendar::Timestamp($date_from) - CCalendar::GetCurrentOffsetUTC();
 		$date_from = CCalendar::Date($ts_date_from);
 		$date_to = $date_from;
@@ -309,7 +417,7 @@ class CCalendarEventHandlers
 	protected static function plannerActionAdd($arParams)
 	{
 		global $USER;
-		$today = ConvertTimeStamp(time()+CTimeZone::GetOffset(), 'SHORT');
+		$today = ConvertTimeStamp(time() + CCalendar::GetOffset(), 'SHORT');
 		$userId = $USER->GetID();
 		$userSettings = UserSettings::get($userId);
 		$reminderList = $userSettings['defaultReminders']['withTime'];
@@ -349,11 +457,10 @@ class CCalendarEventHandlers
 				'ID' => $arParams['ID'],
 				'SITE_ID' => $arParams['SITE_ID']
 			));
-
-
+			
 			if ($event)
 			{
-				$today = ConvertTimeStamp(time() + CTimeZone::GetOffset(), 'SHORT');
+				$today = ConvertTimeStamp(time() + \CCalendar::GetOffset(), 'SHORT');
 				$now = time();
 
 				$res = array(
@@ -388,7 +495,7 @@ class CCalendarEventHandlers
 					if ($res['DATE_FROM'] > $now)
 					{
 
-						$res['DATE_F_TO'] = GetMessage('TM_IN').' '.FormatDate('Hdiff', time()*2-($res['DATE_FROM'] - CTimeZone::GetOffset()));
+						$res['DATE_F_TO'] = GetMessage('TM_IN').' '.FormatDate('Hdiff', time()*2-($res['DATE_FROM'] - \CCalendar::GetOffset()));
 					}
 				}
 				else if ($res['DATE_TO_TODAY'])
@@ -414,7 +521,7 @@ class CCalendarEventHandlers
 						$guest['url'] = str_replace(
 							array('#ID#', '#USER_ID#'),
 							$guest['id'],
-							COption::GetOptionString('intranet', 'path_user', '/company/personal/user/#USER_ID#/', $arParams['SITE_ID'])
+							\COption::GetOptionString('intranet', 'path_user', '/company/personal/user/#USER_ID#/', $arParams['SITE_ID'])
 						);
 
 						if ($guest['bHost'])

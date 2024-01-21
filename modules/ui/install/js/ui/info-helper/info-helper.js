@@ -323,14 +323,14 @@ BX.UI.InfoHelper =
 			cacheable: false,
 			customRightBoundary: 0,
 			events: {
-				onCloseComplete: function() {
-					BX.UI.InfoHelper.close();
-				},
 				onLoad: function () {
 					BX.UI.InfoHelper.showFrame();
 				},
-				onClose: function () {
-					BX.UI.InfoHelper.frameNode.contentWindow.postMessage({action: 'onCloseWidget'}, '*');
+				onClose: () => {
+					if (BX.UI.InfoHelper.frameNode)
+					{
+						BX.UI.InfoHelper.frameNode.contentWindow.postMessage({action: 'onCloseWidget'}, '*');
+					}
 				}
 			}
 		});
@@ -363,7 +363,7 @@ BX.UI.InfoHelper =
 	close: function()
 	{
 		var slider = this.getSlider();
-		if (slider)
+		if (slider && slider.isOpen())
 		{
 			slider.close();
 		}

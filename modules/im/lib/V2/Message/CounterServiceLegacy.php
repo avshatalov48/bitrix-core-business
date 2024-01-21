@@ -62,6 +62,10 @@ class CounterServiceLegacy extends CounterService
 			{
 				$this->setFromDialog($chatIdToDialogId[$chatId], $count);
 			}
+			else if ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COPILOT)
+			{
+				continue;
+			}
 			else
 			{
 				$this->setFromChat($chatId, $count);

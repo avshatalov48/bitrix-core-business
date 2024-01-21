@@ -1,6 +1,6 @@
 import {Messenger} from 'im.public';
 import {ChatService} from 'im.v2.provider.service';
-import {DialogType} from 'im.v2.const';
+import {ChatType} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
 
 import {Avatar, ChatTitle, Button, ButtonColor, ButtonSize} from '../registry';
@@ -29,7 +29,7 @@ export const ChatInfoContent = {
 		ButtonSize: () => ButtonSize,
 		dialog(): ?Object
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId);
+			return this.$store.getters['chats/get'](this.dialogId);
 		},
 		user()
 		{
@@ -37,7 +37,7 @@ export const ChatInfoContent = {
 		},
 		isUser()
 		{
-			return this.dialog?.type === DialogType.user;
+			return this.dialog?.type === ChatType.user;
 		},
 		isBot(): boolean
 		{

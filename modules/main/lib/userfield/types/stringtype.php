@@ -54,17 +54,17 @@ class StringType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$size = (int)$userField['SETTINGS']['SIZE'];
-		$rows = (int)$userField['SETTINGS']['ROWS'];
-		$min = (int)$userField['SETTINGS']['MIN_LENGTH'];
-		$max = (int)$userField['SETTINGS']['MAX_LENGTH'];
+		$size = (int)($userField['SETTINGS']['SIZE'] ?? 0);
+		$rows = (int)($userField['SETTINGS']['ROWS'] ?? 0);
+		$min = (int)($userField['SETTINGS']['MIN_LENGTH'] ?? 0);
+		$max = (int)($userField['SETTINGS']['MAX_LENGTH'] ?? 0);
 
 		$regExp = '';
 		if (
-			!empty($userField['SETTINGS']['REGEXP'])
-			&&
+			is_array($userField['SETTINGS'])
+			&& !empty($userField['SETTINGS']['REGEXP'])
 			//Checking the correctness of the regular expression entered by the user
-			@preg_match($userField['SETTINGS']['REGEXP'], null) !== false
+			&& @preg_match($userField['SETTINGS']['REGEXP'], null) !== false
 		)
 		{
 			$regExp = $userField['SETTINGS']['REGEXP'];
@@ -76,7 +76,7 @@ class StringType extends BaseType
 			'REGEXP' => $regExp,
 			'MIN_LENGTH' => $min,
 			'MAX_LENGTH' => $max,
-			'DEFAULT_VALUE' => $userField['SETTINGS']['DEFAULT_VALUE'],
+			'DEFAULT_VALUE' => is_array($userField['SETTINGS']) ? $userField['SETTINGS']['DEFAULT_VALUE'] : '',
 		];
 	}
 

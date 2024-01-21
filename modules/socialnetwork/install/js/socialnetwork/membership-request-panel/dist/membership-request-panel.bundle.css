@@ -1,0 +1,262 @@
+.sn-spaces__warning {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: justify;
+	    -ms-flex-pack: justify;
+	        justify-content: space-between;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	gap: 13px;
+	padding: 17px 15px;
+	margin-bottom: 12px;
+	border-radius: var(--ui-border-radius-md);
+	background: rgba(var(--ui-color-background-warning-rgb), var(--ui-opacity-90));
+}
+
+.sn-spaces__warning-icon {
+	z-index: 1;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: reverse;
+	    -ms-flex-direction: row-reverse;
+	        flex-direction: row-reverse;
+	padding-left: 4px;
+}
+
+.sn-spaces__warning-icon_element {
+	--sn-spaces__warning-icon_element-size: 24px;
+
+	position: relative;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	width: var(--sn-spaces__warning-icon_element-size);
+	height: var(--sn-spaces__warning-icon_element-size);
+	margin-left: -4px;
+	border-radius: var(--ui-border-radius-circle);
+	border: var(--ui-border-width-thin) solid var(--ui-color-background-warning);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+}
+
+.sn-spaces__warning-icon_element.--count{
+	z-index: -1;
+	-webkit-box-ordinal-group: 0;
+	    -ms-flex-order: -1;
+	        order: -1;
+	font-size: var(--ui-font-size-4xs);
+	border-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+	color: var( --ui-color-base-70);
+	background-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+}
+
+.sn-spaces__warning-icon_element-number {
+	color: var(--ui-color-text-primary);
+}
+
+.sn-spaces__warning-info {
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: start;
+	    -ms-flex-pack: start;
+	        justify-content: flex-start;
+	gap: 5px;
+	font-size: var(--ui-font-size-lg);
+	color:rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-80));
+}
+
+.sn-spaces__warning-info_count {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	padding: 0 7px;
+	border-radius: var(--ui-border-radius-pill);
+	text-align: center;
+	font-size: var(--ui-font-size-3xs);
+	line-height: var(--ui-font-line-height-lg);
+	font-weight: var(--ui-font-weight-bold);
+	background: #ff5752;
+	color: var(--ui-color-on-primary);
+}
+
+.sn-spaces__warning-info_link {
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+	color: var(--ui-color-link-primary-base);
+	font-weight: var(--ui-font-weight-medium);
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.sn-spaces__warning-info_link:hover {
+	color: rgba(var(--ui-color-link-primary-base-rgb), var(--ui-opacity-80));
+}
+
+.sn-mrp-members-popup {
+	overflow: hidden;
+	padding: 6px 10px 10px 10px;
+	border-radius: 18px;
+}
+
+.sn-mrp-members-popup-container {
+	position: relative;
+	display: block;
+	max-height: none;
+	height: auto;
+	width: auto;
+	overflow: hidden;
+}
+
+.sn-mrp-members-popup-content {
+	display: block;
+	padding: 8px;
+	max-height: 200px;
+	width: auto;
+	background-color: #fff;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+}
+
+.sn-mrp-members-popup-content-box {
+	display: block;
+	max-height: 100%;
+	overflow-y: auto;
+	-webkit-scrollbar-track-color: #f9fafb;
+	scrollbar-track-color: #f9fafb;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-shadow-color: #d4d7d9;
+	scrollbar-shadow-color: #d4d7d9;
+	-webkit-scrollbar-highlight-color: #d4d7d9;
+	scrollbar-highlight-color: #d4d7d9;
+}
+
+.sn-mrp-members-popup-inner {
+	display: block;
+	padding: 0 17px 0 0;
+	min-height: 26px;
+	max-height: 159px;
+	min-width: 150px;
+	-webkit-scrollbar-track-color: #f9fafb;
+	scrollbar-track-color: #f9fafb;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-shadow-color: #d4d7d9;
+	scrollbar-shadow-color: #d4d7d9;
+	-webkit-scrollbar-highlight-color: #d4d7d9;
+	scrollbar-highlight-color: #d4d7d9;
+	overflow-y: auto;
+}
+
+.sn-mrp-members-popup-inner::-webkit-scrollbar {
+	width: 6px;
+}
+
+.sn-mrp-members-popup-inner::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+	background: #D8D8D8;
+}
+
+.sn-mrp-members-popup-inner::-webkit-scrollbar-track {
+	border-radius: 3px;
+	background: rgba(216,216,216,.2);
+}
+
+.sn-mrp-members-popup-item {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	margin-bottom: 8px;
+	max-width: 200px;
+	color: #656365;
+	text-decoration: none;
+	overflow: hidden;
+	white-space: nowrap;
+	zoom: 1;
+}
+
+.sn-mrp-members-popup-item:last-child {
+	margin-bottom: 0;
+}
+
+.sn-mrp-members-popup-avatar-new {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+
+.sn-mrp-members-popup-avatar-img {
+	max-width: 100%;
+	height: auto;
+	border: none;
+	border-radius: 50%;
+	background-color: #fff;
+	overflow: hidden;
+}
+
+.sn-mrp-members-popup-name {
+	display: inline-block;
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+	-ms-flex-negative: 1;
+	    flex-shrink: 1;
+	-ms-flex-preferred-size: 0;
+	    flex-basis: 0;
+	padding-left: 6px;
+	max-width: 130px;
+	height: 20px;
+	color: #656365;
+	overflow: hidden;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	padding-top: 1px;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.sn-mrp-members-popup-name:hover {
+	text-decoration: underline;
+}

@@ -1,20 +1,23 @@
 import { Core } from 'im.v2.application.core';
 import { Parser } from 'im.v2.lib.parser';
-import { ContextMenu } from 'im.v2.component.message.elements';
-import { UserRole } from 'im.v2.const';
+import { ContextMenu, RetryButton, MessageKeyboard } from 'im.v2.component.message.elements';
 
 import './css/base-message.css';
 
-import type { ImModelMessage, ImModelDialog } from 'im.v2.model';
+import type { ImModelMessage } from 'im.v2.model';
 
 // @vue/component
 export const BaseMessage = {
 	name: 'BaseMessage',
-	components: { ContextMenu },
+	components: { ContextMenu, RetryButton, MessageKeyboard },
 	props:
 	{
 		item: {
 			type: Object,
+			required: true,
+		},
+		dialogId: {
+			type: String,
 			required: true,
 		},
 		withBackground: {
@@ -25,13 +28,13 @@ export const BaseMessage = {
 			type: Boolean,
 			default: true,
 		},
+		withRetryButton: {
+			type: Boolean,
+			default: true,
+		},
 		menuIsActiveForId: {
 			type: [Number, String],
 			default: 0,
-		},
-		dialogId: {
-			type: String,
-			required: true,
 		},
 	},
 	computed:
@@ -57,14 +60,24 @@ export const BaseMessage = {
 			return {
 				'--self': this.isSelfMessage,
 				'--opponent': this.isOpponentMessage,
+				'--has-after-content': Boolean(this.$slots['after-message']),
+				'--with-context-menu': this.withDefaultContextMenu,
 			};
 		},
 		bodyClasses(): Object
 		{
 			return {
 				'--transparent': !this.withBackground,
-				'--with-default-context-menu': this.withDefaultContextMenu,
+				'--has-error': this.hasError,
 			};
+		},
+		showRetryButton(): boolean
+		{
+			return this.withRetryButton && this.isSelfMessage && this.hasError;
+		},
+		hasError(): boolean
+		{
+			return this.message.error;
 		},
 	},
 	methods:
@@ -75,16 +88,26 @@ export const BaseMessage = {
 		},
 	},
 	template: `
-		<div 
-			:data-id="message.id"
-			class="bx-im-message-base__scope bx-im-message-base__container" 
-			:class="containerClasses"
-			@click="onContainerClick"
-		>
-			<div class="bx-im-message-base__body" :class="bodyClasses">
-				<slot></slot>
+		<div class="bx-im-message-base__scope bx-im-message-base__wrap" :class="containerClasses" :data-id="message.id">
+			<slot name="before-message"></slot>
+			<div
+				class="bx-im-message-base__container" 
+				:class="containerClasses"
+				@click="onContainerClick"
+			>
+				<div class="bx-im-message-base__body-with-retry-button">
+					<RetryButton v-if="showRetryButton" :message="message" :dialogId="dialogId"/>
+					<div class="bx-im-message-base__body" :class="bodyClasses">
+						<slot></slot>
+					</div>
+				</div>
+				<ContextMenu 
+					v-if="!hasError && withDefaultContextMenu" 
+					:message="message" 
+					:menuIsActiveForId="menuIsActiveForId" 
+				/>
 			</div>
-			<ContextMenu v-if="withDefaultContextMenu" :message="message" :menuIsActiveForId="menuIsActiveForId" />
+			<slot name="after-message"></slot>
 		</div>
 	`,
 };

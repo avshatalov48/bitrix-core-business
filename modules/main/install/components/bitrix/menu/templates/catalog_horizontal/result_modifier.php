@@ -74,11 +74,11 @@ if(!function_exists("FillAllPicturesAndDescriptions"))
 							{
 								$arAllItems[$itemIdLevel_1]["PARAMS"]["description"] = $arAllItems[$itemIdLevel_3]["PARAMS"]["description"];
 							}
-							if ($arAllItems[$itemIdLevel_1]["PARAMS"]["picture_src"] && $arAllItems[$itemIdLevel_1]["PARAMS"]["picture_src"])
-								break;
+							if ($arAllItems[$itemIdLevel_1]["PARAMS"]["picture_src"] && $arAllItems[$itemIdLevel_1]["PARAMS"]["description"])
+							{
+								break 2;
+							}
 						}
-						if ($arAllItems[$itemIdLevel_1]["PARAMS"]["picture_src"] && $arAllItems[$itemIdLevel_1]["PARAMS"]["description"])
-							break;
 					}
 				}
 			}

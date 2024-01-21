@@ -30,7 +30,7 @@ export const AttachUser = {
 	},
 	template: `
 		<div class="bx-im-attach-user__container">
-			<AttachUserItem v-for="(user, index) in internalConfig.USER" :config="user" :color="color" :key="index" />
+			<AttachUserItem v-for="(user, index) in internalConfig.user" :config="user" :color="color" :key="index" />
 		</div>
 	`
 };

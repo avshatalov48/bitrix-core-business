@@ -340,7 +340,7 @@ BX.IM = function(domNode, params)
 	});
 
 	this.callController = new BX.Call.Controller({
-		init: this.init,
+		init: this.init && !this.options.v2layout,
 		messenger: null,
 		language: this.language,
 		incomingVideoStrategyType: this.settings.callAcceptIncomingVideo,
@@ -1826,23 +1826,6 @@ BX.IM.prototype.openSettings = function(params)
 		],
 	};
 
-	if (this.betaAvailable)
-	{
-		this.settingsView.v2 = {
-			'title': BX.message('IM_SETTINGS_V2'),
-			'click': BX.delegate(this.showV2Settings, this),
-			'settings': [{
-				'title': 'v2Panel',
-				'type': 'html',
-				'children': [
-					BX.create('div', {
-						props: { className: 'bx-messenger-settings-v2-container' }
-					})
-				]
-			}]
-		};
-	}
-
 	BX.onCustomEvent(this, "prepareSettingsView", []);
 
 	if (params.onlyPanel && !this.settingsView[params.onlyPanel])
@@ -2750,73 +2733,6 @@ BX.IM.prototype.closeHardwareSettings = function()
 		this.telephonyController.readDefaults();
 	}
 	BX.Event.EventEmitter.unsubscribe('IM.Settings:changeVideoMirroring', this.changeVideoMirroring.bind(this));
-};
-
-BX.IM.prototype.showV2Settings = function()
-{
-	const container = document.querySelector('.bx-messenger-settings-v2-container');
-	if (!container)
-	{
-		return false;
-	}
-
-	const content = document.querySelector('.bx-messenger-settings-v2-content');
-	if (!content)
-	{
-		const v2Content = BX.Tag.render`
-			<div class="bx-messenger-settings-v2-content">
-				<div class="bx-messenger-settings-v2-accent-button-container">
-					<div class="bx-messenger-settings-v2-accent-button">
-						${BX.message('IM_SETTINGS_V2_BETA')}
-					</div>
-				</div>
-				<div class="bx-messenger-settings-v2-title">
-					${BX.message('IM_SETTINGS_V2_TITLE')}
-				</div>
-				<div class="bx-messenger-settings-v2-subtitle">
-					${BX.message('IM_SETTINGS_V2_SUBTITLE')}
-				</div>
-				<div class="bx-messenger-settings-v2-link-container">
-					<a href="#helpdesk" class="bx-messenger-settings-v2-link">
-						${BX.message('IM_SETTINGS_V2_LINK')}
-					</a>
-				</div>
-				<div class="bx-messenger-settings-v2-button-container">
-					<button class="bx-messenger-settings-v2-button ui-btn ui-btn-lg ui-btn-round ui-btn-success">
-						${BX.message('IM_SETTINGS_V2_BUTTON')}
-					</button>
-				</div>
-			</div>
-		`;
-		container.appendChild(v2Content);
-
-		const v2ArticleLink = container.querySelector('.bx-messenger-settings-v2-link');
-		BX.Event.bind(v2ArticleLink, 'click', (event) => {
-			BX.Helper.show('redirect=detail&code=17373696');
-			event.preventDefault();
-		});
-
-		const v2EnableButton = container.querySelector('.bx-messenger-settings-v2-button');
-		BX.Event.bind(v2EnableButton, 'click', (event) => {
-			this.switchToV2();
-		});
-	}
-};
-
-BX.IM.prototype.switchToV2 = function()
-{
-	BX.rest.callMethod('im.v2.Beta.enable').then(function() {
-		if (BX.desktop)
-		{
-			this.popupSettings?.close()
-
-			const mainWindow = BX.desktop.findWindow();
-			mainWindow.location.reload();
-			return;
-		}
-
-		window.location.replace('/online/');
-	}.bind(this));
 };
 
 BX.IM.prototype.saveSetting = function(name, value)
@@ -6774,7 +6690,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 		styleOfContent = {width: this.popupMessengerFullWidth+'px'};
 	}
 
-	var userStatus = BX.MessengerCommon.getUserStatus(this.users[this.BXIM.userId]);
+	var userStatus = this.BXIM.settings.status;
 
 	var userTitleStyle = "";
 	if (this.users[this.currentTab])
@@ -6842,7 +6758,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 			]}),
 			BX.create('div', {props : { className : "bx-messenger-cl-panel"+(this.BXIM.options.showStatus? '': ' bx-messenger-cl-panel-hide') }, children : [
 				BX.create('div', {props : { className : "bx-messenger-cl-panel-wrap" }, children : [
-					this.contactListPanelStatus = BX.create("span", { props : { className : "bx-messenger-cl-panel-status-wrap bx-messenger-cl-status-"+BX.MessengerCommon.getUserStatus(this.users[this.BXIM.userId]) }, html: '<span class="bx-messenger-cl-panel-status bx-messenger-cl-status"></span><span class="bx-messenger-cl-panel-status-text">'+BX.message("IM_STATUS_"+(userStatus == 'birthday'? 'online': userStatus ).toUpperCase())+'</span><span class="bx-messenger-cl-panel-status-arrow"></span>'}),
+					this.contactListPanelStatus = BX.create("span", { props : { className : "bx-messenger-cl-panel-status-wrap bx-messenger-cl-status-"+userStatus }, html: '<span class="bx-messenger-cl-panel-status bx-messenger-cl-status"></span><span class="bx-messenger-cl-panel-status-text">'+BX.message("IM_STATUS_"+userStatus.toUpperCase())+'</span><span class="bx-messenger-cl-panel-status-arrow"></span>'}),
 					BX.create('span', {props : { className : "bx-messenger-cl-panel-right-wrap" }, children : [
 						//this.contactListPanelFull = BX.MessengerCommon.isPage()? null: BX.create("span", { props : { title : BX.message("IM_FULLSCREEN"), className : "bx-messenger-cl-panel-fullscreen-wrap"}}),
 						this.contactListPanelSettings = /*this.BXIM.design == 'DESKTOP'*/ this.externalMenu? null: BX.create("span", { props : { title : BX.message("IM_SETTINGS"), className : "bx-messenger-cl-panel-settings-wrap"}})
@@ -8616,8 +8532,8 @@ BX.MessengerChat.prototype.openChatCreateForm = function(type)
 			BX.create("div", { props : { className : "bx-messenger-box-create-icon bx-messenger-box-create-icon-"+type}, children: [
 				BX.create("div", { props : { className : "bx-messenger-box-create-icon-image"}})
 			]}),
-			BX.create("div", { props : { className : "bx-messenger-box-create-title"}, html: BX.message('IM_CL_PRIVATE_CHAT_NEW')}),
-			BX.create("div", { props : { className : "bx-messenger-box-create-text"}, html: BX.message(this.BXIM.bitrixIntranet? 'IM_C_ABOUT_PRIVATE': 'IM_C_ABOUT_PRIVATE_SITE').split('#BR#').join("<br />").replace('#PROFILE_END#', '</a>').replace('#PROFILE_START#', '<a href="'+BXIM.path.profile+'edit/">')})
+			BX.create("div", { props : { className : "bx-messenger-box-create-title"}, html: BX.message('IM_CL_PRIVATE_CHAT_NEW_MSGVER_1')}),
+			BX.create("div", { props : { className : "bx-messenger-box-create-text"}, html: BX.message(this.BXIM.bitrixIntranet? 'IM_C_ABOUT_PRIVATE_MSGVER_1': 'IM_C_ABOUT_PRIVATE_SITE_MSGVER_1').split('#BR#').join("<br />").replace('#PROFILE_END#', '</a>').replace('#PROFILE_START#', '<a href="'+BXIM.path.profile+'edit/">')})
 		];
 	}
 
@@ -9211,6 +9127,10 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 					{
 						this.popupMessengerTextareaOpenLinesText.innerHTML = BX.message('IM_OL_CHAT_BLOCK_' + session.blockReason);
 					}
+					else
+					{
+						BX.style(this.popupMessengerTextareaOpenLinesAnswer, 'display', 'inline-block');
+					}
 				}
 				else if (this.chat[chatId].owner == 0)
 				{
@@ -9221,7 +9141,10 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 					BX.style(this.popupOpenLinesTransfer, 'display', 'none');
 
 					BX.style(this.popupMessengerTextareaOpenLinesTransfer, 'display', session.id? 'inline-block': 'none');
-					BX.style(this.popupMessengerTextareaOpenLinesAnswer, 'display', session.id? 'inline-block': 'none');
+					if (!BX.MessengerCommon.isSessionBlocked(chatId))
+					{
+						BX.style(this.popupMessengerTextareaOpenLinesAnswer, 'display', 'inline-block');
+					}
 
 					this.popupMessengerTextareaOpenLinesAnswer.innerHTML = session.id? BX.message('IM_OL_INVITE_ANSWER'): BX.message('IM_OL_INVITE_JOIN');
 					this.popupMessengerTextareaOpenLinesSkip.innerHTML = session.id? BX.message('IM_OL_INVITE_SKIP'): BX.message('IM_OL_INVITE_CLOSE');
@@ -10356,7 +10279,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		if (params.openDesktop)
 		{
 			menuItems = [
-				{icon: 'bx-messenger-cc-private', text: BX.message("IM_CL_PRIVATE_CHAT_NEW"), onclick: BX.delegate(function(){
+				{icon: 'bx-messenger-cc-private', text: BX.message("IM_CL_PRIVATE_CHAT_NEW_MSGVER_1"), onclick: BX.delegate(function(){
 					BX.desktopUtils.goToBx("bx://chat/create/private"); this.closeMenuPopup();
 				}, this)},
 				{icon: 'bx-messenger-cc-chat', text: BX.message("IM_CL_CHAT_NEW"), onclick: BX.delegate(function(){
@@ -10373,7 +10296,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		else if (params.openMessenger)
 		{
 			menuItems = [
-				{icon: 'bx-messenger-cc-private', text: BX.message("IM_CL_PRIVATE_CHAT_NEW"), onclick: BX.delegate(function(){
+				{icon: 'bx-messenger-cc-private', text: BX.message("IM_CL_PRIVATE_CHAT_NEW_MSGVER_1"), onclick: BX.delegate(function(){
 					this.openMessenger();this.openChatCreateForm('private'); this.closeMenuPopup();
 				}, this)},
 				{icon: 'bx-messenger-cc-chat', text: BX.message("IM_CL_CHAT_NEW"), onclick: BX.delegate(function(){
@@ -10395,7 +10318,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		else
 		{
 			menuItems = [
-				{icon: 'bx-messenger-cc-private', text: BX.message("IM_CL_PRIVATE_CHAT_NEW"), onclick: BX.delegate(function(){
+				{icon: 'bx-messenger-cc-private', text: BX.message("IM_CL_PRIVATE_CHAT_NEW_MSGVER_1"), onclick: BX.delegate(function(){
 					this.openChatCreateForm('private'); this.closeMenuPopup();
 				}, this)},
 				{icon: 'bx-messenger-cc-chat', text: BX.message("IM_CL_CHAT_NEW"), onclick: BX.delegate(function(){
@@ -10555,8 +10478,6 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		bindOptions = {position: "top"};
 		menuItems = [
 			{icon: 'bx-messenger-popup-status bx-messenger-popup-status-online', text: BX.message("IM_STATUS_ONLINE"), onclick: BX.delegate(function(){ this.setStatus('online'); this.closeMenuPopup(); }, this)},
-			{icon: 'bx-messenger-popup-status bx-messenger-popup-status-break', text: BX.message("IM_STATUS_BREAK"), onclick: BX.delegate(function(){ this.setStatus('break'); this.closeMenuPopup(); }, this)},
-			{icon: 'bx-messenger-popup-status bx-messenger-popup-status-away', text: BX.message("IM_STATUS_AWAY"), onclick: BX.delegate(function(){ this.setStatus('away'); this.closeMenuPopup(); }, this)},
 			{icon: 'bx-messenger-popup-status bx-messenger-popup-status-dnd', text: BX.message("IM_STATUS_DND"), onclick: BX.delegate(function(){ this.setStatus('dnd'); this.closeMenuPopup(); }, this)}
 		];
 	}
@@ -11110,6 +11031,37 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		var hideBlockCreate = isAnnouncement || selectedText.text.length > 0 || this.users[this.BXIM.userId].extranet;
 		var isChatOl = this.chat[this.message[messageId].chatId] && this.chat[this.message[messageId].chatId].entity_type == 'LINES';
 		var hideSaveToQuickAnswers = hideBlockCreate || !isChatOl || (!this.message[messageId].text || this.message[messageId].text.length <= 0);
+		var openLineSettings = this.getOpenLineSettings(this.message[messageId].chatId);
+		var isNetworkConnector = this.chat[this.message[messageId].chatId] && this.chat[this.message[messageId].chatId].entity_id.substring(0, 7) === 'network';
+
+		var multidialogEnabled = false;
+		if (!isNetworkConnector || typeof(openLineSettings.multidialog) === 'undefined' || openLineSettings.multidialog !== 'Y')
+		{
+			if (
+				typeof(openLineSettings.multidialog) === 'undefined'
+				&& this.chat[this.message[messageId].chatId]
+			)
+			{
+				var entityParts = this.chat[this.message[messageId].chatId].entity_id.toString().split('|');
+				if (
+					typeof entityParts[1] !== 'undefined'
+					&& typeof(openLineSettings.id) !== 'undefined'
+					&& entityParts[1] != openLineSettings.id
+				)
+				{
+					var parentConfigId = entityParts[1];
+					parentOpenLineSettings = this.getOpenLineSettingsByConfigId(parentConfigId);
+					if (typeof(parentOpenLineSettings.multidialog) !== 'undefined' && parentOpenLineSettings.multidialog === 'Y')
+					{
+						multidialogEnabled = true;
+					}
+				}
+			}
+		}
+		else
+		{
+			multidialogEnabled = true;
+		}
 
 		var linesQuickAnswersItem =
 		{
@@ -11234,10 +11186,12 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			hideBlockCreate ? null: {separator: true},
 			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_TASK"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'TASK'); this.closeMenuPopup(); }, this)},
 			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_CALEND"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CALEND'); this.closeMenuPopup(); }, this)},
-			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate ? null: {text: BX.message(isChatOl ? "IM_MENU_TO_CHAT_MSGVER_1" : "IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
 			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_POST_2"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'POST'); this.closeMenuPopup(); }, this)},
 			hideBlockCreate || !isChatOl ? null: {separator: true},
-			hideBlockCreate || !isChatOl ? null: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesStartSessionByMessage(messageId); this.closeMenuPopup(); }, this)},
+			!multidialogEnabled || hideBlockCreate || !isChatOl
+				? (hideBlockCreate || !isChatOl ? null: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesStartSessionByMessage(messageId); this.closeMenuPopup(); }, this)})
+				: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesOpenNewDialogByMessage(messageId); this.closeMenuPopup(); }, this)},
 			hideSaveToQuickAnswers? null: linesQuickAnswersItem,
 			!(!canEdit || this.message[messageId].senderId != this.BXIM.userId) || canDelete? {separator: true}: null,
 			!canEdit || this.message[messageId].senderId != this.BXIM.userId? null: {text: BX.message("IM_MENU_EDIT"), onclick: BX.delegate(function() {this.editMessage(messageId);this.closeMenuPopup();}, this)},
@@ -17615,6 +17569,7 @@ BX.MessengerChat.prototype.setStatus = function(status, send)
 	status = status.toLowerCase();
 
 	this.users[this.BXIM.userId].status = status;
+	this.BXIM.settings.status = status;
 	this.BXIM.updateCounter(); // for redraw digits on new color
 
 	if (this.contactListPanelStatus != null && !BX.hasClass(this.contactListPanelStatus, 'bx-messenger-cl-panel-status-'+status))
@@ -18304,6 +18259,19 @@ BX.MessengerChat.prototype.getOpenLineSettings = function(chatId)
 		)
 		{
 			return BX.MessengerCommon.BXIM.messenger.openlines.settings[session.lineId];
+		}
+	}
+
+	return {};
+}
+
+BX.MessengerChat.prototype.getOpenLineSettingsByConfigId = function(configId)
+{
+	if (typeof(BX.MessengerCommon.BXIM.messenger.openlines.settings) !== 'undefined')
+	{
+		if (typeof(BX.MessengerCommon.BXIM.messenger.openlines.settings[configId]) !== 'undefined')
+		{
+			return BX.MessengerCommon.BXIM.messenger.openlines.settings[configId];
 		}
 	}
 
@@ -19230,7 +19198,7 @@ BX.IM.Desktop = function(BXIM, params)
 					BX.desktop.changeTab('notify');
 					BXIM.notify.openNotify(false, true);
 				}});
-				BX.desktop.addTrayMenuItem({Id: "bdisk",Order: 130, Title: BX.message('IM_DESKTOP_BDISK'), Callback: function(){
+				BX.desktop.addTrayMenuItem({Id: "bdisk",Order: 130, Title: BX.message('IM_DESKTOP_BDISK_MSGVER_1'), Callback: function(){
 					if (BX.desktop.diskAttachStatus())
 					{
 						BX.desktop.diskOpenFolder();
@@ -21115,7 +21083,7 @@ BX.IM.DiskManager.prototype.chatDialogInit = function()
 BX.IM.DiskManager.prototype.saveToDiskAction = function(item, params)
 {
 	var popupConfirm = BX.Disk.showActionModal({
-		html: BX.message('IM_DISK_VIEWER_DESCR_PROCESS_SAVE_FILE_TO_OWN_FILES').replace('#NAME#', '<a href="#" class="bx-viewer-file-link">' + item.title +'</a>'),
+		html: BX.message('IM_DISK_VIEWER_DESCR_PROCESS_SAVE_FILE_TO_OWN_FILES_MSGVER_1').replace('#NAME#', '<a href="#" class="bx-viewer-file-link">' + item.title +'</a>'),
 		showLoaderIcon: true,
 		autoHide: false
 	});
@@ -23123,7 +23091,11 @@ MessengerTheme.prototype.init = function(theme, controller)
 {
 	this.BXIM = controller;
 
-	if (typeof theme === 'string')
+	if (this.BXIM.options.v2layout)
+	{
+		this.theme = 'light';
+	}
+	else if (typeof theme === 'string')
 	{
 		this.theme = theme;
 	}
@@ -23192,6 +23164,11 @@ MessengerTheme.prototype.onChange = function(callback)
 
 MessengerTheme.prototype.isDark = function()
 {
+	if (this.BXIM.options.v2layout)
+	{
+		return false;
+	}
+
 	if (this.BXIM.options.background !== 'auto')
 	{
 		return this.BXIM.options.background === 'dark';

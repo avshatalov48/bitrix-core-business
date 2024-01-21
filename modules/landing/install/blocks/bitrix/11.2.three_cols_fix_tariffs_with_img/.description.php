@@ -80,7 +80,7 @@ return [
 		],
 		'.landing-block-node-card-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARD_CONTAINER'),
-			'type' => ['box', 'animation', 'text-transform'],
+			'type' => ['box', 'animation'],
 		],
 		'.landing-block-node-card-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARD_TEXT'),

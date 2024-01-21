@@ -1,4 +1,4 @@
-import {Loc, Runtime} from 'main.core';
+import { Loc, Runtime } from 'main.core';
 import Default from './default';
 
 export default class AIImageGenerator extends Default
@@ -14,6 +14,13 @@ export default class AIImageGenerator extends Default
 
 	handler()
 	{
+		if (!this.editor.isImageCopilotEnabledBySettings())
+		{
+			top.BX.UI.InfoHelper.show('limit_copilot_off');
+
+			return;
+		}
+
 		Runtime.loadExtension('ai.picker').then(() => {
 			const aiImagePicker = new BX.AI.Picker({
 				moduleId: 'main',

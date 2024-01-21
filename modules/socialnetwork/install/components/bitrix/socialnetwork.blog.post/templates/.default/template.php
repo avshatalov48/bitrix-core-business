@@ -18,6 +18,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var CBitrixComponent $component */
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
@@ -26,8 +27,10 @@ $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/t
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
 if (!$arResult["bFromList"])
 {
-	$APPLICATION->AddHeadScript("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/script.js");
+	Asset::getInstance()->addJs("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/script.js");
 }
+
+Asset::getInstance()->addJs('/bitrix/components/bitrix/socialnetwork.blog.post/templates/.default/index.js');
 
 $ajax_page = $APPLICATION->GetCurPageParam("", array("logajax", "bxajaxid", "logout"));
 $voteId = false;
@@ -46,6 +49,7 @@ if ($arResult["bTasksAvailable"])
 CJSCore::Init($extensions);
 
 UI\Extension::load([
+	'main.core',
 	'ui.buttons',
 	'ui.animations',
 	'ui.tooltip',
@@ -56,6 +60,8 @@ UI\Extension::load([
 	'landing_note',
 	'ui.livefeed.background'
 ]);
+
+$messages = Loc::loadLanguageFile(__FILE__);
 
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
@@ -68,23 +74,13 @@ $arParams['MODE'] ??= null;
  bx-content-view-key-signed="<?= htmlspecialcharsbx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
 
 ?><script>
+	BX.message(<?= Json::encode($messages) ?>);
 	BX.message({
-		BLOG_POST_LINK_COPIED: '<?=GetMessageJS("BLOG_POST_LINK_COPIED")?>',
-		BLOG_HREF: '<?=GetMessageJS("BLOG_HREF")?>',
 		BLOG_LINK: '<?=GetMessageJS("BLOG_LINK2")?>',
-		BLOG_SHARE: '<?=GetMessageJS("BLOG_SHARE")?>',
-		BLOG_BLOG_BLOG_EDIT: '<?=GetMessageJS("BLOG_BLOG_BLOG_EDIT")?>',
-		BLOG_BLOG_BLOG_DELETE: '<?=GetMessageJS("BLOG_BLOG_BLOG_DELETE")?>',
-		BLOG_MES_DELETE_POST_CONFIRM: '<?=GetMessageJS("BLOG_MES_DELETE_POST_CONFIRM")?>',
-		BLOG_POST_CREATE_TASK: '<?=GetMessageJS("BLOG_POST_CREATE_TASK")?>',
-		BLOG_POST_VOTE_EXPORT: '<?=GetMessageJS("BLOG_POST_VOTE_EXPORT")?>',
-		BLOG_POST_MOD_PUB: '<?=GetMessageJS("BLOG_POST_MOD_PUB")?>',
-		BLOG_MES_HIDE: '<?=GetMessageJS("BLOG_MES_HIDE")?>',
-		BLOG_MES_HIDE_POST_CONFIRM: '<?=GetMessageJS("BLOG_MES_HIDE_POST_CONFIRM")?>'
 		<?php
 		if (!$arResult["bFromList"])
 		{
-			?>,
+			?>
 			sonetLESetPath: '<?=CUtil::JSEscape('/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php')?>',
 			sonetLSessid: '<?=bitrix_sessid_get()?>'
 			<?php
@@ -914,6 +910,14 @@ else
 							$onClick = '';
 						}
 
+						if ($arParams['CONTEXT'] === 'spaces')
+						{
+							$editHref = '#';
+							$onClick = "return BX.Livefeed.Post.editSpacesPost(
+								'".$arResult['Post']['ID']."' , '".($arParams['SONET_GROUP_ID'] ?? 0)."'
+							);";
+						}
+
 						?><a href="<?=$editHref?>" onclick="<?=$onClick?>" title="<?=Loc::getMessage("BLOG_BLOG_BLOG_EDIT")?>" target="_top"><?php
 							?><span class="feed-destination-edit" onclick="BX.addClass(this, 'feed-destination-edit-pressed');"></span><?php
 						?></a><?php
@@ -1307,10 +1311,35 @@ else
 								BX.SBPostMenu.showMenu({
 									event: e,
 									menuNode: BX('feed-post-menuanchor-<?=$arResult["Post"]["ID"]?>'),
+									context: '<?= CUtil::JSescape($arParams['CONTEXT']) ?>',
+									sonetGroupId: '<?= (int) ($arParams['SONET_GROUP_ID'] ?? null) ?>',
 								});
 								return BX.PreventDefault(e);
 							});
 							</script><?php
+						}
+
+						if ($arResult['IS_COPILOT_READONLY_ENABLED'])
+						{
+							$postId = (int)$arResult['Post']['ID'];
+							$blogPostButtonCopilotId = "blog_post_button_copilot_$postId";
+							?>
+
+							<span id="<?= $blogPostButtonCopilotId ?>"></span>
+							<script>
+								BX.ready(() => new BX.Socialnetwork.Blog.Post.BlogCopilotReadonly({
+									container: BX('<?= $blogPostButtonCopilotId ?>'),
+									blogText: '<?= CUtil::JSEscape($arResult['Post']['DETAIL_TEXT']) ?>',
+									enabledBySettings: '<?= ($arResult['IS_COPILOT_READONLY_ENABLED_BY_SETTINGS'] ?? true) ? 'Y' : 'N' ?>',
+									copilotParams: {
+										moduleId: 'socialnetwork',
+										contextId: 'socialnetwork_blog_post_<?= $postId ?>',
+										category: 'readonly_livefeed',
+									},
+								}));
+							</script>
+
+							<?php
 						}
 
 						?><span class="feed-inform-item feed-post-time-wrap feed-inform-contentview"><?php
@@ -1429,6 +1458,8 @@ else
 							BX.SBPostMenu.showMenu({
 								event: e,
 								menuNode: BX('feed-post-menuanchor-<?= $arResult["Post"]["ID"] ?>'),
+								context: '<?= CUtil::JSescape($arParams['CONTEXT']) ?>',
+								sonetGroupId: '<?= (int) ($arParams['SONET_GROUP_ID'] ?? null) ?>',
 							});
 							return BX.PreventDefault(e);
 						});

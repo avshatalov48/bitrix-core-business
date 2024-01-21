@@ -36,6 +36,11 @@ export const MessageStatus = {
 		},
 		messageStatus(): $Values<typeof StatusType>
 		{
+			if (this.message.error)
+			{
+				return StatusType.error;
+			}
+
 			if (this.message.sending)
 			{
 				return StatusType.sending;

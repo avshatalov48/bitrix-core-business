@@ -194,7 +194,10 @@ class CFile extends CAllFile
 			}
 			catch(IO\IoException $e)
 			{
-				$arFile["size"] = 0;
+				if (!isset($arFile["size"]) || !is_int($arFile["size"]))
+				{
+					$arFile["size"] = 0;
+				}
 			}
 		}
 
@@ -514,7 +517,7 @@ class CFile extends CAllFile
 		}
 
 		$updateFields = [
-			"COUNTER" => new Main\DB\SqlExpression("?v + 1", "COUNTER"),
+			"COUNTER" => new Main\DB\SqlExpression(Internal\FileDuplicateTable::getTableName() . '.?# + 1', 'COUNTER'),
 		];
 
 		$insertFields = [
@@ -1078,7 +1081,7 @@ class CFile extends CAllFile
 		$strSql = "
 			SELECT f.*, 
 				{$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X,
-				'' as VERSION_ORIGINAL_ID, '' as META
+				NULL as VERSION_ORIGINAL_ID, '' as META
 			FROM b_file f
 			WHERE f.ID = {$fileId}
 		";
@@ -1187,7 +1190,7 @@ class CFile extends CAllFile
 			$strSqlSearch.
 			$strSqlOrder;
 
-		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -1799,7 +1802,7 @@ function ImgShw(ID, width, height, alt)
 		if($img_id > 0)
 		{
 			$res = static::_GetImgParams($img_id);
-			return $res["SRC"];
+			return is_array($res) ? $res["SRC"] : null;
 		}
 		return null;
 	}
@@ -2168,7 +2171,7 @@ function ImgShw(ID, width, height, alt)
 				WHERE MODULE_ID='".$DB->ForSQL($module_id)."'
 			";
 
-			if($rs = $DB->Query($strSql, false, __LINE__))
+			if($rs = $DB->Query($strSql))
 			{
 				$from = "/".COption::GetOptionString("main", "upload_dir", "upload")."/".$old_subdir;
 				$to = "/".COption::GetOptionString("main", "upload_dir", "upload")."/".$new_subdir;
@@ -3387,4 +3390,3 @@ function ImgShw(ID, width, height, alt)
 
 global $arCloudImageSizeCache;
 $arCloudImageSizeCache = array();
-

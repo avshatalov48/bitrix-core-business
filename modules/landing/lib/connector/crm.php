@@ -271,6 +271,29 @@ class Crm
 	}
 
 	/**
+	 * Returns replace-array for requisite company name.
+	 *
+	 * @param string $xmlId landing xml id.
+	 * @return array
+	 */
+	public static function getReplaceRequisiteCompanyNameForContent(string $xmlId): array
+	{
+		$companyId = (int)(explode("_", $xmlId)[1] ?? 0);
+		$requisites = self::getMyRequisites();
+		if (isset($requisites[$companyId]['companyTitle']) && $companyId > 0)
+		{
+			$companyTitle = $requisites[$companyId]['companyTitle'];
+		}
+		if (!isset($companyTitle))
+		{
+			$companyTitle = 'Company24';
+		}
+		$replace['#requisiteCompanyTitle'] = $companyTitle;
+
+		return $replace;
+	}
+
+	/**
 	 * Returns requisites each of my companies.
 	 * @return array
 	 */
@@ -292,19 +315,34 @@ class Crm
 		foreach ($companies as $company)
 		{
 			$requisites = [];
+			$bankRequisites = [];
 			$requisitesRaw = \CCrmEntitySelectorHelper::PrepareRequisiteData(
 				\CCrmOwnerType::Company,
 				$company['ID'],
-				['VIEW_FORMATTED' => true]
+				[
+					'VIEW_FORMATTED' => true,
+					'SKIP_CHECK_MY_COMPANY_PERMISSION' => true,
+				]
 			);
 			foreach ($requisitesRaw as $requisite)
 			{
 				$requisiteData = Encoding::convertEncoding(json_decode($requisite['requisiteData'], 1), 'UTF-8', SITE_CHARSET);
-				$requisites[$requisite['requisiteId']] = [
-					'id' =>  $requisite['requisiteId'],
-					'title' => $requisiteData['viewData']['title'] ?? null,
-					'data' => $requisiteData['viewData']['fields'],
-				];
+				if (!empty($requisiteData['viewData']['fields']))
+				{
+					$requisites[$requisite['requisiteId']] = [
+						'id' =>  $requisite['requisiteId'],
+						'title' => $requisiteData['viewData']['title'] ?? null,
+						'data' => $requisiteData['viewData']['fields'],
+					];
+				}
+				if (!empty($requisiteData['bankDetailViewDataList']))
+				{
+					$bankRequisites[$requisite['requisiteId']] = [
+						'id' =>  $requisite['requisiteId'],
+						'title' => $requisiteData['viewData']['title'] ?? null,
+						'bankData' => $requisiteData['bankDetailViewDataList'][0]['viewData']['fields'] ?? null,
+					];
+				}
 			}
 
 			if (empty($requisites))
@@ -316,6 +354,7 @@ class Crm
 				'companyId' => $company['ID'],
 				'companyTitle' => $company['TITLE'],
 				'requisites' => $requisites,
+				'bankRequisites' => $bankRequisites,
 			];
 		}
 
@@ -324,21 +363,23 @@ class Crm
 
 	/**
 	 * Returns requisites each of my companies (as plain list).
+	 * @param array $requisites requisites each of my companies.
+	 * @param string $requisitesType type of requisites.
 	 * @return array
 	 */
-	public static function getMyRequisitesPlainList(): array
+	public static function getMyRequisitesPlainList(array $requisites = [], string $requisitesType = 'requisites'): array
 	{
-		$requisites = [];
-
-		foreach (self::getMyRequisites() as $company)
+		$requisitesPlainList = [];
+		foreach ($requisites as $company)
 		{
-			foreach ($company['requisites'] as $requisite)
+			foreach ($company[$requisitesType] as $requisite)
 			{
-				$requisites["{$company['companyId']}_{$requisite['id']}"] = "{$company['companyTitle']}: {$requisite['title']}";
+				$requisitesPlainList["{$company['companyId']}_{$requisite['id']}"]
+					= "{$company['companyTitle']}: {$requisite['title']} : {$requisite['id']}";
 			}
 		}
 
-		return $requisites;
+		return $requisitesPlainList;
 	}
 
 	/**

@@ -1,6 +1,6 @@
-import {Event, Reflection, Type, Uri} from 'main.core';
-import {EventEmitter} from 'main.core.events'
-import {Slider} from 'catalog.store-use'
+import { Event, Reflection, Type, Uri } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { StoreSlider } from 'catalog.store-use';
 
 class ProductStoreGridManager
 {
@@ -183,14 +183,15 @@ class ProductStoreGridManager
 	{
 		if (this.inventoryManagementLink)
 		{
-			new Slider().open(this.inventoryManagementLink,
+			new StoreSlider().open(
+				this.inventoryManagementLink,
 				{
 					data: {
 						openGridOnDone: false,
 					},
 					events: {
 						onCloseComplete: function(event) {
-							let slider = event.getSlider();
+							const slider = event.getSlider();
 							if (!slider)
 							{
 								return;
@@ -200,9 +201,9 @@ class ProductStoreGridManager
 							{
 								window.top.location.reload();
 							}
-						}
-					}
-				}
+						},
+					},
+				},
 			);
 		}
 	}

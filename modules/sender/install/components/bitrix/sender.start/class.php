@@ -248,31 +248,11 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 		);
 
 		$this->arResult['MESSAGES'] = array(
-			'MAILING' =>  $this->getSenderMessages(
-				$this->getAccessController()->check(ActionDictionary::ACTION_MAILING_VIEW)
-				? $mailingMessages
-				: []
-			),
-			'ADS' =>  $this->getSenderMessages(
-				$this->getAccessController()->check(ActionDictionary::ACTION_ADS_VIEW)
-				? $adsMessages
-				: []
-			),
-			'MARKETING' =>  $this->getSenderMessages(
-				$this->getAccessController()->check(ActionDictionary::ACTION_ADS_VIEW)
-				? $marketingMessages
-				: []
-			),
-			'RC' =>  $this->getSenderMessages(
-				$this->getAccessController()->check(ActionDictionary::ACTION_RC_VIEW)
-					? $rcMessages
-					: []
-			),
-			'YANDEX' =>  $this->getSenderMessages(
-				$this->getAccessController()->check(ActionDictionary::ACTION_RC_VIEW)
-					? $yandexMessages
-					: []
-			),
+			'MAILING' =>  $this->getSenderMessages($mailingMessages),
+			'ADS' =>  $this->getSenderMessages($adsMessages),
+			'MARKETING' =>  $this->getSenderMessages($marketingMessages),
+			'RC' =>  $this->getSenderMessages($rcMessages),
+			'YANDEX' =>  $this->getSenderMessages($yandexMessages),
 		);
 
 		foreach ($this->arResult['MESSAGES'] as $section => $data)

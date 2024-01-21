@@ -1,0 +1,36 @@
+<?php
+$MESS["SOCIALNETWORK_SPACES_TITLE"] = "Пространства";
+$MESS["SOCIALNETWORK_SPACES_TIME"] = "16 сен";
+$MESS["SOCIALNETWORK_SPACES_ITEM_TITLE"] = "Продуктовый дизайн";
+$MESS["SOCIALNETWORK_SPACES_ITEM_DESC"] = "Задача: Тёмная тема в мобильном приложении";
+$MESS["SOCIALNETWORK_SPACES_LIST_FILTER_MODE_MY_TITLE"] = "Пространства";
+$MESS["SOCIALNETWORK_SPACES_LIST_FILTER_MODE_MY_DESCRIPTION"] = "Работайте только с теми пространствами, в которых состоите";
+$MESS["SOCIALNETWORK_SPACES_LIST_FILTER_MODE_OTHER_TITLE"] = "Другие пространства";
+$MESS["SOCIALNETWORK_SPACES_LIST_FILTER_MODE_OTHER_DESCRIPTION"] = "Посмотрите пространства коллег. Возможно, вам захочется присоединиться";
+$MESS["SOCIALNETWORK_SPACES_LIST_FILTER_MODE_ALL_TITLE"] = "Все пространства";
+$MESS["SOCIALNETWORK_SPACES_LIST_FILTER_MODE_ALL_DESCRIPTION"] = "Откройте для себя все пространства компании, чтобы всегда быть в курсе дел";
+$MESS["SOCIALNETWORK_SPACES_LIST_MODE_POPUP_NEW_SPACE_BUTTON"] = "Новое пространство";
+$MESS["SOCIALNETWORK_SPACES_LIST_MODE_POPUP_BOTTOM_DESCRIPTION"] = "Поиск работает по всем пространствам независимо от фильтра";
+$MESS["SOCIALNETWORK_SPACES_LIST_SEARCH_INPUT_PLACEHOLDER"] = "Искать пространство";
+$MESS["SOCIALNETWORK_SPACES_LIST_RECENT_SEARCH_LIST_TITLE"] = "Недавний поиск";
+$MESS["SOCIALNETWORK_SPACES_LIST_SEARCH_LIST_TITLE"] = "Результаты поиска";
+$MESS["SOCIALNETWORK_SPACES_LIST_ADD_SPACE_ITEM_TITLE"] = "Добавить пространство";
+$MESS["SOCIALNETWORK_SPACES_LIST_ADD_SPACE_ITEM_DESCRIPTION"] = "В пару кликов";
+$MESS["SOCIALNETWORK_SPACES_LIST_ADD_SPACE_FORM_NAME_PLACEHOLDER"] = "Название";
+$MESS["SOCIALNETWORK_SPACES_LIST_SPACE_VIEW_MODE_OPEN_TITLE"] = "Открытое пространство";
+$MESS["SOCIALNETWORK_SPACES_LIST_SPACE_VIEW_MODE_OPEN_DESCRIPTION"] = "Все видят пространство и могут вступить в него";
+$MESS["SOCIALNETWORK_SPACES_LIST_SPACE_VIEW_MODE_CLOSED_TITLE"] = "Закрытое пространство";
+$MESS["SOCIALNETWORK_SPACES_LIST_SPACE_VIEW_MODE_CLOSED_DESCRIPTION"] = "Все видят пространство, но могут вступить в него только по запросу";
+$MESS["SOCIALNETWORK_SPACES_LIST_SPACE_VIEW_MODE_SECRET_TITLE"] = "Секретное пространство";
+$MESS["SOCIALNETWORK_SPACES_LIST_SPACE_VIEW_MODE_SECRET_DESCRIPTION"] = "Пространство видят только участники, остальные могут вступить в него по приглашению";
+$MESS["SOCIALNETWORK_SPACES_LIST_SPACE_VIEW_MODE_HINT"] = "Вы можете изменить видимость пространства в любой момент";
+$MESS["SOCIALNETWORK_SPACES_LIST_JOIN_SPACE_BUTTON"] = "Вступить";
+$MESS["SOCIALNETWORK_SPACES_LIST_ACCEPT_INVITATION_BUTTON"] = "Вступить";
+$MESS["SOCIALNETWORK_SPACES_LIST_DECLINE_INVITATION_BUTTON"] = "Отклонить";
+$MESS['SOCIALNETWORK_SPACES_LIST_SPACE_OPEN'] = 'Открыть';
+$MESS['SOCIALNETWORK_SPACES_LIST_SPACE_PIN'] = 'Закрепить';
+$MESS['SOCIALNETWORK_SPACES_LIST_SPACE_UNPIN'] = 'Открепить';
+$MESS['SOCIALNETWORK_SPACES_LIST_SPACE_FOLLOW'] = 'Следить';
+$MESS['SOCIALNETWORK_SPACES_LIST_SPACE_UNFOLLOW'] = 'Не следить';
+$MESS['SOCIALNETWORK_SPACES_LIST_NAME_ALREADY_EXISTS_ERROR'] = 'Пространство с таким именем уже существует';
+?>

@@ -99,14 +99,6 @@ export default class GridUnit extends BX.TileGrid.Item
 
 	onClick()
 	{
-		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-			analyticsLabel: {
-				open_connection_slider: 'Y',
-				sync_connection_type: this.item.getType(),
-				sync_connection_status: this.item.getSyncStatus() ? 'Y' : 'N',
-			}
-		});
-
 		if (this.item.hasMenu())
 		{
 			this.item.showMenu(this.gridUnit);

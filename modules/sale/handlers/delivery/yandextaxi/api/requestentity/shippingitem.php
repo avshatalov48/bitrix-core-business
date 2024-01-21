@@ -31,7 +31,10 @@ final class ShippingItem extends RequestEntity
 	protected $pickupPoint;
 
 	/** @var int */
-	protected $droppofPoint;
+	protected $dropoffPoint;
+
+    /** @var int */
+    protected $droppofPoint;
 
 	/**
 	 * @return string
@@ -165,21 +168,15 @@ final class ShippingItem extends RequestEntity
 		return $this;
 	}
 
-	/**
-	 * @return int|null
-	 */
-	public function getDroppofPoint(): ?int
+	public function setDropoffPoint(int $dropoffPoint): ShippingItem
 	{
-		return $this->droppofPoint;
-	}
+		$this->dropoffPoint = $dropoffPoint;
 
-	/**
-	 * @param int $droppofPoint
-	 * @return ShippingItem
-	 */
-	public function setDroppofPoint(int $droppofPoint): ShippingItem
-	{
-		$this->droppofPoint = $droppofPoint;
+        /**
+         * Some Yandex API methods still use the name with this typo
+         */
+        $this->droppofPoint = $dropoffPoint;
+
 		return $this;
 	}
 }

@@ -9,10 +9,13 @@
 namespace Bitrix\Socialnetwork\Item;
 
 use Bitrix\Main;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\SystemException;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Helper;
@@ -31,6 +34,11 @@ class Workgroup
 		$this->fields = array();
 	}
 
+	/**
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 */
 	public static function getById($groupId = 0, $useCache = true)
 	{
 		global $USER_FIELD_MANAGER;

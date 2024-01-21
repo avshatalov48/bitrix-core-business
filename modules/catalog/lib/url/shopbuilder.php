@@ -86,25 +86,6 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 					'ONCLICK' => 'BX.Crm.Config.Catalog.Slider.open(\'shop\')',
 				];
 			}
-
-			if (
-				Catalog\Config\Feature::isInventoryManagementEnabled()
-				&& !Catalog\Component\UseStore::isUsed()
-			)
-			{
-				Extension::load(['catalog.store-use']);
-
-				$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
-				$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
-
-				$result[] = [
-					'TEXT' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_WAREHOUSE_Y'),
-					'TITLE' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_WAREHOUSE_Y'),
-					'ONCLICK' => "BX.Catalog.StoreUse.ProductGridMenu.openWarehousePanel('" . $sliderPath . "')"
-				];
-
-				unset($sliderPath);
-			}
 		}
 
 		if (Catalog\Config\Feature::isAccessControllerCheckingEnabled())
@@ -190,7 +171,7 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 						{
 							events: {
 								onCloseComplete: function(event) {
-									 window.location = '$listUrl';
+									window.location = '$listUrl';
 								}
 							}
 						}

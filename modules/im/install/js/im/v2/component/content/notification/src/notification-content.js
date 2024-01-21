@@ -1,23 +1,24 @@
-import {Event, Runtime, Type} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
 import 'main.polyfill.intersectionobserver';
-import {mapState} from 'ui.vue3.vuex';
-import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
+import { Event, Runtime, Type } from 'main.core';
+import { mapState } from 'ui.vue3.vuex';
+import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
 
-import {NotificationTypesCodes, EventType} from 'im.v2.const';
-import {NotificationService} from 'im.v2.provider.service';
-import {Logger} from 'im.v2.lib.logger';
-import {ChatInfoPopup, UserListPopup, Loader} from 'im.v2.component.elements';
+import { Logger } from 'im.v2.lib.logger';
+import { NotificationTypesCodes, Settings } from 'im.v2.const';
+import { NotificationService } from 'im.v2.provider.service';
+import { UserListPopup, Loader } from 'im.v2.component.elements';
 
-import {NotificationItem} from './components/notification-item';
-import {NotificationPlaceholder} from './components/notification-placeholder';
-import {NotificationSearchPanel} from './components/notification-search-panel';
-import {NotificationScrollButton} from './components/notification-scroll-button';
-import {NotificationSearchService} from './classes/notification-search-service';
-import {NotificationReadService} from './classes/notification-read-service';
+import { NotificationItem } from './components/notification-item';
+import { NotificationPlaceholder } from './components/notification-placeholder';
+import { NotificationSearchPanel } from './components/notification-search-panel';
+import { NotificationScrollButton } from './components/notification-scroll-button';
+import { NotificationSearchService } from './classes/notification-search-service';
+import { NotificationReadService } from './classes/notification-read-service';
 
 import './css/notification-content.css';
-import type {ImModelNotification} from 'im.v2.model';
+
+import type { JsonObject } from 'main.core';
+import type { ImModelNotification } from 'im.v2.model';
 
 // @vue/component
 export const NotificationContent = {
@@ -28,9 +29,8 @@ export const NotificationContent = {
 		NotificationSearchPanel,
 		NotificationPlaceholder,
 		NotificationScrollButton,
-		ChatInfoPopup,
 		UserListPopup,
-		Loader
+		Loader,
 	},
 	directives:
 	{
@@ -43,10 +43,10 @@ export const NotificationContent = {
 			beforeUnmount(element, binding)
 			{
 				binding.instance.observer.unobserve(element);
-			}
-		}
+			},
+		},
 	},
-	data: function()
+	data(): JsonObject
 	{
 		return {
 			isInitialLoading: false,
@@ -58,12 +58,10 @@ export const NotificationContent = {
 			showSearchResult: false,
 
 			popupBindElement: null,
-			showChatInfoPopup: false,
-			chatInfoDialogId: null,
 			showUserListPopup: false,
 			userListIds: null,
 
-			schema: {}
+			schema: {},
 		};
 	},
 	computed:
@@ -113,9 +111,13 @@ export const NotificationContent = {
 				: this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_NO_ITEMS')
 			;
 		},
+		enableAutoRead(): boolean
+		{
+			return this.$store.getters['application/settings/get'](Settings.notification.enableAutoRead);
+		},
 		...mapState({
-			unreadCounter: state => state.notifications.unreadCounter,
-		})
+			unreadCounter: (state) => state.notifications.unreadCounter,
+		}),
 	},
 	watch:
 	{
@@ -126,7 +128,7 @@ export const NotificationContent = {
 				this.showSearchResult = false;
 				this.$store.dispatch('notifications/clearSearchResult');
 			}
-		}
+		},
 	},
 	created()
 	{
@@ -144,19 +146,16 @@ export const NotificationContent = {
 	{
 		this.isInitialLoading = true;
 		this.windowFocused = document.hasFocus();
-		this.notificationService.loadFirstPage().then(response => {
+		this.notificationService.loadFirstPage().then((response) => {
 			this.schema = response;
 			this.isInitialLoading = false;
 		});
-
-		EventEmitter.subscribe(EventType.mention.openChatInfo, this.onOpenChatInfo);
 	},
 	beforeUnmount()
 	{
 		this.notificationService.destroy();
 		this.notificationSearchService.destroy();
 		this.notificationReadService.destroy();
-		EventEmitter.unsubscribe(EventType.mention.openChatInfo, this.onOpenChatInfo);
 		Event.unbind(window, 'focus', this.onWindowFocus);
 		Event.unbind(window, 'blur', this.onWindowBlur);
 	},
@@ -164,8 +163,8 @@ export const NotificationContent = {
 	{
 		initObserver()
 		{
-			this.observer = new IntersectionObserver(entries => {
-				entries.forEach(entry => {
+			this.observer = new IntersectionObserver((entries) => {
+				entries.forEach((entry) => {
 					const notificationId = Number.parseInt(entry.target.dataset.id, 10);
 					if (!entry.isIntersecting)
 					{
@@ -188,12 +187,19 @@ export const NotificationContent = {
 					}
 				});
 			}, {
-				root: this.$refs['listNotifications'],
-				threshold: Array.from({length: 101}).fill(0).map((zero, index) => index * 0.01)
+				root: this.$refs.listNotifications,
+				threshold: Array.from({ length: 101 }).fill(0).map((zero, index) => index * 0.01),
 			});
 		},
 		read(notificationIds: number | number[])
 		{
+			if (!this.enableAutoRead)
+			{
+				Logger.warn('Notifications: Auto read is disabled!');
+
+				return;
+			}
+
 			if (!this.windowFocused)
 			{
 				return;
@@ -209,11 +215,13 @@ export const NotificationContent = {
 		},
 		oneScreenRemaining(event): boolean
 		{
-			return event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - event.target.clientHeight;
+			const target = event.target;
+
+			return target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
 		},
 		searchOnServer(event)
 		{
-			this.notificationSearchService.loadFirstPage(event).then(result => {
+			this.notificationSearchService.loadFirstPage(event).then((result) => {
 				this.isNextPageLoading = false;
 				this.setSearchResult(result);
 			});
@@ -224,18 +232,15 @@ export const NotificationContent = {
 				notifications: items,
 			});
 		},
-
-		//events
 		onScrollButtonClick(offset)
 		{
-			this.$refs['listNotifications'].scroll({
+			this.$refs.listNotifications.scroll({
 				top: offset,
-				behavior: 'smooth'
+				behavior: 'smooth',
 			});
 		},
 		onScroll(event)
 		{
-			this.showChatInfoPopup = false;
 			this.showUserListPopup = false;
 
 			if (this.showSearchResult)
@@ -258,7 +263,7 @@ export const NotificationContent = {
 				},
 				onCancel: () => {
 					messageBox.close();
-				}
+				},
 			});
 			messageBox.show();
 		},
@@ -292,7 +297,7 @@ export const NotificationContent = {
 			}
 
 			this.isNextPageLoading = true;
-			this.notificationSearchService.loadNextPage().then(result => {
+			this.notificationSearchService.loadNextPage().then((result) => {
 				this.isNextPageLoading = false;
 				this.setSearchResult(result);
 			});
@@ -308,7 +313,7 @@ export const NotificationContent = {
 		},
 		onConfirmButtonsClick(button: { id: string, value: string})
 		{
-			const {id, value} = button;
+			const { id, value } = button;
 			const notificationId = Number.parseInt(id, 10);
 
 			this.notificationsOnScreen.delete(notificationId);
@@ -318,13 +323,6 @@ export const NotificationContent = {
 		{
 			this.notificationsOnScreen.delete(notificationId);
 			this.notificationService.delete(notificationId);
-		},
-		onOpenChatInfo(event: BaseEvent)
-		{
-			const {dialogId, event: $event} = event.getData();
-			this.popupBindElement = $event.target;
-			this.chatInfoDialogId = dialogId;
-			this.showChatInfoPopup = true;
 		},
 		onMoreUsersClick(event)
 		{
@@ -345,7 +343,7 @@ export const NotificationContent = {
 			this.showSearchResult = true;
 			const localResult = this.notificationSearchService.searchInModel(event);
 			this.$store.dispatch('notifications/clearSearchResult');
-			this.$store.dispatch('notifications/setSearchResult', {notifications: localResult, skipValidation: true});
+			this.$store.dispatch('notifications/setSearchResult', { notifications: localResult, skipValidation: true });
 
 			this.isNextPageLoading = true;
 			this.searchOnServerDelayed(event);
@@ -362,83 +360,76 @@ export const NotificationContent = {
 		onWindowBlur()
 		{
 			this.windowFocused = false;
-		}
+		},
 	},
 	template: `
-	<div class="bx-im-content-notification__container">
-		<div class="bx-im-content-notification__header-container">
-			<div class="bx-im-content-notification__header">
-				<div class="bx-im-content-notification__header-panel-container">
-					<div class="bx-im-content-notification__panel-title_icon"></div>
-					<div class="bx-im-content-notification__panel_text">
-						{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_HEADER') }}
+		<div class="bx-im-content-notification__container">
+			<div class="bx-im-content-notification__header-container">
+				<div class="bx-im-content-notification__header">
+					<div class="bx-im-content-notification__header-panel-container">
+						<div class="bx-im-content-notification__panel-title_icon"></div>
+						<div class="bx-im-content-notification__panel_text">
+							{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_HEADER') }}
+						</div>
+					</div>
+					<div v-if="notificationCollection.length > 0" class="bx-im-content-notification__header-buttons-container">
+						<transition name="notifications-read-all-fade">
+							<div
+								v-if="isReadAllAvailable"
+								class="bx-im-content-notification__header_button bx-im-content-notification__header_read-all-button"
+								@click="onClickReadAll"
+								:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_READ_ALL_BUTTON')"
+							></div>
+						</transition>
+						<div
+							class="bx-im-content-notification__header_button bx-im-content-notification__header_filter-button"
+							:class="[showSearchPanel ? '--active' : '']"
+							@click="showSearchPanel = !showSearchPanel"
+							:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_OPEN_BUTTON')"
+						></div>
 					</div>
 				</div>
-				<div v-if="notificationCollection.length > 0" class="bx-im-content-notification__header-buttons-container">
-					<transition name="notifications-read-all-fade">
-						<div
-							v-if="isReadAllAvailable"
-							class="bx-im-content-notification__header_button bx-im-content-notification__header_read-all-button"
-							@click="onClickReadAll"
-							:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_READ_ALL_BUTTON')"
-						></div>
-					</transition>
-					<div
-						class="bx-im-content-notification__header_button bx-im-content-notification__header_filter-button"
-						:class="[showSearchPanel ? '--active' : '']"
-						@click="showSearchPanel = !showSearchPanel"
-						:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_OPEN_BUTTON')"
-					></div>
-				</div>
+				<NotificationSearchPanel v-if="showSearchPanel" :schema="schema" @search="onSearch" />
 			</div>
-			<NotificationSearchPanel v-if="showSearchPanel" :schema="schema" @search="onSearch" />
-		</div>
-		<div class="bx-im-content-notification__elements-container">
-			<div class="bx-im-content-notification__elements" @scroll.passive="onScroll" ref="listNotifications">
-				<NotificationItem
-					v-for="notification in notifications"
-					:key="notification.id"
-					:data-id="notification.id"
-					:notification="notification"
-					@dblclick="onDoubleClick"
-					@confirmButtonsClick="onConfirmButtonsClick"
-					@deleteClick="onDeleteClick"
-					@moreUsersClick="onMoreUsersClick"
-					@sendQuickAnswer="onSendQuickAnswer"
-					v-notifications-item-observer
+			<div class="bx-im-content-notification__elements-container">
+				<div class="bx-im-content-notification__elements" @scroll.passive="onScroll" ref="listNotifications">
+					<NotificationItem
+						v-for="notification in notifications"
+						:key="notification.id"
+						:data-id="notification.id"
+						:notification="notification"
+						@dblclick="onDoubleClick"
+						@confirmButtonsClick="onConfirmButtonsClick"
+						@deleteClick="onDeleteClick"
+						@moreUsersClick="onMoreUsersClick"
+						@sendQuickAnswer="onSendQuickAnswer"
+						v-notifications-item-observer
+					/>
+					<div v-if="isEmptyState" class="bx-im-content-notification__empty-state-container">
+						<div :class="emptyStateIcon"></div>
+						<span class="bx-im-content-notification__empty-state-title">
+							{{ emptyStateTitle }}
+						</span>
+					</div>
+					<NotificationPlaceholder v-if="isInitialLoading" />
+					<div v-if="isNextPageLoading" class="bx-im-content-notification__loader-container">
+						<Loader />
+					</div>
+				</div>
+				<NotificationScrollButton
+					v-if="!isInitialLoading || !isNextPageLoading"
+					:unreadCounter="unreadCounter"
+					:notificationsOnScreen="notificationsOnScreen"
+					@scrollButtonClick="onScrollButtonClick"
 				/>
-				<div v-if="isEmptyState" class="bx-im-content-notification__empty-state-container">
-					<div :class="emptyStateIcon"></div>
-					<span class="bx-im-content-notification__empty-state-title">
-						{{ emptyStateTitle }}
-					</span>
-				</div>
-				<NotificationPlaceholder v-if="isInitialLoading" />
-				<div v-if="isNextPageLoading" class="bx-im-content-notification__loader-container">
-					<Loader />
-				</div>
+				<UserListPopup
+					v-if="showUserListPopup"
+					:userIds="userListIds"
+					:bindElement="popupBindElement"
+					:showPopup="showUserListPopup"
+					@close="showUserListPopup = false"
+				/>
 			</div>
-			<NotificationScrollButton
-				v-if="!isInitialLoading || !isNextPageLoading"
-				:unreadCounter="unreadCounter"
-				:notificationsOnScreen="notificationsOnScreen"
-				@scrollButtonClick="onScrollButtonClick"
-			/>
-			<ChatInfoPopup
-				v-if="showChatInfoPopup"
-				:dialogId="chatInfoDialogId"
-				:bindElement="popupBindElement"
-				:showPopup="showChatInfoPopup"
-				@close="showChatInfoPopup = false"
-			/>
-			<UserListPopup
-				v-if="showUserListPopup"
-				:userIds="userListIds"
-				:bindElement="popupBindElement"
-				:showPopup="showUserListPopup"
-				@close="showUserListPopup = false"
-			/>
 		</div>
-	</div>
-`
+	`,
 };

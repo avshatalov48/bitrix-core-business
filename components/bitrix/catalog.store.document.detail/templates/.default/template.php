@@ -243,6 +243,7 @@ $wrapperClassNames[] = $arResult['INCLUDE_CRM_ENTITY_EDITOR'] ? 'catalog-entity-
 			isInventoryManagementDisabled: <?= CUtil::PhpToJSObject($arResult['IS_INVENTORY_MANAGEMENT_DISABLED']) ?>,
 			inventoryManagementFeatureCode: <?= CUtil::PhpToJSObject($arResult['INVENTORY_MANAGEMENT_FEATURE_SLIDER_CODE']) ?>,
 			inventoryManagementSource: <?= CUtil::PhpToJSObject($arResult['INVENTORY_MANAGEMENT_SOURCE']) ?>,
+			lockedCancellation: <?= CUtil::PhpToJSObject($arResult['IS_PRODUCT_BATCH_METHOD_SELECTED']) ?>,
 			includeCrmEntityEditor: <?= Cutil::PhpToJSObject($arResult['INCLUDE_CRM_ENTITY_EDITOR']) ?>,
 		}
 	);

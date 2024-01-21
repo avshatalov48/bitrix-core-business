@@ -1,0 +1,3 @@
+<?php
+$MESS["STORE_SALE_REPORT_PRODUCT_GRID_ALL_STORES_TITLE"] = "Bruttogewinn für alle Lager";
+$MESS["STORE_SALE_REPORT_PRODUCT_GRID_STORE_TITLE"] = "Bruttogewinn für Lager #STORE_TITLE#";

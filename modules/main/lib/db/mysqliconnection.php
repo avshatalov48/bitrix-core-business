@@ -11,6 +11,13 @@ use Bitrix\Main\Diag;
  */
 class MysqliConnection extends MysqlCommonConnection
 {
+	public function __construct(array $configuration)
+	{
+		parent::__construct($configuration);
+
+		$this->configureReportLevel();
+	}
+
 	/**********************************************************
 	 * SqlHelper
 	 **********************************************************/
@@ -18,12 +25,6 @@ class MysqliConnection extends MysqlCommonConnection
 	protected function createSqlHelper()
 	{
 		return new MysqliSqlHelper($this);
-	}
-
-	protected function configureReportLevel(): void
-	{
-		// back to default before PHP 8.1
-		mysqli_report(MYSQLI_REPORT_OFF);
 	}
 
 	/***********************************************************
@@ -133,7 +134,6 @@ class MysqliConnection extends MysqlCommonConnection
 	 */
 	protected function queryInternal($sql, array $binds = null, Diag\SqlTrackerQuery $trackerQuery = null)
 	{
-		$this->configureReportLevel();
 		$this->connectInternal();
 
 		$trackerQuery?->startQuery($sql, $binds);
@@ -213,5 +213,11 @@ class MysqliConnection extends MysqlCommonConnection
 	public function selectDatabase($database)
 	{
 		return $this->resource->select_db($database);
+	}
+
+	protected function configureReportLevel(): void
+	{
+		// back to default before PHP 8.1
+		mysqli_report(MYSQLI_REPORT_OFF);
 	}
 }

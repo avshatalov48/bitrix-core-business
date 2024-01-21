@@ -21,11 +21,18 @@ class RedisSessionHandler extends AbstractSessionHandler
 		$this->prefix = $options['keyPrefix'] ?? 'BX'; //defined("BX_CACHE_SID") ? BX_CACHE_SID : "BX"
 		$this->exclusiveLock = $options['exclusiveLock'] ?? false; //defined('BX_SECURITY_SESSION_REDIS_EXLOCK') && BX_SECURITY_SESSION_REDIS_EXLOCK
 
+		$host = (string)($options['host'] ?? '127.0.0.1');
+		$port = (int)($options['port'] ?? 6379);
+		if (str_starts_with($host, 'unix://'))
+		{
+			$port = 0;
+		}
+
 		$connectionPool = Application::getInstance()->getConnectionPool();
 		$connectionPool->setConnectionParameters(self::SESSION_REDIS_CONNECTION, [
 			'className' => RedisConnection::class,
-			'host' => $options['host'] ?? '127.0.0.1',
-			'port' => (int)($options['port'] ?? 11211),
+			'host' => $host,
+			'port' => $port,
 			'servers' => $options['servers'] ?? [],
 			'serializer' => $options['serializer'] ?? null,
 			'failover' => $options['failover'] ?? null,

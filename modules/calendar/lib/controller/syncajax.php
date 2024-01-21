@@ -4,26 +4,21 @@ namespace Bitrix\Calendar\Controller;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\TypeAccessController;
-use Bitrix\Calendar\Core\Base\BaseException;
-use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\User;
-use Bitrix\Calendar\Sync\Util\FlagRegistry;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\ICloud;
-use Bitrix\Calendar\Sync\Managers\ConnectionManager;
 use Bitrix\Calendar\Util;
-use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Error;
+use Bitrix\Main\HttpApplication;
+use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Sync;
-use Bitrix\Calendar\Sync\Managers\NotificationManager;
-use CCalendar;
-use CUserOptions;
-use Exception;
+use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Calendar\Core\Oauth;
 
 Loc::loadMessages(__FILE__);
 
@@ -31,7 +26,14 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 {
 	public function configureActions()
 	{
-		return [];
+		return [
+			'handleMobileAuth' => [
+				'-prefilters' => [
+					ActionFilter\Authentication::class,
+					ActionFilter\Csrf::class,
+				],
+			],
+		];
 	}
 
 	public function getSyncInfoAction()
@@ -89,147 +91,80 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 	}
 
 	/**
+	 * @return array
 	 * @throws LoaderException
 	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
-	 * @throws Exception
+	 * @throws \Psr\Container\NotFoundExceptionInterface
 	 */
 	public function createGoogleConnectionAction(): array
 	{
+		$response = [
+			'status' => 'error',
+			'message' => 'Could not finish sync.',
+		];
+
 		if (!\CCalendar::isGoogleApiEnabled())
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SYNCAJAX_GOOGLE_API_REQUIRED'), 'google_api_required'));
+
+			return $response;
 		}
 		if (!Loader::includeModule('dav'))
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED'), 'dav_required'));
+
+			return $response;
 		}
 
-		$response = [
-			'status' => 'error',
-			'message' => 'Could not finish sync.'
-		];
-
-		$owner = Helper::getRole(\CCalendar::GetUserId(), User::TYPE);
-		$pusher = static function ($result) use ($owner)
-		{
-			Util::addPullEvent(
-				'process_sync_connection',
-				$owner->getId(),
-				(array) $result
-			);
-
-			if ($result['stage'] === 'export_finished')
-			{
-				NotificationManager::addFinishedSyncNotificationAgent(
-					$owner->getId(),
-					$result['vendorName']
-				);
-			}
-		};
-
-		if(empty($this->getErrors()))
-		{
-			try
-			{
-				$manager = new Google\StartSynchronizationManager($owner->getId());
-				FlagRegistry::getInstance()->setFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
-				if ($connection = $manager->addStatusHandler($pusher)->start())
-				{
-					$response = [
-						'status' => 'success',
-						'message' => 'CONNECTION_CREATED',
-						'connectionId' => $connection->getId(),
-					];
-				}
-				FlagRegistry::getInstance()->resetFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
-			}
-			catch (BaseException $e)
-			{
-			}
-		}
-
-		return $response;
+		return (new Google\StartSynchronizationManager(\CCalendar::GetCurUserId()))->synchronize();
 	}
 
+	/**
+	 * @return string[]
+	 * @throws LoaderException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function createOffice365ConnectionAction(): array
 	{
-		$response = [
-			'status' => 'success',
-			'message' => 'CONNECTION_CREATED'
-		];
-		try
+		if (!Loader::includeModule('dav'))
 		{
-			if (!Loader::includeModule('dav'))
-			{
-				throw new LoaderException('Module dav is required');
-			}
-			if (!Loader::includeModule('socialservices'))
-			{
-				throw new LoaderException('Module socialservices is required');
-			}
-
-			$owner = Helper::getRole(\CCalendar::GetUserId(), User::TYPE);
-			$pusher = static function ($result) use ($owner)
-			{
-				Util::addPullEvent(
-					'process_sync_connection',
-					$owner->getId(),
-					(array) $result
-				);
-
-				if ($result['stage'] === 'events_sync_finished')
-				{
-					NotificationManager::addFinishedSyncNotificationAgent(
-						$owner->getId(),
-						$result['vendorName']
-					);
-				}
-			};
-
-			$controller = new Sync\Office365\StartSyncController($owner);
-			FlagRegistry::getInstance()->setFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
-
-			// start process
-			if ($connection = $controller->addStatusHandler($pusher)->start())
-			{
-				$response['connectionId'] = $connection->getId();
-			}
-			else
-			{
-				$response['connectionId'] = null;
-			}
-			FlagRegistry::getInstance()->resetFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
-		}
-		catch (LoaderException $e)
-		{
-			$this->writeToLogException($e);
-			$response = [
+			return [
 				'status' => 'error',
-				'message' => $e->getMessage(),
+				'message' => 'Module dav is required',
 			];
 		}
-		catch (\Throwable $e)
+		if (!Loader::includeModule('socialservices'))
 		{
-			$this->writeToLogException($e);
-			$response = [
+			return [
 				'status' => 'error',
-				'message' => 'Could not finish sync: '.$e->getMessage()
+				'message' => 'Module socialservices is required',
 			];
 		}
 
-		return $response;
+		$owner = Helper::getRole(\CCalendar::GetUserId(), User::TYPE);
+
+		return (new Sync\Office365\StartSyncController($owner))->synchronize();
 	}
 
-	public function createIcloudConnectionAction($appleId, $appPassword)
+	/**
+	 * @param string|null $appleId
+	 * @param string|null $appPassword
+	 * @return array|string[]
+	 * @throws LoaderException
+	 * @throws \Bitrix\Main\Access\Exception\UnknownActionException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function createIcloudConnectionAction(?string $appleId, ?string $appPassword)
 	{
-		$params['ENTITY_ID'] = \CCalendar::getCurUserId();
-		$params['ENTITY_TYPE'] = 'user';
-		$params['SERVER_HOST'] = ICloud\Helper::SERVER_PATH;
-		$params['SERVER_USERNAME'] = trim($appleId);
-		$params['SERVER_PASSWORD'] = trim($appPassword);
-		$params['NAME'] = str_replace('#NAME#', $params['SERVER_USERNAME'], ICloud\Helper::CONNECTION_NAME);
+		$appleId = trim($appleId);
+		$appPassword = trim($appPassword);
 
 		if (!Loader::includeModule('dav'))
 		{
@@ -240,8 +175,8 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'message' => Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED'),
 			];
 		}
-		$typeModel = TypeModel::createFromXmlId($params['ENTITY_TYPE']);
-		$accessController = new TypeAccessController(CCalendar::GetUserId());
+		$typeModel = TypeModel::createFromXmlId(User::TYPE);
+		$accessController = new TypeAccessController(\CCalendar::GetUserId());
 		if (!$accessController->check(ActionDictionary::ACTION_TYPE_EDIT, $typeModel, []))
 		{
 			$this->addError(new Error('Access Denied'));
@@ -251,7 +186,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'message' => 'Access Denied',
 			];
 		}
-		if (!preg_match("/[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}/", $params['SERVER_PASSWORD']))
+		if (!preg_match("/[a-z]{4}-[a-z]{4}-[a-z]{4}-[a-z]{4}/", $appPassword))
 		{
 			$this->addError(new Error('Incorrect app password'));
 
@@ -261,10 +196,8 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			];
 		}
 
-		$vendorSyncManager = new Icloud\VendorSyncManager();
-
-		$connection = $vendorSyncManager->initConnection($params);
-		if (!$connection)
+		$connectionId = (new Icloud\VendorSyncManager())->initConnection($appleId, $appPassword);
+		if (!$connectionId)
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SYNCALAX_ICLOUD_WRONG_AUTH')));
 
@@ -276,7 +209,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 
 		return [
 			'status' => 'success',
-			'connectionId' => $connection
+			'connectionId' => $connectionId
 		];
 	}
 
@@ -291,9 +224,8 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'message' => Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED'),
 			];
 		}
-		FlagRegistry::getInstance()->setFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
+
 		$result = (new Icloud\VendorSyncManager())->syncIcloudConnection($connectionId);
-		FlagRegistry::getInstance()->resetFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
 
 		if ($result['status'] === 'error' && $result['message'])
 		{
@@ -351,21 +283,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				return false;
 			}
 
-			/** @var Factory $mapperFactory */
-			$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
-			$connection = $mapperFactory->getConnection()->getMap([
-				'=ID' => $connectionId,
-				'=ENTITY_TYPE' => 'user',
-				'=ENTITY_ID' => \CCalendar::getCurUserId(),
-				'=IS_DELETED' => 'N'
-			])->fetch();
-
-			if ($connection)
-			{
-				return (new ConnectionManager())->deactivateConnection($connection)->isSuccess();
-			}
-
-			return false;
+			return \CCalendarSync::deactivateConnection($connectionId);
 		}
 		catch (\Exception $e)
 		{
@@ -399,8 +317,8 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 	public function disableIphoneOrMacConnectionAction()
 	{
 		$userId = \CCalendar::getCurUserId();
-		CUserOptions::DeleteOption('calendar', 'last_sync_iphone', false, $userId);
-		CUserOptions::DeleteOption('calendar', 'last_sync_mac', false, $userId);
+		\CUserOptions::DeleteOption('calendar', 'last_sync_iphone', false, $userId);
+		\CUserOptions::DeleteOption('calendar', 'last_sync_mac', false, $userId);
 	}
 
 	public function disableShowGoogleApplicationRefusedAction()
@@ -430,5 +348,55 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		return ['result' => $result];
+	}
+
+	public function getOauthConnectionLinkAction(string $serviceName): array
+	{
+		$result = [];
+
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			$this->addError(new Error('Access denied', 403));
+
+			return $result;
+		}
+
+		$oauthEntity = Oauth\Factory::getInstance()->getByName($serviceName);
+		if ($oauthEntity && $url = $oauthEntity->getUrl())
+		{
+			$result['connectionLink'] = $url;
+		}
+		else
+		{
+			$this->addError(new Error('Link not found', 404));
+		}
+
+		return $result;
+	}
+
+	public function handleMobileAuthAction(string $serviceName, string $hitHash): HttpResponse
+	{
+		$httpResponse = new HttpResponse();
+		$httpResponse->addHeader('Location', 'bitrix24://');
+
+		if (empty($serviceName) || empty($hitHash))
+		{
+			return $httpResponse;
+		}
+
+		if (!$GLOBALS['USER']->LoginHitByHash($hitHash, false, true))
+		{
+			return $httpResponse;
+		}
+
+		HttpApplication::getInstance()->getSession()->set('MOBILE_OAUTH', true);
+
+		$oauthEntity = Oauth\Factory::getInstance()->getByName($serviceName);
+		if ($oauthEntity && $url = $oauthEntity->getUrl())
+		{
+			return $this->redirectTo($url)->setSkipSecurity(true);
+		}
+
+		return $httpResponse;
 	}
 }

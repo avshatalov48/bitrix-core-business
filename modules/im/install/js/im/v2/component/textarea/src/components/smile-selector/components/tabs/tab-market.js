@@ -79,7 +79,11 @@ export const TabMarket = {
 			<div v-if="isLoading" class="bx-im-smile-popup-market-content__loader-container">
 				<Spinner :size="SpinnerSize.S"/>
 			</div>
-			<div v-show="!isLoading" ref="im-messenger-smile-selector-placement"></div>
+			<div 
+				v-show="!isLoading"
+				class="bx-im-smile-popup-market-content__placement-container"
+				ref="im-messenger-smile-selector-placement"
+			></div>
 		</div>
 	`
 };

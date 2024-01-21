@@ -29,7 +29,7 @@ class TemporaryFileService
 	{
 		(new self())->clean();
 
-		return '\Bitrix\Im\V2\Link\File\TemporaryFileService::cleanAgent();';
+		return __METHOD__. '();';
 	}
 
 	public function clean(): void

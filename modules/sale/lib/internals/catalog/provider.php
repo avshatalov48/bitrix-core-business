@@ -1143,6 +1143,38 @@ final class Provider
 		return $result;
 	}
 
+	public static function changeProductBatchBalance(Sale\Shipment $shipment): Sale\Result
+	{
+		$result = new Sale\Result();
+
+		$order = $shipment->getOrder();
+
+		$context = array(
+			'USER_ID' => $order->getUserId(),
+			'SITE_ID' => $order->getSiteId(),
+		);
+
+		$creator = Sale\Internals\ProviderCreator::create($context);
+
+		foreach ($shipment->getShipmentItemCollection() as $shipmentItem)
+		{
+			$creator->addShipmentItem($shipmentItem);
+		}
+
+		$r =
+			$shipment->isShipped()
+				? $creator->writeOffProductBatches()
+				: $creator->returnProductBatches()
+		;
+
+		if (!$r->isSuccess())
+		{
+			$result->addErrors($r->getErrors());
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @internal
 	 * @param Sale\ShipmentItem $shipmentItem

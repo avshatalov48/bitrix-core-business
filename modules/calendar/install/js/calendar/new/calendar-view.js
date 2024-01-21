@@ -563,6 +563,7 @@
 						}
 
 						this.displayEntryPiece({
+							dayInCell: params.day.date,
 							entry: entryItem.entry,
 							part: entryItem.part,
 							holder: taskWrap,
@@ -573,7 +574,7 @@
 					{
 						if (!eventsWrap)
 						{
-							const time = entryItem.entry.from.getTime();
+							const time = params.day.date.getTime();
 							eventsTitle = BX.create('DIV', {
 								props: { className: 'calendar-event-title calendar-event-title-button' },
 								attrs: { 'data-bx-calendar-date': time },
@@ -584,6 +585,7 @@
 						}
 
 						this.displayEntryPiece({
+							dayInCell: params.day.date,
 							entry: entryItem.entry,
 							part: entryItem.part,
 							holder: eventsWrap,

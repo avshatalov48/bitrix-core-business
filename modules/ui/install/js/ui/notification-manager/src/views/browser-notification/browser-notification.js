@@ -1,11 +1,11 @@
 import {Type, Tag, Loc, Dom, Text} from 'main.core';
-import {UI} from 'ui.notification';
+import 'ui.notification';
 import BrowserNotificationAction from './browser-notification-action';
 
 import 'ui.design-tokens';
 import './browser-notification.css';
 
-export default class BrowserNotification extends UI.Notification.Balloon
+export default class BrowserNotification extends BX.UI.Notification.Balloon
 {
 	static KEY_CODE = {
 		ENTER: 13,

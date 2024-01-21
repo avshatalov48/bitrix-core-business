@@ -1,5 +1,5 @@
 import { Core } from 'im.v2.application.core';
-import { EventType, DialogType } from 'im.v2.const';
+import { EventType, ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { EventEmitter } from 'main.core.events';
 
@@ -7,7 +7,7 @@ import { ChatTitle } from 'im.v2.component.elements';
 
 import './author-title.css';
 
-import type { ImModelMessage, ImModelUser, ImModelDialog } from 'im.v2.model';
+import type { ImModelMessage, ImModelUser, ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const AuthorTitle = {
@@ -28,9 +28,13 @@ export const AuthorTitle = {
 		{
 			return this.item;
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/getByChatId'](this.message.chatId);
+			return this.$store.getters['chats/getByChatId'](this.message.chatId);
+		},
+		user(): ImModelUser
+		{
+			return this.$store.getters['users/get'](this.message.authorId, true);
 		},
 		isSystemMessage(): boolean
 		{
@@ -42,15 +46,23 @@ export const AuthorTitle = {
 		},
 		isUserChat(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user && !this.isBotWithFakeAuthorNames;
+		},
+		isBotWithFakeAuthorNames(): boolean
+		{
+			return this.isSupportBot || this.isNetworkBot;
+		},
+		isNetworkBot(): boolean
+		{
+			return this.$store.getters['users/bots/isNetwork'](this.dialog.dialogId);
+		},
+		isSupportBot(): boolean
+		{
+			return this.$store.getters['users/bots/isSupport'](this.dialog.dialogId);
 		},
 		showTitle(): boolean
 		{
 			return !this.isSystemMessage && !this.isSelfMessage && !this.isUserChat;
-		},
-		user(): ImModelUser
-		{
-			return this.$store.getters['users/get'](this.message.authorId, true);
 		},
 		authorDialogId(): string
 		{
@@ -67,7 +79,7 @@ export const AuthorTitle = {
 		onAuthorNameClick()
 		{
 			const authorId = Number.parseInt(this.authorDialogId, 10);
-			if (authorId === Core.getUserId())
+			if (!authorId || authorId === Core.getUserId())
 			{
 				return;
 			}

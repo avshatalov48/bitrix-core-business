@@ -157,7 +157,7 @@ class IcsBuilder {
 			{
 				if ($this->fullDayMode)
 				{
-					$props[mb_strtoupper($k).'DTSTART;VALUE=DATE'] = self::formatDateValue($v);
+					$props[mb_strtoupper($k).';VALUE=DATE'] = self::formatDateValue($v);
 				}
 				else
 				{

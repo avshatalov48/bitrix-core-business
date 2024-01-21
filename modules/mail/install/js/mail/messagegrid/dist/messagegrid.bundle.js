@@ -9,6 +9,7 @@ this.BX = this.BX || {};
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _loadingMessagesStubInGridWrapper = /*#__PURE__*/new WeakMap();
 	var _gridWrapper = /*#__PURE__*/new WeakMap();
+	var _gridStub = /*#__PURE__*/new WeakMap();
 	var _id = /*#__PURE__*/new WeakMap();
 	var _allRowsSelectedStatus = /*#__PURE__*/new WeakMap();
 	var _panel = /*#__PURE__*/new WeakMap();
@@ -26,6 +27,10 @@ this.BX = this.BX || {};
 	      value: void 0
 	    });
 	    _classPrivateFieldInitSpec(this, _gridWrapper, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec(this, _gridStub, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -85,6 +90,11 @@ this.BX = this.BX || {};
 	    return MessageGrid.instance;
 	  }
 	  babelHelpers.createClass(MessageGrid, [{
+	    key: "setGridStub",
+	    value: function setGridStub(gridStub) {
+	      babelHelpers.classPrivateFieldSet(this, _gridStub, gridStub);
+	    }
+	  }, {
 	    key: "setGridWrapper",
 	    value: function setGridWrapper(gridWrapper) {
 	      babelHelpers.classPrivateFieldSet(this, _gridWrapper, gridWrapper);
@@ -95,14 +105,21 @@ this.BX = this.BX || {};
 	      return babelHelpers.classPrivateFieldGet(this, _gridWrapper);
 	    }
 	  }, {
+	    key: "getGridStub",
+	    value: function getGridStub() {
+	      return babelHelpers.classPrivateFieldGet(this, _gridStub);
+	    }
+	  }, {
 	    key: "enableLoadingMessagesStub",
 	    value: function enableLoadingMessagesStub() {
 	      var _this2 = this;
 	      if (this.getGridWrapper() !== undefined) {
-	        babelHelpers.classPrivateFieldSet(this, _loadingMessagesStubInGridWrapper, this.getGridWrapper().appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader mail-msg-list-grid-loader-animate\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-inner\">\n\t\t\t\t\t\t\t<img src=\"/bitrix/images/mail/mail-loader.svg\" alt=\"Load...\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"])))));
+	        main_core.Dom.addClass(this.getGridWrapper(), 'mail-msg-list-grid-hidden');
+	        babelHelpers.classPrivateFieldSet(this, _loadingMessagesStubInGridWrapper, this.getGridStub().appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader mail-msg-list-grid-loader-animate\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-inner\">\n\t\t\t\t\t\t\t<img src=\"/bitrix/images/mail/mail-loader.svg\" alt=\"Load...\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"])))));
 	        setTimeout(function () {
 	          if (babelHelpers.classPrivateFieldGet(_this2, _loadingMessagesStubInGridWrapper) !== undefined) {
 	            babelHelpers.classPrivateFieldGet(_this2, _loadingMessagesStubInGridWrapper).remove();
+	            main_core.Dom.removeClass(_this2.getGridWrapper(), 'mail-msg-list-grid-hidden');
 	          }
 	        }, 15000);
 	      }

@@ -40,29 +40,24 @@ export class QuickAccessApplication
 		;
 	}
 
-	initCore(): Promise
+	async initCore(): Promise
 	{
-		return new Promise((resolve) => {
-			// eslint-disable-next-line promise/catch-or-return
-			Core.ready().then((controller) => {
-				this.controller = controller;
-				Core.setApplicationData(this.params);
-				resolve();
-			});
-		});
+		Core.setApplicationData(this.params);
+		this.controller = await Core.ready();
+
+		return true;
 	}
 
-	initComponent(): Promise
+	async initComponent(): Promise
 	{
-		return this.controller.createVue(this, {
+		this.vueInstance = await this.controller.createVue(this, {
 			name: this.#applicationName,
 			el: this.rootNode,
 			components: { QuickAccess },
 			template: '<QuickAccess :compactMode="true"/>',
-		})
-			.then((vue) => {
-				this.vueInstance = vue;
-			});
+		});
+
+		return true;
 	}
 
 	initComplete(): Promise
@@ -73,7 +68,7 @@ export class QuickAccessApplication
 		return Promise.resolve();
 	}
 
-	checkGetParams()
+	checkGetParams(): void
 	{
 		const urlParams = new URLSearchParams(window.location.search);
 		if (urlParams.has(GetParameter.openNotifications))
@@ -94,6 +89,11 @@ export class QuickAccessApplication
 		{
 			const dialogId = urlParams.get(GetParameter.openChat);
 			Messenger.openChat(dialogId);
+		}
+		else if (urlParams.has(GetParameter.openSettings))
+		{
+			const settingsSection = urlParams.get(GetParameter.openSettings);
+			Messenger.openSettings({ onlyPanel: settingsSection?.toLowerCase() });
 		}
 	}
 

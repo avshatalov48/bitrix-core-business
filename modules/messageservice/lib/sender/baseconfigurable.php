@@ -278,7 +278,6 @@ abstract class BaseConfigurable extends Base
 	 * ]
 	 *
 	 * @param array|null $context Context for context-dependant templates
-	 *
 	 * @return array
 	 */
 	public function getTemplatesList(array $context = null): array

@@ -1,7 +1,7 @@
 ;(function ()
 {
 
-	BX.namespace('BX.Sender');
+	BX.namespace('BX.Main');
 	if (BX.Main.Blacklist)
 	{
 		return;

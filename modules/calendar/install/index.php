@@ -155,6 +155,7 @@ class calendar extends CModule
 		}
 
 		RegisterModule("calendar");
+
 		$this->SetOptions();
 		$this->InstallEventHandlers();
 		$this->InstallAgents();
@@ -297,6 +298,7 @@ class calendar extends CModule
 
 		$eventManager->registerEventHandlerCompatible("im", "OnGetNotifySchema", "calendar", "CCalendarNotifySchema", "OnGetNotifySchema");
 		$eventManager->registerEventHandlerCompatible("im", "OnBeforeConfirmNotify", "calendar", "CCalendar", "HandleImCallback");
+		$eventManager->registerEventHandler('im', 'onCallCreate', 'calendar', '\Bitrix\Calendar\Integration\Im\Analytics', 'onCallCreate');
 
 		$eventManager->registerEventHandlerCompatible('intranet', 'OnPlannerInit', 'calendar', 'CCalendarEventHandlers', 'OnPlannerInit');
 		$eventManager->registerEventHandlerCompatible('intranet', 'OnPlannerAction', 'calendar', 'CCalendarEventHandlers', 'OnPlannerAction');
@@ -340,6 +342,8 @@ class calendar extends CModule
 		$eventManager->registerEventHandler('iblock', 'OnBeforeIBlockSectionUpdate', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'onBeforeIBlockSectionUpdate');
 		$eventManager->registerEventHandler('iblock', 'onAfterIBlockSectionUpdate', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'onAfterIBlockSectionUpdate');
 		$eventManager->registerEventHandler('iblock', 'OnAfterIBlockSectionAdd', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'OnAfterIBlockSectionAdd');
+
+		$eventManager->registerEventHandler('ai', 'onTuningLoad', 'calendar', '\Bitrix\Calendar\Integration\AI\Settings', 'onTuningLoad');
 	}
 
 	function InstallAgents()
@@ -422,6 +426,7 @@ class calendar extends CModule
 
 		$eventManager->unRegisterEventHandler("im", "OnGetNotifySchema", "calendar", "CCalendarNotifySchema", "OnGetNotifySchema");
 		$eventManager->unRegisterEventHandler("im", "OnBeforeConfirmNotify", "calendar", "CCalendar", "HandleImCallback");
+		$eventManager->unRegisterEventHandler('im', 'onCallCreate', 'calendar', '\Bitrix\Calendar\Integration\Im\Analytics', 'onCallCreate');
 
 		$eventManager->unRegisterEventHandler('intranet', 'OnPlannerInit', 'calendar', 'CCalendarEventHandlers', 'OnPlannerInit');
 		$eventManager->unRegisterEventHandler('intranet', 'OnPlannerAction', 'calendar', 'CCalendarEventHandlers', 'OnPlannerAction');
@@ -460,6 +465,8 @@ class calendar extends CModule
 		$eventManager->unregisterEventHandler('iblock', 'OnBeforeIBlockSectionUpdate', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'onBeforeIBlockSectionUpdate');
 		$eventManager->unregisterEventHandler('iblock', 'onAfterIBlockSectionUpdate', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'onAfterIBlockSectionUpdate');
 		$eventManager->unregisterEventHandler('iblock', 'OnAfterIBlockSectionAdd', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'OnAfterIBlockSectionAdd');
+
+		$eventManager->unregisterEventHandler('ai', 'onTuningLoad', 'calendar', '\Bitrix\Calendar\Integration\AI\Settings', 'onTuningLoad');
 	}
 
 	function UnInstallAgents()

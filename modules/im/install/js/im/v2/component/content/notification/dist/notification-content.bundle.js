@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core_events,main_polyfill_intersectionobserver,ui_dialogs_messagebox,im_v2_provider_service,im_v2_lib_utils,im_v2_lib_parser,im_public,im_v2_component_elements,im_v2_lib_dateFormatter,ui_forms,ui_vue3_vuex,im_v2_lib_user,main_core,im_v2_application_core,im_v2_const,im_v2_lib_logger) {
+(function (exports,main_polyfill_intersectionobserver,ui_dialogs_messagebox,im_v2_provider_service,im_v2_lib_utils,im_v2_lib_parser,im_public,im_v2_component_elements,im_v2_lib_dateFormatter,ui_forms,ui_vue3_vuex,im_v2_lib_user,main_core,im_v2_application_core,im_v2_const,im_v2_lib_logger) {
 	'use strict';
 
 	// @vue/component
@@ -235,14 +235,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    hasQuickAnswer() {
 	      var _this$notification$pa;
-	      return !!((_this$notification$pa = this.notification.params) != null && _this$notification$pa.CAN_ANSWER) && this.notification.params.CAN_ANSWER === 'Y';
+	      return Boolean(((_this$notification$pa = this.notification.params) == null ? void 0 : _this$notification$pa.canAnswer) === 'Y');
 	    },
 	    content() {
 	      return im_v2_lib_parser.Parser.decodeNotification(this.notification);
 	    },
 	    attachList() {
 	      var _this$notification$pa2;
-	      return (_this$notification$pa2 = this.notification.params) == null ? void 0 : _this$notification$pa2.ATTACH;
+	      return (_this$notification$pa2 = this.notification.params) == null ? void 0 : _this$notification$pa2.attach;
 	    }
 	  },
 	  methods: {
@@ -337,13 +337,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.isSystem) {
 	        return false;
 	      }
-	      return !!((_this$notificationIte = this.notificationItem.params) != null && _this$notificationIte.USERS) && this.notificationItem.params.USERS.length > 0;
+	      return !!((_this$notificationIte = this.notificationItem.params) != null && _this$notificationIte.users) && this.notificationItem.params.users.length > 0;
 	    },
 	    moreUsers() {
 	      const phrase = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_MORE_USERS').split('#COUNT#');
 	      return {
 	        start: phrase[0],
-	        end: this.notificationItem.params.USERS.length + phrase[1]
+	        end: this.notificationItem.params.users.length + phrase[1]
 	      };
 	    },
 	    canDelete() {
@@ -387,7 +387,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					<span class="bx-im-content-notification-item-header__more-users-start">{{ moreUsers.start }}</span>
 					<span
 						class="bx-im-content-notification-item-header__more-users-dropdown"
-						@click="onMoreUsersClick({users: notificationItem.params.USERS, event: $event})"
+						@click="onMoreUsersClick({users: notificationItem.params.users, event: $event})"
 					>
 						{{ moreUsers.end }}
 					</span>
@@ -986,7 +986,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    NotificationSearchPanel,
 	    NotificationPlaceholder,
 	    NotificationScrollButton,
-	    ChatInfoPopup: im_v2_component_elements.ChatInfoPopup,
 	    UserListPopup: im_v2_component_elements.UserListPopup,
 	    Loader: im_v2_component_elements.Loader
 	  },
@@ -1000,7 +999,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	    }
 	  },
-	  data: function () {
+	  data() {
 	    return {
 	      isInitialLoading: false,
 	      isNextPageLoading: false,
@@ -1009,8 +1008,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      showSearchPanel: false,
 	      showSearchResult: false,
 	      popupBindElement: null,
-	      showChatInfoPopup: false,
-	      chatInfoDialogId: null,
 	      showUserListPopup: false,
 	      userListIds: null,
 	      schema: {}
@@ -1045,6 +1042,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    emptyStateTitle() {
 	      return this.showSearchResult ? this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_RESULTS_NOT_FOUND') : this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_NO_ITEMS');
 	    },
+	    enableAutoRead() {
+	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.notification.enableAutoRead);
+	    },
 	    ...ui_vue3_vuex.mapState({
 	      unreadCounter: state => state.notifications.unreadCounter
 	    })
@@ -1073,13 +1073,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.schema = response;
 	      this.isInitialLoading = false;
 	    });
-	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.mention.openChatInfo, this.onOpenChatInfo);
 	  },
 	  beforeUnmount() {
 	    this.notificationService.destroy();
 	    this.notificationSearchService.destroy();
 	    this.notificationReadService.destroy();
-	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.mention.openChatInfo, this.onOpenChatInfo);
 	    main_core.Event.unbind(window, 'focus', this.onWindowFocus);
 	    main_core.Event.unbind(window, 'blur', this.onWindowBlur);
 	  },
@@ -1100,13 +1098,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	          }
 	        });
 	      }, {
-	        root: this.$refs['listNotifications'],
+	        root: this.$refs.listNotifications,
 	        threshold: Array.from({
 	          length: 101
 	        }).fill(0).map((zero, index) => index * 0.01)
 	      });
 	    },
 	    read(notificationIds) {
+	      if (!this.enableAutoRead) {
+	        im_v2_lib_logger.Logger.warn('Notifications: Auto read is disabled!');
+	        return;
+	      }
 	      if (!this.windowFocused) {
 	        return;
 	      }
@@ -1117,7 +1119,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.notificationReadService.read();
 	    },
 	    oneScreenRemaining(event) {
-	      return event.target.scrollTop + event.target.clientHeight >= event.target.scrollHeight - event.target.clientHeight;
+	      const target = event.target;
+	      return target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
 	    },
 	    searchOnServer(event) {
 	      this.notificationSearchService.loadFirstPage(event).then(result => {
@@ -1130,15 +1133,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        notifications: items
 	      });
 	    },
-	    //events
 	    onScrollButtonClick(offset) {
-	      this.$refs['listNotifications'].scroll({
+	      this.$refs.listNotifications.scroll({
 	        top: offset,
 	        behavior: 'smooth'
 	      });
 	    },
 	    onScroll(event) {
-	      this.showChatInfoPopup = false;
 	      this.showUserListPopup = false;
 	      if (this.showSearchResult) {
 	        this.onScrollSearchResult(event);
@@ -1198,15 +1199,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.notificationsOnScreen.delete(notificationId);
 	      this.notificationService.delete(notificationId);
 	    },
-	    onOpenChatInfo(event) {
-	      const {
-	        dialogId,
-	        event: $event
-	      } = event.getData();
-	      this.popupBindElement = $event.target;
-	      this.chatInfoDialogId = dialogId;
-	      this.showChatInfoPopup = true;
-	    },
 	    onMoreUsersClick(event) {
 	      im_v2_lib_logger.Logger.warn('onMoreUsersClick', event);
 	      this.popupBindElement = event.event.target;
@@ -1240,85 +1232,78 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-	<div class="bx-im-content-notification__container">
-		<div class="bx-im-content-notification__header-container">
-			<div class="bx-im-content-notification__header">
-				<div class="bx-im-content-notification__header-panel-container">
-					<div class="bx-im-content-notification__panel-title_icon"></div>
-					<div class="bx-im-content-notification__panel_text">
-						{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_HEADER') }}
+		<div class="bx-im-content-notification__container">
+			<div class="bx-im-content-notification__header-container">
+				<div class="bx-im-content-notification__header">
+					<div class="bx-im-content-notification__header-panel-container">
+						<div class="bx-im-content-notification__panel-title_icon"></div>
+						<div class="bx-im-content-notification__panel_text">
+							{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_HEADER') }}
+						</div>
+					</div>
+					<div v-if="notificationCollection.length > 0" class="bx-im-content-notification__header-buttons-container">
+						<transition name="notifications-read-all-fade">
+							<div
+								v-if="isReadAllAvailable"
+								class="bx-im-content-notification__header_button bx-im-content-notification__header_read-all-button"
+								@click="onClickReadAll"
+								:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_READ_ALL_BUTTON')"
+							></div>
+						</transition>
+						<div
+							class="bx-im-content-notification__header_button bx-im-content-notification__header_filter-button"
+							:class="[showSearchPanel ? '--active' : '']"
+							@click="showSearchPanel = !showSearchPanel"
+							:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_OPEN_BUTTON')"
+						></div>
 					</div>
 				</div>
-				<div v-if="notificationCollection.length > 0" class="bx-im-content-notification__header-buttons-container">
-					<transition name="notifications-read-all-fade">
-						<div
-							v-if="isReadAllAvailable"
-							class="bx-im-content-notification__header_button bx-im-content-notification__header_read-all-button"
-							@click="onClickReadAll"
-							:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_READ_ALL_BUTTON')"
-						></div>
-					</transition>
-					<div
-						class="bx-im-content-notification__header_button bx-im-content-notification__header_filter-button"
-						:class="[showSearchPanel ? '--active' : '']"
-						@click="showSearchPanel = !showSearchPanel"
-						:title="$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_FILTER_OPEN_BUTTON')"
-					></div>
-				</div>
+				<NotificationSearchPanel v-if="showSearchPanel" :schema="schema" @search="onSearch" />
 			</div>
-			<NotificationSearchPanel v-if="showSearchPanel" :schema="schema" @search="onSearch" />
-		</div>
-		<div class="bx-im-content-notification__elements-container">
-			<div class="bx-im-content-notification__elements" @scroll.passive="onScroll" ref="listNotifications">
-				<NotificationItem
-					v-for="notification in notifications"
-					:key="notification.id"
-					:data-id="notification.id"
-					:notification="notification"
-					@dblclick="onDoubleClick"
-					@confirmButtonsClick="onConfirmButtonsClick"
-					@deleteClick="onDeleteClick"
-					@moreUsersClick="onMoreUsersClick"
-					@sendQuickAnswer="onSendQuickAnswer"
-					v-notifications-item-observer
+			<div class="bx-im-content-notification__elements-container">
+				<div class="bx-im-content-notification__elements" @scroll.passive="onScroll" ref="listNotifications">
+					<NotificationItem
+						v-for="notification in notifications"
+						:key="notification.id"
+						:data-id="notification.id"
+						:notification="notification"
+						@dblclick="onDoubleClick"
+						@confirmButtonsClick="onConfirmButtonsClick"
+						@deleteClick="onDeleteClick"
+						@moreUsersClick="onMoreUsersClick"
+						@sendQuickAnswer="onSendQuickAnswer"
+						v-notifications-item-observer
+					/>
+					<div v-if="isEmptyState" class="bx-im-content-notification__empty-state-container">
+						<div :class="emptyStateIcon"></div>
+						<span class="bx-im-content-notification__empty-state-title">
+							{{ emptyStateTitle }}
+						</span>
+					</div>
+					<NotificationPlaceholder v-if="isInitialLoading" />
+					<div v-if="isNextPageLoading" class="bx-im-content-notification__loader-container">
+						<Loader />
+					</div>
+				</div>
+				<NotificationScrollButton
+					v-if="!isInitialLoading || !isNextPageLoading"
+					:unreadCounter="unreadCounter"
+					:notificationsOnScreen="notificationsOnScreen"
+					@scrollButtonClick="onScrollButtonClick"
 				/>
-				<div v-if="isEmptyState" class="bx-im-content-notification__empty-state-container">
-					<div :class="emptyStateIcon"></div>
-					<span class="bx-im-content-notification__empty-state-title">
-						{{ emptyStateTitle }}
-					</span>
-				</div>
-				<NotificationPlaceholder v-if="isInitialLoading" />
-				<div v-if="isNextPageLoading" class="bx-im-content-notification__loader-container">
-					<Loader />
-				</div>
+				<UserListPopup
+					v-if="showUserListPopup"
+					:userIds="userListIds"
+					:bindElement="popupBindElement"
+					:showPopup="showUserListPopup"
+					@close="showUserListPopup = false"
+				/>
 			</div>
-			<NotificationScrollButton
-				v-if="!isInitialLoading || !isNextPageLoading"
-				:unreadCounter="unreadCounter"
-				:notificationsOnScreen="notificationsOnScreen"
-				@scrollButtonClick="onScrollButtonClick"
-			/>
-			<ChatInfoPopup
-				v-if="showChatInfoPopup"
-				:dialogId="chatInfoDialogId"
-				:bindElement="popupBindElement"
-				:showPopup="showChatInfoPopup"
-				@close="showChatInfoPopup = false"
-			/>
-			<UserListPopup
-				v-if="showUserListPopup"
-				:userIds="userListIds"
-				:bindElement="popupBindElement"
-				:showPopup="showUserListPopup"
-				@close="showUserListPopup = false"
-			/>
 		</div>
-	</div>
-`
+	`
 	};
 
 	exports.NotificationContent = NotificationContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Event,BX,BX.UI.Dialogs,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Im.V2.Lib,BX,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.UI.Dialogs,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=notification-content.bundle.js.map

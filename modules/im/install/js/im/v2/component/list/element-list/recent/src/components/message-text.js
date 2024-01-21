@@ -1,11 +1,11 @@
 import { DateTimeFormat } from 'main.date';
 
 import { Core } from 'im.v2.application.core';
-import { DialogType, Settings } from 'im.v2.const';
+import { ChatType, Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 
-import type { ImModelUser, ImModelDialog, ImModelRecentItem } from 'im.v2.model';
+import type { ImModelUser, ImModelChat, ImModelRecentItem } from 'im.v2.model';
 
 // @vue/component
 export const MessageText = {
@@ -26,9 +26,9 @@ export const MessageText = {
 		{
 			return this.item;
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.recentItem.dialogId, true);
+			return this.$store.getters['chats/get'](this.recentItem.dialogId, true);
 		},
 		user(): ImModelUser
 		{
@@ -76,7 +76,7 @@ export const MessageText = {
 		},
 		lastMessageAuthorAvatar(): string
 		{
-			const authorDialog = this.$store.getters['dialogues/get'](this.recentItem.message.senderId);
+			const authorDialog = this.$store.getters['chats/get'](this.recentItem.message.senderId);
 
 			if (!authorDialog)
 			{
@@ -126,7 +126,7 @@ export const MessageText = {
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
 		},
 		isChat(): boolean
 		{

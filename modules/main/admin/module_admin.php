@@ -16,6 +16,7 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Application;
 
 require_once(__DIR__ . "/../include/prolog_admin_before.php");
 const HELP_FILE = "settings/module_admin.php";
@@ -160,9 +161,50 @@ if ($isAdmin && !$fb && check_bitrix_sessid())
 				{
 					$fc = str_replace($match[0], $match[1].".".$match[2].".".$match[3], $fc);
 					file_put_contents($fn, $fc);
-					bx_accelerator_reset();
+					Application::resetAccelerator($fn);
 				}
 				echo $match[1].".".$match[2].".".$match[3];
+			}
+		}
+
+		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+	}
+	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] === "db_version_down")
+	{
+		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+
+		if (isset($_REQUEST["id"]) && $_REQUEST["id"] === "main")
+		{
+			$updatesDir = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/dev/updates";
+		}
+		else
+		{
+			$updatesDir = $_SERVER["DOCUMENT_ROOT"].getLocalPath("modules/".preg_replace("/[^a-z0-9.]/", "", $_REQUEST["id"])."/dev/updates");
+		}
+
+		$dbVersion = \Bitrix\Main\Config\Option::get('main', 'updates_' . $_REQUEST["id"] . '_version');
+		if ($dbVersion)
+		{
+			$updaters = [];
+			foreach (array_merge(
+				glob($updatesDir . '/[0-9]*/[0-9]*.[0-9]*.[0-9]*/updater/index.php'),
+				glob($updatesDir . '/[0-9]*/[0-9]*.[0-9]*.[0-9]*/updater.php')
+			) as $updater)
+			{
+				if (preg_match('#/(\d+)/(\1\.\d+\.\d+)/updater(\.php|/index\.php)$#', $updater, $match))
+				{
+					if (version_compare($match[2], $dbVersion) < 0)
+					{
+						$updaters[$match[2]] = $updater;
+					}
+				}
+			}
+			if ($updaters)
+			{
+				uksort($updaters, 'version_compare');
+				$newVersion = array_key_last($updaters);
+				\Bitrix\Main\Config\Option::set('main', 'updates_' . $_REQUEST["id"] . '_version', $newVersion);
+				echo $newVersion;
 			}
 		}
 
@@ -181,8 +223,9 @@ function DoAction(oEvent, action, module_id)
 {
 	if (oEvent.ctrlKey || BX.browser.IsMac() && (oEvent.altKey || oEvent.metaKey))
 	{
-		BX('version_for_' + module_id).className = 'no-select';
-		if (action == 'version_down')
+		var control = event.target;
+		control.className = 'no-select';
+		if (action == 'version_down' || action == 'db_version_down')
 		{
 			ShowWaitWindow();
 			BX.ajax.post(
@@ -191,10 +234,10 @@ function DoAction(oEvent, action, module_id)
 				function(result)
 				{
 					CloseWaitWindow();
-					BX('version_for_' + module_id).className = '';
+					control.className = '';
 					if (result.length > 0)
 					{
-						BX('version_for_' + module_id).innerHTML = result;
+						control.innerHTML = result;
 					}
 				}
 			);
@@ -215,7 +258,18 @@ function DoAction(oEvent, action, module_id)
 		$str = str_replace("#A1#","<a  href='update_system.php?lang=".LANG."'>", Loc::getMessage("MOD_MAIN_DESCRIPTION"));
 		$str = str_replace("#A2#", "</a>", $str);
 		echo $str;?></td>
-		<td ondblclick="<?= htmlspecialcharsbx("DoAction(event, 'version_down', 'main')") ?>" id="version_for_main"><?= SM_VERSION ?></td>
+		<td>
+			<div ondblclick="<?= htmlspecialcharsbx("DoAction(event, 'version_down', 'main')") ?>" id="version_for_main"><?= SM_VERSION ?></div><?
+			if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
+			{
+				$dbVersion = \Bitrix\Main\Config\Option::get('main', 'updates_main_version');
+				if ($dbVersion)
+				{
+					?><div title="DB" ondblclick="<?= htmlspecialcharsbx("DoAction(event, 'db_version_down', 'main')") ?>"><?=htmlspecialcharsEx($dbVersion);?></div><?php
+				}
+			}
+			?>
+		</td>
 		<td nowrap><?= CDatabase::FormatDate(SM_VERSION_DATE, "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT")) ?></td>
 		<td><?= Loc::getMessage("MOD_INSTALLED") ?></td>
 		<td>&nbsp;</td>
@@ -226,7 +280,18 @@ foreach($arModules as $info)
 	?>
 	<tr>
 		<td><b><?= htmlspecialcharsex($info["MODULE_NAME"]) ?></b> <?= htmlspecialcharsex($info["MODULE_PARTNER"] <> ''? " <b><i>(".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), Loc::getMessage("MOD_PARTNER_NAME")).")</i></b>" : "(".$info["MODULE_ID"].")") ?><br><?= $info["MODULE_DESCRIPTION"] ?></td>
-		<td ondblclick="<?= htmlspecialcharsbx("DoAction(event, 'version_down', '".CUtil::AddSlashes($info["MODULE_ID"])."')") ?>" id="version_for_<?= htmlspecialcharsbx($info["MODULE_ID"]) ?>"><?= $info["MODULE_VERSION"] ?></td>
+		<td>
+			<div ondblclick="<?= htmlspecialcharsbx("DoAction(event, 'version_down', '".CUtil::AddSlashes($info["MODULE_ID"])."')") ?>"><?= $info["MODULE_VERSION"] ?></div><?
+			if (class_exists('\Dev\Main\Migrator\ModuleUpdater'))
+			{
+				$dbVersion = \Bitrix\Main\Config\Option::get('main', 'updates_' . $info["MODULE_ID"] . '_version');
+				if ($dbVersion)
+				{
+					?><div title="DB" ondblclick="<?= htmlspecialcharsbx("DoAction(event, 'db_version_down', '".CUtil::AddSlashes($info["MODULE_ID"])."')") ?>"><?=htmlspecialcharsEx($dbVersion);?></div><?php
+				}
+			}
+			?>
+		</td>
 		<td nowrap><?= CDatabase::FormatDate($info["MODULE_VERSION_DATE"], "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT")) ?></td>
 		<td nowrap><?php
 			if ($info["IsInstalled"])

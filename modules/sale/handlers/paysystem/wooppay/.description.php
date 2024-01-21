@@ -31,6 +31,15 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_WOOPPAY'),
+	'HANDLER_MODE_LIST' => [
+		'checkout' => Loc::getMessage('SALE_HPS_WOOPPAY_CHECKOUT_MODE'),
+	],
+	'HANDLER_MODE_DESCRIPTION_LIST' => [
+		'checkout' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_WOOPPAY_CHECKOUT_MODE_DESCRIPTION'),
+			'PUBLIC' => '',
+		],
+	],
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

@@ -30,6 +30,7 @@
 				item.container = items[i];
 				item.link = item.container.querySelector('.ui-sidepanel-menu-link');
 				item.operativeItem = item.link.getAttribute("bx-operative") === "Y";
+				item.disableExpandByLink = item.link.getAttribute('bx-disable-expand-by-link') === 'Y';
 
 				this.items.push(item);
 
@@ -99,6 +100,7 @@
 		this.newBadge = null;
 		this.counter = null;
 		this.addItem = null;
+		this.disableExpandByLink = options.disableExpandByLink ? options.disableExpandByLink : null;
 
 		this.init();
 		itemsMap.set(this.container, this);
@@ -257,7 +259,45 @@
 
 		addEvents: function()
 		{
-			this.link.addEventListener('click', this.setActiveHandler.bind(this))
+			this.link.addEventListener('click', this.setActiveHandler.bind(this));
+
+			if (this.button && this.disableExpandByLink)
+			{
+				this.button.addEventListener('click', this.showSubmenuHandler.bind(this));
+			}
+			else
+			{
+				this.link.addEventListener('click', this.showSubmenuHandler.bind(this));
+			}
+		},
+
+		showSubmenuHandler: function(e)
+		{
+			if (this.isSubmenuExist())
+			{
+				if (!this.submenuOpen)
+				{
+					this.showSubmenu();
+					this.setNewToggleButtonName();
+				}
+				else
+				{
+					this.hideSubmenu();
+					this.setDefaultToggleButtonName();
+				}
+
+				this.menu.resetSubItems();
+				e && e.preventDefault();
+				e && e.stopPropagation();
+			}
+			else
+			{
+				if (this.link.classList.contains('ui-sidepanel-menu-disable-active-state'))
+				{
+					this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
+				}
+				this.menu.resetSubItems();
+			}
 		},
 
 		setActiveHandler: function(e)
@@ -272,32 +312,6 @@
 			else
 			{
 				this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
-			}
-
-			if (this.isSubmenuExist())
-			{
-				if (!this.submenuOpen)
-				{
-					this.showSubmenu();
-					this.setNewToggleButtonName();
-					this.menu.resetSubItems();
-					e && e.preventDefault();
-				}
-				else
-				{
-					this.hideSubmenu();
-					this.setDefaultToggleButtonName();
-					this.menu.resetSubItems();
-					e && e.preventDefault();
-				}
-			}
-			else
-			{
-				if (this.link.classList.contains('ui-sidepanel-menu-disable-active-state'))
-				{
-					this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
-				}
-				this.menu.resetSubItems();
 			}
 		},
 
@@ -412,21 +426,23 @@
 		addEvents: function()
 		{
 			this.container.addEventListener('click', function() {
-
 				if (this.activeSubItem)
 				{
 					return;
 				}
+				const link = this.container.querySelector('.ui-sidepanel-submenu-link');
 
-				if (!this.activeSubItem && !this.activeItem)
+				if (link.getAttribute('bx-operative') !== 'N')
 				{
-					this.subMenu.menu.resetItems();
+					if (!this.activeSubItem && !this.activeItem)
+					{
+						this.subMenu.menu.resetItems();
+					}
+
+					this.subMenu.menu.resetSubItems();
+					this.subMenu.resetSubItems();
+					this.activate();
 				}
-
-				this.subMenu.menu.resetSubItems();
-				this.subMenu.resetSubItems();
-				this.activate();
-
 			}.bind(this))
 		},
 

@@ -922,4 +922,27 @@ abstract class CAllDatabase
 	{
 		return false;
 	}
+
+	/**
+	 * Registers database-dependent classes for autoload.
+	 *
+	 * @param string|null $connectionType
+	 * @return void
+	 */
+	public static function registerAutoload(?string $connectionType = null): void
+	{
+		if ($connectionType === null)
+		{
+			$application = Main\HttpApplication::getInstance();
+			$connectionType = $application->getConnection()->getType();
+		}
+
+		Main\Loader::registerAutoLoadClasses(
+			'main',
+			[
+				'CDatabase' => 'classes/' . $connectionType . '/database.php',
+				'CDBResult' => 'classes/' . $connectionType . '/dbresult.php',
+			]
+		);
+	}
 }

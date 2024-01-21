@@ -25,7 +25,7 @@ final class CreateCodeItem extends BaseItem
 
 	protected function getText(): string
 	{
-		return Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_NAME');
+		return Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_NAME_MSGVER_1');
 	}
 
 	public function getControl(array $rawFields): ?array
@@ -69,14 +69,31 @@ final class CreateCodeItem extends BaseItem
 			'id' => RowType::getIndex($rowType, $rowId),
 		]);
 
-		$confirmMessage =
-			$rowType === RowType::SECTION
-				? Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_SECTION_CONFIRM')
-				: Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_ELEMENT_CONFIRM')
-		;
-		$confirmMessage = \CUtil::JSEscape($confirmMessage);
+		if ($rowType === RowType::SECTION)
+		{
+			$confirmMessageTitle = \CUtil::JSEscape(Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_SECTION_CONFIRM_TITLE'));
+			$confirmMessageContent = \CUtil::JSEscape(Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_SECTION_CONFIRM_CONTENT'));
+		}
+		else
+		{
+			$confirmMessageTitle = \CUtil::JSEscape(Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_ELEMENT_CONFIRM_TITLE'));
+			$confirmMessageContent = \CUtil::JSEscape(Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_ELEMENT_CONFIRM_CONTENT'));
+		}
 
-		$this->onclick = "IblockGridInstance.sendActionWithConfirm('{$actionId}', {$data}, '{$confirmMessage}')";
+		$confirmButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_CONFIRM_BUTTON')
+		);
+		$backButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_CREATE_CODE_BACK_BUTTON')
+		);
+
+		$this->onclick = "IblockGridInstance.sendMediumPopupWithConfirm("
+		. "'{$actionId}', "
+		. "{$data}, "
+		. "'{$confirmMessageTitle}', "
+		. "'{$confirmMessageContent}', "
+		. "'{$confirmButtonMessage}', "
+		. "'{$backButtonMessage}')";
 
 		return parent::getControl($rawFields);
 	}
@@ -91,7 +108,12 @@ final class CreateCodeItem extends BaseItem
 			return $result;
 		}
 
-		[$type, $id] = RowType::parseIndex($rowIndex);
+		$index = RowType::parseIndex($rowIndex);
+		if ($index === null)
+		{
+			return $result;
+		}
+		[$type, $id] = $index;
 
 		if ($type === RowType::SECTION)
 		{
@@ -156,10 +178,10 @@ final class CreateCodeItem extends BaseItem
 			),
 		];
 		$updateResult = $entity->Update($id, $fields);
-		if (!$updateResult && $entity->LAST_ERROR)
+		if (!$updateResult && $entity->getLastError())
 		{
 			$result->addError(
-				new Error($entity->LAST_ERROR)
+				new Error($entity->getLastError())
 			);
 		}
 
@@ -213,10 +235,10 @@ final class CreateCodeItem extends BaseItem
 			),
 		];
 		$updateResult = $entity->Update($id, $fields);
-		if (!$updateResult && $entity->LAST_ERROR)
+		if (!$updateResult && $entity->getLastError())
 		{
 			$result->addError(
-				new Error($entity->LAST_ERROR)
+				new Error($entity->getLastError())
 			);
 		}
 

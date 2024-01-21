@@ -110,6 +110,11 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				? (bool) $this->arParams['SHOW_SEGMENTS']
 				: true
 		;
+		if ($this->arParams['SHOW_SEGMENTS'] &&
+			!$this->getAccessController()->check(ActionDictionary::ACTION_SEGMENT_VIEW))
+		{
+			$this->arParams['SHOW_SEGMENTS'] = false;
+		}
 		$this->arParams['GOTO_URI_AFTER_SAVE'] = isset($this->arParams['GOTO_URI_AFTER_SAVE'])
 			?
 			$this->arParams['GOTO_URI_AFTER_SAVE']
@@ -252,7 +257,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			return;
 		}
 
-		if ($templateType && $templateType)
+		if ($templateType)
 		{
 			$template = Templates\Selector::create()
 				->withMessageCode($this->letter->getMessage()->getCode())

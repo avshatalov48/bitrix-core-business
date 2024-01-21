@@ -72,6 +72,9 @@ final class Claim extends RequestEntity
 	/** @var string */
 	protected $referralSource;
 
+	/** @var string|null */
+	protected ?string $offerPayload;
+
 	/**
 	 * @param Contact $emergencyContact
 	 * @return Claim
@@ -305,6 +308,14 @@ final class Claim extends RequestEntity
 	}
 
 	/**
+	 * @return TransportClassification
+	 */
+	public function getClientRequirements(): TransportClassification
+	{
+		return $this->clientRequirements;
+	}
+
+	/**
 	 * @param TransportClassification $transportClassification
 	 * @return Claim
 	 */
@@ -379,6 +390,17 @@ final class Claim extends RequestEntity
 	public function setReferralSource(string $referralSource): Claim
 	{
 		$this->referralSource = $referralSource;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $offerPayload
+	 * @return Claim
+	 */
+	public function setOfferPayload(string $offerPayload): Claim
+	{
+		$this->offerPayload = $offerPayload;
 
 		return $this;
 	}

@@ -13,6 +13,7 @@ class QueueRegistry
 		'DelayedSyncConnection' => 5,
 		'EventsWithEntityAttendeesFind' => 6,
 		'EventAttendeesUpdate' => 7,
+		'SendingEmailNotification' => 8,
 		'Example' => 99999,
 	];
 
@@ -25,6 +26,9 @@ class QueueRegistry
 		],
 		'calendar:update_event_attendees' => [
 			'EventAttendeesUpdate'
+		],
+		'calendar:sending_email_notification' => [
+			'SendingEmailNotification'
 		],
 	];
 

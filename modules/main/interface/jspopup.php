@@ -101,7 +101,11 @@ class CJSPopup
 			{
 				currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 			}
-			currentWindow.<?=$this->jsPopup?>.SetTitle('<?echo CUtil::JSEscape($title)?>');
+			var currentPopup = currentWindow.<?=$this->jsPopup; ?>;
+			if (currentPopup)
+			{
+				currentPopup.SetTitle('<?echo CUtil::JSEscape($title)?>');
+			}
 		</script>
 		<?
 	}

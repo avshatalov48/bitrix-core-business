@@ -2474,7 +2474,7 @@ class ComponentHelper
 				'ENTITY_TYPE' => $logEntry['ENTITY_TYPE'],
 				'ENTITY_ID' => $logEntry['ENTITY_ID'],
 				'SOURCE_ID' => $logEntry['SOURCE_ID'],
-				'PARAMS' => $logEntry['PARAMS']
+				'PARAMS' => $logEntry['PARAMS'] ?? null
 			]);
 
 			$entityXMLId = $liveFeedCommentsParams['ENTITY_XML_ID'];
@@ -2528,8 +2528,8 @@ class ComponentHelper
 					'AVATAR' => $commentFormatted['AVATAR_SRC'],
 				],
 				'uf' => $comment['UF'],
-				'ufFormatted' => $commentFormatted['UF'],
-				'postMessageTextOriginal' => $comment['~MESSAGE'],
+				'ufFormatted' => $commentFormatted['UF'] ?? null,
+				'postMessageTextOriginal' => $comment['~MESSAGE'] ?? null,
 				'postMessageTextFormatted' => $commentFormatted['MESSAGE_FORMAT'],
 				'mobileMessage' => $messageMobile,
 				'aux' => ($params['AUX'] ?? ''),
@@ -2572,9 +2572,9 @@ class ComponentHelper
 					'edit' => "__logEditComment('" . $entityXMLId . "', '#ID#', '" . $logEntry["ID"] . "');",
 					'delete' => '/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php?lang=' . $params['LANGUAGE_ID'] . '&action=delete_comment&delete_comment_id=#ID#&post_id=' . $logEntry['ID'] . '&site=' . $params['SITE_ID'],
 				],
-				'avatarSize' => $params['AVATAR_SIZE_COMMENT'],
+				'avatarSize' => $params['AVATAR_SIZE_COMMENT'] ?? null,
 				'nameTemplate' => $params['NAME_TEMPLATE'],
-				'dateTimeFormat' => $params['DATE_TIME_FORMAT'],
+				'dateTimeFormat' => $params['DATE_TIME_FORMAT'] ?? null,
 			]);
 
 			if ($eventHandlerID > 0)
@@ -4077,27 +4077,26 @@ class ComponentHelper
 
 	public static function getUserSEFUrl($params = array())
 	{
-		$siteId = (
-			is_array($params)
-			&& isset($params['siteId'])
-				? $params['siteId']
-				: false
-		);
-
-		$siteDir = SITE_DIR;
-		if ($siteId)
-		{
-			$res = \CSite::getById($siteId);
-			if ($site = $res->fetch())
-			{
-				$siteDir = $site['DIR'];
-			}
-		}
+		list($siteId, $siteDir) = self::getSiteId($params);
 
 		return Option::get('socialnetwork', 'user_page', $siteDir.'company/personal/', $siteId);
 	}
 
 	public static function getWorkgroupSEFUrl($params = []): string
+	{
+		list($siteId, $siteDir) = self::getSiteId($params);
+
+		return Option::get('socialnetwork', 'workgroups_page', $siteDir.'workgroups/', $siteId);
+	}
+
+	public static function getSpacesSEFUrl($params = []): string
+	{
+		list($siteId, $siteDir) = self::getSiteId($params);
+
+		return $siteDir . 'spaces/';
+	}
+
+	private static function getSiteId($params = []): array
 	{
 		$siteId = (
 			is_array($params)
@@ -4116,7 +4115,7 @@ class ComponentHelper
 			}
 		}
 
-		return Option::get('socialnetwork', 'workgroups_page', $siteDir.'workgroups/', $siteId);
+		return [$siteId, $siteDir];
 	}
 
 	public static function convertBlogPostPermToDestinationList($params, &$resultFields)
@@ -4595,24 +4594,11 @@ class ComponentHelper
 		);
 
 		$connection = Application::getConnection();
-		$connection->queryExecute('SET @user_rank = 0');
-		$connection->queryExecute('SET @current_log_id = 0');
 
 		if (ModuleManager::isModuleInstalled('intranet'))
 		{
-			$res = $connection->query('SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-				@user_rank := IF(
-					@current_log_id = tmp.LOG_ID,
-					@user_rank + 1,
-					1
-				) as USER_RANK,
-				@current_log_id := tmp.LOG_ID,
-				tmp.USER_ID as USER_ID,
-				tmp.LOG_ID as LOG_ID,
-				tmp.WEIGHT as WEIGHT
-			FROM (
+			$res = $connection->query('
 				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-					@rownum := @rownum + 1 as ROWNUM,
 					RS1.ENTITY_ID as USER_ID,
 					SL.ID as LOG_ID,
 					MAX(RS1.VOTES) as WEIGHT
@@ -4631,23 +4617,12 @@ class ComponentHelper
 				ORDER BY
 					SL.ID,
 					WEIGHT DESC
-			) tmp');
+			');
 		}
 		else
 		{
-			$res = $connection->query('SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-				@user_rank := IF(
-					@current_log_id = tmp.LOG_ID,
-					@user_rank + 1,
-					1
-				) as USER_RANK,
-				@current_log_id := tmp.LOG_ID,
-				tmp.USER_ID as USER_ID,
-				tmp.LOG_ID as LOG_ID,
-				tmp.WEIGHT as WEIGHT
-			FROM (
+			$res = $connection->query('
 				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-					@rownum := @rownum + 1 as ROWNUM,
 					RV1.USER_ID as USER_ID,
 					SL.ID as LOG_ID,
 					RV1.VALUE as WEIGHT
@@ -4660,7 +4635,7 @@ class ComponentHelper
 				ORDER BY
 					SL.ID,
 					WEIGHT DESC
-			) tmp');
+			');
 		}
 
 		$userWeightData = [];

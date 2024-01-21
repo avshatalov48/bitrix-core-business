@@ -13,7 +13,11 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type as MainType;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Sender\Internals\Dto\UpdateContactDtoCollection;
+use Bitrix\Sender\Internals\Factory\UpdateContactDtoFactory;
 use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Service\ContactListUpdateService;
+use Bitrix\Sender\Service\ContactUpdateService;
 
 Loc::loadMessages(__FILE__);
 
@@ -165,7 +169,7 @@ class ContactTable extends Entity\DataManager
 			new Entity\Validator\Unique
 		);
 	}
-	
+
 	/**
 	 * Check email.
 	 *
@@ -258,7 +262,7 @@ class ContactTable extends Entity\DataManager
 
 		return $result;
 	}
-	
+
 	/**
 	 * On after delete.
 	 *
@@ -312,10 +316,10 @@ class ContactTable extends Entity\DataManager
 		ContactTable::update($primary,[
 			'CONSENT_STATUS' => $contactStatus,
 			'DATE_UPDATE' => new MainType\DateTime(),
-			'CONSENT_REQUEST' => new SqlExpression("`CONSENT_REQUEST`+1"),
+			'CONSENT_REQUEST' => new SqlExpression("CONSENT_REQUEST+1"),
 		]);
 	}
-	
+
 	/**
 	 * Add if not exist.
 	 *
@@ -366,7 +370,7 @@ class ContactTable extends Entity\DataManager
 
 		return $id;
 	}
-	
+
 	/**
 	 * Check connectors.
 	 *
@@ -528,7 +532,7 @@ class ContactTable extends Entity\DataManager
 			'COUNT_ERROR' => $countError,
 		);
 	}
-	
+
 	/**
 	 * Upload contacts.
 	 *
@@ -544,10 +548,8 @@ class ContactTable extends Entity\DataManager
 	 */
 	public static function upload(array $list, bool $isBlacklist = false, ?int $listId = null)
 	{
-		$sqlHelper = Application::getConnection()->getSqlHelper();
-		$dateInsert = new MainType\DateTime();
-
-		$updateList = [];
+		$updateCollection = new UpdateContactDtoCollection();
+		$updateItemFactory = new UpdateContactDtoFactory($isBlacklist);
 		foreach ($list as $item)
 		{
 			if (is_string($item))
@@ -559,64 +561,26 @@ class ContactTable extends Entity\DataManager
 			{
 				continue;
 			}
-			$code = trim($item['CODE']);
+			$code = trim((string)$item['CODE']);
 
-			$typeId = Recipient\Type::detect($code);
-			if (!$typeId)
+			$updateItem = $updateItemFactory->make($code, $item['NAME'] ?? null);
+			if ($updateItem)
 			{
-				continue;
+				$updateCollection->append($updateItem);
 			}
-
-			$code = Recipient\Normalizer::normalize($code, $typeId);
-			if (!$code)
-			{
-				continue;
-			}
-
-			$updateItem = [
-				'TYPE_ID' => $typeId,
-				'CODE' => $code,
-				'DATE_INSERT' => $dateInsert,
-				'DATE_UPDATE' => $dateInsert,
-				'NAME' => $sqlHelper->forSql($item['NAME']),
-			];
-			if ($isBlacklist)
-			{
-				$updateItem['BLACKLISTED'] = $isBlacklist ? 'Y' : 'N';
-			}
-			$updateList[] = $updateItem;
 		}
 
-
 		// insert contacts
-		if (count($updateList) === 0)
+		if ($updateCollection->count() === 0)
 		{
 			return 0;
 		}
 
-		$onDuplicateUpdateFields = array(
-			'NAME',
-			array(
-				'NAME' => 'BLACKLISTED',
-				'VALUE' => $isBlacklist ? "'Y'" : "'N'"
-			),
-			array(
-				'NAME' => 'DATE_UPDATE',
-				'VALUE' => $sqlHelper->convertToDbDateTime(new MainType\DateTime())
-			)
-		);
-		foreach (Internals\SqlBatch::divide($updateList) as $list)
-		{
-			Internals\SqlBatch::insert(
-				ContactTable::getTableName(),
-				$list,
-				$onDuplicateUpdateFields
-			);
-		}
+		(new ContactUpdateService())->updateByCollection($updateCollection);
 
 		if (!$listId)
 		{
-			return count($updateList);
+			return $updateCollection->count();
 		}
 
 		$row = ListTable::getRowById($listId);
@@ -626,35 +590,21 @@ class ContactTable extends Entity\DataManager
 		}
 
 		// insert contacts & lists
-		$codesByType = array();
-		foreach ($updateList as $updateItem)
-		{
-			$typeId = $updateItem['TYPE_ID'];
-			if (!isset($codesByType[$typeId]) || !is_array($codesByType[$typeId]))
-			{
-				$codesByType[$typeId] = array();
-			}
-
-			$codesByType[$typeId][] = $updateItem['CODE'];
-		}
-		foreach ($codesByType as $typeId => $allCodes)
-		{
-			$typeId = (int) $typeId;
-			$listId = (int) $listId;
-			$contactTableName = ContactTable::getTableName();
-			$contactListTableName = ContactListTable::getTableName();
-			foreach (Internals\SqlBatch::divide($allCodes) as $codes)
-			{
-				$codes = Internals\SqlBatch::getInString($codes);
-				$sql = "INSERT IGNORE $contactListTableName ";
-				$sql .="(CONTACT_ID, LIST_ID) ";
-				$sql .="SELECT ID AS CONTACT_ID, $listId as LIST_ID ";
-				$sql .="FROM $contactTableName ";
-				$sql .="WHERE TYPE_ID=$typeId AND CODE in ($codes)";
-				Application::getConnection()->query($sql);
-			}
-		}
+		(new ContactListUpdateService())->updateByCollection($updateCollection, $listId);
 
 		return ContactListTable::getCount(array('=LIST_ID' => $listId));
+	}
+
+	/**
+	 * Get unique key index fields
+	 *
+	 * @return array|string[]
+	 */
+	public static function getConflictFields(): array
+	{
+		return [
+			'TYPE_ID',
+			'CODE',
+		];
 	}
 }

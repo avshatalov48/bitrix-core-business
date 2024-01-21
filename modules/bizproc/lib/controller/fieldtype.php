@@ -73,6 +73,66 @@ class FieldType extends Base
 		);
 	}
 
+	public function renderControlCollectionAction(): ?HtmlContent
+	{
+		if (!$this->request->isJson())
+		{
+			// Should add some error message?
+			$this->addError(
+				new Error('', 0, ['reason' => 'Wrong request format. Expected json in request body.'])
+			);
+
+			return null;
+		}
+
+		$documentType = $this->request->getJsonList()->get('documentType');
+		$controlsData = $this->request->getJsonList()->get('controlsData');
+
+		$createInternalError = static fn ($reason) => new Error('', 0, ['reason' => $reason]);
+
+		if (!is_array($documentType))
+		{
+			$this->addError(
+				$createInternalError('Wrong request format. Expected documentType in request json body.')
+			);
+		}
+		if (!is_array($controlsData))
+		{
+			$this->addError(
+				$createInternalError('Wrong request format. Expected controlsData in request json body.')
+			);
+		}
+		$renderer = new Bizproc\Controller\Response\RenderControlCollectionContent();
+
+		foreach ($controlsData as $data)
+		{
+			if (
+				is_array($data['property'] ?? null)
+				&& is_array($data['params'] ?? null)
+				&& $this->inputAndAccessCheck($documentType, $data['property'])
+			)
+			{
+				$property = $this->normalizeProperty($data['property']);
+
+				$params = (new Bizproc\Validator($data['params']))
+					->validateRequire('Field')
+					->validateArray('Field', Bizproc\Validator::TYPE_STRING)
+					->setPureValue('Value')
+					->setDefault('Value', '')
+					->validateRequire('Als')
+					->validateNumeric('Als')
+					->validateEnum('RenderMode', ['public', 'designer', ''])
+					->setDefault('RenderMode', '')
+					->getPureValues()
+				;
+
+				$renderer->addProperty($documentType, $property, $params);
+			}
+		}
+
+		return new HtmlContent($renderer, additionalResponseParams: $renderer->getRenderedProperties());
+	}
+
 	public function renderControlAction(array $documentType, array $property, array $params)
 	{
 		if (!$this->inputAndAccessCheck($documentType, $property))

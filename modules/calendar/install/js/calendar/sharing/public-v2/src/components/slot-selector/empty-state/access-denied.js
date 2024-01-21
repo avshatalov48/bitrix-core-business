@@ -1,4 +1,4 @@
-import {Loc, Tag} from "main.core";
+import { Loc, Tag } from 'main.core';
 import Base from '../base';
 
 type AccessDeniedOptions = {
@@ -9,20 +9,18 @@ export default class AccessDenied extends Base
 {
 	#layout;
 
-	constructor(options)
+	constructor(options: AccessDeniedOptions)
 	{
-		super({isHiddenOnStart: options.isHiddenOnStart});
+		super({ isHiddenOnStart: options.isHiddenOnStart });
 		this.#layout = {
 			content: null,
-		}
+		};
 
 		this.#bindEvents();
 	}
 
 	#bindEvents()
-	{
-
-	}
+	{}
 
 	getType()
 	{

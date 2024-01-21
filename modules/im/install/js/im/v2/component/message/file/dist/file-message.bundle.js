@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_message_unsupported,ui_vue3_directives_lazyload,main_core_events,im_v2_lib_progressbar,im_v2_provider_service,im_v2_lib_menu,ui_icons_disk,ui_vue3_components_socialvideo,im_v2_lib_utils,main_core,im_v2_component_message_elements,im_v2_component_message_base,im_v2_component_elements,im_v2_const) {
+(function (exports,im_v2_component_message_unsupported,ui_vue3_directives_lazyload,im_v2_model,main_core_events,im_v2_lib_progressbar,im_v2_provider_service,im_v2_lib_menu,ui_icons_disk,ui_vue3_components_socialvideo,im_v2_lib_utils,main_core,im_v2_component_message_elements,im_v2_component_message_base,im_v2_component_elements,im_v2_const) {
 	'use strict';
 
 	// @vue/component
@@ -56,7 +56,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        }
 	      });
 	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.cancel, () => {
-	        console.warn('test');
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.uploader.cancel, {
 	          tempFileId: this.file.id,
 	          tempMessageId: this.messageId
@@ -103,12 +102,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Object,
 	      required: true
 	    },
-	    messageId: {
-	      type: [String, Number],
+	    message: {
+	      type: Object,
 	      required: true
 	    }
 	  },
 	  computed: {
+	    messageItem() {
+	      return this.message;
+	    },
 	    file() {
 	      return this.item;
 	    },
@@ -152,6 +154,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isLoaded() {
 	      return this.file.progress === 100;
+	    },
+	    isForward() {
+	      return main_core.Type.isStringFilled(this.messageItem.forward.id);
 	    }
 	  },
 	  methods: {
@@ -171,6 +176,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div 
 			v-bind="viewerAttributes" 
 			class="bx-im-media-image__container" 
+			:class="{'--with-forward': isForward}"
 			@click="download"
 			:style="imageSize"
 		>
@@ -182,7 +188,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				:alt="file.name"
 				class="bx-im-media-image__source"
 			/>
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" />
+			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" />
 		</div>
 	`
 	};
@@ -197,7 +203,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    ImageItem,
 	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    ContextMenu: im_v2_component_message_elements.ContextMenu
+	    ContextMenu: im_v2_component_message_elements.ContextMenu,
+	    MessageHeader: im_v2_component_message_elements.MessageHeader
 	  },
 	  props: {
 	    item: {
@@ -251,18 +258,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		>
 			<div class="bx-im-message-image__container">
 				<div class="bx-im-message-image__content-with-menu">
-					<div class="bx-im-message-image__content">
-						<ImageItem
-							:key="messageFile.id"
-							:item="messageFile"
-							:messageId="message.id"
-						/>
-						<template v-if="onlyImage">
-							<div class="bx-im-message-image__message-status-container">
-								<MessageStatus :item="message" :isOverlay="onlyImage" />
-							</div>
-							<ReactionSelector :messageId="message.id" />
-						</template>
+					<div class="bx-im-message-image__content-with-header">
+						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-image__header" />
+						<div class="bx-im-message-image__content">
+							<ImageItem
+								:key="messageFile.id"
+								:item="messageFile"
+								:message="message"
+							/>
+							<template v-if="onlyImage">
+								<div class="bx-im-message-image__message-status-container">
+									<MessageStatus :item="message" :isOverlay="onlyImage" />
+								</div>
+								<ReactionSelector :messageId="message.id" />
+							</template>
+						</div>
 					</div>
 					<ContextMenu v-if="onlyImage" :message="message" :menuIsActiveForId="menuIsActiveForId" />
 				</div>
@@ -424,7 +434,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    BaseFileItem,
 	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    AuthorTitle: im_v2_component_message_elements.AuthorTitle
+	    MessageHeader: im_v2_component_message_elements.MessageHeader
 	  },
 	  props: {
 	    item: {
@@ -471,7 +481,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<BaseMessage :item="item" :dialogId="dialogId">
 			<div class="bx-im-message-base-file__container">
-				<AuthorTitle v-if="withTitle" :item="item" class="bx-im-message-base-file__author-title" />
+				<MessageHeader :withTitle="withTitle" :item="item" class="bx-im-message-base-file__author-title" />
 				<BaseFileItem
 					:key="messageFile.id"
 					:item="messageFile"
@@ -601,7 +611,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    VideoItem,
 	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    ContextMenu: im_v2_component_message_elements.ContextMenu
+	    ContextMenu: im_v2_component_message_elements.ContextMenu,
+	    MessageHeader: im_v2_component_message_elements.MessageHeader
 	  },
 	  props: {
 	    item: {
@@ -642,18 +653,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		>
 			<div class="bx-im-message-video__container bx-im-message-video__scope">
 				<div class="bx-im-message-video__content-with-menu">
-					<div class="bx-im-message-video__content">
-						<VideoItem
-							:key="messageFile.id"
-							:item="messageFile"
-							:messageId="message.id"
-						/>
-						<template v-if="onlyVideo">
-							<div class="bx-im-message-video__message-status-container">
-								<MessageStatus :item="message" :isOverlay="onlyVideo" />
-							</div>
-							<ReactionSelector :messageId="message.id" />
-						</template>
+					<div class="bx-im-message-video__content-with-header">
+						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-video__header" />
+						<div class="bx-im-message-video__content">
+							<VideoItem
+								:key="messageFile.id"
+								:item="messageFile"
+								:messageId="message.id"
+							/>
+							<template v-if="onlyVideo">
+								<div class="bx-im-message-video__message-status-container">
+									<MessageStatus :item="message" :isOverlay="onlyVideo" />
+								</div>
+								<ReactionSelector :messageId="message.id" />
+							</template>
+						</div>
 					</div>
 					<ContextMenu v-if="onlyVideo" :message="message" :menuIsActiveForId="menuIsActiveForId" />
 				</div>
@@ -721,9 +735,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const AudioMessage = {
 	  name: 'AudioMessage',
 	  components: {
-	    ReactionList: im_v2_component_message_elements.ReactionList,
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
-	    MessageStatus: im_v2_component_message_elements.MessageStatus,
+	    MessageHeader: im_v2_component_message_elements.MessageHeader,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    AudioItem,
 	    ReactionSelector: im_v2_component_message_elements.ReactionSelector
@@ -736,6 +749,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialogId: {
 	      type: String,
 	      required: true
+	    },
+	    withTitle: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  computed: {
@@ -757,6 +774,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<BaseMessage :item="item" :dialogId="dialogId">
 			<div class="bx-im-message-audio__container">
+				<MessageHeader :withTitle="withTitle" :item="item" class="bx-im-message-audio__header"/>
 				<AudioItem
 					:key="messageFile.id"
 					:item="messageFile"
@@ -849,11 +867,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:dialogId="dialogId" 
 			:withTitle="withTitle" 
 			:menuIsActiveForId="menuIsActiveForId"
+			:withRetryButton="false"
 		/>
 	`
 	};
 
 	exports.FileMessage = FileMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Vue3.Directives,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX,BX.Vue3.Components,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Vue3.Directives,BX.Messenger.v2.Model,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX,BX.Vue3.Components,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const));
 //# sourceMappingURL=file-message.bundle.js.map

@@ -1,15 +1,16 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2018 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
+
 namespace Bitrix\Main;
 
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\DateField;
@@ -58,7 +59,7 @@ class UserTable extends DataManager
 		$connection = Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		return array(
+		return [
 			(new IntegerField('ID'))
 				->configurePrimary()
 				->configureAutocomplete(),
@@ -71,10 +72,10 @@ class UserTable extends DataManager
 			new StringField('EMAIL'),
 
 			(new BooleanField('ACTIVE'))
-				->configureValues('N','Y'),
+				->configureValues('N', 'Y'),
 
 			(new BooleanField('BLOCKED'))
-				->configureValues('N','Y'),
+				->configureValues('N', 'Y'),
 
 			new DatetimeField('DATE_REGISTER'),
 
@@ -83,7 +84,6 @@ class UserTable extends DataManager
 				$helper->getDatetimeToDateFunction('%s'),
 				'DATE_REGISTER')
 			)->configureValueType(DatetimeField::class),
-
 
 			new DatetimeField('LAST_LOGIN'),
 
@@ -199,15 +199,16 @@ class UserTable extends DataManager
 			)),
 			(new ExpressionField(
 				'NOTIFICATION_LANGUAGE_ID',
-					'CASE WHEN (%s IS NOT NULL AND %s = %s) THEN %s ELSE %s END',
-				['LANGUAGE_ID', 'LANGUAGE_ID', 'ACTIVE_LANGUAGE.LID', 'LANGUAGE_ID',
-					function() {
-						return new SqlExpression("'".(($site = \CSite::GetList('', '', array('DEF' => 'Y', 'ACTIVE' => 'Y'))->fetch())
-							? $site['LANGUAGE_ID'] : LANGUAGE_ID)."'");
+				'CASE WHEN (%s IS NOT NULL AND %s = %s) THEN %s ELSE %s END',
+				[
+					'LANGUAGE_ID', 'LANGUAGE_ID', 'ACTIVE_LANGUAGE.LID', 'LANGUAGE_ID',
+					function () {
+						return new SqlExpression("'" . (($site = \CSite::GetList('', '', ['DEF' => 'Y', 'ACTIVE' => 'Y'])->fetch())
+							? $site['LANGUAGE_ID'] : LANGUAGE_ID) . "'");
 					},
 				],
 			))->configureValueType(StringField::class),
-		);
+		];
 	}
 
 	public static function getSecondsForLimitOnline()
@@ -218,7 +219,7 @@ class UserTable extends DataManager
 		{
 			$seconds = 1440;
 		}
-		else if ($seconds < 120)
+		elseif ($seconds < 120)
 		{
 			$seconds = 120;
 		}
@@ -227,9 +228,9 @@ class UserTable extends DataManager
 	}
 
 	/**
-	 * @deprecated
 	 * @param Type\Date|null $lastLoginDate
 	 * @return int
+	 * @deprecated
 	 */
 	public static function getActiveUsersCount(Type\Date $lastLoginDate = null)
 	{
@@ -238,54 +239,57 @@ class UserTable extends DataManager
 
 	public static function getUserGroupIds($userId)
 	{
-		$groups = array();
+		$groups = [];
 
 		// anonymous groups
-		$result = GroupTable::getList(array(
-			'select' => array('ID'),
-			'filter' => array(
+		$result = GroupTable::getList([
+			'select' => ['ID'],
+			'filter' => [
 				'=ANONYMOUS' => 'Y',
-				'=ACTIVE' => 'Y'
-			)
-		));
+				'=ACTIVE' => 'Y',
+			],
+			'cache' => ['ttl' => 86400],
+		]);
 
 		while ($row = $result->fetch())
 		{
 			$groups[] = $row['ID'];
 		}
 
-		if(!in_array(2, $groups))
+		if (!in_array(2, $groups))
+		{
 			$groups[] = 2;
+		}
 
-		if($userId > 0)
+		if ($userId > 0)
 		{
 			// private groups
 			$nowTimeExpression = new SqlExpression(
 				static::getEntity()->getConnection()->getSqlHelper()->getCurrentDateTimeFunction()
 			);
 
-			$result = GroupTable::getList(array(
-				'select' => array('ID'),
-				'filter' => array(
+			$result = GroupTable::getList([
+				'select' => ['ID'],
+				'filter' => [
 					'=UserGroup:GROUP.USER_ID' => $userId,
 					'=ACTIVE' => 'Y',
-					array(
+					[
 						'LOGIC' => 'OR',
 						'=UserGroup:GROUP.DATE_ACTIVE_FROM' => null,
 						'<=UserGroup:GROUP.DATE_ACTIVE_FROM' => $nowTimeExpression,
-					),
-					array(
+					],
+					[
 						'LOGIC' => 'OR',
 						'=UserGroup:GROUP.DATE_ACTIVE_TO' => null,
 						'>=UserGroup:GROUP.DATE_ACTIVE_TO' => $nowTimeExpression,
-					),
-					array(
+					],
+					[
 						'LOGIC' => 'OR',
 						'!=ANONYMOUS' => 'Y',
-						'=ANONYMOUS' => null
-					)
-				)
-			));
+						'=ANONYMOUS' => null,
+					],
+				],
+			]);
 
 			while ($row = $result->fetch())
 			{
@@ -317,17 +321,14 @@ class UserTable extends DataManager
 		return $types;
 	}
 
-	public static function indexRecord($id)
+	/**
+	 * Returns an array with fields used in full-text index.
+	 *
+	 * @return string[]
+	 */
+	public static function getIndexedFields(): array
 	{
-		$id = intval($id);
-		if($id == 0)
-		{
-			return false;
-		}
-
-		$intranetInstalled = ModuleManager::isModuleInstalled('intranet');
-
-		$select = [
+		static $fields = [
 			'ID',
 			'NAME',
 			'SECOND_NAME',
@@ -352,26 +353,54 @@ class UserTable extends DataManager
 			'WORK_COUNTRY',
 			'WORK_MAILBOX',
 			'WORK_PHONE',
-			'WORK_COMPANY'
+			'WORK_COMPANY',
 		];
 
-		if ($intranetInstalled)
+		if (ModuleManager::isModuleInstalled('intranet'))
 		{
-			$select[] = 'UF_DEPARTMENT';
+			return array_merge($fields, ['UF_DEPARTMENT']);
 		}
+		return $fields;
+	}
 
-		$record = parent::getList(array(
-			'select' => $select,
-			'filter' => array('=ID' => $id)
-		))->fetch();
+	/**
+	 * Returns true if there are fields to be indexed in the set.
+	 *
+	 * @param array $fields
+	 * @return bool
+	 */
+	public static function shouldReindex(array $fields): bool
+	{
+		if (isset($fields['ID']))
+		{
+			unset($fields['ID']);
+		}
+		return !empty(array_intersect(
+			static::getIndexedFields(),
+			array_keys($fields)
+		));
+	}
 
-		if(!is_array($record))
+	public static function indexRecord($id)
+	{
+		$id = intval($id);
+		if ($id == 0)
 		{
 			return false;
 		}
 
-		$record['UF_DEPARTMENT_NAMES'] = array();
-		if ($intranetInstalled)
+		$record = parent::getList([
+			'select' => static::getIndexedFields(),
+			'filter' => ['=ID' => $id],
+		])->fetch();
+
+		if (!is_array($record))
+		{
+			return false;
+		}
+
+		$record['UF_DEPARTMENT_NAMES'] = [];
+		if (ModuleManager::isModuleInstalled('intranet'))
 		{
 			$departmentNames = UserUtils::getDepartmentNames($record['UF_DEPARTMENT']);
 			foreach ($departmentNames as $departmentName)
@@ -383,7 +412,7 @@ class UserTable extends DataManager
 		$departmentName = $record['UF_DEPARTMENT_NAMES'][0] ?? '';
 		$searchDepartmentContent = implode(' ', $record['UF_DEPARTMENT_NAMES']);
 
-		UserIndexTable::merge(array(
+		UserIndexTable::merge([
 			'USER_ID' => $id,
 			'NAME' => (string)$record['NAME'],
 			'SECOND_NAME' => (string)$record['SECOND_NAME'],
@@ -392,8 +421,8 @@ class UserTable extends DataManager
 			'UF_DEPARTMENT_NAME' => (string)$departmentName,
 			'SEARCH_USER_CONTENT' => self::generateSearchUserContent($record),
 			'SEARCH_ADMIN_CONTENT' => self::generateSearchAdminContent($record),
-			'SEARCH_DEPARTMENT_CONTENT' => MapBuilder::create()->addText($searchDepartmentContent)->build()
-		));
+			'SEARCH_DEPARTMENT_CONTENT' => MapBuilder::create()->addText($searchDepartmentContent)->build(),
+		]);
 
 		return true;
 	}
@@ -430,8 +459,8 @@ class UserTable extends DataManager
 		$personalCountry = (
 			isset($fields['PERSONAL_COUNTRY'])
 			&& intval($fields['PERSONAL_COUNTRY'])
-				? \Bitrix\Main\UserUtils::getCountryValue([
-					'VALUE' => intval($fields['PERSONAL_COUNTRY'])
+				? UserUtils::getCountryValue([
+					'VALUE' => intval($fields['PERSONAL_COUNTRY']),
 				])
 				: ''
 		);
@@ -439,7 +468,7 @@ class UserTable extends DataManager
 			isset($fields['WORK_COUNTRY'])
 			&& intval($fields['WORK_COUNTRY'])
 				? UserUtils::getCountryValue([
-					'VALUE' => intval($fields['WORK_COUNTRY'])
+					'VALUE' => intval($fields['WORK_COUNTRY']),
 				])
 				: ''
 		);
@@ -482,7 +511,8 @@ class UserTable extends DataManager
 			->addText($department)
 			->addText($ufContent)
 			->addText($tagsContent)
-			->build();
+			->build()
+		;
 
 		return $result;
 	}

@@ -9,3 +9,7 @@ tr[data-id="overallTotal"] td {
 .store-report-link {
 	cursor: pointer;
 }
+
+.main-grid-container {
+	overflow: hidden !important;
+}

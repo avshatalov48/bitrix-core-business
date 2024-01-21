@@ -768,8 +768,12 @@ class CatalogProductVariationDetailsComponent
 
 			return false;
 		}
-
-		if (!$this->getForm()->isCardAllowed())
+		$form = $this->getForm();
+		if ($form === null)
+		{
+			return false;
+		}
+		if (!$form->isCardAllowed())
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error('New product card feature disabled.');
 
@@ -863,7 +867,7 @@ class CatalogProductVariationDetailsComponent
 
 	protected function placePageTitle(BaseSku $variation): void
 	{
-		$title = $variation->isNew() ? Loc::getMessage('CPVD_NEW_VARIATION_TITLE') : Bitrix\Main\Text\HtmlFilter::encode($variation->getName());
+		$title = $variation->isNew() ? Loc::getMessage('CPVD_NEW_VARIATION_TITLE_MSGVER_1') : Bitrix\Main\Text\HtmlFilter::encode($variation->getName());
 		$this->getApplication()->setTitle($title);
 	}
 
@@ -916,7 +920,7 @@ class CatalogProductVariationDetailsComponent
 				"bitrix:ui.info.error",
 				'',
 				[
-					'TITLE' => Loc::getMessage('CPVD_NOT_FOUND_ERROR_TITLE'),
+					'TITLE' => Loc::getMessage('CPVD_NOT_FOUND_ERROR_TITLE_MSGVER_1'),
 					'DESCRIPTION' => '',
 				]
 			);
@@ -1264,11 +1268,15 @@ class CatalogProductVariationDetailsComponent
 		);
 	}
 
-	private function getForm(): VariationForm
+	private function getForm(): ?VariationForm
 	{
 		if ($this->form === null)
 		{
-			$this->form = new VariationForm($this->getVariation(), $this->arParams);
+			$variation = $this->getVariation();
+			if ($variation !== null)
+			{
+				$this->form = new VariationForm($variation, $this->arParams);
+			}
 		}
 
 		return $this->form;

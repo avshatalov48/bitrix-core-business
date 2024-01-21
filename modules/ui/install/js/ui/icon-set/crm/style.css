@@ -72,6 +72,7 @@
 	--ui-icon-set__path_business-process: url('/bitrix/js/ui/icon-set/crm/images/business-process.svg');
 	--ui-icon-set__path_interconnection: url('/bitrix/js/ui/icon-set/crm/images/interconnection.svg');
 	--ui-icon-set__path_insert: url('/bitrix/js/ui/icon-set/crm/images/insert.svg');
+	--ui-icon-set__path_crm-map: url('/bitrix/js/ui/icon-set/crm/images/crm-map.svg');
 }
 
 .ui-icon-set.--send-contact {
@@ -356,4 +357,8 @@
 
 .ui-icon-set.--insert {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_insert);
+}
+
+.ui-icon-set.--crm-map {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_crm-map);
 }

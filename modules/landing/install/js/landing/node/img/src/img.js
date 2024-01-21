@@ -1,4 +1,4 @@
-import { Node } from 'landing.node';
+import { Base } from 'landing.node.base';
 import {Env} from 'landing.env';
 
 const attr = BX.Landing.Utils.attr;
@@ -6,7 +6,7 @@ const data = BX.Landing.Utils.data;
 const encodeDataValue = BX.Landing.Utils.encodeDataValue;
 const decodeDataValue = BX.Landing.Utils.decodeDataValue;
 
-export class Img extends Node
+export class Img extends Base
 {
 	constructor(options)
 	{
@@ -34,6 +34,7 @@ export class Img extends Node
 	 */
 	onClick(event)
 	{
+		BX.Event.EventEmitter.emit('BX.Landing.Node.Img:onClick');
 		if (
 			this.manifest.allowInlineEdit !== false
 			&& BX.Landing.Main.getInstance().isControlsEnabled()
@@ -164,7 +165,9 @@ export class Img extends Node
 					title: this.manifest.name,
 					description: description,
 					disableLink: disableLink,
-					allowAiImage: Env.getInstance().getOptions()['allow_ai_image'],
+					isAiImageAvailable: Env.getInstance().getOptions()['ai_image_available'],
+					isAiImageActive: Env.getInstance().getOptions()['ai_image_active'],
+					aiUnactiveInfoCode: Env.getInstance().getOptions()['ai_unactive_info_code'],
 					content: value,
 					dimensions: this.manifest.dimensions ?? {},
 					create2xByDefault: this.manifest.create2xByDefault,
@@ -271,6 +274,52 @@ export class Img extends Node
 		);
 
 		return value;
+	}
+
+	/**
+	 * Prepare pseudo url if needed
+	 * @param {object} url
+	 * @return {null|object}
+	 */
+	preparePseudoUrl(url)
+	{
+		let urlIsChange = false;
+		if (!(url.href === '#' && url.target === ''))
+		{
+			urlIsChange = true;
+		}
+
+		if (url.href === 'selectActions:')
+		{
+			url.href = '';
+			url.enabled = false;
+			urlIsChange = true;
+		}
+
+		if (url.href.startsWith('product:'))
+		{
+			url.target = '_self';
+			urlIsChange = true;
+		}
+
+		if (url.enabled !== false && (url.href === '' || url.href === '#'))
+		{
+			url.enabled = false;
+			urlIsChange = true;
+		}
+
+		if (url.target === '')
+		{
+			url.target = '_blank';
+			urlIsChange = true;
+		}
+
+		if (urlIsChange === true)
+		{
+			return url;
+		}
+
+		return null;
 	}
 }
 

@@ -387,3 +387,7 @@ img.bxhtmled-player-surrogate {
 	user-select: none;
 	pointer-events: none;
 }
+
+.bxhtmled-insert-result {
+	display: none;
+}

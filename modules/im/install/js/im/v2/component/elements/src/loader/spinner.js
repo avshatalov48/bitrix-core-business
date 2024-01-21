@@ -36,8 +36,8 @@ export const Spinner = {
 		},
 	},
 	template: `
-		<div class="bx-im-elements-spinner__container">
+		<div class="bx-im-elements-spinner__container bx-im-elements-spinner__scope">
 			<div class="bx-im-elements-spinner__spinner" :class="[sizeClassName, colorClassName]"></div>
 		</div>
-	`
+	`,
 };

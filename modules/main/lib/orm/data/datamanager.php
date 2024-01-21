@@ -704,7 +704,7 @@ abstract class DataManager
 				$fieldName = $field->getName();
 				if (
 					(empty($primary) && (!isset($data[$fieldName]) || $field->isValueEmpty($data[$fieldName])))
-					|| (!empty($primary) && isset($data[$fieldName]) && $field->isValueEmpty($data[$fieldName]))
+					|| (!empty($primary) && array_key_exists($fieldName, $data) && $field->isValueEmpty($data[$fieldName]))
 				)
 				{
 					$result->addError(new FieldError(
@@ -924,6 +924,11 @@ abstract class DataManager
 			foreach ($fieldsToDb as $fieldName => $value)
 			{
 				$field = $entity->getField($fieldName);
+				if ($field->isPrimary() && $field->isAutocomplete() && is_null($value))
+				{
+					unset($fieldsToDb[$fieldName]); // postgresql compatibility
+					continue;
+				}
 				$fieldsToDb[$fieldName] = $field->modifyValueBeforeSave($value, $fields);
 			}
 

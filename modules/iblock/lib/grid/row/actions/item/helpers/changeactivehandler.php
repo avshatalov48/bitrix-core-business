@@ -37,7 +37,7 @@ trait ChangeActiveHandler
 		]);
 		if (!$updateResult)
 		{
-			$message = $entity->LAST_ERROR ?: 'Cant update element';
+			$message = $entity->getLastError() ?: 'Cant update element';
 			$result->addError(new Error($message));
 		}
 

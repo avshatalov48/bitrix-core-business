@@ -88,37 +88,13 @@ class CIMStatus
 
 		if ($needToUpdate && self::Enable())
 		{
+			$push = static::getPushParams($status, $userId);
+			//\CPullWatch::AddToStack(static::getPushTag($userId), $push);
 
-			CPullStack::AddShared([
-				'module_id' => 'online',
-				'command' => 'userStatus',
-				'expiry' => 1,
-				'params' => [
-					'users' => [
-						$userId => [
-							'id' => $userId,
-							'status' => $status['STATUS'] ?? null,
-							'color' => ($status['COLOR'] ?? null)
-								? \Bitrix\Im\Color::getColor($status['COLOR'])
-								: \Bitrix\Im\Color::getColorByNumber($userId)
-							,
-							'idle' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime
-								? date('c', $status['IDLE']->getTimestamp())
-								: false
-							,
-							'mobile_last_date' => ($status['MOBILE_LAST_DATE'] ?? null) instanceof \Bitrix\Main\Type\DateTime
-								? date('c', $status['MOBILE_LAST_DATE']->getTimestamp())
-								: false
-							,
-							'desktop_last_date' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime
-								? date('c', $status['DESKTOP_LAST_DATE']->getTimestamp())
-								: false
-							,
-							'last_activity_date' => date('c', time())
-						]
-					]
-				]
-			]);
+			if (isset($params['STATUS']))
+			{
+				\Bitrix\Pull\Event::add([$userId], $push);
+			}
 		}
 
 		$cache->CleanDir(self::CACHE_ONLINE_PATH);
@@ -135,6 +111,45 @@ class CIMStatus
 		$event->send();
 
 		return true;
+	}
+
+	private static function getPushParams(array $status, int $userId): array
+	{
+		return [
+			'module_id' => 'online',
+			'command' => 'userStatus',
+			'expiry' => 1,
+			'params' => [
+				'users' => [
+					$userId => [
+						'id' => $userId,
+						'status' => $status['STATUS'] ?? null,
+						'color' => ($status['COLOR'] ?? null)
+							? \Bitrix\Im\Color::getColor($status['COLOR'])
+							: \Bitrix\Im\Color::getColorByNumber($userId)
+						,
+						'idle' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime
+							? date('c', $status['IDLE']->getTimestamp())
+							: false
+						,
+						'mobile_last_date' => ($status['MOBILE_LAST_DATE'] ?? null) instanceof \Bitrix\Main\Type\DateTime
+							? date('c', $status['MOBILE_LAST_DATE']->getTimestamp())
+							: false
+						,
+						'desktop_last_date' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime
+							? date('c', $status['DESKTOP_LAST_DATE']->getTimestamp())
+							: false
+						,
+						'last_activity_date' => date('c', time())
+					]
+				]
+			]
+		];
+	}
+
+	public static function getPushTag(int $userId): string
+	{
+		return "IM_USER_ONLINE_{$userId}";
 	}
 
 	public static function SetIdle($userId, $result = true, $ago = 10)
@@ -370,11 +385,14 @@ class CIMStatus
 
 				$users[$user["ID"]] = Array(
 					'id' => $user["ID"],
-					'status' => in_array($user['STATUS'], self::$AVAILABLE_STATUSES)? $user['STATUS']: 'online',
+					//'status' => in_array($user['STATUS'], self::$AVAILABLE_STATUSES)? $user['STATUS']: 'online',
+					'status' => 'online',
 					'color' => $color,
-					'idle' => $user['IDLE']?: false,
+					//'idle' => $user['IDLE']?: false,
+					'idle' => false,
 					'last_activity_date' => $user['LAST_ACTIVITY_DATE']?: false,
-					'mobile_last_date' => $user['MOBILE_LAST_DATE']?: false,
+					//'mobile_last_date' => $user['MOBILE_LAST_DATE']?: false,
+					'mobile_last_date' => false,
 					'absent' => \CIMContactList::formatAbsentResult($user["ID"]),
 				);
 

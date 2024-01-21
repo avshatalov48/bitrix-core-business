@@ -5,6 +5,22 @@ namespace Bitrix\Mail\Internals;
 use Bitrix\Main\Entity;
 use Bitrix\Main\ORM;
 
+/**
+ * Class MailEntityOptionsTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_MailEntityOptions_Query query()
+ * @method static EO_MailEntityOptions_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_MailEntityOptions_Result getById($id)
+ * @method static EO_MailEntityOptions_Result getList(array $parameters = [])
+ * @method static EO_MailEntityOptions_Entity getEntity()
+ * @method static \Bitrix\Mail\Internals\EO_MailEntityOptions createObject($setDefaultValues = true)
+ * @method static \Bitrix\Mail\Internals\EO_MailEntityOptions_Collection createCollection()
+ * @method static \Bitrix\Mail\Internals\EO_MailEntityOptions wakeUpObject($row)
+ * @method static \Bitrix\Mail\Internals\EO_MailEntityOptions_Collection wakeUpCollection($rows)
+ */
 class MailEntityOptionsTable extends Entity\DataManager
 {
 	const DIR = 'DIR';

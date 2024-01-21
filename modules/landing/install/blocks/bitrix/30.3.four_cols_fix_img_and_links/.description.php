@@ -44,7 +44,7 @@ return array(
 		),
 		'.landing-block-node-link-more' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_TWO_COLS_FIX_IMG_AND_LINKS_NODES_LANDINGBLOCKNODELINKMORE'),
-			'type' => 'typo-link',
+			'type' => ['text-align', 'typo-link'],
 		),
 		'.landing-block-inner' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_TWO_COLS_FIX_IMG_AND_LINKS_NODES_LANDINGBLOCKNODE_INNER'),

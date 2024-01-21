@@ -545,7 +545,7 @@ if(CModule::IncludeModule("socialnetwork"))
 						"UF" => $arComment["UF"],
 						"~POST_MESSAGE_TEXT" => $arComment["EVENT_FORMATTED"]["MESSAGE"],
 						"POST_MESSAGE_TEXT" => $arComment["EVENT_FORMATTED"]["FULL_MESSAGE_CUT"],
-						"CLASSNAME" => $t ? "" : "",
+						"CLASSNAME" => "",
 						"BEFORE_HEADER" => "",
 						"BEFORE_ACTIONS" => "",
 						"AFTER_ACTIONS" => "",

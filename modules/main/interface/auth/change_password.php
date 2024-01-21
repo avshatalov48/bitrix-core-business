@@ -1,7 +1,11 @@
-<?
+<?php
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-$login = ($USER_LOGIN <> '') ? $USER_LOGIN : $last_login;
+/**
+ * @var string $last_login
+ * @var string $authUrl
+ */
+
 $bNeedCaptcha = (COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y");
 ?>
 
@@ -14,14 +18,14 @@ $bNeedCaptcha = (COption::GetOptionString("main", "captcha_restoring_password", 
 			<div class="login-popup-field">
 				<div class="login-popup-field-title"><?=GetMessage("AUTH_LOGIN")?></div>
 				<div class="login-input-wrap">
-					<input type="email" onfocus="BX.addClass(this.parentNode, 'login-input-active')" onblur="BX.removeClass(this.parentNode, 'login-input-active')" class="login-input" name="USER_LOGIN" value="<?echo htmlspecialcharsbx($login)?>">
+					<input type="email" onfocus="BX.addClass(this.parentNode, 'login-input-active')" onblur="BX.removeClass(this.parentNode, 'login-input-active')" class="login-input" name="USER_LOGIN" value="<?echo htmlspecialcharsbx($last_login)?>">
 					<div class="login-inp-border"></div>
 				</div>
 			</div>
 			<div class="login-popup-field">
 				<div class="login-popup-field-title"><?=GetMessage("AUTH_CHECKWORD")?></div>
 				<div class="login-input-wrap">
-					<input type="text" onfocus="BX.addClass(this.parentNode, 'login-input-active')" onblur="BX.removeClass(this.parentNode, 'login-input-active')" class="login-input" name="USER_CHECKWORD" value="<?echo htmlspecialcharsbx($USER_CHECKWORD)?>">
+					<input type="text" onfocus="BX.addClass(this.parentNode, 'login-input-active')" onblur="BX.removeClass(this.parentNode, 'login-input-active')" class="login-input" name="USER_CHECKWORD" value="">
 					<div class="login-inp-border"></div>
 				</div>
 			</div>

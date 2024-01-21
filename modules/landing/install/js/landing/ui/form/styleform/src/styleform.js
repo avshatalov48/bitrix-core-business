@@ -53,7 +53,6 @@ export class StyleForm extends BaseForm
 		if (
 			this.specialType && this.specialType === 'crm_forms'
 			&& Env.getInstance().getOptions().specialType === 'crm_forms'
-			&& Env.getInstance().getOptions().release_autumn_2023 === 'Y'
 		)
 		{
 			this.#addReplaceByTemplateCard();
@@ -167,9 +166,17 @@ export class StyleForm extends BaseForm
 
 	#addReplaceByTemplateCard()
 	{
+		const isMinisitesAllowed = Env.getInstance().getOptions().allow_minisites;
+
+		const lockIcon = (
+			isMinisitesAllowed
+				? ''
+				: Tag.render`<span class="landing-ui-form-lock-icon"></span>`
+		);
 		const button = Tag.render`
-			<span class="ui-btn ui-btn-sm ui-btn-primary ui-btn-hover ui-btn-round">
+			<span class="landing-ui-form-replace-by-templates-card-button ui-btn ui-btn-sm ui-btn-primary ui-btn-hover ui-btn-round">
 				${Loc.getMessage('LANDING_REPLACE_BY_TEMPLATES_BUTTON')}
+				${lockIcon}
 			</span>
 		`;
 		const card = Tag.render`<div class="landing-ui-form-replace-by-templates-card">
@@ -181,6 +188,13 @@ export class StyleForm extends BaseForm
 		Dom.insertBefore(card, this.header);
 
 		Event.bind(button, 'click', () => {
+			if (!isMinisitesAllowed)
+			{
+				BX.UI.InfoHelper.show('limit_crm_forms_templates');
+
+				return;
+			}
+
 			const metrika = new BX.Landing.Metrika(true);
 			metrika.sendLabel(
 				null,
@@ -188,7 +202,7 @@ export class StyleForm extends BaseForm
 				'open&replaceLid=' + landingParams['LANDING_ID']
 			);
 
-			const templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE'];
+			const templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'];
 			if (templatesMarketUrl)
 			{
 				BX.SidePanel.Instance.open(

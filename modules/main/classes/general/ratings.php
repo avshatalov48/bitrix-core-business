@@ -1,6 +1,6 @@
 <?php
 
-IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/ratings.php");
+IncludeModuleLangFile(__FILE__);
 
 class CAllRatings
 {
@@ -17,12 +17,11 @@ class CAllRatings
 		global $DB;
 
 		$ID = (int)$ID;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetByID<br>Line: ";
 
 		if($ID<=0)
 			return false;
 
-		return ($DB->Query("
+		return $DB->Query("
 			SELECT
 				R.*,
 				".$DB->DateToCharFunction("R.CREATED")." as CREATED,
@@ -31,8 +30,8 @@ class CAllRatings
 			FROM
 				b_rating R
 			WHERE
-				ID=".$ID,
-			false, $err_mess.__LINE__));
+				ID=".$ID
+		);
 	}
 
 	public static function GetArrayByID($ID)
@@ -40,7 +39,6 @@ class CAllRatings
 		global $DB;
 
 		$ID = (int)$ID;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetArrayByID<br>Line: ";
 		$strID = "b".$ID;
 		if(CACHED_b_rating===false)
 		{
@@ -53,8 +51,8 @@ class CAllRatings
 				FROM
 					b_rating R
 				WHERE
-					ID=".$ID,
-			false, $err_mess.__LINE__);
+					ID=".$ID
+			);
 			$arResult = $res->Fetch();
 		}
 		else
@@ -75,8 +73,8 @@ class CAllRatings
 					FROM
 						b_rating R
 					WHERE
-						ID=".$ID,
-				false, $err_mess.__LINE__);
+						ID=".$ID
+				);
 				$arResult = $res->Fetch();
 				if($arResult)
 					$stackCacheManager->Set("b_rating", $strID, $arResult);
@@ -92,8 +90,6 @@ class CAllRatings
 		global $DB;
 
 		$arSqlSearch = Array();
-
-		$err_mess = (CRatings::err_mess())."<br>Function: GetList<br>Line: ";
 
 		if (is_array($arFilter))
 		{
@@ -202,13 +198,13 @@ class CAllRatings
 			WHERE
 			".$strSqlSearch."
 			".$strSqlOrder;
-		return $DB->Query($strSql, false, $err_mess.__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetRatingValueInfo($ratingId)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingValueInfo<br>Line: ";
+
 		$ratingId = (int)$ratingId;
 
 		$strSql = "
@@ -219,15 +215,13 @@ class CAllRatings
 				COUNT(*) as CNT
 			FROM b_rating_results
 			WHERE RATING_ID = ".$ratingId;
-		return $DB->Query($strSql, false, $err_mess.__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	//Addition rating
 	public static function Add($arFields)
 	{
 		global $DB, $stackCacheManager;
-
-		$err_mess = (CRatings::err_mess())."<br>Function: Add<br>Line: ";
 
 		// check only general field
 		if(!CRatings::__CheckFields($arFields))
@@ -273,7 +267,6 @@ class CAllRatings
 		global $DB, $stackCacheManager;
 
 		$ID = (int)$ID;
-		$err_mess = (CRatings::err_mess())."<br>Function: Update<br>Line: ";
 
 		// check only general field
 		if(!CRatings::__CheckFields($arFields))
@@ -287,7 +280,7 @@ class CAllRatings
 			"~LAST_MODIFIED"		=> $DB->GetNowFunction(),
 		);
 		$strUpdate = $DB->PrepareUpdate("b_rating", $arFields_u);
-		if(!$DB->Query("UPDATE b_rating SET ".$strUpdate." WHERE ID=".$ID, false, $err_mess.__LINE__))
+		if(!$DB->Query("UPDATE b_rating SET ".$strUpdate." WHERE ID=".$ID))
 			return false;
 
 		if (!isset($arFields["CONFIGS"]))
@@ -312,16 +305,16 @@ class CAllRatings
 			CRatings::SetAuthorityRating($ID);
 
 		if ($arFields['NEW_CALC'] === 'Y')
-			$DB->Query("UPDATE b_rating_results SET PREVIOUS_VALUE = 0 WHERE RATING_ID=".$ID." and ENTITY_TYPE_ID='".$DB->ForSql($arFields["ENTITY_ID"])."'", false, $err_mess.__LINE__);
+			$DB->Query("UPDATE b_rating_results SET PREVIOUS_VALUE = 0 WHERE RATING_ID=".$ID." and ENTITY_TYPE_ID='".$DB->ForSql($arFields["ENTITY_ID"])."'");
 
 		$strSql = "SELECT COMPLEX_NAME FROM b_rating_component WHERE RATING_ID = $ID and ACTIVE = 'N'";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		$arrRatingComponentId = array();
 		while($arRes = $res->Fetch())
 			$arrRatingComponentId[] = $arRes['COMPLEX_NAME'];
 
 		if (!empty($arrRatingComponentId))
-			$DB->Query("DELETE FROM b_rating_component_results WHERE RATING_ID = $ID AND COMPLEX_NAME IN ('".implode("','", $arrRatingComponentId)."')", false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_rating_component_results WHERE RATING_ID = $ID AND COMPLEX_NAME IN ('".implode("','", $arrRatingComponentId)."')");
 
 		CRatings::Calculate($ID, true);
 
@@ -339,16 +332,15 @@ class CAllRatings
 		global $DB, $stackCacheManager;
 
 		$ID = (int)$ID;
-		$err_mess = (CRatings::err_mess())."<br>Function: Delete<br>Line: ";
 
 		foreach(GetModuleEvents("main", "OnBeforeDeleteRating", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID));
 
-		$DB->Query("DELETE FROM b_rating WHERE ID=$ID", false, $err_mess.__LINE__);
-		$DB->Query("DELETE FROM b_rating_user WHERE RATING_ID=$ID", false, $err_mess.__LINE__);
-		$DB->Query("DELETE FROM b_rating_component WHERE RATING_ID=$ID", false, $err_mess.__LINE__);
-		$DB->Query("DELETE FROM b_rating_component_results WHERE RATING_ID=$ID", false, $err_mess.__LINE__);
-		$DB->Query("DELETE FROM b_rating_results WHERE RATING_ID=$ID", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_rating WHERE ID=$ID");
+		$DB->Query("DELETE FROM b_rating_user WHERE RATING_ID=$ID");
+		$DB->Query("DELETE FROM b_rating_component WHERE RATING_ID=$ID");
+		$DB->Query("DELETE FROM b_rating_component_results WHERE RATING_ID=$ID");
+		$DB->Query("DELETE FROM b_rating_results WHERE RATING_ID=$ID");
 
 		CAgent::RemoveAgent("CRatings::Calculate($ID);", "main");
 
@@ -363,7 +355,6 @@ class CAllRatings
 		global $DB;
 
 		$ID = (int)$ID;
-		$err_mess = (CRatings::err_mess())."<br>Function: Calculate<br>Line: ";
 
 		$strSql = "SELECT
 				RC.*,
@@ -375,7 +366,7 @@ class CAllRatings
 			WHERE
 				RATING_ID = $ID
 				and ACTIVE = 'Y' ".($bForceRecalc ? '' : 'AND NEXT_CALCULATION <= '.$DB->GetNowFunction());
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		while($arRes = $res->Fetch())
 		{
 			if(CModule::IncludeModule(mb_strtolower($arRes['MODULE_ID'])))
@@ -533,7 +524,6 @@ class CAllRatings
 	public static function GetRatingVoteResultCache($entityTypeId, $entityId, $user_id = 0)
 	{
 		global $DB, $CACHE_MANAGER;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingVoteResultCache<br>Line: ";
 
 		$arResult = array();
 		$entityId = (int)$entityId;
@@ -571,7 +561,7 @@ class CAllRatings
 							RVG.ENTITY_TYPE_ID = '".$DB->ForSql($entityTypeId)."'
 						and RVG.ENTITY_ID between ".($bucket*$bucket_size)." AND ".(($bucket+1)*$bucket_size-1)."
 						and RVG.ACTIVE = 'Y'";
-			$res = $DB->Query($sql_str, false, $err_mess.__LINE__);
+			$res = $DB->Query($sql_str);
 			while($row = $res->Fetch())
 			{
 				$arResult[$row['ENTITY_ID']] = array(
@@ -608,7 +598,7 @@ class CAllRatings
 						WHERE
 							RVGR.ENTITY_TYPE_ID = '".$DB->ForSql($entityTypeId)."'
 						and RVGR.ENTITY_ID between ".($bucket*$bucket_size)." AND ".(($bucket+1)*$bucket_size-1);
-			$res = $DB->Query($sql_str, false, $err_mess.__LINE__);
+			$res = $DB->Query($sql_str);
 			while($row = $res->Fetch())
 			{
 				if (!in_array($row['ENTITY_ID'], $entityIdList))
@@ -650,7 +640,7 @@ class CAllRatings
 					FROM b_rating_vote RVG
 					WHERE RVG.ENTITY_TYPE_ID = '".$DB->ForSql($entityTypeId)."'
 					and RVG.ENTITY_ID between ".($bucket*$bucket_size)." AND ".(($bucket+1)*$bucket_size-1);
-			$res = $DB->Query($sql, false, $err_mess.__LINE__);
+			$res = $DB->Query($sql);
 			while($row = $res->Fetch())
 			{
 				$arResult[$row['ENTITY_ID']]['USER_VOTE_LIST'][$row['USER_ID']] = $row['VALUE'];
@@ -677,7 +667,7 @@ class CAllRatings
 	public static function GetRatingResult($ID, $entityId)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingResult<br>Line: ";
+
 		$ID = (int)$ID;
 
 		static $cacheRatingResult = array();
@@ -725,7 +715,7 @@ class CAllRatings
 				FROM b_rating_results
 				WHERE RATING_ID = '".$ID."'  AND ENTITY_ID IN (".implode(',', $arToSelect).")
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			while($arRes = $res->Fetch())
 			{
 
@@ -776,7 +766,6 @@ class CAllRatings
 
 		CRatings::CancelRatingVote($arParam);
 
-		$err_mess = (CRatings::err_mess())."<br>Function: AddRatingVote<br>Line: ";
 		$votePlus = $arParam['VALUE'] >= 0 ? true : false;
 
 		$ratingId = CRatings::GetAuthorityRating();
@@ -824,10 +813,10 @@ class CAllRatings
 				$arParam['OWNER_ID'] = (int)$result;
 		}
 
-		$rowAffected = $DB->Update("b_rating_voting", $arFields, "WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'" , $err_mess.__LINE__);
+		$rowAffected = $DB->Update("b_rating_voting", $arFields, "WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 		if ($rowAffected > 0)
 		{
-			$rsRV = $DB->Query("SELECT ID, TOTAL_POSITIVE_VOTES FROM b_rating_voting WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+			$rsRV = $DB->Query("SELECT ID, TOTAL_POSITIVE_VOTES FROM b_rating_voting WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 			$arRV = $rsRV->Fetch();
 			$arParam['RATING_VOTING_ID'] = $arRV['ID'];
 			$arParam['TOTAL_POSITIVE_VOTES'] = $arRV['TOTAL_POSITIVE_VOTES'];
@@ -837,7 +826,7 @@ class CAllRatings
 
 			if ($votePlus)
 			{
-				$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+				$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 				if (!($arRVR = $rsRVR->fetch())) // reactions not initialized
 				{
 					$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
@@ -882,7 +871,7 @@ class CAllRatings
 				"TOTAL_POSITIVE_VOTES" => ($votePlus ? 1 : 0),
 				"TOTAL_NEGATIVE_VOTES" => ($votePlus ? 0 : 1)
 			);
-			$arParam['RATING_VOTING_ID'] = $DB->Insert("b_rating_voting", $arFields, $err_mess.__LINE__);
+			$arParam['RATING_VOTING_ID'] = $DB->Insert("b_rating_voting", $arFields);
 			$arParam['TOTAL_POSITIVE_VOTES'] = ($votePlus ? 1 : 0);
 
 			$arParam['REACTIONS_LIST'] = array(
@@ -906,7 +895,7 @@ class CAllRatings
 			}
 		}
 
-		$rsRVR = $DB->Query("SELECT REACTION, TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+		$rsRVR = $DB->Query("SELECT REACTION, TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 		while($arRVR = $rsRVR->fetch())
 		{
 			$arParam['REACTIONS_LIST'][$arRVR['REACTION']] = $arRVR['TOTAL_VOTES'];
@@ -924,7 +913,7 @@ class CAllRatings
 			"OWNER_ID"			=> (int)$arParam['OWNER_ID'],
 			"REACTION"			=> "'".$DB->ForSql($arParam["REACTION"])."'"
 		);
-		$ID = $DB->Insert("b_rating_vote", $arFields, $err_mess.__LINE__);
+		$ID = $DB->Insert("b_rating_vote", $arFields);
 
 		foreach(GetModuleEvents("main", "OnAddRatingVote", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array((int)$ID, $arParam));
@@ -971,8 +960,6 @@ class CAllRatings
 		$arParam['REACTION'] = ($arParam['REACTION'] <> '' ? $arParam['REACTION'] : self::REACTION_DEFAULT);
 		$userData = \CAllRatings::getUserData((int)$arParam['USER_ID'], (float)$arParam['VALUE']);
 
-		$err_mess = (CRatings::err_mess())."<br>Function: ChangeRatingVote<br>Line: ";
-
 		$sqlStr = "
 			SELECT
 				RVG.ID,
@@ -989,7 +976,7 @@ class CAllRatings
 			and RVG.ID = RV.RATING_VOTING_ID
 			and RV.USER_ID = ".(int)$arParam['USER_ID'];
 
-		$res = $DB->Query($sqlStr, false, $err_mess.__LINE__);
+		$res = $DB->Query($sqlStr);
 		if ($arVote = $res->Fetch())
 		{
 			// GetOwnerDocument
@@ -1009,7 +996,7 @@ class CAllRatings
 				return false;
 			}
 
-			$rsRV = $DB->Query("SELECT ID, TOTAL_POSITIVE_VOTES FROM b_rating_voting WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+			$rsRV = $DB->Query("SELECT ID, TOTAL_POSITIVE_VOTES FROM b_rating_voting WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 			if ($arRV = $rsRV->Fetch())
 			{
 				$arParam['RATING_VOTING_ID'] = $arRV['ID'];
@@ -1023,7 +1010,7 @@ class CAllRatings
 				return false;
 			}
 
-			$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+			$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 			if (!($arRVR = $rsRVR->fetch())) // reactions not initialized
 			{
 				$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
@@ -1055,10 +1042,10 @@ class CAllRatings
 
 			if (!empty($arVote['REACTION_OLD']))
 			{
-				$DB->Query("UPDATE b_rating_voting_reaction SET TOTAL_VOTES = TOTAL_VOTES - 1 WHERE ENTITY_TYPE_ID = '".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID = '".(int)$arParam['ENTITY_ID']."' AND REACTION = '".$DB->ForSql($arVote['REACTION_OLD'])."'", false, $err_mess.__LINE__);
+				$DB->Query("UPDATE b_rating_voting_reaction SET TOTAL_VOTES = TOTAL_VOTES - 1 WHERE ENTITY_TYPE_ID = '".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID = '".(int)$arParam['ENTITY_ID']."' AND REACTION = '".$DB->ForSql($arVote['REACTION_OLD'])."'");
 			}
 
-			$rsRVR = $DB->Query("SELECT REACTION, TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+			$rsRVR = $DB->Query("SELECT REACTION, TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 			while($arRVR = $rsRVR->fetch())
 			{
 				$arParam['REACTIONS_LIST'][$arRVR['REACTION']] = $arRVR['TOTAL_VOTES'];
@@ -1070,7 +1057,7 @@ class CAllRatings
 				"REACTION" => "'".$DB->ForSql($arParam["REACTION"])."'"
 			);
 
-			$ID = $DB->Update("b_rating_vote", $arFields, "WHERE RATING_VOTING_ID=".(int)$arParam['RATING_VOTING_ID']." AND USER_ID=".(int)$arParam['USER_ID'], $err_mess.__LINE__);
+			$ID = $DB->Update("b_rating_vote", $arFields, "WHERE RATING_VOTING_ID=".(int)$arParam['RATING_VOTING_ID']." AND USER_ID=".(int)$arParam['USER_ID']);
 			if (!$ID)
 			{
 				return false;
@@ -1122,8 +1109,6 @@ class CAllRatings
 		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		$err_mess = (CRatings::err_mess())."<br>Function: CancelRatingVote<br>Line: ";
-
 		$sqlStr = "
 			SELECT
 				RVG.ID,
@@ -1140,7 +1125,7 @@ class CAllRatings
 			and RVG.ID = RV.RATING_VOTING_ID
 			and RV.USER_ID = ".(int)$arParam['USER_ID'];
 
-		$res = $DB->Query($sqlStr, false, $err_mess.__LINE__);
+		$res = $DB->Query($sqlStr);
 		if ($arVote = $res->Fetch())
 		{
 			$votePlus = $arVote['VOTE_VALUE'] >= 0 ? true : false;
@@ -1148,7 +1133,7 @@ class CAllRatings
 
 			if ($votePlus)
 			{
-				$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+				$rsRVR = $DB->Query("SELECT TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 				if (!($arRVR = $rsRVR->fetch())) // reactions not initialized
 				{
 					$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
@@ -1172,7 +1157,7 @@ class CAllRatings
 				'LAST_CALCULATED' => $DB->GetNowFunction(),
 			);
 			$arFields[($votePlus ? 'TOTAL_POSITIVE_VOTES' : 'TOTAL_NEGATIVE_VOTES')] = ($votePlus ? 'TOTAL_POSITIVE_VOTES-1' : 'TOTAL_NEGATIVE_VOTES-1');
-			$DB->Update("b_rating_voting", $arFields, "WHERE ID=".(int)$arVote['ID'], $err_mess.__LINE__);
+			$DB->Update("b_rating_voting", $arFields, "WHERE ID=".(int)$arVote['ID']);
 			if ($votePlus)
 			{
 				$merge = $helper->prepareMerge('b_rating_voting_reaction', ['ENTITY_TYPE_ID', 'ENTITY_ID', 'REACTION'], [
@@ -1188,10 +1173,10 @@ class CAllRatings
 					$DB->query($merge[0]);
 				}
 			}
-			$DB->Query("DELETE FROM b_rating_vote WHERE ID=".(int)$arVote['VOTE_ID'], false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_rating_vote WHERE ID=".(int)$arVote['VOTE_ID']);
 
 			$arParam['REACTIONS_LIST'] = array();
-			$rsRVR = $DB->Query("SELECT REACTION, TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'", false, $err_mess.__LINE__);
+			$rsRVR = $DB->Query("SELECT REACTION, TOTAL_VOTES FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".(int)$arParam['ENTITY_ID']."'");
 			while($arRVR = $rsRVR->fetch())
 			{
 				$arParam['REACTIONS_LIST'][$arRVR['REACTION']] = $arRVR['TOTAL_VOTES'];
@@ -1239,7 +1224,6 @@ class CAllRatings
 	public static function UpdateRatingUserBonus($arParam)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: AddRatingBonus<br>Line: ";
 
 		$arParam['RATING_ID'] = (int)$arParam['RATING_ID'];
 		$arParam['ENTITY_ID'] = (int)$arParam['ENTITY_ID'];
@@ -1260,9 +1244,9 @@ class CAllRatings
 		$rows = $DB->Update("b_rating_user", $arFields, "WHERE RATING_ID = ".$arParam['RATING_ID']." AND ENTITY_ID = ".$arParam['ENTITY_ID']);
 		if ($rows == 0)
 		{
-			$rsRB = $DB->Query("SELECT * FROM b_rating_user WHERE RATING_ID = ".$arParam['RATING_ID']." AND ENTITY_ID = ".$arParam['ENTITY_ID'], false, $err_mess.__LINE__);
+			$rsRB = $DB->Query("SELECT * FROM b_rating_user WHERE RATING_ID = ".$arParam['RATING_ID']." AND ENTITY_ID = ".$arParam['ENTITY_ID']);
 			if (!$rsRB->SelectedRowsCount())
-				$DB->Insert("b_rating_user", $arFields, $err_mess.__LINE__);
+				$DB->Insert("b_rating_user", $arFields);
 		}
 		if (CACHED_b_rating_vote!==false)
 		{
@@ -1279,7 +1263,7 @@ class CAllRatings
 	public static function GetRatingUserProp($ratingId, $entityId)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingUserProp<br>Line: ";
+
 		$ratingId = (int)$ratingId;
 
 		static $cache = array();
@@ -1327,7 +1311,7 @@ class CAllRatings
 				FROM b_rating_user
 				WHERE RATING_ID = '".$ratingId."' AND ENTITY_ID IN (".implode(',', $arToSelect).")
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			while($arRes = $res->Fetch())
 				$arResult[$arRes["ENTITY_ID"]] = $cache[$ratingId][$arRes["ENTITY_ID"]] = $arRes;
 		}
@@ -1341,7 +1325,6 @@ class CAllRatings
 	public static function GetRatingUserPropEx($ratingId, $entityId)
 	{
 		global $DB, $CACHE_MANAGER;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingUserPropEx<br>Line: ";
 
 		$ratingId = (int)$ratingId;
 		$entityId = (int)$entityId;
@@ -1374,7 +1357,7 @@ class CAllRatings
 				WHERE RATING_ID = '".$ratingId."'
 				and ENTITY_ID between ".($bucket*$bucket_size)." AND ".(($bucket+1)*$bucket_size-1)."
 			";
-			$res = $DB->Query($sql_str, false, $err_mess.__LINE__);
+			$res = $DB->Query($sql_str);
 			while($arRes = $res->Fetch())
 				$arResult[$arRes["ENTITY_ID"]] = $arRes;
 
@@ -1407,7 +1390,6 @@ class CAllRatings
 
 		$arSqlSearch = Array();
 		$strSqlSearch = "";
-		$err_mess = (CRatings::err_mess())."<br>Function: GetWeightList<br>Line: ";
 
 		if (is_array($arFilter))
 		{
@@ -1480,13 +1462,12 @@ class CAllRatings
 			WHERE
 			".$strSqlSearch."
 			".$strSqlOrder;
-		return $DB->Query($strSql, false, $err_mess.__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function SetWeight($arConfigs)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: SetWeight<br>Line: ";
 
 		usort($arConfigs, array('CRatings', '__SortWeight'));
 		// prepare insert
@@ -1511,9 +1492,9 @@ class CAllRatings
 			$arConfigs[$key] = $arAdd[$key];
 		}
 		// insert
-		$DB->Query("DELETE FROM b_rating_weight", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_rating_weight");
 		foreach($arAdd as $key => $arFields)
-			$DB->Insert("b_rating_weight", $arFields, $err_mess.__LINE__);
+			$DB->Insert("b_rating_weight", $arFields);
 
 		return true;
 	}
@@ -1521,7 +1502,6 @@ class CAllRatings
 	public static function SetVoteGroup($arGroupId, $type)
 	{
 		global $DB, $CACHE_MANAGER;
-		$err_mess = (CRatings::err_mess())."<br>Function: SetVoteGroup<br>Line: ";
 
 		if (!in_array($type, array('R', 'A')))
 			return false;
@@ -1539,9 +1519,9 @@ class CAllRatings
 			$arFields[$key] = $arField;
 		}
 
-		$DB->Query("DELETE FROM b_rating_vote_group WHERE TYPE = '".$type."'", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_rating_vote_group WHERE TYPE = '".$type."'");
 		foreach($arFields as $key => $arField)
-			$DB->Insert("b_rating_vote_group", $arField, $err_mess.__LINE__);
+			$DB->Insert("b_rating_vote_group", $arField);
 
 		$CACHE_MANAGER->Clean("ratings_vg");
 
@@ -1551,7 +1531,6 @@ class CAllRatings
 	public static function GetVoteGroup($type = '')
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetVoteGroup<br>Line: ";
 
 		$bAllType = false;
 		if (!in_array($type, array('R', 'A')))
@@ -1562,13 +1541,12 @@ class CAllRatings
 		if (!$bAllType)
 			$strSql .= " WHERE TYPE = '".$type."'";
 
-		return $DB->Query($strSql, false, $err_mess.__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetVoteGroupEx($type = '')
 	{
 		global $DB, $CACHE_MANAGER;
-		$err_mess = (CRatings::err_mess())."<br>Function: GetVoteGroupEx<br>Line: ";
 
 		$res = $CACHE_MANAGER->Read(2592000, "ratings_vg");
 		if ($res)
@@ -1578,7 +1556,7 @@ class CAllRatings
 		else
 		{
 			$strSql = "SELECT GROUP_ID, TYPE FROM b_rating_vote_group RVG";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			while($arRes = $res->Fetch($res))
 			{
 				$arResult[] = $arRes;
@@ -1599,19 +1577,18 @@ class CAllRatings
 	public static function ClearData()
 	{
 		global $DB, $CACHE_MANAGER;
-		$err_mess = (CRatings::err_mess())."<br>Function: ClearData<br>Line: ";
 
-		$DB->Query("TRUNCATE TABLE b_rating_prepare", false, $err_mess.__LINE__);
-		$DB->Query("TRUNCATE TABLE b_rating_voting_prepare", false, $err_mess.__LINE__);
+		$DB->Query("TRUNCATE TABLE b_rating_prepare");
+		$DB->Query("TRUNCATE TABLE b_rating_voting_prepare");
 
-		$DB->Query("TRUNCATE TABLE b_rating_results", false, $err_mess.__LINE__);
-		$DB->Query("TRUNCATE TABLE b_rating_component_results", false, $err_mess.__LINE__);
+		$DB->Query("TRUNCATE TABLE b_rating_results");
+		$DB->Query("TRUNCATE TABLE b_rating_component_results");
 
-		$DB->Query("TRUNCATE TABLE b_rating_vote", false, $err_mess.__LINE__);
-		$DB->Query("TRUNCATE TABLE b_rating_voting", false, $err_mess.__LINE__);
-		$DB->Query("TRUNCATE TABLE b_rating_voting_reaction", false, $err_mess.__LINE__);
+		$DB->Query("TRUNCATE TABLE b_rating_vote");
+		$DB->Query("TRUNCATE TABLE b_rating_voting");
+		$DB->Query("TRUNCATE TABLE b_rating_voting_reaction");
 
-		$DB->Query("UPDATE b_rating_user SET VOTE_WEIGHT = 0, VOTE_COUNT = 0", false, $err_mess.__LINE__);
+		$DB->Query("UPDATE b_rating_user SET VOTE_WEIGHT = 0, VOTE_COUNT = 0");
 
 		$CACHE_MANAGER->CleanDir("b_rating_voting");
 		$CACHE_MANAGER->CleanDir("b_rating_user");
@@ -1628,7 +1605,6 @@ class CAllRatings
 	public static function OnAfterUserRegister($arFields)
 	{
 		global $DB;
-		$err_mess = (CRatings::err_mess())."<br>Function: OnAfterUserRegister<br>Line: ";
 
 		if (isset($arFields['EXTERNAL_AUTH_ID']) && in_array($arFields['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes(), true))
 		{
@@ -1654,7 +1630,7 @@ class CAllRatings
 			if (IsModuleInstalled("intranet"))
 			{
 				$strSql = "INSERT INTO b_rating_subordinate (RATING_ID, ENTITY_ID, VOTES) VALUES ('".$authorityRatingId."', '".$userId."', '".((int)$ratingCountVote + (int)$ratingStartValue)."')";
-				$DB->Query($strSql, false, $err_mess.__LINE__);
+				$DB->Query($strSql);
 			}
 
 			$sRatingAssignType = COption::GetOptionString("main", "rating_assign_type", 'manual');
@@ -1731,7 +1707,7 @@ class CAllRatings
 		$arRatingConfigs = CRatings::GetRatingConfigs($arFields["ENTITY_ID"], false);
 
 		$ID = (int)$ID;
-		$err_mess = (CRatings::err_mess())."<br>Function: __AddComponents<br>Line: ";
+
 		foreach ($arFields['CONFIGS'] as $MODULE_ID => $RAT_ARRAY)
 		{
 			if (!is_array($RAT_ARRAY))
@@ -1765,11 +1741,10 @@ class CAllRatings
 						"~CONFIG"			=> "'".serialize($COMPONENT_VALUE)."'",
 					);
 
-					$DB->Add("b_rating_component", $arFields_i, array(), "", false, $err_mess.__LINE__);
+					$DB->Add("b_rating_component", $arFields_i);
 				}
 			}
 		}
-
 
 		return true;
 	}
@@ -1779,9 +1754,8 @@ class CAllRatings
 		global $DB;
 
 		$ID = (int)$ID;
-		$err_mess = (CRatings::err_mess())."<br>Function: __UpdateComponents<br>Line: ";
 
-		$DB->Query("DELETE FROM b_rating_component WHERE RATING_ID=$ID", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_rating_component WHERE RATING_ID=$ID");
 
 		CRatings::__AddComponents($ID, $arFields);
 

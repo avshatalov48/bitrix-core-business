@@ -54,17 +54,9 @@ class ElementDataProvider extends EntityDataProvider
 		{
 			return $this->getUserEntitySelectorParams($fieldID . '_filter', ['fieldName' => $fieldID]);
 		}
-		elseif ($this->fields->isPropertyEnumField($fieldID))
+		elseif ($this->fields->isPropertyId($fieldID))
 		{
-			$result = [
-				'items' => $this->fields->getPropertyEnumFieldListItems($fieldID),
-			];
-			if (count($result['items']) > 1)
-			{
-				$result['params'] = ['multiple' => true];
-			}
-
-			return $result;
+			return $this->fields->getPropertyDescription($fieldID);
 		}
 
 		return null;
@@ -87,6 +79,6 @@ class ElementDataProvider extends EntityDataProvider
 			$rawFilterValue['?NAME'] = $rawFilterValue['FIND'];
 		}
 
-		return $rawFilterValue;
+		return $this->fields->prepareFilterValue($rawFilterValue);
 	}
 }

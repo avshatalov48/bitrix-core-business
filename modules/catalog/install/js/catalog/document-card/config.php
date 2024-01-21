@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/document-card.bundle.js',
 	'rel' => [
 		'catalog.entity-card',
+		'ui.buttons',
 		'main.core.events',
 		'currency.currency-core',
 		'ui.entity-selector',

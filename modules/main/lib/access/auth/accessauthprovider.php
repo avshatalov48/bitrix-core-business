@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\Access\Auth;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Access\AccessCode;
 
 class AccessAuthProvider extends \CAuthProvider
@@ -43,16 +44,20 @@ class AccessAuthProvider extends \CAuthProvider
 				WHERE UF_HEAD = " . $userId
 			);
 
+			$connection = Application::getConnection();
+			$helper = $connection->getSqlHelper();
+
 			while ($row = $res->fetch())
 			{
 				$id = (int) $row['VALUE_ID'];
-				$sql = '
-				INSERT INTO b_user_access
-				(USER_ID, PROVIDER_ID, ACCESS_CODE)
-				VALUES
-				('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.'0"),
-				('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.$id.'")
-			';
+
+				$sql = $helper->getInsertIgnore(
+					'b_user_access',
+					'(USER_ID, PROVIDER_ID, ACCESS_CODE)',
+					'VALUES
+						('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.'0"),
+						('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.$id.'")'
+				);
 				$DB->query($sql);
 			}
 		}

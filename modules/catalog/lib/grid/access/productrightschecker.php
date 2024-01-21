@@ -13,8 +13,9 @@ class ProductRightsChecker extends IblockRightsChecker
 {
 	private AccessController $controller;
 
-	public function __construct(?AccessController $controller = null)
+	public function __construct(int $iblockId, ?AccessController $controller = null)
 	{
+		parent::__construct($iblockId);
 		$this->controller = $controller ?? AccessController::getCurrent();
 	}
 
@@ -55,12 +56,17 @@ class ProductRightsChecker extends IblockRightsChecker
 		return $this->controller->check(ActionDictionary::ACTION_PRODUCT_DELETE);
 	}
 
-	public function canDeleteSection(int $elementId): bool
+	public function canDeleteSection(int $sectionId): bool
 	{
 		return $this->controller->check(ActionDictionary::ACTION_PRODUCT_DELETE);
 	}
 
 	public function canBindElementToSection(int $sectionId): bool
+	{
+		return $this->controller->check(ActionDictionary::ACTION_PRODUCT_EDIT);
+	}
+
+	public function canBindSectionToSection(int $sectionId): bool
 	{
 		return $this->controller->check(ActionDictionary::ACTION_PRODUCT_EDIT);
 	}

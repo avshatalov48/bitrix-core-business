@@ -116,7 +116,7 @@ class Section extends Mapper implements BaseMapperInterface
 
 		if ($result->isSuccess())
 		{
-			$this->sendPushEdit($entity->getOwner()->getId());
+			$this->sendPushEdit($entity->getOwner()->getId(), true);
 			$entity->setId((int)$result->getId());
 			$entity->setXmlId($this->saveXmlId($result->getId(), $entity->getType()));
 
@@ -146,7 +146,7 @@ class Section extends Mapper implements BaseMapperInterface
 
 		if ($result->isSuccess())
 		{
-			$this->sendPushEdit($entity->getOwner()->getId());
+			$this->sendPushEdit($entity->getOwner()->getId(), false);
 			return $entity->setDateModified(new Core\Base\Date());
 		}
 
@@ -227,9 +227,15 @@ class Section extends Mapper implements BaseMapperInterface
 	 *
 	 * @return void
 	 */
-	private function sendPushEdit(int $userId): void
+	private function sendPushEdit(int $userId, bool $isNewSection): void
 	{
-		Util::addPullEvent('edit_section', $userId);
+		Util::addPullEvent(
+			'edit_section',
+			$userId,
+			[
+				'newSection' => $isNewSection,
+			],
+		);
 	}
 
 	/**

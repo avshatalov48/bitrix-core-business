@@ -25,7 +25,6 @@ export default class Image extends BaseControl
 		super();
 		this.setEventNamespace('BX.Landing.UI.Field.Color.Image');
 		this.options = options;
-
 		this.imgField = new ImageField({
 			id: 'landing_ui_color_image_' + Text.getRandom().toLowerCase(),
 			className: 'landing-ui-field-color-image-image',
@@ -34,7 +33,9 @@ export default class Image extends BaseControl
 			disableLink: true,
 			disableAltField: true,
 			allowClear: true,
-			allowAiImage: Env.getInstance().getOptions()['allow_ai_image'],
+			isAiImageAvailable: Env.getInstance().getOptions()['ai_image_available'],
+			isAiImageActive: Env.getInstance().getOptions()['ai_image_active'],
+			aiUnactiveInfoCode: Env.getInstance().getOptions()['ai_unactive_info_code'],
 			dimensions: {width: 1920},
 			uploadParams: {
 				action: "Block::uploadFile",

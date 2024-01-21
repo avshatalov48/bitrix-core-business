@@ -1,9 +1,9 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,landing_node) {
+(function (exports,landing_node_base) {
 	'use strict';
 
-	class Component extends landing_node.Node {
+	class Component extends landing_node_base.Base {
 	  constructor(options) {
 	    super(options);
 	    this.type = 'component';
@@ -40,5 +40,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Component = Component;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing.Node));
 //# sourceMappingURL=component.bundle.js.map

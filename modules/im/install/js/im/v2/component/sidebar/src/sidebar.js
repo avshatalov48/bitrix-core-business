@@ -1,7 +1,8 @@
 import { Logger } from 'im.v2.lib.logger';
-import { ImModelDialog } from 'im.v2.model';
+import { ImModelChat } from 'im.v2.model';
 import { SidebarDetailBlock, SidebarFileTabTypes } from 'im.v2.const';
 import { SidebarService } from './classes/sidebar-service';
+import { ChatsWithUserDetail } from './components/chats-with-user/detail';
 import { MainDetail } from './components/main/detail';
 import { MainPreview } from './components/main/preview';
 import { InfoPreview } from './components/info/preview';
@@ -66,6 +67,7 @@ export const ChatSidebar = {
 		MarketPreview,
 		MarketDetail,
 		MessageSearchDetail,
+		ChatsWithUserDetail,
 		SearchHeader,
 	},
 	props:
@@ -113,9 +115,9 @@ export const ChatSidebar = {
 		{
 			return this.sidebarService.getBlockInstance(this.detailBlock);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		chatId(): number
 		{
@@ -149,6 +151,7 @@ export const ChatSidebar = {
 		{
 			if (newValue === true && oldValue === false)
 			{
+				this.isLoading = false;
 				this.initializeSidebar();
 			}
 		},

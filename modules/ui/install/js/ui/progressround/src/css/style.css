@@ -1,0 +1,155 @@
+:root {
+	/*size*/
+	--ui-current-round-size: 8px;
+	/*color*/
+	--ui-current-round-color: #2fc6f6;
+	--ui-current-round-bg-track-color: #edeef0;
+	--ui-progressround-color-success: #9dcf00;
+	--ui-progressround-bg-track-color-success: #d7f282;
+	--ui-progressround-color-primary: #2fc6f6;
+	--ui-progressround-bg-track-color-primary: #b0e8fa;
+	--ui-progressround-color-danger: #ff5752;
+	--ui-progressround-bg-track-color-danger: #ffccca;
+	--ui-progressround-color-warning: #e5cf4d;
+	--ui-progressround-bg-track-color-warning: #f9f0b7;
+}
+
+/*region Base style*/
+.ui-progressround {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	width: 100%;
+	transition: 250ms linear all;
+	align-items: center;
+}
+
+.ui-progressround.ui-progressround-bg .ui-progressround-track-bar-bg { stroke: var(--ui-current-round-bg-track-color) !important;}
+
+.ui-progressround-track { position: relative; }
+
+.ui-progressround-track svg {
+	display: block;
+	transform: rotate(-90deg);
+}
+
+.ui-progressround-track-bar-bg {
+	stroke: #edeef0;
+	stroke-dashoffset: 0;
+	fill: transparent;
+	stroke-dasharray: 400%
+}
+
+.ui-progressround-track-bar-progress {
+	fill: transparent;
+	stroke: var(--ui-current-round-color) !important;
+	transition: 120ms ease-in-out;
+}
+
+.ui-progressround-status,
+.ui-progressround-status-percent {
+	order: 3;
+	text-align: center;
+}
+
+.ui-progressround-status,
+.ui-progressround-status-percent,
+.ui-progressround-text-after,
+.ui-progressround-text-before {
+	padding: 0 17px 4px;
+	color: #535c69;
+	font: 13px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+
+.ui-progressround-text-after {
+	padding-left: 15px;
+	order: 4;
+}
+
+.ui-progressround-text-before {
+	padding-right: 15px;
+	order: 1;
+}
+
+.ui-progressround-pie {}
+
+.ui-progressround-pie:after { }
+
+.ui-progressround-rotation svg {
+	animation: infinite uiProgressbarRotation 2500ms linear;
+}
+
+@keyframes uiProgressbarRotation {
+	from {
+		transform: rotate(-90deg);
+	}
+	to {
+		transform: rotate(270deg);
+	}
+}
+
+.ui-progressround-finished.ui-progressround-rotation svg { animation: none; }
+
+/*endregion*/
+
+/*region Column*/
+.ui-progressround-track { order: 3 }
+
+.ui-progressround-text-before {
+	padding: 0 0 14px;
+	font-size: 14px;
+	order: 1;
+}
+
+.ui-progressround-text-after {
+	padding: 9px 0 0;
+	color: #828b95;
+	font-size: 12px;
+	order: 5;
+}
+
+.ui-progressround-status { order: 4 }
+
+.ui-progressround-status-percent {
+	color: #333;
+	font: 16px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+
+.ui-progressround-status-percent-incircle,
+.ui-progressround-status-incircle {
+	position: absolute;
+	top:50%;
+	left: 0;
+	right: 0;
+	text-align: center;
+	margin-top: -1px;
+	transform: translateY(-50%);
+}
+
+/*endregion*/
+
+/*region Bar colors*/
+.ui-progressround-bg,
+.ui-progressround-primary {
+	--ui-current-round-color: var(--ui-progressround-color-primary);
+	--ui-current-round-bg-track-color: var(--ui-progressround-bg-track-color-primary)
+}
+
+.ui-progressround-danger {
+	--ui-current-round-color: var(--ui-progressround-color-danger);
+	--ui-current-round-bg-track-color: var(--ui-progressround-bg-track-color-danger)
+}
+
+.ui-progressround-warning {
+	--ui-current-round-color: var(--ui-progressround-color-warning);
+	--ui-current-round-bg-track-color: var(--ui-progressround-bg-track-color-warning)
+}
+
+.ui-progressround-success {
+	--ui-current-round-color: var(--ui-progressround-color-success);
+	--ui-current-round-bg-track-color: var(--ui-progressround-bg-track-color-success)
+}
+
+/*endregion*/

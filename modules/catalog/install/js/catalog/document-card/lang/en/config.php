@@ -1,5 +1,11 @@
 <?php
 $MESS["CANCEL_CONDUCT_BUTTON"] = "Cancel processing";
+$MESS["CANCEL_CONDUCT_CANCELLATION_POPUP_HINT"] = "Only the current stock balance and cost will be adjusted if you cancel processing. #HELP_LINK#";
+$MESS["CANCEL_CONDUCT_CANCELLATION_POPUP_LINK"] = "Learn more";
+$MESS["CANCEL_CONDUCT_CANCELLATION_POPUP_NO"] = "No";
+$MESS["CANCEL_CONDUCT_CANCELLATION_POPUP_QUESTION"] = "Are you sure you want to cancel processing?";
+$MESS["CANCEL_CONDUCT_CANCELLATION_POPUP_TITLE"] = "Cancel processing";
+$MESS["CANCEL_CONDUCT_CANCELLATION_POPUP_YES"] = "Yes, cancel";
 $MESS["CONDUCT_BUTTON"] = "Process";
 $MESS["DOCUMENT_ADD_CONTRACTOR"] = "Create vendor:";
 $MESS["DOCUMENT_ADD_CONTRACTOR_ERROR"] = "Error creating vendor";

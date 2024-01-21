@@ -68,5 +68,26 @@ describe('core/http/data', () => {
 			assert.deepEqual(entries, resultEntries);
 
 		});
+
+		it('Should works with property[value][] (BUG: 177189)', () => {
+			const source = {
+				'prop[value][]': [1, 2, 3],
+			};
+
+			const fd = Http.Data.convertObjectToFormData(source);
+			const fdEntries = [...fd.entries()];
+
+			const [key1, value1] = fdEntries.at(0);
+			assert.ok(key1 === 'prop[value][0]');
+			assert.ok(value1 === '1');
+
+			const [key2, value2] = fdEntries.at(1);
+			assert.ok(key2 === 'prop[value][1]');
+			assert.ok(value2 === '2');
+
+			const [key3, value3] = fdEntries.at(2);
+			assert.ok(key3 === 'prop[value][2]');
+			assert.ok(value3 === '3');
+		});
 	});
 });

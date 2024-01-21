@@ -15,3 +15,5 @@ $MESS["IM_CHAT_KICK_NOTIFICATION_F"] = "#USER_NAME# removed you from chat";
 $MESS["IM_CHAT_KICK_NOTIFICATION_M"] = "#USER_NAME# removed you from chat";
 $MESS["IM_CHAT_LEAVE_F"] = "#USER_NAME# left the chat.";
 $MESS["IM_CHAT_LEAVE_M"] = "#USER_NAME# left the chat.";
+$MESS["IM_CHAT_AVATAR_CHANGE_M"] = "#USER_NAME# changed the chat icon";
+$MESS["IM_CHAT_AVATAR_CHANGE_F"] = "#USER_NAME# changed the chat icon";

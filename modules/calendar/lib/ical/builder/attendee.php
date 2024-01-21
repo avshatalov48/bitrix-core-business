@@ -11,6 +11,8 @@ class Attendee implements Serializable
 {
 	use SerializeObject;
 
+	private bool $rsvp = true;
+
 	/**
 	 * @var string|null
 	 */
@@ -58,7 +60,9 @@ class Attendee implements Serializable
 		string $participationStatus = null,
 		string $role = null,
 		string $cutype = null,
-		string $mailto = null): Attendee
+		string $mailto = null,
+		bool $rsvp = true
+	): Attendee
 	{
 		return new self(
 			$email,
@@ -67,7 +71,8 @@ class Attendee implements Serializable
 			$participationStatus,
 			$role,
 			$cutype,
-			$mailto
+			$mailto,
+			$rsvp
 		);
 	}
 
@@ -89,7 +94,8 @@ class Attendee implements Serializable
 		string $participationStatus = null,
 		string $role = null,
 		string $cutype = null,
-		string $mailto = null
+		string $mailto = null,
+		bool $rsvp = true
 	)
 	{
 		$this->email = $email;
@@ -99,6 +105,7 @@ class Attendee implements Serializable
 		$this->role = $role;
 		$this->cutype = $cutype;
 		$this->mailto = $mailto;
+		$this->rsvp = $rsvp;
 	}
 
 	/**
@@ -229,5 +236,24 @@ class Attendee implements Serializable
 		$this->mailto = $mailto;
 
 		return $this;
+	}
+
+	/**
+	 * @param bool $rsvp
+	 * @return Attendee
+	 */
+	public function setRsvp(bool $rsvp): Attendee
+	{
+		$this->rsvp = $rsvp;
+
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRsvp(): bool
+	{
+		return $this->rsvp;
 	}
 }

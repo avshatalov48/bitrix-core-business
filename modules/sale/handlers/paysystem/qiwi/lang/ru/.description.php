@@ -1,5 +1,6 @@
 <?php
-$MESS['SALE_HPS_QIWI_NAME'] = "Qiwi Wallet";
+$MESS['SALE_HPS_QIWI_NAME_MSGVER_1'] = "QIWI";
+$MESS['SALE_HPS_QIWI_DESCRIPTION'] = "Принимайте электронные платежи от клиентов QIWI";
 $MESS['SALE_HPS_QIWI_SHOP_ID'] = "Идентификатор магазина.";
 $MESS['SALE_HPS_QIWI_API_LOGIN'] = "Идентификатор API";
 $MESS['SALE_HPS_QIWI_API_PASS'] = "Пароль API";

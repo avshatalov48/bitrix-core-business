@@ -1,13 +1,14 @@
-<?
-use Bitrix\Main\Application,
-	Bitrix\Main,
-	Bitrix\Catalog;
+<?php
+
+use Bitrix\Main\Application;
+use Bitrix\Main;
+use Bitrix\Catalog;
 
 IncludeModuleLangFile(__FILE__);
 
 class CAllCatalogGroup
 {
-	protected static $arBaseGroupCache = array();
+	protected static array $arBaseGroupCache = [];
 
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
@@ -321,5 +322,92 @@ class CAllCatalogGroup
 	public static function GetBaseGroupId(): ?int
 	{
 		return Catalog\GroupTable::getBasePriceTypeId();
+	}
+
+	public static function GetByID($ID, $lang = LANGUAGE_ID): false|array
+	{
+		global $USER;
+
+		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
+
+		$lang = (string)$lang;
+
+		$row = Catalog\GroupTable::getRow([
+			'select' => [
+				'ID',
+				'NAME',
+				'BASE',
+				'SORT',
+				'XML_ID',
+				'CREATED_BY',
+				'MODIFIED_BY',
+				'TIMESTAMP_X',
+				'DATE_CREATE',
+			],
+			'filter' => [
+				'=ID' => $ID,
+			],
+		]);
+
+		if ($row === null)
+		{
+			return false;
+		}
+		if ($row['TIMESTAMP_X'] instanceof Main\Type\DateTime)
+		{
+			$row['TIMESTAMP_X'] = $row['TIMESTAMP_X']->toString();
+		}
+		if ($row['DATE_CREATE'] instanceof Main\Type\DateTime)
+		{
+			$row['DATE_CREATE'] = $row['DATE_CREATE']->toString();
+		}
+
+		$langName = Catalog\GroupLangTable::getRow([
+			'select' => [
+				'NAME',
+			],
+			'filter' => [
+				'=CATALOG_GROUP_ID' => $ID,
+				'=LANG' => $lang,
+			],
+		]);
+
+		$row['NAME_LANG'] = $langName === null ? null : $langName['NAME'];
+
+		$userGroupIds =
+			CCatalog::IsUserExists()
+				? $USER->GetUserGroupArray()
+				: [2]
+		;
+
+		$access = Catalog\GroupAccessTable::getRow([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=CATALOG_GROUP_ID' => $ID,
+				'@GROUP_ID' => $userGroupIds,
+				'=ACCESS' => Catalog\GroupAccessTable::ACCESS_VIEW,
+			]
+		]);
+		$row['CAN_ACCESS'] = $access === null ? 'N' : 'Y';
+
+		$access = Catalog\GroupAccessTable::getRow([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=CATALOG_GROUP_ID' => $ID,
+				'@GROUP_ID' => $userGroupIds,
+				'=ACCESS' => Catalog\GroupAccessTable::ACCESS_BUY,
+			]
+		]);
+		$row['CAN_BUY'] = $access === null ? 'N' : 'Y';
+
+		return $row;
 	}
 }

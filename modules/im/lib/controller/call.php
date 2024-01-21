@@ -109,11 +109,6 @@ class Call extends Engine\Controller
 
 		Application::getConnection()->unlock($lockName);
 
-		if ($provider !== 'Plain')
-		{
-			$this->sendPrecallInviteMessage($entityId, $entityType, $call);
-		}
-
 		return [
 			'call' => $call->toArray(),
 			'connectionData' => $call->getConnectionData($currentUserId),
@@ -123,52 +118,6 @@ class Call extends Engine\Controller
 			'publicChannels' => $publicChannels,
 			'logToken' => $call->getLogToken($currentUserId),
 		];
-	}
-
-	protected function sendPrecallInviteMessage($entityId, $entityType, $call): bool
-	{
-		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
-		$betaWebUrl  = $settings['call']['beta_web_url'] ?? '';
-
-		if (empty($betaWebUrl))
-		{
-			return false;
-		}
-
-		$currentUserId = $this->getCurrentUser()->getId();
-
-		$chatId = null;
-		if($entityType === EntityType::CHAT && (Common::isChatId($entityId) || (int)$entityId > 0))
-		{
-			$chatId = Dialog::getChatId($entityId, $currentUserId);
-		}
-
-		if (is_null($chatId))
-		{
-			return false;
-		}
-
-		$chat = Chat::getInstance($chatId);
-
-		$link = $betaWebUrl . '/?roomId=' . $call->getUuid();
-		$text = Loc::getMessage("IM_BITRIX_CALL_INVITE_TEMP", [
-			'#LINK#' => '[URL=' . $link . ']' . Loc::getMessage('IM_BITRIX_CALL_INVITE_BUTTON_TEMP') . '[/URL]',
-		]);
-
-		$message = new Message();
-		$message->setMessage($text)->markAsImportant();
-		$message->getParams()
-			->fill([
-				Params::COMPONENT_ID => 'CallInviteMessage',
-				Params::COMPONENT_PARAMS => [
-					'LINK' => $link
-				]
-			])
-			->save()
-		;
-		$chat->sendMessage($message);
-
-		return true;
 	}
 
 	public function createChildCallAction($parentId, $newProvider, $newUsers)
@@ -351,6 +300,10 @@ class Call extends Engine\Controller
 					continue;
 				}
 			}
+			else if ($isRepeated === false && $call->getAssociatedEntity())
+			{
+				$call->getAssociatedEntity()->onExistingUserInvite($userId);
+			}
 			$usersToInvite[] = $userId;
 			$callUser = $call->getUser($userId);
 			if($callUser->getState() != CallUser::STATE_READY)
@@ -365,7 +318,7 @@ class Call extends Engine\Controller
 			return null;
 		}
 
-		$sendPush = $isRepeated !== true;
+		$sendPush = $isRepeated !== true && $call->getProvider() !== \Bitrix\Im\Call\Call::PROVIDER_BITRIX;
 
 		// send invite to the ones being invited.
 		$call->inviteUsers(

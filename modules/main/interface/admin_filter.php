@@ -395,7 +395,7 @@ class CAdminFilter
 	{
 		global $DB;
 
-		return ($DB->Query("DELETE FROM b_filters WHERE ID='".intval($ID)."'", false, "File: ".__FILE__."<br>Line: ".__LINE__));
+		return ($DB->Query("DELETE FROM b_filters WHERE ID='".intval($ID)."'"));
 	}
 
 	public static function Update($ID, $arFields)
@@ -549,7 +549,7 @@ class CAdminFilter
 			".$strSqlSearch."
 			".$strSqlOrder;
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 

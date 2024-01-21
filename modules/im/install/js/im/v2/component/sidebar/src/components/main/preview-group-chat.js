@@ -1,4 +1,4 @@
-import { ImModelDialog } from 'im.v2.model';
+import { ImModelChat } from 'im.v2.model';
 import { ChatActionType } from 'im.v2.const';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -33,9 +33,9 @@ export const GroupChatPreview = {
 		AvatarSize: () => AvatarSize,
 		ButtonSize: () => ButtonSize,
 		ButtonColor: () => ButtonColor,
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		chatId(): number
 		{
@@ -104,7 +104,7 @@ export const GroupChatPreview = {
 				<div ref="add-members">
 					<MessengerButton
 						v-if="canInviteMembers"
-						:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_INVITE_BUTTON_TEXT')"
+						:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_ADD_BUTTON_TEXT')"
 						:size="ButtonSize.S"
 						:color="ButtonColor.PrimaryLight"
 						:isRounded="true"

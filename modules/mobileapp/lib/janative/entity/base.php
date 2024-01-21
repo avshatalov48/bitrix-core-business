@@ -14,9 +14,9 @@ use Bitrix\MobileApp\Janative\Utils;
 
 abstract class Base
 {
-	protected static $modificationDates = [];
-	protected static $dependencies = [];
-	protected static $expandedDependencies = [];
+	protected static array $modificationDates = [];
+	protected static array $dependencies = [];
+	protected static array $expandedDependencies = [];
 	protected $path;
 	protected $namespace;
 	protected $baseFileName;
@@ -46,9 +46,12 @@ abstract class Base
 		if (defined("JN_DEV_RELOAD")) {
 			return "1.0";
 		}
-		if (!empty(static::$modificationDates[$this->name]))
+
+		$fullyQualifiedName = $this->getFullyQualifiedName();
+
+		if (!empty(static::$modificationDates[$fullyQualifiedName]))
 		{
-			return static::$modificationDates[$this->name];
+			return static::$modificationDates[$fullyQualifiedName];
 		}
 
 		$file = new File("{$this->path}/{$this->baseFileName}.js");
@@ -77,9 +80,13 @@ abstract class Base
 			$value = md5(implode("/", $marks));
 		}
 
-		static::$modificationDates[$this->name] = $value;
+		static::$modificationDates[$fullyQualifiedName] = $value;
 
 		return $value;
+	}
+
+	public function getFullyQualifiedName(): string {
+		return  "$this->namespace:$this->name";
 	}
 
 	public function getDependencies()

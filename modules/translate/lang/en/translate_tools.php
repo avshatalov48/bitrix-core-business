@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS['BX_TRANSLATE_IMPORT_ERR_BAD_FILEPATH'] = "Incorrect path #FILE#";
 $MESS['BX_TRANSLATE_IMPORT_ERR_DESTINATION_FIELD_ABSENT'] = "\"file\" field is missing";
 $MESS['BX_TRANSLATE_IMPORT_ERR_DESTINATION_FILEPATH_ABSENT'] = "\"file\" value is not specified";
@@ -20,4 +20,3 @@ $MESS['TR_TOOLS_ERROR_LINE_FILE_BIG'] = "Error in row #LINE#:<br>&nbsp;&nbsp;#FI
 $MESS['TR_TOOLS_ERROR_LINE_FILE_EXT'] = "Error in row #LINE#: #ERROR#";
 $MESS['TR_TOOLS_ERROR_RIGHTS'] = "No write permission";
 $MESS['TR_TOOLS_ERROR_WRITE_FILE'] = "Cannot write to #FILE#";
-?>

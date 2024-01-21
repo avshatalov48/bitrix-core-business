@@ -1,4 +1,4 @@
-.calendar-shared-event-deleted-view-slider-root {
+.calendar-deleted-event-view-slider-root {
 	height: 100%;
 	display: flex;
 	align-items: center;
@@ -10,7 +10,7 @@
 		#f2f6f7;
 }
 
-.calendar-shared-event-deleted-view-slider-root .calendar-pub__block {
+.calendar-deleted-event-view-slider-root .calendar-pub__block {
 	height: auto;
 	min-height: 0;
 }
@@ -21,6 +21,6 @@
 	color: inherit;
 }
 
-.calendar-shared-event-deleted-view-slider-root .calendar-pub__form-status_text {
+.calendar-deleted-event-view-slider-root .calendar-pub__form-status_text {
 	cursor: default;
 }

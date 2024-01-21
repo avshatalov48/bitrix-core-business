@@ -323,14 +323,21 @@ class Formatter
 	 */
 	protected static function getAvailableFormats($countryMetadata)
 	{
-		if(is_array($countryMetadata['availableFormats']))
+		if (isset($countryMetadata['availableFormats']) && is_array($countryMetadata['availableFormats']))
+		{
 			return $countryMetadata['availableFormats'];
+		}
 
-		$countryCode = $countryMetadata['countryCode'];
+		$countryCode = $countryMetadata['countryCode'] ?? '';
 		$countriesForCode = MetadataProvider::getInstance()->getCountriesByCode($countryCode);
-		$mainCountry = $countriesForCode[0];
+		$mainCountry = $countriesForCode[0] ?? '';
 		$mainCountryMetadata = MetadataProvider::getInstance()->getCountryMetadata($mainCountry);
-		return is_array($mainCountryMetadata['availableFormats']) ? $mainCountryMetadata['availableFormats'] : array();
+
+		return (
+			isset($mainCountryMetadata['availableFormats']) && is_array($mainCountryMetadata['availableFormats'])
+				? $mainCountryMetadata['availableFormats']
+				: []
+		);
 	}
 
 	/**

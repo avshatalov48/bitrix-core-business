@@ -23,6 +23,19 @@ class PayableShipmentItem extends PayableItem
 		return Registry::ENTITY_SHIPMENT;
 	}
 
+	public function getPrice(): float
+	{
+		/** @var Shipment $shipment */
+		$shipment = $this->getEntityObject();
+
+		if ($shipment)
+		{
+			return $shipment->getPrice();
+		}
+
+		return 0;
+	}
+
 	public function getEntityObject()
 	{
 		if ($this->item === null)

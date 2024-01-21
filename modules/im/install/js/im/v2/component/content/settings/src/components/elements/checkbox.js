@@ -13,7 +13,13 @@ export const CheckboxOption = {
 		},
 		text: {
 			type: String,
-			required: true,
+			required: false,
+			default: '',
+		},
+		disabled: {
+			type: Boolean,
+			required: false,
+			default: false,
 		},
 	},
 	emits: ['change'],
@@ -29,10 +35,10 @@ export const CheckboxOption = {
 		},
 	},
 	template: `
-		<div class="bx-im-settings-checkbox__container bx-im-settings-section-content__block_option">
+		<div class="bx-im-settings-checkbox__container bx-im-settings-section-content__block_option" :class="{ '--no-text': text === '' }">
 			<label class="ui-ctl ui-ctl-checkbox">
-				<input type="checkbox" :checked="value" @input="onInput" class="ui-ctl-element">
-				<div class="ui-ctl-label-text">{{ text }}</div>
+				<input type="checkbox" :checked="value" :disabled="disabled" @input="onInput" class="ui-ctl-element">
+				<div v-if="text" class="ui-ctl-label-text">{{ text }}</div>
 			</label>
 		</div>
 	`,

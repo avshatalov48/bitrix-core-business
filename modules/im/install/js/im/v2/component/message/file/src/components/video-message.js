@@ -1,14 +1,15 @@
 import { Type } from 'main.core';
 
+import { FileType } from 'im.v2.const';
 import {
 	MessageStatus,
 	ReactionList,
 	DefaultMessageContent,
 	ReactionSelector,
 	ContextMenu,
+	MessageHeader,
 } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
-import { FileType } from 'im.v2.const';
 
 import { VideoItem } from './items/video';
 
@@ -27,6 +28,7 @@ export const VideoMessage = {
 		VideoItem,
 		ReactionSelector,
 		ContextMenu,
+		MessageHeader,
 	},
 	props: {
 		item: {
@@ -73,18 +75,21 @@ export const VideoMessage = {
 		>
 			<div class="bx-im-message-video__container bx-im-message-video__scope">
 				<div class="bx-im-message-video__content-with-menu">
-					<div class="bx-im-message-video__content">
-						<VideoItem
-							:key="messageFile.id"
-							:item="messageFile"
-							:messageId="message.id"
-						/>
-						<template v-if="onlyVideo">
-							<div class="bx-im-message-video__message-status-container">
-								<MessageStatus :item="message" :isOverlay="onlyVideo" />
-							</div>
-							<ReactionSelector :messageId="message.id" />
-						</template>
+					<div class="bx-im-message-video__content-with-header">
+						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-video__header" />
+						<div class="bx-im-message-video__content">
+							<VideoItem
+								:key="messageFile.id"
+								:item="messageFile"
+								:messageId="message.id"
+							/>
+							<template v-if="onlyVideo">
+								<div class="bx-im-message-video__message-status-container">
+									<MessageStatus :item="message" :isOverlay="onlyVideo" />
+								</div>
+								<ReactionSelector :messageId="message.id" />
+							</template>
+						</div>
 					</div>
 					<ContextMenu v-if="onlyVideo" :message="message" :menuIsActiveForId="menuIsActiveForId" />
 				</div>

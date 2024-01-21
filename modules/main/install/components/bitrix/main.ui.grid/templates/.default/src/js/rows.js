@@ -148,7 +148,7 @@
 		{
 			return !this.getBodyChild()
 				.filter(function(current) {
-					return !!current.getCheckbox();
+					return !!current.getCheckbox() && current.getCheckbox().disabled !== true;
 				})
 				.some(function(current) {
 					return !current.isSelected();

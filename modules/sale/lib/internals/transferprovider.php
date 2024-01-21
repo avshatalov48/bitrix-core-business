@@ -290,4 +290,19 @@ class TransferProvider extends TransferProviderBase
 		return $this->callProviderMethod('getStoresCount');
 	}
 
+	/**
+	 * @return Sale\Result
+	 */
+	public function writeOffProductBatches(array $products): Sale\Result
+	{
+		return $this->callProviderMethod('writeOffProductBatches', $products);
+	}
+
+	/**
+	 * @return Sale\Result
+	 */
+	public function returnProductBatches(array $products): Sale\Result
+	{
+		return $this->callProviderMethod('returnProductBatches', $products);
+	}
 }

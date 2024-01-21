@@ -1668,9 +1668,7 @@
 
 .calendar-event-line-expired-time {
 	position: absolute;
-	top: 50%;
 	right: 5px;
-	transform: translateY(-50%);
 }
 
 /*calendar-event-intranet*/
@@ -2039,7 +2037,7 @@ a.calendar-event-block-members-user {
 .calendar-event-block-compact .calendar-event-block-text {
 	display: inline;
 	vertical-align: top;
-	line-height: 11px;
+	line-height: 14px;
 	margin-right: 4px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -2387,8 +2385,9 @@ a.calendar-event-block-members-user {
 	text-overflow: unset;
 }
 
+.calendar-field.calendar-section-selector-readonly,
 .calendar-field.calendar-repeat-selector-readonly,
-.calendar-field.calendar-section-selector-readonly {
+.calendar-field.calendar-date-selector-readonly {
 	border: none;
 	background-color: var(--ui-color-background-transparent, transparent);
 	overflow: hidden;
@@ -2396,6 +2395,27 @@ a.calendar-event-block-members-user {
 	height: 39px;
 	white-space: nowrap;
 	transition: none;
+}
+
+.calendar-field.calendar-date-selector-readonly {
+	margin-top: 32px;
+}
+
+.calendar-date-selector-readonly-timezone {
+	display: inline-block;
+	margin: 2px 0 0 5px;
+	vertical-align: middle;
+}
+
+.calendar-date-selector-readonly-timezone-icon {
+	display: inline-block;
+	margin: 3px 0 0 0;
+	height: 13px;
+	width: 14px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2014%2013%22%3E%3Cpath%20fill%3D%22%238E959D%22%20fill-rule%3D%22evenodd%22%20d%3D%22M12.636%209.942h-2.71v-.03H9.92v-2.31h.977V8.96h1.74v.982zm-2.243-3.96c-1.918%200-3.473%201.556-3.473%203.473%200%201.918%201.555%203.472%203.473%203.472%201.917%200%203.472-1.554%203.472-3.472%200-1.917-1.555-3.472-3.472-3.472zm-6.056%204.57c-1.328-.46-2.405-1.453-2.94-2.743h2.12c.156%201.088.444%202.036.82%202.74zM1.02%205.927c0-.368.048-.725.125-1.07h2.283c-.027.347-.044.704-.044%201.07%200%20.376.017.743.046%201.1H1.154c-.08-.355-.134-.72-.134-1.1zm3.317-4.622c-.38.71-.67%201.67-.824%202.77H1.388c.532-1.303%201.61-2.308%202.95-2.77zm1.592.035c.73%200%201.357%201.127%201.636%202.736H4.292c.28-1.61.906-2.735%201.637-2.735zm4.54%202.736H8.345c-.155-1.1-.445-2.06-.825-2.77%201.338.462%202.418%201.467%202.95%202.77zm-4.607%202.95H4.195c-.035-.353-.058-.717-.058-1.098%200-.37.02-.725.055-1.07h3.474c.007.068.006.143.01.212.8-.5%201.736-.802%202.748-.802.428%200%20.838.067%201.235.164C10.994%201.884%208.685%200%205.93%200%202.654%200%200%202.654%200%205.928c0%203.244%202.606%205.875%205.837%205.925-.263-.505-.446-1.052-.532-1.637-.447-.43-.812-1.297-1.007-2.407h1.226c.09-.274.205-.533.34-.783z%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	vertical-align: top;
+	cursor: pointer;
 }
 
 .calendar-clear-filed,
@@ -3702,9 +3722,41 @@ select:not(:-internal-list-box) {
 	margin: 0 0 19px;
 }
 
-.calendar-slider-sidebar-user-container {
-	display: inline-block;
+.calendar-slider-sidebar-user-container-holder {
+	 display: flex;
+	 flex-wrap: wrap;
+	 align-items: center;
+ }
+
+.calendar-slider-sidebar-user-container, .calendar-slider-sidebar-user-more-container {
 	margin: 9px 7px 0 0;
+}
+
+.calendar-slider-sidebar-user-more-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 34px;
+	height: 34px;
+	border: 1px solid #e5e5e5;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.calendar-slider-sidebar-user-more {
+	width: max-content;
+	height: max-content;
+	color: #bdc1c6;
+	font: var(--ui-font-size-xs, 12px)/var(--ui-font-size-xs, 12px) var(--ui-font-family-system);
+}
+
+.calendar-slider-sidebar-user-more-container:hover {
+	background: #f1f1f1;
+	border-color: #d5d5d5;
+}
+
+.calendar-slider-sidebar-user-more-container:hover .calendar-slider-sidebar-user-more {
+	color: #95989b;
 }
 
 .calendar-slider-sidebar-user-block-avatar {
@@ -3719,10 +3771,17 @@ select:not(:-internal-list-box) {
 	width: auto;
 	height: auto;
 	align-items: center;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .calendar-slider-sidebar-user-card .calendar-slider-sidebar-user-block-avatar {
 	margin: 0 7px 0 0;
+}
+
+.calendar-slider-sidebar-user-info {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .calendar-slider-sidebar-user-info-name {
@@ -3824,6 +3883,9 @@ select:not(:-internal-list-box) {
 .calendar-slider-sidebar-string-value {
 	display: inline-block;
 	line-height: 17px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .calendar-slider-sidebar-remind-link {
@@ -4009,6 +4071,10 @@ select:not(:-internal-list-box) {
 	color: var(--color-dark-gray, #535c69);
 	font-size: var(--ui-font-size-md, 14px);
 	line-height: 22px;
+}
+
+.calendar-detail-author-info {
+	display: none;
 }
 
 .calendar-slider-detail-description,
@@ -5191,7 +5257,8 @@ select:not(:-internal-list-box) {
 	width: 300px;
 }
 
-.calendar-options-item-calendar .calendar-field-block.calendar-section-selector-readonly {
+.calendar-options-item-calendar .calendar-field-block.calendar-section-selector-readonly,
+.calendar-options-item-calendar .calendar-field-block.calendar-repeat-selector-readonly {
 	width: 100%;
 }
 
@@ -6932,6 +6999,18 @@ select:not(:-internal-list-box) {
 		opacity: 0;
 	}
 }
+@keyframes calendar-edit-sharing-events-feature-popup-animation-open { from { opacity: 0; } to { opacity: 1; } }
+@keyframes calendar-edit-sharing-events-feature-popup-animation-close { from { opacity: 1; } to { opacity: 0; } }
+
+.calendar-edit-sharing-events-feature-popup-animation-open {
+	animation: calendar-edit-sharing-events-feature-popup-animation-open 300ms;
+	animation-fill-mode: both;
+}
+
+.calendar-edit-sharing-events-feature-popup-animation-close {
+	animation: calendar-edit-sharing-events-feature-popup-animation-close 300ms;
+	animation-fill-mode: both;
+}
 
 .calendar-month-view .calendar-grid-drag-select .calendar-grid-cell-inner {
 	background: #eaf9fe;
@@ -8198,8 +8277,8 @@ div#bx-selector-dialog-uf-crm-cal-event-search {
 	padding-right: 0;
 }
 
-.calendar-field-choice-calendar.calendar-repeat-selector-readonly,
-.calendar-field-choice-calendar.calendar-section-selector-readonly {
+.calendar-field-choice-calendar.calendar-section-selector-readonly,
+.calendar-field-choice-calendar.calendar-repeat-selector-readonly {
 	cursor: default;
 }
 
@@ -8957,3 +9036,12 @@ input.calendar-field.calendar-field-select.calendar-field-location-select-border
 }
 
 /** endregion **/
+
+.calendar__confirm-dialog .popup-window-content{
+	padding: 10px 20px 20px 20px;
+}
+
+.calendar__confirm-dialog-content {
+	text-align: center;
+	position: relative;
+}

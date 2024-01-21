@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 (function (exports,main_popup,ui_entitySelector,main_date,main_core,main_core_events,ai_picker,ui_uploader_core) {
@@ -1461,10 +1460,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      var _this2 = this;
 	      this.disabled = false;
 	      this.formId = formID;
-	      this.isAITextAvailable = params.isAITextAvailable === 'Y';
-	      this.AITextContextId = params.AITextContextId;
-	      this.isAIImageAvailable = params.isAIImageAvailable === 'Y';
-	      this.AIImageContextId = params.AIImageContextId;
 	      this.formParams = {
 	        editorID: params.editorID,
 	        showTitle: !!params.showTitle,
@@ -1486,27 +1481,19 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      if (this.formParams.handler) {
 	        this.onHandlerInited(this.formParams.handler, formID);
 	      }
-	      main_core_events.EventEmitter.subscribe('OnEditorInitedBefore', function (event) {
+	      main_core_events.EventEmitter.subscribe('OnEditorInitedAfter', function (event) {
 	        var _event$getData3 = event.getData(),
 	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
 	          editor = _event$getData4[0];
-	        if (editor.id === _this2.formParams.editorID) {
-	          _this2.addAiButtons(editor);
-	        }
-	      });
-	      main_core_events.EventEmitter.subscribe('OnEditorInitedAfter', function (event) {
-	        var _event$getData5 = event.getData(),
-	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 1),
-	          editor = _event$getData6[0];
 	        _this2.onEditorInited(editor);
 	      });
 	      if (this.formParams.editor) {
 	        this.onEditorInited(this.formParams.editor);
 	      }
 	      main_core_events.EventEmitter.subscribe('onSocNetLogMoveBody', function (event) {
-	        var _event$getData7 = event.getData(),
-	          _event$getData8 = babelHelpers.slicedToArray(_event$getData7, 1),
-	          p = _event$getData8[0];
+	        var _event$getData5 = event.getData(),
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 1),
+	          p = _event$getData6[0];
 	        if (p === 'sonet_log_microblog_container') {
 	          _this2.reinit();
 	        }
@@ -1707,8 +1694,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "checkHideAlert",
 	    value: function checkHideAlert(event) {
-	      var _event$getData9 = event.getData(),
-	        type = _event$getData9.type;
+	      var _event$getData7 = event.getData(),
+	        type = _event$getData7.type;
 	      if (type === PostFormTabs.getInstance().config.id.gratitude) {
 	        return;
 	      }
@@ -1917,84 +1904,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        this.formParams.editor(this.formParams.text);
 	      } else {
 	        setTimeout(this.reinit, 50);
-	      }
-	    }
-	  }, {
-	    key: "addAiButtons",
-	    value: function addAiButtons(editor) {
-	      var _this5 = this;
-	      if (this.isAIImageAvailable) {
-	        editor.AddButton({
-	          id: 'ai-image-generator',
-	          name: main_core.Loc.getMessage('BLOG_POST_EDIT_EDITOR_BTN_AI_IMAGE'),
-	          iconClassName: 'feed-add-post-editor-btn-ai-image',
-	          toolbarSort: 351,
-	          disabledForTextarea: false,
-	          handler: function handler() {
-	            var aiTextPicker = new ai_picker.Picker({
-	              moduleId: 'socialnetwork',
-	              contextId: _this5.AIImageContextId,
-	              analyticLabel: 'sonet_ai_image',
-	              history: true,
-	              onSelect: function onSelect(imageUrl) {
-	                // eslint-disable-next-line promise/catch-or-return
-	                main_core.ajax.runAction('socialnetwork.api.livefeed.blogpost.uploadAIImage', {
-	                  data: {
-	                    imageUrl: imageUrl
-	                  }
-	                }).then(function (response) {
-	                  var userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(_this5.formId);
-	                  var uploader = userFieldControl.getUploader();
-	                  uploader.addFile(response.data.fileId, {
-	                    events: babelHelpers.defineProperty({}, ui_uploader_core.FileEvent.LOAD_COMPLETE, function (event) {
-	                      var file = event.getTarget();
-	                      var item = userFieldControl.getItem(file.getId());
-	                      userFieldControl.getMainPostForm().getParser().insertFile(item);
-	                      userFieldControl.showUploaderPanel();
-	                    })
-	                  });
-	                });
-	              },
-	              onTariffRestriction: function onTariffRestriction() {
-	                // BX.UI.InfoHelper.show(`limit_sonet_ai_image`);
-	              }
-	            });
-	            aiTextPicker.setLangSpace(ai_picker.Picker.LangSpace.image);
-	            aiTextPicker.image();
-	          }
-	        });
-	      }
-	      if (this.isAITextAvailable) {
-	        editor.AddButton({
-	          id: 'ai-text-generator',
-	          name: main_core.Loc.getMessage('BLOG_POST_EDIT_EDITOR_BTN_AI_TEXT'),
-	          iconClassName: 'feed-add-post-editor-btn-ai-text',
-	          toolbarSort: 352,
-	          disabledForTextarea: false,
-	          handler: function handler() {
-	            var aiTextPicker = new ai_picker.Picker({
-	              moduleId: 'socialnetwork',
-	              contextId: _this5.AITextContextId,
-	              analyticLabel: 'sonet_ai_text',
-	              history: true,
-	              onSelect: function onSelect(info) {
-	                var text = info.data;
-	                if (editor.bbCode && editor.synchro.IsFocusedOnTextarea()) {
-	                  editor.textareaView.WrapWith(false, false, text);
-	                  editor.textareaView.Focus();
-	                } else {
-	                  editor.action.actions.insertHTML.exec('insertHTML', text);
-	                  editor.Focus();
-	                }
-	              },
-	              onTariffRestriction: function onTariffRestriction() {
-	                // BX.UI.InfoHelper.show(`limit_sonet_ai_text`);
-	              }
-	            });
-	            aiTextPicker.setLangSpace(ai_picker.Picker.LangSpace.text);
-	            aiTextPicker.text();
-	          }
-	        });
 	      }
 	    }
 	  }]);

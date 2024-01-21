@@ -1,4 +1,4 @@
-<?
+<?php
 //<title>CSV Export (new)</title>
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -8,8 +8,8 @@
 /** @var int $CUR_ELEMENT_ID */
 /** @var bool $finalExport */
 
-use Bitrix\Main,
-	Bitrix\Catalog;
+use Bitrix\Main;
+use Bitrix\Catalog;
 
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/data_export.php');
 
@@ -49,7 +49,7 @@ if (!CCatalog::IsUserExists())
 
 if (!function_exists('__CSVArrayMultiply'))
 {
-	function __CSVArrayMultiply($arTuple, $arTemp, &$csvFile, $currentFile)
+	function __CSVArrayMultiply($arTuple, $arTemp, &$csvFile, $currentFile): void
 	{
 		if (empty($arTuple))
 		{
@@ -89,7 +89,7 @@ if (!function_exists('__CSVArrayMultiply'))
 
 if (!function_exists('__CSVExportFile'))
 {
-	function __CSVExportFile($intFileID, $strExportPath, $strFilePath, $strExportFromClouds = 'Y')
+	function __CSVExportFile($intFileID, $strExportPath, $strFilePath, $strExportFromClouds = 'Y'): string
 	{
 		if ('Y' != $strExportFromClouds)
 			$strExportFromClouds = 'N';

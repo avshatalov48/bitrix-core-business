@@ -680,7 +680,6 @@
 		{
 			if (!this.popup)
 			{
-				console.log('create popup', document.body.offsetWidth);
 				const leftIndentFromWindow = 20;
 				const rightIndentFromWindow = 20;
 				const popupWidth = document.body.offsetWidth > 1000

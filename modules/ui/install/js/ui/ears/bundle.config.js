@@ -4,5 +4,6 @@ module.exports = {
 	namespace: 'BX.UI',
 	cssImages: {
 		type: 'inline',
-	}
+	},
+	browserslist: true,
 };

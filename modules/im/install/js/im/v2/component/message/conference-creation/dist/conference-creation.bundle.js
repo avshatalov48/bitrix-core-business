@@ -49,7 +49,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.message.chatId;
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/getByChatId'](this.chatId);
+	      return this.$store.getters['chats/getByChatId'](this.chatId);
 	    }
 	  },
 	  methods: {

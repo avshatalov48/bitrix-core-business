@@ -1,200 +1,102 @@
-/**
- * Bitrix Messenger
- * Attach element Vue component
- *
- * @package bitrix
- * @subpackage im
- * @copyright 2001-2019 Bitrix
- */
+import { KeyboardButtonType, KeyboardButtonContext } from 'im.v2.const';
 
+import { KeyboardButton } from './components/keyboard-button';
+import { KeyboardSeparator } from './components/keyboard-separator';
+
+import { ActionManager } from './classes/action-manager';
+import { BotService } from './classes/bot-service';
 import './keyboard.css';
-import {Utils} from 'im.v2.lib.utils';
-import {Logger} from 'im.v2.lib.logger';
 
-const ButtonType = Object.freeze({
-	newline: 'NEWLINE',
-	button: 'BUTTON'
-});
+import type { JsonObject } from 'main.core';
+import type { KeyboardButtonConfig } from 'im.v2.const';
+import type { ActionEvent, CustomCommandEvent } from './types/events';
 
 export const Keyboard = {
-	/*
-	 * @emits 'click' {action: string, params: Object}
-	 */
 	props:
 	{
-		buttons: {type: Array, default: () => []},
-		messageId: {default: 0},
-		userId: {default: 0},
-		dialogId: {default: 0},
+		buttons: {
+			type: Array,
+			required: true,
+		},
+		dialogId: {
+			type: String,
+			required: true,
+		},
+		messageId: {
+			type: [Number, String],
+			required: true,
+		},
 	},
-	data: function()
+	components: { KeyboardButton, KeyboardSeparator },
+	data(): JsonObject
 	{
 		return {
-			isMobile: Utils.platform.isMobile(),
-			isBlocked: false,
-			localButtons: [],
+			keyboardBlocked: false,
 		};
 	},
-	created()
-	{
-		this.localButtons = this.prepareButtons(this.buttons);
-	},
+	emits: ['click'],
 	watch:
 	{
 		buttons()
 		{
-			clearTimeout(this.recoverStateButton);
-
-			this.isBlocked = false;
-			this.localButtons = this.prepareButtons(this.buttons);
-		}
-	},
-	methods:
-	{
-		click(button)
-		{
-			if (this.isBlocked)
-			{
-				return false;
-			}
-
-			if (button.DISABLED && button.DISABLED === 'Y')
-			{
-				return false;
-			}
-
-			if (button.ACTION && button.ACTION_VALUE.toString())
-			{
-				this.$emit('click', {action: 'ACTION', params: {
-					dialogId: this.dialogId,
-					messageId: this.messageId,
-					botId: button.BOT_ID,
-					action: button.ACTION,
-					value: button.ACTION_VALUE,
-				}});
-			}
-			else if (button.FUNCTION)
-			{
-				const execFunction = button.FUNCTION.toString()
-					.replace('#MESSAGE_ID#', this.messageId)
-					.replace('#DIALOG_ID#', this.dialogId)
-					.replace('#USER_ID#', this.userId);
-				eval(execFunction);
-			}
-			else if (button.APP_ID)
-			{
-				Logger.warn('Messenger keyboard: open app is not implemented.');
-			}
-			else if (button.LINK)
-			{
-				if (Utils.platform.isBitrixMobile())
-				{
-					app.openNewPage(button.LINK);
-				}
-				else
-				{
-					window.open(button.LINK, '_blank');
-				}
-			}
-			else if (button.WAIT !== 'Y')
-			{
-				if (button.BLOCK === 'Y')
-				{
-					this.isBlocked = true;
-				}
-
-				button.WAIT = 'Y';
-
-				this.$emit('click', {action: 'COMMAND', params: {
-					dialogId: this.dialogId,
-					messageId: this.messageId,
-					botId: button.BOT_ID,
-					command: button.COMMAND,
-					params: button.COMMAND_PARAMS,
-				}});
-
-				this.recoverStateButton = setTimeout(() => {
-					this.isBlocked = false;
-					button.WAIT = 'N';
-				}, 10000);
-			}
-
-			return true;
-		},
-		getStyles(button)
-		{
-			const styles = {};
-			if (button.WIDTH)
-			{
-				styles['width'] = `${button.WIDTH}px`;
-			}
-			else if (button.DISPLAY === 'BLOCK')
-			{
-				styles['width'] = '225px';
-			}
-			if (button.BG_COLOR)
-			{
-				styles['backgroundColor'] = button.BG_COLOR;
-			}
-			if (button.TEXT_COLOR)
-			{
-				styles['color'] = button.TEXT_COLOR;
-			}
-
-			return styles;
-		},
-
-		prepareButtons(buttons)
-		{
-			return buttons.filter(button =>
-			{
-				if (!button.CONTEXT)
-				{
-					return true;
-				}
-
-				if (Utils.platform.isBitrixMobile() && button.CONTEXT === 'DESKTOP')
-				{
-					return false;
-				}
-
-				if (!Utils.platform.isBitrixMobile() && button.CONTEXT === 'MOBILE')
-				{
-					return false;
-				}
-
-				// TODO activate this buttons
-				if (
-					!Utils.platform.isBitrixMobile()
-					&& (button.ACTION === 'DIALOG' || button.ACTION === 'CALL')
-				)
-				{
-					return false;
-				}
-
-				return true;
-			});
+			this.keyboardBlocked = false;
 		},
 	},
 	computed:
 	{
-		ButtonType: () => ButtonType,
+		ButtonType: () => KeyboardButtonType,
+		preparedButtons(): KeyboardButtonConfig[]
+		{
+			return this.buttons.filter((button: KeyboardButtonConfig) => {
+				return button.context !== KeyboardButtonContext.mobile;
+			});
+		},
+	},
+	methods:
+	{
+		onButtonActionClick(event: ActionEvent)
+		{
+			this.getActionManager().handleAction(event);
+		},
+		onButtonCustomCommandClick(event: CustomCommandEvent)
+		{
+			this.getBotService().sendCommand(event);
+		},
+		getActionManager(): ActionManager
+		{
+			if (!this.actionManager)
+			{
+				this.actionManager = new ActionManager(this.dialogId);
+			}
+
+			return this.actionManager;
+		},
+		getBotService(): BotService
+		{
+			if (!this.botService)
+			{
+				this.botService = new BotService({
+					messageId: this.messageId,
+					dialogId: this.dialogId,
+				});
+			}
+
+			return this.botService;
+		},
 	},
 	template: `
-		<div :class="['bx-im-element-keyboard', {'bx-im-element-keyboard-mobile': isMobile}]">
-			<template v-for="(button, index) in localButtons">
-				<div v-if="button.TYPE === ButtonType.newline" class="bx-im-element-keyboard-button-separator"></div>
-				<span v-else-if="button.TYPE === ButtonType.button" :class="[
-					'bx-im-element-keyboard-button', 
-					'bx-im-element-keyboard-button-'+button.DISPLAY.toLowerCase(), 
-					{
-						'bx-im-element-keyboard-button-disabled': isBlocked || button.DISABLED === 'Y',
-						'bx-im-element-keyboard-button-progress': button.WAIT === 'Y',
-					}
-				]" @click="click(button)">
-					<span class="bx-im-element-keyboard-button-text" :style="getStyles(button)">{{button.TEXT}}</span>
-				</span>
+		<div class="bx-im-keyboard__container">
+			<template v-for="button in preparedButtons">
+				<KeyboardButton
+					v-if="button.type === ButtonType.button"
+					:config="button"
+					:keyboardBlocked="keyboardBlocked"
+					@blockKeyboard="keyboardBlocked = true"
+					@action="onButtonActionClick"
+					@customCommand="onButtonCustomCommandClick"
+				/>
+				<KeyboardSeparator v-else-if="button.type === ButtonType.newLine" />
 			</template>
 		</div>
-	`
+	`,
 };

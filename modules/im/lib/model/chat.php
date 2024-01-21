@@ -3,6 +3,7 @@ namespace Bitrix\Im\Model;
 
 use Bitrix\Im\Internals\ChatIndex;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Sync;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -190,9 +191,13 @@ class ChatTable extends Entity\DataManager
 				'required' => false,
 				'default_value' => array(__CLASS__, 'getCurrentDate'),
 			),
-			'MANAGE_USERS' => array(
+			'MANAGE_USERS_ADD' => array(
 				'data_type' => 'string',
 				'default_value' => Chat::MANAGE_RIGHTS_MEMBER,
+			),
+			'MANAGE_USERS_DELETE' => array(
+				'data_type' => 'string',
+				'default_value' => Chat::MANAGE_RIGHTS_MANAGERS,
 			),
 			'MANAGE_UI' => array(
 				'data_type' => 'string',
@@ -208,6 +213,11 @@ class ChatTable extends Entity\DataManager
 			),
 			'INDEX' => array(
 				'data_type' => 'Bitrix\Im\Model\ChatIndex',
+				'reference' => array('=this.ID' => 'ref.CHAT_ID'),
+				'join_type' => 'INNER',
+			),
+			'OL_INDEX' => array(
+				'data_type' => 'Bitrix\ImOpenLines\Model\ChatIndexTable',
 				'reference' => array('=this.ID' => 'ref.CHAT_ID'),
 				'join_type' => 'INNER',
 			),
@@ -236,9 +246,18 @@ class ChatTable extends Entity\DataManager
 			static::updateIndexRecord($chatIndex);
 		}
 
+		$chatId = (int)$event->getParameter("id")['ID'];
 		if (static::needCacheInvalidate($fields))
 		{
-			Chat::cleanCache((int)$event->getParameter("id")['ID']);
+			Chat::cleanCache($chatId);
+		}
+
+		if (!Chat::getInstance($chatId) instanceof Chat\OpenLineChat)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
+				static fn () => Chat::getInstance($chatId)->getRelations()->getUserIds()
+			);
 		}
 
 		return new Entity\EventResult();
@@ -329,7 +348,8 @@ class ChatTable extends Entity\DataManager
 			'ENTITY_DATA_2',
 			'ENTITY_DATA_3',
 			'DISK_FOLDER_ID',
-			'MANAGE_USERS',
+			'MANAGE_USERS_ADD',
+			'MANAGE_USERS_DELETE',
 			'MANAGE_UI',
 			'MANAGE_SETTINGS',
 			'CAN_POST',
@@ -425,7 +445,7 @@ class ChatTable extends Entity\DataManager
 						->whereNot('ENTITY_TYPE', 'LIVECHAT')
 						->whereNull('ENTITY_TYPE')
 				)
-				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE])
+				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE, Chat::IM_TYPE_COPILOT])
 				->fetch()
 			;
 	}

@@ -1,20 +1,18 @@
-<?
+<?php
+
 namespace Bitrix\Currency\Integration;
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Currency\CurrencyTable;
 use Bitrix\Currency\Helpers\Editor;
 use Bitrix\Main\Type\RandomSequence;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Web\Json;
 use Bitrix\Catalog\Component\BaseForm;
 
-Loc::loadMessages(__FILE__);
-
 class IblockMoneyProperty
 {
-	const USER_TYPE = 'Money';
-	const SEPARATOR = '|';
+	public const USER_TYPE = 'Money';
+	public const SEPARATOR = '|';
 
 	/**
 	 * Returns property type description.
@@ -24,22 +22,22 @@ class IblockMoneyProperty
 	public static function getUserTypeDescription()
 	{
 		$className = get_called_class();
-		return array(
+		return [
 			'PROPERTY_TYPE' => 'S',
 			'USER_TYPE' => self::USER_TYPE,
 			'DESCRIPTION' => Loc::getMessage('CIMP_INPUT_DESCRIPTION'),
-			'GetPublicEditHTML' => array($className, 'getPublicEditHTML'),
-			'GetPublicViewHTML' => array($className, 'getPublicViewHTML'),
-			'GetPropertyFieldHtml' => array($className, 'getPropertyFieldHtml'),
-			'GetAdminListViewHTML' => array($className, 'getAdminListViewHTML'),
-			'GetUIEntityEditorProperty' => array($className, 'GetUIEntityEditorProperty'),
-			'getFormattedValue' => array($className, 'getSeparatedValues'),
-			'CheckFields' => array($className, 'checkFields'),
-			'GetLength' => array($className, 'getLength'),
-			'ConvertToDB' => array($className, 'convertToDB'),
-			'ConvertFromDB' => array($className, 'convertFromDB'),
-			'AddFilterFields' => array($className, 'addFilterFields'),
-		);
+			'GetPublicEditHTML' => [$className, 'getPublicEditHTML'],
+			'GetPublicViewHTML' => [$className, 'getPublicViewHTML'],
+			'GetPropertyFieldHtml' => [$className, 'getPropertyFieldHtml'],
+			'GetAdminListViewHTML' => [$className, 'getAdminListViewHTML'],
+			'GetUIEntityEditorProperty' => [$className, 'GetUIEntityEditorProperty'],
+			'getFormattedValue' => [$className, 'getSeparatedValues'],
+			'CheckFields' => [$className, 'checkFields'],
+			'GetLength' => [$className, 'getLength'],
+			'ConvertToDB' => [$className, 'convertToDB'],
+			'ConvertFromDB' => [$className, 'convertFromDB'],
+			'AddFilterFields' => [$className, 'addFilterFields'],
+		];
 	}
 
 	/**
@@ -78,9 +76,7 @@ class IblockMoneyProperty
 	 */
 	public static function getPropertyFieldHtml($property, $value, $controlSettings)
 	{
-		$seed = (!empty($controlSettings['VALUE'])) ? $controlSettings['VALUE'] : 'IMPSeed';
-		$randomGenerator = new RandomSequence($seed);
-		$randString = mb_strtolower($randomGenerator->randString(6));
+		$randString = mb_strtolower(\Bitrix\Main\Security\Random::getString(6));
 
 		$explode = (is_string($value['VALUE']) ? explode(self::SEPARATOR, $value['VALUE']) : []);
 		$currentValue = (isset($explode[0]) && $explode[0] !== '' ? $explode[0] : '');
@@ -324,10 +320,9 @@ class IblockMoneyProperty
 		}
 	}
 
-	protected static function getListCurrency()
+	protected static function getListCurrency(): array
 	{
-		$result = Editor::getListCurrency();
-		return (empty($result) ? array() : $result);
+		return Editor::getListCurrency();
 	}
 
 	protected static function getJsHandlerSelector($randString, array $listCurrency)

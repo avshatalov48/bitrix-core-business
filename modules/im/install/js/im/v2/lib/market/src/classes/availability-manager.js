@@ -1,4 +1,4 @@
-import {DialogType} from 'im.v2.const';
+import {ChatType} from 'im.v2.const';
 
 import type {ImModelMarketApplication} from 'im.v2.model';
 
@@ -27,7 +27,7 @@ export class AvailabilityManager
 		return placement.options.context.some(marketType => this.#matchDialogType(marketType, dialogType));
 	}
 
-	#matchDialogType(marketType: string, dialogType: $Values<typeof DialogType>)
+	#matchDialogType(marketType: string, dialogType: $Values<typeof ChatType>)
 	{
 		switch (marketType) {
 			case MarketTypes.user:
@@ -45,23 +45,23 @@ export class AvailabilityManager
 		}
 	}
 
-	#isUser(dialogType: $Values<typeof DialogType>): boolean
+	#isUser(dialogType: $Values<typeof ChatType>): boolean
 	{
-		return dialogType === DialogType.user;
+		return dialogType === ChatType.user;
 	}
 
-	#isChat(dialogType: $Values<typeof DialogType>): boolean
+	#isChat(dialogType: $Values<typeof ChatType>): boolean
 	{
-		return dialogType !== DialogType.lines && dialogType !== DialogType.crm && dialogType !== DialogType.user;
+		return dialogType !== ChatType.lines && dialogType !== ChatType.crm && dialogType !== ChatType.user;
 	}
 
-	#isLines(dialogType: $Values<typeof DialogType>): boolean
+	#isLines(dialogType: $Values<typeof ChatType>): boolean
 	{
-		return dialogType === DialogType.lines;
+		return dialogType === ChatType.lines;
 	}
 
-	#isCrm(dialogType: $Values<typeof DialogType>): boolean
+	#isCrm(dialogType: $Values<typeof ChatType>): boolean
 	{
-		return dialogType === DialogType.crm;
+		return dialogType === ChatType.crm;
 	}
 }

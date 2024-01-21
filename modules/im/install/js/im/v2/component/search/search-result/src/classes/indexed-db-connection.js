@@ -23,20 +23,15 @@ export class IndexedDbConnection
 	{
 		/** @type {Dexie} */
 		this.db = new Dexie('bx-im-search-results');
-		this.db.version(2).stores({
-			items: 'id, *title, *name, *lastName, *secondName, *position, date',
+		this.db.version(6).stores({
+			items: 'id, *title, *name, *lastName, *position, date',
 			recentItems: '++id, cacheId, date',
-			settings: '&name'
-		}).upgrade(transaction => {
+			settings: '&name',
+		}).upgrade((transaction) => {
 			const clearItemsPromise = transaction.table('items').clear();
 			const clearRecentItemsPromise = transaction.table('recentItems').clear();
 
 			return Dexie.Promise.all([clearItemsPromise, clearRecentItemsPromise]);
-		});
-		this.db.version(3).stores({
-			items: 'id, *title, *name, *lastName, *position, date',
-			recentItems: '++id, cacheId, date',
-			settings: '&name'
 		});
 
 		this.checkTables(currentUserId);

@@ -48,13 +48,29 @@ class LandingBlocksCrmRequisites extends \CBitrixComponent
 
 		$companyId = null;
 		$requisiteId = $this->arParams['REQUISITE'] ?? null;
+		$bankRequisiteId = $this->arParams['BANK_REQUISITE'] ?? null;
+		$hideRequisitesData = $this->arParams['HIDE_CONTACTS_DATA'] ?? null;
+		$hideContactsData = $this->arParams['HIDE_REQUISITES_DATA'] ?? null;
+		$hideBankData = $this->arParams['HIDE_BANK_DATA'] ?? null;
+		$isPrimaryIcon = $this->arParams['PRIMARY_ICON'] ?? 'N';
 		if (is_string($requisiteId))
 		{
 			[$companyId, $requisiteId] = explode('_', $requisiteId);
 		}
+		if (is_string($bankRequisiteId))
+		{
+			[$companyId, $bankRequisiteId] = explode('_', $bankRequisiteId);
+		}
 
-		$requisiteData = $requisites[$companyId]['requisites'][$requisiteId] ?? null;
-		if (empty($requisiteData['data']))
+		if ($requisiteId)
+		{
+			$requisiteData = $requisites[$companyId]['requisites'][$requisiteId] ?? null;
+		}
+		if ($bankRequisiteId)
+		{
+			$requisiteData = $requisites[$companyId]['bankRequisites'][$bankRequisiteId] ?? null;
+		}
+		if (empty($requisiteData['data']) && empty($requisiteData['bankData']))
 		{
 			$this->showError(Loc::getMessage('LNDNG_BLPHB_NOT_SELECT_REQUISITES'));
 			return;
@@ -62,6 +78,11 @@ class LandingBlocksCrmRequisites extends \CBitrixComponent
 
 		$this->arResult['COMMUNICATIONS'] = Crm::getCompanyCommunications($companyId);
 		$this->arResult['REQUISITES'] = $requisiteData['data'];
+		$this->arResult['BANK_REQUISITES'] = $requisiteData['bankData'];
+		$this->arResult['HIDE_CONTACTS_DATA'] = $hideRequisitesData;
+		$this->arResult['HIDE_REQUISITES_DATA'] = $hideContactsData;
+		$this->arResult['HIDE_BANK_DATA'] = $hideBankData;
+		$this->arResult['IS_PRIMARY_ICON'] = $isPrimaryIcon;
 
 		$this->includeComponentTemplate();
 	}

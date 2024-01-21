@@ -70,14 +70,16 @@ export const HotkeySection = {
 		},
 	},
 	template: `
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_SEND_COMBINATION') }}
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_HOTKEY_SEND_COMBINATION') }}
+				</div>
+				<RadioOption
+					:items="sendCombinationItems"
+					@change="onSendByEnterChange"
+				/>
 			</div>
-			<RadioOption
-				:items="sendCombinationItems"
-				@change="onSendByEnterChange"
-			/>
 		</div>
 	`,
 };

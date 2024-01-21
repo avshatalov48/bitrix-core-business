@@ -41,6 +41,7 @@ export const Provider = {
 	Plain: 'Plain',
 	Voximplant: 'Voximplant',
 	Bitrix: 'Bitrix',
+	BitrixDev: 'BitrixDev',
 };
 
 export const StreamTag = {
@@ -83,6 +84,8 @@ export const CallEvent = {
 	onUserStateChanged: 'onUserStateChanged',
 	onUserMicrophoneState: 'onUserMicrophoneState',
 	onUserCameraState: 'onUserCameraState',
+	onCameraPublishing: 'onCameraPublishing',
+	onMicrophonePublishing: 'onMicrophonePublishing',
 	onUserVideoPaused: 'onUserVideoPaused',
 	onUserScreenState: 'onUserScreenState',
 	onUserRecordState: 'onUserRecordState',
@@ -90,6 +93,7 @@ export const CallEvent = {
 	onUserVoiceStopped: 'onUserVoiceStopped',
 	onUserFloorRequest: 'onUserFloorRequest', // request for a permission to speak
 	onUserEmotion: 'onUserEmotion',
+	onUserStatsReceived: 'onUserStatsReceived',
 	onCustomMessage: 'onCustomMessage',
 	onLocalMediaReceived: 'onLocalMediaReceived',
 	onLocalMediaStopped: 'onLocalMediaStopped',
@@ -100,6 +104,7 @@ export const CallEvent = {
 	onRemoteMediaReceived: 'onRemoteMediaReceived',
 	onRemoteMediaStopped: 'onRemoteMediaStopped',
 	onBadNetworkIndicator: 'onBadNetworkIndicator',
+	onConnectionQualityChanged: 'onConnectionQualityChanged',
 	onNetworkProblem: 'onNetworkProblem',
 	onReconnecting: 'onReconnecting',
 	onReconnected: 'onReconnected',
@@ -113,6 +118,7 @@ export const CallEvent = {
 	onTransferRoomSpeakerRequest: 'onTransferRoomSpeakerRequest',
 	onTransferRoomSpeaker: 'onTransferRoomSpeaker',
 	onDestroy: 'onDestroy',
+	onGetUserMediaEnded: 'onGetUserMediaEnded',
 };
 
 const ajaxActions = {
@@ -211,6 +217,11 @@ class Engine
 						if (call.provider == config.provider && call.associatedEntity.type == config.entityType && call.associatedEntity.id == config.entityId)
 						{
 							this.log(callId, "Found existing call, attaching to it");
+
+							BX.onCustomEvent(window, "CallEvents::callCreated", [{
+								call: call
+							}]);
+
 							return resolve({
 								call: call,
 								isNew: false
@@ -272,6 +283,7 @@ class Engine
 					instanceId: Util.getUuidv4(),
 					direction: Direction.Outgoing,
 					users: createCallResponse.users,
+					userData: createCallResponse.userData,
 					videoEnabled: (config.videoEnabled === true),
 					enableMicAutoParameters: (config.enableMicAutoParameters !== false),
 					associatedEntity: callFields.ASSOCIATED_ENTITY,
@@ -349,6 +361,7 @@ class Engine
 					parentId: callFields['PARENT_ID'],
 					direction: Direction.Outgoing,
 					users: createCallResponse.users,
+					userData: createCallResponse.userData,
 					videoEnabled: parentCall.isVideoEnabled(),
 					enableMicAutoParameters: parentCall.enableMicAutoParameters !== false,
 					associatedEntity: callFields.ASSOCIATED_ENTITY,
@@ -376,7 +389,7 @@ class Engine
 		});
 	};
 
-	#instantiateCall(callFields, users, logToken, connectionData): AbstractCall
+	#instantiateCall(callFields, users, logToken, connectionData, userData): AbstractCall
 	{
 		if (this.calls[callFields['ID']])
 		{
@@ -392,6 +405,7 @@ class Engine
 			parentId: callFields['PARENT_ID'],
 			direction: callFields['INITIATOR_ID'] == this.userId ? Direction.Outgoing : Direction.Incoming,
 			users: users,
+			userData: userData,
 			associatedEntity: callFields.ASSOCIATED_ENTITY,
 			type: callFields.TYPE,
 			startDate: callFields['START_DATE'],
@@ -430,7 +444,7 @@ class Engine
 			{
 				const data = answer.data();
 				resolve({
-					call: this.#instantiateCall(data.call, data.users, data.logToken, data.connectionData),
+					call: this.#instantiateCall(data.call, data.users, data.logToken, data.connectionData, data.userData),
 					isNew: false
 				})
 			}).catch((error) =>
@@ -510,7 +524,7 @@ class Engine
 
 	#onPullIncomingCall(params, extra)
 	{
-		console.log('#onPullIncomingCall');
+		console.log('#onPullIncomingCall', location.href);
 		if (extra.server_time_ago > 30)
 		{
 			console.error("Call was started too long time ago");
@@ -545,6 +559,7 @@ class Engine
 				callFromMobile: params.isLegacyMobile === true,
 				direction: Direction.Incoming,
 				users: params.users,
+				userData: params.userData,
 				initiatorId: params.senderId,
 				associatedEntity: callFields.ASSOCIATED_ENTITY,
 				type: callFields.TYPE,
@@ -664,10 +679,6 @@ class Engine
 
 	#getCallFactory(providerType: string)
 	{
-		if (providerType == Provider.Bitrix)
-		{
-			return BitrixCallFactory;
-		}
 		if (providerType == Provider.Plain)
 		{
 			return PlainCallFactory;

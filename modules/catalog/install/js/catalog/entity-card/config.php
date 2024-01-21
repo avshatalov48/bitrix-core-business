@@ -19,6 +19,7 @@ return [
 		'main.core',
 		'main.core.events',
 		'catalog.store-use',
+		'catalog.tool-availability-manager',
 	],
 	'skip_core' => false,
 ];

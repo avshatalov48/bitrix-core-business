@@ -1,5 +1,6 @@
 <?php
 namespace Bitrix\Perfmon\Sql;
+
 use Bitrix\Main\NotSupportedException;
 
 class Index extends BaseObject
@@ -7,14 +8,14 @@ class Index extends BaseObject
 	public $unique = false;
 	public $fulltext = false;
 	public $using = '';
-	public $columns = array();
+	public $columns = [];
 
 	/**
 	 * @param string $name Index name.
-	 * @param boolean $unique Uniqueness flag.
-	 * @param boolean $fulltext Fulltext flag.
+	 * @param bool $unique Uniqueness flag.
+	 * @param bool $fulltext Fulltext flag.
 	 */
-	function __construct($name = '', $unique, $fulltext=false)
+	public function __construct($name = '', $unique, $fulltext=false)
 	{
 		parent::__construct($name);
 		$this->unique = (bool)$unique;
@@ -28,10 +29,10 @@ class Index extends BaseObject
 	 *
 	 * @return Index
 	 */
-	function addColumn($name)
+	public function addColumn($name)
 	{
 		$this->columns[] = trim($name);
-		$this->setBody(implode(", ", $this->columns));
+		$this->setBody(implode(', ', $this->columns));
 		return $this;
 	}
 
@@ -41,8 +42,8 @@ class Index extends BaseObject
 	 * If parameter $indexName is not passed then current position should point to the name of the index.
 	 *
 	 * @param Tokenizer $tokenizer Tokens collection.
-	 * @param boolean $unique Uniqueness flag.
-	 * @param boolean $fulltext Fulltext flag.
+	 * @param bool $unique Uniqueness flag.
+	 * @param bool $fulltext Fulltext flag.
 	 * @param string $indexName Optional name of the index.
 	 *
 	 * @return Index
@@ -63,8 +64,19 @@ class Index extends BaseObject
 		if ($tokenizer->testUpperText('ON'))
 		{
 			$tokenizer->skipWhiteSpace();
-			/** @noinspection PhpUnusedLocalVariableInspection */
-			$tableName = $tokenizer->getCurrentToken()->text;
+			$tokenizer->nextToken();
+			$tokenizer->skipWhiteSpace();
+		}
+
+		if ($tokenizer->testUpperText('USING'))
+		{
+			$tokenizer->skipWhiteSpace();
+			$indexType = $tokenizer->getCurrentToken()->text;
+			if (strtoupper($indexType) !== 'GIN')
+			{
+				throw new NotSupportedException("'GIN' expected. line:" . $tokenizer->getCurrentToken()->line);
+			}
+			$fulltext = true;
 			$tokenizer->nextToken();
 			$tokenizer->skipWhiteSpace();
 		}
@@ -99,7 +111,7 @@ class Index extends BaseObject
 
 			if (!$tokenizer->testText(')'))
 			{
-				throw new NotSupportedException("')' expected. line:".$tokenizer->getCurrentToken()->line);
+				throw new NotSupportedException("')' expected. line:" . $tokenizer->getCurrentToken()->line);
 			}
 
 			//USING BTREE
@@ -113,7 +125,7 @@ class Index extends BaseObject
 		}
 		else
 		{
-			throw new NotSupportedException("'(' expected. line:".$tokenizer->getCurrentToken()->line);
+			throw new NotSupportedException("'(' expected. line:" . $tokenizer->getCurrentToken()->line);
 		}
 
 		return $index;
@@ -142,7 +154,7 @@ class Index extends BaseObject
 			}
 			$tokenizer->nextToken();
 		}
-		throw new NotSupportedException('Index: table name not found. line: '.$lineToken->line);
+		throw new NotSupportedException('Index: table name not found. line: ' . $lineToken->line);
 	}
 
 	/**
@@ -154,7 +166,15 @@ class Index extends BaseObject
 	 */
 	public function getCreateDdl($dbType = '')
 	{
-		return "CREATE ".($this->fulltext? "FULLTEXT ": "").($this->unique? "UNIQUE ": "")."INDEX ".$this->name." ON ".$this->parent->name."(".$this->body.")";
+		switch ($dbType)
+		{
+		case 'MYSQL':
+			return 'CREATE ' . ($this->fulltext ? 'FULLTEXT ' : '') . ($this->unique ? 'UNIQUE ' : '') . 'INDEX ' . $this->name . ' ON ' . $this->parent->name . '(' . $this->body . ')';
+		case 'PGSQL':
+			return 'CREATE ' . ($this->unique ? 'UNIQUE ' : '') . 'INDEX ' . $this->name . ' ON ' . $this->parent->name . ($this->fulltext ? ' USING GIN (' . $this->body . ')' : '(' . $this->body . ')');
+		default:
+			return '// ' . get_class($this) . ':getDropDdl for database type [' . $dbType . '] not implemented';
+		}
 	}
 
 	/**
@@ -168,14 +188,14 @@ class Index extends BaseObject
 	{
 		switch ($dbType)
 		{
-		case "MYSQL":
-			return "DROP INDEX ".$this->name." ON ".$this->parent->name;
-		case "MSSQL":
-			return "DROP INDEX ".$this->name." ON ".$this->parent->name;
-		case "ORACLE":
-			return "DROP INDEX ".$this->name;
+		case 'MYSQL':
+		case 'MSSQL':
+			return 'DROP INDEX ' . $this->name . ' ON ' . $this->parent->name;
+		case 'ORACLE':
+		case 'PGSQL':
+			return 'DROP INDEX ' . $this->name;
 		default:
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
+			return '// ' . get_class($this) . ':getDropDdl for database type [' . $dbType . '] not implemented';
 		}
 	}
 
@@ -189,9 +209,9 @@ class Index extends BaseObject
 	 */
 	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
-		return array(
+		return [
 			$this->getDropDdl($dbType),
 			$target->getCreateDdl($dbType),
-		);
+		];
 	}
 }

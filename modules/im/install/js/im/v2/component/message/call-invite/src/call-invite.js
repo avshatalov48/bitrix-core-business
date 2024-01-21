@@ -1,8 +1,12 @@
+import { Messenger } from 'im.public';
+import { ChatActionType } from 'im.v2.const';
+import { CallManager } from 'im.v2.lib.call';
+import { PermissionManager } from 'im.v2.lib.permission';
 import { Type } from 'main.core';
 
 import { Button as ButtonComponent, ButtonSize, ButtonIcon } from 'im.v2.component.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
-import { AuthorTitle, DefaultMessageContent, ReactionSelector } from 'im.v2.component.message.elements';
+import { MessageHeader, DefaultMessageContent, ReactionSelector } from 'im.v2.component.message.elements';
 import { Utils } from 'im.v2.lib.utils';
 
 import './css/call-invite.css';
@@ -23,8 +27,8 @@ export const CallInviteMessage = {
 		ButtonComponent,
 		BaseMessage,
 		ReactionSelector,
-		AuthorTitle,
 		DefaultMessageContent,
+		MessageHeader,
 	},
 	props:
 	{
@@ -67,6 +71,26 @@ export const CallInviteMessage = {
 		{
 			return Type.isNumber(this.message.id);
 		},
+		isAvailable(): boolean
+		{
+			if (
+				this.$store.getters['recent/calls/hasActiveCall'](this.dialogId)
+				&& CallManager.getInstance().getCurrentCallDialogId() === this.dialogId
+			)
+			{
+				return true;
+			}
+
+			if (this.$store.getters['recent/calls/hasActiveCall']())
+			{
+				return false;
+			}
+
+			const chatCanBeCalled = CallManager.getInstance().chatCanBeCalled(this.dialogId);
+			const chatIsAllowedToCall = PermissionManager.getInstance().canPerformAction(ChatActionType.call, this.dialogId);
+
+			return chatCanBeCalled && chatIsAllowedToCall;
+		},
 	},
 	methods:
 	{
@@ -74,15 +98,22 @@ export const CallInviteMessage = {
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 		},
-		onCallButtonClick()
+		onCallButtonClick($event)
 		{
-			Utils.browser.openLink(this.componentParams.link);
+			if (Utils.key.isAltOrOption($event))
+			{
+				Utils.browser.openLink(this.componentParams.link);
+			}
+			else
+			{
+				Messenger.startVideoCall(this.dialogId);
+			}
 		},
 	},
 	template: `
 		<BaseMessage :dialogId="dialogId" :item="item">
 			<div class="bx-im-message-call-invite__scope bx-im-message-call-invite__container">
-				<AuthorTitle v-if="withTitle" :item="item" />
+				<MessageHeader :withTitle="withTitle" :item="item" />
 				<div class="bx-im-message-call-invite__content-container">
 					<div class="bx-im-message-call-invite__image"></div>
 					<div class="bx-im-message-call-invite__content">
@@ -92,7 +123,7 @@ export const CallInviteMessage = {
 						<div class="bx-im-message-call-invite__description">
 							{{ loc('IM_MESSENGER_MESSAGE_CALL_INVITE_DESCRIPTION') }}
 						</div>
-						<div class="bx-im-message-call-invite__buttons_container">
+						<div v-if="isAvailable" class="bx-im-message-call-invite__buttons_container">
 							<div class="bx-im-message-call-invite__buttons_item">
 								<ButtonComponent
 									:size="ButtonSize.L"

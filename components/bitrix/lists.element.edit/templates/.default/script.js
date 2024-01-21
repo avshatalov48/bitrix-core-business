@@ -3,6 +3,7 @@ BX.Lists.ListsElementEditClass = (function ()
 {
 	var ListsElementEditClass = function (parameters)
 	{
+		this.formId = parameters.formId;
 		this.randomString = parameters.randomString;
 		this.urlTabBp = parameters.urlTabBp;
 		this.iblockTypeId = parameters.iblockTypeId;
@@ -10,19 +11,42 @@ BX.Lists.ListsElementEditClass = (function ()
 		this.elementId = parameters.elementId;
 		this.socnetGroupId = parameters.socnetGroupId;
 		this.sectionId = parameters.sectionId;
-		this.jsClass = 'ListsElementEditClass_'+parameters.randomString;
+		this.jsClass = 'ListsElementEditClass_' + parameters.randomString;
 		this.elementUrl = parameters.elementUrl;
 		this.sectionUrl = parameters.sectionUrl;
 		this.isConstantsTuned = parameters.isConstantsTuned;
 		this.lockStatus = parameters.lockStatus;
+		this.startTime = Math.round(Date.now() / 1000);
 
 		this.init();
 	};
 
-	ListsElementEditClass.prototype.init = function ()
+	ListsElementEditClass.prototype.init = function()
 	{
 		this.ajaxUrl = '/bitrix/components/bitrix/lists.element.edit/ajax.php';
-		if(this.isConstantsTuned) this.setConstants();
+		if (this.isConstantsTuned)
+		{
+			this.setConstants();
+		}
+
+		const form = document.forms.namedItem('form_' + this.formId);
+		if (form)
+		{
+			const saveButton = form.querySelector('[name="save"]');
+			if (saveButton)
+			{
+				saveButton.onclick = (event) => {
+					const timeElement = BX.Dom.create('input', {
+						attrs: {
+							name: 'timeToStart',
+							type: 'hidden',
+							value: Math.round(Date.now() / 1000) - this.startTime,
+						},
+					});
+					BX.Dom.append(timeElement, form);
+				};
+			}
+		}
 	};
 
 	ListsElementEditClass.prototype.completeWorkflow = function(workflowId, action)
@@ -38,18 +62,18 @@ BX.Lists.ListsElementEditClass = (function ()
 				iblockId: this.iblockId,
 				socnetGroupId: this.socnetGroupId,
 				sectionId: this.sectionId,
-				action: action
+				action: action,
 			},
-			onsuccess: BX.delegate(function (result)
+			onsuccess: BX.delegate(function(result)
 			{
-				if(result.status == 'success')
+				if (result.status === 'success')
 				{
 					BX.Lists.showModalWithStatusAction({
 						status: 'success',
-						message: result.message
+						message: result.message,
 					});
 					setTimeout(BX.delegate(function() {
-						document.location.href = this.urlTabBp
+						document.location.href = this.urlTabBp;
 					}, this), 1000);
 				}
 				else
@@ -57,10 +81,10 @@ BX.Lists.ListsElementEditClass = (function ()
 					result.errors = result.errors || [{}];
 					BX.Lists.showModalWithStatusAction({
 						status: 'error',
-						message: result.errors.pop().message
-					})
+						message: result.errors.pop().message,
+					});
 				}
-			}, this)
+			}, this),
 		});
 	};
 
@@ -74,13 +98,13 @@ BX.Lists.ListsElementEditClass = (function ()
 				iblockTypeId: this.iblockTypeId,
 				iblockId: this.iblockId,
 				socnetGroupId: this.socnetGroupId,
-				sectionId: this.sectionId
+				sectionId: this.sectionId,
 			},
 			onsuccess: BX.delegate(function (result)
 			{
-				if(result.status == 'success')
+				if (result.status === 'success')
 				{
-					if(result.admin === false)
+					if (result.admin === false)
 					{
 						this.notifyAdmin();
 					}
@@ -103,19 +127,19 @@ BX.Lists.ListsElementEditClass = (function ()
 
 	ListsElementEditClass.prototype.unLock = function(onBeforeUnload)
 	{
-		BX.ajax.runAction("lists.controller.lock.unLock", {
+		BX.ajax.runAction('lists.controller.lock.unLock', {
 			data: {
 				element_id: this.elementId,
 				iblock_type_id: this.iblockTypeId,
 				iblock_id: this.iblockId,
-				socnet_group_id: this.socnetGroupId
-			}
-		}).then(function (response) {
+				socnet_group_id: this.socnetGroupId,
+			},
+		}).then((response) => {
 			if (!onBeforeUnload)
 			{
 				document.location.href = this.sectionUrl;
 			}
-		}.bind(this), function (response) {});
+		}).catch();
 	};
 
 	ListsElementEditClass.prototype.fillConstants = function(listTemplateId)
@@ -132,28 +156,28 @@ BX.Lists.ListsElementEditClass = (function ()
 			url: BX.Lists.addToLinkParam(this.ajaxUrl, 'action', 'fillConstants'),
 			data: {
 				iblockId: this.iblockId,
-				listTemplateId: listTemplateId
+				listTemplateId: listTemplateId,
 			},
-			onsuccess: BX.delegate(function (result)
+			onsuccess: BX.delegate(function(result)
 			{
 				content = BX.create('div', {
 					props: {
 						className: 'lists-fill-constants-content'
 					},
-					html: result
+					html: result,
 				});
 
 				var modalWindow = BX.Lists.modalWindow({
 					modalId: 'bx-lists-popup',
 					withoutWindowManager: true,
-					title: BX.message("CT_BLEE_BIZPROC_CONSTANTS_FILL_TITLE"),
+					title: BX.message('CT_BLEE_BIZPROC_CONSTANTS_FILL_TITLE'),
 					autoHide: false,
 					overlay: false,
 					draggable: true,
 					contentStyle: {
 						width: '600px',
 						paddingTop: '10px',
-						paddingBottom: '10px'
+						paddingBottom: '10px',
 					},
 					content: [content],
 					events : {
@@ -345,87 +369,86 @@ BX.Lists.ListsElementEditClass = (function ()
 			]
 		});
 
-		for(var k in listAdmin)
+		for (var k in listAdmin)
 		{
-			var img;
-			if(listAdmin[k].img)
+			let img = null;
+			if (listAdmin[k].img)
 			{
 				img = BX.create('img', {
 					attrs: {
-						src: listAdmin[k].img
-					}
+						src: listAdmin[k].img,
+					},
 				});
 			}
 
 			domElement.appendChild(
 				BX.create('div', {
-					props: {className: 'lists-notify-question-item'},
+					props: { className: 'lists-notify-question-item' },
 					children: [
 						BX.create('a', {
-							props: {className: 'lists-notify-question-item-avatar'},
+							props: { className: 'lists-notify-question-item-avatar' },
 							attrs: {
-								href: 'javascript:void(0)'
+								href: 'javascript:void(0)',
 							},
 							children: [
 								BX.create('span', {
 									props: {
 										id: 'lists-notify-question-item-avatar-inner',
-										className: 'lists-notify-question-item-avatar-inner'
+										className: 'lists-notify-question-item-avatar-inner',
 									},
-									children: [img]
-								})
-							]
+									children: [img],
+								}),
+							],
 						}),
 						BX.create('span', {
-							props: {className: 'lists-notify-question-item-info'},
+							props: { className: 'lists-notify-question-item-info' },
 							children: [
 								BX.create('span', {
-									html: listAdmin[k].name
-								})
-							]
+									html: listAdmin[k].name,
+								}),
+							],
 						}),
 						BX.create('span', {
 							props: {
-								id: 'lists-notify-success-'+listAdmin[k].id,
-								className: 'lists-notify-success'
-							}
+								id: 'lists-notify-success-' + listAdmin[k].id,
+								className: 'lists-notify-success',
+							},
 						}),
 						BX.create('a', {
 							props: {
-								id: 'lists-notify-button-'+listAdmin[k].id,
+								id: 'lists-notify-button-' + listAdmin[k].id,
 								className: 'webform-small-button lists-notify-small-button webform-small-button-blue'
 							},
 							attrs: {
 								href: 'javascript:void(0)',
-								onclick: 'BX.Lists["'+this.jsClass+'"].notify("'+listAdmin[k].id+'");'
+								onclick: 'BX.Lists["' + this.jsClass + '"].notify("' + listAdmin[k].id + '");',
 							},
-							html: BX.message('CT_BLEE_BIZPROC_NOTIFY_ADMIN_MESSAGE_BUTTON')
-						})
-					]
-				})
+							html: BX.message('CT_BLEE_BIZPROC_NOTIFY_ADMIN_MESSAGE_BUTTON'),
+						}),
+					],
+				}),
 			);
 		}
 
 		return domElement;
 	};
 
-	ListsElementEditClass.prototype.elementDelete = function(form_id, message)
+	ListsElementEditClass.prototype.elementDelete = function(formId, message)
 	{
-		var _form = document.getElementById(form_id);
-		var _flag = document.getElementById('action');
-		if(_form && _flag)
+		const form = document.getElementById(formId);
+		const flag = document.getElementById('action');
+		if (form && flag)
 		{
 			BX.UI.Dialogs.MessageBox.confirm(
 				message,
 				BX.Loc.getMessage('CT_BLEE_DELETE_POPUP_TITLE'),
-				() =>
-				{
-					_flag.value = 'delete';
-					_form.submit();
+				() => {
+					flag.value = 'delete';
+					form.submit();
 
 					return true;
 				},
-				BX.Loc.getMessage("CT_BLEE_DELETE_POPUP_ACCEPT_BUTTON"),
+				BX.Loc.getMessage('CT_BLEE_DELETE_POPUP_ACCEPT_BUTTON'),
 			);
 		}
 	};

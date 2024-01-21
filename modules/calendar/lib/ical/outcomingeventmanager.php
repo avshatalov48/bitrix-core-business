@@ -4,11 +4,18 @@
 namespace Bitrix\Calendar\ICal;
 
 
+use Bitrix\Calendar\ICal\Builder\Attendee;
+use Bitrix\Calendar\ICal\Builder\AttendeesCollection;
+use Bitrix\Calendar\ICal\MailInvitation\Helper;
+use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Encoding;
+use Bitrix\Security\LogicException;
 use Bitrix\Calendar\ICal\Basic\{Dictionary, ICalUtil};
+
+IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/lib/ical/mailinvitation/senderrequestinvitation.php');
 
 class OutcomingEventManager
 {
@@ -33,10 +40,7 @@ class OutcomingEventManager
 	 * @var array
 	 */
 	private $eventFields;
-	/**
-	 * @var array
-	 */
-	private $attendees;
+	private AttendeesCollection $attendees;
 	/**
 	 * @var array
 	 */
@@ -52,7 +56,7 @@ class OutcomingEventManager
 	private $changeFields;
 	private $counterInvitations;
 
-	public static function getInstance(array $params): OutcomingEventManager
+	public static function createInstance(array $params): OutcomingEventManager
 	{
 		return new self($params);
 	}
@@ -66,6 +70,7 @@ class OutcomingEventManager
 		$this->sender = $params['sender'];
 		$this->changeFields = $params['changeFields'];
 		$this->counterInvitations = 0;
+		$this->answer = $params['answer'];
 	}
 
 	public function __serialize(): array
@@ -103,7 +108,6 @@ class OutcomingEventManager
 
 	public function replyInvitation(): OutcomingEventManager
 	{
-		$this->answer = $this->attendees[$this->eventFields['OWNER_ID']]['STATUS'];
 		$filesContent = $this->getReplyContent();
 		$mailEventFields = $this->getReplyMailEventFields();
 		$files = $this->getFiles();
@@ -164,7 +168,7 @@ class OutcomingEventManager
 
 	private function getSenderAddress(): string
 	{
-		return  $this->sender['EMAIL'];
+		return  $this->eventFields['MEETING']['MAIL_FROM'] ?? $this->sender['EMAIL'];
 	}
 
 	private function getReceiverAddress(): string
@@ -203,9 +207,13 @@ class OutcomingEventManager
 				$result .= ' ' .  Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_CANCEL");
 				break;
 			case 'reply':
-				$result .= ' ' .  $this->answer === 'accepted'
-					? Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_ACCEPTED')
-					: Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_DECLINED');
+				$answer = match ($this->answer)
+				{
+					IncomingInvitationRequestHandler::MEETING_STATUS_ACCEPTED_CODE => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_ACCEPTED'),
+					IncomingInvitationRequestHandler::MEETING_STATUS_DECLINED_CODE => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_DECLINED'),
+					default => throw new LogicException('Calendar. Ical. With the reply method, none of the statuses matched')
+				};
+				$result .= ' ' . $answer;
 				break;
 		}
 
@@ -221,7 +229,6 @@ class OutcomingEventManager
 
 	private function getRequestContent(): array
 	{
-		global $APPLICATION;
 		$attachmentManager = new OutcomingAttachmentManager ($this->eventFields, $this->attendees, $this->method);
 		$attachmentManager->prepareRequestAttachment();
 		$this->uid = $attachmentManager->getUid();
@@ -232,12 +239,13 @@ class OutcomingEventManager
 			'METHOD' => Dictionary::METHODS[$this->method],
 			'CHARSET' => self::CHARSET,
 			'NAME' => self::ATTACHMENT_NAME,
-			'ID' => ICalUtil::getUniqId(),
+			'ID' => Helper::getUniqId(),
 		]];
 	}
 
 	private function getRequestMailEventFields(): array
 	{
+		return [];
 	}
 
 	private function getReplyMailEventFields()
@@ -250,8 +258,9 @@ class OutcomingEventManager
 			'MESSAGE_PHP' => $this->getReplyBodyMessage(),
 			'NAME' => $this->eventFields['NAME'],
 			'ANSWER' => $this->answer,
-			'DATE_FROM' => $this->eventFields['DATE_FROM_MAIL'],
+			'DATE_FROM' => $this->eventFields['DATE_FROM'],
 			'DATE_TO' => $this->eventFields['DATE_TO'],
+			'FULL_DAY' => $this->eventFields['SKIP_TIME'] ? 'Y' : 'N',
 			'DESCRIPTION' => str_replace("\r\n", "#$&#$&#$&", $this->eventFields['DESCRIPTION']),
 			'ATTENDEES' => $this->getAttendeesList(),
 			'ATTENDEES_LIST' => $this->getAttendeesList(),
@@ -289,16 +298,17 @@ class OutcomingEventManager
 	{
 		if ($this->eventFields['MEETING']['HIDE_GUESTS'])
 		{
-			return Loc::getMessage('EC_CALENDAR_ICAL_MAIL_HIDE_GUESTS_INFORMATION');
+			return (string)Loc::getMessage('EC_CALENDAR_ICAL_MAIL_HIDE_GUESTS_INFORMATION');
 		}
 
 		$attendees = [];
 
+		/** @var Attendee $attendee */
 		foreach ($this->attendees as $attendee)
 		{
-			if (!empty($attendee['NAME']) && $attendee['LAST_NAME'])
+			if (!empty($attendee->getFullName()))
 			{
-				$attendees[] = $attendee['NAME'] . ' ' . $attendee['LAST_NAME'];
+				$attendees[] = $attendee->getFullName();
 			}
 		}
 
@@ -307,10 +317,9 @@ class OutcomingEventManager
 
 	private function getOrganizerName(): string
 	{
-		return $this->attendees[$this->eventFields['MEETING_HOST']]['NAME']
-			. ' ' . $this->attendees[$this->eventFields['MEETING_HOST']]['LAST_NAME']
-			. (empty($this->attendees[$this->eventFields['MEETING_HOST']]['EMAIL'])
-				? '' :' (' . $this->attendees[$this->eventFields['MEETING_HOST']]['EMAIL'] .')');
+		/** @var Attendee $organizer */
+		$organizer = $this->eventFields['ICAL_ORGANIZER'];
+		return $organizer->getFullName() . ' (' . $organizer->getEmail() .')';
 	}
 
 	private function getFilesLink()
@@ -337,7 +346,6 @@ class OutcomingEventManager
 
 	private function getReplyContent(): array
 	{
-		global $APPLICATION;
 		$attachmentManager = new OutcomingAttachmentManager ($this->eventFields, $this->attendees, $this->method);
 		$attachmentManager->prepareReplyAttachment();
 		$fileContent = Encoding::convertEncoding($attachmentManager->getAttachment(), SITE_CHARSET, "utf-8");
@@ -347,7 +355,7 @@ class OutcomingEventManager
 			'METHOD' => Dictionary::METHODS[$this->method],
 			'CHARSET' => self::CHARSET,
 			'NAME' => self::ATTACHMENT_NAME,
-			'ID' => ICalUtil::getUniqId(),
+			'ID' => Helper::getUniqId(),
 		]];
 	}
 
@@ -358,7 +366,6 @@ class OutcomingEventManager
 
 	private function getCancelContent(): array
 	{
-		global $APPLICATION;
 		$attachmentManager = new OutcomingAttachmentManager ($this->eventFields, $this->attendees, $this->method);
 		$attachmentManager->prepareCancelAttachment();
 		$fileContent = Encoding::convertEncoding($attachmentManager->getAttachment(), SITE_CHARSET, "utf-8");

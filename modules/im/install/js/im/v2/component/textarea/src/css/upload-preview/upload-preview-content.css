@@ -99,3 +99,7 @@
 .bx-im-upload-preview__container .bx-im-elements-spinner__spinner {
 	margin-bottom: 0;
 }
+
+.bx-im-upload-preview__controls-buttons .bx-im-button__container + .bx-im-button__container {
+	margin-left: 12px;
+}

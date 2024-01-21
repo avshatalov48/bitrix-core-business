@@ -6,6 +6,8 @@ import 'main.qrcode';
 import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 
+import './css/style.css';
+
 export class QrAuthorization
 {
 	title;
@@ -30,7 +32,7 @@ export class QrAuthorization
 		this.loadingNode = null;
 
 		this.isSubscribe = false;
-		
+
 	}
 
 	createQrCodeImage()

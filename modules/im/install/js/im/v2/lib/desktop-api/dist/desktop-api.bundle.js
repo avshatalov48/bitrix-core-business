@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_const,main_core,im_v2_lib_logger) {
+(function (exports,im_v2_lib_logger,main_core,im_v2_const,main_core_events) {
 	'use strict';
 
 	const lifecycleFunctions = {
@@ -30,6 +30,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  restart: {
 	    id: 'restart',
 	    version: 74
+	  },
+	  accountManagement: {
+	    id: 'accountManagement',
+	    version: 75
 	  }
 	};
 
@@ -378,6 +382,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      '#OS#': osName
 	    });
 	    im_v2_lib_logger.Logger.desktop(promptMessage);
+	  },
+	  setLogInfo(logFunction) {
+	    BXDesktopSystem.LogInfo = logFunction;
 	  }
 	};
 
@@ -445,6 +452,87 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	};
 
+	/* eslint-disable no-undef */
+	const accountFunctions = {
+	  openAddAccountTab() {
+	    var _BXDesktopSystem;
+	    (_BXDesktopSystem = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem.AccountAddForm();
+	  },
+	  deleteAccount(host, login) {
+	    var _BXDesktopSystem2;
+	    (_BXDesktopSystem2 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem2.AccountDelete(host, login);
+	  },
+	  connectAccount(host, login, protocol, userLang) {
+	    var _BXDesktopSystem3;
+	    (_BXDesktopSystem3 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem3.AccountConnect(host, login, protocol, userLang);
+	  },
+	  disconnectAccount(host) {
+	    var _BXDesktopSystem4;
+	    (_BXDesktopSystem4 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem4.AccountDisconnect(host);
+	  },
+	  getAccountList() {
+	    var _BXDesktopSystem5;
+	    return (_BXDesktopSystem5 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem5.AccountList();
+	  },
+	  login() {
+	    return new Promise(resolve => {
+	      var _BXDesktopSystem6;
+	      (_BXDesktopSystem6 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem6.Login({
+	        // there is no fail callback. If it fails, desktop will show login form
+	        success: () => resolve()
+	      });
+	    });
+	  },
+	  async logout() {
+	    try {
+	      var _BXDesktopSystem7;
+	      await main_core.ajax.runAction(im_v2_const.RestMethod.imV2DesktopLogout);
+	      (_BXDesktopSystem7 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem7.Logout(2);
+	    } catch (error) {
+	      var _BXDesktopSystem8;
+	      console.error('DesktopApi logout error', error);
+	      (_BXDesktopSystem8 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem8.Logout(3);
+	    }
+	  },
+	  async terminate() {
+	    try {
+	      await main_core.ajax.runAction(im_v2_const.RestMethod.imV2DesktopLogout);
+	    } finally {
+	      lifecycleFunctions.shutdown();
+	    }
+	  }
+	};
+
+	const diskFunctions = {
+	  startDiskSync() {
+	    var _BXFileStorage;
+	    (_BXFileStorage = BXFileStorage) == null ? void 0 : _BXFileStorage.SyncPause(false);
+	    const event = new main_core_events.BaseEvent({
+	      compatData: [true]
+	    });
+	    main_core_events.EventEmitter.emit(window, im_v2_const.EventType.desktop.onSyncPause, event);
+	  },
+	  stopDiskSync() {
+	    var _BXFileStorage2;
+	    (_BXFileStorage2 = BXFileStorage) == null ? void 0 : _BXFileStorage2.SyncPause(true);
+	    const event = new main_core_events.BaseEvent({
+	      compatData: [false]
+	    });
+	    main_core_events.EventEmitter.emit(window, im_v2_const.EventType.desktop.onSyncPause, event);
+	  }
+	};
+
+	const debugFunctions = {
+	  openDeveloperTools() {
+	    var _BXDesktopWindow;
+	    (_BXDesktopWindow = BXDesktopWindow) == null ? void 0 : _BXDesktopWindow.OpenDeveloperTools();
+	  },
+	  openLogsFolder() {
+	    var _BXDesktopSystem;
+	    (_BXDesktopSystem = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem.OpenLogsFolder();
+	  }
+	};
+
 	const DesktopApi = {
 	  ...lifecycleFunctions,
 	  ...commonFunctions,
@@ -457,12 +545,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  ...legacyFunctions,
 	  ...callBackgroundFunctions,
 	  ...callMaskFunctions,
-	  ...loggerFunctions
+	  ...loggerFunctions,
+	  ...accountFunctions,
+	  ...diskFunctions,
+	  ...debugFunctions
 	};
 
 	exports.DesktopApi = DesktopApi;
 	exports.DesktopFeature = DesktopFeature;
 	exports.DesktopSettingsKey = DesktopSettingsKey;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Const,BX,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Event));
 //# sourceMappingURL=desktop-api.bundle.js.map

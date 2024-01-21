@@ -13,7 +13,7 @@ class WizardTemplate extends CWizardTemplate
 
 		$wizardPath = $wizard->GetPath();
 
-		$obStep =& $wizard->GetCurrentStep();
+		$obStep = $wizard->GetCurrentStep();
 		$arErrors = $obStep->GetErrors();
 		$strError = "";
 		if (!empty($arErrors))
@@ -71,7 +71,7 @@ class WizardTemplate extends CWizardTemplate
 
 		if(file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.php") || file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.html"))
 			$support = InstallGetMessage("SUPPORT_README").$support;
-		
+
 		//Images
 		$logoImage = "";
 		$boxImage = "";

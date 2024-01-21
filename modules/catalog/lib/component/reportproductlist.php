@@ -5,11 +5,15 @@ namespace Bitrix\Catalog\Component;
 use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\StoreDocumentElementTable;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Catalog\StoreProductTable;
+use Bitrix\Main\Entity\Base;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
@@ -51,7 +55,7 @@ abstract class ReportProductList extends ProductList
 
 	public function onPrepareComponentParams($arParams)
 	{
-		$arParams['STORE_ID'] = (int)$arParams['STORE_ID'];
+		$arParams['STORE_ID'] = (int)($arParams['STORE_ID'] ?? 0);
 
 		return parent::onPrepareComponentParams($arParams);
 	}
@@ -68,6 +72,7 @@ abstract class ReportProductList extends ProductList
 		if (!$this->checkDocumentReadRights())
 		{
 			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('CATALOG_REPORT_PRODUCT_LIST_NO_READ_RIGHTS_ERROR');
+
 			$this->includeComponentTemplate();
 
 			return;
@@ -191,11 +196,11 @@ abstract class ReportProductList extends ProductList
 		$totalCount = $this->getTotalCount();
 
 		$pageNavigation->setRecordCount($totalCount);
-
+		$gridRows = $this->getGridRows();
 		return [
 			'GRID_ID' => $this->getGridId(),
 			'COLUMNS' => $this->getGridColumns(),
-			'ROWS' => $this->getGridRows(),
+			'ROWS' => $gridRows,
 			'STUB' => $totalCount <= 0 ? ['title' => static::getEmptyStub()] : null,
 
 			'NAV_PARAM_NAME' => $this->navParamName,
@@ -227,6 +232,7 @@ abstract class ReportProductList extends ProductList
 			'SHOW_GRID_SETTINGS_MENU' => false,
 			'SHOW_SELECTED_COUNTER' => false,
 			'HANDLE_RESPONSE_ERRORS' => true,
+			'ALLOW_STICKED_COLUMNS' => true,
 		];
 	}
 
@@ -265,109 +271,169 @@ abstract class ReportProductList extends ProductList
 	{
 		$storeId = $this->storeId;
 
-		$baseFilter = $this->getListFilter();
-		unset($baseFilter['=STORE_ID']);
-		$reportInterval = $baseFilter['REPORT_INTERVAL'] ?? [];
-		unset($baseFilter['REPORT_INTERVAL']);
+		$filter = $this->getListFilter();
+		$baseStoreFilterValues = $filter['=STORE_ID'];
+		unset($filter['=STORE_ID']);
+		$reportInterval = $filter['REPORT_INTERVAL'] ?? [];
+		unset($filter['REPORT_INTERVAL']);
 
-		$storeDocsFilter = $baseFilter + [
-				'=STORE_ID' => $storeId,
-				[
-					'LOGIC' => 'OR',
-					'=DOCS_ELEMENT.STORE_FROM' => $storeId,
-					'=DOCS_ELEMENT.STORE_TO' => $storeId,
-				],
-				'=DOCUMENT.STATUS' => 'Y',
-			];
+		$storeDocsFilter = ['=DOCUMENT.STATUS' => 'Y'];
+		$shipmentsFilter = ['=ORDER_DELIVERY.DEDUCTED' => 'Y'];
 
 		if (!empty($reportInterval))
 		{
 			$storeDocsFilter += [
 				'<=DOCUMENT.DATE_STATUS' => new DateTime($reportInterval['TO']),
 			];
+			$shipmentsFilter += [
+				'<=ORDER_DELIVERY.DATE_DEDUCTED' => new DateTime($reportInterval['TO']),
+			];
 		}
 
-		$storeDocsQuery = StoreProductTable::query();
-		$storeDocsQuery->setSelect(['ID' ,'PRODUCT_ID', 'AMOUNT', 'QUANTITY_RESERVED', 'MEASURE_ID' => 'PRODUCT.MEASURE']);
-		$storeDocsQuery->registerRuntimeField(
+		if (!$this->isAllStoresGrid())
+		{
+			$storeDocsFilter[] = [
+				'LOGIC' => 'OR',
+				'=DOCS_ELEMENT.STORE_FROM' => $storeId,
+				'=DOCS_ELEMENT.STORE_TO' => $storeId,
+			];
+
+			$shipmentsFilter['=STORE_BARCODE.STORE_ID'] = $storeId;
+			$filter[] = ['=STORE_ID' => $storeId];
+		}
+		elseif (!empty($baseStoreFilterValues))
+		{
+			$storeDocsFilter[] = $baseStoreFilterValues;
+			$shipmentsFilter['=STORE_BARCODE.STORE_ID'] = $baseStoreFilterValues;
+			$filter[] = ['=STORE_ID' => $baseStoreFilterValues];
+		}
+
+		$filter[] = [
+			'LOGIC' => 'OR',
+			$storeDocsFilter,
+			$shipmentsFilter
+		];
+
+		$storeQuery = StoreProductTable::query();
+		$storeQuery->setSelect(['ID' ,'PRODUCT_ID', 'AMOUNT', 'QUANTITY_RESERVED', 'MEASURE_ID' => 'PRODUCT.MEASURE']);
+		$storeQuery->registerRuntimeField(
 			new Reference(
 				'DOCS_ELEMENT',
 				StoreDocumentElementTable::class,
 				Join::on('this.PRODUCT_ID', 'ref.ELEMENT_ID')
 			)
 		);
-		$storeDocsQuery->registerRuntimeField(
+		$storeQuery->registerRuntimeField(
 			new Reference(
 				'DOCUMENT',
 				StoreDocumentTable::class,
 				Join::on('this.DOCS_ELEMENT.DOC_ID', 'ref.ID')
 			)
 		);
-		$storeDocsQuery->setFilter($storeDocsFilter);
-
-		$shipmentsFilter = $baseFilter + [
-				'=STORE_ID' => $storeId,
-				'=STORE_BARCODE.STORE_ID' => $storeId,
-				'=ORDER_DELIVERY.DEDUCTED' => 'Y',
-			];
-
-		if (!empty($reportInterval))
-		{
-			$shipmentsFilter += [
-				'<=ORDER_DELIVERY.DATE_DEDUCTED' => new DateTime($reportInterval['TO']),
-			];
-		}
-
-		$shipmentsQuery = StoreProductTable::query();
-		$shipmentsQuery->setSelect(['ID' ,'PRODUCT_ID', 'AMOUNT', 'QUANTITY_RESERVED', 'MEASURE_ID' => 'PRODUCT.MEASURE']);
-		$shipmentsQuery->registerRuntimeField(
+		$storeQuery->registerRuntimeField(
 			new Reference(
 				'BASKET',
 				BasketTable::class,
 				Join::on('this.PRODUCT_ID', 'ref.PRODUCT_ID')
 			)
 		);
-		$shipmentsQuery->registerRuntimeField(
+		$storeQuery->registerRuntimeField(
 			new Reference(
 				'SHIPMENT_ITEM',
 				ShipmentItemTable::class,
 				Join::on('this.BASKET.ID', 'ref.BASKET_ID')
 			)
 		);
-		$shipmentsQuery->registerRuntimeField(
+		$storeQuery->registerRuntimeField(
 			new Reference(
 				'STORE_BARCODE',
 				ShipmentItemStoreTable::class,
 				Join::on('this.SHIPMENT_ITEM.ID', 'ref.ORDER_DELIVERY_BASKET_ID')
 			)
 		);
-		$shipmentsQuery->registerRuntimeField(
+		$storeQuery->registerRuntimeField(
 			new Reference(
 				'ORDER_DELIVERY',
 				ShipmentTable::class,
 				Join::on('this.SHIPMENT_ITEM.ORDER_DELIVERY_ID', 'ref.ID')
 			)
 		);
-		$shipmentsQuery->setFilter($shipmentsFilter);
 
-		$storeDocsQuery->union($shipmentsQuery);
+		$storeQuery->setFilter($filter);
+		$storeQuery->setDistinct();
+
+		if (!$this->isAllStoresGrid())
+		{
+			if (isset($order))
+			{
+				$storeQuery->setOrder($order);
+			}
+			if (isset($limit))
+			{
+				$storeQuery->setLimit($limit);
+			}
+			if (isset($offset))
+			{
+				$storeQuery->setOffset($offset);
+			}
+
+			$storeQuery->countTotal(true);
+
+			return $storeQuery;
+		}
+
+		$allStoreQuery = ProductTable::query();
+		$allStoreQuery->registerRuntimeField('',
+			new ReferenceField(
+				'SUBQUERY',
+				Base::getInstanceByQuery($storeQuery),
+				['this.ID' => 'ref.PRODUCT_ID'],
+				['join_type' => 'INNER']
+			)
+		);
+
+		$allStoreQuery->registerRuntimeField(
+			new \Bitrix\Main\Entity\ExpressionField(
+			'AMOUNT',
+			'SUM(%s)',
+			'SUBQUERY.AMOUNT'
+			)
+		);
+
+		$allStoreQuery->registerRuntimeField(
+			new \Bitrix\Main\Entity\ExpressionField(
+				'QUANTITY_RESERVED',
+				'SUM(%s)',
+				'SUBQUERY.QUANTITY_RESERVED'
+			)
+		);
+
+		$allStoreQuery->setSelect([
+			'ID',
+			'PRODUCT_ID' => 'ID',
+			'AMOUNT',
+			'QUANTITY_RESERVED',
+			'MEASURE_ID' => 'MEASURE',
+		]);
 
 		if (isset($order))
 		{
-			$storeDocsQuery->setUnionOrder($order);
+			$allStoreQuery->setOrder($order);
 		}
+
 		if (isset($limit))
 		{
-			$storeDocsQuery->setUnionLimit($limit);
+			$allStoreQuery->setLimit($limit);
 		}
+
 		if (isset($offset))
 		{
-			$storeDocsQuery->setUnionOffset($offset);
+			$allStoreQuery->setOffset($offset);
 		}
 
-		$storeDocsQuery->countTotal(true);
+		$allStoreQuery->countTotal(true);
 
-		return $storeDocsQuery;
+		return $allStoreQuery;
 	}
 
 	protected function getFormattedFilter(): array
@@ -393,6 +459,11 @@ abstract class ReportProductList extends ProductList
 					'FROM' => $incomingFilter['REPORT_INTERVAL_from'],
 					'TO' => $incomingFilter['REPORT_INTERVAL_to'],
 				];
+			}
+
+			if (!empty($incomingFilter['STORES']) && $this->isAllStoresGrid())
+			{
+				$result['STORE_ID'] = $incomingFilter['STORES'];
 			}
 		}
 		else
@@ -537,7 +608,12 @@ abstract class ReportProductList extends ProductList
 		}
 	}
 
-	protected function initFilterFromIncomingData(array $incomingFilter): void
+	protected function isAllStoresGrid(): bool
+	{
+		return $this->storeId <= 0;
+	}
+
+	protected function prepareFilterIncomingData(array $incomingFilter): array
 	{
 		$filterFields = [];
 		if (isset($incomingFilter['PRODUCTS'], $incomingFilter['PRODUCTS_label']))
@@ -545,6 +621,13 @@ abstract class ReportProductList extends ProductList
 			$filterFields['PRODUCTS'] = $incomingFilter['PRODUCTS'];
 			$filterFields['PRODUCTS_label'] = $incomingFilter['PRODUCTS_label'];
 		}
+
+		return $filterFields;
+	}
+
+	protected function initFilterFromIncomingData(array $incomingFilter): void
+	{
+		$filterFields = $this->prepareFilterIncomingData($incomingFilter);
 
 		if (count($filterFields) > 0)
 		{
@@ -568,7 +651,19 @@ abstract class ReportProductList extends ProductList
 
 	protected function checkDocumentReadRights(): bool
 	{
-		return AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ);
+		if (
+			!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| !AccessController::getCurrent()->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS)
+		)
+		{
+			return false;
+		}
+
+		return
+			$this->arParams['STORE_ID'] > 0
+				? AccessController::getCurrent()->checkByValue(ActionDictionary::ACTION_STORE_VIEW, $this->arParams['STORE_ID'])
+				: AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW)
+		;
 	}
 
 	protected function getTotalCount(): int
@@ -578,9 +673,28 @@ abstract class ReportProductList extends ProductList
 
 	protected function getListFilter(): array
 	{
-		$filter = [
-			'=STORE_ID' => $this->storeId,
-		];
+		if (!$this->isAllStoresGrid())
+		{
+			$filter = [
+				'=STORE_ID' => $this->storeId,
+			];
+		}
+		else
+		{
+			$filter =
+				AccessController::getCurrent()
+				->getEntityFilter(
+					ActionDictionary::ACTION_STORE_VIEW,
+					StoreProductTable::class
+				)
+			;
+
+			$incomingFilter = $this->arParams['INCOMING_FILTER'] ?? [];
+			if (isset($incomingFilter['STORES']))
+			{
+				$filter['=STORE_ID'] = $incomingFilter['STORES'];
+			}
+		}
 
 		$searchString = trim($this->getFilterOptions()->getSearchString());
 		if ($searchString)

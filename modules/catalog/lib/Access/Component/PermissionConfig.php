@@ -328,7 +328,7 @@ class PermissionConfig
 			StoreDocumentTable::TYPE_MOVING,
 			//StoreDocumentTable::TYPE_SALES_ORDERS,
 		];
-		if (in_array($typeId, $typesWithNag, true))
+		if (in_array($typeId, $typesWithNag, true) && !State::isProductBatchMethodSelected())
 		{
 			$permissions[] = PermissionDictionary::CATALOG_STORE_DOCUMENT_ALLOW_NEGATION_PRODUCT_QUANTITY;
 		}

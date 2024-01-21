@@ -20,6 +20,7 @@ use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SystemException;
+use Bitrix\Socialnetwork\Component\BlogPostEdit;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Controller\Livefeed;
 use Bitrix\Disk\Uf\FileUserType;
@@ -291,12 +292,19 @@ class Helper
 			}
 		}
 
-		$categoryIdList = \Bitrix\Socialnetwork\Component\BlogPostEdit\Tag::parseTagsFromFields([
+		$categoryIdListFromPostData = BlogPostEdit\Tag::getTagsFromPostData([
+			'blogId' => $blog['ID'],
+			'tags' => $params['TAGS'] ?? '',
+		]);
+		$newCategoryIdList = BlogPostEdit\Tag::parseTagsFromFields([
+			'blogCategoryIdList' => $categoryIdListFromPostData,
 			'postFields' => $postFields,
 			'blogId' => $blog['ID'],
 		]);
+		$categoryIdList = array_merge($categoryIdListFromPostData, $newCategoryIdList);
 		if (!empty($categoryIdList))
 		{
+			\CBlogPostCategory::deleteByPostID($result);
 			foreach ($categoryIdList as $categoryId)
 			{
 				\CBlogPostCategory::add([
@@ -608,6 +616,33 @@ class Helper
 				$updateFields['UF_BLOG_POST_IMPRTNT'] = false;
 				$updateFields['UF_IMPRTANT_DATE_END'] = false;
 			}
+		}
+
+		$categoryIdListFromPostData = BlogPostEdit\Tag::getTagsFromPostData([
+			'blogId' => $blog['ID'],
+			'tags' => $params['TAGS'] ?? '',
+		]);
+
+		$newCategoryIdList = BlogPostEdit\Tag::parseTagsFromFields([
+			'blogCategoryIdList' => $categoryIdListFromPostData,
+			'postFields' => $postFields,
+			'blogId' => $blog['ID'],
+		]);
+		$categoryIdList = array_merge($categoryIdListFromPostData, $newCategoryIdList);
+		if (!empty($categoryIdList))
+		{
+			\CBlogPostCategory::deleteByPostID($postId);
+			foreach ($categoryIdList as $categoryId)
+			{
+				\CBlogPostCategory::add([
+					'BLOG_ID' => $postFields['BLOG_ID'],
+					'POST_ID' => $postId,
+					'CATEGORY_ID' => $categoryId
+				]);
+			}
+
+			$updateFields['CATEGORY_ID'] = implode(',', $categoryIdList);
+			$updateFields['HAS_TAGS'] = 'Y';
 		}
 
 		if (isset($params['GRATITUDE_MEDAL']))

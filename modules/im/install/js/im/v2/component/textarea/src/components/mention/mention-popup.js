@@ -34,11 +34,11 @@ export const MentionPopup = {
 		config(): PopupOptions
 		{
 			return {
-				width: 320,
+				width: 426,
 				padding: 0,
 				bindElement: this.bindElement,
 				offsetTop: 14,
-				offsetLeft: -37,
+				offsetLeft: -44,
 				bindOptions: {
 					position: 'top',
 				},

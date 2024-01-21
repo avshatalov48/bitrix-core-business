@@ -426,20 +426,16 @@ class StoreDocumentTable extends DataManager
 			return;
 		}
 
-		$tableName = StoreDocumentElementTable::getTableName();
-		$query->whereExpr("
-			(
-				CASE WHEN EXISTS (
-					SELECT ID
-					FROM {$tableName}
-					WHERE DOC_ID = %s
-					AND ELEMENT_ID = {$productId}
-				)
-				THEN 1
-				ELSE 0
-				END
-			) = 1
-		", ['ID']);
+		$query->registerRuntimeField(
+			new ReferenceField(
+				'FILTER_ELEMENT_DOC_ID',
+				StoreDocumentElementTable::getEntity(),
+				Join::on('ref.DOC_ID', 'this.ID')->where('ref.ELEMENT_ID', $productId),
+				['join_type' => 'INNER']
+			)
+		);
+
+		$query->addGroup('ID');
 	}
 
 	public static function withProductList(Main\ORM\Query\Query $query, array $productIds)
@@ -450,21 +446,16 @@ class StoreDocumentTable extends DataManager
 			return;
 		}
 
-		$tableName = StoreDocumentElementTable::getTableName();
-		$whereExpression = '(ELEMENT_ID IN (' . implode(',', $productIds) . '))';
-		$query->whereExpr("
-			(
-				CASE WHEN EXISTS (
-					SELECT ID
-					FROM {$tableName}
-					WHERE DOC_ID = %s
-					AND {$whereExpression}
-				)
-				THEN 1
-				ELSE 0
-				END
-			) = 1
-		", ['ID']);
+		$query->registerRuntimeField(
+			new ReferenceField(
+				'FILTER_ELEMENT_DOC_ID',
+				StoreDocumentElementTable::getEntity(),
+				Join::on('ref.DOC_ID', 'this.ID')->whereIn('ref.ELEMENT_ID', $productIds),
+				['join_type' => 'INNER']
+			)
+		);
+
+		$query->addGroup('ID');
 	}
 
 	public static function withStore(Main\ORM\Query\Query $query, $storeId)
@@ -475,23 +466,22 @@ class StoreDocumentTable extends DataManager
 			return;
 		}
 
-		$tableName = StoreDocumentElementTable::getTableName();
-		$query->whereExpr("
-			(
-				CASE WHEN EXISTS (
-					SELECT ID
-					FROM {$tableName}
-					WHERE DOC_ID = %s
-					AND (
-						STORE_FROM = {$storeId}
-						OR STORE_TO = {$storeId}
-					)
-				)
-				THEN 1
-				ELSE 0
-				END
-			) = 1
-		", ['ID']);
+		$filter = new Main\ORM\Query\Filter\ConditionTree();
+		$filter
+			->logic('or')
+			->where('ref.STORE_FROM', $storeId)
+			->where('ref.STORE_TO', $storeId)
+		;
+		$query->registerRuntimeField(
+			new ReferenceField(
+				'FILTER_STORE_DOC_ID',
+				StoreDocumentElementTable::getEntity(),
+				Join::on('ref.DOC_ID', 'this.ID')->where($filter),
+				['join_type' => 'INNER']
+			)
+		);
+
+		$query->addGroup('ID');
 	}
 
 	public static function withStoreList(Main\ORM\Query\Query $query, array $storeIds)
@@ -502,23 +492,22 @@ class StoreDocumentTable extends DataManager
 			return;
 		}
 
-		$storeIdsForQuery = implode(',', $storeIds);
-		$whereExpression = "(STORE_FROM IN ({$storeIdsForQuery}) OR STORE_TO IN ({$storeIdsForQuery}))";
-		$tableName = StoreDocumentElementTable::getTableName();
+		$filter = new Main\ORM\Query\Filter\ConditionTree();
+		$filter
+			->logic('or')
+			->whereIn('ref.STORE_FROM', $storeIds)
+			->whereIn('ref.STORE_TO', $storeIds)
+		;
+		$query->registerRuntimeField(
+			new ReferenceField(
+				'FILTER_STORE_DOC_ID',
+				StoreDocumentElementTable::getEntity(),
+				Join::on('ref.DOC_ID', 'this.ID')->where($filter),
+				['join_type' => 'INNER']
+			)
+		);
 
-		$query->whereExpr("
-			(
-				CASE WHEN EXISTS (
-					SELECT ID
-					FROM {$tableName}
-					WHERE DOC_ID = %s
-					AND {$whereExpression}
-				)
-				THEN 1
-				ELSE 0
-				END
-			) = 1
-		", ['ID']);
+		$query->addGroup('ID');
 	}
 
 	public static function withStoreFromList(Main\ORM\Query\Query $query, array $storeIds)

@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 class CAgent extends CAllAgent
@@ -107,13 +108,11 @@ class CAgent extends CAllAgent
 			$str_crontab.
 			" ORDER BY RUNNING ASC, SORT desc ";
 
-		if ($cron !== true)
+		// limit selection to prevent excessive UPDATE
+		$limit = ($cron ? COption::GetOptionInt("main", "agents_cron_limit", 1000) : COption::GetOptionInt("main", "agents_limit", 100));
+		if ($limit > 0)
 		{
-			$limit = (int)COption::GetOptionString("main", "agents_limit", 100);
-			if ($limit > 0)
-			{
-				$strSql .= 'LIMIT ' . $limit;
-			}
+			$strSql .= ' LIMIT ' . $limit;
 		}
 
 		$db_result_agents = $DB->Query($strSql);
@@ -155,15 +154,6 @@ class CAgent extends CAllAgent
 			{
 				if (!CModule::IncludeModule($arAgent["MODULE_ID"]))
 					continue;
-			}
-
-			if (
-				defined('BX_AGENTS_MAX_RETRY_COUNT')
-				&& $arAgent["RETRY_COUNT"] >= BX_AGENTS_MAX_RETRY_COUNT
-			)
-			{
-				$DB->Query("UPDATE b_agent SET ACTIVE='N' WHERE ID = ".$arAgent["ID"]);
-				continue;
 			}
 
 			//update the agent to the running state - if it fails it'll go to the end of the list on the next try

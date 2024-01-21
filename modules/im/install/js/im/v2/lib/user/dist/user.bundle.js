@@ -16,44 +16,49 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  static getDialogForUser(user) {
 	    return {
-	      dialogId: user.id,
+	      dialogId: UserManager.getUserId(user),
 	      avatar: user.avatar,
 	      color: user.color,
 	      name: user.name,
-	      type: im_v2_const.DialogType.user,
+	      type: im_v2_const.ChatType.user,
 	      role: im_v2_const.UserRole.member
 	    };
+	  }
+	  static getUserId(user) {
+	    var _ref, _user$id;
+	    return (_ref = (_user$id = user.id) != null ? _user$id : user.networkId) != null ? _ref : 0;
 	  }
 	  setUsersToModel(rawUsers) {
 	    const {
 	      users,
-	      dialogues
+	      chats
 	    } = babelHelpers.classPrivateFieldLooseBase(this, _prepareUsersForStore)[_prepareUsersForStore](rawUsers);
 	    const usersPromise = this.store.dispatch('users/set', users);
-	    const dialoguesPromise = this.store.dispatch('dialogues/set', dialogues);
-	    return Promise.all([usersPromise, dialoguesPromise]);
+	    const chatsPromise = this.store.dispatch('chats/set', chats);
+	    return Promise.all([usersPromise, chatsPromise]);
 	  }
 	  addUsersToModel(rawUsers) {
 	    const {
 	      users,
-	      dialogues
+	      chats
 	    } = babelHelpers.classPrivateFieldLooseBase(this, _prepareUsersForStore)[_prepareUsersForStore](rawUsers);
 	    const usersPromise = this.store.dispatch('users/add', users);
-	    const dialoguesPromise = this.store.dispatch('dialogues/add', dialogues);
-	    return Promise.all([usersPromise, dialoguesPromise]);
+	    const chatsPromise = this.store.dispatch('chats/add', chats);
+	    return Promise.all([usersPromise, chatsPromise]);
 	  }
 	}
-	function _prepareUsersForStore2(users) {
+	function _prepareUsersForStore2(rawUsers) {
+	  let users = rawUsers;
 	  if (main_core.Type.isPlainObject(users)) {
 	    users = [users];
 	  }
-	  const dialogues = [];
+	  const chats = [];
 	  users.forEach(user => {
-	    dialogues.push(UserManager.getDialogForUser(user));
+	    chats.push(UserManager.getDialogForUser(user));
 	  });
 	  return {
 	    users,
-	    dialogues
+	    chats
 	  };
 	}
 

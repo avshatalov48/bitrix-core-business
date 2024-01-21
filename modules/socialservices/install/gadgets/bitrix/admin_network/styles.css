@@ -104,18 +104,3 @@
 .bx-gadgets-authorization .bx-gadgets-side {
 	background: url("images/stitch3.png") repeat-y 0 0;
 }
-
-.bx-ie8 .bx-gadgets-authorization .bx-gadgets-color-config-close:before {
-	background: none;
-	display: none;
-	color: #000;
-	content: 'X';
-}
-
-.bx-ie8 .bx-gadgets-authorization:hover .bx-gadgets-color-config-close:before {
-	display: block;
-}
-
-.bx-ie8 .bx-gadgets-authorization .bx-gadgets-color-config-close:after {
-	display: none;
-}

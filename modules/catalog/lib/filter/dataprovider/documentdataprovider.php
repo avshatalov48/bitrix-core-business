@@ -3,6 +3,10 @@
 namespace Bitrix\Catalog\Filter\DataProvider;
 
 use Bitrix\Catalog;
+use Bitrix\Catalog\Document\Type\StoreDocumentArrivalTable;
+use Bitrix\Catalog\Document\Type\StoreDocumentDeductTable;
+use Bitrix\Catalog\Document\Type\StoreDocumentMovingTable;
+use Bitrix\Catalog\Document\Type\StoreDocumentStoreAdjustmentTable;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Catalog\v2\Contractor\Provider\IProvider;
 use Bitrix\Main\Grid\Column;
@@ -460,6 +464,25 @@ class DocumentDataProvider extends EntityDataProvider
 		{
 			$columns[] = self::$fields[$field];
 		}
+
+		switch ($this->mode)
+		{
+			case \CatalogStoreDocumentListComponent::ARRIVAL_MODE:
+				$gridUFManager = new \Bitrix\Main\Grid\Uf\Base(StoreDocumentArrivalTable::getUfId());
+				$gridUFManager->addUFHeaders($columns);
+				$gridUFManager = new \Bitrix\Main\Grid\Uf\Base(StoreDocumentStoreAdjustmentTable::getUfId());
+				$gridUFManager->addUFHeaders($columns);
+				break;
+			case \CatalogStoreDocumentListComponent::MOVING_MODE:
+				$gridUFManager = new \Bitrix\Main\Grid\Uf\Base(StoreDocumentMovingTable::getUfId());
+				$gridUFManager->addUFHeaders($columns);
+				break;
+			case \CatalogStoreDocumentListComponent::DEDUCT_MODE:
+				$gridUFManager = new \Bitrix\Main\Grid\Uf\Base(StoreDocumentDeductTable::getUfId());
+				$gridUFManager->addUFHeaders($columns);
+				break;
+		}
+
 
 		return $columns;
 	}

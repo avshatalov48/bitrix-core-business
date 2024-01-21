@@ -27,6 +27,7 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 	table, tr, td { border-spacing: 0 !important; mso-table-lspace: 0px !important; mso-table-rspace: 0pt !important; border-collapse: collapse !important; mso-line-height-rule:exactly !important;}
 	.ExternalClass * { line-height: 100% }
 	.mobile-link a, .mobile-link span { text-decoration:none !important; color: inherit !important; border: none !important; }
+	pre {margin-top:0;margin-bottom:0;}
 	/* ======================================= CUSTOM DESKTOP STYLES */
 
 	/* ======================================= MOBILE STYLES */
@@ -105,8 +106,8 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 															<table class="w100" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="width: 100%;border: 1px solid #e2e3e6;border-radius: 6px; margin: 0 auto;">
 																<tbody>
 																	<tr>
-																		<td valign="top" align="left" style="padding-top:20px;padding-bottom:20px;padding-left:20px;">
-																			<div class="calendar" style="display: inline-block;width:56px;vertical-align: top;height: max-content;margin-right: 4px; box-sizing: border-box;">
+																		<td valign="top" align="left" style="vertical-align:top;">
+																			<div class="calendar" style="display: inline-block;padding-top:20px;padding-left:20px;width:70px;vertical-align: top;height: max-content;margin-right: 4px; box-sizing: border-box;">
 																				<div style="font-size: 10px;border-top-left-radius:4px;border-top-right-radius:4px;background-color:#415c6f;color: #fff;text-align: center;box-sizing: border-box;text-transform: lowercase;"><?= $arParams['CALENDAR_MONTH_NAME']?></div>
 																				<div style="border: 1px solid #d5d7db;border-top:none; border-bottom-left-radius:4px;border-bottom-right-radius:4px;">
 																					<div style="font-size: 22px;font-weight: 400;line-height: 27px;background: #fff;padding: 0 8px;color: #415C6f;text-align: center;white-space: nowrap;"><?= $arParams['CALENDAR_DAY']?></div>
@@ -114,12 +115,47 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 																				</div>
 																			</div>
 																		</td>
-																		<td align="left" style="padding-right: 20px;">
-																			<div class="header-info" style="display: inline-block;">
+																		<td align="left">
+																			<div class="header-info" style="display: inline-block;padding-top:20px;padding-right: 20px;padding-bottom:16px;">
 																				<div class="datetime">
 																					<div style="display: block;margin-bottom:5px;line-height:initial;font-size:14px;font-weight:400;color:#333333;"><?= $arParams['EVENT_DATE']?></div>
 																					<div class="interval" style="display: block;margin-bottom:5px;font-weight: 400;font-size: 14px;color: #333333;"><?= $arParams['EVENT_TIME']?></div>
 																					<div class="timezone" style="display: block;color: #828b95;font-weight: 400;font-size: 12px;"><?= $arParams['TIMEZONE']?></div>
+																					<div class="users" style="display: block;padding-top:13px;">
+																						<?php if (!empty($arParams['AVATARS'])): ?>
+																							<div style="margin-bottom: 6px;font-size:12px;font-weight:400;color:#959ca4;letter-spacing:0.5px;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_MEETING_HAS_MORE_USERS')?></div>
+																							<table cellspacing="0" cellpadding="0" border="0" align="left" style="">
+																								<tbody>
+																								<tr>
+																									<?php foreach($arParams['AVATARS'] as $avatar): ?>
+																										<td width="30" height="30" align="left" style="">
+																											<!--[if (gte mso 9)|(IE)]>
+																											  <v:oval xmlns:v="urn:schemas-microsoft-com:vml" fill="true" style='width:30px;height:30px' stroke="false">
+																												 <v:fill type="tile" src="[URL]" />
+																											  </v:oval>
+																										   <![endif]-->
+																											<!--[if !mso]>-->
+																											<img style="border-radius: 600px;" width="30" height="30" src="<?= $avatar ?>" />
+																											<!--<![endif]-->
+																										</td>
+																									<?php endforeach; ?>
+																									<?php if ($arParams['SHOW_DOTS'] ?? false): ?>
+																										<td width="30" height="30" align="left" style="">
+																											<!--[if (gte mso 9)|(IE)]>
+																											  <v:oval xmlns:v="urn:schemas-microsoft-com:vml" fill="true" style='width:30px;height:30px' stroke="false">
+																												 <v:fill type="tile" src="[URL]" />
+																											  </v:oval>
+																										   <![endif]-->
+																											<!--[if !mso]>-->
+																											<img style="border-radius: 600px;" width="30" height="30" src="<?= $arParams['ICON_DOTS'] ?>" />
+																											<!--<![endif]-->
+																										</td>
+																									<?php endif; ?>
+																								</tr>
+																								</tbody>
+																							</table>
+																						<?php endif; ?>
+																					</div>
 																				</div>
 																			</div>
 																		</td>
@@ -132,13 +168,19 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 														<tr>
 															<td align="left" style="">
 																<div class="buttons" style="display:block; margin-top: 20px; text-align: center;">
-																	<div>
-																		<div style="margin-bottom:20px;">
-																			<img src="<?= $arParams['ICON_BUTTON_CANCEL']?>" class="icon-cancel" style="display: inline-block;width: 13px;height: 13px;vertical-align: middle;"/>
-																			<a href="<?= $arParams['CANCEL_LINK']?>"
-																			   style="color:#A8ADB4;display:inline-block;border-bottom: 1px dotted rgba(168, 173, 180, .8);font-size:14px;text-align:center;text-decoration:none;vertical-align: middle;text-transform: lowercase;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_CANCEL_EVENT')?></a>
-																		</div>
-																	</div>
+																	<table cellspacing="0" cellpadding="0" border="0" align="center" style="margin-bottom: 20px;">
+																		<tbody>
+																		<tr>
+																			<td valign="center" align="left" style="padding-right: 5px;">
+																				<img src="<?= $arParams['ICON_BUTTON_CANCEL']?>" class="icon-cancel" style="display: inline-block;width: 13px;height: 13px;vertical-align: middle;" />
+																			</td>
+																			<td valign="center" align="left">
+																				<a href="<?= $arParams['CANCEL_LINK']?>"
+																				   style="color:#A8ADB4;display:inline-block;border-bottom: 1px dotted rgba(168, 173, 180, .8);font-size:14px;text-align:center;text-decoration:none;vertical-align: middle;text-transform: lowercase;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_CANCEL_EVENT')?></a>
+																			</td>
+																		</tr>
+																		</tbody>
+																	</table>
 																</div>
 															</td>
 														</tr>

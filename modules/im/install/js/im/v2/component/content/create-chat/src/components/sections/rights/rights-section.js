@@ -22,7 +22,11 @@ export const RightsSection = {
 			type: Array,
 			required: true,
 		},
-		manageUsers: {
+		manageUsersAdd: {
+			type: String,
+			required: true,
+		},
+		manageUsersDelete: {
 			type: String,
 			required: true,
 		},
@@ -39,7 +43,7 @@ export const RightsSection = {
 			required: true,
 		},
 	},
-	emits: ['ownerChange', 'managersChange', 'manageUsersChange', 'manageUiChange', 'canPostChange'],
+	emits: ['ownerChange', 'managersChange', 'manageUsersAddChange', 'manageUsersDeleteChange', 'manageUiChange', 'canPostChange'],
 	data()
 	{
 		return {};
@@ -47,10 +51,24 @@ export const RightsSection = {
 	computed:
 	{
 		PopupType: () => PopupType,
-		manageUsersItems(): DropdownItem[]
+		manageUsersAddItems(): DropdownItem[]
 		{
 			return rightsDropdownItems.map((item) => {
-				if (item.value === this.manageUsers)
+				if (item.value === this.manageUsersAdd)
+				{
+					return {
+						...item,
+						default: true,
+					};
+				}
+
+				return { ...item };
+			});
+		},
+		manageUsersDeleteItems(): DropdownItem[]
+		{
+			return rightsDropdownItems.map((item) => {
+				if (item.value === this.manageUsersDelete)
 				{
 					return {
 						...item,
@@ -100,9 +118,13 @@ export const RightsSection = {
 		{
 			this.$emit('managersChange', managerIds);
 		},
-		onManageUsersChange(newValue: UserRoleItem)
+		onManageUsersAddChange(newValue: UserRoleItem)
 		{
-			this.$emit('manageUsersChange', newValue);
+			this.$emit('manageUsersAddChange', newValue);
+		},
+		onManageUsersDeleteChange(newValue: UserRoleItem)
+		{
+			this.$emit('manageUsersDeleteChange', newValue);
 		},
 		onManageUiChange(newValue: UserRoleItem)
 		{
@@ -133,15 +155,23 @@ export const RightsSection = {
 			</div>
 			<div class="bx-im-content-create-chat__section_block">
 				<div class="bx-im-content-create-chat__heading">
-					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_USERS') }}
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_USERS_ADD') }}
 				</div>
 				<div class="bx-im-content-create-chat-settings__manage-select">
-					<Dropdown :items="manageUsersItems" :id="PopupType.createChatManageUsersMenu" @itemChange="onManageUsersChange" />
+					<Dropdown :items="manageUsersAddItems" :id="PopupType.createChatManageUsersAddMenu" @itemChange="onManageUsersAddChange" />
 				</div>
 			</div>
 			<div class="bx-im-content-create-chat__section_block">
 				<div class="bx-im-content-create-chat__heading">
-					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_UI') }}
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_USERS_DELETE') }}
+				</div>
+				<div class="bx-im-content-create-chat-settings__manage-select">
+					<Dropdown :items="manageUsersDeleteItems" :id="PopupType.createChatManageUsersDeleteMenu" @itemChange="onManageUsersDeleteChange" />
+				</div>
+			</div>
+			<div class="bx-im-content-create-chat__section_block">
+				<div class="bx-im-content-create-chat__heading">
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_UI_MSGVER_2') }}
 				</div>
 				<div class="bx-im-content-create-chat-settings__manage-select">
 					<Dropdown :items="manageUiItems" :id="PopupType.createChatManageUiMenu" @itemChange="onManageUiChange" />
@@ -149,7 +179,7 @@ export const RightsSection = {
 			</div>
 			<div class="bx-im-content-create-chat__section_block">
 				<div class="bx-im-content-create-chat__heading">
-					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_SENDING') }}
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_SENDING_MSGVER_1') }}
 				</div>
 				<div class="bx-im-content-create-chat-settings__manage-select">
 					<Dropdown :items="canPostItems" :id="PopupType.createChatCanPostMenu" @itemChange="onCanPostChange" />

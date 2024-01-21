@@ -132,6 +132,14 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 		$arParameters["ShowComment"] = $this->IsPropertyExists("ShowComment") ? $this->ShowComment : "Y";
 		if ($arParameters["ShowComment"] != "Y" && $arParameters["ShowComment"] != "N")
 			$arParameters["ShowComment"] = "Y";
+		if ($this->isPropertyExists('ApproveType'))
+		{
+			$arParameters['ApproveType'] = $this->ApproveType;
+		}
+		else
+		{
+			$arParameters['ApproveType'] = 'all';
+		}
 
 		$arParameters["CommentRequired"] = $this->IsPropertyExists("CommentRequired") ? $this->CommentRequired : "N";
 		$arParameters["AccessControl"] = $this->IsPropertyExists("AccessControl") && $this->AccessControl == 'Y' ? 'Y' : 'N';
@@ -183,21 +191,6 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 		}
 
 		$this->workflow->AddEventHandler($this->name, $eventHandler);
-	}
-
-	private function ReplaceTemplate($str, $ar)
-	{
-		$str = str_replace("%", "%2", $str);
-		foreach ($ar as $key => $val)
-		{
-			$val = str_replace("%", "%2", $val);
-			$val = str_replace("#", "%1", $val);
-			$str = str_replace("#".$key."#", $val, $str);
-		}
-		$str = str_replace("%1", "#", $str);
-		$str = str_replace("%2", "%", $str);
-
-		return $str;
 	}
 
 	public function Unsubscribe(IBPActivityExternalEventListener $eventHandler)
@@ -411,19 +404,33 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 		return array($form, $buttons);
 	}
 
-	public static function getTaskControls($arTask)
+	public static function getTaskControls($task)
 	{
-		return array(
-			'BUTTONS' => array(
-				array(
-					'TYPE'  => 'submit',
+		$controls = [
+			'BUTTONS' => [
+				[
+					'TYPE' => 'submit',
 					'TARGET_USER_STATUS' => CBPTaskUserStatus::Ok,
-					'NAME'  => 'review',
+					'NAME' => 'review',
 					'VALUE' => 'Y',
-					'TEXT'  => $arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAR_ACT_BUTTON2")
-				)
-			)
-		);
+					'TEXT' => $task["PARAMETERS"]["TaskButtonMessage"] ?: GetMessage("BPAR_ACT_BUTTON2"),
+				]
+			]
+		];
+
+		if (($task["PARAMETERS"]["ShowComment"] ?? 'N') !== "N")
+		{
+			$controls['FIELDS'] = [
+				[
+					'Id' => 'task_comment',
+					'Type' => 'text',
+					'Name' => $task["PARAMETERS"]["CommentLabelMessage"] ?: GetMessage("BPAR_ACT_COMMENT"),
+					'Required' => (($task['PARAMETERS']['CommentRequired'] ?? 'N') === 'Y'),
+				],
+			];
+		}
+
+		return $controls;
 	}
 
 	public static function PostTaskForm($arTask, $userId, $arRequest, &$arErrors, $userName = "", $realUserId = null)
@@ -440,7 +447,7 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 				"USER_ID" => $userId,
 				"REAL_USER_ID" => $realUserId,
 				"USER_NAME" => $userName,
-				"COMMENT" => isset($arRequest["task_comment"]) ? trim($arRequest["task_comment"]) : '',
+				"COMMENT" => trim($arRequest['fields']['task_comment'] ?? ($arRequest['task_comment'] ?? '')),
 			);
 
 			if (isset($arRequest['INLINE_USER_STATUS']) && $arRequest['INLINE_USER_STATUS'] != CBPTaskUserStatus::Ok)
@@ -654,8 +661,6 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
 	{
 		$arErrors = array();
-
-		$runtime = CBPRuntime::GetRuntime();
 
 		$arMap = array(
 			"review_users" => "Users",

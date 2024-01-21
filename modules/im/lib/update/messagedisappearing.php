@@ -7,7 +7,7 @@ use Bitrix\Main\Type\DateTime;
 
 class MessageDisappearing
 {
-	public static function disappearMessagesAgent()
+	public static function disappearMessagesAgent(): string
 	{
 		$connection = Application::getConnection();
 

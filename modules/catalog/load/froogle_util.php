@@ -1,7 +1,7 @@
-<?
-define("STOP_STATISTICS", true);
-define("BX_SECURITY_SHOW_MESSAGE", true);
-define('NO_AGENT_CHECK', true);
+<?php
+const STOP_STATISTICS = true;
+const BX_SECURITY_SHOW_MESSAGE = true;
+const NO_AGENT_CHECK = true;
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 if (check_bitrix_sessid())
@@ -47,4 +47,3 @@ if (check_bitrix_sessid())
 	}
 	echo "</script>";
 }
-?>

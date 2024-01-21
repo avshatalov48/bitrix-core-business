@@ -4,11 +4,13 @@ namespace Bitrix\Im\V2\Message\Param;
 
 use Bitrix\Im;
 use Bitrix\Im\V2\Message\Param;
+use Bitrix\Im\V2\Result;
 use Bitrix\Main\ArgumentException;
 
 class Keyboard extends Param
 {
 	protected ?Im\Bot\Keyboard $keyboard;
+	protected bool $isValid = true;
 
 	/**
 	 * @param Im\Bot\Keyboard $value
@@ -16,6 +18,11 @@ class Keyboard extends Param
 	 */
 	public function setValue($value): self
 	{
+		if ($value === null || $value === $this->getDefaultValue())
+		{
+			return $this->unsetValue();
+		}
+
 		if ($value instanceof Im\Bot\Keyboard)
 		{
 			$this->keyboard = $value;
@@ -23,6 +30,7 @@ class Keyboard extends Param
 		elseif (!empty($value))
 		{
 			$this->keyboard = Im\Bot\Keyboard::getKeyboardByJson($value);
+			$this->isValid = $this->keyboard !== null;
 		}
 
 		if (isset($this->keyboard))
@@ -35,11 +43,16 @@ class Keyboard extends Param
 	}
 
 	/**
-	 * @return array|null
+	 * @return array|string
 	 */
 	public function getValue()
 	{
-		return $this->value;
+		return $this->value ?? $this->getDefaultValue();
+	}
+
+	public function getDefaultValue()
+	{
+		return 'N';
 	}
 
 	/**
@@ -105,7 +118,7 @@ class Keyboard extends Param
 	/**
 	 * @return array|null
 	 */
-	public function toRestFormat(): ?array
+	public function toRestFormat()
 	{
 		return $this->getValue();
 	}
@@ -113,8 +126,23 @@ class Keyboard extends Param
 	/**
 	 * @return array|null
 	 */
-	public function toPullFormat(): ?array
+	public function toPullFormat()
 	{
 		return $this->getValue();
+	}
+
+	/**
+	 * @return Result
+	 */
+	public function isValid(): Result
+	{
+		$result = new Result();
+
+		if ($this->isValid && (!isset($this->keyboard) || $this->keyboard->IsAllowSize()))
+		{
+			return $result;
+		}
+
+		return $result->addError(new ParamError(ParamError::KEYBOARD_ERROR));
 	}
 }

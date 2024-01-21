@@ -312,6 +312,16 @@ class UsageStatTable extends Main\Entity\DataManager
 		);
 	}
 
+	public static function logBISuperset(string $clientId, string $type): void
+	{
+		static::increment(
+			UsageEntityTable::ENTITY_TYPE_APPLICATION,
+			$clientId,
+			UsageEntityTable::SUB_ENTITY_TYPE_BI_SUPERSET,
+			$type
+		);
+	}
+
 	protected static function incrementByCount($entityType, $entityId, $subEntityType, $subEntityName, int $count)
 	{
 		$entityKey = static::getEntityKey($entityType, $entityId, $subEntityType, $subEntityName);

@@ -645,22 +645,25 @@ class Dispatcher
 			$userFieldInfo['CONTEXT'] = $fieldInfo['CONTEXT'];
 		}
 
-		$this->getView()->setField($userFieldInfo);
+		$view = $this->getView();
 
-		if(array_key_exists('ADDITIONAL', $fieldInfo) && is_array($fieldInfo['ADDITIONAL']))
+		$view->setField($userFieldInfo);
+
+		if (!empty($fieldInfo['ADDITIONAL']) && is_array($fieldInfo['ADDITIONAL']))
 		{
-			foreach($fieldInfo['ADDITIONAL'] as $paramName => $paramValue)
+			foreach ($fieldInfo['ADDITIONAL'] as $paramName => $paramValue)
 			{
-				$this->getView()->setAdditionalParameter($paramName, $paramValue);
+				$view->setAdditionalParameter($paramName, $paramValue);
 			}
 		}
 
-		$this->result[$fieldInfo['FIELD']] = array(
-			'HTML' => $this->getView()->display(),
+		$this->result[$fieldInfo['FIELD']] = [
+			'HTML' => $view->display(),
 			'FIELD' => $this->getResultFieldInfo($userFieldInfo),
-		);
+		];
 
-		$this->getView()->clear();
+		$view->clear();
+		unset($view);
 
 		return true;
 	}

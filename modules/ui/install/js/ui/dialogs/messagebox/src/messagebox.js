@@ -15,7 +15,7 @@ export default class MessageBox
 	modal = true;
 	popupOptions = {};
 	minWidth = 300;
-	minHeight = 150;
+	minHeight = 130;
 	maxWidth = 400;
 	buttons = [];
 	mediumButtonSize: false;
@@ -54,11 +54,16 @@ export default class MessageBox
 			this.mediumButtonSize = true;
 		}
 
+		if (this.getTitle() !== null)
+		{
+			this.popupOptions.closeIcon = true;
+		}
+
 		if (this.isMediumButtonSize())
 		{
 			this.minWidth = 400;
 			this.minHeight = 200;
-			this.maxWidth = 500;
+			this.maxWidth = 420;
 		}
 
 		this.minWidth = Type.isNumber(options.minWidth) ? options.minWidth : this.minWidth;
@@ -84,13 +89,13 @@ export default class MessageBox
 	 * BX.UI.Dialogs.MessageBox.alert('Message', 'Title', (messageBox, button, event) => {});
 	 * BX.UI.Dialogs.MessageBox.alert('Message', 'Title', (messageBox, button, event) => {}, 'Proceed');
 	 */
-	static alert(message: string, ...args)
+	static alert(message: string, ...args): MessageBox
 	{
 		let title = null;
 		let okCallback = null;
 		let okCaption = null;
 
-		if (args.length)
+		if (args.length > 0)
 		{
 			if (Type.isString(args[0]))
 			{
@@ -102,13 +107,16 @@ export default class MessageBox
 			}
 		}
 
-		this.show({
+		const messageBox = this.create({
 			message,
 			title,
 			okCaption,
 			onOk: okCallback,
-			buttons: BX.UI.Dialogs.MessageBoxButtons.OK
+			buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
 		});
+		messageBox.show();
+
+		return messageBox;
 	}
 
 	/**
@@ -121,37 +129,44 @@ export default class MessageBox
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', () => {});
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', () => {}, 'Proceed');
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', () => {}, 'Proceed', () => {});
+	 * BX.UI.Dialogs.MessageBox.confirm('Message', () => {}, 'Proceed', () => {}, 'Cancel');
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title');
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {});
 	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {}, 'Proceed', () => {});
+	 * BX.UI.Dialogs.MessageBox.confirm('Message', 'Title', () => {}, 'Proceed', () => {}, 'Cancel');
 	 */
-	static confirm(message: string, ...args)
+	static confirm(message: string, ...args): MessageBox
 	{
 		let title = null;
 		let okCallback = null;
 		let okCaption = null;
 		let cancelCallback = null;
+		let cancelCaption = null;
 
-		if (args.length)
+		if (args.length > 0)
 		{
 			if (Type.isString(args[0]))
 			{
-				[title, okCallback, okCaption, cancelCallback] = args;
+				[title, okCallback, okCaption, cancelCallback, cancelCaption] = args;
 			}
 			else
 			{
-				[okCallback, okCaption, cancelCallback] = args;
+				[okCallback, okCaption, cancelCallback, cancelCaption] = args;
 			}
 		}
 
-		this.show({
+		const messageBox = this.create({
 			message,
 			title,
 			okCaption,
+			cancelCaption,
 			onOk: okCallback,
 			onCancel: cancelCallback,
-			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL
+			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
 		});
+		messageBox.show();
+
+		return messageBox;
 	}
 
 	static show(options = {})

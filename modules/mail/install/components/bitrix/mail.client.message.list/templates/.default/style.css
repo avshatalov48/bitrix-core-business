@@ -351,6 +351,11 @@
 	--main-grid-top-border-radius: 0;
 }
 
+.mail-msg-list-grid-stub-wrapper {
+	min-height: 550px;
+	position: relative;
+}
+
 .main-grid-cell-head.mail-msg-list-subject-cell-head {
 	width: 100%!important;
 	min-width: 400px;
@@ -359,6 +364,11 @@
 .main-grid-cell-head.mail-msg-list-from-cell-head  {
 	min-width: 200px;
 	width: 15%;
+}
+
+.mail-msg-list-grid-hidden
+{
+	display: none;
 }
 
 .mail-msg-list-date-cell-head {
@@ -600,7 +610,7 @@
 	background: #fbfcfc;
 	display: flex;
 	justify-content: center;
-	align-items: center;
+	padding-top: 80px;
 	z-index: 99;
 	transition: opacity .2s linear;
 	border-radius: var(--ui-border-radius-md);

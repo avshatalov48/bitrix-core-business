@@ -15,6 +15,23 @@ Loc::loadMessages(__FILE__);
 class Landing extends \Bitrix\Landing\Internals\BaseTable
 {
 	/**
+	 * Keys for get meta data from landing data
+	 */
+	protected const META_KEYS = [
+		'CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE',
+		'DATE_MODIFY', 'DATE_PUBLIC', 'INITIATOR_APP_CODE', 'VIEWS', 'TPL_CODE',
+		'ACTIVE', 'PUBLIC', 'SITE_CODE', 'SITE_SPECIAL', 'RULE',
+		'SITE_VERSION', 'SITE_LANG', 'SITE_TPL_CODE'
+	];
+
+	/**
+	 * Meta keys, than can be changed
+	 */
+	protected const META_KEYS_MODIFIABLE = [
+		'DATE_MODIFY', 'DATE_PUBLIC', 'ACTIVE', 'PUBLIC'
+	];
+
+	/**
 	 * Internal class.
 	 * @var string
 	 */
@@ -328,13 +345,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				);
 			}
 			// fill meta data
-			$keys = [
-				'CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE',
-				'DATE_MODIFY', 'INITIATOR_APP_CODE', 'VIEWS', 'TPL_CODE',
-				'ACTIVE', 'PUBLIC', 'SITE_CODE', 'SITE_SPECIAL', 'RULE',
-				'SITE_VERSION', 'SITE_LANG', 'SITE_TPL_CODE'
-			];
-			foreach ($keys as $key)
+			foreach (self::META_KEYS as $key)
 			{
 				$this->metaData[$key] = $landing[$key];
 			}
@@ -347,6 +358,22 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				Loc::getMessage('LANDING_NOT_FOUND')
 			);
 			$this->title = Loc::getMessage('LANDING_TITLE_NOT_FOUND');
+		}
+	}
+
+	/**
+	 * Can refresh value of modifiable meta data
+	 * @param array $metaData
+	 * @return void
+	 */
+	public function setMetaData(array $metaData): void
+	{
+		foreach ($metaData as $key => $value)
+		{
+			if (in_array($key, self::META_KEYS_MODIFIABLE, true))
+			{
+				$this->metaData[$key] = $value;
+			}
 		}
 	}
 
@@ -1688,6 +1715,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		{
 			if ($hook->enabled())
 			{
+				$hook = $this->prepareHook($hook);
 				$hooksExec[$hook->getCode()] = $hook;
 			}
 		}
@@ -1710,6 +1738,16 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				$hook->exec();
 			}
 		}
+	}
+
+	protected function prepareHook($hook)
+	{
+		if ($hook->getCode() === 'GMAP')
+		{
+			$hook->setSiteId($this->siteId);
+		}
+
+		return $hook;
 	}
 
 	/**
@@ -2957,10 +2995,6 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			{
 				$folderId = $toFolderId;
 			}
-			else if ($toSiteId == $this->getSiteId())
-			{
-				$folderId = $landingRow['FOLDER_ID'];
-			}
 			// check if folder in the same site
 			if ($folderId)
 			{
@@ -2977,7 +3011,9 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				],
 				'filter' => [
 					'=TITLE' => $landingRow['TITLE'],
-					'FOLDER_ID' => $folderId
+					'=DELETED' => 'N',
+					'FOLDER_ID' => $folderId,
+					'SITE_ID' => $toSiteId,
 				]
 			])->fetch();
 			// create new page
@@ -3141,6 +3177,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		// include the component
 		$componentName = 'bitrix:landing.demo';
 		$className = \CBitrixComponent::includeComponentClass($componentName);
+		/** @var \LandingSiteDemoComponent $demoCmp */
 		$demoCmp = new $className;
 		$demoCmp->initComponent($componentName);
 		$demoCmp->arParams = [
@@ -3148,9 +3185,18 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			'SITE_ID' => $siteId,
 			'SITE_WORK_MODE' => 'N',
 			'DISABLE_REDIRECT' => 'Y',
+			'DONT_LEAVE_FRAME' => 'N',
 			'FOLDER_ID' => $landing['FOLDER_ID'] ?? $fields['FOLDER_ID'] ?? 0,
 			'META' => $fields
 		];
+		if (
+			isset($fields['PREPARE_BLOCKS'], $fields['PREPARE_BLOCKS_DATA'])
+			&& $fields['PREPARE_BLOCKS'] === true
+			&& is_array($fields['PREPARE_BLOCKS_DATA'])
+		)
+		{
+			$demoCmp->arParams['PREPARE_BLOCKS_DATA'] = $fields['PREPARE_BLOCKS_DATA'];
+		}
 
 		// ... and create the page by component's method
 		$landingId = $demoCmp->createPage($siteId, $code);

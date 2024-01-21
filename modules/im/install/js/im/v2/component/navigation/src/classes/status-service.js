@@ -1,6 +1,6 @@
-import {Core} from 'im.v2.application.core';
-import {Logger} from 'im.v2.lib.logger';
-import {RestMethod, UserStatus} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { Logger } from 'im.v2.lib.logger';
+import { RestMethod, UserStatus } from 'im.v2.const';
 
 export class StatusService
 {
@@ -21,10 +21,13 @@ export class StatusService
 		}
 
 		Logger.warn(`StatusService: change current user status to ${status}`);
-		this.store.dispatch('users/setStatus', {status});
+		this.store.dispatch('users/setStatus', { status });
+		this.store.dispatch('application/settings/set', { status });
+
 		return this.restClient.callMethod(RestMethod.imUserStatusSet, {
-			'STATUS': status
-		}).catch(error => {
+			STATUS: status
+		}).catch((error) => {
+			// eslint-disable-next-line no-console
 			console.error('StatusService: changeStatus error', error);
 		});
 	}

@@ -3,11 +3,13 @@
 namespace Bitrix\Im\V2\Message\Param;
 
 use Bitrix\Im\V2\Message\Param;
+use Bitrix\Im\V2\Result;
 use Bitrix\Main\ArgumentException;
 
 class Attach extends Param
 {
 	private ?\CIMMessageParamAttach $attach = null;
+	private bool $isValid = true;
 
 	protected ?string $type = Param::TYPE_JSON;
 
@@ -17,6 +19,10 @@ class Attach extends Param
 	 */
 	public function setValue($value): self
 	{
+		if ($value === null || $value === $this->getDefaultValue())
+		{
+			return $this->unsetValue();
+		}
 		if ($value instanceof \CIMMessageParamAttach)
 		{
 			$this->attach = $value;
@@ -24,9 +30,13 @@ class Attach extends Param
 		elseif (!empty($value))
 		{
 			$this->attach = \CIMMessageParamAttach::GetAttachByJson($value);
+			if ($this->attach === null)
+			{
+				$this->isValid = false;
+			}
 		}
 
-		if ($this->attach)
+		if (isset($this->attach))
 		{
 			$this->value = $this->attach->getArray();
 			$this->jsonValue = $this->attach->getJson();
@@ -123,5 +133,20 @@ class Attach extends Param
 	public function toPullFormat()
 	{
 		return \CIMMessageParamAttach::PrepareAttach($this->getValue());
+	}
+
+	/**
+	 * @return Result
+	 */
+	public function isValid(): Result
+	{
+		$result = new Result();
+
+		if ($this->isValid && (!isset($this->attach) || $this->attach->IsAllowSize()))
+		{
+			return $result;
+		}
+
+		return $result->addError(new ParamError(ParamError::ATTACH_ERROR));
 	}
 }

@@ -1,14 +1,13 @@
-import { Tag, Loc, Type, Dom, Event } from 'main.core';
-import { EventEmitter } from "main.core.events";
+import { Tag, Loc, Type, Dom, Event, Browser } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 import { Util } from 'calendar.util';
 import Day from './day';
-import { DateTimeFormat } from "main.date";
-import { Browser } from 'main.core'
+import { DateTimeFormat } from 'main.date';
 import { MenuManager } from 'main.popup';
 
 export default class Calendar
 {
-	#owner;
+	#userIds;
 	#accessibility;
 	#layout;
 	#currentMonth;
@@ -23,6 +22,7 @@ export default class Calendar
 	#currentDayNumber;
 	#timezoneList;
 	#calendarSettings;
+	#rule;
 	#selectedTimezoneId;
 	#selectedTimezoneNode;
 	#config;
@@ -41,13 +41,14 @@ export default class Calendar
 			nextNav: null,
 			daysOfWeek: null,
 			navigation: null,
-			back: null
+			back: null,
 		};
 
-		this.#owner = options.owner;
+		this.#userIds = options.userIds;
 		this.#accessibility = options.accessibility;
 		this.#timezoneList = options.timezoneList;
 		this.#calendarSettings = options.calendarSettings;
+		this.#rule = options.rule;
 
 		this.#nowTime = new Date();
 		this.#currentMonthIndex = 0;
@@ -59,20 +60,28 @@ export default class Calendar
 		this.#selectedTimezoneOffsetUtc = this.#nowTime.getTimezoneOffset();
 		this.#months = [];
 		this.#monthsSlotsMap = [];
+
 		this.#config = {
-			eventDurability: 3600000,
-			stepSize: 3600000,
+			slotSize: this.#rule.slotSize,
+			freeTime: {},
+			stepSize: 30,
 			weekHolidays: [6, 0],
 			weekStart: 1,
-		}
+		};
 		this.#loc = {
 			weekdays: Util.getWeekdaysLoc(),
 		};
 		this.#timeZonePopup = null;
 
-		this.#setConfig();
+		this.#initConfig();
 		this.#initCurrentMonthSlots();
 		this.#bindEvents();
+
+		// preload the next month's accessibilities
+		const nextYear = this.#getNextYear();
+		const nextMonth = this.#getNextMonth();
+		this.#loadMonthAccessibility(nextYear, nextMonth, false);
+
 		setInterval(this.#incrementTime.bind(this), 15000);
 	}
 
@@ -115,42 +124,75 @@ export default class Calendar
 		Dom.append(timezoneNode, this.#getNodeTimezoneWrapper());
 	}
 
-	#setConfig()
+	#initConfig()
 	{
 		if (this.#calendarSettings.weekHolidays)
 		{
 			this.#config.weekHolidays = this.#calendarSettings.weekHolidays.map(
-				weekDay => Util.getIndByWeekDay(weekDay)
+				(weekDay) => Util.getIndByWeekDay(weekDay),
 			);
 		}
+
 		if (this.#calendarSettings.yearHolidays)
 		{
 			this.#config.yearHolidays = this.#calendarSettings.yearHolidays;
 		}
+
 		if (this.#calendarSettings.weekStart)
 		{
 			this.#config.weekStart = Util.getIndByWeekDay(this.#calendarSettings.weekStart);
 			this.#loc.weekdays.push(...this.#loc.weekdays.splice(0, this.#config.weekStart));
 		}
 
-		const hourOffset = Util.getTimeZoneOffset(this.#selectedTimezoneId) / 60;
-		if (this.#calendarSettings.workTimeStart)
+		for (const range of this.#rule.ranges)
 		{
-			const workTimeStart = parseFloat(this.#calendarSettings.workTimeStart) - hourOffset;
-			this.#config.workTimeStartHours = workTimeStart - workTimeStart % 1;
-			this.#config.workTimeStartMinutes = (workTimeStart % 1) * 60;
+			for (const weekday of range.weekdays)
+			{
+				this.#config.freeTime[weekday] ??= [];
+				this.#config.freeTime[weekday].push({
+					from: parseInt(range.from, 10),
+					to: parseInt(range.to, 10),
+				});
+
+				const [intersected, notIntersected] = this.#separate((interval) => this.#doIntervalsIntersect(
+					interval.from,
+					interval.to,
+					parseInt(range.from, 10),
+					parseInt(range.to, 10),
+				), this.#config.freeTime[weekday]);
+
+				if (intersected.length > 0)
+				{
+					const from = Math.min(...intersected.map(interval => interval.from));
+					const to = Math.max(...intersected.map(interval => interval.to));
+
+					this.#config.freeTime[weekday] = [...notIntersected, { from, to }];
+				}
+			}
 		}
-		if (this.#calendarSettings.workTimeEnd)
+
+		const timezoneOffset = Util.getTimeZoneOffset(this.#selectedTimezoneId);
+		const serverOffset = parseInt(this.#calendarSettings.serverOffset, 10);
+		const offset = serverOffset + timezoneOffset;
+		for (const weekday in this.#config.freeTime)
 		{
-			const workTimeEnd = parseFloat(this.#calendarSettings.workTimeEnd) - hourOffset;
-			this.#config.workTimeEndHours = workTimeEnd - workTimeEnd % 1;
-			this.#config.workTimeEndMinutes = (workTimeEnd % 1) * 60;
+			this.#config.freeTime[weekday] = this.#config.freeTime[weekday].map((range) => {
+				return {
+					from: range.from - offset,
+					to: range.to - offset,
+				};
+			});
 		}
 
 		if (this.#selectedTimezoneId === 'UTC' || !this.#timezoneList[this.#selectedTimezoneId])
 		{
 			this.#selectedTimezoneId = 'Africa/Dakar';
 		}
+	}
+
+	#separate(take, array)
+	{
+		return array.reduce(([t, f], e) => (take(e) ? [[...t, e], f] : [t, [...f, e]]), [[], []]);
 	}
 
 	#initCurrentMonthSlots()
@@ -165,7 +207,7 @@ export default class Calendar
 	{
 		const map = [];
 		const daysCount = new Date(year, month + 1, 0).getDate();
-		const accessibilityArrayKey = (month + 1) + '.' + year;
+		const accessibilityArrayKey = `${month + 1}.${year}`;
 		const nowTimestamp = this.#nowTime.getTime();
 		const timezoneOffset = (this.#selectedTimezoneOffsetUtc - this.#timezoneOffsetUtc) * (-60) * 1000;
 
@@ -173,64 +215,87 @@ export default class Calendar
 		{
 			const currentDate = new Date(year, month, dayIndex);
 
-			const from = new Date(year, month, dayIndex, this.#config.workTimeStartHours, this.#config.workTimeStartMinutes);
-			const to = new Date(year, month, dayIndex, this.#config.workTimeEndHours, this.#config.workTimeEndMinutes);
-
-			const dayAccessibility = this.#accessibility[accessibilityArrayKey].filter((event) => {
-				const parseUTC = !event.isFullDay;
-				return this.#doIntervalsIntersect(
-					BX.parseDate(event.from, parseUTC).getTime(),
-					BX.parseDate(event.to, parseUTC).getTime(),
-					from.getTime(),
-					to.getTime(),
-				);
-			});
-
-			while (from.getTime() < to.getTime())
+			if (this.#isYearHoliday(currentDate))
 			{
-				const slotStart = from.getTime();
-				const slotEnd = slotStart + this.#config.eventDurability;
+				continue;
+			}
 
-				if (slotEnd > to.getTime())
-				{
-					break;
-				}
+			const freeTime = this.#config.freeTime[currentDate.getDay()];
+			if (Type.isUndefined(freeTime))
+			{
+				continue;
+			}
 
-				const slotAccessibility = dayAccessibility.filter((event) => {
+			for (const range of freeTime)
+			{
+				const from = new Date(year, month, dayIndex, Math.floor(range.from / 60), range.from % 60);
+				const to = new Date(year, month, dayIndex, Math.floor(range.to / 60), range.to % 60);
+
+				const dayAccessibility = this.#accessibility[accessibilityArrayKey].filter((event) => {
 					const parseUTC = !event.isFullDay;
 					return this.#doIntervalsIntersect(
 						BX.parseDate(event.from, parseUTC).getTime(),
 						BX.parseDate(event.to, parseUTC).getTime(),
-						slotStart,
-						slotEnd,
+						from.getTime(),
+						to.getTime(),
 					);
 				});
 
-				const available = slotAccessibility.length === 0 && !this.#isHoliday(currentDate) && slotStart > nowTimestamp;
-				if (available)
+				while (from.getTime() < to.getTime())
 				{
-					const timeFrom = new Date(slotStart + timezoneOffset);
-					const timeTo = new Date(timeFrom.getTime() + (slotEnd - slotStart));
-					const dateIndex = timeFrom.getDate();
-					map[dateIndex] ??= [];
-					if (timeFrom.getMonth() === month)
-					{
-						map[dateIndex].push({ timeFrom, timeTo });
-					}
-				}
+					const slotStart = from.getTime();
+					const slotEnd = slotStart + this.#config.slotSize * 60 * 1000;
 
-				from.setTime(from.getTime() + this.#config.stepSize);
+					if (slotEnd > to.getTime())
+					{
+						break;
+					}
+
+					const slotAccessibility = dayAccessibility.filter((event) => {
+						const parseUTC = !event.isFullDay;
+						return this.#doIntervalsIntersect(
+							BX.parseDate(event.from, parseUTC).getTime(),
+							BX.parseDate(event.to, parseUTC).getTime(),
+							slotStart,
+							slotEnd,
+						);
+					});
+
+					const available = slotAccessibility.length === 0 && slotStart > nowTimestamp;
+					if (available)
+					{
+						const timeFrom = new Date(slotStart + timezoneOffset);
+						const timeTo = new Date(timeFrom.getTime() + (slotEnd - slotStart));
+						const dateIndex = timeFrom.getDate();
+						map[dateIndex] ??= [];
+						if (timeFrom.getMonth() === month)
+						{
+							map[dateIndex].push({ timeFrom, timeTo });
+						}
+					}
+
+					from.setTime(from.getTime() + this.#config.stepSize * 60 * 1000);
+				}
 			}
 		}
 
 		this.#monthsSlotsMap[accessibilityArrayKey] = map;
 	}
 
+	#doIntervalsIntersect(from1, to1, from2, to2)
+	{
+		const startsInside = from2 <= from1 && from1 < to2;
+		const endsInside = from2 < to1 && to1 <= to2;
+		const startsBeforeEndsAfter = from1 <= from2 && to1 >= to2;
+
+		return startsInside || endsInside || startsBeforeEndsAfter;
+	}
+
 	#createMonth(year, month)
 	{
 		return {
-			year: year,
-			month: month,
+			year,
+			month,
 			currentTimezoneOffset: this.#selectedTimezoneOffsetUtc,
 			name: this.#getMonthName(month),
 			days: this.#getMonthDays(year, month),
@@ -242,9 +307,8 @@ export default class Calendar
 		const month = this.#months[this.#currentMonthIndex];
 		const currentYear = month.year;
 		const currentMonth = month.month + 1;
-		const arrayKey = currentMonth + '.' + currentYear;
 
-		this.#accessibility[arrayKey] = await this.#loadMonthAccessibility(currentYear, currentMonth);
+		await this.#loadMonthAccessibility(currentYear, currentMonth);
 
 		this.#reCreateCurrentMonth();
 	}
@@ -257,6 +321,7 @@ export default class Calendar
 
 	async #createNextMonth()
 	{
+		this.nextMonthCreating = true;
 		const currentMonth = this.#months[this.#currentMonthIndex];
 		const currentYear = currentMonth.year;
 		const currentMonthIndex = currentMonth.month;
@@ -265,30 +330,62 @@ export default class Calendar
 		const nextYear = currentYear + Math.floor((currentMonthIndex + 1) / 12);
 		const nextMonth = nextMonthIndex + 1;
 
-		const arrayKey = nextMonth + '.' + nextYear;
-
-		this.#accessibility[arrayKey] = await this.#loadMonthAccessibility(nextYear, nextMonth);
+		await this.#loadMonthAccessibility(nextYear, nextMonth);
 
 		this.#calculateDateTimeSlots(nextYear, nextMonthIndex);
 
 		const month = this.#createMonth(nextYear, nextMonthIndex);
 		this.#months.push(month);
+		this.nextMonthCreating = false;
 	}
 
-	async #loadMonthAccessibility(year, month)
+	#getNextMonth()
 	{
+		const currentMonth = this.#months[this.#currentMonthIndex];
+		const currentMonthIndex = currentMonth.month;
+
+		const nextMonthIndex = (currentMonthIndex + 1) % 12;
+		return nextMonthIndex + 1;
+	}
+
+	#getNextYear()
+	{
+		const currentMonth = this.#months[this.#currentMonthIndex];
+		const currentYear = currentMonth.year;
+		const currentMonthIndex = currentMonth.month;
+
+		return currentYear + Math.floor((currentMonthIndex + 1) / 12);
+	}
+
+	async #loadMonthAccessibility(year, month, preloadNextMonth = true)
+	{
+		const arrayKey = `${month}.${year}`;
 		const firstMonthDay = new Date(year, month - 1, 1);
 		const lastMonthDay = new Date(year, month, 0, 23, 59);
 
-		const response = await BX.ajax.runAction('calendar.api.sharingajax.getUserAccessibility', {
-			data: {
-				userId: this.#owner.id,
-				timestampFrom: firstMonthDay.getTime(),
-				timestampTo: lastMonthDay.getTime(),
-			}
-		});
+		if (!this.#accessibility[arrayKey])
+		{
+			const response = await BX.ajax.runAction('calendar.api.sharingajax.getUsersAccessibility', {
+				data: {
+					userIds: this.#userIds,
+					timestampFrom: firstMonthDay.getTime(),
+					timestampTo: lastMonthDay.getTime(),
+				},
+			});
 
-		return response.data;
+			this.#accessibility[arrayKey] = response.data;
+		}
+
+		if (preloadNextMonth === false)
+		{
+			return;
+		}
+
+		const nextMonthIndex = (month) % 12;
+		const nextYear = year + Math.floor((month) / 12);
+		const nextMonth = nextMonthIndex + 1;
+
+		this.#loadMonthAccessibility(nextYear, nextMonth, false);
 	}
 
 	#getMonthName(month)
@@ -302,7 +399,7 @@ export default class Calendar
 	{
 		const days = [];
 		const daysCount = new Date(year, month + 1, 0).getDate();
-		const accessibilityArrayKey = (month + 1) + '.' + year;
+		const accessibilityArrayKey = `${month + 1}.${year}`;
 
 		for (let dayIndex = 1; dayIndex <= daysCount; dayIndex++)
 		{
@@ -311,7 +408,7 @@ export default class Calendar
 
 			const params = {
 				value: dayIndex,
-				slots: slots,
+				slots,
 				weekend: this.#isHoliday(newDay),
 				enableBooking: slots.length > 0,
 			};
@@ -329,9 +426,9 @@ export default class Calendar
 		if (this.#currentMonthIndex === 0)
 		{
 			const todayDay = this.#nowTime.getDate();
-			visibleDays = visibleDays.filter(day => day.getDay() >= todayDay).slice(0,14);
+			visibleDays = visibleDays.filter((day) => day.getDay() >= todayDay).slice(0, 14);
 		}
-		let dayToSelect = visibleDays.find(day => day.isEnableBooking());
+		let dayToSelect = visibleDays.find((day) => day.isEnableBooking());
 		if (dayToSelect === undefined)
 		{
 			dayToSelect = visibleDays[0];
@@ -359,7 +456,7 @@ export default class Calendar
 	#getDayToSelect()
 	{
 		const monthDays = this.#months[this.#currentMonthIndex].days;
-		let dayToSelect = monthDays.find(day => day.getDay() === this.#currentDayNumber);
+		let dayToSelect = monthDays.find((day) => day.getDay() === this.#currentDayNumber);
 		if (dayToSelect === undefined)
 		{
 			dayToSelect = monthDays[monthDays.length - 1];
@@ -370,18 +467,17 @@ export default class Calendar
 
 	#isHoliday(day)
 	{
-		const dayMonthKey = day.getDate() + '.' + ('0' + (day.getMonth() + 1)).slice(-2);
+		const monthKey = (`0${day.getMonth() + 1}`).slice(-2);
+		const dayMonthKey = `${day.getDate()}.${monthKey}`;
 
 		return (this.#config.weekHolidays.includes(day.getDay()) || this.#config.yearHolidays[dayMonthKey] !== undefined);
 	}
 
-	#doIntervalsIntersect(from1, to1, from2, to2)
+	#isYearHoliday(day)
 	{
-		const startsInside = from2 <= from1 && from1 < to2;
-		const endsInside = from2 < to1 && to1 <= to2;
-		const startsBeforeEndsAfter = from1 <= from2 && to1 >= to2;
+		const dayMonthKey = day.getDate() + '.' + ('0' + (day.getMonth() + 1)).slice(-2);
 
-		return startsInside || endsInside || startsBeforeEndsAfter;
+		return this.#config.yearHolidays[dayMonthKey] !== undefined;
 	}
 
 	getSelectedTimezoneId()
@@ -393,7 +489,7 @@ export default class Calendar
 	{
 		this.#selectedTimezoneNode = Tag.render`
 			<div class="calendar-sharing__timezone-value">
-				${ this.#getFormattedTimezone(this.#selectedTimezoneId) }
+				${this.#getFormattedTimezone(this.#selectedTimezoneId)}
 			</div>
 		`;
 
@@ -402,7 +498,7 @@ export default class Calendar
 				${Browser.isMobile() ? this.#getNodeTimezoneSelect() : ''}
 				<div class="calendar-sharing__timezone-area">
 					<div class="calendar-sharing__timezone-title">${Loc.getMessage('CALENDAR_SHARING_YOR_TIME')}:</div>
-					${ this.#selectedTimezoneNode }
+					${this.#selectedTimezoneNode}
 				</div>
 			</div>
 		`;
@@ -411,13 +507,16 @@ export default class Calendar
 
 		if (!Browser.isMobile())
 		{
-			timezoneSelect.addEventListener('click', ()=> {
+			Event.bind(timezoneSelect, 'click', () => {
 				const timezonesPopup = this.#getPopupTimezoneSelect().getPopupWindow();
 				timezonesPopup.show();
 
 				const popupContent = timezonesPopup.getContentContainer();
 				const selectedTimezoneItem = popupContent.querySelector('.menu-popup-item.--selected');
-				const selectOffset = timezoneSelect.getBoundingClientRect().top + timezoneSelect.offsetHeight / 4 - popupContent.getBoundingClientRect().top;
+				const selectOffset = timezoneSelect.getBoundingClientRect().top
+					+ timezoneSelect.offsetHeight / 4
+					- popupContent.getBoundingClientRect().top
+				;
 				popupContent.scrollTop = selectedTimezoneItem.offsetTop - selectOffset;
 			});
 		}
@@ -436,18 +535,18 @@ export default class Calendar
 		const items = Object.keys(this.#timezoneList).map((timezoneId) => ({
 			text: this.#getFormattedTimezone(timezoneId),
 			className: (timezoneId === this.#selectedTimezoneId) ? 'menu-popup-no-icon --selected' : 'menu-popup-no-icon',
-			onclick: ()=> {
+			onclick: () => {
 				this.#updateTimezone(timezoneId);
 				this.#timeZonePopup.close();
-			}
+			},
 		}));
 
 		this.#timeZonePopup = MenuManager.create({
 			id: 'momomiomsiomx92984j',
 			className: 'calendar-sharing-timezone-select-popup',
-			items: items,
+			items,
 			autoHide: true,
-			maxHeight: window.innerHeight - 150
+			maxHeight: window.innerHeight - 150,
 		});
 
 		return this.#timeZonePopup;
@@ -457,7 +556,7 @@ export default class Calendar
 	{
 		const selectNode = Tag.render`
 			<select class="calendar-sharing__timezone-select">
-				${Object.keys(this.#timezoneList).map(timezoneId => Tag.render`
+				${Object.keys(this.#timezoneList).map((timezoneId) => Tag.render`
 					<option value="${timezoneId}" ${timezoneId === this.#selectedTimezoneId ? 'selected' : ''}>
 						${this.#getFormattedTimezone(timezoneId)}
 					</option>
@@ -465,7 +564,7 @@ export default class Calendar
 			</select>
 		`;
 
-		selectNode.addEventListener('change', () => this.#updateTimezone(selectNode.value));
+		Event.bind(selectNode, 'change', () => this.#updateTimezone(selectNode.value));
 
 		return selectNode;
 	}
@@ -473,8 +572,8 @@ export default class Calendar
 	#updateTimezone(timezoneId)
 	{
 		this.#selectedTimezoneId = timezoneId;
-		this.#selectedTimezoneOffsetUtc = - (this.#timezoneList[this.#selectedTimezoneId].offset / 60);
-		EventEmitter.emit('updateTimezone', {timezone: timezoneId});
+		this.#selectedTimezoneOffsetUtc = -(this.#timezoneList[this.#selectedTimezoneId].offset / 60);
+		EventEmitter.emit('updateTimezone', { timezone: timezoneId });
 		this.#selectedTimezoneNode.innerHTML = this.#getFormattedTimezone(this.#selectedTimezoneId);
 		this.#reCreateCurrentMonth();
 		this.selectMonthDay();
@@ -482,7 +581,7 @@ export default class Calendar
 
 	#getFormattedTimezone(timezoneId)
 	{
-		return `${ this.getTimezonePrefix(this.#timezoneList[timezoneId].offset) } - ${timezoneId}`;
+		return `${this.getTimezonePrefix(this.#timezoneList[timezoneId].offset)} - ${timezoneId}`;
 	}
 
 	getTimezonePrefix(timezoneOffset)
@@ -497,7 +596,7 @@ export default class Calendar
 	{
 		if (!this.#layout.daysOfWeek)
 		{
-			const nodesWeekDays = this.#loc.weekdays.map((weekDay)=> {
+			const nodesWeekDays = this.#loc.weekdays.map((weekDay) => {
 				return Tag.render`
 					<div class="calendar-sharing__month-col --day-of-week">${weekDay}</div>
 				`;
@@ -567,19 +666,19 @@ export default class Calendar
 			</div>
 		`;
 
-		let touchPosition = {
-			x: null
+		const touchPosition = {
+			x: null,
 		};
 
-		let touchMove = (ev) => {
-			touchPosition.x = ev.changedTouches[0].clientX
+		const touchMove = (ev) => {
+			touchPosition.x = ev.changedTouches[0].clientX;
 		};
 
-		result.addEventListener('touchstart', (ev)=> {
+		Event.bind(result, 'touchstart', (ev) => {
 			touchMove(ev);
 		});
 
-		result.addEventListener('touchend', (ev)=> {
+		Event.bind(result, 'touchend', (ev) => {
 			if (touchPosition.x < ev.changedTouches[0].clientX - 100)
 			{
 				this.#handlePreviousMonthArrowClick();
@@ -593,7 +692,7 @@ export default class Calendar
 			result.style.removeProperty('transform');
 		});
 
-		result.addEventListener('touchmove', (ev)=> {
+		Event.bind(result, 'touchmove', (ev) => {
 			ev.preventDefault();
 		});
 
@@ -657,7 +756,7 @@ export default class Calendar
 		if (Type.isString(direction))
 		{
 			Dom.addClass(nodeMonth, `--animate-${direction}`);
-			nodeMonth.addEventListener('animationend', ()=> {
+			Event.bind(nodeMonth, 'animationend', () => {
 				Dom.removeClass(nodeMonth, `--animate-${direction}`);
 			}, { once: true });
 		}
@@ -721,6 +820,11 @@ export default class Calendar
 	{
 		if (this.#currentMonthIndex === this.#months.length - 1)
 		{
+			if (this.nextMonthCreating)
+			{
+				return;
+			}
+
 			await this.#createNextMonth();
 		}
 

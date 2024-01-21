@@ -175,14 +175,7 @@ class ProductDataProvider extends ElementDataProvider
 	{
 		$fieldID = $this->removePrefix(self::VARIATION_PREFIX, $fieldIdWithPrefix);
 
-		if ($this->variationFields->isPropertyEnumField($fieldID))
-		{
-			return [
-				'items' => $this->variationFields->getPropertyEnumFieldListItems($fieldID),
-			];
-		}
-
-		return null;
+		return $this->variationFields->getPropertyDescription($fieldID);
 	}
 
 	/**
@@ -209,6 +202,8 @@ class ProductDataProvider extends ElementDataProvider
 
 		if (!empty($variationFilterValue))
 		{
+			$variationFilterValue = $this->variationFields->prepareFilterValue($variationFilterValue);
+
 			$settings = $this->getSettings();
 			$variationFilterValue['IBLOCK_ID'] = $settings->getVariationIblockId();
 			$rawFilterValue['SUBQUERY'] = [

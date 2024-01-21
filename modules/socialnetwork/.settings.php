@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Socialnetwork\Integration\UI\EntitySelector;
+
 return [
 	'controllers' => [
 		'value' => [
@@ -25,42 +28,50 @@ return [
 					'entityId' => 'user',
 					'provider' => [
 						'moduleId' => 'socialnetwork',
-						'className' => '\\Bitrix\\Socialnetwork\\Integration\\UI\\EntitySelector\\UserProvider'
+						'className' => EntitySelector\UserProvider::class
 					],
 				],
 				[
 					'entityId' => 'fired-user',
 					'provider' => [
 						'moduleId' => 'socialnetwork',
-						'className' => '\\Bitrix\\Socialnetwork\\Integration\\UI\\EntitySelector\\FiredUserProvider'
+						'className' => EntitySelector\FiredUserProvider::class
+					],
+				],
+				[
+					'entityId' => 'project-user',
+					'substitutes' => 'user',
+					'provider' => [
+						'moduleId' => 'socialnetwork',
+						'className' => EntitySelector\ProjectUserProvider::class
 					],
 				],
 				[
 					'entityId' => 'project',
 					'provider' => [
 						'moduleId' => 'socialnetwork',
-						'className' => '\\Bitrix\\Socialnetwork\\Integration\\UI\\EntitySelector\\ProjectProvider'
+						'className' => EntitySelector\ProjectProvider::class
 					],
 				],
 				[
 					'entityId' => 'meta-user',
 					'provider' => [
 						'moduleId' => 'socialnetwork',
-						'className' => '\\Bitrix\\Socialnetwork\\Integration\\UI\\EntitySelector\\MetaUserProvider'
+						'className' => EntitySelector\MetaUserProvider::class
 					],
 				],
 				[
 					'entityId' => 'project-tag',
 					'provider' => [
 						'moduleId' => 'socialnetwork',
-						'className' => '\\Bitrix\\SocialNetwork\\Integration\\UI\\EntitySelector\\ProjectTagProvider',
+						'className' => EntitySelector\ProjectTagProvider::class,
 					],
 				],
 				[
 					'entityId' => 'project-roles',
 					'provider' => [
 						'moduleId' => 'socialnetwork',
-						'className' => '\\Bitrix\\SocialNetwork\\Integration\\UI\\EntitySelector\\ProjectRolesProvider',
+						'className' => EntitySelector\ProjectRolesProvider::class,
 					],
 				],
 			],

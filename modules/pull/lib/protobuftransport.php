@@ -2,11 +2,8 @@
 
 namespace Bitrix\Pull;
 
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Text\BinaryString;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Pull\Protobuf;
 use Protobuf\MessageCollection;
@@ -19,19 +16,17 @@ class ProtobufTransport
 	/**
 	 * @param array $messages Messages to send to the pull server.
 	 */
-	public static function sendMessages(array $messages, array $options = []): Result
+	public static function sendMessages(array $messages, array $options = []): TransportResult
 	{
-		$result = new Result();
-		if(!Config::isProtobufUsed())
-		{
-			throw new SystemException("Sending messages in protobuf format is not supported by queue server");
-		}
+		$result = new TransportResult();
 
 		$protobufMessages = static::convertMessages($messages);
 		$requests = static::createRequests($protobufMessages);
 		$requestBatches = static::createRequestBatches($requests);
 
 		$queueServerUrl = $options['serverUrl'] ?? Config::getPublishUrl();
+		$result->withRemoteAddress($queueServerUrl);
+
 		$queueServerUrl = \CHTTP::urlAddParams($queueServerUrl, ["binaryMode" => "true"]);
 		foreach ($requestBatches as $requestBatch)
 		{

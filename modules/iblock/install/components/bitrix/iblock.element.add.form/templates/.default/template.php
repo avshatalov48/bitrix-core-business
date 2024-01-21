@@ -60,7 +60,17 @@ if ($arResult["MESSAGE"] <> ''):?>
 
 						if ($arResult["PROPERTY_LIST_FULL"][$propertyID]["MULTIPLE"] == "Y")
 						{
-							$inputNum = $existValues ? count($arResult["ELEMENT_PROPERTIES"][$propertyID]) : 0;
+							$inputNum = 0;
+							if ($existValues)
+							{
+								if (
+									!empty($arResult["ELEMENT_PROPERTIES"][$propertyID])
+									&& is_array($arResult["ELEMENT_PROPERTIES"][$propertyID])
+								)
+								{
+									$inputNum = count($arResult["ELEMENT_PROPERTIES"][$propertyID]);
+								}
+							}
 							$inputNum += $arResult["PROPERTY_LIST_FULL"][$propertyID]["MULTIPLE_CNT"];
 						}
 						else

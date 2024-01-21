@@ -2,9 +2,10 @@
 
 namespace Bitrix\Socialnetwork\Controller;
 
+use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Intranet\Internals\ThemeTable;
-use Bitrix\Main\Engine;
 use Bitrix\Main\Context;
+use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Error;
@@ -12,19 +13,30 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\UserTable;
-use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Socialnetwork\EO_UserToGroup;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Helper\AvatarManager;
 use Bitrix\Socialnetwork\Integration\Main\File;
 use Bitrix\Socialnetwork\Integration\Pull\PushService;
+use Bitrix\Socialnetwork\Internals\Counter;
+use Bitrix\Socialnetwork\Internals\Counter\CounterDictionary;
+use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
 use Bitrix\Socialnetwork\Internals\EventService\Push\PushEventDictionary;
+use Bitrix\Socialnetwork\Internals\EventService\Service;
+use Bitrix\Socialnetwork\Item\Subscription;
+use Bitrix\Socialnetwork\Item\WorkgroupFavorites;
+use Bitrix\Socialnetwork\Space\MembersManager;
+use Bitrix\Socialnetwork\Space\Toolbar\Switcher\Option\Pin;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupPinTable;
+use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\WorkgroupSubjectTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupTagTable;
-use Bitrix\Main\UI\PageNavigation;
+use CExtranet;
+use Exception;
 
 class Workgroup extends Base
 {
@@ -49,13 +61,7 @@ class Workgroup extends Base
 
 		if ($groupId <= 0)
 		{
-			$this->addError(
-				new Error(
-					Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'),
-					'SONET_CONTROLLER_WORKGROUP_EMPTY'
-				)
-			);
-
+			$this->addEmptyGroupIdError();
 			return null;
 		}
 
@@ -81,6 +87,12 @@ class Workgroup extends Base
 			if (in_array('AVATAR_TYPES', $select, true))
 			{
 				$groupFields['AVATAR_TYPES'] = Helper\Workgroup::getAvatarTypes();
+			}
+			if (in_array('AVATAR_DATA', $select, true))
+			{
+				$imageId = (int) $groupFields['IMAGE_ID'];
+				$avatarType = $groupFields['AVATAR_TYPE'] ?? '';
+				$groupFields['AVATAR_DATA'] = $this->getAvatarData($imageId, $avatarType);
 			}
 			if (in_array('OWNER_DATA', $select, true))
 			{
@@ -109,6 +121,57 @@ class Workgroup extends Base
 			if (in_array('DEPARTMENTS', $select, true))
 			{
 				$groupFields['DEPARTMENTS'] = $this->getDepartments($groupFields['UF_SG_DEPT']['VALUE']);
+			}
+			if (in_array('PIN', $select, true))
+			{
+				$groupFields['IS_PIN'] = $this->isPin($groupId, $this->getCurrentUser()->getId());
+			}
+			if (in_array('PRIVACY_TYPE', $select, true))
+			{
+				$groupFields['PRIVACY_CODE'] = Helper\Workgroup::getConfidentialityTypeCodeByParams([
+					'fields' => [
+						'OPENED' => $groupFields['OPENED'],
+						'VISIBLE' => $groupFields['VISIBLE'],
+					],
+				]);
+			}
+			if (in_array('LIST_OF_MEMBERS', $select, true))
+			{
+				$groupFields['LIST_OF_MEMBERS'] = $this->getListOfMembers(
+					$groupId,
+					$groupItem->getScrumMaster()
+				);
+			}
+
+			$needListOfAwaiting = in_array('LIST_OF_MEMBERS_AWAITING_INVITE', $select, true);
+			$needMembersList = in_array('GROUP_MEMBERS_LIST', $select, true);
+			if ($needListOfAwaiting || $needMembersList)
+			{
+				$permissions = Helper\Workgroup::getPermissions(
+					['groupId' => $groupId],
+				);
+			}
+			if ($needListOfAwaiting)
+			{
+				$groupFields['LIST_OF_MEMBERS_AWAITING_INVITE'] = [];
+				if ($permissions['UserCanModifyGroup'] || $permissions['UserCanInitiate'])
+				{
+					$groupFields['LIST_OF_MEMBERS_AWAITING_INVITE'] = $this->getListOfAwaitingMembers($groupId);
+				}
+			}
+			if ($needMembersList)
+			{
+				$groupFields['GROUP_MEMBERS_LIST'] = [];
+				if ($permissions['UserCanModifyGroup'] || $permissions['UserCanInitiate'])
+				{
+					$membersManager = new MembersManager();
+					$groupFields['GROUP_MEMBERS_LIST'] = $membersManager->getGroupMembersList($groupId);
+				}
+			}
+
+			if (in_array('COUNTERS', $select, true))
+			{
+				$groupFields['COUNTERS'] = $this->getCounters($groupId);
 			}
 
 			if ($groupFields['NUMBER_OF_MEMBERS'])
@@ -322,6 +385,22 @@ class Workgroup extends Base
 		});
 	}
 
+	private function getAvatarData(int $imageId, string $avatarType): array
+	{
+		$avatarManager = new AvatarManager();
+
+		if ($imageId)
+		{
+			$avatarData = $avatarManager->getImageAvatar($imageId)->toArray();
+		}
+		else
+		{
+			$avatarData = $avatarManager->getIconAvatar($avatarType)->toArray();
+		}
+
+		return $avatarData;
+	}
+
 	private function getOwnerData(int $ownerId): array
 	{
 		$owner = UserTable::getList([
@@ -439,6 +518,10 @@ class Workgroup extends Base
 		return [
 			'ROLE' => $permissions['UserRole'],
 			'INITIATED_BY_TYPE' => $permissions['InitiatedByType'],
+			'IS_SUBSCRIBED' => (
+				in_array($permissions['UserRole'], UserToGroupTable::getRolesMember(), true)
+				&& \CSocNetSubscription::isUserSubscribed($this->getCurrentUser()->getId(), 'SG' . $groupId)
+			),
 		];
 	}
 
@@ -477,6 +560,176 @@ class Workgroup extends Base
 		return $departments;
 	}
 
+	private function isPin(int $groupId, int $currentUserId, string $context = ''): bool
+	{
+		$query = new Query(WorkgroupPinTable::getEntity());
+
+		$query = $query
+			->setSelect([
+				'ID',
+				'GROUP_ID',
+				'USER_ID',
+			])
+			->where('GROUP_ID', $groupId)
+			->where('USER_ID', $currentUserId)
+		;
+		if ($context === '')
+		{
+			$query = $query->where(Query::filter()
+				->logic('or')
+				->whereNull('CONTEXT')
+				->where('CONTEXT', '')
+			);
+		}
+		else
+		{
+			$query = $query->where('CONTEXT', $context);
+		}
+
+		$pin = $query->setLimit(1)->exec()->fetchObject();
+
+		return (bool) $pin;
+	}
+
+	private function getListOfMembers(int $groupId, int $scrumMasterId): array
+	{
+		$list = [];
+
+		$records = UserToGroupTable::query()
+			->setSelect([
+				'GROUP_ID',
+				'USER_ID',
+				'ROLE',
+				'INITIATED_BY_TYPE',
+				'AUTO_MEMBER',
+				'NAME' => 'USER.NAME',
+				'LAST_NAME' => 'USER.LAST_NAME',
+				'SECOND_NAME' => 'USER.SECOND_NAME',
+				'LOGIN' => 'USER.LOGIN',
+				'PERSONAL_PHOTO' => 'USER.PERSONAL_PHOTO',
+			])
+			->whereIn('GROUP_ID', $groupId)
+			->whereIn('ROLE', UserToGroupTable::getRolesMember())
+			->exec()->fetchCollection()
+		;
+
+		$members = [];
+		$imageIdList = [];
+		foreach ($records as $record)
+		{
+			$user = $record->get('USER');
+			$imageIdList[$record->get('USER_ID')] = $user->get('PERSONAL_PHOTO');
+			$members[] = $record;
+		}
+		$imageIdList = array_filter(
+			$imageIdList,
+			static function ($id) {
+				return (int) $id > 0;
+			}
+		);
+		$avatars = $this->getUserAvatars($imageIdList);
+
+		foreach ($members as $member)
+		{
+			$memberId = (int) $member['USER_ID'];
+
+			$isOwner = ($member['ROLE'] === UserToGroupTable::ROLE_OWNER);
+			$isModerator = ($member['ROLE'] === UserToGroupTable::ROLE_MODERATOR);
+			$isScrumMaster = ($scrumMasterId === $memberId);
+
+			$list[] = [
+				'id' => $memberId,
+				'isOwner' => $isOwner,
+				'isModerator' => $isModerator,
+				'isScrumMaster' => $isScrumMaster,
+				'isAutoMember' => $member['AUTO_MEMBER'],
+				'photo' => ($avatars[($imageIdList[$memberId] ?? '')] ?? ''),
+			];
+		}
+
+		return $list;
+	}
+
+	private function getListOfAwaitingMembers(int $groupId, int $limit = 10, int $offset = 0): array
+	{
+		$list = [];
+
+		$records = UserToGroupTable::query()
+			->setSelect([
+				'GROUP_ID',
+				'USER_ID',
+				'ROLE',
+				'INITIATED_BY_TYPE',
+				'NAME' => 'USER.NAME',
+				'LAST_NAME' => 'USER.LAST_NAME',
+				'SECOND_NAME' => 'USER.SECOND_NAME',
+				'LOGIN' => 'USER.LOGIN',
+				'PERSONAL_PHOTO' => 'USER.PERSONAL_PHOTO',
+			])
+			->whereIn('GROUP_ID', $groupId)
+			->where('INITIATED_BY_TYPE', UserToGroupTable::INITIATED_BY_USER)
+			->where('ROLE', UserToGroupTable::ROLE_REQUEST)
+			->setLimit($limit)
+			->setOffset($offset)
+			->exec()->fetchCollection()
+		;
+
+		$members = [];
+		$imageIdList = [];
+		foreach ($records as $record)
+		{
+			$user = $record->get('USER');
+			$imageIdList[$record->get('USER_ID')] = $user->get('PERSONAL_PHOTO');
+
+			$members[] = $record;
+		}
+		$imageIdList = array_filter(
+			$imageIdList,
+			static function ($id) {
+				return (int) $id > 0;
+			}
+		);
+		$avatars = $this->getUserAvatars($imageIdList);
+
+		foreach ($members as $member)
+		{
+			$memberId = (int) $member['USER_ID'];
+
+			$userNameFormatted = \CUser::formatName(\CSite::getNameFormat(), [
+				'NAME' => $member->get('USER')->get('NAME'),
+				'LAST_NAME' => $member->get('USER')->get('LAST_NAME'),
+				'SECOND_NAME' => $member->get('USER')->get('SECOND_NAME'),
+				'LOGIN' => $member->get('USER')->get('LOGIN'),
+			], ModuleManager::isModuleInstalled('intranet'));
+
+			$list[] = [
+				'id' => $memberId,
+				'name' => $userNameFormatted,
+				'photo' => ($avatars[($imageIdList[$memberId] ?? '')] ?? ''),
+			];
+		}
+
+		return $list;
+	}
+
+	private function getCounters(int $groupId): array
+	{
+		$counters = [];
+
+		$counterProvider = Counter::getInstance($this->getCurrentUser()->getId());
+
+		$availableCounters = [
+			CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT,
+			CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN,
+		];
+		foreach ($availableCounters as $counter)
+		{
+			$counters[$counter] = $counterProvider->get($counter, $groupId)['all'];
+		}
+
+		return $counters;
+	}
+
 	public function updateAction(int $groupId, array $fields = []): ?bool
 	{
 		if (!Helper\Workgroup\Access::canModify([
@@ -484,15 +737,16 @@ class Workgroup extends Base
 			'checkAdminSession' => ($this->getScope() !== Controller::SCOPE_REST),
 		]))
 		{
-			$this->addError(new Error(
-				Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'),
-				'SONET_CONTROLLER_WORKGROUP_EMPTY')
-			);
+			$this->addEmptyGroupIdError();
 			return null;
 		}
 
 		$whiteList = [
+			'NAME',
 			'KEYWORDS',
+			'VISIBLE',
+			'OPENED',
+			'EXTERNAL',
 		];
 
 		foreach ($fields as $key => $value)
@@ -518,7 +772,7 @@ class Workgroup extends Base
 		{
 			$result = \CSocNetGroup::update($groupId, $fields);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$this->addError(new Error($e->getMessage(), $e->getCode()));
 			return null;
@@ -538,6 +792,18 @@ class Workgroup extends Base
 
 	public function deleteAction(int $groupId)
 	{
+		if (
+			!Helper\Workgroup\Access::canModify([
+				'groupId' => $groupId,
+				'checkAdminSession' => ($this->getScope() !== Controller::SCOPE_REST),
+			])
+		)
+		{
+			$this->addEmptyGroupIdError();
+
+			return null;
+		}
+
 		global $APPLICATION;
 
 		$deleteResult = \CSocNetGroup::Delete($groupId);
@@ -565,39 +831,32 @@ class Workgroup extends Base
 		}
 	}
 
-	public function setFavoritesAction(array $params = [])
+	public function setFavoritesAction(array $params = []): ?array
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
-		$value = (isset($params['value']) && in_array($params['value'], [ 'Y', 'N' ]) ? $params['value'] : false);
 		$getAdditionalResultData = (bool)($params['getAdditionalResultData'] ?? false);
 
 		if ($groupId <= 0)
 		{
-			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'), 'SONET_CONTROLLER_WORKGROUP_EMPTY'));
+			$this->addEmptyGroupIdError();
 			return null;
 		}
 
-		if ($value === false)
+		if (!in_array($params['value'] ?? null, WorkgroupFavorites::AVAILABLE_VALUES, true))
 		{
-			$this->addError(new Error('SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE', 'SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE'));
-			return null;
-		}
-
-		if (!Loader::includeModule('socialnetwork'))
-		{
-			$this->addError(new Error('SONET_CONTROLLER_MODULE_NOT_INSTALLED', 'SONET_CONTROLLER_MODULE_NOT_INSTALLED'));
+			$this->addIncorrectValueError();
 			return null;
 		}
 
 		try
 		{
-			$res = \Bitrix\Socialnetwork\Item\WorkgroupFavorites::set([
+			$res = WorkgroupFavorites::set([
 				'GROUP_ID' => $groupId,
 				'USER_ID' => $this->getCurrentUser()->getId(),
-				'VALUE' => $value,
+				'VALUE' => $params['value'],
 			]);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$this->addError(new Error($e->getMessage(), $e->getCode()));
 			return null;
@@ -609,6 +868,11 @@ class Workgroup extends Base
 			return null;
 		}
 
+		$result = [
+			'ID' => $groupId,
+			'RESULT' => $params['value'],
+		];
+
 		if ($getAdditionalResultData)
 		{
 			$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
@@ -618,7 +882,7 @@ class Workgroup extends Base
 			]);
 
 			$groupSiteList = [];
-			$resSite = \Bitrix\Socialnetwork\WorkgroupSiteTable::getList([
+			$resSite = WorkgroupSiteTable::getList([
 				'filter' => [
 					'=GROUP_ID' => $groupId
 				],
@@ -628,83 +892,161 @@ class Workgroup extends Base
 			{
 				$groupSiteList[] = $groupSite['SITE_ID'];
 			}
-		}
 
-		$result = [
-			'ID' => $groupId,
-			'RESULT' => $value,
-		];
-
-		if ($getAdditionalResultData)
-		{
 			$result['NAME'] = $groupFields['NAME'];
 			$result['URL'] = $groupUrlData["URL"];
 			$result['EXTRANET'] = (
-				Loader::includeModule('extranet')
-				&& \CExtranet::isIntranetUser()
-				&& in_array(\CExtranet::getExtranetSiteId(), $groupSiteList)
-					? 'Y'
-					: 'N'
+			Loader::includeModule('extranet')
+			&& CExtranet::isIntranetUser()
+			&& in_array(CExtranet::getExtranetSiteId(), $groupSiteList, true)
+				? 'Y'
+				: 'N'
 			);
 		}
 
-		$currentUserId = $this->getCurrentUser()->getId();
-
-		PushService::addEvent(
-			[ $currentUserId ],
-			[
-				'module_id' => 'socialnetwork',
-				'command' => PushEventDictionary::EVENT_WORKGROUP_FAVORITES_CHANGED,
-				'params' => [
-					'GROUP_ID' => $groupId,
-					'USER_ID' => $currentUserId,
-				],
-			]
-		);
+		$this->sendPush(PushEventDictionary::EVENT_WORKGROUP_FAVORITES_CHANGED, ['GROUP_ID' => $groupId]);
 
 		return $result;
 	}
 
-	public function setSubscriptionAction(array $params = [])
+	public function setSubscriptionAction(array $params = []): ?array
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
-		$value = (isset($params['value']) && in_array($params['value'], [ 'Y', 'N' ]) ? $params['value'] : false);
-
 		if ($groupId <= 0)
 		{
-			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'), 'SONET_CONTROLLER_WORKGROUP_EMPTY'));
+			$this->addEmptyGroupIdError();
 			return null;
 		}
 
-		if ($value === false)
+		if (!in_array($params['value'] ?? null, Subscription::AVAILABLE_VALUES, true))
 		{
-			$this->addError(new Error('SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE', 'SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE'));
-			return null;
-		}
-
-		if (!Loader::includeModule('socialnetwork'))
-		{
-			$this->addError(new Error('SONET_CONTROLLER_MODULE_NOT_INSTALLED', 'SONET_CONTROLLER_MODULE_NOT_INSTALLED'));
+			$this->addIncorrectValueError();
 			return null;
 		}
 
 		try
 		{
-			$res = \Bitrix\Socialnetwork\Item\Subscription::set([
+			$result = Subscription::set([
 				'GROUP_ID' => $groupId,
 				'USER_ID' => $this->getCurrentUser()->getId(),
-				'VALUE' => $value,
+				'VALUE' => $params['value'],
 			]);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$this->addError(new Error($e->getMessage(), $e->getCode()));
 			return null;
 		}
 
+		$this->sendPush(PushEventDictionary::EVENT_WORKGROUP_SUBSCRIBE_CHANGED, ['GROUP_ID' => $groupId]);
+
 		return [
-			'RESULT' => ($res ? 'Y' : 'N'),
+			'RESULT' => $result ? 'Y' : 'N',
 		];
+	}
+
+	public function createGroupAction(): array
+	{
+		$groupName = $this->getRequest()->get('groupName');
+		$viewMode = $this->getRequest()->get('viewMode');
+		$groupImage = $this->getRequest()->getFile('groupImage');
+		$avatarColor = $this->getRequest()->get('avatarColor');
+
+		if (!Helper\Workgroup\Access::canCreate())
+		{
+			return ['groupId' => 0];
+		}
+
+		$ownerId = $this->getCurrentUser()->getId();
+
+		$groupParams = [
+			'SITE_ID' => [SITE_ID],
+			'NAME' => $groupName,
+			'SUBJECT_ID' => $this->getDefaultSubjectId(),
+			'INITIATE_PERMS' => SONET_ROLES_USER,
+			'SPAM_PERMS' => SONET_ROLES_USER,
+			'VISIBLE' => $viewMode !== 'secret' ? 'Y' : 'N',
+			'OPENED' => $viewMode === 'open' ? 'Y' : 'N',
+		];
+
+		if (is_array($groupImage))
+		{
+			try
+			{
+				$avatarManager = new AvatarManager();
+				$result = $avatarManager->loadAvatar($groupImage);
+				$groupParams['IMAGE_ID'] = $avatarManager->getAvatar($result['fileId']);
+			}
+			catch (\RuntimeException)
+			{
+				unset($groupParams['IMAGE_ID']);
+			}
+		}
+
+		if (!isset($groupParams['IMAGE_ID']))
+		{
+			$groupParams['AVATAR_TYPE'] = $this->getColoredDefaultAvatar($avatarColor);
+		}
+
+		$groupId = (int)\CSocNetGroup::createGroup($ownerId, $groupParams);
+
+		global $APPLICATION;
+		if ($e = $APPLICATION->GetException())
+		{
+			$this->addError(new Error($e->msg, $e->id));
+			return [];
+		}
+
+		$this->setDefaultGroupFeatures($groupId);
+
+		return [
+			'groupId' => $groupId,
+		];
+	}
+
+	private function getColoredDefaultAvatar(string $color): string
+	{
+		if (in_array($color, Helper\Workgroup::getAvatarColors(), true))
+		{
+			return "space_$color";
+		}
+
+		return array_rand(Helper\Workgroup::getColoredAvatarTypes());
+	}
+
+	private function setDefaultGroupFeatures(int $groupId): void
+	{
+		$allowedFeatures = array_keys(\CSocNetAllowed::getAllowedFeatures());
+		$inactiveFeaturesList = ['forum', 'photo', 'search', 'group_lists', 'wiki'];
+
+		$features = [];
+		foreach ($allowedFeatures as $featureName)
+		{
+			$features[$featureName] = !in_array($featureName, $inactiveFeaturesList, true);
+		}
+
+		foreach ($features as $featureName => $isActive)
+		{
+			\CSocNetFeatures::setFeature(
+				SONET_ENTITY_GROUP,
+				$groupId,
+				$featureName,
+				$isActive,
+			);
+		}
+	}
+
+	private function getDefaultSubjectId(): int
+	{
+		$subject = \CSocNetGroupSubject::GetList(
+			["SORT"=>"ASC", "NAME" => "ASC"],
+			["SITE_ID" => SITE_ID],
+			false,
+			false,
+			["ID", "NAME"],
+		)->fetch();
+
+		return (int)($subject['ID'] ?? 0);
 	}
 
 	public function getCanCreateAction(): bool
@@ -712,6 +1054,18 @@ class Workgroup extends Base
 		return Helper\Workgroup\Access::canCreate([
 			'checkAdminSession' => ($this->getScope() !== Controller::SCOPE_REST),
 		]);
+	}
+
+	public function updateInvitedUsersAction(int $spaceId, array $users): void
+	{
+		$membersManager = new MembersManager();
+
+		if (!$membersManager->canInviteUsers($spaceId))
+		{
+			return;
+		}
+
+		$membersManager->updateInvitedUsers($spaceId, array_map(static fn($userId) => (int)$userId, $users));
 	}
 
 	public function getGridPopupMembersAction(
@@ -722,12 +1076,6 @@ class Workgroup extends Base
 		string $signedParameters = ''
 	): ?array
 	{
-		if (!Loader::includeModule('socialnetwork'))
-		{
-			$this->addError(new Error('SONET_CONTROLLER_MODULE_NOT_INSTALLED', 'SONET_CONTROLLER_MODULE_NOT_INSTALLED'));
-			return null;
-		}
-
 		if (
 			$groupId <= 0
 			|| !Helper\Workgroup\Access::canView([
@@ -736,13 +1084,7 @@ class Workgroup extends Base
 			])
 		)
 		{
-			$this->addError(
-				new Error(
-					Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'),
-					'SONET_CONTROLLER_WORKGROUP_EMPTY'
-				)
-			);
-
+			$this->addEmptyGroupIdError();
 			return null;
 		}
 
@@ -782,7 +1124,7 @@ class Workgroup extends Base
 		];
 		$limit = 10;
 
-		$query = new Query(UserToGroupTable::getEntity());
+		$query = UserToGroupTable::query();
 		$records = $query
 			->setSelect([
 				'GROUP_ID',
@@ -886,6 +1228,9 @@ class Workgroup extends Base
 		return $member->get('ROLE');
 	}
 
+	/**
+	 * @restMethod socialnetwork.api.workgroup.changePin
+	 */
 	public function changePinAction(
 		array $groupIdList,
 		string $action,
@@ -893,12 +1238,6 @@ class Workgroup extends Base
 		string $signedParameters = ''
 	): ?bool
 	{
-		if (!Loader::includeModule('socialnetwork'))
-		{
-			$this->addError(new Error('SONET_CONTROLLER_MODULE_NOT_INSTALLED', 'SONET_CONTROLLER_MODULE_NOT_INSTALLED'));
-			return null;
-		}
-
 		$unsignedParameters = [];
 		if (
 			$componentName !== ''
@@ -914,7 +1253,6 @@ class Workgroup extends Base
 
 		$mode = ($unsignedParameters['MODE'] ?? '');
 
-		$currentUserId = $this->getCurrentUser()->getId();
 		$counter = 0;
 
 		foreach ($groupIdList as $groupId)
@@ -933,103 +1271,115 @@ class Workgroup extends Base
 
 			$counter++;
 
-			$query = new Query(WorkgroupPinTable::getEntity());
-			$query = $query
-				->setSelect([
-					'ID',
-					'GROUP_ID',
-					'USER_ID',
-				])
-				->where('GROUP_ID', $groupId)
-				->where('USER_ID', $currentUserId);
+			$pin = new Pin($this->userId, $groupId, $mode);
+			$result = $pin->switch();
 
-			if ($mode === '')
+			if (!$result->isSuccess())
 			{
-				$query = $query->where(Query::filter()
-					->logic('or')
-					->whereNull('CONTEXT')
-					->where('CONTEXT', '')
-				);
-			}
-			else
-			{
-				$query = $query->where('CONTEXT', $mode);
+				$this->addErrors($result->getErrors());
+				return null;
 			}
 
-			$pin = $query
-				->setLimit(1)
-				->exec()->fetchObject();
-
-			$pinResult = false;
-			if (
-				$action === 'pin'
-				&& !$pin
-			)
-			{
-				try
-				{
-					WorkgroupPinTable::add([
-						'GROUP_ID' => $groupId,
-						'USER_ID' => $currentUserId,
-						'CONTEXT' => $mode,
-					]);
-				}
-				catch (\Exception $e)
-				{
-					$this->addError(
-						new Error(
-							Loc::getMessage('SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'),
-							'SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'
-						)
-					);
-
-					return null;
-				}
-
-				$pinResult = true;
-			}
-			elseif (
-				$action === 'unpin'
-				&& $pin
-			)
-			{
-				$tableDeleteResult = WorkgroupPinTable::delete($pin->get('ID'));
-				if (!$tableDeleteResult->isSuccess())
-				{
-					$this->addError(new Error(
-						Loc::getMessage('SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'),
-						'SONET_CONTROLLER_WORKGROUP_ACTION_FAILED'
-					));
-					return null;
-				}
-
-				$pinResult = true;
-			}
-
-			if ($pinResult === true)
-			{
-				PushService::addEvent(
-					[ $currentUserId ],
-					[
-						'module_id' => 'socialnetwork',
-						'command' => 'workgroup_pin_changed',
-						'params' => [
-							'GROUP_ID' => $groupId,
-							'USER_ID' => $currentUserId,
-							'ACTION' => $action,
-						],
-					]
-				);
-			}
+			$this->sendPush(PushEventDictionary::EVENT_WORKGROUP_PIN_CHANGED, [
+					'GROUP_ID' => $groupId,
+					'ACTION' => $action,
+				]
+			);
 		}
 
 		if ($counter <= 0)
 		{
-			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'), 'SONET_CONTROLLER_WORKGROUP_EMPTY'));
+			$this->addEmptyGroupIdError();
 			return null;
 		}
 
 		return true;
+	}
+
+	public function acceptIncomingRequestAction(int $groupId, array $userIds): ?array
+	{
+		try
+		{
+			$result = [];
+
+			foreach ($userIds as $userId)
+			{
+				$result[$userId] = Helper\Workgroup::acceptIncomingRequest([
+					'groupId' => $groupId,
+					'userId' => $userId,
+				]);
+			}
+
+			// re-calculte counters for the group moderators
+			$moderators = UserToGroupTable::getGroupModerators($groupId);
+			Service::addEvent(
+				EventDictionary::EVENT_WORKGROUP_MEMBER_REQUEST_CONFIRM,
+				[
+					'GROUP_ID' => $groupId,
+					'RECEPIENTS' => array_map(function ($row) { return $row['USER_ID']; }, $moderators),
+				]
+			);
+
+			return $result;
+		}
+		catch (Exception $e)
+		{
+			$this->addError(new Error($e->getMessage()));
+
+			return null;
+		}
+	}
+
+	public function rejectIncomingRequestAction(int $groupId, array $userIds): ?array
+	{
+		try
+		{
+			$result = [];
+
+			foreach ($userIds as $userId)
+			{
+				$result[$userId] = Helper\Workgroup::rejectIncomingRequest([
+					'groupId' => $groupId,
+					'userId' => $userId,
+				]);
+			}
+
+			// re-calculte counters for the group moderators
+			$moderators = UserToGroupTable::getGroupModerators($groupId);
+			Service::addEvent(
+				EventDictionary::EVENT_WORKGROUP_MEMBER_REQUEST_CONFIRM,
+				[
+					'GROUP_ID' => $groupId,
+					'RECEPIENTS' => array_map(function ($row) { return $row['USER_ID']; }, $moderators),
+				]
+			);
+
+			return $result;
+		}
+		catch (Exception $e)
+		{
+			$this->addError(new Error($e->getMessage()));
+
+			return null;
+		}
+	}
+
+	public function getListIncomingUsersAction(int $groupId, int $pageNum): ?array
+	{
+		$permissions = Helper\Workgroup::getPermissions(
+			['groupId' => $groupId]
+		);
+		if (!$permissions['UserCanModifyGroup'] && !$permissions['UserCanInitiate'])
+		{
+			$this->addError(new Error('Access denied'));
+
+			return null;
+		}
+
+		$limit = 10;
+		$offset = ($pageNum - 1) * $limit;
+
+		return $this->getListOfAwaitingMembers($groupId, $limit, $offset);
 	}
 
 	public function getChatIdAction(int $groupId): ?string
@@ -1061,5 +1411,68 @@ class Workgroup extends Base
 		}
 
 		return $chatId;
+	}
+
+	private function getUserAvatars(array $imageIds): array
+	{
+		$result = [];
+		if (empty($imageIds))
+		{
+			return $result;
+		}
+
+		$result = array_fill_keys($imageIds, '');
+
+		$res = \CFile::getList([], ['@ID' => implode(',', $imageIds)]);
+		while ($file = $res->fetch())
+		{
+			$file['SRC'] = \CFile::getFileSRC($file);
+			$fileInfo = \CFile::resizeImageGet(
+				$file,
+				[
+					'width' => 100,
+					'height' => 100,
+				],
+				BX_RESIZE_IMAGE_EXACT,
+				false,
+				false,
+				true,
+			);
+
+			$result[$file['ID']] = $fileInfo['src'];
+		}
+
+		return $result;
+	}
+
+	private function sendPush(string $command, array $parameters = []): void
+	{
+		$parameters['USER_ID'] = $this->userId;
+		PushService::addEvent(
+			[$this->userId],
+			[
+				'module_id' => 'socialnetwork',
+				'command' => $command,
+				'params' => $parameters,
+			]
+		);
+	}
+
+	private function addEmptyGroupIdError(): void
+	{
+		$this->addError(
+			new Error(
+				Loc::getMessage('SONET_CONTROLLER_WORKGROUP_EMPTY'),
+				'SONET_CONTROLLER_WORKGROUP_EMPTY'
+			)
+		);
+	}
+
+	private function addIncorrectValueError(): void
+	{
+		$this->addError(new Error(
+			'SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE',
+			'SONET_CONTROLLER_WORKGROUP_INCORRECT_VALUE'
+		));
 	}
 }

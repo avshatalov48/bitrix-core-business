@@ -31,7 +31,6 @@ $MESS["MAIN_MAIL_CONFIRM_INVALID_SMTP_SERVER"] = "SMTP server address is invalid
 $MESS["MAIN_MAIL_CONFIRM_MENU"] = "Add sender";
 $MESS["MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER"] = "Default sender (\"From\")";
 $MESS["MAIN_MAIL_CONFIRM_MENU_UNKNOWN"] = "Select sender";
-$MESS["MAIN_MAIL_CONFIRM_NAME"] = "Name";
 $MESS["MAIN_MAIL_CONFIRM_NAME_HINT_GENERAL"] = "The sender name is the first thing the recipient will look at. Help your contact recognize you.";
 $MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANTS"] = "The most widely used sender names:";
 $MESS["MAIN_MAIL_CONFIRM_NAME_HINT_VARIANT_COMPANY"] = "Company name";

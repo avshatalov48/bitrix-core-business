@@ -1,6 +1,4 @@
-import { RecentMenu } from 'im.v2.lib.menu';
-
-import type { MenuItem } from 'im.v2.lib.menu';
+import { RecentMenu, type MenuItem } from 'im.v2.lib.menu';
 
 export class SearchContextMenu extends RecentMenu
 {
@@ -10,6 +8,7 @@ export class SearchContextMenu extends RecentMenu
 			this.getOpenItem(),
 			this.getCallItem(),
 			this.getOpenProfileItem(),
+			this.getChatsWithUserItem(),
 		];
 	}
 }

@@ -27,6 +27,30 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_TITLE'),
 	'SORT' => 500,
+	'HANDLER_MODE_LIST' => [
+		'bank_card' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE'),
+		'apple_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE'),
+		'google_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_GOOGLEPAY_MODE'),
+		'samsung_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SAMSUNGPAY_MODE'),
+	],
+	'HANDLER_MODE_DESCRIPTION_LIST' => [
+		'bank_card' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_PUBLIC_DESCRIPTION'),
+		],
+		'apple_pay' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE_PUBLIC_DESCRIPTION'),
+		],
+		'google_pay' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_GOOGLEPAY_MODE_PUBLIC_DESCRIPTION'),
+		],
+		'samsung_pay' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SAMSUNGPAY_MODE_PUBLIC_DESCRIPTION'),
+		],
+	],
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [
 		'ROBOXCHANGE_ORDERDESCR' => [

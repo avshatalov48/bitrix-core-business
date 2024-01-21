@@ -24252,13 +24252,18 @@ div.g-video-preview.--loader::after, div.g-video-preview.--loader:hover::after {
   display: flex !important;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  scrollbar-width: none;
+  overflow-x: auto;
 }
 .g-menu-sublevel-toggler--parent:not(.g-menu-sublevel-toggler--parent-hide) .is-hide-text {
   display: none;
 }
 .g-menu-sublevel-toggler--parent-hide .is-show-text {
   display: none;
+}
+.g-menu-sublevel-toggler--parent::-webkit-scrollbar {
+  width: 0;
 }
 
 /*
@@ -24434,7 +24439,7 @@ NAVBAR menus
   -webkit-transform: translateY(-50%) rotate(-135deg);
           transform: translateY(-50%) rotate(-135deg);
 }
-.u-navbar-marker--arrow .nav-item.active > .nav-link::before {
+.u-navbar-marker--arrow .nav-item.open > .nav-link::before {
   top: 50%;
   -webkit-transform: translateY(-50%) rotate(-45deg);
           transform: translateY(-50%) rotate(-45deg);
@@ -27343,8 +27348,7 @@ input[type=checkbox]:checked + .g-brd-red--checked, input[type=radio]:checked + 
   width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 15px auto;
 }
 
 /*------------------------------------

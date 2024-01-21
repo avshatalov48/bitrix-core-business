@@ -1,6 +1,6 @@
 import 'im.v2.test';
 import {AvailabilityManager} from '../src/classes/availability-manager';
-import {DialogType} from 'im.v2.const';
+import {ChatType} from 'im.v2.const';
 
 describe('AvailabilityManager', () => {
 	describe('getAvailablePlacements', () => {
@@ -21,7 +21,7 @@ describe('AvailabilityManager', () => {
 		});
 
 		it('should return only the placements that can be shown in the group chat', () => {
-			const dialogType = DialogType.chat;
+			const dialogType = ChatType.chat;
 
 			const placements = [
 				{options: {context: ['USER']}}, // should be excluded
@@ -38,7 +38,7 @@ describe('AvailabilityManager', () => {
 		});
 
 		it('should return only the placements that can be shown in the user chat (1-to-1)', () => {
-			const dialogType = DialogType.user;
+			const dialogType = ChatType.user;
 
 			const placements = [
 				{options: {context: ['USER']}},

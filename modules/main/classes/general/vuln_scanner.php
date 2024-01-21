@@ -1633,7 +1633,7 @@ class CVulnScanner
 	{
 		for ($i = 0; $i < $max; $i++)
 		{
-			if(($output[$i]->name === $output[$i]->name) && ($output[$i]->filename === $output[$i]->filename) && $output[$i]->tainted_vars === $output[$max]->tainted_vars)
+			if(($output[$i]->name === $output[$max]->name) && ($output[$i]->filename === $output[$max]->filename) && $output[$i]->tainted_vars === $output[$max]->tainted_vars)
 				return $i;
 		}
 		return false;

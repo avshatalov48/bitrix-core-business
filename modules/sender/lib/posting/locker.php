@@ -9,87 +9,45 @@ use Bitrix\Main\DB;
 class Locker
 {
 	/**
+	 * Lock
+	 *
 	 * @param string $key
 	 * @param int $id
 	 *
 	 * @return bool
-	 * @throws DB\SqlQueryException
 	 */
 	public static function lock(string $key, int $id)
 	{
-		$uniqueSalt = self::getLockUniqueSalt();
-		$connection = Application::getInstance()->getConnection();
-		if ($connection instanceof DB\MysqlCommonConnection)
-		{
-			$lockDb = $connection->query(
-				sprintf(
-					"SELECT GET_LOCK('%s_%s_%d', 0) as L",
-					$uniqueSalt,
-					$key,
-					$id
-				),
-				false,
-				"File: ".__FILE__."<br>Line: ".__LINE__
-			);
-			$lock   = $lockDb->fetch();
-			if ($lock["L"] == "1")
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
+		$lockName = self::getLockName($key, $id);
 
-		return false;
+		return Application::getInstance()->getConnection()->lock($lockName);
 	}
 
+	/**
+	 * Unlock
+	 *
+	 * @param string $key
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
 	public static function unlock(string $key, int $id)
 	{
-		$id = intval($id);
+		$lockName = self::getLockName($key, $id);
 
-		$connection = Application::getInstance()->getConnection();
-		if ($connection instanceof DB\MysqlCommonConnection)
-		{
-			$uniqueSalt = self::getLockUniqueSalt(false);
-			if (!$uniqueSalt)
-			{
-				return false;
-			}
-
-			$lockDb = $connection->query(
-				sprintf(
-					"SELECT RELEASE_LOCK('%s_%s_%d') as L",
-					$uniqueSalt,
-					$key,
-					$id
-				)
-			);
-			$lock   = $lockDb->fetch();
-			if ($lock["L"] == "0")
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return Application::getInstance()->getConnection()->unlock($lockName);
 	}
 
-
-	protected static function getLockUniqueSalt($generate = true)
+	/**
+	 * Get lock name
+	 *
+	 * @param string $key
+	 * @param int $id
+	 *
+	 * @return string
+	 */
+	private static function getLockName(string $key, int $id): string
 	{
-		$uniqueSalt = Option::get("main", "server_uniq_id", "");
-		if ($uniqueSalt == '' && $generate)
-		{
-			$uniqueSalt = hash('sha256', uniqid(rand(), true));
-			Option::set("main", "server_uniq_id", $uniqueSalt);
-		}
-
-		return $uniqueSalt;
+		return "{$key}_{$id}";
 	}
 }

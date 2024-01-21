@@ -1,10 +1,12 @@
-import {ajax} from 'main.core';
+import { ajax, Type, type JsonObject } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
-import {Core} from 'im.v2.application.core';
+import { EventType } from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
 
 type RunActionConfig = {
-	data?: any,
-	analyticsLabel?: Object
+	data?: JsonObject,
+	analyticsLabel?: JsonObject
 };
 
 type RunActionResult = {
@@ -23,14 +25,43 @@ type BatchQuery = {
 	[method: string]: {[param: string]: any}
 }
 
+const INVALID_AUTH_ERROR_CODE = 'invalid_authentication';
+let retryAllowed = true;
+
 export const runAction = (action: string, config: RunActionConfig = {}): Promise<RunActionResult> => {
+	const preparedConfig = { ...config, data: prepareRequestData(config.data) };
+
 	return new Promise((resolve, reject) => {
-		ajax.runAction(action, config).then((response: RunActionResult) => {
+		ajax.runAction(action, preparedConfig).then((response: RunActionResult) => {
+			retryAllowed = true;
+
 			return resolve(response.data);
 		}).catch((response: RunActionResult) => {
+			if (needRetryRequest(response.errors))
+			{
+				retryAllowed = false;
+
+				return handleErrors(action, preparedConfig, response);
+			}
+
 			return reject(response.errors);
 		});
 	});
+};
+
+const handleErrors = async (action: string, config: RunActionConfig, response: RunActionResult) => {
+	await EventEmitter.emitAsync(EventType.request.onAuthError, { errors: response.errors });
+
+	return runAction(action, config);
+};
+
+const needRetryRequest = (responseErrors: RunActionError[]): boolean => {
+	if (!retryAllowed)
+	{
+		return false;
+	}
+
+	return responseErrors.some((error) => error.code === INVALID_AUTH_ERROR_CODE);
 };
 
 export const callBatch = (query: BatchQuery): Promise<{[method: string]: any}> => {
@@ -49,8 +80,8 @@ export const callBatch = (query: BatchQuery): Promise<{[method: string]: any}> =
 				const methodResult: RestResult = result[method];
 				if (methodResult.error())
 				{
-					const {error: code, error_description: description} = methodResult.error().ex;
-					reject({code, description});
+					const { error: code, error_description: description } = methodResult.error().ex;
+					reject({ code, description });
 					break;
 				}
 				data[method] = methodResult.data();
@@ -59,4 +90,30 @@ export const callBatch = (query: BatchQuery): Promise<{[method: string]: any}> =
 			return resolve(data);
 		});
 	});
+};
+
+const prepareRequestData = (data: JsonObject): JsonObject => {
+	if (data instanceof FormData)
+	{
+		return data;
+	}
+
+	if (!Type.isObjectLike(data))
+	{
+		return {};
+	}
+
+	const preparedData = {};
+	for (const [key, value] of Object.entries(data))
+	{
+		let preparedValue = value;
+		if (Type.isBoolean(value))
+		{
+			preparedValue = value === true ? 'Y' : 'N';
+		}
+
+		preparedData[key] = preparedValue;
+	}
+
+	return preparedData;
 };

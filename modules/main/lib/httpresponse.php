@@ -1,9 +1,8 @@
 <?php
+
 namespace Bitrix\Main;
 
-use Bitrix\Main\Config;
-use Bitrix\Main\Engine;
-use Bitrix\Main\Web;
+use Bitrix\Main\Web\HttpHeaders;
 
 class HttpResponse extends Response
 {
@@ -11,10 +10,8 @@ class HttpResponse extends Response
 
 	/** @var \Bitrix\Main\Web\Cookie[] */
 	protected $cookies = [];
-
 	/** @var Web\HttpHeaders */
 	protected $headers;
-
 	/** @var \Bitrix\Main\Type\DateTime */
 	protected $lastModified;
 
@@ -32,7 +29,10 @@ class HttpResponse extends Response
 	public function flush($text = '')
 	{
 		//clear all buffers - the response is responsible alone for its content
-		while (@ob_end_clean());
+		while (@ob_end_clean())
+		{
+			;
+		}
 
 		if (function_exists('fastcgi_finish_request'))
 		{
@@ -62,7 +62,7 @@ class HttpResponse extends Response
 	}
 
 	/**
-	 *	Adds an HTTP header field to the response.
+	 * Adds an HTTP header field to the response.
 	 *
 	 * @param string $name Header field name
 	 * @param string $value Header field value
@@ -367,6 +367,12 @@ class HttpResponse extends Response
 		foreach ($this->getCookies() as $cookie)
 		{
 			$response->addCookie($cookie, false);
+		}
+
+		$status = $this->getStatus();
+		if ($status !== HttpHeaders::DEFAULT_HTTP_STATUS)
+		{
+			$response->setStatus($status);
 		}
 
 		return $response;

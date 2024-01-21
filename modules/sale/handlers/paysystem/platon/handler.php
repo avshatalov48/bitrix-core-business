@@ -546,11 +546,6 @@ class PlatonHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 */
 	public static function getHandlerModeList(): array
 	{
-		return [
-			self::PS_MODE_BANK_CARD => Loc::getMessage('SALE_HPS_PLATON_MODE_CARD'),
-			self::PS_MODE_GOOGLE_PAY => Loc::getMessage('SALE_HPS_PLATON_MODE_GOOGLE_PAY'),
-			self::PS_MODE_APPLE_PAY => Loc::getMessage('SALE_HPS_PLATON_MODE_APPLE_PAY'),
-			self::PS_MODE_PRIVAT24 => Loc::getMessage('SALE_HPS_PLATON_MODE_PRIVAT24'),
-		];
+		return PaySystem\Manager::getHandlerDescription('Platon')['HANDLER_MODE_LIST'];
 	}
 }

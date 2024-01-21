@@ -6,6 +6,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	'use strict';
 
 	const CHAT_MESSAGE_PREFIX = 'im-chat';
+	const COPILOT_MESSAGE_PREFIX = 'im-copilot';
 	const LINES_MESSAGE_PREFIX = 'im-lines';
 	const NOTIFICATION_PREFIX = 'im-notify';
 	const ACTION_BUTTON_PREFIX = 'button_';
@@ -13,7 +14,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  first: '1',
 	  second: '2'
 	};
-	const DIALOG_TYPE_USER = 'user';
 	var _instance = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("instance");
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _notificationService = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("notificationService");
@@ -25,6 +25,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _onNotifierButtonClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onNotifierButtonClick");
 	var _sendButtonAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendButtonAction");
 	var _isChatMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChatMessage");
+	var _isCopilotMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCopilotMessage");
 	var _isLinesMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isLinesMessage");
 	var _isNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isNotification");
 	var _isConfirmButtonAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isConfirmButtonAction");
@@ -63,6 +64,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    Object.defineProperty(this, _isLinesMessage, {
 	      value: _isLinesMessage2
+	    });
+	    Object.defineProperty(this, _isCopilotMessage, {
+	      value: _isCopilotMessage2
 	    });
 	    Object.defineProperty(this, _isChatMessage, {
 	      value: _isChatMessage2
@@ -108,13 +112,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      lines
 	    } = params;
 	    let text = '';
-	    if (user && dialog.type !== DIALOG_TYPE_USER) {
+	    if (user && dialog.type !== im_v2_const.ChatType.user) {
 	      text += `${user.name}: `;
 	    }
 	    text += im_v2_lib_parser.Parser.purifyMessage(message);
-	    let id = `im-chat-${dialog.dialogId}-${message.id}`;
-	    if (lines) {
-	      id = `im-lines-${dialog.dialogId}-${message.id}`;
+	    let id = `${CHAT_MESSAGE_PREFIX}-${dialog.dialogId}-${message.id}`;
+	    if (dialog.type === im_v2_const.ChatType.copilot) {
+	      id = `${COPILOT_MESSAGE_PREFIX}-${dialog.dialogId}-${message.id}`;
+	    } else if (lines) {
+	      id = `${LINES_MESSAGE_PREFIX}-${dialog.dialogId}-${message.id}`;
 	    }
 	    const notificationOptions = {
 	      id,
@@ -130,13 +136,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	  }
 	  showNotification(notification, user) {
-	    let title;
+	    let title = main_core.Loc.getMessage('IM_LIB_NOTIFIER_NOTIFY_SYSTEM_TITLE');
 	    if (notification.title) {
 	      title = notification.title;
 	    } else if (user) {
 	      title = user.name;
-	    } else {
-	      title = main_core.Loc.getMessage('IM_LIB_NOTIFIER_NOTIFY_SYSTEM_TITLE');
 	    }
 	    const notificationOptions = babelHelpers.classPrivateFieldLooseBase(this, _prepareNotificationOptions)[_prepareNotificationOptions](title, notification, user);
 	    const isDesktopFocused = im_v2_lib_desktop.DesktopManager.isChatWindow() && document.hasFocus();
@@ -150,7 +154,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _prepareNotificationOptions2(title, notification, user) {
 	  var _notification$params;
 	  const notificationOptions = {
-	    id: `im-notify-${notification.id}`,
+	    id: `${NOTIFICATION_PREFIX}-${notification.id}`,
 	    title,
 	    icon: user ? user.avatar : '',
 	    text: im_v2_lib_parser.Parser.purifyNotification(notification)
@@ -159,7 +163,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const [firstButton, secondButton] = notification.notifyButtons;
 	    notificationOptions.button1Text = firstButton.TEXT;
 	    notificationOptions.button2Text = secondButton.TEXT;
-	  } else if (((_notification$params = notification.params) == null ? void 0 : _notification$params.CAN_ANSWER) === 'Y') {
+	  } else if (((_notification$params = notification.params) == null ? void 0 : _notification$params.canAnswer) === 'Y') {
 	    notificationOptions.inputPlaceholderText = main_core.Loc.getMessage('IM_LIB_NOTIFIER_NOTIFY_REPLY_PLACEHOLDER');
 	  }
 	  return notificationOptions;
@@ -179,6 +183,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _isChatMessage)[_isChatMessage](id)) {
 	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
 	    im_public.Messenger.openChat(dialogId);
+	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isCopilotMessage)[_isCopilotMessage](id)) {
+	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
+	    im_public.Messenger.openCopilot(dialogId);
 	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _isLinesMessage)[_isLinesMessage](id)) {
 	    const dialogId = babelHelpers.classPrivateFieldLooseBase(this, _extractDialogId)[_extractDialogId](id);
 	    im_public.Messenger.openLines(dialogId);
@@ -206,7 +213,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _onNotifierQuickAnswer2(notification, text) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _notificationService)[_notificationService].sendQuickAnswer({
 	    id: notification.id,
-	    text: text
+	    text
 	  });
 	}
 	function _onNotifierButtonClick2(action, notification) {
@@ -224,6 +231,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _isChatMessage2(id) {
 	  return id.startsWith(CHAT_MESSAGE_PREFIX);
+	}
+	function _isCopilotMessage2(id) {
+	  return id.startsWith(COPILOT_MESSAGE_PREFIX);
 	}
 	function _isLinesMessage2(id) {
 	  return id.startsWith(LINES_MESSAGE_PREFIX);

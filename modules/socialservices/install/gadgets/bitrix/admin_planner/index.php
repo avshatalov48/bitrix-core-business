@@ -1,24 +1,32 @@
-<?
+<?php
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
 CUtil::InitJSCore(array());
 
-$rnd = rand();
+/** @var array $arGadgetParams Defined in BXGadget::GetGadgetContent */
 $clientId = $arGadgetParams["APP_ID"];
 $clientSecret = $arGadgetParams["APP_SECRET"];
 $portalURI = $arGadgetParams["PORTAL_URI"];
+
+global $APPLICATION;
+
 $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/rssreader/styles.css');
-$_SESSION["GD_PLANNER_PARAMS"][$rnd] = $arGadgetParams;
+
+/** @var string $id Defined in BXGadget::GetGadgetContent */
+$idAttr = preg_replace('/[^a-z0-9\\-_]/i', '_', $id);
+
 if($clientId == '' || $clientSecret == '' || $portalURI == '')
 {
 	?>
 	<div class="bx-gadgets-content-padding-rl bx-gadgets-content-padding-t" style="font-weight: bold; line-height: 28px;">
 		<?=GetMessage("GD_PLANNER_SETUP_NEED");?>
 	</div>
-	<?
+	<?php
 
 }
 ?>
-<div  id="rss_container_<?=$rnd?>">
+<div  id="rss_container_<?=$idAttr?>">
 </div>
 <script type="text/javascript">
 
@@ -84,18 +92,25 @@ if($clientId == '' || $clientSecret == '' || $portalURI == '')
 		}
 	}
 
+<?php
+/** @var array $arParams Defined in BXGadget::GetGadgetContent */
+?>
 	BX.ready(function(){
-		url = '/bitrix/gadgets/bitrix/admin_planner/getdata.php';
-		params = 'rnd=<?=$rnd?>&lang=<?=LANGUAGE_ID?>&sessid='+BX.bitrix_sessid();
+		var url = '/bitrix/gadgets/bitrix/admin_planner/getdata.php';
+		var params = {
+			'id': '<?=CUtil::JSEscape($id)?>',
+			'params': <?=CUtil::PhpToJSObject(BXGadget::getDesktopParams($arParams))?>,
+			'lang': '<?=LANGUAGE_ID?>',
+			'sessid': BX.bitrix_sessid()
+		};
 
 		BX.ajax.post(url, params, function(result)
 		{
-			__RSScloseWait('rss_container_<?=$rnd?>');
-			BX('rss_container_<?=$rnd?>').innerHTML = result;
+			__RSScloseWait('rss_container_<?=$idAttr?>');
+			BX('rss_container_<?=$idAttr?>').innerHTML = result;
 		});
 
-		__RSSshowWaitPlanner('rss_container_<?=$rnd?>');
+		__RSSshowWaitPlanner('rss_container_<?=$idAttr?>');
 
 	});
 </script>
-<?

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TRANS_TITLE"] = "Сбор переводов";
 $MESS["TRANS_UPLOAD"] = "Сбор переводов";
 $MESS["TR_COLLECT_LANGUAGE"] = "Собрать локализацию";
@@ -39,4 +39,3 @@ $MESS["TR_EXTRACT_ACTION_APPLYING_PUBLIC"] = "Шаг #NUM#/#LEN#: Обновле
 $MESS["TR_EXTRACT_ACTION_APPLYING_PROGRESS"] = "Загружено";
 $MESS["TR_IMPORT_CANCELED"] = "Загрузка отменена.";
 $MESS["TR_IMPORT_COMPLETED"] = "Загрузка завершена.";
-?>

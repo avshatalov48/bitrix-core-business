@@ -149,7 +149,6 @@
 	margin-left: 3px;
 	font: var(--im-list-recent__font_date);
 	color: var(--im-list-recent__font-color_date);
-	text-transform: lowercase;
 }
 
 .bx-im-list-recent-item__content_bottom {

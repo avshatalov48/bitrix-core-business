@@ -8,7 +8,6 @@ import { getCore, getConst, getUtils } from '../utils/core-proxy';
 
 const { EventType, MessageMentionType } = getConst();
 
-
 export const ParserMention = {
 
 	decode(text): string
@@ -39,14 +38,20 @@ export const ParserMention = {
 				userName = `User ${userId}`;
 			}
 
+			let className = 'bx-im-mention';
+			if (getCore().getUserId() === userId)
+			{
+				className += ' --highlight';
+			}
+
 			return Dom.create({
 				tag: 'span',
 				attrs: {
-					className: 'bx-im-mention',
+					className,
 					'data-type': MessageMentionType.user,
 					'data-value': userId,
 				},
-				text: userName
+				text: userName,
 			}).outerHTML;
 		});
 
@@ -63,7 +68,7 @@ export const ParserMention = {
 			}
 			else
 			{
-				const dialog = getCore().store.getters['dialogues/get'](`chat${chatId}`);
+				const dialog = getCore().store.getters['chats/get'](`chat${chatId}`);
 				chatName = dialog ? dialog.name : `Chat ${chatId}`;
 			}
 
@@ -165,7 +170,7 @@ export const ParserMention = {
 
 			if (!chatName)
 			{
-				const dialog = getCore().store.getters['dialogues/get']('chat'+chatId);
+				const dialog = getCore().store.getters['chats/get']('chat'+chatId);
 				chatName = dialog? dialog.name: 'Chat '+chatId;
 			}
 
@@ -175,7 +180,7 @@ export const ParserMention = {
 		text = text.replace(/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/gis, (whole, dialogId, messageId, text) => {
 			if (!text)
 			{
-				const dialog = getCore().store.getters['dialogues/get'](dialogId);
+				const dialog = getCore().store.getters['chats/get'](dialogId);
 				text = dialog? dialog.name: 'Dialog '+dialogId;
 			}
 
@@ -197,10 +202,7 @@ export const ParserMention = {
 			|| event.target.dataset.type === MessageMentionType.chat
 		)
 		{
-			EventEmitter.emit(EventType.mention.openChatInfo, {
-				event,
-				dialogId: event.target.dataset.value,
-			});
+			void Messenger.openChat(event.target.dataset.value);
 		}
 		else if (event.target.dataset.type === MessageMentionType.lines)
 		{

@@ -11,7 +11,7 @@ class CAdminNotify
 	{
 		global $CACHE_MANAGER;
 
-		$rsLangs = CLanguage::GetList('lid', 'asc');
+		$rsLangs = CLanguage::GetList('lid');
 		while ($arLang = $rsLangs->Fetch())
 		{
 			$CACHE_MANAGER->Clean("admin_notify_list_" . $arLang['LANGUAGE_ID']);
@@ -28,12 +28,12 @@ class CAdminNotify
 			return false;
 		}
 
-		if (!is_set($arFields['ENABLE_CLOSE']))
+		if (!isset($arFields['ENABLE_CLOSE']))
 		{
 			$arFields['ENABLE_CLOSE'] = 'Y';
 		}
 
-		if (is_set($arFields['TAG']) && trim($arFields['TAG']) <> '')
+		if (isset($arFields['TAG']) && trim($arFields['TAG']) <> '')
 		{
 			$arFields['TAG'] = trim($arFields['TAG']);
 			self::DeleteByTag($arFields['TAG']);
@@ -50,7 +50,7 @@ class CAdminNotify
 		}
 
 		$arFields_i = [
-			'MODULE_ID' => is_set($arFields['MODULE_ID']) ? trim($arFields['MODULE_ID']) : "",
+			'MODULE_ID' => isset($arFields['MODULE_ID']) ? trim($arFields['MODULE_ID']) : "",
 			'TAG' => $arFields['TAG'],
 			'MESSAGE' => trim($arFields['MESSAGE']),
 			'ENABLE_CLOSE' => $arFields['ENABLE_CLOSE'],
@@ -61,7 +61,7 @@ class CAdminNotify
 
 		if ($ID)
 		{
-			if (isset($arFields['LANG']) && !empty($arFields['LANG']) && is_array($arFields['LANG']))
+			if (!empty($arFields['LANG']) && is_array($arFields['LANG']))
 			{
 				foreach ($arFields['LANG'] as $strLang => $strMess)
 				{
@@ -228,15 +228,13 @@ class CAdminNotify
 
 		if (is_array($arFilter))
 		{
-			$filter_keys = array_keys($arFilter);
-			for ($i = 0, $ic = count($filter_keys); $i < $ic; $i++)
+			foreach ($arFilter as $key => $val)
 			{
-				$val = $arFilter[$filter_keys[$i]];
 				if ((string)$val == '' || $val == 'NOT_REF')
 				{
 					continue;
 				}
-				switch (mb_strtoupper($filter_keys[$i]))
+				switch (strtoupper($key))
 				{
 					case 'ID':
 						$arSqlSearch[] = GetFilterQuery('AN.ID', $val, 'N');

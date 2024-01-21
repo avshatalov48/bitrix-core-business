@@ -2,6 +2,7 @@
 
 namespace Bitrix\Socialservices\Properties;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
@@ -284,7 +285,14 @@ class Client
 	 */
 	protected function prepareAnswer($result)
 	{
-		return Json::decode($result);
+		try
+		{
+			return Json::decode($result);
+		}
+		catch (ArgumentException $e)
+		{
+			return false;
+		}
 	}
 
 	/**

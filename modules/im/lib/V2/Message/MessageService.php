@@ -7,6 +7,7 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
+use Bitrix\Im\V2\Service\Context;
 
 class MessageService
 {
@@ -69,6 +70,15 @@ class MessageService
 		$ormCollection = MessageTable::query()->whereIn('ID', $ids)->setSelect($select)->fetchCollection();
 
 		return $result->setResult(new MessageCollection($ormCollection));
+	}
+
+	public static function deleteByChatId(int $chatId, int $userId): Result
+	{
+		MessageTable::deleteBatch(['=CHAT_ID' => $chatId]);
+		$readService = new ReadService($userId);
+		$readService->deleteByChatId($chatId);
+
+		return new Result();
 	}
 
 	public function fillContextPaginationData(array $rest, MessageCollection $messages, int $range): array

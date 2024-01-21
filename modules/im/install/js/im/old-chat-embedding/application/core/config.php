@@ -28,7 +28,5 @@ return [
 		'im.old-chat-embedding.lib.smile-manager',
 	],
 	'skip_core' => false,
-	'settings' => [
-		'v2' => \Bitrix\Im\Settings::isBetaActivated()
-	]
+	'settings' => ['v2' => !\Bitrix\Im\Settings::isLegacyChatActivated()]
 ];

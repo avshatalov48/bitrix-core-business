@@ -137,11 +137,13 @@ $enablePhoneVerification =
 					<?= htmlspecialcharsbx($arResult['DATE_SEND']) ?>
 				</a>
 			</div>
-			<div class="sender-letter-time-button" style="<?= (!$arResult['CAN_CHANGE'] ? 'display: none;' : '') ?>">
+			<div class="sender-letter-time-button sender-letter-time-act-button" style="<?= (!$arResult['CAN_CHANGE'] ? 'display: none;' : '') ?>">
 				<span class="sender-letter-time-button-name"><?= $getMessageLocal('SENDER_LETTER_TIME_TMPL_ACT_SEND') ?>:</span>
-				<a data-role="time-selector"
-				   class="<?= ($arResult['CAN_CHANGE'] ? 'sender-letter-time-link' : '') ?>"
-				></a>
+				<div class="sender-letter-time-link-container">
+					<a data-role="time-selector"
+					   class="<?= ($arResult['CAN_CHANGE'] ? 'sender-letter-time-link' : '') ?>"
+					></a>
+				</div>
 				<input data-role="time-input" type="hidden" name="LETTER_TIME"
 					   value="<?= htmlspecialcharsbx($arResult['LETTER_TIME']) ?>">
 			</div>

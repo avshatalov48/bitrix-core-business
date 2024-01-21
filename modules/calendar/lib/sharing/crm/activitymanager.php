@@ -103,6 +103,33 @@ class ActivityManager
 	}
 
 	/**
+	 * if activity exists, launching activity deadline update
+	 *
+	 * @param DateTime $deadline
+	 * @return bool
+	 */
+	public function editActivityDeadline(DateTime $deadline): bool
+	{
+		if (!$this->isAvailable())
+		{
+			return false;
+		}
+
+		$activity = \CCrmActivity::GetByCalendarEventId($this->eventId, false);
+
+		if (!$activity)
+		{
+			return false;
+		}
+
+		(new ActivityHandler($activity, $activity['OWNER_TYPE_ID'], $activity['OWNER_ID']))
+			->updateDeadline($deadline)
+		;
+
+		return true;
+	}
+
+	/**
 	 * @return bool
 	 */
 	private function isAvailable(): bool

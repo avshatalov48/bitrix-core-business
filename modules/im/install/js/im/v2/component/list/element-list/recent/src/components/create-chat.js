@@ -2,13 +2,14 @@ import { Loc, type JsonObject } from 'main.core';
 import { BaseEvent } from 'main.core.events';
 
 import { CreateChatManager } from 'im.v2.lib.create-chat';
-import { Layout, DialogType } from 'im.v2.const';
+import { LayoutManager } from 'im.v2.lib.layout';
+import { Layout, ChatType } from 'im.v2.const';
 
 import '../css/create-chat.css';
 
 const DefaultTitleByChatType = {
-	[DialogType.chat]: Loc.getMessage('IM_LIST_RECENT_CREATE_CHAT_DEFAULT_TITLE'),
-	[DialogType.videoconf]: Loc.getMessage('IM_LIST_RECENT_CREATE_CONFERENCE_DEFAULT_TITLE'),
+	[ChatType.chat]: Loc.getMessage('IM_LIST_RECENT_CREATE_CHAT_DEFAULT_TITLE'),
+	[ChatType.videoconf]: Loc.getMessage('IM_LIST_RECENT_CREATE_CONFERENCE_DEFAULT_TITLE'),
 };
 
 // @vue/component
@@ -89,7 +90,10 @@ export const CreateChat = {
 	{
 		onClick()
 		{
-			this.$store.dispatch('application/setLayout', { layoutName: Layout.createChat.name, entityId: this.chatType });
+			void LayoutManager.getInstance().setLayout({
+				name: Layout.createChat.name,
+				entityId: this.chatType,
+			});
 		},
 		loc(phraseCode: string): string
 		{

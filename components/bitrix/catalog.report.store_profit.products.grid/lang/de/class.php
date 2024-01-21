@@ -1,0 +1,20 @@
+<?php
+$MESS["STORE_SALE_PRODUCTS_FILTER_STORES_TITLE"] = "Lager";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_SOLD_COLUMN"] = "Menge verkauft, in Stück";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_AMOUNT_SOLD_COLUMN_HINT"] = "Gesamtmenge der verkauften Waren für den Berichtszeitraum, wie von Verkaufsbestandsobjekten gemeldet.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_COST_PRICE_COLUMN"] = "Produktkosten";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_COST_PRICE_COLUMN_HINT"] = "Durchschnittliche Kosten pro Wareneinheit für den Berichtszeitraum, wie von Verkaufsbestandsobjekten gemeldet.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_NO_PRODUCTS"] = "Für den ausgewählten Zeitraum wurden keine Transaktionen gefunden.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PRODUCT_COLUMN_MSGVER_1"] = "Produkt";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFITABILITY_COLUMN"] = "Bruttomarge";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFITABILITY_COLUMN_HINT"] = "Die Bruttomarge ist der Bruttogewinn geteilt durch den Umsatz und wird in Prozent ausgedrückt.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFIT_COLUMN"] = "Bruttogewinn";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_PROFIT_COLUMN_HINT"] = "Bruttogewinn für den Berichtszeitraum, wie von Verkaufsbestandsobjekten gemeldet.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_RECEIVED_QUANTITY_COLUMN"] = "Menge eingegangen";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_RECEIVED_QUANTITY_COLUMN_HINT"] = "Gesamtmenge der Waren, die im Lager (in Lagern)als Ergebnis von Operationen Wareneingang, Bestandskorrektur und Verschiebung empfangen wurden.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_STARTING_QUANTITY_COLUMN"] = "Ursprünglicher Lagerbestand";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_STARTING_QUANTITY_COLUMN_HINT"] = "Lagerbestand, der zu Beginn des Berichtszeitraums registriert ist.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_COST_PRICE_COLUMN"] = "Gesamtkosten";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_COST_PRICE_COLUMN_HINT"] = "Gesamtkosten der Waren für die Berichtsperiode, wie sie von den Verkaufsbestandsobjekten gemeldet werden.";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_SOLD_COLUMN"] = "Umsatz";
+$MESS["STORE_SALE_PRODUCTS_REPORT_GRID_TOTAL_SOLD_COLUMN_HINT"] = "Gesamtbetrag des Geldes, das durch den Verkauf der Waren für den Berichtszeitraum verdient wurde, wie von Verkaufsbestandsobjekten gemeldet.";

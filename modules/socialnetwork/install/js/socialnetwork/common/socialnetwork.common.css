@@ -102,10 +102,66 @@ a.sonet-common-workgroup-avatar {
 	cursor: pointer;
 }
 
+.sonet-common-workgroup-avatar.--common-space {
+	background-color: var(--dark-blue);
+	background-image: url(images/workgroup-avatar/common_space.svg);
+	background-position: center 11px;
+}
+
 .sonet-common-workgroup-avatar.--folder {
 	background-color: var(--dark-blue);
 	background-image: url(images/workgroup-avatar/folder.svg);
 	background-position: center 11px;
+}
+
+.sonet-common-workgroup-avatar.--space_55D0E0,
+.sonet-common-workgroup-avatar.--space_FB6DBA,
+.sonet-common-workgroup-avatar.--space_29AD49,
+.sonet-common-workgroup-avatar.--space_C27D3C,
+.sonet-common-workgroup-avatar.--space_05B5AB,
+.sonet-common-workgroup-avatar.--space_A77BDE,
+.sonet-common-workgroup-avatar.--space_90BF00,
+.sonet-common-workgroup-avatar.--space_559BE6,
+.sonet-common-workgroup-avatar.--space_D959CC {
+	background-image: url(images/workgroup-avatar/space.svg);
+	background-position: center 0;
+	background-size: cover !important;
+}
+
+.sonet-common-workgroup-avatar.--space_55D0E0 {
+	background-color: #55D0E0;
+}
+
+.sonet-common-workgroup-avatar.--space_FB6DBA {
+	background-color: #FB6DBA;
+}
+
+.sonet-common-workgroup-avatar.--space_29AD49 {
+	background-color: #29AD49;
+}
+
+.sonet-common-workgroup-avatar.--space_C27D3C {
+	background-color: #C27D3C;
+}
+
+.sonet-common-workgroup-avatar.--space_05B5AB {
+	background-color: #05B5AB;
+}
+
+.sonet-common-workgroup-avatar.--space_A77BDE {
+	background-color: #A77BDE;
+}
+
+.sonet-common-workgroup-avatar.--space_90BF00 {
+	background-color: #90BF00;
+}
+
+.sonet-common-workgroup-avatar.--space_559BE6 {
+	background-color: #559BE6;
+}
+
+.sonet-common-workgroup-avatar.--space_D959CC {
+	background-color: #D959CC;
 }
 
 .sonet-common-workgroup-avatar.--tasks {

@@ -15,11 +15,11 @@
 	margin-right: 54px;
 }
 
-.bx-im-message-base__container + .bx-im-message-chat-creation__scope {
+.bx-im-message-base__wrap + .bx-im-message-chat-creation__scope {
 	margin-top: 24px;
 }
 
-.bx-im-message-chat-creation__scope + .bx-im-message-base__container {
+.bx-im-message-chat-creation__scope + .bx-im-message-base__wrap {
 	margin-top: 24px;
 }
 

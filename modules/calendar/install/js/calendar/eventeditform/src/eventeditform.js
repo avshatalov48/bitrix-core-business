@@ -80,6 +80,11 @@ export class EventEditForm
 			this.formDataValue.description = options.entryDescription;
 		}
 
+		if (options.jumpToControl)
+		{
+			this.jumpToControl = options.jumpToControl;
+		}
+
 		this.refreshPlanner = Runtime.debounce(this.refreshPlannerState, 100, this);
 		this.state = this.STATE.READY;
 		this.doShowConfirmPopup = true;
@@ -88,6 +93,8 @@ export class EventEditForm
 		this.keyHandlerBind = this.keyHandler.bind(this);
 
 		this.lastUsedSaveOptions = {};
+		this.timezoneHint = '';
+		this.isAvailable = true;
 	}
 
 	initInSlider(slider, promiseResolve)
@@ -178,10 +185,30 @@ export class EventEditForm
 		this.DOM.content = this.slider.layout.content;
 		this.sliderId = this.slider.getUrl();
 
+		if (!this.isAvailable)
+		{
+			return;
+		}
+
 		// Used to execute javasctipt and attach CSS from ajax responce
 		this.BX.html(this.slider.layout.content, this.slider.getData().get("sliderContent"));
 		this.initControls(this.uid);
 		this.setFormValues();
+		if (Type.isStringFilled(this.jumpToControl))
+		{
+			if (this.jumpToControl === 'userSelector')
+			{
+				const attendeesSelectorWrap = this.DOM.content.querySelector(`#${this.uid}_attendees_selector`);
+				Dom.style(attendeesSelectorWrap, 'transition', '300ms background ease');
+				setTimeout(() => this.highlightField(attendeesSelectorWrap), 900);
+			}
+			if (this.jumpToControl === 'location')
+			{
+				const fieldWrap = document.querySelector(`[data-bx-block-placeholer=${this.jumpToControl}]`);
+				Dom.style(fieldWrap, 'transition', '300ms background ease');
+				setTimeout(() => this.highlightField(fieldWrap), 900);
+			}
+		}
 
 		Event.bind(this.DOM.content, 'wheel', () => this.highlightFieldScrollAnimation?.stop());
 	}
@@ -323,6 +350,7 @@ export class EventEditForm
 			this.DOM.form.current_date_from.value = null;
 			this.DOM.form.rec_edit_mode.value = null;
 		}
+
 
 		if (options.sendInvitesAgain !== undefined)
 		{
@@ -539,6 +567,13 @@ export class EventEditForm
 			return;
 		}
 
+		if (!this.isAvailable)
+		{
+			this.BX.removeCustomEvent("SidePanel.Slider:onClose", this.sliderOnClose);
+
+			return;
+		}
+
 		Util.closeAllPopups();
 
 		if (this.checkDenyClose())
@@ -637,7 +672,20 @@ export class EventEditForm
 							attendeesEntityList.forEach((item) => {
 								if (item.entityId === 'user' && params.userIndex[item.id])
 								{
-									item.entityType = params.userIndex[item.id].EMAIL_USER ? 'email' : 'employee';
+									if (params.userIndex[item.id].EMAIL_USER)
+									{
+										item.entityType = 'email';
+										item.title = params.userIndex[item.id].DISPLAY_NAME;
+									}
+									else if (params.userIndex[item.id].SHARING_USER)
+									{
+										item.entityType = 'sharing';
+										item.title = params.userIndex[item.id].DISPLAY_NAME;
+									}
+									else
+									{
+										item.entityType = 'employee';
+									}
 								}
 							});
 						}
@@ -668,10 +716,40 @@ export class EventEditForm
 							SectionManager.setNewEntrySectionId(this.userSettings.meetSection);
 						}
 
+						this.timezoneHint = params.timezoneHint;
 						promise.fulfill(html);
 					}
 				},
 				(response) => {
+					if (response.data && !Type.isNil(response.data.isAvailable) && !response.data.isAvailable)
+					{
+						debugger
+						this.isAvailable = false;
+						const showHelperCallback = () => {
+							top.BX.UI.InfoHelper.show('limit_office_calendar_off', {
+								isLimit: true,
+								limitAnalyticsLabels: {
+									module: 'calendar',
+									source: 'eventEditForm',
+								},
+							});
+						};
+
+						const sliderInstance = BX.SidePanel.Instance.getSlider(this.sliderId);
+
+						if (sliderInstance)
+						{
+							this.BX.removeCustomEvent("SidePanel.Slider:onClose", this.sliderOnClose);
+							sliderInstance.close(true, showHelperCallback);
+						}
+						else
+						{
+							showHelperCallback();
+						}
+					}
+					let html = this.BX.util.trim('<div></div>');
+					slider.getData().set("sliderContent", html);
+					promise.fulfill(html);
 					//this.calendar.displayError(response.errors);
 				}
 			);
@@ -791,6 +869,11 @@ export class EventEditForm
 			timezoneName: this.userSettings.timezoneName
 		});
 
+		if (entry.isSharingEvent())
+		{
+			this.dateTimeControl.setReadonly(this.timezoneHint);
+		}
+
 		const entryName = this.formDataValue.name || entry.getName();
 		this.DOM.entryName.value = entryName;
 		this.DOM.entryName.title = entryName;
@@ -819,7 +902,7 @@ export class EventEditForm
 			}
 		}
 
-		if (this.isSyncSection(section) && entry.id)
+		if ((this.isSyncSection(section) || entry.isSharingEvent()) && entry.id)
 		{
 			this.sectionSelector.setViewMode(true);
 		}
@@ -837,6 +920,10 @@ export class EventEditForm
 		// Recursion
 		this.repeatSelector?.setValue(this.formDataValue.rrule || entry.getRrule());
 		this.initialRrule = this.getFormRrule();
+		if (entry.id && entry.isSharingEvent())
+		{
+			this.repeatSelector?.setViewMode(entry.getRRuleDescription());
+		}
 
 		if (entry.hasRecurrenceId())
 		{
@@ -858,6 +945,7 @@ export class EventEditForm
 			this.locationSelector.checkLocationAccessibility({
 				from: this.formDataValue.from || entry.from,
 				to: this.formDataValue.to || entry.to,
+				timezone: this.entry.getTimezoneFrom(),
 				fullDay: Type.isBoolean(this.formDataValue.fullDay)
 					? this.formDataValue.fullDay
 					: entry.fullDay,
@@ -931,6 +1019,11 @@ export class EventEditForm
 				focus: true
 			}
 		);
+
+		if (entry.isSharingEvent())
+		{
+			this.planner.setReadonly();
+		}
 
 		if (!needToLoadAdditional)
 		{
@@ -1054,6 +1147,9 @@ export class EventEditForm
 			if (event instanceof BaseEvent)
 			{
 				let value = event.getData().value;
+
+				this.entry.setTimezone(value.timezoneFrom);
+
 				if (this.remindersControl)
 				{
 					this.remindersControl.setFullDayMode(value.fullDay);
@@ -1075,6 +1171,7 @@ export class EventEditForm
 				if (this.planner)
 				{
 					this.planner.updateSelector(value.from, value.to, value.fullDay);
+					this.planner.updateTimezone(value.timezoneFrom);
 				}
 
 				if (this.locationSelector)
@@ -1083,9 +1180,9 @@ export class EventEditForm
 						{
 							from: value.from,
 							to: value.to,
+							timezone: this.entry.getTimezoneFrom(),
 							fullDay: value.fullDay,
 							currentEventId: this.entry.id,
-
 						}
 					);
 				}
@@ -1320,7 +1417,7 @@ export class EventEditForm
 			{
 				wrap: this.DOM.rruleWrap,
 				rruleType: this.DOM.content.querySelector(`#${uid}_rrule_type`),
-				getDate: function() {return this.dateTimeControl.getValue().from;}.bind(this)
+				getDate: function() {return this.dateTimeControl.getValue().from;}.bind(this),
 			}
 		);
 
@@ -1355,6 +1452,7 @@ export class EventEditForm
 					'Item:onDeselect': this.handleUserSelectorChanges.bind(this),
 				},
 				entities: this.getParticipantsSelectorEntityList(),
+				selectedItems: this.getSelectedItemsForTagSelector(),
 				searchTabOptions: {
 					stubOptions: {
 						title: Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
@@ -1389,6 +1487,26 @@ export class EventEditForm
 		}
 	}
 
+	getSelectedItemsForTagSelector()
+	{
+		let result = [];
+
+		this.getUserSelectorEntityList().forEach((item) => {
+			if (item.entityType === 'sharing')
+			{
+				result.push({
+					id: item.id,
+					entityId: item.entityId,
+					entityType: 'extranet',
+					title: item.title,
+					deselectable: false,
+				});
+			}
+		});
+
+		return result;
+	}
+
 	hasExternalEmailUsers()
 	{
 		return !!this.getUserSelectorEntityList().find((item) => {return item.entityType === 'email';});
@@ -1418,7 +1536,8 @@ export class EventEditForm
 			wrap: this.DOM.plannerOuterWrap,
 			minWidth: parseInt(this.DOM.plannerOuterWrap.offsetWidth),
 			dayOfWeekMonthFormat: this.dayOfWeekMonthFormat,
-			locked: !this.plannerFeatureEnabled
+			locked: !this.plannerFeatureEnabled,
+			entryTimezone: this.entry.getTimezoneFrom(),
 		});
 
 		this.planner.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
@@ -2002,6 +2121,7 @@ export class EventEditForm
 					{
 						from: data.dateFrom,
 						to: data.dateTo,
+						timezone: this.entry.getTimezoneFrom(),
 						fullDay: data.fullDay,
 						currentEventId: this.entry.id,
 					},
@@ -2115,6 +2235,11 @@ export class EventEditForm
 			&& !this.isAdditionalPopupShown()
 		)
 		{
+			if (this.busyUsersDialog && this.busyUsersDialog.isShown())
+			{
+				return;
+			}
+
 			this.save();
 		}
 	}
@@ -2375,7 +2500,16 @@ export class EventEditForm
 				options: {
 					inviteGuestLink: true,
 					emailUsers: true,
-				}
+				},
+				filters: [
+					{
+						id: 'calendar.attendeeFilter',
+						options: {
+							'isSharingEvent': this.entry.isSharingEvent(),
+							'eventId': this.entry.id
+						}
+					},
+				],
 			},
 			{
 				id: 'project'

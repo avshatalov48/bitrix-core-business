@@ -1,44 +1,27 @@
 <?php
 
-
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
 class Context
 {
-	private $addresser;
-	private $receiver;
-	private $changeFields;
+	private MailAddresser $addresser;
+	private MailReceiver $receiver;
+	private ?array $changeFields;
 
-	public static function createInstance(MailAddresser $addresser, MailReceiver $receiver): Context
-	{
-		return new self($addresser, $receiver);
-	}
-
-	public function __construct(MailAddresser $addresser, MailReceiver $receiver)
+	public function __construct(MailAddresser $addresser, MailReceiver $receiver, array $changeFields = null)
 	{
 		$this->addresser = $addresser;
 		$this->receiver = $receiver;
-	}
-
-	public function setAddresser(MailAddresser $addresser): Context
-	{
-		$this->addresser = $addresser;
-
-		return $this;
-	}
-
-	public function setReceiver(MailReceiver $receiver): Context
-	{
-		$this->receiver = $receiver;
-
-		return $this;
-	}
-
-	public function setChangeFields(array $changeFields): Context
-	{
 		$this->changeFields = $changeFields;
+	}
 
-		return $this;
+	public static function createInstance(
+		MailAddresser $addresser,
+		MailReceiver $receiver,
+		array $changeFields = null
+	): Context
+	{
+		return new self($addresser, $receiver, $changeFields);
 	}
 
 	public function getAddresser(): MailAddresser
@@ -46,13 +29,30 @@ class Context
 		return $this->addresser;
 	}
 
+	public function setAddresser(MailAddresser $addresser): void
+	{
+		$this->addresser = $addresser;
+	}
+
+
 	public function getReceiver(): MailReceiver
 	{
 		return $this->receiver;
 	}
 
-	public function getChangeFields(): array
+
+	public function setReceiver(MailReceiver $receiver): void
+	{
+		$this->receiver = $receiver;
+	}
+
+	public function getChangeFields(): ?array
 	{
 		return $this->changeFields;
+	}
+
+	public function setChangeFields(?array $changeFields): void
+	{
+		$this->changeFields = $changeFields;
 	}
 }

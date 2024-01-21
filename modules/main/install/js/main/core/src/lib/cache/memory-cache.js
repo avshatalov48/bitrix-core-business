@@ -1,7 +1,7 @@
 import BaseCache from './base-cache';
 import MemoryStorage from './storage/memory';
 
-export default class MemoryCache extends BaseCache
+export default class MemoryCache<T> extends BaseCache<T>
 {
 	/**
 	 * @private

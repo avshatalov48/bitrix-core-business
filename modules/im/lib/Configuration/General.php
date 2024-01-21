@@ -137,6 +137,7 @@ class General extends Base
 			'backgroundImageId' => 1,
 			'chatAlignment' => 'left',
 			'next' => false,
+			'pinnedChatSort' => 'byCost',
 		];
 	}
 
@@ -728,6 +729,13 @@ class General extends Base
 				case 'chatAlignment':
 					$verifiedSettings[$name] =
 						in_array($value, ['left', 'center'])
+							? $value
+							: $defaultSettings[$name]
+					;
+					break;
+				case 'pinnedChatSort':
+					$verifiedSettings[$name] =
+						($value === 'byDate')
 							? $value
 							: $defaultSettings[$name]
 					;

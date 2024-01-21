@@ -2,8 +2,6 @@
 
 namespace Bitrix\Catalog\Component;
 
-use Bitrix\Catalog\Component\Preset\Enum;
-
 class PresetHandler
 {
 	/**
@@ -46,21 +44,16 @@ class PresetHandler
 	{
 		\Bitrix\Main\UI\Extension::load(['catalog.store-use']);
 
-		$preset = [
-			Enum::TYPE_CRM,
-			Enum::TYPE_MENU,
-			Enum::TYPE_STORE
-		];
-
-		UseStore::enableWithPreset($preset);
+		if (UseStore::isPlanRestricted())
+		{
+			UseStore::enable();
+		}
 
 		$content = "
 			<script>
 				var controller = new BX.Catalog.StoreUse.Controller();
 				
-				controller.inventoryManagementAnalyticsFromLanding({
-					preset: ".\CUtil::PhpToJSObject($preset)."
-				});
+				controller.inventoryManagementAnalyticsFromLanding();
 			</script>
 		";
 

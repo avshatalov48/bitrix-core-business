@@ -83,14 +83,21 @@ const CheckDevices = {
 			if (!Utils.device.isMobile())
 			{
 				constraints.video = {};
-				constraints.video.width = {ideal: /*BX.Call.Hardware.preferHdQuality*/  true ? 1280 : 640};
-				constraints.video.height = {ideal: /*BX.Call.Hardware.preferHdQuality*/ true ? 720 : 360};
+				constraints.video.width = { ideal: 1280 };
+				constraints.video.height = { ideal: 720 };
 			}
 
 			if (BX.Call.Hardware.defaultCamera)
 			{
 				this.selectedCamera = BX.Call.Hardware.defaultCamera;
-				constraints.video = {deviceId: { exact: this.selectedCamera }};
+				if (constraints.video)
+				{
+					constraints.video = { ...constraints.video, deviceId: { exact: this.selectedCamera } };
+				}
+				else
+				{
+					constraints.video = { deviceId: { exact: this.selectedCamera } };
+				}
 			}
 			else if (Object.keys(BX.Call.Hardware.cameraList).length === 0)
 			{
@@ -143,10 +150,10 @@ const CheckDevices = {
 			if (this.selectedCamera && !this.noVideo)
 			{
 				constraints.video = {deviceId: { exact: this.selectedCamera }};
-				if (!Utils.device.isMobile() )
+				if (!Utils.device.isMobile())
 				{
-					constraints.video.width = {ideal: /*BX.Call.Hardware.preferHdQuality*/  true ? 1280 : 640};
-					constraints.video.height = {ideal: /*BX.Call.Hardware.preferHdQuality*/ true ? 720 : 360};
+					constraints.video.width = {ideal: 1280};
+					constraints.video.height = {ideal: 720};
 				}
 			}
 			if (this.selectedMic)

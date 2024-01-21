@@ -41,7 +41,6 @@ export const emoji = [
 			{ symbol: '\uD83D\uDE14' },
 			{ symbol: '\uD83D\uDE1F' },
 			{ symbol: '\uD83D\uDE15' },
-			{ symbol: '\u2639' },
 			{ symbol: '\uD83D\uDE41' },
 			{ symbol: '\uD83D\uDE23' },
 			{ symbol: '\uD83D\uDE2B' },

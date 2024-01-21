@@ -9,9 +9,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  enterMode: ['Enter', 'NumpadEnter'],
 	  ctrlEnterMode: ['Ctrl+Enter', 'Ctrl+NumpadEnter']
 	};
+	// only for non-default hotkeys
 	const newLineCombinations = {
-	  enterMode: ['Shift+Enter', 'Ctrl+Enter'],
-	  ctrlEnterMode: ['Enter', 'Shift+Enter']
+	  enterMode: ['Ctrl+Enter'],
+	  ctrlEnterMode: []
 	};
 	const isSendMessageCombination = event => {
 	  return im_v2_lib_utils.Utils.key.isExactCombination(event, getSendMessageCombination());

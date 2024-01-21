@@ -2,14 +2,54 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,im_public,im_v2_lib_slider,im_v2_lib_utils,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_menu,im_v2_application_core,main_core_events,main_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_lib_textHighlighter,im_v2_component_elements) {
+(function (exports,ui_designTokens,ui_fonts_opensans,im_public,im_v2_lib_utils,im_v2_lib_logger,im_v2_lib_localStorage,im_v2_provider_service,im_v2_lib_menu,im_v2_application_core,main_core_events,main_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_lib_textHighlighter,im_v2_component_elements) {
 	'use strict';
 
 	class SearchContextMenu extends im_v2_lib_menu.RecentMenu {
 	  getMenuItems() {
-	    return [this.getOpenItem(), this.getCallItem(), this.getOpenProfileItem()];
+	    return [this.getOpenItem(), this.getCallItem(), this.getOpenProfileItem(), this.getChatsWithUserItem()];
 	  }
 	}
+
+	// @vue/component
+	const MyNotes = {
+	  name: 'MyNotes',
+	  emits: ['clickItem'],
+	  computed: {
+	    dialogId() {
+	      return im_v2_application_core.Core.getUserId().toString();
+	    },
+	    name() {
+	      return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_MY_NOTES');
+	    }
+	  },
+	  created() {
+	    this.contextMenuManager = new SearchContextMenu();
+	  },
+	  beforeUnmount() {
+	    this.contextMenuManager.destroy();
+	  },
+	  methods: {
+	    onClick(event) {
+	      this.$emit('clickItem', {
+	        dialogId: this.dialogId,
+	        nativeEvent: event
+	      });
+	    }
+	  },
+	  template: `
+		<div 
+			class="bx-im-search-my-notes__container bx-im-search-my-notes__scope"
+			@click="onClick" 
+			@click.right.prevent
+		>
+			<div class="bx-im-search-my-notes__avatar"></div>
+			<div class="bx-im-search-my-notes__title" :title="name">
+				{{ name }}
+			</div>
+		</div>
+	`
+	};
 
 	// @vue/component
 	const CarouselUser = {
@@ -81,13 +121,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	const recentUsersLimit = 6;
+	const SHOW_USERS_LIMIT = 6;
 
 	// @vue/component
 	const RecentUsersCarousel = {
 	  name: 'RecentUsersCarousel',
 	  components: {
-	    CarouselUser
+	    CarouselUser,
+	    MyNotes
+	  },
+	  props: {
+	    withMyNotes: {
+	      type: Boolean,
+	      default: false
+	    }
 	  },
 	  emits: ['clickItem'],
 	  computed: {
@@ -98,11 +145,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return;
 	        }
 	        const user = this.$store.getters['users/get'](recentItem.dialogId, true);
+	        if (user.bot || user.id === im_v2_application_core.Core.getUserId()) {
+	          return;
+	        }
 	        recentUsers.push(user);
 	      });
-	      return recentUsers.filter(user => {
-	        return !user.bot && user.id !== im_v2_application_core.Core.getUserId();
-	      }).slice(0, recentUsersLimit);
+	      return recentUsers.map(user => user.id);
+	    },
+	    items() {
+	      const limit = this.withMyNotes ? SHOW_USERS_LIMIT - 1 : SHOW_USERS_LIMIT;
+	      return this.users.slice(0, limit);
+	    },
+	    currentUserId() {
+	      return im_v2_application_core.Core.getUserId();
 	    }
 	  },
 	  methods: {
@@ -118,10 +173,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				</span>
 			</div>
 			<div class="bx-im-recent-users-carousel__users-container">
-				<CarouselUser 
-					v-for="user in users"
-					:key="user.id"
-					:userId="user.id"
+				<MyNotes
+					v-if="withMyNotes"
+					@clickItem="$emit('clickItem', $event)"
+				/>
+				<CarouselUser
+					v-for="userId in items"
+					:key="userId"
+					:userId="userId"
 					@clickItem="$emit('clickItem', $event)"
 				/>
 			</div>
@@ -157,7 +216,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    recentItem() {
 	      return this.$store.getters['recent/get'](this.dialogId);
@@ -166,7 +225,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return !this.isUser;
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    position() {
 	      if (!this.isUser) {
@@ -176,27 +235,40 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    userItemText() {
 	      if (!this.position) {
-	        return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_USER_TYPE_GROUP_V2');
+	        return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_USER_TYPE_GROUP_V2');
 	      }
 	      return im_v2_lib_textHighlighter.highlightText(main_core.Text.encode(this.position), this.query);
 	    },
 	    chatItemText() {
-	      if (this.isUser) {
-	        return '';
+	      if (this.isFoundByUser) {
+	        return `<span class="--highlight">${this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_FOUND_BY_USER')}</span>`;
 	      }
-	      return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
+	      return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
+	    },
+	    chatItemTextForTitle() {
+	      if (this.isFoundByUser) {
+	        return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_FOUND_BY_USER');
+	      }
+	      return this.loc('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
 	    },
 	    itemText() {
 	      return this.isUser ? this.userItemText : this.chatItemText;
 	    },
 	    itemTextForTitle() {
-	      return this.isUser ? this.position : this.chatItemText;
+	      return this.isUser ? this.position : this.chatItemTextForTitle;
 	    },
 	    formattedDate() {
-	      if (!this.recentItem.dateUpdate) {
+	      if (!this.recentItem.message.date) {
 	        return '';
 	      }
-	      return this.formatDate(this.recentItem.dateUpdate);
+	      return this.formatDate(this.recentItem.message.date);
+	    },
+	    isFoundByUser() {
+	      const searchRecentItem = this.$store.getters['recent/search/get'](this.dialogId);
+	      if (!searchRecentItem) {
+	        return false;
+	      }
+	      return Boolean(searchRecentItem.foundByUser);
 	    }
 	  },
 	  methods: {
@@ -220,6 +292,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    formatDate(date) {
 	      return im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(date, im_v2_lib_dateFormatter.DateTemplate.recent);
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
 	  },
 	  template: `
@@ -260,6 +335,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    isLoading: {
 	      type: Boolean,
 	      default: false
+	    },
+	    withMyNotes: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  emits: ['clickItem'],
@@ -270,7 +349,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  template: `
 		<div class="bx-im-latest-search-result__scope">
-			<RecentUsersCarousel @clickItem="$emit('clickItem', $event)" />
+			<RecentUsersCarousel :withMyNotes="withMyNotes" @clickItem="$emit('clickItem', $event)" />
 			<div class="bx-im-latest-search-result__title">{{ title }}</div>
 			<SearchExperimentalItem
 				v-for="dialogId in dialogIds"
@@ -332,9 +411,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  emits: ['clickItem'],
 	  computed: {
 	    isEmptyState() {
-	      if (this.isLoading) {
-	        return false;
-	      }
 	      return this.dialogIds.length === 0;
 	    }
 	  },
@@ -349,7 +425,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				@clickItem="$emit('clickItem', $event)"
 			/>
 			<EmptyState v-if="isEmptyState" />
-			<Loader v-if="isLoading" class="bx-im-search-experimental-result__loader" />
 		</div>
 	`
 	};
@@ -358,6 +433,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const SearchExperimental = {
 	  name: 'SearchExperimental',
 	  components: {
+	    ScrollWithGradient: im_v2_component_elements.ScrollWithGradient,
 	    LatestSearchResult,
 	    SearchExperimentalResult
 	  },
@@ -369,12 +445,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    searchMode: {
 	      type: Boolean,
 	      required: true
+	    },
+	    handleClickItem: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withMyNotes: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  data() {
 	    return {
 	      isRecentLoading: false,
 	      isServerLoading: false,
+	      queryWasDeleted: false,
 	      currentServerQueries: 0,
 	      result: {
 	        recent: [],
@@ -392,6 +477,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  watch: {
 	    cleanQuery(newQuery, previousQuery) {
+	      if (newQuery.length > 0) {
+	        this.queryWasDeleted = false;
+	      }
 	      if (newQuery.length === 0) {
 	        this.searchService.clearSessionResult();
 	      }
@@ -399,23 +487,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      this.startSearch(newQuery);
+	    },
+	    isServerLoading(newValue) {
+	      this.$emit('loading', newValue);
 	    }
 	  },
 	  created() {
 	    this.initSettings();
 	    this.contextMenuManager = new SearchContextMenu();
-	    this.searchService = new im_v2_provider_service.SearchService();
+	    this.findByParticipants = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.findByParticipants, false);
+	    this.searchService = new im_v2_provider_service.SearchService({
+	      findByParticipants: this.findByParticipants
+	    });
 	    this.searchOnServerDelayed = main_core.Runtime.debounce(this.searchOnServer, 400, this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.search.openContextMenu, this.onOpenContextMenu);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.errors.accessDenied, this.onDelete);
-	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.search.keyPressed, this.onPressEnterKey);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.search.keyPressed, this.onKeyPressed);
 	    this.loadRecentSearchFromServer();
 	  },
 	  beforeUnmount() {
 	    this.contextMenuManager.destroy();
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.search.openContextMenu, this.onOpenContextMenu);
 	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.errors.accessDenied, this.onDelete);
-	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.search.keyPressed, this.onPressEnterKey);
+	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.search.keyPressed, this.onKeyPressed);
 	  },
 	  methods: {
 	    loadRecentSearchFromServer() {
@@ -433,7 +527,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.minTokenSize = settings.get('minTokenSize', defaultMinTokenSize);
 	    },
 	    startSearch(query) {
-	      if (query.length > 0) {
+	      if (!this.findByParticipants && query.length > 0) {
 	        this.searchService.searchLocal(query).then(dialogIds => {
 	          if (query !== this.cleanQuery) {
 	            return;
@@ -461,8 +555,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          this.stopLoader();
 	          return;
 	        }
-	        const mergedItems = this.mergeResults(this.result.usersAndChats, dialogIds);
-	        this.result.usersAndChats = this.searchService.sortByDate(mergedItems);
+	        if (this.findByParticipants) {
+	          this.result.usersAndChats = this.searchService.sortByDate(dialogIds);
+	        } else {
+	          const mergedItems = this.mergeResults(this.result.usersAndChats, dialogIds);
+	          this.result.usersAndChats = this.searchService.sortByDate(mergedItems);
+	        }
 	      }).catch(error => {
 	        console.error(error);
 	      }).finally(() => {
@@ -475,14 +573,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      this.isServerLoading = false;
-	    },
-	    mergeResults(originalItems, newItems) {
-	      newItems.forEach(newItem => {
-	        if (!originalItems.includes(newItem)) {
-	          originalItems.push(newItem);
-	        }
-	      });
-	      return originalItems;
 	    },
 	    onOpenContextMenu(event) {
 	      const {
@@ -525,22 +615,27 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }).catch(error => {
 	        im_v2_lib_logger.Logger.error('SearchExperimental.onClickItem: addItemToRecent', error);
 	      });
-	      if (im_v2_lib_utils.Utils.key.isCmdOrCtrl(nativeEvent)) {
-	        im_v2_lib_slider.MessengerSlider.getInstance().openNewTab(im_v2_const.PathPlaceholder.dialog.replace('#DIALOG_ID#', dialogId));
-	      } else {
-	        im_public.Messenger.openChat(dialogId);
+	      im_public.Messenger.openChat(dialogId);
+	      if (!this.handleClickItem) {
+	        this.$emit('clickItem', event);
+	        return;
 	      }
 	      if (!im_v2_lib_utils.Utils.key.isAltOrOption(nativeEvent)) {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.search.close);
 	      }
 	    },
-	    onPressEnterKey(event) {
+	    onKeyPressed(event) {
 	      const {
 	        keyboardEvent
 	      } = event.getData();
-	      if (!im_v2_lib_utils.Utils.key.isCombination(keyboardEvent, 'Enter')) {
-	        return;
+	      if (im_v2_lib_utils.Utils.key.isCombination(keyboardEvent, 'Enter')) {
+	        this.onPressEnterKey(event);
 	      }
+	      if (im_v2_lib_utils.Utils.key.isCombination(keyboardEvent, 'Backspace')) {
+	        this.onPressBackspaceKey();
+	      }
+	    },
+	    onPressEnterKey(keyboardEvent) {
 	      const firstItem = this.getFirstItemFromSearchResults();
 	      if (!firstItem) {
 	        return;
@@ -550,6 +645,19 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        nativeEvent: keyboardEvent
 	      });
 	    },
+	    onPressBackspaceKey() {
+	      if (this.searchQuery.length > 0) {
+	        this.queryWasDeleted = false;
+	        return;
+	      }
+	      if (!this.queryWasDeleted) {
+	        this.queryWasDeleted = true;
+	        return;
+	      }
+	      if (this.queryWasDeleted) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.search.close);
+	      }
+	    },
 	    getFirstItemFromSearchResults() {
 	      if (this.showLatestSearchResult && this.result.recent.length > 0) {
 	        return this.result.recent[0];
@@ -558,28 +666,39 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return this.result.usersAndChats[0];
 	      }
 	      return null;
+	    },
+	    mergeResults(originalItems, newItems) {
+	      newItems.forEach(newItem => {
+	        if (!originalItems.includes(newItem)) {
+	          originalItems.push(newItem);
+	        }
+	      });
+	      return originalItems;
 	    }
 	  },
 	  template: `
-		<div class="bx-im-search-experimental__container bx-im-search-experimental__scope" @scroll="onScroll">
-			<LatestSearchResult 
-				v-if="showLatestSearchResult" 
-				:dialogIds="result.recent" 
-				:isLoading="isRecentLoading" 
-				@clickItem="onClickItem" 
-			/>
-			<SearchExperimentalResult 
-				v-else 
-				:dialogIds="result.usersAndChats" 
-				:isLoading="isServerLoading"
-				:query="cleanQuery"
-				@clickItem="onClickItem"
-			/>
-		</div>
+		<ScrollWithGradient :gradientHeight="28" :withShadow="false" @scroll="onScroll"> 
+			<div class="bx-im-search-experimental__container bx-im-search-experimental__scope">
+				<LatestSearchResult
+					v-if="showLatestSearchResult"
+					:dialogIds="result.recent"
+					:isLoading="isRecentLoading"
+					:withMyNotes="withMyNotes"
+					@clickItem="onClickItem"
+				/>
+				<SearchExperimentalResult
+					v-else
+					:dialogIds="result.usersAndChats"
+					:isLoading="isServerLoading"
+					:query="cleanQuery"
+					@clickItem="onClickItem"
+				/>
+			</div>
+		</ScrollWithGradient> 
 	`
 	};
 
 	exports.SearchExperimental = SearchExperimental;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Event,BX,BX.Messenger.v2.Const,BX.Im.V2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Event,BX,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=search-experimental.bundle.js.map

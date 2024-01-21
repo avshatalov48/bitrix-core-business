@@ -38,7 +38,7 @@ $APPLICATION->SetTitle(
 
 $this->SetViewTarget('inside_pagetitle');
 ?>
-<span data-hint="<?= Loc::getMessage('DEALS_WITH_RESERVED_PRODUCT_SLIDER_HINT') ?>"></span>
+<span data-hint="<?= Loc::getMessage('DEALS_WITH_RESERVED_PRODUCT_SLIDER_HINT_MSGVER_1') ?>"></span>
 <?php
 $this->EndViewTarget();
 ?>

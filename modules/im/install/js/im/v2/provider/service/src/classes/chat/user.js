@@ -42,7 +42,7 @@ export class UserService
 	{
 		this.kickUserFromChat(dialogId, Core.getUserId());
 
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId,
 			fields: {
 				inited: false,
@@ -62,7 +62,7 @@ export class UserService
 	joinChat(dialogId: string)
 	{
 		Logger.warn(`UserService: join chat ${dialogId}`);
-		this.#store.dispatch('dialogues/update', {
+		this.#store.dispatch('chats/update', {
 			dialogId,
 			fields: {
 				role: UserRole.member,

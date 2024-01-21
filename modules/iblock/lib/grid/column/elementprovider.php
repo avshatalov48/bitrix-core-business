@@ -89,7 +89,7 @@ class ElementProvider extends BaseElementProvider
 		];
 		$result['XML_ID'] = [
 			'type' => Grid\Column\Type::TEXT,
-			'name' => Loc::getMessage('IBLOCK_ELEMENT_COLUMN_PROVIDER_FIELD_XML_ID'),
+			'name' => Loc::getMessage('IBLOCK_ELEMENT_COLUMN_PROVIDER_FIELD_XML_ID_MSGVER_1'),
 			'title' => Loc::getMessage('IBLOCK_ELEMENT_COLUMN_PROVIDER_FIELD_TITLE_XML_ID'),
 			'necessary' => false,
 			'editable' => true,

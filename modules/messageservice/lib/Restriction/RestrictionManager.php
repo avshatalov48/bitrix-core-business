@@ -115,7 +115,8 @@ class RestrictionManager
 			new PhonePerUser($message),
 			new UserPerPhone($message),
 			new IpPerUser($message),
-			new IpPerPhone($message)
+			new IpPerPhone($message),
+			new SmsPerIp($message),
 		];
 
 		$result = [];

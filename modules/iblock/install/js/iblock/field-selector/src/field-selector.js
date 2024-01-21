@@ -3,6 +3,9 @@ import { type BaseEvent } from 'main.core.events';
 import { type Item, type ItemId, TagSelector, type TagSelectorOptions } from 'ui.entity-selector';
 import { FieldSelectorConfig } from './field-selector-config';
 import { TabMessages } from './tab-messages';
+import { BaseCollection } from './value-collections/base-collection';
+import { IntegerCollection } from './value-collections/integer-collection';
+import { StringCollection } from './value-collections/string-collection';
 
 export class FieldSelector
 {
@@ -10,11 +13,12 @@ export class FieldSelector
 	containerId: string = '';
 	fieldName: string = '';
 	multiple: boolean = false;
-	selectedItems: number[] = [];
+	valueCollection: BaseCollection;
 	iblockId: number = 0;
 	userType: string = '';
 	entityId: string = '';
 	searchMessages: TabMessages = {};
+	changeEvents: string[] = [];
 
 	constructor(selectorConfig: FieldSelectorConfig)
 	{
@@ -25,11 +29,13 @@ export class FieldSelector
 		this.setContainerId(config.containerId);
 		this.setFieldName(config.fieldName);
 		this.setMultiple(config.multiple);
-		this.setSelectedItems(config.selectedItems);
+		this.initValueCollection(config.collectionType ?? 'int');
+		this.setValues(Type.isArray(config.selectedItems) ? config.selectedItems : [config.selectedItems]);
 		this.setIblockId(config.iblockId);
 		this.setUserType(config.userType);
 		this.setEntityId(config.entityId);
 		this.setSearchMessages(config.searchMessages);
+		this.setChangeEvents(config.changeEvents);
 	}
 
 	resetState(): void
@@ -47,7 +53,7 @@ export class FieldSelector
 		this.state = false;
 		if (Type.isStringFilled(error))
 		{
-			console.error(error);
+			console.error(`BX.Iblock.FieldSelector: ${error}`);
 		}
 	}
 
@@ -56,7 +62,7 @@ export class FieldSelector
 		this.state = false;
 		if (Type.isStringFilled(warning))
 		{
-			console.warn(warning);
+			console.warn(`BX.Iblock.FieldSelector: ${warning}`);
 		}
 	}
 
@@ -65,7 +71,7 @@ export class FieldSelector
 		this.containerId = Type.isStringFilled(containerId) ? containerId : '';
 		if (this.containerId === '')
 		{
-			this.showError('BX.Iblock.FieldSelector: containerId is empty. Selector is can\'t be used');
+			this.showError('containerId is empty. Selector is can\'t be used');
 		}
 	}
 
@@ -79,7 +85,7 @@ export class FieldSelector
 		this.fieldName = Type.isStringFilled(fieldName) ? fieldName : '';
 		if (this.fieldName === '')
 		{
-			this.showError('BX.Iblock.FieldSelector: fieldName is empty. Selector is can\'t be used');
+			this.showError('fieldName is empty. Selector is can\'t be used');
 		}
 	}
 
@@ -100,47 +106,47 @@ export class FieldSelector
 
 	getTagSelectorContainerId(): string
 	{
-		return this.getContainerId() + '_selector';
+		return `${this.getContainerId()}_selector`;
 	}
 
 	getTagResultContainerId(): string
 	{
-		return this.getContainerId() + '_results';
+		return `${this.getContainerId()}_results`;
 	}
 
 	getTagSelectorControlId(): string
 	{
-		return this.getContainerId() + 'Control';
+		return `${this.getContainerId()}Control`;
 	}
 
-	setSelectedItems(selectedItems): void
+	initValueCollection(collectionType: string): void
 	{
-		this.selectedItems = [];
-		if (Type.isArray(selectedItems))
+		if (collectionType === 'string')
 		{
-			selectedItems.forEach((value): void => {
-				if (Type.isInteger(value))
-				{
-					this.selectedItems.push(value);
-				}
-			});
+			this.valueCollection = new StringCollection();
 		}
-		else if (Type.isInteger(selectedItems))
+		else
 		{
-			this.selectedItems.push(selectedItems);
+			this.valueCollection = new IntegerCollection();
 		}
 	}
 
-	getSelectedItems(): number[]
+	setValues(rawValues: []): void
 	{
-		return this.selectedItems;
+		this.valueCollection.set(rawValues);
+	}
+
+	getValues(): []
+	{
+		return this.valueCollection.get();
 	}
 
 	getTagSelectorItems(): ItemId[]
 	{
 		const entityId: string = this.getEntityId();
 		const result = [];
-		this.getSelectedItems().forEach((value: number): void => {
+
+		this.getValues().forEach((value: string | number): void => {
 			const item: ItemId = [
 				entityId,
 				value,
@@ -184,7 +190,7 @@ export class FieldSelector
 		this.entityId = Type.isStringFilled(entityId) ? entityId : '';
 		if (this.entityId === '')
 		{
-			this.showError('BX.Iblock.FieldSelector: entityI id is empty. Selector is can\'t be used');
+			this.showError('entityI id is empty. Selector is can\'t be used');
 		}
 	}
 
@@ -217,6 +223,25 @@ export class FieldSelector
 		return this.searchMessages.subtitle;
 	}
 
+	setChangeEvents(events): void
+	{
+		this.changeEvents = [];
+		if (Type.isArrayFilled(events))
+		{
+			events.forEach((value): void => {
+				if (Type.isStringFilled(value))
+				{
+					this.changeEvents.push(value);
+				}
+			});
+		}
+	}
+
+	getChangeEvents(): string[]
+	{
+		return this.changeEvents;
+	}
+
 	render(): void
 	{
 		if (!this.isStateSuccess())
@@ -228,9 +253,7 @@ export class FieldSelector
 		const container = document.getElementById(containerId);
 		if (!Type.isElementNode(container))
 		{
-			this.showError(
-				'BX.Iblock.FieldSelector: dom-container ' + containerId + ' is absent. Selector is can\'t be used'
-			);
+			this.showError(`dom-container ${containerId} is absent. Selector is can't be used`);
 		}
 
 		const tagSelectorContainer = Tag.render`
@@ -243,7 +266,7 @@ export class FieldSelector
 		`;
 		Dom.append(tagResult, container);
 
-		this.renderSelectedItems(this.getSelectedItems());
+		this.renderSelectedItems(this.getValues());
 
 		const tagSelectorConfig: TagSelectorOptions = {
 			id: this.getTagSelectorControlId(),
@@ -297,9 +320,9 @@ export class FieldSelector
 		tagResult.innerHTML = '';
 		if (items.length > 0)
 		{
-			items.forEach((value: number): void => {
+			items.forEach((value: string | number): void => {
 				const hiddenValue = Tag.render`
-					<input type="hidden" name="${fieldName}" value="${value.toString()}">
+					<input type="hidden" name="${fieldName}" value="${Tag.safe`${value.toString()}`}">
 				`;
 				Dom.append(hiddenValue, tagResult);
 			});
@@ -325,10 +348,14 @@ export class FieldSelector
 		if (Type.isArray(selectedItems))
 		{
 			const parsedValues = [];
-			selectedItems.forEach((item: Item) => {
+			selectedItems.forEach((item: Item): void => {
 				parsedValues.push(item.getId());
 			});
 			this.renderSelectedItems(parsedValues);
+			const eventList: string[] = this.getChangeEvents();
+			eventList.forEach((event: string): void => {
+				BX.Event.EventEmitter.emit(event);
+			});
 		}
 	}
 }

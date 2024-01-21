@@ -45,7 +45,7 @@ require_once __DIR__ . '/autoload.php';
 );
 
 const CURRENCY_CACHE_DEFAULT_TIME = 10800;
-const CURRENCY_ISO_STANDART_URL = 'http://www.iso.org/iso/home/standards/currency_codes.htm';
+const CURRENCY_ISO_STANDART_URL = 'https://www.iso.org/iso/home/standards/currency_codes.htm';
 
 /*
 * @deprecated deprecated since currency 14.0.0

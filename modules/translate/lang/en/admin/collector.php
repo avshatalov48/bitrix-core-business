@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TRANS_DOWNLOAD"] = "Import Localization";
 $MESS["TRANS_TITLE"] = "Collect Strings";
 $MESS["TRANS_UPLOAD"] = "Collect And Export Strings";
@@ -39,4 +39,3 @@ $MESS["TR_SELECT_LANGUAGE"] = "Select Language";
 $MESS["TR_SELECT_LANGUAGE_DESCRIPTION"] = "(if you cannot find the required language, you have to <a href=\"lang_edit.php?lang=en\">add it</a> first)";
 $MESS["TR_UPLOAD_FILE"] = "Localization File (tar.gz)";
 $MESS["TR_UPLOAD_FILE_MAX_SIZE"] = "(max. uploaded file size: #SIZE#)";
-?>

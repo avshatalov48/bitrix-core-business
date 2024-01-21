@@ -1,5 +1,6 @@
 <?php
-$MESS['SALE_HPS_WEBMONEY'] = 'Webmoney';
+$MESS['SALE_HPS_WEBMONEY'] = 'WebMoney';
+$MESS['SALE_HPS_WEBMONEY_DESCRIPTION'] = 'Принимайте электронные платежи от клиентов WebMoney';
 $MESS["SALE_HPS_WEBMONEY_NUMBER"] = "Номер R кошелька";
 $MESS["SALE_HPS_WEBMONEY_TEST"] = "Тестовый режим";
 $MESS["SALE_HPS_WEBMONEY_KEY"] = "Secret Key";

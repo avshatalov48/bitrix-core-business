@@ -289,7 +289,7 @@ class ProviderCreator
 	 */
 	public function getProductData()
 	{
-		return $this->callBuilderMethod('getProductData', 'PRODUCT_DATA_LIST');
+		return $this->callBuilderMethod('getProductData', ['PRODUCT_DATA_LIST']);
 	}
 
 	/**
@@ -297,7 +297,7 @@ class ProviderCreator
 	 */
 	public function getAvailableQuantity()
 	{
-		return $this->callBuilderMethod('getAvailableQuantity', 'AVAILABLE_QUANTITY_LIST');
+		return $this->callBuilderMethod('getAvailableQuantity', ['AVAILABLE_QUANTITY_LIST']);
 	}
 
 	/**
@@ -305,7 +305,7 @@ class ProviderCreator
 	 */
 	public function getAvailableQuantityByStore()
 	{
-		return $this->callBuilderMethod('getAvailableQuantityByStore', 'AVAILABLE_QUANTITY_LIST_BY_STORE');
+		return $this->callBuilderMethod('getAvailableQuantityByStore', ['AVAILABLE_QUANTITY_LIST_BY_STORE']);
 	}
 
 	/**
@@ -313,7 +313,7 @@ class ProviderCreator
 	 */
 	public function getAvailableQuantityAndPrice()
 	{
-		return $this->callBuilderMethod('getAvailableQuantityAndPrice', 'PRODUCT_DATA_LIST');
+		return $this->callBuilderMethod('getAvailableQuantityAndPrice', ['PRODUCT_DATA_LIST']);
 	}
 
 	/**
@@ -353,7 +353,7 @@ class ProviderCreator
 	 */
 	public function setItemsResultAfterShip(Sale\Result $resultAfterShip)
 	{
-		return $this->callBuilderMethod('setItemsResultAfterShip', 'RESULT_AFTER_SHIP_LIST', $resultAfterShip);
+		return $this->callBuilderMethod('setItemsResultAfterShip', ['RESULT_AFTER_SHIP_LIST'], $resultAfterShip);
 	}
 
 	/**
@@ -363,7 +363,7 @@ class ProviderCreator
 	 */
 	public function createItemsResultAfterDeliver(Sale\Result $resultAfterDeliver)
 	{
-		return $this->callBuilderMethod('createItemsResultAfterDeliver', 'RESULT_AFTER_DELIVER_LIST', $resultAfterDeliver);
+		return $this->callBuilderMethod('createItemsResultAfterDeliver', ['RESULT_AFTER_DELIVER_LIST'], $resultAfterDeliver);
 	}
 
 
@@ -372,7 +372,7 @@ class ProviderCreator
 	 */
 	public function tryShip()
 	{
-		return $this->callBuilderMethod('tryShip', 'TRY_SHIP_PRODUCTS_LIST');
+		return $this->callBuilderMethod('tryShip', ['TRY_SHIP_PRODUCTS_LIST']);
 	}
 
 	/**
@@ -380,7 +380,7 @@ class ProviderCreator
 	 */
 	public function isNeedShip()
 	{
- 		return $this->callBuilderMethod('isNeedShip', 'IS_NEED_SHIP');
+		return $this->callBuilderMethod('isNeedShip', ['IS_NEED_SHIP']);
 	}
 
 
@@ -389,7 +389,7 @@ class ProviderCreator
 	 */
 	public function checkBarcode()
 	{
-		return $this->callBuilderMethod('checkBarcode', 'BARCODE_CHECK_LIST');
+		return $this->callBuilderMethod('checkBarcode', ['BARCODE_CHECK_LIST']);
 	}
 
 	/**
@@ -397,7 +397,7 @@ class ProviderCreator
 	 */
 	public function reserve()
 	{
-		return $this->callBuilderMethod('reserve', 'RESERVED_PRODUCTS_LIST');
+		return $this->callBuilderMethod('reserve', ['RESERVED_PRODUCTS_LIST']);
 	}
 
 	/**
@@ -405,7 +405,7 @@ class ProviderCreator
 	 */
 	public function ship()
 	{
-		return $this->callBuilderMethod('ship', 'SHIPPED_PRODUCTS_LIST');
+		return $this->callBuilderMethod('ship', ['SHIPPED_PRODUCTS_LIST']);
 	}
 
 	/**
@@ -413,7 +413,7 @@ class ProviderCreator
 	 */
 	public function getBundleItems()
 	{
-		return $this->callBuilderMethod('getBundleItems', 'BUNDLE_LIST');
+		return $this->callBuilderMethod('getBundleItems', ['BUNDLE_LIST']);
 	}
 
 	/**
@@ -421,7 +421,7 @@ class ProviderCreator
 	 */
 	public function deliver()
 	{
-		return $this->callBuilderMethod('deliver', 'DELIVER_PRODUCTS_LIST');
+		return $this->callBuilderMethod('deliver', ['DELIVER_PRODUCTS_LIST']);
 	}
 
 	/**
@@ -429,7 +429,7 @@ class ProviderCreator
 	 */
 	public function viewProduct()
 	{
-		return $this->callBuilderMethod('viewProduct', 'VIEW_PRODUCTS_LIST');
+		return $this->callBuilderMethod('viewProduct', ['VIEW_PRODUCTS_LIST']);
 	}
 
 	/**
@@ -437,7 +437,7 @@ class ProviderCreator
 	 */
 	public function getProductStores()
 	{
-		return $this->callBuilderMethod('getProductStores', 'PRODUCT_STORES_LIST');
+		return $this->callBuilderMethod('getProductStores', ['PRODUCT_STORES_LIST']);
 	}
 
 	/**
@@ -445,7 +445,7 @@ class ProviderCreator
 	 */
 	public function recurring()
 	{
-		return $this->callBuilderMethod('recurring', 'RECURRING_PRODUCTS_LIST');
+		return $this->callBuilderMethod('recurring', ['RECURRING_PRODUCTS_LIST']);
 	}
 
 	/**
@@ -455,7 +455,25 @@ class ProviderCreator
 	 */
 	public function createItemsResultAfterRecurring(Sale\Result $resultAfterDeliver)
 	{
-		return $this->callBuilderMethod('createItemsResultAfterDeliver', 'RESULT_AFTER_DELIVER_LIST', $resultAfterDeliver);
+		return $this->callBuilderMethod('createItemsResultAfterDeliver', ['RESULT_AFTER_DELIVER_LIST'], $resultAfterDeliver);
+	}
+
+	/**
+	 * @return Sale\Result
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public function returnProductBatches(): Sale\Result
+	{
+		return $this->callBuilderMethod('returnProductBatches', []);
+	}
+
+	/**
+	 * @return Sale\Result
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public function writeOffProductBatches(): Sale\Result
+	{
+		return $this->callBuilderMethod('writeOffProductBatches', []);
 	}
 
 	/**
@@ -466,7 +484,7 @@ class ProviderCreator
 	 * @return Sale\Result
 	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	private function callBuilderMethod($method, $outputName, $methodParameters = null)
+	private function callBuilderMethod($method, array $outputNames, $methodParameters = null)
 	{
 		$result = new Sale\Result();
 
@@ -482,8 +500,10 @@ class ProviderCreator
 
 			if (!$methodParameters)
 			{
+				/** Use first output value for saving compatibility in provider builder calling */
+				$compatibilityOutputName = $outputNames[0];
 				/** @var Sale\Result $r */
-				$r = $builder->$method($outputName);
+				$r = $builder->$method($compatibilityOutputName);
 			}
 			else
 			{
@@ -513,25 +533,26 @@ class ProviderCreator
 					$providerName = $this->clearProviderName($reflect->getName());
 				}
 
-				if (strval($providerName) == '')
+				if (empty($providerName))
 				{
 					$providerName = $builder->getCallbackFunction();
 				}
 
-				if (!empty($data[$outputName]))
+				foreach ($outputNames as $outputName)
 				{
-					$resultList[$providerName] = $data[$outputName];
+					if (!empty($data[$outputName]))
+					{
+						$resultList[$outputName] = [
+							$providerName => $data[$outputName],
+						];
+					}
 				}
 			}
 		}
 
 		if (!empty($resultList))
 		{
-			$result->setData(
-				array(
-					$outputName => $resultList
-				)
-			);
+			$result->setData($resultList);
 		}
 
 		return $result;

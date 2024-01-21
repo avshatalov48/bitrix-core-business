@@ -1,16 +1,16 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
+
 namespace Bitrix\Main;
 
 use Bitrix\Main\Config\Configuration;
-use Bitrix\Main\Data;
 use Bitrix\Main\DI\ServiceLocator;
-use Bitrix\Main\Diag;
 use Bitrix\Main\Routing\CompileCache;
 use Bitrix\Main\Routing\Route;
 use Bitrix\Main\Routing\Router;
@@ -19,6 +19,7 @@ use Bitrix\Main\Session\CompositeSessionManager;
 use Bitrix\Main\Session\KernelSessionProxy;
 use Bitrix\Main\Session\SessionConfigurationResolver;
 use Bitrix\Main\Session\SessionInterface;
+use Bitrix\Main\Session\Handlers\CookieSessionHandler;
 
 /**
  * Base class for any application.
@@ -32,40 +33,33 @@ abstract class Application
 	 * @var Application
 	 */
 	protected static $instance;
-
 	protected bool $initialized = false;
-
+	protected bool $terminating = false;
 	/**
 	 * Execution context.
 	 *
-	 * @var Context
+	 * @var Context | HttpContext
 	 */
 	protected $context;
-
 	/** @var Router */
 	protected $router;
-
 	/** @var Route */
 	protected $currentRoute;
-
 	/**
 	 * Pool of database connections.
 	 * @var Data\ConnectionPool
 	 */
 	protected $connectionPool;
-
 	/**
 	 * Managed cache instance.
 	 * @var \Bitrix\Main\Data\ManagedCache
 	 */
 	protected $managedCache;
-
 	/**
 	 * Tagged cache instance.
 	 * @var \Bitrix\Main\Data\TaggedCache
 	 */
 	protected $taggedCache;
-
 	/** @var SessionInterface */
 	protected $session;
 	/** @var SessionInterface */
@@ -74,12 +68,10 @@ abstract class Application
 	protected $compositeSessionManager;
 	/** @var Data\LocalStorage\SessionLocalStorageManager */
 	protected $sessionLocalStorageManager;
-
 	/*
 	 * @var \SplPriorityQueue
 	 */
 	protected $backgroundJobs;
-
 	/** @var License */
 	protected $license;
 
@@ -255,9 +247,9 @@ abstract class Application
 		}
 
 		// system files
-		if (file_exists($documentRoot.'/bitrix/routes/web_bitrix.php'))
+		if (file_exists($documentRoot . '/bitrix/routes/web_bitrix.php'))
 		{
-			$files[] = $documentRoot.'/bitrix/routes/web_bitrix.php';
+			$files[] = $documentRoot . '/bitrix/routes/web_bitrix.php';
 		}
 
 		foreach ($files as $file)
@@ -309,7 +301,7 @@ abstract class Application
 	 */
 	public function end($status = 0, Response $response = null)
 	{
-		if($response === null)
+		if ($response === null)
 		{
 			//use default response
 			$response = $this->context->getResponse();
@@ -317,19 +309,20 @@ abstract class Application
 			//it's possible to have open buffers
 			$content = '';
 			$n = ob_get_level();
-			while(($c = ob_get_clean()) !== false && $n > 0)
+			while (($c = ob_get_clean()) !== false && $n > 0)
 			{
 				$content .= $c;
 				$n--;
 			}
 
-			if($content <> '')
+			if ($content <> '')
 			{
 				$response->appendContent($content);
 			}
 		}
 
 		$this->handleResponseBeforeSend($response);
+
 		//this is the last point of output - all output below will be ignored
 		$response->send();
 
@@ -342,7 +335,14 @@ abstract class Application
 		if (!($kernelSession instanceof KernelSessionProxy) && $kernelSession->isStarted())
 		{
 			//save session data in cookies
-			$kernelSession->getSessionHandler()->setResponse($response);
+			$handler = $kernelSession->getSessionHandler();
+			if ($handler instanceof CookieSessionHandler)
+			{
+				if ($response instanceof HttpResponse)
+				{
+					$handler->setResponse($response);
+				}
+			}
 			$kernelSession->save();
 		}
 	}
@@ -356,6 +356,14 @@ abstract class Application
 	 */
 	public function terminate($status = 0)
 	{
+		if ($this->terminating)
+		{
+			// recursion control
+			return;
+		}
+
+		$this->terminating = true;
+
 		//old kernel staff
 		\CMain::RunFinalActionsInternal();
 
@@ -381,25 +389,25 @@ abstract class Application
 	 * Exception handler can be initialized through the Config\Configuration (.settings.php file).
 	 *
 	 * 'exception_handling' => array(
-	 *		'value' => array(
-	 *			'debug' => true,        // output exception on screen
-	 *			'handled_errors_types' => E_ALL & ~E_STRICT & ~E_NOTICE,    // catchable error types, printed to log
-	 *			'exception_errors_types' => E_ALL & ~E_NOTICE & ~E_STRICT,  // error types from catchable which throws exceptions
-	 *			'ignore_silence' => false,      // ignore @
-	 *			'assertion_throws_exception' => true,       // assertion throws exception
-	 *			'assertion_error_type' => 256,
-	 *			'log' => array(
+	 *        'value' => array(
+	 *            'debug' => true,        // output exception on screen
+	 *            'handled_errors_types' => E_ALL & ~E_STRICT & ~E_NOTICE,    // catchable error types, printed to log
+	 *            'exception_errors_types' => E_ALL & ~E_NOTICE & ~E_STRICT,  // error types from catchable which throws exceptions
+	 *            'ignore_silence' => false,      // ignore @
+	 *            'assertion_throws_exception' => true,       // assertion throws exception
+	 *            'assertion_error_type' => 256,
+	 *            'log' => array(
 	 *              'class_name' => 'MyLog',        // custom log class, must extend ExceptionHandlerLog; can be omited, in this case default Diag\FileExceptionHandlerLog will be used
 	 *              'extension' => 'MyLogExt',      // php extension, is used only with 'class_name'
 	 *              'required_file' => 'modules/mylog.module/mylog.php'     // included file, is used only with 'class_name'
-	 *				'settings' => array(        // any settings for 'class_name'
-	 *					'file' => 'bitrix/modules/error.log',
-	 *					'log_size' => 1000000,
-	 *				),
-	 *			),
-	 *		),
-	 *		'readonly' => false,
-	 *	),
+	 *                'settings' => array(        // any settings for 'class_name'
+	 *                    'file' => 'bitrix/modules/error.log',
+	 *                    'log_size' => 1000000,
+	 *                ),
+	 *            ),
+	 *        ),
+	 *        'readonly' => false,
+	 *    ),
 	 *
 	 */
 	protected function initializeExceptionHandler()
@@ -408,10 +416,14 @@ abstract class Application
 
 		$exceptionHandling = Config\Configuration::getValue("exception_handling");
 		if ($exceptionHandling == null)
-			$exceptionHandling = array();
+		{
+			$exceptionHandling = [];
+		}
 
 		if (!isset($exceptionHandling["debug"]) || !is_bool($exceptionHandling["debug"]))
+		{
 			$exceptionHandling["debug"] = false;
+		}
 		$exceptionHandler->setDebugMode($exceptionHandling["debug"]);
 
 		if (!empty($exceptionHandling['track_modules']) && is_array($exceptionHandling['track_modules']))
@@ -420,23 +432,33 @@ abstract class Application
 		}
 
 		if (isset($exceptionHandling["handled_errors_types"]) && is_int($exceptionHandling["handled_errors_types"]))
+		{
 			$exceptionHandler->setHandledErrorsTypes($exceptionHandling["handled_errors_types"]);
+		}
 
 		if (isset($exceptionHandling["exception_errors_types"]) && is_int($exceptionHandling["exception_errors_types"]))
+		{
 			$exceptionHandler->setExceptionErrorsTypes($exceptionHandling["exception_errors_types"]);
+		}
 
 		if (isset($exceptionHandling["ignore_silence"]) && is_bool($exceptionHandling["ignore_silence"]))
+		{
 			$exceptionHandler->setIgnoreSilence($exceptionHandling["ignore_silence"]);
+		}
 
 		if (isset($exceptionHandling["assertion_throws_exception"]) && is_bool($exceptionHandling["assertion_throws_exception"]))
+		{
 			$exceptionHandler->setAssertionThrowsException($exceptionHandling["assertion_throws_exception"]);
+		}
 
 		if (isset($exceptionHandling["assertion_error_type"]) && is_int($exceptionHandling["assertion_error_type"]))
+		{
 			$exceptionHandler->setAssertionErrorType($exceptionHandling["assertion_error_type"]);
+		}
 
 		$exceptionHandler->initialize(
-			array($this, "createExceptionHandlerOutput"),
-			array($this, "createExceptionHandlerLog")
+			[$this, "createExceptionHandlerOutput"],
+			[$this, "createExceptionHandlerLog"]
 		);
 
 		ServiceLocator::getInstance()->addInstance('exceptionHandler', $exceptionHandler);
@@ -455,14 +477,14 @@ abstract class Application
 
 		$log = null;
 
-		if (isset($options["class_name"]) && !empty($options["class_name"]))
+		if (!empty($options["class_name"]))
 		{
-			if (isset($options["extension"]) && !empty($options["extension"]) && !extension_loaded($options["extension"]))
+			if (!empty($options["extension"]) && !extension_loaded($options["extension"]))
 			{
 				return null;
 			}
 
-			if (isset($options["required_file"]) && !empty($options["required_file"]) && ($requiredFile = Loader::getLocal($options["required_file"])) !== false)
+			if (!empty($options["required_file"]) && ($requiredFile = Loader::getLocal($options["required_file"])) !== false)
 			{
 				require_once($requiredFile);
 			}
@@ -485,7 +507,7 @@ abstract class Application
 		}
 
 		$log->initialize(
-			isset($options["settings"]) && is_array($options["settings"]) ? $options["settings"] : array()
+			isset($options["settings"]) && is_array($options["settings"]) ? $options["settings"] : []
 		);
 
 		return $log;
@@ -521,9 +543,13 @@ abstract class Application
 		Data\Cache::setShowCacheStat($show_cache_stat === "Y");
 
 		if (isset($_GET["clear_cache_session"]))
+		{
 			Data\Cache::setClearCacheSession($_GET["clear_cache_session"] === 'Y');
+		}
 		if (isset($_GET["clear_cache"]))
+		{
 			Data\Cache::setClearCache($_GET["clear_cache"] === 'Y');
+		}
 	}
 
 	/**
@@ -676,7 +702,9 @@ abstract class Application
 		{
 			$isUtfMode = Config\Configuration::getValue("utf_mode");
 			if ($isUtfMode === null)
+			{
 				$isUtfMode = false;
+			}
 		}
 		return $isUtfMode;
 	}
@@ -690,14 +718,18 @@ abstract class Application
 	{
 		static $documentRoot = null;
 		if ($documentRoot != null)
+		{
 			return $documentRoot;
+		}
 
 		$context = Application::getInstance()->getContext();
 		if ($context != null)
 		{
 			$server = $context->getServer();
 			if ($server != null)
+			{
 				return $documentRoot = $server->getDocumentRoot();
+			}
 		}
 
 		return Loader::getDocumentRoot();
@@ -712,14 +744,18 @@ abstract class Application
 	{
 		static $personalRoot = null;
 		if ($personalRoot != null)
+		{
 			return $personalRoot;
+		}
 
 		$context = Application::getInstance()->getContext();
 		if ($context != null)
 		{
 			$server = $context->getServer();
 			if ($server != null)
+			{
 				return $personalRoot = $server->getPersonalRoot();
+			}
 		}
 
 		return $_SERVER["BX_PERSONAL_ROOT"] ?? '/bitrix';
@@ -728,19 +764,33 @@ abstract class Application
 	/**
 	 * Resets accelerator if any.
 	 */
-	public static function resetAccelerator()
+	public static function resetAccelerator(string $filename = null)
 	{
 		if (defined("BX_NO_ACCELERATOR_RESET"))
+		{
 			return;
+		}
 
-		$fl = Config\Configuration::getValue("no_accelerator_reset");
-		if ($fl)
+		if (Config\Configuration::getValue("no_accelerator_reset"))
+		{
 			return;
+		}
 
-		if (function_exists("accelerator_reset"))
-			accelerator_reset();
+		if (function_exists("opcache_reset"))
+		{
+			if ($filename !== null)
+			{
+				opcache_invalidate($filename);
+			}
+			else
+			{
+				opcache_reset();
+			}
+		}
 		elseif (function_exists("wincache_refresh_if_changed"))
+		{
 			wincache_refresh_if_changed();
+		}
 	}
 
 	/**
@@ -763,7 +813,7 @@ abstract class Application
 		$exceptionHandler = $this->getExceptionHandler();
 
 		//jobs can be added from jobs
-		while($this->backgroundJobs->valid())
+		while ($this->backgroundJobs->valid())
 		{
 			//clear the queue
 			$jobs = [];

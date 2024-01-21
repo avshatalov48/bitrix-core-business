@@ -3,13 +3,19 @@ import { TagSelector } from 'ui.entity-selector';
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { ChatService } from 'im.v2.provider.service';
-import { DialogType, SearchEntityIdTypes } from 'im.v2.const';
+import { ChatType, SearchEntityIdTypes } from 'im.v2.const';
 import { SearchResult } from 'im.v2.component.search.search-result';
-import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import {
+	Button as MessengerButton,
+	ButtonSize,
+	ButtonColor,
+	ScrollWithGradient,
+} from 'im.v2.component.elements';
 
 import './add-to-chat-content.css';
 
-import type { ImModelDialog } from 'im.v2.model';
+import type { JsonObject } from 'main.core';
+import type { ImModelChat } from 'im.v2.model';
 
 const searchConfig = {
 	currentUser: false,
@@ -20,7 +26,7 @@ const searchConfig = {
 // @vue/component
 export const AddToChatContent = {
 	name: 'AddToChatContent',
-	components: { SearchResult, MessengerButton },
+	components: { SearchResult, MessengerButton, ScrollWithGradient },
 	props: {
 		chatId: {
 			type: Number,
@@ -31,7 +37,8 @@ export const AddToChatContent = {
 			required: true,
 		},
 	},
-	data() {
+	data(): JsonObject
+	{
 		return {
 			searchQuery: '',
 			showHistory: true,
@@ -46,13 +53,13 @@ export const AddToChatContent = {
 		ButtonSize: () => ButtonSize,
 		ButtonColor: () => ButtonColor,
 		searchConfig: () => searchConfig,
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		isChat(): boolean
 		{
-			return this.dialog.type !== DialogType.user;
+			return this.dialog.type !== ChatType.user;
 		},
 	},
 	created()
@@ -151,7 +158,7 @@ export const AddToChatContent = {
 					entityId: selectedItem.getEntityId(),
 					entityType: selectedItem.getEntityType(),
 					title: selectedItem.getTitle(),
-					avatar: selectedItem.getAvatar()
+					avatar: selectedItem.getAvatar(),
 				});
 			}
 			else
@@ -239,21 +246,17 @@ export const AddToChatContent = {
 				</label>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__search-result-container">
-				<div v-if="needTopShadow" class="bx-im-entity-selector-add-to-chat__shadow --top">
-					<div class="bx-im-entity-selector-add-to-chat__shadow-inner"></div>
-				</div>
-				<SearchResult
-					:searchMode="true"
-					:searchQuery="searchQuery"
-					:searchConfig="searchConfig"
-					:selectMode="true"
-					:selectedItems="[...selectedItems]"
-					@selectItem="onSelectItem"
-					@scroll="onListScroll"
-				/>
-				<div v-if="needBottomShadow" class="bx-im-entity-selector-add-to-chat__shadow --bottom">
-					<div class="bx-im-entity-selector-add-to-chat__shadow-inner"></div>
-				</div>
+				<ScrollWithGradient :gradientHeight="28">
+					<SearchResult
+						:searchMode="true"
+						:searchQuery="searchQuery"
+						:searchConfig="searchConfig"
+						:selectMode="true"
+						:selectedItems="[...selectedItems]"
+						@selectItem="onSelectItem"
+						@scroll="onListScroll"
+					/>
+				</ScrollWithGradient>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__buttons">
 				<MessengerButton

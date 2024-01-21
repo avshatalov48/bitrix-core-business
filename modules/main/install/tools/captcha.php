@@ -1,7 +1,9 @@
-<?
+<?php
+
 define("NO_KEEP_STATISTIC", "Y");
 define("NO_AGENT_STATISTIC","Y");
 define("NOT_CHECK_PERMISSIONS", true);
+define("BX_PUBLIC_TOOLS", true);
 
 $HTTP_ACCEPT_ENCODING = "";
 $_SERVER["HTTP_ACCEPT_ENCODING"] = "";
@@ -58,4 +60,3 @@ else
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-?>

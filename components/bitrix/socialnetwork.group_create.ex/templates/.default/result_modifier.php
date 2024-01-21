@@ -119,4 +119,4 @@ if ((int) ($arResult['POST']['IMAGE_ID'] ?? 0) > 0)
 	}
 }
 
-$arResult['avatarTypesList'] = Workgroup::getAvatarTypes();
+$arResult['avatarTypesList'] = Workgroup::getDefaultAvatarTypes();

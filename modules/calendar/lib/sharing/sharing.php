@@ -1,15 +1,16 @@
 <?php
 namespace Bitrix\Calendar\Sharing;
 
+use Bitrix\Calendar\Internals\SharingLinkTable;
 use Bitrix\Calendar\Sharing\Link\UserLink;
 use Bitrix\Calendar\Sharing\Link\Factory;
 use Bitrix\Calendar\Sharing\Link\UserLinkMapper;
+use Bitrix\Calendar\Sharing\Link;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 
 class Sharing
 {
-	public const DEFAULT_SHARING_SLOT_LENGTH_IN_MINUTES = 60;
 	public const ERROR_CODE_100010 = 100010;
 	public const ERROR_CODE_100020 = 100020;
 
@@ -25,7 +26,10 @@ class Sharing
 
 	/**
 	 * enabling sharing for user by creating public link for calendar
+	 *
 	 * @return Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function enable(): Result
 	{
@@ -33,8 +37,7 @@ class Sharing
 
 		if(!$this->isEnabled())
 		{
-			$sharingLinkFactory = new Factory();
-			$sharingLinkFactory->createUserLink($this->userId);
+			Factory::getInstance()->createUserLink($this->userId);
 		}
 		else
 		{
@@ -46,7 +49,10 @@ class Sharing
 
 	/**
 	 * disabling sharing for user by creating public link for sharing calendar
+	 *
 	 * @return Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function disable(): Result
 	{
@@ -73,17 +79,163 @@ class Sharing
 	}
 
 	/**
+	 * @param string|null $hash
+	 * @return Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException|\Exception
+	 */
+	public function deactivateUserLink(?string $hash)
+	{
+		$result = new Result();
+
+		$link = $this->getUserLinkByHash($hash);
+		if (empty($link))
+		{
+			$result->addError(new Error('Link not found'));
+
+			return $result;
+		}
+
+		$updateResult = SharingLinkTable::update((int)$link['ID'], [
+			'ACTIVE' => 'N',
+		]);
+		if (!$updateResult->isSuccess())
+		{
+			$result->addError(new Error('Delete link error'));
+
+			return $result;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string|null $hash
+	 * @return Result
+	 * @throws \Exception
+	 */
+	public function increaseFrequentUse(?string $hash): Result
+	{
+		$result = new Result();
+
+		$link = $this->getUserLinkByHash($hash);
+		if (empty($link))
+		{
+			$result->addError(new Error('Link not found'));
+
+			return $result;
+		}
+
+		$updateResult = SharingLinkTable::update((int)$link['ID'], [
+			'FREQUENT_USE' => $link['FREQUENT_USE'] + 1,
+		]);
+		if (!$updateResult->isSuccess())
+		{
+			$result->addError(new Error('Update error'));
+
+			return $result;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $memberIds
+	 * @return Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function generateUserJointLink(array $memberIds): Result
+	{
+		$result = new Result();
+
+		if (!$this->isEnabled())
+		{
+			$result->addError(new Error('Sharing is disabled', 100050));
+		}
+
+		if ($result->isSuccess())
+		{
+			$userJointLink = Factory::getInstance()->createUserJointLink($this->userId, $memberIds);
+			$url = Helper::getShortUrl($userJointLink->getUrl());
+
+			$result->setData([
+				'url' => $url,
+			]);
+
+//			\CCalendarNotify::Send([
+//				'mode' => \CCalendarNotify::NOTIFY_USERS_ADDED_TO_MULTI_LINK,
+//				'userId' => $this->userId, //from
+//				'guestIds' => $memberIds, //to
+//				'params' => [
+//					'url' => $url,
+//					'linkId' => $userJointLink->getId(),
+//				],
+//			]);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * checks if user has an active public link for sharing calendar
+	 *
 	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function isEnabled(): bool
 	{
 		return (bool)$this->getActiveLinkUrl();
 	}
 
+	public function getLinkInfo(): array
+	{
+		$linkRuleMapper = new Link\Rule\Mapper();
+		$userLink = $this->getUserLink();
+		if (is_null($userLink))
+		{
+			$linkObjectRule = new Link\Rule\UserRule($this->userId);
+			$sharingRule = $linkRuleMapper->getFromLinkObjectRule($linkObjectRule);
+			$sharingHash = null;
+			$url = null;
+		}
+		else
+		{
+			$sharingRule = $userLink->getSharingRule();
+			$sharingHash = $userLink->getHash();
+			$url = Helper::getShortUrl($userLink->getUrl());
+		}
+
+		return [
+			'url' => $url,
+			'hash' => $sharingHash,
+			'rule' => $linkRuleMapper->convertToArray($sharingRule),
+		];
+	}
+
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function getAllUserLinkInfo(): array
+	{
+		$userLinks = $this->getUserJointLinks();
+		$userLinkMapper = new UserLinkMapper();
+
+		/** @var UserLink $userLink */
+		return array_map(static function($userLink) use ($userLinkMapper) {
+			return $userLinkMapper->convertToArray($userLink);
+		}, $userLinks);
+	}
+
 	/**
 	 * gets a short url for user's active public link for sharing calendar
+	 *
 	 * @return string|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function getActiveLinkShortUrl(): ?string
 	{
@@ -98,17 +250,23 @@ class Sharing
 
 	/**
 	 * gets an url for user's active public link for sharing calendar
+	 *
 	 * @return string|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function getActiveLinkUrl(): ?string
 	{
 		$userLink = $this->getUserLink();
-		return $userLink && $userLink->isActive() ? $userLink->getUrl(): null;
+		return $userLink && $userLink->isActive() ? $userLink->getUrl() : null;
 	}
 
 	/**
 	 * gets an active UserLink object
+	 *
 	 * @return UserLink|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function getUserLink(): ?UserLink
 	{
@@ -116,32 +274,80 @@ class Sharing
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getLinkSettings(): array
+	{
+		$settings = [];
+		$linkInfo = $this->getLinkInfo();
+		
+		if (!empty($linkInfo))
+		{
+			$calendarSettings = \CCalendar::GetSettings();
+			$settings = [
+				'weekStart' => \CCalendar::GetWeekStart(),
+				'workTimeStart' => $calendarSettings['work_time_start'],
+				'workTimeEnd' => $calendarSettings['work_time_end'],
+				'weekHolidays' => $calendarSettings['week_holidays'],
+				'rule' => [
+					'hash' => $linkInfo['hash'],
+					'slotSize' => $linkInfo['rule']['slotSize'],
+					'ranges' => $linkInfo['rule']['ranges'],
+				],
+			];
+		}
+		
+		return $settings;
+	}
+
+	/**
 	 * @param int $userId
 	 * @return UserLink|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	protected function getUserLinkByUserId(int $userId): ?UserLink
 	{
-		$userLinks = $this->getAllUserLinksByUserId($userId);
+		$userLinks = Factory::getInstance()->getUserLinks($userId);
 
 		return !empty($userLinks) ? array_shift($userLinks) : null;
 	}
 
 	/**
 	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	protected function getAllUserLinks(): array
 	{
-		return $this->getAllUserLinksByUserId($this->userId);
+		return Factory::getInstance()->getAllUserLinks($this->userId);
 	}
 
 	/**
-	 * @param int $userId
 	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	protected function getAllUserLinksByUserId(int $userId): array
+	protected function getUserJointLinks(): array
 	{
-		$sharingLinkFactory = new Factory();
+		return Factory::getInstance()->getUserJointLinks($this->userId);
+	}
 
-		return $sharingLinkFactory->getUserLinks($userId);
+	protected function getUserLinkByHash(?string $hash)
+	{
+		if (empty($hash))
+		{
+			return null;
+		}
+
+		return SharingLinkTable::query()
+			->setSelect(['ID', 'HASH', 'OBJECT_ID', 'OBJECT_TYPE', 'ACTIVE', 'FREQUENT_USE'])
+			->where('OBJECT_ID', $this->userId)
+			->where('OBJECT_TYPE', Link\Helper::USER_SHARING_TYPE)
+			->where('HASH', $hash)
+			->where('ACTIVE', 'Y')
+			->setLimit(1)
+			->exec()->fetch()
+		;
 	}
 }

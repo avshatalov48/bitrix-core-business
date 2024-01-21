@@ -18,7 +18,7 @@ class Ai
 	private const TUNING_CODE_TEXT = 'landing_allow_text_generate';
 
 	/**
-	 * Returns true if AI Image creation is available.
+	 * Returns true if AI Image service is can be used. Not check activity for landing
 	 * @return bool
 	 */
 	public static function isImageAvailable(): bool
@@ -34,11 +34,28 @@ class Ai
 			return false;
 		}
 
-		return (new Tuning\Manager())->getItem(self::TUNING_CODE_IMAGE)->getValue();
+		return true;
 	}
 
 	/**
-	 * Returns true if AI Text creation is available.
+	 * Returns true if AI Image service is available and activated for landing
+	 * @return bool
+	 */
+	public static function isImageActive(): bool
+	{
+		if (!self::isImageAvailable())
+		{
+			return false;
+		}
+
+		$default = false;
+		$setting = (new Tuning\Manager())->getItem(self::TUNING_CODE_IMAGE);
+
+		return $setting ? (bool)$setting->getValue() : $default;
+	}
+
+	/**
+	 * Returns true if AI Text service is can be used. Not check activity for landing
 	 * @return bool
 	 */
 	public static function isTextAvailable(): bool
@@ -54,22 +71,43 @@ class Ai
 			return false;
 		}
 
-		return (new Tuning\Manager())->getItem(self::TUNING_CODE_TEXT)->getValue();
+		return true;
 	}
 
 	/**
-	 * Returns true if AI Image or Text creation is available.
+	 * Returns true if AI Text service is can be used. And option is ON.
 	 * @return bool
 	 */
-	public static function isAnyAvailable(): bool
+	public static function isCopilotAvailable(): bool
 	{
-		if (!Loader::includeModule('ai'))
+		if (!self::isTextAvailable())
 		{
 			return false;
 		}
 
-		return Engine::getByCategory('text', Context::getFake())
-				|| Engine::getByCategory('image', Context::getFake());
+		if (\Bitrix\Main\Config\Option::get('landing', 'enable_copilot', 'N') === 'Y')
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true if AI Text service is available and activated for landing
+	 * @return bool
+	 */
+	public static function isTextActive(): bool
+	{
+		if (!self::isTextAvailable())
+		{
+			return false;
+		}
+
+		$default = false;
+		$setting = (new Tuning\Manager())->getItem(self::TUNING_CODE_TEXT);
+
+		return $setting ? (bool)$setting->getValue() : $default;
 	}
 
 	/**
@@ -80,29 +118,35 @@ class Ai
 	{
 		$result = new Entity\EventResult;
 		$items = [];
+		$groups = [];
 
 		if (Engine::getByCategory('image', Context::getFake()))
 		{
 			$items[self::TUNING_CODE_IMAGE] = [
-				'header' => 'ImageAssistant AI',
-				'title' => Loc::getMessage('LANDING_CONNECTOR_AI_ALLOW_IMAGE_GENERATE'),
+				'group' => Tuning\Defaults::GROUP_IMAGE,
+				'header' => Loc::getMessage('LANDING_CONNECTOR_AI_ALLOW_IMAGE_COPILOT_DESC'),
+				'title' => Loc::getMessage('LANDING_CONNECTOR_AI_ALLOW_COPILOT_TITLE'),
 				'type' => Type::BOOLEAN,
 				'default' => true,
+				'sort' => 300,
 			];
 		}
 
 		if (Engine::getByCategory('text', Context::getFake()))
 		{
 			$items[self::TUNING_CODE_TEXT] = [
-				'header' => 'TextAssistant AI',
-				'title' => Loc::getMessage('LANDING_CONNECTOR_AI_ALLOW_TEXT_GENERATE'),
+				'group' => Tuning\Defaults::GROUP_TEXT,
+				'header' => Loc::getMessage('LANDING_CONNECTOR_AI_ALLOW_TEXT_COPILOT_DESC'),
+				'title' => Loc::getMessage('LANDING_CONNECTOR_AI_ALLOW_COPILOT_TITLE'),
 				'type' => Type::BOOLEAN,
 				'default' => true,
+				'sort' => 300,
 			];
 		}
 
 		$result->modifyFields([
 			'items' => $items,
+			'groups' => $groups,
 		]);
 
 		return $result;

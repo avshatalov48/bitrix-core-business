@@ -29,7 +29,7 @@ abstract class Base extends \CBitrixComponent
 	public const ERROR_404 = 2;
 
 	public const PARAM_TITLE_MASK = '/^[A-Za-z_][A-Za-z01-9_]*$/';
-	public const SORT_ORDER_MASK = '/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i';
+	public const SORT_ORDER_MASK = '/^(asc|desc|nulls)(,asc|,desc|,nulls)?$/i';
 
 	private $action = '';
 	private $cacheUsage = true;
@@ -4508,8 +4508,11 @@ abstract class Base extends \CBitrixComponent
 						}
 						else
 						{
-							$errorMsg = Loc::getMessage('CATALOG_EMPTY_BASKET_PROPERTIES_ERROR');
-							$successfulAdd = false;
+							if ($this->arParams['PARTIAL_PRODUCT_PROPERTIES'] !== 'Y')
+							{
+								$errorMsg = Loc::getMessage('CATALOG_EMPTY_BASKET_PROPERTIES_ERROR');
+								$successfulAdd = false;
+							}
 						}
 						unset($productPropsVar);
 					}

@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Localization\Loc;
@@ -12,6 +12,7 @@ use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\UI\PageNavigation;
+use Bitrix\Sender\Security;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -102,6 +103,10 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 		switch ($action)
 		{
 			case 'delete':
+				if (!Security\Access::getInstance()->canModifyAds())
+				{
+					return;
+				}
 				if (!is_array($ids))
 				{
 					$ids = array($ids);
@@ -543,5 +548,10 @@ class SenderAdsListComponent extends Bitrix\Sender\Internals\CommonSenderCompone
 	public function getViewAction()
 	{
 		return ActionDictionary::ACTION_ADS_VIEW;
+	}
+
+	protected function canEdit()
+	{
+		$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT'] ?? Security\Access::getInstance()->canModifyAds();
 	}
 }

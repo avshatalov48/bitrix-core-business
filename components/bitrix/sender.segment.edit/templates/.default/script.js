@@ -626,12 +626,17 @@
 		var filter = BX.Main.filterManager.getById(filterId)
 		var dealCategory = filter.getField('DEAL_CATEGORY_ID');
 		var hasValues = false;
+		let dealCategoryValue = '';
 
 		for(var id in filter.getFilterFieldsValues())
 		{
 			if(filter.getFilterFieldsValues().hasOwnProperty(id))
 			{
 				var value = filter.getFilterFieldsValues()[id];
+				if (id === 'DEAL_CATEGORY_ID')
+				{
+					dealCategoryValue = value;
+				}
 				if(
 					value !== 'exact' &&
 					value !== 'NONE' &&
@@ -648,12 +653,15 @@
 			}
 		}
 
-		if(dealCategory && hasValues)
+		if(
+			dealCategory
+			&& hasValues
+			&& dealCategoryValue === ''
+			&& Array.isArray(dealCategory.options.ITEMS)
+		)
 		{
-			if(typeof dealCategory.options.ITEMS[0] !== 'undefined')
-			{
-				this.setDefaultValue(dealCategory, {0: dealCategory.options.ITEMS[0].VALUE});
-			}
+			const filteredItems = dealCategory.options.ITEMS.filter(item => item.VALUE !== '').map(item => item.VALUE);
+			this.setDefaultValue(dealCategory, { ...filteredItems });
 		}
 
 		if (item)
@@ -664,24 +672,18 @@
 
 	FilterListener.prototype.setDefaultValue = function(field, value)
 	{
-		var container = field.parent.getFieldListContainer();
-		Object.entries(value).forEach(function (data) {
-			var fieldValue = data[1];
-
-			var fieldNode = container.querySelector(
-				"[data-name='"
+		const container = field.parent.getFieldListContainer();
+		const dataFieldValue = [];
+		const fieldNode = container.querySelector(
+			"[data-name='"
 				.concat(field.id, "'] [data-name='")
 				.concat(field.id, "'], [data-name='")
 				.concat(field.id, "'] [name='")
 				.concat(field.id, "']"));
+		Object.entries(value).forEach(function (data) {
+			var fieldValue = data[1];
 
 			if (fieldNode) {
-				var dataValue = fieldNode.getAttribute('data-value');
-				if(dataValue !== "[]")
-				{
-					return;
-				}
-
 				if (BX.Dom.hasClass(fieldNode, 'main-ui-multi-select')) {
 					var items = BX.Dom.attr(fieldNode, 'data-items');
 
@@ -723,13 +725,14 @@
 
 								nameNode.append(squareNode);
 							}
-							var value = [item];
-							fieldNode.setAttribute('data-value', JSON.stringify(value));
+							dataFieldValue.push(item);
 						}
 					}
 				}
 			}
 		});
+
+		fieldNode.setAttribute('data-value', JSON.stringify(dataFieldValue));
 	};
 	FilterListener.prototype.onFilterData = function (filterId, promise)
 	{

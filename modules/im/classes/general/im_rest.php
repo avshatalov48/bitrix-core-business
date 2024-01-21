@@ -840,13 +840,13 @@ class CIMRestService extends IRestService
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
-		if (!isset($arParams['FIND']))
+		if (!isset($arParams['FIND']) && !isset($arParams['FIND_LINES']))
 		{
 			throw new Bitrix\Rest\RestException("Too short a search phrase.", "FIND_SHORT", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		$params = Array(
-			'FILTER' => Array('SEARCH' => $arParams['FIND']),
+			'FILTER' => Array('SEARCH' => $arParams['FIND'] ?? null, 'SEARCH_OL' => $arParams['FIND_LINES'] ?? null),
 			'JSON' => 'Y'
 		);
 
@@ -941,6 +941,7 @@ class CIMRestService extends IRestService
 		}
 		else
 		{
+			$config['FORCE_OPENLINES'] = 'Y';
 			if ($arParams['SKIP_OPENLINES'] === 'Y')
 			{
 				$config['SKIP_OPENLINES'] = 'Y';
@@ -983,6 +984,10 @@ class CIMRestService extends IRestService
 		if ($arParams['SKIP_OPENLINES'] === 'Y')
 		{
 			$config['SKIP_OPENLINES'] = 'Y';
+		}
+		if (isset($arParams['ONLY_COPILOT']) && $arParams['ONLY_COPILOT'] === 'Y')
+		{
+			$config['ONLY_COPILOT'] = 'Y';
 		}
 		if ($skipChatParam === 'Y')
 		{
@@ -1640,6 +1645,14 @@ class CIMRestService extends IRestService
 		if ($arParams['CHAT_ID'] <= 0)
 		{
 			throw new Bitrix\Rest\RestException("Chat ID can't be empty", "CHAT_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$chat = \Bitrix\Im\Model\ChatTable::getById($arParams['CHAT_ID'])->fetch();
+		$chatRelation = \CIMChat::GetRelationById($arParams['CHAT_ID'], false, true, false);
+
+		if (!CIMChat::canDo($chat, $chatRelation, \Bitrix\Im\V2\Chat\Permission::ACTION_CHANGE_AVATAR))
+		{
+			throw new Bitrix\Rest\RestException("Access denied", "ACCESS_DENIED", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		$userId = $USER->GetId();
@@ -2955,6 +2968,7 @@ class CIMRestService extends IRestService
 		global $USER;
 
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$arParams['MESSAGE'] = self::getRawParam('MESSAGE') ?? $arParams['MESSAGE'] ?? null;
 
 		if (isset($arParams['MESSAGE']))
 		{
@@ -3220,6 +3234,7 @@ class CIMRestService extends IRestService
 	public static function messageUpdate($arParams, $n, CRestServer $server)
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
+		$arParams['MESSAGE'] = self::getRawParam('MESSAGE') ?? $arParams['MESSAGE'] ?? null;
 
 		if (isset($arParams['MESSAGE_ID']))
 		{
@@ -7415,6 +7430,23 @@ class CIMRestService extends IRestService
 		}
 
 		return (int)$options['OFFSET'];
+	}
+
+	private static function getRawParam(string $paramName)
+	{
+		$context = \Bitrix\Main\Context::getCurrent();
+
+		if ($context === null)
+		{
+			return null;
+		}
+
+		$paramName = mb_strtoupper($paramName);
+		$request = $context->getRequest();
+		$postRawData = array_change_key_case($request->getPostList()->toArrayRaw() ?? [], CASE_UPPER);
+		$getRawData = array_change_key_case($request->getQueryList()->toArrayRaw() ?? [], CASE_UPPER);
+
+		return $postRawData[$paramName] ?? $getRawData[$paramName] ?? null;
 	}
 
 	/* Utils */

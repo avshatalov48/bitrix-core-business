@@ -1,0 +1,41 @@
+.sn-spaces__toolbar-space_counters {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.sn-spaces__toolbar-space_btn-counter {
+	position: absolute;
+	top: -50%;
+	left: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 21px;
+	min-height: 16px;
+	box-sizing: border-box;
+	transform: translate(0, 50%);
+	padding: 0 3px;
+	border-radius: var(--ui-border-radius-pill);
+	font-size: var(--ui-font-size-3xs);
+	font-weight: var(--ui-font-weight-bold);
+	line-height: var(--ui-font-line-height-reset);
+	color: rgba(var(--ui-color-palette-white-base-rgb), var(--ui-opacity-50));
+	background-color: rgba(var(--ui-color-palette-white-base-rgb), var(--ui-opacity-30));
+}
+
+.bitrix24-default-theme .sn-spaces__toolbar-space_btn-counter,
+.bitrix24-dark-theme .sn-spaces__toolbar-space_btn-counter {
+	color: rgba(var(--ui-color-base-default-rgb), var(--ui-opacity-50));
+	background-color: rgba(var(--ui-color-palette-black-solid-rgb), var(--ui-opacity-10));
+}
+
+.sn-spaces__toolbar-space_btn-with-counter.--active .sn-spaces__toolbar-space_btn-counter {
+	color: var(--ui-color-on-primary);
+	background-color: #FF5752;
+}
+
+.sn-spaces__toolbar-space_btn-with-counter.--active.--green .sn-spaces__toolbar-space_btn-counter {
+	color: var(--ui-color-on-primary);
+	background-color: rgba(142,187,0,1);
+}

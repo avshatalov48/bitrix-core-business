@@ -23,12 +23,20 @@ use Bitrix\Main\UserProfileHistoryTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Security\Password;
+use Bitrix\Main\GroupTable;
 
 IncludeModuleLangFile(__FILE__);
 
 class CAllUser extends CDBResult
 {
-	var $LAST_ERROR = '';
+	const STATUS_ONLINE = 'online';
+	const STATUS_OFFLINE = 'offline';
+	//in seconds
+	const PHONE_CODE_OTP_INTERVAL = 30;
+	const PHONE_CODE_RESEND_INTERVAL = 60;
+	public const PASSWORD_SPECIAL_CHARS = ',.<>/?;:\'"[]{}\|`~!@#$%^&*()_+=-';
+
+	public $LAST_ERROR = '';
 	protected $admin;
 	/** @var Authentication\Context */
 	protected $context;
@@ -37,12 +45,6 @@ class CAllUser extends CDBResult
 	protected static $CURRENT_USER = false;
 	protected $justAuthorized = false;
 	protected static $userGroupCache = [];
-	const STATUS_ONLINE = 'online';
-	const STATUS_OFFLINE = 'offline';
-	//in seconds
-	const PHONE_CODE_OTP_INTERVAL = 30;
-	const PHONE_CODE_RESEND_INTERVAL = 60;
-	public const PASSWORD_SPECIAL_CHARS = ',.<>/?;:\'"[]{}\|`~!@#$%^&*()_+=-';
 
 	/**
 	 * CUser constructor.
@@ -222,8 +224,8 @@ class CAllUser extends CDBResult
 				$arFields["PERSONAL_GENDER"] = '';
 			}
 
-			$originalPassword = $arFields["PASSWORD"];
-			$arFields["PASSWORD"] = Password::hash($arFields["PASSWORD"]);
+			$originalPassword = $arFields["PASSWORD"] ?? '';
+			$arFields["PASSWORD"] = Password::hash($arFields["PASSWORD"] ?? '');
 
 			$checkword = empty($arFields["CHECKWORD"]) ? Random::getString(32) : $arFields["CHECKWORD"];
 			$arFields["CHECKWORD"] = Password::hash($checkword);
@@ -402,10 +404,8 @@ class CAllUser extends CDBResult
 				],
 			]);
 		}
-		if (isset($arParams["SELECT"]))
-		{
-			$obUserFieldsSql->SetSelect($arParams["SELECT"]);
-		}
+
+		$obUserFieldsSql->SetSelect($arParams["SELECT"] ?? []);
 		$obUserFieldsSql->SetFilter($arFilter);
 		$obUserFieldsSql->SetOrder($arOrder);
 
@@ -421,7 +421,7 @@ class CAllUser extends CDBResult
 
 		$arSelectFields = [];
 		$online_interval = (array_key_exists("ONLINE_INTERVAL", $arParams) && intval($arParams["ONLINE_INTERVAL"]) > 0 ? $arParams["ONLINE_INTERVAL"] : static::GetSecondsForLimitOnline());
-		if (isset($arParams['FIELDS']) && is_array($arParams['FIELDS']) && !empty($arParams['FIELDS']) && !in_array("*", $arParams['FIELDS']))
+		if (!empty($arParams['FIELDS']) && is_array($arParams['FIELDS']) && !in_array("*", $arParams['FIELDS']))
 		{
 			foreach ($arParams['FIELDS'] as $field)
 			{
@@ -2668,10 +2668,11 @@ class CAllUser extends CDBResult
 
 				$result = static::SendPhoneCode($arParams["PHONE_NUMBER"], "SMS_USER_RESTORE_PASSWORD", $siteId);
 
+				$result_message = ["MESSAGE" => GetMessage("main_user_pass_request_sent") . "<br>", "TYPE" => "OK", "TEMPLATE" => "SMS_USER_RESTORE_PASSWORD"];
+
 				if ($result->isSuccess())
 				{
 					$found = true;
-					$result_message = ["MESSAGE" => GetMessage("main_user_pass_request_sent") . "<br>", "TYPE" => "OK", "TEMPLATE" => "SMS_USER_RESTORE_PASSWORD"];
 
 					if (Option::get('main', 'event_log_password_request', 'N') === 'Y')
 					{
@@ -2796,7 +2797,11 @@ class CAllUser extends CDBResult
 			}
 			if (!$found)
 			{
-				return ["MESSAGE" => GetMessage('DATA_NOT_FOUND1') . "<br>", "TYPE" => "ERROR"];
+				if (Option::get('main', 'event_log_password_request', 'N') === 'Y')
+				{
+					$userInfo = $arParams["PHONE_NUMBER"] ?: $arParams["LOGIN"] ?: $arParams["EMAIL"];
+					CEventLog::Log('SECURITY', 'USER_INFO', 'main', $userInfo, GetMessage('DATA_NOT_FOUND1'));
+				}
 			}
 		}
 		return $result_message;
@@ -2938,7 +2943,7 @@ class CAllUser extends CDBResult
 					else
 					{
 						$result_message = [
-							"MESSAGE" => $smsResult->getErrorMessages(),
+							"MESSAGE" => implode(' ', $smsResult->getErrorMessages()),
 							"TYPE" => "ERROR",
 							"SIGNED_DATA" => $signedData,
 							"ID" => $ID,
@@ -3657,7 +3662,7 @@ class CAllUser extends CDBResult
 					if ($ID > 0)
 					{
 						// the option 'new_user_email_uniq_check' might have been switched on after the DB already contained identical emails,
-						// so we let a user to have the old email, but not the existing new one
+						// so we let a user have the old email, but not the existing new one
 						$dbr = $DB->Query("SELECT EMAIL FROM b_user WHERE ID=" . intval($ID));
 						if (($ar = $dbr->Fetch()))
 						{
@@ -3710,9 +3715,9 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		if (isset($arFields["GROUP_ID"]) && is_array($arFields["GROUP_ID"]) && !empty($arFields["GROUP_ID"]))
+		if (!empty($arFields["GROUP_ID"]) && is_array($arFields["GROUP_ID"]))
 		{
-			if (isset($arFields["GROUP_ID"][0]) && is_array($arFields["GROUP_ID"][0]) && !empty($arFields["GROUP_ID"][0]))
+			if (!empty($arFields["GROUP_ID"][0]) && is_array($arFields["GROUP_ID"][0]))
 			{
 				foreach ($arFields["GROUP_ID"] as $arGroup)
 				{
@@ -4067,7 +4072,10 @@ class CAllUser extends CDBResult
 
 		if ($arFields["RESULT"])
 		{
-			Main\UserTable::indexRecord($ID);
+			if (Main\UserTable::shouldReindex($arFields))
+			{
+				Main\UserTable::indexRecord($ID);
+			}
 
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
@@ -4311,7 +4319,7 @@ class CAllUser extends CDBResult
 		{
 			if (ExecuteModuleEventEx($arEvent, [$ID]) === false)
 			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR1") . ' ' . $arEvent['TO_MODULE_ID'];
+				$err = GetMessage("MAIN_BEFORE_DEL_ERR1") . ' ' . ($arEvent['TO_MODULE_ID'] ?? '');
 				if ($ex = $APPLICATION->GetException())
 				{
 					$err .= ': ' . $ex->GetString();
@@ -4352,6 +4360,8 @@ class CAllUser extends CDBResult
 		Main\UserPhoneAuthTable::delete($ID);
 
 		ShortCode::deleteByUser($ID);
+
+		CHotKeys::GetInstance()->DeleteByUser($ID);
 
 		UserPasswordTable::deleteByFilter($userFilter);
 
@@ -4474,23 +4484,12 @@ class CAllUser extends CDBResult
 
 		$arPolicies = [];
 
-		/* Group 2 managed cache */
-		$sql = "SELECT G.ID GROUP_ID, G.SECURITY_POLICY FROM b_group G WHERE G.ID=2";
-		if (CACHED_b_group === false)
-		{
-			$res = $DB->Query($sql);
-			$group2Policy = $res->Fetch();
-		}
-		elseif ($CACHE_MANAGER->Read(CACHED_b_group, "b_group2", "b_group"))
-		{
-			$group2Policy = $CACHE_MANAGER->Get("b_group2");
-		}
-		else
-		{
-			$rs = $DB->Query($sql);
-			$group2Policy = $rs->Fetch();
-			$CACHE_MANAGER->Set("b_group2", $group2Policy);
-		}
+		$res = GroupTable::getList([
+			'select' => ['GROUP_ID' => 'ID', 'SECURITY_POLICY'],
+			'filter' => ['=ID' => 2],
+			'cache' => ['ttl' => 86400],
+		]);
+		$group2Policy = $res->Fetch();
 
 		if ($group2Policy)
 		{
@@ -4746,7 +4745,7 @@ class CAllUser extends CDBResult
 
 	public function CanDoFileOperation($op_name, $arPath)
 	{
-		global $APPLICATION, $USER;
+		global $USER;
 
 		if ($this->IsAdmin())
 		{
@@ -5529,22 +5528,22 @@ class CAllUser extends CDBResult
 			$NAME_TEMPLATE
 		);
 
-		while (strpos($res, '  ') !== false)
+		while (str_contains($res, '  '))
 		{
 			$res = str_replace('  ', ' ', $res);
 		}
 		$res = trim($res);
 
 		$res_check = '';
-		if (strpos($NAME_TEMPLATE, '#NAME#') !== false || strpos($NAME_TEMPLATE, '#NAME_SHORT#') !== false)
+		if (str_contains($NAME_TEMPLATE, '#NAME#') || str_contains($NAME_TEMPLATE, '#NAME_SHORT#'))
 		{
 			$res_check .= $arUser['NAME'] ?? '';
 		}
-		if (strpos($NAME_TEMPLATE, '#LAST_NAME#') !== false || strpos($NAME_TEMPLATE, '#LAST_NAME_SHORT#') !== false)
+		if (str_contains($NAME_TEMPLATE, '#LAST_NAME#') || str_contains($NAME_TEMPLATE, '#LAST_NAME_SHORT#'))
 		{
 			$res_check .= $arUser['LAST_NAME'] ?? '';
 		}
-		if (strpos($NAME_TEMPLATE, '#SECOND_NAME#') !== false || strpos($NAME_TEMPLATE, '#SECOND_NAME_SHORT#') !== false)
+		if (str_contains($NAME_TEMPLATE, '#SECOND_NAME#') || str_contains($NAME_TEMPLATE, '#SECOND_NAME_SHORT#'))
 		{
 			$res_check .= $arUser['SECOND_NAME'] ?? '';
 		}
@@ -5564,7 +5563,7 @@ class CAllUser extends CDBResult
 				$res = '';
 			}
 
-			if (strpos($NAME_TEMPLATE, '[#ID#]') !== false)
+			if (str_contains($NAME_TEMPLATE, '[#ID#]'))
 			{
 				$res .= " [" . $ID . "]";
 			}
@@ -5732,7 +5731,7 @@ class CAllUser extends CDBResult
 			{
 				[$result,] = $totp->verify($code);
 			}
-			catch (Main\ArgumentException $e)
+			catch (Main\ArgumentException)
 			{
 				return false;
 			}

@@ -99,45 +99,47 @@ export const DesktopSection = {
 		},
 	},
 	template: `
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_STARTUP') }}
+		<div class="bx-im-settings-section-content__body">
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_STARTUP') }}
+				</div>
+				<CheckboxOption
+					:value="twoWindowMode"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE')"
+					@change="onTwoWindowModeChange"
+				/>
+				<CheckboxOption
+					:value="autoStartDesktop"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_AUTO_START')"
+					@change="onAutoStartDesktopChange"
+				/>
 			</div>
-			<CheckboxOption
-				:value="twoWindowMode"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE')"
-				@change="onTwoWindowModeChange"
-			/>
-			<CheckboxOption
-				:value="autoStartDesktop"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_AUTO_START')"
-				@change="onAutoStartDesktopChange"
-			/>
-		</div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_LINKS') }}
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_LINKS') }}
+				</div>
+				<CheckboxOption
+					:value="openChatInDesktop"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT')"
+					@change="onOpenChatInDesktopChange"
+				/>
+				<CheckboxOption
+					:value="openLinksInSlider"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER')"
+					@change="onOpenLinksInSliderChange"
+				/>
 			</div>
-			<CheckboxOption
-				:value="openChatInDesktop"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT')"
-				@change="onOpenChatInDesktopChange"
-			/>
-			<CheckboxOption
-				:value="openLinksInSlider"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER')"
-				@change="onOpenLinksInSliderChange"
-			/>
-		</div>
-		<div class="bx-im-settings-section-content__block">
-			<div class="bx-im-settings-section-content__block_title">
-				{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_REST') }}
+			<div class="bx-im-settings-section-content__block">
+				<div class="bx-im-settings-section-content__block_title">
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_REST') }}
+				</div>
+				<CheckboxOption
+					:value="sendTelemetry"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_SEND_TELEMETRY')"
+					@change="onSendTelemetryChange"
+				/>
 			</div>
-			<CheckboxOption
-				:value="sendTelemetry"
-				:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_SEND_TELEMETRY')"
-				@change="onSendTelemetryChange"
-			/>
 		</div>
 	`,
 };

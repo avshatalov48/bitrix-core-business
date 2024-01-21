@@ -85,6 +85,7 @@ class UIFormComponent extends \CBitrixComponent
 			'SKIP_TEMPLATE' => false,
 			'ENABLE_MODE_TOGGLE' => true,
 			'ENABLE_CONFIG_CONTROL' => true,
+			'ENABLE_SHOW_ALWAYS_FEAUTURE' => true,
 			'ENABLE_VISIBILITY_POLICY' => true,
 			'ENABLE_TOOL_PANEL' => true,
 			'IS_TOOL_PANEL_ALWAYS_VISIBLE' => false,
@@ -367,7 +368,7 @@ class UIFormComponent extends \CBitrixComponent
 		return $result;
 	}
 
-	private function getFilteredConfig(array $configItems, array $defaultConfigMap, ?string $parent = null)
+	protected function getFilteredConfig(array $configItems, array $defaultConfigMap, ?string $parent = null)
 	{
 		$result = [];
 

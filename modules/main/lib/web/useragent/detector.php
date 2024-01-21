@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 namespace Bitrix\Main\Web\UserAgent;
@@ -20,11 +20,21 @@ class Detector implements DetectorInterface
 
 		if ($browser === null)
 		{
-			$info = get_browser($userAgent);
+			if (ini_get('browscap') != '')
+			{
+				$info = get_browser($userAgent);
 
-			$deviceType = $this->getDeviceType($info);
+				if ($info)
+				{
+					$deviceType = $this->getDeviceType($info);
+					$browser = new Browser($info->browser, $info->platform, $deviceType);
+				}
+			}
+		}
 
-			$browser = new Browser($info->browser, $info->platform, $deviceType);
+		if ($browser === null)
+		{
+			$browser = new Browser();
 		}
 
 		$browser->setUserAgent($userAgent);
@@ -36,37 +46,37 @@ class Detector implements DetectorInterface
 	{
 		if ($userAgent !== null)
 		{
-			if (strpos($userAgent, 'Bitrix24.Disk') !== false)
+			if (str_contains($userAgent, 'Bitrix24.Disk'))
 			{
-				if (strpos($userAgent, 'Windows') !== false)
+				if (str_contains($userAgent, 'Windows'))
 				{
 					return new Browser('Bitrix24.Disk', 'Windows', DeviceType::DESKTOP);
 				}
 				return new Browser('Bitrix24.Disk', 'macOS', DeviceType::DESKTOP);
 			}
 
-			if (strpos($userAgent, 'BitrixDesktop') !== false)
+			if (str_contains($userAgent, 'BitrixDesktop'))
 			{
-				if (strpos($userAgent, 'Windows') !== false)
+				if (str_contains($userAgent, 'Windows'))
 				{
 					return new Browser('Bitrix24.Desktop', 'Windows', DeviceType::DESKTOP);
 				}
-				if (strpos($userAgent, 'Mac OS') !== false)
+				if (str_contains($userAgent, 'Mac OS'))
 				{
 					return new Browser('Bitrix24.Desktop', 'macOS', DeviceType::DESKTOP);
 				}
 				return new Browser('Bitrix24.Desktop', 'Linux', DeviceType::DESKTOP);
 			}
 
-			if (strpos($userAgent, 'BitrixMobile') !== false || strpos($userAgent, 'Bitrix24/') !== false)
+			if (str_contains($userAgent, 'BitrixMobile') || str_contains($userAgent, 'Bitrix24/'))
 			{
-				if (strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false || strpos($userAgent, 'Darwin') !== false)
+				if (str_contains($userAgent, 'iPhone') || str_contains($userAgent, 'iPad') || str_contains($userAgent, 'Darwin'))
 				{
-					$device = (strpos($userAgent, 'iPad') !== false ? DeviceType::TABLET : DeviceType::MOBILE_PHONE);
+					$device = (str_contains($userAgent, 'iPad') ? DeviceType::TABLET : DeviceType::MOBILE_PHONE);
 					return new Browser('Bitrix24.Mobile', 'iOS', $device);
 				}
 
-				$device = (strpos($userAgent, 'Tablet') !== false ? DeviceType::TABLET : DeviceType::MOBILE_PHONE);
+				$device = (str_contains($userAgent, 'Tablet') ? DeviceType::TABLET : DeviceType::MOBILE_PHONE);
 				return new Browser('Bitrix24.Mobile', 'Android', $device);
 			}
 		}

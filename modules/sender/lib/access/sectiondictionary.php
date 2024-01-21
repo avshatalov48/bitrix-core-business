@@ -25,6 +25,7 @@ class SectionDictionary
 			self::MAILING   => [
 				PermissionDictionary::MAILING_VIEW,
 				PermissionDictionary::MAILING_EMAIL_EDIT,
+				PermissionDictionary::MAILING_SMS_EDIT,
 				PermissionDictionary::MAILING_MESSENGER_EDIT,
 				PermissionDictionary::MAILING_AUDIO_CALL_EDIT,
 				PermissionDictionary::MAILING_INFO_CALL_EDIT,

@@ -1,5 +1,5 @@
 <?php
-	
+
 namespace Bitrix\Calendar\Rooms;
 
 use Bitrix\Main\Type\DateTime;
@@ -82,15 +82,20 @@ class AccessibilityManager
 	 *
 	 * @return bool
 	 */
-	public static function checkAccessibility(string $location = '', array $params = []): bool
+	public static function checkAccessibility(string $locationId = '', array $params = []): bool
 	{
-		$location = Util::parseLocation($location);
+		$location = Util::parseLocation($locationId);
 		
 		$res = true;
 		if ($location['room_id'] || $location['mrid'])
 		{
-			$fromTs = \CCalendar::Timestamp($params['fields']['DATE_FROM']);
-			$toTs = \CCalendar::Timestamp($params['fields']['DATE_TO']);
+			$dateFrom = DateTime::createFromTimestamp(\CCalendar::TimestampUTC($params['fields']['DATE_FROM']))
+				->setTimeZone(new \DateTimeZone('UTC'));
+			$dateTo = DateTime::createFromTimestamp(\CCalendar::TimestampUTC($params['fields']['DATE_TO']))
+				->setTimeZone(new \DateTimeZone('UTC'));
+
+			$fromTs = \Bitrix\Calendar\Util::getDateTimestampUtc($dateFrom, $params['fields']['TZ_FROM']);
+			$toTs = \Bitrix\Calendar\Util::getDateTimestampUtc($dateTo, $params['fields']['TZ_FROM']);
 			if ($params['fields']['SKIP_TIME'])
 			{
 				$toTs += \CCalendar::GetDayLen();
@@ -98,14 +103,8 @@ class AccessibilityManager
 			
 			$eventId = (int)$params['fields']['ID'];
 			
-			$from = \CCalendar::Date($fromTs, false);
-			$to = \CCalendar::Date($toTs, false);
-			
-			$curUserId = \CCalendar::GetCurUserId();
-			$deltaOffset = isset($params['timezone'])
-				? (\CCalendar::GetTimezoneOffset($params['timezone']) - \CCalendar::GetCurrentOffsetUTC($curUserId))
-				: 0
-			;
+			$from = \Bitrix\Calendar\Util::formatDateTimestampUTC($fromTs);
+			$to = \Bitrix\Calendar\Util::formatDateTimestampUTC($toTs);
 			
 			if ($location['mrid'])
 			{
@@ -146,20 +145,13 @@ class AccessibilityManager
 					if ((int)$entry['ID'] !== (int)$location['room_event_id']
 						&& (int)$entry['PARENT_ID'] !== $eventId)
 					{
-						$entryFromTs = \CCalendar::Timestamp($entry['DATE_FROM']);
-						$entryToTs = \CCalendar::Timestamp($entry['DATE_TO']);
-						if ($entry['DT_SKIP_TIME'] !== 'Y')
-						{
-							$entryFromTs -= $entry['~USER_OFFSET_FROM'];
-							$entryToTs -= $entry['~USER_OFFSET_TO'];
-							$entryFromTs += $deltaOffset;
-							$entryToTs += $deltaOffset;
-						}
-						else
+						$entryFromTs = \Bitrix\Calendar\Util::getDateTimestampUtc(new DateTime($entry['DATE_FROM']), $entry['TZ_FROM']);
+						$entryToTs = \Bitrix\Calendar\Util::getDateTimestampUtc(new DateTime($entry['DATE_TO']), $entry['TZ_FROM']);
+						if ($entry['DT_SKIP_TIME'] === 'Y')
 						{
 							$entryToTs += \CCalendar::GetDayLen();
 						}
-						
+
 						if ($entryFromTs < $toTs && $entryToTs > $fromTs)
 						{
 							$res = false;

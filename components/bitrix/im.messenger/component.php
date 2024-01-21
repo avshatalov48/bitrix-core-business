@@ -14,10 +14,11 @@ if (intval($USER->GetID()) <= 0)
 if (!CModule::IncludeModule('im'))
 	return;
 
-if (\Bitrix\Im\Settings::isBetaActivated())
+if (!\Bitrix\Im\Settings::isLegacyChatActivated())
 {
 	$arResult['MESSENGER_V2'] = true;
 	$arResult['DESKTOP'] = $arParams['CONTEXT'] === 'DESKTOP';
+	$arResult['COPILOT_AVAILABLE'] = \Bitrix\Im\V2\Chat\CopilotChat::isAvailable();
 	if ($arResult['DESKTOP'] === true)
 	{
 		CIMMessenger::SetDesktopVersion(empty($_GET['BXD_API_VERSION'])? 0 : $_GET['BXD_API_VERSION']);

@@ -71,7 +71,7 @@ class PathIndexCollection
 	 *
 	 * @return int
 	 */
-	public function countItemsToProcess(Translate\Filter $filter = null): int
+	public function countItemsToProcess(?Translate\Filter $filter = null): int
 	{
 		if (isset($filter, $filter->path))
 		{
@@ -95,7 +95,7 @@ class PathIndexCollection
 	 *
 	 * @return int
 	 */
-	public function collect(Translate\Filter $filter = null, Translate\Controller\ITimeLimit $timer = null, Translate\Filter $seek = null): int
+	public function collect(?Translate\Filter $filter = null, ?Translate\Controller\ITimeLimit $timer = null, ?Translate\Filter $seek = null): int
 	{
 		self::configure();
 
@@ -673,13 +673,12 @@ class PathIndexCollection
 	 * Drop index.
 	 *
 	 * @param Translate\Filter|null $filter Params to filter file list.
-	 * @param bool $recursively Drop index recursively.
 	 *
 	 * @return self
 	 */
-	public function purge(Translate\Filter $filter = null, $recursively = true): self
+	public function purge(?Translate\Filter $filter = null): self
 	{
-		Index\Internals\PathIndexTable::purge($filter, $recursively);
+		Index\Internals\PathIndexTable::purge($filter);
 
 		return $this;
 	}
@@ -692,21 +691,18 @@ class PathIndexCollection
 	 *
 	 * @return self
 	 */
-	public function validate(Translate\Filter $filter = null, $recursively = true): self
+	public function validate(?Translate\Filter $filter = null, bool $recursively = true): self
 	{
-		if (($filterOut = Index\Internals\PathIndexTable::processFilter($filter)) !== false)
-		{
-			$update = ['INDEXED' => 'Y', 'INDEXED_TIME' => new Main\Type\DateTime()];
-			Index\Internals\PathIndexTable::bulkUpdate($update, $filterOut);
+		$update = ['INDEXED' => 'Y', 'INDEXED_TIME' => new Main\Type\DateTime()];
 
-			if ($recursively)
-			{
-				if (($filterOut = Index\Internals\FileIndexTable::processFilter($filter)) !== false)
-				{
-					Index\Internals\FileIndexTable::bulkUpdate($update, $filterOut);
-				}
-			}
+		if ($recursively)
+		{
+			$filterOut = Index\Internals\FileIndexTable::processFilter($filter);
+			Index\Internals\FileIndexTable::bulkUpdate($update, $filterOut);
 		}
+
+		$filterOut = Index\Internals\PathIndexTable::processFilter($filter);
+		Index\Internals\PathIndexTable::bulkUpdate($update, $filterOut);
 
 		return $this;
 	}
@@ -719,20 +715,16 @@ class PathIndexCollection
 	 *
 	 * @return self
 	 */
-	public function unvalidate(Translate\Filter $filter = null, $recursively = true): self
+	public function unvalidate(Translate\Filter $filter = null, bool $recursively = true): self
 	{
-		if (($filterOut = Index\Internals\PathIndexTable::processFilter($filter)) !== false)
+		if ($recursively)
 		{
-			Index\Internals\PathIndexTable::bulkUpdate(['INDEXED' => 'N'], $filterOut);
-
-			if ($recursively)
-			{
-				if (($filterOut = Index\Internals\FileIndexTable::processFilter($filter)) !== false)
-				{
-					Index\Internals\FileIndexTable::bulkUpdate(['INDEXED' => 'N'], $filterOut);
-				}
-			}
+			$filterOut = Index\Internals\FileIndexTable::processFilter($filter);
+			Index\Internals\FileIndexTable::bulkUpdate(['INDEXED' => 'N'], $filterOut);
 		}
+
+		$filterOut = Index\Internals\PathIndexTable::processFilter($filter);
+		Index\Internals\PathIndexTable::bulkUpdate(['INDEXED' => 'N'], $filterOut);
 
 		return $this;
 	}
@@ -745,7 +737,7 @@ class PathIndexCollection
 	 *
 	 * @return self
 	 */
-	public function collectModuleAssignment(Translate\Filter $filter = null): self
+	public function collectModuleAssignment(?Translate\Filter $filter = null): self
 	{
 		$searchPath = isset($filter, $filter->path) ? $filter->path : '';
 
@@ -818,7 +810,7 @@ class PathIndexCollection
 	 *
 	 * @return self
 	 */
-	public function collectAssignment(Translate\Filter $filter = null): self
+	public function collectAssignment(?Translate\Filter $filter = null): self
 	{
 		// /bitrix/(mobileapp|templates|components|activities|wizards|gadgets|js|..)
 		foreach (Translate\ASSIGNMENT_TYPES as $assignmentId)

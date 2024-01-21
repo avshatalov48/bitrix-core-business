@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Main\Type;
 
+use Bitrix\Main\ArgumentException;
+
 class Collection
 {
 	/**
@@ -204,5 +206,107 @@ class Collection
 		}
 
 		return $clonedArray;
+	}
+
+	/**
+	 * Returns $array[p1][p2][p3] with $key = [p1, p2, p3]
+	 *
+	 * @param array $array
+	 * @param array $key
+	 * @return mixed
+	 */
+	public static function getByNestedKey(array $array, array $key)
+	{
+		if (empty($key))
+		{
+			return null;
+		}
+
+		$value = $array;
+
+		while (!empty($key))
+		{
+			$subKey = array_shift($key);
+
+			if (array_key_exists($subKey, $value))
+			{
+				$value = $value[$subKey];
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Sets value $array[p1][p2][p3] = $value with $key = [p1, p2, p3]
+	 *
+	 * @param array $array
+	 * @param array $key
+	 * @param $value
+	 * @return void
+	 * @throws ArgumentException
+	 */
+	public static function setByNestedKey(array &$array, array $key, $value): void
+	{
+		if (empty($key))
+		{
+			throw new ArgumentException('Empty key to set');
+		}
+
+		$reference =& $array;
+		while (!empty($key))
+		{
+			$subKey = array_shift($key);
+
+			if (!array_key_exists($subKey, $reference))
+			{
+				$reference[$subKey] = [];
+			}
+			$reference = &$reference[$subKey];
+		}
+
+		$reference = $value;
+		unset($reference);
+	}
+
+	/**
+	 * Unsets last key in array $array[p1][p2][p3] with $key = [p1, p2, p3]
+	 *
+	 * @param array $array
+	 * @param array $key
+	 * @return void
+	 * @throws ArgumentException
+	 */
+	public static function unsetByNestedKey(array &$array, array $key): void
+	{
+		if (empty($key))
+		{
+			throw new ArgumentException('Empty key to unset');
+		}
+
+		$reference =& $array;
+		while (!empty($key))
+		{
+			$subKey = array_shift($key);
+
+			if (!array_key_exists($subKey, $reference))
+			{
+				break;
+			}
+
+			if (empty($key))
+			{
+				// last element
+				unset($reference[$subKey]);
+			}
+			else
+			{
+				$reference = &$reference[$subKey];
+			}
+		}
 	}
 }

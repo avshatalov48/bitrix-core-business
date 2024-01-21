@@ -23,7 +23,8 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 }
 
 $data = [
-	'NAME' => Loc::getMessage('SALE_HPS_QIWI_NAME'),
+	'NAME' => Loc::getMessage('SALE_HPS_QIWI_NAME_MSGVER_1'),
+	'DESCRIPTION' => Loc::getMessage('SALE_HPS_QIWI_DESCRIPTION'),
 	'SORT' => 750,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

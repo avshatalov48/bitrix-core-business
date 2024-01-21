@@ -42,7 +42,15 @@ class AccessController extends BaseAccessController
 
 	public static function getCurrent(): self
 	{
-		return static::getInstance(CurrentUser::get()->getId());
+		global $USER;
+
+		$userId = 0;
+		if (isset($USER) && $USER instanceof \CUser)
+		{
+			$userId = (int)$USER->GetID();
+		}
+
+		return static::getInstance($userId);
 	}
 
 	/**

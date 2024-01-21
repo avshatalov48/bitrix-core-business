@@ -23,3 +23,18 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 		</div>
 	</div>
 </div>
+
+<?php if ($arResult['HELP_LINK']): ?>
+	<script>
+		BX.ready(() => {
+			const link = document.querySelector('#sonet-helper-link-error');
+
+			if (link)
+			{
+				link.addEventListener('click', () => {
+					top.BX.Helper.show();
+				});
+			}
+		})
+	</script>
+<?php endif; ?>

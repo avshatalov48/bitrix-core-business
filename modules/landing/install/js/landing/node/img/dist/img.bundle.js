@@ -1,13 +1,13 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,landing_node,landing_env) {
+(function (exports,landing_node_base,landing_env) {
 	'use strict';
 
 	const attr = BX.Landing.Utils.attr;
 	const data = BX.Landing.Utils.data;
 	const encodeDataValue = BX.Landing.Utils.encodeDataValue;
 	const decodeDataValue = BX.Landing.Utils.decodeDataValue;
-	class Img extends landing_node.Node {
+	class Img extends landing_node_base.Base {
 	  constructor(options) {
 	    super(options);
 	    this.type = 'img';
@@ -28,6 +28,7 @@ this.BX.Landing = this.BX.Landing || {};
 	   * @param {MouseEvent} event
 	   */
 	  onClick(event) {
+	    BX.Event.EventEmitter.emit('BX.Landing.Node.Img:onClick');
 	    if (this.manifest.allowInlineEdit !== false && BX.Landing.Main.getInstance().isControlsEnabled() && (!BX.Landing.Node.Text.currentNode || !BX.Landing.Node.Text.currentNode.isEditable()) && !BX.Landing.UI.Panel.StylePanel.getInstance().isShown()) {
 	      event.preventDefault();
 	      event.stopPropagation();
@@ -112,7 +113,9 @@ this.BX.Landing = this.BX.Landing || {};
 	          title: this.manifest.name,
 	          description: description,
 	          disableLink: disableLink,
-	          allowAiImage: landing_env.Env.getInstance().getOptions()['allow_ai_image'],
+	          isAiImageAvailable: landing_env.Env.getInstance().getOptions()['ai_image_available'],
+	          isAiImageActive: landing_env.Env.getInstance().getOptions()['ai_image_active'],
+	          aiUnactiveInfoCode: landing_env.Env.getInstance().getOptions()['ai_unactive_info_code'],
 	          content: value,
 	          dimensions: (_this$manifest$dimens = this.manifest.dimensions) != null ? _this$manifest$dimens : {},
 	          create2xByDefault: this.manifest.create2xByDefault,
@@ -198,6 +201,39 @@ this.BX.Landing = this.BX.Landing || {};
 	      enabled: false
 	    };
 	    return value;
+	  }
+
+	  /**
+	   * Prepare pseudo url if needed
+	   * @param {object} url
+	   * @return {null|object}
+	   */
+	  preparePseudoUrl(url) {
+	    let urlIsChange = false;
+	    if (!(url.href === '#' && url.target === '')) {
+	      urlIsChange = true;
+	    }
+	    if (url.href === 'selectActions:') {
+	      url.href = '';
+	      url.enabled = false;
+	      urlIsChange = true;
+	    }
+	    if (url.href.startsWith('product:')) {
+	      url.target = '_self';
+	      urlIsChange = true;
+	    }
+	    if (url.enabled !== false && (url.href === '' || url.href === '#')) {
+	      url.enabled = false;
+	      urlIsChange = true;
+	    }
+	    if (url.target === '') {
+	      url.target = '_blank';
+	      urlIsChange = true;
+	    }
+	    if (urlIsChange === true) {
+	      return url;
+	    }
+	    return null;
 	  }
 	}
 	BX.Landing.Node.Img = Img;
@@ -355,5 +391,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Img = Img;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing,BX.Landing));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing.Node,BX.Landing));
 //# sourceMappingURL=img.bundle.js.map

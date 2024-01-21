@@ -456,7 +456,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	            length: 11
 	          }, function (item, index) {
 	            return {
-	              name: "".concat(index, " ").concat(landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_DELAY_ITEM')),
+	              name: landing_loc.Loc.getMessage("LANDING_FORM_ACTIONS_DELAY_ITEM_".concat(index)),
 	              value: index
 	            };
 	          })

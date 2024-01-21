@@ -206,7 +206,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (this.context.invitation.isActive) {
 	      return this.getInviteItems();
 	    }
-	    return [this.getOpenItem(), this.getUnreadMessageItem(), this.getPinMessageItem(), this.getMuteItem(), this.getCallItem(), this.getOpenProfileItem(), this.getHideItem(), this.getLeaveItem()];
+	    return [this.getOpenItem(), this.getUnreadMessageItem(), this.getPinMessageItem(), this.getMuteItem(), this.getCallItem(), this.getOpenProfileItem(), this.getChatsWithUserItem(), this.getHideItem(), this.getLeaveItem()];
 	  }
 	  getSendMessageItem() {
 	    return {
@@ -236,7 +236,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getUnreadMessageItem() {
-	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+	    const dialog = this.store.getters['chats/get'](this.context.dialogId, true);
 	    const showReadOption = this.context.unread || dialog.counter > 0;
 	    return {
 	      text: showReadOption ? main_core.Loc.getMessage('IM_LIB_MENU_READ') : main_core.Loc.getMessage('IM_LIB_MENU_UNREAD'),
@@ -269,7 +269,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!canMute) {
 	      return null;
 	    }
-	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+	    const dialog = this.store.getters['chats/get'](this.context.dialogId, true);
 	    const isMuted = dialog.muteList.includes(im_v2_application_core.Core.getUserId());
 	    return {
 	      text: isMuted ? main_core.Loc.getMessage('IM_LIB_MENU_UNMUTE_2') : main_core.Loc.getMessage('IM_LIB_MENU_MUTE_2'),
@@ -298,8 +298,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getOpenProfileItem() {
-	    const isUser = this.store.getters['dialogues/isUser'](this.context.dialogId);
-	    if (!isUser) {
+	    if (!this.isUser() || this.isBot()) {
 	      return null;
 	    }
 	    const profileUri = im_v2_lib_utils.Utils.user.getProfileLink(this.context.dialogId);
@@ -337,6 +336,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (userChoice === true) {
 	          this.chatService.leaveChat(this.context.dialogId);
 	        }
+	      }
+	    };
+	  }
+	  getChatsWithUserItem() {
+	    if (!this.isUser() || this.isBot()) {
+	      return null;
+	    }
+	    return {
+	      text: main_core.Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER'),
+	      onclick: async () => {
+	        await im_public.Messenger.openChat(this.context.dialogId);
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
+	          detailBlock: im_v2_const.SidebarDetailBlock.chatsWithUser
+	        });
+	        this.menuInstance.close();
 	      }
 	    };
 	  }
@@ -392,6 +406,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      delimiter: true
 	    };
+	  }
+	  isUser() {
+	    return this.store.getters['chats/isUser'](this.context.dialogId);
+	  }
+	  isBot() {
+	    if (!this.isUser()) {
+	      return false;
+	    }
+	    const user = this.store.getters['users/get'](this.context.dialogId);
+	    return user.bot === true;
 	  }
 	}
 

@@ -2,7 +2,6 @@ import { hint } from 'ui.vue3.directives.hint';
 
 import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
 import { ChatActionType } from 'im.v2.const';
-import { ImModelDialog } from 'im.v2.model';
 import { Utils } from 'im.v2.lib.utils';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -10,6 +9,8 @@ import { PermissionManager } from 'im.v2.lib.permission';
 import { Settings } from './settings';
 
 import '../../css/main/preview-personal-chat.css';
+
+import type { ImModelChat, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const PersonalChatPreview = {
@@ -40,9 +41,13 @@ export const PersonalChatPreview = {
 		{
 			return this.$store.getters['users/getPosition'](this.dialogId);
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		user(): ImModelUser
+		{
+			return this.$store.getters['users/get'](this.dialogId, true);
 		},
 		chatId(): number
 		{
@@ -52,9 +57,22 @@ export const PersonalChatPreview = {
 		{
 			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
 		},
+		showInviteButton(): boolean
+		{
+			if (this.isBot)
+			{
+				return false;
+			}
+
+			return this.canInviteMembers;
+		},
 		userLink(): string
 		{
 			return Utils.user.getProfileLink(this.dialogId);
+		},
+		isBot(): boolean
+		{
+			return this.user.bot === true;
 		},
 	},
 	methods:
@@ -82,10 +100,10 @@ export const PersonalChatPreview = {
 				</div>
 			</div>
 			<div v-if="isLoading" class="bx-im-sidebar-main-preview-personal-chat__invite-button-skeleton"></div>
-			<div v-else class="bx-im-sidebar-main-preview-personal-chat__invite-button-container" ref="add-members">
+			<div v-else-if="showInviteButton" class="bx-im-sidebar-main-preview-personal-chat__invite-button-container" ref="add-members">
 				<MessengerButton
 					v-if="canInviteMembers"
-					:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_INVITE_BUTTON_TEXT')"
+					:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_CREATE_GROUP_CHAT')"
 					:size="ButtonSize.S"
 					:color="ButtonColor.PrimaryLight"
 					:isRounded="true"

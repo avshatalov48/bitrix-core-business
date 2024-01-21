@@ -676,9 +676,18 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 			$oldOrder = $orderClassName::load($id);
 
 			$oldBasket = $oldOrder->getBasket();
-			$refreshStrategy = Sale\Basket\RefreshFactory::create(Sale\Basket\RefreshFactory::TYPE_FULL);
-			$oldBasket->refresh($refreshStrategy);
-			$oldBasketItems = $oldBasket->getOrderableItems();
+			$oldBasketProviderData = Sale\Provider::getProductData($oldBasket);
+			$oldBasketItems = $oldBasket->getBasketItems();
+
+			foreach ($oldBasketItems as $index => $oldBasketItem)
+			{
+				$basketId = $oldBasketItem->getId();
+				if (($oldBasketProviderData[$basketId]['CAN_BUY'] ?? 'N') !== 'Y')
+				{
+					unset($oldBasketItems[$index]);
+				}
+			}
+			unset($oldBasketItem);
 
 			/** @var Sale\BasketItem $oldBasketItem*/
 			foreach ($oldBasketItems as $oldBasketItem)

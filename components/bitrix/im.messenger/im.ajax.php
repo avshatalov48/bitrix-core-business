@@ -748,7 +748,7 @@ else if (isImPostRequest('IM_LOAD_LAST_MESSAGE'))
 			$arMessage = false;
 		}
 
-		if (!$arMessage || $_POST['USER_LOAD'] == 'Y' && empty($arMessage['chat']) || isset($arMessage['chat'][$chatId]) && !in_array($arMessage['chat'][$chatId]['message_type'], Array(IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE)))
+		if (!$arMessage || $_POST['USER_LOAD'] == 'Y' && empty($arMessage['chat']) || isset($arMessage['chat'][$chatId]) && !in_array($arMessage['chat'][$chatId]['message_type'], Array(IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)))
 		{
 			$arMessage = Array();
 			$error = 'ACCESS_DENIED';
@@ -859,6 +859,24 @@ else if (isImPostRequest('IM_LOAD_LAST_MESSAGE'))
 	if (!\CIMMessenger::IsMobileRequest())
 	{
 		CIMStatus::Set($USER->GetId(), Array('IDLE' => null));
+	}
+
+	if (
+		$chatData['TYPE'] == Bitrix\Im\V2\Chat::IM_TYPE_OPEN_LINE
+		&& \Bitrix\Main\Loader::includeModule('imopenlines')
+		&& class_exists('\Bitrix\ImOpenLines\Recent')
+	)
+	{
+		$userIds = \Bitrix\ImOpenLines\Recent::getUserIdsByChatId((int)$chatId);
+		if (!isset($arMessage['userInChat'][(string)$chatId]))
+		{
+			$arMessage['userInChat'][(string)$chatId] = $userIds;
+		}
+		else
+		{
+			$arMessage['userInChat'][(string)$chatId] = array_unique(array_merge($arMessage['userInChat'][(string)$chatId], $userIds));
+		}
+		$arMessage['userInChat'][(string)$chatId] = array_values($arMessage['userInChat'][(string)$chatId] ?? []);
 	}
 
 	echo \Bitrix\Im\Common::objectEncode(Array(
@@ -1218,7 +1236,7 @@ else if (isImPostRequest('IM_RECENT_LIST'))
 	$arChat = Array();
 	foreach ($ar as $userId => $value)
 	{
-		if ($value['TYPE'] == IM_MESSAGE_CHAT || $value['TYPE'] == IM_MESSAGE_OPEN || $value['TYPE'] == IM_MESSAGE_OPEN_LINE)
+		if ($value['TYPE'] == IM_MESSAGE_CHAT || $value['TYPE'] == IM_MESSAGE_OPEN || $value['TYPE'] == IM_MESSAGE_OPEN_LINE || $value['TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)
 		{
 			$arChat[$value['CHAT']['id']] = $value['CHAT'];
 			$value['MESSAGE']['userId'] = $userId;

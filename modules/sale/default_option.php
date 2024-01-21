@@ -99,6 +99,7 @@ $sale_default_option = [
 	'measurement_path' => '/bitrix/modules/sale/measurements.php',
 	'delivery_handles_custom_path' => BX_PERSONAL_ROOT . '/php_interface/include/sale_delivery/',
 	'use_secure_cookies' => 'N',
+	'save_anonymous_fuser_cookie' => 'N',
 	'COUNT_DISCOUNT_4_ALL_QUANTITY' => 'N',
 	'COUNT_DELIVERY_TAX' => 'N',
 	'QUANTITY_FACTORIAL' => 'N',

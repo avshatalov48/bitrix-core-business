@@ -100,6 +100,7 @@ export const FileMessage = {
 			:dialogId="dialogId" 
 			:withTitle="withTitle" 
 			:menuIsActiveForId="menuIsActiveForId"
+			:withRetryButton="false"
 		/>
 	`,
 };

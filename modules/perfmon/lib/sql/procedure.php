@@ -9,7 +9,7 @@ class Procedure extends BaseObject
 	 * @param string $name Name of stored procedure.
 	 * @param string $type Type of stored procedure.
 	 */
-	function __construct($name = '', $type = '')
+	public function __construct($name = '', $type = '')
 	{
 		parent::__construct($name);
 		$this->type = (string)$type;
@@ -37,7 +37,7 @@ class Procedure extends BaseObject
 		if ($token->text === '.')
 		{
 			$token = $tokenizer->nextToken();
-			$name .= '.'.$token->text;
+			$name .= '.' . $token->text;
 		}
 		$procedure = new self($name, $type);
 
@@ -75,7 +75,7 @@ class Procedure extends BaseObject
 	 */
 	public function getDropDdl($dbType = '')
 	{
-		return "DROP ".$this->type." ".$this->name;
+		return 'DROP ' . $this->type . ' ' . $this->name;
 	}
 
 	/**
@@ -88,9 +88,9 @@ class Procedure extends BaseObject
 	 */
 	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
-		return array(
+		return [
 			$this->getDropDdl($dbType),
 			$target->getCreateDdl($dbType),
-		);
+		];
 	}
 }

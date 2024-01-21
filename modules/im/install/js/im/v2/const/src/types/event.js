@@ -1,4 +1,4 @@
-import {DialogScrollThreshold} from '../dialog';
+import { DialogScrollThreshold } from '../chat';
 
 export type OnLayoutChangeEvent = {
 	from: {
@@ -19,7 +19,7 @@ export type OnDialogInitedEvent = {
 
 export type InsertTextEvent = {
 	text: string,
-	withNewLine?: boolean
+	withNewLine?: boolean,
 	replace?: boolean
 };
 

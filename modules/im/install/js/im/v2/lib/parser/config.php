@@ -18,7 +18,5 @@ return [
 		'main.core',
 	],
 	'skip_core' => false,
-	'settings' => [
-		'v2' => \Bitrix\Im\Settings::isBetaActivated()
-	]
+	'settings' => ['v2' => !\Bitrix\Im\Settings::isLegacyChatActivated()]
 ];

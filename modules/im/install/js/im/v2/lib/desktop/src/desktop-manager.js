@@ -1,4 +1,4 @@
-import { Extension } from 'main.core';
+import { Extension, type JsonObject } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
@@ -6,7 +6,7 @@ import { DesktopBxLink, Settings } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
 
-import { Checker } from './classes/checker';
+import { CheckUtils } from './classes/check-utils';
 import { Conference } from './classes/conference';
 import { Desktop } from './classes/desktop';
 import { Encoder } from './classes/encoder';
@@ -93,6 +93,14 @@ export class DesktopManager
 		return Promise.resolve();
 	}
 
+	redirectToCopilot(dialogId: string = ''): Promise
+	{
+		Logger.warn('Desktop: redirectToCopilot', dialogId);
+		this.openBxLink(`bx://${DesktopBxLink.copilot}/dialogId/${dialogId}`);
+
+		return Promise.resolve();
+	}
+
 	redirectToNotifications(): Promise
 	{
 		Logger.warn('Desktop: redirectToNotifications');
@@ -114,6 +122,15 @@ export class DesktopManager
 		Logger.warn('Desktop: redirectToConference', code);
 
 		this.openBxLink(`bx://${DesktopBxLink.conference}/code/${code}`);
+
+		return Promise.resolve();
+	}
+
+	redirectToSettings(sectionName: string): Promise
+	{
+		Logger.warn('Desktop: redirectToSettings', sectionName);
+
+		this.openBxLink(`bx://${DesktopBxLink.settings}/section/${sectionName}`);
 
 		return Promise.resolve();
 	}
@@ -165,6 +182,11 @@ export class DesktopManager
 		return Promise.resolve();
 	}
 
+	openAccountTab(domainName: string)
+	{
+		this.openBxLink(`bx://v2/${domainName}/openTab`);
+	}
+
 	checkStatusInDifferentContext(): Promise
 	{
 		if (!this.#desktopIsActive)
@@ -178,7 +200,7 @@ export class DesktopManager
 		}
 
 		return new Promise((resolve) => {
-			Checker.testImageUpload(
+			CheckUtils.testImageLoad(
 				() => {
 					resolve(true);
 				},

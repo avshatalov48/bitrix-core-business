@@ -7,6 +7,7 @@ use Bitrix\Mail\Helper\MailboxDirectoryHelper;
 use Bitrix\Mail\MailboxDirectory;
 use Bitrix\Main;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Mail\MailMessageTable;
 
 class Imap extends Mail\Helper\Mailbox
 {
@@ -1914,13 +1915,14 @@ class Imap extends Mail\Helper\Mailbox
 					'timestamp'        => $message['__internaldate']->getTimestamp(),
 					'size'             => $message['RFC822.SIZE'],
 					'outcome'          => in_array($this->mailbox['EMAIL'], $message['__from']),
-					'draft'            => $dir != null && $dir->isDraft() || preg_grep('/^ \x5c Draft $/ix', $message['FLAGS']),
+					'draft'            => $dir != null && $dir->isDraft() || (isset($message['FLAGS']) && preg_grep('/^ \x5c Draft $/ix', $message['FLAGS'])),
 					'trash'            => $dir != null && $dir->isTrash(),
 					'spam'             => $dir != null && $dir->isSpam(),
 					'seen'             => $fields['IS_SEEN'] == 'Y',
 					'hash'             => $fields['HEADER_MD5'],
 					'lazy_attachments' => $this->isSupportLazyAttachments(),
 					'excerpt'          => $fields,
+					MailMessageTable::FIELD_SANITIZE_ON_VIEW => $this->isSupportSanitizeOnView(),
 				)
 			);
 		}

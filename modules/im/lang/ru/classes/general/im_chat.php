@@ -61,4 +61,6 @@ $MESS["IM_VIDEOCONF_LINK_TITLE"] = "Публичная ссылка";
 $MESS["IM_VIDEOCONF_NEW_GUEST"] = "К конференции \"#CHAT_TITLE#\" подключился гость.";
 $MESS["IM_VIDEOCONF_JOIN_LINK"] = "Перейти в конференцию";
 $MESS["IM_MESSAGE_DELETED"] = "Это сообщение было удалено.";
+$MESS["IM_CHAT_ACCESS_DENIED_EXTEND_USERS"] = "Недостаточно прав на добавление участников в чат";
+$MESS["IM_CHAT_ACCESS_DENIED_KICK_USERS"] = "Недостаточно прав на исключение участников из чата";
 ?>

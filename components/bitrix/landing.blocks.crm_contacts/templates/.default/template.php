@@ -3,6 +3,7 @@
 use Bitrix\Main\Text\HtmlFilter;
 
 /** @var array $arParams */
+/** @var array $arResult */
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -21,7 +22,7 @@ if (!empty($arResult['ERRORS']))
 				<div class="g-landing-alert-title"><?= $title ?></div>
 				<div class="g-landing-alert-text"><?= $text ?></div>
 				<?php if ($error['button']): ?>
-					<a class="landing-trusted-link landing-required-link ui-btn g-mt-15"
+					<a class="landing-trusted-link ui-btn g-mt-15"
 						href="<?= $error['button']['href'] ?>"><?= $error['button']['text'] ?></a>
 				<?php endif ?>
 			<?php endforeach; ?>
@@ -41,15 +42,15 @@ if (!empty($arResult['ALERTS']))
 	$alerts .= '</div></div>';
 }
 
-$arResult['CONTACTS']['phones'][0] = HtmlFilter::encode($arResult['CONTACTS']['phones'][0]);
+$arResult['CONTACTS']['PHONE'] = HtmlFilter::encode($arResult['CONTACTS']['PHONE']);
 $textAlign = $arParams['BUTTON_POSITION'] === 'right' ? 'text-left' : 'text-right';
 $titleBlock = $arParams['TITLE'] ? "<h6 class=\"crmcontacts-text-title h6\">{$arParams['TITLE']}</h6>" : '';
 $textBlock = <<<HTML
 	<div class="crmcontacts-text-block {$textAlign} col-8">
 		{$titleBlock}
 		<div class="crmcontacts-text-text">
-			<a href="tel:{$arResult['CONTACTS']['phones'][0]}">
-				{$arResult['CONTACTS']['phones'][0]}
+			<a href="tel:{$arResult['CONTACTS']['PHONE']}">
+				{$arResult['CONTACTS']['PHONE']}
 			</a>
 		</div>
 	</div>
@@ -63,7 +64,7 @@ $buttonClasses =
 $buttonBlock = <<<HTML
 	<div class="crmcontacts-button-block {$buttonAlign} col-4">
 		<a class="crmcontacts-button-button {$buttonClasses}"
-			href="tel:{$arResult['CONTACTS']['phones'][0]}">
+			href="tel:{$arResult['CONTACTS']['PHONE']}">
 			{$arParams['BUTTON_TITLE']}
 		</a>
 	</div>

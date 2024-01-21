@@ -71,11 +71,11 @@ class Notify extends BaseSettings
 	public function updateSetting(array $settingConfiguration)
 	{
 		$updatingSetting = [
-			$settingConfiguration['moduleId'] => [
+			$settingConfiguration['moduleId'] => [[
 				$settingConfiguration['name'] => [
 					$settingConfiguration['type'] => $settingConfiguration['value'],
 				],
-			],
+			]],
 		];
 
 		Notification::updateGroupSettings($this->groupId, $updatingSetting);

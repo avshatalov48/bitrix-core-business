@@ -17,8 +17,6 @@ class CRatingRulesMain extends CAllRatingRulesMain
 		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		$err_mess = "File: ".__FILE__."<br>Function: voteCheck<br>Line: ";
-		
 		$ratingId = CRatings::GetAuthorityRating();
 		if ($ratingId == 0)
 			return true;
@@ -33,7 +31,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 			WHERE 
 				ENTITY_TYPE_ID = 'USER' and CREATED < " . $helper->addDaysToDateTime(-intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])) . "
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		
 		// 2. INSERT NEW VOTE FOR AUTHORITY
 		$sRatingUser = "";
@@ -89,7 +87,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 					when RV.ENTITY_TYPE_ID = 'BLOG_COMMENT' then ".floatval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_BLOG_COMMENT'])."
 				else 0 end) >= ".floatval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_RESULT'])."
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		
 		// 3.INSERT NEW VOTING GROUP (FROM STEP 2)
 		$strSql = "
@@ -114,7 +112,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 			and RVG.ID IS NULL and RV.OWNER_ID > 0
 			GROUP BY RV.ENTITY_TYPE_ID, RV.ENTITY_ID
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		
 		// 4 UPDATE FIELD RATING_VOTE_ID (FROM STEP 3)
 		$strSql = "
@@ -128,10 +126,10 @@ class CRatingRulesMain extends CAllRatingRulesMain
 				RV.ENTITY_TYPE_ID = RVG.ENTITY_TYPE_ID
 			and RV.ENTITY_ID = RVG.ENTITY_ID
 			and RV.RATING_VOTING_ID = 0";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		
 		// 5 INSERT TEMP TABLE VOTE RESULTS 
-		$DB->Query("TRUNCATE b_rating_voting_prepare", false, $err_mess.__LINE__);
+		$DB->Query("TRUNCATE b_rating_voting_prepare");
 		$strSql = "
 			INSERT INTO b_rating_voting_prepare (RATING_VOTING_ID, TOTAL_VALUE, TOTAL_VOTES, TOTAL_POSITIVE_VOTES, TOTAL_NEGATIVE_VOTES)
 			SELECT 				
@@ -146,7 +144,7 @@ class CRatingRulesMain extends CAllRatingRulesMain
 				RV.RATING_VOTING_ID IN (SELECT DISTINCT RV0.RATING_VOTING_ID FROM b_rating_vote RV0 WHERE RV0.ACTIVE='N')
 			and RV.USER_ID > 0
 			GROUP BY RV.RATING_VOTING_ID";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		
 		// 6 UPDATE VOTE_RESULTS FROM TEMP TABLE
 		$strSql = "
@@ -160,11 +158,11 @@ class CRatingRulesMain extends CAllRatingRulesMain
 				RVG.TOTAL_NEGATIVE_VOTES = RVG0.TOTAL_NEGATIVE_VOTES
 			WHERE 
 				RVG.ID = RVG0.RATING_VOTING_ID";
-		$DB->Query($strSql, false, $err_mess.__LINE__);	
+		$DB->Query($strSql);
 		
 		// 7 DELETE OLD POST
 		$strSql = "DELETE FROM b_rating_vote WHERE ENTITY_TYPE_ID = 'USER' and CREATED < " . $helper->addDaysToDateTime(-intval($arConfigs['CONDITION_CONFIG']['VOTE']['VOTE_LIMIT'])) . "";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		return true;
 	}
 }

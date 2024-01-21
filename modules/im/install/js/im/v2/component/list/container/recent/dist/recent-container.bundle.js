@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core_events,main_core,im_v2_component_list_elementList_recent,im_v2_component_search_chatSearchInput,im_v2_component_search_searchResult,im_v2_component_search_searchExperimental,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_promo,im_v2_lib_createChat,im_v2_const,ui_lottie,im_v2_component_elements) {
+(function (exports,main_core_events,main_core,im_v2_component_list_elementList_recent,im_v2_component_search_chatSearchInput,im_v2_component_search_searchExperimental,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_promo,im_v2_lib_createChat,im_v2_lib_layout,im_v2_const,ui_lottie,im_v2_component_elements) {
 	'use strict';
 
 	// @vue/component
@@ -29,7 +29,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      };
 	    },
 	    unreadCounter() {
-	      return this.$store.getters['recent/getTotalChatCounter'];
+	      return this.$store.getters['counters/getTotalChatCounter'];
 	    }
 	  },
 	  methods: {
@@ -52,11 +52,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				@click="onReadAllClick"
 			/>
 			<MenuItem
+				v-if="false"
 				:title="loc('IM_RECENT_HEADER_MENU_SHOW_UNREAD_ONLY')"
 				:counter="unreadCounter"
 				:disabled="true"
 			/>
 			<MenuItem
+				v-if="false"
 				:title="loc('IM_RECENT_HEADER_MENU_CHAT_GROUPS_TITLE')"
 				:subtitle="loc('IM_RECENT_HEADER_MENU_CHAT_GROUPS_SUBTITLE')"
 				:disabled="true"
@@ -27251,17 +27253,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
-	    DialogType: () => im_v2_const.DialogType
+	    ChatType: () => im_v2_const.ChatType
 	  },
 	  template: `
-		<GroupChatPromo v-if="chatType === DialogType.chat" @close="$emit('close')" @continue="$emit('continue')" />
-		<ConferencePromo v-else-if="chatType === DialogType.videoconf" @close="$emit('close')" @continue="$emit('continue')" />
+		<GroupChatPromo v-if="chatType === ChatType.chat" @close="$emit('close')" @continue="$emit('continue')" />
+		<ConferencePromo v-else-if="chatType === ChatType.videoconf" @close="$emit('close')" @continue="$emit('continue')" />
 	`
 	};
 
 	const PromoByChatType = {
-	  [im_v2_const.DialogType.chat]: im_v2_const.PromoId.createGroupChat,
-	  [im_v2_const.DialogType.videoconf]: im_v2_const.PromoId.createConference
+	  [im_v2_const.ChatType.chat]: im_v2_const.PromoId.createGroupChat,
+	  [im_v2_const.ChatType.videoconf]: im_v2_const.PromoId.createConference
 	};
 
 	// @vue/component
@@ -27281,7 +27283,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  },
 	  computed: {
-	    DialogType: () => im_v2_const.DialogType,
+	    ChatType: () => im_v2_const.ChatType,
 	    MenuItemIcon: () => im_v2_component_elements.MenuItemIcon,
 	    menuConfig() {
 	      return {
@@ -27321,8 +27323,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      im_v2_lib_createChat.CreateChatManager.getInstance().setCreationStatus(false);
-	      this.$store.dispatch('application/setLayout', {
-	        layoutName: im_v2_const.Layout.createChat.name,
+	      void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	        name: im_v2_const.Layout.createChat.name,
 	        entityId: this.chatTypeToCreate
 	      });
 	    },
@@ -27346,15 +27348,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				:icon="MenuItemIcon.chat"
 				:title="loc('IM_RECENT_CREATE_GROUP_CHAT_TITLE_V2')"
 				:subtitle="loc('IM_RECENT_CREATE_GROUP_CHAT_SUBTITLE')"
-				@click="onChatCreateClick(DialogType.chat)"
+				@click="onChatCreateClick(ChatType.chat)"
 			/>
 			<MenuItem
 				:icon="MenuItemIcon.conference"
 				:title="loc('IM_RECENT_CREATE_CONFERENCE_TITLE')"
 				:subtitle="loc('IM_RECENT_CREATE_CONFERENCE_SUBTITLE')"
-				@click="onChatCreateClick(DialogType.videoconf)"
+				@click="onChatCreateClick(ChatType.videoconf)"
 			/>
 			<MenuItem
+				v-if="false"
 				:icon="MenuItemIcon.channel"
 				:title="loc('IM_RECENT_CREATE_CHANNEL_TITLE_V2')"
 				:subtitle="loc('IM_RECENT_CREATE_CHANNEL_SUBTITLE_V2')"
@@ -27380,7 +27383,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    HeaderMenu,
 	    CreateChatMenu,
 	    ChatSearchInput: im_v2_component_search_chatSearchInput.ChatSearchInput,
-	    SearchResult: im_v2_component_search_searchResult.SearchResult,
 	    RecentList: im_v2_component_list_elementList_recent.RecentList,
 	    SearchExperimental: im_v2_component_search_searchExperimental.SearchExperimental
 	  },
@@ -27389,7 +27391,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {
 	      searchMode: false,
 	      unreadOnlyMode: false,
-	      searchQuery: ''
+	      searchQuery: '',
+	      isSearchLoading: false
 	    };
 	  },
 	  computed: {
@@ -27427,6 +27430,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (!clickOnRecentContainer) {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.search.close);
 	      }
+	    },
+	    onLoading(value) {
+	      this.isSearchLoading = value;
 	    }
 	  },
 	  template: `
@@ -27436,6 +27442,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						<div class="bx-im-list-container-recent__search-input_container">
 							<ChatSearchInput 
 								:searchMode="searchMode" 
+								:isLoading="isSearchLoading"
 								@openSearch="onOpenSearch"
 								@closeSearch="onCloseSearch"
 								@updateSearch="onUpdateSearch"
@@ -27447,9 +27454,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						<div class="bx-im-list-container-recent__elements">
 							<SearchExperimental 
 								v-show="searchMode" 
-								:searchMode="searchMode" 
+								:searchMode="searchMode"
+								:withMyNotes="true"
 								:searchQuery="searchQuery" 
 								:searchConfig="{}"
+								@loading="onLoading"
 							/>
 							<RecentList v-show="!searchMode && !unreadOnlyMode" @chatClick="onChatClick" key="recent" />
 		<!--					<RecentList-->
@@ -27466,5 +27475,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.RecentListContainer = RecentListContainer;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Event,BX,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component,BX.Messenger.v2.Component,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Event,BX,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=recent-container.bundle.js.map

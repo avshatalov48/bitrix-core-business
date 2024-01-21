@@ -1,9 +1,9 @@
 <?php
 $MESS["ACCESS_DENIED"] = "Access denied.";
 $MESS["CAT_DOCS_MSGVER_1"] = "Inventory";
-$MESS["CAT_DOC_ADD"] = "New document";
 $MESS["CAT_DOC_ADD_ITEMS"] = "Add product";
-$MESS["CAT_DOC_ADD_TITLE"] = "Create a new document";
+$MESS["CAT_DOC_ADD_MSGVER_1"] = "New inventory object";
+$MESS["CAT_DOC_ADD_TITLE_MSGVER_1"] = "Create a new inventory object";
 $MESS["CAT_DOC_BARCODE"] = "Bar code";
 $MESS["CAT_DOC_CANCELLATION"] = "Cancel transaction";
 $MESS["CAT_DOC_COMMENT"] = "Comment";
@@ -42,10 +42,10 @@ $MESS["CAT_DOC_SITE_ID"] = "Website";
 $MESS["CAT_DOC_STATUS"] = "Status";
 $MESS["CAT_DOC_STORE_FROM"] = "Source warehouse";
 $MESS["CAT_DOC_STORE_TO"] = "Destination warehouse";
-$MESS["CAT_DOC_TAB"] = "Document";
+$MESS["CAT_DOC_TAB_MSGVER_1"] = "Inventory object";
 $MESS["CAT_DOC_TITLE"] = "Name";
 $MESS["CAT_DOC_TITLE_DOCUMENT_DATE"] = "of #DATE#";
 $MESS["CAT_DOC_TOTAL"] = "Total";
-$MESS["CAT_DOC_TYPE"] = "Document type";
+$MESS["CAT_DOC_TYPE_MSGVER_1"] = "New inventory type";
 $MESS["CAT_DOC_VIEW"] = "View";
 $MESS["group_admin_nav"] = "Documents";

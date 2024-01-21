@@ -142,7 +142,7 @@ export class FloatingScreenShare
 
 	show()
 	{
-		if (!DesktopApi.isDesktop())
+		if (!DesktopApi.isDesktop() || DesktopApi.getApiVersion() > 74)
 		{
 			return;
 		}

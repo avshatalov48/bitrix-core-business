@@ -158,14 +158,17 @@ class RoleUtil extends \Bitrix\Main\Access\Role\RoleUtil
 	 *
 	 * @return array
 	 */
-	public static function buildInsertPermissionQuery(array $permissions, int $roleId)
+	public static function buildInsertPermissionQuery(array $permissions, int $roleId): array
 	{
 		$query = [];
 
 		foreach ($permissions as $permission)
 		{
-			$query[] = '('. $roleId .', '. $permission .', '
-					.PermissionDictionary::VALUE_YES.')';
+			$query[] = [
+				'ROLE_ID' => $roleId,
+				'PERMISSION_ID' => $permission,
+				'VALUE' => PermissionDictionary::VALUE_YES,
+			];
 		}
 
 		return $query;
@@ -179,15 +182,12 @@ class RoleUtil extends \Bitrix\Main\Access\Role\RoleUtil
 	 */
 	public static function insertPermissions(array $valuesData)
 	{
-		$query = '
-				INSERT INTO b_sender_permission
-					(ROLE_ID, PERMISSION_ID, `VALUE`)
-					VALUES '.implode(',', $valuesData). '
-					ON DUPLICATE KEY UPDATE
-				PERMISSION_ID = VALUES(PERMISSION_ID)
-			';
-
-		Application::getConnection()->query($query);
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		foreach ($helper->prepareMergeMultiple('b_sender_permission', ['ROLE_ID', 'PERMISSION_ID'], $valuesData) as $sql)
+		{
+			$connection->query($sql);
+		}
 	}
 
 	/**

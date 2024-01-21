@@ -950,7 +950,9 @@ class CIMEvent
 				'command' => 'chatHide',
 				'expiry' => 3600,
 				'params' => [
-					'dialogId' => $ID
+					'dialogId' => $ID,
+					'chatId' => null,
+					'lines' => false,
 				],
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			]);

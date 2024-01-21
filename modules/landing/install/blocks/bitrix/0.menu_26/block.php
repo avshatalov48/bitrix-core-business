@@ -69,7 +69,7 @@
 					data-toggle="collapse"
 					data-target="#navBar">
 				<span class="d-flex align-items-center">
-					<span class="landing-block-node-hamburger hamburger hamburger--sm hamburger--slider g-mr-9">
+					<span class="landing-block-node-hamburger hamburger hamburger--slider hamburger--sm g-mr-9">
 						<span class="hamburger-box">
 							<span class="hamburger-inner"></span>
 						</span>

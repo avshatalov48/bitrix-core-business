@@ -52,7 +52,7 @@ class CSocNetLogCounter extends CAllSocNetLogCounter
 
 	function dbIF($condition, $yes, $no)
 	{
-		return "if(".$condition.", ".$yes.", ".$no.")";
+		return " case when ".$condition." then ".$yes." else ".$no." end ";
 	}
 
 	public static function dbWeeksAgo($iWeeks)

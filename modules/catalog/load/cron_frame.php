@@ -11,10 +11,10 @@ $DOCUMENT_ROOT = $_SERVER["DOCUMENT_ROOT"];
 
 $siteID = '#SITE_ID#'; // replace #SITE_ID# to your real site ID - need for language ID
 
-define("NO_KEEP_STATISTIC", true);
-define("NOT_CHECK_PERMISSIONS",true);
-define("BX_CAT_CRON", true);
-define('NO_AGENT_CHECK', true);
+const NO_KEEP_STATISTIC = true;
+const NOT_CHECK_PERMISSIONS = true;
+const BX_CAT_CRON = true;
+const NO_AGENT_CHECK = true;
 if (preg_match('/^[a-z0-9_]{2}$/i', $siteID) === 1)
 {
 	define('SITE_ID', $siteID);
@@ -29,29 +29,41 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 global $DB;
 
 if (!defined('LANGUAGE_ID') || preg_match('/^[a-z]{2}$/i', LANGUAGE_ID) !== 1)
+{
 	die('Language id is absent - defined site is bad');
+}
 
 set_time_limit(0);
 
 if (!\Bitrix\Main\Loader::includeModule('catalog'))
+{
 	die('Can\'t include module');
+}
 
 $profile_id = 0;
 if (isset($argv[1]))
+{
 	$profile_id = (int)$argv[1];
+}
 if ($profile_id <= 0)
+{
 	die('No profile id');
+}
 
 $ar_profile = CCatalogExport::GetByID($profile_id);
 if (!$ar_profile)
+{
 	die('No profile');
+}
 
 $strFile = CATALOG_PATH2EXPORTS.$ar_profile["FILE_NAME"]."_run.php";
 if (!file_exists($_SERVER["DOCUMENT_ROOT"].$strFile))
 {
 	$strFile = CATALOG_PATH2EXPORTS_DEF.$ar_profile["FILE_NAME"]."_run.php";
 	if (!file_exists($_SERVER["DOCUMENT_ROOT"].$strFile))
+	{
 		die('No export script');
+	}
 }
 
 $arSetupVars = array();
@@ -60,7 +72,9 @@ if ($ar_profile["DEFAULT_PROFILE"] != 'Y')
 {
 	parse_str($ar_profile["SETUP_VARS"], $arSetupVars);
 	if (!empty($arSetupVars) && is_array($arSetupVars))
+	{
 		$intSetupVarsCount = extract($arSetupVars, EXTR_SKIP);
+	}
 }
 
 $firstStep = true;
@@ -95,7 +109,7 @@ CCatalogDiscountSave::Enable();
 
 CCatalogExport::Update(
 	$profile_id,
-	array(
-		"=LAST_USE" => $DB->GetNowFunction()
-	)
+	[
+		"=LAST_USE" => $DB->GetNowFunction(),
+	]
 );

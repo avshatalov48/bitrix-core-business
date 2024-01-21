@@ -24,6 +24,7 @@ class Page
 
 		this.signedParameters = '';
 		this.componentName = '';
+		this.context = '';
 
 		this.class = {
 		};
@@ -60,7 +61,7 @@ class Page
 
 		params.siteTemplateId = Loc.getMessage('SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID');
 		params.assetsCheckSum = Loc.getMessage('sonetLAssetsCheckSum');
-
+		params.context = Type.isStringFilled(params.context) ? params.context : this.context;
 		this.loadStarted = true;
 
 		Loader.showRefreshFade();
@@ -311,6 +312,8 @@ class Page
 			queryParams.blogCommentFormUID = this.blogCommentFormUID;
 		}
 
+		queryParams.context = this.context;
+
 		const queryData = {
 			c: this.getComponentName(),
 			logajax: 'Y', // compatibility with socialnetwork.blog.post.comment
@@ -514,6 +517,12 @@ class Page
 	{
 		this.signedParameters = value;
 	}
+
+	setContext(context: string): void
+	{
+		this.context = context;
+	}
+
 	getSignedParameters()
 	{
 		return this.signedParameters;
@@ -545,7 +554,7 @@ class Page
 		}
 
 		this.scrollInitialized = true;
-		document.addEventListener('scroll', this.onFeedScroll.bind(this));
+		document.addEventListener('scroll', this.onFeedScroll.bind(this), true);
 	}
 
 	onFeedScroll()

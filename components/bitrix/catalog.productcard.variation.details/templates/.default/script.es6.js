@@ -1,8 +1,7 @@
-import {Event, Loc, Reflection} from 'main.core';
-import {EntityCard} from 'catalog.entity-card';
-import {type BaseEvent, EventEmitter} from 'main.core.events';
-import {Popup} from "main.popup";
-import {Button} from "ui.buttons";
+import { Loc, Reflection } from 'main.core';
+import { EntityCard } from 'catalog.entity-card';
+import { type BaseEvent, EventEmitter } from 'main.core.events';
+import { MessageBox } from 'ui.dialogs.messagebox';
 
 class VariationCard extends EntityCard
 {
@@ -46,32 +45,15 @@ class VariationCard extends EntityCard
 				return;
 			}
 
-			const popup = new Popup({
-				content: Loc.getMessage('CPVD_QUANTITY_TRACE_NOTICE'),
-				overlay: true,
-				titleBar: Loc.getMessage('CPVD_QUANTITY_TRACE_NOTICE_TITLE'),
-				closeByEsc: true,
-				closeIcon: true,
-				buttons: [
-					new Button({
-						text: Loc.getMessage('CPVD_QUANTITY_TRACE_ACCEPT'),
-						className: 'ui-btn ui-btn-md ui-btn-primary',
-						events: {
-							click: (function()
-							{
-								this.#isQuantityTraceNoticeShown = false;
-								popup.destroy();
-							}).bind(this),
-						}
-					}),
-				],
-				events: {
-					onAfterClose: (function () {
-						this.#isQuantityTraceNoticeShown = false;
-					}).bind(this),
-				}
-			});
-			popup.show();
+			MessageBox.alert(
+				Loc.getMessage('CPVD_QUANTITY_TRACE_NOTICE'),
+				Loc.getMessage('CPVD_QUANTITY_TRACE_NOTICE_TITLE'),
+				(messageBox) => {
+					this.#isQuantityTraceNoticeShown = false;
+					messageBox.close();
+				},
+				Loc.getMessage('CPVD_QUANTITY_TRACE_ACCEPT'),
+			);
 
 			this.#isQuantityTraceNoticeShown = true;
 		});

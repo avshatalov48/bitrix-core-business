@@ -68,12 +68,17 @@ class IcsManager
 
 	public function getIcsFileContent(Event $event, array $params): string
 	{
+		$dtEnd = Util::getTimestamp($event->getEnd());
+		if ($event->isFullDayEvent())
+		{
+			$dtEnd += \CCalendar::GetDayLen();
+		}
 		$icsBuilder = new \Bitrix\Calendar\ICal\IcsBuilder(
 			[
 				'summary' => $event->getName() ?? '',
 				'description' => $this->prepareEventDescription($event, $params),
 				'dtstart' => Util::getTimestamp($event->getStart()),
-				'dtend' => Util::getTimestamp($event->getEnd()),
+				'dtend' => $dtEnd,
 				'dtstamp' => Util::getTimestamp($event->getDateCreate()),
 				'location' => $this->prepareLocationField($event),
 				'uid' => $event->getUid() ?? uniqid('', true),

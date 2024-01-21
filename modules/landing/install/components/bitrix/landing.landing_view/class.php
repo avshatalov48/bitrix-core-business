@@ -651,9 +651,13 @@ class LandingViewComponent extends LandingBaseComponent
 				$meta = $landing->getMeta();
 				$options['url'] = $arResult['~LANDING_FULL_URL'] ?? $landing->getPublicUrl();
 				$options['allow_svg'] = Manager::getOption('allow_svg_content') === 'Y';
-				$options['allow_ai_text'] = $arResult['ALLOW_AI_TEXT'];
-				$options['allow_ai_image'] = $arResult['ALLOW_AI_IMAGE'];
-				$options['release_autumn_2023'] = Manager::getOption('release_autumn_2023', 'N');
+				$options['ai_text_available'] = $arResult['AI_TEXT_AVAILABLE'];
+				$options['copilot_available'] = $arResult['COPILOT_AVAILABLE'];
+				$options['ai_text_active'] = $arResult['AI_TEXT_ACTIVE'];
+				$options['ai_image_available'] = $arResult['AI_IMAGE_AVAILABLE'];
+				$options['ai_image_active'] = $arResult['AI_IMAGE_ACTIVE'];
+				$options['ai_unactive_info_code'] = $arResult['AI_UNACTIVE_INFO_CODE'];
+				$options['allow_minisites'] = \Bitrix\Landing\Restriction\Form::isMinisitesAllowed();
 				$options['folder_id'] = $landing->getFolderId();
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
@@ -1201,8 +1205,13 @@ class LandingViewComponent extends LandingBaseComponent
 			Landing::setEditMode();
 			$landing = Landing::createInstance($this->arParams['LANDING_ID']);
 
-			$this->arResult['ALLOW_AI_TEXT'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
-			$this->arResult['ALLOW_AI_IMAGE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
+			// ai
+			$this->arResult['AI_TEXT_AVAILABLE'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
+			$this->arResult['COPILOT_AVAILABLE'] = \Bitrix\Landing\Connector\Ai::isCopilotAvailable();
+			$this->arResult['AI_TEXT_ACTIVE'] = \Bitrix\Landing\Connector\Ai::isTextActive();
+			$this->arResult['AI_IMAGE_AVAILABLE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
+			$this->arResult['AI_IMAGE_ACTIVE'] = \Bitrix\Landing\Connector\Ai::isImageActive();
+			$this->arResult['AI_UNACTIVE_INFO_CODE'] = self::getAiUnactiveInfoCode();
 
 			$this->arResult['AUTO_PUBLICATION_ENABLED'] = \CUserOptions::getOption('landing', 'auto_publication', 'Y') === 'Y';
 			$this->arResult['SUCCESS_SAVE'] = $this->request('success') === 'Y';
@@ -1316,10 +1325,20 @@ class LandingViewComponent extends LandingBaseComponent
 					$this->arResult['SITE'],
 					$rights
 				);
-				$this->arParams['PAGE_URL_LANDING_ADD'] = $this->getUrlAdd(false);
-				$this->arParams['PAGE_URL_LANDING_REPLACE'] = $this->getUrlAdd(
+
+				// params for analytics
+				$urlAddParams = [];
+				if ($this->arResult['SPECIAL_TYPE'])
+				{
+					$urlAddParams['specType'] = $this->arResult['SPECIAL_TYPE'];
+				}
+				$this->arParams['PAGE_URL_LANDING_ADD'] = $this->getUrlAdd(false, $urlAddParams);
+
+				$urlAddParams['replaceLid'] = $this->arParams['LANDING_ID'];
+				$urlAddParams['context'] = 'block_style';
+				$this->arParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'] = $this->getUrlAdd(
 					false,
-					['replaceLid' => $this->arParams['LANDING_ID']],
+					$urlAddParams,
 					Manager::getMarketCollectionId('form_minisite')
 				);
 

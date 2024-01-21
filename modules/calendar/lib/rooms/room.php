@@ -197,7 +197,7 @@ class Room
 	 */
 	public function setCategoryId(?int $categoryId = null): Room
 	{
-		$this->categoryId = $categoryId ? $categoryId : null;
+		$this->categoryId = $categoryId ?: null;
 
 		return $this;
 	}
@@ -237,7 +237,7 @@ class Room
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getNecessity(): ?string
 	{
@@ -245,7 +245,7 @@ class Room
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getName(): ?string
 	{
@@ -253,7 +253,7 @@ class Room
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getType(): ?string
 	{
@@ -261,7 +261,7 @@ class Room
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getColor(): ?string
 	{
@@ -285,7 +285,7 @@ class Room
 	}
 
 	/**
-	 * @return array
+	 * @return array|null
 	 */
 	public function getAccess(): ?array
 	{
@@ -327,7 +327,7 @@ class Room
 		]);
 		if (!$section->isSuccess())
 		{
-			$this->addError(Loc::getMessage('EC_ROOM_SAVE_ERROR'));
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_SAVE_ERROR')));
 
 			return $this;
 		}

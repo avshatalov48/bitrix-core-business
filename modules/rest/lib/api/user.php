@@ -7,6 +7,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UserTable;
 use Bitrix\Rest\AppTable;
+use Bitrix\Rest\NonLoggedExceptionDecorator;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\Controller\File;
 
@@ -941,7 +942,7 @@ class User extends \IRestService
 				$obUser = new \CUser;
 				if(!$obUser->update($userFields['ID'], $updateFields))
 				{
-					throw new \Exception($obUser->LAST_ERROR);
+					throw new NonLoggedExceptionDecorator(new \Exception($obUser->LAST_ERROR));
 				}
 				else
 				{
@@ -950,12 +951,12 @@ class User extends \IRestService
 			}
 			else
 			{
-				throw new \Exception('access_denied');
+				throw new NonLoggedExceptionDecorator(new \Exception('access_denied'));
 			}
 		}
 		else
 		{
-			throw new \Exception('access_denied');
+			throw new NonLoggedExceptionDecorator(new \Exception('access_denied'));
 		}
 
 		return $res;

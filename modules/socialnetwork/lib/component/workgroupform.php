@@ -164,6 +164,10 @@ class WorkgroupForm extends \CBitrixComponent
 			'groupId' => $groupId,
 		]);
 
+		$groupPerms = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
+			'groupId' => $groupId,
+		]);
+
 		if (
 			$groupFields
 			&& (
@@ -175,7 +179,8 @@ class WorkgroupForm extends \CBitrixComponent
 					$tab === 'invite'
 					&& (
 						$currentAdmin
-						|| \CSocNetGroup::canUserInitiate($currentUserId, $groupId)
+						|| $groupPerms['UserCanInitiate']
+						|| $groupPerms['UserCanModifyGroup']
 					)
 				)
 			)

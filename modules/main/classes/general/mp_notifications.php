@@ -127,7 +127,7 @@ class CMpNotifications
 		if ($strError_tmp == '')
 		{
 			CUpdateClientPartner::__ParseServerData($content, $arResult, $strError_tmp);
-			if (is_array($arResult['DATA']['#']['MODULE']) && !empty($arResult['DATA']['#']['MODULE']))
+			if (!empty($arResult['DATA']['#']['MODULE']) && is_array($arResult['DATA']['#']['MODULE']))
 			{
 				foreach ($arResult['DATA']['#']['MODULE'] as $arModule)
 				{

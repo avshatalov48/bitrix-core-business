@@ -126,6 +126,7 @@ $MESS["EC_JS_ICAL_COPY_ICAL_SYNC_LINK"] = "Copy link";
 $MESS["EC_JS_ICAL_COPY_ICAL_SYNC_LINK_FAILED"] = "Cannot copy link to the Clipboard";
 $MESS["EC_JS_ICAL_COPY_ICAL_SYNC_LINK_SUCCESS"] = "Link copied to the Clipboard";
 $MESS["EC_JS_ICAL_ERROR_WITH_PATHES"] = "Attention! Calendar synchronization data are incorrect. Please contact your Bitrix24 administrator or Helpdesk.";
+$MESS["EC_JS_UNTIL_DATE"] = "till #DATE#";
 $MESS["EC_LEAVE_EVENT_CONFIRM_DESC"] = "All changes will be lost";
 $MESS["EC_LEAVE_EVENT_CONFIRM_QUESTION"] = "Close the event edit form?";
 $MESS["EC_LOCATION"] = "Location";

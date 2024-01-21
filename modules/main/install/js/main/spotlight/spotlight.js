@@ -13,6 +13,7 @@
 		this.targetElementRect = null;
 		this.targetVertex = "top-left";
 		this.content = null;
+		this.title = null;
 		this.top = 0;
 		this.left = 0;
 		this.lightMode = false;
@@ -47,6 +48,8 @@
 			this.setZindex(options.zIndex);
 			this.setLightMode(options.lightMode);
 			this.setContent(options.content);
+			this.setTitle(options.title);
+			this.setColor(options.color);
 			this.setOffsetLeft(options.left);
 			this.setOffsetTop(options.top);
 			this.setAutoSave(options.autoSave);
@@ -145,6 +148,23 @@
 			}
 		},
 
+		isFixedPosition: function(element)
+		{
+			let currentElement = element;
+			while (currentElement && currentElement.tagName !== 'BODY')
+			{
+				const position = window.getComputedStyle(currentElement).getPropertyValue('position');
+				if (position === 'fixed')
+				{
+					return true;
+				}
+
+				currentElement = currentElement.parentNode;
+			}
+
+			return false;
+		},
+
 		getContent: function()
 		{
 			return this.content;
@@ -155,6 +175,19 @@
 			if (BX.type.isNotEmptyString(content) || BX.type.isDomNode(content) || content === null)
 			{
 				this.content = content;
+			}
+		},
+
+		getTitle: function()
+		{
+			return this.title;
+		},
+
+		setTitle: function(title)
+		{
+			if (BX.Type.isStringFilled(title) || title === null)
+			{
+				this.title = title;
 			}
 		},
 
@@ -277,38 +310,39 @@
 				return this.popup;
 			}
 
-			this.popup = new BX.PopupWindow("spotlight-" + BX.util.getRandomString(), this.container, {
-				className: "main-spot-light-popup",
-				angle: {
-					position: "top",
-					offset: 41
+			const messageBox = BX.UI.Dialogs.MessageBox.create({
+				message: this.getContent(),
+				title: this.getTitle(),
+				modal: true,
+				okCaption: BX.message("MAIN_SPOTLIGHT_UNDERSTAND"),
+				onOk: () => {
+					this.fireEvent('onPopupAccept');
+					BX.onCustomEvent(this, 'spotLightOk', [this.getTargetElement(), this]); //compatibility
+					this.close();
 				},
-				closeByEsc: true,
-				overlay: true,
-				content: this.getContent(),
-				events: {
-					onPopupShow: function() {
-						this.fireEvent("onPopupShow");
-					}.bind(this),
-					onPopupClose: function() {
-						this.fireEvent("onPopupClose");
-						this.close();
-					}.bind(this)
+				buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
+				popupOptions: {
+					bindElement: this.container,
+					offsetTop: 10,
+					angle: {
+						position: 'top',
+					},
+					animation: { showClassName: 'main-spot-light-popup-animation', closeAnimationType: 'animation' },
+					closeByEsc: true,
+					fixed: this.container.style.position === 'fixed',
+					events: {
+						onPopupShow: () => {
+							this.fireEvent('onPopupShow');
+						},
+						onPopupClose: () => {
+							this.fireEvent('onPopupClose');
+							this.close();
+						},
+					},
 				},
-				buttons: [
-					new BX.PopupWindowCustomButton({
-						text: BX.message("MAIN_SPOTLIGHT_UNDERSTAND"),
-						className: "webform-small-button webform-small-button-blue",
-						events: {
-							click: function() {
-								this.fireEvent("onPopupAccept");
-								BX.onCustomEvent(this, "spotLightOk", [this.getTargetElement(), this]); //compatibility
-								this.close();
-							}.bind(this)
-						}
-					})
-				]
 			});
+
+			this.popup = messageBox.getPopupWindow();
 
 			return this.popup;
 		},
@@ -327,7 +361,10 @@
 				events: {
 					mouseenter: this.handleTargetMouseEnter.bind(this),
 					mouseleave: this.handleTargetMouseLeave.bind(this)
-				}
+				},
+				styles: {
+					color: this.getColor(),
+				},
 			});
 
 			if ("ontouchstart" in window)
@@ -340,16 +377,23 @@
 
 		adjustPosition: function()
 		{
-			this.targetElementRect = BX.pos(this.getTargetElement());
-
 			var targetElement = this.getTargetElement();
-			var isVisible = Boolean(
-				targetElement.offsetWidth || targetElement.offsetHeight || targetElement.getClientRects().length
+			const isFixed = this.isFixedPosition(targetElement);
+			this.targetElementRect = isFixed ? targetElement.getBoundingClientRect() : BX.pos(targetElement);
+
+			var isVisible = (
+				(
+					targetElement.offsetWidth > 0
+					|| targetElement.offsetHeight > 0
+					|| targetElement.getClientRects().length > 0
+				)
+				&& BX.Dom.style(targetElement, 'visibility') !== 'hidden'
 			);
 
 			if (!isVisible)
 			{
 				this.container.hidden = true;
+
 				return;
 			}
 
@@ -403,6 +447,13 @@
 			this.container.style.top = top + this.getOffsetTop() + "px";
 			this.container.style.zIndex = this.getZindex();
 			this.container.style.color = this.getColor();
+			this.container.style.position = isFixed ? 'fixed' : 'block';
+
+			if (this.popup && ((this.popup.isFixed() && !isFixed) || (!this.popup.isFixed() && isFixed)))
+			{
+				this.popup.setFixed(isFixed);
+				this.popup.adjustPosition();
+			}
 		},
 
 		handlePageResize: function()

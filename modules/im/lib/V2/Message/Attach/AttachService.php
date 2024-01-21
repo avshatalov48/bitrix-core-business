@@ -18,7 +18,9 @@ class AttachService
 			return;
 		}
 
-		$params->delete();
+		$params->get('URL_ID')->unsetValue();
+		$params->get('URL_ONLY')->unsetValue();
+		$params->save();
 
 		(new Message\Param\PushService())->sendPull($message, ['URL_ID', 'ATTACH', 'URL_ONLY']);
 	}

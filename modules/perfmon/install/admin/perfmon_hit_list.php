@@ -1,3 +1,2 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/admin/perfmon_hit_list.php");
-?>
+<?php
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/admin/perfmon_hit_list.php';

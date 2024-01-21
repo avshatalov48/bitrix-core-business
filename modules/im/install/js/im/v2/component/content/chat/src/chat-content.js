@@ -10,11 +10,22 @@ import { LocalStorageManager } from 'im.v2.lib.local-storage';
 import { ThemeManager } from 'im.v2.lib.theme';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { EventType, Layout, LocalStorageKey, SidebarDetailBlock, ChatActionType, Settings, UserRole } from 'im.v2.const';
+import { ResizeManager } from 'im.v2.lib.textarea';
+import { LayoutManager } from 'im.v2.lib.layout';
+import {
+	EventType,
+	Layout,
+	LocalStorageKey,
+	SidebarDetailBlock,
+	ChatActionType,
+	Settings,
+	UserRole,
+	ChatType,
+} from 'im.v2.const';
+import { UserService } from './classes/user-service';
 
 import { ChatHeader } from './components/chat-header/chat-header';
 import { SidebarWrapper } from './components/chat-sidebar-wrapper';
-import { ResizeManager } from './classes/resize-manager';
 import { DropArea } from './components/drop-area';
 import { EmptyState } from './components/empty-state';
 import { MutePanel } from './components/mute-panel';
@@ -24,7 +35,7 @@ import './css/chat-content.css';
 
 import 'ui.notification';
 
-import type { ImModelDialog, ImModelLayout } from 'im.v2.model';
+import type { ImModelChat, ImModelLayout } from 'im.v2.model';
 import type { BackgroundStyle } from 'im.v2.lib.theme';
 
 const CHAT_HEADER_HEIGHT = 64;
@@ -69,7 +80,7 @@ export const ChatContent = {
 	{
 		return {
 			needSidebarTransition: false,
-			sidebarOpened: false,
+			sidebarOpened: true,
 			searchSidebarOpened: false,
 			sidebarDetailBlock: null,
 			textareaHeight: 0,
@@ -84,9 +95,9 @@ export const ChatContent = {
 		{
 			return this.$store.getters['application/getLayout'];
 		},
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.entityId, true);
+			return this.$store.getters['chats/get'](this.entityId, true);
 		},
 		hasPinnedMessages(): boolean
 		{
@@ -99,6 +110,10 @@ export const ChatContent = {
 		isGuest(): boolean
 		{
 			return this.dialog.role === UserRole.guest;
+		},
+		isUser(): boolean
+		{
+			return this.dialog.type === ChatType.user;
 		},
 		sidebarTransitionName(): string
 		{
@@ -154,6 +169,7 @@ export const ChatContent = {
 			Logger.warn(`ChatContent: switching from ${oldValue || 'empty'} to ${newValue}`);
 			if (newValue === '')
 			{
+				Logger.warn('ChatContent: closing sidebar, because entityId is empty');
 				this.sidebarOpened = false;
 			}
 			this.onChatChange();
@@ -197,8 +213,9 @@ export const ChatContent = {
 			if (Utils.dialog.isExternalId(this.entityId))
 			{
 				const realDialogId = await this.getChatService().prepareDialogId(this.entityId);
-				this.$store.dispatch('application/setLayout', {
-					layoutName: Layout.chat.name,
+
+				void LayoutManager.getInstance().setLayout({
+					name: Layout.chat.name,
 					entityId: realDialogId,
 					contextId: this.layout.contextId,
 				});
@@ -209,6 +226,11 @@ export const ChatContent = {
 			if (this.dialog.inited)
 			{
 				Logger.warn(`ChatContent: chat ${this.entityId} is already loaded`);
+				if (this.isUser)
+				{
+					const userId = parseInt(this.dialog.dialogId, 10);
+					void this.getUserService().updateLastActivityDate(userId);
+				}
 
 				return;
 			}
@@ -237,10 +259,7 @@ export const ChatContent = {
 			return this.getChatService().loadChatWithContext(this.entityId, this.layout.contextId).then(() => {
 				Logger.warn(`ChatContent: chat ${this.entityId} is loaded with context of ${this.layout.contextId}`);
 			}).catch((error) => {
-				if (error.code === 'ACCESS_ERROR')
-				{
-					this.showNotification(this.loc('IM_CONTENT_CHAT_ACCESS_ERROR'));
-				}
+				this.handleChatLoadError(error);
 				Logger.error(error);
 				Messenger.openChat();
 			});
@@ -251,14 +270,32 @@ export const ChatContent = {
 
 			return this.getChatService().loadChatWithMessages(this.entityId).then(() => {
 				Logger.warn(`ChatContent: chat ${this.entityId} is loaded`);
-			}).catch(() => {
+			}).catch((error) => {
+				this.handleChatLoadError(error);
+				Logger.error(error);
 				Messenger.openChat();
 			});
+		},
+		handleChatLoadError(error: Error[]): void
+		{
+			const [firstError] = error;
+			if (firstError.code === 'ACCESS_DENIED')
+			{
+				this.showNotification(this.loc('IM_CONTENT_CHAT_ACCESS_ERROR'));
+			}
+			else if (firstError.code === 'MESSAGE_NOT_FOUND')
+			{
+				this.showNotification(this.loc('IM_CONTENT_CHAT_CONTEXT_MESSAGE_NOT_FOUND'));
+			}
 		},
 		toggleSidebar()
 		{
 			this.needSidebarTransition = true;
 			this.sidebarOpened = !this.sidebarOpened;
+			if (!this.sidebarOpened)
+			{
+				Logger.warn('ChatContent: closing sidebar, because if was closed by toggle');
+			}
 			this.resetSidebarDetailState();
 		},
 		toggleSearchPanel()
@@ -268,6 +305,7 @@ export const ChatContent = {
 			{
 				this.sidebarDetailBlock = null;
 				this.sidebarOpened = false;
+				Logger.warn('ChatContent: closing sidebar, because message search was closed');
 			}
 			else
 			{
@@ -282,6 +320,7 @@ export const ChatContent = {
 			{
 				this.sidebarDetailBlock = null;
 				this.sidebarOpened = false;
+				Logger.warn('ChatContent: closing sidebar, because chat members panel was closed');
 			}
 			else
 			{
@@ -303,6 +342,7 @@ export const ChatContent = {
 		},
 		onSidebarClose()
 		{
+			Logger.warn('ChatContent: closing sidebar, because of sidebar close event');
 			this.sidebarOpened = false;
 		},
 		resetSidebarDetailState()
@@ -312,6 +352,15 @@ export const ChatContent = {
 		restoreSidebarOpenState()
 		{
 			const sidebarOpenState = LocalStorageManager.getInstance().get(LocalStorageKey.sidebarOpened);
+			if (sidebarOpenState === null)
+			{
+				return;
+			}
+
+			if (this.sidebarOpened && Boolean(sidebarOpenState))
+			{
+				Logger.warn('ChatContent: closing sidebar after restoring state from LS');
+			}
 			this.sidebarOpened = Boolean(sidebarOpenState);
 		},
 		saveSidebarOpenedState(sidebarOpened: boolean)
@@ -336,6 +385,15 @@ export const ChatContent = {
 		showNotification(text: string)
 		{
 			BX.UI.Notification.Center.notify({ content: text });
+		},
+		getUserService(): UserService
+		{
+			if (!this.userService)
+			{
+				this.userService = new UserService();
+			}
+
+			return this.userService;
 		},
 		loc(phraseCode: string): string
 		{

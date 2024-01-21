@@ -28,37 +28,37 @@ export const AttachGridItem = {
 		},
 		display(): $Values<typeof DisplayType>
 		{
-			return this.internalConfig.DISPLAY.toLowerCase();
+			return this.internalConfig.display.toLowerCase();
 		},
 		width(): string
 		{
-			if (!this.value || !this.internalConfig.WIDTH)
+			if (!this.value || !this.internalConfig.width)
 			{
 				return '';
 			}
 
-			return `${this.internalConfig.WIDTH}px`;
+			return `${this.internalConfig.width}px`;
 		},
 		value(): string
 		{
-			if (!this.internalConfig.VALUE)
+			if (!this.internalConfig.value)
 			{
 				return '';
 			}
 
-			return Parser.decodeText(this.internalConfig.VALUE);
+			return Parser.decodeText(this.internalConfig.value);
 		},
 		color(): string
 		{
-			return this.internalConfig.COLOR || '';
+			return this.internalConfig.color || '';
 		},
 		name(): string
 		{
-			return this.internalConfig.NAME;
+			return this.internalConfig.name;
 		},
 		link(): string
 		{
-			return this.internalConfig.LINK;
+			return this.internalConfig.link;
 		}
 	},
 	template: `

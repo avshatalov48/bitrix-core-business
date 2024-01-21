@@ -564,8 +564,8 @@ abstract class BasketBuilder
 			}
 			else
 			{
-				$basePrice = $productFormData['BASE_PRICE'] ?? 0;
-				$price = $productFormData['PRICE'] ?? 0;
+				$basePrice = (float)($productFormData['BASE_PRICE'] ?? 0);
+				$price = (float)($productFormData['PRICE'] ?? 0);
 
 				$needUpdateItemPrice = $this->isNeedUpdateNewProductPrice() && $this->isBasketItemNew($basketCode);
 				$isPriceCustom = isset($productFormData['CUSTOM_PRICE']) && $productFormData['CUSTOM_PRICE'] == 'Y';

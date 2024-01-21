@@ -1,6 +1,8 @@
-const webToMobilePlugin = require('../parser/build/plugin-web-to-mobile');
+const webToMobilePlugin = require('../.build-plugins/web-to-mobile');
+
 const fs = require('fs');
 const path = require('path');
+
 module.exports = {
 	input: 'src/ast-processor.js',
 	output: 'dist/ast-processor.bundle.js',

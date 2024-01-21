@@ -23,8 +23,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const quoteDate = im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(message.date, im_v2_lib_dateFormatter.DateTemplate.notification);
 	    const quoteText = im_v2_lib_parser.Parser.prepareQuote(message, text);
 	    let quoteContext = '';
-	    const dialog = im_v2_application_core.Core.getStore().getters['dialogues/getByChatId'](message.chatId);
-	    if (dialog && dialog.type === im_v2_const.DialogType.user) {
+	    const dialog = im_v2_application_core.Core.getStore().getters['chats/getByChatId'](message.chatId);
+	    if (dialog && dialog.type === im_v2_const.ChatType.user) {
 	      quoteContext = `#${dialog.dialogId}:${im_v2_application_core.Core.getUserId()}/${message.id}`;
 	    } else {
 	      quoteContext = `#${dialog.dialogId}/${message.id}`;
@@ -35,5 +35,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Quote = Quote;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Im.V2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=quote.bundle.js.map

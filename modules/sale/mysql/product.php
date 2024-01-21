@@ -288,7 +288,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 	* The function add viewed product
 	*
 	* @param array $arFields - params for add
-	* @return true false
+	* @return false|int
 	*/
 	public static function Add($arFields)
 	{
@@ -410,7 +410,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 					}
 				}
 
-				
+
 				$sqlInsertNames = $arInsert[0];
 				if (strval(trim($sqlInsertNames)) != '')
 				{
@@ -436,15 +436,15 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 			if ($offset <= time())
 			{
 				$arFields = ["DATE_VISIT" => $DB->GetNowFunction()];
-				$id = (int)$arItems["ID"];
-				CSaleViewedProduct::Update($id, $arFields);
+				$ID = (int)$arItems["ID"];
+				CSaleViewedProduct::Update($ID, $arFields);
 			}
 		}
 
 		foreach(GetModuleEvents("sale", "OnViewedAdd", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($arFields));
 
-		return $ID;
+		return $ID ?? false;
 	}
 
 	/**

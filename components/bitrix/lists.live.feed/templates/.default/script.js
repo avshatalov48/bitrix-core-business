@@ -133,6 +133,7 @@ BX.Lists.LiveFeedClass = (function ()
 			return;
 		}
 
+		let startTime = Math.round(Date.now() / 1000);
 		BX.Lists.ajax({
 			url: BX.Lists.addToLinkParam(this.ajaxUrl, 'action', 'getList'),
 			method: 'POST',
@@ -147,6 +148,8 @@ BX.Lists.LiveFeedClass = (function ()
 			},
 			onsuccess: BX.delegate(function (data)
 			{
+				startTime = Math.round(Date.now() / 1000);
+
 				BX('bx-lists-store-lists').appendChild(
 					BX.create('input', {
 						props: {
@@ -159,17 +162,19 @@ BX.Lists.LiveFeedClass = (function ()
 						}
 					})
 				);
-				BX('bx-lists-total-div-id').appendChild(
+
+				BX.Dom.append(
 					BX.create('div', {
 						props: {
-							id: 'bx-lists-div-list-'+iblockId,
+							id: 'bx-lists-div-list-' + iblockId,
 							className: 'bx-lists-div-list'
 						},
 						attrs: {
 							style: 'display: block;'
 						},
 						html: data
-					})
+					}),
+					BX('bx-lists-total-div-id')
 				);
 				var ob = BX.processHTML(data);
 				BX.ajax.processScripts(ob.SCRIPT);
@@ -177,6 +182,18 @@ BX.Lists.LiveFeedClass = (function ()
 		});
 		BX.unbindAll(BX('blog-submit-button-save'));
 		BX.bind(BX('blog-submit-button-save'), 'click', BX.proxy(function(e) {
+			const form = document.forms.namedItem('blogPostForm');
+			if (form)
+			{
+				const timeToStart = BX.Dom.create('input', {
+					attrs: {
+						name: 'timeToStart',
+						type: 'hidden',
+						value: Math.round(Date.now() / 1000) - startTime
+					}
+				});
+				BX.Dom.append(timeToStart, form);
+			}
 			this.submitForm(e);
 		}, this));
 	};

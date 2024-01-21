@@ -1,4 +1,4 @@
-<?
+<?php
 //<title>CSV Export</title>
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/data_export.php');
 
@@ -16,7 +16,7 @@ CCatalogDiscountSave::Disable();
 
 if (!function_exists('__sortCSVOrder'))
 {
-	function __sortCSVOrder($a, $b)
+	function __sortCSVOrder($a, $b): int
 	{
 		if ($a['SORT'] == $b['SORT'])
 		{

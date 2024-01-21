@@ -269,7 +269,11 @@ class Map
 			$description = Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_DESC');
 		}
 
-		if ($error && !is_array($manifest['requiredUserAction']))
+		$isEmptyRequiredUserAction =
+			!isset($manifest['requiredUserAction'])
+			|| !is_array($manifest['requiredUserAction'])
+		;
+		if ($error && $isEmptyRequiredUserAction)
 		{
 			$manifest['requiredUserAction'] = [
 				'header' => $error,
@@ -286,7 +290,7 @@ class Map
 
 	protected static function addNodes(array $manifest): array
 	{
-		if (!is_array($manifest['nodes']))
+		if (!isset($manifest['nodes']) || !is_array($manifest['nodes']))
 		{
 			$manifest['nodes'] = [];
 		}
@@ -328,7 +332,10 @@ class Map
 			];
 		}
 
-		if (!is_array($manifest['attrs'][self::MAP_SELECTOR]))
+		if (
+			!isset($manifest['attrs'][self::MAP_SELECTOR])
+			|| !is_array($manifest['attrs'][self::MAP_SELECTOR])
+		)
 		{
 			$manifest['attrs'][self::MAP_SELECTOR] = [];
 		}

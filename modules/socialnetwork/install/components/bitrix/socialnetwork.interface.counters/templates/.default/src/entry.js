@@ -154,7 +154,7 @@ export class Counters
 						switch (type)
 						{
 							case 'workgroup_requests_in':
-								baseColor = 'WARNING';
+								baseColor = 'DANGER';
 								break;
 							case 'workgroup_requests_out':
 								baseColor = 'SUCCESS';

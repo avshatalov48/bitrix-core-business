@@ -1,5 +1,5 @@
 <?php
-$MESS["BT_CAT_ADM_TOOLS_ADD_GROUP"] = "Bundle";
+$MESS["BT_CAT_ADM_TOOLS_ADD_GROUP_MSGVER_1"] = "Set";
 $MESS["BT_CAT_ADM_TOOLS_ADD_INSTAGRAM_IMPORT_2"] = "Import from Instagram";
 $MESS["BT_CAT_ADM_TOOLS_ADD_INSTAGRAM_IMPORT_TITLE"] = "Click to add products using Instagram";
 $MESS["BT_CAT_ADM_TOOLS_ADD_PRODUCT"] = "Product";
@@ -7,16 +7,16 @@ $MESS["BT_CAT_ADM_TOOLS_ADD_PROD_EXT"] = "Create product";
 $MESS["BT_CAT_ADM_TOOLS_ADD_PROD_EXT_2"] = "Create";
 $MESS["BT_CAT_ADM_TOOLS_ADD_PROD_TITLE"] = "Click to add a product without SKU";
 $MESS["BT_CAT_ADM_TOOLS_ADD_SERVICE"] = "Service";
-$MESS["BT_CAT_ADM_TOOLS_ADD_SET"] = "Add product set";
+$MESS["BT_CAT_ADM_TOOLS_ADD_SET_MSGVER_2"] = "Bundle";
 $MESS["BT_CAT_ADM_TOOLS_ADD_SKU"] = "Add product with SKU";
 $MESS["BT_CAT_ADM_TOOLS_ADD_SKU_2"] = "Product with SKU";
 $MESS["BT_CAT_ADM_TOOLS_ADD_SKU_TITLE"] = "Click to add a product with SKUs";
 $MESS["BT_CAT_ADM_TOOLS_DELETE_GROUP_LOCKED"] = "Cannot delete a set and change the product type at the same time.";
 $MESS["BT_CAT_ADM_TOOLS_TAB_CATALOG"] = "Commercial Catalog";
-$MESS["BT_CAT_ADM_TOOLS_TAB_GROUP"] = "Bundle";
+$MESS["BT_CAT_ADM_TOOLS_TAB_GROUP_MSGVER_1"] = "Set";
 $MESS["BT_CAT_ADM_TOOLS_TAB_PRODUCT"] = "Product parameters";
 $MESS["BT_CAT_ADM_TOOLS_TAB_SERVICE"] = "Service";
-$MESS["BT_CAT_ADM_TOOLS_TAB_SET"] = "Set";
+$MESS["BT_CAT_ADM_TOOLS_TAB_SET_MSGVER_1"] = "Bundle";
 $MESS["BT_CAT_ADM_TOOLS_TAB_SKU"] = "SKUs";
 $MESS["BT_CAT_ADM_TOOLS_TAB_TITLE_PRODUCT"] = "Product system preferences";
 $MESS["BT_CAT_SET_HEADER_ACTIVE"] = "Active";

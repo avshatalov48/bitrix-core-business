@@ -1,4 +1,4 @@
-import { PULL as Pull } from 'pull.client';
+import 'pull.client';
 
 import PullHandler from './pull-handler';
 import DesktopHelper from './helpers/desktop';
@@ -29,7 +29,7 @@ class Notifier
 	constructor()
 	{
 		this.provider = this.createProvider();
-		Pull.subscribe(new PullHandler());
+		BX.PULL?.subscribe(new PullHandler());
 	}
 
 	createProvider(): BaseProvider

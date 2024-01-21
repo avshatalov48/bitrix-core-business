@@ -27,6 +27,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.dialogs.messagebox',
 	'ui.hint',
 	'ui.icons.service',
+	'pull.client',
 ]);
 
 $APPLICATION->SetAdditionalCSS("/bitrix/css/main/font-awesome.css");
@@ -285,7 +286,6 @@ $this->setViewTarget('mail-msg-counter-script');
 <script type="text/javascript">
 (function ()
 {
-
 	var uiManager = BX.Mail.Client.Message.List['<?=\CUtil::jsEscape($component->getComponentId()) ?>'].userInterfaceManager;
 	BX.onCustomEvent('Grid::updated',[uiManager.getGridInstance()]);
 	uiManager.initMailboxes(<?=Main\Web\Json::encode($mailboxMenu) ?>);
@@ -308,6 +308,13 @@ $this->setViewTarget('mail-msg-counter-script');
 		BXMailMailbox.sync(BX.Mail.Home.ProgressBar, '<?=\CUtil::jsEscape($arResult['GRID_ID']) ?>', true,true);
 	}
 
+	const curPage = <?= (int)$arResult['NAV_OBJECT']->getCurrentPage(); ?>
+
+	uiManager.updateMessageMailHrefList(
+		<?= Main\Web\Json::encode($arResult['MESSAGE_HREF_LIST']) ?>,
+		curPage,
+		<?= !empty($arResult['ENABLE_NEXT_PAGE']) ? 'true' : 'false' ?>
+	);
 })();
 </script>
 
@@ -586,6 +593,7 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 ]);
 
 ?>
+<div class="mail-msg-list-grid-stub-wrapper"><div class="mail-msg-list-grid-stub" data-role="mail-msg-list-grid-stub"></div>
 <div class="mail-msg-list-actionpanel-container" data-role="mail-msg-list-actionpanel-container"></div>
 <div class="mail-msg-list-grid" data-role="mail-msg-list-grid">
 
@@ -798,6 +806,7 @@ $APPLICATION->includeComponent(
 			if(!Mail.Grid.getCountDisplayed())
 			{
 				Mail.Grid.setGridWrapper(document.querySelector('[data-role="mail-msg-list-grid"]'));
+				Mail.Grid.setGridStub(document.querySelector('[data-role="mail-msg-list-grid-stub"]'));
 				Mail.Grid.enableLoadingMessagesStub();
 			}
 		<?php
@@ -832,6 +841,8 @@ $APPLICATION->includeComponent(
 			inboxDir: '<?= CUtil::JSEscape($arResult['defaultDir']) ?>',
 			spamDir: '<?= CUtil::JSEscape($arResult['spamDir']) ?>',
 			trashDir: '<?= CUtil::JSEscape($arResult['trashDir']) ?>',
+			enableNextPage: '<?= !empty($arResult['ENABLE_NEXT_PAGE']) ?>' ?? false,
+			MESSAGE_MAIL_HREF_LIST: <?= Main\Web\Json::encode($arResult['MESSAGE_HREF_LIST']) ?>,
 			ENTITY_TYPE_NO_BIND: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_NO_BIND) ?>',
 			ENTITY_TYPE_CRM_ACTIVITY: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_CRM_ACTIVITY) ?>',
 			ENTITY_TYPE_TASKS_TASK: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_TASKS_TASK) ?>',
@@ -943,6 +954,29 @@ $APPLICATION->includeComponent(
 				}
 			}
 		);
+
+		top.BX.addCustomEvent("SidePanel.Slider:onOpen", (event) => {
+			const slider = event.getSlider();
+			const dictionary = slider.getData();
+			dictionary.set(
+				'hrefList',
+				mailMessageList.userInterfaceManager.MESSAGE_MAIL_HREF_LIST
+			);
+			dictionary.set('enableNextPage', mailMessageList.userInterfaceManager.enableNextPage ?? false);
+
+			const views = slider.getWindow()?.BXMailView?.__views
+			let view = null;
+			if(slider.getWindow()?.BXMailView?.__views)
+			{
+				const keys = Object.keys(views);
+				view = views[keys[0]];
+			}
+
+			if(view && view?.pageSwapper)
+			{
+				view.pageSwapper.updatePagesHref(slider.getData().get('hrefList'));
+			}
+		});
 
 		if (window === window.top)
 		{

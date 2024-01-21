@@ -88,7 +88,6 @@ class CEventLog
 	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = array(), $arNavParams = false)
 	{
 		global $DB;
-		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 
 		$arSqlSearch = array();
 		$arSqlOrder = array();
@@ -238,7 +237,7 @@ class CEventLog
 			if(!empty($arSqlOrder))
 				$strSql .=  " ORDER BY ".implode(", ", $arSqlOrder);
 
-			return $DB->Query("SELECT L.*, ".$DB->DateToCharFunction("L.TIMESTAMP_X")." as TIMESTAMP_X".$strSql, false, $err_mess.__LINE__);
+			return $DB->Query("SELECT L.*, ".$DB->DateToCharFunction("L.TIMESTAMP_X")." as TIMESTAMP_X".$strSql);
 		}
 	}
 

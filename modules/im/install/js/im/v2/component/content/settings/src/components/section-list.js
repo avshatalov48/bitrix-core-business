@@ -1,4 +1,4 @@
-import { Settings, SettingsSection } from 'im.v2.const';
+import { SettingsSection } from 'im.v2.const';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
 
 import { SectionMetaData } from '../sections';
@@ -41,7 +41,7 @@ export const SectionList = {
 		},
 		sections(): string[]
 		{
-			return Object.keys(Settings).filter((section) => {
+			return Object.keys(SettingsSection).filter((section) => {
 				return !this.disabledSections.has(section);
 			});
 		},

@@ -134,6 +134,7 @@ export const MediaDetailItem = {
 				class="bx-im-sidebar-file-media-detail-item__content --image" 
 				:style="previewPicture"
 				v-bind="viewerAttributes"
+				:title="file.name"
 			>
 			</div>
 			<div
@@ -141,6 +142,7 @@ export const MediaDetailItem = {
 				class="bx-im-sidebar-file-media-detail-item__content --video"
 				:style="previewPicture"
 				v-bind="viewerAttributes"
+				:title="file.name"
 			>
 				<video 
 					v-show="!hasPreview"

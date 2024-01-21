@@ -1,21 +1,28 @@
 import { Core } from 'im.v2.application.core';
 
+import { MyNotes } from './my-notes';
 import { CarouselUser } from './carousel-user';
 
 import '../css/recent-users-carousel.css';
 
 import type { ImModelUser, ImModelRecentItem } from 'im.v2.model';
 
-const recentUsersLimit = 6;
+const SHOW_USERS_LIMIT = 6;
 
 // @vue/component
 export const RecentUsersCarousel = {
 	name: 'RecentUsersCarousel',
-	components: { CarouselUser },
+	components: { CarouselUser, MyNotes },
+	props: {
+		withMyNotes: {
+			type: Boolean,
+			default: false,
+		},
+	},
 	emits: ['clickItem'],
 	computed:
 	{
-		users(): ImModelUser[]
+		users(): number[]
 		{
 			const recentUsers = [];
 
@@ -25,13 +32,26 @@ export const RecentUsersCarousel = {
 					return;
 				}
 				const user: ImModelUser = this.$store.getters['users/get'](recentItem.dialogId, true);
+				if (user.bot || user.id === Core.getUserId())
+				{
+					return;
+				}
 
 				recentUsers.push(user);
 			});
 
-			return recentUsers.filter((user: ImModelUser) => {
-				return !user.bot && user.id !== Core.getUserId();
-			}).slice(0, recentUsersLimit);
+			return recentUsers.map((user: ImModelUser) => user.id);
+		},
+		items(): number[]
+		{
+			const limit = this.withMyNotes ? SHOW_USERS_LIMIT - 1 : SHOW_USERS_LIMIT;
+
+			return this.users.slice(0, limit);
+		},
+
+		currentUserId(): number
+		{
+			return Core.getUserId();
 		},
 	},
 	methods:
@@ -49,10 +69,14 @@ export const RecentUsersCarousel = {
 				</span>
 			</div>
 			<div class="bx-im-recent-users-carousel__users-container">
-				<CarouselUser 
-					v-for="user in users"
-					:key="user.id"
-					:userId="user.id"
+				<MyNotes
+					v-if="withMyNotes"
+					@clickItem="$emit('clickItem', $event)"
+				/>
+				<CarouselUser
+					v-for="userId in items"
+					:key="userId"
+					:userId="userId"
 					@clickItem="$emit('clickItem', $event)"
 				/>
 			</div>

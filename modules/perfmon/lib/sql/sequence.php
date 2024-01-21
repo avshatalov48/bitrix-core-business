@@ -39,12 +39,13 @@ class Sequence extends BaseObject
 	 */
 	public function getCreateDdl($dbType = '')
 	{
-		switch ($dbType)
+		if ($dbType === 'ORACLE')
 		{
-		case "ORACLE":
 			return $this->body;
-		default:
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
+		}
+		else
+		{
+			return '// ' . get_class($this) . ':getDropDdl for database type [' . $dbType . '] not implemented';
 		}
 	}
 
@@ -57,12 +58,13 @@ class Sequence extends BaseObject
 	 */
 	public function getDropDdl($dbType = '')
 	{
-		switch ($dbType)
+		if ($dbType === 'ORACLE')
 		{
-		case "ORACLE":
-			return "DROP SEQUENCE ".$this->name;
-		default:
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
+			return 'DROP SEQUENCE ' . $this->name;
+		}
+		else
+		{
+			return '// ' . get_class($this) . ':getDropDdl for database type [' . $dbType . '] not implemented';
 		}
 	}
 
@@ -76,15 +78,16 @@ class Sequence extends BaseObject
 	 */
 	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
-		switch ($dbType)
+		if ($dbType === 'ORACLE')
 		{
-		case "ORACLE":
-			return array(
+			return [
 				$this->getDropDdl($dbType),
 				$target->getCreateDdl($dbType),
-			);
-		default:
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
+			];
+		}
+		else
+		{
+			return '// ' . get_class($this) . ':getDropDdl for database type [' . $dbType . '] not implemented';
 		}
 	}
 }

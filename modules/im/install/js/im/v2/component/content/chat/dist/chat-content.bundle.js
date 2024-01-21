@@ -3,113 +3,55 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_uploader_core,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_logger,im_v2_lib_theme,im_v2_component_entitySelector,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_localStorage,im_v2_lib_menu,im_public,im_v2_lib_call,im_v2_component_sidebar,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_component_elements,im_v2_provider_service) {
+(function (exports,ui_uploader_core,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_theme,im_v2_lib_textarea,im_v2_lib_layout,im_v2_lib_logger,im_v2_component_entitySelector,main_core_events,im_v2_lib_localStorage,im_v2_lib_permission,im_v2_lib_menu,im_public,im_v2_lib_call,main_core,im_v2_lib_utils,im_v2_component_sidebar,im_v2_application_core,im_v2_const,im_v2_component_elements,im_v2_provider_service) {
 	'use strict';
 
-	const INPUT_PADDING = 5;
-
-	// @vue/component
-	const EditableChatTitle = {
-	  name: 'EditableChatTitle',
-	  components: {
-	    ChatTitle: im_v2_component_elements.ChatTitle
-	  },
-	  props: {
-	    dialogId: {
-	      type: String,
-	      required: true
-	    }
-	  },
-	  emits: ['newTitleSubmit'],
-	  data() {
-	    return {
-	      isEditing: false,
-	      inputWidth: 0,
-	      showEditIcon: false,
-	      chatTitle: ''
-	    };
-	  },
-	  computed: {
-	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
-	    },
-	    canBeRenamed() {
-	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.rename, this.dialogId);
-	    },
-	    inputStyle() {
-	      return {
-	        width: `calc(${this.inputWidth}ch + ${INPUT_PADDING}px)`
-	      };
-	    }
-	  },
-	  watch: {
-	    chatTitle() {
-	      this.inputWidth = this.chatTitle.length;
-	    }
-	  },
-	  mounted() {
-	    this.chatTitle = this.dialog.name;
-	  },
-	  methods: {
-	    onTitleClick() {
-	      if (!this.canBeRenamed) {
-	        return;
+	class UserService {
+	  async updateLastActivityDate(userId) {
+	    if (this.isPullServerWithUserStatusSupport()) {
+	      const lastActivityDate = await this.getUserActivityFromPull(userId);
+	      if (!lastActivityDate) {
+	        return Promise.resolve();
 	      }
-	      if (!this.chatTitle) {
-	        this.chatTitle = this.dialog.name;
-	      }
-	      this.isEditing = true;
-	      this.$nextTick().then(() => {
-	        this.$refs.titleInput.focus();
+	      return this.updateUserModel(userId, {
+	        lastActivityDate
 	      });
-	    },
-	    onNewTitleSubmit() {
-	      if (!this.isEditing) {
-	        return;
-	      }
-	      this.isEditing = false;
-	      const nameNotChanged = this.chatTitle === this.dialog.name;
-	      if (nameNotChanged || this.chatTitle === '') {
-	        return;
-	      }
-	      this.$emit('newTitleSubmit', this.chatTitle);
-	    },
-	    onEditCancel() {
-	      this.isEditing = false;
-	      this.chatTitle = this.dialog.name;
 	    }
-	  },
-	  template: `
-		<div
-			v-if="!isEditing"
-			@click="onTitleClick"
-			@mouseover="showEditIcon = true"
-			@mouseleave="showEditIcon = false"
-			class="bx-im-chat-header__title --chat"
-			:class="{'--can-rename': canBeRenamed}"
-		>
-			<div class="bx-im-chat-header__title_container">
-				<ChatTitle :dialogId="dialogId" :withMute="true" />
-			</div>
-			<div class="bx-im-chat-header__edit-icon_container">
-				<div v-if="showEditIcon && canBeRenamed" class="bx-im-chat-header__edit-icon"></div>
-			</div>
-		</div>
-		<div v-else class="bx-im-chat-header__title-input_container">
-			<input
-				v-model="chatTitle"
-				:style="inputStyle"
-				@focus="$event.target.select()"
-				@blur="onNewTitleSubmit"
-				@keyup.enter="onNewTitleSubmit"
-				@keyup.esc="onEditCancel"
-				type="text"
-				class="bx-im-chat-header__title-input"
-				ref="titleInput"
-			/>
-		</div>
-	`
-	};
+	    const userData = await this.requestUserData(userId);
+	    return this.updateUserModel(userId, userData);
+	  }
+	  async getUserActivityFromPull(userId) {
+	    const result = await im_v2_application_core.Core.getPullClient().getUsersLastSeen([userId]).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('UserService: error getting user activity from P&P', error);
+	    });
+	    if (!main_core.Type.isNumber(result[userId])) {
+	      return null;
+	    }
+	    const activityDateAgo = result[userId] * 1000;
+	    return new Date(Date.now() - activityDateAgo);
+	  }
+	  async requestUserData(userId) {
+	    im_v2_lib_logger.Logger.warn(`UserService: get actual user data for - ${userId}`);
+	    const answer = await im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imUserGet, {
+	      ID: userId
+	    }).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('UserService: error getting user data', error);
+	    });
+	    return answer.data();
+	  }
+	  async updateUserModel(userId, userFields) {
+	    im_v2_lib_logger.Logger.warn('UserService: update user data', userFields);
+	    return im_v2_application_core.Core.getStore().dispatch('users/update', {
+	      id: userId,
+	      fields: userFields
+	    });
+	  }
+	  isPullServerWithUserStatusSupport() {
+	    return im_v2_application_core.Core.getPullClient().isJsonRpc();
+	  }
+	}
 
 	const CallTypes = {
 	  video: {
@@ -130,30 +72,56 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    id: 'beta',
 	    locCode: 'IM_CONTENT_CHAT_HEADER_CALL_MENU_BETA_2',
 	    start: dialogId => {
-	      const dialog = im_v2_application_core.Core.getStore().getters['dialogues/get'](dialogId);
+	      const dialog = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
 	      im_v2_lib_call.CallManager.getInstance().createBetaCallRoom(dialog.chatId);
 	    }
 	  }
 	};
 
+	let _ = t => t,
+	  _t;
+	var _getDelimiter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDelimiter");
 	var _getVideoCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getVideoCallItem");
 	var _getAudioCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAudioCallItem");
-	var _getBetaCallItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getBetaCallItem");
-	var _isCallBetaAvailable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCallBetaAvailable");
+	var _getPersonalPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPersonalPhoneItem");
+	var _getWorkPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getWorkPhoneItem");
+	var _getInnerPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getInnerPhoneItem");
+	var _getUserPhoneHtml = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUserPhoneHtml");
+	var _isCallAvailable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCallAvailable");
+	var _getUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUser");
+	var _isUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUser");
 	class CallMenu extends im_v2_lib_menu.BaseMenu {
 	  constructor() {
 	    super();
-	    Object.defineProperty(this, _isCallBetaAvailable, {
-	      value: _isCallBetaAvailable2
+	    Object.defineProperty(this, _isUser, {
+	      value: _isUser2
 	    });
-	    Object.defineProperty(this, _getBetaCallItem, {
-	      value: _getBetaCallItem2
+	    Object.defineProperty(this, _getUser, {
+	      value: _getUser2
+	    });
+	    Object.defineProperty(this, _isCallAvailable, {
+	      value: _isCallAvailable2
+	    });
+	    Object.defineProperty(this, _getUserPhoneHtml, {
+	      value: _getUserPhoneHtml2
+	    });
+	    Object.defineProperty(this, _getInnerPhoneItem, {
+	      value: _getInnerPhoneItem2
+	    });
+	    Object.defineProperty(this, _getWorkPhoneItem, {
+	      value: _getWorkPhoneItem2
+	    });
+	    Object.defineProperty(this, _getPersonalPhoneItem, {
+	      value: _getPersonalPhoneItem2
 	    });
 	    Object.defineProperty(this, _getAudioCallItem, {
 	      value: _getAudioCallItem2
 	    });
 	    Object.defineProperty(this, _getVideoCallItem, {
 	      value: _getVideoCallItem2
+	    });
+	    Object.defineProperty(this, _getDelimiter, {
+	      value: _getDelimiter2
 	    });
 	    this.id = 'bx-im-chat-header-call-menu';
 	  }
@@ -166,12 +134,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      offsetTop: 5
 	    };
 	  }
+	  getMenuClassName() {
+	    return 'bx-im-messenger__scope bx-im-chat-header-call-button__scope';
+	  }
 	  getMenuItems() {
-	    return [babelHelpers.classPrivateFieldLooseBase(this, _getVideoCallItem)[_getVideoCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getAudioCallItem)[_getAudioCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getBetaCallItem)[_getBetaCallItem]()];
+	    return [babelHelpers.classPrivateFieldLooseBase(this, _getVideoCallItem)[_getVideoCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getAudioCallItem)[_getAudioCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter](), babelHelpers.classPrivateFieldLooseBase(this, _getPersonalPhoneItem)[_getPersonalPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getWorkPhoneItem)[_getWorkPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getInnerPhoneItem)[_getInnerPhoneItem]()];
 	  }
 	}
+	function _getDelimiter2() {
+	  return {
+	    delimiter: true
+	  };
+	}
 	function _getVideoCallItem2() {
-	  const isAvailable = im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.context.dialogId);
+	  const isAvailable = babelHelpers.classPrivateFieldLooseBase(this, _isCallAvailable)[_isCallAvailable](this.context.dialogId);
 	  return {
 	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_VIDEOCALL'),
 	    onclick: () => {
@@ -186,7 +162,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  };
 	}
 	function _getAudioCallItem2() {
-	  const isAvailable = im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.context.dialogId);
+	  const isAvailable = babelHelpers.classPrivateFieldLooseBase(this, _isCallAvailable)[_isCallAvailable](this.context.dialogId);
 	  return {
 	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_AUDIO'),
 	    onclick: () => {
@@ -200,25 +176,93 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    disabled: !isAvailable
 	  };
 	}
-	function _getBetaCallItem2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isCallBetaAvailable)[_isCallBetaAvailable]()) {
+	function _getPersonalPhoneItem2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
 	    return null;
 	  }
+	  const {
+	    phones
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _getUser)[_getUser]();
+	  if (!phones.personalMobile) {
+	    return null;
+	  }
+	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_PERSONAL_PHONE');
 	  return {
-	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_BETA_2'),
+	    className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
+	    html: babelHelpers.classPrivateFieldLooseBase(this, _getUserPhoneHtml)[_getUserPhoneHtml](title, phones.personalMobile),
 	    onclick: () => {
-	      if (!babelHelpers.classPrivateFieldLooseBase(this, _isCallBetaAvailable)[_isCallBetaAvailable]()) {
-	        return;
-	      }
-	      CallTypes.beta.start(this.context.dialogId);
-	      this.emit(CallMenu.events.onMenuItemClick, CallTypes.beta);
+	      im_public.Messenger.startPhoneCall(phones.personalMobile);
 	      this.menuInstance.close();
 	    }
 	  };
 	}
-	function _isCallBetaAvailable2() {
-	  const settings = main_core.Extension.getSettings('im.v2.component.content.chat');
-	  return settings.get('isCallBetaAvailable');
+	function _getWorkPhoneItem2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
+	    return null;
+	  }
+	  const {
+	    phones
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _getUser)[_getUser]();
+	  if (!phones.workPhone) {
+	    return null;
+	  }
+	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_WORK_PHONE');
+	  return {
+	    className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
+	    html: babelHelpers.classPrivateFieldLooseBase(this, _getUserPhoneHtml)[_getUserPhoneHtml](title, phones.workPhone),
+	    onclick: () => {
+	      im_public.Messenger.startPhoneCall(phones.workPhone);
+	      this.menuInstance.close();
+	    }
+	  };
+	}
+	function _getInnerPhoneItem2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
+	    return null;
+	  }
+	  const {
+	    phones
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _getUser)[_getUser]();
+	  if (!phones.innerPhone) {
+	    return null;
+	  }
+	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_INNER_PHONE');
+	  return {
+	    className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
+	    html: babelHelpers.classPrivateFieldLooseBase(this, _getUserPhoneHtml)[_getUserPhoneHtml](title, phones.innerPhone),
+	    onclick: () => {
+	      im_public.Messenger.startPhoneCall(phones.innerPhone);
+	      this.menuInstance.close();
+	    }
+	  };
+	}
+	function _getUserPhoneHtml2(title, phoneNumber) {
+	  return main_core.Tag.render(_t || (_t = _`
+			<span class="bx-im-chat-header-call-button-menu__phone_container">
+				<span class="bx-im-chat-header-call-button-menu__phone_title">${0}</span>
+				<span class="bx-im-chat-header-call-button-menu__phone_number">${0}</span>
+			</span>
+		`), title, phoneNumber);
+	}
+	function _isCallAvailable2(dialogId) {
+	  if (im_v2_application_core.Core.getStore().getters['recent/calls/hasActiveCall'](dialogId) && im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId() === dialogId) {
+	    return true;
+	  }
+	  if (im_v2_application_core.Core.getStore().getters['recent/calls/hasActiveCall']()) {
+	    return false;
+	  }
+	  const chatCanBeCalled = im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(dialogId);
+	  const chatIsAllowedToCall = im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.call, dialogId);
+	  return chatCanBeCalled && chatIsAllowedToCall;
+	}
+	function _getUser2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser]()) {
+	    return null;
+	  }
+	  return im_v2_application_core.Core.getStore().getters['users/get'](this.context.dialogId);
+	}
+	function _isUser2() {
+	  return this.context.type === im_v2_const.ChatType.user;
 	}
 	CallMenu.events = {
 	  onMenuItemClick: 'onMenuItemClick'
@@ -240,15 +284,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  computed: {
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    isActive() {
+	      if (this.$store.getters['recent/calls/hasActiveCall'](this.dialogId) && im_v2_lib_call.CallManager.getInstance().getCurrentCallDialogId() === this.dialogId) {
+	        return true;
+	      }
+	      if (this.$store.getters['recent/calls/hasActiveCall']()) {
+	        return false;
+	      }
 	      const chatCanBeCalled = im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.dialogId);
 	      const chatIsAllowedToCall = im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.call, this.dialogId);
 	      return chatCanBeCalled && chatIsAllowedToCall;
 	    },
 	    isConference() {
-	      return this.dialog.type === im_v2_const.DialogType.videoconf;
+	      return this.dialog.type === im_v2_const.ChatType.videoconf;
 	    },
 	    callButtonText() {
 	      const locCode = CallTypes[this.lastCallType].locCode;
@@ -298,7 +348,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    getLastCallChoice() {
-	      return im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.lastCallType, CallTypes.video.id);
+	      const result = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.lastCallType, CallTypes.video.id);
+	      if (result === CallTypes.beta.id && !this.isCallBetaAvailable()) {
+	        return CallTypes.video.id;
+	      }
+	      return result;
 	    },
 	    saveLastCallChoice(callTypeId) {
 	      this.lastCallType = callTypeId;
@@ -308,22 +362,25 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.isActive || this.isCallBetaAvailable();
 	    },
 	    isCallBetaAvailable() {
-	      const settings = main_core.Extension.getSettings('im.v2.component.content.chat');
-	      return settings.get('isCallBetaAvailable');
+	      // TODO remove this after release call beta
+	      // const settings = Extension.getSettings('im.v2.component.content.chat');
+	      // return settings.get('isCallBetaAvailable');
+
+	      return false;
 	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
 	  },
 	  template: `
-		<div v-if="isConference" class="bx-im-chat-header-call-button__container --conference" @click="onStartConferenceClick">
+		<div v-if="isConference" class="bx-im-chat-header-call-button__scope bx-im-chat-header-call-button__container --conference" @click="onStartConferenceClick">
 			<div class="bx-im-chat-header-call-button__text">
 				{{ loc('IM_CONTENT_CHAT_HEADER_START_CONFERENCE') }}
 			</div>
 		</div>
 		<div
 			v-else
-			class="bx-im-chat-header-call-button__container"
+			class="bx-im-chat-header-call-button__scope bx-im-chat-header-call-button__container"
 			:class="{'--disabled': !isActive}"
 			@click="onButtonClick"
 		>
@@ -338,15 +395,220 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const ParamsByChatType = {
+	  [im_v2_const.ChatType.tasks]: {
+	    className: '--task',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_TASK')
+	  },
+	  [im_v2_const.ChatType.calendar]: {
+	    className: '--calendar',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MEETING')
+	  },
+	  [im_v2_const.ChatType.sonetGroup]: {
+	    className: '--group',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_GROUP')
+	  },
+	  [im_v2_const.ChatType.crm]: {
+	    className: '--crm',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CRM')
+	  },
+	  [im_v2_const.ChatType.mail]: {
+	    className: '--mail',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MAIL')
+	  }
+	};
+	const CrmEntityType = {
+	  lead: 'LEAD',
+	  deal: 'DEAL',
+	  contact: 'CONTACT',
+	  company: 'COMPANY'
+	};
+	const CrmLinkTextByEntity = {
+	  [CrmEntityType.lead]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_LEAD'),
+	  [CrmEntityType.deal]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_DEAL'),
+	  [CrmEntityType.contact]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CONTACT'),
+	  [CrmEntityType.company]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_COMPANY')
+	};
+
+	// @vue/component
+	const EntityLink = {
+	  name: 'EntityLink',
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    entityId() {
+	      return this.dialog.entityLink.id;
+	    },
+	    entityType() {
+	      return this.dialog.entityLink.type;
+	    },
+	    entityUrl() {
+	      return this.dialog.entityLink.url;
+	    },
+	    containerClassName() {
+	      var _ParamsByChatType$thi, _ParamsByChatType$thi2;
+	      return (_ParamsByChatType$thi = (_ParamsByChatType$thi2 = ParamsByChatType[this.dialog.type]) == null ? void 0 : _ParamsByChatType$thi2.className) != null ? _ParamsByChatType$thi : '';
+	    },
+	    linkText() {
+	      var _ParamsByChatType$thi3, _ParamsByChatType$thi4;
+	      if (this.dialog.type === im_v2_const.ChatType.crm) {
+	        return this.getCrmLinkText();
+	      }
+	      return (_ParamsByChatType$thi3 = (_ParamsByChatType$thi4 = ParamsByChatType[this.dialog.type]) == null ? void 0 : _ParamsByChatType$thi4.loc) != null ? _ParamsByChatType$thi3 : 'Open entity';
+	    }
+	  },
+	  methods: {
+	    getCrmLinkText() {
+	      const [entityType] = this.entityId.split('|');
+	      if (!entityType) {
+	        return '';
+	      }
+	      return CrmLinkTextByEntity[entityType];
+	    }
+	  },
+	  template: `
+		<a :href="entityUrl" class="bx-im-chat-header-entity-link__container" :class="containerClassName">
+			<div class="bx-im-chat-header-entity-link__icon"></div>
+			<div class="bx-im-chat-header-entity-link__text">{{ linkText }}</div>
+			<div class="bx-im-chat-header-entity-link__arrow"></div>
+		</a>
+	`
+	};
+
+	// @vue/component
+	const GroupChatTitle = {
+	  name: 'GroupChatTitle',
+	  components: {
+	    EditableChatTitle: im_v2_component_elements.EditableChatTitle,
+	    EntityLink
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  emits: ['membersClick', 'newTitle'],
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    userCounter() {
+	      return main_core.Loc.getMessagePlural('IM_CONTENT_CHAT_HEADER_USER_COUNT', this.dialog.userCounter, {
+	        '#COUNT#': this.dialog.userCounter
+	      });
+	    },
+	    hasEntityLink() {
+	      var _this$dialog$entityLi;
+	      return Boolean((_this$dialog$entityLi = this.dialog.entityLink) == null ? void 0 : _this$dialog$entityLi.url);
+	    }
+	  },
+	  methods: {
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-chat-header__info">
+			<EditableChatTitle :dialogId="dialogId" @newTitleSubmit="$emit('newTitle', $event)" />
+			<div class="bx-im-chat-header__subtitle_container">
+				<div
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS')"
+					@click="$emit('membersClick')"
+					class="bx-im-chat-header__subtitle_content --click"
+				>
+					{{ userCounter }}
+				</div>
+				<EntityLink v-if="hasEntityLink" :dialogId="dialogId" />
+			</div>
+		</div>
+	`
+	};
+
+	const ONE_MINUTE = 60 * 1000;
+
+	// @vue/component
+	const UserTitle = {
+	  name: 'UserTitle',
+	  components: {
+	    ChatTitle: im_v2_component_elements.ChatTitle
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {
+	      userLastOnlineText: ''
+	    };
+	  },
+	  computed: {
+	    userPosition() {
+	      return this.$store.getters['users/getPosition'](this.dialogId);
+	    },
+	    userLastOnline() {
+	      return this.$store.getters['users/getLastOnline'](this.dialogId);
+	    },
+	    userLink() {
+	      return im_v2_lib_utils.Utils.user.getProfileLink(this.dialogId);
+	    }
+	  },
+	  watch: {
+	    userLastOnline(value) {
+	      this.userLastOnlineText = value;
+	    }
+	  },
+	  created() {
+	    this.updateUserOnline();
+	    this.userLastOnlineInterval = setInterval(this.updateUserOnline, ONE_MINUTE);
+	  },
+	  beforeUnmount() {
+	    clearInterval(this.userLastOnlineInterval);
+	  },
+	  methods: {
+	    updateUserOnline() {
+	      this.userLastOnlineText = this.$store.getters['users/getLastOnline'](this.dialogId);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-chat-header__info">
+			<div class="bx-im-chat-header__title --user">
+				<a :href="userLink" target="_blank" class="bx-im-chat-header__title_container">
+					<ChatTitle :dialogId="dialogId" />
+				</a>
+				<span class="bx-im-chat-header__user-status">{{ userLastOnlineText }}</span>
+			</div>
+			<div class="bx-im-chat-header__subtitle_container">
+				<div class="bx-im-chat-header__subtitle_content">{{ userPosition }}</div>
+			</div>
+		</div>
+	`
+	};
+
 	// @vue/component
 	const ChatHeader = {
 	  name: 'ChatHeader',
 	  components: {
 	    Avatar: im_v2_component_elements.Avatar,
-	    ChatTitle: im_v2_component_elements.ChatTitle,
-	    EditableChatTitle,
 	    AddToChat: im_v2_component_entitySelector.AddToChat,
-	    CallButton
+	    CallButton,
+	    GroupChatTitle,
+	    UserTitle
 	  },
 	  props: {
 	    dialogId: {
@@ -374,13 +636,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    isInited() {
 	      return this.dialog.inited;
 	    },
 	    isUser() {
-	      return this.dialog.type === im_v2_const.DialogType.user;
+	      return this.dialog.type === im_v2_const.ChatType.user;
+	    },
+	    isBot() {
+	      if (!this.isUser) {
+	        return false;
+	      }
+	      return this.user.bot === true;
 	    },
 	    isChat() {
 	      return !this.isUser;
@@ -388,29 +656,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    isGuest() {
 	      return this.dialog.role === im_v2_const.UserRole.guest;
 	    },
-	    avatarStyle() {
-	      return {
-	        backgroundImage: `url('${this.dialog.avatar}')`
-	      };
-	    },
 	    chatId() {
 	      return this.dialog.chatId;
-	    },
-	    dialogDescription() {
-	      if (this.isUser) {
-	        return this.$store.getters['users/getPosition'](this.dialogId);
-	      }
-	      return main_core.Loc.getMessagePlural('IM_CONTENT_CHAT_HEADER_USER_COUNT', this.dialog.userCounter, {
-	        '#COUNT#': this.dialog.userCounter
-	      });
 	    },
 	    userLink() {
 	      return im_v2_lib_utils.Utils.user.getProfileLink(this.dialogId);
 	    },
-	    userLastOnline() {
-	      return this.$store.getters['users/getLastOnline'](this.dialogId);
+	    showCallButton() {
+	      return !this.isBot;
 	    },
 	    showInviteButton() {
+	      if (this.isBot) {
+	        return false;
+	      }
 	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.extend, this.dialogId);
 	    },
 	    canChangeAvatar() {
@@ -425,7 +683,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.$emit('toggleSearchPanel');
 	    },
 	    onMembersClick() {
-	      if (this.isUser || !this.isInited) {
+	      if (!this.isInited) {
 	        return;
 	      }
 	      this.$emit('toggleMembersPanel');
@@ -489,28 +747,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					class="bx-im-chat-header__avatar_input" 
 					ref="avatarInput"
 				>
-				<div v-if="isChat" class="bx-im-chat-header__info">
-					<EditableChatTitle :dialogId="dialogId" @newTitleSubmit="onNewTitleSubmit" />
-					<div 
-						:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS')" 
-						@click="onMembersClick" 
-						class="bx-im-chat-header__subtitle --click"
-					>
-						{{ dialogDescription }}
-					</div>
-				</div>
-				<div v-else class="bx-im-chat-header__info">
-					<div class="bx-im-chat-header__title --user">
-						<a :href="userLink" target="_blank" class="bx-im-chat-header__title_container">
-							<ChatTitle :dialogId="dialogId" />
-						</a>
-						<span class="bx-im-chat-header__user-status">{{ userLastOnline }}</span>
-					</div>
-					<div class="bx-im-chat-header__subtitle">{{ dialogDescription }}</div>
-				</div>
+				<GroupChatTitle
+					v-if="isChat"
+					:dialogId="dialogId"
+					@membersClick="onMembersClick"
+					@newTitle="onNewTitleSubmit"
+				/>
+				<UserTitle v-else :dialogId="dialogId" />
 			</div>
 			<div class="bx-im-chat-header__right">
-				<CallButton :dialogId="dialogId" />
+				<CallButton v-if="showCallButton" :dialogId="dialogId" />
 				<div
 					v-if="showInviteButton"
 					class="bx-im-chat-header__icon --add-people"
@@ -575,54 +821,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	const EVENT_NAMESPACE = 'BX.Messenger.v2.Content.Chat.ResizeManager';
-	var _observer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observer");
-	var _textareaHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("textareaHeight");
-	var _initObserver = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initObserver");
-	class ResizeManager extends main_core_events.EventEmitter {
-	  constructor() {
-	    super();
-	    Object.defineProperty(this, _initObserver, {
-	      value: _initObserver2
-	    });
-	    Object.defineProperty(this, _observer, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _textareaHeight, {
-	      writable: true,
-	      value: void 0
-	    });
-	    this.setEventNamespace(EVENT_NAMESPACE);
-	    babelHelpers.classPrivateFieldLooseBase(this, _initObserver)[_initObserver]();
-	  }
-	  observeTextarea(element) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].observe(element);
-	    babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight] = element.clientHeight;
-	  }
-	  unobserveTextarea(element) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].unobserve(element);
-	    babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight] = 0;
-	  }
-	}
-	function _initObserver2() {
-	  babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer] = new ResizeObserver(entries => {
-	    entries.forEach(entry => {
-	      var _entry$borderBoxSize;
-	      const height = (_entry$borderBoxSize = entry.borderBoxSize) == null ? void 0 : _entry$borderBoxSize[0].blockSize;
-	      if (main_core.Type.isNumber(height) && height !== babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight]) {
-	        this.emit(ResizeManager.events.onHeightChange, {
-	          newHeight: height
-	        });
-	        babelHelpers.classPrivateFieldLooseBase(this, _textareaHeight)[_textareaHeight] = height;
-	      }
-	    });
-	  });
-	}
-	ResizeManager.events = {
-	  onHeightChange: 'onHeightChange'
-	};
-
 	// @vue/component
 	const DropArea = {
 	  props: {
@@ -650,16 +848,38 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  data() {
 	    return {};
 	  },
+	  computed: {
+	    iconClass() {
+	      return this.isEmptyRecent ? '--empty' : '--default';
+	    },
+	    text() {
+	      if (this.isEmptyRecent) {
+	        return this.loc('IM_CONTENT_CHAT_NO_CHATS_START_MESSAGE');
+	      }
+	      return this.loc('IM_CONTENT_CHAT_START_MESSAGE_V2');
+	    },
+	    subtext() {
+	      return '';
+	    },
+	    isEmptyRecent() {
+	      return im_v2_provider_service.RecentService.getInstance().getCollection().length === 0;
+	    }
+	  },
 	  methods: {
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
 	  },
 	  template: `
-		<div class="bx-im-content-chat__start_message">
-			<div class="bx-im-content-chat__start_message_icon"></div>
-			<div class="bx-im-content-chat__start_message_text">
-				{{ loc('IM_CONTENT_CHAT_START_MESSAGE') }}
+		<div class="bx-im-content-chat-start__container">
+			<div class="bx-im-content-chat-start__content">
+				<div class="bx-im-content-chat-start__icon" :class="iconClass"></div>
+				<div class="bx-im-content-chat-start__title">
+					{{ text }}
+				</div>
+				<div v-if="subtext" class="bx-im-content-chat-start__subtitle">
+					{{ subtext }}
+				</div>
 			</div>
 		</div>
 	`
@@ -686,7 +906,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  computed: {
 	    ButtonSize: () => im_v2_component_elements.ButtonSize,
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    isMuted() {
 	      return this.dialog.muteList.includes(im_v2_application_core.Core.getUserId());
@@ -820,7 +1040,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  data() {
 	    return {
 	      needSidebarTransition: false,
-	      sidebarOpened: false,
+	      sidebarOpened: true,
 	      searchSidebarOpened: false,
 	      sidebarDetailBlock: null,
 	      textareaHeight: 0,
@@ -833,7 +1053,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['application/getLayout'];
 	    },
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.entityId, true);
+	      return this.$store.getters['chats/get'](this.entityId, true);
 	    },
 	    hasPinnedMessages() {
 	      return this.$store.getters['messages/pin/getPinned'](this.dialog.chatId).length > 0;
@@ -843,6 +1063,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isGuest() {
 	      return this.dialog.role === im_v2_const.UserRole.guest;
+	    },
+	    isUser() {
+	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    sidebarTransitionName() {
 	      return this.needSidebarTransition ? 'sidebar-transition' : '';
@@ -880,6 +1103,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    entityId(newValue, oldValue) {
 	      im_v2_lib_logger.Logger.warn(`ChatContent: switching from ${oldValue || 'empty'} to ${newValue}`);
 	      if (newValue === '') {
+	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because entityId is empty');
 	        this.sidebarOpened = false;
 	      }
 	      this.onChatChange();
@@ -911,8 +1135,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      if (im_v2_lib_utils.Utils.dialog.isExternalId(this.entityId)) {
 	        const realDialogId = await this.getChatService().prepareDialogId(this.entityId);
-	        this.$store.dispatch('application/setLayout', {
-	          layoutName: im_v2_const.Layout.chat.name,
+	        void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	          name: im_v2_const.Layout.chat.name,
 	          entityId: realDialogId,
 	          contextId: this.layout.contextId
 	        });
@@ -920,6 +1144,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      if (this.dialog.inited) {
 	        im_v2_lib_logger.Logger.warn(`ChatContent: chat ${this.entityId} is already loaded`);
+	        if (this.isUser) {
+	          const userId = parseInt(this.dialog.dialogId, 10);
+	          void this.getUserService().updateLastActivityDate(userId);
+	        }
 	        return;
 	      }
 	      if (this.dialog.loading) {
@@ -938,9 +1166,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.getChatService().loadChatWithContext(this.entityId, this.layout.contextId).then(() => {
 	        im_v2_lib_logger.Logger.warn(`ChatContent: chat ${this.entityId} is loaded with context of ${this.layout.contextId}`);
 	      }).catch(error => {
-	        if (error.code === 'ACCESS_ERROR') {
-	          this.showNotification(this.loc('IM_CONTENT_CHAT_ACCESS_ERROR'));
-	        }
+	        this.handleChatLoadError(error);
 	        im_v2_lib_logger.Logger.error(error);
 	        im_public.Messenger.openChat();
 	      });
@@ -949,13 +1175,26 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      im_v2_lib_logger.Logger.warn(`ChatContent: loading chat ${this.entityId}`);
 	      return this.getChatService().loadChatWithMessages(this.entityId).then(() => {
 	        im_v2_lib_logger.Logger.warn(`ChatContent: chat ${this.entityId} is loaded`);
-	      }).catch(() => {
+	      }).catch(error => {
+	        this.handleChatLoadError(error);
+	        im_v2_lib_logger.Logger.error(error);
 	        im_public.Messenger.openChat();
 	      });
+	    },
+	    handleChatLoadError(error) {
+	      const [firstError] = error;
+	      if (firstError.code === 'ACCESS_DENIED') {
+	        this.showNotification(this.loc('IM_CONTENT_CHAT_ACCESS_ERROR'));
+	      } else if (firstError.code === 'MESSAGE_NOT_FOUND') {
+	        this.showNotification(this.loc('IM_CONTENT_CHAT_CONTEXT_MESSAGE_NOT_FOUND'));
+	      }
 	    },
 	    toggleSidebar() {
 	      this.needSidebarTransition = true;
 	      this.sidebarOpened = !this.sidebarOpened;
+	      if (!this.sidebarOpened) {
+	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because if was closed by toggle');
+	      }
 	      this.resetSidebarDetailState();
 	    },
 	    toggleSearchPanel() {
@@ -963,6 +1202,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.sidebarDetailBlock === im_v2_const.SidebarDetailBlock.messageSearch) {
 	        this.sidebarDetailBlock = null;
 	        this.sidebarOpened = false;
+	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because message search was closed');
 	      } else {
 	        this.sidebarOpened = true;
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
@@ -975,6 +1215,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.sidebarDetailBlock === im_v2_const.SidebarDetailBlock.main) {
 	        this.sidebarDetailBlock = null;
 	        this.sidebarOpened = false;
+	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because chat members panel was closed');
 	      } else {
 	        this.sidebarOpened = true;
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
@@ -994,6 +1235,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	    },
 	    onSidebarClose() {
+	      im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because of sidebar close event');
 	      this.sidebarOpened = false;
 	    },
 	    resetSidebarDetailState() {
@@ -1001,6 +1243,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    restoreSidebarOpenState() {
 	      const sidebarOpenState = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.sidebarOpened);
+	      if (sidebarOpenState === null) {
+	        return;
+	      }
+	      if (this.sidebarOpened && Boolean(sidebarOpenState)) {
+	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar after restoring state from LS');
+	      }
 	      this.sidebarOpened = Boolean(sidebarOpenState);
 	    },
 	    saveSidebarOpenedState(sidebarOpened) {
@@ -1011,8 +1259,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }, WRITE_TO_STORAGE_TIMEOUT);
 	    },
 	    initTextareaResizeManager() {
-	      this.textareaResizeManager = new ResizeManager();
-	      this.textareaResizeManager.subscribe(ResizeManager.events.onHeightChange, event => {
+	      this.textareaResizeManager = new im_v2_lib_textarea.ResizeManager();
+	      this.textareaResizeManager.subscribe(im_v2_lib_textarea.ResizeManager.events.onHeightChange, event => {
 	        const {
 	          newHeight
 	        } = event.getData();
@@ -1023,6 +1271,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      BX.UI.Notification.Center.notify({
 	        content: text
 	      });
+	    },
+	    getUserService() {
+	      if (!this.userService) {
+	        this.userService = new UserService();
+	      }
+	      return this.userService;
 	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -1109,5 +1363,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.ChatContent = ChatContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.UI.Uploader,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.UI.Uploader,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.EntitySelector,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Provider.Service));
 //# sourceMappingURL=chat-content.bundle.js.map

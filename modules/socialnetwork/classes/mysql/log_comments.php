@@ -282,6 +282,16 @@ class CSocNetLogComments extends CAllSocNetLogComments
 			}
 
 			CSocNetLogTools::SetCacheLastLogID("comment", $ID);
+
+			\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+				\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_ADD,
+				[
+					'SONET_LOG_COMMENT_ID' => $ID,
+					'SONET_LOG_ID' => $arFields['LOG_ID'],
+					'USER_ID' => $arFields['USER_ID'],
+				]
+			);
+
 			return $ID;
 		}
 		elseif ($bSetSource && $strMessage <> '')
@@ -483,6 +493,15 @@ class CSocNetLogComments extends CAllSocNetLogComments
 					));
 				}
 			}
+
+			\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+				\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_UPD,
+				[
+					'SONET_LOG_COMMENT_ID' => $ID,
+					'SONET_LOG_ID' => $arFields['LOG_ID'],
+					'USER_ID' => $arFields['USER_ID'],
+				]
+			);
 
 		}
 		else

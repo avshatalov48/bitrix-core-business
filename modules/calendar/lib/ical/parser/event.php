@@ -26,6 +26,7 @@ class Event extends ParserComponent
 	private $url;
 	private $categories;
 	private $exDate;
+	private ?ParserPropertyType $recurrenceId;
 	private $attachments = [];
 
 	/**
@@ -445,5 +446,17 @@ class Event extends ParserComponent
 	public function getAttachments(): ?array
 	{
 		return $this->attachments;
+	}
+
+	public function setRecurrenceId(?ParserPropertyType $recurrenceId): static
+	{
+		$this->recurrenceId = $recurrenceId;
+
+		return $this;
+	}
+
+	public function getRecurrenceId(): ?ParserPropertyType
+	{
+		return $this->recurrenceId;
 	}
 }

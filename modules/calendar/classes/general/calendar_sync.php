@@ -4,7 +4,6 @@ use Bitrix\Calendar\Internals;
 use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\Office365;
-use Bitrix\Calendar\Sync\GoogleApiSync;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
@@ -14,6 +13,7 @@ use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Type;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Calendar\Core\Mappers\Factory;
 
 class CCalendarSync
 {
@@ -1399,6 +1399,12 @@ class CCalendarSync
 		{
 			$syncInfo = array_merge($syncInfo, $caldavConnections);
 		}
+		
+		$newSyncConnections = self::getNewSyncItemsInfo($userId, $calculateTimestamp);
+		if (!empty($newSyncConnections))
+		{
+			$syncInfo = array_merge($syncInfo, $newSyncConnections);
+		}
 
 		return $syncInfo;
 	}
@@ -1411,7 +1417,7 @@ class CCalendarSync
 	public static function GetSyncInfoItem($userId, $syncType): array
 	{
 		$activeSyncPeriod = self::SYNC_TIME;
-		$syncTypes = array('iphone', 'android', 'mac', 'exchange', 'office365', 'icloud');
+		$syncTypes = array('iphone', 'android', 'mac', 'exchange');
 		$result = [
 			'connected' => false,
 			'status' => false,
@@ -1521,11 +1527,7 @@ class CCalendarSync
 					'ENTITY_ID' => $userId,
 					'ACCOUNT_TYPE' =>
 						[
-							Google\Helper::GOOGLE_ACCOUNT_TYPE_CALDAV,
-							Google\Helper::GOOGLE_ACCOUNT_TYPE_API,
 							Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE,
-							Bitrix\Calendar\Sync\Icloud\Helper::ACCOUNT_TYPE,
-							Bitrix\Calendar\Sync\Office365\Helper::ACCOUNT_TYPE
 						],
 					'IS_DELETED' => 'N'
 				]
@@ -1535,10 +1537,7 @@ class CCalendarSync
 			$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
 			/** @var Bitrix\Calendar\Sync\Caldav\Helper $caldavHelper */
 			$caldavHelper = ServiceLocator::getInstance()->get('calendar.service.caldav.helper');
-			/** @var Bitrix\Calendar\Sync\Icloud\Helper $iCloudHelper */
-			$iCloudHelper = ServiceLocator::getInstance()->get('calendar.service.icloud.helper');
-			/** @var Bitrix\Calendar\Sync\Office365\Helper $office365Helper */
-			$office365Helper = ServiceLocator::getInstance()->get('calendar.service.office365.helper');
+
 			while ($connection = $res->Fetch())
 			{
 				if ($connection['ACCOUNT_TYPE'] === Bitrix\Calendar\Sync\Caldav\Helper::CALDAV_TYPE)
@@ -1572,36 +1571,6 @@ class CCalendarSync
 						];
 					}
 				}
-				else if (
-					$iCloudHelper->isVendorConnection($connection['ACCOUNT_TYPE'])
-					|| $office365Helper->isVendorConnection($connection['ACCOUNT_TYPE'])
-				)
-				{
-					$connections[$connection['ACCOUNT_TYPE']] = [
-						'id' => $connection['ID'],
-						'active' => true,
-						'connected' => true,
-						'userName' => $connection['SERVER_USERNAME'],
-						'connectionName' => $connection['NAME'],
-						'type' => $connection['ACCOUNT_TYPE'],
-						'status' => self::isConnectionSuccess($connection['LAST_RESULT']),
-						'server' => $connection['SERVER'],
-						'syncOffset' => time() - $calculateTimestamp($connection['SYNCHRONIZED']),
-					];
-				}
-				else if($googleHelper->isGoogleConnection($connection['ACCOUNT_TYPE']))
-				{
-					$connections['google'] = [
-						'type' => 'google',
-						'id' => $connection['ID'],
-						'active' => true,
-						'connected' => true,
-						'userName' => $connection['NAME'] ?? null,
-						'connectionName' => $connection['NAME'],
-						'status' => self::isConnectionSuccess($connection['LAST_RESULT']),
-						'syncOffset' => time() - $calculateTimestamp($connection['SYNCHRONIZED']),
-					];
-				}
 			}
 
 			return $connections;
@@ -1609,110 +1578,80 @@ class CCalendarSync
 
 		return null;
 	}
-	
-	/**
-	 * @param array $params
-	 *
-	 * @return string[]
-	 *
-	 * @throws LoaderException
-	 * @throws ObjectNotFoundException
-	 */
-	public static function GetSyncLinks($params = []): array
+
+    public static function getNewSyncItemsInfo($userId, $calculateTimestamp): array
+    {
+		$result = [];
+
+		if (!Loader::includeModule('dav'))
+		{
+			return $result;
+		}
+
+		$connections = CDavConnection::GetList(
+			['ID' => 'DESC'],
+			[
+				'ENTITY_TYPE' => 'user',
+				'ENTITY_ID' => $userId,
+				'ACCOUNT_TYPE' => Sync\Dictionary::NEW_SYNC_PROVIDERS_TYPE,
+				'IS_DELETED' => 'N'
+			]
+		);
+
+		/** @var Google\Helper $googleHelper */
+		$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
+		/** @var Bitrix\Calendar\Sync\Icloud\Helper $iCloudHelper */
+		$iCloudHelper = ServiceLocator::getInstance()->get('calendar.service.icloud.helper');
+		/** @var Bitrix\Calendar\Sync\Office365\Helper $office365Helper */
+		$office365Helper = ServiceLocator::getInstance()->get('calendar.service.office365.helper');
+
+		while ($connection = $connections->Fetch())
+		{
+			if (
+				$iCloudHelper->isVendorConnection($connection['ACCOUNT_TYPE'])
+				|| $office365Helper->isVendorConnection($connection['ACCOUNT_TYPE'])
+			)
+			{
+				$result[$connection['ACCOUNT_TYPE']] = [
+					'id' => $connection['ID'],
+					'active' => true,
+					'connected' => true,
+					'userName' => $connection['SERVER_USERNAME'],
+					'connectionName' => $connection['NAME'],
+					'type' => $connection['ACCOUNT_TYPE'],
+					'status' => self::isConnectionSuccess($connection['LAST_RESULT']),
+					'server' => $connection['SERVER'],
+					'syncOffset' => time() - $calculateTimestamp($connection['SYNCHRONIZED']),
+				];
+			}
+			else if ($googleHelper->isGoogleConnection($connection['ACCOUNT_TYPE']))
+			{
+				$result[$googleHelper::CONNECTION_NAME] = [
+					'type' => $googleHelper::CONNECTION_NAME,
+					'id' => $connection['ID'],
+					'active' => true,
+					'connected' => true,
+					'userName' => $connection['SERVER_USERNAME'] ?? null,
+					'connectionName' => $connection['NAME'],
+					'status' => self::isConnectionSuccess($connection['LAST_RESULT']),
+					'syncOffset' => time() - $calculateTimestamp($connection['SYNCHRONIZED']),
+				];
+
+			}
+		}
+
+		return $result;
+    }
+
+	public static function getSyncLinks(): array
 	{
-		$userId = $params['userId'];
-		$type = $params['type'];
-		$googleAuthLink = self::GetGoogleAuthLink($userId, $type);
-		$office365AuthLink = self::GetOffice365AuthLink($userId, $type);
+		$googleService = Bitrix\Calendar\Core\Oauth\Factory::getInstance()->getByName('google');
+		$office365Service = Bitrix\Calendar\Core\Oauth\Factory::getInstance()->getByName('office365');
 
 		return [
-			'google' => $googleAuthLink,
-			'office365' => $office365AuthLink,
+			'google' => $googleService ? $googleService->getUrl() : '',
+			'office365' => $office365Service ? $office365Service->getUrl() : '',
 		];
-	}
-
-	/**
-	 * @param $userId
-	 * @param $type
-	 * @return string
-	 */
-	public static function GetGoogleAuthLink($userId, $type): string
-	{
-		$isCaldavEnabled = CCalendar::IsCalDAVEnabled() && $type === 'user';
-		$isGoogleApiEnabled = CCalendar::isGoogleApiEnabled() && $type === 'user';
-		$googleAuthLink = '';
-
-		if (
-			Loader::includeModule('socialservices')
-			&& $isGoogleApiEnabled && $isCaldavEnabled
-		)
-		{
-			$curPath = '#googleAuthSuccess';
-
-			if (\CSocServGoogleProxyOAuth::isProxyAuth())
-			{
-				$client = new \CSocServGoogleProxyOAuth($userId);
-			}
-			else
-			{
-				$client = new CSocServGoogleOAuth($userId);
-			}
-
-			$client->getEntityOAuth()->addScope([
-				'https://www.googleapis.com/auth/calendar',
-				'https://www.googleapis.com/auth/calendar.readonly'
-			]);
-			/** @var Google\Helper $googleHelper */
-			$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
-
-			return $client->getUrl(
-				'opener',
-				null,
-				[
-					'BACKURL' => $curPath,
-					'APIKEY' => $googleHelper->getApiKey()
-				]
-			);
-		}
-
-		return $googleAuthLink;
-	}
-
-	/**
-	 * @param $userId
-	 * @param $type
-	 *
-	 * @return string
-	 *
-	 * @throws LoaderException
-	 * @throws ObjectNotFoundException
-	 */
-	protected static function GetOffice365AuthLink($userId, $type): string
-	{
-		$isCaldavEnabled = CCalendar::IsCalDAVEnabled() && $type === 'user';
-		$isOfficeApiEnabled = CCalendar::isOffice365ApiEnabled() && $type === 'user';
-		$officeApiLink = '';
-
-		if ($isOfficeApiEnabled && $isCaldavEnabled)
-		{
-			$curPath = '#office365AuthSuccess';
-
-			$client = new CSocServOffice365OAuth($userId);
-
-			/** @var Sync\Office365\Helper $helper */
-			$helper = ServiceLocator::getInstance()->get('calendar.service.office365.helper');
-			$client->getEntityOAuth()->addScope($helper::NEED_SCOPE);
-
-			return $client->getUrl(
-				'opener',
-				null,
-				[
-					'BACKURL' => $curPath,
-				],
-			);
-		}
-
-		return $officeApiLink;
 	}
 
 	/**
@@ -1788,6 +1727,25 @@ class CCalendarSync
 	public static function isConnectionSuccess(string $lastResult = null): bool
 	{
 		return (!is_null($lastResult) && preg_match("/^\[(2\d\d|0)\][a-z0-9 _]*/i", $lastResult));
+	}
+
+	public static function deactivateConnection(int $connectionId)
+	{
+		/** @var Factory $mapperFactory */
+		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		$connection = $mapperFactory->getConnection()->getMap([
+			'=ID' => $connectionId,
+			'=ENTITY_TYPE' => 'user',
+			'=ENTITY_ID' => \CCalendar::getCurUserId(),
+			'=IS_DELETED' => 'N'
+		])->fetch();
+
+		if ($connection)
+		{
+			return (new Sync\Managers\ConnectionManager())->deactivateConnection($connection)->isSuccess();
+		}
+
+		return false;
 	}
 
 	/**

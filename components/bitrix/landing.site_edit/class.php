@@ -19,6 +19,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Restriction;
+use Bitrix\Landing\Connector;
 
 CBitrixComponent::includeComponentClass('bitrix:landing.base.form');
 
@@ -168,9 +169,13 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->arResult['REGISTER'] = Register::getInstance();
 			$this->arResult['SITE_INCLUDES_SCRIPT'] = Cookies::isSiteIncludesScript($this->id);
 			$this->arResult['COOKIES_AGREEMENT'] = Cookies::getMainAgreement();
-			$this->arResult['ALLOW_AI_TEXT'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
-			$this->arResult['ALLOW_AI_IMAGE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
 			$this->arResult['SPECIAL_TYPE'] = Site\Type::getSiteTypeForms($this->arResult['SITE']['CODE']['CURRENT']);
+			// ai
+			$this->arResult['AI_TEXT_AVAILABLE'] = Connector\Ai::isTextAvailable();
+			$this->arResult['AI_TEXT_ACTIVE'] = Connector\Ai::isTextActive();
+			$this->arResult['AI_IMAGE_AVAILABLE'] = Connector\Ai::isImageAvailable();
+			$this->arResult['AI_IMAGE_ACTIVE'] = Connector\Ai::isImageActive();
+			$this->arResult['AI_UNACTIVE_INFO_CODE'] = self::getAiUnactiveInfoCode();
 
 			if (
 				!defined('LANDING_DISABLE_B24_MODE') &&

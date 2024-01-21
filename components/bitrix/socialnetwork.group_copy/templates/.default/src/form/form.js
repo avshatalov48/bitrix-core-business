@@ -1,6 +1,6 @@
 import {Event, Tag, Text, Type, Loc} from "main.core";
 import {ErrorAlert} from "../error.alert";
-import {UI as Buttons} from "ui.buttons";
+import {Button} from "ui.buttons";
 import {TextField} from "./field/text.field";
 import {RequireValidator} from "./validator/require.validator";
 import {TextAreaField} from "./field/textarea.field";
@@ -70,7 +70,7 @@ export class Form
 	{
 		if (this.validate())
 		{
-			const uiCopyButton = new Buttons.Button({
+			const uiCopyButton = new Button({
 				buttonContainer: this.copyButton
 			});
 

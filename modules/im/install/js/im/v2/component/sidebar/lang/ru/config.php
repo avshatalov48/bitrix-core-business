@@ -4,7 +4,7 @@ $MESS['IM_SIDEBAR_ENABLE_NOTIFICATION_TITLE_2'] = "Звук";
 $MESS['IM_SIDEBAR_ENABLE_AUTODELETE_TITLE'] = "Автоудаление сообщений";
 $MESS['IM_SIDEBAR_AUTODELETE_STATUS_OFF'] = "Выкл";
 $MESS['IM_SIDEBAR_ADD_BUTTON_TEXT'] = "Добавить";
-$MESS['IM_SIDEBAR_INVITE_BUTTON_TEXT'] = "Пригласить";
+$MESS['IM_SIDEBAR_CREATE_GROUP_CHAT'] = "Создать групповой чат";
 $MESS['IM_SIDEBAR_COPY_INVITE_LINK'] = "Скопировать ссылку на чат";
 $MESS['IM_SIDEBAR_COPIED_SUCCESS'] = "Ссылка скопирована";
 $MESS['IM_SIDEBAR_CHAT_DESCRIPTION_SHOW'] = "Показать полностью...";
@@ -26,12 +26,13 @@ $MESS['IM_SIDEBAR_FILEUNSORTED_DETAIL_TITLE'] = "Медиа и файлы";
 $MESS['IM_SIDEBAR_MEETING_DETAIL_TITLE'] = "Встречи";
 $MESS['IM_SIDEBAR_BRIEF_DETAIL_TITLE'] = "Резюме встреч";
 $MESS['IM_SIDEBAR_MARKET_DETAIL_TITLE'] = "Приложения";
+$MESS['IM_SIDEBAR_CHATSWITHUSER_DETAIL_TITLE'] = "Чаты с сотрудником";
 
 //context menu
 $MESS['IM_SIDEBAR_MENU_VIEW_FILE'] = "Просмотреть";
 $MESS['IM_SIDEBAR_MENU_EDIT_FILE'] = "Редактировать";
 $MESS['IM_SIDEBAR_MENU_DOWNLOAD_FILE'] = "Скачать файл";
-$MESS['IM_SIDEBAR_MENU_SAVE_FILE_ON_DISK'] = "Сохранить на Битрикс24.Диск";
+$MESS['IM_SIDEBAR_MENU_SAVE_FILE_ON_DISK_MSGVER_1'] = "Сохранить на Битрикс24 Диск";
 $MESS['IM_SIDEBAR_MENU_DELETE_FILE'] = "Удалить файл";
 $MESS['IM_SIDEBAR_MENU_GO_TO_CONTEXT_MESSAGE'] = "Посмотреть в чате";
 $MESS['IM_SIDEBAR_MENU_INVITE_MEMBERS'] = "Пригласить участников";
@@ -56,6 +57,7 @@ $MESS['IM_SIDEBAR_MEDIA_AND_FILES_EMPTY'] = "Нет медиа и файлов";
 $MESS['IM_SIDEBAR_MEETINGS_EMPTY'] = "Нет встреч";
 $MESS['IM_SIDEBAR_MESSAGE_SEARCH_NOT_FOUND'] = "Ничего не найдено";
 $MESS['IM_SIDEBAR_MESSAGE_SEARCH_NOT_FOUND_DESCRIPTION'] = "Попробуйте сформулировать иначе";
+$MESS['IM_SIDEBAR_CHATS_WITH_USER_EMPTY'] = "Нет чатов с сотрудником";
 
 //tabs
 $MESS['IM_SIDEBAR_FILES_MEDIA_TAB'] = "Медиа";
@@ -67,3 +69,4 @@ $MESS['IM_SIDEBAR_FILES_OTHER_TAB'] = "Другое";
 //chat types
 $MESS['IM_SIDEBAR_CHAT_TYPE_GROUP_V2'] = "Групповой чат";
 $MESS['IM_SIDEBAR_CHAT_TYPE_USER'] = "Пользователь";
+$MESS['IM_SIDEBAR_CHAT_TYPE_BOT'] = "Чат-бот";

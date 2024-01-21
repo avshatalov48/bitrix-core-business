@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const webToMobilePlugin = require('./build/plugin-web-to-mobile/index');
+const webToMobilePlugin = require('../.build-plugins/web-to-mobile');
 
 module.exports = {
 	input: 'src/parser.js',
@@ -23,6 +23,10 @@ module.exports = {
 					[
 						/main_core\.Type/g,
 						'Type',
+					],
+					[
+						/ui_bbcode_model/g,
+						'Model',
 					],
 				],
 				banner: fs.readFileSync(path.resolve(__dirname, 'build/chunks/attention.message.txt'), 'ascii'),

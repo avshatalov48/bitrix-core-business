@@ -40,6 +40,11 @@ class UrlCollection extends EntityCollection
 	{
 		$urlCollection = new static();
 
+		if (empty($previewUrlsIds))
+		{
+			return $urlCollection;
+		}
+
 		if ($withHtml)
 		{
 			$previews = UrlPreview::getMetadataAndHtmlByIds($previewUrlsIds);

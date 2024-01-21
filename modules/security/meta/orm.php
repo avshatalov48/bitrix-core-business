@@ -295,6 +295,16 @@ namespace Bitrix\Security\Mfa {
 	 * @method \Bitrix\Security\Mfa\EO_User resetDeactivateUntil()
 	 * @method \Bitrix\Security\Mfa\EO_User unsetDeactivateUntil()
 	 * @method \Bitrix\Main\Type\DateTime fillDeactivateUntil()
+	 * @method array getInitParams()
+	 * @method \Bitrix\Security\Mfa\EO_User setInitParams(array|\Bitrix\Main\DB\SqlExpression $initParams)
+	 * @method bool hasInitParams()
+	 * @method bool isInitParamsFilled()
+	 * @method bool isInitParamsChanged()
+	 * @method array remindActualInitParams()
+	 * @method array requireInitParams()
+	 * @method \Bitrix\Security\Mfa\EO_User resetInitParams()
+	 * @method \Bitrix\Security\Mfa\EO_User unsetInitParams()
+	 * @method array fillInitParams()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -358,6 +368,8 @@ namespace Bitrix\Security\Mfa {
 	 * @method \boolean[] fillSkipMandatory()
 	 * @method \Bitrix\Main\Type\DateTime[] getDeactivateUntilList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillDeactivateUntil()
+	 * @method array[] getInitParamsList()
+	 * @method array[] fillInitParams()
 	 *
 	 * Common methods:
 	 * ---------------

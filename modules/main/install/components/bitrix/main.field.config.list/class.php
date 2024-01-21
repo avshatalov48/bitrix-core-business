@@ -65,7 +65,6 @@ class MainUfListComponent extends ConfigComponent
 					'tag' => Buttons\Tag::LINK,
 					'link' => $creationUrl->getLocator(),
 					'color' => Buttons\Color::PRIMARY,
-					'icon' => Buttons\Icon::ADD,
 				]);
 				Toolbar::addButton($createButton, ButtonLocation::AFTER_TITLE);
 			}

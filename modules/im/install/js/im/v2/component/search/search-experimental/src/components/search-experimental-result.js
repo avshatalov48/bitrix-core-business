@@ -3,8 +3,6 @@ import { Loader } from 'im.v2.component.elements';
 import { EmptyState } from './empty-state';
 import { SearchExperimentalItem } from './search-experimental-item';
 
-import '../css/search-experimental-result.css';
-
 // @vue/component
 export const SearchExperimentalResult = {
 	name: 'SearchExperimentalResult',
@@ -28,11 +26,6 @@ export const SearchExperimentalResult = {
 	{
 		isEmptyState(): boolean
 		{
-			if (this.isLoading)
-			{
-				return false;
-			}
-
 			return this.dialogIds.length === 0;
 		},
 	},
@@ -47,7 +40,6 @@ export const SearchExperimentalResult = {
 				@clickItem="$emit('clickItem', $event)"
 			/>
 			<EmptyState v-if="isEmptyState" />
-			<Loader v-if="isLoading" class="bx-im-search-experimental-result__loader" />
 		</div>
 	`,
 };

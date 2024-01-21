@@ -17,10 +17,10 @@ abstract class BaseObject
 	/**
 	 * @param string $name Name of the table.
 	 */
-	function __construct($name = '')
+	public function __construct($name = '')
 	{
 		$this->name = (string)$name;
-		$this->ciName = $this->getCompareName($this->name);
+		$this->ciName = static::getCompareName($this->name);
 	}
 
 	/**
@@ -72,11 +72,17 @@ abstract class BaseObject
 			}
 		}
 		elseif ($name[0] == '`')
+		{
 			$name = trim($name, '`');
+		}
 		elseif ($name[0] == '"')
+		{
 			$name = trim($name, '"');
+		}
 		elseif ($name[0] == '[')
+		{
 			$name = trim($name, '[]');
+		}
 		return $name;
 	}
 
@@ -90,13 +96,21 @@ abstract class BaseObject
 	final public function getLowercasedName()
 	{
 		if ($this->name[0] == '`')
+		{
 			return $this->name;
+		}
 		elseif ($this->name[0] == '"')
+		{
 			return $this->name;
+		}
 		elseif ($this->name[0] == '[')
+		{
 			return $this->name;
+		}
 		else
+		{
 			return mb_strtolower($this->name);
+		}
 	}
 
 	/**
@@ -112,13 +126,21 @@ abstract class BaseObject
 		if ($name)
 		{
 			if ($name[0] == '`')
+			{
 				return substr($name, 1, -1);
+			}
 			elseif ($name[0] == '"')
+			{
 				return substr($name, 1, -1);
+			}
 			elseif ($name[0] == '[')
+			{
 				return substr($name, 1, -1);
+			}
 			else
+			{
 				return mb_strtoupper($name);
+			}
 		}
 		else
 		{
@@ -137,7 +159,7 @@ abstract class BaseObject
 	 */
 	final public function compareName($name)
 	{
-		return strcmp($this->ciName, $this->getCompareName($name));
+		return strcmp($this->ciName, static::getCompareName($name));
 	}
 
 	/**
@@ -149,7 +171,7 @@ abstract class BaseObject
 	 */
 	public function getCreateDdl($dbType = '')
 	{
-		return "// ".get_class($this).":getCreateDdl not implemented";
+		return '// ' . get_class($this) . ':getCreateDdl not implemented';
 	}
 
 	/**
@@ -161,7 +183,7 @@ abstract class BaseObject
 	 */
 	public function getDropDdl($dbType = '')
 	{
-		return "// ".get_class($this).":getDropDdl not implemented";
+		return '// ' . get_class($this) . ':getDropDdl not implemented';
 	}
 
 	/**
@@ -174,6 +196,6 @@ abstract class BaseObject
 	 */
 	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
-		return "// ".get_class($this).":getModifyDdl not implemented";
+		return '// ' . get_class($this) . ':getModifyDdl not implemented';
 	}
 }

@@ -3,6 +3,7 @@
 namespace Bitrix\Im\Access;
 
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UserAccessTable;
 
 /**
  * Auth provider.
@@ -207,6 +208,20 @@ class ChatAuthProvider extends \CAuthProvider
 				\CAccess::ClearCache($uid);
 			}
 		}
+	}
+
+	public function isCodeAlreadyExists(int $chatId, int $userId): bool
+	{
+		$result = UserAccessTable::query()
+			->setSelect(['USER_ID'])
+			->where('USER_ID', $userId)
+			->where('ACCESS_CODE', "CHAT{$chatId}")
+			->where('PROVIDER_ID', $this->id)
+			->setLimit(1)
+			->fetch()
+		;
+
+		return $result !== false;
 	}
 
 	/**

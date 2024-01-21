@@ -8,9 +8,9 @@ return [
 	'css' => 'dist/text.bundle.css',
 	'js' => 'dist/text.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
-		'landing.node',
-		'landing.node.text.tableeditor',
+		'main.core',
+		'landing.node.base',
+		'landing.node.tableeditor',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

@@ -113,13 +113,18 @@ class SetDefaultValueStepper extends Stepper
 	 */
 	private function firstRun(array & $option): bool
 	{
-		$existUfTable = Application::getConnection()->query("SHOW TABLES LIKE 'b_uts_product'")->getSelectedRowsCount() > 0;
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$existUfTable = $connection->query("SHOW TABLES LIKE 'b_uts_product'")->getSelectedRowsCount() > 0;
 		if (!$existUfTable)
 		{
 			return self::FINISH_EXECUTION;
 		}
 
-		$existUfColumn = Application::getConnection()->query("SHOW COLUMNS FROM `b_uts_product` LIKE 'UF_PRODUCT_MAPPING'")->getSelectedRowsCount() > 0;
+		$existUfColumn = $connection->query(
+			"SHOW COLUMNS FROM " . $helper->quote('b_uts_product') . " LIKE 'UF_PRODUCT_MAPPING'"
+			)->getSelectedRowsCount() > 0;
 		if (!$existUfColumn)
 		{
 			return self::FINISH_EXECUTION;
@@ -154,13 +159,16 @@ class SetDefaultValueStepper extends Stepper
 	 */
 	private function getProductsQuery(bool $isCountSelect = false, int $lastId = 0): string
 	{
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$typeIds = join(',', [
 			ProductTable::TYPE_PRODUCT,
 			ProductTable::TYPE_SET,
 			ProductTable::TYPE_SKU,
 		]);
 
-		$select = 'b_catalog_product.id as `id`';
+		$select = 'b_catalog_product.id as ' . $helper->quote('id');
 		if ($isCountSelect)
 		{
 			$select = 'COUNT(b_catalog_product.id)';

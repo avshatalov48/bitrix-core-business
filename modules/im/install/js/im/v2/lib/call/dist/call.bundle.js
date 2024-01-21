@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,ui_vue3_vuex,im_call,im_public,im_v2_lib_slider,im_v2_lib_logger,im_v2_lib_soundNotification,im_v2_lib_rest,im_v2_const,main_core,ui_entitySelector,ui_buttons,im_v2_application_core) {
+(function (exports,main_core_events,ui_vue3_vuex,im_call,im_public,im_v2_lib_slider,im_v2_lib_logger,im_v2_lib_promo,im_v2_lib_soundNotification,im_v2_lib_rest,im_v2_const,main_core,ui_entitySelector,ui_buttons,im_v2_application_core) {
 	'use strict';
 
 	class BetaCallService {
@@ -188,6 +188,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].currentCall.associatedEntity.id;
 	  }
+	  getCurrentCall() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
+	      return false;
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].currentCall;
+	  }
 	  hasCurrentCall() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall();
 	  }
@@ -208,7 +214,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  chatCanBeCalled(dialogId) {
 	    const callSupported = babelHelpers.classPrivateFieldLooseBase(this, _checkCallSupport)[_checkCallSupport](dialogId);
-	    const hasCurrentCall = this.hasCurrentCall();
+	    const hasCurrentCall = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/calls/hasActiveCall'](dialogId);
 	    return callSupported && !hasCurrentCall;
 	  }
 
@@ -229,14 +235,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      openHistory: dialogId => {
 	        return im_public.Messenger.openChat(dialogId);
 	      },
-	      openSettings: () => {},
-	      // TODO
+	      openSettings: () => {
+	        return im_public.Messenger.openSettings();
+	      },
 	      openHelpArticle: () => {},
 	      // TODO
 	      getContainer: () => document.querySelector(`.${CallManager.viewContainerClass}`),
-	      getMessageCount: () => babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/getTotalChatCounter'],
+	      getMessageCount: () => babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['counters/getTotalChatCounter'],
 	      getCurrentDialogId: () => babelHelpers.classPrivateFieldLooseBase(this, _getCurrentDialogId)[_getCurrentDialogId](),
-	      isPromoRequired: () => false,
+	      isPromoRequired: promoCode => {
+	        return im_v2_lib_promo.PromoManager.getInstance().needToShow(promoCode);
+	      },
 	      repeatSound: (soundType, timeout, force) => {
 	        im_v2_lib_soundNotification.SoundNotificationManager.getInstance().playLoop(soundType, timeout, force);
 	      },
@@ -246,15 +255,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      showUserSelector: openCallUserSelector
 	    },
 	    events: {
-	      [im_call.Controller.Events.onOpenVideoConference]: event => {
-	        const data = event.getData();
-	        const dialogId = data.dialogId;
-
-	        // TODO get code
-	        const code = ''; // Previous realisation - this.messenger.chat[dialogId].public.code;
-
-	        return im_public.Messenger.openConference({
+	      [im_call.Controller.Events.onPromoViewed]: event => {
+	        const {
 	          code
+	        } = event.getData();
+	        im_v2_lib_promo.PromoManager.getInstance().markAsWatched(code);
+	      },
+	      [im_call.Controller.Events.onOpenVideoConference]: event => {
+	        var _dialog$public;
+	        const {
+	          dialogId: chatId
+	        } = event.getData();
+	        const dialog = im_v2_application_core.Core.getStore().getters['chats/get'](`chat${chatId}`, true);
+	        return im_public.Messenger.openConference({
+	          code: (_dialog$public = dialog.public) == null ? void 0 : _dialog$public.code
 	        });
 	      }
 	    }
@@ -272,11 +286,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  call.addEventListener(BX.Call.Event.onJoin, babelHelpers.classPrivateFieldLooseBase(this, _onCallJoin)[_onCallJoin].bind(this));
 	  call.addEventListener(BX.Call.Event.onLeave, babelHelpers.classPrivateFieldLooseBase(this, _onCallLeave)[_onCallLeave].bind(this));
 	  call.addEventListener(BX.Call.Event.onDestroy, babelHelpers.classPrivateFieldLooseBase(this, _onCallDestroy)[_onCallDestroy].bind(this));
+	  const state = call.state === im_call.State.Connected || call.state === im_call.State.Proceeding ? im_v2_const.RecentCallStatus.joined : im_v2_const.RecentCallStatus.waiting;
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/addActiveCall', {
 	    dialogId: call.associatedEntity.id,
 	    name: call.associatedEntity.name,
 	    call,
-	    state: im_v2_const.RecentCallStatus.waiting
+	    state
 	  });
 	}
 	function _onCallJoin2(event) {
@@ -320,7 +335,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return user && user.status !== 'guest' && !user.bot && !user.network && user.id !== im_v2_application_core.Core.getUserId() && !!user.lastActivityDate;
 	}
 	function _checkChatCallSupport2(dialogId) {
-	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['dialogues/get'](dialogId);
+	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['chats/get'](dialogId);
 	  if (!dialog) {
 	    return false;
 	  }
@@ -343,5 +358,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CallManager = CallManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Vue3.Vuex,BX.Call,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.UI.EntitySelector,BX.UI,BX.Messenger.v2.Application));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Vue3.Vuex,BX.Call,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.UI.EntitySelector,BX.UI,BX.Messenger.v2.Application));
 //# sourceMappingURL=call.bundle.js.map

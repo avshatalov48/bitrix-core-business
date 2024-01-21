@@ -61,13 +61,6 @@ export const Conference = {
 		{
 			conferenceIndex = 0;
 
-			// TODO temporary workaround for life with two cores of IM
-			const CallManager = Reflection.getClass('BX.Messenger.v2.Lib.CallManager');
-			if (CallManager && CallManager.getInstance().hasCurrentCall())
-			{
-				CallManager.getInstance().foldCurrentCall();
-			}
-
 			DesktopApi.showWindow();
 
 			return true;

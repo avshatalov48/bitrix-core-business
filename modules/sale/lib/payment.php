@@ -55,6 +55,22 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 		return $this->payableItemCollection;
 	}
 
+	public function getBasketItemQuantity(BasketItem $basketItem) : float
+	{
+		$quantity = 0;
+
+		/** @var PayableBasketItem $payableBasketItem */
+		foreach ($this->getPayableItemCollection()->getBasketItems() as $payableBasketItem)
+		{
+			if ($payableBasketItem->getEntityObject()->getBasketCode() === $basketItem->getBasketCode())
+			{
+				$quantity += $payableBasketItem->getQuantity();
+			}
+		}
+
+		return $quantity;
+	}
+
 	/**
 	 * @param array $values
 	 * @return array

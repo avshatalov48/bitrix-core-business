@@ -4,10 +4,13 @@ namespace Bitrix\Mail\Helper;
 
 use Bitrix\Mail;
 use Bitrix\Mail\MailboxTable;
+use Bitrix\Mail\MailServicesTable;
 use Bitrix\Main;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Mail\Helper;
+use Bitrix\Mail\MailMessageTable;
 
 abstract class Mailbox
 {
@@ -16,6 +19,11 @@ abstract class Mailbox
 	const MESSAGE_RESYNCHRONIZATION_TIME = 360;
 	const MESSAGE_DELETION_LIMIT_AT_A_TIME = 1000;
 	const NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE = 2;
+
+	const MAIL_SERVICES_ONLY_FOR_THE_RU_ZONE = [
+		'yandex',
+		'mail.ru',
+	];
 
 	protected $dirsMd5WithCounter;
 	protected $mailbox;
@@ -32,6 +40,55 @@ abstract class Mailbox
 		'updatedMessages' => 0,
 		'newMessageId' => null,
 	];
+
+	public static function isRuZone(): bool
+	{
+		return Loader::includeModule('bitrix24')
+			? in_array(\CBitrix24::getPortalZone(), ['ru', 'kz', 'by'])
+			: in_array(LANGUAGE_ID, ['ru', 'kz', 'by']);
+	}
+
+	public static function getServices(): array
+	{
+		$res = MailServicesTable::getList([
+			'filter' => [
+				'=ACTIVE' => 'Y',
+				'=SITE_ID' => SITE_ID,
+			],
+			'order' => [
+				'SORT' => 'ASC',
+				'NAME' => 'ASC',
+			],
+		]);
+
+		$services = [];
+
+		while ($service = $res->fetch())
+		{
+			if(!self::isRuZone() && in_array($service['NAME'], self::MAIL_SERVICES_ONLY_FOR_THE_RU_ZONE, true))
+			{
+				continue;
+			}
+
+			$serviceFinal = [
+				'id'         => $service['ID'],
+				'type'       => $service['SERVICE_TYPE'],
+				'name'       => $service['NAME'],
+				'link'       => $service['LINK'],
+				'icon'       => MailServicesTable::getIconSrc($service['NAME'], $service['ICON']),
+				'server'     => $service['SERVER'],
+				'port'       => $service['PORT'],
+				'encryption' => $service['ENCRYPTION'],
+				'token'      => $service['TOKEN'],
+				'flags'      => $service['FLAGS'],
+				'sort'       => $service['SORT']
+			];
+
+			$services[] = $serviceFinal;
+		}
+
+		return $services;
+	}
 
 	/**
 	 * Creates active mailbox helper instance by ID
@@ -359,18 +416,6 @@ abstract class Mailbox
 
 		$ids = Mail\Internals\MailEntityOptionsTable::getList(
 			[
-				'runtime' => array(
-					new Main\Entity\ReferenceField(
-						'MESSAGE_UID',
-						'Bitrix\Mail\MailMessageUidTable',
-						array(
-							'=this.ENTITY_ID' => 'ref.MESSAGE_ID',
-						),
-						array(
-							'join_type' => 'INNER',
-						)
-					),
-				),
 				'select' => ['ENTITY_ID'],
 				'filter' =>
 					[
@@ -605,7 +650,7 @@ abstract class Mailbox
 
 	protected function pushSyncStatus($params, $force = false)
 	{
-		if (Main\Loader::includeModule('pull'))
+		if (Loader::includeModule('pull'))
 		{
 			$status = $this->getSyncStatus();
 
@@ -1130,6 +1175,7 @@ abstract class Mailbox
 		{
 			$params['lazy_attachments'] = $this->isSupportLazyAttachments();
 		}
+		$params[MailMessageTable::FIELD_SANITIZE_ON_VIEW] ??= $this->isSupportSanitizeOnView();
 
 		return \CMailMessage::addMessage(
 			$this->mailbox['ID'],
@@ -1840,7 +1886,7 @@ abstract class Mailbox
 
 	public function notifyNewMessages()
 	{
-		if (Main\Loader::includeModule('im'))
+		if (Loader::includeModule('im'))
 		{
 			$lastSyncResult = $this->getLastSyncResult();
 			$count = $lastSyncResult['newMessagesNotify'];
@@ -1873,6 +1919,59 @@ abstract class Mailbox
 				)
 			);
 		}
+	}
+
+	/**
+	 * Could we sanitize message on view?
+	 * if there is no filters that can use sanitized body
+	 *
+	 * @return bool
+	 */
+	public function isSupportSanitizeOnView(): bool
+	{
+		$supportedActionTypes = [
+			// doesn't use BODY_HTML or BODY_BB
+			"forumsocnet",
+			"support",
+			"crm",
+		];
+		foreach ($this->getFilters() as $filter)
+		{
+			if (
+				!in_array($filter['ACTION_TYPE'], $supportedActionTypes, true)
+				&& (
+					$this->hasActionWithoutSanitizeSupport($filter['__actions'])
+					|| !empty($filter['PHP_CONDITION'])
+					|| !empty($filter['ACTION_PHP'])
+				)
+			)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Is any action that don't have sanitize on view support
+	 *
+	 * @param array|null|false $actions Filter actions
+	 *
+	 * @return bool
+	 */
+	private function hasActionWithoutSanitizeSupport($actions): bool
+	{
+		if (is_array($actions))
+		{
+			foreach ($actions as $action)
+			{
+				if (empty($action['SANITIZE_ON_VIEW']))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/*

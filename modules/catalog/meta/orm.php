@@ -426,6 +426,587 @@ namespace Bitrix\Catalog\Access\Role {
 	 */
 	class EO_RoleRelation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Catalog\AgentContractFileTable:catalog\lib\agentcontractfiletable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_AgentContractFile
+	 * @see \Bitrix\Catalog\AgentContractFileTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getContractId()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile setContractId(\int|\Bitrix\Main\DB\SqlExpression $contractId)
+	 * @method bool hasContractId()
+	 * @method bool isContractIdFilled()
+	 * @method bool isContractIdChanged()
+	 * @method \int remindActualContractId()
+	 * @method \int requireContractId()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile resetContractId()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile unsetContractId()
+	 * @method \int fillContractId()
+	 * @method \Bitrix\Catalog\EO_AgentContract getContract()
+	 * @method \Bitrix\Catalog\EO_AgentContract remindActualContract()
+	 * @method \Bitrix\Catalog\EO_AgentContract requireContract()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile setContract(\Bitrix\Catalog\EO_AgentContract $object)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile resetContract()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile unsetContract()
+	 * @method bool hasContract()
+	 * @method bool isContractFilled()
+	 * @method bool isContractChanged()
+	 * @method \Bitrix\Catalog\EO_AgentContract fillContract()
+	 * @method \int getFileId()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile setFileId(\int|\Bitrix\Main\DB\SqlExpression $fileId)
+	 * @method bool hasFileId()
+	 * @method bool isFileIdFilled()
+	 * @method bool isFileIdChanged()
+	 * @method \int remindActualFileId()
+	 * @method \int requireFileId()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile resetFileId()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile unsetFileId()
+	 * @method \int fillFileId()
+	 * @method \Bitrix\Main\EO_File getFile()
+	 * @method \Bitrix\Main\EO_File remindActualFile()
+	 * @method \Bitrix\Main\EO_File requireFile()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile setFile(\Bitrix\Main\EO_File $object)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile resetFile()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile unsetFile()
+	 * @method bool hasFile()
+	 * @method bool isFileFilled()
+	 * @method bool isFileChanged()
+	 * @method \Bitrix\Main\EO_File fillFile()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_AgentContractFile wakeUp($data)
+	 */
+	class EO_AgentContractFile {
+		/* @var \Bitrix\Catalog\AgentContractFileTable */
+		static public $dataClass = '\Bitrix\Catalog\AgentContractFileTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_AgentContractFile_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getContractIdList()
+	 * @method \int[] fillContractId()
+	 * @method \Bitrix\Catalog\EO_AgentContract[] getContractList()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile_Collection getContractCollection()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection fillContract()
+	 * @method \int[] getFileIdList()
+	 * @method \int[] fillFileId()
+	 * @method \Bitrix\Main\EO_File[] getFileList()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile_Collection getFileCollection()
+	 * @method \Bitrix\Main\EO_File_Collection fillFile()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_AgentContractFile $object)
+	 * @method bool has(\Bitrix\Catalog\EO_AgentContractFile $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_AgentContractFile $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_AgentContractFile_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_AgentContractFile current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_AgentContractFile_Collection merge(?EO_AgentContractFile_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_AgentContractFile_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\AgentContractFileTable */
+		static public $dataClass = '\Bitrix\Catalog\AgentContractFileTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_AgentContractFile_Result exec()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile fetchObject()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_AgentContractFile_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_AgentContractFile fetchObject()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile_Collection fetchCollection()
+	 */
+	class EO_AgentContractFile_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_AgentContractFile createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_AgentContractFile wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_AgentContractFile_Collection wakeUpCollection($rows)
+	 */
+	class EO_AgentContractFile_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\AgentContractTable:catalog\lib\agentcontracttable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_AgentContract
+	 * @see \Bitrix\Catalog\AgentContractTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_AgentContract setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \Bitrix\Catalog\EO_AgentProduct getAgentProduct()
+	 * @method \Bitrix\Catalog\EO_AgentProduct remindActualAgentProduct()
+	 * @method \Bitrix\Catalog\EO_AgentProduct requireAgentProduct()
+	 * @method \Bitrix\Catalog\EO_AgentContract setAgentProduct(\Bitrix\Catalog\EO_AgentProduct $object)
+	 * @method \Bitrix\Catalog\EO_AgentContract resetAgentProduct()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetAgentProduct()
+	 * @method bool hasAgentProduct()
+	 * @method bool isAgentProductFilled()
+	 * @method bool isAgentProductChanged()
+	 * @method \Bitrix\Catalog\EO_AgentProduct fillAgentProduct()
+	 * @method \string getTitle()
+	 * @method \Bitrix\Catalog\EO_AgentContract setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
+	 * @method bool hasTitle()
+	 * @method bool isTitleFilled()
+	 * @method bool isTitleChanged()
+	 * @method \string remindActualTitle()
+	 * @method \string requireTitle()
+	 * @method \Bitrix\Catalog\EO_AgentContract resetTitle()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetTitle()
+	 * @method \string fillTitle()
+	 * @method \int getContractorId()
+	 * @method \Bitrix\Catalog\EO_AgentContract setContractorId(\int|\Bitrix\Main\DB\SqlExpression $contractorId)
+	 * @method bool hasContractorId()
+	 * @method bool isContractorIdFilled()
+	 * @method bool isContractorIdChanged()
+	 * @method \int remindActualContractorId()
+	 * @method \int requireContractorId()
+	 * @method \Bitrix\Catalog\EO_AgentContract resetContractorId()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetContractorId()
+	 * @method \int fillContractorId()
+	 * @method \Bitrix\Catalog\EO_Contractor getContractor()
+	 * @method \Bitrix\Catalog\EO_Contractor remindActualContractor()
+	 * @method \Bitrix\Catalog\EO_Contractor requireContractor()
+	 * @method \Bitrix\Catalog\EO_AgentContract setContractor(\Bitrix\Catalog\EO_Contractor $object)
+	 * @method \Bitrix\Catalog\EO_AgentContract resetContractor()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetContractor()
+	 * @method bool hasContractor()
+	 * @method bool isContractorFilled()
+	 * @method bool isContractorChanged()
+	 * @method \Bitrix\Catalog\EO_Contractor fillContractor()
+	 * @method \Bitrix\Main\Type\DateTime getDateModify()
+	 * @method \Bitrix\Catalog\EO_AgentContract setDateModify(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateModify)
+	 * @method bool hasDateModify()
+	 * @method bool isDateModifyFilled()
+	 * @method bool isDateModifyChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateModify()
+	 * @method \Bitrix\Main\Type\DateTime requireDateModify()
+	 * @method \Bitrix\Catalog\EO_AgentContract resetDateModify()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetDateModify()
+	 * @method \Bitrix\Main\Type\DateTime fillDateModify()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Catalog\EO_AgentContract setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Catalog\EO_AgentContract resetDateCreate()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \int getModifiedBy()
+	 * @method \Bitrix\Catalog\EO_AgentContract setModifiedBy(\int|\Bitrix\Main\DB\SqlExpression $modifiedBy)
+	 * @method bool hasModifiedBy()
+	 * @method bool isModifiedByFilled()
+	 * @method bool isModifiedByChanged()
+	 * @method \int remindActualModifiedBy()
+	 * @method \int requireModifiedBy()
+	 * @method \Bitrix\Catalog\EO_AgentContract resetModifiedBy()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetModifiedBy()
+	 * @method \int fillModifiedBy()
+	 * @method \Bitrix\Main\EO_User getModifiedByUser()
+	 * @method \Bitrix\Main\EO_User remindActualModifiedByUser()
+	 * @method \Bitrix\Main\EO_User requireModifiedByUser()
+	 * @method \Bitrix\Catalog\EO_AgentContract setModifiedByUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_AgentContract resetModifiedByUser()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetModifiedByUser()
+	 * @method bool hasModifiedByUser()
+	 * @method bool isModifiedByUserFilled()
+	 * @method bool isModifiedByUserChanged()
+	 * @method \Bitrix\Main\EO_User fillModifiedByUser()
+	 * @method \int getCreatedBy()
+	 * @method \Bitrix\Catalog\EO_AgentContract setCreatedBy(\int|\Bitrix\Main\DB\SqlExpression $createdBy)
+	 * @method bool hasCreatedBy()
+	 * @method bool isCreatedByFilled()
+	 * @method bool isCreatedByChanged()
+	 * @method \int remindActualCreatedBy()
+	 * @method \int requireCreatedBy()
+	 * @method \Bitrix\Catalog\EO_AgentContract resetCreatedBy()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetCreatedBy()
+	 * @method \int fillCreatedBy()
+	 * @method \Bitrix\Main\EO_User getCreatedByUser()
+	 * @method \Bitrix\Main\EO_User remindActualCreatedByUser()
+	 * @method \Bitrix\Main\EO_User requireCreatedByUser()
+	 * @method \Bitrix\Catalog\EO_AgentContract setCreatedByUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_AgentContract resetCreatedByUser()
+	 * @method \Bitrix\Catalog\EO_AgentContract unsetCreatedByUser()
+	 * @method bool hasCreatedByUser()
+	 * @method bool isCreatedByUserFilled()
+	 * @method bool isCreatedByUserChanged()
+	 * @method \Bitrix\Main\EO_User fillCreatedByUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_AgentContract set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_AgentContract reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_AgentContract unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_AgentContract wakeUp($data)
+	 */
+	class EO_AgentContract {
+		/* @var \Bitrix\Catalog\AgentContractTable */
+		static public $dataClass = '\Bitrix\Catalog\AgentContractTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_AgentContract_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \Bitrix\Catalog\EO_AgentProduct[] getAgentProductList()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection getAgentProductCollection()
+	 * @method \Bitrix\Catalog\EO_AgentProduct_Collection fillAgentProduct()
+	 * @method \string[] getTitleList()
+	 * @method \string[] fillTitle()
+	 * @method \int[] getContractorIdList()
+	 * @method \int[] fillContractorId()
+	 * @method \Bitrix\Catalog\EO_Contractor[] getContractorList()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection getContractorCollection()
+	 * @method \Bitrix\Catalog\EO_Contractor_Collection fillContractor()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateModifyList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateModify()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \int[] getModifiedByList()
+	 * @method \int[] fillModifiedBy()
+	 * @method \Bitrix\Main\EO_User[] getModifiedByUserList()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection getModifiedByUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillModifiedByUser()
+	 * @method \int[] getCreatedByList()
+	 * @method \int[] fillCreatedBy()
+	 * @method \Bitrix\Main\EO_User[] getCreatedByUserList()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection getCreatedByUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillCreatedByUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_AgentContract $object)
+	 * @method bool has(\Bitrix\Catalog\EO_AgentContract $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_AgentContract getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_AgentContract[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_AgentContract $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_AgentContract_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_AgentContract current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_AgentContract_Collection merge(?EO_AgentContract_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_AgentContract_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\AgentContractTable */
+		static public $dataClass = '\Bitrix\Catalog\AgentContractTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_AgentContract_Result exec()
+	 * @method \Bitrix\Catalog\EO_AgentContract fetchObject()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @see \Bitrix\Catalog\AgentContractTable::withProductList()
+	 * @method EO_AgentContract_Query withProductList($productIds)
+	 * @see \Bitrix\Catalog\AgentContractTable::withSectionList()
+	 * @method EO_AgentContract_Query withSectionList($sectionIds)
+	 */
+	class EO_AgentContract_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_AgentContract fetchObject()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection fetchCollection()
+	 */
+	class EO_AgentContract_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_AgentContract createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_AgentContract wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection wakeUpCollection($rows)
+	 */
+	class EO_AgentContract_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\AgentProductTable:catalog\lib\agentproducttable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_AgentProduct
+	 * @see \Bitrix\Catalog\AgentProductTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_AgentProduct setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getContractId()
+	 * @method \Bitrix\Catalog\EO_AgentProduct setContractId(\int|\Bitrix\Main\DB\SqlExpression $contractId)
+	 * @method bool hasContractId()
+	 * @method bool isContractIdFilled()
+	 * @method bool isContractIdChanged()
+	 * @method \int remindActualContractId()
+	 * @method \int requireContractId()
+	 * @method \Bitrix\Catalog\EO_AgentProduct resetContractId()
+	 * @method \Bitrix\Catalog\EO_AgentProduct unsetContractId()
+	 * @method \int fillContractId()
+	 * @method \Bitrix\Catalog\EO_AgentContract getContract()
+	 * @method \Bitrix\Catalog\EO_AgentContract remindActualContract()
+	 * @method \Bitrix\Catalog\EO_AgentContract requireContract()
+	 * @method \Bitrix\Catalog\EO_AgentProduct setContract(\Bitrix\Catalog\EO_AgentContract $object)
+	 * @method \Bitrix\Catalog\EO_AgentProduct resetContract()
+	 * @method \Bitrix\Catalog\EO_AgentProduct unsetContract()
+	 * @method bool hasContract()
+	 * @method bool isContractFilled()
+	 * @method bool isContractChanged()
+	 * @method \Bitrix\Catalog\EO_AgentContract fillContract()
+	 * @method \int getProductId()
+	 * @method \Bitrix\Catalog\EO_AgentProduct setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
+	 * @method bool hasProductId()
+	 * @method bool isProductIdFilled()
+	 * @method bool isProductIdChanged()
+	 * @method \int remindActualProductId()
+	 * @method \int requireProductId()
+	 * @method \Bitrix\Catalog\EO_AgentProduct resetProductId()
+	 * @method \Bitrix\Catalog\EO_AgentProduct unsetProductId()
+	 * @method \int fillProductId()
+	 * @method \string getProductType()
+	 * @method \Bitrix\Catalog\EO_AgentProduct setProductType(\string|\Bitrix\Main\DB\SqlExpression $productType)
+	 * @method bool hasProductType()
+	 * @method bool isProductTypeFilled()
+	 * @method bool isProductTypeChanged()
+	 * @method \string remindActualProductType()
+	 * @method \string requireProductType()
+	 * @method \Bitrix\Catalog\EO_AgentProduct resetProductType()
+	 * @method \Bitrix\Catalog\EO_AgentProduct unsetProductType()
+	 * @method \string fillProductType()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_AgentProduct set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_AgentProduct reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_AgentProduct unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_AgentProduct wakeUp($data)
+	 */
+	class EO_AgentProduct {
+		/* @var \Bitrix\Catalog\AgentProductTable */
+		static public $dataClass = '\Bitrix\Catalog\AgentProductTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_AgentProduct_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getContractIdList()
+	 * @method \int[] fillContractId()
+	 * @method \Bitrix\Catalog\EO_AgentContract[] getContractList()
+	 * @method \Bitrix\Catalog\EO_AgentProduct_Collection getContractCollection()
+	 * @method \Bitrix\Catalog\EO_AgentContract_Collection fillContract()
+	 * @method \int[] getProductIdList()
+	 * @method \int[] fillProductId()
+	 * @method \string[] getProductTypeList()
+	 * @method \string[] fillProductType()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_AgentProduct $object)
+	 * @method bool has(\Bitrix\Catalog\EO_AgentProduct $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_AgentProduct getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_AgentProduct[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_AgentProduct $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_AgentProduct_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_AgentProduct current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_AgentProduct_Collection merge(?EO_AgentProduct_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_AgentProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\AgentProductTable */
+		static public $dataClass = '\Bitrix\Catalog\AgentProductTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_AgentProduct_Result exec()
+	 * @method \Bitrix\Catalog\EO_AgentProduct fetchObject()
+	 * @method \Bitrix\Catalog\EO_AgentProduct_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_AgentProduct_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_AgentProduct fetchObject()
+	 * @method \Bitrix\Catalog\EO_AgentProduct_Collection fetchCollection()
+	 */
+	class EO_AgentProduct_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_AgentProduct createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_AgentProduct_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_AgentProduct wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_AgentProduct_Collection wakeUpCollection($rows)
+	 */
+	class EO_AgentProduct_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Catalog\CatalogIblockTable:catalog\lib\catalogiblock.php */
 namespace Bitrix\Catalog {
 	/**
@@ -5916,6 +6497,235 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_StoreDocumentBarcode_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreBatchDocumentElementTable:catalog\lib\StoreBatchDocumentElementTable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreBatchDocumentElement
+	 * @see \Bitrix\Catalog\StoreBatchDocumentElementTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getProductBatchId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setProductBatchId(\int|\Bitrix\Main\DB\SqlExpression $productBatchId)
+	 * @method bool hasProductBatchId()
+	 * @method bool isProductBatchIdFilled()
+	 * @method bool isProductBatchIdChanged()
+	 * @method \int remindActualProductBatchId()
+	 * @method \int requireProductBatchId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetProductBatchId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetProductBatchId()
+	 * @method \int fillProductBatchId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch getProductBatch()
+	 * @method \Bitrix\Catalog\EO_StoreBatch remindActualProductBatch()
+	 * @method \Bitrix\Catalog\EO_StoreBatch requireProductBatch()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setProductBatch(\Bitrix\Catalog\EO_StoreBatch $object)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetProductBatch()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetProductBatch()
+	 * @method bool hasProductBatch()
+	 * @method bool isProductBatchFilled()
+	 * @method bool isProductBatchChanged()
+	 * @method \Bitrix\Catalog\EO_StoreBatch fillProductBatch()
+	 * @method \int getDocumentElementId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setDocumentElementId(\int|\Bitrix\Main\DB\SqlExpression $documentElementId)
+	 * @method bool hasDocumentElementId()
+	 * @method bool isDocumentElementIdFilled()
+	 * @method bool isDocumentElementIdChanged()
+	 * @method \int remindActualDocumentElementId()
+	 * @method \int requireDocumentElementId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetDocumentElementId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetDocumentElementId()
+	 * @method \int fillDocumentElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement getDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement remindActualDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement requireDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setDocumentElement(\Bitrix\Catalog\EO_StoreDocumentElement $object)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetDocumentElement()
+	 * @method bool hasDocumentElement()
+	 * @method bool isDocumentElementFilled()
+	 * @method bool isDocumentElementChanged()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement fillDocumentElement()
+	 * @method \int getShipmentItemStoreId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setShipmentItemStoreId(\int|\Bitrix\Main\DB\SqlExpression $shipmentItemStoreId)
+	 * @method bool hasShipmentItemStoreId()
+	 * @method bool isShipmentItemStoreIdFilled()
+	 * @method bool isShipmentItemStoreIdChanged()
+	 * @method \int remindActualShipmentItemStoreId()
+	 * @method \int requireShipmentItemStoreId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetShipmentItemStoreId()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetShipmentItemStoreId()
+	 * @method \int fillShipmentItemStoreId()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore getShipmentItemStore()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore remindActualShipmentItemStore()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore requireShipmentItemStore()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setShipmentItemStore(\Bitrix\Sale\Internals\EO_ShipmentItemStore $object)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetShipmentItemStore()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetShipmentItemStore()
+	 * @method bool hasShipmentItemStore()
+	 * @method bool isShipmentItemStoreFilled()
+	 * @method bool isShipmentItemStoreChanged()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore fillShipmentItemStore()
+	 * @method \float getAmount()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setAmount(\float|\Bitrix\Main\DB\SqlExpression $amount)
+	 * @method bool hasAmount()
+	 * @method bool isAmountFilled()
+	 * @method bool isAmountChanged()
+	 * @method \float remindActualAmount()
+	 * @method \float requireAmount()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetAmount()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetAmount()
+	 * @method \float fillAmount()
+	 * @method \float getBatchPrice()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setBatchPrice(\float|\Bitrix\Main\DB\SqlExpression $batchPrice)
+	 * @method bool hasBatchPrice()
+	 * @method bool isBatchPriceFilled()
+	 * @method bool isBatchPriceChanged()
+	 * @method \float remindActualBatchPrice()
+	 * @method \float requireBatchPrice()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetBatchPrice()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetBatchPrice()
+	 * @method \float fillBatchPrice()
+	 * @method \string getBatchCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement setBatchCurrency(\string|\Bitrix\Main\DB\SqlExpression $batchCurrency)
+	 * @method bool hasBatchCurrency()
+	 * @method bool isBatchCurrencyFilled()
+	 * @method bool isBatchCurrencyChanged()
+	 * @method \string remindActualBatchCurrency()
+	 * @method \string requireBatchCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement resetBatchCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unsetBatchCurrency()
+	 * @method \string fillBatchCurrency()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_StoreBatchDocumentElement wakeUp($data)
+	 */
+	class EO_StoreBatchDocumentElement {
+		/* @var \Bitrix\Catalog\StoreBatchDocumentElementTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreBatchDocumentElementTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreBatchDocumentElement_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getProductBatchIdList()
+	 * @method \int[] fillProductBatchId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch[] getProductBatchList()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection getProductBatchCollection()
+	 * @method \Bitrix\Catalog\EO_StoreBatch_Collection fillProductBatch()
+	 * @method \int[] getDocumentElementIdList()
+	 * @method \int[] fillDocumentElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement[] getDocumentElementList()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection getDocumentElementCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection fillDocumentElement()
+	 * @method \int[] getShipmentItemStoreIdList()
+	 * @method \int[] fillShipmentItemStoreId()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore[] getShipmentItemStoreList()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection getShipmentItemStoreCollection()
+	 * @method \Bitrix\Sale\Internals\EO_ShipmentItemStore_Collection fillShipmentItemStore()
+	 * @method \float[] getAmountList()
+	 * @method \float[] fillAmount()
+	 * @method \float[] getBatchPriceList()
+	 * @method \float[] fillBatchPrice()
+	 * @method \string[] getBatchCurrencyList()
+	 * @method \string[] fillBatchCurrency()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_StoreBatchDocumentElement $object)
+	 * @method bool has(\Bitrix\Catalog\EO_StoreBatchDocumentElement $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_StoreBatchDocumentElement $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_StoreBatchDocumentElement_Collection merge(?EO_StoreBatchDocumentElement_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_StoreBatchDocumentElement_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\StoreBatchDocumentElementTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreBatchDocumentElementTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_StoreBatchDocumentElement_Result exec()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_StoreBatchDocumentElement_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection fetchCollection()
+	 */
+	class EO_StoreBatchDocumentElement_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_StoreBatchDocumentElement_Collection wakeUpCollection($rows)
+	 */
+	class EO_StoreBatchDocumentElement_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Catalog\StoreDocumentElementTable:catalog\lib\storedocumentelementtable.php */
 namespace Bitrix\Catalog {
 	/**
@@ -7027,6 +7837,197 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_StoreProduct_Collection wakeUpCollection($rows)
 	 */
 	class EO_StoreProduct_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreBatchTable:catalog\lib\StoreBatchTable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreBatch
+	 * @see \Bitrix\Catalog\StoreBatchTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getElementId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch setElementId(\int|\Bitrix\Main\DB\SqlExpression $elementId)
+	 * @method bool hasElementId()
+	 * @method bool isElementIdFilled()
+	 * @method bool isElementIdChanged()
+	 * @method \int remindActualElementId()
+	 * @method \int requireElementId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch resetElementId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch unsetElementId()
+	 * @method \int fillElementId()
+	 * @method \int getStoreId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch setStoreId(\int|\Bitrix\Main\DB\SqlExpression $storeId)
+	 * @method bool hasStoreId()
+	 * @method bool isStoreIdFilled()
+	 * @method bool isStoreIdChanged()
+	 * @method \int remindActualStoreId()
+	 * @method \int requireStoreId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch resetStoreId()
+	 * @method \Bitrix\Catalog\EO_StoreBatch unsetStoreId()
+	 * @method \int fillStoreId()
+	 * @method \Bitrix\Catalog\EO_Store getStore()
+	 * @method \Bitrix\Catalog\EO_Store remindActualStore()
+	 * @method \Bitrix\Catalog\EO_Store requireStore()
+	 * @method \Bitrix\Catalog\EO_StoreBatch setStore(\Bitrix\Catalog\EO_Store $object)
+	 * @method \Bitrix\Catalog\EO_StoreBatch resetStore()
+	 * @method \Bitrix\Catalog\EO_StoreBatch unsetStore()
+	 * @method bool hasStore()
+	 * @method bool isStoreFilled()
+	 * @method bool isStoreChanged()
+	 * @method \Bitrix\Catalog\EO_Store fillStore()
+	 * @method \float getAvailableAmount()
+	 * @method \Bitrix\Catalog\EO_StoreBatch setAvailableAmount(\float|\Bitrix\Main\DB\SqlExpression $availableAmount)
+	 * @method bool hasAvailableAmount()
+	 * @method bool isAvailableAmountFilled()
+	 * @method bool isAvailableAmountChanged()
+	 * @method \float remindActualAvailableAmount()
+	 * @method \float requireAvailableAmount()
+	 * @method \Bitrix\Catalog\EO_StoreBatch resetAvailableAmount()
+	 * @method \Bitrix\Catalog\EO_StoreBatch unsetAvailableAmount()
+	 * @method \float fillAvailableAmount()
+	 * @method \float getPurchasingPrice()
+	 * @method \Bitrix\Catalog\EO_StoreBatch setPurchasingPrice(\float|\Bitrix\Main\DB\SqlExpression $purchasingPrice)
+	 * @method bool hasPurchasingPrice()
+	 * @method bool isPurchasingPriceFilled()
+	 * @method bool isPurchasingPriceChanged()
+	 * @method \float remindActualPurchasingPrice()
+	 * @method \float requirePurchasingPrice()
+	 * @method \Bitrix\Catalog\EO_StoreBatch resetPurchasingPrice()
+	 * @method \Bitrix\Catalog\EO_StoreBatch unsetPurchasingPrice()
+	 * @method \float fillPurchasingPrice()
+	 * @method \string getPurchasingCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreBatch setPurchasingCurrency(\string|\Bitrix\Main\DB\SqlExpression $purchasingCurrency)
+	 * @method bool hasPurchasingCurrency()
+	 * @method bool isPurchasingCurrencyFilled()
+	 * @method bool isPurchasingCurrencyChanged()
+	 * @method \string remindActualPurchasingCurrency()
+	 * @method \string requirePurchasingCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreBatch resetPurchasingCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreBatch unsetPurchasingCurrency()
+	 * @method \string fillPurchasingCurrency()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreBatch set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_StoreBatch reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreBatch unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_StoreBatch wakeUp($data)
+	 */
+	class EO_StoreBatch {
+		/* @var \Bitrix\Catalog\StoreBatchTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreBatchTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreBatch_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getElementIdList()
+	 * @method \int[] fillElementId()
+	 * @method \int[] getStoreIdList()
+	 * @method \int[] fillStoreId()
+	 * @method \Bitrix\Catalog\EO_Store[] getStoreList()
+	 * @method \Bitrix\Catalog\EO_StoreBatch_Collection getStoreCollection()
+	 * @method \Bitrix\Catalog\EO_Store_Collection fillStore()
+	 * @method \float[] getAvailableAmountList()
+	 * @method \float[] fillAvailableAmount()
+	 * @method \float[] getPurchasingPriceList()
+	 * @method \float[] fillPurchasingPrice()
+	 * @method \string[] getPurchasingCurrencyList()
+	 * @method \string[] fillPurchasingCurrency()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_StoreBatch $object)
+	 * @method bool has(\Bitrix\Catalog\EO_StoreBatch $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreBatch getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreBatch[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_StoreBatch $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_StoreBatch_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_StoreBatch current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method EO_StoreBatch_Collection merge(?EO_StoreBatch_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_StoreBatch_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\StoreBatchTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreBatchTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_StoreBatch_Result exec()
+	 * @method \Bitrix\Catalog\EO_StoreBatch fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreBatch_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_StoreBatch_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreBatch fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreBatch_Collection fetchCollection()
+	 */
+	class EO_StoreBatch_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreBatch createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_StoreBatch_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_StoreBatch wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_StoreBatch_Collection wakeUpCollection($rows)
+	 */
+	class EO_StoreBatch_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Catalog\SubscribeTable:catalog\lib\subscribe.php */
 namespace Bitrix\Catalog {

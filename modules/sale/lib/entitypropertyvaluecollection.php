@@ -424,8 +424,8 @@ abstract class EntityPropertyValueCollection extends EntityCollection
 			$itemsFromDbList = static::getList(
 				[
 					"filter" => [
-						"ENTITY_ID" => $entity->getId(),
-						"ENTITY_TYPE" => static::getEntityType()
+						"=ENTITY_ID" => $entity->getId(),
+						"=ENTITY_TYPE" => static::getEntityType()
 					],
 					"select" => [
 						"ID", "NAME", "CODE", "VALUE", "ORDER_PROPS_ID", "ENTITY_ID", "ENTITY_TYPE"
@@ -523,7 +523,7 @@ abstract class EntityPropertyValueCollection extends EntityCollection
 	public function refreshRelated(): void
 	{
 		/** @var EntityPropertyValue $propertyValueClassName*/
-	    $propertyValueClassName = static::getPropertyValueClassName();
+		$propertyValueClassName = static::getPropertyValueClassName();
 		$props = $propertyValueClassName::loadForEntity($this->getEntityParent());
 
 		/** @var EntityPropertyValue $propertyValue */

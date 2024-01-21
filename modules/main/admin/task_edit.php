@@ -147,7 +147,7 @@ if($ID > 0 && $COPY_ID <= 0)
 		$aMenu[] = array(
 			"TEXT"	=> GetMessage("MAIN_DELETE_RECORD"),
 			"TITLE"	=> GetMessage("MAIN_DELETE_RECORD_TITLE"),
-			"LINK"	=> "javascript:if(confirm('".GetMessage("MAIN_DELETE_RECORD_CONF")."')) window.location='/bitrix/admin/task_admin.php?del_id=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."';",
+			"LINK"	=> "javascript:if(confirm('".GetMessage("MAIN_DELETE_RECORD_CONF")."')) window.location='/bitrix/admin/task_admin.php?ID=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."&action_button=delete';",
 			"ICON"	=> "btn_delete"
 		);
 	}

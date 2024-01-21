@@ -4,12 +4,19 @@ namespace Bitrix\Im;
 
 use Bitrix\Im\Model\LinkReminderTable;
 use Bitrix\Im\Model\MessageUnreadTable;
+use Bitrix\Im\Model\RecentTable;
+use Bitrix\Im\V2\Chat\EntityLink;
 use Bitrix\Im\V2\Message\CounterService;
 use Bitrix\Im\V2\Entity\File\FileCollection;
 use Bitrix\Im\V2\Entity\File\FileItem;
 use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Im\V2\Message\ViewedService;
+use Bitrix\Im\V2\Settings\UserConfiguration;
+use Bitrix\Im\V2\Sync;
+use Bitrix\Imbot\Bot\CopilotChatBot;
 use Bitrix\Main\Application, Bitrix\Main\Localization\Loc;
+use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 
 Loc::loadMessages(__FILE__);
@@ -18,12 +25,24 @@ class Recent
 {
 	private const PINNED_CHATS_LIMIT = 25;
 
+	static private bool $limitError = false;
+
 	public static function get($userId = null, $options = [])
 	{
 		$onlyOpenlinesOption = $options['ONLY_OPENLINES'] ?? null;
+		$onlyCopilotOption = $options['ONLY_COPILOT'] ?? null;
 		$skipOpenlinesOption = $options['SKIP_OPENLINES'] ?? null;
 		$skipChat = $options['SKIP_CHAT'] ?? null;
 		$skipDialog = $options['SKIP_DIALOG'] ?? null;
+
+		if (isset($options['FORCE_OPENLINES']) && $options['FORCE_OPENLINES'] === 'Y')
+		{
+			$forceOpenlines = 'Y';
+		}
+		else
+		{
+			$forceOpenlines = 'N';
+		}
 
 		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if (!$userId)
@@ -36,12 +55,22 @@ class Recent
 			&& ($onlyOpenlinesOption === 'Y' || $skipOpenlinesOption !== 'Y')
 		);
 
+		if (
+			$showOpenlines
+			&& $forceOpenlines !== 'Y'
+			&& class_exists('\Bitrix\ImOpenLines\Recent')
+		)
+		{
+			return \Bitrix\ImOpenLines\Recent::getRecent($userId, $options);
+		}
+
 		$generalChatId = \CIMChat::GetGeneralChatId();
 
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
 			'SHOW_OPENLINES' => $showOpenlines,
-			'WITHOUT_COMMON_USERS' => true
+			'WITHOUT_COMMON_USERS' => true,
+			'CHAT_IDS' => $options['CHAT_IDS'] ?? null,
 		]);
 
 		$lastSyncDateOption = $options['LAST_SYNC_DATE'] ?? null;
@@ -60,7 +89,13 @@ class Recent
 		}
 
 		$skipTypes = [];
-		if ($onlyOpenlinesOption === 'Y')
+		if ($onlyCopilotOption === 'Y')
+		{
+			$ormParams['filter'][] = [
+				'=ITEM_TYPE' => \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT
+			];
+		}
+		elseif ($onlyOpenlinesOption === 'Y')
 		{
 			$ormParams['filter'][] = [
 				'=ITEM_TYPE' => IM_MESSAGE_OPEN_LINE
@@ -68,6 +103,7 @@ class Recent
 		}
 		else
 		{
+			$skipTypes[] = \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT;
 			if ($options['SKIP_OPENLINES'] === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
@@ -139,6 +175,17 @@ class Recent
 		}
 		$result = array_values($result);
 
+		if (
+			$showOpenlines
+			&& !$options['ONLY_OPENLINES']
+			&& class_exists('\Bitrix\ImOpenLines\Recent')
+		)
+		{
+			$options['ONLY_IN_QUEUE'] = true;
+			$chatsInQueue = \Bitrix\ImOpenLines\Recent::getRecent($userId, $options);
+			$result = array_merge($result, $chatsInQueue);
+		}
+
 		\Bitrix\Main\Type\Collection::sortByColumn(
 			$result,
 			['PINNED' => SORT_DESC, 'MESSAGE' => SORT_DESC, 'ID' => SORT_DESC],
@@ -176,6 +223,7 @@ class Recent
 		$viewCommonUsers = (bool)\CIMSettings::GetSetting(\CIMSettings::SETTINGS, 'viewCommonUsers');
 
 		$onlyOpenlinesOption = $options['ONLY_OPENLINES'] ?? null;
+		$onlyCopilotOption = $options['ONLY_COPILOT'] ?? null;
 		$skipChatOption = $options['SKIP_CHAT'] ?? null;
 		$skipDialogOption = $options['SKIP_DIALOG'] ?? null;
 		$lastMessageDateOption = $options['LAST_MESSAGE_DATE'] ?? null;
@@ -199,7 +247,13 @@ class Recent
 			'SHORT_INFO' => $shortInfo,
 		]);
 
-		if ($onlyOpenlinesOption === 'Y')
+		if ($onlyCopilotOption === 'Y')
+		{
+			$ormParams['filter'][] = [
+				'=ITEM_TYPE' => \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT
+			];
+		}
+		elseif ($onlyOpenlinesOption === 'Y')
 		{
 			$ormParams['filter'][] = [
 				'=ITEM_TYPE' => IM_MESSAGE_OPEN_LINE
@@ -208,6 +262,7 @@ class Recent
 		else
 		{
 			$skipTypes = [];
+			$skipTypes[] = \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT;
 			if ($options['SKIP_OPENLINES'] === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_OPEN_LINE;
@@ -247,10 +302,22 @@ class Recent
 			$ormParams['limit'] = 50;
 		}
 
-		$ormParams['order'] = [
-			'PINNED' => 'DESC',
-			'DATE_MESSAGE' => 'DESC',
-		];
+		$sortOption = (new UserConfiguration((int)$userId))->getGeneralSettings()['pinnedChatSort'];
+		if ($sortOption === 'byCost')
+		{
+			$ormParams['order'] = [
+				'PINNED' => 'DESC',
+				'PIN_SORT' => 'ASC',
+				'DATE_MESSAGE' => 'DESC',
+			];
+		}
+		else
+		{
+			$ormParams['order'] = [
+				'PINNED' => 'DESC',
+				'DATE_MESSAGE' => 'DESC',
+			];
+		}
 
 		$orm = \Bitrix\Im\Model\RecentTable::getList($ormParams);
 
@@ -392,6 +459,7 @@ class Recent
 		$withoutCommonUsers = $params['WITHOUT_COMMON_USERS'] === true || !$isIntranet;
 		$unreadOnly = isset($params['UNREAD_ONLY']) && $params['UNREAD_ONLY'] === true;
 		$shortInfo = isset($params['SHORT_INFO']) && $params['SHORT_INFO'] === true;
+		$chatIds = $params['CHAT_IDS'] ?? null;
 
 		$shortInfoFields = [
 			'*',
@@ -425,16 +493,17 @@ class Recent
 			'MESSAGE_ATTACH' => 'ATTACH.PARAM_VALUE',
 			'MESSAGE_ATTACH_JSON' => 'ATTACH.PARAM_JSON',
 			'MESSAGE_USER_LAST_ACTIVITY_DATE' => 'MESSAGE.AUTHOR.LAST_ACTIVITY_DATE',
-			'MESSAGE_USER_IDLE' => 'MESSAGE.STATUS.IDLE',
+			/*'MESSAGE_USER_IDLE' => 'MESSAGE.STATUS.IDLE',
 			'MESSAGE_USER_MOBILE_LAST_DATE' => 'MESSAGE.STATUS.MOBILE_LAST_DATE',
-			'MESSAGE_USER_DESKTOP_LAST_DATE' => 'MESSAGE.STATUS.DESKTOP_LAST_DATE',
+			'MESSAGE_USER_DESKTOP_LAST_DATE' => 'MESSAGE.STATUS.DESKTOP_LAST_DATE',*/
 			'USER_EMAIL' => 'USER.EMAIL',
-			'USER_IDLE' => 'STATUS.IDLE',
+			/*'USER_IDLE' => 'STATUS.IDLE',
 			'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
-			'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
+			'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',*/
 			'MESSAGE_UUID_VALUE' => 'MESSAGE_UUID.UUID',
 			'HAS_REMINDER' => 'HAS_REMINDER',
-			'CHAT_MANAGE_USERS' => 'CHAT.MANAGE_USERS',
+			'CHAT_MANAGE_USERS_ADD' => 'CHAT.MANAGE_USERS_ADD',
+			'CHAT_MANAGE_USERS_DELETE' => 'CHAT.MANAGE_USERS_DELETE',
 			'CHAT_MANAGE_UI' => 'CHAT.MANAGE_UI',
 			'CHAT_MANAGE_SETTINGS' => 'CHAT.MANAGE_SETTINGS',
 			'CHAT_CAN_POST' => 'CHAT.CAN_POST',
@@ -480,12 +549,12 @@ class Recent
 				],
 				["join_type" => "LEFT"]
 			),
-			new \Bitrix\Main\Entity\ReferenceField(
+			/*new \Bitrix\Main\Entity\ReferenceField(
 				'STATUS',
 				'\Bitrix\Im\Model\StatusTable',
 				array("=this.ITEM_TYPE" => new \Bitrix\Main\DB\SqlExpression("?s", IM_MESSAGE_PRIVATE), "=ref.USER_ID" => "this.ITEM_ID"),
 				array("join_type"=>"LEFT")
-			),
+			),*/
 			new ExpressionField(
 				'HAS_REMINDER',
 				"CASE WHEN EXISTS (
@@ -552,6 +621,11 @@ class Recent
 				['==HAS_UNREAD_MESSAGE' => true],
 				['=UNREAD' => true],
 			];
+		}
+
+		if ($chatIds)
+		{
+			$filter['@ITEM_CID'] = $chatIds; // todo: add index
 		}
 
 		return [
@@ -754,10 +828,14 @@ class Recent
 				'USER_COUNTER' => (int)$row['CHAT_USER_COUNT'],
 				'RESTRICTIONS' => $restrictions,
 				'ROLE' => self::getRole($row),
-				'MANAGE_USERS' => $row['CHAT_MANAGE_USERS'] ?? null,
-				'MANAGE_UI' => $row['CHAT_MANAGE_UI'] ?? null,
-				'MANAGE_SETTINGS' => $row['CHAT_MANAGE_SETTINGS'] ?? null,
-				'CAN_POST' => $row['CHAT_CAN_POST'] ?? null,
+				'ENTITY_LINK' => EntityLink::getInstance($row['CHAT_ENTITY_TYPE'] ?? '', $row['CHAT_ENTITY_ID'] ?? '', (int)$row['ITEM_CID'])->toArray(),
+				'PERMISSIONS' => [
+					'MANAGE_USERS_ADD' => mb_strtolower($row['CHAT_MANAGE_USERS_ADD'] ?? ''),
+					'MANAGE_USERS_DELETE' => mb_strtolower($row['CHAT_MANAGE_USERS_DELETE'] ?? ''),
+					'MANAGE_UI' => mb_strtolower($row['CHAT_MANAGE_UI'] ?? ''),
+					'MANAGE_SETTINGS' => mb_strtolower($row['CHAT_MANAGE_SETTINGS'] ?? ''),
+					'CAN_POST' => mb_strtolower($row['CHAT_CAN_POST'] ?? ''),
+				],
 			];
 			if ($row["CHAT_ENTITY_TYPE"] == 'LINES')
 			{
@@ -774,13 +852,25 @@ class Recent
 
 		if ($item['USER']['ID'] > 0)
 		{
-			$user = User::getInstance($item['USER']['ID'])->getArray(['SKIP_ONLINE' => 'Y']);
+			$user = \Bitrix\Im\V2\Entity\User\User::getInstance($item['USER']['ID'])
+				->getArray(['WITHOUT_ONLINE' => true])
+			;
+
 			if (!$user)
 			{
 				$user = ['ID' => 0];
 			}
 			else if ($item['TYPE'] == 'user')
 			{
+				if (
+					!empty($user['BOT_DATA'])
+					&& Loader::includeModule('imbot')
+					&& $user['BOT_DATA']['code'] === CopilotChatBot::BOT_CODE
+				)
+				{
+					return null;
+				}
+
 				if (
 					(!$user['ACTIVE'] && $item['COUNTER'] <= 0)
 					&& !$user['BOT']
@@ -889,28 +979,33 @@ class Recent
 
 		$pinnedCount = \Bitrix\Im\Model\RecentTable::getRow($ormParams)['CNT'];
 
-		if ($pin && (int)$pinnedCount > self::PINNED_CHATS_LIMIT)
+		self::$limitError = false;
+		if ($pin && (int)$pinnedCount >= self::PINNED_CHATS_LIMIT)
 		{
-			//TODO: Explain what went wrong
+			self::$limitError = true;
+
 			return false;
 		}
 
 		$pin = $pin === true? 'Y': 'N';
 
 		$id = $dialogId;
+		$chatId = 0;
 		if (mb_substr($dialogId, 0, 4) == 'chat')
 		{
 			$itemTypes = \Bitrix\Im\Chat::getTypes();
 			$id = mb_substr($dialogId, 4);
+			$chatId = (int)$id;
 		}
 		else
 		{
 			$itemTypes = IM_MESSAGE_PRIVATE;
+			$chatId = \Bitrix\Im\Dialog::getChatId($dialogId);
 		}
 
 		$element = \Bitrix\Im\Model\RecentTable::getList(
 			[
-				'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'PINNED'],
+				'select' => ['USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'PINNED', 'PIN_SORT'],
 				'filter' => [
 					'=USER_ID' => $userId,
 					'=ITEM_TYPE' => $itemTypes,
@@ -938,8 +1033,6 @@ class Recent
 //			{
 
 //			}
-
-			$chatId = \Bitrix\Im\Dialog::getChatId($id);
 
 			$relationData = \Bitrix\Im\Model\RelationTable::getList(
 				[
@@ -982,6 +1075,20 @@ class Recent
 			return true;
 		}
 
+		$connection = Application::getConnection();
+		$connection->lock("PIN_SORT_CHAT_{$userId}", 10);
+
+		if ($pin === 'Y')
+		{
+			self::increasePinSortCost($userId);
+		}
+		else
+		{
+			$pinSort = $element['PIN_SORT'] ? (int)$element['PIN_SORT'] : null;
+			self::decreasePinSortCost($userId, $pinSort);
+		}
+
+
 		\Bitrix\Im\Model\RecentTable::update(
 			[
 				'USER_ID' => $element['USER_ID'],
@@ -990,9 +1097,20 @@ class Recent
 			],
 			[
 				'PINNED' => $pin,
-				'DATE_UPDATE' => new \Bitrix\Main\Type\DateTime()
+				'DATE_UPDATE' => new \Bitrix\Main\Type\DateTime(),
+				'PIN_SORT' => ($pin === 'Y') ? 1 : null,
 			]
 		);
+
+		$connection->unlock("PIN_SORT_CHAT_{$userId}");
+
+		if ($element['ITEM_TYPE'] !== \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_LINE)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
+				$userId
+			);
+		}
 
 		self::clearCache($element['USER_ID']);
 
@@ -1015,6 +1133,165 @@ class Recent
 		}
 
 		return true;
+	}
+
+	private static function increasePinSortCost(int $userId): void
+	{
+		$caseField = new SqlExpression('?# + 1', 'PIN_SORT');
+
+		RecentTable::updateByFilter(
+			[
+				'=PINNED' => 'Y',
+				'=USER_ID' => $userId,
+				'>=PIN_SORT' => 1,
+			],
+			['PIN_SORT' => $caseField]
+		);
+	}
+
+	private static function decreasePinSortCost(int $userId, ?int $pinSort)
+	{
+		if (!isset($pinSort))
+		{
+			return;
+		}
+
+		$caseField = new SqlExpression('?# - 1', 'PIN_SORT');
+
+		RecentTable::updateByFilter(
+			[
+				'=PINNED' => 'Y',
+				'=USER_ID' => $userId,
+				'>PIN_SORT' => $pinSort,
+			],
+			['PIN_SORT' => $caseField]
+		);
+	}
+
+	public static function sortPin(\Bitrix\Im\V2\Chat $chat, int $newPosition, int $userId): void
+	{
+		$connection = Application::getConnection();
+		$connection->lock("PIN_SORT_CHAT_{$userId}", 10);
+
+		$query = RecentTable::query()
+			->setSelect(['PIN_SORT'])
+			->setLimit(1)
+			->where('USER_ID', $userId)
+			->where('ITEM_CID', (int)$chat->getChatId())
+			->where('PINNED', 'Y')
+			->fetch()
+		;
+
+		if (!$query)
+		{
+			$connection->unlock("PIN_SORT_CHAT_{$userId}");
+
+			return;
+		}
+		$currentCost = (int)$query['PIN_SORT'];
+
+		$query = RecentTable::query()
+			->setSelect(['PIN_SORT'])
+			->setOrder(['PIN_SORT'])
+			->setOffset($newPosition - 1)
+			->setLimit(1)
+			->where('PINNED', 'Y')
+			->where('USER_ID', $userId)
+			->fetch()
+		;
+
+		if (!$query)
+		{
+			$connection->unlock("PIN_SORT_CHAT_{$userId}");
+
+			return;
+		}
+		$newCost = (int)$query['PIN_SORT'];
+
+		if ($currentCost === $newCost)
+		{
+			$connection->unlock("PIN_SORT_CHAT_{$userId}");
+
+			return;
+		}
+
+		if ($currentCost < $newCost)
+		{
+			$caseField = new SqlExpression(
+				"CASE WHEN ?# = ?i THEN ?i WHEN ?# > ?i AND ?# <= ?i THEN ?# - 1 END",
+				'PIN_SORT',
+				$currentCost,
+				$newCost,
+				'PIN_SORT',
+				$currentCost,
+				'PIN_SORT',
+				$newCost,
+				'PIN_SORT'
+			);
+
+			$filter = [
+				'=PINNED' => 'Y',
+				'=USER_ID' => $userId,
+				'>=PIN_SORT' => $currentCost,
+				'<=PIN_SORT' => $newCost,
+			];
+		}
+		else
+		{
+			$caseField = new SqlExpression(
+				"CASE WHEN ?# = ?i THEN ?i WHEN ?# >= ?i AND ?# < ?i THEN ?# + 1 END",
+				'PIN_SORT',
+				$currentCost,
+				$newCost,
+				'PIN_SORT',
+				$newCost,
+				'PIN_SORT',
+				$currentCost,
+				'PIN_SORT'
+			);
+
+			$filter = [
+				'=PINNED' => 'Y',
+				'=USER_ID' => $userId,
+				'>=PIN_SORT' => $newCost,
+				'<=PIN_SORT' => $currentCost,
+			];
+		}
+
+		RecentTable::updateByFilter(
+			$filter,
+			['PIN_SORT' => $caseField]
+		);
+
+		$connection->unlock("PIN_SORT_CHAT_{$userId}");
+	}
+
+	public static function getPinLimit(): int
+	{
+		return self::PINNED_CHATS_LIMIT ?? 25;
+	}
+
+	public static function updatePinSortCost(int $userId): void
+	{
+		$connection = Application::getConnection();
+		$connection->lock("PIN_SORT_CHAT_{$userId}", 10);
+
+		$caseField = new SqlExpression('?#', 'ITEM_MID');
+
+		RecentTable::updateByFilter(
+			[
+				'=PINNED' => 'Y',
+				'=USER_ID' => $userId
+			],
+			['PIN_SORT' => $caseField]
+		);
+
+		$connection->unlock("PIN_SORT_CHAT_{$userId}");
+	}
+
+	public static function updateByFilter(array $filter, array $fields): void
+	{
+		RecentTable::updateByFilter($filter, $fields);
 	}
 
 	public static function unread($dialogId, $unread, $userId = null, ?int $markedId = null)
@@ -1081,11 +1358,18 @@ class Recent
 		self::clearCache($element['USER_ID']);
 		//\Bitrix\Im\Counter::clearCache($element['USER_ID']);
 		CounterService::clearCache((int)$element['USER_ID']);
+		$chatId = (int)$element['ITEM_CID'];
+		if ($element['ITEM_TYPE'] !== \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_LINE)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
+				$userId
+			);
+		}
 
 		$pullInclude = \Bitrix\Main\Loader::includeModule("pull");
 		if ($pullInclude)
 		{
-			$chatId = (int)$element['ITEM_CID'];
 			$readService = new ReadService($userId);
 			$counter = $readService->getCounterService()->getByChat($chatId);
 			//$readService->sendPush($chatId, [$userId], $counter, $time);
@@ -1180,6 +1464,30 @@ class Recent
 		}
 
 		return (int)($element['MARKED_ID'] ?? 0);
+	}
+
+	public static function getMarkedIdByChatIds(int $userId, array $chatIds): array
+	{
+		if (empty($chatIds))
+		{
+			return [];
+		}
+
+		$markedIdByChatIds = [];
+
+		$result = RecentTable::query()
+			->setSelect(['ITEM_CID', 'MARKED_ID'])
+			->where('USER_ID', $userId)
+			->whereIn('ITEM_CID', $chatIds)
+			->fetchAll()
+		;
+
+		foreach ($result as $row)
+		{
+			$markedIdByChatIds[(int)$row['ITEM_CID']] = (int)$row['MARKED_ID'];
+		}
+
+		return $markedIdByChatIds;
 	}
 
 	public static function hide($dialogId, $userId = null)
@@ -1315,6 +1623,21 @@ class Recent
 		$data = \Bitrix\Im\Recent::getElement($entityType, $entityId, $userId, ['JSON' => true]);
 		if ($data)
 		{
+			if (
+				!isset($data['message'])
+				&& $entityType === Chat::TYPE_OPEN_LINE
+				&& class_exists('\Bitrix\ImOpenLines\Recent')
+			)
+			{
+				$data = \Bitrix\ImOpenLines\Recent::getElement(
+					(int)$entityId,
+					(int)$userId,
+					[
+						'JSON' => true,
+						'fakeCounter' => 1
+					]
+				);
+			}
 			\Bitrix\Pull\Event::add($userId, [
 				'module_id' => 'im',
 				'command' => 'chatShow',
@@ -1406,7 +1729,7 @@ class Recent
 
 	protected static function fillFiles(array $rows): array
 	{
-		if (!Settings::isBetaActivated())
+		if (Settings::isLegacyChatActivated())
 		{
 			foreach ($rows as $key => $row)
 			{
@@ -1447,5 +1770,10 @@ class Recent
 		}
 
 		return $rows;
+	}
+
+	public static function isLimitError(): bool
+	{
+		return self::$limitError;
 	}
 }

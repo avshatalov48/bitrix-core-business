@@ -278,6 +278,22 @@ abstract class ProviderBuilderBase
 	}
 
 	/**
+	 * @return Main\Result
+	 */
+	public function writeOffProductBatches(): Main\Result
+	{
+		return static::callTransferMethod($this->getTransferClassName(), 'writeOffProductBatches');
+	}
+
+	/**
+	 * @return Main\Result
+	 */
+	public function returnProductBatches(): Main\Result
+	{
+		return static::callTransferMethod($this->getTransferClassName(), 'returnProductBatches');
+	}
+
+	/**
 	 * @param PoolQuantity $pool
 	 * @param array $productTryShipList
 	 *

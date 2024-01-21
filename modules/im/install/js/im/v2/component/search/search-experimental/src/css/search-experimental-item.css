@@ -1,9 +1,10 @@
 .bx-im-search-experimental-item__scope {
 	--im-search-experimental-item__background-color_container: var(--im-color-palette-white-base);
 	--im-search-experimental-item__background-color_hover-container: #f1f4f6;
-	--im-search-experimental-item__color_item-text: var(--ui-color-palette-gray-60);
+	--im-search-experimental-item__color_item-text: var(--im-color-palette-gray-60);
 	--im-search-experimental-item__color_item-date: var(--im-color-palette-gray-40);
 	--im-search-experimental-item__color_highlight: var(--im-color-palette-black-solid);
+	--im-search-experimental-item__color_highlight-description: var(--im-color-palette-gray-80);
 	--im-search-experimental-item__background-color_highlight: #faf16d;
 }
 
@@ -65,4 +66,8 @@
 .bx-im-search-experimental-item__content-container .--highlight {
 	color: var(--im-search-experimental-item__color_highlight);
 	background-color: var(--im-search-experimental-item__background-color_highlight);
+}
+
+.bx-im-search-experimental-item__item-text .--highlight {
+	color: var(--im-search-experimental-item__color_highlight-description);
 }

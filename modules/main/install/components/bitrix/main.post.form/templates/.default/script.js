@@ -1,4 +1,3 @@
-/* eslint-disable */
 ;(function() {
 
 	if (window['LHEPostForm'])
@@ -7,7 +6,7 @@
 	}
 
 this.BX = this.BX || {};
-(function (exports,ai_copilot,main_core_events,main_polyfill_intersectionobserver,main_popup,main_core) {
+(function (exports,main_core_events,main_polyfill_intersectionobserver,main_popup,main_core) {
 	'use strict';
 
 	var Default = /*#__PURE__*/function () {
@@ -1021,58 +1020,6 @@ this.BX = this.BX || {};
 	  });
 	}
 
-	var AITextGenerator = /*#__PURE__*/function (_Default) {
-	  babelHelpers.inherits(AITextGenerator, _Default);
-	  function AITextGenerator() {
-	    var _babelHelpers$getProt;
-	    var _this;
-	    babelHelpers.classCallCheck(this, AITextGenerator);
-	    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-	      args[_key] = arguments[_key];
-	    }
-	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(AITextGenerator)).call.apply(_babelHelpers$getProt, [this].concat(args)));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "id", 'ai-text-generator');
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "buttonParams", {
-	      name: 'AI text generator',
-	      iconClassName: 'feed-add-post-editor-btn-ai-text',
-	      disabledForTextarea: false,
-	      toolbarSort: 399,
-	      compact: true
-	    });
-	    return _this;
-	  }
-	  babelHelpers.createClass(AITextGenerator, [{
-	    key: "handler",
-	    value: function handler() {
-	      var _this2 = this;
-	      main_core.Runtime.loadExtension('ai.picker').then(function () {
-	        var aiTextPicker = new BX.AI.Picker({
-	          moduleId: 'main',
-	          contextId: 'text_' + main_core.Loc.getMessage('USER_ID'),
-	          analyticLabel: 'main_post_form_comments_ai_text',
-	          history: true,
-	          onSelect: function onSelect(message) {
-	            main_core_events.EventEmitter.emit(_this2.editor.getEventObject(), 'OnInsertContent', [message.data, message.data]);
-	          }
-	        });
-	        aiTextPicker.setLangSpace(BX.AI.Picker.LangSpace.text);
-	        aiTextPicker.text();
-	      });
-	    }
-	  }, {
-	    key: "parse",
-	    value: function parse(content, pLEditor) {
-	      return content;
-	    }
-	  }, {
-	    key: "unparse",
-	    value: function unparse(bxTag, oNode) {
-	      return '';
-	    }
-	  }]);
-	  return AITextGenerator;
-	}(Default);
-
 	var AIImageGenerator = /*#__PURE__*/function (_Default) {
 	  babelHelpers.inherits(AIImageGenerator, _Default);
 	  function AIImageGenerator() {
@@ -1097,6 +1044,10 @@ this.BX = this.BX || {};
 	    key: "handler",
 	    value: function handler() {
 	      var _this2 = this;
+	      if (!this.editor.isImageCopilotEnabledBySettings()) {
+	        top.BX.UI.InfoHelper.show('limit_copilot_off');
+	        return;
+	      }
 	      main_core.Runtime.loadExtension('ai.picker').then(function () {
 	        var aiImagePicker = new BX.AI.Picker({
 	          moduleId: 'main',
@@ -1142,9 +1093,6 @@ this.BX = this.BX || {};
 	  }
 	  if (parserId === 'UploadFile') {
 	    return new UploadFile(editor, htmlEditor);
-	  }
-	  if (parserId === 'AIText') {
-	    return new AITextGenerator(editor, htmlEditor);
 	  }
 	  if (parserId === 'AIImage') {
 	    return new AIImageGenerator(editor, htmlEditor);
@@ -1363,6 +1311,10 @@ this.BX = this.BX || {};
 	  var copilot = toolbar.querySelector('[data-id="copilot"]');
 	  if (copilot) {
 	    copilot.addEventListener('click', function () {
+	      if (!editor.isTextCopilotEnabledBySettings()) {
+	        top.BX.UI.InfoHelper.show('limit_copilot_off');
+	        return;
+	      }
 	      editor.showCopilot();
 	    });
 	  }
@@ -1951,27 +1903,6 @@ this.BX = this.BX || {};
 	        });
 	        htmlEditor.iframeView.container.dispatchEvent(event);
 	      });
-	      main_core_events.EventEmitter.subscribe(this.getEditor(), 'OnSetViewAfter', function (data) {
-	        if (_this3.getEditor() === data.target) {
-	          _this3.OnEditorSetViewAfter();
-	        }
-	      });
-	    }
-	  }, {
-	    key: "OnEditorSetViewAfter",
-	    value: function OnEditorSetViewAfter() {
-	      var copilot = this.toolbar.container.querySelector('[data-id="copilot"]');
-	      if (copilot) {
-	        if (this.getEditor().GetViewMode() === 'code') {
-	          this.isCopilotEnabled = false;
-	          main_core.Dom.attr(copilot, 'title', main_core.Loc.getMessage('MPF_COPILOT_BB_CODE'));
-	          main_core.Dom.addClass(copilot, 'disabled');
-	        } else {
-	          this.isCopilotEnabled = true;
-	          main_core.Dom.attr(copilot, 'title', '');
-	          main_core.Dom.removeClass(copilot, 'disabled');
-	        }
-	      }
 	    }
 	  }, {
 	    key: "getEditor",
@@ -2267,9 +2198,20 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showCopilot",
 	    value: function showCopilot() {
-	      if (this.isCopilotEnabled) {
-	        this.getEditor().ShowCopilotAtTheBottom();
-	      }
+	      this.getEditor().SetView('wysiwyg');
+	      this.getEditor().ShowCopilotAtTheBottom();
+	    }
+	  }, {
+	    key: "isTextCopilotEnabledBySettings",
+	    value: function isTextCopilotEnabledBySettings() {
+	      var isEnabled = this.getEditor().config.isCopilotTextEnabledBySettings;
+	      return main_core.Type.isNil(isEnabled) || isEnabled;
+	    }
+	  }, {
+	    key: "isImageCopilotEnabledBySettings",
+	    value: function isImageCopilotEnabledBySettings() {
+	      var isEnabled = this.getEditor().config.isCopilotImageEnabledBySettings;
+	      return main_core.Type.isNil(isEnabled) || isEnabled;
 	    }
 	  }, {
 	    key: "isReady",
@@ -2396,7 +2338,7 @@ this.BX = this.BX || {};
 	exports.PostForm = Editor;
 	exports.PostFormTasksLimit = TasksLimit;
 
-}((this.BX.Main = this.BX.Main || {}),BX.AI,BX.Event,BX,BX.Main,BX));
+}((this.BX.Main = this.BX.Main || {}),BX.Event,BX,BX.Main,BX));
 
 
 
@@ -3727,7 +3669,8 @@ window.BXfpdOnDialogClose = function (params)
 						options: {
 							emailUsers: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
 							inviteGuestLink: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
-							myEmailUsers: true
+							myEmailUsers: true,
+							analyticsSource: 'stream'
 						}
 					},
 					{

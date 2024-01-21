@@ -1,8 +1,5 @@
 <?php
 $MESS["SALE_HPS_SKB_ERROR_DECODE_RESPONSE"] = "Ошибка декодирования строки JSON";
-$MESS["SALE_HPS_SKB_MODE_SKB"] = "Синара банк";
-$MESS["SALE_HPS_SKB_MODE_DELOBANK"] = "Делобанк";
-$MESS["SALE_HPS_SKB_MODE_GAZENERGOBANK"] = "Газэнергобанк";
 $MESS["SALE_HPS_SKB_ERROR_SIGN"] = "Подпись сообщения не совпадает";
 $MESS["SALE_HPS_SKB_OPERATION_ID_DESCRIPTION"] = "Идентификатор операции СБП: #TX_ID#";
 $MESS["SALE_HPS_SKB_QR_CODE_ID_DESCRIPTION"] = "Идентификатор QR-кода: #QR_CODE_ID#";

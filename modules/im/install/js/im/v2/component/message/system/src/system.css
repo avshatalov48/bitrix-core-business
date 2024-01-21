@@ -8,12 +8,12 @@
 	position: relative;
 }
 
-.bx-im-message-base__container.bx-im-message-system__scope .bx-im-message-base__body {
+.bx-im-message-base__wrap.bx-im-message-system__scope .bx-im-message-base__body {
 	border-radius: var(--im-border-radius-md);
 	background-color: var(--im-message-system__background-color_system);
 }
 
-.bx-im-message-base__container.bx-im-message-system__scope .bx-im-message-status__date,
-.bx-im-message-base__container.bx-im-message-system__scope .bx-im-message-base__text {
+.bx-im-message-base__wrap.bx-im-message-system__scope .bx-im-message-status__date,
+.bx-im-message-base__wrap.bx-im-message-system__scope .bx-im-message-base__text {
 	color: var(--im-message-system__font-color_message-system);
 }

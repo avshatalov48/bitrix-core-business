@@ -12,6 +12,8 @@ return [
 		'calendar.categorymanager',
 		'ui.icons.b24',
 		'calendar.entry',
+		'ui.dialogs.messagebox',
+		'ui.buttons',
 		'calendar.planner',
 		'ui.entity-selector',
 		'main.core.events',

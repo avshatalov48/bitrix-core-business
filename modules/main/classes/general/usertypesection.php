@@ -9,6 +9,7 @@ Loc::loadMessages(__FILE__);
 /**
  * Class CUserTypeIBlockSection
  * @deprecated deprecated since main 20.0.800
+ * @see SectionType
  */
 class CUserTypeIBlockSection extends CUserTypeEnum
 {

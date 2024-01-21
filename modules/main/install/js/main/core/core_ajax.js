@@ -1069,6 +1069,31 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 		}
 
 		var assets = BX.prop.getObject(BX.prop.getObject(response, "data", {}), "assets", {});
+
+		var inlineScripts = [];
+		if (BX.Type.isArrayFilled(assets.string))
+		{
+			assets.string
+				.reduce(function(acc, item) {
+					if (String(item).length > 0 && !acc.includes(item))
+					{
+						acc.push(item);
+					}
+
+					return acc;
+				}, [])
+				.forEach(function(item) {
+					if (String(item).startsWith('<script type="extension/settings"'))
+					{
+						BX.html(document.head, item, { useAdjacentHTML: true });
+					}
+					else
+					{
+						inlineScripts.push(item);
+					}
+				});
+		}
+
 		var promise = new Promise(function(resolve, reject) {
 			var css = BX.prop.getArray(assets, "css", []);
 			BX.load(css, function(){
@@ -1078,9 +1103,9 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 				);
 			});
 		});
+
 		promise.then(function(){
-			var strings = BX.prop.getArray(assets, "string", []);
-			var stringAsset = strings.join('\n');
+			var stringAsset = inlineScripts.join('\n');
 			BX.html(document.head, stringAsset, { useAdjacentHTML: true }).then(function(){
 				assetsLoaded.fulfill(response);
 			});
@@ -1108,6 +1133,7 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
  * @param {?string} [config.analytics.p3]
  * @param {?string} [config.analytics.p4]
  * @param {?string} [config.analytics.p5]
+ * @param {?('success' | 'error' | 'attempt' | 'cancel')} [config.analytics.status]
  * @param {string} [config.method='POST']
  * @param {Object} [config.data]
  * @param {?Object} [config.getParameters]
@@ -1638,52 +1664,138 @@ BX.userOptions = {
 
 BX.userOptions.setAjaxPath = function(url)
 {
-	BX.userOptions.path = url.indexOf('?') == -1? url+'?': url+'&';
-}
-BX.userOptions.save = function(sCategory, sName, sValName, sVal, bCommon)
+	// eslint-disable-next-line no-console
+	console.warn('BX.userOptions.setAjaxPath is deprecated. There is no way to change ajax path.');
+};
+BX.userOptions.save = function(category, name, valueName, value, common)
 {
-	if (null == BX.userOptions.options)
+	if (BX.userOptions.options === null)
+	{
 		BX.userOptions.options = {};
+	}
 
-	bCommon = !!bCommon;
-	BX.userOptions.options[sCategory+'.'+sName+'.'+sValName] = [sCategory, sName, sValName, sVal, bCommon];
+	common = Boolean(common);
+	BX.userOptions.options[`${category}.${name}.${valueName}`] = [category, name, valueName, value, common];
 
-	var sParam = BX.userOptions.__get();
-	if (sParam != '')
-		document.cookie = BX.message('COOKIE_PREFIX')+"_LAST_SETTINGS=" + encodeURIComponent(sParam) + "&sessid="+BX.bitrix_sessid()+"; expires=Thu, 31 Dec " + ((new Date()).getFullYear() + 1) + " 23:59:59 GMT; path=/;";
+	const stringPackedValue = BX.userOptions.__get();
+	if (stringPackedValue)
+	{
+		document.cookie = `${BX.message('COOKIE_PREFIX')}_LAST_SETTINGS=${encodeURIComponent(stringPackedValue)}&sessid=${BX.bitrix_sessid()}; expires=Thu, 31 Dec ${(new Date()).getFullYear() + 1} 23:59:59 GMT; path=/;`;
+	}
 
-	if(!BX.userOptions.bSend)
+	if (!BX.userOptions.bSend)
 	{
 		BX.userOptions.bSend = true;
-		setTimeout(function(){BX.userOptions.send(null)}, BX.userOptions.delay);
+		setTimeout(() => {
+			BX.userOptions.send(null);
+		}, BX.userOptions.delay);
 	}
 };
 
 BX.userOptions.send = function(callback)
 {
-	var sParam = BX.userOptions.__get();
+	const values = BX.userOptions.__get_values({ backwardCompatibility: true});
+
 	BX.userOptions.options = null;
 	BX.userOptions.bSend = false;
 
-	if (sParam != '')
+	if (values)
 	{
-		document.cookie = BX.message('COOKIE_PREFIX') + "_LAST_SETTINGS=; path=/;";
-		BX.ajax({
-			'method': 'GET',
-			'dataType': 'html',
-			'processData': false,
-			'cache': false,
-			'url': BX.userOptions.path+sParam+'&sessid='+BX.bitrix_sessid(),
-			'onsuccess': callback
+		document.cookie = `${BX.message('COOKIE_PREFIX')}_LAST_SETTINGS=; path=/;`;
+
+		BX.ajax.runAction(
+			'main.userOption.saveOptions',
+			{
+				json: {
+					newValues: values,
+				},
+			},
+		).then((response) => {
+			if (BX.type.isFunction(callback))
+			{
+				callback(response);
+			}
 		});
 	}
 };
 
-BX.userOptions.del = function(sCategory, sName, bCommon, callback)
+BX.userOptions.del = function(category, name, common, callback)
 {
-	BX.ajax.get(BX.userOptions.path+'action=delete&c='+sCategory+'&n='+sName+(bCommon == true? '&common=Y':'')+'&sessid='+BX.bitrix_sessid(), callback);
+	BX.ajax.runAction(
+		'main.userOption.deleteOption',
+		{
+			json: {
+				category,
+				name,
+				common,
+			},
+		},
+	).then((response) => {
+		if (BX.type.isFunction(callback))
+		{
+			callback(response);
+		}
+	});
 };
 
+BX.userOptions.__get_values = function({ backwardCompatibility })
+{
+	if (!BX.userOptions || !BX.Type.isPlainObject(BX.userOptions.options))
+	{
+		return null;
+	}
+
+	const CATEGORY = 0;
+	const NAME = 1;
+	const VALUE_NAME = 2;
+	const VALUE = 3;
+	const IS_DEFAULT = 4;
+
+	const packedValues = { p: [] };
+	let currentIndex = -1;
+	let previousOptionIdentifier = '';
+
+	Object.entries(BX.userOptions.options).forEach(([key, userOption]) => {
+		const category = userOption[CATEGORY];
+		const name = userOption[NAME];
+		const currentOptionIdentifier = `${category}.${name}`;
+
+		if (previousOptionIdentifier !== currentOptionIdentifier)
+		{
+			currentIndex++;
+			packedValues.p.push({
+				c: category,
+				n: name,
+				v: {},
+			});
+			if (userOption[IS_DEFAULT] === true)
+			{
+				packedValues.p[currentIndex].d = 'Y';
+			}
+			previousOptionIdentifier = currentOptionIdentifier;
+		}
+
+		if (userOption[VALUE_NAME] === null)
+		{
+			packedValues.p[currentIndex].v = userOption[VALUE];
+		}
+		else
+		{
+			let data = userOption[VALUE];
+			if (backwardCompatibility && Array.isArray(userOption[VALUE]))
+			{
+				data = userOption[VALUE].join(',');
+			}
+			packedValues.p[currentIndex].v[userOption[VALUE_NAME]] = data;
+		}
+	});
+
+	return packedValues.p.length > 0 ? packedValues.p : null;
+};
+
+/**
+ * @deprecated Use instead BX.userOptions.__get_values.
+ * */
 BX.userOptions.__get = function()
 {
 	if (!BX.userOptions.options) return '';

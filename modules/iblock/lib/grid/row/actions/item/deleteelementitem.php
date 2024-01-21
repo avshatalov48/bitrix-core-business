@@ -47,7 +47,14 @@ final class DeleteElementItem extends BaseItem
 			Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_CONFIRM_MESSAGE')
 		);
 
-		$this->onclick = "IblockGridInstance.sendActionWithConfirm('{$actionId}', {$data}, '{$confirmMessage}')";
+		$confirmButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_CONFIRM_BUTTON')
+		);
+		$backButtonMessage = \CUtil::JSEscape(
+			Loc::getMessage('IBLOCK_GRID_ROW_ACTIONS_DELETE_ELEMENT_BACK_BUTTON')
+		);
+
+		$this->onclick = "IblockGridInstance.sendSmallPopupWithConfirm('{$actionId}', {$data}, '{$confirmMessage}', '{$confirmButtonMessage}', '{$backButtonMessage}')";
 
 		return parent::getControl($rawFields);
 	}

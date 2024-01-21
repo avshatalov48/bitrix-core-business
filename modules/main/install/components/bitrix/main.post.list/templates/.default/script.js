@@ -2485,8 +2485,8 @@
 				"AFTER_RECORD" : res["AFTER_RECORD"],
 				"AUTHOR_ID" : res["AUTHOR"]["ID"],
 				"AUTHOR_AVATAR_IS" : (!!res["AUTHOR"]["AVATAR"] ? "Y" : "N"),
-				"AUTHOR_AVATAR" : (!!res["AUTHOR"]["AVATAR"] ? res["AUTHOR"]["AVATAR"] : '/bitrix/images/1.gif'),
-				"AUTHOR_AVATAR_BG" : (!!res["AUTHOR"]["AVATAR"] ? "background-image:url('" + res["AUTHOR"]["AVATAR"] + "')" : ""),
+				"AUTHOR_AVATAR" : (!!res["AUTHOR"]["AVATAR"] ? encodeURI(res["AUTHOR"]["AVATAR"]) : '/bitrix/images/1.gif'),
+				"AUTHOR_AVATAR_BG" : (!!res["AUTHOR"]["AVATAR"] ? "background-image:url('" + encodeURI(res["AUTHOR"]["AVATAR"]) + "')" : ""),
 				"AUTHOR_URL" : params["AUTHOR_URL"].
 					replace("#ID#", res["ID"]).
 					replace("#id#", res["ID"]).
@@ -2580,12 +2580,14 @@
 		this.checkEsc = this.checkEsc.bind(this);
 		this.hide = this.hide.bind(this);
 		document.body.appendChild(this.node);
+		BX.ZIndexManager.register(this.node);
 	};
 	MPLQuote.prototype = {
 		show : function(e){
 			var pos = this.getPosition(this.node, e);
 			BX.adjust(this.node, {style : {top : pos.y + "px", left : pos.x + "px", display : "block"}});
 			BX.addClass(this.node, "mpl-quote-block-show");
+			BX.ZIndexManager.bringToFront(this.node);
 
 			if (this.closeByEsc && this.closeByEscBound !== true)
 			{

@@ -114,3 +114,4 @@ $MESS['SEC_OTP_MANDATORY_DISABLED'] = 'Требование обязательн
 $MESS['SEC_OTP_MANDATORY_ENABLE_DEFAULT'] = 'Требовать подключения';
 $MESS['SEC_OTP_MANDATORY_ENABLE'] = 'Требовать подключения через';
 $MESS['SEC_OTP_MANDATORY_DEFFER'] = 'Продлить';
+$MESS['SEC_OTP_START_TIMESTAMP'] = 'Начальное значение счетчика времени (например, 946684800 для даты 01.01.2000, по умолчанию 0)';

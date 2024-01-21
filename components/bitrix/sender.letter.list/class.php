@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Context;
 use Bitrix\Main\ErrorCollection;
@@ -17,6 +17,7 @@ use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Stat\Statistics;
 use Bitrix\Sender\UI\PageNavigation;
+use Bitrix\Sender\Security;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -124,6 +125,10 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		switch ($action)
 		{
 			case 'delete':
+				if (!Security\Access::getInstance()->canModifyLetters())
+				{
+					return;
+				}
 				if (!is_array($ids))
 				{
 					$ids = array($ids);
@@ -812,6 +817,11 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			}
 		}
 		return $result;
+	}
+
+	protected function canEdit()
+	{
+		$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT'] ?? Security\Access::getInstance()->canModifyLetters();
 	}
 
 	public function getEditAction()

@@ -60,19 +60,45 @@ export class Secretary
 				// 	});
 				// }
 
-				new (window.top.BX || window.BX).Calendar.SliderLoader(
-					0,
-					{
-						sliderId: this.sliderId,
-						entryName: response.data.name,
-						entryDescription: response.data.desc,
-						// participantsEntityList: users,
-					}
-				).show();
+				if (response.data && response.data.isNewEvent)
+				{
+					new (window.top.BX || window.BX).Calendar.SliderLoader(
+						0,
+						{
+							sliderId: this.sliderId,
+							entryName: response.data.name,
+							entryDescription: response.data.desc,
+							// participantsEntityList: users,
+						}
+					).show();
+				}
+				else if (response.data && response.data.isIcal)
+				{
+					return BX.ajax.runComponentAction('bitrix:mail.client', 'ical', {
+						mode: 'ajax',
+						data: {
+							messageId: this.#messageId,
+							action: 'question',
+						},
+					});
+				}
 			},
 			(response) => {
 				this.#displayErrors(response.errors);
 			},
+		).then(
+			(response) => {
+				if (response.data && response.data.eventId)
+				{
+					const sliderLoader = new (window.top.BX || window.BX).Calendar.SliderLoader(
+						response.data.eventId
+					);
+					sliderLoader.show();
+
+					const grid = new BX.Mail.MessageGrid();
+					grid.reloadTable();
+				}
+			}
 		);
 	}
 

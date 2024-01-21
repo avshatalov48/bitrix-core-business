@@ -486,11 +486,14 @@ abstract class ExportAction extends Translate\Controller\Action
 
 		$phraseFilter = [];
 
-		$minLengthFulltextWorld = Index\PhraseIndexSearch::getFullTextMinLength();
-		$fulltextIndexSearchStr = Index\PhraseIndexSearch::prepareTextForFulltextSearch($searchPhrase);
-		if (\mb_strlen($fulltextIndexSearchStr) > $minLengthFulltextWorld)
+		if (!Index\PhraseIndexSearch::disallowFtsIndex($searchLangId))
 		{
-			$phraseFilter['*=PHRASE'] = $fulltextIndexSearchStr;
+			$minLengthFulltextWorld = Index\PhraseIndexSearch::getFullTextMinLength();
+			$fulltextIndexSearchStr = Index\PhraseIndexSearch::prepareTextForFulltextSearch($searchPhrase);
+			if (\mb_strlen($fulltextIndexSearchStr) > $minLengthFulltextWorld)
+			{
+				$phraseFilter['*=PHRASE'] = $fulltextIndexSearchStr;
+			}
 		}
 
 		$phraseFilter['=PHRASE'] = $searchPhrase;

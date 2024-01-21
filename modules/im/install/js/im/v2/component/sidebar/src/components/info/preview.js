@@ -1,8 +1,10 @@
-import {ImModelDialog} from 'im.v2.model';
-import {DialogType, SidebarBlock, SidebarDetailBlock} from 'im.v2.const';
+import {ImModelChat} from 'im.v2.model';
+import {ChatType, SidebarBlock, SidebarDetailBlock} from 'im.v2.const';
 import {Parser} from 'im.v2.lib.parser';
 import {hint} from 'ui.vue3.directives.hint';
 import '../../css/info/preview.css';
+
+import type { ImModelUser } from 'im.v2.model';
 
 const MAX_DESCRIPTION_SYMBOLS = 25;
 
@@ -28,13 +30,19 @@ export const InfoPreview = {
 	},
 	computed:
 	{
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		isUser(): boolean
 		{
-			return this.dialog.type === DialogType.user;
+			return this.dialog.type === ChatType.user;
+		},
+		isBot(): boolean
+		{
+			const user: ImModelUser = this.$store.getters['users/get'](this.dialogId);
+
+			return user?.bot === true;
 		},
 		previewDescription(): string
 		{
@@ -58,6 +66,11 @@ export const InfoPreview = {
 		},
 		chatTypeText(): string
 		{
+			if (this.isBot)
+			{
+				return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_BOT');
+			}
+
 			if (this.isUser)
 			{
 				return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_USER');

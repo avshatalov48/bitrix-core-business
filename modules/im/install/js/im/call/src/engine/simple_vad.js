@@ -1,8 +1,8 @@
 import {Type} from 'main.core'
 
-const VOLUME_THRESHOLD = 0.1;
+const VOLUME_THRESHOLD = 0.02;
 const INACTIVITY_TIME = 2000;
-const AVERAGING_COEFFICIENT = 0.5; // from 0 to 1;
+const AVERAGING_COEFFICIENT = 0.6; // from 0 to 1;
 
 /**
  * Naive voice activity detection

@@ -2866,10 +2866,16 @@
 
 			this.tmpContent.innerHTML = "";
 			contentPanel.show();
+			BX.Event.bind(contentPanel.layout, 'click', this.onContentPanelClick.bind(this));
 
 			setTimeout(function() {
 				this.lastBlockState = this.fetchRequestData(contentPanel, true);
 			}.bind(this), 300);
+		},
+
+		onContentPanelClick: function()
+		{
+			BX.Event.EventEmitter.emit('BX.Landing.UI.Panel.ContentEdit:onClick');
 		},
 
 		createHistoryEntry: function(newState)
@@ -3005,114 +3011,91 @@
 			BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 			BX.Landing.PageObject.getInstance().design()
 				.then((stylePanel) => {
-					if (this.isCrmFormPage() && this.isCrmFormBlock())
+					if (isPlainObject(this.styleNodes))
 					{
-						var formSelector = Object.entries(this.manifest.style.nodes).reduce(function(acc, item) {
-							if (item[1].type === 'crm-form')
-							{
-								return item[0];
-							}
-
-							return acc;
-						}, null);
-
-						if (formSelector)
+						if (stylePanel.isShown() && this.id === stylePanel.blockId)
 						{
-							this.showStylePanel(formSelector, stylePanel.blockId);
+							stylePanel.forms.forEach((form) => {
+								if (form.selector === this.selector)
+								{
+									stylePanel.scrollElement = form;
+									form.collapsed = false;
+									BX.Dom.removeClass(form.layout, 'landing-ui-form-style--collapsed');
+									setTimeout(() => {
+										stylePanel.scrollElement.layout.scrollIntoView({
+											behavior: 'smooth',
+											block: 'start',
+											inline: 'nearest',
+										});
+									}, 100);
+								}
+								else
+								{
+									form.collapsed = true;
+									BX.Dom.addClass(form.layout, 'landing-ui-form-style--collapsed');
+								}
+							});
 						}
 						else
 						{
-							this.showStylePanel(this.selector, stylePanel.blockId);
-						}
-					}
-					else
-					{
-						if (isPlainObject(this.styleNodes))
-						{
-							if (stylePanel.isShown() && this.id === stylePanel.blockId)
+							stylePanel.clear();
+							const sortedStyleNodes = this.getSortedStyleNodes(this.styleNodes);
+							stylePanel.prepareFooter(this.isExistMultiSelectionNode(sortedStyleNodes));
+							if (selector === null || typeof selector !== 'string')
 							{
-								stylePanel.forms.forEach((form) => {
-									if (form.selector === this.selector)
-									{
-										stylePanel.scrollElement = form;
-										form.collapsed = false;
-										BX.Dom.removeClass(form.layout, 'landing-ui-form-style--collapsed');
-										setTimeout(() => {
-											stylePanel.scrollElement.layout.scrollIntoView({
-												behavior: 'smooth',
-												block: 'start',
-												inline: 'nearest',
-											});
-										}, 100);
-									}
-									else
-									{
-										form.collapsed = true;
-										BX.Dom.addClass(form.layout, 'landing-ui-form-style--collapsed');
-									}
+								this.showStylePanel(this.selector, stylePanel.blockId);
+								sortedStyleNodes.forEach((key) => {
+									let currentTarget = null;
+									this.styles.forEach((styles) => {
+										if (styles.selector === key)
+										{
+											currentTarget = styles.currentTarget;
+										}
+									});
+									this.showStylePanel(key, stylePanel.blockId, currentTarget, true);
 								});
 							}
 							else
 							{
-								stylePanel.clear();
-								const sortedStyleNodes = this.getSortedStyleNodes(this.styleNodes);
-								stylePanel.prepareFooter(this.isExistMultiSelectionNode(sortedStyleNodes));
-								if (selector === null || typeof selector !== 'string')
-								{
-									this.showStylePanel(this.selector, stylePanel.blockId);
-									sortedStyleNodes.forEach((key) => {
-										let currentTarget = null;
-										this.styles.forEach((styles) => {
-											if (styles.selector === key)
-											{
-												currentTarget = styles.currentTarget;
-											}
-										});
-										this.showStylePanel(key, stylePanel.blockId, currentTarget, true);
+								this.showStylePanel(this.selector, stylePanel.blockId, null, true);
+								sortedStyleNodes.forEach((key) => {
+									let currentTarget = null;
+									this.styles.forEach((styles) => {
+										if (styles.selector === key)
+										{
+											currentTarget = styles.currentTarget;
+										}
 									});
-								}
-								else
-								{
-									this.showStylePanel(this.selector, stylePanel.blockId, null, true);
-									sortedStyleNodes.forEach((key) => {
-										let currentTarget = null;
-										this.styles.forEach((styles) => {
-											if (styles.selector === key)
-											{
-												currentTarget = styles.currentTarget;
-											}
-										});
-										this.showStylePanel(key, stylePanel.blockId, currentTarget, true);
+									this.showStylePanel(key, stylePanel.blockId, currentTarget, true);
+								});
+								setTimeout(() => {
+									stylePanel.forms.forEach((form) => {
+										if (form.selector === selector)
+										{
+											stylePanel.scrollElement = form;
+											form.collapsed = false;
+											BX.Dom.removeClass(form.layout, 'landing-ui-form-style--collapsed');
+											setTimeout(() => {
+												stylePanel.scrollElement.layout.scrollIntoView({
+													behavior: 'smooth',
+													block: 'start',
+													inline: 'nearest',
+												});
+											}, 500);
+										}
+										else
+										{
+											form.collapsed = true;
+											BX.Dom.addClass(form.layout, 'landing-ui-form-style--collapsed');
+										}
 									});
-									setTimeout(() => {
-										stylePanel.forms.forEach((form) => {
-											if (form.selector === selector)
-											{
-												stylePanel.scrollElement = form;
-												form.collapsed = false;
-												BX.Dom.removeClass(form.layout, 'landing-ui-form-style--collapsed');
-												setTimeout(() => {
-													stylePanel.scrollElement.layout.scrollIntoView({
-														behavior: 'smooth',
-														block: 'start',
-														inline: 'nearest',
-													});
-												}, 500);
-											}
-											else
-											{
-												form.collapsed = true;
-												BX.Dom.addClass(form.layout, 'landing-ui-form-style--collapsed');
-											}
-										});
-									}, 1000);
-								}
+								}, 1000);
 							}
 						}
-						else
-						{
-							this.showStylePanel(this.selector, stylePanel.blockId);
-						}
+					}
+					else
+					{
+						this.showStylePanel(this.selector, stylePanel.blockId);
 					}
 				});
 		},
@@ -3420,6 +3403,7 @@
 		{
 			BX.Landing.PageObject.getInstance().design()
 				.then((stylePanel) => {
+					const options = this.getStyleOptions(selector);
 					this.styles.forEach((styles) => {
 						if (styles.selector.split('@')[0] === selector)
 						{
@@ -3429,7 +3413,6 @@
 									&& form.currentTarget !== styles.currentTarget
 								)
 								{
-									const options = this.getStyleOptions(selector);
 									const isBlock = this.isBlockSelector(selector);
 									const newForm = this.createStyleForm(selector, options, isBlock, styles.currentTarget, true);
 									this.replaceStyleForm(newForm, stylePanel);
@@ -3439,25 +3422,29 @@
 					});
 					if (this.id === stylePanel.blockId)
 					{
+						let currentForm = null;
 						stylePanel.forms.forEach((form) => {
-							const options = this.getStyleOptions(selector);
 							if (
 								form.selector === selector
-								|| options.type === 'crm-form'
+								|| (options.type === 'crm-form' && form.specialType === 'crm_forms')
 							)
 							{
-								stylePanel.scrollElement = form;
-								form.collapsed = false;
-								BX.Dom.removeClass(form.layout, 'landing-ui-form-style--collapsed');
-								setTimeout(() => {
-									stylePanel.scrollElement.layout.scrollIntoView({
-										behavior: 'smooth',
-										block: 'start',
-										inline: 'nearest',
-									});
-								}, 100);
+								currentForm = form;
 							}
 						});
+						if (currentForm !== null)
+						{
+							stylePanel.scrollElement = currentForm;
+							currentForm.collapsed = false;
+							BX.Dom.removeClass(currentForm.layout, 'landing-ui-form-style--collapsed');
+							setTimeout(() => {
+								stylePanel.scrollElement.layout.scrollIntoView({
+									behavior: 'smooth',
+									block: 'start',
+									inline: 'nearest',
+								});
+							}, 100);
+						}
 					}
 					else
 					{

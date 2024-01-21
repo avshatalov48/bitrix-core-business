@@ -13,8 +13,13 @@ use Bitrix\Calendar\ICal\Parser\ParserPropertyType;
 use Bitrix\Calendar\Util;
 use Bitrix\Disk\Uf\FileUserType;
 use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use COption;
@@ -27,7 +32,8 @@ IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/c
 
 class Helper
 {
-	public const ICAL_DATETIME_FORMAT = 'Ymd\THis\Z';
+	public const ICAL_DATETIME_FORMAT_UTC = 'Ymd\THis\Z';
+	public const ICAL_DATETIME_FORMAT = 'Ymd\THis';
 	public const ICAL_DATETIME_FORMAT_SHORT = 'Ymd\THis';
 	public const ICAL_DATE_FORMAT = 'Ymd';
 	public const END_OF_TIME = "01.01.2038";
@@ -141,6 +147,11 @@ class Helper
 			$res .= ' ' . Loc::getMessage('EC_RRULE_UNTIL', ['#UNTIL_DATE#' => $rrule['UNTIL']]);
 		}
 
+		if (!is_string($res))
+		{
+			$res = '';
+		}
+
 		return $res;
 	}
 
@@ -189,6 +200,7 @@ class Helper
 		$event = EventTable::getList([
 			'filter' => [
 				'=DAV_XML_ID' => $uid,
+				'=DELETED' => 'N',
 			],
 			'limit' => 1,
 		])->fetch();
@@ -431,6 +443,51 @@ class Helper
 	}
 
 	/**
+	 * @throws ObjectPropertyException
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 */
+	public static function getAttendee(int $userId, int $eventParentId, $isRsvp = true): ?Attendee
+	{
+		$query = EventTable::query()
+			->setSelect([
+				'MEETING_STATUS',
+				'USER_NAME' => 'USER.NAME',
+				'USER_LAST_NAME' => 'USER.LAST_NAME',
+				'USER_EMAIL' => 'USER.EMAIL',
+			])
+			->registerRuntimeField(
+				'USER',
+				new ReferenceField(
+					'USER',
+					UserTable::getEntity(),
+					Join::on('this.OWNER_ID', 'ref.ID'),
+					['join_type' => Join::TYPE_INNER]
+				)
+			)
+			->setFilter(['USER.ID'=>$userId, '=PARENT_ID'=>$eventParentId])
+		;
+
+		$attendee = $query->fetch();
+
+		if (is_null($attendee))
+		{
+			return null;
+		}
+
+		return Attendee::createInstance(
+			$attendee['USER_EMAIL'],
+			$attendee['USER_NAME'],
+			$attendee['USER_LAST_NAME'],
+			Dictionary::ATTENDEE_STATUS[$attendee['MEETING_STATUS']],
+			Dictionary::ATTENDEE_ROLE['REQ_PARTICIPANT'],
+			Dictionary::ATTENDEE_CUTYPE['individual'],
+			$attendee['USER_EMAIL'],
+			$isRsvp
+		);
+	}
+
+	/**
 	 * @param int $parentId
 	 * @return AttendeesCollection
 	 */
@@ -463,7 +520,9 @@ class Helper
 	 */
 	public static function getIcalDateTime(string $dateTime = null, string $tz = null): DateTime
 	{
-		return new DateTime($dateTime, self::ICAL_DATETIME_FORMAT, Util::prepareTimezone($tz));
+		$format = $tz === 'UTC' ? self::ICAL_DATETIME_FORMAT_UTC : self::ICAL_DATETIME_FORMAT;
+
+		return new DateTime($dateTime, $format, Util::prepareTimezone($tz));
 	}
 
 	/**
@@ -632,6 +691,65 @@ class Helper
 			? $event['DESCRIPTION']
 			: null
 			;
+	}
+
+	/**
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 */
+	public static function getEventById(?int $eventId): ?array
+	{
+		if (!$eventId)
+		{
+			return null;
+		}
+
+		$event = EventTable::query()
+			->setSelect([
+				'DATE_FROM',
+				'DATE_TO',
+				'DATE_CREATE',
+				'DT_SKIP_TIME',
+				'TZ_FROM',
+				'TZ_TO',
+				'NAME',
+				'DESCRIPTION',
+				'COLOR',
+				'ACCESSIBILITY',
+				'IMPORTANCE',
+				'PRIVATE_EVENT',
+				'RRULE',
+				'LOCATION',
+				'REMIND',
+				'SECTION_ID',
+				'IS_MEETING',
+				'MEETING_HOST',
+				'MEETING',
+				'CAL_TYPE',
+				'OWNER_ID',
+				'VERSION',
+				'PARENT_ID',
+				'TIMESTAMP_X',
+				'LOCATION',
+				'MEETING_STATUS',
+				'DAV_XML_ID',
+				'ID',
+				'ACTIVE',
+				'RELATIONS',
+				'ATTENDEES_CODES',
+			])
+			->setFilter(['=ID' => $eventId])
+			->setLimit(1)
+			->exec()->fetch()
+		;
+
+		if ($event)
+		{
+			return $event;
+		}
+		
+		return null;
 	}
 
 	/**

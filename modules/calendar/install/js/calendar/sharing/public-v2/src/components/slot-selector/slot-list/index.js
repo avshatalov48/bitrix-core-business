@@ -1,5 +1,5 @@
-import SlotList from "./slot-list";
+import SlotList from './slot-list';
 
 export {
 	SlotList,
-}
+};

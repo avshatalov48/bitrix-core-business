@@ -17,7 +17,7 @@ class RcAction
 			MessageBase::CODE_RC_LEAD => ActionDictionary::ACTION_RC_EDIT,
 			MessageBase::CODE_RC_DEAL => ActionDictionary::ACTION_RC_EDIT,
 			MessageBase::CODE_TOLOKA => ActionDictionary::ACTION_RC_VIEW,
-			MessageBase::CODE_MASTER_YANDEX => ActionDictionary::ACTION_RC_VIEW,
+			MessageBase::CODE_MASTER_YANDEX => ActionDictionary::ACTION_ADS_MASTER_YANDEX_VIEW,
 		];
 	}
 }

@@ -18,18 +18,18 @@ class Vk extends OpenGraph
 
 		parent::handle($document);
 
-		if($document->getExtraField('VIDEO') <> '' && $document->getExtraField('VIDEO_TYPE') == 'application/x-shockwave-flash')
+		if(!empty($document->getExtraField('VIDEO')))
 		{
 			$ogVideo = $document->getExtraField('VIDEO');
-			$swfUri = new Uri($ogVideo);
-			$swfQuery = $swfUri->getQuery();
-			if(!empty($swfQuery))
+			$uri = new Uri($ogVideo);
+			$query = $uri->getQuery();
+			if(!empty($query))
 			{
-				parse_str($swfQuery, $swfParams);
-				if(isset($swfParams['oid']) && isset($swfParams['vid']) && isset($swfParams['embed_hash']))
+				parse_str($query, $params);
+				if(isset($params['oid']) && isset($params['id']) && isset($params['hash']))
 				{
 					$embedUri = new Uri('https://vk.com/video_ext.php');
-					$embedUri->addParams(array('oid' => $swfParams['oid'], 'id' => $swfParams['vid'], 'hash' => $swfParams['embed_hash']));
+					$embedUri->addParams(array('oid' => $params['oid'], 'id' => $params['id'], 'hash' => $params['hash']));
 					if($document->getExtraField('VIDEO_WIDTH') && $document->getExtraField('VIDEO_WIDTH') < UrlPreview::IFRAME_MAX_WIDTH)
 					{
 						$width = $document->getExtraField('VIDEO_WIDTH');

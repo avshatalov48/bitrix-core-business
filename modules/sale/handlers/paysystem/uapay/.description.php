@@ -27,6 +27,7 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ua')
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_UAPAY'),
+	'PUBLIC_DESCRIPTION' => Loc::getMessage('SALE_HPS_UAPAY_PUBLIC_DESCRIPTION'),
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

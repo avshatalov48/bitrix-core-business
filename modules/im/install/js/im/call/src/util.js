@@ -1,5 +1,5 @@
 import {Type} from 'main.core'
-import {CallEngine} from './engine/engine';
+import {CallEngine, Provider} from './engine/engine';
 
 const blankAvatar = '/bitrix/js/im/images/blank.gif';
 
@@ -504,6 +504,19 @@ function stopMediaStream(mediaStream)
 	});
 }
 
+function getConferenceProvider(): string{
+	if (isBitrixCallServerAllowed())
+	{
+		return Provider.Bitrix;
+	}
+	if (isVoximplantCallServerAllowed())
+	{
+		return Provider.Voximplant;
+	}
+
+	return Provider.Plain;
+}
+
 export default {
 	updateUserData,
 	setUserData,
@@ -542,4 +555,5 @@ export default {
 	getBrowserForStatistics,
 	isBlank,
 	stopMediaStream,
+	getConferenceProvider,
 }

@@ -10,7 +10,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllIBlock
 {
-	public $LAST_ERROR = "";
+	public string $LAST_ERROR = '';
 	protected static $disabledCacheTag = array();
 	protected static $enableClearTagCache = 0;
 
@@ -1139,6 +1139,10 @@ class CAllIBlock
 		/** @global CDatabase $DB */
 		global $DB;
 		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
 		$SAVED_PICTURE = null;
 
 		if(is_set($arFields, "EXTERNAL_ID"))
@@ -1440,9 +1444,9 @@ class CAllIBlock
 		if(!$DB->Query("DELETE FROM b_iblock WHERE ID=".$ID, false, $err_mess.__LINE__))
 			return false;
 
-		$DB->DDL("DROP TABLE b_iblock_element_prop_s".$ID, true, $err_mess.__LINE__);
-		$DB->DDL("DROP TABLE b_iblock_element_prop_m".$ID, true, $err_mess.__LINE__);
-		$DB->DDL("DROP SEQUENCE sq_b_iblock_element_prop_m".$ID, true, $err_mess.__LINE__);
+		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_s".$ID, true, $err_mess.__LINE__);
+		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_m".$ID, true, $err_mess.__LINE__);
+		$DB->DDL("DROP SEQUENCE IF EXISTS sq_b_iblock_element_prop_m".$ID, true, $err_mess.__LINE__);
 
 		CIBlock::CleanCache($ID);
 
@@ -1465,6 +1469,15 @@ class CAllIBlock
 		global $APPLICATION;
 		$this->LAST_ERROR = "";
 
+		if ($ID !== false)
+		{
+			$ID = (int)$ID;
+			if ($ID <= 0)
+			{
+				return false;
+			}
+		}
+
 		$NAME = $arFields["NAME"] ?? "";
 		if(
 			($ID===false || array_key_exists("NAME", $arFields))
@@ -1485,6 +1498,10 @@ class CAllIBlock
 		{
 			//For existing one read old values
 			$arIBlock = CIBlock::GetArrayByID($ID);
+			if (!is_array($arIBlock))
+			{
+				$this->LAST_ERROR .= GetMessage('IBLOCK_ERR_IBLOCK_IS_ABSENT') . '<br>';
+			}
 			$WORKFLOW = array_key_exists("WORKFLOW", $arFields)? $arFields["WORKFLOW"]: $arIBlock["WORKFLOW"];
 			$BIZPROC  = array_key_exists("BIZPROC",  $arFields)? $arFields["BIZPROC"]:  $arIBlock["BIZPROC"];
 			if($BIZPROC != "Y") $BIZPROC = "N";//This is cache compatibility issue
@@ -4758,5 +4775,10 @@ REQ
 			'TRANS_EAT' => $settings['TRANS_EAT'] === 'N'? 'N': 'Y',
 			'USE_GOOGLE' => $settings['USE_GOOGLE'] === 'Y'? 'Y': 'N',
 		];
+	}
+
+	public function getLastError(): string
+	{
+		return $this->LAST_ERROR;
 	}
 }

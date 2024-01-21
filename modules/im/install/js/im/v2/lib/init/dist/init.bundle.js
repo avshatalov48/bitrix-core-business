@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_application_core,im_v2_lib_call,im_v2_lib_phone,im_v2_lib_smileManager,im_v2_lib_user,im_v2_lib_counter,im_v2_lib_logger,im_v2_lib_notifier,im_v2_lib_market,im_v2_lib_desktop,im_v2_lib_promo,im_v2_lib_permission) {
+(function (exports,im_v2_application_core,im_v2_lib_call,im_v2_lib_phone,im_v2_lib_smileManager,im_v2_lib_user,im_v2_lib_counter,im_v2_lib_logger,im_v2_lib_notifier,im_v2_lib_market,im_v2_lib_desktop,im_v2_lib_promo,im_v2_lib_permission,im_v2_lib_updateState_manager) {
 	'use strict';
 
 	var _started = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("started");
@@ -27,6 +27,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    im_v2_lib_smileManager.SmileManager.init();
 	    im_v2_lib_notifier.NotifierManager.init();
 	    im_v2_lib_desktop.DesktopManager.init();
+	    im_v2_lib_updateState_manager.UpdateStateManager.init();
 	    babelHelpers.classPrivateFieldLooseBase(this, _started)[_started] = true;
 	  }
 	}
@@ -74,5 +75,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.InitManager = InitManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=init.bundle.js.map

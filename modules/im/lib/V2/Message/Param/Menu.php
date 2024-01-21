@@ -4,11 +4,13 @@ namespace Bitrix\Im\V2\Message\Param;
 
 use Bitrix\Im;
 use Bitrix\Im\V2\Message\Param;
+use Bitrix\Im\V2\Result;
 use Bitrix\Main\ArgumentException;
 
 class Menu extends Param
 {
 	protected ?Im\Bot\ContextMenu $menu;
+	protected bool $isValid = true;
 
 	/**
 	 * @param Im\Bot\ContextMenu $value
@@ -16,6 +18,10 @@ class Menu extends Param
 	 */
 	public function setValue($value): self
 	{
+		if ($value === null || $value === $this->getDefaultValue())
+		{
+			return $this->unsetValue();
+		}
 		if ($value instanceof Im\Bot\ContextMenu)
 		{
 			$this->menu = $value;
@@ -23,6 +29,10 @@ class Menu extends Param
 		elseif (!empty($value))
 		{
 			$this->menu = Im\Bot\ContextMenu::getByJson($value);
+			if ($this->menu === null)
+			{
+				$this->isValid = false;
+			}
 		}
 
 		if (isset($this->menu))
@@ -35,11 +45,16 @@ class Menu extends Param
 	}
 
 	/**
-	 * @return array|null
+	 * @return array|string
 	 */
 	public function getValue()
 	{
-		return $this->value;
+		return $this->value ?? $this->getDefaultValue();
+	}
+
+	public function getDefaultValue()
+	{
+		return 'N';
 	}
 
 	/**
@@ -104,7 +119,7 @@ class Menu extends Param
 	/**
 	 * @return array|null
 	 */
-	public function toRestFormat(): ?array
+	public function toRestFormat()
 	{
 		return $this->getValue();
 	}
@@ -112,8 +127,23 @@ class Menu extends Param
 	/**
 	 * @return array|null
 	 */
-	public function toPullFormat(): ?array
+	public function toPullFormat()
 	{
 		return $this->getValue();
+	}
+
+	/**
+	 * @return Result
+	 */
+	public function isValid(): Result
+	{
+		$result = new Result();
+
+		if ($this->isValid && (!isset($this->menu) || $this->menu->IsAllowSize()))
+		{
+			return $result;
+		}
+
+		return $result->addError(new ParamError(ParamError::MENU_ERROR));
 	}
 }

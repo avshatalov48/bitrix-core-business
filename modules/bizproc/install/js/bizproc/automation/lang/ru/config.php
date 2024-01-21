@@ -70,6 +70,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_DISK_ATTACH_FILE"] = "Прикрепить фай�
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_ATTACHED_FILES"] = "Прикрепленные файлы";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE"] = "Найти в Битрикс24";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND"] = "Открыть окно \"Битрикс24.Диск\"";
+$MESS["BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND_MSGVER_1"] = "Открыть окно \"Битрикс24.Диск\"";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE"] = "Загрузить файл";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND"] = "Перетащить с помощью Drag'n'drop";
 $MESS["BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX"] = "(текст)";

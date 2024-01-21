@@ -1,18 +1,18 @@
-<?
+<?php
 //<title>CommerceML MySql Fast - BETA VERS</title>
 set_time_limit(0);
 
-define("CML_DEBUG", false);
-define("CML_MEMORY_DEBUG", false);
-define("CML_DEBUG_FILE_NAME", "/__cml_time_mark.dat");
+const CML_DEBUG = false;
+const CML_MEMORY_DEBUG = false;
+const CML_DEBUG_FILE_NAME = "/__cml_time_mark.dat";
 
-define("CML_GROUP_OPERATION_CNT", 100);
-define("CML_CLEAR_TEMP_TABLES", false);
-define("CML_DELETE_COMMENTS", false);
+const CML_GROUP_OPERATION_CNT = 100;
+const CML_CLEAR_TEMP_TABLES = false;
+const CML_DELETE_COMMENTS = false;
 
-define("CML_KEEP_EXISTING_PROPERTIES", true);
-define("CML_KEEP_EXISTING_DATA", false);
-define("CML_ACTIVATE_FILE_DATA", true);
+const CML_KEEP_EXISTING_PROPERTIES = true;
+const CML_KEEP_EXISTING_DATA = false;
+const CML_ACTIVATE_FILE_DATA = true;
 
 //define("CML_USE_SYSTEM_DELETE", false);
 
@@ -928,7 +928,7 @@ if ($strImportErrorMessage == '')
 		/***************************** PROPERTIES *******************************************/
 		// Collect properties temp table
 		$strSql = "INSERT INTO b_catalog_cml_tmp(ID, XML_ID, CATALOG_ID) ".
-			"SELECT IF(P.ID IS NULL, 0, P.ID), X.XML_ID, X.CATALOG_ID  FROM b_catalog_cml_property X ".
+			"SELECT CASE WHEN P.ID IS NULL THEN 0 ELSE P.ID END, X.XML_ID, X.CATALOG_ID  FROM b_catalog_cml_property X ".
 			"	LEFT JOIN b_iblock_property P ON (P.XML_ID = X.XML_ID AND P.IBLOCK_ID = X.CATALOG_ID) ";
 		$DB->Query($strSql);
 
@@ -971,7 +971,7 @@ if ($strImportErrorMessage == '')
 		// Collect property variants temp table
 		$strSql =
 			"INSERT INTO b_catalog_cml_tmp(ID, XML_ID, CATALOG_ID, VALUE_ID) ".
-			"SELECT IF(PV.ID IS NULL, 0, PV.ID), X.XML_ID, X.CATALOG_ID, P.ID ".
+			"SELECT CASE WHEN PV.ID IS NULL THEN 0 ELSE PV.ID END, X.XML_ID, X.CATALOG_ID, P.ID ".
 			"FROM b_catalog_cml_property_var X ".
 			"	LEFT JOIN b_iblock_property P ON (P.XML_ID = X.PROPERTY_XML_ID AND P.IBLOCK_ID = X.CATALOG_ID) ".
 			"	LEFT JOIN b_iblock_property_enum PV ON (PV.XML_ID = X.XML_ID AND PV.PROPERTY_ID = P.ID) ";
@@ -1017,7 +1017,7 @@ if ($strImportErrorMessage == '')
 		// Collect sections temp table
 		$strSql =
 			"INSERT INTO b_catalog_cml_tmp(ID, XML_ID, CATALOG_ID) ".
-			"SELECT IF(S.ID IS NULL, 0, S.ID), X.XML_ID, X.CATALOG_ID FROM b_catalog_cml_section X ".
+			"SELECT CASE WHEN S.ID IS NULL THEN 0 ELSE S.ID END, X.XML_ID, X.CATALOG_ID FROM b_catalog_cml_section X ".
 			"	LEFT JOIN b_iblock_section S ON (S.XML_ID = X.XML_ID AND X.CATALOG_ID = S.IBLOCK_ID) ";
 		$DB->Query($strSql);
 
@@ -1210,7 +1210,7 @@ if ($strImportErrorMessage == '')
 		// Collect products temp table
 		$strSql =
 			"INSERT INTO b_catalog_cml_tmp(ID, XML_ID, CATALOG_ID) ".
-			"SELECT IF(P.ID IS NULL, 0, P.ID), X.XML_ID, X.CATALOG_ID ".
+			"SELECT CASE WHEN P.ID IS NULL THEN 0 ELSE P.ID END, X.XML_ID, X.CATALOG_ID ".
 			"FROM b_catalog_cml_product X ".
 			"	LEFT JOIN b_iblock_element P USE INDEX (ix_iblock_element_4) ON (P.XML_ID = X.XML_ID AND X.CATALOG_ID = P.IBLOCK_ID AND P.WF_PARENT_ELEMENT_ID IS NULL) ";
 		$DB->Query($strSql);
@@ -1433,7 +1433,7 @@ if ($strImportErrorMessage == '')
 		// Add new products
 		$strSql =
 			"INSERT INTO b_iblock_element(IBLOCK_ID, ACTIVE, MODIFIED_BY, CREATED_BY, SORT, NAME, XML_ID, IBLOCK_SECTION_ID, IN_SECTIONS, TMP_ID, TIMESTAMP_X".(true === $boolTranslitElement ? ', CODE' : '').") ".
-			"SELECT T.CATALOG_ID, 'Y', X.MODIFIED_BY, X.MODIFIED_BY, 500, X.NAME, X.XML_ID, S.ID, IF(MIN(S1.ID), 'Y', 'N'), '".$DB->ForSql($tmpid)."', NOW()".(true === $boolTranslitElement ? ', X.CODE': '').' '.
+			"SELECT T.CATALOG_ID, 'Y', X.MODIFIED_BY, X.MODIFIED_BY, 500, X.NAME, X.XML_ID, S.ID, CASE WHEN MIN(S1.ID) THEN 'Y' ELSE 'N' END, '".$DB->ForSql($tmpid)."', NOW()".(true === $boolTranslitElement ? ', X.CODE': '').' '.
 			"FROM b_catalog_cml_tmp T ".
 			"	INNER JOIN b_catalog_cml_product X ON (T.XML_ID = X.XML_ID AND T.CATALOG_ID = X.CATALOG_ID) ".
 			"	LEFT JOIN b_iblock_section S ON (S.XML_ID = X.PARENT_CATEGORY AND X.CATALOG_ID = S.IBLOCK_ID) ".
@@ -1582,7 +1582,7 @@ if ($strImportErrorMessage == '')
 		// Collect offers temp table
 		$strSql =
 			"INSERT INTO b_catalog_cml_tmp(ID, XML_ID, CATALOG_ID, VALUE_ID) ".
-			"SELECT IF(CP.ID IS NULL, 0, CP.ID), X.XML_ID, X.CATALOG_ID, P.ID ".
+			"SELECT CASE WHEN CP.ID IS NULL THEN 0 ELSE CP.ID END, X.XML_ID, X.CATALOG_ID, P.ID ".
 			"FROM b_catalog_cml_product X ".
 			"	INNER JOIN b_iblock_element P USE INDEX (ix_iblock_element_4) ON (P.XML_ID = X.XML_ID AND X.CATALOG_ID = P.IBLOCK_ID AND P.WF_PARENT_ELEMENT_ID IS NULL) ".
 			"	LEFT JOIN b_catalog_product CP ON (P.ID = CP.ID) ";
@@ -1719,7 +1719,7 @@ if ($strImportErrorMessage == '')
 		// Collect offers temp table
 		$strSql =
 			"INSERT INTO b_catalog_cml_tmp(ID, XML_ID, CATALOG_ID, VALUE_ID) ".
-			"SELECT DISTINCT STRAIGHT_JOIN SQL_BIG_RESULT IF(CP.ID IS NULL, 0, CP.ID), P.XML_ID, P.IBLOCK_ID, P.ID ".
+			"SELECT DISTINCT STRAIGHT_JOIN SQL_BIG_RESULT CASE WHEN CP.ID IS NULL THEN 0 ELSE CP.ID END, P.XML_ID, P.IBLOCK_ID, P.ID ".
 			"FROM b_catalog_cml_offer X ".
 			"	INNER JOIN b_catalog_cml_oflist XL ON (X.OFFER_LIST_XML_ID = XL.ID) ".
 			"	INNER JOIN b_iblock_element P USE INDEX (ix_iblock_element_4) ON (P.XML_ID = X.PRODUCT_XML_ID AND XL.CATALOG_ID = P.IBLOCK_ID AND P.WF_PARENT_ELEMENT_ID IS NULL) ".

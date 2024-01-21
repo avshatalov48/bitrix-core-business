@@ -108,7 +108,13 @@ const sortByName = function(a, b) {
 };
 
 const sortByNumber = (a, b) => {
-	return a.sort - b.sort;
+	const result = a.sort - b.sort;
+
+	return result === 0 ? -1 : result;
+};
+
+const sortByNumberDesc = (a, b) => {
+	return b.sort - a.sort;
 };
 
 describe('OrderedArray', () => {
@@ -154,6 +160,15 @@ describe('OrderedArray', () => {
 		{ name: 'Grey', sort: 7, id: 15 },
 	];
 
+	const elements4 = [
+		{ name: 'A', sort: 1 },
+		{ name: 'B', sort: 1 },
+		{ name: 'C', sort: 2 },
+		{ name: 'D', sort: 2 },
+		{ name: 'E', sort: 3 },
+		{ name: 'F', sort: 3 },
+	];
+
 	const products = [
 		{ id: 1, name: 'Bread', sort: 3, nullProperty: null },
 		{ id: 2, name: 'Sausage', sort: 4, nullProperty: null },
@@ -197,6 +212,36 @@ describe('OrderedArray', () => {
 		assert.equal(
 			numbers.getAll().map(element => element.sort).join(''),
 			'123456'
+		);
+
+		const numbers2 = new OrderedArray(sortByNumber);
+		elements4.forEach(element => {
+			numbers2.add(element);
+		});
+
+		assert.equal(
+			numbers2.getAll().map(element => element.name).join(''),
+			'ABCDEF',
+		);
+
+		assert.equal(
+			numbers2.getAll().map(element => element.sort).join(''),
+			'112233',
+		);
+
+		const numbers3 = new OrderedArray(sortByNumberDesc);
+		elements4.forEach(element => {
+			numbers3.add(element);
+		});
+
+		assert.equal(
+			numbers3.getAll().map(element => element.name).join(''),
+			'FEDCBA',
+		);
+
+		assert.equal(
+			numbers3.getAll().map(element => element.sort).join(''),
+			'332211',
 		);
 
 		const colors = new OrderedArray(makeMultipleComparator({ sort: 'asc', name: 'asc' }));

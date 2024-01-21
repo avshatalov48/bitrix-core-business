@@ -184,7 +184,7 @@ Class bizproc extends CModule
 		elseif($step==2)
 		{
 			$this->UnInstallDB([
-				"savedata" => $_REQUEST["savedata"] ?? null,
+				"savedata" => isset($_REQUEST["savedata"]) ? $_REQUEST["savedata"] : null,
 			]);
 			$this->UnInstallFiles();
 

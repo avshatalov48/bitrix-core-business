@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'src/style.css',
+	'css' => 'dist/accessrights.bundle.css',
 	'js' => 'dist/accessrights.bundle.js',
 	'rel' => [
 		'main.loader',

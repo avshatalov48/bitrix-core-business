@@ -1,4 +1,4 @@
-import { Node } from 'landing.node';
+import { Base } from 'landing.node.base';
 import { Dom, Event } from 'main.core';
 
 const trim = BX.Landing.Utils.trim;
@@ -9,7 +9,7 @@ const create = BX.Landing.Utils.create;
 const escapeText = BX.Landing.Utils.escapeText;
 const decodeDataValue = BX.Landing.Utils.decodeDataValue;
 
-export class Link extends Node
+export class Link extends Base
 {
 	constructor(options)
 	{

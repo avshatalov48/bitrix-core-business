@@ -1,16 +1,16 @@
-import {RecentList} from 'im.v2.component.list.element-list.recent';
-import {Logger} from 'im.v2.lib.logger';
-import {InitManager} from 'im.v2.lib.init';
+import { RecentList } from 'im.v2.component.list.element-list.recent';
+import { Logger } from 'im.v2.lib.logger';
+import { InitManager } from 'im.v2.lib.init';
 
 export const QuickAccess = {
 	name: 'QuickAccess',
 	props: {
 		compactMode: {
 			type: Boolean,
-			default: false
-		}
+			default: false,
+		},
 	},
-	components: {RecentList},
+	components: { RecentList },
 	created()
 	{
 		InitManager.start();
@@ -18,5 +18,5 @@ export const QuickAccess = {
 	},
 	template: `
 		<RecentList :compactMode="compactMode" />
-	`
+	`,
 };

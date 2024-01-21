@@ -75,7 +75,7 @@ export class FileMenu extends SidebarMenu
 		}
 
 		return {
-			text: Loc.getMessage('IM_SIDEBAR_MENU_SAVE_FILE_ON_DISK'),
+			text: Loc.getMessage('IM_SIDEBAR_MENU_SAVE_FILE_ON_DISK_MSGVER_1'),
 			onclick: function() {
 				this.mediaManager.saveOnDisk(this.context.sidebarFile.fileId).then(() => {
 					BX.UI.Notification.Center.notify({

@@ -18,14 +18,14 @@ class Base
 	{
 		global $USER_FIELD_MANAGER;
 
-		static $result = null;
-		if ($result === null)
+		static $result = [];
+		if (!isset($result[$this->entityTypeId]))
 		{
-			$result = $USER_FIELD_MANAGER->getUserFields($this->entityTypeId, 0, LANGUAGE_ID, false);
-			$result = $this->postFilterFields($result);
+			$ufList = $USER_FIELD_MANAGER->getUserFields($this->entityTypeId, 0, LANGUAGE_ID, false);
+			$result[$this->entityTypeId] = $this->postFilterFields($ufList);
 		}
 
-		return $result;
+		return $result[$this->entityTypeId];
 	}
 
 	protected function getUserFieldsReserved()
@@ -70,9 +70,12 @@ class Base
 				if (is_callable([$uf['USER_TYPE']['CLASS_NAME'], 'GetList']))
 				{
 					$enumRes = call_user_func_array([$uf['USER_TYPE']['CLASS_NAME'], 'GetList'], [$uf]);
-					while($enumFields = $enumRes->fetch())
+					if ($enumRes)
 					{
-						$editable['items'][$enumFields['ID']] = $enumFields['VALUE'];
+						while ($enumFields = $enumRes->fetch())
+						{
+							$editable['items'][$enumFields['ID']] = $enumFields['VALUE'];
+						}
 					}
 				}
 			}
@@ -139,9 +142,22 @@ class Base
 				$type = 'int';
 			}
 
+			if (!empty($uf['LIST_COLUMN_LABEL']))
+			{
+				$name = htmlspecialcharsbx($uf['LIST_COLUMN_LABEL']);
+			}
+			elseif (!empty(['EDIT_FORM_LABEL']))
+			{
+				$name = htmlspecialcharsbx($uf['EDIT_FORM_LABEL']);
+			}
+			else
+			{
+				$name = htmlspecialcharsbx($FIELD_NAME);
+			}
+
 			$gridHeaders[$FIELD_NAME] = array(
 				'id' => $FIELD_NAME,
-				'name' => htmlspecialcharsbx($uf['LIST_COLUMN_LABEL'] <> '' ? $uf['LIST_COLUMN_LABEL'] : $FIELD_NAME),
+				'name' => $name,
 				'sort' => $uf['MULTIPLE'] == 'N' ? $FIELD_NAME : false,
 				'default' => $uf['SHOW_IN_LIST'] == 'Y',
 				'editable' => $editable,

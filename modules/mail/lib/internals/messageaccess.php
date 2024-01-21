@@ -3,6 +3,7 @@
 namespace Bitrix\Mail\Internals;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 
 /**
  * Class MessageAccessTable
@@ -22,6 +23,8 @@ use Bitrix\Main\Entity;
  */
 class MessageAccessTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	const ENTITY_TYPE_NO_BIND = 'NO_BIND';
 	const ENTITY_TYPE_TASKS_TASK = 'TASKS_TASK';
 	const ENTITY_TYPE_CRM_ACTIVITY = 'CRM_ACTIVITY';

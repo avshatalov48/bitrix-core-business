@@ -5,10 +5,12 @@
 
 .bx-im-settings-radio__container label.ui-ctl {
 	width: auto;
+	min-height: initial;
 }
 
 .bx-im-settings-radio__container .ui-ctl-radio {
 	cursor: pointer;
+	margin-bottom: 0;
 }
 
 .bx-im-settings-radio__container .ui-ctl-radio .ui-ctl-element {

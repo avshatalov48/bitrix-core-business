@@ -1,0 +1,22 @@
+.bx-im-sidebar-chats-with-user-detail__scope {
+	--im-sidebar-chats-with-user-detail__height_header: 64px;
+}
+
+.bx-im-sidebar-chats-with-user-detail__container {
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+	height: calc(100% - var(--im-sidebar-chats-with-user-detail__height_header));
+	scrollbar-width: thin;
+	padding: 4px 0 4px 6px;
+}
+
+.bx-im-sidebar-chats-with-user-detail__loader-container {
+	height: 7px;
+	top: 110px;
+	flex-shrink: 0;
+}
+
+.bx-im-sidebar-chats-with-user-detail__container .bx-im-sidebar-detail-empty-state__container {
+	margin-top: 54px;
+}

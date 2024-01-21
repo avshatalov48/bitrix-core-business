@@ -511,7 +511,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Array,
 	      required: true
 	    },
-	    manageUsers: {
+	    manageUsersAdd: {
+	      type: String,
+	      required: true
+	    },
+	    manageUsersDelete: {
 	      type: String,
 	      required: true
 	    },
@@ -528,15 +532,28 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      required: true
 	    }
 	  },
-	  emits: ['ownerChange', 'managersChange', 'manageUsersChange', 'manageUiChange', 'canPostChange'],
+	  emits: ['ownerChange', 'managersChange', 'manageUsersAddChange', 'manageUsersDeleteChange', 'manageUiChange', 'canPostChange'],
 	  data() {
 	    return {};
 	  },
 	  computed: {
 	    PopupType: () => im_v2_const.PopupType,
-	    manageUsersItems() {
+	    manageUsersAddItems() {
 	      return rightsDropdownItems.map(item => {
-	        if (item.value === this.manageUsers) {
+	        if (item.value === this.manageUsersAdd) {
+	          return {
+	            ...item,
+	            default: true
+	          };
+	        }
+	        return {
+	          ...item
+	        };
+	      });
+	    },
+	    manageUsersDeleteItems() {
+	      return rightsDropdownItems.map(item => {
+	        if (item.value === this.manageUsersDelete) {
 	          return {
 	            ...item,
 	            default: true
@@ -581,8 +598,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onManagersChange(managerIds) {
 	      this.$emit('managersChange', managerIds);
 	    },
-	    onManageUsersChange(newValue) {
-	      this.$emit('manageUsersChange', newValue);
+	    onManageUsersAddChange(newValue) {
+	      this.$emit('manageUsersAddChange', newValue);
+	    },
+	    onManageUsersDeleteChange(newValue) {
+	      this.$emit('manageUsersDeleteChange', newValue);
 	    },
 	    onManageUiChange(newValue) {
 	      this.$emit('manageUiChange', newValue);
@@ -610,15 +630,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			</div>
 			<div class="bx-im-content-create-chat__section_block">
 				<div class="bx-im-content-create-chat__heading">
-					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_USERS') }}
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_USERS_ADD') }}
 				</div>
 				<div class="bx-im-content-create-chat-settings__manage-select">
-					<Dropdown :items="manageUsersItems" :id="PopupType.createChatManageUsersMenu" @itemChange="onManageUsersChange" />
+					<Dropdown :items="manageUsersAddItems" :id="PopupType.createChatManageUsersAddMenu" @itemChange="onManageUsersAddChange" />
 				</div>
 			</div>
 			<div class="bx-im-content-create-chat__section_block">
 				<div class="bx-im-content-create-chat__heading">
-					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_UI') }}
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_USERS_DELETE') }}
+				</div>
+				<div class="bx-im-content-create-chat-settings__manage-select">
+					<Dropdown :items="manageUsersDeleteItems" :id="PopupType.createChatManageUsersDeleteMenu" @itemChange="onManageUsersDeleteChange" />
+				</div>
+			</div>
+			<div class="bx-im-content-create-chat__section_block">
+				<div class="bx-im-content-create-chat__heading">
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_UI_MSGVER_2') }}
 				</div>
 				<div class="bx-im-content-create-chat-settings__manage-select">
 					<Dropdown :items="manageUiItems" :id="PopupType.createChatManageUiMenu" @itemChange="onManageUiChange" />
@@ -626,7 +654,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			</div>
 			<div class="bx-im-content-create-chat__section_block">
 				<div class="bx-im-content-create-chat__heading">
-					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_SENDING') }}
+					{{ loc('IM_CREATE_CHAT_RIGHTS_SECTION_MANAGE_SENDING_MSGVER_1') }}
 				</div>
 				<div class="bx-im-content-create-chat-settings__manage-select">
 					<Dropdown :items="canPostItems" :id="PopupType.createChatCanPostMenu" @itemChange="onCanPostChange" />
@@ -674,7 +702,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      rights: {
 	        ownerId: 0,
 	        managerIds: [],
-	        manageUsers: '',
+	        manageUsersAdd: '',
+	        manageUsersDelete: '',
 	        manageSettings: '',
 	        manageUi: '',
 	        canPost: ''
@@ -691,7 +720,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.rights.ownerId = im_v2_application_core.Core.getUserId();
 	    this.initDefaultRolesForRights();
 	    this.restoreFields();
-	    im_v2_lib_createChat.CreateChatManager.getInstance().setChatType(im_v2_const.DialogType.chat);
+	    im_v2_lib_createChat.CreateChatManager.getInstance().setChatType(im_v2_const.ChatType.chat);
 	    im_v2_lib_createChat.CreateChatManager.getInstance().setCreationStatus(true);
 	    im_v2_lib_createChat.CreateChatManager.getInstance().setChatAvatar(this.avatarFile);
 	  },
@@ -717,8 +746,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onDescriptionChange(description) {
 	      this.settings.description = description;
 	    },
-	    onManageUsersChange(newValue) {
-	      this.rights.manageUsers = newValue;
+	    onManageUsersAddChange(newValue) {
+	      this.rights.manageUsersAdd = newValue;
+	    },
+	    onManageUsersDeleteChange(newValue) {
+	      this.rights.manageUsersDelete = newValue;
 	    },
 	    onManageUiChange(newValue) {
 	      this.rights.manageUi = newValue;
@@ -736,7 +768,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        managers: this.rights.managerIds,
 	        isAvailableInSearch: this.settings.isAvailableInSearch,
 	        description: this.settings.description,
-	        manageUsers: this.rights.manageUsers,
+	        manageUsersAdd: this.rights.manageUsersAdd,
+	        manageUsersDelete: this.rights.manageUsersDelete,
 	        manageUi: this.rights.manageUi,
 	        manageSettings: this.rights.manageSettings,
 	        canPost: this.rights.canPost
@@ -760,16 +793,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      im_v2_lib_createChat.CreateChatManager.getInstance().setChatAvatar(this.avatarFile);
 	    },
 	    onScroll() {
-	      var _MenuManager$getMenuB, _MenuManager$getMenuB2, _MenuManager$getMenuB3;
-	      (_MenuManager$getMenuB = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUsersMenu)) == null ? void 0 : _MenuManager$getMenuB.close();
-	      (_MenuManager$getMenuB2 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUiMenu)) == null ? void 0 : _MenuManager$getMenuB2.close();
-	      (_MenuManager$getMenuB3 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatCanPostMenu)) == null ? void 0 : _MenuManager$getMenuB3.close();
+	      var _MenuManager$getMenuB, _MenuManager$getMenuB2, _MenuManager$getMenuB3, _MenuManager$getMenuB4;
+	      (_MenuManager$getMenuB = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUsersAddMenu)) == null ? void 0 : _MenuManager$getMenuB.close();
+	      (_MenuManager$getMenuB2 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUsersDeleteMenu)) == null ? void 0 : _MenuManager$getMenuB2.close();
+	      (_MenuManager$getMenuB3 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUiMenu)) == null ? void 0 : _MenuManager$getMenuB3.close();
+	      (_MenuManager$getMenuB4 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatCanPostMenu)) == null ? void 0 : _MenuManager$getMenuB4.close();
 	    },
 	    onLayoutChange(event) {
 	      const {
 	        to
 	      } = event.getData();
-	      if (to.name === im_v2_const.Layout.createChat.name && to.entityId !== im_v2_const.DialogType.chat) {
+	      if (to.name === im_v2_const.Layout.createChat.name && to.entityId !== im_v2_const.ChatType.chat) {
 	        this.exitByChatTypeSwitch = true;
 	      }
 	    },
@@ -802,11 +836,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    initDefaultRolesForRights() {
 	      const {
-	        manageUsers,
+	        manageUsersAdd,
+	        manageUsersDelete,
 	        manageUi,
 	        manageSettings
 	      } = im_v2_lib_permission.PermissionManager.getInstance().getDefaultRolesForActionGroups();
-	      this.rights.manageUsers = manageUsers;
+	      this.rights.manageUsersAdd = manageUsersAdd;
+	      this.rights.manageUsersDelete = manageUsersDelete;
 	      this.rights.manageUi = manageUi;
 	      this.rights.manageSettings = manageSettings;
 	      this.rights.canPost = im_v2_const.UserRole.member;
@@ -837,13 +873,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<RightsSection
 				:ownerId="rights.ownerId"
 				:managerIds="rights.managerIds"
-				:manageUsers="rights.manageUsers"
+				:manageUsersAdd="rights.manageUsersAdd"
+				:manageUsersDelete="rights.manageUsersDelete"
 				:manageUi="rights.manageUi"
 				:manageSettings="rights.manageSettings"
 				:canPost="rights.canPost"
 				@ownerChange="onOwnerChange"
 				@managersChange="onManagersChange"
-				@manageUsersChange="onManageUsersChange"
+				@manageUsersAddChange="onManageUsersAddChange"
+				@manageUsersDeleteChange="onManageUsersDeleteChange"
 				@manageUiChange="onManageUiChange"
 				@canPostChange="onCanPostChange"
 			/> 
@@ -950,7 +988,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      rights: {
 	        ownerId: 0,
 	        managerIds: [],
-	        manageUsers: '',
+	        manageUsersAdd: '',
+	        manageUsersDelete: '',
 	        manageSettings: '',
 	        manageUi: '',
 	        canPost: ''
@@ -967,7 +1006,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.rights.ownerId = im_v2_application_core.Core.getUserId();
 	    this.initDefaultRolesForRights();
 	    this.restoreFields();
-	    im_v2_lib_createChat.CreateChatManager.getInstance().setChatType(im_v2_const.DialogType.videoconf);
+	    im_v2_lib_createChat.CreateChatManager.getInstance().setChatType(im_v2_const.ChatType.videoconf);
 	    im_v2_lib_createChat.CreateChatManager.getInstance().setCreationStatus(true);
 	    im_v2_lib_createChat.CreateChatManager.getInstance().setChatAvatar(this.avatarFile);
 	  },
@@ -990,8 +1029,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onDescriptionChange(description) {
 	      this.settings.description = description;
 	    },
-	    onManageUsersChange(newValue) {
-	      this.rights.manageUsers = newValue;
+	    onManageUsersAddChange(newValue) {
+	      this.rights.manageUsersAdd = newValue;
+	    },
+	    onManageUsersDeleteChange(newValue) {
+	      this.rights.manageUsersDelete = newValue;
 	    },
 	    onManageUiChange(newValue) {
 	      this.rights.manageUi = newValue;
@@ -1016,14 +1058,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      this.isCreating = true;
 	      const newDialogId = await this.getChatService().createChat({
-	        type: im_v2_const.DialogType.videoconf,
+	        entityType: im_v2_const.ChatType.videoconf,
 	        title: this.chatTitle,
 	        avatar: this.avatarFile,
 	        members: this.chatMembers,
 	        ownerId: this.rights.ownerId,
 	        managers: this.rights.managerIds,
 	        description: this.settings.description,
-	        manageUsers: this.rights.manageUsers,
+	        manageUsersAdd: this.rights.manageUsersAdd,
+	        manageUsersDelete: this.rights.manageUsersDelete,
 	        manageUi: this.rights.manageUi,
 	        manageSettings: this.rights.manageSettings,
 	        canPost: this.rights.canPost,
@@ -1044,16 +1087,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      im_public.Messenger.openChat();
 	    },
 	    onScroll() {
-	      var _MenuManager$getMenuB, _MenuManager$getMenuB2, _MenuManager$getMenuB3;
-	      (_MenuManager$getMenuB = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUsersMenu)) == null ? void 0 : _MenuManager$getMenuB.close();
-	      (_MenuManager$getMenuB2 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUiMenu)) == null ? void 0 : _MenuManager$getMenuB2.close();
-	      (_MenuManager$getMenuB3 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatCanPostMenu)) == null ? void 0 : _MenuManager$getMenuB3.close();
+	      var _MenuManager$getMenuB, _MenuManager$getMenuB2, _MenuManager$getMenuB3, _MenuManager$getMenuB4;
+	      (_MenuManager$getMenuB = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUsersAddMenu)) == null ? void 0 : _MenuManager$getMenuB.close();
+	      (_MenuManager$getMenuB2 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUsersDeleteMenu)) == null ? void 0 : _MenuManager$getMenuB2.close();
+	      (_MenuManager$getMenuB3 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatManageUiMenu)) == null ? void 0 : _MenuManager$getMenuB3.close();
+	      (_MenuManager$getMenuB4 = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.createChatCanPostMenu)) == null ? void 0 : _MenuManager$getMenuB4.close();
 	    },
 	    onLayoutChange(event) {
 	      const {
 	        to
 	      } = event.getData();
-	      if (to.name === im_v2_const.Layout.createChat.name && to.entityId !== im_v2_const.DialogType.videoconf) {
+	      if (to.name === im_v2_const.Layout.createChat.name && to.entityId !== im_v2_const.ChatType.videoconf) {
 	        this.exitByChatTypeSwitch = true;
 	      }
 	    },
@@ -1089,11 +1133,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    initDefaultRolesForRights() {
 	      const {
-	        manageUsers,
+	        manageUsersAdd,
+	        manageUsersDelete,
 	        manageUi,
 	        manageSettings
 	      } = im_v2_lib_permission.PermissionManager.getInstance().getDefaultRolesForActionGroups();
-	      this.rights.manageUsers = manageUsers;
+	      this.rights.manageUsersAdd = manageUsersAdd;
+	      this.rights.manageUsersDelete = manageUsersDelete;
 	      this.rights.manageUi = manageUi;
 	      this.rights.manageSettings = manageSettings;
 	      this.rights.canPost = im_v2_const.UserRole.member;
@@ -1142,13 +1188,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<RightsSection
 				:ownerId="rights.ownerId"
 				:managerIds="rights.managerIds"
-				:manageUsers="rights.manageUsers"
+				:manageUsersAdd="rights.manageUsersAdd"
+				:manageUsersDelete="rights.manageUsersDelete"
 				:manageUi="rights.manageUi"
 				:manageSettings="rights.manageSettings"
 				:canPost="rights.canPost"
 				@ownerChange="onOwnerChange"
 				@managersChange="onManagersChange"
-				@manageUsersChange="onManageUsersChange"
+				@manageUsersAddChange="onManageUsersAddChange"
+				@manageUsersDeleteChange="onManageUsersDeleteChange"
 				@manageUiChange="onManageUiChange"
 				@canPostChange="onCanPostChange"
 			/>
@@ -1179,15 +1227,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
-	    DialogType: () => im_v2_const.DialogType,
+	    ChatType: () => im_v2_const.ChatType,
 	    chatType() {
 	      return this.entityId;
 	    }
 	  },
 	  template: `
 		<div class="bx-im-content-create-chat__container bx-im-content-create-chat__scope">
-			<GroupChatCreation v-if="chatType === DialogType.chat" />
-			<ConferenceCreation v-else-if="chatType === DialogType.videoconf" />
+			<GroupChatCreation v-if="chatType === ChatType.chat" />
+			<ConferenceCreation v-else-if="chatType === ChatType.videoconf" />
 		</div>
 	`
 	};

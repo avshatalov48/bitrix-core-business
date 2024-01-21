@@ -1,6 +1,5 @@
 import { MessengerMenu, MenuItem, MenuItemIcon } from 'im.v2.component.elements';
 
-import { DocumentPanel } from './document-panel';
 import { DiskPopup } from './disk-popup';
 
 import '../../css/upload-menu.css';
@@ -10,7 +9,7 @@ import type { JsonObject } from 'main.core';
 
 // @vue/component
 export const UploadMenu = {
-	components: { DocumentPanel, MessengerMenu, MenuItem, DiskPopup },
+	components: { MessengerMenu, MenuItem, DiskPopup },
 	emits: ['fileSelect', 'diskFileSelect'],
 	data(): JsonObject
 	{
@@ -42,8 +41,7 @@ export const UploadMenu = {
 		onSelectFromPhotoOrVideo()
 		{
 			this.onlyPhotoOrVideo = true;
-			// @see \CFile::GetImageExtensions
-			const acceptedFormats = '.jpg, .bmp, .jpeg, .jpe, .gif, .png, .webp, video/*';
+			const acceptedFormats = 'image/*, video/*';
 
 			this.$refs.fileInput.setAttribute('accept', acceptedFormats);
 			this.$refs.fileInput.click();
@@ -88,9 +86,6 @@ export const UploadMenu = {
 		>
 		</div>
 		<MessengerMenu v-if="showMenu" :config="menuConfig" @close="showMenu = false" className="bx-im-file-menu__scope">
-			<template #header>
-				<DocumentPanel />
-			</template>
 			<MenuItem
 				:icon="MenuItemIcon.upload"
 				:title="loc('IM_TEXTAREA_SELECT_FILE_PHOTO_OR_VIDEO')"
@@ -103,7 +98,7 @@ export const UploadMenu = {
 			/>
 			<MenuItem
 				:icon="MenuItemIcon.disk"
-				:title="loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK')"
+				:title="loc('IM_TEXTAREA_SELECT_FILE_FROM_DISK_1')"
 				@click="onSelectFromDiskClick"
 			/>
 			<input type="file" @change="onFileSelect" multiple class="bx-im-file-menu__file-input" ref="fileInput">

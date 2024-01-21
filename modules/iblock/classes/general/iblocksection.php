@@ -7,7 +7,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllIBlockSection
 {
-	var $LAST_ERROR;
+	public string $LAST_ERROR = '';
 	protected static $arSectionCodeCache = array();
 	protected static $arSectionPathCache = array();
 	protected static $arSectionNavChainCache = array();
@@ -662,6 +662,8 @@ class CAllIBlockSection
 				CFile::SaveForDB($arFields, "DETAIL_PICTURE", "iblock");
 			}
 
+			$arFields['SORT'] = (int)($arFields['SORT'] ?? 500);
+
 			CIBlock::_transaction_lock($IBLOCK_ID);
 
 			unset($arFields["ID"]);
@@ -673,11 +675,8 @@ class CAllIBlockSection
 			if(array_key_exists("DETAIL_PICTURE", $arFields))
 				$arFields["DETAIL_PICTURE"] = $SAVED_DETAIL_PICTURE;
 
-			if($bResort)
+			if ($bResort)
 			{
-				if(!array_key_exists("SORT", $arFields))
-					$arFields["SORT"] = 500;
-
 				self::recountTreeAfterAdd($arFields);
 			}
 
@@ -1564,19 +1563,25 @@ class CAllIBlockSection
 		}
 
 		$arParent = false;
-		$IBLOCK_SECTION_ID = isset($arFields["IBLOCK_SECTION_ID"])? intval($arFields["IBLOCK_SECTION_ID"]): 0;
+		$IBLOCK_SECTION_ID = (int)($arFields['IBLOCK_SECTION_ID'] ?? 0);
 
-		if(($IBLOCK_SECTION_ID > 0) && ($this->LAST_ERROR == ''))
+		if ($IBLOCK_SECTION_ID > 0 && $ID !== false && $this->LAST_ERROR === '')
+		{
+			if ($IBLOCK_SECTION_ID === (int)$ID)
+			{
+				$this->LAST_ERROR .= GetMessage('IBLOCK_BAD_BLOCK_SECTION_RECURSE') . '<br>';
+			}
+		}
+
+		if ($IBLOCK_SECTION_ID > 0 && $this->LAST_ERROR === '')
 		{
 			$sqlCheck = 'select ID, IBLOCK_ID from b_iblock_section where ID = ' . $IBLOCK_SECTION_ID;
-			if ($ID !== false)
-			{
-				$sqlCheck .= ' and ID != '.(int)$ID;
-			}
 			$rsParent = $DB->Query($sqlCheck);
 			$arParent = $rsParent->Fetch();
-			if(!$arParent)
-				$this->LAST_ERROR = GetMessage("IBLOCK_BAD_BLOCK_SECTION_PARENT")."<br>";
+			if (!$arParent)
+			{
+				$this->LAST_ERROR = GetMessage('IBLOCK_BAD_BLOCK_SECTION_PARENT') . '<br>';
+			}
 		}
 
 		if($arParent && $arIBlock)
@@ -2646,12 +2651,16 @@ class CAllIBlockSection
 	/**
 	 * @param array $arFields ID, IBLOCK_ID, IBLOCK_SECTION_ID, NAME, SORT
 	 */
-	public static function recountTreeAfterAdd($arFields)
+	public static function recountTreeAfterAdd(array $arFields): void
 	{
 		global $DB;
 
-		$ID = (int)$arFields['ID'];
-		$IBLOCK_ID = (int)$arFields['IBLOCK_ID'];
+		$ID = (int)($arFields['ID'] ?? 0);
+		$IBLOCK_ID = (int)($arFields['IBLOCK_ID'] ?? 0);
+		if ($ID <= 0 || $IBLOCK_ID <= 0)
+		{
+			return;
+		}
 
 		$arParent = false;
 		if ($arFields["IBLOCK_SECTION_ID"] !== false)
@@ -2776,9 +2785,14 @@ class CAllIBlockSection
 	 * @param array $arFields ID, ACTIVE, IBLOCK_SECTION_ID, NAME, SORT
 	 * @param array $db_record *
 	 */
-	public static function recountTreeAfterUpdate($arFields, $db_record)
+	public static function recountTreeAfterUpdate(array $arFields, array $db_record): void
 	{
 		global $DB;
+
+		if (empty($arFields) || empty($db_record))
+		{
+			return;
+		}
 
 		$ID = $arFields['ID'];
 
@@ -2945,10 +2959,14 @@ class CAllIBlockSection
 			$rsParent = $DB->Query($strSql);
 			$arParent = $rsParent->Fetch();
 
+			$arFields['ACTIVE'] ??= null;
 			//If new parent is not globally active
 			//or we are not active either
 			//we must be not globally active too
-			if (($arParent && $arParent["GLOBAL_ACTIVE"] == "N") || ($arFields["ACTIVE"] == "N"))
+			if (
+				($arParent && $arParent['GLOBAL_ACTIVE'] === 'N')
+				|| $arFields['ACTIVE'] === 'N'
+			)
 			{
 				$DB->Query("
 					UPDATE b_iblock_section SET
@@ -2963,7 +2981,10 @@ class CAllIBlockSection
 			//New parent is globally active
 			//And we WAS NOT active
 			//But is going to be
-			elseif ($arSection["ACTIVE"] == "N" && $arFields["ACTIVE"] == "Y")
+			elseif (
+				$arSection['ACTIVE'] === 'N'
+				&& $arFields['ACTIVE'] === 'Y'
+			)
 			{
 				static::RecalcGlobalActiveFlag($arSection);
 			}
@@ -2971,9 +2992,12 @@ class CAllIBlockSection
 			//And we WAS active but NOT globally active
 			//But is going to be
 			elseif (
-				(!$arParent || $arParent["GLOBAL_ACTIVE"] == "Y")
-				&& $arSection["GLOBAL_ACTIVE"] == "N"
-				&& ($arSection["ACTIVE"] == "Y" || $arFields["ACTIVE"] == "Y")
+				(!$arParent || $arParent['GLOBAL_ACTIVE'] === 'Y')
+				&& $arSection['GLOBAL_ACTIVE'] === 'N'
+				&& (
+					$arSection['ACTIVE'] === 'Y'
+					|| $arFields['ACTIVE'] === 'Y'
+				)
 			)
 			{
 				static::RecalcGlobalActiveFlag($arSection);
@@ -3023,11 +3047,12 @@ class CAllIBlockSection
 	/**
 	 * @param array $arFields ID
 	 */
-	public static function recountTreeOnDelete($arFields)
+	public static function recountTreeOnDelete(array $arFields): void
 	{
 		global $DB;
 
-		if (!isset($arFields['ID']))
+		$id = (int)($arFields['ID'] ?? 0);
+		if ($id <= 0)
 		{
 			return;
 		}
@@ -3040,7 +3065,7 @@ class CAllIBlockSection
 			FROM
 				b_iblock_section
 			WHERE
-				ID = ".(int)$arFields["ID"]."
+				ID = " . $id . "
 		")->Fetch();
 		if (empty($ss))
 		{
@@ -3200,7 +3225,11 @@ class CAllIBlockSection
 				)
 			)
 			{
-				$id = (int)$section['ID'] ?? null;
+				$id = (int)($section['ID'] ?? null);
+				if ($id <= 0)
+				{
+					$id = null;
+				}
 				if (!$this->isExistsMnemonicCode($code, $id, $iblockId))
 				{
 					return $code;
@@ -3258,5 +3287,10 @@ class CAllIBlockSection
 		unset($iterator, $row);
 
 		return count($result) === 1 ? key($result) : null;
+	}
+
+	public function getLastError(): string
+	{
+		return $this->LAST_ERROR;
 	}
 }

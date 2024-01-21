@@ -15,6 +15,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    searchMode: {
 	      type: Boolean,
 	      required: true
+	    },
+	    isLoading: {
+	      type: Boolean,
+	      required: false
+	    },
+	    delayForFocusOnStart: {
+	      type: Number,
+	      default: 0
+	    },
+	    withIcon: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  emits: ['closeSearch', 'openSearch', 'updateSearch'],
@@ -44,6 +56,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 		<SearchInput
 			:placeholder="$Bitrix.Loc.getMessage('IM_SEARCH_INPUT_PLACEHOLDER_V2')"
 			:searchMode="searchMode"
+			:isLoading="isLoading"
+			:withLoader="true"
+			:delayForFocusOnStart="delayForFocusOnStart"
+			:withIcon="withIcon"
 			@inputFocus="onInputFocus"
 			@inputBlur="onClose"
 			@queryChange="onInputUpdate"

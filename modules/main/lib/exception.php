@@ -214,7 +214,7 @@ class AccessDeniedException extends SystemException
 {
 	public function __construct($message = "", \Exception $previous = null)
 	{
-		parent::__construct(($message ?: "Access denied."), 510, '', 0, $previous);
+		parent::__construct(($message ?: 'Access denied.'), 403, '', 0, $previous);
 	}
 }
 

@@ -1,7 +1,7 @@
 .bx-im-message-context-menu__scope {
 	--im-message-context-menu__offset: var(--im-message-base__offset_context-menu, 54px);
-	--im-message-context-menu__background-color_button: rgb(255 255 255 / 20%);
-	--im-message-context-menu__background-color_button-hover: rgb(255 255 255 / 30%);
+	--im-message-context-menu__background-color_button: rgb(82 92 105 / 20%);
+	--im-message-context-menu__background-color_button-hover: rgb(82 92 105 / 40%);
 }
 
 .bx-im-message-context-menu__container {

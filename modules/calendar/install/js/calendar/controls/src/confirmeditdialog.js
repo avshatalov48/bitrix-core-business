@@ -1,5 +1,7 @@
-import {Dom, Loc} from 'main.core';
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import { Loc, Tag } from 'main.core';
+import { EventEmitter, BaseEvent } from 'main.core.events';
+import { Popup } from 'main.popup';
+import { Button, ButtonSize, ButtonColor } from 'ui.buttons';
 
 export class ConfirmEditDialog extends EventEmitter
 {
@@ -14,63 +16,71 @@ export class ConfirmEditDialog extends EventEmitter
 
 	show()
 	{
-		let content = Dom.create('DIV');
-		this.dialog = new BX.PopupWindow(this.id, null, {
-			overlay: {opacity: 10},
-			autoHide: true,
-			closeByEsc : true,
-			zIndex: this.zIndex,
-			offsetLeft: 0,
-			offsetTop: 0,
-			draggable: true,
-			bindOnResize: false,
+		this.dialog = new Popup({
 			titleBar: Loc.getMessage('EC_EDIT_REC_EVENT'),
-			closeIcon: { right : "12px", top : "10px"},
-			className: 'bxc-popup-window',
-			buttons: [
-				new BX.PopupWindowButtonLink({
-					text: Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
-					className: "popup-window-button-link-cancel",
-					events: {click : this.close.bind(this)}
-				})
-			],
-			content: content,
-			events: {},
-			cacheable: false
+			content: this.getContent(),
+			className: 'calendar__confirm-dialog',
+			lightShadow: true,
+			maxWidth: 700,
+			minHeight: 120,
+			autoHide: true,
+			closeByEsc: true,
+			draggable: true,
+			closeIcon: true,
+			animation: 'fading-slide',
+			contentBackground: "#fff",
+			overlay: { opacity: 15 },
+			cacheable: false,
 		});
 
-		content.appendChild(new BX.PopupWindowButton({
+		this.dialog.show();
+	}
+
+	getContent()
+	{
+		const thisEventButton = new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.LIGHT_BORDER,
 			text: Loc.getMessage('EC_REC_EV_ONLY_THIS_EVENT'),
 			events: {
-				click: ()=>{
+				click: () => {
 					this.emit('onEdit', new BaseEvent({data: {recursionMode: 'this'}}));
 					this.close();
-				}
-			}
-		}).buttonNode);
+				},
+			},
+		});
 
-		content.appendChild(new BX.PopupWindowButton({
+		const nextEventButton = new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.LIGHT_BORDER,
 			text: Loc.getMessage('EC_REC_EV_NEXT'),
 			events: {
-				click: ()=>{
+				click: () => {
 					this.emit('onEdit', new BaseEvent({data: {recursionMode: 'next'}}));
 					this.close();
-				}
-			}
-		}).buttonNode);
+				},
+			},
+		});
 
-		content.appendChild(new BX.PopupWindowButton(
-			{
-				text: Loc.getMessage('EC_REC_EV_ALL'),
-				events: {
-					click : ()=>{
-						this.emit('onEdit', new BaseEvent({data: {recursionMode: 'all'}}));
-						this.close();
-					}
-				}
-			}).buttonNode);
+		const allEventButton = 	new Button({
+			size: ButtonSize.MEDIUM,
+			color: ButtonColor.LIGHT_BORDER,
+			text: Loc.getMessage('EC_REC_EV_ALL'),
+			events: {
+				click : () => {
+					this.emit('onEdit', new BaseEvent({data: {recursionMode: 'all'}}));
+					this.close();
+				},
+			},
+		});
 
-		this.dialog.show();
+		return Tag.render`
+			<div class="calendar__confirm-dialog-content">
+				${thisEventButton.render()}
+				${nextEventButton.render()}
+				${allEventButton.render()}
+			</div>
+		`;
 	}
 
 	close()

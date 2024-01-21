@@ -5,7 +5,9 @@ namespace Bitrix\Mail\Integration\Calendar\ICal;
 
 use Bitrix\Calendar\ICal\IncomingEventManager;
 use Bitrix\Calendar\ICal\MailInvitation\InboxManager;
+use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationCancelHandler;
 use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationReplyHandler;
+use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler;
 use Bitrix\Calendar\ICal\Parser\Calendar;
 use Bitrix\Main\Loader;
 
@@ -72,5 +74,30 @@ class ICalMailManager
 		}
 
 		return false;
+	}
+
+	public static function handleRequest(
+		Calendar $icalComponent,
+		int $userId,
+		string $decision,
+		$message
+	)
+	{
+		$handler = IncomingInvitationRequestHandler::createInstance();
+		$handler->setIcalComponent($icalComponent)
+			->setUserId($userId)
+			->setDecision($decision)
+			->setEmailFrom($message['FIELD_TO'])
+			->setEmailTo($message['FIELD_FROM'])
+			->handle()
+		;
+
+		return $handler->getEventId();
+	}
+
+	public static function handleCancel(Calendar $icalComponent, $userId)
+	{
+		return IncomingInvitationCancelHandler::createWithComponent($userId, $icalComponent)
+			->handle();
 	}
 }

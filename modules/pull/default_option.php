@@ -28,7 +28,8 @@ $temporary = array(
 	'limit_max_messages_per_request' => 100,
 	'limit_max_channels_per_request' => 100,
 	'config_timestamp' => 0,
-	'server_mode' => 'personal'
+	'server_mode' => 'personal',
+	'config_ttl' => 0, // in seconds
 );
 
 if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/pull.php"))
@@ -41,4 +42,4 @@ if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/pull.php"))
 }
 $pull_default_option = $temporary;
 unset($temporary);
-?>
+

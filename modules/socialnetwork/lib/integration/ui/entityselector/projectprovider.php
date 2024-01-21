@@ -330,7 +330,7 @@ class ProjectProvider extends BaseProvider
 
 			$query->registerRuntimeField(
 				new ExpressionField(
-					'IS_EXTRANET', 'IF(%s IS NOT NULL, \'Y\', \'N\')', ['EXTRANET_PROJECT.GROUP_ID']
+					'IS_EXTRANET', 'CASE WHEN %s IS NOT NULL THEN \'Y\' ELSE \'N\' END', ['EXTRANET_PROJECT.GROUP_ID']
 				)
 			);
 

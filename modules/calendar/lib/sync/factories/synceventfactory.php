@@ -58,21 +58,37 @@ class SyncEventFactory
 	): Sync\Entities\SyncEventMap
 	{
 		$syncEventMap = new Sync\Entities\SyncEventMap();
-		if (!$vendorEventIdList)
+
+		if (empty($vendorEventIdList))
+		{
+			return $syncEventMap;
+		}
+
+		$query1 = EventConnectionTable::query()
+			->setSelect(['ID'])
+			->where('CONNECTION_ID', $connectionId)
+			->whereIn('VENDOR_EVENT_ID', $vendorEventIdList)
+		;
+		$query2 = EventConnectionTable::query()
+			->setSelect(['ID'])
+			->where('CONNECTION_ID', $connectionId)
+			->whereIn('RECURRENCE_ID', $vendorEventIdList)
+		;
+
+		$query1->unionAll($query2);
+		$result = $query1->exec()->fetchAll();
+
+		$idList = array_map(static function($item) {return (int)$item['ID'];}, $result);
+
+		if (empty($idList))
 		{
 			return $syncEventMap;
 		}
 
 		$filter = [
-			[
-				'logic' => 'or',
-				['VENDOR_EVENT_ID', 'in', $vendorEventIdList],
-				['RECURRENCE_ID', 'in', $vendorEventIdList],
-			],
-			['CONNECTION_ID', '=', $connectionId],
+			['ID', 'in', $idList],
 		];
 		$query = ConditionTree::createFromArray($filter);
-		// $params = ['filter' => $query];
 		$eventConnectionMap = $this->eventConnectionMapper->getMap($query);
 
 		$impatientExportSyncEventList = [];

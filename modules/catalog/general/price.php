@@ -1,9 +1,8 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
 
 class CAllPrice
 {
@@ -630,13 +629,15 @@ class CAllPrice
 		}
 	}
 
-	private static function convertErrors(Main\Entity\Result $result)
+	private static function convertErrors(Main\Entity\Result $result): void
 	{
 		global $APPLICATION;
 
-		$oldMessages = array();
+		$oldMessages = [];
 		foreach ($result->getErrorMessages() as $errorText)
-			$oldMessages[] = array('text' => $errorText);
+		{
+			$oldMessages[] = ['text' => $errorText];
+		}
 		unset($errorText);
 
 		if (!empty($oldMessages))
@@ -648,28 +649,36 @@ class CAllPrice
 		unset($oldMessages);
 	}
 
-	private static function normalizeFields(array &$fields)
+	private static function normalizeFields(array &$fields): void
 	{
 		if (isset($fields['QUANTITY_FROM']))
 		{
-			if (is_string($fields['QUANTITY_FROM']) && $fields['QUANTITY_FROM'] === '')
+			if (
+				$fields['QUANTITY_FROM'] === ''
+				|| $fields['QUANTITY_FROM'] === false
+				|| $fields['QUANTITY_FROM'] === 0
+			)
+			{
 				$fields['QUANTITY_FROM'] = null;
-			elseif ($fields['QUANTITY_FROM'] === false || $fields['QUANTITY_FROM'] === 0)
-				$fields['QUANTITY_FROM'] = null;
+			}
 		}
 		if (isset($fields['QUANTITY_TO']))
 		{
-			if (is_string($fields['QUANTITY_TO']) && $fields['QUANTITY_TO'] === '')
+			if (
+				$fields['QUANTITY_TO'] === ''
+				|| $fields['QUANTITY_TO'] === false
+				|| $fields['QUANTITY_TO'] === 0
+			)
+			{
 				$fields['QUANTITY_TO'] = null;
-			elseif ($fields['QUANTITY_TO'] === false || $fields['QUANTITY_TO'] === 0)
-				$fields['QUANTITY_TO'] = null;
+			}
 		}
 		if (isset($fields['EXTRA_ID']))
 		{
-			if (is_string($fields['EXTRA_ID']) && $fields['EXTRA_ID'] === '')
+			if ($fields['EXTRA_ID'] === '' || $fields['EXTRA_ID'] === false)
+			{
 				$fields['EXTRA_ID'] = null;
-			elseif ($fields['EXTRA_ID'] === false)
-				$fields['EXTRA_ID'] = null;
+			}
 		}
 	}
 }

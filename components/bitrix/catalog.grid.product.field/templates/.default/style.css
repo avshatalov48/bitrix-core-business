@@ -39,3 +39,7 @@
 .main-grid-cell-right .main-grid-control-sort {
 	left: 5px;
 }
+
+.main-grid-fixed-column {
+	height: inherit;
+}

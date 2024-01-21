@@ -22,12 +22,9 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-
 		),
 	),
-	
 	'is_webform_page' => 'Y',
-	
 	'items' => array(
 		'0' => array(
 			'code' => '27.one_col_fix_title_and_text_2',

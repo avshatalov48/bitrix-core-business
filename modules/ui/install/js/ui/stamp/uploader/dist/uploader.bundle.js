@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,ui_uploader_core,ui_dialogs_messagebox,ui_sidepanel_layout,main_loader,ui_draganddrop_draggable,main_core,main_core_events,ui_buttons) {
@@ -727,7 +726,7 @@ this.BX.UI = this.BX.UI || {};
 	  getSelectPhotoButton() {
 	    return this.cache.remember('selectPhotoButton', () => {
 	      return new ui_buttons.Button({
-	        text: main_core.Loc.getMessage('UI_STAMP_UPLOADER_SELECT_PHOTO_BUTTON_LABEL'),
+	        text: main_core.Loc.getMessage('UI_STAMP_UPLOADER_SELECT_PHOTO_BUTTON_LABEL_1'),
 	        color: ui_buttons.Button.Color.LIGHT_BORDER,
 	        size: ui_buttons.Button.Size.LARGE,
 	        icon: ui_buttons.Button.Icon.DOWNLOAD,

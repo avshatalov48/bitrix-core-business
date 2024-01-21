@@ -61,20 +61,6 @@ return [
 					],
 				],
 				[
-					'entityId' => 'iblock-element',
-					'provider' => [
-						'moduleId' => 'catalog',
-						'className' => '\\Bitrix\\Catalog\\v2\\Integration\\UI\\EntitySelector\\IblockElementProvider',
-					],
-				],
-				[
-					'entityId' => 'iblock-element-xml',
-					'provider' => [
-						'moduleId' => 'catalog',
-						'className' => '\\Bitrix\\Catalog\\v2\\Integration\\UI\\EntitySelector\\IblockElementXmlProvider',
-					],
-				],
-				[
 					'entityId' => 'brand',
 					'provider' => [
 						'moduleId' => 'catalog',

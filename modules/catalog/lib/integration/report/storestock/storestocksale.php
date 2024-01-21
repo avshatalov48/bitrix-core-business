@@ -9,13 +9,13 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Integration\Report\StoreStock\Entity\ProductInfo;
 use Bitrix\Catalog\Integration\Report\StoreStock\Entity\Store\StoreInfo;
 use Bitrix\Catalog\Integration\Report\StoreStock\Entity\Store\StoreWithProductsInfo;
+use Bitrix\Catalog\Product\Store\CostPriceCalculator;
+use Bitrix\Catalog\StoreBatchDocumentElementTable;
 use Bitrix\Catalog\StoreDocumentTable;
-use Bitrix\Catalog\StoreTable;
+use Bitrix\Catalog\StoreBatchTable;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Sale\Internals\ShipmentItemStoreTable;
 use Bitrix\Sale\Internals\ShipmentItemTable;
-use Bitrix\Sale\Internals\ShipmentTable;
-use Bitrix\Sale\Internals\BasketTable;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Currency\CurrencyManager;
@@ -23,6 +23,7 @@ use Bitrix\Currency\CurrencyTable;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\Entity\Base;
 
 /** @internal - use at your own risk */
 final class StoreStockSale
@@ -57,19 +58,88 @@ final class StoreStockSale
 		return $result;
 	}
 
-	public static function getProductsSoldAmountForProductsOnStore(int $storeId, $filter = []): array
+	public static function getProductsSoldAmountForProducts($filter = []): array
 	{
-		$filter['STORES'] = $storeId;
-
 		$shipmentsDbResult = self::getProductsSoldAmountFromShipmentsList($filter);
 		$result = [];
 
 		while ($row = $shipmentsDbResult->fetch())
 		{
-			$result[$row['PRODUCT_ID']] = (float)$row['QUANTITY_SUM'];
+			$result[$row['PRODUCT_ID']] ??= 0;
+			$result[$row['PRODUCT_ID']] += (float)$row['QUANTITY_SUM'];
 		}
 
 		return $result;
+	}
+	public static function getProductsSoldAmountForProductsOnStore(int $storeId, $filter = []): array
+	{
+		$filter['STORES'] = $storeId;
+
+		return self::getProductsSoldAmountForProducts($filter);
+	}
+
+	public static function getProductsSoldPricesForStores(array $filter = []): array
+	{
+		$soldProductsDbResult = self::getProductsSoldPricesFromShipmentsList($filter);
+		$result = [];
+		while ($soldProduct = $soldProductsDbResult->fetch())
+		{
+			$storeId = (int)$soldProduct['STORE_ID'];
+			$result[$storeId] ??= [];
+			$currencyId = $soldProduct['CURRENCY'];
+			$result[$storeId][$currencyId] ??= [];
+			$result[$storeId][$currencyId]['COST_PRICE'] ??= 0.0;
+			$result[$storeId][$currencyId]['COST_PRICE'] += (float)$soldProduct['COST_PRICE_SUM'];
+			$result[$storeId][$currencyId]['TOTAL_SOLD'] ??= 0.0;
+			$result[$storeId][$currencyId]['TOTAL_SOLD'] += (float)$soldProduct['TOTAL_SOLD'];
+		}
+
+		return $result;
+	}
+
+	public static function getProductsSoldPricesForProducts($filter = []): array
+	{
+		$shipmentsDbResult = self::getProductsSoldPricesFromShipmentsList($filter);
+		$result = [];
+
+		while ($row = $shipmentsDbResult->fetch())
+		{
+			$currencyId = $row['CURRENCY'];
+			$result[$row['PRODUCT_ID']][$currencyId] ??= [];
+			$result[$row['PRODUCT_ID']][$currencyId]['COST_PRICE'] ??= 0.0;
+			$result[$row['PRODUCT_ID']][$currencyId]['COST_PRICE'] += (float)$row['COST_PRICE_SUM'];
+			$result[$row['PRODUCT_ID']][$currencyId]['TOTAL_SOLD'] ??= 0.0;
+			$result[$row['PRODUCT_ID']][$currencyId]['TOTAL_SOLD'] += (float)$row['TOTAL_SOLD'];
+		}
+
+		return $result;
+	}
+
+	public static function getProductsSoldPricesForProductsOnStore(int $storeId, $filter = []): array
+	{
+		$filter['=STORES'] = $storeId;
+
+		return self::getProductsSoldPricesForProducts($filter);
+	}
+
+	public static function getProductsSoldPricesForDeductedPeriod(array $filter = []): array
+	{
+		$getListParameters = self::getShippedDataListParameters($filter);
+
+		$getListParameters['select']['CURRENCY'] = 'BASKET.CURRENCY';
+		$getListParameters['select']['BASKET_PRICE'] = 'BASKET.PRICE';
+		$getListParameters['select']['DATE_DEDUCTED'] = 'DELIVERY.DATE_DEDUCTED';
+
+		$getListParameters['runtime'][] = new Reference(
+			'S_PRODUCT_BATCH_SHIPMENT',
+			StoreBatchDocumentElementTable::class,
+			Join::on('this.S_BARCODE.ID', 'ref.SHIPMENT_ITEM_STORE_ID')
+		);
+
+		$getListParameters['select']['COST_PRICE'] = 'S_PRODUCT_BATCH_SHIPMENT.BATCH_PRICE';
+		$getListParameters['select']['BASKET_QUANTITY'] = 'S_PRODUCT_BATCH_SHIPMENT.AMOUNT';
+
+		return ShipmentItemTable::getList($getListParameters)->fetchAll();
 	}
 
 	/**
@@ -88,6 +158,58 @@ final class StoreStockSale
 			'SUM(%s)',
 			['QUANTITY']
 		);
+
+		return ShipmentItemTable::getList($getListParameters);
+	}
+
+	/**
+	 * @param array $filter
+	 * @return \Bitrix\Main\ORM\Query\Result
+	 */
+	private static function getProductsSoldPricesFromShipmentsList(array $filter = []): \Bitrix\Main\ORM\Query\Result
+	{
+		$getListParameters = self::getShippedDataListParameters($filter);
+
+		$storeBatchQuery = StoreBatchDocumentElementTable::query();
+		$storeBatchQuery->registerRuntimeField(
+			new ExpressionField(
+				'COST_PRICE_SUM',
+				'SUM(%s * %s * -1)',
+				['AMOUNT', 'BATCH_PRICE']
+			)
+		);
+		$storeBatchQuery->registerRuntimeField(
+			new ExpressionField(
+				'SUM_AMOUNT',
+				'SUM(%s * -1)',
+				['AMOUNT']
+			)
+		);
+		$storeBatchQuery->setSelect([
+			'SHIPMENT_ITEM_STORE_ID',
+			'COST_PRICE_SUM',
+			'BATCH_CURRENCY',
+			'SUM_AMOUNT'
+		]);
+		$storeBatchQuery->setGroup(['SHIPMENT_ITEM_STORE_ID', 'BATCH_CURRENCY']);
+
+
+		$getListParameters['runtime'][] = new Reference(
+			'SUBQUERY',
+			Base::getInstanceByQuery($storeBatchQuery),
+			Join::on('this.S_BARCODE.ID', 'ref.SHIPMENT_ITEM_STORE_ID')
+		);
+
+		$getListParameters['select']['COST_PRICE_SUM'] = 'SUBQUERY.COST_PRICE_SUM';
+		$getListParameters['select']['CURRENCY'] = 'SUBQUERY.BATCH_CURRENCY';
+		$getListParameters['runtime'][] = new ExpressionField(
+			'TOTAL_SOLD',
+			'SUM(%s * %s)',
+			['BASKET.PRICE', 'SUBQUERY.SUM_AMOUNT']
+		);
+
+		$getListParameters['select'][] = 'TOTAL_SOLD';
+		$getListParameters['group'] = ['BASKET.PRODUCT_ID', 'S_BARCODE.STORE_ID', 'CURRENCY'];
 
 		return ShipmentItemTable::getList($getListParameters);
 	}
@@ -258,7 +380,7 @@ final class StoreStockSale
 		return $stores;
 	}
 
-	protected static function getShippedDataListParameters(array $filter)
+	protected static function getShippedDataListParameters(array $filter): array
 	{
 		$filter = self::prepareFilter($filter);
 
@@ -276,18 +398,6 @@ final class StoreStockSale
 					ShipmentItemStoreTable::class,
 					Join::on('this.ID', 'ref.ORDER_DELIVERY_BASKET_ID')
 				))->configureJoinType(Join::TYPE_LEFT),
-
-				(new Reference(
-					'SHIPMENT',
-					ShipmentTable::class,
-					Join::on('this.ORDER_DELIVERY_ID', 'ref.ID')
-				))->configureJoinType(Join::TYPE_LEFT),
-
-				(new Reference(
-					'BASKET',
-					BasketTable::class,
-					Join::on('this.BASKET_ID', 'ref.ID')
-				))->configureJoinType(Join::TYPE_LEFT),
 			],
 		];
 	}
@@ -295,13 +405,18 @@ final class StoreStockSale
 	private static function formShipmentDataFilter(array $filter): array
 	{
 		$formedFilter = [
-			'=SHIPMENT.DEDUCTED' => 'Y',
+			'=DELIVERY.DEDUCTED' => 'Y',
 			'>S_BARCODE.STORE_ID' => 0,
 		];
 
 		if (isset($filter['STORES']))
 		{
 			$formedFilter['=S_BARCODE.STORE_ID'] = $filter['STORES'];
+		}
+
+		if (isset($filter['=STORES']))
+		{
+			$formedFilter['=S_BARCODE.STORE_ID'] = $filter['=STORES'];
 		}
 
 		if (isset($filter['PRODUCTS']))
@@ -311,8 +426,8 @@ final class StoreStockSale
 
 		if (isset($filter['REPORT_INTERVAL']))
 		{
-			$formedFilter['>=SHIPMENT.DATE_DEDUCTED'] = new DateTime($filter['REPORT_INTERVAL']['FROM']);
-			$formedFilter['<=SHIPMENT.DATE_DEDUCTED'] = new DateTime($filter['REPORT_INTERVAL']['TO']);
+			$formedFilter['>=DELIVERY.DATE_DEDUCTED'] = new DateTime($filter['REPORT_INTERVAL']['FROM']);
+			$formedFilter['<=DELIVERY.DATE_DEDUCTED'] = new DateTime($filter['REPORT_INTERVAL']['TO']);
 		}
 
 		return $formedFilter;

@@ -28,3 +28,7 @@
 {
 	height: calc(100vh - 240px) !important;
 }
+
+.main-grid-container {
+	overflow: hidden !important;
+}

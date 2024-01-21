@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Currency\CurrencyTable:currency/lib/currency.php:1f3aa5d8fdc922a125da8bed2af1cae2 */
+/* ORMENTITYANNOTATION:Bitrix\Currency\CurrencyTable:currency\lib\currency.php */
 namespace Bitrix\Currency {
 	/**
 	 * EO_Currency
@@ -255,6 +255,8 @@ namespace Bitrix\Currency {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_Currency_Collection merge(?EO_Currency_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_Currency_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Currency\CurrencyTable */
@@ -288,7 +290,7 @@ namespace Bitrix\Currency {
 	 */
 	class EO_Currency_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Currency\CurrencyLangTable:currency/lib/currencylang.php:6ae3930b7ad49abe3b043db5d041bdba */
+/* ORMENTITYANNOTATION:Bitrix\Currency\CurrencyLangTable:currency\lib\currencylang.php */
 namespace Bitrix\Currency {
 	/**
 	 * EO_CurrencyLang
@@ -548,6 +550,8 @@ namespace Bitrix\Currency {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CurrencyLang_Collection merge(?EO_CurrencyLang_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CurrencyLang_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Currency\CurrencyLangTable */
@@ -581,7 +585,7 @@ namespace Bitrix\Currency {
 	 */
 	class EO_CurrencyLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Currency\CurrencyRateTable:currency/lib/currencyrate.php:c0b433b617c1c319764a2d64aba64559 */
+/* ORMENTITYANNOTATION:Bitrix\Currency\CurrencyRateTable:currency\lib\currencyrate.php */
 namespace Bitrix\Currency {
 	/**
 	 * EO_CurrencyRate
@@ -780,6 +784,8 @@ namespace Bitrix\Currency {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
+	 * @method EO_CurrencyRate_Collection merge(?EO_CurrencyRate_Collection $collection)
+	 * @method bool isEmpty()
 	 */
 	class EO_CurrencyRate_Collection implements \ArrayAccess, \Iterator, \Countable {
 		/* @var \Bitrix\Currency\CurrencyRateTable */

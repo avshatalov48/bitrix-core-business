@@ -108,16 +108,29 @@ class CBPRuntime
 	 */
 	public static function isFeatureEnabled($featureName = '')
 	{
-		if (!CModule::IncludeModule('bitrix24'))
-			return true;
-
 		$featureName = (string)$featureName;
-
 		if ($featureName === '')
+		{
 			$featureName = 'bizproc';
+		}
 
 		if (!isset(static::$featuresCache[$featureName]))
-			static::$featuresCache[$featureName] = \Bitrix\Bitrix24\Feature::isFeatureEnabled($featureName);
+		{
+			$enabled = true;
+			if (
+				Main\Loader::includeModule('bitrix24')
+				&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled($featureName)
+			)
+			{
+				$enabled = false;
+			}
+			elseif ($featureName === 'bizproc')
+			{
+				$enabled = Bizproc\Integration\Intranet\ToolsManager::getInstance()->isBizprocAvailable();
+			}
+
+			static::$featuresCache[$featureName] = $enabled;
+		}
 
 		return static::$featuresCache[$featureName];
 	}

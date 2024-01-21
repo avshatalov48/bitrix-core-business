@@ -115,6 +115,10 @@ if (isset($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE']) && $arRes
 {
 	$messageList['REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CLOSE'] = htmlspecialcharsbx($arResult['MANIFEST']['MESSAGE_HOLD_CLOSE_POPUP_BTN_CLOSE']);
 }
+if (isset($arResult['MANIFEST']['INSTALL_STEP']) && $arResult['MANIFEST']['INSTALL_STEP'])
+{
+	$messageList['REST_CONFIGURATION_IMPORT_INSTALL_STEP_MSGVER_1'] = htmlspecialcharsbx($arResult['MANIFEST']['INSTALL_STEP']);
+}
 ?>
 <? if(isset($arResult['NOTIFY']) && is_array($arResult['NOTIFY'])):?>
 	<div class="rest-configuration-alert">

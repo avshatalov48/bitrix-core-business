@@ -46,10 +46,13 @@ function isValidAnalyticsData(analytics: AnalyticsOptions): boolean
 function buildUrlByData(data: AnalyticsOptions): string
 {
 	const url = new URL('/_analytics/', window.location.origin);
+
+	const queryParams = [];
 	for (const [key, value] of Object.entries(data))
 	{
-		url.searchParams.append(key, value);
+		queryParams.push(`st[${key}]=${encodeURIComponent(value)}`);
 	}
+	url.search = queryParams.join('&');
 
 	return url.toString();
 }

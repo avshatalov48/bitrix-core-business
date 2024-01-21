@@ -117,6 +117,34 @@ class CBPTaskService extends CBPRuntimeService
 		return $users;
 	}
 
+	public static function getWorkflowUsers($workflowId)
+	{
+		global $DB;
+
+		$users = [];
+		$iterator = $DB->Query('SELECT DISTINCT TU.USER_ID, TU.STATUS'
+			.' FROM b_bp_task_user TU'
+			.' INNER JOIN b_bp_task T ON (T.ID = TU.TASK_ID)'
+			.' WHERE T.WORKFLOW_ID = \''.$DB->ForSql($workflowId).'\''
+		);
+		while ($user = $iterator->fetch())
+		{
+			$userId = (int)$user['USER_ID'];
+			$status = (int)$user['STATUS'];
+
+			if (isset($users[$userId]))
+			{
+				$users[$userId] = min($users[$userId], $status);
+				continue;
+			}
+
+			$users[$userId] = $status;
+		}
+
+		return $users;
+	}
+
+
 	public static function delegateTask($taskId, $fromUserId, $toUserId)
 	{
 		global $DB;
@@ -236,6 +264,7 @@ class CBPTaskService extends CBPRuntimeService
 			"WHERE WORKFLOW_ID = '".$DB->ForSql($workflowId)."' "
 			.($taskStatus !== null? 'AND STATUS = '.(int)$taskStatus : '')
 		);
+		$allUsers = [];
 		while ($arRes = $dbRes->Fetch())
 		{
 			$taskId = intval($arRes["ID"]);
@@ -249,6 +278,7 @@ class CBPTaskService extends CBPRuntimeService
 					$decremented[] = $arResUser["USER_ID"];
 				}
 				$removedUsers[] = $arResUser['USER_ID'];
+				$allUsers[] = $arResUser['USER_ID'];
 			}
 			$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".$taskId." ", true);
 
@@ -351,7 +381,47 @@ class CBPTaskService extends CBPRuntimeService
 
 			}
 		}
+
+		// currently out of usage
+		//static::pushChanges($taskId, $taskData, $status);
+
 		return true;
+	}
+
+	private static function pushChanges($taskId, $taskData, $status)
+	{
+		$eventName = Bizproc\Integration\Push\BasePush::EVENT_ADDED;
+		$users = [];
+
+		switch ($status)
+		{
+			case CBPTaskChangedStatus::Add:
+				$users = $taskData['USERS'];
+				break;
+			case CBPTaskChangedStatus::Update:
+			case CBPTaskChangedStatus::Delegate:
+				$eventName = Bizproc\Integration\Push\BasePush::EVENT_UPDATED;
+				$users = array_unique(
+					array_merge(
+						$taskData['USERS'] ?? [],
+						$taskData['USERS_ADDED'] ?? [],
+						$taskData['USERS_REMOVED'] ?? [],
+						array_keys($taskData['USERS_STATUSES'] ?? []),
+					)
+				);
+				break;
+			case CBPTaskChangedStatus::Delete:
+				$eventName = Bizproc\Integration\Push\BasePush::EVENT_DELETED;
+				$users = $taskData['USERS_REMOVED'];
+				break;
+		}
+
+		if (empty($users))
+		{
+			$users = static::getTaskUserIds($taskId);
+		}
+
+		Bizproc\Integration\Push\TaskPush::pushLastEvent($eventName, $taskId, $users);
 	}
 
 	protected static function cleanCountersCache($users)
@@ -448,9 +518,18 @@ class CBPTaskService extends CBPRuntimeService
 		if (is_set($arFields, "OVERDUE_DATE"))
 		{
 			if ($arFields["OVERDUE_DATE"] == null)
+			{
 				$arFields["OVERDUE_DATE"] = false;
+			}
 			elseif (!$DB->IsDate($arFields["OVERDUE_DATE"], false, LANG, "FULL"))
+			{
 				throw new Exception("OVERDUE_DATE");
+			}
+		}
+
+		if (isset($arFields['CREATED_DATE']) && !$DB->IsDate($arFields['CREATED_DATE']))
+		{
+			throw new Main\ArgumentException('Field CREATED_DATE must be datetime');
 		}
 	}
 
@@ -479,12 +558,14 @@ class CBPTaskService extends CBPRuntimeService
 
 	public function createTask($arFields)
 	{
-		return self::Add($arFields);
+		return self::add($arFields);
 	}
 
-	public static function add($arFields)
+	public static function add($arFields): int
 	{
 		global $DB;
+
+		$arFields['CREATED_DATE'] = new Main\Type\DateTime();
 
 		self::ParseFields($arFields, 0);
 

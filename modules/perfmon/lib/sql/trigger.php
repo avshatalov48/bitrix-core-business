@@ -55,7 +55,7 @@ class Trigger extends BaseObject
 			}
 			$tokenizer->nextToken();
 		}
-		throw new NotSupportedException('Trigger: table name not found. line: '.$lineToken->line);
+		throw new NotSupportedException('Trigger: table name not found. line: ' . $lineToken->line);
 	}
 
 	/**
@@ -81,14 +81,12 @@ class Trigger extends BaseObject
 	{
 		switch ($dbType)
 		{
-		case "MYSQL":
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
-		case "MSSQL":
-			return "DROP TRIGGER ".$this->name;
-		case "ORACLE":
-			return "DROP TRIGGER ".$this->name;
-		default:
-			return "// ".get_class($this).":getDropDdl for database type [".$dbType."] not implemented";
+		case 'MSSQL':
+		case 'ORACLE':
+			return 'DROP TRIGGER ' . $this->name;
+		case 'MYSQL':
+			default:
+			return '// ' . get_class($this) . ':getDropDdl for database type [' . $dbType . '] not implemented';
 		}
 	}
 
@@ -102,9 +100,9 @@ class Trigger extends BaseObject
 	 */
 	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
-		return array(
+		return [
 			$this->getDropDdl($dbType),
 			$target->getCreateDdl($dbType),
-		);
+		];
 	}
 }

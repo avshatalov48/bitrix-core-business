@@ -10,6 +10,7 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'im.v2.const',
 	],
 	'skip_core' => true,
 ];

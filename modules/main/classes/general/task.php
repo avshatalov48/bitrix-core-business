@@ -1,53 +1,53 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
-use Bitrix\Main;
 use Bitrix\Main\Authentication\Internal\ModuleGroupTable;
+use Bitrix\Main\TaskTable;
+use Bitrix\Main\TaskOperationTable;
+use Bitrix\Main\OperationTable;
 
-/**
- * @deprecated Use CTask
- */
 class CAllTask
 {
-	protected static $TASK_OPERATIONS_CACHE = array();
-
-	public static function err_mess()
-	{
-		return "<br>Class: CTask<br>File: ".__FILE__;
-	}
+	protected static $TASK_OPERATIONS_CACHE = [];
 
 	public static function CheckFields(&$arFields, $ID = false)
 	{
-		/** @global CMain $APPLICATION */
-		global $DB, $APPLICATION;
+		global $APPLICATION;
 
-		if($ID>0)
+		if ($ID > 0)
+		{
 			unset($arFields["ID"]);
+		}
 
-		$arMsg = array();
+		$arMsg = [];
 
-		if(($ID===false || is_set($arFields, "NAME")) && $arFields["NAME"] == '')
-			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage('MAIN_ERROR_STRING_ID_EMPTY'));
+		if (($ID === false || isset($arFields["NAME"])) && $arFields["NAME"] == '')
+		{
+			$arMsg[] = ["id" => "NAME", "text" => GetMessage('MAIN_ERROR_STRING_ID_EMPTY')];
+		}
 
-		$sql_str = "SELECT T.ID
-			FROM b_task T
-			WHERE T.NAME='".$DB->ForSQL($arFields['NAME'])."'";
+		$filter = ['=NAME' => $arFields['NAME']];
 		if ($ID !== false)
-			$sql_str .= " AND T.ID <> ".intval($ID);
-
-		$z = $DB->Query($sql_str, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		if ($r = $z->Fetch())
-			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage('MAIN_ERROR_STRING_ID_DOUBLE'));
+		{
+			$filter['!=ID'] = $ID;
+		}
+		if (TaskTable::getList(['select' => ['ID'], 'filter' => $filter])->fetch())
+		{
+			$arMsg[] = ["id" => "NAME", "text" => GetMessage('MAIN_ERROR_STRING_ID_DOUBLE')];
+		}
 
 		if (isset($arFields['LETTER']))
 		{
 			if (preg_match("/[^A-Z]/i", $arFields['LETTER']) || strlen($arFields['LETTER']) > 1)
-				$arMsg[] = array("id"=>"LETTER", "text"=> GetMessage('MAIN_TASK_WRONG_LETTER'));
+			{
+				$arMsg[] = ["id" => "LETTER", "text" => GetMessage('MAIN_TASK_WRONG_LETTER')];
+			}
 			$arFields['LETTER'] = strtoupper($arFields['LETTER']);
 		}
 		else
@@ -55,54 +55,60 @@ class CAllTask
 			$arFields['LETTER'] = '';
 		}
 
-		if(!empty($arMsg))
+		if (!empty($arMsg))
 		{
 			$e = new CAdminException($arMsg);
 			$APPLICATION->ThrowException($e);
 			return false;
 		}
 		if (!isset($arFields['SYS']) || $arFields['SYS'] != "Y")
+		{
 			$arFields['SYS'] = "N";
+		}
 		if (!isset($arFields['BINDING']))
+		{
 			$arFields['BINDING'] = 'module';
+		}
 
 		return true;
+	}
+
+	protected static function getOwnFields(array $arFields): array
+	{
+		$entity = TaskTable::getEntity();
+		$fields = [];
+		foreach ($arFields as $field => $value)
+		{
+			if ($entity->hasField($field))
+			{
+				$fields[$field] = $value;
+			}
+		}
+		return $fields;
 	}
 
 	public static function Add($arFields)
 	{
-		global $CACHE_MANAGER, $DB;
-
-		if(!static::CheckFields($arFields))
+		if (!static::CheckFields($arFields))
+		{
 			return false;
+		}
 
-		if(CACHED_b_task !== false)
-			$CACHE_MANAGER->CleanDir("b_task");
+		$result = TaskTable::add(static::getOwnFields($arFields));
 
-		$ID = $DB->Add("b_task", $arFields);
-		return $ID;
+		return $result->isSuccess() ? $result->getId() : false;
 	}
 
-	public static function Update($arFields,$ID)
+	public static function Update($arFields, $ID)
 	{
-		global $DB, $CACHE_MANAGER;
-
-		if(!static::CheckFields($arFields,$ID))
-			return false;
-
-		$strUpdate = $DB->PrepareUpdate("b_task", $arFields);
-
-		if($strUpdate)
+		if (!static::CheckFields($arFields, $ID))
 		{
-			if(CACHED_b_task !== false)
-				$CACHE_MANAGER->CleanDir("b_task");
-			$strSql =
-				"UPDATE b_task SET ".
-					$strUpdate.
-				" WHERE ID=".intval($ID);
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			return false;
 		}
-		return true;
+
+		$result = TaskTable::update($ID, static::getOwnFields($arFields));
+
+		return $result->isSuccess();
 	}
 
 	public static function UpdateModuleRights($id, $moduleId, $letter, $site_id = false)
@@ -110,43 +116,47 @@ class CAllTask
 		global $DB;
 
 		if (!isset($id, $moduleId))
+		{
 			return false;
+		}
 
 		$sql = "SELECT GT.GROUP_ID
 				FROM b_group_task GT
-				WHERE GT.TASK_ID=".intval($id);
-		$z = $DB->Query($sql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				WHERE GT.TASK_ID=" . intval($id);
+		$z = $DB->Query($sql);
 
-		$arGroups = array();
-		while($r = $z->Fetch())
+		$arGroups = [];
+		while ($r = $z->Fetch())
 		{
 			$g = intval($r['GROUP_ID']);
 			if ($g > 0)
+			{
 				$arGroups[] = $g;
+			}
 		}
 		if (empty($arGroups))
+		{
 			return false;
+		}
 
 		$str_groups = implode(',', $arGroups);
 		$moduleId = $DB->ForSQL($moduleId);
 		$DB->Query(
 			"DELETE FROM b_module_group
 			WHERE
-				MODULE_ID = '".$moduleId."' AND
-				SITE_ID ".($site_id ? "='".$site_id."'" : "IS NULL")." AND
-				GROUP_ID IN (".$str_groups.")",
-			false, "FILE: ".__FILE__."<br> LINE: ".__LINE__
+				MODULE_ID = '" . $moduleId . "' AND
+				SITE_ID " . ($site_id ? "='" . $site_id . "'" : "IS NULL") . " AND
+				GROUP_ID IN (" . $str_groups . ")"
 		);
 
 		if ($letter != '')
 		{
 			$letter = $DB->ForSQL($letter);
 			$DB->Query(
-				"INSERT INTO b_module_group (MODULE_ID, GROUP_ID, G_ACCESS, SITE_ID) ".
-				"SELECT '".$moduleId."', G.ID, '".$letter."', ".($site_id ? "'".$site_id."'" : "NULL")." ".
-				"FROM b_group G ".
-				"WHERE G.ID IN (".$str_groups.")"
-				, false, "File: ".__FILE__."<br>Line: ".__LINE__
+				"INSERT INTO b_module_group (MODULE_ID, GROUP_ID, G_ACCESS, SITE_ID) " .
+				"SELECT '" . $moduleId . "', G.ID, '" . $letter . "', " . ($site_id ? "'" . $site_id . "'" : "NULL") . " " .
+				"FROM b_group G " .
+				"WHERE G.ID IN (" . $str_groups . ")"
 			);
 		}
 
@@ -157,278 +167,211 @@ class CAllTask
 
 	public static function Delete($ID, $protect = true)
 	{
-		global $DB, $CACHE_MANAGER;
-
 		$ID = intval($ID);
 
-		if(CACHED_b_task !== false)
-			$CACHE_MANAGER->CleanDir("b_task");
-
-		$sql_str = "DELETE FROM b_task WHERE ID=".$ID;
+		$delete = !$protect;
 		if ($protect)
-			$sql_str .= " AND SYS='N'";
-		$DB->Query($sql_str, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		if (!$protect)
 		{
-			if(CACHED_b_task_operation !== false)
-				$CACHE_MANAGER->CleanDir("b_task_operation");
+			$delete = TaskTable::getList(['select' => ['ID'], 'filter' => ['=ID' => $ID, '=SYS' => 'N']])->fetch();
+		}
 
-			$DB->Query("DELETE FROM b_task_operation WHERE TASK_ID=".$ID, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		if ($delete)
+		{
+			TaskTable::delete($ID);
+			TaskOperationTable::deleteByFilter(['=TASK_ID' => $ID]);
 		}
 	}
 
-	public static function GetList($arOrder = array('MODULE_ID'=>'asc','LETTER'=>'asc'), $arFilter = array())
+	public static function GetList($arOrder = ['MODULE_ID' => 'asc', 'LETTER' => 'asc'], $arFilter = [])
 	{
-		global $DB, $CACHE_MANAGER;
+		$arOrder = static::getOwnFields((array)$arOrder);
+		$arFilter = static::getOwnFields((array)$arFilter);
 
-		if(CACHED_b_task !== false)
+		$filter = [];
+		foreach ($arFilter as $field => $value)
 		{
-			$context = Main\Context::getCurrent();
-			$cacheId = "b_task".md5(serialize($arOrder).".".serialize($arFilter).".".$context->getLanguage());
-			if($CACHE_MANAGER->Read(CACHED_b_task, $cacheId, "b_task"))
+			if ((string)$value == '' || (string)$value == 'NOT_REF')
 			{
-				$arResult = $CACHE_MANAGER->Get($cacheId);
-				$res = new CDBResult;
-				$res->InitFromArray($arResult);
-				return $res;
+				continue;
 			}
+			if (is_string($value) && str_contains($value, '|'))
+			{
+				$value = explode('|', $value);
+			}
+			$filter['=' . $field] = $value;
 		}
 
-		static $arFields = array(
-			"ID" => array("FIELD_NAME" => "T.ID", "FIELD_TYPE" => "int"),
-			"NAME" => array("FIELD_NAME" => "T.NAME", "FIELD_TYPE" => "string"),
-			"LETTER" => array("FIELD_NAME" => "T.LETTER", "FIELD_TYPE" => "string"),
-			"MODULE_ID" => array("FIELD_NAME" => "T.MODULE_ID", "FIELD_TYPE" => "string"),
-			"SYS" => array("FIELD_NAME" => "T.SYS", "FIELD_TYPE" => "string"),
-			"BINDING" => array("FIELD_NAME" => "T.BINDING", "FIELD_TYPE" => "string")
-		);
-
-		$err_mess = (static::err_mess())."<br>Function: GetList<br>Line: ";
-		$arSqlSearch = array();
-		if(is_array($arFilter))
+		$order = [];
+		foreach ($arOrder as $field => $direction)
 		{
-			foreach($arFilter as $n => $val)
-			{
-				$n = strtoupper($n);
-				if((string)$val == '' || strval($val) == "NOT_REF")
-					continue;
-
-				if(isset($arFields[$n]))
-				{
-					$arSqlSearch[] = GetFilterQuery($arFields[$n]["FIELD_NAME"], $val, ($n == 'NAME'? "Y" : "N"));
-				}
-			}
+			$order[strtoupper($field)] = (strtoupper($direction) == 'DESC' ? 'DESC' : 'ASC');
 		}
 
-		$strOrderBy = '';
-		foreach($arOrder as $by=>$order)
-			if(isset($arFields[strtoupper($by)]))
-				$strOrderBy .= $arFields[strtoupper($by)]["FIELD_NAME"].' '.(strtolower($order) == 'desc'?'desc':'asc').',';
+		$res = TaskTable::getList([
+			'filter' => $filter,
+			'order' => $order,
+			'cache' => ['ttl' => 3600],
+		]);
 
-		if($strOrderBy <> '')
-			$strOrderBy = "ORDER BY ".rtrim($strOrderBy, ",");
-
-		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
-		$strSql = "
-			SELECT
-				T.ID, T.NAME, T.DESCRIPTION, T.MODULE_ID, T.LETTER, T.SYS, T.BINDING
-			FROM
-				b_task T
-			WHERE
-				".$strSqlSearch."
-			".$strOrderBy;
-
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-
-		$arResult = array();
-		while($arRes = $res->Fetch())
+		$arResult = [];
+		while ($arRes = $res->fetch())
 		{
 			$arRes['TITLE'] = static::GetLangTitle($arRes['NAME'], $arRes['MODULE_ID']);
 			$arRes['DESC'] = static::GetLangDescription($arRes['NAME'], $arRes['DESCRIPTION'], $arRes['MODULE_ID']);
 			$arResult[] = $arRes;
 		}
-		$res->InitFromArray($arResult);
 
-		if(CACHED_b_task !== false)
-		{
-			/** @noinspection PhpUndefinedVariableInspection */
-			$CACHE_MANAGER->Set($cacheId, $arResult);
-		}
+		$result = new CDBResult();
+		$result->InitFromArray($arResult);
 
-		return $res;
+		return $result;
 	}
-
 
 	public static function GetOperations($ID, $return_names = false)
 	{
-		global $DB, $CACHE_MANAGER;
-
 		$ID = intval($ID);
 
 		if (!isset(static::$TASK_OPERATIONS_CACHE[$ID]))
 		{
-			if(CACHED_b_task_operation !== false)
+			static::$TASK_OPERATIONS_CACHE[$ID] = [];
+
+			$operations = TaskOperationTable::getList([
+				'select' => ['OPERATION_ID', 'NAME' => 'OPERATION.NAME'],
+				'filter' => ['=TASK_ID' => $ID],
+				'cache' => ['ttl' => 3600, 'cache_joins' => true],
+			]);
+
+			while ($operation = $operations->fetch())
 			{
-				$cacheId = "b_task_operation_".$ID;
-				if($CACHE_MANAGER->Read(CACHED_b_task_operation, $cacheId, "b_task_operation"))
-				{
-					static::$TASK_OPERATIONS_CACHE[$ID] = $CACHE_MANAGER->Get($cacheId);
-				}
+				static::$TASK_OPERATIONS_CACHE[$ID]['ids'][] = $operation['OPERATION_ID'];
+				static::$TASK_OPERATIONS_CACHE[$ID]['names'][] = $operation['NAME'];
 			}
 		}
 
-		if (!isset(static::$TASK_OPERATIONS_CACHE[$ID]))
-		{
-			$sql_str = '
-				SELECT T_O.OPERATION_ID, O.NAME
-				FROM b_task_operation T_O
-				INNER JOIN b_operation O ON T_O.OPERATION_ID = O.ID
-				WHERE T_O.TASK_ID = '.$ID.'
-			';
-
-			static::$TASK_OPERATIONS_CACHE[$ID] = array(
-				'names' => array(),
-				'ids' => array(),
-			);
-			$z = $DB->Query($sql_str, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-			while($r = $z->Fetch())
-			{
-				static::$TASK_OPERATIONS_CACHE[$ID]['names'][] = $r['NAME'];
-				static::$TASK_OPERATIONS_CACHE[$ID]['ids'][] = $r['OPERATION_ID'];
-			}
-
-			if(CACHED_b_task_operation !== false)
-			{
-				/** @noinspection PhpUndefinedVariableInspection */
-				$CACHE_MANAGER->Set($cacheId, static::$TASK_OPERATIONS_CACHE[$ID]);
-			}
-		}
-
-		return static::$TASK_OPERATIONS_CACHE[$ID][$return_names ? 'names' : 'ids'];
+		return static::$TASK_OPERATIONS_CACHE[$ID][$return_names ? 'names' : 'ids'] ?? [];
 	}
 
-	public static function SetOperations($ID, $arr, $bOpNames=false)
+	public static function SetOperations($ID, $arr, $bOpNames = false)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $DB;
 
 		$ID = intval($ID);
 
 		//get old operations
-		$aPrevOp = array();
-		$res = $DB->Query("
-			SELECT O.NAME
-			FROM b_operation O
-			INNER JOIN b_task_operation T_OP ON O.ID = T_OP.OPERATION_ID
-			WHERE T_OP.TASK_ID = ".$ID."
-			ORDER BY O.ID
-		");
-		while(($res_arr = $res->Fetch()))
-			$aPrevOp[] = $res_arr["NAME"];
-
-		$sql_str = 'DELETE FROM b_task_operation WHERE TASK_ID='.$ID;
-		$DB->Query($sql_str, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		if(is_array($arr) && !empty($arr))
+		$aPrevOp = [];
+		$operations = TaskOperationTable::getList([
+			'select' => ['NAME' => 'OPERATION.NAME'],
+			'filter' => ['=TASK_ID' => $ID],
+			'order' => ['OPERATION_ID' => 'ASC'],
+		]);
+		while ($operation = $operations->fetch())
 		{
-			if($bOpNames)
+			$aPrevOp[] = $operation['NAME'];
+		}
+
+		TaskOperationTable::deleteByFilter(['=TASK_ID' => $ID]);
+
+		if (is_array($arr) && !empty($arr))
+		{
+			$sID = '';
+			if ($bOpNames)
 			{
-				$sID = "";
-				foreach($arr as $op_id)
-					$sID .= ",'".$DB->ForSQL($op_id)."'";
-				$sID = LTrim($sID, ",");
+				foreach ($arr as $op_id)
+				{
+					$sID .= ($sID != '' ? ', ' : '') . "'" . $DB->ForSQL($op_id) . "'";
+				}
 
 				$DB->Query(
-					"INSERT INTO b_task_operation (TASK_ID, OPERATION_ID) ".
-					"SELECT '".$ID."', O.ID ".
-					"FROM b_operation O, b_task T ".
-					"WHERE O.NAME IN (".$sID.") AND T.MODULE_ID=O.MODULE_ID AND T.ID=".$ID." "
-					, false, "File: ".__FILE__."<br>Line: ".__LINE__
+					"INSERT INTO b_task_operation (TASK_ID, OPERATION_ID) " .
+					"SELECT '" . $ID . "', O.ID " .
+					"FROM b_operation O, b_task T " .
+					"WHERE O.NAME IN (" . $sID . ") AND T.MODULE_ID=O.MODULE_ID AND T.ID=" . $ID
 				);
 			}
 			else
 			{
-				$sID = "0";
-				foreach($arr as $op_id)
-					$sID .= ",".intval($op_id);
+				foreach ($arr as $op_id)
+				{
+					$sID .= ($sID != '' ? ', ' : '') . intval($op_id);
+				}
 
 				$DB->Query(
-					"INSERT INTO b_task_operation (TASK_ID, OPERATION_ID) ".
-					"SELECT '".$ID."', ID ".
-					"FROM b_operation ".
-					"WHERE ID IN (".$sID.") "
-					, false, "File: ".__FILE__."<br>Line: ".__LINE__
+					"INSERT INTO b_task_operation (TASK_ID, OPERATION_ID) " .
+					"SELECT '" . $ID . "', ID " .
+					"FROM b_operation " .
+					"WHERE ID IN (" . $sID . ") "
 				);
 			}
 		}
 
 		unset(static::$TASK_OPERATIONS_CACHE[$ID]);
 
-		if(CACHED_b_task_operation !== false)
-			$CACHE_MANAGER->CleanDir("b_task_operation");
+		TaskOperationTable::cleanCache();
 
 		//get new operations
-		$aNewOp = array();
-		$res = $DB->Query("
-			SELECT O.NAME
-			FROM b_operation O
-			INNER JOIN b_task_operation T_OP ON O.ID = T_OP.OPERATION_ID
-			WHERE T_OP.TASK_ID = ".$ID."
-			ORDER BY O.ID
-		");
-		while(($res_arr = $res->Fetch()))
-			$aNewOp[] = $res_arr["NAME"];
+		$aNewOp = [];
+		$operations = TaskOperationTable::getList([
+			'select' => ['NAME' => 'OPERATION.NAME'],
+			'filter' => ['=TASK_ID' => $ID],
+			'order' => ['OPERATION_ID' => 'ASC'],
+		]);
+		while ($operation = $operations->fetch())
+		{
+			$aNewOp[] = $operation['NAME'];
+		}
 
 		//compare with old one
 		$aDiff = array_diff($aNewOp, $aPrevOp);
-		if(empty($aDiff))
-			$aDiff = array_diff($aPrevOp, $aNewOp);
-		if(!empty($aDiff))
+		if (empty($aDiff))
 		{
-			if(COption::GetOptionString("main", "event_log_task", "N") === "Y")
-				CEventLog::Log("SECURITY", "TASK_CHANGED", "main", $ID, "(".implode(", ", $aPrevOp).") => (".implode(", ", $aNewOp).")");
-			foreach(GetModuleEvents("main", "OnTaskOperationsChanged", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($ID, $aPrevOp, $aNewOp));
+			$aDiff = array_diff($aPrevOp, $aNewOp);
+		}
+		if (!empty($aDiff))
+		{
+			if (COption::GetOptionString("main", "event_log_task", "N") === "Y")
+			{
+				CEventLog::Log("SECURITY", "TASK_CHANGED", "main", $ID, "(" . implode(", ", $aPrevOp) . ") => (" . implode(", ", $aNewOp) . ")");
+			}
+			foreach (GetModuleEvents("main", "OnTaskOperationsChanged", true) as $arEvent)
+			{
+				ExecuteModuleEventEx($arEvent, [$ID, $aPrevOp, $aNewOp]);
+			}
 		}
 	}
 
-	public static function GetTasksInModules($mode=false, $module_id=false, $binding = false)
+	public static function GetTasksInModules($mode = false, $module_id = false, $binding = false)
 	{
-		$arFilter = array();
+		$arFilter = [];
 		if ($module_id !== false)
+		{
 			$arFilter["MODULE_ID"] = $module_id;
+		}
 		if ($binding !== false)
+		{
 			$arFilter["BINDING"] = $binding;
+		}
 
 		$z = static::GetList(
-			array(
+			[
 				"MODULE_ID" => "asc",
-				"LETTER" => "asc"
-			),
+				"LETTER" => "asc",
+			],
 			$arFilter
 		);
 
-		$arr = array();
+		$arr = [];
 		if ($mode)
 		{
-			while($r = $z->Fetch())
+			while ($r = $z->Fetch())
 			{
-				if (!isset($arr[$r['MODULE_ID']]) || !is_array($arr[$r['MODULE_ID']]))
-				{
-					$arr[$r['MODULE_ID']] = array('reference_id'=>array(),'reference'=>array());
-				}
-
 				$arr[$r['MODULE_ID']]['reference_id'][] = $r['ID'];
-				$arr[$r['MODULE_ID']]['reference'][] = '['.($r['LETTER'] ? $r['LETTER'] : '..').'] '.static::GetLangTitle($r['NAME'], $r['MODULE_ID']);
+				$arr[$r['MODULE_ID']]['reference'][] = '[' . ($r['LETTER'] ?: '..') . '] ' . static::GetLangTitle($r['NAME'], $r['MODULE_ID']);
 			}
 		}
 		else
 		{
-			while($r = $z->Fetch())
+			while ($r = $z->Fetch())
 			{
-				if (!is_array($arr[$r['MODULE_ID']]))
-					$arr[$r['MODULE_ID']] = array();
-
 				$arr[$r['MODULE_ID']][] = $r;
 			}
 		}
@@ -437,27 +380,27 @@ class CAllTask
 
 	public static function GetByID($ID)
 	{
-		return static::GetList(array(), array("ID" => intval($ID)));
+		return static::GetList([], ["ID" => intval($ID)]);
 	}
 
 	protected static function GetDescriptions($module)
 	{
-		static $descriptions = array();
+		static $descriptions = [];
 
-		if(preg_match("/[^a-z0-9._]/i", $module))
+		if (preg_match("/[^a-z0-9._]/i", $module))
 		{
-			return array();
+			return [];
 		}
 
-		if(!isset($descriptions[$module]))
+		if (!isset($descriptions[$module]))
 		{
-			if(($path = getLocalPath("modules/".$module."/admin/task_description.php")) !== false)
+			if (($path = getLocalPath("modules/" . $module . "/admin/task_description.php")) !== false)
 			{
-				$descriptions[$module] = include($_SERVER["DOCUMENT_ROOT"].$path);
+				$descriptions[$module] = include($_SERVER["DOCUMENT_ROOT"] . $path);
 			}
 			else
 			{
-				$descriptions[$module] = array();
+				$descriptions[$module] = [];
 			}
 		}
 
@@ -470,7 +413,7 @@ class CAllTask
 
 		$nameUpper = strtoupper($name);
 
-		if(isset($descriptions[$nameUpper]["title"]))
+		if (isset($descriptions[$nameUpper]["title"]))
 		{
 			return $descriptions[$nameUpper]["title"];
 		}
@@ -484,7 +427,7 @@ class CAllTask
 
 		$nameUpper = strtoupper($name);
 
-		if(isset($descriptions[$nameUpper]["description"]))
+		if (isset($descriptions[$nameUpper]["description"]))
 		{
 			return $descriptions[$nameUpper]["description"];
 		}
@@ -496,42 +439,137 @@ class CAllTask
 	{
 		$z = static::GetById($ID);
 		if ($r = $z->Fetch())
+		{
 			if ($r['LETTER'])
+			{
 				return $r['LETTER'];
+			}
+		}
 		return false;
 	}
 
-	public static function GetIdByLetter($letter, $module, $binding='module')
+	public static function GetIdByLetter($letter, $module, $binding = 'module')
 	{
-		static $TASK_LETTER_CACHE = array();
+		static $TASK_LETTER_CACHE = [];
 		if (!$letter)
+		{
 			return false;
+		}
 
-		if (!isset($TASK_LETTER_CACHE))
-			$TASK_LETTER_CACHE = array();
-
-		$k = strtoupper($letter.'_'.$module.'_'.$binding);
+		$k = strtoupper($letter . '_' . $module . '_' . $binding);
 		if (isset($TASK_LETTER_CACHE[$k]))
+		{
 			return $TASK_LETTER_CACHE[$k];
+		}
 
 		$z = static::GetList(
-			array(),
-			array(
+			[],
+			[
 				"LETTER" => $letter,
 				"MODULE_ID" => $module,
 				"BINDING" => $binding,
-				"SYS"=>"Y"
-			)
+				"SYS" => "Y",
+			]
 		);
 
 		if ($r = $z->Fetch())
 		{
 			$TASK_LETTER_CACHE[$k] = $r['ID'];
 			if ($r['ID'])
+			{
 				return $r['ID'];
+			}
 		}
 
 		return false;
+	}
+
+	public static function AddFromArray(string $module, array $tasks)
+	{
+		global $DB;
+
+		$existingOperations = [];
+		$records = OperationTable::getList([
+			'select' => ['NAME'],
+			'filter' => ['=MODULE_ID' => $module],
+		]);
+		while ($record = $records->fetch())
+		{
+			$existingOperations[$record['NAME']] = $record['NAME'];
+		}
+
+		$existingTasks = [];
+		$records = TaskTable::getList([
+			'select' => ['NAME'],
+			'filter' => ['=MODULE_ID' => $module, '=SYS' => 'Y'],
+		]);
+		while ($record = $records->fetch())
+		{
+			$existingTasks[$record['NAME']] = $record['NAME'];
+		}
+
+		foreach ($tasks as $taskName => $arTask)
+		{
+			$binding = empty($arTask["BINDING"]) ? 'module' : $arTask["BINDING"];
+			$sqlTaskOperations = [];
+
+			if (isset($arTask["OPERATIONS"]) && is_array($arTask["OPERATIONS"]))
+			{
+				foreach ($arTask["OPERATIONS"] as $operationName)
+				{
+					$operationName = mb_substr($operationName, 0, 50);
+
+					if (!isset($existingOperations[$operationName]))
+					{
+						OperationTable::add([
+							'NAME' => $operationName,
+							'MODULE_ID' => $module,
+							'BINDING' => $binding,
+						]);
+						$existingOperations[$operationName] = $operationName;
+					}
+
+					$sqlTaskOperations[] = $DB->ForSQL($operationName);
+				}
+			}
+
+			$taskName = mb_substr($taskName, 0, 100);
+
+			if (!isset($existingTasks[$taskName]) && $taskName != '')
+			{
+				TaskTable::add([
+					'NAME' => $taskName,
+					'LETTER' => $arTask["LETTER"] ?? null,
+					'MODULE_ID' => $module,
+					'SYS' => 'Y',
+					'BINDING' => $binding,
+				]);
+			}
+
+			if (!empty($sqlTaskOperations) && $taskName != '')
+			{
+				$sqlTaskName = $DB->ForSQL($taskName);
+
+				$DB->Query("
+					INSERT INTO b_task_operation (TASK_ID, OPERATION_ID)
+					SELECT T.ID TASK_ID, O.ID OPERATION_ID
+					FROM b_task T, b_operation O
+					WHERE T.SYS='Y'
+						AND T.NAME='$sqlTaskName'
+						AND O.NAME in ('" . implode("','", $sqlTaskOperations) . "')
+						AND O.NAME not in (
+							SELECT O2.NAME
+							FROM b_task T2
+								inner join b_task_operation TO2 on TO2.TASK_ID = T2.ID
+								inner join b_operation O2 on O2.ID = TO2.OPERATION_ID
+							WHERE T2.SYS='Y'
+								AND T2.NAME='$sqlTaskName'
+						)
+				");
+			}
+		}
+
+		TaskOperationTable::cleanCache();
 	}
 }
 

@@ -68,6 +68,21 @@ class FiredUserProvider extends UserProvider
 				. $options['referenceClass']::getTableName()
 				. " WHERE {$fieldName} = {$tableName}.ID"
 			));
+
+			$derivedTableQuery = $options['referenceClass']::query()
+				->addSelect('ASSIGNED_BY_ID')
+				->addGroup('ASSIGNED_BY_ID')
+			;
+			$entity = \Bitrix\Main\ORM\Entity::getInstanceByQuery($derivedTableQuery);
+
+			$query->registerRuntimeField(
+				'ASSIGNED_BY_ID',
+				(new \Bitrix\Main\ORM\Fields\Relations\Reference(
+					'ASSIGNED_BY_ID',
+					$entity,
+					\Bitrix\Main\ORM\Query\Join::on('this.ID', 'ref.ASSIGNED_BY_ID')
+				))->configureJoinType(\Bitrix\Main\ORM\Query\Join::TYPE_INNER)
+			);
 		}
 
 		return $query;

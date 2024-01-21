@@ -468,7 +468,10 @@ create table if not exists b_catalog_docs_element
 	BASE_PRICE_EXTRA_RATE INT NULL,
 	COMMENT TEXT DEFAULT NULL,
 	PRIMARY KEY (ID),
-	INDEX IX_B_CATALOG_DOCS_ELEMENT1 (DOC_ID ASC)
+	INDEX IX_B_CATALOG_DOCS_ELEMENT1 (DOC_ID ASC),
+	INDEX IX_B_CATALOG_DOCS_ELEMENT2 (ELEMENT_ID),
+	INDEX IX_B_CATALOG_DOCS_ELEMENT3 (STORE_FROM),
+	INDEX IX_B_CATALOG_DOCS_ELEMENT4 (STORE_TO)
 );
 
 create table if not exists b_catalog_docs_barcode
@@ -545,7 +548,8 @@ create table if not exists b_catalog_viewed_product
 	INDEX IX_CAT_V_PR_PRODUCT_VISIT(ELEMENT_ID, DATE_VISIT)
 );
 
-create table if not exists b_catalog_subscribe (
+create table if not exists b_catalog_subscribe
+(
 	ID int unsigned not null auto_increment,
 	DATE_FROM datetime not null,
 	DATE_TO datetime null,
@@ -562,7 +566,8 @@ create table if not exists b_catalog_subscribe (
 	INDEX IX_CAT_SUB_ITEM_ID (ITEM_ID)
 );
 
-create table if not exists b_catalog_subscribe_access (
+create table if not exists b_catalog_subscribe_access
+(
 	ID int unsigned not null auto_increment,
 	DATE_FROM datetime not null,
 	USER_CONTACT varchar(255) not null,
@@ -642,6 +647,34 @@ CREATE TABLE IF NOT EXISTS b_catalog_permission
 	PRIMARY KEY (ID),
 	INDEX ROLE_ID (ROLE_ID),
 	INDEX PERMISSION_ID (PERMISSION_ID)
+);
+
+create table if not exists b_catalog_store_batch
+(
+	ID INT NOT NULL AUTO_INCREMENT,
+	ELEMENT_ID INT NOT NULL,
+	STORE_ID INT NOT NULL,
+	AVAILABLE_AMOUNT DOUBLE NULL,
+	PURCHASING_PRICE DECIMAL(22,6) NULL,
+	PURCHASING_CURRENCY CHAR(3) NULL,
+	PRIMARY KEY (ID),
+	INDEX IX_B_ELEMENT_ID (ELEMENT_ID),
+	INDEX IX_B_STORE_ID (STORE_ID)
+);
+
+create table if not exists b_catalog_store_batch_docs_element
+(
+	ID INT NOT NULL AUTO_INCREMENT,
+	DOCUMENT_ELEMENT_ID INT NULL,
+	SHIPMENT_ITEM_STORE_ID INT NULL,
+	AMOUNT DOUBLE NOT NULL,
+	PRODUCT_BATCH_ID INT NOT NULL,
+	BATCH_PRICE DECIMAL(22,6) NULL,
+	BATCH_CURRENCY CHAR(3) NULL,
+	PRIMARY KEY (ID),
+	INDEX IX_B_SHIPMENT_ITEM_STORE_ID (SHIPMENT_ITEM_STORE_ID),
+	INDEX IX_B_DOCUMENT_ELEMENT_ID (DOCUMENT_ELEMENT_ID),
+	INDEX IX_B_PRODUCT_BATCH_ID (PRODUCT_BATCH_ID)
 );
 
 CREATE TABLE IF NOT EXISTS b_catalog_agent_contract

@@ -37,6 +37,12 @@ if(Loader::includeModule('ui'))
 	UI\Extension::load('ui.buttons');
 	UI\Extension::load('main.loader');
 }
+
+// Tool availability (by intranet settings)
+if (!$component->isToolAvailable())
+{
+	echo $component->getToolUnavailableInfoScript();
+}
 ?>
 
 <div class="landing-settings" id="landing-settings">

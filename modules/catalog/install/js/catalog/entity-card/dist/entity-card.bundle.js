@@ -1,6 +1,7 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,ui_entityEditor,ui_feedback_form,ui_hint,ui_fonts_opensans,ui_designTokens,translit,ui_notification,main_popup,main_core,main_core_events,catalog_storeUse) {
+(function (exports,ui_entityEditor,ui_feedback_form,ui_hint,ui_fonts_opensans,ui_designTokens,translit,ui_notification,main_popup,main_core,main_core_events,catalog_storeUse,catalog_toolAvailabilityManager) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
@@ -1283,15 +1284,43 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FieldConfiguratorController).call(this));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "fieldAddHandler", _this.handleFieldAdd.bind(babelHelpers.assertThisInitialized(_this)));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "fieldUpdateHandler", _this.handleFieldUpdate.bind(babelHelpers.assertThisInitialized(_this)));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "propertySavedHandler", _this.handlePropertySaved.bind(babelHelpers.assertThisInitialized(_this)));
 	    _this.initialize(id, settings);
 	    main_core_events.EventEmitter.subscribe(_this._editor, 'BX.UI.EntityEditor:onFieldCreate', _this.fieldAddHandler);
 	    main_core_events.EventEmitter.subscribe(_this._editor, 'BX.UI.EntityEditor:onFieldModify', _this.fieldUpdateHandler);
+
+	    // global events
+	    top.BX.Event.EventEmitter.subscribe('IblockPropertyDetails:saved', _this.propertySavedHandler);
 	    return _this;
 	  }
 	  babelHelpers.createClass(FieldConfiguratorController, [{
+	    key: "handlePropertySaved",
+	    value: function handlePropertySaved(event) {
+	      var _this2 = this;
+	      var _event$getData = event.getData(),
+	        _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	        property = _event$getData2[0];
+	      var propertyId = parseInt(property.id);
+	      main_core.ajax.runComponentAction(this._editor._settings.ajaxData.COMPONENT_NAME, 'load', {
+	        mode: 'class',
+	        signedParameters: this._editor._settings.ajaxData.SIGNED_PARAMETERS
+	      }).then(function (response) {
+	        if (main_core.Type.isArray(response.data.ENTITY_FIELDS)) {
+	          var schemeField = response.data.ENTITY_FIELDS.find(function (item) {
+	            return parseInt(item.propertyId) === propertyId;
+	          });
+	          if (schemeField) {
+	            _this2._editor.addAvailableSchemeElement(BX.UI.EntitySchemeElement.create(schemeField));
+	          }
+	        }
+	      })["catch"](function (response) {
+	        console.error('Cannot reload scheme', response);
+	      });
+	    }
+	  }, {
 	    key: "handleFieldAdd",
 	    value: function handleFieldAdd(event) {
-	      var _this2 = this;
+	      var _this3 = this;
 	      var _event$getCompatData = event.getCompatData(),
 	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
 	        section = _event$getCompatData2[0],
@@ -1308,7 +1337,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }
 	        var additionalValues = response.data.ADDITIONAL_VALUES;
 	        if (additionalValues) {
-	          var model = _this2._editor._model;
+	          var model = _this3._editor._model;
 	          for (var _i = 0, _Object$entries = Object.entries(additionalValues); _i < _Object$entries.length; _i++) {
 	            var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
 	              key = _Object$entries$_i[0],
@@ -1320,7 +1349,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        if (section instanceof BX.UI.EntityEditorSection) {
 	          mode = section.getMode();
 	        }
-	        var control = _this2.createProperty(property, section.getName(), {
+	        var control = _this3.createProperty(property, section.getName(), {
 	          layout: {
 	            notifyIfNotDisplayed: true,
 	            forceDisplay: eventArgs.showAlways
@@ -1328,16 +1357,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          mode: mode
 	        });
 	        control.toggleOptionFlag(eventArgs.showAlways);
-	        _this2._editor.saveSchemeChanges();
-	        _this2.isRequesting = false;
+	        _this3._editor.saveSchemeChanges();
+	        _this3.isRequesting = false;
 	      })["catch"](function (response) {
-	        _this2.isRequesting = false;
+	        _this3.isRequesting = false;
 	      });
-	    }
+	    } /* eslint-disable max-lines-per-function */
 	  }, {
 	    key: "handleFieldUpdate",
 	    value: function handleFieldUpdate(event) {
-	      var _this3 = this;
+	      var _this4 = this;
 	      var _event$getCompatData3 = event.getCompatData(),
 	        _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 2),
 	        section = _event$getCompatData4[0],
@@ -1381,16 +1410,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          } else if (currentField instanceof BX.UI.EntityEditorNumber) {
 	            newType = 'multinumber';
 	          }
-	        } else {
-	          if (currentField instanceof BX.UI.EntityEditorMultiList) {
-	            newType = 'list';
-	          } else if (currentField instanceof BX.UI.EntityEditorMultiDatetime) {
-	            newType = 'datetime';
-	          } else if (currentField instanceof BX.UI.EntityEditorMultiNumber) {
-	            newType = 'number';
-	          } else if (currentField instanceof BX.UI.EntityEditorMultiText) {
-	            newType = 'text';
-	          }
+	        } else if (currentField instanceof BX.UI.EntityEditorMultiList) {
+	          newType = 'list';
+	        } else if (currentField instanceof BX.UI.EntityEditorMultiDatetime) {
+	          newType = 'datetime';
+	        } else if (currentField instanceof BX.UI.EntityEditorMultiNumber) {
+	          newType = 'number';
+	        } else if (currentField instanceof BX.UI.EntityEditorMultiText) {
+	          newType = 'text';
 	        }
 	        schemeElement = currentField.getSchemeElement();
 	        if ((currentField instanceof BX.UI.EntityEditorList || currentField instanceof BX.UI.EntityEditorMultiList) && property) {
@@ -1399,7 +1426,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }
 	        if (newType) {
 	          var index = section.getChildIndex(currentField);
-	          var newControl = _this3._editor.createControl(newType, eventArgs.CODE, {
+	          var newControl = _this4._editor.createControl(newType, eventArgs.CODE, {
 	            schemeElement: schemeElement,
 	            model: section._model,
 	            parent: section,
@@ -1417,15 +1444,15 @@ this.BX.Catalog = this.BX.Catalog || {};
 	            enableSaving: false
 	          });
 	        }
-	        _this3.isRequesting = false;
+	        _this4.isRequesting = false;
 	      })["catch"](function (response) {
-	        _this3.isRequesting = false;
+	        _this4.isRequesting = false;
 	      });
-	    }
+	    } /* eslint-enable */
 	  }, {
 	    key: "getFieldsForm",
 	    value: function getFieldsForm(fields) {
-	      var _this4 = this;
+	      var _this5 = this;
 	      var form = new FormData();
 	      var formatted = {
 	        NAME: fields.label,
@@ -1444,19 +1471,19 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        case 'multilist':
 	          formatted.PROPERTY_TYPE = 'L';
 	          (fields.enumeration || []).forEach(function (enumItem, key) {
-	            form.append(_this4.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
-	            form.append(_this4.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE);
-	            form.append(_this4.getFormFieldName('VALUES][' + key + '][ID'), enumItem.ID);
+	            form.append(_this5.getFormFieldName("VALUES][".concat(key, "][SORT")), enumItem.SORT);
+	            form.append(_this5.getFormFieldName("VALUES][".concat(key, "][VALUE")), enumItem.VALUE);
+	            form.append(_this5.getFormFieldName("VALUES][".concat(key, "][ID")), enumItem.ID);
 	          });
 	          break;
 	        case 'directory':
 	          formatted.USER_TYPE = 'directory';
 	          (fields.enumeration || []).forEach(function (enumItem, key) {
-	            form.append(_this4.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
-	            form.append(_this4.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE.value);
-	            form.append(_this4.getFormFieldName('VALUES][' + key + '][XML_ID'), enumItem.XML_ID);
-	            form.append(_this4.getFormFieldName('VALUES][' + key + '][FILE_ID'), enumItem.FILE_ID);
-	            form.append('FILES[' + enumItem.SORT + ']', enumItem.VALUE.file);
+	            form.append(_this5.getFormFieldName("VALUES][".concat(key, "][SORT")), enumItem.SORT);
+	            form.append(_this5.getFormFieldName("VALUES][".concat(key, "][VALUE")), enumItem.VALUE.value);
+	            form.append(_this5.getFormFieldName("VALUES][".concat(key, "][XML_ID")), enumItem.XML_ID);
+	            form.append(_this5.getFormFieldName("VALUES][".concat(key, "][FILE_ID")), enumItem.FILE_ID);
+	            form.append("FILES[".concat(enumItem.SORT, "]"), enumItem.VALUE.file);
 	          });
 	          break;
 	        case 'boolean':
@@ -1492,7 +1519,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getFormFieldName",
 	    value: function getFormFieldName(name) {
-	      return 'fields[' + name + ']';
+	      return "fields[".concat(name, "]");
 	    }
 	  }, {
 	    key: "createProperty",
@@ -3064,7 +3091,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return BaseCard;
 	}();
 
-	var _templateObject$6, _templateObject2$5, _templateObject3$5, _templateObject4$5, _templateObject5$5, _templateObject6$3, _templateObject7$2;
+	var _templateObject$6, _templateObject2$5, _templateObject3$5, _templateObject4$5, _templateObject5$5, _templateObject6$3, _templateObject7$2, _templateObject8$2;
 	function ownKeys$6(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread$6(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$6(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$6(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var EntityCard = /*#__PURE__*/function (_BaseCard) {
@@ -3089,6 +3116,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    _this.isSimpleProduct = settings.isSimpleProduct || false;
 	    _this.isWithOrdersMode = settings.isWithOrdersMode || false;
 	    _this.isInventoryManagementUsed = settings.isInventoryManagementUsed || false;
+	    _this.isInventoryManagementToolEnabled = settings.isInventoryManagementToolEnabled || false;
 	    _this.registerFieldsFactory();
 	    _this.registerControllersFactory();
 	    _this.registerEvents();
@@ -3463,11 +3491,22 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getCreateDocumentMenuContent",
 	    value: function getCreateDocumentMenuContent() {
+	      var _this2 = this;
 	      var popupWrapper = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"menu-popup\"></div>"])));
 	      var popupItemsContainer = main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"menu-popup-items\"></div>"])));
 	      popupWrapper.appendChild(popupItemsContainer);
 	      this.createDocumentButtonMenuPopupItems.forEach(function (item) {
-	        popupItemsContainer.appendChild(main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a class=\"menu-popup-item menu-popup-item-no-icon\" href=\"", "\">\n\t\t\t\t\t<span class=\"menu-popup-item-text\">", "</span>\n\t\t\t\t</a>\n\t\t\t"])), item.link, item.text));
+	        var itemEntry = null;
+	        if (_this2.isInventoryManagementToolEnabled) {
+	          itemEntry = main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"menu-popup-item menu-popup-item-no-icon\" href=\"", "\">\n\t\t\t\t\t\t<span class=\"menu-popup-item-text\">", "</span>\n\t\t\t\t\t</a>\n\t\t\t\t"])), item.link, item.text);
+	        } else {
+	          itemEntry = main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"menu-popup-item menu-popup-item-no-icon\">\n\t\t\t\t\t\t<span class=\"menu-popup-item-text\">", "</span>\n\t\t\t\t\t</a>\n\t\t\t\t"])), item.text);
+	          main_core.Event.bind(itemEntry, 'click', function (event) {
+	            event.preventDefault();
+	            EntityCard.openInventoryManagementToolDisabledSlider();
+	          });
+	        }
+	        popupItemsContainer.appendChild(itemEntry);
 	      });
 	      return popupWrapper;
 	    }
@@ -3502,34 +3541,34 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "prepareCardSettingsContent",
 	    value: function prepareCardSettingsContent() {
-	      var _this2 = this;
-	      var content = main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-entity-editor-popup-create-field-list'></div>\n\t\t"])));
+	      var _this3 = this;
+	      var content = main_core.Tag.render(_templateObject5$5 || (_templateObject5$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-entity-editor-popup-create-field-list'></div>\n\t\t"])));
 	      this.cardSettings.map(function (item) {
-	        content.append(_this2.getSettingItem(item));
+	        content.append(_this3.getSettingItem(item));
 	      });
 	      return content;
 	    }
 	  }, {
 	    key: "getSettingItem",
 	    value: function getSettingItem(item) {
-	      var _this3 = this;
+	      var _this4 = this;
 	      var input = '';
 	      if (!item.disabledCheckbox) {
 	        var _item$disabled;
-	        input = main_core.Tag.render(_templateObject5$5 || (_templateObject5$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"checkbox\">\n\t\t\t"])));
+	        input = main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"checkbox\">\n\t\t\t"])));
 	        input.checked = item.checked;
 	        input.disabled = (_item$disabled = item.disabled) !== null && _item$disabled !== void 0 ? _item$disabled : false;
 	        input.dataset.settingId = item.id;
 	      }
-	      var hintNode = main_core.Type.isStringFilled(item.hint) ? main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["<span class=\"catalog-entity-setting-hint\" data-hint=\"", "\"></span>"])), item.hint) : '';
-	      var setting = main_core.Tag.render(_templateObject7$2 || (_templateObject7$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title ", "\">", "", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.disabled ? 'catalog-entity-disabled-setting' : '', item.title, hintNode, item.desc);
+	      var hintNode = main_core.Type.isStringFilled(item.hint) ? main_core.Tag.render(_templateObject7$2 || (_templateObject7$2 = babelHelpers.taggedTemplateLiteral(["<span class=\"catalog-entity-setting-hint\" data-hint=\"", "\"></span>"])), item.hint) : '';
+	      var setting = main_core.Tag.render(_templateObject8$2 || (_templateObject8$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title ", "\">", "", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.disabled ? 'catalog-entity-disabled-setting' : '', item.title, hintNode, item.desc);
 	      BX.UI.Hint.init(setting);
 	      if (item.id === 'SLIDER') {
 	        main_core.Event.bind(setting, 'change', function (event) {
-	          new catalog_storeUse.Slider().open(item.url, {}).then(function () {
-	            _this3.reloadGrid();
-	            _this3.getCardSettingsPopup().close();
-	          });
+	          new catalog_storeUse.StoreSlider().open(item.url, {}).then(function () {
+	            _this4.reloadGrid();
+	            _this4.getCardSettingsPopup().close();
+	          })["catch"](function () {});
 	        });
 	      } else if (item.id === 'SEO') {
 	        main_core.Event.bind(setting, 'click', function (event) {
@@ -3537,7 +3576,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	            cacheable: false,
 	            allowChangeHistory: false,
 	            data: {
-	              'ELEMENT_ID': _this3.entityId
+	              'ELEMENT_ID': _this4.entityId
 	            },
 	            width: 1000
 	          });
@@ -3579,7 +3618,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "requestGridSettings",
 	    value: function requestGridSettings(setting, enabled) {
-	      var _this4 = this;
+	      var _this5 = this;
 	      if (!this.getVariationGrid()) ;
 	      var headers = [];
 	      var cells = this.getVariationGrid().getRows().getHeadFirstChild().getCells();
@@ -3599,17 +3638,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }).then(function () {
 	        var message = null;
 	        setting.checked = enabled;
-	        _this4.reloadVariationGrid();
-	        _this4.postSliderMessage('onUpdate', {});
-	        _this4.getCardSettingsPopup().close();
+	        _this5.reloadVariationGrid();
+	        _this5.postSliderMessage('onUpdate', {});
+	        _this5.getCardSettingsPopup().close();
 	        if (setting.id === 'WAREHOUSE') {
-	          _this4.reloadGrid();
+	          _this5.reloadGrid();
 	          message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_WAREHOUSE_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_WAREHOUSE_DISABLED');
 	        } else {
 	          message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_DISABLED');
 	          message = message.replace('#NAME#', setting.title);
 	        }
-	        _this4.showNotification(message, {
+	        _this5.showNotification(message, {
 	          category: 'popup-settings'
 	        });
 	      });
@@ -3617,7 +3656,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "requestCardSettings",
 	    value: function requestCardSettings(setting, enabled) {
-	      var _this5 = this;
+	      var _this6 = this;
 	      BX.ajax.runComponentAction(this.componentName, 'setCardSetting', {
 	        mode: 'class',
 	        data: {
@@ -3628,14 +3667,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }).then(function () {
 	        setting.checked = enabled;
 	        if (setting.id === 'CATALOG_PARAMETERS') {
-	          var section = _this5.getEditorInstance().getControlByIdRecursive('catalog_parameters');
+	          var section = _this6.getEditorInstance().getControlByIdRecursive('catalog_parameters');
 	          if (section) {
 	            section.refreshLayout();
 	          }
 	        }
-	        _this5.getCardSettingsPopup().close();
+	        _this6.getCardSettingsPopup().close();
 	        var message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_DISABLED');
-	        _this5.showNotification(message.replace('#NAME#', setting.title), {
+	        _this6.showNotification(message.replace('#NAME#', setting.title), {
 	          category: 'popup-settings'
 	        });
 	      });
@@ -3643,7 +3682,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "updateSettingsCheckboxState",
 	    value: function updateSettingsCheckboxState() {
-	      var _this6 = this;
+	      var _this7 = this;
 	      var popupContainer = this.getCardSettingsPopup().getContentContainer();
 	      this.cardSettings.filter(function (item) {
 	        var _item$columns;
@@ -3651,7 +3690,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }).forEach(function (item) {
 	        var allColumnsExist = true;
 	        item.columns.ITEMS.forEach(function (columnName) {
-	          if (!_this6.getVariationGrid().getColumnHeaderCellByName(columnName)) {
+	          if (!_this7.getVariationGrid().getColumnHeaderCellByName(columnName)) {
 	            allColumnsExist = false;
 	          }
 	        });
@@ -3699,6 +3738,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }]
 	      });
 	    }
+	  }, {
+	    key: "openInventoryManagementToolDisabledSlider",
+	    value: function openInventoryManagementToolDisabledSlider() {
+	      catalog_toolAvailabilityManager.ToolAvailabilityManager.openInventoryManagementToolDisabledSlider();
+	    }
 	  }]);
 	  return EntityCard;
 	}(BaseCard);
@@ -3706,5 +3750,5 @@ this.BX.Catalog = this.BX.Catalog || {};
 	exports.EntityCard = EntityCard;
 	exports.BaseCard = BaseCard;
 
-}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX,BX,BX,BX,BX.Main,BX,BX.Event,BX.Catalog.StoreUse));
+}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX,BX,BX,BX,BX.Main,BX,BX.Event,BX.Catalog.StoreUse,BX.Catalog));
 //# sourceMappingURL=entity-card.bundle.js.map

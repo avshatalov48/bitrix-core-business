@@ -1,5 +1,4 @@
-<?
-IncludeModuleLangFile(__FILE__);
+<?php
 
 define("PULL_REVISION_WEB", 19);
 define("PULL_REVISION_MOBILE", 3);

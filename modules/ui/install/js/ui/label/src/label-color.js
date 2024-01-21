@@ -19,4 +19,5 @@ export default class LabelColor
 	static YELLOW = 'ui-label-yellow';
 	static LIGHT_YELLOW = 'ui-label-lightyellow';
 	static LIGHT_RED = 'ui-label-lightred';
+	static LAVENDER = 'ui-label-lavender';
 }

@@ -2,11 +2,11 @@ import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
-import { EventType, DialogType } from 'im.v2.const';
+import { EventType, ChatType } from 'im.v2.const';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 import { Parser } from 'im.v2.lib.parser';
 
-import type { ImModelMessage, ImModelUser, ImModelDialog } from 'im.v2.model';
+import type { ImModelMessage, ImModelUser, ImModelChat } from 'im.v2.model';
 
 const QUOTE_DELIMITER = '-'.repeat(54);
 
@@ -33,8 +33,8 @@ export const Quote = {
 		const quoteText = Parser.prepareQuote(message, text);
 
 		let quoteContext = '';
-		const dialog: ImModelDialog = Core.getStore().getters['dialogues/getByChatId'](message.chatId);
-		if (dialog && dialog.type === DialogType.user)
+		const dialog: ImModelChat = Core.getStore().getters['chats/getByChatId'](message.chatId);
+		if (dialog && dialog.type === ChatType.user)
 		{
 			quoteContext = `#${dialog.dialogId}:${Core.getUserId()}/${message.id}`;
 		}

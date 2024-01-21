@@ -197,30 +197,6 @@ elseif (in_array($this->getPageName(), ['template', 'site_show']))
 		];
 	}
 
-	if (\Bitrix\Landing\Manager::isAdmin() && \Bitrix\Landing\Connector\Ai::isAnyAvailable())
-	{
-		$settingsLink[] = [
-			'TITLE' => Loc::getMessage('LANDING_TPL_MENU_AI'),
-			'LINK' => $arParams['PAGE_URL_AI_SETTINGS'],
-		];
-		?>
-		<script>
-			BX.ready(function()
-			{
-				if (typeof BX.SidePanel !== 'undefined')
-				{
-					BX.SidePanel.Instance.bindAnchors({
-						rules: [{
-							condition: ['<?= CUtil::jsEscape($arParams['PAGE_URL_AI_SETTINGS'])?>'],
-							options: { allowChangeHistory: false, width: 600, }
-						}]
-					});
-				}
-			});
-		</script>
-		<?php
-	}
-
 	if (
 		($arResult['VARS']['site_show'] ?? 0) <= 0 &&
 		(LANGUAGE_ID === 'ru' || LANGUAGE_ID === 'ua') &&

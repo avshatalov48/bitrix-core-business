@@ -8,8 +8,8 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var EnumUfComponent $component */
 
-use Bitrix\Main\UserField\Types\EnumType;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\UserField\Types\EnumType;
 
 if ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 {
@@ -132,7 +132,7 @@ elseif ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST
 		$result = '';
 
 		$showNoValue = ($arParams['userField']['SETTINGS']['SHOW_NO_VALUE'] ?? 'N');
-		if ($showNoValue === 'Y')
+		if ($showNoValue === 'Y' && ($arParams['userField']['MANDATORY'] ?? 'N') === 'Y')
 		{
 			$result .= '<option></option>';
 		}

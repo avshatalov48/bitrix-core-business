@@ -1,5 +1,6 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -24,8 +25,10 @@ return [
 		"/bitrix/js/ui/entity-editor/js/selector.js",
 		"/bitrix/js/ui/entity-editor/js/tool-panel.js",
 		"/bitrix/js/ui/entity-editor/js/field-configurator.js",
+		"/bitrix/js/ui/entity-editor/js/field-icon.js",
 		"/bitrix/js/ui/entity-editor/js/user-field.js",
 		"/bitrix/js/ui/entity-editor/js/validator.js",
+		"/bitrix/js/ui/entity-editor/js/pull.js",
 	],
 	"rel" => [
 		"ajax",
@@ -46,5 +49,5 @@ return [
 		"ui.entity-selector",
 		"ui.design-tokens",
 		"ui.fonts.opensans",
-	]
+	],
 ];

@@ -6,3 +6,4 @@ $MESS['CALENDAR_SHARING_MAIL_OPEN_VIDEOCONFERENCE'] = 'Подключиться 
 $MESS['CALENDAR_SHARING_MAIL_CREATE_NEW_MEETING'] = 'Поставить новую встречу';
 $MESS['CALENDAR_SHARING_MAIL_FOOTER_LOGO_FREE_SITES_AND_CRM'] = 'Заряжено <b>Битрикс24</b> — Бесплатные <#TAG# style="#STYLE#" href="#HREF#">Задачи и CRM</#TAG#>';
 $MESS['CALENDAR_SHARING_MAIL_FOOTER_REPORT'] = 'Если ссылка на слоты пришла вам по ошибке, <a style="#STYLE#" href="#HREF#">сообщите</a> об этом';
+$MESS['CALENDAR_SHARING_MAIL_MEETING_HAS_MORE_USERS'] = 'Со мной на встрече будут';

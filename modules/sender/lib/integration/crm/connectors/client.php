@@ -1098,7 +1098,7 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 		//we need to filter able deals
 		$list[] = array(
 			'id' => self::DEAL_CATEGORY_ID,
-			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_CATEGORY_ID'),
+			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_CATEGORY_ID_MSG_1'),
 			'params' => array('multiple' => self::YES),
 			'default' => true,
 			'type' => 'list',

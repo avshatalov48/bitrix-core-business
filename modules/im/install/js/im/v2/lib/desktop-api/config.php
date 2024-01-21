@@ -14,14 +14,14 @@ return [
 		'./dist/desktop-api.bundle.js',
 	],
 	'rel' => [
-		'main.core.events',
-		'im.v2.const',
-		'main.core',
 		'im.v2.lib.logger',
+		'main.core',
+		'im.v2.const',
+		'main.core.events',
 	],
 	'skip_core' => false,
 	'settings' => [
-		'v2' => \Bitrix\Im\Settings::isBetaActivated(),
 		'isChatWindow' => defined('BX_DESKTOP') && BX_DESKTOP,
+		'v2' => !\Bitrix\Im\Settings::isLegacyChatActivated(),
 	]
 ];

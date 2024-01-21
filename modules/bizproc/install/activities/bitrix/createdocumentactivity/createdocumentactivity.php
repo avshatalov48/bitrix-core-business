@@ -305,7 +305,10 @@ class CBPCreateDocumentActivity extends CBPActivity
 				{
 					$fieldTypeObject->setDocumentId($this->getDocumentId());
 					$fieldTypeObject->setValue($value);
-					$value = $fieldTypeObject->externalizeValue('Document', $fieldTypeObject->getValue());
+					$value = $fieldTypeObject->externalizeValue(
+						\Bitrix\Bizproc\FieldType::VALUE_CONTEXT_DOCUMENT,
+						$fieldTypeObject->getValue()
+					);
 				}
 			}
 

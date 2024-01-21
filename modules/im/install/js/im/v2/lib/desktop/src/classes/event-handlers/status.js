@@ -1,17 +1,18 @@
 import { Core } from 'im.v2.application.core';
+import { CallManager } from 'im.v2.lib.call';
+import { Logger } from 'im.v2.lib.logger';
 import { DesktopManager } from '../../desktop-manager';
 import { Utils } from 'im.v2.lib.utils';
-import { EventType, RestMethod } from 'im.v2.const';
+import { EventType, RestMethod, Settings } from 'im.v2.const';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
 import { Browser, Event } from 'main.core';
-
-import { Checker } from '../checker';
-
-import type { ImModelUser } from 'im.v2.model';
+import { CheckUtils } from '../check-utils';
 
 export class StatusHandler
 {
 	#initDate: Date;
+	#wakeUpTimer = null;
+	sidePanelManager: Object = BX.SidePanel.Instance;
 
 	static init(): StatusHandler
 	{
@@ -21,6 +22,7 @@ export class StatusHandler
 	constructor()
 	{
 		this.#initDate = new Date();
+
 		this.#subscribeToWakeUpEvent();
 		this.#subscribeToAwayEvent();
 		this.#subscribeToFocusEvent();
@@ -39,20 +41,35 @@ export class StatusHandler
 
 	async #onWakeUp()
 	{
-		const hasConnection = await Checker.testInternetConnection();
+		const hasConnection = await CheckUtils.testInternetConnection();
 		if (!hasConnection)
 		{
-			console.error('NO INTERNET CONNECTION!');
+			Logger.desktop('StatusHandler: onWakeUp event, no internet connection, delay 60 sec');
+
+			clearTimeout(this.#wakeUpTimer);
+			this.#wakeUpTimer = setTimeout(this.#onWakeUp.bind(this), 60 * 1000);
 
 			return;
 		}
 
-		if (Utils.date.isSameDay(new Date(), this.#initDate))
+		if (Utils.date.isSameHour(new Date(), this.#initDate))
 		{
+			Logger.desktop('StatusHandler: onWakeUp event, same hour - restart pull client');
 			Core.getPullClient().restart();
 		}
 		else
 		{
+			if (this.sidePanelManager.opened)
+			{
+				clearTimeout(this.#wakeUpTimer);
+				this.#wakeUpTimer = setTimeout(this.#onWakeUp.bind(this), 60 * 1000);
+
+				Logger.desktop('StatusHandler: onWakeUp event, slider is open, delay 60 sec');
+
+				return;
+			}
+
+			Logger.desktop('StatusHandler: onWakeUp event, reload window');
 			DesktopApi.reloadWindow();
 		}
 	}
@@ -114,22 +131,14 @@ export class StatusHandler
 	// region user status
 	#setInitialStatus()
 	{
-		const userId = Core.getUserId();
-		const user: ImModelUser = Core.getStore().getters['users/get'](userId);
-		if (!user)
-		{
-			return;
-		}
-		DesktopApi.setIconStatus(user.status);
+		const status = Core.getStore().getters['application/settings/get'](Settings.user.status);
+		DesktopApi.setIconStatus(status);
 	}
 
 	#subscribeToStatusChange()
 	{
 		const statusWatcher = (state, getters) => {
-			const userId = Core.getUserId();
-			const user: ImModelUser = getters['users/get'](userId);
-
-			return user?.status;
+			return getters['application/settings/get'](Settings.user.status);
 		};
 		Core.getStore().watch(statusWatcher, (newStatus: string) => {
 			DesktopApi.setIconStatus(newStatus);

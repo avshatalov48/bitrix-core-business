@@ -8,7 +8,6 @@ return [
 	'css' => 'dist/notification-content.bundle.css',
 	'js' => 'dist/notification-content.bundle.js',
 	'rel' => [
-		'main.core.events',
 		'main.polyfill.intersectionobserver',
 		'ui.dialogs.messagebox',
 		'im.v2.provider.service',

@@ -12,6 +12,18 @@ export const ChatSearchInput = {
 			type: Boolean,
 			required: true,
 		},
+		isLoading: {
+			type: Boolean,
+			required: false,
+		},
+		delayForFocusOnStart: {
+			type: Number,
+			default: 0,
+		},
+		withIcon: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	emits: ['closeSearch', 'openSearch', 'updateSearch'],
 	created()
@@ -45,6 +57,10 @@ export const ChatSearchInput = {
 		<SearchInput
 			:placeholder="$Bitrix.Loc.getMessage('IM_SEARCH_INPUT_PLACEHOLDER_V2')"
 			:searchMode="searchMode"
+			:isLoading="isLoading"
+			:withLoader="true"
+			:delayForFocusOnStart="delayForFocusOnStart"
+			:withIcon="withIcon"
 			@inputFocus="onInputFocus"
 			@inputBlur="onClose"
 			@queryChange="onInputUpdate"

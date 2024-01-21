@@ -1,35 +1,26 @@
 <?php
+
 namespace Bitrix\Main\Diag;
 
 class ExceptionHandler
 {
 	private $debug = false;
-
 	private $handledErrorsTypes;
 	private $exceptionErrorsTypes;
 	private array $trackModules = [];
-
 	private $catchOverflowMemory = false;
 	private $memoryReserveLimit = 65536;
+	/** @noinspection PhpPropertyOnlyWrittenInspection */
 	private $memoryReserve;
-
 	private $ignoreSilence = false;
-
 	private $assertionThrowsException = true;
 	private $assertionErrorType = E_USER_ERROR;
-
-	/**
-	 * @var ExceptionHandlerLog
-	 */
+	/** @var ExceptionHandlerLog */
 	private $handlerLog = null;
 	private $handlerLogCreator = null;
-
-	/**
-	 * @var IExceptionHandlerOutput
-	 */
+	/** @var IExceptionHandlerOutput */
 	private $handlerOutput = null;
 	private $handlerOutputCreator = null;
-
 	private $isInitialized = false;
 
 	/**
@@ -194,7 +185,9 @@ class ExceptionHandler
 		{
 			$h = $this->handlerOutputCreator;
 			if (is_callable($h))
-				$this->handlerOutput = call_user_func_array($h, array());
+			{
+				$this->handlerOutput = call_user_func_array($h, []);
+			}
 		}
 
 		return $this->handlerOutput;
@@ -211,7 +204,9 @@ class ExceptionHandler
 		{
 			$h = $this->handlerLogCreator;
 			if (is_callable($h))
-				$this->handlerLog = call_user_func_array($h, array());
+			{
+				$this->handlerLog = call_user_func_array($h, []);
+			}
 		}
 
 		return $this->handlerLog;
@@ -229,7 +224,9 @@ class ExceptionHandler
 	public function initialize($exceptionHandlerOutputCreator, $exceptionHandlerLogCreator = null)
 	{
 		if ($this->isInitialized)
+		{
 			return;
+		}
 
 		$this->initializeEnvironment();
 
@@ -241,16 +238,16 @@ class ExceptionHandler
 			$this->memoryReserve = str_repeat('b', $this->memoryReserveLimit);
 		}
 
-		set_error_handler(array($this, "handleError"), $this->handledErrorsTypes);
-		set_exception_handler(array($this, "handleException"));
-		register_shutdown_function(array($this, "handleFatalError"));
+		set_error_handler([$this, "handleError"], $this->handledErrorsTypes);
+		set_exception_handler([$this, "handleException"]);
+		register_shutdown_function([$this, "handleFatalError"]);
 
 		if ($this->debug)
 		{
 			assert_options(ASSERT_ACTIVE, 1);
 			assert_options(ASSERT_WARNING, 0);
 			assert_options(ASSERT_BAIL, 0);
-			assert_options(ASSERT_CALLBACK, array($this, "handleAssertion"));
+			assert_options(ASSERT_CALLBACK, [$this, "handleAssertion"]);
 		}
 		else
 		{
@@ -267,8 +264,8 @@ class ExceptionHandler
 	 *
 	 * @param int $logType
 	 * @return void
-	 * @see \Bitrix\Main\Diag\ExceptionHandler::writeToLog
-	 * @see \Bitrix\Main\Diag\ExceptionHandler::initialize
+	 * @see ExceptionHandler::writeToLog
+	 * @see ExceptionHandler::initialize
 	 */
 	public function handleException($exception, $logType = ExceptionHandlerLog::UNCAUGHT_EXCEPTION)
 	{
@@ -289,7 +286,7 @@ class ExceptionHandler
 	 *
 	 * @return true
 	 * @throws \ErrorException
-	 * @see \Bitrix\Main\Diag\ExceptionHandler::setExceptionErrorsTypes
+	 * @see ExceptionHandler::setExceptionErrorsTypes
 	 */
 	public function handleError($code, $message, $file, $line)
 	{
@@ -334,7 +331,7 @@ class ExceptionHandler
 		foreach ($modules as $module)
 		{
 			$moduleDir = DIRECTORY_SEPARATOR . "modules" . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR;
-			if (strpos($file, $moduleDir) !== false)
+			if (str_contains($file, $moduleDir))
 			{
 				return true;
 			}
@@ -353,7 +350,7 @@ class ExceptionHandler
 	 *
 	 * @return void
 	 * @throws \ErrorException
-	 * @see \Bitrix\Main\Diag\ExceptionHandler::setAssertionThrowsException
+	 * @see ExceptionHandler::setAssertionThrowsException
 	 */
 	public function handleAssertion($file, $line, $message)
 	{
@@ -375,7 +372,7 @@ class ExceptionHandler
 	 *
 	 * @return void
 	 * @see error_get_last
-	 * @see \Bitrix\Main\Diag\ExceptionHandler::setHandledErrorsTypes
+	 * @see ExceptionHandler::setHandledErrorsTypes
 	 */
 	public function handleFatalError()
 	{
@@ -384,7 +381,7 @@ class ExceptionHandler
 		{
 			if (($error['type'] & (E_ERROR | E_USER_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR)))
 			{
-				if(($error['type'] & $this->handledErrorsTypes))
+				if (($error['type'] & $this->handledErrorsTypes))
 				{
 					$exception = new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
 					$this->handleException($exception, ExceptionHandlerLog::FATAL);
@@ -400,12 +397,11 @@ class ExceptionHandler
 	 * @param integer|null $logType See ExceptionHandlerLog class constants.
 	 *
 	 * @return void
-	 * @see \Bitrix\Main\Diag\ExceptionHandler::initialize
+	 * @see ExceptionHandler::initialize
 	 */
 	public function writeToLog($exception, $logType = null)
 	{
 		$log = $this->getHandlerLog();
-		if ($log !== null)
-			$log->write($exception, $logType);
+		$log?->write($exception, $logType);
 	}
 }

@@ -433,7 +433,7 @@ class GridVariationForm extends VariationForm
 					$this->isAllowedEditFields()
 						? [
 							'TYPE' => Types::TEXT,
-							'PLACEHOLDER' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_NEW_VARIATION_PLACEHOLDER'),
+							'PLACEHOLDER' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_NEW_VARIATION_PLACEHOLDER_MSGVER_1'),
 						]
 						: false
 				,
@@ -730,7 +730,7 @@ class GridVariationForm extends VariationForm
 				&& $property['settings']['USER_TYPE'] === 'directory'
 			;
 
-			$sortField = "PROPERTY_{$property['propertyCode']}";
+			$sortField = 'PROPERTY_' . $property['propertyId'];
 			if (
 				$property['multiple']
 				|| $property['propertyCode'] === 'CML2_LINK'
@@ -754,7 +754,7 @@ class GridVariationForm extends VariationForm
 			];
 			if (!empty($property['isEnabledOfferTree']))
 			{
-				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_OFFER_TREE_HINT');
+				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_OFFER_TREE_HINT_MSGVER_1');
 			}
 
 			if (
@@ -763,7 +763,7 @@ class GridVariationForm extends VariationForm
 				&& $property['propertyCode'] !== 'MORE_PHOTO'
 			)
 			{
-				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_FILE_MULTIPLE_HINT');
+				$header['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_FILE_MULTIPLE_HINT_MSGVER_1');
 			}
 
 			$headers[] = $header;
@@ -1020,6 +1020,10 @@ class GridVariationForm extends VariationForm
 				{
 					$result['BARCODES'][] = $value;
 				}
+			}
+			elseif (isset($description['entity']) && $description['entity'] === 'measure_ratio')
+			{
+				$result['MEASURE_RATIO'] = $value;
 			}
 		}
 

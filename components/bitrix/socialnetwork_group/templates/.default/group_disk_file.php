@@ -19,7 +19,7 @@ $componentParameters = array_merge(
 	$arResult,
 	array(
 		'PATH_TO_TRASHCAN_LIST' => CComponentEngine::MakePathFromTemplate(
-			$arResult['PATH_TO_GROUP_TRASHCAN'],
+			$arResult['PATH_TO_GROUP_TRASHCAN_LIST'],
 			array('group_id' => $arResult['VARIABLES']['group_id'])
 		),
 		'PATH_TO_TRASHCAN_FILE_VIEW' => CComponentEngine::MakePathFromTemplate(
@@ -46,7 +46,7 @@ $componentParameters = array_merge(
 			$arResult['PATH_TO_GROUP_DISK_TASK'],
 			array('group_id' => $arResult['VARIABLES']['group_id'])
 		),
-		'PATH_TO_GROUP' => $arParams['PATH_TO_GROUP'],
+		'PATH_TO_GROUP' => $arResult['PATH_TO_GROUP'],
 		'STORAGE' => $arResult['VARIABLES']['STORAGE'],
 		'FILE_ID' => $arResult['VARIABLES']['FILE_ID'],
 		'RELATIVE_PATH' => $arResult['VARIABLES']['RELATIVE_PATH'],

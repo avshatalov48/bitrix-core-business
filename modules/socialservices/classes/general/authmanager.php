@@ -1,7 +1,10 @@
 <?php
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
+use Bitrix\Main\HttpResponse;
+use Bitrix\Main\Application;
 use Bitrix\Socialservices\ContactTable;
+use Bitrix\Socialservices\OAuth\StateService;
 use Bitrix\Socialservices\UserTable;
 
 IncludeModuleLangFile(__FILE__);
@@ -351,11 +354,22 @@ class CSocServAuthManager
 
 		if(isset($_REQUEST["state"]))
 		{
-			parse_str($_REQUEST["state"], $arState);
-
-			if(isset($arState['backurl']))
+			$arState = StateService::getInstance()->getPayload((string)$_REQUEST['state']);
+			if (is_array($arState))
 			{
-				InitURLParam($arState['backurl']);
+				if (!isset($_REQUEST['check_key']) && isset($arState['check_key']))
+				{
+					$_REQUEST['check_key'] = $arState['check_key'];
+				}
+			}
+			else
+			{
+				parse_str($_REQUEST["state"], $arState);
+
+				if (isset($arState['backurl']))
+				{
+					InitURLParam($arState['backurl']);
+				}
 			}
 		}
 
@@ -965,6 +979,9 @@ class CSocServAuth
 	protected $allowChangeOwner = true;
 
 	protected $userId = null;
+
+	public const OPENER_MODE = 'opener';
+	public const MOBILE_MODE = 'bx_mobile';
 
 	function __construct($userId = null)
 	{
@@ -1664,6 +1681,38 @@ class CSocServAuth
 	{
 		return COption::GetOptionString("main", "new_user_registration", "N") === "Y"
 			&& COption::GetOptionString("socialservices", "allow_registration", "Y") === "Y";
+	}
+
+	protected function onAfterMobileAuth()
+	{
+		$params = http_build_query([
+			'mode' => self::MOBILE_MODE,
+		]);
+
+		$httpResponse = new HttpResponse();
+		$httpResponse->addHeader('Location', 'bitrix24://?' . $params);
+		Application::getInstance()->end(0, $httpResponse);
+	}
+
+	protected function onAfterWebAuth($addParams, $mode, $url)
+	{
+		if($addParams)
+		{
+			$location = ($mode === self::OPENER_MODE) ? 'if(window.opener) window.opener.location = \''.$url.'\'; window.close();' : ' window.location = \''.$url.'\';';
+		}
+		else
+		{
+			//fix for chrome
+			$location = ($mode === self::OPENER_MODE) ? 'if(window.opener) window.opener.location = window.opener.location.href + \''.$url.'\'; window.close();' : ' window.location = window.location.href + \''.$url.'\';';
+		}
+
+		$JSScript = '
+			<script type="text/javascript">
+			'.$location.'
+			</script>
+			';
+
+		echo $JSScript;
 	}
 }
 

@@ -113,30 +113,34 @@ class CIMShare
 		if (!$message)
 			return false;
 
-		$task = new Task(0, $this->user_id);
+		$fields = [];
 
 		$taskTitle = mb_substr(trim(preg_replace(
-			array("/\n+/is".BX_UTF_PCRE_MODIFIER, '/\s+/is'.BX_UTF_PCRE_MODIFIER),
+			["/\n+/is" . BX_UTF_PCRE_MODIFIER, '/\s+/is' . BX_UTF_PCRE_MODIFIER],
 			" ",
 			CTextParser::clearAllTags($message['MESSAGE'])
 		)), 0, 255);
-		$task->title = $taskTitle? $taskTitle: CTextParser::clearAllTags(GetMessage('IM_SHARE_CHAT_TASK', Array('#LINK#' => '')));
-		$task->description = self::PrepareText($message)."\n";
-		$task['RESPONSIBLE_ID'] = $this->user_id;
+
+		$fields['TITLE'] = $taskTitle ?: CTextParser::clearAllTags(GetMessage('IM_SHARE_CHAT_TASK', ['#LINK#' => '']));
+
+		$fields['DESCRIPTION'] = self::PrepareText($message)."\n";
+		$fields['RESPONSIBLE_ID'] = $this->user_id;
+
 		if (
 			$message['AUTHOR_ID'] > 0 && $message['AUTHOR_ID'] != $this->user_id
 			&& !\Bitrix\Im\User::getInstance($message['AUTHOR_ID'])->isExtranet()
 			&& !\Bitrix\Im\User::getInstance($message['AUTHOR_ID'])->isBot()
 		)
 		{
-			$task['AUDITORS'] = Array($message['AUTHOR_ID']);
+			$fields['AUDITORS'] = [$message['AUTHOR_ID']];
 		}
-		$task['CREATED_BY'] = $this->user_id;
+
+		$fields['CREATED_BY'] = $this->user_id;
 
 		if (!empty($message['FILES']))
 		{
 			$diskUf = \Bitrix\Tasks\Integration\Disk\UserField::getMainSysUFCode();
-			$task[$diskUf] = array_map(function($value){ return 'n'.$value;}, array_keys($message['FILES']));
+			$fields[$diskUf] = array_map(function($value){ return 'n'.$value;}, array_keys($message['FILES']));
 		}
 
 		$messageParams = Array();
@@ -153,13 +157,12 @@ class CIMShare
 				if (isset($fieldData[0]) && $fieldData[0] == 'Y' && isset($fieldData[1]) && isset($fieldData[2]))
 				{
 					$crmType = \CCrmOwnerTypeAbbr::ResolveByTypeID(\CCrmOwnerType::ResolveID($fieldData[1]));
-					$task['UF_CRM_TASK'] = array($crmType.'_'.$fieldData[2]);
-
+					$fields['UF_CRM_TASK'] = [$crmType . '_' . $fieldData[2]];
 				}
 			}
 			if ($chat['ENTITY_TYPE'] == 'SONET_GROUP')
 			{
-				$task['GROUP_ID'] = $chat['ENTITY_ID'];
+				$fields['GROUP_ID'] = $chat['ENTITY_ID'];
 			}
 			else if ($chat['ENTITY_TYPE'] != 'SONET_GROUP')
 			{
@@ -170,27 +173,32 @@ class CIMShare
 		$date = intval($date);
 		if ($date > 0)
 		{
-			$task['DEADLINE'] = Bitrix\Main\Type\DateTime::createFromTimestamp($date);
+			$fields['DEADLINE'] = Bitrix\Main\Type\DateTime::createFromTimestamp($date);
 		}
 		else
 		{
 			$results = \Bitrix\Main\Text\DateConverter::decode(\Bitrix\Im\Text::removeBbCodes($message['MESSAGE']), 1000);
 			if (!empty($results))
 			{
-				$task['DEADLINE'] = $results[0]->getDate();
+				$fields['DEADLINE'] = $results[0]->getDate();
 				$userOffset = CTimeZone::GetOffset();
 				if ($userOffset != 0)
 				{
-					$task['DEADLINE']->add(($userOffset*-1).' SECONDS');
+					$fields['DEADLINE']->add(($userOffset*-1).' SECONDS');
 				}
 			}
 		}
 
-		$task = $this->prepareTaskFlags($task);
+		$fields = $this->prepareTaskFlags($fields);
 
-		$result = $task->save();
-		if (!$result->isSuccess())
+		$handler = new \Bitrix\Tasks\Control\Task($this->user_id);
+		try
 		{
+			$task = $handler->add($fields);
+		}
+		catch (Exception $exception)
+		{
+			\Bitrix\Tasks\Internals\Log\LogFacade::logThrowable($exception);
 			return false;
 		}
 
@@ -477,11 +485,7 @@ class CIMShare
 		return CBlog::GetByID($blogID);
 	}
 
-	/**
-	 * @param Task $task
-	 * @return Task
-	 */
-	private function prepareTaskFlags(Task $task): Task
+	private function prepareTaskFlags(array $fields): array
 	{
 		$popupOptions = CTasksTools::getPopupOptions();
 		$flags = [
@@ -499,10 +503,10 @@ class CIMShare
 
 		foreach ($flags as $name => $value)
 		{
-			$task[$name] = ($value ? 'Y' : 'N');
+			$fields[$name] = ($value ? 'Y' : 'N');
 		}
 
-		return $task;
+		return $fields;
 	}
 
 	public static function PrepareText($quoteMessage)

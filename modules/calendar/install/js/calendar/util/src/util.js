@@ -1,9 +1,9 @@
-import { Type, Loc, Dom, Tag} from "main.core";
-import { DateTimeFormat } from "main.date";
-import "ui.notification";
-import {PopupManager} from 'main.popup';
-import {PULL as Pull} from 'pull.client';
-import {MessageBox} from "ui.dialogs.messagebox";
+import { Dom, Loc, Tag, Type } from 'main.core';
+import { DateTimeFormat } from 'main.date';
+import { PopupManager } from 'main.popup';
+import { PULL as Pull } from 'pull.client';
+import { MessageBox } from 'ui.dialogs.messagebox';
+import 'ui.notification';
 
 export class Util
 {
@@ -214,6 +214,24 @@ export class Util
 		return `${formattedFrom} - ${formattedTo}`;
 	}
 
+	static formatDuration(diffMinutes)
+	{
+		const hours = Math.floor(diffMinutes / 60);
+		const minutes = diffMinutes % 60;
+
+		let hint = DateTimeFormat.format('idiff', new Date().getTime() / 1000 - minutes * 60);
+		if (hours > 0)
+		{
+			hint = DateTimeFormat.format('Hdiff', new Date().getTime() / 1000 - hours * 60 * 60);
+			if (minutes > 0)
+			{
+				hint += ' ' + DateTimeFormat.format('idiff', new Date().getTime() / 1000 - minutes * 60);
+			}
+		}
+
+		return hint;
+	}
+
 	static formatDateUsable(date, showYear = true, showDayOfWeek = false)
 	{
 		const lang = Loc.getMessage('LANGUAGE_ID');
@@ -237,6 +255,14 @@ export class Util
 			["yesterday", "yesterday"],
 			["", format]
 		], date);
+	}
+
+	static formatDayMonthShortTime(timestamp)
+	{
+		return DateTimeFormat.format(DateTimeFormat.getFormat('DAY_MONTH_FORMAT'), timestamp)
+			+ ' '
+			+ DateTimeFormat.format(DateTimeFormat.getFormat('SHORT_TIME_FORMAT'), timestamp)
+		;
 	}
 
 	static getDayLength()
@@ -308,16 +334,19 @@ export class Util
 		return new Object({SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6})[weekDay];
 	}
 
-	static getWeekdaysLoc()
+	static getWeekdaysLoc(isFull = false): []
 	{
 		const today = new Date();
 		const weekdays = [];
 
 		const dayLength = 24 * 60 * 60 * 1000;
+		const format = isFull ? 'l' : 'D';
 		for (let weekOffset = 0; weekOffset < 7; weekOffset++)
 		{
-			const weekDayName = DateTimeFormat.format('D', new Date(today.getTime() + dayLength * weekOffset));
-			weekdays[(today.getDay() + weekOffset) % 7] = weekDayName;
+			weekdays[(today.getDay() + weekOffset) % 7] = DateTimeFormat.format(
+				format,
+				new Date(today.getTime() + dayLength * weekOffset)
+			);
 		}
 
 		return weekdays;
@@ -641,6 +670,30 @@ export class Util
 	static getMeetingStatusList()
 	{
 		return ['Y', 'N', 'Q', 'H'];
+	}
+
+	static getWorkTimeStart()
+	{
+		let workTimeStartParsed = this.config.work_time_start.split('.');
+
+		if (workTimeStartParsed.length === 1)
+		{
+			return workTimeStartParsed[0] + '.00';
+		}
+
+		return this.config.work_time_start;
+	}
+
+	static getWorkTimeEnd()
+	{
+		let workTimeEndParsed = this.config.work_time_end.split('.');
+
+		if (workTimeEndParsed.length === 1)
+		{
+			return workTimeEndParsed[0] + '.00';
+		}
+
+		return this.config.work_time_end;
 	}
 
 	static checkEmailLimitationPopup()

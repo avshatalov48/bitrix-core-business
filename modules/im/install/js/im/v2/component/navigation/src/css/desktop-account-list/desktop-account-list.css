@@ -1,0 +1,32 @@
+.bx-im-desktop-connection-list__scope {
+	--im-desktop-connection-list__color_title: var(--im-color-palette-gray-40);
+	--im-desktop-connection-list__color_add-button: var(--im-color-palette-blue-60);
+}
+
+.bx-im-desktop-connection-list__container {
+	overflow: hidden;
+	padding: 0 1px 9px 8px;
+}
+
+.bx-im-desktop-connection-list__header {
+	display: flex;
+	justify-content: space-between;
+	padding: 14px 9px 5px 8px;
+	font: var(--im-font-size-4xs)/var(--im-font-line-height-3xl) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-bold);
+	text-transform: uppercase;
+}
+
+.bx-im-desktop-connection-list__title {
+	color: var(--im-desktop-connection-list__color_title);
+}
+
+.bx-im-desktop-connection-list__add {
+	color: var(--im-desktop-connection-list__color_add-button);
+	cursor: pointer;
+}
+
+.bx-im-desktop-connection-list__items {
+	height: calc(100% - 53px);
+	user-select: text;
+}

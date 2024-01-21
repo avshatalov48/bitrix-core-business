@@ -556,7 +556,7 @@ final class CProductQueryBuilder
 	/**
 	 * @return void
 	 */
-	private static function initEntityDescription()
+	private static function initEntityDescription(): void
 	{
 		if (!empty(self::$entityDescription))
 		{
@@ -630,7 +630,7 @@ final class CProductQueryBuilder
 	/**
 	 * @return void
 	 */
-	private static function initEntityFields()
+	private static function initEntityFields(): void
 	{
 		if (!empty(self::$entityFields))
 		{
@@ -1862,21 +1862,12 @@ final class CProductQueryBuilder
 	 */
 	private static function getFilterType(string $fieldType): string
 	{
-		switch ($fieldType)
+		return match ($fieldType)
 		{
-			case self::FIELD_TYPE_INT:
-			case self::FIELD_TYPE_FLOAT:
-				$result = 'number';
-				break;
-			case self::FIELD_TYPE_CHAR:
-				$result = 'string_equal';
-				break;
-			default:
-				$result = 'string';
-				break;
-		}
-
-		return $result;
+			self::FIELD_TYPE_INT, self::FIELD_TYPE_FLOAT => 'number',
+			self::FIELD_TYPE_CHAR => 'string_equal',
+			default => 'string',
+		};
 	}
 
 	/**
@@ -1924,7 +1915,7 @@ final class CProductQueryBuilder
 	 * @param array &$parameters
 	 * @return void
 	 */
-	private static function prepareSelectedCompatibleFields(array &$parameters)
+	private static function prepareSelectedCompatibleFields(array &$parameters): void
 	{
 		if ($parameters['compatible_mode'] && !empty($parameters['compatible_entities']))
 		{
@@ -1954,7 +1945,7 @@ final class CProductQueryBuilder
 	 * @param array $field
 	 * @return void
 	 */
-	private static function fillCompatibleEntities(array &$result, array $field)
+	private static function fillCompatibleEntities(array &$result, array $field): void
 	{
 		if (!$field['COMPATIBLE'])
 			return;
@@ -2091,7 +2082,7 @@ final class CProductQueryBuilder
 	/**
 	 * @return void
 	 */
-	private static function clearOptions()
+	private static function clearOptions(): void
 	{
 		self::$options = [];
 	}
@@ -2100,7 +2091,7 @@ final class CProductQueryBuilder
 	 * @param array $options
 	 * @return void
 	 */
-	private static function setOptions(array $options)
+	private static function setOptions(array $options): void
 	{
 		global $USER;
 
@@ -2134,7 +2125,7 @@ final class CProductQueryBuilder
 	 * @param string $index
 	 * @return mixed|null
 	 */
-	private static function getOption(string $index)
+	private static function getOption(string $index): mixed
 	{
 		if (!isset(self::$options[$index]))
 			return null;
@@ -2199,7 +2190,7 @@ final class CProductQueryBuilder
 	 * @param array $list
 	 * @return void
 	 */
-	private static function buildSelect(array &$result, array $list)
+	private static function buildSelect(array &$result, array $list): void
 	{
 		foreach ($list as $item)
 		{
@@ -2221,7 +2212,7 @@ final class CProductQueryBuilder
 	 * @param array $list
 	 * @return void
 	 */
-	private static function buildFilter(array &$result, array $list)
+	private static function buildFilter(array &$result, array $list): void
 	{
 		self::filterModify($list);
 
@@ -2236,7 +2227,7 @@ final class CProductQueryBuilder
 	 * @param array $list
 	 * @return void
 	 */
-	private static function buildOrder(array &$result, array $list)
+	private static function buildOrder(array &$result, array $list): void
 	{
 		foreach ($list as $item)
 		{
@@ -2257,7 +2248,7 @@ final class CProductQueryBuilder
 	 * @param array &$result
 	 * @return void
 	 */
-	private static function buildJoin(array &$result)
+	private static function buildJoin(array &$result): void
 	{
 		foreach (array_keys($result['join']) as $index)
 		{
@@ -2364,7 +2355,7 @@ final class CProductQueryBuilder
 	 * @param array $entity
 	 * @return void
 	 */
-	private static function addJoin(array &$result, array $entity)
+	private static function addJoin(array &$result, array $entity): void
 	{
 		$index = self::getEntityIndex($entity);
 		$description = $entity['ENTITY_DESCRIPTION'];
@@ -2432,7 +2423,7 @@ final class CProductQueryBuilder
 	 * @param array &$item
 	 * @return void
 	 */
-	private static function orderTransformField(array &$item)
+	private static function orderTransformField(array &$item): void
 	{
 		$field = self::getFieldDescription($item['ENTITY'], $item['FIELD']);
 		if (empty($field))
@@ -2452,7 +2443,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function selectQuantityTrace(array &$parameters, array &$entity, array &$field)
+	private static function selectQuantityTrace(array &$parameters, array &$entity, array &$field): void
 	{
 		$field['SELECT'] = self::getReplaceSqlFunction(Main\Config\Option::get('catalog', 'default_quantity_trace'));
 	}
@@ -2467,7 +2458,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function selectCanBuyZero(array &$parameters, array &$entity, array &$field)
+	private static function selectCanBuyZero(array &$parameters, array &$entity, array &$field): void
 	{
 		$field['SELECT'] = self::getReplaceSqlFunction(Main\Config\Option::get('catalog', 'default_can_buy_zero'));
 	}
@@ -2482,7 +2473,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function selectNegativeAmountTrace(array &$parameters, array &$entity, array &$field)
+	private static function selectNegativeAmountTrace(array &$parameters, array &$entity, array &$field): void
 	{
 		$field['SELECT'] = self::getReplaceSqlFunction(Main\Config\Option::get('catalog', 'allow_negative_amount'));
 	}
@@ -2497,7 +2488,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function selectSubscribe(array &$parameters, array &$entity, array &$field)
+	private static function selectSubscribe(array &$parameters, array &$entity, array &$field): void
 	{
 		$field['SELECT'] = self::getReplaceSqlFunction(Main\Config\Option::get('catalog', 'default_subscribe'));
 	}
@@ -2510,7 +2501,7 @@ final class CProductQueryBuilder
 	 */
 	private static function getReplaceSqlFunction(string $defaultValue): string
 	{
-		return 'IF (#FULL_NAME# = \''.ProductTable::STATUS_DEFAULT.'\', \''.$defaultValue.'\', #FULL_NAME#)';
+		return 'CASE WHEN #FULL_NAME# = \'' . ProductTable::STATUS_DEFAULT . '\' THEN \'' . $defaultValue . '\' ELSE #FULL_NAME# END';
 	}
 
 	/**
@@ -2521,7 +2512,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function selectPriceTypeName(array &$parameters, array &$entity, array &$field)
+	private static function selectPriceTypeName(array &$parameters, array &$entity, array &$field): void
 	{
 		$result = '';
 		$id = $parameters['ENTITY_ID'];
@@ -2547,7 +2538,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function selectPriceTypeAllowedView(array &$parameters, array &$entity, array &$field)
+	private static function selectPriceTypeAllowedView(array &$parameters, array &$entity, array &$field): void
 	{
 		$parameters['ACCESS'] = GroupAccessTable::ACCESS_VIEW;
 		$field['SELECT'] = self::getPriceTypeAccess($parameters);
@@ -2561,7 +2552,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function selectPriceTypeAllowedBuy(array &$parameters, array &$entity, array &$field)
+	private static function selectPriceTypeAllowedBuy(array &$parameters, array &$entity, array &$field): void
 	{
 		$parameters['ACCESS'] = GroupAccessTable::ACCESS_BUY;
 		$field['SELECT'] = self::getPriceTypeAccess($parameters);
@@ -2607,7 +2598,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function prepareFilterQuantityTrace(array &$parameters, array &$entity, array &$field)
+	private static function prepareFilterQuantityTrace(array &$parameters, array &$entity, array &$field): void
 	{
 		$parameters['VALUES'] = self::addDefaultValue(
 			$parameters['VALUES'],
@@ -2623,7 +2614,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function prepareFilterCanBuyZero(array &$parameters, array &$entity, array &$field)
+	private static function prepareFilterCanBuyZero(array &$parameters, array &$entity, array &$field): void
 	{
 		$parameters['VALUES'] = self::addDefaultValue(
 			$parameters['VALUES'],
@@ -2639,7 +2630,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function prepareFilterSubscribe(array &$parameters, array &$entity, array &$field)
+	private static function prepareFilterSubscribe(array &$parameters, array &$entity, array &$field): void
 	{
 		$parameters['VALUES'] = self::addDefaultValue(
 			$parameters['VALUES'],
@@ -2654,7 +2645,7 @@ final class CProductQueryBuilder
 	 * @param string $defaultValue
 	 * @return mixed
 	 */
-	private static function addDefaultValue($values, string $defaultValue)
+	private static function addDefaultValue(mixed $values, string $defaultValue): mixed
 	{
 		if (!is_array($values))
 		{
@@ -2682,7 +2673,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function priceParametersFilter(array &$parameters, array &$entity, array &$field)
+	private static function priceParametersFilter(array &$parameters, array &$entity, array &$field): void
 	{
 		if (empty($parameters['VALUES']))
 			return;
@@ -2706,7 +2697,7 @@ final class CProductQueryBuilder
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private static function filterModifierCurrencyScale(array &$filter, $filterKey, array $entity, array $field): void
+	private static function filterModifierCurrencyScale(array &$filter, int|string $filterKey, array $entity, array $field): void
 	{
 		$activeItem = $filter[$filterKey];
 

@@ -1,8 +1,11 @@
 <?php
+
 namespace Bitrix\Main;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -35,6 +38,8 @@ Loc::loadMessages(__FILE__);
 
 class GroupTaskTable extends Main\Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	/**
 	 * Returns DB table name for entity.
 	 *

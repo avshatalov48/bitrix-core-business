@@ -1,5 +1,6 @@
 <?php
 $MESS["SALE_HPS_SBERBANK"] = "Сбербанк";
+$MESS["SALE_HPS_SBERBANK_DESCRIPTION"] = "Принимайте платежи по банковским картам. Оплата производится через Сбербанк.";
 $MESS["SALE_HPS_SBERBANK_LOGIN"] = "Логин";
 $MESS["SALE_HPS_SBERBANK_LOGIN_DESC"] = "Логин";
 $MESS["SALE_HPS_SBERBANK_PASSWORD"] = "Пароль";

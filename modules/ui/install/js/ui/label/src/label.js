@@ -1,6 +1,6 @@
 // @flow
 
-import {Dom, Tag, Type} from 'main.core';
+import {Tag, Type} from 'main.core';
 import LabelColor from './label-color';
 import LabelSize from './label-size';
 

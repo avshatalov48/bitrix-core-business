@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Seo = this.BX.Seo || {};
 (function (exports,main_core,ui_vue) {
@@ -283,7 +284,7 @@ this.BX.Seo = this.BX.Seo || {};
 	      BX.SidePanel.Instance.open('seo-fbe-install', {
 	        contentCallback: function contentCallback(slider) {
 	          return BX.UI.SidePanel.Layout.createContent({
-	            title: main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE'),
+	            title: main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE_MSGVER_1'),
 	            extensions: ['seo.ads.login', 'ui.forms'],
 	            design: {
 	              section: false
@@ -328,7 +329,7 @@ this.BX.Seo = this.BX.Seo || {};
 	            }
 	          });
 	        },
-	        title: main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE'),
+	        title: main_core.Loc.getMessage('SEO_ADS_FACEBOOK_BUSINESS_LOGIN_TITLE_MSGVER_1'),
 	        width: (_BX$SidePanel$Instanc = (_BX$SidePanel$Instanc2 = BX.SidePanel.Instance.getTopSlider()) === null || _BX$SidePanel$Instanc2 === void 0 ? void 0 : _BX$SidePanel$Instanc2.getWidth()) !== null && _BX$SidePanel$Instanc !== void 0 ? _BX$SidePanel$Instanc : 850,
 	        cacheable: false
 	      });

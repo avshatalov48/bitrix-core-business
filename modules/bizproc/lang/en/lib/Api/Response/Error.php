@@ -1,0 +1,3 @@
+<?php
+$MESS["BIZPROC_LIB_SERVICES_ERROR_UNAUTHORIZED"] = "You are not logged in.";
+$MESS["BIZPROC_LIB_SERVICES_ERROR_WORKFLOW_NOT_FOUND"] = "Workflow was not found.";

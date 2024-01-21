@@ -1,4 +1,4 @@
-<?
+<?php
 //<title>Ebay</title>
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/export_setup_templ.php');
 

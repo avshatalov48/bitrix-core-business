@@ -86,7 +86,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      margin: 0
 	    });
 	    var id = _this.options.formOptions.id;
-	    main_core.Dom.append(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div>", ": ", "</div>"])), landing_loc.Loc.getMessage('LANDING_CRM_FORM_ID'), id), idCard.getBody());
+	    main_core.Dom.append(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div>", " ", "</div>"])), landing_loc.Loc.getMessage('LANDING_CRM_FORM_ID_MSGVER_1'), id), idCard.getBody());
 	    _this.addItem(idCard);
 	    return _this;
 	  }
@@ -118,7 +118,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          value: _this3.options.formOptions.data.useSign ? ['useSign'] : [],
 	          items: [{
 	            value: 'useSign',
-	            html: "".concat(landing_loc.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_SHOW_SIGN')).concat(_this3.createCopyRight()),
+	            html: "".concat(landing_loc.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN_B_24')),
 	            name: ''
 	          }],
 	          compact: true
@@ -175,11 +175,6 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	          content: _this6.options.formOptions.data.language
 	        });
 	      });
-	    } // eslint-disable-next-line class-methods-use-this
-	  }, {
-	    key: "createCopyRight",
-	    value: function createCopyRight() {
-	      return "\n\t\t\t<span class=\"landing-ui-signin\">\n\t\t\t\t<span class=\"landing-ui-sign\">".concat(landing_loc.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN'), "</span>\n\t\t\t\t<span class=\"landing-ui-sign-in\">").concat(landing_loc.Loc.getMessage('LANDING_HEADER_AND_BUTTONS_BUTTONS_SIGN_BY'), "</span>\n\t\t\t\t<span class=\"landing-ui-sign-24\">24</span>\n\t\t\t</span>\n\t\t");
 	    }
 	  }, {
 	    key: "valueReducer",

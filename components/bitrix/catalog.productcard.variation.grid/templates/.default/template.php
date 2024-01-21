@@ -43,7 +43,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 				<a class="ui-btn ui-btn-sm ui-btn-light catalog-variation-grid-add-btn<?=$disabledClass?>"
 						data-role="catalog-productcard-variation-add-row"
 						tabindex="-1">
-					<?=Loc::getMessage('C_PVG_CREATE_VARIATION')?>
+					<?=Loc::getMessage('C_PVG_CREATE_VARIATION_MSGVER_1')?>
 				</a>
 			</div>
 			<?php
@@ -103,7 +103,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 		?>
 		<div class="catalog-variation-grid-link">
 			<a class="ui-link ui-link-secondary ui-link-dashed" id="<?=$createPropertyId?>"
-			><?=Loc::getMessage('C_PVG_CREATE_VARIATION_PROPERTY')?></a>
+			><?=Loc::getMessage('C_PVG_CREATE_VARIATION_PROPERTY_MSGVER_1')?></a>
 			<a href="<?=Util::getArticleUrlByCode('13274510')?>"
 					class="ui-hint-icon"
 					id="<?=$createPropertyHintId?>"></a>

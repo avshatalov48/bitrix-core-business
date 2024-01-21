@@ -45,7 +45,7 @@ if (isset($_GET['IFRAME']) && $_GET['IFRAME'] == 'Y')
 		"DESKTOP" => $isDesktop,
 	), false, Array("HIDE_ICONS" => "Y"));
 }
-else if (!$isDesktop && !\Bitrix\Im\Settings::isBetaActivated())
+else if (!$isDesktop && \Bitrix\Im\Settings::isLegacyChatActivated())
 {
 	$APPLICATION->IncludeComponent("bitrix:im.messenger", "fullscreen", Array(
 		"CONTEXT" => "FULLSCREEN",

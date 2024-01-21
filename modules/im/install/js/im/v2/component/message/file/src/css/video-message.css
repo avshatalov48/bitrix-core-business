@@ -56,3 +56,21 @@
 .bx-im-content-chat__container.--left-align .--transparent .bx-im-message-video__container {
 	align-items: flex-start;
 }
+
+.bx-im-message-video__content-with-header {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.bx-im-message-video__header {
+	background: var(--im-message-base__background-color);
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding: 10px 19px 18px 14px;
+	margin-bottom: -6px;
+}
+
+.--self .bx-im-message-video__header {
+	background: var(--im-message-base__background-color_self);
+}

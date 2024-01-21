@@ -9,10 +9,12 @@ use Bitrix\Main\EventResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterService;
 use Bitrix\Socialnetwork\Item\Subscription;
 use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Socialnetwork\UserContentViewTable;
 use Bitrix\Socialnetwork\Item\UserContentView;
+use Bitrix\Socialnetwork\Item\Log;
 
 Loc::loadMessages(__FILE__);
 
@@ -53,6 +55,8 @@ abstract class Provider
 	protected $sourceFields = [];
 	protected $siteId = false;
 	protected $options = [];
+	protected string $ratingTypeId = '';
+	protected int|null $ratingEntityId = null;
 	protected $parentProvider = false;
 
 	protected $cloneDiskObjects = false;
@@ -130,7 +134,22 @@ abstract class Provider
 
 	public function getRatingTypeId(): string
 	{
-		return '';
+		return $this->ratingTypeId;
+	}
+
+	public function setRatingTypeId(string $value): void
+	{
+		$this->ratingTypeId = $value;
+	}
+
+	public function getRatingEntityId(): int|null
+	{
+		return $this->ratingEntityId;
+	}
+
+	public function setRatingEntityId(int $value): void
+	{
+		$this->ratingEntityId = $value;
 	}
 
 	public function getUserTypeEntityId(): string
@@ -277,6 +296,16 @@ abstract class Provider
 			)
 			{
 				$provider->setLogId((int)$params['LOG_ID']);
+			}
+
+			if (isset($params['RATING_TYPE_ID']))
+			{
+				$provider->setRatingTypeId($params['RATING_TYPE_ID']);
+			}
+
+			if (isset($params['RATING_ENTITY_ID']))
+			{
+				$provider->setRatingEntityId($params['RATING_ENTITY_ID']);
 			}
 
 			if (
@@ -1153,6 +1182,28 @@ abstract class Provider
 
 		$result = UserContentViewTable::set($viewParams);
 
+		// we need to update the last DATE_VIEW for the parent post if it is a comment
+		if ($this->isComment($this->getContentTypeId()))
+		{
+			$logItem = Log::getById($logId);
+			if ($logItem)
+			{
+				$fields = $logItem->getFields();
+				$contentTypeId = $fields['RATING_TYPE_ID'] ?? null;
+				$contentEntityId = $fields['RATING_ENTITY_ID'] ?? null;
+				if ($contentTypeId && $contentEntityId)
+				{
+					$result = UserContentViewTable::set([
+						'userId' => $userId,
+						'typeId' => $contentTypeId,
+						'entityId' => $contentEntityId,
+						'logId' => $logId,
+						'save' => true
+					]);
+				}
+			}
+		}
+
 		$pool->useMasterOnly(false);
 
 		if (
@@ -1172,18 +1223,18 @@ abstract class Provider
 					&& $result['savedInDB']
 				)
 				{
-					if (Loader::includeModule('pull'))
+					if (Loader::includeModule('pull') && !$this->isComment($this->getContentTypeId()))
 					{
-						\CPullWatch::addToStack('CONTENTVIEW' . $contentTypeId . '-' . $contentEntityId,
+						\CPullWatch::addToStack('CONTENTVIEW' . $viewParams['typeId'] . '-' . $viewParams['entityId'],
 							[
 								'module_id' => 'contentview',
 								'command' => 'add',
 								'expiry' => 0,
 								'params' => [
 									'USER_ID' => $userId,
-									'TYPE_ID' => $contentTypeId,
-									'ENTITY_ID' => $contentEntityId,
-									'CONTENT_ID' => $contentTypeId . '-' . $contentEntityId
+									'TYPE_ID' => $viewParams['typeId'],
+									'ENTITY_ID' => $viewParams['entityId'],
+									'CONTENT_ID' => $viewParams['typeId'] . '-' . $viewParams['entityId']
 								]
 							]
 						);
@@ -1196,6 +1247,16 @@ abstract class Provider
 						'userId' => $userId,
 						'logId' => $logId
 					]);
+
+					\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+						\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_POST_VIEW,
+						[
+							'SONET_LOG_ID' => (int)$logId,
+							'USER_ID' => (int)$userId,
+							'TYPE_ID' => $contentTypeId,
+							'ENTITY_ID' => $contentEntityId,
+						]
+					);
 				}
 
 				$event = new Main\Event(
@@ -1473,5 +1534,12 @@ abstract class Provider
 	public function getParentEntityId(): int
 	{
 		return 0;
+	}
+
+	private function isComment(string $contentTypeId): bool
+	{
+		return $contentTypeId === LogComment::CONTENT_TYPE_ID
+			|| $contentTypeId === BlogComment::CONTENT_TYPE_ID
+			|| $contentTypeId === ForumPost::CONTENT_TYPE_ID;
 	}
 }

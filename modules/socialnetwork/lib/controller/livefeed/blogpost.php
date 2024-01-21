@@ -4,11 +4,13 @@ namespace Bitrix\Socialnetwork\Controller\Livefeed;
 
 use Bitrix\Disk\Driver;
 use Bitrix\Disk\Security\DiskSecurityContext;
+use Bitrix\Main\Engine\Response\Component;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Blog\Item\Permissions;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\UI\EntitySelector;
 use Bitrix\Main\Web\Json;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\ArgumentException;
@@ -241,6 +243,7 @@ class BlogPost extends Base
 			return null;
 		}
 
+		// todo for check access
 		$currentUserPerm = Helper::getBlogPostPerm([
 			'USER_ID' => $currentUserId,
 			'POST_ID' => $postId,
@@ -317,7 +320,7 @@ class BlogPost extends Base
 				$entitites = Json::decode($destData);
 				if (!empty($entitites))
 				{
-					$destCodesList = \Bitrix\Main\UI\EntitySelector\Converter::convertToFinderCodes($entitites);
+					$destCodesList = EntitySelector\Converter::convertToFinderCodes($entitites);
 				}
 			}
 			catch(ArgumentException $e)
@@ -445,6 +448,11 @@ class BlogPost extends Base
 
 		try
 		{
+			if (is_string($params['DEST_DATA'] ?? null))
+			{
+				$params['DEST'] = $this->convertDestData(['DEST_DATA' => $params['DEST_DATA']]);
+			}
+
 			$postId = Helper::addBlogPost($params, $this->getScope(), $resultFields);
 			if ($postId <= 0)
 			{
@@ -490,6 +498,11 @@ class BlogPost extends Base
 
 		try
 		{
+			if (is_string($params['DEST_DATA'] ?? null))
+			{
+				$params['DEST'] = $this->convertDestData(['DEST_DATA' => $params['DEST_DATA']]);
+			}
+
 			$params['POST_ID'] = $id;
 			$postId = Helper::updateBlogPost($params, $this->getScope(), $resultFields);
 			if ($postId <= 0)
@@ -512,6 +525,7 @@ class BlogPost extends Base
 		catch (\Exception $e)
 		{
 			$this->addError(new Error($e->getMessage(), $e->getCode()));
+
 			return null;
 		}
 
@@ -545,6 +559,283 @@ class BlogPost extends Base
 		}
 
 		return $result;
+	}
+
+	public function getMainPostFormAction(array $params): ?Component
+	{
+		$postId = (int) $params['postId'];
+		if (!$this->checkReadFormAccess($postId, 0))
+		{
+			$this->addError(new Error('Access denied'));
+
+			return null;
+		}
+
+		$formId = (is_string($params['formId'] ?? null) ? $params['formId'] : '');
+		$jsObjName = (is_string($params['jsObjName'] ?? null) ? $params['jsObjName'] : '');
+		$LHEId = (is_string($params['LHEId'] ?? null) ? $params['LHEId'] : '');
+		if (!$formId || !$jsObjName || !$LHEId)
+		{
+			$this->addError(new Error('Required parameters were not passed.'));
+
+			return null;
+		}
+
+		$postId = (is_numeric($params['postId'] ?? null) ? (int) $params['postId'] : 0);
+		$text = (is_string($params['text'] ?? null) ? $params['text'] : '');
+
+		$ctrlEnterHandler = (is_string($params['ctrlEnterHandler'] ?? null)
+			? $params['ctrlEnterHandler']
+			: ''
+		);
+		$allowEmailInvitation = (is_bool($params['allowEmailInvitation'] ?? null)
+			? $params['allowEmailInvitation']
+			: false
+		);
+		$useCut = (is_bool($params['useCut'] ?? null) ? $params['useCut'] : false);
+		$allowVideo = (is_bool($params['allowVideo'] ?? null) ? $params['allowVideo'] : false);
+
+		global $USER_FIELD_MANAGER;
+		$postFields = $USER_FIELD_MANAGER->getUserFields('BLOG_POST', $postId, LANGUAGE_ID);
+
+		$properties = [];
+		if (isset($postFields['UF_BLOG_POST_URL_PRV']))
+		{
+			$properties[] = $postFields['UF_BLOG_POST_URL_PRV'];
+		}
+		if (isset($postFields['UF_BLOG_POST_FILE']))
+		{
+			$properties[] = $postFields['UF_BLOG_POST_FILE'];
+		}
+
+		$tags = [];
+
+		if ($postId)
+		{
+			$postFields = Helper::getBlogPostFields($postId);
+
+			if ($postFields['CATEGORY_ID'] <> '')
+			{
+				$tags = $this->getPostTags($postId, $postFields['CATEGORY_ID']);
+			}
+		}
+
+		$component = new Component(
+			'bitrix:main.post.form',
+			'',
+			[
+				'FORM_ID' => $formId,
+				'SHOW_MORE' => 'Y',
+				'DEST_CONTEXT' => 'BLOG_POST',
+				'DESTINATION_SHOW' => 'Y',
+
+				'LHE' => [
+					'id' => $LHEId,
+					'documentCSS' => 'body {color:#434343;}',
+					'iframeCss' => 'html body { line-height: 20px!important;}',
+					'ctrlEnterHandler' => $ctrlEnterHandler,
+					'jsObjName' => $jsObjName,
+					'fontSize' => '14px',
+					'bInitByJS' => true,
+					'width' => '100%',
+					'minBodyWidth' => '100%',
+					'normalBodyWidth' => '100%',
+					'autoResizeMaxHeight' => 'Infinity',
+					'minBodyHeight' => 200,
+					'autoResize' => true,
+					'saveOnBlur' => false,
+					'lazyLoad' => true,
+				],
+
+				'TEXT' => [
+					'NAME' => 'POST_MESSAGE',
+					'VALUE' => \Bitrix\Main\Text\Emoji::decode(htmlspecialcharsBack($text)),
+					'HEIGHT' => '120px'
+				],
+
+				'USE_CLIENT_DATABASE' => 'Y',
+				'ALLOW_EMAIL_INVITATION' => $allowEmailInvitation ? 'Y' : 'N',
+				'MENTION_ENTITIES' => [
+					[
+						'id' => 'user',
+						'options' => [
+							'emailUsers' => true,
+							'inviteEmployeeLink' => false,
+						],
+					],
+					[
+						'id' => 'department',
+						'options' => [
+							'selectMode' => 'usersAndDepartments',
+							'allowFlatDepartments' => false,
+						],
+					],
+					[
+						'id' => 'project',
+						'options' => [
+							'features' => [
+								'blog' =>  [
+									'premoderate_post',
+									'moderate_post',
+									'write_post',
+									'full_post'
+								],
+							],
+						],
+					],
+				],
+
+				'PARSER' => [
+					'Bold',
+					'Italic',
+					'Underline',
+					'Strike',
+					'ForeColor',
+					'FontList',
+					'FontSizeList',
+					'RemoveFormat',
+					'Quote',
+					'Code',
+					($useCut ? 'InsertCut' : ''),
+					'CreateLink',
+					'Image',
+					'Table',
+					'Justify',
+					'InsertOrderedList',
+					'InsertUnorderedList',
+					'SmileList',
+					'Source',
+					'UploadImage',
+					($allowVideo ? 'InputVideo' : ''),
+					'MentionUser',
+				],
+
+				'BUTTONS' => [
+					'UploadImage',
+					'UploadFile',
+					'CreateLink',
+					($allowVideo ? 'InputVideo' : ''),
+					'Quote',
+					'MentionUser',
+					'InputTag',
+					'VideoMessage',
+				],
+
+				'TAGS' => [
+					'ID' => 'TAGS',
+					'NAME' => 'TAGS',
+					'VALUE' => $tags,
+					'USE_SEARCH' => 'Y',
+					'FILTER' => 'blog',
+				],
+
+				'PROPERTIES' => $properties,
+				'UPLOAD_FILE_PARAMS' => [
+					'width' => 400,
+					'height' => 400,
+				],
+			]
+		);
+
+		return $component;
+	}
+
+	public function getPostFormInitDataAction(int $postId, int $groupId): ?array
+	{
+		$postId = (int) $postId;
+		$groupId = (int) $groupId;
+
+		$editMode = $postId > 0;
+		$groupMode = $groupId > 0;
+
+		if (!$this->checkReadFormAccess($postId))
+		{
+			$this->addError(new Error('Access denied'));
+
+			return null;
+		}
+
+		$userPostEditOption = \CUserOptions::getOption('socialnetwork', 'postEdit');
+
+		$initData = [
+			'isShownPostTitle' => ($userPostEditOption['showTitle'] ?? null) === 'Y' ? 'Y' : 'N',
+			'allUsersTitle' => ModuleManager::isModuleInstalled('intranet')
+				? Loc::getMessage('SN_MPF_DESTINATION_EMPLOYEES')
+				: Loc::getMessage('SN_MPF_DESTINATION_USERS')
+			,
+			'allowEmailInvitation' => (
+				ModuleManager::isModuleInstalled('mail')
+				&& ModuleManager::isModuleInstalled('intranet')
+				&& (
+					!Loader::includeModule('bitrix24')
+					|| \CBitrix24::isEmailConfirmed()
+				)
+			),
+			'allowToAll' => ComponentHelper::getAllowToAllDestination(),
+		];
+
+		if ($editMode)
+		{
+			try
+			{
+				$postFields = Helper::getBlogPostFields($postId);
+
+				$authorId = $postFields['AUTHOR_ID'];
+
+				$initData['title'] = $postFields['MICRO'] === 'Y' ? '' : $postFields['TITLE'];
+				$initData['message'] = $postFields['DETAIL_TEXT'];
+
+				$perms = \CBlogPost::getSocnetPerms($postFields['ID']);
+				if (
+					is_array($perms['U'][$authorId] ?? null)
+					&& in_array('US' . $authorId, $perms['U'][$authorId])
+				)
+				{
+					$perms['U']['A'] = [];
+				}
+				if (
+					!is_array($perms['U'][$authorId] ?? null)
+					|| !in_array('U' . $authorId, $perms["U"][$authorId])
+				)
+				{
+					unset($perms['U'][$authorId]);
+				}
+
+				$destList = $this->getPostFormDestList($perms);
+				$initData['recipients'] = Json::encode($destList);
+
+				$initData['fileIds'] = $postFields['UF_BLOG_POST_FILE'];
+			}
+			catch (\Exception $e)
+			{
+				$this->addError(new Error($e->getMessage(), $e->getCode()));
+
+				return null;
+			}
+		}
+		else
+		{
+			if ($groupMode)
+			{
+				if ($this->checkGroupAccess($groupId))
+				{
+					$initData['recipients'] = Json::encode($this->getPostFormDestList(
+						['SG' => [$groupId => ['SG' . $groupId]]]
+					));
+				}
+			}
+			else
+			{
+				if (ComponentHelper::getAllowToAllDestination())
+				{
+					$initData['recipients'] = Json::encode($this->getPostFormDestList(
+						['U' => ['A' => 'UA']]
+					));
+				}
+			}
+		}
+
+		return $initData;
 	}
 
 	// todo
@@ -604,6 +895,159 @@ class BlogPost extends Base
 		);
 
 		return ['fileId' => 'n' . $file->getId()];
+	}
+
+	private function getPostFormDestList(array $permList): array
+	{
+		$destList = [];
+
+		foreach ($permList as $type => $list)
+		{
+			if (!is_array($list))
+			{
+				continue;
+			}
+
+			foreach ($list as $id => $value)
+			{
+				if ($type === 'U')
+				{
+					if ($id === 'A' || $value === 'A')
+					{
+						if (ComponentHelper::getAllowToAllDestination())
+						{
+							$destList['UA'] = 'groups';
+						}
+					}
+					else
+					{
+						$destList['U' . $id] = 'users';
+					}
+				}
+				elseif ($type === 'SG')
+				{
+					$destList['SG' . $id] = 'sonetgroups';
+				}
+				elseif ($type === 'DR')
+				{
+					$destList['DR' . $id] = 'department';
+				}
+			}
+		}
+
+		return EntitySelector\Converter::sortEntities(
+			EntitySelector\Converter::convertFromFinderCodes(array_keys($destList))
+		);
+	}
+
+	private function checkReadFormAccess(int $postId): bool
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+
+		$editMode = $postId > 0;
+		if ($editMode)
+		{
+			$currentUserPerm = Helper::getBlogPostPerm([
+				'USER_ID' => $currentUserId,
+				'POST_ID' => $postId,
+			]);
+			if ($currentUserPerm >= Permissions::READ)
+			{
+				return true;
+			}
+		}
+		else
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private function checkGroupAccess(int $groupId): bool
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
+
+		if (\CSocNetGroup::getByID($groupId))
+		{
+			if (!\CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $groupId, 'blog'))
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+
+		if (
+			!\CSocNetFeaturesPerms::canPerformOperation(
+				$currentUserId,
+				SONET_ENTITY_GROUP,
+				$groupId,
+				'blog',
+				'premoderate_post'
+			)
+		)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private function convertDestData(array $data): array
+	{
+		if (Loader::includeModule('blog'))
+		{
+			ComponentHelper::convertSelectorRequestData($data);
+
+			$destData = [];
+			foreach ($data['SPERM'] as $list)
+			{
+				$destData = array_merge($destData, $list);
+			}
+
+			return $destData;
+		}
+
+		return [];
+	}
+
+	private function getPostTags(int $postId, string $categoryId): array
+	{
+		$tags = [];
+
+		$category = explode(",", $categoryId);
+
+		$blogCategoryList = [];
+		$res = \CBlogCategory::getList([], ['@ID' => $category]);
+		while ($blogCategoryFields = $res->fetch())
+		{
+			$blogCategoryList[(int) $blogCategoryFields['ID']] = htmlspecialcharsEx($blogCategoryFields['NAME']);
+		}
+
+		$res = \CBlogPostCategory::getList(
+			[ 'ID' => 'ASC' ],
+			[
+				'@CATEGORY_ID' => $category,
+				'POST_ID' => $postId,
+			],
+			false,
+			false,
+			['CATEGORY_ID']
+		);
+		while ($blogPostCategoryFields = $res->fetch())
+		{
+			if (!isset($blogCategoryList[(int) $blogPostCategoryFields['CATEGORY_ID']]))
+			{
+				continue;
+			}
+
+			$tags[] = $blogCategoryList[(int) $blogPostCategoryFields['CATEGORY_ID']];
+		}
+
+		return $tags;
 	}
 }
 

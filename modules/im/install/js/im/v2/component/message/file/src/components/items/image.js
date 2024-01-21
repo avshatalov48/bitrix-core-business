@@ -1,8 +1,12 @@
-import { Utils } from 'im.v2.lib.utils';
-import type { ImModelFile } from 'im.v2.model';
+import { Type } from 'main.core';
 import { lazyload } from 'ui.vue3.directives.lazyload';
 
+import { Utils } from 'im.v2.lib.utils';
+import { ImModelMessage } from 'im.v2.model';
+
 import { ProgressBar } from './progress-bar';
+
+import type { ImModelFile } from 'im.v2.model';
 
 import '../../css/items/image.css';
 
@@ -22,13 +26,17 @@ export const ImageItem = {
 			type: Object,
 			required: true,
 		},
-		messageId: {
-			type: [String, Number],
+		message: {
+			type: Object,
 			required: true,
 		},
 	},
 	computed:
 	{
+		messageItem(): ImModelMessage
+		{
+			return this.message;
+		},
 		file(): ImModelFile
 		{
 			return this.item;
@@ -90,6 +98,10 @@ export const ImageItem = {
 		{
 			return this.file.progress === 100;
 		},
+		isForward(): boolean
+		{
+			return Type.isStringFilled(this.messageItem.forward.id);
+		},
 	},
 	methods:
 	{
@@ -112,6 +124,7 @@ export const ImageItem = {
 		<div 
 			v-bind="viewerAttributes" 
 			class="bx-im-media-image__container" 
+			:class="{'--with-forward': isForward}"
 			@click="download"
 			:style="imageSize"
 		>
@@ -123,7 +136,7 @@ export const ImageItem = {
 				:alt="file.name"
 				class="bx-im-media-image__source"
 			/>
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" />
+			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" />
 		</div>
 	`,
 };

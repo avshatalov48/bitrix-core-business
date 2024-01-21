@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Main\ArgumentException;
@@ -277,7 +278,7 @@ class CListElementField extends CListField
 	{
 		/** @global CStackCacheManager $stackCacheManager */
 		global $stackCacheManager;
-		if($this->_iblock_field["IS_REQUIRED"] == "Y")
+		if (isset($this->_iblock_field['IS_REQUIRED']) && $this->_iblock_field['IS_REQUIRED'] == 'Y')
 		{
 			if($this->_iblock_id > 0)
 			{

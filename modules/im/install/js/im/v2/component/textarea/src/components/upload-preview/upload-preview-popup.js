@@ -47,6 +47,7 @@ export const UploadPreviewPopup = {
 				contentColor: 'transparent',
 				contentPadding: 0,
 				className: 'bx-im-upload-preview__scope',
+				autoHide: false,
 			};
 		},
 	},

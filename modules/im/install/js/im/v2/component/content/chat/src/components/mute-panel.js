@@ -4,7 +4,7 @@ import { Color } from 'im.v2.const';
 import { ChatService } from 'im.v2.provider.service';
 
 import type { CustomColorScheme } from 'im.v2.component.elements';
-import type { ImModelDialog } from 'im.v2.model';
+import type { ImModelChat } from 'im.v2.model';
 
 const BUTTON_BACKGROUND_COLOR = 'rgba(0, 0, 0, 0.1)';
 const BUTTON_HOVER_COLOR = 'rgba(0, 0, 0, 0.2)';
@@ -27,9 +27,9 @@ export const MutePanel = {
 	computed:
 	{
 		ButtonSize: () => ButtonSize,
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		isMuted(): boolean
 		{

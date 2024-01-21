@@ -11,6 +11,7 @@ abstract class Service
 	protected Event $event;
 	protected EventLink $eventLink;
 	protected CrmDealLink $crmDealLink;
+	protected ?Event $oldEvent = null;
 	private ?array $owner = null;
 
 	/**
@@ -58,6 +59,17 @@ abstract class Service
 	public function setCrmDealLink(CrmDealLink $crmDealLink): self
 	{
 		$this->crmDealLink = $crmDealLink;
+
+		return $this;
+	}
+
+	/**
+	 * @param Event $oldEvent
+	 * @return $this
+	 */
+	public function setOldEvent(Event $oldEvent): self
+	{
+		$this->oldEvent = $oldEvent;
 
 		return $this;
 	}
@@ -132,7 +144,14 @@ abstract class Service
 
 	/**
 	 * @param string $to
+	 * @param int $guestId
 	 * @return bool
 	 */
 	abstract public function notifyAboutMeetingStatus(string $to): bool;
+
+	/**
+	 * @param string $to
+	 * @return bool
+	 */
+	abstract public function notifyAboutSharingEventEdit(string $to): bool;
 }

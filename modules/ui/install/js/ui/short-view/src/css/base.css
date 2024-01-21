@@ -14,6 +14,7 @@
 
 .tasks-scrum__switcher--container {
 	display: inline-flex;
+	align-items: center;
 	border-radius: 16px;
 	font: 14px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
@@ -27,6 +28,7 @@
 	cursor: pointer;
 	transition: .4s;
 	color: var(--tasks_scrum_switcher-white_alpha_80);
+	line-height: normal;
 }
 
 .tasks-scrum__switcher--label:hover {

@@ -15,6 +15,9 @@ export const DesktopBxLink = {
 	notifications: 'notifications',
 	recentSearch: 'recentSearch',
 	timeManager: 'timemanpwt',
+	openTab: 'openTab',
+	copilot: 'copilot',
+	settings: 'settings',
 };
 
 export const LegacyDesktopBxLink = {

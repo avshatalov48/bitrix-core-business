@@ -1,35 +1,37 @@
-import {ImModelUser} from 'im.v2.model';
+import { ImModelUser } from 'im.v2.model';
 
-import {UserListService} from './classes/user-list-service';
+import { UserListService } from './classes/user-list-service';
 
-import {Loader} from '../loader/loader';
-import {UserItem} from './user-item';
+import { Loader } from '../loader/loader';
+import { UserItem } from './user-item';
 
 import './user-list-content.css';
 
+import type { JsonObject } from 'main.core';
+
 // @vue/component
 export const UserListContent = {
-	components: {UserItem, Loader},
+	components: { UserItem, Loader },
 	props: {
 		userIds: {
 			type: Array,
-			required: true
+			required: true,
 		},
 		adjustPopupFunction: {
 			type: Function,
-			required: true
+			required: true,
 		},
 		loading: {
 			type: Boolean,
 			required: false,
-			default: false
-		}
+			default: false,
+		},
 	},
-	data()
+	data(): JsonObject
 	{
 		return {
 			hasError: false,
-			isLoadingUsers: false
+			isLoadingUsers: false,
 		};
 	},
 	computed:
@@ -37,7 +39,7 @@ export const UserListContent = {
 		isLoading(): boolean
 		{
 			return this.loading || this.isLoadingUsers;
-		}
+		},
 	},
 	watch:
 	{
@@ -46,7 +48,7 @@ export const UserListContent = {
 			this.$nextTick(() => {
 				this.adjustPopupFunction();
 			});
-		}
+		},
 	},
 	created()
 	{
@@ -72,7 +74,7 @@ export const UserListContent = {
 		},
 		needUserRequest(): boolean
 		{
-			return this.userIds.some(userId => !this.getUser(userId));
+			return this.userIds.some((userId) => !this.getUser(userId));
 		},
 		requestUserData()
 		{
@@ -82,6 +84,7 @@ export const UserListContent = {
 					this.isLoadingUsers = false;
 				})
 				.catch((error) => {
+					// eslint-disable-next-line no-console
 					console.error(error);
 					this.hasError = true;
 					this.isLoadingUsers = false;
@@ -90,7 +93,7 @@ export const UserListContent = {
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-user-list-content__container bx-im-user-list-content__scope">
@@ -104,5 +107,5 @@ export const UserListContent = {
 				{{ loc('IM_ELEMENTS_CHAT_INFO_POPUP_NO_ACCESS') }}
 			</div>
 		</div>
-	`
+	`,
 };

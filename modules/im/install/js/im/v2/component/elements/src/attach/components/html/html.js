@@ -19,7 +19,7 @@ export const AttachHtml = {
 		},
 		html()
 		{
-			return Parser.decodeHtml(this.internalConfig.HTML);
+			return Parser.decodeHtml(this.internalConfig.html);
 		}
 	},
 	template: `

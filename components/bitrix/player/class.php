@@ -162,7 +162,11 @@ class CBitrixPlayer extends CBitrixComponent
 			$type = $arTypes[$ext];
 			if (!$type)
 			{
-				$type = @\CFile::GetContentType($src);
+				$uri = new \Bitrix\Main\Web\Uri($src);
+				if (empty($uri->getHost()))
+				{
+					$type = @\CFile::GetContentType($src);
+				}
 			}
 		}
 		return $type;

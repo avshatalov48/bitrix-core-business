@@ -173,6 +173,7 @@ abstract class SqlHelper
 	 * - SS     Seconds with leading zeros
 	 * - TT     AM or PM
 	 * - T      AM or PM
+	 * - W      Day of the week (0=Sunday ... 6=Saturday)
 	 * <p>
 	 * $field parameter is SQL unsafe.
 	 *
@@ -443,6 +444,15 @@ abstract class SqlHelper
 		if ($value instanceof SqlExpression)
 		{
 			return $value->compile();
+		}
+
+		if (is_a($field, '\Bitrix\Main\ORM\Fields\StringField'))
+		{
+			$size = $field->getSize();
+			if ($size)
+			{
+				$value = mb_substr($value, 0, $size);
+			}
 		}
 
 		if($field instanceof ORM\Fields\IReadable)
@@ -877,6 +887,23 @@ abstract class SqlHelper
 	}
 
 	/**
+	 * Builds the DML string for the SQL DELETE command for the given table with limited rows number.
+	 *
+	 * @abstract
+	 * @param string $tableName A table name.
+	 * @param array $primaryFields Array("column")[] Primary key columns list.
+	 * @param string $where Sql where clause.
+	 * @param array $order Array("column" => asc|desc)[] Sort order.
+	 * @param integer $limit Rows to delete count.
+	 *
+	 * @return string (replace)
+	 */
+	public function prepareDeleteLimit($tableName, array $primaryFields, $where, array $order, $limit)
+	{
+		throw new Main\NotImplementedException('Method should be implemented in a child class.');
+	}
+
+	/**
 	 * @abstract
 	 */
 	public function initRowNumber($variableName)
@@ -907,5 +934,92 @@ abstract class SqlHelper
 	public function prepareCorrelatedUpdate($tableName, $tableAlias, $fields, $from, $where)
 	{
 		throw new Main\NotImplementedException('Method should be implemented in a child class.');
+	}
+
+	/**
+	 * Returns prepared sql string for upsert multiple rows
+	 *
+	 * @param string $tableName Table name
+	 * @param array $primaryFields Fields that can be conflicting keys (primary, unique keys)
+	 * @param array $insertRows Rows to insert [['FIELD_NAME' =>'value',...],...], Attention! use same columns in each row
+	 * @param array $updateFields Fields to update, if empty - update all fields, can be only field names, or fieldname => expression or fieldname => value
+	 *
+	 * @return string
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
+	public function prepareMergeValues(string $tableName, array $primaryFields, array $insertRows, array $updateFields = []): string
+	{
+		$insertColumns = array_keys($insertRows[array_key_first($insertRows)] ?? []);
+		$insertValuesStrings = [];
+		foreach ($insertRows as $row)
+		{
+			[, $rowValues] = $this->prepareInsert($tableName, $row);
+			$insertValuesStrings[] = $rowValues;
+		}
+
+		if (empty($updateFields))
+		{
+			$notPrimaryFields = array_diff($insertColumns, $primaryFields);
+			if (empty($notPrimaryFields))
+			{
+				trigger_error("Only primary fields to update, use getInsertIgnore() or specify fields", E_USER_WARNING);
+			}
+			$updateFields = $notPrimaryFields;
+		}
+
+		$compatibleUpdateFields = [];
+
+		foreach ($updateFields as $key => $value)
+		{
+			if (is_numeric($key) && is_string($value))
+			{
+				$compatibleUpdateFields[$value] = new SqlExpression('?v', $value);
+			}
+			else
+			{
+				$compatibleUpdateFields[$key] = $value;
+			}
+		}
+
+		$insertValueString = 'values (' . implode('),(', $insertValuesStrings) . ')';
+
+		return $this->prepareMergeSelect($tableName, $primaryFields, $insertColumns, $insertValueString, $compatibleUpdateFields);
+	}
+
+	/**
+	 * @param string $field
+	 * @param array $values
+	 * @param bool $quote
+	 *
+	 * @return string
+	 */
+	public function getOrderByStringField(string $field, array $values, bool $quote = true): string
+	{
+		return $this->getOrderByField($field, $values, [$this, 'convertToDbString'], $quote);
+	}
+
+	/**
+	 * @param string $field
+	 * @param array $values
+	 * @param bool $quote
+	 *
+	 * @return string
+	 */
+	public function getOrderByIntField(string $field, array $values, bool $quote = true): string
+	{
+		return $this->getOrderByField($field, $values, [$this, 'convertFromDbInteger'], $quote);
+	}
+
+	/**
+	 * @param string $field
+	 * @param array $values
+	 * @param callable $callback
+	 * @param bool $quote
+	 *
+	 * @return string
+	 */
+	protected function getOrderByField(string $field, array $values, callable $callback, bool $quote = true): string
+	{
+		return $quote ? $this->quote($field) : $field;
 	}
 }

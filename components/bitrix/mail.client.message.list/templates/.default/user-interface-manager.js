@@ -17,6 +17,8 @@
 		this.ENTITY_TYPE_BLOG_POST = options.ENTITY_TYPE_BLOG_POST;
 		this.ENTITY_TYPE_IM_CHAT = options.ENTITY_TYPE_IM_CHAT;
 		this.ENTITY_TYPE_CALENDAR_EVENT = options.ENTITY_TYPE_CALENDAR_EVENT;
+		this.MESSAGE_MAIL_HREF_LIST = options.MESSAGE_MAIL_HREF_LIST || [];
+		this.enableNextPage = options.enableNextPage || false;
 		this.settingsMenu = options.settingsMenu;
 		this.readActionBtnRole = 'read-action';
 		this.notReadActionBtnRole = 'not-read-action';
@@ -827,6 +829,35 @@
 		isVisible: function (element)
 		{
 			return element && !element.classList.contains(this.hideClassName);
-		}
+		},
+
+		updateMessageMailHrefList: function(messageHrefList, currentPage, enableNextPage)
+		{
+			const sliderData = BX.SidePanel.Instance.getTopSlider().getData();
+			this.enableNextPage = enableNextPage ?? false;
+
+			if (currentPage <= 1)
+			{
+				this.MESSAGE_MAIL_HREF_LIST = messageHrefList;
+
+				return;
+			}
+
+			if (currentPage > 1)
+			{
+				const lastElement = this.MESSAGE_MAIL_HREF_LIST[this.MESSAGE_MAIL_HREF_LIST.length - 1];
+				if (lastElement === messageHrefList[0])
+				{
+					this.MESSAGE_MAIL_HREF_LIST.pop();
+				}
+
+				this.MESSAGE_MAIL_HREF_LIST = [...this.MESSAGE_MAIL_HREF_LIST, ...messageHrefList];
+				if (BX.SidePanel.Instance.getTopSlider() !== BX.SidePanel.Instance.getSliderByWindow(window))
+				{
+					sliderData.set('hrefList', this.MESSAGE_MAIL_HREF_LIST);
+					sliderData.set('enableNextPage', this.enableNextPage);
+				}
+			}
+		},
 	};
 })();

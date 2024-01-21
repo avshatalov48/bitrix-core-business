@@ -3,6 +3,10 @@
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Engine\CurrentUser;
+use Bitrix\Main\Loader;
+use Bitrix\Calendar;
+use Bitrix\Crm;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -28,6 +32,11 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 		if(!isset($params['USE_SIGNATURES']) || $params['USE_SIGNATURES'] !== true)
 		{
 			$params['USE_SIGNATURES'] = false;
+		}
+
+		if(!isset($params['USE_CALENDAR_SHARING']) || $params['USE_CALENDAR_SHARING'] !== true)
+		{
+			$params['USE_CALENDAR_SHARING'] = false;
 		}
 
 		$params['VERSION'] = (isset($params['VERSION']) && intval($params['VERSION']) > 0 ? intval($params['VERSION']) : 1);
@@ -101,6 +110,11 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 			}
 		}
 
+		$params['USER_CALENDAR_PATH'] = $this->getUserCalendarPath();
+		$params['CALENDAR_SHARING_TOUR_ID'] = $this->getSharingCalendarTourId();
+
+		$params['POST_FORM_BUTTONS'] = ['UploadImage', 'UploadFile', 'Copilot'];
+
 		return $params;
 	}
 
@@ -126,6 +140,7 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 		$this->prepareFields();
 		$this->prepareEditor();
 		$this->prepareButtons();
+		$this->prepareCopilotParams($this->arParams['COPILOT_PARAMS'] ?? null);
 
 		$this->includeComponentTemplate();
 	}
@@ -293,6 +308,12 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 				if($this->arParams['USE_SIGNATURES'])
 				{
 					$field = array_merge($field, $this->getSignaturesParams($field['mailboxes']));
+				}
+
+				if($this->arParams['USE_CALENDAR_SHARING'] && Loader::includeModule('calendar'))
+				{
+					$field['showCalendarSharingButton']  = true;
+					$field['showCalendarSharingTour'] = $this->isSharingCalendarTourAvailable();
 				}
 
 				$defaultMailbox = reset($field['mailboxes']);
@@ -562,5 +583,107 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 		return [
 			'signatures' => $this->getSignaturesFromDb(),
 		];
+	}
+
+	/**
+	 * Get current user sharing link from ajax action
+	 *
+	 * @return array{isSharingFeatureEnabled: bool, sharingUrl?: string}
+	 */
+	public function getCalendarSharingLinkAction(string $entityType = null, int $entityId = null): array
+	{
+		if (!Loader::includeModule('calendar'))
+		{
+			return ['isSharingFeatureEnabled' => 'false'];
+		}
+
+		if (!Loader::includeModule('crm') || \CCrmOwnerType::DealName !== $entityType)
+		{
+			$sharing = new Calendar\Sharing\Sharing(CurrentUser::get()->getId());
+			return [
+				'isSharingFeatureEnabled' => $sharing->isEnabled(),
+				'sharingUrl' => $sharing->getActiveLinkShortUrl(),
+			];
+		}
+
+		$broker = Crm\Service\Container::getInstance()->getEntityBroker(\CCrmOwnerType::Deal);
+		if (!$broker)
+		{
+			return ['isSharingFeatureEnabled' => false];
+		}
+
+		$deal = $broker->getById($entityId);
+		if (!$deal)
+		{
+			return ['isSharingFeatureEnabled' => false];
+		}
+
+		$ownerId = $deal->getAssignedById();
+		$crmDealLink = (new Calendar\Sharing\Link\Factory())->getCrmDealLink($entityId, $ownerId);
+		if ($crmDealLink === null)
+		{
+			$crmDealLink = (new Calendar\Sharing\Link\Factory())->createCrmDealLink($ownerId, $entityId);
+		}
+
+		return [
+			'isSharingFeatureEnabled' => true,
+			'sharingUrl' => Calendar\Sharing\Helper::getShortUrl($crmDealLink->getUrl()),
+		];
+	}
+
+	private function getSharingCalendarTourId(): string
+	{
+		return 'mail-start-calendar-sharing-tour';
+	}
+
+	private function isSharingCalendarTourAvailable(): bool
+	{
+		if (Loader::includeModule('calendar'))
+		{
+			return $this->isSharingCalendarTourAlreadySeen();
+		}
+		return false;
+	}
+
+	private function isSharingCalendarTourAlreadySeen(): bool
+	{
+		return \CUserOptions::GetOption('ui-tour', 'view_date_' . $this->getSharingCalendarTourId(), null) === null;
+	}
+
+	private function getUserCalendarPath(): string
+	{
+		if (Loader::includeModule('calendar'))
+		{
+			return \CCalendar::GetPathForCalendarEx(CurrentUser::get()->getId());
+		}
+		return '/';
+	}
+
+	/**
+	 * @param array|null $copilotParams
+	 * Array can contain fields: ['isCopilotEnabled', 'moduleId', 'contextId', 'category', 'invitationLineMode', 'contextParameters', 'isCopilotImageEnabled', 'isCopilotTextEnabled']
+	 */
+	private function prepareCopilotParams(?array $copilotParams = null): void
+	{
+		if (!$copilotParams || !isset($copilotParams['isCopilotEnabled']))
+		{
+			$this->arParams['IS_COPILOT_ENABLED'] = false;
+			$this->arParams['IS_COPILOT_IMAGE_ENABLED'] = false;
+			$this->arParams['IS_COPILOT_TEXT_ENABLED'] = false;
+
+			return;
+		}
+
+		$this->arParams['IS_COPILOT_ENABLED'] = $copilotParams['isCopilotEnabled'];
+		$this->arParams['COPILOT_PARAMS'] = [
+			'moduleId' => $copilotParams['moduleId'] ?? 'main',
+			'contextId' => $copilotParams['contextId'] ?? 'bxhtmled_copilot',
+			'category' => $copilotParams['category'] ?? null,
+			'invitationLineMode' => $copilotParams['invitationLineMode'] ?? 'eachLine',
+			'contextParameters' => $copilotParams['contextParameters'] ?? [],
+		];
+
+		$this->arParams['IS_COPILOT_IMAGE_ENABLED'] = $copilotParams['isCopilotImageEnabled'] ?? false;
+		$this->arParams['IS_COPILOT_TEXT_ENABLED'] = $copilotParams['isCopilotTextEnabled'] ?? false;
 	}
 }

@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Pull\SharedServer;
 
@@ -7,7 +12,9 @@ IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/pull/options.p
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/main/options.php');
 
 $module_id = 'pull';
-CModule::IncludeModule($module_id);
+\Bitrix\Main\Loader::includeModule($module_id);
+
+/** @global \CMain $APPLICATION */
 $MOD_RIGHT = $APPLICATION->GetGroupRight($module_id);
 
 include($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/pull/default_option.php');
@@ -15,12 +22,19 @@ $arDefaultValues['default'] = $pull_default_option;
 
 $aTabs = array(
 	array(
-		"DIV" => "edit1", "TAB" => GetMessage("PULL_TAB_SETTINGS"), "ICON" => "pull_path", "TITLE" => GetMessage("PULL_TAB_TITLE_SETTINGS"),
+		"DIV" => "edit1",
+		"TAB" => Loc::getMessage("PULL_TAB_SETTINGS"),
+		"ICON" => "pull_path",
+		"TITLE" => Loc::getMessage("PULL_TAB_TITLE_SETTINGS"),
 	),
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $registrationErrors = [];
-if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $MOD_RIGHT>='W')
+if (
+	$_POST['Update'].$_GET['RestoreDefaults'] <> ''
+	&& \check_bitrix_sessid()
+	&& $MOD_RIGHT >= 'W'
+)
 {
 	if($_GET['RestoreDefaults'] <> '')
 	{
@@ -174,8 +188,8 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 	}
 }
 ?>
-<form method="post" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&lang=<?echo LANG?>">
-<?php echo bitrix_sessid_post()?>
+<form method="post" action="<?= $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&lang=<?= LANG?>">
+<?= bitrix_sessid_post()?>
 <?php
 $tabControl->Begin();
 $tabControl->BeginNextTab();
@@ -199,18 +213,18 @@ while ($site = $dbSites->Fetch())
 $arExcludeSites = CPullOptions::GetExcludeSites();
 ?>
 	<tr>
-		<td width="40%"><?=GetMessage("PULL_OPTIONS_STATUS")?>:</td>
+		<td width="40%"><?=Loc::getMessage("PULL_OPTIONS_STATUS")?>:</td>
 		<td width="60%">
 			<? if(CPullOptions::ModuleEnable()): ?>
-				<span style="color:green; font-weight: bold"><?=GetMessage("PULL_OPTIONS_STATUS_Y")?></span>
+				<span style="color:green; font-weight: bold"><?=Loc::getMessage("PULL_OPTIONS_STATUS_Y")?></span>
 			<? else: ?>
-				<span style="color:gray; font-weight: bold"><?=GetMessage("PULL_OPTIONS_STATUS_N")?></span>
+				<span style="color:gray; font-weight: bold"><?=Loc::getMessage("PULL_OPTIONS_STATUS_N")?></span>
 			<? endif; ?>
 		</td>
 	</tr>
 <? if(CPullOptions::ModuleEnable()): ?>
 	<tr>
-		<td width="40%"><?=GetMessage("PULL_OPTIONS_USE")?>:</td>
+		<td width="40%"><?=Loc::getMessage("PULL_OPTIONS_USE")?>:</td>
 		<td width="60%"><?=implode(", ", $arDependentModule)?></td>
 	</tr>
 <?endif;?>
@@ -219,23 +233,23 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 		<td width="60%"></td>
 	</tr>
 	<tr>
-		<td align="right" width="50%"><?=GetMessage("PULL_OPTIONS_PUSH")?>:</td>
+		<td align="right" width="50%"><?=Loc::getMessage("PULL_OPTIONS_PUSH")?>:</td>
 		<td><input  id="push_enable" type="checkbox" size="40" value="Y" <?=(CPullOptions::GetPushStatus()?' checked':'')?> name="push"></td>
 	</tr>
 	<tr>
-		<td align="right" width="50%"><?= GetMessage("PULL_BATCH_MAX_COUNT_MESSAGES");?>:</td>
+		<td align="right" width="50%"><?= Loc::getMessage("PULL_BATCH_MAX_COUNT_MESSAGES");?>:</td>
 		<td><input id="push_message_per_hit" type="text" size="10" value="<?=\CPullOptions::GetPushMessagePerHit()?>" name="push_message_per_hit"  <?=(!CPullOptions::GetPushStatus()?' disabled':'')?>></td>
 	</tr>
 	<tr>
-		<td align="right" width="50%" valign="top"><?=GetMessage("PULL_OPTIONS_GUEST")?>:</td>
-		<td><input type="checkbox" size="40" value="Y" <?=(CPullOptions::GetGuestStatus()?' checked':'')?> <?=(IsModuleInstalled('statistic')?'':' disabled="true')?> name="guest" title="<?=htmlspecialcharsEx(GetMessage("PULL_OPTIONS_GUEST_DESC"))?>"></td>
+		<td align="right" width="50%" valign="top"><?=Loc::getMessage("PULL_OPTIONS_GUEST")?>:</td>
+		<td><input type="checkbox" size="40" value="Y" <?=(CPullOptions::GetGuestStatus()?' checked':'')?> <?=(IsModuleInstalled('statistic')?'':' disabled="true')?> name="guest" title="<?=htmlspecialcharsEx(Loc::getMessage("PULL_OPTIONS_GUEST_DESC"))?>"></td>
 	</tr>
 	<tr>
 		<td width="40%"></td>
 		<td width="60%"></td>
 	</tr>
 	<tr>
-		<td width="40%"><nobr><?=GetMessage("PULL_OPTIONS_USE_PUSH_SERVER")?></nobr>:</td>
+		<td width="40%"><nobr><?=Loc::getMessage("PULL_OPTIONS_USE_PUSH_SERVER")?></nobr>:</td>
 		<td width="60%">
 			<select id="push_server_mode" name="push_server_mode">
 				<option value="N" <?=(!\CPullOptions::IsServerShared() && !\CPullOptions::GetQueueServerStatus() ? "selected" : "")?>>
@@ -317,19 +331,19 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 	</tr>
 	<tbody id="pull_local_settings" style="<?= \CPullOptions::IsServerShared() || !CPullOptions::GetQueueServerStatus() ? "display: none" : ""?>">
 	<tr>
-		<td width="40%" valign="top" style="padding-top:9px"><nobr><?=GetMessage("PULL_OPTIONS_NGINX_VERSION")?></nobr>:</td>
+		<td width="40%" valign="top" style="padding-top:9px"><nobr><?=Loc::getMessage("PULL_OPTIONS_NGINX_VERSION")?></nobr>:</td>
 		<td width="60%">
 			<nobr>
 				<label>
 					<input type="radio" id="config_nginx_version_4" value="4" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 4?' checked':'')?>>
-					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_730_2")?>
+					<?=Loc::getMessage("PULL_OPTIONS_NGINX_VERSION_730_2")?>
 				</label>
 			</nobr>
 			<?php if (defined('PULL_ALLOW_VERSION_5')): ?>
 			<nobr>
 				<label>
 					<input type="radio" id="config_nginx_version_5" value="5" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 5?' checked':'')?>>
-					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_760")?>
+					<?=Loc::getMessage("PULL_OPTIONS_NGINX_VERSION_760")?>
 				</label>
 			</nobr>
 			<?php endif; ?>
@@ -338,85 +352,85 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 	<tr>
 		<td colspan="2" align="center">
 			<?= BeginNote(); ?>
-			<?=GetMessage('PULL_NOTIFY_DEPRECATED');?>
+			<?=Loc::getMessage('PULL_NOTIFY_DEPRECATED');?>
 			<?= EndNote(); ?>
 		</td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_HEAD_PUB_2')?></b></td>
+		<td colspan="2"><b><?=Loc::getMessage('PULL_OPTIONS_HEAD_PUB_2')?></b></td>
 	</tr>
 	<tr>
-		<td><?=GetMessage("PULL_OPTIONS_PATH_TO_PUBLISH")?>:</td>
+		<td><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_PUBLISH")?>:</td>
 		<td><input id="config_path_to_publish" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetPublishUrl())?>" name="path_to_publish"></td>
 	</tr>
 	<tr>
-		<td><?=GetMessage("PULL_OPTIONS_PATH_TO_JSON_RPC")?>:</td>
+		<td><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_JSON_RPC")?>:</td>
 		<td><input id="config_path_to_json_rpc" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetJsonRpcUrl())?>" name="path_to_json_rpc"></td>
 	</tr>
 	<tr>
-		<td><?=GetMessage("PULL_OPTIONS_SIGNATURE_KEY")?>:</td>
+		<td><?=Loc::getMessage("PULL_OPTIONS_SIGNATURE_KEY")?>:</td>
 		<td><input id="config_signature_key" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetSignatureKey())?>" name="signature_key" <?=(CPullOptions::GetQueueServerVersion() > 2? '':'disabled="true"')?>></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td><div id="config_signature_key_error" style="color: darkred; font-weight: bold; <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 3 && !CPullOptions::GetSignatureKey()? '':'display: none')?>"><b><?=GetMessage('PULL_OPTIONS_SIGNATURE_KEY_ERROR')?></b></div></td>
+		<td><div id="config_signature_key_error" style="color: darkred; font-weight: bold; <?=(CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() > 3 && !CPullOptions::GetSignatureKey()? '':'display: none')?>"><b><?=Loc::getMessage('PULL_OPTIONS_SIGNATURE_KEY_ERROR')?></b></div></td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_PUBLISH_WEB_HEAD')?></b></td>
+		<td colspan="2"><b><?=Loc::getMessage('PULL_OPTIONS_PUBLISH_WEB_HEAD')?></b></td>
 	</tr>
 	<tr>
-		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_PUBLISH_WEB")?>:</td>
+		<td ><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_PUBLISH_WEB")?>:</td>
 		<td><input id="config_path_to_publish_web" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetPublishWebUrl())?>" name="path_to_publish_web" <?=(CPullOptions::GetQueueServerVersion() > 3? '': 'disabled="true"')?>></td>
 	</tr>
 	<tr>
-		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_PUBLISH_WEB_SECURE")?>:</td>
+		<td ><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_PUBLISH_WEB_SECURE")?>:</td>
 		<td><input id="config_path_to_publish_web_secure" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetPublishWebSecureUrl())?>" name="path_to_publish_web_secure"  <?=(CPullOptions::GetQueueServerVersion() > 3? '': 'disabled="true"')?>></td>
 	</tr>
 	<tr>
 		<td width="40%"></td>
 		<td width="60%">
-			<?=GetMessage("PULL_OPTIONS_PUBLISH_WEB_DESC")?>
+			<?=Loc::getMessage("PULL_OPTIONS_PUBLISH_WEB_DESC")?>
 		</td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_HEAD_SUB_MODERN')?></b></td>
+		<td colspan="2"><b><?=Loc::getMessage('PULL_OPTIONS_HEAD_SUB_MODERN')?></b></td>
 	</tr>
 	<tr>
-		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_LISTENER")?>:</td>
+		<td ><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_LISTENER")?>:</td>
 		<td><input id="config_path_to_modern_listener" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetListenUrl())?>" name="path_to_modern_listener"></td>
 	</tr>
 	<tr>
-		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_LISTENER_SECURE")?>:</td>
+		<td ><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_LISTENER_SECURE")?>:</td>
 		<td><input id="config_path_to_modern_listener_secure" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetListenSecureUrl())?>" name="path_to_modern_listener_secure"></td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_HEAD_SUB_WS')?></b></td>
+		<td colspan="2"><b><?=Loc::getMessage('PULL_OPTIONS_HEAD_SUB_WS')?></b></td>
 	</tr>
 	<tr>
-		<td align="right" width="50%"><?=GetMessage("PULL_OPTIONS_WEBSOCKET")?>:</td>
+		<td align="right" width="50%"><?=Loc::getMessage("PULL_OPTIONS_WEBSOCKET")?>:</td>
 		<td><input type="checkbox" size="40" value="Y" <?=(CPullOptions::GetWebSocket()?' checked':'')?> id="config_websocket" name="websocket" <?=(CPullOptions::GetQueueServerVersion() == 2? '': 'disabled="true"')?>></td>
 	</tr>
 	<tr>
-		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_LISTENER")?>:</td>
+		<td ><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_LISTENER")?>:</td>
 		<td><input id="config_path_to_websocket" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetWebSocketUrl())?>" name="path_to_websocket" <?=(!CPullOptions::GetWebSocketStatus() ? 'disabled="true"': '')?></td>
 	</tr>
 	<tr>
-		<td ><?=GetMessage("PULL_OPTIONS_PATH_TO_LISTENER_SECURE")?>:</td>
+		<td ><?=Loc::getMessage("PULL_OPTIONS_PATH_TO_LISTENER_SECURE")?>:</td>
 		<td><input id="config_path_to_websocket_secure" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetWebSocketSecureUrl())?>" name="path_to_websocket_secure" <?=(!CPullOptions::GetWebSocketStatus() ? 'disabled="true"': '')?></td>
 	</tr>
 	<tr>
 		<td width="40%"></td>
 		<td width="60%">
-			<?=GetMessage("PULL_OPTIONS_WEBSOCKET_DESC")?>
+			<?=Loc::getMessage("PULL_OPTIONS_WEBSOCKET_DESC")?>
 		</td>
 	</tr>
 	<?if (count($arSites) > 1 || count($arExcludeSites) > 0):?>
 		<tbody id="pull_disabled_sites">
 		<tr class="heading">
-			<td colspan="2"><b><?=GetMessage('PULL_OPTIONS_HEAD_BLOCK')?></b></td>
+			<td colspan="2"><b><?=Loc::getMessage('PULL_OPTIONS_HEAD_BLOCK')?></b></td>
 		</tr>
 		<tr valign="top">
-			<td><?=GetMessage("PULL_OPTIONS_SITES")?>:</td>
+			<td><?=Loc::getMessage("PULL_OPTIONS_SITES")?>:</td>
 			<td>
 				<select name="exclude_sites[]" multiple size="4">
 					<option value=""></option>
@@ -655,17 +669,17 @@ BX.bind(BX('config_signature_key'), 'keyup', function() {
 });
 function RestoreDefaults()
 {
-	if(confirm('<?echo AddSlashes(GetMessage('MAIN_HINT_RESTORE_DEFAULTS_WARNING'))?>'))
-		window.location = "<?echo $APPLICATION->GetCurPage()?>?RestoreDefaults=Y&lang=<?echo LANG?>&mid=<?echo urlencode($mid)."&".bitrix_sessid_get();?>";
+	if(confirm('<?= AddSlashes(Loc::getMessage('MAIN_HINT_RESTORE_DEFAULTS_WARNING'))?>'))
+		window.location = "<?= $APPLICATION->GetCurPage()?>?RestoreDefaults=Y&lang=<?= LANG?>&mid=<?= urlencode($mid)."&".bitrix_sessid_get();?>";
 }
 </script>
-<input type="submit" name="Update" <?if ($MOD_RIGHT<'W') echo "disabled" ?> value="<?echo GetMessage('MAIN_SAVE')?>" class="adm-btn-save">
-<input type="reset" name="reset" value="<?echo GetMessage('MAIN_RESET')?>">
+<input type="submit" name="Update" <?if ($MOD_RIGHT<'W') echo "disabled" ?> value="<?= Loc::getMessage('MAIN_SAVE')?>" class="adm-btn-save">
+<input type="reset" name="reset" value="<?= Loc::getMessage('MAIN_RESET')?>">
 <?=bitrix_sessid_post();?>
-<input type="button" <?if ($MOD_RIGHT<'W') echo "disabled" ?> title="<?echo GetMessage('MAIN_HINT_RESTORE_DEFAULTS')?>" OnClick="RestoreDefaults();" value="<?echo GetMessage('MAIN_RESTORE_DEFAULTS')?>">
+<input type="button" <?if ($MOD_RIGHT<'W') echo "disabled" ?> title="<?= Loc::getMessage('MAIN_HINT_RESTORE_DEFAULTS')?>" OnClick="RestoreDefaults();" value="<?= Loc::getMessage('MAIN_RESTORE_DEFAULTS')?>">
 <?$tabControl->End();?>
 </form>
 <?=BeginNote();?>
-	<?=GetMessage("PULL_OPTIONS_NGINX_DOC")?> <a href="<?=(LANGUAGE_ID == "ru"? "http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033": "http://www.bitrixsoft.com/support/training/course/index.php?COURSE_ID=26&LESSON_ID=5144")?>" target="_blank"><?=GetMessage("PULL_OPTIONS_NGINX_DOC_LINK")?></a>.
+	<?=Loc::getMessage("PULL_OPTIONS_NGINX_DOC")?> <a href="<?=(LANGUAGE_ID == "ru"? "http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033": "http://www.bitrixsoft.com/support/training/course/index.php?COURSE_ID=26&LESSON_ID=5144")?>" target="_blank"><?=Loc::getMessage("PULL_OPTIONS_NGINX_DOC_LINK")?></a>.
 <?=EndNote();?>
 </div>

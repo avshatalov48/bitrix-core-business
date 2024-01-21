@@ -112,23 +112,24 @@ class CAccess
 
 		if ($USER_ID > 0)
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
-			$lockName = "update_codes.{$USER_ID}";
+			$connection = Main\Application::getConnection();
+			$clearCache = false;
+			$now = new DateTime();
 
-			if ($connection->lock($lockName))
+			foreach (static::$arAuthProviders as $providerId => $providerDescription)
 			{
-				$clearCache = false;
-				$now = new DateTime();
+				/** @var CGroupAuthProvider $provider For example */
+				$provider = new $providerDescription["CLASS"];
 
-				foreach (static::$arAuthProviders as $providerId => $providerDescription)
+				if (is_callable([$provider, "UpdateCodes"]))
 				{
-					/** @var CGroupAuthProvider $provider For example */
-					$provider = new $providerDescription["CLASS"];
-
-					if (is_callable([$provider, "UpdateCodes"]))
+					//do we need to recalculate codes for the user?
+					if (static::NeedToRecalculate($providerId, $USER_ID, $now))
 					{
-						//do we need to recalculate codes for the user?
-						if (static::NeedToRecalculate($providerId, $USER_ID, $now))
+						$lockName = "update_codes.{$providerId}.{$USER_ID}";
+
+						// we don't want to do the same job twice
+						if ($connection->lock($lockName))
 						{
 							$connection->startTransaction();
 
@@ -145,16 +146,15 @@ class CAccess
 							static::UpdateStat($providerId, $USER_ID, $now);
 
 							$connection->commitTransaction();
+							$connection->unlock($lockName);
 						}
 					}
 				}
+			}
 
-				if ($clearCache)
-				{
-					static::ClearCache($USER_ID);
-				}
-
-				$connection->unlock($lockName);
+			if ($clearCache)
+			{
+				static::ClearCache($USER_ID);
 			}
 		}
 	}
@@ -171,10 +171,13 @@ class CAccess
 		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		$connection->query("
-			INSERT INTO b_user_access (USER_ID, PROVIDER_ID, ACCESS_CODE)
-			VALUES ({$userId}, '{$helper->forSql($provider)}', '{$helper->forSql($code)}')
-		");
+		$sql = $helper->getInsertIgnore(
+			'b_user_access',
+			'(USER_ID, PROVIDER_ID, ACCESS_CODE)',
+			"VALUES ({$userId}, '{$helper->forSql($provider)}', '{$helper->forSql($code)}')"
+		);
+
+		$connection->query($sql);
 
 		static::ClearCache($userId);
 	}
@@ -215,13 +218,15 @@ class CAccess
 	public static function RecalculateForUser($userId, $provider, DateTime $dateCheck = null)
 	{
 		global $DB;
-		$connection = \Bitrix\Main\Application::getConnection();
+
+		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
+
 		$userId = intval($userId);
 
 		if ($dateCheck === null)
 		{
-			$dateCheck = new DateTime();
+			$dateCheck = new DateTime('1974-12-07', 'Y-m-d'); // somewhen in the past
 		}
 
 		$sql = $helper->getInsertIgnore('b_user_access_check', '(USER_ID, PROVIDER_ID, DATE_CHECK)', "
@@ -237,11 +242,14 @@ class CAccess
 	public static function RecalculateForProvider($provider)
 	{
 		global $CACHE_MANAGER;
-		$connection = \Bitrix\Main\Application::getConnection();
+
+		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		$sql = $helper->getInsertIgnore('b_user_access_check', '(USER_ID, PROVIDER_ID)', "
-			SELECT USER_ID, PROVIDER_ID
+		$dateCheck = new DateTime('1974-12-07', 'Y-m-d'); // somewhen in the past
+
+		$sql = $helper->getInsertIgnore('b_user_access_check', '(USER_ID, PROVIDER_ID, DATE_CHECK)', "
+			SELECT USER_ID, PROVIDER_ID, {$helper->convertToDbDateTime($dateCheck)}
 			FROM b_user_access
 			WHERE PROVIDER_ID = '" . $helper->forSQL($provider) . "'
 			AND USER_ID > 0
@@ -280,6 +288,7 @@ class CAccess
 	protected static function UpdateStat($provider, $userId, DateTime $now)
 	{
 		global $DB;
+
 		$userId = intval($userId);
 
 		$helper = Main\Application::getConnection()->getSqlHelper();
@@ -395,7 +404,7 @@ class CAccess
 		return $arCodes;
 	}
 
-	public function GetFormHtml($arParams = false)
+	public function GetFormHtml()
 	{
 		$arHtml = [];
 		foreach (static::$arAuthProviders as $provider)
@@ -419,7 +428,7 @@ class CAccess
 
 	public function AjaxRequest($arParams)
 	{
-		if (array_key_exists($arParams["provider"], static::$arAuthProviders))
+		if (isset(static::$arAuthProviders[$arParams["provider"]]))
 		{
 			$cl = new static::$arAuthProviders[$arParams["provider"]]["CLASS"];
 			if (is_callable([$cl, "AjaxRequest"]))

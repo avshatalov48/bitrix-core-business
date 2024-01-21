@@ -1,0 +1,8 @@
+.popup-window-content {
+	--im-dialog-chat__font-color_message-menu_delete: var(--ui-color-palette-red-solid);
+}
+
+.bx-im-dialog-chat__message-menu_delete .menu-popup-item-text,
+.bx-im-dialog-chat__message-menu_delete:hover .menu-popup-item-text {
+	color: var(--im-dialog-chat__font-color_message-menu_delete);
+}

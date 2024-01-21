@@ -112,6 +112,7 @@ class TranslateListComponent extends Translate\ComponentBase
 		{
 			$this->checkMysqlConfig();
 			$this->checkModuleStepper();
+			$this->checkFtsTables();
 		}
 
 		$this->prepareParams();
@@ -1271,13 +1272,13 @@ class TranslateListComponent extends Translate\ComponentBase
 	 */
 	private function detectPath($inpName = 'path')
 	{
-		$path = null;
+		$path = '';
 
 		// from filter
-		$path1 = $this->filter['PATH'];
+		$path1 = $this->filter['PATH'] ?? '';
 
 		// from request
-		$path2 = $this->request->get($inpName);
+		$path2 = $this->request->get($inpName) ?? '';
 
 		if ($this->filterApplying && !empty($path1))
 		{

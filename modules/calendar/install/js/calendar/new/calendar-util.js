@@ -1006,7 +1006,7 @@
 		getTextLocation: function(location)
 		{
 			var
-				value = typeof location === 'object' ? location : this.parseLocation(location),
+				value = BX.Type.isObject(location) ? location : this.parseLocation(location),
 				i, str = value.str;
 
 			if (value.type == 'mr')

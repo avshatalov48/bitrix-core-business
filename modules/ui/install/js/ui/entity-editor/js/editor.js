@@ -1,8 +1,4 @@
-/**
- * @module ui
- * @version 1.0
- * @copyright 2001-2019 Bitrix
- */
+/* eslint-disable */
 
 BX.namespace("BX.UI");
 
@@ -18,6 +14,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this._entityId = 0;
 
 		this._userFieldManager = null;
+		this.additionalFieldsData = {};
 
 		this._container = null;
 		this._layoutContainer = null;
@@ -111,6 +108,9 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		);
 		this.moduleId = null;
 		this._restrictions = {};
+
+		this.eventIds = new Set();
+		this.needReloadStorageKey = 'UI.EntityEditor.needReload';
 	};
 	BX.UI.EntityEditor.prototype =
 	{
@@ -131,6 +131,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._entityId = BX.prop.getInteger(this._settings, "entityId", 0);
 			this.moduleId = BX.prop.getString(this._settings, "moduleId", '');
 			this._isNew = this._entityId <= 0 && this._model.isIdentifiable();
+			this.additionalFieldsData = BX.prop.getObject(this._settings, 'additionalFieldsData', {});
 
 			this._isEmbedded = BX.prop.getBoolean(this._settings, "isEmbedded", false);
 			this._creationFieldPageUrl = BX.prop.getBoolean(this._settings, "creationFieldPageUrl", false);
@@ -146,6 +147,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._buttonContainer = BX(BX.prop.get(this._settings, "buttonContainerId"));
 			this._configIcon = BX(BX.prop.get(this._settings, "configIconId"));
 
+			this._enableShowAlwaysFeauture = BX.prop.getBoolean(this._settings, "enableShowAlwaysFeauture", true);
 			this._enableVisibilityPolicy = BX.prop.getBoolean(this._settings, "enableVisibilityPolicy", true);
 			this._enablePageTitleControls = BX.prop.getBoolean(this._settings, "enablePageTitleControls", true);
 			if(this._enablePageTitleControls)
@@ -253,6 +255,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			this.layout();
 			this.attachToEvents();
+
+			this.initPull();
 
 			var eventArgs =
 				{
@@ -379,6 +383,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		initializeManagers: function()
 		{
+
 			this._userFieldManager = BX.prop.get(this._settings, "userFieldManager", null);
 			this._configurationFieldManager = BX.UI.EntityConfigurationManager.create(
 				this._id,
@@ -409,6 +414,69 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			BX.removeCustomEvent("SidePanel.Slider:onOpenComplete", this._sliderOpenHandler);
 			BX.removeCustomEvent("SidePanel.Slider:onClose", this._sliderCloseHandler);
+		},
+		initPull: function()
+		{
+			const settings = this._settings;
+
+			BX.Event.ready(() => {
+				if (
+					!settings.pullTag
+					|| !settings.pullModuleId
+					|| !settings.canUsePull
+				)
+				{
+					return;
+				}
+
+				const Pull = BX.PULL;
+				if (!Pull)
+				{
+					console.error('pull is not initialized');
+
+					return;
+				}
+
+				const entityPull = new BX.UI.EntityPull({
+					editor: this,
+				});
+
+				Pull.subscribe({
+					moduleId: settings.pullModuleId,
+					callback: (data) => {
+						if (data.command !== settings.pullTag)
+						{
+							return;
+						}
+
+						const eventId = data.params.eventId ?? null;
+						if (eventId && this.eventIds.has(eventId))
+						{
+							return;
+						}
+
+						if (data.params.eventName === 'ITEMUPDATED')
+						{
+							entityPull.onItemUpdated();
+						}
+					},
+				});
+				Pull.extendWatch(settings.pullTag);
+
+				BX.Event.bind(document, 'visibilitychange', () => {
+					if (document.hidden)
+					{
+						return;
+					}
+
+					const isNeedReload = window.sessionStorage.getItem(this.needReloadStorageKey);
+					if (isNeedReload === 'Y')
+					{
+						window.sessionStorage.removeItem(this.needReloadStorageKey);
+						BX.Crm.EntityEditor.getDefault().reload();
+					}
+				});
+			});
 		},
 		release: function()
 		{
@@ -704,6 +772,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			return this._container.offsetParent !== null;
 		},
+		isShowAlwaysFeautureEnabled: function()
+		{
+			return this._enableShowAlwaysFeauture;
+		},
 		isVisibilityPolicyEnabled: function()
 		{
 			return this._enableVisibilityPolicy;
@@ -776,6 +848,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		getHtmlEditorConfig: function(fieldName)
 		{
 			return BX.prop.getObject(this._htmlEditorConfigs, fieldName, null);
+		},
+		getAdditionalFieldsData: function()
+		{
+			return this.additionalFieldsData;
 		},
 		//region Validators
 		createValidator: function(settings)
@@ -909,14 +985,12 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		getControlByIdRecursive: function(name, controls)
 		{
-			var res;
-
 			if(!controls)
 			{
 				controls = this.getControls();
 			}
 
-			for (var i=0; i < controls.length; i++)
+			for (let i = 0; i < controls.length; i++)
 			{
 				if (!controls[i] instanceof BX.UI.EntityEditorControl)
 				{
@@ -932,7 +1006,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					|| controls[i] instanceof BX.UI.EntityEditorSection
 				)
 				{
-					if(res = this.getControlByIdRecursive(name, controls[i].getChildren()))
+					const res = this.getControlByIdRecursive(name, controls[i].getChildren());
+					if (res)
 					{
 						return res;
 					}
@@ -941,9 +1016,76 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			return null;
 		},
+		quoteRegExp: function(regExpString)
+		{
+			return regExpString.replace(/([\\.+*?\[^\]$(){}=!<>|:])/g, "\\$1");
+		},
+		getCombinedIdRegExp: function (id)
+		{
+			return new RegExp(this.quoteRegExp(id).replace(/\\\[n?\d+\\]/gi, "\\[n?\\d+\\]"));
+		},
+		getControlByCombinedIdRecursive: function(id, controls)
+		{
+			if (!BX.type.isNotEmptyString(id))
+			{
+				return null;
+			}
+
+			let idRegExp = this.getCombinedIdRegExp(id);
+
+			if(!controls)
+			{
+				controls = this.getControls();
+			}
+
+			for (let i = 0; i < controls.length; i++)
+			{
+				if (!controls[i] instanceof BX.UI.EntityEditorControl)
+				{
+					continue;
+				}
+				if(idRegExp.test(controls[i].getId()))
+				{
+					return controls[i];
+				}
+				else if (
+					controls[i] instanceof BX.UI.EntityEditorColumn
+					|| controls[i] instanceof BX.UI.EntityEditorSection
+				)
+				{
+					const control = this.getControlByCombinedIdRecursive(id, controls[i].getChildren());
+					if (control instanceof BX.UI.EntityEditorControl)
+					{
+						return control;
+					}
+				}
+			}
+
+			return null;
+		},
+		getAvailableControlByCombinedId: function(id)
+		{
+			let control = null;
+
+			let element = this.getAvailableSchemeElementByCombinedName(id);
+			if(element)
+			{
+				control = this.createControl(
+					element.getType(),
+					element.getName(),
+					{
+						schemeElement: element,
+						model: this._model,
+						mode: this._mode
+					}
+				);
+			}
+
+			return control;
+		},
 		getAllControls: function(controls)
 		{
-			var result = [], res;
+			let result = [];
 
 			if(!controls)
 			{
@@ -959,7 +1101,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 						|| controls[i] instanceof BX.UI.EntityEditorSection
 					)
 					{
-						if(res = this.getAllControls(controls[i].getChildren()))
+						const res = this.getAllControls(controls[i].getChildren());
+						if(res)
 						{
 							result = result.concat(res);
 						}
@@ -1125,7 +1268,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 			return false;
 		},
-		processControlModeChange: function(control)
+		processControlModeChange: function(control, options)
 		{
 			if(control.getMode() === BX.UI.EntityEditorMode.edit)
 			{
@@ -1150,23 +1293,44 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 			BX.onCustomEvent(window, this.eventsNamespace + ":onControlModeChange", [ this, eventArgs ]);
 		},
-		processControlChange: function(control, params)
+		processControlChange: function(control, params, options)
 		{
 			this.showToolPanel();
-			var eventArgs = {
-				control: control,
-				params: params,
+
+			if (!BX.prop.getBoolean(options, 'skipEvents', false))
+			{
+				BX.onCustomEvent(
+					window,
+					this.eventsNamespace + ':onControlChange',
+					[this, { control: control, params: params }],
+				);
 			}
-			BX.onCustomEvent(window, this.eventsNamespace + ":onControlChange", [ this, eventArgs ]);
 		},
-		processControlAdd: function(control)
+		processControlAdd: function(control, options)
 		{
 			this.removeAvailableSchemeElement(control.getSchemeElement());
+
+			if (!BX.prop.getBoolean(options, 'skipEvents', false))
+			{
+				BX.onCustomEvent(
+					this,
+					this.eventsNamespace + ':onControlAdd',
+					[this, { control: control, params: {} }],
+				);
+			}
 		},
-		processControlMove: function(control)
+		processControlMove: function(control, options)
 		{
+			if (!BX.prop.getBoolean(options, "skipEvents", false))
+			{
+				BX.onCustomEvent(
+					this,
+					this.eventsNamespace + ":onControlMove",
+					[ this, { control: control, params: options } ]
+				);
+			}
 		},
-		processControlRemove: function(control)
+		processControlRemove: function(control, options)
 		{
 			if(control instanceof BX.UI.EntityEditorField)
 			{
@@ -1179,6 +1343,15 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				{
 					this.addAvailableSchemeElement(children[i].getSchemeElement());
 				}
+			}
+
+			if (!BX.prop.getBoolean(options, "skipEvents", false))
+			{
+				BX.onCustomEvent(
+					this,
+					this.eventsNamespace + ":onControlRemove",
+					[ this, { control: control, params: {} } ]
+				);
 			}
 		},
 		processSchemeChange: function()
@@ -1235,6 +1408,26 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					return schemeElement;
 				}
 			}
+			return null;
+		},
+		getAvailableSchemeElementByCombinedName: function(name)
+		{
+			if (!BX.type.isNotEmptyString(name))
+			{
+				return null;
+			}
+
+			let nameRegExp = this.getCombinedIdRegExp(name);
+
+			const schemeElements = this._availableSchemeElements;
+			for (let i = 0, length = schemeElements.length; i < length; i++)
+			{
+				if(nameRegExp.test(schemeElements[i].getName()))
+				{
+					return schemeElements[i];
+				}
+			}
+
 			return null;
 		},
 		hasAvailableSchemeElements: function()
@@ -2286,7 +2479,16 @@ if(typeof BX.UI.EntityEditor === "undefined")
 						ajaxFormToSubmit.addUrlParams(params);
 					}
 				}
-				return ajaxFormToSubmit.submit();
+
+				const eventId = BX.Text.getRandom();
+
+				this.eventIds.add(eventId);
+
+				return ajaxFormToSubmit.submit({
+					data: {
+						EVENT_ID: eventId,
+					},
+				});
 			}
 
 			return true;
@@ -2458,10 +2660,16 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 
 			var result = this._config.save(false);
-			if(result)
+			if (result)
 			{
 				this._areAvailableSchemeElementsChanged = false;
 				this.processSchemeChange();
+
+				BX.onCustomEvent(
+					this,
+					this.eventsNamespace + ":onSchemeSave",
+					[ this, { params: {} } ]
+				);
 			}
 			return result;
 		},
@@ -2495,6 +2703,11 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			{
 				this._toolPanel.setLocked(false);
 				this._toolPanel.clearErrors();
+			}
+
+			if (result.ADDITIONAL_FIELDS_DATA)
+			{
+				this.additionalFieldsData = BX.prop.getObject(result, 'ADDITIONAL_FIELDS_DATA', {});
 			}
 
 			//region Event Params
@@ -2661,12 +2874,12 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 			else
 			{
-				var needSwitchMode =  BX.prop.getBoolean(params, "switchMode", true);
-				if (needSwitchMode)
+				if (BX.prop.getBoolean(params, "switchMode", true))
 				{
-					if(BX.type.isPlainObject(entityData))
+					if (BX.type.isPlainObject(entityData))
 					{
-						//Notification event is disabled because we will call "refreshLayout" for all controls at the end.
+						// Notification event is disabled because we will
+						// call "refreshLayout" for all controls at the end.
 						this._model.setData(entityData, { enableNotification: false });
 					}
 
@@ -2768,6 +2981,11 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				return;
 			}
 			var entityData = BX.prop.getObject(result, "ENTITY_DATA", null);
+
+			if (result.ADDITIONAL_FIELDS_DATA)
+			{
+				this.additionalFieldsData = BX.prop.getObject(result, 'ADDITIONAL_FIELDS_DATA', {});
+			}
 
 			eventParams["entityData"] = entityData;
 			eventParams["sender"] = this;

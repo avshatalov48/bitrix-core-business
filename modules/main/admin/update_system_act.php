@@ -41,14 +41,6 @@ if ($queryType == "licence")
 	$newLicenceSignedKey = CUpdateClient::getNewLicenseSignedKey();
 	COption::SetOptionString("main", $newLicenceSignedKey, "Y");
 
-	if (!IsModuleInstalled("intranet")
-		&& (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ru")
-			|| file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ua")))
-	{
-		if (in_array($newLicenceSignedKey, array("~new_license14_9_2_sign")))
-			COption::SetOptionString("main", "~new_license14_9_sign", "Y");
-	}
-
 	echo "Y";
 }
 elseif ($queryType == "activate")
@@ -191,8 +183,15 @@ elseif ($queryType == "key")
 	{
 		fputs($fp, "<"."? \$"."LICENSE_KEY = \"".EscapePHPString($newLicenseKey)."\"; ?".">");
 		fclose($fp);
-		if(function_exists("accelerator_reset"))
+
+		if (function_exists("opcache_reset"))
+		{
+			opcache_reset();
+		}
+		elseif (function_exists("accelerator_reset"))
+		{
 			accelerator_reset();
+		}
 		echo "Y";
 	}
 	else

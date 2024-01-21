@@ -2,31 +2,44 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_vue3_directives_hint,ui_dialogs_messagebox,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_desktopApi,im_v2_lib_phone,im_v2_lib_desktop,main_core,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_logger,im_v2_lib_rest,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
+(function (exports,ui_vue3_directives_hint,ui_dialogs_messagebox,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_phone,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_logger,main_core,main_popup,im_v2_lib_menu,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_lib_desktop,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
 	'use strict';
 
 	// @vue/component
 	const ButtonPanel = {
+	  name: 'ButtonPanel',
 	  components: {
-	    Button: im_v2_component_elements.Button
+	    ChatButton: im_v2_component_elements.Button
+	  },
+	  props: {
+	    isDesktopAccountManagementAvailable: {
+	      type: Boolean,
+	      default: false
+	    }
 	  },
 	  emits: ['openProfile', 'logout'],
-	  data() {
-	    return {};
-	  },
 	  computed: {
 	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonColor: () => im_v2_component_elements.ButtonColor
+	    ButtonColor: () => im_v2_component_elements.ButtonColor,
+	    currentUserId() {
+	      return im_v2_application_core.Core.getUserId();
+	    },
+	    profileUri() {
+	      return im_v2_lib_utils.Utils.user.getProfileLink(this.currentUserId);
+	    }
 	  },
 	  methods: {
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    },
+	    onLogoutClick() {
+	      void im_v2_lib_desktopApi.DesktopApi.logout();
 	    }
 	  },
 	  template: `
 		<div class="bx-im-user-settings-popup__button-panel">
-			<div class="bx-im-user-settings-popup__button-panel_button">
-				<Button
+			<a :href="profileUri" target="_blank" class="bx-im-user-settings-popup__user_link">
+				<ChatButton
 					:color="ButtonColor.PrimaryBorder"
 					:size="ButtonSize.M"
 					:isUppercase="false"
@@ -34,17 +47,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					:text="loc('IM_USER_SETTINGS_OPEN_PROFILE')"
 					@click="$emit('openProfile')"
 				/>
-			</div>
-<!--			<div class="bx-im-user-settings-popup__button-panel_button">-->
-<!--				<Button-->
-<!--					:color="ButtonColor.DangerBorder"-->
-<!--					:size="ButtonSize.M"-->
-<!--					:isUppercase="false"-->
-<!--					:isRounded="true"-->
-<!--					:text="loc('IM_USER_SETTINGS_LOGOUT')"-->
-<!--					@click="$emit('logout')"-->
-<!--				/>-->
-<!--			</div>-->
+			</a>
+			<ChatButton
+				v-if="isDesktopAccountManagementAvailable" 
+				:color="ButtonColor.DangerBorder"
+				:size="ButtonSize.M"
+				:isUppercase="false"
+				:isRounded="true"
+				:text="loc('IM_USER_SETTINGS_LOGOUT')"
+				@click="onLogoutClick"
+			/>
 		</div>
 	`
 	};
@@ -64,9 +76,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.store.dispatch('users/setStatus', {
 	      status
 	    });
+	    this.store.dispatch('application/settings/set', {
+	      status
+	    });
 	    return this.restClient.callMethod(im_v2_const.RestMethod.imUserStatusSet, {
-	      'STATUS': status
+	      STATUS: status
 	    }).catch(error => {
+	      // eslint-disable-next-line no-console
 	      console.error('StatusService: changeStatus error', error);
 	    });
 	  }
@@ -83,7 +99,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    UserStatusSize: () => im_v2_component_elements.UserStatusSize,
 	    UserStatusType: () => im_v2_const.UserStatus,
 	    statusList() {
-	      return [im_v2_const.UserStatus.online, im_v2_const.UserStatus.break, im_v2_const.UserStatus.away, im_v2_const.UserStatus.dnd];
+	      return [im_v2_const.UserStatus.online, im_v2_const.UserStatus.dnd];
 	    }
 	  },
 	  methods: {
@@ -154,20 +170,219 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	class VersionService {
+	var _getConnectItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getConnectItem");
+	var _getDeleteItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDeleteItem");
+	var _connect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("connect");
+	var _disconnect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("disconnect");
+	class DesktopItemContextMenu extends im_v2_lib_menu.BaseMenu {
 	  constructor() {
-	    this.store = null;
-	    this.restClient = null;
-	    this.store = im_v2_application_core.Core.getStore();
-	    this.restClient = im_v2_application_core.Core.getRestClient();
-	  }
-	  disableBeta() {
-	    im_v2_lib_logger.Logger.warn('VersionService: disable v2');
-	    return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2BetaDisable).catch(error => {
-	      im_v2_lib_logger.Logger.error('VersionService: disable v2 error', error);
+	    super();
+	    Object.defineProperty(this, _disconnect, {
+	      value: _disconnect2
 	    });
+	    Object.defineProperty(this, _connect, {
+	      value: _connect2
+	    });
+	    Object.defineProperty(this, _getDeleteItem, {
+	      value: _getDeleteItem2
+	    });
+	    Object.defineProperty(this, _getConnectItem, {
+	      value: _getConnectItem2
+	    });
+	    this.id = im_v2_const.PopupType.desktopItemMenu;
+	  }
+	  getMenuItems() {
+	    return [babelHelpers.classPrivateFieldLooseBase(this, _getConnectItem)[_getConnectItem](), babelHelpers.classPrivateFieldLooseBase(this, _getDeleteItem)[_getDeleteItem]()];
+	  }
+	  close() {
+	    var _PopupManager$getPopu;
+	    (_PopupManager$getPopu = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.userProfile)) == null ? void 0 : _PopupManager$getPopu.setAutoHide(true);
+	    super.close();
 	  }
 	}
+	function _getConnectItem2() {
+	  const title = this.context.connected ? main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DISCONNECT') : main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_CONNECT');
+	  return {
+	    text: title,
+	    onclick: function () {
+	      var _PopupManager$getPopu2;
+	      if (this.context.connected) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _disconnect)[_disconnect]();
+	      } else {
+	        babelHelpers.classPrivateFieldLooseBase(this, _connect)[_connect]();
+	      }
+	      this.menuInstance.close();
+	      (_PopupManager$getPopu2 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.userProfile)) == null ? void 0 : _PopupManager$getPopu2.close();
+	    }.bind(this)
+	  };
+	}
+	function _getDeleteItem2() {
+	  return {
+	    text: main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DELETE'),
+	    onclick: async function () {
+	      const userChoice = await im_v2_lib_confirm.showDesktopDeleteConfirm();
+	      if (userChoice === true) {
+	        var _PopupManager$getPopu3;
+	        im_v2_lib_desktopApi.DesktopApi.deleteAccount(this.context.host, this.context.login);
+	        (_PopupManager$getPopu3 = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.userProfile)) == null ? void 0 : _PopupManager$getPopu3.close();
+	      }
+	    }.bind(this)
+	  };
+	}
+	function _connect2() {
+	  const {
+	    host,
+	    login,
+	    protocol
+	  } = this.context;
+	  const userLang = navigator.language;
+	  im_v2_lib_desktopApi.DesktopApi.connectAccount(host, login, protocol, userLang);
+	}
+	function _disconnect2() {
+	  const {
+	    host
+	  } = this.context;
+	  im_v2_lib_desktopApi.DesktopApi.disconnectAccount(host);
+	}
+
+	// @vue/component
+	const DesktopAccountItem = {
+	  name: 'DesktopAccountItem',
+	  props: {
+	    account: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  emits: ['contextMenuClick'],
+	  data() {
+	    return {
+	      errorLoadAvatar: false
+	    };
+	  },
+	  computed: {
+	    accountItem() {
+	      return this.account;
+	    },
+	    avatarUrl() {
+	      if (this.errorLoadAvatar || !this.hasAvatar) {
+	        return '';
+	      }
+	      if (this.accountItem.avatar.startsWith('http')) {
+	        return this.accountItem.avatar;
+	      }
+	      return `${this.accountItem.protocol}://${this.accountItem.host}${this.accountItem.avatar}`;
+	    },
+	    isConnected() {
+	      return this.accountItem.connected;
+	    },
+	    hasAvatar() {
+	      return this.accountItem.avatar && this.accountItem.avatar !== '/bitrix/js/im/images/blank.gif';
+	    }
+	  },
+	  methods: {
+	    onContextMenuClick(event) {
+	      this.$emit('contextMenuClick', {
+	        account: this.account,
+	        target: event.target
+	      });
+	    },
+	    onDomainClick() {
+	      if (!this.isConnected) {
+	        return;
+	      }
+	      im_v2_lib_desktop.DesktopManager.getInstance().openAccountTab(this.accountItem.portal);
+	    },
+	    onError() {
+	      this.errorLoadAvatar = true;
+	    }
+	  },
+	  template: `
+		<div class="bx-im-desktop-connection-list-item__container bx-im-desktop-connection-list-item__scope">
+			<div class="bx-im-desktop-connection-list-item__content" :class="{'--disconnected': !isConnected}">
+				<img 
+					v-if="avatarUrl" 
+					:src="avatarUrl"
+					:alt="accountItem.portal"
+					@error="onError"
+					class="bx-im-desktop-connection-list-item__avatar" 
+				/>
+				<span v-else class="bx-im-desktop-connection-list-item__avatar-default"></span>
+				<div class="bx-im-desktop-connection-list-item__title-container">
+					<span class="bx-im-desktop-connection-list-item__title" @click="onDomainClick">
+						{{ accountItem.portal }}
+					</span>
+					<span class="bx-im-desktop-connection-list-item__login">{{ accountItem.login }}</span>
+				</div>
+			</div>
+			<button
+				class="bx-im-messenger__context-menu-icon bx-im-desktop-connection-list-item__context-menu"
+				@click="onContextMenuClick"
+			></button>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const DesktopAccountList = {
+	  name: 'DesktopAccountList',
+	  components: {
+	    DesktopAccountItem
+	  },
+	  emits: ['openContextMenu'],
+	  data() {
+	    return {
+	      accounts: []
+	    };
+	  },
+	  computed: {
+	    isEmptyState() {
+	      return this.accounts.length === 0;
+	    }
+	  },
+	  created() {
+	    this.contextMenu = new DesktopItemContextMenu();
+	    this.accounts = im_v2_lib_desktopApi.DesktopApi.getAccountList();
+	  },
+	  beforeUnmount() {
+	    this.contextMenu.destroy();
+	  },
+	  methods: {
+	    openLoginTab() {
+	      var _PopupManager$getPopu;
+	      this.contextMenu.destroy();
+	      (_PopupManager$getPopu = main_popup.PopupManager.getPopupById(im_v2_const.PopupType.userProfile)) == null ? void 0 : _PopupManager$getPopu.close();
+	      im_v2_lib_desktopApi.DesktopApi.openAddAccountTab();
+	    },
+	    onContextMenuClick(event) {
+	      const {
+	        account,
+	        target
+	      } = event;
+	      this.contextMenu.openMenu(account, target);
+	      this.$emit('openContextMenu');
+	    }
+	  },
+	  template: `
+		<div class="bx-im-desktop-connection-list__container bx-im-desktop-connection-list__scope">
+			<div class="bx-im-desktop-connection-list__header">
+				<span class="bx-im-desktop-connection-list__title">
+					{{ $Bitrix.Loc.getMessage('IM_USER_SETTINGS_CONNECTED_BITRIX24') }}
+				</span>
+				<span class="bx-im-desktop-connection-list__add" @click="openLoginTab">
+					{{ $Bitrix.Loc.getMessage('IM_USER_SETTINGS_CONNECT_BITRIX24') }}
+				</span>
+			</div>
+			<div class="bx-im-desktop-connection-list__items">
+				<DesktopAccountItem 
+					v-for="account in accounts" 
+					:account="account" 
+					@contextMenuClick="onContextMenuClick"
+				/>
+			</div>
+		</div>
+	`
+	};
 
 	// @vue/component
 	const UserSettingsContent = {
@@ -176,13 +391,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    Avatar: im_v2_component_elements.Avatar,
 	    UserStatus: im_v2_component_elements.UserStatus,
 	    ButtonPanel,
-	    UserStatusPopup
+	    UserStatusPopup,
+	    DesktopAccountList,
+	    ScrollWithGradient: im_v2_component_elements.ScrollWithGradient
 	  },
 	  emits: ['closePopup', 'enableAutoHide', 'disableAutoHide'],
 	  data() {
 	    return {
-	      showStatusPopup: false,
-	      isChangingVersion: false
+	      showStatusPopup: false
 	    };
 	  },
 	  computed: {
@@ -198,9 +414,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.$store.getters['users/getPosition'](this.currentUserId);
 	    },
 	    userStatus() {
-	      const user = this.$store.getters['users/get'](this.currentUserId, true);
-	      if (user) {
-	        return user.status;
+	      const status = this.$store.getters['application/settings/get'](im_v2_const.Settings.user.status);
+	      if (status) {
+	        return status;
 	      }
 	      return im_v2_const.UserStatus.online;
 	    },
@@ -208,29 +424,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return location.hostname;
 	    },
 	    userStatusText() {
-	      return im_v2_lib_utils.Utils.user.getStatusText(this.currentUser.status);
+	      return im_v2_lib_utils.Utils.user.getStatusText(this.userStatus);
 	    },
-	    profileUri() {
-	      return im_v2_lib_utils.Utils.user.getProfileLink(this.currentUserId);
-	    },
-	    showOldChatButton() {
-	      const settings = main_core.Extension.getSettings('im.v2.component.navigation');
-	      return Boolean(settings.get('force_beta')) === false;
+	    isDesktopAccountManagementAvailable() {
+	      return im_v2_lib_desktopApi.DesktopApi.isFeatureSupported(im_v2_lib_desktopApi.DesktopFeature.accountManagement.id);
 	    }
 	  },
 	  methods: {
-	    onBackToOldChatClick() {
-	      this.isChangingVersion = true;
-	      this.getVersionService().disableBeta().then(() => {
-	        if (im_v2_lib_desktop.DesktopManager.isDesktop()) {
-	          window.location.reload();
-	        } else {
-	          window.location.replace('/online/');
-	        }
-	      }).catch(error => {
-	        im_v2_lib_logger.Logger.error('Error while switching version', error);
-	      });
-	    },
 	    onStatusClick() {
 	      this.showStatusPopup = true;
 	      this.$emit('disableAutoHide');
@@ -239,14 +439,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.showStatusPopup = false;
 	      this.$emit('enableAutoHide');
 	    },
-	    getVersionService() {
-	      if (!this.versionService) {
-	        this.versionService = new VersionService();
-	      }
-	      return this.versionService;
-	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    },
+	    onScroll() {
+	      var _MenuManager$getMenuB;
+	      (_MenuManager$getMenuB = main_popup.MenuManager.getMenuById(im_v2_const.PopupType.desktopItemMenu)) == null ? void 0 : _MenuManager$getMenuB.close();
 	    }
 	  },
 	  template: `
@@ -259,32 +457,32 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>
 					<div class="bx-im-user-settings-popup__user_name" :title="currentUser.name">{{ currentUser.name }}</div>
 					<div class="bx-im-user-settings-popup__user_title" :title="currentUserPosition">{{ currentUserPosition }}</div>
-					<a :href="profileUri" target="_blank" class="bx-im-user-settings-popup__user_link">
-						<ButtonPanel @openProfile="$emit('closePopup')" />
-					</a>
+					<ButtonPanel 
+						:isDesktopAccountManagementAvailable="isDesktopAccountManagementAvailable"
+						@openProfile="$emit('closePopup')" 
+					/>
 				</div>
 			</div>
-			<div class="bx-im-user-settings-popup__list">
-				<div class="bx-im-user-settings-popup__separator"></div>
-				<!-- Status select -->
-				<div @click="onStatusClick" class="bx-im-user-settings-popup__list-item --with-icon">
-					<div class="bx-im-user-settings-popup__list-item_left">
-						<div class="bx-im-user-settings-popup__list-item_status">
-							<UserStatus :status="userStatus" :size="UserStatusSize.M" />
+			<ScrollWithGradient :containerMaxHeight="328" :gradientHeight="24" @scroll="onScroll">
+				<div class="bx-im-user-settings-popup__list">
+					<div class="bx-im-user-settings-popup__separator"></div>
+					<!-- Status select -->
+					<div @click="onStatusClick" class="bx-im-user-settings-popup__list-item --with-icon">
+						<div class="bx-im-user-settings-popup__list-item_left">
+							<div class="bx-im-user-settings-popup__list-item_status">
+								<UserStatus :status="userStatus" :size="UserStatusSize.M" />
+							</div>
+							<div class="bx-im-user-settings-popup__list-item_text">{{ userStatusText }}</div>
 						</div>
-						<div class="bx-im-user-settings-popup__list-item_text">{{ userStatusText }}</div>
+						<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="status-select"></div>
 					</div>
-					<div class="bx-im-user-settings-popup__list-item_icon --chevron" ref="status-select"></div>
 				</div>
 				<div class="bx-im-user-settings-popup__separator"></div>
-			</div>
-			<!-- Back to old chat -->
-			<div v-if="showOldChatButton" class="bx-im-user-settings-popup__old-chat" :class="{'--loading': isChangingVersion}" @click="onBackToOldChatClick">
-				<div class="bx-im-user-settings-popup__list-item_icon --arrow-left"></div>
-				<div class="bx-im-user-settings-popup__old-chat_text">
-					{{ loc('IM_USER_SETTINGS_OLD_CHAT') }}
-				</div>
-			</div>
+				<DesktopAccountList 
+					v-if="isDesktopAccountManagementAvailable"
+					@openContextMenu="$emit('disableAutoHide')"
+				/>
+			</ScrollWithGradient>
 		</div>
 		<UserStatusPopup
 			v-if="showStatusPopup"
@@ -328,7 +526,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			@close="$emit('close')"
 			:id="POPUP_ID"
 		>
-			<UserSettingsContent @closePopup="$emit('close')" @enableAutoHide="enableAutoHide" @disableAutoHide="disableAutoHide" />
+			<UserSettingsContent 
+				@closePopup="$emit('close')" 
+				@enableAutoHide="enableAutoHide" 
+				@disableAutoHide="disableAutoHide" 
+			/>
 		</MessengerPopup>
 	`
 	};
@@ -353,9 +555,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return im_v2_application_core.Core.getUserId();
 	    },
 	    userStatus() {
-	      const user = this.$store.getters['users/get'](this.currentUserId, true);
-	      if (user) {
-	        return user.status;
+	      const status = this.$store.getters['application/settings/get'](im_v2_const.Settings.user.status);
+	      if (status) {
+	        return status;
 	      }
 	      return im_v2_const.UserStatus.online;
 	    }
@@ -493,10 +695,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  computed: {
 	    menuItems() {
-	      const menuItems = [{
+	      return [{
 	        id: im_v2_const.Layout.chat.name,
 	        text: this.prepareNavigationText('IM_NAVIGATION_CHATS'),
-	        counter: this.formatCounter(this.$store.getters['recent/getTotalChatCounter']),
+	        counter: this.formatCounter(this.$store.getters['counters/getTotalChatCounter']),
+	        active: true
+	      }, {
+	        id: im_v2_const.Layout.copilot.name,
+	        text: this.prepareNavigationText('IM_NAVIGATION_COPILOT'),
+	        counter: this.formatCounter(this.$store.getters['counters/getTotalCopilotCounter']),
+	        showCondition: this.isCopilotActive,
+	        active: true
+	      }, {
+	        id: im_v2_const.Layout.openlines.name,
+	        text: this.prepareNavigationText('IM_NAVIGATION_OPENLINES'),
+	        counter: this.formatCounter(this.$store.getters['counters/getTotalLinesCounter']),
 	        active: true
 	      }, {
 	        id: im_v2_const.Layout.notification.name,
@@ -504,34 +717,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        counter: this.formatCounter(this.$store.getters['notifications/getCounter']),
 	        active: true
 	      }, {
-	        id: im_v2_const.Layout.openlines.name,
-	        text: this.prepareNavigationText('IM_NAVIGATION_OPENLINES'),
-	        counter: this.formatCounter(this.$store.getters['recent/getTotalLinesCounter']),
+	        id: im_v2_const.Layout.call.name,
+	        text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
+	        clickHandler: this.onCallClick,
+	        showCondition: im_v2_lib_phone.PhoneManager.getInstance().canCall.bind(im_v2_lib_phone.PhoneManager.getInstance()),
 	        active: true
-	      }];
-	      if (im_v2_lib_phone.PhoneManager.getInstance().canCall()) {
-	        menuItems.push({
-	          id: im_v2_const.Layout.call.name,
-	          text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
-	          active: true,
-	          clickHandler: this.onCallClick
-	        });
-	      }
-	      menuItems.push({
+	      }, {
+	        id: 'timemanager',
+	        text: this.prepareNavigationText('IM_NAVIGATION_TIMEMANAGER'),
+	        clickHandler: this.onTimeManagerClick,
+	        showCondition: this.isTimeManagerActive,
+	        active: true
+	      }, {
+	        id: 'market'
+	      }, {
 	        id: im_v2_const.Layout.settings.name,
 	        text: this.prepareNavigationText('IM_NAVIGATION_SETTINGS'),
 	        active: true
-	      });
-	      if (this.isTimeManagerActive()) {
-	        menuItems.push({
-	          id: 'timemanager',
-	          text: this.prepareNavigationText('IM_NAVIGATION_TIMEMANAGER'),
-	          counter: 0,
-	          active: true,
-	          clickHandler: this.onTimeManagerClick
-	        });
-	      }
-	      return menuItems;
+	      }];
 	    },
 	    showCloseIcon() {
 	      return !im_v2_lib_desktopApi.DesktopApi.isChatTab();
@@ -624,8 +827,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	      });
 	    },
-	    loc(phraseCode, replacements = {}) {
-	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+	    needToShowMenuItem(item) {
+	      if (!main_core.Type.isFunction(item.showCondition)) {
+	        return true;
+	      }
+	      return item.showCondition() === true;
 	    },
 	    onScroll(event) {
 	      const scrollPosition = Math.round(event.target.scrollTop + event.target.clientHeight);
@@ -662,9 +868,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      var _BX$Timeman, _BX$Timeman$Monitor;
 	      return Boolean((_BX$Timeman = BX.Timeman) == null ? void 0 : (_BX$Timeman$Monitor = _BX$Timeman.Monitor) == null ? void 0 : _BX$Timeman$Monitor.isEnabled());
 	    },
+	    isCopilotActive() {
+	      const settings = main_core.Extension.getSettings('im.v2.component.navigation');
+	      return settings.get('copilotActive');
+	    },
 	    async onTimeManagerClick() {
 	      var _BX$Timeman2, _BX$Timeman2$Monitor;
 	      (_BX$Timeman2 = BX.Timeman) == null ? void 0 : (_BX$Timeman2$Monitor = _BX$Timeman2.Monitor) == null ? void 0 : _BX$Timeman2$Monitor.openReport();
+	    },
+	    loc(phraseCode, replacements = {}) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 	    }
 	  },
 	  template: `
@@ -684,23 +897,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					</div>
 				</template>
 				<!-- Menu items -->
-				<div
-					v-for="item in menuItems"
-					v-hint="getHintContent(item)"
-					@click="onMenuItemClick(item, $event)"
-					class="bx-im-navigation__item_container"
-				>
-					<div :class="getMenuItemClasses(item)" class="bx-im-navigation__item">
-						<div :class="'--' + item.id" class="bx-im-navigation__item_icon"></div>
-						<div class="bx-im-navigation__item_text" :title="item.text" v-html="item.text"></div>
-						<div v-if="item.active && item.counter" class="bx-im-navigation__item_counter">
-							<div class="bx-im-navigation__item_counter-text">
-								{{ item.counter }}
+				<template v-for="item in menuItems">
+					<MarketApps v-if="item.id === 'market'" @clickMarketItem="onMarketMenuItemClick"/>
+					<div
+						v-else-if="needToShowMenuItem(item)"
+						:key="item.id"
+						v-hint="getHintContent(item)"
+						@click="onMenuItemClick(item, $event)"
+						class="bx-im-navigation__item_container"
+					>
+						<div :class="getMenuItemClasses(item)" class="bx-im-navigation__item">
+							<div :class="'--' + item.id" class="bx-im-navigation__item_icon"></div>
+							<div class="bx-im-navigation__item_text" :title="item.text" v-html="item.text"></div>
+							<div v-if="item.active && item.counter" class="bx-im-navigation__item_counter">
+								<div class="bx-im-navigation__item_counter-text">
+									{{ item.counter }}
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<MarketApps @clickMarketItem="onMarketMenuItemClick"/>
+				</template>
 			</div>
 			<div v-if="needBottomShadow" class="bx-im-navigation__shadow --bottom">
 				<div class="bx-im-navigation__scroll-button --bottom" @click="onClickScrollDown"></div>
@@ -715,5 +931,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessengerNavigation = MessengerNavigation;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3.Directives,BX.UI.Dialogs,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3.Directives,BX.UI.Dialogs,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=navigation.bundle.js.map

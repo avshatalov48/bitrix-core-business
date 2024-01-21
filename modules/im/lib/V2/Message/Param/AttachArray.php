@@ -60,6 +60,11 @@ class AttachArray extends ParamArray
 			->setValue($value)
 		;
 
+		if (!$param->hasValue())
+		{
+			return $this;
+		}
+
 		if ($this->getMessageId())
 		{
 			$param->setMessageId($this->getMessageId());
@@ -71,7 +76,7 @@ class AttachArray extends ParamArray
 		}
 		else
 		{
-			$this['~'. $this->count()] = $param;
+			$this[] = $param;
 		}
 
 		$this->markChanged();
@@ -114,7 +119,7 @@ class AttachArray extends ParamArray
 		$values = [];
 		foreach ($this as $param)
 		{
-			if ($param->isDeleted())
+			if ($param->isDeleted() || !$param->hasValue())
 			{
 				continue;
 			}
@@ -122,5 +127,22 @@ class AttachArray extends ParamArray
 		}
 
 		return $values;
+	}
+
+	public function isValid(): Result
+	{
+		$result = new Result();
+
+		/** @var Attach $attach */
+		foreach ($this as $attach)
+		{
+			$checkAttachResult = $attach->isValid();
+			if (!$checkAttachResult->isSuccess())
+			{
+				$result->addErrors($checkAttachResult->getErrors());
+			}
+		}
+
+		return $result;
 	}
 }

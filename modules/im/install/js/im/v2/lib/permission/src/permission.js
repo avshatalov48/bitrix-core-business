@@ -2,11 +2,11 @@ import { Type } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
-import { DialogType, ChatActionType, ChatActionGroup, UserRole } from 'im.v2.const';
+import { ChatType, ChatActionType, ChatActionGroup, UserRole } from 'im.v2.const';
 
-import type { ImModelDialog } from 'im.v2.model';
+import type { ImModelChat } from 'im.v2.model';
 
-type ChatTypeItem = $Keys<typeof DialogType>;
+type ChatTypeItem = $Keys<typeof ChatType>;
 type ActionTypeItem = $Keys<typeof ChatActionType>;
 type ActionGroupItem = $Keys<typeof ChatActionGroup>;
 type ActionGroup = ActionTypeItem[];
@@ -62,13 +62,6 @@ export class PermissionManager
 			&& this.#canPerformActionByChatSettings(actionType, dialogId);
 	}
 
-	canPerformKick(dialogId: string, userId: string | number): boolean
-	{
-		return this.#canPerformActionByChatType(ChatActionType.kick, dialogId)
-			&& this.#canPerformActionByChatSettings(ChatActionType.kick, dialogId)
-			&& this.#canPerformKickByHierarchy(dialogId, userId);
-	}
-
 	getDefaultRolesForActionGroups(): Object<ActionGroupItem, RoleItem>
 	{
 		return this.#actionGroupsDefaultRoles;
@@ -85,7 +78,7 @@ export class PermissionManager
 	#canPerformActionByChatType(rawActionType: ActionTypeItem, dialogId: string): boolean
 	{
 		let actionType = rawActionType;
-		const dialog: ImModelDialog = this.#getDialog(dialogId);
+		const dialog: ImModelChat = this.#getDialog(dialogId);
 		const { role: userRole, owner: chatOwner } = dialog;
 		let { type: chatType } = dialog;
 
@@ -119,7 +112,7 @@ export class PermissionManager
 	#canPerformActionByChatSettings(actionType: ActionTypeItem, dialogId: string): boolean
 	{
 		const { role: userRole, type: chatType, permissions: chatPermissions } = this.#getDialog(dialogId);
-		if (chatType === DialogType.user)
+		if (chatType === ChatType.user)
 		{
 			return true;
 		}
@@ -164,7 +157,7 @@ export class PermissionManager
 	{
 		const preparedPermissions = { ...permissionsByChatType };
 
-		preparedPermissions[DialogType.user] = {
+		preparedPermissions[ChatType.user] = {
 			[ChatActionType.avatar]: UserRole.none,
 			[ChatActionType.call]: UserRole.member,
 			[ChatActionType.extend]: UserRole.member,
@@ -193,33 +186,8 @@ export class PermissionManager
 		return roleWeights[roleToCheck] >= roleWeights[minimalRole];
 	}
 
-	#canPerformKickByHierarchy(dialogId: string, userId: string | number): boolean
+	#getDialog(dialogId: string): ImModelChat
 	{
-		const preparedUserId = Number.parseInt(userId, 10);
-		const { role: userRole } = this.#getDialog(dialogId);
-		const targetUserRole = this.#getUserRole(dialogId, preparedUserId);
-
-		return this.#checkMinimalRole(targetUserRole, userRole);
-	}
-
-	#getDialog(dialogId: string): ImModelDialog
-	{
-		return Core.getStore().getters['dialogues/get'](dialogId, true);
-	}
-
-	#getUserRole(dialogId: string, userId: number): RoleItem
-	{
-		const { owner, managerList } = this.#getDialog(dialogId);
-		if (userId === owner)
-		{
-			return UserRole.owner;
-		}
-
-		if (managerList.includes(userId))
-		{
-			return UserRole.manager;
-		}
-
-		return UserRole.member;
+		return Core.getStore().getters['chats/get'](dialogId, true);
 	}
 }

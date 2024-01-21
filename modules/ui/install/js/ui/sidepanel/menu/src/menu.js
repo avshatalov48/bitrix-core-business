@@ -1,5 +1,5 @@
 import 'ui.fonts.opensans';
-import './style.css';
+import './css/style.css';
 import {Item, ItemOptions} from './item.js';
 import {Collection} from './collection.js';
 import {Tag} from 'main.core';

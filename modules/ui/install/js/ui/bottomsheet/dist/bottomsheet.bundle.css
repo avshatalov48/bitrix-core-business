@@ -34,8 +34,6 @@
 	background: var(--color--overlay-background);
 	opacity: 0;
 	pointer-events: none;
-	-webkit-transition: var(--transition);
-	-o-transition: var(--transition);
 	transition: var(--transition);
 }
 
@@ -49,41 +47,24 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
+	flex-direction: column;
 	max-height: calc(100vh - 50px);
-	-webkit-transform: translateY(100%);
-	    -ms-transform: translateY(100%);
-	        transform: translateY(100%);
-	-webkit-transition: var(--transition);
-	-o-transition: var(--transition);
+	transform: translateY(100%);
 	transition: var(--transition);
 }
 
 .ui-bottomsheet__panel.--show {
-	-webkit-transform: translateY(0);
-	    -ms-transform: translateY(0);
-	        transform: translateY(0);
+	transform: translateY(0);
 }
 
 .ui-bottomsheet__panel.--ondrag {
-	-webkit-transform: var(--translateY);
-	    -ms-transform: var(--translateY);
-	        transform: var(--translateY);
+	transform: var(--translateY);
 }
 
 .ui-bottomsheet__panel-control {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-pack: justify;
-	    -ms-flex-pack: justify;
-	        justify-content: space-between;
+	justify-content: space-between;
 	position: relative;
 }
 
@@ -92,9 +73,7 @@
 	top: 0;
 	bottom: 0;
 	left: 50%;
-	-webkit-transform: translateX(-50%);
-	    -ms-transform: translateX(-50%);
-	        transform: translateX(-50%);
+	transform: translateX(-50%);
 	width: 120px;
 }
 
@@ -103,9 +82,7 @@
 	position: absolute;
 	left: 50%;
 	bottom: 7px;
-	-webkit-transform: translateX(-50%);
-	    -ms-transform: translateX(-50%);
-	        transform: translateX(-50%);
+	transform: translateX(-50%);
 	width: 52px;
 	height: 5px;
 	border-radius: 2.5px;
@@ -113,12 +90,8 @@
 }
 
 .ui-bottomsheet__panel-control--item {
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 	padding: 12px 14px;
 }
 
@@ -136,9 +109,7 @@
 }
 
 .ui-bottomsheet__panel-wrapper {
-	-webkit-box-flex: 1;
-	    -ms-flex: 1;
-	        flex: 1;
+	flex: 1;
 	display: block;
 	padding: 13px 15px;
 	background: var(--color--panel-background);

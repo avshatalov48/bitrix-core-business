@@ -5,6 +5,8 @@ import Grid from './grid';
 import 'ui.fonts.opensans';
 import 'ui.design-tokens';
 
+import './css/style.css';
+
 export {
 	Grid,
 	Section,

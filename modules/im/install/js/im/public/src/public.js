@@ -1,6 +1,7 @@
 import { Type, Extension, Reflection } from 'main.core';
 
 import { legacyMessenger, legacyDesktop } from './legacy';
+import { prepareSettingsSection } from './functions/settings';
 
 class Messenger
 {
@@ -53,6 +54,27 @@ class Messenger
 		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
 
 		return MessengerSlider?.getInstance().openLines(dialogId);
+	}
+
+	async openCopilot(dialogId: string = ''): Promise
+	{
+		if (!this.v2enabled)
+		{
+			window.BXIM.openMessenger(dialogId);
+
+			return Promise.resolve();
+		}
+
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const isRedirectAllowed = await DesktopManager?.getInstance().checkForRedirect();
+		if (isRedirectAllowed)
+		{
+			return DesktopManager?.getInstance().redirectToCopilot(dialogId);
+		}
+
+		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+
+		return MessengerSlider?.getInstance().openCopilot(dialogId);
 	}
 
 	async openLinesHistory(dialogId: string = ''): Promise
@@ -111,7 +133,7 @@ class Messenger
 		return MessengerSlider?.getInstance().openRecentSearch();
 	}
 
-	openSettings(options: ?Object = {}): Promise<Array>
+	async openSettings(options: { onlyPanel?: string } = {}): Promise<Array>
 	{
 		if (!this.v2enabled)
 		{
@@ -133,9 +155,17 @@ class Messenger
 			return Promise.resolve();
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+		const isRedirectAllowed = await DesktopManager?.getInstance().checkForRedirect();
+		if (isRedirectAllowed)
+		{
+			return DesktopManager?.getInstance().redirectToSettings(options.onlyPanel ?? '');
+		}
 
-		return MessengerSlider?.getInstance().openSettings(options);
+		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
+		const settingsSection = prepareSettingsSection(options.onlyPanel ?? '');
+
+		return MessengerSlider?.getInstance().openSettings(settingsSection);
 	}
 
 	async openConference(options: { code?: string, link?: string } = {}): Promise<Array>

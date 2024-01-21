@@ -1,10 +1,11 @@
 <?php
 namespace Bitrix\Im\Model;
 
-use Bitrix\Im\V2\Entity\User\UserBot;
+use Bitrix\Im\V2\Entity\User\Data\BotData;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Event;
+use Bitrix\Im\V2\Common\UpdateByFilterTrait;
 
 Loc::loadMessages(__FILE__);
 
@@ -37,6 +38,7 @@ Loc::loadMessages(__FILE__);
 
 class BotTable extends Main\Entity\DataManager
 {
+	use UpdateByFilterTrait;
 	/**
 	 * Returns DB table name for entity.
 	 *
@@ -156,6 +158,11 @@ class BotTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('BOT_ENTITY_OPENLINE_FIELD'),
 				'default_value' => 'N',
 			),
+			'HIDDEN' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+			),
 		);
 	}
 	/**
@@ -245,7 +252,7 @@ class BotTable extends Main\Entity\DataManager
 
 		if (static::needCacheInvalidate($fields))
 		{
-			UserBot::cleanCache($id);
+			BotData::cleanCache($id);
 		}
 
 		return new Main\Entity\EventResult();
@@ -254,7 +261,7 @@ class BotTable extends Main\Entity\DataManager
 	public static function onAfterDelete(Event $event)
 	{
 		$id = (int)$event->getParameter('primary')['BOT_ID'];
-		UserBot::cleanCache($id);
+		BotData::cleanCache($id);
 
 		return new Main\Entity\EventResult();
 	}
@@ -262,9 +269,23 @@ class BotTable extends Main\Entity\DataManager
 	protected static function needCacheInvalidate(array $updatedFields): bool
 	{
 		$cacheInvalidatingFields = [
+			'BOT_ID',
+			'MODULE_ID',
 			'CODE',
 			'TYPE',
+			'CLASS',
+			'LANG',
+			'METHOD_BOT_DELETE',
+			'METHOD_MESSAGE_ADD',
+			'METHOD_MESSAGE_UPDATE',
+			'METHOD_MESSAGE_DELETE',
+			'METHOD_WELCOME_MESSAGE',
+			'TEXT_PRIVATE_WELCOME_MESSAGE',
+			'TEXT_CHAT_WELCOME_MESSAGE',
 			'APP_ID',
+			'VERIFIED',
+			'OPENLINE',
+			'HIDDEN',
 		];
 
 		return !empty(array_intersect($cacheInvalidatingFields, array_keys($updatedFields)));

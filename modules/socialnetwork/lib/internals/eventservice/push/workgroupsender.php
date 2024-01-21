@@ -44,6 +44,7 @@ class WorkgroupSender
 		{
 			$pushCommand = PushEventDictionary::getPushEventType($push['EVENT']);
 			$groupId = (int)$push['GROUP_ID'];
+			$userId = (int)($push['USER_ID'] ?? null);
 
 			if (empty($pushCommand))
 			{
@@ -53,7 +54,7 @@ class WorkgroupSender
 			$pushParams = [
 				'module_id' => 'socialnetwork',
 				'command' => $pushCommand,
-				'params' => [ 'GROUP_ID' => $groupId ],
+				'params' => [ 'GROUP_ID' => $groupId, 'USER_ID' => $userId ],
 			];
 
 			$recipients = (
@@ -62,7 +63,7 @@ class WorkgroupSender
 					: $subscribedUsers
 			);
 
-			PushSender::sendPersonalEvent($recipients, $pushCommand, $pushParams);
+				PushSender::sendPersonalEvent($recipients, $pushCommand, $pushParams);
 		}
 	}
 
@@ -70,11 +71,12 @@ class WorkgroupSender
 	{
 		$eventData = $event->getData();
 		$groupId = $event->getGroupId();
+		$userId = $event->getUserId();
 
 		$pushParams = [
 			'module_id' => 'socialnetwork',
 			'command' => $event->getType(),
-			'params' => [ 'GROUP_ID' => $groupId ],
+			'params' => [ 'GROUP_ID' => $groupId, 'USER_ID' => $userId, ],
 		];
 
 		if (($eventData['ROLE'] ?? null) === UserToGroupTable::ROLE_REQUEST)

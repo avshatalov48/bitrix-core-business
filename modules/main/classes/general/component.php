@@ -514,7 +514,15 @@ class CBitrixComponent
 		$p = $arParams; //this avoids endless loop
 		foreach($p as $k => $v)
 		{
+			if (str_starts_with($k, '~'))
+			{
+				// already stored raw value
+				continue;
+			}
+
+			// store raw value
 			$arParams["~".$k] = $v;
+
 			if (isset($v))
 			{
 				if (is_string($v))

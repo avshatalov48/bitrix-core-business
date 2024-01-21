@@ -2,7 +2,7 @@ import { hint } from 'ui.vue3.directives.hint';
 
 import { Core } from 'im.v2.application.core';
 import { Toggle, ToggleSize } from 'im.v2.component.elements';
-import { ImModelDialog } from 'im.v2.model';
+import { ImModelChat } from 'im.v2.model';
 import { ChatActionType } from 'im.v2.const';
 import { ChatService } from 'im.v2.provider.service';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -37,9 +37,9 @@ export const Settings = {
 	computed:
 	{
 		ToggleSize: () => ToggleSize,
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		isGroupChat(): boolean
 		{

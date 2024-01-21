@@ -448,7 +448,7 @@ class Generator
 		if (Loader::includeModule('iblock'))
 		{
 			$arIBlockList = $this->sitemapData['SETTINGS']['IBLOCK_ACTIVE'];
-			if (count($arIBlockList) > 0)
+			if (is_array($arIBlockList) && count($arIBlockList) > 0)
 			{
 				$arIBlocks = [];
 				$dbIBlock = \CIBlock::GetList([], ['ID' => array_keys($arIBlockList)]);

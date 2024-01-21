@@ -118,7 +118,7 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 	{
 		$filter = parent::getAdditionalProductFilter();
 
-		$filter['@TYPE'] = [
+		$filter['=TYPE'] = [
 			ProductTable::TYPE_PRODUCT,
 			ProductTable::TYPE_OFFER,
 			ProductTable::TYPE_FREE_OFFER,
@@ -216,7 +216,7 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 		elseif (!$product->isNew())
 		{
 			$params['filter']['PROPERTY_' . $this->iblockInfo->getSkuPropertyId()] = $product->getId();
-			$params['order']['ID'] = 'DESC';
+			$params['order']['ID'] ??= 'DESC';
 
 			foreach ($this->getList($params) as $item)
 			{

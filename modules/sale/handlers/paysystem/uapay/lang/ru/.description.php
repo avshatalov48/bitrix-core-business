@@ -1,5 +1,6 @@
 <?php
 $MESS["SALE_HPS_UAPAY"] = "UAPAY";
+$MESS["SALE_HPS_UAPAY_PUBLIC_DESCRIPTION"] = "Для оплаты используйте карты Visa и Mastercard, выпущенные любым банком Украины. Карточка должна быть открыта для расчетов онлайн (обратитесь в службу поддержки вашего банка).";
 $MESS["SALE_HPS_UAPAY_CLIENT_ID"] = "Идентификатор клиента";
 $MESS["SALE_HPS_UAPAY_SIGN_KEY"] = "Ключ для подписи";
 $MESS["SALE_HPS_UAPAY_SIGN_KEY_DESC"] = "Все запросы к API UAPAY должны подписываться ключом который можно получить в Вашем кабинете";

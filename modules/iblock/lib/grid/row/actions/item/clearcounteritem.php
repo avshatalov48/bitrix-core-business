@@ -63,7 +63,7 @@ final class ClearCounterItem extends BaseItem
 		]);
 		if (!$updateResult)
 		{
-			$message = $entity->LAST_ERROR ?: 'Cannot update element';
+			$message = $entity->getLastError() ?: 'Cannot update element';
 			$result->addError(new Error($message));
 		}
 

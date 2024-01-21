@@ -2,6 +2,7 @@
 $MESS["SALE_HPS_WEBMONEY"] = "Payment via WebMoney (Web) (Russian payment system)";
 $MESS["SALE_HPS_WEBMONEY_CHANGE_STATUS_PAY"] = "Auto pay on receiving success status";
 $MESS["SALE_HPS_WEBMONEY_DATE"] = "Payment date";
+$MESS["SALE_HPS_WEBMONEY_DESCRIPTION"] = "WebMoney payment";
 $MESS["SALE_HPS_WEBMONEY_HASH_ALGO"] = "Hash algorithm";
 $MESS["SALE_HPS_WEBMONEY_KEY"] = "Secret Key";
 $MESS["SALE_HPS_WEBMONEY_MAIL"] = "Customer's e-mail address";

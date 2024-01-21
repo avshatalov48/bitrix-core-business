@@ -4,7 +4,7 @@ namespace Bitrix\Catalog\Integration\Report\Dashboard;
 
 use Bitrix\Catalog\Integration\Report\Handler\BaseHandler;
 use Bitrix\Catalog\Integration\Report\Dashboard\Group\Group;
-use Bitrix\Catalog\Integration\Report\View\CatalogView;
+use Bitrix\Catalog\Integration\Report\View\ViewRenderable;
 use Bitrix\Report\VisualConstructor;
 use Bitrix\Report\VisualConstructor\Entity\Report;
 use Bitrix\Report\VisualConstructor\Entity\Widget;
@@ -14,6 +14,7 @@ use Bitrix\Report\VisualConstructor\Handler\BaseWidget;
 use Bitrix\Report\VisualConstructor\AnalyticBoard;
 use Bitrix\Report\VisualConstructor\AnalyticBoardBatch;
 use Bitrix\Report\VisualConstructor\Views\Component\Base;
+use Bitrix\Report\VisualConstructor\View;
 
 /**
  * Instances of this class must be provided from DashboardManager, that make access validation before this
@@ -51,7 +52,7 @@ abstract class CatalogDashboard
 	abstract protected static function getDefaultGroup(): Group;
 
 	/**
-	 * Returns array of <b>Bitrix\Report\VisualConstructor\Views\Component\Base</b> instances
+	 * Returns array of <b>Bitrix\Report\VisualConstructor\View</b> instances
 	 */
 	abstract protected static function getDefaultViewList(): array;
 
@@ -73,7 +74,7 @@ abstract class CatalogDashboard
 	 */
 	abstract public function getBoardVersion(): string;
 
-	abstract public function getBoardTitle(): string;
+	abstract public function getBoardTitle(): ?string;
 
 	public function getAnalyticBoard(): AnalyticBoard
 	{
@@ -127,7 +128,7 @@ abstract class CatalogDashboard
 		return $rows;
 	}
 
-	protected function buildWidgetFromView(CatalogView $view): Widget
+	protected function buildWidgetFromView(ViewRenderable $view): Widget
 	{
 		$widget = new Widget();
 
@@ -153,11 +154,11 @@ abstract class CatalogDashboard
 
 	/**
 	 * Add view to dashboard that will show in <b>$weight</b> order to page
-	 * @param Base $view
+	 * @param View $view
 	 * @param int $weight
 	 * @return void
 	 */
-	public function addView(Base $view, int $weight): void
+	public function addView(View $view, int $weight): void
 	{
 		$this->dashboardViewList[$weight] = $view;
 	}

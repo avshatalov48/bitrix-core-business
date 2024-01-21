@@ -7,6 +7,7 @@ use Bitrix\Iblock\Grid\ActionType;
 use Bitrix\Iblock\Grid\Column\ElementPropertyProvider;
 use Bitrix\Iblock\Grid\RowType;
 use Bitrix\Main\Error;
+use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Column\Columns;
 use Bitrix\Main\Grid\Editor\Types;
 use Bitrix\Main\HttpRequest;
@@ -67,7 +68,7 @@ class EditActionsItem extends \Bitrix\Main\Grid\Panel\Action\EditAction
 		return $this->columns;
 	}
 
-	public function processRequest(HttpRequest $request, bool $isSelectedAllRows): ?Result
+	public function processRequest(HttpRequest $request, bool $isSelectedAllRows, ?Filter $filter): ?Result
 	{
 		$result = new Result();
 
@@ -76,7 +77,12 @@ class EditActionsItem extends \Bitrix\Main\Grid\Panel\Action\EditAction
 
 		foreach ($rows as $id => $fields)
 		{
-			[$type, $id] = RowType::parseIndex($id);
+			$index = RowType::parseIndex($id);
+			if ($index === null)
+			{
+				continue;
+			}
+			[$type, $id] = $index;
 
 			$fields = $this->getColumns()->prepareEditableColumnsValues($fields);
 			if (empty($fields))
@@ -102,7 +108,7 @@ class EditActionsItem extends \Bitrix\Main\Grid\Panel\Action\EditAction
 					$this->saveElement($id, $fields)->getErrors()
 				);
 			}
-			else
+			elseif ($type === RowType::SECTION)
 			{
 				if (!$this->rights->canEditSection($id))
 				{
@@ -159,10 +165,10 @@ class EditActionsItem extends \Bitrix\Main\Grid\Panel\Action\EditAction
 		{
 			$entity = $this->getElementEntity();
 			$entity->Update($id, $fields);
-			if ($entity->LAST_ERROR)
+			if ($entity->getLastError())
 			{
 				$result->addError(
-					new Error($entity->LAST_ERROR)
+					new Error($entity->getLastError())
 				);
 			}
 		}
@@ -182,10 +188,10 @@ class EditActionsItem extends \Bitrix\Main\Grid\Panel\Action\EditAction
 		$entity = $this->getSectionEntity();
 		$entity->Update($id, $fields);
 
-		if ($entity->LAST_ERROR)
+		if ($entity->getLastError())
 		{
 			$result->addError(
-				new Error($entity->LAST_ERROR)
+				new Error($entity->getLastError())
 			);
 		}
 

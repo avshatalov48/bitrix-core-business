@@ -1,19 +1,22 @@
 import { Type } from 'main.core';
 import { ReactionsSelect, reactionType as ReactionType } from 'ui.reactions-select';
 
-import { UserRole } from 'im.v2.const';
+import { UserRole, ChatType } from 'im.v2.const';
 
 import { ReactionService } from './classes/reaction-service';
 
 import './selector.css';
 
-import type { ImModelDialog, ImModelMessage, ImModelReactions } from 'im.v2.model';
+import type { ImModelChat, ImModelMessage, ImModelReactions, ImModelUser } from 'im.v2.model';
 
 const SHOW_DELAY = 500;
 const HIDE_DELAY = 800;
 
+const chatTypesWithReactionDisabled = new Set([ChatType.copilot]);
+
 // @vue/component
 export const ReactionSelector = {
+	name: 'ReactionSelector',
 	props:
 	{
 		messageId: {
@@ -23,6 +26,14 @@ export const ReactionSelector = {
 	},
 	computed:
 	{
+		message(): ImModelMessage
+		{
+			return this.$store.getters['messages/getById'](this.messageId);
+		},
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/getByChatId'](this.message.chatId);
+		},
 		reactionsData(): ImModelReactions
 		{
 			return this.$store.getters['messages/reactions/getByMessageId'](this.messageId);
@@ -33,14 +44,20 @@ export const ReactionSelector = {
 		},
 		isGuest(): boolean
 		{
-			const message: ImModelMessage = this.$store.getters['messages/getById'](this.messageId);
-			const dialog: ImModelDialog = this.$store.getters['dialogues/getByChatId'](message.chatId);
+			return this.dialog.role === UserRole.guest;
+		},
+		isBot(): boolean
+		{
+			const user: ImModelUser = this.$store.getters['users/get'](this.dialog.dialogId);
 
-			return dialog.role === UserRole.guest;
+			return user?.bot === true;
 		},
 		canSetReactions(): boolean
 		{
-			return Type.isNumber(this.messageId) && !this.isGuest;
+			return Type.isNumber(this.messageId)
+				&& !this.isGuest
+				&& !this.isBot
+				&& !this.areReactionsDisabledForType(this.dialog.type);
 		},
 	},
 	methods:
@@ -120,6 +137,10 @@ export const ReactionSelector = {
 			}
 
 			return this.reactionService;
+		},
+		areReactionsDisabledForType(type: $Values<typeof ChatType>)
+		{
+			return chatTypesWithReactionDisabled.has(this.dialog.type);
 		},
 	},
 	template: `

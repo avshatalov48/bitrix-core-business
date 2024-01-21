@@ -9,6 +9,7 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Common\FieldAccessImplementation;
 use Bitrix\Im\V2\Common\RegistryEntryImplementation;
 use Bitrix\Im\V2\Entity\User\User;
+use Bitrix\Main\Type\DateTime;
 
 class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 {
@@ -26,7 +27,7 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 	protected ?int $lastId = null;
 	protected ?int $lastSendId = null;
 	protected ?int $lastFileId = null;
-	protected ?int $lastRead = null;
+	protected ?DateTime $lastRead = null;
 	protected ?int $status = null;
 	protected ?int $callStatus = null;
 	protected ?string $messageStatus = null;
@@ -159,7 +160,7 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 			],
 			'LAST_READ' => [
 				'field' => 'lastRead',
-				'set' => 'setLastRead', /** @see Relation::setLastRead */
+				'set' => 'setLastReadInternal', /** @see Relation::setLastReadInternal */
 				'get' => 'getLastRead', /** @see Relation::getLastRead */
 			],
 			'STATUS' => [
@@ -301,15 +302,31 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 		return $this;
 	}
 
-	public function getLastRead(): ?int
+	public function getLastRead(): ?DateTime
 	{
 		return $this->lastRead;
 	}
 
-	public function setLastRead(?int $lastRead): Relation
+	public function setLastRead(?DateTime $lastRead): Relation
 	{
 		$this->lastRead = $lastRead;
 		return $this;
+	}
+
+	private function setLastReadInternal($lastRead): Relation
+	{
+		$lastReadDateTime = null;
+
+		if ($lastRead instanceof DateTime)
+		{
+			$lastReadDateTime = $lastRead;
+		}
+		elseif (!empty($lastRead))
+		{
+			$lastReadDateTime = DateTime::tryParse($lastRead) ?? DateTime::tryParse($lastRead, 'Y-m-d H:i:s');
+		}
+
+		return $this->setLastRead($lastReadDateTime);
 	}
 
 	public function getStatus(): ?int

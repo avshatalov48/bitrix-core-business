@@ -12,7 +12,6 @@ return [
 		'im.v2.application.core',
 		'im.v2.lib.parser',
 		'im.v2.component.message.elements',
-		'im.v2.const',
 	],
 	'skip_core' => true,
 ];

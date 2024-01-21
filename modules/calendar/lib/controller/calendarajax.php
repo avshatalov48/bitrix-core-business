@@ -2,7 +2,6 @@
 namespace Bitrix\Calendar\Controller;
 
 use Bitrix\Calendar\Access\EventAccessController;
-use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\SectionAccessController;
@@ -11,15 +10,14 @@ use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Sharing;
-use Bitrix\Calendar\Sharing\SharingEventManager;
 use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\Util;
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
-use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Calendar\Ui\CountersManager;
 use Bitrix\Calendar\Access\ActionDictionary;
@@ -371,6 +369,17 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function getEditEventSliderAction()
 	{
+		if (
+			Loader::includeModule('intranet')
+			&& !ToolsManager::getInstance()->checkAvailabilityByToolId('calendar')
+		)
+		{
+			$this->addError(new Error('Tool not available'));
+
+			return [
+				'isAvailable' => false,
+			];
+		}
 		$request = $this->getRequest();
 		$responseParams = [];
 		$uniqueId = 'calendar_edit_slider_' . mt_rand();
@@ -400,6 +409,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$responseParams['userId'] = $userId;
 			$responseParams['editorId'] = $uniqueId . '_entry_slider_editor';
 			$responseParams['entry'] = $entry;
+			$responseParams['timezoneHint'] = !empty($entry) ? Util::getTimezoneHint($userId, $entry) : '';
 			$responseParams['timezoneList'] = \CCalendar::GetTimezoneList();
 			$responseParams['formSettings'] = UserSettings::getFormSettings($formType);
 
@@ -508,19 +518,25 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	{
 		$hiddenFields = [];
 
-		if (isset($entry['EVENT_TYPE']) && $entry['EVENT_TYPE'] === SharingEventManager::SHARED_EVENT_CRM_TYPE)
+		if ($this->isSharingEvent($entry))
 		{
 			$hiddenFields = array_merge(
 				$hiddenFields,
 				[
-					self::EVENT_EDIT_FORM_FIELDS_THAT_CAN_BE_HIDDEN['repeatRule'],
 					self::EVENT_EDIT_FORM_FIELDS_THAT_CAN_BE_HIDDEN['crm'],
-					self::EVENT_EDIT_FORM_FIELDS_THAT_CAN_BE_HIDDEN['accessibility'],
 				]
 			);
 		}
 
 		return $hiddenFields;
+	}
+
+	private function isSharingEvent(array $entry): bool
+	{
+		return
+			isset($entry['EVENT_TYPE'])
+			&& in_array($entry['EVENT_TYPE'], Sharing\SharingEventManager::getSharingEventTypes())
+		;
 	}
 
 	public function getViewEventSliderAction()
@@ -627,6 +643,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	{
 		$request = $this->getRequest();
 		$entryId = (int)$request['entryId'];
+		$parentId = (int)($request['entry']['parentId'] ?? 0);
 		$userId = \CCalendar::getCurUserId();
 		$ownerId = (int)$request['ownerId'];
 		$type = $request['type'];
@@ -683,6 +700,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$dateTo = isset($request['dateTo']) ? $request['dateTo'] : $request['date_to'];
 
 		return \CCalendarPlanner::prepareData([
+			'parent_id' => $parentId,
 			'entry_id' => $entryId,
 			'user_id' => $userId,
 			'host_id' => $hostId,
@@ -846,6 +864,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		if (!($section = $sectionList->fetch()))
 		{
 			$this->addError(new Error(Loc::getMessage('EC_SECTION_NOT_FOUND'), 'section_not_found'));
+
+			return $response;
 		}
 
 		$accessController = new SectionAccessController(\CCalendar::GetUserId());
@@ -854,12 +874,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		if (!$accessController->check(ActionDictionary::ACTION_SECTION_EDIT, $sectionModel))
 		{
 			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied'));
+
+			return $response;
 		}
 
-		if (empty($this->getErrors()))
-		{
-			\CCalendar::DeleteSection($id);
-		}
+		\CCalendar::DeleteSection($id);
 
 		return $response;
 	}
@@ -1129,16 +1148,47 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	{
 		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
+			$this->addError(new Error('Intranet user only'));
+
 			return [];
 		}
 
 		$request = $this->getRequest();
 
-		$params = [
-			'ownerId' => $request->getPost('ownerId'),
-			'userId' => $request->getPost('userId'),
-			'type' => $request->getPost('type'),
-		];
+		$type = $request->getPost('type');
+
+		if ($type === 'user')
+		{
+			$params = [
+				'ownerId' => \CCalendar::GetCurUserId(),
+				'userId' => \CCalendar::GetCurUserId(),
+				'type' => $type,
+			];
+		}
+		else if (in_array($type, ['company_calendar', 'calendar_company', 'company', 'group'], true))
+		{
+			$accessController = new TypeAccessController(\CCalendar::GetCurUserId());
+			$typeModel = TypeModel::createFromXmlId($type);
+
+			if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel))
+			{
+				$this->addError(new Error('Type access denied'));
+
+				return [];
+			}
+
+			$params = [
+				'ownerId' => $request->getPost('ownerId'),
+				'userId' => \CCalendar::GetCurUserId(),
+				'type' => $type,
+			];
+		}
+		else
+		{
+			$this->addError(new Error('Type not found'));
+
+			return [];
+		}
 
 		return CalendarFilter::getFilterData($params);
 	}

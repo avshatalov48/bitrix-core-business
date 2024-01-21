@@ -16,6 +16,7 @@ use Bitrix\Im\V2\Relation;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
+use Bitrix\Im\V2\Sync;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 
@@ -28,6 +29,8 @@ class ReadService
 
 	protected CounterService $counterService;
 	protected ViewedService $viewedService;
+
+	private static array $lastMessageIdCache = [];
 
 	public function __construct(?int $userId = null)
 	{
@@ -49,10 +52,15 @@ class ReadService
 		$this->setLastIdForRead($message->getMessageId(), $message->getChatId());
 		$this->counterService->deleteTo($message);
 		$counter = $this->counterService->getByChat($message->getChatId());
-		$time = microtime(true);
 		$viewResult = $this->viewedService->addTo($message);
 		$this->updateDateRecent($message->getChatId());
-		$this->sendPush($message->getChatId(), [$this->getContext()->getUserId()], $counter, $time);
+		if (!$message->getChat() instanceof Chat\OpenLineChat)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $message->getChatId()),
+				$this->getContext()->getUserId()
+			);
+		}
 
 		$viewedMessages = [];
 		if ($viewResult->isSuccess())
@@ -69,12 +77,18 @@ class ReadService
 		$this->setLastIdForRead($maxId, $chat->getChatId());
 		$this->counterService->deleteTo($messages[$maxId]);
 		$counter = $this->counterService->getByChat($chat->getChatId());
-		$time = microtime(true);
-		$this->viewedService->add($messages);
+		$messagesToView = $messages->fillViewed()->filter(fn (Message $message) => !$message->isViewed());
+		$this->viewedService->add($messagesToView);
 		$this->updateDateRecent($chat->getChatId());
-		$this->sendPush($chat->getChatId(), [$this->getContext()->getUserId()], $counter, $time);
+		if (!$chat instanceof Chat\OpenLineChat)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chat->getChatId()),
+				$this->getContext()->getUserId()
+			);
+		}
 
-		return (new Result())->setResult(['COUNTER' => $counter]);
+		return (new Result())->setResult(['COUNTER' => $counter, 'VIEWED_MESSAGES' => $messagesToView]);
 	}
 
 	public function readNotifications(MessageCollection $messages, array $userByChatId): Result
@@ -93,32 +107,45 @@ class ReadService
 		$time = microtime(true);
 		//$this->viewedController->add($messages);
 
-		foreach ($chatIds as $chatId)
+		/*foreach ($chatIds as $chatId)
 		{
 			$this->sendPush($chatId, [(int)$userByChatId[$chatId]], $counters[$chatId], $time);
-		}
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
+				(int)$userByChatId[$chatId]
+			);
+		}*/
 
 		return (new Result())->setResult(['COUNTERS' => $counters]);
 	}
 
 	public function readAllInChat(int $chatId): Result
 	{
-		$lastId = $this->viewedService->getLastMessageIdInChat($chatId) ?? 0;
+		$lastId = $this->getLastMessageIdInChat($chatId);
 		$this->setLastIdForRead($lastId, $chatId);
 		$this->counterService->deleteByChatId($chatId);
-		$time = microtime(true);
 		$counter = 0;
 		//$this->viewedController->addAllFromChat($chatId);
 		$this->updateDateRecent($chatId);
-		$this->sendPush($chatId, [$this->getContext()->getUserId()], $counter, $time);
+		if (!Chat::getInstance($chatId) instanceof Chat\OpenLineChat)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
+				$this->getContext()->getUserId()
+			);
+		}
 
-		return (new Result())->setResult(['COUNTER' => $counter]);
+		return (new Result())->setResult(['COUNTER' => $counter, 'VIEWED_MESSAGES' => new MessageCollection()]);
 	}
 
 	public function readAll(): void
 	{
 		$this->setLastIdForReadAll();
 		$this->counterService->deleteAll();
+		Sync\Logger::getInstance()->add(
+			new Sync\Event(Sync\Event::READ_ALL_EVENT, Sync\Event::CHAT_ENTITY, 0),
+			$this->getContext()->getUserId()
+		);
 	}
 
 	public function unreadTo(Message $message): Result
@@ -131,6 +158,13 @@ class ReadService
 		}
 		$this->counterService->addStartingFrom($message->getMessageId(), $relation);
 		$this->viewedService->deleteStartingFrom($message);
+		if (!$message->getChat() instanceof Chat\OpenLineChat)
+		{
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $message->getChatId()),
+				$this->getContext()->getUserId()
+			);
+		}
 
 		return new Result();
 	}
@@ -139,9 +173,6 @@ class ReadService
 	{
 		$this->counterService->addCollection($messages, $relation);
 		$counter = $this->counterService->getByChat($relation->getChatId());
-		$time = microtime(true);
-		//$this->viewedController->deleteByMessageIds($messages->getIds(), $relation->getChatId());
-		$this->sendPush($relation->getChatId(), [$this->getContext()->getUserId()], $counter, $time);
 
 		return (new Result())->setResult(['COUNTER' => $counter]);
 	}
@@ -194,13 +225,7 @@ class ReadService
 	 */
 	public function getCountersForUsers(Message $message, RelationCollection $relations): array
 	{
-		$onlineUsers = UserCollection::filterOnlineUserId($relations->getUserIds());
-		$counters = $this->counterService->getByChatForEachUsers($message->getChatId(), $onlineUsers);
-
-		$time = microtime(true);
-		$this->sendPushByGroup($message->getChatId(), $counters, $time);
-
-		return $counters;
+		return $this->counterService->getByChatForEachUsers($message->getChatId(), $relations->getUserIds());
 	}
 
 	/**
@@ -210,10 +235,14 @@ class ReadService
 	 * @param RelationCollection $relations
 	 * @return Result
 	 */
-	public function onAfterMessageSend(Message $message, RelationCollection $relations): Result
+	public function onAfterMessageSend(Message $message, RelationCollection $relations, bool $withoutCounters = false): Result
 	{
+		if (!$withoutCounters)
+		{
+			$this->markMessageUnread($message, $relations);
+		}
+
 		$counters = $this
-			->markMessageUnread($message, $relations)
 			->markRecentUnread($message)
 			->getCountersForUsers($message, $relations)
 		;
@@ -226,70 +255,21 @@ class ReadService
 		$relationCollection = new RelationCollection();
 		$relationCollection->add($relation);
 		$this->counterService->addForEachUser($message, $relationCollection);
-
 		$counter = $this->counterService->getByChat($relation->getChatId());
-
-		$time = microtime(true);
-		$this->sendPush($relation->getChatId(), [$this->getContext()->getUserId()], $counter, $time);
 
 		return (new Result())->setResult(['COUNTER' => $counter]);
 	}
-
-
-	//region Push
-	protected function sendPushByGroup(int $chatId, array $counters, float $time): void
-	{
-		$groups = $this->splitRecipientsByGroups($counters);
-
-		foreach ($groups as $group)
-		{
-			$this->sendPush($chatId, $group['USER_IDS'], $group['COUNTER'], $time);
-		}
-	}
-
-	protected function splitRecipientsByGroups(array $counters): array
-	{
-		$currentUserId = $this->getContext()->getUserId();
-		$groups = [];
-
-		foreach ($counters as $userId => $counter)
-		{
-			if ($userId === $currentUserId)
-			{
-				$counter = 0;
-			}
-
-			$groups[$counter]['COUNTER'] = $counter;
-			$groups[$counter]['USER_IDS'][] = $userId;
-		}
-
-		return array_values($groups);
-	}
-
-	public function sendPush(int $chatId, array $userIds, int $counter, float $time): void
-	{
-		if (!Loader::includeModule('pull'))
-		{
-			return;
-		}
-		\Bitrix\Pull\Event::add($userIds, [
-			'module_id' => 'im',
-			'command' => 'chatCounterChange',
-			'params' => [
-				'chatId' => $chatId,
-				'counter' => $counter,
-				'time' => $time
-			],
-			'extra' => \Bitrix\Im\Common::getPullExtra()
-		]);
-	}
-
-	//endregion
 
 	public function deleteByMessageId(int $messageId, ?array $invalidateCacheUsers = null): void
 	{
 		$this->counterService->deleteByMessageIdForAll($messageId, $invalidateCacheUsers);
 		$this->viewedService->deleteByMessageIdForAll($messageId);
+	}
+
+	public function deleteByChatId(int $chatId): void
+	{
+		$this->counterService->deleteByChatId($chatId);
+		$this->viewedService->deleteByChatId($chatId);
 	}
 
 	/*public function deleteByMessageIds(array $messageIds): void
@@ -378,9 +358,26 @@ class ReadService
 
 	public function getLastMessageIdInChat(int $chatId): int
 	{
-		$result = ChatTable::query()->setSelect(['LAST_MESSAGE_ID'])->where('ID', $chatId)->fetch();
+		if (isset(static::$lastMessageIdCache[$chatId]))
+		{
+			return static::$lastMessageIdCache[$chatId];
+		}
 
-		return $result ? (int)$result['LAST_MESSAGE_ID'] : 0;
+		$result = ChatTable::query()->setSelect(['LAST_MESSAGE_ID'])->where('ID', $chatId)->fetch();
+		$lastMessageId = 0;
+
+		if (!$result)
+		{
+			$lastMessageId = 0;
+		}
+		else
+		{
+			$lastMessageId = (int)($result['LAST_MESSAGE_ID'] ?? 0);
+		}
+
+		static::$lastMessageIdCache[$chatId] = $lastMessageId;
+
+		return $lastMessageId;
 	}
 
 	public function getChatMessageStatus(int $chatId): string

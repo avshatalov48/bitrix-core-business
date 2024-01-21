@@ -2338,7 +2338,6 @@ border-radius: 2px; cursor: pointer;
 
 .bxhtmled-copilot {
 	position: absolute;
-	z-index: 9999;
 	line-height: 20px;
 }
 

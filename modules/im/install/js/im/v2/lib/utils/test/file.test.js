@@ -43,4 +43,43 @@ describe('Utils.file', () => {
 			assert.equal(result, fileName);
 		});
 	});
+	describe('resizeToFitMaxSize', () => {
+		it('function exists', () => {
+			assert(Type.isFunction(Utils.file.resizeToFitMaxSize));
+		});
+		it('should return the same dimensions if they are already within maxSize', () => {
+			const result = Utils.file.resizeToFitMaxSize(100, 200, 300);
+			assert.deepStrictEqual(result, { width: 100, height: 200 });
+		});
+
+		it('should resize width to fit within maxSize', () => {
+			const result = Utils.file.resizeToFitMaxSize(400, 200, 300);
+			assert.deepStrictEqual(result, { width: 300, height: 150 });
+		});
+
+		it('should resize height to fit within maxSize', () => {
+			const result = Utils.file.resizeToFitMaxSize(200, 400, 300);
+			assert.deepStrictEqual(result, { width: 150, height: 300 });
+		});
+
+		it('should resize both width and height to fit within maxSize', () => {
+			const result = Utils.file.resizeToFitMaxSize(500, 1000, 800);
+			assert.deepStrictEqual(result, { width: 400, height: 800 });
+		});
+
+		it('should handle aspect ratio greater than 1', () => {
+			const result = Utils.file.resizeToFitMaxSize(1000, 500, 800);
+			assert.deepStrictEqual(result, { width: 800, height: 400 });
+		});
+
+		it('should handle aspect ratio less than 1', () => {
+			const result = Utils.file.resizeToFitMaxSize(500, 1000, 800);
+			assert.deepStrictEqual(result, { width: 400, height: 800 });
+		});
+
+		it('should handle square aspect ratio', () => {
+			const result = Utils.file.resizeToFitMaxSize(200, 200, 100);
+			assert.deepStrictEqual(result, { width: 100, height: 100 });
+		});
+	});
 });

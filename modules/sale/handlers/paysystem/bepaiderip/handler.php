@@ -12,6 +12,7 @@ use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaySystem\ServiceResult;
 use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale\PriceMaths;
+use Bitrix\Main\Context;
 
 Loc::loadMessages(__FILE__);
 
@@ -255,7 +256,7 @@ class BePaidEripHandler extends PaySystem\ServiceHandler
 				'notification_url' => $this->getBusinessValue($payment, 'BEPAID_ERIP_NOTIFICATION_URL'),
 				'language' => LANGUAGE_ID,
 				'email' => $this->getUserEmail($payment),
-				'ip' => $this->getIpAddress(),
+				'ip' => Context::getCurrent()->getServer()->getRemoteAddr(),
 				'payment_method' => [
 					'type' => 'erip',
 					'account_number' => $payment->getId(),
@@ -592,31 +593,6 @@ class BePaidEripHandler extends PaySystem\ServiceHandler
 		{
 			return false;
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getIpAddress(): string
-	{
-		if ($_SERVER['HTTP_CLIENT_IP'])
-		{
-			$result = $_SERVER['HTTP_CLIENT_IP'];
-		}
-		elseif ($_SERVER['HTTP_X_FORWARDED_FOR'])
-		{
-			$result = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		}
-		elseif ($_SERVER['REMOTE_ADDR'])
-		{
-			$result = $_SERVER['REMOTE_ADDR'];
-		}
-		else
-		{
-			$result = '127.0.0.1';
-		}
-
-		return (string)$result;
 	}
 
 	/**

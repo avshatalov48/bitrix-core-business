@@ -450,6 +450,20 @@ HTML;
 				$value = null;
 			}
 		}
+		elseif (is_string($value) && $value !== '')
+		{
+			// from mobile
+
+			$unsignedValue = \CBPDocument::unSignParameters($value);
+			if (isset($unsignedValue[0]) && is_numeric($unsignedValue[0]) && (int)$unsignedValue[0] > 0)
+			{
+				$value = (int)$unsignedValue[0];
+			}
+			else
+			{
+				$value = null;
+			}
+		}
 		else
 		{
 			$value = null;

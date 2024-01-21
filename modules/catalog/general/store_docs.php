@@ -3,8 +3,9 @@
 use Bitrix\Catalog;
 use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\Integration\PullManager;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog\v2\Contractor;
+use Bitrix\Main\Application;
+use Bitrix\Main\Localization\Loc;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -35,6 +36,7 @@ class CAllCatalogDocs
 		/** @global CDataBase $DB */
 		global $DB;
 		global $APPLICATION;
+		global $USER_FIELD_MANAGER;
 		$id = (int)$id;
 
 		if ($id <= 0)
@@ -103,6 +105,12 @@ class CAllCatalogDocs
 		if (isset($arFields['DOCUMENT_FILES']) && is_array($arFields['DOCUMENT_FILES']))
 		{
 			static::saveFiles($id, $arFields['DOCUMENT_FILES']);
+		}
+
+		$typeTableClass = Catalog\Document\StoreDocumentTableManager::getTableClassByType($allOldFields['DOC_TYPE']);
+		if ($typeTableClass)
+		{
+			$USER_FIELD_MANAGER->Update($typeTableClass::getUfId(), $id, $arFields);
 		}
 
 		$item = [
@@ -352,6 +360,8 @@ class CAllCatalogDocs
 	public static function delete($id)
 	{
 		global $DB;
+		global $USER_FIELD_MANAGER;
+
 		$id = (int)$id;
 		if ($id <= 0)
 		{
@@ -362,6 +372,7 @@ class CAllCatalogDocs
 			'select' => [
 				'ID',
 				'STATUS',
+				'DOC_TYPE',
 			],
 			'filter' => [
 				'=ID' => $id,
@@ -390,6 +401,12 @@ class CAllCatalogDocs
 		}
 
 		$DB->Query("DELETE FROM b_catalog_store_docs WHERE ID = ".$id, true);
+
+		$typeTableClass = Catalog\Document\StoreDocumentTableManager::getTableClassByType($document['DOC_TYPE']);
+		if ($typeTableClass)
+		{
+			$USER_FIELD_MANAGER->Delete($typeTableClass::getUfId(), $id);
+		}
 
 		static::deleteDocumentFiles($id);
 		Catalog\StoreDocumentElementTable::deleteByDocument($id);
@@ -706,5 +723,32 @@ class CAllCatalogDocs
 		}
 
 		return true;
+	}
+
+	public static function synchronizeStockQuantity($storeId, $iblockId = 0)
+	{
+		$storeId = (int)$storeId;
+		if ($storeId <= 0)
+		{
+			return false;
+		}
+		$iblockId = (int)$iblockId;
+
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$internalSql = 'select CP.QUANTITY + ' . $helper->getIsNullFunction('CP.QUANTITY_RESERVED', 0) . ', CP.ID, '.$storeId.' ';
+		if ($iblockId <= 0)
+		{
+			$internalSql .= 'from b_catalog_product CP where 1 = 1';
+		}
+		else
+		{
+			$internalSql .= 'from b_catalog_product CP inner join b_iblock_element IE on (CP.ID = IE.ID) where IE.IBLOCK_ID = '.$iblockId;
+		}
+
+		return $connection->query(
+			"insert into b_catalog_store_product (AMOUNT, PRODUCT_ID, STORE_ID) (".$internalSql.")"
+		);
 	}
 }

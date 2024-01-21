@@ -10,6 +10,7 @@ use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Folder;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
+use \Bitrix\Landing\Connector;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Restriction;
@@ -273,8 +274,12 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSiteByLanding(
 				\Bitrix\Landing\Landing::createInstance($this->id, ['skip_blocks' => true])
 			);
-			$this->arResult['ALLOW_AI_TEXT'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
-			$this->arResult['ALLOW_AI_IMAGE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
+			$this->arResult['AI_TEXT_AVAILABLE'] = Connector\Ai::isTextAvailable();
+			$this->arResult['AI_TEXT_ACTIVE'] = Connector\Ai::isTextActive();
+			$this->arResult['AI_IMAGE_AVAILABLE'] = Connector\Ai::isImageAvailable();
+			$this->arResult['AI_IMAGE_ACTIVE'] = Connector\Ai::isImageActive();
+			$this->arResult['AI_UNACTIVE_INFO_CODE'] = self::getAiUnactiveInfoCode();
+
 			$this->arResult['LANDINGS'] = $this->arParams['SITE_ID'] > 0
 				? $this->getLandings(array(
 						'filter' => array(

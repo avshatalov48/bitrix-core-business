@@ -46,7 +46,12 @@
 	BX.Landing.EditTitleForm = function(params)
 	{
 		this.siteId = params.siteId;
-		this.isAiAllowed = Boolean(params.isAiAllowed) === true;
+
+		// ai
+		this.isAiAvailable = Boolean(params.isAiAvailable) === true;
+		this.isAiActive = Boolean(params.isAiActive) === true;
+		this.aiUnactiveInfoCode = params.aiUnactiveInfoCode ?? null;
+
 		this.node = params.node;
 		this.isEventTargetNode = Boolean(params.isEventTargetNode) === true;
 
@@ -69,7 +74,7 @@
 			BX.bind(this.label, 'click', this.showInput);
 		}
 
-		if (this.isAiAllowed && this.aiBtnContainer)
+		if (this.isAiAvailable && this.aiBtnContainer)
 		{
 			this.initAiBtn();
 		}
@@ -85,15 +90,22 @@
 			`;
 
 			BX.bind(aiButton, 'click', () => {
-				openAi({
-					onSelect: (item) => {
-						const value = item.data.replace(/(\r\n|\r|\n)/g, '<br>');
-						this.label.innerText = value;
-						this.input.value = value;
-						this.adjustInputHeight();
-					},
-					siteId: this.siteId,
-				});
+				if (this.isAiActive)
+				{
+					openAi({
+						onSelect: (item) => {
+							const value = item.data.replace(/(\r\n|\r|\n)/g, '<br>');
+							this.label.innerText = value;
+							this.input.value = value;
+							this.adjustInputHeight();
+						},
+						siteId: this.siteId,
+					});
+				}
+				else if (this.aiUnactiveInfoCode && this.aiUnactiveInfoCode.length > 0)
+				{
+					BX.UI.InfoHelper.show(this.aiUnactiveInfoCode);
+				}
 			});
 
 			BX.Dom.append(aiButton, this.aiBtnContainer);

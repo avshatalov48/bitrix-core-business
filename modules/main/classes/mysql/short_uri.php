@@ -18,7 +18,7 @@ class CBXShortUri
 		$strSql =
 			"INSERT INTO b_short_uri (".$arInsert[0].", MODIFIED) ".
 			"VALUES(".$arInsert[1].", ".$DB->CurrentTimeFunction().")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$taskId = intval($DB->LastID());
 
@@ -135,7 +135,7 @@ class CBXShortUri
 
 		if ($arNavStartParams)
 		{
-			$dbResultCount = $DB->Query("SELECT COUNT(U.ID) as C ".$strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResultCount = $DB->Query("SELECT COUNT(U.ID) as C ".$strSql);
 			$arResultCount = $dbResultCount->Fetch();
 			$strSql = "SELECT ID, URI, URI_CRC, SHORT_URI, SHORT_URI_CRC, STATUS, ".$DB->DateToCharFunction("MODIFIED")." MODIFIED, MODIFIED MODIFIED1, ".$DB->DateToCharFunction("LAST_USED")." LAST_USED, LAST_USED LAST_USED1, NUMBER_USED ".$strSql.$strOrderByPart;
 			$dbResult = new CDBResult();
@@ -144,7 +144,7 @@ class CBXShortUri
 		else
 		{
 			$strSql = "SELECT ID, URI, URI_CRC, SHORT_URI, SHORT_URI_CRC, STATUS, ".$DB->DateToCharFunction("MODIFIED")." MODIFIED, MODIFIED MODIFIED1, ".$DB->DateToCharFunction("LAST_USED")." LAST_USED, LAST_USED LAST_USED1, NUMBER_USED ".$strSql.$strOrderByPart;
-			$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 		}
 
 		return $dbResult;

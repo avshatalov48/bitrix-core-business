@@ -42,6 +42,23 @@ export const showDesktopRestartConfirm = (): Promise<boolean> => {
 	});
 };
 
+export const showDesktopDeleteConfirm = (): Promise<boolean> => {
+	const deleteText = Loc.getMessage('IM_LIB_CONFIRM_DELETE_DESKTOP').replace('#BR#', '<br>');
+	const confirmCaption = Loc.getMessage('IM_LIB_CONFIRM_DELETE_DESKTOP_CONFIRM');
+
+	return showTwoButtonConfirm({
+		text: deleteText,
+		firstButtonCaption: confirmCaption,
+	});
+};
+
+export const showNotificationsModeSwitchConfirm = (): Promise<boolean> => {
+	const kickText = Loc.getMessage('IM_LIB_CONFIRM_SWITCH_NOTIFICATION_MODE');
+	const yesCaption = Loc.getMessage('IM_LIB_CONFIRM_SWITCH_NOTIFICATION_MODE_YES');
+
+	return showTwoButtonConfirm({ text: kickText, firstButtonCaption: yesCaption });
+};
+
 const showTwoButtonConfirm = (params: ConfirmParams): Promise<boolean> => {
 	const { text, firstButtonCaption = '', secondButtonCaption = '' } = params;
 

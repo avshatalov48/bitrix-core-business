@@ -7,7 +7,8 @@ export type ImRecentProviderItem = {
 	sort: number,
 	customData: {
 		id: number,
-		dateUpdate: string,
+		byUser?: boolean,
+		dateMessage?: string,
 		avatar: string,
 		color: string,
 		description: string,

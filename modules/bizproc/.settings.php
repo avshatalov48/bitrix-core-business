@@ -80,4 +80,10 @@ return [
 		],
 		'readonly' => true,
 	],
+	'ui.uploader' => [
+		'value' => [
+			'allowUseControllers' => true,
+		],
+		'readonly' => true,
+	],
 ];

@@ -56,17 +56,17 @@ if ($isBitrix24Template)
 	{
 		if (count($arParams['BUTTONS']) === 1)
 		{
-			$buuton = array_shift($arParams['BUTTONS']);
-			if (isset($buuton['LINK']) && isset($buuton['TITLE']))
+			$button = array_shift($arParams['BUTTONS']);
+			if (isset($button['LINK']) && isset($button['TITLE']))
 			{
 				?>
 				<div class="pagetitle-container pagetitle-align-right-container">
 					<a
-						href="<?= \htmlspecialcharsbx($buuton['LINK']) ?>"
+						href="<?= \htmlspecialcharsbx($button['LINK']) ?>"
 						id="landing-create-element"
 						class="ui-btn ui-btn-md ui-btn-success landing-filter-action-link"
 					>
-						<?= \htmlspecialcharsbx($buuton['TITLE']);?>
+						<?= \htmlspecialcharsbx($button['TITLE']);?>
 					</a>
 				</div>
 			<?
@@ -74,22 +74,22 @@ if ($isBitrix24Template)
 		}
 		else
 		{
-		$buuton = array_shift($arParams['BUTTONS']);
+		$button = array_shift($arParams['BUTTONS']);
 		?>
-		<?if (isset($buuton['LINK']) && isset($buuton['TITLE'])):?>
+		<?if (isset($button['LINK']) && isset($button['TITLE'])):?>
 			<div class="pagetitle-container pagetitle-align-right-container" id="landing-menu-actions">
-				<a href="<?= \htmlspecialcharsbx($buuton['LINK']);?>" id="landing-create-element" <?
+				<a href="<?= \htmlspecialcharsbx($button['LINK']);?>" id="landing-create-element" <?
 				?>class="ui-btn ui-btn-md ui-btn-success ui-btn-icon-add landing-filter-action-link ui-btn-dropdown">
-					<?= \htmlspecialcharsbx($buuton['TITLE']);?>
+					<?= \htmlspecialcharsbx($button['TITLE']);?>
 				</a>
 			</div>
 			<script type="text/javascript">
 				var landingCreateButtons = [
-					<?foreach ($arParams['BUTTONS'] as $buuton):?>
-					<?if (isset($buuton['LINK']) && isset($buuton['TITLE'])):?>
+					<?foreach ($arParams['BUTTONS'] as $button):?>
+					<?if (isset($button['LINK']) && isset($button['TITLE'])):?>
 					{
-						href: '<?= \CUtil::JSEscape($buuton['LINK']);?>',
-						text: '<?= \CUtil::JSEscape($buuton['TITLE']);?>'
+						href: '<?= \CUtil::JSEscape($button['LINK']);?>',
+						text: '<?= \CUtil::JSEscape($button['TITLE']);?>'
 					},
 					<?endif;?>
 					<?endforeach;?>

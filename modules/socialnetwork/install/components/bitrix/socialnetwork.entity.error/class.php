@@ -20,6 +20,7 @@ class SocialnetworkEntityError extends \CBitrixComponent
 {
 	private const ENTITY_USER = 'USER';
 	private const ENTITY_SONET_GROUP = 'SONET_GROUP';
+	private const ENTITY_SUPPORT_BOT = 'SUPPORT_BOT';
 
 	public function executeComponent()
 	{
@@ -33,6 +34,7 @@ class SocialnetworkEntityError extends \CBitrixComponent
 		return [
 			self::ENTITY_USER,
 			self::ENTITY_SONET_GROUP,
+			self::ENTITY_SUPPORT_BOT,
 		];
 	}
 
@@ -41,6 +43,7 @@ class SocialnetworkEntityError extends \CBitrixComponent
 		$this->arResult = [
 			'TITLE' => '',
 			'DESCRIPTION' => '',
+			'HELP_LINK' => false,
 		];
 
 		if (
@@ -49,6 +52,13 @@ class SocialnetworkEntityError extends \CBitrixComponent
 		)
 		{
 			return;
+		}
+
+		if ($this->arParams['ENTITY'] === self::ENTITY_SUPPORT_BOT)
+		{
+			global $APPLICATION;
+			$APPLICATION->SetTitle(Loc::getMessage('SOCIALNETWORK_ENTITY_TITLE_' . self::ENTITY_SUPPORT_BOT));
+			$this->arResult['HELP_LINK'] = true;
 		}
 
 		$this->arResult['TITLE'] = Loc::getMessage('SOCIALNETWORK_ENTITY_ERROR_COMPONENT_TITLE_' . $this->arParams['ENTITY']);

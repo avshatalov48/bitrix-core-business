@@ -95,6 +95,16 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	public const DEFAULT_WRAPPER_STYLE = ['block-default'];
 
 	/**
+	 * Maximum allowed number of favorite blocks
+	 */
+	public const FAVOURITE_BLOCKS_LIMIT = 5000;
+
+	/**
+	 * Maximum allowed number of favorite blocks with preview image
+	 */
+	public const FAVOURITE_BLOCKS_LIMIT_WITH_PREVIEW = 1000;
+
+	/**
 	 * Internal class.
 	 * @var string
 	 */
@@ -700,6 +710,22 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$codeOriginal = null;
 		$designed = 'N';
 		$content = $data['CONTENT'] ?? self::getContentFromRepository($code);
+		if (isset($data['PREPARE_BLOCK_DATA']['ACTION']))
+		{
+			if (
+				$data['PREPARE_BLOCK_DATA']['ACTION'] === 'changeComponentParams'
+				&& isset($data['PREPARE_BLOCK_DATA']['PARAMS'])
+				&& is_array($data['PREPARE_BLOCK_DATA']['PARAMS'])
+			)
+			{
+				foreach ($data['PREPARE_BLOCK_DATA']['PARAMS'] as $paramName => $paramValue)
+				{
+					$search = "'" . $paramName . "' => '',";
+					$replace = "'" . $paramName . "' => '". $paramValue . "',";
+					$content = str_replace($search, $replace, $content);
+				}
+			}
+		}
 		if (strpos($code, '@'))
 		{
 			$codeOriginal = $code;
@@ -1224,8 +1250,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 		$blocks += $blocksRepo;
 
-		$currentUser = Manager::getUserId();
 		// favorites block
+		$currentUser = Manager::getUserId();
+		$favoriteBlocks = [];
+		$favoriteMyBlocks = [];
 		$res = Internals\BlockTable::getList([
 			'select' => [
 				'ID', 'CODE', 'FAVORITE_META', 'CREATED_BY_ID'
@@ -1236,10 +1264,13 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			],
 			'order' => [
 				'ID' => 'desc'
-			]
+			],
+			'limit' => self::FAVOURITE_BLOCKS_LIMIT,
 		]);
+		$countFavoriteBlocks = 0;
 		while ($row = $res->fetch())
 		{
+			$countFavoriteBlocks++;
 			if (isset($blocks[$row['CODE']]))
 			{
 				if (!is_array($row['FAVORITE_META']))
@@ -1250,7 +1281,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				$meta['preview'] = $meta['preview'] ?? 0;
 				$meta['favorite'] = true;
 				$meta['favoriteMy'] = ((int)$row['CREATED_BY_ID'] === $currentUser);
-				if ($meta['preview'] > 0)
+				if ($meta['preview'] > 0 && $countFavoriteBlocks < self::FAVOURITE_BLOCKS_LIMIT_WITH_PREVIEW)
 				{
 					$meta['preview'] = File::getFilePath($meta['preview']);
 				}
@@ -1262,17 +1293,24 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 					$meta['section'] = (array)$meta['section'];
 				}
-				$blocks = [$row['CODE'] . '@' . $row['ID'] => $blocks[$row['CODE']]] + $blocks;
-				$blocks[$row['CODE'] . '@' . $row['ID']] = array_merge(
-					$blocks[$row['CODE'] . '@' . $row['ID']],
+
+				$item = array_merge(
+					$blocks[$row['CODE']],
 					$meta
 				);
-				if ($blocks[$row['CODE'] . '@' . $row['ID']]['type'] === 'null')
+				$code = $row['CODE'] . '@' . $row['ID'];
+				if ($item['type'] === 'null')
 				{
-					$blocks[$row['CODE'] . '@' . $row['ID']]['type'] = [];
+					$item['type'] = [];
 				}
+
+				$meta['favoriteMy']
+					? ($favoriteMyBlocks[$code] = $item)
+					: ($favoriteBlocks[$code] = $item)
+				;
 			}
 		}
+		$blocks = $favoriteMyBlocks + $blocks + $favoriteBlocks;
 
 		// create new section in repo
 		$createNewSection = function($item)
@@ -2826,6 +2864,17 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$content = $this->content;
 		}
 
+		// replace in requisite page, marker to company title
+		if (mb_strpos($this->content, '#requisiteCompanyTitle') !== false)
+		{
+			$replace = Connector\Crm::getReplaceRequisiteCompanyNameForContent($landing->getXmlId());
+			$content = str_replace(
+				array_keys($replace),
+				array_values($replace),
+				$content
+			);
+		}
+
 		// @tmp bug with setInnerHTML save result
 		$content = preg_replace('/&amp;([^\s]{1})/is', '&$1', $content);
 		if ($edit)
@@ -3512,7 +3561,18 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				array_fill_keys(['text', 'href', 'target'], ''),
 				$detailPage
 			);
-			\trimArr($detailPage, true);
+			foreach ($detailPage as $key => &$detailPageItem)
+			{
+				if (!is_array($detailPageItem))
+				{
+					$detailPageItem = trim($detailPageItem);
+				}
+				if (empty($detailPageItem))
+				{
+					unset($detailPage[$key]);
+				}
+			}
+			unset($detailPageItem);
 
 			if ($filterId && $elemId && $detailPage['href'])
 			{
@@ -4336,27 +4396,29 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				$dataSelector = $data[$selector];
 				$isFind = true;
 			}
-			if (($node['isWrapper'] ?? false) === true && isset($data['#wrapper']))
-			{
-				if (!is_array($data['#wrapper']))
-				{
-					$data['#wrapper'] = array(
-						$data['#wrapper']
-					);
-				}
-				$dataSelector = $data['#wrapper'];
-				$isFind = true;
-			}
 			if (!$isFind && ($node['isWrapper'] ?? false) === true)
 			{
-				$selector = '#wrapper';
-				if (!is_array($data[$selector]))
+				if (isset($data['#wrapper']) && $node['type'] === 'styleimg')
 				{
-					$data[$selector] = array(
-						$data[$selector]
-					);
+					if (!is_array($data['#wrapper']))
+					{
+						$data['#wrapper'] = array(
+							$data['#wrapper']
+						);
+					}
+					$dataSelector = $data['#wrapper'];
 				}
-				$dataSelector = $data[$selector];
+				else
+				{
+					$selector = '#wrapper';
+					if (!is_array($data[$selector]))
+					{
+						$data[$selector] = array(
+							$data[$selector]
+						);
+					}
+					$dataSelector = $data[$selector];
+				}
 				$isFind = true;
 			}
 			if ($node['type'] === 'img')

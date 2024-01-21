@@ -4,6 +4,8 @@ namespace Bitrix\Sale\PaySystem;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
@@ -156,7 +158,7 @@ final class Manager
 	public static function add(array $data): \Bitrix\Main\ORM\Data\AddResult
 	{
 		$data['PS_CLIENT_TYPE'] = (new Service($data))->getClientTypeFromHandler();
-		
+
 		return PaySystemActionTable::add($data);
 	}
 
@@ -366,7 +368,7 @@ final class Manager
 			'=ACTIVE' => 'Y',
 			'=ENTITY_REGISTRY_TYPE' => $payment::getRegistryType(),
 		];
-		
+
 		$bindingPaySystemIds = [];
 		if ($mode == Restrictions\Manager::MODE_CLIENT)
 		{
@@ -1083,5 +1085,26 @@ final class Manager
 			$className,
 			$handlerType,
 		];
+	}
+
+	public static function getHandlerName(string $handler, string $psMode = ''): string
+	{
+		$handlerDescription = Manager::getHandlerDescription($handler, $psMode);
+
+		if (!$handlerDescription)
+		{
+			return '';
+		}
+
+		if (isset($handlerDescription['HANDLER_MODE_LIST'][$psMode]))
+		{
+			return $handlerDescription['HANDLER_MODE_LIST'][$psMode];
+		}
+		elseif (isset($handlerDescription['NAME']))
+		{
+			return $handlerDescription['NAME'];
+		}
+
+		return '';
 	}
 }

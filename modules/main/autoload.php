@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Type\Collection;
 
 Loader::registerAutoLoadClasses(
 	"main",
@@ -28,6 +29,7 @@ Loader::registerAutoLoadClasses(
 		"CGridOptions" => "classes/general/grids.php",
 		"CUndo" => "/classes/general/undo.php",
 		"CAutoSave" => "/classes/general/undo.php",
+		"CAllRatings" => "classes/general/ratings.php",
 		"CRatings" => "classes/mysql/ratings.php",
 		"CRatingsComponentsMain" => "classes/mysql/ratings_components.php",
 		"CRatingRule" => "classes/general/rating_rule.php",
@@ -165,3 +167,5 @@ Loader::registerAutoLoadClasses(
 		"Bitrix\\Main\\Data\\AppCacheManifest" => "lib/composite/appcache.php",
 	)
 );
+
+class_alias(Collection::class, 'Bitrix\Main\Type\ArrayHelper');

@@ -17,7 +17,6 @@ use Bitrix\Main\Filter\Filter;
 use Bitrix\Main\Grid\Column\Column;
 use Bitrix\Main\Grid\Column\Columns;
 use Bitrix\Main\Grid\Grid;
-use Bitrix\Main\Grid\Panel\Panel;
 use Bitrix\Main\Grid\Row\Rows;
 use Bitrix\Main\Loader;
 
@@ -25,6 +24,7 @@ Loader::requireModule('iblock');
 
 /**
  * @method ProductSettings getSettings()
+ * @method ProductPanel getPanel()
  */
 class ProductGrid extends Grid
 {
@@ -45,9 +45,14 @@ class ProductGrid extends Grid
 
 	private function getProductRightsChecker(): ProductRightsChecker
 	{
-		$this->rights ??= new ProductRightsChecker();
+		$this->rights ??= new ProductRightsChecker($this->getIblockId());
 
 		return $this->rights;
+	}
+
+	private function getIblockId(): int
+	{
+		return $this->getSettings()->getIblockId();
 	}
 
 	public function getOrmFilter(): ?array
@@ -170,7 +175,7 @@ class ProductGrid extends Grid
 		);
 	}
 
-	protected function createPanel(): ?Panel
+	protected function createPanel(): ProductPanel
 	{
 		return new ProductPanel(
 			new ProductPanelProvider(

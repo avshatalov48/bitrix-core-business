@@ -16,10 +16,12 @@ use Traversable;
 
 class HttpHeaders implements IteratorAggregate
 {
+	public const DEFAULT_HTTP_STATUS = 0;
+
 	protected array $headers = [];
-	protected ?int $status = null;
+	protected string $version = '1.1';
+	protected int $status;
 	protected ?string $reasonPhrase = null;
-	protected ?string $version = null;
 
 	/**
 	 * @param string[] | string[][] | null $headers
@@ -91,7 +93,7 @@ class HttpHeaders implements IteratorAggregate
 	 */
 	protected static function validateName(string $name): bool
 	{
-		return (strpos($name, "\0") === false && preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $name));
+		return (!str_contains($name, "\0") && preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $name));
 	}
 
 	/**
@@ -104,7 +106,7 @@ class HttpHeaders implements IteratorAggregate
 	 */
 	protected static function validateValue(string $value): bool
 	{
-		return (strpos($value, "\0") === false && preg_match('/^[\x20\x09\x21-\x7E\x80-\xFF]*$/', $value));
+		return (!str_contains($value, "\0") && preg_match('/^[\x20\x09\x21-\x7E\x80-\xFF]*$/', $value));
 	}
 
 	/**
@@ -390,16 +392,38 @@ class HttpHeaders implements IteratorAggregate
 	{
 		$headers = new static();
 
+		$headerName = null;
 		foreach (explode("\n", $response) as $k => $header)
 		{
 			if ($k == 0)
 			{
 				$headers->parseStatus($header);
 			}
-			elseif (strpos($header, ':') !== false)
+			elseif (preg_match("/^[ \\t]/", $header))
+			{
+				if ($headerName !== null)
+				{
+					try
+					{
+						$headers->add($headerName, trim($header));
+					}
+					catch (\InvalidArgumentException)
+					{
+						// ignore an invalid header
+					}
+				}
+			}
+			elseif (str_contains($header, ':'))
 			{
 				[$headerName, $headerValue] = explode(':', $header, 2);
-				$headers->add($headerName, trim($headerValue));
+				try
+				{
+					$headers->add($headerName, trim($headerValue));
+				}
+				catch (\InvalidArgumentException)
+				{
+					// ignore an invalid header
+				}
 			}
 		}
 
@@ -438,7 +462,14 @@ class HttpHeaders implements IteratorAggregate
 
 	public function getStatus(): int
 	{
-		return $this->status ?? 0;
+		return $this->status ?? self::DEFAULT_HTTP_STATUS;
+	}
+
+	public function setVersion(string $version): HttpHeaders
+	{
+		$this->version = $version;
+
+		return $this;
 	}
 
 	public function getVersion(): ?string

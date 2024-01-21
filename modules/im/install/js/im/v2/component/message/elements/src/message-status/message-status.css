@@ -31,7 +31,7 @@
 }
 
 .bx-im-message-status__date {
-	font: var(--im-font-size-4xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font: var(--im-font-size-4xs)/11px var(--im-font-family-system);
 	color: var(--im-message-status__font-color_date);
 	user-select: none;
 }
@@ -58,6 +58,10 @@
 
 .bx-im-message-status__icon.--viewed {
 	background-image: url('./images/viewed-status.svg');
+}
+
+.bx-im-message-status__icon.--error {
+	background-image: url('./images/error-status.svg');
 }
 
 .--overlay .bx-im-message-status__icon.--sending {

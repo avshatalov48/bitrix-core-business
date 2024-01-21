@@ -6,9 +6,10 @@ const sendMessageCombinations = {
 	enterMode: ['Enter', 'NumpadEnter'],
 	ctrlEnterMode: ['Ctrl+Enter', 'Ctrl+NumpadEnter'],
 };
+// only for non-default hotkeys
 const newLineCombinations = {
-	enterMode: ['Shift+Enter', 'Ctrl+Enter'],
-	ctrlEnterMode: ['Enter', 'Shift+Enter'],
+	enterMode: ['Ctrl+Enter'],
+	ctrlEnterMode: [],
 };
 
 export const isSendMessageCombination = (event: KeyboardEvent): boolean => {

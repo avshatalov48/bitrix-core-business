@@ -71,8 +71,16 @@ class Transition extends Hook\Page
 	{
 		Asset::getInstance()->addString(
 			'<style>
+					@keyframes page-transition {
+						from { opacity: 1; }
+						to { opacity: 0; }
+					}
 					body.landing-page-transition::after {
 						background: ' . $color . ';
+						animation-name: page-transition;
+						animation-delay: 3s;
+						animation-duration: 0s;
+						animation-fill-mode: forwards;
 					}
 				</style>'
 		);

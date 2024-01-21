@@ -11,9 +11,10 @@ namespace Bitrix\Socialnetwork\Internals\EventService;
 
 class EventCollection
 {
-	private static $instance;
+	private array $ids = [];
+	private array $registry = [];
 
-	private $registry = [];
+	private static $instance;
 
 	/**
 	 * CounterService constructor.
@@ -49,6 +50,25 @@ class EventCollection
 	 */
 	public function push(Event $event): void
 	{
-		$this->registry[] = $event;
+		$this->registry[$event->getHash()] = $event;
+		$this->ids[] = $event->getId();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getEventsId(): array
+	{
+		return $this->ids;
+	}
+
+	public function isEmpty(): bool
+	{
+		return empty($this->registry);
+	}
+
+	public function isDuplicate(Event $event): bool
+	{
+		return (isset($this->registry[$event->getHash()]));
 	}
 }

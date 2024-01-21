@@ -1,6 +1,4 @@
 .ui-ears-wrapper {
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
 	overflow: hidden;
 	position: relative;
@@ -15,8 +13,6 @@
 	cursor: pointer;
 	z-index: 11;
 	opacity: 0;
-	-webkit-transition: .3s;
-	-o-transition: .3s;
 	transition: .3s;
 	pointer-events: none;
 }

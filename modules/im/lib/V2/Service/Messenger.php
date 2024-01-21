@@ -16,12 +16,15 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\Delete\DeleteService;
 use Bitrix\Im\V2\Message\MessageError;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
 use Bitrix\Tasks\Internals\TaskObject;
 
 class Messenger
 {
 	use ContextCustomer;
+
+	private const INTRANET_MENU_ID = 'menu_im_messenger';
 
 	/**
 	 * Returns current instance of the Messenger.
@@ -30,6 +33,23 @@ class Messenger
 	public static function getInstance(): self
 	{
 		return Locator::getMessenger();
+	}
+
+	public function checkAccessibility(): \Bitrix\Im\V2\Result
+	{
+		$result = new \Bitrix\Im\V2\Result();
+
+		if (!$this->isPullEnabled())
+		{
+			$result->addError(new MessengerError(MessengerError::PULL_NOT_ENABLED));
+		}
+
+		if (!$this->isEnabled())
+		{
+			$result->addError(new MessengerError(MessengerError::MESSENGER_NOT_ENABLED));
+		}
+
+		return $result;
 	}
 
 	//region Chats
@@ -279,4 +299,24 @@ class Messenger
 	}
 
 	//endregion
+
+	private function isPullEnabled(): bool
+	{
+		return \CModule::IncludeModule("pull") && \CPullOptions::GetQueueServerStatus();
+	}
+
+	private function isEnabled(): bool
+	{
+		if (
+			Loader::includeModule('intranet')
+			&& method_exists(\Bitrix\Intranet\Settings\Tools\ToolsManager::class, 'checkAvailabilityByMenuId')
+		)
+		{
+			return \Bitrix\Intranet\Settings\Tools\ToolsManager::getInstance()
+				->checkAvailabilityByMenuId(static::INTRANET_MENU_ID)
+			;
+		}
+
+		return true;
+	}
 }

@@ -5,6 +5,7 @@ $MESS["IM_LIB_INVITE_CANCEL_DONE"] = "Invitation has been canceled.";
 $MESS["IM_LIB_INVITE_RESEND"] = "Invite again";
 $MESS["IM_LIB_INVITE_RESEND_DONE"] = "Invitation has been sent.";
 $MESS["IM_LIB_MENU_CALL_2"] = "Video call";
+$MESS["IM_LIB_MENU_FIND_CHATS_WITH_USER"] = "Find chats with this user";
 $MESS["IM_LIB_MENU_HIDE"] = "Hide chat";
 $MESS["IM_LIB_MENU_LEAVE"] = "Leave chat";
 $MESS["IM_LIB_MENU_MUTE_2"] = "Mute";

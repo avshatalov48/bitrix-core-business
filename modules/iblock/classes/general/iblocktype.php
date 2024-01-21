@@ -504,16 +504,19 @@ class CIBlockType
 			$DB->Query("DELETE FROM b_iblock_type_lang WHERE IBLOCK_TYPE_ID='".$DB->ForSQL($ID)."'");
 			foreach ($arLang as $lid => $arFieldsLang)
 			{
-				if ($arFieldsLang["NAME"] <> '' || $arFieldsLang["ELEMENT_NAME"] <> '')
+				$name = (string)($arFieldsLang['NAME'] ?? '');
+				$elementName = (string)($arFieldsLang['ELEMENT_NAME'] ?? '');
+				$sectionName = (string)($arFieldsLang['SECTION_NAME'] ?? '');
+				if ($name !== '' || $elementName !== '')
 				{
 					$DB->Query("
 						INSERT INTO b_iblock_type_lang(IBLOCK_TYPE_ID, LID, NAME, SECTION_NAME, ELEMENT_NAME)
 						SELECT
 							BT.ID,
 							L.LID,
-							'".$DB->ForSql($arFieldsLang["NAME"], 100)."',
-							'".$DB->ForSql($arFieldsLang["SECTION_NAME"], 100)."',
-							'".$DB->ForSql($arFieldsLang["ELEMENT_NAME"], 100)."'
+							'".$DB->ForSql($name, 100)."',
+							'".$DB->ForSql($sectionName, 100)."',
+							'".$DB->ForSql($elementName, 100)."'
 						FROM
 							b_iblock_type BT,
 							b_language L

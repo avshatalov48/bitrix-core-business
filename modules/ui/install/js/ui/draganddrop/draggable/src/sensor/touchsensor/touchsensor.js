@@ -1,11 +1,12 @@
+import { Event } from 'main.core';
 import Sensor from '../sensor';
-import {DragStartSensorEvent} from '../events/drag.start.sensor.event';
-import {DragMoveSensorEvent} from '../events/drag.move.sensor.event';
-import {DragEndSensorEvent} from '../events/drag.end.sensor.event';
-import {DragDropSensorEvent} from '../events/drag.drop.sensor.event';
+import { DragStartSensorEvent } from '../events/drag.start.sensor.event';
+import { DragMoveSensorEvent } from '../events/drag.move.sensor.event';
+import { DragEndSensorEvent } from '../events/drag.end.sensor.event';
+import { DragDropSensorEvent } from '../events/drag.drop.sensor.event';
 
 let preventScrolling = false;
-window.addEventListener(
+Event.bind(
 	'touchmove',
 	(event) => {
 		if (preventScrolling)
@@ -13,7 +14,7 @@ window.addEventListener(
 			event.preventDefault();
 		}
 	},
-	{passive: false},
+	{ passive: false },
 );
 
 export default class TouchSensor extends Sensor
@@ -33,12 +34,12 @@ export default class TouchSensor extends Sensor
 
 	enable()
 	{
-		this.getDocument().addEventListener('touchstart', this.onTouchStart);
+		Event.bind(this.getDocument(), 'touchstart', this.onTouchStart);
 	}
 
 	disable()
 	{
-		this.getDocument().removeEventListener('touchstart', this.onTouchStart);
+		Event.unbind(this.getDocument(), 'touchstart', this.onTouchStart);
 	}
 
 	isTouchMoved(): boolean
@@ -60,26 +61,26 @@ export default class TouchSensor extends Sensor
 
 	startPreventContextMenu()
 	{
-		this.getDocument().addEventListener('contextmenu', this.preventDefaultEventAction, true);
+		Event.bind(this.getDocument(), 'contextmenu', this.preventDefaultEventAction, { capture: true });
 	}
 
 	stopPreventContextMenu()
 	{
-		this.getDocument().removeEventListener('contextmenu', this.preventDefaultEventAction, true);
+		Event.unbind(this.getDocument(), 'contextmenu', this.preventDefaultEventAction, { capture: true });
 	}
 
 	startHandleTouchEvents()
 	{
-		this.getDocument().addEventListener('touchmove', this.onTouchMove);
-		this.getDocument().addEventListener('touchend', this.onTouchEnd);
-		this.getDocument().addEventListener('touchcancel', this.onTouchEnd);
+		Event.bind(this.getDocument(), 'touchmove', this.onTouchMove);
+		Event.bind(this.getDocument(), 'touchend', this.onTouchEnd);
+		Event.bind(this.getDocument(), 'touchcancel', this.onTouchEnd);
 	}
 
 	stopHandleTouchEvents()
 	{
-		this.getDocument().removeEventListener('touchmove', this.onTouchMove);
-		this.getDocument().removeEventListener('touchend', this.onTouchEnd);
-		this.getDocument().removeEventListener('touchcancel', this.onTouchEnd);
+		Event.unbind(this.getDocument(), 'touchmove', this.onTouchMove);
+		Event.unbind(this.getDocument(), 'touchend', this.onTouchEnd);
+		Event.unbind(this.getDocument(), 'touchcancel', this.onTouchEnd);
 	}
 
 	onTouchStart(event)
@@ -133,10 +134,10 @@ export default class TouchSensor extends Sensor
 		if (this.isDragging())
 		{
 			const touch = originalEvent.touches[0] || originalEvent.changedTouches[0];
-			const {clientX, clientY} = touch;
+			const { clientX, clientY } = touch;
 			const over = this.getElementFromPoint(clientX, clientY);
 			const overContainer = this.getContainerByChild(over);
-			const {originalSource, sourceContainer} = this.dragStartEvent.data;
+			const { originalSource, sourceContainer } = this.dragStartEvent.data;
 
 			const dragMoveEvent = new DragMoveSensorEvent({
 				clientX,
@@ -163,10 +164,10 @@ export default class TouchSensor extends Sensor
 		if (this.isDragging())
 		{
 			const touch = originalEvent.touches[0] || originalEvent.changedTouches[0];
-			const {clientX, clientY} = touch;
+			const { clientX, clientY } = touch;
 			const over = this.getElementFromPoint(clientX, clientY);
 			const overContainer = this.getContainerByChild(over);
-			const {originalSource, sourceContainer} = this.dragStartEvent.data;
+			const { originalSource, sourceContainer } = this.dragStartEvent.data;
 
 			const dragEndEvent = new DragEndSensorEvent({
 				clientX,

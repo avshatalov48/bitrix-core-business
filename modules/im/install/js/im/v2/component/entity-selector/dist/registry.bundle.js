@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_popup,ui_entitySelector,im_public,im_v2_application_core,im_v2_provider_service,im_v2_const,im_v2_component_search_searchResult,im_v2_component_elements) {
+(function (exports,ui_entitySelector,im_v2_application_core,im_v2_provider_service,im_v2_component_search_searchResult,main_popup,im_v2_component_elements,main_core_events,im_public,im_v2_const,im_v2_component_search_chatSearchInput,im_v2_component_search_searchExperimental) {
 	'use strict';
 
 	const searchConfig = {
@@ -17,7 +17,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'AddToChatContent',
 	  components: {
 	    SearchResult: im_v2_component_search_searchResult.SearchResult,
-	    MessengerButton: im_v2_component_elements.Button
+	    MessengerButton: im_v2_component_elements.Button,
+	    ScrollWithGradient: im_v2_component_elements.ScrollWithGradient
 	  },
 	  props: {
 	    chatId: {
@@ -44,10 +45,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ButtonColor: () => im_v2_component_elements.ButtonColor,
 	    searchConfig: () => searchConfig,
 	    dialog() {
-	      return this.$store.getters['dialogues/get'](this.dialogId, true);
+	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    isChat() {
-	      return this.dialog.type !== im_v2_const.DialogType.user;
+	      return this.dialog.type !== im_v2_const.ChatType.user;
 	    }
 	  },
 	  created() {
@@ -211,21 +212,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</label>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__search-result-container">
-				<div v-if="needTopShadow" class="bx-im-entity-selector-add-to-chat__shadow --top">
-					<div class="bx-im-entity-selector-add-to-chat__shadow-inner"></div>
-				</div>
-				<SearchResult
-					:searchMode="true"
-					:searchQuery="searchQuery"
-					:searchConfig="searchConfig"
-					:selectMode="true"
-					:selectedItems="[...selectedItems]"
-					@selectItem="onSelectItem"
-					@scroll="onListScroll"
-				/>
-				<div v-if="needBottomShadow" class="bx-im-entity-selector-add-to-chat__shadow --bottom">
-					<div class="bx-im-entity-selector-add-to-chat__shadow-inner"></div>
-				</div>
+				<ScrollWithGradient :gradientHeight="28">
+					<SearchResult
+						:searchMode="true"
+						:searchQuery="searchQuery"
+						:searchConfig="searchConfig"
+						:selectMode="true"
+						:selectedItems="[...selectedItems]"
+						@selectItem="onSelectItem"
+						@scroll="onListScroll"
+					/>
+				</ScrollWithGradient>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__buttons">
 				<MessengerButton
@@ -310,7 +307,121 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	exports.AddToChat = AddToChat;
+	// @vue/component
+	const ForwardContent = {
+	  name: 'ForwardContent',
+	  components: {
+	    SearchExperimental: im_v2_component_search_searchExperimental.SearchExperimental,
+	    ChatSearchInput: im_v2_component_search_chatSearchInput.ChatSearchInput
+	  },
+	  props: {
+	    messageId: {
+	      type: [Number, String],
+	      required: true
+	    }
+	  },
+	  emits: ['close'],
+	  data() {
+	    return {
+	      searchQuery: '',
+	      isLoading: false
+	    };
+	  },
+	  methods: {
+	    onLoading(value) {
+	      this.isLoading = value;
+	    },
+	    onUpdateSearch(query) {
+	      this.searchQuery = query;
+	    },
+	    async onSelectItem(event) {
+	      const {
+	        dialogId
+	      } = event;
+	      await im_public.Messenger.openChat(dialogId);
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertForward, {
+	        messageId: this.messageId
+	      });
+	      this.$emit('close');
+	    }
+	  },
+	  template: `
+		<div class="bx-im-entity-selector-forward__container">
+			<div class="bx-im-entity-selector-forward__input">
+				<ChatSearchInput 
+					:searchMode="true" 
+					:isLoading="isLoading" 
+					:withIcon="false" 
+					:delayForFocusOnStart="1"
+					@updateSearch="onUpdateSearch"
+				/>
+			</div>
+			<div class="bx-im-entity-selector-forward__search-result-container">
+				<SearchExperimental
+					:searchMode="true"
+					:searchQuery="searchQuery"
+					:selectMode="true"
+					:withMyNotes="true"
+					:handleClickItem="false"
+					@clickItem="onSelectItem"
+					@loading="onLoading"
+				/>
+			</div>
+		</div>
+	`
+	};
 
-}((this.BX.Messenger.v2.Component.EntitySelector = this.BX.Messenger.v2.Component.EntitySelector || {}),BX.Main,BX.UI.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Const,BX.Messenger.v2.Component,BX.Messenger.v2.Component.Elements));
+	const POPUP_ID$1 = 'im-forward-popup';
+
+	// @vue/component
+	const ForwardPopup = {
+	  name: 'ForwardPopup',
+	  components: {
+	    MessengerPopup: im_v2_component_elements.MessengerPopup,
+	    ForwardContent
+	  },
+	  props: {
+	    showPopup: {
+	      type: Boolean,
+	      required: true
+	    },
+	    messageId: {
+	      type: [Number, String],
+	      required: true
+	    }
+	  },
+	  emits: ['close'],
+	  computed: {
+	    POPUP_ID: () => POPUP_ID$1,
+	    config() {
+	      return {
+	        titleBar: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_FORWARD_TITLE'),
+	        closeIcon: true,
+	        targetContainer: document.body,
+	        fixed: true,
+	        draggable: true,
+	        padding: 0,
+	        autoHide: false,
+	        contentPadding: 0,
+	        contentBackground: '#fff',
+	        className: 'bx-im-entity-selector-forward__scope'
+	      };
+	    }
+	  },
+	  template: `
+		<MessengerPopup
+			v-if="showPopup"
+			:id="POPUP_ID"
+			:config="config"
+			@close="$emit('close')"
+		>
+			<ForwardContent :messageId="messageId" @close="$emit('close')" />
+		</MessengerPopup>
+	`
+	};
+
+	exports.AddToChat = AddToChat;
+	exports.ForwardPopup = ForwardPopup;
+
+}((this.BX.Messenger.v2.Component.EntitySelector = this.BX.Messenger.v2.Component.EntitySelector || {}),BX.UI.EntitySelector,BX.Messenger.v2.Application,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Component,BX.Main,BX.Messenger.v2.Component.Elements,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Component,BX.Messenger.v2.Component));
 //# sourceMappingURL=registry.bundle.js.map

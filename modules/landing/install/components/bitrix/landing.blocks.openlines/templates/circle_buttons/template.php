@@ -4,6 +4,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/**
+ * @param array $arParams
+ */
+
 if (!empty($arParams['ERRORS']))
 {
 	if ($arParams['EDIT_MODE'] === 'Y') :?>
@@ -15,13 +19,17 @@ if (!empty($arParams['ERRORS']))
 				?>
 				<div class="g-landing-alert-title"><?= $title ?></div>
 				<div class="g-landing-alert-text"><?= $text ?></div>
-				<?php if ($error['button']): ?>
+				<?php if (isset(
+					$error['button'],
+					$error['button']['href'],
+					$error['button']['text']
+				)): ?>
 					<?php
-						$onclick = $error['button']['onclick']
+						$onclick = isset($error['button']['onclick'])
 							? ' onclick="'.$error['button']['onclick'].'" '
 							: '';
 					?>
-					<a class="landing-trusted-link landing-required-link ui-btn g-mt-15"
+					<a class="landing-trusted-link ui-btn g-mt-15"
 						href="<?= $error['button']['href'] ?>"
 						<?=$onclick?>
 					>

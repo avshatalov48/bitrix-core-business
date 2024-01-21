@@ -54,11 +54,7 @@ class DecreaseStoreQuantityAction  implements Action
 			$can = false;
 
 			$product = ProductTable::getRowById($this->productId);
-			if (!$product || CheckRightsOnDecreaseStoreAmount::isDisabled())
-			{
-				$can = false;
-			}
-			elseif (CheckRightsOnDecreaseStoreAmount::isEnabled())
+			if (CheckRightsOnDecreaseStoreAmount::isEnabled())
 			{
 				$can = AccessController::getCurrent()->check(
 					ActionDictionary::ACTION_STORE_DOCUMENT_ALLOW_NEGATION_PRODUCT_QUANTITY,
@@ -67,9 +63,9 @@ class DecreaseStoreQuantityAction  implements Action
 					])
 				);
 			}
-			elseif (CheckRightsOnDecreaseStoreAmount::isNotUsed())
+			elseif (CheckRightsOnDecreaseStoreAmount::isNotUsed() && $product)
 			{
-				$can = $product['NEGATIVE_AMOUNT_TRACE'] === 'Y';
+				$can = $product['CAN_BUY_ZERO'] === 'Y';
 			}
 
 			if (!$can)

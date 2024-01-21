@@ -64,3 +64,9 @@
 	cursor: pointer;
 	flex-shrink: 0;
 }
+
+.bx-im-search-input__loader {
+	width: 24px;
+	height: 24px;
+	margin-right: 4px;
+}

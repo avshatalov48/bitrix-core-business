@@ -1,10 +1,14 @@
 <?php
 namespace Bitrix\Calendar\Sharing\Link;
 
+use Bitrix\Calendar\Sharing\Link\Joint\JointLinkMapper;
+use Bitrix\Calendar\Sharing\Link\Member;
 use Bitrix\Main\Web\Json;
 
-class UserLinkMapper extends LinkMapper
+class UserLinkMapper extends JointLinkMapper
 {
+	protected const DEFAULT_SELECT = ['*', 'MEMBERS', 'MEMBERS.USER', 'MEMBERS.IMAGE'];
+
 	protected function convertToObject($objectEO): ?UserLink
 	{
 		$sharingUserLink = (new UserLink())
@@ -13,13 +17,23 @@ class UserLinkMapper extends LinkMapper
 			->setDateCreate($objectEO->getDateCreate())
 			->setActive($objectEO->getActive())
 			->setHash($objectEO->getHash())
+			->setMembersHash($objectEO->getMembersHash())
+			->setFrequentUse($objectEO->getFrequentUse())
 		;
+
+		if ($objectEO->getMembers()?->count() > 0)
+		{
+			$sharingUserLink->setMembers((new Member\Manager())->createMembersFromEntityObject($objectEO->getMembers()));
+		}
 
 		$options = Json::decode($objectEO->getOptions() ?? '');
 		if (!empty($options['slotSize']))
 		{
 			$sharingUserLink->setSlotSize($options['slotSize']);
 		}
+
+		$rule = (new Rule\Factory())->getRuleBySharingLink($sharingUserLink);
+		$sharingUserLink->setSharingRule($rule);
 
 		return $sharingUserLink;
 	}
@@ -34,6 +48,7 @@ class UserLinkMapper extends LinkMapper
 		return array_merge($baseArray, [
 			'userId' => $sharingLink->getUserId(),
 			'slotSize' => $sharingLink->getSlotSize(),
+			'rule' => (new Rule\Mapper())->convertToArray($sharingLink->getSharingRule()),
 		]);
 	}
 
@@ -51,7 +66,9 @@ class UserLinkMapper extends LinkMapper
 
 	protected function getSpecificFields($entity): array
 	{
-		return [];
+		return [
+			'MEMBERS_HASH' => $entity->getMembersHash(),
+		];
 	}
 
 	protected function getEntityClass(): string

@@ -33,7 +33,7 @@ class TextField extends StringField
 	{
 		parent::__construct($name, $parameters);
 
-		$this->unsigned = isset($parameters['long']) && (bool)$parameters['long'];
+		$this->long = isset($parameters['long']) && (bool)$parameters['long'];
 	}
 
 	/**

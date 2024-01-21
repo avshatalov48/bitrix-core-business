@@ -90,7 +90,7 @@ class CUserOptions
 		else
 			$strSqlOrder = "";
 
-		$res = $DB->Query($strSql.$strSqlOrder, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strSql.$strSqlOrder);
 		return $res;
 	}
 
@@ -260,7 +260,7 @@ class CUserOptions
 			AND CATEGORY='".$DB->ForSql($category, 50)."'
 			AND NAME='".$DB->ForSql($name, 255)."'
 		";
-		if ($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query($strSql))
 		{
 			if($bCommon)
 			{
@@ -281,7 +281,7 @@ class CUserOptions
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if ($DB->Query("DELETE FROM b_user_option WHERE COMMON='Y' AND NAME NOT LIKE '~%'", false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query("DELETE FROM b_user_option WHERE COMMON='Y' AND NAME NOT LIKE '~%'"))
 		{
 			$CACHE_MANAGER->cleanDir("user_option");
 			self::$cache = array();
@@ -294,7 +294,7 @@ class CUserOptions
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if ($DB->Query("DELETE FROM b_user_option WHERE USER_ID<>0 AND NAME NOT LIKE '~%'  ".($user_id <> false? " AND USER_ID=".intval($user_id):""), false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query("DELETE FROM b_user_option WHERE USER_ID<>0 AND NAME NOT LIKE '~%'  ".($user_id <> false? " AND USER_ID=".intval($user_id):"")))
 		{
 			$CACHE_MANAGER->cleanDir("user_option");
 			self::$cache = array();
@@ -308,7 +308,7 @@ class CUserOptions
 		global $DB, $CACHE_MANAGER;
 
 		$strSql = "DELETE FROM b_user_option WHERE CATEGORY='".$DB->ForSql($category, 50)."' AND NAME='".$DB->ForSql($name, 255)."'";
-		if ($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query($strSql))
 		{
 			$CACHE_MANAGER->cleanDir("user_option");
 			self::$cache = array();
@@ -343,7 +343,7 @@ class CUserOptions
 
 		$user_id = intval($user_id);
 
-		if ($DB->Query("DELETE FROM b_user_option WHERE USER_ID=". $user_id, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query("DELETE FROM b_user_option WHERE USER_ID=". $user_id))
 		{
 			$CACHE_MANAGER->cleanDir("user_option");
 			self::$cache = array();

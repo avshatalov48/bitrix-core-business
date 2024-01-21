@@ -2,6 +2,8 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main;
+use Bitrix\Mail;
+
 \Bitrix\Main\UI\Extension::load('mail.messagegrid');
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
@@ -18,6 +20,16 @@ class CMailClientComponent extends CBitrixComponent
 		{
 			$this->includeComponentTemplate('no_module');
 			die();
+		}
+
+		$toolShowSettings = new Mail\Integration\Intranet\ToolShowSettings();
+
+		if (!$toolShowSettings->isMailAvailable())
+		{
+			$this->arParams['MAIL_SLIDER_CODE'] = $toolShowSettings->getMailLimitSliderCode();
+			$this->includeComponentTemplate('hidden_module');
+
+			return;
 		}
 
 		$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', '/company/personal/', SITE_ID);

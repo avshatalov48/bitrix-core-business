@@ -1,0 +1,85 @@
+.bx-im-desktop-connection-list-item__scope {
+	--im-desktop-connection-list-item__background-color_separator: #525c69;
+	--im-desktop-connection-list-item__background-color_container-hover: #f5f7f8;
+	--im-desktop-connection-list-item__background-color_default-avatar: #c9ccd0;
+	--im-desktop-connection-list-item__color_title: var(--im-color-palette-black-base);
+	--im-desktop-connection-list-item__color_login: var(--im-color-palette-gray-70);
+}
+
+.bx-im-desktop-connection-list-item__container {
+	position: relative;
+	height: 52px;
+	display: flex;
+	justify-content: space-between;
+	border-radius: 6px;
+}
+
+.bx-im-desktop-connection-list-item__container:last-child {
+	margin-bottom: 6px;
+}
+
+.bx-im-desktop-connection-list-item__container:hover {
+	background-color: var(--im-desktop-connection-list-item__background-color_container-hover);
+}
+
+.bx-im-desktop-connection-list-item__container:before {
+	content: '';
+	position: absolute;
+	width: calc(100% - 10px);
+	height: 1px;
+	background-color: var(--im-desktop-connection-list-item__background-color_separator);
+	margin-left: 5px;
+	opacity: 0.05;
+	transition: opacity .3s;
+}
+
+.bx-im-desktop-connection-list-item__content {
+	display: flex;
+	align-items: center;
+	padding: 8px 0 8px 10px;
+}
+
+.bx-im-desktop-connection-list-item__content.--disconnected {
+	opacity: 0.4;
+}
+
+.bx-im-desktop-connection-list-item__avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+}
+
+.bx-im-desktop-connection-list-item__avatar-default {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var(--im-desktop-connection-list-item__background-color_default-avatar) url("data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M31.8296%2030.9945C32.0941%2030.8891%2032.2428%2030.609%2032.1879%2030.3296L31.4937%2026.7943C31.4937%2025.6751%2030.0032%2024.3966%2027.068%2023.6516C26.0736%2023.3794%2025.1283%2022.9572%2024.2659%2022.4002C24.0773%2022.2944%2024.1059%2021.3169%2024.1059%2021.3169L23.1606%2021.1757C23.1606%2021.0964%2023.0798%2019.9243%2023.0798%2019.9243C24.2109%2019.5512%2024.0945%2017.3504%2024.0945%2017.3504C24.8128%2017.7415%2025.2806%2015.9999%2025.2806%2015.9999C26.1302%2013.5803%2024.8575%2013.7266%2024.8575%2013.7266C25.0802%2012.2495%2025.0802%2010.7483%2024.8575%209.27113C24.2917%204.3711%2015.7728%205.70133%2016.783%207.30166C14.2932%206.8515%2014.8613%2012.4121%2014.8613%2012.4121L15.4014%2013.8521C14.6529%2014.3287%2014.7998%2014.8756%2014.964%2015.4865C15.0325%2015.7412%2015.1039%2016.0071%2015.1147%2016.2836C15.1669%2017.6712%2016.032%2017.3836%2016.032%2017.3836C16.0853%2019.6738%2017.2358%2019.9721%2017.2358%2019.9721C17.452%2021.4104%2017.3172%2021.1656%2017.3172%2021.1656L16.2934%2021.2871C16.3072%2021.6142%2016.2801%2021.9417%2016.2125%2022.2623C15.6177%2022.5225%2015.2535%2022.7296%2014.8929%2022.9347C14.5237%2023.1446%2014.1584%2023.3523%2013.5531%2023.6128C11.2417%2024.6071%208.72961%2025.9002%208.28303%2027.6412C8.10315%2028.3424%207.92838%2029.3764%207.78379%2030.3612C7.74418%2030.631%207.89311%2030.8932%208.14642%2030.9942C11.4365%2032.3055%2015.2133%2033.0873%2019.2402%2033.1737H20.7367C24.7632%2033.0873%2028.5397%2032.3057%2031.8296%2030.9945Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E%0A") no-repeat center;
+	background-size: 26px;
+}
+
+.bx-im-desktop-connection-list-item__title-container {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-left: 9px;
+}
+
+.bx-im-desktop-connection-list-item__title {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-desktop-connection-list-item__color_title);
+}
+
+.bx-im-desktop-connection-list-item__content:not(.--disconnected) .bx-im-desktop-connection-list-item__title {
+	cursor: pointer;
+}
+
+.bx-im-desktop-connection-list-item__login {
+	font: var(--im-font-size-3xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-desktop-connection-list-item__color_login);
+}
+
+.bx-im-desktop-connection-list-item__context-menu {
+	align-self: center;
+	margin-right: 13px;
+}

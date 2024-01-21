@@ -1,7 +1,8 @@
-import type {RawUser} from './common';
+import type { RawUser } from './common';
 
 export type UserInviteParams = {
 	userId: number,
 	invited: boolean,
-	user: RawUser
+	user: RawUser,
+	date: string,
 };

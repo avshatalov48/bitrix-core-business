@@ -10,6 +10,7 @@
 		get: function (id)
 		{
 			if (this.list[id]) {
+				this.list[id].resultNode = null;
 				return this.list[id];
 			}
 
@@ -150,6 +151,10 @@ BXBlockEditor.prototype.init = function()
 		this.initTabsBlockAndStyles();
 	}
 
+	if (this.isInited)
+	{
+		this.resultNode.value = null;
+	}
 	// call every time when load content
 	this.initPhpSlices();
 	this.initBlockPlaces();
@@ -808,13 +813,12 @@ BXBlockEditor.prototype.load = function(url, callback)
 		}
 
 		this.init();
-
 		if(BX.type.isFunction(callback))
 		{
 			callback.apply(this);
 		}
-		BX.onCustomEvent(this, 'onLoadAfter', [url, callback, this]);
 
+		BX.onCustomEvent(this, 'onLoadAfter', [url, callback, this]);
 	}, this));
 
 	if(this.charset)

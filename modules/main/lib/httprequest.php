@@ -9,8 +9,6 @@
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\Config;
-use Bitrix\Main\Type;
 use Bitrix\Main\Web\HttpHeaders;
 
 /**
@@ -126,7 +124,7 @@ class HttpRequest extends Request
 
 		if (isset($filteredValues['get']) || isset($filteredValues['post']))
 		{
-			$this->values = array_merge($this->queryString->values, $this->postData->values);
+			$this->setValuesNoDemand(array_merge($this->queryString->values, $this->postData->values));
 		}
 	}
 

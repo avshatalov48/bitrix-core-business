@@ -238,19 +238,31 @@ class FileType extends BaseType
 				return (is_array($value['old_id']) ? $value['old_id'][0] : $value['old_id']);
 			}
 
-			if($valueHasOldId)
+			$value['MODULE_ID'] = 'main';
+
+			if ($valueHasOldId && is_array($value['old_id']))
 			{
 				foreach ($value['old_id'] as $oldId)
 				{
 					\CFile::Delete($oldId);
 				}
 			}
-			$value['MODULE_ID'] = 'main';
 
 			if (!empty($value['name']))
 			{
+				if (
+					$valueHasOldId
+					&& is_array($value['old_id'])
+					&& isset($value['ID'])
+					&& in_array($value['ID'], $value['old_id'])
+				)
+				{
+					return $value['ID'];
+				}
+
 				return \CFile::SaveFile($value, 'uf');
 			}
+
 			return false;
 		}
 

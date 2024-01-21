@@ -261,7 +261,9 @@ class Template
                         disableAltField: true,
 						compactMode: <?= $codeHoverEdit ? 'false' : 'true' ?>,
                         allowClear: true,
-						allowAiImage: <?= \CUtil::PhpToJSObject($this->result['ALLOW_AI_IMAGE']) ?>,
+						isAiImageAvailable: <?= \CUtil::PhpToJSObject($this->result['AI_IMAGE_AVAILABLE']) ?>,
+						isAiImageActive: <?= \CUtil::PhpToJSObject($this->result['AI_IMAGE_ACTIVE']) ?>,
+						aiUnactiveInfoCode: <?= \CUtil::PhpToJSObject($this->result['AI_UNACTIVE_INFO_CODE']) ?>,
 						<?php if ($imgId):?>
 							content: {
 								src: '<?= \CUtil::jsEscape(str_replace(' ', '%20', \htmlspecialcharsbx((int) $imgId > 0 ? File::getFilePath($imgId) : $imgId))) ?>',

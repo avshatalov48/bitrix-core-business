@@ -103,7 +103,7 @@ class Application implements RestConvertible
 	{
 		if (!$this->getContext()->getUser()->isAdmin())
 		{
-			return $roleOptions === Role::USER;
+			return mb_strtoupper($roleOptions) === Role::USER;
 		}
 
 		return true;

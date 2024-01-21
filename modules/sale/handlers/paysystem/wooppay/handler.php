@@ -40,9 +40,7 @@ class WooppayHandler extends Sale\PaySystem\ServiceHandler implements Sale\PaySy
 	 */
 	public static function getHandlerModeList(): array
 	{
-		return [
-			static::MODE_CHECKOUT => Main\Localization\Loc::getMessage('SALE_HPS_WOOPPAY_CHECKOUT_MODE'),
-		];
+		return Sale\PaySystem\Manager::getHandlerDescription('Wooppay')['HANDLER_MODE_LIST'];
 	}
 
 	/**

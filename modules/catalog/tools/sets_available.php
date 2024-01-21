@@ -22,9 +22,7 @@ if (
 	|| !Catalog\Config\Feature::isProductSetsEnabled()
 )
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(Loc::getMessage('CAT_SETS_AVAILABLE_ERRORS_FATAL'));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
 if (

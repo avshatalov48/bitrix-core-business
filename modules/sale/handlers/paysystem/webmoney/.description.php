@@ -27,6 +27,7 @@ $protocol = $request->isHttps() ? 'https' : 'http';
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY'),
+	'DESCRIPTION' => Loc::getMessage('SALE_HPS_WEBMONEY_DESCRIPTION'),
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

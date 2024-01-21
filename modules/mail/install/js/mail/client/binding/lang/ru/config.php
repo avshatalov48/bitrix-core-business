@@ -26,7 +26,7 @@ $MESS["MAIL_BINDING_POST_TITLE"] = "Обсудить в ленте";
 $MESS["MAIL_BINDING_POST_TITLE_ACTIVE"] = "Открыть новость";
 $MESS["MAIL_BINDING_POST_ERROR"] = 'Установите модуль "Социальная сеть"';
 
-$MESS["MAIL_BINDING_MEETING_NOT_ACTIVE"] = "во Встречу";
+$MESS["MAIL_BINDING_MEETING_NOT_ACTIVE_MSG_1"] = "в Календарь";
 $MESS["MAIL_BINDING_MEETING_ACTIVE"] = "Встреча";
 $MESS["MAIL_BINDING_MEETING_TITLE"]= "Создать встречу в календаре";
 $MESS["MAIL_BINDING_MEETING_TITLE_ACTIVE"]= "Открыть встречу";

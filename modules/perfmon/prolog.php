@@ -1,16 +1,12 @@
 <?php
-if (file_exists($_SERVER['DOCUMENT_ROOT'] . BX_PERSONAL_ROOT . '/php_interface/geshi/geshi.php'))
-{
-	require_once($_SERVER['DOCUMENT_ROOT'] . BX_PERSONAL_ROOT . '/php_interface/geshi/geshi.php');
-}
-
 IncludeModuleLangFile(__FILE__);
+
 /**
  * Formats float number according to flags.
  *
  * @param float $num Number value to be formatted.
- * @param integer $dec How many digits after decimal point.
- * @param integer $mode Output mode.
+ * @param int $dec How many digits after decimal point.
+ * @param int $mode Output mode.
  *
  * @return string
 **/
@@ -24,13 +20,17 @@ function perfmon_NumberFormat($num, $dec = 2, $mode = 0)
 	case 2:
 		$str = number_format($num, $dec, '.', ' ');
 		$str = str_replace(' ', '<span></span>', $str);
-		$str = '<span class="perfmon_number">'.$str.'</span>';
+		$str = '<span class="perfmon_number">' . $str . '</span>';
 		break;
 	default:
-		if ($_REQUEST["mode"] == "excel")
+		if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+		{
 			$str = perfmon_NumberFormat($num, $dec, 1);
+		}
 		else
+		{
 			$str = perfmon_NumberFormat($num, $dec, 2);
+		}
 		break;
 	}
 	return $str;
@@ -38,64 +38,64 @@ function perfmon_NumberFormat($num, $dec = 2, $mode = 0)
 
 class CAdminListColumn
 {
-	public $id = "";
-	public $info = array();
+	public $id = '';
+	public $info = [];
 
-	function __construct($id, $info)
+	public function __construct($id, $info)
 	{
 		$this->id = $id;
 		$this->info = $info;
 	}
 
-	function getRowView($arRes)
+	public function getRowView($arRes)
 	{
 		return false;
 	}
 
-	function getRowEdit($arRes)
+	public function getRowEdit($arRes)
 	{
 		return false;
 	}
 
-	function getFilterInput()
+	public function getFilterInput()
 	{
-		return '<input type="text" name="'.$this->info["filter"].'" size="47" value="'.htmlspecialcharsbx($GLOBALS[$this->info["filter"]]).'">';
+		return '<input type="text" name="' . $this->info['filter'] . '" size="47" value="' . htmlspecialcharsbx($GLOBALS[$this->info['filter']]) . '">';
 	}
 }
 
 class CAdminListColumnList extends CAdminListColumn
 {
-	public $list = array();
+	public $list = [];
 
-	function __construct($id, $info, array $list = array())
+	public function __construct($id, $info, array $list = [])
 	{
 		parent::__construct($id, $info);
 		$this->list = $list;
 	}
 
-	function getRowView($arRes)
+	public function getRowView($arRes)
 	{
 		$value = $arRes[$this->id];
 		return $this->list[$value];
 	}
 
-	function getRowEdit($arRes)
+	public function getRowEdit($arRes)
 	{
 		return false;
 	}
 
-	function getFilterInput()
+	public function getFilterInput()
 	{
-		$arr = array(
-			"reference" => array(),
-			"reference_id" => array(),
-		);
+		$arr = [
+			'reference' => [],
+			'reference_id' => [],
+		];
 		foreach ($this->list as $key => $value)
 		{
-			$arr["reference"][] = $value;
-			$arr["reference_id"][] = $key;
+			$arr['reference'][] = $value;
+			$arr['reference_id'][] = $key;
 		}
-		return SelectBoxFromArray($this->info["filter"], $arr, htmlspecialcharsbx($GLOBALS[$this->info["filter"]]), GetMessage("MAIN_ALL"));
+		return SelectBoxFromArray($this->info['filter'], $arr, htmlspecialcharsbx($GLOBALS[$this->info['filter']]), GetMessage('MAIN_ALL'));
 	}
 }
 
@@ -103,230 +103,242 @@ class CAdminListColumnNumber extends CAdminListColumn
 {
 	public $precision = 0;
 
-	function __construct($id, $info, $precision)
+	public function __construct($id, $info, $precision)
 	{
-		$info["align"] = "right";
+		$info['align'] = 'right';
 		parent::__construct($id, $info);
 		$this->precision = $precision;
 	}
 
-	function getRowView($arRes)
+	public function getRowView($arRes)
 	{
-		if ($_REQUEST["mode"] == "excel")
-			return number_format($arRes[$this->id], $this->precision, ".", "");
+		if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+		{
+			return number_format($arRes[$this->id], $this->precision, '.', '');
+		}
 		else
-			return str_replace(" ", "&nbsp;", number_format($arRes[$this->id], $this->precision, ".", " "));
+		{
+			return str_replace(' ', '&nbsp;', number_format($arRes[$this->id], $this->precision, '.', ' '));
+		}
 	}
 }
 
 class CAdminListPage
 {
-	protected $pageTitle = "";
-	protected $sTableID = "";
-	protected $navLabel = "";
+	protected $pageTitle = '';
+	protected $sTableID = '';
+	protected $navLabel = '';
 	protected $sort = null;
 	protected $list = null;
 	protected $data = null;
-	protected $columns = array();
+	protected $columns = [];
 
 	/**
 	 * @param string $pageTitle
 	 * @param string $sTableID
-	 * @param boolean|array[] $arSort
+	 * @param bool|array[] $arSort
 	 * @param string $navLabel
 	 */
-	function __construct($pageTitle, $sTableID, $arSort = false, $navLabel = "")
+	public function __construct($pageTitle, $sTableID, $arSort = false, $navLabel = '')
 	{
 		$this->pageTitle = $pageTitle;
 		$this->sTableID = $sTableID;
 		$this->navLabel = $navLabel;
 		if (is_array($arSort))
+		{
 			$this->sort = new CAdminSorting($this->sTableID, key($arSort), current($arSort));
+		}
 		else
+		{
 			$this->sort = false;
+		}
 		$this->list = new CAdminList($this->sTableID, $this->sort);
 	}
 
-	function addColumn(CAdminListColumn $column)
+	public function addColumn(CAdminListColumn $column)
 	{
 		$this->columns[$column->id] = $column;
 	}
 
-	function initFilter()
+	public function initFilter()
 	{
-		$FilterArr = array(
-			"find",
-			"find_type",
-		);
+		$FilterArr = [
+			'find',
+			'find_type',
+		];
 		foreach ($this->columns as $column)
 		{
-			if (isset($column->info["filter"]))
-				$FilterArr[] = $column->info["filter"];
+			if (isset($column->info['filter']))
+			{
+				$FilterArr[] = $column->info['filter'];
+			}
 		}
 		$this->list->InitFilter($FilterArr);
 	}
 
-	function getFilter()
+	public function getFilter()
 	{
 		global $find, $find_type;
 
-		$arFilter = array();
+		$arFilter = [];
 		foreach ($this->columns as $column)
 		{
 			if (
-				isset($column->info["filter"])
-				&& isset($column->info["filter_key"])
+				isset($column->info['filter'])
+				&& isset($column->info['filter_key'])
 			)
 			{
 				if (
-					isset($column->info["find_type"])
-					&& $find != ""
-					&& $find_type == $column->info["find_type"]
+					isset($column->info['find_type'])
+					&& $find !== ''
+					&& $find_type === $column->info['find_type']
 				)
 				{
-
-					$arFilter[$column->info["filter_key"]] = $find;
+					$arFilter[$column->info['filter_key']] = $find;
 				}
 				elseif (
-					isset($GLOBALS[$column->info["filter"]])
+					isset($GLOBALS[$column->info['filter']])
 				)
 				{
-					$arFilter[$column->info["filter_key"]] = $GLOBALS[$column->info["filter"]];
+					$arFilter[$column->info['filter_key']] = $GLOBALS[$column->info['filter']];
 				}
 			}
 		}
 
 		foreach ($arFilter as $key => $value)
 		{
-			if ($value == "")
+			if ((string)$value === '')
+			{
 				unset($arFilter[$key]);
+			}
 		}
 
 		return $arFilter;
 	}
 
-	function getHeaders()
+	public function getHeaders()
 	{
-		$arHeaders = array();
+		$arHeaders = [];
 		foreach ($this->columns as $column)
 		{
-			$arHeaders[] = array(
-				"id" => $column->id,
-				"content" => $column->info["content"],
-				"sort" => $column->info["sort"],
-				"align" => $column->info["align"],
-				"default" => $column->info["default"],
-			);
+			$arHeaders[] = [
+				'id' => $column->id,
+				'content' => $column->info['content'],
+				'sort' => $column->info['sort'],
+				'align' => $column->info['align'] ?? '',
+				'default' => $column->info['default'] ?? '',
+			];
 		}
 		return $arHeaders;
 	}
 
-	function getSelectedFields()
+	public function getSelectedFields()
 	{
 		$arSelectedFields = $this->list->GetVisibleHeaderColumns();
 		if (!is_array($arSelectedFields) || empty($arSelectedFields))
 		{
-			$arSelectedFields = array();
+			$arSelectedFields = [];
 			foreach ($this->columns as $column)
 			{
-				if ($column->info["default"])
+				if ($column->info['default'])
+				{
 					$arSelectedFields[] = $column->id;
+				}
 			}
 		}
 		return $arSelectedFields;
 	}
 
-	function getDataSource($arOrder, $arFilter, $arSelect)
+	public function getDataSource($arOrder, $arFilter, $arSelect)
 	{
 		$rsData = new CDBResult;
-		$rsData->InitFromArray(array());
+		$rsData->InitFromArray([]);
 		return $rsData;
 	}
 
-	function getOrder()
+	public function getOrder()
 	{
 		global $by, $order;
-		return array($by => $order);
+		return [$by => $order];
 	}
 
-	function getFooter()
+	public function getFooter()
 	{
-		return array();
+		return [];
 	}
 
-	function getContextMenu()
+	public function getContextMenu()
 	{
-		return array();
+		return [];
 	}
 
-	function displayFilter()
+	public function displayFilter()
 	{
 		global $APPLICATION, $find, $find_type;
 
-		$findFilter = array(
-			"reference" => array(),
-			"reference_id" => array(),
-		);
-		$listFilter = array();
-		$filterRows = array();
+		$findFilter = [
+			'reference' => [],
+			'reference_id' => [],
+		];
+		$listFilter = [];
 		foreach ($this->columns as $column)
 		{
-			if (isset($column->info["filter"]))
+			if (isset($column->info['filter']))
 			{
-				$listFilter[$column->info["filter"]] = $column->info["content"];
-				if (isset($column->info["find_type"]))
+				$listFilter[$column->info['filter']] = $column->info['content'];
+				if (isset($column->info['find_type']))
 				{
-					$findFilter["reference"][] = $column->info["content"];
-					$findFilter["reference_id"][] = $column->info["find_type"];
+					$findFilter['reference'][] = $column->info['content'];
+					$findFilter['reference_id'][] = $column->info['find_type'];
 				}
 			}
 		}
 
 		if (!empty($listFilter))
 		{
-			$this->filter = new CAdminFilter($this->sTableID."_filter", $listFilter);
+			$this->filter = new CAdminFilter($this->sTableID . '_filter', $listFilter);
 			?>
-			<form name="find_form" method="get" action="<? echo $APPLICATION->GetCurPage(); ?>">
-				<? $this->filter->Begin(); ?>
-				<? if (!empty($findFilter["reference"])): ?>
+			<form name="find_form" method="get" action="<?php echo $APPLICATION->GetCurPage(); ?>">
+				<?php $this->filter->Begin(); ?>
+				<?php if (!empty($findFilter['reference'])): ?>
 					<tr>
-						<td><b><?=GetMessage("PERFMON_HIT_FIND")?>:</b></td>
+						<td><b><?=GetMessage('PERFMON_HIT_FIND')?>:</b></td>
 						<td><input
 							type="text" size="25" name="find"
-							value="<? echo htmlspecialcharsbx($find) ?>"><? echo SelectBoxFromArray("find_type", $findFilter, $find_type, "", ""); ?>
+							value="<?php echo htmlspecialcharsbx($find) ?>"><?php echo SelectBoxFromArray('find_type', $findFilter, $find_type, '', ''); ?>
 						</td>
 					</tr>
-				<? endif; ?>
-				<?
+				<?php endif; ?>
+				<?php
 				foreach ($this->columns as $column)
 				{
-					if (isset($column->info["filter"]))
+					if (isset($column->info['filter']))
 					{
 						?>
 						<tr>
-						<td><? echo $column->info["content"] ?></td>
-						<td><? echo $column->getFilterInput() ?></td>
-						</tr><?
+						<td><?php echo $column->info['content'] ?></td>
+						<td><?php echo $column->getFilterInput() ?></td>
+						</tr><?php
 					}
 				}
-				$this->filter->Buttons(array(
-					"table_id" => $this->sTableID,
-					"url" => $APPLICATION->GetCurPage(),
-					"form" => "find_form",
-				));
+				$this->filter->Buttons([
+					'table_id' => $this->sTableID,
+					'url' => $APPLICATION->GetCurPage(),
+					'form' => 'find_form',
+				]);
 				$this->filter->End();
 				?>
 			</form>
-		<?
+		<?php
 		}
 	}
 
-	function show()
+	public function show()
 	{
 		global $APPLICATION;
 
 		$this->initFilter();
-		$this->list->addHeaders($this->getHeaders());
+		$this->list->AddHeaders($this->getHeaders());
 		$select = $this->getSelectedFields();
 
 		$dataSource = $this->getDataSource($this->getOrder(), $this->getFilter(), $select);
@@ -335,20 +347,25 @@ class CAdminListPage
 		$this->list->NavText($this->data->GetNavPrint($this->navLabel));
 
 		$i = 0;
-		while ($arRes = $this->data->NavNext(true, "f_"))
+		while ($arRes = $this->data->GetNext())
 		{
 			$row = $this->list->AddRow(++$i, $arRes);
 			foreach ($select as $fieldId)
 			{
-				$column = $this->columns[$fieldId];
+				/** @var CAdminListColumn $column */
+				$column = $this->columns[$fieldId] ?? '';
 				if ($column)
 				{
 					$view = $column->getRowView($arRes);
 					if ($view !== false)
+					{
 						$row->AddViewField($column->id, $view);
+					}
 					$edit = $column->getRowEdit($arRes);
 					if ($edit !== false)
-						$row->AddEdirField($column->id, $edit);
+					{
+						$row->AddEditField($column->id, $edit);
+					}
 				}
 			}
 		}
@@ -359,7 +376,7 @@ class CAdminListPage
 		$APPLICATION->SetTitle($this->pageTitle);
 		global /** @noinspection PhpUnusedLocalVariableInspection */
 		$adminPage, $adminMenu, $adminChain, $USER;
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+		require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 		$this->displayFilter();
 		$this->list->DisplayList();
 	}

@@ -410,7 +410,7 @@ class PaymentCollection extends Internals\EntityCollection
 		/** @var Payment $payment */
 		foreach ($this->collection as $payment)
 		{
-			$isNew = (bool)($payment->getId() <= 0);
+			$isNew = $payment->getId() <= 0;
 			$isChanged = $payment->isChanged();
 
 			if ($order->getId() > 0 && $isChanged)
@@ -632,6 +632,19 @@ class PaymentCollection extends Internals\EntityCollection
 		return $result;
 	}
 
+	public function getBasketItemQuantity(BasketItem $basketItem) : float
+	{
+		$quantity = 0;
+
+		/** @var Payment $payment */
+		foreach ($this->collection as $payment)
+		{
+			$quantity += $payment->getBasketItemQuantity($basketItem);
+		}
+
+		return $quantity;
+	}
+
 	/**
 	 * @internal
 	 * @param \SplObjectStorage $cloneEntity
@@ -685,7 +698,7 @@ class PaymentCollection extends Internals\EntityCollection
 	 */
 	protected function deleteInternal($primary)
 	{
-		return Internals\PaymentTable::delete($primary);
+		return Internals\PaymentTable::deleteWithItems($primary);
 	}
 
 	/**

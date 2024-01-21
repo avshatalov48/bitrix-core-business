@@ -21,6 +21,10 @@ class TemplateManager extends \Bitrix\MessageService\Providers\Base\TemplateMana
 		$this->emoji = $emoji;
 	}
 
+	/**
+	 * @param array|null $context
+	 * @return array<int, array{ID: string, TITLE: string, PREVIEW: string, HEADER: string, FOOTER: string, PLACEHOLDERS: array, KEYBOARD: array}>
+	 */
 	public function getTemplatesList(array $context = null): array
 	{
 		$templatesResult = $this->utils->getMessageTemplates();
@@ -35,14 +39,55 @@ class TemplateManager extends \Bitrix\MessageService\Providers\Base\TemplateMana
 			return [];
 		}
 
+		//todo: Compatibility only with previous version without placeholders. Remove it!
+		$placeholderEnabled = \Bitrix\Main\Config\Option::get('messageservice', 'template_placeholders_enabled', 'N') === 'Y';
+
 		$result = [];
 		foreach ($templates as $template)
 		{
-			$result[] = [
-				'ID' => Json::encode($template['content']),
+
+			//todo: Compatibility only with previous version without placeholders. Remove it!
+			if (!empty($template['placeholders']) && !$placeholderEnabled)
+			{
+				continue;
+			}
+
+			$tmp = [
+				'ID' => Json::encode($template['content']), //todo: Refactor it!
 				'TITLE' => $template['name'],
-				'PREVIEW' => $template['content']['text'],
+				'PREVIEW' => $template['content']['text'] ?? '',
 			];
+
+			if (!empty($template['content']['header']['text']))
+			{
+				$tmp['HEADER'] = $template['content']['header']['text'];
+			}
+			if (!empty($template['content']['footer']['text']))
+			{
+				$tmp['FOOTER'] = $template['content']['footer']['text'];
+			}
+			if (!empty($template['content']['keyboard']['rows']))
+			{
+				$tmp['KEYBOARD'] = $template['content']['keyboard'];
+			}
+			if (!empty($template['placeholders']))
+			{
+				$tmp['PLACEHOLDERS'] = [];
+			}
+			if (!empty($template['placeholders']['text']))
+			{
+				$tmp['PLACEHOLDERS']['PREVIEW'] = $template['placeholders']['text'];
+			}
+			if (!empty($template['placeholders']['header']))
+			{
+				$tmp['PLACEHOLDERS']['HEADER'] = $template['placeholders']['header'];
+			}
+			if (!empty($template['placeholders']['footer']))
+			{
+				$tmp['PLACEHOLDERS']['FOOTER'] = $template['placeholders']['footer'];
+			}
+
+			$result[] = $tmp;
 		}
 
 		return $result;

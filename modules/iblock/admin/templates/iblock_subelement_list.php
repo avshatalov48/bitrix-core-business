@@ -2517,7 +2517,7 @@ if (!empty($arRows))
 			if (isset($productTypeList[$row->arRes["CATALOG_TYPE"]]))
 				$strProductType = $productTypeList[$row->arRes["CATALOG_TYPE"]];
 			if ($row->arRes['CATALOG_BUNDLE'] == 'Y' && $boolCatalogSet)
-				$strProductType .= ('' != $strProductType ? ', ' : '').Loc::getMessage('IBEL_CATALOG_TYPE_MESS_GROUP');
+				$strProductType .= ('' != $strProductType ? ', ' : '').Loc::getMessage('IBEL_CATALOG_TYPE_MESS_GROUP_MSGVER_1');
 			$row->AddViewField('CATALOG_TYPE', $strProductType);
 		}
 		if ($boolSubCatalog && isset($arSelectedFieldsMap['CATALOG_MEASURE']))

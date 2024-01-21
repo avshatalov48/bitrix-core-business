@@ -205,6 +205,16 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				{
 					$this->arParams['REPLACE_LID'] = (int)$this->request('replaceLid');
 				}
+
+				if ($this->request('specType') === Type::PSEUDO_SCOPE_CODE_FORMS)
+				{
+					$this->arParams['IS_CRM_FORM'] = 'Y';
+				}
+
+				if ($this->request('context') !== '')
+				{
+					$this->arParams['CONTEXT'] = $this->request('context');
+				}
 			}
 			else
 			{

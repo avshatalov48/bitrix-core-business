@@ -51,7 +51,7 @@ class PopupData
 		return $this;
 	}
 
-	public function toRestFormat(): array
+	public function toRestFormat(array $options = []): array
 	{
 		$result = [];
 
@@ -65,7 +65,7 @@ class PopupData
 
 		foreach ($this->popupItems as $item)
 		{
-			$result[$item::getRestEntityName()] = $item->toRestFormat();
+			$result[$item::getRestEntityName()] = $item->toRestFormat($options);
 		}
 
 		return $result;

@@ -1,8 +1,8 @@
+import { Address as AddressEntity, AddressStringConverter, ControlMode, Format } from 'location.core';
+import { Address as AddressWidget, Factory } from 'location.widget';
+import { Dom, Tag } from 'main.core';
 import 'ui.design-tokens';
-import {Address as AddressWidget, Factory} from "location.widget";
-import {Dom, Tag} from "main.core";
-import {Address as AddressEntity, AddressStringConverter, ControlMode, Format} from "location.core";
-import {BaseView} from './baseview';
+import { BaseView } from './baseview';
 import './css/style.css';
 
 export class View extends BaseView
@@ -26,10 +26,10 @@ export class View extends BaseView
 
 	layout(): Element
 	{
-		const layout = Tag.render`<div></div>`;
+		const layout = new DocumentFragment();
 
 		this.#addresses.forEach((address) => {
-			Dom.append(this.getLayoutForAddress(address), layout);
+			layout.append(this.getLayoutForAddress(address));
 		});
 
 		Dom.append(layout, this.getWrapper());
@@ -61,7 +61,7 @@ export class View extends BaseView
 		this.#widgets.push(widget);
 
 		const addressLayout = Tag.render`
-			<span class="fields address field-item view">
+			<span class="fields address field-item view" data-id="${address.id}">
 				<span class="ui-link ui-link-dark ui-link-dotted">${this.getFormattedAddress(address)}</span>
 			</span>
 		`;

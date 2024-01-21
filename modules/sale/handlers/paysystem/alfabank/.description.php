@@ -24,6 +24,8 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_ALFABANK'),
+	'DESCRIPTION' => Loc::getMessage('SALE_HPS_ALFABANK_DESCRIPTION'),
+	'PUBLIC_DESCRIPTION' => Loc::getMessage('SALE_HPS_ALFABANK_PUBLIC_DESCRIPTION'),
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

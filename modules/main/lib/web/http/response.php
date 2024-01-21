@@ -14,15 +14,11 @@ use Psr\Http\Message\StreamInterface;
 
 class Response extends Message implements ResponseInterface
 {
-	protected $statusCode = 0;
-	protected $reasonPhrase = '';
-
 	public function __construct(int $statusCode, array $headers = null, StreamInterface $body = null, string $version = null, string $reasonPhrase = '')
 	{
 		parent::__construct($headers, $body, $version);
 
-		$this->statusCode = $statusCode;
-		$this->reasonPhrase = $reasonPhrase;
+		$this->headers->setStatus($statusCode, $reasonPhrase);
 	}
 
 	/**
@@ -30,7 +26,7 @@ class Response extends Message implements ResponseInterface
 	 */
 	public function getStatusCode(): int
 	{
-		return $this->statusCode;
+		return $this->headers->getStatus();
 	}
 
 	/**
@@ -39,8 +35,7 @@ class Response extends Message implements ResponseInterface
 	public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
 	{
 		$new = clone $this;
-		$new->statusCode = $code;
-		$new->reasonPhrase = $reasonPhrase;
+		$new->headers->setStatus($code, $reasonPhrase);
 
 		return $new;
 	}
@@ -50,7 +45,7 @@ class Response extends Message implements ResponseInterface
 	 */
 	public function getReasonPhrase(): string
 	{
-		return $this->reasonPhrase;
+		return $this->headers->getReasonPhrase();
 	}
 
 	/**

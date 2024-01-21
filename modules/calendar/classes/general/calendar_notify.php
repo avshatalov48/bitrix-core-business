@@ -10,6 +10,7 @@ use Bitrix\Calendar\Sharing;
 class CCalendarNotify
 {
 	const PUSH_MESSAGE_MAX_LENGTH = 255;
+	public const NOTIFY_USERS_ADDED_TO_MULTI_LINK = 'users_added_to_multi_link';
 
 	public static function Send($params)
 	{
@@ -17,6 +18,20 @@ class CCalendarNotify
 		{
 			return false;
 		}
+
+//		if ($params['mode'] === self::NOTIFY_USERS_ADDED_TO_MULTI_LINK)
+//		{
+//			foreach ($params['guestIds'] as $guestId)
+//			{
+//				$notifyFields = self::UsersAddedToMultiLink([
+//					...$params,
+//					'guestId' => $guestId,
+//				]);
+//				CIMNotify::Add($notifyFields);
+//			}
+//
+//			return true;
+//		}
 
 		$culture = \Bitrix\Main\Context::getCurrent()->getCulture();
 
@@ -147,47 +162,21 @@ class CCalendarNotify
 			$CIMNotify->MarkNotifyRead($messageId);
 		}
 
+		$spaceEventData = $notifyFields;
+		$spaceEventData['ID'] = $params['eventId'] ?? null;
+		$spaceEventData['ATTENDEES_CODES'] = $params['fields']['ATTENDEES_CODES'] ?? null;
+		unset($spaceEventData['TITLE']);
+		(new \Bitrix\Calendar\Integration\SocialNetwork\SpaceService())->addEvent(
+			$mode,
+			$spaceEventData
+		);
+
 		foreach(GetModuleEvents("calendar", "OnSendInvitationMessage", true) as $arEvent)
 		{
 			ExecuteModuleEventEx($arEvent, [$params]);
 		}
 
-		if (($params['isSharing'] ?? false) && $mode === 'decline')
-		{
-			self::notifySharingUser($params["eventId"]);
-		}
-	}
-
-	protected static function notifySharingUser(int $eventId): void
-	{
-		/** @var \Bitrix\Calendar\Core\Event\Event $event */
-		$event = (new Mappers\Event())->getById($eventId);
-		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = (new Sharing\Link\Factory())->getEventLinkByEventId($eventId);
-
-		if (!$eventLink)
-		{
-			return;
-		}
-
-		$host = CUser::GetByID($eventLink->getHostId())->Fetch();
-		$email = $host['PERSONAL_MAILBOX'] ?? null;
-		$phone = $host['PERSONAL_PHONE'] ?? null;
-		$userContact = !empty($email) ? $email : $phone;
-
-		$notificationService = null;
-		if ($userContact && Sharing\SharingEventManager::isEmailCorrect($userContact))
-		{
-			$notificationService = (new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
-			;
-		}
-
-		if ($notificationService !== null)
-		{
-			$notificationService->notifyAboutMeetingStatus($userContact);
-		}
+		return true;
 	}
 
 	public static function Invite($fields = [], $params = [])
@@ -269,10 +258,10 @@ class CCalendarNotify
 		}
 
 		$fields['PUSH_MESSAGE'] = str_replace(
-				['[B]', '[/B]'],
-				['', ''],
-				$fields['MESSAGE']
-			);
+			['[B]', '[/B]'],
+			['', ''],
+			$fields['MESSAGE']
+		);
 
 		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS_SITE', ['#LINK#' => $params["pathToEvent"]]);
 		$fields['NOTIFY_LINK'] = $params["pathToEvent"];
@@ -330,12 +319,12 @@ class CCalendarNotify
 					if ($params['fields']['DT_SKIP_TIME'] === 'N')
 					{
 						$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_FROM'])
-										 - \CCalendar::GetCurrentOffsetUTC($params['guestId']);
+							- \CCalendar::GetCurrentOffsetUTC($params['guestId']);
 
 						$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
-												   - $userOffset, true, true, true);
+							- $userOffset, true, true, true);
 						$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
-												   - $userOffset, true, true, true);
+							- $userOffset, true, true, true);
 					}
 
 					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DATE_FROM_CHANGED',
@@ -359,12 +348,12 @@ class CCalendarNotify
 					if ($params['fields']['DT_SKIP_TIME'] === 'N')
 					{
 						$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_TO'])
-									  - \CCalendar::GetCurrentOffsetUTC($params['guestId']);
+							- \CCalendar::GetCurrentOffsetUTC($params['guestId']);
 
 						$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
-															   - $userOffset, true, true, true);
+							- $userOffset, true, true, true);
 						$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
-															   - $userOffset, true, true, true);
+							- $userOffset, true, true, true);
 					}
 
 					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DATE_TO_CHANGED',
@@ -587,6 +576,18 @@ class CCalendarNotify
 
 		return $fields;
 	}
+
+//	public static function UsersAddedToMultiLink($params)
+//	{
+//		return [
+//			'NOTIFY_MODULE' => 'calendar',
+//			'FROM_USER_ID' => $params['userId'],
+//			'TO_USER_ID' => $params['guestId'],
+//			'TITLE' => 'You were added to sharing link',
+//			'MESSAGE' => "Hey! You were added to multi sharing link {$params['params']['url']} as member",
+//			'NOTIFY_SUB_TAG' => "CALENDAR|SHARING|MULTI_LINK|".$params['params']['linkId'],
+//		];
+//	}
 
 	public static function MeetingStatus($fields = [], $params = [])
 	{

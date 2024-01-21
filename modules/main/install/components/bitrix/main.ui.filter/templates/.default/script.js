@@ -5,7 +5,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['date-group'] = function (data) {
 	    var group, select, deleteButton, label, dragButton;
 	    group = {
@@ -19,10 +18,8 @@ this.BX = this.BX || {};
 	      },
 	      content: []
 	    };
-
 	    if ('label' in data && BX.type.isNotEmptyString(data.label)) {
 	      var labelContent = data.label;
-
 	      if ('icon' in data && BX.Type.isPlainObject(data.icon)) {
 	        labelContent = [{
 	          block: 'main-ui-control-field-label-icon',
@@ -37,7 +34,6 @@ this.BX = this.BX || {};
 	          content: labelContent
 	        }];
 	      }
-
 	      label = {
 	        block: 'main-ui-control-field-label',
 	        tag: 'span',
@@ -48,7 +44,6 @@ this.BX = this.BX || {};
 	      };
 	      group.content.push(label);
 	    }
-
 	    select = {
 	      block: 'main-ui-control-field',
 	      dragButton: false,
@@ -63,17 +58,14 @@ this.BX = this.BX || {};
 	      }
 	    };
 	    group.content.push(select);
-
 	    if ('content' in data && BX.type.isArray(data.content)) {
 	      data.content.forEach(function (current) {
 	        group.content.push(current);
 	      });
 	    }
-
 	    if ('content' in data && (BX.type.isPlainObject(data.content) || BX.type.isNotEmptyString(data.content))) {
 	      group.content.push(data.content);
 	    }
-
 	    deleteButton = {
 	      block: 'main-ui-item-icon-container',
 	      content: {
@@ -86,7 +78,6 @@ this.BX = this.BX || {};
 	      }
 	    };
 	    group.content.push(deleteButton);
-
 	    if (!('dragButton' in data) || data.dragButton !== false) {
 	      dragButton = {
 	        block: 'main-ui-filter-icon-grab',
@@ -98,7 +89,6 @@ this.BX = this.BX || {};
 	      };
 	      group.content.push(dragButton);
 	    }
-
 	    return group;
 	  };
 	})();
@@ -106,7 +96,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-control-field'] = function (data) {
 	    var field, deleteButton, valueDeleteButton, label, dragButton;
 	    field = {
@@ -118,10 +107,8 @@ this.BX = this.BX || {};
 	      },
 	      content: []
 	    };
-
 	    if ('label' in data && BX.type.isNotEmptyString(data.label)) {
 	      var labelContent = data.label;
-
 	      if ('icon' in data && BX.Type.isPlainObject(data.icon)) {
 	        labelContent = [{
 	          block: 'main-ui-control-field-label-icon',
@@ -136,7 +123,6 @@ this.BX = this.BX || {};
 	          content: labelContent
 	        }];
 	      }
-
 	      label = {
 	        block: 'main-ui-control-field-label',
 	        tag: 'span',
@@ -147,7 +133,6 @@ this.BX = this.BX || {};
 	      };
 	      field.content.push(label);
 	    }
-
 	    if (BX.type.isArray(data.content)) {
 	      data.content.forEach(function (current) {
 	        field.content.push(current);
@@ -155,7 +140,6 @@ this.BX = this.BX || {};
 	    } else if (BX.type.isPlainObject(data.content) || BX.type.isNotEmptyString(data.content)) {
 	      field.content.push(data.content);
 	    }
-
 	    if ('valueDelete' in data && data.valueDelete === true) {
 	      valueDeleteButton = {
 	        block: 'main-ui-control-value-delete',
@@ -166,7 +150,6 @@ this.BX = this.BX || {};
 	      };
 	      field.content.push(valueDeleteButton);
 	    }
-
 	    if ('deleteButton' in data && data.deleteButton === true) {
 	      deleteButton = {
 	        block: 'main-ui-item-icon-container',
@@ -181,7 +164,6 @@ this.BX = this.BX || {};
 	      };
 	      field.content.push(deleteButton);
 	    }
-
 	    if (!('dragButton' in data) || data.dragButton !== false) {
 	      dragButton = {
 	        block: 'main-ui-filter-icon-grab',
@@ -193,7 +175,6 @@ this.BX = this.BX || {};
 	      };
 	      field.content.push(dragButton);
 	    }
-
 	    return field;
 	  };
 	})();
@@ -201,7 +182,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-control-field-group'] = function (data) {
 	    var field, deleteButton, label, dragButton;
 	    field = {
@@ -213,10 +193,8 @@ this.BX = this.BX || {};
 	      },
 	      content: []
 	    };
-
 	    if ('label' in data && BX.type.isNotEmptyString(data.label)) {
 	      var labelContent = data.label;
-
 	      if ('icon' in data && BX.Type.isPlainObject(data.icon)) {
 	        labelContent = [{
 	          block: 'main-ui-control-field-label-icon',
@@ -231,7 +209,6 @@ this.BX = this.BX || {};
 	          content: labelContent
 	        }];
 	      }
-
 	      label = {
 	        block: 'main-ui-control-field-label',
 	        tag: 'span',
@@ -242,7 +219,6 @@ this.BX = this.BX || {};
 	      };
 	      field.content.push(label);
 	    }
-
 	    if (BX.type.isArray(data.content)) {
 	      data.content.forEach(function (current) {
 	        field.content.push(current);
@@ -250,7 +226,6 @@ this.BX = this.BX || {};
 	    } else if (BX.type.isPlainObject(data.content) || BX.type.isNotEmptyString(data.content)) {
 	      field.content.push(data.content);
 	    }
-
 	    if ('deleteButton' in data && data.deleteButton === true) {
 	      deleteButton = {
 	        block: 'main-ui-item-icon-container',
@@ -265,7 +240,6 @@ this.BX = this.BX || {};
 	      };
 	      field.content.push(deleteButton);
 	    }
-
 	    if (!('dragButton' in data) || data.dragButton !== false) {
 	      dragButton = {
 	        block: 'main-ui-filter-icon-grab',
@@ -277,7 +251,6 @@ this.BX = this.BX || {};
 	      };
 	      field.content.push(dragButton);
 	    }
-
 	    return field;
 	  };
 	})();
@@ -285,7 +258,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-control-string'] = function (data) {
 	    return {
 	      block: 'main-ui-control-string',
@@ -305,7 +277,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-control-textarea'] = function (data) {
 	    return {
 	      block: 'main-ui-control-string',
@@ -324,7 +295,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-filter-field-list-item'] = function (data) {
 	    var label = {
 	      block: 'main-ui-select-inner-label',
@@ -350,7 +320,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-filter-info'] = function (data) {
 	    return {
 	      block: 'main-ui-filter-info',
@@ -366,7 +335,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-number'] = function (data) {
 	    var control, input, valueDelete;
 	    control = {
@@ -374,13 +342,11 @@ this.BX = this.BX || {};
 	      mix: ['main-ui-control'],
 	      content: []
 	    };
-
 	    if ('mix' in data && BX.type.isArray(data.mix)) {
 	      data.mix.forEach(function (current) {
 	        control.mix.push(current);
 	      });
 	    }
-
 	    input = {
 	      block: 'main-ui-number-input',
 	      mix: ['main-ui-control-input'],
@@ -395,7 +361,6 @@ this.BX = this.BX || {};
 	      }
 	    };
 	    control.content.push(input);
-
 	    if ('valueDelete' in data && data.valueDelete === true) {
 	      valueDelete = {
 	        block: 'main-ui-control-value-delete',
@@ -406,7 +371,6 @@ this.BX = this.BX || {};
 	      };
 	      control.content.push(valueDelete);
 	    }
-
 	    return control;
 	  };
 	})();
@@ -414,23 +378,18 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['main-ui-search-square'] = function (data) {
 	    var mix = ['main-ui-filter-search-square'];
-
 	    if ('isPreset' in data && data.isPreset) {
 	      mix.push('main-ui-filter-search-square-preset');
 	    }
-
 	    var title = 'title' in data ? data.title : '';
 	    var name = 'name' in data ? BX.util.htmlspecialcharsback(data.name) : '';
-
 	    if ('icon' in data && BX.Type.isPlainObject(data.icon)) {
 	      var iconTitle = data.icon.title;
 	      title = title.length ? iconTitle + ': ' + title : '';
 	      name = name.length ? iconTitle + ': ' + name : '';
 	    }
-
 	    return {
 	      block: 'main-ui-square',
 	      mix: mix,
@@ -452,7 +411,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['number-group'] = function (data) {
 	    var group, select, deleteButton, label, dragButton;
 	    group = {
@@ -465,10 +423,8 @@ this.BX = this.BX || {};
 	      },
 	      content: []
 	    };
-
 	    if ('label' in data && BX.type.isNotEmptyString(data.label)) {
 	      var labelContent = data.label;
-
 	      if ('icon' in data && BX.Type.isPlainObject(data.icon)) {
 	        labelContent = [{
 	          block: 'main-ui-control-field-label-icon',
@@ -483,7 +439,6 @@ this.BX = this.BX || {};
 	          content: labelContent
 	        }];
 	      }
-
 	      label = {
 	        block: 'main-ui-control-field-label',
 	        tag: 'span',
@@ -494,7 +449,6 @@ this.BX = this.BX || {};
 	      };
 	      group.content.push(label);
 	    }
-
 	    select = {
 	      block: 'main-ui-control-field',
 	      dragButton: false,
@@ -509,17 +463,14 @@ this.BX = this.BX || {};
 	      }
 	    };
 	    group.content.push(select);
-
 	    if ('content' in data && BX.type.isArray(data.content)) {
 	      data.content.forEach(function (current) {
 	        group.content.push(current);
 	      });
 	    }
-
 	    if ('content' in data && (BX.type.isPlainObject(data.content) || BX.type.isNotEmptyString(data.content))) {
 	      group.content.push(data.content);
 	    }
-
 	    deleteButton = {
 	      block: 'main-ui-item-icon-container',
 	      content: {
@@ -532,7 +483,6 @@ this.BX = this.BX || {};
 	      }
 	    };
 	    group.content.push(deleteButton);
-
 	    if (!('dragButton' in data) || data.dragButton !== false) {
 	      dragButton = {
 	        block: 'main-ui-filter-icon-grab',
@@ -544,7 +494,6 @@ this.BX = this.BX || {};
 	      };
 	      group.content.push(dragButton);
 	    }
-
 	    return group;
 	  };
 	})();
@@ -552,7 +501,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui.block');
-
 	  BX.Main.ui.block['sidebar-item'] = function (data) {
 	    return {
 	      block: 'main-ui-filter-sidebar-item' + ('pinned' in data && data.pinned ? ' main-ui-item-pin' : ''),
@@ -623,6 +571,7 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Filter');
+
 	  /**
 	   * @type {{
 	   * 		cache: {},
@@ -642,11 +591,9 @@ this.BX = this.BX || {};
 	   * 		isKey: BX.Filter.Utils.isKey
 	   * 	}}
 	   */
-
 	  BX.Filter.Utils = {
 	    /** @protected **/
 	    cache: {},
-
 	    /**
 	     * Sets css properties for element or elements collection
 	     * @param {?HTMLElement|?HTMLElement[]} collection
@@ -662,7 +609,6 @@ this.BX = this.BX || {};
 	        });
 	      });
 	    },
-
 	    /**
 	     * Gets closest parent or closest parent element with class name
 	     * @param {HTMLElement} item
@@ -680,7 +626,6 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-
 	    /**
 	     * Gets closest childs elements
 	     * @param {HTMLElement} item
@@ -689,7 +634,6 @@ this.BX = this.BX || {};
 	    closestChilds: function closestChilds(item) {
 	      return !!item ? item.children : null;
 	    },
-
 	    /**
 	     * Gets next element
 	     * @param {HTMLElement} currentItem
@@ -698,7 +642,6 @@ this.BX = this.BX || {};
 	    getNext: function getNext(currentItem) {
 	      return !!currentItem ? currentItem.nextElementSibling : null;
 	    },
-
 	    /**
 	     * Gets previews element
 	     * @param {HTMLElement} currentItem
@@ -707,7 +650,6 @@ this.BX = this.BX || {};
 	    getPrev: function getPrev(currentItem) {
 	      return !!currentItem ? currentItem.previousElementSibling : null;
 	    },
-
 	    /**
 	     * Move current item after target item
 	     * @param {HTMLElement} current
@@ -715,28 +657,23 @@ this.BX = this.BX || {};
 	     */
 	    collectionSort: function collectionSort(current, target) {
 	      var root, collection, collectionLength, currentIndex, targetIndex;
-
 	      if (current && target && current !== target && current.parentNode === target.parentNode) {
 	        root = this.closestParent(target);
 	        collection = this.closestChilds(root);
 	        collectionLength = collection.length;
 	        currentIndex = this.getIndex(collection, current);
 	        targetIndex = this.getIndex(collection, target);
-
 	        if (collectionLength === targetIndex) {
 	          root.appendChild(target);
 	        }
-
 	        if (currentIndex > targetIndex) {
 	          root.insertBefore(current, target);
 	        }
-
 	        if (currentIndex < targetIndex && collectionLength !== targetIndex) {
 	          root.insertBefore(current, this.getNext(target));
 	        }
 	      }
 	    },
-
 	    /**
 	     * Gets collection item index
 	     * @param {Array|HTMLCollection|NodeList} collection
@@ -746,7 +683,6 @@ this.BX = this.BX || {};
 	    getIndex: function getIndex(collection, item) {
 	      return [].indexOf.call(collection || [], item);
 	    },
-
 	    /**
 	     * Gets elements by class name
 	     * @param {HTMLElement|HTMLDocument} rootElement
@@ -756,20 +692,16 @@ this.BX = this.BX || {};
 	     */
 	    getByClass: function getByClass(rootElement, className, all) {
 	      var result = [];
-
 	      if (className) {
 	        result = (rootElement || document.body).getElementsByClassName(className);
-
 	        if (!all) {
 	          result = result.length ? result[0] : null;
 	        } else {
 	          result = [].slice.call(result);
 	        }
 	      }
-
 	      return result;
 	    },
-
 	    /**
 	     * Gets element or elements by tag name
 	     * @param {HTMLElement|HTMLDocument} rootElement
@@ -779,20 +711,16 @@ this.BX = this.BX || {};
 	     */
 	    getByTag: function getByTag(rootElement, tag, all) {
 	      var result = [];
-
 	      if (tag) {
 	        result = (rootElement || document.body).getElementsByTagName(tag);
-
 	        if (!all) {
 	          result = result.length ? result[0] : null;
 	        } else {
 	          result = [].slice.call(result);
 	        }
 	      }
-
 	      return result;
 	    },
-
 	    /**
 	     * Gets element or elements by css selector
 	     * @param {HTMLElement|HTMLDocument|Node} rootElement
@@ -802,7 +730,6 @@ this.BX = this.BX || {};
 	     */
 	    getBySelector: function getBySelector(rootElement, selector, all) {
 	      var result = [];
-
 	      if (selector) {
 	        if (!all) {
 	          result = (rootElement || document.body).querySelector(selector);
@@ -811,17 +738,14 @@ this.BX = this.BX || {};
 	          result = [].slice.call(result);
 	        }
 	      }
-
 	      return result;
 	    },
 	    requestAnimationFrame: function requestAnimationFrame() {
 	      var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
 	        window.setTimeout(callback, 1000 / 60);
 	      };
-
 	      raf.apply(window, arguments);
 	    },
-
 	    /**
 	     * Sorts object properties
 	     * @param {object} input
@@ -834,7 +758,6 @@ this.BX = this.BX || {};
 	      });
 	      return output;
 	    },
-
 	    /**
 	     * Compares two objects or arrays
 	     * @param {object} object1
@@ -889,18 +812,14 @@ this.BX = this.BX || {};
 	      if (!BX.type.isNotEmptyObject(params) || !BX.type.isNotEmptyObject(params.item) || !BX.type.isNotEmptyString(params.selectorId)) {
 	        return;
 	      }
-
 	      var selectorId = params.selectorId,
-	          item = params.item;
+	        item = params.item;
 	      var control = BX.Filter.DestinationSelectorManager.controls[selectorId];
-
 	      if (control) {
 	        var value = item.id;
-
 	        if (BX.type.isNotEmptyString(isNumeric) && isNumeric == 'Y' && BX.type.isNotEmptyString(prefix)) {
 	          var re = new RegExp('^' + prefix + '(\\d+)$');
 	          var found = value.match(re);
-
 	          if (BX.type.isArray(found)) {
 	            value = found[1];
 	          }
@@ -910,12 +829,10 @@ this.BX = this.BX || {};
 	            selectorId: selectorId,
 	            value: value
 	          }, eventResult]);
-
 	          if (BX.type.isNotEmptyString(eventResult.value)) {
 	            value = eventResult.value;
 	          }
 	        }
-
 	        control.setData(BX.util.htmlspecialcharsback(item.name), value);
 	        control.getLabelNode().value = '';
 	        control.getLabelNode().blur();
@@ -925,10 +842,8 @@ this.BX = this.BX || {};
 	      if (typeof params == 'undefined' || !BX.type.isNotEmptyString(params.selectorId)) {
 	        return;
 	      }
-
 	      var selectorId = params.selectorId;
 	      var item = BX.Filter.DestinationSelector.items[selectorId];
-
 	      if (item) {
 	        item.onDialogOpen();
 	      }
@@ -937,16 +852,13 @@ this.BX = this.BX || {};
 	      if (typeof params == 'undefined' || !BX.type.isNotEmptyString(params.selectorId)) {
 	        return;
 	      }
-
 	      var selectorId = params.selectorId;
 	      var item = BX.Filter.DestinationSelector.items[selectorId];
-
 	      if (item) {
 	        item.onDialogClose();
 	      }
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector = function () {
 	    this.id = "";
 	    this.filterId = "";
@@ -955,29 +867,23 @@ this.BX = this.BX || {};
 	    this.control = null;
 	    this.inited = null;
 	  };
-
 	  BX.Filter.DestinationSelector.items = {};
-
 	  BX.Filter.DestinationSelector.create = function (id, settings) {
 	    if (typeof this.items[id] != 'undefined') {
 	      return this.items[id];
 	    }
-
 	    var self = new BX.Filter.DestinationSelector(id, settings);
 	    self.initialize(id, settings);
 	    this.items[id] = self;
 	    BX.onCustomEvent(window, 'BX.Filter.DestinationSelector:create', [id]);
 	    return self;
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.getSetting = function (name, defaultval) {
 	    return this.settings.hasOwnProperty(name) ? this.settings[name] : defaultval;
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.getSearchInput = function () {
 	    return this.control ? this.control.getLabelNode() : null;
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.initialize = function (id, settings) {
 	    this.id = id;
 	    this.settings = settings ? settings : {};
@@ -986,24 +892,20 @@ this.BX = this.BX || {};
 	    this.inited = false;
 	    this.opened = null;
 	    var initialValue = this.getSetting("initialValue", false);
-
 	    if (!!initialValue) {
 	      var initialSettings = {};
 	      initialSettings[this.fieldId] = initialValue.itemId;
 	      initialSettings[this.fieldId + '_label'] = initialValue.itemName;
 	      BX.Main.filterManager.getById(this.filterId).getApi().setFields(initialSettings);
 	    }
-
 	    BX.addCustomEvent(window, "BX.Main.Filter:customEntityFocus", BX.delegate(this.onCustomEntitySelectorOpen, this));
 	    BX.addCustomEvent(window, "BX.Main.Filter:customEntityBlur", BX.delegate(this.onCustomEntitySelectorClose, this));
 	    BX.addCustomEvent(window, "BX.Main.Filter:onGetStopBlur", BX.delegate(this.onGetStopBlur, this));
 	    BX.addCustomEvent(window, "BX.Main.SelectorV2:beforeInitDialog", BX.delegate(this.onBeforeInitDialog, this));
 	    BX.addCustomEvent(window, "BX.Main.Filter:customEntityRemove", BX.delegate(this.onCustomEntityRemove, this));
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.open = function () {
 	    var name = this.id;
-
 	    if (!this.inited) {
 	      var input = this.getSearchInput();
 	      input.id = input.name;
@@ -1011,14 +913,12 @@ this.BX = this.BX || {};
 	        if (typeof params.id != 'undefined' || params.id != this.id) {
 	          return;
 	        }
-
 	        this.opened = true;
 	      }, this));
 	      BX.addCustomEvent(window, "BX.UI.SelectorManager:onCreate", BX.delegate(function (selectorId) {
 	        if (!BX.type.isNotEmptyString(selectorId) || selectorId != this.id) {
 	          return;
 	        }
-
 	        BX.onCustomEvent(window, 'BX.Filter.DestinationSelector:setSelected', [{
 	          selectorId: selectorId,
 	          current: this.control.getCurrentValues()
@@ -1040,30 +940,24 @@ this.BX = this.BX || {};
 	      this.opened = true;
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.close = function () {
 	    if (typeof BX.Main.selectorManagerV2.controls[this.id] !== "undefined") {
 	      BX.Main.selectorManagerV2.controls[this.id].closeDialog();
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.onCustomEntitySelectorOpen = function (control) {
 	    var fieldId = control.getId();
-
 	    if (this.fieldId !== fieldId) {
 	      this.control = null;
 	    } else {
 	      this.control = control;
-
 	      if (this.control) {
 	        var current = this.control.getCurrentValues();
 	        this.currentUser = {
 	          entityId: current["value"]
 	        };
 	      }
-
 	      BX.Filter.DestinationSelectorManager.controls[this.id] = this.control;
-
 	      if (!this.opened) {
 	        this.open();
 	      } else {
@@ -1071,14 +965,12 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.onCustomEntitySelectorClose = function (control) {
 	    if (this.fieldId === control.getId() && this.inited === true && this.opened === true) {
 	      this.control = null;
 	      window.setTimeout(BX.delegate(this.close, this), 0);
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.onGetStopBlur = function (event, result) {
 	    if (BX.findParent(event.target, {
 	      className: 'bx-lm-box'
@@ -1086,42 +978,33 @@ this.BX = this.BX || {};
 	      result.stopBlur = true;
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.onCustomEntityRemove = function (control) {
 	    if (this.fieldId === control.getId()) {
 	      var instance = BX.UI.SelectorManager.instances[control.getId()];
-
 	      if (instance && typeof control.hiddenInput != 'undefined' && typeof control.hiddenInput.value != 'undefined' && BX.type.isNotEmptyObject(instance.itemsSelected) && typeof instance.itemsSelected[control.hiddenInput.value] != 'undefined') {
 	        delete instance.itemsSelected[control.hiddenInput.value];
 	      }
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.onBeforeInitDialog = function (params) {
 	    if (typeof params.id == 'undefined' || params.id != this.id) {
 	      return;
 	    }
-
 	    this.inited = true;
-
 	    if (!this.control) {
 	      params.blockInit = true;
 	    }
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.onDialogOpen = function () {
 	    this.opened = true;
 	  };
-
 	  BX.Filter.DestinationSelector.prototype.onDialogClose = function () {
 	    this.opened = false;
 	  };
 	})();
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	var EntitySelector = /*#__PURE__*/function () {
 	  function EntitySelector(id, settings) {
 	    babelHelpers.classCallCheck(this, EntitySelector);
@@ -1137,11 +1020,9 @@ this.BX = this.BX || {};
 	    this.id = id;
 	    this.settings = settings ? settings : {};
 	    this.filter = this.getSetting('filter', null);
-
 	    if (!this.filter) {
 	      throw new Error('Filter option is required for EntitySelector field');
 	    }
-
 	    this.isMultiple = !!this.getSetting('isMultiple', false);
 	    this.needAddEntityIdToFilter = this.getSetting('addEntityIdToResult', 'N') === 'Y';
 	    this.needShowDialogOnEmptyInput = !!this.getSetting('showDialogOnEmptyInput', true);
@@ -1154,14 +1035,11 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:onApplyPreset', this.onApplyPreset.bind(this));
 	    this.controlInputChangeHandler = this.onSearchInputChange.bind(this);
 	  }
-
 	  babelHelpers.createClass(EntitySelector, [{
 	    key: "open",
 	    value: function open() {
 	      var _this = this;
-
 	      this.isActive = true;
-
 	      if (!this.dialog) {
 	        this.initDialog().then(function () {
 	          if (_this.isActive) {
@@ -1176,7 +1054,6 @@ this.BX = this.BX || {};
 	    key: "close",
 	    value: function close() {
 	      this.isActive = false;
-
 	      if (this.dialog && this.dialog.isOpen()) {
 	        this.dialog.hide();
 	      }
@@ -1190,22 +1067,18 @@ this.BX = this.BX || {};
 	    key: "getFilterFieldInputWrapper",
 	    value: function getFilterFieldInputWrapper() {
 	      var field = this.getFilterField();
-
 	      if (!field) {
 	        return null;
 	      }
-
 	      return BX.Filter.Utils.getBySelector(field.node, '.main-ui-control-entity');
 	    }
 	  }, {
 	    key: "getFilterFieldInput",
 	    value: function getFilterFieldInput() {
 	      var field = this.getFilterField();
-
 	      if (!field) {
 	        return null;
 	      }
-
 	      return BX.Filter.Utils.getBySelector(field.node, '.' + this.filter.settings.classStringInput + '[type="text"]');
 	    }
 	  }, {
@@ -1242,19 +1115,15 @@ this.BX = this.BX || {};
 	      if (this.dialog.isOpen()) {
 	        return;
 	      }
-
 	      var inputWrapper = this.getFilterFieldInputWrapper();
 	      var searchInput = this.getFilterFieldInput();
 	      var searchQuery = main_core.Type.isDomNode(searchInput) ? searchInput.value.trim() : '';
 	      this.dialog.setTargetNode(inputWrapper);
 	      this.dialog.setWidth(inputWrapper.offsetWidth);
-
 	      if (this.needShowDialogOnEmptyInput || searchQuery.length) {
 	        this.dialog.show();
 	      }
-
 	      this.updateSelectedItemsInDialog(this.dialog);
-
 	      if (searchQuery.length) {
 	        this.dialog.search(searchQuery);
 	      }
@@ -1263,7 +1132,6 @@ this.BX = this.BX || {};
 	    key: "initDialog",
 	    value: function initDialog() {
 	      var _this2 = this;
-
 	      return EntitySelector.initDialogExtension().then(function (exports) {
 	        var Dialog = exports.Dialog;
 	        _this2.dialog = new Dialog(_objectSpread(_objectSpread({}, _this2.dialogOptions), {}, {
@@ -1273,9 +1141,7 @@ this.BX = this.BX || {};
 	        main_core_events.EventEmitter.subscribe(_this2.dialog, 'Item:onSelect', _this2.onDialogItemSelect.bind(_this2));
 	        main_core_events.EventEmitter.subscribe(_this2.dialog, 'Item:onDeselect', _this2.onDialogItemDeSelect.bind(_this2));
 	        main_core_events.EventEmitter.subscribe(_this2.dialog, 'onLoad', _this2.onDialogLoad.bind(_this2));
-
 	        var searchInput = _this2.getFilterFieldInput();
-
 	        main_core.Event.bind(searchInput, 'input', _this2.controlInputChangeHandler);
 	      });
 	    }
@@ -1285,10 +1151,8 @@ this.BX = this.BX || {};
 	      if (!this.control) {
 	        return;
 	      }
-
 	      if (this.isMultiple) {
 	        var currentValues = this.control.getCurrentValues();
-
 	        if (!currentValues.filter(function (item) {
 	          return item.value === id;
 	        }).length) {
@@ -1308,7 +1172,6 @@ this.BX = this.BX || {};
 	      if (!this.control) {
 	        return;
 	      }
-
 	      if (this.isMultiple) {
 	        var currentValues = this.control.getCurrentValues();
 	        this.control.setMultipleData(currentValues.filter(function (item) {
@@ -1329,24 +1192,19 @@ this.BX = this.BX || {};
 	      if (this.needAddEntityIdToFilter) {
 	        return JSON.stringify([item.getEntityId() + '', item.getId() + '']);
 	      }
-
 	      return item.getId() + '';
 	    }
 	  }, {
 	    key: "updateSelectedItemsInDialog",
 	    value: function updateSelectedItemsInDialog(dialog) {
 	      var _this3 = this;
-
 	      if (!this.control) {
 	        return;
 	      }
-
 	      var currentValues = this.control.getCurrentValues();
-
 	      if (!this.isMultiple) {
 	        currentValues = [currentValues];
 	      }
-
 	      var selectedIds = currentValues.map(function (item) {
 	        return item.value;
 	      });
@@ -1362,13 +1220,11 @@ this.BX = this.BX || {};
 	    key: "onCustomEntityFocus",
 	    value: function onCustomEntityFocus(event) {
 	      var _event$getData = event.getData(),
-	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
-	          control = _event$getData2[0];
-
+	        _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	        control = _event$getData2[0];
 	      if (this.id !== control.getId()) {
 	        return;
 	      }
-
 	      this.setControl(control);
 	      this.open();
 	    }
@@ -1376,13 +1232,11 @@ this.BX = this.BX || {};
 	    key: "onCustomEntityBlur",
 	    value: function onCustomEntityBlur(event) {
 	      var _event$getData3 = event.getData(),
-	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	          control = _event$getData4[0];
-
+	        _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
+	        control = _event$getData4[0];
 	      if (this.id !== control.getId()) {
 	        return;
 	      }
-
 	      this.close();
 	      this.unsetControl();
 	    }
@@ -1390,30 +1244,25 @@ this.BX = this.BX || {};
 	    key: "onGetStopBlur",
 	    value: function onGetStopBlur(event) {
 	      var _event$getData5 = event.getData(),
-	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 2),
-	          browserEvent = _event$getData6[0],
-	          result = _event$getData6[1];
-
+	        _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 2),
+	        browserEvent = _event$getData6[0],
+	        result = _event$getData6[1];
 	      if (!(this.dialog && this.dialog.isOpen())) {
 	        return; // if dialog wasn't shown, cancel blur is not required
 	      }
 
 	      var field = this.getFilterField();
-
 	      if (!field) {
 	        return;
 	      }
-
 	      var target = browserEvent.target;
-
-	      if (target === field.node || // click on any child except field deletion button
+	      if (target === field.node ||
+	      // click on any child except field deletion button
 	      field.node.contains(target) && !main_core.Dom.hasClass(target, this.filter.settings.classFieldDelete) || target === document.body) {
 	        result.stopBlur = true;
 	        return;
 	      }
-
 	      var dialogContainerElement = this.dialog.getPopup().getContentContainer();
-
 	      if (target === dialogContainerElement || dialogContainerElement.contains(target)) {
 	        result.stopBlur = true;
 	      }
@@ -1422,18 +1271,15 @@ this.BX = this.BX || {};
 	    key: "onCustomEntityRemove",
 	    value: function onCustomEntityRemove(event) {
 	      var _event$getData7 = event.getData(),
-	          _event$getData8 = babelHelpers.slicedToArray(_event$getData7, 1),
-	          control = _event$getData8[0];
-
+	        _event$getData8 = babelHelpers.slicedToArray(_event$getData7, 1),
+	        control = _event$getData8[0];
 	      if (this.id !== control.getId()) {
 	        return;
 	      }
-
 	      if (this.dialog) {
 	        this.dialog.destroy();
 	        this.dialog = null;
 	      }
-
 	      this.unsetControl();
 	    }
 	  }, {
@@ -1443,7 +1289,6 @@ this.BX = this.BX || {};
 	        this.dialog.destroy();
 	        this.dialog = null;
 	      }
-
 	      this.unsetControl();
 	    }
 	  }, {
@@ -1457,7 +1302,6 @@ this.BX = this.BX || {};
 	            this.close();
 	          }
 	        }
-
 	        this.dialog.search(event.target.value);
 	      }
 	    }
@@ -1465,8 +1309,7 @@ this.BX = this.BX || {};
 	    key: "onDialogItemSelect",
 	    value: function onDialogItemSelect(event) {
 	      var _event$getData9 = event.getData(),
-	          item = _event$getData9.item;
-
+	        item = _event$getData9.item;
 	      this.addItemToFilter(this.getItemId(item), item.getTitle());
 	      this.getFilterFieldInput().value = ''; // clear search query
 	    }
@@ -1474,8 +1317,7 @@ this.BX = this.BX || {};
 	    key: "onDialogItemDeSelect",
 	    value: function onDialogItemDeSelect(event) {
 	      var _event$getData10 = event.getData(),
-	          item = _event$getData10.item;
-
+	        item = _event$getData10.item;
 	      this.removeItemFromFilter(this.getItemId(item));
 	    }
 	  }, {
@@ -1490,7 +1332,6 @@ this.BX = this.BX || {};
 	      if (!EntitySelector.initExtensionPromise) {
 	        EntitySelector.initExtensionPromise = main_core.Runtime.loadExtension('ui.entity-selector');
 	      }
-
 	      return EntitySelector.initExtensionPromise;
 	    }
 	  }, {
@@ -1500,10 +1341,8 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isObject(settings.filter)) {
 	          this.items[id].filter = settings.filter;
 	        }
-
 	        return this.items[id];
 	      }
-
 	      var self = new EntitySelector(id, settings);
 	      this.items[id] = self;
 	      return self;
@@ -1511,7 +1350,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return EntitySelector;
 	}();
-
 	babelHelpers.defineProperty(EntitySelector, "initExtensionPromise", null);
 	babelHelpers.defineProperty(EntitySelector, "items", {});
 	var namespace = main_core.Reflection.namespace('BX.Filter');
@@ -1520,7 +1358,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Filter');
-
 	  BX.Filter.FieldController = function (field, parent) {
 	    this.field = null;
 	    this.parent = null;
@@ -1529,17 +1366,14 @@ this.BX = this.BX || {};
 	    this.deleteButton = null;
 	    this.init(field, parent);
 	  };
-
 	  BX.Filter.FieldController.prototype = {
 	    init: function init(field, parent) {
 	      if (!BX.type.isDomNode(field)) {
 	        throw 'BX.Filter.FieldController.init: field isn\'t dom node';
 	      }
-
 	      if (!(parent instanceof BX.Main.Filter)) {
 	        throw 'BX.Filter.FieldController.init: parent not instance of BX.Main.ui.Filter';
 	      }
-
 	      this.field = field;
 	      this.parent = parent;
 	      this.bind();
@@ -1554,35 +1388,28 @@ this.BX = this.BX || {};
 	    },
 	    getInput: function getInput() {
 	      var type, types;
-
 	      if (!BX.type.isDomNode(this.input)) {
 	        type = this.getType();
 	        types = this.parent.types;
-
 	        if (type === types.DATE) {
 	          this.input = BX.Filter.Utils.getByClass(this.getField(), this.parent.settings.classDateInput);
 	        }
-
 	        if (type === types.NUMBER || type === 'number') {
 	          this.input = BX.Filter.Utils.getByClass(this.getField(), this.parent.settings.classNumberInput);
 	        }
-
 	        if (type === types.STRING) {
 	          this.input = BX.Filter.Utils.getByClass(this.getField(), this.parent.settings.classStringInput);
 	        }
-
 	        if (type === types.CUSTOM_ENTITY) {
 	          this.input = BX.Filter.Utils.getBySelector(this.getField(), 'input[type="hidden"]');
 	        }
 	      }
-
 	      return this.input;
 	    },
 	    getDeleteButton: function getDeleteButton() {
 	      if (!BX.type.isDomNode(this.deleteButton)) {
 	        this.deleteButton = BX.Filter.Utils.getByClass(this.getField(), this.parent.settings.classValueDelete);
 	      }
-
 	      return this.deleteButton;
 	    },
 	    getSquares: function getSquares() {
@@ -1596,28 +1423,24 @@ this.BX = this.BX || {};
 	    },
 	    clearInput: function clearInput() {
 	      var input = this.getInput();
-
 	      if (BX.type.isDomNode(input)) {
 	        input.value = '';
 	      }
 	    },
 	    hideDelete: function hideDelete() {
 	      var deleteButton = this.getDeleteButton();
-
 	      if (BX.type.isDomNode(deleteButton)) {
 	        BX.addClass(deleteButton, this.parent.settings.classHide);
 	      }
 	    },
 	    showDelete: function showDelete() {
 	      var deleteButton = this.getDeleteButton();
-
 	      if (BX.type.isDomNode(deleteButton)) {
 	        BX.removeClass(deleteButton, this.parent.settings.classHide);
 	      }
 	    },
 	    removeSquares: function removeSquares() {
 	      var squares = this.getSquares();
-
 	      if (BX.type.isArray(squares) && squares.length) {
 	        squares.forEach(function (square) {
 	          BX.remove(square);
@@ -1635,18 +1458,15 @@ this.BX = this.BX || {};
 	    getInputValue: function getInputValue() {
 	      var result = '';
 	      var input = this.getInput();
-
 	      if (BX.type.isDomNode(input)) {
 	        result = input.value;
 	      }
-
 	      return result;
 	    },
 	    getType: function getType() {
 	      if (!BX.type.isNotEmptyString(this.type)) {
 	        this.type = BX.data(this.getField(), 'type');
 	      }
-
 	      return this.type;
 	    }
 	  };
@@ -1655,7 +1475,6 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Main.ui');
-
 	  BX.Main.ui.CustomEntity = function () {
 	    this.field = null;
 	    this.labelInput = null;
@@ -1665,22 +1484,20 @@ this.BX = this.BX || {};
 	    this.squareClass = 'main-ui-square';
 	    this.multiple = null;
 	  };
+
 	  /**
 	   * @static
 	   * @param {HTMLElement} field
 	   * @return {boolean}
 	   */
-
-
 	  BX.Main.ui.CustomEntity.isMultiple = function (field) {
 	    if (!!field && !BX.hasClass(field, 'main-ui-control-entity')) {
 	      field = BX.Filter.Utils.getByClass(field, 'main-ui-control-entity');
 	    }
-
 	    return !!field && JSON.parse(BX.data(field, 'multiple'));
-	  }; //noinspection JSUnusedGlobalSymbols
+	  };
 
-
+	  //noinspection JSUnusedGlobalSymbols
 	  BX.Main.ui.CustomEntity.prototype = {
 	    setField: function setField(field) {
 	      if (this.field !== field) {
@@ -1701,25 +1518,21 @@ this.BX = this.BX || {};
 	    getId: function getId() {
 	      var hiddenNode = this.getHiddenNode();
 	      var id = null;
-
 	      if (BX.type.isDomNode(hiddenNode)) {
 	        id = hiddenNode.name;
 	      }
-
 	      return id;
 	    },
 	    getLabelNode: function getLabelNode() {
 	      if (!BX.type.isDomNode(this.labelInput)) {
 	        this.labelInput = BX.Filter.Utils.getBySelector(this.getField(), '.' + this.inputClass + '[type="text"]');
 	      }
-
 	      return this.labelInput;
 	    },
 	    getHiddenNode: function getHiddenNode() {
 	      if (!BX.type.isDomNode(this.hiddenInput)) {
 	        this.hiddenInput = BX.Filter.Utils.getBySelector(this.getField(), '.' + this.inputClass + '[type="hidden"]');
 	      }
-
 	      return this.hiddenInput;
 	    },
 	    getSquareByValue: function getSquareByValue(value) {
@@ -1743,7 +1556,6 @@ this.BX = this.BX || {};
 	      };
 	      var square = BX.decl(squareData);
 	      var squares = this.getSquares();
-
 	      if (!squares.length) {
 	        BX.prepend(square, field);
 	      } else {
@@ -1753,10 +1565,8 @@ this.BX = this.BX || {};
 	    getCurrentValues: function getCurrentValues() {
 	      var squares = this.getSquares();
 	      var data, result;
-
 	      if (this.isMultiple()) {
 	        result = [];
-
 	        for (var i = 0, length = squares.length; i < length; i++) {
 	          try {
 	            data = JSON.parse(BX.data(squares[i], 'item'));
@@ -1787,7 +1597,6 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      }
-
 	      return result;
 	    },
 	    setData: function setData(label, value) {
@@ -1797,7 +1606,6 @@ this.BX = this.BX || {};
 	      var hiddenNode = this.getHiddenNode();
 	      this.removeSquares();
 	      this.setSquare(label, value);
-
 	      if (BX.type.isDomNode(hiddenNode)) {
 	        hiddenNode.value = value;
 	        BX.fireEvent(hiddenNode, 'input');
@@ -1806,29 +1614,24 @@ this.BX = this.BX || {};
 	    setMultipleData: function setMultipleData(items, value) {
 	      var values = [];
 	      var hiddenNode = this.getHiddenNode();
-
 	      if (BX.type.isArray(items)) {
 	        this.removeSquares();
-
 	        if (BX.type.isArray(items)) {
 	          items.forEach(function (item) {
 	            values.push(item.value);
 	            this.setSquare(item.label, item.value);
 	          }, this);
-
 	          if (BX.type.isDomNode(hiddenNode)) {
 	            hiddenNode.value = JSON.stringify(values);
 	            BX.fireEvent(hiddenNode, 'input');
 	          }
 	        }
 	      }
-
 	      if (!BX.type.isArray(items) && value !== null) {
 	        if (!this.getSquareByValue(value)) {
 	          this.setSquare(items, value);
 	          this.getSquares().forEach(function (square) {
 	            var squareData = JSON.parse(BX.data(square, 'item'));
-
 	            if (BX.type.isPlainObject(squareData)) {
 	              values.push(squareData._value);
 	            }
@@ -1857,12 +1660,12 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Filter');
+
 	  /**
 	   * Filter search block class
 	   * @param parent
 	   * @constructor
 	   */
-
 	  BX.Filter.Search = function (parent) {
 	    this.parent = null;
 	    this.container = null;
@@ -1873,29 +1676,24 @@ this.BX = this.BX || {};
 	    this.timeout = null;
 	    this.init(parent);
 	  };
-
 	  BX.Filter.Search.prototype = {
 	    init: function init(parent) {
 	      this.parent = parent;
 	      BX.bind(this.getInput(), 'input', BX.delegate(this._onInputWithoutDebounce, this));
-
 	      if (this.parent.getParam('ENABLE_LIVE_SEARCH')) {
 	        BX.bind(this.getInput(), 'input', BX.debounce(this._onInput, this.delay, this));
 	      }
-
 	      BX.bind(this.getInput(), 'keydown', BX.delegate(this._onKeyDown, this));
 	      BX.bind(this.getFindButton(), 'click', BX.delegate(this._onSearchClick, this));
 	      BX.bind(this.getContainer(), 'click', BX.delegate(this._onSearchContainerClick, this));
 	      this.removeAutofocus();
 	      this.firstInit = true;
 	    },
-
 	    /**
 	     * Removes autofocus attr from search input
 	     */
 	    removeAutofocus: function removeAutofocus() {
 	      var input = this.getInput();
-
 	      if (!!input) {
 	        input.blur();
 	        input.autofocus = null;
@@ -1905,7 +1703,6 @@ this.BX = this.BX || {};
 	      if (!BX.type.isDomNode(this.findButton)) {
 	        this.findButton = BX.Filter.Utils.getByClass(this.getContainer(), this.parent.settings.classSearchButton);
 	      }
-
 	      return this.findButton;
 	    },
 	    _onSearchClick: function _onSearchClick() {
@@ -1962,14 +1759,12 @@ this.BX = this.BX || {};
 	    isSearchButton: function isSearchButton(node) {
 	      return !!node && BX.hasClass(node, this.parent.settings.classSearchButton);
 	    },
-
 	    /**
 	     * Adjust focus on search input
 	     */
 	    adjustFocus: function adjustFocus() {
 	      if (!BX.browser.IsMobile()) {
 	        var searchInput = this.getInput();
-
 	        if (document.activeElement !== searchInput && window.scrollY < BX.pos(searchInput).top) {
 	          //Puts cursor after last character
 	          //noinspection SillyAssignmentJS
@@ -1984,7 +1779,6 @@ this.BX = this.BX || {};
 	        className: this.parent.settings.classSquare
 	      }, true, false);
 	    },
-
 	    /**
 	     * @param {HTMLElement} square
 	     */
@@ -1992,7 +1786,6 @@ this.BX = this.BX || {};
 	      var rawData = BX.data(square, 'item');
 	      return !!square && !!rawData ? JSON.parse(rawData) : null;
 	    },
-
 	    /**
 	     * @param {HTMLElement} square
 	     * @return {boolean}
@@ -2009,7 +1802,6 @@ this.BX = this.BX || {};
 	      var isValueRequiredModeMail = Filter.getParam('VALUE_REQUIRED');
 	      var isPinned = Preset.isPinned(currentPresetId);
 	      var squares = this.getSquares();
-
 	      if (squares.length === 1) {
 	        if (isValueRequiredModeMail && isPinned) {
 	          this.parent.showPopup();
@@ -2022,12 +1814,10 @@ this.BX = this.BX || {};
 	            Filter.closePopup();
 	          }
 	        }
-
 	        if (isResetToDefaultMode && !isPinned) {
 	          this.lastPromise = Filter.getPreset().applyPinnedPreset();
 	        }
 	      }
-
 	      if (squares.length > 1) {
 	        var currentPreset = Preset.getPreset(Preset.getCurrentPresetId());
 	        var tmpPreset = Preset.getPreset('tmp_filter');
@@ -2044,7 +1834,6 @@ this.BX = this.BX || {};
 	      var isResetToDefaultMode = Filter.getParam('RESET_TO_DEFAULT_MODE');
 	      var isValueRequiredModeMail = Filter.getParam('VALUE_REQUIRED');
 	      var squareData;
-
 	      if (isResetToDefaultMode && this.getSquares().length === 1) {
 	        if (isValueRequiredModeMail) {
 	          squareData = this.getSquareData(square);
@@ -2059,17 +1848,14 @@ this.BX = this.BX || {};
 	        squareData = this.getSquareData(square);
 	        Filter.clearControls(squareData);
 	        Filter.closePopup();
-
 	        if (BX.type.isArray(squareData)) {
 	          squareData.forEach(function (square) {
 	            Preset.removeAdditionalField(square.name);
 	          });
 	        }
-
 	        if (BX.type.isPlainObject(squareData)) {
 	          Preset.removeAdditionalField(squareData.name);
 	        }
-
 	        this.apply();
 	      }
 	    },
@@ -2079,14 +1865,12 @@ this.BX = this.BX || {};
 	      Filter.showPopup();
 	      this.adjustPlaceholder();
 	    },
-
 	    /**
 	     * @param {HTMLElement} square
 	     */
 	    complexSquareRemove: function complexSquareRemove(square) {
 	      var isValueRequiredMode = this.parent.getParam('VALUE_REQUIRED_MODE');
 	      var isPresetSquare = !this.isSquareControl(square);
-
 	      if (isValueRequiredMode) {
 	        this.onValueRequiredSquareRemove();
 	      } else {
@@ -2096,14 +1880,12 @@ this.BX = this.BX || {};
 	          this.onControlSquareRemove(square);
 	        }
 	      }
-
 	      this.removeSquare(square);
 	      this.adjustClearButton();
 	    },
 	    adjustClearButton: function adjustClearButton() {
 	      !!this.getLastSquare() ? this.showClearButton() : this.hideClearButton();
 	    },
-
 	    /**
 	     * @param {HTMLElement} square
 	     */
@@ -2112,7 +1894,6 @@ this.BX = this.BX || {};
 	    },
 	    _onSearchContainerClick: function _onSearchContainerClick(event) {
 	      var Filter = this.parent;
-
 	      if (this.isClearButton(event.target)) {
 	        if (!Filter.getParam('VALUE_REQUIRED')) {
 	          if (!Filter.getParam('VALUE_REQUIRED_MODE')) {
@@ -2122,7 +1903,6 @@ this.BX = this.BX || {};
 	            } else {
 	              Filter.resetFilter();
 	            }
-
 	            Filter.closePopup();
 	            this.adjustFocus();
 	          } else {
@@ -2134,10 +1914,8 @@ this.BX = this.BX || {};
 	          }
 	        } else {
 	          var isPinned = Filter.getPreset().isPinned(Filter.getPreset().getCurrentPresetId());
-
 	          if (isPinned || Filter.getPreset().getCurrentPresetId() === 'tmp_filter') {
 	            var presetData = Filter.getPreset().getPreset(Filter.getPreset().getCurrentPresetId());
-
 	            if (presetData.ADDITIONAL.length) {
 	              presetData.ADDITIONAL = [];
 	              this.lastPromise = Filter.getPreset().applyPreset(Filter.getPreset().getCurrentPresetId());
@@ -2155,11 +1933,9 @@ this.BX = this.BX || {};
 	            } else {
 	              Filter.resetFilter();
 	            }
-
 	            Filter.closePopup();
 	            this.adjustFocus();
 	          }
-
 	          this.clearInput();
 	        }
 	      } else if (this.isSearchButton(event.target)) {
@@ -2177,7 +1953,6 @@ this.BX = this.BX || {};
 	          var start = input.selectionStart;
 	          var end = input.selectionEnd;
 	          var searchLength = this.getSearchString().length;
-
 	          if (!(searchLength && start === 0 && end === searchLength)) {
 	            if (Filter.getParam('VALUE_REQUIRED')) {
 	              if (!this.getSquares().length) {
@@ -2187,7 +1962,6 @@ this.BX = this.BX || {};
 	              }
 	            } else {
 	              Filter.closePopup();
-
 	              if (Filter.getParam('VALUE_REQUIRED_MODE')) {
 	                Filter.restoreRemovedPreset();
 	              }
@@ -2199,7 +1973,6 @@ this.BX = this.BX || {};
 	    _onKeyDown: function _onKeyDown(event) {
 	      var utils = BX.Filter.Utils;
 	      var parent = this.parent;
-
 	      if (utils.isKey(event, 'enter')) {
 	        if (parent.getParam('VALUE_REQUIRED')) {
 	          if (!this.getSquares().length) {
@@ -2214,40 +1987,31 @@ this.BX = this.BX || {};
 	          this.firstInit = false;
 	          this.lastSearchString = this.getSearchString();
 	        }
-
 	        parent.closePopup();
 	      }
-
 	      if (utils.isKey(event, 'tab') || utils.isKey(event, 'downArrow')) {
 	        parent.showPopup();
 	        parent.adjustFocus();
 	        this.unselectSquares();
 	      }
-
 	      if (utils.isKey(event, 'upArrow')) {
 	        parent.closePopup();
-
 	        if (parent.getParam('VALUE_REQUIRED_MODE')) {
 	          this.parent.restoreRemovedPreset();
 	        }
-
 	        if (parent.getParam('VALUE_REQUIRED')) {
 	          if (!this.getSquares().length) {
 	            this.parent.getPreset().applyPinnedPreset();
 	          }
 	        }
 	      }
-
 	      if (utils.isKey(event, 'a') && event.metaKey || utils.isKey(event, 'a') && event.ctrlKey) {
 	        this.selectSquares();
 	      }
-
 	      if (utils.isKey(event, 'backspace') && this.isTextSelected() && this.isSquaresSelected()) {
 	        clearTimeout(this.timeout);
-
 	        if (this.parent.getParam('VALUE_REQUIRED')) {
 	          var isPinned = this.parent.getPreset().isPinned(this.parent.getPreset().getCurrentPresetId());
-
 	          if (isPinned) {
 	            this.removeSquares();
 	            this.parent.showPopup();
@@ -2260,11 +2024,9 @@ this.BX = this.BX || {};
 	            } else {
 	              this.parent.resetFilter();
 	            }
-
 	            this.parent.closePopup();
 	            this.adjustFocus();
 	          }
-
 	          this.clearInput();
 	        } else {
 	          if (this.parent.getParam('RESET_TO_DEFAULT_MODE')) {
@@ -2272,17 +2034,14 @@ this.BX = this.BX || {};
 	          } else {
 	            this.lastPromise = this.parent.resetFilter();
 	          }
-
 	          this.parent.closePopup();
 	        }
 	      }
-
 	      if (utils.isKey(event, 'backspace') && this.isSelectionStart()) {
 	        clearTimeout(this.timeout);
 	        var square = this.getLastSquare();
 	        this.isSquareSelected(square) ? this.complexSquareRemove(square) : this.selectSquare(square);
 	      }
-
 	      if (!utils.isKey(event, 'backspace') && !event.metaKey && this.isSquaresSelected()) {
 	        this.unselectSquares();
 	      }
@@ -2306,7 +2065,6 @@ this.BX = this.BX || {};
 	    isResolvedRequest: function isResolvedRequest() {
 	      return !this.lastPromise || !!this.lastPromise && this.lastPromise.state;
 	    },
-
 	    /**
 	     * Calls BX.Main.Filter.applyFilter
 	     * @return {BX.Promise}
@@ -2315,10 +2073,8 @@ this.BX = this.BX || {};
 	      if (this.isResolvedRequest()) {
 	        this.lastPromise = this.parent._onFindButtonClick();
 	      }
-
 	      return this.lastPromise;
 	    },
-
 	    /**
 	     * Calls BX.Main.Filter.resetFilter()
 	     * @return {BX.Promise}
@@ -2332,23 +2088,19 @@ this.BX = this.BX || {};
 	          this.lastPromise = this.parent.resetFilter();
 	        }, this), this.delay);
 	      }
-
 	      return this.lastPromise;
 	    },
 	    _onInputWithoutDebounce: function _onInputWithoutDebounce() {
 	      clearTimeout(this.timeout);
 	      var searchString = this.getSearchString();
 	      this.lastSearchString = !!this.lastSearchString ? this.lastSearchString : searchString;
-
 	      if (searchString !== this.lastSearchString && (!this.parent.isIe() || !this.firstInit)) {
 	        if (this.parent.getParam('ENABLE_LIVE_SEARCH')) {
 	          this.parent.showGridAnimation();
 	          BX.onCustomEvent(window, 'BX.Filter.Search:input', [this.parent.params.FILTER_ID, searchString]);
 	        }
-
 	        this.parent.getPopup().isShown() && this.parent.closePopup();
 	      }
-
 	      if (searchString) {
 	        this.showClearButton();
 	        this.parent.setIsSetOutsideState(false);
@@ -2358,12 +2110,10 @@ this.BX = this.BX || {};
 	          this.hideClearButton();
 	          this.adjustPlaceholder();
 	        }
-
 	        if (this.parent.isAppliedDefaultPreset()) {
 	          this.parent.setDefaultPresetAppliedState(true);
 	        }
 	      }
-
 	      if (this.parent.isAppliedUserFilter()) {
 	        BX.Dom.addClass(this.container, 'main-ui-filter-search--active');
 	      } else {
@@ -2372,11 +2122,9 @@ this.BX = this.BX || {};
 	    },
 	    _onInput: function _onInput() {
 	      var searchString = this.getSearchString();
-
 	      if (searchString !== this.lastSearchString && (!this.parent.isIe() || !this.firstInit)) {
 	        this.apply();
 	      }
-
 	      this.firstInit = false;
 	      this.lastSearchString = searchString;
 	    },
@@ -2384,7 +2132,6 @@ this.BX = this.BX || {};
 	      if (!BX.type.isDomNode(this.buttonsContainer)) {
 	        this.buttonsContainer = BX.Filter.Utils.getByClass(this.getContainer(), this.parent.settings.classSearchButtonsContainer);
 	      }
-
 	      return this.buttonsContainer;
 	    },
 	    showClearButton: function showClearButton() {
@@ -2395,22 +2142,18 @@ this.BX = this.BX || {};
 	    },
 	    getInput: function getInput() {
 	      var inputId;
-
 	      if (!BX.type.isDomNode(this.input)) {
 	        inputId = [this.parent.getParam('FILTER_ID', ''), '_search'].join('');
 	        this.input = BX(inputId);
 	      }
-
 	      return this.input;
 	    },
 	    getContainer: function getContainer() {
 	      var containerId;
-
 	      if (!BX.type.isDomNode(this.container)) {
 	        containerId = [this.parent.getParam('FILTER_ID'), '_search_container'].join('');
 	        this.container = BX(containerId);
 	      }
-
 	      return this.container;
 	    },
 	    setInputPlaceholder: function setInputPlaceholder(text) {
@@ -2419,7 +2162,6 @@ this.BX = this.BX || {};
 	    },
 	    clearInput: function clearInput() {
 	      var form = this.getInput();
-
 	      if (BX.type.isDomNode(form)) {
 	        form.value = null;
 	      }
@@ -2440,7 +2182,6 @@ this.BX = this.BX || {};
 	        if (index < depth) {
 	          square = BX.decl(current);
 	          tmpSquare = tmpSquare || square;
-
 	          if (!additional) {
 	            if (index === 0) {
 	              BX.prepend(square, container);
@@ -2449,14 +2190,12 @@ this.BX = this.BX || {};
 	            }
 	          } else {
 	            var lastSquare = BX.Filter.Utils.getByClass(this.getContainer(), this.parent.settings.classSquare);
-
 	            if (lastSquare) {
 	              BX.insertAfter(square, lastSquare);
 	            } else {
 	              BX.prepend(square, container);
 	            }
 	          }
-
 	          tmpSquare = square;
 	          result.squares.push(square);
 	        } else {
@@ -2473,11 +2212,9 @@ this.BX = this.BX || {};
 	    squares: function squares(fields, depth, additional) {
 	      var squaresData, moreSquares, square, squaresWidth, result;
 	      var squares = BX.Filter.Utils.getByClass(this.getContainer(), this.parent.settings.classSquare, true);
-
 	      if (additional) {
 	        squares.forEach(function (current) {
 	          var item = BX.data(current, 'item');
-
 	          if (item) {
 	            BX.remove(current);
 	          }
@@ -2485,7 +2222,6 @@ this.BX = this.BX || {};
 	      } else {
 	        squares.forEach(BX.remove);
 	      }
-
 	      squaresData = this.prepareSquaresData(fields);
 	      moreSquares = this.makeSquares(squaresData, depth, additional);
 	      squaresWidth = 0;
@@ -2493,7 +2229,6 @@ this.BX = this.BX || {};
 	        squaresData: squaresData,
 	        width: 0
 	      };
-
 	      if (moreSquares.moreSquares.length) {
 	        square = {
 	          block: 'main-ui-search-square',
@@ -2501,12 +2236,10 @@ this.BX = this.BX || {};
 	          item: moreSquares.moreSquares,
 	          title: moreSquares.moreSquares.map(function (curr) {
 	            var title = curr.title;
-
 	            if ('icon' in curr && BX.Type.isPlainObject(curr.icon)) {
 	              var iconTitle = curr.icon.title;
 	              title = title.length ? iconTitle + ': ' + title : '';
 	            }
-
 	            return title;
 	          }).join(', \n')
 	        };
@@ -2517,7 +2250,6 @@ this.BX = this.BX || {};
 	          return prev + BX.width(curr) + (parseFloat(BX.style(curr, 'margin-right')) || 0);
 	        }, 0);
 	      }
-
 	      result.width = squaresWidth;
 	      return result;
 	    },
@@ -2525,14 +2257,12 @@ this.BX = this.BX || {};
 	      var container = this.getContainer();
 	      var square, squares;
 	      var squaresResult;
-
 	      if (BX.type.isPlainObject(presetData)) {
 	        squares = BX.Filter.Utils.getByClass(container, this.parent.settings.classSquare, true);
 	        squares.forEach(BX.remove);
 	        presetData = BX.clone(presetData);
 	        presetData.ADDITIONAL = presetData.ADDITIONAL || [];
 	        BX.onCustomEvent(window, 'BX.Filter.Search:beforeSquaresUpdate', [presetData, this]);
-
 	        if (presetData.ID !== 'default_filter' && presetData.ID !== 'tmp_filter') {
 	          square = BX.decl({
 	            block: 'main-ui-search-square',
@@ -2541,10 +2271,8 @@ this.BX = this.BX || {};
 	            isPreset: true
 	          });
 	          BX.prepend(square, container);
-
 	          if ('ADDITIONAL' in presetData && BX.type.isArray(presetData.ADDITIONAL) && presetData.ADDITIONAL.length) {
 	            squaresResult = this.squares(presetData.ADDITIONAL, 1, true);
-
 	            if (BX.width(container) - squaresResult.width < 100) {
 	              squaresResult = this.squares(presetData.ADDITIONAL, 0, true);
 	            }
@@ -2555,42 +2283,34 @@ this.BX = this.BX || {};
 	              if (!('ID' in current)) {
 	                current.ID = 'ADDITIONAL_ID_' + index;
 	              }
-
 	              if (!('NAME' in current)) {
 	                current.NAME = 'ADDITIONAL_NAME_' + index;
 	              }
-
 	              if (!('TYPE' in current)) {
 	                current.TYPE = 'STRING';
 	              }
-
 	              if ('LABEL' in current && 'LABEL' in current) {
 	                presetData.FIELDS.push(current);
 	              }
 	            });
 	          }
-
 	          if (BX.type.isArray(presetData.FIELDS) && presetData.FIELDS.length) {
 	            squaresResult = this.squares(presetData.FIELDS, 2);
-
 	            if (BX.width(container) - squaresResult.width < 100) {
 	              squaresResult = this.squares(presetData.FIELDS, 1);
 	            }
 	          }
 	        }
-
 	        if (squaresResult && BX.type.isArray(squaresResult.squaresData) && squaresResult.squaresData.length || presetData.ID !== 'default_filter' && presetData.ID !== 'tmp_filter') {
 	          if (this.parent.getParam("LIMITS_ENABLED")) {
 	            this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_LIMITS_EXCEEDED'));
 	          } else {
 	            this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_WITH_FILTER'));
 	          }
-
 	          this.showClearButton();
 	        } else {
 	          this.adjustPlaceholder();
 	        }
-
 	        if (BX.type.isNotEmptyString(this.parent.getSearch().getInput().value)) {
 	          this.showClearButton();
 	        }
@@ -2606,13 +2326,11 @@ this.BX = this.BX || {};
 	      }, this);
 	      fields.map(function (current) {
 	        value = null;
-
 	        if (!BX.Type.isStringFilled(current.ADDITIONAL_FILTER)) {
 	          switch (current.TYPE) {
 	            case this.parent.types.DATE:
 	              {
 	                value = current.LABEL + ': ' + current.SUB_TYPE.NAME;
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.QUARTER && BX.type.isNotEmptyString(current.VALUES._quarter)) {
 	                  var quarter = current.QUARTERS.filter(function (curr) {
 	                    return curr.VALUE == current.VALUES._quarter;
@@ -2622,11 +2340,9 @@ this.BX = this.BX || {};
 	                  quarter = quarter.length ? quarter.join('') : '';
 	                  value = current.LABEL + ': ' + quarter + ' ' + this.parent.getParam('MAIN_UI_FILTER__QUARTER').toLocaleLowerCase() + ' ' + current.VALUES._year;
 	                }
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.YEAR && BX.type.isNotEmptyString(current.VALUES._year)) {
 	                  value = current.LABEL + ': ' + current.VALUES._year;
 	                }
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.MONTH && BX.type.isNotEmptyString(current.VALUES._month)) {
 	                  var month = current.MONTHS.filter(function (curr) {
 	                    return curr.VALUE == current.VALUES._month;
@@ -2636,11 +2352,9 @@ this.BX = this.BX || {};
 	                  month = month.length ? month.join('') : '';
 	                  value = current.LABEL + ': ' + month + ' ' + current.VALUES._year;
 	                }
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.EXACT && BX.type.isNotEmptyString(current.VALUES._from)) {
 	                  value = current.LABEL + ': ' + current.VALUES._from;
 	                }
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.RANGE) {
 	                  if (BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to)) {
 	                    value = current.LABEL + ': ' + current.VALUES._from + '-' + current.VALUES._to;
@@ -2650,44 +2364,34 @@ this.BX = this.BX || {};
 	                    value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__AFTER') + ' ' + current.VALUES._from;
 	                  }
 	                }
-
 	                if ((current.SUB_TYPE.VALUE === this.parent.dateTypes.NEXT_DAYS || current.SUB_TYPE.VALUE === this.parent.dateTypes.PREV_DAYS) && !BX.type.isNumber(parseInt(current.VALUES._days))) {
 	                  value = null;
 	                }
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.NEXT_DAYS && BX.type.isNumber(parseInt(current.VALUES._days))) {
 	                  value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__DATE_NEXT_DAYS_LABEL').replace('#N#', current.VALUES._days);
 	                }
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.PREV_DAYS && BX.type.isNumber(parseInt(current.VALUES._days))) {
 	                  value = current.LABEL + ': ' + this.parent.getParam('MAIN_UI_FILTER__DATE_PREV_DAYS_LABEL').replace('#N#', current.VALUES._days);
 	                }
-
 	                if (current.SUB_TYPE.VALUE === this.parent.dateTypes.NONE) {
 	                  value = null;
 	                }
-
 	                break;
 	              }
-
 	            case this.parent.types.CUSTOM_DATE:
 	              {
 	                if (BX.type.isArray(current.VALUE.days) && current.VALUE.days.length || BX.type.isArray(current.VALUE.months) && current.VALUE.months.length || BX.type.isArray(current.VALUE.years) && current.VALUE.years.length) {
 	                  value = current.LABEL;
 	                }
-
 	                break;
 	              }
-
 	            case this.parent.types.SELECT:
 	              {
 	                if (BX.type.isPlainObject(current.VALUE) && current.VALUE.VALUE || current.STRICT) {
 	                  value = current.LABEL + ': ' + current.VALUE.NAME;
 	                }
-
 	                break;
 	              }
-
 	            case this.parent.types.MULTI_SELECT:
 	              {
 	                if (BX.type.isArray(current.VALUE) && current.VALUE.length) {
@@ -2699,7 +2403,6 @@ this.BX = this.BX || {};
 	                    }
 	                  });
 	                  value += tmpValues.join(', ');
-
 	                  if (current.VALUE.length > 2) {
 	                    title = [];
 	                    current.VALUE.forEach(function (val) {
@@ -2708,10 +2411,8 @@ this.BX = this.BX || {};
 	                    value = title.join(', ');
 	                  }
 	                }
-
 	                break;
 	              }
-
 	            case this.parent.types.NUMBER:
 	              {
 	                if (current.SUB_TYPE.VALUE === 'exact') {
@@ -2721,7 +2422,6 @@ this.BX = this.BX || {};
 	                    value = null;
 	                  }
 	                }
-
 	                if (current.SUB_TYPE.VALUE === 'range') {
 	                  if (BX.type.isNotEmptyString(current.VALUES._from) && BX.type.isNotEmptyString(current.VALUES._to)) {
 	                    value = current.LABEL + ': ' + current.VALUES._from + '-' + current.VALUES._to;
@@ -2733,48 +2433,40 @@ this.BX = this.BX || {};
 	                    value = null;
 	                  }
 	                }
-
 	                if (current.SUB_TYPE.VALUE === 'more') {
 	                  if (BX.type.isNotEmptyString(current.VALUES._from)) {
 	                    value = current.LABEL + ': > ';
 	                    value += current.VALUES._from;
 	                  }
 	                }
-
 	                if (current.SUB_TYPE.VALUE === 'less') {
 	                  if (BX.type.isNotEmptyString(current.VALUES._to)) {
 	                    value = current.LABEL + ': < ';
 	                    value += current.VALUES._to;
 	                  }
 	                }
-
 	                if (current.SUB_TYPE.VALUE === 'before_n') {
 	                  if (BX.type.isNotEmptyString(current.VALUES._to)) {
 	                    value = current.LABEL + ': < ';
 	                    value += current.VALUES._to;
 	                  }
 	                }
-
 	                break;
 	              }
-
 	            case this.parent.types.CUSTOM_ENTITY:
 	            case this.parent.types.DEST_SELECTOR:
 	            case this.parent.types.ENTITY_SELECTOR:
 	              {
 	                if (current.MULTIPLE) {
 	                  var label = !!current.VALUES._label ? current.VALUES._label : [];
-
 	                  if (BX.type.isPlainObject(label)) {
 	                    label = Object.keys(label).map(function (key) {
 	                      return label[key];
 	                    });
 	                  }
-
 	                  if (!BX.type.isArray(label)) {
 	                    label = [label];
 	                  }
-
 	                  if (label.length > 0) {
 	                    value = current.LABEL + ': ';
 	                    value += label.join(', ');
@@ -2785,22 +2477,18 @@ this.BX = this.BX || {};
 	                    value += current.VALUES._label;
 	                  }
 	                }
-
 	                break;
 	              }
-
 	            case this.parent.types.CUSTOM:
 	              {
 	                value = '_VALUE' in current && BX.type.isNotEmptyString(current._VALUE) ? current.LABEL : null;
 	                break;
 	              }
-
 	            default:
 	              {
 	                if (BX.type.isNotEmptyString(current.VALUE)) {
 	                  value = current.LABEL + ': ' + current.VALUE;
 	                }
-
 	                break;
 	              }
 	          }
@@ -2816,15 +2504,12 @@ this.BX = this.BX || {};
 	            },
 	            title: current.LABEL + ': ' + BX.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_IS_EMPTY')
 	          };
-
 	          if (current.ADDITIONAL_FILTER === BX.Filter.AdditionalFilter.Type.HAS_ANY_VALUE) {
 	            squareItem.name = current.LABEL + ': ' + BX.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_HAS_ANY_VALUE');
 	            squareItem.title = current.LABEL + ': ' + BX.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_HAS_ANY_VALUE');
 	          }
-
 	          result.push(squareItem);
 	        }
-
 	        if (value !== null) {
 	          result.push({
 	            block: 'main-ui-search-square',
@@ -2845,21 +2530,17 @@ this.BX = this.BX || {};
 	      var container = this.getContainer();
 	      var presetClass = this.parent.settings.classSquare;
 	      var preset = null;
-
 	      if (BX.type.isDomNode(container)) {
 	        preset = BX.Filter.Utils.getByClass(container, presetClass);
 	      }
-
 	      return preset;
 	    },
 	    removePreset: function removePreset() {
 	      var preset = this.getPreset();
-
 	      if (BX.type.isDomNode(preset)) {
 	        BX.remove(preset);
 	        this.adjustPlaceholder();
 	      }
-
 	      this.hideClearButton();
 	    },
 	    updatePreset: function updatePreset(presetData) {
@@ -2872,13 +2553,13 @@ this.BX = this.BX || {};
 	(function () {
 
 	  BX.namespace('BX.Filter');
+
 	  /**
 	   * Filter settings class
 	   * @param options
 	   * @param parent
 	   * @constructor
 	   */
-
 	  BX.Filter.Settings = function (options, parent) {
 	    /**
 	     * Field
@@ -2978,7 +2659,6 @@ this.BX = this.BX || {};
 	    this.popupWidth = 630;
 	    this.init(options, parent);
 	  };
-
 	  BX.Filter.Settings.prototype = {
 	    init: function init(options, parent) {
 	      this.generalTemplateId = parent.getParam('FILTER_ID') + '_GENERAL_template';
@@ -3000,14 +2680,12 @@ this.BX = this.BX || {};
 	})();
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
-
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	(function () {
 
 	  BX.namespace('BX.Main');
+
 	  /**
 	   * General filter class
 	   * @param {object} params Component params
@@ -3051,7 +2729,6 @@ this.BX = this.BX || {};
 	   * @param {object} numberTypes Number field types from Bitrix\Main\UI\Filter\NumberType
 	   * @memberOf {BX.Main}
 	   */
-
 	  BX.Main.Filter = function (params, options, types, dateTypes, numberTypes, additionalDateTypes, additionalNumberTypes) {
 	    this.params = params;
 	    this.search = null;
@@ -3071,22 +2748,19 @@ this.BX = this.BX || {};
 	    this.analyticsLabel = null;
 	    this.emitter = new BX.Event.EventEmitter();
 	    this.emitter.setEventNamespace('BX.Filter.Field');
-
 	    this.emitter.subscribe = function (eventName, listener) {
 	      BX.Event.EventEmitter.subscribe(this.emitter, eventName.replace('BX.Filter.Field:', ''), listener);
 	    }.bind(this);
-
 	    this.enableFieldsSearch = null;
 	    this.enableHeadersSections = null;
 	    this.init();
 	  };
+
 	  /**
 	   * Converts string to camel case
 	   * @param {string} string
 	   * @return {*}
 	   */
-
-
 	  function toCamelCase(string) {
 	    if (BX.type.isString(string)) {
 	      string = string.toLowerCase();
@@ -3095,11 +2769,10 @@ this.BX = this.BX || {};
 	      });
 	      return string.substr(0, 1).toLowerCase() + string.substr(1);
 	    }
-
 	    return string;
-	  } //noinspection JSUnusedGlobalSymbols
+	  }
 
-
+	  //noinspection JSUnusedGlobalSymbols
 	  BX.Main.Filter.prototype = {
 	    init: function init() {
 	      BX.bind(document, 'mousedown', BX.delegate(this._onDocumentClick, this));
@@ -3109,7 +2782,6 @@ this.BX = this.BX || {};
 	      this.getSearch().updatePreset(this.getParam('CURRENT_PRESET'));
 	      this.enableFieldsSearch = this.getParam('ENABLE_FIELDS_SEARCH', false);
 	      this.enableHeadersSections = this.getParam('HEADERS_SECTIONS', false);
-
 	      if (this.isAppliedDefaultPreset()) {
 	        this.setDefaultPresetAppliedState(true);
 	      }
@@ -3120,7 +2792,6 @@ this.BX = this.BX || {};
 	    onWindowLoad: function onWindowLoad() {
 	      this.settings.get('AUTOFOCUS') && this.adjustFocus();
 	    },
-
 	    /**
 	     * Removes apply_filter param from url
 	     */
@@ -3131,7 +2802,6 @@ this.BX = this.BX || {};
 	        window.history.replaceState(null, '', clearUrl);
 	      }
 	    },
-
 	    /**
 	     * Adjusts focus on search field
 	     */
@@ -3148,11 +2818,9 @@ this.BX = this.BX || {};
 	        if (this.getPopup().isShown()) {
 	          BX.onCustomEvent(window, 'BX.Main.Filter:blur', [this]);
 	          this.closePopup();
-
 	          if (this.getParam('VALUE_REQUIRED_MODE')) {
 	            this.restoreRemovedPreset();
 	          }
-
 	          if (this.getParam('VALUE_REQUIRED')) {
 	            if (!this.getSearch().getSquares().length) {
 	              this.getPreset().applyPinnedPreset();
@@ -3161,7 +2829,6 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-
 	    /**
 	     * Gets BX.Filter.Api instance
 	     * @return {BX.Filter.Api}
@@ -3170,10 +2837,8 @@ this.BX = this.BX || {};
 	      if (!(this.api instanceof BX.Filter.Api)) {
 	        this.api = new BX.Filter.Api(this);
 	      }
-
 	      return this.api;
 	    },
-
 	    /**
 	     * Adds sidebar item
 	     * @param {string} id
@@ -3185,17 +2850,14 @@ this.BX = this.BX || {};
 	      var presetsContainer = Presets.getContainer();
 	      var sidebarItem = Presets.createSidebarItem(id, name, pinned);
 	      var preset = Presets.getPresetNodeById(id);
-
 	      if (BX.type.isDomNode(preset)) {
 	        BX.remove(preset);
 	        presetsContainer.insertBefore(sidebarItem, Presets.getAddPresetField());
 	      } else {
 	        presetsContainer && presetsContainer.insertBefore(sidebarItem, Presets.getAddPresetField());
 	      }
-
 	      BX.bind(sidebarItem, 'click', BX.delegate(Presets._onPresetClick, Presets));
 	    },
-
 	    /**
 	     * Saves user settings
 	     * @param {boolean} [forAll = false]
@@ -3213,7 +2875,6 @@ this.BX = this.BX || {};
 	      presetsSettings.current_preset = currentPresetId;
 	      Presets.getPresets().forEach(function (current, index) {
 	        var presetId = Presets.getPresetId(current);
-
 	        if (presetId && presetId !== 'tmp_filter') {
 	          var presetData = Presets.getPreset(presetId);
 	          presetData.TITLE = BX.util.htmlspecialchars(BX.util.htmlspecialcharsback(presetData.TITLE));
@@ -3232,7 +2893,6 @@ this.BX = this.BX || {};
 	      }, this);
 	      this.saveOptions(presetsSettings, optionsParams, null, forAll);
 	    },
-
 	    /**
 	     * Checks is for all
 	     * @return {boolean}
@@ -3241,7 +2901,6 @@ this.BX = this.BX || {};
 	      var checkbox = this.getForAllCheckbox();
 	      return BX.type.isBoolean(forAll) && forAll || !!checkbox && !!checkbox.checked;
 	    },
-
 	    /**
 	     * Gets for all checkbox
 	     * @return {?HTMLElement}
@@ -3250,10 +2909,8 @@ this.BX = this.BX || {};
 	      if (!this.forAllCheckbox) {
 	        this.forAllCheckbox = BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classForAllCheckbox);
 	      }
-
 	      return this.forAllCheckbox;
 	    },
-
 	    /**
 	     * Prepares preset settings fields
 	     * @param fields
@@ -3269,19 +2926,16 @@ this.BX = this.BX || {};
 	              result[current.NAME] = current.VALUE;
 	              break;
 	            }
-
 	          case this.types.TEXTAREA:
 	            {
 	              result[current.NAME] = current.VALUE;
 	              break;
 	            }
-
 	          case this.types.SELECT:
 	            {
 	              result[current.NAME] = 'VALUE' in current.VALUE ? current.VALUE.VALUE : '';
 	              break;
 	            }
-
 	          case this.types.MULTI_SELECT:
 	            {
 	              if (BX.type.isArray(current.VALUE) && current.VALUE.length) {
@@ -3290,10 +2944,8 @@ this.BX = this.BX || {};
 	                  result[current.NAME][index] = curr.VALUE;
 	                }, this);
 	              }
-
 	              break;
 	            }
-
 	          case this.types.CHECKBOX:
 	            {
 	              if (BX.type.isArray(current.VALUE) && current.VALUE.length) {
@@ -3302,10 +2954,8 @@ this.BX = this.BX || {};
 	                  result[current.NAME][index] = curr.VALUE;
 	                }, this);
 	              }
-
 	              break;
 	            }
-
 	          case this.types.DATE:
 	            {
 	              if (BX.type.isPlainObject(current.VALUES)) {
@@ -3315,10 +2965,8 @@ this.BX = this.BX || {};
 	                  result[current.NAME + curr] = current.VALUES[curr];
 	                }, this);
 	              }
-
 	              break;
 	            }
-
 	          case this.types.NUMBER:
 	            {
 	              if (BX.type.isPlainObject(current.VALUES)) {
@@ -3328,20 +2976,16 @@ this.BX = this.BX || {};
 	                  result[current.NAME + curr] = current.VALUES[curr];
 	                }, this);
 	              }
-
 	              break;
 	            }
-
 	          case this.types.DEST_SELECTOR:
 	            {
 	              if (BX.type.isPlainObject(current.VALUES)) {
 	                result[current.NAME] = current.VALUES._value;
 	                result[current.NAME + '_label'] = current.VALUES._label;
 	              }
-
 	              break;
 	            }
-
 	          case this.types.DEST_SELECTOR:
 	          case this.types.ENTITY_SELECTOR:
 	          case this.types.CUSTOM_ENTITY:
@@ -3350,10 +2994,8 @@ this.BX = this.BX || {};
 	                result[current.NAME] = current.VALUES._value;
 	                result[current.NAME + '_label'] = current.VALUES._label;
 	              }
-
 	              break;
 	            }
-
 	          default:
 	            {
 	              break;
@@ -3362,7 +3004,6 @@ this.BX = this.BX || {};
 	      }, this);
 	      return result;
 	    },
-
 	    /**
 	     * Saves preset
 	     */
@@ -3375,7 +3016,6 @@ this.BX = this.BX || {};
 	      this.getPreset().activatePreset(presetId);
 	      this.applyFilter();
 	    },
-
 	    /**
 	     * Updates preset
 	     * @param {string} presetId
@@ -3401,7 +3041,6 @@ this.BX = this.BX || {};
 	      var rows, value, tmpPresetNode, tmpPresetInput, presets;
 	      var data = {};
 	      data.additional = {};
-
 	      if (presetId !== 'tmp_filter' && presetId !== 'default_filter' && !isNew) {
 	        var additional = BX.type.isArray(preset.ADDITIONAL) ? preset.ADDITIONAL : [];
 	        additional.forEach(function (field) {
@@ -3413,38 +3052,31 @@ this.BX = this.BX || {};
 	          });
 	        });
 	      }
-
 	      rows = Object.keys(fields);
-
 	      if (!reset) {
 	        data.apply_filter = 'Y';
 	      } else {
 	        data.clear_filter = 'Y';
 	      }
-
 	      data.save = 'Y';
 	      data.fields = fields;
 	      data.rows = sourceFields.join(',');
 	      data.preset_id = presetId || preset.ID;
-
 	      if (BX.type.isNotEmptyString(presetName)) {
 	        data.name = BX.util.htmlspecialchars(presetName);
 	      } else {
 	        tmpPresetNode = this.getPreset().getPresetNodeById(data.preset_id);
 	        tmpPresetInput = this.getPreset().getPresetInput(tmpPresetNode);
-
 	        if (BX.type.isDomNode(tmpPresetInput) && BX.type.isNotEmptyString(tmpPresetInput.value)) {
 	          data.name = tmpPresetInput.value;
 	        } else {
 	          data.name = preset.TITLE;
 	        }
 	      }
-
 	      if ((!('sort' in data) || !BX.type.isNumber(data.sort)) && sort) {
 	        presets = this.getParam('PRESETS');
 	        data.sort = presets.length + 2;
 	      }
-
 	      if (!reset) {
 	        rows.forEach(function (key) {
 	          if (BX.type.isArray(data.fields[key])) {
@@ -3452,22 +3084,18 @@ this.BX = this.BX || {};
 	            data.fields[key].forEach(function (val, index) {
 	              value[index] = val;
 	            }, this);
-
 	            if (value || BX.type.isNumber(value) || BX.type.isBoolean(value)) {
 	              data.fields[key] = value;
 	            }
 	          }
 	        }, this);
 	      }
-
 	      if (data.preset_id === 'tmp_filter' || this.isAddPresetEnabled() || reset) {
 	        this.updateParams(data);
 	      }
-
 	      if (BX.type.isFunction(beforeLoad)) {
 	        beforeLoad();
 	      }
-
 	      var promise = new BX.Promise(null, this);
 	      promise.setAutoResolve('fulfill', 0);
 	      promise.then(function () {
@@ -3479,7 +3107,6 @@ this.BX = this.BX || {};
 	      });
 	      return promise;
 	    },
-
 	    /**
 	     * Saves fields sort
 	     */
@@ -3492,44 +3119,36 @@ this.BX = this.BX || {};
 	      var fields = this.getPreset().getFields();
 	      var data = {};
 	      data.preset_id = 'default_filter';
-
 	      if (BX.type.isArray(fields)) {
 	        data.rows = fields.map(function (current) {
 	          return BX.data(current, 'name');
 	        });
 	        data.rows = data.rows.join(',');
 	      }
-
 	      this.updateParams(data);
 	      this.saveOptions(data, params);
 	    },
-
 	    /**
 	     * Updates params
 	     * @param {object} data
 	     */
 	    updateParams: function updateParams(data) {
 	      var preset, presets;
-
 	      if (BX.type.isPlainObject(data) && 'preset_id' in data) {
 	        preset = this.getPreset().getPreset(data.preset_id);
-
 	        if (BX.type.isPlainObject(preset)) {
 	          if ('name' in data && BX.type.isNotEmptyString(data.name)) {
 	            preset.TITLE = data.name;
 	          }
-
 	          if ('rows' in data && !('fields' in data)) {
 	            data.fields = {};
 	            data.rows.split(',').forEach(function (curr) {
 	              data.fields[curr] = '';
 	            });
 	          }
-
 	          if ('fields' in data) {
 	            preset.FIELDS = this.preparePresetFields(data.fields, data.rows);
 	          }
-
 	          if ('additional' in data && preset.ID !== 'tmp_filter') {
 	            preset.ADDITIONAL = this.preparePresetFields(data.additional, data.rows);
 	          }
@@ -3545,7 +3164,6 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-
 	    /**
 	     * Prepares preset fields
 	     * @param {object[]} dataFields
@@ -3555,34 +3173,27 @@ this.BX = this.BX || {};
 	    preparePresetFields: function preparePresetFields(dataFields, rows) {
 	      var fieldKeys, field;
 	      var fields = [];
-
 	      if (BX.type.isPlainObject(dataFields)) {
 	        rows = BX.type.isNotEmptyString(rows) ? rows.split(',') : [];
 	        fieldKeys = rows.length ? rows : Object.keys(dataFields);
 	        fieldKeys.forEach(function (current) {
 	          current = current.replace('_datesel', '').replace('_numsel', '').replace('_' + BX.Filter.AdditionalFilter.Type.IS_EMPTY, '').replace('_' + BX.Filter.AdditionalFilter.Type.HAS_ANY_VALUE, '');
 	          field = BX.clone(this.getFieldByName(current));
-
 	          if (BX.type.isPlainObject(field)) {
 	            field.ADDITIONAL_FILTER = BX.Filter.AdditionalFilter.fetchAdditionalFilter(current, dataFields);
-
 	            if (!BX.Type.isStringFilled(field.ADDITIONAL_FILTER)) {
 	              if (field.TYPE === this.types.STRING) {
 	                field.VALUE = dataFields[current];
 	              }
-
 	              if (field.TYPE === this.types.TEXTAREA) {
 	                field.VALUE = dataFields[current];
 	              }
-
 	              if (field.TYPE === this.types.MULTI_SELECT) {
 	                field.VALUE = this.prepareMultiSelectValue(dataFields[current], field.ITEMS);
 	              }
-
 	              if (field.TYPE === this.types.SELECT || field.TYPE === this.types.CHECKBOX) {
 	                field.VALUE = this.prepareSelectValue(dataFields[current], field.ITEMS);
 	              }
-
 	              if (field.TYPE === this.types.DATE) {
 	                field.SUB_TYPE = this.prepareSelectValue(dataFields[current + '_datesel'], field.SUB_TYPES);
 	                field.VALUES = {
@@ -3595,7 +3206,6 @@ this.BX = this.BX || {};
 	                  '_allow_year': dataFields[current + '_allow_year']
 	                };
 	              }
-
 	              if (field.TYPE === this.types.CUSTOM_DATE) {
 	                field.VALUE = {
 	                  'days': Object.keys(dataFields[current + '_days'] || {}).map(function (index) {
@@ -3609,7 +3219,6 @@ this.BX = this.BX || {};
 	                  })
 	                };
 	              }
-
 	              if (field.TYPE === this.types.NUMBER) {
 	                field.SUB_TYPE = this.prepareSelectValue(dataFields[current + '_numsel'], field.SUB_TYPES);
 	                field.VALUES = {
@@ -3617,30 +3226,24 @@ this.BX = this.BX || {};
 	                  '_to': dataFields[current + '_to']
 	                };
 	              }
-
 	              if (field.TYPE === this.types.DEST_SELECTOR || field.TYPE === this.types.ENTITY_SELECTOR || field.TYPE === this.types.CUSTOM_ENTITY) {
 	                if (typeof dataFields[current + '_label'] !== 'undefined') {
 	                  field.VALUES._label = dataFields[current + '_label'];
 	                }
-
 	                if (typeof dataFields[current] !== 'undefined') {
 	                  field.VALUES._value = dataFields[current];
 	                }
 	              }
-
 	              if (field.TYPE === this.types.CUSTOM) {
 	                field._VALUE = dataFields[current];
 	              }
 	            }
-
 	            fields.push(field);
 	          }
 	        }, this);
 	      }
-
 	      return fields;
 	    },
-
 	    /**
 	     * Prepares select values
 	     * @param value
@@ -3650,7 +3253,6 @@ this.BX = this.BX || {};
 	    prepareSelectValue: function prepareSelectValue(value, items) {
 	      var result = {};
 	      var tmpResult;
-
 	      if (BX.type.isNotEmptyString(value) && BX.type.isArray(items)) {
 	        tmpResult = this.prepareMultiSelectValue({
 	          0: value
@@ -3659,10 +3261,8 @@ this.BX = this.BX || {};
 	      } else {
 	        result = items[0];
 	      }
-
 	      return result;
 	    },
-
 	    /**
 	     * Prepares multiselect value
 	     * @param values
@@ -3671,7 +3271,6 @@ this.BX = this.BX || {};
 	     */
 	    prepareMultiSelectValue: function prepareMultiSelectValue(values, items) {
 	      var result = [];
-
 	      if (BX.type.isPlainObject(values) && BX.type.isArray(items)) {
 	        var valuesKeys = Object.keys(values);
 	        var valuesValues = valuesKeys.map(function (curr) {
@@ -3683,10 +3282,8 @@ this.BX = this.BX || {};
 	          });
 	        }, this);
 	      }
-
 	      return result;
 	    },
-
 	    /**
 	     * Get field by name
 	     * @param {string} name
@@ -3697,21 +3294,16 @@ this.BX = this.BX || {};
 	      var field = fields.find(function (current) {
 	        return current.NAME === name;
 	      });
-
 	      if (field) {
 	        return field;
 	      }
-
 	      var node = this.getFieldListContainer().querySelector('[data-name="' + name + '"]');
 	      field = BX.Filter.Field.instances.get(node);
-
 	      if (field) {
 	        return field.options;
 	      }
-
 	      return null;
 	    },
-
 	    /**
 	     * @private
 	     * @return {Promise}
@@ -3727,7 +3319,6 @@ this.BX = this.BX || {};
 	        this.confirmDialog(action, resolve);
 	      }.bind(this));
 	    },
-
 	    /**
 	     * Save options
 	     * @param {object} data
@@ -3752,7 +3343,6 @@ this.BX = this.BX || {};
 	      delete data.save;
 	      delete data.clear_filter;
 	      delete data.with_preset;
-
 	      if (params.forAll && params.action === 'setFilterArray') {
 	        return this.confirmSaveForAll().then(function () {
 	          return this.backend(params.action, requestData);
@@ -3761,13 +3351,11 @@ this.BX = this.BX || {};
 	          this.disableAddPreset();
 	        }.bind(this));
 	      }
-
 	      return this.backend(params.action, requestData).then(function () {
 	        BX.removeClass(this.getFindButton(), this.settings.classWaitButtonClass);
 	        BX.type.isFunction(callback) && callback();
 	      }.bind(this));
 	    },
-
 	    /**
 	     *
 	     * @param {string} action
@@ -3788,7 +3376,6 @@ this.BX = this.BX || {};
 	        }, analyticsLabel)
 	      });
 	    },
-
 	    /**
 	     * Sends analytics when limit is enabled
 	     */
@@ -3802,7 +3389,6 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    },
-
 	    /**
 	     * Prepares event.path
 	     * @param event
@@ -3810,19 +3396,15 @@ this.BX = this.BX || {};
 	     */
 	    prepareEvent: function prepareEvent(event) {
 	      var i, x;
-
 	      if (!('path' in event) || !event.path.length) {
 	        event.path = [event.target];
 	        i = 0;
-
 	        while ((x = event.path[i++].parentNode) !== null) {
 	          event.path.push(x);
 	        }
 	      }
-
 	      return event;
 	    },
-
 	    /**
 	     * Restores removed preset values
 	     * VALUE_REQUIRED_MODE = true only
@@ -3830,7 +3412,6 @@ this.BX = this.BX || {};
 	    restoreRemovedPreset: function restoreRemovedPreset() {
 	      if (this.getParam('VALUE_REQUIRED_MODE')) {
 	        var currentPreset = this.getParam('CURRENT_PRESET');
-
 	        if (BX.type.isPlainObject(currentPreset)) {
 	          var currentPresetId = currentPreset.ID;
 	          var presetNode = this.getPreset().getPresetNodeById(currentPresetId);
@@ -3839,7 +3420,6 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-
 	    /**
 	     * Checks that the event occurred on the scroll bar
 	     * @param {MouseEvent} event
@@ -3849,7 +3429,6 @@ this.BX = this.BX || {};
 	      var x = 'clientX' in event ? event.clientX : 'x' in event ? event.x : 0;
 	      return x >= document.documentElement.offsetWidth;
 	    },
-
 	    /**
 	     * Checks whether to use common presets
 	     * @return {boolean}
@@ -3857,7 +3436,6 @@ this.BX = this.BX || {};
 	    isUseCommonPresets: function isUseCommonPresets() {
 	      return !!this.getParam('COMMON_PRESETS_ID');
 	    },
-
 	    /**
 	     * Checks whether event is inside filter
 	     * @param {MouseEvent} event
@@ -3871,22 +3449,18 @@ this.BX = this.BX || {};
 	    },
 	    _onDocumentClick: function _onDocumentClick(event) {
 	      var popup = this.getPopup();
-
 	      if (!this.isInsideFilterEvent(event) && !this.hasScrollClick(event)) {
 	        if (popup && popup.isShown()) {
 	          this.closePopup();
-
 	          if (this.getParam('VALUE_REQUIRED_MODE')) {
 	            this.restoreRemovedPreset();
 	          }
-
 	          if (this.getParam('VALUE_REQUIRED')) {
 	            if (!this.getSearch().getSquares().length) {
 	              this.getPreset().applyPinnedPreset();
 	            }
 	          }
 	        }
-
 	        BX.onCustomEvent(window, 'BX.Main.Filter:blur', [this]);
 	      }
 	    },
@@ -3894,7 +3468,6 @@ this.BX = this.BX || {};
 	      var popup = this.getFieldsPopup();
 	      event.stopPropagation();
 	      event.preventDefault();
-
 	      if (popup && !popup.isShown()) {
 	        this.showFieldsPopup();
 	        this.syncFields();
@@ -3902,7 +3475,6 @@ this.BX = this.BX || {};
 	        this.closeFieldListPopup();
 	      }
 	    },
-
 	    /**
 	     * Synchronizes field list in popup and filter field list
 	     * @param {?{cache: boolean}} [options]
@@ -3913,18 +3485,15 @@ this.BX = this.BX || {};
 	          this.fieldsPopupItems = null;
 	        }
 	      }
-
 	      var fields = this.getPreset().getFields();
 	      var items = this.getFieldsPopupItems();
 	      var currentId, isNeedCheck;
-
 	      if (BX.type.isArray(items) && items.length) {
 	        items.forEach(function (current) {
 	          currentId = BX.data(current, 'name').replace('_datesel', '').replace('_numsel', '');
 	          isNeedCheck = fields.some(function (field) {
 	            return BX.data(field, 'name') === currentId;
 	          });
-
 	          if (isNeedCheck) {
 	            BX.addClass(current, this.settings.classMenuItemChecked);
 	          } else {
@@ -3933,7 +3502,6 @@ this.BX = this.BX || {};
 	        }, this);
 	      }
 	    },
-
 	    /**
 	     * Gets items of popup window with a list of available fields
 	     * @return {?HTMLElement[]}
@@ -3941,17 +3509,13 @@ this.BX = this.BX || {};
 	    getFieldsPopupItems: function getFieldsPopupItems() {
 	      if (!BX.type.isArray(this.fieldsPopupItems)) {
 	        var popup = this.getFieldsPopup();
-
 	        if ('contentContainer' in popup && BX.type.isDomNode(popup.contentContainer)) {
 	          this.fieldsPopupItems = BX.Filter.Utils.getByClass(popup.contentContainer, this.settings.classMenuItem, true);
 	        }
-
 	        this.prepareAnimation();
 	      }
-
 	      return this.fieldsPopupItems;
 	    },
-
 	    /**
 	     * Gets popup container class name by popup items count
 	     * @param {int|string} itemsCount
@@ -3959,24 +3523,18 @@ this.BX = this.BX || {};
 	     */
 	    getFieldListContainerClassName: function getFieldListContainerClassName(itemsCount) {
 	      var popupColumnsCount = parseInt(this.settings.get('popupColumnsCount', 0), 10);
-
 	      if (popupColumnsCount > 0 && popupColumnsCount <= this.settings.maxPopupColumnCount) {
 	        return this.settings.get('classPopupFieldList' + popupColumnsCount + 'Column');
 	      }
-
 	      var containerClass = this.settings.classPopupFieldList1Column;
-
 	      if (itemsCount > 6 && itemsCount < 12) {
 	        containerClass = this.settings.classPopupFieldList2Column;
 	      }
-
 	      if (itemsCount > 12) {
 	        containerClass = this.settings.classPopupFieldList3Column;
 	      }
-
 	      return containerClass;
 	    },
-
 	    /**
 	     * Prepares fields declarations
 	     * @param {object[]} fields
@@ -3995,7 +3553,6 @@ this.BX = this.BX || {};
 	        };
 	      }, this);
 	    },
-
 	    /**
 	     * Gets lazy load field list
 	     * @return {BX.Promise}
@@ -4012,7 +3569,6 @@ this.BX = this.BX || {};
 	      });
 	      return p;
 	    },
-
 	    /**
 	     * Gets fields list popup content
 	     * @return {BX.Promise}
@@ -4021,12 +3577,10 @@ this.BX = this.BX || {};
 	      var p = new BX.Promise();
 	      var fields = this.getParam('FIELDS');
 	      var fieldsCount = BX.type.isArray(fields) ? fields.length : 0;
-
 	      if (this.getParam('LAZY_LOAD')) {
 	        var callback = function (response) {
 	          p.fulfill(this.getPopupContent(this.settings.classPopupFieldList, this.getFieldListContainerClassName(response.length), this.prepareFieldsDecl(response)));
 	        }.bind(this);
-
 	        if (BX.type.isNotEmptyObject(this.getParam('LAZY_LOAD')['CONTROLLER'])) {
 	          var sourceComponentName = this.getParam('LAZY_LOAD')['CONTROLLER']['componentName'];
 	          var sourceComponentSignedParameters = this.getParam('LAZY_LOAD')['CONTROLLER']['signedParameters'];
@@ -4042,16 +3596,13 @@ this.BX = this.BX || {};
 	        } else {
 	          this.getLazyLoadFields().then(callback);
 	        }
-
 	        return p;
 	      }
-
 	      p.fulfill(this.getPopupContent(this.settings.classPopupFieldList, this.getFieldListContainerClassName(fieldsCount), this.prepareFieldsDecl(fields)));
 	      return p;
 	    },
 	    getPopupContent: function getPopupContent(block, mix, content) {
 	      var wrapper = BX.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
-
 	      if (!this.enableHeadersSections) {
 	        var fieldsContent = BX.decl({
 	          content: content,
@@ -4060,23 +3611,18 @@ this.BX = this.BX || {};
 	        });
 	        this.setPopupElementWidthFromSettings(fieldsContent);
 	        wrapper.appendChild(fieldsContent);
-
 	        if (this.enableFieldsSearch) {
 	          this.preparePopupContentHeader(wrapper);
 	        }
-
 	        return wrapper;
 	      }
-
 	      var defaultHeaderSection = this.getDefaultHeaderSection();
 	      var sections = {};
 	      content.forEach(function (item) {
 	        var sectionId = item.sectionId.length ? item.sectionId : defaultHeaderSection.id;
-
 	        if (sections[sectionId] === undefined) {
 	          sections[sectionId] = [];
 	        }
-
 	        sections[sectionId].push(item);
 	      });
 	      this.preparePopupContentHeader(wrapper);
@@ -4093,11 +3639,9 @@ this.BX = this.BX || {};
 	      if (!this.enableHeadersSections) {
 	        return;
 	      }
-
 	      var headerSectionsWrapper = BX.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-form-row\">\n\t\t\t\t\t<div class=\"ui-form-content main-ui-filter-popup-search-section-wrapper\"></div>\n\t\t\t\t</div>\n\t\t\t"])));
 	      headerWrapper.firstElementChild.appendChild(headerSectionsWrapper);
 	      var headersSections = this.getHeadersSections();
-
 	      for (var key in headersSections) {
 	        var itemClass = this.settings.classPopupSearchSectionItemIcon + (headersSections[key].selected ? " ".concat(this.settings.classPopupSearchSectionItemIconActive) : '');
 	        var headerSectionItem = BX.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-search-section-item\" data-ui-popup-filter-section-button=\"", "\">\n\t\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), key, itemClass, BX.Text.encode(headersSections[key].name));
@@ -4109,7 +3653,6 @@ this.BX = this.BX || {};
 	      var activeClass = this.settings.classPopupSearchSectionItemIconActive;
 	      var sectionId = item.dataset.uiPopupFilterSectionButton;
 	      var section = document.querySelectorAll("[data-ui-popup-filter-section='" + sectionId + "']");
-
 	      if (BX.Dom.hasClass(item.firstElementChild, activeClass)) {
 	        BX.Dom.removeClass(item.firstElementChild, activeClass);
 	        BX.Dom.hide(section[0]);
@@ -4122,11 +3665,9 @@ this.BX = this.BX || {};
 	      if (!this.enableFieldsSearch) {
 	        return;
 	      }
-
 	      var searchForm = BX.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-form-row\">\n\t\t\t\t\t<div class=\"ui-form-content main-ui-filter-popup-search-input-wrapper\">\n\t\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon\">\n\t\t\t\t\t\t\t<div class=\"ui-ctl-before ui-ctl-icon-search\"></div>\n\t\t\t\t\t\t\t<button class=\"ui-ctl-after ui-ctl-icon-clear\"></button>\n\t\t\t\t\t\t\t<input type=\"text\" class=\"ui-ctl-element ", "\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.settings.classPopupSearchSectionItem);
 	      headerWrapper.firstElementChild.appendChild(searchForm);
 	      var inputs = searchForm.getElementsByClassName(this.settings.classPopupSearchSectionItem);
-
 	      if (inputs.length) {
 	        var input = inputs[0];
 	        BX.bind(input, 'input', this.onFilterSectionSearchInput.bind(this, input));
@@ -4137,18 +3678,14 @@ this.BX = this.BX || {};
 	      if (!this.enableHeadersSections) {
 	        return;
 	      }
-
 	      var sectionsWrapper = BX.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"main-ui-filter-popup-search-sections-wrapper\"></div>"])));
 	      wrapper.appendChild(sectionsWrapper);
-
 	      for (var key in sections) {
 	        var sectionWrapper = BX.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-section-wrapper\" data-ui-popup-filter-section=\"", "\"></div>\n\t\t\t\t"])), key);
 	        this.setPopupElementWidthFromSettings(sectionWrapper);
-
 	        if (!this.getHeadersSectionParam(key, 'selected')) {
 	          sectionWrapper.setAttribute('hidden', '');
 	        }
-
 	        var sectionTitle = BX.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<h3 class=\"main-ui-filter-popup-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</h3>\n\t\t\t\t"])), BX.Text.encode(this.getHeadersSectionParam(key, 'name')));
 	        var fieldsBlock = BX.decl({
 	          block: block,
@@ -4162,7 +3699,6 @@ this.BX = this.BX || {};
 	    },
 	    prepareAnimation: function prepareAnimation() {
 	      var _this = this;
-
 	      if (this.enableFieldsSearch) {
 	        this.fieldsPopupItems.forEach(function (item) {
 	          BX.bind(item, 'animationend', _this.onAnimationEnd.bind(_this, item));
@@ -4174,14 +3710,11 @@ this.BX = this.BX || {};
 	    },
 	    onFilterSectionSearchInput: function onFilterSectionSearchInput(input) {
 	      var search = input.value;
-
 	      if (search.length) {
 	        search = search.toLowerCase();
 	      }
-
 	      this.getFieldsPopupItems().forEach(function (item) {
 	        var title = item.innerText.toLowerCase();
-
 	        if (search.length && title.indexOf(search) === -1) {
 	          BX.Dom.removeClass(item, this.settings.classPopupSearchFieldListItemVisible);
 	          BX.Dom.addClass(item, this.settings.classPopupSearchFieldListItemHidden);
@@ -4200,13 +3733,11 @@ this.BX = this.BX || {};
 	    },
 	    getDefaultHeaderSection: function getDefaultHeaderSection() {
 	      var headersSections = this.getHeadersSections();
-
 	      for (var key in headersSections) {
 	        if ('selected' in headersSections[key] && headersSections[key].selected) {
 	          return headersSections[key];
 	        }
 	      }
-
 	      return null;
 	    },
 	    getHeadersSections: function getHeadersSections() {
@@ -4216,10 +3747,8 @@ this.BX = this.BX || {};
 	      if (this.getHeadersSections()[sectionId] !== undefined && this.getHeadersSections()[sectionId][paramName] !== undefined) {
 	        return this.getHeadersSections()[sectionId][paramName];
 	      }
-
 	      return defaultValue;
 	    },
-
 	    /**
 	     * Gets field loader
 	     * @return {BX.Loader}
@@ -4235,55 +3764,42 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      return this.fieldLoader;
 	    },
 	    _clickOnFieldListItem: function _clickOnFieldListItem(event) {
 	      var target = event.target;
 	      var data;
-
 	      if (!BX.hasClass(target, this.settings.classFieldListItem)) {
 	        target = BX.findParent(target, {
 	          className: this.settings.classFieldListItem
 	        }, true, false);
 	      }
-
 	      if (BX.type.isDomNode(target)) {
 	        try {
 	          data = JSON.parse(BX.data(target, 'item'));
 	        } catch (err) {}
-
 	        var isChecked = BX.hasClass(target, this.settings.classMenuItemChecked);
-
 	        var _event = new BX.Event.BaseEvent({
 	          data: data
 	        });
-
 	        this.emitter.emit(isChecked ? 'onBeforeRemoveFilterItem' : 'onBeforeAddFilterItem', _event);
-
 	        if (_event.isDefaultPrevented()) {
 	          return;
 	        }
-
 	        var p = new BX.Promise();
-
 	        if (this.getParam("LAZY_LOAD")) {
 	          this.getFieldLoader().show(target);
 	          var label = target.querySelector(".main-ui-select-inner-label");
-
 	          if (label) {
 	            label.classList.add("main-ui-no-before");
 	          }
-
 	          var callback = function (response) {
 	            p.fulfill(response);
 	            this.getFieldLoader().hide();
-
 	            if (label) {
 	              label.classList.remove("main-ui-no-before");
 	            }
 	          }.bind(this);
-
 	          if (BX.type.isNotEmptyObject(this.getParam('LAZY_LOAD')['CONTROLLER'])) {
 	            var sourceComponentName = this.getParam('LAZY_LOAD')['CONTROLLER']['componentName'];
 	            var sourceComponentSignedParameters = this.getParam('LAZY_LOAD')['CONTROLLER']['signedParameters'];
@@ -4303,10 +3819,8 @@ this.BX = this.BX || {};
 	        } else {
 	          p.fulfill(data);
 	        }
-
 	        p.then(function (response) {
 	          this.params.FIELDS.push(response);
-
 	          if (BX.hasClass(target, this.settings.classMenuItemChecked)) {
 	            BX.removeClass(target, this.settings.classMenuItemChecked);
 	            this.getPreset().removeField(response);
@@ -4314,7 +3828,6 @@ this.BX = this.BX || {};
 	            if (BX.type.isPlainObject(response)) {
 	              this.getPreset().addField(response);
 	              BX.addClass(target, this.settings.classMenuItemChecked);
-
 	              if (BX.type.isString(response.HTML)) {
 	                var wrap = BX.create("div");
 	                this.getHiddenElement().appendChild(wrap);
@@ -4322,7 +3835,6 @@ this.BX = this.BX || {};
 	              }
 	            }
 	          }
-
 	          this.syncFields();
 	        }.bind(this));
 	      }
@@ -4332,10 +3844,8 @@ this.BX = this.BX || {};
 	        this.hiddenElement = BX.create("div");
 	        document.body.appendChild(this.hiddenElement);
 	      }
-
 	      return this.hiddenElement;
 	    },
-
 	    /**
 	     * Gets lazy load fields
 	     * @param id
@@ -4355,7 +3865,6 @@ this.BX = this.BX || {};
 	      });
 	      return p;
 	    },
-
 	    /**
 	     * Shows fields list popup
 	     */
@@ -4364,7 +3873,6 @@ this.BX = this.BX || {};
 	      this.adjustFieldListPopupPosition();
 	      popup.show();
 	    },
-
 	    /**
 	     * Closes fields list popup
 	     */
@@ -4372,7 +3880,6 @@ this.BX = this.BX || {};
 	      var popup = this.getFieldsPopup();
 	      popup.close();
 	    },
-
 	    /**
 	     * Adjusts field list popup position
 	     */
@@ -4382,14 +3889,12 @@ this.BX = this.BX || {};
 	      pos.forceBindPosition = true;
 	      popup.adjustPosition(pos);
 	    },
-
 	    /**
 	     * Gets field list popup instance
 	     * @return {BX.PopupWindow}
 	     */
 	    getFieldsPopup: function getFieldsPopup() {
 	      var bindElement = this.settings.get('showPopupInCenter', false) ? null : this.getAddField();
-
 	      if (!this.fieldsPopup) {
 	        this.fieldsPopup = new BX.PopupWindow(this.getParam('FILTER_ID') + '_fields_popup', bindElement, {
 	          autoHide: true,
@@ -4417,7 +3922,6 @@ this.BX = this.BX || {};
 	          this.adjustFieldListPopupPosition();
 	        }.bind(this));
 	      }
-
 	      return this.fieldsPopup;
 	    },
 	    setPopupElementWidthFromSettings: function setPopupElementWidthFromSettings(element) {
@@ -4426,7 +3930,6 @@ this.BX = this.BX || {};
 	    _onAddPresetClick: function _onAddPresetClick() {
 	      this.enableAddPreset();
 	    },
-
 	    /**
 	     * Enables shows wait spinner for button
 	     * @param {HTMLElement} button
@@ -4434,7 +3937,6 @@ this.BX = this.BX || {};
 	    enableWaitSate: function enableWaitSate(button) {
 	      !!button && BX.addClass(button, this.settings.classWaitButtonClass);
 	    },
-
 	    /**
 	     * Disables shows wait spinner for button
 	     * @param {HTMLElement} button
@@ -4447,7 +3949,6 @@ this.BX = this.BX || {};
 	      var input = this.getPreset().getAddPresetFieldInput();
 	      var mask = input.parentNode.querySelector(".main-ui-filter-edit-mask");
 	      var presetName;
-
 	      function onAnimationEnd(event) {
 	        if (event.animationName === "fieldError") {
 	          event.currentTarget.removeEventListener("animationend", onAnimationEnd);
@@ -4456,7 +3957,6 @@ this.BX = this.BX || {};
 	          event.currentTarget.classList.remove("main-ui-filter-error");
 	        }
 	      }
-
 	      function showLengthError(mask) {
 	        mask.addEventListener("animationend", onAnimationEnd);
 	        mask.addEventListener("oAnimationEnd", onAnimationEnd);
@@ -4466,12 +3966,9 @@ this.BX = this.BX || {};
 	        promise.fulfill(true);
 	        return promise;
 	      }
-
 	      this.enableWaitSate(this.getFindButton());
-
 	      if (this.isAddPresetEnabled() && !forAll) {
 	        presetName = input.value;
-
 	        if (presetName.length) {
 	          this.savePreset();
 	          this.disableAddPreset();
@@ -4481,16 +3978,20 @@ this.BX = this.BX || {};
 	          });
 	        }
 	      }
-
 	      if (this.isEditEnabled()) {
 	        var preset = this.getPreset();
-	        var presetNode = preset.getPresetNodeById(preset.getCurrentPresetId());
+	        var currentPresetId = preset.getCurrentPresetId();
+	        var presetNode = preset.getPresetNodeById(currentPresetId);
 	        var presetNameInput = preset.getPresetInput(presetNode);
-
-	        if (presetNameInput.value.length) {
-	          preset.updateEditablePreset(preset.getCurrentPresetId());
+	        if (presetNameInput.value.length === 0 && currentPresetId === 'default_filter') {
+	          var currentPresetData = preset.getCurrentPresetData();
+	          if (currentPresetData) {
+	            BX.Dom.attr(presetNameInput, 'value', currentPresetData.TITLE);
+	          }
+	        }
+	        if (presetNameInput.value.length > 0) {
+	          preset.updateEditablePreset(currentPresetId);
 	          this.saveUserSettings(forAll);
-
 	          if (!forAll) {
 	            this.disableEdit();
 	          }
@@ -4516,7 +4017,6 @@ this.BX = this.BX || {};
 	    },
 	    _onFilterMousedown: function _onFilterMousedown(event) {
 	      var target = event.target;
-
 	      if (this.getFields().isDragButton(target)) {
 	        var inputs = BX.Filter.Utils.getByTag(target.parentNode, 'input', true);
 	        (inputs || []).forEach(function (item) {
@@ -4529,18 +4029,15 @@ this.BX = this.BX || {};
 	      var Fields = this.getFields();
 	      var Presets = this.getPreset();
 	      var field;
-
 	      if (Fields.isFieldDelete(event.target)) {
 	        field = Fields.getField(event.target);
 	        Presets.removeField(field);
 	      }
-
 	      if (Fields.isFieldValueDelete(event.target)) {
 	        field = Fields.getField(event.target);
 	        Fields.clearFieldValue(field);
 	      }
 	    },
-
 	    /**
 	     * Gets filter buttons container
 	     * @return {?HTMLElement}
@@ -4548,7 +4045,6 @@ this.BX = this.BX || {};
 	    getButtonsContainer: function getButtonsContainer() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classButtonsContainer);
 	    },
-
 	    /**
 	     * Gets save button element
 	     * @return {?HTMLElement}
@@ -4556,7 +4052,6 @@ this.BX = this.BX || {};
 	    getSaveButton: function getSaveButton() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classSaveButton);
 	    },
-
 	    /**
 	     * Gets cancel element
 	     * @return {?HTMLElement}
@@ -4564,7 +4059,6 @@ this.BX = this.BX || {};
 	    getCancelButton: function getCancelButton() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classCancelButton);
 	    },
-
 	    /**
 	     * Gets find button element
 	     * @return {?HTMLElement}
@@ -4572,7 +4066,6 @@ this.BX = this.BX || {};
 	    getFindButton: function getFindButton() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classFindButton);
 	    },
-
 	    /**
 	     * Gets reset button element
 	     * @return {?HTMLElement}
@@ -4580,7 +4073,6 @@ this.BX = this.BX || {};
 	    getResetButton: function getResetButton() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classResetButton);
 	    },
-
 	    /**
 	     * Gets add preset button
 	     * @return {?HTMLElement}
@@ -4588,7 +4080,6 @@ this.BX = this.BX || {};
 	    getAddPresetButton: function getAddPresetButton() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classAddPresetButton);
 	    },
-
 	    /**
 	     * Checks that add preset mode enabled
 	     * @return {boolean}
@@ -4596,7 +4087,6 @@ this.BX = this.BX || {};
 	    isAddPresetEnabled: function isAddPresetEnabled() {
 	      return this.isAddPresetModeState;
 	    },
-
 	    /**
 	     * Enables add preset mode
 	     */
@@ -4609,15 +4099,12 @@ this.BX = this.BX || {};
 	      BX.show(buttonsContainer);
 	      BX.hide(this.getPresetButtonsContainer());
 	      this.hideForAllCheckbox();
-
 	      if (BX.type.isDomNode(addPresetFieldInput)) {
 	        addPresetFieldInput.focus();
 	      }
-
 	      BX.addClass(this.getSidebarControlsContainer(), this.settings.classDisabled);
 	      this.isAddPresetModeState = true;
 	    },
-
 	    /**
 	     * Disables add preset mode
 	     */
@@ -4633,7 +4120,6 @@ this.BX = this.BX || {};
 	      BX.removeClass(this.getSidebarControlsContainer(), this.settings.classDisabled);
 	      this.isAddPresetModeState = false;
 	    },
-
 	    /**
 	     * Gets control from field list
 	     * @return {?HTMLElement[]}
@@ -4641,14 +4127,11 @@ this.BX = this.BX || {};
 	    getControls: function getControls() {
 	      var container = this.getFieldListContainer();
 	      var controls = null;
-
 	      if (BX.type.isDomNode(container)) {
 	        controls = BX.Filter.Utils.getByClass(container, this.settings.classControl, true);
 	      }
-
 	      return controls;
 	    },
-
 	    /**
 	     * Gets filter fields
 	     * @return {?HTMLElement[]}
@@ -4657,25 +4140,20 @@ this.BX = this.BX || {};
 	      var container = this.getFieldListContainer();
 	      var fields = [];
 	      var groups = [];
-
 	      if (BX.type.isDomNode(container)) {
 	        fields = BX.Filter.Utils.getByClass(container, this.settings.classField, true);
 	        groups = BX.Filter.Utils.getByClass(container, this.settings.classFieldGroup, true);
-
 	        if (!BX.type.isArray(fields)) {
 	          fields = [];
 	        }
-
 	        if (BX.type.isArray(groups)) {
 	          groups.forEach(function (current) {
 	            fields.push(current);
 	          });
 	        }
 	      }
-
 	      return fields;
 	    },
-
 	    /**
 	     * Gets filter fields values
 	     * @return {object}
@@ -4686,62 +4164,51 @@ this.BX = this.BX || {};
 	      var values = {};
 	      var type, name;
 	      values['FIND'] = Search.getInput().value;
-
 	      if (BX.type.isArray(fields) && fields.length) {
 	        fields.forEach(function (current) {
 	          var additionalFilter = BX.Filter.AdditionalFilter.getInstance().getFilter(current);
-
 	          if (additionalFilter) {
 	            Object.assign(values, additionalFilter);
 	            return;
 	          }
-
 	          type = BX.data(current, 'type');
 	          name = BX.data(current, 'name');
-
 	          switch (type) {
 	            case this.types.STRING:
 	              {
 	                this.prepareControlStringValue(values, current);
 	                break;
 	              }
-
 	            case this.types.TEXTAREA:
 	              {
 	                this.prepareControlTextareaValue(values, current);
 	                break;
 	              }
-
 	            case this.types.NUMBER:
 	              {
 	                this.prepareControlNumberValue(values, name, current);
 	                break;
 	              }
-
 	            case this.types.DATE:
 	              {
 	                this.prepareControlDateValue(values, name, current);
 	                break;
 	              }
-
 	            case this.types.CUSTOM_DATE:
 	              {
 	                this.prepareControlCustomDateValue(values, name, current);
 	                break;
 	              }
-
 	            case this.types.SELECT:
 	              {
 	                this.prepareControlSelectValue(values, name, current);
 	                break;
 	              }
-
 	            case this.types.MULTI_SELECT:
 	              {
 	                this.prepareControlMultiselectValue(values, name, current);
 	                break;
 	              }
-
 	            case this.types.DEST_SELECTOR:
 	            case this.types.CUSTOM_ENTITY:
 	            case this.types.ENTITY_SELECTOR:
@@ -4749,13 +4216,11 @@ this.BX = this.BX || {};
 	                this.prepareControlCustomEntityValue(values, name, current);
 	                break;
 	              }
-
 	            case this.types.CUSTOM:
 	              {
 	                this.prepareControlCustomValue(values, name, current);
 	                break;
 	              }
-
 	            default:
 	              {
 	                break;
@@ -4763,10 +4228,8 @@ this.BX = this.BX || {};
 	          }
 	        }, this);
 	      }
-
 	      return values;
 	    },
-
 	    /**
 	     * @param values
 	     * @param name
@@ -4778,7 +4241,6 @@ this.BX = this.BX || {};
 	      var isMultiple = BX.Main.ui.CustomEntity.isMultiple(field);
 	      values[name] = '';
 	      values[name + '_label'] = '';
-
 	      if (isMultiple) {
 	        values[name] = [];
 	        values[name + '_label'] = [];
@@ -4793,7 +4255,6 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-
 	    /**
 	     * @param {HTMLElement} field
 	     * @return {HTMLElement[]}
@@ -4801,7 +4262,6 @@ this.BX = this.BX || {};
 	    fetchSquares: function fetchSquares(field) {
 	      return !!field ? BX.Filter.Utils.getByClass(field, this.settings.classSquare, true) : [];
 	    },
-
 	    /**
 	     * @param {HTMLElement[]} squares
 	     * @return {object[]}
@@ -4811,7 +4271,6 @@ this.BX = this.BX || {};
 	        return JSON.parse(BX.data(square, 'item'));
 	      }, this);
 	    },
-
 	    /**
 	     * @param {object} values
 	     * @param {string} name
@@ -4820,7 +4279,6 @@ this.BX = this.BX || {};
 	    prepareControlCustomValue: function prepareControlCustomValue(values, name, field) {
 	      var stringFields = BX.Filter.Utils.getByTag(field, 'input', true);
 	      values[name] = '';
-
 	      if (BX.type.isArray(stringFields)) {
 	        stringFields.forEach(function (current) {
 	          if (BX.type.isNotEmptyString(current.name)) {
@@ -4833,7 +4291,6 @@ this.BX = this.BX || {};
 	      var select = BX.Filter.Utils.getByClass(field, this.settings.classMultiSelect);
 	      var value = JSON.parse(BX.data(select, 'value'));
 	      values[name] = '';
-
 	      if (BX.type.isArray(value) && value.length) {
 	        values[name] = {};
 	        value.forEach(function (current, index) {
@@ -4848,25 +4305,20 @@ this.BX = this.BX || {};
 	    },
 	    prepareControlCustomDateValue: function prepareControlCustomDateValue(values, name, field) {
 	      var daysControl = field.querySelector("[data-name=\"" + name + '_days' + "\"]");
-
 	      if (daysControl) {
 	        var daysValue = JSON.parse(daysControl.dataset.value);
 	        values[name + '_days'] = daysValue.map(function (item) {
 	          return item.VALUE;
 	        });
 	      }
-
 	      var monthsControl = field.querySelector("[data-name=\"" + name + '_months' + "\"]");
-
 	      if (monthsControl) {
 	        var monthsValue = JSON.parse(monthsControl.dataset.value);
 	        values[name + '_months'] = monthsValue.map(function (item) {
 	          return item.VALUE;
 	        });
 	      }
-
 	      var yearsControl = field.querySelector("[data-name=\"" + name + '_years' + "\"]");
-
 	      if (yearsControl) {
 	        var yearsValue = JSON.parse(yearsControl.dataset.value);
 	        values[name + '_years'] = yearsValue.map(function (item) {
@@ -4876,11 +4328,9 @@ this.BX = this.BX || {};
 	    },
 	    prepareControlDateValue: function prepareControlDateValue(values, name, field, withAdditional) {
 	      var additionalFieldsContainer = field.querySelector('.main-ui-filter-additional-fields-container');
-
 	      if (additionalFieldsContainer && !withAdditional) {
 	        BX.remove(additionalFieldsContainer);
 	      }
-
 	      var select = BX.Filter.Utils.getByClass(field, this.settings.classSelect);
 	      var yearsSwitcher = field.querySelector(".main-ui-select[data-name*=\"_allow_year\"]");
 	      var selectName = name + this.settings.datePostfix;
@@ -4900,19 +4350,15 @@ this.BX = this.BX || {};
 	      values[quarterName] = '';
 	      values[yearName] = '';
 	      var input = field.querySelector(".main-ui-date-input");
-
 	      if (input && input.dataset.isValid === "false") {
 	        return;
 	      }
-
 	      selectValue = JSON.parse(BX.data(select, 'value'));
 	      values[selectName] = selectValue.VALUE;
-
 	      if (yearsSwitcher) {
 	        yearsSwitcherValue = JSON.parse(BX.data(yearsSwitcher, 'value'));
 	        values[yearsSwitcherName] = yearsSwitcherValue.VALUE;
 	      }
-
 	      switch (selectValue.VALUE) {
 	        case this.dateTypes.EXACT:
 	          {
@@ -4921,66 +4367,51 @@ this.BX = this.BX || {};
 	            values[toName] = stringFields.value;
 	            break;
 	          }
-
 	        case this.dateTypes.QUARTER:
 	          {
 	            controls = BX.Filter.Utils.getByClass(field, this.settings.classControl, true);
-
 	            if (BX.type.isArray(controls)) {
 	              controls.forEach(function (current) {
 	                controlName = BX.data(current, 'name');
-
 	                if (controlName && controlName.indexOf('_quarter') !== -1) {
 	                  values[quarterName] = JSON.parse(BX.data(current, 'value')).VALUE;
 	                }
-
 	                if (controlName && controlName.endsWith('_year') && !controlName.endsWith('_allow_year')) {
 	                  values[yearName] = JSON.parse(BX.data(current, 'value')).VALUE;
 	                }
 	              }, this);
 	            }
-
 	            break;
 	          }
-
 	        case this.dateTypes.YEAR:
 	          {
 	            controls = BX.Filter.Utils.getByClass(field, this.settings.classControl, true);
-
 	            if (BX.type.isArray(controls)) {
 	              controls.forEach(function (current) {
 	                controlName = BX.data(current, 'name');
-
 	                if (controlName && controlName.endsWith('_year') && !controlName.endsWith('_allow_year')) {
 	                  values[yearName] = JSON.parse(BX.data(current, 'value')).VALUE;
 	                }
 	              }, this);
 	            }
-
 	            break;
 	          }
-
 	        case this.dateTypes.MONTH:
 	          {
 	            controls = BX.Filter.Utils.getByClass(field, this.settings.classControl, true);
-
 	            if (BX.type.isArray(controls)) {
 	              controls.forEach(function (current) {
 	                controlName = BX.data(current, 'name');
-
 	                if (controlName && controlName.indexOf('_month') !== -1) {
 	                  values[monthName] = JSON.parse(BX.data(current, 'value')).VALUE;
 	                }
-
 	                if (controlName && controlName.endsWith('_year') && !controlName.endsWith('_allow_year')) {
 	                  values[yearName] = JSON.parse(BX.data(current, 'value')).VALUE;
 	                }
 	              }, this);
 	            }
-
 	            break;
 	          }
-
 	        case this.additionalDateTypes.PREV_DAY:
 	        case this.additionalDateTypes.NEXT_DAY:
 	        case this.additionalDateTypes.MORE_THAN_DAYS_AGO:
@@ -4989,14 +4420,11 @@ this.BX = this.BX || {};
 	        case this.dateTypes.PREV_DAYS:
 	          {
 	            var control = BX.Filter.Utils.getByClass(field, this.settings.classNumberInput);
-
 	            if (!!control && control.name === daysName) {
 	              values[daysName] = control.value;
 	            }
-
 	            break;
 	          }
-
 	        case this.dateTypes.RANGE:
 	          {
 	            stringFields = BX.Filter.Utils.getByClass(field, this.settings.classDateInput, true);
@@ -5009,7 +4437,6 @@ this.BX = this.BX || {};
 	            }, this);
 	            break;
 	          }
-
 	        case "CUSTOM_DATE":
 	          {
 	            var customValues = {};
@@ -5019,19 +4446,15 @@ this.BX = this.BX || {};
 	            values[yearName] = customValues[name + '_years'];
 	            break;
 	          }
-
 	        default:
 	          {
 	            break;
 	          }
 	      }
-
 	      if (additionalFieldsContainer && !withAdditional) {
 	        BX.append(additionalFieldsContainer, field);
 	      }
-
 	      var additionalFields = Array.from(field.querySelectorAll('.main-ui-filter-additional-fields-container > [data-type="DATE"]'));
-
 	      if (additionalFields) {
 	        additionalFields.forEach(function (additionalField) {
 	          var name = additionalField.dataset.name;
@@ -5053,7 +4476,6 @@ this.BX = this.BX || {};
 	      stringFields.forEach(function (current) {
 	        if (current.name.indexOf(this.settings.fromPostfix) !== -1) {
 	          values[fromName] = current.value || '';
-
 	          if (values[selectName] === 'exact') {
 	            values[toName] = current.value || '';
 	          }
@@ -5065,7 +4487,6 @@ this.BX = this.BX || {};
 	    prepareControlStringValue: function prepareControlStringValue(values, field) {
 	      var control = BX.Filter.Utils.getByClass(field, this.settings.classStringInput);
 	      var name;
-
 	      if (BX.type.isDomNode(control)) {
 	        name = control.name;
 	        values[name] = control.value;
@@ -5074,27 +4495,23 @@ this.BX = this.BX || {};
 	    prepareControlTextareaValue: function prepareControlTextareaValue(values, field) {
 	      var control = BX.Filter.Utils.getByClass(field, this.settings.classStringInput);
 	      var name;
-
 	      if (BX.type.isDomNode(control)) {
 	        name = control.name;
 	        values[name] = control.value;
 	      }
 	    },
-
 	    /**
 	     * Shows grid animation
 	     */
 	    showGridAnimation: function showGridAnimation() {
 	      this.grid && this.grid.tableFade();
 	    },
-
 	    /**
 	     * Hides grid animations
 	     */
 	    hideGridAnimation: function hideGridAnimation() {
 	      this.grid && this.grid.tableUnfade();
 	    },
-
 	    /**
 	     * @private
 	     * @param {?Boolean} clear - is need reset filter
@@ -5103,18 +4520,14 @@ this.BX = this.BX || {};
 	     */
 	    getPresetId: function getPresetId(clear, applyPreset) {
 	      var presetId = this.getPreset().getCurrentPresetId();
-
 	      if (!this.isEditEnabled() && !this.isAddPresetEnabled() && !applyPreset || presetId === 'default_filter' && !clear) {
 	        presetId = 'tmp_filter';
 	      }
-
 	      return presetId;
 	    },
 	    isAppliedUserFilter: function isAppliedUserFilter() {
 	      var _this2 = this;
-
 	      var presetOptions = this.getPreset().getCurrentPresetData();
-
 	      if (BX.Type.isPlainObject(presetOptions)) {
 	        var hasFields = BX.Type.isArrayFilled(presetOptions.FIELDS) && presetOptions.FIELDS.some(function (field) {
 	          return !_this2.getPreset().isEmptyField(field);
@@ -5124,35 +4537,27 @@ this.BX = this.BX || {};
 	        });
 	        return !presetOptions.IS_PINNED && (hasFields || hasAdditional) || presetOptions.IS_PINNED && BX.Type.isArrayFilled(presetOptions.ADDITIONAL) || BX.Type.isStringFilled(this.getSearch().getSearchString());
 	      }
-
 	      return false;
 	    },
 	    isAppliedDefaultPreset: function isAppliedDefaultPreset() {
 	      var _this3 = this;
-
 	      var presetData = this.getPreset().getCurrentPresetData();
-
 	      if (!presetData.IS_PINNED) {
 	        return false;
 	      }
-
 	      if (BX.Type.isArrayFilled(presetData.ADDITIONAL)) {
 	        var hasAdditional = presetData.ADDITIONAL.some(function (field) {
 	          return !_this3.getPreset().isEmptyField(field);
 	        });
-
 	        if (hasAdditional) {
 	          return false;
 	        }
 	      }
-
 	      if (BX.Type.isStringFilled(this.getSearch().getSearchString())) {
 	        return false;
 	      }
-
 	      return true;
 	    },
-
 	    /**
 	     * Applies filter
 	     * @param {?Boolean} [clear] - is need reset filter
@@ -5162,7 +4567,6 @@ this.BX = this.BX || {};
 	     */
 	    applyFilter: function applyFilter(clear, applyPreset, isSetOutside) {
 	      this.setIsSetOutsideState(isSetOutside);
-	      var presetId = this.getPresetId(clear, applyPreset);
 	      var filterId = this.getParam('FILTER_ID');
 	      var promise = new BX.Promise(null, this);
 	      var Preset = this.getPreset();
@@ -5172,22 +4576,21 @@ this.BX = this.BX || {};
 	      };
 	      var self = this;
 	      this.setDefaultPresetAppliedState(this.isAppliedDefaultPreset());
-
 	      if (this.isAppliedUserFilter()) {
 	        BX.Dom.addClass(this.getSearch().container, 'main-ui-filter-search--active');
 	      } else {
 	        BX.Dom.removeClass(this.getSearch().container, 'main-ui-filter-search--active');
 	      }
-
 	      this.clearGet();
 	      this.showGridAnimation();
 	      var action = clear ? "clear" : "apply";
 	      BX.onCustomEvent(window, 'BX.Main.Filter:beforeApply', [filterId, {
 	        action: action
 	      }, this, promise]);
+	      // presetId defined  after `beforeApply` because current preset may be changed by the event's handlers
+	      var presetId = this.getPresetId(clear, applyPreset);
 	      this.updatePreset(presetId, null, clear, null).then(function () {
 	        Search.updatePreset(Preset.getPreset(presetId));
-
 	        if (self.getParam('VALUE_REQUIRED')) {
 	          if (!Search.getSquares().length) {
 	            self.lastPromise = Preset.applyPinnedPreset();
@@ -5208,7 +4611,6 @@ this.BX = this.BX || {};
 	      });
 	      return promise;
 	    },
-
 	    /**
 	     * Gets add field buttons
 	     * @return {?HTMLElement}
@@ -5216,7 +4618,6 @@ this.BX = this.BX || {};
 	    getAddField: function getAddField() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classAddField);
 	    },
-
 	    /**
 	     * Gets fields list container
 	     * @return {?HTMLElement}
@@ -5224,7 +4625,6 @@ this.BX = this.BX || {};
 	    getFieldListContainer: function getFieldListContainer() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classFileldControlList);
 	    },
-
 	    /**
 	     * @return {BX.Filter.Fields}
 	     */
@@ -5232,10 +4632,8 @@ this.BX = this.BX || {};
 	      if (!(this.fields instanceof BX.Filter.Fields)) {
 	        this.fields = new BX.Filter.Fields(this);
 	      }
-
 	      return this.fields;
 	    },
-
 	    /**
 	     * @return {BX.Filter.Presets}
 	     */
@@ -5243,10 +4641,8 @@ this.BX = this.BX || {};
 	      if (!(this.presets instanceof BX.Filter.Presets)) {
 	        this.presets = new BX.Filter.Presets(this);
 	      }
-
 	      return this.presets;
 	    },
-
 	    /**
 	     * @param controlData
 	     * @return {*}
@@ -5259,13 +4655,11 @@ this.BX = this.BX || {};
 	              controlData.VALUE = [];
 	              break;
 	            }
-
 	          case this.types.SELECT:
 	            {
 	              controlData.VALUE = controlData.ITEMS[0];
 	              break;
 	            }
-
 	          case this.types.DATE:
 	            {
 	              controlData.SUB_TYPE = controlData.SUB_TYPES[0];
@@ -5278,7 +4672,6 @@ this.BX = this.BX || {};
 	              };
 	              break;
 	            }
-
 	          case this.types.CUSTOM_DATE:
 	            {
 	              controlData.VALUES = {
@@ -5288,7 +4681,6 @@ this.BX = this.BX || {};
 	              };
 	              break;
 	            }
-
 	          case this.types.NUMBER:
 	            {
 	              controlData.SUB_TYPE = controlData.SUB_TYPES[0];
@@ -5298,7 +4690,6 @@ this.BX = this.BX || {};
 	              };
 	              break;
 	            }
-
 	          case this.types.DEST_SELECTOR:
 	          case this.types.ENTITY_SELECTOR:
 	          case this.types.CUSTOM_ENTITY:
@@ -5309,20 +4700,17 @@ this.BX = this.BX || {};
 	              };
 	              break;
 	            }
-
 	          case this.types.CUSTOM:
 	            {
 	              controlData._VALUE = '';
 	              break;
 	            }
-
 	          default:
 	            {
 	              controlData.VALUE = '';
 	            }
 	        }
 	      }
-
 	      return controlData;
 	    },
 	    clearControl: function clearControl(name) {
@@ -5330,7 +4718,6 @@ this.BX = this.BX || {};
 	        NAME: name
 	      });
 	      var controlData, newControl;
-
 	      if (BX.type.isDomNode(control)) {
 	        controlData = this.getFieldByName(name);
 	        controlData = this.resetControlData(controlData);
@@ -5348,7 +4735,6 @@ this.BX = this.BX || {};
 	        this.clearControl(squareData.name);
 	      }
 	    },
-
 	    /**
 	     * Gets filter popup template
 	     * @return {?string}
@@ -5360,10 +4746,8 @@ this.BX = this.BX || {};
 	      if (!BX.type.isBoolean(this.ie)) {
 	        this.ie = BX.hasClass(document.documentElement, 'bx-ie');
 	      }
-
 	      return this.ie;
 	    },
-
 	    /**
 	     * Closes filter popup
 	     */
@@ -5378,11 +4762,9 @@ this.BX = this.BX || {};
 	          BX.removeClass(popupContainer, this.settings.classAnimationShow);
 	          BX.addClass(popupContainer, this.settings.classAnimationClose);
 	          closeDelay = parseFloat(BX.style(popupContainer, 'animation-duration'));
-
 	          if (BX.type.isNumber(closeDelay)) {
 	            closeDelay = closeDelay * 1000;
 	          }
-
 	          setTimeout(function () {
 	            popup.close();
 	          }, closeDelay);
@@ -5390,41 +4772,33 @@ this.BX = this.BX || {};
 	          popup.close();
 	        }
 	      }, this), configCloseDelay);
-
 	      if (this.getParam("LIMITS_ENABLED")) {
 	        BX.removeClass(this.getFilter(), this.settings.classLimitsAnimation);
 	      }
-
 	      this.closeFieldListPopup();
 	      this.adjustFocus();
 	    },
-
 	    /**
 	     * Shows filter popup
 	     */
 	    showPopup: function showPopup() {
 	      var popup = this.getPopup();
 	      var popupContainer;
-
 	      if (!popup.isShown()) {
 	        BX.Dom.addClass(this.getSearch().container, 'main-ui-filter-search--showed');
 	        this.isOpened = true;
 	        var showDelay = this.settings.get('FILTER_SHOW_DELAY');
-
 	        if (this.getParam('LIMITS_ENABLED') === true) {
 	          this.limitAnalyticsSend();
 	        }
-
 	        setTimeout(BX.delegate(function () {
 	          popup.show();
-
 	          if (!this.isIe()) {
 	            popupContainer = popup.popupContainer;
 	            BX.removeClass(popupContainer, this.settings.classAnimationClose);
 	            BX.addClass(popupContainer, this.settings.classAnimationShow);
 	            BX.onCustomEvent(window, "BX.Main.Filter:show", [this]);
 	          }
-
 	          var textareas = [].slice.call(this.getFieldListContainer().querySelectorAll('textarea'));
 	          textareas.forEach(function (item) {
 	            BX.style(item, 'height', item.scrollHeight + 'px');
@@ -5432,7 +4806,6 @@ this.BX = this.BX || {};
 	        }, this), showDelay);
 	      }
 	    },
-
 	    /**
 	     * Gets save for all checkbox element
 	     * @return {?HTMLInputElement}
@@ -5441,10 +4814,8 @@ this.BX = this.BX || {};
 	      if (!this.saveForAllCheckbox && !!this.getSaveForAllCheckboxContainer()) {
 	        this.saveForAllCheckbox = BX.Filter.Utils.getBySelector(this.getSaveForAllCheckboxContainer(), 'input[type="checkbox"]');
 	      }
-
 	      return this.saveForAllCheckbox;
 	    },
-
 	    /**
 	     * Gets save for all checkbox container
 	     * @return {?HTMLElement}
@@ -5453,24 +4824,20 @@ this.BX = this.BX || {};
 	      if (!this.saveForAllCheckboxContainer) {
 	        this.saveForAllCheckboxContainer = BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classForAllCheckbox);
 	      }
-
 	      return this.saveForAllCheckboxContainer;
 	    },
-
 	    /**
 	     * Shows for all checkbox
 	     */
 	    showForAllCheckbox: function showForAllCheckbox() {
 	      !!this.getSaveForAllCheckboxContainer() && BX.removeClass(this.getSaveForAllCheckboxContainer(), this.settings.classHide);
 	    },
-
 	    /**
 	     * Hides for all checkbox
 	     */
 	    hideForAllCheckbox: function hideForAllCheckbox() {
 	      !!this.getSaveForAllCheckboxContainer() && BX.addClass(this.getSaveForAllCheckboxContainer(), this.settings.classHide);
 	    },
-
 	    /**
 	     * Gets popup bind element
 	     * @return {?HTMLElement}
@@ -5479,17 +4846,13 @@ this.BX = this.BX || {};
 	      if (!this.popupBindElement) {
 	        var selector = this.settings.get('POPUP_BIND_ELEMENT_SELECTOR');
 	        var result = null;
-
 	        if (BX.type.isNotEmptyString(selector)) {
 	          result = BX.Filter.Utils.getBySelector(document, selector);
 	        }
-
 	        this.popupBindElement = !!result ? result : this.getSearch().getContainer();
 	      }
-
 	      return this.popupBindElement;
 	    },
-
 	    /**
 	     * Gets filter popup window instance
 	     * @return {BX.PopupWindow}
@@ -5524,13 +4887,11 @@ this.BX = this.BX || {};
 	        this.getPreset().showCurrentPresetFields();
 	        this.getPreset().bindOnPresetClick();
 	      }
-
 	      return this.popup;
 	    },
 	    _onRestoreFieldsButtonClick: function _onRestoreFieldsButtonClick() {
 	      this.restoreDefaultFields();
 	    },
-
 	    /**
 	     * Restores default fields list
 	     */
@@ -5552,7 +4913,6 @@ this.BX = this.BX || {};
 	          presets[index] = BX.clone(defaultPreset);
 	        }
 	      }, this);
-
 	      if (BX.type.isArray(this.editablePresets)) {
 	        this.editablePresets.forEach(function (current, index) {
 	          if (current.ID === 'default_filter') {
@@ -5560,7 +4920,6 @@ this.BX = this.BX || {};
 	          }
 	        }, this);
 	      }
-
 	      this.getPreset().applyPreset(currentPresetId);
 	      this.updatePreset(currentPresetId);
 	      this.saveOptions({
@@ -5570,7 +4929,6 @@ this.BX = this.BX || {};
 	        apply_filter: "N"
 	      }, params);
 	    },
-
 	    /**
 	     * Gets restore default fields button
 	     * @return {?HTMLElement}
@@ -5579,10 +4937,8 @@ this.BX = this.BX || {};
 	      if (!this.restoreFieldsButton) {
 	        this.restoreFieldsButton = BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classRestoreFieldsButton);
 	      }
-
 	      return this.restoreFieldsButton;
 	    },
-
 	    /**
 	     * Restores filter
 	     */
@@ -5591,7 +4947,6 @@ this.BX = this.BX || {};
 	      var allPresets = this.getParam('PRESETS');
 	      var isReplace = false;
 	      var replaceIndex, applyPresetId, presetNode;
-
 	      if (BX.type.isArray(defaultPresets)) {
 	        defaultPresets.sort(function (a, b) {
 	          return a.SORT - b.SORT;
@@ -5603,33 +4958,26 @@ this.BX = this.BX || {};
 	              return true;
 	            }
 	          });
-
 	          if (isReplace) {
 	            allPresets[replaceIndex] = BX.clone(defPreset);
 	          } else {
 	            allPresets.push(BX.clone(defPreset));
 	          }
-
 	          if (defPreset.ID !== 'default_filter') {
 	            this.addSidebarItem(defPreset.ID, defPreset.TITLE, defPreset.IS_PINNED);
-
 	            if (defPreset.IS_PINNED) {
 	              applyPresetId = defPreset.ID;
 	            }
 	          }
 	        }, this);
 	      }
-
 	      this.saveRestoreFilter();
 	      this.disableAddPreset();
 	      this.disableEdit();
-
 	      if (!applyPresetId) {
 	        applyPresetId = "default_filter";
 	      }
-
 	      presetNode = this.getPreset().getPresetNodeById(applyPresetId);
-
 	      if (presetNode) {
 	        BX.fireEvent(presetNode, 'click');
 	      }
@@ -5643,7 +4991,6 @@ this.BX = this.BX || {};
 	      var presets = this.getParam('PRESETS');
 	      var data = {};
 	      var rows;
-
 	      if (BX.type.isArray(presets)) {
 	        presets.forEach(function (current) {
 	          rows = current.FIELDS.map(function (field) {
@@ -5662,7 +5009,6 @@ this.BX = this.BX || {};
 	        this.saveOptions(data, params);
 	      }
 	    },
-
 	    /**
 	     * Prepares fields
 	     * @param {object[]} fields
@@ -5671,13 +5017,11 @@ this.BX = this.BX || {};
 	    prepareFields: function prepareFields(fields) {
 	      var result = {};
 	      var valuesKeys;
-
 	      if (BX.type.isArray(fields)) {
 	        fields.forEach(function (current) {
 	          if (current.TYPE === this.types.SELECT) {
 	            result[current.NAME] = 'VALUE' in current.VALUE ? current.VALUE.VALUE : '';
 	          }
-
 	          if (current.TYPE === this.types.MULTI_SELECT) {
 	            current.VALUE.forEach(function (val, i) {
 	              result[current.NAME] = result[current.NAME] || {};
@@ -5685,32 +5029,26 @@ this.BX = this.BX || {};
 	            });
 	            result[current.NAME] = result[current.NAME] || '';
 	          }
-
 	          if (current.TYPE === this.types.DATE || current.TYPE === this.types.NUMBER) {
 	            valuesKeys = Object.keys(current.VALUES);
 	            valuesKeys.forEach(function (key) {
 	              result[current.NAME + key] = current.VALUES[key];
 	            });
-
 	            if (current.TYPE === this.types.DATE) {
 	              result[current.NAME + '_datesel'] = 'VALUE' in current.SUB_TYPE ? current.SUB_TYPE.VALUE : current.SUB_TYPES[0].VALUE;
 	            }
-
 	            if (current.TYPE === this.types.NUMBER) {
 	              result[current.NAME + '_numsel'] = 'VALUE' in current.SUB_TYPE ? current.SUB_TYPE.VALUE : current.SUB_TYPES[0].VALUE;
 	            }
 	          }
-
 	          if (current.TYPE === this.types.DEST_SELECTOR || current.TYPE === this.types.ENTITY_SELECTOR || current.TYPE === this.types.CUSTOM_ENTITY) {
 	            result[current.NAME + '_label'] = current.VALUES._label;
 	            result[current.NAME + '_value'] = current.VALUES._value;
 	          }
 	        }, this);
 	      }
-
 	      return result;
 	    },
-
 	    /**
 	     * Gets restore button
 	     * @return {?HTMLElement}
@@ -5719,7 +5057,6 @@ this.BX = this.BX || {};
 	      if (!BX.type.isDomNode(this.restoreButton)) {
 	        this.restoreButton = BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classRestoreButton);
 	      }
-
 	      return this.restoreButton;
 	    },
 	    _onPresetInputKeydown: function _onPresetInputKeydown(event) {
@@ -5737,7 +5074,6 @@ this.BX = this.BX || {};
 	      var presets = this.getPreset();
 	      var currentPresetId = presets.getCurrentPresetId();
 	      var promise;
-
 	      if (currentPresetId !== 'tmp_filter' && currentPresetId !== 'default_filter' && !presets.isPresetValuesModified(currentPresetId)) {
 	        var preset = presets.getPreset(currentPresetId);
 	        var additional = presets.getAdditionalValues(currentPresetId);
@@ -5755,17 +5091,14 @@ this.BX = this.BX || {};
 	        promise = this.applyFilter();
 	        this.closePopup();
 	      }
-
 	      return promise;
 	    },
 	    _onResetButtonClick: function _onResetButtonClick() {
 	      if (this.getParam('VALUE_REQUIRED')) {
 	        var preset = this.getPreset().getCurrentPresetData();
-
 	        if (preset.ADDITIONAL.length) {
 	          this.closePopup();
 	        }
-
 	        BX.fireEvent(this.getSearch().getClearButton(), 'click');
 	      } else {
 	        if (this.getParam('RESET_TO_DEFAULT_MODE')) {
@@ -5774,11 +5107,9 @@ this.BX = this.BX || {};
 	        } else {
 	          this.resetFilter();
 	        }
-
 	        this.closePopup();
 	      }
 	    },
-
 	    /**
 	     * @param withoutSearch
 	     * @return {BX.Promise}
@@ -5786,11 +5117,9 @@ this.BX = this.BX || {};
 	    resetFilter: function resetFilter(withoutSearch) {
 	      var Search = this.getSearch();
 	      var Presets = this.getPreset();
-
 	      if (!withoutSearch) {
 	        Search.clearInput();
 	      }
-
 	      Search.removePreset();
 	      Presets.deactivateAllPresets();
 	      Presets.resetPreset(true);
@@ -5805,19 +5134,16 @@ this.BX = this.BX || {};
 	        this.disableEdit();
 	      }
 	    },
-
 	    /**
 	     * Enables fields drag and drop
 	     */
 	    enableFieldsDragAndDrop: function enableFieldsDragAndDrop() {
 	      var fields = this.getPreset().getFields();
 	      this.fieldsList = [];
-
 	      if (BX.type.isArray(fields)) {
 	        this.fieldsList = fields.map(this.registerDragItem, this);
 	      }
 	    },
-
 	    /**
 	     * Register drag item
 	     * @param {HTMLElement} item
@@ -5825,7 +5151,6 @@ this.BX = this.BX || {};
 	     */
 	    registerDragItem: function registerDragItem(item) {
 	      var dragButton = this.getDragButton(item);
-
 	      if (dragButton) {
 	        dragButton.onbxdragstart = BX.delegate(this._onFieldDragStart, this);
 	        dragButton.onbxdragstop = BX.delegate(this._onFieldDragStop, this);
@@ -5833,17 +5158,14 @@ this.BX = this.BX || {};
 	        jsDD.registerObject(dragButton);
 	        jsDD.registerDest(dragButton);
 	      }
-
 	      return item;
 	    },
-
 	    /**
 	     * Unregister drag item
 	     * @param {HTMLElement} item
 	     */
 	    unregisterDragItem: function unregisterDragItem(item) {
 	      var dragButton = this.getDragButton(item);
-
 	      if (dragButton) {
 	        jsDD.unregisterObject(dragButton);
 	        jsDD.unregisterDest(dragButton);
@@ -5885,31 +5207,26 @@ this.BX = this.BX || {};
 	        if (current) {
 	          currentRect = current.getBoundingClientRect();
 	          currentMiddle = currentRect.top + BX.scrollTop(window) + currentRect.height / 2;
-
 	          if (index > self.dragIndex && self.sortOffset > currentMiddle && current.style.transform !== 'translate3d(0px, ' + -self.offset + 'px, 0px)' && current.style.transform !== '') {
 	            self.targetItem = current;
 	            BX.style(current, 'transform', 'translate3d(0px, ' + -self.offset + 'px, 0px)');
 	            BX.style(current, 'transition', '300ms');
 	          }
-
 	          if (index < self.dragIndex && self.sortOffset < currentMiddle && current.style.transform !== 'translate3d(0px, ' + self.offset + 'px, 0px)' && current.style.transform !== '') {
 	            self.targetItem = current;
 	            BX.style(current, 'transform', 'translate3d(0px, ' + self.offset + 'px, 0px)');
 	            BX.style(current, 'transition', '300ms');
 	          }
-
 	          if ((index < self.dragIndex && self.sortOffset > currentMiddle || index > self.dragIndex && self.sortOffset < currentMiddle) && current.style.transform !== 'translate3d(0px, 0px, 0px)') {
 	            if (current.style.transform !== '') {
 	              self.targetItem = current;
 	            }
-
 	            BX.style(current, 'transform', 'translate3d(0px, 0px, 0px)');
 	            BX.style(current, 'transition', '300ms');
 	          }
 	        }
 	      });
 	    },
-
 	    /**
 	     * Disables fields drag and drop
 	     */
@@ -5918,7 +5235,6 @@ this.BX = this.BX || {};
 	        this.fieldsList.map(this.unregisterDragItem, this);
 	      }
 	    },
-
 	    /**
 	     * Enables presets drag and drop
 	     */
@@ -5927,11 +5243,9 @@ this.BX = this.BX || {};
 	      Preset = this.getPreset();
 	      presets = Preset.getPresets();
 	      this.presetsList = [];
-
 	      if (BX.type.isArray(presets) && presets.length) {
 	        presets.forEach(function (current) {
 	          presetId = Preset.getPresetId(current);
-
 	          if (!BX.hasClass(current, this.settings.classAddPresetField) && presetId !== 'default_filter' && !BX.hasClass(current, this.settings.classDefaultFilter)) {
 	            dragButton = this.getDragButton(current);
 	            dragButton.onbxdragstart = BX.delegate(this._onDragStart, this);
@@ -5944,7 +5258,6 @@ this.BX = this.BX || {};
 	        }, this);
 	      }
 	    },
-
 	    /**
 	     * Gets drag button
 	     * @param {HTMLElement} presetNode
@@ -5953,7 +5266,6 @@ this.BX = this.BX || {};
 	    getDragButton: function getDragButton(presetNode) {
 	      return BX.Filter.Utils.getByClass(presetNode, this.settings.classPresetDragButton);
 	    },
-
 	    /**
 	     * Disables presets drag and drop
 	     */
@@ -5983,7 +5295,6 @@ this.BX = this.BX || {};
 	      this.realX = event.clientX;
 	      this.realY = event.clientY;
 	    },
-
 	    /**
 	     * Gets drag offset
 	     * @return {number}
@@ -6003,7 +5314,6 @@ this.BX = this.BX || {};
 	      Preset = this.getPreset();
 	      presets = Preset.getPresets();
 	      this.presetsList = [];
-
 	      if (BX.type.isArray(presets) && presets.length) {
 	        presets.forEach(function (current) {
 	          if (!BX.hasClass(current, this.settings.classAddPresetField) && !BX.hasClass(current, this.settings.classDefaultFilter)) {
@@ -6025,31 +5335,26 @@ this.BX = this.BX || {};
 	        if (current) {
 	          currentRect = current.getBoundingClientRect();
 	          currentMiddle = currentRect.top + BX.scrollTop(window) + currentRect.height / 2;
-
 	          if (index > self.dragIndex && self.sortOffset > currentMiddle && current.style.transform !== 'translate3d(0px, ' + -self.offset + 'px, 0px)' && current.style.transform !== '') {
 	            self.targetItem = current;
 	            BX.style(current, 'transform', 'translate3d(0px, ' + -self.offset + 'px, 0px)');
 	            BX.style(current, 'transition', '300ms');
 	          }
-
 	          if (index < self.dragIndex && self.sortOffset < currentMiddle && current.style.transform !== 'translate3d(0px, ' + self.offset + 'px, 0px)' && current.style.transform !== '') {
 	            self.targetItem = current;
 	            BX.style(current, 'transform', 'translate3d(0px, ' + self.offset + 'px, 0px)');
 	            BX.style(current, 'transition', '300ms');
 	          }
-
 	          if ((index < self.dragIndex && self.sortOffset > currentMiddle || index > self.dragIndex && self.sortOffset < currentMiddle) && current.style.transform !== 'translate3d(0px, 0px, 0px)') {
 	            if (current.style.transform !== '') {
 	              self.targetItem = current;
 	            }
-
 	            BX.style(current, 'transform', 'translate3d(0px, 0px, 0px)');
 	            BX.style(current, 'transition', '300ms');
 	          }
 	        }
 	      });
 	    },
-
 	    /**
 	     * Gets sidebar controls container
 	     * @return {?HTMLElement}
@@ -6058,10 +5363,8 @@ this.BX = this.BX || {};
 	      if (!BX.type.isDomNode(this.sidebarControlsContainer)) {
 	        this.sidebarControlsContainer = BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classSidebarControlsContainer);
 	      }
-
 	      return this.sidebarControlsContainer;
 	    },
-
 	    /**
 	     * Enables edit mode
 	     */
@@ -6069,17 +5372,14 @@ this.BX = this.BX || {};
 	      var Preset = this.getPreset();
 	      var presets = Preset.getPresets();
 	      var presetId;
-
 	      if (BX.type.isArray(presets) && presets.length) {
 	        presets.forEach(function (current) {
 	          presetId = Preset.getPresetId(current);
-
 	          if (!BX.hasClass(current, this.settings.classAddPresetField) && presetId !== 'default_filter') {
 	            BX.addClass(current, this.settings.classPresetEdit);
 	          }
 	        }, this);
 	      }
-
 	      this.enablePresetsDragAndDrop();
 	      BX.show(this.getButtonsContainer());
 	      BX.hide(this.getPresetButtonsContainer());
@@ -6087,14 +5387,12 @@ this.BX = this.BX || {};
 	      this.editablePresets = BX.clone(this.getParam('PRESETS'));
 	      this.isEditEnabledState = true;
 	    },
-
 	    /**
 	     * Disables edit mode
 	     */
 	    disableEdit: function disableEdit() {
 	      var Preset = this.getPreset();
 	      var presets = Preset.getPresets();
-
 	      if (BX.type.isArray(presets) && presets.length) {
 	        presets.forEach(function (current) {
 	          if (!BX.hasClass(current, this.settings.classAddPresetField)) {
@@ -6103,20 +5401,16 @@ this.BX = this.BX || {};
 	          }
 	        }, this);
 	      }
-
 	      this.disablePresetsDragAndDrop();
-
 	      if (!this.isAddPresetEnabled()) {
 	        BX.style(this.getButtonsContainer(), 'display', '');
 	      }
-
 	      BX.show(this.getPresetButtonsContainer());
 	      BX.removeClass(this.getSidebarControlsContainer(), this.settings.classDisabled);
 	      this.editablePresets = null;
 	      this.isEditEnabledState = false;
 	      this.applyFilter(null, true);
 	    },
-
 	    /**
 	     * Get preset buttons container
 	     * @return {?HTMLElement}
@@ -6125,10 +5419,8 @@ this.BX = this.BX || {};
 	      if (!BX.type.isDomNode(this.presetButtonsContainer)) {
 	        this.presetButtonsContainer = BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classPresetButtonsContainer);
 	      }
-
 	      return this.presetButtonsContainer;
 	    },
-
 	    /**
 	     * Checks is edit mode enabled
 	     * @return {boolean}
@@ -6136,7 +5428,6 @@ this.BX = this.BX || {};
 	    isEditEnabled: function isEditEnabled() {
 	      return this.isEditEnabledState;
 	    },
-
 	    /**
 	     * Gets edit button element
 	     * @return {?HTMLElement}
@@ -6144,7 +5435,6 @@ this.BX = this.BX || {};
 	    getEditButton: function getEditButton() {
 	      return BX.Filter.Utils.getByClass(this.getFilter(), this.settings.classEditButton);
 	    },
-
 	    /**
 	     * Gets component param by param name
 	     * @param {string} paramName
@@ -6154,7 +5444,6 @@ this.BX = this.BX || {};
 	    getParam: function getParam(paramName, defaultValue) {
 	      return paramName in this.params ? this.params[paramName] : defaultValue;
 	    },
-
 	    /**
 	     * Gets container of filter popup
 	     * @returns {HTMLElement|null}
@@ -6162,7 +5451,6 @@ this.BX = this.BX || {};
 	    getFilter: function getFilter() {
 	      return BX.Filter.Utils.getByClass(this.getPopup().contentContainer, this.settings.classFilterContainer);
 	    },
-
 	    /**
 	     * @returns {BX.Filter.Search}
 	     */
@@ -6170,7 +5458,6 @@ this.BX = this.BX || {};
 	      if (!(this.search instanceof BX.Filter.Search)) {
 	        this.search = new BX.Filter.Search(this);
 	      }
-
 	      return this.search;
 	    },
 	    _onRestoreButtonClick: function _onRestoreButtonClick() {
@@ -6182,7 +5469,6 @@ this.BX = this.BX || {};
 	      };
 	      this.confirmDialog(action, BX.delegate(this.restoreFilter, this));
 	    },
-
 	    /**
 	     * Shows confirmation popup
 	     * @param {object} action - Popup properties
@@ -6233,7 +5519,6 @@ this.BX = this.BX || {};
 	        BX.addCustomEvent(dialog, 'onPopupClose', BX.delegate(function () {
 	          !!this.getSaveForAllCheckbox() && (this.getSaveForAllCheckbox().checked = null);
 	        }, this));
-
 	        if (!dialog.isShown()) {
 	          dialog.show();
 	          var popupContainer = dialog.popupContainer;
@@ -6247,20 +5532,16 @@ this.BX = this.BX || {};
 	    getInitialValue: function getInitialValue(name) {
 	      if (BX.type.isString(name)) {
 	        var values = this.params.INITIAL_FILTER;
-
 	        if (BX.type.isPlainObject(values)) {
 	          var filteredEntries = Object.entries(values).reduce(function (acc, item) {
 	            if (item[0].startsWith(name)) {
 	              acc.push(item);
 	            }
-
 	            return acc;
 	          }, []);
-
 	          if (filteredEntries.length === 1) {
 	            return filteredEntries[0][1];
 	          }
-
 	          if (filteredEntries.length > 1) {
 	            return filteredEntries.reduce(function (acc, item) {
 	              acc[item[0].replace(name, '')] = item[1];
@@ -6269,7 +5550,6 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      }
-
 	      return '';
 	    },
 	    getField: function getField(name) {
@@ -6282,7 +5562,6 @@ this.BX = this.BX || {};
 	    setIsSetOutsideState: function setIsSetOutsideState(state) {
 	      this.isSetOutsideState = BX.Text.toBoolean(state);
 	      var searchContainer = this.getSearch().getContainer();
-
 	      if (this.isSetOutsideState) {
 	        BX.Dom.addClass(searchContainer, 'main-ui-filter-set-outside');
 	        BX.Dom.removeClass(searchContainer, 'main-ui-filter-set-inside');
@@ -6294,7 +5573,6 @@ this.BX = this.BX || {};
 	    setDefaultPresetAppliedState: function setDefaultPresetAppliedState(state) {
 	      this.isDefaultPresetAppliedState = BX.Text.toBoolean(state);
 	      var searchContainer = this.getSearch().getContainer();
-
 	      if (this.isDefaultPresetAppliedState) {
 	        BX.Dom.addClass(searchContainer, 'main-ui-filter-default-applied');
 	      } else {
@@ -6303,7 +5581,6 @@ this.BX = this.BX || {};
 	    }
 	  };
 	})();
-
 	(function () {
 	  BX.Main.filterManager = {
 	    data: {},
@@ -6314,11 +5591,9 @@ this.BX = this.BX || {};
 	    },
 	    getById: function getById(id) {
 	      var result = null;
-
 	      if (id in this.data) {
 	        result = this.data[id];
 	      }
-
 	      return result;
 	    },
 	    getList: function getList() {
@@ -6328,22 +5603,16 @@ this.BX = this.BX || {};
 	})();
 
 	var _templateObject$1;
-
 	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var onValueChange = Symbol('onValueChange');
 	var Field = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Field, _Event$EventEmitter);
-
 	  function Field(options) {
 	    var _this;
-
 	    babelHelpers.classCallCheck(this, Field);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Field).call(this, options));
-
 	    _this.setEventNamespace('BX.Filter.Field');
-
 	    _this.id = options.options.NAME;
 	    _this.parent = options.parent;
 	    _this.node = options.node;
@@ -6373,7 +5642,6 @@ this.BX = this.BX || {};
 	    Field.instances.set(_this.node, babelHelpers.assertThisInitialized(_this));
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(Field, [{
 	    key: "subscribe",
 	    value: function subscribe(eventName, listener) {
@@ -6391,7 +5659,6 @@ this.BX = this.BX || {};
 	     * @private
 	     * @return {HTMLDivElement}
 	     */
-
 	  }, {
 	    key: "getAdditionalFieldContainer",
 	    value: function getAdditionalFieldContainer() {
@@ -6403,7 +5670,6 @@ this.BX = this.BX || {};
 	     * @private
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "hasAdditional",
 	    value: function hasAdditional() {
@@ -6416,52 +5682,44 @@ this.BX = this.BX || {};
 	        main_core.Dom.addClass(this.node, 'main-ui-filter-field-with-additional-fields');
 	        main_core.Dom.append(this.getAdditionalFieldContainer(), this.node);
 	      }
-
 	      var preset = this.parent.getPreset();
 	      var options = this.prepareFieldOptions(field);
 	      var renderedField = preset.createControl(options);
 	      this.appendRenderedField(renderedField);
 	      return Field.instances.get(renderedField);
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "prepareListItems",
 	    value: function prepareListItems() {
 	      var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
 	      if (main_core.Type.isPlainObject(items)) {
 	        return Object.entries(items).map(function (_ref) {
 	          var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	              VALUE = _ref2[0],
-	              NAME = _ref2[1];
-
+	            VALUE = _ref2[0],
+	            NAME = _ref2[1];
 	          return {
 	            NAME: NAME,
 	            VALUE: VALUE
 	          };
 	        });
 	      }
-
 	      return {};
 	    }
 	    /**
 	     * @private
 	     * @return {object}
 	     */
-
 	  }, {
 	    key: "prepareFieldOptions",
 	    value: function prepareFieldOptions(options) {
 	      var _this2 = this;
-
 	      if (main_core.Type.isPlainObject(options)) {
 	        var stubs = this.parent.params.FIELDS_STUBS;
 	        var _options$type = options.type,
-	            type = _options$type === void 0 ? 'string' : _options$type;
+	          type = _options$type === void 0 ? 'string' : _options$type;
 	        var stub = stubs.find(function (item) {
 	          return item.NAME === type;
 	        });
-
 	        if (main_core.Type.isPlainObject(stub)) {
 	          var baseField = _objectSpread$2(_objectSpread$2({}, stub), {}, {
 	            NAME: options.id,
@@ -6469,7 +5727,6 @@ this.BX = this.BX || {};
 	            TYPE: type === 'checkbox' ? 'SELECT' : stub.TYPE,
 	            VALUE_REQUIRED: options.valueRequired === true
 	          });
-
 	          if (type === 'list') {
 	            return _objectSpread$2(_objectSpread$2({}, baseField), {}, {
 	              ITEMS: [].concat(babelHelpers.toConsumableArray(baseField.ITEMS), [this.prepareListItems(options.items)]),
@@ -6478,23 +5735,19 @@ this.BX = this.BX || {};
 	                  if (main_core.Type.isPlainObject(options.params)) {
 	                    return options.params === true;
 	                  }
-
 	                  return false;
 	                }()
 	              }
 	            });
 	          }
-
 	          if (type === 'date') {
 	            var subType = function () {
 	              if (main_core.Type.isPlainObject(options.value) && Reflect.has(options.value, '_datesel')) {
 	                // eslint-disable-next-line no-underscore-dangle
 	                return options.value._datesel;
 	              }
-
 	              return _this2.parent.dateTypes.NONE;
 	            }();
-
 	            return _objectSpread$2(_objectSpread$2({}, baseField), {}, {
 	              SUB_TYPES: function () {
 	                if (main_core.Type.isArray(options.exclude)) {
@@ -6502,7 +5755,6 @@ this.BX = this.BX || {};
 	                    return !options.exclude.includes(item.VALUE);
 	                  });
 	                }
-
 	                return baseField.SUB_TYPES;
 	              }(),
 	              SUB_TYPE: function () {
@@ -6514,24 +5766,20 @@ this.BX = this.BX || {};
 	                if (main_core.Type.isPlainObject(options.value)) {
 	                  return _objectSpread$2({}, options.value);
 	                }
-
 	                return baseField.VALUES;
 	              }()
 	            });
 	          }
-
 	          if (type === 'string' || type === 'custom_date' || type === 'number' || type === 'checkbox' || type === 'custom_entity') {
 	            return baseField;
 	          }
 	        }
 	      }
-
 	      return options;
 	    }
 	    /**
 	     * @private
 	     */
-
 	  }, {
 	    key: "appendRenderedField",
 	    value: function appendRenderedField(field) {
@@ -6545,65 +5793,51 @@ this.BX = this.BX || {};
 	    value: function getValue() {
 	      var allValues = this.parent.getFilterFieldsValues();
 	      var _this$options = this.options,
-	          TYPE = _this$options.TYPE,
-	          NAME = _this$options.NAME;
-
+	        TYPE = _this$options.TYPE,
+	        NAME = _this$options.NAME;
 	      if (TYPE === 'DATE' || TYPE === 'NUMBER') {
 	        return Object.entries(allValues).reduce(function (acc, _ref3) {
 	          var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
-	              key = _ref4[0],
-	              value = _ref4[1];
-
+	            key = _ref4[0],
+	            value = _ref4[1];
 	          if (key.startsWith(NAME)) {
 	            acc[key.replace(NAME, '')] = value;
 	          }
-
 	          return acc;
 	        }, {});
 	      }
-
 	      if (NAME in allValues) {
 	        return allValues[NAME];
 	      }
-
 	      return '';
 	    }
 	  }, {
 	    key: "setValue",
 	    value: function setValue(value) {
 	      var _this3 = this;
-
 	      var type = this.options.TYPE;
-
 	      if (type === 'DATE' || type === 'NUMBER') {
 	        if (main_core.Type.isPlainObject(value)) {
 	          var container = this.parent.getFieldListContainer();
 	          Object.entries(value).forEach(function (_ref5) {
 	            var _ref6 = babelHelpers.slicedToArray(_ref5, 2),
-	                key = _ref6[0],
-	                fieldValue = _ref6[1];
-
+	              key = _ref6[0],
+	              fieldValue = _ref6[1];
 	            var fieldNode = container.querySelector("[data-name=\"".concat(_this3.id, "\"] [data-name=\"").concat(_this3.id).concat(key, "\"], [data-name=\"").concat(_this3.id, "\"] [name=\"").concat(_this3.id).concat(key, "\"]"));
-
 	            if (fieldNode) {
 	              if (main_core.Dom.hasClass(fieldNode, 'main-ui-select')) {
 	                var items = main_core.Dom.attr(fieldNode, 'data-items');
-
 	                if (main_core.Type.isArray(items)) {
 	                  var item = items.find(function (currentItem) {
 	                    return currentItem.VALUE === fieldValue;
 	                  });
-
 	                  if (main_core.Type.isPlainObject(item)) {
 	                    main_core.Dom.attr(fieldNode, 'data-value', item);
 	                    var nameNode = fieldNode.querySelector('.main-ui-select-name');
-
 	                    if (nameNode) {
 	                      nameNode.innerText = item.NAME;
 	                    }
-
 	                    var result = BX.Main.ui.Factory.get(fieldNode);
-
 	                    if (!result) {
 	                      result = {
 	                        node: fieldNode,
@@ -6611,7 +5845,6 @@ this.BX = this.BX || {};
 	                      };
 	                      BX.Main.ui.Factory.data.push(result);
 	                    }
-
 	                    if (main_core.Type.isPlainObject(result)) {
 	                      BX.onCustomEvent(window, 'UI::Select::Change', [result.instance, item]);
 	                    }
@@ -6633,13 +5866,11 @@ this.BX = this.BX || {};
 	var Api = /*#__PURE__*/function () {
 	  function Api(parent) {
 	    babelHelpers.classCallCheck(this, Api);
-
 	    /**
 	     * @var {BX.Main.Filter}
 	     */
 	    this.parent = parent;
 	  }
-
 	  babelHelpers.createClass(Api, [{
 	    key: "setFields",
 	    value: function setFields(fields) {
@@ -6660,27 +5891,22 @@ this.BX = this.BX || {};
 	    value: function setFilter(filter) {
 	      var analyticsLabel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      this.setAnalyticsLabel(analyticsLabel);
-
 	      if (main_core.Type.isObject(filter)) {
 	        this.parent.updateParams(filter);
 	        this.parent.getPreset().deactivateAllPresets();
 	        this.parent.getPreset().activatePreset(filter.preset_id);
 	        this.parent.getPreset().applyPreset(filter.preset_id);
-
 	        if (!filter.checkFields || !this.parent.getPreset().isPresetValuesModified(filter.preset_id)) {
 	          var isSetOutside = true;
 	          this.parent.applyFilter(false, filter.preset_id, isSetOutside);
 	        } else {
 	          var newFields = {};
-
 	          if (main_core.Type.isPlainObject(filter.fields)) {
 	            newFields = Object.assign({}, filter.fields);
 	          }
-
 	          if (main_core.Type.isPlainObject(filter.additional)) {
 	            newFields = Object.assign({}, filter.additional);
 	          }
-
 	          this.parent.getPreset().deactivateAllPresets();
 	          this.setFields(newFields);
 	          this.apply();
@@ -6692,14 +5918,12 @@ this.BX = this.BX || {};
 	     * @param {Object.<String, *>} fields
 	     * @param {boolean} [force = false]
 	     */
-
 	  }, {
 	    key: "extendFilter",
 	    value: function extendFilter(fields) {
 	      var force = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	      var analyticsLabel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 	      this.setAnalyticsLabel(analyticsLabel);
-
 	      if (main_core.Type.isObject(fields)) {
 	        Object.keys(fields).forEach(function (key) {
 	          if (main_core.Type.isNumber(fields[key])) {
@@ -6707,20 +5931,16 @@ this.BX = this.BX || {};
 	          }
 	        });
 	        var currentPresetId = this.parent.getPreset().getCurrentPresetId();
-
 	        if (force || currentPresetId === 'tmp_filter' || currentPresetId === 'default_filter') {
 	          var newFields = Object.assign({}, this.parent.getFilterFieldsValues(), fields);
 	          this.setFields(newFields);
 	          this.apply();
 	          return;
 	        }
-
 	        var previewsAdditionalValues = this.parent.getPreset().getAdditionalValues(currentPresetId);
-
 	        if (main_core.Type.isPlainObject(previewsAdditionalValues) && Object.keys(previewsAdditionalValues).length) {
 	          fields = Object.assign({}, previewsAdditionalValues, fields);
 	        }
-
 	        this.setFilter({
 	          preset_id: currentPresetId,
 	          additional: fields,
@@ -6733,7 +5953,6 @@ this.BX = this.BX || {};
 	    value: function apply() {
 	      var analyticsLabel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	      this.setAnalyticsLabel(analyticsLabel);
-
 	      if (!this.parent.isEditEnabled()) {
 	        if (!this.parent.isEditEnabled()) {
 	          var clear = false;
@@ -6741,9 +5960,7 @@ this.BX = this.BX || {};
 	          var isSetOutside = true;
 	          this.parent.applyFilter(clear, applyPreset, isSetOutside);
 	        }
-
 	        this.parent.closePopup();
-
 	        if (this.parent.isAddPresetEnabled()) {
 	          this.parent.disableAddPreset();
 	        }
@@ -6758,7 +5975,6 @@ this.BX = this.BX || {};
 	    key: "setAnalyticsLabel",
 	    value: function setAnalyticsLabel() {
 	      var analyticsLabel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
 	      if (main_core.Type.isObject(analyticsLabel)) {
 	        this.parent.analyticsLabel = analyticsLabel;
 	      }
@@ -6829,14 +6045,12 @@ this.BX = this.BX || {};
 	}
 
 	var _templateObject$2, _templateObject2$1;
-
 	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	/**
 	 * @memberOf BX.Filter
 	 */
-
 	var AdditionalFilter = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(AdditionalFilter, _EventEmitter);
 	  babelHelpers.createClass(AdditionalFilter, null, [{
@@ -6853,36 +6067,28 @@ this.BX = this.BX || {};
 	        if ("".concat(name, "_").concat(AdditionalFilter.Type.IS_EMPTY) in fields) {
 	          return AdditionalFilter.Type.IS_EMPTY;
 	        }
-
 	        if ("".concat(name, "_").concat(AdditionalFilter.Type.HAS_ANY_VALUE) in fields) {
 	          return AdditionalFilter.Type.HAS_ANY_VALUE;
 	        }
 	      }
-
 	      return null;
 	    }
 	  }]);
-
 	  function AdditionalFilter() {
 	    var _this;
-
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, AdditionalFilter);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AdditionalFilter).call(this));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
-
 	    _this.setEventNamespace('BX.Main.Filter.AdditionalFilter');
-
 	    _this.options = _objectSpread$3({}, options);
 	    main_core.Event.bind(document, 'click', _this.onDocumentClick.bind(babelHelpers.assertThisInitialized(_this)));
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(AdditionalFilter, [{
 	    key: "getAdditionalFilterMenu",
 	    value: function getAdditionalFilterMenu() {
 	      var _this2 = this;
-
 	      return this.cache.remember('menu', function () {
 	        return new main_popup.Menu({
 	          id: 'additional_filter_menu',
@@ -6953,14 +6159,12 @@ this.BX = this.BX || {};
 	      var allowedItems = String(main_core.Dom.attr(currentTarget, 'data-allowed-types')).split(',');
 	      menu.getMenuItems().forEach(function (menuItem) {
 	        var menuItemId = menuItem.getId();
-
 	        if (allowedItems.includes(menuItemId) || menuItemId === 'helper' || menuItemId === 'delimiter') {
 	          main_core.Dom.removeClass(menuItem.layout.item, 'main-ui-disable');
 	        } else {
 	          main_core.Dom.addClass(menuItem.layout.item, 'main-ui-disable');
 	        }
 	      });
-
 	      if (menu.getPopupWindow().isShown()) {
 	        if (menu.getPopupWindow().bindElement !== currentTarget) {
 	          menu.getPopupWindow().setBindElement(currentTarget);
@@ -6977,24 +6181,19 @@ this.BX = this.BX || {};
 	    key: "getAdditionalFilterButton",
 	    value: function getAdditionalFilterButton(_ref) {
 	      var _this3 = this;
-
 	      var fieldId = _ref.fieldId,
-	          enabled = _ref.enabled;
+	        enabled = _ref.enabled;
 	      return this.cache.remember("field_".concat(fieldId), function () {
 	        var disabled = !main_core.Type.isArrayFilled(enabled) && enabled !== true;
-
 	        var allowedTypes = function () {
 	          if (main_core.Type.isArrayFilled(enabled)) {
 	            return enabled.join(',');
 	          }
-
 	          if (!disabled) {
 	            return [AdditionalFilter.Type.IS_EMPTY, AdditionalFilter.Type.HAS_ANY_VALUE].join(',');
 	          }
-
 	          return '';
 	        }();
-
 	        return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"ui-icon ui-icon-service-light-other main-ui-filter-additional-filters-button", "\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tdata-allowed-types=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<i></i>\n\t\t\t\t</span>\n\t\t\t"])), disabled ? ' main-ui-disable' : '', _this3.onAdditionalFilterButtonClick.bind(_this3, fieldId), allowedTypes);
 	      });
 	    }
@@ -7002,15 +6201,12 @@ this.BX = this.BX || {};
 	    key: "initAdditionalFilter",
 	    value: function initAdditionalFilter(fieldNode, typeId) {
 	      var currentFieldId = this.getCurrentFieldId();
-
 	      if (currentFieldId === '') {
 	        currentFieldId = fieldNode.attributes[1].value;
 	      }
-
 	      var placeholder = this.getAdditionalFilterPlaceholderField(currentFieldId, typeId);
 	      main_core.Dom.addClass(fieldNode, 'main-ui-filter-field-with-additional-filter');
 	      var currentPlaceholder = fieldNode.querySelector('.main-ui-filter-additional-filter-placeholder');
-
 	      if (currentPlaceholder) {
 	        main_core.Dom.replace(currentPlaceholder, placeholder);
 	      } else {
@@ -7022,11 +6218,9 @@ this.BX = this.BX || {};
 	    value: function restoreField(fieldNode) {
 	      if (main_core.Type.isDomNode(fieldNode)) {
 	        var placeholder = fieldNode.querySelector('.main-ui-filter-additional-filter-placeholder');
-
 	        if (placeholder) {
 	          main_core.Dom.remove(placeholder);
 	        }
-
 	        main_core.Dom.removeClass(fieldNode, 'main-ui-filter-field-with-additional-filter');
 	      }
 	    }
@@ -7034,20 +6228,16 @@ this.BX = this.BX || {};
 	    key: "getAdditionalFilterPlaceholderField",
 	    value: function getAdditionalFilterPlaceholderField(fieldId, typeId) {
 	      var _this4 = this;
-
 	      return this.cache.remember("placeholder_".concat(fieldId, "_").concat(typeId), function () {
 	        var message = function () {
 	          if (typeId === AdditionalFilter.Type.HAS_ANY_VALUE) {
 	            return main_core.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_HAS_ANY_VALUE');
 	          }
-
 	          return main_core.Loc.getMessage('MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_IS_EMPTY');
 	        }();
-
 	        var onRemoveClick = function onRemoveClick(event) {
 	          _this4.restoreField(event.currentTarget.closest('.main-ui-filter-field-with-additional-filter'));
 	        };
-
 	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-control main-ui-filter-additional-filter-placeholder\" data-type=\"", "\">\n\t\t\t\t\t<div class=\"main-ui-square\">\n\t\t\t\t\t\t<div class=\"main-ui-square-item\">", "</div>\n\t\t\t\t\t\t<div class=\"main-ui-item-icon main-ui-square-delete\" onclick=\"", "\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), typeId, message, onRemoveClick);
 	      });
 	    }
@@ -7056,14 +6246,12 @@ this.BX = this.BX || {};
 	    value: function getFilter(fieldNode) {
 	      if (main_core.Type.isDomNode(fieldNode)) {
 	        var placeholder = fieldNode.querySelector('.main-ui-filter-additional-filter-placeholder');
-
 	        if (main_core.Type.isDomNode(placeholder)) {
 	          var type = main_core.Dom.attr(placeholder, 'data-type');
 	          var fieldId = main_core.Dom.attr(fieldNode, 'data-name');
 	          return babelHelpers.defineProperty({}, "".concat(fieldId, "_").concat(type), 'y');
 	        }
 	      }
-
 	      return null;
 	    }
 	  }]);
@@ -7076,9 +6264,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(AdditionalFilter, "cache", new main_core.Cache.MemoryCache());
 
 	var _templateObject$3;
-
 	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var errorMessages = new WeakMap();
 	var errorMessagesTypes = new WeakMap();
@@ -7089,7 +6275,6 @@ this.BX = this.BX || {};
 	    this.parent = null;
 	    this.init(parent);
 	  }
-
 	  babelHelpers.createClass(Fields, [{
 	    key: "init",
 	    value: function init(parent) {
@@ -7120,7 +6305,6 @@ this.BX = this.BX || {};
 	     * Clears values of filter field node
 	     * @param {HTMLElement} field
 	     */
-
 	  }, {
 	    key: "clearFieldValue",
 	    value: function clearFieldValue(field) {
@@ -7143,7 +6327,6 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isDomNode(node)) {
 	        return node.closest('.main-ui-control-field, .main-ui-control-field-group');
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -7152,33 +6335,26 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isString(template) && main_core.Type.isPlainObject(data)) {
 	        var html = Object.entries(data).reduce(function (acc, _ref) {
 	          var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	              key = _ref2[0],
-	              value = _ref2[1];
-
+	            key = _ref2[0],
+	            value = _ref2[1];
 	          return acc.replace(new RegExp("{{".concat(key, "}}"), 'g'), value);
 	        }, template);
 	        var wrapped = main_core.Dom.create('div', {
 	          html: html
 	        });
 	        var fieldGroup = wrapped.querySelector('.main-ui-control-field-group');
-
 	        if (fieldGroup) {
 	          return fieldGroup;
 	        }
-
 	        var field = wrapped.querySelector('.main-ui-control-field');
-
 	        if (field) {
 	          return field;
 	        }
-
 	        var fieldLine = wrapped.querySelector('.main-ui-filter-field-line');
-
 	        if (fieldLine) {
 	          return fieldLine;
 	        }
 	      }
-
 	      return null;
 	    }
 	  }, {
@@ -7236,12 +6412,10 @@ this.BX = this.BX || {};
 	        }]
 	      });
 	      var textarea = field.querySelector('textarea');
-
 	      var onChange = function onChange() {
 	        main_core.Dom.style(textarea, 'height', '1px');
 	        main_core.Dom.style(textarea, 'height', "".concat(textarea.scrollHeight, "px"));
 	      };
-
 	      main_core.Event.bind(textarea, 'input', onChange);
 	      main_core.Event.bind(textarea, 'change', onChange);
 	      main_core.Event.bind(textarea, 'keyup', onChange);
@@ -7279,33 +6453,26 @@ this.BX = this.BX || {};
 	          content: []
 	        }
 	      };
-
 	      if ('_label' in fieldData.VALUES && !!fieldData.VALUES._label) {
 	        if (fieldData.MULTIPLE) {
 	          var label = fieldData.VALUES._label ? fieldData.VALUES._label : [];
-
 	          if (main_core.Type.isPlainObject(label)) {
 	            label = Object.keys(label).map(function (key) {
 	              return label[key];
 	            });
 	          }
-
 	          if (!main_core.Type.isArray(label)) {
 	            label = [label];
 	          }
-
 	          var value = fieldData.VALUES._value ? fieldData.VALUES._value : [];
-
 	          if (main_core.Type.isPlainObject(value)) {
 	            value = Object.keys(value).map(function (key) {
 	              return value[key];
 	            });
 	          }
-
 	          if (!main_core.Type.isArray(value)) {
 	            value = [value];
 	          }
-
 	          label.forEach(function (currentLabel, index) {
 	            field.content.content.push({
 	              block: 'main-ui-square',
@@ -7326,7 +6493,6 @@ this.BX = this.BX || {};
 	          });
 	        }
 	      }
-
 	      field.content.content.push({
 	        block: 'main-ui-square-search',
 	        tag: 'span',
@@ -7351,13 +6517,11 @@ this.BX = this.BX || {};
 	      input.autocomplete = 'off';
 	      main_core.Event.bind(input, 'focus', BX.proxy(this._onCustomEntityInputFocus, this));
 	      main_core.Event.bind(input, 'click', BX.proxy(this._onCustomEntityInputClick, this));
-
 	      if (!this.bindDocument) {
 	        main_core.Event.bind(document, 'click', BX.proxy(this._onCustomEntityBlur, this));
 	        document.addEventListener('focus', BX.proxy(this._onDocumentFocus, this), true);
 	        this.bindDocument = true;
 	      }
-
 	      main_core.Event.bind(input, 'keydown', BX.proxy(this._onCustomEntityKeydown, this));
 	      main_core.Event.bind(field, 'click', BX.proxy(this._onCustomEntityFieldClick, this));
 	      return field;
@@ -7424,19 +6588,16 @@ this.BX = this.BX || {};
 	    value: function _onCustomEntityInputClick(event) {
 	      event.preventDefault();
 	      event.stopPropagation();
-
 	      if (event.isTrusted) {
 	        this.trustTimestamp = event.timeStamp;
 	        this.notTrustTimestamp = this.notTrustTimestamp || event.timeStamp;
 	      } else {
 	        this.notTrustTimestamp = event.timeStamp;
 	      }
-
 	      var trustDate = new Date(this.trustTimestamp);
 	      var notTrustDate = new Date(this.notTrustTimestamp);
 	      var trustTime = "".concat(trustDate.getMinutes(), ":").concat(trustDate.getSeconds());
 	      var notTrustTime = "".concat(notTrustDate.getMinutes(), ":").concat(notTrustDate.getSeconds());
-
 	      if (trustTime !== notTrustTime) {
 	        this._onCustomEntityFocus(event);
 	      }
@@ -7448,7 +6609,6 @@ this.BX = this.BX || {};
 	      var popupContainer = CustomEntity.getPopupContainer();
 	      var isOnInputField = CustomEntity.getLabelNode() === event.target;
 	      var isInsidePopup = !!popupContainer && popupContainer.contains(event.target);
-
 	      if (!isOnInputField && !isInsidePopup) {
 	        this._onCustomEntityBlur(event);
 	      }
@@ -7457,53 +6617,42 @@ this.BX = this.BX || {};
 	    key: "_onCustomEntityKeydown",
 	    value: function _onCustomEntityKeydown(event) {
 	      var target = event.target,
-	          currentTarget = event.currentTarget;
+	        currentTarget = event.currentTarget;
 	      var parentNode = target.parentNode.parentNode;
 	      var squares = parentNode.querySelectorAll('.main-ui-square');
 	      var square = squares[squares.length - 1];
-
 	      if (!main_core.Type.isDomNode(square)) {
 	        return;
 	      }
-
 	      if (BX.Filter.Utils.isKey(event, 'backspace') && currentTarget.selectionStart === 0) {
 	        if (main_core.Dom.hasClass(square, 'main-ui-square-selected')) {
 	          var input = parentNode.querySelector('input[type="hidden"]');
-
 	          if (main_core.Type.isDomNode(input)) {
 	            input.value = '';
 	            BX.fireEvent(input, 'input');
 	          }
-
 	          main_core.Dom.remove(square);
 	          return;
 	        }
-
 	        main_core.Dom.addClass(square, 'main-ui-square-selected');
 	        return;
 	      }
-
 	      main_core.Dom.removeClass(square, 'main-ui-square-selected');
 	    }
 	  }, {
 	    key: "_onCustomEntityFieldClick",
 	    value: function _onCustomEntityFieldClick(_ref3) {
 	      var target = _ref3.target;
-
 	      if (main_core.Dom.hasClass(target, 'main-ui-square-delete')) {
 	        var square = target.closest('.main-ui-square');
-
 	        if (main_core.Type.isDomNode(square)) {
 	          var CustomEntity = this.getCustomEntityInstance();
 	          BX.onCustomEvent(window, 'BX.Main.Filter:customEntityRemove', [CustomEntity]);
 	          main_core.Dom.remove(square);
 	        }
-
 	        return;
 	      }
-
 	      var input = target.querySelector('input[type="text"]');
-
 	      if (main_core.Type.isDomNode(input)) {
 	        BX.fireEvent(input, 'focus');
 	      }
@@ -7515,7 +6664,6 @@ this.BX = this.BX || {};
 	        stopBlur: false
 	      };
 	      BX.onCustomEvent(window, 'BX.Main.Filter:onGetStopBlur', [event, eventData]);
-
 	      if (typeof eventData.stopBlur === 'undefined' || !eventData.stopBlur) {
 	        var CustomEntity = this.getCustomEntityInstance();
 	        BX.onCustomEvent(window, 'BX.Main.Filter:customEntityBlur', [CustomEntity]);
@@ -7534,7 +6682,6 @@ this.BX = this.BX || {};
 	      if (!(this.customEntityInstance instanceof BX.Main.ui.CustomEntity)) {
 	        this.customEntityInstance = new BX.Main.ui.CustomEntity();
 	      }
-
 	      return this.customEntityInstance;
 	    }
 	  }, {
@@ -7547,11 +6694,9 @@ this.BX = this.BX || {};
 	      CustomEntity.setField(field);
 	      BX.onCustomEvent('BX.Main.Filter:customEntityFocus', [CustomEntity]);
 	      var popupContainer = CustomEntity.getPopupContainer();
-
 	      if (main_core.Type.isElementNode(popupContainer)) {
 	        main_core.Event.bind(popupContainer, 'click', this._stopPropagation);
 	      }
-
 	      main_core.Dom.addClass(field, 'main-ui-focus');
 	    }
 	  }, {
@@ -7576,21 +6721,17 @@ this.BX = this.BX || {};
 	          content: ''
 	        }
 	      });
-
 	      if (main_core.Type.isString(fieldData.VALUE)) {
 	        var fieldValue = function () {
 	          if (Reflect.has(fieldData, '_VALUE')) {
 	            return fieldData._VALUE;
 	          }
-
 	          return '';
 	        }();
-
 	        var html = main_core.Text.decode(fieldData.VALUE).replace("name=\"".concat(fieldData.NAME, "\""), "name=\"".concat(fieldData.NAME, "\" value=\"").concat(fieldValue, "\""));
 	        var control = field.querySelector('.main-ui-custom');
 	        main_core.Runtime.html(control, html);
 	      }
-
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
@@ -7683,13 +6824,11 @@ this.BX = this.BX || {};
 	        deleteButton: true,
 	        content: []
 	      };
-
 	      if (main_core.Type.isPlainObject(fieldData.VALUE.days)) {
 	        fieldData.VALUE.days = Object.keys(fieldData.VALUE.days).map(function (index) {
 	          return fieldData.VALUE.days[index];
 	        });
 	      }
-
 	      var daysValue = fieldData.DAYS.filter(function (item) {
 	        return fieldData.VALUE.days.some(function (value) {
 	          return value === item.VALUE;
@@ -7715,13 +6854,11 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      };
-
 	      if (main_core.Type.isPlainObject(fieldData.VALUE.months)) {
 	        fieldData.VALUE.months = Object.keys(fieldData.VALUE.months).map(function (index) {
 	          return fieldData.VALUE.months[index];
 	        });
 	      }
-
 	      var monthsValue = fieldData.MONTHS.filter(function (item) {
 	        return fieldData.VALUE.months.some(function (value) {
 	          return value === item.VALUE;
@@ -7746,13 +6883,11 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      };
-
 	      if (main_core.Type.isPlainObject(fieldData.VALUE.years)) {
 	        fieldData.VALUE.years = Object.keys(fieldData.VALUE.years).map(function (index) {
 	          return fieldData.VALUE.years[index];
 	        });
 	      }
-
 	      var yearsValue = fieldData.YEARS.filter(function (item) {
 	        return fieldData.VALUE.years.some(function (value) {
 	          return value === item.VALUE;
@@ -7794,19 +6929,16 @@ this.BX = this.BX || {};
 	    key: "_onDateTypeChange",
 	    value: function _onDateTypeChange(instance, data) {
 	      var _this = this;
-
 	      if (this.parent.getPopup().contentContainer.contains(instance.node)) {
 	        var fieldData = {};
 	        var dateGroup = null;
 	        var label;
 	        var controls;
 	        var index;
-
 	        if (main_core.Type.isPlainObject(data) && Reflect.has(data, 'VALUE')) {
 	          var fieldNode = instance.getNode();
 	          var params = instance.getParams();
 	          var name = fieldNode.dataset.name;
-
 	          if (!main_core.Type.isPlainObject(params) && (name.endsWith('_datesel') || name.endsWith('_numsel'))) {
 	            var group = fieldNode.parentNode.parentNode;
 	            fieldData.TABINDEX = instance.getInput().getAttribute('tabindex');
@@ -7816,18 +6948,15 @@ this.BX = this.BX || {};
 	            fieldData.TYPE = group.dataset.type;
 	            fieldData.VALUE_REQUIRED = group.dataset.valueRequired === 'true';
 	            var presetData = this.parent.getPreset().getCurrentPresetData();
-
 	            if (main_core.Type.isArray(presetData.FIELDS)) {
 	              var presetField = presetData.FIELDS.find(function (current) {
 	                return current.NAME === fieldData.NAME;
 	              });
-
 	              if (main_core.Type.isNil(presetField)) {
 	                presetField = this.parent.params.FIELDS_STUBS.find(function (current) {
 	                  return current.TYPE === fieldData.TYPE;
 	                });
 	              }
-
 	              if (!main_core.Type.isNil(presetField)) {
 	                if (name.endsWith('_datesel')) {
 	                  fieldData.MONTHS = presetField.MONTHS;
@@ -7839,41 +6968,33 @@ this.BX = this.BX || {};
 	                  fieldData.ENABLE_TIME = presetField.ENABLE_TIME;
 	                  fieldData.YEARS_SWITCHER = presetField.YEARS_SWITCHER;
 	                }
-
 	                fieldData.VALUES = presetField.VALUES;
 	                fieldData.REQUIRED = presetField.REQUIRED;
 	              }
 	            }
-
 	            if (this.parent.getParam('ENABLE_LABEL')) {
 	              label = group.querySelector('.main-ui-control-field-label');
 	              fieldData.LABEL = label.innerText;
 	            }
-
 	            if (name.endsWith('_datesel')) {
 	              dateGroup = this.createDate(fieldData);
 	            } else {
 	              dateGroup = this.createNumber(fieldData);
 	            }
-
 	            if (main_core.Type.isArray(this.parent.fieldsList)) {
 	              index = this.parent.fieldsList.indexOf(group);
-
 	              if (index !== -1) {
 	                this.parent.fieldsList[index] = dateGroup;
 	                this.parent.registerDragItem(dateGroup);
 	              }
 	            }
-
 	            this.parent.unregisterDragItem(group);
 	            controls = babelHelpers.toConsumableArray(dateGroup.querySelectorAll('.main-ui-control-field'));
-
 	            if (main_core.Type.isArray(controls) && controls.length) {
 	              controls.forEach(function (control) {
 	                control.FieldController = new BX.Filter.FieldController(control, _this.parent);
 	              });
 	            }
-
 	            if (this.parent.getParam('ENABLE_ADDITIONAL_FILTERS')) {
 	              var button = AdditionalFilter.getInstance().getAdditionalFilterButton({
 	                fieldId: fieldData.NAME,
@@ -7881,7 +7002,6 @@ this.BX = this.BX || {};
 	              });
 	              main_core.Dom.append(button, dateGroup);
 	            }
-
 	            main_core.Dom.insertAfter(dateGroup, group);
 	            main_core.Dom.remove(group);
 	          }
@@ -7892,37 +7012,34 @@ this.BX = this.BX || {};
 	    key: "createNumber",
 	    value: function createNumber(options) {
 	      var _this$parent = this.parent,
-	          numberTypes = _this$parent.numberTypes,
-	          additionalNumberTypes = _this$parent.additionalNumberTypes;
+	        numberTypes = _this$parent.numberTypes,
+	        additionalNumberTypes = _this$parent.additionalNumberTypes;
 	      var ENABLE_LABEL = this.parent.params.ENABLE_LABEL;
 	      var _options$SUB_TYPE = options.SUB_TYPE,
-	          SUB_TYPE = _options$SUB_TYPE === void 0 ? {} : _options$SUB_TYPE,
-	          _options$SUB_TYPES = options.SUB_TYPES,
-	          SUB_TYPES = _options$SUB_TYPES === void 0 ? [] : _options$SUB_TYPES,
-	          _options$TABINDEX = options.TABINDEX,
-	          TABINDEX = _options$TABINDEX === void 0 ? '' : _options$TABINDEX,
-	          _options$VALUES = options.VALUES,
-	          VALUES = _options$VALUES === void 0 ? {
-	        _from: '',
-	        _to: ''
-	      } : _options$VALUES,
-	          _options$LABEL = options.LABEL,
-	          LABEL = _options$LABEL === void 0 ? '' : _options$LABEL,
-	          _options$ICON = options.ICON,
-	          ICON = _options$ICON === void 0 ? null : _options$ICON,
-	          TYPE = options.TYPE;
+	        SUB_TYPE = _options$SUB_TYPE === void 0 ? {} : _options$SUB_TYPE,
+	        _options$SUB_TYPES = options.SUB_TYPES,
+	        SUB_TYPES = _options$SUB_TYPES === void 0 ? [] : _options$SUB_TYPES,
+	        _options$TABINDEX = options.TABINDEX,
+	        TABINDEX = _options$TABINDEX === void 0 ? '' : _options$TABINDEX,
+	        _options$VALUES = options.VALUES,
+	        VALUES = _options$VALUES === void 0 ? {
+	          _from: '',
+	          _to: ''
+	        } : _options$VALUES,
+	        _options$LABEL = options.LABEL,
+	        LABEL = _options$LABEL === void 0 ? '' : _options$LABEL,
+	        _options$ICON = options.ICON,
+	        ICON = _options$ICON === void 0 ? null : _options$ICON,
+	        TYPE = options.TYPE;
 	      var subType = SUB_TYPE.VALUE || numberTypes.SINGLE;
 	      var placeholder = SUB_TYPE.PLACEHOLDER || '';
 	      var fieldName = options.NAME.replace('_numsel', '');
-
 	      var classes = function () {
 	        if (ENABLE_LABEL) {
 	          return ['main-ui-filter-wield-with-label', 'main-ui-filter-number-group'];
 	        }
-
 	        return ['main-ui-filter-number-group'];
 	      }();
-
 	      var fieldGroup = {
 	        block: 'number-group',
 	        type: TYPE,
@@ -7938,7 +7055,6 @@ this.BX = this.BX || {};
 	        deleteButton: true,
 	        content: []
 	      };
-
 	      if (subType !== numberTypes.LESS && subType !== additionalNumberTypes.BEFORE_N) {
 	        var from = {
 	          block: 'main-ui-control-field',
@@ -7957,7 +7073,6 @@ this.BX = this.BX || {};
 	        };
 	        fieldGroup.content.push(from);
 	      }
-
 	      if (subType === numberTypes.RANGE) {
 	        var line = {
 	          block: 'main-ui-filter-field-line',
@@ -7968,7 +7083,6 @@ this.BX = this.BX || {};
 	        };
 	        fieldGroup.content.push(line);
 	      }
-
 	      if (subType === numberTypes.RANGE || subType === numberTypes.LESS || subType === additionalNumberTypes.BEFORE_N) {
 	        var to = {
 	          block: 'main-ui-control-field',
@@ -7985,7 +7099,6 @@ this.BX = this.BX || {};
 	        };
 	        fieldGroup.content.push(to);
 	      }
-
 	      var field = BX.decl(fieldGroup);
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
@@ -8000,51 +7113,47 @@ this.BX = this.BX || {};
 	    key: "createDate",
 	    value: function createDate(options) {
 	      var _this2 = this;
-
 	      var _this$parent2 = this.parent,
-	          dateTypes = _this$parent2.dateTypes,
-	          additionalDateTypes = _this$parent2.additionalDateTypes;
+	        dateTypes = _this$parent2.dateTypes,
+	        additionalDateTypes = _this$parent2.additionalDateTypes;
 	      var _options$SUB_TYPE2 = options.SUB_TYPE,
-	          SUB_TYPE = _options$SUB_TYPE2 === void 0 ? {} : _options$SUB_TYPE2,
-	          _options$SUB_TYPES2 = options.SUB_TYPES,
-	          SUB_TYPES = _options$SUB_TYPES2 === void 0 ? [] : _options$SUB_TYPES2,
-	          _options$PLACEHOLDER = options.PLACEHOLDER,
-	          PLACEHOLDER = _options$PLACEHOLDER === void 0 ? '' : _options$PLACEHOLDER,
-	          _options$VALUES2 = options.VALUES,
-	          VALUES = _options$VALUES2 === void 0 ? {
-	        _from: '',
-	        _to: '',
-	        _quarter: '',
-	        _days: '',
-	        _month: '',
-	        _year: '',
-	        _allow_year: ''
-	      } : _options$VALUES2,
-	          _options$TABINDEX2 = options.TABINDEX,
-	          TABINDEX = _options$TABINDEX2 === void 0 ? '' : _options$TABINDEX2,
-	          _options$ENABLE_TIME = options.ENABLE_TIME,
-	          ENABLE_TIME = _options$ENABLE_TIME === void 0 ? false : _options$ENABLE_TIME,
-	          _options$LABEL2 = options.LABEL,
-	          LABEL = _options$LABEL2 === void 0 ? '' : _options$LABEL2,
-	          _options$ICON2 = options.ICON,
-	          ICON = _options$ICON2 === void 0 ? null : _options$ICON2,
-	          TYPE = options.TYPE,
-	          _options$VALUE_REQUIR = options.VALUE_REQUIRED,
-	          VALUE_REQUIRED = _options$VALUE_REQUIR === void 0 ? false : _options$VALUE_REQUIR,
-	          _options$REQUIRED = options.REQUIRED,
-	          REQUIRED = _options$REQUIRED === void 0 ? false : _options$REQUIRED;
+	        SUB_TYPE = _options$SUB_TYPE2 === void 0 ? {} : _options$SUB_TYPE2,
+	        _options$SUB_TYPES2 = options.SUB_TYPES,
+	        SUB_TYPES = _options$SUB_TYPES2 === void 0 ? [] : _options$SUB_TYPES2,
+	        _options$PLACEHOLDER = options.PLACEHOLDER,
+	        PLACEHOLDER = _options$PLACEHOLDER === void 0 ? '' : _options$PLACEHOLDER,
+	        _options$VALUES2 = options.VALUES,
+	        VALUES = _options$VALUES2 === void 0 ? {
+	          _from: '',
+	          _to: '',
+	          _quarter: '',
+	          _days: '',
+	          _month: '',
+	          _year: '',
+	          _allow_year: ''
+	        } : _options$VALUES2,
+	        _options$TABINDEX2 = options.TABINDEX,
+	        TABINDEX = _options$TABINDEX2 === void 0 ? '' : _options$TABINDEX2,
+	        _options$ENABLE_TIME = options.ENABLE_TIME,
+	        ENABLE_TIME = _options$ENABLE_TIME === void 0 ? false : _options$ENABLE_TIME,
+	        _options$LABEL2 = options.LABEL,
+	        LABEL = _options$LABEL2 === void 0 ? '' : _options$LABEL2,
+	        _options$ICON2 = options.ICON,
+	        ICON = _options$ICON2 === void 0 ? null : _options$ICON2,
+	        TYPE = options.TYPE,
+	        _options$VALUE_REQUIR = options.VALUE_REQUIRED,
+	        VALUE_REQUIRED = _options$VALUE_REQUIR === void 0 ? false : _options$VALUE_REQUIR,
+	        _options$REQUIRED = options.REQUIRED,
+	        REQUIRED = _options$REQUIRED === void 0 ? false : _options$REQUIRED;
 	      var ENABLE_LABEL = this.parent.params.ENABLE_LABEL;
 	      var subType = SUB_TYPE.VALUE || dateTypes.NONE;
 	      var fieldName = options.NAME.replace('_datesel', '');
-
 	      var classes = function () {
 	        if (ENABLE_LABEL) {
 	          return ['main-ui-filter-wield-with-label', 'main-ui-filter-date-group'];
 	        }
-
 	        return ['main-ui-filter-date-group'];
 	      }();
-
 	      var fieldGroup = {
 	        block: 'date-group',
 	        type: TYPE,
@@ -8061,7 +7170,6 @@ this.BX = this.BX || {};
 	        deleteButton: true,
 	        content: []
 	      };
-
 	      if (subType === dateTypes.EXACT) {
 	        var fieldDecl = createDateInputDecl({
 	          type: TYPE,
@@ -8073,7 +7181,6 @@ this.BX = this.BX || {};
 	        });
 	        fieldGroup.content.push(fieldDecl);
 	      }
-
 	      if (subType === dateTypes.NEXT_DAYS || subType === dateTypes.PREV_DAYS || subType === additionalDateTypes.PREV_DAY || subType === additionalDateTypes.NEXT_DAY || subType === additionalDateTypes.MORE_THAN_DAYS_AGO || subType === additionalDateTypes.AFTER_DAYS) {
 	        var _fieldDecl = createNumberInputDecl({
 	          type: TYPE,
@@ -8082,10 +7189,8 @@ this.BX = this.BX || {};
 	          value: VALUES._days || '',
 	          placeholder: PLACEHOLDER
 	        });
-
 	        fieldGroup.content.push(_fieldDecl);
 	      }
-
 	      if (subType === dateTypes.RANGE) {
 	        var rangeGroup = {
 	          block: 'main-ui-filter-range-group',
@@ -8107,12 +7212,11 @@ this.BX = this.BX || {};
 	        };
 	        fieldGroup.content.push(rangeGroup);
 	      }
-
 	      if (subType === dateTypes.MONTH) {
 	        var MONTHS = options.MONTHS,
-	            MONTH = options.MONTH,
-	            YEARS = options.YEARS,
-	            YEAR = options.YEAR;
+	          MONTH = options.MONTH,
+	          YEARS = options.YEARS,
+	          YEAR = options.YEAR;
 	        var monthValue = MONTHS.find(function (item) {
 	          return item.VALUE === VALUES._month;
 	        }) || MONTH || MONTHS[0];
@@ -8131,18 +7235,15 @@ this.BX = this.BX || {};
 	          tabindex: TABINDEX
 	        }));
 	      }
-
 	      if (subType === dateTypes.QUARTER) {
 	        var _YEARS = options.YEARS,
-	            _YEAR = options.YEAR,
-	            QUARTERS = options.QUARTERS,
-	            QUARTER = options.QUARTER,
-	            PARAMS = options.PARAMS;
-
+	          _YEAR = options.YEAR,
+	          QUARTERS = options.QUARTERS,
+	          QUARTER = options.QUARTER,
+	          PARAMS = options.PARAMS;
 	        var _yearValue = _YEARS.find(function (item) {
 	          return item.VALUE === VALUES._year;
 	        }) || _YEAR || _YEARS[0];
-
 	        var quarterValue = QUARTERS.find(function (item) {
 	          return item.VALUE === VALUES._quarter;
 	        }) || QUARTER || QUARTERS[0];
@@ -8159,15 +7260,12 @@ this.BX = this.BX || {};
 	          params: PARAMS
 	        }));
 	      }
-
 	      if (subType === dateTypes.YEAR) {
 	        var _YEARS2 = options.YEARS,
-	            _YEAR2 = options.YEAR;
-
+	          _YEAR2 = options.YEAR;
 	        var _yearValue2 = _YEARS2.find(function (item) {
 	          return item.VALUE === VALUES._year;
 	        }) || _YEAR2 || _YEARS2[0];
-
 	        fieldGroup.content.push(createSelectDecl({
 	          name: "".concat(fieldName, "_year"),
 	          value: _yearValue2,
@@ -8175,27 +7273,21 @@ this.BX = this.BX || {};
 	          tabindex: TABINDEX
 	        }));
 	      }
-
 	      if (subType === 'CUSTOM_DATE') {
 	        var customDateSubType = SUB_TYPES.find(function (item) {
 	          return item.VALUE === 'CUSTOM_DATE';
 	        });
-
 	        if (customDateSubType) {
 	          var customDateDecl = main_core.Runtime.clone(customDateSubType.DECL);
-
 	          if (main_core.Type.isArray(VALUES._days)) {
 	            customDateDecl.VALUE.days = VALUES._days;
 	          }
-
 	          if (main_core.Type.isArray(VALUES._month)) {
 	            customDateDecl.VALUE.months = VALUES._month;
 	          }
-
 	          if (main_core.Type.isArray(VALUES._year)) {
 	            customDateDecl.VALUE.years = VALUES._year;
 	          }
-
 	          var renderedField = this.createCustomDate(customDateDecl);
 	          main_core.Dom.removeClass(renderedField, 'main-ui-filter-wield-with-label');
 	          var buttons = babelHelpers.toConsumableArray(renderedField.querySelectorAll('.main-ui-item-icon-container, .main-ui-filter-icon-grab'));
@@ -8206,47 +7298,36 @@ this.BX = this.BX || {};
 	          fieldGroup.mix.push('main-ui-filter-custom-date-group');
 	        }
 	      }
-
 	      if (subType !== dateTypes.NONE && subType !== additionalDateTypes.CUSTOM_DATE && options.YEARS_SWITCHER) {
 	        var YEARS_SWITCHER = main_core.Runtime.clone(options.YEARS_SWITCHER);
 	        var ITEMS = YEARS_SWITCHER.ITEMS;
 	        YEARS_SWITCHER.VALUE = ITEMS.reduce(function (acc, item) {
 	          return item.VALUE === VALUES._allow_year ? item : acc;
 	        });
-
 	        var _renderedField = this.createSelect(YEARS_SWITCHER);
-
 	        main_core.Dom.addClass(_renderedField, ['main-ui-filter-year-switcher', 'main-ui-filter-with-padding']);
 	        main_core.Dom.removeClass(_renderedField, 'main-ui-filter-wield-with-label');
-
 	        var _buttons = babelHelpers.toConsumableArray(_renderedField.querySelectorAll('.main-ui-item-icon-container, .main-ui-filter-icon-grab'));
-
 	        _buttons.forEach(function (button) {
 	          return main_core.Dom.remove(button);
 	        });
-
 	        var lastIndex = fieldGroup.content.length - 1;
 	        var lastContentItem = fieldGroup.content[lastIndex];
-
 	        if (main_core.Type.isPlainObject(lastContentItem)) {
 	          if (!main_core.Type.isArray(lastContentItem.mix)) {
 	            lastContentItem.mix = [];
 	          }
-
 	          lastContentItem.mix.push('main-ui-filter-remove-margin-right');
 	        }
-
 	        if (main_core.Type.isDomNode(lastContentItem)) {
 	          main_core.Dom.addClass(lastContentItem, 'main-ui-filter-remove-margin-right');
 	        }
-
 	        requestAnimationFrame(function () {
 	          main_core.Dom.addClass(_renderedField.previousElementSibling, 'main-ui-filter-remove-margin-right');
 	        });
 	        fieldGroup.content.push(_renderedField);
 	        fieldGroup.mix.push('main-ui-filter-date-with-years-switcher');
 	      }
-
 	      var renderedFieldGroup = BX.decl(fieldGroup);
 	      var onDateChange = main_core.Runtime.debounce(this.onDateChange, 500, this);
 	      var inputs = babelHelpers.toConsumableArray(renderedFieldGroup.querySelectorAll('.main-ui-date-input'));
@@ -8255,7 +7336,6 @@ this.BX = this.BX || {};
 	        input.addEventListener('input', onDateChange);
 	        var parentNode = input.parentNode;
 	        var clearButton = parentNode.querySelector('.main-ui-control-value-delete');
-
 	        if (clearButton) {
 	          clearButton.addEventListener('click', function () {
 	            setTimeout(function () {
@@ -8266,7 +7346,6 @@ this.BX = this.BX || {};
 	          });
 	        }
 	      });
-
 	      if (VALUE_REQUIRED) {
 	        renderedFieldGroup.dataset.valueRequired = true;
 	        var allInputs = [].concat(babelHelpers.toConsumableArray(inputs), babelHelpers.toConsumableArray(renderedFieldGroup.querySelectorAll('.main-ui-number-input')));
@@ -8275,7 +7354,6 @@ this.BX = this.BX || {};
 	          input.addEventListener('input', _this2.checkRequiredDateValue.bind(_this2));
 	          var parentNode = input.parentNode;
 	          var clearButton = parentNode.querySelector('.main-ui-control-value-delete');
-
 	          if (clearButton) {
 	            clearButton.addEventListener('click', function () {
 	              setTimeout(function () {
@@ -8285,7 +7363,6 @@ this.BX = this.BX || {};
 	              });
 	            });
 	          }
-
 	          main_core.Event.bindOnce(input, 'mouseout', function () {
 	            _this2.checkRequiredDateValue({
 	              target: input
@@ -8293,22 +7370,18 @@ this.BX = this.BX || {};
 	          });
 	        });
 	      }
-
 	      if (REQUIRED) {
 	        var removeButton = renderedFieldGroup.querySelector('.main-ui-filter-field-delete');
-
 	        if (removeButton) {
 	          BX.remove(removeButton);
 	        }
 	      }
-
 	      var currentValues = {};
 	      this.parent.prepareControlDateValue(currentValues, fieldName, renderedFieldGroup);
 	      Object.entries(currentValues).forEach(function (_ref4) {
 	        var _ref5 = babelHelpers.slicedToArray(_ref4, 2),
-	            key = _ref5[0],
-	            value = _ref5[1];
-
+	          key = _ref5[0],
+	          value = _ref5[1];
 	        currentValues[key.replace(fieldName, '')] = value;
 	        delete currentValues[key];
 	      });
@@ -8334,7 +7407,6 @@ this.BX = this.BX || {};
 	        });
 	        return;
 	      }
-
 	      this.hideError({
 	        id: 'valueError',
 	        target: event.target
@@ -8344,13 +7416,10 @@ this.BX = this.BX || {};
 	    key: "onDateChange",
 	    value: function onDateChange(event) {
 	      var _this3 = this;
-
 	      if (values.get(event.target) === event.target.value) {
 	        return;
 	      }
-
 	      values.set(event.target, event.target.value);
-
 	      if (event.target.value === '') {
 	        this.hideError({
 	          id: 'formatError',
@@ -8358,7 +7427,6 @@ this.BX = this.BX || {};
 	        });
 	        return;
 	      }
-
 	      BX.ajax.runComponentAction('bitrix:main.ui.filter', 'checkDateFormat', {
 	        mode: 'ajax',
 	        data: {
@@ -8371,10 +7439,8 @@ this.BX = this.BX || {};
 	            id: 'formatError',
 	            target: event.target
 	          });
-
 	          return;
 	        }
-
 	        _this3.hideError({
 	          id: 'formatError',
 	          target: event.target
@@ -8385,18 +7451,16 @@ this.BX = this.BX || {};
 	    key: "showError",
 	    value: function showError(_ref6) {
 	      var id = _ref6.id,
-	          target = _ref6.target,
-	          _ref6$text = _ref6.text,
-	          text = _ref6$text === void 0 ? null : _ref6$text;
+	        target = _ref6.target,
+	        _ref6$text = _ref6.text,
+	        text = _ref6$text === void 0 ? null : _ref6$text;
 	      main_core.Dom.style(target, 'border-color', '#FF5752');
-
 	      if (errorMessages.has(target) && errorMessagesTypes.get(target) === id) {
 	        main_core.Dom.remove(errorMessages.get(target));
 	      }
-
 	      var _this$parent$params = this.parent.params,
-	          MAIN_UI_FILTER__DATE_ERROR_TITLE = _this$parent$params.MAIN_UI_FILTER__DATE_ERROR_TITLE,
-	          MAIN_UI_FILTER__DATE_ERROR_LABEL = _this$parent$params.MAIN_UI_FILTER__DATE_ERROR_LABEL;
+	        MAIN_UI_FILTER__DATE_ERROR_TITLE = _this$parent$params.MAIN_UI_FILTER__DATE_ERROR_TITLE,
+	        MAIN_UI_FILTER__DATE_ERROR_LABEL = _this$parent$params.MAIN_UI_FILTER__DATE_ERROR_LABEL;
 	      var errorText = text || "".concat(MAIN_UI_FILTER__DATE_ERROR_LABEL, " ").concat(main_core.Loc.getMessage('FORMAT_DATE'));
 	      var dateErrorMessage = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"main-ui-filter-error-message\" \n\t\t\t\ttitle=\"", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), MAIN_UI_FILTER__DATE_ERROR_TITLE, errorText);
 	      errorMessages.set(target, dateErrorMessage);
@@ -8408,13 +7472,11 @@ this.BX = this.BX || {};
 	    key: "hideError",
 	    value: function hideError(_ref7) {
 	      var id = _ref7.id,
-	          target = _ref7.target;
+	        target = _ref7.target;
 	      main_core.Dom.style(target, 'border-color', null);
-
 	      if (errorMessages.has(target) && errorMessagesTypes.get(target) === id) {
 	        main_core.Dom.remove(errorMessages.get(target));
 	      }
-
 	      main_core.Dom.attr(target, 'is-valid', 'true');
 	    }
 	  }]);
@@ -8430,7 +7492,6 @@ this.BX = this.BX || {};
 	    this.container = null;
 	    this.init(parent);
 	  }
-
 	  babelHelpers.createClass(Presets, [{
 	    key: "init",
 	    value: function init(parent) {
@@ -8440,7 +7501,6 @@ this.BX = this.BX || {};
 	    key: "bindOnPresetClick",
 	    value: function bindOnPresetClick() {
 	      var _this = this;
-
 	      (this.getPresets() || []).forEach(function (current) {
 	        main_core.Event.bind(current, 'click', BX.delegate(_this._onPresetClick, _this));
 	      });
@@ -8449,7 +7509,6 @@ this.BX = this.BX || {};
 	     * Gets add preset field
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "getAddPresetField",
 	    value: function getAddPresetField() {
@@ -8459,7 +7518,6 @@ this.BX = this.BX || {};
 	     * Gets add preset name input
 	     * @return {?HTMLInputElement}
 	     */
-
 	  }, {
 	    key: "getAddPresetFieldInput",
 	    value: function getAddPresetFieldInput() {
@@ -8468,12 +7526,10 @@ this.BX = this.BX || {};
 	    /**
 	     * Clears add preset input value
 	     */
-
 	  }, {
 	    key: "clearAddPresetFieldInput",
 	    value: function clearAddPresetFieldInput() {
 	      var input = this.getAddPresetFieldInput();
-
 	      if (main_core.Type.isDomNode(input)) {
 	        input.value = '';
 	      }
@@ -8483,7 +7539,6 @@ this.BX = this.BX || {};
 	     * @param {?HTMLElement} node
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "normalizePreset",
 	    value: function normalizePreset(node) {
@@ -8492,7 +7547,6 @@ this.BX = this.BX || {};
 	    /**
 	     * Deactivates all presets
 	     */
-
 	  }, {
 	    key: "deactivateAllPresets",
 	    value: function deactivateAllPresets() {
@@ -8506,7 +7560,6 @@ this.BX = this.BX || {};
 	     * @param {string} title - Preset title
 	     * @param {boolean} [isPinned] - Pass true is preset pinned
 	     */
-
 	  }, {
 	    key: "createSidebarItem",
 	    value: function createSidebarItem(id, title, isPinned) {
@@ -8526,22 +7579,17 @@ this.BX = this.BX || {};
 	     * Highlights preset node as active
 	     * @param {?HTMLElement|string} preset - preset node or preset id
 	     */
-
 	  }, {
 	    key: "activatePreset",
 	    value: function activatePreset(preset) {
 	      var _this2 = this;
-
 	      this.deactivateAllPresets();
-
 	      var presetNode = function () {
 	        if (main_core.Type.isString(preset)) {
 	          return _this2.getPresetNodeById(preset);
 	        }
-
 	        return preset;
 	      }();
-
 	      if (main_core.Type.isDomNode(presetNode)) {
 	        main_core.Dom.addClass(presetNode, 'main-ui-filter-current-item');
 	      }
@@ -8551,7 +7599,6 @@ this.BX = this.BX || {};
 	     * @param {string} id
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "getPresetNodeById",
 	    value: function getPresetNodeById(id) {
@@ -8563,7 +7610,6 @@ this.BX = this.BX || {};
 	     * Gets preset id by preset node
 	     * @param {?HTMLElement} preset
 	     */
-
 	  }, {
 	    key: "getPresetId",
 	    value: function getPresetId(preset) {
@@ -8574,13 +7620,11 @@ this.BX = this.BX || {};
 	     * @param {?HTMLElement} presetNode
 	     * @param {string} name
 	     */
-
 	  }, {
 	    key: "updatePresetName",
 	    value: function updatePresetName(presetNode, name) {
 	      if (main_core.Type.isDomNode(presetNode) && main_core.Type.isString(name) && name !== '') {
 	        var nameNode = this.getPresetNameNode(presetNode);
-
 	        if (main_core.Type.isDomNode(nameNode)) {
 	          main_core.Runtime.html(nameNode, name);
 	        }
@@ -8592,7 +7636,6 @@ this.BX = this.BX || {};
 	     * @param {string} presetId
 	     * @param {boolean} isDefault
 	     */
-
 	  }, {
 	    key: "removePreset",
 	    value: function removePreset(presetNode, presetId, isDefault) {
@@ -8608,21 +7651,18 @@ this.BX = this.BX || {};
 	      };
 	      this.parent.saveOptions(postData, getData);
 	      BX.remove(presetNode);
-
 	      if (BX.type.isArray(this.parent.params.PRESETS)) {
 	        newPresets = this.parent.params.PRESETS.filter(function (current) {
 	          return current.ID !== presetId;
 	        }, this);
 	        this.parent.params.PRESETS = newPresets;
 	      }
-
 	      if (BX.type.isArray(this.parent.editablePresets)) {
 	        newPresets = this.parent.editablePresets.filter(function (current) {
 	          return current.ID !== presetId;
 	        }, this);
 	        this.parent.editablePresets = newPresets;
 	      }
-
 	      if (presetId === currentPresetId) {
 	        this.parent.getSearch().removePreset();
 	        this.resetPreset();
@@ -8632,22 +7672,18 @@ this.BX = this.BX || {};
 	     * Pin preset (Sets as default preset)
 	     * @param {string} presetId
 	     */
-
 	  }, {
 	    key: "pinPreset",
 	    value: function pinPreset(presetId) {
 	      if (!BX.type.isNotEmptyString(presetId)) {
 	        presetId = 'default_filter';
 	      }
-
 	      var presetNode = this.getPresetNodeById(presetId);
-
 	      if (this.parent.getParam('VALUE_REQUIRED_MODE')) {
 	        if (presetId === 'default_filter') {
 	          return;
 	        }
 	      }
-
 	      var params = {
 	        FILTER_ID: this.parent.getParam('FILTER_ID'),
 	        GRID_ID: this.parent.getParam('GRID_ID'),
@@ -8679,7 +7715,6 @@ this.BX = this.BX || {};
 	      presetNode = event.currentTarget;
 	      presetId = this.getPresetId(presetNode);
 	      presetData = this.getPreset(presetId);
-
 	      if (main_core.Dom.hasClass(target, settings.classPinButton)) {
 	        if (this.parent.isEditEnabled()) {
 	          if (main_core.Dom.hasClass(presetNode, settings.classPinnedPreset)) {
@@ -8689,36 +7724,29 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      }
-
 	      if (main_core.Dom.hasClass(target, settings.classPresetEditButton)) {
 	        this.enableEditPresetName(presetNode);
 	      }
-
 	      if (main_core.Dom.hasClass(target, settings.classPresetDeleteButton)) {
 	        isDefault = 'IS_DEFAULT' in presetData ? presetData.IS_DEFAULT : false;
 	        this.removePreset(presetNode, presetId, isDefault);
 	        return false;
 	      }
-
 	      if (!main_core.Dom.hasClass(target, settings.classPresetDragButton) && !main_core.Dom.hasClass(target, settings.classAddPresetFieldInput)) {
 	        if (this.parent.isEditEnabled()) {
 	          this.updateEditablePreset(this.getCurrentPresetId());
 	        }
-
 	        var currentPreset = this.getPreset(this.getCurrentPresetId());
 	        var preset = this.getPreset(presetId);
 	        currentPreset.ADDITIONAL = [];
 	        preset.ADDITIONAL = [];
 	        this.activatePreset(presetNode);
 	        this.applyPreset(presetId);
-
 	        if (!this.parent.isEditEnabled()) {
 	          parent.applyFilter(null, true);
-
 	          if (event.isTrusted) {
 	            parent.closePopup();
 	          }
-
 	          if (parent.isAddPresetEnabled()) {
 	            parent.disableAddPreset();
 	          }
@@ -8729,14 +7757,12 @@ this.BX = this.BX || {};
 	     * Applies default preset
 	     * @return {BX.Promise}
 	     */
-
 	  }, {
 	    key: "applyPinnedPreset",
 	    value: function applyPinnedPreset() {
 	      var Filter = this.parent;
 	      var isPinned = this.isPinned(this.getCurrentPresetId());
 	      var promise;
-
 	      if (this.parent.getParam('VALUE_REQUIRED') && this.getPinnedPresetId() === 'default_filter') {
 	        this.applyPreset('default_filter');
 	        this.deactivateAllPresets();
@@ -8756,14 +7782,12 @@ this.BX = this.BX || {};
 	      } else {
 	        promise = Filter.resetFilter();
 	      }
-
 	      return promise;
 	    }
 	    /**
 	     * Updates editable presets
 	     * @param {string} presetId
 	     */
-
 	  }, {
 	    key: "updateEditablePreset",
 	    value: function updateEditablePreset(presetId) {
@@ -8782,7 +7806,6 @@ this.BX = this.BX || {};
 	     * @param presetNode
 	     * @return {?HTMLInputElement}
 	     */
-
 	  }, {
 	    key: "getPresetInput",
 	    value: function getPresetInput(presetNode) {
@@ -8792,14 +7815,13 @@ this.BX = this.BX || {};
 	     * Enable edit preset name
 	     * @param {HTMLElement} presetNode
 	     */
-
 	  }, {
 	    key: "enableEditPresetName",
 	    value: function enableEditPresetName(presetNode) {
 	      var input = this.getPresetInput(presetNode);
 	      BX.addClass(presetNode, this.parent.settings.classPresetNameEdit);
-	      input.select(); // noinspection SillyAssignmentJS
-
+	      input.select();
+	      // noinspection SillyAssignmentJS
 	      input.value = BX.util.htmlspecialcharsback(input.value);
 	      main_core.Event.bind(input, 'input', BX.delegate(this._onPresetNameInput, this));
 	    }
@@ -8817,7 +7839,6 @@ this.BX = this.BX || {};
 	        ID: presetId,
 	        TITLE: inputValue
 	      };
-
 	      if (presetId === currentPresetId) {
 	        Search.updatePreset(data);
 	      }
@@ -8827,7 +7848,6 @@ this.BX = this.BX || {};
 	     * @param {HTMLElement} presetNode
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "getPresetNameNode",
 	    value: function getPresetNameNode(presetNode) {
@@ -8837,13 +7857,11 @@ this.BX = this.BX || {};
 	     * Disable edit name for preset
 	     * @param {HTMLElement} presetNode
 	     */
-
 	  }, {
 	    key: "disableEditPresetName",
 	    value: function disableEditPresetName(presetNode) {
 	      var input = this.getPresetInput(presetNode);
 	      main_core.Dom.removeClass(presetNode, this.parent.settings.classPresetNameEdit);
-
 	      if (BX.type.isDomNode(input)) {
 	        input.blur();
 	        BX.unbind(input, 'input', BX.delegate(this._onPresetNameInput, this));
@@ -8855,27 +7873,22 @@ this.BX = this.BX || {};
 	     * @param {boolean} [isDefault = false] - gets from default presets collection
 	     * @return {?object}
 	     */
-
 	  }, {
 	    key: "getPreset",
 	    value: function getPreset(presetId, isDefault) {
 	      var presets = this.parent.getParam(isDefault ? 'DEFAULT_PRESETS' : 'PRESETS', []);
-
 	      if (this.parent.isEditEnabled() && !isDefault) {
 	        presets = this.parent.editablePresets;
 	      }
-
 	      var filtered = presets.filter(function (current) {
 	        return current.ID === presetId;
 	      });
-
 	      if (presetId === 'tmp_filter' && !filtered.length) {
 	        var tmpPreset = BX.clone(this.getPreset('default_filter'));
 	        tmpPreset.ID = 'tmp_filter';
 	        presets.push(tmpPreset);
 	        filtered.push(tmpPreset);
 	      }
-
 	      return filtered.length !== 0 ? filtered[0] : null;
 	    }
 	    /**
@@ -8884,20 +7897,17 @@ this.BX = this.BX || {};
 	     * @param {string} fieldName
 	     * @return {?object}
 	     */
-
 	  }, {
 	    key: "getPresetField",
 	    value: function getPresetField(presetId, fieldName) {
 	      var preset = this.getPreset(presetId);
 	      var field = null;
-
 	      if (BX.type.isPlainObject(preset) && 'FIELDS' in preset && BX.type.isArray(preset.FIELDS)) {
 	        field = preset.FIELDS.filter(function (current) {
 	          return current.NAME === fieldName;
 	        });
 	        field = field.length ? field[0] : null;
 	      }
-
 	      return field;
 	    }
 	    /**
@@ -8905,17 +7915,14 @@ this.BX = this.BX || {};
 	     * @param {string} presetId
 	     * @param {boolean} [noValues = false]
 	     */
-
 	  }, {
 	    key: "applyPreset",
 	    value: function applyPreset(presetId, noValues) {
 	      presetId = noValues ? 'default_filter' : presetId || 'default_filter';
 	      var preset = this.getPreset(presetId);
-
 	      if (presetId !== 'default_preset') {
 	        preset = this.extendPreset(preset);
 	      }
-
 	      this.parent.getSearch().updatePreset(preset);
 	      this.updatePresetFields(preset, noValues);
 	      BX.onCustomEvent('BX.Main.Filter:onApplyPreset', [presetId]);
@@ -8925,27 +7932,22 @@ this.BX = this.BX || {};
 	     * @param {object} preset
 	     * @return {object}
 	     */
-
 	  }, {
 	    key: "extendPreset",
 	    value: function extendPreset(preset) {
 	      var defaultPreset = BX.clone(this.getPreset('default_filter'));
-
 	      if (BX.type.isPlainObject(preset)) {
 	        preset = BX.clone(preset);
 	        preset.FIELDS.forEach(function (curr) {
 	          var index;
 	          var someField = defaultPreset.FIELDS.some(function (defCurr, defIndex) {
 	            var result = false;
-
 	            if (defCurr.NAME === curr.NAME) {
 	              index = defIndex;
 	              result = true;
 	            }
-
 	            return result;
 	          }, this);
-
 	          if (someField && index || someField && index === 0) {
 	            defaultPreset.FIELDS[index] = curr;
 	          } else if (!this.isEmptyField(curr)) {
@@ -8954,7 +7956,6 @@ this.BX = this.BX || {};
 	        }, this);
 	        preset.FIELDS = defaultPreset.FIELDS;
 	      }
-
 	      return preset;
 	    }
 	    /**
@@ -8962,87 +7963,71 @@ this.BX = this.BX || {};
 	     * @param {object} field
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isEmptyField",
 	    value: function isEmptyField(field) {
 	      var result = true;
-
 	      if (main_core.Type.isStringFilled(field.ADDITIONAL_FILTER)) {
 	        return false;
 	      }
-
 	      if (field.TYPE === this.parent.types.STRING) {
 	        if (field.VALUE && field.VALUE.length) {
 	          result = false;
 	        }
 	      }
-
 	      if (field.TYPE === this.parent.types.SELECT) {
 	        if (BX.type.isPlainObject(field.VALUE) && 'VALUE' in field.VALUE && field.VALUE.VALUE) {
 	          result = false;
 	        }
 	      }
-
 	      if (field.TYPE === this.parent.types.MULTI_SELECT) {
 	        if (BX.type.isArray(field.VALUE) && field.VALUE.length) {
 	          result = false;
 	        }
 	      }
-
 	      if (field.TYPE === this.parent.types.CUSTOM_DATE) {
 	        if (BX.type.isArray(field.VALUE.days) && field.VALUE.days.length || BX.type.isArray(field.VALUE.months) && field.VALUE.months.length || BX.type.isArray(field.VALUE.years) && field.VALUE.years.length) {
 	          result = false;
 	        }
 	      }
-
 	      if (field.TYPE === this.parent.types.CUSTOM_ENTITY || field.TYPE === this.parent.types.DEST_SELECTOR || field.TYPE === this.parent.types.ENTITY_SELECTOR) {
 	        if (BX.type.isPlainObject(field.VALUES)) {
 	          if (BX.type.isNotEmptyString(field.VALUES._label) && BX.type.isNotEmptyString(field.VALUES._value)) {
 	            result = false;
 	          }
-
 	          if (BX.type.isPlainObject(field.VALUES._label) && BX.type.isPlainObject(field.VALUES._value) && Object.keys(field.VALUES._label).length && Object.keys(field.VALUES._value).length) {
 	            result = false;
 	          }
-
 	          if (BX.type.isArray(field.VALUES._label) && BX.type.isArray(field.VALUES._value) && field.VALUES._label.length && field.VALUES._value.length) {
 	            result = false;
 	          }
-
 	          if ((BX.type.isArray(field.VALUES._label) && field.VALUES._label.length || BX.type.isPlainObject(field.VALUES._label) && Object.keys(field.VALUES._label).length) && (BX.type.isArray(field.VALUES._value) && field.VALUES._value.length || BX.type.isPlainObject(field.VALUES._value) && Object.keys(field.VALUES._value).length)) {
 	            result = false;
 	          }
 	        }
 	      }
-
 	      if (field.TYPE === this.parent.types.DATE) {
 	        var datesel = '_datesel' in field.VALUES ? field.VALUES._datesel : field.SUB_TYPE.VALUE;
-
 	        if (BX.type.isPlainObject(field.VALUES) && (field.VALUES._from || field.VALUES._to || field.VALUES._quarter || field.VALUES._month && !BX.type.isArray(field.VALUES._month) || field.VALUES._year && !BX.type.isArray(field.VALUES._year) || field.VALUES._days && !BX.type.isArray(field.VALUES._days)) || BX.type.isArray(field.VALUES._days) && field.VALUES._days.length || BX.type.isArray(field.VALUES._month) && field.VALUES._month.length || BX.type.isArray(field.VALUES._year) && field.VALUES._year.length || datesel === this.parent.dateTypes.CURRENT_DAY || datesel === this.parent.dateTypes.CURRENT_WEEK || datesel === this.parent.dateTypes.CURRENT_MONTH || datesel === this.parent.dateTypes.CURRENT_QUARTER || datesel === this.parent.dateTypes.LAST_7_DAYS || datesel === this.parent.dateTypes.LAST_30_DAYS || datesel === this.parent.dateTypes.LAST_60_DAYS || datesel === this.parent.dateTypes.LAST_90_DAYS || datesel === this.parent.dateTypes.LAST_WEEK || datesel === this.parent.dateTypes.LAST_MONTH || datesel === this.parent.dateTypes.TOMORROW || datesel === this.parent.dateTypes.YESTERDAY || datesel === this.parent.dateTypes.NEXT_WEEK || datesel === this.parent.dateTypes.NEXT_MONTH) {
 	          result = false;
 	        }
 	      }
-
 	      if (field.TYPE === this.parent.types.NUMBER) {
 	        if (BX.type.isPlainObject(field.VALUES) && (field.VALUES._from || field.VALUES._to)) {
 	          result = false;
 	        }
 	      }
-
 	      if (field.TYPE === this.parent.types.CHECKBOX) {
 	        if (BX.type.isPlainObject(field.VALUE) && field.VALUE.VALUE) {
 	          result = false;
 	        }
 	      }
-
 	      return result;
 	    }
 	    /**
 	     * Resets preset
 	     * @param {boolean} [noValues]
 	     */
-
 	  }, {
 	    key: "resetPreset",
 	    value: function resetPreset(noValues) {
@@ -9052,17 +8037,14 @@ this.BX = this.BX || {};
 	     * Gets preset fields elements
 	     * @return {?HTMLElement[]}
 	     */
-
 	  }, {
 	    key: "getFields",
 	    value: function getFields() {
 	      var container = this.parent.getFieldListContainer();
 	      var fields = null;
-
 	      if (BX.type.isDomNode(container)) {
 	        fields = BX.Filter.Utils.getBySelector(container.parentNode, ".".concat(this.parent.settings.classFileldControlList, " > div"), true);
 	      }
-
 	      return fields;
 	    }
 	    /**
@@ -9070,7 +8052,6 @@ this.BX = this.BX || {};
 	     * @param {object} fieldData
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "getField",
 	    value: function getField(fieldData) {
@@ -9078,18 +8059,15 @@ this.BX = this.BX || {};
 	      var field = null;
 	      var tmpName;
 	      var filtered;
-
 	      if (BX.type.isArray(fields) && fields.length) {
 	        filtered = fields.filter(function (current) {
 	          if (BX.type.isDomNode(current)) {
 	            tmpName = BX.data(current, 'name');
 	          }
-
 	          return tmpName === fieldData.NAME;
 	        }, this);
 	        field = filtered.length > 0 ? filtered[0] : null;
 	      }
-
 	      return field;
 	    }
 	    /**
@@ -9097,44 +8075,35 @@ this.BX = this.BX || {};
 	     * @param {object} field
 	     * @param {boolean} disableSaveFieldsSort
 	     */
-
 	  }, {
 	    key: "removeField",
 	    value: function removeField(field, disableSaveFieldsSort) {
 	      var index;
 	      var fieldName;
 	      disableSaveFieldsSort = disableSaveFieldsSort || false;
-
 	      if (BX.type.isPlainObject(field)) {
 	        fieldName = field.NAME;
 	        field = this.getField(field);
-
 	        if (BX.type.isArray(this.parent.fieldsList)) {
 	          index = this.parent.fieldsList.indexOf(field);
-
 	          if (index !== -1) {
 	            delete this.parent.fieldsList[index];
 	          }
 	        }
-
 	        this.parent.unregisterDragItem(field);
 	      }
-
 	      if (BX.type.isDomNode(field)) {
 	        fieldName = BX.data(field, 'name');
 	        this.parent.getFields().deleteField(field);
 	      }
-
 	      if (!this.parent.isEditEnabled() && !this.parent.isAddPresetEnabled()) {
 	        var currentPresetId = this.getCurrentPresetId();
 	        var currentPresetField = this.getPresetField(currentPresetId, fieldName);
-
 	        if (currentPresetField && !this.isEmptyField(currentPresetField)) {
 	          this.deactivateAllPresets();
 	          this.parent.applyFilter();
 	        }
 	      }
-
 	      if (!disableSaveFieldsSort) {
 	        this.parent.saveFieldsSort();
 	      }
@@ -9143,7 +8112,6 @@ this.BX = this.BX || {};
 	     * Removes field elements by field objects.
 	     * @param {object[]} fields
 	     */
-
 	  }, {
 	    key: "removeFields",
 	    value: function removeFields(fields) {
@@ -9156,57 +8124,46 @@ this.BX = this.BX || {};
 	     * Adds field into filter field list by field object
 	     * @param {object} fieldData
 	     */
-
 	  }, {
 	    key: "addField",
 	    value: function addField(fieldData) {
 	      var container;
 	      var control;
 	      var controls;
-
 	      if (BX.type.isPlainObject(fieldData)) {
 	        container = this.parent.getFieldListContainer();
 	        controls = this.parent.getControls();
 	        control = BX.type.isArray(controls) ? controls[controls.length - 1] : null;
-
 	        if (BX.type.isDomNode(control)) {
 	          if (control.nodeName !== 'INPUT') {
 	            control = BX.Filter.Utils.getByTag(control, 'input');
 	          }
-
 	          if (BX.type.isDomNode(control)) {
 	            fieldData.TABINDEX = parseInt(control.getAttribute('tabindex')) + 1;
 	          }
 	        } else {
 	          fieldData.TABINDEX = 2;
 	        }
-
 	        if (BX.type.isDomNode(container)) {
 	          control = this.createControl(fieldData);
-
 	          if (BX.type.isDomNode(control)) {
 	            BX.append(control, container);
-
 	            if (BX.type.isArray(this.parent.fieldsList)) {
 	              this.parent.fieldsList.push(control);
 	            }
-
 	            this.parent.registerDragItem(control);
 	          }
 	        }
 	      }
-
 	      if (!this.parent.isEditEnabled() && !this.parent.isAddPresetEnabled()) {
 	        var currentPresetId = this.getCurrentPresetId();
 	        var currentPresetField = this.getPresetField(currentPresetId, fieldData.NAME);
-
 	        if (currentPresetField && !this.isEmptyField(currentPresetField)) {
 	          this.parent.updatePreset('tmp_filter');
 	          this.deactivateAllPresets();
 	          this.parent.getSearch().updatePreset(this.getPreset('tmp_filter'));
 	        }
 	      }
-
 	      this.parent.saveFieldsSort();
 	    }
 	    /**
@@ -9214,85 +8171,71 @@ this.BX = this.BX || {};
 	     * @param {object} fieldData
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "createControl",
 	    value: function createControl(fieldData) {
 	      var control;
-
 	      switch (fieldData.TYPE) {
 	        case this.parent.types.STRING:
 	          {
 	            control = this.parent.getFields().createInputText(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.TEXTAREA:
 	          {
 	            control = this.parent.getFields().createTextarea(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.SELECT:
 	          {
 	            control = this.parent.getFields().createSelect(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.MULTI_SELECT:
 	          {
 	            control = this.parent.getFields().createMultiSelect(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.NUMBER:
 	          {
 	            control = this.parent.getFields().createNumber(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.DATE:
 	          {
 	            control = this.parent.getFields().createDate(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.CUSTOM_DATE:
 	          {
 	            control = this.parent.getFields().createCustomDate(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.DEST_SELECTOR:
 	          {
 	            control = this.parent.getFields().createDestSelector(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.ENTITY_SELECTOR:
 	          {
 	            control = this.parent.getFields().createEntitySelector(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.CUSTOM:
 	          {
 	            control = this.parent.getFields().createCustom(fieldData);
 	            break;
 	          }
-
 	        case this.parent.types.CUSTOM_ENTITY:
 	          {
 	            control = this.parent.getFields().createCustomEntity(fieldData);
 	            break;
 	          }
-
 	        default:
 	          {
 	            break;
 	          }
 	      }
-
 	      if (this.parent.getParam('ENABLE_ADDITIONAL_FILTERS')) {
 	        var additionalFilterInstance = AdditionalFilter.getInstance();
 	        var button = additionalFilterInstance.getAdditionalFilterButton({
@@ -9300,29 +8243,23 @@ this.BX = this.BX || {};
 	          enabled: fieldData.ADDITIONAL_FILTER_ALLOWED
 	        });
 	        main_core.Dom.append(button, control);
-
 	        if (!fieldData.ADDITIONAL_FILTER_ALLOWED) {
 	          BX.Dom.addClass(control, 'main-ui-filter-additional-filters-hide');
 	        }
-
 	        if (main_core.Type.isStringFilled(fieldData.ADDITIONAL_FILTER)) {
 	          additionalFilterInstance.initAdditionalFilter(control, fieldData.ADDITIONAL_FILTER);
 	        }
 	      }
-
 	      if (BX.type.isDomNode(control)) {
 	        control.dataset.name = fieldData.NAME;
 	        control.FieldController = new BX.Filter.FieldController(control, this.parent);
-
 	        if (fieldData.REQUIRED) {
 	          var removeButton = control.querySelector('.main-ui-filter-field-delete');
-
 	          if (removeButton) {
 	            BX.remove(removeButton);
 	          }
 	        }
 	      }
-
 	      return control;
 	    }
 	    /**
@@ -9330,34 +8267,27 @@ this.BX = this.BX || {};
 	     * @param {object} fields
 	     * @param {boolean} [noClean]
 	     */
-
 	  }, {
 	    key: "removeNotCompareVariables",
 	    value: function removeNotCompareVariables(fields, noClean) {
 	      if (BX.type.isPlainObject(fields)) {
 	        var dateType = this.parent.dateTypes;
 	        var additionalDateTypes = this.parent.additionalDateTypes;
-
 	        if ('FIND' in fields) {
 	          delete fields.FIND;
 	        }
-
 	        if (!noClean) {
 	          Object.keys(fields).forEach(function (key) {
 	            if (key.indexOf('_numsel') !== -1) {
 	              delete fields[key];
 	            }
-
 	            if (key.indexOf('_datesel') !== -1) {
 	              var datesel = fields[key];
-
 	              if (datesel === dateType.EXACT || datesel === dateType.RANGE || datesel === additionalDateTypes.PREV_DAY || datesel === additionalDateTypes.NEXT_DAY || datesel === additionalDateTypes.MORE_THAN_DAYS_AGO || datesel === additionalDateTypes.AFTER_DAYS || datesel === dateType.PREV_DAYS || datesel === dateType.NEXT_DAYS || datesel === dateType.YEAR || datesel === dateType.MONTH || datesel === dateType.QUARTER || datesel === dateType.NONE || datesel === dateType.CUSTOM_DATE) {
 	                delete fields[key];
 	              }
 	            }
-
 	            var field = this.parent.getFieldByName(key);
-
 	            if (fields[key] === '' && (!field || !field.STRICT)) {
 	              delete fields[key];
 	            }
@@ -9370,7 +8300,6 @@ this.BX = this.BX || {};
 	     * @param {string} presetId
 	     * @returns {boolean}
 	     */
-
 	  }, {
 	    key: "isPresetValuesModified",
 	    value: function isPresetValuesModified(presetId) {
@@ -9390,7 +8319,6 @@ this.BX = this.BX || {};
 	     * @param {string} presetId
 	     * @return {?object}
 	     */
-
 	  }, {
 	    key: "getAdditionalValues",
 	    value: function getAdditionalValues(presetId) {
@@ -9410,7 +8338,6 @@ this.BX = this.BX || {};
 	     * @param {object} object1
 	     * @param {object} object2
 	     */
-
 	  }, {
 	    key: "removeSameProperties",
 	    value: function removeSameProperties(object1, object2) {
@@ -9426,12 +8353,10 @@ this.BX = this.BX || {};
 	     * Removes additional field by field name
 	     * @param {string} name
 	     */
-
 	  }, {
 	    key: "removeAdditionalField",
 	    value: function removeAdditionalField(name) {
 	      var preset = this.getPreset(this.getCurrentPresetId());
-
 	      if (BX.type.isArray(preset.ADDITIONAL)) {
 	        preset.ADDITIONAL = preset.ADDITIONAL.filter(function (field) {
 	          return field.NAME !== name;
@@ -9443,19 +8368,15 @@ this.BX = this.BX || {};
 	     * @param {object} preset
 	     * @param {boolean} [noValues = false]
 	     */
-
 	  }, {
 	    key: "updatePresetFields",
 	    value: function updatePresetFields(preset, noValues) {
 	      var _this3 = this;
-
 	      var fields;
 	      var fieldListContainer;
 	      var fieldNodes = [];
-
 	      if (BX.type.isPlainObject(preset) && 'FIELDS' in preset) {
 	        fields = preset.FIELDS;
-
 	        if (BX.type.isArray(preset.ADDITIONAL)) {
 	          preset.ADDITIONAL.filter(function (field) {
 	            return _this3.parent.params.FIELDS.some(function (currentField) {
@@ -9470,20 +8391,17 @@ this.BX = this.BX || {};
 	                replaced = true;
 	              }
 	            });
-
 	            if (!replaced) {
 	              fields.push(field);
 	            }
 	          });
 	        }
-
 	        (fields || []).filter(function (field) {
 	          return _this3.parent.params.FIELDS.some(function (currentField) {
 	            return field.NAME === currentField.NAME;
 	          });
 	        }).forEach(function (fieldData, index) {
 	          fieldData.TABINDEX = index + 1;
-
 	          if (noValues) {
 	            switch (fieldData.TYPE) {
 	              case this.parent.types.SELECT:
@@ -9491,13 +8409,11 @@ this.BX = this.BX || {};
 	                  fieldData.VALUE = fieldData.ITEMS[0];
 	                  break;
 	                }
-
 	              case this.parent.types.MULTI_SELECT:
 	                {
 	                  fieldData.VALUE = [];
 	                  break;
 	                }
-
 	              case this.parent.types.DATE:
 	                {
 	                  fieldData.SUB_TYPE = fieldData.SUB_TYPES[0];
@@ -9508,7 +8424,6 @@ this.BX = this.BX || {};
 	                  };
 	                  break;
 	                }
-
 	              case this.parent.types.CUSTOM_DATE:
 	                {
 	                  fieldData.VALUE = {
@@ -9518,7 +8433,6 @@ this.BX = this.BX || {};
 	                  };
 	                  break;
 	                }
-
 	              case this.parent.types.NUMBER:
 	                {
 	                  fieldData.SUB_TYPE = fieldData.SUB_TYPES[0];
@@ -9528,7 +8442,6 @@ this.BX = this.BX || {};
 	                  };
 	                  break;
 	                }
-
 	              case this.parent.types.CUSTOM_ENTITY:
 	                {
 	                  fieldData.VALUES = {
@@ -9537,13 +8450,11 @@ this.BX = this.BX || {};
 	                  };
 	                  break;
 	                }
-
 	              case this.parent.types.CUSTOM:
 	                {
 	                  fieldData._VALUE = '';
 	                  break;
 	                }
-
 	              default:
 	                {
 	                  if ('VALUE' in fieldData) {
@@ -9553,27 +8464,22 @@ this.BX = this.BX || {};
 	                      fieldData.VALUE = '';
 	                    }
 	                  }
-
 	                  break;
 	                }
 	            }
 	          }
-
 	          fieldNodes.push(this.createControl(fieldData));
 	        }, this);
 	        this.parent.disableFieldsDragAndDrop();
 	        fieldListContainer = this.parent.getFieldListContainer();
 	        BX.cleanNode(fieldListContainer);
-
 	        if (fieldNodes.length) {
 	          fieldNodes.forEach(function (current, index) {
 	            if (BX.type.isDomNode(current)) {
 	              if (preset.ID !== 'tmp_filter' && preset.ID !== 'default_filter' && !('IS_PRESET_FIELD' in fields[index]) && !this.isEmptyField(fields[index])) {
 	                BX.addClass(current, this.parent.settings.classPresetField);
 	              }
-
 	              BX.append(current, fieldListContainer);
-
 	              if (BX.type.isString(fields[index].HTML)) {
 	                var wrap = BX.create('div');
 	                this.parent.getHiddenElement().appendChild(wrap);
@@ -9588,7 +8494,6 @@ this.BX = this.BX || {};
 	    /**
 	     * Shows current preset fields
 	     */
-
 	  }, {
 	    key: "showCurrentPresetFields",
 	    value: function showCurrentPresetFields() {
@@ -9599,7 +8504,6 @@ this.BX = this.BX || {};
 	     * Gets current preset element
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "getCurrentPreset",
 	    value: function getCurrentPreset() {
@@ -9609,44 +8513,37 @@ this.BX = this.BX || {};
 	     * Gets current preset id
 	     * @return {*}
 	     */
-
 	  }, {
 	    key: "getCurrentPresetId",
 	    value: function getCurrentPresetId() {
 	      var current = this.getCurrentPreset();
 	      var currentId = null;
-
 	      if (BX.type.isDomNode(current)) {
 	        currentId = this.getPresetId(current);
 	      } else {
 	        currentId = 'tmp_filter';
 	      }
-
 	      return currentId;
 	    }
 	    /**
 	     * Gets current preset data
 	     * @return {?object}
 	     */
-
 	  }, {
 	    key: "getCurrentPresetData",
 	    value: function getCurrentPresetData() {
 	      var currentId = this.getCurrentPresetId();
 	      var currentData = null;
-
 	      if (BX.type.isNotEmptyString(currentId)) {
 	        currentData = this.getPreset(currentId);
 	        currentData = this.extendPreset(currentData);
 	      }
-
 	      return currentData;
 	    }
 	    /**
 	     * Gets presets container element
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
@@ -9656,7 +8553,6 @@ this.BX = this.BX || {};
 	     * Gets preset nodes
 	     * @return {?HTMLElement[]}
 	     */
-
 	  }, {
 	    key: "getPresets",
 	    value: function getPresets() {
@@ -9666,7 +8562,6 @@ this.BX = this.BX || {};
 	     * Gets default presets elements
 	     * @return {?HTMLElement[]}
 	     */
-
 	  }, {
 	    key: "getDefaultPresets",
 	    value: function getDefaultPresets() {
@@ -9676,7 +8571,6 @@ this.BX = this.BX || {};
 	     * Gets default preset element
 	     * @return {?HTMLElement}
 	     */
-
 	  }, {
 	    key: "getPinnedPresetNode",
 	    value: function getPinnedPresetNode() {
@@ -9687,7 +8581,6 @@ this.BX = this.BX || {};
 	     * @param presetId
 	     * @return {boolean}
 	     */
-
 	  }, {
 	    key: "isPinned",
 	    value: function isPinned(presetId) {
@@ -9697,18 +8590,15 @@ this.BX = this.BX || {};
 	     * Gets pinned (default) preset id
 	     * @return {string}
 	     */
-
 	  }, {
 	    key: "getPinnedPresetId",
 	    value: function getPinnedPresetId() {
 	      var node = this.getPinnedPresetNode();
 	      var id = 'default_filter';
-
 	      if (node) {
 	        var dataId = BX.data(node, 'id');
 	        id = dataId || id;
 	      }
-
 	      return id;
 	    }
 	  }]);

@@ -99,6 +99,31 @@ if (\Bitrix\Main\ModuleManager::isModuleInstalled("intranet") && SITE_TEMPLATE_I
 		|| \Bitrix\Main\Context::getCurrent()->getRequest()->get('mode') === 'dev'
 	)
 	{
+		if (
+			\Bitrix\Main\Loader::includeModule('imbot')
+			&& \Bitrix\ImBot\Bot\SupportBox::isEnabled()
+			&& (\Bitrix\ImBot\Bot\SupportBox::getBotId() === (int)$arResult['VARIABLES']['user_id'])
+			&& !\Bitrix\Intranet\CurrentUser::get()->isAdmin()
+		)
+		{
+			$APPLICATION->IncludeComponent(
+				'bitrix:ui.sidepanel.wrapper',
+				'',
+				[
+					'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.entity.error',
+					'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+					'POPUP_COMPONENT_PARAMS' => [
+						'ENTITY' => 'SUPPORT_BOT',
+					],
+					'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
+					'USE_PADDING' => false,
+					'POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID' => $arResult['VARIABLES']['user_id'],
+				]
+			);
+
+			return;
+		}
+
 		include("util_menu.php");
 
 		$APPLICATION->IncludeComponent(

@@ -500,7 +500,7 @@ class Parser
 	 */
 	protected static function stripNationalPrefix(&$phoneNumber, $countryMetadata)
 	{
-		$nationalPrefixForParsing = $countryMetadata['nationalPrefixForParsing'] ?? $countryMetadata['nationalPrefix'];
+		$nationalPrefixForParsing = $countryMetadata['nationalPrefixForParsing'] ?? ($countryMetadata['nationalPrefix'] ?? '');
 
 		if($phoneNumber == '' || $nationalPrefixForParsing == '')
 			return '';

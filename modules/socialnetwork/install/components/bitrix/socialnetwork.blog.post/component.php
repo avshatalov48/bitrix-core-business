@@ -313,6 +313,44 @@ if (
 		"USE_SOCNET" => "Y"
 	));
 
+	if (empty($arBlog))
+	{
+		if (empty($arParams["GROUP_ID"]))
+		{
+			$blogGroupId = \Bitrix\Main\Config\Option::get(
+				'socialnetwork',
+				'userbloggroup_id',
+				false,
+				SITE_ID
+			);
+			if (empty($blogGroupId))
+			{
+				$blogGroupIdList = ComponentHelper::getSonetBlogGroupIdList([
+					'SITE_ID' => SITE_ID
+				]);
+				if (!empty($blogGroupIdList))
+				{
+					$blogGroupId = array_shift($blogGroupIdList);
+				}
+			}
+		}
+		else
+		{
+			$blogGroupId = (
+			(is_array($arParams['GROUP_ID']))
+				? (int) $arParams['GROUP_ID'][0]
+				: (int) $arParams['GROUP_ID']
+			);
+		}
+
+		$arBlog = ComponentHelper::createUserBlog(array(
+			'BLOG_GROUP_ID' => $blogGroupId,
+			"USER_ID" => $arParams["USER_ID"],
+			"SITE_ID" => SITE_ID,
+			"PATH_TO_BLOG" => $arParams["PATH_TO_BLOG"]
+		));
+	}
+
 	$arResult["Blog"] = $arBlog;
 
 	if($USER->IsAuthorized())
@@ -362,7 +400,8 @@ if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
 	$postItem = new \Bitrix\Blog\Item\Post;
 	$postItem->setFields($arPost);
 }
-else
+
+if (empty($arPost["ID"]))
 {
 	$obCache->StartDataCache();
 	$postItem = \Bitrix\Blog\Item\Post::getById($arParams["ID"]);
@@ -893,12 +932,18 @@ if(
 				'POST_ID' => $arPost["ID"]
 			));
 
-			if (
+			$isInitCache = (
 				$arParams["CACHE_TIME"] > 0
 				&& $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path)
-			)
+			);
+			$Vars = [];
+			if ($isInitCache)
 			{
 				$Vars = $cache->GetVars();
+			}
+
+			if ($Vars && !empty($Vars["Post"]["ID"]))
+			{
 				$arResult["POST_PROPERTY"] = $Vars["POST_PROPERTY"] ?? [];
 				$arResult["Post"] = $Vars["Post"];
 				$arResult["images"] = $Vars["images"];

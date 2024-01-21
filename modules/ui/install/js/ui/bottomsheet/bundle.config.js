@@ -5,4 +5,5 @@ module.exports = {
 		css: 'dist/bottomsheet.bundle.css',
 	},
 	namespace: 'BX.UI',
+	browserslist: true,
 };

@@ -97,7 +97,7 @@ class UserTransactTable extends DataManager
 			'CURRENCY' =>
 				(new StringField('CURRENCY'))
 					->configureRequired(true)
-					->addValidator([__CLASS__, 'validateCurrency'])
+					->addValidator(new LengthValidator(null, 3))
 			,
 			'DEBIT' => (new BooleanField('DEBIT'))
 				->configureValues('N', 'Y')
@@ -107,7 +107,7 @@ class UserTransactTable extends DataManager
 			'DESCRIPTION' =>
 				(new StringField('DESCRIPTION'))
 					->configureRequired(true)
-					->addValidator([__CLASS__, 'validateDescription'])
+					->addValidator(new LengthValidator(null, 255))
 			,
 			'NOTES' => (new TextField('NOTES')),
 			'PAYMENT_ID' => (new IntegerField('PAYMENT_ID')),
@@ -123,30 +123,6 @@ class UserTransactTable extends DataManager
 				PaymentTable::class,
 				Join::on('this.PAYMENT_ID', 'ref.ID')
 			),
-		];
-	}
-
-	/**
-	 * Returns validators for CURRENCY field.
-	 *
-	 * @return array
-	 */
-	public static function validateCurrency(): array
-	{
-		return [
-			new LengthValidator(null, 3),
-		];
-	}
-
-	/**
-	 * Returns validators for DESCRIPTION field.
-	 *
-	 * @return array
-	 */
-	public static function validateDescription(): array
-	{
-		return [
-			new LengthValidator(null, 255),
 		];
 	}
 }

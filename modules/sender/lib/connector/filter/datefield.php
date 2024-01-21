@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sender\Connector\Filter;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
@@ -107,7 +108,7 @@ class DateField extends AbstractField
 				)
 				->addRuntime([
 					'name' => $filterKey,
-					'expression' => "DAY(%s)",
+					'expression' => "EXTRACT(DAY from %s)",
 					'buildFrom' => [$fieldId],
 					'parameters' => []
 				]);
@@ -123,7 +124,7 @@ class DateField extends AbstractField
 				)
 				->addRuntime([
 					'name' => $filterKey,
-					'expression' => "MONTH(%s)",
+					'expression' => "EXTRACT(MONTH from %s)",
 					'buildFrom' => [$fieldId],
 					'parameters' => []
 				]);
@@ -139,7 +140,7 @@ class DateField extends AbstractField
 				)
 				->addRuntime([
 					'name' => $filterKey,
-					'expression' => "YEAR(%s)",
+					'expression' => "EXTRACT(YEAR from %s)",
 					'buildFrom' => [$fieldId],
 					'parameters' => []
 				]);
@@ -301,7 +302,7 @@ class DateField extends AbstractField
 		$expressionFieldName = $fieldId . "_YEAR_LESS_" . $tag;
 		$filterKey = $this->getFilterKey();
 
-		// hack for multiple user field of `date` type.
+		// hack for multiple user field of date type.
 		$uf = explode('.', $filterKey);
 		foreach ($uf as $item)
 		{
@@ -327,6 +328,14 @@ class DateField extends AbstractField
 		}
 		// end hack
 
+		$sqlHelper = Application::getConnection()->getSqlHelper();
+
+		$charDate = $sqlHelper->getConcatFunction(
+			"(EXTRACT(YEAR from %s) $addOneYear)",
+			"'-{$date->format('m')}-{$date->format('d')}'"
+		);
+		$sqlDate = $sqlHelper->getDatetimeToDateFunction($charDate); // char -> date conversion
+
 		return (new RuntimeFilter())
 			->setFilter(
 				"=$expressionFieldName",
@@ -334,10 +343,7 @@ class DateField extends AbstractField
 			)
 			->addRuntime([
 				'name' => $expressionFieldName,
-				'expression' => "
-					case when %s $operation concat(YEAR(%s) $addOneYear, '-{$date->format('m')}-{$date->format('d')}')
-					then 1 else 0 end
-				",
+				'expression' => "case when %s $operation $sqlDate then 1 else 0 end",
 				'buildFrom' => [
 					$filterKey,
 					$filterKey

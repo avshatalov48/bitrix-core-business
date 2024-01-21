@@ -13,7 +13,7 @@ use Bitrix\Main\Text\HtmlFilter;
  */
 ?>
 
-<span class="field-wrap">
+<span class="fields field-wrap">
 	<?php
 	$isEmpty = true;
 	if (!empty($arResult['userField']['USER_TYPE']['FIELDS']))
@@ -28,7 +28,7 @@ use Bitrix\Main\Text\HtmlFilter;
 			$textRes = $arResult['userField']['USER_TYPE']['FIELDS'][$res];
 			$isEmpty = false;
 		?>
-			<span class="field-item">
+			<span class="field-item" data-id="<?= (int)$res ?>">
 				<?php
 				if(!empty($arResult['userField']['PROPERTY_VALUE_LINK']))
 				{

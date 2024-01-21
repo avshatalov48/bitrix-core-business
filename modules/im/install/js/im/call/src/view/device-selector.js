@@ -66,7 +66,9 @@ export class DeviceSelector
 		this.allowBackground = BX.prop.getBoolean(config, "allowBackground", true);
 		this.allowMask = BX.prop.getBoolean(config, "allowMask", true);
 		this.allowAdvancedSettings = BX.prop.getBoolean(config, "allowAdvancedSettings", false);
-		this.showCameraBlock = BX.prop.getBoolean(config, "showCameraBlock", true);
+		this.switchCameraBlocked = config.switchCameraBlocked || false;
+		this.switchMicrophoneBlocked = config.switchMicrophoneBlocked || false;
+		this.isDestroying = false;
 
 		this.popup = null;
 		this.eventEmitter = new BX.Event.EventEmitter(this, "DeviceSelector");
@@ -140,7 +142,8 @@ export class DeviceSelector
 				Dom.create("div", {
 					props: {className: "bx-call-view-device-selector-top"},
 					children: [
-						DeviceMenu.create({
+						(this.microphoneContainer = DeviceMenu.create({
+							blocked: this.switchMicrophoneBlocked,
 							deviceLabel: BX.message("IM_M_CALL_BTN_MIC"),
 							deviceList: Hardware.getMicrophoneList(),
 							selectedDevice: this.microphoneId,
@@ -150,20 +153,19 @@ export class DeviceSelector
 								onSwitch: this.onMicrophoneSwitch.bind(this),
 								onSelect: this.onMicrophoneSelect.bind(this)
 							}
-						}).render(),
-						this.showCameraBlock ?
-							DeviceMenu.create({
-								deviceLabel: BX.message("IM_M_CALL_BTN_CAMERA"),
-								deviceList: Hardware.getCameraList(),
-								selectedDevice: this.cameraId,
-								deviceEnabled: this.cameraEnabled,
-								icons: ["camera", "camera-off"],
-								events: {
-									onSwitch: this.onCameraSwitch.bind(this),
-									onSelect: this.onCameraSelect.bind(this)
-								}
-							}).render()
-							: null,
+						})).render(),
+						(this.cameraContainer = DeviceMenu.create({
+							blocked: this.switchCameraBlocked,
+							deviceLabel: BX.message("IM_M_CALL_BTN_CAMERA"),
+							deviceList: Hardware.getCameraList(),
+							selectedDevice: this.cameraId,
+							deviceEnabled: this.cameraEnabled,
+							icons: ["camera", "camera-off"],
+							events: {
+								onSwitch: this.onCameraSwitch.bind(this),
+								onSelect: this.onCameraSelect.bind(this)
+							}
+						})).render(),
 						Hardware.canSelectSpeaker() ?
 							DeviceMenu.create({
 								deviceLabel: BX.message("IM_M_CALL_BTN_SPEAKER"),
@@ -248,7 +250,7 @@ export class DeviceSelector
 								]
 							})
 							: null,
-						this.allowAdvancedSettings ?
+						(this.allowAdvancedSettings && !!BX.MessengerCommon) ?
 							Dom.create("div", {
 								props: {className: "bx-call-view-device-selector-bottom-item"},
 								children: [
@@ -272,6 +274,28 @@ export class DeviceSelector
 				}),
 			]
 		})
+	};
+
+	toggleCameraAvailability(available)
+	{
+		if (available)
+		{
+			this.cameraContainer.unblock();
+			return;
+		}
+
+		this.cameraContainer.block();
+	};
+
+	toggleMicrophoneAvailability(available)
+	{
+		if (available)
+		{
+			this.microphoneContainer.unblock();
+			return;
+		}
+
+		this.microphoneContainer.block();
 	};
 
 	onMicrophoneSwitch()
@@ -342,7 +366,18 @@ export class DeviceSelector
 
 	destroy()
 	{
-		this.popup = null;
+		if (this.isDestroying)
+		{
+			return;
+		}
+
+		this.isDestroying = true;
+
+		if (this.popup)
+		{
+			this.popup.destroy();
+			this.popup = null;
+		}
 		this.eventEmitter.emit(DeviceSelectorEvents.onDestroy, {});
 	};
 }
@@ -358,6 +393,7 @@ class DeviceMenu
 	{
 		config = BX.type.isObject(config) ? config : {};
 
+		this.menuBlocked = config.blocked || false;
 		this.deviceList = BX.prop.getArray(config, "deviceList", []);
 		this.selectedDevice = BX.prop.getString(config, "selectedDevice", "");
 		this.deviceEnabled = BX.prop.getBoolean(config, "deviceEnabled", false);
@@ -424,7 +460,7 @@ class DeviceMenu
 					]
 				}),
 				this.elements.menuInner = Dom.create("div", {
-					props: {className: "bx-call-view-device-selector-menu-inner" + (this.deviceEnabled ? "" : " inactive")},
+					props: {className: "bx-call-view-device-selector-menu-inner"},
 					children: this.deviceList.map(this.renderDevice.bind(this))
 				})
 			]
@@ -458,6 +494,18 @@ class DeviceMenu
 		return deviceElements.root;
 	};
 
+	block()
+	{
+		this.menuBlocked = true;
+		this.elements.root.classList.add("bx-call-view-device-selector-menu-container-blocked");
+	};
+
+	unblock()
+	{
+		this.menuBlocked = false;
+		this.elements.root.classList.remove("bx-call-view-device-selector-menu-container-blocked");
+	};
+
 	getDeviceIconClass()
 	{
 		var result = "";
@@ -474,16 +522,13 @@ class DeviceMenu
 
 	onSwitchToggled()
 	{
+		if (this.menuBlocked)
+		{
+			return;
+		}
+
 		this.deviceEnabled = !this.deviceEnabled;
 		this.elements.switchIcon.className = "bx-call-view-device-selector-device-icon " + this.getDeviceIconClass();
-		if (this.deviceEnabled)
-		{
-			this.elements.menuInner.classList.remove("inactive");
-		}
-		else
-		{
-			this.elements.menuInner.classList.add("inactive");
-		}
 
 		this.eventEmitter.emit(DeviceMenuEvents.onSwitch, {
 			deviceEnabled: this.deviceEnabled
@@ -494,10 +539,7 @@ class DeviceMenu
 	{
 		var currentDevice = this.selectedDevice;
 		var selectedDevice = e.currentTarget.dataset.deviceId;
-		if (currentDevice == selectedDevice)
-		{
-			return;
-		}
+
 		this.selectedDevice = selectedDevice;
 		if (this.elements.menuItems[currentDevice])
 		{

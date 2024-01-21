@@ -1,6 +1,6 @@
 import 'voximplant';
 import { PhoneCallsController } from 'voximplant.phone-calls';
-import { Type, Runtime } from 'main.core';
+import { Type, Runtime, Reflection } from 'main.core';
 import { BaseEvent } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
@@ -105,13 +105,13 @@ export class PhoneManager
 			params = this.#parseStartCallParams(params);
 		}
 
-		await this.#controller.loadPhoneLines();
-
-		const lineId = params.LINE_ID ?? this.#controller.defaultLineId;
-		if (this.#controller.isRestLine(lineId))
-		{
-			this.#controller.startCallViaRestApp(number, lineId, params);
-		}
+		// await this.#controller.loadPhoneLines();
+		//
+		// const lineId = params.LINE_ID ?? this.#controller.defaultLineId;
+		// if (this.#controller.isRestLine(lineId))
+		// {
+		// 	this.#controller.startCallViaRestApp(number, lineId, params);
+		// }
 
 		this.closeKeyPad();
 		this.#controller.phoneCall(number, params);
@@ -136,7 +136,7 @@ export class PhoneManager
 	#init(phoneSettings: PhoneSettings)
 	{
 		this.#settings = phoneSettings;
-		if (!this.canCall())
+		if (!Reflection.getClass('BX.Voximplant.PhoneCallsController'))
 		{
 			return;
 		}
@@ -166,7 +166,16 @@ export class PhoneManager
 				hasActiveCall: () => CallManager.getInstance().hasCurrentCall(),
 				repeatSound: (melodyName, time, force) => soundManager.playLoop(melodyName, time, force),
 				stopRepeatSound: (melodyName) => soundManager.stop(melodyName),
-				playSound: (melodyName, force) => soundManager.playOnce(melodyName, force),
+				playSound: (melodyName, force) => {
+					if (force)
+					{
+						soundManager.forcePlayOnce(melodyName);
+
+						return;
+					}
+
+					soundManager.playOnce(melodyName);
+				},
 
 				setLocalConfig: () => {},
 				getLocalConfig: () => {},
@@ -174,12 +183,32 @@ export class PhoneManager
 				getAvatar: (userId) => this.#getUserAvatar(userId),
 			},
 			events: {
-				// [PhoneCallsController.Events.onCallCreated]: () => this.#onCallCreated(),
+				[PhoneCallsController.Events.onCallCreated]: () => this.#onCallCreated(),
 				[PhoneCallsController.Events.onCallConnected]: (event) => this.#onCallConnected(event),
-				// [PhoneCallsController.Events.onCallDestroyed]: () => this.#onCallDestroyed(),
+				[PhoneCallsController.Events.onCallDestroyed]: () => this.#onCallDestroyed(),
 				[PhoneCallsController.Events.onDeviceCallStarted]: () => this.#onDeviceCallStarted(),
 			},
 		});
+	}
+
+	#onCallCreated()
+	{
+		if (!DesktopApi.isDesktop())
+		{
+			return;
+		}
+
+		DesktopApi.stopDiskSync();
+	}
+
+	#onCallDestroyed()
+	{
+		if (!DesktopApi.isDesktop())
+		{
+			return;
+		}
+
+		DesktopApi.startDiskSync();
 	}
 
 	#onDeviceCallStarted()

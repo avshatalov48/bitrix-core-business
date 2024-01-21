@@ -145,12 +145,6 @@ export default class SyncButton
 		(window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then((exports) => {
 			if (!Dom.hasClass(this.button.button, 'ui-btn-clock'))
 			{
-				BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-					analyticsLabel: {
-						sync_button_click: 'Y',
-						has_active_connection: this.status === 'not_connected' ? 'N' : 'Y'
-					}
-				});
 				this.syncPanel = new exports.SyncPanel({
 					connectionsProviders: this.connectionsProviders,
 					userId: this.userId,

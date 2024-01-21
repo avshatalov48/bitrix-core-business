@@ -1,20 +1,19 @@
 <?php
 
-
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
-
 use Bitrix\Calendar\ICal\Builder\Attach;
-use Bitrix\Calendar\ICal\Builder\Attendee;
 use Bitrix\Calendar\SerializeObject;
 use Bitrix\Calendar\Util;
-use Bitrix\Mail;
-use Bitrix\Main\Loader;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Event;
-use CEvent;
-use COption;
+use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use \Serializable;
 
 /**
@@ -24,6 +23,7 @@ use \Serializable;
 abstract class SenderInvitation implements Serializable
 {
 	use SerializeObject;
+
 	public const CHARSET = 'utf-8';
 	public const CONTENT_TYPE = 'text/calendar';
 	public const DECISION_YES = 'Y';
@@ -64,9 +64,25 @@ abstract class SenderInvitation implements Serializable
 		$this->context = $context;
 	}
 
+	public function setCounterInvitations(?int $counterInvitations): static
+	{
+		$this->counterInvitations = $counterInvitations ?? 0;
+		return $this;
+	}
+
+	public function setEvent(?array $event): static
+	{
+		$this->event = $event;
+		return $this;
+	}
+
 	/**
 	 * @return bool
 	 * @throws LoaderException
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws NotImplementedException
 	 */
 	public function send(): bool
 	{
@@ -75,17 +91,15 @@ abstract class SenderInvitation implements Serializable
 			return false;
 		}
 
-		$this->checkEventOrganizer();
-		$this->checkAddresserEmail();
 		$this->prepareEventFields();
 
 		$content = $this->getContent();
 		if (!$content)
 		{
-			return true;
+			return false;
 		}
 
-		$status = CEvent::sendImmediate(
+		$status = \CEvent::sendImmediate(
 			self::MAIL_TEMPLATE,
 			SITE_ID,
 			$this->getMailEventField(),
@@ -140,6 +154,14 @@ abstract class SenderInvitation implements Serializable
 	}
 
 	/**
+	 * @return MailAddresser
+	 */
+	public function getAddresser():MailAddresser
+	{
+		return $this->context->getAddresser();
+	}
+
+	/**
 	 * @return MailReceiver
 	 */
 	public function getReceiver(): MailReceiver
@@ -150,9 +172,9 @@ abstract class SenderInvitation implements Serializable
 	/**
 	 * @return int
 	 */
-	public function getEventId(): int
+	public function getEventId(): ?int
 	{
-		return (int) $this->event['ID'];
+		return $this->event['ID'] ?? null;
 	}
 
 	/**
@@ -161,21 +183,6 @@ abstract class SenderInvitation implements Serializable
 	public function getEventParentId(): int
 	{
 		return (int) ($this->event['PARENT_ID'] ?? 0);
-	}
-
-	/**
-	 * @throws LoaderException
-	 */
-	protected function checkAddresserEmail(): void
-	{
-		if ($this->context && Loader::includeModule('mail') && empty($this->context->getAddresser()->getMailto()))
-		{
-			$boxes = Mail\MailboxTable::getUserMailboxes($this->event['MEETING_HOST']);
-			if (!empty($boxes) && is_array($boxes))
-			{
-				$this->context->getAddresser()->setMailto(array_shift($boxes)['EMAIL']);
-			}
-		}
 	}
 
 	/**
@@ -246,7 +253,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected function getSiteName(): string
 	{
-		if (!empty($siteName = COption::GetOptionString("main", "site_name", '', '-')))
+		if (!empty($siteName = \COption::GetOptionString("main", "site_name", '', '-')))
 		{
 			return "[{$siteName}]";
 		}
@@ -267,7 +274,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected function getMessageId(): string
 	{
-		$serverName = COption::GetOptionString("main", "server_name", $GLOBALS["SERVER_NAME"]);
+		$serverName = \COption::GetOptionString("main", "server_name", $GLOBALS["SERVER_NAME"]);
 		return "<CALENDAR_EVENT_{$this->getEventParentId()}@{$serverName}>";
 	}
 
@@ -300,43 +307,46 @@ abstract class SenderInvitation implements Serializable
 		return (int) $this->event['OWNER_ID'];
 	}
 
+	private function getFormattedDate(DateTime $formattedDate, string $dtSkipTime): string
+	{
+		$timestamp = \CCalendar::Timestamp($formattedDate, false, $dtSkipTime !== 'Y');
+
+		return \CCalendar::Date($timestamp);
+	}
+
+
 	/**
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws LoaderException
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws NotImplementedException
 	 */
 	protected function prepareEventFields(): void
 	{
-		$this->event['DESCRIPTION'] = Helper::getEventDescriptionById((int) $this->event['ID']);
-		$this->event['TEXT_LOCATION'] ??= null;
-		if (is_array($this->event['TEXT_LOCATION']) && isset($this->event['TEXT_LOCATION']['NEW']))
-		{
-			$this->event['TEXT_LOCATION'] = $this->event['TEXT_LOCATION']['NEW'];
-		}
-		elseif (!is_string($this->event['TEXT_LOCATION']))
-		{
-			$this->event['TEXT_LOCATION'] = null;
-		}
-	}
+		$dtSkipTime = $this->event['DT_SKIP_TIME'];
+		$this->event['DATE_FROM'] = $this->getFormattedDate($this->event['DATE_FROM'], $dtSkipTime);
+		$this->event['DATE_TO'] = $this->getFormattedDate($this->event['DATE_TO'], $dtSkipTime);
+		$this->event['CREATED'] = $this->getFormattedDate($this->event['DATE_CREATE'], $dtSkipTime);
+		$this->event['MODIFIED'] = $this->getFormattedDate($this->event['TIMESTAMP_X'], $dtSkipTime);
 
-	/**
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	protected function checkEventOrganizer(): void
-	{
-		if (empty($this->event['ICAL_ORGANIZER']) && $user = Helper::getUserById($this->event['MEETING_HOST'] ?? null))
-		{
-			$this->event['ICAL_ORGANIZER'] = Attendee::createInstance(
-				$user['EMAIL'],
-				$user['NAME'],
-				$user['LAST_NAME'],
-				null,
-				null,
-				null,
-				$user['EMAIL']
-			);
-		}
+		$this->event['SKIP_TIME'] = $dtSkipTime === 'Y';
+		$this->event['MEETING'] = unserialize($this->event['MEETING'], ['allowed_classes' => false]);
+		$this->event['REMIND'] = unserialize($this->event['REMIND'], ['allowed_classes' => false]);
+		$this->event['RRULE'] = \CCalendarEvent::ParseRRULE($this->event['RRULE']);
+		$this->event['ATTENDEES_CODES'] = !empty($this->event['ATTENDEES_CODES']) && is_string($this->event['ATTENDEES_CODES'])
+			? explode(',', $this->event['ATTENDEES_CODES'])
+			: []
+		;
+		$this->event['ICAL_ATTENDEES'] = Helper::getAttendeesByEventParentId($this->event['PARENT_ID']);
+		$this->event['ICAL_ORGANIZER'] = Helper::getAttendee($this->event['MEETING_HOST'], $this->event['PARENT_ID'], false);
+		$this->event['TEXT_LOCATION'] = \CCalendar::GetTextLocation($this->event['LOCATION'] ?? null);
+		$this->event['ICAL_ATTACHES'] = Helper::getMailAttaches(
+			null,
+			$this->event['MEETING_HOST'],
+			$this->event['PARENT_ID']
+		);
+
+		unset($this->event['DT_SKIP_TIME'], $this->event['DATE_CREATE'], $this->event['TIMESTAMP_X']);
 	}
 }

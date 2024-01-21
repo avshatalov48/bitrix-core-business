@@ -2,7 +2,7 @@ import { Extension, Type } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { isFilePasted } from 'ui.uploader.core';
 
-import { EventType, LocalStorageKey, SoundType } from 'im.v2.const';
+import { EventType, LocalStorageKey, SoundType, TextareaPanelType as PanelType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { DraftManager } from 'im.v2.lib.draft';
 import { Utils } from 'im.v2.lib.utils';
@@ -17,32 +17,30 @@ import { MentionManager, MentionManagerEvents } from './classes/mention-manager'
 import { ResizeManager } from './classes/resize-manager';
 import { TypingService } from './classes/typing-service';
 import { SmileSelector } from './components/smile-selector/smile-selector';
-import { EditPanel } from './components/edit-panel';
-import { ReplyPanel } from './components/reply-panel';
 import { UploadMenu } from './components/upload-menu/upload-menu';
 import { CreateEntityMenu } from './components/create-entity-menu/create-entity-menu';
 import { SendButton } from './components/send-button';
-import { MarketAppsPanel } from './components/market-apps-panel/market-apps-panel';
 import { UploadPreviewPopup } from './components/upload-preview/upload-preview-popup';
 import { MentionPopup } from './components/mention/mention-popup';
+import { TextareaPanel } from './components/panel/panel';
 
 import './css/textarea.css';
 
-import type { ImModelDialog, ImModelMessage } from 'im.v2.model';
-import type { InsertTextEvent, InsertMentionEvent, EditMessageEvent } from 'im.v2.const';
+import type { ImModelChat, ImModelMessage } from 'im.v2.model';
+import type { InsertTextEvent, InsertMentionEvent } from 'im.v2.const';
+
+const MESSAGE_ACTION_PANELS = new Set([PanelType.edit, PanelType.reply, PanelType.forward]);
 
 // @vue/component
 export const ChatTextarea = {
 	components: {
-		ReplyPanel,
-		EditPanel,
 		UploadMenu,
 		CreateEntityMenu,
 		SmileSelector,
 		SendButton,
 		UploadPreviewPopup,
-		MarketAppsPanel,
 		MentionPopup,
+		TextareaPanel,
 	},
 	props: {
 		dialogId: {
@@ -56,22 +54,22 @@ export const ChatTextarea = {
 			text: '',
 			mentions: {},
 			textareaHeight: ResizeManager.minHeight,
-			editMessageId: 0,
-			replyMessageId: 0,
-			showMarketApps: false,
 
 			showMention: false,
 			mentionQuery: '',
 
 			showUploadPreviewPopup: false,
 			previewPopupUploaderId: '',
+
+			panelType: PanelType.none,
+			panelMessageId: 0,
 		};
 	},
 	computed:
 	{
-		dialog(): ImModelDialog
+		dialog(): ImModelChat
 		{
-			return this.$store.getters['dialogues/get'](this.dialogId, true);
+			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
 		dialogInited(): boolean
 		{
@@ -79,15 +77,23 @@ export const ChatTextarea = {
 		},
 		replyMode(): boolean
 		{
-			return Boolean(this.replyMessageId);
+			return this.panelType === PanelType.reply;
+		},
+		forwardMode(): boolean
+		{
+			return this.panelType === PanelType.forward;
 		},
 		editMode(): boolean
 		{
-			return Boolean(this.editMessageId);
+			return this.panelType === PanelType.edit;
+		},
+		marketMode(): boolean
+		{
+			return this.panelType === PanelType.market;
 		},
 		isDisabled(): boolean
 		{
-			return this.text.trim() === '' && !this.editMode;
+			return this.text.trim() === '' && !this.editMode && !this.forwardMode;
 		},
 		textareaStyle(): Object
 		{
@@ -120,7 +126,7 @@ export const ChatTextarea = {
 			this.adjustTextareaHeight();
 			if (!this.editMode)
 			{
-				DraftManager.getInstance().setDraft(this.dialogId, newValue);
+				this.getDraftManager().setDraft(this.dialogId, newValue);
 			}
 
 			if (Type.isStringFilled(newValue))
@@ -133,7 +139,6 @@ export const ChatTextarea = {
 	{
 		this.initResizeManager();
 		this.restoreTextareaHeight();
-		this.restoreMarketPanelOpenState();
 		this.restoreDraftText();
 		this.initSendingService();
 
@@ -141,11 +146,13 @@ export const ChatTextarea = {
 		EventEmitter.subscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.subscribe(EventType.textarea.editMessage, this.onEditMessage);
 		EventEmitter.subscribe(EventType.textarea.replyMessage, this.onReplyMessage);
+		EventEmitter.subscribe(EventType.textarea.sendMessage, this.onSendMessage);
+		EventEmitter.subscribe(EventType.textarea.insertForward, this.onInsertForward);
 	},
 	mounted()
 	{
 		this.initMentionManager();
-		this.$refs.textarea.focus();
+		this.focus();
 	},
 	beforeUnmount()
 	{
@@ -154,9 +161,41 @@ export const ChatTextarea = {
 		EventEmitter.unsubscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.unsubscribe(EventType.textarea.editMessage, this.onEditMessage);
 		EventEmitter.unsubscribe(EventType.textarea.replyMessage, this.onReplyMessage);
+		EventEmitter.unsubscribe(EventType.textarea.sendMessage, this.onSendMessage);
+		EventEmitter.unsubscribe(EventType.textarea.insertForward, this.onInsertForward);
 	},
 	methods:
 	{
+		handlePanelAction(text: string)
+		{
+			if (this.editMode)
+			{
+				if (this.text === '')
+				{
+					this.getMessageService().deleteMessage(this.panelMessageId);
+				}
+				else
+				{
+					this.getMessageService().editMessageText(this.panelMessageId, text);
+				}
+			}
+			else if (this.forwardMode)
+			{
+				this.getSendingService().forwardMessages({
+					text,
+					dialogId: this.dialogId,
+					forwardIds: [this.panelMessageId],
+				});
+			}
+			else if (this.replyMode)
+			{
+				this.getSendingService().sendMessage({
+					text,
+					dialogId: this.dialogId,
+					replyId: this.panelMessageId,
+				});
+			}
+		},
 		sendMessage()
 		{
 			this.text = this.text.trim();
@@ -165,39 +204,30 @@ export const ChatTextarea = {
 				return;
 			}
 
-			const text = this.hasMentions ? this.replaceMentions(this.text) : this.text;
+			const text = this.replaceMentions(this.text);
 
-			if (this.editMode)
+			if (this.hasActiveMessageAction())
 			{
-				if (this.text === '')
-				{
-					this.getMessageService().deleteMessage(this.editMessageId);
-				}
-				else
-				{
-					this.getMessageService().editMessageText(this.editMessageId, text);
-				}
-				this.onEditPanelClose();
+				this.handlePanelAction(text);
+				this.closePanel();
+				this.clear();
 
 				return;
 			}
 
-			this.getSendingService().sendMessage({ text, dialogId: this.dialogId, replyId: this.replyMessageId });
+			this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
+
 			this.getTypingService().stopTyping();
 			this.clear();
-			DraftManager.getInstance().clearDraftInRecentList(this.dialogId);
+			this.getDraftManager().clearDraftInRecentList(this.dialogId);
 			SoundNotificationManager.getInstance().playOnce(SoundType.send);
-
-			if (this.replyMode)
-			{
-				this.closeReplyPanel();
-			}
+			this.focus();
 		},
 		replaceMentions(text: string): string
 		{
 			if (!this.hasMentions)
 			{
-				return '';
+				return text;
 			}
 
 			let textWithMentions = text;
@@ -213,49 +243,59 @@ export const ChatTextarea = {
 			this.text = '';
 			this.mentions = {};
 		},
+		hasActiveMessageAction(): boolean
+		{
+			return MESSAGE_ACTION_PANELS.has(this.panelType);
+		},
+		closePanel()
+		{
+			if (this.editMode)
+			{
+				this.clear();
+			}
+			this.panelType = PanelType.none;
+			this.panelMessageId = 0;
+		},
 		openEditPanel(messageId: number)
 		{
-			this.showMarketApps = false;
 			const message: ImModelMessage = this.$store.getters['messages/getById'](messageId);
-
-			if (this.replyMode)
-			{
-				this.closeReplyPanel();
-			}
-
 			if (message.isDeleted)
 			{
 				return;
 			}
 
-			this.editMessageId = messageId;
+			this.panelType = PanelType.edit;
+			this.panelMessageId = messageId;
 			this.text = Parser.prepareEdit(message);
-
-			this.$refs.textarea.focus();
+			this.focus();
 		},
 		openReplyPanel(messageId: number)
 		{
-			this.showMarketApps = false;
-
 			if (this.editMode)
 			{
-				this.closeEditPanel();
 				this.clear();
 			}
-
-			this.replyMessageId = messageId;
-
-			this.$refs.textarea.focus();
+			this.panelType = PanelType.reply;
+			this.panelMessageId = messageId;
+			this.focus();
 		},
-		closeEditPanel()
+		openForwardPanel(messageId: number)
 		{
-			this.editMessageId = 0;
-			this.restoreMarketPanelOpenState();
+			this.panelType = PanelType.forward;
+			this.panelMessageId = messageId;
+			this.clear();
+			this.focus();
 		},
-		closeReplyPanel()
+		toggleMarketPanel()
 		{
-			this.replyMessageId = 0;
-			this.restoreMarketPanelOpenState();
+			if (this.marketMode)
+			{
+				this.panelType = PanelType.none;
+
+				return;
+			}
+			this.panelType = PanelType.market;
+			this.panelMessageId = 0;
 		},
 		async adjustTextareaHeight()
 		{
@@ -294,21 +334,14 @@ export const ChatTextarea = {
 		},
 		restoreDraftText()
 		{
-			this.text = DraftManager.getInstance().getDraft(this.dialogId);
+			this.text = this.getDraftManager().getDraft(this.dialogId);
 		},
 		async onKeyDown(event: KeyboardEvent)
 		{
-			const exitEditCombination = Utils.key.isCombination(event, 'Escape');
-			if (this.editMode && exitEditCombination)
+			const exitActionCombination = Utils.key.isCombination(event, 'Escape');
+			if (this.hasActiveMessageAction() && exitActionCombination)
 			{
-				this.onEditPanelClose();
-
-				return;
-			}
-
-			if (this.replyMode && exitEditCombination)
-			{
-				this.closeReplyPanel();
+				this.closePanel();
 
 				return;
 			}
@@ -319,12 +352,13 @@ export const ChatTextarea = {
 			{
 				event.preventDefault();
 				this.sendMessage();
+
+				return;
 			}
 
-			if (newLineCombination)
+			if (newLineCombination && !this.showMention)
 			{
-				event.preventDefault();
-				this.text = Textarea.addNewLine(this.$refs.textarea);
+				this.handleNewLine();
 
 				return;
 			}
@@ -332,14 +366,7 @@ export const ChatTextarea = {
 			const tabCombination = Utils.key.isCombination(event, 'Tab');
 			if (tabCombination)
 			{
-				event.preventDefault();
-				if (event.shiftKey)
-				{
-					this.text = Textarea.removeTab(this.$refs.textarea);
-
-					return;
-				}
-				this.text = Textarea.addTab(this.$refs.textarea);
+				this.handleTab(event);
 
 				return;
 			}
@@ -355,15 +382,42 @@ export const ChatTextarea = {
 
 			if (this.text === '' && Utils.key.isCombination(event, 'ArrowUp'))
 			{
-				event.preventDefault();
-				const lastOwnMessageId = this.$store.getters['messages/getLastOwnMessageId'](this.dialog.chatId);
-				if (lastOwnMessageId)
-				{
-					this.openEditPanel(lastOwnMessageId);
-				}
+				this.handleLastOwnMessageEdit(event);
+
+				return;
 			}
 
 			this.mentionManager.onKeyDown(event);
+		},
+		handleNewLine()
+		{
+			this.text = Textarea.addNewLine(this.$refs.textarea);
+		},
+		handleTab(event: KeyboardEvent)
+		{
+			event.preventDefault();
+			if (event.shiftKey)
+			{
+				this.text = Textarea.removeTab(this.$refs.textarea);
+
+				return;
+			}
+			this.text = Textarea.addTab(this.$refs.textarea);
+		},
+		handleLastOwnMessageEdit(event: KeyboardEvent)
+		{
+			event.preventDefault();
+			const lastOwnMessageId = this.$store.getters['messages/getLastOwnMessageId'](this.dialog.chatId);
+			const isForward = this.$store.getters['messages/isForward'](lastOwnMessageId);
+			if (lastOwnMessageId && !isForward)
+			{
+				this.openEditPanel(lastOwnMessageId);
+			}
+		},
+		onSendMessage(event: BaseEvent<{ text: string }>)
+		{
+			const { text } = event.getData();
+			this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
 		},
 		onResizeStart(event)
 		{
@@ -394,13 +448,13 @@ export const ChatTextarea = {
 				this.text += `${mentionText} `;
 			}
 
-			this.$refs.textarea.focus();
+			this.focus();
 		},
 		onInsertText(event: BaseEvent<InsertTextEvent>)
 		{
 			// TODO sync with im/install/js/im/component/textarea/src/textarea.js:164
 			const textarea = this.$refs.textarea;
-			const { text, withNewLine, replace } = event.getData();
+			const { text = '', withNewLine = false, replace = false } = event.getData();
 
 			if (replace)
 			{
@@ -419,24 +473,24 @@ export const ChatTextarea = {
 				this.text = withNewLine ? `${this.text}\n${text}` : `${this.text} ${text}`;
 			}
 
-			textarea.focus();
+			this.focus();
 		},
-		onEditMessage(event: BaseEvent<EditMessageEvent>)
+		onEditMessage(event: BaseEvent<{ messageId: number }>)
 		{
 			const { messageId } = event.getData();
 			this.openEditPanel(messageId);
 		},
-		onReplyMessage(event: BaseEvent<EditMessageEvent>)
+		onReplyMessage(event: BaseEvent<{ messageId: number }>)
 		{
 			const { messageId } = event.getData();
 			this.openReplyPanel(messageId);
 		},
-		onEditPanelClose()
+		onInsertForward(event: BaseEvent<{ messageId: number}>)
 		{
-			this.closeEditPanel();
-			this.clear();
+			const { messageId } = event.getData();
+			this.openForwardPanel(messageId);
 		},
-		onPaste(clipboardEvent: ClipboardEvent)
+		async onPaste(clipboardEvent: ClipboardEvent)
 		{
 			const { clipboardData } = clipboardEvent;
 			if (!clipboardData || !isFilePasted(clipboardData))
@@ -446,32 +500,22 @@ export const ChatTextarea = {
 
 			clipboardEvent.preventDefault();
 
-			this.getUploadingService().addFilesFromClipboard(clipboardData, this.dialogId)
-				.then(({ files, uploaderId }) => {
-					if (files.length === 0)
-					{
-						return;
-					}
-
-					this.showUploadPreviewPopup = true;
-					this.previewPopupUploaderId = uploaderId;
-				}).catch((error) => {
+			const { files, uploaderId } = await this.getUploadingService().addFilesFromClipboard(clipboardData, this.dialogId)
+				.catch((error) => {
 					Logger.error('Textarea: error paste file from clipboard', error);
 				});
+
+			if (files.length === 0)
+			{
+				return;
+			}
+
+			this.showUploadPreviewPopup = true;
+			this.previewPopupUploaderId = uploaderId;
 		},
 		onMarketIconClick()
 		{
-			if (this.editMode)
-			{
-				this.onEditPanelClose();
-			}
-
-			if (this.replyMode)
-			{
-				this.closeReplyPanel();
-			}
-			this.showMarketApps = !this.showMarketApps;
-			this.saveMarketPanelOpenState(this.showMarketApps);
+			this.toggleMarketPanel();
 		},
 		initResizeManager()
 		{
@@ -520,6 +564,15 @@ export const ChatTextarea = {
 
 			return this.typingService;
 		},
+		getDraftManager(): DraftManager
+		{
+			if (!this.draftManager)
+			{
+				this.draftManager = DraftManager.getInstance();
+			}
+
+			return this.draftManager;
+		},
 		getMessageService(): MessageService
 		{
 			if (!this.messageService)
@@ -538,19 +591,6 @@ export const ChatTextarea = {
 
 			return this.uploadingService;
 		},
-		restoreMarketPanelOpenState()
-		{
-			const showMarketApps = LocalStorageManager.getInstance().get(LocalStorageKey.textareaMarketOpened);
-			this.showMarketApps = Boolean(showMarketApps);
-		},
-		saveMarketPanelOpenState(showMarketApps: boolean)
-		{
-			const WRITE_TO_STORAGE_TIMEOUT = 200;
-			clearTimeout(this.saveMarketOpenedStateTimeout);
-			this.saveMarketOpenedStateTimeout = setTimeout(() => {
-				LocalStorageManager.getInstance().set(LocalStorageKey.textareaMarketOpened, showMarketApps);
-			}, WRITE_TO_STORAGE_TIMEOUT);
-		},
 		onSendFilesFromPreviewPopup(event)
 		{
 			this.text = '';
@@ -560,7 +600,9 @@ export const ChatTextarea = {
 				return;
 			}
 
-			this.getUploadingService().sendSeparateMessagesWithFiles({ uploaderId, text });
+			const textWithMentions = this.replaceMentions(text);
+			this.getUploadingService().sendSeparateMessagesWithFiles({ uploaderId, text: textWithMentions });
+			this.focus();
 		},
 		closeMentionPopup()
 		{
@@ -573,6 +615,10 @@ export const ChatTextarea = {
 			this.mentionQuery = mentionQuery;
 			this.showMention = true;
 		},
+		focus(): void
+		{
+			this.$refs?.textarea.focus();
+		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -582,9 +628,12 @@ export const ChatTextarea = {
 		<div class="bx-im-send-panel__scope bx-im-send-panel__container">
 			<div class="bx-im-textarea__container">
 				<div @mousedown="onResizeStart" class="bx-im-textarea__drag-handle"></div>
-				<EditPanel v-if="editMode" :messageId="editMessageId" @close="onEditPanelClose" />
-				<ReplyPanel v-if="replyMode" :messageId="replyMessageId" @close="closeReplyPanel" />
-				<MarketAppsPanel v-if="showMarketApps" :dialogId="dialogId"/>
+				<TextareaPanel
+					:type="panelType"
+					:messageId="panelMessageId"
+					:dialogId="dialogId"
+					@close="closePanel"
+				/>
 				<div class="bx-im-textarea__content">
 					<div class="bx-im-textarea__left">
 						<div class="bx-im-textarea__upload_container">
@@ -593,7 +642,7 @@ export const ChatTextarea = {
 						<textarea
 							v-model="text"
 							:style="textareaStyle"
-							:placeholder="loc('IM_TEXTAREA_PLACEHOLDER')"
+							:placeholder="loc('IM_TEXTAREA_PLACEHOLDER_V3')"
 							:maxlength="textareaMaxLength"
 							@keydown="onKeyDown"
 							@paste="onPaste"
@@ -609,7 +658,7 @@ export const ChatTextarea = {
 								:title="loc('IM_TEXTAREA_ICON_APPLICATION')"
 								@click="onMarketIconClick"
 								class="bx-im-textarea__icon --market"
-								:class="{'--active': showMarketApps}"
+								:class="{'--active': marketMode}"
 							></div>
 							<SmileSelector :dialogId="dialogId" />
 						</div>

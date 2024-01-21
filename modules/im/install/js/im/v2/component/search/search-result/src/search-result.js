@@ -507,7 +507,7 @@ export const SearchResult = {
 						<div class="bx-im-search-result__network-button-container">
 							<MessengerButton
 								v-if="!isNetworkButtonClicked"
-								:text="$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON')"
+								:text="$Bitrix.Loc.getMessage('IM_SEARCH_SECTION_NETWORK_BUTTON_MSGVER_1')"
 								:color="ButtonColor.Primary"
 								:size="ButtonSize.L"
 								:isLoading="isNetworkLoading"

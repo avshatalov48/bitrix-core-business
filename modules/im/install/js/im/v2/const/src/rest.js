@@ -13,11 +13,13 @@ export const RestMethod = Object.freeze({
 	imV2ChatDeleteUser: 'im.v2.Chat.deleteUser',
 	imV2ChatExtendPullWatch: 'im.v2.Chat.extendPullWatch',
 	imV2ChatMessageGetContext: 'im.v2.Chat.Message.getContext',
+	imV2ChatMessageSend: 'im.v2.Chat.Message.send',
 	imV2ChatMessageList: 'im.v2.Chat.Message.list',
 	imV2ChatMessageTail: 'im.v2.Chat.Message.tail',
 	imV2ChatMessageRead: 'im.v2.Chat.Message.read',
 	imV2ChatMessageMark: 'im.v2.Chat.Message.mark',
 	imV2ChatMessageDelete: 'im.v2.Chat.Message.delete',
+	imV2ChatMessageUpdate: 'im.v2.Chat.Message.update',
 	imV2ChatMessageReactionAdd: 'im.v2.Chat.Message.Reaction.add',
 	imV2ChatMessageReactionDelete: 'im.v2.Chat.Message.Reaction.delete',
 	imV2ChatMessageReactionTail: 'im.v2.Chat.Message.Reaction.tail',
@@ -26,16 +28,20 @@ export const RestMethod = Object.freeze({
 	imV2ChatMessageTailViewers: 'im.v2.Chat.Message.tailViewers',
 	imV2ChatMessageDeleteRichUrl: 'im.v2.Chat.Message.deleteRichUrl',
 	imV2ChatPinTail: 'im.v2.Chat.Pin.tail',
+	imV2ChatListShared: 'im.v2.Chat.listShared',
 	imV2SettingsGeneralUpdate: 'im.v2.Settings.General.update',
+	imV2SettingsNotifyUpdate: 'im.v2.Settings.Notify.update',
+	imV2SettingsNotifySwitchScheme: 'im.v2.Settings.Notify.switchScheme',
 	imV2DesktopLogout: 'im.v2.Desktop.logout',
 	imV2UpdateState: 'im.v2.UpdateState.getStateData',
 	imV2BetaEnable: 'im.v2.Beta.enable',
 	imV2BetaDisable: 'im.v2.Beta.disable',
+	imV2ChatTaskPrepare: 'im.v2.Chat.Task.prepare',
 
 	imCallBetaCreateRoom: 'im.call.beta.createRoom',
 
 	imMessageAdd: 'im.message.add',
-	imMessageUpdate: 'im.message.update',
+	imMessageCommand: 'im.message.command',
 
 	imChatMute: 'im.chat.mute',
 	imChatUpdateTitle: 'im.chat.updateTitle',
@@ -54,7 +60,6 @@ export const RestMethod = Object.freeze({
 	imChatPinGet: 'im.chat.pin.get',
 	imChatPinAdd: 'im.chat.pin.add',
 	imChatPinDelete: 'im.chat.pin.delete',
-	imChatTaskPrepare: 'im.chat.task.prepare',
 	imChatCalendarPrepare: 'im.chat.calendar.prepare',
 	imChatCalendarAdd: 'im.chat.calendar.add',
 	imChatCalendarDelete: 'im.chat.calendar.delete',
@@ -99,6 +104,7 @@ export const RestMethod = Object.freeze({
 
 	imBotGiphyListPopular: 'imbot.Giphy.listPopular',
 	imBotGiphyList: 'imbot.Giphy.list',
+	imBotDialogVote: 'imbot.dialog.vote',
 
 	linesDialogGet: 'imopenlines.dialog.get',
 });

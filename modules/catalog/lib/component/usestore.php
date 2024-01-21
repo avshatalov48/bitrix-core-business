@@ -3,21 +3,17 @@
 namespace Bitrix\Catalog\Component;
 
 use Bitrix\Catalog;
-use Bitrix\Catalog\Component\Preset\Factory;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\EventManager;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Crm\Order\TradingPlatform;
 use Bitrix\Crm\Component\EntityDetails\ProductList;
 use Bitrix\Crm\Order\Internals\ShipmentRealizationTable;
-use Bitrix\Crm\Settings\LeadSettings;
 use Bitrix\Sale\Internals\ShipmentTable;
 
 Loc::loadMessages(__FILE__);
@@ -25,11 +21,6 @@ Loc::loadMessages(__FILE__);
 final class UseStore
 {
 	protected const CATEGORY_NAME = "use_store";
-
-	protected const STORE_WILDBERRIES = "WILDBERRIES";
-	protected const STORE_SBERMEGAMARKET = "SBERMEGAMARKET";
-	protected const STORE_OZON = "OZON";
-	protected const STORE_ALIEXPRESS = "ALIEXPRESS";
 
 	public const URL_PARAM_STORE_MASTER_HIDE = "STORE_MASTER_HIDE";
 
@@ -96,7 +87,6 @@ final class UseStore
 		return (
 			self::isCrmExists()
 			&& !\CCrmSaleHelper::isWithOrdersMode()
-			&& !LeadSettings::isEnabled()
 			&& !self::isUsedOneC()
 		);
 	}
@@ -125,6 +115,7 @@ final class UseStore
 
 		self::resetQuantity();
 		self::resetQuantityTrace();
+		self::resetStoreBatch();
 		self::resetSaleReserve();
 		self::resetCrmReserve();
 
@@ -169,76 +160,6 @@ final class UseStore
 		self::showEntityProductGridColumns();
 
 		return true;
-	}
-
-	public static function installCatalogStores()
-	{
-		if (!self::hasDefaultCatalogStore())
-		{
-			$storeId = self::getFirstCatalogStore();
-			if ($storeId > 0)
-			{
-				self::setDefaultCatalogStore($storeId);
-			}
-			else
-			{
-				self::createDefaultCatalogStore();
-			}
-		}
-
-		if (!self::isBitrixSiteManagement())
-		{
-			self::createCatalogStores();
-		}
-	}
-
-	protected static function hasDefaultCatalogStore(): bool
-	{
-		return Catalog\StoreTable::getDefaultStoreId() !== null;
-	}
-
-	protected static function getFirstCatalogStore(): int
-	{
-		$row = Catalog\StoreTable::getRow([
-			'select' => [
-				'ID',
-				'SORT',
-			],
-			'filter' => [
-				'=ACTIVE' => 'Y',
-				'=SITE_ID' => '',
-			],
-			'order' => [
-				'SORT' => 'ASC',
-				'ID' => 'ASC',
-			],
-		]);
-
-		return (!empty($row) ? (int)$row['ID'] : 0);
-	}
-
-	protected static function setDefaultCatalogStore($storeId): bool
-	{
-		$r = Catalog\StoreTable::update(
-			$storeId,
-			[
-				'IS_DEFAULT' => 'Y',
-			]
-		);
-
-		return $r->isSuccess();
-	}
-
-	protected static function createDefaultCatalogStore(): bool
-	{
-		$title = Loc::getMessage('CATALOG_USE_STORE_DEFAULT');
-		$r = Catalog\StoreTable::add([
-			'TITLE' => $title,
-			'ADDRESS' => $title,
-			'IS_DEFAULT' => 'Y',
-		]);
-
-		return $r->isSuccess();
 	}
 
 	public static function disable(): bool
@@ -411,6 +332,12 @@ final class UseStore
 		}
 	}
 
+	private static function resetStoreBatch(): void
+	{
+		Application::getConnection()->queryExecute('truncate table b_catalog_store_batch');
+		Application::getConnection()->queryExecute('truncate table b_catalog_store_batch_docs_element');
+	}
+
 	/**
 	 * Delete all shipments a.k.a. realizations and linked entries.
 	 *
@@ -440,12 +367,24 @@ final class UseStore
 	 */
 	private static function resetStoreDocuments(): void
 	{
+		global $USER_FIELD_MANAGER;
+
 		$fileIds = Catalog\StoreDocumentFileTable::getList(['select' => ['FILE_ID']])->fetchAll();
 		$fileIds = array_column($fileIds, 'FILE_ID');
 
 		foreach ($fileIds as $fileId)
 		{
 			\CFile::Delete($fileId);
+		}
+
+		$documents = Catalog\StoreDocumentTable::getList(['select' => ['ID', 'DOC_TYPE']])->fetchAll();
+		foreach ($documents as $document)
+		{
+			$typeTableClass = Catalog\Document\StoreDocumentTableManager::getTableClassByType($document['DOC_TYPE']);
+			if ($typeTableClass)
+			{
+				$USER_FIELD_MANAGER->Delete($typeTableClass::getUfId(), $document['ID']);
+			}
 		}
 
 		$conn = Application::getConnection();
@@ -458,6 +397,8 @@ final class UseStore
 		if (Loader::includeModule('crm'))
 		{
 			\Bitrix\Crm\Timeline\TimelineEntry::deleteByAssociatedEntityType(\CCrmOwnerType::StoreDocument);
+
+			$conn->queryExecute("truncate table b_crm_store_document_contractor");
 		}
 	}
 
@@ -583,6 +524,36 @@ final class UseStore
 		return false;
 	}
 
+	public static function doNonEmptyProductsExist(): bool
+	{
+		$connection = Application::getConnection();
+
+		$productTypes = new SqlExpression('(?i, ?i)', ProductTable::TYPE_PRODUCT, ProductTable::TYPE_OFFER);
+		$query = $connection->query("
+			select ID from b_catalog_product cp
+			where TYPE in {$productTypes} and (QUANTITY != 0 or QUANTITY_RESERVED != 0)
+			limit 1
+		");
+
+		if ($query->fetch())
+		{
+			return true;
+		}
+
+		$query = $connection->query("
+			select ID from b_catalog_store_product csp
+			where AMOUNT != 0 or QUANTITY_RESERVED != 0
+			limit 1
+		");
+
+		if ($query->fetch())
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	public static function conductedDocumentsExist(): bool
 	{
 		$iterator = Catalog\StoreDocumentTable::getList([
@@ -647,68 +618,6 @@ final class UseStore
 		}
 
 		return $portalZone;
-	}
-
-	public static function getCodesStoreByZone() :array
-	{
-		switch (self::getPortalZone())
-		{
-			case 'ru':
-				$result = [
-					self::STORE_ALIEXPRESS,
-					self::STORE_OZON,
-					self::STORE_SBERMEGAMARKET,
-					self::STORE_WILDBERRIES,
-				];
-				break;
-			case 'by':
-				$result = [
-					self::STORE_ALIEXPRESS,
-					self::STORE_OZON,
-					self::STORE_WILDBERRIES,
-				];
-				break;
-			case 'ua':
-				$result = [
-					self::STORE_ALIEXPRESS,
-				];
-				break;
-			default:
-				$result = [];
-				break;
-		}
-
-		return $result;
-	}
-
-	private static function createCatalogStores(): void
-	{
-		$codeList = self::getCodesStoreByZone();
-
-		if (!empty($codeList))
-		{
-			foreach ($codeList as $code)
-			{
-				$title = Loc::getMessage('CATALOG_USE_STORE_' . $code);
-
-				$row = Catalog\StoreTable::getRow([
-					'select' => [
-						'CODE',
-					],
-					'filter' => [
-						'=CODE' => $code,
-					],
-				]);
-				if (empty($row))
-				{
-					Catalog\StoreTable::add([
-						'TITLE' => $title,
-						'ADDRESS' => $title,
-						'CODE' => $code,
-					]);
-				}
-			}
-		}
 	}
 
 	private static function installRealizationDocumentTradingPlatform(): void
@@ -848,74 +757,8 @@ final class UseStore
 		return !self::isUsed();
 	}
 
-	public static function isPortal(): bool
-	{
-		return (
-			ModuleManager::isModuleInstalled('bitrix24')
-			|| ModuleManager::isModuleInstalled('intranet')
-		);
-	}
-
 	public static function isCloud(): bool
 	{
 		return Loader::includeModule('bitrix24');
-	}
-
-	public static function isBitrixSiteManagement (): bool
-	{
-		return !self::isCloud() && !self::isPortal();
-	}
-
-	static public function installPreset(array $list)
-	{
-		foreach (Catalog\Component\Preset\Enum::getAllType() as $type)
-		{
-			in_array($type, $list) ?
-				Factory::create($type)->enable() :
-				Factory::create($type)->disable();
-		}
-	}
-
-	static public function resetPreset()
-	{
-		foreach (Catalog\Component\Preset\Enum::getAllType() as $type)
-		{
-			Factory::create($type)->disable();
-		}
-	}
-
-	/**
-	 * Scenario switch-on inventory-management + Install preset
-	 * check Plan
-	 * check CRM-module included
-	 * check CRM-mode (order or deal)
-	 * check Lead-mode
-	 * check integration with 1C
-	 * Quantity trace set - Y
-	 * Can buy zero set - Y
-	 * Allow negative amount set - Y
-	 * Use store control set - Y
-	 * Enable reservation set - Y
-	 * Reset sale reserve
-	 * Installation trading platform
-	 * Set main.interface.grid
-	 * Set user options for inventory-management slider
-	 *
-	 * @param array $preset
-	 * @return bool
-	 */
-	public static function enableWithPreset(array $preset): bool
-	{
-		if (self::isPlanRestricted())
-		{
-			return false;
-		}
-
-		if (self::enable())
-		{
-			self::installPreset($preset);
-		}
-
-		return true;
 	}
 }

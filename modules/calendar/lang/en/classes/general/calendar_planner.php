@@ -20,5 +20,6 @@ $MESS["EC_PL_SETTINGS_SCALE_TIME"] = "Displayed time";
 $MESS["EC_PL_STATUS_H"] = "Organizer";
 $MESS["EC_PL_STATUS_N"] = "Declined";
 $MESS["EC_PL_STATUS_Q"] = "Attendance not confirmed";
+$MESS["EC_PL_STATUS_TZALL"] = "There are participants in different time zones.";
 $MESS["EC_PL_STATUS_Y"] = "Confirmed attendance";
 $MESS["EC_PL_UNLOCK_FEATURE"] = "upgrade now";

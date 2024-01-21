@@ -27,9 +27,9 @@ export class StoreUpdater
 
 	updateSearchSession(items: Map<string, SearchItem>): Promise
 	{
-		const { recentItems } = this.#prepareDataForModels(items);
+		const recentSearchItems = this.#prepareSearchDataForModels(items);
 
-		return this.#setRecentSearchItems(recentItems);
+		return this.#setRecentSearchItems(recentSearchItems);
 	}
 
 	#setRecentItems(items): Promise
@@ -44,7 +44,7 @@ export class StoreUpdater
 
 	#setDialoguesToModel(dialogues): Promise
 	{
-		return this.#store.dispatch('dialogues/set', dialogues);
+		return this.#store.dispatch('chats/set', dialogues);
 	}
 
 	#prepareDataForModels(items: Map<string, SearchItem>): { users: Array<Object>, dialogues: Array<Object> }
@@ -60,7 +60,9 @@ export class StoreUpdater
 
 			result.recentItems.push({
 				dialogId: item.getDialogId(),
-				date_update: item.getDateUpdate(),
+				message: {
+					date: item.getDate(),
+				},
 			});
 
 			if (item.isUser())
@@ -78,6 +80,20 @@ export class StoreUpdater
 		});
 
 		return result;
+	}
+
+	#prepareSearchDataForModels(items: Map<string, SearchItem>): { recentItems: Array<Object> }
+	{
+		const recentSearchItems = [];
+
+		[...items.values()].forEach((item) => {
+			recentSearchItems.push({
+				dialogId: item.getDialogId(),
+				byUser: item.isFoundByUser(),
+			});
+		});
+
+		return recentSearchItems;
 	}
 
 	clearSessionSearch(): Promise

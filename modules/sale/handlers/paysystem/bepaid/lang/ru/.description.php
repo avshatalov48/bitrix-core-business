@@ -1,5 +1,9 @@
 <?php
 $MESS["SALE_HPS_BEPAID"] = "BePaid";
+$MESS["SALE_HPS_BEPAID_CHECKOUT_MODE"] = "Страница оплаты";
+$MESS["SALE_HPS_BEPAID_CHECKOUT_MODE_DESCRIPTION"] = "Страница оплаты провайдера платежей bePaid позволяет безопасно и в режиме реального времени обрабатывать данные кредитных карт";
+$MESS["SALE_HPS_BEPAID_WIDGET_MODE"] = "Виджет";
+$MESS["SALE_HPS_BEPAID_WIDGET_MODE_DESCRIPTION"] = "Платежный виджет позволяет принимать платежи картами на вашем сайте без перенаправления клиента на отдельную платежную страницу";
 $MESS["SALE_HPS_BEPAID_ID_DESC"] = "Идентификатор магазина";
 $MESS["SALE_HPS_BEPAID_SECRET_KEY"] = "Секретный ключ магазина";
 $MESS["SALE_HPS_BEPAID_PAYMENT_DESCRIPTION"] = "Описание заказа";

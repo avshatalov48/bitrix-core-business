@@ -476,7 +476,7 @@ export default class Popup extends EventEmitter
 		{
 			if (this.isTargetDocumentBody())
 			{
-				return Dom.getPosition(bindElement);
+				return this.isFixed() ? bindElement.getBoundingClientRect() : Dom.getPosition(bindElement);
 			}
 			else
 			{

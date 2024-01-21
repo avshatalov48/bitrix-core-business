@@ -4,7 +4,6 @@ namespace Bitrix\Iblock\Integration\UI\Grid\Property;
 
 use Bitrix\Iblock\Helpers\Admin\Property;
 use Bitrix\Iblock\Integration\UI\Grid\General\BaseProvider;
-use Bitrix\Main\Grid\Column\Type;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Type\Collection;
@@ -64,7 +63,6 @@ class PropertyGridProvider extends BaseProvider
 			[
 				'id' => 'ID',
 				'name' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_ID'),
-				'type' => 'int',
 				'sort' => 'ID',
 			],
 			[
@@ -77,7 +75,7 @@ class PropertyGridProvider extends BaseProvider
 			[
 				'id' => 'CODE',
 				'name' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_CODE'),
-				'sort'  => 'CODE',
+				'sort'  =>  'CODE',
 				'editable' => true,
 			],
 			[
@@ -92,7 +90,6 @@ class PropertyGridProvider extends BaseProvider
 				'id' => 'SORT',
 				'name' => Loc::getMessage('IBLOCK_UI_GRID_PROPERTY_PROVIDER_SORT'),
 				'sort' => 'SORT',
-				'type' => 'int',
 				'default' => true,
 				'editable' => true,
 			],
@@ -242,25 +239,9 @@ class PropertyGridProvider extends BaseProvider
 	 */
 	public function prepareRow(array $rawRow): array
 	{
-		foreach($this->getColumns() as $field)
+		if (isset($rawRow['NAME']))
 		{
-			$id = $field['id'];
-			$type = $field['type'] ?? Type::TEXT;
-			switch ($type)
-			{
-				case Type::TEXT:
-					if (isset($rawRow[$id]))
-					{
-						$rawRow[$id] = HtmlFilter::encode($rawRow[$id]);
-					}
-					break;
-				case Type::INT:
-					if (isset($rawRow[$id]))
-					{
-						$rawRow[$id] = (int)$rawRow[$id];
-					}
-					break;
-			}
+			$rawRow['NAME'] = HtmlFilter::encode($rawRow['NAME']);
 		}
 
 		return parent::prepareRow($rawRow);

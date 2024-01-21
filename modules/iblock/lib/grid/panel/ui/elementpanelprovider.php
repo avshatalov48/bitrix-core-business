@@ -40,6 +40,11 @@ class ElementPanelProvider extends DataProvider
 		return $this->getSettings()->getIblockId();
 	}
 
+	final protected function getListMode(): string
+	{
+		return $this->getSettings()->getListMode();
+	}
+
 	final protected function getIblockRightsChecker(): IblockRightsChecker
 	{
 		return $this->rights;
@@ -61,10 +66,10 @@ class ElementPanelProvider extends DataProvider
 
 		if ($this->rights->canDeleteElements())
 		{
-			$result[] = new RemoveActionsItem($this->getIblockId(), $this->rights);
+			$result[] = new RemoveActionsItem($this->getIblockId(), $this->rights, $this->getListMode());
 		}
 
-		$result[] = new ElementGroupActionsItem($this->getIblockId(), $this->rights);
+		$result[] = new ElementGroupActionsItem($this->getIblockId(), $this->rights, $this->getListMode());
 
 		if (!empty($result))
 		{

@@ -2,7 +2,9 @@
 
 namespace Bitrix\Calendar\Sharing\Link;
 
-class CrmDealLink extends Link
+use Bitrix\Calendar\Sharing\Link\Joint\JointLink;
+
+class CrmDealLink extends JointLink
 {
 	/** @var int $slotSize */
 	private int $slotSize = 60;
@@ -18,6 +20,8 @@ class CrmDealLink extends Link
 	private ?string $senderId = null;
 	/** @var string|null $lastStatus */
 	private ?string $lastStatus = null;
+	/** @var Rule\Rule|null $sharingRule */
+	protected ?Rule\Rule $sharingRule = null;
 
 	public function getObjectType(): string
 	{
@@ -64,56 +68,68 @@ class CrmDealLink extends Link
 		return $this->lastStatus;
 	}
 
-	public function setSlotSize(int $minutes): self
+	public function setSlotSize(int $minutes): static
 	{
 		$this->slotSize = $minutes;
 
 		return $this;
 	}
 
-	public function setEntityId(int $id): self
+	public function setEntityId(int $id): static
 	{
 		return $this->setObjectId($id);
 	}
 
-	public function setContactId(?int $contactId): self
+	public function setContactId(?int $contactId): static
 	{
 		$this->contactId = $contactId;
 
 		return $this;
 	}
 
-	public function setContactType(?int $contactType): self
+	public function setContactType(?int $contactType): static
 	{
 		$this->contactType = $contactType;
 
 		return $this;
 	}
 
-	public function setOwnerId(int $ownerId): self
+	public function setOwnerId(int $ownerId): static
 	{
 		$this->ownerId = $ownerId;
 
 		return $this;
 	}
 
-	public function setChannelId(?string $channelId): self
+	public function setChannelId(?string $channelId): static
 	{
 		$this->channelId = $channelId;
 
 		return $this;
 	}
 
-	public function setSenderId(?string $senderId): self
+	public function setSenderId(?string $senderId): static
 	{
 		$this->senderId = $senderId;
 
 		return $this;
 	}
 
-	public function setLastStatus(?string $lastStatus): self
+	public function setLastStatus(?string $lastStatus): static
 	{
 		$this->lastStatus = $lastStatus;
+
+		return $this;
+	}
+
+	public function getSharingRule(): ?Rule\Rule
+	{
+		return $this->sharingRule;
+	}
+
+	public function setSharingRule(?Rule\Rule $sharingRule): self
+	{
+		$this->sharingRule = $sharingRule;
 
 		return $this;
 	}

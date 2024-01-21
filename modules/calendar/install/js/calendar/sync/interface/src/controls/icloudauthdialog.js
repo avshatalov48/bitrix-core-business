@@ -434,14 +434,6 @@ export default class IcloudAuthDialog extends EventEmitter
 	{
 		const helpDeskCode = '15426356';
 		top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
-		
-		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-			analyticsLabel: {
-				calendarAction: 'openHelpDesk',
-				click_to_helpdesk_button: 'Y',
-				connection_type: 'icloud',
-			}
-		});
 	}
 	
 	handleKeyPress(e)

@@ -9,6 +9,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
  * @var array $arParams
  * @var array $arResult
  * @var CMain $APPLICATION
+ * @var CUser $USER
  */
 
 if (!$arResult["CanUserComment"])
@@ -21,7 +22,7 @@ $formID = $arResult['FORM_ID'];
 $formParams = [
 	"FORM_ID" => $formID,
 	"SHOW_MORE" => "Y",
-	"PARSER" => Array(
+	"PARSER" => [
 		"Bold", "Italic", "Underline", "Strike", "ForeColor",
 		"FontList", "FontSizeList", "RemoveFormat", "Quote",
 		"Code", (!($arResult['NoCommentUrl'] ?? '') ? 'CreateLink' : ''),
@@ -31,7 +32,7 @@ $formParams = [
 		"Table", "Justify", "InsertOrderedList",
 		"InsertUnorderedList",
 		"MentionUser", "Spoiler", "SmileList", "Source"
-	),
+	],
 	"BUTTONS" => [
 		"Copilot",
 		(
@@ -53,29 +54,33 @@ $formParams = [
 				: ""
 		),
 	],
-	"BUTTONS_HTML" => Array("VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$formID.'\', \'comment\');">'.GetMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'),
-	"TEXT" => Array(
+	"BUTTONS_HTML" => [
+		"VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$formID.'\', \'comment\');">'.GetMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'
+	],
+	"TEXT" => [
 		"NAME" => "comment",
 		"VALUE" => "",
 		"HEIGHT" => "80px"
-	),
-	"DESTINATION" => Array(
+	],
+	"DESTINATION" => [
 		"VALUE" => (!$arParams["bPublicPage"] ? ($arResult["FEED_DESTINATION"] ?? []) : []),
 		"SHOW" => "N",
 		"USE_CLIENT_DATABASE" => ($arParams["bPublicPage"] ? "N" : "Y")
-	),
-	"UPLOAD_FILE" => !empty($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]) ? false :
-		$arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_DOC"],
-		"UPLOAD_WEBDAV_ELEMENT" => $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"],
-	"UPLOAD_FILE_PARAMS" => array("width" => 400, "height" => 400),
-	"FILES" => Array(
-		"VALUE" => array(),
+	],
+	"UPLOAD_FILE" => !empty($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"])
+		? false
+		: $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_DOC"]
+	,
+	"UPLOAD_WEBDAV_ELEMENT" => $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"],
+	"UPLOAD_FILE_PARAMS" => ["width" => 400, "height" => 400],
+	"FILES" => [
+		"VALUE" => [],
 		"DEL_LINK" => $arResult["urlToDelImage"] ?? '',
 		"SHOW" => "N",
 		"POSTFIX" => "file"
-	),
+	],
 	"SMILES" => COption::GetOptionInt("blog", "smile_gallery_id", 0),
-	"LHE" => array(
+	"LHE" => [
 		"documentCSS" => "body {color:#434343;}",
 		"iframeCss" => "html body {padding-left: 14px!important; line-height: 18px!important;}",
 //		"ctrlEnterHandler" => "__submit" . $arResult['FORM_ID'],
@@ -88,9 +93,11 @@ $formParams = [
 			'contextId' => 'sonet_comment_' . $USER->GetID(),
 			'category' => 'livefeed_comments',
 		],
-	),
+		'isCopilotImageEnabledBySettings' => \Bitrix\Socialnetwork\Integration\AI\Settings::isImageCommentAvailable(),
+		'isCopilotTextEnabledBySettings' => \Bitrix\Socialnetwork\Integration\AI\Settings::isTextCommentAvailable(),
+	],
 	"IS_BLOG" => true,
-	"PROPERTIES" => array(
+	"PROPERTIES" => [
 		array_merge(
 			(
 				isset($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMM_URL_PRV"])
@@ -98,9 +105,9 @@ $formParams = [
 					? $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMM_URL_PRV"]
 					: []
 			),
-			array('ELEMENT_ID' => 'url_preview_' . $arResult['FORM_ID'])
+			['ELEMENT_ID' => 'url_preview_' . $arResult['FORM_ID']]
 		)
-	),
+	],
 	"DISABLE_LOCAL_EDIT" => $arParams["bPublicPage"],
 	"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"],
 	"DISABLE_CREATING_FILE_BY_CLOUD" => $arParams["bPublicPage"],

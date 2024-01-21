@@ -1,5 +1,6 @@
 import { SearchEntityIdTypes } from 'im.v2.const';
 
+import type { JsonObject } from 'main.core';
 import type { ImRecentProviderItem } from './types/recent-provider-item';
 
 export class SearchItem
@@ -46,13 +47,18 @@ export class SearchItem
 		return this.getEntityType() === SearchEntityIdTypes.chat;
 	}
 
-	getCustomData(): {[key: string]: any}
+	getCustomData(): JsonObject
 	{
 		return this.#itemOptions.customData;
 	}
 
-	getDateUpdate(): string
+	getDate(): ?string
 	{
-		return this.#itemOptions.customData.dateUpdate;
+		return this.#itemOptions.customData.dateMessage;
+	}
+
+	isFoundByUser(): boolean
+	{
+		return Boolean(this.#itemOptions.customData?.byUser);
 	}
 }

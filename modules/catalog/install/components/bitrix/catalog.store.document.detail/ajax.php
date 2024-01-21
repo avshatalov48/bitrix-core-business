@@ -4,6 +4,14 @@ const NO_AGENT_STATISTIC = 'Y';
 const NO_AGENT_CHECK = true;
 const DisableEventsCheck = true;
 
+if (!(
+	($_SERVER['HTTP_BX_AJAX'] ?? null) !== null
+	|| ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? null) === 'XMLHttpRequest'
+))
+{
+	die();
+}
+
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 use Bitrix\Main\Context;

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,landing_node) {
+(function (exports,landing_node_base) {
 	'use strict';
 
 	const debounce = BX.Landing.Utils.debounce;
@@ -8,7 +8,7 @@ this.BX.Landing = this.BX.Landing || {};
 	const proxy = BX.Landing.Utils.proxy;
 	const onCustomEvent = BX.Landing.Utils.onCustomEvent;
 	const encodeDataValue = BX.Landing.Utils.encodeDataValue;
-	class Map extends landing_node.Node {
+	class Map extends landing_node_base.Base {
 	  constructor(options) {
 	    super(options);
 	    this.type = 'map';
@@ -98,5 +98,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.Map = Map;
 
-}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing));
+}((this.BX.Landing.Node = this.BX.Landing.Node || {}),BX.Landing.Node));
 //# sourceMappingURL=map.bundle.js.map

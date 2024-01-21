@@ -8,17 +8,22 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\HttpClient;
-use Bitrix\Main\Web\HttpHeaders;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Web\IpAddress;
 use Bitrix\Main\Web\Http\Response;
+use Bitrix\Main\File\Image;
+use Bitrix\Main\Web\MimeType;
 
 class UrlPreview
 {
 	const SIGN_SALT = 'url_preview';
-	const USER_AGENT = 'Bitrix link preview';
+	const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 (Bitrix link preview)';
 	/** @var int Maximum allowed length of the description. */
 	const MAX_DESCRIPTION = 500;
+	/** @var int Maximum allowed picture size */
+	const MAX_FILE_SIZE = 1048576;
+	/** @var int Range to read picture size */
+	const FILE_RANGE = 1023;
 
 	const IFRAME_MAX_WIDTH = 640;
 	const IFRAME_MAX_HEIGHT = 340;
@@ -249,7 +254,7 @@ class UrlPreview
 	 *
 	 * @param array $ids Array of record's IDs.
 	 * @param bool $checkAccess Should method check current user's access to the internal entities, or not.
-	 * @params int $userId. Id of the users to check access. If == 0, will check access for current user.
+	 * @params int $userId. ID of the users to check access. If == 0, will check access for current user.
 	 * @return array|false Array with provided IDs as the keys.
 	 */
 	public static function getMetadataAndHtmlByIds(array $ids, $checkAccess = true, $userId = 0)
@@ -359,7 +364,7 @@ class UrlPreview
 	 * not be fetched, deletes record.
 	 * @param int $id Metadata record's id.
 	 * @param bool $checkAccess Should method check current user's access to the entity, or not.
-	 * @params int $userId. Id of the users to check access. If == 0, will check access for current user.
+	 * @params int $userId. ID of the users to check access. If == 0, will check access for current user.
 	 * @return array|false Metadata if fetched, false otherwise.
 	 */
 	public static function resolveTemporaryMetadata($id, $checkAccess = true, $userId = 0)
@@ -425,7 +430,7 @@ class UrlPreview
 	 * Returns HTML code for the dynamic (internal url) preview.
 	 * @param string $url URL of the internal document.
 	 * @param bool $checkAccess Should method check current user's access to the entity, or not.
-	 * @params int $userId. Id of the users to check access. If userId == 0, will check access for current user.
+	 * @params int $userId. ID of the users to check access. If userId == 0, will check access for current user.
 	 * @return string|false HTML code of the preview, or false if case of any errors (including access denied)/
 	 */
 	public static function getDynamicPreview($url, $checkAccess = true, $userId = 0)
@@ -463,7 +468,7 @@ class UrlPreview
 	 * Returns attach for the IM message with the requested internal entity content.
 	 * @param string $url URL of the internal document.
 	 * @param bool $checkAccess Should method check current user's access to the entity, or not.
-	 * @params int $userId. Id of the users to check access. If userId == 0, will check access for current user.
+	 * @params int $userId. ID of the users to check access. If userId == 0, will check access for current user.
 	 * @return \CIMMessageParamAttach | false
 	 */
 	public static function getImAttach($url, $checkAccess = true, $userId = 0)
@@ -485,7 +490,7 @@ class UrlPreview
 	/**
 	 * Returns true if current user has read access to the content behind internal url.
 	 * @param string $url URL of the internal document.
-	 * @params int $userId. Id of the users to check access. If userId == 0, will check access for current user.
+	 * @params int $userId. ID of the users to check access. If userId == 0, will check access for current user.
 	 * @return bool True if current user has read access to the main entity of the document, or false otherwise.
 	 */
 	public static function checkDynamicPreviewAccess($url, $userId = 0)
@@ -513,7 +518,7 @@ class UrlPreview
 
 	/**
 	 * Sets main image url for the metadata with given id.
-	 * @param int $id Id of the metadata to set image url.
+	 * @param int $id ID of the metadata to set image url.
 	 * @param string $imageUrl Url of the image.
 	 * @return bool Returns true in case of successful update, or false otherwise.
 	 * @throws ArgumentException
@@ -547,16 +552,7 @@ class UrlPreview
 			}
 		}
 
-		if (static::getOptionSaveImages())
-		{
-			$metadata['IMAGE_ID'] = static::saveImage($imageUrl);
-			$metadata['IMAGE'] = null;
-		}
-		else
-		{
-			$metadata['IMAGE'] = $imageUrl;
-			$metadata['IMAGE_ID'] = null;
-		}
+		static::fetchImageMetadata($imageUrl, $metadata);
 
 		return UrlMetadataTable::update($id, $metadata)->isSuccess();
 	}
@@ -628,7 +624,7 @@ class UrlPreview
 		$uriParser = new Uri($fullUrl);
 		if (static::isUrlLocal($uriParser))
 		{
-			if ($routeRecord = Router::dispatch($uriParser))
+			if (Router::dispatch($uriParser))
 			{
 				$metadata = array(
 					'URL' => $url,
@@ -685,15 +681,16 @@ class UrlPreview
 	 */
 	protected static function getRemoteUrlMetadata(Uri $uri)
 	{
-		$httpClient = new HttpClient();
-		//prevents proxy to LAN
-		$httpClient->setPrivateIp(false);
-		$httpClient->setTimeout(5);
-		$httpClient->setStreamTimeout(5);
-		$httpClient->setHeader('User-Agent', self::USER_AGENT);
+		$httpClient = (new HttpClient())
+			->setPrivateIp(false) //prevents proxy to LAN
+			->setTimeout(5)
+			->setStreamTimeout(5)
+			->setHeader('User-Agent', self::USER_AGENT)
+		;
 
 		$httpClient->shouldFetchBody(function (Response $response) {
-			return ($response->getHeadersCollection()->getContentType() === 'text/html');
+			$contentType = $response->getHeadersCollection()->getContentType();
+			return ($contentType === 'text/html' || MimeType::isImage($contentType));
 		});
 
 		try
@@ -703,7 +700,7 @@ class UrlPreview
 				return false;
 			}
 		}
-		catch (\ErrorException $exception)
+		catch (\ErrorException)
 		{
 			return false;
 		}
@@ -717,9 +714,10 @@ class UrlPreview
 
 		if ($httpClient->getHeaders()->getContentType() !== 'text/html')
 		{
-			$metadata = static::getFileMetadata($httpClient->getEffectiveUrl(), $httpClient->getHeaders());
+			$metadata = static::getFileMetadata($httpClient);
 			$metadata['EXTRA']['PEER_IP_ADDRESS'] = $peerIpAddress;
 			$metadata['EXTRA']['PEER_IP_PRIVATE'] = (new IpAddress($peerIpAddress))->isPrivate();
+
 			return $metadata;
 		}
 
@@ -732,10 +730,9 @@ class UrlPreview
 
 		if (is_array($metadata) && static::validateRemoteMetadata($metadata))
 		{
-			if (isset($metadata['IMAGE']) && static::getOptionSaveImages())
+			if (isset($metadata['IMAGE']))
 			{
-				$metadata['IMAGE_ID'] = static::saveImage($metadata['IMAGE']);
-				unset($metadata['IMAGE']);
+				static::fetchImageMetadata($metadata['IMAGE'], $metadata);
 			}
 
 			if (isset($metadata['DESCRIPTION']) && mb_strlen($metadata['DESCRIPTION']) > static::MAX_DESCRIPTION)
@@ -743,7 +740,7 @@ class UrlPreview
 				$metadata['DESCRIPTION'] = mb_substr($metadata['DESCRIPTION'], 0, static::MAX_DESCRIPTION);
 			}
 
-			if (!is_array($metadata['EXTRA']))
+			if (!isset($metadata['EXTRA']) || !is_array($metadata['EXTRA']))
 			{
 				$metadata['EXTRA'] = array();
 			}
@@ -761,16 +758,27 @@ class UrlPreview
 		return false;
 	}
 
-	/**
-	 * @param string $url Image's URL.
-	 * @return integer Saved file identifier
-	 */
-	protected static function saveImage($url)
+	protected static function getTempPath(string $fileName): string
 	{
-		$fileId = false;
-		$httpClient = new HttpClient();
-		$httpClient->setTimeout(5);
-		$httpClient->setStreamTimeout(5);
+		$tempFileName = Random::getString(32) . '.' . GetFileExtension($fileName);
+		$tempPath = \CFile::GetTempName('', $tempFileName);
+
+		return $tempPath;
+	}
+
+	protected static function downloadFile(string $url, ?string &$fileName = null, ?int $range = null): ?string
+	{
+		$httpClient = (new HttpClient())
+			->setPrivateIp(false)
+			->setTimeout(5)
+			->setStreamTimeout(5)
+			->setBodyLengthMax(self::MAX_FILE_SIZE)
+		;
+
+		if ($range !== null)
+		{
+			$httpClient->setHeader('Range', 'bytes=0-' . $range);
+		}
 
 		$urlComponents = parse_url($url);
 		$fileName = ($urlComponents && $urlComponents["path"] <> '')
@@ -778,23 +786,43 @@ class UrlPreview
 			: bx_basename($url)
 		;
 
-		$tempFileName = Random::getString(32) . '.' . GetFileExtension($fileName);
-		$tempPath = \CFile::GetTempName('', $tempFileName);
+		$tempPath = static::getTempPath($fileName);
 
 		try
 		{
-			$httpClient->download($url, $tempPath);
+			if (!$httpClient->download($url, $tempPath))
+			{
+				return null;
+			}
 		}
-		catch (\ErrorException $exception)
+		catch (\ErrorException)
 		{
 			return null;
 		}
-		$fileName = $httpClient->getHeaders()->getFilename();
+
+		if (($name = $httpClient->getHeaders()->getFilename()) !== null)
+		{
+			$fileName = $name;
+		}
+
+		return $tempPath;
+	}
+
+	/**
+	 * @param string $tempPath
+	 * @param string|null $fileName
+	 * @return integer Saved file identifier
+	 */
+	protected static function saveImage(string $tempPath, ?string $fileName)
+	{
+		$fileId = false;
+
 		$localFile = \CFile::MakeFileArray($tempPath);
-		$localFile['MODULE_ID'] = 'main';
 
 		if (is_array($localFile))
 		{
+			$localFile['MODULE_ID'] = 'main';
+
 			if ($fileName <> '')
 			{
 				$localFile['name'] = $fileName;
@@ -808,6 +836,36 @@ class UrlPreview
 		return ($fileId === false ? null : $fileId);
 	}
 
+	protected static function fetchImageMetadata(string $imageUrl, array &$metadata): void
+	{
+		$saveImage = static::getOptionSaveImages();
+
+		$tempPath = static::downloadFile($imageUrl, $fileName, ($saveImage ? null : self::FILE_RANGE));
+
+		if ($tempPath !== null)
+		{
+			$info = (new Image($tempPath))->getInfo();
+			if ($info)
+			{
+				$metadata['EXTRA']['IMAGE_INFO'] = [
+					'WIDTH' => $info->getWidth(),
+					'HEIGHT' => $info->getHeight(),
+				];
+			}
+
+			if ($saveImage)
+			{
+				$metadata['IMAGE_ID'] = static::saveImage($tempPath, $fileName);
+				$metadata['IMAGE'] = null;
+			}
+			else
+			{
+				$metadata['IMAGE'] = $imageUrl;
+				$metadata['IMAGE_ID'] = null;
+			}
+		}
+	}
+
 	/**
 	 * If provided url does not contain scheme part, tries to add it
 	 *
@@ -816,15 +874,15 @@ class UrlPreview
 	 */
 	protected static function normalizeUrl($url)
 	{
-		if (strpos($url, 'https://') === 0 || strpos($url, 'http://') === 0)
+		if (str_starts_with($url, 'https://') || str_starts_with($url, 'http://'))
 		{
 			//nop
 		}
-		elseif (strpos($url, '//') === 0)
+		elseif (str_starts_with($url, '//'))
 		{
 			$url = 'http:'.$url;
 		}
-		elseif (strpos($url, '/') === 0)
+		elseif (str_starts_with($url, '/'))
 		{
 			//nop
 		}
@@ -897,26 +955,45 @@ class UrlPreview
 
 	/**
 	 * Returns metadata for downloadable file.
-	 * @param string $path Path part of the URL.
-	 * @param HttpHeaders $httpHeaders Server's response headers.
+	 * @param HttpClient $client
 	 * @return array|bool Metadata record if mime type and filename were detected, or false otherwise.
 	 */
-	protected static function getFileMetadata($path, HttpHeaders $httpHeaders)
+	protected static function getFileMetadata(HttpClient $client)
 	{
+		$url = $client->getEffectiveUrl();
+		$httpHeaders = $client->getHeaders();
+
 		$mimeType = $httpHeaders->getContentType();
-		$filename = $httpHeaders->getFilename() ?: bx_basename($path);
+		$filename = $httpHeaders->getFilename() ?: bx_basename($url);
 		$result = false;
 		if ($mimeType && $filename)
 		{
 			$result = array(
 				'TYPE' => UrlMetadataTable::TYPE_FILE,
 				'EXTRA' => array(
-					'ATTACHMENT' => mb_strtolower($httpHeaders->getContentDisposition()) === 'attachment' ? 'Y' : 'N',
+					'ATTACHMENT' => strtolower($httpHeaders->getContentDisposition()) === 'attachment' ? 'Y' : 'N',
 					'MIME_TYPE' => $mimeType,
 					'FILENAME' => $filename,
 					'SIZE' => $httpHeaders->get('Content-Length')
 				)
 			);
+
+			if (MimeType::isImage($mimeType))
+			{
+				// download image to temp file to detect dimensions
+				$tempPath = static::getTempPath($filename);
+
+				$client->saveFile($tempPath);
+
+				$info = (new Image($tempPath))->getInfo();
+				if ($info)
+				{
+					$result['EXTRA']['IMAGE_INFO'] = [
+						'WIDTH' => $info->getWidth(),
+						'HEIGHT' => $info->getHeight(),
+					];
+				}
+			}
 		}
 		return $result;
 	}
@@ -973,7 +1050,7 @@ class UrlPreview
 			{
 				return false;
 			}
-			if (isset($metadata['EMBED']) && !empty($metadata['EMBED']) && strpos($metadata['EMBED'], '<iframe') === false)
+			if (!empty($metadata['EMBED']) && !str_contains($metadata['EMBED'], '<iframe'))
 			{
 				$url = static::getInnerFrameUrl($metadata['ID'], $metadata['EXTRA']['PROVIDER_NAME']);
 				if (intval($metadata['EXTRA']['VIDEO_WIDTH']) <= 0)
@@ -987,7 +1064,7 @@ class UrlPreview
 				$metadata['EMBED'] = '<iframe src="'.$url.'" allowfullscreen="" width="'.$metadata['EXTRA']['VIDEO_WIDTH'].'" height="'.$metadata['EXTRA']['VIDEO_HEIGHT'].'" frameborder="0"></iframe>';
 			}
 
-			if ($metadata['EMBED'] || $metadata['EXTRA']['VIDEO'])
+			if ($metadata['EMBED'] || !empty($metadata['EXTRA']['VIDEO']))
 			{
 				return $metadata;
 			}

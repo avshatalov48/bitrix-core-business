@@ -171,7 +171,6 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 					false
 				);
 			}
-
 		?></div>
 		<div class="ui-side-panel-toolbar<?if (!$arParams['USE_UI_TOOLBAR_MARGIN']):?> --no-margin<?endif?>">
 		<?php

@@ -2,9 +2,13 @@ this.BX = this.BX || {};
 (function (exports,main_core,calendar_controls,calendar_util,calendar_entry,calendar_sectionmanager,main_core_events,calendar_planner,ui_entitySelector,calendar_roomsmanager) {
 	'use strict';
 
+	let _ = t => t,
+	  _t,
+	  _t2;
 	class SliderDateTimeControl extends calendar_controls.DateTimeControl {
 	  create() {
 	    this.DOM.dateTimeWrap = this.DOM.outerContent.querySelector(`#${this.UID}_datetime_container`);
+	    this.DOM.editor = this.DOM.outerContent.querySelector(`#${this.UID}_datetime_editor`);
 	    this.DOM.fromDate = this.DOM.outerContent.querySelector(`#${this.UID}_date_from`);
 	    this.DOM.toDate = this.DOM.outerContent.querySelector(`#${this.UID}_date_to`);
 	    this.DOM.fromTime = this.DOM.outerContent.querySelector(`#${this.UID}_time_from`);
@@ -59,11 +63,50 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }
+	  setReadonly(timezoneHint) {
+	    const value = this.getValue();
+	    let result = '';
+	    const dateFrom = calendar_util.Util.formatDateUsable(value.from, true, true);
+	    const dateTo = calendar_util.Util.formatDateUsable(value.to, true, true);
+	    const timeFrom = this.DOM.fromTime.value;
+	    const timeTo = this.DOM.toTime.value;
+	    result += dateFrom + ', ';
+	    if (value.fullDay) {
+	      if (dateFrom === dateTo) {
+	        result += main_core.Loc.getMessage('EC_ALL_DAY');
+	      } else {
+	        result += ' - ';
+	      }
+	    } else {
+	      result += timeFrom + ' - ' + timeTo;
+	    }
+	    if (!value.fullDay && dateFrom !== dateTo) {
+	      result += ', ' + dateTo;
+	    }
+	    let timezoneIcon = '';
+	    if (main_core.Type.isStringFilled(timezoneHint)) {
+	      timezoneIcon = main_core.Tag.render(_t || (_t = _`
+				<div class="calendar-date-selector-readonly-timezone" title="${0}">
+					<div class="calendar-date-selector-readonly-timezone-icon"></div>
+				</div>
+			`), timezoneHint);
+	    }
+	    main_core.Dom.style(this.DOM.editor, 'display', 'none');
+	    const readonlyElement = main_core.Tag.render(_t2 || (_t2 = _`
+			<div class="calendar-options-item-column-right">
+				<div class="calendar-field calendar-date-selector-readonly">
+					${0}
+					${0}
+				</div>
+			</div>
+		`), result, timezoneIcon);
+	    main_core.Dom.append(readonlyElement, this.DOM.dateTimeWrap);
+	  }
 	}
 
-	let _ = t => t,
-	  _t,
-	  _t2,
+	let _$1 = t => t,
+	  _t$1,
+	  _t2$1,
 	  _t3,
 	  _t4,
 	  _t5,
@@ -129,6 +172,9 @@ this.BX = this.BX || {};
 	    if (options.entryDescription && !this.entryId) {
 	      this.formDataValue.description = options.entryDescription;
 	    }
+	    if (options.jumpToControl) {
+	      this.jumpToControl = options.jumpToControl;
+	    }
 	    this.refreshPlanner = main_core.Runtime.debounce(this.refreshPlannerState, 100, this);
 	    this.state = this.STATE.READY;
 	    this.doShowConfirmPopup = true;
@@ -136,6 +182,8 @@ this.BX = this.BX || {};
 	    this.handlePullBind = this.handlePull.bind(this);
 	    this.keyHandlerBind = this.keyHandler.bind(this);
 	    this.lastUsedSaveOptions = {};
+	    this.timezoneHint = '';
+	    this.isAvailable = true;
 	  }
 	  initInSlider(slider, promiseResolve) {
 	    this.sliderId = slider.getUrl();
@@ -207,11 +255,26 @@ this.BX = this.BX || {};
 	    this.slider = event.getSlider();
 	    this.DOM.content = this.slider.layout.content;
 	    this.sliderId = this.slider.getUrl();
+	    if (!this.isAvailable) {
+	      return;
+	    }
 
 	    // Used to execute javasctipt and attach CSS from ajax responce
 	    this.BX.html(this.slider.layout.content, this.slider.getData().get("sliderContent"));
 	    this.initControls(this.uid);
 	    this.setFormValues();
+	    if (main_core.Type.isStringFilled(this.jumpToControl)) {
+	      if (this.jumpToControl === 'userSelector') {
+	        const attendeesSelectorWrap = this.DOM.content.querySelector(`#${this.uid}_attendees_selector`);
+	        main_core.Dom.style(attendeesSelectorWrap, 'transition', '300ms background ease');
+	        setTimeout(() => this.highlightField(attendeesSelectorWrap), 900);
+	      }
+	      if (this.jumpToControl === 'location') {
+	        const fieldWrap = document.querySelector(`[data-bx-block-placeholer=${this.jumpToControl}]`);
+	        main_core.Dom.style(fieldWrap, 'transition', '300ms background ease');
+	        setTimeout(() => this.highlightField(fieldWrap), 900);
+	      }
+	    }
 	    main_core.Event.bind(this.DOM.content, 'wheel', () => {
 	      var _this$highlightFieldS;
 	      return (_this$highlightFieldS = this.highlightFieldScrollAnimation) == null ? void 0 : _this$highlightFieldS.stop();
@@ -303,16 +366,16 @@ this.BX = this.BX || {};
 	      this.DOM.form.rec_edit_mode.value = null;
 	    }
 	    if (options.sendInvitesAgain !== undefined) {
-	      this.DOM.form.appendChild(main_core.Tag.render(_t || (_t = _`<input name="sendInvitesAgain" type="hidden" value="${0}">`), options.sendInvitesAgain ? 'Y' : 'N'));
+	      this.DOM.form.appendChild(main_core.Tag.render(_t$1 || (_t$1 = _$1`<input name="sendInvitesAgain" type="hidden" value="${0}">`), options.sendInvitesAgain ? 'Y' : 'N'));
 	    }
 	    if (!this.DOM.form.requestUid) {
-	      this.DOM.requestUid = this.DOM.form.appendChild(main_core.Tag.render(_t2 || (_t2 = _`<input name="requestUid" type="hidden">`)));
+	      this.DOM.requestUid = this.DOM.form.appendChild(main_core.Tag.render(_t2$1 || (_t2$1 = _$1`<input name="requestUid" type="hidden">`)));
 	    }
 	    if (!this.DOM.form.meeting_host) {
-	      this.DOM.meeting_host = this.DOM.form.appendChild(main_core.Tag.render(_t3 || (_t3 = _`<input type="hidden" name="meeting_host" value="${0}">`), this.entry.data.MEETING_HOST || '0'));
+	      this.DOM.meeting_host = this.DOM.form.appendChild(main_core.Tag.render(_t3 || (_t3 = _$1`<input type="hidden" name="meeting_host" value="${0}">`), this.entry.data.MEETING_HOST || '0'));
 	    }
 	    if (!this.DOM.form.chat_id) {
-	      this.DOM.chat_id = this.DOM.form.appendChild(main_core.Tag.render(_t4 || (_t4 = _`<input type="hidden" name="chat_id" value="${0}">`), this.entry.data.MEETING ? this.entry.data.MEETING.CHAT_ID : 0));
+	      this.DOM.chat_id = this.DOM.form.appendChild(main_core.Tag.render(_t4 || (_t4 = _$1`<input type="hidden" name="chat_id" value="${0}">`), this.entry.data.MEETING ? this.entry.data.MEETING.CHAT_ID : 0));
 	    }
 	    this.DOM.requestUid.value = calendar_util.Util.registerRequestId();
 
@@ -320,10 +383,10 @@ this.BX = this.BX || {};
 	    const attendeesEntityList = this.getUserSelectorEntityList();
 	    main_core.Dom.clean(this.DOM.userSelectorValueWarp);
 	    attendeesEntityList.forEach((entity, index) => {
-	      this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t5 || (_t5 = _`
+	      this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t5 || (_t5 = _$1`
 				<input type="hidden" name="attendeesEntityList[${0}][entityId]" value="${0}">
 			`), index, entity.entityId));
-	      this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t6 || (_t6 = _`
+	      this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t6 || (_t6 = _$1`
 				<input type="hidden" name="attendeesEntityList[${0}][id]" value="${0}">
 			`), index, entity.id));
 	    });
@@ -335,7 +398,7 @@ this.BX = this.BX || {};
 	          return entity.entityId === item.entityId && parseInt(entity.id) === parseInt(item.id);
 	        })) {
 	          if (entity.entityId === 'user') {
-	            this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t7 || (_t7 = _`
+	            this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t7 || (_t7 = _$1`
 							<input type="hidden" name="newAttendeesList[]" value="${0}">
 						`), parseInt(entity.id)));
 	          } else {
@@ -344,7 +407,7 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-	    this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t8 || (_t8 = _`
+	    this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_t8 || (_t8 = _$1`
 			<input type="hidden" name="checkCurrentUsersAccessibility" value="${0}">
 		`), checkCurrentUsersAccessibility ? 'Y' : 'N'));
 	    this.DOM.form.doCheckOccupancy.value = options.doCheckOccupancy || 'Y';
@@ -446,6 +509,10 @@ this.BX = this.BX || {};
 	    if (!(event && event.getSlider && event.getSlider().getUrl() === this.sliderId)) {
 	      return;
 	    }
+	    if (!this.isAvailable) {
+	      this.BX.removeCustomEvent("SidePanel.Slider:onClose", this.sliderOnClose);
+	      return;
+	    }
 	    calendar_util.Util.closeAllPopups();
 	    if (this.checkDenyClose()) {
 	      event.denyAction();
@@ -517,7 +584,15 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isArray(attendeesEntityList)) {
 	          attendeesEntityList.forEach(item => {
 	            if (item.entityId === 'user' && params.userIndex[item.id]) {
-	              item.entityType = params.userIndex[item.id].EMAIL_USER ? 'email' : 'employee';
+	              if (params.userIndex[item.id].EMAIL_USER) {
+	                item.entityType = 'email';
+	                item.title = params.userIndex[item.id].DISPLAY_NAME;
+	              } else if (params.userIndex[item.id].SHARING_USER) {
+	                item.entityType = 'sharing';
+	                item.title = params.userIndex[item.id].DISPLAY_NAME;
+	              } else {
+	                item.entityType = 'employee';
+	              }
 	            }
 	          });
 	        }
@@ -542,11 +617,36 @@ this.BX = this.BX || {};
 	        if (this.userSettings.meetSection && this.type === 'user') {
 	          calendar_sectionmanager.SectionManager.setNewEntrySectionId(this.userSettings.meetSection);
 	        }
+	        this.timezoneHint = params.timezoneHint;
 	        promise.fulfill(html);
 	      }
 	    }, response => {
+	      if (response.data && !main_core.Type.isNil(response.data.isAvailable) && !response.data.isAvailable) {
+	        debugger;
+	        this.isAvailable = false;
+	        const showHelperCallback = () => {
+	          top.BX.UI.InfoHelper.show('limit_office_calendar_off', {
+	            isLimit: true,
+	            limitAnalyticsLabels: {
+	              module: 'calendar',
+	              source: 'eventEditForm'
+	            }
+	          });
+	        };
+	        const sliderInstance = BX.SidePanel.Instance.getSlider(this.sliderId);
+	        if (sliderInstance) {
+	          this.BX.removeCustomEvent("SidePanel.Slider:onClose", this.sliderOnClose);
+	          sliderInstance.close(true, showHelperCallback);
+	        } else {
+	          showHelperCallback();
+	        }
+	      }
+	      let html = this.BX.util.trim('<div></div>');
+	      slider.getData().set("sliderContent", html);
+	      promise.fulfill(html);
 	      //this.calendar.displayError(response.errors);
 	    });
+
 	    return promise;
 	  }
 	  initControls(uid) {
@@ -631,6 +731,9 @@ this.BX = this.BX || {};
 	      timezoneTo: entry.getTimezoneTo() || '',
 	      timezoneName: this.userSettings.timezoneName
 	    });
+	    if (entry.isSharingEvent()) {
+	      this.dateTimeControl.setReadonly(this.timezoneHint);
+	    }
 	    const entryName = this.formDataValue.name || entry.getName();
 	    this.DOM.entryName.value = entryName;
 	    this.DOM.entryName.title = entryName;
@@ -650,7 +753,7 @@ this.BX = this.BX || {};
 	        this.pinField('section');
 	      }
 	    }
-	    if (this.isSyncSection(section) && entry.id) {
+	    if ((this.isSyncSection(section) || entry.isSharingEvent()) && entry.id) {
 	      this.sectionSelector.setViewMode(true);
 	    }
 
@@ -663,9 +766,13 @@ this.BX = this.BX || {};
 	    // Recursion
 	    (_this$repeatSelector2 = this.repeatSelector) == null ? void 0 : _this$repeatSelector2.setValue(this.formDataValue.rrule || entry.getRrule());
 	    this.initialRrule = this.getFormRrule();
-	    if (entry.hasRecurrenceId()) {
+	    if (entry.id && entry.isSharingEvent()) {
 	      var _this$repeatSelector3;
 	      (_this$repeatSelector3 = this.repeatSelector) == null ? void 0 : _this$repeatSelector3.setViewMode(entry.getRRuleDescription());
+	    }
+	    if (entry.hasRecurrenceId()) {
+	      var _this$repeatSelector4;
+	      (_this$repeatSelector4 = this.repeatSelector) == null ? void 0 : _this$repeatSelector4.setViewMode(entry.getRRuleDescription());
 	    }
 
 	    // accessibility
@@ -679,6 +786,7 @@ this.BX = this.BX || {};
 	      this.locationSelector.checkLocationAccessibility({
 	        from: this.formDataValue.from || entry.from,
 	        to: this.formDataValue.to || entry.to,
+	        timezone: this.entry.getTimezoneFrom(),
 	        fullDay: main_core.Type.isBoolean(this.formDataValue.fullDay) ? this.formDataValue.fullDay : entry.fullDay,
 	        currentEventId: this.entry.id
 	      });
@@ -725,6 +833,9 @@ this.BX = this.BX || {};
 	    this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay, {
 	      focus: true
 	    });
+	    if (entry.isSharingEvent()) {
+	      this.planner.setReadonly();
+	    }
 	    if (!needToLoadAdditional) {
 	      this.loadPlannerData({
 	        entityList: this.getUserSelectorEntityList(),
@@ -807,6 +918,7 @@ this.BX = this.BX || {};
 	    this.dateTimeControl.subscribe('onChange', event => {
 	      if (event instanceof main_core_events.BaseEvent) {
 	        let value = event.getData().value;
+	        this.entry.setTimezone(value.timezoneFrom);
 	        if (this.remindersControl) {
 	          this.remindersControl.setFullDayMode(value.fullDay);
 	          if (!this.entry.id && !this.remindersControl.wasChangedByUser()) {
@@ -816,11 +928,13 @@ this.BX = this.BX || {};
 	        }
 	        if (this.planner) {
 	          this.planner.updateSelector(value.from, value.to, value.fullDay);
+	          this.planner.updateTimezone(value.timezoneFrom);
 	        }
 	        if (this.locationSelector) {
 	          this.locationSelector.checkLocationAccessibility({
 	            from: value.from,
 	            to: value.to,
+	            timezone: this.entry.getTimezoneFrom(),
 	            fullDay: value.fullDay,
 	            currentEventId: this.entry.id
 	          });
@@ -868,7 +982,7 @@ this.BX = this.BX || {};
 	    }
 	    this.reminderValues = [];
 	    this.DOM.reminderWrap = reminderWrap;
-	    this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_t9 || (_t9 = _`<span></span>`)));
+	    this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_t9 || (_t9 = _$1`<span></span>`)));
 	    this.remindersControl = new calendar_controls.Reminder({
 	      wrap: this.DOM.reminderWrap,
 	      zIndex: this.zIndex
@@ -1009,7 +1123,7 @@ this.BX = this.BX || {};
 	  }
 	  initAttendeesControl() {
 	    this.DOM.userSelectorWrap = this.DOM.content.querySelector('.calendar-attendees-selector-wrap');
-	    this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_t10 || (_t10 = _`<div></div>`)));
+	    this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_t10 || (_t10 = _$1`<div></div>`)));
 	    this.userTagSelector = new ui_entitySelector.TagSelector({
 	      dialogOptions: {
 	        context: 'CALENDAR',
@@ -1020,6 +1134,7 @@ this.BX = this.BX || {};
 	          'Item:onDeselect': this.handleUserSelectorChanges.bind(this)
 	        },
 	        entities: this.getParticipantsSelectorEntityList(),
+	        selectedItems: this.getSelectedItemsForTagSelector(),
 	        searchTabOptions: {
 	          stubOptions: {
 	            title: main_core.Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
@@ -1049,6 +1164,21 @@ this.BX = this.BX || {};
 	      this.refreshPlanner();
 	    }
 	  }
+	  getSelectedItemsForTagSelector() {
+	    let result = [];
+	    this.getUserSelectorEntityList().forEach(item => {
+	      if (item.entityType === 'sharing') {
+	        result.push({
+	          id: item.id,
+	          entityId: item.entityId,
+	          entityType: 'extranet',
+	          title: item.title,
+	          deselectable: false
+	        });
+	      }
+	    });
+	    return result;
+	  }
 	  hasExternalEmailUsers() {
 	    return !!this.getUserSelectorEntityList().find(item => {
 	      return item.entityType === 'email';
@@ -1070,7 +1200,8 @@ this.BX = this.BX || {};
 	      wrap: this.DOM.plannerOuterWrap,
 	      minWidth: parseInt(this.DOM.plannerOuterWrap.offsetWidth),
 	      dayOfWeekMonthFormat: this.dayOfWeekMonthFormat,
-	      locked: !this.plannerFeatureEnabled
+	      locked: !this.plannerFeatureEnabled,
+	      entryTimezone: this.entry.getTimezoneFrom()
 	    });
 	    this.planner.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
 	    this.planner.subscribe('onExpandTimeline', this.handleExpandPlannerTimeline.bind(this));
@@ -1487,6 +1618,7 @@ this.BX = this.BX || {};
 	        this.locationSelector.checkLocationAccessibility({
 	          from: data.dateFrom,
 	          to: data.dateTo,
+	          timezone: this.entry.getTimezoneFrom(),
 	          fullDay: data.fullDay,
 	          currentEventId: this.entry.id
 	        });
@@ -1560,6 +1692,9 @@ this.BX = this.BX || {};
 	  }
 	  keyHandler(e) {
 	    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.keyCode === calendar_util.Util.getKeyCode('enter') && this.checkTopSlider() && !this.isAdditionalPopupShown()) {
+	      if (this.busyUsersDialog && this.busyUsersDialog.isShown()) {
+	        return;
+	      }
 	      this.save();
 	    }
 	  }
@@ -1744,7 +1879,14 @@ this.BX = this.BX || {};
 	      options: {
 	        inviteGuestLink: true,
 	        emailUsers: true
-	      }
+	      },
+	      filters: [{
+	        id: 'calendar.attendeeFilter',
+	        options: {
+	          'isSharingEvent': this.entry.isSharingEvent(),
+	          'eventId': this.entry.id
+	        }
+	      }]
 	    }, {
 	      id: 'project'
 	    }, {

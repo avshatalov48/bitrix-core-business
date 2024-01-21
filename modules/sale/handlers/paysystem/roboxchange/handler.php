@@ -393,12 +393,7 @@ class RoboxchangeHandler
 	 */
 	public static function getHandlerModeList()
 	{
-		return [
-			'bank_card' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE'),
-			'apple_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE'),
-			'google_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_GOOGLEPAY_MODE'),
-			'samsung_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SAMSUNGPAY_MODE'),
-		];
+		return PaySystem\Manager::getHandlerDescription('roboxchange')['HANDLER_MODE_LIST'];
 	}
 
 	private static function getHandlerModeAlias(string $psMode): string

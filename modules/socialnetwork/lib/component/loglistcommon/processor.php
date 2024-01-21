@@ -6,7 +6,9 @@ use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UserCounterTable;
 use Bitrix\Socialnetwork\Component\LogList\Util;
+use Bitrix\Socialnetwork\Livefeed\Context\Context;
 use Bitrix\Socialnetwork\LogCommentTable;
+use Bitrix\Tasks\Internals\Task\Status;
 
 class Processor
 {
@@ -18,22 +20,25 @@ class Processor
 	protected $listParams = [];
 	protected $navParams = false;
 	protected $firstPage = false;
+	protected string $context = '';
+	protected int $userId = 0;
+	protected int $groupId = 0;
 
 	public function __construct($params)
 	{
-		if(!empty($params['component']))
-		{
-			$this->component = $params['component'];
-		}
+		$this->init($params);
+	}
 
-		if(!empty($params['request']))
-		{
-			$this->request = $params['request'];
-		}
-		else
-		{
-			$this->request = Util::getRequest();
-		}
+	public function setUserId(?int $userId): static
+	{
+		$this->userId = (int)$userId;
+		return $this;
+	}
+
+	public function setGroupId(?int $groupId): static
+	{
+		$this->groupId = (int)$groupId;
+		return $this;
 	}
 
 	protected function getComponent()
@@ -63,6 +68,19 @@ class Processor
 			return;
 		}
 		$this->filter[$key] = $value;
+	}
+
+	public function addFilter($key = '', $value = false): void
+	{
+		if (!isset($this->filter[$key]))
+		{
+			$this->setFilterKey($key, $value);
+		}
+		else
+		{
+			$value = is_array($value) ? $value : [$value];
+			$this->filter[$key] = array_merge($this->filter[$key], $value);
+		}
 	}
 
 	public function unsetFilterKey($key = ''): void
@@ -265,7 +283,7 @@ class Processor
 		$res = \Bitrix\Tasks\Internals\TaskTable::getList([
 			'filter' => [
 				'@ID' => array_keys($tasks2LogList),
-				'!=STATUS' => \CTasks::STATE_COMPLETED,
+				'!=STATUS' => Status::COMPLETED,
 			],
 			'select' => [ 'ID' ],
 		]);
@@ -318,5 +336,34 @@ class Processor
 				? $result['currentUserId']
 				: 0
 		);
+	}
+
+	public function setContext(): void
+	{
+		$parameters = $this->getComponent()->arParams;
+		$this->context = $parameters['CONTEXT'] ?? '';
+	}
+
+	public function isSpace(): bool
+	{
+		return mb_strtolower($this->context) === Context::SPACES;
+	}
+
+	private function init(array $params): void
+	{
+		if(!empty($params['component']))
+		{
+			$this->component = $params['component'];
+		}
+
+		if(!empty($params['request']))
+		{
+			$this->request = $params['request'];
+		}
+		else
+		{
+			$this->request = Util::getRequest();
+		}
+		$this->setContext();
 	}
 }

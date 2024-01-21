@@ -1,19 +1,19 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Iblock\UserField\Types\ElementType;
+use Bitrix\Main\Text\HtmlFilter;
 
 /**
  * @var array $arResult
  */
 ?>
 
-<span class="field-wrap">
+<span class="fields field-wrap">
 	<?php
 	$isEmpty = true;
 	if (!empty($arResult['userField']['USER_TYPE']['FIELDS']))
@@ -28,7 +28,7 @@ use Bitrix\Iblock\UserField\Types\ElementType;
 			$textRes = $arResult['userField']['USER_TYPE']['FIELDS'][$res];
 			$isEmpty = false;
 			?>
-			<span class="field-item">
+			<span class="field-item" data-id="<?= (int)$res ?>">
 				<?php
 				if(!empty($arResult['userField']['PROPERTY_VALUE_LINK']))
 				{

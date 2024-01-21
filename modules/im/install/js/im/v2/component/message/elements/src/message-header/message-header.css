@@ -1,0 +1,15 @@
+.bx-im-message-header__container {
+	--im-message-header__color_message-header: #11a9d9;
+
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	font-style: italic;
+	color: var(--im-message-header__color_message-header);
+	cursor: pointer;
+	user-select: none;
+	padding-bottom: 2px;
+}
+
+.bx-im-message-header__author-name {
+	font-size: var(--im-font-size-lg);
+}

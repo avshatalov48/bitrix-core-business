@@ -1375,7 +1375,7 @@ class CArchiver implements IBXArchive
 		{
 			if (mb_strpos($vFileList, "\"") === 0)
 			{
-				return [Trim($vFileList, "\"")];
+				return [trim($vFileList,"\"")];
 			}
 			return explode($this->_strSeparator, $vFileList);
 		}

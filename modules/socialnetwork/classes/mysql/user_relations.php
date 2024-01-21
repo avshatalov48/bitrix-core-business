@@ -134,6 +134,8 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 	public static function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if (count($arSelectFields) <= 0)
 			$arSelectFields = array("ID", "FIRST_USER_ID", "SECOND_USER_ID", "RELATION", "DATE_CREATE", "DATE_UPDATE", "MESSAGE", "INITIATED_BY");
@@ -167,8 +169,8 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 			"SECOND_USER_LID" => Array("FIELD" => "U1.LID", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)"),
 			"RAND" => Array("FIELD" => "RAND()", "TYPE" => "string"),
 		);
-		$arFields["FIRST_USER_IS_ONLINE"] = Array("FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N')", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UR.FIRST_USER_ID = U.ID)");
-		$arFields["SECOND_USER_IS_ONLINE"] = Array("FIELD" => "IF(U1.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N')", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)");
+		$arFields["FIRST_USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UR.FIRST_USER_ID = U.ID)");
+		$arFields["SECOND_USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U1.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)");
 
 		if (array_key_exists("ACTIVE_ONLY", $arFilter) && $arFilter["ACTIVE_ONLY"] == "Y")
 		{
@@ -391,7 +393,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 			"	DATE_FORMAT(PB, '".($curYear + 1)."-%m-%d'), ".
 			"	DATE_FORMAT(PB, '".$curYear."-%m-%d') ".
 			") ".
-			($number > 0 ? "LIMIT 0, ".$number."" : "");
+			($number > 0 ? "LIMIT ".$number."" : "");
 
 		return $DB->Query($strSql);
 	}
@@ -411,7 +413,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 			"SELECT UR.RELATION, UR.FIRST_USER_ID, UR.SECOND_USER_ID ".
 			"FROM b_sonet_user_relations UR ".
 			"WHERE UR.SECOND_USER_ID = ".$userID." ".
-			($number > 0 ? "LIMIT 0, ".$number : "");
+			($number > 0 ? "LIMIT ".$number : "");
 			
 		return $DB->Query($strSql);
 	}

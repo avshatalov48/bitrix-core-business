@@ -100,6 +100,8 @@
 .bx-im-textarea__element::placeholder {
 	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
 	color: var(--im-textarea__font-color_placeholder);
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .bx-im-textarea__right {

@@ -28,6 +28,17 @@ elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_SKB'),
+	'HANDLER_MODE_LIST' => [
+		'skb' => Loc::getMessage('SALE_HPS_SKB_MODE_SKB'),
+		'delobank' => Loc::getMessage('SALE_HPS_SKB_MODE_DELOBANK'),
+		'gazenergobank' => Loc::getMessage('SALE_HPS_SKB_MODE_GAZENERGOBANK'),
+	],
+	'HANDLER_MODE_DESCRIPTION_LIST' => [
+		'skb' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_SKB_DESCRIPTION_MAIN'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_SKB_MODE_SKB_PUBLIC_DESCRIPTION'),
+		],
+	],
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => [

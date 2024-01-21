@@ -28,13 +28,14 @@
 				"80": { "value": "#688800" },
 				"70": { "value": "#7FA800" },
 				"60": { "value": "#8DBB00" },
-				"55": { "value": "#9DCF00" },
+				"55": { "value": "#95C500" },
 				"50": { "value": "#9DCF00" },
 				"40": { "value": "#BBDE4D" },
 				"35": { "value": "#CFE780" },
 				"30": { "value": "#E2F1B3" },
 				"25": { "value": "#FAF6C3" },
 				"20": { "value": "#F1FBD0" },
+				"15": { "value": "#F5FCDE" },
 				"10": { "value": "#FAFDED" }
 			},
 			"orange": {
@@ -48,6 +49,7 @@
 				"30": { "value": "#FFE1A6" },
 				"25": { "value": "#FFE9BE" },
 				"20": { "value": "#FFF1D6" },
+				"15": { "value": "#FFF5E3" },
 				"10": { "value": "#FFFAF0" }
 			},
 			"red": {
@@ -63,6 +65,7 @@
 				"30": { "value": "#FFCDCC" },
 				"25": { "value": "#FFDCDB" },
 				"20": { "value": "#FFE8E8" },
+				"15": { "value": "#FFF0F0" },
 				"10": { "value": "#FFF8F8" }
 			},
 			"gray": {

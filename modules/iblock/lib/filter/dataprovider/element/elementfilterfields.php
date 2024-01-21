@@ -10,10 +10,14 @@ use CIBlockSection;
 
 class ElementFilterFields
 {
+	private const PROPERTY_PREFIX = 'PROPERTY_';
+	private const PROPERTY_MASK = '/^' . self::PROPERTY_PREFIX . '([0-9]+)$/';
+
 	private int $iblockId;
 	private bool $isShowXmlId;
 	private bool $isShowSections;
-	private array $listPropertyFieldIds = [];
+	private array $propertyList = [];
+	private array $userTypeList;
 
 	public function __construct(int $iblockId, bool $isShowXmlId, bool $isShowSections)
 	{
@@ -109,7 +113,9 @@ class ElementFilterFields
 			PropertyTable::TYPE_STRING => 'string',
 			PropertyTable::TYPE_NUMBER => 'number',
 			PropertyTable::TYPE_LIST => 'list',
-			'S:directory' => 'list',
+			PropertyTable::TYPE_STRING . ':' . PropertyTable::USER_TYPE_DIRECTORY => 'entity_selector',
+			PropertyTable::TYPE_STRING . ':' . PropertyTable::USER_TYPE_DATE => 'date',
+			PropertyTable::TYPE_STRING . ':' . PropertyTable::USER_TYPE_DATETIME => 'datetime',
 		];
 
 		$iterator = PropertyTable::getList([
@@ -119,8 +125,11 @@ class ElementFilterFields
 				'NAME',
 				'SORT',
 				'PROPERTY_TYPE',
+				'LIST_TYPE',
 				'MULTIPLE',
+				'LINK_IBLOCK_ID',
 				'USER_TYPE',
+				'USER_TYPE_SETTINGS_LIST',
 			],
 			'filter' => [
 				'=IBLOCK_ID' => $this->iblockId,
@@ -137,10 +146,16 @@ class ElementFilterFields
 		]);
 		while ($row = $iterator->fetch())
 		{
+			$row = $this->validateProperty($row);
+			if ($row === null)
+			{
+				continue;
+			}
+
 			$fullType =
 				empty($row['USER_TYPE'])
 					? $row['PROPERTY_TYPE']
-					: "{$row['PROPERTY_TYPE']}:{$row['USER_TYPE']}"
+					: $row['PROPERTY_TYPE'] . ':' . $row['USER_TYPE']
 			;
 
 			$fieldType = $typesMap[$fullType] ?? null;
@@ -149,7 +164,7 @@ class ElementFilterFields
 				continue;
 			}
 
-			$id = 'PROPERTY_' . $row['ID'];
+			$id = $this->getPropertyId($row['ID']);
 			$field = [
 				'type' => $fieldType,
 				'name' => $row['NAME'],
@@ -158,14 +173,146 @@ class ElementFilterFields
 			if ($fullType === PropertyTable::TYPE_LIST)
 			{
 				$field['partial'] = true;
-				$this->listPropertyFieldIds[$id] = (int)$row['ID'];
+			}
+			elseif (
+				$row['USER_TYPE'] !== ''
+			)
+			{
+				$userType = $this->userTypeList[$row['USER_TYPE']];
+				if (isset($userType['GetUIFilterProperty']) && is_callable($userType['GetUIFilterProperty']))
+				{
+					call_user_func_array(
+						$userType['GetUIFilterProperty'],
+						[
+							$row,
+							[],
+							&$field
+						]
+					);
+					if (empty($field) || !is_array($field))
+					{
+						continue;
+					}
+				}
 			}
 
 			$properties[$id] = $field;
+
+			$this->propertyList[$id] = $row;
 		}
 		unset($row, $iterator);
 
 		return $properties;
+	}
+
+	public function prepareFilterValue(array $rawFilterValue): array
+	{
+		$result = [];
+		foreach ($rawFilterValue as $fieldId => $values)
+		{
+			$field = \CIBlock::MkOperationFilter($fieldId);
+			$id = $field['FIELD'];
+			if (!$this->isPropertyId($id))
+			{
+				$result[$fieldId] = $values;
+			}
+			elseif (isset($this->propertyList[$id]))
+			{
+				$prepareResult = $this->preparePropertyValues($id, $values);
+				if ($prepareResult)
+				{
+					$result[$fieldId] = $prepareResult;
+				}
+				unset($prepareResult);
+			}
+		}
+
+		return $result;
+	}
+
+	private function preparePropertyValues(string $propertyId, $values): mixed
+	{
+		$result = null;
+		$row = $this->propertyList[$propertyId];
+		if ($row['USER_TYPE'] === '')
+		{
+			$result = $values;
+		}
+		else
+		{
+			$userType = $this->userTypeList[$row['USER_TYPE']] ?? null;
+			if ($userType)
+			{
+				if (isset($userType['ConvertToDB']) && is_callable($userType['ConvertToDB']))
+				{
+					if (is_array($values))
+					{
+						$prepareValues = [];
+						foreach ($values as $item)
+						{
+							$prepareItem = $this->convertPropertyValueToDb(
+								$userType['ConvertToDB'],
+								$row,
+								$item
+							);
+							if ($prepareItem)
+							{
+								$prepareValues[] = $prepareItem;
+							}
+							unset($prepareItem);
+						}
+						if (!empty($prepareValues))
+						{
+							$result = $prepareValues;
+						}
+						unset($prepareValues);
+					}
+					else
+					{
+						$prepareValue = $this->convertPropertyValueToDb(
+							$userType['ConvertToDB'],
+							$row,
+							$values
+						);
+						if ($prepareValue)
+						{
+							$result = $prepareValue;
+						}
+						unset($prepareValue);
+					}
+				}
+				else
+				{
+					$result = $values;
+				}
+			}
+			unset($userType);
+		}
+		unset($row);
+
+		return $result;
+	}
+
+	private function convertPropertyValueToDb(callable $function, array $property, $value): mixed
+	{
+		$result = call_user_func_array(
+			$function,
+			[
+				$property,
+				[
+					'VALUE' => $value,
+				],
+			]
+		);
+
+		if (
+			is_array($result) && isset($result['VALUE']) && (string)$result['VALUE'] !== ''
+		)
+		{
+			return $result['VALUE'];
+		}
+
+		return null;
 	}
 
 	public function getSectionListItems(): array
@@ -181,8 +328,6 @@ class ElementFilterFields
 			],
 			[
 				'IBLOCK_ID' => $this->iblockId,
-				'ACTIVE' => 'Y',
-				'GLOBAL_ACTIVE' => 'Y',
 				'CHECK_PERMISSIONS' => 'Y',
 				'MIN_PERMISSION' => 'R',
 			],
@@ -207,12 +352,28 @@ class ElementFilterFields
 
 	public function isPropertyEnumField(string $fieldId): bool
 	{
-		return isset($this->listPropertyFieldIds[$fieldId]);
+		if (!$this->isPropertyId($fieldId))
+		{
+			return false;
+		}
+		if (!isset($this->propertyList[$fieldId]))
+		{
+			return false;
+		}
+		$row = $this->propertyList[$fieldId];
+
+		return
+			$row['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST
+			&& $row['USER_TYPE'] === ''
+		;
 	}
 
+	/*
+	 * @deprecated
+	 */
 	public function getPropertyEnumFieldListItems(string $fieldId): array
 	{
-		$propertyId = $this->listPropertyFieldIds[$fieldId] ?? null;
+		$propertyId =  $this->propertyList[$fieldId]['ID'] ?? null;
 		if ($propertyId)
 		{
 			return $this->getPropertyEnumValueListItems($propertyId);
@@ -249,5 +410,100 @@ class ElementFilterFields
 		unset($row, $iterator);
 
 		return $result;
+	}
+
+	private function getPropertyId(string|int $id): string
+	{
+		return self::PROPERTY_PREFIX . $id;
+	}
+
+	public function isPropertyId(string $id): bool
+	{
+		return (preg_match(self::PROPERTY_MASK, $id) === 1);
+	}
+
+	public function getPropertyDescription(string $id): ?array
+	{
+		if (!isset($this->propertyList[$id]))
+		{
+			return null;
+		}
+
+		$row = $this->propertyList[$id];
+
+		$description = null;
+		if ($row['USER_TYPE'] === '')
+		{
+			switch ($row['PROPERTY_TYPE'])
+			{
+				case PropertyTable::TYPE_LIST:
+					$description = [
+						'items' => $this->getPropertyEnumValueListItems($row['ID']),
+					];
+					if (count($description['items']) > 1)
+					{
+						$description['params'] = [
+							'multiple' => true,
+						];
+					}
+					break;
+			}
+		}
+		else
+		{
+			$userType = $this->userTypeList[$row['USER_TYPE']];
+			if (isset($userType['GetUIFilterProperty']) && is_callable($userType['GetUIFilterProperty']))
+			{
+				$description = [];
+				call_user_func_array(
+					$userType['GetUIFilterProperty'],
+					[
+						$row,
+						[],
+						&$description
+					]
+				);
+				if (empty($description) || !is_array($description))
+				{
+					$description = null;
+				}
+			}
+		}
+
+		return $description;
+	}
+
+	private function validateProperty(array $row): ?array
+	{
+		$row['ID'] = (int)$row['ID'];
+		$row['USER_TYPE'] = (string)$row['USER_TYPE'];
+		$row['USER_TYPE_SETTINGS'] = $row['USER_TYPE_SETTINGS_LIST'];
+		unset($row['USER_TYPE_SETTINGS_LIST']);
+		$row['FULL_PROPERTY_TYPE'] = $this->getFullPropertyType($row);
+		if ($row['USER_TYPE'] === '')
+		{
+			return $row;
+		}
+
+		if (!isset($this->userTypeList))
+		{
+			$this->userTypeList = \CIBlockProperty::GetUserType();
+		}
+		$userTypeId = $row['USER_TYPE'];
+		if (!isset($this->userTypeList[$userTypeId]))
+		{
+			return null;
+		}
+
+		return $row;
+	}
+
+	private function getFullPropertyType(array $row): string
+	{
+		return
+			$row['USER_TYPE'] === ''
+				? $row['PROPERTY_TYPE']
+				: $row['PROPERTY_TYPE'] . ':' . $row['USER_TYPE']
+		;
 	}
 }

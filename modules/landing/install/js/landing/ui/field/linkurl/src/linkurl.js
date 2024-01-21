@@ -1653,8 +1653,8 @@ export class LinkUrl extends Text
 			value = value.slice(value.indexOf(':') + 1);
 		}
 		const setRegs = [];
-		setRegs['phoneExtended'] = /(^[\d+][\d-]{4,14}\d$)|#crmPhone\d+/;
-		setRegs['phone'] = /^[\d+][\d-]{4,14}\d$/;
+		setRegs['phoneExtended'] = /(^[\d+][\d-\s]{3,25}\d$)|#crmPhone\d+/;
+		setRegs['phone'] = /^[\d+][\d-\s]{3,25}\d$/;
 		setRegs['mail'] = /^\S+@\S+[.]\S+$/i;
 		setRegs['skype'] = /^[a-z\d-.:]{6,32}$/i;
 		const type = this.hrefTypeSwithcer.getValue();

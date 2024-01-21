@@ -1,16 +1,17 @@
 .bx-im-mention-item__scope {
 	--im-mention-item__background-color_container: var(--im-color-palette-white-base);
-	--im-mention-item__background-color_hover-container: var(--ui-color-palette-gray-03, #f5f7f8);
+	--im-mention-item__background-color_hover-container: var(--ui-color-palette-gray-04, #f1f4f6);
 	--im-mention-item__color_name: var(--im-color-palette-black-base);
 	--im-mention-item__color_position: var(--im-color-palette-gray-60);
 	--im-mention-item__color_highlight: var(--im-color-palette-black-solid);
+	--im-mention-item__color_date: var(--im-color-palette-gray-40);
 	--im-mention-item__background-color_highlight: #faf16d;
 }
 
 .bx-im-mention-item__container {
 	display: flex;
 	gap: 12px;
-	height: 40px;
+	height: 44px;
 	border-radius: 6px;
 	transition: background .3s;
 	background-color: var(--im-mention-item__background-color_container);
@@ -20,12 +21,12 @@
 	padding: 4px;
 }
 
-.bx-im-mention-item__container:hover {
+.bx-im-mention-item__container.--selected {
 	background-color: var(--im-mention-item__background-color_hover-container);
 }
 
 .bx-im-mention-item__avatar-container {
-	padding: 11px 0 0 10px;
+	align-self: center;
 }
 
 .bx-im-mention-item__content-container {
@@ -34,10 +35,21 @@
 	justify-content: space-between;
 	min-width: 0;
 	flex: 1;
+	padding: 1px 0;
+}
+
+.bx-im-mention-item__content-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
+
+.bx-im-mention-item__title {
+	max-width: 262px;
 }
 
 .bx-im-mention-item__title .bx-im-chat-title__text {
-	--im-chat-title__font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	--im-chat-title__font: var(--im-font-size-md)/17px var(--im-font-family-system);
 }
 
 .bx-im-mention-item__position {
@@ -52,4 +64,11 @@
 .bx-im-mention-item__content-container .--highlight {
 	color: var(--im-mention-item__color_highlight);
 	background-color: var(--im-mention-item__background-color_highlight);
+}
+
+.bx-im-mention-item__date {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-mention-item__color_date);
+	text-transform: lowercase;
+	margin-right: 2px;
 }

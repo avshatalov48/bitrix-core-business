@@ -7,8 +7,14 @@
  */
 namespace Bitrix\Socialnetwork;
 
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM;
+use Bitrix\Main\SystemException;
+use Bitrix\Socialnetwork\Internals\Log\Log;
+use Bitrix\Socialnetwork\Internals\Log\LogCollection;
 use Bitrix\Socialnetwork\Item\LogIndex;
+use Exception;
 
 /**
  * Class LogTable
@@ -21,104 +27,110 @@ use Bitrix\Socialnetwork\Item\LogIndex;
  * @method static EO_Log_Result getById($id)
  * @method static EO_Log_Result getList(array $parameters = [])
  * @method static EO_Log_Entity getEntity()
- * @method static \Bitrix\Socialnetwork\EO_Log createObject($setDefaultValues = true)
- * @method static \Bitrix\Socialnetwork\EO_Log_Collection createCollection()
- * @method static \Bitrix\Socialnetwork\EO_Log wakeUpObject($row)
- * @method static \Bitrix\Socialnetwork\EO_Log_Collection wakeUpCollection($rows)
+ * @method static \Bitrix\Socialnetwork\Internals\Log\Log createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\Internals\Log\LogCollection createCollection()
+ * @method static \Bitrix\Socialnetwork\Internals\Log\Log wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\Internals\Log\LogCollection wakeUpCollection($rows)
  */
 class LogTable extends ORM\Data\DataManager
 {
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_sonet_log';
 	}
 
-	public static function getUfId()
+	public static function getUfId(): string
 	{
 		return 'SONET_LOG';
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
-		$fieldsMap = array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-			),
-			'ENTITY_TYPE' => array(
+			],
+			'ENTITY_TYPE' => [
 				'data_type' => 'string',
-			),
-			'ENTITY_ID' => array(
+			],
+			'ENTITY_ID' => [
 				'data_type' => 'integer',
-			),
-			'EVENT_ID' => array(
+			],
+			'EVENT_ID' => [
 				'data_type' => 'string',
-			),
-			'USER_ID' => array(
+			],
+			'USER_ID' => [
 				'data_type' => 'integer',
-			),
-			'USER' => array(
+			],
+			'USER' => [
 				'data_type' => 'Bitrix\Main\UserTable',
-				'reference' => array('=this.USER_ID' => 'ref.ID'),
-			),
-			'TITLE' => array(
+				'reference' => ['=this.USER_ID' => 'ref.ID'],
+			],
+			'TITLE' => [
 				'data_type' => 'string',
-			),
-			'MESSAGE' => array(
+			],
+			'MESSAGE' => [
 				'data_type' => 'text',
-			),
-			'TEXT_MESSAGE' => array(
+			],
+			'TEXT_MESSAGE' => [
 				'data_type' => 'text',
-			),
-			'URL' => array(
+			],
+			'URL' => [
 				'data_type' => 'string',
-			),
+			],
 			'MODULE_ID' => [
 				'data_type' => 'string',
 			],
-			'PARAMS' => array(
+			'PARAMS' => [
 				'data_type' => 'text',
-			),
-			'SOURCE_ID' => array(
+			],
+			'SOURCE_ID' => [
 				'data_type' => 'integer',
-			),
-			'LOG_DATE' => array(
+			],
+			'LOG_DATE' => [
 				'data_type' => 'datetime',
-			),
-			'LOG_UPDATE' => array(
+			],
+			'LOG_UPDATE' => [
 				'data_type' => 'datetime',
-			),
-			'COMMENTS_COUNT' => array(
+			],
+			'COMMENTS_COUNT' => [
 				'data_type' => 'integer',
-			),
-			'TRANSFORM' => array(
+			],
+			'TRANSFORM' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'INACTIVE' => array(
+				'values' => ['N', 'Y'],
+			],
+			'INACTIVE' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'RATING_TYPE_ID' => array(
+				'values' => ['N', 'Y'],
+			],
+			'RATING_TYPE_ID' => [
 				'data_type' => 'string',
-			),
-			'RATING_ENTITY_ID' => array(
+			],
+			'RATING_ENTITY_ID' => [
 				'data_type' => 'integer',
-			),
-		);
-
-		return $fieldsMap;
+			],
+		];
 	}
 
-	public static function setInactive($id, $status = true)
+	/**
+	 * @throws Exception
+	 */
+	public static function setInactive($id, $status = true): ORM\Data\UpdateResult
 	{
 		return self::update($id, array(
 			'INACTIVE' => ($status ? 'Y' : 'N')
 		));
 	}
 
-	public static function onDelete(ORM\Event $event)
+	/**
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 */
+	public static function onDelete(ORM\Event $event): ORM\EventResult
 	{
 		$result = new ORM\EventResult;
 		$primary = $event->getParameter('primary');
@@ -134,8 +146,9 @@ class LogTable extends ORM\Data\DataManager
 				[ '\Bitrix\Socialnetwork\LogTagTable', 'LOG_ID' ]
 			];
 
-			foreach($tabletList as list($tablet, $fieldName))
+			foreach($tabletList as [$tablet, $fieldName])
 			{
+				/** @var ORM\Data\DataManager $tablet */
 				$collection = $tablet::query()
 					->where($fieldName, $logId)
 					->fetchCollection();
@@ -150,7 +163,7 @@ class LogTable extends ORM\Data\DataManager
 		return $result;
 	}
 
-	public static function onAfterDelete(ORM\Event $event)
+	public static function onAfterDelete(ORM\Event $event): ORM\EventResult
 	{
 		$result = new ORM\EventResult;
 		$primary = $event->getParameter('primary');
@@ -165,5 +178,15 @@ class LogTable extends ORM\Data\DataManager
 		}
 
 		return $result;
+	}
+
+	public static function getObjectClass(): string
+	{
+		return Log::class;
+	}
+
+	public static function getCollectionClass(): string
+	{
+		return LogCollection::class;
 	}
 }

@@ -35,30 +35,39 @@ export const AttachRichItem = {
 		},
 		link(): string
 		{
-			return this.internalConfig.LINK;
+			return this.internalConfig.link;
 		},
 		name(): string
 		{
-			return Utils.text.convertHtmlEntities(this.internalConfig.NAME);
+			return Utils.text.convertHtmlEntities(this.internalConfig.name);
 		},
 		description(): string
 		{
-			return Utils.text.convertHtmlEntities(this.internalConfig.DESC);
+			return Utils.text.convertHtmlEntities(this.internalConfig.desc);
 		},
 		html(): string
 		{
-			return this.internalConfig.HTML;
+			return this.internalConfig.html;
 		},
 		preview(): string
 		{
-			return this.internalConfig.PREVIEW;
+			return this.internalConfig.preview;
+		},
+		previewSize(): {width: number, height: number}
+		{
+			return {
+				width: this.internalConfig.previewSize?.width ?? 0,
+				height: this.internalConfig.previewSize?.height ?? 0,
+			};
 		},
 		imageConfig(): AttachImageConfig
 		{
 			return {
-				IMAGE: [{
-					NAME: this.name,
-					PREVIEW: this.preview,
+				image: [{
+					name: this.name,
+					preview: this.preview,
+					width: this.previewSize.width,
+					height: this.previewSize.height,
 				}],
 			};
 		},
@@ -74,6 +83,18 @@ export const AttachRichItem = {
 		deleteRichLinkTitle(): string
 		{
 			return this.$Bitrix.Loc.getMessage('IM_ELEMENTS_ATTACH_RICH_LINK_DELETE');
+		},
+		imageStyles()
+		{
+			if (this.previewSize.width === 0 || this.previewSize.height === 0)
+			{
+				return {
+					width: '272px',
+					height: '272px',
+				};
+			}
+
+			return {};
 		},
 	},
 	methods:
@@ -109,7 +130,7 @@ export const AttachRichItem = {
 					:title="deleteRichLinkTitle"
 				></button>
 			</div>
-			<div v-if="preview" class="bx-im-attach-rich__image" @click="openLink">
+			<div v-if="preview" class="bx-im-attach-rich__image" @click="openLink" :style="imageStyles">
 				<AttachImage :config="imageConfig" :color="color" />
 			</div>
 		</div>

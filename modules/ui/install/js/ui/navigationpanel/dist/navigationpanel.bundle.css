@@ -18,8 +18,6 @@
 }
 
 .ui-nav-panel {
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
 	overflow: hidden;
 	margin-right: 10px;
@@ -30,27 +28,19 @@
 }
 
 .ui-nav-panel__item {
-	display: -webkit-inline-box;
-	display: -ms-inline-flexbox;
 	display: inline-flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 	position: relative;
 	margin: 0 13px;
 	min-height: 33px;
 	color: var(--color_text);
 	white-space: nowrap;
-	-webkit-transition: .3s;
-	-o-transition: .3s;
 	transition: .3s;
 	cursor: pointer;
 }
 
 .ui-nav-panel__item:hover {
 	color: var(--color_text-hover);
-	-webkit-transition: .1s;
-	-o-transition: .1s;
 	transition: .1s;
 }
 

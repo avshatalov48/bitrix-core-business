@@ -140,7 +140,7 @@ class EntityChat extends GroupChat
 						'CHAT_AUTHOR_ID' => $chat->getAuthorId(),
 						'CHAT_ENTITY_TYPE' => $chat->getEntityType(),
 						'CHAT_ENTITY_ID' => $chat->getEntityId(),
-						'ACCESS_HISTORY' => true,
+						'ACCESS_HISTORY' => $params['ACCESS_HISTORY'] ?? true,
 					]);
 				}
 			}

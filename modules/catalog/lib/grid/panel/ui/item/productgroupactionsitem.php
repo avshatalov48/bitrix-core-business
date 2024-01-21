@@ -14,9 +14,9 @@ use Bitrix\Iblock\Grid\Panel\UI\Actions\Item\ElementGroupActionsItem;
  */
 class ProductGroupActionsItem extends ElementGroupActionsItem
 {
-	public function __construct(int $iblockId, ProductRightsChecker $rights)
+	public function __construct(int $iblockId, ProductRightsChecker $rights, string $listMode)
 	{
-		parent::__construct($iblockId, $rights);
+		parent::__construct($iblockId, $rights, $listMode);
 	}
 
 	protected function prepareChildItems(): array
@@ -25,9 +25,9 @@ class ProductGroupActionsItem extends ElementGroupActionsItem
 
 		if ($this->rights->canEditElements())
 		{
-			$result[] = new ConvertToServiceGroupChild($this->iblockId, $this->rights);
-			$result[] = new ConvertToProductGroupChild($this->iblockId, $this->rights);
-			$result[] = new SetParametersGroupChild($this->iblockId, $this->rights);
+			$result[] = new ConvertToServiceGroupChild($this->iblockId, $this->rights, $this->listMode);
+			$result[] = new ConvertToProductGroupChild($this->iblockId, $this->rights, $this->listMode);
+			$result[] = new SetParametersGroupChild($this->iblockId, $this->rights, $this->listMode);
 		}
 
 		if ($this->rights->canEditPrices())

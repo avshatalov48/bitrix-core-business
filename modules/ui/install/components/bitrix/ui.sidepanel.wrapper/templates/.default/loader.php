@@ -10,6 +10,8 @@ use Bitrix\Main\UI\Extension;
 
 \CJSCore::Init(['sidepanel']);
 $this->addExternalCss($this->GetFolder() . '/loader.css');
+$urlToRedirect = array_key_exists('~PAGE_MODE_OFF_BACK_URL', $arParams) && $arParams['~PAGE_MODE_OFF_BACK_URL'] === null
+	? null : $arParams['PAGE_MODE_OFF_BACK_URL'];
 ?>
 
 <div class="ui-sidepanel-wrapper-loader-container">
@@ -25,7 +27,7 @@ $this->addExternalCss($this->GetFolder() . '/loader.css');
 		var rule = BX.SidePanel.Instance.getUrlRule(link);
 		var options = (rule && BX.type.isPlainObject(rule.options)) ? rule.options : {};
 		BX.SidePanel.Instance.open(link, options);
-
+<?php if ($urlToRedirect !== null): ?>
 		BX.addCustomEvent(
 			BX.SidePanel.Instance.getTopSlider(),
 			"SidePanel.Slider:onClose",
@@ -35,9 +37,10 @@ $this->addExternalCss($this->GetFolder() . '/loader.css');
 				{
 					loader.style.display = '';
 				}
-				window.location.href = '<?=CUtil::JSEscape(htmlspecialcharsbx($arParams['PAGE_MODE_OFF_BACK_URL']))?>';
+				window.location.href = '<?=CUtil::JSEscape(htmlspecialcharsbx($urlToRedirect))?>';
 			}
 		);
+<?php endif;?>
 		BX.addCustomEvent(
 			BX.SidePanel.Instance.getTopSlider(),
 			"SidePanel.Slider:onLoad",

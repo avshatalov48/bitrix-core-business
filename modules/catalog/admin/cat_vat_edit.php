@@ -314,7 +314,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr>
-		<td style="width: 40%;"><?= Loc::getMessage("CVAT_EDIT_FORM_FIELD_XML_ID") ?></td>
+		<td style="width: 40%;"><?= Loc::getMessage("CVAT_EDIT_FORM_FIELD_XML_ID_MSGVER_1") ?></td>
 		<td style="width: 60%;">
 			<input type="text" name="XML_ID" maxlength="255" value="<?= htmlspecialcharsbx($fields['XML_ID']); ?>" size="50" <?=($bReadOnly) ? " disabled" : ""?>>
 		</td>

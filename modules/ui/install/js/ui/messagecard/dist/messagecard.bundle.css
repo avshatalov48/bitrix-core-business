@@ -19,18 +19,12 @@
 	bottom: -10px;
 	right: 58px;
 	z-index: 1;
-	-webkit-transform: rotate(45deg);
-	-ms-transform: rotate(45deg);
 	transform: rotate(45deg);
 }
 
 .ui-card-message .ui-card-header {
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	align-items: center;
 	margin-bottom: 8px;
 }
 
@@ -63,8 +57,6 @@
 	height: 20px;
 	width: 20px;
 	opacity: .3;
-	-webkit-transition: 250ms all ease;
-	-o-transition: 250ms all ease;
 	transition: 250ms all ease;
 }
 
@@ -82,11 +74,7 @@
 	left: 50%;
 	width: 10px;
 	height: 2px;
-	-webkit-transform: rotate(45deg) translate(-50%, -50%);
-	-ms-transform: rotate(45deg) translate(-50%, -50%);
 	transform: rotate(45deg) translate(-50%, -50%);
-	-webkit-transform-origin: 0 0;
-	-ms-transform-origin: 0 0;
 	transform-origin: 0 0;
 }
 

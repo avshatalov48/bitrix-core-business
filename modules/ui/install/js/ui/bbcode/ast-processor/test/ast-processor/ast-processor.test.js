@@ -121,4 +121,19 @@ describe('ui.bbcode.ast-processor', () => {
 		const ordinaryCodeNodes = AstProcessor.findElements(ast, 'ElementNode[name="code" void="false"]');
 		assert.ok(ordinaryCodeNodes.length === 1);
 	});
+
+	it.only('should works', () => {
+		const bbcode = stripIndent(`
+			[p]
+				Hello
+				[b]bold[/b]
+				test
+			[/p]
+		`);
+
+		const parser = new Parser();
+		const ast = parser.parse(bbcode);
+
+		AstProcessor.splitByIndex(ast, 7);
+	});
 });

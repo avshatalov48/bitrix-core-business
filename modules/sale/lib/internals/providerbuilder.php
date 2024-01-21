@@ -52,7 +52,7 @@ class ProviderBuilder extends ProviderBuilderBase
 			'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
 			'BUNDLE_CHILD' => $basketItem->isBundleChild(),
 			'SHIPMENT_ITEM_DATA' => [
-				$shipmentItem->getInternalIndex() => $shipmentItem->getQuantity()
+				$shipmentItem->getInternalIndex() => $shipmentItem->getQuantity(),
 			],
 			'SHIPMENT_ITEM' => $shipmentItem,
 		];
@@ -63,6 +63,7 @@ class ProviderBuilder extends ProviderBuilderBase
 
 			$reservedQuantity = 0;
 			$needReserveByStore = [];
+
 			if ($storeData)
 			{
 				foreach ($storeData as $item)
@@ -74,11 +75,11 @@ class ProviderBuilder extends ProviderBuilderBase
 			}
 
 			$fields['STORE_DATA'] = array(
-				$shipmentItem->getInternalIndex() => $storeData
+				$shipmentItem->getInternalIndex() => $storeData,
 			);
 
 			$fields['NEED_RESERVE_BY_STORE'] = [
-				$shipmentItem->getInternalIndex() => $needReserveByStore
+				$shipmentItem->getInternalIndex() => $needReserveByStore,
 			];
 		}
 		else
@@ -88,7 +89,7 @@ class ProviderBuilder extends ProviderBuilderBase
 
 		$fields['RESERVED_QUANTITY'] = $reservedQuantity;
 		$fields['NEED_RESERVE'] = [
-			$shipmentItem->getInternalIndex() => $reservedQuantity > 0
+			$shipmentItem->getInternalIndex() => $reservedQuantity > 0,
 		];
 
 		$this->addItem($productId, $fields);
@@ -137,7 +138,7 @@ class ProviderBuilder extends ProviderBuilderBase
 				if (!empty($storeData))
 				{
 					$fields['STORE_DATA'] = [
-						$shipmentItem->getInternalIndex() => $storeData
+						$shipmentItem->getInternalIndex() => $storeData,
 					];
 				}
 			}

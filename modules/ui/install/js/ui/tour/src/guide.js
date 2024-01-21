@@ -5,7 +5,6 @@ import { Popup, PopupWindowButton } from 'main.popup';
 import 'ui.design-tokens';
 import GuideConditionColor from './guide-condition-color';
 import { Step } from './step.js';
-import './style.css';
 
 export class Guide extends Event.EventEmitter
 {
@@ -42,6 +41,7 @@ export class Guide extends Event.EventEmitter
 			title: null,
 			text: null,
 			link: null,
+			closeIcon: { right : '0', top : '0' },
 			btnContainer: null,
 			nextBtn: null,
 			backBtn: null,

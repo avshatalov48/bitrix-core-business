@@ -1,4 +1,4 @@
-<?
+<?php
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/pull/classes/general/pull_watch.php");
 
 class CPullWatch extends CAllPullWatch
@@ -9,7 +9,9 @@ class CPullWatch extends CAllPullWatch
 		global $DB, $pPERIOD;
 		$pPERIOD = 1200;
 
-		$strSql = "DELETE FROM b_pull_watch WHERE DATE_CREATE < DATE_SUB(NOW(), INTERVAL 32 MINUTE) LIMIT 1000";
+		$connection = \Bitrix\Main\Application::getConnection();
+
+		$strSql = "DELETE FROM b_pull_watch WHERE DATE_CREATE < " . $connection->getSqlHelper()->addSecondsToDateTime(-32 * 60);
 		$result = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		if (
@@ -21,7 +23,6 @@ class CPullWatch extends CAllPullWatch
 			$pPERIOD = 180;
 		}
 
-		return "CPullWatch::CheckExpireAgent();";
+		return __METHOD__ . '();';
 	}
 }
-?>

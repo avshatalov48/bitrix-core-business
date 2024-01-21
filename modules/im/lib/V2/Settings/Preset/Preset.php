@@ -229,9 +229,9 @@ class Preset implements RestConvertible
 		if (!empty($presetValue))
 		{
 			$this->id = $id;
-			$this->name = $presetValue['name'];
+			$this->name = $presetValue['name'] ?? null;
 			$this->sort = $presetValue['sort'];
-			$this->personalUserId = $presetValue['userId'];
+			$this->personalUserId = $presetValue['userId'] ?? null;
 			$this->notify->load($presetValue['notify'] ?? []);
 			$this->general->load($presetValue['general'] ?? []);
 

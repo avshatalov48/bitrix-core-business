@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Catalog\Restriction\ToolAvailabilityManager;
 use Bitrix\Main\Loader;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
@@ -18,6 +19,7 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 	private const URL_TEMPLATE_CONTRACTORS_LIST = 'contractors';
 	private const URL_TEMPLATE_CONTRACTORS_CONTACTS = 'contractors_contacts';
 	private const URL_TEMPLATE_DOCUMENT_SHIPMENT = 'sales_order';
+	private const URL_TEMPLATE_UF = 'uf';
 	private const URL_TEMPLATE_ERROR = 'error';
 
 	private $isIframe = false;
@@ -39,6 +41,14 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 		if (!Loader::includeModule('catalog'))
 		{
 			ShowError(\Bitrix\Main\Localization\Loc::getMessage('CATALOG_STORE_DOCUMENT_CONTROLLER_MODULE_CATALOG_NOT_INSTALLED'));
+		}
+
+		$availabilityManager = ToolAvailabilityManager::getInstance();
+		if (!$availabilityManager->checkInventoryManagementAvailability())
+		{
+			$this->includeComponentTemplate('tool_disabled');
+
+			return;
 		}
 
 		$this->initConfig();
@@ -96,6 +106,7 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 			self::URL_TEMPLATE_CONTRACTORS_LIST => 'contractors/',
 			self::URL_TEMPLATE_CONTRACTORS_CONTACTS => 'contractors_contacts/',
 			self::URL_TEMPLATE_DOCUMENT_SHIPMENT => 'details/sales_order/#DOCUMENT_ID#/',
+			self::URL_TEMPLATE_UF => 'user-fields/',
 		];
 	}
 

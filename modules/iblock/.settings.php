@@ -29,6 +29,27 @@ return [
 						'className' => '\Bitrix\Iblock\Integration\UI\EntitySelector\SectionUserFieldProvider',
 					],
 				],
+				[
+					'entityId' => 'iblock-property-element',
+					'provider' => [
+						'moduleId' => 'iblock',
+						'className' => '\Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertyElementProvider',
+					],
+				],
+				[
+					'entityId' => 'iblock-property-element-xml',
+					'provider' => [
+						'moduleId' => 'iblock',
+						'className' => '\Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertyElementXmlProvider',
+					],
+				],
+				[
+					'entityId' => 'iblock-property-section',
+					'provider' => [
+						'moduleId' => 'iblock',
+						'className' => '\Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertySectionProvider',
+					],
+				],
 			],
 		],
 		'readonly' => true,

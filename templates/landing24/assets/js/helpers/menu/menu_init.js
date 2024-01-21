@@ -255,6 +255,17 @@
 	}
 
 	/**
+	 * @param node Node - LI node
+	 */
+	function addOpen(node)
+	{
+		if (node)
+		{
+			node.classList.add('open');
+		}
+	}
+
+	/**
 	 * Remove all .active and sr-only
 	 * @param selector
 	 */
@@ -282,6 +293,18 @@
 	{
 		node.classList.remove('active');
 		BX.remove(node.querySelector('span.sr-only'));
+	}
+
+	/**
+	 * Remove once .open
+	 * @param node Node - LI node
+	 */
+	function removeOpen(node)
+	{
+		if (node)
+		{
+			node.classList.remove('open');
+		}
 	}
 
 	function addMultilevelToggler(menuMultilevel)
@@ -354,6 +377,7 @@
 		{
 			BX.addClass(subMenu, 'g-menu-sublevel--hide');
 		}
+		removeOpen(parentNavLink.parentElement);
 	}
 
 	function showLevel(parentNavLink)
@@ -364,5 +388,6 @@
 		{
 			BX.removeClass(subMenu, 'g-menu-sublevel--hide');
 		}
+		addOpen(parentNavLink.parentElement);
 	}
 })(window.jQueryLanding || jQuery);

@@ -1,11 +1,13 @@
 import { Tag, Loc, Event, Dom } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import 'ui.icons.b24';
+import { Member, MembersList } from './layout/members-list';
 
 type WelcomeOptions = {
 	owner: any,
 	link: any,
 	currentLang: string,
+	members: Member[],
 }
 
 export default class Welcome
@@ -17,6 +19,7 @@ export default class Welcome
 	#lastName;
 	#photo;
 	#layout;
+	#members;
 
 	constructor(options: WelcomeOptions)
 	{
@@ -31,6 +34,7 @@ export default class Welcome
 			button: null,
 			label: null,
 		};
+		this.#members = options.members;
 
 		if (
 			this.#link
@@ -89,8 +93,8 @@ export default class Welcome
 				linkHash: this.#link.hash,
 				entityId: this.#link.entityId,
 				entityType: this.#link.type,
-				notifyType: mode
-			}
+				notifyType: mode,
+			},
 		});
 	}
 
@@ -104,7 +108,7 @@ export default class Welcome
 				</div>
 			`;
 
-			Event.bind(this.#layout.button, 'click', ()=> {
+			Event.bind(this.#layout.button, 'click', () => {
 				this.handleWelcomePageButtonClick();
 			});
 
@@ -144,13 +148,14 @@ export default class Welcome
 				<div class="calendar-pub-ui__typography-title calendar-pub__welcome-info_title"></div>
 			`;
 			this.#layout.infoSubTitle = Tag.render`
-				<div class="calendar-pub-ui__typography-s"></div>
+				<div class="calendar-pub-ui__typography-s calendar-pub__welcome-info_subtitle"></div>
 			`;
 
 			this.#layout.info = Tag.render`
 				<div class="calendar-pub__welcome-info">
-					<div class="calendar-pub-ui__typography-title calendar-pub__welcome-info_title">${this.#layout.infoTitle}</div>
-					<div class="calendar-pub-ui__typography-s">${this.#layout.infoSubTitle}</div>
+					${this.#layout.infoTitle}
+					${this.#layout.infoSubTitle}
+					${this.#renderAvatarsSection(this.#members)}
 				</div>
 			`;
 		}
@@ -169,6 +174,16 @@ export default class Welcome
 		return this.#layout.info;
 	}
 
+	#renderAvatarsSection(members)
+	{
+		return new MembersList({
+			className: 'calendar-pub-welcome-avatar-section-container',
+			textClassName: 'calendar-pub-ui__typography-xs-uppercase',
+			avatarSize: 36,
+			members,
+		}).render();
+	}
+
 	render()
 	{
 		return Tag.render`
@@ -180,7 +195,7 @@ export default class Welcome
 							<i ${this.#photo ? `style="background-image: url(${encodeURI(this.#photo)})"` : ''}></i>
 						</div>
 						<div class="calendar-pub-ui__typography-m">
-							${this.#name ? this.#name : ''} ${this.#lastName ? this.#lastName : ''} 
+							${this.#name || ''} ${this.#lastName || ''} 
 						</div>
 					</div>
 					<div class="calendar-pub__block-separator"></div>

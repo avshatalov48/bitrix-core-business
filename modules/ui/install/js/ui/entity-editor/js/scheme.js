@@ -250,6 +250,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		{
 			this._originalTitle = this._title;
 		},
+		getOptions: function()
+		{
+			return this._options;
+		},
 		getOptionFlags: function()
 		{
 			return this._optionFlags;

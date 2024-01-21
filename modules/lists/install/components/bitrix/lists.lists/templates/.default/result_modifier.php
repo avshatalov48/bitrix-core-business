@@ -1,5 +1,9 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 $defaultImg = "<img src=\"/bitrix/images/lists/nopic_list_150.png\" width=\"36\" height=\"30\" border=\"0\" alt=\"\" />";
 if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
@@ -15,11 +19,12 @@ foreach($arResult["ITEMS"] as $key => $item)
 		{
 			$imageFile = CFile::ResizeImageGet(
 				$imageFile,
-				array("width" => 36, "height" => 30),
+				["width" => 36, "height" => 30],
 				BX_RESIZE_IMAGE_PROPORTIONAL,
 				false
 			);
-			$arResult["ITEMS"][$key]["IMAGE"] = CFile::ShowImage($imageFile['src'], 36, 30, 'border=0');
+			$imageScr = \Bitrix\Main\Web\Uri::urnEncode($imageFile['src']);
+			$arResult["ITEMS"][$key]["IMAGE"] = "<img src=\"{$imageScr}\" border=\"0\">";
 		}
 	}
 	if(!isset($arResult["ITEMS"][$key]["IMAGE"]))

@@ -1,5 +1,5 @@
 import { Type } from 'main.core';
-import { UI } from 'ui.notification';
+import 'ui.notification';
 import BaseProvider from './base';
 import Notification from '../notification/notification';
 import NotificationAction from '../notification/notification-action';
@@ -34,7 +34,7 @@ export default class BrowserPageProvider extends BaseProvider
 		this.postMessageToBroadcast(BrowserPageProvider.MESSAGE_TYPE.closeAllNotifications);
 	}
 
-	convertNotificationToNative(notification: Notification): UI.Notification.BalloonOptions
+	convertNotificationToNative(notification: Notification): BX.UI.Notification.BalloonOptions
 	{
 		if (!Type.isStringFilled(notification.getId()))
 		{
@@ -57,7 +57,7 @@ export default class BrowserPageProvider extends BaseProvider
 			this.notificationAction(notification.getUid(), NotificationAction.BUTTON_1, userInput);
 		};
 
-		const balloonOptions: UI.Notification.BalloonOptions = {
+		const balloonOptions: BX.UI.Notification.BalloonOptions = {
 			id: notification.getUid(),
 			category: notification.getCategory(),
 			type: BrowserNotification,
@@ -167,19 +167,19 @@ export default class BrowserPageProvider extends BaseProvider
 
 	findBalloonById(id: string): UI.Notification.Balloon
 	{
-		const balloonsKeys = Object.keys(UI.Notification.Center.balloons);
+		const balloonsKeys = Object.keys(BX.UI.Notification.Center.balloons);
 		for (const uid of balloonsKeys)
 		{
 			if (uid.startsWith(id))
 			{
-				return UI.Notification.Center.balloons[uid];
+				return BX.UI.Notification.Center.balloons[uid];
 			}
 		}
 
 		return null;
 	}
 
-	closeNotification(balloon: UI.Notification.Balloon): void
+	closeNotification(balloon: BX.UI.Notification.Balloon): void
 	{
 		this.notificationClose(balloon.id, NotificationCloseReason.CLOSED_BY_USER);
 		balloon.close();
@@ -187,12 +187,12 @@ export default class BrowserPageProvider extends BaseProvider
 
 	closeAllNotifications(): void
 	{
-		UI.Notification.Center.getDefaultStack()?.clear();
+		BX.UI.Notification.Center.getDefaultStack()?.clear();
 	}
 
-	sendNotification(notification: UI.Notification.BalloonOptions): void
+	sendNotification(notification: BX.UI.Notification.BalloonOptions): void
 	{
-		UI.Notification.Center.notify(notification);
+		BX.UI.Notification.Center.notify(notification);
 	}
 
 	onNotificationAction(event, balloon, action): void

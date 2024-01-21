@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -13,8 +13,8 @@ Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/install/co
 return (
 	(\Bitrix\Main\Config\Option::get("socialnetwork", "allow_tooltip", "Y") == "Y")
 		? array(
-			"js" => "/bitrix/js/ui/tooltip/tooltip.js",
-			"css" => "/bitrix/js/ui/tooltip/tooltip.css",
+			"js" => "dist/tooltip.bundle.js",
+			"css" => "dist/tooltip.bundle.css",
 			"lang_additional" => array(
 				'MAIN_UL_TOOLBAR_MESSAGES_CHAT' => Loc::getMessage('MAIN_UL_TOOLBAR_MESSAGES_CHAT'),
 				'MAIN_UL_TOOLBAR_VIDEO_CALL' => Loc::getMessage('MAIN_UL_TOOLBAR_VIDEO_CALL'),

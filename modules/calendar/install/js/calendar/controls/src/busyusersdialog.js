@@ -1,5 +1,7 @@
-import {Dom, Loc} from 'main.core';
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import { Loc, Text } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { MessageBox } from 'ui.dialogs.messagebox';
+import { Button, ButtonSize, ButtonColor } from 'ui.buttons';
 
 export class BusyUsersDialog extends EventEmitter
 {
@@ -16,66 +18,65 @@ export class BusyUsersDialog extends EventEmitter
 	{
 		this.plural = params.users.length > 1;
 
-		let i, userNames = [];
-		for (i = 0; i < params.users.length; i++)
-		{
-			userNames.push(params.users[i].DISPLAY_NAME);
-		}
-		userNames = userNames.join(', ');
-
-		let content = BX.create('DIV', {
-			props: {className: 'calendar-busy-users-content-wrap'},
-			html: '<div class="calendar-busy-users-content">'
-				+ BX.util.htmlspecialchars(this.plural ?
-					Loc.getMessage('EC_BUSY_USERS_PLURAL').replace('#USER_LIST#', userNames)
-					:
-					Loc.getMessage('EC_BUSY_USERS_SINGLE').replace('#USER_NAME#', params.users[0].DISPLAY_NAME))
-				+ '</div>'
+		const userNames = [];
+		params.users.forEach((user) => {
+			userNames.push(user.DISPLAY_NAME);
 		});
 
-		this.dialog = new BX.PopupWindow(this.id, null, {
-			overlay: {opacity: 10},
-			autoHide: true,
-			closeByEsc : true,
-			zIndex: this.zIndex,
-			offsetLeft: 0,
-			offsetTop: 0,
-			draggable: true,
-			bindOnResize: false,
-			titleBar: Loc.getMessage('EC_BUSY_USERS_TITLE'),
-			closeIcon: { right : "12px", top : "10px"},
-			className: 'bxc-popup-window',
-			// buttons: [
-			// 	new BX.PopupWindowButtonLink({
-			// 		text: Loc.getMessage('EC_BUSY_USERS_CLOSE'),
-			// 		className: "popup-window-button-link-cancel",
-			// 		events: {click : () => {
-			// 			// if (this.calendar.editSlider)
-			// 			// 	this.calendar.editSlider.close();
-			//
-			// 			this.close();
-			// 		}
-			// 		}
-			// 	})
-			// ],
-			content: content,
-			events: {}
+		const userNamesPrepared = userNames.join(', ');
+
+		const message = this.plural
+			? Loc.getMessage('EC_BUSY_USERS_PLURAL').replace('#USER_LIST#', userNamesPrepared)
+			: Loc.getMessage('EC_BUSY_USERS_SINGLE').replace('#USER_NAME#', params.users[0].DISPLAY_NAME)
+		;
+
+		this.dialog = new MessageBox({
+			title: Loc.getMessage('EC_BUSY_USERS_TITLE'),
+			message: Text.encode(message),
+			buttons: this.getButtons(),
+			popupOptions: {
+				autoHide: true,
+				closeByEsc: true,
+				draggable: false,
+				closeIcon: true,
+				maxWidth: 700,
+				minHeight: 150,
+				animation: 'fading-slide',
+			},
 		});
-
-		content.appendChild(new BX.PopupWindowButton({
-			text: Loc.getMessage('EC_BUSY_USERS_BACK2EDIT'),
-			events: {click : () => {this.close();}}
-		}).buttonNode);
-
-		content.appendChild(new BX.PopupWindowButton({
-			text: this.plural ? Loc.getMessage('EC_BUSY_USERS_EXCLUDE_PLURAL') : Loc.getMessage('EC_BUSY_USERS_EXCLUDE_SINGLE'),
-			events: {click : () => {
-				this.emit('onSaveWithout');
-				this.close();
-			}}
-		}).buttonNode);
 
 		this.dialog.show();
+	}
+
+	getButtons()
+	{
+		return [
+			new Button({
+				size: ButtonSize.SMALL,
+				color: ButtonColor.PRIMARY,
+				text: Loc.getMessage('EC_BUSY_USERS_BACK2EDIT'),
+				events: {
+					click: () => {
+						this.emit('onContinueEditing');
+						this.close();
+					},
+				},
+			}),
+			new Button({
+				size: ButtonSize.SMALL,
+				color: ButtonColor.LIGHT_BORDER,
+				text: this.plural
+					? Loc.getMessage('EC_BUSY_USERS_EXCLUDE_PLURAL')
+					: Loc.getMessage('EC_BUSY_USERS_EXCLUDE_SINGLE')
+				,
+				events: {
+					click : () => {
+						this.emit('onSaveWithout');
+						this.close();
+					},
+				},
+			}),
+		];
 	}
 
 	close()
@@ -84,5 +85,15 @@ export class BusyUsersDialog extends EventEmitter
 		{
 			this.dialog.close();
 		}
+	}
+
+	isShown()
+	{
+		if (this.dialog)
+		{
+			return this.dialog.getPopupWindow().isShown();
+		}
+
+		return false;
 	}
 }

@@ -1,9 +1,9 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2023 Bitrix
  */
 
 /**
@@ -74,6 +74,7 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["module"]) 
 			$arrayId = preg_replace("#[^a-z0-9.,_-]#i", "", $_POST["array_id"]);
 			$moduleId = preg_replace("#[^a-z0-9.,_-]#i", "", $_POST["module"]);
 			$cMpModulesResult = COption::GetOptionString("main", "last_mp_modules_result", "");
+			$arModulesResult = [];
 			if ($cMpModulesResult <> '')
 			{
 				$arModulesResult = unserialize($cMpModulesResult, ['allowed_classes' => false]);
@@ -81,12 +82,12 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["module"]) 
 				{
 					if (trim(mb_strtoupper($key)) == trim(mb_strtoupper($moduleId)))
 					{
-						unset ($arModulesResult[$arrayId][$key]);
+						unset($arModulesResult[$arrayId][$key]);
 					}
 				}
 			}
 			COption::SetOptionString("main", "last_mp_modules_result", serialize($arModulesResult));
-			die();
+			CMain::FinalActions();
 		}
 	}
 }
@@ -162,7 +163,7 @@ foreach($folders as $folder)
 							{
 								if(CModule::IncludeModuleEx($info->MODULE_ID) != MODULE_DEMO_EXPIRED)
 								{
-									$arModules[$dir]["DEMO_DATE"] = ConvertTimeStamp($GLOBALS["SiteExpireDate_".str_replace(".", "_", $info->MODULE_ID)], "SHORT");
+									$arModules[$dir]["DEMO_DATE"] = ConvertTimeStamp($GLOBALS["SiteExpireDate_".str_replace(".", "_", $info->MODULE_ID)]);
 								}
 								else
 									$arModules[$dir]["DEMO_END"] = "Y";
@@ -346,23 +347,25 @@ while($info = $rsData->Fetch())
 {
 	$row =& $lAdmin->AddRow($info["MODULE_ID"], $info);
 
-	if(in_array(LANGUAGE_ID, ["ru"]))
+	if(LANGUAGE_ID == "ru")
 		$name = "<b><a href=\"https://marketplace.1c-bitrix.ru/".htmlspecialcharsbx($info["MODULE_ID"])."\" target=\"_blank\">".htmlspecialcharsbx($info["MODULE_NAME"])."</a></b> (".htmlspecialcharsbx($info["MODULE_ID"]).")";
-	elseif(in_array(LANGUAGE_ID, ["ua"]))
+	elseif(LANGUAGE_ID == "ua")
 		$name = "<b><a href=\"https://marketplace.bitrix.ua/".htmlspecialcharsbx($info["MODULE_ID"])."\" target=\"_blank\">".htmlspecialcharsbx($info["MODULE_NAME"])."</a></b> (".htmlspecialcharsbx($info["MODULE_ID"]).")";
 	else
 		$name = "<b>".htmlspecialcharsbx($info["MODULE_NAME"])."</b> (".htmlspecialcharsbx($info["MODULE_ID"]).")";
 
-	if($info["DEMO"] == "Y")
+	if(isset($info["DEMO"]) && $info["DEMO"] == "Y")
+	{
 		$name .= " <span style=\"color:red;\">".GetMessage("MOD_DEMO")."</span>";
+	}
 	$name .= "<br />".htmlspecialcharsbx($info["MODULE_DESCRIPTION"]);
 	$row->AddViewField("NAME", $name);
-	$row->AddViewField("PARTNER", (($info["MODULE_PARTNER"] <> '') ? " ".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME"))."" : "&nbsp;"));
+	$row->AddViewField("PARTNER", (($info["MODULE_PARTNER"] <> '') ? " ".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME")) : "&nbsp;"));
 	$row->AddViewField("VERSION", $info["MODULE_VERSION"]);
 	$row->AddViewField("DATE_UPDATE", CDatabase::FormatDate($info["MODULE_VERSION_DATE"], "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT")));
-	if($modules[$info["MODULE_ID"]]["FREE_MODULE"] != "Y")
+	if(isset($modules[$info["MODULE_ID"]]) && $modules[$info["MODULE_ID"]]["FREE_MODULE"] != "Y")
 	{
-		if($info["DEMO"] == "Y")
+		if(isset($info["DEMO"]) && $info["DEMO"] == "Y")
 		{
 			if($linkToBuy)
 			{
@@ -389,7 +392,9 @@ while($info = $rsData->Fetch())
 					$row->AddViewField("DATE_TO", "<span style=\"color:red;\">".$modules[$info["MODULE_ID"]]["DATE_TO"]."</span>");
 			}
 			else
+			{
 				$row->AddViewField("DATE_TO", $modules[$info["MODULE_ID"]]["DATE_TO"]);
+			}
 		}
 	}
 	$status = "";

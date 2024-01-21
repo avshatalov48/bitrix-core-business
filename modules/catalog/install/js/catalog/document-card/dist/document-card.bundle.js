@@ -1,6 +1,7 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,catalog_entityCard,main_core_events,currency_currencyCore,ui_entitySelector,main_popup,catalog_storeUse,ui_feedback_form,main_core) {
+(function (exports,catalog_entityCard,ui_buttons,main_core_events,currency_currencyCore,ui_entitySelector,main_popup,catalog_storeUse,ui_feedback_form,main_core) {
 	'use strict';
 
 	var ProductListController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
@@ -749,6 +750,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return FieldsFactory;
 	}();
 
+	var _templateObject$1, _templateObject2$1, _templateObject3$1;
 	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
 	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
@@ -771,6 +773,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    _this.inventoryManagementFeatureCode = settings.inventoryManagementFeatureCode;
 	    _this.editorName = settings.includeCrmEntityEditor ? 'BX.Crm.EntityEditor' : 'BX.UI.EntityEditor';
 	    _this.inventoryManagementSource = settings.inventoryManagementSource;
+	    _this.lockedCancellation = settings.lockedCancellation || false;
 	    _this.activeTabId = 'main';
 	    _this.isTabAnalyticsSent = false;
 	    _this.setSliderText();
@@ -783,7 +786,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	    // setting this to true so that we can decide
 	    // whether to close the slider or not on the fly on backend (closeOnSave=Y)
-	    BX.UI.SidePanel.Wrapper.setParam("closeAfterSave", true);
+	    BX.UI.SidePanel.Wrapper.setParam('closeAfterSave', true);
 	    _this.showNotificationOnClose = false;
 	    return _this;
 	  }
@@ -799,7 +802,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var menuItems = [];
 	      documentTypeSelectorTypes.forEach(function (type) {
 	        menuItems.push({
-	          text: main_core.Loc.getMessage('DOC_TYPE_SHORT_' + type),
+	          text: main_core.Loc.getMessage("DOC_TYPE_SHORT_".concat(type)),
 	          onclick: function onclick(e) {
 	            var slider = BX.SidePanel.Instance.getTopSlider();
 	            if (slider) {
@@ -815,9 +818,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	              if (type === 'A' || type === 'S') {
 	                slider.requestMethod = 'post';
 	                slider.requestParams = {
-	                  'preloadedFields': {
-	                    'DOCUMENT_FIELDS': _this2.getDocumentFieldsForTypeSwitching(),
-	                    'PRODUCTS': _this2.getProductsForTypeSwitching()
+	                  preloadedFields: {
+	                    DOCUMENT_FIELDS: _this2.getDocumentFieldsForTypeSwitching(),
+	                    PRODUCTS: _this2.getProductsForTypeSwitching()
 	                  }
 	                };
 	              }
@@ -862,7 +865,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        return products;
 	      }
 	      var productFields = ['ID', 'STORE_TO', {
-	        'ELEMENT_ID': 'SKU_ID'
+	        ELEMENT_ID: 'SKU_ID'
 	      }, 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE'];
 	      BX.Catalog.Store.ProductList.Instance.getProductsFields().forEach(function (productRow) {
 	        var product = {};
@@ -885,7 +888,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "openMasterSlider",
 	    value: function openMasterSlider() {
 	      var card = this;
-	      new catalog_storeUse.Slider().open(this.masterSliderUrl, {
+	      new catalog_storeUse.StoreSlider().open(this.masterSliderUrl, {
 	        data: {
 	          openGridOnDone: false
 	        },
@@ -911,9 +914,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    }
 	  }, {
 	    key: "adjustToolPanel",
-	    value: function adjustToolPanel() {
-	      return;
-	    }
+	    value: function adjustToolPanel() {}
 	  }, {
 	    key: "focusOnTab",
 	    value: function focusOnTab(tabId) {
@@ -950,11 +951,25 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      this.subscribeToDirectActionEvent();
 	      this.subscribeToEntityCreateEvent();
 	      this.subscribeToBeforeEntityRedirectEvent();
+	      this.subscribeToCreateUserFieldEvent();
+	    }
+	  }, {
+	    key: "subscribeToCreateUserFieldEvent",
+	    value: function subscribeToCreateUserFieldEvent() {
+	      var _this3 = this;
+	      main_core_events.EventEmitter.subscribe('BX.UI.EntityConfigurationManager:onCreateClick', function (e) {
+	        e.data.isCanceled = true;
+	        var editor = _this3.getEditorInstance();
+	        var createUrl = editor.getConfigurationFieldManager().getCreationPageUrl('custom');
+	        if (createUrl) {
+	          top.BX.SidePanel.Instance.open(createUrl);
+	        }
+	      });
 	    }
 	  }, {
 	    key: "subscribeToUserSelectorEvent",
 	    value: function subscribeToUserSelectorEvent() {
-	      var _this3 = this;
+	      var _this4 = this;
 	      if (this.editorName !== 'BX.UI.EntityEditor') {
 	        return;
 	      }
@@ -979,12 +994,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	                avatar: selectedItem.avatar,
 	                name: main_core.Text.encode(selectedItem.title.text)
 	              };
-	              if (_this3.entityId > 0) {
+	              if (_this4.entityId > 0) {
 	                var fields = {};
 	                fields[fieldId] = selectedItem.id;
-	                BX.ajax.runComponentAction(_this3.componentName, 'save', {
+	                BX.ajax.runComponentAction(_this4.componentName, 'save', {
 	                  mode: 'class',
-	                  signedParameters: _this3.signedParameters,
+	                  signedParameters: _this4.signedParameters,
 	                  data: {
 	                    fields: fields
 	                  }
@@ -1003,7 +1018,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToValidationFailedEvent",
 	    value: function subscribeToValidationFailedEvent() {
-	      main_core_events.EventEmitter.subscribe(this.editorName + ':onFailedValidation', function (event) {
+	      main_core_events.EventEmitter.subscribe("".concat(this.editorName, ":onFailedValidation"), function (event) {
 	        main_core_events.EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onOpenTab', {
 	          tabId: 'main'
 	        });
@@ -1017,30 +1032,30 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToOnSaveEvent",
 	    value: function subscribeToOnSaveEvent() {
-	      var _this4 = this;
-	      main_core_events.EventEmitter.subscribe(this.editorName + ':onSave', function (event) {
+	      var _this5 = this;
+	      main_core_events.EventEmitter.subscribe("".concat(this.editorName, ":onSave"), function (event) {
 	        var _event$data$;
 	        var eventEditor = event.data[0];
 	        var action = (_event$data$ = event.data[1]) === null || _event$data$ === void 0 ? void 0 : _event$data$.actionId;
 	        if (eventEditor && eventEditor._ajaxForm) {
 	          var _eventEditor$_toolPan;
 	          (_eventEditor$_toolPan = eventEditor._toolPanel) === null || _eventEditor$_toolPan === void 0 ? void 0 : _eventEditor$_toolPan.clearErrors();
-	          if (_this4.isInventoryManagementDisabled && _this4.inventoryManagementFeatureCode) {
+	          if (_this5.isInventoryManagementDisabled && _this5.inventoryManagementFeatureCode) {
 	            var _event$data$0$_toolPa;
 	            event.data[1].cancel = true;
 	            (_event$data$0$_toolPa = event.data[0]._toolPanel) === null || _event$data$0$_toolPa === void 0 ? void 0 : _event$data$0$_toolPa.setLocked(false);
-	            top.BX.UI.InfoHelper.show(_this4.inventoryManagementFeatureCode);
+	            top.BX.UI.InfoHelper.show(_this5.inventoryManagementFeatureCode);
 	            return;
 	          }
 	          if (action === 'SAVE_AND_CONDUCT') {
-	            if (_this4.isConductLocked) {
+	            if (_this5.isConductLocked) {
 	              var _event$data$0$_toolPa2;
 	              event.data[1].cancel = true;
 	              (_event$data$0$_toolPa2 = event.data[0]._toolPanel) === null || _event$data$0$_toolPa2 === void 0 ? void 0 : _event$data$0$_toolPa2.setLocked(false);
-	              _this4.openMasterSlider();
+	              _this5.openMasterSlider();
 	              return;
 	            }
-	            if (!_this4.validateControllers(eventEditor.getControllers())) {
+	            if (!_this5.validateControllers(eventEditor.getControllers())) {
 	              var _eventEditor$_toolPan2;
 	              event.data[1].cancel = true;
 	              (_eventEditor$_toolPan2 = eventEditor._toolPanel) === null || _eventEditor$_toolPan2 === void 0 ? void 0 : _eventEditor$_toolPan2.setLocked(false);
@@ -1053,9 +1068,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          var form = eventEditor._ajaxForms[action];
 	          if (form) {
 	            form.addUrlParams({
-	              documentType: _this4.documentType,
-	              isNewDocument: _this4.entityId <= 0 ? 'Y' : 'N',
-	              inventoryManagementSource: _this4.inventoryManagementSource
+	              documentType: _this5.documentType,
+	              isNewDocument: _this5.entityId <= 0 ? 'Y' : 'N',
+	              inventoryManagementSource: _this5.inventoryManagementSource
 	            });
 	          }
 	        }
@@ -1064,62 +1079,69 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToTabOpenEvent",
 	    value: function subscribeToTabOpenEvent() {
-	      var _this5 = this;
+	      var _this6 = this;
 	      main_core_events.EventEmitter.subscribe('BX.Catalog.EntityCard.TabManager:onSelectItem', function (event) {
 	        var tabId = event.data.tabId;
-	        if (tabId === 'tab_products' && !_this5.isTabAnalyticsSent) {
-	          _this5.sendAnalyticsData({
+	        if (tabId === 'tab_products' && !_this6.isTabAnalyticsSent) {
+	          _this6.sendAnalyticsData({
 	            tab: 'products',
-	            isNewDocument: _this5.entityId <= 0 ? 'Y' : 'N',
-	            documentType: _this5.documentType,
-	            inventoryManagementSource: _this5.inventoryManagementSource
+	            isNewDocument: _this6.entityId <= 0 ? 'Y' : 'N',
+	            documentType: _this6.documentType,
+	            inventoryManagementSource: _this6.inventoryManagementSource
 	          });
-	          _this5.isTabAnalyticsSent = true;
+	          _this6.isTabAnalyticsSent = true;
 	        }
 	        if (tabId) {
-	          _this5.activeTabId = tabId;
+	          _this6.activeTabId = tabId;
 	        }
 	      });
 	    }
 	  }, {
 	    key: "subscribeToDirectActionEvent",
 	    value: function subscribeToDirectActionEvent() {
-	      var _this6 = this;
-	      main_core_events.EventEmitter.subscribe(this.editorName + ':onDirectAction', function (event) {
+	      var _this7 = this;
+	      main_core_events.EventEmitter.subscribe("".concat(this.editorName, ":onDirectAction"), function (event) {
 	        var _event$data$2, _event$data$3;
 	        var eventEditor = event.data[0];
-	        if (_this6.isInventoryManagementDisabled && _this6.inventoryManagementFeatureCode) {
+	        if (_this7.isInventoryManagementDisabled && _this7.inventoryManagementFeatureCode) {
 	          var _event$data$0$_toolPa3;
 	          event.data[1].cancel = true;
 	          (_event$data$0$_toolPa3 = event.data[0]._toolPanel) === null || _event$data$0$_toolPa3 === void 0 ? void 0 : _event$data$0$_toolPa3.setLocked(false);
-	          top.BX.UI.InfoHelper.show(_this6.inventoryManagementFeatureCode);
+	          top.BX.UI.InfoHelper.show(_this7.inventoryManagementFeatureCode);
 	          return;
 	        }
 	        if (((_event$data$2 = event.data[1]) === null || _event$data$2 === void 0 ? void 0 : _event$data$2.actionId) === 'CONDUCT') {
 	          var _eventEditor$_toolPan3;
 	          (_eventEditor$_toolPan3 = eventEditor._toolPanel) === null || _eventEditor$_toolPan3 === void 0 ? void 0 : _eventEditor$_toolPan3.clearErrors();
-	          if (_this6.isConductLocked) {
+	          if (_this7.isConductLocked) {
 	            var _event$data$0$_toolPa4;
 	            event.data[1].cancel = true;
 	            (_event$data$0$_toolPa4 = event.data[0]._toolPanel) === null || _event$data$0$_toolPa4 === void 0 ? void 0 : _event$data$0$_toolPa4.setLocked(false);
-	            _this6.openMasterSlider();
+	            _this7.openMasterSlider();
 	            return;
 	          }
-	          if (!_this6.validateControllers(eventEditor.getControllers())) {
+	          if (!_this7.validateControllers(eventEditor.getControllers())) {
 	            var _eventEditor$_toolPan4;
 	            event.data[1].cancel = true;
 	            (_eventEditor$_toolPan4 = eventEditor._toolPanel) === null || _eventEditor$_toolPan4 === void 0 ? void 0 : _eventEditor$_toolPan4.setLocked(false);
 	            return;
 	          }
-	          event.data[0]._ajaxForms['CONDUCT'].addUrlParams({
-	            documentType: _this6.documentType,
-	            inventoryManagementSource: _this6.inventoryManagementSource
+	          event.data[0]._ajaxForms.CONDUCT.addUrlParams({
+	            documentType: _this7.documentType,
+	            inventoryManagementSource: _this7.inventoryManagementSource
 	          });
 	        }
 	        if (((_event$data$3 = event.data[1]) === null || _event$data$3 === void 0 ? void 0 : _event$data$3.actionId) === 'CANCEL_CONDUCT') {
-	          event.data[0]._ajaxForms['CANCEL_CONDUCT'].addUrlParams({
-	            documentType: _this6.documentType,
-	            inventoryManagementSource: _this6.inventoryManagementSource
+	          if (_this7.isLockedCancellation()) {
+	            var _event$data$0$_toolPa5;
+	            _this7.showCancellationInfo();
+	            event.data[1].cancel = true;
+	            (_event$data$0$_toolPa5 = event.data[0]._toolPanel) === null || _event$data$0$_toolPa5 === void 0 ? void 0 : _event$data$0$_toolPa5.setLocked(false);
+	            return;
+	          }
+	          event.data[0]._ajaxForms.CANCEL_CONDUCT.addUrlParams({
+	            documentType: _this7.documentType,
+	            inventoryManagementSource: _this7.inventoryManagementSource
 	          });
 	        }
 	      });
@@ -1146,7 +1168,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToBeforeEntityRedirectEvent",
 	    value: function subscribeToBeforeEntityRedirectEvent() {
-	      var _this7 = this;
+	      var _this8 = this;
 	      main_core_events.EventEmitter.subscribe('beforeEntityRedirect', function (event) {
 	        var _event$data$5;
 	        window.top.BX.onCustomEvent('DocumentCard:onBeforeEntityRedirect');
@@ -1158,8 +1180,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          var _event$data$6;
 	          editor._toolPanel.disableSaveButton();
 	          editor.hideToolPanel();
-	          _this7.showNotificationOnClose = (event === null || event === void 0 ? void 0 : (_event$data$6 = event.data[0]) === null || _event$data$6 === void 0 ? void 0 : _event$data$6.showNotificationOnClose) === 'Y';
-	          if (_this7.showNotificationOnClose) {
+	          _this8.showNotificationOnClose = (event === null || event === void 0 ? void 0 : (_event$data$6 = event.data[0]) === null || _event$data$6 === void 0 ? void 0 : _event$data$6.showNotificationOnClose) === 'Y';
+	          if (_this8.showNotificationOnClose) {
 	            var url = event.data[0].redirectUrl;
 	            if (!url) {
 	              return;
@@ -1185,12 +1207,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "validateControllers",
 	    value: function validateControllers(controllers) {
 	      var validateResult = true;
-	      if (controllers instanceof Array) {
+	      if (Array.isArray(controllers)) {
 	        controllers.forEach(function (controller) {
-	          if (controller instanceof ProductListController) {
-	            if (!controller.validateProductList()) {
-	              validateResult = false;
-	            }
+	          if (controller instanceof ProductListController && !controller.validateProductList()) {
+	            validateResult = false;
 	          }
 	        });
 	      } else {
@@ -1208,19 +1228,19 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "addCopyLinkPopup",
 	    value: function addCopyLinkPopup() {
-	      var _this8 = this;
+	      var _this9 = this;
 	      var copyLinkButton = document.getElementById(this.settings.copyLinkButtonId);
 	      if (!copyLinkButton) {
 	        return;
 	      }
 	      copyLinkButton.onclick = function () {
-	        _this8.copyDocumentLinkToClipboard();
+	        _this9.copyDocumentLinkToClipboard();
 	      };
 	    }
 	  }, {
 	    key: "copyDocumentLinkToClipboard",
 	    value: function copyDocumentLinkToClipboard() {
-	      var url = BX.util.remove_url_param(window.location.href, ["IFRAME", "IFRAME_TYPE"]);
+	      var url = BX.util.remove_url_param(window.location.href, ['IFRAME', 'IFRAME_TYPE']);
 	      if (!BX.clipboard.copy(url)) {
 	        return;
 	      }
@@ -1231,7 +1251,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        zIndex: 1000,
 	        angle: true,
 	        bindOptions: {
-	          position: "top"
+	          position: 'top'
 	        }
 	      });
 	      popup.show();
@@ -1244,7 +1264,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function setSliderText() {
 	      var slider = BX.SidePanel.Instance.getTopSlider();
 	      if (slider) {
-	        slider.getLabel().setText(main_core.Loc.getMessage('SLIDER_LABEL_' + this.documentType));
+	        slider.getLabel().setText(main_core.Loc.getMessage("SLIDER_LABEL_".concat(this.documentType)));
 	      }
 	    }
 	  }, {
@@ -1264,6 +1284,56 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }
 	      this.conductAndSaveButton.disabled = false;
 	      BX.removeClass(this.conductAndSaveButton, 'ui-btn-disabled');
+	    }
+	  }, {
+	    key: "isLockedCancellation",
+	    value: function isLockedCancellation() {
+	      return this.lockedCancellation;
+	    }
+	  }, {
+	    key: "showCancellationInfo",
+	    value: function showCancellationInfo() {
+	      var _this10 = this;
+	      var popup = new main_popup.Popup(null, null, {
+	        events: {
+	          onPopupClose: function onPopupClose() {
+	            popup.destroy();
+	          }
+	        },
+	        content: this.getCancellationPopupContent(),
+	        overlay: true,
+	        buttons: [new ui_buttons.Button({
+	          text: main_core.Loc.getMessage('CANCEL_CONDUCT_CANCELLATION_POPUP_YES'),
+	          color: ui_buttons.Button.Color.PRIMARY,
+	          onclick: function onclick() {
+	            var _this10$getEditorInst;
+	            _this10.lockedCancellation = false;
+	            (_this10$getEditorInst = _this10.getEditorInstance()) === null || _this10$getEditorInst === void 0 ? void 0 : _this10$getEditorInst.performAction('CANCEL_CONDUCT');
+	            popup.close();
+	          }
+	        }), new BX.UI.Button({
+	          text: main_core.Loc.getMessage('CANCEL_CONDUCT_CANCELLATION_POPUP_NO'),
+	          color: BX.UI.Button.Color.LINK,
+	          onclick: function onclick() {
+	            popup.close();
+	          }
+	        })]
+	      });
+	      popup.show();
+	    }
+	  }, {
+	    key: "getCancellationPopupContent",
+	    value: function getCancellationPopupContent() {
+	      var moreLink = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<a href=\"#\" class=\"ui-form-link\">", "</a>"])), main_core.Loc.getMessage('CANCEL_CONDUCT_CANCELLATION_POPUP_LINK'));
+	      main_core.Event.bind(moreLink, 'click', function () {
+	        var articleId = 17858278;
+	        top.BX.Helper.show("redirect=detail&code=".concat(articleId));
+	      });
+	      var descriptionHtml = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>", "</div>\n\t\t"])), main_core.Loc.getMessage('CANCEL_CONDUCT_CANCELLATION_POPUP_HINT', {
+	        '#HELP_LINK#': '<help-link></help-link>'
+	      }));
+	      main_core.Dom.replace(descriptionHtml.querySelector('help-link'), moreLink);
+	      return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<h3>", "</h3>\n\t\t\t\t<div>", "\n\t\t\t\t<br>", "<div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CANCEL_CONDUCT_CANCELLATION_POPUP_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('CANCEL_CONDUCT_CANCELLATION_POPUP_QUESTION')), descriptionHtml);
 	    }
 	  }], [{
 	    key: "getInstance",
@@ -1305,7 +1375,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  value: void 0
 	};
 
-	var _templateObject$1;
+	var _templateObject$2;
 	var Button = /*#__PURE__*/function () {
 	  function Button() {
 	    babelHelpers.classCallCheck(this, Button);
@@ -1314,7 +1384,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "render",
 	    value: function render(parentNode, highlight) {
 	      var buttonTitle = main_core.Loc.getMessage('FEEDBACK_BUTTON_TITLE');
-	      var button = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-themes\" title=\"", "\">\n\t\t\t\t<span class=\"ui-btn-text\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</button>\n\t\t"])), buttonTitle, buttonTitle);
+	      var button = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-themes\" title=\"", "\">\n\t\t\t\t<span class=\"ui-btn-text\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</button>\n\t\t"])), buttonTitle, buttonTitle);
 	      if (highlight) {
 	        button.style.zIndex = 140;
 	        button.style.backgroundColor = '#fff';
@@ -1396,5 +1466,5 @@ this.BX.Catalog = this.BX.Catalog || {};
 	exports.FeedbackButton = Button;
 	exports.Slider = Slider;
 
-}((this.BX.Catalog.DocumentCard = this.BX.Catalog.DocumentCard || {}),BX.Catalog.EntityCard,BX.Event,BX.Currency,BX.UI.EntitySelector,BX.Main,BX.Catalog.StoreUse,BX,BX));
+}((this.BX.Catalog.DocumentCard = this.BX.Catalog.DocumentCard || {}),BX.Catalog.EntityCard,BX.UI,BX.Event,BX.Currency,BX.UI.EntitySelector,BX.Main,BX.Catalog.StoreUse,BX,BX));
 //# sourceMappingURL=document-card.bundle.js.map

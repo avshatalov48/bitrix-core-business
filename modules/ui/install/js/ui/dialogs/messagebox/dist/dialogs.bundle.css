@@ -14,10 +14,12 @@
 
 .ui-message-box .popup-window-content {
 	padding: 20px 20px 30px 20px;
+	text-align: center;
 }
 
 .ui-message-box .popup-window-titlebar + .popup-window-content {
 	padding-top: 10px;
+	text-align: left;
 }
 
 .ui-message-box .popup-window-titlebar {
@@ -26,6 +28,7 @@
 
 .ui-message-box .popup-window-titlebar-text {
 	color: #535C69;
-	padding: 18px 20px 0;
+	padding: 18px 40px 0 20px;
 	line-height: normal;
+	white-space: normal;
 }

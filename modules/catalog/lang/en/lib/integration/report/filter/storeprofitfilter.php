@@ -1,0 +1,6 @@
+<?php
+$MESS["SALE_FILTER_PRODUCTS_STUB"] = "Start typing product name or SKU";
+$MESS["SALE_FILTER_PRODUCTS_TITLE"] = "Products";
+$MESS["SALE_FILTER_REPORT_INTERVAL_MONTH_PRESET_TITLE"] = "Current month";
+$MESS["SALE_FILTER_REPORT_INTERVAL_TITLE"] = "Reporting period";
+$MESS["SALE_FILTER_STORES_TITLE"] = "Warehouses";

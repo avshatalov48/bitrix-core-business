@@ -1,0 +1,44 @@
+.sn-spaces-discussions-composition-header {
+	display: flex;
+	padding: 15px;
+	background: #ecfafe;
+	border-radius: var(--ui-border-radius-lg) var(--ui-border-radius-lg) 0 0;
+}
+
+.sn-spaces-discussions-composition-header-title {
+	font-size: var(--ui-font-size-xl);
+	color: #525C69;
+}
+
+.sn-spaces-discussions-composition-header-space-name {
+	font-size: var(--ui-font-size-xl);
+	color: #525C69;
+	font-weight: var(--ui-font-weight-semi-bold);
+}
+
+.sn-spaces-discussions-composition-header-icon {
+	--ui-icon-set__icon-size: 19px;
+	background: transparent url(images/discussions-composition-header.svg) no-repeat center;
+	height: 60px;
+	width: 60px;
+	padding: 0 6px 0 12px;
+}
+
+.sn-spaces-discussions-composition-filters {
+	padding: 4px 15px;
+}
+
+.sn-spaces-discussions-composition-filters-item {
+	display: flex;
+	align-items: center;
+	margin: 14px 0;
+}
+
+.sn-spaces-discussions-composition-item-switcher {
+	margin-right: 9px;
+}
+
+.sn-spaces-discussions-composition-filters-item .sn-spaces__popup-settings_name {
+	color: #525C69;
+	font-weight: 500;
+}

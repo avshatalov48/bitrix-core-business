@@ -23,22 +23,10 @@ $productUrl = $component->getProductUrl(
 	</div>
 	<div class="landing-sm-content-text-br"></div>
 	<div class="landing-sm-content-text" style="margin-bottom: 32px;"><?= Loc::getMessage('LANDING_TPL_DEMO_PRODUCTS_IN_TRADE_CATALOG_LOOK');?></div>
-	<?php
-	if (\Bitrix\Main\Loader::includeModule('bitrix24')):
-	?>
-		<a href="<?= $productUrl;?>" data-role="landing-sm-content-demo-products"
-			onclick="BX.PreventDefault(); BX.SidePanel.Instance.open('<?= \htmlspecialcharsbx(\CUtil::jsEscape($productUrl));?>', {data: {rightBoundary: 0}});"
-			target="_blank" class="ui-btn ui-btn-lg ui-btn-success ui-btn-round"
-		><?= Loc::getMessage('LANDING_TPL_SHOW_DEMO_PRODUCTS');?></a>
-	<?php
-	else:
-	?>
-		<a href="<?= $productUrl;?>" data-role="landing-sm-content-demo-products"
-			target="_blank" class="ui-btn ui-btn-lg ui-btn-success ui-btn-round"
-			><?= Loc::getMessage('LANDING_TPL_SHOW_DEMO_PRODUCTS');?></a>
-	<?php
-	endif;
-	?>
+	<a href="<?= $productUrl;?>" data-role="landing-sm-content-demo-products"
+		onclick="BX.PreventDefault(); BX.SidePanel.Instance.open('<?= \htmlspecialcharsbx(\CUtil::jsEscape($productUrl));?>', {data: {rightBoundary: 0}});"
+		target="_blank" class="ui-btn ui-btn-lg ui-btn-success ui-btn-round"
+	><?= Loc::getMessage('LANDING_TPL_SHOW_DEMO_PRODUCTS');?></a>
 </div>
 
 <script>

@@ -287,7 +287,7 @@
 }
 
 .landing-form-social-text-block {
-	padding: 10px 5px 10px 13px;
+	padding: 10px 13px 10px 13px;
 }
 
 .landing-form-social-text-block .landing-editable-field-textar-wrap .ui-title-input-btn {
@@ -828,9 +828,22 @@ a {
 	background: url(image/landing-landing-view__icon-404.svg) center no-repeat;
 }
 
-
 .landing-form .ui-ctl-textarea
 {
+	display: flex;
 	max-width: 640px;
 	width: 100%;
+}
+
+.ui-form-content-item {
+	display: flex;
+}
+
+.ui-form-content-item:not(:last-child) {
+	margin-bottom: 15px;
+}
+
+[data-landing-additional-detail="meta"] .ui-ctl-row
+{
+	margin-bottom: 10px;
 }

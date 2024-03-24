@@ -405,6 +405,7 @@ class Factory
 			->where('OWNER_ID', $ownerId)
 			->where('CONTACT_ID', $contactId)
 			->where('CONTACT_TYPE', $contactType)
+			->where('DATE_CREATE', '>=', (new DateTime())->setTime(0, 0))
 			->whereNull('MEMBERS.MEMBER_ID')
 			->exec()->fetchObject();
 

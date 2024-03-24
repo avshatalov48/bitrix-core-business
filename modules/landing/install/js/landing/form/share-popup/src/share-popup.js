@@ -124,12 +124,12 @@ export class SharePopup extends EventEmitter
 					[
 						{
 							id: 'help',
-							title: Loc.getMessage('LANDING_FORM_SHARE__HELP_TITLE'),
+							title: Loc.getMessage('LANDING_FORM_SHARE__HELP_TITLE_MSGVER_1'),
 							icon: {
 								className: 'landing-form-features-help-icon',
 							},
 							link: {
-								label: Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL'),
+								label: Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL_MSGVER_1'),
 								onClick: () => {
 									const Feedback = Reflection.getClass('BX.UI.Feedback');
 									if (!Type.isNil(Feedback))

@@ -2,15 +2,11 @@
 
 namespace Bitrix\Im\Model;
 
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Main\ORM\Data\DataManager,
+use Bitrix\Main\ORM\Data\DataManager,
 	Bitrix\Main\ORM\Fields\IntegerField,
 	Bitrix\Main\SystemException,
-	Bitrix\Main\Application,
-	Bitrix\Main\Error,
 	Bitrix\Main\ORM\Data;
 
-Loc::loadMessages(__FILE__);
 
 
 /**

@@ -65,17 +65,20 @@ $params = [
 		['HIDE_ICONS' => 'Y']
 	);
 
-	$APPLICATION->IncludeComponent(
-		'bitrix:disk.file.upload',
-		'',
-		[
-			'STORAGE' => $arResult['storage'],
-			'FOLDER' => $arResult['folder'],
-			'CID' => 'FolderList',
-			'DROPZONE' => 'document.getElementById("bx-disk-container")',
-		],
-		$component,
-		["HIDE_ICONS" => "Y"]
-	);
+	if ($arResult['storage'])
+	{
+		$APPLICATION->IncludeComponent(
+			'bitrix:disk.file.upload',
+			'',
+			[
+				'STORAGE' => $arResult['storage'],
+				'FOLDER' => $arResult['folder'],
+				'CID' => 'FolderList',
+				'DROPZONE' => 'document.getElementById("bx-disk-container")',
+			],
+			$component,
+			["HIDE_ICONS" => "Y"]
+		);
+	}
 	?>
 </div>

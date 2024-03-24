@@ -296,21 +296,24 @@ export class Layout
 
 	#getScrollWidth()
 	{
-		const div = Tag.render`<div style="overflow-y: scroll; width: 50px; height: 50px; opacity: 0; pointer-events: none; position: absolute;"></div>`
+		const div = Tag.render`<div style="overflow-y: scroll; width: 50px; height: 50px; opacity: 0; pointer-events: none; position: absolute;"></div>`;
 		document.body.appendChild(div);
-		const scrollWidth = div.offsetWidth - div.clientWidth
+		const scrollWidth = div.offsetWidth - div.clientWidth;
 		Dom.remove(div);
+
 		return scrollWidth;
 	}
-
 
 	#adjustFooter()
 	{
 		const parentSet = this.getContainer().parentNode;
 
-		if (parentSet.scrollWidth > parentSet.offsetWidth)
+		if (
+			parentSet !== null
+			&& parentSet.scrollWidth > parentSet.offsetWidth
+		)
 		{
-			Dom.style(this.getFooterContainer(), 'bottom', this.#getScrollWidth() + 'px');
+			Dom.style(this.getFooterContainer(), 'bottom', `${this.#getScrollWidth()}px`);
 		}
 		else
 		{

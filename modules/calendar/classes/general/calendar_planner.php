@@ -277,7 +277,7 @@ class CCalendarPlanner
 				if ($isPlannerFeatureEnabled)
 				{
 					$meetingRoomRes = Rooms\AccessibilityManager::getRoomAccessibility(
-						$location['room_id'],
+						[$location['room_id']],
 						$from,
 						$to
 					);

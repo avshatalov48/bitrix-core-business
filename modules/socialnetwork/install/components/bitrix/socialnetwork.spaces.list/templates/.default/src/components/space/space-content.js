@@ -1,8 +1,9 @@
 import { DateFormatter } from '../../util/date-formatter';
 import { SpaceViewModeTypes, SpaceViewModes, SpaceUserRoles } from '../../const/space';
+import { FilterModeTypes } from '../../const/filter-mode';
 import { Avatar } from './avatar';
 import { Modes } from '../../const/mode';
-import { ajax } from 'main.core';
+import { ajax, Type } from 'main.core';
 import { Helper } from '../../store/helper';
 import { BaseEvent } from 'main.core.events';
 
@@ -44,6 +45,10 @@ export const SpaceContent = {
 		{
 			return this.space;
 		},
+		selectedFilterModeType(): string
+		{
+			return this.$store.state.main.selectedFilterModeType;
+		},
 		doShowCounter(): boolean
 		{
 			return this.spaceModel.counter
@@ -57,6 +62,8 @@ export const SpaceContent = {
 			return this.spaceModel.isPinned
 				&& this.mode === this.modes.recent
 				&& !this.isApplicantButtonsShown
+				&& !this.doShowCounter
+				&& this.selectedFilterModeType === FilterModeTypes.my
 			;
 		},
 		isApplicantButtonsShown(): boolean
@@ -78,11 +85,11 @@ export const SpaceContent = {
 		spaceDescription(): string
 		{
 			const doShowSpaceVisibilityType = this.isApplicantButtonsShown
-				|| !this.spaceModel.lastActivityDescription
-				|| this.spaceModel.lastActivityDescription.length === 0
+				|| !this.spaceModel.recentActivity.description
+				|| this.spaceModel.recentActivity.description.length === 0
 			;
 
-			return doShowSpaceVisibilityType ? this.getVisibilityTypeName() : this.spaceModel.lastActivityDescription;
+			return doShowSpaceVisibilityType ? this.getVisibilityTypeName() : this.spaceModel.recentActivity.description;
 		},
 		isCommon(): boolean
 		{
@@ -113,7 +120,10 @@ export const SpaceContent = {
 				return spaceViewMode.type === this.spaceModel.visibilityType;
 			})?.nameMessageId;
 
-			return this.loc(spaceViewModeNameMessageId);
+			return Type.isStringFilled(spaceViewModeNameMessageId)
+				? this.loc(spaceViewModeNameMessageId)
+				: ''
+			;
 		},
 		formatDate(timestamp: number): string
 		{
@@ -167,7 +177,7 @@ export const SpaceContent = {
 		},
 		async onJoinButtonClick(event)
 		{
-			event.preventDefault();
+			event.stopPropagation();
 			await ajax.runAction('socialnetwork.api.userToGroup.join', {
 				data: {
 					params: {
@@ -195,15 +205,15 @@ export const SpaceContent = {
 		},
 		onPendingButtonClick(event)
 		{
-			event.preventDefault();
+			event.stopPropagation();
 		},
 		onAcceptedButtonClick(event)
 		{
-			event.preventDefault();
+			event.stopPropagation();
 		},
 		async acceptInvitationButtonClickHandler(event)
 		{
-			event.preventDefault();
+			event.stopPropagation();
 			await ajax.runAction('socialnetwork.api.userToGroup.acceptOutgoingRequest', {
 				data: {
 					groupId: this.spaceModel.id,
@@ -226,7 +236,7 @@ export const SpaceContent = {
 		},
 		async declineInvitationButtonClickHandler(event)
 		{
-			event.preventDefault();
+			event.stopPropagation();
 			await ajax.runAction('socialnetwork.api.userToGroup.rejectOutgoingRequest', {
 				data: {
 					groupId: this.spaceModel.id,
@@ -280,7 +290,7 @@ export const SpaceContent = {
 		</div>
 		<div class="sn-spaces__list-item_details">
 			<div class="sn-spaces__list-item_time" data-id="spaces-list-element-activity-date">
-				{{formatDate(spaceModel.dateActivity.getTime())}}
+				{{formatDate(spaceModel.recentActivity.date.getTime())}}
 			</div>
 			<div class="sn-spaces__list-item_changes">
 				<div

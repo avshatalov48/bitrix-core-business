@@ -20,11 +20,12 @@ class CVoteChannel extends CAllVoteChannel
 	public static function GetDropDownList()
 	{
 		global $DB;
+		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 		$err_mess = (CVoteChannel::err_mess())."<br>Function: GetDropDownList<br>Line: ";
 		$strSql = "
 			SELECT
 				ID as REFERENCE_ID,
-				concat('[',ID,'] ',TITLE) as REFERENCE
+				" . $sqlHelper->getConcatFunction("'['", "ID", "']'", "TITLE" ) . " as REFERENCE
 			FROM b_vote_channel
 			ORDER BY C_SORT
 			";

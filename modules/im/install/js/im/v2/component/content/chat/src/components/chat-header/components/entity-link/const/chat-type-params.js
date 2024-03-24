@@ -1,4 +1,4 @@
-import { ChatType } from 'im.v2.const';
+import { ChatType, ChatEntityLinkType } from 'im.v2.const';
 import { Loc } from 'main.core';
 
 type ChatTypeParams = {
@@ -8,39 +8,37 @@ type ChatTypeParams = {
 	}
 };
 
-export const ParamsByChatType: ChatTypeParams = {
-	[ChatType.tasks]: {
+export const ParamsByLinkType: ChatTypeParams = {
+	[ChatEntityLinkType.tasks]: {
 		className: '--task',
 		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_TASK'),
 	},
-	[ChatType.calendar]: {
+	[ChatEntityLinkType.calendar]: {
 		className: '--calendar',
-		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MEETING'),
+		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MEETING_MSGVER_1'),
 	},
-	[ChatType.sonetGroup]: {
+	[ChatEntityLinkType.sonetGroup]: {
 		className: '--group',
-		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_GROUP'),
+		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_GROUP_MSGVER_1'),
 	},
-	[ChatType.crm]: {
-		className: '--crm',
-		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CRM'),
-	},
-	[ChatType.mail]: {
+	[ChatEntityLinkType.mail]: {
 		className: '--mail',
-		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MAIL'),
+		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MAIL_MSGVER_1'),
 	},
-};
-
-const CrmEntityType = {
-	lead: 'LEAD',
-	deal: 'DEAL',
-	contact: 'CONTACT',
-	company: 'COMPANY',
-};
-
-export const CrmLinkTextByEntity: {[entityType: $Values<typeof CrmEntityType>]: string} = {
-	[CrmEntityType.lead]: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_LEAD'),
-	[CrmEntityType.deal]: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_DEAL'),
-	[CrmEntityType.contact]: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CONTACT'),
-	[CrmEntityType.company]: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_COMPANY'),
+	[ChatEntityLinkType.contact]: {
+		className: '--crm',
+		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CONTACT'),
+	},
+	[ChatEntityLinkType.deal]: {
+		className: '--crm',
+		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_DEAL'),
+	},
+	[ChatEntityLinkType.lead]: {
+		className: '--crm',
+		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_LEAD'),
+	},
+	[ChatEntityLinkType.dynamic]: {
+		className: '--crm',
+		loc: Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_DYNAMIC_ELEMENT'),
+	},
 };

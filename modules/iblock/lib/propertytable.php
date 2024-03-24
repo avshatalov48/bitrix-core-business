@@ -3,6 +3,7 @@
 namespace Bitrix\Iblock;
 
 use Bitrix\Main\ORM;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 
 /**
@@ -124,6 +125,11 @@ class PropertyTable extends ORM\Data\DataManager
 				->configureTitle(Loc::getMessage('IBLOCK_PROPERTY_ENTITY_ID_FIELD'))
 			,
 			'TIMESTAMP_X' => (new ORM\Fields\DatetimeField('TIMESTAMP_X'))
+				->configureDefaultValue(function()
+					{
+						return new DateTime();
+					}
+				)
 				->configureTitle(Loc::getMessage('IBLOCK_PROPERTY_ENTITY_TIMESTAMP_X_FIELD'))
 			,
 			'IBLOCK_ID' => (new ORM\Fields\IntegerField('IBLOCK_ID'))
@@ -290,9 +296,15 @@ class PropertyTable extends ORM\Data\DataManager
 		$modifyFieldList = [];
 		self::copyOldFields($modifyFieldList, $fields);
 		$result->unsetField('USER_TYPE_SETTINGS');
+		if (!isset($fields['TIMESTAMP_X']))
+		{
+			$modifyFieldList['TIMESTAMP_X'] = new DateTime();
+		}
 
 		if (!empty($modifyFieldList))
+		{
 			$result->modifyFields($modifyFieldList);
+		}
 		unset($modifyFieldList);
 		unset($fields);
 
@@ -313,9 +325,15 @@ class PropertyTable extends ORM\Data\DataManager
 		$modifyFieldList = [];
 		self::copyOldFields($modifyFieldList, $fields);
 		$result->unsetField('USER_TYPE_SETTINGS');
+		if (!isset($fields['TIMESTAMP_X']))
+		{
+			$modifyFieldList['TIMESTAMP_X'] = new DateTime();
+		}
 
 		if (!empty($modifyFieldList))
+		{
 			$result->modifyFields($modifyFieldList);
+		}
 		unset($modifyFieldList);
 		unset($fields);
 

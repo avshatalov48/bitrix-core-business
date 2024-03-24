@@ -72,6 +72,16 @@ class PgsqlSqlHelper extends SqlHelper
 	/**
 	 * @inheritdoc
 	 */
+	public function convertToDbBinary($value)
+	{
+		return "'" . pg_escape_bytea($value) . "'";
+		//return "E'\\\\x".bin2hex($value) . "'";
+		//return "decode('".bin2hex($value)."', 'hex')";
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function getCurrentDateTimeFunction()
 	{
 		return 'now()';
@@ -132,34 +142,33 @@ class PgsqlSqlHelper extends SqlHelper
 	 */
 	public function formatDate($format, $field = null)
 	{
-		static $search  = array(
-			"MMMM",
-			"HH",
-			"GG",
-			"G",
-			"TT",
-			"T",
-			"W",
-		);
-		static $replace = array(
-			"FMMonth",
-			"HH24",
-			"HH12",
-			"FMHH12",
-			"PM",
-			"PM",
-			"D",
-		);
+		static $translation  = [
+			'YYYY' => 'YYYY',
+			'MMMM' => 'FMMonth',
+			'MI' => 'MI',
+			'HH' => 'HH24',
+			'GG' => 'HH12',
+			'TT' => 'PM',
+			'M' => 'Mon',
+			'H' => 'HH12',
+			'G' => 'FMHH12',
+			'T' => 'PM',
+			'W' => 'D',
+		];
 
-		$format = str_replace($search, $replace, $format);
+		$dbFormat = '';
+		foreach (preg_split('/(YYYY|MMMM|MM|MI|DD|HH|GG|SS|TT|M|H|G|T|W)/', $format, -1, PREG_SPLIT_DELIM_CAPTURE) as $part)
+		{
+			$dbFormat .= $translation[$part] ?? $part;
+		}
 
 		if ($field === null)
 		{
-			return $format;
+			return $dbFormat;
 		}
 		else
 		{
-			return "to_char(".$field.", '".$format."')";
+			return "to_char(".$field.", '".$dbFormat."')";
 		}
 	}
 
@@ -306,7 +315,7 @@ class PgsqlSqlHelper extends SqlHelper
 	 */
 	public function castToChar($fieldName)
 	{
-		return 'CAST('.$fieldName.' AS char)';
+		return 'CAST('.$fieldName.' AS varchar)';
 	}
 
 	/**
@@ -413,34 +422,48 @@ class PgsqlSqlHelper extends SqlHelper
 			case 'int8':
 			case 'bigserial':
 			case 'serial8':
-				return (new ORM\Fields\IntegerField($name))->configureSize(8);
+				$field = (new ORM\Fields\IntegerField($name))->configureSize(8);
+				break;
 			case 'integer':
 			case 'int':
 			case 'int4':
 			case 'serial':
 			case 'serial4':
-				return (new ORM\Fields\IntegerField($name))->configureSize(4);
+				$field = (new ORM\Fields\IntegerField($name))->configureSize(4);
+				break;
 			case 'smallint':
 			case 'int2':
 			case 'smallserial':
 			case 'serial2':
-				return (new ORM\Fields\IntegerField($name))->configureSize(2);
+				$field = (new ORM\Fields\IntegerField($name))->configureSize(2);
+				break;
 			case 'double precision':
 			case 'float4':
 			case 'float8':
 			case 'numeric':
 			case 'decimal':
 			case 'real':
-				return new ORM\Fields\FloatField($name);
+				$field = new ORM\Fields\FloatField($name);
+				break;
 			case 'timestamp':
 			case 'timestamp without time zone':
 			case 'timestamptz':
 			case 'timestamp with time zone':
-				return new ORM\Fields\DatetimeField($name);
+				$field = new ORM\Fields\DatetimeField($name);
+				break;
 			case 'date':
-				return new ORM\Fields\DateField($name);
+				$field = new ORM\Fields\DateField($name);
+				break;
+			case 'bytea':
+				$field = new ORM\Fields\StringField($name, ['binary' => true]);
+				break;
+			default:
+				$field = new ORM\Fields\StringField($name);
 		}
-		return new ORM\Fields\StringField($name);
+
+		$field->setConnection($this->connection);
+
+		return $field;
 	}
 
 	/**

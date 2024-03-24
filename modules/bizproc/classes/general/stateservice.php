@@ -10,8 +10,6 @@ class CBPStateService extends CBPRuntimeService
 {
 	const COUNTERS_CACHE_TAG_PREFIX = 'b_bp_wfi_cnt_';
 
-	private array $cutDurationStatQueue = [];
-
 	public function setStateTitle($workflowId, $stateTitle)
 	{
 		global $DB;
@@ -193,7 +191,7 @@ class CBPStateService extends CBPRuntimeService
 		}
 	}
 
-	private static function __ExtractState(&$arStates, $arResult)
+	private static function extractState(&$arStates, $arResult): void
 	{
 		if (!array_key_exists($arResult["ID"], $arStates))
 		{
@@ -299,7 +297,9 @@ class CBPStateService extends CBPRuntimeService
 
 		$arStates = array();
 		while ($arResult = $dbResult->Fetch())
-			self::__ExtractState($arStates, $arResult);
+		{
+			self::extractState($arStates, $arResult);
+		}
 
 		return $arStates;
 	}
@@ -349,7 +349,9 @@ class CBPStateService extends CBPRuntimeService
 
 		$arStates = array();
 		while ($arResult = $dbResult->Fetch())
-			self::__ExtractState($arStates, $arResult);
+		{
+			self::extractState($arStates, $arResult);
+		}
 
 		$keys = array_keys($arStates);
 		if (count($keys) > 0)
@@ -490,31 +492,6 @@ class CBPStateService extends CBPRuntimeService
 		);
 
 		self::cleanRunningCountersCache($users);
-	}
-
-	public static function deleteCompletedStates(array $documentId)
-	{
-		$connection = Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
-
-		[$moduleId, $entity, $docId] = \CBPHelper::ParseDocumentId($documentId);
-
-		$connection->queryExecute(sprintf('DELETE P FROM b_bp_workflow_permissions P '
-			.'INNER JOIN b_bp_workflow_state S ON (P.WORKFLOW_ID = S.ID) '
-			.'LEFT JOIN b_bp_workflow_instance I ON (S.ID = I.ID)'
-			.'WHERE I.ID IS NULL AND S.MODULE_ID = \'%s\' AND S.ENTITY = \'%s\' AND S.DOCUMENT_ID = \'%s\'',
-			$helper->forSql($moduleId),
-			$helper->forSql($entity),
-			$helper->forSql($docId)
-		));
-
-		$connection->queryExecute(sprintf('DELETE S FROM b_bp_workflow_state S LEFT JOIN b_bp_workflow_instance I '
-			.'ON (S.ID = I.ID) '
-			.'WHERE I.ID IS NULL AND S.MODULE_ID = \'%s\' AND S.ENTITY = \'%s\' AND S.DOCUMENT_ID = \'%s\'',
-			$helper->forSql($moduleId),
-			$helper->forSql($entity),
-			$helper->forSql($docId)
-		));
 	}
 
 	public static function mergeStates($firstDocumentId, $secondDocumentId)
@@ -712,27 +689,6 @@ class CBPStateService extends CBPRuntimeService
 		}
 	}
 
-	public static function __InsertStateHack($id, $moduleId, $entity, $documentId, $templateId, $state, $stateTitle, $stateParameters, $arStatePermissions)
-	{
-		global $DB;
-
-		$DB->Query(
-			"INSERT INTO b_bp_workflow_state (ID, MODULE_ID, ENTITY, DOCUMENT_ID, DOCUMENT_ID_INT, WORKFLOW_TEMPLATE_ID, MODIFIED, STATE, STATE_TITLE, STATE_PARAMETERS) ".
-			"VALUES ('".$DB->ForSql($id)."', '".$DB->ForSql($moduleId)."', '".$DB->ForSql($entity)."', '".$DB->ForSql($documentId)."', ".intval($documentId).", ".intval($templateId).", ".$DB->CurrentTimeFunction().", '".$DB->ForSql($state)."', '".$DB->ForSql($stateTitle)."', ".($stateParameters <> '' ? "'".$DB->ForSql($stateParameters)."'" : "NULL").")"
-		);
-
-		foreach ($arStatePermissions as $permission => $arObjects)
-		{
-			foreach ($arObjects as $object)
-			{
-				$DB->Query(
-					"INSERT INTO b_bp_workflow_permissions (WORKFLOW_ID, OBJECT_ID, PERMISSION) ".
-					"VALUES ('".$DB->ForSql($id)."', '".$DB->ForSql($object)."', '".$DB->ForSql($permission)."')"
-				);
-			}
-		}
-	}
-
 	public static function getRunningCounters($userId)
 	{
 		global $DB;
@@ -752,7 +708,7 @@ class CBPStateService extends CBPRuntimeService
 				'WHERE WI.STARTED_BY = '.(int)$userId.' '.
 				'GROUP BY MODULE_ID, ENTITY';
 
-			$iterator = $DB->Query($query, true);
+			$iterator = $DB->Query($query);
 			if ($iterator)
 			{
 				while ($row = $iterator->fetch())
@@ -795,41 +751,6 @@ class CBPStateService extends CBPRuntimeService
 				'TEMPLATE_ID' => $templateId,
 				'DURATION' => (new Main\Type\DateTime())->getTimestamp() - $startedDate->getTimestamp(),
 			]);
-
-			$this->cutDurationStatQueue[$templateId] = true;
-			static $isAddedBackgroundJod = false;
-			if (!$isAddedBackgroundJod)
-			{
-				Main\Application::getInstance()->addBackgroundJob(
-					[$this, 'doBackgroundDurationStatCut'],
-					[],
-					Main\Application::JOB_PRIORITY_LOW - 10,
-				);
-				$isAddedBackgroundJod = true;
-			}
-		}
-	}
-
-	public function doBackgroundDurationStatCut()
-	{
-		global $DB;
-
-		$templateIds = array_keys($this->cutDurationStatQueue);
-		$this->cutDurationStatQueue = [];
-
-		foreach ($templateIds as $templateId)
-		{
-			$ids = WorkflowDurationStatTable::getOutdatedIds((int)$templateId);
-			if ($ids)
-			{
-				$DB->Query(
-					sprintf(
-						'DELETE FROM b_bp_workflow_duration_stat WHERE ID IN (%s)',
-						implode(',', $ids)
-					),
-					true
-				);
-			}
 		}
 	}
 }

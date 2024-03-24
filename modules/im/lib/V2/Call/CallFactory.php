@@ -38,4 +38,15 @@ class CallFactory
 				return Call::searchActive($type, $provider, $entityType, $entityId, $currentUserId);
 		}
 	}
+
+	public static function searchActiveByUuid(string $provider, string $uuid)
+	{
+		switch ($provider)
+		{
+			case 'Bitrix':
+				return BitrixCall::searchActiveByUuid($uuid);
+			default:
+				return Call::searchActiveByUuid($uuid);
+		}
+	}
 }

@@ -22,6 +22,7 @@ $MESS['SN_SPACES_TASKS_SORT_ALLOW_TIME_TRACKING']= 'Учитывать врем�
 $MESS['SN_SPACES_TASKS_SORT_CREATED_DATE'] = 'Дата создания';
 $MESS['SN_SPACES_TASKS_SORT_CHANGED_DATE'] = 'Дата изменения';
 $MESS['SN_SPACES_TASKS_SORT_ACTIVITY_DATE'] = 'По активности';
+$MESS['SN_SPACES_TASKS_SORT_ACTIVITY_DATE_MSGVER_1'] = 'По активности';
 $MESS['SN_SPACES_TASKS_SORT_CLOSED_DATE'] = 'Дата закрытия';
 $MESS['SN_SPACES_TASKS_SORT_SORTING'] = 'Моя сортировка';
 $MESS['SN_SPACES_TASKS_SORT_TITLE_ITEM'] = 'Сортировка:';

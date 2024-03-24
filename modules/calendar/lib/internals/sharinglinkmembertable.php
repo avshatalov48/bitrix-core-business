@@ -22,7 +22,20 @@ use Bitrix\Main\UserTable;
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SharingLinkMember_Query query()
+ * @method static EO_SharingLinkMember_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_SharingLinkMember_Result getById($id)
+ * @method static EO_SharingLinkMember_Result getList(array $parameters = [])
+ * @method static EO_SharingLinkMember_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkMember createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkMember_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkMember wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkMember_Collection wakeUpCollection($rows)
+ */
 
 class SharingLinkMemberTable extends DataManager
 {

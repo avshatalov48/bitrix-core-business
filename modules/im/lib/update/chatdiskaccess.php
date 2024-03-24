@@ -83,7 +83,7 @@ final class ChatDiskAccess extends \Bitrix\Main\Update\Stepper
 
 				$accessCode = $accessProvider->generateAccessCode($chatId);
 
-				$connection->queryExecute(/** @lang mysql */ "
+				$connection->queryExecute("
 					INSERT INTO b_disk_simple_right (OBJECT_ID, ACCESS_CODE)
 					SELECT P.OBJECT_ID, '{$accessCode}'
 					FROM 

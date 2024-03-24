@@ -276,24 +276,44 @@ class CAllBlogPost
 		}
 
 
-		$arFields["PREVIEW_TEXT_TYPE"] = mb_strtolower($arFields["PREVIEW_TEXT_TYPE"]);
+		$arFields["PREVIEW_TEXT_TYPE"] = mb_strtolower($arFields["PREVIEW_TEXT_TYPE"] ?? '');
 		if ((is_set($arFields, "PREVIEW_TEXT_TYPE") || $ACTION=="ADD") && $arFields["PREVIEW_TEXT_TYPE"] != "text" && $arFields["PREVIEW_TEXT_TYPE"] != "html")
 			$arFields["PREVIEW_TEXT_TYPE"] = "text";
 
 		if ((is_set($arFields, "DETAIL_TEXT_TYPE") || $ACTION=="ADD") && mb_strtolower($arFields["DETAIL_TEXT_TYPE"]) != "text" && mb_strtolower($arFields["DETAIL_TEXT_TYPE"]) != "html")
 			$arFields["DETAIL_TEXT_TYPE"] = "text";
-		if($arFields["DETAIL_TEXT_TYPE"] <> '')
+		if (($arFields["DETAIL_TEXT_TYPE"] ?? '') <> '')
+		{
 			$arFields["DETAIL_TEXT_TYPE"] = mb_strtolower($arFields["DETAIL_TEXT_TYPE"]);
+		}
 
 		$arStatus = array_keys($GLOBALS["AR_BLOG_PUBLISH_STATUS"]);
 		if ((is_set($arFields, "PUBLISH_STATUS") || $ACTION=="ADD") && !in_array($arFields["PUBLISH_STATUS"], $arStatus))
 			$arFields["PUBLISH_STATUS"] = $arStatus[0];
 
-		if ((is_set($arFields, "ENABLE_TRACKBACK") || $ACTION=="ADD") && $arFields["ENABLE_TRACKBACK"] != "Y" && $arFields["ENABLE_TRACKBACK"] != "N")
+		if (
+			(
+				is_set($arFields, "ENABLE_TRACKBACK")
+				|| $ACTION == "ADD"
+			)
+			&& ($arFields["ENABLE_TRACKBACK"] ?? '') != "Y"
+			&& ($arFields["ENABLE_TRACKBACK"] ?? '') != "N"
+		)
+		{
 			$arFields["ENABLE_TRACKBACK"] = "Y";
+		}
 
-		if ((is_set($arFields, "ENABLE_COMMENTS") || $ACTION=="ADD") && $arFields["ENABLE_COMMENTS"] != "Y" && $arFields["ENABLE_COMMENTS"] != "N")
+		if (
+			(
+				is_set($arFields, "ENABLE_COMMENTS")
+				|| $ACTION == "ADD"
+			)
+			&& ($arFields["ENABLE_COMMENTS"] ?? '') != "Y"
+			&& ($arFields["ENABLE_COMMENTS"] ?? '') != "N"
+		)
+		{
 			$arFields["ENABLE_COMMENTS"] = "Y";
+		}
 
 		if (!empty($arFields["ATTACH_IMG"]))
 		{
@@ -731,7 +751,7 @@ class CAllBlogPost
 			$dbUser = CUser::GetByID($arParams["user_id"]);
 			$arUser = $dbUser->Fetch();
 			$AuthorName = CBlogUser::GetUserNameEx($arUser, $BlogUser, $arParams);
-			$parserBlog = new blogTextParser(false, $arParams["PATH_TO_SMILE"]);
+			$parserBlog = new blogTextParser(false, $arParams["PATH_TO_SMILE"] ?? false);
 			$text4mail = $arPost["DETAIL_TEXT"];
 			if($arPost["DETAIL_TEXT_TYPE"] == "html")
 			{
@@ -803,7 +823,7 @@ class CAllBlogPost
 						: Integration\Socialnetwork\Log::EVENT_ID_POST
 				),
 				"=LOG_DATE" => (
-					$arPost["DATE_PUBLISH"] <> ''
+					($arPost["DATE_PUBLISH"] ?? '') <> ''
 						? (
 							MakeTimeStamp($arPost["DATE_PUBLISH"], CSite::GetDateFormat("FULL", SITE_ID)) > time()+CTimeZone::GetOffset()
 								? $DB->CharToDateFunction($arPost["DATE_PUBLISH"], "FULL", SITE_ID)
@@ -825,7 +845,7 @@ class CAllBlogPost
 			$arSoFields["RATING_TYPE_ID"] = "BLOG_POST";
 			$arSoFields["RATING_ENTITY_ID"] = intval($arPost["ID"]);
 
-			if($arParams["bGroupMode"])
+			if ($arParams["bGroupMode"] ?? false)
 			{
 				$arSoFields["ENTITY_TYPE"] = SONET_ENTITY_GROUP;
 				$arSoFields["ENTITY_ID"] = $arParams["SOCNET_GROUP_ID"];
@@ -835,7 +855,15 @@ class CAllBlogPost
 			{
 				$arSoFields["ENTITY_TYPE"] = SONET_ENTITY_USER;
 				$arSoFields["ENTITY_ID"] = $arBlog["OWNER_ID"];
-				$arSoFields["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"], "group_id" => $arParams["SOCNET_GROUP_ID"], "post_id" => $arPost["ID"]));
+				$arSoFields["URL"] = CComponentEngine::MakePathFromTemplate(
+					$arParams["PATH_TO_POST"],
+					[
+						"blog" => $arBlog["URL"],
+						"user_id" => $arBlog["OWNER_ID"],
+						"group_id" => $arParams["SOCNET_GROUP_ID"] ?? null,
+						"post_id" => $arPost["ID"],
+					]
+				);
 			}
 
 			if (intval($arParams["user_id"]) > 0)
@@ -972,7 +1000,11 @@ class CAllBlogPost
 			$arImages[$arImage['ID']] = $arImage['FILE_ID'];
 		}
 
-		if($arPost["DETAIL_TEXT_TYPE"] == "html" && $arParams["allowHTML"] == "Y" && $arBlog["ALLOW_HTML"] == "Y")
+		if (
+			($arPost["DETAIL_TEXT_TYPE"] ?? null) === "html"
+			&& $arParams["allowHTML"] === "Y"
+			&& $arBlog["ALLOW_HTML"] === "Y"
+		)
 		{
 			$arAllow = array("HTML" => "Y", "ANCHOR" => "Y", "IMG" => "Y", "SMILES" => "N", "NL2BR" => "N", "VIDEO" => "Y", "QUOTE" => "Y", "CODE" => "Y");
 			if($arParams["allowVideo"] != "Y")
@@ -1186,7 +1218,7 @@ class CAllBlogPost
 	public static function GetPostID($postID, $code, $allowCode = false)
 	{
 		$postID = intval($postID);
-		$code = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($code));
+		$code = preg_replace("/[^a-zA-Z0-9_-]/is", "", trim($code ?? ''));
 		if($code == '' && intval($postID) <= 0)
 			return false;
 
@@ -1313,7 +1345,7 @@ class CAllBlogPost
 		return CBlogPost::AddSocNetPerms($ID, $perms, $arPost);
 	}
 
-	public static function __AddSocNetPerms($ID, $entityType = "", $entityID = 0, $entity)
+	public static function __AddSocNetPerms($ID, $entityType = "", $entityID = 0, $entity = null)
 	{
 		global $DB;
 
@@ -1497,10 +1529,19 @@ class CAllBlogPost
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while($arRes = $dbRes->GetNext())
 		{
-			if(!is_array($arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]))
+			if (
+				!isset($arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]])
+				 || !is_array($arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]))
+			{
 				$arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]] = $arRes;
-			if(!is_array($arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]["ENTITY"]))
-				$arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]["ENTITY"] = Array();
+			}
+			if (
+				!isset($arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]["ENTITY"])
+				|| !is_array($arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]["ENTITY"])
+			)
+			{
+				$arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]["ENTITY"] = [];
+			}
 			$arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]]["ENTITY"][] = $arRes["ENTITY"];
 		}
 		return $arResult;
@@ -1578,7 +1619,12 @@ class CAllBlogPost
 		return $arResult;
 	}
 
-	public static function GetSocNetPostPerms($postId = 0, $bNeedFull = false, $userId = false, $postAuthor = 0)
+	public static function GetSocNetPostPerms(
+		$postId = 0,
+		$bNeedFull = false,
+		$userId = false,
+		$postAuthor = 0
+	)
 	{
 		global $USER;
 
@@ -1649,7 +1695,16 @@ class CAllBlogPost
 
 		if(intval($postAuthor) <= 0)
 		{
-			$dbPost = CBlogPost::GetList(array(), array("ID" => $postId), false, false, array("ID", "AUTHOR_ID"));
+			$dbPost = CBlogPost::GetList(
+				[],
+				["ID" => $postId],
+				false,
+				false,
+				[
+					"ID",
+					"AUTHOR_ID",
+				]
+			);
 			$arPost = $dbPost->Fetch();
 		}
 		else
@@ -1657,7 +1712,7 @@ class CAllBlogPost
 			$arPost["AUTHOR_ID"] = $postAuthor;
 		}
 
-		if($arPost["AUTHOR_ID"] == $userId)
+		if (($arPost["AUTHOR_ID"] ?? null) == $userId)
 		{
 			$perms = BLOG_PERMS_FULL;
 		}
@@ -2055,7 +2110,7 @@ class CAllBlogPost
 				'order' => array(),
 				'filter' => array(
 					"ID" => $arUsers,
-					"ACTIVE" => "Y",
+					"=ACTIVE" => "Y",
 					"!=EXTERNAL_AUTH_ID" => 'email'
 				),
 				'select' => array("ID")
@@ -2162,7 +2217,7 @@ class CAllBlogPost
 		// notify mentioned users
 		if(!empty($arParams["MENTION_ID"]))
 		{
-			if(!is_array($arParams["MENTION_ID_OLD"]))
+			if(!is_array($arParams["MENTION_ID_OLD"] ?? null))
 			{
 				$arParams["MENTION_ID_OLD"] = Array();
 			}
@@ -2174,7 +2229,7 @@ class CAllBlogPost
 				$val = intval($val);
 				if (
 					intval($val) > 0
-					&& !in_array($val, $arParams["MENTION_ID_OLD"])
+					&& !in_array($val, $arParams["MENTION_ID_OLD"] ?? [])
 					&& $val != $arParams["FROM_USER_ID"]
 				)
 				{
@@ -2391,13 +2446,13 @@ class CAllBlogPost
 				if (!$bTitleEmpty)
 				{
 					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
-						"BLG_GP_IM_1".$aditGM,
+						"BLG_GP_IM_1_MSGVER_1".$aditGM,
 						array(
 							"#title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
 						)
 					);
 					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
-							"BLG_GP_IM_1".$aditGM,
+							"BLG_GP_IM_1_MSGVER_1".$aditGM,
 							array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
 							)
@@ -2716,8 +2771,8 @@ class CAllBlogPost
 				{
 					if (!$bTitleEmpty)
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_1".$aditGM, Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_1".$aditGM, Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])))." (".$serverName.$url.")";
+						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_1_MSGVER_1".$aditGM, Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"));
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_1_MSGVER_1".$aditGM, Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])))." (".$serverName.$url.")";
 					}
 					else
 					{
@@ -2867,7 +2922,7 @@ class CAllBlogPost
 					"MESSAGE_OUT" => GetMessage("SONET_IM_NEW_POST", Array(
 						"#title#" => $title_out
 					))." #URL#",
-					"EXCLUDE_USERS" => array_merge(array($arParams["FROM_USER_ID"]), array($arUserIDSent)),
+					"EXCLUDE_USERS" => array_merge([$arParams["FROM_USER_ID"]], $arUserIDSent),
 					"PERMISSION" => array(
 						"FEATURE" => "blog",
 						"OPERATION" => "view_post"
@@ -2905,18 +2960,18 @@ class CAllBlogPost
 				);
 			}
 
-			$arMessageFieldsGrat["NOTIFY_MESSAGE"] = Loc::getMessage('SONET_IM_POST_GRAT'.$aditGM, [
+			$arMessageFieldsGrat["NOTIFY_MESSAGE"] = Loc::getMessage('SONET_IM_POST_GRAT_NEW', [
 				"#link_post_start#" => "<a href=\"".$urlOriginal."\" class=\"bx-notifier-item-action\">",
 				"#link_post_end#" => "</a>",
 				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
 			]);
 
-			$arMessageFieldsGrat["NOTIFY_MESSAGE_OUT"] = Loc::getMessage('SONET_IM_POST_GRAT'.$aditGM, [
+			$arMessageFieldsGrat["NOTIFY_MESSAGE_OUT"] = Loc::getMessage('SONET_IM_POST_GRAT_NEW', [
 				"#link_post_start#" => "",
 				"#link_post_end#" => "",
 				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
 			])." ".$serverName.$urlOriginal."";
-			$arMessageFieldsGrat["PUSH_MESSAGE"] = Loc::getMessage('SONET_PUSH_POST_GRAT'.$aditGM, [
+			$arMessageFieldsGrat["PUSH_MESSAGE"] = Loc::getMessage('SONET_PUSH_POST_GRAT_NEW', [
 				"#name#" => htmlspecialcharsbx($authorName),
 				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
 			]);
@@ -3104,7 +3159,7 @@ class CAllBlogPost
 					$arMessageFieldsCurrent["TO_USER_ID"] = $moderatorId;
 
 					$userModerationUrl = str_replace('#group_id#', $groupId, $moderationUrl);
-					$userCommentUrl = $arParams['COMMENT_URL'];
+					$userCommentUrl = $arParams['COMMENT_URL'] ?? null;
 
 					if (IsModuleInstalled("extranet"))
 					{
@@ -3225,7 +3280,7 @@ class CAllBlogPost
 		}
 
 		$userPostUrl = (isset($arParams['POST_URL']) ? $arParams['POST_URL'] : '');
-		$userCommentUrl = (isset($arParams['POST_URL']) ? $arParams['COMMENT_URL'] : '');
+		$userCommentUrl = (isset($arParams['COMMENT_URL']) ? $arParams['COMMENT_URL'] : '');
 
 		if (IsModuleInstalled("extranet"))
 		{

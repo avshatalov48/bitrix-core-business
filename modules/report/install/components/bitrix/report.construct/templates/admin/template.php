@@ -301,7 +301,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 	</script>
 	<div class="report-period-hidden">
 		<input type="hidden" name="period_hidden" value="N">
-		<input type="checkbox" <?=($arResult['preSettings']['period']['hidden'] === 'Y')?'checked="checked" ':''?>
+		<input type="checkbox" <?=(($arResult['preSettings']['period']['hidden'] ?? '') === 'Y')?'checked="checked" ':''?>
 			class="reports-checkbox" id="report-period-hidden-checkbox" name="period_hidden" value="Y" />
 		<span class="reports-limit-res-select-lable">
 			<label for="report-period-hidden-checkbox"><?=GetMessage('REPORT_PERIOD_HIDDEN')?></label>
@@ -352,7 +352,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 	<?php /*   use columns selection of price types   */ ?>
 	<?php if (call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getOwnerId')) === 'sale_SaleProduct'): ?>
 	<div class="reports-filter-quan-item">
-		<input type="checkbox" <?=($arResult['preSettings']['helper_spec']['ucspt'] === true)?'checked="checked" ':''?>
+		<input type="checkbox" <?=(($arResult['preSettings']['helper_spec']['ucspt'] ?? false) === true)?'checked="checked" ':''?>
 			class="reports-checkbox" id="report-helper-spec-ucspt" name="helper_spec_ucspt" />
 			<span class="reports-limit-res-select-lable">
 				<label for="report-helper-spec-ucspt"><?=GetMessage('REPORT_HELPER_SPEC_UCSPT')?></label>
@@ -376,15 +376,15 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 						BX('reports-add_col-popup-cont'),
 						{tag:'input', attr:{type:'checkbox', name:'<?=CUtil::JSEscape($selElem['name'])?>'}}, true
 					),
-					'<?=$selElem['aggr'] <> ''? CUtil::JSEscape($selElem['aggr']) : ''?>',
-					'<?=$selElem['alias'] <> ''? CUtil::JSEscape($selElem['alias']) : ''?>',
+					'<?=($selElem['aggr'] ?? '') <> '' ? CUtil::JSEscape($selElem['aggr']) : ''?>',
+					'<?=($selElem['alias'] ?? '') <> '' ? CUtil::JSEscape($selElem['alias']) : ''?>',
 					<?=$num?>,
-					<?=($selElem['grouping']) ? 'true' : 'false'?>,
-					<?=($selElem['grouping_subtotal']) ? 'true' : 'false'?>);
+					<?=($selElem['grouping'] ?? false) ? 'true' : 'false'?>,
+					<?=($selElem['grouping_subtotal'] ?? false) ? 'true' : 'false'?>);
 				<? endforeach; ?>
 
 		<? foreach ($arResult['preSettings']['select'] as $num => $selElem): ?>
-				<? if ($selElem['prcnt'] <> ''): ?>
+				<? if (($selElem['prcnt'] ?? '') <> ''): ?>
 			setPrcntView(<?=$num?>, '<?=CUtil::JSEscape($selElem['prcnt'])?>');
 			<? endif; ?>
 				<? endforeach; ?>
@@ -460,7 +460,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 				// add default limit
 				setReportLimit(true, '<?=$arResult["preSettings"]["limit"]?>');
 				<? endif; ?>
-				<? if ($arResult["preSettings"]["grouping_mode"] === true): ?>
+				<? if (($arResult["preSettings"]["grouping_mode"] ?? false) === true): ?>
 				enableReportLimit(false);
 				<? endif; ?>
 			});
@@ -474,7 +474,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 		</div>
 
 		<div class="reports-filter-quan-item">
-			<input type="checkbox" <?=($arResult['preSettings']['red_neg_vals'] === true)?'checked="checked" ':''?>
+			<input type="checkbox" <?=(($arResult['preSettings']['red_neg_vals'] ?? false) === true)?'checked="checked" ':''?>
 				class="reports-checkbox" id="report-negative-values-red-checkbox" name="report_red_neg_vals"/>
 			<span class="reports-limit-res-select-lable">
 				<label for="report-negative-values-red-checkbox"><?=GetMessage('REPORT_NEGATIVE_VALUES_RED')?></label>
@@ -482,7 +482,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 		</div>
 
 		<div class="reports-filter-quan-item" style="margin-top: 10px;">
-			<input type="checkbox" <?=($arResult['preSettings']['mobile']['enabled'] === true)?'checked="checked" ':''?>
+			<input type="checkbox" <?=(($arResult['preSettings']['mobile']['enabled'] ?? false) === true)?'checked="checked" ':''?>
 				class="reports-checkbox" id="report-mobile-settings" name="report_mobile_enabled"/>
 			<span class="reports-limit-res-select-lable">
 				<label for="report-mobile-settings"><?=GetMessage('REPORT_MOBILE_SETTINGS')?></label>
@@ -588,7 +588,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 <script type="text/javascript">
 	var GLOBAL_BX_REPORT_USING_CHARTS = true;
 </script>
-<?php $fDisplayChart = $arResult['preSettings']['chart']['display']; ?>
+<?php $fDisplayChart = ($arResult['preSettings']['chart']['display'] ?? false); ?>
 <div id="report-chart-config">
 	<div id="report-chart-switch"
 		class="reports-content-block-title<?php echo ($fDisplayChart)?' reports-title-filter':''; ?>">
@@ -606,7 +606,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 				<select id="report-chart-type" name="chart_type">
 					<?php
 					$bSelectFirst = true;
-					$chartTypeSetting = $arResult['preSettings']['chart']['type'];
+					$chartTypeSetting = ($arResult['preSettings']['chart']['type'] ?? '');
 					if ($chartTypeSetting !== null)
 					{
 						$chartTypeIds = array();
@@ -638,7 +638,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 		</tr>
 		<?php
 		$yColumnsMaxNumber = 10;
-		$yColumns = $arResult['preSettings']['chart']['y_columns'];
+		$yColumns = ($arResult['preSettings']['chart']['y_columns'] ?? []);
 		$yColumnLastIndex = 0;
 		$yColumnsLabelText = GetMessage('REPORT_CHART_LABEL_TEXT_VALUES');
 		if (is_array($yColumns))
@@ -677,8 +677,8 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 		var i, colId, match;
 		var xColumnIndex = null, yColumnsIndexes = [];
 		<?php
-			$xColumnIndex = $arResult['preSettings']['chart']['x_column'];
-			$yColumnsIndexes = $arResult['preSettings']['chart']['y_columns'];
+			$xColumnIndex = ($arResult['preSettings']['chart']['x_column'] ?? null);
+			$yColumnsIndexes = ($arResult['preSettings']['chart']['y_columns'] ?? []);
 			if ($xColumnIndex !== null && is_array($yColumnsIndexes) && count($yColumnsIndexes) > 0)
 			{
 				echo 'xColumnIndex = '.CUtil::JSEscape($xColumnIndex).';'.PHP_EOL;

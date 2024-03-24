@@ -36,20 +36,36 @@ trait IndexTableTrait
 
 	public static function deleteByFilter(array $filter): void
 	{
-		$sqlHelper = Application::getConnection()->getSqlHelper();
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
 		$indexTable = $sqlHelper->quote(static::getTableName());
 		$baseTable = $sqlHelper->quote(static::getBaseDataClass()::getTableName());
 		$indexTablePrimary = $sqlHelper->quote(static::getEntity()->getPrimary());
 		$baseTablePrimary = $sqlHelper->quote(static::getBaseDataClass()::getEntity()->getPrimary());
 		$whereStatement = Query::buildFilterSql(static::getBaseDataClass()::getEntity(), $filter);
 
-		$sql = "
-		DELETE {$indexTable} FROM {$indexTable} 
-		INNER JOIN {$baseTable} ON {$indexTable}.{$indexTablePrimary} = {$baseTable}.{$baseTablePrimary}
-		WHERE {$whereStatement};
-		";
+		if ($connection->getType() == 'mysql')
+		{
+			$sql = "
+				DELETE {$indexTable} 
+				FROM {$indexTable} 
+					INNER JOIN {$baseTable} 
+						ON {$indexTable}.{$indexTablePrimary} = {$baseTable}.{$baseTablePrimary}
+				WHERE {$whereStatement};
+			";
+		}
+		elseif ($connection->getType() == 'pgsql')
+		{
+			$sql = "
+				DELETE FROM {$indexTable}
+				USING {$baseTable}
+				WHERE
+					{$indexTable}.{$indexTablePrimary} = {$baseTable}.{$baseTablePrimary}
+					AND {$whereStatement}
+			";
+		}
 
-		Application::getConnection()->queryExecute($sql);
+		$connection->queryExecute($sql);
 	}
 
 	public static function updateIndexStatus(array $ids, bool $status = true): void
@@ -59,19 +75,20 @@ trait IndexTableTrait
 			return;
 		}
 
-		$sqlHelper = Application::getConnection()->getSqlHelper();
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
 		$baseTable = $sqlHelper->quote(static::getBaseDataClass()::getTableName());
 		$baseTablePrimary = $sqlHelper->quote(static::getBaseDataClass()::getEntity()->getPrimary());
 		$implodeIds = implode(',', $ids);
 		$statusString = $status ? 'Y' : 'N';
 
 		$sql = "
-		UPDATE {$baseTable}
-		SET IS_INDEXED = '{$statusString}'
-		WHERE {$baseTablePrimary} IN ({$implodeIds});
+			UPDATE {$baseTable}
+			SET IS_INDEXED = '{$statusString}'
+			WHERE {$baseTablePrimary} IN ({$implodeIds});
 		";
 
-		Application::getConnection()->queryExecute($sql);
+		$connection->queryExecute($sql);
 	}
 
 	private static function runIndex(): void

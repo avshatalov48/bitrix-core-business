@@ -2883,7 +2883,7 @@ class CUpdateSystem
 
 		if ($strError_tmp == '')
 		{
-			$CRCCode = $arRes["DATA"]["#"]["RESPONSE"][0]["@"]["CRC_CODE"];
+			$CRCCode = isset($arRes["DATA"]["#"]["RESPONSE"][0]["@"]["CRC_CODE"]) ? $arRes["DATA"]["#"]["RESPONSE"][0]["@"]["CRC_CODE"] : '';
 			if ($CRCCode <> '')
 				COption::SetOptionString("main", "crc_code", $CRCCode);
 			if (isset($arRes["DATA"]["#"]["CLIENT"][0]["@"]["DATE_TO_SOURCE"]))
@@ -3384,12 +3384,12 @@ class CUpdateSystem
 				$maxReadSize = 4096;
 
 				$length = 0;
-				$line = fgets($FP,$maxReadSize);
-				$line = strtolower($line);
+				$line = FGets($FP, $maxReadSize);
+				$line = StrToLower($line);
 
 				$strChunkSize = "";
 				$i = 0;
-				while ($i < strlen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
+				while ($i < StrLen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
 				{
 					$strChunkSize .= $line[$i];
 					$i++;
@@ -3405,20 +3405,20 @@ class CUpdateSystem
 					while ($readSize > 0 && $line = fread($FP, $readSize))
 					{
 						$content .= $line;
-						$processedSize += strlen($line);
+						$processedSize += StrLen($line);
 						$newSize = $chunkSize - $processedSize;
 						$readSize = (($newSize > $maxReadSize) ? $maxReadSize : $newSize);
 					}
 					$length += $chunkSize;
 
-					$line = fgets($FP,$maxReadSize);
+					$line = FGets($FP, $maxReadSize);
 
-					$line = fgets($FP,$maxReadSize);
-					$line = strtolower($line);
+					$line = FGets($FP, $maxReadSize);
+					$line = StrToLower($line);
 
 					$strChunkSize = "";
 					$i = 0;
-					while ($i < strlen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
+					while ($i < StrLen($line) && in_array($line[$i], array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")))
 					{
 						$strChunkSize .= $line[$i];
 						$i++;
@@ -3441,7 +3441,7 @@ class CUpdateSystem
 			$strError .= GetMessage("SUPP_GHTTP_ER").": [".$errno."] ".$errstr.". ";
 			if (intval($errno)<=0) $strError .= GetMessage("SUPP_GHTTP_ER_DEF")." ";
 
-			CUpdateSystem::AddMessage2Log("Error connecting 2 ".$ServerIP.": [".$errno."] ".$errstr, "ERRCONN");
+			CUpdateSystem::AddMessage2Log("Error connecting 2 ".$ServerIP.": [".$errno."] ".$errstr."", "ERRCONN");
 		}
 		return $content;
 	}
@@ -4312,8 +4312,8 @@ class CUpdatesXML
 	protected function replaceSpecialChars($content)
 	{
 		return str_replace(
-			array("&gt;", "&lt;", "&apos;", "&quot;", "&amp;"),
-			array(">", "<", "'", '"', "&"),
+			["&gt;", "&lt;", "&apos;", "&quot;", "&amp;"],
+			[">", "<", "'", '"', "&"],
 			$content
 		);
 	}
@@ -4380,7 +4380,7 @@ class CUpdater
 	{
 		$this->errorMessage = array();
 		$this->curPath = $curPath;
-		$this->dbType = strtoupper($dbType);
+		$this->dbType = StrToUpper($dbType);
 		$this->updater = $updater;
 		$this->curModulePath = $curDir;
 		$this->moduleID = $moduleID;
@@ -4680,7 +4680,7 @@ class CUpdater
 			{
 				foreach ($query as $key => $value)
 				{
-					if ($this->dbType == strtoupper($key))
+					if ($this->dbType == StrToUpper($key))
 					{
 						$strQuery = $value;
 						break;
@@ -4731,7 +4731,7 @@ class CUpdater
 			{
 				foreach ($queryPath as $key => $value)
 				{
-					if ($this->dbType == strtoupper($key))
+					if ($this->dbType == StrToUpper($key))
 					{
 						$strQueryPath = $value;
 						break;

@@ -261,7 +261,7 @@ class Signaling
 		));
 	}
 
-	public function sendHangup(int $senderId, array $toUserIds, string $callInstanceId, $code = 200)
+	public function sendHangup(int $senderId, array $toUserIds, ?string $callInstanceId, $code = 200)
 	{
 		$config = [
 			'senderId' => $senderId,

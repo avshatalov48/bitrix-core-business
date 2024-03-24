@@ -21,7 +21,7 @@ class MaskExport extends ExportStep
 
 	public function init(): void
 	{
-		$query = Avatar\Mask\ItemTable::query()
+		$query = Avatar\Model\ItemTable::query()
 			->setFilter([
 				'=OWNER_TYPE' => Avatar\Mask\Owner\User::class,
 				'=OWNER_ID' => $this->entityId

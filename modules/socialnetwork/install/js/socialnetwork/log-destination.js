@@ -439,7 +439,7 @@ BX.SocNetLogDestination.init = function(arParams)
 			groupCode: 'network',
 			className: _getGroupParam('network', 'className', 'bx-lm-element-user'),
 			descLessMode: _getGroupParam('network', 'descLessMode', false),
-			title: _getGroupParam('network', 'title', BX.message('LM_POPUP_TAB_LAST_NETWORK')),
+			title: _getGroupParam('network', 'title', BX.message('LM_POPUP_TAB_LAST_NETWORK_MSGVER_1')),
 			emailDescMode: _getGroupParam('network', 'emailDescMode')
 		});
 	}
@@ -2297,7 +2297,7 @@ BX.SocNetLogDestination.search = function(text, sendAjax, name, nameTemplate, pa
 									props : {
 										'className' : "bx-finder-box-button"
 									},
-									text: BX.message('LM_POPUP_SEARCH_NETWORK')
+									text: BX.message('LM_POPUP_SEARCH_NETWORK_MSGVER_1')
 								});
 
 								var foundUsers = BX.findChildren(contentArea[0], {tagName: 'a'}, true);

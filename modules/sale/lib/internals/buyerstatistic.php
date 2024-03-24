@@ -68,7 +68,7 @@ class BuyerStatisticTable extends Main\Entity\DataManager
 				)
 			),
 
-			new Main\Entity\StringField(
+			new Main\Entity\IntegerField(
 				'USER_ID',
 				array(
 					'required' => true,
@@ -92,7 +92,7 @@ class BuyerStatisticTable extends Main\Entity\DataManager
 			),
 
 			new Main\Entity\IntegerField('COUNT_FULL_PAID_ORDER'),
-			
+
 			new Main\Entity\IntegerField('COUNT_PART_PAID_ORDER'),
 
 			new Main\Entity\ReferenceField(

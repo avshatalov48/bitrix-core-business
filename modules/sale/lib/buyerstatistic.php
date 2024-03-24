@@ -120,7 +120,7 @@ class BuyerStatistic
 				'USER_ID' => $userId,
 				'CURRENCY' => $currency,
 				'LID' => $lid,
-				'LAST_ORDER_DATE' => ($lastOrderDate) ? $lastOrderDate : $lastArchiveDate
+				'LAST_ORDER_DATE' => ($lastOrderDate) ?: $lastArchiveDate
 			);
 
 			if ($lastOrderDate)
@@ -136,7 +136,7 @@ class BuyerStatistic
 					'group' => ['USER_ID'],
 					'runtime' => [
 						new ExpressionField('COUNT_PART_PAID_ORDER', 'COUNT(1)'),
-						new ExpressionField('COUNT_FULL_PAID_ORDER', 'SUM(CASE WHEN PAYED = "Y" THEN 1 ELSE 0 END)'),
+						new ExpressionField('COUNT_FULL_PAID_ORDER', 'SUM(CASE WHEN PAYED = \'Y\' THEN 1 ELSE 0 END)'),
 						new ExpressionField('FULL_SUM_PAID', 'SUM(SUM_PAID)')
 					],
 				]);
@@ -161,7 +161,7 @@ class BuyerStatistic
 					'group' => ['USER_ID'],
 					'runtime' => [
 						new ExpressionField('COUNT_PART_PAID_ORDER', 'COUNT(1)'),
-						new ExpressionField('COUNT_FULL_PAID_ORDER', 'SUM(CASE WHEN PAYED = "Y" THEN 1 ELSE 0 END)'),
+						new ExpressionField('COUNT_FULL_PAID_ORDER', 'SUM(CASE WHEN PAYED = \'Y\' THEN 1 ELSE 0 END)'),
 						new ExpressionField('FULL_SUM_PAID', 'SUM(SUM_PAID)')
 					],
 				]);
@@ -185,6 +185,4 @@ class BuyerStatistic
 
 		return $result;
 	}
-
-
 }

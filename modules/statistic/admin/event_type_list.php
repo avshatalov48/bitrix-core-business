@@ -201,7 +201,10 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 				$statDB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("STAT_DELETE_ERROR"), $ID);
 			}
-			$statDB->Commit();
+			else
+			{
+				$statDB->Commit();
+			}
 			break;
 		case "clear":
 			@set_time_limit(0);
@@ -211,7 +214,10 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 				$statDB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("STAT_DELETE_ERROR"), $ID);
 			}
-			$statDB->Commit();
+			else
+			{
+				$statDB->Commit();
+			}
 			break;
 		}
 	}
@@ -278,7 +284,7 @@ $arHeaders[]=
 		"align"		=>"right",
 		"default"	=>true,
 	);
-$bIsPeriod=($arFilter["DATE1_PERIOD"] <> '' || $arFilter["DATE1_PERIOD"] <> '');
+$bIsPeriod=($arFilter["DATE1_PERIOD"] <> '' || $arFilter["DATE2_PERIOD"] <> '');
 if($bIsPeriod)
 
 $arHeaders[]=

@@ -67,6 +67,13 @@ $tabControl = new CAdminTabControl('tabControl', array(
 
 $tabControl->Begin();
 
+// If saved currency in 'conversion' module, not exist in currency list, then show empty currency.
+if (!isset($currencies[$currency]))
+{
+	$currency = '';
+	$currencies = ['' => Loc::getMessage('CONVERSION_CURRENCY_NOT_SELECTED')] + $currencies;
+}
+
 ?>
 <form method="post" action="<?=$APPLICATION->GetCurPage()?>?mid=<?=urlencode($mid)?>&amp;lang=<?echo LANGUAGE_ID?>">
 	<?=bitrix_sessid_post()?>

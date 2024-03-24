@@ -8,7 +8,7 @@ use Bitrix\Socialnetwork\Internals\EventService;
 
 class Service
 {
-	private const JOB_PRIORITY = Application::JOB_PRIORITY_LOW - 2;
+	private const JOB_PRIORITY = Application::JOB_PRIORITY_LOW - 5;
 	private const LOCK_KEY = 'sonet.eventlock';
 	private static Service|null $instance = null;
 	private static bool $isJobOn = false;
@@ -147,6 +147,7 @@ class Service
 				'TYPE' => $event->getType(),
 				'DATA' => Main\Web\Json::encode($event->getData()),
 				'LOG_DATA' => null,
+				'PROCESSED' => Main\Type\DateTime::createFromTimestamp(0),
 			]);
 		}
 		catch (\Exception $e)

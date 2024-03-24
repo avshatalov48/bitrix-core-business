@@ -299,8 +299,8 @@ $MESS["BXEdPasteFormattedText"] = "Форматированный текст";
 $MESS["BXEdDefaultPropDialogTextNode"] = "Текст";
 $MESS["BXEdCopilotPlaceholder"] = "Нажмите @, чтобы кого-то упомянуть, или пробел для запуска AI";
 $MESS['BXEdCopilotPlaceholder_MSGVER_1'] = 'Нажмите @, чтобы кого-то упомянуть, или пробел для запуска AI';
-$MESS['BXEdCopilotPlaceholder_MSGVER_2'] = 'Нажмите @, чтобы кого-то упомянуть, или пробел для запуска AI';
+$MESS['BXEdCopilotPlaceholder_MSGVER_2'] = 'Нажмите @, чтобы кого-то упомянуть, или пробел для запуска Copilot';
 $MESS["BXEdCopilotPlaceholderWithoutMention"] = "Нажмите пробел для запуска AI";
-$MESS["BXEdCopilotPlaceholderWithoutMention_MSGVER_1"] = "Нажмите пробел для запуска AI";
+$MESS["BXEdCopilotPlaceholderWithoutMention_MSGVER_1"] = "Нажмите пробел для запуска Copilot";
 $MESS["BXEdCopilotButtonText"] = "COPILOT";
 ?>

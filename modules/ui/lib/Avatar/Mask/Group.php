@@ -1,43 +1,9 @@
 <?php
 namespace Bitrix\UI\Avatar\Mask;
 
-use Bitrix\Main\Application;
-use Bitrix\Main\FileTable;
 use Bitrix\Main;
-use Bitrix\Main\ORM;
-use Bitrix\Main\ORM\Fields\DatetimeField;
-use Bitrix\Main\ORM\Fields\IntegerField;
-use Bitrix\Main\ORM\Fields\Relations\Reference;
-use Bitrix\Main\ORM\Fields\StringField;
-use Bitrix\Main\ORM\Fields\TextField;
-use Bitrix\Main\ORM\Query\Join;
+use Bitrix\UI\Avatar;
 use Bitrix\UI\Avatar\Mask\Owner\DefaultOwner;
-
-class GroupTable extends ORM\Data\DataManager
-{
-	public static function getTableName()
-	{
-		return 'b_ui_avatar_mask_group';
-	}
-
-	public static function getMap()
-	{
-		$connection = Application::getConnection();
-		return array(
-			(new IntegerField('ID'))
-				->configurePrimary()
-				->configureAutocomplete(),
-			new DatetimeField('TIMESTAMP_X'),
-
-			(new StringField('OWNER_TYPE'))->configureRequired()->configureSize(100),
-			(new StringField('OWNER_ID', []))->configureRequired()->configureSize(20),
-			(new IntegerField('SORT', []))->configureDefaultValue(100),
-
-			(new StringField('TITLE'))->configureRequired(),
-			new TextField('DESCRIPTION'),
-		);
-	}
-}
 
 class Group
 {
@@ -47,7 +13,7 @@ class Group
 
 	public function __construct(int $id)
 	{
-		if ($id > 0 && ($this->data = GroupTable::getById($id)->fetch()))
+		if ($id > 0 && ($this->data = Avatar\Model\GroupTable::getById($id)->fetch()))
 		{
 			$this->id = $id;
 			if (is_subclass_of($this->data['OWNER_TYPE'], DefaultOwner::class))
@@ -70,7 +36,7 @@ class Group
 		return $this->id;
 	}
 
-	public function isEditableBy(Mask\Consumer $consumer): bool
+	public function isEditableBy(Avatar\Mask\Consumer $consumer): bool
 	{
 		if ($consumer->isAdmin())
 		{

@@ -310,7 +310,7 @@ class General extends Base
 		$query =
 			OptionUserTable::query()
 				->addSelect('USER_ID')
-				->addSelect(new ExpressionField('NOTIFY_SCHEMA',"IFNULL(%s, '$notifySchemeValue')", ['OPTION_STATE.VALUE']))
+				->addSelect(new ExpressionField('NOTIFY_SCHEMA',"COALESCE(%s, '$notifySchemeValue')", ['OPTION_STATE.VALUE']))
 				->registerRuntimeField(
 					'USER',
 					new Reference(
@@ -388,7 +388,7 @@ class General extends Base
 				->whereIn('USER_ID', $userList)
 				->where('USER.ACTIVE', 'Y')
 				->where('USER.IS_REAL_USER', 'Y')
-				->whereExpr("IFNULL(%s, '$defaultSettingValue') = 'Y'", ['OPTION_STATE.VALUE'])
+				->whereExpr("COALESCE(%s, '$defaultSettingValue') = 'Y'", ['OPTION_STATE.VALUE'])
 		;
 
 		$filteredUserList = [];
@@ -708,24 +708,14 @@ class General extends Base
 
 					break;
 				case 'sendByEnter': // for legacy
-					if ($value === 'Y' || $value === true)
-					{
-						$verifiedSettings[$name] = true;
-
-						break;
-					}
-					//'break' is missing  specially
+					$verifiedSettings[$name] = $value === 'Y' || $value === true;
+					break;
 				case 'enableSound': // for legacy
-					if ($value === 'N' || $value === false)
-					{
-						$verifiedSettings[$name] = false;
-
-						break;
-					}
+					$verifiedSettings[$name] = !($value === 'N' || $value === false);
+					break;
 				case 'backgroundImageId':
 					$verifiedSettings[$name] = (int)$value > 0 ? (int)$value : 1;
 					break;
-					//'break' is missing  specially
 				case 'chatAlignment':
 					$verifiedSettings[$name] =
 						in_array($value, ['left', 'center'])

@@ -1,10 +1,8 @@
 import { Cache } from 'main.core';
 import { Chat } from './chat';
 import { GroupSettings } from './group-settings';
-import { MenuRouter } from './menu-router';
 import { UserSettings } from './user-settings';
-
-import type { LogoData } from './logo';
+import type { LogoData } from 'socialnetwork.logo';
 
 type Params = {
 	bindElement: HTMLElement,
@@ -12,7 +10,6 @@ type Params = {
 	entityId: number,
 	logo?: LogoData,
 	chat: Chat,
-	router: MenuRouter,
 }
 
 import './css/settings.css';
@@ -46,7 +43,6 @@ export class Settings
 					groupId: this.#getParam('entityId'),
 					logo: this.#getParam('logo'),
 					chat: this.#getParam('chat'),
-					router: this.#getParam('router'),
 				});
 			}
 		}

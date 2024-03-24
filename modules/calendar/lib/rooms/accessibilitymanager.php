@@ -139,7 +139,7 @@ class AccessibilityManager
 			}
 			elseif ($location['room_id'])
 			{
-				$entries = self::getRoomAccessibility($location['room_id'], $from, $to);
+				$entries = self::getRoomAccessibility([$location['room_id']], $from, $to);
 				foreach ($entries as $entry)
 				{
 					if ((int)$entry['ID'] !== (int)$location['room_event_id']
@@ -166,13 +166,13 @@ class AccessibilityManager
 	}
 	
 	/**
-	 * @param $roomId
+	 * @param array $roomIds
 	 * @param $from
 	 * @param $to
 	 *
 	 * @return array room accessibility for creating event
 	 */
-	public static function getRoomAccessibility(int $roomId, $from, $to): array
+	public static function getRoomAccessibility(array $roomIds, $from, $to): array
 	{
 		return \CCalendarEvent::GetList([
 			'arFilter' => [
@@ -180,7 +180,7 @@ class AccessibilityManager
 				'TO_LIMIT' => $to,
 				'CAL_TYPE' => self::TYPE,
 				'ACTIVE_SECTION' => 'Y',
-				'SECTION' => $roomId,
+				'SECTION' => $roomIds,
 			],
 			'parseRecursion' => true,
 			'fetchSection' => true,
@@ -194,56 +194,44 @@ class AccessibilityManager
 	 */
 	public function getLocationAccessibility(): array
 	{
+		if (!is_array($this->datesRange) || !is_array($this->locationList) || empty($this->datesRange))
+		{
+			return [];
+		}
+
+		$roomIds = array_map(static fn($room) => (int)$room['ID'], $this->locationList);
+		$from = $this->datesRange[0];
+		$to = $this->datesRange[count($this->datesRange) - 1];
+
+		$entries = self::getRoomAccessibility($roomIds, $from, $to);
+
 		$result = [];
 
-		if (!is_array($this->datesRange) || !is_array($this->locationList))
-		{
-			return $result;
-		}
-
-		$datesLength = count($this->datesRange);
-		if (!$datesLength)
-		{
-			return $result;
-		}
-		
 		foreach ($this->datesRange as $date)
 		{
 			$result[$date] = [];
 		}
-		
-		foreach ($this->locationList as $location)
+
+		foreach ($entries as $entry)
 		{
-			$roomId = (int)$location['ID'];
-			$entries = self::getRoomAccessibility(
-				$roomId,
-				$this->datesRange[0],
-				$this->datesRange[$datesLength - 1]
-			);
+			$roomId = (int)$entry['SECTION_ID'];
 
-			foreach ($entries as $entry)
+			$dateStart = new DateTime($entry['DATE_FROM']);
+			$dateEnd = new DateTime($entry['DATE_TO']);
+			while ($dateStart->getTimestamp() <= $dateEnd->getTimestamp())
 			{
-
-				$dateStart = new DateTime($entry['DATE_FROM']);
-				$dateEnd = new DateTime($entry['DATE_TO']);
-				while ($dateStart->getTimestamp() <= $dateEnd->getTimestamp())
+				$date = $dateStart->format('d.m.Y');
+				$dateStart->add('1 day');
+				if (!isset($result[$date]))
 				{
-					$date = $dateStart->format('d.m.Y');
-					$dateStart->add('1 day');
-					if (!isset($result[$date]))
-					{
-						continue;
-					}
-					if (!isset($result[$date][$roomId]))
-					{
-						$result[$date][$roomId] = [];
-					}
-
-					$result[$date][$roomId][] = $entry;
+					continue;
 				}
+
+				$result[$date][$roomId] ??= [];
+				$result[$date][$roomId][] = $entry;
 			}
 		}
-		
+
 		return $result;
 	}
 }

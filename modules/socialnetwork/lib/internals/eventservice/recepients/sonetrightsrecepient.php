@@ -2,100 +2,81 @@
 
 namespace Bitrix\Socialnetwork\Internals\EventService\Recepients;
 
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\ORM\Query\Query;
-use Bitrix\Main\ORM\Query\Result;
 use Bitrix\Main\UserAccessTable;
 use Bitrix\Main\UserTable;
+use Bitrix\Socialnetwork\Item\LogRight;
 
-class SonetRightsRecepient  implements \Iterator
+class SonetRightsRecepient implements Collector
 {
-	private Query $query;
-	/** @var array the resultset for a single row */
-	private array $current = [];
-	/** @var int the cursor pointer */
-	private int $key = 0;
-	/** @var bool flag indicating there a valid resource or not */
-	private bool $valid = false;
+	private int $sonetLogId;
+	private ?array $logRights = null;
 
-	private Result $ormQueryResult;
-
-	public function __construct(private int $sonetLogId)
+	public function __construct(int $sonetLogId, ?array $logRights)
 	{
-		$this->queryInit($this->sonetLogId);
-		$this->next();
+		$this->sonetLogId = $sonetLogId;
+		$this->logRights = $logRights;
 	}
 
-	public function rewind(): void
+	public function fetch(int $limit, int $offset): RecepientCollection
 	{
-		$this->key = 0;
-		$this->queryInit($this->sonetLogId);
-		$this->next();
-	}
+		$accessCodes = (is_array($this->logRights) && !empty($this->logRights))
+			? $this->logRights
+			: LogRight::get($this->sonetLogId)
+		;
 
-	public function current(): Recepient
-	{
-		return new Recepient($this->current['ID']);
-	}
+		$recipients = [];
 
-	public function key(): int
-	{
-		return $this->key;
-	}
+		$query = in_array('AU', $accessCodes, true)
+			? $this->getAllAuthorisedQuery($limit, $offset)
+			: $this->getAllByAccessCodeQuery($limit, $offset, $accessCodes)
+		;
 
-	public function next(): void
-	{
-		$this->key++;
-		$row = $this->ormQueryResult->fetch();
-		if ($row === false)
+		foreach ($query->fetchAll() as $user)
 		{
-			$this->valid = false;
-			unset($this->ormQueryResult);
-			return;
+			$userId = $user['ID'] ?? 0;
+			$isOnline = ($user['IS_ONLINE'] ?? 'Y') === 'Y';
+			$recipients[] = new Recepient((int)$userId, $isOnline);
 		}
 
-		$this->valid = true;
-		$this->current = $row;
+		return new RecepientCollection(...$recipients);
 	}
 
-	public function valid(): bool
+	private function getAllAuthorisedQuery(int $limit, int $offset): \Bitrix\Main\ORM\Query\Query
 	{
-		return $this->valid;
+		return UserTable::query()
+			->setDistinct()
+			->setSelect(['ID', 'ACTIVE', 'IS_REAL_USER', 'UF_DEPARTMENT', 'IS_ONLINE'])
+			->where('ACTIVE', '=', 'Y')
+			->where('IS_REAL_USER', '=', 'Y')
+			->where('UF_DEPARTMENT', '!=', false)
+			->setLimit($limit)
+			->setOffset($offset)
+		;
 	}
 
-	public function getSize(): int
+	private function getAllByAccessCodeQuery(int $limit, int $offset, array $accessCodes): \Bitrix\Main\ORM\Query\Query
 	{
-		return $this->query->queryCountTotal();
-	}
+		$subQuery = (new Query(UserAccessTable::getEntity()));
+		$subQuery->setSelect(['USER_ID']);
+		$subQuery->whereIn('ACCESS_CODE', $accessCodes);
 
-	private function queryInit(int $sonetLogId)
-	{
-		// G2 - all users
-		// AU - authorised users
-		$all = 'G2';
-		$allAuthorised = 'AU';
-		$sonetLogRights = \Bitrix\Socialnetwork\Item\LogRight::get($sonetLogId);
-
-		if (in_array($all, $sonetLogRights) || in_array($allAuthorised, $sonetLogRights))
-		{
-			// for all users
-			$this->query = UserTable::query()
-				->setSelect([
-					'ID',
-				])
-				->where('ACTIVE', '=', 'Y');
-
-			$this->ormQueryResult = $this->query->exec();
-			return;
-		}
-
-		// filter by user access
-		$this->query = UserAccessTable::query()
+		return UserTable::query()
 			->setDistinct()
 			->setSelect([
-				'ID' => 'USER_ID',
+				'ID',
+				'ACTIVE',
+				'IS_REAL_USER',
+				'UF_DEPARTMENT',
+				'IS_ONLINE'
 			])
-			->whereIn('ACCESS_CODE', $sonetLogRights);
-
-		$this->ormQueryResult = $this->query->exec();
+			->where('ACTIVE', '=', 'Y')
+			->where('IS_REAL_USER', '=', 'Y')
+			->where('UF_DEPARTMENT', '!=', false)
+			->whereIn('ID', new SqlExpression($subQuery->getQuery()))
+			->setLimit($limit)
+			->setOffset($offset)
+		;
 	}
 }

@@ -1,4 +1,4 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/general/blog_user.php");
 
 class CBlogUser extends CAllBlogUser
@@ -7,7 +7,9 @@ class CBlogUser extends CAllBlogUser
 	public static function Add($arFields)
 	{
 		global $DB;
-		if($arFields["PATH"] <> '')
+
+		$path = '';
+		if (($arFields["PATH"] ?? '') <> '')
 		{
 			$path = $arFields["PATH"];
 			unset($arFields["PATH"]);
@@ -124,8 +126,9 @@ class CBlogUser extends CAllBlogUser
 		global $DB;
 
 		$ID = intval($ID);
-		
-		if($arFields["PATH"] <> '')
+
+		$path = '';
+		if (($arFields["PATH"] ?? '') <> '')
 		{
 			$path = $arFields["PATH"];
 			unset($arFields["PATH"]);

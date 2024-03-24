@@ -3,11 +3,26 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main\ORM\Query\Filter;
 
+/**
+ * array("LOGIC"=>"AND",
+ * 	"="."K1" => value,
+ * 	"="."K2" => value,
+ * 	array("LOGIC"=>"OR",
+ * 	"="."K3" => value,
+ * 	"="."K3" => value,
+ * ),
+ * array("LOGIC"=>"OR",
+ * 	"="."K4" => value,
+ * 	"="."K4" => value,
+ * ),
+ * )
+ * K1=value and K2=value and (k3=value or k3=value) and (k4=value or k4=value)
+ */
 class CAllSQLWhere
 {
 	const FT_MIN_TOKEN_SIZE = 3;
@@ -36,7 +51,7 @@ class CAllSQLWhere
 		"=%" => "M", //Identical by like
 		"%=" => "M", //Identical by like
 		"!@" => "NIN", //not in
-		"==" => "SE",  // strong equality (no is null)
+		"==" => "SE",  // strong equality (not is null)
 		"=" => "I", //Identical
 		"%" => "S", //substring
 		"?" => "?", //logical
@@ -56,12 +71,15 @@ class CAllSQLWhere
 
 	public function _Empty($field)
 	{
-		return "(".$field." IS NULL)";
+		return "(".$field." IS NULL OR ".$field." = '')";
 	}
 
 	public function _NotEmpty($field)
 	{
-		return "(".$field." IS NOT NULL)";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		return "(".$field." IS NOT NULL AND " . $helper->getLengthFunction($field) . " > 0)";
 	}
 
 	public function _StringEQ($field, $sql_value)
@@ -131,8 +149,6 @@ class CAllSQLWhere
 
 	public function match($field, $fieldValue, $wildcard)
 	{
-		global $DB;
-
 		if (!is_array($fieldValue))
 		{
 			$fieldValue = array($fieldValue);
@@ -1185,18 +1201,6 @@ class CSQLWhereExpression
 	}
 }
 
-/*
-		array("LOGIC"=>"AND",
-			"="."K1" => value,
-			"="."K2" => value,
-			array("LOGIC"=>"OR",
-				"="."K3" => value,
-				"="."K3" => value,
-			),
-			array("LOGIC"=>"OR",
-				"="."K4" => value,
-				"="."K4" => value,
-			),
-		)
-		K1=value and K2=value and (k3=value or k3=value) and (k4=value or k4=value)
-*/
+class CSQLWhere extends CAllSQLWhere
+{
+}

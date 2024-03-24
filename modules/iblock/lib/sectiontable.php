@@ -1,11 +1,11 @@
 <?php
 namespace Bitrix\Iblock;
 
-use Bitrix\Main\ORM;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Event;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM\EventResult;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class SectionTable
@@ -88,6 +88,11 @@ class SectionTable extends ORM\Data\DataManager
 			'TIMESTAMP_X' => array(
 				'data_type' => 'datetime',
 				'required' => true,
+				'default_value' => function()
+					{
+						return new DateTime();
+					}
+				,
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_TIMESTAMP_X_FIELD'),
 			),
 			'MODIFIED_BY' => array(
@@ -253,6 +258,26 @@ class SectionTable extends ORM\Data\DataManager
 		);
 	}
 
+	/**
+	 * Default onBeforeAdd handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for add.
+	 * @return EventResult
+	 */
+	public static function onBeforeAdd(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$fields = $event->getParameter('fields');
+		if (!isset($fields['TIMESTAMP_X']))
+		{
+			$result->modifyFields([
+				'TIMESTAMP_X' => new DateTime(),
+			]);
+		}
+
+		return $result;
+	}
+
 	public static function onAfterAdd(Event $event)
 	{
 		/** @var EO_Section $section */
@@ -264,6 +289,26 @@ class SectionTable extends ORM\Data\DataManager
 
 		// recount tree
 		\CIBlockSection::recountTreeAfterAdd($section->collectValues());
+	}
+
+	/**
+	 * Default onBeforeUpdate handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for update.
+	 * @return EventResult
+	 */
+	public static function onBeforeUpdate(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$fields = $event->getParameter('fields');
+		if (!isset($fields['TIMESTAMP_X']))
+		{
+			$result->modifyFields([
+				'TIMESTAMP_X' => new DateTime(),
+			]);
+		}
+
+		return $result;
 	}
 
 	public static function onUpdate(Event $event)

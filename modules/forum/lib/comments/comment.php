@@ -319,12 +319,12 @@ class Comment extends BaseObject
 			else if (($params = array(
 				"POST_MESSAGE" => trim($params["POST_MESSAGE"]),
 				"AUTHOR_ID" => $this->message["AUTHOR_ID"],
-				"AUTHOR_NAME" => (array_key_exists("AUTHOR_NAME", $params) ? trim($params["AUTHOR_NAME"]) : $this->message["AUTHOR_NAME"]),
-				"AUTHOR_EMAIL" => (array_key_exists("AUTHOR_EMAIL", $params) ? trim($params["AUTHOR_EMAIL"]) : $this->message["AUTHOR_EMAIL"]),
-				"USE_SMILES" => $params["USE_SMILES"],
-				"FILES" => $params["FILES"],
-				"AUX" => $params["AUX"],
-				"AUX_DATA" => $params["AUX_DATA"],
+				"AUTHOR_NAME" => $params["AUTHOR_NAME"] ?? $this->message["AUTHOR_NAME"],
+				"AUTHOR_EMAIL" => $params["AUTHOR_EMAIL"] ?? $this->message["AUTHOR_EMAIL"],
+				"USE_SMILES" => $params["USE_SMILES"] ?? 'Y',
+				"FILES" => $params["FILES"] ?? [],
+				"AUX" => $params["AUX"] ?? null,
+				"AUX_DATA" => $params["AUX_DATA"] ?? null,
 			)) && $this->prepareFields($params, $this->errorCollection))
 			{
 				if (array_key_exists("POST_DATE", $paramsRaw))

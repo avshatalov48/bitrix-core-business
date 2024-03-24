@@ -1,6 +1,5 @@
 "use strict";
 import { Loc, Runtime, Type, Uri } from "main.core";
-import { DeletedViewForm } from "calendar.sharing.deletedviewform";
 
 export class SliderLoader
 {
@@ -121,9 +120,7 @@ export class SliderLoader
 		if (this.isSharing)
 		{
 			BX.SidePanel.Instance.open(this.sliderId, {
-				contentCallback: (slider) => new Promise((resolve) => {
-					new DeletedViewForm(this.extensionParams.entryId).initInSlider(slider, resolve);
-				}),
+				contentCallback: this.loadDeletedViewForm.bind(this),
 				width: 600,
 			});
 		}
@@ -140,7 +137,7 @@ export class SliderLoader
 		}
 	}
 
-	loadExtension(slider)
+	loadExtension(slider): Promise
 	{
 		return new Promise((resolve) => {
 			const extensionName = 'calendar.' + this.extensionName.toLowerCase();
@@ -158,6 +155,15 @@ export class SliderLoader
 					console.error(`Extension "calendar.${extensionName}" not found`);
 				}
 			});
+		});
+	}
+
+	async loadDeletedViewForm(slider): Promise
+	{
+		const { DeletedViewForm } = await Runtime.loadExtension('calendar.sharing.deletedviewform');
+
+		return new Promise((resolve) => {
+			new DeletedViewForm(this.extensionParams.entryId).initInSlider(slider, resolve);
 		});
 	}
 }

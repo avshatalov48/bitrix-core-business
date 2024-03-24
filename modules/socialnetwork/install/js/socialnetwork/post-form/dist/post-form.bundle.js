@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_popup,ui_entitySelector,ui_buttons,ui_uploader_core,main_core_events,main_core) {
 	'use strict';
@@ -9,24 +10,27 @@ this.BX = this.BX || {};
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _cache = /*#__PURE__*/new WeakMap();
-	var _setData = /*#__PURE__*/new WeakSet();
 	var _getData = /*#__PURE__*/new WeakSet();
 	var PostData = /*#__PURE__*/function () {
-	  function PostData(_data) {
+	  function PostData(data) {
 	    babelHelpers.classCallCheck(this, PostData);
 	    _classPrivateMethodInitSpec(this, _getData);
-	    _classPrivateMethodInitSpec(this, _setData);
 	    _classPrivateFieldInitSpec(this, _cache, {
 	      writable: true,
 	      value: new main_core.Cache.MemoryCache()
 	    });
-	    _classPrivateMethodGet(this, _setData, _setData2).call(this, _data);
+	    this.setData(data);
 	  }
 	  babelHelpers.createClass(PostData, [{
+	    key: "setData",
+	    value: function setData(data) {
+	      babelHelpers.classPrivateFieldGet(this, _cache).set('data', data);
+	    }
+	  }, {
 	    key: "setFormData",
 	    value: function setFormData(formData) {
 	      var currentData = babelHelpers.classPrivateFieldGet(this, _cache).get('data');
-	      _classPrivateMethodGet(this, _setData, _setData2).call(this, _objectSpread(_objectSpread({}, currentData), formData));
+	      this.setData(_objectSpread(_objectSpread({}, currentData), formData));
 	    }
 	  }, {
 	    key: "prepareRequestData",
@@ -42,7 +46,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "validateRequestData",
 	    value: function validateRequestData() {
-	      if (!this.getTitle() && !this.getMessage()) {
+	      if (!this.getMessage()) {
 	        return main_core.Loc.getMessage('SN_PF_REQUEST_TEXT_VALIDATION_ERROR');
 	      }
 	      if (!this.getRecipients()) {
@@ -72,7 +76,7 @@ this.BX = this.BX || {};
 	      var newData = {
 	        recipients: recipients
 	      };
-	      _classPrivateMethodGet(this, _setData, _setData2).call(this, _objectSpread(_objectSpread({}, currentData), newData));
+	      this.setData(_objectSpread(_objectSpread({}, currentData), newData));
 	    }
 	  }, {
 	    key: "getAllUsersTitle",
@@ -92,9 +96,6 @@ this.BX = this.BX || {};
 	  }]);
 	  return PostData;
 	}();
-	function _setData2(data) {
-	  babelHelpers.classPrivateFieldGet(this, _cache).set('data', data);
-	}
 	function _getData2(param) {
 	  return babelHelpers.classPrivateFieldGet(this, _cache).get('data')[param];
 	}
@@ -111,6 +112,8 @@ this.BX = this.BX || {};
 	var _eventNode = /*#__PURE__*/new WeakMap();
 	var _showPostTitleBtn = /*#__PURE__*/new WeakMap();
 	var _editor = /*#__PURE__*/new WeakMap();
+	var _userFieldControl = /*#__PURE__*/new WeakMap();
+	var _blockFileShowEvent = /*#__PURE__*/new WeakMap();
 	var _editorInited = /*#__PURE__*/new WeakSet();
 	var _addMention = /*#__PURE__*/new WeakSet();
 	var _getEntityType = /*#__PURE__*/new WeakSet();
@@ -155,6 +158,14 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _userFieldControl, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _blockFileShowEvent, {
+	      writable: true,
+	      value: false
+	    });
 	    _this.setEventNamespace('BX.Socialnetwork.PostFormManager');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _formId, params.formId);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _LHEId, params.LHEId);
@@ -171,6 +182,7 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(PostFormManager, [{
 	    key: "initLHE",
 	    value: function initLHE() {
+	      var _this2 = this;
 	      if (!window.LHEPostForm) {
 	        throw new Error('BX.Socialnetwork.PostFormManager: LHEPostForm not found');
 	      }
@@ -179,6 +191,20 @@ this.BX = this.BX || {};
 	      babelHelpers.classPrivateFieldSet(this, _eventNode, handler.eventNode);
 	      main_core_events.EventEmitter.emit(babelHelpers.classPrivateFieldGet(this, _eventNode), 'OnShowLHE', ['show']);
 	      _classPrivateMethodGet$1(this, _appendButtonShowingPostTitle, _appendButtonShowingPostTitle2).call(this);
+	      babelHelpers.classPrivateFieldSet(this, _userFieldControl, BX.Disk.Uploader.UserFieldControl.getById(babelHelpers.classPrivateFieldGet(this, _formId)));
+	      main_core_events.EventEmitter.subscribe(babelHelpers.classPrivateFieldGet(this, _eventNode), 'onShowControllers', function (_ref) {
+	        var data = _ref.data;
+	        if (babelHelpers.classPrivateFieldGet(_this2, _blockFileShowEvent) === false && data.toString() === 'show') {
+	          setTimeout(function () {
+	            _this2.emit('showControllers');
+	          }, 100);
+	        }
+	        babelHelpers.classPrivateFieldSet(_this2, _blockFileShowEvent, false);
+	      });
+	      main_core_events.EventEmitter.subscribe(babelHelpers.classPrivateFieldGet(this, _eventNode), 'onShowControllers:File:Increment', function (_ref2) {
+	        var data = _ref2.data;
+	        babelHelpers.classPrivateFieldSet(_this2, _blockFileShowEvent, true);
+	      });
 	    }
 	  }, {
 	    key: "getEditorText",
@@ -186,20 +212,31 @@ this.BX = this.BX || {};
 	      return babelHelpers.classPrivateFieldGet(this, _editor).GetContent();
 	    }
 	  }, {
+	    key: "clearEditorText",
+	    value: function clearEditorText() {
+	      var _this3 = this;
+	      main_core_events.EventEmitter.subscribeOnce(babelHelpers.classPrivateFieldGet(this, _editor), 'OnSetContentAfter', function () {
+	        babelHelpers.classPrivateFieldGet(_this3, _editor).ResizeSceleton();
+	      });
+	      babelHelpers.classPrivateFieldGet(this, _editor).SetContent('');
+	    }
+	  }, {
 	    key: "focusToEditor",
 	    value: function focusToEditor() {
-	      babelHelpers.classPrivateFieldGet(this, _editor).Focus();
+	      if (babelHelpers.classPrivateFieldGet(this, _editor)) {
+	        babelHelpers.classPrivateFieldGet(this, _editor).Focus();
+	      }
 	    }
 	  }]);
 	  return PostFormManager;
 	}(main_core_events.EventEmitter);
 	function _editorInited2(editor) {
-	  var _this2 = this;
+	  var _this4 = this;
 	  if (editor.id === babelHelpers.classPrivateFieldGet(this, _LHEId)) {
 	    babelHelpers.classPrivateFieldSet(this, _editor, editor);
 	    this.emit('editorInited');
 	    main_core_events.EventEmitter.subscribe(editor, 'OnFullscreenExpand', function () {
-	      _this2.emit('fullscreenExpand');
+	      _this4.emit('fullscreenExpand');
 	    });
 	  }
 	}
@@ -268,16 +305,16 @@ this.BX = this.BX || {};
 	    value: function redirectTo(groupId) {
 	      if (groupId) {
 	        if (babelHelpers.classPrivateFieldGet(this, _pathToGroupRedirect)) {
-	          location.href = babelHelpers.classPrivateFieldGet(this, _pathToGroupRedirect).replace('#group_id#', groupId);
+	          top.BX.Socialnetwork.Spaces.space.reloadPageContent(babelHelpers.classPrivateFieldGet(this, _pathToGroupRedirect).replace('#group_id#', groupId));
 	        } else {
-	          location.reload();
+	          top.BX.Socialnetwork.Spaces.space.reloadPageContent();
 	        }
 	      } else {
 	        // eslint-disable-next-line no-lonely-if
 	        if (babelHelpers.classPrivateFieldGet(this, _pathToDefaultRedirect)) {
-	          location.href = babelHelpers.classPrivateFieldGet(this, _pathToDefaultRedirect);
+	          top.BX.Socialnetwork.Spaces.space.reloadPageContent(babelHelpers.classPrivateFieldGet(this, _pathToDefaultRedirect));
 	        } else {
-	          location.reload();
+	          top.BX.Socialnetwork.Spaces.space.reloadPageContent();
 	        }
 	      }
 	    }
@@ -285,17 +322,86 @@ this.BX = this.BX || {};
 	  return PostFormRouter;
 	}();
 
-	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4;
 	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$3(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _formId$1 = /*#__PURE__*/new WeakMap();
+	var _form = /*#__PURE__*/new WeakMap();
+	var _getInput = /*#__PURE__*/new WeakSet();
+	var _getContainer = /*#__PURE__*/new WeakSet();
+	var _hideContainer = /*#__PURE__*/new WeakSet();
+	var PostFormTags = /*#__PURE__*/function () {
+	  function PostFormTags(formId, form) {
+	    babelHelpers.classCallCheck(this, PostFormTags);
+	    _classPrivateMethodInitSpec$2(this, _hideContainer);
+	    _classPrivateMethodInitSpec$2(this, _getContainer);
+	    _classPrivateMethodInitSpec$2(this, _getInput);
+	    _classPrivateFieldInitSpec$3(this, _formId$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$3(this, _form, {
+	      writable: true,
+	      value: void 0
+	    });
+	    if (!main_core.Type.isString(formId) || !formId) {
+	      throw new Error('BX.Socialnetwork.PostFormTags: formId not found');
+	    }
+	    if (!main_core.Type.isDomNode(form)) {
+	      throw new Error('BX.Socialnetwork.PostFormTags: form not found');
+	    }
+	    babelHelpers.classPrivateFieldSet(this, _formId$1, formId);
+	    babelHelpers.classPrivateFieldSet(this, _form, form);
+	  }
+	  babelHelpers.createClass(PostFormTags, [{
+	    key: "isFilled",
+	    value: function isFilled() {
+	      var input = _classPrivateMethodGet$2(this, _getInput, _getInput2).call(this);
+	      return main_core.Type.isDomNode(input) && input.value;
+	    }
+	  }, {
+	    key: "getValue",
+	    value: function getValue() {
+	      var input = _classPrivateMethodGet$2(this, _getInput, _getInput2).call(this);
+	      if (!main_core.Type.isDomNode(input)) {
+	        return '';
+	      }
+	      return input.value;
+	    }
+	  }, {
+	    key: "clear",
+	    value: function clear() {
+	      _classPrivateMethodGet$2(this, _getContainer, _getContainer2).call(this).querySelectorAll('.feed-add-post-del-but').forEach(function (tag) {
+	        tag.click();
+	      });
+	      _classPrivateMethodGet$2(this, _hideContainer, _hideContainer2).call(this);
+	    }
+	  }]);
+	  return PostFormTags;
+	}();
+	function _getInput2() {
+	  return _classPrivateMethodGet$2(this, _getContainer, _getContainer2).call(this).querySelector('input[name="TAGS"]');
+	}
+	function _getContainer2() {
+	  return babelHelpers.classPrivateFieldGet(this, _form).querySelector("#post-tags-block-".concat(babelHelpers.classPrivateFieldGet(this, _formId$1)));
+	}
+	function _hideContainer2() {
+	  main_core.Dom.style(_classPrivateMethodGet$2(this, _getContainer, _getContainer2).call(this), 'display', 'none');
+	}
+
+	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4;
+	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$4(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$4(obj, privateMap, value) { _checkPrivateRedeclaration$4(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var UserOptions = main_core.Reflection.namespace('BX.userOptions');
 	var NotificationCenter = main_core.Reflection.namespace('BX.UI.Notification.Center');
 	var _postId = /*#__PURE__*/new WeakMap();
 	var _groupId = /*#__PURE__*/new WeakMap();
 	var _isShownPostTitle$1 = /*#__PURE__*/new WeakMap();
-	var _formId$1 = /*#__PURE__*/new WeakMap();
+	var _initData = /*#__PURE__*/new WeakMap();
+	var _formId$2 = /*#__PURE__*/new WeakMap();
 	var _jsObjName = /*#__PURE__*/new WeakMap();
 	var _LHEId$1 = /*#__PURE__*/new WeakMap();
 	var _sended = /*#__PURE__*/new WeakMap();
@@ -304,6 +410,7 @@ this.BX = this.BX || {};
 	var _postData = /*#__PURE__*/new WeakMap();
 	var _postFormManager = /*#__PURE__*/new WeakMap();
 	var _postFormRouter = /*#__PURE__*/new WeakMap();
+	var _postFormTags = /*#__PURE__*/new WeakMap();
 	var _node = /*#__PURE__*/new WeakMap();
 	var _titleNode = /*#__PURE__*/new WeakMap();
 	var _recipientSelector = /*#__PURE__*/new WeakMap();
@@ -312,9 +419,12 @@ this.BX = this.BX || {};
 	var _init = /*#__PURE__*/new WeakSet();
 	var _createPopup = /*#__PURE__*/new WeakSet();
 	var _firstShow = /*#__PURE__*/new WeakSet();
+	var _onAfterShow = /*#__PURE__*/new WeakSet();
 	var _afterClose = /*#__PURE__*/new WeakSet();
 	var _sendForm = /*#__PURE__*/new WeakSet();
+	var _clearForm = /*#__PURE__*/new WeakSet();
 	var _collectFormData = /*#__PURE__*/new WeakSet();
+	var _clearFiles = /*#__PURE__*/new WeakSet();
 	var _showError = /*#__PURE__*/new WeakSet();
 	var _hideError = /*#__PURE__*/new WeakSet();
 	var _renderMainPostForm = /*#__PURE__*/new WeakSet();
@@ -322,12 +432,15 @@ this.BX = this.BX || {};
 	var _renderErrorAlert = /*#__PURE__*/new WeakSet();
 	var _renderRecipientSelector = /*#__PURE__*/new WeakSet();
 	var _initRecipientSelector = /*#__PURE__*/new WeakSet();
+	var _clearSelector = /*#__PURE__*/new WeakSet();
+	var _initTagsSelector = /*#__PURE__*/new WeakSet();
 	var _changeSelectedRecipients = /*#__PURE__*/new WeakSet();
 	var _renderTitle = /*#__PURE__*/new WeakSet();
 	var _afterEditorInit = /*#__PURE__*/new WeakSet();
 	var _toggleVisibilityPostTitle$1 = /*#__PURE__*/new WeakSet();
 	var _changePostFormPosition = /*#__PURE__*/new WeakSet();
 	var _addMention$1 = /*#__PURE__*/new WeakSet();
+	var _showControllers = /*#__PURE__*/new WeakSet();
 	var _consoleError = /*#__PURE__*/new WeakSet();
 	var PostForm = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(PostForm, _EventEmitter);
@@ -335,100 +448,114 @@ this.BX = this.BX || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, PostForm);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(PostForm).call(this));
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _consoleError);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _addMention$1);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _changePostFormPosition);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _toggleVisibilityPostTitle$1);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _afterEditorInit);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderTitle);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _changeSelectedRecipients);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _initRecipientSelector);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderRecipientSelector);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderErrorAlert);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderForm);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _renderMainPostForm);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _hideError);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _showError);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _collectFormData);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _sendForm);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _afterClose);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _firstShow);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _createPopup);
-	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _init);
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _postId, {
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _consoleError);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _showControllers);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _addMention$1);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _changePostFormPosition);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _toggleVisibilityPostTitle$1);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _afterEditorInit);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderTitle);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _changeSelectedRecipients);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _initTagsSelector);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _clearSelector);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _initRecipientSelector);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderRecipientSelector);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderErrorAlert);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderForm);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _renderMainPostForm);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _hideError);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _showError);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _clearFiles);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _collectFormData);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _clearForm);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _sendForm);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _afterClose);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _onAfterShow);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _firstShow);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _createPopup);
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _init);
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _postId, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _groupId, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _groupId, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _isShownPostTitle$1, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _isShownPostTitle$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _formId$1, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _initData, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _jsObjName, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _formId$2, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _LHEId$1, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _jsObjName, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _sended, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _LHEId$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _popup, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _sended, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _sendBtn, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _popup, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _postData, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _sendBtn, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _postFormManager, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _postData, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _postFormRouter, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _postFormManager, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _node, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _postFormRouter, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _titleNode, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _postFormTags, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _recipientSelector, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _node, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _errorLayout, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _titleNode, {
 	      writable: true,
 	      value: void 0
 	    });
-	    _classPrivateFieldInitSpec$3(babelHelpers.assertThisInitialized(_this), _selector, {
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _recipientSelector, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _errorLayout, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _selector, {
 	      writable: true,
 	      value: void 0
 	    });
 	    _this.setEventNamespace('BX.Socialnetwork.PostForm');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _postId, main_core.Type.isInteger(parseInt(params.postId, 10)) ? parseInt(params.postId, 10) : 0);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _groupId, main_core.Type.isInteger(parseInt(params.groupId, 10)) ? parseInt(params.groupId, 10) : 0);
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _formId$1, "blogPostForm_".concat(main_core.Text.getRandom().toLowerCase()));
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _jsObjName, "oPostFormLHE_blogPostForm".concat(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _formId$1)));
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _LHEId$1, "idPostFormLHE_".concat(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _formId$1)));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _formId$2, "blogPostForm_".concat(main_core.Text.getRandom().toLowerCase()));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _jsObjName, "oPostFormLHE_blogPostForm".concat(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _formId$2)));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _LHEId$1, "idPostFormLHE_".concat(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _formId$2)));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _sended, false);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _postFormRouter, new PostFormRouter({
 	      pathToDefaultRedirect: params.pathToDefaultRedirect,
@@ -441,11 +568,17 @@ this.BX = this.BX || {};
 	    key: "show",
 	    value: function show() {
 	      var _this2 = this;
+	      if (babelHelpers.classPrivateFieldGet(this, _popup)) {
+	        return new Promise(function (resolve, reject) {
+	          babelHelpers.classPrivateFieldGet(_this2, _popup).subscribeOnce('onShow', function () {
+	            resolve();
+	          });
+	          babelHelpers.classPrivateFieldGet(_this2, _popup).show();
+	        });
+	      }
 	      return new Promise(function (resolve, reject) {
-	        _classPrivateMethodGet$2(_this2, _init, _init2).call(_this2).then(function () {
-	          if (!babelHelpers.classPrivateFieldGet(_this2, _popup)) {
-	            _classPrivateMethodGet$2(_this2, _createPopup, _createPopup2).call(_this2);
-	          }
+	        _classPrivateMethodGet$3(_this2, _init, _init2).call(_this2).then(function () {
+	          _classPrivateMethodGet$3(_this2, _createPopup, _createPopup2).call(_this2);
 	          babelHelpers.classPrivateFieldGet(_this2, _popup).subscribeOnce('onShow', function () {
 	            resolve();
 	          });
@@ -466,29 +599,30 @@ this.BX = this.BX || {};
 	      groupId: babelHelpers.classPrivateFieldGet(this, _groupId)
 	    }
 	  }).then(function (response) {
-	    var initData = response.data;
-	    babelHelpers.classPrivateFieldSet(_this3, _postData, new PostData(initData));
-	    babelHelpers.classPrivateFieldSet(_this3, _isShownPostTitle$1, initData.isShownPostTitle === 'Y');
+	    babelHelpers.classPrivateFieldSet(_this3, _initData, response.data);
+	    babelHelpers.classPrivateFieldSet(_this3, _postData, new PostData(babelHelpers.classPrivateFieldGet(_this3, _initData)));
+	    babelHelpers.classPrivateFieldSet(_this3, _isShownPostTitle$1, babelHelpers.classPrivateFieldGet(_this3, _initData).isShownPostTitle === 'Y');
 	    babelHelpers.classPrivateFieldSet(_this3, _postFormManager, new PostFormManager({
-	      formId: babelHelpers.classPrivateFieldGet(_this3, _formId$1),
+	      formId: babelHelpers.classPrivateFieldGet(_this3, _formId$2),
 	      LHEId: babelHelpers.classPrivateFieldGet(_this3, _LHEId$1),
 	      isShownPostTitle: babelHelpers.classPrivateFieldGet(_this3, _isShownPostTitle$1)
 	    }));
-	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('editorInited', _classPrivateMethodGet$2(_this3, _afterEditorInit, _afterEditorInit2).bind(_this3));
-	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('toggleVisibilityPostTitle', _classPrivateMethodGet$2(_this3, _toggleVisibilityPostTitle$1, _toggleVisibilityPostTitle2$1).bind(_this3));
-	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('fullscreenExpand', _classPrivateMethodGet$2(_this3, _changePostFormPosition, _changePostFormPosition2).bind(_this3));
-	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('addMention', _classPrivateMethodGet$2(_this3, _addMention$1, _addMention2$1).bind(_this3));
+	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('editorInited', _classPrivateMethodGet$3(_this3, _afterEditorInit, _afterEditorInit2).bind(_this3));
+	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('toggleVisibilityPostTitle', _classPrivateMethodGet$3(_this3, _toggleVisibilityPostTitle$1, _toggleVisibilityPostTitle2$1).bind(_this3));
+	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('fullscreenExpand', _classPrivateMethodGet$3(_this3, _changePostFormPosition, _changePostFormPosition2).bind(_this3));
+	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('addMention', _classPrivateMethodGet$3(_this3, _addMention$1, _addMention2$1).bind(_this3));
+	    babelHelpers.classPrivateFieldGet(_this3, _postFormManager).subscribe('showControllers', _classPrivateMethodGet$3(_this3, _showControllers, _showControllers2).bind(_this3));
 	    return _this3;
 	  })["catch"](function (error) {
-	    _classPrivateMethodGet$2(_this3, _consoleError, _consoleError2).call(_this3, 'init', error);
+	    _classPrivateMethodGet$3(_this3, _consoleError, _consoleError2).call(_this3, 'init', error);
 	  });
 	}
 	function _createPopup2() {
 	  var _this4 = this;
 	  babelHelpers.classPrivateFieldSet(this, _popup, new main_popup.Popup({
-	    id: babelHelpers.classPrivateFieldGet(this, _formId$1),
+	    id: babelHelpers.classPrivateFieldGet(this, _formId$2),
 	    className: 'sn-post-form-popup --normal',
-	    content: _classPrivateMethodGet$2(this, _renderForm, _renderForm2).call(this),
+	    content: _classPrivateMethodGet$3(this, _renderForm, _renderForm2).call(this),
 	    contentNoPaddings: true,
 	    minHeight: 370,
 	    width: 720,
@@ -500,7 +634,7 @@ this.BX = this.BX || {};
 	      text: main_core.Loc.getMessage('SN_PF_SEND_BTN'),
 	      color: ui_buttons.ButtonColor.PRIMARY,
 	      onclick: function onclick() {
-	        _classPrivateMethodGet$2(_this4, _sendForm, _sendForm2).call(_this4);
+	        _classPrivateMethodGet$3(_this4, _sendForm, _sendForm2).call(_this4);
 	      }
 	    })), new ui_buttons.Button({
 	      text: main_core.Loc.getMessage('SN_PF_CANCEL_BTN'),
@@ -510,27 +644,33 @@ this.BX = this.BX || {};
 	      }
 	    })],
 	    events: {
-	      onFirstShow: _classPrivateMethodGet$2(this, _firstShow, _firstShow2).bind(this),
-	      onAfterClose: _classPrivateMethodGet$2(this, _afterClose, _afterClose2).bind(this)
+	      onFirstShow: _classPrivateMethodGet$3(this, _firstShow, _firstShow2).bind(this),
+	      onAfterShow: _classPrivateMethodGet$3(this, _onAfterShow, _onAfterShow2).bind(this),
+	      onAfterClose: _classPrivateMethodGet$3(this, _afterClose, _afterClose2).bind(this)
 	    }
 	  }));
 	}
 	function _firstShow2() {
 	  var _this5 = this;
 	  babelHelpers.classPrivateFieldGet(this, _sendBtn).setWaiting(true);
-	  _classPrivateMethodGet$2(this, _initRecipientSelector, _initRecipientSelector2).call(this);
+	  _classPrivateMethodGet$3(this, _initRecipientSelector, _initRecipientSelector2).call(this);
 
 	  // eslint-disable-next-line promise/catch-or-return
-	  _classPrivateMethodGet$2(this, _renderMainPostForm, _renderMainPostForm2).call(this).then(function (runtimePromise) {
+	  _classPrivateMethodGet$3(this, _renderMainPostForm, _renderMainPostForm2).call(this).then(function (runtimePromise) {
 	    // eslint-disable-next-line promise/catch-or-return,promise/no-nesting
 	    runtimePromise.then(function () {
 	      babelHelpers.classPrivateFieldGet(_this5, _postFormManager).initLHE();
 	    });
 	  });
 	}
+	function _onAfterShow2() {
+	  _classPrivateMethodGet$3(this, _initTagsSelector, _initTagsSelector2).call(this);
+	  babelHelpers.classPrivateFieldGet(this, _postFormManager).focusToEditor();
+	}
 	function _afterClose2() {
 	  if (babelHelpers.classPrivateFieldGet(this, _sended)) {
-	    babelHelpers.classPrivateFieldGet(this, _postFormRouter).redirectTo(babelHelpers.classPrivateFieldGet(this, _groupId));
+	    _classPrivateMethodGet$3(this, _clearForm, _clearForm2).call(this);
+	    BX.Livefeed.PageInstance.refresh();
 	  }
 	}
 	function _sendForm2() {
@@ -538,11 +678,11 @@ this.BX = this.BX || {};
 	  if (babelHelpers.classPrivateFieldGet(this, _sendBtn).isWaiting()) {
 	    return;
 	  }
-	  _classPrivateMethodGet$2(this, _hideError, _hideError2).call(this);
-	  babelHelpers.classPrivateFieldGet(this, _postData).setFormData(_classPrivateMethodGet$2(this, _collectFormData, _collectFormData2).call(this));
+	  _classPrivateMethodGet$3(this, _hideError, _hideError2).call(this);
+	  babelHelpers.classPrivateFieldGet(this, _postData).setFormData(_classPrivateMethodGet$3(this, _collectFormData, _collectFormData2).call(this));
 	  var errorMessage = babelHelpers.classPrivateFieldGet(this, _postData).validateRequestData();
 	  if (errorMessage) {
-	    _classPrivateMethodGet$2(this, _showError, _showError2).call(this, errorMessage);
+	    _classPrivateMethodGet$3(this, _showError, _showError2).call(this, errorMessage);
 	    babelHelpers.classPrivateFieldGet(this, _postFormManager).focusToEditor();
 	    return;
 	  }
@@ -565,8 +705,17 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldGet(_this6, _popup).close();
 	  })["catch"](function (error) {
 	    babelHelpers.classPrivateFieldGet(_this6, _sendBtn).setWaiting(false);
-	    _classPrivateMethodGet$2(_this6, _consoleError, _consoleError2).call(_this6, 'sendForm', error);
+	    _classPrivateMethodGet$3(_this6, _consoleError, _consoleError2).call(_this6, 'sendForm', error);
 	  });
+	}
+	function _clearForm2() {
+	  babelHelpers.classPrivateFieldGet(this, _postData).setData(babelHelpers.classPrivateFieldGet(this, _initData));
+	  _classPrivateMethodGet$3(this, _clearSelector, _clearSelector2).call(this);
+	  babelHelpers.classPrivateFieldGet(this, _postFormManager).clearEditorText();
+	  _classPrivateMethodGet$3(this, _clearFiles, _clearFiles2).call(this);
+	  babelHelpers.classPrivateFieldGet(this, _postFormTags).clear();
+	  babelHelpers.classPrivateFieldSet(this, _sended, false);
+	  babelHelpers.classPrivateFieldGet(this, _sendBtn).setWaiting(false);
 	}
 	function _collectFormData2() {
 	  var postFormData = {
@@ -575,18 +724,22 @@ this.BX = this.BX || {};
 	  };
 	  postFormData.recipients = babelHelpers.classPrivateFieldGet(this, _postData).getRecipients();
 	  var fileIds = [];
-	  var userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(babelHelpers.classPrivateFieldGet(this, _formId$1));
+	  var userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(babelHelpers.classPrivateFieldGet(this, _formId$2));
 	  userFieldControl.getFiles().forEach(function (file) {
 	    if (file.getServerFileId() !== null) {
 	      fileIds.push(file.getServerFileId());
 	    }
 	  });
 	  postFormData.fileIds = fileIds;
-	  var tagsHiddenInput = babelHelpers.classPrivateFieldGet(this, _node).querySelector('input[name="TAGS"]');
-	  if (main_core.Type.isDomNode(tagsHiddenInput)) {
-	    postFormData.tags = tagsHiddenInput.value;
+	  if (babelHelpers.classPrivateFieldGet(this, _postFormTags).isFilled()) {
+	    postFormData.tags = babelHelpers.classPrivateFieldGet(this, _postFormTags).getValue();
 	  }
 	  return postFormData;
+	}
+	function _clearFiles2() {
+	  var userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(babelHelpers.classPrivateFieldGet(this, _formId$2));
+	  userFieldControl.clear();
+	  userFieldControl.hide();
 	}
 	function _showError2(message) {
 	  main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(this, _errorLayout).container, '--hidden');
@@ -601,7 +754,7 @@ this.BX = this.BX || {};
 	  return main_core.ajax.runAction('socialnetwork.api.livefeed.blogpost.getMainPostForm', {
 	    data: {
 	      params: {
-	        formId: babelHelpers.classPrivateFieldGet(this, _formId$1),
+	        formId: babelHelpers.classPrivateFieldGet(this, _formId$2),
 	        jsObjName: babelHelpers.classPrivateFieldGet(this, _jsObjName),
 	        LHEId: babelHelpers.classPrivateFieldGet(this, _LHEId$1),
 	        postId: babelHelpers.classPrivateFieldGet(this, _postId),
@@ -613,11 +766,11 @@ this.BX = this.BX || {};
 	      htmlFirst: true
 	    });
 	  })["catch"](function (error) {
-	    _classPrivateMethodGet$2(_this7, _consoleError, _consoleError2).call(_this7, 'afterShow', error);
+	    _classPrivateMethodGet$3(_this7, _consoleError, _consoleError2).call(_this7, 'afterShow', error);
 	  });
 	}
 	function _renderForm2() {
-	  babelHelpers.classPrivateFieldSet(this, _node, main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sn-post-form__discussion\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t<div id=\"sn-post-form\"></div>\n\t\t\t</div>\n\t\t"])), _classPrivateMethodGet$2(this, _renderErrorAlert, _renderErrorAlert2).call(this), _classPrivateMethodGet$2(this, _renderRecipientSelector, _renderRecipientSelector2).call(this), _classPrivateMethodGet$2(this, _renderTitle, _renderTitle2).call(this)));
+	  babelHelpers.classPrivateFieldSet(this, _node, main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sn-post-form__discussion\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t<div id=\"sn-post-form\"></div>\n\t\t\t</div>\n\t\t"])), _classPrivateMethodGet$3(this, _renderErrorAlert, _renderErrorAlert2).call(this), _classPrivateMethodGet$3(this, _renderRecipientSelector, _renderRecipientSelector2).call(this), _classPrivateMethodGet$3(this, _renderTitle, _renderTitle2).call(this)));
 	  return babelHelpers.classPrivateFieldGet(this, _node);
 	}
 	function _renderErrorAlert2() {
@@ -672,16 +825,25 @@ this.BX = this.BX || {};
 	      }],
 	      events: {
 	        'Item:onSelect': function ItemOnSelect() {
-	          _classPrivateMethodGet$2(_this8, _changeSelectedRecipients, _changeSelectedRecipients2).call(_this8, babelHelpers.classPrivateFieldGet(_this8, _selector).getDialog().getSelectedItems());
+	          _classPrivateMethodGet$3(_this8, _changeSelectedRecipients, _changeSelectedRecipients2).call(_this8, babelHelpers.classPrivateFieldGet(_this8, _selector).getDialog().getSelectedItems());
 	        },
 	        'Item:onDeselect': function ItemOnDeselect() {
-	          _classPrivateMethodGet$2(_this8, _changeSelectedRecipients, _changeSelectedRecipients2).call(_this8, babelHelpers.classPrivateFieldGet(_this8, _selector).getDialog().getSelectedItems());
+	          _classPrivateMethodGet$3(_this8, _changeSelectedRecipients, _changeSelectedRecipients2).call(_this8, babelHelpers.classPrivateFieldGet(_this8, _selector).getDialog().getSelectedItems());
 	        }
 	      }
 	    }
 	  }));
 	  babelHelpers.classPrivateFieldGet(this, _selector).renderTo(babelHelpers.classPrivateFieldGet(this, _recipientSelector));
 	  return babelHelpers.classPrivateFieldGet(this, _selector);
+	}
+	function _clearSelector2() {
+	  main_core.Dom.clean(babelHelpers.classPrivateFieldGet(this, _recipientSelector));
+	  _classPrivateMethodGet$3(this, _initRecipientSelector, _initRecipientSelector2).call(this);
+	}
+	function _initTagsSelector2() {
+	  if (!babelHelpers.classPrivateFieldGet(this, _postFormTags)) {
+	    babelHelpers.classPrivateFieldSet(this, _postFormTags, new PostFormTags(babelHelpers.classPrivateFieldGet(this, _formId$2), babelHelpers.classPrivateFieldGet(this, _node)));
+	  }
 	}
 	function _changeSelectedRecipients2(selectedItems) {
 	  var recipients = [];
@@ -725,6 +887,13 @@ this.BX = this.BX || {};
 	    id: entity.entityId,
 	    title: entity.name
 	  }).select();
+	}
+	function _showControllers2(baseEvent) {
+	  var contentContainer = babelHelpers.classPrivateFieldGet(this, _popup).getContentContainer();
+	  contentContainer.scrollTo({
+	    top: contentContainer.scrollHeight - contentContainer.clientHeight,
+	    behavior: 'smooth'
+	  });
 	}
 	function _consoleError2(action, error) {
 	  // todo

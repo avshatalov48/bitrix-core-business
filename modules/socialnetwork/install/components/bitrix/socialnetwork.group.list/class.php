@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -563,10 +564,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 			$this->runtimeFieldsManager->add('SCRUM');
 		}
 
-		if (
-			$this->currentUserId > 0
-			&& $userId === $this->currentUserId
-		)
+		if ($this->currentUserId > 0)
 		{
 			$this->query->registerRuntimeField(
 				new Reference(
@@ -577,7 +575,13 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 				)
 			);
 			$this->runtimeFieldsManager->add('FAVORITES');
+		}
 
+		if (
+			$this->currentUserId > 0
+			&& $userId === $this->currentUserId
+		)
+		{
 			$join = Join::on('this.ID', 'ref.GROUP_ID')
 				->where('ref.USER_ID', $this->currentUserId);
 
@@ -832,6 +836,8 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 
 	private function addActivityDateField()
 	{
+		$helper = Application::getConnection()->getSqlHelper();
+
 		if (Loader::includeModule('tasks'))
 		{
 			$this->query->registerRuntimeField(
@@ -847,7 +853,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 				null,
 				new ExpressionField(
 					'ACTIVITY_DATE',
-					'IFNULL(%s, %s)',
+					$helper->getIsNullFunction('%s', '%s'),
 					['PLA.ACTIVITY_DATE', 'DATE_UPDATE']
 				)
 			);

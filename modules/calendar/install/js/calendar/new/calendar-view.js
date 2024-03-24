@@ -338,10 +338,14 @@
 				{
 					return this.calendar.triggerEvent('entryClick', params);
 				}
-
 				if (params.entry.isTask())
 				{
-					BX.SidePanel.Instance.open(this.calendar.util.getViewTaskPath(params.entry.id), {loader: "task-new-loader"});
+					const viewTaskPath = BX.Uri.addParam(this.calendar.util.getViewTaskPath(params.entry.id), {
+						ta_sec: 'calendar',
+						ta_el: 'title_click',
+					});
+
+					BX.SidePanel.Instance.open(viewTaskPath, {loader: "task-new-loader"});
 				}
 				else if (!this.calendar.dragDrop.isDragging)
 				{

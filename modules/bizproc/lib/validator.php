@@ -159,7 +159,7 @@ class Validator
 		if (!in_array($this->dirtyValues[$name], $enum))
 		{
 			throw new ValidationException(Loc::getMessage("BIZPROC_VALIDATOR_ENUM",
-				["#name#" => $name, "#enum#" => implode('`, `', $enum)]));
+				["#name#" => $name, "#enum#" => implode('", "', $enum)]));
 		}
 
 		$this->setPureValue($name);

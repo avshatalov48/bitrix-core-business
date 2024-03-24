@@ -450,7 +450,8 @@ function __blogPostSetFollow(log_id)
 				};
 				if (context === 'spaces')
 				{
-					editParams.onclick = function() {
+					editParams.onclick = function(event, menuItem) {
+						menuItem.getMenuWindow()?.getPopupWindow()?.close();
 						BX.Livefeed.Post.editSpacesPost(postId, sonetGroupId);
 					};
 				}
@@ -471,7 +472,10 @@ function __blogPostSetFollow(log_id)
 				menuItems.push(editParams);
 			}
 
-			if(!BX.util.in_array(postType, [ 'DRAFT', 'MODERATION' ]))
+			if (
+				!BX.util.in_array(postType, [ 'DRAFT', 'MODERATION' ])
+				&& context !== 'spaces'
+			)
 			{
 				if(postData.perms >= 'T') // \Bitrix\Blog\Item\Permissions::MODERATE
 				{
@@ -527,6 +531,7 @@ function __blogPostSetFollow(log_id)
 				postType == 'DRAFT'
 				&& postData.allowModerate == 'Y'
 				&& BX.type.isNotEmptyString(urlToPub)
+				&& context !== 'spaces'
 			)
 			{
 				menuItems.push({
@@ -543,7 +548,10 @@ function __blogPostSetFollow(log_id)
 					onclick: function() {
 						if (confirm(BX.message('BLOG_MES_DELETE_POST_CONFIRM')))
 						{
-							if (urlToDelete.length > 0)
+							if (
+								urlToDelete.length > 0
+								&& context !== 'spaces'
+							)
 							{
 								window.location = urlToDelete.replace('#del_post_id#', postId);
 							}

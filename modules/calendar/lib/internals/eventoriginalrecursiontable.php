@@ -15,7 +15,20 @@ use Bitrix\Main\ORM\Fields\IntegerField;
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EventOriginalRecursion_Query query()
+ * @method static EO_EventOriginalRecursion_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_EventOriginalRecursion_Result getById($id)
+ * @method static EO_EventOriginalRecursion_Result getList(array $parameters = [])
+ * @method static EO_EventOriginalRecursion_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_EventOriginalRecursion createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_EventOriginalRecursion_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_EventOriginalRecursion wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_EventOriginalRecursion_Collection wakeUpCollection($rows)
+ */
 
 final class EventOriginalRecursionTable extends DataManager
 {

@@ -1,8 +1,8 @@
-import {RestClient} from 'rest.client';
-import {Store} from 'ui.vue3.vuex';
+import { RestClient } from 'rest.client';
+import { Store } from 'ui.vue3.vuex';
 
-import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { RestMethod } from 'im.v2.const';
 
 export class MeetingManager
 {
@@ -15,15 +15,12 @@ export class MeetingManager
 		this.restClient = Core.getRestClient();
 	}
 
-	delete({id, chatId})
+	delete({ id, chatId })
 	{
-		this.store.dispatch('sidebar/meetings/delete', {
-			chatId: chatId,
-			id: id
-		});
+		this.store.dispatch('sidebar/meetings/delete', { chatId, id });
 
-		const queryParams = {'LINK_ID': id};
-		this.restClient.callMethod(RestMethod.imChatCalendarDelete, queryParams).catch(error => {
+		const queryParams = { LINK_ID: id };
+		this.restClient.callMethod(RestMethod.imChatCalendarDelete, queryParams).catch((error) => {
 			console.error('Im.Sidebar: error deleting meeting', error);
 		});
 	}

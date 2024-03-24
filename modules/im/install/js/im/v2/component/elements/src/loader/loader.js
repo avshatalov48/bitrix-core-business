@@ -1,4 +1,4 @@
-import {Loader as UILoader} from 'ui.loader';
+import { Loader as UILoader } from 'ui.loader';
 import './loader.css';
 
 const LOADER_SIZE = 'xs';
@@ -24,5 +24,5 @@ export const Loader = {
 	},
 	template: `
 		<div class="bx-im-elements-loader__container" ref="messenger-loader"></div>
-	`
+	`,
 };

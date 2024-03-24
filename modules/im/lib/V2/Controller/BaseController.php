@@ -9,15 +9,16 @@ use Bitrix\Im\V2\Controller\Filter\AuthorizationPrefilter;
 use Bitrix\Im\V2\Controller\Filter\CheckChatAccess;
 use Bitrix\Im\V2\Controller\Filter\SameChatMessageFilter;
 use Bitrix\Im\V2\Controller\Filter\StartIdFilter;
-use Bitrix\Im\V2\Controller\Filter\UpdateStatus;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\MessageError;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Im\V2\Rest\RestConvertible;
-use Bitrix\Main\Context;
+use Bitrix\Main\Application;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Response\Converter;
+use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Type\ParameterDictionary;
 
 abstract class BaseController extends Controller
 {
@@ -144,6 +145,27 @@ abstract class BaseController extends Controller
 
 	protected function getRawValue(string $key)
 	{
-		return $this->request->getPostList()->getRaw($key) ?? $this->request->getQueryList()->getRaw($key) ?? null;
+		return $this->prepareRawValue($this->request->getPostList(), $key)
+			?? $this->prepareRawValue($this->request->getQueryList(), $key)
+			?? null
+		;
+	}
+
+	private function prepareRawValue(ParameterDictionary $list, string $key)
+	{
+		$rawData = $list->toArrayRaw();
+		if (isset($rawData[$key]))
+		{
+			if(Application::getInstance()->isUtfMode())
+			{
+				return $rawData[$key];
+			}
+
+			return Encoding::convertEncoding($rawData[$key], 'UTF-8', SITE_CHARSET);
+		}
+
+		$data  = $list->toArray();
+
+		return $data[$key] ?? null;
 	}
 }

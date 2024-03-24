@@ -40,7 +40,6 @@
 
 .bx-im-chat-header-call-button__text {
 	margin-right: 5px;
-
 	font: var(--im-font-size-xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-chat-header-call-button__font-color);
@@ -93,7 +92,10 @@
 .bx-im-chat-header-call-button-menu__phone_number {
 	height: auto;
 	line-height: initial;
-
 	font: var(--im-font-size-sm) var(--im-font-family-system);
 	color: var(--im-chat-header-call-button__font-color_phone-number);
+}
+
+.bx-im-chat-header-call-button-menu__zoom.--disabled {
+	opacity: 0.4;
 }

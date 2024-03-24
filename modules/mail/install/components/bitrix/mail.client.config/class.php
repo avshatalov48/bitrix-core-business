@@ -3,6 +3,8 @@
 use Bitrix\Mail\Helper\Mailbox;
 use Bitrix\Mail\Helper\Mailbox\MailboxConnector;
 use Bitrix\Main;
+use Bitrix\Main\Mail\Address;
+use Bitrix\Main\Mail\Sender;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Mail;
 use Bitrix\Mail\Helper\LicenseManager;
@@ -214,7 +216,13 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				$this->arParams['SERVICE']['oauth'] = Mail\MailServicesTable::getOAuthHelper($service);
 			}
 		}
-		$this->arParams['SERVICE']['oauth_smtp_enabled'] = !empty($this->arParams['SERVICE']['oauth']);
+		$this->arParams['SERVICE']['oauth_smtp_enabled'] = !empty($this->arParams['SERVICE']['oauth'])
+			&& MailboxConnector::isOauthSmtpEnabled($this->arParams['SERVICE']['name'] ?? '');
+
+		if (!empty($this->arParams['SERVICE']['oauth']) && empty($this->arParams['SERVICE']['oauth_smtp_enabled']))
+		{
+			$this->arParams['SERVICE']['smtp']['password'] = false;
+		}
 
 		$ownerId = $new ? $USER->getId() : $mailbox['USER_ID'];
 		$access = array(
@@ -707,8 +715,8 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			return $this->error($errors instanceof Main\ErrorCollection ? $errors : $error, $isOAuth);
 		}
 
-		$useSmtp = !empty($fields['use_smtp'])
-			|| (!empty(MailServicesTable::getOAuthHelper($service)) && $this->isNotMicrosoftService($service));
+		$isSmtpOauthEnabled = MailboxConnector::isOauthSmtpEnabled($service['NAME'] ?? '');
+		$useSmtp = !empty($fields['use_smtp']) || ($isSmtpOauthEnabled && $this->isNotMicrosoftService($service));
 
 		if ($this->arParams['IS_SMTP_AVAILABLE'] && !$useSmtp && !empty($mailbox))
 		{
@@ -799,10 +807,10 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				$smtpConfig = array_filter($smtpConfig) + $smtpConfirmed;
 			}
 
-			if ($service['SMTP_PASSWORD_AS_IMAP'] === 'Y')
+			if ($service['SMTP_PASSWORD_AS_IMAP'] === 'Y' && (!$fields['oauth_uid'] || $isSmtpOauthEnabled))
 			{
 				$smtpConfig['password'] = $mailboxData['PASSWORD'];
-				$smtpConfig['isOauth'] = !empty($fields['oauth_uid']);
+				$smtpConfig['isOauth'] = !empty($fields['oauth_uid']) && $isSmtpOauthEnabled;
 			}
 			else if ($fields['pass_smtp'] <> '' && $fields['pass_smtp'] != $fields['pass_placeholder'])
 			{
@@ -816,6 +824,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				}
 
 				$smtpConfig['password'] = $fields['pass_smtp'];
+				$smtpConfig['isOauth'] = !empty($fields['oauth_uid']) && $isSmtpOauthEnabled;
 			}
 
 			if (!$service['SMTP_SERVER'])
@@ -851,6 +860,17 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 					array_keys(array_intersect_assoc($smtpConfig, $smtpConfirmed))
 				);
 			}
+		}
+
+		$userPrincipalName = (string)($fields['user_principal_name'] ?? '');
+
+		// we should check if smtp credentials is correct
+		if (
+			$this->arParams['IS_SMTP_AVAILABLE'] && $useSmtp
+			&& $this->isSmtpInvalid($senderFields ?? [], $userPrincipalName, $isSmtpOauthEnabled)
+		)
+		{
+			return false; // errors set in check method
 		}
 
 		if ($fields['use_crm'] == 'Y')
@@ -1266,4 +1286,50 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			'outlook.com',
 		];
 	}
+
+	private function isSmtpInvalid(array $fields, string $principalName, bool $isOAuth): bool
+	{
+		if (empty($fields))
+		{
+			return false; // if we don't connect sender it's OK
+		}
+
+		if (empty($fields['OPTIONS']) || !is_array($fields['OPTIONS']))
+		{
+			$fields['OPTIONS'] = [];
+		}
+
+		Sender::checkEmail($fields, $error, $errors);
+
+		if ($principalName)
+		{
+			$address = new Address($principalName);
+			$currentSmtpLogin = $fields['OPTIONS']['smtp']['login'] ?? '';
+			if ($currentSmtpLogin && $currentSmtpLogin !== $principalName && $address->validate())
+			{
+				// outlook workaround, sometimes SMTP auth only works with userPrincipalName
+				$fields['OPTIONS']['smtp']['login'] = $principalName;
+				// clean errors
+				$error = null;
+				$errors = null;
+				Sender::checkEmail($fields, $error, $errors);
+			}
+		}
+
+		if (!empty($errors) && $errors instanceof Main\ErrorCollection)
+		{
+			$this->error($errors, $isOAuth, true);
+
+			return true;
+		}
+		else if (!empty($error))
+		{
+			$this->error($error, $isOAuth, true);
+
+			return true;
+		}
+
+		return false;
+	}
+
 }

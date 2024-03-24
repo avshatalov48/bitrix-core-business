@@ -24,14 +24,27 @@ try
 	$arResult['FORM_URL'] = $APPLICATION->getCurPageParam("",array('success'));
 	$arResult['LIST'] = \Bitrix\Main\Mail\Tracking::getSubscriptionList($arTag);
 
-	if($_SERVER['REQUEST_METHOD'] == 'POST' && array_key_exists('MAIN_MAIL_UNSUB_BUTTON', $_POST) && check_bitrix_sessid())
+	$context = \Bitrix\Main\Context::getCurrent();
+	$request = $context->getRequest();
+	$isOneClickUnsub = $request->get('List-Unsubscribe') === 'One-Click';
+
+	if (
+		$request->getRequestMethod() === 'POST'
+		&& (
+			(array_key_exists('MAIN_MAIL_UNSUB_BUTTON', $_POST) && check_bitrix_sessid())
+			|| $isOneClickUnsub === true
+		)
+	)
 	{
 		$unsubscribeListFromForm = is_array($_POST['MAIN_MAIL_UNSUB']) ? $_POST['MAIN_MAIL_UNSUB'] : array();
 
 		$arUnsubscribeList = array();
 		foreach($arResult['LIST'] as $key => $unsubItem)
 		{
-			if(in_array($unsubItem['ID'], $unsubscribeListFromForm))
+			if (
+				in_array($unsubItem['ID'], $unsubscribeListFromForm)
+				|| $isOneClickUnsub === true
+			)
 			{
 				$arUnsubscribeList[] = $unsubItem['ID'];
 				$arSubList[$key]['SELECTED'] = true;

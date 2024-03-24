@@ -77,25 +77,49 @@ final class LocationTable extends Tree
 		{
 			$error = false;
 
-			if($field->getName() == 'LATITUDE' && mb_strlen($data['LATITUDE']))
+			if ($field->getName() === 'LATITUDE')
 			{
-				// latitude is set in data and not empty, it must lay between -90 and 90
-				if(!is_numeric($data['LATITUDE']))
-					$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LATITUDE_TYPE_ERROR');
-				elseif(($latitude = floatval($data['LATITUDE'])) && ($latitude < -90 || $latitude > 90))
-					$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LATITUDE_RANGE_ERROR');
+				$latitude = (string)($data['LATITUDE'] ?? null);
+				if ($latitude !== '')
+				{
+					// latitude is set in data and not empty, it must lay between -90 and 90
+					if (!is_numeric($latitude))
+					{
+						$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LATITUDE_TYPE_ERROR');
+					}
+					else
+					{
+						$latitude = (float)$latitude;
+						if ($latitude < -90 || $latitude > 90)
+						{
+							$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LATITUDE_RANGE_ERROR');
+						}
+					}
+				}
 			}
 
-			if($field->getName() == 'LONGITUDE' && mb_strlen($data['LONGITUDE']))
+			if ($field->getName() === 'LONGITUDE')
 			{
-				// longitude is set in data and not empty, it must lay between -180 and 180
-				if(!is_numeric($data['LONGITUDE']))
-					$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LONGITUDE_TYPE_ERROR');
-				elseif(($longitude = floatval($data['LONGITUDE'])) && ($longitude < -180 || $longitude > 180))
-					$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LONGITUDE_RANGE_ERROR');
+				$longitude = (string)($data['LONGITUDE'] ?? null);
+				if ($longitude !== '')
+				{
+					// longitude is set in data and not empty, it must lay between -180 and 180
+					if (!is_numeric($longitude))
+					{
+						$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LONGITUDE_TYPE_ERROR');
+					}
+					else
+					{
+						$longitude = (float)$longitude;
+						if ($longitude < -180 || $longitude > 180)
+						{
+							$error = Loc::getMessage('SALE_LOCATION_LOCATION_ENTITY_LONGITUDE_RANGE_ERROR');
+						}
+					}
+				}
 			}
 
-			if($error !== false)
+			if ($error !== false)
 			{
 				$result->addError(new Entity\FieldError(
 					$field,
@@ -345,7 +369,7 @@ final class LocationTable extends Tree
 
 	/**
 	 * Fetches a parent chain of a specified node, using its code
-	 * 
+	 *
 	 * Available keys in $behaviour
 	 * SHOW_LEAF : if set to true, return node itself in the result
 	 */
@@ -542,7 +566,7 @@ final class LocationTable extends Tree
 			'CHILDREN_CNT' => array(
 				'data_type' => 'integer',
 				'expression' => array(
-					'count(%s)', 
+					'count(%s)',
 					'CHILD.ID'
 				)
 			),
@@ -578,7 +602,7 @@ final class LocationTable extends Tree
 			'CHILD_CNT' => array(
 				'data_type' => 'integer',
 				'expression' => array(
-					'count(%s)', 
+					'count(%s)',
 					'CHILD.ID'
 				)
 			),

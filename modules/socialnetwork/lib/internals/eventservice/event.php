@@ -2,9 +2,12 @@
 
 namespace Bitrix\Socialnetwork\Internals\EventService;
 
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Socialnetwork\Internals\EventService\Recepients\Collector;
 use Bitrix\Socialnetwork\Internals\EventService\Recepients\Recepient;
 use Bitrix\Socialnetwork\Internals\EventService\Recepients\RecepientCollection;
 use Bitrix\Socialnetwork\Internals\EventService\Recepients\SonetRightsRecepient;
+use Bitrix\Socialnetwork\Internals\EventService\Recepients\WorkgroupRequestRecipient;
 
 /**
  * Class Event
@@ -16,13 +19,14 @@ class Event
 {
 	protected int|null $eventId = null;
 	protected array $data = [];
+	protected DateTime $dateTime;
 
 	public function __construct(
 		protected string $hitId,
 		protected string $type = ''
 	)
 	{
-
+		$this->dateTime = new DateTime();
 	}
 
 	public function setId(int $eventId): self
@@ -49,6 +53,11 @@ class Event
 		return $this->type;
 	}
 
+	public function getDateTime(): DateTime
+	{
+		return $this->dateTime;
+	}
+
 	public function getData(): array
 	{
 		return $this->data;
@@ -62,6 +71,16 @@ class Event
 	public function getGroupId(): int
 	{
 		return (int)($this->data['GROUP_ID'] ?? 0);
+	}
+
+	public function getEntityTypeId(): string|null
+	{
+		return $this->data['ENTITY_TYPE_ID'] ?? null;
+	}
+
+	public function getEntityId(): int
+	{
+		return (int)($this->data['ENTITY_ID'] ?? 0);
 	}
 
 	public function getHash(): string
@@ -92,7 +111,26 @@ class Event
 			'SPACE_ID',
 			'TYPE_ID',
 			'ENTITY_ID',
+			'ID',
+			'ATTENDEES_CODES',
+			'EVENT_ID',
+			'ROLE',
+			'OLD_ROLE',
+			'NEW_ROLE',
+			'INITIATED_BY_TYPE',
+			'OLD_INITIATED_BY_TYPE',
+			'LOG_RIGHTS',
 		];
+
+		if (!empty($data['TASK_ID']))
+		{
+			$data['ID'] = $data['TASK_ID'];
+		}
+
+		if (is_array($data['NEW_RECORD'] ?? null))
+		{
+			$data = array_merge($data, $data['NEW_RECORD']);
+		}
 
 		foreach ($data as $key => $row)
 		{
@@ -105,7 +143,7 @@ class Event
 		return $data;
 	}
 
-	public function getRecepients(): \Iterator
+	public function getRecepients(): Collector
 	{
 		$eventType = $this->getType();
 		$data = $this->getData();
@@ -120,20 +158,24 @@ class Event
 			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_ADD:
 			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_UPD:
 			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_DEL:
-				return new SonetRightsRecepient($data['SONET_LOG_ID']);
+				return new SonetRightsRecepient($data['SONET_LOG_ID'], $data['LOG_RIGHTS'] ?? null);
+			case EventDictionary::EVENT_WORKGROUP_USER_ADD:
+			case EventDictionary::EVENT_WORKGROUP_USER_UPDATE:
+			case EventDictionary::EVENT_WORKGROUP_USER_DELETE:
+				return new WorkgroupRequestRecipient($data['GROUP_ID']);
 			default:
-				// in case recepient ids are defined
+				// in case recipient ids are defined
 				if (isset($data['RECEPIENTS']) && is_array($data['RECEPIENTS']))
 				{
-					$recepients = [];
+					$recipients = [];
 					foreach ($data['RECEPIENTS'] as $id)
 					{
-						$recepients[] = new Recepient($id);
+						$recipients[] = new Recepient($id);
 					}
-					return new RecepientCollection(...$recepients);
+					return new RecepientCollection(...$recipients);
 				}
 
-				// in case there is one recepient
+				// in case there is one recipient
 				if (isset($data['USER_ID']))
 				{
 					return new RecepientCollection(...[new Recepient($data['USER_ID'])]);

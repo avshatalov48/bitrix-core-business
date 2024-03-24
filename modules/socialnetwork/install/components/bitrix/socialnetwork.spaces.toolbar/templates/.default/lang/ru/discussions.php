@@ -8,6 +8,7 @@ $MESS['SN_SPACES_DISCUSSIONS_START_DISCUSSIONS'] = 'Начать обсужде�
 $MESS['SN_SPACES_DISCUSSIONS_COMPOSITION'] = 'Состав';
 $MESS['SN_SPACES_DISCUSSION_COMPOSITION_TITLE'] = 'Что вы хотите видеть в ленте пространства';
 $MESS['SN_SPACES_DISCUSSIONS_UPLOAD_FILE_NOTIFY_MESSAGE'] = 'Файл добавлен <a href="#path#">Посмотреть</a>';
+$MESS['SN_SPACES_LINE_UPLOAD_FILE_NOTIFY_MESSAGE'] = 'Файл добавлен <a onclick="#handler#">Посмотреть</a>';
 
 $MESS['SN_SPACES_DISCUSSIONS_COMPOSITION_FILTER_BLOG'] = 'Сообщения';
 $MESS['SN_SPACES_DISCUSSIONS_COMPOSITION_FILTER_BIZPROC'] = 'Бизнес-процессы';

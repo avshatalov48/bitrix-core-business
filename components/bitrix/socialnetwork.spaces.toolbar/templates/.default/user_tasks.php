@@ -15,6 +15,7 @@ use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 
 Extension::load([
+	'pull.client',
 	'ui.buttons',
 	'ui.label',
 	'tasks.creation-menu',
@@ -75,9 +76,11 @@ $messages = Loc::loadLanguageFile(__DIR__ . '/tasks.php');
 			filterRole: '<?= $arResult['filterRole'] ?>',
 			counters: <?= Json::encode($arResult['counters']) ?>,
 			viewList: <?= Json::encode($arResult['viewList']) ?>,
+			pathToUserSpaceTasks: '<?= CUtil::JSescape($arResult['pathToUserSpaceTasks']) ?>',
+			pathToTasks: '<?= $arResult['pathToTasks'] ?>',
+			pathToViewTask: '<?= $arResult['pathToViewTask'] ?>',
 			pathToAddTask: '<?= $arResult['pathToAddTask'] ?>',
 			pathToTemplateList: '<?= $arResult['pathToTemplateList'] ?>',
-			pathToTasks: '<?= $arResult['pathToTasks'] ?>',
 			viewMode: '<?= CUtil::JSescape($arResult['viewMode']) ?>',
 			order: '<?= CUtil::JSescape($arResult['order']) ?>',
 			shouldSubtasksBeGrouped: <?= $arResult['shouldSubtasksBeGrouped'] ? 'true' : 'false' ?>,

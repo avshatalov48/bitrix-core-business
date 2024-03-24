@@ -74,6 +74,12 @@ class Feed
 			filterId: params.filterId,
 		});
 
+		InformerInstance.init({
+			isSpaceFeatureEnabled: params.isSpaceEnabled,
+			userId: params.userId,
+			spaceId: params.spaceId,
+		});
+
 		if (
 			Type.isStringFilled(params.crmEntityTypeName)
 			&& !Type.isUndefined(params.crmEntityId)
@@ -120,7 +126,6 @@ class Feed
 		}
 
 		PinnedPanelInstance.init();
-		InformerInstance.init();
 
 		this.feedInitialized = true;
 	}

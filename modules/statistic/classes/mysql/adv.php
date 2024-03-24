@@ -79,7 +79,7 @@ class CAdv extends CAllAdv
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
-		$find_group = $arFilter["GROUP"];
+		$find_group = $arFilter["GROUP"] ?? '';
 		$arSqlSearch = Array();
 		$arSqlSearch_h = Array();
 		$strSqlSearch_h = "";
@@ -90,8 +90,8 @@ class CAdv extends CAllAdv
 
 		if (is_array($arFilter))
 		{
-			$date1 = $arFilter["DATE1_PERIOD"];
-			$date2 = $arFilter["DATE2_PERIOD"];
+			$date1 = $arFilter["DATE1_PERIOD"] ?? '';
+			$date2 = $arFilter["DATE2_PERIOD"] ?? '';
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
 			if ($date1 <> '')

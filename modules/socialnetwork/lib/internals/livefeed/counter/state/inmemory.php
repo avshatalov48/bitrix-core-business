@@ -85,6 +85,8 @@ class InMemory extends CounterState
 
 	protected function loadCounters(): void
 	{
+		$this->getLoader()->fetchCounters();
+
 		$this->updateState(
 			$this->getLoader()->getRawCounters()
 		);

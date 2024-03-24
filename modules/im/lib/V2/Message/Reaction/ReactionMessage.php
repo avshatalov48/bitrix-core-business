@@ -56,7 +56,14 @@ class ReactionMessage implements RestConvertible, PopupDataAggregatable
 
 	public function addUsers(string $reaction, array $users): self
 	{
-		$this->reactionUsers[$reaction] = $users;
+		if (isset($this->reactionUsers[$reaction]))
+		{
+			$this->reactionUsers[$reaction] = array_merge($this->reactionUsers[$reaction], $users);
+		}
+		else
+		{
+			$this->reactionUsers[$reaction] = $users;
+		}
 
 		return $this;
 	}

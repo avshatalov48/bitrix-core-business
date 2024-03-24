@@ -8,11 +8,11 @@ export { NotificationTypesCodes, NotificationSettingsMode } from './notification
 export { Layout } from './layout';
 export { SearchEntityIdTypes } from './search-result';
 export { UserStatus, UserExternalType, UserRole, UserIdNetworkPrefix } from './user';
-export { SidebarDetailBlock, SidebarBlock, SidebarFileTabTypes, SidebarFileTypes } from './sidebar';
+export { SidebarDetailBlock, MainPanelBlock, SidebarFileTabTypes, SidebarFileTypes } from './sidebar';
 export { Color } from './color';
 export { AttachType, AttachDescription } from './attach';
 export { KeyboardButtonType, KeyboardButtonAction, KeyboardButtonDisplay, KeyboardButtonContext } from './keyboard';
-export { DesktopFeature, DesktopBxLink, LegacyDesktopBxLink } from './desktop';
+export { DesktopBxLink, LegacyDesktopBxLink } from './desktop';
 export { LocalStorageKey } from './local-storage';
 export { PlacementType } from './market';
 export { PopupType } from './popup';
@@ -25,6 +25,7 @@ export { PathPlaceholder } from './path';
 export { GetParameter } from './get-params';
 export { CallViewState } from './call';
 export { TextareaPanelType } from './textarea';
+export { ChatEntityLinkType } from './chat-entity-link';
 
 export type {
 	OnLayoutChangeEvent,

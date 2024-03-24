@@ -12,4 +12,4 @@ $MESS ['COMP_FORM_PARAMS_CHAIN_ITEM_TEXT'] = "Название дополнит�
 $MESS ['COMP_FORM_PARAMS_CHAIN_ITEM_LINK'] = "Ссылка на дополнительном пункте в навигационной цепочке";
 $MESS ['COMP_FORM_PARAMS_IGNORE_CUSTOM_TEMPLATE'] = "Игнорировать свой шаблон";
 $MESS ['COMP_FORM_PARAMS_USE_EXTENDED_ERRORS'] = "Использовать расширенный вывод сообщений об ошибках";
-?>
+$MESS ['COMP_FORM_NAME_TEMPLATE'] = "Формат имени";

@@ -2,49 +2,30 @@
 
 namespace Bitrix\Socialnetwork\Internals\EventService\Recepients;
 
-class RecepientCollection implements \Iterator, \Countable
+use Traversable;
+
+class RecepientCollection implements Collector, \IteratorAggregate, \Countable
 {
 	/** @var Recepient[]  */
-	private array $recepients;
+	private array $recipients;
 
-	public function __construct(Recepient ...$recepients)
+	public function __construct(Recepient ...$recipients)
 	{
-		$this->recepients = $recepients;
+		$this->recipients = $recipients;
 	}
 
-	public function add(Recepient $recepient): void
+	public function fetch(int $limit, int $offset): RecepientCollection
 	{
-		$this->recepients[] = $recepient;
+		return new RecepientCollection(...array_slice($this->recipients, $offset, $limit));
+	}
+
+	public function getIterator(): Traversable
+	{
+		return new \ArrayIterator($this->recipients);
 	}
 
 	public function count(): int
 	{
-		return count($this->recepients);
-	}
-
-	public function current(): Recepient
-	{
-		return current($this->recepients);
-	}
-
-	public function next(): void
-	{
-		next($this->recepients);
-	}
-
-	public function key(): mixed
-	{
-		return key($this->recepients);
-	}
-
-	public function valid(): bool
-	{
-		$key = key($this->recepients);
-		return ($key !== null && $key !== false);
-	}
-
-	public function rewind(): void
-	{
-		reset($this->recepients);
+		return count($this->recipients);
 	}
 }

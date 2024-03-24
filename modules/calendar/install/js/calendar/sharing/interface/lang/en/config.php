@@ -23,6 +23,7 @@ $MESS["CALENDAR_SHARING_SETTINGS_SUBTITLE_PERSONAL"] = "Custom dates are selecte
 $MESS["CALENDAR_SHARING_SETTINGS_TITLE"] = "Specify slot times available to your contact:";
 $MESS["CALENDAR_SHARING_SETTINGS_TITLE_V2"] = "Available slots";
 $MESS["CALENDAR_SHARING_SETTINGS_WORKDAYS"] = "Working days";
+$MESS["CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1"] = "Workdays";
 $MESS["CALENDAR_SHARING_USER_SELECTOR_HINT_DESC"] = "The shared slots takes your colleagues' availability into account. The recipient will pick the time when all of the attendees are available.";
 $MESS["CALENDAR_SHARING_USER_SELECTOR_HINT_TITLE"] = "Shared slots";
 $MESS["CALENDAR_SHARING_USER_SELECTOR_TITLE"] = "Create shared slots and <span data-role=\"calendar-sharing_popup-joint-slots\">invite your colleagues</span>";

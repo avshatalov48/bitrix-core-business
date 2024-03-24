@@ -2,18 +2,35 @@
 
 namespace Bitrix\Conversion;
 
+use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 
 final class Config
 {
 	static private $baseCurrency;
 
+	/**
+	 * Default currency value from 'currency' module.
+	 * If can't get base currency from 'currency' module, returns 'RUB'.
+	 *
+	 * @return string
+	 */
+	public static function getDefaultCurrency()
+	{
+		if (Loader::includeModule('currency'))
+		{
+			return CurrencyManager::getBaseCurrency();
+		}
+		return 'RUB';
+	}
+
 	static public function getBaseCurrency()
 	{
 		if (! $currency =& self::$baseCurrency)
 		{
-			$currency = Option::get('conversion', 'BASE_CURRENCY', 'RUB');
+			$currency = Option::get('conversion', 'BASE_CURRENCY', self::getDefaultCurrency());
 		}
 
 		return $currency;
@@ -26,7 +43,7 @@ final class Config
 	{
 		if (! $currency)
 		{
-			$currency = 'RUB';
+			$currency = self::getDefaultCurrency();
 		}
 
 		self::$baseCurrency = $currency;
@@ -82,7 +99,7 @@ final class Config
 				$modules['sale']['ACTIVE'] = true;
 			}
 
-			$modules = unserialize(Option::get('conversion', 'MODULES', 'a:0:{}')) + $modules;
+			$modules = unserialize(Option::get('conversion', 'MODULES', 'a:0:{}'), ['allowed_classes' => false]) + $modules;
 
 			// TODO all modules with attributes must be active
 			$modules['conversion'] = $modules['abtest'] = $modules['sender'] = $modules['seo'] = array('ACTIVE' => true);

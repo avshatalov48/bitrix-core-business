@@ -191,6 +191,7 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 
 		$viewState = $listState->getState();
 
+		$currentViewMode = $this->arResult['viewMode'];
 		$viewList = [];
 
 		if ($inputViewList)
@@ -204,6 +205,7 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 					$viewList[] = [
 						'id' => $view['ID'],
 						'title' => $view['SHORT_TITLE'],
+						'selected' => $this->getTasksViewMode($mode) === $currentViewMode,
 						'urlParam' => 'F_STATE',
 						'urlValue' => 'sV' . CTaskListState::encodeState($view['ID']),
 					];
@@ -223,6 +225,7 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 					'id' => $view['ID'],
 					'key' => $this->convertToKebabCase($viewKey),
 					'title' => $view['SHORT_TITLE'],
+					'selected' => $this->getTasksViewMode($viewKey) === $currentViewMode,
 					'urlParam' => 'F_STATE',
 					'urlValue' => 'sV' . CTaskListState::encodeState($view['ID']),
 				];
@@ -299,6 +302,8 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 
 	private function prepareTasksResult(): static
 	{
+		Loader::includeModule('tasks');
+
 		if ($this->arResult['pageType'] === 'user')
 		{
 			if ($this->isTasksView())
@@ -325,6 +330,10 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 				$this->prepareGroupUsersResult();
 			}
 		}
+
+		$this->arResult['pathToUserSpaceTasks'] = CComponentEngine::makePathFromTemplate(
+			$this->arParams['PATH_TO_USER_TASKS']
+		);
 
 		$this->prepareTemplateListUrl();
 
@@ -494,11 +503,11 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 		return '';
 	}
 
-	private function getTaskAddUrl(string $context): string
+	private function getTaskUrl(string $view, string $context): string
 	{
 		$path = new TaskPathMaker(
 			0,
-			PathMaker::EDIT_ACTION,
+			$view,
 			$context === PathMaker::GROUP_CONTEXT ? $this->spaceId : $this->userId,
 			$context
 		);
@@ -569,15 +578,21 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 	{
 		$userId = $this->arResult['userId'];
 
+		$this->arResult['viewMode'] = $this->getUserTasksViewMode($userId);
 		$this->arResult['viewList'] = $this->getTasksViewList($this->arParams['VIEW_MODE_LIST']);
 		$this->arResult['taskCurrentViewMode'] = $this->getCurrentTasksViewState($userId);
 
-		$this->arResult['pathToAddTask'] = $this->getTaskAddUrl(PathMaker::PERSONAL_CONTEXT);
+		$this->arResult['pathToAddTask'] = $this->getTaskUrl(
+			PathMaker::EDIT_ACTION,
+			PathMaker::PERSONAL_CONTEXT,
+		);
+		$this->arResult['pathToViewTask'] = $this->getTaskUrl(
+			PathMaker::DEFAULT_ACTION,
+			PathMaker::PERSONAL_CONTEXT,
+		);
 
 		$pathToTasks = $this->getPathToTasks();
 		$this->arResult['pathToTasks'] = $pathToTasks;
-
-		$this->arResult['viewMode'] = $this->getUserTasksViewMode($userId);
 
 		$this->arResult['order'] = $this->getTasksOrder();
 		$this->arResult['shouldSubtasksBeGrouped'] = $this->shouldSubtasksBeGrouped($userId);
@@ -654,7 +669,10 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 
 		$this->arResult['taskCurrentViewMode'] = $this->getCurrentTasksViewState($userId);
 
-		$this->arResult['pathToAddTask'] = $this->getTaskAddUrl(PathMaker::GROUP_CONTEXT);
+		$this->arResult['pathToAddTask'] = $this->getTaskUrl(
+			PathMaker::EDIT_ACTION,
+			PathMaker::GROUP_CONTEXT,
+		);
 
 		$this->arResult['pathToGroupTasksTask'] = CComponentEngine::makePathFromTemplate(
 			$this->arParams['PATH_TO_GROUP_TASKS_TASK'],
@@ -833,9 +851,36 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 			);
 		}
 
+		$this->arResult['storage'] = null;
+		$this->arResult['folder'] = null;
+		$storage = $this->getStorageByPageType($this->arResult['pageType']);
+		if (!is_null($storage))
+		{
+			$folder = Disk\Folder::loadById($storage->getRootObjectId());
+
+			$this->arResult['storage'] = $storage;
+			$this->arResult['folder'] = $folder;
+		}
+
 		return $this
 			->prepareSmartTrackingMode()
 			->prepareCompositionData();
+	}
+
+	/**
+	 * @throws SystemException
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
+	private function getStorageByPageType(string $pageType): ?Disk\Storage
+	{
+		$diskDriver = Disk\Driver::getInstance();
+
+		if ($pageType === 'user')
+		{
+			return $diskDriver->getStorageByUserId($this->arResult['userId']);
+		}
+
+		return $diskDriver->getStorageByGroupId($this->arResult['groupId']);
 	}
 
 	private function prepareSmartTrackingMode(): static
@@ -948,7 +993,7 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 	{
 		if ($isScrum)
 		{
-			$viewHelper = new Scrum\Utility\ViewHelper();
+			$viewHelper = new Scrum\Utility\ViewHelper($this->getSiteId());
 
 			return match ($viewHelper->getActiveView($groupId))
 			{
@@ -982,7 +1027,7 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 
 	private function saveScrumActiveView(?string $view, int $groupId)
 	{
-		$viewHelper = new Scrum\Utility\ViewHelper();
+		$viewHelper = new Scrum\Utility\ViewHelper($this->getSiteId());
 
 		$viewHelper->saveActiveView($view, $groupId);
 	}

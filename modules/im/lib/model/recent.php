@@ -2,9 +2,7 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Im\V2\Common\UpdateByFilterTrait;
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
 
 /**
  * Class RecentTable
@@ -58,23 +56,23 @@ class RecentTable extends Main\Entity\DataManager
 			'USER_ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
-				'title' => Loc::getMessage('RECENT_ENTITY_USER_ID_FIELD'),
+				//'title' => Loc::getMessage('RECENT_ENTITY_USER_ID_FIELD'),
 			),
 			'ITEM_TYPE' => array(
 				'data_type' => 'string',
 				'primary' => true,
 				'validation' => array(__CLASS__, 'validateItemType'),
-				'title' => Loc::getMessage('RECENT_ENTITY_ITEM_TYPE_FIELD'),
+				//'title' => Loc::getMessage('RECENT_ENTITY_ITEM_TYPE_FIELD'),
 			),
 			'ITEM_ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
-				'title' => Loc::getMessage('RECENT_ENTITY_ITEM_ID_FIELD'),
+				//'title' => Loc::getMessage('RECENT_ENTITY_ITEM_ID_FIELD'),
 			),
 			'ITEM_MID' => array(
 				'data_type' => 'integer',
 				'default_value' => 0,
-				'title' => Loc::getMessage('RECENT_ENTITY_ITEM_MID_FIELD'),
+				//'title' => Loc::getMessage('RECENT_ENTITY_ITEM_MID_FIELD'),
 			),
 			'ITEM_CID' => array(
 				'data_type' => 'integer',

@@ -719,9 +719,20 @@
 	z-index: -1;
 }
 
+.calendar-planner-selector-notices-container {
+	position: sticky;
+	left: 0;
+	margin-right: 3px;
+	z-index: 1;
+}
+
+.calendar-options-item-planner .calendar-planner-selector-notices-container {
+	left: 0 !important;
+}
+
 .calendar-planner-timeline-side-notice.--left {
-	transform: translate(-100%);
-	left: -4px;
+	transform: translateX(calc(-100% - 4px));
+	left: 100%;
 }
 
 .calendar-planner-timeline-side-notice.--left:after {

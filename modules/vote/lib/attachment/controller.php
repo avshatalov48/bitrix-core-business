@@ -188,7 +188,7 @@ class Controller extends \Bitrix\Vote\Base\Controller
 					$stat[$res["Q_QUESTION_ID"]][$res["A_ANSWER_ID"]] = array(
 						"EVENT_ID" => $res["A_ID"],
 						"EVENT_QUESTION_ID" => $res["Q_ID"],
-						"ANSWER_ID" => $res["ANSWER_ID"],
+						"ANSWER_ID" => $res["A_ANSWER_ID"],
 						"ID" => $res["A_ID"], // delete this
 						"MESSAGE" => $res["A_MESSAGE"]
 					);

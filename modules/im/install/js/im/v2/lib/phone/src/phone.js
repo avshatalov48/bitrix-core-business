@@ -133,6 +133,16 @@ export class PhoneManager
 		this.#controller.startCallList(callListId, params);
 	}
 
+	toggleDebugFlag(debug)
+	{
+		if (!this.#controller)
+		{
+			return;
+		}
+
+		this.#controller.debug = debug;
+	}
+
 	#init(phoneSettings: PhoneSettings)
 	{
 		this.#settings = phoneSettings;

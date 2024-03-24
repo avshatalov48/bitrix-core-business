@@ -14,7 +14,7 @@ class Mask extends Main\Engine\Controller
 	public function getSystemListAction(PageNavigation $pageNavigation, Main\Engine\CurrentUser $currentUser): Response\DataType\Page
 	{
 		return static::getList(
-			Avatar\Mask\ItemTable::query()
+			Avatar\Model\ItemTable::query()
 				->setFilter([
 					'=OWNER_TYPE' => [
 						Avatar\Mask\Owner\System::class,
@@ -30,7 +30,7 @@ class Mask extends Main\Engine\Controller
 	public function getUserListAction(PageNavigation $pageNavigation, Main\Engine\CurrentUser $currentUser): Response\DataType\Page
 	{
 		return static::getList(
-			Avatar\Mask\ItemTable::query()
+			Avatar\Model\ItemTable::query()
 				->setFilter([
 					'=OWNER_TYPE' => Avatar\Mask\Owner\User::class,
 					'=OWNER_ID' => $currentUser->getId()
@@ -44,7 +44,7 @@ class Mask extends Main\Engine\Controller
 	public function getSharedListAction(PageNavigation $pageNavigation, Main\Engine\CurrentUser $currentUser): Response\DataType\Page
 	{
 		return static::getList(
-			Avatar\Mask\ItemTable::query()
+			Avatar\Model\ItemTable::query()
 				->setFilter([
 					'=SHARED_FOR.USER_ACCESS.USER_ID' => $currentUser->getId(),
 					'=OWNER_TYPE' => Avatar\Mask\Owner\User::class,
@@ -61,7 +61,7 @@ class Mask extends Main\Engine\Controller
 	public function getRecentlyUsedListAction(PageNavigation $pageNavigation, Main\Engine\CurrentUser $currentUser): Response\DataType\Page
 	{
 		return static::getList(
-			Avatar\Mask\ItemTable::query()
+			Avatar\Model\ItemTable::query()
 				->setSelect(['ID', 'FILE_ID', 'TITLE', 'DESCRIPTION', 'SORT'])
 				->setOrder(['RECENTLY_USED_BY.ID' => 'DESC', 'ID' => 'DESC'])
 				->setFilter([
@@ -94,11 +94,11 @@ class Mask extends Main\Engine\Controller
 			->setCacheTtl(86400)
 			->exec();
 		$result = [];
-		while ($res = $dbRes->fetch())
+		while (($res = $dbRes->fetch()) && $res)
 		{
 			if ($file = \CFile::GetFileArray($res['FILE_ID']))
 			{
-				$groupId = (int) $res['GROUP_ID'];
+				$groupId = (int) ($res['GROUP_ID'] ?? 0);
 				if (!isset($result[$groupId]))
 				{
 					$result[$groupId] = ['items' => []];
@@ -119,7 +119,7 @@ class Mask extends Main\Engine\Controller
 		$groupIds = array_keys($result);
 		if (array_sum($groupIds) > 0)
 		{
-			$dbRes = Avatar\Mask\GroupTable::getList([
+			$dbRes = Avatar\Model\GroupTable::getList([
 				'select' => [
 					'ID', 'TITLE'
 				],
@@ -217,7 +217,7 @@ class Mask extends Main\Engine\Controller
 		if ($result->isSuccess())
 		{
 			$responsePage = static::getList(
-				Avatar\Mask\ItemTable::query()
+				Avatar\Model\ItemTable::query()
 					->setFilter([
 						'=ID' => $id
 					])

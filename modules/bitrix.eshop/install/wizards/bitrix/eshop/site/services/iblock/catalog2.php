@@ -1,5 +1,9 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
 
 if(!CModule::IncludeModule("catalog"))
 	return;
@@ -36,21 +40,19 @@ if ($arIBlock = $rsIBlock->Fetch())
 
 if($IBLOCK_OFFERS_ID == false)
 {
-	$permissions = Array(
-			"1" => "X",
-			"2" => "R"
-		);
+	$permissions = [
+		1 => CIBlockRights::FULL_ACCESS,
+		2 => CIBlockRights::PUBLIC_READ,
+	];
 	$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "sale_administrator"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
-		$permissions[$arGroup["ID"]] = 'W';
+		$permissions[$arGroup["ID"]] = CIBlockRights::EDIT_ACCESS;
 	}
-	$by = "";
-	$order = "";
 	$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "content_editor"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
-		$permissions[$arGroup["ID"]] = 'W';
+		$permissions[$arGroup["ID"]] = CIBlockRights::EDIT_ACCESS;
 	}
 
 	\Bitrix\Catalog\Product\Sku::disableUpdateAvailable();
@@ -74,7 +76,7 @@ if($IBLOCK_OFFERS_ID == false)
 		return;
 
 	$iblock = new CIBlock;
-	$iblock->Update($IBLOCK_CATALOG_ID, array("LIST_MODE" => \Bitrix\Iblock\IblockTable::LIST_MODE_SEPARATE));
+	$iblock->Update($IBLOCK_OFFERS_ID, array("LIST_MODE" => \Bitrix\Iblock\IblockTable::LIST_MODE_SEPARATE));
 
 	$_SESSION["WIZARD_OFFERS_IBLOCK_ID"] = $IBLOCK_OFFERS_ID;
 }
@@ -91,4 +93,3 @@ else
 		$iblock->Update($IBLOCK_OFFERS_ID, array("LID" => $arSites));
 	}
 }
-?>

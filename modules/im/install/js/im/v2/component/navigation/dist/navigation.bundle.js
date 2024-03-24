@@ -11,12 +11,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  components: {
 	    ChatButton: im_v2_component_elements.Button
 	  },
-	  props: {
-	    isDesktopAccountManagementAvailable: {
-	      type: Boolean,
-	      default: false
-	    }
-	  },
 	  emits: ['openProfile', 'logout'],
 	  computed: {
 	    ButtonSize: () => im_v2_component_elements.ButtonSize,
@@ -26,6 +20,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    profileUri() {
 	      return im_v2_lib_utils.Utils.user.getProfileLink(this.currentUserId);
+	    },
+	    isDesktop() {
+	      return im_v2_lib_desktopApi.DesktopApi.isDesktop();
 	    }
 	  },
 	  methods: {
@@ -49,7 +46,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				/>
 			</a>
 			<ChatButton
-				v-if="isDesktopAccountManagementAvailable" 
+				v-if="isDesktop" 
 				:color="ButtonColor.DangerBorder"
 				:size="ButtonSize.M"
 				:isUppercase="false"
@@ -457,10 +454,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>
 					<div class="bx-im-user-settings-popup__user_name" :title="currentUser.name">{{ currentUser.name }}</div>
 					<div class="bx-im-user-settings-popup__user_title" :title="currentUserPosition">{{ currentUserPosition }}</div>
-					<ButtonPanel 
-						:isDesktopAccountManagementAvailable="isDesktopAccountManagementAvailable"
-						@openProfile="$emit('closePopup')" 
-					/>
+					<ButtonPanel @openProfile="$emit('closePopup')" />
 				</div>
 			</div>
 			<ScrollWithGradient :containerMaxHeight="328" :gradientHeight="24" @scroll="onScroll">

@@ -64,7 +64,7 @@ class CounterServiceLegacy extends CounterService
 			}
 			else if ($counter['CHAT_TYPE'] === Chat::IM_TYPE_COPILOT)
 			{
-				continue;
+				// nothing
 			}
 			else
 			{

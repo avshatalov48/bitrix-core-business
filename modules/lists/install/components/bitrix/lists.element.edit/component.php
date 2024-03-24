@@ -286,7 +286,11 @@ $tab_name = $arResult["FORM_ID"]."_active_tab";
 
 //Assume there was no error
 $bVarsFromForm = false;
-$arResult["BACK_URL"] = $arResult["~LIST_SECTION_URL"];
+
+$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
+$backUrl = (new \Bitrix\Main\Web\Uri($request->getQuery('back_url')))->getPath() ?: null;
+
+$arResult["BACK_URL"] = is_string($backUrl) && $backUrl ? $backUrl : $arResult["~LIST_SECTION_URL"];
 
 //todo after crm realized
 if (!function_exists("isUsePrefix"))
@@ -912,7 +916,11 @@ if(
 			CIBlockElement::WF_UnLock($arResult["ELEMENT_ID"]);
 
 			//And go to proper page
-			if(isset($_POST["save"]))
+			if (is_string($backUrl) && $backUrl)
+			{
+				LocalRedirect($backUrl);
+			}
+			elseif(isset($_POST["save"]))
 			{
 				LocalRedirect($arResult["~LIST_SECTION_URL"]);
 			}

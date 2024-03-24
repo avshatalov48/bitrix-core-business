@@ -234,6 +234,9 @@ final class SocialnetworkLogEntry extends LogEntry
 
 	protected function handleException(Exception $e): void
 	{
+		$logger = new \Bitrix\Socialnetwork\Log\Log();
+		$logger->collect("Error. Reason: {$e->getMessage()}");
+
 		if (($this->arParams['COMPONENT_AJAX'] ?? '') === 'Y')
 		{
 			$this->sendJsonResponse([

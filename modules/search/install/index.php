@@ -23,11 +23,6 @@ Class search extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = SEARCH_VERSION;
-			$this->MODULE_VERSION_DATE = SEARCH_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("SEARCH_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("SEARCH_MODULE_DESC");

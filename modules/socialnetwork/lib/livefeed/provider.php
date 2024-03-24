@@ -42,6 +42,7 @@ abstract class Provider
 	public const DATA_ENTITY_TYPE_TIMEMAN_REPORT = 'TIMEMAN_REPORT';
 	public const DATA_ENTITY_TYPE_INTRANET_NEW_USER = 'INTRANET_NEW_USER';
 	public const DATA_ENTITY_TYPE_BITRIX24_NEW_USER = 'BITRIX24_NEW_USER';
+	public const DATA_ENTITY_TYPE_LIVE_FEED_VIEW = 'LIVE_FEED_VIEW';
 
 	public const PERMISSION_DENY = 'D';
 	public const PERMISSION_READ = 'I';
@@ -1225,6 +1226,11 @@ abstract class Provider
 				{
 					if (Loader::includeModule('pull') && !$this->isComment($this->getContentTypeId()))
 					{
+						$contentId = $viewParams['typeId'] . '-' . $viewParams['entityId'];
+						$views = \Bitrix\Socialnetwork\Item\UserContentView::getViewData([
+							'contentId' => [$contentId]
+						]);
+
 						\CPullWatch::addToStack('CONTENTVIEW' . $viewParams['typeId'] . '-' . $viewParams['entityId'],
 							[
 								'module_id' => 'contentview',
@@ -1234,7 +1240,8 @@ abstract class Provider
 									'USER_ID' => $userId,
 									'TYPE_ID' => $viewParams['typeId'],
 									'ENTITY_ID' => $viewParams['entityId'],
-									'CONTENT_ID' => $viewParams['typeId'] . '-' . $viewParams['entityId']
+									'CONTENT_ID' => $contentId,
+									'TOTAL_VIEWS' => (int)($views[$contentId]['CNT'] ?? 0),
 								]
 							]
 						);
@@ -1253,7 +1260,7 @@ abstract class Provider
 						[
 							'SONET_LOG_ID' => (int)$logId,
 							'USER_ID' => (int)$userId,
-							'TYPE_ID' => $contentTypeId,
+							'ENTITY_TYPE_ID' => $contentTypeId,
 							'ENTITY_ID' => $contentEntityId,
 						]
 					);

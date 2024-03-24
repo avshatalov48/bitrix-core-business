@@ -1,11 +1,13 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Im as IM;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Im\V2\Sync;
+use Bitrix\Main\Type\DateTime;
 
 class CIMChat
 {
@@ -45,7 +47,7 @@ class CIMChat
 
 		$strSql = "
 			SELECT
-				M.*, C.TYPE CHAT_TYPE, R.USER_ID RID
+				M.*, C.TYPE as CHAT_TYPE, R.USER_ID as RID
 			FROM
 				b_im_message M
 				INNER JOIN b_im_chat C ON C.ID = M.CHAT_ID
@@ -85,10 +87,6 @@ class CIMChat
 	 * @param bool $bTimeZone
 	 * @param bool $limit
 	 * @return array|bool
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	function GetLastMessage($toChatId, $fromUserId = false, $loadExtraData = false, $bTimeZone = true, $limit = true)
 	{
@@ -118,14 +116,24 @@ class CIMChat
 			return false;
 		}
 
+		$sqlLimit = '';
 		if ($limit)
 		{
-			if ($DB->type == "MYSQL")
-				$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL 30 DAY)";
-			elseif ($DB->type == "MSSQL")
+			if ($DB->type == "MSSQL")
+			{
 				$sqlLimit = " AND M.DATE_CREATE > dateadd(day, -30, getdate())";
+			}
 			elseif ($DB->type == "ORACLE")
+			{
 				$sqlLimit = " AND M.DATE_CREATE > SYSDATE-30";
+			}
+			else
+			{
+				//$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL 30 DAY)";
+				$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+				$helper = $connection->getSqlHelper();
+				$sqlLimit = " AND M.DATE_CREATE > ".$helper->addDaysToDateTime(-30);
+			}
 		}
 
 		$readService = new IM\V2\Message\ReadService($fromUserId);
@@ -177,11 +185,11 @@ class CIMChat
 					M.ID,
 					M.CHAT_ID,
 					M.MESSAGE,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.AUTHOR_ID,
-					C.TYPE CHAT_TYPE,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-					R.USER_ID RID
+					C.TYPE as CHAT_TYPE,
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+					R.USER_ID as RID
 				FROM b_im_message M
 				INNER JOIN b_im_chat C ON C.ID = M.CHAT_ID AND C.TYPE = '".IM_MESSAGE_OPEN."'
 				LEFT JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID AND R.USER_ID = ".$fromUserId."
@@ -203,11 +211,11 @@ class CIMChat
 					M.ID,
 					M.CHAT_ID,
 					M.MESSAGE,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.AUTHOR_ID,
-					C.TYPE CHAT_TYPE,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-					R.USER_ID RID
+					C.TYPE as CHAT_TYPE,
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+					R.USER_ID as RID
 				FROM b_im_message M
 				INNER JOIN b_im_chat C ON C.ID = M.CHAT_ID AND C.TYPE = '".IM_MESSAGE_OPEN_LINE."'
 				LEFT JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID AND R.USER_ID = ".$fromUserId."
@@ -227,11 +235,11 @@ class CIMChat
 					M.ID,
 					M.CHAT_ID,
 					M.MESSAGE,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.AUTHOR_ID,
-					C.TYPE CHAT_TYPE,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-					'".$fromUserId."' RID
+					C.TYPE as CHAT_TYPE,
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+					'".$fromUserId."' as RID
 				FROM b_im_message M
 				INNER JOIN b_im_chat C ON C.ID = M.CHAT_ID
 				WHERE
@@ -257,11 +265,11 @@ class CIMChat
 						M.ID,
 						M.CHAT_ID,
 						M.MESSAGE,
-						".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+						".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 						M.AUTHOR_ID,
-						C.TYPE CHAT_TYPE,
-						C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-						'".$fromUserId."' RID
+						C.TYPE as CHAT_TYPE,
+						C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+						'".$fromUserId."' as RID
 					FROM b_im_message M
 					INNER JOIN b_im_chat C ON C.ID = M.CHAT_ID
 					WHERE
@@ -323,7 +331,7 @@ class CIMChat
 					'chatId' => $arRes['CHAT_ID'],
 					'senderId' => $arRes['AUTHOR_ID'],
 					'recipientId' => $arRes['CHAT_ID'],
-					'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes['DATE_CREATE']),
+					'date' => DateTime::createFromTimestamp($arRes['DATE_CREATE']),
 					'text' => \Bitrix\Im\Text::parse($arRes['MESSAGE']),
 					'textLegacy' => \Bitrix\Im\Text::parseLegacyFormat($arRes['MESSAGE']),
 				);
@@ -509,9 +517,9 @@ class CIMChat
 				M.ID,
 				M.CHAT_ID,
 				M.MESSAGE,
-				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 				M.AUTHOR_ID,
-				C.TYPE CHAT_TYPE
+				C.TYPE as CHAT_TYPE
 			FROM b_im_message M
 			INNER JOIN b_im_chat C ON C.ID = M.CHAT_ID
 			WHERE
@@ -537,7 +545,7 @@ class CIMChat
 				'chatId' => $arRes['CHAT_ID'],
 				'senderId' => $arRes['AUTHOR_ID'],
 				'recipientId' => $arRes['CHAT_ID'],
-				'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes['DATE_CREATE']),
+				'date' => DateTime::createFromTimestamp($arRes['DATE_CREATE']),
 				'text' => \Bitrix\Im\Text::parse($arRes['MESSAGE']),
 				'textLegacy' => \Bitrix\Im\Text::parseLegacyFormat($arRes['MESSAGE']),
 			);
@@ -642,12 +650,20 @@ class CIMChat
 		$sqlLimit = '';
 		if ($limit)
 		{
-			if ($DB->type == "MYSQL")
-				$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL ".$limit." DAY)";
-			elseif ($DB->type == "MSSQL")
+			if ($DB->type == "MSSQL")
+			{
 				$sqlLimit = " AND M.DATE_CREATE > dateadd(day, -".$limit.", getdate())";
+			}
 			elseif ($DB->type == "ORACLE")
+			{
 				$sqlLimit = " AND M.DATE_CREATE > SYSDATE-".$limit;
+			}
+			else
+			{
+				$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+				$helper = $connection->getSqlHelper();
+				$sqlLimit = " AND M.DATE_CREATE > ". $helper->addDaysToDateTime(-1 * $limit);
+			}
 		}
 		if (!$bTimeZone)
 			CTimeZone::Disable();
@@ -657,17 +673,17 @@ class CIMChat
 				M.ID,
 				M.CHAT_ID,
 				M.MESSAGE,
-				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 				M.AUTHOR_ID,
-				C.TITLE CHAT_TITLE,
-				C.COLOR CHAT_COLOR,
-				C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-				C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-				C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-				C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
-				".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." CHAT_DATE_CREATE,
-				C.TYPE CHAT_TYPE,
-				R.ID RID
+				C.TITLE as CHAT_TITLE,
+				C.COLOR as CHAT_COLOR,
+				C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+				C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+				C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+				C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3,
+				".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." as CHAT_DATE_CREATE,
+				C.TYPE as CHAT_TYPE,
+				R.ID as RID
 			FROM b_im_message M
 			INNER JOIN b_im_chat C ON C.ID = M.CHAT_ID AND C.LAST_MESSAGE_ID = M.ID
 			LEFT JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID AND R.USER_ID = ".$fromUserId."
@@ -709,7 +725,7 @@ class CIMChat
 				'senderId' => $arRes['AUTHOR_ID'],
 				'recipientId' => $arRes['CHAT_ID'],
 				'chatTitle' => \Bitrix\Im\Text::decodeEmoji($arRes['CHAT_TITLE']),
-				'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes['DATE_CREATE']),
+				'date' => DateTime::createFromTimestamp($arRes['DATE_CREATE']),
 				'color' => $arRes["CHAT_COLOR"] == ""? IM\Color::getColorByNumber($arRes['CHAT_ID']): IM\Color::getColor($arRes['CHAT_COLOR']),
 				'type' => $chatType,
 				'messageType' => $arRes["CHAT_TYPE"],
@@ -1031,35 +1047,35 @@ class CIMChat
 		$helper = $connection->getSqlHelper();
 		$strSql = "
 			SELECT
-				C.ID CHAT_ID,
-				C.TITLE CHAT_TITLE,
-				C.CALL_TYPE CHAT_CALL_TYPE,
-				C.AUTHOR_ID CHAT_OWNER_ID,
-				C.CALL_NUMBER CHAT_CALL_NUMBER,
-				C.EXTRANET CHAT_EXTRANET,
-				C.COLOR CHAT_COLOR,
-				C.TYPE CHAT_TYPE,
+				C.ID as CHAT_ID,
+				C.TITLE as CHAT_TITLE,
+				C.CALL_TYPE as CHAT_CALL_TYPE,
+				C.AUTHOR_ID as CHAT_OWNER_ID,
+				C.CALL_NUMBER as CHAT_CALL_NUMBER,
+				C.EXTRANET as CHAT_EXTRANET,
+				C.COLOR as CHAT_COLOR,
+				C.TYPE as CHAT_TYPE,
 				C.AVATAR,
 				C.ENTITY_TYPE,
-				C.ENTITY_DATA_1 ENTITY_DATA_1,
-				C.ENTITY_DATA_2 ENTITY_DATA_2,
-				C.ENTITY_DATA_3 ENTITY_DATA_3,
+				C.ENTITY_DATA_1 as ENTITY_DATA_1,
+				C.ENTITY_DATA_2 as ENTITY_DATA_2,
+				C.ENTITY_DATA_3 as ENTITY_DATA_3,
 				C.MANAGE_USERS_ADD,
 				C.MANAGE_USERS_DELETE,
 				C.MANAGE_UI,
 				C.MANAGE_SETTINGS,
 				C.CAN_POST,
 				A.ALIAS ALIAS_NAME,
-				".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." CHAT_DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." as CHAT_DATE_CREATE,
 				C.ENTITY_ID,
-				R1.NOTIFY_BLOCK RELATION_NOTIFY_BLOCK,
-				R1.USER_ID RELATION_USER_ID,
+				R1.NOTIFY_BLOCK as RELATION_NOTIFY_BLOCK,
+				R1.USER_ID as RELATION_USER_ID,
 				R1.CALL_STATUS,
-				R1.MANAGER RELATION_MANAGER
-				".(isset($arParams['USER_ID'])? ", R2.ID RID": "")."
+				R1.MANAGER as RELATION_MANAGER
+				".(isset($arParams['USER_ID'])? ", R2.ID as RID": "")."
 			".$from."
 			".$innerJoin."
-			LEFT JOIN b_im_alias A ON A.ENTITY_ID = " . $helper->castToChar("C.ID") . " AND A.ENTITY_TYPE = C.ENTITY_TYPE
+			LEFT JOIN b_im_alias A ON A.ENTITY_ID = C.ID AND A.ENTITY_TYPE = C.ENTITY_TYPE
 			".$whereGeneral."
 		";
 
@@ -1093,7 +1109,18 @@ class CIMChat
 				}
 				else if (intval($arRes['RID']) <= 0)
 				{
-					continue;
+					if ($arRes['CHAT_TYPE'] === IM_MESSAGE_OPEN_LINE && CModule::IncludeModule('imopenlines'))
+					{
+						$userCodeParts = \Bitrix\ImOpenLines\Session\Common::parseUserCode($arRes['ENTITY_ID']);
+						if(!\Bitrix\ImOpenLines\Config::canJoin($userCodeParts['CONFIG_ID']))
+						{
+							continue;
+						}
+					}
+					else
+					{
+						continue;
+					}
 				}
 			}
 
@@ -1152,9 +1179,9 @@ class CIMChat
 					'public' => $publicOption,
 					'mute_list' => array(),
 					'manager_list' => array(),
-					'date_create' => $arRes["CHAT_DATE_CREATE"]? \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes["CHAT_DATE_CREATE"]): false,
+					'date_create' => $arRes["CHAT_DATE_CREATE"]? DateTime::createFromTimestamp($arRes["CHAT_DATE_CREATE"]): false,
 					'type' => $chatType,
-					'entity_link' => IM\V2\Chat\EntityLink::getInstance($arRes["ENTITY_TYPE"] ?? '', $arRes["ENTITY_ID"] ?? '', (int)$arRes['CHAT_ID'])->toRestFormat(),
+					'entity_link' => IM\V2\Chat\EntityLink::getInstance(self::initChatByArray($arRes))->toRestFormat(),
 					'permissions' => [
 						'manage_users_add' => mb_strtolower($arRes['MANAGE_USERS_ADD']),
 						'manage_users_delete' => mb_strtolower($arRes['MANAGE_USERS_DELETE']),
@@ -1163,6 +1190,7 @@ class CIMChat
 						'can_post' => mb_strtolower($arRes['CAN_POST']),
 					],
 					'message_type' => $arRes["CHAT_TYPE"],
+					'ai_provider' => $chatType === 'copilot' ? IM\V2\Integration\AI\AIHelper::getProviderName() : null,
 				);
 			}
 			$arUserInChat[$arRes["CHAT_ID"]][] = $arRes["RELATION_USER_ID"];
@@ -1239,36 +1267,34 @@ class CIMChat
 
 		$arParams['PHOTO_SIZE'] = isset($arParams['PHOTO_SIZE'])? intval($arParams['PHOTO_SIZE']): 100;
 
-		$existsSql = "SELECT R3.ID FROM b_im_relation R3 WHERE R3.CHAT_ID = C.ID";
-		if ($DB->type == "MYSQL")
-		{
-			$existsSql .= ' LIMIT 1';
-		}
 		$strSql = "
 			SELECT
-				C.ID CHAT_ID,
-				C.TITLE CHAT_TITLE,
-				C.CALL_TYPE CHAT_CALL_TYPE,
-				C.AUTHOR_ID CHAT_OWNER_ID,
-				C.CALL_NUMBER CHAT_CALL_NUMBER,
-				C.EXTRANET CHAT_EXTRANET,
-				C.COLOR CHAT_COLOR,
-				C.TYPE CHAT_TYPE,
+				C.ID as CHAT_ID,
+				C.TITLE as CHAT_TITLE,
+				C.CALL_TYPE as CHAT_CALL_TYPE,
+				C.AUTHOR_ID as CHAT_OWNER_ID,
+				C.CALL_NUMBER as CHAT_CALL_NUMBER,
+				C.EXTRANET as CHAT_EXTRANET,
+				C.COLOR as CHAT_COLOR,
+				C.TYPE as CHAT_TYPE,
 				C.AVATAR,
 				C.ENTITY_TYPE,
 				C.ENTITY_DATA_1,
 				C.ENTITY_DATA_2,
 				C.ENTITY_DATA_3,
-				".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." CHAT_DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." as CHAT_DATE_CREATE,
 				C.ENTITY_ID,
-				R2.NOTIFY_BLOCK RELATION_NOTIFY_BLOCK,
-				R2.USER_ID RELATION_USER_ID,
-				R2.USER_ID RELATION_MANAGER,
+				R2.NOTIFY_BLOCK as RELATION_NOTIFY_BLOCK,
+				R2.USER_ID as RELATION_USER_ID,
+				R2.USER_ID as RELATION_MANAGER,
 				R2.CALL_STATUS,
-				R2.ID RID
-			FROM b_im_chat C
-			LEFT JOIN b_im_relation R2 ON R2.CHAT_ID = C.ID AND R2.USER_ID = ".intval($arParams['USER_ID'])."
-			WHERE C.TYPE = '".IM_MESSAGE_OPEN."' AND EXISTS(".$existsSql.")
+				R2.ID as RID
+			FROM 
+				b_im_chat C
+				LEFT JOIN b_im_relation R2 ON R2.CHAT_ID = C.ID AND R2.USER_ID = ".(int)$arParams['USER_ID']."
+			WHERE 
+				C.TYPE = '".IM_MESSAGE_OPEN."' 
+				AND EXISTS(SELECT R3.ID FROM b_im_relation R3 WHERE R3.CHAT_ID = C.ID LIMIT 1)
 		";
 
 		$arChat = Array();
@@ -1319,7 +1345,7 @@ class CIMChat
 					'entity_data_3' => trim($arRes["ENTITY_DATA_3"]),
 					'mute_list' => array(),
 					'manager_list' => array(),
-					'date_create' => $arRes["CHAT_DATE_CREATE"]? \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes["CHAT_DATE_CREATE"]): false,
+					'date_create' => $arRes["CHAT_DATE_CREATE"]? DateTime::createFromTimestamp($arRes["CHAT_DATE_CREATE"]): false,
 					'entity_id' => trim($arRes["ENTITY_ID"]),
 					'type' => $chatType,
 					'message_type' => $arRes["CHAT_TYPE"],
@@ -1490,8 +1516,6 @@ class CIMChat
 
 	public function SetUnReadMessage($chatId, $lastId)
 	{
-		//global $DB;
-
 		$chatId = intval($chatId);
 		if ($chatId <= 0)
 			return false;
@@ -1525,7 +1549,7 @@ class CIMChat
 						'dialogId' => 'chat'.$chatId,
 						'chatId' => (int)$chatId,
 						'lastId' => $endId,
-						'date' => new \Bitrix\Main\Type\DateTime(),
+						'date' => new DateTime(),
 						'counter' => (int)$relation['COUNTER'],
 						'muted' => $relation['NOTIFY_BLOCK'] === 'Y',
 						'lines' => $relation['MESSAGE_TYPE'] === IM_MESSAGE_OPEN_LINE,
@@ -1683,9 +1707,9 @@ class CIMChat
 						M.ID,
 						M.CHAT_ID,
 						M.MESSAGE,
-						".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+						".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 						M.AUTHOR_ID,
-						R1.MESSAGE_TYPE MESSAGE_TYPE
+						R1.MESSAGE_TYPE as MESSAGE_TYPE
 					FROM b_im_message M
 					INNER JOIN b_im_relation R1 ON M.CHAT_ID = R1.CHAT_ID AND R1.USER_ID != M.AUTHOR_ID
 					INNER JOIN b_im_message_unread MU ON M.ID = MU.MESSAGE_ID AND MU.USER_ID = " . $this->user_id . "
@@ -1723,7 +1747,7 @@ class CIMChat
 					'chatId' => $arRes['CHAT_ID'],
 					'senderId' => $arRes['AUTHOR_ID'],
 					'recipientId' => $arRes['CHAT_ID'],
-					'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arRes['DATE_CREATE']),
+					'date' => DateTime::createFromTimestamp($arRes['DATE_CREATE']),
 					'text' => $arRes['MESSAGE'],
 					'messageType' => $arRes['MESSAGE_TYPE'],
 				);
@@ -2099,11 +2123,25 @@ class CIMChat
 		}
 
 		$strSql = "
-			SELECT R.CHAT_ID, C.COLOR CHAT_COLOR, C.AUTHOR_ID CHAT_AUTHOR_ID, C.TYPE CHAT_TYPE,
-				C.ENTITY_TYPE CHAT_ENTITY_TYPE, C.ENTITY_ID CHAT_ENTITY_ID,
-				C.MANAGE_UI, C.MANAGE_USERS_ADD, C.MANAGE_USERS_DELETE, C.MANAGE_SETTINGS 
-			FROM b_im_relation R LEFT JOIN b_im_chat C ON R.CHAT_ID = C.ID
-			WHERE R.USER_ID = ".$this->user_id." AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') AND R.CHAT_ID = ".$chatId;
+			SELECT 
+				R.CHAT_ID, 
+				C.COLOR as CHAT_COLOR, 
+				C.AUTHOR_ID as CHAT_AUTHOR_ID, 
+				C.TYPE as CHAT_TYPE,
+				C.ENTITY_TYPE as CHAT_ENTITY_TYPE, 
+				C.ENTITY_ID as CHAT_ENTITY_ID,
+				C.MANAGE_UI, 
+				C.MANAGE_USERS_ADD, 
+				C.MANAGE_USERS_DELETE, 
+				C.MANAGE_SETTINGS 
+			FROM 
+				b_im_relation R 
+				LEFT JOIN b_im_chat C 
+					ON R.CHAT_ID = C.ID
+			WHERE 
+				R.USER_ID = ".$this->user_id." 
+				AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') 
+				AND R.CHAT_ID = ".$chatId;
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if ($arRes = $dbRes->Fetch())
 		{
@@ -2214,7 +2252,7 @@ class CIMChat
 			{
 				if ($rel["EXTERNAL_AUTH_ID"] != 'imconnector')
 				{
-					$users[$rel['USER_ID']];
+					$users[$rel['USER_ID']] = $rel['USER_ID'];
 				}
 			}
 			\Bitrix\Pull\Event::add($users, Array(
@@ -2245,20 +2283,43 @@ class CIMChat
 		if ($checkPermission)
 		{
 			$strSql = "
-				SELECT R.CHAT_ID, C.TITLE CHAT_TITLE, C.AUTHOR_ID CHAT_AUTHOR_ID, C.TYPE CHAT_TYPE, 
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE, C.ENTITY_ID CHAT_ENTITY_ID, R.MANAGER IS_MANAGER, 
-					C.MANAGE_UI, C.MANAGE_USERS_ADD, C.MANAGE_USERS_DELETE, C.MANAGE_SETTINGS 
+				SELECT 
+					R.CHAT_ID, 
+					C.TITLE as CHAT_TITLE, 
+					C.AUTHOR_ID as CHAT_AUTHOR_ID, 
+					C.TYPE as CHAT_TYPE, 
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE, 
+					C.ENTITY_ID as CHAT_ENTITY_ID, 
+					R.MANAGER as IS_MANAGER, 
+					C.MANAGE_UI, 
+					C.MANAGE_USERS_ADD, 
+					C.MANAGE_USERS_DELETE, 
+					C.MANAGE_SETTINGS 
 				FROM b_im_relation R LEFT JOIN b_im_chat C ON R.CHAT_ID = C.ID
-				WHERE R.USER_ID = ".$this->user_id." AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') AND R.CHAT_ID = ".$chatId;
+				WHERE 
+					R.USER_ID = ".$this->user_id." 
+					AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') 
+					AND R.CHAT_ID = ".$chatId;
 		}
 		else
 		{
 			$strSql = "
-				SELECT C.ID CHAT_ID, C.TITLE CHAT_TITLE, C.AUTHOR_ID CHAT_AUTHOR_ID, C.TYPE CHAT_TYPE, 
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE, C.ENTITY_ID CHAT_ENTITY_ID, 'Y' IS_MANAGER, 
-					C.MANAGE_UI, C.MANAGE_USERS_ADD, C.MANAGE_USERS_DELETE, C.MANAGE_SETTINGS 
+				SELECT 
+					C.ID as CHAT_ID, 
+					C.TITLE as CHAT_TITLE, 
+					C.AUTHOR_ID as CHAT_AUTHOR_ID, 
+					C.TYPE as CHAT_TYPE, 
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE, 
+					C.ENTITY_ID as CHAT_ENTITY_ID, 
+					'Y' as IS_MANAGER, 
+					C.MANAGE_UI, 
+					C.MANAGE_USERS_ADD, 
+					C.MANAGE_USERS_DELETE, 
+					C.MANAGE_SETTINGS 
 				FROM b_im_chat C
-				WHERE C.ID = ".$chatId." AND C.TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."')";
+				WHERE 
+					C.ID = ".$chatId." 
+					AND C.TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."')";
 		}
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if ($arRes = $dbRes->Fetch())
@@ -3053,23 +3114,23 @@ class CIMChat
 		{
 			$strSql = "
 				SELECT
-					C.ID CHAT_ID,
-					C.PARENT_MID CHAT_PARENT_MID,
-					C.TITLE CHAT_TITLE,
-					C.AUTHOR_ID CHAT_AUTHOR_ID,
-					C.EXTRANET CHAT_EXTRANET,
+					C.ID as CHAT_ID,
+					C.PARENT_MID as CHAT_PARENT_MID,
+					C.TITLE as CHAT_TITLE,
+					C.AUTHOR_ID as CHAT_AUTHOR_ID,
+					C.EXTRANET as CHAT_EXTRANET,
 					C.DISK_FOLDER_ID,
-					C.TYPE CHAT_TYPE,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-					C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-					C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-					C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
-					C.MESSAGE_COUNT CHAT_MESSAGE_COUNT,
+					C.TYPE as CHAT_TYPE,
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+					C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+					C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+					C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3,
+					C.MESSAGE_COUNT as CHAT_MESSAGE_COUNT,
 					C.MANAGE_UI,
 					C.MANAGE_USERS_ADD,
 					C.MANAGE_USERS_DELETE,
 					C.MANAGE_SETTINGS,
-					".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." CHAT_DATE_CREATE
+					".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." as CHAT_DATE_CREATE
 				FROM b_im_chat C
 				WHERE C.TYPE = '".IM_MESSAGE_OPEN."' AND C.ID = ".$chatId."
 			";
@@ -3088,23 +3149,23 @@ class CIMChat
 				$strSql = "
 					SELECT
 						R.CHAT_ID,
-						C.PARENT_MID CHAT_PARENT_MID,
-						C.TITLE CHAT_TITLE,
-						C.AUTHOR_ID CHAT_AUTHOR_ID,
-						C.EXTRANET CHAT_EXTRANET,
+						C.PARENT_MID as CHAT_PARENT_MID,
+						C.TITLE as CHAT_TITLE,
+						C.AUTHOR_ID as CHAT_AUTHOR_ID,
+						C.EXTRANET as CHAT_EXTRANET,
 						C.DISK_FOLDER_ID,
-						C.TYPE CHAT_TYPE,
-						C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-						C.ENTITY_ID CHAT_ENTITY_ID,
-						C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-						C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-						C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
-						C.MESSAGE_COUNT CHAT_MESSAGE_COUNT,
+						C.TYPE as CHAT_TYPE,
+						C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+						C.ENTITY_ID as CHAT_ENTITY_ID,
+						C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+						C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+						C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3,
+						C.MESSAGE_COUNT as CHAT_MESSAGE_COUNT,
 						C.MANAGE_UI,
 						C.MANAGE_USERS_ADD,
 						C.MANAGE_USERS_DELETE,
 						C.MANAGE_SETTINGS,
-						".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." CHAT_DATE_CREATE
+						".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." as CHAT_DATE_CREATE
 					FROM b_im_relation R
 					LEFT JOIN b_im_chat C ON R.CHAT_ID = C.ID
 					WHERE
@@ -3120,30 +3181,33 @@ class CIMChat
 		{
 			$strSql = "
 				SELECT
-					C.ID CHAT_ID,
-					C.PARENT_MID CHAT_PARENT_MID,
-					C.TITLE CHAT_TITLE,
-					C.AUTHOR_ID CHAT_AUTHOR_ID,
-					C.EXTRANET CHAT_EXTRANET,
+					C.ID as CHAT_ID,
+					C.PARENT_MID as CHAT_PARENT_MID,
+					C.TITLE as CHAT_TITLE,
+					C.AUTHOR_ID as CHAT_AUTHOR_ID,
+					C.EXTRANET as CHAT_EXTRANET,
 					C.DISK_FOLDER_ID,
-					C.TYPE CHAT_TYPE,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-					C.ENTITY_ID CHAT_ENTITY_ID,
-					C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-					C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-					C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
-					C.MESSAGE_COUNT CHAT_MESSAGE_COUNT,
+					C.TYPE as CHAT_TYPE,
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+					C.ENTITY_ID as CHAT_ENTITY_ID,
+					C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+					C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+					C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3,
+					C.MESSAGE_COUNT as CHAT_MESSAGE_COUNT,
 					C.MANAGE_UI,
 					C.MANAGE_USERS_ADD,
 					C.MANAGE_USERS_DELETE,
 					C.MANAGE_SETTINGS,
-					".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." CHAT_DATE_CREATE
+					".$DB->DatetimeToTimestampFunction('C.DATE_CREATE')." as CHAT_DATE_CREATE
 				FROM b_im_chat C
-				WHERE C.TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') AND C.ID = ".$chatId."
+				WHERE 
+					C.TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') 
+					AND C.ID = ".$chatId."
 			";
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$arRes = $dbRes->Fetch();
 		}
+
 		if (!$arRes)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_AUTHORIZE_ERROR"), "AUTHORIZE_ERROR");
@@ -3209,7 +3273,7 @@ class CIMChat
 					'select' => ['ID'],
 					'filter' => [
 						'=CHAT_ID' => $chatId,
-						'@USER_ID' => new Bitrix\Main\DB\SqlExpression(implode(', ', $arUserId))
+						'=USER_ID' => $arUserId
 					]
 				]
 			)->fetchAll();
@@ -3504,20 +3568,10 @@ class CIMChat
 
 	private function getChatActiveUserCount($chatId): int
 	{
-		$chatUserCount = IM\Model\RelationTable::getList(
-			[
-				'select' => ['CNT', 'CHAT_ID'],
-				'filter' => [
-					['=CHAT_ID' => $chatId],
-					['=USER.ACTIVE' => 'Y']
-				],
-				'runtime' => [
-					new Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
-				]
-			]
-		)->fetch();
-
-		return (int)$chatUserCount['CNT'];
+		return IM\Model\RelationTable::getCount([
+			'=CHAT_ID' => $chatId,
+			'=USER.ACTIVE' => 'Y'
+		]);
 	}
 
 	private function updateChatUserCount($chatId, $newCount): \Bitrix\Main\ORM\Data\UpdateResult
@@ -3564,19 +3618,22 @@ class CIMChat
 		$strSql = "
 			SELECT
 				R.CHAT_ID,
-				C.PARENT_MID CHAT_PARENT_MID,
-				C.TITLE CHAT_TITLE,
-				C.AUTHOR_ID CHAT_AUTHOR_ID,
-				C.EXTRANET CHAT_EXTRANET,
-				C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-				C.ENTITY_ID CHAT_ENTITY_ID,
-				C.TYPE CHAT_TYPE,
+				C.PARENT_MID as CHAT_PARENT_MID,
+				C.TITLE as CHAT_TITLE,
+				C.AUTHOR_ID as CHAT_AUTHOR_ID,
+				C.EXTRANET as CHAT_EXTRANET,
+				C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+				C.ENTITY_ID as CHAT_ENTITY_ID,
+				C.TYPE as CHAT_TYPE,
 				C.MANAGE_UI,
 				C.MANAGE_USERS_ADD,
 				C.MANAGE_USERS_DELETE,
 				C.MANAGE_SETTINGS 
 			FROM b_im_relation R LEFT JOIN b_im_chat C ON R.CHAT_ID = C.ID
-			WHERE R.USER_ID = ".$userId." AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') AND R.CHAT_ID = ".$chatId;
+			WHERE 
+				R.USER_ID = ".$userId." 
+				AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_OPEN."','".IM_MESSAGE_CHAT."','".IM_MESSAGE_OPEN_LINE."','".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."') 
+				AND R.CHAT_ID = ".$chatId;
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		$arRes = $dbRes->Fetch();
 		if (!$arRes)
@@ -3662,7 +3719,7 @@ class CIMChat
 					[
 						'CHAT_ID' => $chatId,
 						'USER_ID' => $userId,
-						'BLOCK_DATE' => new SqlExpression("NOW()")
+						'BLOCK_DATE' => new SqlExpression(Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction())
 					]
 				);
 			}
@@ -3774,14 +3831,19 @@ class CIMChat
 			$gender = \Bitrix\Im\User::getInstance($this->user_id)->getGender();
 			$userName = \Bitrix\Im\User::getInstance($this->user_id)->getFullName(false);
 			$userName = '[USER='.$this->user_id.']'.$userName.'[/USER]';
-			$notificationMessage = Loc::getMessage('IM_CHAT_KICK_NOTIFICATION_'. $gender, ["#USER_NAME#" => $userName]);
+			$notificationCallback = fn (?string $languageId = null) => Loc::getMessage(
+				'IM_CHAT_KICK_NOTIFICATION_'. $gender,
+				["#USER_NAME#" => $userName],
+				$languageId
+			);
+
 			$notificationFields = [
 				'TO_USER_ID' => $userId,
 				'FROM_USER_ID' => 0,
 				'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
 				'NOTIFY_MODULE' => 'im',
 				'NOTIFY_TITLE' => htmlspecialcharsback(\Bitrix\Main\Text\Emoji::decode($arRes['CHAT_TITLE'])),
-				'NOTIFY_MESSAGE' => $notificationMessage,
+				'NOTIFY_MESSAGE' => $notificationCallback,
 			];
 			CIMNotify::Add($notificationFields);
 		}
@@ -3992,7 +4054,7 @@ class CIMChat
 			'CALL' => true,
 			'LEAVE' => false,
 			'LEAVE_OWNER' => false,
-			'SEND' => CIMChat::CanSendMessageToGeneralChat((int)$USER->GetID())
+			'SEND' => CIMChat::CanSendMessageToGeneralChat(($USER instanceof \CUser) ? (int)$USER->GetID() : null)
 		];
 
 		if (\Bitrix\Main\Loader::includeModule('imbot'))
@@ -4036,7 +4098,7 @@ class CIMChat
 		if (\Bitrix\Main\Loader::includeModule('tasks'))
 		{
 			$path = \CTasksTools::GetOptionPathTaskUserEntry(SITE_ID, "/company/personal/user/#user_id#/tasks/task/view/#task_id#/");
-			$path = str_replace(Array('#user_id#', '#task_id#'), Array($USER->GetId(), '#ID#'), mb_strtolower($path));
+			$path = str_replace(Array('#user_id#', '#task_id#'), Array(($USER instanceof \CUser) ? (int)$USER->GetId() : 0, '#ID#'), mb_strtolower($path));
 
 			self::$entityOption['TASKS'] = Array(
 				'AVATAR' => true,
@@ -4051,7 +4113,7 @@ class CIMChat
 
 		if (\Bitrix\Main\Loader::includeModule('calendar'))
 		{
-			$path = \CCalendar::GetPathForCalendarEx($USER->GetId());
+			$path = \CCalendar::GetPathForCalendarEx(($USER instanceof \CUser) ? (int)$USER->GetId() : 0);
 			$path = \CHTTP::urlAddParams($path, ['EVENT_ID' => '#ID#']);
 
 			self::$entityOption[\CCalendar::CALENDAR_CHAT_ENTITY_TYPE] = Array(
@@ -4351,18 +4413,23 @@ class CIMChat
 
 	public static function canDo(array $chatData, array $relations, string $action): bool
 	{
-		if (isset($chatData['CHAT_TYPE']))
-		{
-			$chatData['TYPE'] = $chatData['CHAT_TYPE'];
-		}
-
-		if (isset($chatData['CHAT_ENTITY_TYPE']))
-		{
-			$chatData['ENTITY_TYPE'] = $chatData['CHAT_ENTITY_TYPE'];
-		}
-
 		$chatData['RELATIONS'] = new IM\V2\RelationCollection($relations);
 
-		return Chat\ChatFactory::getInstance()->initChat($chatData)->canDo($action);
+		return self::initChatByArray($chatData)->canDo($action);
+	}
+
+	public static function initChatByArray(array $chatData): Chat
+	{
+		$preparedChatData = $chatData;
+		$preparedChatData['ID'] = $chatData['ID'] ?? $chatData['CHAT_ID'] ?? $chatData['ITEM_CID'] ?? null;
+		$preparedChatData['TYPE'] = $chatData['TYPE'] ?? $chatData['CHAT_TYPE'] ?? null;
+		$preparedChatData['ENTITY_TYPE'] = $chatData['ENTITY_TYPE'] ?? $chatData['CHAT_ENTITY_TYPE'] ?? null;
+		$preparedChatData['ENTITY_ID'] = $chatData['ENTITY_ID'] ?? $chatData['CHAT_ENTITY_ID'] ?? null;
+		$preparedChatData['ENTITY_DATA_1'] = $chatData['ENTITY_DATA_1'] ?? $chatData['CHAT_ENTITY_DATA_1'] ?? null;
+		$preparedChatData['ENTITY_DATA_2'] = $chatData['ENTITY_DATA_2'] ?? $chatData['CHAT_ENTITY_DATA_2'] ?? null;
+		$preparedChatData['ENTITY_DATA_3'] = $chatData['ENTITY_DATA_3'] ?? $chatData['CHAT_ENTITY_DATA_3'] ?? null;
+		$preparedChatData['DATE_CREATE'] = $chatData['DATE_CREATE'] ?? $chatData['CHAT_DATE_CREATE'] ?? null;
+
+		return Chat\ChatFactory::getInstance()->initChat($preparedChatData);
 	}
 }

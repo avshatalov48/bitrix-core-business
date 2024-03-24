@@ -138,6 +138,7 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 				$unsubLink = $this->getSenderLinkProtocol() . '://' . $message->getSiteServerName() . $unsubLink;
 			}
 			$headers['List-Unsubscribe'] = '<'.$unsubLink.'>';
+			$headers['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click';
 		}
 
 		$fields['SENDER_MAIL_CHARSET'] = $message->getCharset();

@@ -166,7 +166,7 @@ Loader::registerAutoLoadClasses(
 		'CPageOption' => 'classes/general/pageoption.php',
 		'CAllSQLWhere' => 'classes/general/sqlwhere.php',
 		'CSQLWhereExpression' => 'classes/general/sqlwhere.php',
-		'CSQLWhere' => 'classes/mysql/sqlwhere.php',
+		'CSQLWhere' => 'classes/general/sqlwhere.php',
 		'CAllLanguage' => 'classes/general/language.php',
 		'CLanguage' => 'classes/general/language.php',
 		'CLangAdmin' => 'classes/general/language.php',

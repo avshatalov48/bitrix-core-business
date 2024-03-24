@@ -195,12 +195,6 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 		throw new Main\NotImplementedException("Use CBPTemplateLoader class.");
 	}
 
-	/** @inheritdoc */
-	public static function delete($primary)
-	{
-		throw new Main\NotImplementedException("Use CBPTemplateLoader class.");
-	}
-
 	private static function shouldUseCompression(): bool
 	{
 		static $useCompression;

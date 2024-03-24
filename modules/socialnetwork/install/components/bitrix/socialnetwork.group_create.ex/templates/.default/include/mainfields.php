@@ -75,9 +75,11 @@ $classList[] = (
 					id="GROUP_DESCRIPTION_input"
 					name="GROUP_DESCRIPTION"
 					class="ui-ctl-element"
-				>
-					<?= ((string) ($arResult['POST']['DESCRIPTION'] ?? '') !== '' ? $arResult['POST']['DESCRIPTION'] : '') ?>
-				</textarea>
+				><?=
+					((string) ($arResult['POST']['DESCRIPTION'] ?? '') !== ''
+						? $arResult['POST']['DESCRIPTION']
+						: ''
+					) ?></textarea>
 			</div>
 			<div class="socialnetwork-group-create-ex__text --xs ui-ctl-label-text socialnetwork-group-create-ex__create--switch-nonproject <?= ($isProject ? '--project' : '') ?> <?= ($isScrumProject ? '--scrum' : '') ?>"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_DESCRIPTION_LABEL')) ?></div>
 			<div class="socialnetwork-group-create-ex__text --xs ui-ctl-label-text socialnetwork-group-create-ex__create--switch-project socialnetwork-group-create-ex__create--switch-nonscrum <?= ($isScrumProject ? '--scrum' : '') ?> <?= ($isProject ? '--project' : '') ?>"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_DESCRIPTION_LABEL_PROJECT')) ?></div>

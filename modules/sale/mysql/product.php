@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main;
 use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/product.php");
@@ -88,6 +89,9 @@ class CSaleProduct extends CALLSaleProduct
 	{
 		global $DB;
 
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$byQuantity = false;
 		if($by == "QUANTITY")
 			$byQuantity = true;
@@ -167,12 +171,20 @@ class CSaleProduct extends CALLSaleProduct
 			$orderFilter = $sqlWhere->GetQueryEx($arOrderFilter, $arJ);
 		}
 
-		//if($byQuantity)
-		//	$strSql = "SELECT b.PRODUCT_ID, b.CATALOG_XML_ID, b.PRODUCT_XML_ID, SUM(b.QUANTITY) as QUANTITY \n";
-		//else
-			$strSql = "SELECT b.PRODUCT_ID, b.NAME, ifnull(b.CATALOG_XML_ID, '') CATALOG_XML_ID, b.PRODUCT_XML_ID, SUM(b.PRICE*b.QUANTITY) as PRICE, AVG(b.PRICE) as AVG_PRICE, SUM(b.QUANTITY) as QUANTITY, b.CURRENCY \n";
+		$strSql = "
+			SELECT
+				b.PRODUCT_ID,
+				b.NAME,
+				" . $helper->getIsNullFunction('b.CATALOG_XML_ID', "''") . " CATALOG_XML_ID,
+				b.PRODUCT_XML_ID,
+				SUM(b.PRICE*b.QUANTITY) as PRICE,
+				AVG(b.PRICE) as AVG_PRICE,
+				SUM(b.QUANTITY) as QUANTITY,
+				b.CURRENCY
+			"
+		;
 
-		$strSql .= "FROM b_sale_basket b \n";
+		$strSql .= " FROM b_sale_basket b \n";
 
 		foreach($arJoin as $v)
 			$strSql .= $v."\n";
@@ -188,7 +200,7 @@ class CSaleProduct extends CALLSaleProduct
 		if ($orderFilter != '')
 			$strSql .= " AND ".$orderFilter."\n";
 
-		$strSql .= " GROUP BY b.PRODUCT_ID, b.NAME, ifnull(b.CATALOG_XML_ID, ''), b.PRODUCT_XML_ID, b.CURRENCY \n";
+		$strSql .= " GROUP BY b.PRODUCT_ID, b.NAME, " . $helper->getIsNullFunction('b.CATALOG_XML_ID', "''") . ", b.PRODUCT_XML_ID, b.CURRENCY \n";
 		if($byQuantity)
 			$strSql .= " ORDER BY QUANTITY DESC\n";
 		else
@@ -197,11 +209,8 @@ class CSaleProduct extends CALLSaleProduct
 		$limit = (int)$limit;
 		if($limit > 0)
 			$strSql .= "LIMIT ".$limit;
-		// echo htmlspecialcharsbx($strSql);
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		return $dbRes;
+		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	public static function GetFilterOperation($key, $value)
@@ -689,7 +698,8 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 	*/
 	public static function _ClearViewed()
 	{
-		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$viewed_time = COption::GetOptionString("sale", "viewed_time", "90");
 		$viewed_time = intval($viewed_time);
@@ -697,8 +707,8 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 		$strSql =
 			"DELETE ".
 			"FROM b_sale_viewed_product ".
-			"WHERE TO_DAYS(DATE_VISIT) < (TO_DAYS(NOW()) - ".$viewed_time.") LIMIT 1000";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			"WHERE DATE_VISIT < " . $helper->addDaysToDateTime(-$viewed_time);
+		$connection->query($strSql);
 
 		return true;
 	}

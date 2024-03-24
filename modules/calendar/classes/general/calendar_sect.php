@@ -12,6 +12,7 @@ use Bitrix\Calendar\Sync\Managers\Synchronization;
 use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Calendar\UserSettings;
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
@@ -116,6 +117,7 @@ class CCalendarSect
 			'IS_EXCHANGE',
 			'SYNC_TOKEN',
 			'PAGE_TOKEN',
+			'GAPI_CALENDAR_ID',
 		];
 	}
 
@@ -584,7 +586,7 @@ class CCalendarSect
 		if ($params['getPermissions'])
 		{
 			$select .= ", CAP.ACCESS_CODE, CAP.TASK_ID";
-			$from .= "\n LEFT JOIN b_calendar_access CAP ON (CS.ID=CAP.SECT_ID)";
+			$from .= "\n LEFT JOIN b_calendar_access CAP ON (CS.ID=".$DB->ToNumber('CAP.SECT_ID').")";
 		}
 
 		$strSql = "
@@ -715,10 +717,13 @@ class CCalendarSect
 
 		$select = '';
 		$from = '';
+
+		$helper = Application::getConnection()->getSqlHelper();
+
 		if ($checkPermissions)
 		{
 			$select .= ", CAP.ACCESS_CODE, CAP.TASK_ID";
-			$from .= "\n LEFT JOIN b_calendar_access CAP ON (CS.ID=CAP.SECT_ID)";
+			$from .= "\n LEFT JOIN b_calendar_access CAP ON ({$helper->castToChar('CS.ID')}=CAP.SECT_ID)";
 		}
 
 		// Common types
@@ -1188,7 +1193,7 @@ class CCalendarSect
 		$DB->Query("DELETE FROM b_calendar_section WHERE ID=".$id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
 		CCalendarEvent::DeleteEmpty($id);
-		self::CleanAccessTable();
+		self::CleanAccessTable($id);
 		CCalendar::ClearCache(array('section_list', 'event_list'));
 
 		foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarSectionDelete") as $event)
@@ -1336,12 +1341,13 @@ class CCalendarSect
 			}
 		}
 
-
+		$helper = Application::getConnection()->getSqlHelper();
 		$strSql = 'SELECT SC.ID, CAP.ACCESS_CODE, CAP.TASK_ID, SC.CAL_TYPE, SC.OWNER_ID, SC.CREATED_BY
 			FROM b_calendar_section SC
-			LEFT JOIN b_calendar_access CAP ON (SC.ID=CAP.SECT_ID)
-			WHERE SC.ID in ('.$s.')';
-
+			LEFT JOIN b_calendar_access CAP ON CAP.SECT_ID = '.$helper->castToChar('SC.ID').'
+			WHERE SC.ID in ('.$s.')'
+		;
+		
 		$res = $DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while($arRes = $res->Fetch())
 		{
@@ -1350,6 +1356,7 @@ class CCalendarSect
 				self::HandlePermission($arRes);
 			}
 		}
+
 		return self::$Permissions;
 	}
 
@@ -2023,7 +2030,6 @@ class CCalendarSect
 	{
 		$sectionId = false;
 		$autoCreated = false;
-		$section = false;
 
 		$res = self::GetList([
 			'arFilter' => [
@@ -2031,22 +2037,19 @@ class CCalendarSect
 				'OWNER_ID' => $ownerId,
 				'DELETED' => 'N',
 				'ACTIVE' => 'Y',
+				'GAPI_CALENDAR_ID' => null,
 			],
 			'checkPermissions' => false,
+			'getPermissions' => false,
+			'limit' => 1,
 		]);
 
-		foreach($res as $sect)
+		$section = $res[0] ?? false;
+
+		if ($section)
 		{
-			$ownerId = $sect['OWNER_ID'];
-
-			if (self::CheckGoogleVirtualSection($sect['GAPI_CALENDAR_ID']))
-			{
-				continue;
-			}
-
-			$section = $sect;
-			$sectionId = $sect['ID'];
-			break;
+			$ownerId = $section['OWNER_ID'];
+			$sectionId = $section['ID'];
 		}
 
 		if (!$section && $autoCreate)
@@ -2096,28 +2099,17 @@ class CCalendarSect
 	}
 
 
-	public static function CleanAccessTable()
+	public static function CleanAccessTable(string $sectionId)
 	{
+		if (empty($sectionId))
+		{
+			return;
+		}
+
 		global $DB;
 
-		$res = $DB->Query(
-			"SELECT DISTINCT CA.SECT_ID from b_calendar_access CA
-			LEFT JOIN b_calendar_section CS ON (CA.SECT_ID=CS.ID)
-			WHERE concat('',CA.SECT_ID * 1)=CA.SECT_ID AND CS.ID is null",
-			false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		$items = [];
-		while($r = $res->Fetch())
-		{
-			$items[] = "'". (int)$r['SECT_ID'] ."'";
-		}
-
-		// Clean from 'b_calendar_event'
-		if (count($items))
-		{
-			$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID in (".implode(',', $items).")", false,
-					"FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		}
+		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID = '" . $sectionId  . "'", false,
+			"FILE: ".__FILE__."<br> LINE: ".__LINE__);
 	}
 
 	/**

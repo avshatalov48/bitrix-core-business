@@ -55,12 +55,12 @@ class Blog
 
 			if ($groupId)
 			{
-				$blogFilter = array(
-					"ACTIVE" => "Y",
+				$blogFilter = [
+					"=ACTIVE" => "Y",
 					"GROUP_ID" => $groupId,
 					"GROUP_SITE_ID" => $siteId,
 					"OWNER_ID" => $userId
-				);
+				];
 
 				if (
 					isset($params["USE_SOCNET"])
@@ -70,7 +70,7 @@ class Blog
 					$blogFilter["USE_SOCNET"] = "Y";
 				}
 
-				$res = \CBlog::getList(array(), $blogFilter);
+				$res = \CBlog::getList([], $blogFilter);
 				$result = $res->fetch();
 			}
 

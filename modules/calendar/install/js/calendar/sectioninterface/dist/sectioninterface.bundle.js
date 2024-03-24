@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,calendar_sync_interface,main_popup,main_core_events,ui_entitySelector,main_core,calendar_util,calendar_sectionmanager,ui_dialogs_messagebox) {
 	'use strict';
@@ -376,7 +377,10 @@ this.BX = this.BX || {};
 	          targetContainer: document.body
 	        },
 	        entities: [{
-	          id: 'user'
+	          id: 'user',
+	          options: {
+	            analyticsSource: 'calendar'
+	          }
 	        }, {
 	          id: 'project'
 	        }, {
@@ -409,7 +413,10 @@ this.BX = this.BX || {};
 	          targetContainer: document.body
 	        },
 	        entities: [{
-	          id: 'user'
+	          id: 'user',
+	          options: {
+	            analyticsSource: 'calendar'
+	          }
 	        }, {
 	          id: 'department',
 	          options: {

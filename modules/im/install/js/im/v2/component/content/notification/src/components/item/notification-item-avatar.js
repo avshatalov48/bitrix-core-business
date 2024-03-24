@@ -34,7 +34,7 @@ export const NotificationItemAvatar = {
 				<div class="bx-im-content-notification-item-avatar__system-icon"></div>
 			</template>
 			<template v-else>
-				<Avatar :dialogId="dialogId" size="L" :withStatus="false"></Avatar>
+				<Avatar :dialogId="dialogId" size="L" />
 			</template>
 		</div>
 	`

@@ -10,7 +10,6 @@ export type LoadRecentSpacesRequestFields = {
 
 export type ReloadRecentSpacesRequestFields = {
 	filterMode: string,
-	selectedSpaceId: number,
 };
 
 export class RecentService implements LoadServiceInterface, ReloadServiceInterface
@@ -62,7 +61,6 @@ export class RecentService implements LoadServiceInterface, ReloadServiceInterfa
 	{
 		const fields: ReloadSpacesFields = {};
 		fields.mode = data.filterMode;
-		fields.selectedSpaceId = this.#selectedSpaceId;
 
 		const result = await Client.reloadSpaces(fields);
 		this.hasMoreSpacesToLoad = result.hasMoreSpacesToLoad;

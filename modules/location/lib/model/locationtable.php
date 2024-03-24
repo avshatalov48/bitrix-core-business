@@ -76,7 +76,9 @@ class LocationTable extends Main\ORM\Data\DataManager
 
 			new Fields\FloatField('LATITUDE', ['scale' => 6]),
 			new Fields\FloatField('LONGITUDE', ['scale' => 6]),
-			new Fields\DateField('TIMESTAMP_X'),
+			new Fields\DatetimeField('TIMESTAMP_X', [
+				'default_value' => static fn() => new Main\Type\DateTime(),
+			]),
 
 			(new Fields\IntegerField('TYPE'))
 				->configureRequired(true),

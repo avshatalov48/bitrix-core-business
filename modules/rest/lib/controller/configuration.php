@@ -4,9 +4,17 @@ namespace Bitrix\Rest\Controller;
 
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Engine\Response\Zip;
 use Bitrix\Main\Engine\Response\Zip\Archive;
+use Bitrix\Main\Error;
+use Bitrix\Main\Errorable;
+use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Response;
+use Bitrix\Main\Web\HttpClient;
+use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\Configuration\Helper;
 use Bitrix\Rest\Configuration\Setting;
 use Bitrix\Rest\Configuration\Structure;
@@ -14,7 +22,7 @@ use Bitrix\Rest\Configuration\Manifest;
 
 Loc::loadLanguageFile(__FILE__);
 
-class Configuration extends Controller
+class Configuration extends Controller implements Errorable
 {
 	/**
 	 * Download zip export.

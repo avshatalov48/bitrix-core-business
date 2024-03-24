@@ -48,12 +48,18 @@ class Settings
 		return (bool)$settings['call']['broadcast_enabled'];
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function isCallBetaAvailable(): bool
 	{
 		$result = \Bitrix\Main\Config\Option::get('im', 'call_beta_access', 'N');
 		return $result === 'Y';
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function isAiBetaAvailable(): bool
 	{
 		$result = \Bitrix\Main\Config\Option::get('im', 'ai_beta_access', 'N');

@@ -611,7 +611,7 @@ class Workgroup
 			$value = $DB->forSql($content);
 			$encryptedValue = sha1($content);
 
-			$connection->query("UPDATE ".WorkgroupTable::getTableName()." SET SEARCH_INDEX = IF(SHA1(SEARCH_INDEX) = '{$encryptedValue}', SEARCH_INDEX, '{$value}') WHERE ID = {$groupId}");
+			$connection->query("UPDATE ".WorkgroupTable::getTableName()." SET SEARCH_INDEX = CASE WHEN " . $connection->getSqlHelper()->getSha1Function('SEARCH_INDEX') . " = '{$encryptedValue}' THEN SEARCH_INDEX ELSE '{$value}' END WHERE ID = {$groupId}");
 		}
 	}
 

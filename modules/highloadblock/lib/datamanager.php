@@ -382,6 +382,10 @@ abstract class DataManager extends Entity\DataManager
 
 			foreach ($oldData as $k => $v)
 			{
+				if ($k === 'ID')
+				{
+					continue;
+				}
 				$userfield = $fields[$k];
 
 				// remove multi values

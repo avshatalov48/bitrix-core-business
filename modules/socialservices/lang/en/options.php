@@ -5,6 +5,7 @@ $MESS["SOC_OPT_B24NET_GET"] = "Get";
 $MESS["SOC_OPT_B24NET_PUT"] = "Paste";
 $MESS["SOC_OPT_B24NET_SITE"] = "Get authentication parameters for site";
 $MESS["SOC_OPT_B24NET_TITLE"] = "Register Site in Bitrix24.Network";
+$MESS["SOC_OPT_B24NET_TITLE_MSGVER_1"] = "Register Site in Bitrix24 Network";
 $MESS["SOC_OPT_CRYPTO_ACTIVATE"] = "Enable authentication token encryption";
 $MESS["SOC_OPT_CRYPTO_CONFIRM"] = "Are sure you want to enable authentication token encryption?";
 $MESS["SOC_OPT_CRYPTO_FIELD_TITLE"] = "Status:";

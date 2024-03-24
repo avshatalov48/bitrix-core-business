@@ -181,17 +181,6 @@ if (CModule::IncludeModule("socialnetwork"))
 	);
 }
 
-if (IsModuleInstalled("video"))
-{
-	$arTemplateParameters["PATH_TO_VIDEO_CALL"] = array(
-		"NAME" => GetMessage("BC_PATH_TO_VIDEO_CALL"),
-		"TYPE" => "STRING",
-		"MULTIPLE" => "N",
-		"DEFAULT" => "/company/personal/video/#user_id#/",
-		"COLS" => 25,
-	); 
-}
-
 if (IsModuleInstalled("intranet"))
 {
 	$arTemplateParameters["PATH_TO_CONPANY_DEPARTMENT"] = array(

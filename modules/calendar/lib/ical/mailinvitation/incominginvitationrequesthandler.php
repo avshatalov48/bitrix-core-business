@@ -17,6 +17,7 @@ use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use CCalendar;
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/classes/general/calendar.php");
@@ -257,7 +258,23 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 				elseif (isset($rrule['UNTIL']))
 				{
 					$now = Util::getDateObject(null, false)->getTimestamp();
-					$until = Helper::getIcalDateTime($rrule['UNTIL']);
+					try
+					{
+						$until = Helper::getIcalDateTime($rrule['UNTIL']);
+					}
+					catch (ObjectException $exception)
+					{
+						// 0181908
+						try
+						{
+							$until = new DateTime($rrule['UNTIL']);
+						}
+						catch (ObjectException $exception)
+						{
+							$until = new DateTime(CCalendar::GetMaxDate());
+						}
+					}
+
 					if ($now < $until->getTimestamp())
 					{
 						$event['RRULE']['UNTIL'] = $until->format(Date::convertFormatToPhp(FORMAT_DATE));
@@ -552,7 +569,23 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 				elseif (isset($rrule['UNTIL']))
 				{
 					$now = Util::getDateObject(null, false)->getTimestamp();
-					$until = Helper::getIcalDateTime($rrule['UNTIL']);
+					try
+					{
+						$until = Helper::getIcalDateTime($rrule['UNTIL']);
+					}
+					catch (ObjectException $exception)
+					{
+						// 0181908
+						try
+						{
+							$until = new DateTime($rrule['UNTIL']);
+						}
+						catch (ObjectException $exception)
+						{
+							$until = new DateTime(CCalendar::GetMaxDate());
+						}
+					}
+
 					if ($now < $until->getTimestamp())
 					{
 						$event['RRULE']['UNTIL'] = $until->format(Date::convertFormatToPhp(FORMAT_DATE));

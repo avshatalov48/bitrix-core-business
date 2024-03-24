@@ -1,5 +1,5 @@
 import { Type } from 'main.core';
-import { EntryManager } from '../../../../../../../../../calendar/install/js/calendar/entry/src/entry';
+import { EntryManager } from 'calendar.entry';
 
 type Params = {
 	type: string;

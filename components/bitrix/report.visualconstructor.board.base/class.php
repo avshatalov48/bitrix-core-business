@@ -26,9 +26,9 @@ class ReportVisualConstructorBoardBase extends CBitrixComponent
 		$this->arResult['BOARD_ID'] = $this->arParams['BOARD_ID']; //TODO@ add check for required params such us BOARD_ID
 		$this->arResult['FILTER'] = $this->arParams['FILTER'] instanceof Filter ? $this->arParams['FILTER'] : null;
 		$this->arResult['FILTER_ID'] = $this->arParams['FILTER'] instanceof Filter ? $this->arParams['FILTER']->getFilterParameters()['FILTER_ID'] : "";
-		$this->arResult['REPORTS_CATEGORIES'] = $this->arParams['REPORTS_CATEGORIES'];
-		$this->arResult['IS_ENABLED_STEPPER'] = isset($this->arParams['IS_ENABLED_STEPPER']) ? $this->arParams['IS_ENABLED_STEPPER'] : false;
-		$this->arResult['STEPPER_IDS'] = isset($this->arParams['STEPPER_IDS']) ? $this->arParams['STEPPER_IDS'] : [];
+		$this->arResult['REPORTS_CATEGORIES'] = ($this->arParams['REPORTS_CATEGORIES'] ?? []);
+		$this->arResult['IS_ENABLED_STEPPER'] = $this->arParams['IS_ENABLED_STEPPER'] ?? false;
+		$this->arResult['STEPPER_IDS'] = $this->arParams['STEPPER_IDS'] ?? [];
 		$this->arResult['HEADER_TEMPLATE_NAME'] = !empty($this->arParams['VIEW_MODE']) && $this->arParams['VIEW_MODE'] === 'slider' ? 'slider' : '';
 		$this->arResult['IS_BOARD_DEFAULT'] = isset($this->arParams['IS_BOARD_DEFAULT']) ? $this->arParams['IS_BOARD_DEFAULT'] : false;
 		$this->arResult['BOARD_BUTTONS'] = $this->getBoardButtons();
@@ -63,7 +63,7 @@ class ReportVisualConstructorBoardBase extends CBitrixComponent
 	private function getBoardDefaultButtons()
 	{
 		$defaultButtons = [];
-		if ($this->arParams['WITH_ADD_BUTTON'])
+		if ($this->arParams['WITH_ADD_BUTTON'] ?? false)
 		{
 			$componentName = 'bitrix:report.visualconstructor.board.controls';
 			$componentParams = [

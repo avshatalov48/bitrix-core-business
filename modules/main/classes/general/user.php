@@ -377,40 +377,14 @@ class CAllUser extends CDBResult
 	{
 		/** @global CUserTypeManager $USER_FIELD_MANAGER */
 		global $DB, $USER_FIELD_MANAGER;
-		$connection = \Bitrix\Main\Application::getConnection();
+
+		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		if (is_array($by))
-		{
-			$arOrder = $by;
-		}
-		else
-		{
-			$arOrder = [$by => $order];
-		}
+		$arOrder = is_array($by) ? $by : [$by => $order];
 
-		static $obUserFieldsSql;
-		if (!isset($obUserFieldsSql))
-		{
-			$obUserFieldsSql = new CUserTypeSQL;
-			$obUserFieldsSql->SetEntity("USER", "U.ID");
-			$obUserFieldsSql->obWhere->AddFields([
-				"F_LAST_NAME" => [
-					"TABLE_ALIAS" => "U",
-					"FIELD_NAME" => "U.LAST_NAME",
-					"MULTIPLE" => 'N',
-					"FIELD_TYPE" => "string",
-					"JOIN" => false,
-				],
-			]);
-		}
-
-		$obUserFieldsSql->SetSelect($arParams["SELECT"] ?? []);
-		$obUserFieldsSql->SetFilter($arFilter);
-		$obUserFieldsSql->SetOrder($arOrder);
-
-		$arFields_m = ["ID", "ACTIVE", "LAST_LOGIN", "LOGIN", "EMAIL", "NAME", "LAST_NAME", "SECOND_NAME", "TIMESTAMP_X", "PERSONAL_BIRTHDAY", "IS_ONLINE", "IS_REAL_USER"];
-		$arFields = [
+		static $arFields_m = ["ID", "ACTIVE", "LAST_LOGIN", "LOGIN", "EMAIL", "NAME", "LAST_NAME", "SECOND_NAME", "TIMESTAMP_X", "PERSONAL_BIRTHDAY", "IS_ONLINE", "IS_REAL_USER"];
+		static $arFields = [
 			"DATE_REGISTER", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_ICQ", "PERSONAL_GENDER", "PERSONAL_PHOTO", "PERSONAL_PHONE", "PERSONAL_FAX",
 			"PERSONAL_MOBILE", "PERSONAL_PAGER", "PERSONAL_STREET", "PERSONAL_MAILBOX", "PERSONAL_CITY", "PERSONAL_STATE", "PERSONAL_ZIP", "PERSONAL_COUNTRY", "PERSONAL_NOTES",
 			"WORK_COMPANY", "WORK_DEPARTMENT", "WORK_POSITION", "WORK_WWW", "WORK_PHONE", "WORK_FAX", "WORK_PAGER", "WORK_STREET", "WORK_MAILBOX", "WORK_CITY", "WORK_STATE",
@@ -450,7 +424,7 @@ class CAllUser extends CDBResult
 		}
 		if (empty($arSelectFields))
 		{
-			$arSelectFields[] = 'U.*';
+			$arSelectFields['*'] = 'U.*';
 			$arSelectFields['TIMESTAMP_X'] = $DB->DateToCharFunction("U.TIMESTAMP_X") . " TIMESTAMP_X";
 			$arSelectFields['IS_ONLINE'] = 'CASE WHEN U.LAST_ACTIVITY_DATE > ' . $helper->addSecondsToDateTime('(-' . $online_interval . ')') . ' THEN \'Y\' ELSE \'N\' END IS_ONLINE';
 			$arSelectFields['DATE_REGISTER'] = $DB->DateToCharFunction("U.DATE_REGISTER") . " DATE_REGISTER";
@@ -458,7 +432,30 @@ class CAllUser extends CDBResult
 			$arSelectFields['PERSONAL_BIRTHDAY'] = $DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT") . " PERSONAL_BIRTHDAY";
 		}
 
+		static $obUserFieldsSql;
+		if (!isset($obUserFieldsSql))
+		{
+			$obUserFieldsSql = new CUserTypeSQL;
+			$obUserFieldsSql->SetEntity("USER", "U.ID");
+			$obUserFieldsSql->obWhere->AddFields([
+				"F_LAST_NAME" => [
+					"TABLE_ALIAS" => "U",
+					"FIELD_NAME" => "U.LAST_NAME",
+					"MULTIPLE" => 'N',
+					"FIELD_TYPE" => "string",
+					"JOIN" => false,
+				],
+			]);
+		}
+
+		$ufSelectFields = $arParams["SELECT"] ?? [];
 		$arSqlSearch = [];
+
+		$obUserFieldsSql->SetFilter($arFilter);
+		$obUserFieldsSql->SetOrder($arOrder);
+		$arSqlSearch[] = $obUserFieldsSql->GetFilter();
+		$distinct = $obUserFieldsSql->GetDistinct();
+
 		$strJoin = '';
 
 		if (is_array($arFilter))
@@ -767,10 +764,20 @@ class CAllUser extends CDBResult
 			elseif (in_array($field, $arFields_all))
 			{
 				$arSqlOrder[$field] = "U." . $field . ' ' . $dir;
+
+				if ($distinct && !isset($arSelectFields['*']) && !isset($arSelectFields[$field]))
+				{
+					$arSelectFields[$field] = 'U.' . $field;
+				}
 			}
 			elseif ($s = $obUserFieldsSql->GetOrder($field))
 			{
 				$arSqlOrder[$field] = strtoupper($s) . ' ' . $dir;
+
+				if ($distinct && !in_array('UF_*', $ufSelectFields) && !in_array($field, $ufSelectFields))
+				{
+					$ufSelectFields[] = $field;
+				}
 			}
 			elseif (preg_match('/^RATING_(\d+)$/i', $field, $matches))
 			{
@@ -784,27 +791,28 @@ class CAllUser extends CDBResult
 				{
 					$field = "TIMESTAMP_X";
 					$arSqlOrder[$field] = "U." . $field . ' ' . $dir;
+					$arSelectFields[$field] = 'U.TIMESTAMP_X';
 				}
 			}
 			elseif ($field == 'FULL_NAME')
 			{
-				$arSqlOrder[$field] = sprintf(
-					"CASE WHEN U.LAST_NAME IS NULL OR U.LAST_NAME = '' THEN 1 ELSE 0 END %1\$s,
-					CASE WHEN U.LAST_NAME IS NULL OR U.LAST_NAME = '' THEN '1' ELSE U.LAST_NAME END %1\$s,
-					CASE WHEN U.NAME IS NULL OR U.NAME = '' THEN 1 ELSE 0 END %1\$s,
-					CASE WHEN U.NAME IS NULL OR U.NAME = '' THEN '1' ELSE U.NAME END %1\$s,
-					CASE WHEN U.SECOND_NAME IS NULL OR U.SECOND_NAME = '' THEN 1 ELSE 0 END %1\$s,
-					CASE WHEN U.SECOND_NAME IS NULL OR U.SECOND_NAME = '' THEN '1' ELSE U.SECOND_NAME END %1\$s,
-					U.LOGIN %1\$s", $dir
-				);
+				$arSelectFields['LAST_NAME_SRT1'] = "CASE WHEN U.LAST_NAME IS NULL OR U.LAST_NAME = '' THEN 1 ELSE 0 END LAST_NAME_SRT1";
+				$arSelectFields['LAST_NAME_SRT2'] = "CASE WHEN U.LAST_NAME IS NULL OR U.LAST_NAME = '' THEN '1' ELSE U.LAST_NAME END LAST_NAME_SRT2";
+				$arSelectFields['NAME_SRT1'] = "CASE WHEN U.NAME IS NULL OR U.NAME = '' THEN 1 ELSE 0 END NAME_SRT1";
+				$arSelectFields['NAME_SRT2'] = "CASE WHEN U.NAME IS NULL OR U.NAME = '' THEN '1' ELSE U.NAME END NAME_SRT2";
+				$arSelectFields['SECOND_NAME_SRT1'] = "CASE WHEN U.SECOND_NAME IS NULL OR U.SECOND_NAME = '' THEN 1 ELSE 0 END SECOND_NAME_SRT1";
+				$arSelectFields['SECOND_NAME_SRT2'] = "CASE WHEN U.SECOND_NAME IS NULL OR U.SECOND_NAME = '' THEN '1' ELSE U.SECOND_NAME END SECOND_NAME_SRT2";
+				$arSelectFields['LOGIN'] = "U.LOGIN";
+
+				$arSqlOrder[$field] = "LAST_NAME_SRT1 {$dir}, LAST_NAME_SRT2 {$dir}, NAME_SRT1 {$dir}, NAME_SRT2 {$dir}, SECOND_NAME_SRT1 {$dir}, SECOND_NAME_SRT2 {$dir}, U.LOGIN {$dir}";
 			}
 		}
 
+		$obUserFieldsSql->SetSelect($ufSelectFields);
 		$userFieldsSelect = $obUserFieldsSql->GetSelect();
-		$arSqlSearch[] = $obUserFieldsSql->GetFilter();
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 
-		$sSelect = ($obUserFieldsSql->GetDistinct() ? "DISTINCT " : '')
+		$sSelect = ($distinct ? "DISTINCT " : '')
 			. implode(', ', $arSelectFields) . "
 			" . $userFieldsSelect . "
 		";
@@ -817,7 +825,7 @@ class CAllUser extends CDBResult
 				if (preg_match('/^RATING_(\d+)$/i', $column, $matches))
 				{
 					$ratingId = intval($matches[1]);
-					if ($ratingId > 0 && !in_array($ratingId, $arRatingInSelect))
+					if ($ratingId > 0 && !isset($arRatingInSelect[$ratingId]))
 					{
 						$sSelect .= ", RR" . $ratingId . ".CURRENT_POSITION IS NULL as RATING_" . $ratingId . "_ISNULL";
 						$sSelect .= ", RR" . $ratingId . ".CURRENT_VALUE as RATING_" . $ratingId;
@@ -825,15 +833,18 @@ class CAllUser extends CDBResult
 						$sSelect .= ", RR" . $ratingId . ".PREVIOUS_VALUE as RATING_" . $ratingId . "_PREVIOUS_VALUE";
 						$sSelect .= ", RR" . $ratingId . ".CURRENT_POSITION as RATING_" . $ratingId . "_CURRENT_POSITION";
 						$sSelect .= ", RR" . $ratingId . ".PREVIOUS_POSITION as RATING_" . $ratingId . "_PREVIOUS_POSITION";
+
 						$strJoin .= " LEFT JOIN  b_rating_results RR" . $ratingId . "
 							ON RR" . $ratingId . ".RATING_ID=" . $ratingId . "
 							and RR" . $ratingId . ".ENTITY_TYPE_ID = 'USER'
 							and RR" . $ratingId . ".ENTITY_ID = U.ID ";
-						$arRatingInSelect[] = $ratingId;
+
+						$arRatingInSelect[$ratingId] = $ratingId;
 					}
 				}
 			}
 		}
+
 		$strFrom = "
 			FROM
 				b_user U
@@ -851,9 +862,9 @@ class CAllUser extends CDBResult
 
 		$strSql = "SELECT " . $sSelect . $strFrom . $strSqlOrder;
 
-		if (array_key_exists("NAV_PARAMS", $arParams) && is_array($arParams["NAV_PARAMS"]))
+		if (isset($arParams["NAV_PARAMS"]) && is_array($arParams["NAV_PARAMS"]))
 		{
-			$nTopCount = isset($arParams['NAV_PARAMS']['nTopCount']) ? intval($arParams['NAV_PARAMS']['nTopCount']) : 0;
+			$nTopCount = (int)($arParams['NAV_PARAMS']['nTopCount'] ?? 0);
 			if ($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSql, $nTopCount);
@@ -885,6 +896,7 @@ class CAllUser extends CDBResult
 		}
 
 		$res->is_filtered = IsFiltered($strSqlSearch);
+
 		return $res;
 	}
 

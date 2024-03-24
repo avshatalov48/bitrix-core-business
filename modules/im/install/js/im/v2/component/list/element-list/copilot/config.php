@@ -9,7 +9,6 @@ return [
 	'js' => 'dist/copilot-list.bundle.js',
 	'rel' => [
 		'ui.design-tokens',
-		'im.v2.lib.slider',
 		'im.v2.lib.draft',
 		'im.v2.component.elements',
 		'main.date',

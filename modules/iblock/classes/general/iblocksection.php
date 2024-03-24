@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
 
@@ -12,13 +13,20 @@ class CAllIBlockSection
 	protected static $arSectionPathCache = array();
 	protected static $arSectionNavChainCache = array();
 
-	protected $iblock;
-	protected $iblockLanguage;
+	protected ?array $iblock;
+	protected ?string $iblockLanguage;
+
+	protected string $currentDateTimeFunction;
 
 	public function __construct()
 	{
 		$this->iblock = null;
 		$this->iblockLanguage = null;
+
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$this->currentDateTimeFunction = $helper->getCurrentDateTimeFunction();
+		unset($helper, $connection);
 	}
 
 	public function setIblock(?int $iblockId): void
@@ -336,12 +344,15 @@ class CAllIBlockSection
 	{
 		global $USER, $DB, $APPLICATION;
 
-		if(is_set($arFields, "EXTERNAL_ID"))
-			$arFields["XML_ID"] = $arFields["EXTERNAL_ID"];
-		Unset($arFields["GLOBAL_ACTIVE"]);
-		Unset($arFields["DEPTH_LEVEL"]);
-		Unset($arFields["LEFT_MARGIN"]);
-		Unset($arFields["RIGHT_MARGIN"]);
+		if (array_key_exists('EXTERNAL_ID', $arFields))
+		{
+			$arFields['XML_ID'] = $arFields['EXTERNAL_ID'];
+			unset($arFields['EXTERNAL_ID']);
+		}
+		unset($arFields["GLOBAL_ACTIVE"]);
+		unset($arFields["DEPTH_LEVEL"]);
+		unset($arFields["LEFT_MARGIN"]);
+		unset($arFields["RIGHT_MARGIN"]);
 
 		$strWarning = '';
 
@@ -650,6 +661,11 @@ class CAllIBlockSection
 		}
 		else
 		{
+			if (!isset($arFields['TIMESTAMP_X']))
+			{
+				$arFields['~TIMESTAMP_X'] = $this->currentDateTimeFunction;
+			}
+
 			if(array_key_exists("PICTURE", $arFields))
 			{
 				$SAVED_PICTURE = $arFields["PICTURE"];
@@ -669,6 +685,7 @@ class CAllIBlockSection
 			unset($arFields["ID"]);
 			$ID = intval($DB->Add("b_iblock_section", $arFields, Array("DESCRIPTION","SEARCHABLE_CONTENT"), "iblock"));
 			$arFields["ID"] = $ID;
+			unset($arFields['~TIMESTAMP_X']);
 
 			if(array_key_exists("PICTURE", $arFields))
 				$arFields["PICTURE"] = $SAVED_PICTURE;
@@ -775,8 +792,11 @@ class CAllIBlockSection
 			return false;
 		}
 
-		if(is_set($arFields, "EXTERNAL_ID"))
-			$arFields["XML_ID"] = $arFields["EXTERNAL_ID"];
+		if (array_key_exists('EXTERNAL_ID', $arFields))
+		{
+			$arFields['XML_ID'] = $arFields['EXTERNAL_ID'];
+			unset($arFields['EXTERNAL_ID']);
+		}
 
 		unset($arFields["GLOBAL_ACTIVE"]);
 		unset($arFields["DEPTH_LEVEL"]);
@@ -1118,9 +1138,15 @@ class CAllIBlockSection
 				CFile::SaveForDB($arFields, "DETAIL_PICTURE", "iblock");
 			}
 
+			if (!isset($arFields['TIMESTAMP_X']))
+			{
+				$arFields['~TIMESTAMP_X'] = $this->currentDateTimeFunction;
+			}
+
 			unset($arFields["ID"]);
 			$strUpdate = $DB->PrepareUpdate("b_iblock_section", $arFields, "iblock");
 			$arFields["ID"] = $ID;
+			unset($arFields['~TIMESTAMP_X']);
 
 			if(array_key_exists("PICTURE", $arFields))
 				$arFields["PICTURE"] = $SAVED_PICTURE;
@@ -2430,10 +2456,10 @@ class CAllIBlockSection
 			// none
 
 			// specific element keys
-			'DATE_ACTIVE_FROM_1' => '>=ACTIVE_FROM',
-			'DATE_ACTIVE_FROM_2' => '<=ACTIVE_FROM',
-			'DATE_ACTIVE_TO_1' => '>=ACTIVE_TO',
-			'DATE_ACTIVE_TO_2' => '<=ACTIVE_TO',
+			'DATE_ACTIVE_FROM_1' => '>=DATE_ACTIVE_FROM',
+			'DATE_ACTIVE_FROM_2' => '<=DATE_ACTIVE_FROM',
+			'DATE_ACTIVE_TO_1' => '>=DATE_ACTIVE_TO',
+			'DATE_ACTIVE_TO_2' => '<=DATE_ACTIVE_TO',
 		];
 
 		$result = [];
@@ -2536,6 +2562,8 @@ class CAllIBlockSection
 				'CHECK_BP_VIRTUAL_PERMISSIONS' => true,
 				'ACTIVE_FROM' => true,
 				'ACTIVE_TO' => true,
+				'DATE_ACTIVE_FROM' => true,
+				'DATE_ACTIVE_TO' => true,
 				'ACTIVE_DATE' => true,
 				'RATING_USER_ID' => true,
 				'WF_STATUS_ID' => true,

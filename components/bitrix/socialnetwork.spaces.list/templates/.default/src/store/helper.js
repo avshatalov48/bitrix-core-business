@@ -1,9 +1,11 @@
-import type { SpaceModel } from '../model/space-model';
-import type { InvitationModel } from '../model/invitation-model';
 import { RecentService } from '../api/load/recent-service';
 import { Modes } from '../const/mode';
 import { FilterModeTypes } from '../const/filter-mode';
 import { SpaceUserRoles } from '../const/space';
+
+import type { SpaceModel } from '../model/space-model';
+import type { InvitationModel } from '../model/invitation-model';
+import type { RecentActivityModel } from '../model/recent-activity-model';
 
 export class Helper
 {
@@ -25,17 +27,22 @@ export class Helper
 			name: spaceData.name,
 			isPinned: spaceData.isPinned,
 			isSelected: RecentService.getInstance().getSelectedSpaceId() === parseInt(spaceData.id, 10),
-			dateActivity: new Date(parseInt(spaceData.dateActivityTimestamp, 10) * 1000),
-			dateActivityTimestamp: spaceData.dateActivityTimestamp * 1000,
-			lastActivityDescription: spaceData.lastActivityDescription,
+			recentActivity: this.buildRecentActivity(spaceData.recentActivityData),
 			avatar: spaceData.avatar,
 			visibilityType: spaceData.visibilityType,
 			counter: parseInt(spaceData.counter, 10),
-			lastSearchDate: new Date(parseInt(spaceData.lastSearchDateTimestamp, 10) * 1000),
+			lastSearchDate: new Date(this.convertTimestampFromPhp(spaceData.lastSearchDateTimestamp)),
 			lastSearchDateTimestamp: spaceData.lastSearchDateTimestamp * 1000,
 			userRole: spaceData.userRole,
 			follow: spaceData.follow,
+			theme: [],
+			permissions: spaceData.permissions,
 		}));
+	}
+
+	convertTimestampFromPhp(timestamp: number | string): number
+	{
+		return parseInt(timestamp, 10) * 1000;
 	}
 
 	buildInvitations(invitations): InvitationModel[]
@@ -43,9 +50,22 @@ export class Helper
 		return invitations.map((invitationData) => ({
 			spaceId: parseInt(invitationData.spaceId, 10),
 			message: invitationData.message,
-			invitationDateTimestamp: invitationData.invitationDateTimestamp * 1000,
-			invitationDate: new Date(parseInt(invitationData.invitationDateTimestamp, 10) * 1000),
+			invitationDateTimestamp: this.convertTimestampFromPhp(invitationData.invitationDateTimestamp),
+			invitationDate: new Date(this.convertTimestampFromPhp(invitationData.invitationDateTimestamp)),
 		}));
+	}
+
+	buildRecentActivity(recentActivityData): RecentActivityModel
+	{
+		const recentActivity: RecentActivityModel = {};
+
+		recentActivity.description = recentActivityData.description;
+		recentActivity.typeId = recentActivityData.typeId;
+		recentActivity.entityId = parseInt(recentActivityData.entityId, 10);
+		recentActivity.timestamp = this.convertTimestampFromPhp(recentActivityData.timestamp);
+		recentActivity.date = new Date(recentActivity.timestamp);
+
+		return recentActivity;
 	}
 
 	getStringCapitalized(string: string): string
@@ -62,6 +82,14 @@ export class Helper
 		}
 
 		return result;
+	}
+
+	doAddSpaceToRecentList(space: SpaceModel, lastRecentSpace: SpaceModel, filterMode: string): boolean
+	{
+		const doDateActivityFits = lastRecentSpace.recentActivity.date < space.recentActivity.date;
+		const doUserRoleFitsFilterMode = this.doSpaceUserRoleFitsFilterMode(space.userRole, filterMode);
+
+		return (doDateActivityFits && doUserRoleFitsFilterMode) || space.id === 0;
 	}
 
 	doSpaceUserRoleFitsFilterMode(userRole: string, filterMode: string): boolean

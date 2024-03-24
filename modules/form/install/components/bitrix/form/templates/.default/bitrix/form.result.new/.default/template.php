@@ -62,7 +62,7 @@ if ($arResult["isFormTitle"])
 	?>
 		<tr>
 			<td>
-				<?if (is_array($arResult["FORM_ERRORS"]) && array_key_exists($FIELD_SID, $arResult['FORM_ERRORS'])):?>
+				<?if (isset($arResult['FORM_ERRORS'][$FIELD_SID])):?>
 				<span class="error-fld" title="<?=htmlspecialcharsbx($arResult["FORM_ERRORS"][$FIELD_SID])?>"></span>
 				<?endif;?>
 				<?=$arQuestion["CAPTION"]?><?if ($arQuestion["REQUIRED"] == "Y"):?><?=$arResult["REQUIRED_SIGN"];?><?endif;?>

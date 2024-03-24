@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,main_core_events,main_popup,ui_section,ui_switcher) {
 	'use strict';
@@ -394,6 +395,12 @@ this.BX = this.BX || {};
 	function _getMenuIcon2() {
 	  if (this.isNestedMenu) {
 	    return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-section__collapse-icon ui-icon-set ", " --tool-selector-icon\"></span>\n\t\t\t"])), this.isOpen ? this.className.arrowTop : this.className.arrowDown);
+	  }
+	  return null;
+	}
+	function _getDraggableIcon2() {
+	  if (babelHelpers.classPrivateFieldGet(this, _draggable)) {
+	    return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div onclick=\"event.stopPropagation()\" class=\"ui-section__dragdrop-icon-wrapper\">\n\t\t\t\t\t<div onclick=\"event.stopPropagation()\" class=\"ui-section__dragdrop-icon\"/>\n\t\t\t\t</div>\n\t\t\t"])));
 	  }
 	  return null;
 	}

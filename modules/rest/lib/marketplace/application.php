@@ -153,6 +153,7 @@ class Application
 							'URL' => $appDetailInfo['URL'],
 							'URL_DEMO' => $appDetailInfo['DEMO_URL'],
 							'URL_INSTALL' => $appDetailInfo['INSTALL_URL'],
+							'URL_SETTINGS' => $appDetailInfo['SETTINGS_URL'],
 							'VERSION' => $installResult['result']['version'],
 							'SCOPE' => implode(',', $installResult['result']['scope']),
 							'STATUS' => $installResult['result']['status'],
@@ -177,8 +178,11 @@ class Application
 
 						//Configuration app
 						if (
-							$appDetailInfo['TYPE'] === AppTable::TYPE_CONFIGURATION
-							&& $appDetailInfo['MODE'] !== AppTable::MODE_SITE
+							(
+								$appDetailInfo['TYPE'] === AppTable::TYPE_CONFIGURATION
+								&& $appDetailInfo['MODE'] !== AppTable::MODE_SITE
+							)
+							|| $appDetailInfo['TYPE'] === AppTable::TYPE_BIC_DASHBOARD
 						)
 						{
 							$appFields['INSTALLED'] = AppTable::NOT_INSTALLED;
@@ -270,7 +274,10 @@ class Application
 							$redirect = false;
 							$open = false;
 							$sliderUrl = false;
-							if ($appDetailInfo['TYPE'] !== AppTable::TYPE_CONFIGURATION)
+							if (
+								$appDetailInfo['TYPE'] !== AppTable::TYPE_CONFIGURATION
+								&& $appDetailInfo['TYPE'] !== AppTable::TYPE_BIC_DASHBOARD
+							)
 							{
 								$uriString = CRestUtil::getApplicationPage($appId);
 								$uri = new Uri($uriString);
@@ -427,9 +434,10 @@ class Application
 					}
 
 					$result = ['error' => $errorMessage];
+					$appType = AppTable::getAppType($appInfo['CODE']);
 					if (
 						$checkResult->isEmpty()
-						&& AppTable::getAppType($appInfo['CODE']) == AppTable::TYPE_CONFIGURATION
+						&& ($appType === AppTable::TYPE_CONFIGURATION || $appType === AppTable::TYPE_BIC_DASHBOARD)
 					)
 					{
 						$result = [

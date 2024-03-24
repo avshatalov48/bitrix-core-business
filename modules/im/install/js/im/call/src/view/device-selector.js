@@ -453,14 +453,15 @@ class DeviceMenu
 									checked: this.deviceEnabled,
 									handlers: {
 										toggled: this.onSwitchToggled.bind(this)
-									}
+									},
+									disabled: this.menuBlocked,
 								})).getNode()
 							]
 						}),
 					]
 				}),
 				this.elements.menuInner = Dom.create("div", {
-					props: {className: "bx-call-view-device-selector-menu-inner"},
+					props: {className: "bx-call-view-device-selector-menu-inner" + (this.menuBlocked ? ' inactive' : '')},
 					children: this.deviceList.map(this.renderDevice.bind(this))
 				})
 			]

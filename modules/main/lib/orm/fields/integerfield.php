@@ -105,7 +105,7 @@ class IntegerField extends ScalarField
 
 		return $value === null && $this->is_nullable
 			? $value
-			: $this->getConnection()->getSqlHelper()->convertToDbInteger($value);
+			: $this->getConnection()->getSqlHelper()->convertToDbInteger($value, $this->size);
 	}
 
 	/**

@@ -20,6 +20,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Socialservices\Bitrix24Signer;
 use Bitrix\Rest\NonLoggedExceptionDecorator;
+use Bitrix\Rest\Tools\Diagnostics\RequestResponseLogger;
 
 class CRestServer
 {
@@ -112,6 +113,10 @@ class CRestServer
 
 		try
 		{
+			RequestResponseLogger::getInstance()
+			->setServer($this)
+			->logRequest();
+
 			if($this->init())
 			{
 				$handler = new $this->class();
@@ -127,7 +132,6 @@ class CRestServer
 					if($this->checkAuth())
 					{
 						\Bitrix\Rest\UsageStatTable::log($this);
-
 
 						if($this->tokenCheck)
 						{
@@ -738,7 +742,7 @@ class CRestServer
 
 	public function output($data)
 	{
-		\Bitrix\Rest\LogTable::log($this, $data);
+		RequestResponseLogger::getInstance()->logResponse($data);
 		\Bitrix\Rest\UsageStatTable::finalize();
 
 		if (

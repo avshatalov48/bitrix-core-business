@@ -1,8 +1,8 @@
-import {RestClient} from 'rest.client';
-import {Store} from 'ui.vue3.vuex';
+import { RestClient } from 'rest.client';
+import { Store } from 'ui.vue3.vuex';
 
-import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
+import { RestMethod } from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
 
 export class LinkManager
 {
@@ -17,13 +17,10 @@ export class LinkManager
 
 	delete(link: Object)
 	{
-		this.store.dispatch('sidebar/links/delete', {
-			chatId: link.chatId,
-			id: link.id
-		});
+		this.store.dispatch('sidebar/links/delete', { chatId: link.chatId, id: link.id });
 
-		const queryParams = {'LINK_ID': link.id};
-		this.restClient.callMethod(RestMethod.imChatUrlDelete, queryParams).catch(error => {
+		const queryParams = { LINK_ID: link.id };
+		this.restClient.callMethod(RestMethod.imChatUrlDelete, queryParams).catch((error) => {
 			console.error('Im.Sidebar: error deleting link', error);
 		});
 	}

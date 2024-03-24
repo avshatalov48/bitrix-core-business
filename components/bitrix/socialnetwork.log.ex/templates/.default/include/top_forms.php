@@ -47,23 +47,6 @@ if (
 	);
 }
 
-if ($arParams['USE_TASKS'] === 'Y')
-{
-	?><?php
-	$APPLICATION->IncludeComponent(
-		"bitrix:tasks.iframe.popup",
-		".default",
-		[
-			"ON_TASK_ADDED" => "BX.DoNothing",
-			"ON_TASK_CHANGED" => "BX.DoNothing",
-			"ON_TASK_DELETED" => "BX.DoNothing",
-		],
-		null,
-		[ 'HIDE_ICONS' => 'Y' ]
-	);
-	?><?php
-}
-
 if (
 	$arParams["HIDE_EDIT_FORM"] !== "Y"
 	&& (int)$arResult["MICROBLOG_USER_ID"] > 0
@@ -155,4 +138,3 @@ elseif ($arParams["SHOW_EVENT_ID_FILTER"] === "Y")
 {
 	?><div class="feed-filter-fake-cont"></div><?php
 }
-

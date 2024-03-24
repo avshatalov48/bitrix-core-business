@@ -418,7 +418,7 @@ else
 		siteId: <?= ($arParams['SITE_ID'] > 0) ? $arParams['SITE_ID'] : 0 ?>,
 		replaceLid: <?= $arParams['REPLACE_LID'] ?? 0 ?>,
 		isCrmForm: '<?= $arParams['IS_CRM_FORM'] ?? 'N' ?>',
-		context: '<?= $arParams['CONTEXT'] ?? null ?>',
+		context: '<?= $arParams['CONTEXT'] ? CUtil::JSEscape($arParams['CONTEXT']) : null ?>',
 		langId: "<?= is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
 		folderId: <?= ($arResult['FOLDER_ID'] ?? 0 && $arResult['FOLDER_ID'] > 0) ? $arResult['FOLDER_ID'] : 0 ?>,
 		adminSection: <?= $arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,

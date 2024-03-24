@@ -295,11 +295,6 @@ abstract class Entity
 	 */
 	public function bindSite(int $siteId): bool
 	{
-		if (self::isForbiddenBindingAction())
-		{
-			return false;
-		}
-
 		$siteId = intval($siteId);
 
 		$success = $this->bind($siteId, $this::ENTITY_TYPE_SITE);
@@ -337,11 +332,6 @@ abstract class Entity
 	 */
 	public function unbindSite(int $siteId): bool
 	{
-		if (self::isForbiddenBindingAction())
-		{
-			return false;
-		}
-
 		$siteId = intval($siteId);
 
 		$success = $this->unbind($siteId, $this::ENTITY_TYPE_SITE);
@@ -418,7 +408,7 @@ abstract class Entity
 		}
 	}
 
-	protected static function isForbiddenBindingAction(): bool
+	public function isForbiddenBindingAction(): bool
 	{
 		return (
 			!Rights::hasAdditionalRight('extension', 'knowledge', false, true)

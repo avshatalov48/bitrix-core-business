@@ -2,6 +2,7 @@
 use Bitrix\Im\Integration\Imopenlines;
 use Bitrix\Im\Message;
 use Bitrix\Im\V2\Sync;
+use Bitrix\Main\Localization\Loc;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -823,24 +824,24 @@ class CIMMessenger
 			{
 				$strSql = "
 					SELECT
-						C.ID CHAT_ID,
-						C.PARENT_ID CHAT_PARENT_ID,
-						C.PARENT_MID CHAT_PARENT_MID,
-						C.TITLE CHAT_TITLE,
-						C.AUTHOR_ID CHAT_AUTHOR_ID,
-						C.TYPE CHAT_TYPE,
-						C.AVATAR CHAT_AVATAR,
-						C.COLOR CHAT_COLOR,
-						C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-						C.ENTITY_ID CHAT_ENTITY_ID,
-						C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-						C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-						C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
-						C.EXTRANET CHAT_EXTRANET,
-						C.PREV_MESSAGE_ID CHAT_PREV_MESSAGE_ID,
-						C.CAN_POST CHAT_CAN_POST,
-						R.USER_ID RID,
-						R.MANAGER IS_MANAGER
+						C.ID as CHAT_ID,
+						C.PARENT_ID as CHAT_PARENT_ID,
+						C.PARENT_MID as CHAT_PARENT_MID,
+						C.TITLE as CHAT_TITLE,
+						C.AUTHOR_ID as CHAT_AUTHOR_ID,
+						C.TYPE as CHAT_TYPE,
+						C.AVATAR as CHAT_AVATAR,
+						C.COLOR as CHAT_COLOR,
+						C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+						C.ENTITY_ID as CHAT_ENTITY_ID,
+						C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+						C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+						C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3,
+						C.EXTRANET as CHAT_EXTRANET,
+						C.PREV_MESSAGE_ID as CHAT_PREV_MESSAGE_ID,
+						C.CAN_POST as CHAT_CAN_POST,
+						R.USER_ID as RID,
+						R.MANAGER as IS_MANAGER
 					FROM b_im_chat C
 					LEFT JOIN b_im_relation R ON R.CHAT_ID = C.ID AND R.USER_ID = ".$arFields['FROM_USER_ID']."
 					WHERE C.ID = ".intval($arFields['TO_CHAT_ID'])."
@@ -1203,10 +1204,6 @@ class CIMMessenger
 					$message = new \Bitrix\Im\V2\Message($arParams);
 					$message->setParams($arFields['PARAMS'] ?? []);
 					$message->setMessageId($messageID);
-					$counters = (new \Bitrix\Im\V2\Message\ReadService((int)$arFields["FROM_USER_ID"]))
-						->onAfterMessageSend($message, $relationCollection, $arFields['SKIP_COUNTER_INCREMENTS'] === 'Y')
-						->getResult()['COUNTERS']
-					;
 					if ($arFields['MESSAGE_TYPE'] !== Bitrix\Im\V2\Chat::IM_TYPE_OPEN_LINE)
 					{
 						Sync\Logger::getInstance()->add(
@@ -1249,7 +1246,7 @@ class CIMMessenger
 					if (!$fakeRelation)
 					{
 						$counters = (new \Bitrix\Im\V2\Message\ReadService((int)$arFields["FROM_USER_ID"]))
-							->onAfterMessageSend($message, $relationCollection)
+							->onAfterMessageSend($message, $relationCollection, $arFields['SKIP_COUNTER_INCREMENTS'] === 'Y')
 							->getResult()['COUNTERS']
 						;
 					}
@@ -1376,11 +1373,15 @@ class CIMMessenger
 			$arFields['TO_USER_ID'] = intval($arFields['TO_USER_ID']);
 
 			$blockedExternalAuthId = \Bitrix\Im\Model\UserTable::filterExternalUserTypes(['replica']);
-			$orm = \Bitrix\Im\Model\UserTable::getById($arFields['TO_USER_ID']);
-			$userData = $orm->fetch();
+			$userData = \Bitrix\Im\Model\UserTable::query()
+				->setSelect(['EXTERNAL_AUTH_ID'])
+				->where('ID', $arFields['TO_USER_ID'])
+				->where('ACTIVE', 'Y')
+				->fetch()
+			;
+
 			if (
 				!$userData
-				|| $userData['ACTIVE'] == 'N'
 				|| in_array($userData['EXTERNAL_AUTH_ID'], $blockedExternalAuthId, true)
 			)
 			{
@@ -1389,7 +1390,7 @@ class CIMMessenger
 			}
 
 			$strSql = "
-				SELECT ID CHAT_ID
+				SELECT ID as CHAT_ID
 				FROM b_im_chat
 				WHERE AUTHOR_ID = ".$arFields['TO_USER_ID']." AND TYPE = '".IM_MESSAGE_SYSTEM."'
 				ORDER BY ID ASC
@@ -1600,18 +1601,10 @@ class CIMMessenger
 
 					//\Bitrix\Im\Counter::clearCache($arFields['TO_USER_ID']);
 
-					$messageCount = \Bitrix\Im\Model\MessageTable::getList(
-						[
-							'select' => ['CNT'],
-							'filter' => ['=CHAT_ID' => $chatId],
-							'runtime' => [
-								new \Bitrix\Main\ORM\Fields\ExpressionField('CNT', 'COUNT(*)')
-							]
-						]
-					)->fetch();
+					$messageCount = \Bitrix\Im\Model\MessageTable::getCount(['=CHAT_ID' => $chatId]);
 
 					\Bitrix\Im\Model\ChatTable::update($chatId, Array(
-						'MESSAGE_COUNT' => $messageCount['CNT'],
+						'MESSAGE_COUNT' => $messageCount,
 						//'PREV_MESSAGE_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'LAST_MESSAGE_ID'),
 						'LAST_MESSAGE_ID' => $messageID,
 						//'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
@@ -2954,18 +2947,18 @@ class CIMMessenger
 		$ID = intval($ID);
 
 		$strSql = "
-			SELECT
-				DISTINCT M.*,
-				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
-				C.TYPE MESSAGE_TYPE,
-				C.AUTHOR_ID CHAT_AUTHOR_ID,
-				C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-				C.ENTITY_ID CHAT_ENTITY_ID,
-				C.PARENT_ID CHAT_PARENT_ID,
-				C.PARENT_MID CHAT_PARENT_MID,
-				C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-				C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-				C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3
+			SELECT DISTINCT
+				M.*,
+				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
+				C.TYPE as MESSAGE_TYPE,
+				C.AUTHOR_ID as CHAT_AUTHOR_ID,
+				C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+				C.ENTITY_ID as CHAT_ENTITY_ID,
+				C.PARENT_ID as CHAT_PARENT_ID,
+				C.PARENT_MID as CHAT_PARENT_MID,
+				C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+				C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+				C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3
 			FROM b_im_message M
 			LEFT JOIN b_im_chat C ON M.CHAT_ID = C.ID
 			WHERE M.ID = ".$ID;
@@ -3383,6 +3376,11 @@ class CIMMessenger
 				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
+
+			if (!$cache)
+			{
+				\Bitrix\Pull\Event::send();
+			}
 		}
 
 		return $time;
@@ -3413,6 +3411,8 @@ class CIMMessenger
 				'params' => Array(),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
+
+			\Bitrix\Pull\Event::send();
 		}
 
 		return true;
@@ -3835,7 +3835,7 @@ class CIMMessenger
 						'turnServerFirefox' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_FIREFOX'])."',
 						'turnServerLogin' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_LOGIN'])."',
 						'turnServerPassword' : '".CUtil::JSEscape($arTemplate['TURN_SERVER_PASSWORD'])."',
-						'betaEnabled': ".(\Bitrix\Im\Settings::isCallBetaAvailable()? 'true': 'false').",
+						'bitrixCallEnabled': ".(\Bitrix\Im\Call\Call::isBitrixCallEnabled() ? 'true' : 'false').",
 						'mobileSupport': false,
 						'phoneEnabled': ".($phoneEnabled? 'true': 'false').",
 						'phoneDeviceActive': '".($phoneDeviceActive? 'Y': 'N')."',
@@ -4277,9 +4277,18 @@ class CIMMessenger
 		$forUsers = self::prepareUsersForMention($mentionUsers, $params);
 
 		$chatTitle = mb_substr(htmlspecialcharsback($params['CHAT_TITLE']), 0, 32);
-		$notifyMail = GetMessage('IM_MESSAGE_MENTION_'.($userGender=='F'?'F':'M'), Array('#TITLE#' => $chatTitle));
-		$notifyText = GetMessage('IM_MESSAGE_MENTION_'.($userGender=='F'?'F':'M'), Array('#TITLE#' => '[CHAT='.$params['CHAT_ID'].']'.$chatTitle.'[/CHAT]'));
 		$pushText = GetMessage('IM_MESSAGE_MENTION_PUSH_2_'.($userGender=='F'?'F':'M'), Array('#USER#' => $userName, '#TITLE#' => $chatTitle)).': '.self::PrepareParamsForPush(Array('MESSAGE' => $params['MESSAGE'], 'FILES' => $params['FILES']));
+
+		$notifyMailCallback = fn (?string $languageId = null) => Loc::getMessage(
+			'IM_MESSAGE_MENTION_'.($userGender=='F'?'F':'M'),
+			['#TITLE#' => $chatTitle],
+			$languageId
+		);
+		$notifyTextCallback = fn (?string $languageId = null) => Loc::getMessage(
+			'IM_MESSAGE_MENTION_'.($userGender=='F'?'F':'M'),
+			['#TITLE#' => '[CHAT='.$params['CHAT_ID'].']'.$chatTitle.'[/CHAT]'],
+			$languageId
+		);
 
 		if ($pushText <> '')
 		{
@@ -4296,8 +4305,8 @@ class CIMMessenger
 					"NOTIFY_EVENT" => "mention",
 					"NOTIFY_TAG" => 'IM|MENTION|'.$params['CHAT_ID'],
 					"NOTIFY_SUB_TAG" => 'IM_MESS_'.$params['CHAT_ID'].'_'.$userId,
-					"NOTIFY_MESSAGE" => $notifyText,
-					"NOTIFY_MESSAGE_OUT" => $notifyMail,
+					'NOTIFY_MESSAGE' => $notifyTextCallback,
+					'NOTIFY_MESSAGE_OUT' => $notifyMailCallback,
 				);
 				CIMNotify::Add($arMessageFields);
 
@@ -4414,7 +4423,10 @@ class CIMMessenger
 			{
 				$params[$key] = CIMChat::GetAvatarImage($value, 200, false);
 			}
-
+			elseif ($key === 'COMPONENT_PARAMS')
+			{
+				$params[$key] = \Bitrix\Main\Engine\Response\Converter::toJson()->process($value);
+			}
 		}
 
 		return $params;
@@ -5184,7 +5196,7 @@ class CIMMessenger
 		if($user_id > 0 && IsModuleInstalled('socialnetwork'))
 		{
 			$strSQL = "
-				SELECT CODE, SUM(CNT) CNT
+				SELECT CODE, SUM(CNT) as CNT
 				FROM b_sonet_log_counter
 				WHERE USER_ID = ".$user_id."
 				AND (SITE_ID = '".$site_id."' OR SITE_ID = '**')

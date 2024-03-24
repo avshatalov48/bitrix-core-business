@@ -30,11 +30,9 @@ class CounterDictionary
 
 	public const SUPPORTED_EVENTS = [
 		EventDictionary::EVENT_SPACE_LIVEFEED_POST_ADD,
-		EventDictionary::EVENT_SPACE_LIVEFEED_POST_UPD,
 		EventDictionary::EVENT_SPACE_LIVEFEED_POST_DEL,
-		EventDictionary::EVENT_SPACE_LIVEFEED_POST_VIEW,
+		//EventDictionary::EVENT_SPACE_LIVEFEED_POST_VIEW,
 		EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_ADD,
-		EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_UPD,
 		EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_DEL,
 		EventDictionary::EVENT_SPACE_LIVEFEED_READ_ALL,
 	];

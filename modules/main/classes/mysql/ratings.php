@@ -227,12 +227,12 @@ class CRatings extends CAllRatings
 				(SELECT
 					ENTITY_TYPE_ID,
 					ENTITY_ID,
-					SUM(case when VALUE > 0 AND USER_ID <> $ID then '1' else '0' end) as TOTAL_POSITIVE_VOTES
+					SUM(case when VALUE > 0 AND USER_ID <> $ID then 1 else 0 end) as TOTAL_POSITIVE_VOTES
 				FROM b_rating_vote
 				WHERE RATING_VOTING_ID IN (
 					SELECT DISTINCT RV0.RATING_VOTING_ID FROM b_rating_vote RV0 WHERE RV0.USER_ID=$ID
 				)
-				GROUP BY RATING_VOTING_ID
+				GROUP BY RATING_VOTING_ID, ENTITY_TYPE_ID, ENTITY_ID
 				) as RP
 			", "
 				RVR.ENTITY_TYPE_ID = RP.ENTITY_TYPE_ID
@@ -249,10 +249,10 @@ class CRatings extends CAllRatings
 			], "
 				(SELECT
 					RATING_VOTING_ID,
-					SUM(case when USER_ID <> $ID then VALUE else '0' end) as TOTAL_VALUE,
-					SUM(case when USER_ID <> $ID then '1' else '0' end) as TOTAL_VOTES,
-					SUM(case when VALUE > 0 AND USER_ID <> $ID then '1' else '0' end) as TOTAL_POSITIVE_VOTES,
-					SUM(case when VALUE < 0 AND USER_ID <> $ID then '1' else '0' end) as TOTAL_NEGATIVE_VOTES
+					SUM(case when USER_ID <> $ID then VALUE else 0 end) as TOTAL_VALUE,
+					SUM(case when USER_ID <> $ID then 1 else 0 end) as TOTAL_VOTES,
+					SUM(case when VALUE > 0 AND USER_ID <> $ID then 1 else 0 end) as TOTAL_POSITIVE_VOTES,
+					SUM(case when VALUE < 0 AND USER_ID <> $ID then 1 else 0 end) as TOTAL_NEGATIVE_VOTES
 				FROM b_rating_vote
 				WHERE RATING_VOTING_ID IN (
 					SELECT DISTINCT RV0.RATING_VOTING_ID FROM b_rating_vote RV0 WHERE RV0.USER_ID=$ID

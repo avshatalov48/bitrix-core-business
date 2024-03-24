@@ -28,7 +28,6 @@ class Loader
 	public function __construct(int $userId)
 	{
 		$this->userId = $userId;
-		$this->fetchCounters();
 	}
 
 	public function isCounterFlag(string $type): bool
@@ -72,7 +71,7 @@ class Loader
 		return self::CACHE_PREFIX . $this->userId;
 	}
 
-	private function fetchCounters(): void
+	public function fetchCounters(): void
 	{
 		$limit = Counter::getGlobalLimit();
 		if ($limit === 0)

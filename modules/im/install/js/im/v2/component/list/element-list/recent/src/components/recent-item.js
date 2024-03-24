@@ -254,7 +254,7 @@ export const RecentItem = {
 				<div class="bx-im-list-recent-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-item__avatar_invitation"></div>
 					<div v-else class="bx-im-list-recent-item__avatar_content">
-						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withStatus="!isSomeoneTyping" :withSpecialTypeIcon="!isSomeoneTyping" />
+						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withSpecialTypeIcon="!isSomeoneTyping" />
 						<div v-if="isSomeoneTyping" class="bx-im-list-recent-item__avatar_typing"></div>
 					</div>
 				</div>
@@ -286,7 +286,7 @@ export const RecentItem = {
 			<div v-if="compactMode" :class="compactItemClasses" class="bx-im-list-recent-item__container" ref="container">
 				<div class="bx-im-list-recent-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-item__avatar_invitation"></div>
-					<Avatar v-else :dialogId="recentItem.dialogId" :size="AvatarSize.M" :withStatus="false" :withSpecialTypes="false" />
+					<Avatar v-else :dialogId="recentItem.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
 					<div v-if="dialog.counter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-item__avatar_counter">
 						{{ formattedCounter }}
 					</div>

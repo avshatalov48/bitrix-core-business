@@ -597,7 +597,7 @@ final class CCalendarRestService extends IRestService
 			throw new RestException(Loc::getMessage("CAL_REST_EVENT_NEW_ERROR"));
 		}
 
-		return $newId;
+		return (int)$newId;
 	}
 
 	/*

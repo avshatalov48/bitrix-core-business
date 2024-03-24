@@ -139,6 +139,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    textarea.selectionStart = newSelectionPosition;
 	    textarea.selectionEnd = newSelectionPosition;
 	    return textWithNewLine;
+	  },
+	  insertText(textarea, config = {}) {
+	    const {
+	      text,
+	      withNewLine = false,
+	      replace = false
+	    } = config;
+	    let resultText = '';
+	    if (replace) {
+	      resultText = '';
+	      textarea.value = '';
+	      textarea.selectionStart = 0;
+	      textarea.selectionEnd = 0;
+	    }
+	    if (textarea.value.length === 0) {
+	      resultText = text;
+	    } else {
+	      resultText = withNewLine ? `${textarea.value}${NEW_LINE}${text}` : `${textarea.value} ${text}`;
+	    }
+	    return resultText;
 	  }
 	};
 

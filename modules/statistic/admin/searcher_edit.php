@@ -109,7 +109,10 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W"
 			if ($save <> '') LocalRedirect("searcher_list.php?lang=".LANG);
 			elseif ($new=="Y") LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$ID);
 		}
-		else $statDB->Rollback();
+		else
+		{
+			$statDB->Rollback();
+		}
 	}
 }
 

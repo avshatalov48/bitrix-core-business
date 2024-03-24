@@ -26,7 +26,7 @@ class LandingBindingMenuComponent extends LandingBaseComponent
 		{
 			$binding->bindLanding($id);
 		}
-		else
+		elseif (!$binding->isForbiddenBindingAction())
 		{
 			$binding->bindSite($id);
 		}
@@ -47,7 +47,14 @@ class LandingBindingMenuComponent extends LandingBaseComponent
 			list($type, $id) = explode('_', $id);
 			if ($type == Binding\Entity::ENTITY_TYPE_SITE)
 			{
-				$binding->unbindSite($id);
+				if (!$binding->isForbiddenBindingAction())
+				{
+					$binding->unbindSite($id);
+				}
+				else
+				{
+					return false;
+				}
 			}
 			else if ($type == Binding\Entity::ENTITY_TYPE_LANDING)
 			{

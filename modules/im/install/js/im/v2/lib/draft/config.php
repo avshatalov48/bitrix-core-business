@@ -9,12 +9,12 @@ return [
 		'./dist/draft.bundle.js',
 	],
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
 		'main.core.events',
 		'im.v2.application.core',
 		'im.v2.lib.local-storage',
 		'im.v2.lib.logger',
 		'im.v2.const',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

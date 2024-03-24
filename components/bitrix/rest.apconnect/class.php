@@ -204,7 +204,7 @@ class CAPConnectComponent extends CBitrixComponent
 		$query = \CBitrix24NetPortalTransport::init();
 		if(!$query)
 		{
-			throw new SystemException(Loc::getMessage('APC_TRANSPORT_INITIALIZE_FAILED'));
+			throw new SystemException(Loc::getMessage('APC_TRANSPORT_INITIALIZE_FAILED_MSGVER_1'));
 		}
 
 		$clientId = $this->arParams['CLIENT_ID'];
@@ -215,7 +215,7 @@ class CAPConnectComponent extends CBitrixComponent
 
 		if(!$queryResult)
 		{
-			throw new SystemException(Loc::getMessage('APC_VERIFY_REQUEST_FAILED'));
+			throw new SystemException(Loc::getMessage('APC_VERIFY_REQUEST_FAILED_MSGVER_1'));
 		}
 
 		if($queryResult['error'])

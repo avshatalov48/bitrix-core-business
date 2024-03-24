@@ -64,7 +64,7 @@
 				var alert = new BX.UI.Alert({
 					color: BX.UI.Alert.Color.DANGER,
 					icon: BX.UI.Alert.Icon.DANGER,
-					text: response.errors.join(', ')
+					text: response.errors.pop().message
 				});
 				BX.adjust(BX('signature-alert-container'), {
 					html: ''

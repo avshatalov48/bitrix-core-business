@@ -71,7 +71,7 @@ else
 					<td valign="top"<?= ($event["UNREAD"] > 0 ? " class=\"selected\"" : "") ?> width="0%" nowrap>
 						<a href="<?= $event["USER_MESSAGES_LINK"] ?>"><?= GetMessage("SONET_C30_T_MESSAGES") ?></a><br><br><?
 						if ($event["SHOW_ANSWER_LINK"]):
-							?><a href="<?= $event["CHAT_LINK"] ?>" onclick="if (BX.IM) { BXIM.openMessenger(<?=$event["USER_ID"]?>); return false; } else { window.open('<?= $event["CHAT_LINK"] ?>', '', 'location=yes,status=no,scrollbars=yes,resizable=yes,width=700,height=550,top='+Math.floor((screen.height - 550)/2-14)+',left='+Math.floor((screen.width - 700)/2-5)); return false; }"><?= GetMessage("SONET_C30_T_WRITE_MESSAGE") ?></a><br><br><?
+							?><a href="<?= $event["CHAT_LINK"] ?>" onclick="if (typeof BXIM !== 'undefined') { BXIM.openMessenger(<?=$event["USER_ID"]?>); return false; } else { window.open('<?= $event["CHAT_LINK"] ?>', '', 'location=yes,status=no,scrollbars=yes,resizable=yes,width=700,height=550,top='+Math.floor((screen.height - 550)/2-14)+',left='+Math.floor((screen.width - 700)/2-5)); return false; }"><?= GetMessage("SONET_C30_T_WRITE_MESSAGE") ?></a><br><br><?
 						endif;
 						if ($event["SHOW_BAN_LINK"]):
 							?><a href="<?= $event["BAN_LINK"] ?>"><?= GetMessage("SONET_C30_T_BAN") ?></a><?

@@ -1,9 +1,6 @@
 import 'ui.design-tokens';
 
-import { PathPlaceholder } from 'im.v2.const';
-import { Utils } from 'im.v2.lib.utils';
 import { RecentLoadingState } from 'im.v2.component.elements';
-import { MessengerSlider } from 'im.v2.lib.slider';
 import { CopilotDraftManager } from 'im.v2.lib.draft';
 
 import { CopilotItem } from './components/copilot-item';

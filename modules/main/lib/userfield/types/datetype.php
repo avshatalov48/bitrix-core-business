@@ -164,7 +164,7 @@ class DateType extends BaseType
 	}
 
 	/**
-	 * @param array $userField
+	 * @param array|null $userField
 	 * @param $value
 	 * @return Type\Date
 	 * @throws Main\ObjectException
@@ -194,11 +194,14 @@ class DateType extends BaseType
 	public static function formatField(?array $userField, string $fieldName): string
 	{
 		global $DB;
-		return $DB->DateToCharFunction($fieldName, static::FORMAT_TYPE_SHORT);
+
+		return $fieldName . ', ' . $DB->DateToCharFunction($fieldName, static::FORMAT_TYPE_SHORT);
 	}
 
 	/**
-	 * @param array $userFiled
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 * @return mixed
 	 */
 	public static function getDefaultValue(array $userField, array $additionalParameters = [])
 	{
@@ -210,6 +213,7 @@ class DateType extends BaseType
 	/**
 	 * @param array $userField
 	 * @param array $additionalParameters
+	 * @return mixed
 	 */
 	public static function getFieldValue(array $userField, array $additionalParameters = [])
 	{

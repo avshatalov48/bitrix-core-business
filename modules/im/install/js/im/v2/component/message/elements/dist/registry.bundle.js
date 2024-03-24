@@ -164,8 +164,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<Avatar 
 				:dialogId="userId" 
 				:size="AvatarSize.XS" 
-				:withAvatarLetters="false" 
-				:withStatus="false" 
+				:withAvatarLetters="false"
 				:withTooltip="false"
 			/>
 		</div>
@@ -704,6 +703,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    withText: {
 	      type: Boolean,
 	      default: true
+	    },
+	    withAttach: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  computed: {
@@ -720,7 +723,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope">
 			<div v-if="withText" class="bx-im-message-default-content__text" v-html="formattedText"></div>
-			<div v-if="message.attach.length > 0" class="bx-im-message-default-content__attach">
+			<div v-if="withAttach && message.attach.length > 0" class="bx-im-message-default-content__attach">
 				<MessageAttach :item="message" :dialogId="dialogId" />
 			</div>
 			<div class="bx-im-message-default-content__bottom-panel">

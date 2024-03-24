@@ -817,9 +817,9 @@ if (!function_exists('__SLEGetLogRecord'))
 
 		if ($arParams['USE_FOLLOW'] === 'Y')
 		{
-			$arEvent["FIELDS_FORMATTED"]["EVENT"]["FOLLOW"] = $arParams["EVENT"]["FOLLOW"];
+			$arEvent["FIELDS_FORMATTED"]["EVENT"]["FOLLOW"] = $arParams["EVENT"]["FOLLOW"] ?? null;
 			$arEvent["FIELDS_FORMATTED"]["EVENT"]["DATE_FOLLOW_X1"] = ($arParams["EVENT"]["DATE_FOLLOW_X1"] ?? '');
-			$arEvent["FIELDS_FORMATTED"]["EVENT"]["DATE_FOLLOW"] = $arParams["EVENT"]["DATE_FOLLOW"];
+			$arEvent["FIELDS_FORMATTED"]["EVENT"]["DATE_FOLLOW"] = $arParams["EVENT"]["DATE_FOLLOW"] ?? null;
 		}
 
 		if (

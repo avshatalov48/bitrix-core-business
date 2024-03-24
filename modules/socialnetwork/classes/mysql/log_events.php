@@ -240,10 +240,14 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 	public static function GetUserLogEvents($userID, $arFilter = array())
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-		$userID = intval($userID);
+		$userID = (int)$userID;
 		if ($userID <= 0)
+		{
 			return false;
+		}
 
 		$strWhere = "";
 		if (is_array($arFilter) && count($arFilter) > 0)
@@ -256,11 +260,13 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 						$strWhere .= " AND L.ENTITY_TYPE = '".$DB->ForSql($value, 1)."' ";
 						break;
 					case "ENTITY_ID":
-						$strWhere .= " AND L.ENTITY_ID = ".intval($value)." ";
+						$strWhere .= " AND L.ENTITY_ID = ". (int)$value ." ";
 						break;
 					case "EVENT_ID":
 						if (!is_array($value))
-							$strWhere .= " AND L.EVENT_ID = '".$DB->ForSql($value, 50)."' ";
+						{
+							$strWhere .= " AND L.EVENT_ID = '" . $DB->ForSql($value, 50) . "' ";
+						}
 						else
 						{
 							if (!function_exists('__tmp_str_apos'))
@@ -268,7 +274,9 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 								function __tmp_str_apos(&$tmpval, $tmpind)
 								{
 									if ($tmpval <> '')
-										$tmpval = "'".$GLOBALS["DB"]->ForSql($tmpval, 50)."'";
+									{
+										$tmpval = "'" . $GLOBALS["DB"]->ForSql($tmpval, 50) . "'";
+									}
 								}
 							}
 							array_walk($value, '__tmp_str_apos');
@@ -276,7 +284,7 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 						}
 						break;
 					case "LOG_DATE_DAYS":
-						$strWhere .= " AND L.LOG_DATE >= DATE_SUB(NOW(), INTERVAL ".intval($value)." DAY) ";
+						$strWhere .= " AND L.LOG_DATE >= " . $helper->addDaysToDateTime(-(int)$value) . " ";
 						break;
 					case "SITE_ID":
 						if (!is_array($value)):
@@ -286,9 +294,13 @@ class CSocNetLogEvents extends CAllSocNetLogEvents
 							$strWhere .= " AND (";
 							foreach($value as $site_id):
 								if ($site_id === false)
-									$strWhere .= ($counter > 0 ? " OR" : "")." L.SITE_ID IS NULL ";
+								{
+									$strWhere .= ($counter > 0 ? " OR" : "") . " L.SITE_ID IS NULL ";
+								}
 								else
-									$strWhere .= ($counter > 0 ? " OR" : "")." L.SITE_ID = '".$DB->ForSql($site_id, 2)."' ";
+								{
+									$strWhere .= ($counter > 0 ? " OR" : "") . " L.SITE_ID = '" . $DB->ForSql($site_id, 2) . "' ";
+								}
 								$counter++;
 							endforeach;
 							$strWhere .= ") ";

@@ -13,13 +13,12 @@ class Check
 	/**
 	 * Event handler for \Bitrix\Sale\Cashbox\AbstractCheck::EVENT_ON_CHECK_PREPARE_DATA event
 	 *
-	 * @param Main\Event $event
-	 * @return Main\EventResult
+	 * @param $result
+	 * @param $type
+	 * @return array
 	 */
-	public static function onSaleCheckPrepareData(Main\Event $event): Main\EventResult
+	public static function onSaleCheckPrepareData($result, $type): array
 	{
-		$result = $event->getParameter(0);
-
 		if (isset($result['PRODUCTS']))
 		{
 			/**
@@ -147,11 +146,7 @@ class Check
 			}
 		}
 
-		return new Main\EventResult(
-			Main\EventResult::SUCCESS,
-			$result,
-			'catalog'
-		);
+		return $result;
 	}
 
 	/**

@@ -208,7 +208,7 @@ class CAllStatistics extends CKeepStatistics
 
 					// парсим контент и добавляем к тэгам <a> желтую табличку с процентом переходов
 					$pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-					$content_len = function_exists('mb_strlen')? mb_strlen($content, 'latin1') : mb_strlen($content);
+					$content_len = strlen($content);
 					$content_len++;
 					if($pcre_backtrack_limit < $content_len)
 						@ini_set("pcre.backtrack_limit", $content_len);
@@ -329,7 +329,7 @@ class CAllStatistics extends CKeepStatistics
 	public static function CleanUpStatistics_1()
 	{
 		__SetNoKeepStatistics();
-		if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
+		if ((!isset($_SESSION["SESS_NO_AGENT_STATISTIC"]) || $_SESSION["SESS_NO_AGENT_STATISTIC"] != "Y") && !defined("NO_AGENT_STATISTIC"))
 		{
 			CStatistics::CleanUpVisits();
 			CStatistics::CleanUpEvents();
@@ -353,7 +353,7 @@ class CAllStatistics extends CKeepStatistics
 	public static function CleanUpStatistics_2()
 	{
 		__SetNoKeepStatistics();
-		if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
+		if ((!isset($_SESSION["SESS_NO_AGENT_STATISTIC"]) || $_SESSION["SESS_NO_AGENT_STATISTIC"] != "Y") && !defined("NO_AGENT_STATISTIC"))
 		{
 			CStatistics::CleanUpSessions();
 			CStatistics::CleanUpHits();
@@ -886,7 +886,7 @@ class CAllStatistics extends CKeepStatistics
 			// вставляем гостя в базу
 			$arFields = Array(
 				"FIRST_DATE"		=> $DB->GetNowFunction(),
-				"FIRST_URL_FROM"	=> "'".$DB->ForSql($_SERVER["HTTP_REFERER"],2000)."'",
+				"FIRST_URL_FROM"	=> "'".$DB->ForSql($_SERVER["HTTP_REFERER"] ?? '', 2000)."'",
 				"FIRST_URL_TO"		=> "'".$DB->ForSql(__GetFullRequestUri(),2000)."'",
 				"FIRST_URL_TO_404"	=> "'".$DB->ForSql($ERROR_404)."'",
 				"FIRST_SITE_ID"		=> $sql_site,
@@ -939,8 +939,10 @@ class CAllStatistics extends CKeepStatistics
 			// запоминаем кто он
 			$_SESSION["SESS_LAST_USER_ID"] = intval($USER->GetID());
 		}
-		if (intval($_SESSION["SESS_LAST_USER_ID"])<=0) $_SESSION["SESS_LAST_USER_ID"] = "";
-
+		if (intval($_SESSION["SESS_LAST_USER_ID"] ?? 0) <= 0)
+		{
+			$_SESSION["SESS_LAST_USER_ID"] = "";
+		}
 
 		if ($_SESSION["SESS_GUEST_ID"]>0)
 		{
@@ -969,7 +971,7 @@ class CAllStatistics extends CKeepStatistics
 			return false;
 		if(COption::GetOptionString("statistic", "DEFENCE_ON")=="Y")
 		{
-			$_SESSION["SESS_SEARCHER_CHECK_ACTIVITY"] = ($_SESSION["SESS_SEARCHER_CHECK_ACTIVITY"]=="N") ? "N" : "Y";
+			$_SESSION["SESS_SEARCHER_CHECK_ACTIVITY"] = (isset($_SESSION["SESS_SEARCHER_CHECK_ACTIVITY"]) && $_SESSION["SESS_SEARCHER_CHECK_ACTIVITY"]=="N") ? "N" : "Y";
 			// если это не поисковик или поисковик, но с установленным флагом "проверять лимит активности"
 			if (
 				intval($_SESSION["SESS_SEARCHER_ID"]) <= 0
@@ -983,7 +985,7 @@ class CAllStatistics extends CKeepStatistics
 				if (intval($STACK_TIME)>0)
 				{
 					// если лимит активности уже превышался то
-					if ($_SESSION["SESS_GRABBER_STOP_TIME"] <> '')
+					if (!empty($_SESSION["SESS_GRABBER_STOP_TIME"]))
 					{
 						// если время задержки еще не истекло то
 						if ((time()-$_SESSION["SESS_GRABBER_STOP_TIME"])<=$DEFENCE_DELAY)

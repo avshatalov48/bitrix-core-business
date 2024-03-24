@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
-(function (exports,im_v2_provider_service,im_v2_lib_layout,im_v2_lib_uuid,im_public,ui_notification,rest_client,main_core_events,ui_uploader_core,im_v2_lib_rest,ui_vue3_vuex,main_core,im_v2_lib_logger,im_v2_lib_utils,im_v2_application_core,im_v2_lib_user,im_v2_const) {
+(function (exports,im_v2_provider_service,im_v2_lib_layout,im_v2_lib_uuid,im_public,ui_notification,rest_client,main_core_events,ui_uploader_core,im_v2_lib_rest,ui_vue3_vuex,main_core,im_v2_lib_logger,im_v2_lib_utils,im_v2_lib_user,im_v2_application_core,im_v2_const) {
 	'use strict';
 
 	var _restResult = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restResult");
@@ -1691,8 +1691,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	var _deleteMessageOnServer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deleteMessageOnServer");
 	var _deleteTemporaryMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deleteTemporaryMessage");
 	var _updateLastMessageInRecent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateLastMessageInRecent");
+	var _sendDeleteEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendDeleteEvent");
 	class DeleteService {
 	  constructor(chatId) {
+	    Object.defineProperty(this, _sendDeleteEvent, {
+	      value: _sendDeleteEvent2
+	    });
 	    Object.defineProperty(this, _updateLastMessageInRecent, {
 	      value: _updateLastMessageInRecent2
 	    });
@@ -1719,17 +1723,18 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _chatId$2)[_chatId$2] = chatId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _store$9)[_store$9] = im_v2_application_core.Core.getStore();
 	  }
-	  deleteMessage(messageId) {
+	  async deleteMessage(messageId) {
 	    im_v2_lib_logger.Logger.warn('MessageService: deleteMessage', messageId);
 	    if (im_v2_lib_utils.Utils.text.isUuidV4(messageId)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _deleteTemporaryMessage)[_deleteTemporaryMessage](messageId);
 	      return;
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _sendDeleteEvent)[_sendDeleteEvent](messageId);
 	    const message = babelHelpers.classPrivateFieldLooseBase(this, _store$9)[_store$9].getters['messages/getById'](messageId);
 	    if (message.viewedByOthers) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _shallowMessageDelete)[_shallowMessageDelete](message);
+	      await babelHelpers.classPrivateFieldLooseBase(this, _shallowMessageDelete)[_shallowMessageDelete](message);
 	    } else {
-	      babelHelpers.classPrivateFieldLooseBase(this, _completeMessageDelete)[_completeMessageDelete](message);
+	      await babelHelpers.classPrivateFieldLooseBase(this, _completeMessageDelete)[_completeMessageDelete](message);
 	    }
 	  }
 	}
@@ -1755,7 +1760,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      }
 	    });
 	  }
-	  babelHelpers.classPrivateFieldLooseBase(this, _deleteMessageOnServer)[_deleteMessageOnServer](message.id);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _deleteMessageOnServer)[_deleteMessageOnServer](message.id);
 	}
 	function _completeMessageDelete2(message) {
 	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store$9)[_store$9].getters['chats/getByChatId'](babelHelpers.classPrivateFieldLooseBase(this, _chatId$2)[_chatId$2]);
@@ -1780,14 +1785,15 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _store$9)[_store$9].dispatch('messages/delete', {
 	    id: message.id
 	  });
-	  babelHelpers.classPrivateFieldLooseBase(this, _deleteMessageOnServer)[_deleteMessageOnServer](message.id);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _deleteMessageOnServer)[_deleteMessageOnServer](message.id);
 	}
 	function _deleteMessageOnServer2(messageId) {
-	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatMessageDelete, {
+	  return im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatMessageDelete, {
 	    data: {
 	      id: messageId
 	    }
 	  }).catch(error => {
+	    // eslint-disable-next-line no-console
 	    console.error('MessageService: deleteMessage error:', error);
 	  });
 	}
@@ -1818,6 +1824,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      message: updatedMessage,
 	      dateUpdate: new Date()
 	    }
+	  });
+	}
+	function _sendDeleteEvent2(messageId) {
+	  main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.onMessageDeleted, {
+	    messageId
 	  });
 	}
 
@@ -2499,6 +2510,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      temporaryId: uuid,
 	      chatId: babelHelpers.classPrivateFieldLooseBase(this, _getDialog$1)[_getDialog$1](dialogId).chatId,
 	      authorId: im_v2_application_core.Core.getUserId(),
+	      replyId: message.replyId,
 	      text: message.text,
 	      isDeleted: message.isDeleted,
 	      forward: {
@@ -3670,6 +3682,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	var _getItemsFromRecentListByQuery = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getItemsFromRecentListByQuery");
 	var _getFromStore = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFromStore");
 	var _getRecentListItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRecentListItems");
+	var _filterRecentChatsForSearch = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterRecentChatsForSearch");
 	var _getSearchSessionListItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSearchSessionListItems");
 	var _prepareRecentItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareRecentItem");
 	var _searchByQueryWords = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("searchByQueryWords");
@@ -3703,6 +3716,9 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    });
 	    Object.defineProperty(this, _getSearchSessionListItems, {
 	      value: _getSearchSessionListItems2
+	    });
+	    Object.defineProperty(this, _filterRecentChatsForSearch, {
+	      value: _filterRecentChatsForSearch2
 	    });
 	    Object.defineProperty(this, _getRecentListItems, {
 	      value: _getRecentListItems2
@@ -3739,8 +3755,16 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  return foundItems;
 	}
 	function _getRecentListItems2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].getters['recent/getRecentCollection'].map(item => {
+	  const recentChats = Object.values(babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].state.recent.collection);
+	  const searchableChats = babelHelpers.classPrivateFieldLooseBase(this, _filterRecentChatsForSearch)[_filterRecentChatsForSearch](recentChats);
+	  return searchableChats.map(item => {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _prepareRecentItem)[_prepareRecentItem](item);
+	  });
+	}
+	function _filterRecentChatsForSearch2(recentChats) {
+	  return recentChats.filter(recentChat => {
+	    const chat = babelHelpers.classPrivateFieldLooseBase(this, _store$e)[_store$e].getters['chats/get'](recentChat.dialogId, true);
+	    return chat.type !== im_v2_const.ChatType.copilot;
 	  });
 	}
 	function _getSearchSessionListItems2() {
@@ -3812,7 +3836,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  const recentItems = babelHelpers.classPrivateFieldLooseBase(this, _getRecentListItems)[_getRecentListItems]();
 	  const searchSessionItems = babelHelpers.classPrivateFieldLooseBase(this, _getSearchSessionListItems)[_getSearchSessionListItems]();
 	  const itemsMap = new Map();
-	  const mergedArray = [...recentItems, ...searchSessionItems];
+	  const mergedArray = [...searchSessionItems, ...recentItems];
 	  for (const recentItem of mergedArray) {
 	    if (!itemsMap.has(recentItem.dialogId)) {
 	      itemsMap.set(recentItem.dialogId, recentItem);
@@ -3932,6 +3956,15 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  updateSearchSession(items) {
 	    const recentSearchItems = babelHelpers.classPrivateFieldLooseBase(this, _prepareSearchDataForModels)[_prepareSearchDataForModels](items);
 	    return babelHelpers.classPrivateFieldLooseBase(this, _setRecentSearchItems)[_setRecentSearchItems](recentSearchItems);
+	  }
+	  updateRecentWithChatParticipants(users) {
+	    const recentItems = [];
+	    users.forEach(user => {
+	      recentItems.push({
+	        dialogId: user.id.toString()
+	      });
+	    });
+	    return Promise.all([babelHelpers.classPrivateFieldLooseBase(this, _userManager$1)[_userManager$1].setUsersToModel(users), babelHelpers.classPrivateFieldLooseBase(this, _setRecentItems)[_setRecentItems](recentItems)]);
 	  }
 	  clearSessionSearch() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _store$f)[_store$f].dispatch('recent/search/clear');
@@ -4130,26 +4163,31 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	}
 
 	var _restClient$c = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("restClient");
-	var _userManager$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userManager");
+	var _storeUpdater$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("storeUpdater");
 	class ChatParticipants {
 	  constructor() {
 	    Object.defineProperty(this, _restClient$c, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _userManager$2, {
+	    Object.defineProperty(this, _storeUpdater$1, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _restClient$c)[_restClient$c] = im_v2_application_core.Core.getRestClient();
-	    babelHelpers.classPrivateFieldLooseBase(this, _userManager$2)[_userManager$2] = new im_v2_lib_user.UserManager();
+	    babelHelpers.classPrivateFieldLooseBase(this, _storeUpdater$1)[_storeUpdater$1] = new StoreUpdater();
 	  }
 	  load(dialogId) {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient$c)[_restClient$c].callMethod(im_v2_const.RestMethod.imDialogUsersList, {
-	      DIALOG_ID: dialogId
-	    }).then(response => {
+	    const queryParams = {
+	      order: {
+	        lastSendMessageId: 'desc'
+	      },
+	      dialogId,
+	      limit: 50
+	    };
+	    return babelHelpers.classPrivateFieldLooseBase(this, _restClient$c)[_restClient$c].callMethod(im_v2_const.RestMethod.imV2ChatUserList, queryParams).then(response => {
 	      const users = response.data();
-	      babelHelpers.classPrivateFieldLooseBase(this, _userManager$2)[_userManager$2].setUsersToModel(users);
+	      void babelHelpers.classPrivateFieldLooseBase(this, _storeUpdater$1)[_storeUpdater$1].updateRecentWithChatParticipants(users);
 	      return users.map(user => user.id.toString());
 	    }).catch(error => {
 	      console.error('MentionService: error', error);
@@ -4291,5 +4329,5 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	exports.SearchService = SearchService;
 	exports.CopilotService = CopilotService;
 
-}((this.BX.Messenger.v2.Provider.Service = this.BX.Messenger.v2.Provider.Service || {}),BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Event,BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Provider.Service = this.BX.Messenger.v2.Provider.Service || {}),BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Event,BX.UI.Uploader,BX.Messenger.v2.Lib,BX.Vue3.Vuex,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const));
 //# sourceMappingURL=registry.bundle.js.map

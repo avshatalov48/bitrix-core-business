@@ -25,6 +25,7 @@ export default class CounterItem
 		this.type = Type.isString(args.type) ? args.type.toLowerCase() : null;
 		this.eventsForActive = Type.isObject(args.eventsForActive) ? args.eventsForActive : {};
 		this.eventsForUnActive = Type.isObject(args.eventsForUnActive) ? args.eventsForUnActive : {};
+		this.hideValue = Type.isBoolean(args.hideValue) ? args.hideValue : false;
 
 		if (Type.isObject(args.title))
 		{
@@ -340,7 +341,7 @@ export default class CounterItem
 
 			this.layout.container = Tag.render`
 				<div ${type} class="ui-counter-panel__item">
-					${isValue ? this.#getValue() : ''}
+					${isValue && !this.hideValue ? this.#getValue() : ''}
 					${this.title ? this.#getTitle() : ''}
 					${isValue ? this.#getCross() : ''}
 				</div>

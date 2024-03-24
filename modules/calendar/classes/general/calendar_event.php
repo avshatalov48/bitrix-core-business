@@ -4207,6 +4207,14 @@ class CCalendarEvent
 
 				CCalendar::ClearCache('event_list');
 
+				(new \Bitrix\Calendar\Integration\SocialNetwork\SpaceService())->addEvent(
+					'onAfterCalendarEventDelete',
+					[
+						'ID' => $id,
+						'ATTENDEE_LIST' => $entry['ATTENDEE_LIST'] ?? null,
+					],
+				);
+
 				$pullUserId = (int)$entry['CREATED_BY'] > 0 ? (int)$entry['CREATED_BY'] : $userId;
 				if (
 					$pullUserId
@@ -4366,7 +4374,7 @@ class CCalendarEvent
 		{
 			if (in_array($event['EVENT_TYPE'], Sharing\SharingEventManager::getSharingEventTypes(), true))
 			{
-				$userEventForSharing = \CCalendarEvent::GetList([
+				$userEventForSharing = self::GetList([
 					'arFilter' => [
 						'PARENT_ID' => $event['PARENT_ID'],
 						'OWNER_ID' => $userId,
@@ -6200,132 +6208,6 @@ class CCalendarEvent
 		}
 
 		return $events;
-	}
-
-	public static function getLocalBatchRecurrentEvent(int $userId, int $sectionId, int $syncTimestamp = 0, int $count = 50): array
-	{
-		global $DB;
-		$events = [];
-
-		$queryString = "SELECT DISTINCT "
-			. "e.*"
-			. ", " . $DB->DateToCharFunction('e.DATE_FROM') . " as DATE_FROM"
-			. ", " . $DB->DateToCharFunction('e.DATE_TO') . " as DATE_TO"
-			. ", " . $DB->DateToCharFunction('e.DATE_CREATE') . " as DATE_CREATE"
-			. ", " . $DB->DateToCharFunction('e.TIMESTAMP_X') . " as TIMESTAMP_X"
-			// . ", GROUP_CONCAT(". $DB->DateToCharFunction('i.ORIGINAL_DATE_FROM', 'SHORT')." SEPARATOR ';') as EXDATES"
-			. ", GROUP_CONCAT(". $DB->DateToCharFunction('x.ORIGINAL_DATE_FROM', 'SHORT')." SEPARATOR ';') as INSTANCES_EXDATES"
-			. ", GROUP_CONCAT(". $DB->DateToCharFunction('x.DATE_FROM', 'SHORT')." SEPARATOR ';') as INSTANCES_DATE_FROM"
-			. " FROM b_calendar_event e"
-			// . " LEFT JOIN b_calendar_event i"
-			// 	. " ON i.RECURRENCE_ID = e.PARENT_ID"
-			// 	. " AND e.OWNER_ID = i.OWNER_ID"
-			// 	. " AND  i.MEETING_STATUS = 'N'"
-			. " LEFT JOIN b_calendar_event x "
-			. " ON x.RECURRENCE_ID = e.PARENT_ID"
-			. " AND e.OWNER_ID = x.OWNER_ID"
-			. " AND (x.MEETING_STATUS != 'N' OR x.MEETING_STATUS IS NULL)"
-			. " AND x.DELETED = 'N'"
-			. " INNER JOIN b_calendar_section s"
-			. " ON s.ID = e.SECTION_ID"
-			. " WHERE"
-			. " e.RRULE IS NOT NULL"
-			. " AND e.RRULE <> ''"
-			. " AND e.CAL_TYPE = 'user'"
-			. " AND e.OWNER_ID = " . $userId
-			. " AND e.SECTION_ID = " . $sectionId
-			. " AND e.DELETED <> 'Y'"
-			. " AND e.SYNC_STATUS IS NULL"
-			. " AND e.DATE_TO_TS_UTC >= " . $syncTimestamp
-			. " AND (e.MEETING_STATUS != 'N'"
-			. " OR e.MEETING_STATUS IS NULL)"
-			. " AND s.EXTERNAL_TYPE = 'local'"
-			. " AND s.GAPI_CALENDAR_ID IS NOT NULL"
-			. " GROUP BY e.ID"
-			. " ORDER BY e.ID DESC"
-			. " LIMIT " . $count
-			. ";"
-		;
-		$eventsDb = $DB->Query($queryString);
-
-		while ($event = $eventsDb->Fetch())
-		{
-			$event['RRULE'] = self::ParseRRULE($event['RRULE']);
-			if (isset($event['REMIND']) && $event['REMIND'] !== "")
-			{
-				$event['REMIND'] = unserialize($event['REMIND'], ['allowed_classes' => false]);
-			}
-			// unset($event['EXDATE']);
-			if (!empty($event['INSTANCES_EXDATES']) || !empty($event['INSTANCES_DATE_FROM']))
-			{
-				$eventExdate = explode(';', $event['EXDATE']);
-				$instanceExdate = array_unique(explode(';', $event['INSTANCES_EXDATES']));
-				$instanceDateFrom = array_unique(explode(';', $event['INSTANCES_DATE_FROM']));
-				if (is_array($eventExdate) && is_array($instanceExdate))
-				{
-					$event['EXDATE'] = implode(';', array_diff($eventExdate, $instanceExdate, $instanceDateFrom));
-				}
-			}
-
-
-			$events[] = $event;
-		}
-
-		return $events;
-	}
-
-
-	public static function getLocalBatchInstances(int $userId, int $sectionId, int $syncTimestamp, int $count = 50): array
-	{
-		global $DB;
-
-		$strQuery =
-			"SELECT"
-				. " i.*"
-				. ", " . $DB->DateToCharFunction('i.DATE_FROM') . " as DATE_FROM"
-				. ", " . $DB->DateToCharFunction('i.DATE_TO') . " as DATE_TO"
-				. ", " . $DB->DateToCharFunction('i.DATE_CREATE') . " as DATE_CREATE"
-				. ", " . $DB->DateToCharFunction('i.TIMESTAMP_X') . " as TIMESTAMP_X"
-				. ", " . $DB->DateToCharFunction('p.DATE_FROM') . " as PARENT_DATE_FROM"
-				. ", " . $DB->DateToCharFunction('i.ORIGINAL_DATE_FROM') . " as ORIGINAL_DATE_FROM"
-				. ", p.TZ_FROM as PARENT_TZ_FROM"
-				. ", p.DAV_XML_ID as PARENT_DAV_XML_ID"
-				. ", p.G_EVENT_ID as PARENT_G_EVENT_ID"
-			. " FROM b_calendar_event as i"
-			. " INNER JOIN b_calendar_event as p"
-				. " ON (i.RECURRENCE_ID = p.PARENT_ID AND p.OWNER_ID = " . $userId . ")"
-			. " INNER JOIN b_calendar_section s"
-				. " ON s.ID = i.SECTION_ID"
-			. " WHERE"
-				. " p.RRULE IS NOT NULL"
-				. " AND i.SYNC_STATUS IS NULL"
-				. " AND (i.MEETING_STATUS != 'N'"
-					. " OR i.MEETING_STATUS IS NULL)"
-				. " AND p.DATE_TO_TS_UTC >= " . $syncTimestamp
-				. " AND p.G_EVENT_ID IS NOT NULL"
-				. " AND p.G_EVENT_ID <> ''"
-				. " AND p.DELETED != 'Y'"
-				. " AND i.SECTION_ID = ". $sectionId
-				. " AND i.OWNER_ID = ". $userId
-				. " AND s.EXTERNAL_TYPE = 'local'"
-				. " AND s.GAPI_CALENDAR_ID IS NOT NULL"
-			. " LIMIT " . $count
-			. ";"
-		;
-
-		$instances = [];
-		$instancesDb = $DB->Query($strQuery);
-		while($instance = $instancesDb->Fetch())
-		{
-			if (isset($instance['REMIND']) && $instance['REMIND'] !== "")
-			{
-				$instance['REMIND'] = unserialize($instance['REMIND'], ['allowed_classes' => false]);
-			}
-
-			$instances[] = $instance;
-		}
-
-		return $instances;
 	}
 
 	/**

@@ -2,8 +2,6 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main\Entity;
-use Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
 
 /**
  * Class BotTokenTable
@@ -58,32 +56,32 @@ class BotTokenTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('BOT_TOKEN_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('BOT_TOKEN_ENTITY_ID_FIELD'),
 			),
 			'TOKEN' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateToken'),
-				'title' => Loc::getMessage('BOT_TOKEN_ENTITY_TOKEN_FIELD'),
+				//'title' => Loc::getMessage('BOT_TOKEN_ENTITY_TOKEN_FIELD'),
 			),
 			'DATE_CREATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,
-				'title' => Loc::getMessage('BOT_TOKEN_ENTITY_DATE_CREATE_FIELD'),
+				//'title' => Loc::getMessage('BOT_TOKEN_ENTITY_DATE_CREATE_FIELD'),
 				'default_value' => array(__CLASS__, 'getCurrentDate'),
 			),
 			'DATE_EXPIRE' => array(
 				'data_type' => 'datetime',
-				'title' => Loc::getMessage('BOT_TOKEN_ENTITY_DATE_EXPIRE_FIELD'),
+				//'title' => Loc::getMessage('BOT_TOKEN_ENTITY_DATE_EXPIRE_FIELD'),
 			),
 			'BOT_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('BOT_TOKEN_ENTITY_BOT_ID_FIELD'),
+				//'title' => Loc::getMessage('BOT_TOKEN_ENTITY_BOT_ID_FIELD'),
 			),
 			'DIALOG_ID' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateDialogId'),
-				'title' => Loc::getMessage('BOT_TOKEN_ENTITY_DIALOG_ID_FIELD'),
+				//'title' => Loc::getMessage('BOT_TOKEN_ENTITY_DIALOG_ID_FIELD'),
 			),
 		);
 	}

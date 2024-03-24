@@ -63,3 +63,15 @@ CREATE TABLE b_messageservice_restriction (
 	PRIMARY KEY (ID),
 	UNIQUE INDEX UX_MESSAGESERVISE_RESTRICTION_1(CODE, DATE_CREATE)
 );
+
+CREATE TABLE b_messageservice_channel  (
+	ID int(18) not null auto_increment,
+	SENDER_ID varchar(50) not null,
+	TYPE varchar(30) not null,
+	EXTERNAL_ID varchar(128) not null,
+	NAME varchar(500) not null,
+	DATE_CREATE datetime not null default current_timestamp,
+	ADDITIONAL_PARAMS text null,
+	PRIMARY KEY (ID),
+	UNIQUE INDEX UX_MS_CHANNEL_1(SENDER_ID, EXTERNAL_ID, TYPE)
+);

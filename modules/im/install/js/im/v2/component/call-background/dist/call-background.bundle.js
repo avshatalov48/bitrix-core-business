@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_vue3,ui_buttons,ui_fonts_opensans,im_v2_lib_desktopApi,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
+(function (exports,ui_vue3,ui_buttons,ui_fonts_opensans,im_v2_lib_progressbar,ui_infoHelper,im_v2_lib_utils,im_v2_lib_desktopApi,rest_client,im_v2_const,main_core,main_core_events,im_v2_lib_logger,im_lib_uploader) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -413,7 +413,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!im_v2_lib_utils.Utils.platform.isBitrixDesktop()) {
 	        return true;
 	      }
-	      return im_v2_lib_utils.Utils.platform.isDesktopFeatureEnabled(im_v2_const.DesktopFeature.mask.id);
+	      return im_v2_lib_desktopApi.DesktopApi.isFeatureEnabled(im_v2_lib_desktopApi.DesktopFeature.mask.id);
 	    }
 	  }, {
 	    key: "isMaskFeatureSupportedByDesktopVersion",
@@ -421,7 +421,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (!im_v2_lib_utils.Utils.platform.isBitrixDesktop()) {
 	        return true;
 	      }
-	      return im_v2_lib_utils.Utils.platform.getDesktopVersion() >= im_v2_const.DesktopFeature.mask.availableFromVersion;
+	      return im_v2_lib_desktopApi.DesktopApi.isFeatureSupported(im_v2_lib_desktopApi.DesktopFeature.mask.id);
 	    } // endregion Mask feature
 	  }, {
 	    key: "showHelpArticle",
@@ -1199,5 +1199,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CallBackground = CallBackground;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3,BX.UI,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3,BX.UI,BX,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.Lib));
 //# sourceMappingURL=call-background.bundle.js.map

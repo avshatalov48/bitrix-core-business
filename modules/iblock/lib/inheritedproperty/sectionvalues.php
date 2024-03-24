@@ -126,22 +126,19 @@ class SectionValues extends BaseValues
 
 			if (empty($result))
 			{
-				$sqlHelper = $connection->getSqlHelper();
 				$fields = array(
-					"IBLOCK_ID",
 					"SECTION_ID",
 					"IPROP_ID",
-					"VALUE",
 				);
 				$rows = array();
 				$result = parent::queryValues();
 				foreach ($result as $row)
 				{
 					$rows[] = array(
-						$this->iblockId,
-						$this->sectionId,
-						$row["ID"],
-						$sqlHelper->forSql($row["VALUE"]),
+						'IBLOCK_ID' => $this->iblockId,
+						'SECTION_ID' => $this->sectionId,
+						'IPROP_ID' => $row["ID"],
+						'VALUE' => $row["VALUE"],
 					);
 				}
 				$this->insertValues("b_iblock_section_iprop", $fields, $rows);

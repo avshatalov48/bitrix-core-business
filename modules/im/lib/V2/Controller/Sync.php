@@ -11,7 +11,7 @@ use DateTimeInterface;
 
 class Sync extends BaseController
 {
-	public function listAction(array $filter, int $limit = 50): ?array
+	public function listAction(array $filter = [], int $limit = 50): ?array
 	{
 		$syncService = new SyncService();
 
@@ -31,13 +31,13 @@ class Sync extends BaseController
 			return $syncService->getChangesFromDate($date, $limit);
 		}
 
+		$lastId = null;
+
 		if (isset($filter['lastId']))
 		{
-			return $syncService->getChangesFromId((int)$filter['lastId'], $limit);
+			$lastId = (int)$filter['lastId'];
 		}
 
-		$this->addError(new SyncError(SyncError::LAST_ID_AND_DATE_EMPTY));
-
-		return null;
+		return $syncService->getChangesFromId($lastId, $limit);
 	}
 }

@@ -4,6 +4,7 @@ namespace Bitrix\Socialnetwork\Controller;
 
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Intranet\Internals\ThemeTable;
+use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Controller;
@@ -35,6 +36,7 @@ use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\WorkgroupSubjectTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupTagTable;
+use Bitrix\Tasks\Internals\Effective;
 use CExtranet;
 use Exception;
 
@@ -80,6 +82,17 @@ class Workgroup extends Base
 			$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($group['ID']);
 			$groupFields = $groupItem->getFields();
 
+			if (in_array('DATE_CREATE', $select, true))
+			{
+				$culture = Context::getCurrent()->getCulture();
+				$longDateFormat = $culture->getLongDateFormat();
+				$shortTimeFormat = $culture->getShortTimeFormat();
+
+				$groupFields['DATE_CREATE'] = \CComponentUtil::getDateTimeFormatted([
+					'TIMESTAMP' => MakeTimeStamp($groupFields['DATE_CREATE']),
+					'TZ_OFFSET' => \CTimeZone::getOffset(),
+				], "$longDateFormat, $shortTimeFormat");
+			}
 			if (in_array('AVATAR', $select, true))
 			{
 				$groupFields['AVATAR'] = File::getFileSource((int)$groupFields['IMAGE_ID'], 100, 100);
@@ -142,7 +155,10 @@ class Workgroup extends Base
 					$groupItem->getScrumMaster()
 				);
 			}
-
+			if (in_array('FEATURES', $select, true))
+			{
+				$groupFields['FEATURES'] = $this->prepareFeatures($groupId);
+			}
 			$needListOfAwaiting = in_array('LIST_OF_MEMBERS_AWAITING_INVITE', $select, true);
 			$needMembersList = in_array('GROUP_MEMBERS_LIST', $select, true);
 			if ($needListOfAwaiting || $needMembersList)
@@ -217,6 +233,19 @@ class Workgroup extends Base
 				]);
 
 				$groupFields['ADDITIONAL_DATA'] = ($additionalData[$groupId] ?? []) ;
+			}
+
+			$isScrum = !empty($groupFields['SCRUM_MASTER_ID']);
+			if (!$isScrum && in_array('EFFICIENCY', $select, true) && Loader::includeModule('tasks'))
+			{
+				$efficiencies = Effective::getAverageEfficiencyForGroups(
+					null,
+					null,
+					0,
+					[$group['ID']],
+				);
+
+				$groupFields['EFFICIENCY'] = $efficiencies[$group['ID']] ?? null;
 			}
 
 			return $groupFields;
@@ -494,6 +523,12 @@ class Workgroup extends Base
 	{
 		$permissions = Helper\Workgroup::getPermissions(['groupId' => $groupId]);
 
+		$canEditFeatures = $permissions['UserCanModifyGroup'];
+		if (!\Bitrix\Socialnetwork\Helper\Workgroup::getEditFeaturesAvailability())
+		{
+			$canEditFeatures = false;
+		}
+
 		return [
 			'EDIT' => $permissions['UserCanModifyGroup'],
 			'DELETE' => $permissions['UserCanModifyGroup'],
@@ -508,6 +543,7 @@ class Workgroup extends Base
 				&& !$permissions['UserIsOwner']
 				&& !$permissions['UserIsScrumMaster']
 			),
+			'EDIT_FEATURES' => $canEditFeatures,
 		];
 	}
 
@@ -605,6 +641,7 @@ class Workgroup extends Base
 				'NAME' => 'USER.NAME',
 				'LAST_NAME' => 'USER.LAST_NAME',
 				'SECOND_NAME' => 'USER.SECOND_NAME',
+				'WORK_POSITION' => 'USER.WORK_POSITION',
 				'LOGIN' => 'USER.LOGIN',
 				'PERSONAL_PHOTO' => 'USER.PERSONAL_PHOTO',
 			])
@@ -636,6 +673,7 @@ class Workgroup extends Base
 			$isOwner = ($member['ROLE'] === UserToGroupTable::ROLE_OWNER);
 			$isModerator = ($member['ROLE'] === UserToGroupTable::ROLE_MODERATOR);
 			$isScrumMaster = ($scrumMasterId === $memberId);
+			$memberUser = $member->getUser();
 
 			$list[] = [
 				'id' => $memberId,
@@ -643,11 +681,98 @@ class Workgroup extends Base
 				'isModerator' => $isModerator,
 				'isScrumMaster' => $isScrumMaster,
 				'isAutoMember' => $member['AUTO_MEMBER'],
+				'name' => $memberUser->getName(),
+				'lastName' => $memberUser->getLastName(),
+				'position' => $memberUser->getWorkPosition(),
 				'photo' => ($avatars[($imageIdList[$memberId] ?? '')] ?? ''),
 			];
 		}
 
 		return $list;
+	}
+
+	private function prepareFeatures(int $groupId): array
+	{
+		$features = [];
+
+		$baseFeatures = $this->getBaseFeatures($groupId);
+
+		foreach ($this->getAllowedFeatures() as $featureId => $feature)
+		{
+			$features[] = [
+				'featureName' => $featureId,
+				'name' => Loc::getMessage('SOCIALNETWORK_WORKGROUP_'.strtoupper($featureId)),
+				'customName' => $baseFeatures[$featureId]['FEATURE_NAME'] ?? '',
+				'id' => $baseFeatures[$featureId]['ID'],
+				'active' => $baseFeatures[$featureId]['ACTIVE'] === 'Y',
+			];
+		}
+
+		return $features;
+	}
+
+	private function getBaseFeatures(int $groupId): array
+	{
+		$features = [];
+
+		$queryObject = \CSocNetFeatures::getList(
+			[],
+			[
+				'ENTITY_ID' => $groupId,
+				'ENTITY_TYPE' => SONET_ENTITY_GROUP,
+			]
+		);
+		while ($featureFields = $queryObject->fetch())
+		{
+			$features[$featureFields['FEATURE']]= $featureFields;
+		}
+
+		return $features;
+	}
+
+	private function getAllowedFeatures(): array
+	{
+		$allowedFeatures = \CSocNetAllowed::getAllowedFeatures();
+
+		$sampleKeysList = [
+			'tasks' => 1,
+			'calendar' => 2,
+			'files' => 3,
+			'chat' => 4,
+			'forum' => 5,
+			'microblog' => 6,
+			'blog' => 7,
+			'photo' => 8,
+			'group_lists' => 9,
+			'wiki' => 10,
+			'content_search' => 11,
+			'marketplace' => 12,
+		];
+
+		uksort($allowedFeatures, static function($a, $b) use ($sampleKeysList) {
+
+			$valA = ($sampleKeysList[$a] ?? 100);
+			$valB = ($sampleKeysList[$b] ?? 100);
+
+			if ($valA > $valB)
+			{
+				return 1;
+			}
+
+			if ($valA < $valB)
+			{
+				return -1;
+			}
+
+			return 0;
+		});
+
+		return array_filter($allowedFeatures, function($feature) {
+			return (
+				is_array($feature['allowed'])
+				&& in_array(SONET_ENTITY_GROUP, $feature['allowed'], true)
+			);
+		});
 	}
 
 	private function getListOfAwaitingMembers(int $groupId, int $limit = 10, int $offset = 0): array
@@ -743,6 +868,7 @@ class Workgroup extends Base
 
 		$whiteList = [
 			'NAME',
+			'DESCRIPTION',
 			'KEYWORDS',
 			'VISIBLE',
 			'OPENED',
@@ -787,7 +913,24 @@ class Workgroup extends Base
 			return null;
 		}
 
+		$this->sendPush(PushEventDictionary::EVENT_WORKGROUP_UPDATE, [
+			'params' => [
+				'GROUP_ID' => $groupId,
+			],
+		]);
+
 		return true;
+	}
+
+	public function leaveAction(int $groupId)
+	{
+		if (!Helper\Workgroup\Access::canLeave([ 'groupId' => $groupId ]))
+		{
+			$this->addError(new Error('NO PERMISSION'));
+			return null;
+		}
+
+		return \CSocNetUserToGroup::DeleteRelation($this->userId, $groupId);
 	}
 
 	public function deleteAction(int $groupId)
@@ -943,6 +1086,54 @@ class Workgroup extends Base
 		return [
 			'RESULT' => $result ? 'Y' : 'N',
 		];
+	}
+
+	public function updatePhotoAction(): bool
+	{
+		$groupId = $this->getRequest()->get('groupId');
+
+		if (!Helper\Workgroup\Access::canUpdate([ 'groupId' => $groupId ]))
+		{
+			$this->addError(new Error('SOCIALNETWORK_GROUP_AJAX_NO_UPDATE_PERMS'));
+			return false;
+		}
+
+		$workgroupData = WorkgroupTable::getList([
+			'select' => [ 'ID', 'IMAGE_ID' ],
+			'filter' => [
+				'=ID' => $groupId,
+			],
+		])->fetch();
+
+		$newPhotoFile = $this->getRequest()->getFile('newPhoto');
+
+		if ($workgroupData['IMAGE_ID'])
+		{
+			$newPhotoFile['old_file'] = $workgroupData['IMAGE_ID'];
+			$newPhotoFile['del'] = $workgroupData['IMAGE_ID'];
+		}
+
+		$res = \CSocNetGroup::update(
+			$groupId,
+			[ 'IMAGE_ID' => $newPhotoFile ],
+			true,
+			true,
+			false
+		);
+
+		if (!$res)
+		{
+			$this->addError(new Error('SOCIALNETWORK_GROUP_AJAX_FAILED'));
+			return false;
+		}
+
+		$this->sendPush(PushEventDictionary::EVENT_WORKGROUP_UPDATE, [
+			'params' => [
+				'GROUP_ID' => $groupId,
+			],
+		]);
+
+		return true;
 	}
 
 	public function createGroupAction(): array
@@ -1411,6 +1602,43 @@ class Workgroup extends Base
 		}
 
 		return $chatId;
+	}
+
+	public function setFeaturesAction(int $groupId, array $features): bool
+	{
+		if (
+			!Helper\Workgroup\Access::canModify([
+				'groupId' => $groupId,
+				'checkAdminSession' => ($this->getScope() !== Controller::SCOPE_REST),
+			])
+		)
+		{
+			$this->addEmptyGroupIdError();
+
+			return false;
+		}
+
+		$allowedFeatures = array_keys(\CSocNetAllowed::getAllowedFeatures());
+
+		foreach ($features as $feature)
+		{
+			$featureId = is_string($feature['featureName'] ?? null) ? $feature['featureName'] : '';
+			$customName = is_string($feature['customName'] ?? null) ? $feature['customName'] : false;
+			$featureActive = is_string($feature['active'] ?? null) && $feature['active'] === 'true';
+
+			if (in_array($featureId, $allowedFeatures, true))
+			{
+				\CSocNetFeatures::setFeature(
+					SONET_ENTITY_GROUP,
+					$groupId,
+					$featureId,
+					$featureActive,
+					$customName,
+				);
+			}
+		}
+
+		return true;
 	}
 
 	private function getUserAvatars(array $imageIds): array

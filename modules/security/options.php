@@ -116,9 +116,9 @@ $availableUserInfoPlaceholders = CSecurityEventMessageFormatter::getAvailableUse
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 
-	foreach($arAllOptions as $arOption):
+foreach($arAllOptions as $arOption):
 	$type = $arOption[2];
-	$note = $arOption[3]?: null;?>
+	$note = $arOption[3] ?? null;?>
 	<?if($type[0] == "heading"):?>
 	<tr class="heading">
 		<td colspan="2"><b><?echo $arOption[1]?></b></td>

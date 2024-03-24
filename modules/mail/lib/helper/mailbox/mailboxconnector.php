@@ -190,6 +190,32 @@ final class MailboxConnector
 		return $this->isSMTPAvailable;
 	}
 
+	/**
+	 * Is OAuth for SMTP enabled for service
+	 *
+	 * @param string $serviceName Service name
+	 *
+	 * @return bool
+	 */
+	public static function isOauthSmtpEnabled(string $serviceName): bool
+	{
+		switch ($serviceName)
+		{
+			case 'gmail':
+				return Main\Config\Option::get('mail', '~disable_gmail_oauth_smtp') === 'N';
+			case 'yandex':
+				return Main\Config\Option::get('mail', '~disable_yandex_oauth_smtp') !== 'Y';
+			case 'mail.ru':
+				return Main\Config\Option::get('mail', '~disable_mailru_oauth_smtp') === 'N';
+			case 'office365':
+			case 'outlook.com':
+			case 'exchangeOnline':
+				return Main\Config\Option::get('mail', '~disable_microsoft_oauth_smtp') !== 'Y';
+			default:
+				return false;
+		}
+	}
+
 	public static function isValidMailHost(string $host): bool
 	{
 		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
@@ -396,7 +422,9 @@ final class MailboxConnector
 			return [];
 		}
 
-		$useSmtp = $useSmtp || !empty(MailServicesTable::getOAuthHelper($service));
+		$isSmtpOauthEnabled = !empty(MailServicesTable::getOAuthHelper($service))
+			&& self::isOauthSmtpEnabled($service['NAME']);
+		$useSmtp = $useSmtp || $isSmtpOauthEnabled;
 
 		if ($this->getSmtpAvailable() && !$useSmtp && !empty($mailbox))
 		{
@@ -488,10 +516,10 @@ final class MailboxConnector
 				$smtpConfig = array_filter($smtpConfig) + $smtpConfirmed;
 			}
 
-			if ($service['SMTP_PASSWORD_AS_IMAP'] == 'Y')
+			if ($service['SMTP_PASSWORD_AS_IMAP'] == 'Y' && (!$storageOauthUid || $isSmtpOauthEnabled))
 			{
 				$smtpConfig['password'] = $mailboxData['PASSWORD'];
-				$smtpConfig['isOauth'] = !empty($storageOauthUid);
+				$smtpConfig['isOauth'] = !empty($storageOauthUid) && $isSmtpOauthEnabled;
 			}
 			else if ($passwordSMTP <> '')
 			{
@@ -507,6 +535,7 @@ final class MailboxConnector
 				}
 
 				$smtpConfig['password'] = $passwordSMTP;
+				$smtpConfig['isOauth'] = !empty($storageOauthUid) && $isSmtpOauthEnabled;
 			}
 
 			if (!$service['SMTP_SERVER'])

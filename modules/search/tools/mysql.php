@@ -306,7 +306,6 @@ class CSearchMysql extends CSearchFullText
 				}
 				elseif ($t == "!")
 				{
-					$state = 0;
 					$qu[] = " -";
 					$p = count($qu) - 2;
 					if (isset($qu[$p]) && $qu[$p]=== " +")
@@ -315,7 +314,9 @@ class CSearchMysql extends CSearchFullText
 				elseif ($t == "(")
 				{
 					$n++;
-					$state = 0;
+					$p = count($qu)-1;
+					if (isset($qu[$p]) && $qu[$p] === "(")
+						$qu[] = "";
 					$qu[] = "(";
 				}
 				else
@@ -353,9 +354,22 @@ class CSearchMysql extends CSearchFullText
 					else
 					{
 						$qu[] = " +";
-						$p = count($qu) - 3;
-						if (isset($qu[$p]) && $qu[$p]=== "" && (!isset($qu[$p-1]) || $qu[$p-1] !== ' +'))
-							$qu[$p] = " +";
+						$p = count($qu) - 1;
+						while (isset($qu[$p]) && $qu[$p] !== ')')
+						{
+							$p--;
+						}
+						$nn = 1;
+						while (isset($qu[$p]) && $nn)
+						{
+							$p--;
+							if ($qu[$p] == '(')
+								$nn--;
+							if ($qu[$p] == ')')
+								$nn++;
+						}
+						if (isset($qu[$p-1]) && $qu[$p-1]=== "")
+							$qu[$p-1] = " +";
 					}
 				}
 				elseif ($t == ")")
@@ -372,7 +386,6 @@ class CSearchMysql extends CSearchFullText
 			}
 			else
 			{
-
 				break;
 			}
 			$t = strtok(" ");

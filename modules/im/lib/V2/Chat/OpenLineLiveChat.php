@@ -24,6 +24,11 @@ class OpenLineLiveChat extends EntityChat
 		'entityData3' => [],
 	];
 
+	protected function sendMessageAuthorChange(\Bitrix\Im\V2\Entity\User\User $author): void
+	{
+		return;
+	}
+
 	protected function getDefaultEntityType(): string
 	{
 		return self::ENTITY_TYPE_LIVECHAT;

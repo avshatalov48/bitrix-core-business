@@ -4,7 +4,6 @@ import { Core } from 'im.v2.application.core';
 import { Avatar, AvatarSize, UserStatus, UserStatusSize, ScrollWithGradient } from 'im.v2.component.elements';
 import { DesktopApi, DesktopFeature } from 'im.v2.lib.desktop-api';
 import { Utils } from 'im.v2.lib.utils';
-import { DesktopManager } from 'im.v2.lib.desktop';
 import { PopupType, Settings, UserStatus as UserStatusType } from 'im.v2.const';
 
 import { ButtonPanel } from './button-panel';
@@ -97,10 +96,7 @@ export const UserSettingsContent = {
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>
 					<div class="bx-im-user-settings-popup__user_name" :title="currentUser.name">{{ currentUser.name }}</div>
 					<div class="bx-im-user-settings-popup__user_title" :title="currentUserPosition">{{ currentUserPosition }}</div>
-					<ButtonPanel 
-						:isDesktopAccountManagementAvailable="isDesktopAccountManagementAvailable"
-						@openProfile="$emit('closePopup')" 
-					/>
+					<ButtonPanel @openProfile="$emit('closePopup')" />
 				</div>
 			</div>
 			<ScrollWithGradient :containerMaxHeight="328" :gradientHeight="24" @scroll="onScroll">

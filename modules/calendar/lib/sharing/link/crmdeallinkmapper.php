@@ -50,6 +50,7 @@ class CrmDealLinkMapper extends JointLinkMapper
 			->setId($objectEO->getId())
 			->setEntityId($objectEO->getObjectId())
 			->setDateCreate($objectEO->getDateCreate())
+			->setDateExpire($objectEO->getDateExpire())
 			->setActive($objectEO->getActive())
 			->setHash($objectEO->getHash())
 			->setContactId($objectEO->getContactId())

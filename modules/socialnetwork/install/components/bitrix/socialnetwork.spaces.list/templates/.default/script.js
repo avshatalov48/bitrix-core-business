@@ -1,7 +1,84 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
-(function (exports,ui_vue3,main_popup,main_date,ui_avatarEditor,main_loader,ui_vue3_vuex,main_core,main_core_events,pull_client) {
+(function (exports,ui_vue3,ui_notification,ui_dialogs_messagebox,main_popup,main_date,socialnetwork_controller,ui_avatarEditor,main_loader,ui_vue3_vuex,main_core,main_core_events,pull_client) {
 	'use strict';
+
+	var _dontShowCollapseMenuAhaMoment = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dontShowCollapseMenuAhaMoment");
+	var _showSpotlight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSpotlight");
+	var _showAhaMoment = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showAhaMoment");
+	class LeftMenuAhaMoment {
+	  constructor() {
+	    Object.defineProperty(this, _showAhaMoment, {
+	      value: _showAhaMoment2
+	    });
+	    Object.defineProperty(this, _showSpotlight, {
+	      value: _showSpotlight2
+	    });
+	    Object.defineProperty(this, _dontShowCollapseMenuAhaMoment, {
+	      value: _dontShowCollapseMenuAhaMoment2
+	    });
+	  }
+	  showAhaMoment() {
+	    const menuSwitcherNode = document.querySelector('.menu-items-header .menu-switcher');
+	    if (main_core.Type.isDomNode(menuSwitcherNode)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _showSpotlight)[_showSpotlight](menuSwitcherNode);
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _dontShowCollapseMenuAhaMoment)[_dontShowCollapseMenuAhaMoment]();
+	  }
+	}
+	function _dontShowCollapseMenuAhaMoment2() {
+	  main_core.ajax.runAction('socialnetwork.api.ahamoment.dontShowCollapseMenuAhaMoment');
+	}
+	function _showSpotlight2(targetElement) {
+	  main_core.Runtime.loadExtension(['spotlight', 'ui.tour']).then(() => {
+	    const spotlight = new BX.SpotLight({
+	      targetElement,
+	      targetVertex: 'middle-center'
+	    });
+	    main_core.Dom.addClass(targetElement, '--active');
+	    spotlight.bindEvents({
+	      onTargetEnter: () => {
+	        main_core.Dom.removeClass(targetElement, '--active');
+	        spotlight.close();
+	      }
+	    });
+	    spotlight.setColor('#2fc6f6');
+	    spotlight.show();
+	    babelHelpers.classPrivateFieldLooseBase(this, _showAhaMoment)[_showAhaMoment](targetElement, spotlight);
+	  });
+	}
+	async function _showAhaMoment2(node, spotlight) {
+	  const {
+	    Guide
+	  } = await main_core.Runtime.loadExtension('ui.tour');
+	  const guide = new Guide({
+	    simpleMode: true,
+	    onEvents: true,
+	    steps: [{
+	      target: node,
+	      title: main_core.Loc.getMessage('SOCIALNETWORK_SPACES_COLLAPSE_MENU_AHA_MOMENT_TITLE'),
+	      text: main_core.Loc.getMessage('SOCIALNETWORK_SPACES_COLLAPSE_MENU_AHA_MOMENT_TEXT'),
+	      position: 'bottom',
+	      condition: {
+	        top: true,
+	        bottom: false,
+	        color: 'primary'
+	      }
+	    }]
+	  });
+	  guide.showNextStep();
+	  const guidePopup = guide.getPopup();
+	  guidePopup.setWidth(380);
+	  guidePopup.getContentContainer().style.paddingRight = getComputedStyle(guidePopup.closeIcon)['width'];
+	  guidePopup.setAngle({
+	    offset: node.offsetWidth / 2 - 5
+	  });
+	  guidePopup.subscribe('onClose', () => spotlight.close());
+	  guidePopup.setAutoHide(true);
+	  guidePopup.getPopupContainer().style.marginLeft = '5px';
+	  guidePopup.angle.element.style.left = '-1px';
+	}
 
 	const AddFormStore = {
 	  state() {
@@ -94,6 +171,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    });
 	    return response.data;
 	  }
+	  static async loadSpaceTheme(spaceId) {
+	    const componentName = 'bitrix:socialnetwork.spaces.list';
+	    const actionName = 'loadSpaceTheme';
+	    const response = await main_core.ajax.runComponentAction(componentName, actionName, {
+	      mode: 'class',
+	      data: {
+	        spaceId
+	      }
+	    });
+	    return response.data;
+	  }
 	}
 
 	var _selectedSpaceId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedSpaceId");
@@ -132,7 +220,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  async reloadSpaces(data) {
 	    const fields = {};
 	    fields.mode = data.filterMode;
-	    fields.selectedSpaceId = babelHelpers.classPrivateFieldLooseBase(this, _selectedSpaceId)[_selectedSpaceId];
 	    const result = await Client.reloadSpaces(fields);
 	    this.hasMoreSpacesToLoad = result.hasMoreSpacesToLoad;
 	    return result;
@@ -203,25 +290,37 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      name: spaceData.name,
 	      isPinned: spaceData.isPinned,
 	      isSelected: RecentService.getInstance().getSelectedSpaceId() === parseInt(spaceData.id, 10),
-	      dateActivity: new Date(parseInt(spaceData.dateActivityTimestamp, 10) * 1000),
-	      dateActivityTimestamp: spaceData.dateActivityTimestamp * 1000,
-	      lastActivityDescription: spaceData.lastActivityDescription,
+	      recentActivity: this.buildRecentActivity(spaceData.recentActivityData),
 	      avatar: spaceData.avatar,
 	      visibilityType: spaceData.visibilityType,
 	      counter: parseInt(spaceData.counter, 10),
-	      lastSearchDate: new Date(parseInt(spaceData.lastSearchDateTimestamp, 10) * 1000),
+	      lastSearchDate: new Date(this.convertTimestampFromPhp(spaceData.lastSearchDateTimestamp)),
 	      lastSearchDateTimestamp: spaceData.lastSearchDateTimestamp * 1000,
 	      userRole: spaceData.userRole,
-	      follow: spaceData.follow
+	      follow: spaceData.follow,
+	      theme: [],
+	      permissions: spaceData.permissions
 	    }));
+	  }
+	  convertTimestampFromPhp(timestamp) {
+	    return parseInt(timestamp, 10) * 1000;
 	  }
 	  buildInvitations(invitations) {
 	    return invitations.map(invitationData => ({
 	      spaceId: parseInt(invitationData.spaceId, 10),
 	      message: invitationData.message,
-	      invitationDateTimestamp: invitationData.invitationDateTimestamp * 1000,
-	      invitationDate: new Date(parseInt(invitationData.invitationDateTimestamp, 10) * 1000)
+	      invitationDateTimestamp: this.convertTimestampFromPhp(invitationData.invitationDateTimestamp),
+	      invitationDate: new Date(this.convertTimestampFromPhp(invitationData.invitationDateTimestamp))
 	    }));
+	  }
+	  buildRecentActivity(recentActivityData) {
+	    const recentActivity = {};
+	    recentActivity.description = recentActivityData.description;
+	    recentActivity.typeId = recentActivityData.typeId;
+	    recentActivity.entityId = parseInt(recentActivityData.entityId, 10);
+	    recentActivity.timestamp = this.convertTimestampFromPhp(recentActivityData.timestamp);
+	    recentActivity.date = new Date(recentActivity.timestamp);
+	    return recentActivity;
 	  }
 	  getStringCapitalized(string) {
 	    return string[0].toUpperCase() + string.slice(1);
@@ -232,6 +331,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      result = 'searchResultFromServerSpaceIds';
 	    }
 	    return result;
+	  }
+	  doAddSpaceToRecentList(space, lastRecentSpace, filterMode) {
+	    const doDateActivityFits = lastRecentSpace.recentActivity.date < space.recentActivity.date;
+	    const doUserRoleFitsFilterMode = this.doSpaceUserRoleFitsFilterMode(space.userRole, filterMode);
+	    return doDateActivityFits && doUserRoleFitsFilterMode || space.id === 0;
 	  }
 	  doSpaceUserRoleFitsFilterMode(userRole, filterMode) {
 	    if ([SpaceUserRoles.nonMember, SpaceUserRoles.applicant].includes(userRole) && filterMode === FilterModeTypes.my) {
@@ -285,6 +389,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    setSelectedFilterModeType: (store, selectedFilterModeType) => {
 	      store.commit('setSelectedFilterModeType', selectedFilterModeType);
 	    },
+	    setSelectedSpace: (store, selectedSpaceId) => {
+	      const previousSelectedSpaceId = RecentService.getInstance().getSelectedSpaceId();
+	      RecentService.getInstance().setSelectedSpaceId(selectedSpaceId);
+	      store.commit('setSelectedSpace', {
+	        spaceId: previousSelectedSpaceId,
+	        selected: false
+	      });
+	      store.commit('setSelectedSpace', {
+	        spaceId: selectedSpaceId,
+	        selected: true
+	      });
+	    },
 	    setSpacesListState: (store, spacesListState) => {
 	      store.commit('setSpacesListState', spacesListState);
 	    },
@@ -337,6 +453,19 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          });
 	        }
 	      });
+
+	      // null the existing space counters
+	      store.getters.spaces.forEach(space => {
+	        store.commit('updateCounter', {
+	          userId,
+	          spaceId: space.id,
+	          counter: 0,
+	          tasksTotal: 0,
+	          calendarTotal: 0,
+	          workGroupTotal: 0,
+	          lifeFeedTotal: 0
+	        });
+	      });
 	      data.spaces.forEach(space => {
 	        store.commit('updateCounter', {
 	          userId,
@@ -360,15 +489,25 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        const space = helper.buildSpaces([data.space]).pop();
 	        const lastRecentSpace = store.getters.recentSpaces[store.getters.recentSpaces.length - 1];
 	        store.commit('addSpaces', [space]);
-	        const doDateActivityFits = lastRecentSpace.dateActivity < space.dateActivity;
-	        const doUserRoleFitsFilterMode = helper.doSpaceUserRoleFitsFilterMode(space.userRole, store.state.selectedFilterModeType);
-	        if (doDateActivityFits && doUserRoleFitsFilterMode) {
+	        if (helper.doAddSpaceToRecentList(space, lastRecentSpace, store.state.selectedFilterModeType)) {
 	          store.commit('addRecentListSpaceId', space.id);
-	        } else if (!doUserRoleFitsFilterMode) {
+	        } else if (!helper.doSpaceUserRoleFitsFilterMode(space.userRole, store.state.selectedFilterModeType)) {
 	          store.commit('removeRecentListSpaceId', space.id);
 	        }
 	      } else {
 	        store.commit('deleteSpaceById', data.spaceId);
+	      }
+	    },
+	    updateSpaceRecentActivityData: (store, recentActivityData) => {
+	      store.commit('updateSpaceRecentActivityData', recentActivityData);
+	      const space = store.state.spaces.get(recentActivityData.spaceId);
+	      if (!space) {
+	        return;
+	      }
+	      const helper = Helper.getInstance();
+	      const lastRecentSpace = store.getters.recentSpaces[store.getters.recentSpaces.length - 1];
+	      if (helper.doAddSpaceToRecentList(space, lastRecentSpace, store.state.selectedFilterModeType)) {
+	        store.commit('addRecentListSpaceId', space.id);
 	      }
 	    }
 	  },
@@ -424,6 +563,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      // eslint-disable-next-line no-param-reassign
 	      state.selectedFilterModeType = selectedFilterModeType;
 	    },
+	    setSelectedSpace: (state, selectedState) => {
+	      const space = state.spaces.get(selectedState.spaceId);
+	      if (space) {
+	        space.isSelected = selectedState.selected;
+	      }
+	    },
 	    setSpacesListState: (state, spacesListState) => {
 	      // eslint-disable-next-line no-param-reassign
 	      state.spacesListState = spacesListState;
@@ -450,27 +595,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    },
 	    updateCounter: (state, data) => {
 	      var _state$spaces$get;
-	      const userId = data.userId;
 	      const spaceId = data.spaceId;
 	      const counter = data.counter;
-	      const tasksTotal = data.tasksTotal;
-	      const calendarTotal = data.calendarTotal;
-	      const workGroupTotal = data.workGroupTotal;
-	      const discussionsTotal = data.lifeFeedTotal;
 	      const space = (_state$spaces$get = state.spaces.get(spaceId)) != null ? _state$spaces$get : {};
 	      space.counter = counter;
-	      BX.ready(() => {
-	        const menu = spaceId == 0 ? BX.Main.interfaceButtonsManager.getById(`spaces_user_menu_${userId}`) : BX.Main.interfaceButtonsManager.getById(`spaces_group_menu_${spaceId}`);
-	        if (menu) {
-	          const btn = `spaces_top_menu_${userId}_${spaceId}`;
-	          const tasksBtn = `${btn}_tasks`;
-	          const calendarBtn = `${btn}_calendar`;
-	          const discussionBtn = `${btn}_discussions`;
-	          menu.updateCounter(tasksBtn, tasksTotal);
-	          menu.updateCounter(calendarBtn, calendarTotal);
-	          menu.updateCounter(discussionBtn, discussionsTotal);
-	        }
-	      });
+	    },
+	    updateSpaceRecentActivityData: (state, recentActivityData) => {
+	      const space = state.spaces.get(recentActivityData.spaceId);
+	      if (!space) {
+	        return;
+	      }
+	      space.recentActivity = Helper.getInstance().buildRecentActivity(recentActivityData);
 	    }
 	  },
 	  getters: {
@@ -486,8 +621,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      return invitations.map(invitation => {
 	        const space = spacesMap.get(invitation.spaceId);
 	        const spaceInvitationFields = {
-	          dateActivity: invitation.invitationDate,
-	          lastActivityDescription: invitation.message,
+	          recentActivity: {
+	            ...space.recentActivity,
+	            description: invitation.message,
+	            date: invitation.invitationDate,
+	            timestamp: invitation.invitationDate.getTime()
+	          },
 	          counter: 1
 	        };
 	        return {
@@ -495,7 +634,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          ...spaceInvitationFields
 	        };
 	      }).sort((a, b) => {
-	        return b.dateActivity - a.dateActivity;
+	        return b.recentActivity.date - a.recentActivity.date;
 	      });
 	    },
 	    canCreateGroup: state => {
@@ -510,36 +649,48 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        return state.recentListSpaceIds.has(space.id) && !state.invitationSpaceIds.has(space.id);
 	      });
 	      return unsortedRecentSpaces.sort((a, b) => {
-	        return b.dateActivity - a.dateActivity;
+	        return b.recentActivity.date - a.recentActivity.date;
+	      });
+	    },
+	    recentSpaces: (state, getters) => {
+	      let result = [];
+	      switch (state.selectedFilterModeType) {
+	        case FilterModeTypes.my:
+	          result = getters.myRecentSpaces;
+	          break;
+	        case FilterModeTypes.other:
+	          result = getters.otherRecentSpaces;
+	          break;
+	        case FilterModeTypes.all:
+	          result = getters.allRecentSpaces;
+	          break;
+	        default:
+	          break;
+	      }
+	      return result;
+	    },
+	    myRecentSpaces: (state, getters) => {
+	      return [...getters.pinnedSpacesFromRecent, getters.commonSpaceFromRecent, ...getters.notPinnedSpacesWithoutCommonFromRecent];
+	    },
+	    otherRecentSpaces: (state, getters) => {
+	      return [...getters.spacesWithoutCommonFromRecent];
+	    },
+	    allRecentSpaces: (state, getters) => {
+	      return [getters.commonSpaceFromRecent, ...getters.spacesWithoutCommonFromRecent];
+	    },
+	    commonSpaceFromRecent: (state, getters) => {
+	      return getters.recentSpacesUnordered.find(space => space.id === 0);
+	    },
+	    spacesWithoutCommonFromRecent: (state, getters) => {
+	      return getters.recentSpacesUnordered.filter(space => {
+	        return space.id !== getters.commonSpaceFromRecent.id;
 	      });
 	    },
 	    pinnedSpacesFromRecent: (state, getters) => {
 	      return getters.recentSpacesUnordered.filter(space => space.isPinned);
 	    },
-	    commonSpaceFromRecent: (state, getters) => {
-	      return getters.recentSpacesUnordered.find(space => space.id === 0);
-	    },
-	    selectedSpaceFromRecent: (state, getters) => {
-	      return getters.recentSpacesUnordered.find(space => space.isSelected && !space.isPinned);
-	    },
-	    otherSpacesFromRecent: (state, getters) => {
-	      return getters.recentSpacesUnordered.filter(space => {
-	        return space.id !== getters.commonSpaceFromRecent.id && !space.isSelected && !space.isPinned;
-	      });
-	    },
-	    recentSpaces: (state, getters) => {
-	      const result = [];
-	      if (state.selectedFilterModeType === FilterModeTypes.my) {
-	        result.push(...getters.pinnedSpacesFromRecent);
-	      }
-	      if (getters.commonSpaceFromRecent && state.selectedFilterModeType !== FilterModeTypes.other) {
-	        result.push(getters.commonSpaceFromRecent);
-	      }
-	      if (getters.selectedSpaceFromRecent && getters.selectedSpaceFromRecent.id !== getters.commonSpaceFromRecent.id) {
-	        result.push(getters.selectedSpaceFromRecent);
-	      }
-	      result.push(...getters.otherSpacesFromRecent);
-	      return result;
+	    notPinnedSpacesWithoutCommonFromRecent: (state, getters) => {
+	      return getters.spacesWithoutCommonFromRecent.filter(space => !space.isPinned);
 	    },
 	    searchSpaces: (state, getters) => {
 	      const spaces = getters.spaces;
@@ -558,9 +709,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      });
 	    },
 	    recentSpacesCountForLoad: (state, getters) => {
-	      // Do this subtraction because of selected space and common space.
-	      // They are selected bypassing the sorting
-	      return getters.recentSpaces.length - 2;
+	      // Do this subtraction because of common space.
+	      // It is selected bypassing the sorting
+	      return getters.recentSpaces.length - 1;
 	    },
 	    recentSearchSpacesCountForLoad: (state, getters) => {
 	      return getters.recentSearchSpaces.length;
@@ -610,7 +761,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  changeUserRole: 'socialnetwork:spacesList:changeUserRole',
 	  changeSubscription: 'socialnetwork:spacesList:changeSubscription',
 	  pinChanged: 'socialnetwork:spacesList:pinChanged',
-	  changeSpaceListState: 'socialnetwork:spacesList:changeSpaceListState'
+	  changeSpaceListState: 'socialnetwork:spacesList:changeSpaceListState',
+	  recentActivityUpdate: 'socialnetwork:spacesList:recentActivityUpdate',
+	  recentActivityDelete: 'socialnetwork:spacesList:recentActivityDelete',
+	  openSpaceFromContextMenu: 'socialnetwork:spacesList:openSpaceFromContextMenu',
+	  changeMode: 'socialnetwork:spacesList:changeMode'
 	});
 
 	const POPUP_CONTAINER_PREFIX = '#popup-window-content-';
@@ -845,14 +1000,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 				:isSelected="option.type === this.selectedOption"
 				@changeSelectedOption="onChangeSelectedOption"
 			/>
+			<div v-if="doShowHint" class="sn-spaces__popup-menu_hint">
+				{{hint}}
+			</div>
 			<PopupMenuButton
 				v-if="doShowButton"
 				:config="button"
 				@popupMenuButtonClick="onPopupMenuButtonClick"
 			/>
-			<div v-if="doShowHint" class="sn-spaces__popup-menu_hint">
-				{{hint}}
-			</div>
 		</div>
 	`
 	};
@@ -904,7 +1059,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        closeIcon: false,
 	        closeByEsc: true,
 	        overlay: true,
-	        padding: 12,
+	        padding: 0,
 	        animation: 'fading-slide',
 	        bindElement: this.bindElement
 	      };
@@ -1206,14 +1361,53 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	`
 	};
 
-	class ContextItem {
+	class ContextItem extends main_core_events.EventEmitter {
 	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.Socialnetwork.Spaces.ContextItem');
 	    this.message = options.message;
 	    this.spaceId = options.spaceId;
 	    this.emitter = new main_core_events.EventEmitter();
 	  }
-	  getEmitter() {
-	    return this.emitter;
+	}
+
+	class CopyLink extends ContextItem {
+	  create() {
+	    return {
+	      text: this.message,
+	      onclick: (event, menuItem) => {
+	        BX.clipboard.copy(location.origin + LinkManager.getSpaceLink(this.spaceId));
+	        menuItem.getMenuWindow().close();
+	        ui_notification.UI.Notification.Center.notify({
+	          content: main_core.Loc.getMessage('SN_SPACES_LIST_SPACE_COPY_LINK_NOTIFY')
+	        });
+	      }
+	    };
+	  }
+	}
+
+	class Logout extends ContextItem {
+	  create() {
+	    return {
+	      text: this.message,
+	      onclick: (event, menuItem) => {
+	        const messageBox = new ui_dialogs_messagebox.MessageBox({
+	          message: main_core.Loc.getMessage('SN_SPACES_LIST_SPACE_COPY_LOGOUT_POPUP_TEXT'),
+	          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL,
+	          okCaption: main_core.Loc.getMessage('SN_SPACES_LIST_SPACE_COPY_LOGOUT_POPUP_CONFIRM_BTN'),
+	          onOk: () => {
+	            socialnetwork_controller.Controller.leaveGroup(this.spaceId).then(() => {
+	              menuItem.getMenuWindow().close();
+	              messageBox.close();
+	              this.emit('click');
+	            }).catch(() => {
+	              messageBox.getOkButton().setDisabled(false);
+	            });
+	          }
+	        });
+	        messageBox.show();
+	      }
+	    };
 	  }
 	}
 
@@ -1258,7 +1452,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  });
 	}
 	function _flush2(resultMode) {
-	  this.getEmitter().emit(EventTypes.pinChanged, {
+	  this.emit(EventTypes.pinChanged, {
 	    spaceId: this.spaceId,
 	    isPinned: resultMode === 'Y'
 	  });
@@ -1306,7 +1500,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  });
 	}
 	function _flush2$1(resultMode) {
-	  this.getEmitter().emit('followChanged', {
+	  this.emit('followChanged', {
 	    spaceId: this.spaceId,
 	    isFollowed: resultMode === 'Y'
 	  });
@@ -1317,7 +1511,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  create() {
 	    return {
 	      text: this.message,
-	      href: this.path
+	      onclick: (event, menuItem) => {
+	        this.emitter.emit(EventTypes.openSpaceFromContextMenu, {
+	          spaceId: this.spaceId
+	        });
+	        menuItem.getMenuWindow().close();
+	      }
 	    };
 	  }
 	  setPath(path) {
@@ -1326,63 +1525,105 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }
 	}
 
+	var _cache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cache");
+	var _setOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setOptions");
+	var _getOption = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getOption");
 	var _init = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("init");
-	class ContextMenu {
-	  constructor(options) {
+	class ContextMenu extends main_core_events.EventEmitter {
+	  constructor(_options) {
+	    super();
 	    Object.defineProperty(this, _init, {
 	      value: _init2
 	    });
-	    this.spaceId = options.spaceId;
-	    this.bindElement = options.bindElement;
-	    this.path = options.path;
-	    this.isSelected = options.isSelected;
-	    this.pinMessage = options.pinMessage;
-	    this.followMessage = options.followMessage;
-	    this.openMessage = options.openMessage;
+	    Object.defineProperty(this, _getOption, {
+	      value: _getOption2
+	    });
+	    Object.defineProperty(this, _setOptions, {
+	      value: _setOptions2
+	    });
+	    Object.defineProperty(this, _cache, {
+	      writable: true,
+	      value: new main_core.Cache.MemoryCache()
+	    });
+	    this.setEventNamespace('BX.Socialnetwork.Spaces.ContextMenu');
+	    babelHelpers.classPrivateFieldLooseBase(this, _setOptions)[_setOptions](_options);
 	    babelHelpers.classPrivateFieldLooseBase(this, _init)[_init]();
 	  }
 	  createMenu() {
-	    const id = ContextMenu.ID + this.spaceId;
+	    const id = this.getMenuId();
 	    this.menu = main_popup.MenuManager.create({
-	      id: id,
+	      id,
 	      closeByEsc: true,
-	      bindElement: this.bindElement,
+	      bindElement: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('bindElement'),
 	      items: this.getItems()
 	    });
 	  }
+	  getMenuId() {
+	    return ContextMenu.ID + babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId');
+	  }
 	  toggle() {
 	    this.collection.destroy();
+	    this.collection.add(this);
 	    this.createMenu();
 	    this.menu.toggle();
 	  }
 	  getSpaceId() {
-	    return this.spaceId;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId');
+	  }
+	  isShown() {
+	    var _this$menu$getPopupWi;
+	    return (_this$menu$getPopupWi = this.menu.getPopupWindow()) == null ? void 0 : _this$menu$getPopupWi.isShown();
 	  }
 	  getItems() {
 	    const items = [];
-	    if (!this.isSelected) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('isSelected')) {
 	      const open = new Open({
-	        spaceId: this.spaceId,
-	        message: this.openMessage
+	        spaceId: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId'),
+	        message: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('openMessage')
 	      });
-	      items.push(open.setPath(this.path).create());
+	      items.push(open.setPath(babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('path')).create());
 	    }
-	    const pin = new Pin({
-	      spaceId: this.spaceId,
-	      message: this.pinMessage
-	    });
-	    items.push(pin.create());
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('listFilter') === FilterModeTypes.my && babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('listMode') === Modes.recent) {
+	      const pin = new Pin({
+	        spaceId: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId'),
+	        message: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('pinMessage')
+	      });
+	      items.push(pin.create());
+	    }
 	    const follow = new Follow({
-	      spaceId: this.spaceId,
-	      message: this.followMessage
+	      spaceId: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId'),
+	      message: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('followMessage')
 	    });
 	    items.push(follow.create());
+	    const copyLink = new CopyLink({
+	      spaceId: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId'),
+	      message: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('copyLinkMessage')
+	    });
+	    items.push(copyLink.create());
+	    const permissions = babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('permissions');
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('listFilter') === FilterModeTypes.my && babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('listMode') === Modes.recent && permissions.canLeave) {
+	      const logout = new Logout({
+	        spaceId: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId'),
+	        message: babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('logoutMessage')
+	      });
+	      logout.subscribe('click', () => {
+	        if (RecentService.getInstance().getSelectedSpaceId() === babelHelpers.classPrivateFieldLooseBase(this, _getOption)[_getOption]('spaceId')) {
+	          this.emit('openCommonSpace');
+	        }
+	      });
+	      items.push(logout.create());
+	    }
 	    return items;
 	  }
 	}
+	function _setOptions2(options) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].set('options', options);
+	}
+	function _getOption2(option) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].get('options')[option];
+	}
 	function _init2() {
 	  this.collection = ContextMenuCollection.getInstance();
-	  this.collection.add(this);
 	}
 	ContextMenu.ID = 'space-context-menu-';
 
@@ -1394,23 +1635,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    return ContextMenuCollection.instance;
 	  }
 	  add(menu) {
-	    if (!this.has(menu)) {
-	      ContextMenuCollection.items.push(menu);
-	    }
-	  }
-	  has(menu) {
-	    ContextMenuCollection.items.forEach(item => {
-	      if (item.getSpaceId() === menu.getSpaceId()) {
-	        return true;
-	      }
-	    });
-	    return false;
+	    ContextMenuCollection.items.push(menu);
 	  }
 	  destroy() {
 	    ContextMenuCollection.items.forEach(item => {
 	      const menu = main_popup.MenuManager.getMenuById(ContextMenu.ID + item.getSpaceId());
 	      menu == null ? void 0 : menu.destroy();
 	    });
+	    ContextMenuCollection.items = ContextMenuCollection.items.filter(item => item.isShown());
 	  }
 	}
 	ContextMenuCollection.items = [];
@@ -1565,11 +1797,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    spaceModel() {
 	      return this.space;
 	    },
+	    selectedFilterModeType() {
+	      return this.$store.state.main.selectedFilterModeType;
+	    },
 	    doShowCounter() {
 	      return this.spaceModel.counter && this.spaceModel.counter > 0 && this.mode === this.modes.recent && !this.isApplicantButtonsShown;
 	    },
 	    doShowPin() {
-	      return this.spaceModel.isPinned && this.mode === this.modes.recent && !this.isApplicantButtonsShown;
+	      return this.spaceModel.isPinned && this.mode === this.modes.recent && !this.isApplicantButtonsShown && !this.doShowCounter && this.selectedFilterModeType === FilterModeTypes.my;
 	    },
 	    isApplicantButtonsShown() {
 	      return this.doShowJoinButton || this.doShowPendingButton || this.doShowSuccessButton;
@@ -1584,8 +1819,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      return this.spaceModel.userRole !== this.spaceUserRoles.member || this.spaceModel.follow;
 	    },
 	    spaceDescription() {
-	      const doShowSpaceVisibilityType = this.isApplicantButtonsShown || !this.spaceModel.lastActivityDescription || this.spaceModel.lastActivityDescription.length === 0;
-	      return doShowSpaceVisibilityType ? this.getVisibilityTypeName() : this.spaceModel.lastActivityDescription;
+	      const doShowSpaceVisibilityType = this.isApplicantButtonsShown || !this.spaceModel.recentActivity.description || this.spaceModel.recentActivity.description.length === 0;
+	      return doShowSpaceVisibilityType ? this.getVisibilityTypeName() : this.spaceModel.recentActivity.description;
 	    },
 	    isCommon() {
 	      return this.spaceModel.id === 0;
@@ -1609,7 +1844,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      const spaceViewModeNameMessageId = (_SpaceViewModes$find = SpaceViewModes.find(spaceViewMode => {
 	        return spaceViewMode.type === this.spaceModel.visibilityType;
 	      })) == null ? void 0 : _SpaceViewModes$find.nameMessageId;
-	      return this.loc(spaceViewModeNameMessageId);
+	      return main_core.Type.isStringFilled(spaceViewModeNameMessageId) ? this.loc(spaceViewModeNameMessageId) : '';
 	    },
 	    formatDate(timestamp) {
 	      return DateFormatter.formatDate(timestamp);
@@ -1648,7 +1883,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 	    },
 	    async onJoinButtonClick(event) {
-	      event.preventDefault();
+	      event.stopPropagation();
 	      await main_core.ajax.runAction('socialnetwork.api.userToGroup.join', {
 	        data: {
 	          params: {
@@ -1672,13 +1907,13 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      });
 	    },
 	    onPendingButtonClick(event) {
-	      event.preventDefault();
+	      event.stopPropagation();
 	    },
 	    onAcceptedButtonClick(event) {
-	      event.preventDefault();
+	      event.stopPropagation();
 	    },
 	    async acceptInvitationButtonClickHandler(event) {
-	      event.preventDefault();
+	      event.stopPropagation();
 	      await main_core.ajax.runAction('socialnetwork.api.userToGroup.acceptOutgoingRequest', {
 	        data: {
 	          groupId: this.spaceModel.id
@@ -1699,7 +1934,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      });
 	    },
 	    async declineInvitationButtonClickHandler(event) {
-	      event.preventDefault();
+	      event.stopPropagation();
 	      await main_core.ajax.runAction('socialnetwork.api.userToGroup.rejectOutgoingRequest', {
 	        data: {
 	          groupId: this.spaceModel.id
@@ -1749,7 +1984,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 		</div>
 		<div class="sn-spaces__list-item_details">
 			<div class="sn-spaces__list-item_time" data-id="spaces-list-element-activity-date">
-				{{formatDate(spaceModel.dateActivity.getTime())}}
+				{{formatDate(spaceModel.recentActivity.date.getTime())}}
 			</div>
 			<div class="sn-spaces__list-item_changes">
 				<div
@@ -1816,7 +2051,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    BasePopup,
 	    SpaceContent
 	  },
-	  emits: ['closeSpacePopup'],
+	  emits: ['closeSpacePopup', 'popupSpaceClick'],
 	  props: {
 	    bindElement: {
 	      type: Object,
@@ -1891,6 +2126,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  methods: {
 	    closePopupShortSpace() {
 	      this.$emit('closeSpacePopup');
+	    },
+	    onSpaceClick() {
+	      this.$emit('popupSpaceClick');
 	    }
 	  },
 	  template: `
@@ -1898,10 +2136,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 			:config="config"
 			:id="POPUP_ID"
 		>
-			<a
-				:href="link"
+			<div
 				ref="popup-content"
 				class="sn-spaces__popup-list_collapsed-mode"
+				@click="onSpaceClick"
 				@mouseleave="closePopupShortSpace"
 			>
 				<div 
@@ -1915,7 +2153,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 						:showAvatar="false"
 					/>
 				</div>
-			</a>
+			</div>
 		</BasePopup>
 	`
 	};
@@ -1953,9 +2191,15 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        left: this.widthItem
 	      };
 	    },
+	    selectedFilterModeType() {
+	      return this.$store.state.main.selectedFilterModeType;
+	    },
 	    classModifiers() {
 	      const isRecentMode = this.mode === this.modes.recent;
 	      const classModifiers = [];
+	      if (this.spaceModel.isPinned && this.selectedFilterModeType === FilterModeTypes.my && isRecentMode) {
+	        classModifiers.push('--pinned');
+	      }
 	      if (this.spaceModel.isSelected && isRecentMode) {
 	        classModifiers.push('--active');
 	      }
@@ -1977,9 +2221,21 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      return this.spaceModel.id === 0;
 	    }
 	  },
+	  created() {
+	    main_core_events.EventEmitter.subscribe(EventTypes.openSpaceFromContextMenu, this.openSpaceFromContextMenu);
+	  },
+	  beforeUnmount() {
+	    main_core_events.EventEmitter.unsubscribe(EventTypes.openSpaceFromContextMenu, this.openSpaceFromContextMenu);
+	  },
 	  methods: {
 	    loc(message) {
 	      return this.$bitrix.Loc.getMessage(message);
+	    },
+	    async openSpaceFromContextMenu(event) {
+	      const spaceId = event.data.spaceId;
+	      if (this.spaceModel.id === spaceId) {
+	        await this.onSpaceClick();
+	      }
 	    },
 	    getPinMessage() {
 	      return this.spaceModel.isPinned ? this.loc('SOCIALNETWORK_SPACES_LIST_SPACE_UNPIN') : this.loc('SOCIALNETWORK_SPACES_LIST_SPACE_PIN');
@@ -1990,8 +2246,20 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    getOpenMessage() {
 	      return this.loc('SOCIALNETWORK_SPACES_LIST_SPACE_OPEN');
 	    },
+	    getCopyLinkMessage() {
+	      return this.loc('SN_SPACES_LIST_SPACE_COPY_LINK');
+	    },
+	    getLogoutMessage() {
+	      return this.loc('SN_SPACES_LIST_SPACE_LOGOUT');
+	    },
 	    async onSpaceClick() {
-	      if ([Modes.recentSearch, Modes.search].includes(this.mode)) {
+	      const modeBeforeClick = this.mode;
+	      if (this.mode !== Modes.recent) {
+	        this.$bitrix.eventEmitter.emit(EventTypes.changeMode, Modes.recent);
+	      }
+	      this.$store.dispatch('setSelectedSpace', this.spaceModel.id);
+	      BX.Socialnetwork.Spaces.space.reloadPageContent(LinkManager.getSpaceLink(this.spaceModel.id));
+	      if ([Modes.recentSearch, Modes.search].includes(modeBeforeClick)) {
 	        await Client.addSpaceToRecentSearch(this.spaceModel.id);
 	      }
 	    },
@@ -2005,9 +2273,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        bindElement: event.currentTarget,
 	        path: this.link,
 	        isSelected: this.spaceModel.isSelected,
+	        permissions: this.spaceModel.permissions,
+	        listFilter: this.selectedFilterModeType,
+	        listMode: this.mode,
 	        pinMessage: this.getPinMessage(),
 	        followMessage: this.getFollowMessage(),
-	        openMessage: this.getOpenMessage()
+	        openMessage: this.getOpenMessage(),
+	        copyLinkMessage: this.getCopyLinkMessage(),
+	        logoutMessage: this.getLogoutMessage()
+	      });
+	      menu.subscribe('openCommonSpace', () => {
+	        socialnetwork_controller.Controller.openCommonSpace();
 	      });
 	      menu.toggle();
 	    },
@@ -2018,14 +2294,15 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    },
 	    closePopup() {
 	      if (this.$store.getters.spacesListState === SpacesListStates.collapsed) {
+	        var _this$$refs$popupIte;
 	        const bindElement = this.$refs.link;
-	        const popupContainer = this.$refs['popup-item'].$refs['popup-content'];
+	        const popupContainer = (_this$$refs$popupIte = this.$refs['popup-item']) == null ? void 0 : _this$$refs$popupIte.$refs['popup-content'];
 	        let hoverElement = null;
 	        main_core.Event.bind(document, 'mouseover', event => {
 	          hoverElement = event.target;
 	        });
 	        setTimeout(() => {
-	          if (!bindElement.contains(hoverElement) && !popupContainer.contains(hoverElement)) {
+	          if (!popupContainer || !bindElement.contains(hoverElement) && !popupContainer.contains(hoverElement)) {
 	            this.showModePopup = false;
 	          }
 	        }, 100);
@@ -2035,7 +2312,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  template: `
 		<a
 			ref="link"
-			:href="link"
 			class="sn-spaces__list-item"
 			:class="classModifiers"
 			data-id="spaces-list-element"
@@ -2056,6 +2332,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 				v-if="showModePopup"
 				@close="showModePopup = false"
 				@closeSpacePopup="closePopup"
+				@popupSpaceClick="onSpaceClick"
 			/>
 			<SpaceContent 
 				:space="space" 
@@ -2122,13 +2399,13 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  },
 	  mounted() {
 	    this.$refs.spaceAddFormNameInput.focus();
-	    main_core.Event.bind(document, 'mouseup', this.handleAutoHide);
+	    main_core.Event.bind(document, 'click', this.handleAutoHide, true);
 	    main_core.Event.bind(document, 'keydown', this.handleKeyDown);
 	    this.$bitrix.eventEmitter.subscribe(EventTypes.showUpperSpaceAddForm, this.chooseRandomAvatarColor);
 	    this.chooseRandomAvatarColor();
 	  },
 	  unmounted() {
-	    main_core.Event.unbind(document, 'mouseup', this.handleAutoHide);
+	    main_core.Event.unbind(document, 'click', this.handleAutoHide, true);
 	    main_core.Event.unbind(document, 'keydown', this.handleKeyDown);
 	    this.$bitrix.eventEmitter.unsubscribe(EventTypes.showUpperSpaceAddForm, this.chooseRandomAvatarColor);
 	  },
@@ -2151,6 +2428,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        this.avatarEditor = new ui_avatarEditor.Editor({
 	          enableCamera: false
 	        });
+	        main_core.Dom.addClass(this.avatarEditor.popup.getPopupContainer(), 'sn-spaces__avatar-editor');
 	        this.avatarEditor.subscribe('onApply', event => {
 	          var _file$name;
 	          const [file] = event.getCompatData();
@@ -2599,7 +2877,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 					v-for="space in spaces"
 					:key="space.id"
 					:space="space"
-					:mode="mode"/>
+					:mode="mode"
+				/>
 				<SpaceListAddButton
 					v-if="doShowSpaceListAddButton"
 					@click="showLowerSpaceAddForm"
@@ -2780,13 +3059,19 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  },
 	  created() {
 	    this.$bitrix.eventEmitter.subscribe(EventTypes.changeSpaceListState, this.changeSpaceListStateHandler);
+	    this.$bitrix.eventEmitter.subscribe(EventTypes.changeMode, this.changeModeHandler);
 	  },
 	  beforeUnmount() {
 	    this.$bitrix.eventEmitter.unsubscribe(EventTypes.changeSpaceListState, this.changeSpaceListStateHandler);
+	    this.$bitrix.eventEmitter.unsubscribe(EventTypes.changeMode, this.changeModeHandler);
 	  },
 	  methods: {
 	    loc(message) {
 	      return this.$bitrix.Loc.getMessage(message);
+	    },
+	    changeModeHandler(event) {
+	      const newMode = event.data;
+	      this.setMode(newMode);
 	    },
 	    setMode(mode) {
 	      this.mode = mode;
@@ -2868,9 +3153,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	var _onChangeSpace = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onChangeSpace");
 	var _onChangeUserRole = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onChangeUserRole");
 	var _onChangeSubscription = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onChangeSubscription");
+	var _onRecentActivityUpdate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRecentActivityUpdate");
+	var _onRecentActivityDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRecentActivityDelete");
 	class PullRequests extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _onRecentActivityDelete, {
+	      value: _onRecentActivityDelete2
+	    });
+	    Object.defineProperty(this, _onRecentActivityUpdate, {
+	      value: _onRecentActivityUpdate2
+	    });
 	    Object.defineProperty(this, _onChangeSubscription, {
 	      value: _onChangeSubscription2
 	    });
@@ -2897,7 +3190,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      user_spaces_counter: babelHelpers.classPrivateFieldLooseBase(this, _updateCounters)[_updateCounters].bind(this),
 	      workgroup_update: babelHelpers.classPrivateFieldLooseBase(this, _onChangeSpace)[_onChangeSpace].bind(this),
 	      space_user_role_change: babelHelpers.classPrivateFieldLooseBase(this, _onChangeUserRole)[_onChangeUserRole].bind(this),
-	      workgroup_subscribe_changed: babelHelpers.classPrivateFieldLooseBase(this, _onChangeSubscription)[_onChangeSubscription].bind(this)
+	      workgroup_subscribe_changed: babelHelpers.classPrivateFieldLooseBase(this, _onChangeSubscription)[_onChangeSubscription].bind(this),
+	      recent_activity_update: babelHelpers.classPrivateFieldLooseBase(this, _onRecentActivityUpdate)[_onRecentActivityUpdate].bind(this),
+	      recent_activity_delete: babelHelpers.classPrivateFieldLooseBase(this, _onRecentActivityDelete)[_onRecentActivityDelete].bind(this)
 	    };
 	  }
 	}
@@ -2926,6 +3221,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  this.emit(EventTypes.changeSubscription, {
 	    spaceId: data.GROUP_ID,
 	    userId: data.USER_ID
+	  });
+	}
+	function _onRecentActivityUpdate2(data) {
+	  this.emit(EventTypes.recentActivityUpdate, {
+	    recentActivityData: data.recentActivityData
+	  });
+	}
+	function _onRecentActivityDelete2(data) {
+	  this.emit(EventTypes.recentActivityDelete, {
+	    typeId: data.typeId,
+	    entityId: data.entityId
 	  });
 	}
 
@@ -2959,6 +3265,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _initialOptions)[_initialOptions] = options;
+	    if (options.doShowCollapseMenuAhaMoment) {
+	      new LeftMenuAhaMoment().showAhaMoment();
+	    }
 	  }
 	  create(target) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _target)[_target] = target;
@@ -3009,6 +3318,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        pullRequests.subscribe(EventTypes.changeSpace, this.updateSpaceData);
 	        pullRequests.subscribe(EventTypes.changeUserRole, this.updateSpaceUserData);
 	        pullRequests.subscribe(EventTypes.changeSubscription, this.updateSpaceUserData);
+	        pullRequests.subscribe(EventTypes.recentActivityUpdate, this.recentActivityUpdate);
+	        pullRequests.subscribe(EventTypes.recentActivityDelete, this.recentActivityDelete);
 	        pull_client.PULL.subscribe(pullRequests);
 	      },
 	      pinChangedHandler(event) {
@@ -3025,10 +3336,33 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          this.$store.dispatch('updateCounters', event.data);
 	        }
 	      },
+	      async recentActivityUpdate(event) {
+	        const recentActivityData = event.data.recentActivityData;
+	        const space = this.$store.state.main.spaces.get(recentActivityData.spaceId);
+	        if (space) {
+	          this.$store.dispatch('updateSpaceRecentActivityData', recentActivityData);
+	        } else {
+	          await this.loadSpace(recentActivityData.spaceId);
+	        }
+	      },
+	      async recentActivityDelete(event) {
+	        const deletedActivityTypeId = event.data.typeId;
+	        const deletedActivityEntityId = event.data.entityId;
+	        const spaceModels = [...this.$store.getters.recentSpaces.values()];
+	        spaceModels.forEach(space => {
+	          const wasSpaceRecentActivityDeleted = space.recentActivity.typeId === deletedActivityTypeId && space.recentActivity.entityId === deletedActivityEntityId;
+	          if (wasSpaceRecentActivityDeleted) {
+	            this.loadSpace(space.id);
+	          }
+	        });
+	      },
+	      async loadSpace(spaceId) {
+	        const requestData = await Client.loadSpaceData(spaceId);
+	        this.$store.dispatch('updateSpaceData', requestData);
+	      },
 	      async updateSpaceData(event) {
-	        if (event.data.spaceId) {
-	          const requestData = await Client.loadSpaceData(event.data.spaceId);
-	          this.$store.dispatch('updateSpaceData', requestData);
+	        if (event.data.spaceId >= 0) {
+	          await this.loadSpace(event.data.spaceId);
 	        }
 	      },
 	      async updateSpaceUserData(event) {
@@ -3083,5 +3417,5 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	exports.List = List;
 
-}((this.BX.Socialnetwork.Spaces = this.BX.Socialnetwork.Spaces || {}),BX.Vue3,BX.Main,BX.Main,BX.UI.AvatarEditor,BX,BX.Vue3.Vuex,BX,BX.Event,BX));
+}((this.BX.Socialnetwork.Spaces = this.BX.Socialnetwork.Spaces || {}),BX.Vue3,BX,BX.UI.Dialogs,BX.Main,BX.Main,BX.Socialnetwork,BX.UI.AvatarEditor,BX,BX.Vue3.Vuex,BX,BX.Event,BX));
 //# sourceMappingURL=script.js.map

@@ -66,6 +66,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this._enableConfigControl = true;
 		this._enableFieldsContextMenu = true;
 
+		this._canHideField = true;
+
 		this._serviceUrl = "";
 		this._htmlEditorConfigs = null;
 
@@ -106,6 +108,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			"commonConfigEditUrl",
 			"/configs/editor/?ENTITY_TYPE_ID=#ENTITY_TYPE_ID_VALUE#&MODULE_ID=#MODULE_ID#"
 		);
+		this._canBeMultipleFields = true;
 		this.moduleId = null;
 		this._restrictions = {};
 
@@ -147,6 +150,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._buttonContainer = BX(BX.prop.get(this._settings, "buttonContainerId"));
 			this._configIcon = BX(BX.prop.get(this._settings, "configIconId"));
 
+			this._canHideField = BX.prop.getBoolean(this._settings, "canHideField", true);
+			this._canBeMultipleFields = BX.prop.getBoolean(this._settings, "canBeMultipleFields", true);
 			this._enableShowAlwaysFeauture = BX.prop.getBoolean(this._settings, "enableShowAlwaysFeauture", true);
 			this._enableVisibilityPolicy = BX.prop.getBoolean(this._settings, "enableVisibilityPolicy", true);
 			this._enablePageTitleControls = BX.prop.getBoolean(this._settings, "enablePageTitleControls", true);
@@ -767,6 +772,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		getScheme: function()
 		{
 			return this._scheme;
+		},
+		canHideField: function()
+		{
+			return this._canHideField;
 		},
 		isVisible: function()
 		{

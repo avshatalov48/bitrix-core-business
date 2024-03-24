@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main;
+
 class CAllIBlockOffersTmp
 {
 	public static function Add($intProductIBlockID,$intOffersIBlockID)
@@ -8,12 +11,21 @@ class CAllIBlockOffersTmp
 		$intProductIBlockID = (int)$intProductIBlockID;
 		$intOffersIBlockID = (int)$intOffersIBlockID;
 		if ($intProductIBlockID <= 0 || $intOffersIBlockID <= 0)
+		{
 			return false;
-		$arFields = array(
+		}
+
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$arFields = [
 			'PRODUCT_IBLOCK_ID' => $intProductIBlockID,
 			'OFFERS_IBLOCK_ID' => $intOffersIBlockID,
-		);
-		return $DB->Add("b_iblock_offers_tmp", $arFields);
+			'~TIMESTAMP_X' => $helper->getCurrentDateTimeFunction(),
+		];
+		unset($helper, $connection);
+
+		return $DB->Add('b_iblock_offers_tmp', $arFields);
 	}
 
 	public static function Delete($ID)

@@ -247,7 +247,7 @@ class ViewedService
 			->where('CHAT_ID', $message->getChatId())
 			->where('ID', '<=', $message->getMessageId())
 			->where('ID', $operator, $lowerBound)
-			->setOrder(['ID' => 'DESC'])
+			->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
 			->setLimit(100)
 		;
 		if ($message->getChat()->getType() !== \IM_MESSAGE_SYSTEM)

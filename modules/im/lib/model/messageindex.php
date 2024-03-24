@@ -2,12 +2,10 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\Application,
 	Bitrix\Main\Entity,
 	Bitrix\Main\Error;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class MessageIndexTable

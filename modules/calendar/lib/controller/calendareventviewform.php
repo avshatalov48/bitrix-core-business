@@ -68,7 +68,7 @@ class CalendarEventViewForm extends Controller
 				'EVENT_DATE' => urlencode($entry['DATE_FROM'])
 			]
 		);
-		$responseParams['dayOfWeekMonthFormat'] = stripslashes(
+		$responseParams['dayOfWeekMonthFormat'] = (
 			\Bitrix\Main\Context::getCurrent()
 				->getCulture()
 				->getDayOfWeekMonthFormat()

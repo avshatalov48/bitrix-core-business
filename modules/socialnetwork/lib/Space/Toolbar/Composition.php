@@ -10,6 +10,7 @@ use Bitrix\Socialnetwork\Space\Toolbar\Composition\CompositionItemCollection;
 use Bitrix\Socialnetwork\Space\Toolbar\Composition\AbstractCompositionItem;
 use Bitrix\Socialnetwork\Space\Toolbar\Composition\Item\BusinessProcess;
 use Bitrix\Socialnetwork\Space\Toolbar\Composition\Item\CalendarEvent;
+use Bitrix\Socialnetwork\Space\Toolbar\Composition\Item\Crm;
 use Bitrix\Socialnetwork\Space\Toolbar\Composition\Item\ListElement;
 use Bitrix\Socialnetwork\Space\Toolbar\Composition\Item\Message;
 use Bitrix\Socialnetwork\Space\Toolbar\Composition\Item\Task;
@@ -118,9 +119,21 @@ class Composition
 		}
 	}
 
-	public function getDeselectedSettings(bool $withHidden = true): array
+	public function getDeselectedSettings(bool $withHidden = true, bool $withDisabled = true): array
 	{
-		return array_diff($this->getDefaultSettings($withHidden), $this->getSettings());
+		$deselectedSettings = array_diff($this->getDefaultSettings($withHidden), $this->getSettings());
+
+		return $withDisabled
+			? array_merge($deselectedSettings, $this->getDisabledSettings())
+			: $deselectedSettings;
+	}
+
+	public function getDisabledSettings(): array
+	{
+		// disable all crm events in spaces
+		return [
+			(new Crm())->getModuleId(),
+		];
 	}
 
 	private function init(): void

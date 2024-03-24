@@ -2,7 +2,9 @@
 
 namespace Bitrix\Socialnetwork\Component\LogListCommon;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UserCounterTable;
 use Bitrix\Socialnetwork\Component\LogList\Util;
@@ -200,6 +202,7 @@ class Processor
 
 	protected static function getUnreadCommentsIdList($params): array
 	{
+		$helper = Application::getConnection()->getSqlHelper();
 		$result = [];
 
 		$userId = (int)($params['userId'] ?? 0);
@@ -222,9 +225,17 @@ class Processor
 		$query->addFilter('=USER_ID', $userId);
 		$query->addFilter('=SITE_ID', SITE_ID);
 
-		$subQuery = LogCommentTable::query();
-		$subQuery->whereIn('LOG_ID', $logIdList);
-		$subQuery->addSelect(new \Bitrix\Main\Entity\ExpressionField('COMMENT_CODE', "CONCAT('**LC', %s)", [ 'ID' ]));
+		$expression = $helper->getConcatFunction(
+			$helper->convertToDbString('**LC'),
+			$helper->convertToDbString('%s')
+		);
+
+		$field = new ExpressionField('COMMENT_CODE', $expression, ['ID']);
+
+		$subQuery =
+			LogCommentTable::query()
+			->whereIn('LOG_ID', $logIdList)
+			->addSelect($field);
 
 		$query->addFilter('@CODE', new SqlExpression($subQuery->getQuery()));
 		$query->addSelect('CODE');

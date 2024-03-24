@@ -88,7 +88,10 @@ $theme = COption::GetOptionString("main", "wizard_eshop_bootstrap_theme_id", "bl
 					);?>
 				</div>
 			</div>
-			<?if ($curPage != SITE_DIR."index.php"):?>
+			<?php
+			if ($curPage != SITE_DIR."index.php"):
+				if (\Bitrix\Main\ModuleManager::isModuleInstalled('search')):
+				?>
 			<div class="row">
 				<div class="col-lg-12">
 					<?$APPLICATION->IncludeComponent("bitrix:search.title", "visual", array(
@@ -120,9 +123,10 @@ $theme = COption::GetOptionString("main", "wizard_eshop_bootstrap_theme_id", "bl
 					);?>
 				</div>
 			</div>
-			<?endif?>
+			<?php
+				endif;
+			endif;
 
-			<?
 			if ($curPage != SITE_DIR."index.php")
 			{
 			?>

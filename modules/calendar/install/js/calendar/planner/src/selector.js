@@ -25,6 +25,7 @@ export class Selector extends EventEmitter
 		this.getTimelineWidth = params.getTimelineWidth;
 		this.getScaleInfo = params.getScaleInfo;
 		this.solidStatus = params.solidStatus;
+		this.vacationOffset = 0;
 
 		this.eventDragAndDrop = new EventDragAndDrop(params.getDateByPos, params.getPosByDate, params.getEvents);
 
@@ -37,7 +38,7 @@ export class Selector extends EventEmitter
 	{
 		this.DOM.timeNodes = {};
 		this.DOM.timeWrap = Tag.render`
-			<div></div>
+			<div class="calendar-planner-selector-notices-container"></div>
 		`;
 
 		this.DOM.wrap = Tag.render`
@@ -83,16 +84,37 @@ export class Selector extends EventEmitter
 		}
 	}
 
-	showTimeNode(offsetTop, time, timezone, isWarning = false)
+	setVacationOffset(offset)
+	{
+		this.vacationOffset = offset;
+	}
+
+	showTimeNode(offsetTop, time, timezone, entryId, isWarning = false)
 	{
 		this.destroyTimeNode(offsetTop);
 
 		const warningClass = isWarning ? '--warning' : '';
 
 		this.DOM.timeNodes[offsetTop] = Tag.render`
-			<div class="calendar-planner-timeline-side-notice --left ${warningClass}" style="top: ${offsetTop}px" title="${timezone}">${time}</div>
+			<div 
+			class="calendar-planner-timeline-side-notice --left ${warningClass}" 
+			id="timeline-side-notice-${entryId}" 
+			style="top: ${offsetTop}px" 
+			title="${timezone}"
+			>${time}</div>
 		`;
 		this.DOM.timeWrap.append(this.DOM.timeNodes[offsetTop]);
+
+		this.updateTimeWrapWidth();
+	}
+
+	updateTimeWrapWidth()
+	{
+		const width = Object.values(this.DOM.timeNodes).reduce((acc, el) => Math.max(acc, el?.offsetWidth), 0) + 5;
+
+		this.DOM.timeWrap.style.width = `${width}px`;
+		this.DOM.timeWrap.style.marginLeft = `${-width}px`;
+		this.DOM.timeWrap.style.left = `${this.vacationOffset}px`;
 	}
 
 	destroyTimeNode(offset)

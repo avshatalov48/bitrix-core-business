@@ -68,16 +68,23 @@ if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $c
 else
 {
 	if ($arParams["CACHE_TIME"] > 0)
+	{
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
+	}
 
-	$arFilter = Array(
-				"ACTIVE" => "Y",
-				"GROUP_SITE_ID"=>SITE_ID
-			);	
-	if(!empty($arParams["GROUP_ID"]))
+	$arFilter = [
+		"=ACTIVE" => "Y",
+		"GROUP_SITE_ID" => SITE_ID,
+	];
+	if (!empty($arParams["GROUP_ID"]))
+	{
 		$arFilter["GROUP_ID"] = $arParams["GROUP_ID"];
+	}
 
-	$arSelectedFields = array("ID", "NAME", "DESCRIPTION", "URL", "OWNER_ID", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_SECOND_NAME", "OWNER_LOGIN", "BLOG_USER_ALIAS", "GROUP_ID", "SOCNET_GROUP_ID", "LAST_POST_ID");
+	$arSelectedFields = [
+		"ID", "NAME", "DESCRIPTION", "URL", "OWNER_ID", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_SECOND_NAME",
+		"OWNER_LOGIN", "BLOG_USER_ALIAS", "GROUP_ID", "SOCNET_GROUP_ID", "LAST_POST_ID",
+	];
 	
 	if(CModule::IncludeModule("socialnetwork") && $arParams["USE_SOCNET"] == "Y")
 	{

@@ -29,7 +29,7 @@ if($arParams["SHOW_INPUT"] !== "N"):?>
 <div id="<?echo $CONTAINER_ID?>" class="bx-searchtitle <?=$themeClass;?>">
 	<form action="<?echo $arResult["FORM_ACTION"]?>">
 		<div class="input-group">
-			<input id="<?echo $INPUT_ID?>" type="text" name="q" value="<?=htmlspecialcharsbx($_REQUEST["q"])?>" autocomplete="off" class="form-control"/>
+			<input id="<?echo $INPUT_ID?>" type="text" name="q" value="<?=htmlspecialcharsbx($_REQUEST["q"] ?? '')?>" autocomplete="off" class="form-control"/>
 			<div class="input-group-append">
 				<button class="btn btn-primary search-title-button" type="submit" name="s">&nbsp;</button>
 			</div>

@@ -62,7 +62,10 @@ class MailboxConnecting extends Controller
 
 		foreach ($services as &$service)
 		{
-			if (MailServicesTable::getOAuthHelper(['NAME' => $service['name']]) instanceof OAuth)
+			if (
+				MailServicesTable::getOAuthHelper(['NAME' => $service['name']]) instanceof OAuth
+				&& MailboxConnector::isOauthSmtpEnabled($service['name'] ?? '')
+			)
 			{
 				$service['oauthMode'] = true;
 			}

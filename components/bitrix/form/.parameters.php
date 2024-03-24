@@ -1,4 +1,5 @@
 <?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -15,7 +16,7 @@ while ($arForm = $rsForm->Fetch())
 	$arrForms[$arForm["ID"]] = "[".$arForm["ID"]."] ".$arForm["NAME"];
 }
 
-if (intval($arCurrentValues["WEB_FORM_ID"]) > 0)
+if (isset($arCurrentValues["WEB_FORM_ID"]) && intval($arCurrentValues["WEB_FORM_ID"]) > 0)
 {
 	$show_list = true;
 	$rsFieldList = CFormField::GetList(intval($arCurrentValues["WEB_FORM_ID"]), "ALL");
@@ -167,7 +168,7 @@ $arComponentParameters = array(
 		),
 
 		"NOT_SHOW_TABLE" => array(
-			"NAME" => $show_list ? GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST") : GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST"),
+			"NAME" => $show_list ? GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST") : GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE"),
 			"TYPE" => $show_list ? "LIST" : "STRING",
 			"MULTIPLE" => $show_list ? "Y" : "",
 			"VALUES" => $show_list ? $arFieldList : "",

@@ -397,7 +397,7 @@ class CALLSaleProduct
 	/** @deprecated */
 	public static function RefreshProductList()
 	{
-		$liveTime = (int)Main\Config\Option::get('sale', 'p2p_del_exp', 10);
+		$liveTime = (int)Main\Config\Option::get('sale', 'p2p_del_exp');
 		\Bitrix\Sale\Product2ProductTable::refreshProductStatistic($liveTime);
 
 		return "CSaleProduct::RefreshProductList();";

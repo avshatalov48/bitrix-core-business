@@ -1,12 +1,9 @@
 <?php
 namespace Bitrix\Sale\Internals;
-use \Bitrix\Main\Entity\DataManager as DataManager;
-use \Bitrix\Main\Type\DateTime as DateTime;
-use \Bitrix\Main\Application as Application;
-use Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(__FILE__);
-
+use Bitrix\Main;
+use Bitrix\Main\Entity\DataManager;
+use Bitrix\Main\Application;
 
 /**
  * Class OrderProcessingTable
@@ -26,33 +23,33 @@ Loc::loadMessages(__FILE__);
  */
 class OrderProcessingTable extends DataManager
 {
-	protected $orderProcessedCache = array();
+	protected array $orderProcessedCache = [];
 
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return "b_sale_order_processing";
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ORDER_ID' => array(
+		return [
+			'ORDER_ID' => [
 				'primary' => true,
 				'data_type' => 'integer',
-			),
-			'PRODUCTS_ADDED' => array(
+			],
+			'PRODUCTS_ADDED' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'PRODUCTS_REMOVED' =>array (
+				'values' => ['N','Y'],
+			],
+			'PRODUCTS_REMOVED' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'ORDER' => array(
+				'values' => ['N','Y'],
+			],
+			'ORDER' => [
 				'data_type' => "Bitrix\\Sale\\OrderTable",
-				'reference' => array('=this.ORDER_ID' => 'ref.ID')
-			)
-		);
+				'reference' => ['=this.ORDER_ID' => 'ref.ID'],
+			],
+		];
 	}
 
 	/**
@@ -62,15 +59,16 @@ class OrderProcessingTable extends DataManager
 	 *
 	 * @return bool
 	 */
-	public static function hasAddedProducts($orderId = 0)
+	public static function hasAddedProducts($orderId = 0): bool
 	{
 		$orderId = (int)$orderId;
-		$iterator = static::getList(array(
-			"filter" => array("ORDER_ID" => $orderId)
-		));
+		$row = static::getRow([
+			'filter' => [
+				'=ORDER_ID' => $orderId,
+			],
+		]);
 
-		$row = $iterator->fetch();
-		return $row &&  $row['PRODUCTS_ADDED'] == "Y";
+		return ($row['PRODUCTS_ADDED'] ?? null) === 'Y';
 	}
 
 	/**
@@ -78,37 +76,49 @@ class OrderProcessingTable extends DataManager
 	 *
 	 * @param int $orderId
 	 *
-	 * @return bool|null
+	 * @return bool
 	 */
-	public static function hasRemovedProducts($orderId = 0)
+	public static function hasRemovedProducts($orderId = 0): bool
 	{
 		$orderId = (int)$orderId;
-		$iterator = static::getList(array(
-			"filter" => array("ORDER_ID" => $orderId)
-		));
+		$row = static::getRow([
+			'filter' => [
+				'=ORDER_ID' => $orderId,
+			],
+		]);
 
-		$row = $iterator->fetch();
-		return $row &&  $row['PRODUCTS_REMOVED'] == "Y";
+		return ($row['PRODUCTS_REMOVED'] ?? null) === 'Y';
 	}
 
 	/**
 	 * Mark order as processed
 	 *
 	 * @param int $orderId
+	 *
+	 * @return void
 	 */
-	public static function markProductsAdded($orderId = 0)
+	public static function markProductsAdded($orderId = 0): void
 	{
 		$orderId = (int)$orderId;
-		$iterator = static::getList(array(
-			"filter" => array("ORDER_ID" => $orderId)
-		));
-		if($row = $iterator->fetch())
+		if ($orderId <= 0)
 		{
-			static::update($orderId, array("PRODUCTS_ADDED" => 'Y'));
+			return;
+		}
+		$row = static::getRow([
+			'filter' => [
+				'=ORDER_ID' => $orderId,
+			],
+		]);
+		if ($row)
+		{
+			static::update($orderId, ['PRODUCTS_ADDED' => 'Y']);
 		}
 		else
 		{
-			static::add(array("ORDER_ID" => $orderId, "PRODUCTS_ADDED" => 'Y'));
+			static::add([
+				'ORDER_ID' => $orderId,
+				'PRODUCTS_ADDED' => 'Y',
+			]);
 		}
 	}
 
@@ -116,43 +126,51 @@ class OrderProcessingTable extends DataManager
 	 * Mark orders as processed
 	 *
 	 * @param array $orderIds
+	 *
+	 * @return void
 	 */
-	public static function markProductsAddedByList(array $orderIds)
+	public static function markProductsAddedByList(array $orderIds): void
 	{
-		$preparedIds = array();
-		foreach( $orderIds as $orderId)
+		Main\Type\Collection::normalizeArrayValuesByInt($orderIds);
+		if (empty($orderIds))
 		{
-			if ((int)$orderId > 0)
-				$preparedIds[] = (int)$orderId;
+			return;
 		}
 
 		$connection = \Bitrix\Main\Application::getConnection();
-		$type = $connection->getType();
-		if ($type == "mysql" && !empty($preparedIds))
-		{
-			$sqlUpdate = "UPDATE ". static::getTableName() ." SET PRODUCTS_ADDED = 'Y' WHERE ORDER_ID IN (".implode(',', $preparedIds).")";
-			$connection->query($sqlUpdate);
-		}
+		$sqlUpdate = "UPDATE ". static::getTableName() ." SET PRODUCTS_ADDED = 'Y' WHERE ORDER_ID IN (".implode(',', $orderIds).")";
+		$connection->queryExecute($sqlUpdate);
 	}
 
 	/**
 	 * Mark order as processed
 	 *
 	 * @param int $orderId
+	 *
+	 * @return void
 	 */
-	public static function markProductsRemoved($orderId = 0)
+	public static function markProductsRemoved($orderId = 0): void
 	{
 		$orderId = (int)$orderId;
-		$iterator = static::getList(array(
-			"filter" => array("ORDER_ID" => $orderId)
-		));
-		if($row = $iterator->fetch())
+		if ($orderId <= 0)
 		{
-			static::update($orderId, array("PRODUCTS_REMOVED" => 'Y'));
+			return;
+		}
+		$row = static::getRow([
+			'filter' => [
+				'=ORDER_ID' => $orderId,
+			],
+		]);
+		if ($row)
+		{
+			static::update($orderId, ['PRODUCTS_REMOVED' => 'Y']);
 		}
 		else
 		{
-			static::add(array("ORDER_ID" => $orderId, "PRODUCTS_REMOVED" => 'Y'));
+			static::add([
+				'ORDER_ID' => $orderId,
+				'PRODUCTS_REMOVED' => 'Y',
+			]);
 		}
 	}
 
@@ -163,11 +181,15 @@ class OrderProcessingTable extends DataManager
 	 */
 	public static function deleteByOrderId($orderId)
 	{
-		if((int)($orderId) <= 0)
+		$orderId = (int)$orderId;
+		if ($orderId <= 0)
+		{
 			return false;
+		}
 
 		$con = \Bitrix\Main\Application::getConnection();
-		$con->queryExecute("DELETE FROM ". static::getTableName() ." WHERE ORDER_ID=".(int)($orderId));
+		$con->queryExecute("DELETE FROM ". static::getTableName() ." WHERE ORDER_ID=".$orderId);
+
 		return true;
 	}
 
@@ -180,8 +202,6 @@ class OrderProcessingTable extends DataManager
 		$connection = Application::getConnection();
 		$sql = "DELETE FROM " . static::getTableName() . "
 				WHERE ORDER_ID NOT IN (SELECT ID FROM b_sale_order)";
-		$connection->query($sql);
+		$connection->queryExecute($sql);
 	}
 }
-
-?>

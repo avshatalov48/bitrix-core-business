@@ -3,11 +3,9 @@ namespace Bitrix\Im\Model;
 
 use Bitrix\Im\V2\Entity\User\Data\BotData;
 use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Im\V2\Common\UpdateByFilterTrait;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class BotTable
@@ -60,102 +58,102 @@ class BotTable extends Main\Entity\DataManager
 			'BOT_ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
-				'title' => Loc::getMessage('BOT_ENTITY_BOT_ID_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_BOT_ID_FIELD'),
 			),
 			'MODULE_ID' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateModuleId'),
 				'required' => true,
-				'title' => Loc::getMessage('BOT_ENTITY_MODULE_ID_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_MODULE_ID_FIELD'),
 			),
 			'CODE' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateBotCode'),
-				'title' => Loc::getMessage('BOT_ENTITY_BOT_NAME_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_BOT_NAME_FIELD'),
 			),
 			'TYPE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateBotType'),
-				'title' => Loc::getMessage('BOT_ENTITY_BOT_TYPE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_BOT_TYPE_FIELD'),
 				'default_value' => 'B',
 			),
 			'CLASS' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateToClass'),
-				'title' => Loc::getMessage('BOT_ENTITY_TO_CLASS_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_TO_CLASS_FIELD'),
 			),
 			'LANG' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateLanguage'),
-				'title' => Loc::getMessage('BOT_ENTITY_LANGUAGE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_LANGUAGE_FIELD'),
 				'default_value' => '',
 			),
 			'METHOD_BOT_DELETE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateToMethod'),
-				'title' => Loc::getMessage('BOT_ENTITY_METHOD_BOT_DELETE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_METHOD_BOT_DELETE_FIELD'),
 			),
 			'METHOD_MESSAGE_ADD' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateToMethod'),
-				'title' => Loc::getMessage('BOT_ENTITY_METHOD_MESSAGE_ADD_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_METHOD_MESSAGE_ADD_FIELD'),
 			),
 			'METHOD_MESSAGE_UPDATE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateToMethod'),
-				'title' => Loc::getMessage('BOT_ENTITY_METHOD_MESSAGE_UPDATE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_METHOD_MESSAGE_UPDATE_FIELD'),
 			),
 			'METHOD_MESSAGE_DELETE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateToMethod'),
-				'title' => Loc::getMessage('BOT_ENTITY_METHOD_MESSAGE_DELETE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_METHOD_MESSAGE_DELETE_FIELD'),
 			),
 			'METHOD_WELCOME_MESSAGE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateToMethod'),
-				'title' => Loc::getMessage('BOT_ENTITY_METHOD_WELCOME_MESSAGE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_METHOD_WELCOME_MESSAGE_FIELD'),
 			),
 			'TEXT_PRIVATE_WELCOME_MESSAGE' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('BOT_ENTITY_TEXT_CHAT_WELCOME_MESSAGE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_TEXT_CHAT_WELCOME_MESSAGE_FIELD'),
 			),
 			'TEXT_CHAT_WELCOME_MESSAGE' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('BOT_ENTITY_TEXT_CHAT_WELCOME_MESSAGE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_TEXT_CHAT_WELCOME_MESSAGE_FIELD'),
 			),
 			'COUNT_MESSAGE' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('BOT_ENTITY_COUNT_MESSAGE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_COUNT_MESSAGE_FIELD'),
 			),
 			'COUNT_COMMAND' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('BOT_ENTITY_COUNT_COMMAND_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_COUNT_COMMAND_FIELD'),
 			),
 			'COUNT_CHAT' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('BOT_ENTITY_COUNT_CHAT_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_COUNT_CHAT_FIELD'),
 			),
 			'COUNT_USER' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('BOT_ENTITY_COUNT_USER_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_COUNT_USER_FIELD'),
 			),
 			'APP_ID' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateAppId'),
-				'title' => Loc::getMessage('BOT_ENTITY_APP_ID_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_APP_ID_FIELD'),
 				'default_value' => '',
 			),
 			'VERIFIED' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('BOT_ENTITY_VERIFIED_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_VERIFIED_FIELD'),
 				'default_value' => 'N',
 			),
 			'OPENLINE' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('BOT_ENTITY_OPENLINE_FIELD'),
+				//'title' => Loc::getMessage('BOT_ENTITY_OPENLINE_FIELD'),
 				'default_value' => 'N',
 			),
 			'HIDDEN' => array(

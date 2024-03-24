@@ -85,7 +85,7 @@
 			const currentElement = this.editor.currentElement;
 			if (this.copilot && this.currentElement === this.editor.currentElement)
 			{
-				BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+				this.hideEditorPanel(true);
 				this.copilot.setSelectedText(this.context);
 				this.copilot.show({
 					currentElement,
@@ -97,7 +97,7 @@
 			this.currentElement = this.editor.currentElement;
 			if (this.isInit)
 			{
-				BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+				this.hideEditorPanel(true);
 				this.copilot.setSelectedText(this.context);
 				this.copilot.show({
 					currentElement,
@@ -138,7 +138,7 @@
 			this.isInit = true;
 			if (this.clickBeforeInit === true)
 			{
-				BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+				this.hideEditorPanel(true);
 				const currentElement = this.editor.currentElement;
 				this.copilot.show({
 					currentElement,
@@ -231,6 +231,22 @@
 			}
 
 			return 'edit_block_slider';
+		},
+
+		hideEditorPanel(strictMode)
+		{
+			if (strictMode)
+			{
+				const fieldInput = this.editor.currentElement.querySelector('.landing-ui-field-input');
+				if (!fieldInput)
+				{
+					BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+				}
+			}
+			else
+			{
+				BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+			}
 		},
 	};
 })();

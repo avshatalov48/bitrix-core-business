@@ -5,6 +5,7 @@ namespace Bitrix\Im\V2\Sync;
 use Bitrix\Im\Model\EO_Log_Collection;
 use Bitrix\Im\Model\LogTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
+use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
@@ -84,11 +85,11 @@ class Logger
 
 		foreach ($groupedEvents as ['event' => $event, 'user' => $userId])
 		{
-			if (is_int($userId))
+			if (count($userId) === 1)
 			{
 				LogTable::merge(...$this->getMergeParam($event, $userId));
 			}
-			if (is_array($userId))
+			else
 			{
 				LogTable::multiplyMerge(...$this->getMultiplyMergeParam($event, $userId));
 			}
@@ -134,15 +135,16 @@ class Logger
 				continue;
 			}
 
-			$implodedUserIds = implode('-', $userId);
-			$key = "{$event->eventName}|{$event->entityType}|{$event->entityId}|{$implodedUserIds}";
+			$key = "{$event->eventName}|{$event->entityType}|{$event->entityId}";
 
-			if (count($userId) === 1)
+			if (isset($result[$key]['user']))
 			{
-				$userId = array_pop($userId);
+				$result[$key]['user'] = $this->mergeByKey($result[$key]['user'], $userId);
 			}
-
-			$result[$key] = ['event' => $event, 'user' => $userId];
+			else
+			{
+				$result[$key] = ['event' => $event, 'user' => $userId];
+			}
 		}
 
 		return array_values($result);
@@ -170,16 +172,15 @@ class Logger
 	{
 		$allUsers = $this->getUsers();
 
-		//$usersWithMobile = $this->filterWithoutMobile($allUsers);
-		$activeUsersWithMobile = $this->filterInactive($allUsers);
-		$result = [];
-
-		foreach ($activeUsersWithMobile as $userId)
+		foreach ($allUsers as $userId)
 		{
-			$result[$userId] = $userId;
+			$user = User::getInstance($userId);
+			$isRealUser = !in_array($user->getExternalAuthId(), UserTable::getExternalUserTypes(), true);
+			if ($isRealUser && $user->isActive())
+			{
+				$this->allowedUsers[$userId] = $userId;
+			}
 		}
-
-		$this->allowedUsers = $result;
 	}
 
 	private function getUsers(): array
@@ -259,11 +260,27 @@ class Logger
 		}
 	}
 
-	private function getMergeParam(Event $event, int $userId): array
+	private function mergeByKey(array ...$arrays): array
 	{
+		$result = [];
+		foreach ($arrays as $array)
+		{
+			foreach ($array as $key => $value)
+			{
+				$result[$key] = $value;
+			}
+		}
+
+		return $result;
+	}
+
+	private function getMergeParam(Event $event, array $userId): array
+	{
+		$intUserId = array_values($userId)[0];
+
 		return [
 			[
-				'USER_ID' => $userId,
+				'USER_ID' => $intUserId,
 				'ENTITY_TYPE' => $event->entityType,
 				'ENTITY_ID' => $event->entityId,
 				'EVENT' => $event->eventName,
@@ -274,6 +291,11 @@ class Logger
 				'EVENT' => $event->eventName,
 				'DATE_CREATE' => $event->getDateCreate(),
 				'DATE_DELETE' => $event->getDateDelete(),
+			],
+			[
+				'USER_ID',
+				'ENTITY_TYPE',
+				'ENTITY_ID',
 			]
 		];
 	}
@@ -301,6 +323,12 @@ class Logger
 				'DATE_CREATE' => $event->getDateCreate(),
 				'DATE_DELETE' => $event->getDateDelete(),
 			],
+			[
+				'USER_ID',
+				'ENTITY_TYPE',
+				'ENTITY_ID',
+			],
+			['DEADLOCK_SAFE' => true]
 		];
 	}
 }

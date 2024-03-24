@@ -1,24 +1,24 @@
 import 'ui.info-helper';
 
-import {Utils} from 'im.v2.lib.utils';
-import {DesktopFeature} from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
+import { DesktopApi, DesktopFeature } from 'im.v2.lib.desktop-api';
 
-import {Action} from './items/action';
+import { Action } from './items/action';
 
-import type {LimitRestResult} from '../types/rest';
+import type { LimitRestResult } from '../types/rest';
 
 export class LimitManager
 {
 	static limitCode = {
 		blur: 'call_blur_background',
-		image: 'call_background'
+		image: 'call_background',
 	};
 
 	limits: {[limitId: string]: LimitRestResult} = {};
 
 	constructor(params: {limits: LimitRestResult[], infoHelperUrlTemplate: string})
 	{
-		const {limits, infoHelperUrlTemplate} = params;
+		const { limits, infoHelperUrlTemplate } = params;
 		this.#initLimits(limits);
 		this.#initInfoHelper(infoHelperUrlTemplate);
 	}
@@ -51,7 +51,7 @@ export class LimitManager
 			return true;
 		}
 
-		return Utils.platform.isDesktopFeatureEnabled(DesktopFeature.mask.id);
+		return DesktopApi.isFeatureEnabled(DesktopFeature.mask.id);
 	}
 
 	static isMaskFeatureSupportedByDesktopVersion(): boolean
@@ -61,7 +61,7 @@ export class LimitManager
 			return true;
 		}
 
-		return Utils.platform.getDesktopVersion() >= DesktopFeature.mask.availableFromVersion;
+		return DesktopApi.isFeatureSupported(DesktopFeature.mask.id);
 	}
 	// endregion Mask feature
 

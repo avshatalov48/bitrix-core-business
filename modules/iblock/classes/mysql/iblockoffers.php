@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CIBlockOffersTmp extends CAllIBlockOffersTmp
 {
 	public static function GetOldID($intProductIBlockID, $intOffersIBlockID, $intInterval = 1800)

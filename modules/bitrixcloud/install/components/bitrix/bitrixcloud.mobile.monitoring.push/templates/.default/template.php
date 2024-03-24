@@ -1,80 +1,91 @@
-<?if(!Defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var CMain $APPLICATION */
+/** @var CUser $USER */
+/** @var CDatabase $DB */
+/** @var CBitrixComponentTemplate $this */
+/** @var string $templateName */
+/** @var string $templateFile */
+/** @var string $templateFolder */
+/** @var string $componentPath */
+/** @var CBitrixComponent $component */
 
 $converter = CBXPunycode::GetConverter();
-$arData = array();
+$arData = [];
 
-if($arResult["DOMAIN"] == "")
+if ($arResult['DOMAIN'] == '')
 {
-	$arItems  = array();
+	$arItems  = [];
 
-	foreach ($arResult["DOMAINS_NAMES"] as $domainName)
+	foreach ($arResult['DOMAINS_NAMES'] as $domainName)
 	{
-		$domLink = CHTTP::urlAddParams(
-			$arResult["CURRENT_PAGE"],
-				array(
-					"domain" => urlencode($domainName)
-				)
-		);
+		$domLink = (new \Bitrix\Main\Web\Uri($arResult['CURRENT_PAGE']))->addParams([
+			'domain' => $domainName,
+		])->getUri();
 
-		$arItems[] = array(
-			"TYPE" => "CUSTOM",
-			"HTML_DATA" =>
-				'<ul>'.
-					'<li id="li_id_'.$domainName.'">'.
-						'<a href="javascript:void(0);">'.htmlspecialcharsEx($converter->Decode($domainName)).'</a>'.
-					'</li>'.
-				'</ul>'.
-				'<script type="text/javascript">'.
-					'BX.ready(function(){ bcPush.makeFastButton("li_id_'.$domainName.'", "'.$domLink.'");});'.
-				'</script>'
-		);
+		$arItems[] = [
+			'TYPE' => 'CUSTOM',
+			'HTML_DATA' =>
+				'<ul>'
+					. '<li id="' . htmlspecialcharsbx('li_id_' . $domainName) . '">'
+						. '<a href="javascript:void(0);">' . htmlspecialcharsEx($converter->Decode($domainName)) . '</a>'
+					. '</li>'
+				. '</ul>'
+				. '<script type="text/javascript">'
+					. 'BX.ready(function(){ bcPush.makeFastButton("'. CUtil::JSEscape('li_id_' . $domainName) . '", "' . CUtil::JSEscape($domLink) . '");});'
+				. '</script>'
+		];
 	}
 
-	if(empty($arItems))
+	if (empty($arItems))
 	{
-		$arItems = array(
-			array(
-				"TYPE" => "TEXT_RO",
-				"VALUE" => GetMessage("BCMMP_NO_DOMAINS")
-			)
-		);
+		$arItems = [
+			[
+				'TYPE' => 'TEXT_RO',
+				'VALUE' => GetMessage('BCMMP_NO_DOMAINS')
+			]
+		];
 	}
 
-	$arData[] = array(
-		"TYPE" => "BLOCK",
-		"TITLE" => GetMessage("BCMMP_DOMAINS_TITLE"),
-		"DATA" => $arItems
-	);
+	$arData[] = [
+		'TYPE' => 'BLOCK',
+		'TITLE' => GetMessage('BCMMP_DOMAINS_TITLE'),
+		'DATA' => $arItems
+	];
 }
 else
 {
-	$arData[] = array(
-		"TYPE" => "BLOCK",
-		"TITLE" => htmlspecialcharsbx($converter->Decode($arResult["DOMAIN"])),
-		"DATA" => array(
-			array(
-				"TITLE" => GetMessage("BCMMP_PUSH_RECIEVE"),
-				"VALUE" => $arResult["OPTIONS"]["SUBSCRIBE"],
-				"TYPE" => "2_RADIO_BUTTONS",
-				"NAME" => "SUBSCRIBE",
-				"BUTT_Y" => array(
-					"TITLE" => GetMessage("BCMMP_ON"),
-				),
-				"BUTT_N" => array(
-					"TITLE" => GetMessage("BCMMP_OFF"),
-				),
-			)
-		)
-	);
+	$arData[] = [
+		'TYPE' => 'BLOCK',
+		'TITLE' => htmlspecialcharsbx($converter->Decode($arResult['DOMAIN'])),
+		'DATA' => [
+			[
+				'TITLE' => GetMessage('BCMMP_PUSH_RECIEVE'),
+				'VALUE' => $arResult['OPTIONS']['SUBSCRIBE'],
+				'TYPE' => '2_RADIO_BUTTONS',
+				'NAME' => 'SUBSCRIBE',
+				'BUTT_Y' => [
+					'TITLE' => GetMessage('BCMMP_ON'),
+				],
+				'BUTT_N' => [
+					'TITLE' => GetMessage('BCMMP_OFF'),
+				],
+			]
+		]
+	];
 }
 
 $APPLICATION->IncludeComponent(
 	'bitrix:mobileapp.edit',
 	'.default',
-	array(
-		"HEAD" => GetMessage("BCMMP_TITLE2"),
-		"DATA" => $arData
-		),
+	[
+		'HEAD' => GetMessage('BCMMP_TITLE2'),
+		'DATA' => $arData
+	],
 	false
 );
 
@@ -85,19 +96,19 @@ $APPLICATION->IncludeComponent(
 	app.setPageTitle({title: "<?=GetMessage('BCMMP_TITLE')?>"});
 
 	BX.message({
-		"BCMMP_JS_SAVING": "<?=GetMessage("BCMMP_JS_SAVING")?>",
-		"BCMMP_JS_SAVE_ERROR": "<?=GetMessage("BCMMP_JS_SAVE_ERROR")?>"
+		"BCMMP_JS_SAVING": "<?=GetMessage('BCMMP_JS_SAVING')?>",
+		"BCMMP_JS_SAVE_ERROR": "<?=GetMessage('BCMMP_JS_SAVE_ERROR')?>"
 	});
 
 
 	var jsParams = {
-		domain: "<?=CUtil::JSEscape($arResult["DOMAIN"])?>",
+		domain: "<?=CUtil::JSEscape($arResult['DOMAIN'])?>",
 		ajaxUrl: "<?=$arResult['AJAX_URL']?>"
 	};
 
-	var bcPush = new __bitrixCloudPush(jsParams);
+	var bcPush = new BX.BitrixCloud.MobileMonitorPush(app, jsParams);
 
-	<?if($arResult["DOMAIN"] != ""):?>
+	<?php if ($arResult['DOMAIN'] != ''):?>
 		app.addButtons({
 			cancelButton:
 			{
@@ -121,5 +132,5 @@ $APPLICATION->IncludeComponent(
 				}
 			}
 		});
-	<?endif;?>
+	<?php endif;?>
 </script>

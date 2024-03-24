@@ -202,20 +202,21 @@ class Fuser
 	 * @param int $days			Interval.
 	 * @return void
 	 */
-	public static function deleteOld($days)
+	public static function deleteOld($days): void
 	{
-		$expired = new Main\Type\DateTime();
-		$expired->add('-'.$days.' days');
-		$expiredValue = $expired->format('Y-m-d H:i:s');
+		$days = (int)$days;
 
-		/** @var Main\DB\Connection $connection */
 		$connection = Main\Application::getConnection();
-		$sqlHelper = $connection->getSqlHelper();
+		$helper = $connection->getSqlHelper();
 
-		$query = "DELETE FROM b_sale_fuser WHERE
-									b_sale_fuser.DATE_UPDATE < ".$sqlHelper->getDateToCharFunction("'".$expiredValue."'")."
-									AND b_sale_fuser.USER_ID IS NULL
-									AND b_sale_fuser.id NOT IN (select FUSER_ID from b_sale_basket)";
+		$query = "
+			DELETE FROM b_sale_fuser
+			WHERE
+				b_sale_fuser.DATE_UPDATE < " . $helper->addDaysToDateTime(-$days) . "
+				AND b_sale_fuser.USER_ID IS NULL
+				AND b_sale_fuser.ID NOT IN (select FUSER_ID from b_sale_basket)
+		";
+
 		$connection->queryExecute($query);
 	}
 
@@ -444,11 +445,6 @@ class Fuser
 		$userCode = static::generateCode();
 		$currentUserId = self::getCurrentUserId();
 
-		$options['update'] ??= true;
-		if (!is_bool($options['update']))
-		{
-			$options['update'] = true;
-		}
 		$options['save'] ??= false;
 		if (!is_bool($options['save']))
 		{
@@ -475,7 +471,6 @@ class Fuser
 		$id = (int)$internalResult->getId();
 		if (
 			$options['save']
-			&& $options['update']
 			&& ($currentUserId !== null || self::isSaveAnonymousUserCookie())
 		)
 		{
@@ -561,7 +556,7 @@ class Fuser
 			}
 		}
 
-		if ($options['save'] && $options['update'] && $currentUserId !== null)
+		if ($options['save'] && $currentUserId !== null)
 		{
 			$cookieValue = (static::isEncodeCookie() ? $userCode : (string)$id);
 			static::setIdToCookie($cookieValue);
@@ -600,9 +595,13 @@ class Fuser
 			'update' => ($params['update'] ?? true) === true,
 			'save' => ($params['save'] ?? false) === true,
 		];
+		if (!$options['update'])
+		{
+			return;
+		}
 
 		$id = static::getIdFromSession();
-		if ($id === null && $options['update'])
+		if ($id === null)
 		{
 			$filter = static::getFilterFromCookie(static::getIdFromCookie());
 			if ($filter !== null)
@@ -630,7 +629,7 @@ class Fuser
 		if ($row !== null)
 		{
 			$newId = (int)$row['ID'];
-			if ($id !== null && $options['update'])
+			if ($id !== null)
 			{
 				if (\CSaleBasket::TransferBasket($id, $newId))
 				{
@@ -644,7 +643,7 @@ class Fuser
 		{
 			static::update($id, $options);
 		}
-		elseif ($options['update'])
+		else
 		{
 			unset($options['update']);
 			static::add($options);

@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_application_core,im_v2_lib_localStorage,im_v2_lib_logger,im_v2_const) {
+(function (exports,main_core,main_core_events,im_v2_application_core,im_v2_lib_localStorage,im_v2_lib_logger,im_v2_const) {
 	'use strict';
 
 	const WRITE_TO_STORAGE_TIMEOUT = 1000;
@@ -17,42 +17,75 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  constructor() {
 	    this.inited = false;
 	    this.drafts = {};
+	    this.initPromise = new Promise(resolve => {
+	      this.initPromiseResolver = resolve;
+	    });
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.layout.onLayoutChange, this.onLayoutChange.bind(this));
 	  }
 	  initDraftHistory() {
 	    if (this.inited) {
 	      return;
 	    }
-	    this.drafts = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(this.getLocalStorageKey(), {});
-	    im_v2_lib_logger.Logger.warn('DraftManager: initDrafts:', this.drafts);
-	    this.setDraftsInRecentList();
 	    this.inited = true;
+	    const draftHistory = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(this.getLocalStorageKey(), {});
+	    this.fillDraftsFromStorage(draftHistory);
+	    im_v2_lib_logger.Logger.warn('DraftManager: initDrafts:', this.drafts);
+	    this.initPromiseResolver();
+	    this.setRecentListDraftText();
 	  }
-	  setDraft(dialogId, text) {
-	    const preparedText = text.trim();
-	    if (preparedText === '') {
-	      delete this.drafts[dialogId];
-	    } else {
-	      this.drafts[dialogId] = preparedText;
+	  ready() {
+	    return this.initPromise;
+	  }
+	  fillDraftsFromStorage(draftHistory) {
+	    if (!main_core.Type.isPlainObject(draftHistory)) {
+	      return;
 	    }
-	    clearTimeout(this.writeToStorageTimeout);
-	    this.writeToStorageTimeout = setTimeout(() => {
-	      im_v2_lib_localStorage.LocalStorageManager.getInstance().set(this.getLocalStorageKey(), this.drafts);
-	    }, WRITE_TO_STORAGE_TIMEOUT);
-	  }
-	  getDraft(dialogId) {
-	    var _this$drafts$dialogId;
-	    return (_this$drafts$dialogId = this.drafts[dialogId]) != null ? _this$drafts$dialogId : '';
-	  }
-	  clearDraftInRecentList(dialogId) {
-	    this.setDraftInRecentList(dialogId, '');
-	  }
-	  setDraftsInRecentList() {
-	    Object.entries(this.drafts).forEach(([dialogId, text]) => {
-	      this.setDraftInRecentList(dialogId, text);
+	    Object.entries(draftHistory).forEach(([dialogId, draft]) => {
+	      if (!main_core.Type.isPlainObject(draft)) {
+	        return;
+	      }
+	      this.drafts[dialogId] = draft;
 	    });
 	  }
-	  setDraftInRecentList(dialogId, text) {
+	  setDraftText(dialogId, text) {
+	    if (!this.drafts[dialogId]) {
+	      this.drafts[dialogId] = {};
+	    }
+	    this.drafts[dialogId].text = text.trim();
+	    this.refreshSaveTimeout();
+	  }
+	  setDraftPanel(dialogId, panelType, messageId) {
+	    if (!this.drafts[dialogId]) {
+	      this.drafts[dialogId] = {};
+	    }
+	    this.drafts[dialogId].panelType = panelType;
+	    this.drafts[dialogId].panelMessageId = messageId;
+	    this.refreshSaveTimeout();
+	  }
+	  setDraftMentions(dialogId, mentions) {
+	    if (!this.drafts[dialogId]) {
+	      this.drafts[dialogId] = {};
+	    }
+	    this.drafts[dialogId].mentions = mentions;
+	    this.refreshSaveTimeout();
+	  }
+	  async getDraft(dialogId) {
+	    var _this$drafts$dialogId;
+	    await this.initPromise;
+	    const draft = (_this$drafts$dialogId = this.drafts[dialogId]) != null ? _this$drafts$dialogId : {};
+	    return Promise.resolve(draft);
+	  }
+	  clearDraft(dialogId) {
+	    delete this.drafts[dialogId];
+	    this.setRecentItemDraftText(dialogId, '');
+	  }
+	  setRecentListDraftText() {
+	    Object.entries(this.drafts).forEach(([dialogId, draft]) => {
+	      var _draft$text;
+	      this.setRecentItemDraftText(dialogId, (_draft$text = draft.text) != null ? _draft$text : '');
+	    });
+	  }
+	  setRecentItemDraftText(dialogId, text) {
 	    im_v2_application_core.Core.getStore().dispatch(this.getDraftMethodName(), {
 	      id: dialogId,
 	      text
@@ -66,9 +99,37 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return;
 	    }
 	    const dialogId = from.entityId;
-	    setTimeout(() => {
-	      this.setDraftInRecentList(dialogId, this.getDraft(dialogId));
+	    setTimeout(async () => {
+	      const {
+	        text = ''
+	      } = await this.getDraft(dialogId);
+	      this.setRecentItemDraftText(dialogId, text);
 	    }, SHOW_DRAFT_IN_RECENT_TIMEOUT);
+	  }
+	  refreshSaveTimeout() {
+	    clearTimeout(this.writeToStorageTimeout);
+	    this.writeToStorageTimeout = setTimeout(() => {
+	      this.saveToLocalStorage();
+	    }, WRITE_TO_STORAGE_TIMEOUT);
+	  }
+	  saveToLocalStorage() {
+	    im_v2_lib_localStorage.LocalStorageManager.getInstance().set(this.getLocalStorageKey(), this.prepareDrafts());
+	  }
+	  prepareDrafts() {
+	    const result = {};
+	    Object.entries(this.drafts).forEach(([dialogId, draft]) => {
+	      if (!draft.text && !draft.panelType) {
+	        return;
+	      }
+	      if (draft.panelType === im_v2_const.TextareaPanelType.edit) {
+	        return;
+	      }
+	      result[dialogId] = {
+	        text: draft.text,
+	        mentions: draft.mentions
+	      };
+	    });
+	    return result;
 	  }
 	  getLayoutName() {
 	    return im_v2_const.Layout.chat.name;
@@ -104,5 +165,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.DraftManager = DraftManager;
 	exports.CopilotDraftManager = CopilotDraftManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=draft.bundle.js.map

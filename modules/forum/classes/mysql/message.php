@@ -470,7 +470,7 @@ class CForumMessage extends CAllForumMessage
 		$limit = intval($iNum ?? $arAddParams["nTopCount"]);
 		if ($limit > 0)
 		{
-			$strSql .= " LIMIT 0,".$limit;
+			$strSql .= " LIMIT ".$limit;
 		}
 		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && $arAddParams["nTopCount"] <= 0)
 		{
@@ -820,6 +820,7 @@ class CForumMessage extends CAllForumMessage
 		}
 		else
 		{
+			$isMysql = \Bitrix\Main\Application::getConnection()->getType() === 'mysql';
 			$strSql =
 				"SELECT FM.ID, FM.FORUM_ID, FM.TOPIC_ID, FM.USE_SMILES, FM.NEW_TOPIC, \n".
 				"	FM.APPROVED, FM.SOURCE_ID, \n".
@@ -841,7 +842,7 @@ class CForumMessage extends CAllForumMessage
 						"sUserTablePrefix" => "U.",
 						"sForumUserTablePrefix" => "FU.",
 						"sFieldName" => "AUTHOR_NAME_FRMT")), false)."\n" : "").$strSqlSelect."\n".
-				"FROM b_forum_message FM ".($IX_FORUM_MESSAGE_TOPIC ? "USE INDEX (IX_FORUM_MESSAGE_TOPIC)" : "")."\n".
+				"FROM b_forum_message FM ".(($IX_FORUM_MESSAGE_TOPIC && $isMysql) ? "USE INDEX (IX_FORUM_MESSAGE_TOPIC)" : "")."\n".
 				"	LEFT JOIN b_forum_user FU ON (FM.AUTHOR_ID = FU.USER_ID) \n".
 				"	LEFT JOIN b_user U ON (FM.AUTHOR_ID = U.ID) \n".
 				"	".$strSqlFrom." \n".
@@ -1089,15 +1090,17 @@ class CForumFiles extends CAllForumFiles
 	public static function CleanUp()
 	{
 		global $DB;
-		$db_res = $DB->Query(<<<SQL
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$db_res = $DB->Query('
 			SELECT FF.ID, FF.FILE_ID 
 			FROM b_forum_file FF 
-			WHERE FF.TIMESTAMP_X < DATE_SUB(NOW(), INTERVAL 1 DAY)
-				AND (FF.TOPIC_ID IS NULL OR FF.TOPIC_ID <= 0) 
+			WHERE FF.TIMESTAMP_X < ' . $helper->addDaysToDateTime(-1) . '
+				AND (FF.TOPIC_ID IS NULL OR FF.TOPIC_ID <= 0)
 				AND (FF.MESSAGE_ID IS NULL OR FF.MESSAGE_ID <= 0)
 			ORDER BY FF.ID ASC
-SQL
-		, false, "FILE: ".__FILE__." LINE:".__LINE__);
+		');
 		if ($db_res && $res = $db_res->Fetch())
 		{
 			do
@@ -1106,14 +1109,13 @@ SQL
 				$lastId = (int)$res["ID"];
 			} while ($res = $db_res->Fetch());
 
-			$DB->Query(<<<SQL
-			DELETE FF 
-			FROM b_forum_file FF 
-			WHERE (FF.ID < $lastId)
-				AND (FF.TOPIC_ID IS NULL OR FF.TOPIC_ID <= 0) 
-				AND (FF.MESSAGE_ID IS NULL OR FF.MESSAGE_ID <= 0)
-SQL
-				, false, "FILE: ".__FILE__." LINE:".__LINE__);
+			$DB->Query('
+				DELETE
+				FROM b_forum_file
+				WHERE (ID < ' . $lastId . ')
+					AND (TOPIC_ID IS NULL OR TOPIC_ID <= 0) 
+					AND (MESSAGE_ID IS NULL OR MESSAGE_ID <= 0)
+			');
 		}
 		return "CForumFiles::CleanUp();";
 	}

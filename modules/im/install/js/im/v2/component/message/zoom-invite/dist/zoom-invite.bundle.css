@@ -1,0 +1,80 @@
+.bx-im-message-call-invite__scope {
+	--im-message-chat-creation__background-color_content: rgb(255 255 255 / 90%);
+	--im-message-chat-creation__font-color_title: #151515;
+	--im-message-chat-creation__font-color_description: var(--im-color-palette-gray-70);
+}
+
+.bx-im-message-call-invite__container {
+	padding: var(--im-message-base__padding_body);
+}
+
+.bx-im-message-call-invite__content-container {
+	width: 100%;
+	overflow: hidden;
+	display: flex;
+	height: 121px;
+	max-height: 121px;
+	border-radius: 16px;
+	margin-top: 6px;
+}
+
+.bx-im-message-call-invite__content-container + .bx-im-message-base__wrap {
+	margin-top: 24px;
+}
+
+.bx-im-message-base__wrap + .bx-im-message-call-invite__content-container {
+	margin-top: 24px;
+}
+
+.bx-im-message-call-invite__image {
+	width: 126px;
+	min-width: 126px;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='130' height='121' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='.3' filter='url(%23filter0_d_11399_869363)'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M98.07 107.958H31.755c-.568 0-1.13-.02-1.687-.06C15.079 107.569 4.002 95.762 4 81.244c.004-7.076 3.172-13.406 7.78-18.944 2.203-2.648 3.799-4.393 7.02-5.985a27.497 27.497 0 01-.087-2.181c.005-7.466 3.088-14.625 8.571-19.9 5.483-5.277 12.917-8.238 20.667-8.234 9.927.012 18.585 5.187 23.852 12.486 3.468-.854 7.756-1.127 10.56-1.125 12.392.014 22.57 9.115 23.75 20.753 11.873 2.494 19.897 12.292 19.887 24.476-.012 14.041-11.833 25.416-26.408 25.41-.51 0-1.018-.014-1.522-.042z' fill='url(%23paint0_linear_11399_869363)' shape-rendering='crispEdges'/%3E%3C/g%3E%3Cg filter='url(%23filter1_d_11399_869363)'%3E%3Cpath d='M24 28a5 5 0 015-5h71a5 5 0 015 5v58a5 5 0 01-5 5H29a5 5 0 01-5-5V28z' fill='%23fff'/%3E%3Cpath opacity='.4' d='M52.93 59.87S53.55 62.07 54 64H35a1.114 1.114 0 01.024-.249c.272-1.308.571-2.697.728-3.278.331-1.236 2.19-2.154 3.9-2.86.447-.184.717-.331.99-.48a9.43 9.43 0 01.978-.478c.05-.227.07-.46.06-.69l.757-.087s.1.173-.06-.848c0 0-.85-.213-.89-1.839 0 0-.639.204-.678-.78a2.489 2.489 0 00-.11-.568c-.122-.435-.23-.823.323-1.16l-.4-1.021s-.419-3.95 1.423-3.628c-.747-1.134 5.556-2.078 5.975 1.4a10.183 10.183 0 010 3.162s.941-.103.313 1.614c0 0-.346 1.234-.878.956 0 0 .087 1.562-.75 1.826 0 0 .06.832.06.889l.699.102s-.02.694.118.769a7.606 7.606 0 002.073.888c2.173.529 3.275 1.436 3.275 2.23z' fill='%23A8ADB4'/%3E%3Cpath opacity='.4' d='M52.93 86.87S53.55 89.07 54 91H35a1.114 1.114 0 01.024-.249c.272-1.308.571-2.697.728-3.278.331-1.236 2.19-2.154 3.9-2.86.447-.184.717-.331.99-.48a9.43 9.43 0 01.978-.478c.05-.227.07-.46.06-.69l.757-.087s.1.173-.06-.848c0 0-.85-.213-.89-1.839 0 0-.639.204-.678-.78a2.489 2.489 0 00-.11-.568c-.122-.434-.23-.823.323-1.16l-.4-1.021s-.419-3.95 1.423-3.628c-.747-1.134 5.556-2.078 5.975 1.4a10.183 10.183 0 010 3.162s.941-.103.313 1.614c0 0-.346 1.234-.878.956 0 0 .087 1.562-.75 1.826 0 0 .06.832.06.889l.699.102s-.02.694.118.769a7.606 7.606 0 002.073.888c2.173.529 3.275 1.436 3.275 2.23z' fill='%23FFA900'/%3E%3Cpath opacity='.4' d='M92.93 59.87S93.55 62.07 94 64H75a1.114 1.114 0 01.024-.249c.272-1.308.571-2.697.728-3.278.331-1.236 2.19-2.154 3.9-2.86.448-.184.717-.331.99-.48a9.43 9.43 0 01.978-.478c.05-.227.07-.46.06-.69l.757-.087s.1.173-.06-.848c0 0-.85-.213-.89-1.839 0 0-.639.204-.677-.78a2.489 2.489 0 00-.112-.568c-.12-.435-.23-.823.324-1.16l-.4-1.021s-.419-3.95 1.423-3.628c-.747-1.134 5.556-2.078 5.975 1.4a10.183 10.183 0 010 3.162s.942-.103.313 1.614c0 0-.346 1.234-.878.956 0 0 .087 1.562-.75 1.826 0 0 .06.832.06.889l.699.102s-.02.694.118.769a7.606 7.606 0 002.073.888c2.174.529 3.275 1.436 3.275 2.23z' fill='%239DCF00'/%3E%3Cpath opacity='.4' d='M24 28a5 5 0 015-5h71a5 5 0 015 5v10H24V28z' fill='%2300ACE3'/%3E%3Crect opacity='.6' x='30' y='28' width='5' height='5' rx='2.5' fill='%2300ACE3'/%3E%3Cpath opacity='.08' fill-rule='evenodd' clip-rule='evenodd' d='M65 64V38h-1v26H24v1h40v26h1V65h40v-1H65z' fill='%23525C69'/%3E%3C/g%3E%3Ccircle cx='96' cy='85' r='16' fill='%2300ACE3'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M93.51 79.5c1.883 0 3.766.237 5.648.711.42.106.716.507.716.968v7.934c0 .454-.288.85-.698.963-2.009.55-3.958.824-5.85.824-1.88 0-3.76-.272-5.64-.815-.405-.117-.686-.51-.686-.96v-7.939c0-.464.3-.866.722-.969a24.45 24.45 0 015.787-.717zm12.472.964c.012.034.018.07.018.106v8.803c0 .164-.125.298-.278.298a.264.264 0 01-.099-.02l-4.198-1.707a.299.299 0 01-.18-.279v-5.388c0-.124.072-.235.18-.279l4.198-1.707c.144-.058.304.02.359.173z' fill='%23fff'/%3E%3Cdefs%3E%3Cfilter id='filter0_d_11399_869363' x='.001' y='24' width='130' height='90' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'%3E%3CfeFlood flood-opacity='0' result='BackgroundImageFix'/%3E%3CfeColorMatrix in='SourceAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/%3E%3CfeOffset dy='2'/%3E%3CfeGaussianBlur stdDeviation='2'/%3E%3CfeComposite in2='hardAlpha' operator='out'/%3E%3CfeColorMatrix values='0 0 0 0 0.025382 0 0 0 0 0.275095 0 0 0 0 0.358333 0 0 0 0.06 0'/%3E%3CfeBlend in2='BackgroundImageFix' result='effect1_dropShadow_11399_869363'/%3E%3CfeBlend in='SourceGraphic' in2='effect1_dropShadow_11399_869363' result='shape'/%3E%3C/filter%3E%3Cfilter id='filter1_d_11399_869363' x='15.988' y='17.659' width='97.024' height='84.024' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'%3E%3CfeFlood flood-opacity='0' result='BackgroundImageFix'/%3E%3CfeColorMatrix in='SourceAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/%3E%3CfeOffset dy='2.671'/%3E%3CfeGaussianBlur stdDeviation='4.006'/%3E%3CfeComposite in2='hardAlpha' operator='out'/%3E%3CfeColorMatrix values='0 0 0 0 0.423529 0 0 0 0 0.423529 0 0 0 0 0.423529 0 0 0 0.12 0'/%3E%3CfeBlend in2='BackgroundImageFix' result='effect1_dropShadow_11399_869363'/%3E%3CfeBlend in='SourceGraphic' in2='effect1_dropShadow_11399_869363' result='shape'/%3E%3C/filter%3E%3ClinearGradient id='paint0_linear_11399_869363' x1='64.518' y1='41.504' x2='64.518' y2='108' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%237ED8FF' stop-opacity='.8'/%3E%3Cstop offset='1' stop-color='%237ED8FF'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.bx-im-message-call-invite__content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-width: calc(100% - 121px);
+	padding-left: 17px;
+	padding-right: 17px;
+}
+
+.bx-im-message-call-invite__title {
+	font: var(--im-font-size-2xl)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-message-chat-creation__font-color_title);
+	font-weight: var(--im-font-weight-bold);
+	margin-bottom: 8px;
+	-webkit-user-select: none;
+	        user-select: none;
+}
+
+.bx-im-message-call-invite__description {
+	max-width: 100%;
+	margin-bottom: 16px;
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-message-chat-creation__font-color_description);
+	-webkit-user-select: none;
+	        user-select: none;
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.bx-im-message-call-invite__action {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.bx-im-message-call-invite__buttons_container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-message-call-invite__buttons_item + .bx-im-message-call-invite__buttons_item {
+	margin-left: 8px;
+}

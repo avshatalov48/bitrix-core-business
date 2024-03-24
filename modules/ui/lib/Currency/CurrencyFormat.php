@@ -112,6 +112,7 @@ class CurrencyFormat
 		if (Loader::includeModule('currency') && Loader::includeModule('bitrix24'))
 		{
 			$currentAreaConfig = \CBitrix24::getCurrentAreaConfig();
+			$currentAreaConfig['CURRENCY'] = $currency;
 			$formatSetting = self::getFormatFromApi($currentAreaConfig);
 			$langSetting = \CCurrencyLang::GetByID($currentAreaConfig['CURRENCY'], $currentAreaConfig["LANGUAGE_ID"]);
 		}
@@ -120,11 +121,11 @@ class CurrencyFormat
 			isset($formatSetting["DECIMALS"])
 			&& isset($formatSetting["DECIMAL_SEPARATOR"])
 			&& isset($formatSetting["THOUSANDS_SEPARATOR"])
+			&& isset($formatSetting["FORMAT_STRING"])
 		)
 		{
 			$formatSetting["THOUSANDS_SEP"] = $formatSetting["THOUSANDS_SEPARATOR"];
 			$formatSetting["DEC_POINT"] = $formatSetting["DECIMAL_SEPARATOR"];
-			$formatSetting["FORMAT_STRING"] = $langSetting["FORMAT_STRING"];
 
 			return \CCurrencyLang::formatValue($price, $formatSetting);
 		}
@@ -132,6 +133,7 @@ class CurrencyFormat
 			isset($langSetting["DECIMALS"])
 			&& isset($langSetting["DEC_POINT"])
 			&& isset($langSetting["THOUSANDS_SEP"])
+			&& isset($langSetting["FORMAT_STRING"])
 		)
 		{
 			return \CCurrencyLang::formatValue($price, $langSetting);
@@ -146,7 +148,7 @@ class CurrencyFormat
 	public static function getFormatFromApi(array $langSetting): array
 	{
 		$result = [];
-		$apiCurrencyFormat = Option::get('bitrix24', 'currency_format_from_api', '');
+		$apiCurrencyFormat = Option::get('bitrix24', 'currency_patterns_from_api', '');
 
 		if ($apiCurrencyFormat !== '')
 		{
@@ -168,7 +170,7 @@ class CurrencyFormat
 			$languageId = $langSetting['LANGUAGE_ID'];
 			$currencyCode = $langSetting['CURRENCY'];
 			$url = 'https://util.1c-bitrix.ru/b24/catalog/get.php?currencyCode=' . $currencyCode . '&productType=CLOUD'
-				   . '&locationAreaId=' . $locationAreaId . '&languageId=' . $languageId . '&requestData=formatting'
+				   . '&locationAreaId=' . $locationAreaId . '&languageId=' . $languageId . '&requestData=formatting|patterns'
 			;
 
 			$resultRequest = $httpClient->get($url);
@@ -190,8 +192,10 @@ class CurrencyFormat
 					)
 					{
 						$result = $resultDecode["result"]["formatting"]["separators"];
+						$result['FORMAT_STRING'] = $resultDecode["result"]["patterns"]["price"]['per_period'];
+						$result['FORMAT_STRING'] = str_replace('#PRICE#', '#', $result['FORMAT_STRING']);
 						$resultToOption = ['time' => time(), 'currencyFormat' => $result];
-						Option::set('bitrix24', 'currency_format_from_api', JSON::encode($resultToOption));
+						Option::set('bitrix24', 'currency_patterns_from_api', JSON::encode($resultToOption));
 					}
 				}
 			}

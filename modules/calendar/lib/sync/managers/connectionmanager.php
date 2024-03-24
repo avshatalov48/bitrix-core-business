@@ -344,11 +344,11 @@ class ConnectionManager
 		global $DB;
 		$id = $connection->getId();
 		$DB->Query(
-			"UPDATE `b_dav_connections` as con SET con.IS_DELETED ='Y' WHERE con.ID = $id;",
+			"UPDATE b_dav_connections as con SET con.IS_DELETED ='Y' WHERE con.ID = $id;",
 			true
 		);
 		$DB->Query(
-			"DELETE FROM `b_calendar_section_connection` WHERE CONNECTION_ID = $id;",
+			"DELETE FROM b_calendar_section_connection WHERE CONNECTION_ID = $id;",
 			true
 		);
 		$DB->Query(
@@ -364,7 +364,7 @@ class ConnectionManager
 			  ;",
 			true
 		);
-		$DB->Query("DELETE event FROM `b_calendar_event` event 
+		$DB->Query("DELETE event FROM b_calendar_event event
 			LEFT JOIN b_calendar_section sec ON event.SECTION_ID = sec.ID 
 			WHERE sec.ID IS NULL
 				AND event.OWNER_ID = '{$connection->getOwner()->getId()}'

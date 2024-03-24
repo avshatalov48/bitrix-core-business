@@ -221,8 +221,8 @@ class Facet
 						,MIN(F.VALUE_NUM) MIN_VALUE_NUM
 						,MAX(F.VALUE_NUM) MAX_VALUE_NUM
 						".($connection instanceof \Bitrix\Main\DB\MysqlCommonConnection
-							?",MAX(case when LOCATE('.', F.VALUE_NUM) > 0 then LENGTH(SUBSTRING_INDEX(F.VALUE_NUM, '.', -1)) else 0 end)"
-							:",MAX(".$sqlHelper->getLengthFunction("ABS(F.VALUE_NUM) - FLOOR(ABS(F.VALUE_NUM))")."+1-".$sqlHelper->getLengthFunction("0.1").")"
+							? ",MAX(case when POSITION('.' IN F.VALUE_NUM) > 0 then LENGTH(SUBSTRING_INDEX(F.VALUE_NUM, '.', -1)) else 0 end)"
+							: ",MAX(".$sqlHelper->getLengthFunction("rtrim(cast((ABS(F.VALUE_NUM) - FLOOR(ABS(F.VALUE_NUM))) as text), '0')")."+1-".$sqlHelper->getLengthFunction("cast(0.1 as text)").")"
 						)." VALUE_FRAC_LEN
 						,COUNT(DISTINCT F.ELEMENT_ID) ELEMENT_COUNT
 					FROM
@@ -312,8 +312,8 @@ class Facet
 					,MIN(F.VALUE_NUM) MIN_VALUE_NUM
 					,MAX(F.VALUE_NUM) MAX_VALUE_NUM
 					".($connection instanceof \Bitrix\Main\DB\MysqlCommonConnection
-						?",MAX(case when LOCATE('.', F.VALUE_NUM) > 0 then LENGTH(SUBSTRING_INDEX(F.VALUE_NUM, '.', -1)) else 0 end)"
-						:",MAX(".$sqlHelper->getLengthFunction("ABS(F.VALUE_NUM) - FLOOR(ABS(F.VALUE_NUM))")."+1-".$sqlHelper->getLengthFunction("0.1").")"
+						? ",MAX(case when POSITION('.' IN F.VALUE_NUM) > 0 then LENGTH(SUBSTRING_INDEX(F.VALUE_NUM, '.', -1)) else 0 end)"
+						: ",MAX(".$sqlHelper->getLengthFunction("rtrim(cast((ABS(F.VALUE_NUM) - FLOOR(ABS(F.VALUE_NUM))) as text), '0')")."+1-".$sqlHelper->getLengthFunction("cast(0.1 as text)").")"
 					)." VALUE_FRAC_LEN
 					,COUNT(DISTINCT F.ELEMENT_ID) ELEMENT_COUNT
 				FROM

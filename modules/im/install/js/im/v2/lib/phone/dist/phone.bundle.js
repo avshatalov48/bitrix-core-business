@@ -118,6 +118,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].startCallList(callListId, params);
 	  }
+	  toggleDebugFlag(debug) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller]) {
+	      return;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].debug = debug;
+	  }
 	}
 	function _init2(phoneSettings) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings] = phoneSettings;

@@ -186,6 +186,10 @@ if (!isset($entity))
 $lAdminHistory->AddHeaders($histdHeader);
 $arOperations = array();
 
+$sanitizer = new \CBXSanitizer();
+$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+$sanitizer->ApplyDoubleEncode(false);
+
 while ($arChangeRecord = $dbRecords->Fetch())
 {
 	$entityName = '';
@@ -213,9 +217,7 @@ while ($arChangeRecord = $dbRecords->Fetch())
 	$arRecord = CSaleOrderChange::GetRecordDescription($arChangeRecord["TYPE"], $arChangeRecord["DATA"]);
 	$row->AddField("TYPE", $arRecord["NAME"]);
 
-	$arRecord["INFO"] = str_replace('&nbsp;', ' ', $arRecord["INFO"]);
-
-	$row->AddField("DATA", htmlspecialcharsbx($arRecord["INFO"]));
+	$row->AddField("DATA", $sanitizer->SanitizeHtml($arRecord["INFO"]));
 	if (!isset($entity) && intval($arChangeRecord["ENTITY_ID"]) > 0)
 	{
 		if ($arChangeRecord["ENTITY"] == 'SHIPMENT')

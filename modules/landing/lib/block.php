@@ -5776,4 +5776,22 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 
 		return false;
 	}
+
+	/**
+	 * Temporary function for check components, when includeModule check is not enough
+	 * @return bool
+	 */
+	public static function checkComponentExists(string $componentName): bool
+	{
+		$path2Component = \CComponentEngine::MakeComponentPath($componentName);
+		if ($path2Component !== '')
+		{
+			$componentPath = getLocalPath("components" . $path2Component);
+			$componentFile = $_SERVER["DOCUMENT_ROOT"] . $componentPath . "/component.php";
+
+			return file_exists($componentFile) && is_file($componentFile);
+		}
+
+		return false;
+	}
 }

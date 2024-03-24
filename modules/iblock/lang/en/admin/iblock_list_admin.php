@@ -150,7 +150,6 @@ $MESS["IBLIST_CHPRICE_ERROR_WRONG_VALUE_SKU_ELEMENTS"] = "Update error: the new 
 $MESS["IBLIST_DEFAULT_VALUE"] = "default";
 $MESS["IBLIST_NOT_SET"] = "(not set)";
 $MESS["IBLIST_NO_VALUE"] = "no";
-$MESS["IBLIST_PRODUCTS_INSTAGRAM"] = "Instagram Products";
 $MESS["IBLIST_YES_VALUE"] = "yes";
 $MESS["IBLOCK_ALL"] = "(any)";
 $MESS["IBLOCK_CHANGE"] = "Modify";

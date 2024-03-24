@@ -32,6 +32,7 @@ class Client
 	const METHOD_UA_SEARCH_FO_BY_NAME = 'ps.ua.searchFoByName';
 	const METHOD_UA_SEARCH_BY_NAME = 'ps.ua.searchByName';
 	const METHOD_IS_SERVICE_ONLINE = 'ps.common.isOnline';
+	const METHOD_COMMON_GET_BY_BIC = 'ps.bic.getByBic';
 	const ERROR_WRONG_INPUT = 1;
 	const ERROR_WRONG_LICENSE = 2;
 	const ERROR_SERVICE_UNAVAILABLE = 3;
@@ -184,6 +185,11 @@ class Client
 			'limit' => $limit,
 			'offset' => $offset
 		));
+	}
+
+	public function getByBic($bic)
+	{
+		return $this->call(static::METHOD_COMMON_GET_BY_BIC, ['bic' => $bic]);
 	}
 
 	/**

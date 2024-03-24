@@ -12,6 +12,7 @@ use Bitrix\Im\V2\Message\Reaction\ReactionPopupItem;
 use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Im\V2\Message\ViewedService;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Im\Model\MessageTable;
 use Bitrix\Im\Model\MessageParamTable;
 use Bitrix\Im\Model\MessageUuidTable;
@@ -59,7 +60,7 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	 */
 	public static function find(array $filter, array $order, ?int $limit = null, ?Context $context = null, array $select = []): self
 	{
-		$context = $context ?? Locator::getContext();
+		//$context = $context ?? Locator::getContext();
 
 		$query = MessageTable::query();
 		$query->setSelect(['ID']);
@@ -69,15 +70,8 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 			$query->setLimit($limit);
 		}
 
-		$messageOrder = ['ID' => 'DESC'];
-
-		if (isset($order['ID']))
-		{
-			$messageOrder['ID'] = $order['ID'];
-		}
-
+		$messageOrder = ['DATE_CREATE' => $order['ID'] ?? 'DESC', 'ID' => $order['ID'] ?? 'DESC'];
 		$query->setOrder($messageOrder);
-
 		static::processFilters($query, $filter, $messageOrder);
 		$messageIds = $query->fetchCollection()->getIdList();
 
@@ -548,7 +542,23 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 
 		if (isset($filter['SEARCH_MESSAGE']) && mb_strlen($filter['SEARCH_MESSAGE']) > 2)
 		{
-			$query->whereLike('MESSAGE', "%{$filter['SEARCH_MESSAGE']}%");
+			$connection = \Bitrix\Main\Application::getConnection();
+			if ($connection instanceof \Bitrix\Main\DB\PgsqlConnection)
+			{
+				$filter['SEARCH_MESSAGE'] = $connection->getSqlHelper()->forSql($filter['SEARCH_MESSAGE']);
+				$query->registerRuntimeField(
+					new ExpressionField(
+						'CASE_INSENSITIVE_MESSAGE',
+						"(CASE WHEN %s ILIKE '%%{$filter['SEARCH_MESSAGE']}%%' THEN 1 ELSE 0 END)",
+						['MESSAGE']
+					)
+				);
+				$query->where('CASE_INSENSITIVE_MESSAGE', '=', '1');
+			}
+			else
+			{
+				$query->whereLike('MESSAGE', "%{$filter['SEARCH_MESSAGE']}%");
+			}
 		}
 
 		if (isset($filter['START_ID']) && (int)$filter['START_ID'] > 0)

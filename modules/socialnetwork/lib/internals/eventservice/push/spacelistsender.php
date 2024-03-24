@@ -11,30 +11,27 @@ use Bitrix\Socialnetwork\Internals\EventService\Recepients\Recepient;
 
 final class SpaceListSender
 {
-	public const EVENT_MAP = [
-		EventDictionary::EVENT_WORKGROUP_USER_ADD => EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE,
-		EventDictionary::EVENT_WORKGROUP_USER_UPDATE => EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE,
-		EventDictionary::EVENT_WORKGROUP_USER_DELETE => EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE,
+	public const SUPPORTED_EVENTS = [
+		EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE,
 	];
 
-	public function send(Event $event): void
+	public function send(Event $event, Recepient $recipient): void
 	{
 		if (!ModuleManager::isModuleInstalled('pull') || !Loader::includeModule('pull'))
 		{
 			return;
 		}
 
-
-		if (key_exists($event->getType(), self::EVENT_MAP))
+		if (in_array($event->getType(), self::SUPPORTED_EVENTS) && $recipient->isOnline())
 		{
-			$recipients = [$event->getUserId()];
+			$recipients = [$recipient->getId()];
 
 			$userId = $event->getUserId();
 			$spaceId = $event->getGroupId();
 
 			PushService::addEvent($recipients, [
 				'module_id' => PushService::MODULE_NAME,
-				'command' => PushEventDictionary::getPushEventType(self::EVENT_MAP[$event->getType()]),
+				'command' => PushEventDictionary::getPushEventType($event->getType()),
 				'params' => [
 					'USER_ID' => $userId,
 					'GROUP_ID' => $spaceId,

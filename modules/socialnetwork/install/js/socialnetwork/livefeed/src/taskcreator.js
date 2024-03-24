@@ -77,12 +77,10 @@ export class TaskCreator
 					entityData: {},
 				},
 			}).then((response) => {
-
 				if (!Type.isStringFilled(response.data.SUFFIX))
 				{
 					response.data.SUFFIX = '';
 				}
-
 
 				const requestData = response.data;
 
@@ -100,7 +98,8 @@ export class TaskCreator
 
 				this.sliderUrl = response.data.link;
 
-				BX.SidePanel.Instance.open(response.data.link, {
+				const link = this.getLinkWithAnalytics(response.data.link, params);
+				BX.SidePanel.Instance.open(link, {
 					requestMethod: 'post',
 					requestParams: requestData,
 					cacheable: false,
@@ -253,6 +252,31 @@ export class TaskCreator
 
 			this.createTaskPopup.show();
 		}
+	}
+
+	static getLinkWithAnalytics(link, params)
+	{
+		const postEntityType = Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType;
+
+		const analyticsElement = Type.isNil(params.postEntityType) ? 'context_menu' : 'comment_context_menu';
+		let analyticsSection;
+		switch (postEntityType)
+		{
+			case 'TASK':
+				analyticsSection = 'tasks';
+				break;
+			case 'CALENDAR_EVENT':
+				analyticsSection = 'calendar';
+				break;
+			default:
+				analyticsSection = 'feed';
+				break;
+		}
+
+		return BX.Uri.addParam(link, {
+			ta_sec: analyticsSection,
+			ta_el: analyticsElement
+		});
 	}
 
 	static createTaskSetContentSuccess(taskId) {

@@ -171,10 +171,11 @@ class CSocServMessage extends CSocServAllMessage
 {
 	public static function CleanUp()
 	{
-		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-		$strSql = "DELETE FROM b_socialservices_message WHERE INSERT_DATE < DATE_ADD(now(), INTERVAL -4 DAY)";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$sql = 'DELETE FROM b_socialservices_message WHERE INSERT_DATE < ' . $helper->addDaysToDateTime(-4);
+		$connection->query($sql);
 
 		return "CSocServMessage::CleanUp();";
 	}

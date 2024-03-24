@@ -7,14 +7,19 @@ export class PostData
 
 	constructor(data: InitData)
 	{
-		this.#setData(data);
+		this.setData(data);
+	}
+
+	setData(data: InitData)
+	{
+		this.#cache.set('data', data);
 	}
 
 	setFormData(formData: PostFormData)
 	{
 		const currentData = this.#cache.get('data');
 
-		this.#setData({
+		this.setData({
 			...currentData,
 			...formData,
 		});
@@ -33,7 +38,7 @@ export class PostData
 
 	validateRequestData(): string
 	{
-		if (!this.getTitle() && !this.getMessage())
+		if (!this.getMessage())
 		{
 			return Loc.getMessage('SN_PF_REQUEST_TEXT_VALIDATION_ERROR');
 		}
@@ -67,7 +72,7 @@ export class PostData
 
 		const newData = { recipients };
 
-		this.#setData({
+		this.setData({
 			...currentData,
 			...newData,
 		});
@@ -86,11 +91,6 @@ export class PostData
 	isAllowToAll(): boolean
 	{
 		return this.#getData('allowToAll') === true;
-	}
-
-	#setData(data: InitData)
-	{
-		this.#cache.set('data', data);
 	}
 
 	#getData(param: string): any

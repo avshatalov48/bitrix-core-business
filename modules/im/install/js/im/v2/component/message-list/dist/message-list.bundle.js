@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_user,im_v2_lib_logger,im_v2_lib_smileManager,im_public,im_v2_lib_permission,im_v2_lib_confirm,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,ui_notification,im_v2_component_elements,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_conferenceCreation,im_v2_component_message_ownChatCreation) {
+(function (exports,im_v2_lib_user,im_v2_lib_logger,im_v2_lib_smileManager,im_public,im_v2_lib_permission,im_v2_lib_confirm,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,ui_notification,im_v2_component_elements,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_conferenceCreation,im_v2_component_message_ownChatCreation,im_v2_component_message_zoomInvite) {
 	'use strict';
 
 	class UserService {
@@ -182,7 +182,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      } = this.lastMessageViews;
 	      if (countOfViewers === 1) {
 	        return this.loc('IM_DIALOG_CHAT_STATUS_READ_CHAT', {
-	          '#USER#': firstViewer.userName
+	          '#USER#': main_core.Text.encode(firstViewer.userName)
 	        });
 	      }
 	      return this.loc('IM_DIALOG_CHAT_STATUS_READ_CHAT_PLURAL', {
@@ -251,7 +251,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	const serverComponentList = new Set([im_v2_const.MessageComponent.unsupported, im_v2_const.MessageComponent.chatCreation, im_v2_const.MessageComponent.ownChatCreation, im_v2_const.MessageComponent.conferenceCreation, im_v2_const.MessageComponent.callInvite, im_v2_const.MessageComponent.copilotCreation, im_v2_const.MessageComponent.copilotMessage, im_v2_const.MessageComponent.supportVote, im_v2_const.MessageComponent.supportSessionNumber]);
+	const serverComponentList = new Set([im_v2_const.MessageComponent.unsupported, im_v2_const.MessageComponent.chatCreation, im_v2_const.MessageComponent.ownChatCreation, im_v2_const.MessageComponent.conferenceCreation, im_v2_const.MessageComponent.callInvite, im_v2_const.MessageComponent.copilotCreation, im_v2_const.MessageComponent.copilotMessage, im_v2_const.MessageComponent.supportVote, im_v2_const.MessageComponent.supportSessionNumber, im_v2_const.MessageComponent.zoomInvite]);
 	var _message = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("message");
 	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
 	var _isServerComponent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isServerComponent");
@@ -441,6 +441,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getProfileItem() {
+	    if (this.isBot()) {
+	      return null;
+	    }
 	    return {
 	      text: main_core.Loc.getMessage('IM_DIALOG_AVATAR_MENU_OPEN_PROFILE'),
 	      href: im_v2_lib_utils.Utils.user.getProfileLink(this.context.user.id),
@@ -465,6 +468,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	      }
 	    };
+	  }
+	  isUser() {
+	    return this.store.getters['chats/isUser'](this.context.user.id);
+	  }
+	  isBot() {
+	    if (!this.isUser()) {
+	      return false;
+	    }
+	    const user = this.store.getters['users/get'](this.context.user.id);
+	    return user.bot === true;
 	  }
 	}
 
@@ -679,7 +692,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        const messageService = new im_v2_provider_service.MessageService({
 	          chatId: this.context.chatId
 	        });
-	        messageService.deleteMessage(this.context.id);
+	        void messageService.deleteMessage(this.context.id);
 	        this.menuInstance.close();
 	      }
 	    };
@@ -856,7 +869,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				<Avatar
 					:dialogId="authorGroup.avatar.avatarId"
 					:size="AvatarSize.L"
-					:withStatus="false"
 					@click="onAvatarClick"
 				/>
 			</div>
@@ -1083,7 +1095,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  CopilotMessage: im_v2_component_message_copilot_answer.CopilotMessage,
 	  SupportVoteMessage: im_v2_component_message_support_vote.SupportVoteMessage,
 	  SupportSessionNumberMessage: im_v2_component_message_support_sessionNumber.SupportSessionNumberMessage,
-	  ConferenceCreationMessage: im_v2_component_message_conferenceCreation.ConferenceCreationMessage
+	  ConferenceCreationMessage: im_v2_component_message_conferenceCreation.ConferenceCreationMessage,
+	  ZoomInviteMessage: im_v2_component_message_zoomInvite.ZoomInviteMessage
 	};
 
 	// @vue/component
@@ -1133,6 +1146,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
+	    user() {
+	      return this.$store.getters['users/get'](this.dialogId, true);
+	    },
 	    isUser() {
 	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
@@ -1171,6 +1187,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.unsubscribeFromEvents();
 	  },
 	  methods: {
+	    needToShowAvatarMenuFor(user) {
+	      if (!user) {
+	        return false;
+	      }
+	      const isCurrentUser = user.id === im_v2_application_core.Core.getUserId();
+	      const isBotChat = this.isUser && this.user.bot === true;
+	      return !isCurrentUser && !isBotChat;
+	    },
 	    subscribeToEvents() {
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
 	    },
@@ -1193,8 +1217,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        $event: event
 	      } = params;
 	      const user = this.$store.getters['users/get'](dialogId);
-	      const userId = Number.parseInt(dialogId, 10);
-	      if (!user || im_v2_application_core.Core.getUserId() === userId) {
+	      if (!this.needToShowAvatarMenuFor(user)) {
 	        return;
 	      }
 	      if (im_v2_lib_utils.Utils.key.isAltOrOption(event)) {
@@ -1274,5 +1297,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessageList = MessageList;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Elements,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Elements,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
 //# sourceMappingURL=message-list.bundle.js.map

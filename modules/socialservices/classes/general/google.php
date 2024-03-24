@@ -463,9 +463,14 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 		parent::__construct($appID, $appSecret, $code);
 	}
 
-	protected function checkSavedScope()
+	protected function getOptionNameForScopes(): string
 	{
-		$savedScope = \Bitrix\Main\Config\Option::get('socialservices', 'saved_scope_'.static::SERVICE_ID, '');
+		return 'saved_scope_'.static::SERVICE_ID;
+	}
+
+	protected function checkSavedScope(): void
+	{
+		$savedScope = \Bitrix\Main\Config\Option::get('socialservices', $this->getOptionNameForScopes(), '');
 		if($savedScope)
 		{
 			$savedScope = unserialize($savedScope, ['allowed_classes' => false]);
@@ -476,10 +481,10 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 		}
 	}
 
-	protected function saveScope()
+	protected function saveScope(): void
 	{
 		$scope = array_unique(array_diff($this->scope, $this->standardScope));
-		\Bitrix\Main\Config\Option::set('socialservices', 'saved_scope_'.static::SERVICE_ID, serialize($scope));
+		\Bitrix\Main\Config\Option::set('socialservices', $this->getOptionNameForScopes(), serialize($scope));
 	}
 
 	public function addScope($scope)
@@ -489,6 +494,13 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 		$this->saveScope();
 
 		return $this;
+	}
+
+	public function removeScope(string $scope): void
+	{
+		parent::removeScope($scope);
+
+		$this->saveScope();
 	}
 
 	public function getScopeEncode()

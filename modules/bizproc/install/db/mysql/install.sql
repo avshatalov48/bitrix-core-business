@@ -352,7 +352,7 @@ CREATE TABLE b_bp_workflow_duration_stat (
 CREATE TABLE b_bp_workflow_user
 (
 	USER_ID int NOT NULL DEFAULT 0,
-	WORKFLOW_ID char(32) NOT NULL,
+	WORKFLOW_ID varchar(32) NOT NULL,
 	IS_AUTHOR int NOT NULL DEFAULT 1,
 	WORKFLOW_STATUS int NOT NULL DEFAULT 0,
 	TASK_STATUS int NOT NULL DEFAULT 0,
@@ -367,7 +367,7 @@ CREATE TABLE b_bp_workflow_user
 CREATE TABLE b_bp_workflow_meta
 (
 	ID bigint unsigned NOT NULL auto_increment,
-	WORKFLOW_ID char(32) NOT NULL,
+	WORKFLOW_ID varchar(32) NOT NULL,
 	START_DURATION int unsigned,
 	PRIMARY KEY (ID),
 	index ix_bp_wf_meta_wf_id(WORKFLOW_ID)

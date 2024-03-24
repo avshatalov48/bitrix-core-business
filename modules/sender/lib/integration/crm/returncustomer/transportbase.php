@@ -162,6 +162,8 @@ class TransportBase implements Transport\iBase
 			$facility->setRegisterMode(EntityManageFacility::REGISTER_MODE_ALWAYS_ADD);
 		}
 
+		$crmRegisterOptions = ['CURRENT_USER' => $authorId];
+
 		switch ($message->getCode())
 		{
 			case MessageBase::CODE_RC_LEAD:
@@ -169,7 +171,7 @@ class TransportBase implements Transport\iBase
 				{
 					$entityFields['SOURCE_ID'] = 'RC_GENERATOR';
 				}
-				$facility->registerLead($entityFields);
+				$facility->registerLead($entityFields, true, $crmRegisterOptions);
 				break;
 
 			case MessageBase::CODE_RC_DEAL:
@@ -197,7 +199,7 @@ class TransportBase implements Transport\iBase
 				}
 
 
-				$registeredId = $facility->registerDeal($entityFields);
+				$registeredId = $facility->registerDeal($entityFields, true, $crmRegisterOptions);
 
 				if($registeredId && $config->get('FROM_PREVIOUS') === 'Y')
 				{

@@ -1,7 +1,7 @@
 create table if not exists b_sale_auxiliary
 (
 	ID int not null auto_increment,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	ITEM varchar(255) not null,
 	ITEM_MD5 varchar(32) not null,
 	USER_ID int not null,
@@ -922,7 +922,7 @@ create table if not exists b_sale_user_account
 (
 	ID int not null auto_increment,
 	USER_ID int not null,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	CURRENT_BUDGET decimal(18,4) not null default '0.0',
 	CURRENCY char(3) not null,
 	LOCKED char(1) not null default 'N',
@@ -936,7 +936,7 @@ create table if not exists b_sale_recurring
 (
 	ID int not null auto_increment,
 	USER_ID int not null,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	MODULE varchar(100) null,
 	PRODUCT_ID int null,
 	PRODUCT_NAME varchar(255) null,
@@ -971,7 +971,7 @@ create table if not exists b_sale_user_cards
 	USER_ID int not null,
 	ACTIVE char(1) not null default 'Y',
 	SORT int not null default '100',
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	PAY_SYSTEM_ACTION_ID int not null,
 	CURRENCY char(3) null,
 	CARD_TYPE varchar(20) not null,
@@ -999,7 +999,7 @@ create table if not exists b_sale_user_transact
 (
 	ID int not null auto_increment,
 	USER_ID int not null,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	TRANSACT_DATE datetime not null,
 	AMOUNT decimal(18,4) not null default '0.0',
 	CURRENCY char(3) not null,
@@ -1021,7 +1021,7 @@ create table if not exists b_sale_affiliate_plan
 	SITE_ID char(2) not null,
 	NAME varchar(250) not null,
 	DESCRIPTION text null,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	ACTIVE char(1) not null default 'Y',
 	BASE_RATE decimal(18,4) not null default '0',
 	BASE_RATE_TYPE char(1) not null default 'P',
@@ -1040,7 +1040,7 @@ create table if not exists b_sale_affiliate
 	AFFILIATE_ID int null,
 	PLAN_ID int not null,
 	ACTIVE char(1) not null default 'Y',
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	DATE_CREATE datetime not null,
 	PAID_SUM decimal(18,4) not null default '0',
 	APPROVED_SUM decimal(18,4) not null default '0',
@@ -1086,7 +1086,7 @@ create table if not exists b_sale_affiliate_transact
 (
 	ID int not null auto_increment,
 	AFFILIATE_ID int not null,
-	TIMESTAMP_X timestamp not null,
+	TIMESTAMP_X datetime not null,
 	TRANSACT_DATE datetime not null,
 	AMOUNT decimal(18,4) not null,
 	CURRENCY char(3) not null,

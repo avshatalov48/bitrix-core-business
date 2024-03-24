@@ -146,7 +146,10 @@ $curPage = $APPLICATION->GetCurPage(true);
 			<!--endregion-->
 
 			<!--region search.title -->
-			<?if ($curPage != SITE_DIR."index.php"):?>
+			<?php
+			if ($curPage != SITE_DIR."index.php"):
+				if (\Bitrix\Main\ModuleManager::isModuleInstalled('search')):
+				?>
 				<div class="row mb-4">
 					<div class="col">
 						<?$APPLICATION->IncludeComponent(
@@ -181,7 +184,10 @@ $curPage = $APPLICATION->GetCurPage(true);
 						);?>
 					</div>
 				</div>
-			<?endif?>
+			<?php
+				endif;
+			endif;
+			?>
 			<!--endregion-->
 
 			<!--region breadcrumb-->

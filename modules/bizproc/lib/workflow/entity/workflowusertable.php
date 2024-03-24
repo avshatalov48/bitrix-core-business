@@ -70,7 +70,7 @@ class WorkflowUserTable extends DataManager
 	{
 		$workflowId = $workflow->getInstanceId();
 		$users = static::getTaskUsers($workflowId);
-		$hasUsers = count($users) > 0 || static::hasStoredUsers($workflowId);
+		$hasUsers = !empty($users) || static::hasStoredUsers($workflowId);
 
 		if (!$hasUsers && !static::isLiveFeedProcess($workflow->getDocumentId()))
 		{
@@ -262,9 +262,14 @@ class WorkflowUserTable extends DataManager
 		return array_keys($stored);
 	}
 
-	public static function convertUserProcesses(int $userId)
+	public static function convertUserProcesses(int $userId): void
 	{
 		$connection = Application::getConnection();
+
+		if ($connection->getType() !== 'mysql')
+		{
+			return;
+		}
 
 		//truncate first
 		$connection->query(

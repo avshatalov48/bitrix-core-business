@@ -29,6 +29,7 @@ $MESS["SGCG_OPTIONS_TAGS_SELECTOR_CAPTION_MORE"] = "Mehr hinzufügen";
 $MESS["SGCG_OPTIONS_TITLE"] = "Mehr";
 $MESS["SGCG_OPTIONS_TYPE_LANDING"] = "Quelle der Bitrix24.Sites";
 $MESS["SGCG_OPTIONS_TYPE_LANDING_MSGVER_1"] = "Quelle der Sites";
+$MESS["SGCG_OPTIONS_TYPE_LANDING_MSGVER_2"] = "Zur Veröffentlichung auf Bitrix24 Sites";
 $MESS["SGCG_OPTIONS_TYPE_PROJECT"] = "Projekt";
 $MESS["SGCG_OPTIONS_TYPE_TITLE"] = "Typ";
 $MESS["SGCG_OWNER_SELECT_CAPTION"] = "Leiter zuweisen";

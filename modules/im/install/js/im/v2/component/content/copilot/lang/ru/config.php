@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IM_CONTENT_COPILOT_EMPTY_STATE_MESSAGE"] = "Я – CoPilot, искусственный интеллект.#BR#Готов предложить креативные решения,#BR#написать текст или поправить ваш.#BR#А ещё со мной можно обсудить идеи";
 $MESS["IM_CONTENT_COPILOT_EMPTY_STATE_ASK_QUESTION"] = "Задать вопрос";
 $MESS["IM_CONTENT_COPILOT_EMPTY_STATE_ERROR_CREATING_CHAT"] = "Не удалось создать чат, попробуйте позже";

@@ -4,6 +4,7 @@ namespace Bitrix\Main\Session\Handlers\Table;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\MysqlCommonConnection;
+use Bitrix\Main\DB\PgsqlConnection;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Type;
 
@@ -110,7 +111,10 @@ class UserSessionTable extends Entity\DataManager
 		$pool->useMasterOnly(true);
 
 		$connection = static::getEntity()->getConnection();
-		if ($connection instanceof MysqlCommonConnection)
+		if (
+			$connection instanceof MysqlCommonConnection
+			|| $connection instanceof PgsqlConnection
+		)
 		{
 			$result = $connection->lock($id, (int)$timeout);
 		}
@@ -136,7 +140,10 @@ class UserSessionTable extends Entity\DataManager
 		$pool->useMasterOnly(true);
 
 		$connection = static::getEntity()->getConnection();
-		if ($connection instanceof MysqlCommonConnection)
+		if (
+			$connection instanceof MysqlCommonConnection
+			|| $connection instanceof PgsqlConnection
+		)
 		{
 			$connection->unlock($id);
 		}

@@ -19,16 +19,20 @@ class BizprocGlobalFieldEditComponent extends CBitrixComponent
 
 	public function onPrepareComponentParams($arParams): array
 	{
-		if (isset($arParams['DOCUMENT_TYPE_SIGNED']))
+		if (isset($arParams['DOCUMENT_TYPE_SIGNED']) && \Bitrix\Main\Loader::includeModule('bizproc'))
 		{
 			$arParams['DOCUMENT_TYPE_SIGNED'] = htmlspecialcharsback($arParams['DOCUMENT_TYPE_SIGNED']);
 			$arParams['DOCUMENT_TYPE'] = CBPDocument::unSignDocumentType($arParams['DOCUMENT_TYPE_SIGNED']);
 		}
+		else
+		{
+			$arParams['DOCUMENT_TYPE'] = null;
+		}
 
-		$arParams['FIELD_ID'] = $arParams['FIELD_ID'] ? htmlspecialcharsback($arParams['FIELD_ID']) : null;
-		$arParams['MODE'] = in_array($arParams['MODE'], ['constant', 'variable']) ? $arParams['MODE'] : null;
-		$arParams['SET_TITLE'] = ($arParams["SET_TITLE"] === 'N' ? 'N' : 'Y');
-		$arParams['NAME'] = ($arParams['NAME']) ? htmlspecialcharsback($arParams['NAME']) : null;
+		$arParams['FIELD_ID'] = isset($arParams['FIELD_ID']) ? htmlspecialcharsback($arParams['FIELD_ID']) : null;
+		$arParams['MODE'] = in_array($arParams['MODE'] ?? null, ['constant', 'variable']) ? $arParams['MODE'] : null;
+		$arParams['SET_TITLE'] = (($arParams["SET_TITLE"] ?? 'Y') === 'N' ? 'N' : 'Y');
+		$arParams['NAME'] = isset($arParams['NAME']) ? htmlspecialcharsback($arParams['NAME']) : null;
 
 		return $arParams;
 	}
@@ -69,6 +73,11 @@ class BizprocGlobalFieldEditComponent extends CBitrixComponent
 		{
 			static::showError(Loc::getMessage('BIZPROC_MODULE_NOT_INSTALLED'));
 
+			return false;
+		}
+
+		if (empty($this->arParams['DOCUMENT_TYPE']))
+		{
 			return false;
 		}
 
@@ -143,7 +152,7 @@ HTML;
 			$fieldTypes[$key] = $value['Name'];
 		}
 
-		$availableTypes = $this->arParams['TYPES'];
+		$availableTypes = $this->arParams['TYPES'] ?? null;
 
 		if (!$availableTypes)
 		{
@@ -193,7 +202,7 @@ HTML;
 			{
 				$newProperty['Name'] = (string)$this->arParams['~NAME'];
 			}
-			if ($this->arParams['VISIBILITY'])
+			if (isset($this->arParams['VISIBILITY']))
 			{
 				$newProperty['Visibility'] = (string)$this->arParams['VISIBILITY'];
 			}

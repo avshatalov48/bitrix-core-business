@@ -571,7 +571,7 @@ final class CProductQueryBuilder
 			],
 			self::ENTITY_PRODUCT_USER_FIELD => [
 				'EXTERNAL' => true,
-				'HANDLER' => [__CLASS__, 'haldleProductUserFields'],
+				'HANDLER' => [__CLASS__, 'handleProductUserFields'],
 			],
 			self::ENTITY_PRICE => [
 				'NAME' => 'b_catalog_price',
@@ -2440,8 +2440,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function selectQuantityTrace(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2455,8 +2453,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function selectCanBuyZero(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2470,8 +2466,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function selectNegativeAmountTrace(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2485,8 +2479,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function selectSubscribe(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2509,8 +2501,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function selectPriceTypeName(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2535,8 +2525,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function selectPriceTypeAllowedView(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2549,8 +2537,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function selectPriceTypeAllowedBuy(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2595,8 +2581,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function prepareFilterQuantityTrace(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2611,8 +2595,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function prepareFilterCanBuyZero(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2627,8 +2609,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function prepareFilterSubscribe(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2670,8 +2650,6 @@ final class CProductQueryBuilder
 	 * @param array &$entity
 	 * @param array &$field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function priceParametersFilter(array &$parameters, array &$entity, array &$field): void
 	{
@@ -2694,8 +2672,6 @@ final class CProductQueryBuilder
 	 * @param array $entity
 	 * @param array $field
 	 * @return void
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	private static function filterModifierCurrencyScale(array &$filter, int|string $filterKey, array $entity, array $field): void
 	{
@@ -2787,7 +2763,7 @@ final class CProductQueryBuilder
 	 * @param array $entity
 	 * @param array $data
 	 */
-	private static function haldleProductUserFields(array &$result, array $entity, array $data): void
+	private static function handleProductUserFields(array &$result, array $entity, array $data): void
 	{
 		if (empty($data['filter']))
 		{

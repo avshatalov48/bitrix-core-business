@@ -212,7 +212,7 @@ class OccupancyChecker
 	 * @param array $event
 	 * @return array|null
 	 */
-	protected function getExistingEvents(int $roomId, array $event)
+	protected function getExistingEvents(int $roomId, array $event): ?array
 	{
 		$arSelect = [
 			'ID',
@@ -268,30 +268,11 @@ class OccupancyChecker
 	 * @param array $existingEvents
 	 * @return void
 	 */
-	private function fillTimeline(array $event, array $eventsForCheck, array $existingEvents)
+	private function fillTimeline(array $event, array $eventsForCheck, array $existingEvents): void
 	{
 		if (!empty($event['ID']) && $event['ID'] > 0)
 		{
 			$this->checkEventId = $event['ID'];
-		}
-
-		$currentIndex = 1;
-		foreach ($eventsForCheck as $eventForCheck)
-		{
-			if (empty($eventForCheck['DATE_FROM']) || empty($eventForCheck['DATE_TO']))
-			{
-				continue;
-			}
-			[$timestampFrom, $timestampTo] = $this->getEventTimestamps($eventForCheck);
-
-			$this->timeline[$this->getTimelineKey($this->checkEventId, $currentIndex, false)] = $timestampFrom;
-			$this->timeline[$this->getTimelineKey($this->checkEventId, $currentIndex, true)] = $timestampTo;
-			$this->cachedEvents[$this->getCachedEventKey($eventForCheck['ID'], $currentIndex)] = [
-				'ID' => $eventForCheck['ID'],
-				'DATE_FROM' => $eventForCheck['DATE_FROM'],
-				'TZ_FROM' => $eventForCheck['TZ_FROM'],
-			];
-			$currentIndex++;
 		}
 
 		$currentIndex = 1;
@@ -303,7 +284,7 @@ class OccupancyChecker
 				continue;
 			}
 
-			$currentEventId = (int)$existingEvent['ID'];
+			$currentEventId = (int)$existingEvent['PARENT_ID'];
 			if ($currentEventId !== $previousEventId)
 			{
 				$previousEventId = $currentEventId;
@@ -326,6 +307,25 @@ class OccupancyChecker
 			catch (ObjectException $exception)
 			{
 			}
+		}
+
+		$currentIndex = 1;
+		foreach ($eventsForCheck as $eventForCheck)
+		{
+			if (empty($eventForCheck['DATE_FROM']) || empty($eventForCheck['DATE_TO']))
+			{
+				continue;
+			}
+			[$timestampFrom, $timestampTo] = $this->getEventTimestamps($eventForCheck);
+
+			$this->timeline[$this->getTimelineKey($this->checkEventId, $currentIndex, false)] = $timestampFrom;
+			$this->timeline[$this->getTimelineKey($this->checkEventId, $currentIndex, true)] = $timestampTo;
+			$this->cachedEvents[$this->getCachedEventKey($eventForCheck['ID'], $currentIndex)] = [
+				'ID' => $eventForCheck['ID'],
+				'DATE_FROM' => $eventForCheck['DATE_FROM'],
+				'TZ_FROM' => $eventForCheck['TZ_FROM'],
+			];
+			$currentIndex++;
 		}
 	}
 

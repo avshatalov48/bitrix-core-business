@@ -1,4 +1,4 @@
-import { Tag, Type, Loc, Dom, Event, Text} from 'main.core';
+import { Tag, Type, Loc, Dom, Event, Text, Runtime } from 'main.core';
 import { RoomsManager, RoomsSection } from 'calendar.roomsmanager';
 import { CategoryManager } from 'calendar.categorymanager';
 import {EventEmitter} from 'main.core.events';
@@ -12,6 +12,7 @@ export class Location
 	static currentRoomCapacity = 0;
 	static accessibility = [];
 	static DAY_LENGTH = 86400000;
+	static instances = [];
 	datesRange = [];
 	viewMode = false;
 
@@ -28,6 +29,7 @@ export class Location
 		this.locationAccess = params.locationAccess || false;
 		this.disabled = !params.richLocationEnabled;
 		this.value = {type: '', text: '', value: ''};
+		this.isLoading = false;
 		this.inlineEditModeEnabled = params.inlineEditModeEnabled;
 		this.meetingRooms = params.iblockMeetingRoomList || [];
 		Location.setMeetingRoomList(params.iblockMeetingRoomList);
@@ -41,6 +43,8 @@ export class Location
 		this.processValue();
 		this.setCategoryManager();
 		this.setValuesDebounced = BX.debounce(this.setValues.bind(this), 100);
+		this.updateAccessibilityDebounce = Runtime.debounce(this.updateAccessibility.bind(this), 100);
+		Location.instances.push(this);
 	}
 
 	create()
@@ -166,6 +170,7 @@ export class Location
 		const pushRoomToItemList = (room) => {
 			room.id = parseInt(room.id);
 			room.location_id = parseInt(room.location_id);
+			const isSelected = parseInt(this.value.value) === parseInt(room.id);
 			menuItemList.push({
 				ID: room.id,
 				LOCATION_ID: room.location_id,
@@ -176,13 +181,11 @@ export class Location
 				labelRaw: room.name,
 				labelCapacity: this.getCapacityMessage(room.capacity),
 				value: room.id,
-				type: 'calendar'
+				type: 'calendar',
+				selected: isSelected,
 			});
 
-			if (
-				this.value.type === 'calendar'
-				&& parseInt(this.value.value) === parseInt(room.id)
-			)
+			if (this.value.type === 'calendar' && isSelected)
 			{
 				selectedIndex = menuItemList.length - 1;
 			}
@@ -233,11 +236,6 @@ export class Location
 			}
 		}
 
-		if (this.selectContol)
-		{
-			this.selectContol.destroy();
-		}
-
 		let disabledControl = this.disabled;
 		if (!menuItemList.length)
 		{
@@ -246,7 +244,9 @@ export class Location
 
 		this.processValue();
 
-		this.selectContol = new SelectInput({
+		this.menuItemList = menuItemList;
+		const selectControlCreated = this.selectContol;
+		this.selectContol ??= new SelectInput({
 			input: this.DOM.input,
 			values: menuItemList,
 			valueIndex: selectedIndex,
@@ -254,6 +254,8 @@ export class Location
 			disabled: disabledControl,
 			minWidth: 300,
 			onChangeCallback: () => {
+				const menuItemList = this.menuItemList;
+
 				EventEmitter.emit('Calendar.LocationControl.onValueChange');
 				let i, value = this.DOM.input.value;
 				this.value = {text: value};
@@ -276,9 +278,33 @@ export class Location
 					this.removeLocationRemoveButton();
 				}
 				this.addLocationRemoveButton();
+
+				menuItemList.forEach((location) => {
+					location.selected = (location.value === this.value.value);
+				});
+				this.selectContol.setValueList(menuItemList);
+
 				this.allowClick();
-			}
+			},
+			onPopupShowCallback: () => {
+				if (this.getShouldCheckLocationAccessibility())
+				{
+					this.checkLocationAccessibility(this.accessibilityParams);
+				}
+			},
 		});
+
+		this.selectContol.setValueList(menuItemList);
+		this.selectContol.setValue({
+			valueIndex: selectedIndex,
+		});
+		this.selectContol.setDisabled(disabledControl);
+
+		if (!selectControlCreated)
+		{
+			this.setLoading(this.isLoading);
+		}
+
 		this.allowClick();
 	}
 
@@ -363,6 +389,11 @@ export class Location
 		}
 	}
 
+	isShown()
+	{
+		return this.selectContol?.shown ?? false;
+	}
+
 	setViewMode(viewMode)
 	{
 		this.viewMode = viewMode;
@@ -420,10 +451,27 @@ export class Location
 		return Loc.getMessage('EC_LOCATION_CAPACITY_' + suffix, {'#NUM#': capacity})
 	}
 
+	getShouldCheckLocationAccessibility(): boolean
+	{
+		return this.shouldCheckLocationAccessibility;
+	}
+
+	setShouldCheckLocationAccessibility(shouldCheck: boolean): void
+	{
+		this.shouldCheckLocationAccessibility = shouldCheck;
+	}
+
 	checkLocationAccessibility(params)
 	{
-		this.getLocationAccessibility(params.from, params.to)
-		.then(()=> {
+		this.accessibilityParams = params;
+		this.setLoading(true);
+		this.updateAccessibilityDebounce();
+	}
+
+	updateAccessibility()
+	{
+		const params = this.accessibilityParams;
+		this.getLocationAccessibility(params.from, params.to).then(() => {
 			const timezone = (params.timezone && params.timezone !== '')
 				? params.timezone
 				: Util.getUserSettings().timezoneName
@@ -483,8 +531,15 @@ export class Location
 				}
 			}
 
-			this.setValuesDebounce();
+			this.setValues();
+			this.setLoading(false);
 		});
+	}
+
+	setLoading(isLoading)
+	{
+		this.isLoading = isLoading;
+		this.selectContol?.setLoading(isLoading);
 	}
 
 	getLocationAccessibility(from, to)
@@ -531,13 +586,21 @@ export class Location
 
 	static handlePull(params)
 	{
-		if (!params.fields.DATE_FROM || !params.fields.DATE_TO)
+		const entry = params.fields;
+		if (!entry.DATE_FROM || !entry.DATE_TO)
 		{
 			return;
 		}
-		let dateFrom = Util.parseDate(params.fields.DATE_FROM);
-		let dateTo = Util.parseDate(params.fields.DATE_TO);
+
+		let dateFrom = Util.parseDate(entry.DATE_FROM);
+		let dateTo = Util.parseDate(entry.DATE_TO);
 		let datesRange = Location.getDatesRange(dateFrom, dateTo);
+
+		const excludedDates = entry.EXDATE?.split(';');
+		if (Type.isArrayFilled(excludedDates))
+		{
+			datesRange.push(excludedDates.pop());
+		}
 
 		for (let date of datesRange)
 		{
@@ -546,6 +609,17 @@ export class Location
 				delete Location.accessibility[date];
 			}
 		}
+
+		Location.instances.forEach((instance) => {
+			if (instance.isShown())
+			{
+				instance.checkLocationAccessibility(instance.accessibilityParams);
+			}
+			else
+			{
+				instance.setShouldCheckLocationAccessibility(true);
+			}
+		});
 	}
 
 	loadRoomSlider()

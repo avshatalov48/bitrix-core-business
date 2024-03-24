@@ -227,7 +227,6 @@ class WorkgroupUserListTemplate
 		{
 			$actionsList[] = '<span class="ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-icon-done" data-bx-action="' . WorkgroupUserList::AJAX_ACTION_ACCEPT_INCOMING_REQUEST. '" data-bx-user-id="' . $fields['ID'] . '">' . Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ROW_ACTION_ACCEPT_INCOMING_REQUEST') . '</span>';
 			$actionsList[] = '<span class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round ui-btn-icon-cancel sonet-group-user-grid-action__btn-cancel" data-bx-action="' . WorkgroupUserList::AJAX_ACTION_REJECT_INCOMING_REQUEST. '" data-bx-user-id="' . $fields['ID'] . '"  title="' . Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ROW_ACTION_REJECT_INCOMING_REQUEST') . '" ></span>';
-			$actionsList[] = '<span class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round" data-bx-action="" data-bx-user-id="' . $fields['ID'] . '"  >delete user</span>';
 		}
 
 		if (in_array(WorkgroupUserList::AVAILABLE_ACTION_REINVITE, $actions, true))

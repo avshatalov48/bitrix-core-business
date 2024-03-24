@@ -38,6 +38,7 @@ $MESS["SGCG_OPTIONS_PROJECT_TYPE_EXTRANET"] = "Доступен в экстра�
 $MESS["SGCG_OPTIONS_TYPE_PROJECT"] = "Проект";
 $MESS["SGCG_OPTIONS_TYPE_LANDING"] = "Для публикации";
 $MESS["SGCG_OPTIONS_TYPE_LANDING_MSGVER_1"] = "Для публикации";
+$MESS["SGCG_OPTIONS_TYPE_LANDING_MSGVER_2"] = "Для публикации";
 $MESS["SGCG_OPTIONS_TAGS_SELECTOR_CAPTION_MORE"] = "Добавить еще";
 $MESS["SGCG_REQUIRE_ERROR"] = "Обязательное поле для заполнения";
 $MESS["SGCG_FORMAT_ERROR"] = "Неверный формат поля";

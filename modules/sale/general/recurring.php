@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Application;
 use Bitrix\Sale;
 
 IncludeModuleLangFile(__FILE__);
@@ -65,7 +66,12 @@ class CAllSaleRecurring
 		if ((is_set($arFields, "CANCELED") || $ACTION=="ADD") && $arFields["CANCELED"] != "Y")
 			$arFields["CANCELED"] = "N";
 
-		return True;
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		unset($arFields['TIMESTAMP_X']);
+		$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+
+		return true;
 	}
 
 	public static function Update($ID, $arFields)

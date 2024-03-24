@@ -1,6 +1,11 @@
 <?php
 
-define("ADMIN_MODULE_NAME", "highloadblock");
+use Bitrix\Highloadblock as HL;
+
+const ADMIN_MODULE_NAME = 'highloadblock';
+
+/** @global \CUser $USER */
+/** @global \CMain $APPLICATION */
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -30,27 +35,32 @@ $arHeaders = array(
 $lAdmin->AddHeaders($arHeaders);
 
 // menu
-if ($_REQUEST["mode"] !== "list")
+$aMenu = [];
+if (!$lAdmin->isListMode())
 {
-	$aMenu = array(
-		array(
-			"TEXT"	=> GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
-			"TITLE"	=> GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
-			"LINK"	=> "highloadblock_entity_edit.php?lang=".LANGUAGE_ID,
-			"ICON"	=> "btn_new",
-		)
-	);
-
-	$context = new CAdminContextMenu($aMenu);
+	$aMenu[] = [
+		"TEXT" => GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
+		"TITLE" => GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
+		"LINK" => "highloadblock_entity_edit.php?lang=" . LANGUAGE_ID,
+		"ICON" => "btn_new",
+	];
 }
+$context = new CAdminContextMenu($aMenu);
 
-use Bitrix\Highloadblock as HL;
-
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
+$getListOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$getListOrder['ID'] = 'ASC';
+}
 // select data
-$rsData = HL\HighloadBlockTable::getList(array(
+$rsData = HL\HighloadBlockTable::getList([
 	"select" => $lAdmin->GetVisibleHeaderColumns(),
-	"order" => array($by => mb_strtoupper($order))
-));
+	"order" => $getListOrder,
+]);
 
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
@@ -99,7 +109,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 // view
 
-if ($_REQUEST["mode"] == "list")
+if ($lAdmin->isListMode())
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 }
@@ -115,8 +125,11 @@ $lAdmin->CheckListMode();
 $lAdmin->DisplayList();
 
 
-if ($_REQUEST["mode"] == "list")
+if ($lAdmin->isListMode())
+{
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
-else 
+}
+else
+{
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-
+}

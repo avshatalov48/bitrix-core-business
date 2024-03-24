@@ -1,5 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?if ($APPLICATION->GetCurPage(true) == SITE_DIR."index.php"):?>
+<?if ($APPLICATION->GetCurPage(true) == SITE_DIR."index.php"):
+	if (\Bitrix\Main\ModuleManager::isModuleInstalled('search')):
+	?>
 <div class="mb-5">
 	<?$APPLICATION->IncludeComponent("bitrix:search.title", "bootstrap_v4", array(
 			"NUM_CATEGORIES" => "1",
@@ -29,7 +31,10 @@
 		false
 	);?>
 </div>
-<?endif?>
+<?php
+	endif;
+endif;
+?>
 
 <div class="mb-5">
 	<h3>Мы в соцсетях</h3>

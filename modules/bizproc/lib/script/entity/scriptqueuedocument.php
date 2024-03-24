@@ -39,6 +39,7 @@ class ScriptQueueDocumentTable extends Main\Entity\DataManager
 			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
+				'autocomplete' => true,
 			],
 			'QUEUE_ID' => [
 				'data_type' => 'integer'

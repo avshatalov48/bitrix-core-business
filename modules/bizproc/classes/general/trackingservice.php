@@ -155,31 +155,25 @@ class CBPTrackingService extends CBPRuntimeService
 
 	public static function clearOldAgent()
 	{
-		CBPTrackingService::ClearOld(COption::GetOptionString("bizproc", "log_cleanup_days", "90"));
+		if (Main\ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			static::clearB24();
+		}
+		else
+		{
+			static::ClearOld(COption::GetOptionString("bizproc", "log_cleanup_days", "90"));
+		}
 
 		return "CBPTrackingService::ClearOldAgent();";
 	}
 
 	/**
 	 * @internal
-	 * @return string
-	 *
-	 * CAgent::AddAgent("CBPTrackingService::clearB24Agent();", "bizproc", "N", 1800);
-	 *
+	 * @deprecated for now
 	 */
 	public static function clearB24Agent()
 	{
-		$finish = false;
-		$hour = date('H');
-		if (
-			$hour >= 0
-			&& $hour <= 7
-		)
-		{
-			$finish = self::clearB24();
-		}
-
-		return $finish ? '' : "CBPTrackingService::clearB24Agent();";
+		return '';
 	}
 
 	/**
@@ -189,11 +183,12 @@ class CBPTrackingService extends CBPRuntimeService
 	public static function clearB24(): bool
 	{
 		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$limit = static::CLEAR_LOG_SELECT_LIMIT;
+		$partLimit = static::CLEAR_LOG_DELETE_LIMIT;
+		$sqlInterval = $helper->addDaysToDateTime(-90);
 
-		$limit = 100000;
-		$partLimit = 1000;
-
-		$strSql = "SELECT ID FROM b_bp_tracking t WHERE t.MODIFIED < DATE_SUB(NOW(), INTERVAL 90 DAY) LIMIT {$limit}";
+		$strSql = "SELECT ID FROM b_bp_tracking t WHERE t.MODIFIED < {$sqlInterval} LIMIT {$limit}";
 		$ids = $connection->query($strSql)->fetchAll();
 
 		if (!$ids)
@@ -492,8 +487,8 @@ class CBPTrackingService extends CBPRuntimeService
 	public static function clearOld($days = 0)
 	{
 		$connection = \Bitrix\Main\Application::getConnection();
-
-		$days = intval($days);
+		$helper = $connection->getSqlHelper();
+		$days = (int)$days;
 		if ($days <= 0)
 		{
 			$days = 90;
@@ -502,9 +497,10 @@ class CBPTrackingService extends CBPRuntimeService
 		$completed = self::shouldClearCompletedTracksOnly() ? "= 'Y'" : "IN ('N', 'Y')";
 		$limit = static::CLEAR_LOG_SELECT_LIMIT;
 		$partLimit = static::CLEAR_LOG_DELETE_LIMIT;
+		$sqlInterval = $helper->addDaysToDateTime(-1 * $days);
 
 		$strSql = "SELECT ID FROM b_bp_tracking t WHERE t.COMPLETED {$completed} "
-			. " AND t.MODIFIED < DATE_SUB(NOW(), INTERVAL " . $days . " DAY)"
+			. " AND t.MODIFIED < {$sqlInterval}"
 			. " AND t.TYPE IN (0,1,2,3,4,5,7,8,9) LIMIT {$limit}"
 		;
 
@@ -530,7 +526,7 @@ class CBPTrackingService extends CBPRuntimeService
 		$queryResult = $DB->Query(
 			sprintf(
 				"SELECT ID FROM b_bp_tracking"
-				. " WHERE WORKFLOW_ID = '%s' AND `TYPE` IN (0,1,2,3,4,5,7,8,9) ORDER BY ID DESC LIMIT %d,100",
+				. " WHERE WORKFLOW_ID = '%s' AND " . $DB->quote('TYPE') . " IN (0,1,2,3,4,5,7,8,9) ORDER BY ID DESC LIMIT %d,100",
 				$DB->ForSql($workflowId),
 				$size
 			)

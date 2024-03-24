@@ -53,6 +53,7 @@ class AppLangTable extends Main\Entity\DataManager
 			'ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
+				'autocomplete' => true,
 			),
 			'APP_ID' => array(
 				'data_type' => 'integer',

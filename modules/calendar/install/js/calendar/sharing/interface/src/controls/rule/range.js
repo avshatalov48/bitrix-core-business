@@ -509,7 +509,7 @@ export default class Range
 	{
 		if ([...this.rule.weekdays].sort().toString() === this.workDays.sort().toString())
 		{
-			return Loc.getMessage('CALENDAR_SHARING_SETTINGS_WORKDAYS');
+			return Loc.getMessage('CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1');
 		}
 
 		return this.formatWeekdays();

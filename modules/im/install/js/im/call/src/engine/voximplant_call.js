@@ -13,6 +13,7 @@ import {
 	Provider
 } from './engine';
 import {SimpleVAD} from './simple_vad'
+import {Hardware} from '../hardware';
 import Util from '../util'
 
 /**
@@ -101,6 +102,8 @@ export class VoximplantCall extends AbstractCall
 	{
 		super(config);
 
+		this.debug = config.debug;
+
 		this.videoQuality = Quality.VeryHigh; // initial video quality. will drop on new peers connecting
 
 		this.voximplantCall = null;
@@ -149,7 +152,6 @@ export class VoximplantCall extends AbstractCall
 			'Call::finish': this.#onPullEventFinish,
 			'Call::repeatAnswer': this.#onPullEventRepeatAnswer,
 		}
-
 	};
 
 	get provider()
@@ -359,7 +361,10 @@ export class VoximplantCall extends AbstractCall
 	{
 		return new Promise((resolve, reject) =>
 		{
-			BX.Voximplant.getClient({restClient: CallEngine.getRestClient()}).then((client) =>
+			BX.Voximplant.getClient({
+				debug: this.debug,
+				restClient: CallEngine.getRestClient(),
+			}).then((client) =>
 			{
 				client.enableSilentLogging();
 				client.setLoggerCallback((e) => this.log(e.label + ": " + e.message));
@@ -415,14 +420,14 @@ export class VoximplantCall extends AbstractCall
 		this.clientEventsBound = false;
 	};
 
-	setMuted(muted)
+	setMuted = (event) =>
 	{
-		if (this.muted == muted)
+		if (this.muted == event.data.isMicrophoneMuted)
 		{
 			return;
 		}
 
-		this.muted = muted;
+		this.muted = event.data.isMicrophoneMuted;
 
 		if (this.voximplantCall)
 		{
@@ -438,23 +443,17 @@ export class VoximplantCall extends AbstractCall
 		}
 	};
 
-	isMuted()
+	setVideoEnabled = (event) =>
 	{
-		return this.muted;
-	}
-
-	setVideoEnabled(videoEnabled)
-	{
-		videoEnabled = (videoEnabled === true);
-		if (this.videoEnabled == videoEnabled)
+		if (this.videoEnabled == event.data.isCameraOn)
 		{
 			return;
 		}
 
-		this.videoEnabled = videoEnabled;
+		this.videoEnabled = event.data.isCameraOn;
 		if (this.voximplantCall)
 		{
-			if (videoEnabled)
+			if (this.videoEnabled)
 			{
 				this.#showLocalVideo();
 			}
@@ -708,8 +707,8 @@ export class VoximplantCall extends AbstractCall
 			return;
 		}
 
-		const showLocalView = !this.videoEnabled;
-		const replaceTrack = this.videoEnabled || this.screenShared;
+		const showLocalView = !Hardware.isCameraOn;
+		const replaceTrack = Hardware.isCameraOn || this.screenShared;
 
 		this.voximplantCall.shareScreen(showLocalView, replaceTrack)
 			.then(() =>
@@ -763,7 +762,7 @@ export class VoximplantCall extends AbstractCall
 				{
 					return this.signaling.inviteUsers({
 						userIds: users,
-						video: this.videoEnabled ? 'Y' : 'N'
+						video: Hardware.isCameraOn ? 'Y' : 'N'
 					})
 				}
 			})
@@ -833,8 +832,8 @@ export class VoximplantCall extends AbstractCall
 		}
 		const inviteParams = {
 			userIds: usersToRepeatInvite,
-			video: this.videoEnabled ? 'Y' : 'N',
-			isRepeated: 'Y',
+			video: Hardware.isCameraOn ? 'Y' : 'N',
+			repeated: 'Y',
 		}
 		this.signaling.inviteUsers(inviteParams).then(() => this.scheduleRepeatInvite());
 	};
@@ -848,7 +847,8 @@ export class VoximplantCall extends AbstractCall
 	{
 		this.ready = true;
 		const joinAsViewer = config.joinAsViewer === true;
-		this.videoEnabled = (config.useVideo === true);
+		this.videoEnabled = Hardware.isCameraOn;
+		this.muted = Hardware.isMicrophoneMuted;
 
 		if (!joinAsViewer)
 		{
@@ -921,7 +921,6 @@ export class VoximplantCall extends AbstractCall
 		//clone users and append current user id to send event to all participants of the call
 		data.userId = this.users.slice(0).concat(this.userId);
 		this.signaling.sendHangup(data);
-		this.muted = false;
 
 		// for future reconnections
 		this.reinitPeers();
@@ -981,13 +980,19 @@ export class VoximplantCall extends AbstractCall
 					});
 				}
 
-				if (this.videoEnabled)
+				if (Hardware.isCameraOn)
 				{
 					this.#showLocalVideo();
 				}
 
 				try
 				{
+					if (!this.ready)
+					{
+						this.log("Error: trying to attach after hangup");
+						return reject({code: "VOX_NO_CALL"});
+					}
+
 					if (joinAsViewer)
 					{
 						this.voximplantCall = voximplantClient.joinAsViewer("bx_conf_" + this.id, {
@@ -998,11 +1003,11 @@ export class VoximplantCall extends AbstractCall
 					{
 						this.voximplantCall = voximplantClient.callConference({
 							number: "bx_conf_" + this.id,
-							video: {sendVideo: this.videoEnabled, receiveVideo: true},
+							video: {sendVideo: Hardware.isCameraOn, receiveVideo: true},
 							// simulcast: (this.getUserCount() > MAX_USERS_WITHOUT_SIMULCAST),
 							// simulcastProfileName: 'b24',
 							customData: JSON.stringify({
-								cameraState: this.videoEnabled,
+								cameraState: Hardware.isCameraOn,
 							})
 						});
 					}
@@ -1024,6 +1029,7 @@ export class VoximplantCall extends AbstractCall
 				});
 
 				this.bindCallEvents();
+				this.subscribeHardwareChanges();
 
 				this.voximplantCall.on(
 					VoxImplant.CallEvents.Connected,
@@ -1054,12 +1060,13 @@ export class VoximplantCall extends AbstractCall
 
 		this.voximplantCall.on(VoxImplant.CallEvents.Failed, this.#onCallDisconnected);
 
-		if (this.muted)
+		if (Hardware.isMicrophoneMuted)
 		{
 			this.voximplantCall.muteMicrophone();
 		}
-		this.signaling.sendMicrophoneState(!this.muted);
-		this.signaling.sendCameraState(this.videoEnabled);
+
+		this.signaling.sendMicrophoneState(!Hardware.isMicrophoneMuted);
+		this.signaling.sendCameraState(Hardware.isCameraOn);
 
 		if (this.videoAllowedFrom == UserMnemonic.none)
 		{
@@ -1116,6 +1123,18 @@ export class VoximplantCall extends AbstractCall
 				this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Reconnected, this.#onCallReconnected);
 			}
 		}
+	};
+
+	subscribeHardwareChanges()
+	{
+		Hardware.subscribe(Hardware.Events.onChangeMicrophoneMuted, this.setMuted);
+		Hardware.subscribe(Hardware.Events.onChangeCameraOn, this.setVideoEnabled);
+	};
+
+	unsubscribeHardwareChanges()
+	{
+		Hardware.unsubscribe(Hardware.Events.onChangeMicrophoneMuted, this.setMuted);
+		Hardware.unsubscribe(Hardware.Events.onChangeCameraOn, this.setVideoEnabled);
 	};
 
 	/**
@@ -1503,7 +1522,7 @@ export class VoximplantCall extends AbstractCall
 		const renderer = e.renderer;
 		this.log("__onBeforeLocalMediaRendererRemoved", renderer.kind);
 
-		if (renderer.kind === "sharing" && !this.videoEnabled)
+		if (renderer.kind === "sharing" && !Hardware.isCameraOn)
 		{
 			this.runCallback(CallEvent.onLocalMediaReceived, {
 				tag: "main",
@@ -1515,7 +1534,7 @@ export class VoximplantCall extends AbstractCall
 
 	#onMicAccessResult = (e) =>
 	{
-		if (e.result)
+		if (this.ready && e.result)
 		{
 			if (e.stream.getAudioTracks().length > 0)
 			{
@@ -1577,12 +1596,12 @@ export class VoximplantCall extends AbstractCall
 		this.localUserState = UserState.Idle;
 
 		this.ready = false;
-		this.muted = false;
 		this.joinedAsViewer = false;
 		this.reinitPeers();
 
 		this.#hideLocalVideo();
 		this.removeCallEvents();
+		this.unsubscribeHardwareChanges();
 		this.voximplantCall = null;
 
 		const client = VoxImplant.getInstance();
@@ -1614,7 +1633,6 @@ export class VoximplantCall extends AbstractCall
 		this.log("onFatalError", error);
 
 		this.ready = false;
-		this.muted = false;
 		this.localUserState = UserState.Failed;
 		this.reinitPeers();
 
@@ -1623,6 +1641,7 @@ export class VoximplantCall extends AbstractCall
 			if (this.voximplantCall)
 			{
 				this.removeCallEvents();
+				this.unsubscribeHardwareChanges();
 				try
 				{
 					this.voximplantCall.hangup({
@@ -1922,6 +1941,7 @@ export class VoximplantCall extends AbstractCall
 		if (this.voximplantCall)
 		{
 			this.removeCallEvents();
+			this.unsubscribeHardwareChanges();
 			if (this.voximplantCall.state() != "ENDED")
 			{
 				this.voximplantCall.hangup();

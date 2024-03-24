@@ -1,22 +1,35 @@
-<?
+<?php
+
 use Bitrix\Currency;
+use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Type\DateTime;
 
 IncludeModuleLangFile(__FILE__);
 
 class CAllCurrencyRates
 {
-	protected static $currentCache = array();
+	protected static array $currentCache = [];
 
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION, $DB;
+		global $USER;
 
-		$arMsg = array();
+		$arMsg = [];
 
-		if ('UPDATE' != $ACTION && 'ADD' != $ACTION)
+		if ('UPDATE' !== $ACTION && 'ADD' !== $ACTION)
+		{
 			return false;
+		}
+		if (!is_array($arFields))
+		{
+			return false;
+		}
 		if (array_key_exists('ID', $arFields))
+		{
 			unset($arFields['ID']);
+		}
 
 		if ('UPDATE' == $ACTION && 0 >= intval($ID))
 			$arMsg[] = array('id' => 'ID','text' => GetMessage('BT_MOD_CURR_ERR_RATE_ID_BAD'));
@@ -75,13 +88,37 @@ class CAllCurrencyRates
 			}
 		}
 
+		$userId = 0;
+		if (isset($USER) && $USER instanceof CUser)
+		{
+			$userId = (int)$USER->GetID();
+		}
+
+		$arFields['~TIMESTAMP_X'] = $DB->GetNowFunction();
+		$arFields['MODIFIED_BY'] = (int)($arFields['MODIFIED_BY'] ?? $userId);
+		if ($arFields['MODIFIED_BY'] < 0)
+		{
+			$arFields['MODIFIED_BY'] = $userId;
+		}
+		if ($ACTION === 'ADD')
+		{
+			$arFields['~DATE_CREATE'] = $arFields['~TIMESTAMP_X'];
+				$arFields['CREATED_BY'] = (int)($arFields['CREATED_BY'] ?? $userId);
+				if ($arFields['CREATED_BY'] < 0)
+				{
+					$arFields['CREATED_BY'] = $userId;
+				}
+		}
+
 		if (!empty($arMsg))
 		{
 			$obError = new CAdminException($arMsg);
 			$APPLICATION->ResetException();
 			$APPLICATION->ThrowException($obError);
+
 			return false;
 		}
+
 		return true;
 	}
 
@@ -92,7 +129,7 @@ class CAllCurrencyRates
 		/** @global CStackCacheManager $stackCacheManager */
 		global $stackCacheManager;
 
-		$arMsg = array();
+		$arMsg = [];
 
 		foreach (GetModuleEvents("currency", "OnBeforeCurrencyRateAdd", true) as $arEvent)
 		{
@@ -100,40 +137,45 @@ class CAllCurrencyRates
 				return false;
 		}
 
-		if (!CCurrencyRates::CheckFields("ADD", $arFields))
+		if (!CCurrencyRates::CheckFields('ADD', $arFields))
+		{
 			return false;
+		}
 
-		$db_result = $DB->Query("SELECT 'x' FROM b_catalog_currency_rate WHERE CURRENCY = '".$DB->ForSql($arFields["CURRENCY"])."' ".
-			"	AND DATE_RATE = ".$DB->CharToDateFunction($DB->ForSql($arFields["DATE_RATE"]), "SHORT"));
-		if ($db_result->Fetch())
+		CTimeZone::Disable();
+		$existRate = Currency\CurrencyRateTable::getRow([
+			'select' => ['ID'],
+			'filter' => [
+				'=CURRENCY' => $arFields['CURRENCY'],
+				'=BASE_CURRENCY' => $arFields['BASE_CURRENCY'],
+				'=DATE_RATE' => DateTime::createFromUserTime($arFields['DATE_RATE']),
+			],
+		]);
+		CTimeZone::Enable();
+		if ($existRate)
 		{
 			$arMsg[] = array("id"=>"DATE_RATE", "text"=> GetMessage("ERROR_ADD_REC2"));
 			$e = new CAdminException($arMsg);
 			$APPLICATION->ThrowException($e);
+
 			return false;
 		}
-		else
+
+		$stackCacheManager->Clear('currency_rate');
+
+		$ID = $DB->Add('b_catalog_currency_rate', $arFields);
+
+		Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
+		Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
+		Currency\CurrencyRateTable::cleanCache();
+		self::$currentCache = [];
+
+		foreach (GetModuleEvents('currency', 'OnCurrencyRateAdd', true) as $arEvent)
 		{
-			$stackCacheManager->Clear("currency_rate");
-
-			$isMsSql = $DB->type == 'MSSQL';
-			if ($isMsSql)
-				CTimeZone::Disable();
-			$ID = $DB->Add("b_catalog_currency_rate", $arFields);
-			if ($isMsSql)
-				CTimeZone::Enable();
-			unset($isMsSql);
-
-			Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
-			Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
-			Currency\CurrencyRateTable::getEntity()->cleanCache();
-			self::$currentCache = array();
-
-			foreach (GetModuleEvents("currency", "OnCurrencyRateAdd", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($ID, $arFields));
-
-			return $ID;
+			ExecuteModuleEventEx($arEvent, [$ID, $arFields]);
 		}
+
+		return $ID;
 	}
 
 	public static function Update($ID, $arFields)
@@ -145,73 +187,95 @@ class CAllCurrencyRates
 
 		$ID = (int)$ID;
 		if ($ID <= 0)
+		{
 			return false;
-		$arMsg = array();
+		}
+		$arMsg = [];
 
 		foreach (GetModuleEvents("currency", "OnBeforeCurrencyRateUpdate", true) as $arEvent)
 		{
-			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields))===false)
+			if (ExecuteModuleEventEx($arEvent, [$ID, &$arFields]) === false)
+			{
 				return false;
+			}
 		}
 
-		if (!CCurrencyRates::CheckFields("UPDATE", $arFields, $ID))
-			return false;
-
-		$db_result = $DB->Query("SELECT 'x' FROM b_catalog_currency_rate WHERE CURRENCY = '".$DB->ForSql($arFields["CURRENCY"])."' ".
-			"	AND DATE_RATE = ".$DB->CharToDateFunction($DB->ForSql($arFields["DATE_RATE"]), "SHORT")." AND ID<>".$ID." ");
-		if ($db_result->Fetch())
+		if (!CCurrencyRates::CheckFields('UPDATE', $arFields, $ID))
 		{
-			$arMsg[] = array("id"=>"DATE_RATE", "text"=> GetMessage("ERROR_ADD_REC2"));
+			return false;
+		}
+
+		CTimeZone::Disable();
+		$existRate = Currency\CurrencyRateTable::getRow([
+			'select' => ['ID'],
+			'filter' => [
+				'=CURRENCY' => $arFields['CURRENCY'],
+				'=BASE_CURRENCY' => $arFields['BASE_CURRENCY'],
+				'=DATE_RATE' => DateTime::createFromUserTime($arFields['DATE_RATE']),
+				'!=ID' => $ID,
+			],
+		]);
+		CTimeZone::Enable();
+
+		if ($existRate)
+		{
+			$arMsg[] = [
+				'id' => 'DATE_RATE',
+				'text' => GetMessage('ERROR_ADD_REC2'),
+			];
 			$e = new CAdminException($arMsg);
 			$APPLICATION->ThrowException($e);
+
 			return false;
 		}
-		else
+
+		$strUpdate = $DB->PrepareUpdate('b_catalog_currency_rate', $arFields);
+		if (!empty($strUpdate))
 		{
-			$isMsSql = $DB->type == 'MSSQL';
-			if ($isMsSql)
-				CTimeZone::Disable();
-			$strUpdate = $DB->PrepareUpdate("b_catalog_currency_rate", $arFields);
-			if ($isMsSql)
-				CTimeZone::Enable();
-			unset($isMsql);
+			$strSql = "UPDATE b_catalog_currency_rate SET ".$strUpdate." WHERE ID = ".$ID;
+			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			if (!empty($strUpdate))
-			{
-				$strSql = "UPDATE b_catalog_currency_rate SET ".$strUpdate." WHERE ID = ".$ID;
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-				$stackCacheManager->Clear("currency_rate");
-				Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
-				Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
-				Currency\CurrencyRateTable::getEntity()->cleanCache();
-				self::$currentCache = array();
-			}
-			foreach (GetModuleEvents("currency", "OnCurrencyRateUpdate", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($ID, $arFields));
+			$stackCacheManager->Clear('currency_rate');
+			Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
+			Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
+			Currency\CurrencyRateTable::cleanCache();
+			self::$currentCache = [];
 		}
+		foreach (GetModuleEvents('currency', 'OnCurrencyRateUpdate', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$ID, $arFields]);
+		}
+
 		return true;
 	}
 
 	public static function Delete($ID)
 	{
-		global $DB;
 		global $APPLICATION;
 		/** @global CStackCacheManager $stackCacheManager */
 		global $stackCacheManager;
 
 		$ID = (int)$ID;
-
 		if ($ID <= 0)
-			return false;
-
-		foreach(GetModuleEvents("currency", "OnBeforeCurrencyRateDelete", true) as $arEvent)
 		{
-			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
-				return false;
+			return false;
 		}
 
-		$arFields = CCurrencyRates::GetByID($ID);
+		foreach (GetModuleEvents('currency', 'OnBeforeCurrencyRateDelete', true) as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, [$ID]) === false)
+			{
+				return false;
+			}
+		}
+
+		$arFields = Currency\CurrencyRateTable::getRow([
+			'select' => [
+				'ID',
+				'CURRENCY',
+			],
+			'filter' => ['=ID' => $ID],
+		]);
 		if (!is_array($arFields))
 		{
 			$arMsg = array('id' => 'ID', 'text' => GetMessage('BT_MOD_CURR_ERR_RATE_CANT_DELETE_ABSENT_ID'));
@@ -220,17 +284,24 @@ class CAllCurrencyRates
 			return false;
 		}
 
-		$stackCacheManager->Clear("currency_rate");
+		$result = Currency\CurrencyRateTable::delete($ID);
+		if (!$result->isSuccess())
+		{
+			self::convertErrors($result);
 
-		$strSql = "DELETE FROM b_catalog_currency_rate WHERE ID = ".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			return false;
+		}
+
+		$stackCacheManager->Clear('currency_rate');
 		Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
 		Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
-		Currency\CurrencyRateTable::getEntity()->cleanCache();
-		self::$currentCache = array();
+		Currency\CurrencyRateTable::cleanCache();
+		self::$currentCache = [];
 
-		foreach(GetModuleEvents("currency", "OnCurrencyRateDelete", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID));
+		foreach(GetModuleEvents('currency', 'OnCurrencyRateDelete', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$ID]);
+		}
 
 		return true;
 	}
@@ -460,6 +531,77 @@ class CAllCurrencyRates
 
 	public static function _get_last_rates($valDate, $cur)
 	{
-		return false;
+		$baseCurrency = Currency\CurrencyManager::getBaseCurrency();
+		if ($baseCurrency === null)
+		{
+			return null;
+		}
+		$valDate = trim((string)$valDate);
+		$cur = trim((string)$cur);
+
+		if ($valDate === '' || !Currency\CurrencyManager::isCurrencyExist($cur))
+		{
+			return null;
+		}
+
+		$result = Currency\CurrencyTable::getRow([
+			'select' => [
+				'AMOUNT',
+				'AMOUNT_CNT',
+				'RATE' => 'RATE_TB.RATE',
+				'RATE_CNT' => 'RATE_TB.RATE_CNT',
+				'DATE_RATE' => 'RATE_TB.DATE_RATE',
+			],
+			'filter' => [
+				'=CURRENCY' => $cur,
+			],
+			'order' => [
+				'DATE_RATE' => 'DESC',
+			],
+			'runtime' => [
+				'RATE_TB' => new ORM\Fields\Relations\Reference(
+					'RATE_TB',
+					Currency\CurrencyRateTable::class,
+					[
+						'=this.CURRENCY' => 'ref.CURRENCY',
+						'=ref.BASE_CURRENCY' => new SqlExpression('?s', $baseCurrency),
+						'<ref.DATE_RATE' => new SqlExpression('?s', $valDate),
+					],
+					['join' => ORM\Query\Join::TYPE_LEFT]
+				),
+			]
+		]);
+
+		if ($result !== null)
+		{
+			unset($result['DATE_RATE']);
+		}
+
+		return $result;
 	}
+
+	private static function convertErrors(ORM\Data\Result $result): void
+	{
+		global $APPLICATION;
+
+		$oldMessages = [];
+		foreach ($result->getErrorMessages() as $errorText)
+		{
+			$oldMessages[] = ['text' => $errorText];
+		}
+		unset($errorText);
+
+		if (!empty($oldMessages))
+		{
+			$error = new CAdminException($oldMessages);
+			$APPLICATION->ThrowException($error);
+			unset($error);
+		}
+		unset($oldMessages);
+	}
+}
+
+class CCurrencyRates extends CAllCurrencyRates
+{
+
 }

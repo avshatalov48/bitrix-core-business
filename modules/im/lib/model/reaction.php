@@ -98,15 +98,10 @@ class ReactionTable extends DataManager
 					'required' => true,
 				]
 			),
-			'COUNT' => new ExpressionField(
+			'COUNT' => (new ExpressionField(
 				'COUNT',
 				'COUNT(*)'
-			),
-			'USERS_GROUP' => new ExpressionField(
-				'USERS',
-				'GROUP_CONCAT(%s)',
-				['USER_ID']
-			),
+			))->configureValueType(IntegerField::class),
 		];
 	}
 

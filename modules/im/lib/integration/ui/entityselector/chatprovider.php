@@ -497,7 +497,18 @@ class ChatProvider extends BaseProvider
 		}
 
 		$connection = \Bitrix\Main\Application::getConnection();
-		$result = $connection->query("SHOW INDEX FROM b_im_chat_index where Index_type = 'FULLTEXT' and Column_name = 'SEARCH_TITLE'");
+		if ($connection->getType() == 'mysql')
+		{
+			$result = $connection->query("SHOW INDEX FROM b_im_chat_index where Index_type = 'FULLTEXT' and Column_name = 'SEARCH_TITLE'");
+		}
+		elseif ($connection->getType() == 'pgsql')
+		{
+			$result = $connection->query("select indexname from pg_indexes where tablename = 'b_im_chat_index' and indexdef like '%to_tsvector%search_title%'");
+		}
+		else
+		{
+			return false;
+		}
 
 		if ($result->fetch())
 		{

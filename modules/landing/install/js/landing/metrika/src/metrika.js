@@ -215,11 +215,7 @@ export class Metrika
 	{
 		Runtime.loadExtension('ui.analytics')
 			.then(exports => {
-				const {sendData} = exports;
-				const preparedData = data;
-
-				preparedData.tool = Metrika.TOOL_NAME;
-
+				data.tool = Metrika.TOOL_NAME;
 				if (data.params && Type.isObject(data.params))
 				{
 					let i = 1;
@@ -236,7 +232,8 @@ export class Metrika
 					delete data.params;
 				}
 
-				sendData(preparedData);
+				const {sendData} = exports;
+				sendData(data);
 			})
 		;
 	}

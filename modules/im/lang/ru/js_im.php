@@ -187,7 +187,6 @@ $MESS["IM_DESKTOP_FIND_NEXT"] = "Перейти к следующему резу
 $MESS["IM_DESKTOP_FIND_PREV"] = "Перейти к предыдущему результату поиска";
 $MESS["IM_DESKTOP_FIND_CLOSE"] = "Закрыть панель поиска";
 $MESS["IM_DESKTOP_FIND_RESULT"] = "#CURRENT# из #TOTAL#";
-$MESS["IM_M_OPEN_CHAT"] = "Перейти в чат";
 $MESS["IM_CONNECT_ERROR"] = "Мы не смогли подключиться к вашему Битрикс24 - возможно, у вас плохое интернет-соединение. Попробуйте выполнить действие позже.";
 $MESS["IM_M_INVITE_RESEND"] = "Пригласить повторно";
 $MESS["IM_M_INVITE_CANCEL"] = "Отменить приглашение";

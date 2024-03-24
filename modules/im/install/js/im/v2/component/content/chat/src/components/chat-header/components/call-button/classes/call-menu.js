@@ -1,17 +1,17 @@
+import { Loc, Tag, Extension } from 'main.core';
+
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
-import { ChatActionType, ChatType } from 'im.v2.const';
+import { ChatActionType, ChatType, RestMethod } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { Loc, Tag } from 'main.core';
-
 import { BaseMenu } from 'im.v2.lib.menu';
 import { CallManager } from 'im.v2.lib.call';
+import { runAction } from 'im.v2.lib.rest';
 
 import { CallTypes } from '../types/call-types';
 
 import type { ImModelChat, ImModelUser } from 'im.v2.model';
 import type { MenuItem } from 'im.v2.lib.menu';
-
 import type { PopupOptions } from 'main.popup';
 
 export class CallMenu extends BaseMenu
@@ -50,6 +50,7 @@ export class CallMenu extends BaseMenu
 		return [
 			this.#getVideoCallItem(),
 			this.#getAudioCallItem(),
+			this.#getZoomItem(),
 			this.#getDelimiter(),
 			this.#getPersonalPhoneItem(),
 			this.#getWorkPhoneItem(),
@@ -164,13 +165,46 @@ export class CallMenu extends BaseMenu
 			return null;
 		}
 
-		const title = Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_INNER_PHONE');
+		const title = Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_INNER_PHONE_MSGVER_1');
 
 		return {
 			className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
 			html: this.#getUserPhoneHtml(title, phones.innerPhone),
 			onclick: () => {
 				Messenger.startPhoneCall(phones.innerPhone);
+				this.menuInstance.close();
+			},
+		};
+	}
+
+	#getZoomItem(): ?MenuItem
+	{
+		const settings = Extension.getSettings('im.v2.component.content.chat');
+		const isActive = settings.get('isZoomActive', false);
+		if (!isActive)
+		{
+			return null;
+		}
+
+		const classNames = ['bx-im-chat-header-call-button-menu__zoom', 'menu-popup-no-icon'];
+		const isFeatureAvailable = settings.get('isZoomFeatureAvailable', false);
+		if (!isFeatureAvailable)
+		{
+			classNames.push('--disabled');
+		}
+
+		return {
+			className: classNames.join(' '),
+			text: Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM'),
+			onclick: () => {
+				if (!isFeatureAvailable)
+				{
+					BX.UI.InfoHelper.show('limit_video_conference_zoom');
+
+					return;
+				}
+
+				this.#requestCreateZoomConference(this.context.dialogId);
 				this.menuInstance.close();
 			},
 		};
@@ -220,5 +254,26 @@ export class CallMenu extends BaseMenu
 	#isUser(): true
 	{
 		return this.context.type === ChatType.user;
+	}
+
+	#requestCreateZoomConference(dialogId: string)
+	{
+		runAction(RestMethod.imV2CallZoomCreate, { data: { dialogId } })
+			.catch((errors) => {
+				let errorText = Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CREATE_ERROR');
+
+				const notConnected = errors.some((error) => error.code === 'ZOOM_CONNECTED_ERROR');
+				if (notConnected)
+				{
+					const userProfileUri = `/company/personal/user/${Core.getUserId()}/social_services/`;
+					errorText = Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CONNECT_ERROR')
+						.replace('#HREF_START#', `<a href=${userProfileUri}>`)
+						.replace('#HREF_END#', '</>');
+				}
+
+				BX.UI.Notification.Center.notify({
+					content: errorText,
+				});
+			});
 	}
 }

@@ -1,6 +1,9 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Security\RedirectRuleTable;
+use Bitrix\Main\SiteDomainTable;
+
 class CSecurityRedirect
 {
 	public static function BeforeLocalRedirect(&$url, $skip_security_check)
@@ -269,7 +272,7 @@ class CSecurityRedirect
 
 		if (COption::GetOptionString("security", "redirect_href_sign") == "Y")
 		{
-			$content = preg_replace_callback("#(<a\\s[^>/]*?href\\s*=\\s*)(['\"])(.+?)(\\2)#i", ["self", "ReplaceHREF"],
+			$content = preg_replace_callback("#(<a\\s[^>/]*?href\\s*=\\s*)(['\"])(.+?)(\\2)#i", '\CSecurityRedirect::ReplaceHREF',
 				$content);
 		}
 	}
@@ -314,10 +317,9 @@ class CSecurityRedirect
 	public static function GetUrls()
 	{
 		/**
-		 * global CDatabase $DB
 		 * global CCacheManager $CACHE_MANAGER
 		 */
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 		if (CACHED_b_sec_redirect_url !== false)
 		{
 			$cache_id = "b_sec_redirect_url";
@@ -328,7 +330,11 @@ class CSecurityRedirect
 			else
 			{
 				$arUrls = array();
-				$rs = $DB->Query("SELECT URL, PARAMETER_NAME, IS_SYSTEM from b_sec_redirect_url ORDER BY IS_SYSTEM DESC, SORT ASC");
+				$rs = RedirectRuleTable::getList([
+					"select" => ["URL", "PARAMETER_NAME", "IS_SYSTEM"],
+					"order" => ["IS_SYSTEM" => "DESC", "SORT" => "ASC"]]
+				);
+
 				while($ar = $rs->Fetch())
 				{
 					$arUrls[] = $ar;
@@ -339,7 +345,11 @@ class CSecurityRedirect
 		else
 		{
 			$arUrls = array();
-			$rs = $DB->Query("SELECT URL, PARAMETER_NAME, IS_SYSTEM from b_sec_redirect_url ORDER BY IS_SYSTEM DESC, SORT ASC");
+			$rs = RedirectRuleTable::getList([
+					"select" => ["URL", "PARAMETER_NAME", "IS_SYSTEM"],
+					"order" => ["IS_SYSTEM" => "DESC", "SORT" => "ASC"]]
+			);
+
 			while($ar = $rs->Fetch())
 			{
 				$arUrls[] = $ar;
@@ -351,10 +361,9 @@ class CSecurityRedirect
 	public static function GetDomains()
 	{
 		/**
-		 * global CDatabase $DB
 		 * global CCacheManager $CACHE_MANAGER
 		 */
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 		if (CACHED_b_lang_domain !== false)
 		{
 			if ($CACHE_MANAGER->Read(CACHED_b_lang_domain, "b_sec_domains", "b_lang_domain"))
@@ -364,7 +373,7 @@ class CSecurityRedirect
 			else
 			{
 				$arDomains = array();
-				$rs = $DB->Query("SELECT DOMAIN from b_lang_domain");
+				$rs = SiteDomainTable::getList(["select" => ["DOMAIN"]]);
 				while($ar = $rs->Fetch())
 				{
 					$arDomains[] = $ar["DOMAIN"];
@@ -376,7 +385,7 @@ class CSecurityRedirect
 		else
 		{
 			$arDomains = array();
-			$rs = $DB->Query("SELECT DOMAIN from b_lang_domain");
+			$rs = SiteDomainTable::getList(["select" => ["DOMAIN"]]);
 			while($ar = $rs->Fetch())
 			{
 				$arDomains[] = $ar["DOMAIN"];
@@ -445,14 +454,15 @@ class CSecurityRedirect
 	public static function Update($arUrls)
 	{
 		/**
-		 * global CDatabase $DB
 		 * global CCacheManager $CACHE_MANAGER
 		 */
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 
 		if (is_array($arUrls))
 		{
-			$res = $DB->Query("DELETE FROM b_sec_redirect_url WHERE IS_SYSTEM <> 'Y'", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+			$res = RedirectRuleTable::deleteList(["!=IS_SYSTEM" => "Y"]);
+
 			if ($res)
 			{
 				$added = array();
@@ -473,7 +483,7 @@ class CSecurityRedirect
 							"PARAMETER_NAME" => $param,
 						);
 
-						$DB->Add("b_sec_redirect_url", $arUrl);
+						RedirectRuleTable::add($arUrl);
 						$i += 10;
 						$added[$key] = true;
 					}
@@ -491,9 +501,10 @@ class CSecurityRedirect
 
 	public static function GetList()
 	{
-		/** global CDatabase $DB */
-		global $DB;
-		$res = $DB->Query("SELECT URL, PARAMETER_NAME, IS_SYSTEM from b_sec_redirect_url ORDER BY IS_SYSTEM DESC, SORT ASC");
+		$res = RedirectRuleTable::getList([
+				"select" => ["URL", "PARAMETER_NAME", "IS_SYSTEM"],
+				"order" => ["IS_SYSTEM" => "DESC", "SORT" => "ASC"]]
+		);
 		return $res;
 	}
 

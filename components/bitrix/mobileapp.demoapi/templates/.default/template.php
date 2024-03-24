@@ -10,7 +10,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /**
  * @var $this CBitrixComponentTemplate
  * @var $arResult array
- * @var $APPLICATION CAllMain
+ * @var $APPLICATION CMain
  */
 $APPLICATION->AddHeadScript($this->GetFolder() . "/fastclick.js");
 $APPLICATION->SetAdditionalCSS("/bitrix/css/main/font-awesome.css");

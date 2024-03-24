@@ -1,0 +1,31 @@
+<?
+$MESS["BC_NAME_TEMPLATE_DEFAULT"] = "#NOBR##NAME# #LAST_NAME##/NOBR#";
+$MESS["GENERAL_PAGE_GROUP_ID"] = "Bloggruppe";
+$MESS["BLG_THEME_BLUE"] = "Blau";
+$MESS["BLG_THEME_GREEN"] = "Grün";
+$MESS["BC_NAME_TEMPLATE"] = "Name anzeigen";
+$MESS["BLG_THEME_ORANGE"] = "Orange";
+$MESS["GENERAL_PAGE_PATH_TO_GROUP_BLOG"] = "Pfad zum Gruppenblog";
+$MESS["GENERAL_PAGE_PATH_TO_GROUP_BLOG_CATEGORY"] = "Pfad zur Seite mit Gruppenblogs mit Tagfilter";
+$MESS["GENERAL_PAGE_PATH_TO_GROUP_BLOG_POST"] = "Pfad zum Blogbeitrag";
+$MESS["GENERAL_PAGE_PATH_TO_POST"] = "Pfad zum Beitrag des Nutzerblogs";
+$MESS["GENERAL_PAGE_PATH_TO_USER"] = "Pfad zum Nutzerprofil";
+$MESS["GENERAL_PAGE_PATH_TO_BLOG"] = "Pfad zum Nutzerblog";
+$MESS["GENERAL_PAGE_PATH_TO_BLOG_CATEGORY"] = "Pfad zum Benutzerblog mit Tagfilter";
+$MESS["B_SEO_USER"] = "Benutzerprofil für Such-Spyder unsichtbar machen";
+$MESS["BLG_THEME_RED"] = "Rot";
+$MESS["BLG_THEME_RED2"] = "Rot einfach";
+$MESS["BC_SHOW_LOGIN"] = "Login anzeigen, wenn kein Name vorhanden";
+$MESS["BC_PATH_TO_SONET_USER_PROFILE"] = "Pfadvorlage für das Nutzerprofil im sozialen Netzwerk";
+$MESS["BC_PATH_TO_CONPANY_DEPARTMENT"] = "Pfadvorlage zur Abteilungsseite";
+$MESS["BLG_THEME"] = "Vorlagen Theme";
+$MESS["GENERAL_PAGE_USE_SOCNET"] = "Im Kontext des sozialen Netzwerks verwenden";
+$MESS["BC_PATH_TO_MESSAGES_CHAT"] = "Pfadvorlage zum Chat mit dem Nutzer";
+$MESS["BC_PATH_TO_VIDEO_CALL"] = "Videoanrufe";
+$MESS["BC_USE_SHARE"] = "Bookmarksleiste der sozialen Netzwerke anzeigen";
+$MESS["BC_SHARE_HIDE"] = "Bookmarksleiste der sozialen Netzwerke standardmäßig ausblenden";
+$MESS["BC_SHARE_TEMPLATE"] = "Vorlage der Bookmarks der sozialen Netzwerke";
+$MESS["BC_SHARE_SYSTEM"] = "Soziale Netzwerke und Bookmarks benutzen";
+$MESS["BC_SHARE_SHORTEN_URL_LOGIN"] = "bit.ly Login";
+$MESS["BC_SHARE_SHORTEN_URL_KEY"] = "bit.ly Schlüssel";
+?>

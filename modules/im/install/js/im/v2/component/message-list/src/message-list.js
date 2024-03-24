@@ -21,7 +21,7 @@ import './css/message-list.css';
 
 import type { JsonObject } from 'main.core';
 import type { BitrixVueComponentProps } from 'ui.vue3';
-import type { ImModelChat, ImModelMessage } from 'im.v2.model';
+import type { ImModelChat, ImModelMessage, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const MessageList = {
@@ -76,6 +76,10 @@ export const MessageList = {
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
+		user(): ImModelUser
+		{
+			return this.$store.getters['users/get'](this.dialogId, true);
+		},
 		isUser(): boolean
 		{
 			return this.dialog.type === ChatType.user;
@@ -127,6 +131,18 @@ export const MessageList = {
 	},
 	methods:
 	{
+		needToShowAvatarMenuFor(user: ImModelUser): boolean
+		{
+			if (!user)
+			{
+				return false;
+			}
+
+			const isCurrentUser = user.id === Core.getUserId();
+			const isBotChat = this.isUser && this.user.bot === true;
+
+			return !isCurrentUser && !isBotChat;
+		},
 		subscribeToEvents(): void
 		{
 			EventEmitter.subscribe(EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
@@ -151,9 +167,8 @@ export const MessageList = {
 		onAvatarClick(params: { dialogId: string, $event: PointerEvent })
 		{
 			const { dialogId, $event: event } = params;
-			const user = this.$store.getters['users/get'](dialogId);
-			const userId = Number.parseInt(dialogId, 10);
-			if (!user || Core.getUserId() === userId)
+			const user: ImModelUser = this.$store.getters['users/get'](dialogId);
+			if (!this.needToShowAvatarMenuFor(user))
 			{
 				return;
 			}

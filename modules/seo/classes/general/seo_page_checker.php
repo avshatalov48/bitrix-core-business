@@ -35,11 +35,18 @@ class CSeoPageChecker
 	public function __construct($site, $url, $get = true, $check_errors = true)
 	{
 		global $APPLICATION;
+		/** @var CDatabase $DB */
+		global $DB;
 
 		if (CModule::IncludeModule('search'))
+		{
 			$this->bSearch = true;
-		else
-			$APPLICATION->ThrowException(GetMessage('SEO_ERROR_NO_SEARCH')); // don't return false or set bError!
+		}
+		elseif ($DB->type !== "PGSQL")
+		{
+			$APPLICATION->ThrowException(GetMessage('SEO_ERROR_NO_SEARCH'));
+			// don't return false or set bError!
+		}
 
 		$this->__bCheckErrors = $check_errors;
 

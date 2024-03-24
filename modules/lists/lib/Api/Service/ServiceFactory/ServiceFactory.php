@@ -40,7 +40,7 @@ abstract class ServiceFactory
 		string $iBlockTypeId,
 		int $currentUserId,
 		int $socNetGroupId = 0,
-	): ProcessService|ListService|SocNetListService|null
+	): ProcessService|ListService|SocNetListService|IBlockListService|null
 	{
 		if (empty($iBlockTypeId) || $currentUserId <= 0 || $socNetGroupId < 0)
 		{
@@ -78,6 +78,15 @@ abstract class ServiceFactory
 			);
 		}
 
+		$listsPermissions = \CLists::GetPermission();
+		if (array_key_exists($iBlockTypeId, $listsPermissions))
+		{
+			return (
+				(new IBlockListService($accessService, $iBlockService, $dataService))
+					->setIBlockTypeId($iBlockTypeId)
+			);
+		}
+
 		return null;
 	}
 
@@ -92,6 +101,11 @@ abstract class ServiceFactory
 		$this->accessService = $accessService;
 		$this->iBlockService = $iBlockService;
 		$this->dataService = $dataService;
+	}
+
+	public function getInnerIBlockTypeId(): string
+	{
+		return static::getIBlockTypeId();
 	}
 
 	public function checkIBlockTypePermission(): \Bitrix\Lists\Api\Response\CheckPermissionsResponse
@@ -111,7 +125,7 @@ abstract class ServiceFactory
 			$filter =
 				(new IBlockListFilter())
 					->setActive(true)
-					->setIBLockTypeId(static::getIBlockTypeId())
+					->setIBLockTypeId($this->getInnerIBlockTypeId())
 					->setCheckPermission(!$this->accessService->isAdminPermission($response->getPermission()))
 			;
 			$this->fillCatalogFilter($filter);
@@ -144,7 +158,7 @@ abstract class ServiceFactory
 		{
 			$filter =
 				(IBlockElementFilter::initializeFromArray($request->filter->getOrmFilter()))
-					->setIBlockType(static::getIBlockTypeId())
+					->setIBlockType($this->getInnerIBlockTypeId())
 					->setCheckPermission(!$this->accessService->isCanReadPermission($response->getPermission()))
 			;
 			$this->fillElementListFilter($filter);
@@ -227,7 +241,7 @@ abstract class ServiceFactory
 			{
 				$filter =
 					(new IBlockElementFilter())
-						->setIBlockType(static::getIBlockTypeId())
+						->setIBlockType($this->getInnerIBlockTypeId())
 						->setIBlockId($elementToGetDetailInfo->getIBlockId())
 						->setId($elementId)
 						->setShowNew(true)
@@ -357,7 +371,7 @@ abstract class ServiceFactory
 		// todo: rights?
 		$response = new GetAverageIBlockTemplateDurationResponse();
 
-		if (!\CLists::isBpFeatureEnabled(static::getIBlockTypeId()) || !Loader::includeModule('bizproc'))
+		if (!\CLists::isBpFeatureEnabled($this->getInnerIBlockTypeId()) || !Loader::includeModule('bizproc'))
 		{
 			// todo: localization
 			return $response->addError(new Error('not supported'));
@@ -392,7 +406,7 @@ abstract class ServiceFactory
 
 	private function getTemplatesByIBlockId(int $iBlockId, int $autoExecuteType): array
 	{
-		$documentType = \BizprocDocument::generateDocumentComplexType(static::getIBlockTypeId(), $iBlockId);
+		$documentType = \BizprocDocument::generateDocumentComplexType($this->getInnerIBlockTypeId(), $iBlockId);
 
 		if (Loader::includeModule('bizproc'))
 		{

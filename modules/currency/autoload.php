@@ -7,7 +7,7 @@ Loader::registerAutoLoadClasses(
 	[
 		'CCurrency' => 'general/currency.php',
 		'CCurrencyLang' => 'general/currency_lang.php',
-		'CCurrencyRates' => 'mysql/currency_rate.php',
+		'CCurrencyRates' => 'general/currency_rate.php',
 		'\Bitrix\Currency\Compatible\Tools' => 'lib/compatible/tools.php',
 		'\Bitrix\Currency\Helpers\Admin\Tools' => 'lib/helpers/admin/tools.php',
 		'\Bitrix\Currency\Helpers\Editor' => 'lib/helpers/editor.php',

@@ -1,155 +1,177 @@
-<?
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/include.php");
-
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/include.php';
+/** @var CMain $APPLICATION */
 IncludeModuleLangFile(__FILE__);
 
-$POST_RIGHT = $APPLICATION->GetGroupRight("subscribe");
-if($POST_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+$POST_RIGHT = CMain::GetUserRight('subscribe');
+if ($POST_RIGHT == 'D')
+{
+	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
+}
 
-$ID = intval($_GET["ID"]);
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-$APPLICATION->SetTitle(GetMessage("post_title"));
+$ID = intval($request['ID']);
 
-$sTableID = "tbl_posting_bcc";
-$oSort = new CAdminSorting($sTableID, "EMAIL", "asc");
+$APPLICATION->SetTitle(GetMessage('post_title'));
+
+$sTableID = 'tbl_posting_bcc';
+$oSort = new CAdminSorting($sTableID, 'EMAIL', 'asc');
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-$FilterArr = Array(
-	"find_status_id",
-);
+$FilterArr = [
+	'find_status_id',
+];
 
-$lAdmin->InitFilter($FilterArr);
-
-if($find_status_id != "N")
-	$find_status_id = "E";
-
-if(($arEMAIL = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
+$currentFilter = $lAdmin->InitFilter($FilterArr);
+foreach ($FilterArr as $fieldName)
 {
-	$arSubscr = array();
-	$rsData = CPosting::GetEmailsByStatus($ID, $find_status_id);
-	while($arRes = $rsData->Fetch())
-		$arSubscr[$arRes['EMAIL']] = $arRes["SUBSCRIPTION_ID"];
+	$currentFilter[$fieldName] = ($currentFilter[$fieldName] ?? '');
+}
 
-	if($_REQUEST['action_target']=='selected')
+if ($currentFilter['find_status_id'] !== 'N')
+{
+	$currentFilter['find_status_id'] = 'E';
+}
+
+$arEMAIL = $lAdmin->GroupAction();
+if ($arEMAIL && $POST_RIGHT == 'W')
+{
+	$arSubscr = [];
+	$rsData = CPosting::GetEmailsByStatus($ID, $currentFilter['find_status_id']);
+	while ($arRes = $rsData->Fetch())
+	{
+		$arSubscr[$arRes['EMAIL']] = $arRes['SUBSCRIPTION_ID'];
+	}
+
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$arEMAIL = array_keys($arSubscr);
 	}
 
-	foreach($arEMAIL as $EMAIL)
+	foreach ($arEMAIL as $EMAIL)
 	{
 		$SUBSCR_ID = intval($arSubscr[$EMAIL]);
-		if($SUBSCR_ID <= 0)
-			continue;
-
-		switch($_REQUEST['action'])
+		if ($SUBSCR_ID <= 0)
 		{
-		case "sudelete":
+			continue;
+		}
+
+		switch ($lAdmin->GetAction())
+		{
+		case 'sudelete':
 			CSubscription::Delete($SUBSCR_ID);
 			break;
-		case "inactive":
+		case 'inactive':
 			$oSubscription = new CSubscription;
-			$oSubscription->Update($SUBSCR_ID, array("ACTIVE"=>"N"));
+			$oSubscription->Update($SUBSCR_ID, ['ACTIVE' => 'N']);
 			break;
 		}
 	}
 }
 
-$lAdmin->AddHeaders(array(
-	array(
-		"id" => "EMAIL",
-		"content" => GetMessage("POST_EMAIL"),
-		"default" => true,
-	),
-	array(
-		"id" => "SUBSCRIPTION_ID",
-		"content" => GetMessage("POST_SUBSCRIPTION_ID"),
-		"default" => true,
-		"align" => "right",
-	),
-	array(
-		"id" => "USER_ID",
-		"content" => GetMessage("POST_USER_ID"),
-		"default" => true,
-		"align" => "right",
-	),
-));
+$lAdmin->AddHeaders([
+	[
+		'id' => 'EMAIL',
+		'content' => GetMessage('POST_EMAIL'),
+		'default' => true,
+	],
+	[
+		'id' => 'SUBSCRIPTION_ID',
+		'content' => GetMessage('POST_SUBSCRIPTION_ID'),
+		'default' => true,
+		'align' => 'right',
+	],
+	[
+		'id' => 'USER_ID',
+		'content' => GetMessage('POST_USER_ID'),
+		'default' => true,
+		'align' => 'right',
+	],
+]);
 
-$cData = new CPosting;
-$rsData = $cData->GetEmailsByStatus($ID, $find_status_id);
+$rsData = CPosting::GetEmailsByStatus($ID, $currentFilter['find_status_id']);
 $rsData = new CAdminResult($rsData, $sTableID);
 
 $rsData->NavStart();
-$lAdmin->NavText($rsData->GetNavPrint(""));
-while($arRes = $rsData->NavNext(true, "f_"))
+$lAdmin->NavText($rsData->GetNavPrint(''));
+while ($arRes = $rsData->GetNext())
 {
-	$row =& $lAdmin->AddRow($f_EMAIL, $arRes);
-	if($f_SUBSCRIPTION_ID > 0)
+	$row =& $lAdmin->AddRow($arRes['EMAIL'], $arRes);
+	if ($arRes['SUBSCRIPTION_ID'] > 0)
 	{
-		$rs = CSubscription::GetByID($f_SUBSCRIPTION_ID);
+		$rs = CSubscription::GetByID($arRes['SUBSCRIPTION_ID']);
 		$ar = $rs->Fetch();
-		if(!$ar)
-			$row->AddViewField("SUBSCRIPTION_ID", $f_SUBSCRIPTION_ID.' ('.GetMessage("POST_SUBSCR_DELETED").')');
-		elseif($ar["ACTIVE"]=="N")
-			$row->AddViewField("SUBSCRIPTION_ID", '<a target="_blank" href="subscr_edit.php?lang='.LANGUAGE_ID.'&amp;ID='.$f_SUBSCRIPTION_ID.'">'.$f_SUBSCRIPTION_ID.'</a> ('.GetMessage("POST_SUBSCR_INACTIVE").')');
+		if (!$ar)
+		{
+			$row->AddViewField('SUBSCRIPTION_ID', $arRes['SUBSCRIPTION_ID'] . ' (' . GetMessage('POST_SUBSCR_DELETED') . ')');
+		}
+		elseif ($ar['ACTIVE'] == 'N')
+		{
+			$row->AddViewField('SUBSCRIPTION_ID', '<a target="_blank" href="subscr_edit.php?lang=' . LANGUAGE_ID . '&amp;ID=' . $arRes['SUBSCRIPTION_ID'] . '">' . $arRes['SUBSCRIPTION_ID'] . '</a> (' . GetMessage('POST_SUBSCR_INACTIVE') . ')');
+		}
 		else
-			$row->AddViewField("SUBSCRIPTION_ID", '<a target="_blank" href="subscr_edit.php?lang='.LANGUAGE_ID.'&amp;ID='.$f_SUBSCRIPTION_ID.'">'.$f_SUBSCRIPTION_ID.'</a>');
+		{
+			$row->AddViewField('SUBSCRIPTION_ID', '<a target="_blank" href="subscr_edit.php?lang=' . LANGUAGE_ID . '&amp;ID=' . $arRes['SUBSCRIPTION_ID'] . '">' . $arRes['SUBSCRIPTION_ID'] . '</a>');
+		}
 	}
-	if($f_USER_ID > 0)
-		$row->AddViewField("USER_ID", '<a target="_blank" href="user_edit.php?lang='.LANGUAGE_ID.'&amp;ID='.$f_USER_ID.'">'.$f_USER_ID.'</a>');
+	if ($arRes['USER_ID'] > 0)
+	{
+		$row->AddViewField('USER_ID', '<a target="_blank" href="user_edit.php?lang=' . LANGUAGE_ID . '&amp;ID=' . $arRes['USER_ID'] . '">' . $arRes['USER_ID'] . '</a>');
+	}
 }
 
 $lAdmin->AddFooter(
-	array(
-		array("title"=>GetMessage("post_total"), "value"=>$rsData->SelectedRowsCount()),
-		array("counter"=>true, "title"=>GetMessage("MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
-	)
+	[
+		['title' => GetMessage('post_total'), 'value' => $rsData->SelectedRowsCount()],
+		['counter' => true, 'title' => GetMessage('MAIN_ADMIN_LIST_CHECKED'), 'value' => '0'],
+	]
 );
-$lAdmin->AddGroupActionTable(Array(
-	"inactive"=>GetMessage("POST_GROUP_ACTION_INACTIVE"),
-	"sudelete"=>GetMessage("POST_GROUP_ACTION_DELETE"),
-));
+$lAdmin->AddGroupActionTable([
+	'inactive' => GetMessage('POST_GROUP_ACTION_INACTIVE'),
+	'sudelete' => GetMessage('POST_GROUP_ACTION_DELETE'),
+]);
 
 $lAdmin->CheckListMode();
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_popup_admin.php';
 
 ?>
-<form name="find_form" method="get" action="<?echo $APPLICATION->GetCurPage();?>">
-<input type="hidden" name="ID" value="<?echo $ID?>">
-<?
+<form name="find_form" method="get" action="<?php echo $APPLICATION->GetCurPage();?>">
+<input type="hidden" name="ID" value="<?php echo $ID?>">
+<?php
 $oFilter = new CAdminFilter(
-	$sTableID."_filter",
-	array()
+	$sTableID . '_filter',
+	[]
 );
 
 $oFilter->Begin();
 ?>
 <tr>
-	<td><?=GetMessage("POST_STATUS_ID")?>:</td>
+	<td><?=GetMessage('POST_STATUS_ID')?>:</td>
 	<td>
-		<?
-		$arr = array(
-			"reference" => array(
-				GetMessage("POST_STATUS_ID_ERROR"),
-				GetMessage("POST_STATUS_ID_SUCCESS"),
-			),
-			"reference_id" => array(
-				"E",
-				"N",
-			)
-		);
-		echo SelectBoxFromArray("find_status_id", $arr, $find_status_id);
+		<?php
+		$arr = [
+			'reference' => [
+				GetMessage('POST_STATUS_ID_ERROR'),
+				GetMessage('POST_STATUS_ID_SUCCESS'),
+			],
+			'reference_id' => [
+				'E',
+				'N',
+			]
+		];
+		echo SelectBoxFromArray('find_status_id', $arr, $currentFilter['find_status_id']);
 		?>
 	</td>
 </tr>
-<?
-$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form" => "find_form"));
+<?php
+$oFilter->Buttons(['table_id' => $sTableID, 'url' => $APPLICATION->GetCurPage(), 'form' => 'find_form']);
 $oFilter->End();
 ?>
 </form>
-<?
+<?php
 $lAdmin->DisplayList();
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");
-?>
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_popup_admin.php';

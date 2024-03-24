@@ -23,6 +23,7 @@ $MESS["SOC_OPT_B24NET_PUT"] = "Вставить";
 $MESS["SOC_OPT_B24NET_SITE"] = "Получить параметры авторизации для сайта";
 $MESS["SOC_OPT_B24NET_GET"] = "Получить";
 $MESS["SOC_OPT_B24NET_TITLE"] = "Регистрация сайта в Битрикс24.Network";
+$MESS["SOC_OPT_B24NET_TITLE_MSGVER_1"] = "Регистрация сайта в Битрикс24 Network";
 $MESS["SOC_OPT_CRYPTO_FIELD_TITLE"] = "Статус:";
 $MESS["SOC_OPT_CRYPTO_MESSAGE_ACTIVE"] = "Шифрование токенов авторизации активировано";
 $MESS["SOC_OPT_CRYPTO_TAB_TITLE"] = "Шифрование";

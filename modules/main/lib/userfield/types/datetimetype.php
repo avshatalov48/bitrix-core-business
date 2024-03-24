@@ -131,7 +131,7 @@ class DateTimeType extends DateType
 	 * Returns string time in user timezone
 	 * @param array $userField
 	 * @param array $fetched
-	 * @return string|null
+	 * @return string
 	 */
 	public static function onAfterFetch(array $userField, array $fetched): string
 	{
@@ -237,6 +237,8 @@ class DateTimeType extends DateType
 	 */
 	public static function formatField(?array $userField, string $fieldName): string
 	{
+		global $DB;
+
 		$isFieldWithoutTimeZone = static::isFieldWithoutTimeZone($userField);
 
 		if ($isFieldWithoutTimeZone)
@@ -244,7 +246,6 @@ class DateTimeType extends DateType
 			\CTimeZone::Disable();
 		}
 
-		global $DB;
 		$date = $DB->dateToCharFunction($fieldName, static::FORMAT_TYPE_FULL);
 
 		if ($isFieldWithoutTimeZone)
@@ -252,7 +253,7 @@ class DateTimeType extends DateType
 			\CTimeZone::Enable();
 		}
 
-		return $date;
+		return $fieldName . ', ' . $date;
 	}
 
 	/**

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IM_ERROR_IMPORT_ID"] = "Указан неверный идентификатор импортируемого сообщения";
 $MESS["IM_ERROR_MESSAGE_CREATE"] = "Ошибка при создании сообщения";
 $MESS["IM_ERROR_MESSAGE_DATE"] = "Указан неверный формат времени создания сообщения";
@@ -42,4 +42,3 @@ $MESS["IM_MESSAGE_VIDEO"] = "Видео";
 $MESS["IM_MESSAGE_IMAGE"] = "Фото";
 $MESS["IM_MESSAGE_FILE_DOWN"] = "Скачать файл:";
 $MESS["IM_QUOTE"] = "Цитата";
-?>

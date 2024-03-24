@@ -355,22 +355,10 @@ abstract class AbstractCheck
 	{
 		$result = $this->extractDataInternal();
 
-		$event = new Main\Event(
-			'sale',
-			self::EVENT_ON_CHECK_PREPARE_DATA,
-			[$result, static::getType()]
-		);
-		$event->send();
-
-		if ($event->getResults())
+		$eventHandlerList = Main\EventManager::getInstance()->findEventHandlers('sale', self::EVENT_ON_CHECK_PREPARE_DATA);
+		foreach ($eventHandlerList as $event)
 		{
-			foreach ($event->getResults() as $eventResult)
-			{
-				if ($eventResult->getType() !== Main\EventResult::ERROR)
-				{
-					$result = $eventResult->getParameters();
-				}
-			}
+			$result = ExecuteModuleEventEx($event, [$result, static::getType()]);
 		}
 
 		return $result;

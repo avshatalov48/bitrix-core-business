@@ -235,7 +235,7 @@ class CAllGuest
 						$arSqlSearch[] = GetFilterQuery("CITY.NAME", $val, $match);
 						break;
 					case "USER":
-						if(COption::GetOptionString("statistic", "dbnode_id") <= 0)
+						if(COption::GetOptionInt("statistic", "dbnode_id") <= 0)
 						{
 							$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 							$arSqlSearch[] = $DB->IsNull("G.LAST_USER_ID","0").">0";
@@ -249,7 +249,7 @@ class CAllGuest
 						}
 						break;
 					case "USER_ID":
-						if(COption::GetOptionString("statistic", "dbnode_id") <= 0)
+						if(COption::GetOptionInt("statistic", "dbnode_id") <= 0)
 						{
 							$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 							$arSqlSearch[] = $DB->IsNull("G.LAST_USER_ID","0").">0";

@@ -1,21 +1,12 @@
 import { Event, Loc, Tag } from 'main.core';
 import { EventEmitter } from 'main.core.events';
-import { Perms } from '../group-settings';
+import { Perms, Member } from 'socialnetwork.controller';
 
 type Params = {
 	amount: number,
 	list: Array<Member>,
 	counters: { [key: string]: number },
 	actions: Perms,
-}
-
-export type Member = {
-	id: number,
-	isAutoMember: boolean,
-	isModerator: boolean,
-	isOwner: boolean,
-	isScrumMaster: boolean,
-	photo: string,
 }
 
 type GroupedMembers = {

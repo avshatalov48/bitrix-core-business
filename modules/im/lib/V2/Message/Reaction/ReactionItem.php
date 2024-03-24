@@ -80,9 +80,9 @@ class ReactionItem implements RegistryEntry, ActiveRecord, RestConvertible, Popu
 		return new PopupData([new UserPopupItem([$this->getUserId()])], $excludedList);
 	}
 
-	public function getLocName(): ?string
+	public function getLocName(?string $languageId = null): ?string
 	{
-		return Loc::getMessage("IM_MESSAGE_REACTION_NAME_{$this->reaction}");
+		return Loc::getMessage("IM_MESSAGE_REACTION_NAME_{$this->reaction}", null, $languageId);
 	}
 
 	public function getPrimaryId(): ?int

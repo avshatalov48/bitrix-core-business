@@ -4,6 +4,10 @@ IncludeModuleLangFile(__FILE__);
 class CSocServOffice365OAuth extends CSocServAuth
 {
 	public const ID = "Office365";
+	/**
+	 * @deprecated Use \CSocServOffice365OAuth::getControllerUrl() instead.
+	 * @var string
+	 */
 	public const CONTROLLER_URL = "https://www.bitrix24.ru/controller";
 
 	/** @var COffice365OAuthInterface null  */
@@ -19,6 +23,19 @@ class CSocServOffice365OAuth extends CSocServAuth
 
 		return $this->entityOAuth;
 	}
+
+	public static function getControllerUrl(): string
+	{
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+
+		if (\in_array($region, ['ru', 'by', 'kz'], true))
+		{
+			return 'https://www.bitrix24.ru/controller';
+		}
+
+		return 'https://www.bitrix24.com/controller';
+	}
+
 
 	public function GetSettings()
 	{
@@ -68,7 +85,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 
 		if(IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 		{
-			$redirect_uri = self::CONTROLLER_URL."/redirect.php";
+			$redirect_uri = \CSocServOffice365OAuth::getControllerUrl()."/redirect.php";
 			$state = $this->getEntityOAuth()->getRedirectUri()."?state=";
 			$backurl = urlencode($GLOBALS["APPLICATION"]->GetCurPageParam('check_key='.\CSocServAuthManager::getUniqueKey(), $removeParams))
 				.(isset($arParams['BACKURL'])
@@ -398,7 +415,7 @@ class COffice365OAuthInterface extends CSocServOAuthTransport
 		{
 			if(IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 			{
-				$redirect_uri = \CSocServOffice365OAuth::CONTROLLER_URL."/redirect.php";
+				$redirect_uri = \CSocServOffice365OAuth::getControllerUrl()."/redirect.php";
 			}
 			else
 			{

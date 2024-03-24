@@ -7,6 +7,10 @@
 	max-height: calc(100vh - 40px);
 }
 
+.sn-post-form-popup .popup-window-content {
+	border-radius: 0;
+}
+
 .sn-post-form-popup .popup-window-titlebar {
 	height: auto;
 }
@@ -58,7 +62,7 @@
 	--ui-icon-set__icon-color: rgba(var(--ui-color-link-primary-base-rgb), var(--ui-opacity-full));
 }
 
-.sn-post-form__discussion_title {
+.sn-post-form__discussion_title.ui-ctl-element {
 	color: var(--ui-color-text-primary);
 	font-size: var(--ui-font-size-2xl);
 }

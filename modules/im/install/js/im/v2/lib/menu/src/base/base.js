@@ -1,13 +1,12 @@
 import { Type } from 'main.core';
-import {MenuManager, Menu} from 'main.popup';
-import {EventEmitter} from 'main.core.events';
-import {Store} from 'ui.vue3.vuex';
-import {RestClient} from 'rest.client';
+import { MenuManager, Menu } from 'main.popup';
+import { EventEmitter } from 'main.core.events';
+import { Store } from 'ui.vue3.vuex';
+import { RestClient } from 'rest.client';
 
-import {Core} from 'im.v2.application.core';
-import {EventType} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
 
-import type {MenuItem} from '../type/menu';
+import type { MenuItem } from '../type/menu';
 
 const EVENT_NAMESPACE = 'BX.Messenger.v2.Lib.Menu';
 
@@ -21,7 +20,7 @@ export class BaseMenu extends EventEmitter
 	id: String = 'im-base-context-menu';
 
 	static events = {
-		onCloseMenu: 'onCloseMenu'
+		onCloseMenu: 'onCloseMenu',
 	};
 
 	constructor()
@@ -59,7 +58,7 @@ export class BaseMenu extends EventEmitter
 	{
 		return {
 			id: this.id,
-			bindOptions: {forceBindPosition: true, position: 'bottom'},
+			bindOptions: { forceBindPosition: true, position: 'bottom' },
 			targetContainer: document.body,
 			bindElement: this.target,
 			cacheable: false,
@@ -69,8 +68,8 @@ export class BaseMenu extends EventEmitter
 				onClose: () => {
 					this.emit(BaseMenu.events.onCloseMenu);
 					this.close();
-				}
-			}
+				},
+			},
 		};
 	}
 

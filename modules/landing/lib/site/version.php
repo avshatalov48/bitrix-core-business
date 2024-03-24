@@ -8,6 +8,8 @@ class Version
 		1 => \Bitrix\Landing\Site\Update\ChatSales::class,
 		2 => \Bitrix\Landing\Site\Update\ChatSalesOrder::class,
 		3 => \Bitrix\Landing\Site\Update\DomainUa::class,
+		4 => \Bitrix\Landing\Site\Update\DomainBy::class,
+		5 => \Bitrix\Landing\Site\Update\DomainByUpdate::class,
 	];
 
 	protected static $process = false;

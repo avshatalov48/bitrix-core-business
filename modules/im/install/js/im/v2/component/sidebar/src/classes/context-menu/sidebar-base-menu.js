@@ -1,8 +1,10 @@
-import {Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {BaseMenu} from 'im.v2.lib.menu';
-import {EventType} from 'im.v2.const';
-import type {MenuItem} from 'im.v2.lib.menu';
+import { Loc } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+
+import { BaseMenu } from 'im.v2.lib.menu';
+import { EventType } from 'im.v2.const';
+
+import type { MenuItem } from 'im.v2.lib.menu';
 
 export class SidebarMenu extends BaseMenu
 {
@@ -36,7 +38,7 @@ export class SidebarMenu extends BaseMenu
 				});
 
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 
@@ -53,11 +55,11 @@ export class SidebarMenu extends BaseMenu
 				if (BX.clipboard.copy(this.context.source))
 				{
 					BX.UI.Notification.Center.notify({
-						content: Loc.getMessage('IM_SIDEBAR_COPIED_SUCCESS')
+						content: Loc.getMessage('IM_SIDEBAR_COPIED_SUCCESS'),
 					});
 				}
 				this.menuInstance.close();
-			}
+			},
 		};
 	}
 }

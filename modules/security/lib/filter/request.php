@@ -46,6 +46,9 @@ class Request implements IRequestFilter
 		'json' => [
 			'Name' => 'JSON',
 		],
+		'data' => [
+			'Name' => 'data',
+		]
 	];
 	private static $validActions = [
 		self::ACTION_NONE,
@@ -192,7 +195,7 @@ class Request implements IRequestFilter
 	 */
 	protected function filterVar($context, $value, $name)
 	{
-		if (preg_match('#^[A-Za-z0-9_.,-]*$#D', $value))
+		if (!is_string($value) || preg_match('#^[A-Za-z0-9_.,-]*$#D', $value))
 			return $value;
 
 		$filteredValue = \CSecurityHtmlEntity::decodeString($value);
@@ -265,9 +268,13 @@ class Request implements IRequestFilter
 			{
 				$array[$key] = $this->filterArray($context, $value, "{$name}['{$key}']", $skipKeyPreg);
 			}
-			else
+			elseif (is_string($value))
 			{
 				$array[$key] = $this->filterVar($context, $value, "{$name}['{$key}']");
+			}
+			else
+			{
+				$array[$key] = $value;
 			}
 		}
 		return $array;

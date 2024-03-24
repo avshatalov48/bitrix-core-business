@@ -21,7 +21,7 @@ CJSCore::Init(array("ajax"));
 	});
 </script>
 <?
-if ($arParams["SILENT"] == "Y")
+if (isset($arParams["SILENT"]) && $arParams["SILENT"] == "Y")
 	return;
 ?><input
 	name="<?=$arResult["NAME"]?>"

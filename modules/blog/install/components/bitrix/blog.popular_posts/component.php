@@ -17,15 +17,15 @@ if (!CModule::IncludeModule("blog"))
 }
 
 $arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 6;
-$arParams["PREVIEW_WIDTH"] = intval($arParams["PREVIEW_WIDTH"])>0 ? intval($arParams["PREVIEW_WIDTH"]): 100;
-$arParams["PREVIEW_HEIGHT"] = intval($arParams["PREVIEW_HEIGHT"])>0 ? intval($arParams["PREVIEW_HEIGHT"]): 100;
+$arParams["PREVIEW_WIDTH"] = intval($arParams["PREVIEW_WIDTH"] ?? 0)>0 ? intval($arParams["PREVIEW_WIDTH"]): 100;
+$arParams["PREVIEW_HEIGHT"] = intval($arParams["PREVIEW_HEIGHT"] ?? 0)>0 ? intval($arParams["PREVIEW_HEIGHT"]): 100;
 $arParams["PERIOD_DAYS"] = intval($arParams["PERIOD_DAYS"])>0 ? intval($arParams["PERIOD_DAYS"]): 30;
 $arParams["SORT_BY1"] = ($arParams["SORT_BY1"] <> '' ? $arParams["SORT_BY1"] : "VIEWS");
-$arParams["SORT_ORDER1"] = ($arParams["SORT_ORDER1"] <> '' ? $arParams["SORT_ORDER1"] : "DESC");
-$arParams["SORT_BY2"] = ($arParams["SORT_BY2"] <> '' ? $arParams["SORT_BY2"] : "DATE_PUBLISH");
-$arParams["SORT_ORDER2"] = ($arParams["SORT_ORDER2"] <> '' ? $arParams["SORT_ORDER2"] : "DESC");
+$arParams["SORT_ORDER1"] = (($arParams["SORT_ORDER1"] ?? '') <> '' ? $arParams["SORT_ORDER1"] : "DESC");
+$arParams["SORT_BY2"] = (($arParams["SORT_BY2"] ?? '') <> '' ? $arParams["SORT_BY2"] : "DATE_PUBLISH");
+$arParams["SORT_ORDER2"] = (($arParams["SORT_ORDER2"] ?? '') <> '' ? $arParams["SORT_ORDER2"] : "DESC");
 $arParams["MESSAGE_LENGTH"] = (intval($arParams["MESSAGE_LENGTH"])>0)?$arParams["MESSAGE_LENGTH"]:100;
-$arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
+$arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"] ?? ''));
 $arParams["USE_SOCNET"] = ($arParams["USE_SOCNET"] == "Y") ? "Y" : "N";
 $arParams["WIDGET_MODE"] = ($arParams["WIDGET_MODE"] == "Y") ? true : false;
 // activation rating
@@ -43,6 +43,11 @@ else
 	$arParams["CACHE_TIME"] = 0;
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
+$arParams["BLOG_VAR"] = $arParams["BLOG_VAR"] ?? '';
+$arParams["PAGE_VAR"] = $arParams["PAGE_VAR"] ?? '';
+$arParams["USER_VAR"] = $arParams["USER_VAR"] ?? '';
+$arParams["POST_VAR"] = $arParams["POST_VAR"] ?? '';
+
 if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
 if($arParams["PAGE_VAR"] == '')
@@ -56,7 +61,7 @@ $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
-$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"] ?? '') == '' ? false : trim($arParams["PATH_TO_SMILE"] ?? '');
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if($arParams["PATH_TO_POST"] == '')
@@ -66,7 +71,7 @@ $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-$arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
+$arParams["ALLOW_POST_CODE"] = ($arParams["ALLOW_POST_CODE"] ?? '') !== "N";
 
 $UserGroupID = Array(1);
 if($USER->IsAuthorized())
@@ -130,6 +135,7 @@ else
 	}
 	$SORT = Array($arParams["SORT_BY1"]=>$arParams["SORT_ORDER1"], $arParams["SORT_BY2"]=>$arParams["SORT_ORDER2"]);
 
+	$perms = '';
 	if (
 		CModule::IncludeModule("socialnetwork")
 		&& $arParams["USE_SOCNET"] == "Y"
@@ -139,7 +145,10 @@ else
 		unset($arFilter[">VIEWS"]);
 		$arFilter["BLOG_USE_SOCNET"] = "Y";
 		$SORT = Array("RATING_TOTAL_VALUE" => "DESC", "VIEWS" => "DESC");
-		if(intval($arParams["SOCNET_GROUP_ID"]) <= 0 && intval($arParams["USER_ID"]) <= 0)
+		if (
+			intval($arParams["SOCNET_GROUP_ID"] ?? 0) <= 0
+			&& intval($arParams["USER_ID"] ?? 0) <= 0
+		)
 		{
 			$arFilter["FOR_USER"] = $user_id;
 		}
@@ -192,12 +201,13 @@ else
 		{
 			$arTmp = $arPost;
 			$arPost["TITLE"] = \Bitrix\Main\Text\Emoji::decode($arPost["TITLE"]);
-			$arPost["DETAIL_TEXT"] = \Bitrix\Main\Text\Emoji::decode($arPost["DETAIL_TEXT"]);
+			$arPost["DETAIL_TEXT"] = \Bitrix\Main\Text\Emoji::decode($arPost["DETAIL_TEXT"] ?? '');
 
-			$arTmp["~BLOG_USER_ALIAS"] = $arPost["BLOG_USER_ALIAS"];
-			$arTmp["BLOG_USER_ALIAS"] = htmlspecialcharsbx($arPost["BLOG_USER_ALIAS"]);
+			$arTmp["~BLOG_USER_ALIAS"] = $arPost["BLOG_USER_ALIAS"] ?? '';
+			$arTmp["BLOG_USER_ALIAS"] = htmlspecialcharsbx($arPost["BLOG_USER_ALIAS"] ?? '');
 			$arTmp["~TITLE"] = $arPost["TITLE"];
 			$arTmp["TITLE"] = htmlspecialcharsbx($arPost["TITLE"]);
+
 
 			if(!$arParams["WIDGET_MODE"])
 			{
@@ -241,7 +251,7 @@ else
 			else
 			{
 				$arTmp["TITLE"] = ($arTmp["MICRO"] === "Y" ? html_entity_decode(htmlspecialcharsback($arPost["TITLE"]), ENT_QUOTES) : $arPost["TITLE"]);
-				$arTmp["TITLE"] = TruncateText($arTmp["TITLE"], $arParams["MESSAGE_LENGTH"]);
+				$arTmp["TITLE"] = TruncateText(strip_tags($arTmp["TITLE"]), $arParams["MESSAGE_LENGTH"]);
 			}
 
 			if($arParams["USE_SOCNET"] == "Y")
@@ -272,7 +282,7 @@ else
 			if(!in_array($arPost["AUTHOR_ID"], $arUsrTmp))
 				$arUsrTmp[] = $arPost["AUTHOR_ID"];
 			$arUsrTmpPostId[$arPost["AUTHOR_ID"]][] = $arPost["ID"];
-			if($arPost["BLOG_USER_ALIAS"] <> '')
+			if(($arPost["BLOG_USER_ALIAS"] ?? '') <> '')
 				$arUsrTmpAlias[$arPost["AUTHOR_ID"]] = $arPost["BLOG_USER_ALIAS"];
 
 			$itemCnt++;
@@ -300,7 +310,13 @@ else
 			while($arUser = $dbUser->GetNext())
 			{
 				$urlToAuthor = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUser["ID"]));
-				$AuthorName = CBlogUser::GetUserName($arUsrTmpAlias[$arUser["ID"]], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"], $arUser["SECOND_NAME"]);
+				$AuthorName = CBlogUser::GetUserName(
+					($arUsrTmpAlias[$arUser["ID"]] ?? ''),
+					$arUser["NAME"],
+					$arUser["LAST_NAME"],
+					$arUser["LOGIN"],
+					$arUser["SECOND_NAME"]
+				);
 
 				foreach($arUsrTmpPostId[$arUser["ID"]] as $postId)
 				{

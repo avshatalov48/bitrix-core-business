@@ -1,7 +1,23 @@
-import { Type, Extension, Reflection } from 'main.core';
+import { Type, Extension, Reflection, type JsonObject } from 'main.core';
 
 import { legacyMessenger, legacyDesktop } from './legacy';
 import { prepareSettingsSection } from './functions/settings';
+
+type Opener = {
+	openChat: (dialogId?: string, text?: string) => Promise,
+	openLines: (dialogId?: string) => Promise,
+	openCopilot: (dialogId?: string) => Promise,
+	openLinesHistory: (dialogId?: string) => Promise,
+	openNotifications: () => Promise,
+	openRecentSearch: () => Promise,
+	openSettings: ({ onlyPanel?: string }) => Promise,
+	openConference: ({ code?: string, link?: string }) => Promise,
+	startVideoCall: (dialogId?: string, withVideo?: boolean) => Promise,
+	startPhoneCall: (number: string, params: JsonObject) => Promise,
+	startCallList: (callListId: number, params: JsonObject) => Promise,
+	enableDesktopRedirect: () => void,
+	disableDesktopRedirect: () => void,
+};
 
 class Messenger
 {
@@ -29,9 +45,7 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToChat(dialogId);
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().openChat(dialogId, text);
+		return getOpener()?.openChat(dialogId, text);
 	}
 
 	async openLines(dialogId: string = ''): Promise
@@ -51,9 +65,7 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToLines(dialogId);
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().openLines(dialogId);
+		return getOpener()?.openLines(dialogId);
 	}
 
 	async openCopilot(dialogId: string = ''): Promise
@@ -72,9 +84,7 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToCopilot(dialogId);
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().openCopilot(dialogId);
+		return getOpener()?.openCopilot(dialogId);
 	}
 
 	async openLinesHistory(dialogId: string = ''): Promise
@@ -86,9 +96,7 @@ class Messenger
 			return Promise.resolve();
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().openHistory(dialogId);
+		return getOpener()?.openHistory(dialogId);
 	}
 
 	async openNotifications(): Promise
@@ -107,9 +115,7 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToNotifications();
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().openNotifications();
+		return getOpener()?.openNotifications();
 	}
 
 	async openRecentSearch(): Promise
@@ -128,12 +134,10 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToRecentSearch();
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().openRecentSearch();
+		return getOpener()?.openRecentSearch();
 	}
 
-	async openSettings(options: { onlyPanel?: string } = {}): Promise<Array>
+	async openSettings(options: { onlyPanel?: string } = {}): Promise
 	{
 		if (!this.v2enabled)
 		{
@@ -162,13 +166,12 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToSettings(options.onlyPanel ?? '');
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
 		const settingsSection = prepareSettingsSection(options.onlyPanel ?? '');
 
-		return MessengerSlider?.getInstance().openSettings(settingsSection);
+		return getOpener()?.openSettings(settingsSection);
 	}
 
-	async openConference(options: { code?: string, link?: string } = {}): Promise<Array>
+	async openConference(options: { code?: string, link?: string } = {}): Promise
 	{
 		if (!this.v2enabled)
 		{
@@ -209,9 +212,7 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToConference(code);
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().openConference(code);
+		return getOpener()?.openConference(code);
 	}
 
 	async startVideoCall(dialogId: string = '', withVideo: boolean = true): Promise
@@ -230,12 +231,10 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToVideoCall(dialogId, withVideo);
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().startVideoCall(dialogId, withVideo);
+		return getOpener()?.startVideoCall(dialogId, withVideo);
 	}
 
-	async startPhoneCall(number: string, params: Object<any, string>): Promise
+	async startPhoneCall(number: string, params: JsonObject): Promise
 	{
 		if (!this.v2enabled)
 		{
@@ -251,12 +250,10 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToPhoneCall(number, params);
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().startPhoneCall(number, params);
+		return getOpener()?.startPhoneCall(number, params);
 	}
 
-	async startCallList(callListId: number, params: Object<string, any>): Promise
+	async startCallList(callListId: number, params: JsonObject): Promise
 	{
 		if (!this.v2enabled)
 		{
@@ -272,9 +269,7 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToCallList(callListId, params);
 		}
 
-		const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-
-		return MessengerSlider?.getInstance().startCallList(callListId, params);
+		return getOpener()?.startCallList(callListId, params);
 	}
 
 	enableDesktopRedirect()
@@ -288,7 +283,25 @@ class Messenger
 		const DesktopManager = Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
 		DesktopManager?.getInstance().disableRedirect();
 	}
+
+	setWebRTCDebug(debug: boolean = false)
+	{
+		if (!this.v2enabled)
+		{
+			 return;
+		}
+
+		const PhoneManager = Reflection.getClass('BX.Messenger.v2.Lib.PhoneManager');
+		PhoneManager?.getInstance().toggleDebugFlag(debug);
+
+		const CallManager = Reflection.getClass('BX.Messenger.v2.Lib.CallManager');
+		CallManager?.getInstance().toggleDebugFlag(debug);
+	}
 }
+
+const getOpener = (): ?Opener => {
+	return Reflection.getClass('BX.Messenger.v2.Lib.Opener');
+};
 
 const messenger = new Messenger();
 export { messenger as Messenger };

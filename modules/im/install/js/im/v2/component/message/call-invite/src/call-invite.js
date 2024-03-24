@@ -91,6 +91,14 @@ export const CallInviteMessage = {
 
 			return chatCanBeCalled && chatIsAllowedToCall;
 		},
+		inviteTitle(): string
+		{
+			return this.loc('IM_MESSENGER_MESSAGE_CALL_INVITE_TITLE_2');
+		},
+		descriptionTitle(): string
+		{
+			return this.loc('IM_MESSENGER_MESSAGE_CALL_INVITE_DESCRIPTION');
+		},
 	},
 	methods:
 	{
@@ -118,10 +126,10 @@ export const CallInviteMessage = {
 					<div class="bx-im-message-call-invite__image"></div>
 					<div class="bx-im-message-call-invite__content">
 						<div class="bx-im-message-call-invite__title">
-							{{ loc('IM_MESSENGER_MESSAGE_CALL_INVITE_TITLE_2') }}
+							{{ inviteTitle }}
 						</div>
 						<div class="bx-im-message-call-invite__description">
-							{{ loc('IM_MESSENGER_MESSAGE_CALL_INVITE_DESCRIPTION') }}
+							{{ descriptionTitle }}
 						</div>
 						<div v-if="isAvailable" class="bx-im-message-call-invite__buttons_container">
 							<div class="bx-im-message-call-invite__buttons_item">
@@ -137,7 +145,7 @@ export const CallInviteMessage = {
 						</div>
 					</div>
 				</div>
-				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" />
+				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" :withAttach="false" />
 				<ReactionSelector :messageId="message.id" />
 			</div>
 		</BaseMessage>

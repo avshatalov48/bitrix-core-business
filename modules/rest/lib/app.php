@@ -68,6 +68,7 @@ class AppTable extends Main\Entity\DataManager
 	const TYPE_ONLY_API = 'A';
 	const TYPE_CONFIGURATION = 'C';
 	const TYPE_SMART_ROBOTS = 'R';
+	const TYPE_BIC_DASHBOARD = 'B';
 
 	const MODE_SITE = 'S';
 
@@ -146,6 +147,10 @@ class AppTable extends Main\Entity\DataManager
 			'URL_INSTALL' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateUrlInstall'),
+			),
+			'URL_SETTINGS' => array(
+				'data_type' => 'string',
+				'validation' => array(__CLASS__, 'validateUrl'),
 			),
 			'VERSION' => array(
 				'data_type' => 'string',

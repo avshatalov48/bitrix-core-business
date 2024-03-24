@@ -82,48 +82,57 @@ class Basket extends BasketBase
 	/**
 	 * @param int $days
 	 *
-	 * @return bool
+	 * @return int
 	 */
-	public static function deleteOld($days)
+	public static function deleteOld($days): int
 	{
-		$expired = new Main\Type\DateTime();
-		$expired->add('-'.$days.' days');
-		$expiredValue = $expired->format('Y-m-d H:i:s');
+		$days = (int)$days;
 
-		/** @var Main\DB\Connection $connection */
 		$connection = Main\Application::getConnection();
-		/** @var Main\DB\SqlHelper $sqlHelper */
-		$sqlHelper = $connection->getSqlHelper();
+		$helper = $connection->getSqlHelper();
 
-		$sqlExpiredDate = $sqlHelper->getDateToCharFunction("'" . $expiredValue . "'");
-
-		$query = "DELETE FROM b_sale_basket	WHERE
-			FUSER_ID IN (
-				SELECT b_sale_fuser.id FROM b_sale_fuser WHERE
-						b_sale_fuser.DATE_UPDATE < ".$sqlExpiredDate."
+		$query = $helper->prepareDeleteLimit(
+			Internals\BasketTable::getTableName(),
+			['ID'],
+			"
+				FUSER_ID IN (
+				SELECT b_sale_fuser.ID FROM b_sale_fuser WHERE
+						b_sale_fuser.DATE_UPDATE < " . $helper->addDaysToDateTime(-$days) . "
 						AND b_sale_fuser.USER_ID IS NULL
-				) AND ORDER_ID IS NULL LIMIT ". static::BASKET_DELETE_LIMIT;
+				) AND ORDER_ID IS NULL
+			",
+			[],
+			static::BASKET_DELETE_LIMIT
+		);
 
 		$connection->queryExecute($query);
 		$affectRows = $connection->getAffectedRowsCount();
 
-		$query = "DELETE FROM b_sale_basket	
-			WHERE
-				FUSER_ID NOT IN (SELECT b_sale_fuser.id FROM b_sale_fuser)
-				AND 
-				ORDER_ID IS NULL
-			LIMIT ". static::BASKET_DELETE_LIMIT;
+		$query = $helper->prepareDeleteLimit(
+			Internals\BasketTable::getTableName(),
+			['ID'],
+			"
+				FUSER_ID NOT IN (SELECT b_sale_fuser.ID FROM b_sale_fuser)
+				AND ORDER_ID IS NULL
+			",
+			[],
+			static::BASKET_DELETE_LIMIT
+		);
 
 		$connection->queryExecute($query);
 		$affectRows = max($affectRows, $connection->getAffectedRowsCount());
 
-		$query = "
-			DELETE
-			FROM b_sale_basket_props 
-			WHERE b_sale_basket_props.BASKET_ID NOT IN (
-				SELECT b_sale_basket.ID FROM b_sale_basket
-			)
-			LIMIT ".static::BASKET_DELETE_LIMIT;
+		$query = $helper->prepareDeleteLimit(
+			Internals\BasketPropertyTable::getTableName(),
+			['ID'],
+			"
+				BASKET_ID NOT IN (
+					SELECT b_sale_basket.ID FROM b_sale_basket
+				)
+			",
+			[],
+			static::BASKET_DELETE_LIMIT
+		);
 
 		$connection->queryExecute($query);
 
@@ -134,32 +143,21 @@ class Basket extends BasketBase
 	 * @param $days
 	 * @param int $speed
 	 * @return string
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function deleteOldAgent($days, $speed = 0)
 	{
-		if (!isset($GLOBALS["USER"]) || !is_object($GLOBALS["USER"]))
-		{
-			$tmpUser = True;
-			$GLOBALS["USER"] = new \CUser();
-		}
+		$days = (int)$days;
 
 		$affectRows = static::deleteOld($days);
 		Fuser::deleteOld($days);
 
-		$days = intval(Main\Config\Option::get("sale", "delete_after", "30"));
-		$result = "\Bitrix\Sale\Basket::deleteOldAgent(".$days.");";
+		$days = (int)Main\Config\Option::get('sale', 'delete_after');
+		$result = "\Bitrix\Sale\Basket::deleteOldAgent(" . $days . ");";
 
 		if ($affectRows === static::BASKET_DELETE_LIMIT)
 		{
 			global $pPERIOD;
 			$pPERIOD = 300;
-		}
-
-		if (isset($tmpUser))
-		{
-			unset($GLOBALS["USER"]);
 		}
 
 		return $result;

@@ -1,18 +1,23 @@
 <?php
 /**
  * Bitrix Framework
+ *
  * @package bitrix
  * @subpackage socialnetwork
  * @copyright 2001-2012 Bitrix
  */
+
 namespace Bitrix\Socialnetwork;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Entity;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\ORM\Data\Internal\MergeTrait;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\UserTable;
 
 /**
@@ -21,7 +26,7 @@ use Bitrix\Main\UserTable;
  * Fields:
  * <ul>
  * <li> USER_ID int mandatory
- * <li> USER reference to {@link \Bitrix\Main\UserTable}
+ * <li> USER reference to {@link UserTable}
  * <li> RATING_TYPE_ID varchar mandatory
  * <li> RATING_ENTITY_ID int mandatory
  * <li> DATE_VIEW datetime
@@ -44,44 +49,49 @@ use Bitrix\Main\UserTable;
  */
 class UserContentViewTable extends Entity\DataManager
 {
-	public static function getTableName()
+	use MergeTrait;
+
+	public static function getTableName(): string
 	{
 		return 'b_sonet_user_content_view';
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
-		$fieldsMap = array(
-			'USER_ID' => array(
+		return [
+			'USER_ID' => [
 				'data_type' => 'integer',
-				'primary' => true
-			),
-			'USER' => array(
+				'primary' => true,
+			],
+			'USER' => [
 				'data_type' => 'Bitrix\Main\UserTable',
-				'reference' => array('=this.USER_ID' => 'ref.ID'),
-			),
-			'RATING_TYPE_ID' => array(
+				'reference' => ['=this.USER_ID' => 'ref.ID'],
+			],
+			'RATING_TYPE_ID' => [
 				'data_type' => 'string',
-				'primary' => true
-			),
-			'RATING_ENTITY_ID' => array(
+				'primary' => true,
+			],
+			'RATING_ENTITY_ID' => [
 				'data_type' => 'integer',
-				'primary' => true
-			),
-			'CONTENT_ID' => array(
-				'data_type' => 'string'
-			),
-			'DATE_VIEW' => array(
-				'data_type' => 'datetime'
-			),
-		);
-
-		return $fieldsMap;
+				'primary' => true,
+			],
+			'CONTENT_ID' => [
+				'data_type' => 'string',
+			],
+			'DATE_VIEW' => [
+				'data_type' => 'datetime',
+			],
+		];
 	}
 
-	public static function set($params = array())
+	/**
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public static function set($params = []): array
 	{
-		static $controllerUser = array();
+		static $controllerUser = [];
 
 		$userId = (isset($params['userId']) ? intval($params['userId']) : 0);
 		$typeId = (isset($params['typeId']) ? trim($params['typeId']) : false);
@@ -91,7 +101,7 @@ class UserContentViewTable extends Entity\DataManager
 		if (
 			$userId <= 0
 			|| empty($typeId)
-			|| $entityId <= 0
+			|| $entityId < 0
 		)
 		{
 			throw new SystemException("Invalid input data.");
@@ -103,13 +113,13 @@ class UserContentViewTable extends Entity\DataManager
 		{
 			if (!isset($controllerUser[$userId]))
 			{
-				$res = UserTable::getList(array(
-					'filter' => array(
+				$res = UserTable::getList([
+					'filter' => [
 						'=ID' => $userId,
-						'=EXTERNAL_AUTH_ID' => '__controller'
-					),
-					'select' => array('ID')
-				));
+						'=EXTERNAL_AUTH_ID' => '__controller',
+					],
+					'select' => ['ID'],
+				]);
 				if ($res->fetch())
 				{
 					$controllerUser[$userId] = true;
@@ -122,43 +132,40 @@ class UserContentViewTable extends Entity\DataManager
 
 			if ($controllerUser[$userId])
 			{
-				return array(
+				return [
 					'success' => true,
-					'savedInDB' => false
-				);
+					'savedInDB' => false,
+				];
 			}
 		}
 
 		if ($save)
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
+			$connection = Application::getConnection();
 			$helper = $connection->getSqlHelper();
 
 			$nowDate = new SqlExpression($helper->getCurrentDateTimeFunction());
 
-			$insertFields = array(
+			$insertFields = [
 				"USER_ID" => $userId,
 				"RATING_TYPE_ID" => $typeId,
 				"RATING_ENTITY_ID" => $entityId,
-				"CONTENT_ID" => $typeId."-".$entityId,
-				"DATE_VIEW" => $nowDate
-			);
+				"CONTENT_ID" => $typeId . "-" . $entityId,
+				"DATE_VIEW" => $nowDate,
+			];
 
-			$tableName = static::getTableName();
-			list($prefix, $values) = $helper->prepareInsert($tableName, $insertFields);
+			$updateFields = [
+				'DATE_VIEW' => $nowDate,
+			];
 
-			$connection->queryExecute(
-				"INSERT INTO {$tableName} ({$prefix}) VALUES ({$values})
-						ON DUPLICATE KEY UPDATE DATE_VIEW = {$nowDate}"
-			);
-
+			static::merge($insertFields, $updateFields);
 			$saved = true;
 		}
 
-		return array(
+		return [
 			'success' => true,
-			'savedInDB' => $saved
-		);
+			'savedInDB' => $saved,
+		];
 	}
 
 	public static function add(array $data)

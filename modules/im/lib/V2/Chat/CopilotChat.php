@@ -202,4 +202,14 @@ class CopilotChat extends GroupChat
 			&& (new Restriction(Restriction::AI_COPILOT_CHAT))->isAvailable()
 			&& static::getBotIdOrRegister();
 	}
+
+	public function toRestFormat(array $option = []): array
+	{
+		$chatData = parent::toRestFormat($option);
+
+		$providerName = Im\V2\Integration\AI\AIHelper::getProviderName();
+		$chatData['aiProvider'] = $providerName;
+
+		return $chatData;
+	}
 }

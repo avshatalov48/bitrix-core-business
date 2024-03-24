@@ -214,7 +214,7 @@ window.networkRegister = (function(){
 						opacity: 50
 					},
 					closeIcon: true,
-					titleBar: {content: BX.create('SPAN', {text:'<?=GetMessageJS('SOC_OPT_B24NET_TITLE')?>'})},
+					titleBar: {content: BX.create('SPAN', {text:'<?=GetMessageJS('SOC_OPT_B24NET_TITLE_MSGVER_1')?>'})},
 					content: BX.create('DIV', {
 						style: {
 							padding: '15px',

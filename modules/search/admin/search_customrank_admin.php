@@ -99,13 +99,16 @@ if ($lAdmin->EditAction() && $SEARCH_RIGHT >= "W" && is_array($FIELDS))
 				$lAdmin->AddGroupError(GetMessage("customrank_edit_error").$cData->LAST_ERROR, $ID);
 				$searchDB->Rollback();
 			}
+			else
+			{
+				$searchDB->Commit();
+			}
 		}
 		else
 		{
 			$lAdmin->AddGroupError(GetMessage("customrank_edit_error")." ".GetMessage("customrank_no_rule"), $ID);
 			$searchDB->Rollback();
 		}
-		$searchDB->Commit();
 	}
 }
 
@@ -136,7 +139,10 @@ if (($arID = $lAdmin->GroupAction()) && $SEARCH_RIGHT == "W")
 				$searchDB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("customrank_error_delete"), $ID);
 			}
-			$searchDB->Commit();
+			else
+			{
+				$searchDB->Commit();
+			}
 			break;
 		}
 	}

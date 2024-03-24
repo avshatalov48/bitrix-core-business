@@ -13,4 +13,8 @@ export const EventTypes = Object.freeze({
 	changeSubscription: 'socialnetwork:spacesList:changeSubscription',
 	pinChanged: 'socialnetwork:spacesList:pinChanged',
 	changeSpaceListState: 'socialnetwork:spacesList:changeSpaceListState',
+	recentActivityUpdate: 'socialnetwork:spacesList:recentActivityUpdate',
+	recentActivityDelete: 'socialnetwork:spacesList:recentActivityDelete',
+	openSpaceFromContextMenu: 'socialnetwork:spacesList:openSpaceFromContextMenu',
+	changeMode: 'socialnetwork:spacesList:changeMode',
 });

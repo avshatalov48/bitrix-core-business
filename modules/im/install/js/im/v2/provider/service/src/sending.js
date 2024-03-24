@@ -443,6 +443,7 @@ export class SendingService
 				temporaryId: uuid,
 				chatId: this.#getDialog(dialogId).chatId,
 				authorId: Core.getUserId(),
+				replyId: message.replyId,
 				text: message.text,
 				isDeleted: message.isDeleted,
 				forward: {

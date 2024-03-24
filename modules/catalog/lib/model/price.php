@@ -481,6 +481,8 @@ class Price extends Entity
 
 			unset($copyFields);
 
+			$fields['TIMESTAMP_X'] = new Main\Type\DateTime();
+
 			$data['fields'] = $fields;
 		}
 		unset($fields);

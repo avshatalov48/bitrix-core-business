@@ -8,16 +8,13 @@
 		this.viewEventUrl = this.config.viewEventUrlTemplate;
 		this.viewEventUrl = this.viewEventUrl.replace(/#user_id#/ig, this.userId);
 		this.viewEventUrl = this.viewEventUrl.replace(/#event_id#/ig, this.config.eventId);
-		this.bx = window.top.BX || window.BX;
 
 		if (this.config.EVENT.DATE_FROM && this.config.EVENT.RRULE)
 		{
 			this.viewEventUrl += '&EVENT_DATE=' + BX.formatDate(BX.parseDate(this.config.EVENT.DATE_FROM), BX.message('FORMAT_DATE'));
 		}
 
-		this.getCalendarUtils().then(function(){
-			this.bx.ready(this.Init.bind(this));
-		}.bind(this));
+		BX.ready(this.Init.bind(this));
 	};
 
 	window.ViewEventManager.prototype = {
@@ -363,11 +360,11 @@
 		{
 			var dateFormat = this.config.culture
 				? this.config.culture.date_format
-				: this.bx.date.convertBitrixFormat(BX.message('FORMAT_DATE'))
+				: BX.date.convertBitrixFormat(BX.message('FORMAT_DATE'))
 			;
 
 			var fromDate = new Date(dateFromTimestamp);
-			var html = this.bx.date.format([
+			var html = BX.date.format([
 				["today", "today"],
 				["tommorow", "tommorow"],
 				["yesterday", "yesterday"],
@@ -376,37 +373,10 @@
 
 			if (isFullDay !== 'Y')
 			{
-				html += ', ' + this.bx.date.format(this.bx.Calendar.Util.getTimeFormatShort(), fromDate);
+				html += ', ' + BX.date.format(BX.Main.DateTimeFormat.getFormat('SHORT_TIME_FORMAT'), fromDate);
 			}
 
 			return html;
-		},
-
-		getCalendarUtils: function()
-		{
-			return new Promise(function(reslve){
-				if (this.bx.Calendar && this.bx.Calendar.Util)
-				{
-					reslve(this.bx.Calendar.Util);
-				}
-				else
-				{
-					var extensionName = 'calendar.util';
-					this.bx.Runtime.loadExtension(extensionName)
-						.then(function()
-							{
-								if (this.bx.Calendar.Util)
-								{
-									reslve(this.bx.Calendar.Util);
-								}
-								else
-								{
-									console.error('Extension ' + extensionName + ' not found');
-								}
-							}.bind(this)
-						);
-				}
-			}.bind(this));
 		},
 	};
 

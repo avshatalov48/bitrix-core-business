@@ -9,7 +9,7 @@ define("PUBLIC_AJAX_MODE", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
 
 $cuid = intval($_REQUEST["cuid"]);
-$site_id = (isset($_REQUEST["site"]) && is_string($_REQUEST["site"])) ? trim($_REQUEST["site"]) : "";
+$site = (isset($_REQUEST["site"]) && is_string($_REQUEST["site"])) ? trim($_REQUEST["site"]) : "";
 
 if (isset($_REQUEST["is"]))
 	$ImageSize = intval($_REQUEST["is"]);
@@ -22,8 +22,9 @@ if ($ImageSize <= 0)
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 use Bitrix\Main\Localization\Loc;
 
+$logCnt = 0;
 if ($GLOBALS["USER"]->IsAuthorized())
-	$log_cnt = CUserCounter::GetValueByUserID($GLOBALS["USER"]->GetID(), $site);
+	$logCnt = (int) CUserCounter::GetValueByUserID($GLOBALS["USER"]->GetID(), $site);
 
 if(
 	$CACHE_MANAGER->Read(86400*30, "socnet_cm_".$cuid)
@@ -31,10 +32,10 @@ if(
 	&& $CACHE_MANAGER->Read(86400*30, "socnet_cg_".$cuid)
 )
 {
-	if (intval($log_cnt) > 0)
+	if ($logCnt > 0)
 	{
 		$arData = array(
-			array("LOG_CNT" => $log_cnt)
+			array("LOG_CNT" => $logCnt)
 		);
 		echo CUtil::PhpToJSObject($arData);
 
@@ -644,13 +645,13 @@ if(CModule::IncludeModule("socialnetwork"))
 			$arData[0]["POS_TOP"] = $arDialogPos["top"];
 		}
 
-		if (intval($log_cnt) > 0)
-			$arData[0]["LOG_CNT"] = $log_cnt;
+		if ($logCnt > 0)
+			$arData[0]["LOG_CNT"] = $logCnt;
 	}
 	else
 	{
 		$arData = array(
-			array("LOG_CNT" => $log_cnt)
+			array("LOG_CNT" => $logCnt)
 		);
 	}
 

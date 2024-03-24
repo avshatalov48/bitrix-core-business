@@ -1,8 +1,12 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
-	die();
+<?php
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\LanguageTable;
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main;
+use Bitrix\Main\Localization\LanguageTable;
 
 if(!CModule::IncludeModule("iblock") || !CModule::IncludeModule("catalog"))
 	return;
@@ -189,9 +193,8 @@ if (WIZARD_INSTALL_DEMO_DATA && $IBLOCK_CATALOG_ID)
 	}
 }
 
-
-$dbResultList = CCatalogGroup::GetList(array(), array("BASE" => "Y"));
-if(!($dbResultList->Fetch()))
+$basePriceTypeId = \CCatalogGroup::GetBaseGroupId();
+if ($basePriceTypeId === null)
 {
 	$arFields = array();
 	$rsLanguage = CLanguage::GetList();
@@ -211,21 +214,19 @@ if(!($dbResultList->Fetch()))
 
 if($IBLOCK_CATALOG_ID == false)
 {
-	$permissions = Array(
-			"1" => "X",
-			"2" => "R"
-		);
+	$permissions = [
+		1 => CIBlockRights::FULL_ACCESS,
+		2 => CIBlockRights::PUBLIC_READ,
+	];
 	$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "sale_administrator"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
-		$permissions[$arGroup["ID"]] = 'W';
+		$permissions[$arGroup["ID"]] = CIBlockRights::EDIT_ACCESS;
 	}
-	$by = "";
-	$order = "";
 	$dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "content_editor"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
-		$permissions[$arGroup["ID"]] = 'W';
+		$permissions[$arGroup["ID"]] = CIBlockRights::EDIT_ACCESS;
 	}
 
 	\Bitrix\Catalog\Product\Sku::disableUpdateAvailable();
@@ -265,4 +266,3 @@ else
 		$iblock->Update($IBLOCK_CATALOG_ID, array("LID" => $arSites));
 	}
 }
-?>

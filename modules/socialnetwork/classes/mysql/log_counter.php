@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @deprecated
+ */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log_counter.php");
 
 class CSocNetLogCounter extends CAllSocNetLogCounter
@@ -54,10 +58,4 @@ class CSocNetLogCounter extends CAllSocNetLogCounter
 	{
 		return " case when ".$condition." then ".$yes." else ".$no." end ";
 	}
-
-	public static function dbWeeksAgo($iWeeks)
-	{
-		return "DATE_SUB(NOW(), INTERVAL ".intval($iWeeks)." WEEK)";
-	}
-
 }

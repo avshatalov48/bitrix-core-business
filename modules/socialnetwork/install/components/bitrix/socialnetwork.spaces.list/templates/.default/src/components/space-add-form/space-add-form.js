@@ -69,14 +69,14 @@ export const SpaceAddForm = {
 	mounted()
 	{
 		this.$refs.spaceAddFormNameInput.focus();
-		Event.bind(document, 'mouseup', this.handleAutoHide);
+		Event.bind(document, 'click', this.handleAutoHide, true);
 		Event.bind(document, 'keydown', this.handleKeyDown);
 		this.$bitrix.eventEmitter.subscribe(EventTypes.showUpperSpaceAddForm, this.chooseRandomAvatarColor);
 		this.chooseRandomAvatarColor();
 	},
 	unmounted()
 	{
-		Event.unbind(document, 'mouseup', this.handleAutoHide);
+		Event.unbind(document, 'click', this.handleAutoHide, true);
 		Event.unbind(document, 'keydown', this.handleKeyDown);
 		this.$bitrix.eventEmitter.unsubscribe(EventTypes.showUpperSpaceAddForm, this.chooseRandomAvatarColor);
 	},
@@ -105,6 +105,9 @@ export const SpaceAddForm = {
 				this.avatarEditor = new AvatarEditor({
 					enableCamera: false,
 				});
+
+				Dom.addClass(this.avatarEditor.popup.getPopupContainer(), 'sn-spaces__avatar-editor');
+
 				this.avatarEditor.subscribe('onApply', (event: BaseEvent) => {
 					const [file] = event.getCompatData();
 					file.name ??= 'tmp.png';

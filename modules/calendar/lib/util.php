@@ -393,6 +393,24 @@ class Util
 					'params' => $params
 				]
 			);
+
+			if (isset($params['fields']['CAL_TYPE']) && $params['fields']['CAL_TYPE'] === 'location')
+			{
+				\CPullWatch::AddToStack(
+					'calendar-location',
+					[
+						'module_id' => 'calendar',
+						'command' => "{$command}_location",
+						'params' => [
+							'fields' => [
+								'DATE_FROM' => $params['fields']['DATE_FROM'],
+								'DATE_TO' => $params['fields']['DATE_TO'],
+								'EXDATE' => $params['fields']['EXDATE'],
+							],
+						],
+					],
+				);
+			}
 		}
 
 		if (

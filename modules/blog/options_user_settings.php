@@ -32,21 +32,47 @@ if (CModule::IncludeModule("blog")):
 	<?endif;?>
 	<tr>
 		<td><?=GetMessage('blog_ALIAS')?></td>
-		<td><input class="typeinput" type="text" name="blog_ALIAS" size="30" maxlength="255" value="<?=$str_blog_ALIAS?>"></td>
+		<td>
+			<input
+				class="typeinput"
+				type="text"
+				name="blog_ALIAS"
+				size="30"
+				maxlength="255"
+				value="<?=$str_blog_ALIAS ?? ''?>"
+			>
+		</td>
 	</tr>
 	<tr>
 		<td><?=GetMessage('blog_DESCRIPTION')?></td>
-		<td><input class="typeinput" type="text" name="blog_DESCRIPTION" size="30" maxlength="255" value="<?=$str_blog_DESCRIPTION?>"></td>
+		<td>
+			<input
+				class="typeinput"
+				type="text"
+				name="blog_DESCRIPTION"
+				size="30"
+				maxlength="255"
+				value="<?=$str_blog_DESCRIPTION ?? ''?>"
+			>
+		</td>
 	</tr>
 	<tr>
 		<td valign="top"><?=GetMessage('blog_INTERESTS')?></td>
-		<td><textarea class="typearea" name="blog_INTERESTS" rows="3" cols="35"><?echo $str_blog_INTERESTS; ?></textarea></td>
+		<td>
+			<textarea
+				class="typearea"
+				name="blog_INTERESTS"
+				rows="3"
+				cols="35
+			"><?echo $str_blog_INTERESTS ?? ''; ?>
+			</textarea>
+		</td>
 	</tr>
 	<tr class="adm-detail-file-row">
 		<td><?=GetMessage("blog_AVATAR")?></td>
 		<td><?
-			echo CFile::InputFile("blog_AVATAR", 20, $str_blog_AVATAR);
-			if (intval($str_blog_AVATAR)>0):
+			echo CFile::InputFile("blog_AVATAR", 20, $str_blog_AVATAR ?? 0);
+			if (intval($str_blog_AVATAR ?? 0) > 0):
 				?><div class="adm-detail-file-image"><?
 				echo CFile::ShowImage($str_blog_AVATAR, 150, 150, "border=0", "", true);?></div><?
 			endif;

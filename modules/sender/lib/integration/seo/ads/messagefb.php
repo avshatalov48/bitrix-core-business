@@ -24,6 +24,6 @@ class MessageFb extends MessageBase
 	 */
 	public function getName()
 	{
-		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_FB');
+		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_FB_MSGVER_1');
 	}
 }

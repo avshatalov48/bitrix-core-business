@@ -327,32 +327,31 @@ class CCalendarType
 
 	public static function GetArrayPermissions($arTypes = [])
 	{
-		global $DB;
-		$s = "'0'";
-		foreach($arTypes as $xmlid)
-		{
-			$s .= ",'" . $DB->ForSql($xmlid) . "'";
-		}
+		$sqlHelper = $connection = \Bitrix\Main\Application::getConnection()->getSqlHelper();
+		$arTypes = array_map(static function($type) use ($sqlHelper) {
+			return $sqlHelper->forSql($type);
+		}, $arTypes);
+		
+		$query = \Bitrix\Calendar\Internals\AccessTable::query()
+			->setSelect(['*'])
+			->whereIn('SECT_ID', $arTypes)
+			->exec()
+		;
 
-		$strSql = 'SELECT *
-			FROM b_calendar_access CAP
-			WHERE CAP.SECT_ID in ('.$s.')';
-		$res = $DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		while($arRes = $res->Fetch())
+		while ($res = $query->fetch())
 		{
-			$xmlId = $arRes['SECT_ID'];
+			$xmlId = $res['SECT_ID'];
 			if (!isset(self::$Permissions[$xmlId]) || !is_array(self::$Permissions[$xmlId]))
 			{
 				self::$Permissions[$xmlId] = [];
 			}
-			self::$Permissions[$xmlId][$arRes['ACCESS_CODE']] = $arRes['TASK_ID'];
+			self::$Permissions[$xmlId][$res['ACCESS_CODE']] = $res['TASK_ID'];
 		}
-		foreach($arTypes as $xmlid)
+		foreach ($arTypes as $type)
 		{
-			if (!isset(self::$Permissions[$xmlid]))
+			if (!isset(self::$Permissions[$type]))
 			{
-				self::$Permissions[$xmlid] = [];
+				self::$Permissions[$type] = [];
 			}
 		}
 

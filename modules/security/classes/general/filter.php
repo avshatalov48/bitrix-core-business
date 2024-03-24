@@ -228,6 +228,43 @@ class CSecurityFilter
 		return $pValue;
 	}
 
+	public static function processVar(array|string $var)
+	{
+		static $skip = null;
+
+		if (is_null($skip))
+		{
+			$skip = !CSecurityFilter::IsActive();
+			$skip = $skip || CSecuritySystemInformation::isCliMode();
+			$skip = $skip || CSecurityFilterMask::Check(SITE_ID, $_SERVER["REQUEST_URI"]);
+			$skip = $skip || (check_bitrix_sessid() && self::currentUserHaveRightsForSkip());
+		}
+
+		if ($skip)
+		{
+			return $var;
+		}
+
+		$instance = new CSecurityFilter();
+
+		$auditors = $instance->getAuditorInstances();
+		$instance->requestFilter->setAuditors($auditors);
+
+		$array = is_array($var) ? ['data' => $var] : ['data' => ['key' => $var]];
+
+		$filteredValues = $instance->requestFilter->filter($array, false);
+		$filteredValues = $filteredValues['data'];
+
+		if ($instance->isAuditorsTriggered())
+		{
+			$instance->doPostProcessActions();
+		}
+
+		unset($instance);
+
+		return is_array($var) ? $filteredValues : ($filteredValues['key'] ?? '') ;
+	}
+
 	protected function process()
 	{
 		$auditors = $this->getAuditorInstances();

@@ -10,11 +10,10 @@ namespace Bitrix\Socialnetwork\Update;
 
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\LogTable;
+use Bitrix\Main\Config\Option;
 
 class FeedGarbageCollector
 {
-	public const LIMIT = 1000;
-
 	private static $processing = false;
 
 	public static function execute()
@@ -87,7 +86,7 @@ class FeedGarbageCollector
 			'filter' => [
 				'@ENTITY_TYPE' => $types,
 			],
-			'limit' => self::LIMIT,
+			'limit' => $this->getLimit(),
 			'order' => ['ID' => 'ASC'],
 		])->fetchAll();
 		if (empty($logIds))
@@ -123,5 +122,10 @@ class FeedGarbageCollector
 			SONET_CRM_SUSPENDED_DEAL_ENTITY,
 			SONET_CRM_SUSPENDED_ACTIVITY_ENTITY,
 		];
+	}
+
+	private function getLimit(): int
+	{
+		return (int)Option::get('socialnetwork', 'FeedGarbageCollectorAgentLimit', 1000);
 	}
 }

@@ -5,6 +5,7 @@ use Bitrix\Im as IM;
 use Bitrix\Im\User;
 use Bitrix\Im\V2\Chat\NotifyChat;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 
 class CIMNotify
@@ -24,9 +25,44 @@ class CIMNotify
 
 	public static function Add($arFields)
 	{
+		$locFields = [
+			'MESSAGE',
+			'NOTIFY_MESSAGE',
+			'MESSAGE_OUT',
+			'NOTIFY_MESSAGE_OUT',
+			'TITLE',
+			'NOTIFY_TITLE',
+			'PUSH_MESSAGE',
+		];
+
+		foreach ($arFields as $key => $field)
+		{
+			if (in_array($key, $locFields, true))
+			{
+				if (isset($field) && is_callable($field))
+				{
+					$localizeText = self::getTextMessageByLang((int)$arFields['TO_USER_ID'], $field);
+					$arFields[$key] = $localizeText;
+				}
+			}
+		}
+
 		$arFields['MESSAGE_TYPE'] = IM_MESSAGE_SYSTEM;
 
 		return CIMMessenger::Add($arFields);
+	}
+
+	public static function getTextMessageByLang(int $userId, callable $locFunction): ?string
+	{
+		if (!Loader::includeModule('bitrix24'))
+		{
+			return $locFunction(Loc::getCurrentLang(), $userId);
+		}
+
+		$user = IM\V2\Entity\User\User::getInstance($userId);
+		$langId = $user->getLanguageId();
+
+		return $locFunction($langId, $userId);
 	}
 
 	public function GetNotifyList($arParams = array())
@@ -49,8 +85,8 @@ class CIMNotify
 		";
 		$res_cnt = $DB->Query($sqlStr);
 		$res_cnt = $res_cnt->Fetch();
-		$cnt = $res_cnt["CNT"];
-		$chatId = $res_cnt["CHAT_ID"];
+		$cnt = $res_cnt["CNT"] ?? 0;
+		$chatId = $res_cnt["CHAT_ID"] ?? -1;
 
 		$arNotify = Array();
 		if ($cnt > 0)
@@ -64,7 +100,7 @@ class CIMNotify
 					M.CHAT_ID,
 					M.MESSAGE,
 					M.MESSAGE_OUT,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.NOTIFY_TYPE,
 					M.NOTIFY_MODULE,
 					M.NOTIFY_EVENT,
@@ -73,8 +109,8 @@ class CIMNotify
 					M.NOTIFY_TAG,
 					M.NOTIFY_SUB_TAG,
 					M.NOTIFY_READ,
-					$this->user_id TO_USER_ID,
-					M.AUTHOR_ID FROM_USER_ID
+					$this->user_id as TO_USER_ID,
+					M.AUTHOR_ID as FROM_USER_ID
 				FROM b_im_message M
 				WHERE M.CHAT_ID = ".$chatId." #LIMIT#
 				ORDER BY M.DATE_CREATE DESC, M.ID DESC
@@ -84,13 +120,20 @@ class CIMNotify
 
 			if ($iNumPage == 0)
 			{
-				$sqlLimit = '';
-				if ($DB->type == "MYSQL")
-					$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL 30 DAY)";
-				elseif ($DB->type == "MSSQL")
+				if ($DB->type == "MSSQL")
+				{
 					$sqlLimit = " AND M.DATE_CREATE > dateadd(day, -30, getdate())";
+				}
 				elseif ($DB->type == "ORACLE")
+				{
 					$sqlLimit = " AND M.DATE_CREATE > SYSDATE-30";
+				}
+				else
+				{
+					$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+					$helper = $connection->getSqlHelper();
+					$sqlLimit = " AND M.DATE_CREATE > ". $helper->addDaysToDateTime(-30);
+				}
 
 				$strSql = $DB->TopSql($strSql, 100);
 				$dbRes = $DB->Query(str_replace("#LIMIT#", $sqlLimit, $strSql), false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -202,7 +245,7 @@ class CIMNotify
 					M.CHAT_ID,
 					M.MESSAGE,
 					M.MESSAGE_OUT,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.NOTIFY_TYPE,
 					M.NOTIFY_MODULE,
 					M.NOTIFY_EVENT,
@@ -211,8 +254,8 @@ class CIMNotify
 					M.NOTIFY_TAG,
 					M.NOTIFY_SUB_TAG,
 					M.NOTIFY_READ,
-					$this->user_id TO_USER_ID,
-					M.AUTHOR_ID FROM_USER_ID
+					$this->user_id as TO_USER_ID,
+					M.AUTHOR_ID as FROM_USER_ID
 				FROM b_im_message M
 				WHERE M.ID IN ({$implodeMessageIds})
 				ORDER BY ID DESC
@@ -311,7 +354,7 @@ class CIMNotify
 					M.CHAT_ID,
 					M.MESSAGE,
 					M.MESSAGE_OUT,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.NOTIFY_TYPE,
 					M.NOTIFY_MODULE,
 					M.NOTIFY_EVENT,
@@ -320,24 +363,24 @@ class CIMNotify
 					M.NOTIFY_TAG,
 					M.NOTIFY_SUB_TAG,
 					M.EMAIL_TEMPLATE,
-					M.AUTHOR_ID FROM_USER_ID,
-					U2.LOGIN FROM_USER_LOGIN,
-					U2.NAME FROM_USER_NAME,
-					U2.LAST_NAME FROM_USER_LAST_NAME,
-					U2.SECOND_NAME FROM_USER_SECOND_NAME,
-					U2.EXTERNAL_AUTH_ID FROM_EXTERNAL_AUTH_ID,
-					C.AUTHOR_ID TO_USER_ID,
-					U1.LOGIN TO_USER_LOGIN,
-					U1.NAME TO_USER_NAME,
-					U1.LAST_NAME TO_USER_LAST_NAME,
-					U1.SECOND_NAME TO_USER_SECOND_NAME,
-					U1.EMAIL TO_USER_EMAIL,
-					U1.ACTIVE TO_USER_ACTIVE,
-					U1.LID TO_USER_LID,
-					U1.AUTO_TIME_ZONE AUTO_TIME_ZONE,
-					U1.TIME_ZONE TIME_ZONE,
-					U1.TIME_ZONE_OFFSET TIME_ZONE_OFFSET,
-					U1.EXTERNAL_AUTH_ID TO_EXTERNAL_AUTH_ID
+					M.AUTHOR_ID as FROM_USER_ID,
+					U2.LOGIN as FROM_USER_LOGIN,
+					U2.NAME as FROM_USER_NAME,
+					U2.LAST_NAME as FROM_USER_LAST_NAME,
+					U2.SECOND_NAME as FROM_USER_SECOND_NAME,
+					U2.EXTERNAL_AUTH_ID as FROM_EXTERNAL_AUTH_ID,
+					C.AUTHOR_ID as TO_USER_ID,
+					U1.LOGIN as TO_USER_LOGIN,
+					U1.NAME as TO_USER_NAME,
+					U1.LAST_NAME as TO_USER_LAST_NAME,
+					U1.SECOND_NAME as TO_USER_SECOND_NAME,
+					U1.EMAIL as TO_USER_EMAIL,
+					U1.ACTIVE as TO_USER_ACTIVE,
+					U1.LID as TO_USER_LID,
+					U1.AUTO_TIME_ZONE as AUTO_TIME_ZONE,
+					U1.TIME_ZONE as TIME_ZONE,
+					U1.TIME_ZONE_OFFSET as TIME_ZONE_OFFSET,
+					U1.EXTERNAL_AUTH_ID as TO_EXTERNAL_AUTH_ID
 				FROM b_im_message M
 				LEFT JOIN b_user U2 ON U2.ID = M.AUTHOR_ID
 				LEFT JOIN b_im_chat C ON M.CHAT_ID = C.ID
@@ -1269,20 +1312,12 @@ class CIMNotify
 		// update total amount of notifications
 		$date = new DateTime();
 		$date->add('-60 days'); // sync with \Bitrix\Im\Notify::cleanNotifyAgent
-		$messageCount = \Bitrix\Im\Model\MessageTable::getList([
-			'select' => ['CNT'],
-			'filter' => [
-				'=CHAT_ID' => $chatId,
-				'>DATE_CREATE' => $date
-			],
-			'runtime' => [
-				new \Bitrix\Main\ORM\Fields\ExpressionField('CNT', 'COUNT(*)')
-			]
-		])->fetch();
-
-		IM\Model\ChatTable::update($chatId, [
-			'MESSAGE_COUNT' => $messageCount['CNT'],
+		$messageCount = \Bitrix\Im\Model\MessageTable::getCount([
+			'=CHAT_ID' => $chatId,
+			'>DATE_CREATE' => $date
 		]);
+
+		IM\Model\ChatTable::update($chatId, ['MESSAGE_COUNT' => $messageCount]);
 
 		// update the preview of last message in recent list
 		if ($needToUpdateRecent)
@@ -1324,7 +1359,7 @@ class CIMNotify
 		global $DB;
 
 		$sqlQuery = "
-			SELECT M.*, R.USER_ID RELATION_USER_ID
+			SELECT M.*, R.USER_ID as RELATION_USER_ID
 			FROM b_im_message M
 			LEFT JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID
 			WHERE M.ID = ".$id." AND R.MESSAGE_TYPE = '".IM_MESSAGE_SYSTEM."'
@@ -1571,18 +1606,44 @@ class CIMNotify
 			return false;
 
 		$sqlEvent = '';
-		$sqlEventRead = '';
 		$moduleEvent = (string)$moduleEvent;
 		if ($moduleEvent <> '')
 		{
 			$sqlEvent = " AND NOTIFY_EVENT = '".$DB->ForSQL($moduleEvent)."'";
-			$sqlEventRead = " AND M.NOTIFY_EVENT = '".$DB->ForSQL($moduleEvent)."'";
 		}
 
-		$strSql = "DELETE U FROM b_im_message M INNER JOIN b_im_message_unread U ON M.ID = U.MESSAGE_ID WHERE M.NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
+		if ($DB->type == 'MYSQL')
+		{
+			$strSql = "
+				DELETE U 
+				FROM b_im_message M INNER JOIN b_im_message_unread U ON M.ID = U.MESSAGE_ID 
+				WHERE M.NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
+		}
+		elseif ($DB->type == 'PGSQL')
+		{
+			$strSql = "
+				DELETE FROM b_im_message_unread U 
+				USING  b_im_message M
+				WHERE M.ID = U.MESSAGE_ID 
+					AND M.NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
+		}
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$strSql = "DELETE V FROM b_im_message M INNER JOIN b_im_message_viewed V ON M.ID = V.MESSAGE_ID WHERE M.NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
+		if ($DB->type == 'MYSQL')
+		{
+			$strSql = "
+				DELETE V 
+				FROM b_im_message M INNER JOIN b_im_message_viewed V ON M.ID = V.MESSAGE_ID 
+				WHERE M.NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
+		}
+		elseif ($DB->type == 'PGSQL')
+		{
+			$strSql = "
+				DELETE FROM b_im_message_viewed V
+				USING b_im_message M 
+				WHERE M.ID = V.MESSAGE_ID 
+					AND M.NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
+		}
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		$strSql = "DELETE FROM b_im_message WHERE NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
@@ -1632,4 +1693,3 @@ class CIMNotify
 		return \Bitrix\Im\Notify::getCounters($chatIds);
 	}
 }
-?>

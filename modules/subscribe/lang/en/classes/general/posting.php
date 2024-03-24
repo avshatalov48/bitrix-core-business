@@ -11,7 +11,5 @@ $MESS["class_post_err_status"] = "The issue has an invalid status.";
 $MESS["class_post_err_status2"] = "Illegal change of the issue status.";
 $MESS["class_post_err_status4"] = "Send Error (issue has no recipients).";
 $MESS["class_post_err_att"] = "An error occurred during attachment save.";
-$MESS["class_post_err_lock"] = "Database error while trying to lock newsletter issue:";
-$MESS["class_post_err_lock_advice"] = "Please contact the database administrator to obtain permission to run dbms_lock.";
 $MESS["class_post_err_files_size"] = "Attachments exceed maximum size of #MAX_FILES_SIZE#.";
 ?>

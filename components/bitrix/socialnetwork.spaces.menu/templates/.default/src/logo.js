@@ -54,6 +54,6 @@ export class Logo
 
 	#getIconClass(): string
 	{
-		return this.#logo.type === 'image' ? 'sn-spaces__list-item_img' : '';
+		return this.#logo.type === 'image' ? 'sn-spaces__space-logo_img' : '';
 	}
 }

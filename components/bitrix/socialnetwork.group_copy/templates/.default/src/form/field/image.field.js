@@ -16,11 +16,11 @@ export class ImageField extends CustomField
 	init()
 	{
 		// eslint-ignore-next-line
-		const uploaderInstance = BX.UploaderManager.getById(this.fieldName);
-		if (uploaderInstance)
+		this.uploaderInstance = BX.UploaderManager.getById(this.fieldName);
+		if (this.uploaderInstance)
 		{
 			// eslint-ignore-next-line
-			BX.addCustomEvent(uploaderInstance, "onQueueIsChanged", this.onQueueIsChanged.bind(this));
+			BX.addCustomEvent(this.uploaderInstance, "onQueueIsChanged", this.onQueueIsChanged.bind(this));
 		}
 	}
 
@@ -60,7 +60,17 @@ export class ImageField extends CustomField
 
 	getCurrentValue()
 	{
-		const fieldInput = document.getElementsByName(this.fieldName);
-		return fieldInput.length > 0 ? fieldInput[0].value : "";
+		const item = Object.values(this.uploaderInstance.getItems().items)[0];
+		if (!item)
+		{
+			return '';
+		}
+
+		if (item.file instanceof Blob)
+		{
+			return item.file;
+		}
+
+		return item.file.file_id;
 	}
 }

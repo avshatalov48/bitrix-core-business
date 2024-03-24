@@ -10,6 +10,7 @@ $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_OK"] = "OK";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC"] = "The tasks now will not show in Activity Stream; instead, you can access them in the Tasks area. You will still receive task notifications to the instant messenger.";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC2"] = "The tasks now will not show in the Feed; instead, you can access them in the Tasks area. You will still receive task notifications to the instant messenger.";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE"] = "Try the new, active state based task view";
+$MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE_MSGVER_1"] = "Try the new task view by last active date";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_EXPAND"] = "Expand";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_NEW_COMMENTS"] = "New comments:";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_POSTS"] = "Pinned posts:";

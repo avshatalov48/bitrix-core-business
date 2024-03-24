@@ -28,10 +28,6 @@ export const AddToChatContent = {
 	name: 'AddToChatContent',
 	components: { SearchResult, MessengerButton, ScrollWithGradient },
 	props: {
-		chatId: {
-			type: Number,
-			required: true,
-		},
 		dialogId: {
 			type: String,
 			required: true,
@@ -56,6 +52,10 @@ export const AddToChatContent = {
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		chatId(): number
+		{
+			return this.dialog.chatId;
 		},
 		isChat(): boolean
 		{

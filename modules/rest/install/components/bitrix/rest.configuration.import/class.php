@@ -379,7 +379,10 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 				{
 					$appInfo = $appInfo["ITEMS"];
 
-					if ($appInfo['TYPE'] === AppTable::TYPE_CONFIGURATION && !empty($appInfo['CONFIG_URL']))
+					if (
+						($appInfo['TYPE'] === AppTable::TYPE_CONFIGURATION || $appInfo['TYPE'] === AppTable::TYPE_BIC_DASHBOARD)
+						&& !empty($appInfo['CONFIG_URL'])
+					)
 					{
 						$url = $this->prepareConfigurationUrl($appInfo['CONFIG_URL']);
 						$result = array_merge($result, $this->getArchive($url, $app));

@@ -18,6 +18,10 @@ class Informer
 
 		this.lockCounterAnimation = null;
 
+		this.isSpaceFeatureEnabled = null;
+		this.currentUserId = null;
+		this.currentSpaceId = null;
+
 		this.class = {
 			informerFixed: 'feed-new-message-informer-fixed',
 			informerAnimation: 'feed-new-message-informer-anim',
@@ -31,15 +35,20 @@ class Informer
 		};
 	}
 
-	init()
+	init(props = {})
 	{
+		const defaultValues = { isSpaceFeatureEnabled: false, userId: null, spaceId: null };
+		const { isSpaceFeatureEnabled, userId, spaceId } = props || defaultValues;
+		this.isSpaceFeatureEnabled = isSpaceFeatureEnabled;
+		this.currentUserId = userId;
+		this.currentSpaceId = spaceId;
 		this.initNodes();
 		this.initEvents();
 	}
 
 	initNodes()
 	{
-		this.currentCounterType = Loc.getMessage('sonetLCounterType') ? Loc.getMessage('sonetLCounterType') : '**';
+		this.currentCounterType = Loc.hasMessage('sonetLCounterType') ? Loc.getMessage('sonetLCounterType') : '**';
 		this.currentSiteId = Loc.getMessage('SITE_ID');
 
 		this.container = document.getElementById('sonet_log_counter_2_container');
@@ -60,28 +69,18 @@ class Informer
 			this.unfixWrap();
 		});
 
-		EventEmitter.subscribe('onPullEvent-main', (event: BaseEvent) =>
-		{
-			const [ command, eventParams ] = event.getData();
-
-			if (
-				command !== 'user_counter'
-				|| !eventParams[this.currentSiteId]
-				|| !eventParams[this.currentSiteId][this.currentCounterType]
-			)
-			{
-				return;
-			}
-
-			this.changeCounter(Runtime.clone(eventParams[this.currentSiteId][this.currentCounterType]));
-		});
+		(this.isSpaceFeatureEnabled)
+			? this.subscribeOnSpaceCounters()
+			: this.subscribeOnLiveFeedCounters()
+		;
 
 		EventEmitter.subscribe('onImUpdateCounter', (event: BaseEvent) =>
 		{
 			const [ counterData ] = event.getData();
 
 			if (
-				!Type.isObjectLike(counterData)
+				this.isSpaceFeatureEnabled
+				|| !Type.isObjectLike(counterData)
 				|| Type.isUndefined(counterData[this.currentCounterType])
 			)
 			{
@@ -93,6 +92,11 @@ class Informer
 
 		EventEmitter.subscribe('OnUCCommentWasRead', (event: BaseEvent) =>
 		{
+			if (this.isSpaceFeatureEnabled)
+			{
+				return;
+			}
+
 			const [ xmlId, id, options ] = event.getData();
 
 			if (
@@ -109,6 +113,49 @@ class Informer
 			}));
 
 			this.decrementCounter(1);
+		});
+	};
+
+	subscribeOnSpaceCounters()
+	{
+		EventEmitter.subscribe('onPullEvent-socialnetwork', (event: BaseEvent) => {
+			const [command, eventParams] = event.getData();
+			const userFromEvent = eventParams.userId ?? null;
+			const spaces = eventParams.spaces ?? [];
+
+			if (
+				command !== 'user_spaces_counter'
+				|| parseInt(this.currentUserId) !== parseInt(userFromEvent)
+			)
+			{
+				return;
+			}
+
+			const currentSpace = spaces.find((space) => space.id === parseInt(this.currentSpaceId));
+			const currentSpaceCounter = (currentSpace && currentSpace.metrics && currentSpace.metrics.countersLiveFeedTotal)
+				? currentSpace.metrics.countersLiveFeedTotal
+				: 0
+			;
+			this.changeCounter(currentSpaceCounter);
+		});
+	};
+
+	subscribeOnLiveFeedCounters()
+	{
+		EventEmitter.subscribe('onPullEvent-main', (event: BaseEvent) =>
+		{
+			const [ command, eventParams ] = event.getData();
+
+			if (
+				command !== 'user_counter'
+				|| !eventParams[this.currentSiteId]
+				|| !eventParams[this.currentSiteId][this.currentCounterType]
+			)
+			{
+				return;
+			}
+
+			this.changeCounter(Runtime.clone(eventParams[this.currentSiteId][this.currentCounterType]));
 		});
 	};
 

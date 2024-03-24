@@ -36,8 +36,7 @@ export const ReactionUser = {
 			<Avatar 
 				:dialogId="userId" 
 				:size="AvatarSize.XS" 
-				:withAvatarLetters="false" 
-				:withStatus="false" 
+				:withAvatarLetters="false"
 				:withTooltip="false"
 			/>
 		</div>

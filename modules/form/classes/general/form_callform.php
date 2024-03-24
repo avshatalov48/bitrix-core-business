@@ -30,8 +30,8 @@ class CAllForm extends CForm_old
 		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
-			if ($arFilter["FIELD_SID"] <> '') $arFilter["FIELD_VARNAME"] = $arFilter["FIELD_SID"];
-			elseif ($arFilter["FIELD_VARNAME"] <> '') $arFilter["FIELD_SID"] = $arFilter["FIELD_VARNAME"];
+			if (!empty($arFilter["FIELD_SID"])) $arFilter["FIELD_VARNAME"] = $arFilter["FIELD_SID"];
+			elseif (!empty($arFilter["FIELD_VARNAME"])) $arFilter["FIELD_SID"] = $arFilter["FIELD_VARNAME"];
 
 			$filter_keys = array_keys($arFilter);
 			$cntFilterKeys = count($filter_keys);
@@ -55,11 +55,11 @@ class CAllForm extends CForm_old
 				{
 					case "FIELD_ID":
 					case "RESULT_ID":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"] == "N" && $match_value_set) ? "Y" : "N";
 						$arSqlSearch[] = GetFilterQuery("RA.".$key, $val, $match);
 						break;
 					case "FIELD_SID":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"] == "Y" && $match_value_set) ? "N" : "Y";
 						$arSqlSearch[] = GetFilterQuery("F.SID", $val, $match);
 						break;
 					case "IN_RESULTS_TABLE":
@@ -94,11 +94,11 @@ class CAllForm extends CForm_old
 		}
 		$q = CFormField::GetList($WEB_FORM_ID, '', '', '',
 			array(
-				"ID"				=> $arFilter["FIELD_ID"],
-				"VARNAME"			=> $arFilter["FIELD_SID"],
-				"SID"				=> $arFilter["FIELD_SID"],
+				"ID"				=> $arFilter["FIELD_ID"] ?? '',
+				"VARNAME"			=> $arFilter["FIELD_SID"] ?? '',
+				"SID"				=> $arFilter["FIELD_SID"] ?? '',
 				"IN_RESULTS_TABLE"	=> $arFilter["IN_RESULTS_TABLE"],
-				"IN_EXCEL_TABLE"	=> $arFilter["IN_EXCEL_TABLE"],
+				"IN_EXCEL_TABLE"	=> $arFilter["IN_EXCEL_TABLE"] ?? '',
 				"ACTIVE"			=> "Y")
 			);
 		while ($qr = $q->Fetch())
@@ -532,7 +532,7 @@ class CAllForm extends CForm_old
 				null,
 				array('HIDE_ICONS' => 'Y')
 			);
-			$res .= ob_get_contents();
+			$res = ob_get_contents();
 			ob_end_clean();
 
 			return $res;

@@ -16,11 +16,11 @@ export class FilesRouter
 
 	redirectToTrash()
 	{
-		location.href = this.#pathToTrash;
+		top.BX.Socialnetwork.Spaces.space.reloadPageContent(this.#pathToTrash);
 	}
 
 	redirectToVolume()
 	{
-		location.href = this.#pathToVolume;
+		top.location.href = this.#pathToVolume;
 	}
 }

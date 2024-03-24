@@ -2032,6 +2032,23 @@ class CSocNetAllowed
 			CSocNetAllowed::addAllowedFeature("search", $arFeatureTmp);
 		}
 
+		if (
+			ModuleManager::isModuleInstalled('sign')
+			&& method_exists(\Bitrix\Sign\Config\Storage::class, 'isB2eAvailable')
+			&& \Bitrix\Sign\Config\Storage::instance()->isB2eAvailable()
+		)
+		{
+			$arFeatureTmp = [
+				'allowed' => [],
+				'operations' => [],
+				'minoperation' => [],
+			];
+			$arFeatureTmp['allowed'][] = SONET_ENTITY_USER;
+			$arFeatureTmp['operations']['view'][SONET_ENTITY_USER] = SONET_RELATIONS_TYPE_NONE;
+
+			self::addAllowedFeature('sign', $arFeatureTmp);
+		}
+
 		// chat
 		if (
 			ModuleManager::isModuleInstalled('im')

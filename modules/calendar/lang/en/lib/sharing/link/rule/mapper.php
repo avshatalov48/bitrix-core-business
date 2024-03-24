@@ -1,2 +1,3 @@
 <?php
 $MESS["CALENDAR_SHARING_WORKDAYS"] = "Working days";
+$MESS["CALENDAR_SHARING_WORKDAYS_MSGVER_1"] = "Workdays";

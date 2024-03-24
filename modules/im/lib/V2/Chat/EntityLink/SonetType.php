@@ -17,7 +17,7 @@ class SonetType extends EntityLink
 		}
 
 		$url = \COption::GetOptionString('socialnetwork', 'workgroups_page', '/workgroups/', SITE_ID);
-		$url .= "group/{$this->id}/";
+		$url .= "group/{$this->entityId}/";
 
 		return $url;
 	}

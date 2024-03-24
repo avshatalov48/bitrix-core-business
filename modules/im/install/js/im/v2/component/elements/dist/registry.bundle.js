@@ -3,48 +3,8 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_fonts_opensans,ui_icons_disk,im_v2_lib_parser,rest_client,ui_vue3_directives_lazyload,im_v2_lib_user,ui_loader,im_v2_model,im_v2_lib_logger,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,im_v2_application_core,main_popup,ui_forms,main_core,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_const,im_v2_lib_permission) {
+(function (exports,ui_fonts_opensans,ui_icons_disk,im_v2_lib_parser,rest_client,ui_vue3_directives_lazyload,im_v2_lib_user,ui_loader,im_v2_model,im_v2_lib_logger,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,im_v2_application_core,main_popup,ui_forms,ui_vue3_components_audioplayer,main_core,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_const,im_v2_lib_permission) {
 	'use strict';
-
-	const UserStatusSize = {
-	  S: 'S',
-	  M: 'M',
-	  L: 'L',
-	  XL: 'XL',
-	  XXL: 'XXL'
-	};
-
-	// @vue/component
-	const UserStatus = {
-	  name: 'UserStatus',
-	  props: {
-	    status: {
-	      type: String,
-	      required: true,
-	      validator(value) {
-	        return Object.values(im_v2_const.UserStatus).includes(value);
-	      }
-	    },
-	    size: {
-	      type: String,
-	      default: UserStatusSize.M,
-	      validator(value) {
-	        return Object.values(UserStatusSize).includes(value);
-	      }
-	    }
-	  },
-	  data() {
-	    return {};
-	  },
-	  computed: {
-	    containerClasses() {
-	      return [`--size-${this.size.toLowerCase()}`, `--${this.status}`];
-	    }
-	  },
-	  template: `
-		<div :class="containerClasses" class="bx-im-user-status__container bx-im-user-status__scope"></div>
-	`
-	};
 
 	const AvatarSize = Object.freeze({
 	  XS: 'XS',
@@ -59,9 +19,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const Avatar = {
 	  name: 'MessengerAvatar',
-	  components: {
-	    UserStatus
-	  },
 	  props: {
 	    dialogId: {
 	      type: [String, Number],
@@ -72,10 +29,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      default: AvatarSize.M
 	    },
 	    withAvatarLetters: {
-	      type: Boolean,
-	      default: true
-	    },
-	    withStatus: {
 	      type: Boolean,
 	      default: true
 	    },
@@ -143,33 +96,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      return im_v2_lib_utils.Utils.text.getFirstLetters(this.dialog.name);
 	    },
-	    userStatusIcon() {
-	      if (!this.isUser || this.isBot || this.user.id === im_v2_application_core.Core.getUserId() || !this.isEnoughSizeForStatus) {
-	        return '';
-	      }
-	      const status = this.$store.getters['users/getStatus'](this.dialogId);
-	      if (status && status !== im_v2_const.UserStatus.online) {
-	        return status;
-	      }
-	      return '';
-	    },
-	    userStatusSize() {
-	      // avatar size: status size
-	      const sizesMap = {
-	        [AvatarSize.M]: UserStatusSize.S,
-	        [AvatarSize.L]: UserStatusSize.M,
-	        [AvatarSize.XL]: UserStatusSize.L,
-	        [AvatarSize.XXL]: UserStatusSize.XL,
-	        [AvatarSize.XXXL]: UserStatusSize.XXL
-	      };
-	      return sizesMap[this.size];
-	    },
 	    isEnoughSizeForText() {
 	      const avatarSizesWithText = [AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
-	      return avatarSizesWithText.includes(this.size.toUpperCase());
-	    },
-	    isEnoughSizeForStatus() {
-	      const avatarSizesWithText = [AvatarSize.M, AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
 	      return avatarSizesWithText.includes(this.size.toUpperCase());
 	    },
 	    avatarUrl() {
@@ -200,10 +128,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				{{ avatarText }}
 			</div>
 			<div v-else :style="backgroundColorStyle" class="bx-im-avatar__content bx-im-avatar__icon"></div>
-			<!-- Status icons -->
-			<div v-if="withStatus && userStatusIcon" class="bx-im-avatar__status-icon">
-				<UserStatus :status="userStatusIcon" :size="userStatusSize" />
-			</div>
 		</div>
 	`
 	};
@@ -893,9 +817,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    fileShortName() {
 	      const NAME_MAX_LENGTH = 70;
-	      return im_v2_lib_utils.Utils.file.getShortFileName(this.fileName, NAME_MAX_LENGTH);
+	      const fileName = main_core.Type.isStringFilled(this.fileName) ? this.fileName : this.$Bitrix.Loc.getMessage('IM_ELEMENTS_ATTACH_RICH_FILE_NO_NAME');
+	      return im_v2_lib_utils.Utils.file.getShortFileName(fileName, NAME_MAX_LENGTH);
 	    },
 	    formattedFileSize() {
+	      if (!this.fileSize) {
+	        return '';
+	      }
 	      return im_v2_lib_utils.Utils.file.formatFileSize(this.fileSize);
 	    },
 	    iconClasses() {
@@ -908,7 +836,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    openLink() {
 	      if (!this.link) {
-	        return false;
+	        return;
 	      }
 	      window.open(this.link, '_blank');
 	    }
@@ -2205,7 +2133,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      } else if (this.button.appId) {
 	        im_v2_lib_logger.Logger.warn('Messenger keyboard: open app is not implemented.');
 	      } else if (this.button.link) {
-	        im_v2_lib_utils.Utils.browser.openLink(this.button.link);
+	        const preparedLink = main_core.Text.decode(this.button.link);
+	        im_v2_lib_utils.Utils.browser.openLink(preparedLink);
 	      } else if (this.button.command) {
 	        this.handleCustomCommand();
 	      }
@@ -2442,6 +2371,46 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<KeyboardSeparator v-else-if="button.type === ButtonType.newLine" />
 			</template>
 		</div>
+	`
+	};
+
+	const UserStatusSize = {
+	  S: 'S',
+	  M: 'M',
+	  L: 'L',
+	  XL: 'XL',
+	  XXL: 'XXL'
+	};
+
+	// @vue/component
+	const UserStatus = {
+	  name: 'UserStatus',
+	  props: {
+	    status: {
+	      type: String,
+	      required: true,
+	      validator(value) {
+	        return Object.values(im_v2_const.UserStatus).includes(value);
+	      }
+	    },
+	    size: {
+	      type: String,
+	      default: UserStatusSize.M,
+	      validator(value) {
+	        return Object.values(UserStatusSize).includes(value);
+	      }
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    containerClasses() {
+	      return [`--size-${this.size.toLowerCase()}`, `--${this.status}`];
+	    }
+	  },
+	  template: `
+		<div :class="containerClasses" class="bx-im-user-status__container bx-im-user-status__scope"></div>
 	`
 	};
 
@@ -2838,7 +2807,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					'bx-im-audio-player__control-pause': !loading && state === State.play,
 				}]" @click="clickToButton"></button>
 				<div v-if="withAvatar" class="bx-im-audio-player__author-avatar-container">
-					<Avatar :dialogId="fileAuthorDialogId" :withStatus="false" :size="AvatarSize.XS"></Avatar>
+					<Avatar :dialogId="fileAuthorDialogId" :size="AvatarSize.XS"></Avatar>
 				</div>
 			</div>
 			<div class="bx-im-audio-player__timeline-container">
@@ -3246,5 +3215,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.EditableChatTitle = EditableChatTitle;
 	exports.ScrollWithGradient = ScrollWithGradient;
 
-}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Model,BX.Messenger.v2.Lib,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Main,BX,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Model,BX.Messenger.v2.Lib,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Main,BX,BX.Vue3.Components,BX,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

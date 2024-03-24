@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Message\Reaction;
 
+use Bitrix\Main\ORM;
 use Bitrix\Im\Model\ReactionTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\User\UserShortPopupItem;
@@ -165,18 +166,31 @@ class ReactionMessages extends Registry implements RestConvertible, PopupDataAgg
 			return $this;
 		}
 
-		$result = ReactionTable::query()
-			->setSelect(['MESSAGE_ID', 'REACTION', 'USERS_GROUP'])
+		$derivedQuery = ReactionTable::query()
+			->setSelect(['MESSAGE_ID', 'REACTION'])
+			->setGroup(['MESSAGE_ID', 'REACTION'])
 			->whereIn('MESSAGE_ID', $messagesNeedFillUsers)
 			->having('COUNT', '<=', ReactionMessage::COUNT_DISPLAYED_USERS)
-			->fetchAll()
+		;
+		$entity = ORM\Entity::getInstanceByQuery($derivedQuery);
+
+		$result = ReactionTable::query()
+			->setSelect(['MESSAGE_ID', 'REACTION', 'USER_ID'])
+			->registerRuntimeField(
+				(new ORM\Fields\Relations\Reference(
+					'USERS_GROUP',
+					$entity,
+					ORM\Query\Join::on('this.MESSAGE_ID', 'ref.MESSAGE_ID')
+						->whereColumn('this.REACTION', 'ref.REACTION')
+				))->configureJoinType(ORM\Query\Join::TYPE_INNER)
+			)
+			->exec()
 		;
 
-		foreach ($result as $row)
+		while ($row = $result->fetch())
 		{
-			$userIds = array_map('intval', explode(',', $row['USERS_GROUP']));
-			$reactionMessage = $this->getReactionMessage((int)$row['MESSAGE_ID'])->addUsers($row['REACTION'], $userIds);
-			if ($this->withOwnReactions && in_array($this->getContext()->getUserId(), $userIds, true))
+			$reactionMessage = $this->getReactionMessage((int)$row['MESSAGE_ID'])->addUsers($row['REACTION'], [(int)$row['USER_ID']]);
+			if ($this->withOwnReactions && $this->getContext()->getUserId() == (int)$row['USER_ID'])
 			{
 				$reactionMessage->addOwnReaction($row['REACTION']);
 			}

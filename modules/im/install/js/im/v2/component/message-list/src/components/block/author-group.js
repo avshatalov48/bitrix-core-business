@@ -44,7 +44,6 @@ export const AuthorGroup = {
 				<Avatar
 					:dialogId="authorGroup.avatar.avatarId"
 					:size="AvatarSize.L"
-					:withStatus="false"
 					@click="onAvatarClick"
 				/>
 			</div>

@@ -403,7 +403,7 @@ class HighloadBlockTable extends Entity\DataManager
 		if (empty($hlblock))
 		{
 			throw new Main\SystemException(sprintf(
-				'Invalid highloadblock description `%s`.', mydump($rawBlock)
+				"Invalid highloadblock description '%s'.", mydump($rawBlock)
 			));
 		}
 		unset($rawBlock);

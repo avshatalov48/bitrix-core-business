@@ -61,7 +61,10 @@ class ExportedProductTable extends Entity\DataManager
 			'TIMESTAMP_X' => [
 				'data_type' => 'datetime',
 				'required' => true,
-				'default_value' => [__CLASS__, 'getCurrentDate'],
+				'default_value' => function()
+				{
+					return new DateTime();
+				},
 			],
 			'ERROR' => [
 				'data_type' => 'text',
@@ -75,11 +78,6 @@ class ExportedProductTable extends Entity\DataManager
 		return [
 			new LengthValidator(null, 100),
 		];
-	}
-
-	public static function getCurrentDate(): DateTime
-	{
-		return new DateTime();
 	}
 
 	public static function deleteProduct(int $id): void
@@ -97,5 +95,4 @@ class ExportedProductTable extends Entity\DataManager
 		);
 		unset($helper, $conn);
 	}
-
 }

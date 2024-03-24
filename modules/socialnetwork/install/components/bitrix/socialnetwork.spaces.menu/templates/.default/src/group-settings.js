@@ -1,41 +1,21 @@
-import { ajax, AjaxError, AjaxResponse, Cache } from 'main.core';
-import { MenuAjax } from './menu-ajax';
+import { AjaxError, Cache, Dom } from 'main.core';
 import { BaseEvent } from 'main.core.events';
+import { Controller, GroupData } from 'socialnetwork.controller';
+import { LogoData } from 'socialnetwork.logo';
 import { PopupComponentsMaker } from 'ui.popupcomponentsmaker';
 import { Chat } from './chat';
-import { Logo } from './logo';
-import { MenuRouter } from './menu-router';
 import { ChatAction } from './settings-elements/chat-action';
 import { Follow } from './settings-elements/follow';
 import { Info } from './settings-elements/info';
-import { Member, Members } from './settings-elements/members';
+import { Members } from './settings-elements/members';
 import { Pin } from './settings-elements/pin';
 import { Roles } from './settings-elements/roles';
-
-import type { LogoData } from './logo';
 
 type Params = {
 	bindElement: HTMLElement,
 	groupId: number,
 	logo: LogoData,
 	chat: Chat,
-	router: MenuRouter,
-}
-
-type GroupData = {
-	name: string,
-	isPin: boolean,
-	privacyCode: string,
-	isSubscribed: boolean,
-	numberOfMembers: number,
-	listOfMembers: Array<Member>,
-	actions: Perms,
-	counters: { [key: string]: number },
-}
-
-export type Perms = {
-	canEdit: boolean,
-	canInvite: boolean,
 }
 
 export class GroupSettings
@@ -43,6 +23,9 @@ export class GroupSettings
 	#cache = new Cache.MemoryCache();
 
 	#menu: PopupComponentsMaker;
+	#info: Info;
+	#groupData: GroupData;
+	#groupSettings;
 
 	#layout = {
 		members: null,
@@ -57,14 +40,43 @@ export class GroupSettings
 
 	show()
 	{
-		if (this.#menu.isShown())
+		this.#menu.show();
+		this.#adjustPopup();
+	}
+
+	update(groupDataPromise: Promise)
+	{
+		// eslint-disable-next-line promise/catch-or-return
+		groupDataPromise.then((groupData: GroupData) => {
+			this.#groupData = groupData;
+			this.#info.update(groupData);
+		});
+
+		this.#renderMembers(groupDataPromise);
+	}
+
+	#adjustPopup()
+	{
+		const popup = this.#menu.getPopup();
+		const popupContainer = popup.getPopupContainer();
+		const popupRect = popupContainer.getBoundingClientRect();
+
+		if (Math.abs(popupRect.right - popup.bindElement.getBoundingClientRect().right) >= 2)
 		{
-			this.#menu.close();
+			return;
 		}
-		else
-		{
-			this.#menu.show();
-		}
+
+		const left = popupRect.left;
+		const leftAdjusted = popupRect.right + 20 - popupRect.width;
+
+		const angleContainer = popup.angle.element;
+
+		Dom.style(popupContainer, 'left', `${leftAdjusted}px`);
+		Dom.style(
+			angleContainer,
+			'left',
+			`${parseInt(Dom.style(angleContainer, 'left'), 10) - (leftAdjusted - left)}px`,
+		);
 	}
 
 	#setParams(params: Params)
@@ -79,7 +91,28 @@ export class GroupSettings
 
 	#createMenu(): PopupComponentsMaker
 	{
-		const groupDataPromise = MenuAjax.getGroupData(this.#getParam('groupId'));
+		const groupDataPromise = Controller.getGroupData(
+			this.#getParam('groupId'),
+			[
+				'AVATAR',
+				'ACTIONS',
+				'NUMBER_OF_MEMBERS',
+				'LIST_OF_MEMBERS',
+				'GROUP_MEMBERS_LIST',
+				'PRIVACY_TYPE',
+				'PIN',
+				'USER_DATA',
+				'COUNTERS',
+				'DESCRIPTION',
+				'EFFICIENCY',
+				'SUBJECT_DATA',
+				'DATE_CREATE',
+			],
+		);
+		// eslint-disable-next-line promise/catch-or-return
+		groupDataPromise.then((groupData: GroupData) => {
+			this.#groupData = groupData;
+		});
 
 		return new PopupComponentsMaker({
 			id: 'spaces-settings-menu',
@@ -120,7 +153,7 @@ export class GroupSettings
 							backgroundColor: '#fafafa',
 						},
 						{
-							html: this.#renderRoles(),
+							html: this.#renderRoles(groupDataPromise),
 							backgroundColor: '#fafafa',
 						},
 					],
@@ -135,22 +168,19 @@ export class GroupSettings
 			// eslint-disable-next-line promise/catch-or-return
 			groupDataPromise
 				.then((groupData: GroupData) => {
-					const info = new Info({
+					this.#info = new Info({
+						groupId: groupData.id,
 						title: groupData.name,
-						logo: new Logo(this.#getParam('logo')),
+						logo: this.#getParam('logo'),
 						privacyCode: groupData.privacyCode,
 						actions: groupData.actions,
 					});
-					info.subscribe('changePrivacy', this.#changePrivacy.bind(this));
-					info.subscribe('changeTitle', this.#changeTitle.bind(this));
-					info.subscribe('setAutoHide', (baseEvent: BaseEvent) => {
+					this.#info.subscribe('setAutoHide', (baseEvent: BaseEvent) => {
 						this.#menu.getPopup().setAutoHide(baseEvent.getData());
 					});
-					info.subscribe('more', () => {
-						console.log('more');
-					});
+					this.#info.subscribe('more', this.#openSettingsSlider.bind(this));
 
-					resolve(info.render());
+					resolve(this.#info.render());
 				})
 			;
 		});
@@ -176,11 +206,6 @@ export class GroupSettings
 		return chat.render();
 	}
 
-	update(groupDataPromise: Promise)
-	{
-		this.#renderMembers(groupDataPromise);
-	}
-
 	#renderMembers(groupDataPromise: Promise): Promise
 	{
 		return new Promise((resolve) => {
@@ -195,11 +220,11 @@ export class GroupSettings
 					});
 					members.subscribe('showUsers', (baseEvent: BaseEvent<'all' | 'in' | 'out'>) => {
 						this.#menu.close();
-						this.#getParam('router').openGroupUsers(baseEvent.getData());
+						Controller.openGroupUsers(baseEvent.getData());
 					});
 					members.subscribe('invite', () => {
 						this.#menu.close();
-						this.#getParam('router').openGroupInvite();
+						Controller.openGroupInvite();
 					});
 
 					const layoutMembers = members.render();
@@ -227,11 +252,7 @@ export class GroupSettings
 					});
 
 					follow.subscribe('update', (baseEvent: BaseEvent) => {
-						this.#changeSubscribe(
-							this.#getParam('groupId'),
-							baseEvent.getData() === true ? 'Y' : 'N',
-							follow,
-						);
+						this.#changeSubscribe(this.#groupData.id, baseEvent.getData(), follow);
 					});
 
 					resolve(follow.render());
@@ -251,11 +272,7 @@ export class GroupSettings
 					});
 
 					pin.subscribe('update', (baseEvent: BaseEvent) => {
-						this.#changePin(
-							this.#getParam('groupId'),
-							baseEvent.getData() === true ? 'pin' : 'unpin',
-							pin,
-						);
+						this.#changePin(this.#groupData.id, baseEvent.getData(), pin);
 					});
 
 					resolve(pin.render());
@@ -264,116 +281,75 @@ export class GroupSettings
 		});
 	}
 
-	#renderRoles(): HTMLElement
+	#renderRoles(groupDataPromise: Promise): Promise
 	{
-		const roles = new Roles();
+		return new Promise((resolve) => {
+			// eslint-disable-next-line promise/catch-or-return
+			groupDataPromise
+				.then((groupData: GroupData) => {
+					const roles = new Roles({
+						canEdit: groupData.actions.canEditFeatures,
+					});
 
-		roles.subscribe('click', () => {
-			this.#menu.close();
-			this.#getParam('router').openGroupFeatures();
+					roles.subscribe('click', () => {
+						this.#menu.close();
+						Controller.openGroupFeatures();
+					});
+
+					resolve({
+						node: roles.render(),
+						options: {
+							disabled: !groupData.actions.canEditFeatures,
+						},
+					});
+				})
+			;
 		});
-
-		return roles.render();
 	}
 
-	#changeSubscribe(groupId: number, value: 'Y' | 'N', follow: Follow)
+	#changeSubscribe(groupId: number, isSubscribed: boolean, follow: Follow)
 	{
-		// eslint-disable-next-line promise/catch-or-return
-		ajax.runAction('socialnetwork.api.workgroup.setSubscription', {
-			data: {
-				params: {
-					groupId,
-					value,
-				},
-			},
-		})
-			.then((response: AjaxResponse) => {
-				follow.unDisable();
-			})
-			.catch((error: AjaxError) => {
-				follow.unDisable();
+		Controller.setSubscription(groupId, isSubscribed).then(() => {
+			follow?.unDisable();
+		}).catch((error: AjaxError) => {
+			follow?.unDisable();
 
-				this.#consoleError('changeSubscribe', error);
-			})
-		;
+			this.#consoleError('changeSubscribe', error);
+		});
 	}
 
-	#changePin(groupId: number, action: 'pin' | 'unpin', pin: Pin)
+	#changePin(groupId: number, isPinned: boolean, pin: Pin)
 	{
-		// eslint-disable-next-line promise/catch-or-return
-		ajax.runAction('socialnetwork.api.workgroup.changePin', {
-			data: {
-				groupIdList: [groupId],
-				action: action,
-			},
-		})
-			.then((response: AjaxResponse) => {
-				pin.unDisable();
-			})
-			.catch((error: AjaxError) => {
-				pin.unDisable();
+		Controller.changePin(groupId, isPinned).then(() => {
+			pin?.unDisable();
+		}).catch((error: AjaxError) => {
+			pin?.unDisable();
 
-				this.#consoleError('changePin', error);
-			})
-		;
+			this.#consoleError('changePin', error);
+		});
 	}
 
-	#changePrivacy(baseEvent: BaseEvent)
+	async #openSettingsSlider(): void
 	{
-		const privacyCode: 'open' | 'closed' | 'secret' = baseEvent.getData();
-
-		const fields = {};
-		if (privacyCode === 'open')
-		{
-			fields.VISIBLE = 'Y';
-			fields.OPENED = 'Y';
-			fields.EXTERNAL = 'N';
-		}
-
-		if (privacyCode === 'closed')
-		{
-			fields.VISIBLE = 'Y';
-			fields.OPENED = 'N';
-			fields.EXTERNAL = 'N';
-		}
-
-		if (privacyCode === 'secret')
-		{
-			fields.VISIBLE = 'N';
-			fields.OPENED = 'N';
-			fields.EXTERNAL = 'N';
-		}
-
-		// eslint-disable-next-line promise/catch-or-return
-		ajax.runAction('socialnetwork.api.workgroup.update', {
-			data: {
-				groupId: this.#getParam('groupId'),
-				fields: fields,
-			},
-		})
-			.then((response: AjaxResponse) => {})
-			.catch((error: AjaxError) => {
-				this.#consoleError('changePrivacy', error);
-			})
-		;
+		(await this.#getGroupSettings()).openInSlider();
+		this.#menu.close();
 	}
 
-	#changeTitle(baseEvent: BaseEvent)
+	async #getGroupSettings(): Promise
 	{
-		// eslint-disable-next-line promise/catch-or-return
-		ajax.runAction('socialnetwork.api.workgroup.update', {
-			data: {
-				groupId: this.#getParam('groupId'),
-				fields: {
-					NAME: baseEvent.getData(),
-				},
-			},
-		})
-			.then((response: AjaxResponse) => {})
-			.catch((error: AjaxError) => {
-				this.#consoleError('changeTitle', error);
-			})
-		;
+		this.#groupSettings ??= await this.#createGroupSettings();
+
+		return this.#groupSettings;
+	}
+
+	async #createGroupSettings(): Promise
+	{
+		const { GroupSettings } = await top.BX.Runtime.loadExtension('socialnetwork.group-settings');
+
+		return new GroupSettings({
+			groupData: this.#groupData,
+			logo: this.#getParam('logo'),
+		});
 	}
 
 	#consoleError(action: string, error: AjaxError)

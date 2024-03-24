@@ -811,7 +811,7 @@ class Site
 	{
 		$result = new PublicActionResult();
 
-		if (Rights::hasAccessForSite($id, Rights::ACCESS_TYPES['read']))
+		if (Rights::hasAccessForSite($id, Rights::ACCESS_TYPES['read']) && !$binding->isForbiddenBindingAction())
 		{
 			if ($bind)
 			{

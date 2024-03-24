@@ -197,7 +197,6 @@ trait ItemFinder
 				[],
 				$itemFilter,
 				false,
-				false,
 				['ID']
 			);
 			while ($row = $iterator->Fetch())

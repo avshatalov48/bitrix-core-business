@@ -35,7 +35,8 @@ abstract class CommonHelper
 	{
 		$map = array();
 
-		$dbHelper = Main\HttpApplication::getConnection()->getSqlHelper();
+		$dbConnection = Main\HttpApplication::getConnection();
+		$dbHelper = $dbConnection->getSqlHelper();
 
 		if(is_array($fields))
 		{
@@ -43,12 +44,14 @@ abstract class CommonHelper
 				$map[] = $dbHelper->forSql($fld);
 		}
 
-		return 'INSERT IGNORE INTO '.$dbHelper->forSql($tableName).' ('.implode(',', $map).') values ';
+		return 'INSERT ' . ($dbConnection->getType() === 'pgsql' ? '' : 'IGNORE ') . 'INTO '.$dbHelper->forSql($tableName).' ('.implode(',', $map).') values ';
 	}
 
 	public static function getBatchInsertTail()
 	{
-		return '';
+		$dbConnection = Main\HttpApplication::getConnection();
+
+		return $dbConnection->getType() === 'pgsql' ? ' ON CONFLICT DO NOTHING' : '';
 	}
 
 	public static function getBatchInsertSeparator()

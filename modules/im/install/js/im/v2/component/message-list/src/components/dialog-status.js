@@ -113,7 +113,7 @@ export const DialogStatus = {
 			if (countOfViewers === 1)
 			{
 				return this.loc('IM_DIALOG_CHAT_STATUS_READ_CHAT', {
-					'#USER#': firstViewer.userName,
+					'#USER#': Text.encode(firstViewer.userName),
 				});
 			}
 

@@ -1,13 +1,15 @@
-<?
-define("ADMIN_MODULE_NAME", "bitrixcloud");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+<?php
+define('ADMIN_MODULE_NAME', 'bitrixcloud');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 IncludeModuleLangFile(__FILE__);
-/** @global CMain $APPLICATION */
-/** @global CUser $USER */
-if (!$USER->CanDoOperation("bitrixcloud_backup") || !CModule::IncludeModule("bitrixcloud"))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+/** @var CMain $APPLICATION */
+/** @var CUser $USER */
+if (!$USER->CanDoOperation('bitrixcloud_backup') || !CModule::IncludeModule('bitrixcloud'))
+{
+	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
+}
 
-$APPLICATION->SetTitle(GetMessage("BCL_BACKUP_TITLE"));
+$APPLICATION->SetTitle(GetMessage('BCL_BACKUP_TITLE'));
 
 try
 {
@@ -15,63 +17,67 @@ try
 	$arFiles = $backup->listFiles();
 	$backup->saveToOptions();
 
-	$sTableID = "t_bitrixcloud_backup";
+	$sTableID = 't_bitrixcloud_backup';
 	$lAdmin = new CAdminList($sTableID);
-	$arHeaders = array(
-		array(
-			"id" => "FILE_NAME",
-			"content" => GetMessage("BCL_BACKUP_FILE_NAME"),
-			"default" => true,
-		),
-		array(
-			"id" => "FILE_SIZE",
-			"content" => GetMessage("BCL_BACKUP_FILE_SIZE"),
-			"align" => "right",
-			"default" => true,
-		),
-	);
+	$arHeaders = [
+		[
+			'id' => 'FILE_NAME',
+			'content' => GetMessage('BCL_BACKUP_FILE_NAME'),
+			'default' => true,
+		],
+		[
+			'id' => 'FILE_SIZE',
+			'content' => GetMessage('BCL_BACKUP_FILE_SIZE'),
+			'align' => 'right',
+			'default' => true,
+		],
+	];
 	$lAdmin->AddHeaders($arHeaders);
 	$rsData = new CDBResult;
 	$rsData->InitFromArray($arFiles);
 	$rsData = new CAdminResult($rsData, $sTableID);
-	$arData = array();
-	while($arRes = $rsData->GetNext())
+	$arData = [];
+	while ($arRes = $rsData->GetNext())
 	{
-		if (preg_match("/^(\\d{8}_\\d{6}_\\d+\\.enc\\.gz)/", $arRes["FILE_NAME"], $match))
+		if (preg_match('/^(\\d{8}_\\d{6}_\\d+\\.enc\\.gz)/', $arRes['FILE_NAME'], $match))
 		{
 			if (!isset($arData[$match[1]]))
+			{
 				$arData[$match[1]] = $arRes;
+			}
 			else
-				$arData[$match[1]]["FILE_SIZE"] += $arRes["FILE_SIZE"];
+			{
+				$arData[$match[1]]['FILE_SIZE'] += $arRes['FILE_SIZE'];
+			}
 		}
 		else
 		{
-			$arData[$arRes["FILE_NAME"]] = $arRes;
+			$arData[$arRes['FILE_NAME']] = $arRes;
 		}
 	}
 	krsort($arData);
 	foreach ($arData as $arRes)
 	{
-		$row = $lAdmin->AddRow($arRes["FILE_NAME"], $arRes);
-		$row->AddViewField("FILE_SIZE", CFile::FormatSize($arRes["FILE_SIZE"]));
+		$row = $lAdmin->AddRow($arRes['FILE_NAME'], $arRes);
+		$row->AddViewField('FILE_SIZE', CFile::FormatSize($arRes['FILE_SIZE']));
 	}
 
-	if(CModule::IncludeModule('clouds'))
+	if (CModule::IncludeModule('clouds'))
 	{
-		$aContext = array(
-			array(
-				"TEXT" => GetMessage("BCL_BACKUP_DO_BACKUP"),
-				"LINK" => "/bitrix/admin/dump.php?lang=".LANGUAGE_ID."&from=bitrixcloud",
-				"TITLE" => "",
-				"ICON" => "btn_new",
-			),
-		);
+		$aContext = [
+			[
+				'TEXT' => GetMessage('BCL_BACKUP_DO_BACKUP'),
+				'LINK' => '/bitrix/admin/dump.php?lang=' . LANGUAGE_ID . '&from=bitrixcloud',
+				'TITLE' => '',
+				'ICON' => 'btn_new',
+			],
+		];
 		$lAdmin->AddAdminContextMenu($aContext, /*$bShowExcel=*/false);
 	}
 
 	$lAdmin->CheckListMode();
 
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 	/*
 	CModule::IncludeModule("bitrixcloud");
 	$backup = CBitrixCloudBackup::getInstance();
@@ -111,26 +117,25 @@ try
 		}
 	}
 	*/
-	CAdminMessage::ShowMessage(array(
-		"TYPE" => "PROGRESS",
-		"DETAILS" => '<p><b>'.GetMessage("BCL_BACKUP_USAGE", array(
-			"#QUOTA#" => CFile::FormatSize($backup->getQuota()),
-			"#USAGE#" => CFile::FormatSize($backup->getUsage()),
-		)).'</b></p>#PROGRESS_BAR#',
-		"HTML" => true,
-		"PROGRESS_TOTAL" => $backup->getQuota(),
-		"PROGRESS_VALUE" => $backup->getUsage(),
-	));
+	CAdminMessage::ShowMessage([
+		'TYPE' => 'PROGRESS',
+		'DETAILS' => '<p><b>' . GetMessage('BCL_BACKUP_USAGE', [
+			'#QUOTA#' => CFile::FormatSize($backup->getQuota()),
+			'#USAGE#' => CFile::FormatSize($backup->getUsage()),
+		]) . '</b></p>#PROGRESS_BAR#',
+		'HTML' => true,
+		'PROGRESS_TOTAL' => $backup->getQuota(),
+		'PROGRESS_VALUE' => $backup->getUsage(),
+	]);
 
 	$lAdmin->DisplayList();
-	echo BeginNote(), GetMessage("BCL_BACKUP_NOTE"), EndNote();
+	echo BeginNote(), GetMessage('BCL_BACKUP_NOTE'), EndNote();
 }
 catch (Exception $e)
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 	CAdminMessage::ShowMessage($e->getMessage());
 	$arFiles = false;
 }
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';

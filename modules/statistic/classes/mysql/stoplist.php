@@ -164,8 +164,8 @@ class CStoplist extends CAllStopList
 			if ($arParams===false)
 			{
 				$ip = explode(".", $_SERVER["REMOTE_ADDR"]);
-				$user_agent = trim($_SERVER["HTTP_USER_AGENT"]);
-				$url_from = isset($_SERVER["HTTP_REFERER"])? $_SERVER["HTTP_REFERER"]: "";
+				$user_agent = trim($_SERVER["HTTP_USER_AGENT"] ?? '');
+				$url_from = $_SERVER["HTTP_REFERER"] ?? '';
 				$url_to = __GetFullRequestUri();
 				if (defined("SITE_ID"))
 					$site_id = SITE_ID;

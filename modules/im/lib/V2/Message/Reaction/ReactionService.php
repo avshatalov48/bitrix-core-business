@@ -144,7 +144,7 @@ class ReactionService
 		return "RATING|IM|{$type}|{$id}|{$reaction->getMessageId()}|{$reaction->getReaction()}";
 	}
 
-	private function getTextNotification(ReactionItem $reaction): string
+	private function getTextNotification(ReactionItem $reaction): callable
 	{
 		$genderModifier = "_{$this->getContext()->getUser()->getGender()}";
 		$chat = Chat::getInstance($reaction->getChatId())->withContext($this->context);
@@ -152,22 +152,28 @@ class ReactionService
 
 		if ($chat instanceof Chat\PrivateChat)
 		{
-			return Loc::getMessage("{$code}_PRIVATE", [
+			return fn (?string $languageId = null) => Loc::getMessage(
+				"{$code}_PRIVATE",
+				[
+					'#DIALOG_ID#' => $chat->getDialogContextId(),
+					'#MESSAGE_ID#' => $this->message->getMessageId(),
+					'#QOUTED_MESSAGE#' => $this->message->getForPush(),
+					'#REACTION_NAME#' => $reaction->getLocName($languageId),
+				],
+				$languageId);
+		}
+
+		return fn (?string $languageId = null) => Loc::getMessage(
+			"{$code}_PRIVATE",
+			[
 				'#DIALOG_ID#' => $chat->getDialogContextId(),
 				'#MESSAGE_ID#' => $this->message->getMessageId(),
 				'#QOUTED_MESSAGE#' => $this->message->getForPush(),
-				'#REACTION_NAME#' => $reaction->getLocName(),
-			]);
-		}
-
-		return Loc::getMessage($code, [
-			'#DIALOG_ID#' => $chat->getDialogContextId(),
-			'#MESSAGE_ID#' => $this->message->getMessageId(),
-			'#QOUTED_MESSAGE#' => $this->message->getForPush(),
-			'#CHAT_ID#' => $this->message->getChatId(),
-			'#CHAT_TITLE#' => $chat->getTitle(),
-			'#REACTION_NAME#' => $reaction->getLocName(),
-		]);
+				'#CHAT_ID#' => $this->message->getChatId(),
+				'#CHAT_TITLE#' => $chat->getTitle(),
+				'#REACTION_NAME#' => $reaction->getLocName($languageId),
+			],
+			$languageId);
 	}
 
 	private function processAddForLiveChat(string $reaction): void

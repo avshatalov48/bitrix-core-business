@@ -22,7 +22,20 @@ use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SharingLinkRule_Query query()
+ * @method static EO_SharingLinkRule_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_SharingLinkRule_Result getById($id)
+ * @method static EO_SharingLinkRule_Result getList(array $parameters = [])
+ * @method static EO_SharingLinkRule_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkRule createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkRule_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkRule wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLinkRule_Collection wakeUpCollection($rows)
+ */
 
 class SharingLinkRuleTable extends DataManager
 {

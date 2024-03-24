@@ -11,7 +11,8 @@ export type ItemOptions = {
 	onclick: ?Function;
 	id: ?string;
 	items: ?Array<ItemOptions>;
-	actions?: Array<ActionOptions>
+	actions?: Array<ActionOptions>;
+	moduleId: ?string;
 };
 
 type ActionOptions = {
@@ -29,7 +30,8 @@ export class Item extends EventEmitter
 	#onclick: ?Function;
 	#collection: Collection;
 	#node: HTMLElement;
-	#actions: Array<ActionOptions>
+	#actions: Array<ActionOptions>;
+	#moduleId: ?string;
 
 	constructor(options: ItemOptions)
 	{
@@ -45,6 +47,7 @@ export class Item extends EventEmitter
 			.setItems(options.items)
 			.setClickHandler(options.onclick)
 			.setActions(options.actions)
+			.setModuleId(options.moduleId)
 		;
 
 		this.#collection.subscribe('sync:active', () => this.emit('sync:active'));
@@ -102,6 +105,13 @@ export class Item extends EventEmitter
 		return this;
 	}
 
+	setModuleId(moduleId: ?string): Item
+	{
+		this.#moduleId = moduleId;
+
+		return this;
+	}
+
 	setActions(actions: Array<ActionOptions> = []): Item
 	{
 		this.#actions = actions;
@@ -129,6 +139,11 @@ export class Item extends EventEmitter
 	getId(): ?string
 	{
 		return this.#id;
+	}
+
+	getModuleId(): ?string
+	{
+		return this.#moduleId;
 	}
 
 	getClickHandler(): ?Function

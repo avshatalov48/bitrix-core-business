@@ -25,7 +25,7 @@ class Sender extends Providers\Edna\Sender
 	{
 		return new ExternalSender(
 			$this->optionManager->getOption(Providers\Constants\InternalOption::API_KEY),
-			Constants::API_ENDPOINT,
+			RegionHelper::getApiEndPoint(),
 			$this->optionManager->getSocketTimeout(),
 			$this->optionManager->getStreamTimeout()
 		);

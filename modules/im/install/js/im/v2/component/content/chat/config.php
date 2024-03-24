@@ -18,6 +18,7 @@ return [
 		'im.v2.component.textarea',
 		'im.v2.lib.theme',
 		'im.v2.lib.textarea',
+		'im.v2.component.sidebar',
 		'im.v2.lib.layout',
 		'im.v2.lib.logger',
 		'im.v2.component.entity-selector',
@@ -25,11 +26,11 @@ return [
 		'im.v2.lib.local-storage',
 		'im.v2.lib.permission',
 		'im.v2.lib.menu',
+		'im.v2.lib.rest',
 		'im.public',
 		'im.v2.lib.call',
 		'main.core',
 		'im.v2.lib.utils',
-		'im.v2.component.sidebar',
 		'im.v2.application.core',
 		'im.v2.const',
 		'im.v2.component.elements',
@@ -38,6 +39,8 @@ return [
 	],
 	'skip_core' => false,
 	'settings' => [
-		'isCallBetaAvailable' => \Bitrix\Im\Settings::isCallBetaAvailable()
+		'isBitrixCallEnabled' => \Bitrix\Im\Call\Call::isBitrixCallEnabled(),
+		'isZoomActive' => \Bitrix\Im\Call\Integration\Zoom::isActive(),
+		'isZoomFeatureAvailable' => \Bitrix\Im\Call\Integration\Zoom::isAvailable(),
 	]
 ];

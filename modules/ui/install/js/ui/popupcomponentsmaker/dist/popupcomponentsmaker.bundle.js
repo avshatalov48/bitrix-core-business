@@ -6,29 +6,48 @@ this.BX = this.BX || {};
 	let _ = t => t,
 	  _t;
 	class PopupComponentsMakerItem extends main_core_events.EventEmitter {
+	  // eslint-disable-next-line @bitrix24/bitrix24-rules/no-eventemitter-without-namespace
 	  constructor(options = {}) {
 	    super();
-	    this.html = main_core.Type.isDomNode(options == null ? void 0 : options.html) ? options.html : null;
-	    this.awaitContent = main_core.Type.isBoolean(options == null ? void 0 : options.awaitContent) ? options == null ? void 0 : options.awaitContent : null;
-	    this.flex = main_core.Type.isNumber(options == null ? void 0 : options.flex) ? options.flex : null;
-	    this.withoutBackground = main_core.Type.isBoolean(options == null ? void 0 : options.withoutBackground) ? options.withoutBackground : null;
-	    this.backgroundColor = main_core.Type.isString(options == null ? void 0 : options.backgroundColor) ? options.backgroundColor : null;
-	    this.backgroundImage = main_core.Type.isString(options == null ? void 0 : options.backgroundImage) ? options.backgroundImage : null;
-	    this.marginBottom = main_core.Type.isNumber(options == null ? void 0 : options.marginBottom) ? options.marginBottom : null;
-	    this.disabled = main_core.Type.isBoolean(options == null ? void 0 : options.disabled) ? options.disabled : null;
-	    this.secondary = main_core.Type.isBoolean(options == null ? void 0 : options.secondary) ? options.secondary : null;
-	    this.overflow = main_core.Type.isBoolean(options == null ? void 0 : options.overflow) ? options.overflow : null;
-	    this.displayBlock = main_core.Type.isBoolean(options == null ? void 0 : options.displayBlock) ? options.displayBlock : null;
-	    this.attrs = main_core.Type.isPlainObject(options == null ? void 0 : options.attrs) ? options.attrs : null;
-	    this.minHeight = main_core.Type.isString(options == null ? void 0 : options.minHeight) ? options.minHeight : null;
-	    this.sizeLoader = main_core.Type.isNumber(options == null ? void 0 : options.sizeLoader) ? options.sizeLoader : 45;
-	    this.asyncSecondary = (options == null ? void 0 : options.asyncSecondary) instanceof Promise ? options.asyncSecondary : null;
+	    this.html = null;
+	    this.awaitContent = null;
+	    this.flex = null;
+	    this.withoutBackground = null;
+	    this.backgroundColor = null;
+	    this.backgroundImage = null;
+	    this.marginBottom = null;
+	    this.disabled = null;
+	    this.secondary = null;
+	    this.overflow = null;
+	    this.displayBlock = null;
+	    this.attrs = null;
+	    this.minHeight = null;
+	    this.sizeLoader = 45;
+	    this.asyncSecondary = null;
+	    this.setParams(options);
 	    this.layout = {
 	      container: null
 	    };
 	    if (this.awaitContent) {
 	      this.await();
 	    }
+	  }
+	  setParams(options = {}) {
+	    this.html = main_core.Type.isDomNode(options == null ? void 0 : options.html) ? options.html : this.html;
+	    this.awaitContent = main_core.Type.isBoolean(options == null ? void 0 : options.awaitContent) ? options == null ? void 0 : options.awaitContent : this.awaitContent;
+	    this.flex = main_core.Type.isNumber(options == null ? void 0 : options.flex) ? options.flex : this.flex;
+	    this.withoutBackground = main_core.Type.isBoolean(options == null ? void 0 : options.withoutBackground) ? options.withoutBackground : this.withoutBackground;
+	    this.backgroundColor = main_core.Type.isString(options == null ? void 0 : options.backgroundColor) ? options.backgroundColor : this.backgroundColor;
+	    this.backgroundImage = main_core.Type.isString(options == null ? void 0 : options.backgroundImage) ? options.backgroundImage : this.backgroundImage;
+	    this.marginBottom = main_core.Type.isNumber(options == null ? void 0 : options.marginBottom) ? options.marginBottom : this.marginBottom;
+	    this.disabled = main_core.Type.isBoolean(options == null ? void 0 : options.disabled) ? options.disabled : this.disabled;
+	    this.secondary = main_core.Type.isBoolean(options == null ? void 0 : options.secondary) ? options.secondary : this.secondary;
+	    this.overflow = main_core.Type.isBoolean(options == null ? void 0 : options.overflow) ? options.overflow : this.overflow;
+	    this.displayBlock = main_core.Type.isBoolean(options == null ? void 0 : options.displayBlock) ? options.displayBlock : this.displayBlock;
+	    this.attrs = main_core.Type.isPlainObject(options == null ? void 0 : options.attrs) ? options.attrs : this.attrs;
+	    this.minHeight = main_core.Type.isString(options == null ? void 0 : options.minHeight) ? options.minHeight : this.minHeight;
+	    this.sizeLoader = main_core.Type.isNumber(options == null ? void 0 : options.sizeLoader) ? options.sizeLoader : this.sizeLoader;
+	    this.asyncSecondary = (options == null ? void 0 : options.asyncSecondary) instanceof Promise ? options.asyncSecondary : this.asyncSecondary;
 	  }
 	  getLoader() {
 	    if (!this.loader) {
@@ -78,50 +97,47 @@ this.BX = this.BX || {};
 	      this.layout.container = main_core.Tag.render(_t || (_t = _`
 				<div class="ui-popupcomponentmaker__content--section-item">${0}</div>
 			`), this.getContent());
-	      if (this.backgroundColor) {
-	        this.layout.container.style.backgroundColor = this.backgroundColor;
-	      }
-	      if (this.backgroundImage) {
-	        this.layout.container.style.backgroundImage = this.backgroundImage;
-	      }
-	      if (this.withoutBackground && !this.backgroundColor) {
-	        this.layout.container.classList.add('--transparent');
-	      }
-	      if (this.flex) {
-	        this.layout.container.style.flex = this.flex;
-	      }
-	      if (this.disabled) {
-	        this.layout.container.classList.add('--disabled');
-	      }
-	      if (this.disabled) {
-	        this.layout.container.classList.add('--disabled');
-	      }
-	      if (this.secondary) {
-	        main_core.Dom.addClass(this.layout.container, '--secondary');
-	      }
-	      if (this.overflow) {
-	        this.layout.container.classList.add('--overflow-hidden');
-	      }
-	      if (this.displayBlock) {
-	        this.layout.container.classList.add('--block');
-	      }
-	      if (this.attrs) {
-	        main_core.Dom.adjust(this.layout.container, {
-	          attrs: this.attrs
-	        });
-	      }
-	      if (this.minHeight) {
-	        main_core.Dom.style(this.layout.container, 'min-height', this.minHeight);
-	      }
-	      if (this.asyncSecondary) {
-	        this.asyncSecondary.then(secondary => {
-	          if (secondary === false) {
-	            main_core.Dom.removeClass(this.layout.container, '--secondary');
-	          } else {
-	            main_core.Dom.addClass(this.layout.container, '--secondary');
-	          }
-	        });
-	      }
+	    }
+	    if (this.backgroundColor) {
+	      this.layout.container.style.backgroundColor = this.backgroundColor;
+	    }
+	    if (this.backgroundImage) {
+	      this.layout.container.style.backgroundImage = this.backgroundImage;
+	    }
+	    if (this.withoutBackground && !this.backgroundColor) {
+	      this.layout.container.classList.add('--transparent');
+	    }
+	    if (this.flex) {
+	      this.layout.container.style.flex = this.flex;
+	    }
+	    if (this.disabled) {
+	      this.layout.container.classList.add('--disabled');
+	    }
+	    if (this.secondary) {
+	      main_core.Dom.addClass(this.layout.container, '--secondary');
+	    }
+	    if (this.overflow) {
+	      this.layout.container.classList.add('--overflow-hidden');
+	    }
+	    if (this.displayBlock) {
+	      this.layout.container.classList.add('--block');
+	    }
+	    if (this.attrs) {
+	      main_core.Dom.adjust(this.layout.container, {
+	        attrs: this.attrs
+	      });
+	    }
+	    if (this.minHeight) {
+	      main_core.Dom.style(this.layout.container, 'min-height', this.minHeight);
+	    }
+	    if (this.asyncSecondary) {
+	      this.asyncSecondary.then(secondary => {
+	        if (secondary === false) {
+	          main_core.Dom.removeClass(this.layout.container, '--secondary');
+	        } else {
+	          main_core.Dom.addClass(this.layout.container, '--secondary');
+	        }
+	      });
 	    }
 	    return this.layout.container;
 	  }
@@ -275,10 +291,16 @@ this.BX = this.BX || {};
 	    if (sectionNode) {
 	      var _item$html2;
 	      sectionNode.appendChild(itemObj.getContainer());
-	      item == null ? void 0 : (_item$html2 = item.html) == null ? void 0 : _item$html2.then(node => {
-	        if (main_core.Type.isDomNode(node)) {
+	      item == null ? void 0 : (_item$html2 = item.html) == null ? void 0 : _item$html2.then(result => {
+	        if (main_core.Type.isDomNode(result)) {
 	          itemObj.stopAwait();
-	          itemObj.updateContent(node);
+	          itemObj.updateContent(result);
+	        } else if (main_core.Type.isPlainObject(result) && main_core.Type.isDomNode(result.node)) {
+	          if (main_core.Type.isPlainObject(result.options)) {
+	            itemObj.setParams(result.options);
+	          }
+	          itemObj.stopAwait();
+	          itemObj.updateContent(result.node);
 	        }
 	      });
 	    }

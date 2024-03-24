@@ -11,6 +11,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Contract\Arrayable;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Integration\Intranet\ThemePicker;
 use Bitrix\Socialnetwork\Space\List\Dictionary;
 use Bitrix\Socialnetwork\Space\List\FilterModeOption;
 use Bitrix\Socialnetwork\Space\List\SpaceListMode;
@@ -73,7 +74,7 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 		return $data;
 	}
 
-	public function reloadSpacesAction(string $mode, int $selectedSpaceId): ?array
+	public function reloadSpacesAction(string $mode): ?array
 	{
 		if (!Loader::includeModule('socialnetwork'))
 		{
@@ -86,7 +87,7 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 		}
 
 		$userId = Helper\User::getCurrentUserId();
-		$result = $this->getInitialSpaces($userId, $mode, $selectedSpaceId);
+		$result = $this->getInitialSpaces($userId, $mode);
 		if ($result->getErrors())
 		{
 			return null;
@@ -111,7 +112,7 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 		$provider = $this->getProvider($userId, Dictionary::FILTER_MODES['all']);
 		$provider->setOffset($loadedSpacesCount);
 
-		$result = $provider->searchSpacesByName($searchString);
+		$result = $provider->searchSpaces($searchString);
 		if ($result->getErrors())
 		{
 			return null;
@@ -167,14 +168,14 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 
 	public function loadSpaceDataAction(int $spaceId): ?array
 	{
-		if (!Loader::includeModule('socialnetwork') || $spaceId <= 0)
+		if (!Loader::includeModule('socialnetwork') || $spaceId < 0)
 		{
 			return null;
 		}
 
 		$userId = Helper\User::getCurrentUserId();
 
-		$invitation = (new InvitationManager($userId))->getInvitationBySpaceId($spaceId);
+		$invitation = $spaceId > 0 ? (new InvitationManager($userId))->getInvitationBySpaceId($spaceId) : null;
 		$space = (new Provider($userId))->getSpaceById($spaceId);
 
 		return [
@@ -183,6 +184,16 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 			'isInvitation' => !empty($invitation),
 			'spaceId' => $spaceId,
 		];
+	}
+
+	public function loadSpaceThemeAction(int $spaceId): ?array
+	{
+		if ($spaceId < 0 || !Loader::includeModule('socialnetwork'))
+		{
+			return null;
+		}
+
+		return ThemePicker::getGroupTheme($spaceId);
 	}
 
 	public function onIncludeComponentLang()
@@ -213,7 +224,6 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 		$getInitialSpacesResult = $this->getInitialSpaces(
 			$userId,
 			$this->arResult['FILTER_MODE'],
-			$this->arResult['SELECTED_SPACE_ID']
 		);
 
 		$recentSpaces = $getInitialSpacesResult->getData()['spaces'] ?? [];
@@ -234,11 +244,21 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 		$this->arResult['INVITATION_SPACE_IDS'] = $invitationSpaceIds;
 		$this->arResult['INVITATIONS'] = $this->castItemsToArray($invitations);
 		$this->arResult['AVATAR_COLORS'] = Helper\Workgroup::getAvatarColors();
+		$this->arResult['doShowCollapseMenuAhaMoment'] = $this->doShowCollapseMenuAhaMoment();
+		$this->arResult['USER_THEME'] = ThemePicker::getUserTheme();
 
 		$this->includeComponentTemplate();
 	}
 
-	private function getInitialSpaces(int $userId, string $mode, int $selectedSpaceId): \Bitrix\Main\Result
+	private function doShowCollapseMenuAhaMoment(): bool
+	{
+		$leftMenuCollapsed = \CUserOptions::GetOption('intranet', 'left_menu_collapsed') === 'Y';
+		$dontShowAhaMoment = \CUserOptions::GetOption('socialnetwork', 'dontShowCollapseMenuAhaMoment') === 'Y';
+
+		return !$leftMenuCollapsed && !$dontShowAhaMoment;
+	}
+
+	private function getInitialSpaces(int $userId, string $mode): \Bitrix\Main\Result
 	{
 		$provider = $this->getProvider($userId, $mode);
 		$result = $provider->getSpaces();
@@ -248,16 +268,6 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 			$data = $result->getData();
 			$spaces = $data['spaces'] ?? [];
 			$spaces[] = $provider->getCommonSpace();
-
-			$selectedSpace = null;
-			if (!$this->hasSpace($spaces, $selectedSpaceId))
-			{
-				$selectedSpace = $provider->getSpaceById($selectedSpaceId);
-			}
-			if (!empty($selectedSpace))
-			{
-				$spaces[] = $selectedSpace;
-			}
 
 			$data['spaces'] = $spaces;
 			$result->setData($data);

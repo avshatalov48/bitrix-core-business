@@ -71,31 +71,44 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 			</div>
 
 			<div class="col-sm-3">
-				<? $APPLICATION->IncludeComponent("bitrix:search.title", "bootstrap_v4", array(
-					"NUM_CATEGORIES" => "1",
-					"TOP_COUNT" => "5",
-					"CHECK_DATES" => "N",
-					"SHOW_OTHERS" => "N",
-					"PAGE" => "#system_catalog",
-					"CATEGORY_0" => array(
-						0 => "iblock_CRM_PRODUCT_CATALOG",
-					),
-					"CATEGORY_0_iblock_CRM_PRODUCT_CATALOG" => array(
-						0 => $settings['IBLOCK_ID'],
-					),
-					"SHOW_INPUT" => "Y",
-					"INPUT_ID" => "title-search-input",
-					"CONTAINER_ID" => "search",
-					"PRICE_CODE" => array(
-						0 => "BASE",
-					),
-					"SHOW_PREVIEW" => "Y",
-					"PREVIEW_WIDTH" => "75",
-					"PREVIEW_HEIGHT" => "75",
-					"CONVERT_CURRENCY" => "Y",
-				),
-					false
-				); ?>
+				<?php
+					$canUseSearch =
+						\Bitrix\Main\Loader::includeModule('search')
+						|| \Bitrix\Landing\Block::checkComponentExists('bitrix:search.title')
+					;
+				?>
+				<?php if ($canUseSearch) : ?>
+				<?php
+					$APPLICATION->IncludeComponent(
+						"bitrix:search.title",
+						"bootstrap_v4",
+						[
+							"NUM_CATEGORIES" => "1",
+							"TOP_COUNT" => "5",
+							"CHECK_DATES" => "N",
+							"SHOW_OTHERS" => "N",
+							"PAGE" => "#system_catalog",
+							"CATEGORY_0" => [
+								0 => "iblock_CRM_PRODUCT_CATALOG",
+							],
+							"CATEGORY_0_iblock_CRM_PRODUCT_CATALOG" => [
+								0 => $settings['IBLOCK_ID'],
+							],
+							"SHOW_INPUT" => "Y",
+							"INPUT_ID" => "title-search-input",
+							"CONTAINER_ID" => "search",
+							"PRICE_CODE" => [
+								0 => "BASE",
+							],
+							"SHOW_PREVIEW" => "Y",
+							"PREVIEW_WIDTH" => "75",
+							"PREVIEW_HEIGHT" => "75",
+							"CONVERT_CURRENCY" => "Y",
+						],
+						false
+					);
+				?>
+				<?php endif; ?>
 			</div>
 		</div>
 	</div>

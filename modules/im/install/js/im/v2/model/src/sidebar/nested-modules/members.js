@@ -1,10 +1,20 @@
-import {Type} from 'main.core';
-import {BuilderModel} from 'ui.vue3.vuex';
+import { Type } from 'main.core';
+import { BuilderModel } from 'ui.vue3.vuex';
+
+import type { ActionTree, MutationTree, GetterTree } from 'ui.vue3.vuex';
 
 type MembersState = {
-	collection: {[chatId: number]: Set<number>},
+	collection: { [chatId: number]: ChatState }
 };
 
+type ChatState = {
+	users: Set<number>,
+	inited: boolean,
+	hasNextPage: boolean,
+	lastId: number
+};
+
+/* eslint-disable no-param-reassign */
 export class MembersModel extends BuilderModel
 {
 	getState(): MembersState
@@ -14,47 +24,94 @@ export class MembersModel extends BuilderModel
 		};
 	}
 
-	getGetters()
+	getChatState(): ChatState
 	{
 		return {
-			get: (state) => (chatId: number): Array =>
-			{
+			users: new Set(),
+			hasNextPage: true,
+			lastId: 0,
+			inited: false,
+		};
+	}
+
+	getGetters(): GetterTree
+	{
+		return {
+			/** @function sidebar/members/get */
+			get: (state) => (chatId: number): number[] => {
 				if (!state.collection[chatId])
 				{
 					return [];
 				}
 
-				return [...state.collection[chatId]];
+				return [...state.collection[chatId].users];
 			},
+			/** @function sidebar/members/getSize */
 			getSize: (state) => (chatId: number): number => {
 				if (!state.collection[chatId])
 				{
 					return 0;
 				}
 
-				return state.collection[chatId].size;
+				return state.collection[chatId].users.size;
+			},
+			/** @function sidebar/members/hasNextPage */
+			hasNextPage: (state) => (chatId: number): boolean => {
+				if (!state.collection[chatId])
+				{
+					return false;
+				}
+
+				return state.collection[chatId].hasNextPage;
+			},
+			/** @function sidebar/members/getLastId */
+			getLastId: (state) => (chatId: number): boolean => {
+				if (!state.collection[chatId])
+				{
+					return false;
+				}
+
+				return state.collection[chatId].lastId;
+			},
+			/** @function sidebar/members/getInited */
+			getInited: (state) => (chatId: number): boolean => {
+				if (!state.collection[chatId])
+				{
+					return false;
+				}
+
+				return state.collection[chatId].inited;
 			},
 		};
 	}
 
-	getActions(): Object
+	getActions(): ActionTree
 	{
 		return {
-			set: (store, payload) =>
-			{
-				const {chatId, users} = payload;
-				if (!Type.isArray(users) || !Type.isNumber(chatId))
+			/** @function sidebar/members/set */
+			set: (store, payload) => {
+				const { chatId, users, hasNextPage, lastId } = payload;
+
+				if (!Type.isNil(hasNextPage))
 				{
-					return;
+					store.commit('setHasNextPage', { chatId, hasNextPage });
 				}
+
+				if (!Type.isNil(lastId))
+				{
+					store.commit('setLastId', { chatId, lastId });
+				}
+
+				store.commit('setInited', { chatId, inited: true });
 
 				if (users.length > 0)
 				{
-					store.commit('set', {chatId, users});
+					store.commit('set', { chatId, users });
 				}
 			},
+			/** @function sidebar/members/delete */
 			delete: (store, payload) => {
-				const {chatId, userId} = payload;
+				const { chatId, userId } = payload;
 				if (!Type.isNumber(chatId) || !Type.isNumber(userId))
 				{
 					return;
@@ -65,31 +122,63 @@ export class MembersModel extends BuilderModel
 					return;
 				}
 
-				store.commit('delete', {userId, chatId});
-			}
+				store.commit('delete', { userId, chatId });
+			},
 		};
 	}
 
-	getMutations(): Object
+	getMutations(): MutationTree
 	{
 		return {
-			set: (state, payload) =>
-			{
-				if (!state.collection[payload.chatId])
+			set: (state, payload) => {
+				const { chatId, users } = payload;
+				const hasCollection = !Type.isNil(state.collection[chatId]);
+				if (!hasCollection)
 				{
-					state.collection[payload.chatId] = new Set(payload.users);
+					state.collection[chatId] = this.getChatState();
 				}
-				else
+
+				users.forEach((id: number) => {
+					state.collection[chatId].users.add(id);
+				});
+			},
+			setHasNextPage: (state, payload) => {
+				const { chatId, hasNextPage } = payload;
+
+				const hasCollection = !Type.isNil(state.collection[chatId]);
+				if (!hasCollection)
 				{
-					payload.users.forEach(id => {
-						state.collection[payload.chatId].add(id);
-					});
+					state.collection[chatId] = this.getChatState();
 				}
+
+				state.collection[chatId].hasNextPage = hasNextPage;
+			},
+			setLastId: (state, payload) => {
+				const { chatId, lastId } = payload;
+
+				const hasCollection = !Type.isNil(state.collection[chatId]);
+				if (!hasCollection)
+				{
+					state.collection[chatId] = this.getChatState();
+				}
+
+				state.collection[chatId].lastId = lastId;
+			},
+			setInited: (state, payload) => {
+				const { chatId, inited } = payload;
+
+				const hasCollection = !Type.isNil(state.collection[chatId]);
+				if (!hasCollection)
+				{
+					state.collection[chatId] = this.getChatState();
+				}
+
+				state.collection[chatId].inited = inited;
 			},
 			delete: (state, payload: {chatId: number, userId: number}) => {
-				const {chatId, userId} = payload;
-				state.collection[chatId].delete(userId);
-			}
+				const { chatId, userId } = payload;
+				state.collection[chatId].users.delete(userId);
+			},
 		};
 	}
 }

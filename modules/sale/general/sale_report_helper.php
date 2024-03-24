@@ -1,9 +1,12 @@
 <?php
+
 if (!CModule::IncludeModule('report'))
 	return;
 if (!CModule::IncludeModule('currency'))
 	return;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\PgsqlConnection;
 use Bitrix\Main\Entity;
 
 abstract class CBaseSaleReportHelper extends CReportHelper
@@ -3297,26 +3300,26 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 
 	public static function beforeViewDataQuery(&$select, &$filter, &$group, &$order, &$limit, &$options, &$runtime = null)
 	{
-		global $DB;
-
-		if (function_exists('___dbCastIntToChar') !== true)
-		{
-			eval(
-				'function ___dbCastIntToChar($dbtype, $param)'.
-				'{'.
-				'   $result = $param;'.
-				'   if (ToLower($dbtype) === "mssql")'.
-				'   {'.
-				'       $result = "CAST(".$param." AS VARCHAR)";'.
-				'   }'.
-				'   return $result;'.
-				'}'
-			);
-		}
-
 		// Runtime fields
 		if (self::$bUsePriceTypesColumns)
 		{
+			$connection = Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			if ($connection instanceof PgsqlConnection)
+			{
+				$priceField = 'cast(b_catalog_price.PRICE as text)';
+			}
+			else
+			{
+				$priceField = 'b_catalog_price.PRICE';
+			}
+			$price = $helper->getConcatFunction(
+				$priceField,
+				"' '",
+				'b_catalog_price.CURRENCY'
+			);
+			unset($helper, $connection);
+
 			foreach (self::$priceTypes as $id => $info)
 			{
 				if ($info['selected'] === true)
@@ -3325,7 +3328,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 					$runtime[$fieldName] = array(
 						'data_type' => 'string',
 						'expression' => array('
-				(SELECT '.$DB->Concat(___dbCastIntToChar('mysql','b_catalog_price.PRICE'), '\' \'', 'b_catalog_price.CURRENCY').'
+				(SELECT ' . $price .'
 				FROM b_catalog_price
 					LEFT JOIN b_catalog_group ON b_catalog_group.ID = b_catalog_price.CATALOG_GROUP_ID
 				WHERE   b_catalog_price.PRODUCT_ID = %s

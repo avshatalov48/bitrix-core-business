@@ -13,7 +13,7 @@ if ($arParams["SHOW_RESULTS"] == "Y")
 		".default",
 		Array(
 			"VOTE_ID" => $arResult["VOTE_ID"],
-			"VOTE_ASK_CAPTCHA" => $arParams["VOTE_ASK_CAPTCHA"],
+			"VOTE_ASK_CAPTCHA" => $arParams["VOTE_ASK_CAPTCHA"] ?? null,
 			"PERMISSION" => $arParams["PERMISSION"],
 			"VOTE_RESULT_TEMPLATE" => $arResult["VOTE_RESULT_TEMPLATE"],
 			"ADDITIONAL_CACHE_ID" => $arResult["ADDITIONAL_CACHE_ID"],

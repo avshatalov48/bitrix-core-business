@@ -100,6 +100,18 @@ abstract class SqlHelper
 	abstract public function forSql($value, $maxLength = 0);
 
 	/**
+	 * Returns binary safe data representation.
+	 *
+	 * @param string $value Value to be encoded.
+	 *
+	 * @return string
+	 */
+	public function convertToDbBinary($value)
+	{
+		return "'" . $this->forSql($value) . "'";
+	}
+
+	/**
 	 * Returns function for getting current time.
 	 *
 	 * @return string
@@ -486,12 +498,22 @@ abstract class SqlHelper
 	 * Converts value to the string according to the data type to use it in a SQL query.
 	 *
 	 * @param mixed $value Value to be converted.
+	 * @param int $size Size in bytes.
 	 *
 	 * @return int Value to write to column.
 	 */
-	public function convertToDbInteger($value)
+	public function convertToDbInteger($value, $size = 8)
 	{
-		return intval($value);
+		$value = intval($value);
+		if ($size == 2)
+		{
+			$value = max(-32768, min(+32767, $value));
+		}
+		elseif ($size == 4)
+		{
+			$value = max(-2147483648, min(+2147483647, $value));
+		}
+		return $value;
 	}
 
 	/**
@@ -749,13 +771,13 @@ abstract class SqlHelper
 	}
 
 	/**
-	 * @param string $field
+	 * @param string|SqlExpression $field
 	 * @param string $value
 	 * @return string
 	 */
-	public function getConditionalAssignment(string $field, string $value): string
+	public function getConditionalAssignment($field, string $value): string
 	{
-		$field = $this->quote($field);
+		$field = $field instanceof SqlExpression ? $field->compile() : $this->quote($field);
 		$hash = $this->convertToDbString(sha1($value));
 		$value = $this->convertToDbString($value);
 

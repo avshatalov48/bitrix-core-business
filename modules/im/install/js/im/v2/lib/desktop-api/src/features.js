@@ -11,4 +11,8 @@ export const DesktopFeature = {
 		id: 'accountManagement',
 		version: 75,
 	},
+	openNewTab: {
+		id: 'openNewTab',
+		version: 76,
+	},
 };

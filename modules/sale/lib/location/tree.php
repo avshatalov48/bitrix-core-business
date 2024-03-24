@@ -47,11 +47,13 @@ abstract class Tree extends Entity\DataManager
 	{
 		$rebalance = !isset($additional['REBALANCE']) || $additional['REBALANCE'] !== false;
 
+		$node = [];
+		$parentId = (int)($data['PARENT_ID'] ?? 0);
 		// determine LEFT_MARGIN, RIGHT_MARGIN and DEPTH_LEVEL
-		if($data['PARENT_ID'] = intval($data['PARENT_ID']))
+		if ($parentId > 0)
 		{
 			// if we have PARENT_ID set, just use it`s info
-			$node = self::getNodeInfo($data['PARENT_ID']);
+			$node = self::getNodeInfo($parentId);
 
 			$needResort = true;
 
@@ -80,8 +82,10 @@ abstract class Tree extends Entity\DataManager
 
 		$addResult = parent::add($data);
 
-		if($addResult->isSuccess() && $needResort && $rebalance)
+		if ($addResult->isSuccess() && $needResort && $rebalance)
+		{
 			self::rebalance($node, $addResult->getId());
+		}
 
 		return $addResult;
 	}
@@ -998,13 +1002,18 @@ abstract class Tree extends Entity\DataManager
 		return $node;
 	}
 
-	protected static function getMaxMargin()
+	protected static function getMaxMargin(): int
 	{
-		$tableName = static::getTableName();
+		$row = static::getRow([
+			'select' => [
+				'RIGHT_MARGIN',
+			],
+			'order' => [
+				'RIGHT_MARGIN' => 'DESC',
+			]
+		]);
 
-		// todo: write it in orm way
-		$res = Main\HttpApplication::getConnection()->query("select A.RIGHT_MARGIN from {$tableName} A order by A.RIGHT_MARGIN desc")->fetch();
-		return intval($res['RIGHT_MARGIN']);
+		return (int)($row['RIGHT_MARGIN'] ?? 0);
 	}
 
 	public static function mergeRelationsFromTemporalTable($temporalTabName, $additinalFlds = array(), $fldMap = array())
@@ -1031,7 +1040,7 @@ abstract class Tree extends Entity\DataManager
 
 		$idReplace = is_array($fldMap) && isset($fldMap['ID']) ? $dbHelper->forSql($fldMap['ID']) : 'ID';
 
-		if($dbConnection->getType() == 'mysql')
+		if ($dbConnection->getType() === 'mysql')
 		{
 			$sql = 'update '.$entityTableName.', '.$temporalTabName.' set ';
 			$additFldCnt = count($additinalFlds);
@@ -1043,7 +1052,15 @@ abstract class Tree extends Entity\DataManager
 
 			$sql .= ' where '.$entityTableName.'.ID = '.$temporalTabName.'.'.$idReplace;
 		}
-		elseif($dbConnection->getType() == 'mssql')
+		elseif ($dbConnection->getType() === 'pgsql')
+		{
+			$sql = 'update '.$entityTableName.' set ('.
+				implode(', ', $additinalFlds).
+				') = (select '.
+				implode(', ', $fldReplace).
+				' from '.$temporalTabName.' where '.$entityTableName.'.ID = '.$temporalTabName.'.'.$idReplace.')';
+		}
+		elseif ($dbConnection->getType() === 'mssql')
 		{
 			$sql = 'update '.$entityTableName.' set ';
 			$additFldCnt = count($additinalFlds);
@@ -1055,7 +1072,7 @@ abstract class Tree extends Entity\DataManager
 
 			$sql .= ' from '.$entityTableName.' join '.$temporalTabName.' on '.$entityTableName.'.ID = '.$temporalTabName.'.'.$idReplace;
 		}
-		elseif($dbConnection->getType() == 'oracle')
+		elseif ($dbConnection->getType() === 'oracle')
 		{
 			// update tab1 set (aa,bb) = (select aa,bb from tab2 where tab2.id = tab1.id)
 

@@ -77,7 +77,11 @@ class ReadService
 		$this->setLastIdForRead($maxId, $chat->getChatId());
 		$this->counterService->deleteTo($messages[$maxId]);
 		$counter = $this->counterService->getByChat($chat->getChatId());
-		$messagesToView = $messages->fillViewed()->filter(fn (Message $message) => !$message->isViewed());
+		$messagesToView = $messages
+			->withContextUser($this->getContext()->getUserId())
+			->fillViewed()
+			->filter(fn (Message $message) => !$message->isViewed())
+		;
 		$this->viewedService->add($messagesToView);
 		$this->updateDateRecent($chat->getChatId());
 		if (!$chat instanceof Chat\OpenLineChat)
@@ -425,15 +429,19 @@ class ReadService
 
 	private function setLastIdForReadAll(): void
 	{
-		$sql = "
-			UPDATE b_im_relation R
-			INNER JOIN b_im_chat C on C.ID = R.CHAT_ID
-			SET R.LAST_ID = C.LAST_MESSAGE_ID
-			WHERE R.MESSAGE_TYPE NOT IN ('" . IM_MESSAGE_OPEN_LINE . "', '" . IM_MESSAGE_SYSTEM . "')
-			AND R.USER_ID = {$this->getContext()->getUserId()}
-		";
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-		Application::getConnection()->queryExecute($sql);
+		$connection->queryExecute($helper->prepareCorrelatedUpdate(
+			'b_im_relation',
+			'R',
+			[
+				'LAST_ID' => 'C.LAST_MESSAGE_ID',
+			],
+			' b_im_chat C ',
+			" C.ID = R.CHAT_ID AND R.MESSAGE_TYPE NOT IN ('" . IM_MESSAGE_OPEN_LINE . "', '" . IM_MESSAGE_SYSTEM . "')
+				AND R.USER_ID = {$this->getContext()->getUserId()}"
+		));
 	}
 
 	private function updateDateRecent(int $chatId): void

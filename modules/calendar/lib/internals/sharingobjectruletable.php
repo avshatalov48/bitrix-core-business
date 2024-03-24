@@ -23,7 +23,20 @@ use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SharingObjectRule_Query query()
+ * @method static EO_SharingObjectRule_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_SharingObjectRule_Result getById($id)
+ * @method static EO_SharingObjectRule_Result getList(array $parameters = [])
+ * @method static EO_SharingObjectRule_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingObjectRule createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingObjectRule_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingObjectRule wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingObjectRule_Collection wakeUpCollection($rows)
+ */
 
 class SharingObjectRuleTable extends DataManager
 {

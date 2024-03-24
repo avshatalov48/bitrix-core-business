@@ -245,7 +245,7 @@ class CAllVoteChannel
 					case "SITE_ID":
 					case "SITE":
 						if (is_array($val)) $val = implode(" | ", $val);
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]==="N" && $match_value_set) ? "Y" : "N";
 						$arSqlSearch[] = GetFilterQuery("CS.SITE_ID", $val, $match);
 						$left_join = "LEFT JOIN b_vote_channel_2_site CS ON (C.ID = CS.CHANNEL_ID)";
 						break;
@@ -459,7 +459,7 @@ class CAllVoteChannel
 					"SELECT BVC2G.CHANNEL_ID, BVC.SYMBOLIC_NAME CHANNEL_SID, MAX(BVC2G.PERMISSION) as PERMISSION
 				FROM b_vote_channel_2_group BVC2G
 				INNER JOIN b_vote_channel BVC ON (BVC2G.CHANNEL_ID = BVC.ID)
-				WHERE ".($params["CHANNEL_SID"] != "Y" ? "BVC2G.CHANNEL_ID" : "BVC.SYMBOLIC_NAME").
+				WHERE ".((!isset($params["CHANNEL_SID"]) || $params["CHANNEL_SID"] !== "Y") ? "BVC2G.CHANNEL_ID" : "BVC.SYMBOLIC_NAME").
 						"='".$DB->ForSql($channel_id)."' and GROUP_ID in ($groups)
 				GROUP BY BVC2G.CHANNEL_ID, BVC.SYMBOLIC_NAME";
 				$db_res = $DB->Query($strSql, false, $err_mess.__LINE__);

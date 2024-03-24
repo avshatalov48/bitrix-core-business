@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Main\Config\Option;
+
 class Promotion
 {
 	const DEVICE_TYPE_WEB = "web"; // browser + desktop
@@ -21,6 +23,12 @@ class Promotion
 		{
 			return $result;
 		}
+
+		if (self::isDisable())
+		{
+			return $result;
+		}
+
 /*
 		$result[] = [
 			"ID" => 'im:video:01042020:web',
@@ -218,5 +226,10 @@ class Promotion
 		}
 
 		return null;
+	}
+
+	private static function isDisable(): bool
+	{
+		return Option::get('im', 'promo_disabled', 'N') === 'Y';
 	}
 }

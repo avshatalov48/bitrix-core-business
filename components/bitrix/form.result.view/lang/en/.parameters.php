@@ -11,4 +11,3 @@ $MESS["COMP_FORM_PARAMS_EDIT_URL"] = "Result editing page";
 $MESS["COMP_FORM_PARAMS_CHAIN_ITEM_TEXT"] = "Name of additional navigation chain item";
 $MESS["COMP_FORM_PARAMS_CHAIN_ITEM_LINK"] = "Link for additional navigation chain item";
 $MESS["COMP_FORM_NAME_TEMPLATE"] = "Name format";
-?>

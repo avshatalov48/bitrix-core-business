@@ -1,0 +1,132 @@
+<svg width="100%" height="100%" viewBox="0 0 100% 100%" fill="none" xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+	<svg y="0" height="100%" width="100%">
+		<defs>
+			<g id="block-1">
+				<path fill-rule="evenodd" clip-rule="evenodd"
+					  d="M10 0C4.47715 0 0 4.47715 0 10V28C0 30.2091 1.79086 32 4 32H14.9839H15.9998H274.596H275.589H283.96C285.482 32 286.872 31.1359 287.546 29.7709L293.69 17.3282C294.103 16.491 294.103 15.509 293.69 14.6718L287.546 2.22911C286.872 0.864113 285.482 0 283.96 0H275.589H274.596H15.9998H14.9839H10Z"
+					  fill="white" fill-opacity="0.2" />
+				<circle cx="149.5" cy="53.5" r="9.5" fill="white" fill-opacity="0.2" />
+			</g>
+			<g id="block-2">
+				<line x1="297" y1="161" x2="297" y2="1000"
+					  style="stroke-dasharray: 4 4; stroke: white; stroke-width: 1px; stroke-opacity: 0.2" />
+			</g>
+
+			<svg id="block-3">
+				<rect width="283" height="149" rx="10" fill="white" />
+				<mask id="mask0_857_11942" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="283"
+					  height="149">
+					<rect opacity="0.5" width="283" height="149" rx="10" fill="white" />
+				</mask>
+				<g mask="url(#mask0_857_11942)">
+					<rect y="3" width="3" height="202" fill="black" fill-opacity="0.1" />
+				</g>
+			</svg>
+
+			<g id="column-1">
+				<use xlink:href="#block-3" y="205" x="0" />
+				<use xlink:href="#block-3" y="360" x="0" />
+				<use xlink:href="#block-3" y="515" x="0" />
+			</g>
+			<g id="column-2">
+				<use xlink:href="#block-3" y="205" x="0" />
+				<use xlink:href="#block-3" y="360" x="0" />
+			</g>
+			<g id="column-3">
+				<use xlink:href="#block-3" y="205" x="0" />
+			</g>
+		</defs>
+		<rect opacity="0.8" width="100%" height="60" rx="10" fill="white" />
+
+		<use xlink:href="#block-1" x="0" y="131"></use>
+		<use xlink:href="#block-1" x="297" y="131"></use>
+		<use xlink:href="#block-1" x="594" y="131"></use>
+		<use xlink:href="#block-1" x="891" y="131"></use>
+		<use xlink:href="#block-1" x="1188" y="131"></use>
+		<use xlink:href="#block-1" x="1485" y="131"></use>
+
+		<use xlink:href="#block-2"></use>
+		<use x="297" xlink:href="#block-2"></use>
+		<use x="594" xlink:href="#block-2"></use>
+		<use x="891" xlink:href="#block-2"></use>
+		<use x="1188" xlink:href="#block-2"></use>
+
+		<use x="0" y="205" xlink:href="#block-3"></use>
+		<use xlink:href="#column-1" />
+		<use x="297" xlink:href="#column-2" />
+		<use x="594" xlink:href="#column-3" />
+		<use x="891" xlink:href="#column-2" />
+	</svg>
+
+	<svg width="100%" height="100%" id="animated-elements">
+		<defs>
+			<g id="block-animated-1">
+				<rect x="6" y="6" width="48" height="48" rx="8" fill="#bdc1c6" />
+				<rect x="85" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="257" y="28" width="76" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="167" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="373" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="463" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+			</g>
+
+			<g id="block-animated-2">
+				<rect x="10" y="76" width="139" height="39" rx="19.5" fill="#bdc1c6" />
+				<rect x="160" y="76" width="262" height="39" rx="19.5" fill="#edeef0" />
+				<rect x="435" y="87" width="1" height="18" fill="#edeef0" />
+				<rect x="445" y="79" width="38" height="33" rx="16.5" fill="#edeef0" />
+				<rect x="491" y="79" width="38" height="33" rx="16.5" fill="#edeef0" />
+				<rect x="100%" y="79" width="94" height="33" rx="16.5" fill="#edeef0" transform="translate(-156, 0)" />
+				<rect x="100%" y="79" width="38" height="33" rx="16.5" fill="#edeef0" transform="translate(-50, 0)" />
+			</g>
+
+			<svg id="block-animated-3">
+				<circle cx="42" cy="128" r="5" fill="#e5e5e5" />
+				<circle cx="22" cy="128" r="10" fill="#e5e5e5" />
+				<circle cx="62" cy="128" r="10" fill="#e5e5e5" />
+				<rect x="13" y="16" width="106" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="13" y="54" width="50" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="13" y="37" width="24" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="13" y="75" width="24" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="13" y="92" width="50" height="6" rx="2" fill="#e5e5e5" />
+			</svg>
+
+			<g id="column-animated-1">
+				<use xlink:href="#block-animated-3" y="205" x="0" />
+				<use xlink:href="#block-animated-3" y="360" x="0" />
+				<use xlink:href="#block-animated-3" y="515" x="0" />
+			</g>
+			<g id="column-animated-2">
+				<use xlink:href="#block-animated-3" y="205" x="0" />
+				<use xlink:href="#block-animated-3" y="360" x="0" />
+			</g>
+			<g id="column-animated-3">
+				<use xlink:href="#block-animated-3" y="205" x="0" />
+			</g>
+		</defs>
+
+		<use xlink:href="#block-animated-1"></use>
+		<use xlink:href="#block-animated-2"></use>
+
+		<use x="0" y="205" xlink:href="#block-animated-3"></use>
+
+		<use xlink:href="#column-animated-1" />
+		<use x="297" xlink:href="#column-animated-2" />
+		<use x="594" xlink:href="#column-animated-3" />
+		<use x="891" xlink:href="#column-animated-2" />
+	</svg>
+
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="100%"/>
+
+	<mask id="headerMsk" fill="white">
+		<use xlink:href="#animated-elements"/>
+	</mask>
+
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+		<stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+		<stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+	</linearGradient>
+
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

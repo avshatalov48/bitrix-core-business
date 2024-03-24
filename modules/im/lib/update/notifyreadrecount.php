@@ -63,6 +63,9 @@ final class NotifyReadRecount  extends Stepper
 				'limit' => 1000
 			]);
 
+			$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+			$sqlDate = $connection->getSqlHelper()->addDaysToDateTime(-30);
+
 			$found = false;
 			while ($row = $cursor->fetch())
 			{
@@ -71,7 +74,7 @@ final class NotifyReadRecount  extends Stepper
 					SET M.NOTIFY_READ = 'Y'
 					WHERE M.CHAT_ID = " . $row['CHAT_ID'] . "
 					AND M.NOTIFY_READ <> 'Y'
-					AND M.DATE_CREATE < DATE_SUB(NOW(), INTERVAL 30 DAY)
+					AND M.DATE_CREATE < {$sqlDate}
 				");
 
 				$counterResult = $DB->Query("

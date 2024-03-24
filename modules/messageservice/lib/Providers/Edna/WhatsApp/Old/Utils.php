@@ -10,11 +10,6 @@ use Bitrix\MessageService\Providers\OptionManager;
 
 class Utils extends WhatsApp\Utils
 {
-	public function __construct(string $providerId, OptionManager $optionManager)
-	{
-		parent::__construct($providerId, $optionManager);
-	}
-
 	public function testConnection(): Result
 	{
 		$requestParams = ['imType' => 'WHATSAPP'];

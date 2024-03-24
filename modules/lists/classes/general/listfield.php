@@ -600,4 +600,3 @@ class CListPropertyField extends CListField
 		}
 	}
 }
-?>

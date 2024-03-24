@@ -1920,7 +1920,10 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	BX.UI.EntityEditorField.prototype.prepareContextMenuItems = function()
 	{
 		var results = [];
-		results.push({ value: "hide", text: BX.message("UI_ENTITY_EDITOR_HIDE") });
+		if (this.getEditor().canHideField())
+		{
+			results.push({ value: "hide", text: BX.message("UI_ENTITY_EDITOR_HIDE") });
+		}
 		results.push({ value: "configure", text: BX.message("UI_ENTITY_EDITOR_CONFIGURE") });
 
 		if (this._parent && this._parent.hasAdditionalMenu())

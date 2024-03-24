@@ -459,7 +459,7 @@ this.BX = this.BX || {};
 	    key: "getRequestData",
 	    value: function getRequestData() {
 	      var fieldsValues = {
-	        id: this.groupData["ID"]
+	        id: this.groupData.ID
 	      };
 	      this.fields.forEach(function (field) {
 	        fieldsValues[field.getName()] = field.getValue();
@@ -468,7 +468,18 @@ this.BX = this.BX || {};
 	      this.blocks.forEach(function (block) {
 	        blocksValues = _objectSpread$4(_objectSpread$4({}, blocksValues), block.getValues());
 	      });
-	      return Object.assign(fieldsValues, blocksValues);
+	      var formData = new FormData();
+	      for (var _i = 0, _Object$entries = Object.entries(Object.assign(fieldsValues, blocksValues)); _i < _Object$entries.length; _i++) {
+	        var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
+	          name = _Object$entries$_i[0],
+	          value = _Object$entries$_i[1];
+	        if (value instanceof Blob) {
+	          formData.append(name, value, value.name);
+	        } else {
+	          formData.append(name, main_core.Type.isObjectLike(value) ? JSON.stringify(value) : value);
+	        }
+	      }
+	      return formData;
 	    }
 	  }, {
 	    key: "handleResponse",
@@ -612,10 +623,10 @@ this.BX = this.BX || {};
 	    key: "init",
 	    value: function init() {
 	      // eslint-ignore-next-line
-	      var uploaderInstance = BX.UploaderManager.getById(this.fieldName);
-	      if (uploaderInstance) {
+	      this.uploaderInstance = BX.UploaderManager.getById(this.fieldName);
+	      if (this.uploaderInstance) {
 	        // eslint-ignore-next-line
-	        BX.addCustomEvent(uploaderInstance, "onQueueIsChanged", this.onQueueIsChanged.bind(this));
+	        BX.addCustomEvent(this.uploaderInstance, "onQueueIsChanged", this.onQueueIsChanged.bind(this));
 	      }
 	    }
 	  }, {
@@ -651,8 +662,14 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getCurrentValue",
 	    value: function getCurrentValue() {
-	      var fieldInput = document.getElementsByName(this.fieldName);
-	      return fieldInput.length > 0 ? fieldInput[0].value : "";
+	      var item = Object.values(this.uploaderInstance.getItems().items)[0];
+	      if (!item) {
+	        return '';
+	      }
+	      if (item.file instanceof Blob) {
+	        return item.file;
+	      }
+	      return item.file.file_id;
 	    }
 	  }]);
 	  return ImageField;
@@ -1689,7 +1706,7 @@ this.BX = this.BX || {};
 	    key: "createLandingField",
 	    value: function createLandingField(data) {
 	      var landingField = new CheckboxField({
-	        fieldTitle: main_core.Loc.getMessage("SGCG_OPTIONS_TYPE_LANDING_MSGVER_1"),
+	        fieldTitle: main_core.Loc.getMessage("SGCG_OPTIONS_TYPE_LANDING_MSGVER_2"),
 	        fieldName: "landing",
 	        validators: [],
 	        checked: data["LANDING"] === "Y"

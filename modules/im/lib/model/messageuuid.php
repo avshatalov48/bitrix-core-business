@@ -2,12 +2,10 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
 use Bitrix\Main\ORM\Fields\IntegerField;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class MessageUuidTable

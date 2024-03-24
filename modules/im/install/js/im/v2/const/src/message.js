@@ -11,6 +11,7 @@ export const MessageComponent = Object.freeze({
 	unsupported: 'UnsupportedMessage',
 	deleted: 'DeletedMessage',
 	callInvite: 'CallInviteMessage',
+	zoomInvite: 'ZoomInviteMessage',
 	chatCreation: 'ChatCreationMessage',
 	ownChatCreation: 'OwnChatCreationMessage',
 	copilotCreation: 'ChatCopilotCreationMessage',

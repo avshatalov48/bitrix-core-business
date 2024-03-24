@@ -26,6 +26,8 @@ export class PostFormManager extends EventEmitter
 	#eventNode: HTMLElement;
 	#showPostTitleBtn: HTMLElement;
 	#editor: BXEditor;
+	#userFieldControl: BX.Disk.Uploader.UserFieldControl;
+	#blockFileShowEvent: boolean = false;
 
 	constructor(params: Params)
 	{
@@ -61,6 +63,22 @@ export class PostFormManager extends EventEmitter
 		EventEmitter.emit(this.#eventNode, 'OnShowLHE', ['show']);
 
 		this.#appendButtonShowingPostTitle();
+
+		this.#userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(this.#formId);
+
+		EventEmitter.subscribe(this.#eventNode, 'onShowControllers', ({ data }) => {
+			if (this.#blockFileShowEvent === false && data.toString() === 'show')
+			{
+				setTimeout(() => {
+					this.emit('showControllers');
+				}, 100);
+			}
+			this.#blockFileShowEvent = false;
+		});
+
+		EventEmitter.subscribe(this.#eventNode, 'onShowControllers:File:Increment', ({ data }) => {
+			this.#blockFileShowEvent = true;
+		});
 	}
 
 	getEditorText(): string
@@ -68,9 +86,21 @@ export class PostFormManager extends EventEmitter
 		return this.#editor.GetContent();
 	}
 
+	clearEditorText(): void
+	{
+		EventEmitter.subscribeOnce(this.#editor, 'OnSetContentAfter', () => {
+			this.#editor.ResizeSceleton();
+		});
+
+		this.#editor.SetContent('');
+	}
+
 	focusToEditor()
 	{
-		this.#editor.Focus();
+		if (this.#editor)
+		{
+			this.#editor.Focus();
+		}
 	}
 
 	#editorInited(editor)

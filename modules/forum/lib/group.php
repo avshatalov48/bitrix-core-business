@@ -70,9 +70,9 @@ class GroupTable extends Entity\DataManager
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_GroupLang_Query query()
- * @method static EO_GroupLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupLang_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_GroupLang_Result getById($id)
- * @method static EO_GroupLang_Result getList(array $parameters = array())
+ * @method static EO_GroupLang_Result getList(array $parameters = [])
  * @method static EO_GroupLang_Entity getEntity()
  * @method static \Bitrix\Forum\EO_GroupLang createObject($setDefaultValues = true)
  * @method static \Bitrix\Forum\EO_GroupLang_Collection createCollection()

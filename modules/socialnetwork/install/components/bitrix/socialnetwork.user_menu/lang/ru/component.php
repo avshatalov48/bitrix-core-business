@@ -6,6 +6,7 @@ $MESS["SONET_UM_FORUM"] = "Форум";
 $MESS["SONET_UM_CALENDAR"] = "Календарь";
 $MESS["SONET_UM_FILES"] = "Мой Диск";
 $MESS["SONET_UM_DISK"] = "Диск";
+$MESS["SONET_UM_SIGN"] = "Подписанные документы";
 $MESS["SONET_UM_BLOG"] = "Сообщения";
 $MESS["SONET_UM_STREAM_NEWS"] = "Новости";
 $MESS["SONET_UM_TASKS"] = "Задачи";

@@ -14,7 +14,6 @@ return [
 	'js' => 'dist/textarea.bundle.js',
 	'rel' => [
 		'ui.uploader.core',
-		'im.v2.lib.draft',
 		'im.v2.lib.local-storage',
 		'im.v2.lib.sound-notification',
 		'rest.client',
@@ -24,6 +23,7 @@ return [
 		'im.v2.lib.entity-creator',
 		'im.v2.lib.hotkey',
 		'im.v2.lib.textarea',
+		'im.v2.lib.draft',
 		'main.core.events',
 		'im.v2.lib.logger',
 		'im.v2.provider.service',

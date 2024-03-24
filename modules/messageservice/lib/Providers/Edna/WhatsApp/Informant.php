@@ -19,11 +19,21 @@ class Informant extends \Bitrix\MessageService\Providers\Base\Informant
 
 	public function getName(): string
 	{
+		if (RegionHelper::isInternational())
+		{
+			return 'Edna.io WhatsApp';
+		}
+
 		return 'Edna.ru WhatsApp';
 	}
 
 	public function getShortName(): string
 	{
+		if (RegionHelper::isInternational())
+		{
+			return 'Edna.io WhatsApp';
+		}
+
 		return 'Edna.ru WhatsApp';
 	}
 

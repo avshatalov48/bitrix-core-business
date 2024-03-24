@@ -1,9 +1,14 @@
-import { Text, Loc, Dom, Event } from 'main.core';
+import { Text, Loc, Dom, Event, Type } from 'main.core';
 import { FileType } from 'im.v2.const';
 
 export const FileUtil = {
 	getFileExtension(fileName: string): string
 	{
+		if (!Type.isStringFilled(fileName))
+		{
+			return '';
+		}
+
 		return fileName.split('.').splice(-1)[0];
 	},
 

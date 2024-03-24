@@ -48,9 +48,17 @@
 		$bHaveBlog = false;
 		if(intval($arParams["GROUP_ID"]) > 0)
 		{
-			$dbBl = CBlog::GetList(Array(), Array("GROUP_ID" => $arParams["GROUP_ID"], "OWNER_ID" => $USER->GetID(), "ACTIVE" => "Y", "GROUP_SITE_ID" => SITE_ID));
-			if($dbBl->Fetch())
+			$dbBl = CBlog::GetList(
+				[],
+				[
+					"GROUP_ID" => $arParams["GROUP_ID"], "OWNER_ID" => $USER->GetID(), "=ACTIVE" => "Y",
+					"GROUP_SITE_ID" => SITE_ID,
+				]
+			);
+			if ($dbBl->Fetch())
+			{
 				$bHaveBlog = true;
+			}
 			
 		}
 		elseif(CBlog::GetByOwnerID($USER->GetID()))

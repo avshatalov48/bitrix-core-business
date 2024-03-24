@@ -114,7 +114,7 @@ class CVoteEvent extends CAllVoteEvent
 
 		$strSql =
 			"SELECT VEQ.QUESTION_ID, VEA.ANSWER_ID, COUNT(VEA.ID) as COUNTER, ".
-				"MIN(TIMESTAMPDIFF(SECOND, VE.DATE_VOTE, NOW())) AS LAST_VOTE".$strSqlSelect.
+				"MIN(EXTRACT(SECOND FROM NOW() - VE.DATE_VOTE)) AS LAST_VOTE".$strSqlSelect.
 			" FROM b_vote_event VE ".
 				" INNER JOIN b_vote_event_question VEQ ON (VEQ.EVENT_ID = VE.ID) ".
 				" INNER JOIN b_vote_event_answer VEA ON (VEA.EVENT_QUESTION_ID = VEQ.ID) ".
@@ -136,9 +136,9 @@ class CVoteEvent extends CAllVoteEvent
 			if ($db_res && ($res = $db_res->Fetch()))
 			{
 				$strSql = "SELECT VEQ.QUESTION_ID, VEA.ANSWER_ID, VU.AUTH_USER_ID, COUNT(DISTINCT VEA.ID) as COUNTER, \n\t".
-					"MIN(TIMESTAMPDIFF(SECOND, VE.DATE_VOTE, NOW())) AS LAST_VOTE, \n\t".
+					"MIN(EXTRACT(SECOND FROM NOW() - VE.DATE_VOTE)) AS LAST_VOTE, \n\t".
 					($arFilter["bGetVoters"] > 0 ?
-						"SUM(case when RV0.ID is not null then 1 else 0 end) `RANK`" : "0 as `RANK`").$strSqlSelect."\n".
+						"SUM(case when RV0.ID is not null then 1 else 0 end) " . $DB->quote('RANK') : "0 as " .  $DB->quote('RANK')).$strSqlSelect."\n".
 				"FROM b_vote_event VE \n\t".
 					"INNER JOIN b_vote_event_question VEQ ON (VEQ.EVENT_ID = VE.ID) \n\t".
 					"INNER JOIN b_vote_event_answer VEA ON (VEA.EVENT_QUESTION_ID = VEQ.ID) \n\t".
@@ -147,8 +147,8 @@ class CVoteEvent extends CAllVoteEvent
 					($arFilter["bGetVoters"] > 0 ?
 						"\tLEFT JOIN b_rating_vote RV0 ON (RV0.USER_ID = ".$arFilter["bGetVoters"]." AND RV0.OWNER_ID = VU.AUTH_USER_ID) \n" : "").
 				" WHERE 1=1 ".$strSqlSearch."\n".
-				" GROUP BY VEQ.QUESTION_ID, VEA.ANSWER_ID, VU.AUTH_USER_ID".$strSqlGroup."\n".
-				" ORDER BY ".(IsModuleInstalled("intranet") ? "RV.VOTE_WEIGHT DESC, `RANK` DESC" : "`RANK` DESC, RV.VOTE_WEIGHT DESC").", VU.AUTH_USER_ID ASC";
+				" GROUP BY VEQ.QUESTION_ID, VEA.ANSWER_ID, VU.AUTH_USER_ID, RV.VOTE_WEIGHT".$strSqlGroup."\n".
+				" ORDER BY ".(IsModuleInstalled("intranet") ? "RV.VOTE_WEIGHT DESC, " .  $DB->quote('RANK') . " DESC" :  $DB->quote('RANK') . " DESC, RV.VOTE_WEIGHT DESC").", VU.AUTH_USER_ID ASC";
 				$db_res = new CDBResult();
 				$db_res->NavQuery($strSql, $res["CNT"], $arParams);
 			}

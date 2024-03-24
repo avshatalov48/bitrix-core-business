@@ -3,6 +3,7 @@ namespace Bitrix\Sale\Exchange\Integration\Entity;
 
 use Bitrix\Main;
 use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Sale\Exchange\Integration\EntityType;
 
@@ -24,7 +25,7 @@ use Bitrix\Sale\Exchange\Integration\EntityType;
  */
 class B24integrationStatTable extends Main\Entity\DataManager
 {
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_sale_b24integration_stat';
 	}
@@ -32,7 +33,7 @@ class B24integrationStatTable extends Main\Entity\DataManager
 	/**
 	 * @inheritdoc
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
 			new Main\Entity\IntegerField('ID', ['primary' => true, 'autocomplete' => true]),
@@ -58,32 +59,30 @@ class B24integrationStatTable extends Main\Entity\DataManager
 		];
 	}
 
-	protected static function upsertPrepareParams(array $data)
+	protected static function upsertPrepareParams(array $data): array
 	{
-		$entityTypeID = isset($data['ENTITY_TYPE_ID']) ? (int)$data['ENTITY_TYPE_ID'] : \CCrmOwnerType::Undefined;
-		$entityID = isset($data['ENTITY_ID']) ? (int)$data['ENTITY_ID'] : 0;
-		$providerID = isset($data['PROVIDER_ID']) ? (int)$data['PROVIDER_ID'] : 0;
-		$dateUpdate = isset($data['DATE_UPDATE']) ? $data['DATE_UPDATE']: null;
-		$currency = isset($data['CURRENCY']) ? $data['CURRENCY'] : null;
-		$status = isset($data['STATUS']) ? $data['STATUS'] : null;
-		$xmlId = isset($data['XML_ID']) ? $data['XML_ID'] : null;
-		$amount = isset($data['AMOUNT']) ? (double)$data['AMOUNT'] : 0.0;
+		$entityTypeID = (int)($data['ENTITY_TYPE_ID'] ??  EntityType::UNDEFINED);
+		$entityID = (int)($data['ENTITY_ID'] ?? 0);
+		$providerID = (int)($data['PROVIDER_ID'] ?? 0);
+		$dateUpdate = $data['DATE_UPDATE'] ?? null;
+		$currency = $data['CURRENCY'] ?? null;
+		$status = $data['STATUS'] ?? null;
+		$xmlId = $data['XML_ID'] ?? null;
+		$amount = (float)($data['AMOUNT'] ?? 0.0);
 
-		$now = 	Main\Type\DateTime::createFromTimestamp(time() + \CTimeZone::GetOffset());
-
-		$fields = [
+		return [
 			'ENTITY_TYPE_ID' => $entityTypeID,
 			'ENTITY_ID' => $entityID,
 			'DATE_UPDATE' => $dateUpdate,
-			'TIMESTAMP_X' => $now,
+			'TIMESTAMP_X' => new Main\DB\SqlExpression(
+				Main\Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction()
+			),
 			'PROVIDER_ID' => $providerID,
 			'CURRENCY' => $currency,
 			'STATUS' => $status,
 			'XML_ID' => $xmlId,
 			'AMOUNT' => $amount,
 		];
-
-		return $fields;
 	}
 
 	/**
@@ -93,13 +92,13 @@ class B24integrationStatTable extends Main\Entity\DataManager
 	 * @throws Main\Db\SqlQueryException
 	 * @throws Main\SystemException
 	 */
-	public static function upsert(array $data)
+	public static function upsert(array $data): AddResult
 	{
-		$result = new Main\Entity\AddResult();
+		$result = new AddResult();
 		$connection = Main\Application::getConnection();
 
 		static::checkFields($result, null, $data);
-		if($result->isSuccess() == false)
+		if (!$result->isSuccess())
 		{
 			return $result;
 		}
@@ -122,7 +121,8 @@ class B24integrationStatTable extends Main\Entity\DataManager
 		}
 
 		$result->setId(
-			$connection->getInsertedId());
+			$connection->getInsertedId()
+		);
 
 		return $result;
 	}
@@ -135,13 +135,13 @@ class B24integrationStatTable extends Main\Entity\DataManager
 	 * @throws Main\Db\SqlQueryException
 	 * @throws Main\SystemException
 	 */
-	public static function modify(array $items)
+	public static function modify(array $items): AddResult
 	{
 		$connection = Main\Application::getConnection();
-		$sqlHelper = $connection->getSqlHelper();
+		$helper = $connection->getSqlHelper();
 
 		$r = static::checkModifyFields($items);
-		if($r->isSuccess() == false)
+		if (!$r->isSuccess())
 		{
 			return $r;
 		}
@@ -155,52 +155,38 @@ class B24integrationStatTable extends Main\Entity\DataManager
 			'CURRENCY',
 			'STATUS',
 			'XML_ID',
-			'AMOUNT'
+			'AMOUNT',
 		];
 
-		foreach ($names as $name)
-		{
-			$duplicate[] = $name.' = VALUES('.$name.')';
-		}
-
+		$values = [];
 		foreach ($items as $item)
 		{
-			$fields = static::upsertPrepareParams($item);
-
-			$valuesData = [
-				$fields['ENTITY_TYPE_ID'],
-				$fields['ENTITY_ID'],
-				$sqlHelper->convertToDbDateTime($fields['DATE_UPDATE']),
-				$sqlHelper->convertToDbDateTime($fields['TIMESTAMP_X']),
-				$fields['PROVIDER_ID'],
-				'\''.$sqlHelper->forSql($fields['CURRENCY']).'\'',
-				'\''.$sqlHelper->forSql($fields['STATUS']).'\'',
-				'\''.$sqlHelper->forSql($fields['XML_ID']).'\'',
-				'\''.$fields['AMOUNT'].'\''
-			];
-			$values[] = '('.implode(',', $valuesData).')';
+			$values[] = static::upsertPrepareParams($item);
 		}
 
-		$query = '
-				INSERT INTO '.static::getTableName().'
-					('.implode(', ', $names).')
-					VALUES '.implode(',', $values).'
-					ON DUPLICATE KEY UPDATE
-				'.implode(', ', $duplicate).'
-			';
+		$query = $helper->prepareMergeValues(
+			static::getTableName(),
+			[
+				'ENTITY_ID',
+				'ENTITY_TYPE_ID',
+				'PROVIDER_ID',
+			],
+			$values,
+			$names
+		);
 
-		Application::getConnection()->query($query);
+		$connection->queryExecute($query);
 
 		return $r;
 	}
 
 	/**
-	 * @param $list
+	 * @param array $list
 	 * @return AddResult
-	 * @throws Main\ArgumentException
+	 * @throws ArgumentException
 	 * @throws Main\SystemException
 	 */
-	static protected function checkModifyFields(array $list)
+	protected static function checkModifyFields(array $list): AddResult
 	{
 		$result = new AddResult();
 		$error = [];
@@ -210,13 +196,13 @@ class B24integrationStatTable extends Main\Entity\DataManager
 			$r = new AddResult();
 
 			static::checkFields($r, null, $fields);
-			if($r->isSuccess() == false)
+			if (!$r->isSuccess())
 			{
 				$error[] = '['.$k.'] '.implode(', ', $r->getErrorMessages()).'.';
 			}
 		}
 
-		if(count($error)>0)
+		if (!empty($error))
 		{
 			$result->addError(new Main\Error(implode(', ', $error)));
 		}

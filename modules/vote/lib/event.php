@@ -340,121 +340,51 @@ SQL
 	public static function resetStatistic($voteId)
 	{
 		$connection = Application::getInstance()->getConnection();
-		if ($connection instanceof MysqlCommonConnection)
-		{
-			$connection->executeSqlBatch(<<<SQL
-UPDATE b_vote_user U 
-	INNER JOIN (
-		SELECT count(ID) as COUNTER, VOTE_USER_ID
-		FROM b_vote_event 
-		WHERE VOTE_ID={$voteId}
-		GROUP BY VOTE_USER_ID
-	) E ON (E.VOTE_USER_ID=U.ID) 
-	SET U.COUNTER = (CASE WHEN U.COUNTER - E.COUNTER > 0 THEN U.COUNTER - E.COUNTER ELSE 0 END);
-UPDATE b_vote set COUNTER=0 WHERE ID={$voteId};
-UPDATE b_vote_question SET COUNTER=0 WHERE VOTE_ID={$voteId};
-UPDATE b_vote_answer A 
-	INNER JOIN b_vote_question Q ON (Q.ID=A.QUESTION_ID AND Q.VOTE_ID={$voteId}) 
-	SET A.COUNTER = 0;
-DELETE FROM b_vote_event WHERE VOTE_ID={$voteId};
-DELETE EQ FROM b_vote_event_question EQ
-	JOIN b_vote_question Q ON Q.ID = EQ.QUESTION_ID
-WHERE Q.VOTE_ID = {$voteId};
-DELETE EA FROM b_vote_event_answer EA
-	JOIN b_vote_answer A ON A.ID = EA.ANSWER_ID
-	JOIN b_vote_question Q ON Q.ID = A.QUESTION_ID
-WHERE Q.VOTE_ID = {$voteId};
+		$helper = $connection->getSqlHelper();
 
-SQL
-			);
-		}
-		else if ($connection instanceof MssqlConnection)
+		$connection->query($helper->prepareCorrelatedUpdate(
+			'b_vote_user',
+			'U',
+			[
+				'COUNTER' => '(CASE WHEN U.COUNTER - E.COUNTER > 0 THEN U.COUNTER - E.COUNTER ELSE 0 END)'
+			],
+			"( SELECT count(ID) as COUNTER, VOTE_USER_ID
+				FROM b_vote_event
+				WHERE VOTE_ID={$voteId}
+				GROUP BY VOTE_USER_ID ) E",
+			'E.VOTE_USER_ID=U.ID'
+		));
+
+		$connection->query("UPDATE b_vote set COUNTER = 0 WHERE ID = {$voteId}");
+
+		$connection->query("UPDATE b_vote_question SET COUNTER=0 WHERE VOTE_ID = {$voteId}");
+
+		$connection->query("UPDATE b_vote_answer SET COUNTER=0
+			WHERE QUESTION_ID IN (
+				SELECT ID FROM b_vote_question WHERE VOTE_ID={$voteId}
+		)");
+
+		$connection->query("DELETE FROM b_vote_event WHERE VOTE_ID = {$voteId}");
+
+		$connection->query("DELETE FROM b_vote_event_question
+			WHERE QUESTION_ID IN (
+				SELECT ID from b_vote_question WHERE VOTE_ID = {$voteId}
+		)");
+
+		$connection->query("DELETE FROM b_vote_event_answer
+			WHERE ANSWER_ID IN (
+				SELECT A.ID
+					FROM b_vote_answer A
+					JOIN b_vote_question Q ON (Q.ID = A.QUESTION_ID)
+				WHERE Q.VOTE_ID = {$voteId}
+		)");
+
+		/***************** Event OnVoteReset *******************************/
+		foreach (GetModuleEvents("vote", "onVoteReset", true) as $event)
 		{
-			$connection->executeSqlBatch(<<<SQL
-UPDATE b_vote_user SET b_vote_user.COUNTER = (CASE WHEN b_vote_user.COUNTER - E.COUNTER > 0 THEN b_vote_user.COUNTER - E.COUNTER ELSE 0 END) 
-FROM (
-	SELECT count(ID) as COUNTER, VOTE_USER_ID
-	FROM b_vote_event 
-	WHERE VOTE_ID={$voteId}
-	GROUP BY VOTE_USER_ID
-) E
-WHERE (E.VOTE_USER_ID=b_vote_user.ID)
-GO
-UPDATE b_vote set COUNTER=0 WHERE ID={$voteId}
-GO
-UPDATE b_vote_question SET COUNTER=0 WHERE VOTE_ID={$voteId}
-GO
-UPDATE b_vote_answer SET COUNTER=0 
-FROM (
-	SELECT ID FROM b_vote_question WHERE VOTE_ID={$voteId}
-) Q
-WHERE b_vote_answer.QUESTION_ID=Q.ID
-GO
-DELETE FROM b_vote_event WHERE VOTE_ID={$voteId}
-GO
-DELETE EQ FROM b_vote_event_question EQ
-	JOIN b_vote_question Q ON Q.ID = EQ.QUESTION_ID
-WHERE Q.VOTE_ID = {$voteId}
-GO
-DELETE EA FROM b_vote_event_answer EA
-	JOIN b_vote_answer A ON A.ID = EA.ANSWER_ID
-	JOIN b_vote_question Q ON Q.ID = A.QUESTION_ID
-WHERE Q.VOTE_ID = {$voteId}
-GO
-SQL
-			);
+			ExecuteModuleEventEx($event, array($voteId));
 		}
-		elseif ($connection instanceof OracleConnection)
-		{
-			$connection->executeSqlBatch(<<<SQL
-UPDATE b_vote_user U SET U.COUNTER = (
-	SELECT (CASE WHEN U.COUNTER - E.COUNTER > 0 THEN U.COUNTER - E.COUNTER ELSE 0 END)
-	FROM (
-		SELECT count(ID) as COUNTER, VOTE_USER_ID
-			FROM b_vote_event 
-			WHERE VOTE_ID={$voteId}
-			GROUP BY VOTE_USER_ID
-	) E
-	WHERE E.VOTE_USER_ID = U.ID
-) 
-WHERE U.ID IN (
-	SELECT VOTE_USER_ID
-	FROM b_vote_event 
-	WHERE VOTE_ID={$voteId}
-	GROUP BY VOTE_USER_ID
-)
-/
-UPDATE b_vote set COUNTER=0 WHERE ID={$voteId}
-/
-UPDATE b_vote_question SET COUNTER=0 WHERE VOTE_ID={$voteId}
-/
-UPDATE b_vote_answer SET COUNTER=0 
-WHERE QUESTION_ID IN (
-	SELECT ID FROM b_vote_question WHERE VOTE_ID={$voteId}
-)
-/
-DELETE FROM b_vote_event WHERE VOTE_ID={$voteId}
-/
-DELETE FROM b_vote_event_question 
-WHERE QUESTION_ID IN ( 
-	SELECT ID from b_vote_question WHERE VOTE_ID = {$voteId}
-)
-/
-DELETE FROM b_vote_event_answer 
-WHERE ANSWER_ID IN ( 
-	SELECT A.ID 
-		FROM b_vote_answer A
-		JOIN b_vote_question Q ON (Q.ID = A.QUESTION_ID)
-	WHERE Q.VOTE_ID = {$voteId}
-)
-/
-SQL
-			);
-			/***************** Event OnVoteReset *******************************/
-			foreach (GetModuleEvents("vote", "onVoteReset", true) as $event)
-				ExecuteModuleEventEx($event, array($voteId));
-			/***************** /Event ******************************************/
-		}
+		/***************** /Event ******************************************/
 	}
 
 	/**
@@ -549,8 +479,8 @@ SQL
 					$answerIds = is_array($answerIds) ? $answerIds : array($answerIds);
 					foreach ($answerIds as $answerId)
 					{
-						$data["BALLOT"] = is_array($data["BALLOT"]) ? $data["BALLOT"] : [];
-						$data["BALLOT"][$qId] = is_array($data["BALLOT"][$qId]) ? $data["BALLOT"][$qId] : [];
+						$data["BALLOT"] = isset($data["BALLOT"]) && is_array($data["BALLOT"]) ? $data["BALLOT"] : [];
+						$data["BALLOT"][$qId] = isset($data["BALLOT"][$qId]) && is_array($data["BALLOT"][$qId]) ? $data["BALLOT"][$qId] : [];
 						$data["BALLOT"][$qId][$answerId] = true;
 					}
 				}
@@ -771,7 +701,7 @@ SQL
 					"VOTE_ID"			=> $eventFields["VOTE_ID"],
 					"VOTE_USER_ID"		=> $eventFields["VOTE_USER_ID"],
 					"DATE_VOTE"			=> $eventFields["DATE_VOTE"],
-					"STAT_SESSION_ID"	=> $eventFields["SESS_SESSION_ID"],
+					"STAT_SESSION_ID"	=> $eventFields["SESS_SESSION_ID"] ?? null,
 					"IP"				=> $eventFields["IP"],
 					"VISIBLE"			=> $eventFields["VISIBLE"],
 					"VALID"				=> $eventFields["VALID"],

@@ -23,11 +23,6 @@ class form extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = FORM_VERSION;
-			$this->MODULE_VERSION_DATE = FORM_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("FORM_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("FORM_MODULE_DESCRIPTION");

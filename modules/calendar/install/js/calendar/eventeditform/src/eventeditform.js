@@ -1008,16 +1008,15 @@ export class EventEditForm
 			}
 		}
 
-		let dateTime = this.dateTimeControl.getValue();
-		const needToLoadAdditional = this.planner.isNeedToExpandTimeline(dateTime.from, dateTime.to);
+		const dateTime = this.dateTimeControl.getValue();
 
 		this.planner.updateSelector(
 			dateTime.from,
 			dateTime.to,
 			dateTime.fullDay,
 			{
-				focus: true
-			}
+				focus: true,
+			},
 		);
 
 		if (entry.isSharingEvent())
@@ -1025,16 +1024,13 @@ export class EventEditForm
 			this.planner.setReadonly();
 		}
 
-		if (!needToLoadAdditional)
-		{
-			this.loadPlannerData({
-				entityList: this.getUserSelectorEntityList(),
-				from: Util.formatDate(entry.from.getTime() - Util.getDayLength() * 3),
-				to: Util.formatDate(entry.to.getTime() + Util.getDayLength() * 10),
-				timezone: entry.getTimezoneFrom(),
-				location: this.locationSelector.getTextValue()
-			});
-		}
+		this.loadPlannerData({
+			entityList: this.getUserSelectorEntityList(),
+			from: Util.formatDate(entry.from.getTime() - Util.getDayLength() * 3),
+			to: Util.formatDate(entry.to.getTime() + Util.getDayLength() * 10),
+			timezone: entry.getTimezoneFrom(),
+			location: this.locationSelector.getTextValue(),
+		});
 	}
 
 	updateEventNameInputTitle()
@@ -2500,6 +2496,7 @@ export class EventEditForm
 				options: {
 					inviteGuestLink: true,
 					emailUsers: true,
+					analyticsSource: 'calendar',
 				},
 				filters: [
 					{

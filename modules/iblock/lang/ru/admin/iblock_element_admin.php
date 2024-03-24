@@ -136,7 +136,6 @@ $MESS["IBEL_CATALOG_EXTRA_DESCRIPTION"] = "Наценка #VALUE# к базов�
 $MESS["IBEL_SECTIONS_LINK_TITLE"] = "Перейти к элементам раздела";
 $MESS["IBEL_LIST_TITLE"] = "#IBLOCK_NAME#: Список товаров";
 $MESS["IBEL_LIST_TITLE_2"] = "Каталог товаров";
-$MESS["IBEL_PRODUCTS_INSTAGRAM"] = "Товары Instagram";
 $MESS["IBEL_CATALOG_SKU_PRICE"] = "от #PRICE#";
 $MESS["IBEL_CATALOG_EMPTY_VALUE"] = "не выбрано";
 $MESS["IBEL_CATALOG_DEFAULT"] = "(по умолчанию)";

@@ -56,7 +56,7 @@ class Lists
 	public function showJSON()
 	{
 		/**
-		 * @var $APPLICATION \CAllMain
+		 * @var $APPLICATION \CMain
 		 */
 		global $APPLICATION;
 

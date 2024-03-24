@@ -63,6 +63,12 @@ class UserProvider extends BaseProvider
 			$this->options['nameTemplate'] = \CSite::getNameFormat(false);
 		}
 
+		$this->options['analyticsSource'] = 'userProvider';
+		if (isset($options['analyticsSource']))
+		{
+			$this->options['analyticsSource'] = $options['analyticsSource'];
+		}
+
 		if (isset($options['onlyWithEmail']) && is_bool($options['onlyWithEmail']))
 		{
 			$this->options['onlyWithEmail'] = $options['onlyWithEmail'];
@@ -297,10 +303,11 @@ class UserProvider extends BaseProvider
 				&& self::isIntranetUser()
 			)
 			{
+
 				$inviteEmployeeLink = UrlManager::getInstance()->create('getSliderContent', [
 					'c' => 'bitrix:intranet.invitation',
 					'mode' => Router::COMPONENT_MODE_AJAX,
-					'analyticsLabel[source]' => 'userProvider',
+					'analyticsLabel[source]' => $this->options['analyticsSource'],
 				]);
 			}
 
@@ -751,10 +758,12 @@ class UserProvider extends BaseProvider
 
 			$query->registerRuntimeField(new ExpressionField(
 				'IS_EXTRANET_USER',
-				'IF(
+				'CASE WHEN
 					(%s IS NULL OR %s = \'' . $emptyValue . '\' OR %s = \'' . $emptyValue2 . '\') AND
-					(%s IS NULL OR %s NOT IN (\'' . implode('\', \'', UserTable::getExternalUserTypes()) . '\')), \'Y\', \'N\'
-				)',
+					(%s IS NULL OR %s NOT IN (\'' . implode('\', \'', UserTable::getExternalUserTypes()) . '\'))
+					 THEN \'Y\'
+					 ELSE \'N\'
+				END',
 				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
 			);
 
@@ -918,17 +927,22 @@ class UserProvider extends BaseProvider
 			$query->whereNotIn('ID', $notUserIds);
 		}
 
-		if (empty($options['order']) && count($userIds) > 1)
+		if (
+			empty($options['order'])
+			&&
+			($usersCount = count($userIds)) > 1
+		)
 		{
-			$query->registerRuntimeField(
-				new ExpressionField(
-					'ID_SEQUENCE',
-					'FIELD(%s, ' . implode(',', $userIds) . ')',
-					'ID'
-				)
+			$helper = Application::getConnection()->getSqlHelper();
+			$expression = $helper->getOrderByIntField('%s', $userIds, false);
+			$field = new ExpressionField(
+				'ID_SEQUENCE',
+				$expression,
+				array_fill(0, $usersCount, 'ID')
 			);
-
-			$query->setOrder('ID_SEQUENCE');
+			$query
+				->registerRuntimeField($field)
+				->setOrder($field->getName());
 		}
 		elseif (!empty($options['order']) && is_array($options['order']))
 		{

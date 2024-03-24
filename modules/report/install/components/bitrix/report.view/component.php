@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CUser $USER */
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
@@ -6,12 +6,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+/** @global CMain $APPLICATION */
+
 $arParams['REPORT_ID'] = isset($arParams['REPORT_ID']) ? (int)$arParams['REPORT_ID'] : 0;
 
-$isStExportEnabled = (is_array($arParams['~STEXPORT_PARAMS']));
+$isStExportEnabled = (isset($arParams['~STEXPORT_PARAMS']) && is_array($arParams['~STEXPORT_PARAMS']));
 $isStExport = false;
 $stExportOptions = array();
-if (is_array($arParams['~STEXPORT_OPTIONS'])
+if (isset($arParams['~STEXPORT_OPTIONS'])
+	&& is_array($arParams['~STEXPORT_OPTIONS'])
 	&& isset($arParams['~STEXPORT_OPTIONS']['STEXPORT_MODE'])
 	&& $arParams['~STEXPORT_OPTIONS']['STEXPORT_MODE'] === 'Y')
 {
@@ -47,7 +50,11 @@ else
 }
 
 $requiredModules = array();
-if (is_array($arParams['REQUIRED_MODULES']) && !empty($arParams['REQUIRED_MODULES']))
+if (
+	isset($arParams['REQUIRED_MODULES'])
+	&& is_array($arParams['REQUIRED_MODULES'])
+	&& !empty($arParams['REQUIRED_MODULES'])
+)
 {
 	$requiredModules = $arParams['REQUIRED_MODULES'];
 }
@@ -222,7 +229,11 @@ try
 	{
 		$arResult['MARK_DEFAULT'] = intval($report['MARK_DEFAULT']);
 	}
-	$arResult['SHOW_EDIT_BUTTON'] = is_bool($arParams['SHOW_EDIT_BUTTON']) ? $arParams['SHOW_EDIT_BUTTON'] : true;
+	$arResult['SHOW_EDIT_BUTTON'] =
+		(isset($arParams['SHOW_EDIT_BUTTON']) && is_bool($arParams['SHOW_EDIT_BUTTON']))
+			? $arParams['SHOW_EDIT_BUTTON']
+			: true
+	;
 
 	// action
 	$settings = unserialize($report['SETTINGS'], ['allowed_classes' => false]);
@@ -455,7 +466,7 @@ try
 	$bGroupingMode = false;
 	foreach ($settings['select'] as $elem)
 	{
-		if (!$bGroupingMode) if ($elem['grouping'] === true) $bGroupingMode = true;
+		if (!$bGroupingMode) if (($elem['grouping'] ?? false) === true) $bGroupingMode = true;
 		$fName = $elem['name'];
 
 		if (array_key_exists($fName, $fList))
@@ -551,7 +562,7 @@ try
 	foreach ($settings['select'] as &$elem)
 	{
 		//if (in_array($elem['name'], $grcFields, true) && empty($elem['aggr']))
-		if ($elem['aggr'] == 'GROUP_CONCAT')
+		if (($elem['aggr'] ?? '') === 'GROUP_CONCAT')
 		{
 			continue;
 		}
@@ -614,7 +625,7 @@ try
 		$is_grc = false;
 
 		//if (in_array($elem['name'], $grcFields, true) && empty($elem['aggr']) && !strlen($elem['prcnt']))
-		if ($elem['aggr'] == 'GROUP_CONCAT')
+		if (($elem['aggr'] ?? '') === 'GROUP_CONCAT')
 		{
 			$is_grc = true;
 
@@ -702,10 +713,17 @@ try
 			'humanTitle' => empty($elem['alias']) ? $alias : $elem['alias'],
 			'defaultSort' => $defaultSort,
 			'aggr' => empty($elem['aggr']) ? '' : $elem['aggr'],
-			'prcnt' => $elem['prcnt'] <> ''? $elem['prcnt'] : '',
+			'prcnt' => (isset($elem['prcnt']) && $elem['prcnt'] !== '') ? $elem['prcnt'] : '',
 			'href' => empty($elem['href']) ? '' : $elem['href'],
-			'grouping' => ($elem['grouping'] === true) ? true : false,
-			'grouping_subtotal' => ($elem['grouping_subtotal'] === true) ? true : false,
+			'grouping' => (isset($elem['grouping']) && $elem['grouping'] === true) ? true : false,
+			'grouping_subtotal' =>
+				(
+					isset($elem['grouping_subtotal'])
+					&& $elem['grouping_subtotal'] === true
+				)
+					? true
+					: false
+			,
 			'isUF' => $arUF['isUF'],
 			'ufInfo' => $arUF['ufInfo']
 		);
@@ -715,7 +733,7 @@ try
 
 		// blacklist of entity with aggr
 		//if (!in_array($elem['name'], $grcFields, true) && !empty($elem['aggr']))
-		if ($elem['aggr'] != 'GROUP_CONCAT' && !empty($elem['aggr']))
+		if (isset($elem['aggr']) && $elem['aggr'] !== 'GROUP_CONCAT' && !empty($elem['aggr']))
 		{
 			$preDef = mb_substr($elem['name'], 0, mb_strrpos($elem['name'], '.'));
 			$preDef = $preDef <> ''? $preDef.'.' : '';
@@ -1317,7 +1335,7 @@ try
 	}
 	else if (!$bGroupingMode) // no limit in grouping mode
 	{
-		$limit['nPageSize'] = $arParams['ROWS_PER_PAGE'];
+		$limit['nPageSize'] = $arParams['ROWS_PER_PAGE'] ?? null;
 
 		if (!empty($settings['limit']))
 		{
@@ -1402,7 +1420,7 @@ try
 					'prcnt' => '',
 					'href' => empty($runtimeColumnInfo['href']) ? '' : $runtimeColumnInfo['href'],
 					'grouping' => false,
-					'grouping_subtotal' => ($runtimeColumnInfo['grouping_subtotal'] === true) ? true : false,
+					'grouping_subtotal' => (($runtimeColumnInfo['grouping_subtotal'] ?? false) === true) ? true : false,
 					'runtime' => true
 				);
 				$viewColumnsByResultName[$k] = &$viewColumns[$newNum];
@@ -1567,22 +1585,22 @@ try
 		$isMinimum = false;
 		$isMaximum = false;
 		$isPrcntFromCol = false;
-		if (is_array($customTotals[$k]))
+		if (isset($customTotals[$k]) && is_array($customTotals[$k]))
 		{
-			if (is_array($customTotals[$k]['average']))
+			if (isset($customTotals[$k]['average']) && is_array($customTotals[$k]['average']))
 			{
 				$isCustomTotal = $isAverage = true;
 			}
-			else if (is_array($customTotals[$k]['minimum']))
+			else if (isset($customTotals[$k]['minimum']) && is_array($customTotals[$k]['minimum']))
 			{
 				$isCustomTotal = $isMinimum = true;
 			}
-			else if (is_array($customTotals[$k]['maximum']))
+			else if (isset($customTotals[$k]['maximum']) && is_array($customTotals[$k]['maximum']))
 			{
 				$isCustomTotal = $isMaximum = true;
 			}
 
-			if (is_array($customTotals[$k]['prcntFromCol']))
+			if (isset($customTotals[$k]['prcntFromCol']) && is_array($customTotals[$k]['prcntFromCol']))
 			{
 				$isCustomTotal = $isPrcntFromCol = true;
 			}
@@ -1692,13 +1710,13 @@ try
 			$isCustomTotal = false;
 			$isAverage = false;
 			$isPrcntFromCol = false;
-			if (is_array($customTotals[$k]))
+			if (isset($customTotals[$k]) && is_array($customTotals[$k]))
 			{
-				if (is_array($customTotals[$k]['average']))
+				if (isset($customTotals[$k]['average']) && is_array($customTotals[$k]['average']))
 				{
 					$isCustomTotal = $isAverage = true;
 				}
-				if (is_array($customTotals[$k]['prcntFromCol']))
+				if (isset($customTotals[$k]['prcntFromCol']) && is_array($customTotals[$k]['prcntFromCol']))
 				{
 					$isCustomTotal = $isPrcntFromCol = true;
 				}
@@ -1806,7 +1824,8 @@ try
 			$grcChain = Entity\QueryChain::getChainByDefinition($entity, $elem['name']);
 			$grc_field = $grcChain->getLastElement()->getValue();
 			if (is_array($grc_field)) $grc_field = end($grc_field);
-			$grc_primary = end($grc_field->getEntity()->getPrimaryArray());
+			$primary = $grc_field->getEntity()->getPrimaryArray();
+			$grc_primary = end($primary);
 			$grc_marker = mb_substr($elem['name'], 0, mb_strrpos($elem['name'], '.')).'.' . $grc_primary;
 			$grc_marker_alias = Entity\QueryChain::getAliasByDefinition($entity, $grc_marker);
 
@@ -1934,7 +1953,7 @@ else if ($isStExportEnabled && !$isStExport)
 		'USER_ID', 'GROUP_ID', 'PAGEN_1', 'EXCEL', 'select_my_tasks', 'select_depts_tasks', 'select_group_tasks'
 
 	);
-	if (is_array($arParams['~URI_PARAMS']) && !empty($arParams['~URI_PARAMS']))
+	if (isset($arParams['~URI_PARAMS']) && is_array($arParams['~URI_PARAMS']) && !empty($arParams['~URI_PARAMS']))
 	{
 		$uriParamsSource = &$arParams['~URI_PARAMS'];
 	}

@@ -1,6 +1,11 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
+
+/** @var \CDataInstallWizardStep $wizard */
 
 //echo "WIZARD_SITE_ID=".WIZARD_SITE_ID." | ";
 //echo "WIZARD_SITE_PATH=".WIZARD_SITE_PATH." | ";
@@ -17,6 +22,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 //echo "WIZARD_IS_RERUN=".WIZARD_IS_RERUN." | ";
 //die();
 
+
+
 if (!defined("WIZARD_TEMPLATE_ID"))
 	return;
 
@@ -26,7 +33,7 @@ CopyDirFiles(
 	$_SERVER["DOCUMENT_ROOT"].WizardServices::GetTemplatesPath(WIZARD_RELATIVE_PATH."/site")."/".WIZARD_TEMPLATE_ID,
 	$bitrixTemplateDir,
 	$rewrite = true,
-	$recursive = true, 
+	$recursive = true,
 	$delete_after_copy = false,
 	$exclude = "themes"
 );
@@ -87,6 +94,8 @@ function ___writeToAreasFile($fn, $text)
 
 	if(defined("BX_FILE_PERMISSIONS"))
 		@chmod($fn, BX_FILE_PERMISSIONS);
+
+	return true;
 }
 
 //logo
@@ -154,4 +163,3 @@ elseif(WIZARD_INSTALL_DEMO_DATA || !file_exists(WIZARD_SITE_PATH."/include/compa
 	copy(WIZARD_ABSOLUTE_PATH."/site/templates/eshop_bootstrap/themes/".$themeID."/images/logo_mobile_retina.png", WIZARD_SITE_PATH."include/logo_mobile_retina.png");
 	___writeToAreasFile(WIZARD_SITE_PATH."include/company_logo_mobile.php", '<img src="'.WIZARD_SITE_DIR.'include/logo_mobile.png"  srcset="'.WIZARD_SITE_DIR.'include/logo_mobile_retina.png" />');
 }
-?>

@@ -1,10 +1,11 @@
-<?
+<?php
+
 $MESS ['BPAA_ACT_BUTTON1'] = "Утвердить документ";
 $MESS ['BPAA_LOG_Y'] = "Утвержден";
 $MESS ['BPAA_ACT_COMMENT'] = "Комментарий";
 $MESS ['BPAA_LOG_COMMENTS'] = "Комментарий";
-$MESS ['BPAA_ACT_BUTTON2'] = "Отклонить";
-$MESS ['BPAA_LOG_N'] = "Отклонен";
+$MESS ['BPAA_ACT_BUTTON2_MSGVER_1'] = "Отклонить";
+$MESS ['BPAA_LOG_N_MSGVER_1'] = "Отклонен";
 $MESS ['BPAA_ACT_NO_ACTION'] = "Не указано действие";
 $MESS ['BPAA_ACT_INFO'] = "Проголосовало #PERCENT#% (#VOTED# из #TOTAL#)";
 $MESS ['BPAA_ACT_APPROVE'] = "Документ принят";
@@ -20,4 +21,3 @@ $MESS ['BPAA_ACT_PROP_EMPTY1'] = "Свойство 'Пользователи' н
 $MESS ['BPAA_ACT_PROP_EMPTY3'] = "Значение свойства 'Тип одобрения' не корректно.";
 $MESS ['BPAA_ACT_APPROVERS_NONE'] = "нет";
 $MESS ['BPAA_ACT_COMMENT_ERROR'] = "Не заполнено поле: #COMMENT_LABEL#";
-?>

@@ -1,4 +1,4 @@
-<?
+<?php
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2007 Bitrix             #
@@ -622,13 +622,20 @@ class CAllForumMessage
 			}
 		}
 
-		$res = ($arAddParams["FILTER"] == "Y" ? $GLOBALS["FORUM_CACHE"]["MESSAGE_FILTER"][$ID] :
-			$GLOBALS["FORUM_CACHE"]["MESSAGE"][$ID]);
+		if (isset($GLOBALS["FORUM_CACHE"]["MESSAGE"][$ID]))
+		{
+			$res = $GLOBALS["FORUM_CACHE"]["MESSAGE"][$ID];
+			if ($arAddParams["FILTER"] == "Y" && !empty($GLOBALS["FORUM_CACHE"]["MESSAGE_FILTER"][$ID]))
+			{
+				$res = $GLOBALS["FORUM_CACHE"]["MESSAGE_FILTER"][$ID];
+			}
+			if ($arAddParams["getFiles"] == "Y")
+				$res["FILES"] = CForumFiles::getByMessageID($ID);
 
-		if ($arAddParams["getFiles"] == "Y" && !empty($res))
-			$res["FILES"] = CForumFiles::getByMessageID($ID);
+			return $res;
+		}
 
-		return $res;
+		return null;
 	}
 
 	public static function GetByIDEx($ID, $arAddParams = array())
@@ -1564,31 +1571,51 @@ class CALLForumFiles
 		$GLOBALS["DB"]->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
-	public static function Delete($arFields = array(), $arParams = array())
+	public static function Delete($fields = [], $params = [])
 	{
-		global $DB;
-		$arFields = (is_array($arFields) ? $arFields : array($arFields));
-		$arParams = (is_array($arParams) ? $arParams : array($arParams));
-		$arSQL = array();
-		if (empty($arFields))
-			return false;
-		if (intval($arFields["FILE_ID"]) > 0)
-			$arSQL[] = "FILE_ID=".intval($arFields["FILE_ID"]);
-		if (intval($arFields["MESSAGE_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_MESSAGE_FILE"] == "Y"))
-			$arSQL[] = "MESSAGE_ID=".intval($arFields["MESSAGE_ID"]);
-		if (intval($arFields["TOPIC_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_TOPIC_FILE"] == "Y"))
-			$arSQL[] = "TOPIC_ID=".intval($arFields["TOPIC_ID"]);
-		if (intval($arFields["FORUM_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_FORUM_FILE"] == "Y"))
-			$arSQL[] = "FORUM_ID=".intval($arFields["FORUM_ID"]);
-		if (empty($arSQL))
-			return false;
-		$db_res = $DB->Query("SELECT * from b_forum_file where ".implode(" AND ", $arSQL), false, "FILE: ".__FILE__." LINE:".__LINE__);
-		if ($db_res && $res = $db_res->Fetch())
+		if (empty($fields))
 		{
-			do
+			return false;
+		}
+
+		global $DB;
+
+		$fields = (is_array($fields) ? $fields : []);
+		$params = (is_array($params) ? $params : []);
+
+		foreach (['FILE_ID', 'MESSAGE_ID', 'TOPIC_ID', 'FORUM_ID'] as $key)
+		{
+			$fields[$key] = (int) ($fields[$key] ?? 0);
+		}
+
+		$arSQL = [];
+
+		if (!empty($fields['FILE_ID']))
+		{
+			$arSQL[] = 'FILE_ID=' . $fields['FILE_ID'];
+		}
+		if (!empty($fields['MESSAGE_ID']) && (!empty($arSQL) || $params['DELETE_MESSAGE_FILE'] == 'Y'))
+		{
+			$arSQL[] = 'MESSAGE_ID=' . $fields['MESSAGE_ID'];
+		}
+		if (!empty($fields['TOPIC_ID']) && (!empty($arSQL) || $params['DELETE_TOPIC_FILE'] == 'Y'))
+		{
+			$arSQL[] = 'TOPIC_ID=' . $fields['TOPIC_ID'];
+		}
+		if (!empty($fields['FORUM_ID']) && (!empty($arSQL) || $params['DELETE_FORUM_FILE'] == 'Y'))
+		{
+			$arSQL[] = 'FORUM_ID=' . $fields['FORUM_ID'];
+		}
+		if (!empty($arSQL))
+		{
+			$db_res = $DB->Query('SELECT * from b_forum_file where '.implode(' AND ', $arSQL), false, 'FILE: '.__FILE__.' LINE:'.__LINE__);
+			if ($db_res && $res = $db_res->Fetch())
 			{
-				CFile::Delete($res["FILE_ID"]);
-			} while ($res = $db_res->Fetch());
+				do
+				{
+					CFile::Delete($res['FILE_ID']);
+				} while ($res = $db_res->Fetch());
+			}
 		}
 	}
 

@@ -41,6 +41,7 @@ return [
 		'im.v2.component.message.support.session-number',
 		'im.v2.component.message.conference-creation',
 		'im.v2.component.message.own-chat-creation',
+		'im.v2.component.message.zoom-invite',
 	],
 	'skip_core' => false,
 ];

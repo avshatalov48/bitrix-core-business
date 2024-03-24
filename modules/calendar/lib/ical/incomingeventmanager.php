@@ -9,15 +9,11 @@ use Bitrix\Calendar\ICal\MailInvitation\Helper;
 use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler;
 use Bitrix\Mail\Internals\MessageAccessTable;
 use Bitrix\Mail\MailboxTable;
-use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main\IO\FileNotFoundException;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
-use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Text\Encoding;
-use Bitrix\Tasks\Integration\Disk;
 use Bitrix\Calendar\ICal\Basic\{Dictionary, ICalUtil};
 use Bitrix\Main\Type\Date;
 
@@ -152,7 +148,7 @@ class IncomingEventManager
 		);
 
 		$mailBoxQuery = MessageAccessTable::query()
-			->setSelect(['EMAIL' => 'MAILBOX.EMAIL'])
+			->setSelect(['ID' => 'MAILBOX.ID', 'EMAIL' => 'MAILBOX.EMAIL', 'ENTITY_TYPE', 'ENTITY_ID'])
 			->registerRuntimeField(
 				'MAILBOX',
 				new Reference(
@@ -188,8 +184,8 @@ class IncomingEventManager
 		;
 		$attendee = Helper::getAttendee($params['event']['OWNER_ID'], $params['event']['PARENT_ID'], false);
 		$status = Dictionary::OUT_ATTENDEES_STATUS[$answer];
-		$attendee->setStatus($status);
-		$attendee->setEmail($mailbox['EMAIL'])->setMailto($mailbox['EMAIL']);
+		$attendee?->setStatus($status);
+		$attendee?->setEmail($mailbox['EMAIL'])->setMailto($mailbox['EMAIL']);
 		$attendeesCollection = new AttendeesCollection([$attendee]);
 
 		$replyStatus = OutcomingEventManager::createInstance([

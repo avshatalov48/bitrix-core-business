@@ -9,7 +9,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arParams */
 /** @var \CBitrixComponent $component */
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
@@ -18,7 +17,14 @@ Extension::load([
 	'im.public',
 	'ui.buttons',
 	'ui.buttons.icons',
+	'ui.icon-set.main',
+	'ui.entity-selector',
 	'sidepanel',
+	'tasks.scrum.meetings',
+	'tasks.scrum.methodology',
+	'socialnetwork.group-privacy',
+	'socialnetwork.logo',
+	'socialnetwork.controller',
 ]);
 
 $messages = Loc::loadLanguageFile(__FILE__);
@@ -34,7 +40,7 @@ if ($arResult['isScrum'])
 
 <div class="sn-spaces__menu">
 
-	<div id="sn-spaces__menu-logo" class="sn-spaces__list-item_icon"></div>
+	<div id="sn-spaces__menu-logo" class="sn-spaces__space-logo"></div>
 
 	<div class="sn-spaces__menu-list">
 		<div class="sn-spaces__menu-buttons">
@@ -61,6 +67,7 @@ if ($arResult['isScrum'])
 		const menu = new BX.Socialnetwork.Spaces.Menu({
 			type: 'group',
 			entityId: '<?= (int) $arResult['groupId'] ?>',
+			currentUserId: '<?= (int) $arResult['userId'] ?>',
 			groupMembersList: <?= CUtil::PhpToJSObject($arResult['groupMembersList'] ?? []) ?>,
 			logo: <?= Json::encode($arResult['logo']) ?>,
 			pathToFeatures: '<?= CUtil::JSescape($arResult['pathToGroupFeatures']) ?>',
@@ -71,6 +78,20 @@ if ($arResult['isScrum'])
 			pathToScrumTeamSpeed: '<?= CUtil::JSescape($arResult['pathToScrumTeamSpeed']) ?>',
 			pathToScrumBurnDown: '<?= CUtil::JSescape($arResult['pathToScrumBurnDown']) ?>',
 			pathToGroupTasksTask: '<?= CUtil::JSescape($arResult['pathToGroupTasksTask']) ?>',
+		});
+
+		const paths = {
+			pathToUsers: '<?= $arResult['pathToGroupUsers'] ?>',
+			pathToCommonSpace: '<?= $arResult['pathToCommonSpace'] ?>',
+			pathToFeatures: '<?= $arResult['pathToGroupFeatures'] ?>',
+			pathToInvite: '<?= $arResult['pathToGroupInvite'] ?>',
+		};
+
+		BX.Socialnetwork.Controller.paths = paths;
+		top.BX.Runtime.loadExtension('socialnetwork.controller').then((exports) => {
+			const { Controller } = exports;
+
+			Controller.paths = paths;
 		});
 
 		menu.renderLogoTo(document.getElementById('sn-spaces__menu-logo'));

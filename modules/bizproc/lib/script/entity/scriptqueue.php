@@ -40,6 +40,7 @@ class ScriptQueueTable extends Main\Entity\DataManager
 			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
+				'autocomplete' => true,
 			],
 			'SCRIPT_ID' => [
 				'data_type' => 'integer'
@@ -64,7 +65,8 @@ class ScriptQueueTable extends Main\Entity\DataManager
 				'data_type' => 'datetime'
 			],
 			'MODIFIED_BY' => [
-				'data_type' => 'integer'
+				'data_type' => 'integer',
+				'default_value' => 0,
 			],
 			new Main\ORM\Fields\ArrayField('WORKFLOW_PARAMETERS'),
 		];

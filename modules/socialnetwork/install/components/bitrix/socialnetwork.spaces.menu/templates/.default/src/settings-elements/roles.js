@@ -1,23 +1,33 @@
 import { Event, Loc, Tag } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
+type Params = {
+	canEdit: boolean,
+}
+
 export class Roles extends EventEmitter
 {
-	constructor()
+	#canEdit: boolean;
+
+	constructor(params: Params)
 	{
 		super();
 
 		this.setEventNamespace('BX.Socialnetwork.Spaces.Settings.Roles');
+
+		this.#canEdit = params.canEdit === true;
 	}
 
 	render(): HTMLElement
 	{
 		const rolesId = 'spaces-settings-roles';
 
+		const disabled = this.#canEdit ? '' : '--disabled';
+
 		const node = Tag.render`
 			<div
 				data-id="${rolesId}"
-				class="sn-spaces__popup-item --mini Roles&Rights"
+				class="sn-spaces__popup-item --mini ${disabled}"
 			>
 				<div class="sn-spaces__popup-icon-round">
 					<div
@@ -31,7 +41,12 @@ export class Roles extends EventEmitter
 			</div>
 		`;
 
-		Event.bind(node, 'click', () => this.emit('click'));
+		Event.bind(node, 'click', () => {
+			if (this.#canEdit)
+			{
+				this.emit('click');
+			}
+		});
 
 		return node;
 	}

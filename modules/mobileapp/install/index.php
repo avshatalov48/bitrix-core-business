@@ -33,10 +33,14 @@ Class mobileapp extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 		
-		if (!$DB->Query("SELECT 'x' FROM b_mobileapp_app", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/mysql/install.sql");
+		if (!$DB->TableExists('b_mobileapp_app'))
+		{
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/mobileapp/install/db/' . $connection->getType() . '/install.sql');
+		}
+
 		$APPLICATION->ResetException();
 		if ($this->errors !== false)
 		{
@@ -54,7 +58,8 @@ Class mobileapp extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB;
-		$DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/mysql/uninstall.sql");
+		$connection = \Bitrix\Main\Application::getConnection();
+		$DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/".$connection->getType()."/uninstall.sql");
 		UnRegisterModuleDependences("pull", "OnGetDependentModule", "mobileapp", "CMobileAppPullSchema", "OnGetDependentModule");
 		UnRegisterModule("mobileapp");
 		return true;

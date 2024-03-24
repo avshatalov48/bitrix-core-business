@@ -126,17 +126,17 @@ final class VoteUserType
 	{
 		$userField["SETTINGS"] = (is_array($userField["SETTINGS"]) ? $userField["SETTINGS"] : @unserialize($userField["SETTINGS"], ["allowed_classes" => false]));
 		$userField["SETTINGS"] = (is_array($userField["SETTINGS"]) ? $userField["SETTINGS"] : array());
-		$tmp = array("CHANNEL_ID" => intval($userField["SETTINGS"]["CHANNEL_ID"]));
+		$tmp = array("CHANNEL_ID" => intval($userField["SETTINGS"]["CHANNEL_ID"] ?? 0));
 
-		if ($userField["SETTINGS"]["CHANNEL_ID"] == "add")
+		if (isset($userField["SETTINGS"]["CHANNEL_ID"]) && $userField["SETTINGS"]["CHANNEL_ID"] == "add")
 		{
 			$tmp["CHANNEL_TITLE"] = trim($userField["SETTINGS"]["CHANNEL_TITLE"]);
 			$tmp["CHANNEL_SYMBOLIC_NAME"] = trim($userField["SETTINGS"]["CHANNEL_SYMBOLIC_NAME"]);
 			$tmp["CHANNEL_USE_CAPTCHA"] = ($userField["SETTINGS"]["CHANNEL_USE_CAPTCHA"] == "Y" ? "Y" : "N");
 		}
 
-		$uniqType = $userField["SETTINGS"]["UNIQUE"];
-		if (is_array($userField["SETTINGS"]["UNIQUE"]))
+		$uniqType = $userField["SETTINGS"]["UNIQUE"] ?? 0;
+		if (isset($userField["SETTINGS"]["UNIQUE"]) && is_array($userField["SETTINGS"]["UNIQUE"]))
 		{
 			$uniqType = 0;
 			foreach ($userField["SETTINGS"]["UNIQUE"] as $z)
@@ -144,9 +144,9 @@ final class VoteUserType
 		}
 
 		$tmp["UNIQUE"] = $uniqType;
-		$tmp["UNIQUE_IP_DELAY"] = is_array($userField["SETTINGS"]["UNIQUE_IP_DELAY"]) ?
+		$tmp["UNIQUE_IP_DELAY"] = isset($userField["SETTINGS"]["UNIQUE_IP_DELAY"]) && is_array($userField["SETTINGS"]["UNIQUE_IP_DELAY"]) ?
 			$userField["SETTINGS"]["UNIQUE_IP_DELAY"] : array();
-		$tmp["NOTIFY"] = (in_array($userField["SETTINGS"]["NOTIFY"], array("I", "Y", "N")) ?
+		$tmp["NOTIFY"] = (isset($userField["SETTINGS"]["NOTIFY"]) && in_array($userField["SETTINGS"]["NOTIFY"], array("I", "Y", "N")) ?
 			$userField["SETTINGS"]["NOTIFY"] : "N");
 
 		return $tmp;

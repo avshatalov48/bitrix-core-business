@@ -4,8 +4,13 @@ namespace Bitrix\Socialnetwork\Space\List\Item;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Helper\AvatarManager;
+use Bitrix\Socialnetwork\Helper\Workgroup\Access;
 use Bitrix\Socialnetwork\Internals\Space\Counter;
+use Bitrix\Socialnetwork\Space\List\AccessManager;
 use Bitrix\Socialnetwork\Space\List\Dictionary;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Item\RecentActivityData;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Service;
 use Bitrix\Socialnetwork\Space\List\UserRoleManager;
 
 final class Builder
@@ -46,20 +51,51 @@ final class Builder
 
 			$userRole = (new UserRoleManager())->getUserRole($value['ROLE'], $value['ROLE_INIT_BY_TYPE']);
 
+			$recentActivityData =
+				(new RecentActivityData())
+					->setSpaceId($value['ID'])
+					->setUserId($this->userId)
+					->setTypeId($value['RECENT_ACTIVITY_TYPE_ID'] ?? null)
+					->setEntityId($value['RECENT_ACTIVITY_ENTITY_ID'] ?? null)
+					->setDateTime($value['RECENT_ACTIVITY_DATE'] ?? null)
+			;
+
+			$permissions = [
+				'canLeave' => Access::canLeave(['groupId' => $value['ID']])
+			];
+
 			$spaces[] =
 				(new Space())
 					->setId($value['ID'])
 					->setName($value['NAME'])
 					->setIsPinned((int)($value['PIN_ID']) > 0 && $userRole === Dictionary::USER_ROLES['member'])
-					->setDateActivity($value['DATE_ACTIVITY'])
 					->setAvatar($avatar)
 					->setVisibilityType($visibilityType)
 					->setCounter($counter->getTotal($value['ID']))
-					->setLastActivityDescription('')
 					->setUserRole($userRole)
 					->setFollow(\CSocNetSubscription::isUserSubscribed($this->userId, 'SG' . $value['ID']))
+					->setRecentActivityData($recentActivityData)
+					->setPermissions($permissions)
 			;
 		}
+
+		return $this->fillRecentActivityDescription($spaces);
+	}
+
+	private function fillRecentActivityDescription(array $spaces): array
+	{
+		$collector = new Collector(Collector::getDefaultProviders());
+		/** @var array<Space> $spaces */
+		foreach ($spaces as $space)
+		{
+			$data = $space->getRecentActivityData();
+			if ($data instanceof RecentActivityData)
+			{
+				$collector->addRecentActivityData($data);
+			}
+		}
+
+		$collector->fillData();
 
 		return $spaces;
 	}
@@ -68,18 +104,29 @@ final class Builder
 	{
 		$counter = Counter::getInstance($this->userId);
 
-		return
+		$commonSpace =
 			(new Space())
 				->setId(0)
 				->setName(Loc::getMessage('SOCIALNETWORK_SPACES_LIST_COMMON_SPACE_NAME'))
 				->setIsPinned(false)
-				->setDateActivity(new \Bitrix\Main\Type\DateTime())
 				->setAvatar($this->avatarManager->getIconAvatar('common-space'))
 				->setVisibilityType(Dictionary::SPACE_VISIBILITY_TYPES['open'])
 				->setCounter($counter->getTotal(0))
-				->setLastActivityDescription('')
 				->setUserRole(Dictionary::USER_ROLES['member'])
 				->setFollow(true)
-			;
+				->setRecentActivityData($this->getCommonSpaceRecentActivityData())
+		;
+
+		if ($commonSpace->getRecentActivityData()->getId() <= 0)
+		{
+			$commonSpace->getRecentActivityData()->setDateTime(new \Bitrix\Main\Type\DateTime());
+		}
+
+		return $this->fillRecentActivityDescription([$commonSpace])[0];
+	}
+
+	private function getCommonSpaceRecentActivityData(): RecentActivityData
+	{
+		return (new Service())->get($this->userId, 0);
 	}
 }

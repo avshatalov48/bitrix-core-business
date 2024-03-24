@@ -4,6 +4,7 @@ import {PlainCall} from './plain_call'
 import {BitrixCall} from './bitrix_call'
 import {VoximplantCall} from './voximplant_call'
 import {CallStub} from './stub'
+import {Hardware} from '../hardware';
 import Util from '../util'
 import {AbstractCall} from './abstract_call';
 
@@ -119,6 +120,8 @@ export const CallEvent = {
 	onTransferRoomSpeaker: 'onTransferRoomSpeaker',
 	onDestroy: 'onDestroy',
 	onGetUserMediaEnded: 'onGetUserMediaEnded',
+	onUpdateLastUsedCameraId: 'onUpdateLastUsedCameraId',
+	onToggleRemoteParticipantVideo: 'onToggleRemoteParticipantVideo',
 };
 
 const ajaxActions = {
@@ -222,6 +225,8 @@ class Engine
 								call: call
 							}]);
 
+							Hardware.isCameraOn = config.videoEnabled === true;
+
 							return resolve({
 								call: call,
 								isNew: false
@@ -252,6 +257,7 @@ class Engine
 				}
 
 				const createCallResponse = response.data();
+
 				if (createCallResponse.userData)
 				{
 					Util.setUserData(createCallResponse.userData)
@@ -278,13 +284,13 @@ class Engine
 				}
 
 				const callFactory = this.#getCallFactory(callFields['PROVIDER']);
+				Hardware.isCameraOn = config.videoEnabled === true;
 				const call = callFactory.createCall({
 					id: parseInt(callFields['ID']),
 					instanceId: Util.getUuidv4(),
 					direction: Direction.Outgoing,
 					users: createCallResponse.users,
 					userData: createCallResponse.userData,
-					videoEnabled: (config.videoEnabled === true),
 					enableMicAutoParameters: (config.enableMicAutoParameters !== false),
 					associatedEntity: callFields.ASSOCIATED_ENTITY,
 					type: callFields.TYPE,
@@ -316,6 +322,7 @@ class Engine
 
 				resolve({
 					call: call,
+					userData: createCallResponse.userData,
 					isNew: createCallResponse.isNew
 				});
 			}).catch(function (error)
@@ -333,7 +340,7 @@ class Engine
 
 	};
 
-	createChildCall(parentId, newProvider, newUsers)
+	createChildCall(parentId, newProvider, newUsers, config)
 	{
 		if (!this.calls[parentId])
 		{
@@ -362,7 +369,6 @@ class Engine
 					direction: Direction.Outgoing,
 					users: createCallResponse.users,
 					userData: createCallResponse.userData,
-					videoEnabled: parentCall.isVideoEnabled(),
 					enableMicAutoParameters: parentCall.enableMicAutoParameters !== false,
 					associatedEntity: callFields.ASSOCIATED_ENTITY,
 					type: callFields.TYPE,
@@ -372,6 +378,7 @@ class Engine
 					},
 					logToken: createCallResponse.logToken,
 					connectionData: createCallResponse.connectionData,
+					debug: config.debug,
 					// jwt: callFields['JWT'],
 					// endpoint: callFields['ENDPOINT']
 				});

@@ -25,10 +25,12 @@ class socialservices extends CModule
 	function InstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = false;
-		if(!$DB->Query("SELECT 'x' FROM b_socialservices_user", true))
+
+		if (!$DB->TableExists('b_socialservices_user'))
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/db/mysql/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/socialservices/install/db/' . $connection->getType() . '/install.sql');
 			if (\Bitrix\Main\Entity\CryptoField::cryptoAvailable())
 			{
 				\Bitrix\Main\Config\Option::set("socialservices", "allow_encrypted_tokens", true);
@@ -80,11 +82,12 @@ class socialservices extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $APPLICATION, $DB, $DOCUMENT_ROOT;
+		global $APPLICATION, $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($DOCUMENT_ROOT."/bitrix/modules/socialservices/install/db/mysql/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/db/".$connection->getType()."/uninstall.sql");
 			if (!empty($errors))
 			{
 				$APPLICATION->ThrowException(implode("", $errors));

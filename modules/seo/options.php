@@ -187,33 +187,41 @@ $tabControl->BeginNextTab();
 		<td width="30%" valign="top"><?echo GetMessage('SEO_OPT_COUNTERS')?>: </td>
 		<td width="70%"><textarea cols="50" rows="7" name="counters"><?echo htmlspecialcharsbx($counters)?></textarea></td>
 	</tr>
-	<tr>
-		<td width="30%" valign="top"><?echo GetMessage('SEO_OPT_SEARCHERS')?>: </td>
-		<td width="70%">
-<?
-if (CModule::IncludeModule('statistic'))
-{
-	if (count($arCurrentSearchers) > 0)
-		echo GetMessage('SEO_OPT_SEARCHERS_SELECTED'),": <b>",implode(', ', $arCurrentSearchers).'</b><br /><br />';
 
-	echo SelectBoxM("arSearchersList[]", CSearcher::GetDropdownList(), $arSearchersList, "", false, 20);
-}
-else
-{
-	CAdminMessage::ShowMessage(GetMessage('SEO_OPT_ERR_NO_STATS'));
-}
-?>
+	<?php global $DB; ?>
+	<?php if ($DB->type !== 'PGSQL'): ?>
+	<tr>
+		<td width="30%" valign="top">
+			<?= GetMessage('SEO_OPT_SEARCHERS')?>:
+		</td>
+		<td width="70%">
+		<?php
+			if (CModule::IncludeModule('statistic'))
+			{
+				if (count($arCurrentSearchers) > 0)
+				{
+					echo GetMessage('SEO_OPT_SEARCHERS_SELECTED'),": <b>",implode(', ', $arCurrentSearchers).'</b><br /><br />';
+				}
+				echo SelectBoxM("arSearchersList[]", CSearcher::GetDropdownList(), $arSearchersList, "", false, 20);
+			}
+			else
+			{
+				CAdminMessage::ShowMessage(GetMessage('SEO_OPT_ERR_NO_STATS'));
+			}
+		?>
 		</td>
 	</tr>
-<?
+	<?php endif; ?>
 
-$tabControl->BeginNextTab();
+<?php
+	$tabControl->BeginNextTab();
 
-//group_rights2 work some strange
-//require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights2.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");
+	//group_rights2 work some strange
+	//require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights2.php");
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");
 
-$tabControl->Buttons();?>
+	$tabControl->Buttons();
+?>
 <script language="JavaScript">
 function confirmRestoreDefaults()
 {

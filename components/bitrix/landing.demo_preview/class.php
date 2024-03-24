@@ -197,7 +197,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				// folder
 				if ($this->request($this->arParams['ACTION_FOLDER']))
 				{
-					$this->arResult['FOLDER_ID'] = $this->request($this->arParams['ACTION_FOLDER']);
+					$this->arResult['FOLDER_ID'] = (int)$this->request($this->arParams['ACTION_FOLDER']);
 				}
 
 				// replace landing instead create new

@@ -552,9 +552,7 @@ class Conference
 		\CIMChat::hide($this->getChatId());
 
 		//delete relations
-		RelationTable::deleteBatch(
-			['=CHAT_ID' => $this->getChatId()]
-		);
+		RelationTable::deleteByFilter(['=CHAT_ID' => $this->getChatId()]);
 
 		//delete roles
 		$presenters = $this->getPresentersList();
@@ -920,7 +918,7 @@ class Conference
 
 	public static function removeTemporaryAliases(): string
 	{
-		AliasTable::deleteBatch(
+		AliasTable::deleteByFilter(
 			[
 				'=ENTITY_TYPE' => Alias::ENTITY_TYPE_VIDEOCONF,
 				'=ENTITY_ID' => 0

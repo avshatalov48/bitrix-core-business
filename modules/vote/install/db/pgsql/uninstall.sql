@@ -1,0 +1,11 @@
+drop table if exists b_vote_attached_object;
+drop table if exists b_vote;
+drop table if exists b_vote_answer;
+drop table if exists b_vote_channel;
+drop table if exists b_vote_channel_2_group;
+drop table if exists b_vote_channel_2_site;
+drop table if exists b_vote_event;
+drop table if exists b_vote_event_answer;
+drop table if exists b_vote_event_question;
+drop table if exists b_vote_question;
+drop table if exists b_vote_user;

@@ -58,7 +58,7 @@ class CBitrixXscan
 	public $total = 0;
 	public $collect_exceptions = true;
 	private $errors = [];
-	# todo: !!!!
+
 	static $cryptors = ['rot13', 'str_rot13', 'base32_decode', 'base64_decode', 'gzinflate', 'unserialize',
 		'url_decode', 'pack', 'unpack', 'hex2bin', 'bzdecompress', 'gzuncompress', 'lzf_decompress', 'strrev'];
 	static $string_change = ['preg_replace', 'str_ireplace', 'str_replace', 'substr', 'strrev'];
@@ -92,6 +92,7 @@ class CBitrixXscan
 		'[301] file operations' => [0.5, 0.4, 0.1, 1, 0.8, 0.3, 0.7, 0.8, 0.8],
 		'[302] file operations' => [0.8, 0.4, 0.1, 1, 0.8, 0.3, 0.7, 0.8, 0.8],
 		'[400] bitrix auth' => [0.9, 0.8, 1, 1, 0.8, 0.3, 0.7, 0.8, 0.8],
+        '[308] no prolog file operations' => [0.5, 0.4, 0.1, 1, 0.8, 0.3, 0.7, 0.8, 0.8],
 	];
 	private $results = [];
 	private $tags = [];
@@ -121,11 +122,11 @@ class CBitrixXscan
 		$this->errorHandler = new PhpParser\ErrorHandler\Collecting;
 		$this->pprinter = new PhpParser\PrettyPrinter\Standard;
 
-		$errs = XScanResultTable::getList(['select' => ['src'], 'filter' => ['type' => 'file', 'message' => 'error']]);
+		$errs = XScanResultTable::getList(['select' => ['SRC'], 'filter' => ['TYPE' => 'file', 'MESSAGE' => 'error']]);
 
 		while ($row = $errs->fetch())
 		{
-			$this->errors[] = $row['src'];
+			$this->errors[] = $row['SRC'];
 		}
 	}
 
@@ -302,26 +303,26 @@ class CBitrixXscan
     {
         static $doc_root;
 
-        if (!$doc_root || strpos($file_path, $doc_root) !== 0) {
-
+        if (!$doc_root || strpos($file_path, $doc_root . '/') !== 0)
+		{
             $path = explode('/', ltrim($file_path, '/'));
             $doc_root = '';
             $found = false;
-            foreach ($path as $comp) {
-
-                if (is_file($doc_root . '/bitrix/.settings.php')) {
+            foreach ($path as $comp)
+			{
+                if (is_file($doc_root . '/bitrix/.settings.php'))
+				{
                     $found = true;
                     break;
                 }
                 $doc_root .= '/' . $comp;
             }
 
-            if (!$found) {
+            if (!$found)
+			{
                 $doc_root = '';
             }
-
         }
-
         return $doc_root;
     }
 
@@ -373,7 +374,7 @@ class CBitrixXscan
             'planner' => 'intranet',
             'eshop' => 'bitrix.eshop',
             'furniture' => 'bitrix.sitecorporate',
-            'app' => 'rest',
+            'app' => 'rest'
         ];
 
         $module = isset($map[$module])? $map[$module]: $module;
@@ -427,7 +428,6 @@ class CBitrixXscan
         }
 
         return false;
-
     }
 
     static function checkByHash($file_path)
@@ -465,7 +465,6 @@ class CBitrixXscan
             $file = 'install' . $matches[1];
             $module = 'landing';
         }
-
 
         if($file && $module)
         {
@@ -568,7 +567,8 @@ class CBitrixXscan
 			return false;
 		}
 
-		if(static::checkByHash($file_path)){
+		if (static::checkByHash($file_path))
+		{
 			return false;
 		}
 
@@ -675,9 +675,9 @@ class CBitrixXscan
 			($cmt = 'vars') && preg_match_all('/(?:\$|function\s+)(?:[o0]{4,}|[il]{4,})/i', $code) > 3 ||
 			($cmt = 'goto') && preg_match_all('/goto\s+[0-9A-Z]+\s*;/i', $code) > 2 ||
 			($cmt = 'globals') && preg_match_all('/\$GLOBALS\s*\[["\'][0-9_]+["\']\]/', $code) > 3 ||
-			($cmt = 'base64_short') && preg_match_all("/base64_decode\s*\(\s*[^$].{3,14}\)/", $code) > 3 ||
-            ($cmt = 'functions') && preg_match_all("/function\s+_\w{1,3}\b/", $code) > 3 ||
-            ($cmt = 'concat') && preg_match_all("~(?:['\"][0-9a-z=+\/_]{1,5}['\"](?:\s*\.\s*)?){2,}~", $code) > 20 ||
+            ($cmt = 'base64_short') && preg_match_all("/base64_decode\s*\(\s*[^$].{3,14}\)/i", $code) > 3 ||
+            ($cmt = 'functions') && preg_match_all("/function\s+_\w{1,3}\b/i", $code) > 3 ||
+            ($cmt = 'concat') && preg_match_all("~(?:(['\"])[0-9a-z=+\/_]{1,20}\\1(?:\s*\.\s*)?){2,}~i", $code) > 20 ||
 			// ($cmt = 'len') && strlen($code) / max(substr_count($code, "\n"), 1) > 500 ||
 			// ($cmt = 'base_strings') && preg_match_all('~[0-9A-Z+/]{80,100}~i', $code) > 5 ||
 			($cmt = 'urlenc') && preg_match_all('/(%[0-9A-Z]{2}){80,100}/i', $code) > 2 ||
@@ -784,7 +784,7 @@ class CBitrixXscan
 
 			if (preg_match('/copy\s*\(|file_put_contents|move_uploaded_file|fwrite|fputs/i', $src, $m))
 			{
-				$subj = '[301] file operations';
+                $subj = '[308] no prolog file operations';
 				$checksum = $this->CalcChecksum($file_path, $m[0], $subj);
 				if (!$this->IsFalsePositive($checksum))
 				{
@@ -1053,14 +1053,15 @@ class CBitrixXscan
 			'backticks' => [], 'includes' => [], 'auth' => [], 'mtds' => [], 'strings' => []];
 		$extract = false;
 
-		$nodeFinder->find($stmts, function (Node $node) use (&$nodes, &$pprinter, &$extract) {
+		$nodeFinder->find($stmts, function (Node $node) use (&$nodes, &$pprinter, &$extract)
+		{
 			if ($node->getComments())
 			{
 				$node->setAttribute('comments', []);
 			}
 
 //            if ($node instanceof Node\Stmt\Function_) {
-//                $name = $node->name instanceof Node\Identifier ? $node->name->toString() : False;
+//                $name = $node->name instanceof Node\Identifier ? $node->name->toString() : false
 //                if (is_string($name) && self::isVarStrange('$' . trim($name, '_'))) {
 //                    $this->addResult('[110] strange function name', $name, 0.3);
 //                }
@@ -1101,7 +1102,16 @@ class CBitrixXscan
 				$nodes['includes'][] = $node;
 			}
 			if ($node instanceof Node\Expr\MethodCall && $node->name instanceof Node\Identifier && $node->name->toLowerString() == 'authorize'
-				&& preg_match('/user/i', $pprinter->prettyPrintExpr($node->var)))
+                && preg_match('/user|globals/i', $pprinter->prettyPrintExpr($node->var))) 
+            {
+                $nodes['auth'][] = $node;
+            }
+
+            if ($node instanceof Node\Expr\MethodCall && $node->name instanceof Node\Expr\Variable &&
+                $node->var instanceof Node\Expr\ArrayDimFetch &&
+                $node->var->var instanceof Node\Expr\Variable && $node->var->var->name == 'GLOBALS' &&
+                (!($node->var->dim instanceof Node\Scalar\String_) || $node->var->dim->value == 'USER')
+            )
 			{
 				$nodes['auth'][] = $node;
 			}
@@ -1321,7 +1331,7 @@ class CBitrixXscan
 			'proc_open' => [0],
 			'set_include_path' => [0],
 			'shell_exec' => [0],
-			'system' => [0],
+            'system' => [0]
 		];
 
 		$config = self::genConfig(['params' => true, 'assigned' => $extract]);
@@ -1337,7 +1347,7 @@ class CBitrixXscan
 			'file_put_contents' => [0],
 			'move_uploaded_file' => [1], // 0,1
 			'opendir' => [0],
-			'fopen' => [0],
+            'fopen' => [0]
 		];
 
 		$config = self::genConfig(['concat' => false, 'files' => false, 'value' => false]);
@@ -1386,7 +1396,7 @@ class CBitrixXscan
 			'array_udiff_uassoc' => [2, 3],
 			'array_filter' => [1],
 			'array_map' => [0],
-			'mb_ereg_replace_callback' => [1],
+            'mb_ereg_replace_callback' => [1]
 		];
 
 		$config = self::genConfig(['assigned' => $extract]);
@@ -1586,7 +1596,7 @@ class CBitrixXscan
 				continue;
 			}
 			$checked[] = $v;
-			if (preg_match('#\$_{3,}#i', $v))
+            if (preg_match('#\$_{3,}#i', $v) || preg_match('#\$\{.*?(?:->|::|\()#i', $v))
 			{
 				$subj = '[610] strange vars';
 				$checksum = $this->CalcChecksum($file_path, $v, $subj);
@@ -1649,14 +1659,17 @@ class CBitrixXscan
 				{
 					foreach ($node->args as $arg)
 					{
-						[$flag, $comment] = $this->CheckArg($arg->value, $vars, $config);
-						if ($flag)
-						{
-							$comment = $comment;
-							break;
+                        if ($arg instanceof Node\Arg)
+                        {
+							[$flag, $comment] = $this->CheckArg($arg->value, $vars, $config);
+							if ($flag)
+							{
+								$comment = $comment;
+								break;
+							}
 						}
 					}
-				}
+                }
 				if (!$flag && !in_array($name, $vars['closures'], true) && !$in_closure)
 				{
 					$comment = 'other';
@@ -1809,8 +1822,7 @@ class CBitrixXscan
 
 		$some_calls = array_filter($all_calls, function (Node $node) use (&$funcs) {
 			return $node->name instanceof Node\Name && in_array($node->name->toLowerString(), $funcs, true);
-		}
-		);
+        });
 
 		$result = [];
 		foreach ($some_calls as $node)
@@ -1959,8 +1971,11 @@ class CBitrixXscan
 				$args = [];
 				foreach ($node->args as $arg)
 				{
-					$args[] = $this->parseValue($arg->value, $vars);
-				}
+                    if ($arg instanceof Node\Arg)
+                    {
+						$args[] = $this->parseValue($arg->value, $vars);
+					}
+                }
 
 				$ret = "$name(" . implode(",", $args) . ")";
 
@@ -2046,7 +2061,7 @@ class CBitrixXscan
 		elseif ($arg instanceof Node\Expr\FuncCall && $arg->name instanceof Node\Name)
 		{
 			$name = $arg->name->toLowerString();
-			$ret = in_array($name, self::$evals, true) || in_array($name, ['getenv'], true) || ($config['crypted'] && in_array($name, self::$cryptors, true));
+			$ret = in_array($name, self::$evals, true) || in_array($name, ['getenv', 'debug_backtrace'], true) || ($config['crypted'] && in_array($name, self::$cryptors, true));
 			if (!$ret)
 			{
 				foreach ($arg->args as $argv)
@@ -2331,8 +2346,6 @@ class CBitrixXscan
 				$p = 0;
 			}
 
-//			if ($p)
-//				echo $var." => ".$p."<br>";
 			$ar2[] = $p;
 		}
 		$prob = array_sum($ar2) / count($ar2);
@@ -2376,14 +2389,14 @@ class CBitrixXscan
 			return;
 		}
 
-		if ($mode == 'search' && $this->skip_path && !$this->found) // проверим, годится ли текущий путь
+		if ($mode == 'search' && $this->skip_path && !$this->found)
 		{
-			if (strpos($this->skip_path, dirname($path)) !== 0) // отбрасываем имя или идём ниже
+			if (strpos($this->skip_path, dirname($path)) !== 0)
 			{
 				return;
 			}
 
-			if ($this->skip_path == $path) // путь найден, продолжаем искать текст
+			if ($this->skip_path == $path)
 			{
 				$this->found = true;
 			}
@@ -2397,7 +2410,7 @@ class CBitrixXscan
 			{
 				$d = dirname($path);
 				if (strpos($p, $d) !== false || strpos($d, $p) !== false)
-				{ // если симлинк ведет на папку внутри структуры сайта или на папку выше
+				{
 					return true;
 				}
 			}
@@ -2463,7 +2476,7 @@ class CBitrixXscan
 			'/bitrix/modules/main/lib/UpdateSystem/HashCodeParser.php',
 			'/bitrix/modules/main/lib/UpdateSystem/ActivationSystem.php',
 			'/bitrix/modules/main/lib/license.php',
-			'/bitrix/modules/crm/classes/general/sql_helper.php',
+            '/bitrix/modules/crm/classes/general/sql_helper.php'
 
 		];
 		foreach ($system as $path)
@@ -2596,15 +2609,15 @@ class CBitrixXscan
 			'filter' => $filter,
 			'offset' => $nav->getOffset(),
 			'limit' => $nav->getlimit(),
-			'order' => $sort['sort'],
+            'order' => $sort['sort']
 		]);
 
 		foreach ($results as $result)
 		{
-			if ($result['type'] === 'file')
+			if ($result['TYPE'] === 'file')
 			{
-				$type = $result['message'];
-				$f = $result['src'];
+				$type = $result['MESSAGE'];
+				$f = $result['SRC'];
 
 				$code = preg_match('#\[([0-9]+)\]#', $type, $regs) ? $regs[1] : 0;
 				$fu = urlencode(trim($f));
@@ -2626,30 +2639,30 @@ class CBitrixXscan
 
 				$output[] = [
 					'data' => [
-						'ID' => $result['id'],
+						'ID' => $result['ID'],
 						'FILE_NAME' => self::getFileWatchLink($f),
 						'FILE_TYPE' => $type,
-						'FILE_SCORE' => $result['score'],
+						'FILE_SCORE' => $result['SCORE'],
 						'FILE_SIZE' => self::HumanSize(@filesize($f)),
-						'FILE_MODIFY' => $result['mtime'],
-						'FILE_CREATE' => $result['ctime'],
-						'TAGS' => $result['tags'],
+						'FILE_MODIFY' => $result['MTIME'],
+						'FILE_CREATE' => $result['CTIME'],
+						'TAGS' => $result['TAGS'],
 						'ACTIONS' => $action,
 						'HIDE' => self::getHideButton($f),
-					],
+					]
 				];
 			}
 			else
 			{
-				$table = $result['type'] === 'agent' ? 'b_agent' : 'b_module_to_module';
+				$table = $result['TYPE'] === 'agent' ? 'b_agent' : 'b_module_to_module';
 				$output[] = [
 					'data' => [
-						'ID' => $result['id'],
-						'FILE_NAME' => self::getEventWatchLink($result['type'] . " " . $result['src'], $table, $result['src']),
-						'FILE_TYPE' => $result['message'],
-						'FILE_SCORE' => $result['score'],
-						'ACTIONS' => self::getEventWatchButton($table, $result['src']),
-					],
+						'ID' => $result['ID'],
+						'FILE_NAME' => self::getEventWatchLink($result['TYPE'] . " " . $result['SRC'], $table, $result['SRC']),
+						'FILE_TYPE' => $result['MESSAGE'],
+						'FILE_SCORE' => $result['SCORE'],
+						'ACTIONS' => self::getEventWatchButton($table, $result['SRC'])
+					]
 				];
 			}
 		}

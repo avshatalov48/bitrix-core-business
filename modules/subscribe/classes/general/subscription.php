@@ -1,78 +1,80 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
-class CSubscriptionGeneral
+class CSubscription
 {
-	var $LAST_ERROR="";
-	var $LAST_MESSAGE="";
+	public $LAST_ERROR = '';
+	public $LAST_MESSAGE = '';
 
-	public static function GetList($aSort=Array(), $arFilter=Array(), $arNavStartParams=false)
+	public static function GetList($aSort=[], $arFilter=[], $arNavStartParams=false)
 	{
 		global $DB;
-		$arSqlSearch = Array();
-		$from1 = "";
-		if(is_array($arFilter))
+		$arSqlSearch = [];
+		$from1 = '';
+		if (is_array($arFilter))
 		{
-			foreach($arFilter as $key => $val)
+			foreach ($arFilter as $key => $val)
 			{
-				if(!is_array($val))
+				if (!is_array($val))
 				{
-					if( ((string)$val == '') || ($val === "NOT_REF") )
+					if ( ((string)$val === '') || ($val === 'NOT_REF') )
+					{
 						continue;
+					}
 				}
-				switch(strtoupper($key))
+				switch (strtoupper($key))
 				{
-					case "ID":
-						$arSqlSearch[] = GetFilterQuery("S.ID", $val, "N");
+					case 'ID':
+						$arSqlSearch[] = GetFilterQuery('S.ID', $val, 'N');
 						break;
-					case "EMAIL":
-						$arSqlSearch[] = GetFilterQuery("S.EMAIL", $val, "Y", array("@", ".", "_"));
+					case 'EMAIL':
+						$arSqlSearch[] = GetFilterQuery('S.EMAIL', $val, 'Y', ['@', '.', '_']);
 						break;
-					case "UPDATE_1":
-						$arSqlSearch[] = "S.DATE_UPDATE>=".$DB->CharToDateFunction($val);
+					case 'UPDATE_1':
+						$arSqlSearch[] = 'S.DATE_UPDATE>=' . $DB->CharToDateFunction($val);
 						break;
-					case "UPDATE_2":
-						$arSqlSearch[] = "S.DATE_UPDATE<=".$DB->CharToDateFunction($val." 23:59:59");
+					case 'UPDATE_2':
+						$arSqlSearch[] = 'S.DATE_UPDATE<=' . $DB->CharToDateFunction($val . ' 23:59:59');
 						break;
-					case "INSERT_1":
-						$arSqlSearch[] = "S.DATE_INSERT>=".$DB->CharToDateFunction($val);
+					case 'INSERT_1':
+						$arSqlSearch[] = 'S.DATE_INSERT>=' . $DB->CharToDateFunction($val);
 						break;
-					case "INSERT_2":
-						$arSqlSearch[] = "S.DATE_INSERT<=".$DB->CharToDateFunction($val." 23:59:59");
+					case 'INSERT_2':
+						$arSqlSearch[] = 'S.DATE_INSERT<=' . $DB->CharToDateFunction($val . ' 23:59:59');
 						break;
-					case "USER":
-						$arSqlSearch[] = GetFilterQuery("U.ID, U.LOGIN, U.NAME, U.LAST_NAME", $val);
+					case 'USER':
+						$arSqlSearch[] = GetFilterQuery('U.ID, U.LOGIN, U.NAME, U.LAST_NAME', $val);
 						break;
-					case "USER_ID":
-						$arSqlSearch[] = GetFilterQuery("S.USER_ID", $val, "N");
+					case 'USER_ID':
+						$arSqlSearch[] = GetFilterQuery('S.USER_ID', $val, 'N');
 						break;
-					case "ANONYMOUS":
-						$arSqlSearch[] = ($val == "Y")? "(S.USER_ID = 0 or S.USER_ID is null)" : "(S.USER_ID > 0 and S.USER_ID is not null)";
+					case 'ANONYMOUS':
+						$arSqlSearch[] = ($val == 'Y') ? '(S.USER_ID = 0 or S.USER_ID is null)' : '(S.USER_ID > 0 and S.USER_ID is not null)';
 						break;
-					case "CONFIRMED":
-						$arSqlSearch[] = ($val == "Y")? "S.CONFIRMED='Y'" : "S.CONFIRMED='N'";
+					case 'CONFIRMED':
+						$arSqlSearch[] = ($val == 'Y') ? "S.CONFIRMED='Y'" : "S.CONFIRMED='N'";
 						break;
-					case "ACTIVE":
-						$arSqlSearch[] = ($val == "Y")? "S.ACTIVE='Y'" : "S.ACTIVE='N'";
+					case 'ACTIVE':
+						$arSqlSearch[] = ($val == 'Y') ? "S.ACTIVE='Y'" : "S.ACTIVE='N'";
 						break;
-					case "FORMAT":
-						$arSqlSearch[] = ($val == "text")? "S.FORMAT='text'" : "S.FORMAT='html'";
+					case 'FORMAT':
+						$arSqlSearch[] = ($val == 'text') ? "S.FORMAT='text'" : "S.FORMAT='html'";
 						break;
-					case "RUBRIC":
-					case "RUBRIC_MULTI":
-					case "DISTRIBUTION":
-						if(is_array($val))
+					case 'RUBRIC':
+					case 'RUBRIC_MULTI':
+					case 'DISTRIBUTION':
+						if (is_array($val))
 						{
-							$val = implode(" | ", $val);
+							$val = implode(' | ', $val);
 						}
-						if($val <> '')
+						if ($val !== '')
 						{
-							$from1 = " INNER JOIN b_subscription_rubric SR ON (SR.SUBSCRIPTION_ID=S.ID) ";
-							$arSqlSearch[] = GetFilterQuery("SR.LIST_RUBRIC_ID", $val, "N");
+							$from1 = ' INNER JOIN b_subscription_rubric SR ON (SR.SUBSCRIPTION_ID=S.ID) ';
+							$arSqlSearch[] = GetFilterQuery('SR.LIST_RUBRIC_ID', $val, 'N');
 						}
 						else
 						{
-							$arSqlSearch[] = " 1=0 ";
+							$arSqlSearch[] = ' 1=0 ';
 						}
 						break;
 				}
@@ -80,64 +82,85 @@ class CSubscriptionGeneral
 		}
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 
-		$arOrder = array();
-		foreach($aSort as $by => $ord)
+		$arOrder = [];
+		foreach ($aSort as $by => $ord)
 		{
 			$by = mb_strtoupper($by);
-			$ord = (mb_strtoupper($ord) <> "ASC"? "DESC": "ASC");
-			switch($by)
+			$ord = (mb_strtoupper($ord) !== 'ASC' ? 'DESC' : 'ASC');
+			switch ($by)
 			{
-				case "ID":		$arOrder[$by] = "S.ID ".$ord; break;
-				case "DATE_INSERT":	$arOrder[$by] = "S.DATE_INSERT ".$ord; break;
-				case "DATE_UPDATE":	$arOrder[$by] = "S.DATE_UPDATE ".$ord; break;
-				case "DATE_CONFIRM":	$arOrder[$by] = "S.DATE_CONFIRM ".$ord; break;
-				case "ACT":		$arOrder[$by] = "S.ACTIVE ".$ord; break;
-				case "CONF":		$arOrder[$by] = "S.CONFIRMED ".$ord; break;
-				case "EMAIL":		$arOrder[$by] = "S.EMAIL ".$ord; break;
-				case "FMT":		$arOrder[$by] = "S.FORMAT ".$ord; break;
-				case "USER":		$arOrder[$by] = "S.USER_ID ".$ord; break;
-				case "CONFIRM_CODE":	$arOrder[$by] = "S.CONFIRM_CODE ".$ord; break;
+				case 'ID':
+					$arOrder[$by] = 'S.ID ' . $ord;
+					break;
+				case 'DATE_INSERT':
+					$arOrder[$by] = 'S.DATE_INSERT ' . $ord;
+					break;
+				case 'DATE_UPDATE':
+					$arOrder[$by] = 'S.DATE_UPDATE ' . $ord;
+					break;
+				case 'DATE_CONFIRM':
+					$arOrder[$by] = 'S.DATE_CONFIRM ' . $ord;
+					break;
+				case 'ACT':
+					$arOrder[$by] = 'S.ACTIVE ' . $ord;
+					break;
+				case 'CONF':
+					$arOrder[$by] = 'S.CONFIRMED ' . $ord;
+					break;
+				case 'EMAIL':
+					$arOrder[$by] = 'S.EMAIL ' . $ord;
+					break;
+				case 'FMT':
+					$arOrder[$by] = 'S.FORMAT ' . $ord;
+					break;
+				case 'USER':
+					$arOrder[$by] = 'S.USER_ID ' . $ord;
+					break;
+				case 'CONFIRM_CODE':
+					$arOrder[$by] = 'S.CONFIRM_CODE ' . $ord;
+					break;
 			}
 		}
-		if(count($arOrder) <= 0)
-			$arOrder["ID"] = "S.ID DESC";
-
-		if(is_array($arNavStartParams))
+		if (!$arOrder)
 		{
+			$arOrder['ID'] = 'S.ID DESC';
+		}
 
-			$strSql = "
-				SELECT count(".($from1 <> ""? "DISTINCT S.ID": "'x'").") as C
+		if (is_array($arNavStartParams))
+		{
+			$strSql = '
+				SELECT count(' . ($from1 ? 'DISTINCT S.ID' : "'x'") . ') as C
 				FROM
 					b_subscription S
 					LEFT JOIN b_user U ON (S.USER_ID=U.ID)
-					$from1
+					' . $from1 . '
 				WHERE
-				".$strSqlSearch;
+				' . $strSqlSearch;
 
-			$res_cnt = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res_cnt = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 			$res_cnt = $res_cnt->Fetch();
-			$cnt = $res_cnt["C"];
+			$cnt = $res_cnt['C'];
 
-			$strSql = "
+			$strSql = '
 				SELECT
 					S.ID, S.USER_ID, S.ACTIVE, S.EMAIL, S.FORMAT, S.CONFIRM_CODE, S.CONFIRMED,
-					".$DB->DateToCharFunction("S.DATE_UPDATE")." DATE_UPDATE,
-					".$DB->DateToCharFunction("S.DATE_INSERT")." DATE_INSERT,
-					".$DB->DateToCharFunction("S.DATE_CONFIRM")." DATE_CONFIRM,
+					' . $DB->DateToCharFunction('S.DATE_UPDATE') . ' DATE_UPDATE,
+					' . $DB->DateToCharFunction('S.DATE_INSERT') . ' DATE_INSERT,
+					' . $DB->DateToCharFunction('S.DATE_CONFIRM') . ' DATE_CONFIRM,
 					U.LOGIN USER_LOGIN,
 					U.NAME USER_NAME,
 					U.LAST_NAME USER_LAST_NAME
 				FROM
 					b_subscription S
 					LEFT JOIN b_user U ON (S.USER_ID=U.ID)
-					$from1
+					' . $from1 . '
 				WHERE
-				$strSqlSearch
-				".($from1 <> ""?
-					"GROUP BY S.ID, S.USER_ID, S.ACTIVE, S.EMAIL, S.FORMAT, S.CONFIRM_CODE, S.CONFIRMED, S.DATE_CONFIRM, S.DATE_UPDATE, S.DATE_INSERT, U.LOGIN, U.NAME, U.LAST_NAME":
-					""
-				)."
-				ORDER BY ".implode(", ", $arOrder);
+				' . $strSqlSearch . '
+				' . ($from1 ?
+					'GROUP BY S.ID, S.USER_ID, S.ACTIVE, S.EMAIL, S.FORMAT, S.CONFIRM_CODE, S.CONFIRMED, S.DATE_CONFIRM, S.DATE_UPDATE, S.DATE_INSERT, U.LOGIN, U.NAME, U.LAST_NAME' :
+					''
+				) . '
+				ORDER BY ' . implode(', ', $arOrder);
 
 			$res = new CDBResult();
 			$res->NavQuery($strSql, $cnt, $arNavStartParams);
@@ -147,28 +170,28 @@ class CSubscriptionGeneral
 		}
 		else
 		{
-			$strSql = "
+			$strSql = '
 				SELECT
 					S.ID, S.USER_ID, S.ACTIVE, S.EMAIL, S.FORMAT, S.CONFIRM_CODE, S.CONFIRMED,
-					".$DB->DateToCharFunction("S.DATE_UPDATE")." DATE_UPDATE,
-					".$DB->DateToCharFunction("S.DATE_INSERT")." DATE_INSERT,
-					".$DB->DateToCharFunction("S.DATE_CONFIRM")." DATE_CONFIRM,
+					' . $DB->DateToCharFunction('S.DATE_UPDATE') . ' DATE_UPDATE,
+					' . $DB->DateToCharFunction('S.DATE_INSERT') . ' DATE_INSERT,
+					' . $DB->DateToCharFunction('S.DATE_CONFIRM') . ' DATE_CONFIRM,
 					U.LOGIN USER_LOGIN,
 					U.NAME USER_NAME,
 					U.LAST_NAME USER_LAST_NAME
 				FROM
 					b_subscription S
 					LEFT JOIN b_user U ON (S.USER_ID=U.ID)
-					$from1
+					' . $from1 . '
 				WHERE
-				$strSqlSearch
-				".($from1 <> ""?
-					"GROUP BY S.ID, S.USER_ID, S.ACTIVE, S.EMAIL, S.FORMAT, S.CONFIRM_CODE, S.CONFIRMED, S.DATE_CONFIRM, S.DATE_UPDATE, S.DATE_INSERT, U.LOGIN, U.NAME, U.LAST_NAME":
-					""
-				)."
-				ORDER BY ".implode(", ", $arOrder);
+				' . $strSqlSearch . '
+				' . ($from1 ?
+					'GROUP BY S.ID, S.USER_ID, S.ACTIVE, S.EMAIL, S.FORMAT, S.CONFIRM_CODE, S.CONFIRMED, S.DATE_CONFIRM, S.DATE_UPDATE, S.DATE_INSERT, U.LOGIN, U.NAME, U.LAST_NAME' :
+					''
+				) . '
+				ORDER BY ' . implode(', ', $arOrder);
 
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 			$res->is_filtered = (IsFiltered($strSqlSearch));
 
 			return $res;
@@ -180,24 +203,27 @@ class CSubscriptionGeneral
 	{
 		global $DB;
 		$ID = intval($ID);
-		$strSql =
-			"SELECT R.ID, R.NAME, R.SORT, R.LID, R.ACTIVE, R.VISIBLE ".
-			"FROM b_list_rubric R, b_subscription_rubric SR ".
-			"WHERE R.ID=SR.LIST_RUBRIC_ID AND SR.SUBSCRIPTION_ID='".$ID."' ".
-			"ORDER BY R.LID, R.SORT, R.NAME ";
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$strSql = '
+			SELECT R.ID, R.NAME, R.SORT, R.LID, R.ACTIVE, R.VISIBLE
+			FROM b_list_rubric R, b_subscription_rubric SR
+			WHERE R.ID = SR.LIST_RUBRIC_ID AND SR.SUBSCRIPTION_ID = ' . $ID . '
+			ORDER BY R.LID, R.SORT, R.NAME
+		';
+		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 	}
 
 	//array of subscribed categories
 	public static function GetRubricArray($ID)
 	{
 		$ID = intval($ID);
-		$aSubscrRub = array();
-		if($ID>0)
+		$aSubscrRub = [];
+		if ($ID > 0)
 		{
 			$subscr_rub = CSubscription::GetRubricList($ID);
-			while($subscr_rub_arr = $subscr_rub->Fetch())
-				$aSubscrRub[] = $subscr_rub_arr["ID"];
+			while ($subscr_rub_arr = $subscr_rub->Fetch())
+			{
+				$aSubscrRub[] = $subscr_rub_arr['ID'];
+			}
 		}
 		return $aSubscrRub;
 	}
@@ -206,16 +232,18 @@ class CSubscriptionGeneral
 	public static function GetUserSubscription()
 	{
 		global $USER;
-		$email_cookie = COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_SUBSCR_EMAIL";
+		$email_cookie = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM') . '_SUBSCR_EMAIL';
 
-		$subscr_EMAIL = ($_COOKIE[$email_cookie] <> ''? $_COOKIE[$email_cookie] : $USER->GetParam("EMAIL"));
-		if($subscr_EMAIL <> "")
+		$subscr_EMAIL = ($_COOKIE[$email_cookie] <> '' ? $_COOKIE[$email_cookie] : $USER->GetParam('EMAIL'));
+		if ($subscr_EMAIL <> '')
 		{
 			$subscr = CSubscription::GetByEmail($subscr_EMAIL, intval($USER->GetID()));
-			if(($subscr_arr = $subscr->Fetch()))
+			if (($subscr_arr = $subscr->Fetch()))
+			{
 				return $subscr_arr;
+			}
 		}
-		return array("ID"=>0, "EMAIL"=>"");
+		return ['ID' => 0, 'EMAIL' => ''];
 	}
 
 	//get by ID
@@ -223,16 +251,16 @@ class CSubscriptionGeneral
 	{
 		global $DB;
 		$ID = intval($ID);
+		$strSql = '
+			SELECT S.*,
+				' . $DB->DateToCharFunction('S.DATE_UPDATE', 'FULL') . ' AS DATE_UPDATE,
+				' . $DB->DateToCharFunction('S.DATE_INSERT', 'FULL') . ' AS DATE_INSERT,
+				' . $DB->DateToCharFunction('S.DATE_CONFIRM', 'FULL') . ' AS DATE_CONFIRM
+			FROM b_subscription S
+			WHERE S.ID = ' . $ID . '
+		';
 
-		$strSql =
-			"SELECT S.*, ".
-			"	".$DB->DateToCharFunction("S.DATE_UPDATE", "FULL")." AS DATE_UPDATE, ".
-			"	".$DB->DateToCharFunction("S.DATE_INSERT", "FULL")." AS DATE_INSERT, ".
-			"	".$DB->DateToCharFunction("S.DATE_CONFIRM", "FULL")." AS DATE_CONFIRM ".
-			"FROM b_subscription S ".
-			"WHERE S.ID='".$ID."' ";
-
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 	}
 
 	// deletion
@@ -241,9 +269,9 @@ class CSubscriptionGeneral
 		global $DB;
 		$ID = intval($ID);
 
-		foreach (GetModuleEvents("subscribe", "OnBeforeSubscriptionDelete", true) as $arEvent)
+		foreach (GetModuleEvents('subscribe', 'OnBeforeSubscriptionDelete', true) as $arEvent)
 		{
-			if (ExecuteModuleEventEx($arEvent, array($ID)) === false)
+			if (ExecuteModuleEventEx($arEvent, [$ID]) === false)
 			{
 				return false;
 			}
@@ -251,17 +279,17 @@ class CSubscriptionGeneral
 
 		$DB->StartTransaction();
 
-		$res = $DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='".$ID."'", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='" . $ID . "'", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 		if ($res)
 		{
-			$res = $DB->Query("DELETE FROM b_subscription WHERE ID='".$ID."' ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query("DELETE FROM b_subscription WHERE ID='" . $ID . "' ", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 		}
 
 		if ($res)
 		{
-			foreach (GetModuleEvents("subscribe", "OnAfterSubscriptionDelete", true) as $arEvent)
+			foreach (GetModuleEvents('subscribe', 'OnAfterSubscriptionDelete', true) as $arEvent)
 			{
-				ExecuteModuleEventEx($arEvent, array($ID));
+				ExecuteModuleEventEx($arEvent, [$ID]);
 			}
 
 			$DB->Commit();
@@ -278,79 +306,92 @@ class CSubscriptionGeneral
 		global $DB, $APPLICATION;
 
 		$APPLICATION->ResetException();
-		$this->LAST_ERROR = "";
-		$aMsg = array();
-		if($ID > 0)
+		$this->LAST_ERROR = '';
+		$aMsg = [];
+		if ($ID > 0)
 		{
-			$arFields["ID"] = $ID;
+			$arFields['ID'] = $ID;
 		}
 
 		if ($ID > 0)
-			$db_events = GetModuleEvents("subscribe", "OnStartSubscriptionUpdate", true);
-		else
-			$db_events = GetModuleEvents("subscribe", "OnStartSubscriptionAdd", true);
-
-		foreach($db_events as $arEvent)
 		{
-			if (ExecuteModuleEventEx($arEvent, array(&$arFields, $SITE_ID)) === false)
+			$db_events = GetModuleEvents('subscribe', 'OnStartSubscriptionUpdate', true);
+		}
+		else
+		{
+			$db_events = GetModuleEvents('subscribe', 'OnStartSubscriptionAdd', true);
+		}
+
+		foreach ($db_events as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, [&$arFields, $SITE_ID]) === false)
 			{
 				break;
 			}
 		}
 
-
-		if(is_set($arFields, "EMAIL"))
+		if (is_set($arFields, 'EMAIL'))
 		{
-			if($arFields["EMAIL"] == '' || !check_email($arFields["EMAIL"]))
-				$aMsg[] = array("id"=>"EMAIL", "text"=>GetMessage("class_subscr_addr"));
+			if ($arFields['EMAIL'] == '' || !check_email($arFields['EMAIL']))
+			{
+				$aMsg[] = ['id' => 'EMAIL', 'text' => GetMessage('class_subscr_addr')];
+			}
 			else
 			{
-				$res = $this->GetByEmail($arFields["EMAIL"], intval($arFields["USER_ID"]));
+				$res = static::GetByEmail($arFields['EMAIL'], intval($arFields['USER_ID']));
 				$ar = $res->Fetch();
-				if($ar && ($ar["ID"] <> intval($ID)))
-					$aMsg[] = array("id"=>"EMAIL", "text"=>GetMessage("class_subscr_addr2"));
+				if ($ar && ($ar['ID'] <> intval($ID)))
+				{
+					$aMsg[] = ['id' => 'EMAIL', 'text' => GetMessage('class_subscr_addr2')];
+				}
 			}
 		}
 
-		if(is_set($arFields, "USER_ID"))
+		if (is_set($arFields, 'USER_ID'))
 		{
-			if(intval($arFields["USER_ID"]) > 0)
+			if (intval($arFields['USER_ID']) > 0)
 			{
-				$res = $DB->Query("SELECT 'x' FROM b_user WHERE ID = ".intval($arFields["USER_ID"]), false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				if(!$res->Fetch())
-					$aMsg[] = array("id"=>"USER_ID", "text"=>GetMessage("class_subscr_user"));
+				$res = $DB->Query("SELECT 'x' FROM b_user WHERE ID = " . intval($arFields['USER_ID']), false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+				if (!$res->Fetch())
+				{
+					$aMsg[] = ['id' => 'USER_ID', 'text' => GetMessage('class_subscr_user')];
+				}
 			}
 		}
 
 		if ($ID > 0)
-			$db_events = GetModuleEvents("subscribe", "OnBeforeSubscriptionUpdate", true);
-		else
-			$db_events = GetModuleEvents("subscribe", "OnBeforeSubscriptionAdd", true);
-
-		foreach($db_events as $arEvent)
 		{
-			if (ExecuteModuleEventEx($arEvent, array(&$arFields, $SITE_ID)) === false)
+			$db_events = GetModuleEvents('subscribe', 'OnBeforeSubscriptionUpdate', true);
+		}
+		else
+		{
+			$db_events = GetModuleEvents('subscribe', 'OnBeforeSubscriptionAdd', true);
+		}
+
+		foreach ($db_events as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, [&$arFields, $SITE_ID]) === false)
 			{
 				$err = $APPLICATION->GetException();
 				if ($err)
 				{
-					$aMsg[] = array("id"=>"", "text"=>$err->GetString());
+					$aMsg[] = ['id' => '', 'text' => $err->GetString()];
 					$APPLICATION->ResetException();
 				}
 				else
 				{
-					$aMsg[] = array("id"=>"", "text"=>"Unknown error.");
+					$aMsg[] = ['id' => '', 'text' => 'Unknown error.'];
 				}
 				break;
 			}
 		}
 
-		if($ID > 0)
+		if ($ID > 0)
 		{
-			unset($arFields["ID"]);
+			unset($arFields['ID']);
 		}
 
-		if(!empty($aMsg))
+		if (!empty($aMsg))
 		{
 			$e = new CAdminException($aMsg);
 			$APPLICATION->ThrowException($e);
@@ -362,12 +403,12 @@ class CSubscriptionGeneral
 	}
 
 	//link with categories
-	function UpdateRubrics($ID, $aRubric, $SITE_ID=false)
+	public function UpdateRubrics($ID, $aRubric, $SITE_ID=false)
 	{
 		global $DB;
 		$ID = intval($ID);
 
-		if($SITE_ID!==false)
+		if ($SITE_ID !== false)
 		{
 			$strSql = "
 			SELECT sr.SUBSCRIPTION_ID,sr.LIST_RUBRIC_ID
@@ -375,50 +416,58 @@ class CSubscriptionGeneral
 				b_subscription_rubric sr
 				INNER JOIN b_list_rubric lr ON lr.ID=sr.LIST_RUBRIC_ID
 			WHERE
-				sr.SUBSCRIPTION_ID='".$ID."'
-				AND lr.LID='".$DB->ForSql($SITE_ID)."'
+				sr.SUBSCRIPTION_ID='" . $ID . "'
+				AND lr.LID='" . $DB->ForSql($SITE_ID) . "'
 			";
-			$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-			while($ar=$rs->Fetch())
+			$rs = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			while ($ar = $rs->Fetch())
 			{
-				$strSql = "
+				$strSql = '
 				DELETE FROM b_subscription_rubric
-				WHERE SUBSCRIPTION_ID=".intval($ar["SUBSCRIPTION_ID"])."
-				AND LIST_RUBRIC_ID=".intval($ar["LIST_RUBRIC_ID"])."
-				";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				WHERE SUBSCRIPTION_ID=' . intval($ar['SUBSCRIPTION_ID']) . '
+				AND LIST_RUBRIC_ID=' . intval($ar['LIST_RUBRIC_ID']) . '
+				';
+				$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 			}
 
-			$sID = "0";
-			if(is_array($aRubric))
-				foreach($aRubric as $rub)
-					$sID .= ",".intval($rub);
+			$sID = '0';
+			if (is_array($aRubric))
+			{
+				foreach ($aRubric as $rub)
+				{
+					$sID .= ',' . intval($rub);
+				}
+			}
 
 			$strSql = "
 				INSERT INTO b_subscription_rubric (SUBSCRIPTION_ID, LIST_RUBRIC_ID)
-				SELECT '".$ID."', ID
+				SELECT '" . $ID . "', ID
 				FROM b_list_rubric
-				WHERE ID IN (".$sID.")
-				AND LID='".$DB->ForSql($SITE_ID)."'
+				WHERE ID IN (" . $sID . ")
+				AND LID='" . $DB->ForSql($SITE_ID) . "'
 			";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 		}
 		else
 		{
-			$DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='".$ID."'", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='" . $ID . "'", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 
-			$sID = "0";
-			if(is_array($aRubric))
-				foreach($aRubric as $rub)
-					$sID .= ",".intval($rub);
+			$sID = '0';
+			if (is_array($aRubric))
+			{
+				foreach ($aRubric as $rub)
+				{
+					$sID .= ',' . intval($rub);
+				}
+			}
 
 			$strSql = "
 				INSERT INTO b_subscription_rubric (SUBSCRIPTION_ID, LIST_RUBRIC_ID)
-				SELECT '".$ID."', ID
+				SELECT '" . $ID . "', ID
 				FROM b_list_rubric
-				WHERE ID IN (".$sID.")
-			";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				WHERE ID IN (" . $sID . ')
+			';
+			$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 		}
 	}
 
@@ -427,27 +476,37 @@ class CSubscriptionGeneral
 	{
 		global $DB;
 
-		if(!$this->CheckFields($arFields, 0, $SITE_ID))
-			return false;
-
-		if(array_key_exists("USER_ID", $arFields) && (intval($arFields["USER_ID"]) <= 0))
-			$arFields["USER_ID"] = false;
-
-		$arFields["CONFIRM_CODE"] = randString(8);
-		$arFields["~DATE_INSERT"]  = $DB->CurrentTimeFunction();
-		$arFields["~DATE_CONFIRM"] = $DB->CurrentTimeFunction();
-
-		$ID = $DB->Add("b_subscription", $arFields);
-
-		if($ID > 0)
+		if (!$this->CheckFields($arFields, 0, $SITE_ID))
 		{
-			if(is_set($arFields,"ALL_SITES") && $arFields["ALL_SITES"]=="Y")
-				$this->UpdateRubrics($ID, $arFields["RUB_ID"]);
-			else
-				$this->UpdateRubrics($ID, $arFields["RUB_ID"], $SITE_ID);
+			return false;
+		}
 
-			if($arFields["SEND_CONFIRM"] <> "N")
-				$this->ConfirmEvent($ID, $SITE_ID);
+		if (array_key_exists('USER_ID', $arFields) && (intval($arFields['USER_ID']) <= 0))
+		{
+			$arFields['USER_ID'] = false;
+		}
+
+		$arFields['CONFIRM_CODE'] = \Bitrix\Main\Security\Random::getString(8, true);
+		$arFields['~DATE_INSERT']  = $DB->CurrentTimeFunction();
+		$arFields['~DATE_CONFIRM'] = $DB->CurrentTimeFunction();
+
+		$ID = $DB->Add('b_subscription', $arFields);
+
+		if ($ID > 0)
+		{
+			if (is_set($arFields,'ALL_SITES') && $arFields['ALL_SITES'] == 'Y')
+			{
+				$this->UpdateRubrics($ID, $arFields['RUB_ID']);
+			}
+			else
+			{
+				$this->UpdateRubrics($ID, $arFields['RUB_ID'], $SITE_ID);
+			}
+
+			if ($arFields['SEND_CONFIRM'] <> 'N')
+			{
+				static::ConfirmEvent($ID, $SITE_ID);
+			}
 		}
 
 		return $ID;
@@ -458,42 +517,44 @@ class CSubscriptionGeneral
 	{
 		global $DB;
 		$ID = intval($ID);
-		$this->LAST_MESSAGE = "";
+		$this->LAST_MESSAGE = '';
 
-		if(!$this->CheckFields($arFields, $ID, $SITE_ID))
-			return false;
-
-		if(array_key_exists("USER_ID", $arFields) && (intval($arFields["USER_ID"]) <= 0))
-			$arFields["USER_ID"] = false;
-
-		//Check whether email changed. If changed, we must to generate new confirm code.
-		$strSql =
-			"SELECT EMAIL, CONFIRM_CODE, CONFIRMED FROM b_subscription ".
-			"WHERE ID='".$ID."' ";
-		$db_check = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		if(!($db_check_arr = $db_check->Fetch()))
+		if (!$this->CheckFields($arFields, $ID, $SITE_ID))
 		{
-			$this->LAST_ERROR = GetMessage("class_subscr_perm")."<br>";
 			return false;
 		}
 
-		$CONFIRM_CODE = $arFields["CONFIRM_CODE"];
-		unset($arFields["CONFIRM_CODE"]);
-		if(!is_set($arFields, "EMAIL") || mb_strtoupper($db_check_arr["EMAIL"]) == mb_strtoupper($arFields["EMAIL"]))
+		if (array_key_exists('USER_ID', $arFields) && (intval($arFields['USER_ID']) <= 0))
+		{
+			$arFields['USER_ID'] = false;
+		}
+
+		//Check whether email changed. If changed, we must to generate new confirm code.
+		$strSql = 'SELECT EMAIL, CONFIRM_CODE, CONFIRMED FROM b_subscription WHERE ID = ' . $ID;
+		$db_check = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+
+		if (!($db_check_arr = $db_check->Fetch()))
+		{
+			$this->LAST_ERROR = GetMessage('class_subscr_perm') . '<br>';
+			return false;
+		}
+
+		$CONFIRM_CODE = $arFields['CONFIRM_CODE'];
+		unset($arFields['CONFIRM_CODE']);
+		if (!is_set($arFields, 'EMAIL') || mb_strtoupper($db_check_arr['EMAIL']) === mb_strtoupper($arFields['EMAIL']))
 		{
 			//the same email - check confirm code
-			if($CONFIRM_CODE <> '' && $db_check_arr["CONFIRMED"] <> "Y")
+			if ($CONFIRM_CODE <> '' && $db_check_arr['CONFIRMED'] <> 'Y')
 			{
-				if($CONFIRM_CODE == $db_check_arr["CONFIRM_CODE"])
+				if ($CONFIRM_CODE == $db_check_arr['CONFIRM_CODE'])
 				{
 					//let's confirm the subscription
-					$arFields["CONFIRMED"] = "Y";
-					$this->LAST_MESSAGE = "CONF";
+					$arFields['CONFIRMED'] = 'Y';
+					$this->LAST_MESSAGE = 'CONF';
 				}
 				else
 				{
-					$this->LAST_ERROR = GetMessage("class_subscr_conf")."<br>";
+					$this->LAST_ERROR = GetMessage('class_subscr_conf') . '<br>';
 					return false;
 				}
 			}
@@ -501,39 +562,43 @@ class CSubscriptionGeneral
 		else
 		{
 			//new email - new confirm code
-			$arFields["CONFIRM_CODE"] = randString(8);
-			if($arFields["CONFIRMED"]<>"Y")
-				$arFields["CONFIRMED"] = "N";
+			$arFields['CONFIRM_CODE'] = \Bitrix\Main\Security\Random::getString(8, true);
+			if ($arFields['CONFIRMED'] <> 'Y')
+			{
+				$arFields['CONFIRMED'] = 'N';
+			}
 		}
 
-		$strUpdate = $DB->PrepareUpdate("b_subscription", $arFields);
+		$strUpdate = $DB->PrepareUpdate('b_subscription', $arFields);
 		if ($strUpdate <> '')
 		{
 			$strSql =
-				"UPDATE b_subscription SET ".
-				$strUpdate.", ".
-				"	DATE_UPDATE=".$DB->GetNowFunction()." ".
-				($arFields["CONFIRM_CODE"] <> ''? ",".
-				"	DATE_CONFIRM=".$DB->GetNowFunction()." "
-				:"").
-				"WHERE ID=".$ID;
-			if(!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+				'UPDATE b_subscription SET ' . $strUpdate . ', ' . '	DATE_UPDATE=' . $DB->GetNowFunction() . ' ' . ($arFields['CONFIRM_CODE'] <> '' ? ',' . '	DATE_CONFIRM=' . $DB->GetNowFunction() . ' '
+				: '')
+				. 'WHERE ID=' . $ID;
+			if (!$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__))
+			{
 				return false;
+			}
 		}
 
 		//subscription categories
-		if(is_set($arFields, "RUB_ID"))
+		if (is_set($arFields, 'RUB_ID'))
 		{
-			if(is_set($arFields,"ALL_SITES") && $arFields["ALL_SITES"]=="Y")
-				$this->UpdateRubrics($ID, $arFields["RUB_ID"]);
+			if (is_set($arFields,'ALL_SITES') && $arFields['ALL_SITES'] == 'Y')
+			{
+				$this->UpdateRubrics($ID, $arFields['RUB_ID']);
+			}
 			else
-				$this->UpdateRubrics($ID, $arFields["RUB_ID"], $SITE_ID);
+			{
+				$this->UpdateRubrics($ID, $arFields['RUB_ID'], $SITE_ID);
+			}
 		}
 		//send confirmation code if needed
-		if($arFields["SEND_CONFIRM"] <> "N" && $arFields["CONFIRM_CODE"] <> '')
+		if ($arFields['SEND_CONFIRM'] <> 'N' && $arFields['CONFIRM_CODE'] <> '')
 		{
-			$this->ConfirmEvent($ID, $SITE_ID);
-			$this->LAST_MESSAGE = "SENT";
+			static::ConfirmEvent($ID, $SITE_ID);
+			$this->LAST_MESSAGE = 'SENT';
 		}
 
 		return true;
@@ -542,46 +607,50 @@ class CSubscriptionGeneral
 	//message with subscription confirmation
 	public static function ConfirmEvent($ID, $SITE_ID=SITE_ID)
 	{
-		static $SITE_DIR_CACHE = array();
+		static $SITE_DIR_CACHE = [];
 		CTimeZone::Disable();
 		$subscr = CSubscription::GetByID($ID);
 		CTimeZone::Enable();
-		if($subscr_arr = $subscr->Fetch())
+		if ($subscr_arr = $subscr->Fetch())
 		{
-			if(!array_key_exists($SITE_ID, $SITE_DIR_CACHE))
+			if (!array_key_exists($SITE_ID, $SITE_DIR_CACHE))
 			{
 				$db_lang = CLang::GetByID($SITE_ID);
-				if($ar_lang = $db_lang->Fetch())
-					$SITE_DIR_CACHE[$SITE_ID] = $ar_lang["DIR"];
-				else
-					$SITE_DIR_CACHE[$SITE_ID] = LANG_DIR;
-			}
-
-			$subscr_arr["USER_NAME"] = "";
-			$subscr_arr["USER_LAST_NAME"] = "";
-			if(intval($subscr_arr["USER_ID"]) > 0)
-			{
-				$rsUser = CUser::GetByID($subscr_arr["USER_ID"]);
-				if($arUser = $rsUser->Fetch())
+				if ($ar_lang = $db_lang->Fetch())
 				{
-					$subscr_arr["USER_NAME"] = $arUser["NAME"];
-					$subscr_arr["USER_LAST_NAME"] = $arUser["LAST_NAME"];
+					$SITE_DIR_CACHE[$SITE_ID] = $ar_lang['DIR'];
+				}
+				else
+				{
+					$SITE_DIR_CACHE[$SITE_ID] = LANG_DIR;
 				}
 			}
 
-			$arFields = Array(
-				"ID" => $subscr_arr["ID"],
-				"EMAIL" => $subscr_arr["EMAIL"],
-				"CONFIRM_CODE" => $subscr_arr["CONFIRM_CODE"],
-				"USER_NAME" => $subscr_arr["USER_NAME"]." ".$subscr_arr["USER_LAST_NAME"],
-				"DATE_SUBSCR" => ($subscr_arr["DATE_UPDATE"] <> ""? $subscr_arr["DATE_UPDATE"]: $subscr_arr["DATE_INSERT"]),
-				"SUBSCR_SECTION" => str_replace(
-					array("#SITE_DIR#", "#LANG_DIR#"),
-					array($SITE_DIR_CACHE[$SITE_ID], $SITE_DIR_CACHE[$SITE_ID]),
-					COption::GetOptionString("subscribe", "subscribe_section")
+			$subscr_arr['USER_NAME'] = '';
+			$subscr_arr['USER_LAST_NAME'] = '';
+			if (intval($subscr_arr['USER_ID']) > 0)
+			{
+				$rsUser = CUser::GetByID($subscr_arr['USER_ID']);
+				if ($arUser = $rsUser->Fetch())
+				{
+					$subscr_arr['USER_NAME'] = $arUser['NAME'];
+					$subscr_arr['USER_LAST_NAME'] = $arUser['LAST_NAME'];
+				}
+			}
+
+			$arFields = [
+				'ID' => $subscr_arr['ID'],
+				'EMAIL' => $subscr_arr['EMAIL'],
+				'CONFIRM_CODE' => $subscr_arr['CONFIRM_CODE'],
+				'USER_NAME' => $subscr_arr['USER_NAME'] . ' ' . $subscr_arr['USER_LAST_NAME'],
+				'DATE_SUBSCR' => ($subscr_arr['DATE_UPDATE'] <> '' ? $subscr_arr['DATE_UPDATE'] : $subscr_arr['DATE_INSERT']),
+				'SUBSCR_SECTION' => str_replace(
+					['#SITE_DIR#', '#LANG_DIR#'],
+					[$SITE_DIR_CACHE[$SITE_ID], $SITE_DIR_CACHE[$SITE_ID]],
+					COption::GetOptionString('subscribe', 'subscribe_section')
 				),
-			);
-			CEvent::Send("SUBSCRIBE_CONFIRM", $SITE_ID, $arFields);
+			];
+			CEvent::Send('SUBSCRIBE_CONFIRM', $SITE_ID, $arFields);
 			return true;
 		}
 		return false;
@@ -593,42 +662,42 @@ class CSubscriptionGeneral
 		global $USER;
 
 		$subscr = CSubscription::GetByID($ID);
-		if(($subscr_arr = $subscr->Fetch()))
+		if (($subscr_arr = $subscr->Fetch()))
 		{
 			//unconditional auth
-			if($CONFIRM_CODE===false)
+			if ($CONFIRM_CODE === false)
 			{
-				$_SESSION["SESS_SUBSCR_AUTH"][$ID] = "YES";
+				$_SESSION['SESS_SUBSCR_AUTH'][$ID] = 'YES';
 				return true;
 			}
 			//anonymous subscription
-			if($subscr_arr["CONFIRM_CODE"] == $CONFIRM_CODE)
+			if ($subscr_arr['CONFIRM_CODE'] == $CONFIRM_CODE)
 			{
-				$_SESSION["SESS_SUBSCR_AUTH"][$ID] = "YES";
+				$_SESSION['SESS_SUBSCR_AUTH'][$ID] = 'YES';
 				return true;
 			}
 			//user account subscription
-			if(intval($subscr_arr["USER_ID"]) > 0)
+			if (intval($subscr_arr['USER_ID']) > 0)
 			{
-				if($USER->IsAuthorized())
+				if ($USER->IsAuthorized())
 				{
 					//user is already authorized
-					if($USER->GetID()==$subscr_arr["USER_ID"])
+					if ($USER->GetID() == $subscr_arr['USER_ID'])
 					{
-						$_SESSION["SESS_SUBSCR_AUTH"][$ID] = "YES";
+						$_SESSION['SESS_SUBSCR_AUTH'][$ID] = 'YES';
 						return true;
 					}
 				}
 			}
 		}
-		$_SESSION["SESS_SUBSCR_AUTH"][$ID] = "NO";
+		$_SESSION['SESS_SUBSCR_AUTH'][$ID] = 'NO';
 		return false;
 	}
 
 	//retuns user's subscription authorization
 	public static function IsAuthorized($ID)
 	{
-		return ($_SESSION["SESS_SUBSCR_AUTH"][$ID] == "YES");
+		return ($_SESSION['SESS_SUBSCR_AUTH'][$ID] == 'YES');
 	}
 
 	//*****************************
@@ -642,22 +711,28 @@ class CSubscriptionGeneral
 		global $DB;
 		$user_id = intval($user_id);
 
-		$strSql = "SELECT ID FROM b_subscription WHERE USER_ID = ".$user_id;
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$arIn = array();
-		while($res_arr = $res->Fetch())
-			$arIn[] = intval($res_arr["ID"]);
-
-		if(count($arIn) > 0)
+		$strSql = 'SELECT ID FROM b_subscription WHERE USER_ID = ' . $user_id;
+		$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$arIn = [];
+		while ($res_arr = $res->Fetch())
 		{
-			$sIn = implode(",",$arIn);
-			if(
-				$DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID IN (".$sIn.")", false, "File: ".__FILE__."<br>Line: ".__LINE__) &&
-				$DB->Query("DELETE FROM b_subscription WHERE ID IN (".$sIn.")", false, "File: ".__FILE__."<br>Line: ".__LINE__)
+			$arIn[] = intval($res_arr['ID']);
+		}
+
+		if (count($arIn) > 0)
+		{
+			$sIn = implode(',',$arIn);
+			if (
+				$DB->Query('DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID IN (' . $sIn . ')', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__) &&
+				$DB->Query('DELETE FROM b_subscription WHERE ID IN (' . $sIn . ')', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__)
 			)
+			{
 				return true;
+			}
 			else
+			{
 				return false;
+			}
 		}
 		else
 		{
@@ -671,12 +746,14 @@ class CSubscriptionGeneral
 		//let's reset subscriptions authorization on user logout
 		global $DB;
 		$user_id = intval($user_id);
-		if($user_id>0)
+		if ($user_id > 0)
 		{
-			$strSql = "SELECT ID FROM b_subscription WHERE USER_ID=".$user_id;
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-			while($res_arr = $res->Fetch())
-				$_SESSION["SESS_SUBSCR_AUTH"][$res_arr["ID"]] = "NO";
+			$strSql = 'SELECT ID FROM b_subscription WHERE USER_ID=' . $user_id;
+			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			while ($res_arr = $res->Fetch())
+			{
+				$_SESSION['SESS_SUBSCR_AUTH'][$res_arr['ID']] = 'NO';
+			}
 		}
 		return true;
 	}
@@ -685,10 +762,65 @@ class CSubscriptionGeneral
 	// Agents
 	//*****************************
 
-	//delete unconfirmed subscriptions
+	//agent to delete unconfirmed subscription
 	public static function CleanUp()
 	{
-		//must be inherited
-		return "CSubscription::CleanUp();";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$interval = intval(COption::GetOptionString('subscribe', 'subscribe_confirm_period'));
+		if ($interval > 0)
+		{
+			$sql = "
+				SELECT ID
+				FROM b_subscription
+				WHERE CONFIRMED <> 'Y'
+				AND DATE_CONFIRM < " . $helper->addDaysToDateTime(1) . "
+			";
+			$res = $connection->query($sql);
+			$sIn = '0';
+			while ($res_arr = $res->fetch())
+			{
+				$sIn .= ',' . $res_arr['ID'];
+			}
+
+			$connection->queryExecute('DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID IN (' . $sIn . ')');
+			$connection->queryExecute('DELETE FROM b_subscription WHERE ID IN (' . $sIn . ')');
+		}
+
+		return 'CSubscription::CleanUp();';
+	}
+
+	//get by e-mail
+	public static function GetByEmail($email, $user_id = false)
+	{
+		global $DB;
+
+		if ($user_id === false)
+		{
+			$sWhere = '';
+		}
+		elseif ($user_id > 0)
+		{
+			$sWhere = 'AND S.USER_ID = ' . intval($user_id);
+		}
+		else
+		{
+			$sWhere = 'AND S.USER_ID IS NULL';
+		}
+
+		$strSql = '
+			SELECT S.*,
+				' . $DB->DateToCharFunction('S.DATE_UPDATE', 'FULL') . ' AS DATE_UPDATE,
+				' . $DB->DateToCharFunction('S.DATE_INSERT', 'FULL') . ' AS DATE_INSERT,
+				' . $DB->DateToCharFunction('S.DATE_CONFIRM', 'FULL') . " AS DATE_CONFIRM
+			FROM
+				b_subscription S
+			WHERE
+				S.EMAIL='" . $DB->ForSQL($email) . "'
+				" . $sWhere . '
+		';
+
+		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
 	}
 }

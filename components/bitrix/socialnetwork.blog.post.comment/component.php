@@ -2109,11 +2109,11 @@ if (
 			$handlerManager = new CommentAux\HandlerManager();
 			$newFound = false;
 
-			$arPost['NUM_COMMENTS_ALL'] = $this->getAllCommentsCount([
-				'permissions' => $arResult['Perm'],
-				'currentUserId' => $currentUserId,
-				'cacheTime' => $arParams['CACHE_TIME'],
-			]);
+//			$arPost['NUM_COMMENTS_ALL'] = $this->getAllCommentsCount([
+//				'permissions' => $arResult['Perm'],
+//				'currentUserId' => $currentUserId,
+//				'cacheTime' => $arParams['CACHE_TIME'],
+//			]);
 
 			foreach ($arResult["CommentsResult"] as $k1 => $v1)
 			{

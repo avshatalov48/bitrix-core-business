@@ -1810,41 +1810,57 @@ class CIBlockPriceTools
 	public static function checkPropDirectory(&$property, $getPropInfo = false)
 	{
 		if (empty($property) || !is_array($property))
+		{
 			return false;
-		if (!isset($property['USER_TYPE_SETTINGS']['TABLE_NAME']) || empty($property['USER_TYPE_SETTINGS']['TABLE_NAME']))
+		}
+		if (empty($property['USER_TYPE_SETTINGS']['TABLE_NAME']))
+		{
 			return false;
+		}
 		if (self::$highLoadInclude === null)
+		{
 			self::$highLoadInclude = Loader::includeModule('highloadblock');
+		}
 		if (!self::$highLoadInclude)
+		{
 			return false;
+		}
 
-		$highBlock = HighloadBlockTable::getList(array(
-			'filter' => array('=TABLE_NAME' => $property['USER_TYPE_SETTINGS']['TABLE_NAME'])
-		))->fetch();
-		if (!isset($highBlock['ID']))
+		$highBlock = HighloadBlockTable::getRow([
+			'filter' => [
+				'=TABLE_NAME' => $property['USER_TYPE_SETTINGS']['TABLE_NAME'],
+			],
+		]);
+		if ($highBlock === null)
+		{
 			return false;
+		}
 
 		$entity = HighloadBlockTable::compileEntity($highBlock);
 		$fieldsList = $entity->getFields();
 		if (empty($fieldsList))
+		{
 			return false;
+		}
 
-		$requireFields = array(
+		$requireFields = [
 			'ID',
 			'UF_XML_ID',
 			'UF_NAME',
-		);
-		foreach ($requireFields as &$fieldCode)
+		];
+		foreach ($requireFields as $fieldCode)
 		{
-			if (!isset($fieldsList[$fieldCode]) || empty($fieldsList[$fieldCode]))
+			if (!isset($fieldsList[$fieldCode]))
+			{
 				return false;
+			}
 		}
-		unset($fieldCode);
 		if ($getPropInfo)
 		{
 			$property['USER_TYPE_SETTINGS']['FIELDS_MAP'] = $fieldsList;
-			$propInfo['USER_TYPE_SETTINGS']['ENTITY'] = $entity;
+			$property['USER_TYPE_SETTINGS']['ENTITY'] = $entity;
 		}
+
 		return true;
 	}
 

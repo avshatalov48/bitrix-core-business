@@ -7,6 +7,7 @@ use Bitrix\Im\Alias;
 use Bitrix\Im\Common;
 use Bitrix\Im\V2\Message\ReadService;
 use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
@@ -307,6 +308,7 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		unset(self::$chatStaticCache[$id]);
 
 		ChatFactory::getInstance()->cleanCache($id);
+		Im\V2\Chat\EntityLink::cleanCache($id);
 	}
 
 	public static function cleanAccessCache(int $chatId): void
@@ -798,6 +800,42 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		]);
 	}
 
+	public function readTo(Message $message, bool $byEvent = false): Result
+	{
+		$readService = $this->getReadService();
+		$startId = $message->getMessageId();
+		$readResult = $readService->readTo($message);
+		$counter = $readResult->getResult()['COUNTER'] ?? 0;
+
+		$viewedMessages = $readResult->getResult()['VIEWED_MESSAGES'];
+		$messageCollection = new MessageCollection();
+		foreach ($viewedMessages as $messageId)
+		{
+			$viewedMessage = new Message();
+			$viewedMessage->setMessageId((int)$messageId);
+			$messageCollection->add($viewedMessage);
+		}
+
+		$lastId = $readService->getLastIdByChatId($this->chatId);
+
+		if (Main\Loader::includeModule('pull'))
+		{
+			CIMNotify::DeleteBySubTag("IM_MESS_{$this->getChatId()}_{$this->getContext()->getUserId()}", false, false);
+			CPushManager::DeleteFromQueueBySubTag($this->getContext()->getUserId(), 'IM_MESS');
+			$this->sendPushRead($messageCollection, $lastId, $counter);
+		}
+
+		$this->sendEventRead($startId, $lastId, $counter, $byEvent);
+
+		$result = new Result();
+		return $result->setResult([
+			'CHAT_ID' => $this->chatId,
+			'LAST_ID' => $lastId,
+			'COUNTER' => $counter,
+			'VIEWED_MESSAGES' => $viewedMessages,
+		]);
+	}
+
 	public function unreadToMessage(Message $message): Result
 	{
 		$result = new Result();
@@ -855,10 +893,8 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 
 	protected function sendPushReadSelf(MessageCollection $messages, int $lastId, int $counter): void
 	{
-		$selfRelation = $this
-			->getRelations(['SELECT' => ['ID', 'CHAT_ID', 'USER_ID', 'NOTIFY_BLOCK']])
-			->getByUserId($this->getContext()->getUserId(), $this->chatId)
-		;
+		$selfRelation = $this->getSelfRelation(['SELECT' => ['ID', 'CHAT_ID', 'USER_ID', 'NOTIFY_BLOCK']]);
+
 		$muted = isset($selfRelation) ? $selfRelation->getNotifyBlock() : false;
 		\Bitrix\Pull\Event::add($this->getContext()->getUserId(), [
 			'module_id' => 'im',
@@ -949,7 +985,7 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 			->where('ID', '>=', $lowerBound)
 			->where('ID', '<=', $upperBound)
 			->where('CHAT_ID', $this->chatId)
-			->setOrder(['ID' => 'DESC'])
+			->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
 			->setLimit(50)
 			->fetchAll()
 		;
@@ -1047,10 +1083,15 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		$userIds = [];
 		foreach ($relations as $relation)
 		{
-			$isUserSelf = $relation->getUserId() === $userId;
-			$isUserConnector = $isLineChat && $relation->getUser()->isConnector();
-			$isBot = $relation->getUser()->isBot();
-			if (($isUserSelf && $skipSelf) || $isUserConnector || ($skipBot && $isBot))
+			if ($skipSelf && $relation->getUserId() === $userId)
+			{
+				continue;
+			}
+			if ($skipBot && $relation->getUser()->isBot())
+			{
+				continue;
+			}
+			if ($isLineChat && $relation->getUser()->isConnector())
 			{
 				continue;
 			}
@@ -1319,23 +1360,23 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		{
 			$res = $connection->query("
 				SELECT
-					C.ID CHAT_ID,
-					C.PARENT_ID CHAT_PARENT_ID,
-					C.PARENT_MID CHAT_PARENT_MID,
-					C.TITLE CHAT_TITLE,
-					C.AUTHOR_ID CHAT_AUTHOR_ID,
-					C.TYPE CHAT_TYPE,
-					C.AVATAR CHAT_AVATAR,
-					C.COLOR CHAT_COLOR,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-					C.ENTITY_ID CHAT_ENTITY_ID,
-					C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-					C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-					C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
-					C.EXTRANET CHAT_EXTRANET,
-					C.PREV_MESSAGE_ID CHAT_PREV_MESSAGE_ID,
-					'1' RID,
-					'Y' IS_MANAGER
+					C.ID as CHAT_ID,
+					C.PARENT_ID as CHAT_PARENT_ID,
+					C.PARENT_MID as CHAT_PARENT_MID,
+					C.TITLE as CHAT_TITLE,
+					C.AUTHOR_ID as CHAT_AUTHOR_ID,
+					C.TYPE as CHAT_TYPE,
+					C.AVATAR as CHAT_AVATAR,
+					C.COLOR as CHAT_COLOR,
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+					C.ENTITY_ID as CHAT_ENTITY_ID,
+					C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+					C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+					C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3,
+					C.EXTRANET as CHAT_EXTRANET,
+					C.PREV_MESSAGE_ID as CHAT_PREV_MESSAGE_ID,
+					'1' as RID,
+					'Y' as IS_MANAGER
 				FROM b_im_chat C
 				WHERE C.ID = ".(int)$params['CHAT_ID']."
 			");
@@ -1355,23 +1396,23 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 
 			$res = $connection->query("
 				SELECT
-					C.ID CHAT_ID,
-					C.PARENT_ID CHAT_PARENT_ID,
-					C.PARENT_MID CHAT_PARENT_MID,
-					C.TITLE CHAT_TITLE,
-					C.AUTHOR_ID CHAT_AUTHOR_ID,
-					C.TYPE CHAT_TYPE,
-					C.AVATAR CHAT_AVATAR,
-					C.COLOR CHAT_COLOR,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
-					C.ENTITY_ID CHAT_ENTITY_ID,
-					C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
-					C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2,
-					C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3,
-					C.EXTRANET CHAT_EXTRANET,
-					C.PREV_MESSAGE_ID CHAT_PREV_MESSAGE_ID,
-					R.USER_ID RID,
-					R.MANAGER IS_MANAGER
+					C.ID as CHAT_ID,
+					C.PARENT_ID as CHAT_PARENT_ID,
+					C.PARENT_MID as CHAT_PARENT_MID,
+					C.TITLE as CHAT_TITLE,
+					C.AUTHOR_ID as CHAT_AUTHOR_ID,
+					C.TYPE as CHAT_TYPE,
+					C.AVATAR as CHAT_AVATAR,
+					C.COLOR as CHAT_COLOR,
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE,
+					C.ENTITY_ID as CHAT_ENTITY_ID,
+					C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1,
+					C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2,
+					C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3,
+					C.EXTRANET as CHAT_EXTRANET,
+					C.PREV_MESSAGE_ID as CHAT_PREV_MESSAGE_ID,
+					R.USER_ID as RID,
+					R.MANAGER as IS_MANAGER
 				FROM b_im_chat C
 				LEFT JOIN b_im_relation R 
 					ON R.CHAT_ID = C.ID 
@@ -1957,7 +1998,7 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		if ($this->getChatId())
 		{
 			ChatTable::update($this->getChatId(), [
-				'MESSAGE_COUNT' => new Main\DB\SqlExpression('?# + ' . $increment, 'MESSAGE_COUNT'),
+				'MESSAGE_COUNT' => new Main\DB\SqlExpression('?# + ?i', 'MESSAGE_COUNT', $increment),
 				'LAST_MESSAGE_ID' => $this->getLastMessageId(),
 			]);
 		}
@@ -2121,17 +2162,19 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		return $this;
 	}
 
-	public function getSelfRelation(): ?Relation
+	public function getSelfRelation(array $options = []): ?Relation
 	{
 		$userId = $this->getContext()->getUserId();
 
 		$emptyOptionsHash = md5(serialize([]));
 		if (isset($this->relations[$emptyOptionsHash]))
 		{
-			return $this->relations[$emptyOptionsHash]->getByUserId($userId, $this->getChatId());
+			return $this->relations[$emptyOptionsHash]->getByUserId($userId, $this->getChatId() ?? 0);
 		}
 
-		return $this->getRelations(['FILTER' => ['USER_ID' => $userId]])->getByUserId($userId, $this->getChatId());
+		$options['FILTER']['USER_ID'] = $options['FILTER']['USER_ID'] ?? $userId;
+
+		return $this->getRelations($options)->getByUserId($userId, $this->getChatId() ?? 0);
 	}
 
 	public function getBotInChat(): array
@@ -2706,14 +2749,19 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		$gender = $this->getContext()->getUser()->getGender();
 		$userName = $this->getContext()->getUser()->getName();
 		$userName = "[USER={$this->getContext()->getUserId()}]{$userName}[/USER]";
-		$notificationMessage = Loc::getMessage('IM_CHAT_KICK_NOTIFICATION_'. $gender, ["#USER_NAME#" => $userName]);
+		$notificationCallback = fn (?string $languageId = null) => Loc::getMessage(
+			'IM_CHAT_KICK_NOTIFICATION_'. $gender,
+			["#USER_NAME#" => $userName],
+			$languageId
+		);
+
 		$notificationFields = [
 			'TO_USER_ID' => $userId,
 			'FROM_USER_ID' => 0,
 			'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
 			'NOTIFY_MODULE' => 'im',
 			'NOTIFY_TITLE' => htmlspecialcharsback(\Bitrix\Main\Text\Emoji::decode($this->getTitle())),
-			'NOTIFY_MESSAGE' => $notificationMessage,
+			'NOTIFY_MESSAGE' => $notificationCallback,
 		];
 		CIMNotify::Add($notificationFields);
 	}
@@ -2884,10 +2932,14 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 			'CHAT_ID' => $this->getChatId(),
 		]);
 
-		$removedCount = RelationTable::deleteBatch([
+		$connection = Application::getConnection();
+
+		RelationTable::deleteByFilter([
 			['=USER_ID' => $userIds],
 			['=CHAT_ID' => $this->getChatId()]
 		]);
+
+		$removedCount =  $connection->getAffectedRowsCount();
 
 		if (!$removedCount)
 		{
@@ -3056,7 +3108,7 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 
 	public function getEntityLink(): Im\V2\Chat\EntityLink
 	{
-		return Im\V2\Chat\EntityLink::getInstanceByChat($this);
+		return Im\V2\Chat\EntityLink::getInstance($this);
 	}
 
 	public function toRestFormat(array $option = []): array
@@ -3110,6 +3162,7 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 			'public' => $this->getPublicOption() ?? '',
 			'unreadId' => $this->getUnreadId(),
 			'userCounter' => $this->getUserCount(),
+			'aiProvider' => null,
 		];
 
 		return array_merge($commonFields, $additionalFields);

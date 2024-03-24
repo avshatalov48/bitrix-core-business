@@ -1,7 +1,7 @@
-<?
-/** CMain $APPLICATION */
+<?php
+
+/** @global CMain $APPLICATION */
 /** @var array $arParams */
-/** @var array $arResult */
 
 global $APPLICATION;
 
@@ -56,13 +56,13 @@ unset($bCrmViewTarget);
 				}
 			</style>
 
-			<? if(!empty($arParams['REPORT_TITLE'])): ?>
+			<?php if(!empty($arParams['REPORT_TITLE'])): ?>
 				<div class="report-entity-title report-entity-title-blue">
 					<?= htmlspecialcharsbx($arParams['REPORT_TITLE']) ?>
 				</div>
-			<? endif ?>
+			<?php endif ?>
 
-			<? if (!empty($arResult['SHARED_REPORT'])): ?>
+			<?php if (!empty($arResult['SHARED_REPORT'])): ?>
 				<div class="report-table-title"><?= GetMessage('REPORT_COMPANY_TITLE')?></div>
 				<table cellspacing="0" class="reports-list-table"
 					   id="reports-company-<?=$ownerId?>">
@@ -89,8 +89,8 @@ unset($bCrmViewTarget);
 							</div>
 						</th>
 					</tr>
-					<? foreach($arResult['SHARED_REPORT'] as $listItem): ?>
-						<?
+					<?php foreach($arResult['SHARED_REPORT'] as $listItem): ?>
+						<?php
 						$accessMark = '';
 						switch($listItem['RIGHTS'])
 						{
@@ -129,12 +129,12 @@ unset($bCrmViewTarget);
 										$listItem['CREATED_DATE']->getTimestamp()) : '' ?>
 							</td>
 						</tr>
-					<? endforeach; ?>
+					<?php endforeach; ?>
 				</table>
 
-			<? endif; ?>
+			<?php endif; ?>
 
-			<? if (empty($arResult['list'])): ?>
+			<?php if (empty($arResult['list'])): ?>
 
 				<?=GetMessage('REPORT_EMPTY_LIST')?><br/><br/>
 
@@ -146,9 +146,9 @@ unset($bCrmViewTarget);
 					<input type="submit" value="<?=GetMessage('REPORT_CREATE_DEFAULT')?>" />
 				</form>
 
-			<? else: ?>
+			<?php else: ?>
 
-				<? if($arResult['list']['personal']): ?>
+				<?php if(isset($arResult['list']['personal']) && is_array($arResult['list']['personal'])): ?>
 					<div class="report-table-title"><?= GetMessage('REPORT_PERSONAL_TITLE')?></div>
 					<table cellspacing="0" class="reports-list-table">
 						<tr>
@@ -173,7 +173,7 @@ unset($bCrmViewTarget);
 								</div>
 							</th>
 						</tr>
-						<? foreach($arResult['list']['personal'] as $listItem): ?>
+						<?php foreach($arResult['list']['personal'] as $listItem): ?>
 							<tr class="reports-list-item">
 								<td class="reports-first-column">
 									<a title="<?=htmlspecialcharsbx(strip_tags($listItem['DESCRIPTION']))?>"
@@ -197,11 +197,11 @@ unset($bCrmViewTarget);
 											$listItem['CREATED_DATE']->getTimestamp()) : '' ?>
 								</td>
 							</tr>
-						<? endforeach; ?>
+						<?php endforeach; ?>
 					</table>
-				<? endif ?>
+				<?php endif ?>
 
-				<? if($arResult['list']['default']): ?>
+				<?php if($arResult['list']['default']): ?>
 					<div class="report-table-title"><?= GetMessage('REPORT_DEFAULT_TITLE')?></div>
 					<table cellspacing="0" class="reports-list-table">
 						<tr>
@@ -226,8 +226,8 @@ unset($bCrmViewTarget);
 								</div>
 							</th>
 						</tr>
-						<? foreach($arResult['list']['default'] as $listItem): ?>
-							<?
+						<?php foreach($arResult['list']['default'] as $listItem): ?>
+							<?php
 							$defaultMark = '';
 							if (isset($listItem['MARK_DEFAULT']))
 							{
@@ -260,11 +260,11 @@ unset($bCrmViewTarget);
 											$listItem['CREATED_DATE']->getTimestamp()) : '' ?>
 								</td>
 							</tr>
-						<? endforeach; ?>
+						<?php endforeach; ?>
 					</table>
-				<? endif ?>
+				<?php endif ?>
 
-			<? endif; ?>
+			<?php endif; ?>
 		</div>
 	</div>
 
@@ -323,26 +323,27 @@ $deleteConfirmUrl = CComponentEngine::MakePathFromTemplate(
 		});
 	</script>
 
-<?if(!defined('REPORT_LIST_ERROR') && !empty($_SESSION['REPORT_LIST_ERROR'])):?>
-	<? define("REPORT_LIST_ERROR", true); ?>
+<?php if(!defined('REPORT_LIST_ERROR') && !empty($_SESSION['REPORT_LIST_ERROR'])):?>
+	<?php define("REPORT_LIST_ERROR", true); ?>
 	<div id="report-list-error" style="display: none;"><?=$_SESSION['REPORT_LIST_ERROR']?></div>
-	<? unset($_SESSION['REPORT_LIST_ERROR']); ?>
-<? endif ?>
+	<?php unset($_SESSION['REPORT_LIST_ERROR']); ?>
+<?php endif ?>
 
-<? if (!defined("REPORT_LIST_CREATE_BUTTON")):
+<?php if (!defined("REPORT_LIST_CREATE_BUTTON")):
 	define("REPORT_LIST_CREATE_BUTTON", true);?>
 	<div id="form-container" style="display: none;">
 
 	</div>
-	<? $this->SetViewTarget("pagetitle", 100);?>
-	<a class="ui-btn ui-btn-primary" onclick="BX.Report['<?=$jsClass?>'].import()"><?=GetMessage('REPORT_IMPORT_BUTTON')?></a>
+	<?php $this->SetViewTarget("pagetitle", 100);?>
+	<a class="ui-btn ui-btn-primary"
+	   onclick="BX.Report['<?=$jsClass?>'].import()"><?=GetMessage('REPORT_IMPORT_BUTTON')?></a>
 
 	<a class="ui-btn ui-btn-primary ui-btn-icon-add"
 	   href="<?=CComponentEngine::MakePathFromTemplate(
 		   $arParams["PATH_TO_REPORT_CONSTRUCT"],
 		   array("report_id" => 0, 'action' => 'create'));?>
 	"><?=GetMessage('REPORT_ADD')?></a>
-	<?
+	<?php
 
 	$this->EndViewTarget();
 endif;

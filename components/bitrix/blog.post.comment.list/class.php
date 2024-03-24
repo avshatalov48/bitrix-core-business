@@ -34,6 +34,7 @@ class CBlogPostCommentList extends CBlogPostCommentEdit
 		{
 			$vars = $cache->GetVars();
 			$this->arResult = array_merge($this->arResult, $vars["arResult"]);
+			$this->arResult["NAV_RESULT"] = $this->getCommentList($this->arResult['DB_FILTER'] ?? []);
 
 			$template = new CBitrixComponentTemplate();
 			$template->ApplyCachedData($vars["templateCachedData"]);
@@ -64,32 +65,37 @@ class CBlogPostCommentList extends CBlogPostCommentEdit
 			$this->arParams["mfi"] = md5("blog.comments");
 			
 //			create GET LIST params
-			$arOrder = Array("DATE_CREATE" => "DESC", "ID" => "DESC");
 			$arFilter = Array("POST_ID" => $this->arParams["ID"], "BLOG_ID" => $this->arResult["Blog"]["ID"]);
 //			hide draft comments. Hidden of current user must be showed, other hidden we hide later
 			if (!($this->arResult["Perm"] >= BLOG_PERMS_MODERATE || $this->arParams["BLOG_MODULE_PERMS"] >= "W"))
+			{
 				$arFilter["PUBLISH_STATUS"] = array(BLOG_PUBLISH_STATUS_PUBLISH);
+			}
+
 //			AJAX - use only one comment
 			if ($this->arResult["is_ajax_post"] == "Y" && intval($this->arResult["ajax_comment"]) > 0)
 			{
 				$arFilter["ID"] = $this->arResult["ajax_comment"];
-//				for ajax - show hidden comment too, but only once
 				$arFilter["PUBLISH_STATUS"] = array(BLOG_PUBLISH_STATUS_PUBLISH, BLOG_PUBLISH_STATUS_READY);
 			}
+
 //			PAGEN params
 			CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 			if (!empty($_REQUEST["FILTER"]))
+			{
 				$arFilter = array_merge($_REQUEST["FILTER"], $arFilter);
-			$arSelectedFields = Array("ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL",
-				"AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "DATE_CREATE", "PUBLISH_STATUS");
-			$dbComment = CBlogComment::GetList($arOrder, $arFilter, false, false, $arSelectedFields);
-			
+			}
+
+			$dbComment = $this->getCommentList($arFilter);
+
 			$this->arResult["NAV_RESULT"] = $dbComment;
+			$this->arResult["DB_FILTER"] = $arFilter;
 			$this->arResult["NAV_RESULT"]->NavStart($this->arParams["COMMENTS_COUNT"], false);
-			$this->arResult["NAV_STRING"] = $uri->deleteParams(array("PAGEN_" . $this->arResult["NAV_RESULT"]->NavNum))->getUri();
+			$this->arResult["NAV_STRING"] =
+				$uri->deleteParams(["PAGEN_" . $this->arResult["NAV_RESULT"]->NavNum])->getUri();
 			
 //			create params for every COMMENT
-			$resComments = Array();
+			$resComments = [];
 			$textParser = new blogTextParser(false, $this->arParams["PATH_TO_SMILE"]);    // for convert title and text
 			while ($comment = $dbComment->GetNext())
 			{
@@ -128,7 +134,7 @@ class CBlogPostCommentList extends CBlogPostCommentEdit
 			if (empty($resComments))
 				$this->arResult["PUSH&PULL"] = array(
 					"ID" => $this->arResult["ajax_comment"],
-					"ACTION" => "DELETE"
+					"ACTION" => "DELETE",
 				);
 			
 //			RATING
@@ -138,18 +144,39 @@ class CBlogPostCommentList extends CBlogPostCommentEdit
 //			set params for view all comments properties
 			$this->createCommentsProperties();
 //			end PROCESS
-			
+
 			if ($this->arParams["CACHE_TIME"] > 0)
-				$cache->EndDataCache(array("templateCachedData" => $this->GetTemplateCachedData(), "arResult" => $this->arResult));
+			{
+				$cache->EndDataCache($this->getDataForCache());
+			}
 		}
 	}
-	
+
+	protected function getCommentList(array $arFilter = []): \CDBResult
+	{
+		$arSelect = [
+			"ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL",
+			"AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "DATE_CREATE", "PUBLISH_STATUS"
+		];
+		$arOrder = ["DATE_CREATE" => "DESC", "ID" => "DESC"];
+
+		return CBlogComment::GetList($arOrder, $arFilter, false, false, $arSelect);
+	}
+
+	protected function getDataForCache()
+	{
+		$result = $this->arResult;
+		// not cache object!
+		unset($result['NAV_RESULT']);
+
+		return array("templateCachedData" => $this->GetTemplateCachedData(), "arResult" => $result);
+	}
+
 	protected function createAdditionalCommentsParams()
 	{
-//		do nothing - in list we create all params alter
+		//		do nothing - in list we create all params alter
 	}
-	
-	
+
 	protected function createAdditionalCommentParams($comment, blogTextParser $textParser)
 	{
 		$comment = parent::createAdditionalCommentParams($comment, $textParser);
@@ -204,7 +231,7 @@ class CBlogPostCommentList extends CBlogPostCommentEdit
 					"FILE_SIZE" => $val["FILE_SIZE"],
 					"CONTENT_TYPE" => $val["CONTENT_TYPE"],
 					"ORIGINAL_NAME" => $val["ORIGINAL_NAME"],
-					"FILE_NAME" => $val["ORIGINAL_NAME"]
+					"FILE_NAME" => $val["ORIGINAL_NAME"],
 				);
 			}
 		}
@@ -220,13 +247,13 @@ class CBlogPostCommentList extends CBlogPostCommentEdit
 							$_POST["act"] == "edit" ? "EDIT" : "REPLY"
 						)
 					)
-				)
+				),
 			);
 		}
 		
 		return $comment;
 	}
-	
+
 	protected function markNewComments()
 	{
 		$this->saveLastPostView();

@@ -215,7 +215,7 @@ class CAllBlog
 			return false;
 		}
 		
-		if (intval($arFields["OWNER_ID"]) > 0)
+		if (intval($arFields["OWNER_ID"] ?? 0) > 0)
 		{
 			$dbResult = CUser::GetByID($arFields["OWNER_ID"]);
 			if (!$dbResult->Fetch())
@@ -1027,7 +1027,7 @@ class CAllBlog
 	{
 		global $DB;
 
-		$BLOG_URL = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($BLOG_URL));
+		$BLOG_URL = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($BLOG_URL ?? ''));
 		if($BLOG_URL == '')
 			return false;
 			

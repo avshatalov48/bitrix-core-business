@@ -1,6 +1,8 @@
 import { Helper } from './helper';
 import { FilterModeTypes } from '../const/filter-mode';
 
+import { RecentService } from '../api/load/recent-service';
+
 import type { SpaceModel } from '../model/space-model';
 import type { InvitationModel } from '../model/invitation-model';
 
@@ -45,6 +47,19 @@ export const MainStore = {
 			},
 			setSelectedFilterModeType: (store, selectedFilterModeType) => {
 				store.commit('setSelectedFilterModeType', selectedFilterModeType);
+			},
+			setSelectedSpace: (store, selectedSpaceId) => {
+				const previousSelectedSpaceId = RecentService.getInstance().getSelectedSpaceId();
+				RecentService.getInstance().setSelectedSpaceId(selectedSpaceId);
+
+				store.commit('setSelectedSpace', {
+					spaceId: previousSelectedSpaceId,
+					selected: false,
+				});
+				store.commit('setSelectedSpace', {
+					spaceId: selectedSpaceId,
+					selected: true,
+				});
 			},
 			setSpacesListState: (store, spacesListState) => {
 				store.commit('setSpacesListState', spacesListState);
@@ -91,19 +106,31 @@ export const MainStore = {
 				const total = data.total;
 
 				BX.ready(() => {
-					if (BX.getClass('BX.Intranet.LeftMenu'))
-					{
+					if (BX.getClass('BX.Intranet.LeftMenu')) {
 						data.spaces.forEach((space) => {
 							if (space.id === 0)
 							{
 								const leftMenuCounters = {
 									spaces: total,
 									sonet_total: space.metrics.countersLiveFeedTotal,
-								}
+								};
 								BX.Intranet.LeftMenu.updateCounters(leftMenuCounters, false);
 							}
 						});
 					}
+				});
+
+				// empty the existing space counters
+				store.getters.spaces.forEach((space) => {
+					store.commit('updateCounter', {
+						userId,
+						spaceId: space.id,
+						counter: 0,
+						tasksTotal: 0,
+						calendarTotal: 0,
+						workGroupTotal: 0,
+						lifeFeedTotal: 0,
+					});
 				});
 
 				data.spaces.forEach((space) => {
@@ -133,20 +160,13 @@ export const MainStore = {
 					const helper = Helper.getInstance();
 					const space: SpaceModel = helper.buildSpaces([data.space]).pop();
 					const lastRecentSpace: SpaceModel = store.getters.recentSpaces[store.getters.recentSpaces.length - 1];
-
 					store.commit('addSpaces', [space]);
 
-					const doDateActivityFits = lastRecentSpace.dateActivity < space.dateActivity;
-					const doUserRoleFitsFilterMode = helper.doSpaceUserRoleFitsFilterMode(
-						space.userRole,
-						store.state.selectedFilterModeType,
-					);
-
-					if (doDateActivityFits && doUserRoleFitsFilterMode)
+					if (helper.doAddSpaceToRecentList(space, lastRecentSpace, store.state.selectedFilterModeType))
 					{
 						store.commit('addRecentListSpaceId', space.id);
 					}
-					else if (!doUserRoleFitsFilterMode)
+					else if (!helper.doSpaceUserRoleFitsFilterMode(space.userRole, store.state.selectedFilterModeType))
 					{
 						store.commit('removeRecentListSpaceId', space.id);
 					}
@@ -154,6 +174,22 @@ export const MainStore = {
 				else
 				{
 					store.commit('deleteSpaceById', data.spaceId);
+				}
+			},
+			updateSpaceRecentActivityData: (store, recentActivityData) => {
+				store.commit('updateSpaceRecentActivityData', recentActivityData);
+
+				const space: SpaceModel = store.state.spaces.get(recentActivityData.spaceId);
+				if (!space)
+				{
+					return;
+				}
+				const helper = Helper.getInstance();
+				const lastRecentSpace: SpaceModel = store.getters.recentSpaces[store.getters.recentSpaces.length - 1];
+
+				if (helper.doAddSpaceToRecentList(space, lastRecentSpace, store.state.selectedFilterModeType))
+				{
+					store.commit('addRecentListSpaceId', space.id);
 				}
 			},
 		},
@@ -210,6 +246,13 @@ export const MainStore = {
 				// eslint-disable-next-line no-param-reassign
 				state.selectedFilterModeType = selectedFilterModeType;
 			},
+			setSelectedSpace: (state, selectedState) => {
+				const space: SpaceModel | undefined = state.spaces.get(selectedState.spaceId);
+				if (space)
+				{
+					space.isSelected = selectedState.selected;
+				}
+			},
 			setSpacesListState: (state, spacesListState) => {
 				// eslint-disable-next-line no-param-reassign
 				state.spacesListState = spacesListState;
@@ -235,143 +278,144 @@ export const MainStore = {
 				state.invitationSpaceIds.delete(spaceId);
 			},
 			updateCounter: (state, data) => {
-				const userId = data.userId;
 				const spaceId = data.spaceId;
 				const counter = data.counter;
-				const tasksTotal = data.tasksTotal;
-				const calendarTotal = data.calendarTotal;
-				const workGroupTotal = data.workGroupTotal;
-				const discussionsTotal = data.lifeFeedTotal;
 
 				const space: SpaceModel = state.spaces.get(spaceId) ?? {};
 				space.counter = counter;
+			},
+			updateSpaceRecentActivityData: (state, recentActivityData) => {
+				const space: SpaceModel = state.spaces.get(recentActivityData.spaceId);
+				if (!space)
+				{
+					return;
+				}
 
-				BX.ready(() => {
-					const menu = (spaceId == 0)
-						? BX.Main.interfaceButtonsManager.getById(`spaces_user_menu_${userId}`)
-						: BX.Main.interfaceButtonsManager.getById(`spaces_group_menu_${spaceId}`);
-
-					if (menu)
-					{
-						const btn = `spaces_top_menu_${userId}_${spaceId}`;
-						const tasksBtn = `${btn}_tasks`;
-						const calendarBtn = `${btn}_calendar`;
-						const discussionBtn = `${btn}_discussions`;
-
-						menu.updateCounter(tasksBtn, tasksTotal);
-						menu.updateCounter(calendarBtn, calendarTotal);
-						menu.updateCounter(discussionBtn, discussionsTotal);
-					}
-				});
+				space.recentActivity = Helper.getInstance().buildRecentActivity(recentActivityData);
 			},
 		},
 	getters:
-		{
-			spaces: (state) => {
-				return [...state.spaces.values()];
-			},
-			invitations: (state) => {
-				return [...state.invitations.values()];
-			},
-			spaceInvitations: (state, getters) => {
-				const spacesMap = state.spaces;
-				const invitations = getters.invitations;
-
-				return invitations.map((invitation: InvitationModel) => {
-					const space: SpaceModel = spacesMap.get(invitation.spaceId);
-					const spaceInvitationFields = {
-						dateActivity: invitation.invitationDate,
-						lastActivityDescription: invitation.message,
-						counter: 1,
-					};
-
-					return { ...space, ...spaceInvitationFields };
-				}).sort((a: SpaceModel, b: SpaceModel) => {
-					return b.dateActivity - a.dateActivity;
-				});
-			},
-			canCreateGroup: (state) => {
-				return state.canCreateGroup;
-			},
-			spacesListState: (state) => {
-				return state.spacesListState;
-			},
-			recentSpacesUnordered: (state, getters) => {
-				const spaces = getters.spaces;
-				const unsortedRecentSpaces = spaces.filter((space: SpaceModel) => {
-					return state.recentListSpaceIds.has(space.id) && !state.invitationSpaceIds.has(space.id);
-				});
-
-				return unsortedRecentSpaces.sort((a: SpaceModel, b: SpaceModel) => {
-					return b.dateActivity - a.dateActivity;
-				});
-			},
-			pinnedSpacesFromRecent: (state, getters): Array => {
-				return getters.recentSpacesUnordered.filter((space: SpaceModel) => space.isPinned);
-			},
-			commonSpaceFromRecent: (state, getters): SpaceModel | undefined => {
-				return getters.recentSpacesUnordered.find((space: SpaceModel) => space.id === 0);
-			},
-			selectedSpaceFromRecent: (state, getters): SpaceModel | undefined => {
-				return getters.recentSpacesUnordered.find((space: SpaceModel) => space.isSelected && !space.isPinned);
-			},
-			otherSpacesFromRecent: (state, getters): Array => {
-				return getters.recentSpacesUnordered.filter((space: SpaceModel) => {
-					return space.id !== getters.commonSpaceFromRecent.id && !space.isSelected && !space.isPinned;
-				});
-			},
-			recentSpaces: (state, getters): Array => {
-				const result = [];
-				if (state.selectedFilterModeType === FilterModeTypes.my)
-				{
-					result.push(...getters.pinnedSpacesFromRecent);
-				}
-
-				if (getters.commonSpaceFromRecent && state.selectedFilterModeType !== FilterModeTypes.other)
-				{
-					result.push(getters.commonSpaceFromRecent);
-				}
-
-				if (getters.selectedSpaceFromRecent && getters.selectedSpaceFromRecent.id !== getters.commonSpaceFromRecent.id)
-				{
-					result.push(getters.selectedSpaceFromRecent);
-				}
-
-				result.push(...getters.otherSpacesFromRecent);
-
-				return result;
-			},
-			searchSpaces: (state, getters) => {
-				const spaces = getters.spaces;
-				const searchResultIds = new Set([
-					...state.searchResultFromLoadedSpaceIds,
-					...state.searchResultFromServerSpaceIds,
-				]);
-
-				return spaces.filter((space: SpaceModel) => searchResultIds.has(space.id));
-			},
-			spacesLoadedByCurrentSearchQueryCount: (state) => {
-				return state.searchResultFromServerSpaceIds.size;
-			},
-			recentSearchSpaces: (state, getters) => {
-				const unsortedRecentSearchSpaces = getters.spaces.filter((space: SpaceModel) => {
-					return state.recentSearchListSpaceIds.has(space.id);
-				});
-
-				return unsortedRecentSearchSpaces.sort((a: SpaceModel, b: SpaceModel) => {
-					return b.lastSearchDate - a.lastSearchDate;
-				});
-			},
-			recentSpacesCountForLoad: (state, getters) => {
-				// Do this subtraction because of selected space and common space.
-				// They are selected bypassing the sorting
-				return getters.recentSpaces.length - 2;
-			},
-			recentSearchSpacesCountForLoad: (state, getters) => {
-				return getters.recentSearchSpaces.length;
-			},
-			searchSpacesCountForLoad: (state, getters) => {
-				return getters.spacesLoadedByCurrentSearchQueryCount;
-			},
+	{
+		spaces: (state): Array<SpaceModel> => {
+			return [...state.spaces.values()];
 		},
+		invitations: (state): Array<InvitationModel> => {
+			return [...state.invitations.values()];
+		},
+		spaceInvitations: (state, getters): Array<SpaceModel> => {
+			const spacesMap = state.spaces;
+			const invitations = getters.invitations;
+
+			return invitations.map((invitation: InvitationModel) => {
+				const space: SpaceModel = spacesMap.get(invitation.spaceId);
+				const spaceInvitationFields = {
+					recentActivity: {
+						...space.recentActivity,
+						description: invitation.message,
+						date: invitation.invitationDate,
+						timestamp: invitation.invitationDate.getTime(),
+					},
+					counter: 1,
+				};
+
+				return { ...space, ...spaceInvitationFields };
+			}).sort((a: SpaceModel, b: SpaceModel) => {
+				return b.recentActivity.date - a.recentActivity.date;
+			});
+		},
+		canCreateGroup: (state) => {
+			return state.canCreateGroup;
+		},
+		spacesListState: (state) => {
+			return state.spacesListState;
+		},
+		recentSpacesUnordered: (state, getters): Array<SpaceModel> => {
+			const spaces = getters.spaces;
+			const unsortedRecentSpaces = spaces.filter((space: SpaceModel) => {
+				return state.recentListSpaceIds.has(space.id) && !state.invitationSpaceIds.has(space.id);
+			});
+
+			return unsortedRecentSpaces.sort((a: SpaceModel, b: SpaceModel) => {
+				return b.recentActivity.date - a.recentActivity.date;
+			});
+		},
+		recentSpaces: (state, getters): Array<SpaceModel> => {
+			let result = [];
+			switch (state.selectedFilterModeType)
+			{
+				case FilterModeTypes.my:
+					result = getters.myRecentSpaces;
+					break;
+				case FilterModeTypes.other:
+					result = getters.otherRecentSpaces;
+					break;
+				case FilterModeTypes.all:
+					result = getters.allRecentSpaces;
+					break;
+				default:
+					break;
+			}
+
+			return result;
+		},
+		myRecentSpaces: (state, getters): Array<SpaceModel> => {
+			return [
+				...getters.pinnedSpacesFromRecent,
+				getters.commonSpaceFromRecent,
+				...getters.notPinnedSpacesWithoutCommonFromRecent,
+			];
+		},
+		otherRecentSpaces: (state, getters): Array<SpaceModel> => {
+			return [...getters.spacesWithoutCommonFromRecent];
+		},
+		allRecentSpaces: (state, getters): Array<SpaceModel> => {
+			return [getters.commonSpaceFromRecent, ...getters.spacesWithoutCommonFromRecent];
+		},
+		commonSpaceFromRecent: (state, getters): SpaceModel | undefined => {
+			return getters.recentSpacesUnordered.find((space: SpaceModel) => space.id === 0);
+		},
+		spacesWithoutCommonFromRecent: (state, getters): Array<SpaceModel> => {
+			return getters.recentSpacesUnordered.filter((space: SpaceModel) => {
+				return space.id !== getters.commonSpaceFromRecent.id;
+			});
+		},
+		pinnedSpacesFromRecent: (state, getters): Array<SpaceModel> => {
+			return getters.recentSpacesUnordered.filter((space: SpaceModel) => space.isPinned);
+		},
+		notPinnedSpacesWithoutCommonFromRecent: (state, getters): Array<SpaceModel> => {
+			return getters.spacesWithoutCommonFromRecent.filter((space: SpaceModel) => !space.isPinned);
+		},
+		searchSpaces: (state, getters): Array<SpaceModel> => {
+			const spaces = getters.spaces;
+			const searchResultIds = new Set([
+				...state.searchResultFromLoadedSpaceIds,
+				...state.searchResultFromServerSpaceIds,
+			]);
+
+			return spaces.filter((space: SpaceModel) => searchResultIds.has(space.id));
+		},
+		spacesLoadedByCurrentSearchQueryCount: (state): number => {
+			return state.searchResultFromServerSpaceIds.size;
+		},
+		recentSearchSpaces: (state, getters): Array<SpaceModel> => {
+			const unsortedRecentSearchSpaces = getters.spaces.filter((space: SpaceModel) => {
+				return state.recentSearchListSpaceIds.has(space.id);
+			});
+
+			return unsortedRecentSearchSpaces.sort((a: SpaceModel, b: SpaceModel) => {
+				return b.lastSearchDate - a.lastSearchDate;
+			});
+		},
+		recentSpacesCountForLoad: (state, getters): number => {
+			// Do this subtraction because of common space.
+			// It is selected bypassing the sorting
+			return getters.recentSpaces.length - 1;
+		},
+		recentSearchSpacesCountForLoad: (state, getters): number => {
+			return getters.recentSearchSpaces.length;
+		},
+		searchSpacesCountForLoad: (state, getters): number => {
+			return getters.spacesLoadedByCurrentSearchQueryCount;
+		},
+	},
 };

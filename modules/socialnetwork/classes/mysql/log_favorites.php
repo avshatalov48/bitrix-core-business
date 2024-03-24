@@ -16,7 +16,12 @@ class CSocNetLogFavorites extends CAllSocNetLogFavorites
 			return false;
 		}
 
-		$strSQL = "INSERT IGNORE INTO b_sonet_log_favorites (USER_ID, LOG_ID) VALUES (".intval($user_id).", ".intval($log_id).")";
+		$strSQL = \Bitrix\Main\Application::getConnection()->getSqlHelper()->getInsertIgnore(
+			'b_sonet_log_favorites',
+			' (USER_ID, LOG_ID)',
+			' VALUES (' . (int)$user_id . ', ' . (int)$log_id . ')'
+		);
+
 		if ($DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__))
 		{
 			if(

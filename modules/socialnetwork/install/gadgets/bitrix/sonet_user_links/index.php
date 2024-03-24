@@ -30,7 +30,7 @@ if ($GLOBALS["USER"]->IsAuthorized()):
 				?><li class="bx-icon-action bx-icon-video-call"><a href="<?= $arGadgetParams["URL_VIDEOCALL"] ?>" onclick="window.open('<?= $arGadgetParams["URL_VIDEOCALL"]?>', '', 'location=yes,status=no,scrollbars=yes,resizable=yes,width=1000,height=600,top='+Math.floor((screen.height - 600)/2-14)+',left='+Math.floor((screen.width - 1000)/2-5)); return false;"><?= GetMessage("GD_SONET_USER_VIDEOCALL") ?></a></li><?
 			endif;
 			if ($arGadgetParams["CAN_MESSAGE"]):
-				?><li class="bx-icon-action bx-icon-history"><a href="<?= $arGadgetParams["URL_USER_MESSAGES"] ?>" onclick="if (BX.IM) { BXIM.openHistory(<?=$arParams["USER_ID"]?>); return false; }"><?= GetMessage("GD_SONET_USER_LINKS_SHOW_MESSAGES") ?></a></li><?
+				?><li class="bx-icon-action bx-icon-history"><a href="<?= $arGadgetParams["URL_USER_MESSAGES"] ?>" onclick="if (typeof BXIM !== 'undefined') { BXIM.openHistory(<?=$arParams["USER_ID"]?>); return false; }"><?= GetMessage("GD_SONET_USER_LINKS_SHOW_MESSAGES") ?></a></li><?
 			endif;
 			if (CSocNetUser::IsFriendsAllowed() && (!CModule::IncludeModule('extranet') || !CExtranet::IsExtranetSite())):
 				if ($arGadgetParams["RELATION"] == SONET_RELATIONS_FRIEND):

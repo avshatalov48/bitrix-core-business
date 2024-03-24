@@ -1,0 +1,148 @@
+.bx-im-link-item__scope {
+	--im-link-item__background-color_item-container: #f5f7f8;
+	--im-link-item__color_short-description-text: #828b95;
+	--im-link-item__color_description-text: #2066b0;
+	--im-link-item__color_author-title: #6a737f;
+	--im-link-item__text-decoration-color_link: #a0bddb;
+
+	--im-link-item__background-color_task-container: #ddf0f0;
+	--im-link-item__background-color_post-container: #dee8f3;
+	--im-link-item__background-color_calendar-container: #e7ecdf;
+	--im-link-item__background-color_landing-container: #e1f2f8;
+	--im-link-item__background-color_common-container: #edf0f1;
+
+	--im-link-item__background_task-icon: #05b5ab url('./images/task.svg') no-repeat center;
+	--im-link-item__background_post-icon: #0b66c3 url('./images/news-post.svg') no-repeat center;
+	--im-link-item__background_calendar-icon: #688800 url('./images/calendar.svg') no-repeat center;
+	--im-link-item__background_landing-icon: #2fc6f6 url('./images/knowledge-base.svg') no-repeat center;
+	--im-link-item__background_common-icon: #a8adb4 url('./images/common-link.svg') no-repeat center;
+}
+
+.bx-im-link-item__container {
+	display: flex;
+	height: 86px;
+	border-radius: 12px;
+	background-color: var(--im-link-item__background-color_item-container);
+	padding: 6px;
+	margin: 0 10px 0 15px;
+}
+
+.bx-im-link-item__container + .bx-im-link-item__container {
+	margin-top: 10px;
+}
+
+.bx-im-link-item__content {
+	margin-left: 12px;
+	max-width: 160px;
+	word-break: break-word;
+	flex: 1;
+}
+
+.bx-im-link-item__short-description-text {
+	font: var(--im-font-size-4xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-link-item__color_short-description-text);
+	margin-bottom: 4px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.bx-im-link-item__description-text {
+	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	white-space: initial;
+	color: var(--im-link-item__color_description-text);
+	min-height: 32px;
+	margin-bottom: 2px;
+}
+
+.bx-im-link-item__description-text:hover {
+	text-decoration: underline;
+	text-decoration-color: var(--im-link-item__text-decoration-color_link);
+	text-underline-offset: 2px;
+}
+
+.bx-im-link-item__author-container {
+	display: flex;
+	gap: 6px;
+}
+
+.bx-im-link-item__author-text .bx-im-chat-title__text {
+	font: var(--im-font-size-4xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	--im-chat-title__font-color: var(--im-link-item__color_author-title);
+}
+
+.bx-im-link-item__author-text .bx-im-chat-title__icon::before {
+	top: 0;
+}
+
+.bx-im-link-item__author-avatar {
+	flex-shrink: 0;
+}
+
+.bx-im-link-item__context-menu {
+	display: flex;
+	justify-content: center;
+	align-self: center;
+	margin-left: 6px;
+}
+
+.bx-im-link-item__icon-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 74px;
+	height: 74px;
+	border-radius: 12px;
+}
+
+.bx-im-link-item__icon-container.--task {
+	background-color: var(--im-link-item__background-color_task-container);
+}
+
+.bx-im-link-item__icon-container.--post {
+	background-color: var(--im-link-item__background-color_post-container);
+}
+
+.bx-im-link-item__icon-container.--calendar {
+	background-color: var(--im-link-item__background-color_calendar-container);
+}
+
+.bx-im-link-item__icon-container.--landing {
+	background-color: var(--im-link-item__background-color_landing-container);
+}
+
+.bx-im-link-item__icon-container.--common {
+	background-color: var(--im-link-item__background-color_common-container);
+}
+
+.bx-im-link-item__icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+}
+
+.bx-im-link-item__icon.--task {
+	background: var(--im-link-item__background_task-icon);
+}
+
+.bx-im-link-item__icon.--post {
+	background: var(--im-link-item__background_post-icon);
+}
+
+.bx-im-link-item__icon.--calendar {
+	background: var(--im-link-item__background_calendar-icon);
+}
+
+.bx-im-link-item__icon.--landing {
+	background: var(--im-link-item__background_landing-icon);
+}
+
+.bx-im-link-item__icon.--common {
+	background: var(--im-link-item__background_common-icon);
+}

@@ -34,6 +34,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  accountManagement: {
 	    id: 'accountManagement',
 	    version: 75
+	  },
+	  openNewTab: {
+	    id: 'openNewTab',
+	    version: 76
 	  }
 	};
 

@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Application;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/user_transact.php");
 
 class CSaleUserTransact extends CAllSaleUserTransact
@@ -142,7 +145,7 @@ class CSaleUserTransact extends CAllSaleUserTransact
 	{
 		global $DB;
 
-		$arFields1 = array();
+		$arFields1 = [];
 		foreach ($arFields as $key => $value)
 		{
 			if (mb_substr($key, 0, 1) == "=")
@@ -153,7 +156,18 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		}
 
 		if (!CSaleUserTransact::CheckFields("ADD", $arFields, 0))
+		{
 			return false;
+		}
+
+		if (!isset($arFields1['TIMESTAMP_X']))
+		{
+			$connection = Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			unset($arFields['TIMESTAMP_X']);
+			$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+			unset($helper, $connection);
+		}
 
 		$arInsert = $DB->PrepareInsert("b_sale_user_transact", $arFields);
 
@@ -181,9 +195,11 @@ class CSaleUserTransact extends CAllSaleUserTransact
 
 		$ID = intval($ID);
 		if ($ID <= 0)
-			return False;
+		{
+			return false;
+		}
 
-		$arFields1 = array();
+		$arFields1 = [];
 		foreach ($arFields as $key => $value)
 		{
 			if (mb_substr($key, 0, 1) == "=")
@@ -194,7 +210,18 @@ class CSaleUserTransact extends CAllSaleUserTransact
 		}
 
 		if (!CSaleUserTransact::CheckFields("UPDATE", $arFields, $ID))
+		{
 			return false;
+		}
+
+		if (!isset($arFields1['TIMESTAMP_X']))
+		{
+			$connection = Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			unset($arFields['TIMESTAMP_X']);
+			$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+			unset($helper, $connection);
+		}
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_user_transact", $arFields);
 

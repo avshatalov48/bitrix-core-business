@@ -1465,13 +1465,19 @@ class CBlogPostEdit extends CBitrixComponent
 		
 		if ($USER->IsAdmin() || $blogModulePermissions >= "W")
 		{
-			$arFlt = Array(
-				"ACTIVE" => "Y",
+			$arFilter = [
+				"=ACTIVE" => "Y",
 				"GROUP_SITE_ID" => SITE_ID,
 				"!ID" => $blogParams["ID"],
+			];
+
+			$dbBlog = CBlog::GetList(
+				["NAME" => "ASC"],
+				$arFilter,
+				false,
+				false,
+				["ID", "NAME", "OWNER_ID", "URL", "GROUP_ID", "GROUP_NAME"]
 			);
-			
-			$dbBlog = CBlog::GetList(Array("NAME" => "ASC"), $arFlt, false, false, array("ID", "NAME", "OWNER_ID", "URL", "GROUP_ID", "GROUP_NAME"));
 			while ($arBlogS = $dbBlog->GetNext())
 			{
 				$arBlogS["PERMS"] = BLOG_PERMS_FULL;
@@ -1480,31 +1486,43 @@ class CBlogPostEdit extends CBitrixComponent
 		}
 		else
 		{
-			$arFlt = Array(
+			$arFilter = Array(
 				"USE_SOCNET" => "N",
 				">=PERMS" => BLOG_PERMS_PREMODERATE,
 				"PERMS_TYPE" => BLOG_PERMS_POST,
 				"PERMS_USER_ID" => $this->userId,
 				"PERMS_POST_ID" => false,
-				"ACTIVE" => "Y",
+				"=ACTIVE" => "Y",
 				"GROUP_SITE_ID" => SITE_ID,
 				"!ID" => $blogParams["ID"],
 			);
-			
-			$dbBlog = CBlog::GetList(Array("NAME" => "ASC"), $arFlt, false, false, array("ID", "NAME", "OWNER_ID", "URL", "PERMS", "GROUP_ID", "GROUP_NAME"));
+
+			$dbBlog = CBlog::GetList(
+				["NAME" => "ASC"],
+				$arFilter,
+				false,
+				false,
+				["ID", "NAME", "OWNER_ID", "URL", "PERMS", "GROUP_ID", "GROUP_NAME"]
+			);
 			while ($arBlogS = $dbBlog->GetNext())
 			{
 				$arBlogS["USE_SOCNET"] = "N";
 				$avBlogs[$arBlogS["ID"]] = $arBlogS;
 			}
-			$arFlt = Array(
+			$arFilter = [
 				"OWNER_ID" => $this->userId,
-				"ACTIVE" => "Y",
+				"=ACTIVE" => "Y",
 				"GROUP_SITE_ID" => SITE_ID,
 				"!ID" => $blogParams["ID"],
+			];
+
+			$dbBlog = CBlog::GetList(
+				["NAME" => "ASC"],
+				$arFilter,
+				false,
+				false,
+				["ID", "NAME", "OWNER_ID", "URL", "GROUP_ID", "GROUP_NAME"]
 			);
-			
-			$dbBlog = CBlog::GetList(Array("NAME" => "ASC"), $arFlt, false, false, array("ID", "NAME", "OWNER_ID", "URL", "GROUP_ID", "GROUP_NAME"));
 			while ($arBlogS = $dbBlog->GetNext())
 			{
 				$arBlogS["PERMS"] = BLOG_PERMS_FULL;

@@ -1,8 +1,10 @@
 <?php
+
 namespace Bitrix\Iblock\Copy\Stepper;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
+use Bitrix\Iblock\ElementTable;
+use Bitrix\Iblock\SectionTable;
 
 class Section extends Entity
 {
@@ -91,36 +93,65 @@ class Section extends Entity
 
 	private function getElementIds(int $sectionId, int $limit, int $offset): array
 	{
-		$elementIds = [];
+		$section = SectionTable::getRow([
+			'select' => [
+				'ID',
+				'IBLOCK_ID',
+			],
+			'filter' => [
+				'=ID' => $sectionId,
+			],
+		]);
 
-		$connection = Application::getInstance()->getConnection();
-		$sqlHelper = $connection->getSqlHelper();
-
-		$queryObject = $connection->query("SELECT ID FROM `b_iblock_element` WHERE `IBLOCK_SECTION_ID` = '".
-			$sqlHelper->forSql($sectionId)."' ORDER BY ID ASC LIMIT ".$limit." OFFSET ".$offset);
-		$selectedRowsCount = $queryObject->getSelectedRowsCount();
-		while ($element = $queryObject->fetch())
+		if ($section === null)
 		{
-			$elementIds[] = $element["ID"];
+			return [[], 0];
 		}
 
-		return [$elementIds, $selectedRowsCount];
+		$elementIds = [];
+		$iterator = ElementTable::getList([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => (int)$section['IBLOCK_ID'],
+				'=IBLOCK_SECTION_ID' => (int)$section['ID'],
+			],
+			'order' => [
+				'ID' => 'ASC',
+			],
+			'limit' => $limit,
+			'offset' => $offset,
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$elementIds[] = $row['ID'];
+		}
+		unset($row, $iterator);
+
+		return [$elementIds, count($elementIds)];
 	}
 
 	private function getOffset(int $copiedSectionId): int
 	{
-		$elementIds = [];
+		$section = SectionTable::getRow([
+			'select' => [
+				'ID',
+				'IBLOCK_ID',
+			],
+			'filter' => [
+				'=ID' => $copiedSectionId,
+			],
+		]);
 
-		$connection = Application::getInstance()->getConnection();
-		$sqlHelper = $connection->getSqlHelper();
-
-		$queryObject = $connection->query("SELECT ID FROM `b_iblock_element` WHERE `IBLOCK_SECTION_ID` = '".
-			$sqlHelper->forSql($copiedSectionId)."' ORDER BY ID");
-		while ($element = $queryObject->fetch())
+		if ($section === null)
 		{
-			$elementIds[] = $element["ID"];
+			return 0;
 		}
 
-		return count($elementIds);
+		return ElementTable::getCount([
+			'=IBLOCK_ID' => (int)$section['IBLOCK_ID'],
+			'=IBLOCK_SECTION_ID' => (int)$section['ID'],
+		]);
 	}
 }

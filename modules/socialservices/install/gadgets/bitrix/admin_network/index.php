@@ -65,7 +65,7 @@ else
 			<div class="bx-gadget-button-text"><?=Loc::getMessage($messageCode)?></div>
 		</a>
 		<div class="bx-gadget-mark">
-			<?=Loc::getMessage('GD_NETWORK_ADDITIONAL')?>
+			<?=Loc::getMessage('GD_NETWORK_ADDITIONAL_MSGVER_1')?>
 			<div class="bx-gadget-mark-desc"><?=Loc::getMessage('GD_NETWORK_ADDITIONAL2')?></div>
 		</div>
 	</div>

@@ -17,9 +17,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Letter_Query query()
- * @method static EO_Letter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Letter_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Letter_Result getById($id)
- * @method static EO_Letter_Result getList(array $parameters = array())
+ * @method static EO_Letter_Result getList(array $parameters = [])
  * @method static EO_Letter_Entity getEntity()
  * @method static \Bitrix\Forum\BadWords\EO_Letter createObject($setDefaultValues = true)
  * @method static \Bitrix\Forum\BadWords\EO_Letter_Collection createCollection()

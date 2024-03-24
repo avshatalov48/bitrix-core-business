@@ -30,34 +30,39 @@ class CompanyGroupTable extends Main\Entity\DataManager
 
 	public static function getMap()
 	{
-		return array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
-				'primary' => true
-			),
-			'COMPANY_ID' => array(
+				'primary' => true,
+				'autocomplete' => true,
+			],
+			'COMPANY_ID' => [
 				'data_type' => 'integer',
-			),
-			'GROUP_ID' => array(
+			],
+			'GROUP_ID' => [
 				'data_type' => 'integer',
-				'required'   => true
-			),
-		);
+				'required' => true,
+			],
+		];
 	}
 
 	public static function deleteByCompanyId($id)
 	{
 		$id = intval($id);
 		if ($id <= 0)
-			throw new Main\ArgumentNullException("id");
+		{
+			throw new Main\ArgumentNullException('id');
+		}
 
 		$itemsList = static::getList(
-			array(
-				"filter" => array("COMPANY_ID" => $id),
-				"select" => array("ID")
-			)
+			[
+				'filter' => ['COMPANY_ID' => $id],
+				'select' => ['ID'],
+			]
 		);
 		while ($item = $itemsList->fetch())
-			static::delete($item["ID"]);
+		{
+			static::delete($item['ID']);
+		}
 	}
 }

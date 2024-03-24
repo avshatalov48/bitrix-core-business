@@ -12,6 +12,7 @@ import { SupportVoteMessage } from 'im.v2.component.message.support.vote';
 import { SupportSessionNumberMessage } from 'im.v2.component.message.support.session-number';
 import { ConferenceCreationMessage } from 'im.v2.component.message.conference-creation';
 import { OwnChatCreationMessage } from 'im.v2.component.message.own-chat-creation';
+import { ZoomInviteMessage } from 'im.v2.component.message.zoom-invite';
 
 export const messageComponents = {
 	DefaultMessage,
@@ -28,4 +29,5 @@ export const messageComponents = {
 	SupportVoteMessage,
 	SupportSessionNumberMessage,
 	ConferenceCreationMessage,
+	ZoomInviteMessage,
 };

@@ -9,6 +9,7 @@ $MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT_PROJECT"] = "Das ist ein archiviertes Pro
 $MESS["SONET_GCE_T_PARAMS_CLOSED2_PROJECT"] = "Archiviert";
 $MESS["SONET_GCE_T_PARAMS_LANDING"] = "Zur Veröffentlichung auf Bitrix24.Sites";
 $MESS["SONET_GCE_T_PARAMS_LANDING_MSGVER_1"] = "Zur Veröffentlichung auf Sites";
+$MESS["SONET_GCE_T_PARAMS_LANDING_MSGVER_2"] = "Zur Veröffentlichung auf Bitrix24 Sites";
 $MESS["SONET_GCE_T_PARAMS_OPEN2"] = "Offen";
 $MESS["SONET_GCE_T_PARAMS_OPEN2_HINT"] = "Jeder kann der Gruppe beitreten, eine Einladung durch Moderator ist nicht erforderlich";
 $MESS["SONET_GCE_T_PARAMS_OPEN2_HINT_PROJECT"] = "Jeder kann dem Projekt beitreten, eine Einladung durch Projektleiter oder Moderator ist nicht erforderlich";

@@ -119,7 +119,7 @@ class ScopeManager
 
 	public function getAlias($code) : ?string
 	{
-		return $this->scopeList[$code];
+		return $this->scopeList[$code] ?? null;
 	}
 
 	public function listScope() : array
@@ -163,7 +163,7 @@ class ScopeManager
 
 	public function getMethodInfo(?string $method) : array
 	{
-		if (!$this->methodInfoList[$method])
+		if (!(isset($this->methodInfoList[$method]) && $this->methodInfoList[$method]))
 		{
 			$scope = '';
 			$module = '';

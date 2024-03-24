@@ -1,51 +1,51 @@
 import { Uri } from 'main.core';
 
 type Params = {
-	pathToGroupTasks?: string,
-	pathToGroupTasksTask?: string,
+	pathToTasks?: string,
+	pathToTasksTask?: string,
 }
 
 export class TasksRouter
 {
 	#sidePanelManager: BX.SidePanel.Manager;
 
-	#pathToGroupTasks: string;
-	#pathToGroupTasksTask: string;
+	#pathToTasks: string;
+	#pathToTasksTask: string;
 
 	constructor(params: Params)
 	{
-		this.#pathToGroupTasks = params.pathToGroupTasks;
-		this.#pathToGroupTasksTask = params.pathToGroupTasksTask;
+		this.#pathToTasks = params.pathToTasks;
+		this.#pathToTasksTask = params.pathToTasksTask;
 
 		this.#sidePanelManager = BX.SidePanel.Instance;
 	}
 
 	redirectTo(url)
 	{
-		location.href = url;
+		top.BX.Socialnetwork.Spaces.space.reloadPageContent(url);
 	}
 
-	redirectToScrumTasks(urlParam: string, urlValue: string)
+	redirectToTasks(urlParam: string, urlValue: string)
 	{
-		const viewUri = new Uri(this.#pathToGroupTasks);
+		const viewUri = new Uri(this.#pathToTasks);
 		viewUri.setQueryParam(urlParam, urlValue);
 
-		location.href = viewUri.toString();
+		top.BX.Socialnetwork.Spaces.space.reloadPageContent(viewUri.toString());
 	}
 
 	redirectToScrumView(view: string)
 	{
-		const viewUri = new Uri(this.#pathToGroupTasks);
+		const viewUri = new Uri(this.#pathToTasks);
 
 		viewUri.setQueryParam('tab', view);
 
-		location.href = viewUri.toString();
+		top.BX.Socialnetwork.Spaces.space.reloadPageContent(viewUri.toString());
 	}
 
 	showTask(taskId: number)
 	{
 		this.#sidePanelManager.open(
-			this.#pathToGroupTasksTask
+			this.#pathToTasksTask
 				.replace('#action#', 'view')
 				.replace('#task_id#', taskId),
 		);

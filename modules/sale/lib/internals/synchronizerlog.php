@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Bitrix\Sale\Internals;
-
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity\DataManager;
@@ -59,25 +57,25 @@ class SynchronizerLogTable extends DataManager
 	/**
 	 * Clears old logging data
 	 */
-	public static function deleteOldRecords($direction)
+	public static function deleteOldRecords(): void
 	{
-		$tableName = static::getTableName();
+		$loggingRecord = SynchronizerLogTable::getList([
+			'select' => [
+				new ExpressionField('MAX_DATE_INSERT', 'MAX(%s)', ['DATE_INSERT'])
+			],
+		])->fetch();
 
-		$r = SynchronizerLogTable::getList(array(
-			'select' => array(
-				new ExpressionField('MAX_DATE_INSERT', 'MAX(%s)', array('DATE_INSERT'))
-			)
-		));
-
-		if ($loggingRecord = $r->fetch())
+		if ($loggingRecord)
 		{
 			if($loggingRecord['MAX_DATE_INSERT'] <> '')
 			{
-				$maxDateInsert = $loggingRecord['MAX_DATE_INSERT'];
-				$date = new DateTime($maxDateInsert);
+				$date = new DateTime($loggingRecord['MAX_DATE_INSERT']);
 				$interval = LoggerDiag::getInterval();
 				$connection = Application::getConnection();
-				$connection->queryExecute("delete from {$tableName} where DATE_INSERT < DATE_SUB('{$date->format("Y-m-d")}', INTERVAL {$interval} DAY)");
+				$helper = $connection->getSqlHelper();
+				$connection->queryExecute("delete from " . $helper->quote(static::getTableName())
+					. " where DATE_INSERT < " . $helper->addDaysToDateTime(-$interval, "'" . $date->format('Y-m-d') . "'")
+				);
 			}
 		}
 	}

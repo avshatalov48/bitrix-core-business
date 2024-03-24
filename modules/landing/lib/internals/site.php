@@ -935,7 +935,34 @@ class SiteTable extends Entity\DataManager
 					{
 						try
 						{
-							$domainExist = $siteController::isDomainExists($domainName);
+							//todo: revert changes after change .by domain
+							if (
+								!str_ends_with($domainName, '.b24site.online')
+								&& !str_ends_with($domainName, '.b24shop.online')
+							)
+							{
+								$domainExist = $siteController::isDomainExists($domainName);
+							}
+							else
+							{
+								$byDomainName = '';
+								if (str_ends_with($domainName, '.b24site.online'))
+								{
+									$byDomainName = str_replace('.b24site.online', '.bitrix24site.by', $domainName);
+								}
+								if (str_ends_with($domainName, '.b24shop.online'))
+								{
+									$byDomainName = str_replace('.b24shop.online', '.bitrix24shop.by', $domainName);
+								}
+								if ($byDomainName !== '' && $siteController::isDomainExists($byDomainName))
+								{
+									$domainExist = true;
+								}
+								else
+								{
+									$domainExist = $siteController::isDomainExists($domainName);
+								}
+							}
 						}
 						catch (SystemException $ex)
 						{

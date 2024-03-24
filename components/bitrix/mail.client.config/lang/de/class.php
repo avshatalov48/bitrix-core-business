@@ -83,6 +83,7 @@ $MESS["MAIL_CLIENT_CONFIG_SERVER_BAD"] = "Ungültige Serveradresse";
 $MESS["MAIL_CLIENT_CONFIG_SERVER_EMPTY"] = "Geben Sie die Serveradresse ein";
 $MESS["MAIL_CLIENT_CONFIG_SMTP"] = "Einstellungen ausgehender E-Mails";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_ACTIVE"] = "Via externes SMTP senden";
+$MESS["MAIL_CLIENT_CONFIG_SMTP_APP_PASS"] = "Passwort der Anwendung";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_LOGIN"] = "Login";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_PASS"] = "Passwort";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_PASS_BAD"] = "Passwort kann nicht mit einem \"^\" anfangen oder Nullbytes enthalten";

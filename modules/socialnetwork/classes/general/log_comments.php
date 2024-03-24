@@ -136,7 +136,7 @@ class CAllSocNetLogComments
 			return false;
 		}
 
-		if (is_set($arFields["URL"]) && is_array($arSiteWorkgroupsPage))
+		if (isset($arFields["URL"]) && is_array($arSiteWorkgroupsPage))
 			foreach($arSiteWorkgroupsPage as $groups_page)
 				if (mb_strpos($arFields["URL"], $groups_page) === 0)
 					$arFields["URL"] = "#GROUPS_PATH#".mb_substr($arFields["URL"], mb_strlen($groups_page), mb_strlen($arFields["URL"]) - mb_strlen($groups_page));

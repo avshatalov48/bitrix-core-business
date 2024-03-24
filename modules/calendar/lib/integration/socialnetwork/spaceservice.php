@@ -11,6 +11,8 @@ class SpaceService
 {
 	public const SUPPORTED_EVENTS = [
 		'invite',
+		'onAfterCalendarEventDelete',
+		'onCalendarEventCommentAdd',
 	];
 
 	/**
@@ -50,6 +52,8 @@ class SpaceService
 	{
 		$map = [
 			'invite' => EventDictionary::EVENT_SPACE_CALENDAR_INVITE,
+			'onAfterCalendarEventDelete' => EventDictionary::EVENT_SPACE_CALENDAR_EVENT_DEL,
+			'onCalendarEventCommentAdd' => EventDictionary::EVENT_SPACE_CALENDAR_EVENT_COMMENT_ADD,
 		];
 
 		return $map[$type] ?? EventDictionary::EVENT_SPACE_CALENDAR_COMMON;
@@ -62,6 +66,26 @@ class SpaceService
 			return [$data['TO_USER_ID']];
 		}
 
+		if (is_array($data['ATTENDEE_LIST'] ?? null))
+		{
+			return $this->getRecipientFromAttendeeList($data['ATTENDEE_LIST']);
+		}
+
 		return [];
+	}
+
+	private function getRecipientFromAttendeeList(array $attendeeList): array
+	{
+		$recipients = [];
+
+		foreach ($attendeeList as $attendee)
+		{
+			if (!empty($attendee['id']))
+			{
+				$recipients[] = (int)$attendee['id'];
+			}
+		}
+
+		return $recipients;
 	}
 }

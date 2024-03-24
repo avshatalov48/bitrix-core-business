@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,calendar_sharing_deletedviewform) {
+(function (exports,main_core) {
 	'use strict';
 
 	class SliderLoader {
@@ -68,9 +68,7 @@ this.BX = this.BX || {};
 	  show() {
 	    if (this.isSharing) {
 	      BX.SidePanel.Instance.open(this.sliderId, {
-	        contentCallback: slider => new Promise(resolve => {
-	          new calendar_sharing_deletedviewform.DeletedViewForm(this.extensionParams.entryId).initInSlider(slider, resolve);
-	        }),
+	        contentCallback: this.loadDeletedViewForm.bind(this),
 	        width: 600
 	      });
 	    } else {
@@ -99,9 +97,17 @@ this.BX = this.BX || {};
 	      });
 	    });
 	  }
+	  async loadDeletedViewForm(slider) {
+	    const {
+	      DeletedViewForm
+	    } = await main_core.Runtime.loadExtension('calendar.sharing.deletedviewform');
+	    return new Promise(resolve => {
+	      new DeletedViewForm(this.extensionParams.entryId).initInSlider(slider, resolve);
+	    });
+	  }
 	}
 
 	exports.SliderLoader = SliderLoader;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Calendar.Sharing));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX));
 //# sourceMappingURL=sliderloader.bundle.js.map

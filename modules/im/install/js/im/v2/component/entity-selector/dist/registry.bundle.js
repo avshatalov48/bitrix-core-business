@@ -21,10 +21,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ScrollWithGradient: im_v2_component_elements.ScrollWithGradient
 	  },
 	  props: {
-	    chatId: {
-	      type: Number,
-	      required: true
-	    },
 	    dialogId: {
 	      type: String,
 	      required: true
@@ -46,6 +42,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    searchConfig: () => searchConfig,
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    chatId() {
+	      return this.dialog.chatId;
 	    },
 	    isChat() {
 	      return this.dialog.type !== im_v2_const.ChatType.user;
@@ -264,10 +263,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: Object,
 	      required: true
 	    },
-	    chatId: {
-	      type: Number,
-	      required: true
-	    },
 	    dialogId: {
 	      type: String,
 	      required: true
@@ -302,7 +297,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			@close="$emit('close')"
 			:id="POPUP_ID"
 		>
-			<AddToChatContent :chatId="chatId" :dialogId="dialogId" @close="$emit('close')"/>
+			<AddToChatContent :dialogId="dialogId" @close="$emit('close')"/>
 		</MessengerPopup>
 	`
 	};

@@ -122,14 +122,14 @@ class RoboxchangeHandler
 			$payment->getId(),
 		];
 
-		if ($receipt)
-		{
-			$signaturePartList[] = $receipt;
-		}
-
 		if ($outSumCurrency = $this->getOutSumCurrency($payment))
 		{
 			$signaturePartList[] = $outSumCurrency;
+		}
+
+		if ($receipt)
+		{
+			$signaturePartList[] = $receipt;
 		}
 
 		$signaturePartList[] = $shopPassword1;

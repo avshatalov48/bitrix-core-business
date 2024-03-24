@@ -128,16 +128,20 @@ elseif($arParams["MODE"] == "C")
 {
 	if($bSoNet)
 	{
-		$arFilterblg = Array(
-			"ACTIVE" => "Y",
+		$arFilterblg = [
+			"=ACTIVE" => "Y",
 			"GROUP_ID" => $arParams["PARAM_GROUP_ID"],
 			"GROUP_SITE_ID" => SITE_ID,
-			);
-		if($bGroupMode)
+		];
+		if ($bGroupMode)
+		{
 			$arFilterblg["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
+		}
 		else
+		{
 			$arFilterblg["OWNER_ID"] = $arParams["USER_ID"];
-		$dbBl = CBlog::GetList(Array(), $arFilterblg);
+		}
+		$dbBl = CBlog::GetList([], $arFilterblg);
 		$arBlog = $dbBl ->Fetch();
 
 	}
@@ -188,17 +192,21 @@ else
 	if($bSoNet)
 	{
 		$blogOwnerID = $arParams["USER_ID"];
-		$arFilterblg = Array(
-			"ACTIVE" => "Y",
+		$arFilterblg = [
+			"=ACTIVE" => "Y",
 			"GROUP_ID" => $arParams["PARAM_GROUP_ID"],
 			"GROUP_SITE_ID" => SITE_ID,
 			"USE_SOCNET" => "Y",
-			);
-		if($bGroupMode)
+		];
+		if ($bGroupMode)
+		{
 			$arFilterblg["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
+		}
 		else
+		{
 			$arFilterblg["OWNER_ID"] = $arParams["USER_ID"];
-		$dbBl = CBlog::GetList(Array(), $arFilterblg);
+		}
+		$dbBl = CBlog::GetList([], $arFilterblg);
 		$arBlog = $dbBl ->Fetch();
 
 	}

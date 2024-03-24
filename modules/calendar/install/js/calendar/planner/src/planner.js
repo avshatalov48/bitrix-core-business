@@ -736,12 +736,14 @@ export class Planner extends EventEmitter
 		});
 	}
 
-	renderVacationNode()
+	renderVacationNode(entryId)
 	{
 		const vacationNode = Tag.render`
-			<div class="calendar-planner-timeline-side-notice --vacation" style="display: none;">
-				${Loc.getMessage('EC_PLANNER_IN_VACATION')}
-			</div>
+			<div 
+			class="calendar-planner-timeline-side-notice --vacation"
+			id="timeline-side-notice-${entryId}"
+			style="display: none;"
+			>${Loc.getMessage('EC_PLANNER_IN_VACATION')}</div>
 		`;
 
 		Event.bind(vacationNode, 'mouseenter', this.showHintPopup.bind(this, vacationNode));
@@ -1447,7 +1449,7 @@ export class Planner extends EventEmitter
 				}
 			}));
 
-			entry.vacationNode = this.renderVacationNode();
+			entry.vacationNode = this.renderVacationNode(entry.id);
 
 			if (entry.timezoneName)
 			{
@@ -2790,6 +2792,8 @@ export class Planner extends EventEmitter
 
 	updateVacationNotice(selectorTime)
 	{
+		this.selector.setVacationOffset(0);
+
 		for (const entry of this.entries.filter(entry => Type.isDomNode(entry.vacationNode)))
 		{
 			const currentVacations = this.accessibility[entry.id].filter((acc) => {
@@ -2805,6 +2809,8 @@ export class Planner extends EventEmitter
 					'#UNTIL#': Util.formatDate(to),
 				});
 				entry.vacationNode.style.display = '';
+
+				this.selector.setVacationOffset(entry.vacationNode.offsetWidth - 13);
 			}
 			else
 			{
@@ -2823,9 +2829,10 @@ export class Planner extends EventEmitter
 
 	updateTimezoneNotice(selectorTime)
 	{
-		if (!this.isSelectorVisible())
+		if (this.fullDayMode)
 		{
 			this.hideTimezoneNotice();
+
 			return;
 		}
 
@@ -2852,7 +2859,7 @@ export class Planner extends EventEmitter
 			if (Type.isDomNode(entryNode))
 			{
 				const top = parseInt(entryNode.style.top);
-				this.selector.showTimeNode(top, Util.formatTime(entryTime), entry.timezoneNameFormatted, isWarning);
+				this.selector.showTimeNode(top, Util.formatTime(entryTime), entry.timezoneNameFormatted, entry.id, isWarning);
 			}
 
 			this.showEntryStatusTimezone(entry, isWarning);
@@ -2888,18 +2895,6 @@ export class Planner extends EventEmitter
 		return date.getHours() + date.getMinutes() / 60;
 	}
 
-	isSelectorVisible()
-	{
-		const timelineLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
-		const timelineRight = timelineLeft + this.DOM.timelineFixedWrap.offsetWidth;
-
-		const selectorWrap = this.selector.getWrap();
-		const selectorLeft = selectorWrap.offsetLeft;
-		const selectorRight = selectorWrap.offsetLeft + selectorWrap.offsetWidth;
-
-		return this.doSegmentsIntersect(selectorLeft, selectorRight, timelineLeft, timelineRight);
-	}
-
 	showTimezoneNotice(count, isWarning)
 	{
 		this.showTimezoneNoticeCount(count, isWarning);
@@ -2928,6 +2923,11 @@ export class Planner extends EventEmitter
 		this.DOM.timezoneNoticeCount.style.left = `${left}px`;
 		this.DOM.timezoneNoticeCount.style.display = 'block';
 		this.DOM.wrap.style.marginBottom = `${20}px`;
+
+		if (!this.isElementInsideConstraintWrap(this.DOM.timezoneNoticeCount))
+		{
+			this.hideTimezoneNoticeCount();
+		}
 	}
 
 	hideTimezoneNoticeCount()
@@ -2943,6 +2943,19 @@ export class Planner extends EventEmitter
 		}
 
 		this.showSelectorPopup(Loc.getMessage('EC_PLANNER_TIMEZONE_NOTICE'));
+
+		if (!this.isElementInsideConstraintWrap(this.DOM.selectorPopup))
+		{
+			this.hideTimezoneNoticePopup();
+		}
+	}
+
+	isElementInsideConstraintWrap(element)
+	{
+		const containerRect = this.DOM.timelineVerticalConstraint.getBoundingClientRect();
+		const elementRect = element.getBoundingClientRect();
+
+		return elementRect.left >= containerRect.left && elementRect.right <= containerRect.right;
 	}
 
 	hideTimezoneNoticePopup()

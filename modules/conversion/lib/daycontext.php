@@ -238,8 +238,8 @@ final class DayContext extends Internals\BaseContext
 			if (! (is_array($session) && is_int($session['ID']) && $session['EXPIRE'] === $expire))
 			{
 				$session = array('ID' => null, 'EXPIRE' => $expire, 'UNIQUE' => array());
-
-				if ($cookie = $_COOKIE[$varName])
+				$cookie = $_COOKIE[$varName] ?? '';
+				if ($cookie)
 				{
 					try
 					{
@@ -356,6 +356,7 @@ final class DayContext extends Internals\BaseContext
 					'select' => array('LID'),
 					'order'  => array('DEF' => 'DESC', 'SORT' => 'ASC'),
 					'limit'  => 1,
+					'cache' => ['ttl' => 86400],
 				))->fetch())
 				{
 					$siteId = $row['LID'];

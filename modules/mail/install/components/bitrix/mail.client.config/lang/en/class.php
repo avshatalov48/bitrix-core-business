@@ -83,6 +83,7 @@ $MESS["MAIL_CLIENT_CONFIG_SERVER_BAD"] = "Invalid server address";
 $MESS["MAIL_CLIENT_CONFIG_SERVER_EMPTY"] = "Enter server address";
 $MESS["MAIL_CLIENT_CONFIG_SMTP"] = "Outgoing mail settings";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_ACTIVE"] = "Send using external SMTP";
+$MESS["MAIL_CLIENT_CONFIG_SMTP_APP_PASS"] = "Application password";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_LOGIN"] = "Login";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_PASS"] = "Password";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_PASS_BAD"] = "Password cannot start with a \"^\" or contain null bytes";

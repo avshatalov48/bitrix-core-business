@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_slider,ui_dialogs_messagebox,im_v2_lib_call,im_v2_provider_service,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_confirm,im_public,main_popup,main_core_events,ui_vue3_vuex,rest_client,im_v2_application_core,im_v2_const,main_core) {
+(function (exports,ui_dialogs_messagebox,im_v2_const,im_v2_lib_call,im_v2_provider_service,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_confirm,im_public,main_popup,main_core_events,ui_vue3_vuex,rest_client,im_v2_application_core,main_core) {
 	'use strict';
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.Lib.Menu';
@@ -146,7 +146,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core.ajax.runAction(resendAction, {
 	      data
 	    }).then(() => {
-	      this.showNotification(main_core.Loc.getMessage('IM_LIB_MENU_INVITE_RESEND_DONE'), 2000);
+	      this.showNotification(main_core.Loc.getMessage('IM_LIB_INVITE_RESEND_DONE'), 2000);
 	    }, error => {
 	      this.handleActionError(error);
 	    });
@@ -160,7 +160,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core.ajax.runAction(cancelAction, {
 	      data
 	    }).then(() => {
-	      this.showNotification(main_core.Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL_DONE'), 2000);
+	      this.showNotification(main_core.Loc.getMessage('IM_LIB_INVITE_CANCEL_DONE'), 2000);
 	    }, error => {
 	      this.handleActionError(error);
 	    });
@@ -222,15 +222,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      text: main_core.Loc.getMessage('IM_LIB_MENU_OPEN'),
 	      onclick: () => {
 	        im_public.Messenger.openChat(this.context.dialogId);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
-	  getOpenInNewTabItem() {
-	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_OPEN_IN_NEW_TAB'),
-	      onclick: () => {
-	        im_v2_lib_slider.MessengerSlider.getInstance().openNewTab(im_v2_const.PathPlaceholder.dialog.replace('#DIALOG_ID#', this.context.dialogId));
 	        this.menuInstance.close();
 	      }
 	    };
@@ -343,12 +334,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!this.isUser() || this.isBot()) {
 	      return null;
 	    }
+	    const isAnyChatOpened = this.store.getters['application/getLayout'].entityId.length > 0;
 	    return {
 	      text: main_core.Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER'),
 	      onclick: async () => {
-	        await im_public.Messenger.openChat(this.context.dialogId);
+	        if (!isAnyChatOpened) {
+	          await im_public.Messenger.openChat(this.context.dialogId);
+	        }
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
-	          detailBlock: im_v2_const.SidebarDetailBlock.chatsWithUser
+	          panel: im_v2_const.SidebarDetailBlock.chatsWithUser,
+	          standalone: true,
+	          dialogId: this.context.dialogId
 	        });
 	        this.menuInstance.close();
 	      }
@@ -373,7 +369,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getResendInviteItem() {
 	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_INVITE_RESEND'),
+	      text: main_core.Loc.getMessage('IM_LIB_INVITE_RESEND'),
 	      onclick: () => {
 	        InviteManager.resendInvite(this.context.dialogId);
 	        this.menuInstance.close();
@@ -382,10 +378,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getCancelInviteItem() {
 	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL'),
+	      text: main_core.Loc.getMessage('IM_LIB_INVITE_CANCEL'),
 	      onclick: () => {
 	        ui_dialogs_messagebox.MessageBox.show({
-	          message: main_core.Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL_CONFIRM'),
+	          message: main_core.Loc.getMessage('IM_LIB_INVITE_CANCEL_CONFIRM'),
 	          modal: true,
 	          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL,
 	          onOk: messageBox => {
@@ -422,5 +418,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.RecentMenu = RecentMenu;
 	exports.BaseMenu = BaseMenu;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.UI.Dialogs,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Event,BX.Vue3.Vuex,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.UI.Dialogs,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Main,BX.Event,BX.Vue3.Vuex,BX,BX.Messenger.v2.Application,BX));
 //# sourceMappingURL=registry.bundle.js.map

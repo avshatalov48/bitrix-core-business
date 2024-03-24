@@ -99,6 +99,7 @@ class ImRouterComponent extends \CBitrixComponent
 		$this->request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
 		$this->arResult['MESSENGER_V2'] = \Bitrix\Im\Settings::isLegacyChatActivated()  ? 'N' : 'Y';
+		$this->arResult['WRONG_ALIAS'] = false;
 
 		if ($this->request->get('alias'))
 		{

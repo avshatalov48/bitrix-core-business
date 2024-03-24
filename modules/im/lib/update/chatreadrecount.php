@@ -86,6 +86,7 @@ final class ChatReadRecount extends Stepper
 				$batch[] = $users;
 			}
 
+			$sqlDate = $connection->getSqlHelper()->addDaysToDateTime(-30);
 			foreach ($batch as $users)
 			{
 				$sqlUserIds = implode(', ', $users);
@@ -103,7 +104,7 @@ final class ChatReadRecount extends Stepper
 						and R.USER_ID IN (".$sqlUserIds.")
 						and C.ID = R.CHAT_ID
 						and M.ID = C.LAST_MESSAGE_ID
-						and M.DATE_CREATE < DATE_SUB(NOW(), INTERVAL 30 DAY)
+						and M.DATE_CREATE < {$sqlDate}
 				");
 
 				$connection->query("
@@ -119,7 +120,7 @@ final class ChatReadRecount extends Stepper
 						and R.USER_ID IN (".$sqlUserIds.")
 						and C.ID = R.CHAT_ID
 						and M.ID = C.LAST_MESSAGE_ID
-						and M.DATE_CREATE < DATE_SUB(NOW(), INTERVAL 30 DAY)
+						and M.DATE_CREATE < {$sqlDate}
 				");
 
 				$connection->query("
@@ -135,7 +136,7 @@ final class ChatReadRecount extends Stepper
 						and R.USER_ID IN (".$sqlUserIds.")
 						and C.ID = R.CHAT_ID
 						and M.ID = C.LAST_MESSAGE_ID
-						and M.DATE_CREATE < DATE_SUB(NOW(), INTERVAL 30 DAY)
+						and M.DATE_CREATE < {$sqlDate}
 				");
 				
 				foreach ($users as $userId)

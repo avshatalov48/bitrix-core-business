@@ -6,6 +6,7 @@ class CForumUser extends CAllForumUser
 	public static function GetList($arOrder = Array("ID"=>"ASC"), $arFilter = Array(), $arAddParams = array())
 	{
 		global $DB;
+		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 		$arSqlSearch = array();
 		$arSqlOrder = array();
 		$strSqlSearch = "";
@@ -26,7 +27,11 @@ class CForumUser extends CAllForumUser
 			$val = $arFilter['PERSONAL_BIRTHDAY_DATE'];
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
-			$subQuery .= ($strNegative=="Y"?" U.PERSONAL_BIRTHDAY IS NULL OR NOT ":" U.PERSONAL_BIRTHDAY IS NOT NULL AND ")."(DATE_FORMAT(U.PERSONAL_BIRTHDAY, '%m-%d') ".$strOperation." '".$DB->ForSql($val)."')";
+			$subQuery .= ( $strNegative === "Y"
+					? " U.PERSONAL_BIRTHDAY IS NULL OR NOT "
+					: " U.PERSONAL_BIRTHDAY IS NOT NULL AND ")
+						. "(" . $sqlHelper->formatDate('MM-DD', 'U.PERSONAL_BIRTHDAY')
+						. $strOperation . " '".$DB->ForSql($val)."')";
 			$db_sub_res = $DB->Query($subQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$arUserID = array();
 			if ($db_sub_res)
@@ -109,7 +114,7 @@ class CForumUser extends CAllForumUser
 						$arSqlSearch[] = ($strNegative=="Y"?" U.PERSONAL_BIRTHDAY IS NULL OR NOT ":"")."(U.PERSONAL_BIRTHDAY ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "SHORT").")";
 					break;
 				case "PERSONAL_BIRTHDAY_DATE":
-					$arSqlSearch[] = ($strNegative=="Y"?" U.PERSONAL_BIRTHDAY IS NULL OR NOT ":"")."(DATE_FORMAT(U.PERSONAL_BIRTHDAY, '%m-%d') ".$strOperation." '".$DB->ForSql($val)."')";
+					$arSqlSearch[] = ($strNegative=="Y"?" U.PERSONAL_BIRTHDAY IS NULL OR NOT ":"")."(" . $sqlHelper->formatDate('MM-DD', 'U.PERSONAL_BIRTHDAY') . $strOperation." '".$DB->ForSql($val)."')";
 					break;
 				case "LAST_VISIT":
 					if($val == '')
@@ -253,6 +258,7 @@ class CForumUser extends CAllForumUser
 	public static function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array())
 	{
 		global $DB;
+		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 		$arSqlSearch = array();
 		$arSqlSelect = array();
 		$arSqlFrom = array();
@@ -369,7 +375,7 @@ class CForumUser extends CAllForumUser
 						$arSqlSearch[] = ($strNegative=="Y"?" U.PERSONAL_BIRTHDAY IS NULL OR NOT ":"")."(U.PERSONAL_BIRTHDAY ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "SHORT").")";
 					break;
 				case "PERSONAL_BIRTHDAY_DATE":
-					$arSqlSearch[] = ($strNegative=="Y"?" U.PERSONAL_BIRTHDAY IS NULL OR NOT ":"")."(DATE_FORMAT(U.PERSONAL_BIRTHDAY, '%m-%d') ".$strOperation." '".$DB->ForSql($val)."')";
+					$arSqlSearch[] = ($strNegative=="Y"?" U.PERSONAL_BIRTHDAY IS NULL OR NOT ":"")."( ". $sqlHelper->formatDate('MM-DD', 'U.PERSONAL_BIRTHDAY') .") ".$strOperation." '".$DB->ForSql($val)."')";
 					break;
 				case "LAST_VISIT":
 					if($val == '')
@@ -604,6 +610,7 @@ class CForumUser extends CAllForumUser
 	public static function GetNameFieldsForQuery($sNameTemplate, $userTablePrefix = "U.")
 	{
 		global $DB;
+		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 		$sNameTemplate = (empty($sNameTemplate) ? CSite::GetDefaultNameFormat() : $sNameTemplate);
 		if (!preg_match("/(#NAME#)|(#LAST_NAME#\,)|(#LAST_NAME#)|(#SECOND_NAME#)|(#NAME_SHORT#)|(#SECOND_NAME_SHORT#)/".BX_UTF_PCRE_MODIFIER, $sNameTemplate, $matches))
 			$sNameTemplate = CSite::GetDefaultNameFormat();
@@ -629,11 +636,11 @@ class CForumUser extends CAllForumUser
 				),
 				array(
 					$userTablePrefix."NAME",
-					"IF (LENGTH(TRIM(".$userTablePrefix."LAST_NAME)) <= 0, '', CONCAT(".$userTablePrefix."LAST_NAME, ','))",
+					"case when (LENGTH(TRIM(".$userTablePrefix."LAST_NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction($userTablePrefix.'LAST_NAME', ',') . ")",
 					$userTablePrefix."LAST_NAME",
 					$userTablePrefix."SECOND_NAME",
-					"IF (LENGTH(TRIM(".$userTablePrefix."NAME)) <= 0,'',CONCAT(SUBSTRING(".$userTablePrefix."NAME,1,1),'.'))",
-					"IF (LENGTH(TRIM(".$userTablePrefix."SECOND_NAME)) <= 0,'',CONCAT(SUBSTRING(".$userTablePrefix."SECOND_NAME,1,1),'.'))"
+					"case when (LENGTH(TRIM(".$userTablePrefix."NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction("SUBSTRING(".$userTablePrefix."NAME,1,1", '.'),
+					"case when (LENGTH(TRIM(".$userTablePrefix."SECOND_NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction("SUBSTRING(".$userTablePrefix."SECOND_NAME,1,1", '.')
 				),
 				$val
 			);
@@ -784,7 +791,6 @@ class CForumStat extends CALLForumStat
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FU.".$key." IS NULL OR NOT ":"")."(((FU.".$key." ".$strOperation." '".$DB->ForSql($val)."' ) AND (FSTAT.USER_ID > 0)) OR (FSTAT.USER_ID <= 0))";
 					break;
-				break;
 				case "ACTIVE":
 						$arSqlFrom["U"] = "LEFT JOIN b_user U ON (FSTAT.USER_ID=U.ID)";
 						$arSqlSearch[] = ($strNegative=="Y"?" U.".$key." IS NULL OR NOT ":"")."(FSTAT.USER_ID = 0 OR U.ACTIVE = 'Y')";

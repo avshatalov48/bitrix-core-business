@@ -177,12 +177,6 @@ export const chatFieldsConfig: FieldsConfig = [
 
 export const chatEntityFieldsConfig = [
 	{
-		fieldName: 'id',
-		targetFieldName: 'id',
-		checkFunction: isNumberOrString,
-		formatFunction: convertToString,
-	},
-	{
 		fieldName: 'type',
 		targetFieldName: 'type',
 		checkFunction: Type.isString,

@@ -724,13 +724,15 @@ class BizprocUserProcesses
 			if(CLists::getLiveFeed($list['ID']))
 			{
 				$listData[$list['ID']]['name'] = $list['NAME'];
-				$listData[$list['ID']]['url'] =
-					$path
-					. \Bitrix\Main\Config\Option::get('lists', 'livefeed_url')
-					. '?livefeed=y&list_id='
-					. $list['ID']
-					. '&element_id=0'
-				;
+
+				$url = new \Bitrix\Main\Web\Uri($path . \Bitrix\Main\Config\Option::get('lists', 'livefeed_url'));
+				$url->addParams([
+					'livefeed' => 'y',
+					'list_id' => $list['ID'],
+					'element_id' => 0,
+					'back_url' => $this->request->getRequestUri(),
+				]);
+				$listData[$list['ID']]['url'] = $url;
 				if($list['PICTURE'] > 0)
 				{
 					$imageFile = CFile::GetFileArray($list['PICTURE']);

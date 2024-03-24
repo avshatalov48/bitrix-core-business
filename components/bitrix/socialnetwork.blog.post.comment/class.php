@@ -567,6 +567,9 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 
 	protected function handleException(Exception $e): void
 	{
+		$logger = new \Bitrix\Socialnetwork\Log\Log();
+		$logger->collect("Error. Reason: {$e->getMessage()}");
+
 		if ($this->isAjaxRequest())
 		{
 			$this->sendJsonResponse([
@@ -739,27 +742,41 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 				$cache->startDataCache($cacheTime, $cacheId, $cachePath);
 			}
 
-			$res = \Bitrix\Blog\CommentTable::getList([
-				'filter' => [
-					'POST_ID' => $postId,
-				],
-				'select' => [ 'ID', 'AUTHOR_ID', 'PUBLISH_STATUS' ]
-			]);
-
-			while ($commentFields = $res->fetch())
+			if ($permissions >= Permissions::MODERATE)
 			{
-				if (
-					$permissions >= Permissions::MODERATE
-					|| (
-						$currentUserId > 0
-						&& (int)$commentFields['AUTHOR_ID'] === $currentUserId
-					)
-					|| $commentFields['PUBLISH_STATUS'] === BLOG_PUBLISH_STATUS_PUBLISH
-				)
-				{
-					$result++;
-				}
+				$res = \Bitrix\Blog\CommentTable::getList([
+					'select' => ['CNT'],
+					'filter' => [
+						'POST_ID' => $postId,
+					],
+					'runtime' => [
+						new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
+					],
+				]);
 			}
+			else
+			{
+				$res = \Bitrix\Blog\CommentTable::getList([
+					'select' => ['CNT'],
+					'filter' => [
+						'LOGIC' => 'OR',
+						[
+							'POST_ID' => $postId,
+							'AUTHOR_ID' => $currentUserId,
+						],
+						[
+							'POST_ID' => $postId,
+							'PUBLISH_STATUS' => BLOG_PUBLISH_STATUS_PUBLISH,
+						],
+					],
+					'runtime' => [
+						new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
+					],
+				]);
+			}
+
+			$row = $res->fetch();
+			$result = $row['CNT'] ?? 0;
 
 			if ($cacheTime > 0)
 			{

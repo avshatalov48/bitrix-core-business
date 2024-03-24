@@ -196,7 +196,7 @@ export default class Manager
 	{
 		const targetNode = e.target;
 
-		if (!targetNode.classList.contains('sonet-group-user-grid-action'))
+		if (!targetNode.hasAttribute('data-bx-action'))
 		{
 			return;
 		}

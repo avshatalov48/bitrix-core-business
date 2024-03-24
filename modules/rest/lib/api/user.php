@@ -10,6 +10,7 @@ use Bitrix\Rest\AppTable;
 use Bitrix\Rest\NonLoggedExceptionDecorator;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\Controller\File;
+use Bitrix\Rest\Exceptions\ArgumentException;
 
 class User extends \IRestService
 {
@@ -414,9 +415,9 @@ class User extends \IRestService
 
 		$params = array_change_key_case($params, CASE_UPPER);
 
-		if(!is_array($params['ACCESS']))
+		if(!isset($params['ACCESS']) || !is_array($params['ACCESS']))
 		{
-			$params['ACCESS'] = array($params['ACCESS']);
+			$params['ACCESS'] = [$params['ACCESS'] ?? null];
 		}
 
 		return self::isAdmin() || $USER->canAccess($params['ACCESS']);
@@ -426,7 +427,7 @@ class User extends \IRestService
 	{
 		$params = array_change_key_case($params, CASE_UPPER);
 
-		if(!is_array($params['ACCESS']) || count($params['ACCESS']) <= 0)
+		if(!isset($params['ACCESS']) || !is_array($params['ACCESS']) || count($params['ACCESS']) <= 0)
 		{
 			return false;
 		}
@@ -520,8 +521,8 @@ class User extends \IRestService
 
 		$query = array_change_key_case($query, CASE_UPPER);
 
-		$sort = $query['SORT'];
-		$order = $query['ORDER'];
+		$sort = $query['SORT'] ?? null;
+		$order = $query['ORDER'] ?? null;
 		$adminMode = false;
 
 		//getting resize preset before user data preparing
@@ -531,7 +532,7 @@ class User extends \IRestService
 			"large"=>["width"=>1000, "height" => 1000],
 		];
 
-		$presetName = $query["IMAGE_RESIZE"];
+		$presetName = $query["IMAGE_RESIZE"] ?? null;
 		$resize = ($presetName && $resizePresets[$presetName]
 			? $resizePresets[$presetName]
 			: false);
@@ -600,11 +601,11 @@ class User extends \IRestService
 			unset($filter['UF_DEPARTMENT_NAME']);
 
 			$filter = array_merge($filter, \Bitrix\Main\UserUtils::getUserSearchFilter(Array(
-				'NAME' => $previousFilter['NAME'],
-				'LAST_NAME' => $previousFilter['LAST_NAME'],
-				'SECOND_NAME' => $previousFilter['SECOND_NAME'],
-				'WORK_POSITION' => $previousFilter['WORK_POSITION'],
-				'UF_DEPARTMENT_NAME' => $previousFilter['UF_DEPARTMENT_NAME'],
+				'NAME' => $previousFilter['NAME'] ?? null,
+				'LAST_NAME' => $previousFilter['LAST_NAME'] ?? null,
+				'SECOND_NAME' => $previousFilter['SECOND_NAME'] ?? null,
+				'WORK_POSITION' => $previousFilter['WORK_POSITION'] ?? null,
+				'UF_DEPARTMENT_NAME' => $previousFilter['UF_DEPARTMENT_NAME'] ?? null,
 			)));
 		}
 
@@ -699,7 +700,7 @@ class User extends \IRestService
 
 			foreach ($result as $key => $userInfo)
 			{
-				if ($userInfo['PERSONAL_PHOTO'] > 0)
+				if (isset($userInfo['PERSONAL_PHOTO']) && $userInfo['PERSONAL_PHOTO'] > 0)
 				{
 					$result[$key]['PERSONAL_PHOTO'] = $files[$userInfo['PERSONAL_PHOTO']];
 				}
@@ -813,7 +814,7 @@ class User extends \IRestService
 					}
 					else
 					{
-						throw new \Exception('no_sonet_group_for_extranet');
+						throw new ArgumentException('no_sonet_group_for_extranet');
 					}
 				}
 
@@ -822,7 +823,7 @@ class User extends \IRestService
 
 			$inviteFields = self::prepareSaveData($userFields);
 
-			$userFields["EMAIL"] = trim($userFields["EMAIL"]);
+			$userFields["EMAIL"] = trim($userFields["EMAIL"] ?? '');
 			if(check_email($userFields["EMAIL"]))
 			{
 				$siteId = self::getDefaultSite();
@@ -835,7 +836,7 @@ class User extends \IRestService
 						&& !$bExtranet
 					)
 					{
-						throw new \Exception('no_extranet_field');
+						throw new ArgumentException('no_extranet_field');
 					}
 
 					$inviteFields['EMAIL'] = $userFields["EMAIL"];
@@ -846,7 +847,7 @@ class User extends \IRestService
 					$ID = \CIntranetInviteDialog::RegisterUser($inviteFields);
 					if(is_array($ID))
 					{
-						throw new \Exception(implode("\n", $ID));
+						throw new ArgumentException(implode("\n", $ID));
 					}
 					elseif($ID > 0)
 					{
@@ -891,17 +892,17 @@ class User extends \IRestService
 				}
 				else
 				{
-					throw new \Exception('user_count_exceeded');
+					throw new ArgumentException('user_count_exceeded');
 				}
 			}
 			else
 			{
-				throw new \Exception('wrong_email');
+				throw new ArgumentException('wrong_email');
 			}
 		}
 		else
 		{
-			throw new \Exception('access_denied');
+			throw new NonLoggedExceptionDecorator(\Exception('access_denied'));
 		}
 
 		return $res;
@@ -925,7 +926,7 @@ class User extends \IRestService
 
 		$userFields = array_change_key_case($userFields, CASE_UPPER);
 
-		if($userFields['ID'] > 0)
+		if(isset($userFields['ID']) && $userFields['ID'] > 0)
 		{
 			if($bAdmin || ($USER->getID() == $userFields['ID'] && $USER->CanDoOperation('edit_own_profile')))
 			{
@@ -1158,7 +1159,7 @@ class User extends \IRestService
 			$allowedUserFields = static::getDefaultAllowedUserFields();
 		}
 
-		$userId = (int) $userData['ID'];
+		$userId = (int)($userData['ID'] ?? 0);
 
 		$fieldsList = $USER_FIELD_MANAGER->getUserFields('USER', $userId, LANGUAGE_ID);
 

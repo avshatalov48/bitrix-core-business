@@ -213,17 +213,16 @@ class ReminderService
 		}
 	}
 
-	protected function getNotifyMessageText(ReminderItem $reminder, bool $isOut): string
+	protected function getNotifyMessageText(ReminderItem $reminder, bool $isOut): callable
 	{
 		$chat = Chat::getInstance($reminder->getChatId())->setContext((new Context())->setUserId($reminder->getAuthorId()));
 
 		$chatTitle = $isOut ? $chat->getDisplayedTitle() : "[CHAT={$chat->getChatId()}]{$chat->getDisplayedTitle()}[/CHAT]";
 
-		return Loc::getMessage(
+		return fn (?string $languageId = null) => Loc::getMessage(
 			'IM_CHAT_REMINDER_REMIND_NOTIFICATION',
-			[
-				'#CHAT_TITLE#' => $chatTitle,
-			]
+			['#CHAT_TITLE#' => $chatTitle],
+			$languageId
 		);
 	}
 

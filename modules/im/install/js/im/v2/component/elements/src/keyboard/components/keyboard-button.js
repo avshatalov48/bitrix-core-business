@@ -1,3 +1,5 @@
+import { Text } from 'main.core';
+
 import { Logger } from 'im.v2.lib.logger';
 import { KeyboardButtonDisplay } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
@@ -87,7 +89,8 @@ export const KeyboardButton = {
 			}
 			else if (this.button.link)
 			{
-				Utils.browser.openLink(this.button.link);
+				const preparedLink = Text.decode(this.button.link);
+				Utils.browser.openLink(preparedLink);
 			}
 			else if (this.button.command)
 			{

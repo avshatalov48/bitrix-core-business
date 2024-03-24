@@ -23,7 +23,8 @@ UI\Extension::load([
 	'ui.tooltip',
 	'ui.icons.b24',
 	'main.rating',
-	'socialnetwork.livefeed'
+	'socialnetwork.livefeed',
+	'ui.analytics',
 ]);
 
 if ($arResult["bTasksAvailable"])
@@ -752,6 +753,10 @@ else
 										return;
 									}
 
+									setTimeout(function() {
+										BX.Livefeed.MoreButton.recalcPostsList();
+									}, 1000);
+
 									BX.Livefeed.FeedInstance.addMoreButton(
 										'log_entry_<?= $arEvent['EVENT']['ID'] ?>',
 										{
@@ -1083,6 +1088,11 @@ else
 									{
 										return;
 									}
+
+
+									setTimeout(function() {
+										BX.Livefeed.MoreButton.recalcPostsList();
+									}, 1000);
 
 									BX.Livefeed.FeedInstance.addMoreButton(
 										'log_entry_<?= $arEvent['EVENT']['ID'] ?>',

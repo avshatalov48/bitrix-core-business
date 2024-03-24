@@ -48,9 +48,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_User_Query query()
- * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_User_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_User_Result getById($id)
- * @method static EO_User_Result getList(array $parameters = array())
+ * @method static EO_User_Result getList(array $parameters = [])
  * @method static EO_User_Entity getEntity()
  * @method static \Bitrix\Forum\EO_User createObject($setDefaultValues = true)
  * @method static \Bitrix\Forum\EO_User_Collection createCollection()
@@ -283,56 +283,58 @@ class User implements \ArrayAccess {
 	protected function __construct($id)
 	{
 		$this->data = [
-			"VISIBLE_NAME"=> "Guest"
+			'VISIBLE_NAME' => 'Guest',
+			'ALLOW_POST' => 'Y',
+			'SHOW_NAME' => 'Y',
 		];
 		if ($id > 0)
 		{
-			$user = UserTable::getList(array(
-				"select" => array(
-					"*",
-					"ACTIVE" => "USER.ACTIVE",
-					"NAME" => "USER.NAME",
-					"SECOND_NAME" => "USER.SECOND_NAME",
-					"LAST_NAME" => "USER.LAST_NAME",
-					"LOGIN" => "USER.LOGIN"
-				),
-				"filter" => array("USER_ID" => (int)$id),
-				"limit" => 1,
-			))->fetch();
+			$user = UserTable::getList([
+				'select' => [
+					'*',
+					'ACTIVE' => 'USER.ACTIVE',
+					'NAME' => 'USER.NAME',
+					'SECOND_NAME' => 'USER.SECOND_NAME',
+					'LAST_NAME' => 'USER.LAST_NAME',
+					'LOGIN' => 'USER.LOGIN'
+				],
+				'filter' => ['USER_ID' => (int)$id],
+				'limit' => 1,
+			])->fetch();
 			if ($user)
 			{
-				$this->forumUserId = $user["ID"];
-				$this->id = $user["USER_ID"];
-				$this->locked = ($user["ACTIVE"] !== "Y" || $user["ALLOW_POST"] !== "Y");
+				$this->forumUserId = $user['ID'];
+				$this->id = $user['USER_ID'];
+				$this->locked = ($user['ACTIVE'] !== 'Y' || $user['ALLOW_POST'] !== 'Y');
 			}
-			elseif ($user = Main\UserTable::getList(array(
-				'select' => array('*'),
-				'filter' => array('ID' => (int)$id),
+			elseif ($user = Main\UserTable::getList([
+				'select' => ['*'],
+				'filter' => ['ID' => (int)$id],
 				'limit' => 1,
-			))->fetch())
+			])->fetch())
 			{
-				$this->id = $user["ID"];
-				$this->locked = ($user["ACTIVE"] !== "Y");
+				$this->id = $user['ID'];
+				$this->locked = ($user['ACTIVE'] !== 'Y');
 
-				$this->data["ALLOW_POST"] = "Y";
-				$this->data["SHOW_NAME"] = (\COption::GetOptionString("forum", "USER_SHOW_NAME", "Y") == "Y" ? "Y" : "N");
+				$user['ALLOW_POST'] = 'Y';
+				$user['SHOW_NAME'] = (\COption::GetOptionString('forum', 'USER_SHOW_NAME', 'Y') == 'Y' ? 'Y' : 'N');
 			}
 			else
 			{
-				throw new Main\ObjectNotFoundException("User was not found.");
+				throw new Main\ObjectNotFoundException('User was not found.');
 			}
 			$this->data = $user;
-			$this->data["NAME"] = $user["NAME"];
-			$this->data["SECOND_NAME"] = $user["SECOND_NAME"];
-			$this->data["LAST_NAME"] = $user["LAST_NAME"];
-			$this->data["LOGIN"] = $user["LOGIN"];
-			$this->data["ALLOW_POST"] = ($this->data["ALLOW_POST"] === "N" ? "N" : "Y");
-			if ($this->data["SHOW_NAME"] !== "Y" && $this->data["SHOW_NAME"] !== "N")
-				$this->data["SHOW_NAME"] = (\COption::GetOptionString("forum", "USER_SHOW_NAME", "Y") == "Y" ? "Y" : "N");
-			$this->data["VISIBLE_NAME"] = ($this->data["SHOW_NAME"] === "Y" ?  \CUser::FormatName(\CSite::getNameFormat(false), $user, true, false) : $this->data["LOGIN"]);
-			$this->editOwn = (\COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "Y") == "Y");
+			$this->data['NAME'] = $user['NAME'];
+			$this->data['SECOND_NAME'] = $user['SECOND_NAME'];
+			$this->data['LAST_NAME'] = $user['LAST_NAME'];
+			$this->data['LOGIN'] = $user['LOGIN'];
+			$this->data['ALLOW_POST'] = (($this->data['ALLOW_POST'] ?? 'Y') === 'N' ? 'N' : 'Y');
+			if (empty($this->data['SHOW_NAME']))
+				$this->data['SHOW_NAME'] = \COption::GetOptionString('forum', 'USER_SHOW_NAME', 'Y');
+			$this->data['SHOW_NAME'] = $this->data['SHOW_NAME'] == 'N' ? 'N' : 'Y';
+			$this->data['VISIBLE_NAME'] = ($this->data['SHOW_NAME'] === 'Y' ?  \CUser::FormatName(\CSite::getNameFormat(false), $user, true, false) : $this->data['LOGIN']);
+			$this->editOwn = (\COption::GetOptionString('forum', 'USER_EDIT_OWN_POST', 'Y') == 'Y');
 		}
-
 	}
 	/**
 	 * @return string
@@ -577,7 +579,7 @@ class User implements \ArrayAccess {
 		$query = MessageTable::query()
 			->setSelect(['ID'])
 			->where('TOPIC_ID', $topic->getId())
-			->registerRuntimeField('FORCED_INT_ID', new Main\Entity\ExpressionField('FORCED_ID', '%s + ""', ['ID']))
+			->registerRuntimeField('FORCED_INT_ID', new Main\Entity\ExpressionField('FORCED_ID', '%s', ['ID']))
 			->setOrder(['FORCED_INT_ID' => 'ASC'])
 			->setLimit(1);
 		if ($this->isAuthorized())
@@ -801,6 +803,10 @@ class User implements \ArrayAccess {
 		}
 		else
 		{
+			if (Main\Application::getConnection()->getType() === 'pgsql')
+			{
+				$fields['NUM_POSTS'] = 1;
+			}
 			$fields = ['USER_ID' => $this->getId()] + $fields + $this->data;
 			unset($fields['ID']);
 			$result = User::add($fields);

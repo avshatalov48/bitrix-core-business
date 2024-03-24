@@ -270,8 +270,8 @@ export class View
 
 		this.size = Size.Full;
 		this.maxWidth = null;
-		this.isMuted = false;
-		this.isCameraOn = false;
+		this.isMuted = Hardware.isMicrophoneMuted;
+		this.isCameraOn = Hardware.isCameraOn;
 		this.isFullScreen = false;
 		this.isUserBlockFolded = false;
 
@@ -398,6 +398,9 @@ export class View
 				this.setSpeakerId(Hardware.defaultSpeaker);
 			}.bind(this))
 		}
+
+		Hardware.subscribe(Hardware.Events.onChangeMicrophoneMuted, this.setMuted);
+		Hardware.subscribe(Hardware.Events.onChangeCameraOn, this.setCameraState);
 
 		window.addEventListener("keydown", this._onKeyDownHandler);
 		window.addEventListener("keyup", this._onKeyUpHandler);
@@ -980,15 +983,14 @@ export class View
 		this.buttons.microphone?.setLevel(level);
 	};
 
-	setCameraState(newCameraState)
+	setCameraState = (event) =>
 	{
-		newCameraState = !!newCameraState;
-		if (this.isCameraOn == newCameraState)
+		if (this.isCameraOn == event.data.isCameraOn)
 		{
 			return;
 		}
 
-		this.isCameraOn = newCameraState;
+		this.isCameraOn = event.data.isCameraOn;
 
 		if (this.buttons.camera)
 		{
@@ -1003,15 +1005,15 @@ export class View
 		}
 	};
 
-	setMuted(isMuted)
+	setMuted = (event) =>
 	{
-		isMuted = !!isMuted;
-		if (this.isMuted == isMuted)
+		if (this.isMuted == event.data.isMicrophoneMuted)
 		{
 			return;
 		}
 
-		this.isMuted = isMuted;
+		this.isMuted = event.data.isMicrophoneMuted
+
 		if (this.buttons.microphone)
 		{
 			if (this.isMuted)
@@ -1023,7 +1025,7 @@ export class View
 				this.buttons.microphone.enable();
 			}
 		}
-		this.userRegistry.get(this.userId).microphoneState = !isMuted;
+		this.userRegistry.get(this.userId).microphoneState = !this.isMuted;
 	};
 
 	setLocalUserId(userId)
@@ -1067,9 +1069,7 @@ export class View
 
 	addUser(userId, state, direction)
 	{
-		// todo: revert after adding new provider to mobile apps
-		// userId = Number(userId);
-		userId = userId;
+		userId = Number(userId);
 		if (this.users[userId])
 		{
 			return;
@@ -1127,6 +1127,7 @@ export class View
 			this.updateUserList();
 			this.updateButtons();
 			this.updateUserButtons();
+			this.muteSpeaker(this.speakerMuted);
 		}
 	};
 
@@ -1212,7 +1213,6 @@ export class View
 
 		if (userId == this.localUser.id)
 		{
-			this.setCameraState(this.localUser.hasCameraVideo());
 			this.localUser.userModel.cameraState = this.localUser.hasCameraVideo();
 		}
 
@@ -1271,6 +1271,10 @@ export class View
 		if (this.screenUsers[userId])
 		{
 			this.screenUsers[userId].showStats(stats);
+		}
+		if (userId == this.localUser.id)
+		{
+			this.localUser.showStats(stats);
 		}
 	}
 
@@ -1433,7 +1437,6 @@ export class View
 		{
 			this.flipLocalVideo(flipVideo);
 		}
-		this.setCameraState(this.localUser.hasCameraVideo());
 		this.localUser.userModel.cameraState = this.localUser.hasCameraVideo();
 
 		const videoTracks = mediaStream.getVideoTracks();
@@ -1595,6 +1598,19 @@ export class View
 		}
 	};
 
+	setUserConnectionQuality(userId, connectionQuality)
+	{
+		if (this.users[userId])
+		{
+			this.users[userId].connectionQuality = connectionQuality;
+		}
+
+		if (this.localUser.id === userId)
+		{
+			this.localUser.connectionQuality = connectionQuality;
+		}
+	};
+
 	applyIncomingVideoConstraints()
 	{
 		let userId;
@@ -1751,9 +1767,9 @@ export class View
 			viewElement: this.container,
 			parentElement: bindElement,
 			zIndex: this.baseZIndex + 500,
-			microphoneEnabled: !this.isMuted,
+			microphoneEnabled: !Hardware.isMicrophoneMuted,
 			microphoneId: this.microphoneId || Hardware.defaultMicrophone,
-			cameraEnabled: this.isCameraOn,
+			cameraEnabled: Hardware.isCameraOn,
 			cameraId: this.cameraId,
 			speakerEnabled: !this.speakerMuted,
 			speakerId: this.speakerId,
@@ -2270,8 +2286,14 @@ export class View
 		if (this.elements.userList.addButton)
 		{
 			Dom.remove(this.elements.userList.addButton);
-			this.elements.userList.addButton = null;
 		}
+	};
+
+	unblockAddUser()
+	{
+		this.blockedButtons['add'] = false;
+
+		this.updateButtons();
 	};
 
 	blockSwitchCamera()
@@ -2323,11 +2345,12 @@ export class View
 	/**
 	 * @param {string[]} buttons Array of buttons names to block
 	 */
+
 	blockButtons(buttons)
 	{
 		if (!Type.isArray(buttons))
 		{
-			console.error("buttons should be array")
+			console.error("buttons should be array ")
 		}
 
 		buttons.forEach((buttonName) =>
@@ -2842,7 +2865,7 @@ export class View
 		this.applyIncomingVideoConstraints();
 
 		const showAdd = this.layout == Layouts.Centered && userCount > 0 /*&& !this.isFullScreen*/ && this.uiState === UiState.Connected && !this.isButtonBlocked("add") && this.getConnectedUserCount() < this.userLimit - 1;
-		if (showAdd && !this.isFullScreen)
+		if (showAdd && !this.isFullScreen && this.elements.userList.addButton)
 		{
 			this.elements.userList.container.appendChild(this.elements.userList.addButton);
 		}
@@ -2975,7 +2998,7 @@ export class View
 					this.buttons.microphone = new Buttons.DeviceButton({
 						class: "microphone",
 						text: BX.message("IM_M_CALL_BTN_MIC"),
-						enabled: !this.isMuted,
+						enabled: !Hardware.isMicrophoneMuted,
 						arrowHidden: this.layout == Layouts.Mobile,
 						arrowEnabled: this.isMediaSelectionAllowed(),
 						showPointer: true, //todo
@@ -2998,7 +3021,7 @@ export class View
 					this.buttons.camera = new Buttons.DeviceButton({
 						class: "camera",
 						text: BX.message("IM_M_CALL_BTN_CAMERA"),
-						enabled: this.isCameraOn,
+						enabled: Hardware.isCameraOn,
 						arrowHidden: this.layout == Layouts.Mobile,
 						arrowEnabled: this.isMediaSelectionAllowed(),
 						blocked: this.isButtonBlocked("camera"),
@@ -3038,31 +3061,6 @@ export class View
 						this.buttons.screen.setBlocked(this.isButtonBlocked("screen"));
 					}
 					center.appendChild(this.buttons.screen.render());
-					break;
-				case "users":
-					if (!this.buttons.users)
-					{
-						this.buttons.users = new Buttons.SimpleButton({
-							class: "users",
-							backgroundClass: "calm-counter",
-							text: BX.message("IM_M_CALL_BTN_USERS"),
-							blocked: this.isButtonBlocked("users"),
-							onClick: this._onUsersButtonClick.bind(this),
-							onMouseOver: function (e)
-							{
-								this._showHotKeyHint(e.currentTarget, "users", this.keyModifier + ' + U');
-							}.bind(this),
-							onMouseOut: function ()
-							{
-								this._destroyHotKeyHint();
-							}.bind(this)
-						});
-					}
-					else
-					{
-						this.buttons.users.setBlocked(this.isButtonBlocked("users"));
-					}
-					center.appendChild(this.buttons.users.render());
 					break;
 				case "record":
 					if (!this.buttons.record)
@@ -3263,6 +3261,7 @@ export class View
 						text: BX.message("IM_M_CALL_PROTECTED"),
 						onMouseOver: (e) =>
 						{
+							this.hintManager.popupParameters.events = null;
 							this.hintManager.show(e.currentTarget, BX.message("IM_M_CALL_PROTECTED_HINT"));
 						},
 						onMouseOut: () =>
@@ -3926,28 +3925,29 @@ export class View
 		}
 
 		options = options || {};
-
 		this.hintManager.popupParameters.events = {
-			onShow: function (event)
-			{
-				const popup = event.getTarget();
+			onShow: function onShow(event) {
+				let popup = event.getTarget();
+				let offsetLeft = (targetNode.offsetWidth / 2 - popup.getPopupContainer().offsetWidth / 2) + 23;
+
+				if (options?.additionalOffsetLeft)
+				{
+					offsetLeft += options.additionalOffsetLeft;
+				}
 				// hack to get hint sizes
 				popup.getPopupContainer().style.display = 'block';
-				if (options.position === 'bottom')
-				{
+				if (options.position === 'bottom') {
 					popup.setOffset({
 						offsetTop: 10,
-						offsetLeft: (targetNode.offsetWidth / 2) - (popup.getPopupContainer().offsetWidth / 2)
+						offsetLeft,
 					});
-				}
-				else
-				{
+				} else {
 					popup.setOffset({
-						offsetLeft: (targetNode.offsetWidth / 2) - (popup.getPopupContainer().offsetWidth / 2)
+						offsetLeft,
 					});
 				}
 			}
-		}
+		};
 
 		this.hintManager.show(
 			targetNode,
@@ -3982,13 +3982,15 @@ export class View
 		}
 
 		let micHotkeys = '';
-		if (this.isMuted && this.isHotKeyActive("microphoneSpace"))
+		let additionalOffsetLeft = 0;
+		if (Hardware.isMicrophoneMuted && this.isHotKeyActive("microphoneSpace"))
 		{
 			micHotkeys = BX.message("IM_SPACE_HOTKEY") + '<br>';
+			additionalOffsetLeft = 20;
 		}
 		micHotkeys += this.keyModifier + ' + A';
 
-		this._showHotKeyHint(e.currentTarget.firstChild, "microphone", micHotkeys);
+		this._showHotKeyHint(e.currentTarget.firstChild, "microphone", micHotkeys, {additionalOffsetLeft});
 	}
 
 	_onKeyDown(e)
@@ -4021,7 +4023,7 @@ export class View
 			this._onMicrophoneButtonClick(e);
 		}
 		else if (
-			e.code === 'Space' && this.isMuted
+			e.code === 'Space' && Hardware.isMicrophoneMuted
 			&& this.isHotKeyActive('microphoneSpace')
 		)
 		{
@@ -4130,7 +4132,7 @@ export class View
 		}
 
 		clearTimeout(this.microphoneHotkeyTimerId);
-		if (this.pushToTalk && !this.isMuted && e.code === 'Space')
+		if (this.pushToTalk && !Hardware.isMicrophoneMuted && e.code === 'Space')
 		{
 			e.preventDefault();
 			this.pushToTalk = false;
@@ -4344,7 +4346,7 @@ export class View
 		}
 		this.eventEmitter.emit(EventName.onButtonClick, {
 			buttonName: "toggleMute",
-			muted: !this.isMuted
+			muted: !Hardware.isMicrophoneMuted
 		});
 	};
 
@@ -4377,7 +4379,7 @@ export class View
 		}
 		this.eventEmitter.emit(EventName.onButtonClick, {
 			buttonName: "toggleVideo",
-			video: !this.isCameraOn
+			video: !Hardware.isCameraOn
 		});
 	};
 
@@ -4808,6 +4810,9 @@ export class View
 
 		this.eventEmitter.emit(EventName.onDestroy);
 		this.eventEmitter.unsubscribeAll();
+
+		Hardware.unsubscribe(Hardware.Events.onChangeMicrophoneMuted, this.setMuted);
+		Hardware.unsubscribe(Hardware.Events.onChangeCameraOn, this.setCameraState);
 	};
 
 	static Layout = Layouts;

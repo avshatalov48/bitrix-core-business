@@ -53,7 +53,6 @@ if ($gid > 0 && ($dbRes = \Bitrix\Forum\GroupTable::getList([
 else
 {
 	$fields = [
-		"ID" => 0,
 		"SORT" => 150,
 		"PARENT_ID" => ($_REQUEST["PARENT_ID"] > 0 ? $_REQUEST["PARENT_ID"] : 0),
 		"LANG" => []

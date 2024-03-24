@@ -1810,6 +1810,10 @@ class LandingPubComponent extends LandingBaseComponent
 					'SITE_NOT_FOUND',
 					$this->getMessageType('LANDING_CMP_SITE_NOT_FOUND2')
 				);
+				if ($this->arParams['TYPE'] === 'GROUP')
+				{
+					\localRedirect($this->arParams['PAGE_URL_SITES']);
+				}
 			}
 		}
 

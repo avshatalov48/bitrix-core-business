@@ -83,9 +83,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Forum_Query query()
- * @method static EO_Forum_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Forum_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Forum_Result getById($id)
- * @method static EO_Forum_Result getList(array $parameters = array())
+ * @method static EO_Forum_Result getList(array $parameters = [])
  * @method static EO_Forum_Entity getEntity()
  * @method static \Bitrix\Forum\EO_Forum createObject($setDefaultValues = true)
  * @method static \Bitrix\Forum\EO_Forum_Collection createCollection()
@@ -481,26 +481,94 @@ class Forum implements \ArrayAccess {
 	public function calculateStatistic()
 	{
 		$forumId = (int) $this->getId();
-		$sql = <<<SQL
+		global $DB;
+		$statSQL = <<<SQL
+		SELECT COALESCE(T1.TOPICS, 0) as TOPICS, COALESCE(T2.MESSAGES, 0) AS POSTS, COALESCE(T3.MESSAGES_UNAPPROVED, 0) AS POSTS_UNAPPROVED, 
+			T4.ID as LAST_MESSAGE_ID, T4.AUTHOR_ID as LAST_POSTER_ID, T4.AUTHOR_NAME LAST_POSTER_NAME, T4.POST_DATE LAST_POST_DATE,
+			T5.ID AS ABS_LAST_MESSAGE_ID, T5.AUTHOR_ID AS ABS_LAST_POSTER_ID, T5.AUTHOR_NAME AS ABS_LAST_POSTER_NAME, T5.POST_DATE AS ABS_LAST_POST_DATE
+		FROM
+			b_forum AS T0
+			LEFT JOIN (SELECT FORUM_ID, COUNT(ID) AS TOPICS FROM b_forum_topic WHERE FORUM_ID={$forumId} AND APPROVED='Y' GROUP BY FORUM_ID) AS T1 ON T1.FORUM_ID = T0.ID
+			LEFT JOIN (SELECT FORUM_ID, COUNT(ID) AS MESSAGES FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED='Y' GROUP BY FORUM_ID) AS T2 ON T2.FORUM_ID = T0.ID
+			LEFT JOIN (SELECT FORUM_ID, COUNT(ID) AS MESSAGES_UNAPPROVED FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED != 'Y' GROUP BY FORUM_ID) AS T3 ON T3.FORUM_ID = T0.ID
+			LEFT JOIN (SELECT FORUM_ID, ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED='Y' ORDER BY ID DESC LIMIT 1) AS T4 ON T4.FORUM_ID = T0.ID
+			LEFT JOIN (SELECT FORUM_ID, ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE FROM b_forum_message WHERE FORUM_ID={$forumId} ORDER BY ID DESC LIMIT 1) AS T5 ON T5.FORUM_ID = T0.ID
+		WHERE T0.ID = {$forumId}
+SQL;
+
+
+		if ($DB->type === 'MYSQL')
+		{
+			$sql = <<<SQL
 UPDATE
 	b_forum f,
-	(SELECT ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE, FORUM_ID FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED='Y' ORDER BY ID DESC LIMIT 1) AS last_message,
-	(SELECT ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE, FORUM_ID FROM b_forum_message WHERE FORUM_ID={$forumId} ORDER BY ID DESC LIMIT 1) AS abs_last_message
+	(
+		{$statSQL}
+    ) ff
 set
-	f.TOPICS = (SELECT COUNT(ID) FROM b_forum_topic WHERE FORUM_ID={$forumId} AND APPROVED='Y' GROUP BY FORUM_ID),
-	f.POSTS = (SELECT COUNT(ID) FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED='Y' GROUP BY FORUM_ID),
-	f.POSTS_UNAPPROVED = (SELECT COUNT(ID) FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED != 'Y' GROUP BY FORUM_ID),
-	f.LAST_MESSAGE_ID = last_message.ID,
-	f.LAST_POSTER_ID = last_message.AUTHOR_ID,
-	f.LAST_POSTER_NAME = last_message.AUTHOR_NAME,
-	f.LAST_POST_DATE = last_message.POST_DATE,
-	f.ABS_LAST_MESSAGE_ID = abs_last_message.ID,
-	f.ABS_LAST_POSTER_ID = abs_last_message.AUTHOR_ID,
-	f.ABS_LAST_POSTER_NAME = abs_last_message.AUTHOR_NAME,
-	f.ABS_LAST_POST_DATE = abs_last_message.POST_DATE
-WHERE f.ID = {$forumId} AND last_message.FORUM_ID = f.ID AND abs_last_message.FORUM_ID = f.ID
+	f.TOPICS = ff.TOPICS,
+	f.POSTS = ff.POSTS,
+	f.POSTS_UNAPPROVED = ff.POSTS_UNAPPROVED,
+	f.LAST_MESSAGE_ID = ff.LAST_MESSAGE_ID,
+	f.LAST_POSTER_ID = ff.LAST_POSTER_ID,
+	f.LAST_POSTER_NAME = ff.LAST_POSTER_NAME,
+	f.LAST_POST_DATE = ff.LAST_POST_DATE,
+	f.ABS_LAST_MESSAGE_ID = ff.ABS_LAST_MESSAGE_ID,
+	f.ABS_LAST_POSTER_ID = ff.ABS_LAST_POSTER_ID,
+	f.ABS_LAST_POSTER_NAME = ff.ABS_LAST_POSTER_NAME,
+	f.ABS_LAST_POST_DATE = ff.ABS_LAST_POST_DATE
+WHERE f.ID = {$forumId}
 SQL;
-		Main\Application::getConnection()->queryExecute($sql);
+		}
+		else if ($DB->type === 'PGSQL')
+		{
+			$sql = <<<SQL
+UPDATE
+	b_forum f
+set (
+		TOPICS,
+		POSTS,
+		POSTS_UNAPPROVED,
+		LAST_MESSAGE_ID,
+		LAST_POSTER_ID,
+		LAST_POSTER_NAME,
+		LAST_POST_DATE,
+		ABS_LAST_MESSAGE_ID,
+		ABS_LAST_POSTER_ID,
+		ABS_LAST_POSTER_NAME,
+		ABS_LAST_POST_DATE
+	) = (
+	{$statSQL}
+	)
+WHERE f.ID = {$forumId}
+SQL;
+		}
+
+		if (isset($sql))
+		{
+			Main\Application::getConnection()->queryExecute($sql);
+		}
+		else
+		{
+			$fields = [
+				'TOPICS' => 0,
+				'POSTS' => 0,
+				'POSTS_UNAPPROVED' => 0,
+				'LAST_MESSAGE_ID' => null,
+				'LAST_POSTER_ID' => null,
+				'LAST_POSTER_NAME' => null,
+				'LAST_POST_DATE' => null,
+				'ABS_LAST_MESSAGE_ID' => null,
+				'ABS_LAST_POSTER_ID' => null,
+				'ABS_LAST_POSTER_NAME' => null,
+				'ABS_LAST_POST_DATE' => null,
+			];
+			if ($statFields = Main\Application::getConnection()->query($statSQL)->fetch())
+			{
+				$fields = array_intersect_key($statFields, $fields);
+			}
+			ForumTable::updateSilently($forumId, $fields);
+		}
 	}
 
 	public function incrementStatistic(array $message)

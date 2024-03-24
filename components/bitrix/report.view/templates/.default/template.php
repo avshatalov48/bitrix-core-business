@@ -111,7 +111,7 @@ if (!empty($arResult['ERROR']))
 	return false;
 }
 
-if ($arParams['USE_CHART'] && $arResult['settings']['chart']['display'])
+if (($arParams['USE_CHART'] ?? false) && ($arResult['settings']['chart']['display'] ?? false))
 {
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/img.php');
 	// amCharts
@@ -177,7 +177,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 
 
 <div class="reports-result-list-wrap">
-	<?php if ($arParams['USE_CHART'] && $arResult['settings']['chart']['display']): ?>
+	<?php if (($arParams['USE_CHART'] ?? false) && ($arResult['settings']['chart']['display'] ?? false)): ?>
 	<style type="text/css">
 		div.graph {
 			background-color: white;
@@ -728,6 +728,10 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 					foreach ($chartInfo['requestData']['data'] as $dataRow)
 					{
 						$index = $dataRow[0];
+						if (!isset($arConsolidated[$index]))
+						{
+							$arConsolidated[$index] = 0.0;
+						}
 						$arConsolidated[$index] += $dataRow[1];
 					}
 					$sumAll = 0.0;
@@ -1209,7 +1213,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 							{
 								$finalValue = join(' / ', $finalValue);
 							}
-							if ($arResult['settings']['red_neg_vals'] === true)
+							if (($arResult['settings']['red_neg_vals'] ?? false) === true)
 							{
 								if ($redSign || (is_numeric($finalValue) && $finalValue < 0))
 									$td_class .= ' report-red-neg-val';
@@ -1475,7 +1479,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 									alt="<?= htmlspecialcharsbx(GetMessage("TASKS_PICK_DATE"))?>"></a></span>
 				</span>
 				<span class="filter-day-interval<?php
-				if ($arResult["FILTER"]["F_DATE_TYPE"] == "days"):
+				if (($arResult["FILTER"]["F_DATE_TYPE"] ?? '') === "days"):
 					?> filter-day-interval-selected<?php
 				endif;
 				?>"><input type="text" size="5" class="filter-date-days"

@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Common;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlQueryException;
+use Bitrix\Main\Type\Collection;
 
 trait DeadlockResolver
 {
@@ -53,6 +54,31 @@ trait DeadlockResolver
 				}
 			}
 		}
+	}
+
+	protected static function prepareFieldsToMinimizeDeadlocks(array $insert, array $uniqueKeys): array
+	{
+		$sortBy = [];
+
+		foreach ($uniqueKeys as $key)
+		{
+			$sortBy[$key] = SORT_ASC;
+		}
+
+		Collection::sortByColumn($insert, $sortBy);
+
+		return $insert;
+	}
+
+	protected static function getIndexKey(array $row, array $uniqueKeys): string
+	{
+		$values = [];
+		foreach ($uniqueKeys as $uniqueKey)
+		{
+			$values[] = $row[$uniqueKey];
+		}
+
+		return implode('|', $values);
 	}
 
 	protected static function isDeadlock(SqlQueryException $exception): bool

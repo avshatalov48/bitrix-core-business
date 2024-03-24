@@ -298,6 +298,13 @@ class CAllIBlockProperty
 			{
 				$arFields["USER_TYPE_SETTINGS"] = false;
 			}
+
+			unset($arFields['TIMESTAMP_X']);
+			$connection = Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+			unset($helper, $connection);
+
 			$ID = $DB->Add("b_iblock_property", $arFields, array('USER_TYPE_SETTINGS'), "iblock");
 
 			if($arFields["VERSION"]==2)
@@ -456,10 +463,7 @@ class CAllIBlockProperty
 			}
 		}
 
-		if($this->LAST_ERROR <> '')
-			return false;
-
-		return true;
+		return $this->LAST_ERROR === '';
 	}
 
 	///////////////////////////////////////////////////////////////////
@@ -575,6 +579,10 @@ class CAllIBlockProperty
 			unset($arFields["ID"]);
 			unset($arFields["VERSION"]);
 			unset($arFields["TIMESTAMP_X"]);
+			$connection = Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+			unset($helper, $connection);
 
 			$strUpdate = $DB->PrepareUpdate("b_iblock_property", $arFields);
 			if($strUpdate <> '')
@@ -656,30 +664,82 @@ class CAllIBlockProperty
 	///////////////////////////////////////////////////////////////////
 	public static function GetByID($ID, $IBLOCK_ID=false, $IBLOCK_CODE=false)
 	{
-		global $DB;
+		$iblockId = null;
+		$iblockCode = null;
+		if (is_numeric($IBLOCK_ID))
+		{
+			$IBLOCK_ID = (int)$IBLOCK_ID;
+			if ($IBLOCK_ID > 0)
+			{
+				$iblockId = $IBLOCK_ID;
+			}
+		}
+		if (is_string($IBLOCK_CODE))
+		{
+			$IBLOCK_CODE = trim($IBLOCK_CODE);
+			if ($IBLOCK_CODE !== '')
+			{
+				$iblockCode = $IBLOCK_CODE;
+			}
+		}
 
-		if($IBLOCK_CODE && $IBLOCK_ID)
-			$cond = " AND (B.ID = ".(int)$IBLOCK_ID." OR B.CODE = '".$DB->ForSql($IBLOCK_CODE)."') ";
-		elseif($IBLOCK_CODE)
-			$cond = " AND B.CODE = '".$DB->ForSql($IBLOCK_CODE)."' ";
-		elseif($IBLOCK_ID)
-			$cond = " AND B.ID = ".(int)$IBLOCK_ID." ";
+		$runtime = [];
+		$filter = [];
+		if ($iblockCode && $iblockId)
+		{
+			$filter[] = [
+				'LOGIC' => 'OR',
+				'=IBLOCK.ID' => $iblockId,
+				'=IBLOCK.CODE' => $iblockCode,
+			];
+		}
+		elseif ($iblockCode)
+		{
+			$filter['=IBLOCK.CODE'] = $iblockCode;
+		}
+		elseif ($iblockId)
+		{
+			$filter['=IBLOCK.ID'] = $iblockId;
+		}
+		if (!is_int($ID))
+		{
+			$ID = (string)$ID;
+			if (is_numeric($ID))
+			{
+				$ID = (int)$ID;
+			}
+		}
+		if (is_int($ID))
+		{
+			$filter['=ID'] = $ID;
+		}
 		else
-			$cond = "";
+		{
+			$ID = mb_strtoupper($ID);
+			$connection = Main\Application::getConnection();
+			if ($connection instanceof Main\DB\MysqlCommonConnection)
+			{
+				$filter['=CODE'] = $ID;
+			}
+			else
+			{
+				$filter['=UPPER_PROPERTY_CODE'] = $ID;
+				$runtime[] = self::getUpperExpressionFields();
+			}
+			unset($connection);
+		}
 
-		$strSql =
-			"SELECT BP.* ".
-			"FROM b_iblock_property BP, b_iblock B ".
-			"WHERE BP.IBLOCK_ID=B.ID ".
-			$cond.
-			(is_numeric(mb_substr($ID, 0, 1))
-			?
-				"	AND BP.ID=".(int)$ID
-			:
-				"	AND UPPER(BP.CODE)=UPPER('".$DB->ForSql($ID)."') "
-			);
+		$params = [
+			'select' => ['*'],
+			'filter' => $filter,
+			'limit' => 1,
+		];
+		if (!empty($runtime))
+		{
+			$params['runtime'] = $runtime;
+		}
 
-		return new CIBlockPropertyResult($DB->Query($strSql));
+		return new CIBlockPropertyResult(Iblock\PropertyTable::getList($params));
 	}
 
 	public static function GetPropertyArray($ID, $IBLOCK_ID, $bCached=true)
@@ -732,6 +792,8 @@ class CAllIBlockProperty
 			}
 			unset($iblockCode);
 		}
+		$iblockIdList = array_values($iblockIdList);
+		$iblockCodeList = array_values($iblockCodeList);
 
 		$cacheId = $ID . '|' . implode(', ', $iblockIdList) . '|' . implode(', ', $iblockCodeList);
 
@@ -809,28 +871,33 @@ class CAllIBlockProperty
 		}
 		else
 		{
-			$runtime[] = new Main\ORM\Fields\ExpressionField(
-				'UPPER_PROPERTY_CODE',
-				'UPPER(%s)',
-				'CODE'
-			);
+			$connection = Main\Application::getConnection();
+			if ($connection instanceof Main\DB\MysqlCommonConnection)
+			{
+				$fieldName = '=CODE';
+			}
+			else
+			{
+				$fieldName = '=UPPER_PROPERTY_CODE';
+				$runtime[] = self::getUpperExpressionFields();
+			}
 			if ($existsValuePostfix)
 			{
 				$filter[] = [
 					'LOGIC' => 'OR',
 					[
-						'=UPPER_PROPERTY_CODE' => $propertyFullCode,
+						$fieldName => $propertyFullCode,
 						'!=PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_LIST,
 					],
 					[
-						'=UPPER_PROPERTY_CODE' => $propertyCode,
+						$fieldName => $propertyCode,
 						'=PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_LIST,
 					]
 				];
 			}
 			else
 			{
-				$filter['=UPPER_PROPERTY_CODE'] = $propertyCode;
+				$filter[$fieldName] = $propertyCode;
 			}
 		}
 
@@ -887,6 +954,15 @@ class CAllIBlockProperty
 		$IBLOCK_CACHE_PROPERTY[$cacheId] = $propertyRow;
 
 		return $propertyRow;
+	}
+
+	private static function getUpperExpressionFields(): Main\ORM\Fields\ExpressionField
+	{
+		return new Main\ORM\Fields\ExpressionField(
+			'UPPER_PROPERTY_CODE',
+			'UPPER(%s)',
+			'CODE'
+		);
 	}
 
 	public static function GetPropertyEnum($PROP_ID, $arOrder = array("SORT"=>"asc"), $arFilter = array())

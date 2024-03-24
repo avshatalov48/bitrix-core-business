@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if($arParams["START_PAGE"] == '')
@@ -122,12 +122,12 @@ if (CModule::IncludeModule("form"))
 
 		$arVariables = array();
 		$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases, $arParams["VARIABLE_ALIASES"]);
-		CComponentEngine::InitComponentVariables(False, $arComponentVariables, $arVariableAliases, $arVariables);
+		CComponentEngine::InitComponentVariables(False, [], $arVariableAliases, $arVariables);
 
 		$arPages = array("NEW", "EDIT", "LIST", "VIEW");
 
 		// get current page
-		$sAction = mb_strtoupper(trim($arVariables["action"]));
+		$sAction = mb_strtoupper(trim($arVariables["action"] ?? ''));
 
 		// check current page
 		if (!in_array($sAction, $arPages)) $sAction = "";

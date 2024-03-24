@@ -90,7 +90,10 @@ class Group implements Feature
 		GroupStepper::bind(1);
 
 		$binder = new Landing\Binding\Group($copiedGroupId);
-		$binder->bindSite($copiedSiteId);
+		if (!$binder->isForbiddenBindingAction())
+		{
+			$binder->bindSite($copiedSiteId);
+		}
 	}
 
 	private function addToQueue(int $copiedGroupId)

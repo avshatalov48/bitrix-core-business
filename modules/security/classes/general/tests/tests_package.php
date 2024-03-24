@@ -26,6 +26,7 @@ class CSecurityTestsPackage
 		"CSecurityFilePermissionsTest",
 		"CSecurityTaintCheckingTest",
 		"CSecurityUserTest",
+		"CSecurityUserOtpTest",
 		"CSecuritySiteConfigurationTest"
 	);
 

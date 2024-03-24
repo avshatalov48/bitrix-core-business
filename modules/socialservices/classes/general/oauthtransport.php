@@ -69,6 +69,16 @@ class CSocServOAuthTransport
 		return $this->refresh_token;
 	}
 
+	public function removeScope(string $scope): void
+	{
+		if (!$this->scope)
+		{
+			return;
+		}
+
+		$this->scope = array_diff($this->scope, [$scope]);
+	}
+
 	public function addScope($scope)
 	{
 		if(is_array($scope))

@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_uploader_core,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_theme,im_v2_lib_textarea,im_v2_lib_layout,im_v2_lib_logger,im_v2_component_entitySelector,main_core_events,im_v2_lib_localStorage,im_v2_lib_permission,im_v2_lib_menu,im_public,im_v2_lib_call,main_core,im_v2_lib_utils,im_v2_component_sidebar,im_v2_application_core,im_v2_const,im_v2_component_elements,im_v2_provider_service) {
+(function (exports,ui_uploader_core,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_theme,im_v2_lib_textarea,im_v2_component_sidebar,im_v2_lib_layout,im_v2_lib_logger,im_v2_component_entitySelector,main_core_events,im_v2_lib_localStorage,im_v2_lib_permission,im_v2_lib_menu,im_v2_lib_rest,im_public,im_v2_lib_call,main_core,im_v2_lib_utils,im_v2_application_core,im_v2_const,im_v2_component_elements,im_v2_provider_service) {
 	'use strict';
 
 	class UserService {
@@ -86,13 +86,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	var _getPersonalPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPersonalPhoneItem");
 	var _getWorkPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getWorkPhoneItem");
 	var _getInnerPhoneItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getInnerPhoneItem");
+	var _getZoomItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getZoomItem");
 	var _getUserPhoneHtml = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUserPhoneHtml");
 	var _isCallAvailable = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCallAvailable");
 	var _getUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getUser");
 	var _isUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUser");
+	var _requestCreateZoomConference = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestCreateZoomConference");
 	class CallMenu extends im_v2_lib_menu.BaseMenu {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _requestCreateZoomConference, {
+	      value: _requestCreateZoomConference2
+	    });
 	    Object.defineProperty(this, _isUser, {
 	      value: _isUser2
 	    });
@@ -104,6 +109,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    });
 	    Object.defineProperty(this, _getUserPhoneHtml, {
 	      value: _getUserPhoneHtml2
+	    });
+	    Object.defineProperty(this, _getZoomItem, {
+	      value: _getZoomItem2
 	    });
 	    Object.defineProperty(this, _getInnerPhoneItem, {
 	      value: _getInnerPhoneItem2
@@ -138,7 +146,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return 'bx-im-messenger__scope bx-im-chat-header-call-button__scope';
 	  }
 	  getMenuItems() {
-	    return [babelHelpers.classPrivateFieldLooseBase(this, _getVideoCallItem)[_getVideoCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getAudioCallItem)[_getAudioCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter](), babelHelpers.classPrivateFieldLooseBase(this, _getPersonalPhoneItem)[_getPersonalPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getWorkPhoneItem)[_getWorkPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getInnerPhoneItem)[_getInnerPhoneItem]()];
+	    return [babelHelpers.classPrivateFieldLooseBase(this, _getVideoCallItem)[_getVideoCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getAudioCallItem)[_getAudioCallItem](), babelHelpers.classPrivateFieldLooseBase(this, _getZoomItem)[_getZoomItem](), babelHelpers.classPrivateFieldLooseBase(this, _getDelimiter)[_getDelimiter](), babelHelpers.classPrivateFieldLooseBase(this, _getPersonalPhoneItem)[_getPersonalPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getWorkPhoneItem)[_getWorkPhoneItem](), babelHelpers.classPrivateFieldLooseBase(this, _getInnerPhoneItem)[_getInnerPhoneItem]()];
 	  }
 	}
 	function _getDelimiter2() {
@@ -226,12 +234,36 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  if (!phones.innerPhone) {
 	    return null;
 	  }
-	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_INNER_PHONE');
+	  const title = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_INNER_PHONE_MSGVER_1');
 	  return {
 	    className: 'menu-popup-no-icon bx-im-chat-header-call-button-menu__item',
 	    html: babelHelpers.classPrivateFieldLooseBase(this, _getUserPhoneHtml)[_getUserPhoneHtml](title, phones.innerPhone),
 	    onclick: () => {
 	      im_public.Messenger.startPhoneCall(phones.innerPhone);
+	      this.menuInstance.close();
+	    }
+	  };
+	}
+	function _getZoomItem2() {
+	  const settings = main_core.Extension.getSettings('im.v2.component.content.chat');
+	  const isActive = settings.get('isZoomActive', false);
+	  if (!isActive) {
+	    return null;
+	  }
+	  const classNames = ['bx-im-chat-header-call-button-menu__zoom', 'menu-popup-no-icon'];
+	  const isFeatureAvailable = settings.get('isZoomFeatureAvailable', false);
+	  if (!isFeatureAvailable) {
+	    classNames.push('--disabled');
+	  }
+	  return {
+	    className: classNames.join(' '),
+	    text: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM'),
+	    onclick: () => {
+	      if (!isFeatureAvailable) {
+	        BX.UI.InfoHelper.show('limit_video_conference_zoom');
+	        return;
+	      }
+	      babelHelpers.classPrivateFieldLooseBase(this, _requestCreateZoomConference)[_requestCreateZoomConference](this.context.dialogId);
 	      this.menuInstance.close();
 	    }
 	  };
@@ -263,6 +295,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	}
 	function _isUser2() {
 	  return this.context.type === im_v2_const.ChatType.user;
+	}
+	function _requestCreateZoomConference2(dialogId) {
+	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2CallZoomCreate, {
+	    data: {
+	      dialogId
+	    }
+	  }).catch(errors => {
+	    let errorText = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CREATE_ERROR');
+	    const notConnected = errors.some(error => error.code === 'ZOOM_CONNECTED_ERROR');
+	    if (notConnected) {
+	      const userProfileUri = `/company/personal/user/${im_v2_application_core.Core.getUserId()}/social_services/`;
+	      errorText = main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_CALL_MENU_ZOOM_CONNECT_ERROR').replace('#HREF_START#', `<a href=${userProfileUri}>`).replace('#HREF_END#', '</>');
+	    }
+	    BX.UI.Notification.Center.notify({
+	      content: errorText
+	    });
+	  });
 	}
 	CallMenu.events = {
 	  onMenuItemClick: 'onMenuItemClick'
@@ -349,7 +398,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getLastCallChoice() {
 	      const result = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.lastCallType, CallTypes.video.id);
-	      if (result === CallTypes.beta.id && !this.isCallBetaAvailable()) {
+	      if (result === CallTypes.beta.id && !this.isBitrixCallEnabled()) {
 	        return CallTypes.video.id;
 	      }
 	      return result;
@@ -359,12 +408,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      im_v2_lib_localStorage.LocalStorageManager.getInstance().set(im_v2_const.LocalStorageKey.lastCallType, callTypeId);
 	    },
 	    shouldShowMenu() {
-	      return this.isActive || this.isCallBetaAvailable();
+	      return this.isActive || this.isBitrixCallEnabled();
 	    },
-	    isCallBetaAvailable() {
+	    isBitrixCallEnabled() {
 	      // TODO remove this after release call beta
 	      // const settings = Extension.getSettings('im.v2.component.content.chat');
-	      // return settings.get('isCallBetaAvailable');
+	      // return settings.get('isBitrixCallEnabled');
 
 	      return false;
 	    },
@@ -395,39 +444,39 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	const ParamsByChatType = {
-	  [im_v2_const.ChatType.tasks]: {
+	const ParamsByLinkType = {
+	  [im_v2_const.ChatEntityLinkType.tasks]: {
 	    className: '--task',
 	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_TASK')
 	  },
-	  [im_v2_const.ChatType.calendar]: {
+	  [im_v2_const.ChatEntityLinkType.calendar]: {
 	    className: '--calendar',
-	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MEETING')
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MEETING_MSGVER_1')
 	  },
-	  [im_v2_const.ChatType.sonetGroup]: {
+	  [im_v2_const.ChatEntityLinkType.sonetGroup]: {
 	    className: '--group',
-	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_GROUP')
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_GROUP_MSGVER_1')
 	  },
-	  [im_v2_const.ChatType.crm]: {
-	    className: '--crm',
-	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CRM')
-	  },
-	  [im_v2_const.ChatType.mail]: {
+	  [im_v2_const.ChatEntityLinkType.mail]: {
 	    className: '--mail',
-	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MAIL')
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_MAIL_MSGVER_1')
+	  },
+	  [im_v2_const.ChatEntityLinkType.contact]: {
+	    className: '--crm',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CONTACT')
+	  },
+	  [im_v2_const.ChatEntityLinkType.deal]: {
+	    className: '--crm',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_DEAL')
+	  },
+	  [im_v2_const.ChatEntityLinkType.lead]: {
+	    className: '--crm',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_LEAD')
+	  },
+	  [im_v2_const.ChatEntityLinkType.dynamic]: {
+	    className: '--crm',
+	    loc: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_DYNAMIC_ELEMENT')
 	  }
-	};
-	const CrmEntityType = {
-	  lead: 'LEAD',
-	  deal: 'DEAL',
-	  contact: 'CONTACT',
-	  company: 'COMPANY'
-	};
-	const CrmLinkTextByEntity = {
-	  [CrmEntityType.lead]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_LEAD'),
-	  [CrmEntityType.deal]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_DEAL'),
-	  [CrmEntityType.contact]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_CONTACT'),
-	  [CrmEntityType.company]: main_core.Loc.getMessage('IM_CONTENT_CHAT_HEADER_OPEN_COMPANY')
 	};
 
 	// @vue/component
@@ -446,9 +495,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    entityId() {
-	      return this.dialog.entityLink.id;
-	    },
 	    entityType() {
 	      return this.dialog.entityLink.type;
 	    },
@@ -456,28 +502,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.dialog.entityLink.url;
 	    },
 	    containerClassName() {
-	      var _ParamsByChatType$thi, _ParamsByChatType$thi2;
-	      return (_ParamsByChatType$thi = (_ParamsByChatType$thi2 = ParamsByChatType[this.dialog.type]) == null ? void 0 : _ParamsByChatType$thi2.className) != null ? _ParamsByChatType$thi : '';
+	      var _ParamsByLinkType$thi, _ParamsByLinkType$thi2;
+	      return (_ParamsByLinkType$thi = (_ParamsByLinkType$thi2 = ParamsByLinkType[this.entityType]) == null ? void 0 : _ParamsByLinkType$thi2.className) != null ? _ParamsByLinkType$thi : '';
 	    },
 	    linkText() {
-	      var _ParamsByChatType$thi3, _ParamsByChatType$thi4;
-	      if (this.dialog.type === im_v2_const.ChatType.crm) {
-	        return this.getCrmLinkText();
-	      }
-	      return (_ParamsByChatType$thi3 = (_ParamsByChatType$thi4 = ParamsByChatType[this.dialog.type]) == null ? void 0 : _ParamsByChatType$thi4.loc) != null ? _ParamsByChatType$thi3 : 'Open entity';
-	    }
-	  },
-	  methods: {
-	    getCrmLinkText() {
-	      const [entityType] = this.entityId.split('|');
-	      if (!entityType) {
-	        return '';
-	      }
-	      return CrmLinkTextByEntity[entityType];
+	      var _ParamsByLinkType$thi3, _ParamsByLinkType$thi4;
+	      return (_ParamsByLinkType$thi3 = (_ParamsByLinkType$thi4 = ParamsByLinkType[this.entityType]) == null ? void 0 : _ParamsByLinkType$thi4.loc) != null ? _ParamsByLinkType$thi3 : 'Open entity';
 	    }
 	  },
 	  template: `
-		<a :href="entityUrl" class="bx-im-chat-header-entity-link__container" :class="containerClassName">
+		<a :href="entityUrl" class="bx-im-chat-header-entity-link__container" :class="containerClassName" target="_blank">
 			<div class="bx-im-chat-header-entity-link__icon"></div>
 			<div class="bx-im-chat-header-entity-link__text">{{ linkText }}</div>
 			<div class="bx-im-chat-header-entity-link__arrow"></div>
@@ -615,13 +649,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: String,
 	      default: ''
 	    },
-	    sidebarOpened: {
-	      type: Boolean,
-	      required: true
-	    },
-	    sidebarSearchOpened: {
-	      type: Boolean,
-	      default: false
+	    currentSidebarPanel: {
+	      type: String,
+	      default: ''
 	    }
 	  },
 	  emits: ['toggleRightPanel', 'toggleSearchPanel', 'toggleMembersPanel'],
@@ -673,20 +703,53 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    canChangeAvatar() {
 	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.avatar, this.dialogId);
+	    },
+	    isSidebarOpened() {
+	      return this.currentSidebarPanel.length > 0;
+	    },
+	    isMessageSearchActive() {
+	      return this.currentSidebarPanel === im_v2_const.SidebarDetailBlock.messageSearch;
 	    }
 	  },
 	  methods: {
 	    toggleRightPanel() {
-	      this.$emit('toggleRightPanel');
+	      if (this.currentSidebarPanel) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
+	          panel: ''
+	        });
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
+	        panel: im_v2_const.SidebarDetailBlock.main,
+	        dialogId: this.dialogId
+	      });
 	    },
 	    toggleSearchPanel() {
-	      this.$emit('toggleSearchPanel');
+	      if (this.isMessageSearchActive) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
+	          panel: im_v2_const.SidebarDetailBlock.messageSearch
+	        });
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
+	        panel: im_v2_const.SidebarDetailBlock.messageSearch,
+	        dialogId: this.dialogId
+	      });
 	    },
 	    onMembersClick() {
 	      if (!this.isInited) {
 	        return;
 	      }
-	      this.$emit('toggleMembersPanel');
+	      if (this.currentSidebarPanel === im_v2_const.SidebarDetailBlock.members) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
+	          panel: im_v2_const.SidebarDetailBlock.members
+	        });
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
+	        panel: im_v2_const.SidebarDetailBlock.members,
+	        dialogId: this.dialogId
+	      });
 	    },
 	    onNewTitleSubmit(newTitle) {
 	      this.getChatService().renameChat(this.dialogId, newTitle).catch(() => {
@@ -735,9 +798,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div @click.capture="onContainerClick" class="bx-im-chat-header__scope bx-im-chat-header__container">
 			<div class="bx-im-chat-header__left">
 				<div class="bx-im-chat-header__avatar" :class="{'--can-change': canChangeAvatar}" @click="onAvatarClick">
-					<Avatar v-if="isChat" :dialogId="dialogId" :size="AvatarSize.L" :withStatus="true" />
+					<Avatar v-if="isChat" :dialogId="dialogId" :size="AvatarSize.L" />
 					<a v-else :href="userLink" target="_blank">
-						<Avatar :dialogId="dialogId" :size="AvatarSize.L" :withStatus="true" />
+						<Avatar :dialogId="dialogId" :size="AvatarSize.L" />
 					</a>
 				</div>
 				<input 
@@ -759,20 +822,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<CallButton v-if="showCallButton" :dialogId="dialogId" />
 				<div
 					v-if="showInviteButton"
-					class="bx-im-chat-header__icon --add-people"
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_INVITE_POPUP')"
 					:class="{'--active': showAddToChatPopup}"
+					class="bx-im-chat-header__icon --add-people"
 					@click="openInvitePopup" 
 					ref="add-members"
 				></div>
 				<div 
-					@click="toggleSearchPanel" 
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SEARCH')"
+					:class="{'--active': isMessageSearchActive}"
 					class="bx-im-chat-header__icon --search" 
-					:class="{'--active': sidebarSearchOpened}"
+					@click="toggleSearchPanel"
 				></div>
 				<div 
+					class="bx-im-chat-header__icon --panel"
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SIDEBAR')"
+					:class="{'--active': isSidebarOpened}"
 					@click="toggleRightPanel" 
-					class="bx-im-chat-header__icon --panel" 
-					:class="{'--active': sidebarOpened}"
 				></div>
 			</div>
 			<AddToChat
@@ -782,40 +848,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				:showPopup="showAddToChatPopup"
 				:popupConfig="{offsetTop: 15, offsetLeft: -300}"
 				@close="showAddToChatPopup = false"
-			/>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const SidebarWrapper = {
-	  name: 'SidebarWrapper',
-	  components: {
-	    ChatSidebar: im_v2_component_sidebar.ChatSidebar
-	  },
-	  props: {
-	    dialogId: {
-	      type: String,
-	      required: true
-	    },
-	    sidebarDetailBlock: {
-	      type: String,
-	      default: null
-	    }
-	  },
-	  emits: ['back'],
-	  methods: {
-	    onClickBack() {
-	      this.$emit('back');
-	    }
-	  },
-	  template: `
-		<div class="bx-im-sidebar-wrapper__scope bx-im-sidebar-wrapper__container">
-			<ChatSidebar
-				:dialogId="dialogId" 
-				:key="dialogId" 
-				:sidebarDetailBlock="sidebarDetailBlock"
-				@back="onClickBack"
 			/>
 		</div>
 	`
@@ -1011,7 +1043,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ChatHeader,
 	    ChatDialog: im_v2_component_dialog_chat.ChatDialog,
 	    ChatTextarea: im_v2_component_textarea.ChatTextarea,
-	    SidebarWrapper,
+	    ChatSidebar: im_v2_component_sidebar.ChatSidebar,
 	    DropArea,
 	    EmptyState,
 	    MutePanel,
@@ -1039,10 +1071,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  data() {
 	    return {
-	      needSidebarTransition: false,
-	      sidebarOpened: true,
-	      searchSidebarOpened: false,
-	      sidebarDetailBlock: null,
+	      currentSidebarPanel: '',
 	      textareaHeight: 0,
 	      showDropArea: false,
 	      lastDropAreaEnterTarget: null
@@ -1066,9 +1095,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isUser() {
 	      return this.dialog.type === im_v2_const.ChatType.user;
-	    },
-	    sidebarTransitionName() {
-	      return this.needSidebarTransition ? 'sidebar-transition' : '';
 	    },
 	    containerClasses() {
 	      const alignment = this.$store.getters['application/settings/get'](im_v2_const.Settings.appearance.alignment);
@@ -1094,39 +1120,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return {
 	        top: `${dropAreaTopOffset}px`
 	      };
-	    },
-	    isSearchSidebarOpened() {
-	      return this.sidebarDetailBlock === im_v2_const.SidebarDetailBlock.messageSearch;
 	    }
 	  },
 	  watch: {
 	    entityId(newValue, oldValue) {
 	      im_v2_lib_logger.Logger.warn(`ChatContent: switching from ${oldValue || 'empty'} to ${newValue}`);
-	      if (newValue === '') {
-	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because entityId is empty');
-	        this.sidebarOpened = false;
-	      }
 	      this.onChatChange();
-	      this.resetSidebarDetailState();
-	    },
-	    sidebarOpened(newValue) {
-	      this.saveSidebarOpenedState(newValue);
 	    }
 	  },
 	  created() {
-	    this.restoreSidebarOpenState();
 	    if (this.entityId) {
 	      this.onChatChange();
 	    }
 	    this.initTextareaResizeManager();
-	  },
-	  mounted() {
-	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.sidebar.open, this.onSidebarOpen);
-	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.sidebar.close, this.onSidebarClose);
-	  },
-	  beforeUnmount() {
-	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.sidebar.open, this.onSidebarOpen);
-	    main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.sidebar.close, this.onSidebarClose);
 	  },
 	  methods: {
 	    async onChatChange() {
@@ -1159,7 +1165,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      await this.loadChat();
-	      this.needSidebarTransition = true;
 	    },
 	    loadChatWithContext() {
 	      im_v2_lib_logger.Logger.warn(`ChatContent: loading chat ${this.entityId} with context - ${this.layout.contextId}`);
@@ -1188,75 +1193,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      } else if (firstError.code === 'MESSAGE_NOT_FOUND') {
 	        this.showNotification(this.loc('IM_CONTENT_CHAT_CONTEXT_MESSAGE_NOT_FOUND'));
 	      }
-	    },
-	    toggleSidebar() {
-	      this.needSidebarTransition = true;
-	      this.sidebarOpened = !this.sidebarOpened;
-	      if (!this.sidebarOpened) {
-	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because if was closed by toggle');
-	      }
-	      this.resetSidebarDetailState();
-	    },
-	    toggleSearchPanel() {
-	      this.needSidebarTransition = true;
-	      if (this.sidebarDetailBlock === im_v2_const.SidebarDetailBlock.messageSearch) {
-	        this.sidebarDetailBlock = null;
-	        this.sidebarOpened = false;
-	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because message search was closed');
-	      } else {
-	        this.sidebarOpened = true;
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
-	          detailBlock: im_v2_const.SidebarDetailBlock.messageSearch
-	        });
-	      }
-	    },
-	    toggleMembersPanel() {
-	      this.needSidebarTransition = true;
-	      if (this.sidebarDetailBlock === im_v2_const.SidebarDetailBlock.main) {
-	        this.sidebarDetailBlock = null;
-	        this.sidebarOpened = false;
-	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because chat members panel was closed');
-	      } else {
-	        this.sidebarOpened = true;
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
-	          detailBlock: im_v2_const.SidebarDetailBlock.main
-	        });
-	      }
-	    },
-	    onClickBack() {
-	      this.resetSidebarDetailState();
-	    },
-	    onSidebarOpen({
-	      data: eventData
-	    }) {
-	      this.sidebarOpened = true;
-	      if (eventData.detailBlock && im_v2_const.SidebarDetailBlock[eventData.detailBlock]) {
-	        this.sidebarDetailBlock = eventData.detailBlock;
-	      }
-	    },
-	    onSidebarClose() {
-	      im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar, because of sidebar close event');
-	      this.sidebarOpened = false;
-	    },
-	    resetSidebarDetailState() {
-	      this.sidebarDetailBlock = null;
-	    },
-	    restoreSidebarOpenState() {
-	      const sidebarOpenState = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(im_v2_const.LocalStorageKey.sidebarOpened);
-	      if (sidebarOpenState === null) {
-	        return;
-	      }
-	      if (this.sidebarOpened && Boolean(sidebarOpenState)) {
-	        im_v2_lib_logger.Logger.warn('ChatContent: closing sidebar after restoring state from LS');
-	      }
-	      this.sidebarOpened = Boolean(sidebarOpenState);
-	    },
-	    saveSidebarOpenedState(sidebarOpened) {
-	      const WRITE_TO_STORAGE_TIMEOUT = 200;
-	      clearTimeout(this.saveSidebarStateTimeout);
-	      this.saveSidebarStateTimeout = setTimeout(() => {
-	        im_v2_lib_localStorage.LocalStorageManager.getInstance().set(im_v2_const.LocalStorageKey.sidebarOpened, sidebarOpened);
-	      }, WRITE_TO_STORAGE_TIMEOUT);
 	    },
 	    initTextareaResizeManager() {
 	      this.textareaResizeManager = new im_v2_lib_textarea.ResizeManager();
@@ -1312,6 +1248,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.uploadingService = im_v2_provider_service.UploadingService.getInstance();
 	      }
 	      return this.uploadingService;
+	    },
+	    onChangeSidebarPanel({
+	      panel
+	    }) {
+	      this.currentSidebarPanel = panel;
 	    }
 	  },
 	  template: `
@@ -1324,15 +1265,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				@dragover.prevent
 			>
 				<template v-if="entityId">
-					<ChatHeader 
-						:dialogId="entityId" 
-						:key="entityId" 
-						:sidebarOpened="sidebarOpened"
-						:sidebarSearchOpened="isSearchSidebarOpened"
-						@toggleRightPanel="toggleSidebar" 
-						@toggleSearchPanel="toggleSearchPanel" 
-						@toggleMembersPanel="toggleMembersPanel" 
-					/>
+					<ChatHeader :dialogId="entityId" :key="entityId" :currentSidebarPanel="currentSidebarPanel" />
 					<div :style="dialogContainerStyle" class="bx-im-content-chat__dialog_container">
 						<div class="bx-im-content-chat__dialog_content">
 							<ChatDialog :dialogId="entityId" :key="entityId" :textareaHeight="textareaHeight" />
@@ -1349,19 +1282,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</template>
 				<EmptyState v-else />
 			</div>
-			<transition :name="sidebarTransitionName">
-				<SidebarWrapper 
-					v-if="entityId && sidebarOpened"
-					:dialogId="entityId" 
-					:sidebarDetailBlock="sidebarDetailBlock"
-					@back="onClickBack"
-				/>
-			</transition>
+			<ChatSidebar 
+				v-if="entityId.length > 0" 
+				:originDialogId="entityId" 
+				@changePanel="onChangeSidebarPanel" 
+			/>
 		</div>
 	`
 	};
 
 	exports.ChatContent = ChatContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.UI.Uploader,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.EntitySelector,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.UI.Uploader,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.EntitySelector,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Provider.Service));
 //# sourceMappingURL=chat-content.bundle.js.map

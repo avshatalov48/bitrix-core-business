@@ -111,7 +111,7 @@ class Notification extends Base
 						['join_type' => Join::TYPE_LEFT]
 					)
 				)
-				->whereExpr("IFNULL(%s, '$value') = 'Y'", ['OPTION_STATE.VALUE'])
+				->whereExpr("COALESCE(%s, '$value') = 'Y'", ['OPTION_STATE.VALUE'])
 				->where('USER_ID', $userId)
 				->where('USER.ACTIVE', 'Y')
 				->where('USER.IS_REAL_USER', 'Y')
@@ -239,7 +239,7 @@ class Notification extends Base
 						['join_type' => Join::TYPE_LEFT]
 					)
 				)
-				->whereExpr("IFNULL(%s, '$value') = 'Y'", ['OPTION_STATE.VALUE'])
+				->whereExpr("COALESCE(%s, '$value') = 'Y'", ['OPTION_STATE.VALUE'])
 				->whereIn('USER_ID', $userListChunk)
 				->where('USER.ACTIVE', 'Y')
 				->where('USER.IS_REAL_USER', 'Y');

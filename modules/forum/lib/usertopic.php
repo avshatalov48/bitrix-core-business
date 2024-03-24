@@ -14,9 +14,9 @@ use Bitrix\Main;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserTopic_Query query()
- * @method static EO_UserTopic_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserTopic_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserTopic_Result getById($id)
- * @method static EO_UserTopic_Result getList(array $parameters = array())
+ * @method static EO_UserTopic_Result getList(array $parameters = [])
  * @method static EO_UserTopic_Entity getEntity()
  * @method static \Bitrix\Forum\EO_UserTopic createObject($setDefaultValues = true)
  * @method static \Bitrix\Forum\EO_UserTopic_Collection createCollection()

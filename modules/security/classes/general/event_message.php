@@ -65,7 +65,9 @@ final class CSecurityEventMessageFormatter
 		$this->isB64MessageNeeded = mb_strpos($messageFormat, self::VARIABLE_VALUE_BASE64) !== false;
 
 		if (!defined("ADMIN_SECTION") || ADMIN_SECTION != true)
-			$this->siteId = SITE_ID;
+		{
+			$this->siteId = defined('SITE_ID') ? SITE_ID : false;
+		}
 
 		$this->userInfo = $this->getUserInfo();
 		$this->url = preg_replace("/(&?sessid=[0-9a-z]+)/", "", $_SERVER["REQUEST_URI"]);

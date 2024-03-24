@@ -15,6 +15,7 @@ class UserLinkMapper extends JointLinkMapper
 			->setId($objectEO->getId())
 			->setUserId($objectEO->getObjectId())
 			->setDateCreate($objectEO->getDateCreate())
+			->setDateExpire($objectEO->getDateExpire())
 			->setActive($objectEO->getActive())
 			->setHash($objectEO->getHash())
 			->setMembersHash($objectEO->getMembersHash())

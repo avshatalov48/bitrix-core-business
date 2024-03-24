@@ -6,6 +6,9 @@ $STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
 if($STAT_RIGHT=="D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
+/**
+ * @global array $arrColor
+ */
 include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
@@ -75,6 +78,15 @@ foreach($find_site_id as $k=>$v)
 		$find_site_id[$k] = $v;
 }
 
+$find_date1 = $_REQUEST['find_date1'] ?? '';
+$find_date2 = $_REQUEST['find_date2'] ?? '';
+$find_graph_type = $_REQUEST['find_graph_type'] ?? '';
+$find_hit = $_REQUEST['find_hit'] ?? '';
+$find_host = $_REQUEST['find_host'] ?? '';
+$find_session = $_REQUEST['find_session'] ?? '';
+$find_event = $_REQUEST['find_event'] ?? '';
+$find_guest = $_REQUEST['find_guest'] ?? '';
+$find_new_guest = $_REQUEST['find_new_guest'] ?? '';
 
 $site_filtered = !empty($find_site_id);
 $arFilter = Array(
@@ -188,6 +200,7 @@ if ($find_graph_type!="date")
 else
 {
 	$rsDays = CTraffic::GetDailyList("s_date", "asc", $v1, $arFilter);
+	$prev_date = 0;
 	while($arData = $rsDays->Fetch())
 	{
 		$date = mktime(0, 0, 0, $arData["MONTH"], $arData["DAY"], $arData["YEAR"]);

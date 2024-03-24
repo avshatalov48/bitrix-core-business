@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 if(!CModule::IncludeModule('sale'))
@@ -62,13 +63,15 @@ function saleLocationLoadFile($arParams)
 			case 1:
 				$file_url = DLPATH.$CSVFILE;
 
+				$error_number = 0;
+				$error_text = '';
 				$data = QueryGetData(
 					DLSERVER,
 					DLPORT,
 					$file_url,
 					'',
-					$error_number = 0,
-					$error_text = "",
+					$error_number,
+					$error_text,
 					DLMETHOD
 				);
 
@@ -93,13 +96,15 @@ function saleLocationLoadFile($arParams)
 			case 2:
 				$file_url = DLPATH.DLZIPFILE;
 
+				$error_number = 0;
+				$error_text = '';
 				$data = QueryGetData(
 					DLSERVER,
 					DLPORT,
 					$file_url,
 					'',
-					$error_number = 0,
-					$error_text = "",
+					$error_number,
+					$error_text,
 					DLMETHOD
 				);
 
@@ -238,10 +243,14 @@ function saleLocationImport($arParams)
 					}
 				}
 
-				if (count($arLocations) <= 0)
+				if (empty($arLocations))
+				{
 					$bSync = false;
+				}
 
 				include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/csv_data.php");
+
+				$strWarning = '';
 
 				$csvFile = new CCSVData();
 				$csvFile->LoadFile($file_url);
@@ -628,4 +637,3 @@ function saleLocationImport($arParams)
 	}
 	return $arReturn;
 }
-?>

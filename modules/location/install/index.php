@@ -122,7 +122,7 @@ Class location extends CModule
 		", true);
 
 		$DB->query("
-			INSERT b_location_source (
+			INSERT INTO b_location_source (
 				CODE,
 				NAME,
 				CONFIG

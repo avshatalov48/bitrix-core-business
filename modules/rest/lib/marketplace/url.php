@@ -171,7 +171,7 @@ namespace Bitrix\Rest\Marketplace\Urls
 			$result = '';
 			if (ModuleManager::isModuleInstalled('bitrix24'))
 			{
-				$result = '/settings/license_buy.php?product=subscr';
+				$result = '/settings/license_all.php?subscr=o';
 			}
 			else
 			{

@@ -2,12 +2,12 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\Application,
 	Bitrix\Main\Entity,
-	Bitrix\Main\Error;
+	Bitrix\Main\Error,
+	Bitrix\Main\DB\SqlExpression
+;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class ChatIndexTable
@@ -96,17 +96,33 @@ class ChatIndexTable extends Main\Entity\DataManager
             unset($updateData[$field]);
         }
 
-		if (method_exists($helper, 'getConditionalAssignment'))
-		{
-			if (isset($updateData['SEARCH_CONTENT']))
-			{
-				$updateData['SEARCH_CONTENT'] = new Main\DB\SqlExpression($helper->getConditionalAssignment('SEARCH_CONTENT', $updateData['SEARCH_CONTENT']));
-			}
+		$versionMain = \Bitrix\Main\ModuleManager::getVersion('main');
+		$isPgCompatible = (version_compare($versionMain, '24.0.0') >= 0);//todo: Remove it in future version
 
-			if (isset($updateData['SEARCH_TITLE']))
+		if (isset($updateData['SEARCH_CONTENT']))
+		{
+			if ($isPgCompatible)
 			{
-				$updateData['SEARCH_TITLE'] = new Main\DB\SqlExpression($helper->getConditionalAssignment('SEARCH_TITLE', $updateData['SEARCH_TITLE']));
+				$field = new SqlExpression('?v', 'SEARCH_CONTENT');
 			}
+			else
+			{
+				$field = 'SEARCH_CONTENT';
+			}
+			$updateData['SEARCH_CONTENT'] = new SqlExpression($helper->getConditionalAssignment($field, $updateData['SEARCH_CONTENT']));
+		}
+
+		if (isset($updateData['SEARCH_TITLE']))
+		{
+			if ($isPgCompatible)
+			{
+				$field = new SqlExpression('?v', 'SEARCH_TITLE');
+			}
+			else
+			{
+				$field = 'SEARCH_TITLE';
+			}
+			$updateData['SEARCH_TITLE'] = new SqlExpression($helper->getConditionalAssignment($field, $updateData['SEARCH_TITLE']));
 		}
 
         $merge = $helper->prepareMerge(
@@ -141,17 +157,14 @@ class ChatIndexTable extends Main\Entity\DataManager
 			unset($updateData[$primaryField]);
 		}
 
-		if (method_exists($helper, 'getConditionalAssignment'))
+		if (isset($updateData['SEARCH_CONTENT']))
 		{
-			if (isset($updateData['SEARCH_CONTENT']))
-			{
-				$updateData['SEARCH_CONTENT'] = new Main\DB\SqlExpression($helper->getConditionalAssignment('SEARCH_CONTENT', $updateData['SEARCH_CONTENT']));
-			}
+			$updateData['SEARCH_CONTENT'] = new SqlExpression($helper->getConditionalAssignment('SEARCH_CONTENT', $updateData['SEARCH_CONTENT']));
+		}
 
-			if (isset($updateData['SEARCH_TITLE']))
-			{
-				$updateData['SEARCH_TITLE'] = new Main\DB\SqlExpression($helper->getConditionalAssignment('SEARCH_TITLE', $updateData['SEARCH_TITLE']));
-			}
+		if (isset($updateData['SEARCH_TITLE']))
+		{
+			$updateData['SEARCH_TITLE'] = new SqlExpression($helper->getConditionalAssignment('SEARCH_TITLE', $updateData['SEARCH_TITLE']));
 		}
 
 		$update = $helper->prepareUpdate(

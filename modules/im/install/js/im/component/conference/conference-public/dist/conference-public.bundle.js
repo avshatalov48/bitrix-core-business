@@ -565,7 +565,6 @@ this.BX = this.BX || {};
 	};
 
 	var NOT_ALLOWED_ERROR_CODE = 'NotAllowedError';
-	var NOT_FOUND_ERROR_CODE = 'NotFoundError';
 	var RequestPermissions = {
 	  props: {
 	    skipRequest: {
@@ -604,28 +603,35 @@ this.BX = this.BX || {};
 	            }
 	          }
 	        });
-	      }).then(function () {
+	      }).then(function (stream) {
 	        _this.setPermissionsRequestedFlag();
+	        stream.getTracks().forEach(function (track) {
+	          return track.stop();
+	        });
 	        _this.getApplication().callView.unblockButtons(['microphone', 'camera']);
 	      })["catch"](function (error) {
 	        if (error.name === NOT_ALLOWED_ERROR_CODE) {
 	          _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
 	          return false;
-	        } else if (error.name === NOT_FOUND_ERROR_CODE) {
-	          // means there is no camera, request only microphone
-	          return navigator.mediaDevices.getUserMedia({
-	            audio: true,
-	            video: false
-	          }).then(function () {
-	            _this.setPermissionsRequestedFlag();
-	          })["catch"](function (error) {
-	            if (error.name === NOT_ALLOWED_ERROR_CODE) {
-	              _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
-	              return false;
-	            }
-	          });
 	        }
-	        _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+
+	        // means there is no camera, request only microphone
+	        return navigator.mediaDevices.getUserMedia({
+	          audio: true,
+	          video: false
+	        }).then(function (stream) {
+	          _this.setPermissionsRequestedFlag();
+	          stream.getTracks().forEach(function (track) {
+	            return track.stop();
+	          });
+	          _this.getApplication().callView.unblockButtons(['microphone']);
+	        })["catch"](function (error) {
+	          if (error.name === NOT_ALLOWED_ERROR_CODE) {
+	            _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
+	            return false;
+	          }
+	          _this.showMessageBox(_this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+	        });
 	      })["finally"](function () {
 	        BX.Call.Hardware.getCurrentDeviceList();
 	      });
@@ -662,9 +668,6 @@ this.BX = this.BX || {};
 	        return this.dialog.counter;
 	      }
 	    },
-	    userCounter: function userCounter() {
-	      return this.conference.common.userCount;
-	    },
 	    localize: function localize() {
 	      return ui_vue.BitrixVue.getFilteredPhrases('BX_IM_COMPONENT_CALL_');
 	    }
@@ -680,14 +683,11 @@ this.BX = this.BX || {};
 	    openChat: function openChat() {
 	      this.getApplication().toggleChat();
 	    },
-	    openUserList: function openUserList() {
-	      this.getApplication().toggleUserList();
-	    },
 	    getApplication: function getApplication() {
 	      return this.$Bitrix.Application.get();
 	    }
 	  },
-	  template: "\n\t\t<div class=\"bx-im-component-call-open-chat-button-container\">\n\t\t\t<div @click=\"openChat\" class=\"ui-btn ui-btn-sm ui-btn-icon-chat bx-im-component-call-open-chat-button\">\n\t\t\t\t{{ localize['BX_IM_COMPONENT_CALL_OPEN_CHAT'] }}\n\t\t\t\t<div v-if=\"dialogCounter > 0\" class=\"bx-im-component-call-open-chat-button-counter\">{{ dialogCounter }}</div>\n\t\t\t</div>\n\t\t\t\n\t\t\t<div @click=\"openUserList\" class=\"ui-btn ui-btn-sm ui-btn-icon-chat bx-im-component-call-open-user-list-button\">\n\t\t\t\t{{ localize['BX_IM_COMPONENT_CALL_OPEN_USER_LIST'] }}\n\t\t\t\t<div class=\"bx-im-component-call-open-chat-button-counter\">{{ userCounter }}</div>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div class=\"bx-im-component-call-open-chat-button-container\">\n\t\t\t<div @click=\"openChat\" class=\"ui-btn ui-btn-sm ui-btn-icon-chat bx-im-component-call-open-chat-button\">\n\t\t\t\t{{ localize['BX_IM_COMPONENT_CALL_OPEN_CHAT'] }}\n\t\t\t\t<div v-if=\"dialogCounter > 0\" class=\"bx-im-component-call-open-chat-button-counter\">{{ dialogCounter }}</div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	};
 
 	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -1381,7 +1381,7 @@ this.BX = this.BX || {};
 	    usersList: function usersList() {
 	      var _this = this;
 	      var users = this.conference.common.users.filter(function (user) {
-	        return !_this.presentersList.includes(user);
+	        return !_this.presentersList.includes(user) && _this.call.users[user] && [im_const.ConferenceUserState.Ready, im_const.ConferenceUserState.Connected].includes(_this.call.users[user].state);
 	      });
 	      return babelHelpers.toConsumableArray(users).sort(this.userSortFunction);
 	    },

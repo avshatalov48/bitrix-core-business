@@ -13,6 +13,7 @@ use Bitrix\Rest\PlacementTable;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\UserField\Callback;
 use Bitrix\Rest\Lang;
+use Bitrix\Rest\Exceptions;
 
 class UserFieldType extends \IRestService
 {
@@ -101,23 +102,23 @@ class UserFieldType extends \IRestService
 		return $result;
 	}
 
-	public static function add($param, $n, \CRestServer $server)
+	public static function add($param, $n, \CRestServer $server): bool
 	{
 		static::checkPermission($server);
 
 		$param = array_change_key_case($param, CASE_UPPER);
 
-		$userTypeId = toLower($param['USER_TYPE_ID']);
-		$placementHandler = $param['HANDLER'];
+		$userTypeId = mb_strtolower($param['USER_TYPE_ID'] ?? '');
+		$placementHandler = $param['HANDLER'] ?? '';
 
-		if($userTypeId == '')
+		if ($userTypeId == '')
 		{
-			throw new ArgumentNullException("USER_TYPE_ID");
+			throw new Exceptions\ArgumentNullException("USER_TYPE_ID");
 		}
 
-		if($placementHandler == '')
+		if ($placementHandler == '')
 		{
-			throw new ArgumentNullException("HANDLER");
+			throw new Exceptions\ArgumentNullException("HANDLER");
 		}
 
 		$appInfo = AppTable::getByClientId($server->getClientId());;
@@ -130,7 +131,7 @@ class UserFieldType extends \IRestService
 			'PLACEMENT_HANDLER' => $placementHandler,
 			'TITLE' => $userTypeId,
 			'ADDITIONAL' => $userTypeId,
-			'OPTIONS' => static::prepareOption($param['OPTIONS']),
+			'OPTIONS' => static::prepareOption($param['OPTIONS'] ?? null),
 		);
 
 		$placementBind = array_merge(
@@ -142,7 +143,7 @@ class UserFieldType extends \IRestService
 					'DESCRIPTION',
 				],
 				[
-					'TITLE' => $placementBind['TITLE']
+					'TITLE' => $placementBind['TITLE'] ?? null
 				]
 			)
 		);
@@ -154,7 +155,7 @@ class UserFieldType extends \IRestService
 		unset($placementBind['LANG_ALL']);
 
 		$result = PlacementTable::add($placementBind);
-		if(!$result->isSuccess())
+		if (!$result->isSuccess())
 		{
 			$errorMessage = $result->getErrorMessages();
 			throw new RestException(
@@ -194,7 +195,7 @@ class UserFieldType extends \IRestService
 
 		$param = array_change_key_case($param, CASE_UPPER);
 
-		$userTypeId = toLower($param['USER_TYPE_ID']);
+		$userTypeId = mb_strtolower($param['USER_TYPE_ID'] ?? '');
 
 		if($userTypeId == '')
 		{
@@ -224,7 +225,7 @@ class UserFieldType extends \IRestService
 					'DESCRIPTION',
 				],
 				[
-					'TITLE' => $updateFields['TITLE']
+					'TITLE' => $updateFields['TITLE'] ?? null
 				]
 			)
 		);
@@ -295,7 +296,7 @@ class UserFieldType extends \IRestService
 
 		$param = array_change_key_case($param, CASE_UPPER);
 
-		$userTypeId = toLower($param['USER_TYPE_ID']);
+		$userTypeId = mb_strtolower($param['USER_TYPE_ID'] ?? '');
 
 		if($userTypeId == '')
 		{

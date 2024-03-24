@@ -8,9 +8,9 @@ use Bitrix\Im\V2\Chat\EntityLink\CrmType;
 use Bitrix\Im\V2\Chat\EntityLink\MailType;
 use Bitrix\Im\V2\Chat\EntityLink\SonetType;
 use Bitrix\Im\V2\Chat\EntityLink\TasksType;
+use Bitrix\Im\V2\Chat\EntityLink\CallType;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Rest\RestConvertible;
-use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 
@@ -22,27 +22,24 @@ class EntityLink implements RestConvertible
 	public const TYPE_SONET = 'SONET_GROUP';
 	public const TYPE_CRM = 'CRM';
 	public const TYPE_MAIL = 'MAIL';
+	public const TYPE_CALL = 'CALL';
 
 	protected const HAS_URL = false;
 
 	private const CACHE_TTL = 18144000;
 
 	protected int $chatId;
-	protected string $id = '';
+	protected string $entityId = '';
 	protected string $type = '';
 	protected string $url = '';
 
-	private function __construct()
+	protected function __construct()
 	{
 	}
 
-	public static function getInstanceByChat(Chat $chat): self
+	public static function getInstance(Chat $chat): self
 	{
-		return static::getInstance($chat->getEntityType() ?? '', $chat->getEntityId() ?? '', $chat->getId() ?? 0);
-	}
-
-	public static function getInstance(string $type, string $id, int $chatId): self
-	{
+		$type = $chat->getEntityType() ?? '';
 		if ($type === self::TYPE_SONET && Loader::includeModule('socialnetwork'))
 		{
 			$instance = new SonetType();
@@ -57,7 +54,11 @@ class EntityLink implements RestConvertible
 		}
 		elseif ($type === self::TYPE_CRM && Loader::includeModule('crm'))
 		{
-			$instance = new CrmType();
+			$instance = new CrmType($chat->getEntityId() ?? '');
+		}
+		elseif ($type === self::TYPE_CALL && Loader::includeModule('crm'))
+		{
+			$instance = new CallType($chat->getEntityData1() ?? '');
 		}
 		elseif ($type === self::TYPE_MAIL && Loader::includeModule('mail'))
 		{
@@ -68,9 +69,9 @@ class EntityLink implements RestConvertible
 			$instance = new self();
 		}
 
-		$instance->type = $type;
-		$instance->id = $id;
-		$instance->chatId = $chatId;
+		$instance->type = $instance->type ?: $type;
+		$instance->chatId = $chat->getId() ?? 0;
+		$instance->entityId = $chat->getEntityId() ?? '';
 		$instance->fillUrl();
 
 		return $instance;
@@ -102,11 +103,21 @@ class EntityLink implements RestConvertible
 		$cache->endDataCache(['url' => $this->url]);
 	}
 
+	public static function cleanCache(int $chatId): void
+	{
+		Application::getInstance()->getCache()->cleanDir(static::getCacheDirByChatId($chatId));
+	}
+
 	private function getCacheDir(): string
 	{
-		$cacheSubDir = $this->chatId % 100;
+		return static::getCacheDirByChatId($this->chatId);
+	}
 
-		return "/bx/imc/chatentitylink/1/{$cacheSubDir}/{$this->chatId}";
+	private static function getCacheDirByChatId(int $chatId): string
+	{
+		$cacheSubDir = $chatId % 100;
+
+		return "/bx/imc/chatentitylink/1/{$cacheSubDir}/{$chatId}";
 	}
 
 	private function getCacheId(): string
@@ -119,6 +130,11 @@ class EntityLink implements RestConvertible
 		return '';
 	}
 
+	protected function getRestType(): string
+	{
+		return $this->type;
+	}
+
 	public static function getRestEntityName(): string
 	{
 		return 'entityLink';
@@ -127,8 +143,7 @@ class EntityLink implements RestConvertible
 	public function toRestFormat(array $option = []): array
 	{
 		return [
-			'id' => $this->id,
-			'type' => $this->type,
+			'type' => $this->getRestType(),
 			'url' => $this->url,
 		];
 	}
@@ -140,8 +155,7 @@ class EntityLink implements RestConvertible
 	public function toArray(array $options = []): array
 	{
 		return [
-			'ID' => $this->id,
-			'TYPE' => $this->type,
+			'TYPE' => $this->getRestType(),
 			'URL' => $this->url,
 		];
 	}

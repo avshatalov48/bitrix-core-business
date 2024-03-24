@@ -71,6 +71,9 @@ class ShopGroupAssistant
 		$group = GroupTable::getRow([
 			'filter' => ['=STRING_ID' => $groupCode],
 			'select' => ['ID'],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		]);
 
 		if (!$group)

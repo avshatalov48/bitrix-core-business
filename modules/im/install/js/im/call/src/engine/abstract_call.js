@@ -2,6 +2,7 @@ import {Type} from 'main.core'
 import {DesktopApi} from 'im.v2.lib.desktop-api';
 import {Logger} from './logger'
 import {CallType, CallEvent, CallState, CallEngine, Provider} from './engine'
+import {Hardware} from '../hardware';
 import Util from '../util'
 
 /**
@@ -46,12 +47,12 @@ export class AbstractCall
 		this.startDate = new Date(BX.prop.getString(params, "startDate", ""));
 
 		// media constraints
-		this.videoEnabled = params.videoEnabled === true;
+		this.videoEnabled = Hardware.isCameraOn;
 		this.videoHd = params.videoHd === true;
 		this.cameraId = params.cameraId || '';
 		this.microphoneId = params.microphoneId || '';
 
-		this.muted = params.muted === true;
+		this.muted = Hardware.isMicrophoneMuted;
 
 		this.wasConnected = false;
 
@@ -165,11 +166,6 @@ export class AbstractCall
 		tag = tag || "main";
 
 		this.localStreams[tag] = mediaStream;
-	};
-
-	isVideoEnabled()
-	{
-		return this.videoEnabled;
 	};
 
 	isAnyoneParticipating()

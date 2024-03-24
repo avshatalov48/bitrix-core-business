@@ -8,38 +8,65 @@ use Bitrix\Main\Loader;
 class CrmType extends EntityLink
 {
 	protected const HAS_URL = true;
+	protected const DYNAMIC_TYPE = 'DYNAMIC';
 
-	protected array $separatedEntityId;
+	protected string $crmType = '';
+	protected int $crmId = 0;
+
+	protected function __construct(string $entityId)
+	{
+		parent::__construct();
+		if (Loader::includeModule('crm'))
+		{
+			$this->extractCrmData($entityId);
+		}
+		$this->type = $this->crmType;
+	}
 
 	protected function getUrl(): string
 	{
-		if(!Loader::includeModule('crm'))
+		if($this->crmType === '' || $this->crmId === 0 || !Loader::includeModule('crm'))
 		{
 			return '';
 		}
 
-		$crmType = $this->getCrmEntityType();
-		$crmId = $this->getCrmEntityId();
+		return \Bitrix\Im\Integration\Crm\Common::getLink($this->crmType, $this->crmId);
+	}
 
-		if ($crmType === '' || $crmId === 0)
+	protected function getRestType(): string
+	{
+		if ($this->isExpectedType($this->type))
 		{
-			return '';
+			return $this->type;
 		}
 
-		return \Bitrix\Im\Integration\Crm\Common::getLink($crmType, $crmId);
+		return self::DYNAMIC_TYPE;
 	}
 
-	protected function getCrmEntityType(): string
+	protected function extractCrmData(string $rawCrmData): void
 	{
-		$this->separatedEntityId ??= explode('|', $this->id);
-
-		return $this->separatedEntityId[0] ?? '';
+		$separatedEntityId = explode('|', $rawCrmData);
+		$this->crmType = $separatedEntityId[0] ?? '';
+		$this->crmId = (int)($separatedEntityId[1] ?? 0);
 	}
 
-	protected function getCrmEntityId(): int
+	private function getExpectedType(): array
 	{
-		$this->separatedEntityId ??= explode('|', $this->id);
+		if (!Loader::includeModule('crm'))
+		{
+			return [];
+		}
 
-		return (int)($this->separatedEntityId[1] ?? 0);
+		return [
+			\CCrmOwnerType::LeadName => \CCrmOwnerType::LeadName,
+			\CCrmOwnerType::DealName => \CCrmOwnerType::DealName,
+			\CCrmOwnerType::ContactName => \CCrmOwnerType::ContactName,
+			\CCrmOwnerType::CompanyName => \CCrmOwnerType::CompanyName,
+		];
+	}
+
+	private function isExpectedType(string $type): bool
+	{
+		return isset($this->getExpectedType()[$type]);
 	}
 }

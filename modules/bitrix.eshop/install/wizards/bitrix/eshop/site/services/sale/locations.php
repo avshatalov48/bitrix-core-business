@@ -341,8 +341,6 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 						}
 					}
 
-					$DB->StartTransaction();
-
 					include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/csv_data.php");
 
 					$csvFile = new CCSVData();
@@ -414,8 +412,6 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 							}
 						}
 					}
-
-					$DB->Commit();
 
 					if ($bFinish)
 						unset($_SESSION["ZIP_POS"]);

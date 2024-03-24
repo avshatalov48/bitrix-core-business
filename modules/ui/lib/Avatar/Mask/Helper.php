@@ -47,7 +47,7 @@ class Helper
 				{
 					$maskId = $metaData['maskInfo']['id'];
 				}
-				else if ($res = Avatar\Mask\ItemToFileTable::getList([
+				else if ($res = Avatar\Model\ItemToFileTable::getList([
 					'select' => ['*'],
 					'filter' => ['FILE_ID' => $fileId],
 					'limit' => 1

@@ -2,8 +2,8 @@
 
 namespace Bitrix\Calendar\Rooms;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Error;
-use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Calendar\Internals\AccessTable;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Internals\LocationTable;
@@ -450,7 +450,7 @@ class Manager
 			return $this;
 		}
 
-		\CCalendarSect::CleanAccessTable();
+		\CCalendarSect::CleanAccessTable($this->room->getId());
 
 		return $this;
 	}
@@ -657,41 +657,36 @@ class Manager
 		{
 			return $this;
 		}
-
-		global $DB;
+		
 		$guestsId = [];
-		$idTemp = "(#ID#, ''),";
-		$updateString = '';
+		$eventsId = [];
 		$id = $this->room->getId();
 		$locationName = $this->room->getName();
 		$locationId = 'calendar_' . $id;
-
-		$events = $DB->Query("
-			SELECT ID, PARENT_ID, OWNER_ID, CREATED_BY, LOCATION
-			FROM b_calendar_event
-			WHERE LOCATION LIKE '" . $locationId . "%';
-		");
-
-		while ($event = $events->Fetch())
+		
+		$events = EventTable::query()
+			->setSelect(['ID', 'PARENT_ID', 'OWNER_ID', 'CREATED_BY', 'LOCATION'])
+			->whereLike('LOCATION', $locationId. '%')
+			->exec()
+		;
+		
+		while ($event = $events->fetch())
 		{
 			if ($event['ID'] === $event['PARENT_ID'])
 			{
 				$guestsId[] = $event['OWNER_ID'];
 			}
-			$updateString .= str_replace('#ID#', $event['ID'], $idTemp);
+			
+			$eventsId[] = $event['ID'];
 		}
-
-		if ($updateString)
+		
+		if (!empty($eventsId))
 		{
-			$updateString = substr($updateString, 0, -1);
-			$DB->Query("
-				INSERT INTO b_calendar_event (ID, LOCATION) 
-				VALUES ".$updateString."
-				ON DUPLICATE KEY UPDATE LOCATION = VALUES(LOCATION)
-			");
+			EventTable::updateMulti($eventsId, ['LOCATION' => '']);
+			
 			$guestsId = array_unique($guestsId);
 			$userId = \CCalendar::GetCurUserId();
-
+			
 			foreach ($guestsId as $guestId)
 			{
 				\CCalendarNotify::Send([

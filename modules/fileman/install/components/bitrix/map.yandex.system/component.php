@@ -41,6 +41,7 @@ if (!defined('BX_YMAP_SCRIPT_LOADED'))
 	else
 	{
 		$host = 'enterprise.api-maps.yandex.ru';
+		$arParams['API_KEY'] = CUtil::JSEscape($arParams['API_KEY']);
 	}
 
 	$arResult['MAPS_SCRIPT_URL'] = $scheme.'://'.$host.'/'.$arParams['YANDEX_VERSION'].'/?load=package.full&mode=release&lang='.$arParams['LOCALE'].'&wizard=bitrix';

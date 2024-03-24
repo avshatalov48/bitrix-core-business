@@ -32,6 +32,22 @@ export class StoreUpdater
 		return this.#setRecentSearchItems(recentSearchItems);
 	}
 
+	updateRecentWithChatParticipants(users): Promise
+	{
+		const recentItems = [];
+
+		users.forEach((user) => {
+			recentItems.push({
+				dialogId: user.id.toString(),
+			});
+		});
+
+		return Promise.all([
+			this.#userManager.setUsersToModel(users),
+			this.#setRecentItems(recentItems),
+		]);
+	}
+
 	#setRecentItems(items): Promise
 	{
 		return this.#store.dispatch('recent/store', items);

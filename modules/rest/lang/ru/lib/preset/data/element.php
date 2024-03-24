@@ -142,7 +142,7 @@ $MESS['REST_INTEGRATION_PATTERNS_18_DESCRIPTION'] = 'Создайте чатбо
 $MESS['REST_INTEGRATION_PATTERNS_18_INCOMING_QUERY_TITLE'] = 'Параметры';
 $MESS['REST_INTEGRATION_PATTERNS_18_INCOMING_QUERY_ITEMS_VALUE_0'] = 'Привет! Я чат-бот!';
 
-$MESS['REST_INTEGRATION_PATTERNS_19_TITLE'] = 'Передавать боту сообщения из чата';
+$MESS['REST_INTEGRATION_PATTERNS_19_TITLE_MSGVER_1'] = 'Передавать боту сообщения из чата';
 $MESS['REST_INTEGRATION_PATTERNS_19_DESCRIPTION'] = 'Создайте чатбота, который будет следить за перепиской в чате и сможет реагировать на ключевые слова';
 $MESS['REST_INTEGRATION_PATTERNS_19_INCOMING_QUERY_TITLE'] = 'Параметры';
 $MESS['REST_INTEGRATION_PATTERNS_19_INCOMING_QUERY_ITEMS_VALUE_0'] = 'Привет! Я чат-бот!';

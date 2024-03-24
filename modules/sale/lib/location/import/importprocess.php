@@ -818,6 +818,7 @@ final class ImportProcess extends Location\Util\Process
 			'entityName' => '\Bitrix\Sale\Location\Name\LocationTable',
 			'exactFields' => array('NAME', 'NAME_UPPER', 'LANGUAGE_ID', 'LOCATION_ID'),
 			'parameters' => array(
+				'autoIncrementFld' => 'ID',
 				'mtu' => $mtu
 			)
 		));
@@ -826,6 +827,7 @@ final class ImportProcess extends Location\Util\Process
 			'entityName' => '\Bitrix\Sale\Location\ExternalTable',
 			'exactFields' => array('SERVICE_ID', 'XML_ID', 'LOCATION_ID'),
 			'parameters' => array(
+				'autoIncrementFld' => 'ID',
 				'mtu' => $mtu
 			)
 		));
@@ -1827,33 +1829,60 @@ final class ImportProcess extends Location\Util\Process
 		return true;
 	}
 
-	public static function getIndexMap()
+	public static function getIndexMap(): array
 	{
 		$locationTable = Location\LocationTable::getTableName();
 		$locationNameTable = Location\Name\LocationTable::getTableName();
 		$locationExternalTable = Location\ExternalTable::getTableName();
 
-		return array(
-			'IX_SALE_LOCATION_MARGINS' => array('TABLE' => $locationTable, 'COLUMNS' => array('LEFT_MARGIN', 'RIGHT_MARGIN')),
-			'IX_SALE_LOCATION_MARGINS_REV' => array('TABLE' => $locationTable, 'COLUMNS' => array('RIGHT_MARGIN', 'LEFT_MARGIN')),
-			'IX_SALE_LOCATION_PARENT' => array('TABLE' => $locationTable, 'COLUMNS' => array('PARENT_ID')),
-			'IX_SALE_LOCATION_DL' => array('TABLE' => $locationTable, 'COLUMNS' => array('DEPTH_LEVEL')),
-			'IX_SALE_LOCATION_TYPE' => array('TABLE' => $locationTable, 'COLUMNS' => array('TYPE_ID')),
-			'IX_SALE_L_NAME_NAME_UPPER' => array('TABLE' => $locationNameTable, 'COLUMNS' => array('NAME_UPPER')),
-			'IX_SALE_L_NAME_LID_LID' => array('TABLE' => $locationNameTable, 'COLUMNS' => array('LOCATION_ID', 'LANGUAGE_ID')),
-			'IX_B_SALE_LOC_EXT_LID_SID' => array('TABLE' => $locationExternalTable, 'COLUMNS' => array('LOCATION_ID', 'SERVICE_ID')),
-			'IX_SALE_LOCATION_TYPE_MARGIN' => array('TABLE' => $locationTable, 'COLUMNS' => array('TYPE_ID', 'LEFT_MARGIN', 'RIGHT_MARGIN')),
+		if (Main\HttpApplication::getConnection()->getType() === 'pgsql')
+		{
+			return [
+				'ix_b_sale_location_left_margin_right_margin' => ['TABLE' => $locationTable, 'COLUMNS' => ['LEFT_MARGIN', 'RIGHT_MARGIN']],
+				'ix_b_sale_location_right_margin_left_margin' => ['TABLE' => $locationTable, 'COLUMNS' => ['RIGHT_MARGIN', 'LEFT_MARGIN']],
+				'ix_b_sale_location_parent_id' => ['TABLE' => $locationTable, 'COLUMNS' => ['PARENT_ID']],
+				'ix_b_sale_location_depth_level' => ['TABLE' => $locationTable, 'COLUMNS' => ['DEPTH_LEVEL']],
+				'ix_b_sale_location_type_id' => ['TABLE' => $locationTable, 'COLUMNS' => ['TYPE_ID']],
+				'ix_b_sale_location_type_id_left_margin_right_margin' => ['TABLE' => $locationTable, 'COLUMNS' => ['TYPE_ID', 'LEFT_MARGIN', 'RIGHT_MARGIN']],
+
+				'ix_b_sale_loc_name_name_upper' => ['TABLE' => $locationNameTable, 'COLUMNS' => ['NAME_UPPER']],
+				'ix_b_sale_loc_name_location_id_language_id' => ['TABLE' => $locationNameTable, 'COLUMNS' => ['LOCATION_ID', 'LANGUAGE_ID']],
+
+				'ix_b_sale_loc_ext_location_id_service_id' => ['TABLE' => $locationExternalTable, 'COLUMNS' => ['LOCATION_ID', 'SERVICE_ID']],
+
+				// legacy
+				'ix_b_sale_location_country_id' => ['TABLE' => $locationTable, 'COLUMNS' => ['COUNTRY_ID']],
+				'ix_b_sale_location_region_id' => ['TABLE' => $locationTable, 'COLUMNS' => ['REGION_ID']],
+				'ix_b_sale_location_city_id' => ['TABLE' => $locationTable, 'COLUMNS' => ['CITY_ID']],
+
+				// obsolete
+				'ix_b_sale_location_1' => ['TABLE' => $locationTable, 'COLUMNS' => ['COUNTRY_ID'], 'DROP_ONLY' => true],
+				'ix_b_sale_location_2' => ['TABLE' => $locationTable, 'COLUMNS' => ['REGION_ID'], 'DROP_ONLY' => true],
+				'ix_b_sale_location_3' => ['TABLE' => $locationTable, 'COLUMNS' => ['CITY_ID'], 'DROP_ONLY' => true],
+			];
+		}
+
+		return [
+			'IX_SALE_LOCATION_MARGINS' => ['TABLE' => $locationTable, 'COLUMNS' => ['LEFT_MARGIN', 'RIGHT_MARGIN']],
+			'IX_SALE_LOCATION_MARGINS_REV' => ['TABLE' => $locationTable, 'COLUMNS' => ['RIGHT_MARGIN', 'LEFT_MARGIN']],
+			'IX_SALE_LOCATION_PARENT' => ['TABLE' => $locationTable, 'COLUMNS' => ['PARENT_ID']],
+			'IX_SALE_LOCATION_DL' => ['TABLE' => $locationTable, 'COLUMNS' => ['DEPTH_LEVEL']],
+			'IX_SALE_LOCATION_TYPE' => ['TABLE' => $locationTable, 'COLUMNS' => ['TYPE_ID']],
+			'IX_SALE_L_NAME_NAME_UPPER' => ['TABLE' => $locationNameTable, 'COLUMNS' => ['NAME_UPPER']],
+			'IX_SALE_L_NAME_LID_LID' => ['TABLE' => $locationNameTable, 'COLUMNS' => ['LOCATION_ID', 'LANGUAGE_ID']],
+			'IX_B_SALE_LOC_EXT_LID_SID' => ['TABLE' => $locationExternalTable, 'COLUMNS' => ['LOCATION_ID', 'SERVICE_ID']],
+			'IX_SALE_LOCATION_TYPE_MARGIN' => ['TABLE' => $locationTable, 'COLUMNS' => ['TYPE_ID', 'LEFT_MARGIN', 'RIGHT_MARGIN']],
 
 			// legacy
-			'IXS_LOCATION_COUNTRY_ID' => array('TABLE' => $locationTable, 'COLUMNS' => array('COUNTRY_ID')),
-			'IXS_LOCATION_REGION_ID' => array('TABLE' => $locationTable, 'COLUMNS' => array('REGION_ID')),
-			'IXS_LOCATION_CITY_ID' => array('TABLE' => $locationTable, 'COLUMNS' => array('CITY_ID')),
+			'IXS_LOCATION_COUNTRY_ID' => ['TABLE' => $locationTable, 'COLUMNS' => ['COUNTRY_ID']],
+			'IXS_LOCATION_REGION_ID' => ['TABLE' => $locationTable, 'COLUMNS' => ['REGION_ID']],
+			'IXS_LOCATION_CITY_ID' => ['TABLE' => $locationTable, 'COLUMNS' => ['CITY_ID']],
 
 			// obsolete
-			'IX_B_SALE_LOCATION_1' => array('TABLE' => $locationTable, 'COLUMNS' => array('COUNTRY_ID'), 'DROP_ONLY' => true),
-			'IX_B_SALE_LOCATION_2' => array('TABLE' => $locationTable, 'COLUMNS' => array('REGION_ID'), 'DROP_ONLY' => true),
-			'IX_B_SALE_LOCATION_3' => array('TABLE' => $locationTable, 'COLUMNS' => array('CITY_ID'), 'DROP_ONLY' => true),
-		);
+			'IX_B_SALE_LOCATION_1' => ['TABLE' => $locationTable, 'COLUMNS' => ['COUNTRY_ID'], 'DROP_ONLY' => true],
+			'IX_B_SALE_LOCATION_2' => ['TABLE' => $locationTable, 'COLUMNS' => ['REGION_ID'], 'DROP_ONLY' => true],
+			'IX_B_SALE_LOCATION_3' => ['TABLE' => $locationTable, 'COLUMNS' => ['CITY_ID'], 'DROP_ONLY' => true],
+		];
 	}
 
 	protected function dropIndexes($certainIndex = false)
@@ -2289,14 +2318,18 @@ final class ImportProcess extends Location\Util\Process
 
 	protected static function getTranslatedName($names, $languageId)
 	{
-		$languageIdMapped = 	ToUpper(Location\Admin\NameHelper::mapLanguage($languageId));
-		$languageId = 			ToUpper($languageId);
+		$languageIdMapped = mb_strtoupper(Location\Admin\NameHelper::mapLanguage($languageId));
+		$languageId = mb_strtoupper($languageId);
 
-		if(is_array($names[$languageId]) && (string) $names[$languageId]['NAME'] != '')
+		if ((string)($names[$languageId]['NAME'] ?? null) !== '')
+		{
 			return $names[$languageId];
+		}
 
-		if(is_array($names[$languageIdMapped]) && (string) $names[$languageIdMapped]['NAME'] != '')
+		if ((string)($names[$languageIdMapped]['NAME'] ?? null) !== '')
+		{
 			return $names[$languageIdMapped];
+		}
 
 		return $names['EN'];
 	}

@@ -39,7 +39,7 @@ function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAns
 	$arMultiSelect = array();
 	$arAddParams = (is_array($arAddParams) ? $arAddParams : array("bGetMemoStat" => $arAddParams));
 
-	$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID] = (is_array($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]) ? $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID] : array());
+	$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID] = (isset($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]) && is_array($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]) ? $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID] : array());
 
 	if (empty($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]))
 	{
@@ -94,7 +94,7 @@ function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAns
 					break;
 				}
 			}
-			$event_id = intval($arAddParams["bRestoreVotedData"] == "Y" && !!$_SESSION["VOTE"]["VOTES"][$VOTE_ID] ?
+			$event_id = intval(isset($arAddParams["bRestoreVotedData"]) && $arAddParams["bRestoreVotedData"] == "Y" && isset($_SESSION["VOTE"]["VOTES"][$VOTE_ID]) && !!$_SESSION["VOTE"]["VOTES"][$VOTE_ID] ?
 				$_SESSION["VOTE"]["VOTES"][$VOTE_ID] : 0);
 			if ($event_id > 0)
 			{

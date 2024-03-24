@@ -5,15 +5,22 @@ IncludeModuleLangFile(__FILE__);
 class blogTextParser extends CTextParser
 {
 	public $bPublic = false;
+	public $bPreview = false;
 	public $pathToUserEntityId = false;
 	public $pathToUserEntityType = false;
 	public $smilesGallery = 0;
 	public $maxStringLen = 100;
-	
+
+	public $blogImageSizeEvents = null;
+	public $arUserfields = [];
+
 	private $arImages = array();
 	
 	public $showedImages = array();
-	
+
+	public $isSonetLog = false;
+	public $MaxStringLen = null;
+
 //	max sizes for show image in popup
 	const IMAGE_MAX_SHOWING_WIDTH = 1000;
 	const IMAGE_MAX_SHOWING_HEIGHT = 1000;
@@ -31,52 +38,71 @@ class blogTextParser extends CTextParser
 		$this->ajaxPage = $GLOBALS["APPLICATION"]->GetCurPageParam("", array("bxajaxid", "logout"));
 		$this->blogImageSizeEvents = GetModuleEvents("blog", "BlogImageSize", true);
 		$this->arUserfields = array();
-		$this->bPublic = (is_array($arParams) && $arParams["bPublic"]);
+		$this->bPublic = (is_array($arParams) && ($arParams["bPublic"] ?? false));
+		$this->bPreview = (is_array($arParams) && ($arParams["bPreview"] ?? false));
 		$this->smilesGallery = \COption::GetOptionInt("blog", "smile_gallery_id", 0);
 	}
 
 	public function convert($text, $bPreview = True, $arImages = array(), $allow = array("HTML" => "N", "ANCHOR" => "Y", "BIU" => "Y", "IMG" => "Y", "QUOTE" => "Y", "CODE" => "Y", "FONT" => "Y", "LIST" => "Y", "SMILES" => "Y", "NL2BR" => "N", "VIDEO" => "Y", "TABLE" => "Y", "CUT_ANCHOR" => "N", "SHORT_ANCHOR" => "N"), $arParams = Array())
 	{
 		if(!is_array($arParams) && $arParams <> '')
+		{
 			$type = $arParams;
+		}
 		elseif(is_array($arParams))
-			$type = $arParams["type"];
-		if(intval($arParams["imageWidth"]) > 0)
+		{
+			$type = $arParams["type"] ?? '';
+		}
+		if (intval($arParams["imageWidth"] ?? 0) > 0)
+		{
 			$this->imageWidth = intval($arParams["imageWidth"]);
-		if(intval($arParams["imageHeight"]) > 0)
+		}
+		if (intval($arParams["imageHeight"] ?? 0) > 0)
+		{
 			$this->imageHeight = intval($arParams["imageHeight"]);
-		if($arParams["pathToUser"] <> '')
+		}
+		if (($arParams["pathToUser"] ?? '') <> '')
+		{
 			$this->pathToUser = $arParams["pathToUser"];
-		if(!empty($arParams["pathToUserEntityType"]) && $arParams["pathToUserEntityType"] <> '')
+		}
+		if (!empty($arParams["pathToUserEntityType"]) && $arParams["pathToUserEntityType"] <> '')
+		{
 			$this->pathToUserEntityType = $arParams["pathToUserEntityType"];
-		if(intval($arParams["pathToUserEntityId"]) > 0)
+		}
+		if (intval($arParams["pathToUserEntityId"] ?? 0) > 0)
+		{
 			$this->pathToUserEntityId = intval($arParams["pathToUserEntityId"]);
+		}
 		$this->parser_nofollow = COption::GetOptionString("blog", "parser_nofollow", "N");
 
 		$this->type = ($type == "rss" ? "rss" : "html");
-		$this->isSonetLog = $arParams["isSonetLog"];
+		$this->isSonetLog = $arParams["isSonetLog"] ?? false;
 
 		$this->allow = array(
-			"HTML" => ($allow["HTML"] == "Y" ? "Y" : "N"),
-			"NL2BR" => ($allow["NL2BR"] == "Y" ? "Y" : "N"),
-			"CODE" => ($allow["CODE"] == "N" ? "N" : "Y"),
-			"VIDEO" => ($allow["VIDEO"] == "N" ? "N" : "Y"),
-			"ANCHOR" => ($allow["ANCHOR"] == "N" ? "N" : "Y"),
-			"BIU" => ($allow["BIU"] == "N" ? "N" : "Y"),
-			"IMG" => ($allow["IMG"] == "N" ? "N" : "Y"),
-			"QUOTE" => ($allow["QUOTE"] == "N" ? "N" : "Y"),
-			"FONT" => ($allow["FONT"] == "N" ? "N" : "Y"),
-			"LIST" => ($allow["LIST"] == "N" ? "N" : "Y"),
-			"SMILES" => ($allow["SMILES"] == "N" ? "N" : "Y"),
-			"TABLE" => ($allow["TABLE"] == "N" ? "N" : "Y"),
-			"ALIGN" => ($allow["ALIGN"] == "N" ? "N" : "Y"),
-			"CUT_ANCHOR" => ($allow["CUT_ANCHOR"] == "Y" ? "Y" : "N"),
-			"SHORT_ANCHOR" => ($allow["SHORT_ANCHOR"] == "Y" ? "Y" : "N"),
-			"USER" => ($allow["USER"] == "N" ? "N" : "Y"),
-			"USER_LINK" => ($allow["USER_LINK"] == "N" ? "N" : "Y"),
-			"TAG" => ($allow["TAG"] == "N" ? "N" : "Y"),
-			'SPOILER' => ($allow['SPOILER'] === 'N' ? 'N' : 'Y'),
-			"USERFIELDS" => (is_array($allow["USERFIELDS"]) ? $allow["USERFIELDS"] : array())
+			"HTML" => (($allow["HTML"] ?? null) == "Y" ? "Y" : "N"),
+			"NL2BR" => (($allow["NL2BR"] ?? null) == "Y" ? "Y" : "N"),
+			"CODE" => (($allow["CODE"] ?? null) == "N" ? "N" : "Y"),
+			"VIDEO" => (($allow["VIDEO"] ?? null) == "N" ? "N" : "Y"),
+			"ANCHOR" => (($allow["ANCHOR"] ?? null) == "N" ? "N" : "Y"),
+			"BIU" => (($allow["BIU"] ?? null) == "N" ? "N" : "Y"),
+			"IMG" => (($allow["IMG"] ?? null) == "N" ? "N" : "Y"),
+			"QUOTE" => (($allow["QUOTE"] ?? null) == "N" ? "N" : "Y"),
+			"FONT" => (($allow["FONT"] ?? null) == "N" ? "N" : "Y"),
+			"LIST" => (($allow["LIST"] ?? null) == "N" ? "N" : "Y"),
+			"SMILES" => (($allow["SMILES"] ?? null) == "N" ? "N" : "Y"),
+			"TABLE" => (($allow["TABLE"] ?? null) == "N" ? "N" : "Y"),
+			"ALIGN" => (($allow["ALIGN"] ?? null) == "N" ? "N" : "Y"),
+			"CUT_ANCHOR" => (($allow["CUT_ANCHOR"] ?? null) == "Y" ? "Y" : "N"),
+			"SHORT_ANCHOR" => (($allow["SHORT_ANCHOR"] ?? null) == "Y" ? "Y" : "N"),
+			"USER" => (($allow["USER"] ?? null) == "N" ? "N" : "Y"),
+			"USER_LINK" => (($allow["USER_LINK"] ?? null) == "N" ? "N" : "Y"),
+			"TAG" => (($allow["TAG"] ?? null) == "N" ? "N" : "Y"),
+			'SPOILER' => (($allow['SPOILER'] ?? null) === 'N' ? 'N' : 'Y'),
+			"USERFIELDS" => (
+				(isset($allow["USERFIELDS"]) && is_array($allow["USERFIELDS"]))
+				? $allow["USERFIELDS"]
+				: []
+			)
 		);
 		if (!empty($this->arUserfields))
 			$this->allow["USERFIELDS"] = array_merge($this->allow["USERFIELDS"], $this->arUserfields);
@@ -102,7 +128,7 @@ class blogTextParser extends CTextParser
 
 	public static function ParserCut(&$text, &$obj)
 	{
-		if ($obj->bPreview)
+		if (($obj instanceof blogTextParser) && $obj->bPreview)
 		{
 			$text = preg_replace("#^(.*?)<cut[\s]*(/>|>).*?$#is", "\\1", $text);
 			$text = preg_replace("#^(.*?)\[cut[\s]*(/\]|\]).*?$#is", "\\1", $text);
@@ -114,7 +140,7 @@ class blogTextParser extends CTextParser
 	}
 	public static function ParserCutAfter(&$text, &$obj)
 	{
-		if (!$obj->bPreview)
+		if (!($obj instanceof blogTextParser) || !$obj->bPreview)
 		{
 			$text = preg_replace("#\[cut[\s]*(/\]|\])#is", "<a name=\"cut\"></a>", $text);
 		}
@@ -149,7 +175,10 @@ class blogTextParser extends CTextParser
 
 	public static function ParserTag(&$text, &$obj)
 	{
-		if($obj->allow["TAG"] != "N" && is_callable(array($obj, 'convert_blog_tag')))
+		if (
+			($obj->allow["TAG"] ?? null) !== "N"
+			&& is_callable(array($obj, 'convert_blog_tag'))
+		)
 		{
 			$text = preg_replace_callback(
 				"/\[tag(?:[^\]])*\](.+?)\[\/tag\]/is".BX_UTF_PCRE_MODIFIER,
@@ -600,7 +629,7 @@ class CBlogTools
 				}
 				else
 				{
-					if (preg_match("/[;&<>\"]/", $v))
+					if (preg_match("/[;&<>\"]/", ($v ?? '')))
 						$res[$k] = htmlspecialcharsex($v);
 					else
 						$res[$k] = $v;

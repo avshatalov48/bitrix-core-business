@@ -9,67 +9,66 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 	// Calc function
 	public static function CalcUserVoteForumPost($arConfigs)
 	{
-		global $DB;
-
-		$err_mess = (CRatings::err_mess())."<br>Function: CalcUserVoteForumTopic<br>Line: ";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		CRatings::AddComponentResults($arConfigs);
 
-		$strSql = "DELETE FROM b_rating_component_results WHERE RATING_ID = '".intval($arConfigs['RATING_ID'])."' AND COMPLEX_NAME = '".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$strSql = "DELETE FROM b_rating_component_results WHERE RATING_ID = '".intval($arConfigs['RATING_ID'])."' AND COMPLEX_NAME = '".$helper->forSql($arConfigs['COMPLEX_NAME'])."'";
+		$connection->query($strSql);
 
 		$strSql = "INSERT INTO b_rating_component_results (RATING_ID, MODULE_ID, RATING_TYPE, NAME, COMPLEX_NAME, ENTITY_ID, ENTITY_TYPE_ID, CURRENT_VALUE)
 					SELECT
 						'".intval($arConfigs['RATING_ID'])."'  RATING_ID,
-						'".$DB->ForSql($arConfigs['MODULE_ID'])."'  MODULE_ID,
-						'".$DB->ForSql($arConfigs['RATING_TYPE'])."'  RATING_TYPE,
-						'".$DB->ForSql($arConfigs['NAME'])."'  NAME,
-						'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
+						'".$helper->forSql($arConfigs['MODULE_ID'])."'  MODULE_ID,
+						'".$helper->forSql($arConfigs['RATING_TYPE'])."'  RATING_TYPE,
+						'".$helper->forSql($arConfigs['NAME'])."' RATING_NAME,
+						'".$helper->forSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
 						FM.AUTHOR_ID as ENTITY_ID,
-						'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
+						'".$helper->forSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
 						SUM(RVE.VALUE)*".floatval($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
 					FROM
 						b_rating_voting RV LEFT JOIN b_forum_message FM ON RV.ENTITY_ID = FM.ID,
 						b_rating_vote RVE
 					WHERE
 						RV.ENTITY_TYPE_ID = 'FORUM_POST' AND FM.AUTHOR_ID > 0
-					AND RVE.RATING_VOTING_ID = RV.ID".(intval($arConfigs['CONFIG']['LIMIT']) > 0 ? " AND RVE.CREATED > DATE_SUB(NOW(), INTERVAL ".intval($arConfigs['CONFIG']['LIMIT'])." DAY)" : "")."
+					AND RVE.RATING_VOTING_ID = RV.ID".(intval($arConfigs['CONFIG']['LIMIT']) > 0 ? " AND RVE.CREATED > " . $helper->addDaysToDateTime(-intval($arConfigs['CONFIG']['LIMIT'])) : "")."
 					GROUP BY AUTHOR_ID";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$connection->query($strSql);
 
 		return true;
 	}
 
 	public static function CalcUserVoteForumTopic($arConfigs)
 	{
-		global $DB;
-
-		$err_mess = (CRatings::err_mess())."<br>Function: CalcUserVoteForumTopic<br>Line: ";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		CRatings::AddComponentResults($arConfigs);
 
-		$strSql = "DELETE FROM b_rating_component_results WHERE RATING_ID = '".intval($arConfigs['RATING_ID'])."' AND COMPLEX_NAME = '".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$strSql = "DELETE FROM b_rating_component_results WHERE RATING_ID = '".intval($arConfigs['RATING_ID'])."' AND COMPLEX_NAME = '".$helper->forSql($arConfigs['COMPLEX_NAME'])."'";
+		$connection->Query($strSql);
 
 		$strSql = "INSERT INTO b_rating_component_results (RATING_ID, MODULE_ID, RATING_TYPE, NAME, COMPLEX_NAME, ENTITY_ID, ENTITY_TYPE_ID, CURRENT_VALUE)
 					SELECT
 						'".intval($arConfigs['RATING_ID'])."'  RATING_ID,
-						'".$DB->ForSql($arConfigs['MODULE_ID'])."'  MODULE_ID,
-						'".$DB->ForSql($arConfigs['RATING_TYPE'])."'  RATING_TYPE,
-						'".$DB->ForSql($arConfigs['NAME'])."'  NAME,
-						'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
+						'".$helper->forSql($arConfigs['MODULE_ID'])."'  MODULE_ID,
+						'".$helper->forSql($arConfigs['RATING_TYPE'])."'  RATING_TYPE,
+						'".$helper->forSql($arConfigs['NAME'])."' RATING_NAME,
+						'".$helper->forSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
 						FT.USER_START_ID  ENTITY_ID,
-						'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
+						'".$helper->forSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
 						SUM(RVE.VALUE)*".floatval($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
 					FROM
 						b_rating_voting RV LEFT JOIN b_forum_topic FT ON RV.ENTITY_ID = FT.ID,
 						b_rating_vote RVE
 					WHERE
 						RV.ENTITY_TYPE_ID = 'FORUM_TOPIC' AND FT.USER_START_ID > 0
-					AND RVE.RATING_VOTING_ID = RV.ID".(intval($arConfigs['CONFIG']['LIMIT']) > 0 ? " AND RVE.CREATED > DATE_SUB(NOW(), INTERVAL ".intval($arConfigs['CONFIG']['LIMIT'])." DAY)" : "")."
+					AND RVE.RATING_VOTING_ID = RV.ID".(intval($arConfigs['CONFIG']['LIMIT']) > 0 ? " AND RVE.CREATED > " . $helper->addDaysToDateTime(-intval($arConfigs['CONFIG']['LIMIT'])) : "")."
 					GROUP BY USER_START_ID";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+
+		$connection->query($strSql);
 
 		return true;
 	}
@@ -77,7 +76,8 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 	public static function CalcUserRatingForumActivity($arConfigs)
 	{
 		global $DB;
-
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 		$err_mess = (CRatings::err_mess())."<br>Function: CalcUserRatingForumActivity<br>Line: ";
 
 		CRatings::AddComponentResults($arConfigs);
@@ -92,7 +92,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 					USER_START_ID as ENTITY_ID,
 					COUNT(*)*".floatval($arConfigs['CONFIG']['ALL_TOPIC_COEF'])." as CURRENT_VALUE
 				FROM b_forum_topic
-				WHERE START_DATE  < DATE_SUB(NOW(), INTERVAL 30 DAY)
+				WHERE START_DATE  < " . $helper->addDaysToDateTime(-30) . "
 				GROUP BY USER_START_ID
 				UNION ALL ";
 		}
@@ -103,7 +103,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 					AUTHOR_ID as ENTITY_ID,
 					COUNT(*)*".floatval($arConfigs['CONFIG']['ALL_POST_COEF'])." as CURRENT_VALUE
 				FROM b_forum_message
-				WHERE POST_DATE  < DATE_SUB(NOW(), INTERVAL 30 DAY)
+				WHERE POST_DATE  < " . $helper->addDaysToDateTime(-30) . "
 				GROUP BY AUTHOR_ID
 				UNION ALL ";
 		}
@@ -122,11 +122,11 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 
 				SELECT
 					AUTHOR_ID as ENTITY_ID,
-					SUM(IF(TO_DAYS(POST_DATE) > TO_DAYS(NOW())-1, 1, 0))*".floatval($arConfigs['CONFIG']['TODAY_POST_COEF'])." +
-					SUM(IF(TO_DAYS(POST_DATE) > TO_DAYS(NOW())-7, 1, 0))*".floatval($arConfigs['CONFIG']['WEEK_POST_COEF'])."+
+					SUM(case when " . $helper->formatDate('YYYY-MM-DD', 'POST_DATE') . " > " . $helper->formatDate('YYYY-MM-DD', $helper->addDaysToDateTime(-1)) . " then 1 else 0 end)*".floatval($arConfigs['CONFIG']['TODAY_POST_COEF'])." +
+					SUM(case when " . $helper->formatDate('YYYY-MM-DD', 'POST_DATE') . " > " . $helper->formatDate('YYYY-MM-DD', $helper->addDaysToDateTime(-7)) . " then 1 else 0 end)*".floatval($arConfigs['CONFIG']['WEEK_POST_COEF'])."+
 					COUNT(*)*".floatval($arConfigs['CONFIG']['MONTH_POST_COEF'])." as CURRENT_VALUE
 				FROM b_forum_message
-				WHERE POST_DATE  > DATE_SUB(NOW(), INTERVAL 30 DAY)
+				WHERE POST_DATE  > " . $helper->addDaysToDateTime(-30) . "
 				GROUP BY AUTHOR_ID
 
 				UNION ALL
@@ -134,11 +134,11 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 
 				SELECT
 					USER_START_ID as ENTITY_ID,
-					SUM(IF(TO_DAYS(START_DATE) > TO_DAYS(NOW())-1, 1, 0))*".floatval($arConfigs['CONFIG']['TODAY_TOPIC_COEF'])." +
-					SUM(IF(TO_DAYS(START_DATE) > TO_DAYS(NOW())-7, 1, 0))*".floatval($arConfigs['CONFIG']['WEEK_TOPIC_COEF'])." +
+					SUM(case when " . $helper->formatDate('YYYY-MM-DD', 'START_DATE') . " > " . $helper->formatDate('YYYY-MM-DD', $helper->addDaysToDateTime(-1)) . " then 1 else 0 end)*".floatval($arConfigs['CONFIG']['TODAY_TOPIC_COEF'])." +
+					SUM(case when " . $helper->formatDate('YYYY-MM-DD', 'START_DATE') . " > " . $helper->formatDate('YYYY-MM-DD', $helper->addDaysToDateTime(-7)) . " then 1 else 0 end)*".floatval($arConfigs['CONFIG']['WEEK_TOPIC_COEF'])." +
 					COUNT(*)*".floatval($arConfigs['CONFIG']['MONTH_TOPIC_COEF'])." as CURRENT_VALUE
 				FROM b_forum_topic
-				WHERE START_DATE  > DATE_SUB(NOW(), INTERVAL 30 DAY)
+				WHERE START_DATE  > " . $helper->addDaysToDateTime(-30) . "
 				GROUP BY USER_START_ID
 			) q
 			WHERE ENTITY_ID > 0

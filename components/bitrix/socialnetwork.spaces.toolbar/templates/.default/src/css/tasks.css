@@ -47,3 +47,7 @@
 .main-grid-fixed-top {
 	display: none;
 }
+
+.sn-spaces-tasks-view-list-menu .menu-popup-item.--selected {
+	background-color: #f5f5f6;
+}

@@ -183,7 +183,7 @@ class Manager
 
 	public static function deleteInactiveSession(string $sessionId): Result
 	{
-		$session = static::getList(['ID' => $sessionId]);
+		$session = static::getList(['=ID' => $sessionId]);
 
 		$result = new Result();
 		if (!$session)
@@ -210,7 +210,7 @@ class Manager
 	public static function isDebugWorkflow(string $workflowId): bool
 	{
 		return (bool)DebuggerSessionWorkflowContextTable::getRow([
-			'filter' => ['WORKFLOW_ID' => $workflowId],
+			'filter' => ['=WORKFLOW_ID' => $workflowId],
 		]);
 	}
 

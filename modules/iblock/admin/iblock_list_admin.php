@@ -5596,23 +5596,7 @@ if (!empty($productLimits))
 	</div><?
 }
 
-// stepper
-if ($bCatalog && !$isChangeVariationRequest && $pageConfig['USE_NEW_CARD'])
-{
-	echo \Bitrix\Main\Update\Stepper::getHtml('catalog');
-}
 $lAdmin->EndPrologContent();
-
-$enableInstagram = Loader::includeModule('crm') && Instagram::isAvailable() && Instagram::isActiveStatus();
-if ($enableInstagram)
-{
-	$lAdmin->setFilterPresets([
-		'import_instagram' => [
-			'name' => GetMessage('IBLIST_PRODUCTS_INSTAGRAM'),
-			'fields' => ['SECTION_ID' => Instagram::getSectionId()],
-		],
-	]);
-}
 
 $lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
@@ -5636,11 +5620,6 @@ if ($pageConfig['IBLOCK_EDIT'] && CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBL
 		'</a>',
 		EndNote()
 	;
-}
-
-if ($publicMode && !$bExcel && $enableInstagram)
-{
-	$APPLICATION->IncludeComponent('bitrix:crm.order.import.instagram.observer', '');
 }
 
 if ($bCatalog && !$isChangeVariationRequest && $pageConfig['USE_NEW_CARD'])
@@ -5671,23 +5650,6 @@ if ($bCatalog && !$isChangeVariationRequest && $pageConfig['USE_NEW_CARD'])
 		});
 	</script>
 	<?php
-
-	if (Loader::includeModule('pull'))
-	{
-		Extension::load('ui.nofiticaion');
-		?>
-		<script>
-			BX.addCustomEvent("onPullEvent-catalog", function(command, params) {
-				if (command === 'notification-balloon')
-				{
-					BX.UI.Notification.Center.notify({
-						content: params.message,
-					});
-				}
-			});
-		</script>
-		<?php
-	}
 }
 elseif ($bCatalog && !$isChangeVariationRequest && $publicMode)
 {
@@ -5705,12 +5667,6 @@ elseif ($bCatalog && !$isChangeVariationRequest && $publicMode)
 		});
 	</script>
 	<?php
-}
-
-if ($pageConfig['PUBLIC_CRM_CATALOG'])
-{
-	$urlBuilder->openSettingsPage();
-	$urlBuilder->subscribeOnAfterSettingsSave();
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

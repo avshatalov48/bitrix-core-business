@@ -1,10 +1,11 @@
 <?php
+
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Highloadblock as HL;
 
 // admin initialization
-define("ADMIN_MODULE_NAME", "highloadblock");
+const ADMIN_MODULE_NAME = 'highloadblock';
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 global $APPLICATION, $USER, $USER_FIELD_MANAGER;
@@ -17,6 +18,9 @@ if (!CModule::IncludeModule(ADMIN_MODULE_NAME))
 }
 
 // get entity settings
+$canEdit = false;
+$canDelete = false;
+
 $hblockName = '';
 $hlblock = null;
 $ENTITY_ID = 0;
@@ -103,9 +107,18 @@ unset($arHeader);
 
 $lAdmin->AddHeaders($arHeaders);
 
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 if (!in_array($by, $lAdmin->GetVisibleHeaderColumns(), true))
 {
 	$by = 'ID';
+}
+$getListOrder = [
+	$by => $order,
+];
+if ($by !== 'ID')
+{
+	$getListOrder['ID'] = 'ASC';
 }
 
 // add filter
@@ -119,7 +132,8 @@ $USER_FIELD_MANAGER->AdminListAddFilterFields($ufEntityId, $filterFields);
 
 $filter = $lAdmin->InitFilter($filterFields);
 
-if (!empty($find_id))
+$find_id = (int)($find_id ?? 0);
+if ($find_id > 0)
 {
 	$filterValues['ID'] = $find_id;
 }
@@ -136,51 +150,56 @@ $filter = new CAdminFilter(
 // group actions
 if($lAdmin->EditAction() && $canEdit)
 {
-	foreach($FIELDS as $ID=>$arFields)
+	foreach($lAdmin->GetEditFields() as $ID => $arFields)
 	{
 		$ID = (int)$ID;
 		if ($ID <= 0)
 			continue;
 
-		if(!$lAdmin->IsUpdated($ID))
+		if (!$lAdmin->IsUpdated($ID))
 			continue;
 
 		$entity_data_class::update($ID, $arFields);
 	}
 }
 
-if($arID = $lAdmin->GroupAction())
+$arID = $lAdmin->GroupAction();
+if (!empty($arID) && is_array($arID))
 {
-	if($_REQUEST['action_target']=='selected')
+	$actionId = $lAdmin->GetAction();
+	if ($actionId !== null)
 	{
-		$arID = array();
-
-		$rsData = $entity_data_class::getList(array(
-			"select" => array('ID'),
-			"filter" => $filterValues
-		));
-
-		while($arRes = $rsData->Fetch())
-			$arID[] = $arRes['ID'];
-	}
-
-	foreach ($arID as $ID)
-	{
-		$ID = (int)$ID;
-
-		if (!$ID)
+		if ($lAdmin->IsGroupActionToAll())
 		{
-			continue;
+			$arID = array();
+
+			$rsData = $entity_data_class::getList(array(
+				"select" => array('ID'),
+				"filter" => $filterValues
+			));
+
+			while ($arRes = $rsData->Fetch())
+				$arID[] = $arRes['ID'];
 		}
 
-		switch($_REQUEST['action'])
+		foreach ($arID as $ID)
 		{
-			case "delete":
-				if ($canDelete)
-				{
-					$entity_data_class::delete($ID);
-				}
-				break;
+			$ID = (int)$ID;
+
+			if (!$ID)
+			{
+				continue;
+			}
+
+			switch ($actionId)
+			{
+				case "delete":
+					if ($canDelete)
+					{
+						$entity_data_class::delete($ID);
+					}
+					break;
+			}
 		}
 	}
 }
@@ -192,6 +211,7 @@ $lAdmin->AddGroupActionTable($arr);
 /** @var string $order */
 $order = mb_strtoupper($order);
 
+$navyParams = [];
 $usePageNavigation = true;
 if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
 {
@@ -228,6 +248,8 @@ if ($usePageNavigation)
 	$getListParams['offset'] = $navyParams['SIZEN']*($navyParams['PAGEN']-1);
 }
 
+$totalCount = 0;
+$totalPages = 0;
 if ($usePageNavigation)
 {
 	$countQuery = new Query($entity_data_class::getEntity());
@@ -270,7 +292,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 {
 	$row = $lAdmin->AddRow($f_ID, $arRes);
 	$row->AddViewField('ID', '<a href="' . 'highloadblock_row_edit.php?ENTITY_ID='.$hlblock['ID'].'&ID='.$f_ID.'&lang='.LANGUAGE_ID . '">'.$f_ID.'</a>');
-	
+
 	$USER_FIELD_MANAGER->AddUserFields('HLBLOCK_'.$hlblock['ID'], $arRes, $row);
 
 	$arActions = array();
@@ -332,21 +354,21 @@ $lAdmin->CheckListMode();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 ?>
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?ENTITY_ID=<?=$hlblock['ID']?>">
-<?
+<form name="find_form" method="GET" action="<?= $APPLICATION->GetCurPage()?>?ENTITY_ID=<?=$hlblock['ID']?>">
+<?php
 	$filter->Begin();
 	?>
 	<tr>
 		<td>ID</td>
-		<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
+		<td><input type="text" name="find_id" size="47" value="<?= htmlspecialcharsbx($find_id > 0 ? $find_id : '')?>"></td>
 	</tr>
-	<?
+	<?php
 	$USER_FIELD_MANAGER->AdminListShowFilter($ufEntityId);
 	$filter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage().'?ENTITY_ID='.$hlblock['ID'], "form"=>"find_form"));
 	$filter->End();
 ?>
 </form>
-<?
+<?php
 
 $lAdmin->DisplayList();
 

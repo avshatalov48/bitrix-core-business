@@ -17,7 +17,7 @@ class TasksType extends EntityLink
 		}
 
 		$url = \CTasksTools::GetOptionPathTaskUserEntry(SITE_ID, "/company/personal/user/#user_id#/tasks/task/view/#task_id#/");
-		$url = str_replace(['#user_id#', '#task_id#'], [$this->getContext()->getUserId(), $this->id], mb_strtolower($url));
+		$url = str_replace(['#user_id#', '#task_id#'], [$this->getContext()->getUserId(), $this->entityId], mb_strtolower($url));
 
 		return $url;
 	}

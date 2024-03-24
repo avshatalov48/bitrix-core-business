@@ -33,6 +33,7 @@ class KkmModelTable extends DataManager
 		return array(
 			'ID' => array(
 				'primary' => true,
+				'autocomplete' => true,
 				'data_type' => 'integer',
 			),
 			'NAME' => array(

@@ -55,8 +55,20 @@ export class RecentStateSearch
 
 	#getRecentListItems(): RecentItem[]
 	{
-		return this.#store.getters['recent/getRecentCollection'].map((item: ImModelRecentItem) => {
+		const recentChats = Object.values(this.#store.state.recent.collection);
+		const searchableChats = this.#filterRecentChatsForSearch(recentChats);
+
+		return searchableChats.map((item: ImModelRecentItem) => {
 			return this.#prepareRecentItem(item);
+		});
+	}
+
+	#filterRecentChatsForSearch(recentChats: ImModelRecentItem[]): ImModelRecentItem[]
+	{
+		return recentChats.filter((recentChat) => {
+			const chat = this.#store.getters['chats/get'](recentChat.dialogId, true);
+
+			return chat.type !== ChatType.copilot;
 		});
 	}
 
@@ -163,7 +175,7 @@ export class RecentStateSearch
 		const searchSessionItems = this.#getSearchSessionListItems();
 
 		const itemsMap = new Map();
-		const mergedArray = [...recentItems, ...searchSessionItems];
+		const mergedArray = [...searchSessionItems, ...recentItems];
 
 		for (const recentItem of mergedArray)
 		{

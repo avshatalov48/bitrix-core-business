@@ -1,12 +1,9 @@
 <?php
 namespace Bitrix\Im\Model;
 
-use Bitrix\Im\Internals\Query;
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Application;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 /**
  * Class AliasTable
@@ -37,6 +34,8 @@ Loc::loadMessages(__FILE__);
 
 class AliasTable extends Main\Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	/**
 	 * Returns DB table name for entity.
 	 *
@@ -59,30 +58,29 @@ class AliasTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('ALIAS_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('ALIAS_ENTITY_ID_FIELD'),
 			),
 			'ALIAS' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateAlias'),
-				'title' => Loc::getMessage('ALIAS_ENTITY_ALIAS_FIELD'),
+				//'title' => Loc::getMessage('ALIAS_ENTITY_ALIAS_FIELD'),
 			),
 			'DATE_CREATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,
-				'title' => Loc::getMessage('ALIAS_ENTITY_ENTITY_DATE_CREATE_FIELD'),
+				//'title' => Loc::getMessage('ALIAS_ENTITY_ENTITY_DATE_CREATE_FIELD'),
 			),
 			'ENTITY_TYPE' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateEntityType'),
-				'title' => Loc::getMessage('ALIAS_ENTITY_ENTITY_TYPE_FIELD'),
+				//'title' => Loc::getMessage('ALIAS_ENTITY_ENTITY_TYPE_FIELD'),
 			),
 			'ENTITY_ID' => array(
-				'data_type' => 'string',
+				'data_type' => 'integer',
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateEntityId'),
-				'title' => Loc::getMessage('ALIAS_ENTITY_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('ALIAS_ENTITY_ENTITY_ID_FIELD'),
 			),
 		);
 	}
@@ -108,38 +106,12 @@ class AliasTable extends Main\Entity\DataManager
 			new Main\Entity\Validator\Length(null, 255),
 		);
 	}
-	/**
-	 * Returns validators for ENTITY_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateEntityId()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 255),
-		);
-	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function deleteBatch(array $filter, $limit = 0)
 	{
-		$tableName = static::getTableName();
-		$connection = Application::getConnection();
-		$sqlHelper = $connection->getSqlHelper();
-
-		$query = new Query(static::getEntity());
-		$query->setFilter($filter);
-		$query->getQuery();
-
-		$alias = $sqlHelper->quote($query->getInitAlias()) . '.';
-		$where = str_replace($alias, '', $query->getWhere());
-
-		$sql = 'DELETE FROM ' . $tableName . ' WHERE ' . $where;
-		if($limit > 0)
-		{
-			$sql .= ' LIMIT ' . $limit;
-		}
-
-		$connection->queryExecute($sql);
-		return $connection->getAffectedRowsCount();
+		static::deleteByFilter($filter);
 	}
 }

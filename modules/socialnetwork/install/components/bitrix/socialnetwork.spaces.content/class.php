@@ -239,16 +239,16 @@ class SpacesContentComponent extends \CBitrixComponent
 	 */
 	private function prepareDiscussionsResult(): void
 	{
+		$this->arResult['storage'] = null;
+		$this->arResult['folder'] = null;
 		$storage = $this->getStorageByPageType($this->arResult['pageType']);
-		if (is_null($storage))
+		if (!is_null($storage))
 		{
-			throw new ArgumentTypeException('No disk storage');
+			$folder = Folder::loadById($storage->getRootObjectId());
+
+			$this->arResult['storage'] = $storage;
+			$this->arResult['folder'] = $folder;
 		}
-
-		$folder = Folder::loadById($storage->getRootObjectId());
-
-		$this->arResult['storage'] = $storage;
-		$this->arResult['folder'] = $folder;
 	}
 
 	private function prepareGroupTasksResult(int $groupId, string $page): string

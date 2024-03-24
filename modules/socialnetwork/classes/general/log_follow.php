@@ -306,7 +306,7 @@ class CSocNetLogFollow
 				}
 
 				$strSQL = "UPDATE b_sonet_log_follow 
-					SET b_sonet_log_follow.FOLLOW_DATE = NULL 
+					SET FOLLOW_DATE = NULL 
 					WHERE 
 						TYPE = 'Y' 
 						AND CODE = 'L".$log_id."' 
@@ -336,7 +336,7 @@ class CSocNetLogFollow
 				if (count($arUserID) > 0)
 				{
 					$strSQL = "UPDATE b_sonet_log_follow 
-						SET b_sonet_log_follow.FOLLOW_DATE = NULL 
+						SET FOLLOW_DATE = NULL 
 						WHERE 
 							TYPE = 'Y' 
 							AND CODE = 'L".$log_id."' 

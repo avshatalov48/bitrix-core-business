@@ -46,8 +46,9 @@ const RequestPermissions = {
 						height: { ideal: 720 },
 					}
 				});
-			}).then(() => {
+			}).then(stream => {
 				this.setPermissionsRequestedFlag();
+				stream.getTracks().forEach(track => track.stop());
 				this.getApplication().callView.unblockButtons(['microphone', 'camera']);
 			}).catch((error) => {
 				if (error.name === NOT_ALLOWED_ERROR_CODE)
@@ -56,22 +57,22 @@ const RequestPermissions = {
 
 					return false;
 				}
-				else if (error.name === NOT_FOUND_ERROR_CODE)
-				{
-					// means there is no camera, request only microphone
-					return navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(() => {
-						this.setPermissionsRequestedFlag();
-					}).catch((error) => {
-						if (error.name === NOT_ALLOWED_ERROR_CODE)
-						{
-							this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
 
-							return false;
-						}
-					});
-				}
+				// means there is no camera, request only microphone
+				return navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(stream => {
+					this.setPermissionsRequestedFlag();
+					stream.getTracks().forEach(track => track.stop());
+					this.getApplication().callView.unblockButtons(['microphone']);
+				}).catch((error) => {
+					if (error.name === NOT_ALLOWED_ERROR_CODE)
+					{
+						this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
 
-				this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+						return false;
+					}
+
+					this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
+				});
 			}).finally(() => {
 				BX.Call.Hardware.getCurrentDeviceList();
 			});

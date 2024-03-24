@@ -31,7 +31,7 @@ class Permission
 	public const TYPE_SONET = EntityLink::TYPE_SONET;
 	public const TYPE_TASKS = EntityLink::TYPE_TASKS;
 	public const TYPE_CRM = EntityLink::TYPE_CRM;
-	public const TYPE_CALL = 'CALL';
+	public const TYPE_CALL = EntityLink::TYPE_CALL;
 	public const TYPE_ANNOUNCEMENT = 'ANNOUNCEMENT';
 	public const TYPE_COPILOT = 'COPILOT';
 

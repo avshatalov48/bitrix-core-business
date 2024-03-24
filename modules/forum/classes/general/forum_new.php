@@ -1643,9 +1643,9 @@ SQL;
 			return false;
 		endif;
 		$arParams = (is_array($arParams) ? $arParams : array());
-		$arMessage = (is_array($arParams["MESSAGE"]) ? $arParams["MESSAGE"] : array());
-		if ($arMessage["FORUM_ID"] != $ID)
-			$arMessage = array();
+		$arMessage = !empty($arParams['MESSAGE']['FORUM_ID']) && $arParams['MESSAGE']['FORUM_ID'] == $ID
+			? $arParams['MESSAGE'] : []
+		;
 
 		$arForum = CForumNew::GetByID($ID);
 

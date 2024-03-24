@@ -3,7 +3,6 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main\ArgumentTypeException,
-	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\ORM\Data\DataManager,
 	Bitrix\Main\ORM\Fields\DatetimeField,
 	Bitrix\Main\ORM\Fields\IntegerField,
@@ -14,7 +13,6 @@ use Bitrix\Main\Entity\Event;
 use Bitrix\Main\ORM\EventResult;
 use Bitrix\Main\Type\DateTime;
 
-Loc::loadMessages(__FILE__);
 
 
 /**

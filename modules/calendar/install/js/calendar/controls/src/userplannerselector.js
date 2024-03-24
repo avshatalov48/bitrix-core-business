@@ -88,6 +88,7 @@ export class UserPlannerSelector extends EventEmitter
 									options: {
 										inviteGuestLink: true,
 										emailUsers: true,
+										analyticsSource: 'calendar',
 									}
 								},
 								{

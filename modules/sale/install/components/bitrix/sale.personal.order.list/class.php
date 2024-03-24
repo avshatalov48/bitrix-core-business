@@ -1147,19 +1147,21 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 			$paymentIdList[] = $payment['ID'];
 		}
 
-		$checkList = CheckManager::collectInfo(
-			array(
-				"PAYMENT_ID" => $paymentIdList,
-				"ENTITY_REGISTRY_TYPE" => Sale\Registry::REGISTRY_TYPE_ORDER
-			)
-		);
-
-		if (!empty($checkList))
+		if (!empty($paymentIdList))
 		{
-			foreach ($checkList as $check)
+			$checkList = CheckManager::collectInfo([
+				'@PAYMENT_ID' => $paymentIdList,
+				'=ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER,
+			]);
+
+			if (!empty($checkList))
 			{
-				$paymentList[$check['PAYMENT_ID']]['CHECK_DATA'][] = $check;
+				foreach ($checkList as $check)
+				{
+					$paymentList[$check['PAYMENT_ID']]['CHECK_DATA'][] = $check;
+				}
 			}
+			unset($checkList);
 		}
 
 		foreach ($paymentList as $payment)

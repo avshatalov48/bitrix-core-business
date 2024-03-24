@@ -291,7 +291,7 @@ export class MessageMenu extends BaseMenu
 			className: 'menu-popup-no-icon bx-im-dialog-chat__message-menu_delete',
 			onclick: () => {
 				const messageService = new MessageService({ chatId: this.context.chatId });
-				messageService.deleteMessage(this.context.id);
+				void messageService.deleteMessage(this.context.id);
 				this.menuInstance.close();
 			},
 		};

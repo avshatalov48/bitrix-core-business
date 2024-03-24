@@ -41,7 +41,10 @@ class FactoriesCollection extends Collection
 		}
 		// $links = self::getLinks($section, $availableService);
 		$links = SectionConnectionTable::query()
-			->setSelect(['*', 'CONNECTION'])
+			->setSelect([
+				'*',
+				'CONNECTION',
+			])
 			->addFilter('=SECTION_ID', $section->getId())
 			->addFilter('=CONNECTION.IS_DELETED', 'N')
 		;
@@ -173,7 +176,10 @@ class FactoriesCollection extends Collection
 		}
 
 		$links = SectionConnectionTable::query()
-			->setSelect(['*', 'CONNECTION'])
+			->setSelect([
+				'*',
+				'CONNECTION',
+			])
 			->where('SECTION_ID', $section->getId())
 			->where('CONNECTION.IS_DELETED', 'N')
 			->whereIn('CONNECTION.ACCOUNT_TYPE', [
@@ -262,7 +268,10 @@ class FactoriesCollection extends Collection
 	{
 		Loader::includeModule('dav');
 		$links = SectionConnectionTable::query()
-			->setSelect(['*', 'CONNECTION'])
+			->setSelect([
+				'*',
+				'CONNECTION',
+			])
 			->addFilter('SECTION_ID', $section->getId())
 			->addFilter('=CONNECTION.IS_DELETED', 'N')
 		;

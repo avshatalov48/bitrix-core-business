@@ -8,11 +8,11 @@ endif;
 ********************************************************************/
 /************** BASE ***********************************************/
 	$arParams["VOTE_ID"] = (isset($arParams["VOTE_ID"]) && !empty($arParams["VOTE_ID"]) ? intval($arParams["VOTE_ID"]) : false);
-	$arParams["CHANNEL_SID"] = trim($arParams["CHANNEL_SID"]);
+	$arParams["CHANNEL_SID"] = trim($arParams["CHANNEL_SID"] ?? '');
 	$arParams["PERMISSION"] = (isset($arParams["PERMISSION"]) && ($arParams["PERMISSION"] > 0 || $arParams["PERMISSION"] === 0) ?
 		intval($arParams["PERMISSION"]) : false);
 /************** ADDITIONAL *****************************************/
-	$arParams["SHOW_RESULTS"] = ($arParams["SHOW_RESULTS"] == "Y" ? "Y" : "N");
+	$arParams["SHOW_RESULTS"] = (isset($arParams["SHOW_RESULTS"]) && $arParams["SHOW_RESULTS"] === "Y" ? "Y" : "N");
 
 /************** CACHE **********************************************/
 if (!isset($arParams["CACHE_TIME"]))
@@ -63,14 +63,14 @@ else
 {
 	$arVars = $obCache->GetVars();
 	$arResult = $arVars["arResult"];
-	$this->SetTemplateCachedData($arVars["templateCachedData"]);
+	$this->SetTemplateCachedData($arVars["templateCachedData"] ?? null);
 }
 $arParams["PERMISSION"] = ($arParams["PERMISSION"] === false ? CVoteChannel::GetGroupPermission($arResult["VOTE"]["CHANNEL_ID"]) : $arParams["PERMISSION"]);
 if ($arParams["PERMISSION"] <= 0)
 {
 	return false;
 }
-elseif ($GLOBALS["VOTING_OK"] == "Y" && $GLOBALS["VOTING_ID"] == $arParams["VOTE_ID"] && !empty($arParams["VOTE_RESULT_TEMPLATE"]))
+elseif (isset($GLOBALS["VOTING_OK"]) && $GLOBALS["VOTING_OK"] == "Y" && $GLOBALS["VOTING_ID"] == $arParams["VOTE_ID"] && !empty($arParams["VOTE_RESULT_TEMPLATE"]))
 {
 	$var = array("VOTE_ID", "VOTING_OK", "VOTE_SUCCESSFULL", "view_result", "view_form");
 	$url = CComponentEngine::MakePathFromTemplate($arParams["VOTE_RESULT_TEMPLATE"], array("VOTE_ID" => $arResult["VOTE"]["ID"]));
@@ -111,11 +111,11 @@ $bShowResult = ($arResult["VOTE"]["LAMP"] != "green" || ($arParams["CAN_VOTE"] !
 
 if (!$bShowResult)
 {
-	$bShowResult = ($_REQUEST["view_result"] == "Y" ||
-		$GLOBALS["VOTING_OK"] == "Y" && $GLOBALS["VOTING_ID"] == $arResult["VOTE_ID"] ||
-		$GLOBALS["USER_ALREADY_VOTE"] == "Y" && $arParams["CAN_REVOTE"] != "Y" ||
-		$_REQUEST["VOTE_SUCCESSFULL"] == "Y" && $_REQUEST["VOTE_ID"] == $arResult["VOTE_ID"]);
-	if ($_REQUEST["view_form"] == "Y")
+	$bShowResult = ((isset($_REQUEST["view_result"]) && $_REQUEST["view_result"] == "Y") ||
+		isset($GLOBALS["VOTING_OK"]) && $GLOBALS["VOTING_OK"] == "Y" && $GLOBALS["VOTING_ID"] == $arResult["VOTE_ID"] ||
+		isset($GLOBALS["USER_ALREADY_VOTE"]) && $GLOBALS["USER_ALREADY_VOTE"] == "Y" && $arParams["CAN_REVOTE"] != "Y" ||
+		isset($_REQUEST["VOTE_SUCCESSFULL"]) && $_REQUEST["VOTE_SUCCESSFULL"] == "Y" && isset($_REQUEST["VOTE_ID"]) && $_REQUEST["VOTE_ID"] == $arResult["VOTE_ID"]);
+	if (isset($_REQUEST["view_form"]) && $_REQUEST["view_form"] == "Y")
 		$bShowResult = false;
 	else if (!$bShowResult)
 	{

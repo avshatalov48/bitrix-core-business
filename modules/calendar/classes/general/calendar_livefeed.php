@@ -299,6 +299,11 @@ class CCalendarLiveFeed
 
 						$ufDocID = $GLOBALS['USER_FIELD_MANAGER']->GetUserFieldValue('FORUM_MESSAGE', 'UF_FORUM_MESSAGE_DOC', $messageID, LANGUAGE_ID);
 					}
+
+					if (is_array($calendarEvent))
+					{
+						(new \Bitrix\Calendar\Core\Managers\Comment())->onEventCommentAdd($calendarEvent);
+					}
 				}
 			}
 		}
@@ -499,6 +504,12 @@ class CCalendarLiveFeed
 		}
 
 		self::SetCommentFileRights($arData, $logID);
+
+		$event = CCalendarEvent::GetById($eventID);
+		if (is_array($event))
+		{
+			(new \Bitrix\Calendar\Core\Managers\Comment())->onEventCommentAdd($event);
+		}
 	}
 
 	public static function OnAfterCommentUpdateAfter($entityType, $eventID, $arData, $logID = false): void

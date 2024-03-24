@@ -5,12 +5,12 @@ import { ContextItem } from './context-item';
 export class Follow extends ContextItem
 {
 	static ID = 'follow';
-	create(): JSON
+	create(): Object
 	{
 		return {
 			text: this.message,
 			onclick: (event, menuItem: MenuItem) => {
-				this.#switch().then(result => {
+				this.#switch().then((result) => {
 					menuItem.getMenuWindow().close();
 					const resultMessage = result.data.message;
 					const resultMode = result.data.mode;
@@ -19,7 +19,7 @@ export class Follow extends ContextItem
 					}, 800);
 					this.#flush(resultMode);
 				});
-			}
+			},
 		};
 	}
 
@@ -29,16 +29,16 @@ export class Follow extends ContextItem
 			data: {
 				switcher: {
 					type: Follow.ID,
-					spaceId: this.spaceId
+					spaceId: this.spaceId,
 				},
 				space: this.spaceId,
-			}
+			},
 		});
 	}
 
 	#flush(resultMode: string): void
 	{
-		this.getEmitter().emit('followChanged', {
+		this.emit('followChanged', {
 			spaceId: this.spaceId,
 			isFollowed: resultMode === 'Y',
 		});

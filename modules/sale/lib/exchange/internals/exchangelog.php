@@ -85,43 +85,53 @@ class ExchangeLogTable extends Main\Entity\DataManager
 	/**
 	 * Clears all logging data
 	 */
-	public static function deleteAll()
+	public static function deleteAll(): void
 	{
-		$tableName = static::getTableName();
 		$connection = Main\Application::getConnection();
-		$connection->queryExecute("DELETE FROM {$tableName}");
+		$helper = $connection->getSqlHelper();
+		$connection->queryExecute('DELETE FROM ' . $helper->quote(static::getTableName()));
 	}
 
 	/**
 	 * Clears old logging data
 	 */
-	public static function deleteOldRecords($direction, $provider, $interval)
+	public static function deleteOldRecords($direction, $provider, $interval): void
 	{
-		$tableName = static::getTableName();
-
-		if ($direction == '')
-			throw new Main\ArgumentOutOfRangeException("$direction");
-		if ($provider == '')
-			throw new Main\ArgumentOutOfRangeException("$provider");
-
-		$r = ExchangeLogTable::getList(array(
-			'select' => array(
-				new Main\Entity\ExpressionField('MAX_DATE_INSERT', 'MAX(%s)', array('DATE_INSERT'))
-			),
-			'filter' => array(
-				'=DIRECTION'=>$direction,
-				'=PROVIDER'=>$provider
-			)
-		));
-
-		if ($loggingRecord = $r->fetch())
+		$direction = (string)$direction;
+		$provider = (string)$provider;
+		$interval = (int)$interval;
+		if ($direction === '')
 		{
-			if($loggingRecord['MAX_DATE_INSERT'] <> '')
+			throw new Main\ArgumentOutOfRangeException('$direction');
+		}
+		if ($provider === '')
+		{
+			throw new Main\ArgumentOutOfRangeException('$provider');
+		}
+
+		$loggingRecord = ExchangeLogTable::getList([
+			'select' => [
+				new Main\Entity\ExpressionField('MAX_DATE_INSERT', 'MAX(%s)', ['DATE_INSERT'])
+			],
+			'filter' => [
+				'=DIRECTION' => $direction,
+				'=PROVIDER' => $provider,
+			],
+		])->fetch();
+
+		if ($loggingRecord)
+		{
+			if ($loggingRecord['MAX_DATE_INSERT'] <> '')
 			{
-				$maxDateInsert = $loggingRecord['MAX_DATE_INSERT'];
-				$date = new Main\Type\DateTime($maxDateInsert);
+				$date = new Main\Type\DateTime($loggingRecord['MAX_DATE_INSERT']);
 				$connection = Main\Application::getConnection();
-				$connection->queryExecute("delete from {$tableName} where DATE_INSERT < DATE_SUB('{$date->format("Y-m-d")}', INTERVAL {$interval} DAY) and DIRECTION='{$direction}' and PROVIDER='{$provider}'");
+				$helper = $connection->getSqlHelper();
+				$connection->queryExecute("delete from " . $helper->quote(static::getTableName())
+					. " where"
+					. " DATE_INSERT < " . $helper->addDaysToDateTime(-$interval, "'" . $date->format('Y-m-d') . "'")
+					. " and DIRECTION = '" . $helper->forSql($direction) . "'"
+					. " and PROVIDER = '" . $helper->forSql($provider) . "'"
+				);
 			}
 		}
 	}

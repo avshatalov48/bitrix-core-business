@@ -1,0 +1,37 @@
+.sn-spaces__space-logo {
+	--sn-spaces__space-logo-size: 48px;
+
+	position: relative;
+	flex-shrink: 0;
+	width: var(--sn-spaces__space-logo-size);
+	height: var(--sn-spaces__space-logo-size);
+	margin-right: 10px;
+	border-radius: var(--ui-border-radius-sm);
+	outline: 1px solid rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+	outline-offset: -1px;
+}
+
+.sn-spaces__space-logo img {
+	width: 100%;
+	height: 100%;
+	border-radius: var(--ui-border-radius-sm);
+	background: transparent url(images/socialnetwork-spaces_new-spaces.svg) no-repeat center;
+}
+
+.sn-spaces__space-logo.ui-icon > i {
+	border-radius: var(--ui-border-radius-sm);
+}
+
+.sonet-common-workgroup-avatar.sn-spaces__space-logo {
+	background-position: center;
+	margin-bottom: 0;
+}
+
+.sn-spaces__space-logo_img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: var(--ui-border-radius-sm);
+	background-size: cover;
+	background-repeat: no-repeat;
+}

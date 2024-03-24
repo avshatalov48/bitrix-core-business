@@ -991,7 +991,7 @@ class CSocNetLogTools
 				"NL2BR" => "N",
 				"VIDEO" => "Y",
 				"LOG_VIDEO" => "N",
-				"USERFIELDS" => $arFields["UF"],
+				"USERFIELDS" => $arFields["UF"] ?? [],
 				"USER" => "Y"
 			);
 			$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), array(), $arAllow));
@@ -1557,7 +1557,7 @@ class CSocNetLogTools
 							),
 							"NL2BR" => "Y", "MULTIPLE_BR" => "N",
 							"VIDEO" => "Y", "LOG_VIDEO" => "N",
-							"USERFIELDS" => $arFields["UF"]
+							"USERFIELDS" => $arFields["UF"] ?? []
 						)
 					),
 					500
@@ -1567,7 +1567,7 @@ class CSocNetLogTools
 			$parser = (is_object($parser) ? $parser : (is_object($parserLog) ? $parserLog : new logTextParser(false, $arParams["PATH_TO_SMILE"])));
 			if (get_class($parser) === "forumTextParser")
 			{
-				$parser->arUserfields = $arFields["UF"];
+				$parser->arUserfields = $arFields["UF"] ?? [];
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parser->convert(
 					$arResult["EVENT_FORMATTED"]["MESSAGE"],
 					array(
@@ -1585,7 +1585,7 @@ class CSocNetLogTools
 						),
 						"NL2BR" => "Y", "VIDEO" => "Y",
 						"LOG_VIDEO" => "N", "SHORT_ANCHOR" => "Y",
-						"USERFIELDS" => $arFields["UF"],
+						"USERFIELDS" => $arFields["UF"] ?? [],
 						"USER" => "Y",
 						"TAG" => "Y"
 					),
@@ -2062,7 +2062,7 @@ class CSocNetLogTools
 				if (!$parserLog)
 					$parserLog = new forumTextParser(LANGUAGE_ID);
 
-				$parserLog->arUserfields = $arFields["UF"];
+				$parserLog->arUserfields = $arFields["UF"] ?? [];
 				$parserLog->pathToUser = $parserLog->userPath = $arParams["PATH_TO_USER"];
 				$parserLog->bMobile = (($arParams["MOBILE"] ?? null) === "Y");
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), $arAllow));
@@ -2164,7 +2164,7 @@ class CSocNetLogTools
 				if (!$parserLog)
 					$parserLog = new forumTextParser(LANGUAGE_ID);
 
-				$parserLog->arUserfields = $arFields["UF"];
+				$parserLog->arUserfields = $arFields["UF"] ?? [];
 				$parserLog->pathToUser = $parserLog->userPath = $arParams["PATH_TO_USER"];
 				$parserLog->bMobile = (($arParams["MOBILE"] ?? null) === "Y");
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parserLog->convert(htmlspecialcharsback($arResult["EVENT_FORMATTED"]["MESSAGE"]), $arAllow));

@@ -72,6 +72,7 @@
 	align-items: center;
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 }
 
 .bx-im-content-chat-start__content {
@@ -283,17 +284,6 @@
 	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M3.273 0A3.273 3.273 0 000 3.273v7.454A3.273 3.273 0 003.273 14h8.454A3.273 3.273 0 0015 10.727V3.273A3.273 3.273 0 0011.727 0H3.273zM1.696 3.432c0-.96.777-1.736 1.736-1.736h8.136c.959 0 1.736.777 1.736 1.736v7.136c0 .959-.777 1.736-1.736 1.736H3.432a1.736 1.736 0 01-1.736-1.736V3.432zM8 4.09c0-.602.488-1.09 1.09-1.09h1.819C11.511 3 12 3.488 12 4.09v5.818c0 .603-.489 1.091-1.091 1.091H9.091A1.09 1.09 0 018 9.91V4.09z' fill='%2311A9D9'/%3E%3C/svg%3E");
 	opacity: 1;
 }
-.bx-im-sidebar-wrapper__scope {
-	--im-sidebar-chat__background-color_container: #f2f9fc;
-}
-
-.bx-im-sidebar-wrapper__container {
-	height: 100%;
-	background-color: var(--im-sidebar-chat__background-color_container);
-	position: relative;
-	border-left: 1px solid rgba(0,0,0,0.06);
-}
-
 .bx-im-content-chat-drop-area__scope {
 	--im-content-chat-drop-area__border-color_container: #fff;
 	--im-content-chat-drop-area__background_icon: url("data:image/svg+xml;charset=utf-8,%3Csvg width='48' height='58' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M6.811 5.99v45.88h34.448V19.333c0-.157-.02-.312-.06-.462H30.511a1 1 0 01-1-1V6.127a1.82 1.82 0 00-.69-.136H6.812zM4.792.133a3.84 3.84 0 00-3.84 3.84V53.89a3.84 3.84 0 003.84 3.84h38.486a3.84 3.84 0 003.84-3.84V19.332a7.68 7.68 0 00-2.033-5.204L34.47 2.608A7.68 7.68 0 0028.822.132H4.792zm6.59 27.872a3.033 3.033 0 013.033-3.032H33.39a3.033 3.033 0 110 6.065H14.415a3.033 3.033 0 01-3.032-3.033zm0 11.366a3.033 3.033 0 013.033-3.033H27.62a3.033 3.033 0 010 6.065H14.415a3.033 3.033 0 01-3.033-3.032z' fill='%23fff'/%3E%3C/svg%3E") no-repeat center;
@@ -375,7 +365,6 @@
 
 .bx-im-chat-header-call-button__text {
 	margin-right: 5px;
-
 	font: var(--im-font-size-xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-chat-header-call-button__font-color);
@@ -428,9 +417,12 @@
 .bx-im-chat-header-call-button-menu__phone_number {
 	height: auto;
 	line-height: initial;
-
 	font: var(--im-font-size-sm) var(--im-font-family-system);
 	color: var(--im-chat-header-call-button__font-color_phone-number);
+}
+
+.bx-im-chat-header-call-button-menu__zoom.--disabled {
+	opacity: 0.4;
 }
 .bx-im-chat-header-entity-link__container {
 	--im-chat-header-entity-link__background-color_underline: rgba(0, 172, 227, 0.4);

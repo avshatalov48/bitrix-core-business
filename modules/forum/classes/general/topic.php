@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 /**********************************************************************/
 /************** FORUM TOPIC *******************************************/
@@ -718,38 +718,43 @@ class CAllForumTopic
 
 
 	//---------------> Topic utils
-	public static function SetStat($ID = 0, $arParams = array())
+	public static function SetStat($ID = 0, $params = [])
 	{
-		global $DB;
-		$ID = intval($ID);
-		if ($ID <= 0):
-			return false;
-		endif;
-		$arParams = (is_array($arParams) ? $arParams : array());
-		$arMessage = (is_array($arParams["MESSAGE"]) ? $arParams["MESSAGE"] : array());
-		if ($arMessage["TOPIC_ID"] != $ID)
-			$arMessage = array();
-		$arFields = array();
-
-		if (!empty($arMessage))
+		if (empty($ID))
 		{
-			$arFields = array(
-				"ABS_LAST_POSTER_ID" => ((intval($arMessage["AUTHOR_ID"])>0) ? $arMessage["AUTHOR_ID"] : false),
-				"ABS_LAST_POSTER_NAME" => $arMessage["AUTHOR_NAME"],
-				"ABS_LAST_POST_DATE" => $arMessage["POST_DATE"],
-				"ABS_LAST_MESSAGE_ID" => $arMessage["ID"]);
-			if ($arMessage["APPROVED"] == "Y"):
+			return;
+		}
+
+		$ID = intval($ID);
+		$params = is_array($params) ? $params : [];
+
+		if (!empty($params["MESSAGE"]["TOPIC_ID"]) && $params["MESSAGE"]["TOPIC_ID"] == $ID)
+		{
+			$message = $params["MESSAGE"];
+
+			$arFields = [
+				"ABS_LAST_POSTER_ID" => $message["AUTHOR_ID"],
+				"ABS_LAST_POSTER_NAME" => $message["AUTHOR_NAME"],
+				"ABS_LAST_POST_DATE" => $message["POST_DATE"],
+				"ABS_LAST_MESSAGE_ID" => $message["ID"]
+			];
+
+			if ($message["APPROVED"] == "Y")
+			{
 				$arFields["APPROVED"] = "Y";
 				$arFields["LAST_POSTER_ID"] = $arFields["ABS_LAST_POSTER_ID"];
 				$arFields["LAST_POSTER_NAME"] = $arFields["ABS_LAST_POSTER_NAME"];
 				$arFields["LAST_POST_DATE"] = $arFields["ABS_LAST_POST_DATE"];
 				$arFields["LAST_MESSAGE_ID"] = $arFields["ABS_LAST_MESSAGE_ID"];
-				if ($arMessage["NEW_TOPIC"] != "Y"):
+				if ($message["NEW_TOPIC"] != "Y")
+				{
 					$arFields["=POSTS"] = "POSTS+1";
-				endif;
-			else:
+				}
+			}
+			else
+			{
 				$arFields["=POSTS_UNAPPROVED"] = "POSTS_UNAPPROVED+1";
-			endif;
+			}
 		}
 		else
 		{

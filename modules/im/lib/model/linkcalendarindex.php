@@ -66,13 +66,13 @@ class LinkCalendarIndexTable extends DataManager
 				'ID',
 				[
 					'primary' => true,
-					'title' => Loc::getMessage('LINK_CALENDAR_INDEX_ENTITY_ID_FIELD'),
+					//'title' => Loc::getMessage('LINK_CALENDAR_INDEX_ENTITY_ID_FIELD'),
 				]
 			),
 			'SEARCH_CONTENT' => new TextField(
 				'SEARCH_CONTENT',
 				[
-					'title' => Loc::getMessage('LINK_CALENDAR_INDEX_ENTITY_SEARCH_CONTENT_FIELD'),
+					//'title' => Loc::getMessage('LINK_CALENDAR_INDEX_ENTITY_SEARCH_CONTENT_FIELD'),
 				]
 			),
 		];

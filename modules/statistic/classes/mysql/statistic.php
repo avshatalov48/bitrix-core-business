@@ -71,7 +71,7 @@ class CStatistics extends CAllStatistics
 	public static function CleanUpPathCache()
 	{
 		__SetNoKeepStatistics();
-		if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
+		if (($_SESSION["SESS_NO_AGENT_STATISTIC"] ?? '') != "Y" && !defined("NO_AGENT_STATISTIC"))
 		{
 			set_time_limit(0);
 			ignore_user_abort(true);
@@ -91,7 +91,7 @@ class CStatistics extends CAllStatistics
 	public static function CleanUpSessionData()
 	{
 		__SetNoKeepStatistics();
-		if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
+		if (($_SESSION["SESS_NO_AGENT_STATISTIC"] ?? '') != "Y" && !defined("NO_AGENT_STATISTIC"))
 		{
 			set_time_limit(0);
 			ignore_user_abort(true);
@@ -606,7 +606,7 @@ class CStatistics extends CAllStatistics
 	public static function SetNewDay($HOSTS=0, $TOTAL_HOSTS=0, $SESSIONS=0, $HITS=0, $NEW_GUESTS=0, $GUESTS=0, $FAVORITES=0)
 	{
 		__SetNoKeepStatistics();
-		if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
+		if ((!isset($_SESSION["SESS_NO_AGENT_STATISTIC"]) || $_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y") && !defined("NO_AGENT_STATISTIC"))
 		{
 			$err_mess = "File: ".__FILE__."<br>Line: ";
 			$DB = CDatabase::GetModuleConnection('statistic');

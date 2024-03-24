@@ -63,6 +63,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      const chatCanBeCalled = im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.dialogId);
 	      const chatIsAllowedToCall = im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.call, this.dialogId);
 	      return chatCanBeCalled && chatIsAllowedToCall;
+	    },
+	    inviteTitle() {
+	      return this.loc('IM_MESSENGER_MESSAGE_CALL_INVITE_TITLE_2');
+	    },
+	    descriptionTitle() {
+	      return this.loc('IM_MESSENGER_MESSAGE_CALL_INVITE_DESCRIPTION');
 	    }
 	  },
 	  methods: {
@@ -85,10 +91,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					<div class="bx-im-message-call-invite__image"></div>
 					<div class="bx-im-message-call-invite__content">
 						<div class="bx-im-message-call-invite__title">
-							{{ loc('IM_MESSENGER_MESSAGE_CALL_INVITE_TITLE_2') }}
+							{{ inviteTitle }}
 						</div>
 						<div class="bx-im-message-call-invite__description">
-							{{ loc('IM_MESSENGER_MESSAGE_CALL_INVITE_DESCRIPTION') }}
+							{{ descriptionTitle }}
 						</div>
 						<div v-if="isAvailable" class="bx-im-message-call-invite__buttons_container">
 							<div class="bx-im-message-call-invite__buttons_item">
@@ -104,7 +110,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						</div>
 					</div>
 				</div>
-				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" />
+				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" :withAttach="false" />
 				<ReactionSelector :messageId="message.id" />
 			</div>
 		</BaseMessage>

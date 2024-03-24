@@ -29,7 +29,11 @@ class CBPTaskService extends CBPRuntimeService
 			throw new Exception("userId");
 		$status = (int)$status;
 
-		$DB->Query("UPDATE b_bp_task_user SET STATUS = ".$status.", DATE_UPDATE = ".$DB->CurrentTimeFunction()." WHERE TASK_ID = ".$taskId." AND USER_ID = ".$userId, true);
+		$DB->Query(
+			"UPDATE b_bp_task_user SET STATUS = "
+			. $status . ", DATE_UPDATE = " . $DB->CurrentTimeFunction()
+			. " WHERE TASK_ID = " . $taskId . " AND USER_ID = " . $userId
+		);
 
 		CUserCounter::Decrement($userId, 'bp_tasks', '**');
 
@@ -175,10 +179,12 @@ class CBPTaskService extends CBPRuntimeService
 		if (!empty($row['USER_ID']))
 			return false;
 
-		$DB->Query("UPDATE b_bp_task_user SET USER_ID = "
+		$DB->Query(
+			"UPDATE b_bp_task_user SET USER_ID = "
 			.$toUserId
 			.(!$originalUserId? ', ORIGINAL_USER_ID = '.$fromUserId : '')
-			." WHERE TASK_ID = ".$taskId." AND USER_ID = ".$fromUserId, true);
+			." WHERE TASK_ID = ".$taskId." AND USER_ID = ".$fromUserId
+		);
 		CUserCounter::Decrement($fromUserId, 'bp_tasks', '**');
 		CUserCounter::Increment($toUserId, 'bp_tasks', '**');
 		self::onTaskChange(
@@ -235,8 +241,8 @@ class CBPTaskService extends CBPRuntimeService
 			}
 			$removedUsers[] = $arRes["USER_ID"];
 		}
-		$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".intval($id)." ", true);
-		$DB->Query("DELETE FROM b_bp_task WHERE ID = ".intval($id)." ", true);
+		$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".intval($id)." ",);
+		$DB->Query("DELETE FROM b_bp_task WHERE ID = ".intval($id)." ");
 
 		self::onTaskChange(
 			$id,
@@ -280,7 +286,7 @@ class CBPTaskService extends CBPRuntimeService
 				$removedUsers[] = $arResUser['USER_ID'];
 				$allUsers[] = $arResUser['USER_ID'];
 			}
-			$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".$taskId." ", true);
+			$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".$taskId." ");
 
 			self::onTaskChange(
 				$taskId,
@@ -297,8 +303,7 @@ class CBPTaskService extends CBPRuntimeService
 		$DB->Query(
 			"DELETE FROM b_bp_task ".
 			"WHERE WORKFLOW_ID = '".$DB->ForSql($workflowId)."' "
-			.($taskStatus !== null? 'AND STATUS = '.(int)$taskStatus : ''),
-			true
+			.($taskStatus !== null? 'AND STATUS = '.(int)$taskStatus : '')
 		);
 	}
 
@@ -324,7 +329,7 @@ class CBPTaskService extends CBPRuntimeService
 				'	AND TU.USER_ID = '.(int)$userId.' '.
 				'GROUP BY MODULE_ID, ENTITY';
 
-			$iterator = $DB->Query($query, true);
+			$iterator = $DB->Query($query);
 			if ($iterator)
 			{
 				while ($row = $iterator->fetch())
@@ -684,7 +689,9 @@ class CBPTaskService extends CBPRuntimeService
 					." WHERE TASK_ID = ".$id." AND STATUS = ".CBPTaskUserStatus::Waiting);
 			}
 			else
-				$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".$id." AND STATUS = ".CBPTaskUserStatus::Waiting);
+			{
+				$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = " . $id . " AND STATUS = " . CBPTaskUserStatus::Waiting);
+			}
 		}
 
 		foreach (GetModuleEvents("bizproc", "OnTaskUpdate", true) as $arEvent)

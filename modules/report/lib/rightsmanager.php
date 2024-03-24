@@ -95,8 +95,8 @@ class RightsManager
 	public function getGroupsAndDepartments()
 	{
 		$cacheTime = defined('BX_COMP_MANAGED_CACHE') ? 3153600 : 3600*4;
-		$cacheId = 'report-rights-'.$this->userId;
-		$cacheDir = '/report/rights/'.$this->userId;
+		$cacheId = 'report-sharing-rights-'.$this->userId;
+		$cacheDir = '/report/sharing/rights/'.$this->userId;
 		$cache = new CPHPCache;
 		if($cache->initCache($cacheTime, $cacheId, $cacheDir))
 		{
@@ -127,15 +127,16 @@ class RightsManager
 						$listEntity[] = Sharing::CODE_SOCNET_GROUP.$groupData['GROUP_ID'];
 				}
 
-				if(!empty($userData['UF_DEPARTMENT']))
+				if(!empty($userData['UF_DEPARTMENT']) && Loader::includeModule('iblock'))
 				{
-					$parentDepartmentList = array();
 					foreach($userData['UF_DEPARTMENT'] as $departmentId)
-						$parentDepartmentList[] = \CIntranetUtils::getIBlockTopSection($departmentId);
-
-					$childrenDepartmentList = \CIntranetUtils::getIBlockSectionChildren($parentDepartmentList);
-					foreach($childrenDepartmentList as $departmentId)
-						$listEntity[] = Sharing::CODE_DEPARTMENT.$departmentId;
+					{
+						$res = \CIBlockSection::GetNavChain(0, $departmentId);
+						while ($row = $res->Fetch())
+						{
+							$listEntity[] = Sharing::CODE_DEPARTMENT . $row['ID'];
+						}
+					}
 				}
 			}
 			$CACHE_MANAGER->startTagCache($cacheDir);

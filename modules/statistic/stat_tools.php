@@ -52,7 +52,7 @@ function __GetReferringSite(
 	)
 {
 	if($URL_FROM === false)
-		$URL_FROM = $_SERVER["HTTP_REFERER"];
+		$URL_FROM = $_SERVER["HTTP_REFERER"] ?? '';
 
 	if(!empty($URL_FROM))
 	{
@@ -521,7 +521,7 @@ function stat_session_register($var_name)
 	elseif($var_name === true)
 	{
 		foreach($arrSTAT_SESSION as $key => $value)
-			$arrSTAT_SESSION[$key] = $_SESSION[$key];
+			$arrSTAT_SESSION[$key] = $_SESSION[$key] ?? '';
 		return $arrSTAT_SESSION;
 	}
 	else
@@ -534,10 +534,10 @@ function stat_session_register($var_name)
 function get_guest_md5()
 {
 	$md5 = md5(
-		$_SERVER["HTTP_USER_AGENT"].
-		$_SERVER["REMOTE_ADDR"].
-		$_SERVER["HTTP_X_FORWARDED_FOR"]
-		);
+		$_SERVER["HTTP_USER_AGENT"] ?? '' .
+		$_SERVER["REMOTE_ADDR"] .
+		$_SERVER["HTTP_X_FORWARDED_FOR"] ?? ''
+	);
 	return $md5;
 }
 
@@ -555,7 +555,7 @@ function GetStatGroupSiteID()
 function SendDailyStatistics()
 {
 	__SetNoKeepStatistics();
-	if ($_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y" && !defined("NO_AGENT_STATISTIC"))
+	if ((!isset($_SESSION["SESS_NO_AGENT_STATISTIC"]) || $_SESSION["SESS_NO_AGENT_STATISTIC"] != "Y") && !defined("NO_AGENT_STATISTIC"))
 	{
 		global $MESS;
 
@@ -572,7 +572,7 @@ function SendDailyStatistics()
 		$adv = CAdv::GetList();
 		$events = CStatEventType::GetList("s_stat", "desc");
 		$referers = CTraffic::GetRefererList();
-		$phrases = CTraffic::GetPhraseList($s_by, $s_order, array(), $is_filtered);
+		$phrases = CTraffic::GetPhraseList();
 		$searchers = CSearcher::GetList("s_stat", "desc");
 
 		$OLD_MESS = $MESS;

@@ -35,7 +35,7 @@ abstract class TypeManager
 							throw new SystemException('No [MODULE] in: '.$event.'()['.$name.'] => '.print_r($handler, true));
 					}
 
-					if ($types[$name])
+					if (isset($types[$name]))
 						throw new SystemException('Duplicate in: '.$event.'()['.$name.'] => '.print_r($handler, true));
 
 					$types[$name] = $type;
@@ -59,8 +59,8 @@ abstract class TypeManager
 
 			uasort($types, function ($a, $b)
 			{
-				$a = $a['SORT'];
-				$b = $b['SORT'];
+				$a = $a['SORT'] ?? 0;
+				$b = $b['SORT'] ?? 0;
 
 				return $a < $b ? -1 : ($a > $b ? 1 : 0);
 			});

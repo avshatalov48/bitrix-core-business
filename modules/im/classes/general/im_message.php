@@ -41,9 +41,12 @@ class CIMMessage
 		$id = intval($id);
 
 		$query = "SELECT 
-					M.*, ".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE, 
+					M.*, 
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE, 
 					R.MESSAGE_TYPE,
-					C.TITLE CHAT_TITLE, C.COLOR CHAT_COLOR, C.AVATAR CHAT_AVATAR 
+					C.TITLE as CHAT_TITLE,
+					C.COLOR as CHAT_COLOR,
+					C.AVATAR as CHAT_AVATAR 
 				FROM 
 					b_im_message M
 					INNER JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID AND R.USER_ID = ".$this->user_id."
@@ -151,18 +154,18 @@ class CIMMessage
 					SELECT
 						M.ID,
 						M.CHAT_ID,
-						C.TYPE CHAT_TYPE,
+						C.TYPE as CHAT_TYPE,
 						C.DISK_FOLDER_ID,
 						M.MESSAGE,
-						".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+						".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 						M.AUTHOR_ID,
 						M.NOTIFY_EVENT,
-						R1.USER_ID R1_USER_ID,
-						M.AUTHOR_ID R2_USER_ID
+						R1.USER_ID as R1_USER_ID,
+						M.AUTHOR_ID as R2_USER_ID
 					FROM b_im_message M
-					LEFT JOIN b_im_chat C ON C.ID = M.CHAT_ID
-					INNER JOIN b_im_relation R1 ON M.CHAT_ID = R1.CHAT_ID AND R1.USER_ID != M.AUTHOR_ID
-					INNER JOIN b_im_message_unread MU ON M.ID = MU.MESSAGE_ID AND MU.USER_ID = " . $this->user_id . "
+						LEFT JOIN b_im_chat C ON C.ID = M.CHAT_ID
+						INNER JOIN b_im_relation R1 ON M.CHAT_ID = R1.CHAT_ID AND R1.USER_ID != M.AUTHOR_ID
+						INNER JOIN b_im_message_unread MU ON M.ID = MU.MESSAGE_ID AND MU.USER_ID = " . $this->user_id . "
 					WHERE R1.USER_ID = ".$this->user_id." AND R1.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."'
 				";
 			if (!$bTimeZone)
@@ -377,7 +380,7 @@ class CIMMessage
 		else
 		{
 			$strSql ="
-				SELECT R1.CHAT_ID, R1.START_ID, R1.LAST_ID, R2.LAST_ID LAST_READ_ID, R1.NOTIFY_BLOCK
+				SELECT R1.CHAT_ID, R1.START_ID, R1.LAST_ID, R2.LAST_ID as LAST_READ_ID, R1.NOTIFY_BLOCK
 				FROM b_im_relation R1
 				INNER JOIN b_im_relation R2 on R2.CHAT_ID = R1.CHAT_ID
 				WHERE
@@ -416,14 +419,23 @@ class CIMMessage
 
 		if ($chatId > 0)
 		{
+			$sqlLimit = '';
 			if ($limit)
 			{
-				if ($DB->type == "MYSQL")
-					$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL 30 DAY)";
-				elseif ($DB->type == "MSSQL")
+				if ($DB->type == "MSSQL")
+				{
 					$sqlLimit = " AND M.DATE_CREATE > dateadd(day, -30, getdate())";
+				}
 				elseif ($DB->type == "ORACLE")
+				{
 					$sqlLimit = " AND M.DATE_CREATE > SYSDATE-30";
+				}
+				else
+				{
+					$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+					$helper = $connection->getSqlHelper();
+					$sqlLimit = " AND M.DATE_CREATE > ". $helper->addDaysToDateTime(-30);
+				}
 			}
 
 			if (!$bTimeZone)
@@ -433,7 +445,7 @@ class CIMMessage
 					M.ID,
 					M.CHAT_ID,
 					M.MESSAGE,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.AUTHOR_ID,
 					M.NOTIFY_EVENT
 				FROM b_im_message M
@@ -595,12 +607,22 @@ class CIMMessage
 		$sqlLimit = '';
 		if ($limit)
 		{
-			if ($DB->type == "MYSQL")
-				$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL ".$limit." DAY)";
-			elseif ($DB->type == "MSSQL")
+			if ($DB->type == "MSSQL")
+			{
 				$sqlLimit = " AND M.DATE_CREATE > dateadd(day, -".$limit.", getdate())";
+			}
 			elseif ($DB->type == "ORACLE")
+			{
 				$sqlLimit = " AND M.DATE_CREATE > SYSDATE-".$limit;
+			}
+			else
+			{
+				//$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL ".$limit." DAY)";
+				$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+				$helper = $connection->getSqlHelper();
+
+				$sqlLimit = " AND M.DATE_CREATE > ". $helper->addDaysToDateTime(-1 * $limit);
+			}
 		}
 
 		if (!$bTimeZone)
@@ -610,10 +632,10 @@ class CIMMessage
 				M.ID,
 				M.CHAT_ID,
 				M.MESSAGE,
-				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 				M.AUTHOR_ID,
-				R1.USER_ID R1_USER_ID,
-				R2.USER_ID R2_USER_ID
+				R1.USER_ID as R1_USER_ID,
+				R2.USER_ID as R2_USER_ID
 			FROM b_im_relation R1
 			INNER JOIN b_im_relation R2 on R2.CHAT_ID = R1.CHAT_ID
 			INNER JOIN b_im_message M ON M.ID >= R1.START_ID
@@ -694,24 +716,24 @@ class CIMMessage
 				M.CHAT_ID,
 				M.MESSAGE,
 				M.MESSAGE_OUT,
-				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 				M.EMAIL_TEMPLATE,
-				R.USER_ID TO_USER_ID,
-				U1.ACTIVE TO_USER_ACTIVE,
-				U1.LOGIN TO_USER_LOGIN,
-				U1.NAME TO_USER_NAME,
-				U1.LAST_NAME TO_USER_LAST_NAME,
-				U1.EMAIL TO_USER_EMAIL,
-				U1.LID TO_USER_LID,
-				U1.AUTO_TIME_ZONE AUTO_TIME_ZONE,
-				U1.TIME_ZONE TIME_ZONE,
-				U1.TIME_ZONE_OFFSET TIME_ZONE_OFFSET,
-				U1.EXTERNAL_AUTH_ID TO_EXTERNAL_AUTH_ID,
-				M.AUTHOR_ID FROM_USER_ID,
-				U2.LOGIN FROM_USER_LOGIN,
-				U2.NAME FROM_USER_NAME,
-				U2.LAST_NAME FROM_USER_LAST_NAME,
-				U2.EXTERNAL_AUTH_ID FROM_EXTERNAL_AUTH_ID
+				R.USER_ID as TO_USER_ID,
+				U1.ACTIVE as TO_USER_ACTIVE,
+				U1.LOGIN as TO_USER_LOGIN,
+				U1.NAME as TO_USER_NAME,
+				U1.LAST_NAME as TO_USER_LAST_NAME,
+				U1.EMAIL as TO_USER_EMAIL,
+				U1.LID as TO_USER_LID,
+				U1.AUTO_TIME_ZONE as AUTO_TIME_ZONE,
+				U1.TIME_ZONE as TIME_ZONE,
+				U1.TIME_ZONE_OFFSET as TIME_ZONE_OFFSET,
+				U1.EXTERNAL_AUTH_ID as TO_EXTERNAL_AUTH_ID,
+				M.AUTHOR_ID as FROM_USER_ID,
+				U2.LOGIN as FROM_USER_LOGIN,
+				U2.NAME as FROM_USER_NAME,
+				U2.LAST_NAME as FROM_USER_LAST_NAME,
+				U2.EXTERNAL_AUTH_ID as FROM_EXTERNAL_AUTH_ID
 			FROM b_im_relation R
 			INNER JOIN b_im_message M ON M.CHAT_ID = R.CHAT_ID AND IMPORT_ID IS NULL AND R.USER_ID != M.AUTHOR_ID AND M.ID IN ({$implodeUnsendIds})
 			LEFT JOIN b_user U1 ON U1.ID = R.USER_ID

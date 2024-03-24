@@ -327,8 +327,8 @@ abstract class SenderInvitation implements Serializable
 		$dtSkipTime = $this->event['DT_SKIP_TIME'];
 		$this->event['DATE_FROM'] = $this->getFormattedDate($this->event['DATE_FROM'], $dtSkipTime);
 		$this->event['DATE_TO'] = $this->getFormattedDate($this->event['DATE_TO'], $dtSkipTime);
-		$this->event['CREATED'] = $this->getFormattedDate($this->event['DATE_CREATE'], $dtSkipTime);
-		$this->event['MODIFIED'] = $this->getFormattedDate($this->event['TIMESTAMP_X'], $dtSkipTime);
+		$this->event['CREATED'] = $this->getFormattedDate($this->event['DATE_CREATE'], false);
+		$this->event['MODIFIED'] = $this->getFormattedDate($this->event['TIMESTAMP_X'], false);
 
 		$this->event['SKIP_TIME'] = $dtSkipTime === 'Y';
 		$this->event['MEETING'] = unserialize($this->event['MEETING'], ['allowed_classes' => false]);

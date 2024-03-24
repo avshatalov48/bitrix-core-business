@@ -3,7 +3,6 @@ namespace Bitrix\Currency;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
 
 /**
  * Class CurrencyLangTable
@@ -51,7 +50,7 @@ class CurrencyLangTable extends Main\Entity\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_currency_lang';
 	}
@@ -61,7 +60,7 @@ class CurrencyLangTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'CURRENCY' => new Main\Entity\StringField('CURRENCY', array(
@@ -218,5 +217,23 @@ class CurrencyLangTable extends Main\Entity\DataManager
 		return array(
 			new Main\Entity\Validator\Length(null, 1),
 		);
+	}
+
+	public static function deleteByCurrency(string $currency): void
+	{
+		$currency = trim($currency);
+		if ($currency === '')
+		{
+			return;
+		}
+		$conn = Main\Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute(
+			'delete from ' . $helper->quote(self::getTableName())
+				. ' where '.$helper->quote('CURRENCY').' = \''. $helper->forSql($currency) . '\''
+		);
+		unset($helper, $conn);
+
+		static::cleanCache();
 	}
 }

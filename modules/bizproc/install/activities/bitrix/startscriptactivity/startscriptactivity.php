@@ -66,8 +66,11 @@ class CBPStartScriptActivity extends CBPActivity
 			$scriptId = $template['SCRIPT_ID'];
 
 			$userId = CBPHelper::extractFirstUser($this->StartBy, $this->getDocumentType());
-
-			if (!Manager::canUserStartScript($scriptId, $userId))
+			if ($userId === null)
+			{
+				$this->trackError(Loc::getMessage('BP_SSA_ACTIVITY_EMPTY_START_BY'));
+			}
+			elseif (!Manager::canUserStartScript($scriptId, $userId))
 			{
 				// todo: use activity loc message
 				$startScriptResult = new \Bitrix\Bizproc\Script\StartScriptResult();

@@ -447,27 +447,21 @@ class Notify
 
 	private function requestSearchTotalCount(): int
 	{
-		$ormParams = [
-			'select' => ['CNT'],
-			'filter' => [
-				'=CHAT_ID' => $this->chatId,
-			],
-			'runtime' => [
-				new \Bitrix\Main\ORM\Fields\ExpressionField('CNT', 'COUNT(*)')
-			]
+		$filter = [
+			'=CHAT_ID' => $this->chatId,
 		];
 
 		if ($this->searchText)
 		{
-			$ormParams['filter']['*%MESSAGE'] = $this->searchText;
+			$filter['*%MESSAGE'] = $this->searchText;
 		}
 		if ($this->searchType)
 		{
 			$options = explode('|', $this->searchType);
-			$ormParams['filter']['=NOTIFY_MODULE'] = $options[0];
+			$filter['=NOTIFY_MODULE'] = $options[0];
 			if (isset($options[1]))
 			{
-				$ormParams['filter']['=NOTIFY_EVENT'] = $options[1];
+				$filter['=NOTIFY_EVENT'] = $options[1];
 			}
 		}
 		if ($this->searchDate)
@@ -485,16 +479,10 @@ class Notify
 				)
 			)->add('1 DAY');
 
-			$ormParams['filter']['><DATE_CREATE'] = [$dateStart, $dateEnd];
+			$filter['><DATE_CREATE'] = [$dateStart, $dateEnd];
 		}
 
-		$totalSearchCount = \Bitrix\Im\Model\MessageTable::getList($ormParams)->fetch();
-		if (!$totalSearchCount)
-		{
-			return 0;
-		}
-
-		return (int)$totalSearchCount['CNT'];
+		return \Bitrix\Im\Model\MessageTable::getCount($filter);
 	}
 
 	/**

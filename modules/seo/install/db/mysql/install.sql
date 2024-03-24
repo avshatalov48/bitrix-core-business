@@ -30,7 +30,7 @@ INSERT INTO b_seo_search_engine (CODE, ACTIVE, SORT, NAME, CLIENT_ID, CLIENT_SEC
 create table if not exists b_seo_sitemap
 (
 	ID int(11) NOT NULL auto_increment,
-	TIMESTAMP_X timestamp,
+	TIMESTAMP_X datetime,
 	SITE_ID char(2) NOT NULL,
 	ACTIVE char(1) NULL default 'Y',
 	NAME varchar(255) NULL default '',
@@ -48,7 +48,7 @@ create table if not exists b_seo_sitemap_job
 	STATUS_MESSAGE varchar(255) NULL,
 	STEP int(11) NOT NULL DEFAULT 0,
 	STATE longtext NULL,
-	DATE_MODIFY timestamp,
+	DATE_MODIFY datetime,
 	PRIMARY KEY (ID),
 	INDEX ix_seo_sitemap_job_sid (SITEMAP_ID),
 	INDEX ix_seo_sitemap_job_sid_status (SITEMAP_ID, STATUS)
@@ -98,7 +98,7 @@ CREATE TABLE if not exists b_seo_adv_campaign
 	OWNER_NAME varchar(255) NOT NULL,
 	XML_ID varchar(255) NOT NULL,
 	NAME varchar(255) NOT NULL,
-	LAST_UPDATE timestamp NULL,
+	LAST_UPDATE datetime NULL,
 	SETTINGS mediumtext NULL,
 	PRIMARY KEY (ID),
 	UNIQUE INDEX ux_b_seo_adv_campaign(ENGINE_ID, XML_ID)
@@ -112,7 +112,7 @@ CREATE TABLE if not exists b_seo_adv_group
 	OWNER_NAME varchar(255) NOT NULL,
 	ACTIVE char(1) NULL DEFAULT 'Y',
 	XML_ID varchar(255) NOT NULL,
-	LAST_UPDATE timestamp NULL,
+	LAST_UPDATE datetime NULL,
 	NAME varchar(255) NOT NULL,
 	SETTINGS text NULL,
 	CAMPAIGN_ID int(11) NOT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE if not exists b_seo_adv_banner
 	OWNER_NAME varchar(255) NOT NULL,
 	ACTIVE char(1) NULL DEFAULT 'Y',
 	XML_ID varchar(255) NOT NULL,
-	LAST_UPDATE timestamp NULL,
+	LAST_UPDATE datetime NULL,
 	NAME varchar(255) NOT NULL,
 	SETTINGS mediumtext NULL,
 	CAMPAIGN_ID int(11) NOT NULL,
@@ -151,7 +151,7 @@ CREATE TABLE if not exists b_seo_adv_region
 	OWNER_NAME varchar(255) NOT NULL,
 	ACTIVE char(1) NULL DEFAULT 'Y',
 	XML_ID varchar(255) NOT NULL,
-	LAST_UPDATE timestamp NULL,
+	LAST_UPDATE datetime NULL,
 	NAME varchar(255) NOT NULL,
 	SETTINGS text NULL,
 	PARENT_ID int(11) NOT NULL,
@@ -172,7 +172,7 @@ CREATE TABLE if not exists b_seo_adv_order
 (
 	ID int(11) NOT NULL auto_increment,
 	ENGINE_ID int(11) NOT NULL,
-	TIMESTAMP_X timestamp NOT NULL,
+	TIMESTAMP_X datetime NOT NULL,
 	CAMPAIGN_ID int(11) NOT NULL,
 	BANNER_ID int(11) NOT NULL,
 	ORDER_ID int(11) NOT NULL,
@@ -187,7 +187,7 @@ CREATE TABLE if not exists b_seo_adv_log
 (
 	ID int(11) NOT NULL AUTO_INCREMENT,
 	ENGINE_ID int(11) NOT NULL,
-	TIMESTAMP_X timestamp NOT NULL,
+	TIMESTAMP_X datetime NOT NULL,
 	REQUEST_URI varchar(100) NOT NULL,
 	REQUEST_DATA text,
 	RESPONSE_TIME float NOT NULL,
@@ -202,7 +202,7 @@ CREATE TABLE if not exists b_seo_adv_autolog
 (
 	ID int(11) NOT NULL AUTO_INCREMENT,
 	ENGINE_ID int(11) NOT NULL,
-	TIMESTAMP_X timestamp NOT NULL,
+	TIMESTAMP_X datetime NOT NULL,
 	CAMPAIGN_ID int(11) NOT NULL,
 	CAMPAIGN_XML_ID varchar(255) NOT NULL,
 	BANNER_ID int(11) NOT NULL,

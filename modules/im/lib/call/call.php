@@ -773,6 +773,24 @@ class Call
 		return null;
 	}
 
+	public static function searchActiveByUuid(string $uuid): ?Call
+	{
+		$callFields = CallTable::query()
+			->addSelect("*")
+			->where("UUID", $uuid)
+			->setLimit(1)
+			->exec()
+			->fetch()
+		;
+
+		if(!$callFields)
+		{
+			return null;
+		}
+
+		return static::createWithArray($callFields);
+	}
+
 	/**
 	 * Creates new instance of the Call with values from the database.
 	 *
@@ -852,13 +870,13 @@ class Call
 		}
 	}
 
-	public static function isCallServerEnabled()
+	public static function isCallServerEnabled(): bool
 	{
-		if(Loader::includeModule("bitrix24"))
+		if (Loader::includeModule("bitrix24"))
 		{
 			return true;
 		}
-		if(!ModuleManager::isModuleInstalled("voximplant"))
+		if (!ModuleManager::isModuleInstalled("voximplant"))
 		{
 			return false;
 		}
@@ -866,14 +884,22 @@ class Call
 		return (bool)Option::get("im", "call_server_enabled");
 	}
 
-	public static function isBitrixCallServerEnabled()
+	/**
+	 * @deprecated
+	 */
+	public static function isBitrixCallServerEnabled(): bool
 	{
-		$isBeta = Option::get('im', 'bitrix_call_enabled', 'N');
-
-		return $isBeta === 'Y';
+		return self::isBitrixCallEnabled();
 	}
 
-	public static function isVoximplantCallServerEnabled()
+	public static function isBitrixCallEnabled(): bool
+	{
+		$isEnabled = Option::get('im', 'bitrix_call_enabled', 'N');
+
+		return $isEnabled === 'Y';
+	}
+
+	public static function isVoximplantCallServerEnabled(): bool
 	{
 		return self::isCallServerEnabled();
 	}

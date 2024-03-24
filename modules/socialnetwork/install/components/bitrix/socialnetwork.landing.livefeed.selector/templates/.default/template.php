@@ -73,7 +73,7 @@ if (
 	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."landing-livefeed-selector-wrapper-empty");
 
 	?><div class="landing-livefeed-selector-content landing-livefeed-selector-content-empty">
-		<div class="landing-livefeed-selector-content-message"><?=Loc::getMessage("SLLS_TEMPLATE_NO_GROUPS_MSGVER_1")?></div>
+		<div class="landing-livefeed-selector-content-message"><?=Loc::getMessage("SLLS_TEMPLATE_NO_GROUPS_MSGVER_2")?></div>
 		<?
 		if (!empty($arResult["URL_GROUP_CREATE"]))
 		{

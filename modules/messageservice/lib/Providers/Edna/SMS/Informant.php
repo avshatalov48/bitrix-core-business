@@ -3,6 +3,7 @@
 namespace Bitrix\MessageService\Providers\Edna\SMS;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\MessageService\Providers\Edna\RegionHelper;
 
 class Informant extends \Bitrix\MessageService\Providers\Base\Informant
 {
@@ -19,11 +20,16 @@ class Informant extends \Bitrix\MessageService\Providers\Base\Informant
 
 	public function getName(): string
 	{
-		return Loc::getMessage('MESSAGESERVICE_SENDER_SMS_SMSEDNARU_NAME');
+		return Loc::getMessage(RegionHelper::getPhrase('MESSAGESERVICE_SENDER_SMS_SMSEDNARU_NAME'));
 	}
 
 	public function getShortName(): string
 	{
+		if (RegionHelper::isInternational())
+		{
+			return 'sms.edna.io';
+		}
+
 		return 'sms.edna.ru';
 	}
 }

@@ -86,6 +86,12 @@ export class Main extends EventEmitter
 		return scrollTop / scrollHeight * 100;
 	}
 
+	/**
+	 * Landing ID
+	 * @type {number}
+	 */
+	id: number;
+
 	constructor(id: number)
 	{
 		super();

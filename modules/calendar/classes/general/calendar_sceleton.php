@@ -25,6 +25,7 @@ class CCalendarSceleton
 			'ui.entity-selector',
 			'ui.forms',
 			'ui.hint',
+			'ui.analytics',
 			'ui.confetti',
 			'calendar.util',
 			'calendar.entry',

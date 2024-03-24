@@ -15,6 +15,9 @@ class CIMDisk
 	const PATH_TYPE_PREVIEW = 'preview';
 	const PATH_TYPE_DOWNLOAD = 'download';
 
+	private static $chatList = [];
+	private static $folderList = [];
+
 	/**
 	 * Returns IM's specialized storage.
 	 *
@@ -1766,6 +1769,7 @@ class CIMDisk
 	/**
 	 * @param int $chatId Chat Id.
 	 * @param bool $createFolder Create disk folder if not exists.
+	 * @param array $chat Chat data [TYPE, DISK_FOLDER_ID], optional. Prevent repeated queries
 	 * @return \Bitrix\Disk\Folder|false|null
 	 */
 	public static function GetFolderModel($chatId, $createFolder = true)
@@ -1782,8 +1786,26 @@ class CIMDisk
 
 		$folderModel = false;
 
-		$result = IM\Model\ChatTable::getById($chatId);
-		if (!$chat = $result->fetch())
+		if (isset(self::$chatList[$chatId]))
+		{
+			$chat = self::$chatList[$chatId];
+		}
+		else
+		{
+			$chat = IM\Model\ChatTable::getRow([
+				'select' => [
+					'TYPE',
+					'DISK_FOLDER_ID',
+				],
+				'filter' => [
+					'ID' => $chatId,
+				]
+			]);
+
+			self::$chatList[$chatId] = $chat;
+		}
+
+		if (!$chat)
 		{
 			return false;
 		}
@@ -1796,7 +1818,16 @@ class CIMDisk
 		$folderId = (int)$chat['DISK_FOLDER_ID'];
 		if ($folderId > 0)
 		{
-			$folderModel = \Bitrix\Disk\Folder::getById($folderId);
+			if (isset(self::$folderList[$folderId]) && self::$folderList[$folderId] instanceof \Bitrix\Disk\Folder)
+			{
+				$folderModel = self::$folderList[$folderId];
+			}
+			else
+			{
+				$folderModel = \Bitrix\Disk\Folder::getById($folderId);
+				self::$folderList[$folderId] = $folderModel;
+			}
+
 			if (
 				!$folderModel
 				|| !($folderModel instanceof \Bitrix\Disk\Folder)
@@ -1851,6 +1882,12 @@ class CIMDisk
 			{
 				IM\Model\ChatTable::update($chatId, ['DISK_FOLDER_ID' => $folderModel->getId()]);
 
+				if (isset(self::$chatList[$chatId]))
+				{
+					self::$chatList[$chatId]['DISK_FOLDER_ID'] = $folderModel->getId();
+				}
+				self::$folderList[$folderId] = $folderModel;
+
 				$accessProvider->updateChatCodesByRelations($chatId);
 			}
 		}
@@ -1880,14 +1917,32 @@ class CIMDisk
 			return false;
 		}
 
-		$folderModel = self::getFolderModel($chatId, false);
-		if (!$folderModel)
+		if (isset(self::$chatList[$chatId]))
+		{
+			$chat = self::$chatList[$chatId];
+		}
+		else
+		{
+			$chat = IM\Model\ChatTable::getRow([
+				'select' => [
+					'TYPE',
+					'DISK_FOLDER_ID',
+				],
+				'filter' => [
+					'ID' => $chatId,
+				]
+			]);
+
+			self::$chatList[$chatId] = $chat;
+		}
+
+		if (!$chat)
 		{
 			return false;
 		}
 
-		$resChat = IM\Model\ChatTable::getById($chatId);
-		if (!$chat = $resChat->fetch())
+		$folderModel = self::getFolderModel($chatId, false);
+		if (!$folderModel)
 		{
 			return false;
 		}

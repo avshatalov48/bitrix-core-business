@@ -15,4 +15,4 @@ $MESS ["COMP_FORM_PARAMS_NOT_SHOW_TABLE"] = "Коды полей которые 
 $MESS ["COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST"] = "Коды полей которые нельзя показывать в таблице";
 $MESS ["COMP_FORM_PARAMS_CHAIN_ITEM_TEXT"] = "Название дополнительного пункта в навигационной цепочке";
 $MESS ["COMP_FORM_PARAMS_CHAIN_ITEM_LINK"] = "Ссылка на дополнительном пункте в навигационной цепочке";
-?>
+$MESS ["COMP_FORM_NAME_TEMPLATE"] = "Формат имени";

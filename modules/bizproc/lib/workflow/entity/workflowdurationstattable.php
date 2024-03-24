@@ -2,8 +2,10 @@
 
 namespace Bitrix\Bizproc\Workflow\Entity;
 
+use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
@@ -29,6 +31,8 @@ class WorkflowDurationStatTable extends DataManager
 	private const DURATION_ROWS_LIMIT = 20;
 	private const AVERAGE_DURATION_DEVIATION_PERCENT = 16;
 	private const AVERAGE_DURATIONS_CACHE_TTL = 86400; // 60 * 60 * 24
+
+	private static array $cutDurationStatQueue = [];
 
 	public static function getTableName()
 	{
@@ -121,4 +125,48 @@ class WorkflowDurationStatTable extends DataManager
 
 		$connection->queryExecute("DELETE FROM {$tableName} WHERE TEMPLATE_ID = {$templateId}");
 	}
+
+	public static function onAfterAdd(Event $event)
+	{
+		parent::onAfterAdd($event);
+
+		$fields = $event->getParameter('fields');
+		$templateId = $fields['TEMPLATE_ID'] ?? 0;
+
+		self::$cutDurationStatQueue[$templateId] = true;
+		static $isAddedBackgroundJod = false;
+		if (!$isAddedBackgroundJod)
+		{
+			Main\Application::getInstance()->addBackgroundJob(
+				[static::class, 'doBackgroundDurationStatCut'],
+				[],
+				Main\Application::JOB_PRIORITY_LOW - 10,
+			);
+			$isAddedBackgroundJod = true;
+		}
+	}
+
+	public static function doBackgroundDurationStatCut()
+	{
+		$connection = Application::getConnection();
+		$tableName = $connection->getSqlHelper()->forSql(static::getTableName());
+
+		$templateIds = array_keys(self::$cutDurationStatQueue);
+		self::$cutDurationStatQueue = [];
+
+		foreach ($templateIds as $templateId)
+		{
+			$ids = static::getOutdatedIds((int)$templateId);
+			if ($ids)
+			{
+				$connection->query(
+					sprintf(
+						"DELETE FROM {$tableName} WHERE ID IN (%s)",
+						implode(',', $ids)
+					),
+				);
+			}
+		}
+	}
+
 }

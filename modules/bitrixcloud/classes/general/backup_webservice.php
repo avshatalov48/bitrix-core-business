@@ -1,11 +1,12 @@
 <?php
 IncludeModuleLangFile(__FILE__);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/update_client.php';
 
 class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 {
-	private $addParams = array();
-	private $addStr = "";
+	private $addParams = [];
+	private $addStr = '';
+
 	/**
 	 * Returns URL to backup webservice
 	 *
@@ -13,20 +14,23 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 * @return string
 	 *
 	 */
-	protected function getActionURL($arParams = /*.(array[string]string).*/ array())
+	protected function getActionURL($arParams = /*.(array[string]string).*/ [])
 	{
-		$arParams["license"] = md5(LICENSE_KEY);
-		$arParams["lang"] = LANGUAGE_ID;
-		foreach($this->addParams as $key => $value)
+		$arParams['license'] = md5(LICENSE_KEY);
+		$arParams['lang'] = LANGUAGE_ID;
+		foreach ($this->addParams as $key => $value)
+		{
 			$arParams[$key] = $value;
+		}
 
-		$url = COption::GetOptionString("bitrixcloud", "backup_policy_url");
-		$url = CHTTP::urlAddParams($url, $arParams, array(
-			"encode" => true,
-		)).$this->addStr;
+		$url = COption::GetOptionString('bitrixcloud', 'backup_policy_url');
+		$url = (new \Bitrix\Main\Web\Uri($url))
+			->addParams($arParams)
+			->getUri() . $this->addStr;
 
 		return $url;
 	}
+
 	/**
 	 * Returns action response XML and check CRC
 	 *
@@ -37,22 +41,26 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	protected function backup_action($action) /*. throws CBitrixCloudException .*/
 	{
 		$obXML = $this->action($action);
-		$node = $obXML->SelectNodes("/control");
+		/* @var CDataXMLNode $node */
+		$node = $obXML->SelectNodes('/control');
 		if (is_object($node))
 		{
-			$spd = $node->getAttribute("crc_code");
-			if($spd <> '')
+			$spd = $node->getAttribute('crc_code');
+			if ($spd <> '')
+			{
 				CUpdateClient::setSpd($spd);
+			}
 		}
 		else
 		{
-			throw new CBitrixCloudException(GetMessage("BCL_BACKUP_WS_SERVER", array(
-				"#STATUS#" => "-1",
-			)), $this->getServerResult());
+			throw new CBitrixCloudException(GetMessage('BCL_BACKUP_WS_SERVER', [
+				'#STATUS#' => '-1',
+			]), $this->getServerResult());
 		}
 
 		return $obXML;
 	}
+
 	/**
 	 *
 	 * @return CDataXML
@@ -60,10 +68,11 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 */
 	public function actionGetInformation() /*. throws CBitrixCloudException .*/
 	{
-		$this->addStr = "";
-		$this->addParams = array();
-		return $this->backup_action("get_info");
+		$this->addStr = '';
+		$this->addParams = [];
+		return $this->backup_action('get_info');
 	}
+
 	/**
 	 *
 	 * @param string $check_word
@@ -73,13 +82,14 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 */
 	public function actionReadFile($check_word, $file_name) /*. throws CBitrixCloudException .*/
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"check_word" => $check_word,
-			"file_name" => $file_name,
-		);
-		return $this->backup_action("read_file");
+		$this->addStr = '';
+		$this->addParams = [
+			'check_word' => $check_word,
+			'file_name' => $file_name,
+		];
+		return $this->backup_action('read_file');
 	}
+
 	/**
 	 *
 	 * @param string $check_word
@@ -89,15 +99,16 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 */
 	public function actionWriteFile($check_word, $file_name) /*. throws CBitrixCloudException .*/
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"file_name" => $file_name,
-			"spd" => CUpdateClient::getSpd(),
-			"CHHB" => $_SERVER["HTTP_HOST"],
-			"CSAB" => $_SERVER["SERVER_ADDR"],
-		);
-		return $this->backup_action("write_file");
+		$this->addStr = '';
+		$this->addParams = [
+			'file_name' => $file_name,
+			'spd' => CUpdateClient::getSpd(),
+			'CHHB' => $_SERVER['HTTP_HOST'],
+			'CSAB' => $_SERVER['SERVER_ADDR'],
+		];
+		return $this->backup_action('write_file');
 	}
+
 	/**
 	 *
 	 * @param string $secret_key
@@ -107,33 +118,33 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 * @return CDataXML
 	 *
 	 */
-	public function actionAddBackupJob($secret_key, $url, $time = 0, $weekdays = array()) /*. throws CBitrixCloudException .*/
+	public function actionAddBackupJob($secret_key, $url, $time = 0, $weekdays = []) /*. throws CBitrixCloudException .*/
 	{
-		if ($secret_key == "")
+		if ((string)$secret_key === '')
 		{
-			throw new CBitrixCloudException(GetMessage("BCL_BACKUP_EMPTY_SECRET_KEY"), "");
+			throw new CBitrixCloudException(GetMessage('BCL_BACKUP_EMPTY_SECRET_KEY'), '');
 		}
 
 		$parsedUrl = parse_url($url);
 		if (
 			!is_array($parsedUrl)
-			|| !($parsedUrl["scheme"] === "http" || $parsedUrl["scheme"] === "https")
-			|| $parsedUrl["host"] == ''
-			|| !(intval($parsedUrl["port"]) == 0 || intval($parsedUrl["port"]) == 80)
-			|| $parsedUrl["path"] <> ''
-			|| $parsedUrl["user"] <> ''
-			|| $parsedUrl["pass"] <> ''
-			|| $parsedUrl["query"] <> ''
-			|| $parsedUrl["fragment"] <> ''
+			|| !($parsedUrl['scheme'] === 'http' || $parsedUrl['scheme'] === 'https')
+			|| $parsedUrl['host'] == ''
+			|| !(intval($parsedUrl['port']) == 0 || intval($parsedUrl['port']) == 80)
+			|| $parsedUrl['path'] <> ''
+			|| $parsedUrl['user'] <> ''
+			|| $parsedUrl['pass'] <> ''
+			|| $parsedUrl['query'] <> ''
+			|| $parsedUrl['fragment'] <> ''
 		)
 		{
-			throw new CBitrixCloudException(GetMessage("BCL_BACKUP_WRONG_URL"), "");
+			throw new CBitrixCloudException(GetMessage('BCL_BACKUP_WRONG_URL'), '');
 		}
 
 		$time = intval($time);
-		if ($time < 0 || $time >= 24*3600)
+		if ($time < 0 || $time >= 24 * 3600)
 		{
-			throw new CBitrixCloudException(GetMessage("BCL_BACKUP_WRONG_TIME"), "");
+			throw new CBitrixCloudException(GetMessage('BCL_BACKUP_WRONG_TIME'), '');
 		}
 
 		$weekdaysIsOk = is_array($weekdays);
@@ -142,39 +153,42 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 			foreach ($weekdays as $dow)
 			{
 				if (intval($dow) < 0 || intval($dow) > 6)
+				{
 					$weekdaysIsOk = false;
+				}
 			}
 		}
 		if (!$weekdaysIsOk)
 		{
-			throw new CBitrixCloudException(GetMessage("BCL_BACKUP_WRONG_WEEKDAYS"), "");
+			throw new CBitrixCloudException(GetMessage('BCL_BACKUP_WRONG_WEEKDAYS'), '');
 		}
 
-		$h = intval($time/3600);
-		$time -= $h*3600;
-		$m = intval($time/60);
-		$this->addParams = array(
-			"secret_key" => trim($secret_key),
-			"time" => $h.":".$m,
-			"domain" => $parsedUrl["host"],
-			"spd" => CUpdateClient::getSpd(),
-			"CHHB" => $_SERVER["HTTP_HOST"],
-			"CSAB" => $_SERVER["SERVER_ADDR"],
-		);
+		$h = intval($time / 3600);
+		$time -= $h * 3600;
+		$m = intval($time / 60);
+		$this->addParams = [
+			'secret_key' => trim($secret_key),
+			'time' => $h . ':' . $m,
+			'domain' => $parsedUrl['host'],
+			'spd' => CUpdateClient::getSpd(),
+			'CHHB' => $_SERVER['HTTP_HOST'],
+			'CSAB' => $_SERVER['SERVER_ADDR'],
+		];
 
-		if ($parsedUrl["scheme"] === "https")
+		if ($parsedUrl['scheme'] === 'https')
 		{
-			$this->addParams["domain_is_https"] = "Y";
+			$this->addParams['domain_is_https'] = 'Y';
 		}
 
-		$this->addStr = "";
+		$this->addStr = '';
 		foreach ($weekdays as $dow)
 		{
-			$this->addStr .= "&ar_weekdays[]=".intval($dow);
+			$this->addStr .= '&ar_weekdays[]=' . intval($dow);
 		}
 
-		return $this->backup_action("add_backup_job");
+		return $this->backup_action('add_backup_job');
 	}
+
 	/**
 	 *
 	 * @return CDataXML
@@ -182,15 +196,16 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 */
 	public function actionDeleteBackupJob()
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"spd" => CUpdateClient::getSpd(),
-			"CHHB" => $_SERVER["HTTP_HOST"],
-			"CSAB" => $_SERVER["SERVER_ADDR"],
-		);
+		$this->addStr = '';
+		$this->addParams = [
+			'spd' => CUpdateClient::getSpd(),
+			'CHHB' => $_SERVER['HTTP_HOST'],
+			'CSAB' => $_SERVER['SERVER_ADDR'],
+		];
 
-		return $this->backup_action("delete_backup_job");
+		return $this->backup_action('delete_backup_job');
 	}
+
 	/**
 	 *
 	 * @return CDataXML
@@ -198,13 +213,13 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 	 */
 	public function actionGetBackupJob()
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"spd" => CUpdateClient::getSpd(),
-			"CHHB" => $_SERVER["HTTP_HOST"],
-			"CSAB" => $_SERVER["SERVER_ADDR"],
-		);
+		$this->addStr = '';
+		$this->addParams = [
+			'spd' => CUpdateClient::getSpd(),
+			'CHHB' => $_SERVER['HTTP_HOST'],
+			'CSAB' => $_SERVER['SERVER_ADDR'],
+		];
 
-		return $this->backup_action("get_backup_job");
+		return $this->backup_action('get_backup_job');
 	}
 }

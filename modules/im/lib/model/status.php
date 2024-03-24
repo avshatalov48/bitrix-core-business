@@ -2,8 +2,6 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main\Entity;
-use Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
 
 /**
  * Class StatusTable
@@ -69,17 +67,17 @@ class StatusTable extends Entity\DataManager
 			'USER_ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
-				'title' => Loc::getMessage('STATUS_ENTITY_USER_ID_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_USER_ID_FIELD'),
 			),
 			'COLOR' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateColor'),
-				'title' => Loc::getMessage('STATUS_ENTITY_COLOR_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_COLOR_FIELD'),
 			),
 			'STATUS' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateStatus'),
-				'title' => Loc::getMessage('STATUS_ENTITY_STATUS_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_STATUS_FIELD'),
 				'default_value' => 'online',
 			),
 			'STATUS_TEXT' => array(
@@ -88,23 +86,23 @@ class StatusTable extends Entity\DataManager
 			),
 			'IDLE' => array(
 				'data_type' => 'datetime',
-				'title' => Loc::getMessage('STATUS_ENTITY_IDLE_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_IDLE_FIELD'),
 			),
 			'DESKTOP_LAST_DATE' => array(
 				'data_type' => 'datetime',
-				'title' => Loc::getMessage('STATUS_ENTITY_DESKTOP_LAST_DATE_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_DESKTOP_LAST_DATE_FIELD'),
 			),
 			'MOBILE_LAST_DATE' => array(
 				'data_type' => 'datetime',
-				'title' => Loc::getMessage('STATUS_ENTITY_MOBILE_LAST_DATE_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_MOBILE_LAST_DATE_FIELD'),
 			),
 			'EVENT_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('STATUS_ENTITY_EVENT_ID_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_EVENT_ID_FIELD'),
 			),
 			'EVENT_UNTIL_DATE' => array(
 				'data_type' => 'datetime',
-				'title' => Loc::getMessage('STATUS_ENTITY_EVENT_UNTIL_DATE_FIELD'),
+				//'title' => Loc::getMessage('STATUS_ENTITY_EVENT_UNTIL_DATE_FIELD'),
 			),
 			'USER' => array(
 				'data_type' => 'Bitrix\Main\User',

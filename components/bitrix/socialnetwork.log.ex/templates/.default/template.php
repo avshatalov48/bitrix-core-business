@@ -190,10 +190,7 @@ if (
 		$dynamicArea->setStub($stub);
 	}
 
-	if ($arParams["CONTEXT"] !== Context::SPACES)
-	{
-		require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/informer.php");
-	}
+	require_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/informer.php");
 
 	if ($arResult["SHOW_NOTIFICATION_NOTASKS"])
 	{
@@ -202,7 +199,7 @@ if (
 				<div class="feed-notification-icon"></div>
 			</div>
 			<div class="feed-notification-block-content">
-				<div class="feed-notification-title"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE")?></div>
+				<div class="feed-notification-title"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE_MSGVER_1")?></div>
 				<div class="feed-notification-description"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC2")?></div>
 				<div class="feed-notification-buttons">
 					<a href="javascript:void(0);" class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" id="feed-notification-notasks-read-btn"><?=Loc::getMessage('SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_OK')?></a>
@@ -298,6 +295,9 @@ if (
 					signedParameters: '<?= $this->getComponent()->getSignedParameters() ?>',
 					componentName: '<?= $this->getComponent()->getName() ?>',
 					context: '<?= $arParams['CONTEXT'] ?? Context::DEFAULT ?>',
+					isSpaceEnabled: '<?= \Bitrix\Socialnetwork\Space\Service::isAvailable(true) ?>',
+					userId: '<?= \Bitrix\Socialnetwork\Helper\User::getCurrentUserId(); ?>',
+					spaceId: '<?= $arParams['GROUP_ID'] ?? 0 ?>',
 				});
 			});
 			<?php

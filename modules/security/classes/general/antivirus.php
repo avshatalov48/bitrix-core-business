@@ -2,6 +2,11 @@
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Main\Config\Ini;
+use Bitrix\Main\Application;
+use Bitrix\Security\VirusTable;
+use Bitrix\Main\EventLog\Internal\EventLogTable;
+use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Security\WhiteListTable;
 
 /*
 Here is testing code:
@@ -113,7 +118,7 @@ class CSecurityAntiVirus
 		if (self::isSafetyRequest()) //Check only GET and POST request
 			return;
 
-		global $APPLICATION, $DB, $BX_SECURITY_AV_TIMEOUT, $BX_SECURITY_AV_ACTION;
+		global $APPLICATION, $BX_SECURITY_AV_TIMEOUT, $BX_SECURITY_AV_ACTION;
 		$BX_SECURITY_AV_TIMEOUT = COption::GetOptionInt("security", "antivirus_timeout");
 		$BX_SECURITY_AV_ACTION = COption::GetOptionInt("security", "antivirus_action");
 
@@ -133,7 +138,6 @@ class CSecurityAntiVirus
 		}
 
 		//Init DB in order to be able to register the event in the shutdown function
-		CSecurityDB::Init();
 
 		//Check if we started output buffering in auto_prepend_file
 		//so we'll have chances to detect virus before prolog
@@ -156,10 +160,12 @@ class CSecurityAntiVirus
 		$fname = $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/managed_cache/b_sec_virus";
 		if(file_exists($fname))
 		{
-			$rsInfo = $DB->Query("select *, UNIX_TIMESTAMP(TIMESTAMP_X) as ts_x from b_sec_virus where SENT='N'");
+			$rsInfo = VirusTable::getList(["filter" => ["=SENT" => "N"]]);
+
 			if($arInfo = $rsInfo->Fetch())
 			{
-				if($table_lock = CSecurityDB::LockTable('b_sec_virus', $APPLICATION->GetServerUniqID()."_virus"))
+				$connection = Application::getConnection();
+				if($connection->lock("b_sec_virus"))
 				{
 					$SITE_ID = false;
 					do {
@@ -169,22 +175,24 @@ class CSecurityAntiVirus
 							$arEvent = unserialize(base64_decode($arInfo["INFO"]), ['allowed_classes' => false]);
 							if(is_array($arEvent))
 							{
-								$arEvent["TIMESTAMP_X"] = ConvertTimeStamp($arInfo["ts_x"], "FULL");
-								$DB->Add("b_event_log", $arEvent, array("DESCRIPTION"));
+								$arEvent["TIMESTAMP_X"] = $arInfo["TIMESTAMP_X"];
+								$arEvent["USER_ID"] = null;
+								$arEvent["GUEST_ID"] = null;
+								EventLogTable::add($arEvent);
 							}
 						}
-						CSecurityDB::Query("update b_sec_virus set SENT='Y' where ID='".$arInfo["ID"]."'", '');
+						VirusTable::update($arInfo["ID"], ["SENT" => "Y"]);
+
 					} while ($arInfo = $rsInfo->Fetch());
 
-					CTimeZone::Disable();
-					$arDate = localtime(time());
-					$date = mktime($arDate[2], $arDate[1]-$BX_SECURITY_AV_TIMEOUT, 0, $arDate[4]+1, $arDate[3], 1900+$arDate[5]);
-					CSecurityDB::Query("DELETE FROM b_sec_virus WHERE TIMESTAMP_X <= ".$DB->CharToDateFunction(ConvertTimeStamp($date, "FULL")), '');
-					CTimeZone::Enable();
+					$date = new \Bitrix\Main\Type\DateTime();
+					$date->add("-{$BX_SECURITY_AV_TIMEOUT} minutes");
+
+					VirusTable::deleteList(["<=TIMESTAMP_X" => $date]);
 
 					CEvent::Send("VIRUS_DETECTED", $SITE_ID? $SITE_ID: SITE_ID, array("EMAIL" => COption::GetOptionString("main", "email_from", "")));
 
-					CSecurityDB::UnlockTable($table_lock);
+					$connection->unlock("b_sec_virus");
 
 					@unlink($fname);
 				}
@@ -238,22 +246,22 @@ class CSecurityAntiVirus
 
 	public static function GetWhiteList()
 	{
-		global $DB;
-		$res = $DB->Query("SELECT * FROM b_sec_white_list ORDER BY ID", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = WhiteListTable::getList(["order" => "ID"]);
 		return $res;
 	}
 
 	public static function UpdateWhiteList($arWhiteList)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 
-		$DB->Query("DELETE FROM b_sec_white_list", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		WhiteListTable::deleteList([]);
 		$i = 1;
 		foreach($arWhiteList as $white_str)
 		{
 			$white_str = trim($white_str);
-			if($white_str)
-				$DB->Add("b_sec_white_list", array("ID" => $i++, "WHITE_SUBSTR" => $white_str));
+			if($white_str){
+				WhiteListTable::add(["ID" => $i++, "WHITE_SUBSTR" => $white_str]);
+			}
 		}
 		$CACHE_MANAGER->Clean("b_sec_white_list");
 	}
@@ -453,13 +461,16 @@ class CSecurityAntiVirus
 			$this->CreateTrace();
 
 		$uniq_id = md5($this->data);
-		$rsLog = CSecurityDB::Query("SELECT * FROM b_sec_virus WHERE ID = '".$uniq_id."'", "Module: security; Class: CSecurityAntiVirus; Function: AddEventLog; File: ".__FILE__."; Line: ".__LINE__);
-		$arLog = CSecurityDB::Fetch($rsLog);
+		$arLog = VirusTable::getByPrimary($uniq_id)->fetch();
+
 		if($arLog && ($arLog["SENT"] == "Y"))
 		{
-			CSecurityDB::Query("DELETE FROM b_sec_virus WHERE SENT = 'Y' AND TIMESTAMP_X < ".CSecurityDB::SecondsAgo($BX_SECURITY_AV_TIMEOUT*60)."", "Module: security; Class: CSecurityAntiVirus; Function: AddEventLog; File: ".__FILE__."; Line: ".__LINE__);
-			$rsLog = CSecurityDB::Query("SELECT * FROM b_sec_virus WHERE ID = '".$uniq_id."'", "Module: security; Class: CSecurityAntiVirus; Function: AddEventLog; File: ".__FILE__."; Line: ".__LINE__);
-			$arLog = CSecurityDB::Fetch($rsLog);
+			$date = new \Bitrix\Main\Type\DateTime();
+			$date->add("-{$BX_SECURITY_AV_TIMEOUT} minutes");
+
+			VirusTable::deleteList(["SENT" => "Y", "<TIMESTAMP_X" => $date]);
+
+			$arLog = VirusTable::getByPrimary($uniq_id)->fetch();
 		}
 
 		if(!$arLog)
@@ -476,12 +487,13 @@ class CSecurityAntiVirus
 			}
 			else
 			{
-				$rsDefSite = CSecurityDB::Query("SELECT LID FROM b_lang WHERE ACTIVE='Y' ORDER BY DEF desc, SORT", "Module: security; Class: CSecurityAntiVirus; Function: AddEventLog; File: ".__FILE__."; Line: ".__LINE__);
-				$arDefSite = CSecurityDB::Fetch($rsDefSite);
-				if($arDefSite)
-					$SITE_ID = $arDefSite["LID"];
-				else
-					$SITE_ID = false;
+				$arDefSite = \Bitrix\Main\SiteTable::getList([
+					"select" => ["LID"],
+					"filter" => ["=ACTIVE" => "Y"],
+					"order" => ["DEF" => "DESC", "SORT" => "ASC"]
+				])->fetch();
+
+				$SITE_ID = $arDefSite ? $arDefSite["LID"] : null;
 			}
 
 			$s = serialize(array(
@@ -497,11 +509,14 @@ class CSecurityAntiVirus
 				"GUEST_ID" => array_key_exists("SESS_GUEST_ID", $_SESSION) && ($_SESSION["SESS_GUEST_ID"] > 0)? $_SESSION["SESS_GUEST_ID"]: false,
 				"DESCRIPTION" => "==".base64_encode($ss),
 			));
-			CSecurityDB::QueryBind(
-				"insert into b_sec_virus (ID, TIMESTAMP_X, SITE_ID, INFO) values ('".$uniq_id."', ".CSecurityDB::CurrentTimeFunction().", ".($SITE_ID? "'".$SITE_ID."'": "null").", :INFO)",
-				array("INFO" => base64_encode($s)),
-				"Module: security; Class: CSecurityAntiVirus; Function: AddEventLog; File: ".__FILE__."; Line: ".__LINE__
-			);
+
+			VirusTable::add([
+				"ID" => $uniq_id,
+				"TIMESTAMP_X" => new \Bitrix\Main\Type\DateTime(),
+				"SITE_ID" => $SITE_ID,
+				"INFO" => base64_encode($s)
+			]);
+
 			@fclose(@fopen($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/managed_cache/b_sec_virus","w"));
 		}
 	}

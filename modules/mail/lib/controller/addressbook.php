@@ -23,7 +23,9 @@ class AddressBook extends Controller
 			]
 		)['USER_ID'];
 
-		if (!($this->getCurrentUser()->getId() === $userID &&
+		$currentUserId = $this->getCurrentUser()?->getId();
+
+		if (is_null($currentUserId) || !((int)$this->getCurrentUser()?->getId() === (int)$userID &&
 			$contactData['NAME'] <> "" &&
 			check_email($contactData['EMAIL'])))
 		{
@@ -41,6 +43,8 @@ class AddressBook extends Controller
 				'EMAIL' => $contactData['EMAIL'],
 			]
 		);
+
+		return true;
 	}
 
 	private function isUserAdmin()
@@ -51,7 +55,7 @@ class AddressBook extends Controller
 			return false;
 		}
 
-		return (bool)($USER->isAdmin() || $USER->canDoOperation('bitrix24_config'));
+		return $USER->isAdmin() || $USER->canDoOperation('bitrix24_config');
 	}
 
 	/**
@@ -62,13 +66,29 @@ class AddressBook extends Controller
 	 */
 	public function removeContactsAction($idSet)
 	{
-		if (!Loader::includeModule('mail'))
+		$currentUserId = $this->getCurrentUser()?->getId();
+
+		if (!Loader::includeModule('mail') || is_null($currentUserId))
 		{
 			return false;
 		}
 
 		foreach ($idSet as $id)
 		{
+			$contactToDelete = MailContactTable::getRow(
+				[
+					'filter' => [
+						'=ID' => $id,
+						'=USER_ID' => $currentUserId,
+					],
+				]
+			);
+
+			if (is_null($contactToDelete))
+			{
+				return false;
+			}
+
 			MailContactTable::delete($id);
 		}
 
@@ -101,8 +121,15 @@ class AddressBook extends Controller
 		}
 		else
 		{
+			$currentUserId = $this->getCurrentUser()?->getId();
+
+			if (is_null($currentUserId))
+			{
+				return false;
+			}
+
 			$contactsData[] = [
-				'USER_ID' => $this->getCurrentUser()->getId(),
+				'USER_ID' => $currentUserId,
 				'NAME' => $contactData['NAME'],
 				'ICON' => [
 					'INITIALS' => $contactData['INITIALS'],

@@ -57,12 +57,15 @@ else
 						'TYPE' => 'custom',
 						'LAYOUT' => '<button class="ui-btn ui-btn-danger" id="sonet_group_delete_button_submit">' . Loc::getMessage($arResult['Group']['PROJECT'] === 'Y' ? 'SONET_C9_DO_DEL_PROJECT' : 'SONET_C9_DO_DEL') . '</button>',
 					],
-					[
+				];
+
+				if ($arResult['IS_IFRAME'])
+				{
+					$buttons[] = [
 						'TYPE' => 'custom',
 						'LAYOUT' => '<button class="ui-btn ui-btn-light-border" id="sonet_group_delete_button_cancel">' . Loc::getMessage('SONET_C9_DO_CANCEL') . '</button>',
-					],
-
-				];
+					];
+				}
 
 				$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
 					'BUTTONS' => $buttons,

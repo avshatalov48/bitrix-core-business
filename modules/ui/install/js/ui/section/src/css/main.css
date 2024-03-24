@@ -56,6 +56,10 @@
 	border-radius: var(--ui-border-radius-md);
 }
 
+.ui-section__wrapper.--tool-selector .ui-section__header:has(.ui-section__dragdrop-icon-wrapper) {
+	padding: 16px 14px 14px 2px;
+}
+
 .ui-section__wrapper.--tool-selector.--checked .ui-section__header {
 	border: 1px solid var(--ui-color-primary);
 }
@@ -234,4 +238,15 @@
 .ui-section__content .ui-section__row-tool-selector_title {
 	margin-left: 10px;
 	font-size: var(--ui-font-size-xl);
+}
+
+.ui-section__dragdrop-icon {
+	width: 10px;
+	height: 24px;
+	cursor: pointer;
+	background: no-repeat center url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%226%22%20height%3D%2214%22%20viewBox%3D%220%200%206%2014%22%3E%0A%20%20%3Cg%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M0%200L2%200%202%202%200%202%200%200zM0%204L2%204%202%206%200%206%200%204zM0%208L2%208%202%2010%200%2010%200%208zM0%2012L2%2012%202%2014%200%2014%200%2012zM4%200L6%200%206%202%204%202%204%200zM4%204L6%204%206%206%204%206%204%204zM4%208L6%208%206%2010%204%2010%204%208zM4%2012L6%2012%206%2014%204%2014%204%2012z%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A);
+}
+
+.ui-section__dragdrop-icon-wrapper {
+	padding: 0 14px;
 }

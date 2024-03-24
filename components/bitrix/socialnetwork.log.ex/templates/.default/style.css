@@ -4,8 +4,6 @@
 	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14.5px;
 	transition: opacity .5s, transform .5s, height .5s;
-	will-change: opacity, transform, height;
-	-webkit-backface-visibility: hidden;
 	overflow: hidden;
 }
 
@@ -952,6 +950,14 @@
 	height: 33px;
 	position: relative;
 	z-index: 140;
+}
+
+.feed-new-message-informer-place.--spaces {
+	height: 0;
+}
+
+.new-message-balloon-wrap.--spaces {
+	top: 0;
 }
 
 .feed-new-message-informer-place .feed-new-message-informer-fixed.new-message-balloon-wrap {

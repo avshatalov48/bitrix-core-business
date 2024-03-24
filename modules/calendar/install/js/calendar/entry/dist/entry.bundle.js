@@ -382,7 +382,12 @@ this.BX = this.BX || {};
 	    EntryManager.userIndex = userIndex;
 	  }
 	  handlePullChanges(params) {
-	    var _params$fields6;
+	    var _params$fields5;
+	    if (['edit_event_location', 'delete_event_location'].includes(params.command)) {
+	      var _top$BX$Calendar, _top$BX$Calendar$Cont, _top$BX$Calendar$Cont2;
+	      (_top$BX$Calendar = top.BX.Calendar) == null ? void 0 : (_top$BX$Calendar$Cont = _top$BX$Calendar.Controls) == null ? void 0 : (_top$BX$Calendar$Cont2 = _top$BX$Calendar$Cont.Location) == null ? void 0 : _top$BX$Calendar$Cont2.handlePull(params);
+	      return;
+	    }
 	    if (!BX.Calendar.Util.checkRequestId(params.requestUid)) {
 	      return;
 	    }
@@ -402,17 +407,15 @@ this.BX = this.BX || {};
 	    });
 	    if (params.command === 'set_meeting_status') {
 	      top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
-	    } else if (params.command === 'delete_event' || params.command === 'edit_event') {
-	      var _params$fields3, _params$fields4, _params$fields5, _top$BX$Calendar, _top$BX$Calendar$Cont;
+	    }
+	    if (params.command === 'delete_event' || params.command === 'edit_event') {
+	      var _params$fields3, _params$fields4;
 	      if (!params.fields || params != null && (_params$fields3 = params.fields) != null && _params$fields3.IS_MEETING && (params == null ? void 0 : (_params$fields4 = params.fields) == null ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
 	        top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 	      }
-	      if ((params == null ? void 0 : (_params$fields5 = params.fields) == null ? void 0 : _params$fields5.CAL_TYPE) === 'location' && (_top$BX$Calendar = top.BX.Calendar) != null && (_top$BX$Calendar$Cont = _top$BX$Calendar.Controls) != null && _top$BX$Calendar$Cont.Location) {
-	        top.BX.Calendar.Controls.Location.handlePull(params);
-	      }
 	    }
 	    const calendarContext = calendar_util.Util.getCalendarContext();
-	    const entrySectionId = parseInt(params == null ? void 0 : (_params$fields6 = params.fields) == null ? void 0 : _params$fields6.SECTION_ID);
+	    const entrySectionId = parseInt(params == null ? void 0 : (_params$fields5 = params.fields) == null ? void 0 : _params$fields5.SECTION_ID);
 	    let sectionDisplayed = main_core.Type.isArray(params.sections) && params.sections.find(section => {
 	      return section.id === entrySectionId && section.isShown();
 	    });
@@ -943,7 +946,7 @@ this.BX = this.BX || {};
 	      this.deleteParts(recursionMode);
 	      const action = 'deleteCalendarEntry';
 	      const data = {
-	        entryId: this.id,
+	        entryId: this.parentId,
 	        recursionMode: params.recursionMode || false,
 	        requestUid: calendar_util.Util.registerRequestId()
 	      };
@@ -979,7 +982,7 @@ this.BX = this.BX || {};
 	      this.deleteParts(recursionMode);
 	      const action = 'excludeRecursionDate';
 	      const data = {
-	        entryId: this.id,
+	        entryId: this.parentId,
 	        recursionMode: recursionMode,
 	        excludeDate: this.data.DATE_FROM
 	      };
@@ -1016,10 +1019,9 @@ this.BX = this.BX || {};
 	      }]);
 	      EntryManager.showDeleteEntryNotification(this);
 	      this.deleteParts(recursionMode);
-	      const calendarContext = calendar_util.Util.getCalendarContext();
 	      const action = 'changeRecurciveEntryUntil';
 	      const data = {
-	        entryId: this.id,
+	        entryId: this.parentId,
 	        recursionMode: recursionMode,
 	        untilDate: calendar_util.Util.formatDate(this.from.getTime() - calendar_util.Util.getDayLength())
 	      };

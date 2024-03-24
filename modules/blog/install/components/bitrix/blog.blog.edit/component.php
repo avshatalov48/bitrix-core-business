@@ -104,7 +104,7 @@ else
 				if ((!$bBlockURL || $USER->IsAdmin() || empty($arBlog)) && $_POST["URL"] <> '')
 					$arFields["URL"] = $_POST['URL'];
 
-				if (count($arParams["BLOG_PROPERTY"]) > 0)
+				if ($arParams["BLOG_PROPERTY"] && count($arParams["BLOG_PROPERTY"]) > 0)
 				{
 					$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("BLOG_BLOG", $arFields);
 				}

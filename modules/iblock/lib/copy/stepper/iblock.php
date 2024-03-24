@@ -1,8 +1,9 @@
 <?php
+
 namespace Bitrix\Iblock\Copy\Stepper;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
+use Bitrix\Iblock\ElementTable;
 
 class Iblock extends Entity
 {
@@ -34,6 +35,7 @@ class Iblock extends Entity
 			if (empty($queueOption))
 			{
 				$this->deleteQueueOption();
+
 				return !$this->isQueueEmpty();
 			}
 
@@ -69,17 +71,20 @@ class Iblock extends Entity
 				{
 					$this->deleteQueueOption();
 					$this->onAfterCopy($queueOption);
+
 					return !$this->isQueueEmpty();
 				}
 				else
 				{
 					$option["steps"] = $offset;
+
 					return true;
 				}
 			}
 			else
 			{
 				$this->deleteQueueOption();
+
 				return !$this->isQueueEmpty();
 			}
 		}
@@ -87,6 +92,7 @@ class Iblock extends Entity
 		{
 			$this->writeToLog($exception);
 			$this->deleteQueueOption();
+
 			return false;
 		}
 	}
@@ -95,34 +101,32 @@ class Iblock extends Entity
 	{
 		$elementIds = [];
 
-		$connection = Application::getInstance()->getConnection();
-		$sqlHelper = $connection->getSqlHelper();
-
-		$queryObject = $connection->query("SELECT ID FROM `b_iblock_element` WHERE `IBLOCK_ID` = '".
-			$sqlHelper->forSql($iblockId)."' ORDER BY ID ASC LIMIT ".$limit." OFFSET ".$offset);
-		$selectedRowsCount = $queryObject->getSelectedRowsCount();
-		while ($element = $queryObject->fetch())
+		$iterator = ElementTable::getList([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+			],
+			'order' => [
+				'ID' => 'ASC',
+			],
+			'limit' => $limit,
+			'offset' => $offset,
+		]);
+		while ($row = $iterator->fetch())
 		{
-			$elementIds[] = $element["ID"];
+			$elementIds[] = $row['ID'];
 		}
+		unset($row, $iterator);
 
-		return [$elementIds, $selectedRowsCount];
+		return [$elementIds, count($elementIds)];
 	}
 
 	private function getOffset(int $copiedIblockId): int
 	{
-		$elementIds = [];
-
-		$connection = Application::getInstance()->getConnection();
-		$sqlHelper = $connection->getSqlHelper();
-
-		$queryObject = $connection->query("SELECT ID FROM `b_iblock_element` WHERE `IBLOCK_ID` = '".
-			$sqlHelper->forSql($copiedIblockId)."' ORDER BY ID");
-		while ($element = $queryObject->fetch())
-		{
-			$elementIds[] = $element["ID"];
-		}
-
-		return count($elementIds);
+		return ElementTable::getCount([
+			'=IBLOCK_ID' => $copiedIblockId,
+		]);
 	}
 }

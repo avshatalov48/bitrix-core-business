@@ -104,7 +104,7 @@ class LogIndexTable extends Entity\DataManager
 		];
 
 		$updateFields = [
-			'CONTENT' => new SqlExpression("IF(SHA1(CONTENT) = '{$encryptedValue}', CONTENT, '{$value}')"),
+			'CONTENT' => new SqlExpression("CASE WHEN " . $helper->getSha1Function('?v') . " = '{$encryptedValue}' THEN ?v ELSE '{$value}' END", 'CONTENT', 'CONTENT'),
 		];
 
 		if (

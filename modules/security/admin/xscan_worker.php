@@ -30,80 +30,7 @@ if (!isset($_REQUEST['ajax']) && !isset($_REQUEST['grid_action']))
 
 CModule::IncludeModule('security');
 
-$filterOptions = new \Bitrix\Main\UI\Filter\Options('report_filter');
-$filters = $filterOptions->getFilter();
-
-$filter = [];
-foreach ($filters as $k => $v)
-{
-	if (!$v)
-	{
-		continue;
-	}
-
-	if ($k === 'mtime_from')
-	{
-		$filter['>=mtime'] = $v;
-	}
-	if ($k === 'mtime_to')
-	{
-		$filter['<=mtime'] = $v;
-	}
-
-	if ($k === 'ctime_from')
-	{
-		$filter['>=ctime'] = $v;
-	}
-	if ($k === 'ctime_to')
-	{
-		$filter['<=ctime'] = $v;
-	}
-
-	if ($k == 'tags')
-	{
-		foreach ($v as $t)
-		{
-			$filter[] = ['%tags' => $t];
-		}
-	}
-
-	if ($k === 'preset')
-	{
-		if ($v === 'a')
-		{
-			$filter[] = ['%src' => '/bitrix/admin'];
-		}
-		if ($v === 'm')
-		{
-			$filter[] = ['%src' => '/bitrix/modules'];
-		}
-		if ($v === 'c')
-		{
-			$filter[] = ['%src' => '/bitrix/components'];
-		}
-		if ($v === '!m')
-		{
-			$filter[] = ['!%src' => '/bitrix/modules'];
-		}
-		if ($v === 'pop')
-		{
-			$filter[] = ['LOGIC' => 'OR', ['%src' => '/prolog_after.php'], ['%src' => '/index.php'], ['%src' => '/content.php'], ['%src' => '/main.php'], ['%src' => '/spread.php'], ['%src' => '/bx_root.php'], ['%src' => '/.access.php'], ['%src' => '/radio.php']];
-		}
-	}
-
-	if ($k === 'FIND')
-	{
-		if (strpos($v, '!') === 0)
-		{
-			$v = ltrim($v, '!');
-			$filter[] = ['LOGIC' => 'AND', ['!%src' => $v], ['!%message' => $v]];
-		}
-		else
-		{
-			$filter[] = ['LOGIC' => 'OR', ['%src' => $v], ['%message' => $v]];
-		}
-	}
-}
+$filter = \Bitrix\Security\Controller\Xscan::getFilter();
 
 if (isset($_POST['download-files']))
 {
@@ -114,23 +41,23 @@ if (isset($_POST['download-files']))
 		die();
 	}
 
-	$filter['type'] = 'file';
+	$filter['TYPE'] = 'file';
 	$all = isset($_POST['all']) && $_POST['all'] === 'true';
 
 	if (!$all)
 	{
 		$filesId = Bitrix\Main\Web\Json::decode($_POST['download-files']);
-		$filter = ['@id' => $filesId];
+		$filter = ['@ID' => $filesId];
 	}
 
 	$list = \Bitrix\Security\XScanResultTable::getList([
 		'select' => [
-			'src',
+			'SRC',
 		],
 		'filter' => $filter,
 	])->fetchAll();
 
-	$files = array_column($list, 'src');
+	$files = array_column($list, 'SRC');
 
 	foreach ($files as $i => $file)
 	{
@@ -659,13 +586,13 @@ $APPLICATION->IncludeComponent(
 	[
 		'GRID_ID' => 'report_list',
 		'COLUMNS' => [
-			['id' => 'ID', 'name' => 'id', 'sort' => 'id', 'default' => true],
+			['id' => 'ID', 'name' => 'id', 'sort' => 'ID', 'default' => true],
 			['id' => 'FILE_NAME', 'name' => GetMessage("BITRIX_XSCAN_NAME"), 'default' => true],
 			['id' => 'FILE_TYPE', 'name' => GetMessage("BITRIX_XSCAN_TYPE"), 'default' => true],
 			['id' => 'FILE_SIZE', 'name' => GetMessage("BITRIX_XSCAN_SIZE"), 'default' => true],
-			['id' => 'FILE_SCORE', 'name' => GetMessage("BITRIX_XSCAN_SCORE"), 'sort' => 'score', 'default' => true],
-			['id' => 'FILE_MODIFY', 'name' => GetMessage("BITRIX_XSCAN_M_DATE"), 'sort' => 'mtime', 'default' => true],
-			['id' => 'FILE_CREATE', 'name' => GetMessage("BITRIX_XSCAN_C_DATE"), 'sort' => 'ctime', 'default' => true],
+			['id' => 'FILE_SCORE', 'name' => GetMessage("BITRIX_XSCAN_SCORE"), 'sort' => 'SCORE', 'default' => true],
+			['id' => 'FILE_MODIFY', 'name' => GetMessage("BITRIX_XSCAN_M_DATE"), 'sort' => 'MTIME', 'default' => true],
+			['id' => 'FILE_CREATE', 'name' => GetMessage("BITRIX_XSCAN_C_DATE"), 'sort' => 'CTIME', 'default' => true],
 			['id' => 'TAGS', 'name' => 'tags', 'default' => true],
 			['id' => 'ACTIONS', 'name' => GetMessage("BITRIX_XSCAN_ACTIONS"), 'default' => true],
 			['id' => 'HIDE', 'name' => GetMessage("BITRIX_XSCAN_HIDE_BTN"), 'default' => true],

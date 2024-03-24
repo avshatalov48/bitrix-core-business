@@ -93,6 +93,7 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 
 		$this->arParams['USE_LINK_TARGETS_REPLACING'] = isset($this->arParams['USE_LINK_TARGETS_REPLACING']) && $this->arParams['USE_LINK_TARGETS_REPLACING'];
 		$this->arParams['PLAIN_VIEW'] = isset($this->arParams['PLAIN_VIEW']) && $this->arParams['PLAIN_VIEW'];
+		$this->arParams['HIDE_TOOLBAR'] = (bool)($this->arParams['HIDE_TOOLBAR'] ?? false);
 		$this->arParams['USE_PADDING'] = !isset($this->arParams['USE_PADDING']) || $this->arParams['USE_PADDING'];
 		$this->arParams['USE_UI_TOOLBAR_MARGIN'] = !isset($this->arParams['USE_UI_TOOLBAR_MARGIN']) || $this->arParams['USE_UI_TOOLBAR_MARGIN'];
 		$this->arParams['USE_BACKGROUND_CONTENT'] = !isset($this->arParams['USE_BACKGROUND_CONTENT']) || $this->arParams['USE_BACKGROUND_CONTENT'];

@@ -42,6 +42,7 @@ CModule::AddAutoloadClasses(
 		"CSecuritySiteConfigurationTest" => "classes/general/tests/site_configuration.php",
 		"CSecurityTaintCheckingTest" => "classes/general/tests/taint_checking.php",
 		"CSecurityUserTest" => "classes/general/tests/user.php",
+		"CSecurityUserOtpTest" => "classes/general/tests/user_otp.php",
 		"CSecurityRequirementsException" => "classes/general/requirements_exception.php",
 		"CBitrixXscan" => "classes/general/xscan.php",
 		"CBitrixXscanHtaccess" => "classes/general/xscan_htaccess.php",

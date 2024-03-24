@@ -201,7 +201,7 @@ class User extends BaseObject
 	{
 		$id = $this->getVotedUserId();
 		$fields = array(
-			"STAT_GUEST_ID"	=> intval($_SESSION["SESS_GUEST_ID"]),
+			"STAT_GUEST_ID"	=> intval($_SESSION["SESS_GUEST_ID"] ?? 0),
 			"DATE_LAST"		=> new DateTime(),
 			"LAST_IP"		=> $_SERVER["REMOTE_ADDR"]
 		);
@@ -232,9 +232,9 @@ class User extends BaseObject
 			{
 				$connection = \Bitrix\Main\Application::getInstance()->getConnection();
 				$insert = $connection->getSqlHelper()->prepareInsert(UserTable::getTableName(), $fields);
-				$connection->queryExecute(
-					"INSERT INTO ".UserTable::getTableName()."(COOKIE_ID, ".$insert[0].") ".
-					"SELECT MAX(COOKIE_ID) + 1, ".$insert[1] . " FROM ".UserTable::getTableName());
+				$sql = "INSERT INTO ".UserTable::getTableName()."(COOKIE_ID, ".$insert[0].") ".
+					"SELECT COALESCE(MAX(COOKIE_ID) + 1, 0), ".$insert[1] . " FROM ".UserTable::getTableName();
+				$connection->queryExecute($sql);
 				$dbRes = new AddResult();
 				$dbRes->setId($connection->getInsertedId());
 				$dbRes->setData(UserTable::getById($dbRes->getId())->fetch());
@@ -246,7 +246,7 @@ class User extends BaseObject
 			"_",
 			[
 				"COOKIE_ID" => $fields["COOKIE_ID"],
-				"AUTH_USER_ID"	=> $fields["AUTH_USER_ID"]
+				"AUTH_USER_ID"	=> $fields["AUTH_USER_ID"] ?? null
 			]
 		)] = $id;
 		self::setCookieId($fields["COOKIE_ID"]);

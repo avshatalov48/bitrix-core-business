@@ -20,52 +20,55 @@ class CBitrixCloudMobile
 	{
 		global $USER;
 
-		if ($USER->CanDoOperation("bitrixcloud_monitoring"))
+		if ($USER->CanDoOperation('bitrixcloud_monitoring'))
 		{
-			CAdminMobileMenu::addItem(array(
-				"text" => GetMessage("BCL_MON_MOB_INSPECTOR"),
-				"type" => "section",
-				"sort" => 300,
-				"items" => array(
-					array(
-						"text" => GetMessage("BCL_MON_MOB_MENU_IPAGE"),
-						"data-url" => "/bitrix/admin/mobile/bitrixcloud_monitoring_ipage.php",
-						"data-pageid" => "bitrix_cloud_monitoring_info",
-						"push-param" => "bc"
-					),
-					array(
-						"text" => GetMessage("BCL_MON_MOB_MENU_PUSH"),
-						"data-url" => "/bitrix/admin/mobile/bitrixcloud_monitoring_push.php",
-						"data-pageid" => "bitrix_cloud_monitoring_push",
-					),
-				),
-			));
+			CAdminMobileMenu::addItem([
+				'text' => GetMessage('BCL_MON_MOB_INSPECTOR'),
+				'type' => 'section',
+				'sort' => 300,
+				'items' => [
+					[
+						'text' => GetMessage('BCL_MON_MOB_MENU_IPAGE'),
+						'data-url' => '/bitrix/admin/mobile/bitrixcloud_monitoring_ipage.php',
+						'data-pageid' => 'bitrix_cloud_monitoring_info',
+						'push-param' => 'bc'
+					],
+					[
+						'text' => GetMessage('BCL_MON_MOB_MENU_PUSH'),
+						'data-url' => '/bitrix/admin/mobile/bitrixcloud_monitoring_push.php',
+						'data-pageid' => 'bitrix_cloud_monitoring_push',
+					],
+				],
+			]);
 		}
 	}
 
 	public static function getUserDevices($userId)
 	{
-		$arResult = array();
+		$arResult = [];
 
-		if(CModule::IncludeModule("pull"))
+		if (CModule::IncludeModule('pull'))
 		{
-			$dbres = CPullPush::GetList(Array(), Array("USER_ID" => $userId));
-			while($arDb = $dbres->Fetch())
+			$dbres = \Bitrix\Pull\Model\PushTable::getList([
+				'filter' => [
+					'USER_ID' => $userId,
+				],
+			]);
+			while ($arDb = $dbres->fetch())
 			{
-				if($arDb["DEVICE_TYPE"] == "APPLE")
+				if ($arDb['DEVICE_TYPE'] == 'APPLE')
 				{
-					CModule::IncludeModule("mobileapp");
+					CModule::IncludeModule('mobileapp');
 					CMobile::Init();
 
-/*					if(CMobile::$isDev)
-						$protocol = 1;
-					else */
-						$protocol = 2;
+					$protocol = 2;
 				}
 				else
+				{
 					$protocol = 3;
+				}
 
-				$arResult[] = $arDb["DEVICE_TOKEN"].":".$protocol.":BitrixAdmin";
+				$arResult[] = $arDb['DEVICE_TOKEN'] . ':' . $protocol . ':BitrixAdmin';
 			}
 		}
 

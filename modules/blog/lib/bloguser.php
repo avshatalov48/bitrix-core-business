@@ -396,7 +396,7 @@ class BlogUser
 	public static function GetUserNameEx($user, $blogUser, $params)
 	{
 		$result = "";
-		if (!$params["bSoNet"])
+		if (empty($params["bSoNet"]))
 		{
 			$canUseAlias = \COption::GetOptionString("blog", "allow_alias", "Y");
 			if ($canUseAlias == "Y")
@@ -411,7 +411,7 @@ class BlogUser
 				array("", ""),
 				$params["NAME_TEMPLATE"]
 			);
-			$isUseLogin = $params["SHOW_LOGIN"] != "N" ? true : false;
+			$isUseLogin = ($params["SHOW_LOGIN"] ?? null) != "N" ? true : false;
 			
 			$result = \CUser::FormatName(
 				$params["NAME_TEMPLATE"],

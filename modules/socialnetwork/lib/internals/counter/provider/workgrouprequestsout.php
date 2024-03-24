@@ -14,31 +14,48 @@ use Bitrix\Socialnetwork\UserToGroupTable;
 
 class WorkgroupRequestsOut implements Base
 {
-	private $workgroupId;
+	private int $groupId;
+	private int $counterValue;
 
-	public function __construct(array $params = [])
+	private static array $instance = [];
+
+	public static function getInstance($groupId): self
 	{
-		$this->workgroupId = (int)($params['workgroupId'] ?? 0);
+		if (!array_key_exists($groupId, self::$instance))
+		{
+			self::$instance[$groupId] = new self($groupId);
+		}
 
-		if ($this->workgroupId <= 0)
+		return self::$instance[$groupId];
+	}
+
+	private function __construct(int $groupId)
+	{
+		if ($groupId <= 0)
 		{
 			throw new ArgumentException('Wrong workgroupId value');
 		}
+
+		$this->groupId = $groupId;
+		$this->fillCounterValue();
 	}
 
 	public function getCounterValue(): array
 	{
-		$result = (new \Bitrix\Main\Entity\Query(UserToGroupTable::getEntity()))
-			->addFilter('=GROUP_ID', $this->workgroupId)
+		return [
+			'all' => $this->counterValue,
+		];
+	}
+
+	private function fillCounterValue(): void
+	{
+		$this->counterValue = (new \Bitrix\Main\Entity\Query(UserToGroupTable::getEntity()))
+			->addFilter('=GROUP_ID', $this->groupId)
 			->addFilter('=ROLE', UserToGroupTable::ROLE_REQUEST)
 			->addFilter('=INITIATED_BY_TYPE', UserToGroupTable::INITIATED_BY_GROUP)
 			->addSelect('ID')
 			->countTotal(true)
 			->exec()
 			->getCount();
-
-		return [
-			'all' => $result,
-		];
 	}
 }

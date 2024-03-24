@@ -184,7 +184,7 @@ class CVoteUfComponent extends \CBitrixComponent
 	protected function prepareParams()
 	{
 		$this->editMode = isset($this->arParams["EDIT"]) && $this->arParams["EDIT"] === "Y";
-		if (array_key_exists("PARAMS", $this->arParams) && array_key_exists("PARAMS", $this->arParams))
+		if (array_key_exists("PARAMS", $this->arParams) && array_key_exists("RESULT", $this->arParams))
 		{
 			$this->arResult = $this->arParams["RESULT"];
 			$this->arParams = $this->arParams["PARAMS"];

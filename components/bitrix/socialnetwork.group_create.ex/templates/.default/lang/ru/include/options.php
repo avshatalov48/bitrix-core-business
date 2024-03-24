@@ -20,4 +20,5 @@ $MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT"] = "В группу можно пр�
 $MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT_PROJECT"] = "В проект можно приглашать внешних участников";
 $MESS["SONET_GCE_T_PARAMS_LANDING"] = "Для публикации";
 $MESS["SONET_GCE_T_PARAMS_LANDING_MSGVER_1"] = "Для публикации";
+$MESS["SONET_GCE_T_PARAMS_LANDING_MSGVER_2"] = "Для публикации";
 $MESS["SONET_GCE_T_PARAMS_PROJECT"] = "Проект";

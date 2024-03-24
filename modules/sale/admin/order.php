@@ -9,19 +9,19 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 use Bitrix\Sale\Internals\StatusTable;
 use Bitrix\Sale;
-use \Bitrix\Sale\Exchange\Integration\Admin;
+use Bitrix\Sale\Exchange\Integration\Admin;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 Loader::includeModule('sale');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-\Bitrix\Main\UI\Extension::load('sale.admin_order_list');
+Main\UI\Extension::load('sale.admin_order_list');
 
 // include functions
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-$isCanUsePersonalization = \Bitrix\Sale\Configuration::isCanUsePersonalization();
+$isCanUsePersonalization = Sale\Configuration::isCanUsePersonalization();
 
 if($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
@@ -33,7 +33,7 @@ $LOCAL_STATUS_CACHE = array();
 
 Loc::loadMessages(__FILE__);
 
-$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$request = Main\Context::getCurrent()->getRequest();
 $link = Admin\Link::getInstance();
 $publicMode = $adminPage->publicMode;
 $arUserGroups = $USER->GetUserGroupArray();
@@ -122,7 +122,7 @@ $arFilterFields = array(
 
 $arOrderProps = array();
 $arOrderPropsCode = array();
-$dbProps = \Bitrix\Sale\Internals\OrderPropsTable::getList(
+$dbProps = Sale\Internals\OrderPropsTable::getList(
 	array(
 		'filter' => array(
 			'=ACTIVE' => 'Y'
@@ -521,14 +521,16 @@ if(!empty($filter_delivery_service) && is_array($filter_delivery_service))
 		$whereExpression .= "DELIVERY_ID = ".intval($filterDeliveryServiceId);
 	}
 
-	if(strval($whereExpression) != "")
+	if ($whereExpression !== "")
 	{
 		$whereExpression .= ")";
 
+		$connection = Main\Application::getInstance()->getConnection();
+		$helper = $connection->getSqlHelper();
 		$runtimeFields["REQUIRED_DLV_PRESENTED"] = array(
 			'data_type' => 'boolean',
 			'expression' => array(
-				'CASE WHEN EXISTS (SELECT ID FROM b_sale_order_delivery WHERE ORDER_ID = %s AND `SYSTEM`="N" AND '.$whereExpression.') THEN 1 ELSE 0 END',
+				'CASE WHEN EXISTS (SELECT ID FROM b_sale_order_delivery WHERE ORDER_ID = %s AND ' . $helper->quote('SYSTEM') . '=\'N\' AND '.$whereExpression.') THEN 1 ELSE 0 END',
 				'ID'
 			)
 		);

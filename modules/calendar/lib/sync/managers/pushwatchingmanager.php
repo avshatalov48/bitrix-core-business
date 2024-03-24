@@ -459,17 +459,16 @@ class PushWatchingManager
 	private function doFixWatchSectionChannels(): void
 	{
 		$query = SectionConnectionTable::query()
-			->setSelect(['ID', 'CONNECTION_ID', 'SECTION_ID'])
-			->registerRuntimeField('CONNECTION',
-				new ReferenceField(
-					'CONNECTION',
-					DavConnectionTable::getEntity(),
-					[
-						'=this.CONNECTION_ID' => 'ref.ID',
-					],
-					['join_type' => Join::TYPE_INNER]
-				)
-			)
+			->setSelect([
+				'ID',
+				'CONNECTION_ID',
+				'SECTION_ID',
+				'ACTIVE',
+				'LAST_SYNC_STATUS',
+				'CONNECTION.IS_DELETED',
+				'CONNECTION.ACCOUNT_TYPE',
+				'PUSH.ENTITY_TYPE'
+			])
 			->registerRuntimeField('PUSH',
 				new ReferenceField(
 					'PUSH',
@@ -516,7 +515,13 @@ class PushWatchingManager
 	private function doFixWatchConnectionChannels(): void
 	{
 		$query = DavConnectionTable::query()
-			->setSelect(['ID'])
+			->setSelect([
+				'ID',
+				'IS_DELETED',
+				'ACCOUNT_TYPE',
+				'LAST_RESULT',
+				'PUSH.ENTITY_TYPE',
+			])
 			->registerRuntimeField('PUSH',
                new ReferenceField(
                    'PUSH',

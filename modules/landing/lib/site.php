@@ -1811,4 +1811,33 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 
 		Rights::setOn();
 	}
+
+	/**
+	 * Change type for the site.
+	 * @param int $id Site id.
+	 * @param string $type Type.
+	 * @return void
+	 */
+	public static function changeType(int $id, string $type): void
+	{
+		if (self::getTypes()[$type] ?? null)
+		{
+			parent::update($id, array(
+				'TYPE' => $type
+			));
+		}
+	}
+
+	/**
+	 * Change code for the site.
+	 * @param int $id Site id.
+	 * @param string $code Code.
+	 * @return void
+	 */
+	public static function changeCode(int $id, string $code): void
+	{
+		parent::update($id, array(
+			'CODE' => $code
+		));
+	}
 }

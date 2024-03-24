@@ -42,3 +42,5 @@ DROP TABLE if exists b_sonet_space_composition;
 DROP TABLE if exists b_sonet_scorer;
 DROP TABLE if exists b_sonet_scorer_queue;
 DROP TABLE if exists b_sonet_scorer_event;
+DROP TABLE if exists b_sonet_space_user_recent_activity;
+DROP TABLE if exists b_sonet_space_user_latest_activity;

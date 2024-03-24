@@ -896,8 +896,13 @@ abstract class CReportHelper
 			{
 				// single field
 				$htmlElem = static::buildSelectTreePopupElelemnt(
-					$treeElem['humanTitle'], $treeElem['fullHumanTitle'], $fieldDefinition, $fieldType,
-					($treeElem['isUF'] === true && is_array($treeElem['ufInfo'])) ? $treeElem['ufInfo'] : array()
+					$treeElem['humanTitle'],
+					$treeElem['fullHumanTitle'],
+					$fieldDefinition,
+					$fieldType,
+					(($treeElem['isUF'] ?? false) === true && is_array($treeElem['ufInfo']))
+						? $treeElem['ufInfo']
+						: array()
 				);
 
 				if ($isLastElem && $level > 0)
@@ -1145,7 +1150,12 @@ abstract class CReportHelper
 		{
 			foreach ($columnInfo as $k => $cInfo)
 			{
-				if ($cInfo['isUF'] && is_array($cInfo['ufInfo']) && isset($cInfo['ufInfo']['USER_TYPE_ID']))
+				if (
+					($cInfo['isUF'] ?? false)
+					&& isset($cInfo['ufInfo'])
+					&& is_array($cInfo['ufInfo'])
+					&& isset($cInfo['ufInfo']['USER_TYPE_ID'])
+				)
 				{
 					switch ($cInfo['ufInfo']['USER_TYPE_ID'])
 					{
@@ -1286,7 +1296,7 @@ abstract class CReportHelper
 									$value = explode('_', trim($subv));
 									if ($value[0] <> '' && $value[1] <> '')
 									{
-										if (!is_array($arCrmID[$value[0]]))
+										if (!(isset($arCrmID[$value[0]]) && is_array($arCrmID[$value[0]])))
 											$arCrmID[$value[0]] = array();
 										$arCrmID[$value[0]][] = $value[1];
 									}
@@ -1308,7 +1318,7 @@ abstract class CReportHelper
 								$value = explode('_', trim($v));
 								if ($value[0] <> '' && $value[1] <> '')
 								{
-									if (!is_array($arCrmID[$value[0]]))
+									if (!(isset($arCrmID[$value[0]]) && is_array($arCrmID[$value[0]])))
 										$arCrmID[$value[0]] = array();
 									$arCrmID[$value[0]][] = $value[1];
 								}
@@ -1664,6 +1674,30 @@ abstract class CReportHelper
 			}
 		}
 	}
+	
+	public static function prepareValueToRound($value)
+	{
+		if (!is_int($value) && !is_float($value))
+		{
+			if (is_string($value) && $value !== '')
+			{
+				if (is_numeric($value))
+				{
+					$value = (float)$value;
+				}
+				else
+				{
+					$value = 0;
+				}
+			}
+			else
+			{
+				$value = 0;
+			}
+		}
+
+		return $value;
+	}
 
 	public static function formatResults(&$rows, &$columnInfo, $total)
 	{
@@ -1721,6 +1755,7 @@ abstract class CReportHelper
 			if ($precision < 0)
 				$precision = $defaultPrecision;
 
+			$v = static::prepareValueToRound($v);
 			$v = round($v, $precision);
 		}
 		elseif ($isUF && $dataType === 'enum' && !empty($v)
@@ -1822,6 +1857,7 @@ abstract class CReportHelper
 		}
 		elseif ($dataType == 'float' && !empty($v) && !$isUF && !mb_strlen($cInfo['prcnt']))
 		{
+			$v = static::prepareValueToRound($v);
 			$v = round($v, 1);
 		}
 		elseif (mb_substr($k, -11) == '_SHORT_NAME' && (empty($cInfo['aggr']) || $cInfo['aggr'] == 'GROUP_CONCAT'))
@@ -1833,6 +1869,7 @@ abstract class CReportHelper
 		}
 		elseif (mb_substr($k, -6) == '_PRCNT' && !mb_strlen($cInfo['prcnt']))
 		{
+			$v = static::prepareValueToRound($v);
 			$v = round($v, 2). '%';
 		}
 		elseif ($dataType == 'boolean' && empty($cInfo['aggr']))
@@ -1867,6 +1904,7 @@ abstract class CReportHelper
 			}
 			else
 			{
+				$v = static::prepareValueToRound($v);
 				$v = round($v, 2);
 			}
 
@@ -1917,6 +1955,7 @@ abstract class CReportHelper
 				}
 				else
 				{
+					$v = static::prepareValueToRound($v);
 					$v = round($v, 2);
 				}
 
@@ -1924,6 +1963,7 @@ abstract class CReportHelper
 			}
 			elseif (mb_substr($k, -6) == '_PRCNT' && !mb_strlen($cInfo['prcnt']))
 			{
+				$v = static::prepareValueToRound($v);
 				$total[$k] = round($v, 2). '%';
 			}
 			elseif ($isUF && $dataType == 'float')
@@ -1934,6 +1974,7 @@ abstract class CReportHelper
 				if ($precision < 0)
 					$precision = $defaultPrecision;
 
+				$v = static::prepareValueToRound($v);
 				$total[$k] = round($v, $precision);
 			}
 		}

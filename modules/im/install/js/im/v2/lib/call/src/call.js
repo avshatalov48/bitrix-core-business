@@ -141,6 +141,16 @@ export class CallManager
 		this.#controller.test();
 	}
 
+	toggleDebugFlag(debug)
+	{
+		if (!this.#controller)
+		{
+			return;
+		}
+
+		this.#controller.debug = debug;
+	}
+
 	#getController(): Controller
 	{
 		return new Controller({
@@ -242,9 +252,15 @@ export class CallManager
 
 	#onCallDestroy(event)
 	{
-		this.#store.dispatch('recent/calls/deleteActiveCall', {
-			dialogId: event.call.associatedEntity.id,
-		});
+		const dialogId = event.call.associatedEntity.id;
+		const currentCall = this.#store.getters['recent/calls/getCallByDialog'](dialogId);
+
+		if (currentCall?.call.id === event.call.id)
+		{
+			this.#store.dispatch('recent/calls/deleteActiveCall', {
+				dialogId,
+			});
+		}
 	}
 
 	#onOpenChat(event: BaseEvent<{dialogId: string}>)

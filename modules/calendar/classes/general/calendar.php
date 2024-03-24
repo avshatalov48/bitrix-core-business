@@ -453,19 +453,19 @@ class CCalendar
 			);
 		}
 
-		$JSConfig['dayOfWeekMonthFormat'] = stripslashes(
+		$JSConfig['dayOfWeekMonthFormat'] = (
 			\Bitrix\Main\Context::getCurrent()
 				->getCulture()
 				->getDayOfWeekMonthFormat()
 		);
 
-		$JSConfig['dayMonthFormat'] = stripslashes(
+		$JSConfig['dayMonthFormat'] = (
 			\Bitrix\Main\Context::getCurrent()
 				->getCulture()
 				->getDayMonthFormat()
 		);
 
-		$JSConfig['longDateFormat'] = stripslashes(
+		$JSConfig['longDateFormat'] = (
 			\Bitrix\Main\Context::getCurrent()
 				->getCulture()
 				->getLongDateFormat()
@@ -1289,7 +1289,7 @@ class CCalendar
 							// legacy
 							\CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::processPush();", "calendar");
 							\CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar");
-							$DB->Query("DELETE FROM b_agent WHERE `NAME` LIKE '%GoogleApiPush::checkPushChannel%'");
+							$DB->Query("DELETE FROM b_agent WHERE NAME LIKE '%GoogleApiPush::checkPushChannel%'");
 							// actual
 							\CAgent::AddAgent(
 								"\\Bitrix\\Calendar\\Sync\\Managers\\DataExchangeManager::importAgent();",

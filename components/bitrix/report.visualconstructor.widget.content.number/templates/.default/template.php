@@ -12,7 +12,7 @@ $unitOfMeasurement = !empty($calculateResult['data']['config']['unitOfMeasuremen
 ?>
 <div class="report-widget-number-diagram-content">
 	<div class="report-widget-number-value">
-		<?php if ($calculateResult['data']['targetUrl']): ?>
+		<?php if ($calculateResult['data']['targetUrl'] ?? false): ?>
 			<a href="<?= $calculateResult['data']['targetUrl'] ?>">
 				<span class="report-value"><?= $calculateResult['data']['value'] ?></span>
 				<span class="report-value-unit-of-measurement"><?= $unitOfMeasurement ?></span>

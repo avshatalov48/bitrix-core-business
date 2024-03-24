@@ -307,10 +307,10 @@ class ImComponentConference extends CBitrixComponent
 	protected function getLoginCookies(): string
 	{
 		$cookiePrefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-		$cookieLogin = (string)$_COOKIE[$cookiePrefix.'_UIDL'];
+		$cookieLogin = (string)($_COOKIE[$cookiePrefix.'_UIDL'] ?? '');
 		if ($cookieLogin === '')
 		{
-			$cookieLogin = (string)$_COOKIE[$cookiePrefix.'_LOGIN'];
+			$cookieLogin = (string)($_COOKIE[$cookiePrefix.'_LOGIN'] ?? '');
 		}
 
 		return $cookieLogin;

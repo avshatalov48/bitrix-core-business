@@ -27,4 +27,3 @@ $MESS["COMP_FORM_PARAMS_CHAIN_ITEM_LINK"] = "Link for additional navigation chai
 $MESS["COMP_FORM_PARAMS_IGNORE_CUSTOM_TEMPLATE"] = "Ignore custom template";
 $MESS["COMP_FORM_PARAMS_USE_EXTENDED_ERRORS"] = "Use extended error messages output";
 $MESS["COMP_FORM_PARAMS_NAME_TEMPLATE"] = "Name format";
-?>

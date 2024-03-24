@@ -17,7 +17,7 @@ class CBlogNotifySchema
 				"PUSH" => 'Y'
 			),
 			"post_mail" => Array(
-				"NAME" => GetMessage('BLG_NS_POST_MAIL'),
+				"NAME" => GetMessage('BLG_NS_POST_MAIL_MSGBER_1'),
 				"PUSH" => 'Y'
 			),
 			"comment" => Array(
@@ -45,7 +45,7 @@ class CBlogNotifySchema
 		if (IsModuleInstalled('intranet'))
 		{
 			$ar["broadcast_post"] = Array(
-				"NAME" => GetMessage('BLG_NS_BROADCAST_POST'),
+				"NAME" => GetMessage('BLG_NS_BROADCAST_POST_MSGVER_1'),
 				"SITE" => "N",
 				"MAIL" => "Y",
 				"XMPP" => "N",
@@ -96,7 +96,7 @@ class CBlogNotifySchema
 
 		return array(
 			"blog" => array(
-				"NAME" => GetMessage('BLG_NS'),
+				"NAME" => GetMessage('BLG_NS_MSGVER_1'),
 				"NOTIFY" => $ar,
 			),
 		);

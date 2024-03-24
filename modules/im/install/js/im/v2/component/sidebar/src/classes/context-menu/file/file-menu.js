@@ -1,11 +1,14 @@
 import 'ui.viewer';
 import 'ui.notification';
-import {Loc, Dom} from 'main.core';
-import type {MenuItem} from 'im.v2.lib.menu';
-import {Utils} from 'im.v2.lib.utils';
-import {SidebarMenu} from '../sidebar-base-menu';
-import {FileManager} from './file-manager';
-import type {ImModelFile, ImModelSidebarFileItem} from 'im.v2.model';
+import { Loc, Dom } from 'main.core';
+
+import { Utils } from 'im.v2.lib.utils';
+
+import { SidebarMenu } from '../sidebar-base-menu';
+import { FileManager } from './file-manager';
+
+import type { MenuItem } from 'im.v2.lib.menu';
+import type { ImModelFile, ImModelSidebarFileItem } from 'im.v2.model';
 
 type MediaMenuContext = {
 	sidebarFile: ImModelSidebarFileItem,
@@ -48,7 +51,7 @@ export class FileMenu extends SidebarMenu
 			html: this.getViewHtml(viewerAttributes),
 			onclick: function() {
 				this.menuInstance.close();
-			}.bind(this)
+			}.bind(this),
 		};
 	}
 
@@ -63,7 +66,7 @@ export class FileMenu extends SidebarMenu
 			html: this.getDownloadHtml(this.context.file.urlDownload, this.context.file.name),
 			onclick: function() {
 				this.menuInstance.close();
-			}.bind(this)
+			}.bind(this),
 		};
 	}
 
@@ -79,11 +82,11 @@ export class FileMenu extends SidebarMenu
 			onclick: function() {
 				this.mediaManager.saveOnDisk(this.context.sidebarFile.fileId).then(() => {
 					BX.UI.Notification.Center.notify({
-						content: Loc.getMessage('IM_SIDEBAR_FILE_SAVE_ON_DISK_SUCCESS')
+						content: Loc.getMessage('IM_SIDEBAR_FILE_SAVE_ON_DISK_SUCCESS'),
 					});
 				});
 				this.menuInstance.close();
-			}.bind(this)
+			}.bind(this),
 		};
 	}
 
@@ -99,17 +102,17 @@ export class FileMenu extends SidebarMenu
 			onclick: function() {
 				this.mediaManager.delete(this.context.sidebarFile);
 				this.menuInstance.close();
-			}.bind(this)
+			}.bind(this),
 		};
 	}
 
 	getViewHtml(viewerAttributes: { [key: string]: string }): HTMLDivElement
 	{
 		const div = Dom.create('div', {
-			text: Loc.getMessage('IM_SIDEBAR_MENU_VIEW_FILE')
+			text: Loc.getMessage('IM_SIDEBAR_MENU_VIEW_FILE'),
 		});
 
-		Object.entries(viewerAttributes).forEach(attribute => {
+		Object.entries(viewerAttributes).forEach((attribute) => {
 			const [attributeName, attributeValue] = attribute;
 			div.setAttribute(attributeName, attributeValue);
 		});
@@ -120,7 +123,7 @@ export class FileMenu extends SidebarMenu
 	getDownloadHtml(urlDownload: string, fileName: string): HTMLAnchorElement
 	{
 		const a = Dom.create('a', {
-			text: Loc.getMessage('IM_SIDEBAR_MENU_DOWNLOAD_FILE')
+			text: Loc.getMessage('IM_SIDEBAR_MENU_DOWNLOAD_FILE'),
 		});
 
 		Dom.style(a, 'display', 'block');

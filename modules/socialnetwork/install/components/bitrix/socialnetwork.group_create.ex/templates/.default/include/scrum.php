@@ -63,7 +63,7 @@ Loc::loadMessages(__FILE__);
 		$defaultValue = $arResult['ScrumTaskResponsible'][$defaultKey];
 
 		?>
-		<div class="socialnetwork-group-create-ex__text --s ui-ctl-label-text"><?= Loc::getMessage('SONET_GCE_T_SCRUM_TASK_RESPONSIBLE') ?></div>
+		<div class="socialnetwork-group-create-ex__text --s ui-ctl-label-text"><?= Loc::getMessage('SONET_GCE_T_SCRUM_TASK_ASSIGNEE') ?></div>
 		<div
 			class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-dropdown"
 			data-role="soc-net-dropdown"

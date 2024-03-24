@@ -56,10 +56,6 @@ $arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";
 if (IsModuleInstalled('intranet') && !array_key_exists("PATH_TO_CONPANY_DEPARTMENT", $arParams))
 	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = "/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#";
 
-if (IsModuleInstalled("video"))
-	if(!isset($arParams["PATH_TO_VIDEO_CALL"]))
-		$arParams["PATH_TO_VIDEO_CALL"] = "/company/personal/video/#user_id#/";
-
 if (IsModuleInstalled("socialnetwork")):
 	if(!isset($arParams["PATH_TO_MESSAGES_CHAT"]) && IsModuleInstalled("intranet")):
 		$arParams["PATH_TO_MESSAGES_CHAT"] = "/company/personal/messages/chat/#user_id#/";

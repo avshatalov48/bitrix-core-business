@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if (!CModule::IncludeModule("form")) return;
@@ -106,7 +106,7 @@ $arComponentParameters = array(
 		),
 
 		"NOT_SHOW_TABLE" => array(
-			"NAME" => $show_list ? GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST") : GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST"), 
+			"NAME" => $show_list ? GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST") : GetMessage("COMP_FORM_PARAMS_NOT_SHOW_TABLE"),
 			"TYPE" => $show_list ? "LIST" : "STRING",
 			"MULTIPLE" => $show_list ? "Y" : "",
 			"VALUES" => $show_list ? $arFieldList : "",

@@ -22,6 +22,8 @@ Loc::loadLanguageFile(__FILE__);
  */
 final class CheckManager
 {
+	private const LOCK_NAME = 'get_check_list';
+
 	public const EVENT_ON_GET_CUSTOM_CHECK = 'OnGetCustomCheckList';
 	public const EVENT_ON_CHECK_PRINT_SEND = 'OnPrintableCheckSend';
 	public const EVENT_ON_BEFORE_CHECK_ADD_VERIFY = 'OnBeforeCheckAddVerify';
@@ -1241,12 +1243,12 @@ final class CheckManager
 		$result = array();
 
 		$con = Main\Application::getConnection();
-		$dbLocRes = $con->query("SELECT GET_LOCK('get_check_list', 0) as L");
-		$locResult = $dbLocRes->fetch();
-		if ($locResult["L"] == "0")
+		if (!$con->lock(self::LOCK_NAME))
 		{
 			return $result;
 		}
+
+		$helper = $con->getSqlHelper();
 
 		$filter = array(
 			'LINK_PARAMS' => '',
@@ -1278,7 +1280,7 @@ final class CheckManager
 				'runtime' => array(
 					new Main\Entity\ExpressionField(
 						'MAX_DT_REPEAT_CHECK',
-						'DATE_ADD(DATE_PRINT_START, INTERVAL '.self::CHECK_RESENDING_TIME.' MINUTE)',
+						$helper->addSecondsToDateTime(self::CHECK_RESENDING_TIME * 60, 'DATE_PRINT_START'),
 						null,
 						array(
 							'data_type' => 'datetime'
@@ -1341,7 +1343,7 @@ final class CheckManager
 			}
 		}
 
-		$con->query("SELECT RELEASE_LOCK('get_check_list')");
+		$con->unlock(self::LOCK_NAME);
 
 		return $result;
 	}

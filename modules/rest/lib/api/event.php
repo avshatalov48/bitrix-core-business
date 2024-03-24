@@ -101,7 +101,7 @@ class Event extends \IRestService
 				$scopeList = array($query['SCOPE']);
 			}
 		}
-		elseif($query['FULL'] == true)
+		elseif(isset($query['FULL']) && $query['FULL'])
 		{
 			$scopeList = array_keys($serviceDescription);
 		}
@@ -159,11 +159,11 @@ class Event extends \IRestService
 
 		$query = array_change_key_case($query, CASE_UPPER);
 
-		$eventName = ToUpper($query['EVENT']);
-		$eventType = ToLower($query['EVENT_TYPE']);
-		$eventUser = intval($query['AUTH_TYPE']);
-		$eventCallback = $query['HANDLER'];
-		$options = is_array($query['OPTIONS']) ? $query['OPTIONS'] : [];
+		$eventName = mb_strtoupper($query['EVENT'] ?? '');
+		$eventType = mb_strtolower($query['EVENT_TYPE'] ?? '');
+		$eventUser = intval($query['AUTH_TYPE'] ?? null);
+		$eventCallback = $query['HANDLER'] ?? '';
+		$options = isset($query['OPTIONS']) && is_array($query['OPTIONS']) ? $query['OPTIONS'] : [];
 
 		if($eventUser > 0)
 		{
@@ -183,14 +183,14 @@ class Event extends \IRestService
 
 		if($eventName == '')
 		{
-			throw new ArgumentNullException("EVENT");
+			throw new Exceptions\ArgumentNullException("EVENT");
 		}
 
 		if($eventType <> '')
 		{
 			if(!in_array($eventType, array(EventTable::TYPE_ONLINE, EventTable::TYPE_OFFLINE)))
 			{
-				throw new ArgumentException('Value must be one of {'.EventTable::TYPE_ONLINE.'|'.EventTable::TYPE_OFFLINE.'}', 'EVENT_TYPE');
+				throw new Exceptions\ArgumentException('Value must be one of {'.EventTable::TYPE_ONLINE.'|'.EventTable::TYPE_OFFLINE.'}', 'EVENT_TYPE');
 			}
 		}
 		else
@@ -210,7 +210,7 @@ class Event extends \IRestService
 		}
 		elseif($eventCallback == '' && $eventType === EventTable::TYPE_ONLINE)
 		{
-			throw new ArgumentNullException("HANDLER");
+			throw new Exceptions\ArgumentNullException("HANDLER");
 		}
 
 		$clientInfo = AppTable::getByClientId($server->getClientId());
@@ -336,9 +336,9 @@ class Event extends \IRestService
 
 		$query = array_change_key_case($query, CASE_UPPER);
 
-		$eventName = ToUpper($query['EVENT']);
-		$eventType = ToLower($query['EVENT_TYPE']);
-		$eventCallback = $query['HANDLER'];
+		$eventName = mb_strtoupper($query['EVENT'] ?? '');
+		$eventType = mb_strtolower($query['EVENT_TYPE'] ?? '');
+		$eventCallback = $query['HANDLER'] ?? '';
 
 		if($eventName == '')
 		{

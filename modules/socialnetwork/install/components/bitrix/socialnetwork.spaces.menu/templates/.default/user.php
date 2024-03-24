@@ -14,14 +14,29 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 
-Extension::load('ui.buttons');
+Extension::load([
+	'im.public',
+	'ui.buttons',
+	'ui.buttons.icons',
+	'ui.icon-set.main',
+	'ui.entity-selector',
+	'sidepanel',
+	'tasks.scrum.meetings',
+	'tasks.scrum.methodology',
+	'socialnetwork.group-privacy',
+	'socialnetwork.logo',
+	'socialnetwork.controller',
+]);
 
-$messages = Loc::loadLanguageFile(__FILE__);
+$groupMessages = Loc::loadLanguageFile(__DIR__ . DIRECTORY_SEPARATOR .  'group.php');
+$userMessages = Loc::loadLanguageFile(__FILE__);
+
+$messages = array_merge($groupMessages, $userMessages);
 ?>
 
 <div class="sn-spaces__menu">
 
-	<div id="sn-spaces__menu-logo" class="sn-spaces__list-item_icon"></div>
+	<div id="sn-spaces__menu-logo" class="sn-spaces__space-logo"></div>
 
 	<div class="sn-spaces__menu-list">
 		<div class="sn-spaces__menu-buttons">
@@ -45,14 +60,13 @@ $messages = Loc::loadLanguageFile(__FILE__);
 	BX.ready(function() {
 		BX.message(<?= Json::encode($messages) ?>);
 
-		const menu = new BX.Socialnetwork.Spaces.Menu({});
+		const menu = new BX.Socialnetwork.Spaces.Menu({
+			entityId: '0',
+			currentUserId: '<?= (int) $arResult['userId'] ?>',
+		});
 
 		menu.renderUserLogoTo(
 			document.getElementById('sn-spaces__menu-logo')
 		);
-
-		// menu.renderUserToolbarTo(
-		// 	document.getElementById('sn-spaces__menu-toolbar')
-		// );
 	});
 </script>

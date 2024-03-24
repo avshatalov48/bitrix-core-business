@@ -37,8 +37,9 @@ Loc::loadMessages(__FILE__);
 final class WordTable extends Entity\DataManager implements \Serializable
 {
 	protected $procData = 		array();
-	protected $word2LocationInserter = 	null;
-	protected $dictionaryInserter = 	null;
+	protected BlockInserter $word2LocationInserter;
+	protected BlockInserter $dictionaryInserter;
+	protected BlockInserter $dictionaryResorter;
 
 	protected $dictionaryIndex = 		array();
 
@@ -171,12 +172,11 @@ final class WordTable extends Entity\DataManager implements \Serializable
 		// ORACE: OK, MSSQL: OK
 		Main\HttpApplication::getConnection()->query("create table ".static::getTableName()." (
 
-			ID ".Helper::getSqlForDataType('int')." not null ".Helper::getSqlForAutoIncrement()." primary key,
+			ID ".Helper::getSqlForDataType('int')." not null ".Helper::getSqlForAutoIncrement().",
 			WORD ".Helper::getSqlForDataType('varchar', 50)." ".$binary." not null,
-			POSITION ".Helper::getSqlForDataType('int')." default '0'
+			POSITION ".Helper::getSqlForDataType('int')." default '0',
+			primary key (ID)
 		)");
-
-		Helper::addAutoIncrement(static::getTableName()); // only for ORACLE
 
 		Helper::createIndex(static::getTableName(), 'TMP', array('WORD'), true);
 		Helper::dropTable(static::getTableNameWord2Location());
@@ -474,7 +474,8 @@ final class WordTable extends Entity\DataManager implements \Serializable
 
 			'ID' => array(
 				'data_type' => 'integer',
-				'primary' => true
+				'primary' => true,
+				'autocomplete' => true,
 			),
 			'WORD' => array(
 				'data_type' => 'string',

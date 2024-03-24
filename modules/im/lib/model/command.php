@@ -10,9 +10,7 @@ namespace Bitrix\Im\Model;
 
 use Bitrix\Im\V2\Entity\Command\Command;
 use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class CommandTable
@@ -72,68 +70,68 @@ class CommandTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('COMMAND_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_ID_FIELD'),
 			),
 			'BOT_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('COMMAND_ENTITY_BOT_ID_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_BOT_ID_FIELD'),
 			),
 			'APP_ID' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateAppId'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_APP_ID_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_APP_ID_FIELD'),
 				'default_value' => '',
 			),
 			'COMMAND' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateCommand'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_COMMAND_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_COMMAND_FIELD'),
 			),
 			'COMMON' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_COMMON_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_COMMON_FIELD'),
 				'default_value' => 'N',
 			),
 			'HIDDEN' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_HIDDEN_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_HIDDEN_FIELD'),
 				'default_value' => 'N',
 			),
 			'EXTRANET_SUPPORT' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_EXTRANET_SUPPORT_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_EXTRANET_SUPPORT_FIELD'),
 				'default_value' => 'N',
 			),
 			'SONET_SUPPORT' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_SONET_SUPPORT_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_SONET_SUPPORT_FIELD'),
 				'default_value' => 'N',
 			),
 			'CLASS' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateClass'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_CLASS_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_CLASS_FIELD'),
 			),
 			'METHOD_COMMAND_ADD' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateMethodCommandAdd'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_METHOD_COMMAND_ADD_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_METHOD_COMMAND_ADD_FIELD'),
 			),
 			'METHOD_LANG_GET' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateMethodLangGet'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_METHOD_LANG_GET_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_METHOD_LANG_GET_FIELD'),
 			),
 			'MODULE_ID' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateModuleId'),
-				'title' => Loc::getMessage('COMMAND_ENTITY_MODULE_ID_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_ENTITY_MODULE_ID_FIELD'),
 			),
 		);
 	}

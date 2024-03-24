@@ -895,15 +895,18 @@
 			 * @param params
 			 * @returns {boolean}
 			 */
-			post: function (eventName, params)
+			post(eventName, params)
 			{
 				if (app.enableInVersion(17))
 				{
-					if (typeof(params) == "object")
+					if (typeof params === 'object')
+					{
 						params = JSON.stringify(params);
-					app.exec("fireEvent", {
-						eventName: eventName,
-						params: params
+					}
+
+					app.exec('fireEvent', {
+						eventName,
+						params,
 					}, false);
 
 					return true;
@@ -911,30 +914,31 @@
 
 				return false;
 			},
-			postToComponent: function (eventName, params, code)
+			postToComponent(eventName, params, code)
 			{
-				if(app.enableInVersion(25))
+				if (app.enableInVersion(25))
 				{
-					if (typeof(params) == "object")
+					if (typeof params === 'object')
 					{
 						params = JSON.stringify(params);
 					}
 
-					app.exec("fireEvent", {
-						eventName: eventName,
-						params: params,
-						componentCode:code
+					app.exec('fireEvent', {
+						eventName,
+						params,
+						componentCode: code,
 					}, false);
 
 					return true;
 				}
 
 				return false;
-            },
-			addEventListener: function (eventObject, eventName, listener)
+			},
+			addEventListener(eventObject, eventName, listener)
 			{
-				BXMobileApp.addCustomEvent(eventObject, eventName,listener)
-			}
+				// eslint-disable-next-line no-undef
+				BXMobileApp.addCustomEvent(eventObject, eventName, listener);
+			},
 		},
 		/**
 		 *

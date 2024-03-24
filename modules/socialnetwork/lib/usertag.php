@@ -176,8 +176,6 @@ class UserTagTable extends Entity\DataManager
 		);
 
 		$connection = \Bitrix\Main\Application::getConnection();
-		$connection->queryExecute('SET @user_rank = 0');
-		$connection->queryExecute('SET @current_entity_id = 0');
 
 		$params['tagName'] = $params['tagName'] ?? null;
 
@@ -206,28 +204,17 @@ class UserTagTable extends Entity\DataManager
 				return $result;
 			}
 
-			$res = $connection->query("SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-				@user_rank := IF(
-					@current_name = tmp.NAME,
-					@user_rank + 1,
-					1
-				) as USER_RANK,
-				@current_name := tmp.NAME,
-				tmp.USER_ID as USER_ID,
-				tmp.NAME as NAME,
-				tmp.WEIGHT as WEIGHT
-			FROM (
-				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-					@rownum := @rownum + 1 as ROWNUM,
+			$res = $connection->query("
+				SELECT
 					RS1.ENTITY_ID as USER_ID,
 					UT1.NAME as NAME,
 					MAX(RS1.VOTES) as WEIGHT
 				FROM
 					b_rating_subordinate RS1,
-					".self::getTableName()." UT1
+					b_sonet_user_tag UT1
 				INNER JOIN b_user U ON U.ID = UT1.USER_ID
 				WHERE
-					RS1.RATING_ID = ".intval($ratingId)."
+					RS1.RATING_ID = ".(int) $ratingId."
 					AND RS1.ENTITY_ID = UT1.USER_ID
 					AND UT1.NAME IN (".$tagsSql.")
 					AND U.ACTIVE = 'Y'
@@ -236,33 +223,22 @@ class UserTagTable extends Entity\DataManager
 				ORDER BY
 					UT1.NAME,
 					WEIGHT DESC
-			) tmp");
+			");
 		}
 		else
 		{
-			$res = $connection->query("SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-				@user_rank := IF(
-					@current_name = tmp.NAME,
-					@user_rank + 1,
-					1
-				) as USER_RANK,
-				tmp.USER_ID as USER_ID,
-				tmp.NAME as NAME,
-				1 as WEIGHT
-			FROM (
-				SELECT /*+ NO_DERIVED_CONDITION_PUSHDOWN() */
-					@rownum := @rownum + 1 as ROWNUM,
+			$res = $connection->query("
+				SELECT
 					UT1.USER_ID as USER_ID,
 					UT1.NAME as NAME
-				FROM
-					".self::getTableName()." UT1
+				FROM b_sonet_user_tag UT1
 				INNER JOIN b_user U ON U.ID = UT1.USER_ID
 				WHERE
 					UT1.NAME IN (".$tagsSql.")
 					AND U.ACTIVE = 'Y'
 				ORDER BY
 					UT1.NAME
-			) tmp");
+			");
 		}
 
 		$userWeightData = $tagUserData = array();

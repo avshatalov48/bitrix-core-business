@@ -28,11 +28,13 @@ export class PostFormRouter
 		{
 			if (this.#pathToGroupRedirect)
 			{
-				location.href = this.#pathToGroupRedirect.replace('#group_id#', groupId);
+				top.BX.Socialnetwork.Spaces.space.reloadPageContent(
+					this.#pathToGroupRedirect.replace('#group_id#', groupId),
+				);
 			}
 			else
 			{
-				location.reload();
+				top.BX.Socialnetwork.Spaces.space.reloadPageContent();
 			}
 		}
 		else
@@ -40,11 +42,11 @@ export class PostFormRouter
 			// eslint-disable-next-line no-lonely-if
 			if (this.#pathToDefaultRedirect)
 			{
-				location.href = this.#pathToDefaultRedirect;
+				top.BX.Socialnetwork.Spaces.space.reloadPageContent(this.#pathToDefaultRedirect);
 			}
 			else
 			{
-				location.reload();
+				top.BX.Socialnetwork.Spaces.space.reloadPageContent();
 			}
 		}
 	}

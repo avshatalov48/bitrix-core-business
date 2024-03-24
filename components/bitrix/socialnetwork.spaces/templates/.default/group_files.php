@@ -11,6 +11,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @var array $componentParams */
+/** @var int $groupId */
+/** @var int $userId */
 
 require_once __DIR__ . '/params.php';
 

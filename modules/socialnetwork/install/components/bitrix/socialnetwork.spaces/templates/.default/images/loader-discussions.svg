@@ -1,0 +1,81 @@
+<svg width="100%" height="100%" viewBox="0 0 100% 100%" fill="none" xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+
+	<svg y="0" height="100%" width="100%">
+		<defs>
+			<g id="b-1">
+				<rect x="0" y="0" width="100%" height="306" rx="10" fill="white" />
+				<rect x="129.5" y="221.5" width="68%" height="37" rx="18.5" stroke="#e5e5e5" />
+			</g>
+		</defs>
+
+		<rect opacity="0.8" x="0" y="0" width="100%" height="60" rx="10" fill="white" />
+
+		<use xlink:href="#b-1" y="129"></use>
+		<use xlink:href="#b-1" y="450"></use>
+		<use xlink:href="#b-1" y="771"></use>
+	</svg>
+
+	<svg width="100%" height="100%" id="animated-elements">
+		<defs>
+			<g id="block-1">
+				<circle cx="43" cy="120" r="25" fill="#e5e5e5" />
+				<rect x="85" y="104" width="29%" height="8" rx="2" fill="#e5e5e5" />
+				<rect x="85" y="126" width="9%" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="85" y="148" width="53%" height="8" rx="2" fill="#e5e5e5" />
+				<rect x="85" y="169" width="53%" height="8" rx="2" fill="#e5e5e5" />
+				<rect x="85" y="190" width="53%" height="8" rx="2" fill="#e5e5e5" />
+				<rect x="85" y="211" width="46%" height="8" rx="2" fill="#e5e5e5" />
+
+
+
+				<rect x="85" y="268" width="50" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="159" y="268" width="90" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="273" y="268" width="50" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="347" y="268" width="24" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="395" y="268" width="50" height="6" rx="2" fill="#e5e5e5" />
+				<rect x="85" y="244" width="calc(100% - 151px)" height="1" fill="#e5e5e5" />
+
+				<rect x="147" y="312" width="126" height="6" rx="2" fill="#ecedee" />
+				<circle cx="104" cy="315" r="19" fill="#e5e5e5" />
+			</g>
+
+			<g id="block-2">
+				<rect x="10" y="75" width="220" height="39" rx="19.5" fill="#bdc1c6"/>
+				<rect x="242" y="75" width="212" height="39" rx="19.5" fill="#edeef0" />
+				<rect x="100%" y="78" width="114" height="33" rx="16.5" fill="#edeef0" transform="translate(-176, 0)" />
+				<rect x="100%" y="78" width="38" height="33" rx="16.5" fill="#edeef0" transform="translate(-51, 0)" />
+			</g>
+		</defs>
+
+		<rect x="6" y="6" width="48" height="48" rx="8" fill="#bdc1c6" />
+		<rect x="85" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+		<rect x="257" y="28" width="76" height="6" rx="2" fill="#bdc1c6" />
+		<rect x="167" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+		<rect x="373" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+		<rect x="463" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+
+		<use xlink:href="#block-2"></use>
+
+		<use xlink:href="#block-1" y="54"></use>
+		<use xlink:href="#block-1" y="375"></use>
+		<use xlink:href="#block-1" y="696"></use>
+	</svg>
+
+
+
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="100%"/>
+
+	<mask id="headerMsk" fill="white">
+		<use xlink:href="#animated-elements"/>
+	</mask>
+
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+		<stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+		<stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+	</linearGradient>
+
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

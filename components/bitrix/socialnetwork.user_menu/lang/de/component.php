@@ -9,5 +9,6 @@ $MESS["SONET_UM_FORUM"] = "Diskussion";
 $MESS["SONET_UM_MICROBLOG"] = "Microblog";
 $MESS["SONET_UM_PHOTO"] = "Foto";
 $MESS["SONET_UM_SEARCH"] = "Suchen";
+$MESS["SONET_UM_SIGN"] = "Unterschriebene Dokumente";
 $MESS["SONET_UM_STREAM_NEWS"] = "Feed";
 $MESS["SONET_UM_TASKS"] = "Aufgaben";

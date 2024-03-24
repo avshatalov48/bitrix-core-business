@@ -49,6 +49,7 @@ class UsageEntityTable extends Main\Entity\DataManager
 	const SUB_ENTITY_TYPE_LANDING = 'L';
 	const SUB_ENTITY_TYPE_LANDING_KNOWLEDGE = 'K';
 	const SUB_ENTITY_TYPE_UI = 'U';
+	const SUB_ENTITY_TYPE_AI = 'G';
 	const SUB_ENTITY_TYPE_BI_SUPERSET = 'I';
 
 	protected static $info = array();

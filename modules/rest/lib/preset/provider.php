@@ -392,14 +392,14 @@ class Provider
 			'SCOPE' => is_array($requestData['SCOPE']) ? $requestData['SCOPE'] : [],
 			'QUERY' => $requestData['QUERY'],
 			'OUTGOING_HANDLER_URL' => trim($requestData['OUTGOING_HANDLER_URL'] ?? null),
-			'OUTGOING_EVENTS' => is_array($requestData['OUTGOING_EVENTS']) ? $requestData['OUTGOING_EVENTS'] : [],
+			'OUTGOING_EVENTS' => isset($requestData['OUTGOING_EVENTS']) && is_array($requestData['OUTGOING_EVENTS']) ? $requestData['OUTGOING_EVENTS'] : [],
 			'APPLICATION_ONLY_API' => (isset($requestData['APPLICATION_ONLY_API']) && $requestData['APPLICATION_ONLY_API'] === 'Y') ? 'Y' : 'N',
 			'APPLICATION_NEEDED' => (isset($requestData['APPLICATION_NEEDED']) && $requestData['APPLICATION_NEEDED'] === 'Y') ? 'Y' : 'N',
 			'APPLICATION_EVENTS' => (isset($requestData['APPLICATION_EVENTS']) && is_array($requestData['APPLICATION_EVENTS'])) ? $requestData['APPLICATION_EVENTS'] : [],
-			'OUTGOING_NEEDED' => ($requestData['OUTGOING_NEEDED'] === 'Y') ? 'Y' : 'N',
-			'WIDGET_NEEDED' => ($requestData['WIDGET_NEEDED'] === 'Y') ? 'Y' : 'N',
+			'OUTGOING_NEEDED' => (isset($requestData['OUTGOING_NEEDED']) && $requestData['OUTGOING_NEEDED'] === 'Y') ? 'Y' : 'N',
+			'WIDGET_NEEDED' => (isset($requestData['WIDGET_NEEDED']) && $requestData['WIDGET_NEEDED'] === 'Y') ? 'Y' : 'N',
 			'WIDGET_HANDLER_URL' => trim($requestData['WIDGET_HANDLER_URL'] ?? null),
-			'WIDGET_LIST' => $requestData['WIDGET_LIST'],
+			'WIDGET_LIST' => $requestData['WIDGET_LIST'] ?? null,
 			'WIDGET_LANG_LIST' => (isset($requestData['WIDGET_LANG_LIST']) && is_array($requestData['WIDGET_LANG_LIST'])) ? $requestData['WIDGET_LANG_LIST'] : [],
 			'BOT_HANDLER_URL' => trim($requestData['BOT_HANDLER_URL'] ?? null)
 		];

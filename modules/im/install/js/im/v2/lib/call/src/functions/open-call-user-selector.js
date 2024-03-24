@@ -10,9 +10,7 @@ export const openCallUserSelector = (params) => {
 
 		const preparedItems = prepareUser(selectedItems);
 
-		preparedItems.forEach((item) => {
-			params.onSelect({ user: item });
-		});
+		params.onSelect({ users: preparedItems });
 	};
 
 	const handleCancelCLick = () => {

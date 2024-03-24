@@ -10,4 +10,4 @@ $MESS ['COMP_FORM_PARAMS_SHOW_STATUS'] = "Показать текущий ста
 $MESS ['COMP_FORM_PARAMS_EDIT_URL'] = "Страница редактирования результата";
 $MESS ['COMP_FORM_PARAMS_CHAIN_ITEM_TEXT'] = "Название дополнительного пункта в навигационной цепочке";
 $MESS ['COMP_FORM_PARAMS_CHAIN_ITEM_LINK'] = "Ссылка на дополнительном пункте в навигационной цепочке";
-?>
+$MESS ['COMP_FORM_NAME_TEMPLATE'] = "Формат имени";

@@ -1,9 +1,12 @@
 import { Extension } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
 import { UploadingService } from 'im.v2.provider.service';
 import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
 import { isSendMessageCombination, isNewLineCombination } from 'im.v2.lib.hotkey';
 import { Textarea } from 'im.v2.lib.textarea';
+import { DraftManager } from 'im.v2.lib.draft';
+import { EventType } from 'im.v2.const';
 
 import { FileItem } from './file-item';
 
@@ -84,11 +87,17 @@ export const UploadPreviewContent = {
 	created()
 	{
 		this.text = this.textareaValue;
+		this.insertText('');
 		this.files = this.getUploadingService().getFiles(this.uploaderId);
 	},
 	mounted()
 	{
 		this.$refs.messageText.focus();
+	},
+	beforeUnmount()
+	{
+		this.insertText(this.text);
+		DraftManager.getInstance().setDraftText(this.dialogId, this.text);
 	},
 	methods:
 	{
@@ -120,6 +129,8 @@ export const UploadPreviewContent = {
 				uploaderId: this.uploaderId,
 				sendAsFile: this.sendAsFile,
 			});
+
+			this.text = '';
 		},
 		onKeyDownHandler(event: KeyboardEvent)
 		{
@@ -147,6 +158,13 @@ export const UploadPreviewContent = {
 					urlPreview: '',
 					image: false,
 				},
+			});
+		},
+		insertText(text: string)
+		{
+			EventEmitter.emit(EventType.textarea.insertText, {
+				text,
+				replace: true,
 			});
 		},
 	},

@@ -71,7 +71,7 @@ class Members
 				'<div style="display: inline-block">'
 					. '<div class="sonet-ui-grid-user-list">'
 						. $innerLayouts
-						. static::makeOtherCounterLayout(($totalUsersCount - $totalHeadsCount - $visibleMembersCount))
+						. static::makeOtherCounterLayout(($totalUsersCount - ($totalHeadsCount ?? 0) - $visibleMembersCount))
 					. '</div>'
 				. '</div>'
 			;

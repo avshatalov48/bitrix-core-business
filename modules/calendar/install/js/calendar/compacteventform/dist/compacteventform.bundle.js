@@ -287,7 +287,11 @@ this.BX = this.BX || {};
 	    return [this.getAcceptButton(), this.getDeclineButton(), this.getOpenButton(), ...this.getEditEventButtons()];
 	  }
 	  getEditModeButtons() {
-	    return [this.getSaveButton(), this.getCloseButton(), this.getFullFormButton()];
+	    const buttons = [this.getSaveButton(), this.getCloseButton()];
+	    if (this.canDo('edit')) {
+	      buttons.push(this.getFullFormButton());
+	    }
+	    return buttons;
 	  }
 	  getViewModeButtons() {
 	    const buttons = [this.getOpenButton()];
@@ -1126,6 +1130,14 @@ this.BX = this.BX || {};
 	    if (action === 'release') {
 	      return section.canDo('access');
 	    }
+	    if (action === 'editLocation') {
+	      var _this$entry$permissio4;
+	      return this.isNewEntry() ? true : ((_this$entry$permissio4 = this.entry.permissions) == null ? void 0 : _this$entry$permissio4['edit_location']) || false;
+	    }
+	    if (action === 'editAttendees') {
+	      var _this$entry$permissio5;
+	      return this.isNewEntry() ? true : ((_this$entry$permissio5 = this.entry.permissions) == null ? void 0 : _this$entry$permissio5['edit_attendees']) || false;
+	    }
 	    return true;
 	  }
 	  setFormValues() {
@@ -1180,13 +1192,14 @@ this.BX = this.BX || {};
 	    }
 
 	    // Location
+	    const readOnlyLocation = !(this.canDo('editLocation') || this.canDo('edit'));
 	    let location = entry.getLocation();
 	    if (this.shouldShowFakeLocationControl()) {
 	      this.DOM.locationWrap.style.display = 'none';
-	    } else if (readOnly && !location) {
+	    } else if (readOnlyLocation && !location) {
 	      this.DOM.locationOuterWrap.style.display = 'none';
 	    } else {
-	      this.locationSelector.setViewMode(readOnly);
+	      this.locationSelector.setViewMode(readOnlyLocation);
 	      if (this.isLocationCalendar) {
 	        this.locationSelector.setValue(this.locationSelector.default);
 	        location = this.locationSelector.default;
@@ -1206,7 +1219,7 @@ this.BX = this.BX || {};
 
 	    //User Planner Selector
 	    if (this.userPlannerSelector && (this.canDo('viewFull') || entry.getCurrentStatus() !== false)) {
-	      var _this$entry$permissio4;
+	      var _this$entry$permissio6;
 	      this.userPlannerSelector.setValue({
 	        attendeesEntityList: entry.getAttendeesEntityList(),
 	        location: location,
@@ -1217,10 +1230,11 @@ this.BX = this.BX || {};
 	        hideGuests: entry.getHideGuests()
 	      });
 	      this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
-	      if (readOnly) {
-	        this.userPlannerSelector.setViewMode(readOnly);
+	      const readOnlyUserPlanner = !(this.canDo('editAttendees') || this.canDo('edit'));
+	      if (readOnlyUserPlanner) {
+	        this.userPlannerSelector.setViewMode(readOnlyUserPlanner);
 	      }
-	      if (this.entry.isSharingEvent() && ((_this$entry$permissio4 = this.entry.permissions) != null && _this$entry$permissio4['edit'] || this.canDo('edit'))) {
+	      if (this.entry.isSharingEvent() && ((_this$entry$permissio6 = this.entry.permissions) != null && _this$entry$permissio6['edit'] || this.canDo('edit'))) {
 	        this.userPlannerSelector.setEditableSharingEventMode();
 	      }
 	    } else {
@@ -1238,8 +1252,8 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  shouldShowFakeLocationControl() {
-	    var _this$entry$permissio5;
-	    return this.entry.isSharingEvent() && (((_this$entry$permissio5 = this.entry.permissions) == null ? void 0 : _this$entry$permissio5['edit']) || this.canDo('edit'));
+	    var _this$entry$permissio7;
+	    return this.entry.isSharingEvent() && (((_this$entry$permissio7 = this.entry.permissions) == null ? void 0 : _this$entry$permissio7['edit']) || this.canDo('edit'));
 	  }
 	  setEventNameInputValue(name) {
 	    this.DOM.titleInput.value = name;
@@ -1755,6 +1769,7 @@ this.BX = this.BX || {};
 	      maxWidth: 350,
 	      buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
 	      onOk: () => {
+	        this.DOM.confirmPopup.close();
 	        this.close(true, true);
 	      },
 	      onCancel: () => {

@@ -147,7 +147,7 @@ class Helper
 
 		if (preg_match("/^(.+)(\\.[a-zA-Z0-9]+)\$/", $file["name"], $fileName))
 		{
-			if (!isset($fields["IPROPERTY_TEMPLATES"]) || $fields["IPROPERTY_TEMPLATES"][$templateName] == "")
+			if (!isset($fields["IPROPERTY_TEMPLATES"]) || (string)($fields["IPROPERTY_TEMPLATES"][$templateName] ?? '') === '')
 			{
 				$templates = $ipropTemplates->findTemplates();
 				$TEMPLATE = ($templates[$templateName]["TEMPLATE"] ?? '');

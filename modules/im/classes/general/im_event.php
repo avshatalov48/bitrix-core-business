@@ -3,6 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Im as IM;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Livefeed;
 
 class CIMEvent
@@ -222,8 +223,8 @@ class CIMEvent
 								"NOTIFY_EVENT" => "rating_vote",
 								"NOTIFY_TAG" => $ratingNotifyTag,
 								"NOTIFY_SUB_TAG" => $ratingNotifyTag.'|'.intval($arParams['OWNER_ID']),
-								"NOTIFY_MESSAGE" => self::GetMessageRatingVote($arParams),
-								"NOTIFY_MESSAGE_OUT" => self::GetMessageRatingVote($arParams, true)
+								"NOTIFY_MESSAGE" => fn (?string $languageId = null) => self::GetMessageRatingVote($arParams, false, $languageId),
+								"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) => self::GetMessageRatingVote($arParams, true, $languageId)
 							];
 							$bSentToOwner = CIMNotify::Add($arMessageFields);
 						}
@@ -303,8 +304,8 @@ class CIMEvent
 											"NOTIFY_EVENT" => "rating_vote_mentioned",
 											"NOTIFY_TAG" => $ratingMentionNotifyTag,
 											"NOTIFY_SUB_TAG" => $ratingMentionNotifyTag.'|'.intval($mentioned_user_id),
-											"NOTIFY_MESSAGE" => self::GetMessageRatingVote($arParams),
-											"NOTIFY_MESSAGE_OUT" => self::GetMessageRatingVote($arParams, true)
+											"NOTIFY_MESSAGE" => fn (?string $languageId = null) => self::GetMessageRatingVote($arParams, false, $languageId),
+											"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) => self::GetMessageRatingVote($arParams, true, $languageId),
 										];
 
 										CIMNotify::Add($arMessageFields);
@@ -325,7 +326,7 @@ class CIMEvent
 		CIMNotify::DeleteByTag("RATING|".$arParams['ENTITY_TYPE_ID']."|".$arParams['ENTITY_ID'], $arParams['USER_ID']);
 	}
 
-	public static function GetMessageRatingVote($arParams, $bForMail = false)
+	public static function GetMessageRatingVote($arParams, $bForMail = false, ?string $languageId = null)
 	{
 		static $intranetInstalled = null;
 
@@ -401,19 +402,19 @@ class CIMEvent
 		{
 			if ($arParams['ENTITY_TYPE_ID'] == 'BLOG_POST')
 			{
-				$message = str_replace('#LINK#', $arParams["ENTITY_TITLE"], GetMessage('IM_EVENT_RATING_BLOG_POST'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace('#LINK#', $arParams["ENTITY_TITLE"], Loc::getMessage('IM_EVENT_RATING_BLOG_POST'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'BLOG_COMMENT')
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '', ''], GetMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '', ''], Loc::getMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'FORUM_TOPIC')
 			{
-				$message = str_replace('#LINK#', $arParams["ENTITY_TITLE"], GetMessage('IM_EVENT_RATING_FORUM_TOPIC'.$like));
+				$message = str_replace('#LINK#', $arParams["ENTITY_TITLE"], Loc::getMessage('IM_EVENT_RATING_FORUM_TOPIC'.$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'FORUM_POST')
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '', ''], GetMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '', ''], Loc::getMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif (
 				$arParams['ENTITY_TYPE_ID'] == 'IBLOCK_SECTION'
@@ -422,15 +423,15 @@ class CIMEvent
 			{
 				if (isset($arParams["ENTITY_BODY"]))
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '', ''], GetMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '', ''], Loc::getMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like, null, $languageId));
 				}
 				elseif (is_numeric($arParams["ENTITY_TITLE"]))
 				{
-					$message = str_replace(['#A_START#', '#A_END#'], ['', ''], GetMessage('IM_EVENT_RATING_PHOTO_ALBUM1'.$like));
+					$message = str_replace(['#A_START#', '#A_END#'], ['', ''], Loc::getMessage('IM_EVENT_RATING_PHOTO_ALBUM1'.$like, null, $languageId));
 				}
 				else
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], GetMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], Loc::getMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like, null, $languageId));
 				}
 			}
 			elseif (
@@ -438,14 +439,14 @@ class CIMEvent
 				&& $arParams['ENTITY_PARAM'] == 'library'
 			)
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], GetMessage('IM_EVENT_RATING_FILE'.$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], Loc::getMessage('IM_EVENT_RATING_FILE'.$like, null, $languageId));
 			}
 			elseif (
 				$arParams['ENTITY_TYPE_ID'] == 'IBLOCK_ELEMENT'
 				&& $arParams['ENTITY_PARAM'] == 'wiki'
 			)
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], GetMessage('IM_EVENT_RATING_WIKI'.$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], Loc::getMessage('IM_EVENT_RATING_WIKI'.$like, null, $languageId));
 			}
 			elseif (
 				$arParams['ENTITY_TYPE_ID'] == 'IBLOCK_ELEMENT'
@@ -454,20 +455,20 @@ class CIMEvent
 			{
 				if (isset($arParams["ENTITY_BODY"]))
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '', ''], GetMessage('IM_EVENT_RATING_PHOTO'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '', ''], Loc::getMessage('IM_EVENT_RATING_PHOTO'.$like, null, $languageId));
 				}
 				elseif (is_numeric($arParams["ENTITY_TITLE"]))
 				{
-					$message = str_replace(['#A_START#', '#A_END#'], ['', ''], GetMessage('IM_EVENT_RATING_PHOTO1'.$like));
+					$message = str_replace(['#A_START#', '#A_END#'], ['', ''], Loc::getMessage('IM_EVENT_RATING_PHOTO1'.$like, null, $languageId));
 				}
 				else
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], GetMessage('IM_EVENT_RATING_PHOTO'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], Loc::getMessage('IM_EVENT_RATING_PHOTO'.$like, null, $languageId));
 				}
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'LOG_COMMENT')
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], GetMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '', ''], Loc::getMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'LISTS_NEW_ELEMENT')
 			{
@@ -482,12 +483,12 @@ class CIMEvent
 						'',
 						''
 					],
-					GetMessage('IM_EVENT_RATING_LISTS_NEW_ELEMENT_LIKE'.$like)
+					Loc::getMessage('IM_EVENT_RATING_LISTS_NEW_ELEMENT_LIKE'.$like, null, $languageId)
 				);
 			}
 			else
 			{
-				$message = str_replace('#LINK#', $arParams["ENTITY_TITLE"], GetMessage('IM_EVENT_RATING_ELSE'.$like));
+				$message = str_replace('#LINK#', $arParams["ENTITY_TITLE"], Loc::getMessage('IM_EVENT_RATING_ELSE'.$like, null, $languageId));
 			}
 
 			if ($arParams['ENTITY_LINK'] <> '')
@@ -499,33 +500,33 @@ class CIMEvent
 		{
 			if ($arParams['ENTITY_TYPE_ID'] == 'BLOG_POST')
 			{
-				$message = str_replace('#LINK#', '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">'.$arParams["ENTITY_TITLE"].'</a>', GetMessage('IM_EVENT_RATING_BLOG_POST'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace('#LINK#', '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">'.$arParams["ENTITY_TITLE"].'</a>', Loc::getMessage('IM_EVENT_RATING_BLOG_POST'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'BLOG_COMMENT')
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'FORUM_TOPIC')
 			{
-				$message = str_replace('#LINK#', '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">'.$arParams["ENTITY_TITLE"].'</a>', GetMessage('IM_EVENT_RATING_FORUM_TOPIC'.$like));
+				$message = str_replace('#LINK#', '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">'.$arParams["ENTITY_TITLE"].'</a>', Loc::getMessage('IM_EVENT_RATING_FORUM_TOPIC'.$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'FORUM_POST')
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_MESSAGE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif (
 				$arParams['ENTITY_TYPE_ID'] == 'IBLOCK_ELEMENT'
 				&& $arParams['ENTITY_PARAM'] == 'library'
 			)
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_FILE'.$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_FILE'.$like, null, $languageId));
 			}
 			elseif (
 				$arParams['ENTITY_TYPE_ID'] == 'IBLOCK_ELEMENT'
 				&& $arParams['ENTITY_PARAM'] == 'wiki'
 			)
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_WIKI'.$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_WIKI'.$like, null, $languageId));
 			}
 			elseif (
 				$arParams['ENTITY_TYPE_ID'] == 'IBLOCK_SECTION'
@@ -534,15 +535,15 @@ class CIMEvent
 			{
 				if (isset($arParams["ENTITY_BODY"]))
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like, null, $languageId));
 				}
 				elseif (is_numeric($arParams["ENTITY_TITLE"]))
 				{
-					$message = str_replace(['#A_START#', '#A_END#'], ['<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_PHOTO_ALBUM1'.$like));
+					$message = str_replace(['#A_START#', '#A_END#'], ['<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_PHOTO_ALBUM1'.$like, null, $languageId));
 				}
 				else
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_PHOTO_ALBUM'.$like, null, $languageId));
 				}
 			}
 			elseif (
@@ -552,20 +553,20 @@ class CIMEvent
 			{
 				if (isset($arParams["ENTITY_BODY"]))
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_PHOTO'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_BODY"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_PHOTO'.$like, null, $languageId));
 				}
 				elseif (is_numeric($arParams["ENTITY_TITLE"]))
 				{
-					$message = str_replace(['#A_START#', '#A_END#'], ['<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_PHOTO1'.$like));
+					$message = str_replace(['#A_START#', '#A_END#'], ['<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_PHOTO1'.$like));
 				}
 				else
 				{
-					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_PHOTO'.$like));
+					$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_PHOTO'.$like, null, $languageId));
 				}
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'LOG_COMMENT')
 			{
-				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], GetMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like));
+				$message = str_replace(['#TITLE#', '#A_START#', '#A_END#'], [$arParams["ENTITY_TITLE"], '<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">', '</a>'], Loc::getMessage('IM_EVENT_RATING_COMMENT'.($arParams['MENTION'] ? '_MENTION' : '').$like, null, $languageId));
 			}
 			elseif ($arParams['ENTITY_TYPE_ID'] == 'LISTS_NEW_ELEMENT')
 			{
@@ -580,17 +581,17 @@ class CIMEvent
 						'<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">',
 						'</a>'
 					],
-					GetMessage('IM_EVENT_RATING_LISTS_NEW_ELEMENT'.$like)
+					Loc::getMessage('IM_EVENT_RATING_LISTS_NEW_ELEMENT'.$like, null, $languageId)
 				);
 			}
 			else
 			{
-				$message = str_replace('#LINK#', $arParams['ENTITY_LINK'] <> ''?'<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">'.$arParams["ENTITY_TITLE"].'</a>': '<i>'.$arParams["ENTITY_TITLE"].'</i>', GetMessage('IM_EVENT_RATING_ELSE'.$like));
+				$message = str_replace('#LINK#', $arParams['ENTITY_LINK'] <> ''?'<a href="'.$arParams['ENTITY_LINK'].'" class="bx-notifier-item-action">'.$arParams["ENTITY_TITLE"].'</a>': '<i>'.$arParams["ENTITY_TITLE"].'</i>', Loc::getMessage('IM_EVENT_RATING_ELSE'.$like, null, $languageId));
 			}
 
 			if ($intranetInstalled)
 			{
-				$message .= "\n".str_replace("#REACTION#", \CRatingsComponentsMain::getRatingLikeMessage(!empty($arParams['REACTION']) ? $arParams['REACTION'] : ''), Bitrix\Main\Localization\Loc::getMessage("IM_EVENT_RATING_REACTION"));
+				$message .= "\n".str_replace("#REACTION#", \CRatingsComponentsMain::getRatingLikeMessage(!empty($arParams['REACTION']) ? $arParams['REACTION'] : ''), Bitrix\Main\Localization\Loc::getMessage("IM_EVENT_RATING_REACTION", null, $languageId));
 			}
 		}
 

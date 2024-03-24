@@ -1117,11 +1117,11 @@ class CSocNetLogDestination
 					continue;
 				}
 
-				if (intval($departmentId) > 0)
+				if ((int)$departmentId > 0)
 				{
 					$arUserGroupCode = CAccess::GetUserCodesArray($arUser["ID"]);
 
-					if (!in_array("DR".intval($departmentId), $arUserGroupCode))
+					if (!in_array("DR" . (int)$departmentId, $arUserGroupCode, true))
 					{
 						continue;
 					}
@@ -1168,7 +1168,8 @@ class CSocNetLogDestination
 					"PERSONAL_PHOTO",
 					"PERSONAL_GENDER",
 					"EXTERNAL_AUTH_ID",
-					new \Bitrix\Main\Entity\ExpressionField('EMAIL_OK', 'CASE WHEN UPPER(%s) = "'.$DB->ForSql(mb_strtoupper(str_replace('%', '%%', $search))).'" THEN 1 ELSE 0 END', 'EMAIL')
+					'ACTIVE',
+					new \Bitrix\Main\Entity\ExpressionField('EMAIL_OK', 'CASE WHEN UPPER(%s) = \''.$DB->ForSql(mb_strtoupper(str_replace('%', '%%', $search))).'\' THEN 1 ELSE 0 END', ['EMAIL'])
 				),
 				'limit' => 10
 			));
@@ -1266,8 +1267,8 @@ class CSocNetLogDestination
 					$arFileTmp = CFile::resizeImageGet(
 						$imageFile,
 						array(
-							"width" => (intval($params["THUMBNAIL_SIZE_WIDTH"]) > 0 ? $params["THUMBNAIL_SIZE_WIDTH"] : 100),
-							"height" => (intval($params["THUMBNAIL_SIZE_HEIGHT"]) > 0 ? $params["THUMBNAIL_SIZE_HEIGHT"] : 100)
+							"width" => ((int)$params["THUMBNAIL_SIZE_WIDTH"] > 0 ? $params["THUMBNAIL_SIZE_WIDTH"] : 100),
+							"height" => ((int)$params["THUMBNAIL_SIZE_HEIGHT"] > 0 ? $params["THUMBNAIL_SIZE_HEIGHT"] : 100)
 						),
 						BX_RESIZE_IMAGE_PROPORTIONAL,
 						false
@@ -2205,9 +2206,9 @@ class CSocNetLogDestination
 					}
 				}
 
-				if (!in_array($user["USER_ID"], $userIds))
+				if (!array_key_exists($user["USER_ID"], $userIds))
 				{
-					$userIds[] = $user["USER_ID"];
+					$userIds[$user["USER_ID"]] = $user["USER_ID"];
 					$users[] = [
 						'ID' => $user["USER_ID"],
 						'USER_ID' => $user["USER_ID"],

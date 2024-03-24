@@ -16,12 +16,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 $component = $this->getComponent();
 
+$spacesContext = $arParams["CONTEXT"] === \Bitrix\Socialnetwork\Livefeed\Context\Context::SPACES;
+$showRefresh = ($arParams["SHOW_REFRESH"] ?? null) !== "N";
+if ($spacesContext)
+{
+	$showRefresh = true;
+}
+
 if (!in_array($arParams['MODE'], ['PUB', 'LANDING']))
 {
 	if ($arResult['INFORMER_TARGET_ID'])
 	{
 		$this->SetViewTarget($arResult['INFORMER_TARGET_ID']);
 	}
+
+	$spacesClass = $spacesContext ? '--spaces' : '';
 
 	$classList = [
 		'feed-new-message-informer-place',
@@ -31,13 +40,10 @@ if (!in_array($arParams['MODE'], ['PUB', 'LANDING']))
 		$classList[] = 'feed-new-message-informer-place-hidden';
 	}
 
-	?><div class="<?= implode(' ', $classList) ?>"><?php
-	if (
-		!isset($arParams["SHOW_REFRESH"])
-		|| $arParams["SHOW_REFRESH"] !== "N"
-	)
+	?><div class="<?= implode(' ', $classList) ?> <?= $spacesClass ?>"><?php
+	if ($showRefresh)
 	{
-		?><div class="feed-new-message-inform-wrap new-message-balloon-wrap" id="sonet_log_counter_2_wrap" style="visibility: hidden;"><?php
+		?><div class="feed-new-message-inform-wrap new-message-balloon-wrap <?= $spacesClass ?>" id="sonet_log_counter_2_wrap" style="visibility: hidden;"><?php
 			?><div onclick="BX.Livefeed.PageInstance.refresh()" id="sonet_log_counter_2_container" class="feed-new-message-informer"><?php
 				?><span class="feed-new-message-inf-text feed-new-message-inf-text-counter new-message-balloon"><?php
 					?><span class="feed-new-message-icon new-message-balloon-icon"></span><?php

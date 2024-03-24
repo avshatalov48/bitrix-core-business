@@ -6,15 +6,14 @@ use Bitrix\Socialnetwork\Integration\Tasks;
 use Bitrix\Socialnetwork\Integration\Calendar;
 use Bitrix\Socialnetwork\Integration\SocialNetwork\WorkGroup;
 use Bitrix\Socialnetwork\Integration\SocialNetwork\LiveFeed;
+use Bitrix\Socialnetwork\Internals\Space\Counter\Cache;
 use Bitrix\Socialnetwork\Internals\Space\Counter\Dictionary;
 use Bitrix\Socialnetwork\Internals\Space\Counter\ProviderCollection;
-use Bitrix\Socialnetwork\Internals\Space\Counter\PushSender;
-use Bitrix\Socialnetwork\Space\List\Invitation\InvitationManager;
-use Bitrix\Socialnetwork\Space\List\Query\Builder;
 
 class Counter
 {
 	private static array $instance = [];
+	private Cache $cache;
 
 	public static function getInstance(int $userId): self
 	{
@@ -26,7 +25,7 @@ class Counter
 					new Tasks\CounterProvider($userId),
 					new Calendar\CounterProvider($userId),
 					new WorkGroup\CounterProvider($userId),
-					LiveFeed\CounterFactory::getLiveFeedCounterProvider($userId),
+					new LiveFeed\CounterProvider($userId),
 				])
 			);
 		}
@@ -122,76 +121,27 @@ class Counter
 
 	private function __construct(private int $userId, private ProviderCollection $providerCollection)
 	{
-		$this->recount();
+		$this->cache = new Cache($this->userId);
+		$this->updateLeftMenuCounter();
 	}
 
-	/**
-	 * Updates the spaces total counter displayed in the main left menu;
-	 * The spaces total counter is the summ of all user's spaces counters
-	 * @return void
-	 */
-	public function recount()
+	public function updateLeftMenuCounter(): void
 	{
 		$memberCounters = $this->getMemberSpaceCounters();
 		$value = $memberCounters['total'];
+		$code = Dictionary::LEFT_MENU_SPACES;
 
-		if (!$this->isSameValueCached($value))
+		if (!$this->cache->isSameLeftMenuTotal($code, $value))
 		{
 			\CUserCounter::Set(
 				$this->userId,
-				Dictionary::LEFT_MENU_SPACES,
+				$code,
 				$value,
 				'**',
 				'',
-				true
+				false
 			);
 		}
-
-		// push data to the client
-		(new PushSender())->createPush(
-			[$this->userId],
-			PushSender::COMMAND_USER_SPACES,
-			$memberCounters
-		);
-	}
-
-	private function isSameValueCached(int $value): bool
-	{
-		global $CACHE_MANAGER;
-
-		$cache = $CACHE_MANAGER->Get('user_counter' . $this->userId);
-		if (!$cache)
-		{
-			return false;
-		}
-
-		foreach ($cache as $item)
-		{
-			if (
-				$item['CODE'] === Dictionary::LEFT_MENU_SPACES
-				&& $item['SITE_ID'] === '**'
-				&& (int)$item['CNT'] === $value
-			)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private function getUserSpaces(int $userId): array
-	{
-		$userSpaces = (new Builder($userId))
-			->addModeFilter(\Bitrix\Socialnetwork\Space\List\Dictionary::FILTER_MODES['my'])
-			->build()
-			->exec()
-			->fetchAll();
-
-		// append common space
-		$userSpaces[] = ['ID' => 0];
-
-		return $userSpaces;
 	}
 
 	private function getMemberSpacesTotal(): array
@@ -199,10 +149,17 @@ class Counter
 		$total = 0;
 		$spaces = [];
 
-		foreach ($this->getUserSpaces($this->userId) as $space)
+		$userSpaces = $this->cache->getUserSpaceIds();
+
+		foreach ($userSpaces as $spaceId)
 		{
-			$spaceId = (int)$space['ID'];
 			$spaceTotal = $this->getTotal($spaceId);
+
+			if ($spaceTotal === 0)
+			{
+				continue;
+			}
+
 			$total += $spaceTotal;
 
 			$spaceCounters = [
@@ -228,10 +185,11 @@ class Counter
 	{
 		$total = 0;
 
-		$invitations = (new InvitationManager($this->userId))->getInvitations()->toArray();
-		foreach ($invitations as $invitation)
+		$invitations = $this->cache->getUserInvitationIds();
+
+		foreach ($invitations as $invitationId)
 		{
-			$total += $this->getValue($invitation->getSpaceId(), [Dictionary::COUNTERS_WORKGROUP_REQUEST_OUT]);
+			$total += $this->getValue($invitationId, [Dictionary::COUNTERS_WORKGROUP_REQUEST_OUT]);
 		}
 
 		return $total;

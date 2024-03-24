@@ -63,14 +63,30 @@ SQL
 
 	public static function runForTopic(int $topicId)
 	{
-		Main\Application::getConnection()->queryExecute(<<<SQL
+		if (Main\Application::getConnection()->getType() === 'pgsql')
+		{
+			Main\Application::getConnection()->queryExecute(<<<SQL
+INSERT INTO b_forum_service_statistic_queue (ENTITY_TYPE, ENTITY_ID)
+SELECT 'USER', AUTHOR_ID
+FROM b_forum_message 
+WHERE TOPIC_ID = {$topicId} AND AUTHOR_ID > 0 AND APPROVED='Y'
+GROUP BY AUTHOR_ID
+ON CONFLICT (ENTITY_TYPE, ENTITY_ID) DO NOTHING
+SQL
+			);
+		}
+		else
+		{
+			Main\Application::getConnection()->queryExecute(<<<SQL
 INSERT IGNORE INTO b_forum_service_statistic_queue (ENTITY_TYPE, ENTITY_ID)
 SELECT 'USER', AUTHOR_ID
 FROM b_forum_message 
 WHERE TOPIC_ID = {$topicId} AND AUTHOR_ID > 0 AND APPROVED='Y'
 GROUP BY AUTHOR_ID
 SQL
-		);
+			);
+		}
+
 		self::bind(0);
 	}
 	
@@ -81,14 +97,30 @@ SQL
 		{
 			return;
 		}
-		Main\Application::getConnection()->queryExecute(<<<SQL
+		if (Main\Application::getConnection()->getType() === 'pgsql')
+		{
+			Main\Application::getConnection()->queryExecute(<<<SQL
+INSERT INTO b_forum_service_statistic_queue (ENTITY_TYPE, ENTITY_ID)
+SELECT 'USER', AUTHOR_ID
+FROM b_forum_message 
+WHERE TOPIC_ID IN ({$topicIds}) AND AUTHOR_ID > 0 AND APPROVED='Y'
+GROUP BY AUTHOR_ID
+ON CONFLICT (ENTITY_TYPE, ENTITY_ID) DO NOTHING
+SQL
+			);
+		}
+		else
+		{
+			Main\Application::getConnection()->queryExecute(<<<SQL
 INSERT IGNORE INTO b_forum_service_statistic_queue (ENTITY_TYPE, ENTITY_ID)
 SELECT 'USER', AUTHOR_ID
 FROM b_forum_message 
 WHERE TOPIC_ID IN ({$topicIds}) AND AUTHOR_ID > 0 AND APPROVED='Y'
 GROUP BY AUTHOR_ID
 SQL
-		);
+			);
+		}
+
 		self::bind(300);
 	}
 }

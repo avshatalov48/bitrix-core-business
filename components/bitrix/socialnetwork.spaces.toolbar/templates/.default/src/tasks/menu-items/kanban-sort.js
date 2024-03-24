@@ -52,7 +52,7 @@ class KanbanSortItems
 		const menuItem = new MenuItem({
 			dataset: { id: `spaces-tasks-${this.#view.getViewId()}-settings-activity-sort-item` },
 			html: `
-				${Loc.getMessage('SN_SPACES_TASKS_SORT_ACTIVITY_DATE')}
+				${Loc.getMessage('SN_SPACES_TASKS_SORT_ACTIVITY_DATE_MSGVER_1')}
 				<span style="margin-left: 5px">${this.#getRecommendedLabel()}</span>
 			`,
 			className: `menu-popup-item-sort-field ${this.#getSelectedClass([KanbanOrder.SORT_ACTUAL])}`,

@@ -85,14 +85,30 @@ SQL
 
 	public static function runForTopic(int $topicId)
 	{
-		Main\Application::getConnection()->queryExecute(<<<SQL
+		if (Main\Application::getConnection()->getType() === 'pgsql')
+		{
+			Main\Application::getConnection()->queryExecute(<<<SQL
+INSERT INTO b_forum_service_deleted_message 
+	(FORUM_ID, TOPIC_ID, MESSAGE_ID, NEW_TOPIC, APPROVED, PARAM1, PARAM2, AUTHOR_ID)
+SELECT FORUM_ID, TOPIC_ID, ID, NEW_TOPIC, APPROVED, PARAM1, PARAM2, AUTHOR_ID
+FROM b_forum_message 
+WHERE TOPIC_ID = {$topicId}
+ON CONFLICT (MESSAGE_ID) DO NOTHING
+SQL
+			);
+		}
+		else
+		{
+			Main\Application::getConnection()->queryExecute(<<<SQL
 INSERT IGNORE INTO b_forum_service_deleted_message 
 	(FORUM_ID, TOPIC_ID, MESSAGE_ID, NEW_TOPIC, APPROVED, PARAM1, PARAM2, AUTHOR_ID)
 SELECT FORUM_ID, TOPIC_ID, ID, NEW_TOPIC, APPROVED, PARAM1, PARAM2, AUTHOR_ID
 FROM b_forum_message 
 WHERE TOPIC_ID = {$topicId}
 SQL
-		);
+			);
+		}
+
 		self::bind(0);
 	}
 }

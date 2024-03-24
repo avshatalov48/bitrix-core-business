@@ -128,7 +128,7 @@ export const ActiveCall = {
 			</div>
 			<div v-if="compactMode" @click="onClick" class="bx-im-list-recent-item__container bx-im-list-recent-active-call__container">
 				<div class="bx-im-list-recent-item__avatar_container">
-					<Avatar :dialogId="activeCall.dialogId" :size="AvatarSize.M" :withStatus="false" :withSpecialTypes="false" />
+					<Avatar :dialogId="activeCall.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
 					<div class="bx-im-list-recent-active-call__icon" :class="'--' + activeCall.state"></div>
 				</div>
 			</div>

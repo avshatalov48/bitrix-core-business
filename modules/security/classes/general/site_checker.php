@@ -1,6 +1,8 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
+use \Bitrix\Security\SiteCheckTable;
+
 class CSecuritySiteChecker
 {
 	const ADMIN_PAGE_URL = "/bitrix/admin/security_scanner.php";
@@ -14,7 +16,6 @@ class CSecuritySiteChecker
 	protected $neededTests = "";
 	protected $neededTestName = "";
 
-	protected static $tableName = "b_security_sitecheck";
 	protected static $dbFields = array("ID", "TEST_DATE", "RESULTS");
 	/** @var CSecurityTemporaryStorage */
 	protected $sessionData = null;
@@ -138,31 +139,11 @@ class CSecuritySiteChecker
 	 */
 	protected static function getList($pFilter = array(), $pMaxCount = 1)
 	{
-		/** @global CDataBase $DB */
-		global $DB;
-
-		$sqlQuery = "SELECT RESULTS, ".$DB->DateToCharFunction("TEST_DATE", "SHORT")." TEST_DATE FROM ".self::$tableName;
-		if (is_array($pFilter) && !empty($pFilter))
-		{
-			$sqlWhereQuery = array();
-			foreach($pFilter as $key => $value)
-			{
-				if (is_string($value) && $value != "" && in_array($key, self::$dbFields))
-				{
-					$sqlWhereQuery[] = $key."='".$DB->ForSql($value)."'";
-				}
-			}
-			if(!empty($sqlWhereQuery))
-			{
-				$sqlQuery .= " WHERE ".GetFilterSqlSearch($sqlWhereQuery);
-			}
-		}
-
-		$sqlQuery .= " ORDER BY ID desc";
-		$sqlQuery = $DB->TopSql($sqlQuery, $pMaxCount);
-		$arResult = $DB->Query($sqlQuery, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		return $arResult;
+		return SiteCheckTable::getList([
+			'filter' => $pFilter,
+			'order' => ['ID' => 'DESC'],
+			'limit' => $pMaxCount
+		]);
 	}
 
 	/**
@@ -175,23 +156,19 @@ class CSecuritySiteChecker
 		if (!isset($pResults) || !is_array($pResults))
 			return false;
 
-		/** @global CDataBase $DB */
-		global $DB;
-		$fields = array("RESULTS" => serialize($pResults));
-		$insertValues = $DB->PrepareInsert(self::$tableName, $fields);
-		$testingDate = self::getFormatedDate(time());
-		$sqlQuery = "INSERT INTO ".self::$tableName."(".$insertValues[0].", TEST_DATE) ".
-			"VALUES(".$insertValues[1].", ".$testingDate.")";
-		/** @var CDBResult $queryResult */
-		$queryResult = $DB->QueryBind($sqlQuery, $fields);
-		if($queryResult && $queryResult->result)
+		$now = new \Bitrix\Main\Type\DateTime();
+
+		$res = SiteCheckTable::add([
+			'TEST_DATE' => $now,
+			'RESULTS' => serialize($pResults)
+		]);
+
+		if($res && $res->isSuccess())
 		{
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	/**
@@ -249,9 +226,8 @@ class CSecuritySiteChecker
 	{
 		/**
 		 * @global CCacheManager $CACHE_MANAGER
-		 * @global CDataBase $DB
 		 */
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 		$cacheId = self::CACHE_BASE_ID."_last_check";
 
 		if($CACHE_MANAGER->read(self::CHECKING_REPEAT_TIME, $cacheId, self::CACHE_DIR))
@@ -260,16 +236,16 @@ class CSecuritySiteChecker
 		}
 		else
 		{
-			$minimalDate = self::getFormatedDate(time() - self::CHECKING_REPEAT_TIME);
-			$sqlQuery = "
-				SELECT COUNT(ID) AS COUNT
-				FROM
-					".self::$tableName."
-				WHERE
-					TEST_DATE >= ".$minimalDate."
-			";
+			$minimalDate = new \Bitrix\Main\Type\DateTime();
+			$sec = self::CHECKING_REPEAT_TIME;
+			$minimalDate->add("-{$sec} seconds");
 
-			$res = $DB->query($sqlQuery, false, $err_mess = "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$res = SiteCheckTable::getList([
+				'select' => ['COUNT'],
+				'filter' => ['>=TEST_DATE' => $minimalDate],
+				'runtime' => [new \Bitrix\Main\Entity\ExpressionField('COUNT', 'COUNT(*)')]
+			]);
+
 			$result = true;
 			if($count = $res->fetch())
 			{

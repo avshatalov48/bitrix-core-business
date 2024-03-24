@@ -1166,39 +1166,36 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  getModuleId() {
 	    return 'im';
 	  }
-	  getSubscriptionType() {
-	    return 'server';
-	  }
 
-	  //region members
+	  // region members
 	  handleChatUserAdd(params) {
-	    if (!this.isSidebarInited(params.chatId)) {
+	    if (this.getMembersCountFromStore(params.chatId) === 0) {
 	      return;
 	    }
-	    this.userManager.setUsersToModel(Object.values(params.users));
-	    this.store.dispatch('sidebar/members/set', {
+	    void this.userManager.setUsersToModel(Object.values(params.users));
+	    void this.store.dispatch('sidebar/members/set', {
 	      chatId: params.chatId,
 	      users: params.newUsers
 	    });
 	  }
 	  handleChatUserLeave(params) {
-	    if (!this.isSidebarInited(params.chatId)) {
+	    if (this.getMembersCountFromStore(params.chatId) === 0) {
 	      return;
 	    }
-	    this.store.dispatch('sidebar/members/delete', {
+	    void this.store.dispatch('sidebar/members/delete', {
 	      chatId: params.chatId,
 	      userId: params.userId
 	    });
 	  }
-	  //endregion
+	  // endregion
 
-	  //region task
+	  // region task
 	  handleTaskAdd(params) {
 	    if (!this.isSidebarInited(params.link.chatId)) {
 	      return;
 	    }
-	    this.userManager.setUsersToModel(params.users);
-	    this.store.dispatch('sidebar/tasks/set', {
+	    void this.userManager.setUsersToModel(params.users);
+	    void this.store.dispatch('sidebar/tasks/set', {
 	      chatId: params.link.chatId,
 	      tasks: [params.link]
 	    });
@@ -1210,20 +1207,20 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    if (!this.isSidebarInited(params.chatId)) {
 	      return;
 	    }
-	    this.store.dispatch('sidebar/tasks/delete', {
+	    void this.store.dispatch('sidebar/tasks/delete', {
 	      chatId: params.chatId,
 	      id: params.linkId
 	    });
 	  }
-	  //endregion
+	  // endregion
 
-	  //region meetings
+	  // region meetings
 	  handleCalendarAdd(params) {
 	    if (!this.isSidebarInited(params.link.chatId)) {
 	      return;
 	    }
-	    this.userManager.setUsersToModel(params.users);
-	    this.store.dispatch('sidebar/meetings/set', {
+	    void this.userManager.setUsersToModel(params.users);
+	    void this.store.dispatch('sidebar/meetings/set', {
 	      chatId: params.link.chatId,
 	      meetings: [params.link]
 	    });
@@ -1235,25 +1232,25 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    if (!this.isSidebarInited(params.chatId)) {
 	      return;
 	    }
-	    this.store.dispatch('sidebar/meetings/delete', {
+	    void this.store.dispatch('sidebar/meetings/delete', {
 	      chatId: params.chatId,
 	      id: params.linkId
 	    });
 	  }
-	  //endregion
+	  // endregion
 
-	  //region links
+	  // region links
 	  handleUrlAdd(params) {
 	    if (!this.isSidebarInited(params.link.chatId)) {
 	      return;
 	    }
-	    this.userManager.setUsersToModel(params.users);
-	    this.store.dispatch('sidebar/links/set', {
+	    void this.userManager.setUsersToModel(params.users);
+	    void this.store.dispatch('sidebar/links/set', {
 	      chatId: params.link.chatId,
 	      links: [params.link]
 	    });
 	    const counter = this.store.getters['sidebar/links/getCounter'](params.link.chatId);
-	    this.store.dispatch('sidebar/links/setCounter', {
+	    void this.store.dispatch('sidebar/links/setCounter', {
 	      chatId: params.link.chatId,
 	      counter: counter + 1
 	    });
@@ -1262,27 +1259,27 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    if (!this.isSidebarInited(params.chatId)) {
 	      return;
 	    }
-	    this.store.dispatch('sidebar/links/delete', {
+	    void this.store.dispatch('sidebar/links/delete', {
 	      chatId: params.chatId,
 	      id: params.linkId
 	    });
 	  }
-	  //endregion
+	  // endregion
 
-	  //region favorite
+	  // region favorite
 	  handleMessageFavoriteAdd(params) {
 	    if (!this.isSidebarInited(params.link.chatId)) {
 	      return;
 	    }
-	    this.userManager.setUsersToModel(params.users);
-	    this.store.dispatch('files/set', params.files);
-	    this.store.dispatch('messages/store', [params.link.message]);
-	    this.store.dispatch('sidebar/favorites/set', {
+	    void this.userManager.setUsersToModel(params.users);
+	    void this.store.dispatch('files/set', params.files);
+	    void this.store.dispatch('messages/store', [params.link.message]);
+	    void this.store.dispatch('sidebar/favorites/set', {
 	      chatId: params.link.chatId,
 	      favorites: [params.link]
 	    });
 	    const counter = this.store.getters['sidebar/favorites/getCounter'](params.link.chatId);
-	    this.store.dispatch('sidebar/favorites/setCounter', {
+	    void this.store.dispatch('sidebar/favorites/setCounter', {
 	      chatId: params.link.chatId,
 	      counter: counter + 1
 	    });
@@ -1291,64 +1288,68 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    if (!this.isSidebarInited(params.chatId)) {
 	      return;
 	    }
-	    this.store.dispatch('sidebar/favorites/delete', {
+	    void this.store.dispatch('sidebar/favorites/delete', {
 	      chatId: params.chatId,
 	      id: params.linkId
 	    });
 	  }
-	  //endregion
+	  // endregion
 
-	  //region files
+	  // region files
 	  handleFileAdd(params) {
+	    var _params$link$subType;
 	    if (!this.isSidebarInited(params.link.chatId)) {
 	      return;
 	    }
-	    this.userManager.setUsersToModel(params.users);
-	    this.store.dispatch('files/set', params.files);
-	    if (!params.link.subType) {
-	      params.link.subType = im_v2_const.SidebarDetailBlock.fileUnsorted;
-	    }
-	    this.store.dispatch('sidebar/files/set', {
+	    void this.userManager.setUsersToModel(params.users);
+	    void this.store.dispatch('files/set', params.files);
+	    const subType = (_params$link$subType = params.link.subType) != null ? _params$link$subType : im_v2_const.SidebarDetailBlock.fileUnsorted;
+	    void this.store.dispatch('sidebar/files/set', {
 	      chatId: params.link.chatId,
-	      files: [params.link]
+	      files: [params.link],
+	      subType
 	    });
 	  }
 	  handleFileDelete(params) {
+	    var _params$linkId;
 	    const chatId = main_core.Type.isNumber(params.chatId) ? params.chatId : Number.parseInt(params.chatId, 10);
 	    if (!this.isSidebarInited(chatId)) {
 	      return;
 	    }
-	    const sidebarFileId = params.linkId ? params.linkId : params.fileId;
-	    this.store.dispatch('sidebar/files/delete', {
-	      chatId: chatId,
+	    const sidebarFileId = (_params$linkId = params.linkId) != null ? _params$linkId : params.fileId;
+	    void this.store.dispatch('sidebar/files/delete', {
+	      chatId,
 	      id: sidebarFileId
 	    });
 	  }
-	  //endregion
+	  // endregion
 
-	  //region files unsorted
-	  handleMessage(params) {
+	  // region files unsorted
+	  handleMessageChat(params) {
 	    // handle new files while migration is not finished.
 	    if (!this.isSidebarInited(params.chatId) || this.isFilesMigrated()) {
 	      return;
 	    }
-	    this.userManager.setUsersToModel(Object.values(params.users));
-	    this.store.dispatch('files/set', Object.values(params.files));
+	    void this.userManager.setUsersToModel(Object.values(params.users));
+	    void this.store.dispatch('files/set', Object.values(params.files));
 	    Object.values(params.files).forEach(file => {
-	      file.subType = im_v2_const.SidebarDetailBlock.fileUnsorted;
-	      this.store.dispatch('sidebar/files/set', {
+	      void this.store.dispatch('sidebar/files/set', {
 	        chatId: file.chatId,
-	        files: [file]
+	        files: [file],
+	        subType: im_v2_const.SidebarDetailBlock.fileUnsorted
 	      });
 	    });
 	  }
-	  //endregion
+	  // endregion
 
 	  isSidebarInited(chatId) {
 	    return this.store.getters['sidebar/isInited'](chatId);
 	  }
 	  isFilesMigrated() {
 	    return this.store.state.sidebar.isFilesMigrated;
+	  }
+	  getMembersCountFromStore(chatId) {
+	    return this.store.getters['sidebar/members/getSize'](chatId);
 	  }
 	}
 

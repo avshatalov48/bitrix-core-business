@@ -318,7 +318,7 @@ class Call extends Engine\Controller
 			return null;
 		}
 
-		$sendPush = $isRepeated !== true && $call->getProvider() !== \Bitrix\Im\Call\Call::PROVIDER_BITRIX;
+		$sendPush = $isRepeated !== true;
 
 		// send invite to the ones being invited.
 		$call->inviteUsers(

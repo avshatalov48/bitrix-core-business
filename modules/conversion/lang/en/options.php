@@ -1,7 +1,7 @@
-<?
+<?php
 $MESS["CONVERSION_CURRENCY"] = "Base currency";
-$MESS["CONVERSION_TAB_MODULES_NAME"] = "Modules";
+$MESS["CONVERSION_CURRENCY_NOT_SELECTED"] = "not selected";
+$MESS["CONVERSION_TAB_MODULES_ACTIVE"] = "Calculate conversion";
 $MESS["CONVERSION_TAB_MODULES_DESC"] = "Module settings";
 $MESS["CONVERSION_TAB_MODULES_MODULE_NAME"] = "Module name";
-$MESS["CONVERSION_TAB_MODULES_ACTIVE"] = "Calculate conversion";
-?>
+$MESS["CONVERSION_TAB_MODULES_NAME"] = "Modules";

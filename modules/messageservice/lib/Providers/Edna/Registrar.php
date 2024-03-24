@@ -115,6 +115,11 @@ abstract class Registrar extends Providers\Base\Registrar implements Providers\S
 
 	public function getExternalManageUrl(): string
 	{
+		if (RegionHelper::isInternational())
+		{
+			return 'https://app.edna.io/';
+		}
+
 		return 'https://app.edna.ru/';
 	}
 }

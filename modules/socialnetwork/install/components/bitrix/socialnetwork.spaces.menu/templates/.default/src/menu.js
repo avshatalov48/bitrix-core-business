@@ -1,24 +1,23 @@
 import { Loc, Dom, Type, Tag, Event, Cache, Runtime } from 'main.core';
+import { BaseEvent } from 'main.core.events';
 import { PULL as Pull } from 'pull.client';
 import { Meetings } from 'tasks.scrum.meetings';
 import { Methodology } from 'tasks.scrum.methodology';
-import { Guide } from 'ui.tour';
+import type { GroupData } from './group-settings';
 import { PullRequests } from './pull-requests';
-import { MenuAjax } from './menu-ajax';
 import { Chat } from './chat';
 import { Invite } from './invite';
-import { Logo } from './logo';
-import { MenuRouter } from './menu-router';
+import { Logo, LogoData } from 'socialnetwork.logo';
 import { Settings } from './settings';
 import { VideoCall } from './video-call';
-
-import type { LogoData } from './logo';
+import { Controller } from 'socialnetwork.controller';
 
 import './css/menu.css';
 
 type Params = {
 	type: 'group' | 'user',
-	entityId: number,
+	entityId?: number,
+	currentUserId: number,
 	groupMembersList: any,
 	logo?: LogoData,
 	pathToFeatures?: string,
@@ -39,38 +38,31 @@ export class Menu
 	#scrumMeetings: ?Meetings;
 	#scrumMethodology: ?Methodology;
 	#invite: ?Invite;
-	#inviteNode: HTMLElement;
+	#layout: {
+		avatar: HTMLElement,
+		inviteNode: HTMLElement,
+	};
+
+	#logo: LogoData;
 	#settings: ?Settings;
 
 	#chat: Chat;
-	#router: MenuRouter;
 	#discussionAhaMomentShown = false;
 
 	#groupInvitedList: any = [];
 
 	constructor(params: Params)
 	{
+		this.#layout = {};
+
+		// eslint-disable-next-line no-param-reassign
+		params.entityId = Type.isUndefined(params.entityId) ? 0 : parseInt(params.entityId, 10);
+
 		this.#setParams(params);
 
 		this.#initServices(params);
 
 		this.#subscribeToPull();
-	}
-
-	#subscribeToPull()
-	{
-		const pullRequests = new PullRequests(this.#getParam('entityId'));
-		pullRequests.subscribe('update', this.#update.bind(this));
-
-		Pull.subscribe(pullRequests);
-	}
-
-	#update()
-	{
-		const groupDataPromise = MenuAjax.getGroupData(this.#getParam('entityId'));
-		this.#settings?.update(groupDataPromise);
-		this.#getInvite().update(groupDataPromise);
-		this.#chat.update(groupDataPromise);
 	}
 
 	renderLogoTo(container: HTMLElement)
@@ -80,18 +72,8 @@ export class Menu
 			throw new Error('BX.Socialnetwork.Spaces.Menu: HTMLElement for space not found');
 		}
 
-		const logo = new Logo(this.#getParam('logo'));
-
-		const logoClass = logo.getClass();
-		if (logoClass)
-		{
-			Dom.addClass(container, logoClass);
-		}
-
-		Dom.append(
-			logo.render(),
-			container,
-		);
+		this.#layout.avatar = container;
+		this.#renderSpaceAvatar();
 	}
 
 	renderUserLogoTo(container: HTMLElement)
@@ -143,6 +125,95 @@ export class Menu
 		Dom.append(this.#renderUserSettings(), container);
 	}
 
+	#subscribeToPull()
+	{
+		const pullRequests = new PullRequests(
+			this.#getParam('entityId'),
+			this.#getParam('currentUserId'),
+		);
+		pullRequests.subscribe('update', this.#update.bind(this));
+		pullRequests.subscribe('updateCounters', this.#updateCounters.bind(this));
+
+		Pull.subscribe(pullRequests);
+	}
+
+	#update()
+	{
+		const groupDataPromise = Controller.getGroupData(
+			this.#getParam('entityId'),
+			[
+				'AVATAR',
+				'ACTIONS',
+				'NUMBER_OF_MEMBERS',
+				'LIST_OF_MEMBERS',
+				'GROUP_MEMBERS_LIST',
+				'PRIVACY_TYPE',
+				'PIN',
+				'USER_DATA',
+				'COUNTERS',
+				'DESCRIPTION',
+				'EFFICIENCY',
+				'SUBJECT_DATA',
+				'DATE_CREATE',
+			],
+		);
+		this.#settings?.update(groupDataPromise);
+		this.#getInvite().update(groupDataPromise);
+		this.#chat.update(groupDataPromise);
+
+		// eslint-disable-next-line promise/catch-or-return
+		groupDataPromise.then((groupData: GroupData) => {
+			const { avatar } = groupData;
+
+			if (avatar)
+			{
+				this.#setAvatar(avatar);
+			}
+		});
+	}
+
+	#updateCounters(baseEvent: BaseEvent)
+	{
+		const data = baseEvent.getData();
+		if (Type.isUndefined(data.space))
+		{
+			return;
+		}
+
+		const userId = data.userId;
+		const spaceId = parseInt(data.space.id, 10);
+
+		const tasksTotal = data.space.metrics.countersTasksTotal;
+		const calendarTotal = data.space.metrics.countersCalendarTotal;
+		const discussionsTotal = data.space.metrics.countersLiveFeedTotal;
+
+		const menu = (spaceId === 0)
+			? BX.Main.interfaceButtonsManager.getById(`spaces_user_menu_${userId}`)
+			: BX.Main.interfaceButtonsManager.getById(`spaces_group_menu_${spaceId}`)
+		;
+
+		if (menu)
+		{
+			const btn = `spaces_top_menu_${userId}_${spaceId}`;
+			const tasksBtn = `${btn}_tasks`;
+			const calendarBtn = `${btn}_calendar`;
+			const discussionBtn = `${btn}_discussions`;
+
+			menu.updateCounter(tasksBtn, tasksTotal);
+			menu.updateCounter(calendarBtn, calendarTotal);
+			menu.updateCounter(discussionBtn, discussionsTotal);
+		}
+	}
+
+	#setAvatar(avatar: string)
+	{
+		this.#logo = {
+			id: avatar,
+			type: 'image',
+		};
+		this.#renderSpaceAvatar();
+	}
+
 	#setParams(params: Params)
 	{
 		this.#cache.set('params', params);
@@ -154,6 +225,8 @@ export class Menu
 				.map((user) => parseInt(user.id, 10))
 			;
 		}
+
+		this.#logo = params.logo;
 	}
 
 	#initServices(params: Params)
@@ -163,17 +236,27 @@ export class Menu
 			entityId: this.#getParam('entityId'),
 			groupMembersList: this.#getParam('groupMembersList'),
 		});
-
-		this.#router = new MenuRouter({
-			pathToFeatures: params.pathToFeatures,
-			pathToUsers: params.pathToUsers,
-			pathToInvite: params.pathToInvite,
-		});
 	}
 
 	#getParam(param: string): any
 	{
 		return this.#cache.get('params')[param];
+	}
+
+	#renderSpaceAvatar(): HTMLElement
+	{
+		const logo = new Logo(this.#logo);
+
+		const avatarNode = Tag.render`
+			<div class="sn-spaces__space-logo ${logo.getClass() ?? ''}">
+				${logo.render()}
+			</div>
+		`;
+
+		this.#layout.avatar.replaceWith(avatarNode);
+		this.#layout.avatar = avatarNode;
+
+		return this.#layout.avatar;
 	}
 
 	#renderVideoCall(): HTMLElement
@@ -241,23 +324,23 @@ export class Menu
 
 	#renderInvite(): HTMLElement
 	{
-		if (!this.#inviteNode)
+		if (!this.#layout.inviteNode)
 		{
-			this.#inviteNode = Tag.render`
+			this.#layout.inviteNode = Tag.render`
 				<div data-id="spaces-invite-menu" class="sn-spaces__menu-toolbar_btn">
 					<div class="ui-icon-set --person-plus"></div>
 				</div>
 			`;
 
-			Event.bind(this.#inviteNode, 'click', this.#inviteClick.bind(this));
+			Event.bind(this.#layout.inviteNode, 'click', this.#inviteClick.bind(this));
 
 			if (this.#getParam('isNew'))
 			{
-				setTimeout(() => this.#showSpotlight(this.#inviteNode), 500);
+				setTimeout(() => this.#showSpotlight(this.#layout.inviteNode), 500);
 			}
 		}
 
-		return this.#inviteNode;
+		return this.#layout.inviteNode;
 	}
 
 	#renderSettings(): HTMLElement
@@ -358,7 +441,7 @@ export class Menu
 		if (!this.#invite)
 		{
 			this.#invite = new Invite({
-				node: this.#inviteNode,
+				node: this.#layout.inviteNode,
 				groupMembersList: this.#getParam('groupMembersList'),
 			});
 
@@ -396,7 +479,8 @@ export class Menu
 
 	#showSpotlight(node, ahaMoment = null)
 	{
-		Runtime.loadExtension('spotlight').then(() => {
+		// eslint-disable-next-line promise/catch-or-return
+		Runtime.loadExtension(['spotlight', 'ui.tour']).then(() => {
 			const spotlight = new BX.SpotLight({
 				targetElement: node,
 				targetVertex: 'middle-center',
@@ -424,7 +508,7 @@ export class Menu
 		});
 	}
 
-	async #showAhaMoment(node, params)
+	async #showAhaMoment(node, params): void
 	{
 		const { Guide } = await Runtime.loadExtension('ui.tour');
 
@@ -453,6 +537,7 @@ export class Menu
 		guidePopup.getContentContainer().style.paddingRight = getComputedStyle(guidePopup.closeIcon)['width'];
 		guidePopup.setAngle({ offset: node.offsetWidth / 2 - 5 });
 		guidePopup.subscribe('onClose', () => params.spotlight.close());
+		guidePopup.subscribe('onDestroy', () => params.spotlight.close());
 		guidePopup.setAutoHide(true);
 	}
 
@@ -463,7 +548,7 @@ export class Menu
 		this.#groupInvitedList = users;
 
 		// eslint-disable-next-line promise/catch-or-return
-		MenuAjax.inviteUsers(this.#getParam('entityId'), users).then(
+		Controller.inviteUsers(this.#getParam('entityId'), users).then(
 			() => {
 				BX.UI.Notification.Center.notify({
 					content: this.#getInvitationMessage(invited, removed),
@@ -504,9 +589,8 @@ export class Menu
 				bindElement: event.target,
 				type: this.#getParam('type'),
 				entityId: this.#getParam('entityId'),
-				logo: this.#getParam('logo'),
+				logo: this.#logo,
 				chat: this.#chat,
-				router: this.#router,
 			});
 		}
 

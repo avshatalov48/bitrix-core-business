@@ -12,15 +12,19 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
-		$params["SCRIPT_ID"] = (int) $params["SCRIPT_ID"];
-		if (isset($params['DOCUMENT_TYPE_SIGNED']))
+		$params["SCRIPT_ID"] = (int)($params["SCRIPT_ID"] ?? null);
+		if (isset($params['DOCUMENT_TYPE_SIGNED']) && Main\Loader::includeModule('bizproc'))
 		{
 			$params['DOCUMENT_TYPE_SIGNED'] = htmlspecialcharsback($params['DOCUMENT_TYPE_SIGNED']);
 			$params['DOCUMENT_TYPE'] = CBPDocument::unSignDocumentType($params['DOCUMENT_TYPE_SIGNED']);
 		}
+		else
+		{
+			$params['DOCUMENT_TYPE'] = null;
+		}
 
-		$params["PLACEMENT"] = $params["PLACEMENT"]? (string)$params["PLACEMENT"] : null;
-		$params["SET_TITLE"] = ($params["SET_TITLE"] == "N" ? "N" : "Y");
+		$params["PLACEMENT"] = isset($params["PLACEMENT"]) ? (string)$params["PLACEMENT"] : null;
+		$params["SET_TITLE"] = (($params["SET_TITLE"] ?? null) == "N" ? "N" : "Y");
 
 		return $params;
 	}

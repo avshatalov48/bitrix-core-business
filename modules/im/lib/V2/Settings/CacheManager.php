@@ -13,7 +13,9 @@ class CacheManager
 	private const BASE_CACHE_DIR = '/im/settings/';
 	private const USER_MODE = 'user';
 	private const PRESET_MODE = 'preset';
-	
+
+	private static array $staticCache = [];
+
 
 	private string $mode;
 	private int $entityId;
@@ -66,9 +68,15 @@ class CacheManager
 	public function getValue(): array
 	{
 		$result = [];
-		if ($this->cache->initCache(self::CACHE_TTL, $this->getCacheName(), $this->getCacheDir()))
+		$cacheName = $this->getCacheName();
+		if (isset(static::$staticCache[$cacheName]))
+		{
+			return static::$staticCache[$cacheName];
+		}
+		if ($this->cache->initCache(self::CACHE_TTL, $cacheName, $this->getCacheDir()))
 		{
 			$result = $this->cache->getVars();
+			static::$staticCache[$cacheName] = $result;
 		}
 
 		return $result;
@@ -83,13 +91,16 @@ class CacheManager
 		$this->cache->initCache(self::CACHE_TTL, $cacheName, $this->getCacheDir());
 		$this->cache->startDataCache();
 		$this->cache->endDataCache($value);
+		static::$staticCache[$cacheName] = $value;
 
 		return $this;
 	}
 
 	public function clearCache(): self
 	{
-		$this->cache->clean($this->getCacheName(), $this->getCacheDir());
+		$cacheName = $this->getCacheName();
+		$this->cache->clean($cacheName, $this->getCacheDir());
+		unset(static::$staticCache[$cacheName]);
 
 		return $this;
 	}
@@ -97,21 +108,19 @@ class CacheManager
 	public function clearAll(): self
 	{
 		$this->cache->cleanDir($this->getCacheDir());
+		static::$staticCache = [];
 
 		return $this;
 	}
 
 	private function getCacheName(): string
 	{
-		return $this->mode . '_' . $this->entityId;
+		return $this->mode . '_' . $this->entityId . '_v2';
 	}
 
 	private function getCacheDir(): string
 	{
 		return self::BASE_CACHE_DIR . $this->mode . '/';
 	}
-
-
-
 
 }

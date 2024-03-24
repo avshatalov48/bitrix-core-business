@@ -68,6 +68,11 @@ export const userFieldsConfig: FieldsConfig = [
 		checkFunction: Type.isString,
 	},
 	{
+		fieldName: 'isBirthday',
+		targetFieldName: 'isBirthday',
+		checkFunction: Type.isBoolean,
+	},
+	{
 		fieldName: 'isAdmin',
 		targetFieldName: 'isAdmin',
 		checkFunction: Type.isBoolean,
@@ -121,6 +126,11 @@ export const userFieldsConfig: FieldsConfig = [
 		fieldName: 'absent',
 		targetFieldName: 'absent',
 		formatFunction: convertToDate,
+	},
+	{
+		fieldName: 'isAbsent',
+		targetFieldName: 'isAbsent',
+		checkFunction: Type.isBoolean,
 	},
 	{
 		fieldName: 'departments',

@@ -24,11 +24,6 @@ Class blog extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = BLOG_VERSION;
-			$this->MODULE_VERSION_DATE = BLOG_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("BLOG_INSTALL_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("BLOG_INSTALL_DESCRIPTION");
@@ -271,10 +266,12 @@ Class blog extends CModule
 	function InstallDB($install_wizard = true)
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$errors = null;
 
-		if (!$DB->Query("SELECT 'x' FROM b_blog_user_group", true))
+		if (!$DB->TableExists('b_blog_user_group'))
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/mysql/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/blog/install/' . $connection->getType() . '/install.sql');
 			COption::SetOptionString("blog", "socNetNewPerms", "Y");
 		}
 
@@ -285,7 +282,11 @@ Class blog extends CModule
 
 		if (!empty($errors))
 		{
-			$APPLICATION->ThrowException(implode("", $errors));
+			if (is_array($errors))
+			{
+				$errors = implode("", $errors);
+			}
+			$APPLICATION->ThrowException($errors);
 			return false;
 		}
 
@@ -336,6 +337,8 @@ Class blog extends CModule
 	function UnInstallDB($arParams = Array())
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
+
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
 			if ($DB->TableExists("b_blog_smile") || $DB->TableExists("B_BLOG_SMILE"))
@@ -344,7 +347,7 @@ Class blog extends CModule
 				$DB->Query("DROP TABLE b_blog_smile");
 				$DB->Query("DROP TABLE b_blog_smile_lang");
 			}
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/mysql/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/blog/install/' . $connection->getType() . '/uninstall.sql');
 
 			if (!empty($errors))
 			{

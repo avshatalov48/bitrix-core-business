@@ -10,6 +10,7 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\EventResult;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\Relations\CascadePolicy;
 use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
@@ -18,9 +19,9 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\Type\DateTime;
 use CIBlockProperty;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class IblockTable
@@ -140,6 +141,11 @@ class IblockTable extends DataManager
 			),
 			'TIMESTAMP_X' => array(
 				'data_type' => 'datetime',
+				'default_value' => function()
+					{
+						return new DateTime();
+					}
+				,
 				'title' => Loc::getMessage('IBLOCK_ENTITY_TIMESTAMP_X_FIELD'),
 			),
 			'IBLOCK_TYPE_ID' => array(
@@ -630,6 +636,46 @@ class IblockTable extends DataManager
 	{
 		$primary = $event->getParameter('primary');
 		\CIBlock::CleanCache($primary['ID']);
+	}
+
+	/**
+	 * Default onBeforeAdd handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for add.
+	 * @return EventResult
+	 */
+	public static function onBeforeAdd(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$fields = $event->getParameter('fields');
+		if (!isset($fields['TIMESTAMP_X']))
+		{
+			$result->modifyFields([
+				'TIMESTAMP_X' => new DateTime(),
+			]);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Default onBeforeUpdate handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for update.
+	 * @return EventResult
+	 */
+	public static function onBeforeUpdate(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$fields = $event->getParameter('fields');
+		if (!isset($fields['TIMESTAMP_X']))
+		{
+			$result->modifyFields([
+				'TIMESTAMP_X' => new DateTime(),
+			]);
+		}
+
+		return $result;
 	}
 
 	/**

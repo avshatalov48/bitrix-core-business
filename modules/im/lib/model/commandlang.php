@@ -1,9 +1,7 @@
 <?php
 namespace Bitrix\Im\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
 
 /**
  * Class CommandLangTable
@@ -57,30 +55,30 @@ class CommandLangTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('COMMAND_LANG_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_LANG_ENTITY_ID_FIELD'),
 			),
 			'COMMAND_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('COMMAND_LANG_ENTITY_COMMAND_ID_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_LANG_ENTITY_COMMAND_ID_FIELD'),
 			),
 			'LANGUAGE_ID' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateLanguageId'),
-				'title' => Loc::getMessage('COMMAND_LANG_ENTITY_LANGUAGE_ID_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_LANG_ENTITY_LANGUAGE_ID_FIELD'),
 			),
 			'TITLE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateTitle'),
-				'title' => Loc::getMessage('COMMAND_LANG_ENTITY_TITLE_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_LANG_ENTITY_TITLE_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'PARAMS' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateParams'),
-				'title' => Loc::getMessage('COMMAND_LANG_ENTITY_PARAMS_FIELD'),
+				//'title' => Loc::getMessage('COMMAND_LANG_ENTITY_PARAMS_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),

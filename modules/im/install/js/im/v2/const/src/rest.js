@@ -28,6 +28,7 @@ export const RestMethod = Object.freeze({
 	imV2ChatMessageTailViewers: 'im.v2.Chat.Message.tailViewers',
 	imV2ChatMessageDeleteRichUrl: 'im.v2.Chat.Message.deleteRichUrl',
 	imV2ChatPinTail: 'im.v2.Chat.Pin.tail',
+	imV2ChatUserList: 'im.v2.Chat.User.list',
 	imV2ChatListShared: 'im.v2.Chat.listShared',
 	imV2SettingsGeneralUpdate: 'im.v2.Settings.General.update',
 	imV2SettingsNotifyUpdate: 'im.v2.Settings.Notify.update',
@@ -38,6 +39,7 @@ export const RestMethod = Object.freeze({
 	imV2BetaDisable: 'im.v2.Beta.disable',
 	imV2ChatTaskPrepare: 'im.v2.Chat.Task.prepare',
 
+	imV2CallZoomCreate: 'im.v2.Call.Zoom.create',
 	imCallBetaCreateRoom: 'im.call.beta.createRoom',
 
 	imMessageAdd: 'im.message.add',

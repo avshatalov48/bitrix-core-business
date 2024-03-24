@@ -1,13 +1,13 @@
 import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
+import { Messenger } from 'im.public';
 import { Utils } from 'im.v2.lib.utils';
 import { CallManager } from 'im.v2.lib.call';
-import { showKickUserConfirm, showLeaveFromChatConfirm } from 'im.v2.lib.confirm';
-import { PermissionManager } from 'im.v2.lib.permission';
-import { ChatActionType, EventType } from 'im.v2.const';
 import { ChatService } from 'im.v2.provider.service';
-import { Messenger } from 'im.public';
+import { ChatActionType, EventType } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { showKickUserConfirm, showLeaveFromChatConfirm } from 'im.v2.lib.confirm';
 
 import { SidebarMenu } from '../sidebar-base-menu';
 
@@ -17,7 +17,6 @@ import type { MenuItem } from 'im.v2.lib.menu';
 type MembersMenuContext = {
 	dialogId: string,
 	contextDialogId: string,
-	contextChatId: string,
 };
 
 export class MembersMenu extends SidebarMenu

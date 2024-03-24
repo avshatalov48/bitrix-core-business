@@ -84,6 +84,7 @@ export class UserSelectorFieldTunner extends FormFieldTunnerAbstract {
 						options: {
 							inviteGuestLink: false,
 							emailUsers: false,
+							analyticsSource: 'calendar',
 						}
 					}
 				]

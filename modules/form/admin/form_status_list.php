@@ -88,8 +88,8 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && $F_RIGHT>=30 && check_bitrix_se
 
 		$arFieldsStore = Array(
 			"TIMESTAMP_X"	=> $DB->GetNowFunction(),
-			"ACTIVE"		=> "'".$DB->ForSql($arFields[ACTIVE])."'",
-			"C_SORT"		=> "'".intval($arFields[C_SORT])."'",
+			"ACTIVE"		=> "'".$DB->ForSql($arFields['ACTIVE'])."'",
+			"C_SORT"		=> "'".intval($arFields['C_SORT'])."'",
 		);
 
 		if (!$DB->Update("b_form_status",$arFieldsStore,"WHERE ID='".$ID."'",$err_mess.__LINE__))
@@ -97,8 +97,10 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && $F_RIGHT>=30 && check_bitrix_se
 			$lAdmin->AddUpdateError(GetMessage("FORM_ERROR").$ID.": ".GetMessage("FORM_ERROR_SAVE"), $ID);
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -128,7 +130,10 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage("FORM_STATUS_DELETE_ERROR").' '.$ID, $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 				break;
 			case "activate":
 			case "deactivate":
@@ -140,7 +145,10 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage("FORM_STATUS_ACTIVE_ERROR").' '.$ID, $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 			break;
 		}
 	}

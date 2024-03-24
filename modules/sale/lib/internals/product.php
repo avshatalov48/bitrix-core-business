@@ -4,16 +4,13 @@
  * @package bitrix
  * @subpackage sale
  * @copyright 2001-2012 Bitrix
- * 
+ *
  * @ignore
  * @see \Bitrix\Catalog\ProductTable
  */
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 if (!Main\Loader::includeModule('iblock'))
 {
@@ -46,9 +43,8 @@ class ProductTable extends Main\Entity\DataManager
 	public static function getMap()
 	{
 		// Get weight factor
-		$siteId = '';
-		$weight_koef = 0;
-		$site_currency = '';
+		$weightKoef = 0;
+		$siteCurrency = '';
 		if (class_exists('\CBaseSaleReportHelper'))
 		{
 			if (\CBaseSaleReportHelper::isInitialized())
@@ -56,31 +52,37 @@ class ProductTable extends Main\Entity\DataManager
 				$siteId = \CBaseSaleReportHelper::getDefaultSiteId();
 				if ($siteId !== null)
 				{
-					$weight_koef = intval(\CBaseSaleReportHelper::getDefaultSiteWeightDivider());
+					$weightKoef = (int)\CBaseSaleReportHelper::getDefaultSiteWeightDivider();
 				}
 
 				// Get site currency
-				$site_currency = \CBaseSaleReportHelper::getSiteCurrencyId();
+				$siteCurrency = \CBaseSaleReportHelper::getSiteCurrencyId();
 			}
 		}
-		if ($weight_koef <= 0) $weight_koef = 1;
+		if ($weightKoef <= 0)
+		{
+			$weightKoef = 1;
+		}
 
 		global $DB;
 
-		if (function_exists('___dbCastIntToChar') !== true)
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		if ($connection instanceof Main\DB\PgsqlConnection)
 		{
-			eval(
-				'function ___dbCastIntToChar($dbtype, $param)'.
-				'{'.
-				'   $result = $param;'.
-				'   if (ToLower($dbtype) === "mssql")'.
-				'   {'.
-				'       $result = "CAST(".$param." AS VARCHAR)";'.
-				'   }'.
-				'   return $result;'.
-				'}'
-			);
+			$productId = 'cast(%s as text)';
 		}
+		else
+		{
+			$productId = '%s';
+		}
+		$productName = $helper->getConcatFunction(
+			'%s',
+			"' ['",
+			$productId,
+			"']'"
+		);
+		unset($helper, $connection);
 
 		$fieldsMap = array(
 			'ID' => array(
@@ -124,7 +126,7 @@ class ProductTable extends Main\Entity\DataManager
 			'NAME_WITH_IDENT' => array(
 				'data_type' => 'string',
 				'expression' => array(
-					$DB->concat('%s', '\' [\'', ___dbCastIntToChar('mysql', '%s'), '\']\''), 'NAME', 'ID'
+					$productName, 'NAME', 'ID'
 				)
 			),
 			'ACTIVE' => array(
@@ -140,7 +142,7 @@ class ProductTable extends Main\Entity\DataManager
 			'WEIGHT_IN_SITE_UNITS' => array(
 				'data_type' => 'float',
 				'expression' => array(
-					'%s / '.$DB->forSql($weight_koef), 'WEIGHT'
+					'%s / '.$DB->forSql($weightKoef), 'WEIGHT'
 				)
 			),
 			'PRICE' => array(
@@ -211,7 +213,7 @@ class ProductTable extends Main\Entity\DataManager
 					'('.$DB->topSql('SELECT (CASE WHEN b_catalog_currency_rate.RATE IS NOT NULL THEN b_catalog_currency_rate.RATE ELSE b_catalog_currency.AMOUNT END)
 					FROM b_catalog_product INNER JOIN b_catalog_currency ON 1=1
 						LEFT JOIN b_catalog_currency_rate ON (b_catalog_currency.CURRENCY = b_catalog_currency_rate.CURRENCY AND b_catalog_currency_rate.DATE_RATE <= '.$DB->datetimeToDateFunction('b_catalog_product.TIMESTAMP_X').')
-					WHERE b_catalog_product.ID = %s AND b_catalog_currency.CURRENCY = \''.$DB->forSql($site_currency).'\'
+					WHERE b_catalog_product.ID = %s AND b_catalog_currency.CURRENCY = \''.$DB->forSql($siteCurrency).'\'
 					ORDER BY DATE_RATE DESC', 1).')', 'ID'
 				)
 			),
@@ -222,7 +224,7 @@ class ProductTable extends Main\Entity\DataManager
 					'('.$DB->topSql('SELECT (CASE WHEN b_catalog_currency_rate.RATE_CNT IS NOT NULL THEN b_catalog_currency_rate.RATE_CNT ELSE b_catalog_currency.AMOUNT_CNT END)
 					FROM b_catalog_product INNER JOIN b_catalog_currency ON 1=1
 						LEFT JOIN b_catalog_currency_rate ON (b_catalog_currency.CURRENCY = b_catalog_currency_rate.CURRENCY AND b_catalog_currency_rate.DATE_RATE <= '.$DB->datetimeToDateFunction('b_catalog_product.TIMESTAMP_X').')
-					WHERE b_catalog_product.ID = %s AND b_catalog_currency.CURRENCY = \''.$DB->forSql($site_currency).'\'
+					WHERE b_catalog_product.ID = %s AND b_catalog_currency.CURRENCY = \''.$DB->forSql($siteCurrency).'\'
 					ORDER BY DATE_RATE DESC', 1).')', 'ID'
 				)
 			),

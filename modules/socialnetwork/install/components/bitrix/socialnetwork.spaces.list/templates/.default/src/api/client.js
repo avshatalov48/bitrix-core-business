@@ -8,7 +8,6 @@ export type LoadSpacesFields = {
 
 export type ReloadSpacesFields = {
 	mode: string,
-	selectedSpaceId: number,
 };
 
 export type SearchSpacesFields = {
@@ -31,7 +30,7 @@ export class Client
 		return response.data;
 	}
 
-	static async reloadSpaces(data: LoadSpacesFields): Promise
+	static async reloadSpaces(data: ReloadSpacesFields): Promise
 	{
 		const componentName = 'bitrix:socialnetwork.spaces.list';
 		const actionName = 'reloadSpaces';
@@ -86,6 +85,21 @@ export class Client
 	{
 		const componentName = 'bitrix:socialnetwork.spaces.list';
 		const actionName = 'loadSpaceData';
+
+		const response = await ajax.runComponentAction(componentName, actionName, {
+			mode: 'class',
+			data: {
+				spaceId,
+			},
+		});
+
+		return response.data;
+	}
+
+	static async loadSpaceTheme(spaceId: number): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'loadSpaceTheme';
 
 		const response = await ajax.runComponentAction(componentName, actionName, {
 			mode: 'class',

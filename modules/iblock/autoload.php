@@ -1,6 +1,9 @@
 <?php
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
+
+$dbType = Application::getConnection()->getType();
 
 $arClasses = array(
 	"iblock" => "install/index.php",
@@ -14,7 +17,7 @@ $arClasses = array(
 	"CIBlockSection" => "classes/mysql/iblocksection.php",
 	"CAllIBlockProperty" => "classes/general/iblockproperty.php",
 	"CIBlockPropertyEnum" => "classes/general/iblockpropertyenum.php",
-	"CIBlockProperty" => "classes/mysql/iblockproperty.php",
+	"CIBlockProperty" => 'classes/mysql/iblockproperty.php',
 	"CAllIBlockElement" => "classes/general/iblockelement.php",
 	"CIBlockElement" => "classes/mysql/iblockelement.php",
 	"CAllIBlockRSS" => "classes/general/iblockrss.php",
@@ -33,7 +36,8 @@ $arClasses = array(
 	"CIBlockPriceTools" => "classes/general/comp_pricetools.php",
 	"CIBlockParameters" => "classes/general/comp_parameters.php",
 	"CIBlockFormatProperties" => "classes/general/comp_formatprops.php",
-	"CIBlockSequence" => "classes/mysql/iblocksequence.php",
+	'CAllIBlockSequence' => 'classes/general/iblocksequence.php',
+	"CIBlockSequence" => 'classes/' . $dbType . '/iblocksequence.php',
 	"CIBlockPropertySequence" => "classes/general/prop_seq.php",
 	"CIBlockPropertyElementAutoComplete" => "classes/general/prop_element_auto.php",
 	"CIBlockPropertySKU" => "classes/general/prop_element_sku.php",

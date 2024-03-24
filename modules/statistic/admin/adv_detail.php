@@ -561,7 +561,7 @@ elseif($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 		<td colspan="2" nowrap><?echo GetMessage("STAT_YESTERDAY")?><br><?=$yesterday_date?></td>
 		<td colspan="2" nowrap><?echo GetMessage("STAT_BEFYESTERDAY")?><br><?=$bef_yesterday_date?></td>
 		<?if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):?>
-		<td colspan="2"><?echo GetMessage("STAT_PERIOD")?><br><?=$arFilter["DATE1_PERIOD"]?>&nbsp;- <?=$arFilter["DATE2_PERIOD"]?></td>
+		<td colspan="2"><?echo GetMessage("STAT_PERIOD")?><br><?=htmlspecialcharsbx($arFilter["DATE1_PERIOD"])?>&nbsp;- <?=htmlspecialcharsbx($arFilter["DATE2_PERIOD"])?></td>
 		<?endif;?>
 		<td colspan="2" nowrap><?echo GetMessage("STAT_TOTAL")?><br><?
 			$days = intval(intval($f_ADV_TIME)/86400);

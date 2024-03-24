@@ -39,6 +39,11 @@ this.BX.UI = this.BX.UI || {};
 	        description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ENUM_LEGEND"),
 	        defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENUMERATION_LABEL')
 	      },
+	      date: {
+	        title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATE_TITLE"),
+	        description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATE_LEGEND"),
+	        defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_DATE_LABEL')
+	      },
 	      datetime: {
 	        title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_TITLE"),
 	        description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_LEGEND"),
@@ -368,7 +373,9 @@ this.BX.UI = this.BX.UI || {};
 	  _t14,
 	  _t15,
 	  _t16,
-	  _t17;
+	  _t17,
+	  _t18,
+	  _t19;
 
 	/**
 	 * @memberof BX.UI.UserFieldFactory
@@ -384,6 +391,14 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      if (main_core.Type.isFunction(params.onCancel)) {
 	        this.onCancel = params.onCancel;
+	      }
+	      this.canMultipleFields = true;
+	      if (main_core.Type.isBoolean(params.canMultipleFields)) {
+	        this.canMultipleFields = params.canMultipleFields;
+	      }
+	      this.canRequiredFields = true;
+	      if (main_core.Type.isBoolean(params.canRequiredFields)) {
+	        this.canRequiredFields = params.canRequiredFields;
 	      }
 	    }
 	    this.enumItems = new Set();
@@ -437,8 +452,10 @@ this.BX.UI = this.BX.UI || {};
 	    if (this.multipleCheckbox) {
 	      this.userField.setIsMultiple(this.multipleCheckbox.checked);
 	    }
+	    if (this.mandatoryCheckbox) {
+	      this.userField.setIsMandatory(this.mandatoryCheckbox.checked);
+	    }
 	    this.userField.setTitle(this.labelInput.value);
-	    this.userField.setIsMandatory(this.mandatoryCheckbox.checked);
 	    this.saveEnumeration(this.userField, this.enumItems);
 	    return this.userField;
 	  }
@@ -487,28 +504,35 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  renderOptions() {
 	    this.optionsContainer = main_core.Tag.render(_t11 || (_t11 = _$1`<div class="ui-userfieldfactory-configurator-block"></div>`));
-	    this.mandatoryCheckbox = main_core.Tag.render(_t12 || (_t12 = _$1`<input class="ui-ctl-element" type="checkbox">`));
-	    this.mandatoryCheckbox.checked = this.userField.isMandatory();
-	    this.optionsContainer.appendChild(main_core.Tag.render(_t13 || (_t13 = _$1`<div>
+	    if (this.canRequiredFields) {
+	      this.mandatoryCheckbox = main_core.Tag.render(_t12 || (_t12 = _$1`<input class="ui-ctl-element" type="checkbox">`));
+	      this.mandatoryCheckbox.checked = this.userField.isMandatory();
+	      this.optionsContainer.appendChild(main_core.Tag.render(_t13 || (_t13 = _$1`<div>
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
 					${0}
 					<div class="ui-ctl-label-text">${0}</div>
 				</label>
 			</div>`), this.mandatoryCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_REQUIRED')));
+	    }
 	    if (!this.userField.isSaved() && (this.userField.getUserTypeId() === FieldTypes.getTypes().date || this.userField.getUserTypeId() === FieldTypes.getTypes().datetime)) {
 	      this.timeCheckbox = main_core.Tag.render(_t14 || (_t14 = _$1`<input class="ui-ctl-element" type="checkbox">`));
 	      this.timeCheckbox.checked = this.userField.getUserTypeId() === FieldTypes.getTypes().datetime;
-	      this.optionsContainer.appendChild(main_core.Tag.render(_t15 || (_t15 = _$1`<div>
+	      const label = main_core.Tag.render(_t15 || (_t15 = _$1`
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
 					${0}
-					<div class="ui-ctl-label-text">${0}</div>
 				</label>
-			</div>`), this.timeCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENABLE_TIME')));
-	    }
-	    if (!this.userField.isSaved() && this.userField.getUserTypeId() !== FieldTypes.getTypes().boolean) {
-	      this.multipleCheckbox = main_core.Tag.render(_t16 || (_t16 = _$1`<input class="ui-ctl-element" type="checkbox">`));
-	      this.multipleCheckbox.checked = this.userField.isMultiple();
+			`), this.timeCheckbox);
+	      if (this.userField.getUserTypeId() === FieldTypes.getTypes().datetime) {
+	        main_core.Dom.append(main_core.Tag.render(_t16 || (_t16 = _$1`<div className="ui-ctl-label-text">${0}</div>`), main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENABLE_TIME')), label);
+	      }
 	      this.optionsContainer.appendChild(main_core.Tag.render(_t17 || (_t17 = _$1`<div>
+				
+			</div>`)));
+	    }
+	    if (!this.userField.isSaved() && this.userField.getUserTypeId() !== FieldTypes.getTypes().boolean && this.canMultipleFields) {
+	      this.multipleCheckbox = main_core.Tag.render(_t18 || (_t18 = _$1`<input class="ui-ctl-element" type="checkbox">`));
+	      this.multipleCheckbox.checked = this.userField.isMultiple();
+	      this.optionsContainer.appendChild(main_core.Tag.render(_t19 || (_t19 = _$1`<div>
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
 					${0}
 					<div class="ui-ctl-label-text">${0}</div>

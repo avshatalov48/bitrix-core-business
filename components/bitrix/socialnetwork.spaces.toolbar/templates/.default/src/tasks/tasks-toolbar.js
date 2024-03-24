@@ -70,10 +70,20 @@ export class TasksToolbar
 			filterContainer: this.#getParam('filterContainer'),
 		});
 
-		this.#router = new TasksRouter({
-			pathToGroupTasks: this.#getParam('pathToGroupTasks'),
-			pathToGroupTasksTask: this.#getParam('pathToGroupTasksTask'),
-		});
+		if (this.#getParam('isUserSpace'))
+		{
+			this.#router = new TasksRouter({
+				pathToTasks: this.#getParam('pathToUserSpaceTasks'),
+				pathToTasksTask: '',
+			});
+		}
+		else
+		{
+			this.#router = new TasksRouter({
+				pathToTasks: this.#getParam('pathToGroupTasks'),
+				pathToTasksTask: this.#getParam('pathToGroupTasksTask'),
+			});
+		}
 
 		this.#tasksView = new TasksView({
 			isUserSpace: this.#getParam('isUserSpace'),
@@ -337,7 +347,7 @@ export class TasksToolbar
 				'click',
 				(baseEvent: BaseEvent<{ urlParam: string, urlValue: string }>) => {
 					const { urlParam, urlValue } = baseEvent.getData();
-					this.#router.redirectToScrumTasks(urlParam, urlValue);
+					this.#router.redirectToTasks(urlParam, urlValue);
 				},
 			);
 		}

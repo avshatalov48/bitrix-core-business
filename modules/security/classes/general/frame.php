@@ -1,6 +1,9 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
+use \Bitrix\Main\ORM\Query\Query;
+use \Bitrix\Security\FrameMaskTable;
+
 class CSecurityFrame
 {
 	public static function SetHeader()
@@ -52,11 +55,11 @@ class CSecurityFrameMask
 {
 	public static function Update($arMasks)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 
 		if(is_array($arMasks))
 		{
-			$res = $DB->Query("DELETE FROM b_sec_frame_mask", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = FrameMaskTable::deleteList([]);
 			if($res)
 			{
 				$arLikeSearch = array("?", "*", ".");
@@ -85,7 +88,7 @@ class CSecurityFrameMask
 						if($site_id)
 							$arMask["SITE_ID"] = $site_id;
 
-						$DB->Add("b_sec_frame_mask", $arMask);
+						FrameMaskTable::add($arMask);
 						$i += 10;
 						$added[$mask_site] = true;
 					}
@@ -102,8 +105,7 @@ class CSecurityFrameMask
 
 	public static function GetList()
 	{
-		global $DB;
-		$res = $DB->Query("SELECT SITE_ID,FRAME_MASK from b_sec_frame_mask ORDER BY SORT");
+		$res = FrameMaskTable::getList(['select' => ['SITE_ID', 'FRAME_MASK'], 'order' => 'SORT']);
 		return $res;
 	}
 
@@ -123,7 +125,7 @@ class CSecurityFrameMask
 			{
 				$arMasks = array();
 
-				$rs = $DB->Query("SELECT * FROM b_sec_frame_mask ORDER BY SORT");
+				$rs = FrameMaskTable::getList(['order' => 'SORT']);
 				while($ar = $rs->Fetch())
 				{
 					$site_id = $ar["SITE_ID"]? $ar["SITE_ID"]: "-";
@@ -164,21 +166,25 @@ class CSecurityFrameMask
 		}
 		else
 		{
-			$sql = "
-				SELECT m.*
-				FROM
-					b_sec_frame_mask m
-				WHERE
-					(m.SITE_ID IS NULL AND '".$DB->ForSQL($uri)."' like m.LIKE_MASK)
-			";
+			$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
+
+			$filter = Query::filter()
+				->whereNull('SITE_ID')
+				->whereExpr("'".$sqlHelper->forSql($uri)."' LIKE %s", ['LIKE_MASK']);
+
 			if ($siteId)
 			{
-				$sql .= "
-				OR (m.SITE_ID = '".$DB->ForSQL($siteId)."' AND '".$DB->ForSQL($uri)."' like m.LIKE_MASK)
-				";
+				$filterOr = Query::filter()
+					->where('SITE_ID', $siteId)
+					->whereExpr("'".$sqlHelper->forSql($uri)."' LIKE %s", ['LIKE_MASK']);
+
+				$filter = Query::filter()
+					->logic('or')
+					->where($filter)
+					->where($filterOr);
 			}
 
-			$rs = $DB->Query($sql);
+			$rs = FrameMaskTable::getList(['filter' => $filter]);
 			if($rs->Fetch())
 				$bFound = true;
 		}

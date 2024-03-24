@@ -71,11 +71,11 @@ class Block
 					ON
 						L.SITE_ID = S.ID
 					WHERE
-						B.DELETED = "N" AND 
-						L.DELETED = "N" AND
-						S.DELETED = "N" AND
-						S.TYPE NOT IN ("KNOWLEDGE", "GROUP")
-					GROUP BY FB.BLOCK_ID
+						B.DELETED = \'N\' AND 
+						L.DELETED = \'N\' AND
+						S.DELETED = \'N\' AND
+						S.TYPE NOT IN (\'KNOWLEDGE\', \'GROUP\')
+					GROUP BY B.ID, S.ID, FB.BLOCK_ID, L.DELETED
 					ORDER BY B.DATE_MODIFY ASC;';
 			$res = Application::getConnection()->query($sql);
 			while ($row = $res->fetch())

@@ -17,7 +17,7 @@ foreach ($arResult["QUESTIONS"] as $questionKey => $arQuestion):
 		$arAnswer["FIELD_PARAM"] = ($arAnswer["FIELD_PARAM"] <> '' ? $arAnswer["FIELD_PARAM"] : "");
 		switch ($arAnswer["FIELD_TYPE"]):
 			case 0:
-				if ($_REQUEST["vote_radio_".$arAnswer["QUESTION_ID"]] == $arAnswer["ID"]):
+				if (isset($_REQUEST["vote_radio_".$arAnswer["QUESTION_ID"]]) && $_REQUEST["vote_radio_".$arAnswer["QUESTION_ID"]] == $arAnswer["ID"]):
 					$bFountActive = true;
 					$arAnswer["FIELD_PARAM"] .= " checked='checked' ";
 				endif;

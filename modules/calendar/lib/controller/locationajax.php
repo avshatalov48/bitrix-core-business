@@ -209,7 +209,7 @@ class LocationAjax extends Controller
 			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return $result;
 		}
-		
+
 		$result['rooms'] = Rooms\Manager::getRoomsList();
 
 		return $result;
@@ -225,14 +225,21 @@ class LocationAjax extends Controller
 		{
 			return [];
 		}
-		
+
+		if (Loader::includeModule('pull'))
+		{
+			$userId = \CCalendar::GetUserId();
+
+			\CPullWatch::Add($userId, 'calendar-location', true);
+		}
+
 		$typeModel = TypeModel::createFromXmlId(Dictionary::CALENDAR_TYPE['location']);
 		$accessController = new TypeAccessController(CCalendar::GetUserId());
 		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
 			return [];
 		}
-		
+
 		$request = $this->getRequest();
 
 		return

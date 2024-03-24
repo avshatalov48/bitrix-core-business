@@ -17,14 +17,14 @@ class CSearchParameters
 				switch ($strFILTER)
 				{
 				case "main":
-					$exFILTER[] = CSearchParameters::_main($arParams[$strFilterParamName."_main"]);
+					$exFILTER[] = CSearchParameters::_main($arParams[$strFilterParamName."_main"] ?? null);
 					break;
 				case "forum":
 					if (IsModuleInstalled("forum"))
-						$exFILTER[] = CSearchParameters::_forum($arParams[$strFilterParamName."_forum"]);
+						$exFILTER[] = CSearchParameters::_forum($arParams[$strFilterParamName."_forum"] ?? null);
 					break;
 				case "blog":
-					$exFILTER[] = CSearchParameters::_blog($arParams[$strFilterParamName."_blog"]);
+					$exFILTER[] = CSearchParameters::_blog($arParams[$strFilterParamName."_blog"] ?? null);
 					break;
 				case "microblog":
 					$exFILTER[] = array(
@@ -33,10 +33,10 @@ class CSearchParameters
 					);
 					break;
 				case "socialnetwork":
-					$exFILTER[] = CSearchParameters::_socialnetwork($arParams[$strFilterParamName."_socialnetwork"]);
+					$exFILTER[] = CSearchParameters::_socialnetwork($arParams[$strFilterParamName."_socialnetwork"] ?? null);
 					break;
 				case "socialnetwork_user":
-					$exFILTER[] = CSearchParameters::_socialnetwork_user($arParams[$strFilterParamName."_socialnetwork_user"]);
+					$exFILTER[] = CSearchParameters::_socialnetwork_user($arParams[$strFilterParamName."_socialnetwork_user"] ?? null);
 					break;
 				case "intranet":
 					$exFILTER[] = array(
@@ -57,7 +57,7 @@ class CSearchParameters
 					break;
 				default:
 					if (mb_strpos($strFILTER, "iblock_") === 0)
-						$exFILTER[] = CSearchParameters::_iblock($arParams[$strFilterParamName."_".$strFILTER], $strFILTER);
+						$exFILTER[] = CSearchParameters::_iblock($arParams[$strFilterParamName."_".$strFILTER] ?? null, $strFILTER);
 					else
 						$exFILTER[] = array(
 							"=MODULE_ID" => $strFILTER,

@@ -1,5 +1,6 @@
 import {Type} from 'main.core'
 import {CallEngine, Provider} from './engine/engine';
+import { MediaStreamsKinds } from './call_api';
 
 const blankAvatar = '/bitrix/js/im/images/blank.gif';
 
@@ -128,6 +129,7 @@ function getUserCached(userId)
 
 function getUsers(callId, users)
 {
+
 	return new Promise((resolve, reject) =>
 	{
 		updateUserData(callId, users).then(() =>
@@ -491,6 +493,40 @@ function isBlank(url)
 	return typeof (url) !== "string" || url == "" || url.endsWith(blankAvatar);
 }
 
+function stopMediaStreamAudioTracks(mediaStream)
+{
+    if (!mediaStream instanceof MediaStream)
+    {
+        return;
+    }
+
+    mediaStream.getAudioTracks().forEach(function (track)
+    {
+        if (track.readyState == 'live' && track.kind === 'audio') {
+            track.stop();
+        }
+
+        mediaStream.removeTrack(track);
+    });
+}
+
+function stopMediaStreamVideoTracks(mediaStream)
+{
+    if (!mediaStream instanceof MediaStream)
+    {
+        return;
+    }
+
+    mediaStream.getTracks().forEach(function (track)
+    {
+        if (track.readyState == 'live' && track.kind === 'video') {
+            track.stop();
+        }
+
+        mediaStream.removeTrack(track);
+    });
+}
+
 function stopMediaStream(mediaStream)
 {
 	if (!mediaStream instanceof MediaStream)
@@ -515,6 +551,107 @@ function getConferenceProvider(): string{
 	}
 
 	return Provider.Plain;
+}
+
+function setCodecToReport(report, codecs, reportsWithoutCodecs)
+{
+	if (codecs[report.codecId])
+	{
+		report.codecName = codecs[report.codecId];
+		return true;
+	}
+	return false;
+}
+
+function saveReportWithoutCodecs(report, reportsWithoutCodecs)
+{
+	if (reportsWithoutCodecs[report.codecId])
+	{
+		reportsWithoutCodecs[report.codecId].push(report);
+	}
+	else
+	{
+		reportsWithoutCodecs[report.codecId] = [report];
+	}
+}
+
+function processReportsWithoutCodecs(report, codecs, reportsWithoutCodecs)
+{
+	codecs[report.id] = report.mimeType;
+	if (reportsWithoutCodecs[report.id])
+	{
+		reportsWithoutCodecs[report.id].forEach(r =>
+		{
+			r.codecName = report.mimeType;
+		});
+		delete reportsWithoutCodecs[report.id];
+	}
+}
+
+function setLocalPacketsLostOrSaveReport(report, remoteReports, reportsWithoutRemoteInfo)
+{
+	if (remoteReports[report.id])
+	{
+		const packetsLostData = calcLocalPacketsLost(report, remoteReports[report.id]);
+		report.packetsLostData = packetsLostData;
+		report.packetsLost = packetsLostData.totalPacketsLost;
+		report.packetsLostExtended = formatPacketsLostData(packetsLostData);
+		delete remoteReports[report.id];
+		return true;
+	}
+	else if (!report.packetsLostExtended)
+	{
+		reportsWithoutRemoteInfo[report.id] = report;
+		return false;
+	}
+}
+
+function calcBitrate(currentReport, prevReport, isLocal)
+{
+	prevReport = prevReport || {};
+	const bytes = isLocal
+		? currentReport.bytesSent - (prevReport.bytesSent || 0)
+		: currentReport.bytesReceived - (prevReport.bytesReceived || 0);
+	const time = currentReport.timestamp - (prevReport.timestamp || 0);
+	const bitrate = 8 * bytes / (time / 1000);
+	return bitrate < 0 ? 0 : Math.trunc(bitrate);
+}
+
+function calcLocalPacketsLost(currentReport, prevReport, remoteReport)
+{
+	prevReport = prevReport || {};
+	const packetsLost = Math.abs(remoteReport.packetsLost);
+	const deltaPacketsSent = currentReport.packetsSent - (prevReport.packetsSent || 0);
+	const deltaPacketsLost = packetsLost - (prevReport.packetsLost || 0);
+	const percentPacketLost = (deltaPacketsLost / deltaPacketsSent) * 100 || 0;
+	const percentPacketLostTotal = (packetsLost / currentReport.packetsSent) * 100 || 0;
+	return {
+		currentPacketsLost: deltaPacketsLost,
+		currentPercentPacketLost:  Math.trunc(percentPacketLost),
+		totalPacketsLost: packetsLost,
+		totalPercentPacketLost:  Math.trunc(percentPacketLostTotal),
+	};
+}
+
+function calcRemotePacketsLost(currentReport, prevReport)
+{
+	prevReport = prevReport || {};
+	const packetsLost = Math.abs(currentReport.packetsLost);
+	const deltaPacketsReceived = currentReport.packetsReceived - (prevReport.packetsReceived || 0);
+	const deltaPacketsLost = packetsLost - (prevReport.packetsLost || 0);
+	const percentPacketLost = (deltaPacketsLost / (deltaPacketsReceived + deltaPacketsLost)) * 100 || 0;
+	const percentPacketLostTotal = (packetsLost / (currentReport.packetsReceived + packetsLost)) * 100 || 0;
+	return {
+		currentPacketsLost: deltaPacketsLost,
+		currentPercentPacketLost:  Math.trunc(percentPacketLost),
+		totalPacketsLost: packetsLost,
+		totalPercentPacketLost:  Math.trunc(percentPacketLostTotal),
+	};
+}
+
+function formatPacketsLostData(data)
+{
+	return `${data.currentPacketsLost} - ${data.currentPercentPacketLost}% (total: ${data.totalPacketsLost} - ${data.totalPercentPacketLost}%)`;
 }
 
 export default {
@@ -555,5 +692,15 @@ export default {
 	getBrowserForStatistics,
 	isBlank,
 	stopMediaStream,
+    stopMediaStreamVideoTracks,
+    stopMediaStreamAudioTracks,
 	getConferenceProvider,
+	setCodecToReport,
+	saveReportWithoutCodecs,
+	processReportsWithoutCodecs,
+	setLocalPacketsLostOrSaveReport,
+	calcBitrate,
+	calcLocalPacketsLost,
+	calcRemotePacketsLost,
+	formatPacketsLostData,
 }

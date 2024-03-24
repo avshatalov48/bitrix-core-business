@@ -613,7 +613,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 			<div class="landing-item landing-item-dev" onclick="BX.fireEvent(BX('landing-feedback-<?= $formCode?>-button'), 'click');">
 				<span class="landing-item-inner">
 					<span class="landing-item-dev-title"><?= $component->getMessageType('LANDING_TPL_DEV_HELP');?></span>
-					<span class="landing-item-dev-subtitle"><?= $component->getMessageType('LANDING_TPL_DEV_ORDER');?></span>
+					<span class="landing-item-dev-subtitle"><?= $component->getMessageType('LANDING_TPL_DEV_ORDER_MSGVER_1');?></span>
 					<button class="ui-btn ui-btn-primary"><?= $component->getMessageType('LANDING_TPL_DEV_BTN');?></button>
 				</span>
 			</div>

@@ -10,6 +10,27 @@
 	--sn-spaces__toggle-block-width: 12px;
 }
 
+.sn-spaces-content {
+	position: relative;
+	width: 100%;
+	min-height: 100%;
+	height: calc(100vh - 66px);
+	border-style: none;
+	border-radius: 10px;
+}
+
+.sn-spaces-iframe {
+	width: 100%;
+	min-height: 100%;
+	height: calc(100vh - 66px);
+	border-style: none;
+	opacity: 1;
+}
+
+.sn-spaces-iframe.--hidden {
+	opacity: 0;
+}
+
 .sn-spaces__scope .main-kanban {
 	min-width: 100%;
 }
@@ -22,6 +43,10 @@
 	opacity: 0.3;
 }
 
+.sn-spaces__body {
+	width: 100%;
+}
+
 .sn-spaces__body .bx-layout-inner-inner-top-row {
 	display: none;
 }
@@ -29,6 +54,7 @@
 .sn-spaces__body .workarea-content-paddings {
 	display: flex;
 	min-height: 100%;
+	overflow: hidden;
 }
 
 .sn-spaces {
@@ -38,12 +64,23 @@
 	grid-template-columns: var(--sn-spaces__list-wrapper) 1fr;
 	grid-template-rows: var(--sn_spaces-toolbar_height) 1fr;
 	grid-template-areas:
-		"list nav"
+		"list content"
 		"list content";
 	gap: 12px 0;
 	min-height: 100%;
 	height: calc(100vh - 66px);
 	transition: .2s;
+}
+
+.sn-spaces-frame {
+	position: relative;
+	flex: 1;
+	min-height: 100%;
+	height: 100%;
+	transition: .2s;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .sn-spaces__list {
@@ -59,7 +96,6 @@
 }
 
 .sn-spaces__navigation {
-	grid-area: nav;
 	border-radius: var(--ui-border-radius-md);
 	background: rgba(var(--ui-color-background-primary-rgb), var(--ui-opacity-80));
 	backdrop-filter: blur(16px);
@@ -71,13 +107,17 @@
 }
 
 .sn-spaces__wrapper {
+	height: 100%;
 	position: relative;
-	grid-area: content;
 	overflow-x: hidden;
 	overflow-y: auto;
 	border-radius: var(--ui-border-radius-md);
 	scrollbar-width: thin;
 	scrollbar-color: rgba(var(--ui-color-base-solid-rgb),var(--ui-opacity-10)) var(--ui-color-background-transparent);
+}
+
+.sn-spaces__wrapper.--scroll-disabled {
+	overflow: hidden;
 }
 
 .sn-spaces__wrapper::-webkit-scrollbar {
@@ -124,6 +164,7 @@
 
 .sn-spaces-not-found-error {
 	height: calc(100vh - 66px);
+	min-height: 100%;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -176,4 +217,137 @@
 	top: 55px;
 	right: -37px;
 	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2257%22%20height%3D%22149%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%23525C69%22%20d%3D%22M48.596%20148.987H28.642c-.171%200-.34-.007-.508-.02-4.51-.104-8.134-3.857-8.134-8.47a8.555%208.555%200%20012.444-5.995%208.32%208.32%200%20012.78-1.867%209.027%209.027%200%20012.553-7.018A8.715%208.715%200%200133.995%20123c2.987.004%205.624%201.524%207.21%203.844a7.07%207.07%200%20012.406-.419c3.729.005%206.791%202.897%207.146%206.596%203.573.792%206.246%204.031%206.243%207.903-.004%204.463-3.56%208.078-7.946%208.076-.154%200-.306-.005-.458-.013z%22%20opacity%3D%22.057%22/%3E%3Cpath%20stroke%3D%22%23525C69%22%20d%3D%22M24.186%2021.99H8.006c-.138%200-.275-.006-.41-.016C3.938%2021.889%201%2018.858%201%2015.132a6.896%206.896%200%20011.982-4.842%206.748%206.748%200%20012.254-1.508%207.276%207.276%200%20012.07-5.668A7.08%207.08%200%200112.348%201c2.421.003%204.56%201.23%205.845%203.104a5.752%205.752%200%20011.951-.338c3.023.004%205.506%202.34%205.794%205.328%202.897.64%205.065%203.256%205.062%206.383-.003%203.605-2.887%206.524-6.443%206.523-.124%200-.248-.004-.371-.01h0z%22%20opacity%3D%22.089%22/%3E%3C/g%3E%3C/svg%3E) no-repeat center;
+}
+
+.sn-spaces__body-frame {
+	background: unset !important;
+	overflow: hidden;
+	height: 100vh;
+}
+
+.sn-spaces__body-frame .theme-video-container {
+	display: none;
+}
+
+/* frame loader */
+.sn-spaces__content-loader-default-container {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 110px;
+	height: 110px;
+	-webkit-transform: translate(-50%,-50%);
+	transform: translate(-50%,-50%);
+}
+
+.sn-spaces__content-loader-circular {
+	-webkit-animation: side-panel-loader-rotate 2s linear infinite;
+	animation: side-panel-loader-rotate 2s linear infinite;
+	-webkit-transform-origin: center center;
+	transform-origin: center center;
+}
+
+.sn-spaces__content-loader-path {
+	stroke: #bfc3c8;
+	stroke-width: 1.5;
+	stroke-dasharray: 20, 200;
+	stroke-dashoffset: 0;
+	-webkit-animation: side-panel-loader-dash 1.5s ease-in-out infinite;
+	animation: side-panel-loader-dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}
+
+.sn-spaces__content-loader-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: transparent;
+}
+
+.sn-spaces__content-loader-discussions {
+	background-image: url(./images/loader-discussions.svg?v3);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-tasks-list {
+	background-image: url(./images/loader-tasks-list.svg?v3);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-tasks-timeline {
+	background-image: url(./images/loader-tasks-timeline.svg?v3);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-tasks-kanban {
+	background-image: url(./images/loader-tasks-kanban.svg?v2);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-tasks-calendar {
+	background-image: url(./images/loader-tasks-calendar.svg?v2);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-tasks-gantt {
+	background-image: url(./images/loader-tasks-gantt.svg?v2);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-calendar-base {
+	background-image: url(./images/loader-calendar-base.svg?v2);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-calendar-schedule {
+	background: url(./images/loader-calendar-schedule.svg?v2) 0 0 no-repeat,
+				url(./images/loader-calendar-schedule-2.svg) 0 131px no-repeat;
+	background-size: contain, calc(100% - 250px);
+}
+
+.sn-spaces__content-loader-files-list {
+	background-image: url(./images/loader-files-list.svg?v2);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-files-tile {
+	background-image: url(./images/loader-files-tile.svg?v2);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+
+.sn-spaces__content-loader-files-big-tile {
+	background-image: url(./images/loader-files-big-tile.svg?v2);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.sn-spaces__content-loader-tasks-scrum-plan-backlog {
+	background: url(./images/loader-scrum-plan.svg) 0 0 no-repeat,
+	url(./images/loader-scrum-plan-backlog.svg) 0 131px no-repeat,
+	url(./images/loader-scrum-plan-backlog-content.svg) 13px 203px no-repeat,
+	url(./images/loader-scrum-plan-sprint.svg) 100% 131px no-repeat,
+	url(./images/loader-scrum-plan-sprint-content.svg) calc(100% - 26px) 211px no-repeat;
+	background-size: contain, 56%, calc(56% - 40px), 42%, calc(42% - 40px);
+}
+
+.sn-spaces__content-loader-tasks-scrum-plan-sprint {
+	background: url(./images/loader-scrum-plan.svg) 0 0 no-repeat,
+	url(./images/loader-scrum-plan-backlog.svg) 0 131px no-repeat,
+	url(./images/loader-scrum-plan-backlog-content.svg) 13px 204px no-repeat,
+	url(./images/loader-scrum-plan-sprint.svg) 100% 131px no-repeat,
+	url(./images/loader-scrum-plan-sprint-content.svg) calc(100% - 27px) 211px no-repeat;
+
+	background-size: contain, 38.5%, calc(38.5% - 42px), 59.4%, calc(59.4% - 40px);
 }

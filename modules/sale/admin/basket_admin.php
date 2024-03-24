@@ -1,13 +1,15 @@
-<?
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2006 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+<?php
 
 use Bitrix\Main;
 use Bitrix\Sale;
+
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -36,7 +38,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.
 IncludeModuleLangFile(__FILE__);
 
 $request = Main\Context::getCurrent()->getRequest();
-$usedProtocol = ($request->isHttps() ? 'https://' : 'http://');
 
 $sTableID = "tbl_sale_basket";
 
@@ -57,7 +58,7 @@ while ($arSite = $dbSite->Fetch())
 		if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 			$serverName[$arSite["LID"]] = SITE_SERVER_NAME;
 		else
-			$serverName[$arSite["LID"]] = COption::GetOptionString("main", "server_name", "");
+			$serverName[$arSite["LID"]] = COption::GetOptionString("main", "server_name");
 	}
 }
 $arAccessibleSites = array();
@@ -261,17 +262,21 @@ if (isset($_REQUEST['action']))
 			if ($basketData->fetch())
 			{
 				LocalRedirect($url);
-				die();
 			}
 		}
 	}
 }
 
-global $by, $order;
-$by = (isset($by) ? $by : "NAME_SEARCH");
-$order = (isset($order) ? $order : "ASC");
+$by = mb_strtoupper($oSort->getField());
+$order = mb_strtoupper($oSort->getOrder());
 
-$dbResultList = CSaleBasket::GetLeave(array($by => $order), $arFilter);
+$dbResultList = CSaleBasket::GetLeave(
+	array($by => $order),
+	$arFilter,
+	false,
+	false,
+	['DATE_UPDATE_MAX', 'USER_ID', 'PRICE_ALL', 'QUANTITY_ALL', 'PR_COUNT', 'LID', 'DATE_INSERT_MIN', 'FUSER_ID']
+);
 
 $dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
@@ -284,7 +289,7 @@ $lAdmin->AddHeaders(array(
 	array("id" => "PRICE_ALL", "content" => GetMessage("SB_PRICE_ALL"), "sort" => "PRICE_ALL", "default" => true, "align" => "right"),
 	array("id" => "QUANTITY_ALL", "content" => GetMessage('SB_QUANTITY_ALL'), "sort" => "QUANTITY_ALL", "default" => false, "align" => "right"),
 	array("id" => "PR_COUNT", "content" => GetMessage("SB_CNT"), "sort" => "PR_COUNT", "default" => true, "align" => "right"),
-	array("id" => "LID", "content" => GetMessage("SB_LID"),  "sort" => "LID", "default" => (count($siteName) == 1) ? false : true),
+	array("id" => "LID", "content" => GetMessage("SB_LID"),  "sort" => "LID", "default" => count($siteName) !== 1),
 	array("id" => "BASKET", "content" => GetMessage("SB_BASKET"), "sort" => "", "default" => true),
 	array("id" => "BASKET_NAME", "content" => GetMessage("SB_BASKET_NAME"), "sort" => "", "default" => false),
 	array("id" => "BASKET_QUANTITY", "content" => GetMessage("SB_BASKET_QUANTITY"),  "sort" => "", "default" => false, "align" => "right"),
@@ -295,30 +300,85 @@ $lAdmin->AddHeaders(array(
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
+$nameFormat = CSite::GetNameFormat();
+$usersCache = [];
+$userLinkTitle = htmlspecialcharsbx(
+	$publicMode
+		? GetMessage('SB_FUSER_INFO')
+		: GetMessage('SB_USER_INFO')
+);
+$mailToTitle = htmlspecialcharsbx(GetMessage('SB_MAILTO'));
+
 while ($arBasket = $dbResultList->Fetch())
 {
-	$row =& $lAdmin->AddRow($arBasket["ID"], $arBasket);
-
-	$row->AddField("ID", $arBasket["ID"]);
+	$row =& $lAdmin->AddRow(false, $arBasket);
 
 	$fieldValue = GetMessage("SB_NOT_AUTH");
-	if((int)$arBasket["USER_ID"] > 0)
+	$userId = (int)$arBasket['USER_ID'];
+	if ($userId > 0)
 	{
-		$userEditUrl = $selfFolderUrl."user_edit.php?ID=".$arBasket["USER_ID"]."&lang=".LANGUAGE_ID;
+		$userEditUrl = $selfFolderUrl."user_edit.php?ID=".$userId."&lang=".LANGUAGE_ID;
 		if ($publicMode)
 		{
-			$userEditUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$arBasket["USER_ID"]."&lang=".LANGUAGE_ID;
+			$userEditUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$userId."&lang=".LANGUAGE_ID;
 			$userEditUrl = $adminSidePanelHelper->editUrlToPublicPage($userEditUrl);
 		}
-		$fieldValue = "[<a href=".$userEditUrl." title=\"".GetMessage("SB_USER_INFO")."\">".$arBasket["USER_ID"]."</a>] ";
-		$fieldValue .= " (".htmlspecialcharsEx($arBasket["USER_LOGIN"]).") ";
-		$fieldValue .= "<a href=\"".$userEditUrl."\" title=\"".GetMessage("SB_FUSER_INFO")."\">".htmlspecialcharsEx($arBasket["USER_NAME"].(($arBasket["USER_NAME"] == '' || $arBasket["USER_LAST_NAME"] == '') ? "" : " ").$arBasket["USER_LAST_NAME"])."</a><br />";
-		$fieldValue .= "<a href=\"mailto:".htmlspecialcharsEx($arBasket["USER_EMAIL"])."\" title=\"".GetMessage("SB_MAILTO")."\">".htmlspecialcharsEx($arBasket["USER_EMAIL"])."</a>";
+		$fieldValue = "[<a href=".$userEditUrl." title=\"".GetMessage("SB_USER_INFO")."\">".$userId."</a>] ";
+		if (!isset($usersCache[$userId]))
+		{
+			$usersCache[$userId] = false;
+			$userData = Main\UserTable::getRow([
+				'select' => [
+					'ID',
+					'LOGIN',
+					'NAME',
+					'LAST_NAME',
+					'SECOND_NAME',
+					'EMAIL',
+					'TITLE',
+				],
+				'filter' => [
+					'=ID' => $userId,
+				],
+			]);
+			if ($userData !== null)
+			{
+				$usersCache[$userId] = [
+					'ID' => (int)$userData['ID'],
+					'NAME' => CUser::FormatName($nameFormat, $userData, true),
+					'EMAIL' => (string)$userData['EMAIL'],
+				];
+			}
+		}
+		if (!empty($usersCache[$userId]))
+		{
+			$userEditUrl = $selfFolderUrl."user_edit.php?ID=".$userId."&lang=".LANGUAGE_ID;
+			if ($publicMode)
+			{
+				$userEditUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$userId."&lang=".LANGUAGE_ID;
+				$userEditUrl = $adminSidePanelHelper->editUrlToPublicPage($userEditUrl);
+			}
+			$fieldValue = '[<a href="' . $userEditUrl . '" title="' . $userLinkTitle . '">' . $userId . '</a>] ';
+			$fieldValue .= '<a href="' . $userEditUrl . '" title="' . $userLinkTitle . '">' . $usersCache[$userId]['NAME'] . '</a><br>';
+			if ($usersCache[$userId]['EMAIL'] !== '')
+			{
+				$fieldValue .= '<a href="mailto:' . htmlspecialcharsEx($usersCache[$userId]['EMAIL'])
+					. '" title="' . $mailToTitle . '">' . htmlspecialcharsEx($usersCache[$userId]['EMAIL'])
+					. '</a>'
+				;
+			}
+		}
 	}
 	$row->AddField("USER_ID", $fieldValue);
-	$row->AddField("LID", "[".htmlspecialcharsbx($arBasket["LID"])."] ".htmlspecialcharsbx($siteName[$arBasket["LID"]]));
+	$row->AddField("LID", "[".htmlspecialcharsbx($arBasket["LID"])."] ".htmlspecialcharsbx($siteName[$arBasket["LID"]] ?? ''));
 
-	$row->AddField("PRICE_ALL", SaleFormatCurrency($arBasket["PRICE_ALL"], $arBasket["CURRENCY"]));
+	$row->AddField(
+		"PRICE_ALL",
+		SaleFormatCurrency(
+			$arBasket["PRICE_ALL"],
+			Sale\Internals\SiteCurrencyTable::getSiteCurrency($arBasket["LID"])
+		)
+	);
 
 
 	$fieldValue = "";
@@ -369,10 +429,7 @@ while ($arBasket = $dbResultList->Fetch())
 
 		if($arB["DETAIL_PAGE_URL"] <> '')
 		{
-			if(mb_strpos($arB["DETAIL_PAGE_URL"], "http") === false)
-				$url = $usedProtocol.$serverName[$arB["LID"]].$arB["DETAIL_PAGE_URL"];
-			else
-				$url = $arB["DETAIL_PAGE_URL"];
+			$url = $arB["DETAIL_PAGE_URL"];
 
 			if ($publicMode)
 			{
@@ -454,7 +511,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $APPLICATION->SetTitle(GetMessage("SB_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
+if (!$publicMode && Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 {
 	$APPLICATION->IncludeComponent("bitrix:sale.admin.page.stub", ".default");
 }
@@ -464,4 +521,3 @@ else
 	$lAdmin->DisplayList();
 }
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main;
 use Bitrix\Iblock\PropertyTable;
 
 class CIBlockProperty extends CAllIBlockProperty
@@ -61,10 +62,20 @@ class CIBlockProperty extends CAllIBlockProperty
 					$this->LAST_ERROR =  $this->FormatUpdateError($ID, "MY02");
 					return false;
 				}
-				$strSql = "
-					ALTER TABLE b_iblock_element_prop_s".$arProperty["IBLOCK_ID"]."
-					CHANGE PROPERTY_".$arProperty["ID"]." PROPERTY_".$arProperty["ID"]." longtext
-				";
+				if ($DB->type === 'MYSQL')
+				{
+					$strSql = '
+						ALTER TABLE b_iblock_element_prop_s' . $arProperty['IBLOCK_ID'] . '
+						CHANGE PROPERTY_' . $arProperty['ID'] . ' PROPERTY_' . $arProperty['ID'] . ' ' . self::getLongTextType() . '
+					';
+				}
+				else
+				{
+					$strSql = '
+						ALTER TABLE b_iblock_element_prop_s' . $arProperty['IBLOCK_ID'] . '
+						ALTER COLUMN PROPERTY_' . $arProperty['ID'] . ' TYPE ' . self::getLongTextType() . '
+					';
+				}
 				if(!$DB->DDL($strSql))
 				{
 					$this->LAST_ERROR =  $this->FormatUpdateError($ID, "MY03");
@@ -85,15 +96,36 @@ class CIBlockProperty extends CAllIBlockProperty
 					case "F":
 					case "G":
 					case "E":
-						$strType = "int(11)";
+						$strType = self::getIntegerType();
 						break;
 					default://s - small string
 						$strType = "varchar(255)";
 				}
 				$strSql = "
-					ALTER TABLE b_iblock_element_prop_s".$arProperty["IBLOCK_ID"]."
-					CHANGE PROPERTY_".$arProperty["ID"]." PROPERTY_".$arProperty["ID"]." ".$strType."
+					UPDATE b_iblock_element_prop_s" . $arProperty["IBLOCK_ID"] . "
+					SET PROPERTY_" . $arProperty["ID"] . "=null
+					" . (isset($tableFields["DESCRIPTION_".$arProperty["ID"]]) ? ", DESCRIPTION_" . $arProperty["ID"] . "=null": "") . "
 				";
+				if(!$DB->Query($strSql))
+				{
+					$this->LAST_ERROR =  $this->FormatUpdateError($ID, "MY05");
+
+					return false;
+				}
+				if ($DB->type === 'MYSQL')
+				{
+					$strSql = "
+						ALTER TABLE b_iblock_element_prop_s".$arProperty["IBLOCK_ID"]."
+						CHANGE PROPERTY_".$arProperty["ID"]." PROPERTY_".$arProperty["ID"]." ".$strType."
+					";
+				}
+				else
+				{
+					$strSql = "
+						ALTER TABLE b_iblock_element_prop_s".$arProperty["IBLOCK_ID"]."
+						ALTER COLUMN PROPERTY_".$arProperty["ID"]." TYPE ".$strType." USING PROPERTY_".$arProperty["ID"]."::" .$strType. "
+					";
+				}
 				if(!$DB->DDL($strSql))
 				{
 					$this->LAST_ERROR =  $this->FormatUpdateError($ID, "MY04");
@@ -116,17 +148,16 @@ class CIBlockProperty extends CAllIBlockProperty
 					default:
 						$strTrans = "VALUE";
 				}
-				$strSql = "
-					UPDATE
-						b_iblock_element_prop_s".$arProperty["IBLOCK_ID"]." EL
-						,b_iblock_element_prop_m".$arProperty["IBLOCK_ID"]." EN
-					SET
-						PROPERTY_".$ID." = ".$strTrans."
-						".(isset($tableFields["DESCRIPTION_".$ID])? ",DESCRIPTION_".$ID." = DESCRIPTION": "")."
-					WHERE
-						EN.IBLOCK_ELEMENT_ID = EL.IBLOCK_ELEMENT_ID
-						AND EN.IBLOCK_PROPERTY_ID = ".$ID."
-				";
+				$helper = Main\Application::getConnection()->getSqlHelper();
+				$strSql = $helper->prepareCorrelatedUpdate(
+					'b_iblock_element_prop_s' . $arProperty["IBLOCK_ID"],
+					'EL',
+					[
+						'PROPERTY_' . $ID => $strTrans . (isset($tableFields['DESCRIPTION_' . $ID]) ? ',DESCRIPTION_'.$ID.' = DESCRIPTION' : '')
+					],
+					'b_iblock_element_prop_m' . $arProperty["IBLOCK_ID"] . ' AS EN',
+					'EN.IBLOCK_ELEMENT_ID = EL.IBLOCK_ELEMENT_ID AND EN.IBLOCK_PROPERTY_ID = ' . $ID
+				);
 				if(!$DB->Query($strSql))
 				{
 					$this->LAST_ERROR = $this->FormatUpdateError($ID, "MY05");
@@ -163,7 +194,7 @@ class CIBlockProperty extends CAllIBlockProperty
 					case "F":
 					case "G":
 					case "E":
-						$strType = "int(11)";
+						$strType = self::getIntegerType();
 						break;
 					default://s - small string
 						$strType = "varchar(255)";
@@ -269,7 +300,7 @@ class CIBlockProperty extends CAllIBlockProperty
 
 		if ($arFields["MULTIPLE"] === "Y")
 		{
-			$strType = "longtext";
+			$strType = self::getLongTextType();
 		}
 		else
 		{
@@ -285,7 +316,7 @@ class CIBlockProperty extends CAllIBlockProperty
 				case PropertyTable::TYPE_FILE:
 				case PropertyTable::TYPE_SECTION:
 				case PropertyTable::TYPE_ELEMENT:
-					$strType = "int(11)";
+					$strType = self::getIntegerType();
 					break;
 				default://s - small string
 					$strType = "varchar(255)";
@@ -298,5 +329,33 @@ class CIBlockProperty extends CAllIBlockProperty
 		";
 
 		return $DB->DDL($strSql, true);
+	}
+
+	private static function getLongTextType(): string
+	{
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		unset($connection);
+
+		$field = (new Main\ORM\Fields\TextField('TMP'))
+			->configureLong(true)
+		;
+
+		return $helper->getColumnTypeByField($field);
+	}
+
+	private static function getIntegerType(?int $size = null): string
+	{
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		unset($connection);
+
+		$field = (new Main\ORM\Fields\IntegerField('TMP'));
+		if ($size !== null)
+		{
+			$field->configureSize($size);
+		}
+
+		return $helper->getColumnTypeByField($field);
 	}
 }

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
-(function (exports,ui_shortView,pull_client,tasks_kanbanSort,ui_label,ui_entitySelector,tasks_creationMenu,calendar_entry,calendar_sectionmanager,calendar_util,calendar_compacteventform,ui_notification,calendar_roomsmanager,ui_dialogs_messagebox,socialnetwork_postForm,main_popup,ui_popupcomponentsmaker,ui_switcher,main_core_events,main_core) {
+(function (exports,ui_shortView,pull_client,tasks_kanbanSort,ui_label,ui_entitySelector,tasks_creationMenu,calendar_entry,socialnetwork_postForm,main_popup,ui_popupcomponentsmaker,ui_switcher,main_core_events,main_core) {
 	'use strict';
 
 	var _filter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filter");
@@ -461,41 +461,41 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	}
 
 	var _sidePanelManager$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sidePanelManager");
-	var _pathToGroupTasks = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToGroupTasks");
-	var _pathToGroupTasksTask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToGroupTasksTask");
+	var _pathToTasks = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToTasks");
+	var _pathToTasksTask = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToTasksTask");
 	class TasksRouter {
 	  constructor(params) {
 	    Object.defineProperty(this, _sidePanelManager$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _pathToGroupTasks, {
+	    Object.defineProperty(this, _pathToTasks, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _pathToGroupTasksTask, {
+	    Object.defineProperty(this, _pathToTasksTask, {
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _pathToGroupTasks)[_pathToGroupTasks] = params.pathToGroupTasks;
-	    babelHelpers.classPrivateFieldLooseBase(this, _pathToGroupTasksTask)[_pathToGroupTasksTask] = params.pathToGroupTasksTask;
+	    babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks)[_pathToTasks] = params.pathToTasks;
+	    babelHelpers.classPrivateFieldLooseBase(this, _pathToTasksTask)[_pathToTasksTask] = params.pathToTasksTask;
 	    babelHelpers.classPrivateFieldLooseBase(this, _sidePanelManager$1)[_sidePanelManager$1] = BX.SidePanel.Instance;
 	  }
 	  redirectTo(url) {
-	    location.href = url;
+	    top.BX.Socialnetwork.Spaces.space.reloadPageContent(url);
 	  }
-	  redirectToScrumTasks(urlParam, urlValue) {
-	    const viewUri = new main_core.Uri(babelHelpers.classPrivateFieldLooseBase(this, _pathToGroupTasks)[_pathToGroupTasks]);
+	  redirectToTasks(urlParam, urlValue) {
+	    const viewUri = new main_core.Uri(babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks)[_pathToTasks]);
 	    viewUri.setQueryParam(urlParam, urlValue);
-	    location.href = viewUri.toString();
+	    top.BX.Socialnetwork.Spaces.space.reloadPageContent(viewUri.toString());
 	  }
 	  redirectToScrumView(view) {
-	    const viewUri = new main_core.Uri(babelHelpers.classPrivateFieldLooseBase(this, _pathToGroupTasks)[_pathToGroupTasks]);
+	    const viewUri = new main_core.Uri(babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks)[_pathToTasks]);
 	    viewUri.setQueryParam('tab', view);
-	    location.href = viewUri.toString();
+	    top.BX.Socialnetwork.Spaces.space.reloadPageContent(viewUri.toString());
 	  }
 	  showTask(taskId) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _sidePanelManager$1)[_sidePanelManager$1].open(babelHelpers.classPrivateFieldLooseBase(this, _pathToGroupTasksTask)[_pathToGroupTasksTask].replace('#action#', 'view').replace('#task_id#', taskId));
+	    babelHelpers.classPrivateFieldLooseBase(this, _sidePanelManager$1)[_sidePanelManager$1].open(babelHelpers.classPrivateFieldLooseBase(this, _pathToTasksTask)[_pathToTasksTask].replace('#action#', 'view').replace('#task_id#', taskId));
 	  }
 	  showSidePanel(url) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _sidePanelManager$1)[_sidePanelManager$1].open(url);
@@ -744,7 +744,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      id: `spaces-tasks-${babelHelpers.classPrivateFieldLooseBase(this, _view)[_view].getViewId()}-settings-activity-sort-item`
 	    },
 	    html: `
-				${main_core.Loc.getMessage('SN_SPACES_TASKS_SORT_ACTIVITY_DATE')}
+				${main_core.Loc.getMessage('SN_SPACES_TASKS_SORT_ACTIVITY_DATE_MSGVER_1')}
 				<span style="margin-left: 5px">${babelHelpers.classPrivateFieldLooseBase(this, _getRecommendedLabel)[_getRecommendedLabel]()}</span>
 			`,
 	    className: `menu-popup-item-sort-field ${babelHelpers.classPrivateFieldLooseBase(this, _getSelectedClass)[_getSelectedClass]([KanbanOrder.SORT_ACTUAL])}`,
@@ -951,28 +951,28 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }
 	}
 
-	var _pathToTasks = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToTasks");
+	var _pathToTasks$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToTasks");
 	class TasksExcelManager {
 	  constructor(params) {
-	    Object.defineProperty(this, _pathToTasks, {
+	    Object.defineProperty(this, _pathToTasks$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks)[_pathToTasks] = params == null ? void 0 : params.pathToTasks;
+	    babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks$1)[_pathToTasks$1] = params == null ? void 0 : params.pathToTasks;
 	  }
 
 	  /**
 	   * @param options {{isAll: boolean}}
 	   */
 	  getExportHref(options = {}) {
-	    let href = `${babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks)[_pathToTasks]}?F_STATE=sV80&EXPORT_AS=EXCEL&ncc=1`;
+	    let href = `${babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks$1)[_pathToTasks$1]}?F_STATE=sV80&EXPORT_AS=EXCEL&ncc=1`;
 	    if (options.isAll) {
 	      href += '&COLUMNS=ALL';
 	    }
 	    return href;
 	  }
 	  getImportHref() {
-	    return `${babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks)[_pathToTasks]}import/`;
+	    return `${babelHelpers.classPrivateFieldLooseBase(this, _pathToTasks$1)[_pathToTasks$1]}import/`;
 	  }
 	}
 
@@ -1785,6 +1785,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	function _createMenu2$1(bindElement, viewList) {
 	  const menu = new main_popup.Menu({
 	    id: 'spaces-tasks-view-list',
+	    className: 'sn-spaces-tasks-view-list-menu',
 	    bindElement,
 	    closeByEsc: true
 	  });
@@ -1794,8 +1795,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        id: `spaces-tasks-${viewItem.key}`
 	      },
 	      text: viewItem.title,
-	      className: `sn-spaces-tasks-${viewItem.key}-icon`,
+	      className: `sn-spaces-tasks-${viewItem.key}-icon ${viewItem.selected ? '--selected' : ''}`,
 	      onclick: () => {
+	        if (viewItem.selected) {
+	          menu.close();
+	          return;
+	        }
 	        this.emit('click', {
 	          urlParam: viewItem.urlParam,
 	          urlValue: viewItem.urlValue
@@ -1894,10 +1899,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      filterId: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('filterId'),
 	      filterContainer: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('filterContainer')
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _router$1)[_router$1] = new TasksRouter({
-	      pathToGroupTasks: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('pathToGroupTasks'),
-	      pathToGroupTasksTask: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('pathToGroupTasksTask')
-	    });
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('isUserSpace')) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _router$1)[_router$1] = new TasksRouter({
+	        pathToTasks: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('pathToUserSpaceTasks'),
+	        pathToTasksTask: ''
+	      });
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _router$1)[_router$1] = new TasksRouter({
+	        pathToTasks: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('pathToGroupTasks'),
+	        pathToTasksTask: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('pathToGroupTasksTask')
+	      });
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _tasksView$3)[_tasksView$3] = new TasksView({
 	      isUserSpace: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('isUserSpace'),
 	      isScrumSpace: babelHelpers.classPrivateFieldLooseBase(this, _getParam)[_getParam]('isScrumSpace'),
@@ -2089,7 +2101,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        urlParam,
 	        urlValue
 	      } = baseEvent.getData();
-	      babelHelpers.classPrivateFieldLooseBase(this, _router$1)[_router$1].redirectToScrumTasks(urlParam, urlValue);
+	      babelHelpers.classPrivateFieldLooseBase(this, _router$1)[_router$1].redirectToTasks(urlParam, urlValue);
 	    });
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _tasksViewList)[_tasksViewList].show();
@@ -2261,10 +2273,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _pathToVolume)[_pathToVolume] = params.pathToUserFilesVolume;
 	  }
 	  redirectToTrash() {
-	    location.href = babelHelpers.classPrivateFieldLooseBase(this, _pathToTrash)[_pathToTrash];
+	    top.BX.Socialnetwork.Spaces.space.reloadPageContent(babelHelpers.classPrivateFieldLooseBase(this, _pathToTrash)[_pathToTrash]);
 	  }
 	  redirectToVolume() {
-	    location.href = babelHelpers.classPrivateFieldLooseBase(this, _pathToVolume)[_pathToVolume];
+	    top.location.href = babelHelpers.classPrivateFieldLooseBase(this, _pathToVolume)[_pathToVolume];
 	  }
 	}
 
@@ -2695,550 +2707,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _settings$4)[_settings$4].show();
 	}
 
-	let _$5 = t => t,
-	  _t$5;
-	class EntryManager {
-	  static getNewEntry(options) {
-	    const newEntryData = {};
-	    const dateTime = EntryManager.getNewEntryTime(new Date());
-	    const userSettings = calendar_util.Util.getUserSettings();
-	    const userId = calendar_util.Util.getCurrentUserId();
-	    newEntryData.ID = null;
-	    newEntryData.NAME = EntryManager.getNewEntryName();
-	    newEntryData.dateFrom = dateTime.from;
-	    newEntryData.dateTo = dateTime.to;
-	    if (options.type === 'location') {
-	      newEntryData.SECT_ID = calendar_roomsmanager.RoomsManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
-	    } else {
-	      newEntryData.SECT_ID = calendar_sectionmanager.SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
-	    }
-	    newEntryData.REMIND = EntryManager.getNewEntryReminders();
-	    newEntryData.attendeesEntityList = [{
-	      entityId: 'user',
-	      id: userId
-	    }];
-	    newEntryData.ATTENDEE_LIST = [{
-	      id: calendar_util.Util.getCurrentUserId(),
-	      status: "H"
-	    }];
-	    if (options.type === 'user' && userId !== options.ownerId) {
-	      newEntryData.attendeesEntityList.push({
-	        entityId: 'user',
-	        id: options.ownerId
-	      });
-	      newEntryData.ATTENDEE_LIST = [{
-	        id: options.ownerId,
-	        status: "H"
-	      }, {
-	        id: calendar_util.Util.getCurrentUserId(),
-	        status: "Y"
-	      }];
-	    } else if (options.type === 'group') {
-	      newEntryData.attendeesEntityList.push({
-	        entityId: 'project',
-	        id: options.ownerId
-	      });
-	    }
-	    newEntryData.TZ_FROM = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
-	    newEntryData.TZ_TO = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
-	    return new calendar_entry.Entry({
-	      data: newEntryData
-	    });
-	  }
-	  static getNewEntryTime(date, duration) {
-	    date = calendar_util.Util.getUsableDateTime(date);
-	    const calendarContext = calendar_util.Util.getCalendarContext();
-	    if (calendarContext) {
-	      const displayedViewRange = calendarContext.getDisplayedViewRange();
-	      if (main_core.Type.isDate(displayedViewRange == null ? void 0 : displayedViewRange.start)) {
-	        const dateTime = date.getTime();
-	        if (dateTime < displayedViewRange.start.getTime() || dateTime > displayedViewRange.end.getTime()) {
-	          const startDate = new Date(displayedViewRange.start.getTime());
-	          const workTime = calendarContext.util.getWorkTime();
-	          startDate.setHours(workTime.start, 0, 0, 0);
-	          date = calendar_util.Util.getUsableDateTime(startDate);
-	        }
-	      }
-	    }
-	    return {
-	      from: date,
-	      to: new Date(date.getTime() + (duration || 3600) * 1000)
-	    };
-	  }
-	  static getNewEntryName() {
-	    return EntryManager.newEntryName || '';
-	  }
-	  static setNewEntryName(newEntryName) {
-	    EntryManager.newEntryName = newEntryName;
-	  }
-	  static showEditEntryNotification(entryId) {
-	    calendar_util.Util.showNotification(main_core.Loc.getMessage('CALENDAR_SAVE_EVENT_NOTIFICATION'), [{
-	      title: main_core.Loc.getMessage('CALENDAR_EVENT_DO_VIEW'),
-	      events: {
-	        click: function (event, balloon, action) {
-	          EntryManager.openViewSlider(entryId);
-	          balloon.close();
-	        }
-	      }
-	    }]);
-	  }
-	  static showNewEntryNotification(entryId) {
-	    calendar_util.Util.showNotification(main_core.Loc.getMessage('CALENDAR_NEW_EVENT_NOTIFICATION'), [{
-	      title: main_core.Loc.getMessage('CALENDAR_EVENT_DO_VIEW'),
-	      events: {
-	        click: (event, balloon, action) => {
-	          EntryManager.openViewSlider(entryId);
-	          balloon.close();
-	        }
-	      }
-	    }]);
-	  }
-	  static showDeleteEntryNotification(entry) {
-	    if (entry && entry instanceof calendar_entry.Entry) {
-	      BX.UI.Notification.Center.notify({
-	        id: 'calendar' + entry.getUniqueId(),
-	        content: main_core.Loc.getMessage('CALENDAR_DELETE_EVENT_NOTIFICATION'),
-	        actions: [{
-	          title: main_core.Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
-	          events: {
-	            click: (event, balloon, action) => {
-	              entry.cancelDelete();
-	              balloon.close();
-	            }
-	          }
-	        }]
-	      });
-	    }
-	  }
-	  static showReleaseLocationNotification() {
-	    BX.UI.Notification.Center.notify({
-	      content: main_core.Loc.getMessage('CALENDAR_RELEASE_LOCATION_NOTIFICATION')
-	    });
-	  }
-	  static closeDeleteNotificationBalloon(entry) {
-	    if (entry && entry instanceof calendar_entry.Entry) {
-	      const balloon = BX.UI.Notification.Center.getBalloonById('calendar' + entry.getUniqueId());
-	      if (balloon) {
-	        balloon.close();
-	      }
-	    }
-	  }
-	  static openEditSlider(options = {}) {
-	    const bx = calendar_util.Util.getBX();
-	    if (bx.Calendar && bx.Calendar.SliderLoader) {
-	      new bx.Calendar.SliderLoader(options.entry ? 'EDIT' + options.entry.id : 'NEW', {
-	        calendarContext: options.calendarContext,
-	        entry: options.entry || null,
-	        type: options.type,
-	        isLocationCalendar: options.isLocationCalendar || false,
-	        roomsManager: options.roomsManager || null,
-	        locationAccess: options.locationAccess || false,
-	        dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
-	        locationCapacity: options.locationCapacity || 0,
-	        ownerId: options.ownerId,
-	        userId: options.userId,
-	        formDataValue: options.formDataValue || null,
-	        jumpToControl: options.jumpToControl
-	      }).show();
-	    }
-	  }
-	  static openViewSlider(eventId = null, options = {}) {
-	    if (!main_core.Type.isNull(eventId)) {
-	      const bx = calendar_util.Util.getBX();
-	      if (bx.Calendar && bx.Calendar.SliderLoader) {
-	        new bx.Calendar.SliderLoader(eventId, {
-	          entryDateFrom: options.from,
-	          timezoneOffset: options.timezoneOffset,
-	          dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
-	          calendarContext: options.calendarContext || null,
-	          link: options.link
-	        }).show();
-	      }
-	    }
-	  }
-	  static deleteEntry(entry, calendarContext = null) {
-	    if (entry instanceof calendar_entry.Entry) {
-	      const slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
-	      const beforeDeleteHandler = () => {
-	        if (slider && slider.options.type === 'calendar:slider') {
-	          calendar_util.Util.getBX().SidePanel.Instance.close();
-	        }
-	      };
-	      main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:beforeDelete', beforeDeleteHandler);
-	      const deleteHandler = () => {
-	        const calendar = calendar_util.Util.getCalendarContext();
-	        if (calendar) {
-	          calendar.reload();
-	        } else if (calendarContext) {
-	          calendarContext.reload();
-	        }
-	        main_core_events.EventEmitter.unsubscribe('BX.Calendar.Entry:delete', deleteHandler);
-	        main_core_events.EventEmitter.unsubscribe('BX.Calendar.Entry:beforeDelete', beforeDeleteHandler);
-	      };
-	      main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:delete', deleteHandler);
-	      entry.delete();
-	    }
-	  }
-	  static setMeetingStatus(entry, status, params = {}) {
-	    return new Promise(resolve => {
-	      if (!main_core.Type.isPlainObject(params)) {
-	        params = {};
-	      }
-	      params.recursionMode = params.recursionMode || false;
-	      if (status === 'N' && !params.confirmed) {
-	        if (entry.isRecursive()) {
-	          this.showConfirmStatusDialog(entry, resolve);
-	          return false;
-	        }
-	      }
-	      BX.ajax.runAction('calendar.api.calendarajax.setMeetingStatus', {
-	        data: {
-	          entryId: entry.id,
-	          entryParentId: entry.parentId,
-	          status: status,
-	          recursionMode: params.recursionMode,
-	          currentDateFrom: calendar_util.Util.formatDate(entry.from)
-	        }
-	      }).then(response => {
-	        BX.Event.EventEmitter.emit('BX.Calendar.Entry:onChangeMeetingStatus', new main_core.Event.BaseEvent({
-	          data: {
-	            entry: entry,
-	            status: status,
-	            recursionMode: params.recursionMode,
-	            currentDateFrom: entry.from,
-	            counters: response.data.counters
-	          }
-	        }));
-	        if (entry instanceof calendar_entry.Entry) {
-	          entry.setCurrentStatus(status);
-	        }
-	        resolve({
-	          entry: entry,
-	          status: status,
-	          recursionMode: params.recursionMode,
-	          currentDateFrom: entry.from
-	        });
-	      });
-	    });
-	  }
-	  static showConfirmStatusDialog(entry, resolvePromiseCallback = null) {
-	    if (!this.confirmDeclineDialog) {
-	      this.confirmDeclineDialog = this.createConfirmStatusDialog();
-	    }
-	    this.confirmDeclineDialog.show();
-	    this.confirmDeclineDialog.unsubscribeAll('onDecline');
-	    this.confirmDeclineDialog.subscribe('onDecline', function (event) {
-	      if (event && main_core.Type.isFunction(event.getData)) {
-	        EntryManager.setMeetingStatus(entry, 'N', {
-	          recursionMode: event.getData().recursionMode,
-	          confirmed: true
-	        }).then(() => {
-	          if (main_core.Type.isFunction(resolvePromiseCallback)) {
-	            resolvePromiseCallback();
-	          }
-	        });
-	      }
-	    });
-	  }
-	  static showConfirmEditDialog(options) {
-	    if (!this.confirmEditDialog) {
-	      this.confirmEditDialog = this.createConfirmEditDialog();
-	    }
-	    this.confirmEditDialog.show();
-	    if (main_core.Type.isFunction(options.callback)) {
-	      this.confirmEditDialog.unsubscribeAll('onEdit');
-	      this.confirmEditDialog.subscribe('onEdit', event => {
-	        if (event && main_core.Type.isFunction(event.getData)) {
-	          options.callback(event.getData());
-	        }
-	      });
-	    }
-	  }
-	  static showReInviteUsersDialog(options) {
-	    if (!this.reinviteUsersDialog) {
-	      this.reinviteUsersDialog = this.createReinviteUserDialog();
-	    }
-	    this.reinviteUsersDialog.show();
-	    if (main_core.Type.isFunction(options.callback)) {
-	      this.reinviteUsersDialog.unsubscribeAll('onSelect');
-	      this.reinviteUsersDialog.subscribe('onSelect', function (event) {
-	        if (event && main_core.Type.isFunction(event.getData)) {
-	          options.callback(event.getData());
-	        }
-	      });
-	    }
-	  }
-	  static showConfirmedEmailDialog(options = {}) {
-	    if (!this.confirmedEmailDialog) {
-	      this.confirmedEmailDialog = this.createConfirmedEmailDialog();
-	    }
-	    this.confirmedEmailDialog.show();
-	    if (main_core.Type.isFunction(options.callback)) {
-	      this.confirmedEmailDialog.unsubscribeAll('onSelect');
-	      this.confirmedEmailDialog.subscribe('onSelect', function (event) {
-	        if (event && main_core.Type.isFunction(event.getData)) {
-	          options.callback(event.getData());
-	        }
-	      });
-	    }
-	  }
-	  static getLocationRepeatBusyErrorPopup(options = {}) {
-	    return new ui_dialogs_messagebox.MessageBox({
-	      title: main_core.Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_TITLE'),
-	      message: main_core.Tag.render(_t$5 || (_t$5 = _$5`
-				<div class="calendar-list-slider-messagebox-text-with-title">
-					${0}
-				</div>
-			`), options.message),
-	      minHeight: 100,
-	      minWidth: 300,
-	      maxWidth: 690,
-	      buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL,
-	      onYes: options.onYesCallback,
-	      onCancel: options.onCancelCallback,
-	      yesCaption: main_core.Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_SAVE_WITHOUT_ROOM'),
-	      cancelCaption: main_core.Loc.getMessage('EC_LOCATION_REPEAT_BUSY_POPUP_RETURN_TO_EDIT'),
-	      mediumButtonSize: false,
-	      popupOptions: {
-	        events: {
-	          onPopupClose: options.onPopupCloseCallback
-	        },
-	        closeByEsc: true,
-	        padding: 0,
-	        contentPadding: 0,
-	        animation: 'fading-slide'
-	      }
-	    });
-	  }
-	  static showEmailLimitationDialog(options = {}) {
-	    if (!this.limitationEmailDialog) {
-	      this.limitationEmailDialog = this.createEmailLimitationDialog();
-	    }
-	    this.limitationEmailDialog.subscribe('onClose', () => {
-	      if (main_core.Type.isFunction(options.callback)) {
-	        options.callback();
-	      }
-	    });
-	    this.limitationEmailDialog.show();
-	  }
-	  static getCompactViewForm(create = true) {
-	    if (!EntryManager.compactEntryForm && create) {
-	      EntryManager.compactEntryForm = new calendar_compacteventform.CompactEventForm();
-	    }
-	    return EntryManager.compactEntryForm;
-	  }
-	  static openCompactViewForm(options = {}) {
-	    const compactForm = EntryManager.getCompactViewForm();
-	    if (!compactForm.isShown()) {
-	      compactForm.unsubscribeAll('onClose');
-	      if (main_core.Type.isFunction(options.closeCallback)) {
-	        compactForm.subscribe('onClose', options.closeCallback);
-	      }
-	      compactForm.showInViewMode(options);
-	    }
-	  }
-	  static openCompactEditForm(options = {}) {
-	    const compactForm = EntryManager.getCompactViewForm();
-	    if (!compactForm.isShown()) {
-	      compactForm.unsubscribeAll('onClose');
-	      if (main_core.Type.isFunction(options.closeCallback)) {
-	        compactForm.subscribe('onClose', options.closeCallback);
-	      }
-	      compactForm.showInEditMode(options);
-	    }
-	  }
-	  static getEntryInstance(entry, userIndex, options = {}) {
-	    let entryInstance = null;
-	    if (entry instanceof calendar_entry.Entry) {
-	      entryInstance = entry;
-	    } else {
-	      if (main_core.Type.isObject(entry) && main_core.Type.isObject(entry.data)) {
-	        entryInstance = new calendar_entry.Entry({
-	          data: entry.data,
-	          userIndex: userIndex
-	        });
-	      } else if (main_core.Type.isObject(entry)) {
-	        entryInstance = new calendar_entry.Entry({
-	          data: entry,
-	          userIndex: userIndex
-	        });
-	      } else {
-	        entryInstance = EntryManager.getNewEntry(options);
-	      }
-	    }
-	    return entryInstance;
-	  }
-	  static getUserIndex(options = {}) {
-	    return EntryManager.userIndex;
-	  }
-	  static setUserIndex(userIndex) {
-	    EntryManager.userIndex = userIndex;
-	  }
-	  handlePullChanges(params) {
-	    var _params$fields6;
-	    if (!BX.Calendar.Util.checkRequestId(params.requestUid)) {
-	      return;
-	    }
-	    const compactForm = EntryManager.getCompactViewForm();
-	    if (compactForm && compactForm.isShown()) {
-	      compactForm.handlePull(params);
-	    }
-	    BX.SidePanel.Instance.getOpenSliders().forEach(slider => {
-	      var _params$fields;
-	      const data = EntryManager.slidersMap.get(slider);
-	      if (data && data.entry && data.entry.parentId === parseInt(params == null ? void 0 : (_params$fields = params.fields) == null ? void 0 : _params$fields.PARENT_ID)) {
-	        var _params$fields2;
-	        if (params.command === 'delete_event' && data.entry.getType() === (params == null ? void 0 : (_params$fields2 = params.fields) == null ? void 0 : _params$fields2.CAL_TYPE)) {
-	          slider.close();
-	        }
-	      }
-	    });
-	    if (params.command === 'set_meeting_status') {
-	      top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
-	    } else if (params.command === 'delete_event' || params.command === 'edit_event') {
-	      var _params$fields3, _params$fields4, _params$fields5, _top$BX$Calendar, _top$BX$Calendar$Cont;
-	      if (!params.fields || params != null && (_params$fields3 = params.fields) != null && _params$fields3.IS_MEETING && (params == null ? void 0 : (_params$fields4 = params.fields) == null ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
-	        top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
-	      }
-	      if ((params == null ? void 0 : (_params$fields5 = params.fields) == null ? void 0 : _params$fields5.CAL_TYPE) === 'location' && (_top$BX$Calendar = top.BX.Calendar) != null && (_top$BX$Calendar$Cont = _top$BX$Calendar.Controls) != null && _top$BX$Calendar$Cont.Location) {
-	        top.BX.Calendar.Controls.Location.handlePull(params);
-	      }
-	    }
-	    const calendarContext = calendar_util.Util.getCalendarContext();
-	    const entrySectionId = parseInt(params == null ? void 0 : (_params$fields6 = params.fields) == null ? void 0 : _params$fields6.SECTION_ID);
-	    let sectionDisplayed = main_core.Type.isArray(params.sections) && params.sections.find(section => {
-	      return section.id === entrySectionId && section.isShown();
-	    });
-	    let loadedEntry = params != null && params.fields ? EntryManager.getEntryInstance(calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params.fields))) : null;
-	    if ((sectionDisplayed || loadedEntry) && calendarContext) {
-	      calendarContext.reloadDebounce();
-	    }
-	  }
-	  static registerDeleteTimeout(params) {
-	    EntryManager.delayedActionList.push(params);
-	  }
-	  static unregisterDeleteTimeout({
-	    action,
-	    data
-	  }) {
-	    EntryManager.delayedActionList = EntryManager.delayedActionList.filter(item => {
-	      return item.action !== action || item.data.entryId !== data.entryId || item.data.recursionMode !== data.recursionMode || item.data.excludeDate !== data.excludeDate;
-	    });
-	  }
-	  static doDelayedActions() {
-	    let requestList = [];
-	    return new Promise(resolve => {
-	      if (!EntryManager.delayedActionList.length) {
-	        resolve();
-	      }
-	      EntryManager.delayedActionList.forEach(({
-	        action,
-	        data,
-	        params
-	      }) => {
-	        const requestUid = parseInt(data.requestUid);
-	        requestList.push(data.requestUid);
-	        if (params.entry) {
-	          EntryManager.closeDeleteNotificationBalloon(params.entry);
-	        }
-	        BX.ajax.runAction(`calendar.api.calendarajax.${action}`, {
-	          data: data
-	        }).then(() => {
-	          main_core.Type.isFunction(params.callback);
-	          {
-	            params.callback();
-	          }
-	          requestList = requestList.filter(uid => {
-	            return uid !== requestUid;
-	          });
-	          if (!requestList.length) {
-	            resolve();
-	          }
-	        }, () => {
-	          requestList = requestList.filter(uid => {
-	            return uid !== requestUid;
-	          });
-	          if (!requestList.length) {
-	            resolve();
-	          }
-	        });
-	        EntryManager.unregisterDeleteTimeout({
-	          action,
-	          data,
-	          params
-	        });
-	      });
-	    });
-	  }
-	  static getEntryUniqueId(entryData, entry) {
-	    let sid = entryData.PARENT_ID || entryData.ID;
-	    if (entryData.RRULE) {
-	      sid += '|' + (entry ? calendar_util.Util.formatDate(entry.from) : calendar_util.Util.formatDate(BX.parseDate(entryData.DATE_FROM)));
-	    }
-	    if (entryData['~TYPE'] === 'tasks') {
-	      sid += '|' + 'task';
-	    }
-	    return sid;
-	  }
-	  static registerEntrySlider(entry, control) {
-	    const slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
-	    if (slider) {
-	      EntryManager.slidersMap.set(slider, {
-	        entry,
-	        control
-	      });
-	    }
-	  }
-	  static getNewEntryReminders(type = 'withTime') {
-	    const userSettings = calendar_util.Util.getUserSettings();
-	    if (main_core.Type.isObjectLike(userSettings.defaultReminders) && main_core.Type.isArray(userSettings.defaultReminders[type]) && userSettings.defaultReminders[type].length) {
-	      return userSettings.defaultReminders[type];
-	    }
-	    return type === 'withTime' ? [{
-	      type: 'min',
-	      count: 15
-	    }] : [{
-	      type: 'daybefore',
-	      before: 0,
-	      time: 480
-	    }];
-	  }
-	  static setNewEntryReminders(type = 'withTime', reminders) {
-	    const userSettings = calendar_util.Util.getUserSettings();
-	    if (main_core.Type.isObjectLike(userSettings.defaultReminders)) {
-	      userSettings.defaultReminders[type] = reminders;
-	    }
-	    calendar_util.Util.setUserSettings(userSettings);
-	  }
-
-	  //this is because extensions cant be loaded in iframe with import
-	  static createConfirmEditDialog() {
-	    const bx = calendar_util.Util.getBX();
-	    return new bx.Calendar.Controls.ConfirmEditDialog();
-	  }
-	  static createConfirmStatusDialog() {
-	    const bx = calendar_util.Util.getBX();
-	    return new bx.Calendar.Controls.ConfirmStatusDialog();
-	  }
-	  static createReinviteUserDialog() {
-	    const bx = calendar_util.Util.getBX();
-	    return new bx.Calendar.Controls.ReinviteUserDialog();
-	  }
-	  static createConfirmedEmailDialog() {
-	    const bx = calendar_util.Util.getBX();
-	    return new bx.Calendar.Controls.ConfirmedEmailDialog();
-	  }
-	  static createEmailLimitationDialog() {
-	    const bx = calendar_util.Util.getBX();
-	    return new bx.Calendar.Controls.EmailLimitationDialog();
-	  }
-	}
-	EntryManager.newEntryName = '';
-	EntryManager.userIndex = {};
-	EntryManager.delayedActionList = [];
-	EntryManager.DELETE_DELAY_TIMEOUT = 4000;
-	EntryManager.slidersMap = new WeakMap();
-
 	var _type = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("type");
 	var _locationAccess = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("locationAccess");
 	var _userId$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userId");
@@ -3293,7 +2761,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _calendarInstance)[_calendarInstance];
 	  }
 	  addEvent() {
-	    EntryManager.openEditSlider({
+	    calendar_entry.EntryManager.openEditSlider({
 	      type: babelHelpers.classPrivateFieldLooseBase(this, _type)[_type],
 	      isLocationCalendar: false,
 	      locationAccess: babelHelpers.classPrivateFieldLooseBase(this, _locationAccess)[_locationAccess],
@@ -3521,8 +2989,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  });
 	}
 
-	let _$6 = t => t,
-	  _t$6,
+	let _$5 = t => t,
+	  _t$5,
 	  _t2$3;
 	var _calendar$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calendar");
 	var _addButtonMenu = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addButtonMenu");
@@ -3601,7 +3069,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    node,
 	    mainBtn,
 	    menuBtn
-	  } = main_core.Tag.render(_t$6 || (_t$6 = _$6`
+	  } = main_core.Tag.render(_t$5 || (_t$5 = _$5`
 			<div class="ui-btn-split ui-btn-success ui-btn-round ui-btn-no-caps" ref="node">
 				<button class="ui-btn-main" data-id="spaces-calendar-add-main-btn" ref="mainBtn">
 					${0}
@@ -3620,7 +3088,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  return node;
 	}
 	function _renderSettingsBtn2$2() {
-	  const node = main_core.Tag.render(_t2$3 || (_t2$3 = _$6`
+	  const node = main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
 			<button 
 				class="ui-btn ui-btn-light ui-btn-sm ui-btn-round ui-btn-themes" 
 				data-id="spaces-calendar-settings-btn"
@@ -3672,13 +3140,13 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    if (main_core.Type.isNil(params.calendar)) {
 	      throw new TypeError('BX.Socialnetwork.Spaces.DiscussionsAddButtonMenu: calendar is not allowed');
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _menu$6)[_menu$6] = babelHelpers.classPrivateFieldLooseBase(this, _createMenu$6)[_createMenu$6](params.bindElement, params.calendar);
+	    babelHelpers.classPrivateFieldLooseBase(this, _menu$6)[_menu$6] = babelHelpers.classPrivateFieldLooseBase(this, _createMenu$6)[_createMenu$6](params.bindElement, params.calendar, params.isDiskStorageWasObtained);
 	  }
 	  show() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _menu$6)[_menu$6].show();
 	  }
 	}
-	function _createMenu2$6(bindElement, calendar) {
+	function _createMenu2$6(bindElement, calendar, isDiskStorageWasObtained) {
 	  const fileUploadItemId = 'spaces-discussions-add-button-menu-file-item';
 	  const menu = new main_popup.Menu({
 	    id: 'spaces-discussions-add-button-menu',
@@ -3686,14 +3154,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    closeByEsc: true,
 	    events: {
 	      onShow: event => {
-	        this.emit('showMenu', {
-	          fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer()
-	        });
+	        if (isDiskStorageWasObtained) {
+	          this.emit('showMenu', {
+	            fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer()
+	          });
+	        }
 	      },
 	      onClose: () => {
-	        this.emit('closeMenu', {
-	          fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer()
-	        });
+	        if (isDiskStorageWasObtained) {
+	          this.emit('closeMenu', {
+	            fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer()
+	          });
+	        }
 	      }
 	    }
 	  });
@@ -3717,13 +3189,15 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      calendar.addEvent();
 	    }
 	  });
-	  menu.addMenuItem({
-	    text: main_core.Loc.getMessage('SN_SPACES_DISCUSSIONS_UPLOAD_FILE'),
-	    dataset: {
-	      id: 'spaces-discussions-add-button-menu-file'
-	    },
-	    id: fileUploadItemId
-	  });
+	  if (isDiskStorageWasObtained) {
+	    menu.addMenuItem({
+	      text: main_core.Loc.getMessage('SN_SPACES_DISCUSSIONS_UPLOAD_FILE'),
+	      dataset: {
+	        id: 'spaces-discussions-add-button-menu-file'
+	      },
+	      id: fileUploadItemId
+	    });
+	  }
 	  return menu;
 	}
 
@@ -3832,8 +3306,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	DiscussionsSettings.SELECTED = 'menu-popup-item-accept';
 	DiscussionsSettings.DESELECTED = 'menu-popup-item-none';
 
-	let _$7 = t => t,
-	  _t$7,
+	let _$6 = t => t,
+	  _t$6,
 	  _t2$4,
 	  _t3$3,
 	  _t4$1;
@@ -3946,7 +3420,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  });
 	}
 	function _renderMenuContent2() {
-	  return main_core.Tag.render(_t$7 || (_t$7 = _$7`
+	  return main_core.Tag.render(_t$6 || (_t$6 = _$6`
 			<div>
 				${0}
 				${0}
@@ -3954,7 +3428,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 		`), babelHelpers.classPrivateFieldLooseBase(this, _renderHeader)[_renderHeader](), babelHelpers.classPrivateFieldLooseBase(this, _renderFilters)[_renderFilters]());
 	}
 	function _renderHeader2() {
-	  return main_core.Tag.render(_t2$4 || (_t2$4 = _$7`
+	  return main_core.Tag.render(_t2$4 || (_t2$4 = _$6`
 			<div class="sn-spaces-discussions-composition-header" data-id="spaces-discussions-composition-header">
 				<div>
 					<div class="sn-spaces-discussions-composition-header-title">
@@ -3969,7 +3443,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 		`), main_core.Loc.getMessage('SN_SPACES_DISCUSSION_COMPOSITION_TITLE'), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _spaceName)[_spaceName]));
 	}
 	function _renderFilters2() {
-	  const filtersContainer = main_core.Tag.render(_t3$3 || (_t3$3 = _$7`
+	  const filtersContainer = main_core.Tag.render(_t3$3 || (_t3$3 = _$6`
 			<div data-id="spaces-discussions-composition-filters" class="sn-spaces-discussions-composition-filters"></div>
 		`));
 	  babelHelpers.classPrivateFieldLooseBase(this, _fields$1)[_fields$1].forEach(field => {
@@ -3977,7 +3451,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    const {
 	      container,
 	      switchButton
-	    } = main_core.Tag.render(_t4$1 || (_t4$1 = _$7`
+	    } = main_core.Tag.render(_t4$1 || (_t4$1 = _$6`
 				<div
 					id="spaces-discussions-composition-filter-${0}" 
 					ref="container"
@@ -4033,8 +3507,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  BX.Livefeed.PageInstance.refresh(params, null);
 	}
 
-	let _$8 = t => t,
-	  _t$8,
+	let _$7 = t => t,
+	  _t$7,
 	  _t2$5,
 	  _t3$4;
 	const NotificationCenter = main_core.Reflection.namespace('BX.UI.Notification.Center');
@@ -4154,7 +3628,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    node,
 	    mainBtn,
 	    menuBtn
-	  } = main_core.Tag.render(_t$8 || (_t$8 = _$8`
+	  } = main_core.Tag.render(_t$7 || (_t$7 = _$7`
 			<div class="ui-btn-split ui-btn-success ui-btn-round ui-btn-no-caps" ref="node">
 				<button class="ui-btn-main" data-id="spaces-discussions-add-main-btn" ref="mainBtn">
 					${0}
@@ -4173,7 +3647,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  return node;
 	}
 	function _renderCompositionBtn2() {
-	  const node = main_core.Tag.render(_t2$5 || (_t2$5 = _$8`
+	  const node = main_core.Tag.render(_t2$5 || (_t2$5 = _$7`
 			<button 
 				class="ui-btn ui-btn-light ui-btn-sm ui-btn-round ui-btn-no-caps ui-btn-themes sn-spaces__toolbar-space_btn-options"
 			>
@@ -4197,7 +3671,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  return node;
 	}
 	function _renderSettingsBtn2$3() {
-	  const node = main_core.Tag.render(_t3$4 || (_t3$4 = _$8`
+	  const node = main_core.Tag.render(_t3$4 || (_t3$4 = _$7`
 			<button 
 				class="ui-btn ui-btn-light ui-btn-sm ui-btn-round ui-btn-themes sn-spaces__toolbar-space_btn-more" 
 				data-id="spaces-discussions-settings-btn"
@@ -4229,7 +3703,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  });
 	  babelHelpers.classPrivateFieldLooseBase(this, _addButtonMenu$1)[_addButtonMenu$1] = new DiscussionsAddButtonMenu({
 	    bindElement: document.getElementById('spaces-discussions-toolbar-menu'),
-	    calendar
+	    calendar,
+	    isDiskStorageWasObtained: babelHelpers.classPrivateFieldLooseBase(this, _getParam$4)[_getParam$4]('isDiskStorageWasObtained') === 'Y'
 	  });
 
 	  // eslint-disable-next-line @bitrix24/bitrix24-rules/no-bx
@@ -4258,8 +3733,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  BX.onCustomEvent(window, 'onDiskUploadPopupClose', [container]);
 	}
 	function _showSuccessUploadNotify2() {
+	  const content = main_core.Loc.getMessage('SN_SPACES_LINE_UPLOAD_FILE_NOTIFY_MESSAGE').replace('#handler#', `top.BX.Socialnetwork.Spaces.space.reloadPageContent('${babelHelpers.classPrivateFieldLooseBase(this, _getParam$4)[_getParam$4]('pathToFilesPage')}');`);
 	  NotificationCenter.notify({
-	    content: main_core.Loc.getMessage('SN_SPACES_DISCUSSIONS_UPLOAD_FILE_NOTIFY_MESSAGE').replace('#path#', babelHelpers.classPrivateFieldLooseBase(this, _getParam$4)[_getParam$4]('pathToFilesPage'))
+	    content
 	  });
 	}
 	function _addMenuClick2$3() {
@@ -4302,8 +3778,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }
 	}
 
-	let _$9 = t => t,
-	  _t$9;
+	let _$8 = t => t,
+	  _t$8;
 	var _cache$5 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cache");
 	var _router$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("router");
 	var _setParams$5 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setParams");
@@ -4358,7 +3834,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  });
 	}
 	function _renderInviteBtn2() {
-	  const node = main_core.Tag.render(_t$9 || (_t$9 = _$9`
+	  const node = main_core.Tag.render(_t$8 || (_t$8 = _$8`
 			<div
 				data-id="spaces-users-invite-btn"
 				class="ui-btn ui-btn-success ui-btn-round ui-btn-no-caps"
@@ -4379,5 +3855,5 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	exports.DiscussionsToolbar = DiscussionsToolbar;
 	exports.UsersToolbar = UsersToolbar;
 
-}((this.BX.Socialnetwork.Spaces = this.BX.Socialnetwork.Spaces || {}),BX.UI.ShortView,BX,BX.Tasks,BX.UI,BX.UI.EntitySelector,BX.Tasks,BX.Calendar,BX.Calendar,BX.Calendar,BX.Calendar,BX,BX.Calendar,BX.UI.Dialogs,BX.Socialnetwork,BX.Main,BX.UI,BX.UI,BX.Event,BX));
+}((this.BX.Socialnetwork.Spaces = this.BX.Socialnetwork.Spaces || {}),BX.UI.ShortView,BX,BX.Tasks,BX.UI,BX.UI.EntitySelector,BX.Tasks,BX.Calendar,BX.Socialnetwork,BX.Main,BX.UI,BX.UI,BX.Event,BX));
 //# sourceMappingURL=script.js.map

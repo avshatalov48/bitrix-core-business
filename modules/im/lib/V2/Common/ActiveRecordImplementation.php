@@ -271,7 +271,14 @@ trait ActiveRecordImplementation
 					&& is_string($value)
 				)
 				{
-					$value = DateTime::tryParse($value) ?? DateTime::tryParse($value, 'Y-m-d H:i:s') ?? $value;
+					if (is_string($value) && !is_numeric($value))
+					{
+						$value = DateTime::tryParse($value) ?? DateTime::tryParse($value, 'Y-m-d H:i:s') ?? $value;
+					}
+					if (is_numeric($value))
+					{
+						$value = DateTime::createFromTimestamp((int)$value);
+					}
 				}
 				$ormFields[$fieldName] = $value;
 			}

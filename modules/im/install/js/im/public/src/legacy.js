@@ -17,8 +17,8 @@ legacyMessenger.openMessengerSlider = function(dialogId: string): Promise {
 legacyMessenger.openHistory = function(...args): Promise {
 	console.warn("Developer: method BXIM.openHistory is deprecated. Use method 'Messenger.openChat' from 'im.public' or 'im.public.iframe' extension.");
 
-	const MessengerSlider = Reflection.getClass('BX.Messenger.v2.Lib.MessengerSlider');
-	return MessengerSlider.getInstance().openHistory(...args);
+	const Opener = Reflection.getClass('BX.Messenger.v2.Lib.Opener');
+	return Opener?.openHistory(...args);
 };
 
 legacyMessenger.openNotify = function(...args): Promise {

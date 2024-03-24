@@ -7,13 +7,16 @@ use Bitrix\Calendar\ICal\Basic\AttendeesProperty;
 use Bitrix\Calendar\ICal\Basic\AttendeesPropertyType;
 use Bitrix\Calendar\ICal\Basic\BasicComponent;
 use Bitrix\Calendar\ICal\Basic\Content;
+use Bitrix\Calendar\ICal\Basic\Dictionary;
 use Bitrix\Calendar\ICal\Basic\RecurrenceRuleProperty;
 use Bitrix\Calendar\ICal\Basic\RecurrenceRulePropertyType;
+use Bitrix\Calendar\ICal\MailInvitation\Helper;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\Date;
 
-class Event extends BasicComponent implements BuilderComponent
+class Event extends BasicComponent implements BuilderComponent, EventFactoryInterface
 {
 	public const TYPE = 'VEVENT';
 
@@ -40,6 +43,22 @@ class Event extends BasicComponent implements BuilderComponent
 	private $exdates = [];
 	private $dtStamp;
 	private $url;
+
+	/**
+	 * @param array $event
+	 * @param string $type
+	 * @return static
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	public static function create(array $event, string $type): static
+	{
+		return match ($type)
+		{
+			EventFactoryInterface::REPLY => static::createFromReply($event),
+			EventFactoryInterface::CANCEL => static::createFromCancel($event),
+			EventFactoryInterface::REQUEST => static::createFromRequest($event),
+		};
+	}
 
 	/**
 	 * @param $uid
@@ -394,5 +413,101 @@ class Event extends BasicComponent implements BuilderComponent
 	private function isRecurringEvent(): bool
 	{
 		return !empty($this->rrule) && !empty($this->rrule->freq) && $this->rrule->freq !== 'NONE';
+	}
+
+	/**
+	 * @param array $event
+	 * @return Date
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private function getEndDateByEvent(array $event)
+	{
+		return $event['SKIP_TIME']
+			? Util::getDateObject($event['DATE_TO'])->add('1 days')
+			: Util::getDateObject($event['DATE_TO'], false, $event['TZ_TO'])
+		;
+	}
+
+	/**
+	 * @param array $event
+	 * @return static
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private static function createFromReply(array $event): static
+	{
+		$instance = new static($event['DAV_XML_ID']);
+
+		return $instance
+			->setName($event['NAME'])
+			->setStartsAt(
+				Util::getDateObject($event['DATE_FROM'], $event['SKIP_TIME'], $event['TZ_FROM'])
+			)
+			->setEndsAt($instance->getEndDateByEvent($event))
+			->setDtStamp(Helper::getIcalDateTime('20230828T200641Z'))
+			->setCreatedAt(Helper::getIcalDateTime('20230828T200631Z'))
+			->setModified(Helper::getIcalDateTime('20230828T200639Z'))
+			->setWithTimezone(!$event['SKIP_TIME'])
+			->setWithTime(!$event['SKIP_TIME'])
+			->setOrganizer(
+				$event['ICAL_ORGANIZER'],
+				$event['ORGANIZER_MAIL']['MAILTO'] ?? $event['ORGANIZER_MAIL']['EMAIL']
+			)
+			->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']] ?? Dictionary::TRANSPARENT['busy'])
+			->setSequence(((int)$event['VERSION']))
+			->setStatus(Dictionary::INVITATION_STATUS['confirmed'])
+			->setUrl($event['URL'])
+		;
+	}
+
+	/**
+	 * @param array $event
+	 * @return static
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private static function createFromCancel(array $event): static
+	{
+		$fullDay = $event['DT_SKIP_TIME'] === 'Y';
+
+		return (new static($event['DAV_XML_ID']))
+			->setName($event['NAME'])
+			->setStartsAt(Util::getDateObject($event['DATE_FROM'], $fullDay, $event['TZ_FROM']))
+			->setEndsAt(Util::getDateObject($event['DATE_TO'], $fullDay, $event['TZ_TO']))
+			->setCreatedAt(Util::getDateObject($event['DATE_CREATE'], false, $event['TZ_FROM']))
+			->setDtStamp(Helper::getIcalDateTime())
+			->setModified(Util::getDateObject($event['TIMESTAMP_X'], false, $event['TZ_FROM']))
+			->setWithTimezone(!$fullDay)
+			->setWithTime(!$fullDay)
+			->setDescription($event['DESCRIPTION'])
+			->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']] ?? Dictionary::TRANSPARENT['busy'])
+			->setLocation($event['TEXT_LOCATION'])
+			->setSequence((int)$event['VERSION'] + 1)
+			->setStatus(Dictionary::INVITATION_STATUS['cancelled'])
+		;
+	}
+
+	/**
+	 * @param array $event
+	 * @return static
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private static function createFromRequest(array $event): static
+	{
+		return (new static($event['DAV_XML_ID']))
+			->setName($event['NAME'])
+			->setStartsAt(Util::getDateObject($event['DATE_FROM'], $event['SKIP_TIME'], $event['TZ_FROM']))
+			->setEndsAt(Util::getDateObject($event['DATE_TO'], $event['SKIP_TIME'], $event['TZ_TO']))
+			->setCreatedAt(Util::getDateObject($event['CREATED'], false, $event['TZ_FROM']))
+			->setDtStamp(Util::getDateObject($event['CREATED'], false, $event['TZ_FROM']))
+			->setModified(Util::getDateObject($event['MODIFIED'], false, $event['TZ_FROM']))
+			->setWithTimezone(!$event['SKIP_TIME'])
+			->setWithTime(!$event['SKIP_TIME'])
+			->setDescription($event['DESCRIPTION'])
+			->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']] ?? Dictionary::TRANSPARENT['busy'])
+			->setRRule($event['RRULE'])
+			->setExdates($event['EXDATE'])
+			->setLocation($event['TEXT_LOCATION'])
+			->setSequence((int)$event['VERSION'])
+			->setStatus(Dictionary::INVITATION_STATUS['confirmed'])
+		;
 	}
 }

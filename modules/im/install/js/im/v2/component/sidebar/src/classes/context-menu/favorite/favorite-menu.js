@@ -1,9 +1,9 @@
-import {Loc} from 'main.core';
+import { Loc } from 'main.core';
 
-import {SidebarMenu} from '../sidebar-base-menu';
+import type { MenuItem } from 'im.v2.lib.menu';
+import { MessageService } from 'im.v2.provider.service';
 
-import type {MenuItem} from 'im.v2.lib.menu';
-import {MessageService} from 'im.v2.provider.service';
+import { SidebarMenu } from '../sidebar-base-menu';
 
 export class FavoriteMenu extends SidebarMenu
 {
@@ -27,10 +27,10 @@ export class FavoriteMenu extends SidebarMenu
 		return {
 			text: Loc.getMessage('IM_SIDEBAR_MENU_REMOVE_FROM_SAVED_V2'),
 			onclick: function() {
-				const messageService = new MessageService({chatId: this.context.chatId});
+				const messageService = new MessageService({ chatId: this.context.chatId });
 				messageService.removeMessageFromFavorite(this.context.messageId);
 				this.menuInstance.close();
-			}.bind(this)
+			}.bind(this),
 		};
 	}
 }

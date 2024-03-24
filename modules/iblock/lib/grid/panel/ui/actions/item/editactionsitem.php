@@ -73,6 +73,10 @@ class EditActionsItem extends \Bitrix\Main\Grid\Panel\Action\EditAction
 		$result = new Result();
 
 		$rows = $request->getPost('FIELDS');
+		if (!is_array($rows))
+		{
+			return $result;
+		}
 		$rows = $this->appendFilesToRows($request, $rows);
 
 		foreach ($rows as $id => $fields)

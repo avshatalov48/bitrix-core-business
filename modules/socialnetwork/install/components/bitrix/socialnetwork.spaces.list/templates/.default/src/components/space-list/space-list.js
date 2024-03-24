@@ -271,7 +271,8 @@ export const SpaceList = {
 					v-for="space in spaces"
 					:key="space.id"
 					:space="space"
-					:mode="mode"/>
+					:mode="mode"
+				/>
 				<SpaceListAddButton
 					v-if="doShowSpaceListAddButton"
 					@click="showLowerSpaceAddForm"

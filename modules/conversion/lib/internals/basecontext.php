@@ -140,7 +140,6 @@ class BaseContext
 			if (! $groupedTypes)
 			{
 				$groupedTypes = AttributeManager::getGroupedTypes();
-				unset($groupedTypes[null]);
 			}
 
 			foreach ($groupedTypes as $types)

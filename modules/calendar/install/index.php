@@ -251,40 +251,17 @@ class calendar extends CModule
 			);
 		}
 
-		$default_site_id = CSite::GetDefSite();
-		if ($default_site_id)
+		$siteId = CSite::GetDefSite();
+		if ($siteId)
 		{
-			$sharingTemplateFound = false;
 			$sharingTemplate = [
 				'SORT' => 0,
+				'SITE_ID' => $siteId,
 				'CONDITION' => "CSite::InDir('/pub/calendar-sharing/')",
 				'TEMPLATE' => 'calendar_sharing'
 			];
 
-			$arFields = ["TEMPLATE"=>[]];
-			$dbTemplates = CSite::GetTemplateList($default_site_id);
-			while($template = $dbTemplates->Fetch())
-			{
-				if ($template["CONDITION"] === "CSite::InDir('/pub/calendar-sharing/')")
-				{
-					$sharingTemplateFound = true;
-					$template = $sharingTemplate;
-				}
-
-				$arFields["TEMPLATE"][] = [
-					"SORT" => $template['SORT'],
-					"CONDITION" => $template['CONDITION'],
-					"TEMPLATE" => $template['TEMPLATE'],
-				];
-			}
-			if (!$sharingTemplateFound)
-			{
-				$arFields["TEMPLATE"][] = $sharingTemplate;
-			}
-
-			$obSite = new CSite;
-			$arFields["LID"] = $default_site_id;
-			$obSite->Update($default_site_id, $arFields);
+			\Bitrix\Main\SiteTemplateTable::add($sharingTemplate);
 		}
 
 		return true;

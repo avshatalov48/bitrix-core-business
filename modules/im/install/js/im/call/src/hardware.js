@@ -14,6 +14,8 @@ const Events = {
 	initialized: "initialized",
 	deviceChanged: "deviceChange",
 	onChangeMirroringVideo: "onChangeMirroringVideo",
+	onChangeMicrophoneMuted: "onChangeMicrophoneMuted",
+	onChangeCameraOn: "onChangeCameraOn",
 };
 
 class HardwareManager extends EventEmitter
@@ -28,6 +30,8 @@ class HardwareManager extends EventEmitter
 		this.initialized = false;
 		this._currentDeviceList = [];
 		this.updating = false;
+		this._isCameraOn = false;
+		this._isMicrophoneMuted = false;
 	}
 
 	init()
@@ -95,7 +99,7 @@ class HardwareManager extends EventEmitter
 	get defaultMicrophone()
 	{
 		let microphoneId = localStorage ? localStorage.getItem(lsKey.defaultMicrophone) : '';
-		
+
 		if (
 			(!microphoneId || !this.microphoneList[microphoneId])
 			&& Object.keys(this.microphoneList).length
@@ -122,6 +126,15 @@ class HardwareManager extends EventEmitter
 	get defaultCamera()
 	{
 		const cameraId = localStorage ? localStorage.getItem(lsKey.defaultCamera) : '';
+
+		if (
+			(!cameraId || !this.cameraList[cameraId])
+			&& Object.keys(this.cameraList).length
+		)
+		{
+			return Object.keys(this.cameraList)[0];
+		}
+
 		return this.cameraList[cameraId] ? cameraId : '';
 	}
 
@@ -205,6 +218,34 @@ class HardwareManager extends EventEmitter
 			{
 				localStorage.setItem(lsKey.enableMirroring, enableMirroring ? 'Y' : 'N');
 			}
+		}
+	}
+
+	get isCameraOn()
+	{
+		return this._isCameraOn;
+	}
+
+	set isCameraOn(isCameraOn)
+	{
+		if (this._isCameraOn !== isCameraOn)
+		{
+			this._isCameraOn = isCameraOn;
+			this.emit(Events.onChangeCameraOn, {isCameraOn: this._isCameraOn});
+		}
+	}
+
+	get isMicrophoneMuted()
+	{
+		return this._isMicrophoneMuted;
+	}
+
+	set isMicrophoneMuted(isMicrophoneMuted)
+	{
+		if (this._isMicrophoneMuted !== isMicrophoneMuted)
+		{
+			this._isMicrophoneMuted = isMicrophoneMuted;
+			this.emit(Events.onChangeMicrophoneMuted, {isMicrophoneMuted: this._isMicrophoneMuted});
 		}
 	}
 
@@ -427,6 +468,24 @@ class HardwareManager extends EventEmitter
 				resolve();
 			})
 		});
+	}
+
+	getRemovedUsedDevices(devices, currentDevices)
+	{
+		return devices.filter(device =>
+		{
+			switch (device.kind)
+			{
+				case "audioinput":
+					return device.deviceId === currentDevices.microphoneId;
+				case "audiooutput":
+					return device.deviceId === currentDevices.speakerId;
+				case "videoinput":
+					return device.deviceId === currentDevices.cameraId;
+				default:
+					return false;
+			}
+		})
 	}
 }
 

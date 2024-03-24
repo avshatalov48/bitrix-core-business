@@ -1,7 +1,8 @@
+import { EventEmitter } from 'main.core.events';
 import { Store } from 'ui.vue3.vuex';
 
 import { Utils } from 'im.v2.lib.utils';
-import { RestMethod } from 'im.v2.const';
+import { RestMethod, EventType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { runAction } from 'im.v2.lib.rest';
 import { Core } from 'im.v2.application.core';
@@ -19,7 +20,7 @@ export class DeleteService
 		this.#store = Core.getStore();
 	}
 
-	deleteMessage(messageId: number | string)
+	async deleteMessage(messageId: number | string)
 	{
 		Logger.warn('MessageService: deleteMessage', messageId);
 
@@ -30,18 +31,20 @@ export class DeleteService
 			return;
 		}
 
+		this.#sendDeleteEvent(messageId);
+
 		const message: ImModelMessage = this.#store.getters['messages/getById'](messageId);
 		if (message.viewedByOthers)
 		{
-			this.#shallowMessageDelete(message);
+			await this.#shallowMessageDelete(message);
 		}
 		else
 		{
-			this.#completeMessageDelete(message);
+			await this.#completeMessageDelete(message);
 		}
 	}
 
-	#shallowMessageDelete(message: ImModelMessage)
+	#shallowMessageDelete(message: ImModelMessage): Promise
 	{
 		this.#store.dispatch('messages/update', {
 			id: message.id,
@@ -65,10 +68,10 @@ export class DeleteService
 			});
 		}
 
-		this.#deleteMessageOnServer(message.id);
+		return this.#deleteMessageOnServer(message.id);
 	}
 
-	#completeMessageDelete(message: ImModelMessage)
+	#completeMessageDelete(message: ImModelMessage): Promise
 	{
 		const dialog: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
 		const previousMessage: ImModelMessage = this.#store.getters['messages/getPreviousMessage']({
@@ -96,14 +99,15 @@ export class DeleteService
 			id: message.id,
 		});
 
-		this.#deleteMessageOnServer(message.id);
+		return this.#deleteMessageOnServer(message.id);
 	}
 
-	#deleteMessageOnServer(messageId: number)
+	#deleteMessageOnServer(messageId: number): Promise
 	{
-		runAction(RestMethod.imV2ChatMessageDelete, {
+		return runAction(RestMethod.imV2ChatMessageDelete, {
 			data: { id: messageId },
 		}).catch((error) => {
+			// eslint-disable-next-line no-console
 			console.error('MessageService: deleteMessage error:', error);
 		});
 	}
@@ -141,5 +145,10 @@ export class DeleteService
 				dateUpdate: new Date(),
 			},
 		});
+	}
+
+	#sendDeleteEvent(messageId: number)
+	{
+		EventEmitter.emit(EventType.dialog.onMessageDeleted, { messageId });
 	}
 }

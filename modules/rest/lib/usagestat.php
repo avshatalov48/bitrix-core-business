@@ -312,6 +312,16 @@ class UsageStatTable extends Main\Entity\DataManager
 		);
 	}
 
+	public static function logAI(string $clientId, string $type): void
+	{
+		static::increment(
+			UsageEntityTable::ENTITY_TYPE_APPLICATION,
+			$clientId,
+			UsageEntityTable::SUB_ENTITY_TYPE_AI,
+			$type
+		);
+	}
+
 	public static function logBISuperset(string $clientId, string $type): void
 	{
 		static::increment(
@@ -375,23 +385,23 @@ class UsageStatTable extends Main\Entity\DataManager
 
 			if ($statId)
 			{
-				$insertFields = array(
+				$insertFields = [
 					'STAT_DATE' => $curDateSql,
 					'ENTITY_ID' => $statId,
 					'HOUR_'.$hour => $count,
-				);
-				$updateFields = array(
-					'HOUR_'.$hour => new Main\DB\SqlExpression('?#+?i', 'HOUR_'.$hour, $count)
-				);
+				];
+				$updateFields = [
+					'HOUR_'.$hour => new Main\DB\SqlExpression('?#.?# + ?i', static::getTableName(), 'HOUR_' . $hour, $count)
+				];
 
-				$queries = $helper->prepareMerge(static::getTableName(), array(
+				$queries = $helper->prepareMerge(static::getTableName(), [
 						'STAT_DATE',
 						'ENTITY_ID'
-					), $insertFields, $updateFields);
+					], $insertFields, $updateFields);
 
 				foreach ($queries as $query)
 				{
-					$connection->queryExecute($query);
+                    $connection->queryExecute($query);
 				}
 			}
 		}

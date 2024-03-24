@@ -3,6 +3,8 @@
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\EventResult;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
 use Bitrix\Main\ORM\Fields\FloatField;
@@ -124,5 +126,45 @@ class UserTransactTable extends DataManager
 				Join::on('this.PAYMENT_ID', 'ref.ID')
 			),
 		];
+	}
+
+	/**
+	 * Default onBeforeAdd handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for add.
+	 * @return EventResult
+	 */
+	public static function onBeforeAdd(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$data = $event->getParameter('fields');
+		if (!isset($data['TIMESTAMP_X']))
+		{
+			$result->modifyFields([
+				'TIMESTAMP_X' => new DateTime(),
+			]);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Default onBeforeUpdate handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for update.
+	 * @return EventResult
+	 */
+	public static function onBeforeUpdate(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$data = $event->getParameter('fields');
+		if (!isset($data['TIMESTAMP_X']))
+		{
+			$result->modifyFields([
+				'TIMESTAMP_X' => new DateTime(),
+			]);
+		}
+
+		return $result;
 	}
 }

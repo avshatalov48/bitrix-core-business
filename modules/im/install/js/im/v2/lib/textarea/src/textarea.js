@@ -1,5 +1,11 @@
 export { ResizeManager } from './classes/resize-manager';
 
+type InsertTextConfig = {
+	text: string,
+	withNewLine?: boolean,
+	replace?: boolean
+};
+
 const TAB = '\t';
 const NEW_LINE = '\n';
 const LETTER_CODE_PREFIX = 'Key';
@@ -122,5 +128,29 @@ export const Textarea = {
 		textarea.selectionEnd = newSelectionPosition;
 
 		return textWithNewLine;
+	},
+	insertText(textarea: HTMLTextAreaElement, config: InsertTextConfig = {}): string
+	{
+		const { text, withNewLine = false, replace = false } = config;
+		let resultText = '';
+
+		if (replace)
+		{
+			resultText = '';
+			textarea.value = '';
+			textarea.selectionStart = 0;
+			textarea.selectionEnd = 0;
+		}
+
+		if (textarea.value.length === 0)
+		{
+			resultText = text;
+		}
+		else
+		{
+			resultText = withNewLine ? `${textarea.value}${NEW_LINE}${text}` : `${textarea.value} ${text}`;
+		}
+
+		return resultText;
 	},
 };

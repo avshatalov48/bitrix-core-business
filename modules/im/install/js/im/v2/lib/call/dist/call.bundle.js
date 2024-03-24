@@ -21,10 +21,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  const handleAddCLick = () => {
 	    const selectedItems = dialog.getSelectedItems();
 	    const preparedItems = prepareUser(selectedItems);
-	    preparedItems.forEach(item => {
-	      params.onSelect({
-	        user: item
-	      });
+	    params.onSelect({
+	      users: preparedItems
 	    });
 	  };
 	  const handleCancelCLick = () => {
@@ -212,6 +210,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  startTest() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].test();
 	  }
+	  toggleDebugFlag(debug) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller]) {
+	      return;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].debug = debug;
+	  }
 	  chatCanBeCalled(dialogId) {
 	    const callSupported = babelHelpers.classPrivateFieldLooseBase(this, _checkCallSupport)[_checkCallSupport](dialogId);
 	    const hasCurrentCall = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/calls/hasActiveCall'](dialogId);
@@ -311,9 +315,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  });
 	}
 	function _onCallDestroy2(event) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/deleteActiveCall', {
-	    dialogId: event.call.associatedEntity.id
-	  });
+	  const dialogId = event.call.associatedEntity.id;
+	  const currentCall = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/calls/getCallByDialog'](dialogId);
+	  if ((currentCall == null ? void 0 : currentCall.call.id) === event.call.id) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/deleteActiveCall', {
+	      dialogId
+	    });
+	  }
 	}
 	function _onOpenChat2(event) {
 	  const callDialogId = this.getCurrentCallDialogId();

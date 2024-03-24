@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Type\DateTime;
 
 class Alias
@@ -129,9 +130,26 @@ class Alias
 			return false;
 		}
 
-		$result = \Bitrix\Im\Model\AliasTable::getList(Array(
-			'filter' => Array('=ALIAS' => $alias)
-		))->fetch();
+		$query = \Bitrix\Im\Model\AliasTable::query();
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		if ($connection instanceof \Bitrix\Main\DB\PgsqlConnection)
+		{
+			$alias = $connection->getSqlHelper()->forSql($alias);
+			$query
+				->setSelect(['*'])
+				->whereExpr("LOWER(%s) = LOWER('{$alias}')", ['ALIAS'])
+			;
+		}
+		else
+		{
+			$query
+				->setSelect(['*'])
+				->where('ALIAS', $alias)
+			;
+		}
+
+		$result = $query->exec()->fetch();
 
 		if (!$result)
 		{
@@ -145,14 +163,24 @@ class Alias
 
 	public static function getByIdAndCode($id, $code)
 	{
-		return \Bitrix\Im\Model\AliasTable::getList(
-			[
-				'filter' => [
-					'ID' => $id,
-					'ALIAS' => $code
-				]
-			]
-		)->fetch();
+		$query = \Bitrix\Im\Model\AliasTable::query();
+		$query
+			->setSelect(['*'])
+			->where('ID', $id)
+		;
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		if ($connection instanceof \Bitrix\Main\DB\PgsqlConnection)
+		{
+			$code = $connection->getSqlHelper()->forSql($code);
+			$query->whereExpr("LOWER(%s) = LOWER('{$code}')", ['ALIAS']);
+		}
+		else
+		{
+			$query->where('ALIAS', $code);
+		}
+
+		return $query->exec()->fetch();
 	}
 
 	public static function getByEntity($entityType, $entityId)

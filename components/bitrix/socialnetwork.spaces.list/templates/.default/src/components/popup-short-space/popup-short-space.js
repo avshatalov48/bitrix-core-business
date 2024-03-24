@@ -11,7 +11,7 @@ export const PopupShortSpace = {
 		BasePopup,
 		SpaceContent,
 	},
-	emits: ['closeSpacePopup'],
+	emits: ['closeSpacePopup', 'popupSpaceClick'],
 	props: {
 		bindElement: {
 			type: Object,
@@ -91,8 +91,13 @@ export const PopupShortSpace = {
 		},
 	},
 	methods: {
-		closePopupShortSpace() {
+		closePopupShortSpace()
+		{
 			this.$emit('closeSpacePopup');
+		},
+		onSpaceClick()
+		{
+			this.$emit('popupSpaceClick');
 		},
 	},
 	template: `
@@ -100,10 +105,10 @@ export const PopupShortSpace = {
 			:config="config"
 			:id="POPUP_ID"
 		>
-			<a
-				:href="link"
+			<div
 				ref="popup-content"
 				class="sn-spaces__popup-list_collapsed-mode"
+				@click="onSpaceClick"
 				@mouseleave="closePopupShortSpace"
 			>
 				<div 
@@ -117,7 +122,7 @@ export const PopupShortSpace = {
 						:showAvatar="false"
 					/>
 				</div>
-			</a>
+			</div>
 		</BasePopup>
 	`,
 };

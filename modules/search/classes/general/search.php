@@ -1396,9 +1396,9 @@ class CAllSearch extends CDBResult
 			$arFields["ITEM_ID"] = $ITEM_ID;
 
 			if (array_key_exists("INDEX_TITLE", $arFields) && $arFields["INDEX_TITLE"] === false)
-				$content = $arFields["BODY"]."\r\n".$arFields["TAGS"];
+				$content = $arFields["BODY"]."\r\n".($arFields["TAGS"] ?? '');
 			else
-				$content = $arFields["TITLE"]."\r\n".$arFields["BODY"]."\r\n".$arFields["TAGS"];
+				$content = $arFields["TITLE"]."\r\n".$arFields["BODY"]."\r\n".($arFields["TAGS"] ?? '');
 
 			$content = preg_replace_callback("/&#(\\d+);/", array("CSearch", "chr"), $content);
 			$arFields["SEARCHABLE_CONTENT"] = CSearch::KillEntities(ToUpper($content));

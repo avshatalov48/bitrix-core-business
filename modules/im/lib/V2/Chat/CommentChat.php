@@ -8,7 +8,7 @@ use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Message;
 
 /**
- * Содержит комментарии
+ * Chat for comments
  */
 class CommentChat extends GroupChat
 {

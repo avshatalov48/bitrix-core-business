@@ -239,8 +239,4 @@ class CSecurityEvent
 	{
 		return str_replace(array("\r", "\n"), array("\\r", "\\n"), $message);
 	}
-
-	private function __clone() {}
-
-	private function __wakeup() {}
 }

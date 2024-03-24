@@ -53,7 +53,7 @@ create table b_sonet_group_tag (
 	GROUP_ID int(11) NOT NULL,
 	NAME varchar(255) NOT NULL,
 	PRIMARY KEY (GROUP_ID,NAME),
-	index IX_SONET_GROUP_TAG_2(`NAME`)
+	index IX_SONET_GROUP_TAG_2(NAME)
 );
 
 create table b_sonet_group_site
@@ -337,9 +337,9 @@ create table b_sonet_log_follow
 	FOLLOW_DATE datetime,
 	BY_WF char(1) null,
 	primary key (USER_ID, CODE),
-	index IX_SONET_FOLLOW_1(`USER_ID`, `REF_ID`),
-	index IX_SONET_FOLLOW_2(`USER_ID`, `CODE`, `TYPE`, `FOLLOW_DATE`),
-	index IX_SONET_FOLLOW_3(`CODE`, `TYPE`, `USER_ID`)
+	index IX_SONET_FOLLOW_1(USER_ID, REF_ID),
+	index IX_SONET_FOLLOW_2(USER_ID, CODE, TYPE, FOLLOW_DATE),
+	index IX_SONET_FOLLOW_3(CODE, TYPE, USER_ID)
 );
 
 create table b_sonet_log_subscribe
@@ -349,7 +349,7 @@ create table b_sonet_log_subscribe
 	TYPE char(3) not null,
 	END_DATE datetime,
 	primary key (USER_ID, LOG_ID, TYPE),
-	index IX_SONET_LOG_SUBSCRIBE_1(`LOG_ID`)
+	index IX_SONET_LOG_SUBSCRIBE_1(LOG_ID)
 );
 
 create table b_sonet_log_smartfilter
@@ -442,15 +442,15 @@ create table b_sonet_log_tag (
 	ITEM_ID int(11) not null,
 	NAME varchar(255) NOT NULL,
 	PRIMARY KEY (ITEM_TYPE,ITEM_ID,NAME),
-	index IX_SONET_LOG_TAG_1(`LOG_ID`),
-	index IX_SONET_LOG_TAG_2(`NAME`)
+	index IX_SONET_LOG_TAG_1(LOG_ID),
+	index IX_SONET_LOG_TAG_2(NAME)
 );
 
 create table b_sonet_user_tag (
 	USER_ID int(11) NOT NULL,
 	NAME varchar(255) NOT NULL,
-	PRIMARY KEY (`USER_ID`,`NAME`),
-	index IX_SONET_USER_TAG_1(`NAME`)
+	PRIMARY KEY (USER_ID,NAME),
+	index IX_SONET_USER_TAG_1(NAME)
 );
 
 create table b_sonet_user_welltory (
@@ -461,16 +461,16 @@ create table b_sonet_user_welltory (
 	STRESS_COMMENT varchar(255) DEFAULT NULL,
 	DATE_MEASURE datetime not null,
 	HASH varchar(100) DEFAULT NULL,
-	PRIMARY KEY (`ID`),
-	index IX_SONET_USER_STRESSLEVEL_1(`USER_ID`,`DATE_MEASURE`)
+	PRIMARY KEY (ID),
+	index IX_SONET_USER_STRESSLEVEL_1(USER_ID,DATE_MEASURE)
 );
 
 create table b_sonet_user_welltory_disclaimer (
 	ID int(11) not null auto_increment,
 	USER_ID int(11) NOT NULL,
 	DATE_SIGNED datetime not null,
-	PRIMARY KEY (`ID`),
-	index IX_SONET_USER_STRESSLEVEL_DISCLAIMER_1(`USER_ID`)
+	PRIMARY KEY (ID),
+	index IX_SONET_USER_STRESSLEVEL_DISCLAIMER_1(USER_ID)
 );
 
 create table b_sonet_log_pinned
@@ -479,7 +479,7 @@ create table b_sonet_log_pinned
 	USER_ID int(11) not null,
 	PINNED_DATE datetime default null,
 	primary key (LOG_ID, USER_ID),
-	index IX_SONET_LOG_PINNED_1(`PINNED_DATE`)
+	index IX_SONET_LOG_PINNED_1(PINNED_DATE)
 );
 
 create table if not exists b_sonet_space_composition
@@ -493,36 +493,60 @@ create table if not exists b_sonet_space_composition
 );
 
 CREATE TABLE IF NOT EXISTS b_sonet_scorer (
-	`ID` INT(11) NOT NULL AUTO_INCREMENT,
-	`USER_ID` INT(11) NOT NULL DEFAULT '0',
-	`SONET_LOG_ID` INT(11) NOT NULL DEFAULT '0',
-	`GROUP_ID` INT(11) NOT NULL DEFAULT '0',
-	`TYPE` VARCHAR(64) NOT NULL DEFAULT '0',
-	`VALUE` INT(11) NOT NULL DEFAULT '0',
-	PRIMARY KEY (`ID`),
-	INDEX `ix_sonet_scorer_group` (`GROUP_ID`),
-	INDEX `ix_sonet_scorer_utype` (`USER_ID`, `TYPE`, `SONET_LOG_ID`)
+	ID INT(11) NOT NULL AUTO_INCREMENT,
+	USER_ID INT(11) NOT NULL DEFAULT '0',
+	SONET_LOG_ID INT(11) NOT NULL DEFAULT '0',
+	GROUP_ID INT(11) NOT NULL DEFAULT '0',
+	TYPE VARCHAR(64) NOT NULL DEFAULT '0',
+	VALUE INT(11) NOT NULL DEFAULT '0',
+	PRIMARY KEY (ID),
+	INDEX ix_sonet_scorer_group (GROUP_ID),
+	INDEX ix_sonet_scorer_utype (USER_ID, TYPE, SONET_LOG_ID)
 );
 
-CREATE TABLE IF NOT EXISTS `b_sonet_scorer_queue` (
-	`ID` INT(10) NOT NULL AUTO_INCREMENT,
-	`USER_ID` INT(10) NOT NULL,
-	`TYPE` VARCHAR(32) NOT NULL DEFAULT '',
-	`SONET_LOG_ID` INT(10) NOT NULL,
-	`DATETIME` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`ID`),
-	INDEX `ix_sonet_scorer_queue` (`USER_ID`, `TYPE`)
+CREATE TABLE IF NOT EXISTS b_sonet_scorer_queue (
+	ID INT(10) NOT NULL AUTO_INCREMENT,
+	USER_ID INT(10) NOT NULL,
+	TYPE VARCHAR(32) NOT NULL DEFAULT '',
+	SONET_LOG_ID INT(10) NOT NULL,
+	DATETIME DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (ID),
+	INDEX ix_sonet_scorer_queue (USER_ID, TYPE)
 );
 
-CREATE TABLE IF NOT EXISTS `b_sonet_scorer_event` (
-	`ID` INT(10) NOT NULL AUTO_INCREMENT,
-	`HID` VARCHAR(64) NOT NULL,
-	`TYPE` VARCHAR(64) NOT NULL,
-	`DATA` MEDIUMTEXT NOT NULL,
-	`LOG_DATA` MEDIUMTEXT NULL,
-	`CREATED` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`PROCESSED` DATETIME NOT NULL,
-	PRIMARY KEY (`ID`),
-	INDEX `HID` (`HID`),
-	INDEX `PROCESSED` (`PROCESSED`)
+CREATE TABLE IF NOT EXISTS b_sonet_scorer_event (
+	ID INT(10) NOT NULL AUTO_INCREMENT,
+	HID VARCHAR(64) NOT NULL,
+	TYPE VARCHAR(64) NOT NULL,
+	DATA MEDIUMTEXT NOT NULL,
+	LOG_DATA MEDIUMTEXT NULL,
+	CREATED DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PROCESSED DATETIME NOT NULL,
+	PRIMARY KEY (ID),
+	INDEX HID (HID),
+	INDEX PROCESSED (PROCESSED)
+);
+
+create table if not exists b_sonet_space_user_recent_activity
+(
+	ID        int(11) unsigned not null auto_increment,
+	USER_ID   int(11) unsigned not null,
+	SPACE_ID  int(11) unsigned not null,
+	TYPE_ID   varchar(32) not null,
+	ENTITY_ID int(11) unsigned default null,
+	DATETIME datetime not null,
+	primary key (ID),
+	index ix_sonet_space_recent_activity_datetime (DATETIME),
+	index ix_sonet_space_user_recent_activity_user_id_space_id (USER_ID, SPACE_ID),
+	unique key ix_sonet_space_user_recent_activity_key (SPACE_ID, TYPE_ID, ENTITY_ID, USER_ID)
+);
+
+create table if not exists b_sonet_space_user_latest_activity
+(
+	ID          int(11) unsigned not null auto_increment,
+	USER_ID     int(11) unsigned not null,
+	SPACE_ID    int(11) unsigned not null,
+	ACTIVITY_ID int(11) unsigned not null,
+	primary key (ID),
+	unique index ix_sonet_space_user_latest_activity_user_id_space_id (USER_ID, SPACE_ID)
 );

@@ -1,9 +1,5 @@
-import { Core } from 'im.v2.application.core';
-import { ChatType, UserStatus as UserStatusType } from 'im.v2.const';
+import { ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
-
-// noinspection ES6PreferShortImport
-import { UserStatus, UserStatusSize } from '../user-status/user-status';
 
 import 'ui.fonts.opensans';
 import './avatar.css';
@@ -23,7 +19,6 @@ export const AvatarSize = Object.freeze({
 // @vue/component
 export const Avatar = {
 	name: 'MessengerAvatar',
-	components: { UserStatus },
 	props: {
 		dialogId: {
 			type: [String, Number],
@@ -34,10 +29,6 @@ export const Avatar = {
 			default: AvatarSize.M,
 		},
 		withAvatarLetters: {
-			type: Boolean,
-			default: true,
-		},
-		withStatus: {
 			type: Boolean,
 			default: true,
 		},
@@ -123,43 +114,9 @@ export const Avatar = {
 
 			return Utils.text.getFirstLetters(this.dialog.name);
 		},
-		userStatusIcon(): string
-		{
-			if (!this.isUser || this.isBot || this.user.id === Core.getUserId() || !this.isEnoughSizeForStatus)
-			{
-				return '';
-			}
-
-			const status = this.$store.getters['users/getStatus'](this.dialogId);
-			if (status && status !== UserStatusType.online)
-			{
-				return status;
-			}
-
-			return '';
-		},
-		userStatusSize(): string
-		{
-			// avatar size: status size
-			const sizesMap = {
-				[AvatarSize.M]: UserStatusSize.S,
-				[AvatarSize.L]: UserStatusSize.M,
-				[AvatarSize.XL]: UserStatusSize.L,
-				[AvatarSize.XXL]: UserStatusSize.XL,
-				[AvatarSize.XXXL]: UserStatusSize.XXL,
-			};
-
-			return sizesMap[this.size];
-		},
 		isEnoughSizeForText(): boolean
 		{
 			const avatarSizesWithText = [AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
-
-			return avatarSizesWithText.includes(this.size.toUpperCase());
-		},
-		isEnoughSizeForStatus(): boolean
-		{
-			const avatarSizesWithText = [AvatarSize.M, AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
 
 			return avatarSizesWithText.includes(this.size.toUpperCase());
 		},
@@ -197,10 +154,6 @@ export const Avatar = {
 				{{ avatarText }}
 			</div>
 			<div v-else :style="backgroundColorStyle" class="bx-im-avatar__content bx-im-avatar__icon"></div>
-			<!-- Status icons -->
-			<div v-if="withStatus && userStatusIcon" class="bx-im-avatar__status-icon">
-				<UserStatus :status="userStatusIcon" :size="userStatusSize" />
-			</div>
 		</div>
 	`,
 };

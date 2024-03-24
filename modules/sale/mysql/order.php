@@ -1,5 +1,8 @@
 <?php
 
+use Bitrix\Main;
+use Bitrix\Sale;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/order.php");
 
 class CSaleOrder extends CAllSaleOrder
@@ -8,7 +11,7 @@ class CSaleOrder extends CAllSaleOrder
 	{
 		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER, $APPLICATION;
 
-		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
+		$isOrderConverted = Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
 
 		$arFields1 = array();
@@ -55,10 +58,10 @@ class CSaleOrder extends CAllSaleOrder
 		{
 			if (!empty($arFields1))
 			{
-				$arFields1 = \Bitrix\Sale\Compatible\OrderCompatibility::backRawField(\Bitrix\Sale\Compatible\OrderCompatibility::ENTITY_ORDER, $arFields1);
+				$arFields1 = Sale\Compatible\OrderCompatibility::backRawField(Sale\Compatible\OrderCompatibility::ENTITY_ORDER, $arFields1);
 			}
 
-			$result = \Bitrix\Sale\Compatible\OrderCompatibility::add(array_merge($arFields, $arFields1));
+			$result = Sale\Compatible\OrderCompatibility::add(array_merge($arFields, $arFields1));
 			if ($result->isSuccess(true))
 			{
 				$ID = $result->getId();
@@ -138,7 +141,7 @@ class CSaleOrder extends CAllSaleOrder
 	{
 		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER, $APPLICATION;
 
-		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
+		$isOrderConverted = Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
 		$ID = intval($ID);
 
@@ -164,12 +167,12 @@ class CSaleOrder extends CAllSaleOrder
 		{
 			if (!empty($arFields1))
 			{
-				$arFields1 = \Bitrix\Sale\Compatible\OrderCompatibility::backRawField(\Bitrix\Sale\Compatible\OrderCompatibility::ENTITY_ORDER, $arFields1);
+				$arFields1 = Sale\Compatible\OrderCompatibility::backRawField(Sale\Compatible\OrderCompatibility::ENTITY_ORDER, $arFields1);
 			}
 
-			\Bitrix\Sale\DiscountCouponsManager::freezeCouponStorage();
-			$result = \Bitrix\Sale\Compatible\OrderCompatibility::update($ID, array_merge($arFields, $arFields1), $bDateUpdate);
-			\Bitrix\Sale\DiscountCouponsManager::unFreezeCouponStorage();
+			Sale\DiscountCouponsManager::freezeCouponStorage();
+			$result = Sale\Compatible\OrderCompatibility::update($ID, array_merge($arFields, $arFields1), $bDateUpdate);
+			Sale\DiscountCouponsManager::unFreezeCouponStorage();
 			if (!$result->isSuccess())
 			{
 				foreach($result->getErrorMessages() as $error)
@@ -300,7 +303,7 @@ class CSaleOrder extends CAllSaleOrder
 				$arFields["PROPERTY_ID_".$propIDTmp] = array("FIELD" => "SP_".$propIDTmp.".ID", "TYPE" => "int", "FROM" => "INNER JOIN b_sale_order_props_value SP_".$propIDTmp." ON (SP_".$propIDTmp.".ORDER_PROPS_ID = ".$propIDTmp." AND O.ID = SP_".$propIDTmp.".ORDER_ID)");
 				$arFields["PROPERTY_ORDER_PROPS_ID_".$propIDTmp] = array("FIELD" => "SP_".$propIDTmp.".ORDER_PROPS_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_sale_order_props_value SP_".$propIDTmp." ON (SP_".$propIDTmp.".ORDER_PROPS_ID = ".$propIDTmp." AND O.ID = SP_".$propIDTmp.".ORDER_ID)");
 				$arFields["PROPERTY_NAME_".$propIDTmp] = array("FIELD" => "SP_".$propIDTmp.".NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_sale_order_props_value SP_".$propIDTmp." ON (SP_".$propIDTmp.".ORDER_PROPS_ID = ".$propIDTmp." AND O.ID = SP_".$propIDTmp.".ORDER_ID)");
-				
+
 				if(CSaleLocation::isLocationProMigrated() && isset($locationPropInfo['ID'][$propIDTmp]))
 				{
 					$arFields["PROPERTY_VALUE_".$propIDTmp] = array("FIELD" => "L_".$propIDTmp.".ID", "TYPE" => "string", "FROM" => "INNER JOIN b_sale_order_props_value SP_".$propIDTmp." ON (SP_".$propIDTmp.".ORDER_PROPS_ID = ".$propIDTmp." AND O.ID = SP_".$propIDTmp.".ORDER_ID) INNER JOIN b_sale_location L_".$propIDTmp." ON (SP_".$propIDTmp.".VALUE = L_".$propIDTmp.".CODE)");
@@ -344,7 +347,7 @@ class CSaleOrder extends CAllSaleOrder
 		if (!is_array($arSelectFields))
 			$arSelectFields = array();
 
-		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
+		$isOrderConverted = Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
 		$obUserFieldsSql = new CUserTypeSQL;
 		$obUserFieldsSql->SetEntity("ORDER", "O.ID");
@@ -492,9 +495,9 @@ class CSaleOrder extends CAllSaleOrder
 
 		if ($isOrderConverted != 'N')
 		{
-			$result = \Bitrix\Sale\Compatible\OrderCompatibility::getList($arOrder, $arFilter, $arGroupBy, $arNavStartParams, $arSelectFields, $callback);
-			if ($result instanceof \Bitrix\Sale\Compatible\CDBResult)
-				$result->addFetchAdapter(new \Bitrix\Sale\Compatible\OrderFetchAdapter());
+			$result = Sale\Compatible\OrderCompatibility::getList($arOrder, $arFilter, $arGroupBy, $arNavStartParams, $arSelectFields, $callback);
+			if ($result instanceof Sale\Compatible\CDBResult)
+				$result->addFetchAdapter(new Sale\Compatible\OrderFetchAdapter());
 			return $result;
 		}
 
@@ -659,7 +662,10 @@ class CSaleOrder extends CAllSaleOrder
 			);
 		}
 
-		$maxLock = intval(COption::GetOptionString("sale", "MAX_LOCK_TIME", "60"));
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$maxLock = (int)COption::GetOptionString("sale", "MAX_LOCK_TIME");
 		if(is_object($GLOBALS["USER"]))
 			$userID = intval($GLOBALS["USER"]->GetID());
 		else
@@ -722,9 +728,30 @@ class CSaleOrder extends CAllSaleOrder
 			"AFFILIATE_ID" => array("FIELD" => "O.AFFILIATE_ID", "TYPE" => "int"),
 			"LOCKED_BY" => array("FIELD" => "O.LOCKED_BY", "TYPE" => "int"),
 
-			"LOCK_STATUS" => array("FIELD" => "if(DATE_LOCK is null, 'green', if(DATE_ADD(DATE_LOCK, interval ".$maxLock." MINUTE)<now(), 'green', if(LOCKED_BY=".$userID.", 'yellow', 'red')))", "TYPE" => "string"),
+			'LOCK_STATUS' => [
+				'FIELD' => "
+					case
+						when DATE_LOCK is null then 'green'
+						when " . $helper->addSecondsToDateTime($maxLock * 60, 'DATE_LOCK') . " < " . $helper->getCurrentDateTimeFunction() . " then 'yellow'
+						when LOCKED_BY = " . $userID . " then 'yellow'
+						else 'red'
+					end
+				",
+				'TYPE' => 'string',
+			],
 
-			"LOCK_USER_NAME" => array("FIELD" => "concat('(', UL.LOGIN ,') ',UL.NAME,' ',UL.LAST_NAME)", "FROM" => "LEFT JOIN b_user UL ON (O.LOCKED_BY = UL.ID)", "TYPE" => "string"),
+			'LOCK_USER_NAME' => [
+				'FIELD' => $helper->getConcatFunction(
+					"'('",
+					'UL.LOGIN',
+					"') '",
+					'UL.NAME',
+					"' '",
+					'UL.LAST_NAME'
+				),
+				'FROM' => 'LEFT JOIN b_user UL ON (O.LOCKED_BY = UL.ID)',
+				'TYPE' => 'string',
+			],
 
 			"DELIVERY_DOC_NUM" => array("FIELD" => "O.DELIVERY_DOC_NUM", "TYPE" => "string"),
 			"DELIVERY_DOC_DATE" => array("FIELD" => "O.DELIVERY_DOC_DATE", "TYPE" => "date"),
@@ -920,34 +947,6 @@ class CSaleOrder extends CAllSaleOrder
 		return $dbRes;
 	}
 
-	public static function GetLockStatus($ID, &$lockedBY, &$dateLock)
-	{
-		global $DB;
-
-		$ID = intval($ID);
-		if ($ID <= 0)
-			return False;
-
-		$maxLock = intval(COption::GetOptionString("sale", "MAX_LOCK_TIME", "60"));
-		$userID = intval($GLOBALS["USER"]->GetID());
-
-		$strSql =
-			"SELECT LOCKED_BY, ".
-			"	".$DB->DateToCharFunction("DATE_LOCK")." as DATE_LOCK, ".
-			"	if(DATE_LOCK is null, 'green',  ".
-			"		if(DATE_ADD(DATE_LOCK, interval ".$maxLock." MINUTE)<now(), 'green', ".
-			"			if(LOCKED_BY=".$userID.", 'yellow', 'red'))) as LOCK_STATUS ".
-			"FROM b_sale_order ".
-			"WHERE ID = ".$ID." ";
-		$dbRes = $DB->Query($strSql);
-		$arRes = $dbRes->Fetch();
-
-		$lockedBY = $arRes["LOCKED_BY"];
-		$dateLock = $arRes["DATE_LOCK"];
-
-		return $arRes["LOCK_STATUS"];
-	}
-
 	/*
 	 * Change order to add stories
 	 *
@@ -969,7 +968,6 @@ class CSaleOrder extends CAllSaleOrder
 			unset($NewFields["ID"]);
 
 		$bChange = false;
-		$strSql = '';
 		$arInsert = array("H_USER_ID" => $USER->GetID(), "H_ORDER_ID" => $OldFields["ID"], "H_CURRENCY" => $OldFields["CURRENCY"]);
 
 		$arDeleteFields = array(

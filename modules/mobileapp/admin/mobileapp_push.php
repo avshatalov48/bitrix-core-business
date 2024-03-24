@@ -9,8 +9,8 @@ use Bitrix\Main\Localization\Loc;
 
 /**
  * Bitrix vars
- * @global CAllUser $USER
- * @global CAllMain $APPLICATION
+ * @global CUser $USER
+ * @global CMain $APPLICATION
  */
 
 require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");

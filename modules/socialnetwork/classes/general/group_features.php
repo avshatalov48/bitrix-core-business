@@ -604,10 +604,20 @@ class CAllSocNetFeatures
 				$CACHE_MANAGER->RegisterTag("sonet_features_".$type."_".$id);
 			}
 
-			$dbResult = CSocNetFeatures::GetList(Array(), Array("ENTITY_ID" => $id, "ENTITY_TYPE" => $type));
+			$dbResult = CSocNetFeatures::GetList(
+				[],
+				[
+					"ENTITY_ID" => $id,
+					"ENTITY_TYPE" => $type,
+				]
+			);
 			while ($arResult = $dbResult->GetNext())
 			{
-				$arFeatures[$arResult["FEATURE"]] = array("ACTIVE" => $arResult["ACTIVE"], "FEATURE_NAME" => $arResult["FEATURE_NAME"]);
+				$arFeatures[$arResult["FEATURE"]] = [
+					"ACTIVE" => $arResult["ACTIVE"],
+					"FEATURE_NAME" => $arResult["FEATURE_NAME"],
+					"~FEATURE_NAME" => $arResult["~FEATURE_NAME"],
+				];
 				if (defined("BX_COMP_MANAGED_CACHE"))
 				{
 					$CACHE_MANAGER->RegisterTag("sonet_feature_".$arResult["ID"]);
@@ -763,5 +773,36 @@ class CAllSocNetFeatures
 		}
 
 		return $arReturn;
+	}
+
+	public static function getFeaturesNames(string $entityType, int $entityId): array
+	{
+		$featuresNames = [];
+
+		$activeFeaturesList = self::getActiveFeaturesList($entityType, $entityId);
+
+		$allowedFeatures = CSocNetAllowed::getAllowedFeatures();
+		foreach ($allowedFeatures as $featureId => $feature)
+		{
+			if (
+				!array_key_exists('allowed', $allowedFeatures[$featureId])
+				|| !in_array($entityType, $allowedFeatures[$featureId]['allowed'])
+			)
+			{
+				continue;
+			}
+
+			if (
+				array_key_exists($featureId, $activeFeaturesList)
+				&& ($activeFeaturesList[$featureId]['ACTIVE'] === 'N')
+			)
+			{
+				continue;
+			}
+
+			$featuresNames[$featureId] = $activeFeaturesList[$featureId]['~FEATURE_NAME'] ?? null;
+		}
+
+		return $featuresNames;
 	}
 }

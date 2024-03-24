@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_public,main_core) {
+(function (exports,im_v2_lib_desktopApi,main_core_events,im_public,main_core) {
 	'use strict';
 
 	const ParserSlashCommand = {
@@ -1248,7 +1248,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      replaces: notification.replaces,
 	      showIconIfEmptyText: false,
 	      showImageFromLink: false,
-	      urlTarget: '_self'
+	      urlTarget: im_v2_lib_desktopApi.DesktopApi.isDesktop() ? '_blank' : '_self'
 	    });
 	  },
 	  decodeText(text) {
@@ -1460,6 +1460,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      text
 	    } = message;
 	    text = ParserUrl.removeSimpleUrlTag(text);
+	    text = ParserMention.purify(text);
 	    return text.trim();
 	  },
 	  prepareCopy(message) {
@@ -1510,5 +1511,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Parser = Parser;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Lib,BX));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Lib,BX));
 //# sourceMappingURL=parser.bundle.js.map

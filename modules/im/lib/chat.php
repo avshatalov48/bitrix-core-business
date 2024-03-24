@@ -3,6 +3,7 @@ namespace Bitrix\Im;
 
 use Bitrix\Im\Model\BlockUserTable;
 use Bitrix\Im\V2\Chat\EntityLink;
+use Bitrix\Im\V2\Integration\AI\AIHelper;
 use Bitrix\Im\V2\Message\CounterService;
 use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\ReadService;
@@ -88,7 +89,7 @@ class Chat
 			return false;
 		}
 
-		$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+		$connection = Application::getInstance()->getConnection();
 
 		$selectFields = '';
 		if (isset($params['SELECT']))
@@ -431,20 +432,14 @@ class Chat
 
 		if (!$relationData || $relationData['START_ID'] == 0)
 		{
-			$counter = \Bitrix\Im\Model\MessageTable::getList(array(
-				'filter' => Array('CHAT_ID' => $chatId),
-				'select' => array("CNT" => new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)')),
-			))->fetch();
+			$counter = \Bitrix\Im\Model\MessageTable::getCount(['=CHAT_ID' => $chatId]);
 		}
 		else
 		{
-			$counter = \Bitrix\Im\Model\MessageTable::getList(array(
-				'filter' => Array('CHAT_ID' => $chatId, '>=ID' => $relationData['START_ID']),
-				'select' => array("CNT" => new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)')),
-			))->fetch();
+			$counter = \Bitrix\Im\Model\MessageTable::getCount(['=CHAT_ID' => $chatId, '>=ID' => $relationData['START_ID']]);
 		}
 
-		return $counter && $counter['CNT'] > 0? intval($counter['CNT']): 0;
+		return $counter > 0 ? $counter : 0;
 	}
 
 	public static function hasAccess($chatId)
@@ -463,10 +458,6 @@ class Chat
 	 * @param null $userId
 	 * @param array $options
 	 * @return array|bool
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function getMessages($chatId, $userId = null, $options = Array())
 	{
@@ -496,7 +487,7 @@ class Chat
 					'\Bitrix\Im\Model\RelationTable',
 					array(
 						"=ref.CHAT_ID" => "this.ID",
-						"=ref.USER_ID" => new \Bitrix\Main\DB\SqlExpression('?', $userId)
+						"=ref.USER_ID" => new \Bitrix\Main\DB\SqlExpression('?i', $userId)
 					),
 					array("join_type"=>"LEFT")
 				)
@@ -638,7 +629,7 @@ class Chat
 				$message['AUTHOR_ID'] = 0;
 			}
 
-			if ($options['USER_TAG_SPREAD'] === 'Y')
+			if (isset($options['USER_TAG_SPREAD']) && $options['USER_TAG_SPREAD'] === 'Y')
 			{
 				$message['MESSAGE'] = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $message['MESSAGE']);
 			}
@@ -695,7 +686,7 @@ class Chat
 				}
 			}
 
-			if (is_array($param['CHAT_USER']) > 0)
+			if (isset($param['CHAT_USER']) && is_array($param['CHAT_USER']))
 			{
 				foreach ($param['CHAT_USER'] as $paramsUserId)
 				{
@@ -821,12 +812,13 @@ class Chat
 			$params['LAST_USER_ID'] = (int)$options['LAST_ID'];
 		}
 
+		$json = isset($options['JSON']) && $options['JSON'] === 'Y' ? 'Y' : 'N';
 		$users = [];
 		$relations = self::getRelation($chatId, $params);
 		foreach ($relations as $user)
 		{
 			$userData = \Bitrix\Im\User::getInstance($user['USER_ID'])->getArray([
-				'JSON' => $options['JSON'] === 'Y'? 'Y': 'N'
+				'JSON' => $json
 			]);
 
 			if ($userData['bot'])
@@ -1070,7 +1062,8 @@ class Chat
 			'DISAPPEARING_TIME' => (int)$chat['DISAPPEARING_TIME'],
 			'PUBLIC' => $publicOption,
 			'ROLE' => mb_strtolower(self::getRole($chat)),
-			'ENTITY_LINK' => EntityLink::getInstance($chat['ENTITY_TYPE'] ?? '', $chat['ENTITY_ID'] ?? '', (int)$chat['ID'])->toArray(),
+			'ENTITY_LINK' => EntityLink::getInstance(\CIMChat::initChatByArray($chat))->toArray(),
+			'AI_PROVIDER' => $chatType === 'copilot' ? AIHelper::getProviderName() : null,
 			'PERMISSIONS' => [
 				'MANAGE_USERS_ADD' => mb_strtolower((string)$chat['MANAGE_USERS_ADD']),
 				'MANAGE_USERS_DELETE' => mb_strtolower((string)$chat['MANAGE_USERS_DELETE']),
@@ -1216,7 +1209,7 @@ class Chat
 			'Bitrix\Im\Model\RelationTable',
 			array(
 				"=ref.CHAT_ID" => "this.ID",
-				"=ref.USER_ID" => new \Bitrix\Main\DB\SqlExpression('?', $params['CURRENT_USER']),
+				"=ref.USER_ID" => new \Bitrix\Main\DB\SqlExpression('?i', $params['CURRENT_USER']),
 			),
 			array("join_type"=>"LEFT")
 		);
@@ -1227,7 +1220,7 @@ class Chat
 				\Bitrix\ImOpenLines\Model\RecentTable::class,
 				array(
 					"=ref.CHAT_ID" => "this.ID",
-					"=ref.USER_ID" => new \Bitrix\Main\DB\SqlExpression('?', $params['CURRENT_USER']),
+					"=ref.USER_ID" => new \Bitrix\Main\DB\SqlExpression('?i', $params['CURRENT_USER']),
 				),
 				array("join_type"=>"LEFT")
 			);
@@ -1303,7 +1296,7 @@ class Chat
 			]
 		)->fetch();
 
-		return (bool)$result['ID'];
+		return is_array($result) && (bool)$result['ID'];
 	}
 
 	public static function checkReplicaDeprecatedAgent(): string

@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Application;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/affiliate_plan.php");
 
 class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
@@ -134,7 +136,7 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 	{
 		global $DB;
 
-		$arFields1 = array();
+		$arFields1 = [];
 		foreach ($arFields as $key => $value)
 		{
 			if (mb_substr($key, 0, 1) == "=")
@@ -145,12 +147,26 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 		}
 
 		if (!CSaleAffiliatePlan::CheckFields("ADD", $arFields, 0))
+		{
 			return false;
+		}
 
-		$db_events = GetModuleEvents("sale", "OnBeforeAffiliatePlanAdd");
-		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, Array(&$arFields))===false)
+		foreach (GetModuleEvents('sale', 'OnBeforeAffiliatePlanAdd', true) as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+			{
 				return false;
+			}
+		}
+
+		if (!isset($arFields1['TIMESTAMP_X']))
+		{
+			$connection = Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			unset($arFields['TIMESTAMP_X']);
+			$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+			unset($helper, $connection);
+		}
 
 		$arInsert = $DB->PrepareInsert("b_sale_affiliate_plan", $arFields);
 
@@ -172,9 +188,10 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 
 		$ID = intval($DB->LastID());
 
-		$events = GetModuleEvents("sale", "OnAfterAffiliatePlanAdd");
-		while ($arEvent = $events->Fetch())
-			ExecuteModuleEventEx($arEvent, Array($ID, $arFields));
+		foreach (GetModuleEvents('sale', 'OnAfterAffiliatePlanAdd', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
+		}
 
 		return $ID;
 	}
@@ -185,9 +202,11 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 
 		$ID = intval($ID);
 		if ($ID <= 0)
-			return False;
+		{
+			return false;
+		}
 
-		$arFields1 = array();
+		$arFields1 = [];
 		foreach ($arFields as $key => $value)
 		{
 			if (mb_substr($key, 0, 1) == "=")
@@ -198,12 +217,26 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 		}
 
 		if (!CSaleAffiliatePlan::CheckFields("UPDATE", $arFields, $ID))
+		{
 			return false;
+		}
 
-		$db_events = GetModuleEvents("sale", "OnBeforeAffiliatePlanUpdate");
-		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, Array($ID, &$arFields))===false)
+		foreach (GetModuleEvents('sale', 'OnBeforeAffiliatePlanUpdate', true) as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields)) === false)
+			{
 				return false;
+			}
+		}
+
+		if (!isset($arFields1['TIMESTAMP_X']))
+		{
+			$connection = Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			unset($arFields['TIMESTAMP_X']);
+			$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+			unset($helper, $connection);
+		}
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_affiliate_plan", $arFields);
 
@@ -218,9 +251,10 @@ class CSaleAffiliatePlan extends CAllSaleAffiliatePlan
 
 		unset($GLOBALS["SALE_AFFILIATE_PLAN"]["SALE_AFFILIATE_PLAN_CACHE_".$ID]);
 
-		$events = GetModuleEvents("sale", "OnAfterAffiliatePlanUpdate");
-		while ($arEvent = $events->Fetch())
-			ExecuteModuleEventEx($arEvent, Array($ID, $arFields));
+		foreach (GetModuleEvents('sale', 'OnAfterAffiliatePlanUpdate', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
+		}
 
 		return $ID;
 	}

@@ -290,9 +290,9 @@ if(
 			}
 		}
 	}
-	elseif(isset($arParams['LAZYLOAD']) || $arResult['APP_NAME'] == '')
+	elseif(isset($arParams['LAZYLOAD']) || $arResult['APP_NAME'] === '')
 	{
-		$arResult['APP_NAME'] = $arApp['APP_NAME'];
+		$arResult['APP_NAME'] = empty($arResult['APP_NAME']) ? $arApp['APP_NAME'] : $arResult['APP_NAME'];
 	}
 
 	if (

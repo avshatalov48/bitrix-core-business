@@ -26,6 +26,7 @@ type Params = {
 	pathToGroupPage: string,
 	pathToFilesPage: string,
 	filterContainer: HTMLElement,
+	isDiskStorageWasObtained: 'Y' | 'N',
 }
 
 export class DiscussionsToolbar
@@ -183,6 +184,7 @@ export class DiscussionsToolbar
 		this.#addButtonMenu = new DiscussionsAddButtonMenu({
 			bindElement: document.getElementById('spaces-discussions-toolbar-menu'),
 			calendar,
+			isDiskStorageWasObtained: this.#getParam('isDiskStorageWasObtained') === 'Y',
 		});
 
 		// eslint-disable-next-line @bitrix24/bitrix24-rules/no-bx
@@ -214,11 +216,14 @@ export class DiscussionsToolbar
 
 	#showSuccessUploadNotify()
 	{
-		NotificationCenter.notify({
-			content: Loc.getMessage('SN_SPACES_DISCUSSIONS_UPLOAD_FILE_NOTIFY_MESSAGE')
-				.replace('#path#', this.#getParam('pathToFilesPage'))
-			,
-		});
+		const content = Loc.getMessage('SN_SPACES_LINE_UPLOAD_FILE_NOTIFY_MESSAGE')
+			.replace(
+				'#handler#',
+				`top.BX.Socialnetwork.Spaces.space.reloadPageContent('${this.#getParam('pathToFilesPage')}');`,
+			)
+		;
+
+		NotificationCenter.notify({ content });
 	}
 
 	#addMenuClick(): void

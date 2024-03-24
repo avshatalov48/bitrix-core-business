@@ -1,10 +1,9 @@
-import { MessengerSlider } from 'im.v2.lib.slider';
 import { Loc, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
 
 import { Core } from 'im.v2.application.core';
-import { ChatActionType, EventType, PathPlaceholder, SidebarDetailBlock } from 'im.v2.const';
+import { ChatActionType, EventType, SidebarDetailBlock } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { ChatService, RecentService } from 'im.v2.provider.service';
 import { Utils } from 'im.v2.lib.utils';
@@ -87,19 +86,6 @@ export class RecentMenu extends BaseMenu
 			text: Loc.getMessage('IM_LIB_MENU_OPEN'),
 			onclick: () => {
 				Messenger.openChat(this.context.dialogId);
-				this.menuInstance.close();
-			},
-		};
-	}
-
-	getOpenInNewTabItem(): MenuItem
-	{
-		return {
-			text: Loc.getMessage('IM_LIB_MENU_OPEN_IN_NEW_TAB'),
-			onclick: () => {
-				MessengerSlider.getInstance().openNewTab(
-					PathPlaceholder.dialog.replace('#DIALOG_ID#', this.context.dialogId),
-				);
 				this.menuInstance.close();
 			},
 		};
@@ -254,11 +240,21 @@ export class RecentMenu extends BaseMenu
 			return null;
 		}
 
+		const isAnyChatOpened = this.store.getters['application/getLayout'].entityId.length > 0;
+
 		return {
 			text: Loc.getMessage('IM_LIB_MENU_FIND_CHATS_WITH_USER'),
 			onclick: async () => {
-				await Messenger.openChat(this.context.dialogId);
-				EventEmitter.emit(EventType.sidebar.open, { detailBlock: SidebarDetailBlock.chatsWithUser });
+				if (!isAnyChatOpened)
+				{
+					await Messenger.openChat(this.context.dialogId);
+				}
+
+				EventEmitter.emit(EventType.sidebar.open, {
+					panel: SidebarDetailBlock.chatsWithUser,
+					standalone: true,
+					dialogId: this.context.dialogId,
+				});
 				this.menuInstance.close();
 			},
 		};
@@ -299,7 +295,7 @@ export class RecentMenu extends BaseMenu
 	getResendInviteItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_INVITE_RESEND'),
+			text: Loc.getMessage('IM_LIB_INVITE_RESEND'),
 			onclick: () => {
 				InviteManager.resendInvite(this.context.dialogId);
 				this.menuInstance.close();
@@ -310,10 +306,10 @@ export class RecentMenu extends BaseMenu
 	getCancelInviteItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL'),
+			text: Loc.getMessage('IM_LIB_INVITE_CANCEL'),
 			onclick: () => {
 				MessageBox.show({
-					message: Loc.getMessage('IM_LIB_MENU_INVITE_CANCEL_CONFIRM'),
+					message: Loc.getMessage('IM_LIB_INVITE_CANCEL_CONFIRM'),
 					modal: true,
 					buttons: MessageBoxButtons.OK_CANCEL,
 					onOk: (messageBox) => {

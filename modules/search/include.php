@@ -5,22 +5,20 @@ if(!defined("CACHED_b_search_tags_len")) define("CACHED_b_search_tags_len", 2);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/tools/stemming.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/tools/tags.php");
 
-global $DB;
-$db_type = mb_strtolower($DB->type);
 CModule::AddAutoloadClasses(
 	"search",
 	array(
 		"CSearchCallback" => "classes/general/search.php",
-		"CSearch" => "classes/".$db_type."/search.php",
+		"CSearch" => "classes/mysql/search.php",
 		"CSearchItem" => "classes/general/item.php",
-		"CSearchQuery" => "classes/".$db_type."/search.php",
+		"CSearchQuery" => "classes/mysql/search.php",
 		"CAllSiteMap" => "classes/general/sitemap.php",
-		"CSiteMap" => "classes/".$db_type."/sitemap.php",
+		"CSiteMap" => "classes/mysql/sitemap.php",
 		"CSearchCustomRank" => "classes/general/customrank.php",
 		"CSearchTags" => "classes/general/tags.php",
-		"CSearchSuggest" => "classes/".$db_type."/suggest.php",
+		"CSearchSuggest" => "classes/mysql/suggest.php",
 		"CSearchStatistic" => "classes/general/statistic.php",
-		"CSearchTitle" => "classes/".$db_type."/title.php",
+		"CSearchTitle" => "classes/mysql/title.php",
 		"CSearchLanguage" => "tools/language.php",
 		"CSearchUser" => "classes/general/user.php",
 		"CSearchParameters" => "classes/general/comp_parameters.php",

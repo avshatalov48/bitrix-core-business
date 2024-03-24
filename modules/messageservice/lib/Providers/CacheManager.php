@@ -8,7 +8,7 @@ class CacheManager
 {
 	public const CHANNEL_CACHE_ENTITY_ID = 'channel';
 	private const BASE_CACHE_DIR = '/messageservice/';
-	private const CACHE_TTL = 3600; //one hour
+	private const CACHE_TTL = 86400; //one hour
 	private Cache $cache;
 	private string $providerId;
 
@@ -23,13 +23,22 @@ class CacheManager
 
 	/**
 	 * @param string $entityId
+	 * @return int
+	 */
+	public function getTtl(string $entityId): int
+	{
+		return self::CACHE_TTL;
+	}
+
+	/**
+	 * @param string $entityId
 	 *
 	 * @return array
 	 */
 	public function getValue(string $entityId): array
 	{
 		$result = [];
-		if ($this->cache->initCache(self::CACHE_TTL, $entityId, $this->getCacheDir()))
+		if ($this->cache->initCache($this->getTtl($entityId), $entityId, $this->getCacheDir()))
 		{
 			$result = $this->cache->getVars();
 		}
@@ -48,7 +57,7 @@ class CacheManager
 
 		$this->cache->clean($cacheName, $this->getCacheDir());
 
-		$this->cache->initCache(self::CACHE_TTL, $cacheName, $this->getCacheDir());
+		$this->cache->initCache($this->getTtl($entityId), $cacheName, $this->getCacheDir());
 		$this->cache->startDataCache();
 		$this->cache->endDataCache($value);
 
@@ -63,6 +72,4 @@ class CacheManager
 
 		return $this;
 	}
-
-
 }

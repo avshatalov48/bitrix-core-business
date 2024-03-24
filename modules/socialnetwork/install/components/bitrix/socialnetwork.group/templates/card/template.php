@@ -809,7 +809,7 @@ else
 					{
 						?>
 						<div class="socialnetwork-group-slider-settings-box">
-							<div class="socialnetwork-group-slider-settings-caption"><?= Loc::getMessage('SONET_C6_CARD_SCRUM_TASK_RESPONSIBLE_TITLE') ?></div>
+							<div class="socialnetwork-group-slider-settings-caption"><?= Loc::getMessage('SONET_C6_CARD_SCRUM_TASK_ASSIGNEE_TITLE') ?></div>
 							<div class="socialnetwork-group-slider-settings-text"><?= Loc::getMessage('SONET_C6_CARD_SCRUM_TASK_RESPONSIBLE_VALUE_' . $arResult['Group']['SCRUM_TASK_RESPONSIBLE']) ?></div>
 						</div>
 						<?php

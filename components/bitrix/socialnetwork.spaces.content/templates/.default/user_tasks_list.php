@@ -1,7 +1,4 @@
 <?php
-
-use Bitrix\Socialnetwork\Livefeed\Context\Context;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -12,6 +9,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arParams */
 /** @var CBitrixComponent $component */
 
+use Bitrix\Socialnetwork\Livefeed\Context\Context;
 
 $userId = $arResult['userId'];
 $state = $arResult['state'];

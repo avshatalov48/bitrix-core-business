@@ -583,6 +583,7 @@ if(
 		$arPost["perms"] = $arResult["PostPerm"];
 
 		$arResult["Post"] = $arPost;
+		$arResult["Post"]["SPERM"] = [];
 		$arResult["PostSrc"] = $arPost;
 		$arResult["Blog"] = $arBlog;
 		$arResult["PostSrc"]["PATH_TO_CONPANY_DEPARTMENT"] = $arParams["PATH_TO_CONPANY_DEPARTMENT"];
@@ -1983,7 +1984,7 @@ if(
 		}
 		else
 		{
-			$arResult["FATAL_MESSAGE"] .= GetMessage("B_B_MES_NO_RIGHTS")."<br />";
+			$arResult["FATAL_MESSAGE"] = GetMessage("B_B_MES_NO_RIGHTS")."<br />";
 			$arResult["FATAL_CODE"] = "NO_RIGHTS";
 		}
 	}
@@ -2019,7 +2020,7 @@ if (
 
 	$arResult['CONTENT_VIEW_KEY_SIGNED'] = (string)($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? (
 		(is_object($USER) && $USER->isAuthorized())
-		&& (string)$arResult['CONTENT_ID'] !== ''
+		&& (string) ($arResult['CONTENT_ID'] ?? null) !== ''
 			? (new Token((int)$USER->getId()))->generate($arResult['CONTENT_ID'])
 			: ''
 	));

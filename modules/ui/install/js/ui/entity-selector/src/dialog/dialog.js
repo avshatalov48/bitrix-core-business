@@ -1645,8 +1645,8 @@ export default class Dialog extends EventEmitter
 			const className = this.isCompactView() ? ' ui-selector-dialog--compact-view' : '';
 
 			return Tag.render`
-				<div 
-					class="ui-selector-dialog${className}" 
+				<div
+					class="ui-selector-dialog${className}"
 					style="width:${this.getWidth()}px; height:${this.getHeight()}px;"
 				>
 					${this.getHeaderContainer()}
@@ -1681,7 +1681,7 @@ export default class Dialog extends EventEmitter
 	{
 		return this.cache.remember('labels-container', () => {
 			return Tag.render`
-				<div 
+				<div
 					class="ui-selector-tab-labels"
 					onmouseenter="${this.handleLabelsMouseEnter.bind(this)}"
 					onmouseleave="${this.handleLabelsMouseLeave.bind(this)}"

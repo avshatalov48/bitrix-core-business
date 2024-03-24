@@ -9,7 +9,7 @@ Loc::loadMessages(__FILE__);
 
 class CAllCurrency
 {
-	protected static $currencyCache = array();
+	protected static array $currencyCache = [];
 
 /*
 * @deprecated deprecated since currency 9.0.0
@@ -24,99 +24,134 @@ class CAllCurrency
 	{
 		global $APPLICATION, $DB, $USER;
 
-		$arMsg = array();
+		$arMsg = [];
 
 		$ACTION = mb_strtoupper($ACTION);
-		if ($ACTION != 'UPDATE' && $ACTION != 'ADD')
+		if ($ACTION !== 'UPDATE' && $ACTION !== 'ADD')
+		{
 			return false;
+		}
 		if (!is_array($arFields))
+		{
 			return false;
+		}
 
-		$defaultValues = array(
+		$defaultValues = [
 			'SORT' => 100,
-			'BASE' => 'N'
-		);
+			'BASE' => 'N',
+		];
 
-		$clearFields = array(
-			'~CURRENCY',
-			'~NUMCODE',
-			'~AMOUNT_CNT',
-			'~AMOUNT',
-			'~BASE',
-			'DATE_UPDATE',
-			'DATE_CREATE',
-			'~DATE_CREATE',
-			'~MODIFIED_BY',
-			'~CREATED_BY',
-			'CURRENT_BASE_RATE',
-			'~CURRENT_BASE_RATE'
-		);
-		if ($ACTION == 'UPDATE')
+		$whiteList = [
+			'CURRENCY' => true,
+			'AMOUNT_CNT' => true,
+			'AMOUNT' => true,
+			'SORT' => true,
+			'NUMCODE' => true,
+			'BASE' => true,
+			'MODIFIED_BY' => true,
+			// external keys
+			'LANG' => true,
+		];
+		if ($ACTION === 'ADD')
 		{
-			$clearFields[] = 'CREATED_BY';
-			$clearFields[] = '~CURRENCY';
+			$whiteList['CREATED_BY'] = true;
 		}
-		$arFields = array_filter($arFields, 'CCurrency::clearFields');
-		foreach ($clearFields as &$fieldName)
-		{
-			if (array_key_exists($fieldName, $arFields))
-				unset($arFields[$fieldName]);
-		}
-		unset($fieldName, $clearFields);
 
-		if ($ACTION == 'ADD')
+		$arFields = array_filter($arFields, [__CLASS__, 'clearFields']);
+		$arFields = array_intersect_key($arFields, $whiteList);
+		if (empty($arFields))
 		{
+			return false;
+		}
+
+		if ($ACTION === 'ADD')
+		{
+			$arFields = array_merge($defaultValues, $arFields);
 			if (!isset($arFields['CURRENCY']))
 			{
-				$arMsg[] = array('id' => 'CURRENCY', 'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_ABSENT'));
+				$arMsg[] = [
+					'id' => 'CURRENCY',
+					'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_ABSENT'),
+				];
 			}
 			elseif (!preg_match("~^[a-z]{3}$~i", $arFields['CURRENCY']))
 			{
-				$arMsg[] = array('id' => 'CURRENCY','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_LAT_EXT'));
+				$arMsg[] = [
+					'id' => 'CURRENCY',
+					'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_LAT_EXT'),
+				];
 			}
 			else
 			{
 				$arFields['CURRENCY'] = mb_strtoupper($arFields['CURRENCY']);
-				$currencyExist = Currency\CurrencyTable::getList(array(
-					'select' => array('CURRENCY'),
-					'filter' => array('=CURRENCY' => $arFields['CURRENCY'])
-				))->fetch();
+				$currencyExist = Currency\CurrencyTable::getRow([
+					'select' => ['CURRENCY'],
+					'filter' => ['=CURRENCY' => $arFields['CURRENCY']],
+				]);
 				if (!empty($currencyExist))
-					$arMsg[] = array('id' => 'CURRENCY','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_EXISTS'));
+				{
+					$arMsg[] = [
+						'id' => 'CURRENCY',
+						'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_EXISTS'),
+					];
+				}
 				unset($currencyExist);
 			}
-			$arFields = array_merge($defaultValues, $arFields);
+
 			if (!isset($arFields['AMOUNT_CNT']))
-				$arMsg[] = array('id' => 'AMOUNT_CNT','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_CNT_ABSENT'));
+			{
+				$arMsg[] = [
+					'id' => 'AMOUNT_CNT',
+					'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_CNT_ABSENT'),
+				];
+			}
 
 			if (!isset($arFields['AMOUNT']))
-				$arMsg[] = array('id' => 'AMOUNT','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_ABSENT'));
+			{
+				$arMsg[] = [
+					'id' => 'AMOUNT',
+					'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_ABSENT'),
+				];
+			}
 		}
 
-		if ($ACTION == 'UPDATE')
+		if ($ACTION === 'UPDATE')
 		{
 			$strCurrencyID = Currency\CurrencyManager::checkCurrencyID($strCurrencyID);
 			if ($strCurrencyID === false)
-				$arMsg[] = array('id' => 'CURRENCY','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_BAD'));
-			$iterator = Currency\CurrencyTable::getList(array(
-				'select' => array('*'),
-				'filter' => array('=CURRENCY' => $strCurrencyID)
-			));
-			$row = $iterator->fetch();
-			unset($iterator);
-			if (!empty($row) && $row['BASE'] == 'Y')
 			{
-				if (array_key_exists('AMOUNT_CNT', $arFields))
+				$arMsg[] = [
+					'id' => 'CURRENCY',
+					'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_CUR_ID_BAD'),
+				];
+			}
+			$row = Currency\CurrencyTable::getRow([
+				'select' => ['*'],
+				'filter' => ['=CURRENCY' => $strCurrencyID],
+			]);
+			if (($row['BASE'] ?? 'N') === 'Y')
+			{
+				if (isset($arFields['AMOUNT_CNT']))
 				{
 					$arFields['AMOUNT_CNT'] = (int)$arFields['AMOUNT_CNT'];
-					if ($arFields['AMOUNT_CNT'] != 1)
-						$arMsg[] = array('id' => 'AMOUNT_CNT','text' => Loc::getMessage('BX_CURRENCY_ERR_CURR_BASE_AMOUNT_CNT_BAD'));
+					if ($arFields['AMOUNT_CNT'] !== 1)
+					{
+						$arMsg[] = [
+							'id' => 'AMOUNT_CNT',
+							'text' => Loc::getMessage('BX_CURRENCY_ERR_CURR_BASE_AMOUNT_CNT_BAD'),
+						];
+					}
 				}
-				if (array_key_exists('AMOUNT', $arFields))
+				if (isset($arFields['AMOUNT']))
 				{
 					$arFields['AMOUNT'] = (float)$arFields['AMOUNT'];
-					if ($arFields['AMOUNT'] != 1)
-						$arMsg[] = array('id' => 'AMOUNT','text' => Loc::getMessage('BX_CURRENCY_ERR_CURR_BASE_AMOUNT_BAD'));
+					if ($arFields['AMOUNT'] !== 1.0)
+					{
+						$arMsg[] = [
+							'id' => 'AMOUNT',
+							'text' => Loc::getMessage('BX_CURRENCY_ERR_CURR_BASE_AMOUNT_BAD'),
+						];
+					}
 				}
 			}
 			unset($row);
@@ -128,55 +163,71 @@ class CAllCurrency
 			{
 				$arFields['AMOUNT_CNT'] = (int)$arFields['AMOUNT_CNT'];
 				if ($arFields['AMOUNT_CNT'] <= 0)
-					$arMsg[] = array('id' => 'AMOUNT_CNT','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_CNT_BAD'));
+				{
+					$arMsg[] = [
+						'id' => 'AMOUNT_CNT',
+						'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_CNT_BAD'),
+					];
+				}
 			}
 			if (isset($arFields['AMOUNT']))
 			{
 				$arFields['AMOUNT'] = (float)$arFields['AMOUNT'];
 				if ($arFields['AMOUNT'] <= 0)
-					$arMsg[] = array('id' => 'AMOUNT','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_BAD'));
+				{
+					$arMsg[] = [
+						'id' => 'AMOUNT',
+						'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_AMOUNT_BAD'),
+					];
+				}
 			}
 			if (isset($arFields['SORT']))
 			{
 				$arFields['SORT'] = (int)$arFields['SORT'];
 				if ($arFields['SORT'] <= 0)
-					$arFields['SORT'] = 100;
+				{
+					$arFields['SORT'] = $defaultValues['SORT'];
+				}
 			}
 			if (isset($arFields['BASE']))
-				$arFields['BASE'] = ((string)$arFields['BASE'] === 'Y' ? 'Y' : 'N');
+			{
+				$arFields['BASE'] = ($arFields['BASE'] === 'Y' ? 'Y' : 'N');
+			}
 
 			if (isset($arFields['NUMCODE']))
 			{
 				$arFields['NUMCODE'] = (string)$arFields['NUMCODE'];
 				if ($arFields['NUMCODE'] === '')
+				{
 					unset($arFields['NUMCODE']);
+				}
 				elseif (!preg_match("~^[0-9]{3}$~", $arFields['NUMCODE']))
-					$arMsg[] = array('id' => 'NUMCODE','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_NUMCODE_IS_BAD'));
+				{
+					$arMsg[] = [
+						'id' => 'NUMCODE',
+						'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_NUMCODE_IS_BAD'),
+					];
+				}
 			}
 		}
 
 		$boolUserExist = self::isUserExists();
 		$intUserID = ($boolUserExist ? (int)$USER->GetID() : 0);
-		$strDateFunction = $DB->GetNowFunction();
-		$arFields['~DATE_UPDATE'] = $strDateFunction;
-		if ($boolUserExist)
+
+		$arFields['~DATE_UPDATE'] = $DB->GetNowFunction();
+		$arFields['MODIFIED_BY'] = (int)($arFields['MODIFIED_BY'] ?? $intUserID);
+		if ($arFields['MODIFIED_BY'] < 0)
 		{
-			if (!isset($arFields['MODIFIED_BY']))
-				$arFields['MODIFIED_BY'] = $intUserID;
-			$arFields['MODIFIED_BY'] = (int)$arFields['MODIFIED_BY'];
-			if ($arFields['MODIFIED_BY'] <= 0)
-				$arFields['MODIFIED_BY'] = $intUserID;
+			$arFields['MODIFIED_BY'] = $intUserID;
 		}
-		if ($ACTION == 'ADD')
+
+		if ($ACTION === 'ADD')
 		{
-			$arFields['~DATE_CREATE'] = $strDateFunction;
-			if ($boolUserExist)
+			$arFields['~DATE_CREATE'] = $arFields['~DATE_UPDATE'];
+			$arFields['CREATED_BY'] = (int)($arFields['CREATED_BY'] ?? $intUserID);
+			if ($arFields['CREATED_BY'] < 0)
 			{
-				if (!isset($arFields['CREATED_BY']))
-					$arFields['CREATED_BY'] = $intUserID;
-				$arFields['CREATED_BY'] = (int)$arFields['CREATED_BY'];
-				if ($arFields['CREATED_BY'] <= 0)
-					$arFields['CREATED_BY'] = $intUserID;
+				$arFields['CREATED_BY'] = $intUserID;
 			}
 		}
 
@@ -184,24 +235,31 @@ class CAllCurrency
 		{
 			if (empty($arFields['LANG']) || !is_array($arFields['LANG']))
 			{
-				$arMsg[] = array('id' => 'LANG','text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_LANG_BAD'));
+				$arMsg[] = [
+					'id' => 'LANG',
+					'text' => Loc::getMessage('BT_MOD_CURR_ERR_CURR_LANG_BAD'),
+				];
 			}
 			else
 			{
-				$langSettings = array();
-				$currency = ($ACTION == 'ADD' ? $arFields['CURRENCY'] : $strCurrencyID);
+				$langSettings = [];
+				$currency = ($ACTION === 'ADD' ? $arFields['CURRENCY'] : $strCurrencyID);
 				foreach ($arFields['LANG'] as $lang => $settings)
 				{
 					if (empty($settings) || !is_array($settings))
+					{
 						continue;
+					}
 					$langAction = (CCurrencyLang::isExistCurrencyLanguage($currency, $lang) ? 'UPDATE' : 'ADD');
 					$checkLang = CCurrencyLang::checkFields($langAction, $settings, $currency, $lang, true);
 					$settings['CURRENCY'] = $currency;
 					$settings['LID'] = $lang;
-					$settings['IS_EXIST'] = ($langAction == 'ADD' ? 'N' : 'Y');
+					$settings['IS_EXIST'] = ($langAction === 'ADD' ? 'N' : 'Y');
 					$langSettings[$lang] = $settings;
 					if (is_array($checkLang))
+					{
 						$arMsg = array_merge($arMsg, $checkLang);
+					}
 				}
 				$arFields['LANG'] = $langSettings;
 				unset($settings, $lang, $currency, $langSettings);
@@ -213,8 +271,10 @@ class CAllCurrency
 			$obError = new CAdminException($arMsg);
 			$APPLICATION->ResetException();
 			$APPLICATION->ThrowException($obError);
+
 			return false;
 		}
+
 		return true;
 	}
 
@@ -224,14 +284,18 @@ class CAllCurrency
 
 		foreach (GetModuleEvents("currency", "OnBeforeCurrencyAdd", true) as $arEvent)
 		{
-			if (ExecuteModuleEventEx($arEvent, array(&$arFields))===false)
+			if (ExecuteModuleEventEx($arEvent, [&$arFields]) === false)
+			{
 				return false;
+			}
 		}
 
 		if (!CCurrency::CheckFields('ADD', $arFields))
+		{
 			return false;
+		}
 
-		$arInsert = $DB->PrepareInsert("b_catalog_currency", $arFields);
+		$arInsert = $DB->PrepareInsert('b_catalog_currency', $arFields);
 
 		$strSql = "insert into b_catalog_currency(".$arInsert[0].") values(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -240,41 +304,54 @@ class CAllCurrency
 		{
 			foreach ($arFields['LANG'] as $lang => $settings)
 			{
-				if ($settings['IS_EXIST'] == 'N')
+				if ($settings['IS_EXIST'] === 'N')
+				{
 					CCurrencyLang::Add($settings);
+				}
 				else
+				{
 					CCurrencyLang::Update($arFields['CURRENCY'], $lang, $settings);
+				}
 			}
 			unset($settings, $lang);
 		}
 
-		Currency\CurrencyTable::getEntity()->cleanCache();
+		Currency\CurrencyTable::cleanCache();
 		Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
 		Currency\CurrencyManager::clearCurrencyCache();
 
-		foreach (GetModuleEvents("currency", "OnCurrencyAdd", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($arFields['CURRENCY'], $arFields));
+		foreach (GetModuleEvents('currency', 'OnCurrencyAdd', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$arFields['CURRENCY'], $arFields]);
+		}
 
 		if (isset(self::$currencyCache[$arFields['CURRENCY']]))
+		{
 			unset(self::$currencyCache[$arFields['CURRENCY']]);
-		return $arFields["CURRENCY"];
+		}
+
+		return $arFields['CURRENCY'];
 	}
 
 	public static function Update($currency, $arFields)
 	{
 		global $DB;
 
-		foreach (GetModuleEvents("currency", "OnBeforeCurrencyUpdate", true) as $arEvent)
+		foreach (GetModuleEvents('currency', 'OnBeforeCurrencyUpdate', true) as $arEvent)
 		{
-			if (ExecuteModuleEventEx($arEvent, array($currency, &$arFields))===false)
+			if (ExecuteModuleEventEx($arEvent, [$currency, &$arFields]) === false)
+			{
 				return false;
+			}
 		}
 
 		$currency = Currency\CurrencyManager::checkCurrencyID($currency);
 		if (!CCurrency::CheckFields('UPDATE', $arFields, $currency))
+		{
 			return false;
+		}
 
-		$strUpdate = $DB->PrepareUpdate("b_catalog_currency", $arFields);
+		$strUpdate = $DB->PrepareUpdate('b_catalog_currency', $arFields);
 		if (!empty($strUpdate))
 		{
 			$strSql = "update b_catalog_currency set ".$strUpdate." where CURRENCY = '".$DB->ForSql($currency)."'";
@@ -283,74 +360,96 @@ class CAllCurrency
 			Currency\CurrencyManager::updateBaseRates($currency);
 			Currency\CurrencyManager::clearTagCache($currency);
 			if (isset(self::$currencyCache[$currency]))
+			{
 				unset(self::$currencyCache[$currency]);
+			}
 		}
 		if (isset($arFields['LANG']))
 		{
 			foreach ($arFields['LANG'] as $lang => $settings)
 			{
-				if ($settings['IS_EXIST'] == 'N')
+				if ($settings['IS_EXIST'] === 'N')
+				{
 					CCurrencyLang::Add($settings);
+				}
 				else
+				{
 					CCurrencyLang::Update($currency, $lang, $settings);
+				}
 			}
 			unset($settings, $lang);
 		}
 		if (!empty($strUpdate) || isset($arFields['LANG']))
+		{
 			Currency\CurrencyManager::clearCurrencyCache();
-		Currency\CurrencyTable::getEntity()->cleanCache();
+		}
+		Currency\CurrencyTable::cleanCache();
 
-		foreach (GetModuleEvents("currency", "OnCurrencyUpdate", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($currency, $arFields));
+		foreach (GetModuleEvents('currency', 'OnCurrencyUpdate', true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$currency, $arFields]);
+		}
 
 		return $currency;
 	}
 
 	public static function Delete($currency)
 	{
-		global $DB;
-
 		$currency = Currency\CurrencyManager::checkCurrencyID($currency);
 		if ($currency === false)
-			return false;
-
-		foreach(GetModuleEvents("currency", "OnBeforeCurrencyDelete", true) as $arEvent)
-		{
-			if(ExecuteModuleEventEx($arEvent, array($currency))===false)
-				return false;
-		}
-
-		$sqlCurrency = $DB->ForSQL($currency);
-
-		$query = "select CURRENCY, BASE from b_catalog_currency where CURRENCY = '".$sqlCurrency."'";
-		$currencyIterator = $DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
-		if ($existCurrency = $currencyIterator->Fetch())
-		{
-			if ($existCurrency['BASE'] == 'Y')
-				return false;
-		}
-		else
 		{
 			return false;
 		}
 
-		foreach(GetModuleEvents("currency", "OnCurrencyDelete", true) as $arEvent)
+		foreach (GetModuleEvents('currency', 'OnBeforeCurrencyDelete', true) as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, array($currency)) === false)
+			{
+				return false;
+			}
+		}
+
+		$existCurrency = Currency\CurrencyTable::getRow([
+			'select' => [
+				'CURRENCY',
+				'BASE',
+			],
+			'filter' => [
+				'=CURRENCY' => $currency,
+			],
+		]);
+
+		if ($existCurrency === null)
+		{
+			return false;
+		}
+		if ($existCurrency['BASE'] === 'Y')
+		{
+			return false;
+		}
+
+		foreach (GetModuleEvents('currency', 'OnCurrencyDelete', true) as $arEvent)
 		{
 			ExecuteModuleEventEx($arEvent, array($currency));
 		}
 
-		Currency\CurrencyManager::clearCurrencyCache();
+		$result = Currency\CurrencyTable::delete($currency);
+		$success = $result->isSuccess();
 
-		$DB->Query("delete from b_catalog_currency_lang where CURRENCY = '".$sqlCurrency."'", true);
-		$DB->Query("delete from b_catalog_currency_rate where CURRENCY = '".$sqlCurrency."'", true);
+		if ($success)
+		{
+			if (isset(self::$currencyCache[$currency]))
+			{
+				unset(self::$currencyCache[$currency]);
+			}
+			Currency\CurrencyLangTable::deleteByCurrency($currency);
+			Currency\CurrencyRateTable::deleteByCurrency($currency);
 
-		Currency\CurrencyManager::clearTagCache($currency);
-		Currency\CurrencyTable::getEntity()->cleanCache();
-		Currency\CurrencyLangTable::getEntity()->cleanCache();
+			Currency\CurrencyManager::clearCurrencyCache();
+			Currency\CurrencyManager::clearTagCache($currency);
+		}
 
-		if (isset(self::$currencyCache[$currency]))
-			unset(self::$currencyCache[$currency]);
-		return $DB->Query("delete from b_catalog_currency where CURRENCY = '".$sqlCurrency."'", true);
+		return $success;
 	}
 
 	public static function GetByID($currency)
@@ -400,19 +499,25 @@ class CAllCurrency
 		if ($currency === false)
 			return false;
 
-		$existCurrency = Currency\CurrencyTable::getList(array(
-			'select' => array('CURRENCY', 'BASE'),
-			'filter' => array('=CURRENCY' => $currency)
-		))->fetch();
+		$existCurrency = Currency\CurrencyTable::getRow([
+			'select' => ['CURRENCY', 'BASE'],
+			'filter' => ['=CURRENCY' => $currency]
+		]);
 		if (!empty($existCurrency))
 		{
-			if ($existCurrency['BASE'] == 'Y')
+			if ($existCurrency['BASE'] === 'Y')
+			{
 				return true;
+			}
 			$result = Currency\CurrencyManager::updateBaseCurrency($currency);
 			if ($result)
+			{
 				Currency\CurrencyManager::clearCurrencyCache();
+			}
+
 			return $result;
 		}
+
 		return false;
 	}
 
@@ -479,7 +584,7 @@ class CAllCurrency
 			}
 			else
 			{
-				$arCurrencyList = array();
+				$arCurrencyList = [];
 				/** @noinspection PhpDeprecationInspection */
 				$dbCurrencyList = static::__GetList($by, $order, $lang);
 				while ($arCurrency = $dbCurrencyList->Fetch())
@@ -532,7 +637,6 @@ class CAllCurrency
 		}
 		unset($normalOrder, $normalBy);
 
-		/** @noinspection PhpInternalEntityUsedInspection */
 		$datetimeField = Currency\Compatible\Tools::getDatetimeExpressionTemplate();
 		$currencyIterator = Currency\CurrencyTable::getList(array(
 			'select' => array(
@@ -555,7 +659,7 @@ class CAllCurrency
 			)
 		));
 		unset($datetimeField);
-		$currencyList = array();
+		$currencyList = [];
 		while ($currency = $currencyIterator->fetch())
 		{
 			$currency['DATE_UPDATE'] = $currency['DATE_UPDATE_FORMAT'];
@@ -571,6 +675,7 @@ class CAllCurrency
 	public static function isUserExists()
 	{
 		global $USER;
+
 		return (isset($USER) && $USER instanceof CUser);
 	}
 
@@ -641,19 +746,35 @@ class CAllCurrency
 		if (!ModuleManager::isModuleInstalled('bitrix24'))
 		{
 			$agentIterator = CAgent::GetList(
-				array(),
-				array('MODULE_ID' => 'currency','=NAME' => '\Bitrix\Currency\CurrencyManager::currencyBaseRateAgent();')
+				[],
+				[
+					'MODULE_ID' => 'currency',
+					'=NAME' => '\Bitrix\Currency\CurrencyManager::currencyBaseRateAgent();',
+				]
 			);
 			if ($agentIterator)
 			{
-				if (!($currencyAgent = $agentIterator->Fetch()))
+				$currencyAgent = $agentIterator->Fetch();
+				if (!$currencyAgent)
 				{
 					Currency\CurrencyManager::updateBaseRates();
 					$checkDate = Main\Type\DateTime::createFromTimestamp(strtotime('tomorrow 00:01:00'));
-					CAgent::AddAgent('\Bitrix\Currency\CurrencyManager::currencyBaseRateAgent();', 'currency', 'Y', 86400, '', 'Y', $checkDate->toString(), 100, false, true);
+					CAgent::AddAgent(
+						'\Bitrix\Currency\CurrencyManager::currencyBaseRateAgent();',
+						'currency',
+						'Y',
+						86400,
+						'',
+						'Y',
+						$checkDate->toString(),
+						100,
+						false,
+						true
+					);
 				}
 			}
 		}
+
 		return '';
 	}
 
@@ -681,7 +802,7 @@ class CAllCurrency
 		Currency\CurrencyManager::updateBaseRates($updateCurrency);
 	}
 
-	protected static function clearFields($value)
+	protected static function clearFields($value): bool
 	{
 		return ($value !== null);
 	}

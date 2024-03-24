@@ -18,6 +18,7 @@ $MESS['IM_SIDEBAR_SEARCH_MESSAGE_START_TITLE'] = "Здесь появятся с
 
 // detail titles
 $MESS['IM_SIDEBAR_MAIN_DETAIL_TITLE'] = "Участники: #NUMBER#";
+$MESS['IM_SIDEBAR_MEMBERS_DETAIL_TITLE'] = "Участники: #NUMBER#";
 $MESS['IM_SIDEBAR_FAVORITE_DETAIL_TITLE'] = "Избранное";
 $MESS['IM_SIDEBAR_LINK_DETAIL_TITLE'] = "Ссылки из сообщений";
 $MESS['IM_SIDEBAR_TASK_DETAIL_TITLE'] = "Задачи";

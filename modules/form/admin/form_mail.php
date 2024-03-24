@@ -34,7 +34,9 @@ if ($_REQUEST['action'] == 'delete')
 			$DB->Rollback();
 		}
 		else
+		{
 			$DB->Commit();
+		}
 	}
 
 	die();

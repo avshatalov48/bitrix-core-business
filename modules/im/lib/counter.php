@@ -21,6 +21,7 @@ class Counter
 			return \Bitrix\Im\Common::toJson((new CounterServiceLegacy($userId))->get());
 		}
 		return (new CounterServiceLegacy($userId))->get();
+		/*
 		$result = [
 			'TYPE' => [
 				'ALL' => 0,
@@ -58,11 +59,11 @@ class Counter
 			SELECT
 				R1.CHAT_ID,
 				R1.MESSAGE_TYPE, 
-				IF(RC.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."', RC.ITEM_ID, 0) PRIVATE_USER_ID,
-				U.ACTIVE PRIVATE_USER_ACTIVE,
+				CASE WHEN RC.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' THEN RC.ITEM_ID ELSE 0 END AS PRIVATE_USER_ID,
+				U.ACTIVE AS PRIVATE_USER_ACTIVE,
 				R1.COUNTER,
 				R1.NOTIFY_BLOCK MUTED,
-				IF(RC.USER_ID > 0, 'Y', 'N') IN_RECENT,
+				CASE WHEN RC.USER_ID > 0 THEN 'Y' ELSE 'N' END AS IN_RECENT,
 				RC.UNREAD
 			FROM b_im_relation R1 
 			LEFT JOIN b_im_recent RC ON RC.ITEM_RID = R1.ID
@@ -148,6 +149,7 @@ class Counter
 		}
 
 		return $result;
+		*/
 	}
 
 	public static function clearCache($userId = null)
@@ -211,6 +213,7 @@ class Counter
 	{
 		return '';
 
+		/*
 		$foundNotify = false;
 		$foundChat = false;
 
@@ -297,6 +300,7 @@ class Counter
 		{
 			return '';
 		}
+		*/
 	}
 
 	public static function onGetMobileCounterTypes(\Bitrix\Main\Event $event)

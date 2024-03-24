@@ -48,6 +48,7 @@ $MESS['CALENDAR_PAY_ATTENTION_TO_NEW_FEATURE_JOINT_TEXT'] = 'Теперь мож
 $MESS['CALENDAR_SHARING_SETTINGS_TITLE'] = 'Укажите диапазон слотов, которые будут доступны клиенту';
 $MESS['CALENDAR_SHARING_SETTINGS_SLOT_SIZE'] = 'Свободное время будет разбито на слоты';
 $MESS['CALENDAR_SHARING_SETTINGS_WORKDAYS'] = 'Рабочие дни';
+$MESS['CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1'] = 'Рабочие дни';
 $MESS['CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT'] = 'Настроить слоты в этой сделке может только ответственный менеджер';
 $MESS['CALENDAR_SHARING_SETTINGS_TITLE_V2'] = 'Доступное время для встреч';
 $MESS['CALENDAR_SHARING_SETTINGS_SUBTITLE_DEFAULT'] = 'По умолчанию выбраны все рабочие дни';

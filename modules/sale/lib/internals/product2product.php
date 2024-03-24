@@ -64,76 +64,34 @@ class Product2ProductTable extends Main\Entity\DataManager
 	{
 		$liveTime = (int)$liveTime;
 		$connection = Main\Application::getConnection();
-		$type = $connection->getType();
-		$helper = $connection->getSqlHelper();
-		$liveTo = $helper->addSecondsToDateTime($liveTime * 24 * 3600, "o.DATE_INSERT");
-		$now = $helper->getCurrentDateTimeFunction();
 
 		// Update existing
-		switch ($type)
+		if ($connection->isTableExists('b_sale_order_product_stat'))
 		{
-			case 'mysql':
-				if ($connection->isTableExists('b_sale_order_product_stat'))
-				{
-					$liveTo = $helper->addSecondsToDateTime($liveTime * 24 * 3600, "ORDER_DATE");
-					$sqlDelete = "DELETE FROM b_sale_order_product_stat WHERE $now > $liveTo";
-					$connection->query($sqlDelete);
-					$connection->query("TRUNCATE TABLE b_sale_product2product");
-					$sqlUpdate = "INSERT INTO b_sale_product2product(PRODUCT_ID, PARENT_PRODUCT_ID, CNT) 
-						SELECT ops.PRODUCT_ID, ops.RELATED_PRODUCT_ID, SUM(ops.CNT)
-						FROM b_sale_order_product_stat ops
-						GROUP BY PRODUCT_ID, RELATED_PRODUCT_ID
-						ORDER BY NULL";
-					$connection->query($sqlUpdate);
-					unset($sqlUpdate);
-				}
-				break;
-			case 'mssql':
-				$sqlUpdate = "UPDATE b_sale_product2product
-					SET  CNT = CNT - 1
-					FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1, b_sale_order o, b_sale_order_processing op
-					WHERE b.ORDER_ID = b1.ORDER_ID AND
-					b.ID <> b1.ID AND
-					$now > $liveTo AND
-					o.ID = b.ORDER_ID AND
-					o.ID = op.ORDER_ID AND
-					op.PRODUCTS_REMOVED = 'N' AND
-					p2p.PRODUCT_ID = b.PRODUCT_ID AND
-					p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID";
-				$connection->query($sqlUpdate);
-				unset($sqlUpdate);
-				break;
-			case 'oracle':
-				$sqlUpdate = "UPDATE b_sale_product2product
-					SET CNT = CNT - 1
-					WHERE ID IN (
-						SELECT p2p.ID FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1, b_sale_order o, b_sale_order_processing op
-						WHERE b.ORDER_ID = b1.ORDER_ID AND
-						b.ID <> b1.ID AND
-						$now > $liveTo AND
-						o.ID = b.ORDER_ID AND
-						o.ID = op.ORDER_ID AND
-						op.PRODUCTS_REMOVED = 'N' AND
-						p2p.PRODUCT_ID = b.PRODUCT_ID AND
-						p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID
-					)";
-				$connection->query($sqlUpdate);
-				unset($sqlUpdate);
-				break;
-			default:
-				break;
+			$helper = $connection->getSqlHelper();
+			$now = $helper->getCurrentDateTimeFunction();
+			$liveTo = $helper->addSecondsToDateTime($liveTime * 24 * 3600, 'ORDER_DATE');
+			$sqlDelete = "DELETE FROM b_sale_order_product_stat WHERE $now > $liveTo";
+			$connection->query($sqlDelete);
+			$connection->query('TRUNCATE TABLE b_sale_product2product');
+
+			$sqlUpdate = 'INSERT INTO b_sale_product2product(PRODUCT_ID, PARENT_PRODUCT_ID, CNT) 
+				SELECT ops.PRODUCT_ID, ops.RELATED_PRODUCT_ID, SUM(ops.CNT)
+				FROM b_sale_order_product_stat ops
+				GROUP BY PRODUCT_ID, RELATED_PRODUCT_ID';
+			if ($connection instanceof Main\DB\MysqlCommonConnection)
+			{
+				$sqlUpdate .= '
+				ORDER BY NULL'
+				;
+			}
+			$connection->query($sqlUpdate);
+			unset($sqlUpdate);
 		}
 
 		// @deprecated update status, stayed for compatibility
 		$updateRemStatusSql = "UPDATE b_sale_order_processing SET PRODUCTS_REMOVED = 'Y'";
 		$connection->query($updateRemStatusSql);
-
-		if ($type !== "mysql")
-		{
-			// Delete
-			$deleteSql = "DELETE FROM b_sale_product2product WHERE CNT <= 0";
-			$connection->query($deleteSql);
-		}
 
 		return "\\Bitrix\\Sale\\Product2ProductTable::deleteOldProducts(".$liveTime.");";
 	}
@@ -143,35 +101,48 @@ class Product2ProductTable extends Main\Entity\DataManager
 	 *
 	 * @param $liveTime.			Counting statistic period in days
 	 *
-	 * @return Main\DB\Result
+	 * @return void
 	 */
 	public static function refreshProductStatistic($liveTime = 10)
 	{
 		$liveTime = (int)$liveTime;
 		$connection = Main\Application::getConnection();
+		$isMysql = $connection instanceof Main\DB\MysqlCommonConnection;
 
 		if (!$connection->isTableExists('b_sale_order_product_stat'))
+		{
 			return;
+		}
 
 		$sqlDelete = "TRUNCATE TABLE b_sale_order_product_stat";
-		$connection->query($sqlDelete);
+		$connection->queryExecute($sqlDelete);
+		$helper = $connection->getSqlHelper();
 		$dateLimit = "";
 		if ($liveTime > 0)
 		{
-			$helper = $connection->getSqlHelper();
 			$liveTo = $helper->addSecondsToDateTime($liveTime * 24 * 3600, "b.DATE_INSERT");
 			$dateLimit = " AND NOW() < $liveTo";
 		}
 		$sqlUpdate = "
 			INSERT INTO b_sale_order_product_stat (PRODUCT_ID, RELATED_PRODUCT_ID, ORDER_DATE, CNT) 
-				SELECT b.PRODUCT_ID as PRODUCT_ID, b1.PRODUCT_ID as RELATED_PRODUCT_ID, DATE(b.DATE_INSERT) as ORDER_DATE, COUNT(b.PRODUCT_ID)
+				SELECT
+					b.PRODUCT_ID as PRODUCT_ID,
+					b1.PRODUCT_ID as RELATED_PRODUCT_ID,
+					" . $helper->getDatetimeToDateFunction('b.DATE_INSERT') . " as ORDER_DATE,
+					COUNT(b.PRODUCT_ID)
 				FROM b_sale_basket b, b_sale_basket b1
 				WHERE b.ORDER_ID = b1.ORDER_ID 
 					AND	b.ID <> b1.ID
 					$dateLimit 
-  				GROUP BY b.PRODUCT_ID, b1.PRODUCT_ID, ORDER_DATE
-  				ORDER BY NULL";
-		$connection->query($sqlUpdate);
+				GROUP BY b.PRODUCT_ID, b1.PRODUCT_ID, ORDER_DATE"
+		;
+		if ($isMysql)
+		{
+			$sqlUpdate .= "
+				ORDER BY NULL"
+			;
+		}
+		$connection->queryExecute($sqlUpdate);
 
 		$sqlDelete = "TRUNCATE TABLE b_sale_product2product";
 		$connection->query($sqlDelete);
@@ -179,11 +150,16 @@ class Product2ProductTable extends Main\Entity\DataManager
 				INSERT INTO b_sale_product2product (PRODUCT_ID, PARENT_PRODUCT_ID, CNT) 
 					SELECT ops.PRODUCT_ID, ops.RELATED_PRODUCT_ID, SUM(ops.CNT)
 					FROM b_sale_order_product_stat ops
-					GROUP BY PRODUCT_ID, RELATED_PRODUCT_ID
+					GROUP BY PRODUCT_ID, RELATED_PRODUCT_ID"
+		;
+		if ($isMysql)
+		{
+			$sqlUpdate .= "
 					ORDER BY NULL
 			";
+		}
 
-		return $connection->query($sqlUpdate);
+		$connection->queryExecute($sqlUpdate);
 	}
 
 	/**
@@ -201,56 +177,40 @@ class Product2ProductTable extends Main\Entity\DataManager
 			return;
 
 		$connection = Main\Application::getConnection();
-		$type = $connection->getType();
+		$helper = $connection->getSqlHelper();
 
 		// Update existing
-		if ($type == "mysql" && $connection->isTableExists('b_sale_order_product_stat'))
+		if ($connection->isTableExists('b_sale_order_product_stat'))
 		{
-			$sqlUpdate = "
-				INSERT INTO b_sale_order_product_stat (PRODUCT_ID, RELATED_PRODUCT_ID, ORDER_DATE) 
-				SELECT b.PRODUCT_ID, b1.PRODUCT_ID, DATE(b.DATE_INSERT)
+			$sqlUpdate = $helper->prepareMergeSelect(
+				'b_sale_order_product_stat',
+				['PRODUCT_ID', 'RELATED_PRODUCT_ID', 'ORDER_DATE'],
+				['PRODUCT_ID', 'RELATED_PRODUCT_ID', 'ORDER_DATE'],
+				"SELECT
+					b.PRODUCT_ID,
+					b1.PRODUCT_ID,
+					" . $helper->getDatetimeToDateFunction('b.DATE_INSERT') . "
 				FROM b_sale_basket b, b_sale_basket b1
 				WHERE b.ORDER_ID = b1.ORDER_ID AND
-					b.ORDER_ID = $orderId AND
-					b.ID <> b1.ID 
-  				ON DUPLICATE KEY UPDATE  CNT = CNT + 1;
-			";
+					b.ORDER_ID = " . $orderId . " AND
+					b.ID <> b1.ID",
+				['CNT' => new \Bitrix\Main\DB\SqlExpression('b_sale_order_product_stat.CNT + 1')],
+			);
 			$connection->query($sqlUpdate);
 
-			$sqlUpdate = "UPDATE b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1
-				SET  p2p.CNT = p2p.CNT + 1
-				WHERE b.ORDER_ID = b1.ORDER_ID AND
+			$sqlUpdate = $helper->prepareCorrelatedUpdate(
+				'b_sale_product2product',
+				'p2p',
+				['CNT' => 'p2p.CNT + 1'],
+				'b_sale_basket b, b_sale_basket b1',
+				"b.ORDER_ID = b1.ORDER_ID AND
 					b.ID <> b1.ID AND
-					b.ORDER_ID = $orderId AND
+					b.ORDER_ID = " . $orderId . " AND
 					p2p.PRODUCT_ID = b.PRODUCT_ID AND
-					p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID";
+					p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID"
+			);
+			$connection->query($sqlUpdate);
 		}
-		elseif ($type == "mssql")
-		{
-			$sqlUpdate = "UPDATE b_sale_product2product
-				SET CNT = CNT + 1
-				FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1
-				WHERE b.ORDER_ID = b1.ORDER_ID AND
-					b.ID <> b1.ID AND
-					b.ORDER_ID = $orderId AND
-					p2p.PRODUCT_ID = b.PRODUCT_ID AND
-					p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID";
-		}
-		else // Oracle
-		{
-			$sqlUpdate = "UPDATE b_sale_product2product
-				SET CNT = CNT + 1
-				WHERE ID IN (
-					SELECT p2p.ID FROM b_sale_product2product p2p, b_sale_basket b, b_sale_basket b1
-					WHERE b.ORDER_ID = b1.ORDER_ID AND
-						b.ID <> b1.ID AND
-						b.ORDER_ID = $orderId AND
-						p2p.PRODUCT_ID = b.PRODUCT_ID AND
-						p2p.PARENT_PRODUCT_ID = b1.PRODUCT_ID
-					)";
-		}
-
-		$connection->query($sqlUpdate);
 
 		// Insert new
 		$sqlInsert = "INSERT INTO b_sale_product2product (PRODUCT_ID, PARENT_PRODUCT_ID, CNT)
@@ -280,23 +240,29 @@ class Product2ProductTable extends Main\Entity\DataManager
 	 */
 	public static function addProductsByAgent($limit = 100)
 	{
+		global $pPERIOD;
+
 		$limit = (int)$limit;
 		$connection = Main\Application::getConnection();
 		$type = $connection->getType();
 		$isTableExists = $connection->isTableExists('b_sale_order_product_stat');
-		if ($type == "mysql" && $isTableExists)
+		if ($isTableExists)
 		{
-			$params = array(
-				"filter" => array("PRODUCTS_ADDED" => 'N'),
-				"select" => array("ORDER_ID")
-			);
+			$params = [
+				'filter' => [
+					'=PRODUCTS_ADDED' => 'N',
+				],
+				'select' => [
+					'ORDER_ID',
+				]
+			];
 
 			if ($limit > 0)
 			{
 				$params['limit'] = $limit;
 			}
 
-			$orderIds = array();
+			$orderIds = [];
 			$processingData = Sale\OrderProcessingTable::getList($params);
 			while ($processingOrder = $processingData->fetch())
 			{
@@ -307,29 +273,35 @@ class Product2ProductTable extends Main\Entity\DataManager
 			{
 				$sqlOrderIds = implode(',', $orderIds);
 				Sale\OrderProcessingTable::markProductsAddedByList($orderIds);
+				$helper = $connection->getSqlHelper();
 
-				$sqlInsert = "
-				INSERT INTO b_sale_order_product_stat (CNT, PRODUCT_ID, RELATED_PRODUCT_ID, ORDER_DATE) 
-					SELECT SUMM, PRODUCT_ID, PARENT_PRODUCT_ID, TODAY 
+				$sqlInsert = $helper->prepareMergeSelect(
+					'b_sale_order_product_stat',
+					['PRODUCT_ID', 'RELATED_PRODUCT_ID', 'ORDER_DATE'],
+					['CNT', 'PRODUCT_ID', 'RELATED_PRODUCT_ID', 'ORDER_DATE'],
+					"SELECT SUMM, PRODUCT_ID, PARENT_PRODUCT_ID, TODAY 
 					FROM (
 						SELECT COUNT(1) as SUMM,
 							b.PRODUCT_ID  as PRODUCT_ID, 
 							b1.PRODUCT_ID as PARENT_PRODUCT_ID,
-							CURDATE() as TODAY
+							" . $helper->getCurrentDateFunction() . " as TODAY
 						FROM b_sale_basket b, b_sale_basket b1
 						WHERE 
 							b1.ORDER_ID = b.ORDER_ID
 							AND b1.ID <> b.ID
 							AND b.ORDER_ID IN ($sqlOrderIds)
 						GROUP BY b.PRODUCT_ID, b1.PRODUCT_ID
-						ORDER BY NULL
-					) cacl
-				ON DUPLICATE KEY UPDATE CNT = CNT + cacl.SUMM;";
+						" . ($type === 'mysql' ? 'ORDER BY NULL' : '') . "
+					) cacl",
+					['CNT' => new \Bitrix\Main\DB\SqlExpression('b_sale_order_product_stat.CNT + ?v', 'CNT')],
+				);
 				$connection->query($sqlInsert);
 
-				$sqlUpdate = "
-				UPDATE b_sale_product2product p2p, 
-					( 
+				$sqlUpdate = $helper->prepareCorrelatedUpdate(
+					'b_sale_product2product',
+					'p2p',
+					['CNT' => 'p2p.CNT + calc.CNT'],
+					"( 
 						SELECT COUNT(1) as CNT,
 							b.PRODUCT_ID  as PRODUCT_ID, 
 							b1.PRODUCT_ID as PARENT_PRODUCT_ID
@@ -339,10 +311,9 @@ class Product2ProductTable extends Main\Entity\DataManager
 							AND b1.ID <> b.ID
 							AND b.ORDER_ID IN ($sqlOrderIds)
 						GROUP BY b.PRODUCT_ID, b1.PRODUCT_ID
-						ORDER BY NULL
-					) calc
-				SET  p2p.CNT = p2p.CNT + calc.CNT
-				WHERE p2p.PRODUCT_ID = calc.PRODUCT_ID AND	p2p.PARENT_PRODUCT_ID = calc.PARENT_PRODUCT_ID";
+					) calc",
+					'p2p.PRODUCT_ID = calc.PRODUCT_ID AND p2p.PARENT_PRODUCT_ID = calc.PARENT_PRODUCT_ID'
+				);
 
 				$connection->query($sqlUpdate);
 
@@ -365,28 +336,44 @@ class Product2ProductTable extends Main\Entity\DataManager
 		}
 
 		$agentName = "\\Bitrix\\Sale\\Product2ProductTable::addProductsByAgent($limit);";
-		$agentData = \CAgent::GetList(array(), array("NAME" => $agentName, "MODULE_ID" => "sale"));
-		$agent = $agentData->Fetch();
-
-		$processingData = Sale\OrderProcessingTable::getList(
-			array(
-				"filter" => array("PRODUCTS_ADDED" => 'N')
-			)
+		$agentData = \CAgent::GetList(
+			[],
+			[
+				'NAME' => $agentName,
+				'MODULE_ID' => 'sale',
+			]
 		);
+		$agent = $agentData->Fetch();
+		unset($agentData);
+		$agentId = (int)($agent['ID'] ?? 0);
 
-		if ($processingData->fetch())
+		$processingData = Sale\OrderProcessingTable::getRow([
+			'filter' => [
+				'=PRODUCTS_ADDED' => 'N'
+			],
+		]);
+
+		if ($processingData)
 		{
-			if ($isTableExists && $agent['ID'] && $agent['ID'] > 60)
+			if (
+				$isTableExists
+				&& $agentId > 0
+				&& (int)$agent['AGENT_INTERVAL'] > 60
+			)
 			{
-				\CAgent::Delete($agent["ID"]);
-				\CAgent::AddAgent("Bitrix\\Sale\\Product2ProductTable::addProductsByAgent($limit);", "sale", "N", 60, "", "Y");
+				\CAgent::Update($agentId, ['AGENT_INTERVAL' => 60]);
+				$pPERIOD = 60;
 			}
 		}
 		else
 		{
-			if ($agent['ID'])
+			if (
+				$agentId > 0
+				&& (int)$agent['AGENT_INTERVAL'] < 86400
+			)
 			{
-				\CAgent::Update($agent["ID"], array("AGENT_INTERVAL" => 60*60*24));
+				\CAgent::Update($agentId, ['AGENT_INTERVAL' => 86400]);
+				$pPERIOD = 86400;
 			}
 		}
 

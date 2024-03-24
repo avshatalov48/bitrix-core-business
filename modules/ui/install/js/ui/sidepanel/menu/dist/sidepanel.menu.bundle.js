@@ -145,6 +145,7 @@ this.BX.UI = this.BX.UI || {};
 	var _collection = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("collection");
 	var _node$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("node");
 	var _actions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("actions");
+	var _moduleId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("moduleId");
 	var _emitChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("emitChange");
 	var _handleClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleClick");
 	var _showActionMenu = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showActionMenu");
@@ -192,9 +193,13 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _moduleId, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace('ui:sidepanel:menu:item');
 	    babelHelpers.classPrivateFieldLooseBase(this, _collection)[_collection] = new Collection();
-	    this.setLabel(options.label).setActive(options.active).setNotice(options.notice).setId(options.id).setItems(options.items).setClickHandler(options.onclick).setActions(options.actions);
+	    this.setLabel(options.label).setActive(options.active).setNotice(options.notice).setId(options.id).setItems(options.items).setClickHandler(options.onclick).setActions(options.actions).setModuleId(options.moduleId);
 	    babelHelpers.classPrivateFieldLooseBase(this, _collection)[_collection].subscribe('sync:active', () => this.emit('sync:active'));
 	    babelHelpers.classPrivateFieldLooseBase(this, _collection)[_collection].subscribe('click', event => this.emit('click', event));
 	  }
@@ -234,6 +239,10 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _onclick)[_onclick] = handler;
 	    return this;
 	  }
+	  setModuleId(moduleId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _moduleId)[_moduleId] = moduleId;
+	    return this;
+	  }
 	  setActions(actions = []) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _actions)[_actions] = actions;
 	    return this;
@@ -251,6 +260,9 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getId() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _id)[_id];
+	  }
+	  getModuleId() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _moduleId)[_moduleId];
 	  }
 	  getClickHandler() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _onclick)[_onclick];

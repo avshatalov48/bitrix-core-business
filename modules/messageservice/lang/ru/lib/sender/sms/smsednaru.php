@@ -1,6 +1,7 @@
 <?php
 
 $MESS['MESSAGESERVICE_SENDER_SMS_SMSEDNARU_NAME'] = 'Компания sms.edna.ru';
+$MESS['MESSAGESERVICE_SENDER_SMS_SMSEDNARU_NAME_IO'] = 'Компания sms.edna.io';
 $MESS['MESSAGESERVICE_SENDER_SMS_SMSEDNARU_USE_ERROR'] = 'Провайдер компании edna не настроен';
 $MESS['MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_SYSTEM'] = 'Системная ошибка';
 $MESS['MESSAGESERVICE_SENDER_SMS_SMSEDNARU_ERROR_ID_NOT_UNIQUE'] = 'Идентификатор СМС не уникален, повторите попытку';

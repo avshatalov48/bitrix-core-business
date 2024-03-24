@@ -18,22 +18,7 @@ export class ContextMenuCollection
 
 	add(menu: ContextMenu)
 	{
-		if (!this.has(menu))
-		{
-			ContextMenuCollection.items.push(menu);
-		}
-	}
-
-	has(menu: ContextMenu): boolean
-	{
-		ContextMenuCollection.items.forEach((item: ContextMenu) => {
-			if (item.getSpaceId() === menu.getSpaceId())
-			{
-				return true;
-			}
-		})
-
-		return false;
+		ContextMenuCollection.items.push(menu);
 	}
 
 	destroy(): void
@@ -42,5 +27,6 @@ export class ContextMenuCollection
 			const menu = MenuManager.getMenuById(ContextMenu.ID + item.getSpaceId());
 			menu?.destroy();
 		});
+		ContextMenuCollection.items = ContextMenuCollection.items.filter((item: ContextMenu) => item.isShown());
 	}
 }

@@ -37,7 +37,7 @@ class UserField extends UserFieldProxy
 		$fields = [];
 
 		$query = array_change_key_case($query, CASE_UPPER);
-		if (is_array($query['FIELDS']))
+		if (isset($query['FIELDS']) && is_array($query['FIELDS']))
 		{
 			$fields = static::checkFields($query['FIELDS']);
 		}
@@ -50,7 +50,7 @@ class UserField extends UserFieldProxy
 	public static function updateRest($query, $n, \CRestServer $server)
 	{
 		$query = array_change_key_case($query, CASE_UPPER);
-		$id = (int) $query['ID'];
+		$id = (int)($query['ID'] ?? 0);
 		if ($id <= 0)
 		{
 			throw new RestException('ID is not defined or invalid.');
@@ -62,7 +62,7 @@ class UserField extends UserFieldProxy
 		}
 
 		$fields = [];
-		if (is_array($query['FIELDS']))
+		if (isset($query['FIELDS']) && is_array($query['FIELDS']))
 		{
 			$fields = static::checkFields($query['FIELDS']);
 		}
@@ -75,7 +75,7 @@ class UserField extends UserFieldProxy
 	public static function deleteRest($query, $n, \CRestServer $server)
 	{
 		$query = array_change_key_case($query, CASE_UPPER);
-		$id = (int) $query['ID'];
+		$id = (int)($query['ID'] ?? 0);
 		if ($id <= 0)
 		{
 			throw new RestException('ID is not defined or invalid.');
@@ -96,11 +96,11 @@ class UserField extends UserFieldProxy
 		$order = [];
 		$filter = [];
 		$query = array_change_key_case($query, CASE_UPPER);
-		if (is_array($query['ORDER']))
+		if (isset($query['ORDER']) && is_array($query['ORDER']))
 		{
 			$order = $query['ORDER'];
 		}
-		if (is_array($query['FILTER']))
+		if (isset($query['FILTER']) && is_array($query['FILTER']))
 		{
 			$filter = $query['FILTER'];
 		}

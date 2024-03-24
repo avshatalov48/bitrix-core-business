@@ -10,6 +10,7 @@ $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_OK"] = "Verstanden";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC"] = "Die Aufgaben werden im Activity Stream nicht angezeigt. Sie können darauf im Bereich Aufgaben zugreifen. Die Benachrichtigugen über Aufgaben werden Sie im Messenger erhalten.";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC2"] = "Die Aufgaben werden jetzt im Feed nicht angezeigt. Sie können darauf im Aufgabenbereich zugreifen. Die Benachrichtigungen über Aufgaben werden Sie nach wie vor im Messenger erhalten.";
 $MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE"] = "Testen Sie die neue Aufgabenansicht nach dem Aktiv-Status";
+$MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE_MSGVER_1"] = "Probieren Sie die neue Aufgabenansicht nach Datum der letzten Aktivität aus";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_EXPAND"] = "Maximieren";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_NEW_COMMENTS"] = "Neue Kommentare:";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_POSTS"] = "Fixierte Nachrichten";

@@ -156,9 +156,17 @@ class StringField extends ScalarField
 		{
 			return $value;
 		}
-
-		return $value === null && $this->is_nullable
-			? $value
-			: $this->getConnection()->getSqlHelper()->convertToDbString($value);
+		elseif ($value === null && $this->is_nullable)
+		{
+			return $value;
+		}
+		elseif ($this->is_binary)
+		{
+			return $this->getConnection()->getSqlHelper()->convertToDbBinary($value);
+		}
+		else
+		{
+			return $this->getConnection()->getSqlHelper()->convertToDbString($value, $this->size);
+		}
 	}
 }

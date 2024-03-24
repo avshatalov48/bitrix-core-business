@@ -584,7 +584,8 @@ class CReport
 			$elem = $select[$elemIndex];
 			$result = false;
 
-			if ($elem['prcnt'] <> '' && $elem['prcnt'] !== 'self_column')
+			$prcnt = $elem['prcnt'] ?? '';
+			if ($prcnt !== '' && $prcnt !== 'self_column')
 			{
 				$result = self::checkSelectViewElementCyclicDependency($select, $elem['prcnt']);
 			}
@@ -612,7 +613,8 @@ class CReport
 		$totalInfo = null;
 		$alias = null;
 
-		if (empty($elem['aggr']) && !mb_strlen($elem['prcnt']))
+		$prcnt = $elem['prcnt'] ?? '';
+		if (empty($elem['aggr']) && !mb_strlen($prcnt))
 		{
 			$selectElem = $elem['name'];
 		}
@@ -796,12 +798,12 @@ class CReport
 				}
 			}
 
-			if($elem['prcnt'] <> '')
+			if($prcnt !== '')
 			{
 				$alias = $alias.'_PRCNT';
 				$dataType = 'integer';
 
-				if($elem['prcnt'] == 'self_column')
+				if($prcnt === 'self_column')
 				{
 					if(empty($expression))
 					{
@@ -822,7 +824,7 @@ class CReport
 					}
 
 					list($remoteAlias, $remoteSelect) = self::prepareSelectViewElement(
-						$select[$elem['prcnt']],
+						$select[$prcnt],
 						$select,
 						$isInitEntityAggregated,
 						$fList,
@@ -1201,9 +1203,9 @@ class CReport
 	{
 		foreach ($vReports as &$dReport)
 		{
-			$dReport['settings']['mark_default'] = $dReport['mark_default'];
-			$dReport['settings']['title'] = $dReport['title'];
-			$dReport['settings']['description'] = $dReport['description'];
+			$dReport['settings']['mark_default'] = $dReport['mark_default'] ?? 0;
+			$dReport['settings']['title'] = $dReport['title'] ?? '';
+			$dReport['settings']['description'] = $dReport['description'] ?? '';
 			$dReport['settings']['owner'] = $ownerId;
 
 			self::Add($dReport['settings']);

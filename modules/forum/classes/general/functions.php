@@ -1,4 +1,4 @@
-<?
+<?php
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2007 Bitrix             #
@@ -852,16 +852,14 @@ class CForumCacheManager
 	public function OnMessageUpdate($ID, $arFields, $arMessage = array())
 	{
 		$arMessage = (is_array($arMessage) ? $arMessage : array());
-		$topic_id = (isset($arFields["FORUM_TOPIC_ID"]) ? $arFields["FORUM_TOPIC_ID"] : $arFields["TOPIC_ID"]);
-		if (isset($arFields["APPROVED"]) && $topic_id <= 0)
-			$topic_id = $arMessage["TOPIC_ID"];
-		if ($topic_id > 0)
+		if ($topic_id = $arFields["FORUM_TOPIC_ID"] ?? $arFields["TOPIC_ID"] ?? $arMessage["TOPIC_ID"] ?? 0)
+		{
 			$this->ClearTag("T", $topic_id);
-		$forum_id = (isset($arFields["FORUM_ID"]) ? $arFields["FORUM_ID"] : 0);
-		if (isset($arFields["APPROVED"]) && $forum_id <= 0)
-			$forum_id = $arMessage["FORUM_ID"];
-		if ($forum_id > 0)
-			$this->ClearTag("forum_msg_count".$forum_id);
+		}
+		if ($forum_id = $arFields["FORUM_ID"] ?? $arMessage["FORUM_ID"] ?? 0)
+		{
+			$this->ClearTag("forum_msg_count" . $forum_id);
+		}
 	}
 
 	public function OnMessageDelete($ID, $arMessage)

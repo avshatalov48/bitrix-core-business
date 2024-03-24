@@ -5,6 +5,8 @@ namespace Bitrix\Location\Model;
 use Bitrix\Main;
 use Bitrix\Main\ORM\Fields;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\EventResult;
 
 /**
  * Class AddressTable
@@ -68,5 +70,13 @@ class AddressTable extends Main\ORM\Data\DataManager
 				Join::on('this.LOCATION_ID', 'ref.ID')))
 				->configureJoinType('left')
 		);
+	}
+
+	public static function onBeforeAdd(Event $event): EventResult
+	{
+		$result = new EventResult();
+		$result->unsetField('ID');
+
+		return $result;
 	}
 }

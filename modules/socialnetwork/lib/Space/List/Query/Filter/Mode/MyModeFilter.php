@@ -10,11 +10,7 @@ final class MyModeFilter extends AbstractModeFilter
 {
 	public function apply(Query $query): void
 	{
-		$query->where(
-			Query::filter()
-				->logic(ConditionTree::LOGIC_OR)
-				->where($this->getParticipantCondition())
-		);
-		$query->setOrder(['PIN.ID' => 'DESC', 'DATE_ACTIVITY' => 'DESC']);
+		$query->where($this->getParticipantCondition());
+		$query->setOrder(['PIN.ID' => 'DESC', 'RECENT_ACTIVITY_DATE' => 'DESC']);
 	}
 }

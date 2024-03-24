@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Landing\Binding\Group;
 use \Bitrix\Landing\Hook;
 use Bitrix\Landing\Hook\Page\Theme;
 use Bitrix\Landing\Node\Component;
@@ -349,6 +350,40 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 						$primary['ID'],
 						$data
 					);
+				}
+				if ($this->arParams['TYPE'] === 'GROUP' && $_REQUEST['fields'])
+				{
+					$groupUnbind = $_REQUEST['fields']['GROUP_UNBIND'];
+					$groupDelete = $_REQUEST['fields']['GROUP_DELETE'];
+					if ($groupUnbind === 'on' || $groupDelete === 'on')
+					{
+						$siteId = $this->arParams['SITE_ID'];
+						$groupId = Site\Scope\Group::getGroupIdBySiteId($siteId);
+						if ($groupId)
+						{
+							$binding = new Group($groupId);
+							if (!$binding->isForbiddenBindingAction())
+							{
+								$binding->unbindSite($siteId);
+							}
+						}
+						if ($this->arParams['IS_CHANGED_TYPE'] !== true)
+						{
+							$this->arParams['IS_CHANGED_TYPE'] = true;
+							Site::changeType($siteId, 'KNOWLEDGE');
+						}
+						if ($this->arParams['IS_CHANGED_CODE'] !== true)
+						{
+							$this->arParams['IS_CHANGED_CODE'] = true;
+							$newCode = $this->arResult['SITE']['CODE']['CURRENT'] . '_'  . time();
+							Site::changeCode($siteId, $newCode);
+						}
+						if ($groupDelete === 'on' && $this->arParams['IS_SITE_DELETE'] !== true)
+						{
+							$this->arParams['IS_SITE_DELETE'] = true;
+							Site::markDelete($siteId);
+						}
+					}
 				}
 				// rights
 				if (Rights::isAdmin() && Rights::isExtendedMode())

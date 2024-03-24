@@ -23,6 +23,7 @@ Loader::includeModule('intranet');
 		'',
 		[
 			'CONTEXT' => Context::SPACES,
+			'DISPLAY' => 'commonSpace',
 			'PATH_TO_LOG_ENTRY' => '/company/personal/log/#log_id#/',
 			'PATH_TO_USER' => '/company/personal/user/#user_id#/',
 			'PATH_TO_MESSAGES_CHAT' => '/company/personal/messages/chat/#user_id#/',
@@ -89,17 +90,21 @@ Loader::includeModule('intranet');
 		]
 	);
 
-	$APPLICATION->IncludeComponent(
-		'bitrix:disk.file.upload',
-		'',
-		[
-			'STORAGE' => $arResult['storage'],
-			'FOLDER' => $arResult['folder'],
-			'CID' => 'FolderList',
-			'DROPZONE' => 'document.getElementById("bx-disk-container")',
-		],
-		$component,
-		["HIDE_ICONS" => "Y"]
-	);
+	if ($arResult['storage'])
+	{
+		$APPLICATION->IncludeComponent(
+			'bitrix:disk.file.upload',
+			'',
+			[
+				'STORAGE' => $arResult['storage'],
+				'FOLDER' => $arResult['folder'],
+				'CID' => 'FolderList',
+				'DROPZONE' => 'document.getElementById("bx-disk-container")',
+			],
+			$component,
+			["HIDE_ICONS" => "Y"]
+		);
+	}
+
 ?>
 </div>

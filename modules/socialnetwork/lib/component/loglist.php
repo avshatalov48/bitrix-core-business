@@ -633,6 +633,7 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 		}
 
 		$processorInstance->setListParamsKey('CHECK_RIGHTS', 'Y');
+		$this->prepareExpertMode();
 
 		$res = \CSocNetLog::getList(
 			$processorInstance->getOrder(),
@@ -796,5 +797,14 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 	public static function getGratitudesBlogData(array $params = []): array
 	{
 		return LogList\Gratitude::getGratitudesBlogData($params);
+	}
+
+	private function prepareExpertMode(): void
+	{
+		$processor = $this->getProcessorInstance();
+		if ($processor->isSpace())
+		{
+			$processor->setListParamsKey('SKIP_EXPERT_MODE', true);
+		}
 	}
 }

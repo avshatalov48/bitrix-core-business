@@ -1,6 +1,9 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+
 $module_id = "bizproc";
-$bizprocPerms = $APPLICATION->GetGroupRight($module_id);
+$bizprocPerms = $APPLICATION::GetGroupRight($module_id);
 if ($bizprocPerms>="R") :
 
 CModule::IncludeModule("bizproc");
@@ -21,7 +24,7 @@ while ($site = $dbSites->Fetch())
 }
 $subTabControl = new CAdminViewTabControl("subTabControl", $aSubTabs);
 
-if ($REQUEST_METHOD == "GET" && !empty($RestoreDefaults) && $bizprocPerms == "W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] === "GET" && !empty($RestoreDefaults) && $bizprocPerms === "W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("bizproc");
 }
@@ -38,17 +41,17 @@ $arAllOptions = array(
 );
 
 $strWarning = "";
-if ($REQUEST_METHOD == "POST" && $Update <> '' && $bizprocPerms == "W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] === "POST" && !empty($Update) && $bizprocPerms === "W" && check_bitrix_sessid())
 {
-	COption::SetOptionString("bizproc", "log_cleanup_days", $log_cleanup_days);
+	COption::SetOptionString("bizproc", "log_cleanup_days", ($log_cleanup_days ?? 0));
 	if ($log_cleanup_days > 0)
 		CAgent::AddAgent("CBPTrackingService::ClearOldAgent();", "bizproc", "N", 86400);
 	else
 		CAgent::RemoveAgent("CBPTrackingService::ClearOldAgent();", "bizproc");
 
-	COption::SetOptionString("bizproc", "employee_compatible_mode", $employee_compatible_mode == "Y" ? "Y" : "N");
-	COption::SetOptionString("bizproc", "limit_simultaneous_processes", $limit_simultaneous_processes ? $limit_simultaneous_processes : 0);
-	COption::SetOptionString("bizproc", "log_skip_types", $log_skip_types ? implode(',', $log_skip_types) : "");
+	COption::SetOptionString("bizproc", "employee_compatible_mode", ($employee_compatible_mode ?? 'N') === "Y" ? "Y" : "N");
+	COption::SetOptionString("bizproc", "limit_simultaneous_processes", ($limit_simultaneous_processes ?? 0) ? $limit_simultaneous_processes : 0);
+	COption::SetOptionString("bizproc", "log_skip_types", ($log_skip_types ?? '') ? implode(',', $log_skip_types) : "");
 
 	\Bitrix\Main\Config\Option::set("bizproc", "use_gzip_compression", $_REQUEST["use_gzip_compression"]);
 	\Bitrix\Main\Config\Option::set("bizproc", "locked_wi_path", $_REQUEST["locked_wi_path"]);
@@ -76,7 +79,7 @@ $aTabs = array(
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
 ?>
-<form method="POST" name="bizproc_opt_form" action="<?= $APPLICATION->GetCurPage() ?>?mid=<?= htmlspecialcharsbx($mid) ?>&lang=<?= LANGUAGE_ID ?>" ENCTYPE="multipart/form-data"><?
+<form method="POST" name="bizproc_opt_form" action="<?= $APPLICATION->GetCurPage() ?>?mid=<?= htmlspecialcharsbx($mid ?? 'bizproc') ?>&lang=<?= LANGUAGE_ID ?>" ENCTYPE="multipart/form-data"><?
 echo bitrix_sessid_post();
 $tabControl->BeginNextTab();
 ?>

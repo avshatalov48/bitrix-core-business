@@ -51,20 +51,23 @@ class Queue
 			return;
 		}
 
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$req = [];
 		foreach ($logs as $logId)
 		{
-			$req[] = $userId .',"'. $type .'",' . (int) $logId;
+			$req[] = $userId .',\''. $helper->forSql($type) . '\',' . (int)$logId;
 		}
 
 		$sql = "
-			INSERT INTO `". QueueTable::getTableName(). "`
-			(`USER_ID`, `TYPE`, `SONET_LOG_ID`)
+			INSERT INTO " . $helper->quote(QueueTable::getTableName()) . "
+			(" . $helper->quote('USER_ID') . ", " . $helper->quote('TYPE') . ", " . $helper->quote('SONET_LOG_ID') . ")
 			VALUES
 			(". implode("),(", $req) .")
 		";
 
-		Application::getConnection()->query($sql);
+		$connection->queryExecute($sql);
 
 		self::$inQueue[$userId] = true;
 	}
@@ -81,21 +84,21 @@ class Queue
 			throw new CounterQueuePopException();
 		}
 
-		$sql = "
-			SELECT 
-				ID,
-				USER_ID, 
-				TYPE,
-				SONET_LOG_ID
-			FROM `". QueueTable::getTableName() ."`
-			ORDER BY ID ASC
-			LIMIT {$limit}
-		";
-
-		$res = Application::getConnection()->query($sql);
+		$iterator = QueueTable::getList([
+			'select' => [
+				'ID',
+				'USER_ID',
+				'TYPE',
+				'SONET_LOG_ID',
+			],
+			'order' => [
+				'ID' => 'ASC',
+			],
+			'limit' => $limit,
+		]);
 
 		$queue = [];
-		while ($row = $res->fetch())
+		while ($row = $iterator->fetch())
 		{
 			$this->popped[] = $row['ID'];
 
@@ -126,12 +129,15 @@ class Queue
 			return;
 		}
 
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$sql = "
 			DELETE
-			FROM `". QueueTable::getTableName() ."`
+			FROM ". $helper->quote(QueueTable::getTableName()) ."
 			WHERE ID IN (". implode(",", $this->popped) .")
 		";
-		Application::getConnection()->query($sql);
+		$connection->queryExecute($sql);
 
 		$this->popped = [];
 	}

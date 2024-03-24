@@ -414,8 +414,9 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 
 		if ($account = $accountList->Fetch())
 		{
-			$currencyList = CCurrencyLang::GetFormatDescription($account["CURRENCY"]);
-			$account['FORMATED_CURRENCY'] = trim(str_replace("#", "", $currencyList['FORMAT_STRING']));
+			$currency = CCurrencyLang::GetFormatDescription($account['CURRENCY']);
+			$account['FORMATED_CURRENCY'] = trim(CCurrencyLang::applyTemplate('', $currency['FORMAT_STRING']));
+			unset($currency);
 			$this->arResult['INNER_PAYMENT_INFO'] = $account;
 		}
 	}

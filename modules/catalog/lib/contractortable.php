@@ -1,8 +1,11 @@
 <?php
+
 namespace Bitrix\Catalog;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\EventResult;
 use Bitrix\Main\ORM\Fields\DatetimeField;
 use Bitrix\Main\ORM\Fields\EnumField;
 use Bitrix\Main\ORM\Fields\IntegerField;
@@ -61,7 +64,7 @@ class ContractorTable extends DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_contractor';
 	}
@@ -71,7 +74,7 @@ class ContractorTable extends DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
 			'ID' => new IntegerField(
@@ -379,5 +382,51 @@ class ContractorTable extends DataManager
 	public static function getTypeDescriptions(): array
 	{
 		return static::getTypeList(true);
+	}
+
+	/**
+	 * Default onBeforeAdd handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for add.
+	 * @return EventResult
+	 */
+	public static function onBeforeAdd(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$data = $event->getParameter('fields');
+		if (!array_key_exists('DATE_MODIFY', $data))
+		{
+			$result->modifyFields([
+				'DATE_MODIFY' => new DateTime(),
+			]);
+		}
+		if (!array_key_exists('DATE_CREATE', $data))
+		{
+			$result->modifyFields([
+				'DATE_CREATE' => new DateTime(),
+			]);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Default onBeforeUpdate handler. Absolutely necessary.
+	 *
+	 * @param Event $event Current data for update.
+	 * @return EventResult
+	 */
+	public static function onBeforeUpdate(Event $event): EventResult
+	{
+		$result = new EventResult;
+		$data = $event->getParameter('fields');
+		if (!array_key_exists('DATE_MODIFY', $data))
+		{
+			$result->modifyFields([
+				'DATE_MODIFY' => new DateTime(),
+			]);
+		}
+
+		return $result;
 	}
 }

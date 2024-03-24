@@ -13,6 +13,7 @@ return [
 	'js' => './dist/parser.bundle.js',
 	'css' => './dist/parser.bundle.css',
 	'rel' => [
+		'im.v2.lib.desktop-api',
 		'main.core.events',
 		'im.public',
 		'main.core',

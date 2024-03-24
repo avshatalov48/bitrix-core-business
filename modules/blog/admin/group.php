@@ -31,27 +31,36 @@ if ($lAdmin->EditAction() && $blogModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
+		{
 			continue;
+		}
+
+		$DB->StartTransaction();
 
 		$arBlogGroupTmp = CBlogGroup::GetByID($ID);
-		if (!CBlogGroup::Update($ID, $arFields))
+		if (CBlogGroup::Update($ID, $arFields))
+		{
+			$DB->Commit();
+		}
+		else
 		{
 			if ($ex = $APPLICATION->GetException())
+			{
 				$lAdmin->AddUpdateError($ex->GetString(), $ID);
+			}
 			else
+			{
 				$lAdmin->AddUpdateError(GetMessage("BLG_ERROR_UPDATE"), $ID);
+			}
 
 			$DB->Rollback();
 		}
 
 		BXClearCache(True, "/".$arFields["SITE_ID"]."/blog/");
 		BXClearCache(True, "/".$arBlogGroupTmp["SITE_ID"]."/blog/");
-
-		$DB->Commit();
 	}
 }
 
@@ -84,19 +93,25 @@ if (($arID = $lAdmin->GroupAction()) && $blogModulePermissions >= "W")
 				$DB->StartTransaction();
 
 				$arBlogGroupTmp = CBlogGroup::GetByID($ID);
-				if (!CBlogGroup::Delete($ID))
+				if (CBlogGroup::Delete($ID))
+				{
+					$DB->Commit();
+				}
+				else
 				{
 					$DB->Rollback();
 
 					if ($ex = $APPLICATION->GetException())
+					{
 						$lAdmin->AddGroupError($ex->GetString(), $ID);
+					}
 					else
+					{
 						$lAdmin->AddGroupError(GetMessage("BLG_DELETE_ERROR"), $ID);
+					}
 				}
 
 				BXClearCache(True, "/".$arBlogGroupTmp["SITE_ID"]."/blog/");
-
-				$DB->Commit();
 
 				break;
 		}

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,calendar_roomsmanager,calendar_categorymanager,ui_icons_b24,calendar_entry,ui_dialogs_messagebox,ui_buttons,calendar_planner,ui_entitySelector,main_core_events,main_popup,calendar_controls,intranet_controlButton,main_core,calendar_util) {
+(function (exports,calendar_roomsmanager,calendar_categorymanager,ui_icons_b24,main_loader,calendar_entry,ui_dialogs_messagebox,ui_buttons,calendar_planner,ui_entitySelector,main_core_events,main_popup,calendar_controls,intranet_controlButton,main_core,calendar_util) {
 	'use strict';
 
 	class TimeSelector {
@@ -705,6 +705,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      text: '',
 	      value: ''
 	    };
+	    this.isLoading = false;
 	    this.inlineEditModeEnabled = params.inlineEditModeEnabled;
 	    this.meetingRooms = params.iblockMeetingRoomList || [];
 	    Location.setMeetingRoomList(params.iblockMeetingRoomList);
@@ -717,6 +718,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.processValue();
 	    this.setCategoryManager();
 	    this.setValuesDebounced = BX.debounce(this.setValues.bind(this), 100);
+	    this.updateAccessibilityDebounce = main_core.Runtime.debounce(this.updateAccessibility.bind(this), 100);
+	    Location.instances.push(this);
 	  }
 	  create() {
 	    this.DOM.wrapNode.style.display = 'flex';
@@ -770,7 +773,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	  }
 	  setValues() {
-	    var _this$categoryManager;
+	    var _this$categoryManager, _this$selectContol;
 	    this.addLocationRemoveButton();
 	    if (!this.categoryManagerFromDB) {
 	      this.setValuesDebounced();
@@ -807,6 +810,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    const pushRoomToItemList = room => {
 	      room.id = parseInt(room.id);
 	      room.location_id = parseInt(room.location_id);
+	      const isSelected = parseInt(this.value.value) === parseInt(room.id);
 	      menuItemList.push({
 	        ID: room.id,
 	        LOCATION_ID: room.location_id,
@@ -817,9 +821,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        labelRaw: room.name,
 	        labelCapacity: this.getCapacityMessage(room.capacity),
 	        value: room.id,
-	        type: 'calendar'
+	        type: 'calendar',
+	        selected: isSelected
 	      });
-	      if (this.value.type === 'calendar' && parseInt(this.value.value) === parseInt(room.id)) {
+	      if (this.value.type === 'calendar' && isSelected) {
 	        selectedIndex = menuItemList.length - 1;
 	      }
 	    };
@@ -862,15 +867,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    }
-	    if (this.selectContol) {
-	      this.selectContol.destroy();
-	    }
 	    let disabledControl = this.disabled;
 	    if (!menuItemList.length) {
 	      disabledControl = true;
 	    }
 	    this.processValue();
-	    this.selectContol = new calendar_controls.SelectInput({
+	    this.menuItemList = menuItemList;
+	    const selectControlCreated = this.selectContol;
+	    (_this$selectContol = this.selectContol) != null ? _this$selectContol : this.selectContol = new calendar_controls.SelectInput({
 	      input: this.DOM.input,
 	      values: menuItemList,
 	      valueIndex: selectedIndex,
@@ -878,6 +882,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      disabled: disabledControl,
 	      minWidth: 300,
 	      onChangeCallback: () => {
+	        const menuItemList = this.menuItemList;
 	        main_core_events.EventEmitter.emit('Calendar.LocationControl.onValueChange');
 	        let i,
 	          value = this.DOM.input.value;
@@ -899,9 +904,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          this.removeLocationRemoveButton();
 	        }
 	        this.addLocationRemoveButton();
+	        menuItemList.forEach(location => {
+	          location.selected = location.value === this.value.value;
+	        });
+	        this.selectContol.setValueList(menuItemList);
 	        this.allowClick();
+	      },
+	      onPopupShowCallback: () => {
+	        if (this.getShouldCheckLocationAccessibility()) {
+	          this.checkLocationAccessibility(this.accessibilityParams);
+	        }
 	      }
 	    });
+	    this.selectContol.setValueList(menuItemList);
+	    this.selectContol.setValue({
+	      valueIndex: selectedIndex
+	    });
+	    this.selectContol.setDisabled(disabledControl);
+	    if (!selectControlCreated) {
+	      this.setLoading(this.isLoading);
+	    }
 	    this.allowClick();
 	  }
 	  processValue() {
@@ -952,6 +974,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      main_core.Event.bind(this.DOM.removeLocationButton, 'click', this.removeValue.bind(this));
 	    }
 	  }
+	  isShown() {
+	    var _this$selectContol$sh, _this$selectContol2;
+	    return (_this$selectContol$sh = (_this$selectContol2 = this.selectContol) == null ? void 0 : _this$selectContol2.shown) != null ? _this$selectContol$sh : false;
+	  }
 	  setViewMode(viewMode) {
 	    this.viewMode = viewMode;
 	    if (this.viewMode) {
@@ -990,7 +1016,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      '#NUM#': capacity
 	    });
 	  }
+	  getShouldCheckLocationAccessibility() {
+	    return this.shouldCheckLocationAccessibility;
+	  }
+	  setShouldCheckLocationAccessibility(shouldCheck) {
+	    this.shouldCheckLocationAccessibility = shouldCheck;
+	  }
 	  checkLocationAccessibility(params) {
+	    this.accessibilityParams = params;
+	    this.setLoading(true);
+	    this.updateAccessibilityDebounce();
+	  }
+	  updateAccessibility() {
+	    const params = this.accessibilityParams;
 	    this.getLocationAccessibility(params.from, params.to).then(() => {
 	      const timezone = params.timezone && params.timezone !== '' ? params.timezone : calendar_util.Util.getUserSettings().timezoneName;
 	      const timezoneOffset = calendar_util.Util.getTimeZoneOffset(timezone) * 60 * 1000;
@@ -1029,8 +1067,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }
 	        }
 	      }
-	      this.setValuesDebounce();
+	      this.setValues();
+	      this.setLoading(false);
 	    });
+	  }
+	  setLoading(isLoading) {
+	    var _this$selectContol3;
+	    this.isLoading = isLoading;
+	    (_this$selectContol3 = this.selectContol) == null ? void 0 : _this$selectContol3.setLoading(isLoading);
 	  }
 	  getLocationAccessibility(from, to) {
 	    return new Promise(resolve => {
@@ -1062,17 +1106,30 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	  }
 	  static handlePull(params) {
-	    if (!params.fields.DATE_FROM || !params.fields.DATE_TO) {
+	    var _entry$EXDATE;
+	    const entry = params.fields;
+	    if (!entry.DATE_FROM || !entry.DATE_TO) {
 	      return;
 	    }
-	    let dateFrom = calendar_util.Util.parseDate(params.fields.DATE_FROM);
-	    let dateTo = calendar_util.Util.parseDate(params.fields.DATE_TO);
+	    let dateFrom = calendar_util.Util.parseDate(entry.DATE_FROM);
+	    let dateTo = calendar_util.Util.parseDate(entry.DATE_TO);
 	    let datesRange = Location.getDatesRange(dateFrom, dateTo);
+	    const excludedDates = (_entry$EXDATE = entry.EXDATE) == null ? void 0 : _entry$EXDATE.split(';');
+	    if (main_core.Type.isArrayFilled(excludedDates)) {
+	      datesRange.push(excludedDates.pop());
+	    }
 	    for (let date of datesRange) {
 	      if (Location.accessibility[date]) {
 	        delete Location.accessibility[date];
 	      }
 	    }
+	    Location.instances.forEach(instance => {
+	      if (instance.isShown()) {
+	        instance.checkLocationAccessibility(instance.accessibilityParams);
+	      } else {
+	        instance.setShouldCheckLocationAccessibility(true);
+	      }
+	    });
 	  }
 	  loadRoomSlider() {
 	    this.setRoomsManager();
@@ -1392,6 +1449,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	Location.currentRoomCapacity = 0;
 	Location.accessibility = [];
 	Location.DAY_LENGTH = 86400000;
+	Location.instances = [];
 
 	class UserSelector {
 	  constructor(params = {}) {
@@ -2238,8 +2296,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
+	let _$4 = t => t,
+	  _t$4;
+	var _renderLoader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderLoader");
 	class SelectInput {
 	  constructor(params) {
+	    Object.defineProperty(this, _renderLoader, {
+	      value: _renderLoader2
+	    });
 	    this.id = params.id || 'bx-select-input-' + Math.round(Math.random() * 1000000);
 	    this.values = params.values || false;
 	    this.input = params.input;
@@ -2286,6 +2350,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  setValueList(valueList) {
 	    this.values = valueList;
+	    if (!this.popupMenu) {
+	      return;
+	    }
+	    const menuItemsLength = this.popupMenu.getMenuItems().length;
+	    for (let i = 0; i < menuItemsLength; i++) {
+	      const popupMenuItem = this.popupMenu.getMenuItems()[0];
+	      this.popupMenu.removeMenuItem(popupMenuItem.getId(), {
+	        destroyEmptyPopup: false
+	      });
+	    }
+	    for (const menuItem of this.getMenuItems()) {
+	      this.popupMenu.addMenuItem(menuItem);
+	    }
+	    this.updateIconColors();
+	  }
+	  setDisabled(disabled) {
+	    this.disabled = disabled;
+	    if (disabled) {
+	      this.closePopup();
+	    }
 	  }
 	  getInputValue() {
 	    return this.input.value;
@@ -2294,17 +2378,42 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    if (this.shown || this.disabled) {
 	      return;
 	    }
-	    let ind = 0,
-	      j = 0,
-	      menuItems = [],
-	      i;
-	    for (i = 0; i < this.values.length; i++) {
+	    const menuItems = this.getMenuItems();
+	    this.popupMenu = main_popup.MenuManager.create(this.id, this.input, menuItems, {
+	      closeByEsc: true,
+	      autoHide: true,
+	      zIndex: this.zIndex,
+	      offsetTop: 0,
+	      offsetLeft: -1
+	    });
+	    this.updateLoader();
+	    if (!BX.browser.IsFirefox()) {
+	      this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth + 2);
+	    }
+	    this.popupMenu.popupWindow.setMaxWidth(300);
+	    let menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
+	    main_core.Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
+	    this.popupMenu.show();
+	    const currentItem = this.getCurrentItem();
+	    if (currentItem != null && currentItem.layout) {
+	      menuContainer.scrollTop = currentItem.layout.item.offsetTop - currentItem.layout.item.offsetHeight - 36 * 3;
+	    }
+	    this.updateIconColors();
+	    BX.addCustomEvent(this.popupMenu.popupWindow, 'onPopupClose', () => {
+	      main_popup.MenuManager.destroy(this.id);
+	      this.shown = false;
+	      this.popupMenu = null;
+	    });
+	    this.input.select();
+	    this.shown = true;
+	    this.onPopupShowCallback();
+	  }
+	  getMenuItems() {
+	    const menuItems = [];
+	    for (let i = 0; i < this.values.length; i++) {
 	      if (this.values[i].delimiter) {
 	        menuItems.push(this.values[i]);
 	      } else {
-	        if (this.currentValue && this.values[i] && i > 0 && this.currentValue.value >= this.values[i - 1].value && this.currentValue.value <= this.values[i].value) {
-	          ind = j;
-	        }
 	        let htmlTemp;
 	        if (this.values[i].reserved) {
 	          htmlTemp = `
@@ -2328,11 +2437,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 							${BX.util.htmlspecialchars(this.values[i].label)}
 						</span>`;
 	        }
+	        const classSelected = this.values[i].selected ? 'calendar-menu-popup-time-selected' : '';
 	        if (this.values[i].color) {
 	          menuItems.push({
 	            id: this.values[i].value,
 	            title: this.values[i].label,
-	            className: "menu-popup-display-flex calendar-location-popup-menu-item",
+	            className: "menu-popup-display-flex calendar-location-popup-menu-item " + classSelected,
 	            html: htmlTemp,
 	            color: this.values[i].color,
 	            onclick: this.values[i].callback || ((value, label) => {
@@ -2349,7 +2459,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            id: this.values[i].value,
 	            html: this.values[i].label + hint,
 	            title: this.values[i].label,
-	            className: "menu-popup-no-icon" + (this.values[i].selected ? ' calendar-menu-popup-time-selected' : ''),
+	            className: "menu-popup-no-icon " + classSelected,
 	            onclick: this.values[i].callback || ((value, label) => {
 	              return () => {
 	                this.input.value = label;
@@ -2359,29 +2469,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            })(this.values[i].value, this.values[i].labelRaw || this.values[i].label)
 	          });
 	        }
-	        j++;
 	      }
 	    }
-	    this.popupMenu = main_popup.MenuManager.create(this.id, this.input, menuItems, {
-	      closeByEsc: true,
-	      autoHide: true,
-	      zIndex: this.zIndex,
-	      offsetTop: 0,
-	      offsetLeft: -1
-	    });
-	    if (!BX.browser.IsFirefox()) {
-	      this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth + 2);
-	    }
-	    this.popupMenu.popupWindow.setMaxWidth(300);
-	    let menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
-	    main_core.Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
-	    this.popupMenu.show();
-	    let menuItem = this.popupMenu.menuItems[ind];
-	    if (menuItem && menuItem.layout) {
-	      menuContainer.scrollTop = menuItem.layout.item.offsetTop - menuItem.layout.item.offsetHeight - 36 * 3;
-	    }
+	    return menuItems;
+	  }
+	  updateIconColors() {
 	    let popupMenuItems = this.popupMenu.menuItems;
-	    for (i = 0; i < popupMenuItems.length; i++) {
+	    for (let i = 0; i < popupMenuItems.length; i++) {
 	      if (popupMenuItems[i].layout.item) {
 	        let icon = popupMenuItems[i].layout.item.querySelector('.menu-popup-item-icon');
 	        if (icon) {
@@ -2389,14 +2483,20 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    }
-	    BX.addCustomEvent(this.popupMenu.popupWindow, 'onPopupClose', () => {
-	      main_popup.MenuManager.destroy(this.id);
-	      this.shown = false;
-	      this.popupMenu = null;
-	    });
-	    this.input.select();
-	    this.shown = true;
-	    this.onPopupShowCallback();
+	  }
+	  getCurrentItem() {
+	    return this.popupMenu.menuItems[this.getCurrentIndex()];
+	  }
+	  getCurrentIndex() {
+	    for (let i = 0; i < this.values.length; i++) {
+	      if (this.values[i].selected) {
+	        return i;
+	      }
+	      if (this.currentValue && this.values[i] && i > 0 && this.currentValue.value >= this.values[i - 1].value && this.currentValue.value <= this.values[i].value) {
+	        return i;
+	      }
+	    }
+	    return 0;
 	  }
 	  closePopup() {
 	    main_popup.MenuManager.destroy(this.id);
@@ -2434,6 +2534,21 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      dataValue: value
 	    });
 	  }
+	  setLoading(isLoading) {
+	    this.isLoading = isLoading;
+	    this.updateLoader();
+	  }
+	  updateLoader() {
+	    if (!this.popupMenu) {
+	      return;
+	    }
+	    if (this.isLoading) {
+	      this.popupMenu.getPopupWindow().getPopupContainer().append(babelHelpers.classPrivateFieldLooseBase(this, _renderLoader)[_renderLoader]());
+	    } else {
+	      var _this$loaderContainer;
+	      (_this$loaderContainer = this.loaderContainer) == null ? void 0 : _this$loaderContainer.remove();
+	    }
+	  }
 	  destroy() {
 	    this.unbindEventHandlers(this.eventHandlers);
 	    if (this.popupMenu) {
@@ -2443,6 +2558,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.popupMenu = null;
 	    this.shown = false;
 	  }
+	}
+	function _renderLoader2() {
+	  if (this.loaderContainer) {
+	    return this.loaderContainer;
+	  }
+	  this.loaderContainer = main_core.Tag.render(_t$4 || (_t$4 = _$4`<div style="position: absolute; inset: 0;"></div>`));
+	  void new main_loader.Loader().show(this.loaderContainer);
+	  return this.loaderContainer;
 	}
 
 	class PopupDialog {
@@ -2499,8 +2622,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$4 = t => t,
-	  _t$4,
+	let _$5 = t => t,
+	  _t$5,
 	  _t2$4,
 	  _t3$4,
 	  _t4$4,
@@ -2528,13 +2651,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	  }
 	  create() {
-	    this.DOM.wrap = main_core.Tag.render(_t$4 || (_t$4 = _$4`<div class="calendar-view-switcher-selector"></div>`));
-	    this.DOM.selectorText = main_core.Tag.render(_t2$4 || (_t2$4 = _$4`<div class="calendar-view-switcher-text"></div>`));
-	    this.DOM.selectorTextInner = this.DOM.selectorText.appendChild(main_core.Tag.render(_t3$4 || (_t3$4 = _$4`<div class="calendar-view-switcher-text-inner"></div>`)));
+	    this.DOM.wrap = main_core.Tag.render(_t$5 || (_t$5 = _$5`<div class="calendar-view-switcher-selector"></div>`));
+	    this.DOM.selectorText = main_core.Tag.render(_t2$4 || (_t2$4 = _$5`<div class="calendar-view-switcher-text"></div>`));
+	    this.DOM.selectorTextInner = this.DOM.selectorText.appendChild(main_core.Tag.render(_t3$4 || (_t3$4 = _$5`<div class="calendar-view-switcher-text-inner"></div>`)));
 	    this.DOM.wrap.appendChild(this.DOM.selectorText);
-	    this.DOM.wrap.appendChild(main_core.Tag.render(_t4$4 || (_t4$4 = _$4`<div class="calendar-view-switcher-dropdown"></div>`)));
+	    this.DOM.wrap.appendChild(main_core.Tag.render(_t4$4 || (_t4$4 = _$5`<div class="calendar-view-switcher-dropdown"></div>`)));
 	    main_core.Event.bind(this.DOM.wrap, 'click', this.showPopup.bind(this));
-	    this.DOM.viewModeTextInner = this.DOM.selectorText.appendChild(main_core.Tag.render(_t5$4 || (_t5$4 = _$4`<div class="calendar-view-switcher-text-mode-inner" style="display: none;"></div>`)));
+	    this.DOM.viewModeTextInner = this.DOM.selectorText.appendChild(main_core.Tag.render(_t5$4 || (_t5$4 = _$5`<div class="calendar-view-switcher-text-mode-inner" style="display: none;"></div>`)));
 	    this.created = true;
 	  }
 	  getOuterWrap() {
@@ -2638,8 +2761,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$5 = t => t,
-	  _t$5,
+	let _$6 = t => t,
+	  _t$6,
 	  _t2$5;
 	class LineViewSelector extends main_core_events.EventEmitter {
 	  constructor(params = {}) {
@@ -2662,11 +2785,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	  }
 	  create() {
-	    this.DOM.wrap = main_core.Tag.render(_t$5 || (_t$5 = _$5`<div class="calendar-view-switcher-list"></div>`));
+	    this.DOM.wrap = main_core.Tag.render(_t$6 || (_t$6 = _$6`<div class="calendar-view-switcher-list"></div>`));
 	    this.views.forEach(view => {
 	      if (view.type === 'base') {
 	        this.viewsMap.set(view, {
-	          wrap: this.DOM.wrap.appendChild(main_core.Tag.render(_t2$5 || (_t2$5 = _$5`<span 
+	          wrap: this.DOM.wrap.appendChild(main_core.Tag.render(_t2$5 || (_t2$5 = _$6`<span 
 						class="calendar-view-switcher-list-item"
 						onclick="${0}"
 					>${0}</span>`), () => {
@@ -2971,8 +3094,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$6 = t => t,
-	  _t$6;
+	let _$7 = t => t,
+	  _t$7;
 	class ConfirmStatusDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -3049,7 +3172,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    });
-	    return main_core.Tag.render(_t$6 || (_t$6 = _$6`
+	    return main_core.Tag.render(_t$7 || (_t$7 = _$7`
 			<div class="calendar__confirm-dialog-content">
 				${0}
 				${0}
@@ -3071,8 +3194,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$7 = t => t,
-	  _t$7;
+	let _$8 = t => t,
+	  _t$8;
 	class ConfirmEditDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -3148,7 +3271,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    });
-	    return main_core.Tag.render(_t$7 || (_t$7 = _$7`
+	    return main_core.Tag.render(_t$8 || (_t$8 = _$8`
 			<div class="calendar__confirm-dialog-content">
 				${0}
 				${0}
@@ -3163,8 +3286,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$8 = t => t,
-	  _t$8;
+	let _$9 = t => t,
+	  _t$9;
 	class ConfirmDeleteDialog {
 	  constructor(params = {}) {
 	    this.entry = params.entry;
@@ -3224,7 +3347,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      }
 	    });
-	    return main_core.Tag.render(_t$8 || (_t$8 = _$8`
+	    return main_core.Tag.render(_t$9 || (_t$9 = _$9`
 			<div class="calendar__confirm-dialog-content">
 				${0}
 				${0}
@@ -3239,8 +3362,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$9 = t => t,
-	  _t$9,
+	let _$a = t => t,
+	  _t$a,
 	  _t2$6,
 	  _t3$5,
 	  _t4$5,
@@ -3280,31 +3403,31 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (this.inlineEditMode) {
 	        main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-datetime-inline-mode-view');
 	      }
-	      this.DOM.leftInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t$9 || (_t$9 = _$9`<div class="calendar-field-block calendar-field-block-left"></div>`)));
-	      this.DOM.fromDate = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t2$6 || (_t2$6 = _$9`
+	      this.DOM.leftInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t$a || (_t$a = _$a`<div class="calendar-field-block calendar-field-block-left"></div>`)));
+	      this.DOM.fromDate = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t2$6 || (_t2$6 = _$a`
 				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${0}px;"/>
 			`), this.DATE_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.fromDateText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t3$5 || (_t3$5 = _$9`<span class="calendar-field-value calendar-field-value-date"></span>`)));
+	        this.DOM.fromDateText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t3$5 || (_t3$5 = _$a`<span class="calendar-field-value calendar-field-value-date"></span>`)));
 	      }
-	      this.DOM.fromTime = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t4$5 || (_t4$5 = _$9`
+	      this.DOM.fromTime = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t4$5 || (_t4$5 = _$a`
 				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${0}px; max-width: ${0}px;"/>
 			`), this.TIME_INPUT_WIDTH, this.TIME_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t5$5 || (_t5$5 = _$9`<span class="calendar-field-value calendar-field-value-time"></span>`)));
+	        this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t5$5 || (_t5$5 = _$a`<span class="calendar-field-value calendar-field-value-time"></span>`)));
 	      }
-	      this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t6$3 || (_t6$3 = _$9`<div class="calendar-field-block calendar-field-block-between" />`)));
-	      this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t7$3 || (_t7$3 = _$9`<div class="calendar-field-block calendar-field-block-right"></div>`)));
-	      this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t8$2 || (_t8$2 = _$9`
+	      this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t6$3 || (_t6$3 = _$a`<div class="calendar-field-block calendar-field-block-between" />`)));
+	      this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t7$3 || (_t7$3 = _$a`<div class="calendar-field-block calendar-field-block-right"></div>`)));
+	      this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t8$2 || (_t8$2 = _$a`
 				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${0}px; max-width: ${0}px;"/>
 			`), this.TIME_INPUT_WIDTH, this.TIME_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.toTimeText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t9$1 || (_t9$1 = _$9`<span class="calendar-field-value calendar-field-value-time"></span>`)));
+	        this.DOM.toTimeText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t9$1 || (_t9$1 = _$a`<span class="calendar-field-value calendar-field-value-time"></span>`)));
 	      }
-	      this.DOM.toDate = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t10$1 || (_t10$1 = _$9`
+	      this.DOM.toDate = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t10$1 || (_t10$1 = _$a`
 				<input class="calendar-field calendar-field-datetime" value="" type="text" autocomplete="off" style="width: ${0}px;"/>`), this.DATE_INPUT_WIDTH));
 	      if (this.inlineEditMode) {
-	        this.DOM.toDateText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t11$1 || (_t11$1 = _$9`<span class="calendar-field-value calendar-field-value-date"></span>`)));
+	        this.DOM.toDateText = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t11$1 || (_t11$1 = _$a`<span class="calendar-field-value calendar-field-value-date"></span>`)));
 	      }
 	      this.fromTimeControl = new TimeSelector({
 	        input: this.DOM.fromTime,
@@ -3314,13 +3437,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        input: this.DOM.toTime,
 	        onChangeCallback: this.handleTimeToChange.bind(this)
 	      });
-	      let fullDayWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t12 || (_t12 = _$9`
+	      let fullDayWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t12 || (_t12 = _$a`
 				<span class="calendar-event-full-day"></span>
 			`)));
-	      this.DOM.fullDay = fullDayWrap.appendChild(main_core.Tag.render(_t13 || (_t13 = _$9`
+	      this.DOM.fullDay = fullDayWrap.appendChild(main_core.Tag.render(_t13 || (_t13 = _$a`
 				<input value="Y" type="checkbox" id="{this.UID}"/>
 			`)));
-	      fullDayWrap.appendChild(main_core.Tag.render(_t14 || (_t14 = _$9`<label for="{this.UID}">${0}</label>`), main_core.Loc.getMessage('EC_ALL_DAY')));
+	      fullDayWrap.appendChild(main_core.Tag.render(_t14 || (_t14 = _$a`<label for="{this.UID}">${0}</label>`), main_core.Loc.getMessage('EC_ALL_DAY')));
 	    }
 
 	    //this.DOM.defTimezoneWrap = BX(this.UID + '_timezone_default_wrap');
@@ -3904,8 +4027,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$a = t => t,
-	  _t$a,
+	let _$b = t => t,
+	  _t$b,
 	  _t2$7,
 	  _t3$6;
 	class UserPlannerSelector extends main_core_events.EventEmitter {
@@ -3972,7 +4095,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	                id: 'user',
 	                options: {
 	                  inviteGuestLink: true,
-	                  emailUsers: true
+	                  emailUsers: true,
+	                  analyticsSource: 'calendar'
 	                }
 	              }, {
 	                id: 'project'
@@ -4059,7 +4183,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    if (this.entryId && this.entry && this.entry.data['PARENT_ID'] && (this.entry.data['EVENT_TYPE'] === '#shared#' || this.entry.data['EVENT_TYPE'] === '#shared_crm#') && this.entry.getCurrentStatus() !== false) {
 	      main_core.Dom.clean(this.DOM.videocallWrap);
 	      main_core.Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
-	      this.conferenceButton = main_core.Tag.render(_t$a || (_t$a = _$a`
+	      this.conferenceButton = main_core.Tag.render(_t$b || (_t$b = _$b`
 				<div class="calendar-text-link --gray">${0}</div>
 			`), main_core.Loc.getMessage('EC_CONFERENCE_START'));
 	      main_core.Event.bind(this.conferenceButton, 'click', this.handleVideoconferenceButtonClick.bind(this));
@@ -4311,9 +4435,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      if (user.SHARING_USER) {
 	        defaultAvatarClass += ' ui-icon-common-user-sharing';
 	      }
-	      imageNode = main_core.Tag.render(_t2$7 || (_t2$7 = _$a`<div title="${0}" class="ui-icon ${0}"><i></i></div>`), main_core.Text.encode(user.DISPLAY_NAME), defaultAvatarClass);
+	      imageNode = main_core.Tag.render(_t2$7 || (_t2$7 = _$b`<div title="${0}" class="ui-icon ${0}"><i></i></div>`), main_core.Text.encode(user.DISPLAY_NAME), defaultAvatarClass);
 	    } else {
-	      imageNode = main_core.Tag.render(_t3$6 || (_t3$6 = _$a`
+	      imageNode = main_core.Tag.render(_t3$6 || (_t3$6 = _$b`
 			<img
 				title="${0}"
 				class="calendar-member"
@@ -4538,8 +4662,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$b = t => t,
-	  _t$b;
+	let _$c = t => t,
+	  _t$c;
 	class EmailSelectorControl extends main_core_events.EventEmitter {
 	  constructor(params) {
 	    super();
@@ -4548,7 +4672,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.setEventNamespace('BX.Calendar.Controls.EmailSelectorControl');
 	    this.DOM.select = params.selectNode;
 	    this.mailboxList = main_core.Type.isArray(params.mailboxList) ? params.mailboxList : [];
-	    this.DOM.componentWrap = this.DOM.select.parentNode.appendChild(main_core.Tag.render(_t$b || (_t$b = _$b`<div style="display: none;"></div>`)));
+	    this.DOM.componentWrap = this.DOM.select.parentNode.appendChild(main_core.Tag.render(_t$c || (_t$c = _$c`<div style="display: none;"></div>`)));
 	    this.allowAddNewEmail = params.allowAddNewEmail;
 	    this.checkValueDebounce = main_core.Runtime.debounce(this.checkValue, 50, this);
 	    this.create();
@@ -4650,8 +4774,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$c = t => t,
-	  _t$c;
+	let _$d = t => t,
+	  _t$d;
 	class ConfirmedEmailDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -4663,7 +4787,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.id = 'confirm-email-dialog-' + Math.round(Math.random() * 10000);
 	  }
 	  show() {
-	    this.DOM.content = main_core.Tag.render(_t$c || (_t$c = _$c`<div>
+	    this.DOM.content = main_core.Tag.render(_t$d || (_t$d = _$d`<div>
 			<div class="calendar-confirm-email-text">${0}</div>
 			<div class="calendar-confirm-email-text"><a class="calendar-confirm-email-help-link" href="javascript:void(0);">${0}</a></div>
 			<div class="calendar-field-block">
@@ -4758,8 +4882,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$d = t => t,
-	  _t$d;
+	let _$e = t => t,
+	  _t$e;
 	class EmailLimitationDialog extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
@@ -4781,7 +4905,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.text = main_core.Loc.getMessage('EC_EMAIL_LIMIT_DENY');
 	    }
 	    this.subText = main_core.Loc.getMessage('EC_EMAIL_LIMIT_SUBTEXT');
-	    this.DOM.content = main_core.Tag.render(_t$d || (_t$d = _$d`<div>
+	    this.DOM.content = main_core.Tag.render(_t$e || (_t$e = _$e`<div>
 			<div class="calendar-email-limit-text">${0}</div>
 			<div class="calendar-email-limit-subtext">${0}</div>
 		</div>`), this.text, this.subText);
@@ -5045,5 +5169,5 @@ this.BX.Calendar = this.BX.Calendar || {};
 	exports.AttendeesList = AttendeesList;
 	exports.IntranetButton = IntranetButton;
 
-}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX.Calendar,BX.Calendar,BX,BX.Calendar,BX.UI.Dialogs,BX.UI,BX.Calendar,BX.UI.EntitySelector,BX.Event,BX.Main,BX.Calendar.Controls,BX.Intranet,BX,BX.Calendar));
+}((this.BX.Calendar.Controls = this.BX.Calendar.Controls || {}),BX.Calendar,BX.Calendar,BX,BX,BX.Calendar,BX.UI.Dialogs,BX.UI,BX.Calendar,BX.UI.EntitySelector,BX.Event,BX.Main,BX.Calendar.Controls,BX.Intranet,BX,BX.Calendar));
 //# sourceMappingURL=controls.bundle.js.map

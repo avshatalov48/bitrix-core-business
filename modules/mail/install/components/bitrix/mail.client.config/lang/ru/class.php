@@ -55,6 +55,7 @@ $MESS["MAIL_CLIENT_CONFIG_SMTP_PORT"] = "Порт";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_SSL"] = "использовать защищенное соединение";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_LOGIN"] = "Логин";
 $MESS["MAIL_CLIENT_CONFIG_SMTP_PASS"] = "Пароль";
+$MESS["MAIL_CLIENT_CONFIG_SMTP_APP_PASS"] = "Пароль приложения";
 
 $MESS["MAIL_CLIENT_CONFIG_ICAL_OPTIONS"] = "Интеграция с Календарем";
 $MESS["MAIL_CLIENT_CONFIG_ICAL_ACTIVE"] = "Автоматически добавлять событие в календарь";

@@ -134,7 +134,9 @@ class CList
 		if($urlCache[$this->iblock_id])
 		{
 			if($urlCache[$this->iblock_id]["URL"] != $url)
+			{
 				$DB->Query("UPDATE b_lists_url SET URL = '".$DB->ForSQL($url)."' WHERE IBLOCK_ID = ".$this->iblock_id);
+			}
 		}
 		else
 		{

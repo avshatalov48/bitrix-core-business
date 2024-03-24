@@ -50,7 +50,6 @@ if (! $siteName = $sites[$site])
 // SPLITS
 
 $groupedAttributeTypes = \Bitrix\Conversion\AttributeManager::getGroupedTypes(); // $splitGroups
-unset($groupedAttributeTypes[null]);
 
 $attributeGroupName = $_GET['split'] ?: $userOptions['split']; // $splitGroupKey
 

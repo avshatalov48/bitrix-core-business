@@ -141,10 +141,23 @@ class PostSocnetRightsTable extends Entity\DataManager
 
 				if ($queryRes)
 				{
-					$sql = "DELETE ".LogRightTable::getTableName()." ".
-						"FROM ".LogRightTable::getTableName()." ".
-						"INNER JOIN ".LogTable::getTableName()." ON ".LogTable::getTableName().".ID = ".LogRightTable::getTableName().".LOG_ID AND ".LogTable::getTableName().".EVENT_ID IN ('".implode("', '", \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList())."') ".
-						"WHERE GROUP_CODE LIKE 'SG".$groupId."%'";
+					if ($connection->getType() === 'pgsql')
+					{
+						$sql = "DELETE FROM ".LogRightTable::getTableName()." ".
+							"WHERE LOG_ID IN (".
+							"    SELECT ".LogTable::getTableName().".ID".
+							"    FROM ".LogTable::getTableName().
+							"    WHERE ".LogTable::getTableName().".EVENT_ID IN ('".implode("', '", \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList())."')".
+							"    AND ".LogRightTable::getTableName().".GROUP_CODE LIKE 'SG".$groupId."%'".
+							");";
+					}
+					else
+					{
+						$sql = "DELETE ".LogRightTable::getTableName()." ".
+							"FROM ".LogRightTable::getTableName()." ".
+							"INNER JOIN ".LogTable::getTableName()." ON ".LogTable::getTableName().".ID = ".LogRightTable::getTableName().".LOG_ID AND ".LogTable::getTableName().".EVENT_ID IN ('".implode("', '", \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList())."') ".
+							"WHERE GROUP_CODE LIKE 'SG".$groupId."%'";
+					}
 
 					try
 					{
@@ -158,10 +171,23 @@ class PostSocnetRightsTable extends Entity\DataManager
 
 				if ($queryRes)
 				{
-					$sql = "DELETE ".LogRightTable::getTableName()." ".
-						"FROM ".LogRightTable::getTableName()." ".
-						"INNER JOIN ".LogTable::getTableName()." ON ".LogTable::getTableName().".ID = ".LogRightTable::getTableName().".LOG_ID AND ".LogTable::getTableName().".EVENT_ID IN ('".implode("', '", \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList())."') ".
-						"WHERE GROUP_CODE LIKE 'OSG".$groupId."%'";
+					if ($connection->getType() === 'pgsql')
+					{
+						$sql = "DELETE FROM ".LogRightTable::getTableName()." ".
+							"WHERE LOG_ID IN (".
+							"    SELECT ".LogTable::getTableName().".ID".
+							"    FROM ".LogTable::getTableName().
+							"    WHERE ".LogTable::getTableName().".EVENT_ID IN ('".implode("', '", \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList())."')".
+							"    AND ".LogRightTable::getTableName().".GROUP_CODE LIKE 'OSG".$groupId."%'".
+							");";
+					}
+					else
+					{
+						$sql = "DELETE ".LogRightTable::getTableName()." ".
+							"FROM ".LogRightTable::getTableName()." ".
+							"INNER JOIN ".LogTable::getTableName()." ON ".LogTable::getTableName().".ID = ".LogRightTable::getTableName().".LOG_ID AND ".LogTable::getTableName().".EVENT_ID IN ('".implode("', '", \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList())."') ".
+							"WHERE GROUP_CODE LIKE 'OSG".$groupId."%'";
+					}
 
 					try
 					{
@@ -209,7 +235,7 @@ class PostSocnetRightsTable extends Entity\DataManager
 		$helper = $connection->getSqlHelper();
 
 		$tableName = self::getTableName();
-		$connection->queryExecute("DELETE FROM {$tableName} WHERE `ENTITY` = '".$helper->forSql($value)."'");
+		$connection->queryExecute("DELETE FROM {$tableName} WHERE ENTITY = '".$helper->forSql($value)."'");
 
 		return true;
 	}

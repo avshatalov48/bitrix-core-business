@@ -22,13 +22,13 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 		"vote_form" => "PAGE_NAME=vote_new&VOTE_ID=#VOTE_ID#",
 		"vote_result" => "PAGE_NAME=vote_result&VOTE_ID=#VOTE_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE):
-		if (trim($arParams[mb_strtoupper($URL)."_TEMPLATE"]) == '')
+		if (trim($arParams[mb_strtoupper($URL)."_TEMPLATE"] ?? '') == '')
 			$arParams[mb_strtoupper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".mb_strtoupper($URL)."_TEMPLATE"] = $arParams[mb_strtoupper($URL)."_TEMPLATE"];
 		$arParams[mb_strtoupper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_TEMPLATE"]);
 	endforeach;
 /************** ADDITIONAL *****************************************/
-	$arParams["NEED_SORT"] = ($arParams["NEED_SORT"] == "N" ? "N" : "Y");
+	$arParams["NEED_SORT"] = (isset($arParams["NEED_SORT"]) && $arParams["NEED_SORT"] == "N" ? "N" : "Y");
 /************** CACHE **********************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -145,9 +145,9 @@ elseif (CModule::IncludeModule("vote"))
 		$sum1 = $sum2 = $sum3 = 0;
 		foreach ($arQuestion["ANSWERS"] as $aID => $arAnswer)
 		{
-			$arResult["LAST_VOTE"] = ($arResult["LAST_VOTE"] === false ? $arAnswer["LAST_VOTE"] : $arResult["LAST_VOTE"]);
-			$arResult["LAST_VOTE"] = min($arResult["LAST_VOTE"], $arAnswer["LAST_VOTE"]);
-			$arAnswer["PERCENT"] = $arAnswer["PERCENT2"] = $arAnswer["PERCENT3"];
+			$arResult["LAST_VOTE"] = ($arResult["LAST_VOTE"] === false ? $arAnswer["LAST_VOTE"] ?? null : $arResult["LAST_VOTE"]);
+			$arResult["LAST_VOTE"] = min($arResult["LAST_VOTE"], $arAnswer["LAST_VOTE"] ?? null);
+			$arAnswer["PERCENT"] = $arAnswer["PERCENT2"] = $arAnswer["PERCENT3"] ?? null;
 			if ($counterSum > 0)
 			{
 				$arAnswer["PERCENT"] = $arAnswer["PERCENT2"] = $arAnswer["PERCENT3"] = $percentage = ($arAnswer["COUNTER"]*100/$counter);
@@ -173,7 +173,7 @@ elseif (CModule::IncludeModule("vote"))
 		{
 			foreach ($arQuestion["ANSWERS"] as $aID => $arAnswer)
 			{
-				$arQuestion["ANSWERS"][$aID]["PERCENT"] = $arQuestion["ANSWERS"][$aID]["PERCENT".$var];
+				$arQuestion["ANSWERS"][$aID]["PERCENT"] = $arQuestion["ANSWERS"][$aID]["PERCENT".$var] ?? null;
 			}
 		}
 		$arResult["QUESTIONS"][$qID]["COUNTER_SUM"] = $counterSum;
@@ -208,14 +208,14 @@ if ($arParams["PERMISSION"] < 1):
 	return false;
 endif;
 
-if ($_REQUEST["VOTE_ID"] == $arParams["VOTE_ID"])
+if (isset($_REQUEST["VOTE_ID"]) && $_REQUEST["VOTE_ID"] == $arParams["VOTE_ID"])
 {
 	$arError = array(); $arNote = array();
-	if ($GLOBALS["VOTING_OK"] == "Y" || $_REQUEST["VOTE_SUCCESSFULL"] == "Y")
+	if (isset($GLOBALS["VOTING_OK"]) && $GLOBALS["VOTING_OK"] == "Y" || isset($_REQUEST["VOTE_SUCCESSFULL"]) && $_REQUEST["VOTE_SUCCESSFULL"] == "Y")
 		$arNote[] = array("id" => "ok", "text" => GetMessage("VOTE_OK"));
-	if ($GLOBALS["USER_ALREADY_VOTE"] == "Y")
+	if (isset($GLOBALS["USER_ALREADY_VOTE"]) && $GLOBALS["USER_ALREADY_VOTE"] == "Y")
 		$arError[] = array("id" => "already vote", "text" => GetMessage("VOTE_ALREADY_VOTE"));
-	if ($GLOBALS["VOTING_LAMP"] == "red")
+	if (isset($GLOBALS["VOTING_LAMP"]) && $GLOBALS["VOTING_LAMP"] == "red")
 		$arError[] = array("id" => "red lamp", "text" => GetMessage("VOTE_RED_LAMP"));
 
 	if (!empty($arNote)):

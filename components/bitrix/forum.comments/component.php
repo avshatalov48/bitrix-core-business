@@ -231,7 +231,7 @@ if ($arResult["SHOW_POST_FORM"] == "Y")
 ********************************************************************/
 $firstMID = 0;
 $navParams = \CDBResult::GetNavParams($arParams["MESSAGES_PER_PAGE"]);
-$hideServiceComments = !($arParams["COMPONENT_AJAX"] == "Y" && $arResult["RESULT"] > 0)
+$hideServiceComments = !($arParams["COMPONENT_AJAX"] == "Y" && !empty($arResult["RESULT"]))
 	&& Main\Config\Option::get("forum", "LivefeedConvertServiceMessageStepper") !== "inProgress";
 
 if ($arResult["FORUM_TOPIC_ID"] > 0)
@@ -617,7 +617,7 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 							]
 						);
 						$message["AUX"] = $serviceProvider->getType();
-						$message['AUX_LIVE_PARAMS'] = (is_array($arParams['~AUX_LIVE_PARAMS']) ? $arParams['~AUX_LIVE_PARAMS'] : []);
+						$message['AUX_LIVE_PARAMS'] = $message['AUX_LIVE_PARAMS'] ?? [];
 						$message["CAN_DELETE"] = ($serviceProvider->canDelete() ? "Y" : "N");
 					}
 				}

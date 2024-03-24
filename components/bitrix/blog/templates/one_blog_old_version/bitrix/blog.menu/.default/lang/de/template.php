@@ -1,0 +1,32 @@
+<?
+$MESS ['BLOG_MENU_ADD_MESSAGE_TITLE'] = "Neuer Beitrag";
+$MESS ['BLOG_MENU_FR_A_F'] = "Zu Freunden hinzufügen";
+$MESS ['BLOG_MENU_FR_B_F'] = "Freund werden";
+$MESS ['BLOG_MENU_BLOGS_LIST'] = "Blogs";
+$MESS ['BLOG_MENU_BLOG_EDIT'] = "Blog konfigurieren";
+$MESS ['BLOG_MENU_BLOGS_LIST_TITLE'] = "Hauptseite des Blogs";
+$MESS ['BLOG_MENU_CURRENT_BLOG'] = "Aktuelles Blog";
+$MESS ['BLOG_MENU_DRAFT_MESSAGES'] = "Entwürfe";
+$MESS ['BLOG_MENU_DRAFT_MESSAGES_TITLE'] = "Entwürfe";
+$MESS ['BLOG_MENU_FRIENDS'] = "Freunde";
+$MESS ['BLOG_MENU_FRIENDS_TITLE'] = "Freunde";
+$MESS ['BLOG_MENU_GROUP_EDIT'] = "Gruppen konfigurieren";
+$MESS ['BLOG_MENU_CURRENT_BLOG_TITLE'] = "Hauptseite des Blogs &quot;#NAME#&quot;";
+$MESS ['BLOG_MENU_LOGIN'] = "Login";
+$MESS ['BLOG_MENU_LOGIN_TITLE'] = "Login";
+$MESS ['BLOG_MENU_LOGOUT'] = "Logout";
+$MESS ['BLOG_MENU_LOGOUT_TITLE'] = "Logout";
+$MESS ['BLOG_MENU_MY_BLOG'] = "Mein Blog";
+$MESS ['BLOG_MENU_MY_BLOG_TITLE'] = "Mein Blog";
+$MESS ['BLOG_MENU_GROUP_EDIT_TITLE'] = "Gruppen meines Blogs konfigurieren";
+$MESS ['BLOG_MENU_BLOG_EDIT_TITLE'] = "Mein Blog konfigurieren";
+$MESS ['BLOG_MENU_CATEGORY_EDIT_TITLE'] = "Tags meines Blogs konfigurieren";
+$MESS ['BLOG_MENU_USER_SETTINGS_TITLE'] = "Nutzer meines Blogs bearbeiten";
+$MESS ['BLOG_MENU_PROFILE'] = "Mein Profil";
+$MESS ['BLOG_MENU_PROFILE_TITLE'] = "Mein Profil";
+$MESS ['BLOG_MENU_ADD_MESSAGE'] = "Beitrag schreiben";
+$MESS ['BLOG_MENU_REGISTER'] = "Registrieren";
+$MESS ['BLOG_MENU_REGISTER_TITLE'] = "Registrieren";
+$MESS ['BLOG_MENU_CATEGORY_EDIT'] = "Tags konfigurieren";
+$MESS ['BLOG_MENU_USER_SETTINGS'] = "Nutzer bearbeiten";
+?>

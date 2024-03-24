@@ -205,7 +205,7 @@ export class Types extends ChildOption
 	createLandingField(data)
 	{
 		const landingField = new CheckboxField({
-			fieldTitle: Loc.getMessage("SGCG_OPTIONS_TYPE_LANDING_MSGVER_1"),
+			fieldTitle: Loc.getMessage("SGCG_OPTIONS_TYPE_LANDING_MSGVER_2"),
 			fieldName: "landing",
 			validators: [],
 			checked: (data["LANDING"] === "Y")

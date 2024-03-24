@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_lib_user,im_v2_lib_logger,im_v2_lib_utils,im_v2_const,main_core,ui_vue3_vuex,im_v2_application_core) {
+(function (exports,main_core_events,im_v2_lib_user,im_v2_lib_userStatus,im_v2_lib_logger,im_v2_lib_utils,im_v2_const,main_core,ui_vue3_vuex,im_v2_application_core) {
 	'use strict';
 
 	const isNumberOrString = target => {
@@ -352,6 +352,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          entityId: this.validateLayoutEntityId(name, entityId),
 	          contextId
 	        };
+	        if (previousLayout.name === newLayout.name && previousLayout.entityId === newLayout.entityId) {
+	          return;
+	        }
 	        store.commit('updateLayout', {
 	          layout: newLayout
 	        });
@@ -1622,11 +1625,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  checkFunction: main_core.Type.isPlainObject
 	}];
 	const chatEntityFieldsConfig = [{
-	  fieldName: 'id',
-	  targetFieldName: 'id',
-	  checkFunction: isNumberOrString,
-	  formatFunction: convertToString
-	}, {
 	  fieldName: 'type',
 	  targetFieldName: 'type',
 	  checkFunction: main_core.Type.isString
@@ -2131,6 +2129,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  targetFieldName: 'birthday',
 	  checkFunction: main_core.Type.isString
 	}, {
+	  fieldName: 'isBirthday',
+	  targetFieldName: 'isBirthday',
+	  checkFunction: main_core.Type.isBoolean
+	}, {
 	  fieldName: 'isAdmin',
 	  targetFieldName: 'isAdmin',
 	  checkFunction: main_core.Type.isBoolean
@@ -2175,6 +2177,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  targetFieldName: 'absent',
 	  formatFunction: convertToDate
 	}, {
+	  fieldName: 'isAbsent',
+	  targetFieldName: 'isAbsent',
+	  checkFunction: main_core.Type.isBoolean
+	}, {
 	  fieldName: 'departments',
 	  targetFieldName: 'departments',
 	  checkFunction: main_core.Type.isArray,
@@ -2198,9 +2204,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getState() {
 	    return {
 	      collection: {},
-	      onlineList: [],
-	      mobileOnlineList: [],
-	      absentList: []
+	      absentList: [],
+	      absentCheckInterval: null
 	    };
 	  }
 	  getElementState(params = {}) {
@@ -2226,8 +2231,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      idle: false,
 	      lastActivityDate: false,
 	      mobileLastDate: false,
-	      isOnline: false,
-	      isMobileOnline: false,
 	      birthday: false,
 	      isBirthday: false,
 	      absent: false,
@@ -2296,27 +2299,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return false;
 	        }
 	        return user.isAbsent;
-	      },
-	      /** @function users/getStatus */
-	      getStatus: state => rawUserId => {
-	        const userId = Number.parseInt(rawUserId, 10);
-	        const user = state.collection[userId];
-	        if (userId <= 0 || !user) {
-	          return false;
-	        }
-	        if (!user.isOnline) {
-	          return '';
-	        }
-	        if (user.isMobileOnline) {
-	          return im_v2_const.UserStatus.mobileOnline;
-	        }
-	        if (user.idle) {
-	          // away by time
-	          return im_v2_const.UserStatus.idle;
-	        }
-
-	        // manually selected status (online, away, dnd, break)
-	        return user.status;
 	      },
 	      /** @function users/getLastOnline */
 	      getLastOnline: state => rawUserId => {
@@ -2428,9 +2410,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      add: (state, payload) => {
 	        // eslint-disable-next-line no-param-reassign
 	        state.collection[payload.id] = payload.fields;
-	        this.handleUserStatusFlags(state, payload.fields);
-	        this.startOnlineCheckInterval();
-	        this.startAbsentCheckInterval();
+	        im_v2_lib_userStatus.UserStatusManager.getInstance().onUserUpdate(payload.fields);
 	      },
 	      update: (state, payload) => {
 	        // eslint-disable-next-line no-param-reassign
@@ -2438,7 +2418,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          ...state.collection[payload.id],
 	          ...payload.fields
 	        };
-	        this.handleUserStatusFlags(state, payload.fields);
+	        im_v2_lib_userStatus.UserStatusManager.getInstance().onUserUpdate(payload.fields);
 	      },
 	      delete: (state, payload) => {
 	        // eslint-disable-next-line no-param-reassign
@@ -2457,45 +2437,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return preparedFields;
 	  }
-	  handleUserStatusFlags(state, fields) {
-	    const user = state.collection[fields.id];
-	    if (im_v2_lib_utils.Utils.user.isOnline(fields.lastActivityDate)) {
-	      user.isOnline = true;
-	      this.addToOnlineList(fields.id);
-	    }
-	    if (im_v2_lib_utils.Utils.user.isMobileOnline(fields.lastActivityDate, fields.mobileLastDate)) {
-	      user.isMobileOnline = true;
-	      this.addToMobileOnlineList(fields.id);
-	    }
-	    if (fields.birthday && im_v2_lib_utils.Utils.user.isBirthdayToday(fields.birthday)) {
-	      user.isBirthday = true;
-	      setTimeout(() => {
-	        user.isBirthday = false;
-	      }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight());
-	    }
-	    if (fields.absent === false) {
-	      user.isAbsent = false;
-	      // eslint-disable-next-line no-param-reassign
-	      state.absentList = state.absentList.filter(element => {
-	        return element !== fields.id;
-	      });
-	    } else if (main_core.Type.isDate(fields.absent)) {
-	      user.isAbsent = true;
-	      this.addToAbsentList(fields.id);
-	    }
-	  }
-	  addToOnlineList(id) {
-	    const state = this.store.state.users;
-	    if (!state.onlineList.includes(id)) {
-	      state.onlineList.push(id);
-	    }
-	  }
-	  addToMobileOnlineList(id) {
-	    const state = this.store.state.users;
-	    if (!state.mobileOnlineList.includes(id)) {
-	      state.mobileOnlineList.push(id);
-	    }
-	  }
 	  addToAbsentList(id) {
 	    const state = this.store.state.users;
 	    if (!state.absentList.includes(id)) {
@@ -2503,13 +2444,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	  }
 	  startAbsentCheckInterval() {
-	    if (this.absentCheckInterval) {
+	    const state = this.store.state.users;
+	    if (state.absentCheckInterval) {
 	      return;
 	    }
 	    const TIME_TO_NEXT_DAY = 1000 * 60 * 60 * 24;
-	    this.absentCheckInterval = setTimeout(() => {
+	    state.absentCheckInterval = setTimeout(() => {
 	      setInterval(() => {
-	        const state = this.store.state.users;
 	        state.absentList.forEach(userId => {
 	          const user = state.collection[userId];
 	          if (!user) {
@@ -2526,39 +2467,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	      }, TIME_TO_NEXT_DAY);
 	    }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight());
-	  }
-	  startOnlineCheckInterval() {
-	    if (this.onlineCheckInterval) {
-	      return;
-	    }
-	    const ONE_MINUTE = 60000;
-	    this.onlineCheckInterval = setInterval(() => {
-	      const state = this.store.state.users;
-	      state.onlineList.forEach(userId => {
-	        const user = state.collection[userId];
-	        if (!user) {
-	          return;
-	        }
-	        if (im_v2_lib_utils.Utils.user.isOnline(user.lastActivityDate)) {
-	          user.isOnline = true;
-	        } else {
-	          user.isOnline = false;
-	          state.onlineList = state.onlineList.filter(element => element !== userId);
-	        }
-	      });
-	      state.mobileOnlineList.forEach(userId => {
-	        const user = state.collection[userId];
-	        if (!user) {
-	          return;
-	        }
-	        if (im_v2_lib_utils.Utils.user.isMobileOnline(user.lastActivityDate, user.mobileLastDate)) {
-	          user.isMobileOnline = true;
-	        } else {
-	          user.isMobileOnline = false;
-	          state.mobileOnlineList = state.mobileOnlineList.filter(element => element !== userId);
-	        }
-	      });
-	    }, ONE_MINUTE);
 	  }
 	}
 
@@ -2860,6 +2768,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return {
 	      get: state => {
 	        return Object.values(state.collection);
+	      },
+	      getCallByDialog: state => dialogId => {
+	        return state.collection[dialogId];
 	      },
 	      hasActiveCall: state => dialogId => {
 	        if (main_core.Type.isUndefined(dialogId)) {
@@ -3938,33 +3849,75 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 
+	const sidebarLinksFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'messageId',
+	  targetFieldName: 'messageId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'chatId',
+	  targetFieldName: 'chatId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'authorId',
+	  targetFieldName: 'authorId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'url',
+	  targetFieldName: 'source',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => {
+	    var _target$source;
+	    return (_target$source = target.source) != null ? _target$source : '';
+	  }
+	}, {
+	  fieldName: 'dateCreate',
+	  targetFieldName: 'date',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}, {
+	  fieldName: 'url',
+	  targetFieldName: 'richData',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => {
+	    return formatFieldsWithConfig(target.richData, richDataFieldsConfig);
+	  }
+	}];
+	const richDataFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'description',
+	  targetFieldName: 'description',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'link',
+	  targetFieldName: 'link',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'name',
+	  targetFieldName: 'name',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'previewUrl',
+	  targetFieldName: 'previewUrl',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'type',
+	  targetFieldName: 'type',
+	  checkFunction: main_core.Type.isString
+	}];
+
+	/* eslint-disable no-param-reassign */
 	class LinksModel extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
 	      collection: {},
 	      counters: {}
-	    };
-	  }
-	  getGetters() {
-	    return {
-	      get: state => chatId => {
-	        if (!state.collection[chatId]) {
-	          return [];
-	        }
-	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
-	      },
-	      getSize: state => chatId => {
-	        if (!state.collection[chatId]) {
-	          return 0;
-	        }
-	        return state.collection[chatId].size;
-	      },
-	      getCounter: state => chatId => {
-	        if (!state.counters[chatId]) {
-	          return 0;
-	        }
-	        return state.counters[chatId];
-	      }
 	    };
 	  }
 	  getElementState() {
@@ -3985,29 +3938,71 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    };
 	  }
+	  getChatState() {
+	    return {
+	      items: new Map(),
+	      hasNextPage: true
+	    };
+	  }
+	  getGetters() {
+	    return {
+	      /** @function sidebar/links/get */
+	      get: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return [];
+	        }
+	        return [...state.collection[chatId].items.values()].sort((a, b) => b.id - a.id);
+	      },
+	      /** @function sidebar/links/getSize */
+	      getSize: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return 0;
+	        }
+	        return state.collection[chatId].items.size;
+	      },
+	      /** @function sidebar/links/getCounter */
+	      getCounter: state => chatId => {
+	        if (!state.counters[chatId]) {
+	          return 0;
+	        }
+	        return state.counters[chatId];
+	      },
+	      /** @function sidebar/links/hasNextPage */
+	      hasNextPage: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].hasNextPage;
+	      }
+	    };
+	  }
 	  getActions() {
 	    return {
+	      /** @function sidebar/links/setCounter */
 	      setCounter: (store, payload) => {
 	        if (!main_core.Type.isNumber(payload.counter) || !main_core.Type.isNumber(payload.chatId)) {
 	          return;
 	        }
 	        store.commit('setCounter', payload);
 	      },
+	      /** @function sidebar/links/set */
 	      set: (store, payload) => {
 	        const {
 	          chatId,
-	          links
+	          links,
+	          hasNextPage
 	        } = payload;
 	        if (!main_core.Type.isArrayFilled(links) || !main_core.Type.isNumber(chatId)) {
 	          return;
 	        }
-	        if (!store.state.collection[chatId]) {
-	          store.state.collection[chatId] = new Map();
-	        }
+	        store.commit('setHasNextPage', {
+	          chatId,
+	          hasNextPage
+	        });
 	        links.forEach(link => {
 	          const preparedLink = {
 	            ...this.getElementState(),
-	            ...this.validate(link)
+	            ...this.formatFields(link)
 	          };
 	          store.commit('add', {
 	            chatId,
@@ -4015,6 +4010,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          });
 	        });
 	      },
+	      /** @function sidebar/links/delete */
 	      delete: (store, payload) => {
 	        const {
 	          chatId,
@@ -4023,7 +4019,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!main_core.Type.isNumber(id) || !main_core.Type.isNumber(chatId)) {
 	          return;
 	        }
-	        if (!store.state.collection[chatId] || !store.state.collection[chatId].has(id)) {
+	        if (!store.state.collection[chatId] || !store.state.collection[chatId].items.has(id)) {
 	          return;
 	        }
 	        store.commit('delete', {
@@ -4035,6 +4031,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getMutations() {
 	    return {
+	      setHasNextPage: (state, payload) => {
+	        const {
+	          chatId,
+	          hasNextPage
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].hasNextPage = hasNextPage;
+	      },
 	      setCounter: (state, payload) => {
 	        const {
 	          chatId,
@@ -4047,69 +4054,51 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          chatId,
 	          link
 	        } = payload;
-	        state.collection[chatId].set(link.id, link);
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].items.set(link.id, link);
 	      },
 	      delete: (state, payload) => {
 	        const {
 	          chatId,
 	          id
 	        } = payload;
-	        state.collection[chatId].delete(id);
+	        state.collection[chatId].items.delete(id);
 	        state.counters[chatId]--;
 	      }
 	    };
 	  }
-	  validate(fields) {
-	    const result = {
-	      richData: {}
-	    };
-	    if (main_core.Type.isNumber(fields.id)) {
-	      result.id = fields.id;
-	    }
-	    if (main_core.Type.isNumber(fields.messageId)) {
-	      result.messageId = fields.messageId;
-	    }
-	    if (main_core.Type.isNumber(fields.chatId)) {
-	      result.chatId = fields.chatId;
-	    }
-	    if (main_core.Type.isNumber(fields.authorId)) {
-	      result.authorId = fields.authorId;
-	    }
-	    if (main_core.Type.isString(fields.url.source)) {
-	      result.source = fields.url.source;
-	    }
-	    if (main_core.Type.isString(fields.dateCreate)) {
-	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
-	    }
-	    if (main_core.Type.isPlainObject(fields.url.richData)) {
-	      result.richData = this.validateRichData(fields.url.richData);
-	    }
-	    return result;
-	  }
-	  validateRichData(richData) {
-	    const result = {};
-	    if (main_core.Type.isNumber(richData.id)) {
-	      result.id = richData.id;
-	    }
-	    if (main_core.Type.isString(richData.description)) {
-	      result.description = richData.description;
-	    }
-	    if (main_core.Type.isString(richData.link)) {
-	      result.link = richData.link;
-	    }
-	    if (main_core.Type.isString(richData.name)) {
-	      result.name = richData.name;
-	    }
-	    if (main_core.Type.isString(richData.previewUrl)) {
-	      result.previewUrl = richData.previewUrl;
-	    }
-	    if (main_core.Type.isString(richData.type)) {
-	      result.type = richData.type;
-	    }
-	    return result;
+	  formatFields(fields) {
+	    return formatFieldsWithConfig(fields, sidebarLinksFieldsConfig);
 	  }
 	}
 
+	const sidebarFavoritesFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'messageId',
+	  targetFieldName: 'messageId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'chatId',
+	  targetFieldName: 'chatId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'authorId',
+	  targetFieldName: 'authorId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'dateCreate',
+	  targetFieldName: 'date',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}];
+
+	/* eslint-disable no-param-reassign */
 	class FavoritesModel extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
@@ -4126,62 +4115,96 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      date: new Date()
 	    };
 	  }
+	  getChatState() {
+	    return {
+	      items: new Map(),
+	      hasNextPage: true,
+	      lastId: 0
+	    };
+	  }
 	  getGetters() {
 	    return {
+	      /** @function sidebar/favorites/get */
 	      get: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return [];
 	        }
-	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
+	        return [...state.collection[chatId].items.values()].sort((a, b) => b.id - a.id);
 	      },
+	      /** @function sidebar/favorites/getSize */
 	      getSize: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return 0;
 	        }
-	        return state.collection[chatId].size;
+	        return state.collection[chatId].items.size;
 	      },
+	      /** @function sidebar/favorites/getCounter */
 	      getCounter: state => chatId => {
 	        if (state.counters[chatId]) {
 	          return state.counters[chatId];
 	        }
 	        return 0;
 	      },
+	      /** @function sidebar/favorites/isFavoriteMessage */
 	      isFavoriteMessage: state => (chatId, messageId) => {
 	        if (!state.collection[chatId]) {
 	          return false;
 	        }
-	        const chatFavorites = Object.fromEntries(state.collection[chatId]);
+	        const chatFavorites = Object.fromEntries(state.collection[chatId].items);
 	        const targetMessage = Object.values(chatFavorites).find(element => element.messageId === messageId);
-	        return !!targetMessage;
+	        return Boolean(targetMessage);
+	      },
+	      /** @function sidebar/favorites/hasNextPage */
+	      hasNextPage: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].hasNextPage;
+	      },
+	      /** @function sidebar/favorites/getLastId */
+	      getLastId: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].lastId;
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
+	      /** @function sidebar/favorites/setCounter */
 	      setCounter: (store, payload) => {
 	        if (!main_core.Type.isNumber(payload.counter) || !main_core.Type.isNumber(payload.chatId)) {
 	          return;
 	        }
 	        store.commit('setCounter', payload);
 	      },
+	      /** @function sidebar/favorites/set */
 	      set: (store, payload) => {
 	        if (main_core.Type.isNumber(payload.favorites)) {
 	          payload.favorites = [payload.favorites];
 	        }
 	        const {
 	          chatId,
-	          favorites
+	          favorites,
+	          hasNextPage,
+	          lastId
 	        } = payload;
 	        if (!main_core.Type.isArrayFilled(favorites) || !main_core.Type.isNumber(chatId)) {
 	          return;
 	        }
-	        if (!store.state.collection[chatId]) {
-	          store.state.collection[chatId] = new Map();
-	        }
+	        store.commit('setHasNextPage', {
+	          chatId,
+	          hasNextPage
+	        });
+	        store.commit('setLastId', {
+	          chatId,
+	          lastId
+	        });
 	        favorites.forEach(favorite => {
 	          const preparedFavoriteMessage = {
 	            ...this.getElementState(),
-	            ...this.validate(favorite)
+	            ...this.formatFields(favorite)
 	          };
 	          store.commit('add', {
 	            chatId,
@@ -4189,6 +4212,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          });
 	        });
 	      },
+	      /** @function sidebar/favorites/delete */
 	      delete: (store, payload) => {
 	        const {
 	          chatId,
@@ -4197,7 +4221,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!main_core.Type.isNumber(id) || !main_core.Type.isNumber(chatId)) {
 	          return;
 	        }
-	        if (!store.state.collection[chatId] || !store.state.collection[chatId].has(id)) {
+	        if (!store.state.collection[chatId] || !store.state.collection[chatId].items.has(id)) {
 	          return;
 	        }
 	        store.commit('delete', {
@@ -4205,6 +4229,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          id
 	        });
 	      },
+	      /** @function sidebar/favorites/deleteByMessageId */
 	      deleteByMessageId: (store, payload) => {
 	        const {
 	          chatId,
@@ -4213,7 +4238,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!store.state.collection[chatId]) {
 	          return;
 	        }
-	        const chatCollection = store.state.collection[chatId];
+	        const chatCollection = store.state.collection[chatId].items;
 	        let targetLinkId = null;
 	        for (const [linkId, linkObject] of chatCollection) {
 	          if (linkObject.messageId === messageId) {
@@ -4233,6 +4258,17 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getMutations() {
 	    return {
+	      setHasNextPage: (state, payload) => {
+	        const {
+	          chatId,
+	          hasNextPage
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].hasNextPage = hasNextPage;
+	      },
 	      setCounter: (state, payload) => {
 	        const {
 	          chatId,
@@ -4240,76 +4276,123 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        } = payload;
 	        state.counters[chatId] = counter;
 	      },
+	      setLastId: (state, payload) => {
+	        const {
+	          chatId,
+	          lastId
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].lastId = lastId;
+	      },
 	      add: (state, payload) => {
 	        const {
 	          chatId,
 	          favorite
 	        } = payload;
-	        state.collection[chatId].set(favorite.id, favorite);
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].items.set(favorite.id, favorite);
 	      },
 	      delete: (state, payload) => {
 	        const {
 	          chatId,
 	          id
 	        } = payload;
-	        state.collection[chatId].delete(id);
+	        state.collection[chatId].items.delete(id);
 	        state.counters[chatId]--;
 	      }
 	    };
 	  }
-	  validate(fields) {
-	    const result = {};
-	    if (main_core.Type.isNumber(fields.id)) {
-	      result.id = fields.id;
-	    }
-	    if (main_core.Type.isNumber(fields.messageId)) {
-	      result.messageId = fields.messageId;
-	    }
-	    if (main_core.Type.isNumber(fields.chatId)) {
-	      result.chatId = fields.chatId;
-	    }
-	    if (main_core.Type.isNumber(fields.authorId)) {
-	      result.authorId = fields.authorId;
-	    }
-	    if (main_core.Type.isString(fields.dateCreate)) {
-	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
-	    }
-	    return result;
+	  formatFields(fields) {
+	    return formatFieldsWithConfig(fields, sidebarFavoritesFieldsConfig);
 	  }
 	}
 
+	/* eslint-disable no-param-reassign */
 	class MembersModel extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
 	      collection: {}
 	    };
 	  }
+	  getChatState() {
+	    return {
+	      users: new Set(),
+	      hasNextPage: true,
+	      lastId: 0,
+	      inited: false
+	    };
+	  }
 	  getGetters() {
 	    return {
+	      /** @function sidebar/members/get */
 	      get: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return [];
 	        }
-	        return [...state.collection[chatId]];
+	        return [...state.collection[chatId].users];
 	      },
+	      /** @function sidebar/members/getSize */
 	      getSize: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return 0;
 	        }
-	        return state.collection[chatId].size;
+	        return state.collection[chatId].users.size;
+	      },
+	      /** @function sidebar/members/hasNextPage */
+	      hasNextPage: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].hasNextPage;
+	      },
+	      /** @function sidebar/members/getLastId */
+	      getLastId: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].lastId;
+	      },
+	      /** @function sidebar/members/getInited */
+	      getInited: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].inited;
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
+	      /** @function sidebar/members/set */
 	      set: (store, payload) => {
 	        const {
 	          chatId,
-	          users
+	          users,
+	          hasNextPage,
+	          lastId
 	        } = payload;
-	        if (!main_core.Type.isArray(users) || !main_core.Type.isNumber(chatId)) {
-	          return;
+	        if (!main_core.Type.isNil(hasNextPage)) {
+	          store.commit('setHasNextPage', {
+	            chatId,
+	            hasNextPage
+	          });
 	        }
+	        if (!main_core.Type.isNil(lastId)) {
+	          store.commit('setLastId', {
+	            chatId,
+	            lastId
+	          });
+	        }
+	        store.commit('setInited', {
+	          chatId,
+	          inited: true
+	        });
 	        if (users.length > 0) {
 	          store.commit('set', {
 	            chatId,
@@ -4317,6 +4400,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          });
 	        }
 	      },
+	      /** @function sidebar/members/delete */
 	      delete: (store, payload) => {
 	        const {
 	          chatId,
@@ -4338,25 +4422,131 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getMutations() {
 	    return {
 	      set: (state, payload) => {
-	        if (!state.collection[payload.chatId]) {
-	          state.collection[payload.chatId] = new Set(payload.users);
-	        } else {
-	          payload.users.forEach(id => {
-	            state.collection[payload.chatId].add(id);
-	          });
+	        const {
+	          chatId,
+	          users
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
 	        }
+	        users.forEach(id => {
+	          state.collection[chatId].users.add(id);
+	        });
+	      },
+	      setHasNextPage: (state, payload) => {
+	        const {
+	          chatId,
+	          hasNextPage
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].hasNextPage = hasNextPage;
+	      },
+	      setLastId: (state, payload) => {
+	        const {
+	          chatId,
+	          lastId
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].lastId = lastId;
+	      },
+	      setInited: (state, payload) => {
+	        const {
+	          chatId,
+	          inited
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].inited = inited;
 	      },
 	      delete: (state, payload) => {
 	        const {
 	          chatId,
 	          userId
 	        } = payload;
-	        state.collection[chatId].delete(userId);
+	        state.collection[chatId].users.delete(userId);
 	      }
 	    };
 	  }
 	}
 
+	const sidebarTaskFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'messageId',
+	  targetFieldName: 'messageId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'chatId',
+	  targetFieldName: 'chatId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'authorId',
+	  targetFieldName: 'authorId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'dateCreate',
+	  targetFieldName: 'date',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}, {
+	  fieldName: 'task',
+	  targetFieldName: 'task',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => {
+	    return formatFieldsWithConfig(target, taskFieldsConfig);
+	  }
+	}];
+	const taskFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'title',
+	  targetFieldName: 'title',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'creatorId',
+	  targetFieldName: 'creatorId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'responsibleId',
+	  targetFieldName: 'responsibleId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'statusTitle',
+	  targetFieldName: 'statusTitle',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'deadline',
+	  targetFieldName: 'deadline',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}, {
+	  fieldName: 'state',
+	  targetFieldName: 'state',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'color',
+	  targetFieldName: 'color',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'source',
+	  targetFieldName: 'source',
+	  checkFunction: main_core.Type.isString
+	}];
+
+	/* eslint-disable no-param-reassign */
 	class TasksModel extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
@@ -4384,39 +4574,74 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    };
 	  }
+	  getChatState() {
+	    return {
+	      items: new Map(),
+	      hasNextPage: true,
+	      lastId: 0
+	    };
+	  }
 	  getGetters() {
 	    return {
+	      /** @function sidebar/tasks/get */
 	      get: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return [];
 	        }
-	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
+	        return [...state.collection[chatId].items.values()].sort((a, b) => b.id - a.id);
 	      },
+	      /** @function sidebar/tasks/hasNextPage */
 	      getSize: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return 0;
 	        }
-	        return state.collection[chatId].size;
+	        return state.collection[chatId].items.size;
+	      },
+	      /** @function sidebar/tasks/hasNextPage */
+	      hasNextPage: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].hasNextPage;
+	      },
+	      /** @function sidebar/tasks/getLastId */
+	      getLastId: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].lastId;
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
+	      /** @function sidebar/tasks/set */
 	      set: (store, payload) => {
 	        const {
 	          chatId,
-	          tasks
+	          tasks,
+	          hasNextPage,
+	          lastId
 	        } = payload;
 	        if (!main_core.Type.isArrayFilled(tasks) || !main_core.Type.isNumber(chatId)) {
 	          return;
 	        }
-	        if (!store.state.collection[chatId]) {
-	          store.state.collection[chatId] = new Map();
+	        if (!main_core.Type.isNil(hasNextPage)) {
+	          store.commit('setHasNextPage', {
+	            chatId,
+	            hasNextPage
+	          });
+	        }
+	        if (!main_core.Type.isNil(lastId)) {
+	          store.commit('setLastId', {
+	            chatId,
+	            lastId
+	          });
 	        }
 	        tasks.forEach(task => {
 	          const preparedTask = {
 	            ...this.getElementState(),
-	            ...this.validate(task)
+	            ...this.formatFields(task)
 	          };
 	          store.commit('add', {
 	            chatId,
@@ -4424,6 +4649,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          });
 	        });
 	      },
+	      /** @function sidebar/tasks/delete */
 	      delete: (store, payload) => {
 	        const {
 	          chatId,
@@ -4449,77 +4675,102 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          chatId,
 	          task
 	        } = payload;
-	        state.collection[chatId].set(task.id, task);
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].items.set(task.id, task);
 	      },
 	      delete: (state, payload) => {
 	        const {
 	          id,
 	          chatId
 	        } = payload;
-	        state.collection[chatId].delete(id);
+	        state.collection[chatId].items.delete(id);
+	      },
+	      setHasNextPage: (state, payload) => {
+	        const {
+	          chatId,
+	          hasNextPage
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].hasNextPage = hasNextPage;
+	      },
+	      setLastId: (state, payload) => {
+	        const {
+	          chatId,
+	          lastId
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].lastId = lastId;
 	      }
 	    };
 	  }
-	  validate(fields) {
-	    const result = {
-	      task: {}
-	    };
-	    if (main_core.Type.isNumber(fields.id)) {
-	      result.id = fields.id;
-	    }
-	    if (main_core.Type.isNumber(fields.messageId)) {
-	      result.messageId = fields.messageId;
-	    }
-	    if (main_core.Type.isNumber(fields.chatId)) {
-	      result.chatId = fields.chatId;
-	    }
-	    if (main_core.Type.isNumber(fields.authorId)) {
-	      result.authorId = fields.authorId;
-	    }
-	    if (main_core.Type.isString(fields.dateCreate)) {
-	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
-	    }
-	    if (main_core.Type.isPlainObject(fields.task)) {
-	      result.task = this.validateTask(fields.task);
-	    }
-	    return result;
-	  }
-	  validateTask(task) {
-	    const result = {};
-	    if (main_core.Type.isNumber(task.id)) {
-	      result.id = task.id;
-	    }
-	    if (main_core.Type.isString(task.title)) {
-	      result.title = task.title;
-	    }
-	    if (main_core.Type.isNumber(task.creatorId)) {
-	      result.creatorId = task.creatorId;
-	    }
-	    if (main_core.Type.isNumber(task.responsibleId)) {
-	      result.responsibleId = task.responsibleId;
-	    }
-	    if (main_core.Type.isNumber(task.status)) {
-	      result.status = task.status;
-	    }
-	    if (main_core.Type.isString(task.statusTitle)) {
-	      result.statusTitle = task.statusTitle;
-	    }
-	    if (main_core.Type.isString(task.deadline)) {
-	      result.deadline = im_v2_lib_utils.Utils.date.cast(task.deadline);
-	    }
-	    if (main_core.Type.isString(task.state)) {
-	      result.state = task.state;
-	    }
-	    if (main_core.Type.isString(task.color)) {
-	      result.color = task.color;
-	    }
-	    if (main_core.Type.isString(task.source)) {
-	      result.source = task.source;
-	    }
-	    return result;
+	  formatFields(fields) {
+	    return formatFieldsWithConfig(fields, sidebarTaskFieldsConfig);
 	  }
 	}
 
+	const sidebarMeetingFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'messageId',
+	  targetFieldName: 'messageId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'chatId',
+	  targetFieldName: 'chatId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'authorId',
+	  targetFieldName: 'authorId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'dateCreate',
+	  targetFieldName: 'date',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}, {
+	  fieldName: 'calendar',
+	  targetFieldName: 'meeting',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: target => {
+	    return formatFieldsWithConfig(target, meetingFieldsConfig);
+	  }
+	}];
+	const meetingFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'title',
+	  targetFieldName: 'title',
+	  checkFunction: main_core.Type.isString
+	}, {
+	  fieldName: 'dateFrom',
+	  targetFieldName: 'dateFrom',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}, {
+	  fieldName: 'dateTo',
+	  targetFieldName: 'dateTo',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}, {
+	  fieldName: 'source',
+	  targetFieldName: 'source',
+	  checkFunction: main_core.Type.isString
+	}];
+
+	/* eslint-disable no-param-reassign */
 	class MeetingsModel extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
@@ -4542,39 +4793,74 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    };
 	  }
+	  getChatState() {
+	    return {
+	      items: new Map(),
+	      hasNextPage: true,
+	      lastId: 0
+	    };
+	  }
 	  getGetters() {
 	    return {
+	      /** @function sidebar/meetings/get */
 	      get: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return [];
 	        }
-	        return [...state.collection[chatId].values()].sort((a, b) => b.id - a.id);
+	        return [...state.collection[chatId].items.values()].sort((a, b) => b.id - a.id);
 	      },
+	      /** @function sidebar/meetings/getSize */
 	      getSize: state => chatId => {
 	        if (!state.collection[chatId]) {
 	          return 0;
 	        }
-	        return state.collection[chatId].size;
+	        return state.collection[chatId].items.size;
+	      },
+	      /** @function sidebar/meetings/hasNextPage */
+	      hasNextPage: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].hasNextPage;
+	      },
+	      /** @function sidebar/meetings/getLastId */
+	      getLastId: state => chatId => {
+	        if (!state.collection[chatId]) {
+	          return false;
+	        }
+	        return state.collection[chatId].lastId;
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
+	      /** @function sidebar/meetings/set */
 	      set: (store, payload) => {
 	        const {
 	          chatId,
-	          meetings
+	          meetings,
+	          hasNextPage,
+	          lastId
 	        } = payload;
 	        if (!main_core.Type.isArrayFilled(meetings) || !main_core.Type.isNumber(chatId)) {
 	          return;
 	        }
-	        if (!store.state.collection[chatId]) {
-	          store.state.collection[chatId] = new Map();
+	        if (!main_core.Type.isNil(hasNextPage)) {
+	          store.commit('setHasNextPage', {
+	            chatId,
+	            hasNextPage
+	          });
+	        }
+	        if (!main_core.Type.isNil(lastId)) {
+	          store.commit('setLastId', {
+	            chatId,
+	            lastId
+	          });
 	        }
 	        meetings.forEach(meeting => {
 	          const preparedMeeting = {
 	            ...this.getElementState(),
-	            ...this.validate(meeting)
+	            ...this.formatFields(meeting)
 	          };
 	          store.commit('add', {
 	            chatId,
@@ -4582,6 +4868,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          });
 	        });
 	      },
+	      /** @function sidebar/meetings/delete */
 	      delete: (store, payload) => {
 	        const {
 	          chatId,
@@ -4607,62 +4894,76 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          chatId,
 	          meeting
 	        } = payload;
-	        state.collection[chatId].set(meeting.id, meeting);
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].items.set(meeting.id, meeting);
 	      },
 	      delete: (state, payload) => {
 	        const {
 	          id,
 	          chatId
 	        } = payload;
-	        state.collection[chatId].delete(id);
+	        state.collection[chatId].items.delete(id);
+	      },
+	      setHasNextPage: (state, payload) => {
+	        const {
+	          chatId,
+	          hasNextPage
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].hasNextPage = hasNextPage;
+	      },
+	      setLastId: (state, payload) => {
+	        const {
+	          chatId,
+	          lastId
+	        } = payload;
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId]);
+	        if (!hasCollection) {
+	          state.collection[chatId] = this.getChatState();
+	        }
+	        state.collection[chatId].lastId = lastId;
 	      }
 	    };
 	  }
-	  validate(fields) {
-	    const result = {
-	      meeting: {}
-	    };
-	    if (main_core.Type.isNumber(fields.id)) {
-	      result.id = fields.id;
-	    }
-	    if (main_core.Type.isNumber(fields.messageId)) {
-	      result.messageId = fields.messageId;
-	    }
-	    if (main_core.Type.isNumber(fields.chatId)) {
-	      result.chatId = fields.chatId;
-	    }
-	    if (main_core.Type.isNumber(fields.authorId)) {
-	      result.authorId = fields.authorId;
-	    }
-	    if (main_core.Type.isString(fields.dateCreate)) {
-	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
-	    }
-	    if (main_core.Type.isPlainObject(fields.calendar)) {
-	      result.meeting = this.validateMeeting(fields.calendar);
-	    }
-	    return result;
-	  }
-	  validateMeeting(meeting) {
-	    const result = {};
-	    if (main_core.Type.isNumber(meeting.id)) {
-	      result.id = meeting.id;
-	    }
-	    if (main_core.Type.isString(meeting.title)) {
-	      result.title = meeting.title;
-	    }
-	    if (main_core.Type.isString(meeting.dateFrom)) {
-	      result.dateFrom = im_v2_lib_utils.Utils.date.cast(meeting.dateFrom);
-	    }
-	    if (main_core.Type.isString(meeting.dateTo)) {
-	      result.dateTo = im_v2_lib_utils.Utils.date.cast(meeting.dateTo);
-	    }
-	    if (main_core.Type.isString(meeting.source)) {
-	      result.source = meeting.source;
-	    }
-	    return result;
+	  formatFields(fields) {
+	    return formatFieldsWithConfig(fields, sidebarMeetingFieldsConfig);
 	  }
 	}
 
+	const sidebarFilesFieldsConfig = [{
+	  fieldName: 'id',
+	  targetFieldName: 'id',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'messageId',
+	  targetFieldName: 'messageId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'chatId',
+	  targetFieldName: 'chatId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: 'authorId',
+	  targetFieldName: 'authorId',
+	  checkFunction: main_core.Type.isNumber
+	}, {
+	  fieldName: ['dateCreate', 'date'],
+	  targetFieldName: 'date',
+	  checkFunction: main_core.Type.isString,
+	  formatFunction: im_v2_lib_utils.Utils.date.cast
+	}, {
+	  fieldName: ['fileId', 'id'],
+	  targetFieldName: 'fileId',
+	  checkFunction: main_core.Type.isNumber
+	}];
+
+	/* eslint-disable no-param-reassign */
 	class FilesModel$1 extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
@@ -4679,14 +4980,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      fileId: 0
 	    };
 	  }
+	  getChatState() {
+	    return {
+	      items: new Map(),
+	      hasNextPage: true,
+	      lastId: 0
+	    };
+	  }
 	  getGetters() {
 	    return {
+	      /** @function sidebar/files/get */
 	      get: state => (chatId, subType) => {
 	        if (!state.collection[chatId] || !state.collection[chatId][subType]) {
 	          return [];
 	        }
-	        return [...state.collection[chatId][subType].values()].sort((a, b) => b.id - a.id);
+	        return [...state.collection[chatId][subType].items.values()].sort((a, b) => b.id - a.id);
 	      },
+	      /** @function sidebar/files/getLatest */
 	      getLatest: (state, getters, rootState, rootGetters) => chatId => {
 	        if (!state.collection[chatId]) {
 	          return [];
@@ -4695,61 +5005,77 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        let audio = [];
 	        let documents = [];
 	        let other = [];
+	        let briefs = [];
 	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.media]) {
-	          media = [...state.collection[chatId][im_v2_const.SidebarFileTypes.media].values()];
+	          media = [...state.collection[chatId][im_v2_const.SidebarFileTypes.media].items.values()];
 	        }
 	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.audio]) {
-	          audio = [...state.collection[chatId][im_v2_const.SidebarFileTypes.audio].values()];
+	          audio = [...state.collection[chatId][im_v2_const.SidebarFileTypes.audio].items.values()];
 	        }
 	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.document]) {
-	          documents = [...state.collection[chatId][im_v2_const.SidebarFileTypes.document].values()];
+	          documents = [...state.collection[chatId][im_v2_const.SidebarFileTypes.document].items.values()];
+	        }
+	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.brief]) {
+	          briefs = [...state.collection[chatId][im_v2_const.SidebarFileTypes.brief].items.values()];
 	        }
 	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.other]) {
-	          other = [...state.collection[chatId][im_v2_const.SidebarFileTypes.other].values()];
+	          other = [...state.collection[chatId][im_v2_const.SidebarFileTypes.other].items.values()];
 	        }
-	        const sortedFlatCollection = [media, audio, documents, other].flat().sort((a, b) => b.id - a.id);
+	        const sortedFlatCollection = [media, audio, documents, briefs, other].flat().sort((a, b) => b.id - a.id);
 	        return this.getTopThreeCompletedFiles(sortedFlatCollection, rootGetters);
 	      },
+	      /** @function sidebar/files/getLatestUnsorted */
 	      getLatestUnsorted: (state, getters, rootState, rootGetters) => chatId => {
 	        if (!state.collection[chatId]) {
 	          return [];
 	        }
 	        let unsorted = [];
 	        if (state.collection[chatId][im_v2_const.SidebarFileTypes.fileUnsorted]) {
-	          unsorted = [...state.collection[chatId][im_v2_const.SidebarFileTypes.fileUnsorted].values()];
+	          unsorted = [...state.collection[chatId][im_v2_const.SidebarFileTypes.fileUnsorted].items.values()];
 	        }
 	        const sortedCollection = unsorted.sort((a, b) => b.id - a.id);
 	        return this.getTopThreeCompletedFiles(sortedCollection, rootGetters);
 	      },
+	      /** @function sidebar/files/getSize */
 	      getSize: state => (chatId, subType) => {
 	        if (!state.collection[chatId] || !state.collection[chatId][subType]) {
 	          return 0;
 	        }
-	        return state.collection[chatId][subType].size;
+	        return state.collection[chatId][subType].items.size;
+	      },
+	      /** @function sidebar/files/hasNextPage */
+	      hasNextPage: state => (chatId, subType) => {
+	        if (!state.collection[chatId] || !state.collection[chatId][subType]) {
+	          return false;
+	        }
+	        return state.collection[chatId][subType].hasNextPage;
+	      },
+	      /** @function sidebar/files/getLastId */
+	      getLastId: state => (chatId, subType) => {
+	        if (!state.collection[chatId] || !state.collection[chatId][subType]) {
+	          return false;
+	        }
+	        return state.collection[chatId][subType].lastId;
 	      }
 	    };
 	  }
 	  getActions() {
 	    return {
+	      /** @function sidebar/files/set */
 	      set: (store, payload) => {
 	        const {
 	          chatId,
-	          files
+	          files,
+	          subType
 	        } = payload;
 	        if (!main_core.Type.isArrayFilled(files) || !main_core.Type.isNumber(chatId)) {
 	          return;
 	        }
-	        if (!store.state.collection[chatId]) {
-	          store.state.collection[chatId] = {};
-	        }
 	        files.forEach(file => {
 	          const preparedFile = {
 	            ...this.getElementState(),
-	            ...this.validate(file)
+	            ...this.formatFields(file)
 	          };
-	          const {
-	            subType
-	          } = file;
 	          store.commit('add', {
 	            chatId,
 	            subType,
@@ -4757,6 +5083,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          });
 	        });
 	      },
+	      /** @function sidebar/files/delete */
 	      delete: (store, payload) => {
 	        const {
 	          chatId,
@@ -4772,6 +5099,44 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          chatId,
 	          id
 	        });
+	      },
+	      /** @function sidebar/files/setHasNextPage */
+	      setHasNextPage: (store, payload) => {
+	        const {
+	          chatId,
+	          subType,
+	          hasNextPage
+	        } = payload;
+	        if (!main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          return;
+	        }
+	        store.commit('setHasNextPage', {
+	          chatId,
+	          subType,
+	          hasNextPage
+	        });
+	      },
+	      /** @function sidebar/files/setLastId */
+	      setLastId: (store, payload) => {
+	        const {
+	          chatId,
+	          subType,
+	          lastId
+	        } = payload;
+	        if (!main_core.Type.isNumber(chatId)) {
+	          return;
+	        }
+	        if (!store.state.collection[chatId]) {
+	          return;
+	        }
+	        store.commit('setLastId', {
+	          chatId,
+	          subType,
+	          lastId
+	        });
 	      }
 	    };
 	  }
@@ -4783,10 +5148,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          file,
 	          subType
 	        } = payload;
-	        if (!state.collection[chatId][subType]) {
-	          state.collection[chatId][subType] = new Map();
+	        if (!state.collection[chatId]) {
+	          state.collection[chatId] = {};
 	        }
-	        state.collection[chatId][subType].set(file.id, file);
+	        if (!state.collection[chatId][subType]) {
+	          state.collection[chatId][subType] = this.getChatState();
+	        }
+	        state.collection[chatId][subType].items.set(file.id, file);
 	      },
 	      delete: (state, payload) => {
 	        const {
@@ -4794,34 +5162,45 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          id
 	        } = payload;
 	        Object.values(im_v2_const.SidebarFileTypes).forEach(subType => {
-	          if (state.collection[chatId][subType] && state.collection[chatId][subType].has(id)) {
-	            state.collection[chatId][subType].delete(id);
+	          if (state.collection[chatId][subType] && state.collection[chatId][subType].items.has(id)) {
+	            state.collection[chatId][subType].items.delete(id);
 	          }
 	        });
+	      },
+	      setHasNextPage: (state, payload) => {
+	        const {
+	          chatId,
+	          subType,
+	          hasNextPage
+	        } = payload;
+	        if (!state.collection[chatId]) {
+	          state.collection[chatId] = {};
+	        }
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId][subType]);
+	        if (!hasCollection) {
+	          state.collection[chatId][subType] = this.getChatState();
+	        }
+	        state.collection[chatId][subType].hasNextPage = hasNextPage;
+	      },
+	      setLastId: (state, payload) => {
+	        const {
+	          chatId,
+	          subType,
+	          lastId
+	        } = payload;
+	        if (!state.collection[chatId]) {
+	          state.collection[chatId] = {};
+	        }
+	        const hasCollection = !main_core.Type.isNil(state.collection[chatId][subType]);
+	        if (!hasCollection) {
+	          state.collection[chatId][subType] = this.getChatState();
+	        }
+	        state.collection[chatId][subType].lastId = lastId;
 	      }
 	    };
 	  }
-	  validate(fields) {
-	    const result = {};
-	    if (main_core.Type.isNumber(fields.id)) {
-	      result.id = fields.id;
-	    }
-	    if (main_core.Type.isNumber(fields.messageId)) {
-	      result.messageId = fields.messageId;
-	    }
-	    if (main_core.Type.isNumber(fields.chatId)) {
-	      result.chatId = fields.chatId;
-	    }
-	    if (main_core.Type.isNumber(fields.authorId)) {
-	      result.authorId = fields.authorId;
-	    }
-	    if (main_core.Type.isString(fields.dateCreate)) {
-	      result.date = im_v2_lib_utils.Utils.date.cast(fields.dateCreate);
-	    } else if (main_core.Type.isString(fields.date)) {
-	      result.date = im_v2_lib_utils.Utils.date.cast(fields.date);
-	    }
-	    result.fileId = main_core.Type.isNumber(fields.fileId) ? fields.fileId : result.id;
-	    return result;
+	  formatFields(fields) {
+	    return formatFieldsWithConfig(fields, sidebarFilesFieldsConfig);
 	  }
 	  getTopThreeCompletedFiles(collection, rootGetters) {
 	    return collection.filter(sidebarFile => {
@@ -4831,6 +5210,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 
+	/* eslint-disable no-param-reassign */
 	class SidebarModel extends ui_vue3_vuex.BuilderModel {
 	  getName() {
 	    return 'sidebar';
@@ -4883,8 +5263,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getMutations() {
 	    return {
-	      setInited: (state, payload) => {
-	        state.initedList.add(payload);
+	      setInited: (state, chatId) => {
+	        state.initedList.add(chatId);
 	      },
 	      setFilesMigrated: (state, payload) => {
 	        state.isFilesMigrated = payload;
@@ -5204,5 +5584,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.MarketModel = MarketModel;
 	exports.CountersModel = CountersModel;
 
-}((this.BX.Messenger.v2.Model = this.BX.Messenger.v2.Model || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.Vue3.Vuex,BX.Messenger.v2.Application));
+}((this.BX.Messenger.v2.Model = this.BX.Messenger.v2.Model || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX,BX.Vue3.Vuex,BX.Messenger.v2.Application));
 //# sourceMappingURL=registry.bundle.js.map

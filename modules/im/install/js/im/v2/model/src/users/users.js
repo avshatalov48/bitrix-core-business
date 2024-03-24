@@ -3,7 +3,8 @@ import { BuilderModel, type ActionTree, type GetterTree, type MutationTree } fro
 
 import { Core } from 'im.v2.application.core';
 import { Utils } from 'im.v2.lib.utils';
-import { UserStatus, Color } from 'im.v2.const';
+import { UserStatusManager } from 'im.v2.lib.user-status';
+import { Color } from 'im.v2.const';
 
 import { BotsModel } from './nested-modules/bots';
 import { formatFieldsWithConfig } from '../utils/validate';
@@ -13,8 +14,6 @@ import type { User as ImModelUser } from '../type/user';
 
 type UsersState = {
 	collection: {[userId: string]: ImModelUser},
-	onlineList: string[],
-	mobileOnlineList: string[],
 	absentList: string[],
 };
 
@@ -36,9 +35,8 @@ export class UsersModel extends BuilderModel
 	{
 		return {
 			collection: {},
-			onlineList: [],
-			mobileOnlineList: [],
 			absentList: [],
+			absentCheckInterval: null,
 		};
 	}
 
@@ -65,8 +63,6 @@ export class UsersModel extends BuilderModel
 			idle: false,
 			lastActivityDate: false,
 			mobileLastDate: false,
-			isOnline: false,
-			isMobileOnline: false,
 			birthday: false,
 			isBirthday: false,
 			absent: false,
@@ -150,35 +146,6 @@ export class UsersModel extends BuilderModel
 				}
 
 				return user.isAbsent;
-			},
-			/** @function users/getStatus */
-			getStatus: (state) => (rawUserId) => {
-				const userId = Number.parseInt(rawUserId, 10);
-
-				const user = state.collection[userId];
-				if (userId <= 0 || !user)
-				{
-					return false;
-				}
-
-				if (!user.isOnline)
-				{
-					return '';
-				}
-
-				if (user.isMobileOnline)
-				{
-					return UserStatus.mobileOnline;
-				}
-
-				if (user.idle)
-				{
-					// away by time
-					return UserStatus.idle;
-				}
-
-				// manually selected status (online, away, dnd, break)
-				return user.status;
 			},
 			/** @function users/getLastOnline */
 			getLastOnline: (state) => (rawUserId) => {
@@ -308,16 +275,13 @@ export class UsersModel extends BuilderModel
 				// eslint-disable-next-line no-param-reassign
 				state.collection[payload.id] = payload.fields;
 
-				this.handleUserStatusFlags(state, payload.fields);
-
-				this.startOnlineCheckInterval();
-				this.startAbsentCheckInterval();
+				UserStatusManager.getInstance().onUserUpdate(payload.fields);
 			},
 			update: (state, payload) => {
 				// eslint-disable-next-line no-param-reassign
 				state.collection[payload.id] = { ...state.collection[payload.id], ...payload.fields };
 
-				this.handleUserStatusFlags(state, payload.fields);
+				UserStatusManager.getInstance().onUserUpdate(payload.fields);
 			},
 			delete: (state, payload) => {
 				// eslint-disable-next-line no-param-reassign
@@ -341,62 +305,6 @@ export class UsersModel extends BuilderModel
 		return preparedFields;
 	}
 
-	handleUserStatusFlags(state, fields: ImModelUser)
-	{
-		const user = state.collection[fields.id];
-		if (Utils.user.isOnline(fields.lastActivityDate))
-		{
-			user.isOnline = true;
-			this.addToOnlineList(fields.id);
-		}
-
-		if (Utils.user.isMobileOnline(fields.lastActivityDate, fields.mobileLastDate))
-		{
-			user.isMobileOnline = true;
-			this.addToMobileOnlineList(fields.id);
-		}
-
-		if (fields.birthday && Utils.user.isBirthdayToday(fields.birthday))
-		{
-			user.isBirthday = true;
-			setTimeout(() => {
-				user.isBirthday = false;
-			}, Utils.date.getTimeToNextMidnight());
-		}
-
-		if (fields.absent === false)
-		{
-			user.isAbsent = false;
-			// eslint-disable-next-line no-param-reassign
-			state.absentList = state.absentList.filter((element) => {
-				return element !== fields.id;
-			});
-		}
-		else if (Type.isDate(fields.absent))
-		{
-			user.isAbsent = true;
-			this.addToAbsentList(fields.id);
-		}
-	}
-
-	addToOnlineList(id)
-	{
-		const state = this.store.state.users;
-		if (!state.onlineList.includes(id))
-		{
-			state.onlineList.push(id);
-		}
-	}
-
-	addToMobileOnlineList(id)
-	{
-		const state = this.store.state.users;
-		if (!state.mobileOnlineList.includes(id))
-		{
-			state.mobileOnlineList.push(id);
-		}
-	}
-
 	addToAbsentList(id)
 	{
 		const state = this.store.state.users;
@@ -408,15 +316,15 @@ export class UsersModel extends BuilderModel
 
 	startAbsentCheckInterval()
 	{
-		if (this.absentCheckInterval)
+		const state = this.store.state.users;
+		if (state.absentCheckInterval)
 		{
 			return;
 		}
 
 		const TIME_TO_NEXT_DAY = 1000 * 60 * 60 * 24;
-		this.absentCheckInterval = setTimeout(() => {
+		state.absentCheckInterval = setTimeout(() => {
 			setInterval(() => {
-				const state = this.store.state.users;
 				state.absentList.forEach((userId) => {
 					const user = state.collection[userId];
 					if (!user)
@@ -436,54 +344,5 @@ export class UsersModel extends BuilderModel
 				});
 			}, TIME_TO_NEXT_DAY);
 		}, Utils.date.getTimeToNextMidnight());
-	}
-
-	startOnlineCheckInterval()
-	{
-		if (this.onlineCheckInterval)
-		{
-			return;
-		}
-
-		const ONE_MINUTE = 60000;
-		this.onlineCheckInterval = setInterval(() => {
-			const state = this.store.state.users;
-
-			state.onlineList.forEach((userId) => {
-				const user = state.collection[userId];
-				if (!user)
-				{
-					return;
-				}
-
-				if (Utils.user.isOnline(user.lastActivityDate))
-				{
-					user.isOnline = true;
-				}
-				else
-				{
-					user.isOnline = false;
-					state.onlineList = state.onlineList.filter((element) => element !== userId);
-				}
-			});
-
-			state.mobileOnlineList.forEach((userId) => {
-				const user = state.collection[userId];
-				if (!user)
-				{
-					return;
-				}
-
-				if (Utils.user.isMobileOnline(user.lastActivityDate, user.mobileLastDate))
-				{
-					user.isMobileOnline = true;
-				}
-				else
-				{
-					user.isMobileOnline = false;
-					state.mobileOnlineList = state.mobileOnlineList.filter((element) => element !== userId);
-				}
-			});
-		}, ONE_MINUTE);
 	}
 }

@@ -71,31 +71,50 @@ class SpacesMenuComponent extends \CBitrixComponent
 
 		$this->arResult['menuId'] = 'spaces_user_menu_' . $userId;
 
-		$this->arResult['availableFeatures'] = $this->getAvailableUserFeatures($userId);
-		$this->arResult['urls'] = $this->getUserUrls(
+		$availableFeatures = $this->getAvailableUserFeatures($userId);
+		$urls = $this->getUserUrls(
 			$userId,
-			$this->arResult['availableFeatures']
+			$availableFeatures
 		);
 
 		$this->arResult['menuItems'] = $this->prepareUserMenuItems(
-			$this->arResult['availableFeatures'],
-			$this->arResult['urls'],
+			$availableFeatures,
+			$urls,
 			$this->arParams['PAGE_ID']
 		);
 	}
 
 	private function getAvailableUserFeatures(int $userId): array
 	{
-		return array_keys(
-			array_filter(Dictionary::AVAILABLE_FEATURES)
-		);
+		$availableFeatures = [
+			Dictionary::FEATURE_DISCUSSIONS => [
+				'active' => true,
+				'customName' => '',
+			],
+			Dictionary::FEATURE_TASKS => [
+				'active' => true,
+				'customName' => '',
+			],
+			Dictionary::FEATURE_CALENDAR => [
+				'active' => true,
+				'customName' => '',
+			],
+			Dictionary::FEATURE_FILES => [
+				'active' => true,
+				'customName' => '',
+			],
+		];
+
+		return array_filter($availableFeatures, function ($value) {
+			return (bool) $value['active'];
+		});
 	}
 
 	private function getUserUrls(int $userId, array $availableFeatures): array
 	{
 		$urls = [];
 
-		foreach ($availableFeatures as $featureId)
+		foreach ($availableFeatures as $featureId => $featureName)
 		{
 			switch ($featureId)
 			{
@@ -137,9 +156,9 @@ class SpacesMenuComponent extends \CBitrixComponent
 	{
 		$items = [];
 
-		foreach ($availableFeatures as $featureId)
+		foreach ($availableFeatures as $featureId => $featureName)
 		{
-			$items[] = $this->getItem($featureId, $urls[$featureId], $pageId);
+			$items[] = $this->getItem($featureId, $featureName, $urls[$featureId], $pageId);
 		}
 
 		return $items;
@@ -170,22 +189,25 @@ class SpacesMenuComponent extends \CBitrixComponent
 
 		$this->arResult['menuId'] = 'spaces_group_menu_' . $groupId;
 
-		$this->arResult['availableFeatures'] = $this->getAvailableGroupFeatures(
+		$availableFeatures = $this->getAvailableGroupFeatures(
 			$groupId,
 			$userId
 		);
-		$this->arResult['urls'] = $this->getGroupUrls(
+		$urls = $this->getGroupUrls(
 			$groupId,
-			$this->arResult['availableFeatures']
+			$availableFeatures
 		);
 
 		$this->arResult['menuItems'] = $this->prepareGroupMenuItems(
-			$this->arResult['availableFeatures'],
-			$this->arResult['urls'],
+			$availableFeatures,
+			$urls,
 			$this->arParams['PAGE_ID'],
 			$groupId
 		);
 
+		$this->arResult['pathToCommonSpace'] = CComponentEngine::makePathFromTemplate(
+			$this->arParams['PATH_TO_USER_DISCUSSIONS']
+		);
 		$this->arResult['pathToGroupFeatures'] = CComponentEngine::makePathFromTemplate(
 			$this->arParams['PATH_TO_GROUP_FEATURES'],
 			['group_id' => $this->arResult['groupId']]
@@ -227,7 +249,7 @@ class SpacesMenuComponent extends \CBitrixComponent
 			)
 		];
 
-		foreach ($availableFeatures as $featureId)
+		foreach ($availableFeatures as $featureId => $feature)
 		{
 			switch ($featureId)
 			{
@@ -269,12 +291,15 @@ class SpacesMenuComponent extends \CBitrixComponent
 		$entityType = 'G';
 
 		$availableFeatures = [
-			Dictionary::FEATURE_DISCUSSIONS => CSocNetFeatures::isActiveFeature($entityType, $groupId, 'blog'),
+			Dictionary::FEATURE_DISCUSSIONS => [
+				'active' => CSocNetFeatures::isActiveFeature($entityType, $groupId, 'blog'),
+				'customName' => '',
+			],
 		];
 
-		$activeFeatures = CSocNetFeatures::getActiveFeaturesNames($entityType, $groupId);
+		$activeFeatures = CSocNetFeatures::getFeaturesNames($entityType, $groupId);
 
-		$availableFeatures['tasks'] = (
+		$tasksFeatureActive = (
 			array_key_exists('tasks', $activeFeatures)
 			&& CSocNetFeaturesPerms::canPerformOperation(
 				$userId,
@@ -285,7 +310,13 @@ class SpacesMenuComponent extends \CBitrixComponent
 				CSocNetUser::isCurrentUserModuleAdmin()
 			)
 		);
-		$availableFeatures['calendar'] = (
+		$tasksFeatureName = $tasksFeatureActive ? $activeFeatures['tasks'] : '';
+		$availableFeatures['tasks'] = [
+			'active' => $tasksFeatureActive,
+			'customName' => $tasksFeatureName,
+		];
+
+		$calendarFeatureActive = (
 			array_key_exists('calendar', $activeFeatures)
 			&& CSocNetFeaturesPerms::canPerformOperation(
 				$userId,
@@ -296,6 +327,11 @@ class SpacesMenuComponent extends \CBitrixComponent
 				CSocNetUser::isCurrentUserModuleAdmin()
 			)
 		);
+		$calendarFeatureName = $calendarFeatureActive ? $activeFeatures['calendar'] : '';
+		$availableFeatures['calendar'] = [
+			'active' => $calendarFeatureActive,
+			'customName' => $calendarFeatureName,
+		];
 
 		$diskEnabled = (
 			Loader::includeModule('disk')
@@ -303,10 +339,17 @@ class SpacesMenuComponent extends \CBitrixComponent
 		);
 		if ($diskEnabled)
 		{
-			$availableFeatures['files'] = array_key_exists('files', $activeFeatures);
+			$filesFeatureActive = array_key_exists('files', $activeFeatures);
+			$filesFeatureName = $filesFeatureActive ? $activeFeatures['files'] : '';
+			$availableFeatures['files'] = [
+				'active' => $filesFeatureActive,
+				'customName' => $filesFeatureName,
+			];
 		}
 
-		return array_keys(array_filter($availableFeatures));
+		return array_filter($availableFeatures, function ($value) {
+			return (bool) $value['active'];
+		});
 	}
 
 	private function prepareGroupMenuItems(
@@ -318,28 +361,28 @@ class SpacesMenuComponent extends \CBitrixComponent
 	{
 		$items = [];
 
-		if ($this->arResult['isScrum'] && in_array('tasks', $availableFeatures, true))
+		foreach ($availableFeatures as $featureId => $feature)
 		{
-			$availableFeatures = array_diff($availableFeatures, ['tasks']);
-			$availableFeatures = array_merge(['tasks'], $availableFeatures);
-		}
-
-		foreach ($availableFeatures as $featureId)
-		{
-			$items[] = $this->getItem($featureId, $urls[$featureId], $pageId, $spaceId);
+			$items[] = $this->getItem($featureId, $feature, $urls[$featureId], $pageId, $spaceId);
 		}
 
 		return $items;
 	}
 
-	private function getItem(string $featureId, string $url, string $pageId, int $spaceId = 0): array
+	private function getItem(
+		string $featureId,
+		array $feature,
+		string $url,
+		string $pageId,
+		int $spaceId = 0
+	): array
 	{
 		$userId = Helper\User::getCurrentUserId();
 
 		return [
-			'TEXT' => $this->getItemText($featureId),
-			'URL' => $url,
+			'TEXT' => $feature['customName'] ?: $this->getItemText($featureId),
 			'ID' => $featureId,
+			'ON_CLICK' => 'top.BX.Socialnetwork.Spaces.space.reloadPageContent("'.$url.'");',
 			'IS_ACTIVE' => $this->getItemActivity($featureId, $pageId),
 			'COUNTER' => $this->getItemCounter($featureId, $spaceId),
 			'COUNTER_ID' => 'spaces_top_menu_' . $userId . '_' . $spaceId . '_' . $featureId,

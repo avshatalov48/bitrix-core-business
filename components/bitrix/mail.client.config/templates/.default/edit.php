@@ -409,7 +409,15 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 						<? endif ?>
 						<? if (!$settings['smtp']['password']): ?>
 							<div class="mail-connect-form-item">
-								<label class="mail-connect-form-label" for="mail_connect_mb_pass_smtp_field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_PASS') ?></label>
+										<label class="mail-connect-form-label" for="mail_connect_mb_pass_smtp_field">
+											<?php
+											$passLabel = !empty($settings['oauth'])
+												? Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_APP_PASS')
+												: Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_PASS')
+											;
+											?>
+											<?= htmlspecialcharsbx($passLabel) ?>
+										</label>
 								<input class="mail-connect-form-input" type="password"
 									name="fields[pass_smtp]" id="mail_connect_mb_pass_smtp_field"
 									onchange="this['__filled'] = this.value.length > 0; "

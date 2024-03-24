@@ -19,11 +19,9 @@ export type User = {
 	idle: boolean,
 	lastActivityDate: false | Date,
 	mobileLastDate: false | Date,
-	isOnline: boolean,
-	isMobileOnline: boolean,
 	birthday: string,
 	isBirthday: boolean,
-	absent: string,
+	absent: false | Date,
 	isAbsent: boolean,
 	departments: number[],
 	phones: {

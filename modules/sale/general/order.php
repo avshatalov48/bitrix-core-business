@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
 use Bitrix\Sale\Internals;
@@ -1729,8 +1731,8 @@ class CAllSaleOrder
 		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
 
-		$NO_CHANGE_STATUS = "N";
-		if (is_set($arAdditionalFields["NOT_CHANGE_STATUS"]) && $arAdditionalFields["NOT_CHANGE_STATUS"] == "Y")
+		$NO_CHANGE_STATUS = 'N';
+		if (isset($arAdditionalFields['NOT_CHANGE_STATUS']) && $arAdditionalFields['NOT_CHANGE_STATUS'] === 'Y')
 		{
 			$NO_CHANGE_STATUS = "Y";
 			unset($arAdditionalFields["NOT_CHANGE_STATUS"]);
@@ -1779,11 +1781,13 @@ class CAllSaleOrder
 			}
 		}
 
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 			$arFields = array(
 				"PAYED" => $val,
-				"=DATE_PAYED" => $DB->GetNowFunction(),
-				"EMP_PAYED_ID" => ( intval($USER->GetID())>0 ? intval($USER->GetID()) : false ),
+				"=DATE_PAYED" => $helper->getCurrentDateTimeFunction(),
+				"EMP_PAYED_ID" => ((int)$USER->GetID() > 0 ? (int)$USER->GetID() : false),
 				"SUM_PAID" => 0
 			);
 			if (count($arAdditionalFields) > 0)
@@ -1929,7 +1933,7 @@ class CAllSaleOrder
 		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
 		$NO_CHANGE_STATUS = "N";
-		if (is_set($arAdditionalFields["NOT_CHANGE_STATUS"]) && $arAdditionalFields["NOT_CHANGE_STATUS"] == "Y")
+		if (isset($arAdditionalFields['NOT_CHANGE_STATUS']) && $arAdditionalFields['NOT_CHANGE_STATUS'] === 'Y')
 		{
 			$NO_CHANGE_STATUS = "Y";
 			unset($arAdditionalFields["NOT_CHANGE_STATUS"]);
@@ -2536,13 +2540,39 @@ class CAllSaleOrder
 
 	public static function IsLocked($ID, &$lockedBY, &$dateLock)
 	{
-		$ID = intval($ID);
+		$ID = (int)$ID;
 
-		$lockStatus = CSaleOrder::GetLockStatus($ID, $lockedBY, $dateLock);
-		if ($lockStatus == "red")
-			return true;
+		return static::GetLockStatus($ID, $lockedBY, $dateLock) === 'red';
+	}
 
-		return false;
+	public static function GetLockStatus($ID, &$lockedBY, &$dateLock)
+	{
+		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return 'green';
+		}
+
+		$order = Sale\Internals\OrderTable::getRow([
+			'select' => [
+				'LOCKED_BY',
+				'LOCK_STATUS',
+				'DATE_LOCK',
+			],
+			'filter' => [
+				'=ID' => $ID,
+			],
+		]);
+
+		if ($order === null)
+		{
+			return 'green';
+		}
+
+		$lockedBY = $order['LOCKED_BY'];
+		$dateLock = $order['DATE_LOCK'] instanceof Main\Type\DateTime ? $order['DATE_LOCK']->toString() : $order['DATE_LOCK'];
+
+		return $order['LOCK_STATUS'];
 	}
 
 	public static function RemindPayment()
@@ -3097,7 +3127,7 @@ class CAllSaleOrder
 	/**
 	* Sets order account number
 	* Use OnBeforeOrderAccountNumberSet event to generate custom account number.
-	* Account number value must be unique! By default order ID is used if generated value is incorrect
+	* Account number value must be unique! By default, order ID is used if generated value is incorrect
 	*
 	* @param int $ID - order ID
 	* @return bool - true if account number is set successfully
@@ -3290,12 +3320,12 @@ class CAllSaleOrder
 		/** @var Sale\Order $orderClass */
 		$orderClass = $registry->getOrderClassName();
 
-		$res = $orderClass::getList(array(
-		   'filter' => array(
-			   '=ID' => $list
-		   ),
-		   'select' => $selectOrder
-	   ));
+		$res = $orderClass::getList([
+			'filter' => [
+				'=ID' => $list,
+			],
+			'select' => $selectOrder,
+		]);
 		while($orderData = $res->fetch())
 		{
 			if (!in_array($orderData['LID'], array_keys($siteList)))

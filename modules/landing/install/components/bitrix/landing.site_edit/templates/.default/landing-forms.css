@@ -625,3 +625,13 @@ div[data-form-row-hidden] + .ui-form-row-hidden,
 .landing-ui-form-row-hidden .ui-ctl-textbox {
 	display: none;
 }
+
+.ui-title-input-btn .ui-icon-set.--copilot-ai {
+	--ui-icon-set__icon-color: white;
+}
+.--copilot .ui-title-input-btn {
+	background-color: #8d52ec;
+}
+.--copilot .ui-title-input-btn:hover {
+	opacity: .8;
+}

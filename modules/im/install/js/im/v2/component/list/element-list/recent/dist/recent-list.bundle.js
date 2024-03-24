@@ -136,9 +136,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      const phrase = this.loc('IM_LIST_RECENT_MESSAGE_DRAFT_2');
 	      const PLACEHOLDER_LENGTH = '#TEXT#'.length;
 	      const prefix = phrase.slice(0, -PLACEHOLDER_LENGTH);
+	      const text = main_core.Text.encode(this.formattedDraftText);
 	      return `
 				<span class="bx-im-list-recent-item__message_draft-prefix">${prefix}</span>
-				<span class="bx-im-list-recent-item__message_text_content">${this.formattedDraftText}</span>
+				<span class="bx-im-list-recent-item__message_text_content">${text}</span>
 			`;
 	    },
 	    formattedDraftText() {
@@ -473,7 +474,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div class="bx-im-list-recent-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-item__avatar_invitation"></div>
 					<div v-else class="bx-im-list-recent-item__avatar_content">
-						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withStatus="!isSomeoneTyping" :withSpecialTypeIcon="!isSomeoneTyping" />
+						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withSpecialTypeIcon="!isSomeoneTyping" />
 						<div v-if="isSomeoneTyping" class="bx-im-list-recent-item__avatar_typing"></div>
 					</div>
 				</div>
@@ -505,7 +506,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div v-if="compactMode" :class="compactItemClasses" class="bx-im-list-recent-item__container" ref="container">
 				<div class="bx-im-list-recent-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-item__avatar_invitation"></div>
-					<Avatar v-else :dialogId="recentItem.dialogId" :size="AvatarSize.M" :withStatus="false" :withSpecialTypes="false" />
+					<Avatar v-else :dialogId="recentItem.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
 					<div v-if="dialog.counter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-item__avatar_counter">
 						{{ formattedCounter }}
 					</div>
@@ -630,7 +631,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			</div>
 			<div v-if="compactMode" @click="onClick" class="bx-im-list-recent-item__container bx-im-list-recent-active-call__container">
 				<div class="bx-im-list-recent-item__avatar_container">
-					<Avatar :dialogId="activeCall.dialogId" :size="AvatarSize.M" :withStatus="false" :withSpecialTypes="false" />
+					<Avatar :dialogId="activeCall.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
 					<div class="bx-im-list-recent-active-call__icon" :class="'--' + activeCall.state"></div>
 				</div>
 			</div>
@@ -949,45 +950,39 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      };
 	    }
 	  },
-	  created() {
+	  async created() {
 	    var _this$recentService;
 	    this.service = (_this$recentService = this.recentService) != null ? _this$recentService : im_v2_provider_service.RecentService.getInstance();
 	    this.contextMenuManager = new im_v2_lib_menu.RecentMenu();
 	    this.initBroadcastManager();
 	    this.initLikeManager();
 	    this.initObserver();
-	    this.initBirthdayCheck();
 	    this.initCreateChatManager();
 	    this.managePreloadedList();
 	    this.isLoading = true;
 	    const ignorePreloadedItems = !this.compactMode;
-	    // eslint-disable-next-line promise/catch-or-return
-	    this.getRecentService().loadFirstPage({
+	    await this.getRecentService().loadFirstPage({
 	      ignorePreloadedItems
-	    }).then(() => {
-	      this.isLoading = false;
-	      im_v2_lib_draft.DraftManager.getInstance().initDraftHistory();
 	    });
+	    this.isLoading = false;
+	    im_v2_lib_draft.DraftManager.getInstance().initDraftHistory();
 	  },
 	  beforeUnmount() {
 	    this.contextMenuManager.destroy();
-	    this.clearBirthdayCheck();
 	    this.destroyBroadcastManager();
 	    this.destroyLikeManager();
 	    this.destroyCreateChatManager();
 	  },
 	  methods: {
-	    onScroll(event) {
+	    async onScroll(event) {
 	      this.listIsScrolled = event.target.scrollTop > 0;
 	      this.contextMenuManager.close();
 	      if (!this.oneScreenRemaining(event) || !this.getRecentService().hasMoreItemsToLoad) {
 	        return;
 	      }
 	      this.isLoading = true;
-	      // eslint-disable-next-line promise/catch-or-return
-	      this.getRecentService().loadNextPage().then(() => {
-	        this.isLoading = false;
-	      });
+	      await this.getRecentService().loadNextPage();
+	      this.isLoading = false;
 	    },
 	    onClick(item, event) {
 	      if (this.compactMode) {
@@ -1012,12 +1007,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      $event
 	    }) {
 	      this.onClick(item, $event);
-	    },
-	    onCallRightClick({
-	      item,
-	      $event
-	    }) {
-	      this.onRightClick(item, $event);
 	    },
 	    oneScreenRemaining(event) {
 	      const bottomPointOfVisibleContent = event.target.scrollTop + event.target.clientHeight;
@@ -1055,20 +1044,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    destroyLikeManager() {
 	      this.likeManager.destroy();
-	    },
-	    initBirthdayCheck() {
-	      const fourHours = 60000 * 60 * 4;
-	      const day = 60000 * 60 * 24;
-	      this.birthdayCheckTimeout = setTimeout(() => {
-	        this.getRecentService().loadFirstPage();
-	        this.birthdayCheckInterval = setInterval(() => {
-	          this.getRecentService().loadFirstPage();
-	        }, day);
-	      }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight() + fourHours);
-	    },
-	    clearBirthdayCheck() {
-	      clearTimeout(this.birthdayCheckTimeout);
-	      clearInterval(this.birthdayCheckInterval);
 	    },
 	    initCreateChatManager() {
 	      if (im_v2_lib_createChat.CreateChatManager.getInstance().isCreating()) {

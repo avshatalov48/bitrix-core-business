@@ -120,7 +120,7 @@ class StatMethodTable extends Main\Entity\DataManager
 
 	}
 
-	protected static function addMethod($methodName, $methodType)
+	protected static function addMethod($methodName, $methodType): void
 	{
 		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
@@ -137,7 +137,11 @@ class StatMethodTable extends Main\Entity\DataManager
 			]
 		) ? $methodType : self::METHOD_TYPE_METHOD;
 
-		$query = "INSERT IGNORE INTO {$sqlTableName} (NAME, METHOD_TYPE) VALUES ('{$sqlMethodName}', '{$sqlMethodType}')";
+		$query = $helper->getInsertIgnore(
+			$sqlTableName,
+			'(NAME, METHOD_TYPE)',
+			"VALUES ('{$sqlMethodName}', '{$sqlMethodType}')"
+		);
 		$connection->query($query);
 	}
 

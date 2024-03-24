@@ -1019,7 +1019,7 @@ class CBPDocument
 		if($type == "user")
 		{
 			$s = '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td valign="top">';
-			$s .= '<textarea onkeydown="if(event.keyCode==45)BPAShowSelector(\''.Cutil::JSEscape(htmlspecialcharsbx($id)).'\', \''.Cutil::JSEscape($type).'\');" ';
+			$s .= '<textarea onkeydown="i' . 'f(event.keyCode==45)BPAShowSelector(\''.Cutil::JSEscape(htmlspecialcharsbx($id)).'\', \''.Cutil::JSEscape($type).'\');" ';
 			$s .= 'rows="'.$rows.'" ';
 			$s .= 'cols="'.$cols.'" ';
 			$s .= 'name="'.htmlspecialcharsbx($name).'" ';
@@ -1506,8 +1506,6 @@ class CBPDocument
 
 	public static function onAfterTMDayStart($data)
 	{
-		global $DB;
-
 		if (!CModule::IncludeModule("im"))
 			return;
 
@@ -1518,9 +1516,8 @@ class CBPDocument
 				'select' => [new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(\'x\')')],
 				'filter' => [
 					'=STARTED_BY' => $userId,
-					'<OWNED_UNTIL' => date(
-							$DB->DateFormatToPHP(FORMAT_DATETIME),
-							time() - Bizproc\Workflow\Entity\WorkflowInstanceTable::LOCKED_TIME_INTERVAL
+					'<OWNED_UNTIL' => Main\Type\DateTime::createFromTimestamp(
+						time() - Bizproc\Workflow\Entity\WorkflowInstanceTable::LOCKED_TIME_INTERVAL
 					),
 				],
 			]
@@ -1547,55 +1544,14 @@ class CBPDocument
 	}
 
 	/**
+	 * @deprecated
 	 * Temporary notification for B24 portal Admins
 	 * Ex: CAgent::AddAgent("\CBPDocument::sendB24LimitsNotifyToAdmins();", "bizproc", "N", 43200);
-	 * @param int $ts
 	 * @return string
 	 */
-	public static function sendB24LimitsNotifyToAdmins($ts = 0)
+	public static function sendB24LimitsNotifyToAdmins()
 	{
-		if (time() > strtotime('2017-05-24'))
-			return '';
-		if ($ts > 0 && $ts > time())
-			return '\CBPDocument::sendB24LimitsNotifyToAdmins('.(int)$ts.');';
-
-		if (!CModule::IncludeModule('bitrix24') || !CModule::IncludeModule("im"))
-			return '';
-
-		$userIds = \CBitrix24::getAllAdminId();
-		if (!$userIds)
-			return '';
-
-		global $DB;
-		$dbResult = $DB->Query('SELECT COUNT(WS.ID) CNT
-			FROM b_bp_workflow_state WS
-				INNER JOIN b_bp_workflow_instance WI ON (WS.ID = WI.ID)
-				INNER JOIN b_bp_workflow_template WT ON (WS.WORKFLOW_TEMPLATE_ID = WT.ID)
-			WHERE WT.AUTO_EXECUTE <> '.(int)CBPDocumentEventType::Automation.'
-			GROUP BY WS.MODULE_ID, WS.ENTITY, WS.DOCUMENT_ID
-				HAVING CNT > 2
-			LIMIT 1');
-
-		$result = $dbResult->Fetch();
-
-		if (!empty($result))
-		{
-			foreach ($userIds as $userId)
-			{
-				CIMNotify::Add(array(
-					'FROM_USER_ID' => 0,
-					'TO_USER_ID' => $userId,
-					'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
-					'NOTIFY_MODULE' => 'bizproc',
-					'NOTIFY_EVENT' => 'wi_limits',
-					'TITLE' => GetMessage('BPCGDOC_WI_LOCKED_NOTICE_TITLE'),
-					'MESSAGE' => GetMessage('BPCGDOC_WI_B24_LIMITS_MESSAGE')
-				));
-			}
-		}
-
-		$days = 3600*24*3;
-		return '\CBPDocument::sendB24LimitsNotifyToAdmins('.(time() + $days).');';
+		return '';
 	}
 
 	/**

@@ -2,10 +2,8 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main\Entity;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class MessageParamTable
@@ -58,29 +56,29 @@ class MessageParamTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_ID_FIELD'),
 			),
 			'MESSAGE_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_MESSAGE_ID_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_MESSAGE_ID_FIELD'),
 			),
 			'PARAM_NAME' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateParamName'),
-				'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_NAME_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_NAME_FIELD'),
 			),
 			'PARAM_VALUE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateParamValue'),
-				'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_VALUE_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_VALUE_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'PARAM_JSON' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_JSON_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_PARAM_ENTITY_PARAM_JSON_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),

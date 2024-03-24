@@ -1,6 +1,6 @@
 import { Parser } from 'im.v2.lib.parser';
 
-import type { ImModelMessage, ImModelUser } from 'im.v2.model';
+import type { ImModelChat, ImModelMessage, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const Reply = {
@@ -14,6 +14,10 @@ export const Reply = {
 		replyId: {
 			type: Number,
 			required: true,
+		},
+		isForward: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	computed:
@@ -39,18 +43,37 @@ export const Reply = {
 		},
 		replyContext(): string
 		{
-			return `${this.dialogId}/${this.replyId}`;
+			if (!this.isForward)
+			{
+				return `${this.dialogId}/${this.replyId}`;
+			}
+
+			const replyMessageChat = this.getChatByChatId(this.replyMessage.chatId);
+			if (!replyMessageChat)
+			{
+				return '';
+			}
+
+			return `${replyMessageChat.dialogId}/${this.replyId}`;
+		},
+		hasReplyContext(): boolean
+		{
+			return this.replyContext.length > 0;
 		},
 	},
 	methods:
 	{
+		getChatByChatId(chatId: number): ImModelChat
+		{
+			return this.$store.getters['chats/getByChatId'](chatId, true);
+		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
 	},
 	template: `
-		<div class="bx-im-message-quote --with-context" :data-context="replyContext">
+		<div class="bx-im-message-quote" :class="{'--with-context': hasReplyContext}" :data-context="replyContext">
 			<div class="bx-im-message-quote__wrap">
 				<div class="bx-im-message-quote__name">
 					<div class="bx-im-message-quote__name-text">

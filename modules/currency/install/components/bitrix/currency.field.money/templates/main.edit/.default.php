@@ -1,11 +1,15 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Security\Random;
 
 /**
  * @var MoneyUfComponent $component
+ * @var array $arResult
  */
 $component = $this->getComponent();
 ?>
@@ -46,8 +50,7 @@ $component = $this->getComponent();
 
 	if(
 		$userField['MULTIPLE'] === 'Y'
-		&&
-		$arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
+		&& ($arResult['additionalParameters']['SHOW_BUTTON'] ?? 'Y') !== 'N'
 	)
 	{
 		print $component->getHtmlBuilder()->getCloneButton($arResult['fieldName']);

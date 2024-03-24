@@ -987,7 +987,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$binding = new \Bitrix\Landing\Binding\Menu(
 				trim($this->arParams['BINDING_ID'])
 			);
-			$binding->bindSite($siteId);
+			if (!$binding->isForbiddenBindingAction())
+			{
+				$binding->bindSite($siteId);
+			}
 		}
 	}
 

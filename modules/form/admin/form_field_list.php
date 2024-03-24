@@ -133,8 +133,10 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && $F_RIGHT>=30 && check_bitrix_se
 			$lAdmin->AddUpdateError(GetMessage("FORM_ERROR").$ID.": ".GetMessage("FORM_ERROR_SAVE"), $ID);
 			$DB->Rollback();
 		}
-
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -160,10 +162,13 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 				$DB->StartTransaction();
 				if(!CFormField::Delete($ID))
 				{
-						$DB->Rollback();
-						$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
+					$DB->Rollback();
+					$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 			break;
 			case "activate":
 			case "deactivate":
@@ -172,10 +177,13 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 				$arFieldsStore=array("ACTIVE"=>($_REQUEST['action']=="activate")?"'Y'":"'N'");
 				if (!$DB->Update("b_form_field",$arFieldsStore,"WHERE ID='".$ID."'",$err_mess.__LINE__))
 				{
-						$DB->Rollback();
-						$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
+					$DB->Rollback();
+					$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 			break;
 		}
 	}

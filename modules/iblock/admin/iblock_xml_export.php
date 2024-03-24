@@ -1,4 +1,7 @@
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("iblock");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
@@ -11,12 +14,13 @@ $rsIBlocks = CIBlock::GetList(array(), array(
 if(!$rsIBlocks->Fetch())
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if(!isset($INTERVAL))
-	$INTERVAL = 30;
-else
-	$INTERVAL = intval($INTERVAL);
+$INTERVAL = (int)($INTERVAL ?? 30);
 if($INTERVAL <= 0)
+{
 	@set_time_limit(0);
+}
+$URL_DATA_FILE = (string)($URL_DATA_FILE ?? '');
+$IBLOCK_ID = (int)($IBLOCK_ID ?? 0);
 
 $start_time = time();
 
@@ -195,7 +199,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 	<script>
 		CloseWaitWindow();
 	</script>
-	<?
+	<?php
 
 	foreach($arErrors as $strError)
 		CAdminMessage::ShowMessage($strError);
@@ -261,7 +265,7 @@ $APPLICATION->SetTitle(GetMessage("IBLOCK_CML2_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
 <div id="tbl_iblock_export_result_div"></div>
-<?
+<?php
 $aTabs = array(
 	array(
 		"DIV" => "edit1",
@@ -281,8 +285,8 @@ function DoNext(NS)
 	var interval = parseInt(document.getElementById('INTERVAL').value);
 	var queryString =
 		'Export=Y'
-		+ '&lang=<?=LANGUAGE_ID?>'
-		+ '&<?echo bitrix_sessid_get()?>'
+		+ '&lang=<?= LANGUAGE_ID; ?>'
+		+ '&<?= bitrix_sessid_get(); ?>'
 		+ '&INTERVAL=' + interval
 	;
 
@@ -319,17 +323,17 @@ function EndExport()
 }
 </script>
 
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialcharsbx(LANG)?>" name="form1" id="form1">
-<?
+<form method="POST" action="<?= $APPLICATION->GetCurPage()?>?lang=<?= htmlspecialcharsbx(LANGUAGE_ID)?>" name="form1" id="form1">
+<?php
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
 	<tr>
-		<td width="40%"><?echo GetMessage("IBLOCK_CML2_URL_DATA_FILE")?>:</td>
+		<td width="40%"><?= GetMessage("IBLOCK_CML2_URL_DATA_FILE")?>:</td>
 		<td width="60%">
 			<input type="text" id="URL_DATA_FILE" name="URL_DATA_FILE" size="30" value="<?=htmlspecialcharsbx($URL_DATA_FILE)?>">
-			<input type="button" value="<?echo GetMessage("IBLOCK_CML2_OPEN")?>" OnClick="BtnClick()">
-			<?
+			<input type="button" value="<?= GetMessage("IBLOCK_CML2_OPEN")?>" OnClick="BtnClick()">
+			<?php
 			CAdminFileDialog::ShowScript
 			(
 				Array(
@@ -349,9 +353,9 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_CML2_IBLOCK_ID")?>:</td>
+		<td><?= GetMessage("IBLOCK_CML2_IBLOCK_ID")?>:</td>
 		<td>
-			<?echo GetIBlockDropDownListEx(
+			<?= GetIBlockDropDownListEx(
 				$IBLOCK_ID,
 				'IBLOCK_TYPE_ID',
 				'IBLOCK_ID',
@@ -367,32 +371,32 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_CML2_INTERVAL")?>:</td>
+		<td><?= GetMessage("IBLOCK_CML2_INTERVAL")?>:</td>
 		<td>
-			<input type="text" id="INTERVAL" name="INTERVAL" size="5" value="<?echo intval($INTERVAL)?>">
+			<input type="text" id="INTERVAL" name="INTERVAL" size="5" value="<?= $INTERVAL; ?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_CML2_SECTIONS_FILTER")?>:</td>
+		<td><?= GetMessage("IBLOCK_CML2_SECTIONS_FILTER"); ?>:</td>
 		<td>
 			<select id="SECTIONS_FILTER" name="SECTIONS_FILTER">
-				<option value="active"><?echo GetMessage("IBLOCK_CML2_FILTER_ACTIVE")?></option>
-				<option value="all"><?echo GetMessage("IBLOCK_CML2_FILTER_ALL")?></option>
-				<option value="none"><?echo GetMessage("IBLOCK_CML2_FILTER_NONE")?></option>
+				<option value="active"><?= GetMessage("IBLOCK_CML2_FILTER_ACTIVE"); ?></option>
+				<option value="all"><?= GetMessage("IBLOCK_CML2_FILTER_ALL"); ?></option>
+				<option value="none"><?= GetMessage("IBLOCK_CML2_FILTER_NONE"); ?></option>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_CML2_ELEMENTS_FILTER")?>:</td>
+		<td><?= GetMessage("IBLOCK_CML2_ELEMENTS_FILTER"); ?>:</td>
 		<td>
 			<select id="ELEMENTS_FILTER" name="ELEMENTS_FILTER">
-				<option value="active"><?echo GetMessage("IBLOCK_CML2_FILTER_ACTIVE")?></option>
-				<option value="all"><?echo GetMessage("IBLOCK_CML2_FILTER_ALL")?></option>
-				<option value="none"><?echo GetMessage("IBLOCK_CML2_FILTER_NONE")?></option>
+				<option value="active"><?= GetMessage("IBLOCK_CML2_FILTER_ACTIVE"); ?></option>
+				<option value="all"><?= GetMessage("IBLOCK_CML2_FILTER_ALL"); ?></option>
+				<option value="none"><?= GetMessage("IBLOCK_CML2_FILTER_NONE"); ?></option>
 			</select>
 		</td>
 	</tr>
-	<?
+	<?php
 	$bHaveClouds = false;
 	if(CModule::IncludeModule("clouds"))
 	{
@@ -402,19 +406,21 @@ $tabControl->BeginNextTab();
 	}
 	if($bHaveClouds):?>
 	<tr>
-		<td><label for="CK_DOWNLOAD_CLOUD_FILES"><?echo GetMessage("IBLOCK_CML2_DOWNLOAD_CLOUD_FILES")?>:</label></td>
+		<td><label for="CK_DOWNLOAD_CLOUD_FILES"><?= GetMessage("IBLOCK_CML2_DOWNLOAD_CLOUD_FILES"); ?>:</label></td>
 		<td>
 			<input name="DOWNLOAD_CLOUD_FILES" type="hidden" value="N">
 			<input name="DOWNLOAD_CLOUD_FILES" id="CK_DOWNLOAD_CLOUD_FILES" type="checkbox" value="Y" checked="checked">
 		</td>
 	</tr>
-	<?endif;?>
-<?$tabControl->Buttons();?>
-	<input type="button" id="start_button" value="<?echo GetMessage("IBLOCK_CML2_START_EXPORT")?>" OnClick="StartExport();" class="adm-btn-save">
-	<input type="button" id="stop_button" value="<?echo GetMessage("IBLOCK_CML2_STOP_EXPORT")?>" OnClick="EndExport();">
-<?$tabControl->End();?>
-</form>
-
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	<?php
+	endif;
+$tabControl->Buttons();
 ?>
+	<input type="button" id="start_button" value="<?= GetMessage("IBLOCK_CML2_START_EXPORT"); ?>" OnClick="StartExport();" class="adm-btn-save">
+	<input type="button" id="stop_button" value="<?= GetMessage("IBLOCK_CML2_STOP_EXPORT"); ?>" OnClick="EndExport();">
+<?php
+$tabControl->End();
+?>
+</form>
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

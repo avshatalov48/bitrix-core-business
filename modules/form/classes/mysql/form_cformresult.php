@@ -299,8 +299,10 @@ class CFormResult extends CAllFormResult
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
+		$str1 = '';
 		if (is_array($arr["TABLES"]))
 			$str1 = implode(",\n				",$arr["TABLES"]);
+		$str2 = '';
 		if (is_array($arr["WHERE"]))
 			$str2 = implode("\n			and ",$arr["WHERE"]);
 		if ($str1 <> '') $str1 = ",\n				".$str1;

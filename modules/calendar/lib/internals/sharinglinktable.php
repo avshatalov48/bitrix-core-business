@@ -40,15 +40,15 @@ use Bitrix\Main\ORM\Query\Join;
  * DO NOT WRITE ANYTHING BELOW THIS
  *
  * <<< ORMENTITYANNOTATION
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Query query()
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Result getByPrimary($primary, array $parameters = [])
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Result getById($id)
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Result getList(array $parameters = [])
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Entity getEntity()
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink createObject($setDefaultValues = true)
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Collection createCollection()
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink wakeUpObject($row)
- * @method static \Bitrix\Calendar\Sharing\Link\EO_SharingLink_Collection wakeUpCollection($rows)
+ * @method static EO_SharingLink_Query query()
+ * @method static EO_SharingLink_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_SharingLink_Result getById($id)
+ * @method static EO_SharingLink_Result getList(array $parameters = [])
+ * @method static EO_SharingLink_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLink createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLink_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLink wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_SharingLink_Collection wakeUpCollection($rows)
  */
 
 class SharingLinkTable extends DataManager
@@ -138,10 +138,12 @@ class SharingLinkTable extends DataManager
 			(new IntegerField('CONTACT_ID',
 				[]
 			))
+				->configureNullable()
 			,
 			(new IntegerField('CONTACT_TYPE',
 				[]
 			))
+				->configureNullable()
 			,
 			(new StringField('MEMBERS_HASH',
 				[

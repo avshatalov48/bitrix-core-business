@@ -38,17 +38,17 @@ class BlockUserTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('BLOCK_USER_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('BLOCK_USER_ENTITY_ID_FIELD'),
 			),
 			'CHAT_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('BLOCK_USER_ENTITY_CHAT_ID_FIELD'),
+				//'title' => Loc::getMessage('BLOCK_USER_ENTITY_CHAT_ID_FIELD'),
 			),
 			'USER_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('BLOCK_USER_ENTITY_USER_ID_FIELD'),
+				//'title' => Loc::getMessage('BLOCK_USER_ENTITY_USER_ID_FIELD'),
 			),
 			'BLOCK_DATE' => array(
 				'data_type' => 'datetime'

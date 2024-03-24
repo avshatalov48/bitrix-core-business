@@ -29,6 +29,7 @@ class UserFactory
 		'TIME_ZONE_OFFSET',
 		'PERSONAL_WWW',
 		'ACTIVE',
+		'LANGUAGE_ID',
 		'WORK_PHONE',
 		'PERSONAL_MOBILE',
 		'COLOR' => 'ST.COLOR',
@@ -117,6 +118,7 @@ class UserFactory
 		$preparedUserData['IS_BOT'] = $this->isBot($userData);
 		$preparedUserData['IS_CONNECTOR'] = $this->isConnector($userData);
 		$preparedUserData['ABSENT'] = \CIMContactList::formatAbsentResult((int)$userData['ID']) ?: null;
+		$preparedUserData['LANGUAGE_ID'] = $userData['LANGUAGE_ID'] ?? null;
 
 		if (Loader::includeModule('voximplant'))
 		{
@@ -243,7 +245,7 @@ class UserFactory
 		$cacheSubDir = $id % 100;
 		$cacheSubSubDir = ($id % 10000) / 100;
 
-		return "/bx/imc/userdata_v4/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
+		return "/bx/imc/userdata_v5/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
 	}
 
 	//endregion

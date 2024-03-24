@@ -54,16 +54,40 @@ class UserSignature extends Base
 		}
 	}
 
+	protected function checkAccess(\Bitrix\Mail\Internals\Entity\UserSignature $userSignature): bool
+	{
+		$currentUserId = $this->getCurrentUser()?->getId();
+
+		if (!is_null($currentUserId) && (int)$userSignature->getUserId() === (int)$currentUserId)
+		{
+			return true;
+		}
+
+		$this->addError(new Error(Loc::getMessage('MAIL_USER_SIGNATURE_ACCESS_DENIED')));
+		return false;
+	}
+
 	/**
 	 * @param \Bitrix\Mail\Internals\Entity\UserSignature $userSignature
 	 */
-	public function deleteAction(\Bitrix\Mail\Internals\Entity\UserSignature $userSignature)
+	public function deleteAction(\Bitrix\Mail\Internals\Entity\UserSignature $userSignature): bool
 	{
+		if (!$this->checkAccess($userSignature))
+		{
+			return false;
+		}
+
 		$userSignature->delete();
+		return true;
 	}
 
-	public function getAction(\Bitrix\Mail\Internals\Entity\UserSignature $userSignature)
+	public function getAction(\Bitrix\Mail\Internals\Entity\UserSignature $userSignature): bool|array
 	{
+		if (!$this->checkAccess($userSignature))
+		{
+			return false;
+		}
+
 		return [
 			'userSignature' => $this->convertArrayKeysToCamel($userSignature->collectValues(), 1),
 		];
@@ -74,8 +98,13 @@ class UserSignature extends Base
 	 * @param array $fields
 	 * @return array|false
 	 */
-	public function updateAction(\Bitrix\Mail\Internals\Entity\UserSignature $userSignature, array $fields)
+	public function updateAction(\Bitrix\Mail\Internals\Entity\UserSignature $userSignature, array $fields): bool|array
 	{
+		if (!$this->checkAccess($userSignature))
+		{
+			return false;
+		}
+
 		$unsafeFields = (array) $this->getRequest()->getPostList()->getRaw('fields');
 		\CUtil::decodeUriComponent($unsafeFields);
 

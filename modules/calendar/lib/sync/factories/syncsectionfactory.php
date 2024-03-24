@@ -79,6 +79,21 @@ class SyncSectionFactory
 	): void
 	{
 		$sectionDb = SectionTable::query()
+			->setSelect([
+				'ID',
+				'NAME',
+				'XML_ID',
+				'ACTIVE',
+				'DESCRIPTION',
+				'COLOR',
+				'CAL_TYPE',
+				'OWNER_ID',
+				'EXTERNAL_TYPE',
+				'CONNECTION.ACCOUNT_TYPE',
+				'SECTION_CONNECTION.*',
+				'SECTION_CONNECTION.SECTION',
+				'SECTION_CONNECTION.CONNECTION',
+			])
 			->where('OWNER_ID', $userId)
 			->where('EXTERNAL_TYPE', Core\Mappers\Section::SECTION_TYPE_LOCAL)
 			->where('CAL_TYPE', Core\Role\User::TYPE)
@@ -98,21 +113,6 @@ class SyncSectionFactory
 					['join_type' => Join::TYPE_LEFT]
 				)
 			)
-			->setSelect([
-				'ID',
-				'NAME',
-				'XML_ID',
-				'ACTIVE',
-				'DESCRIPTION',
-				'COLOR',
-				'CAL_TYPE',
-				'OWNER_ID',
-				'EXTERNAL_TYPE',
-				'CONNECTION.ACCOUNT_TYPE',
-				'SECTION_CONNECTION.*',
-				'SECTION_CONNECTION.SECTION',
-				'SECTION_CONNECTION.CONNECTION',
-			])
 			->exec()
 		;
 

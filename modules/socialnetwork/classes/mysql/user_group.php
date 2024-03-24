@@ -82,6 +82,12 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 				'GROUP_ID' => $arFields['GROUP_ID'],
 				'USER_ID' => $arFields['USER_ID'],
 				'ROLE' => $arFields['ROLE'],
+				'INITIATED_BY_TYPE' => $arFields['INITIATED_BY_TYPE'],
+			]);
+
+			EventService\Service::addEvent(EventService\EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE, [
+				'GROUP_ID' => $arFields['GROUP_ID'],
+				'USER_ID' => $arFields['USER_ID'],
 			]);
 
 			if (
@@ -179,7 +185,18 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_USER_UPDATE, [
 				'GROUP_ID' => $arUser2GroupOld['GROUP_ID'],
 				'USER_ID' => $arUser2GroupOld['USER_ID'],
+				'OLD_ROLE' => $arUser2GroupOld['ROLE'] ?? null,
+				'OLD_INITIATED_BY_TYPE' => $arUser2GroupOld['INITIATED_BY_TYPE'] ?? null,
+				'NEW_ROLE' => $arFields['ROLE'] ?? null,
 			]);
+
+			if (!empty($arFields['ROLE']))
+			{
+				EventService\Service::addEvent(EventService\EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE, [
+					'GROUP_ID' => $arUser2GroupOld['GROUP_ID'],
+					'USER_ID' => $arUser2GroupOld['USER_ID'],
+				]);
+			}
 
 			if (array_key_exists($arUser2GroupOld["USER_ID"]."_".$arUser2GroupOld["GROUP_ID"], self::$roleCache))
 			{
@@ -226,7 +243,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 		$online_interval = (
 			array_key_exists("ONLINE_INTERVAL", $arFilter)
-			&& intval($arFilter["ONLINE_INTERVAL"]) > 0
+			&& (int)$arFilter["ONLINE_INTERVAL"] > 0
 				? $arFilter["ONLINE_INTERVAL"]
 				: 120
 		);
@@ -273,12 +290,11 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			"INITIATED_BY_USER_EMAIL" => Array("FIELD" => "U1.EMAIL", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U1 ON (UG.INITIATED_BY_USER_ID = U1.ID)"),
 			"INITIATED_BY_USER_PHOTO" => Array("FIELD" => "U1.PERSONAL_PHOTO", "TYPE" => "int", "FROM" => "LEFT JOIN b_user U1 ON (UG.INITIATED_BY_USER_ID = U1.ID)"),
 			"INITIATED_BY_USER_GENDER" => Array("FIELD" => "U1.PERSONAL_GENDER", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U1 ON (UG.INITIATED_BY_USER_ID = U1.ID)"),
-			"RAND" => Array("FIELD" => "RAND()", "TYPE" => "string"),
 			"SCRUM_OWNER_ID" => Array("FIELD" => "G.SCRUM_OWNER_ID", "TYPE" => "int"),
 			"GROUP_SCRUM_MASTER_ID" => [ 'FIELD' => 'G.SCRUM_MASTER_ID', 'TYPE' => 'int' ],
 		);
-		$arFields1['RAND']['FIELD'] = $helper->getRandomFunction();
-		$arFields["USER_IS_ONLINE"] = Array("FIELD" => "CASE U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND) THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UG.USER_ID = U.ID)");
+		$arFields1['RAND'] = Array("FIELD" => $helper->getRandomFunction(), "TYPE" => "string");
+		$arFields["USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UG.USER_ID = U.ID)");
 
 		if (array_key_exists("GROUP_SITE_ID", $arFilter))
 		{
@@ -286,7 +302,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			$strDistinct = " DISTINCT ";
 			foreach ($arSelectFields as $i => $strFieldTmp)
 			{
-				if ($strFieldTmp == "GROUP_SITE_ID")
+				if ($strFieldTmp === "GROUP_SITE_ID")
 				{
 					unset($arSelectFields[$i]);
 				}
@@ -317,9 +333,13 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 				"FROM b_sonet_user2group UG ".
 				"	".$arSqls["FROM"]." ";
 			if ($arSqls["WHERE"] <> '')
-				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
+			{
+				$strSql .= "WHERE " . $arSqls["WHERE"] . " ";
+			}
 			if ($arSqls["GROUPBY"] <> '')
-				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
+			{
+				$strSql .= "GROUP BY " . $arSqls["GROUPBY"] . " ";
+			}
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
@@ -332,15 +352,21 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			"FROM b_sonet_user2group UG ".
 			"	".$arSqls["FROM"]." ";
 		if ($arSqls["WHERE"] <> '')
-			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
+		{
+			$strSql .= "WHERE " . $arSqls["WHERE"] . " ";
+		}
 		if ($arSqls["GROUPBY"] <> '')
-			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
+		{
+			$strSql .= "GROUP BY " . $arSqls["GROUPBY"] . " ";
+		}
 		if ($arSqls["ORDERBY"] <> '')
-			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
+		{
+			$strSql .= "ORDER BY " . $arSqls["ORDERBY"] . " ";
+		}
 
 		if (
 			is_array($arNavStartParams)
-			&& intval($arNavStartParams["nTopCount"] ?? 0) <= 0
+			&& (int)($arNavStartParams["nTopCount"] ?? 0) <= 0
 		)
 		{
 			$strSql_tmp =

@@ -4,6 +4,7 @@ namespace Bitrix\MessageService\Providers\Edna;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use Bitrix\MessageService;
 use Bitrix\MessageService\Providers;
 use Bitrix\MessageService\Sender\Result\MessageStatus;
 use Bitrix\MessageService\Sender\Result\SendMessage;
@@ -52,8 +53,13 @@ abstract class Sender extends Providers\Base\Sender
 		$paramsResult = $this->getSendMessageParams($messageFields);
 		if (!$paramsResult->isSuccess())
 		{
-			$cacheManager = new Providers\CacheManager($this->optionManager->getProviderId());
+			$providerId = $this->optionManager->getProviderId();
+
+			$cacheManager = new Providers\CacheManager($providerId);
 			$cacheManager->deleteValue(Providers\CacheManager::CHANNEL_CACHE_ENTITY_ID);
+
+			$sender = MessageService\Sender\SmsManager::getSenderById($providerId);
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob([$sender, 'refreshFromList']);
 
 			$result = new SendMessage();
 			$result->addErrors($paramsResult->getErrors());

@@ -1,0 +1,93 @@
+<svg width="100%" height="100%" viewBox="0 0 100% 100%" fill="none" xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+	<svg y="0" height="100%" width="100%">
+		<rect width="100%" height="100%" rx="10" fill="white"/>
+		<rect x="0" y="73" width="100%" height="1" fill="#e5e5e5"/>
+
+		<rect x="0" y="73" width="100%" height="1" fill="#e5e5e5"/>
+		<rect x="18" y="173" width="100%" height="1" fill="#e5e5e5"/>
+		<rect x="18" y="237" width="100%" height="1" fill="#e5e5e5"/>
+		<rect x="18" y="291" width="100%" height="1" fill="#e5e5e5"/>
+		<rect x="18" y="355" width="100%" height="1" fill="#e5e5e5"/>
+		<rect x="18" y="409" width="100%" height="1" fill="#e5e5e5"/>
+		<rect x="18" y="473" width="100%" height="1" fill="#e5e5e5"/>
+		<rect x="18" y="527" width="100%" height="1" fill="#e5e5e5"/>
+
+		<rect x="100%" y="170" width="18" height="400" fill="white" transform="translate(-18, 0)"/>
+	</svg>
+
+	<svg width="100%" height="100%" id="animated-elements">
+		<defs>
+			<g id="block-animated-1">
+				<circle cx="100%" cy="147" r="11" fill="#e5e5e5" transform="translate(-147, 0)" />
+				<circle cx="100%" cy="147" r="11" fill="#e5e5e5" transform="translate(-122, 0)" />
+				<circle cx="100%" cy="147" r="11" fill="#e5e5e5" transform="translate(-97, 0)" />
+			</g>
+		</defs>
+
+		<rect x="17.3652" y="22" width="127.873" height="8" rx="2" fill="#e5e5e5" />
+
+		<rect x="100%" y="22" width="100" height="6" rx="2" fill="#e5e5e5"  transform="translate(-225, 0)"  />
+		<rect x="100%" y="22" width="88" height="6" rx="2" fill="#e5e5e5"  transform="translate(-103, 0)"  />
+
+		<use xlink:href="#block-animated-1"></use>
+		<use y="59" xlink:href="#block-animated-1"></use>
+		<use y="177" xlink:href="#block-animated-1"></use>
+		<use y="237" xlink:href="#block-animated-1"></use>
+
+		<rect x="50%" y="84" width="80" height="22" rx="10" fill="#e5e5e5" transform="translate(-40, 0)" />
+
+		<rect x="32" y="145" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="145" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="141" width="12" height="12" rx="2" fill="#e5e5e5" />
+
+
+		<rect x="32" y="195" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="32" y="213" width="120" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="203" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="199" width="12" height="12" rx="2" fill="#e5e5e5" />
+
+		<rect x="32" y="263" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="263" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="259" width="12" height="12" rx="2" fill="#e5e5e5" />
+
+
+		<rect x="32" y="313" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="32" y="331" width="120" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="321" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="317" width="12" height="12" rx="2" fill="#e5e5e5" />
+
+
+		<rect x="32" y="381" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="381" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="377" width="12" height="12" rx="2" fill="#e5e5e5" />
+
+		<rect x="32" y="431" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="32" y="449" width="120" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="439" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="435" width="12" height="12" rx="2" fill="#e5e5e5" />
+
+		<rect x="32" y="499" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="499" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="495" width="12" height="12" rx="2" fill="#e5e5e5" />
+		<rect x="32" y="549" width="76" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="32" y="567" width="120" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="204" y="557" width="140" height="6" rx="2" fill="#e5e5e5" />
+		<rect x="180" y="553" width="12" height="12" rx="2" fill="#e5e5e5" />
+	</svg>
+
+
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="100%"/>
+
+	<mask id="headerMsk" fill="white">
+		<use xlink:href="#animated-elements"/>
+	</mask>
+
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+		<stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+		<stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+	</linearGradient>
+
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

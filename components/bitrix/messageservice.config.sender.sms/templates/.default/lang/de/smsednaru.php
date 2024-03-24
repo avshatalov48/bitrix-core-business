@@ -1,0 +1,26 @@
+<?php
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACCOUNT_INFORMATION"] = "Account-Informationen";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_SAVE"] = "Speichern";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTIONS"] = "Einstellungen zurücksetzen";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TEXT"] = "Möchten Sie alle Account-Informationen wirklich löschen?";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TITLE"] = "Bestätigen";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ERROR_EMPTY_FIELDS"] = "Erforderliche Felder ausfüllen";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_1"] = "Testen Sie jetzt! Erstellt mit";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2"] = "Sie sind nur noch wenige Schritte davon entfernt, die Bitrix24 SMS-Benachrichtigungen zu erleben. Aktivieren Sie diese jetzt, um zu sehen, wie einfach sie funktionieren.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2_ADMIN"] = "Sie sind nur noch wenige Schritte davon entfernt, die Bitrix24 SMS-Benachrichtigungen zu erleben. Aktivieren Sie diese jetzt, um zu sehen, wie einfach sie funktionieren.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_FOOTER_2_REGISTRATION_TEXT"] = "Erfahren Sie mehr und verbinden Sie den Service Edna";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1"] = "Senden Sie die Nachrichten direkt aus einem Lead, Auftrag, Kontakt oder Angebot.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2"] = "Erstellen Sie Regeln zum Senden von SMS-Nachrichten an einen Kunden oder Mitarbeiter zu einem bestimmten Zeitpunkt oder wenn eine Aufgabe erledigt wird.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_3"] = "SMS-Massenversand aus einer Liste von Kontakten, Aufträgen, Leads oder anderen CRM-Elementen.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION"] = "Bitrix24 bietet SMS-Nachrichten an, die einfach und reibungslos funktionieren";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Bitrix24 bietet SMS-Nachrichten an, die einfach und reibungslos funktionieren";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Profitieren Sie von den Möglichkeiten des SMS-Marketings";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_REGISTRATION"] = "Sie müssen einen Account erstellen, um den Service nutzen zu können:";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_SUBJECT"] = "Sender-IDs";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_MANAGE_ACCOUNT"] = "Account verwalten";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_TITLE"] = "Mit Edna anmelden";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_1"] = "Einfache Verbindung";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_2"] = "Sofortzustellung";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_3"] = "Sie bezahlen nur zugestellte Nachrichten";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "SMS-Benachrichtigungen";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "Erstellt mit Edna";

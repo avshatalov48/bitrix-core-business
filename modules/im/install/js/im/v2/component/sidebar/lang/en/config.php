@@ -34,6 +34,7 @@ $MESS["IM_SIDEBAR_MEDIA_AND_FILES_EMPTY"] = "There are no files or media.";
 $MESS["IM_SIDEBAR_MEDIA_DETAIL_TITLE"] = "Files and media";
 $MESS["IM_SIDEBAR_MEETINGS_EMPTY"] = "There are no meetings.";
 $MESS["IM_SIDEBAR_MEETING_DETAIL_TITLE"] = "Meetings";
+$MESS["IM_SIDEBAR_MEMBERS_DETAIL_TITLE"] = "Members: #NUMBER#";
 $MESS["IM_SIDEBAR_MENU_COPY_LINK"] = "Copy link";
 $MESS["IM_SIDEBAR_MENU_COPY_MEETING_LINK"] = "Copy meeting link";
 $MESS["IM_SIDEBAR_MENU_COPY_TASK_LINK"] = "Copy task link";

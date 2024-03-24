@@ -18,6 +18,8 @@ Loc::loadMessages(__FILE__);
 
 class Post
 {
+	public $id = false;
+
 	private $perm;
 	private $permByOpenGroup;
 	private $fields;

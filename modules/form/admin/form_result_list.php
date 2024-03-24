@@ -288,7 +288,10 @@ if ($lAdmin->EditAction() && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && check_bitrix
 
 			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -325,7 +328,10 @@ if(($arID = $lAdmin->GroupAction()) && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && ch
 					else
 						$lAdmin->AddGroupError(GetMessage("FORM_DELETE_ERROR").$ID, $ID);
 				}
-				$DB->Commit();
+				else
+				{
+					$DB->Commit();
+				}
 				break;
 		}
 

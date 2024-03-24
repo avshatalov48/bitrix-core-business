@@ -1,8 +1,10 @@
-import {Loc} from 'main.core';
-import {SidebarMenu} from '../sidebar-base-menu';
-import {LinkManager} from './link-manager';
 import 'ui.notification';
-import type {MenuItem} from 'im.v2.lib.menu';
+import { Loc } from 'main.core';
+
+import { SidebarMenu } from '../sidebar-base-menu';
+import { LinkManager } from './link-manager';
+
+import type { MenuItem } from 'im.v2.lib.menu';
 
 export class LinkMenu extends SidebarMenu
 {
@@ -28,7 +30,7 @@ export class LinkMenu extends SidebarMenu
 			onclick: function() {
 				this.linkManager.delete(this.context);
 				this.menuInstance.close();
-			}.bind(this)
+			}.bind(this),
 		};
 	}
 }

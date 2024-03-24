@@ -1,5 +1,6 @@
 import { ajax, Loc } from 'main.core';
 import { Messenger } from 'im.public';
+import { Dialog } from 'ui.entity-selector';
 import { UserSelector } from './user-selector/user-selector';
 
 type Params = {
@@ -83,7 +84,7 @@ export class Chat
 		this.getDialog(node).show();
 	}
 
-	getDialog(node)
+	getDialog(node): Dialog
 	{
 		if (!this.userSelector)
 		{
@@ -101,6 +102,7 @@ export class Chat
 
 	update(groupDataPromise)
 	{
+		// eslint-disable-next-line promise/catch-or-return
 		groupDataPromise.then((response) => {
 			this.#groupMembersList = response.groupMembersList;
 

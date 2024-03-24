@@ -14,12 +14,18 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
 		if (!CSocNetUserRelations::CheckFields("ADD", $arFields))
+		{
 			return false;
+		}
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetUserRelationsAdd");
 		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, array(&$arFields))===false)
+		{
+			if (ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+			{
 				return false;
+			}
+		}
 
 		$arInsert = $DB->PrepareInsert("b_sonet_user_relations", $arFields);
 		$strUpdate = $DB->PrepareUpdate("b_sonet_user_relations", $arFields);
@@ -37,7 +43,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$ID = intval($DB->LastID());
+			$ID = $DB->LastID();
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetUserRelationsAdd");
 			while ($arEvent = $events->Fetch())
@@ -68,9 +74,13 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 	public static function Update($ID, $arFields)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if (!CSocNetGroup::__ValidateID($ID))
+		{
 			return false;
+		}
 
 		$ID = intval($ID);
 
@@ -81,8 +91,12 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetUserRelationsUpdate");
 		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, array($ID, $arFields))===false)
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, $arFields)) === false)
+			{
 				return false;
+			}
+		}
 
 		$arUserRelationOld = CSocNetUserRelations::GetByID($ID);
 
@@ -103,20 +117,28 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			if (
 				(!array_key_exists("SEND_MAIL", $arFields)
-				|| $arFields["SEND_MAIL"] != "N")
+				|| $arFields["SEND_MAIL"] !== "N")
 				&& !IsModuleInstalled("im")
 			)
 			{
 				$mailType = "";
 				if ($arUserRelationOld["RELATION"] != SONET_RELATIONS_FRIEND && $arFields["RELATION"] == SONET_RELATIONS_FRIEND)
+				{
 					$mailType = "AGREE_FRIEND";
+				}
 				elseif ($arUserRelationOld["RELATION"] != SONET_RELATIONS_BAN && $arFields["RELATION"] == SONET_RELATIONS_BAN)
+				{
 					$mailType = "BAN_FRIEND";
+				}
 				elseif ($arUserRelationOld["RELATION"] != SONET_RELATIONS_REQUEST && $arFields["RELATION"] == SONET_RELATIONS_REQUEST)
+				{
 					$mailType = "INVITE_FRIEND";
+				}
 
 				if ($mailType <> '')
+				{
 					CSocNetUserRelations::SendEvent($ID, $mailType);
+				}
 			}
 
 			CSocNetSearch::OnUserRelationsChange($arUserRelationOld["FIRST_USER_ID"]);
@@ -138,7 +160,9 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		$helper = $connection->getSqlHelper();
 
 		if (count($arSelectFields) <= 0)
+		{
 			$arSelectFields = array("ID", "FIRST_USER_ID", "SECOND_USER_ID", "RELATION", "DATE_CREATE", "DATE_UPDATE", "MESSAGE", "INITIATED_BY");
+		}
 
 		$online_interval = (array_key_exists("ONLINE_INTERVAL", $arFilter) && intval($arFilter["ONLINE_INTERVAL"]) > 0 ? $arFilter["ONLINE_INTERVAL"] : 120);
 
@@ -167,12 +191,12 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 			"SECOND_USER_PERSONAL_PHOTO" => Array("FIELD" => "U1.PERSONAL_PHOTO", "TYPE" => "int", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)"),
 			"SECOND_USER_PERSONAL_GENDER" => Array("FIELD" => "U1.PERSONAL_GENDER", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)"),
 			"SECOND_USER_LID" => Array("FIELD" => "U1.LID", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)"),
-			"RAND" => Array("FIELD" => "RAND()", "TYPE" => "string"),
 		);
 		$arFields["FIRST_USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UR.FIRST_USER_ID = U.ID)");
 		$arFields["SECOND_USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U1.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)");
-
-		if (array_key_exists("ACTIVE_ONLY", $arFilter) && $arFilter["ACTIVE_ONLY"] == "Y")
+		$arFields["RAND"] = Array("FIELD" => $helper->getRandomFunction(), "TYPE" => "string");
+		
+		if (array_key_exists("ACTIVE_ONLY", $arFilter) && $arFilter["ACTIVE_ONLY"] === "Y")
 		{
 			$arFields["FIRST_USER_IS_ACTIVE"] = Array("FIELD" => "U.ACTIVE", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UR.FIRST_USER_ID = U.ID)");
 			$arFields["SECOND_USER_IS_ACTIVE"] = Array("FIELD" => "U1.ACTIVE", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (UR.SECOND_USER_ID = U1.ID)");
@@ -185,11 +209,11 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		if (
 			(
 				array_key_exists("USER_ID", $arFilter) 
-				&& intval($arFilter["USER_ID"]) > 0
+				&& (int)$arFilter["USER_ID"] > 0
 			)
 			|| (
 				array_key_exists("!USER_ID", $arFilter) 
-				&& intval($arFilter["!USER_ID"]) > 0
+				&& (int)$arFilter["!USER_ID"] > 0
 			)
 		)
 		{
@@ -200,7 +224,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			$arFilter2 = $arFilter;
 
-			if ($key == "USER_ID")
+			if ($key === "USER_ID")
 			{
 				$arFilter2["SECOND_USER_ID"] = $filterVal;
 			}
@@ -211,7 +235,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			$arSqls2 = CSocNetGroup::PrepareSql($arFields, $arOrder, $arFilter2, $arGroupBy, $arSelectFields);
 
-			if ($key == "USER_ID")
+			if ($key === "USER_ID")
 			{
 				$arFilter["FIRST_USER_ID"] = $filterVal;
 			}
@@ -338,11 +362,12 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
+				{
 					$cnt = $arRes["CNT"];
+				}
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -354,8 +379,10 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
+			if (is_array($arNavStartParams) && (int)$arNavStartParams["nTopCount"] > 0)
+			{
+				$strSql .= "LIMIT " . (int)$arNavStartParams["nTopCount"];
+			}
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
@@ -368,31 +395,31 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 	public static function GetListBirthday($userID, $number = 5, $online_interval = 120)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-		$userID = intval($userID);
-		$number = intval($number);
+		$userID = (int)$userID;
+		$number = (int)$number;
 
-		$curYear = intval(Date('Y'));
-
+		$curYear = (int)Date('Y');
+		
 		$strSql =
 			"SELECT U.ID, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.LOGIN, U.EMAIL, U.PERSONAL_PHOTO, U.PERSONAL_GENDER, U.PERSONAL_BIRTHDAY as PB, ".
-			"	IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N') IS_ONLINE ".
+			" CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END IS_ONLINE ".
 			"FROM b_sonet_user_relations UR ".
 			"	INNER JOIN b_user U ON (UR.FIRST_USER_ID = U.ID) ".
 			"WHERE UR.SECOND_USER_ID = ".$userID." ".
 			"	AND UR.RELATION = '".$DB->ForSql(SONET_RELATIONS_FRIEND, 1)."' ".
 			"UNION ".
 			"SELECT U.ID, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.LOGIN, U.EMAIL, U.PERSONAL_PHOTO, U.PERSONAL_GENDER, U.PERSONAL_BIRTHDAY as PB, ".
-			"	IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N') IS_ONLINE ".
+			"	CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END IS_ONLINE ".
 			"FROM b_sonet_user_relations UR ".
 			"	INNER JOIN b_user U ON (UR.SECOND_USER_ID = U.ID) ".
 			"WHERE UR.FIRST_USER_ID = ".$userID." ".
 			"	AND UR.RELATION = '".$DB->ForSql(SONET_RELATIONS_FRIEND, 1)."' ".
-			"ORDER BY IF ( ".
-			"	DATE_FORMAT(PB, '".$curYear."-%m-%d') < DATE_FORMAT(CURDATE(), '%Y-%m-%d'), ".
-			"	DATE_FORMAT(PB, '".($curYear + 1)."-%m-%d'), ".
-			"	DATE_FORMAT(PB, '".$curYear."-%m-%d') ".
-			") ".
+			"ORDER BY CASE WHEN " . $helper->formatDate($curYear . '-MM-DD', 'PB') . " < " . $helper->formatDate('YYYY-MM-DD', 'CURDATE()') . " ".
+			"	THEN " . $helper->formatDate(($curYear + 1) . '-MM-DD', 'PB') . " ".
+			"	ELSE " . $helper->formatDate($curYear . '-MM-DD', 'PB') . " END".
 			($number > 0 ? "LIMIT ".$number."" : "");
 
 		return $DB->Query($strSql);
@@ -402,8 +429,8 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 	{
 		global $DB;
 
-		$userID = intval($userID);
-		$number = intval($number);
+		$userID = (int)$userID;
+		$number = (int)$number;
 
 		$strSql =
 			"SELECT UR.RELATION, UR.FIRST_USER_ID, UR.SECOND_USER_ID ".

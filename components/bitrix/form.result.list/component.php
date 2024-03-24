@@ -1,4 +1,5 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
 
 $arParams['WEB_FORM_ID'] = intval($arParams['WEB_FORM_ID']);
 $arParams['RESULT_ID'] = intval($arParams['RESULT_ID']);
@@ -522,7 +523,7 @@ if (CModule::IncludeModule("form"))
 
 		$arResult["filter_id"] = rand(0, 10000);
 		$arResult["tf_name"] = COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_FORM_RESULT_FILTER";
-		if ($arResult["tf"] == '') $arResult["tf"] = $_REQUEST[$arResult["tf_name"]];
+		if (empty($arResult["tf"])) $arResult["tf"] = $_REQUEST[$arResult["tf_name"]] ?? '';
 		if ($arResult["tf"] == '') $arResult["tf"] = "none";
 		$arResult["is_ie"] = IsIE();
 

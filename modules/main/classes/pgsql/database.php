@@ -96,40 +96,62 @@ class CDatabase extends CAllDatabase
 			$this->column_cache[$table] = array();
 			$this->DoConnect();
 
-			$dbResult = $this->query("SELECT * FROM ".$this->connection->getSqlHelper()->quote($table)." limit 0");
-
-			$fields = pg_num_fields($dbResult->result);
-			for ($i = 0; $i < $fields; $i++)
+			$sqlHelper = $this->connection->getSqlHelper();
+			$dbResult = $this->query("
+				SELECT
+					column_name,
+					data_type,
+					character_maximum_length
+				FROM
+					information_schema.columns
+				WHERE
+					table_catalog = '" . $sqlHelper->forSql($this->connection->getDatabase()) . "'
+					and table_schema = 'public'
+					and table_name = '" . $sqlHelper->forSql(mb_strtolower($table)) . "'
+				ORDER BY
+					ordinal_position
+			");
+			$size = 0;
+			while ($field = $dbResult->fetch())
 			{
-				$fieldName = mb_strtoupper(pg_field_name($dbResult->result, $i));
-				$fieldType = pg_field_type($dbResult->result, $i);
+				$fieldName = mb_strtoupper($field['COLUMN_NAME']);
+				$fieldType = $field['DATA_TYPE'];
 				switch ($fieldType)
 				{
 					case 'bigint':
 					case 'int8':
 					case 'bigserial':
 					case 'serial8':
+						$size = 8;
+						$type = "int";
+						break;
 					case 'integer':
 					case 'int':
 					case 'int4':
+					case 'serial':
+					case 'serial4':
+						$size = 4;
+						$type = "int";
+						break;
 					case 'smallint':
 					case 'int2':
 					case 'smallserial':
 					case 'serial2':
-					case 'serial':
-					case 'serial4':
+						$size = 2;
 						$type = "int";
 						break;
 					case 'double precision':
+					case 'float4':
 					case 'float8':
 					case 'numeric':
+					case 'decimal':
 					case 'real':
-					case 'float4':
 						$type = "real";
 						break;
-					case 'time':
 					case 'timestamp':
+					case 'timestamp without time zone':
 					case 'timestamptz':
+					case 'timestamp with time zone':
 						$type = "datetime";
 						break;
 					case 'date':
@@ -146,6 +168,8 @@ class CDatabase extends CAllDatabase
 				$this->column_cache[$table][$fieldName] = array(
 					"NAME" => $fieldName,
 					"TYPE" => $type,
+					"MAX_LENGTH" => $field['CHARACTER_MAXIMUM_LENGTH'],
+					"INT_SIZE" => $size,
 				);
 			}
 		}
@@ -165,32 +189,47 @@ class CDatabase extends CAllDatabase
 			$type = $arColumnInfo["TYPE"];
 			if (isset($arFields[$strColumnName]))
 			{
-				$strInsert1 .= ", ".$sqlHelper->quote($strColumnName);
+				if ($strInsert1 != '')
+				{
+					$strInsert1 .= ', ';
+					$strInsert2 .= ', ';
+				}
+
 				$value = $arFields[$strColumnName];
+
+				$strInsert1 .= $sqlHelper->quote($strColumnName);
 
 				if ($value === false)
 				{
-					$strInsert2 .= ",  NULL ";
+					$strInsert2 .= "NULL";
 				}
 				else
 				{
 					switch ($type)
 					{
 						case "datetime":
-						case "timestamp":
 							if ($value == '')
-								$strInsert2 .= ", NULL ";
+								$strInsert2 .= "NULL";
 							else
-								$strInsert2 .= ", ".CDatabase::CharToDateFunction($value);
+								$strInsert2 .= CDatabase::CharToDateFunction($value);
 							break;
 						case "date":
 							if ($value == '')
-								$strInsert2 .= ", NULL ";
+								$strInsert2 .= "NULL";
 							else
-								$strInsert2 .= ", ".CDatabase::CharToDateFunction($value, "SHORT");
+								$strInsert2 .= CDatabase::CharToDateFunction($value, "SHORT");
 							break;
 						case "int":
-							$strInsert2 .= ", '".intval($value)."'";
+							$value = intval($value);
+							if ($arColumnInfo['INT_SIZE'] == 2)
+							{
+								$value = max(-32768, min(+32767, $value));
+							}
+							elseif ($arColumnInfo['INT_SIZE'] == 4)
+							{
+								$value = max(-2147483648, min(+2147483647, $value));
+							}
+							$strInsert2 .= $value;
 							break;
 						case "real":
 							$value = doubleval($value);
@@ -198,27 +237,33 @@ class CDatabase extends CAllDatabase
 							{
 								$value = 0;
 							}
-							$strInsert2 .= ", '".$value."'";
+							$strInsert2 .= "'".$value."'";
 							break;
 						case "bytes":
-							$strInsert2 .= ", decode('".bin2hex($value)."', 'hex')";
+							$strInsert2 .= "decode('".bin2hex($value)."', 'hex')";
 							break;
 						default:
-							$strInsert2 .= ", '".$sqlHelper->forSql($value)."'";
+							if ($arColumnInfo['MAX_LENGTH'])
+							{
+								$strInsert2 .= "'" . $sqlHelper->forSql($value, $arColumnInfo['MAX_LENGTH']) . "'";
+							}
+							else
+							{
+								$strInsert2 .= "'" . $sqlHelper->forSql($value) . "'";
+							}
 					}
 				}
 			}
 			elseif (array_key_exists("~".$strColumnName, $arFields))
 			{
-				$strInsert1 .= ", ".$sqlHelper->quote($strColumnName);
-				$strInsert2 .= ", ".$arFields["~".$strColumnName];
+				if ($strInsert1 != '')
+				{
+					$strInsert1 .= ', ';
+					$strInsert2 .= ', ';
+				}
+				$strInsert1 .= $sqlHelper->quote($strColumnName);
+				$strInsert2 .= $arFields["~".$strColumnName];
 			}
-		}
-
-		if ($strInsert1 != "")
-		{
-			$strInsert1 = mb_substr($strInsert1, 2);
-			$strInsert2 = mb_substr($strInsert2, 2);
 		}
 
 		return array($strInsert1, $strInsert2);
@@ -245,14 +290,20 @@ class CDatabase extends CAllDatabase
 			$type = $arColumnInfo["TYPE"];
 			if (isset($arFields[$strColumnName]))
 			{
+				if ($strUpdate != '')
+				{
+					$strUpdate .= ', ';
+				}
+
 				$value = $arFields[$strColumnName];
+
 				if ($value === false)
 				{
-					$strUpdate .= ", $strTableAlias".$sqlHelper->quote($strColumnName)." = NULL";
+					$strUpdate .= $strTableAlias . $sqlHelper->quote($strColumnName) . " = NULL";
 				}
 				elseif ($value instanceof SqlExpression)
 				{
-					$strUpdate .= ", $strTableAlias".$sqlHelper->quote($strColumnName)." = ".$value->compile();
+					$strUpdate .= $strTableAlias . $sqlHelper->quote($strColumnName) . " = " . $value->compile();
 				}
 				else
 				{
@@ -260,6 +311,14 @@ class CDatabase extends CAllDatabase
 					{
 						case "int":
 							$value = intval($value);
+							if ($arColumnInfo['INT_SIZE'] == 2)
+							{
+								$value = max(-32768, min(+32767, $value));
+							}
+							elseif ($arColumnInfo['INT_SIZE'] == 4)
+							{
+								$value = max(-2147483648, min(+2147483647, $value));
+							}
 							break;
 						case "real":
 							$value = doubleval($value);
@@ -269,7 +328,6 @@ class CDatabase extends CAllDatabase
 							}
 							break;
 						case "datetime":
-						case "timestamp":
 							if($value == '')
 								$value = "NULL";
 							else
@@ -285,20 +343,26 @@ class CDatabase extends CAllDatabase
 							$value = "decode('".bin2hex($value)."', 'hex')";
 							break;
 						default:
-							$value = "'".$sqlHelper->ForSql($value)."'";
+							if ($arColumnInfo['MAX_LENGTH'])
+							{
+								$value = "'" . $sqlHelper->forSql($value, $arColumnInfo['MAX_LENGTH']) . "'";
+							}
+							else
+							{
+								$value = "'" . $sqlHelper->ForSql($value) . "'";
+							}
 					}
-					$strUpdate .= ", $strTableAlias".$sqlHelper->quote($strColumnName)." = ".$value;
+					$strUpdate .= $strTableAlias . $sqlHelper->quote($strColumnName) . " = " . $value;
 				}
 			}
 			elseif (is_set($arFields, "~".$strColumnName))
 			{
-				$strUpdate .= ", $strTableAlias".$sqlHelper->quote($strColumnName)." = ".$arFields["~".$strColumnName];
+				if ($strUpdate != '')
+				{
+					$strUpdate .= ', ';
+				}
+				$strUpdate .= $strTableAlias . $sqlHelper->quote($strColumnName) . " = " . $arFields["~".$strColumnName];
 			}
-		}
-
-		if ($strUpdate != "")
-		{
-			$strUpdate = mb_substr($strUpdate, 2);
 		}
 
 		return $strUpdate;
@@ -374,7 +438,7 @@ class CDatabase extends CAllDatabase
 		else
 		{
 			$arInsert = $this->PrepareInsert($tablename, $arFields, $strFileDir);
-			if (intval($arFields["ID"]) <= 0)
+			if (!isset($arFields["ID"]) || intval($arFields["ID"]) <= 0)
 			{
 				$strSql = "INSERT INTO ".$tablename."(".$arInsert[0].") VALUES (".$arInsert[1].") RETURNING ID";
 				$row = $this->Query($strSql, $ignore_errors, $error_position, $arOptions)->Fetch();
@@ -402,11 +466,11 @@ class CDatabase extends CAllDatabase
 		}
 		elseif ($fulltext)
 		{
-			return $this->Query('CREATE INDEX ' . $this->quote($indexName) . ' ON ' . $this->quote($tableName) . '(' . implode(',', $columns) . ')', true);
+			return $this->Query('CREATE INDEX ' . $this->quote($indexName) . ' ON ' . $this->quote($tableName) . ' USING GIN (to_tsvector(\'english\', ' . implode(',', $columns) . '))', true);
 		}
 		else
 		{
-			return $this->Query('CREATE INDEX ' . $this->quote($indexName) . ' ON ' . $this->quote($tableName) . ' USING GIN (to_tsvector(\'english\', ' . implode(',', $columns) . '))', true);
+			return $this->Query('CREATE INDEX ' . $this->quote($indexName) . ' ON ' . $this->quote($tableName) . '(' . implode(',', $columns) . ')', true);
 		}
 	}
 

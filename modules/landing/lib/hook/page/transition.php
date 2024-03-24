@@ -4,6 +4,7 @@ namespace Bitrix\Landing\Hook\Page;
 
 use Bitrix\Landing\Field;
 use Bitrix\Landing\Hook;
+use Bitrix\Landing\Landing;
 use Bitrix\Landing\Manager;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
@@ -58,6 +59,12 @@ class Transition extends Hook\Page
 			return;
 		}
 
+		$type = strtoupper(Landing::getSiteType());
+		if ($type === 'KNOWLEDGE')
+		{
+			return;
+		}
+
 		$color = \htmlspecialcharsbx(trim($this->fields['COLOR']->getValue()));
 		if (!$color)
 		{
@@ -71,16 +78,7 @@ class Transition extends Hook\Page
 	{
 		Asset::getInstance()->addString(
 			'<style>
-					@keyframes page-transition {
-						from { opacity: 1; }
-						to { opacity: 0; }
-					}
 					body.landing-page-transition::after {
-						background: ' . $color . ';
-						animation-name: page-transition;
-						animation-delay: 3s;
-						animation-duration: 0s;
-						animation-fill-mode: forwards;
 					}
 				</style>'
 		);

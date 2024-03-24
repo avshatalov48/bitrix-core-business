@@ -44,7 +44,7 @@ class Notification
 		$result = false;
 		$option = Option::get(static::MODULE_ID, static::OPTION_ACCESS_NOTIFICATION, '');
 
-		if (static::$codeToNotification[$option])
+		if (isset(static::$codeToNotification[$option]) && static::$codeToNotification[$option])
 		{
 			$option = static::$codeToNotification[$option];
 		}

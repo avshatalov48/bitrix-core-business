@@ -127,19 +127,23 @@ else
 					$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("USER", $arFields);
 					$res = $USER->Update($BlogUser["USER_ID"], $arFields);
 					if ($res)
+					{
 						$DB->Commit();
+					}
 					else
 					{
 						$DB->Rollback();
 						$strErrorMessage .= $USER->LAST_ERROR;
 					}
-					$arFilter = Array(
-						"OWNER_ID" => $BlogUser["USER_ID"], 
-						"ACTIVE" => "Y",
+					$arFilter = [
+						"OWNER_ID" => $BlogUser["USER_ID"],
+						"=ACTIVE" => "Y",
 						"GROUP_SITE_ID" => SITE_ID,
-						);
-					if(!empty($arParams["GROUP_ID"]))
+					];
+					if (!empty($arParams["GROUP_ID"]))
+					{
 						$arFilter["GROUP_ID"] = $arParams["GROUP_ID"];
+					}
 						
 					$dbBlog = CBlog::GetList(Array("ID" => "DESC"), $arFilter, false, false, Array("ID", "OWNER_ID", "URL", "SOCNET_GROUP_ID"));
 					while($arBlog = $dbBlog->Fetch())
@@ -198,11 +202,13 @@ else
 			$APPLICATION->SetTitle(GetMessage("B_B_USER_TITLE_VIEW")." ".$arResult["userName"]);
 	}
 
-	$arFilterTmp = Array("ACTIVE" => "Y", "GROUP_SITE_ID" => SITE_ID, "OWNER_ID" => $arParams["ID"]);
-	if(!empty($arParams["GROUP_ID"]))
+	$arFilterTmp = ["=ACTIVE" => "Y", "GROUP_SITE_ID" => SITE_ID, "OWNER_ID" => $arParams["ID"]];
+	if (!empty($arParams["GROUP_ID"]))
+	{
 		$arFilterTmp["GROUP_ID"] = $arParams["GROUP_ID"];
+	}
 
-	$dbBlog = CBlog::GetList(Array(), $arFilterTmp);
+	$dbBlog = CBlog::GetList([], $arFilterTmp);
 	if($arBlog = $dbBlog->GetNext())
 	{
 		$arResult["Blog"] = $arBlog;

@@ -11,6 +11,7 @@ return [
 		'calendar.roomsmanager',
 		'calendar.categorymanager',
 		'ui.icons.b24',
+		'main.loader',
 		'calendar.entry',
 		'ui.dialogs.messagebox',
 		'ui.buttons',

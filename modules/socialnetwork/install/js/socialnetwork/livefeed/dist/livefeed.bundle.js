@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_buttons,socialnetwork_postForm,main_popup,main_core,main_core_events,tasks_result) {
 	'use strict';
@@ -1092,7 +1093,8 @@ this.BX = this.BX || {};
 	            _this.signedFiles = requestData.UF_TASK_WEBDAV_FILES_SIGN;
 	          }
 	          _this.sliderUrl = response.data.link;
-	          BX.SidePanel.Instance.open(response.data.link, {
+	          var link = _this.getLinkWithAnalytics(response.data.link, params);
+	          BX.SidePanel.Instance.open(link, {
 	            requestMethod: 'post',
 	            requestParams: requestData,
 	            cacheable: false
@@ -1210,6 +1212,28 @@ this.BX = this.BX || {};
 	        });
 	        this.createTaskPopup.show();
 	      }
+	    }
+	  }, {
+	    key: "getLinkWithAnalytics",
+	    value: function getLinkWithAnalytics(link, params) {
+	      var postEntityType = main_core.Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType;
+	      var analyticsElement = main_core.Type.isNil(params.postEntityType) ? 'context_menu' : 'comment_context_menu';
+	      var analyticsSection;
+	      switch (postEntityType) {
+	        case 'TASK':
+	          analyticsSection = 'tasks';
+	          break;
+	        case 'CALENDAR_EVENT':
+	          analyticsSection = 'calendar';
+	          break;
+	        default:
+	          analyticsSection = 'feed';
+	          break;
+	      }
+	      return BX.Uri.addParam(link, {
+	        ta_sec: analyticsSection,
+	        ta_el: analyticsElement
+	      });
 	    }
 	  }, {
 	    key: "createTaskSetContentSuccess",
@@ -1636,6 +1660,9 @@ this.BX = this.BX || {};
 	    this.counterDecrementStack = 0;
 	    this.counterValue = 0;
 	    this.lockCounterAnimation = null;
+	    this.isSpaceFeatureEnabled = null;
+	    this.currentUserId = null;
+	    this.currentSpaceId = null;
 	    this["class"] = {
 	      informerFixed: 'feed-new-message-informer-fixed',
 	      informerAnimation: 'feed-new-message-informer-anim',
@@ -1651,13 +1678,26 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(Informer, [{
 	    key: "init",
 	    value: function init() {
+	      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var defaultValues = {
+	        isSpaceFeatureEnabled: false,
+	        userId: null,
+	        spaceId: null
+	      };
+	      var _ref = props || defaultValues,
+	        isSpaceFeatureEnabled = _ref.isSpaceFeatureEnabled,
+	        userId = _ref.userId,
+	        spaceId = _ref.spaceId;
+	      this.isSpaceFeatureEnabled = isSpaceFeatureEnabled;
+	      this.currentUserId = userId;
+	      this.currentSpaceId = spaceId;
 	      this.initNodes();
 	      this.initEvents();
 	    }
 	  }, {
 	    key: "initNodes",
 	    value: function initNodes() {
-	      this.currentCounterType = main_core.Loc.getMessage('sonetLCounterType') ? main_core.Loc.getMessage('sonetLCounterType') : '**';
+	      this.currentCounterType = main_core.Loc.hasMessage('sonetLCounterType') ? main_core.Loc.getMessage('sonetLCounterType') : '**';
 	      this.currentSiteId = main_core.Loc.getMessage('SITE_ID');
 	      this.container = document.getElementById('sonet_log_counter_2_container');
 	      if (this.container) {
@@ -1674,31 +1714,25 @@ this.BX = this.BX || {};
 	      main_core_events.EventEmitter.subscribe('onGoUp', function (event) {
 	        _this.unfixWrap();
 	      });
-	      main_core_events.EventEmitter.subscribe('onPullEvent-main', function (event) {
-	        var _event$getData = event.getData(),
-	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 2),
-	          command = _event$getData2[0],
-	          eventParams = _event$getData2[1];
-	        if (command !== 'user_counter' || !eventParams[_this.currentSiteId] || !eventParams[_this.currentSiteId][_this.currentCounterType]) {
-	          return;
-	        }
-	        _this.changeCounter(main_core.Runtime.clone(eventParams[_this.currentSiteId][_this.currentCounterType]));
-	      });
+	      this.isSpaceFeatureEnabled ? this.subscribeOnSpaceCounters() : this.subscribeOnLiveFeedCounters();
 	      main_core_events.EventEmitter.subscribe('onImUpdateCounter', function (event) {
-	        var _event$getData3 = event.getData(),
-	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	          counterData = _event$getData4[0];
-	        if (!main_core.Type.isObjectLike(counterData) || main_core.Type.isUndefined(counterData[_this.currentCounterType])) {
+	        var _event$getData = event.getData(),
+	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	          counterData = _event$getData2[0];
+	        if (_this.isSpaceFeatureEnabled || !main_core.Type.isObjectLike(counterData) || main_core.Type.isUndefined(counterData[_this.currentCounterType])) {
 	          return;
 	        }
 	        _this.changeCounter(counterData[_this.currentCounterType]);
 	      });
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasRead', function (event) {
-	        var _event$getData5 = event.getData(),
-	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 3),
-	          xmlId = _event$getData6[0],
-	          id = _event$getData6[1],
-	          options = _event$getData6[2];
+	        if (_this.isSpaceFeatureEnabled) {
+	          return;
+	        }
+	        var _event$getData3 = event.getData(),
+	          _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 3),
+	          xmlId = _event$getData4[0],
+	          id = _event$getData4[1],
+	          options = _event$getData4[2];
 	        if (!main_core.Type.isObjectLike(options) || !options.live || !options["new"]) {
 	          return;
 	        }
@@ -1706,6 +1740,43 @@ this.BX = this.BX || {};
 	          compatData: [1]
 	        }));
 	        _this.decrementCounter(1);
+	      });
+	    }
+	  }, {
+	    key: "subscribeOnSpaceCounters",
+	    value: function subscribeOnSpaceCounters() {
+	      var _this2 = this;
+	      main_core_events.EventEmitter.subscribe('onPullEvent-socialnetwork', function (event) {
+	        var _eventParams$userId, _eventParams$spaces;
+	        var _event$getData5 = event.getData(),
+	          _event$getData6 = babelHelpers.slicedToArray(_event$getData5, 2),
+	          command = _event$getData6[0],
+	          eventParams = _event$getData6[1];
+	        var userFromEvent = (_eventParams$userId = eventParams.userId) !== null && _eventParams$userId !== void 0 ? _eventParams$userId : null;
+	        var spaces = (_eventParams$spaces = eventParams.spaces) !== null && _eventParams$spaces !== void 0 ? _eventParams$spaces : [];
+	        if (command !== 'user_spaces_counter' || parseInt(_this2.currentUserId) !== parseInt(userFromEvent)) {
+	          return;
+	        }
+	        var currentSpace = spaces.find(function (space) {
+	          return space.id === parseInt(_this2.currentSpaceId);
+	        });
+	        var currentSpaceCounter = currentSpace && currentSpace.metrics && currentSpace.metrics.countersLiveFeedTotal ? currentSpace.metrics.countersLiveFeedTotal : 0;
+	        _this2.changeCounter(currentSpaceCounter);
+	      });
+	    }
+	  }, {
+	    key: "subscribeOnLiveFeedCounters",
+	    value: function subscribeOnLiveFeedCounters() {
+	      var _this3 = this;
+	      main_core_events.EventEmitter.subscribe('onPullEvent-main', function (event) {
+	        var _event$getData7 = event.getData(),
+	          _event$getData8 = babelHelpers.slicedToArray(_event$getData7, 2),
+	          command = _event$getData8[0],
+	          eventParams = _event$getData8[1];
+	        if (command !== 'user_counter' || !eventParams[_this3.currentSiteId] || !eventParams[_this3.currentSiteId][_this3.currentCounterType]) {
+	          return;
+	        }
+	        _this3.changeCounter(main_core.Runtime.clone(eventParams[_this3.currentSiteId][_this3.currentCounterType]));
 	      });
 	    }
 	  }, {
@@ -1725,7 +1796,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "changeAnimate",
 	    value: function changeAnimate(params) {
-	      var _this2 = this;
+	      var _this4 = this;
 	      var show = !!params.show;
 	      var counterValue = parseInt(params.counter);
 	      var zeroCounterFromDb = !!params.zeroCounterFromDb;
@@ -1736,7 +1807,7 @@ this.BX = this.BX || {};
 	      var reloadNode = this.container.querySelector("span.".concat(this["class"].reloadContainer));
 	      if (this.lockCounterAnimation) {
 	        setTimeout(function () {
-	          _this2.changeAnimate({
+	          _this4.changeAnimate({
 	            show: show,
 	            counter: counterValue
 	          });
@@ -1762,7 +1833,7 @@ this.BX = this.BX || {};
 	          }
 	        } else {
 	          setTimeout(function () {
-	            _this2.hideWrapAnimation();
+	            _this4.hideWrapAnimation();
 	          }, 400);
 	        }
 	      }
@@ -2857,6 +2928,11 @@ this.BX = this.BX || {};
 	      FilterInstance.init({
 	        filterId: params.filterId
 	      });
+	      InformerInstance.init({
+	        isSpaceFeatureEnabled: params.isSpaceEnabled,
+	        userId: params.userId,
+	        spaceId: params.spaceId
+	      });
 	      if (main_core.Type.isStringFilled(params.crmEntityTypeName) && !main_core.Type.isUndefined(params.crmEntityId) && parseInt(params.crmEntityId) > 0) {
 	        FilterInstance.initEventsCrm();
 	      }
@@ -2887,7 +2963,6 @@ this.BX = this.BX || {};
 	        return;
 	      }
 	      PinnedPanelInstance.init();
-	      InformerInstance.init();
 	      this.feedInitialized = true;
 	    }
 	  }, {

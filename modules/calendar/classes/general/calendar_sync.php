@@ -1340,6 +1340,7 @@ class CCalendarSync
 		$outlookSyncInfo = self::GetMultipleSyncInfoItem($userId, 'outlook');
 		$exchangeSyncInfo = self::GetSyncInfoItem($userId, 'exchange');
 
+		$connection = \Bitrix\Main\Application::getInstance()->getConnection();
 		$bExchangeConnected = false;
 		$bExchange = false;
 		if (Loader::includeModule('dav'))
@@ -1373,15 +1374,20 @@ class CCalendarSync
 				'status' => $androidSyncInfo['status'],
 				'syncOffset' => time() - $calculateTimestamp($androidSyncInfo['date']),
 			],
-			'outlook' => [
+		];
+
+
+		if (!(!Loader::includeModule('webservice') && $connection->getType() === 'pgsql'))
+		{
+			$syncInfo['outlook'] = [
 				'type' => 'outlook',
 				'active' => true,
 				'connected' => $outlookSyncInfo['connected'],
 				'status' => $outlookSyncInfo['status'],
 				'infoBySections' => ($outlookSyncInfo['infoBySections'] ?? ''),
 				'syncOffset' => time() - $calculateTimestamp($outlookSyncInfo['date'] ?? false),
-			],
-		];
+			];
+		}
 
 		if (!Loader::includeModule('bitrix24'))
 		{

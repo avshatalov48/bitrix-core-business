@@ -60,14 +60,14 @@ export const PopupMenuContent = {
 				:isSelected="option.type === this.selectedOption"
 				@changeSelectedOption="onChangeSelectedOption"
 			/>
+			<div v-if="doShowHint" class="sn-spaces__popup-menu_hint">
+				{{hint}}
+			</div>
 			<PopupMenuButton
 				v-if="doShowButton"
 				:config="button"
 				@popupMenuButtonClick="onPopupMenuButtonClick"
 			/>
-			<div v-if="doShowHint" class="sn-spaces__popup-menu_hint">
-				{{hint}}
-			</div>
 		</div>
 	`,
 };

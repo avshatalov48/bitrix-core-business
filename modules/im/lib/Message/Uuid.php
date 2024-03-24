@@ -68,7 +68,11 @@ class Uuid
 		]);
 
 		$this->connection->queryExecute(
-			"INSERT IGNORE INTO $this->tableName (" . $preparedData[0] . ") VALUES (" . $preparedData[1] . ");"
+			$this->sqlHelper->getInsertIgnore(
+				$this->sqlHelper->quote($this->tableName),
+				" ({$preparedData[0]}) ",
+				" VALUES ({$preparedData[1]})"
+			)
 		);
 		$rowsAffected = $this->connection->getAffectedRowsCount();
 

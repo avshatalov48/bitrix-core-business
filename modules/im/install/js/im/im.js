@@ -229,7 +229,7 @@ BX.IM = function(domNode, params)
 	BX.ImEventHandler.init(this);
 	BX.MessengerProxy.init(this);
 
-	if (BX.getClass('BX.Voximplant.PhoneCallsController'))
+	if (BX.getClass('BX.Voximplant.PhoneCallsController') && this.init && !this.options.v2layout)
 	{
 		this.telephonyController = new BX.Voximplant.PhoneCallsController({
 			phoneEnabled: BX.prop.getBoolean(params.webrtc, 'phoneEnabled', false),
@@ -324,7 +324,7 @@ BX.IM = function(domNode, params)
 	}
 
 	this.webrtc = new BX.IM.WebRTC(this, {
-		betaEnabled: BX.prop.getBoolean(params.webrtc, 'betaEnabled', false),
+		'bitrixCallEnabled': BX.prop.getBoolean(params.webrtc, 'bitrixCallEnabled', false),
 		'desktopClass': this.desktop,
 		'telephonyController': this.telephonyController,
 
@@ -10536,7 +10536,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 				{icon: 'bx-messenger-menu-call-video', text: BX.message('IM_M_CALL_VIDEO_HD'), onclick: BX.delegate(function(){ this.BXIM.callTo(this.currentTab, true); this.closeMenuPopup(); }, this)},
 				{icon: 'bx-messenger-menu-call-voice', text: BX.message('IM_M_CALL_VOICE'), onclick: BX.delegate(function(){ this.BXIM.callTo(this.currentTab, false); this.closeMenuPopup(); }, this)},
 			];
-			if (this.BXIM.webrtc.betaEnabled)
+			if (this.BXIM.webrtc.bitrixCallEnabled)
 			{
 				menuItems.push({icon: 'bx-messenger-menu-call-video', text: BX.message('IM_M_CREATE_CALL_BETA'), onclick: function(){ this.BXIM.createCallRoom(this.currentTab); this.closeMenuPopup(); }.bind(this)});
 			}
@@ -11035,7 +11035,15 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		var isNetworkConnector = this.chat[this.message[messageId].chatId] && this.chat[this.message[messageId].chatId].entity_id.substring(0, 7) === 'network';
 
 		var multidialogEnabled = false;
-		if (!isNetworkConnector || typeof(openLineSettings.multidialog) === 'undefined' || openLineSettings.multidialog !== 'Y')
+		if (this.message[messageId].params.CLASS === 'bx-messenger-content-item-system')
+		{
+			multidialogEnabled = false;
+		}
+		else if (
+			!isNetworkConnector
+			|| typeof(openLineSettings.multidialog) === 'undefined'
+			|| openLineSettings.multidialog !== 'Y'
+		)
 		{
 			if (
 				typeof(openLineSettings.multidialog) === 'undefined'
@@ -11186,12 +11194,11 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			hideBlockCreate ? null: {separator: true},
 			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_TASK"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'TASK'); this.closeMenuPopup(); }, this)},
 			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_CALEND"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CALEND'); this.closeMenuPopup(); }, this)},
-			hideBlockCreate ? null: {text: BX.message(isChatOl ? "IM_MENU_TO_CHAT_MSGVER_1" : "IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate ? null: {text: BX.message(isChatOl ? "IM_MENU_TO_CHAT_MSGVER_2" : "IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
 			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_POST_2"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'POST'); this.closeMenuPopup(); }, this)},
 			hideBlockCreate || !isChatOl ? null: {separator: true},
-			!multidialogEnabled || hideBlockCreate || !isChatOl
-				? (hideBlockCreate || !isChatOl ? null: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesStartSessionByMessage(messageId); this.closeMenuPopup(); }, this)})
-				: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesOpenNewDialogByMessage(messageId); this.closeMenuPopup(); }, this)},
+			hideBlockCreate || !isChatOl ? null: {text: BX.message("IM_MENU_TO_OL_START_MSGVER_1"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesStartSessionByMessage(messageId); this.closeMenuPopup(); }, this)},
+			hideBlockCreate || !multidialogEnabled || !isChatOl ? null: {text: BX.message("IM_MENU_TO_OL_NEW_MULTI_START_MSGVER_1"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesOpenNewDialogByMessage(messageId); this.closeMenuPopup(); }, this)},
 			hideSaveToQuickAnswers? null: linesQuickAnswersItem,
 			!(!canEdit || this.message[messageId].senderId != this.BXIM.userId) || canDelete? {separator: true}: null,
 			!canEdit || this.message[messageId].senderId != this.BXIM.userId? null: {text: BX.message("IM_MENU_EDIT"), onclick: BX.delegate(function() {this.editMessage(messageId);this.closeMenuPopup();}, this)},
@@ -20234,7 +20241,7 @@ BX.IM.WebRTC = function(BXIM, params)
 	this.desktop = params.desktopClass;
 
 	this.callToPhone = false;
-	this.betaEnabled = BX.prop.getBoolean(params, 'betaEnabled', false);
+	this.bitrixCallEnabled = BX.prop.getBoolean(params, 'bitrixCallEnabled', false);
 	this.callOverlayFullScreen = false;
 
 	this.callToMobile = false;

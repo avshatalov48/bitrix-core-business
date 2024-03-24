@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Application;
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSaleAffiliateTransact
@@ -71,7 +73,7 @@ class CAllSaleAffiliateTransact
 		if ($ID <= 0)
 			return false;
 
-		$strSql = 
+		$strSql =
 			"SELECT AT.ID, AT.AFFILIATE_ID, AT.AMOUNT, AT.CURRENCY, AT.DEBIT, AT.DESCRIPTION, ".
 			"	AT.EMPLOYEE_ID, ".
 			"	".$DB->DateToCharFunction("AT.TIMESTAMP_X", "FULL")." as TIMESTAMP_X, ".
@@ -92,9 +94,11 @@ class CAllSaleAffiliateTransact
 
 		$ID = intval($ID);
 		if ($ID <= 0)
-			return False;
+		{
+			return false;
+		}
 
-		$arFields1 = array();
+		$arFields1 = [];
 		foreach ($arFields as $key => $value)
 		{
 			if (mb_substr($key, 0, 1) == "=")
@@ -105,7 +109,18 @@ class CAllSaleAffiliateTransact
 		}
 
 		if (!CSaleAffiliateTransact::CheckFields("UPDATE", $arFields, $ID))
+		{
 			return false;
+		}
+
+		if (!isset($arFields1['TIMESTAMP_X']))
+		{
+			$connection = Application::getConnection();
+			$helper = $connection->getSqlHelper();
+			unset($arFields['TIMESTAMP_X']);
+			$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+			unset($helper, $connection);
+		}
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_affiliate_transact", $arFields);
 

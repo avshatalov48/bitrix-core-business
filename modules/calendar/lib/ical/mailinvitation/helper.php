@@ -18,6 +18,8 @@ use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\ORM\Entity;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
@@ -493,19 +495,38 @@ class Helper
 	 */
 	public static function getAttendeesByEventParentId(int $parentId): AttendeesCollection
 	{
-		global $DB;
 		$attendeesCollection = AttendeesCollection::createInstance();
-		$attendeesDb =  $DB->query('select event.MEETING_STATUS, user.NAME, user.LAST_NAME, user.EMAIL from b_calendar_event as event JOIN b_user as user ON event.OWNER_ID = user.ID where event.PARENT_ID = '. $parentId);
-		while ($attendee = $attendeesDb->fetch())
+
+		$query = EventTable::query()
+			->setSelect([
+				'MEETING_STATUS',
+				'USER_NAME' => 'USER.NAME',
+				'USER_LAST_NAME' => 'USER.LAST_NAME',
+				'USER_EMAIL' => 'USER.EMAIL'
+			])
+			->where('PARENT_ID', $parentId)
+			->registerRuntimeField(
+				'USER',
+				new ReferenceField(
+					'USER',
+					UserTable::getEntity(),
+					Join::on('this.OWNER_ID', 'ref.ID'),
+					['join_type' => Join::TYPE_INNER]
+				)
+			)
+			->exec()
+		;
+
+		while ($attendee = $query->fetch())
 		{
 			$attendeesCollection->add(Attendee::createInstance(
-				$attendee['EMAIL'],
-				$attendee['NAME'],
-				$attendee['LAST_NAME'],
+				$attendee['USER_EMAIL'],
+				$attendee['USER_NAME'],
+				$attendee['USER_LAST_NAME'],
 				Dictionary::ATTENDEE_STATUS[$attendee['MEETING_STATUS']],
 				Dictionary::ATTENDEE_ROLE['REQ_PARTICIPANT'],
 				Dictionary::ATTENDEE_CUTYPE['individual'],
-				$attendee['EMAIL']
+				$attendee['USER_EMAIL']
 			));
 		}
 

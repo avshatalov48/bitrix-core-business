@@ -2,12 +2,13 @@
 
 namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter;
 
-use Bitrix\Main\Config\Option;
 use Bitrix\Socialnetwork\Internals\EventService\Event;
 use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
 use Bitrix\Socialnetwork\Internals\LiveFeed\Counter;
 use Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Processor\CommandTrait;
 use Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Processor\UserProcessor;
+use Bitrix\Socialnetwork\Livefeed\Provider;
+use Bitrix\Socialnetwork\Space\Service;
 use Bitrix\Socialnetwork\UserContentViewTable;
 
 class CounterController
@@ -32,27 +33,7 @@ class CounterController
 	 */
 	public static function isEnabled(int $userId = 0): bool
 	{
-		$isLegacyEnabled = Option::get('socialnetwork', CounterDictionary::LEGACY_COUNTER_ENABLED, 'null', '-');
-		if ($isLegacyEnabled === 'null')
-		{
-			// new counters enabled for all users
-			return true;
-		}
-
-		if (
-			$userId
-			&& \CUserOptions::GetOption(
-				'socialnetwork',
-				CounterDictionary::COUNTER_ENABLED_FOR_USER,
-				false,
-				$userId
-			)
-		)
-		{
-			return true;
-		}
-
-		return false;
+		return Service::isAvailable(true);
 	}
 
 	/**
@@ -78,11 +59,25 @@ class CounterController
 				$this->readAll($event);
 				break;
 			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_VIEW:
-				$this->viewed($event);
+				$this->seen($event);
+				break;
+			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_ADD:
+				$this->add($event, [CounterDictionary::COUNTER_NEW_POSTS]);
+				break;
+			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_ADD:
+				$this->add($event, [CounterDictionary::COUNTER_NEW_COMMENTS]);
+				break;
+			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_DEL:
+				$this->delete($event, [CounterDictionary::COUNTER_NEW_POSTS]);
+				break;
+			case EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_DEL:
+				$this->delete($event, [CounterDictionary::COUNTER_NEW_COMMENTS]);
 				break;
 			default:
-				$this->recount($event);
+				$this->recount($event, [CounterDictionary::COUNTER_NEW_POSTS, CounterDictionary::COUNTER_NEW_COMMENTS]);
 		}
+
+		$this->updateLeftMenuCounter();
 	}
 
 	/**
@@ -114,7 +109,7 @@ class CounterController
 	 * Updates the left menu counter
 	 * @return void
 	 */
-	public function updateInOptionCounter()
+	public function updateLeftMenuCounter(): void
 	{
 		$value = Counter::getInstance($this->userId)->get(CounterDictionary::COUNTER_TOTAL);
 		if (!$this->isSameValueCached($value))
@@ -125,12 +120,12 @@ class CounterController
 				$value,
 				'**',
 				'',
-				true
+				false
 			);
 		}
 	}
 
-	private function recount(Event $event): void
+	private function recount(Event $event, array $counters = []): void
 	{
 		$sonetLogId = $event->getData()['SONET_LOG_ID'] ?? null;
 		if (!$sonetLogId)
@@ -139,29 +134,53 @@ class CounterController
 		}
 
 		$userProcessor = UserProcessor::getInstance($this->userId);
-		$userProcessor->recount(CounterDictionary::COUNTER_NEW_POSTS, [$sonetLogId]);
-		$userProcessor->recount(CounterDictionary::COUNTER_NEW_COMMENTS, [$sonetLogId]);
+		foreach ($counters as $counter)
+		{
+			$userProcessor->recount($counter, [$sonetLogId]);
+		}
 	}
 
-	private function viewed(Event $event): void
+	private function add(Event $event, array $counters = []): void
 	{
-		$data = $event->getData();
-		if (!isset($data['ENTITY_ID'], $data['TYPE_ID'], $data['USER_ID']))
+		$sonetLogId = $event->getData()['SONET_LOG_ID'] ?? null;
+		if (!$sonetLogId)
 		{
 			return;
 		}
 
-		$contentViewed = UserContentViewTable::query()
-			->where('USER_ID', $data['USER_ID'])
-			->where('RATING_TYPE_ID', $data['TYPE_ID'])
-			->where('RATING_ENTITY_ID', $data['ENTITY_ID'])
-			->setLimit(1)
-			->exec()->fetch();
-
-		if ($contentViewed)
+		$userProcessor = UserProcessor::getInstance($this->userId);
+		foreach ($counters as $counter)
 		{
-			$this->recount($event);
+			$userProcessor->add($counter, [$sonetLogId]);
 		}
+	}
+
+	private function delete(Event $event, array $counters = []): void
+	{
+		$sonetLogId = $event->getData()['SONET_LOG_ID'] ?? null;
+		if (!$sonetLogId)
+		{
+			return;
+		}
+
+		$userProcessor = UserProcessor::getInstance($this->userId);
+		foreach ($counters as $counter)
+		{
+			$userProcessor->seen($counter, [$sonetLogId]);
+		}
+	}
+
+	private function seen(Event $event): void
+	{
+		$data = $event->getData();
+		if (!isset($data['ENTITY_ID'], $data['ENTITY_TYPE_ID'], $data['USER_ID'], $data['SONET_LOG_ID']))
+		{
+			return;
+		}
+
+		$userProcessor = UserProcessor::getInstance($this->userId);
+		$userProcessor->seen(CounterDictionary::COUNTER_NEW_POSTS, [$data['SONET_LOG_ID']]);
+		$userProcessor->seen(CounterDictionary::COUNTER_NEW_COMMENTS, [$data['SONET_LOG_ID']]);
 	}
 
 	public function recountAll(): void
@@ -187,6 +206,16 @@ class CounterController
 		}
 
 		$groupId = (int)($event->getData()['GROUP_ID'] ?? 0);
+
+		// save the timestamp
+		$viewParams = [
+			'userId' => $this->userId,
+			'typeId' => Provider::DATA_ENTITY_TYPE_LIVE_FEED_VIEW,
+			'entityId' => $groupId,
+			'logId' => $groupId,
+			'save' => true,
+		];
+		UserContentViewTable::set($viewParams);
 		UserProcessor::getInstance($this->userId)->readAll($groupId);
 	}
 

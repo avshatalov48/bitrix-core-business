@@ -1,38 +1,37 @@
-<?
+<?php
 $langs = CLanguage::GetList();
-while($lang = $langs->Fetch())
+while ($lang = $langs->Fetch())
 {
-	$lid = $lang["LID"];
+	$lid = $lang['LID'];
 	IncludeModuleLangFile(__FILE__, $lid);
 
-	$et = new CEventType;
-	$et->Add(array(
-		"LID" => $lid,
-		"EVENT_NAME" => "SUBSCRIBE_CONFIRM",
-		"NAME" => GetMessage("SUBSCRIBE_CONFIRM_NAME"),
-		"DESCRIPTION" => GetMessage("SUBSCRIBE_CONFIRM_DESC"),
-	));
+	CEventType::Add([
+		'LID' => $lid,
+		'EVENT_NAME' => 'SUBSCRIBE_CONFIRM',
+		'NAME' => GetMessage('SUBSCRIBE_CONFIRM_NAME'),
+		'DESCRIPTION' => GetMessage('SUBSCRIBE_CONFIRM_DESC'),
+	]);
 
-	$arSites = array();
-	$sites = CSite::GetList('', '', Array("LANGUAGE_ID"=>$lid));
+	$arSites = [];
+	$sites = CSite::GetList('', '', ['LANGUAGE_ID' => $lid]);
 	while ($site = $sites->Fetch())
-		$arSites[] = $site["LID"];
-
-	if(count($arSites) > 0)
 	{
+		$arSites[] = $site['LID'];
+	}
 
+	if (count($arSites) > 0)
+	{
 		$emess = new CEventMessage;
-		$emess->Add(array(
-			"ACTIVE" => "Y",
-			"EVENT_NAME" => "SUBSCRIBE_CONFIRM",
-			"LID" => $arSites,
-			"EMAIL_FROM" => "#DEFAULT_EMAIL_FROM#",
-			"EMAIL_TO" => "#EMAIL#",
-			"BCC" => "",
-			"SUBJECT" => GetMessage("SUBSCRIBE_CONFIRM_SUBJECT"),
-			"MESSAGE" => GetMessage("SUBSCRIBE_CONFIRM_MESSAGE"),
-			"BODY_TYPE" => "text",
-		));
+		$emess->Add([
+			'ACTIVE' => 'Y',
+			'EVENT_NAME' => 'SUBSCRIBE_CONFIRM',
+			'LID' => $arSites,
+			'EMAIL_FROM' => '#DEFAULT_EMAIL_FROM#',
+			'EMAIL_TO' => '#EMAIL#',
+			'BCC' => '',
+			'SUBJECT' => GetMessage('SUBSCRIBE_CONFIRM_SUBJECT'),
+			'MESSAGE' => GetMessage('SUBSCRIBE_CONFIRM_MESSAGE'),
+			'BODY_TYPE' => 'text',
+		]);
 	}
 }
-?>

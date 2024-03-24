@@ -91,6 +91,11 @@ export class ApplicationModel extends BuilderModel
 					entityId: this.validateLayoutEntityId(name, entityId),
 					contextId,
 				};
+				if (previousLayout.name === newLayout.name && previousLayout.entityId === newLayout.entityId)
+				{
+					return;
+				}
+
 				store.commit('updateLayout', {
 					layout: newLayout,
 				});

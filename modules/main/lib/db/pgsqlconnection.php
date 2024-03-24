@@ -335,7 +335,7 @@ class PgsqlConnection extends Connection
 	 */
 	public function createTable($tableName, $fields, $primary = array(), $autoincrement = array())
 	{
-		$sql = 'CREATE TABLE '.$this->getSqlHelper()->quote($tableName).' (';
+		$sql = 'CREATE TABLE IF NOT EXISTS '.$this->getSqlHelper()->quote($tableName).' (';
 		$sqlFields = array();
 
 		foreach ($fields as $columnName => $field)
@@ -415,15 +415,15 @@ class PgsqlConnection extends Connection
 
 		if ($indexType === static::INDEX_UNIQUE)
 		{
-			return $this->query('CREATE UNIQUE INDEX ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . '(' . implode(',', $columnNames) . ')');
+			return $this->query('CREATE UNIQUE INDEX IF NOT EXISTS ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . '(' . implode(',', $columnNames) . ')');
 		}
 		elseif ($indexType === static::INDEX_FULLTEXT)
 		{
-			return $this->query('CREATE INDEX ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . ' USING GIN (to_tsvector(\'english\', ' . implode(',', $columnNames) . '))');
+			return $this->query('CREATE INDEX IF NOT EXISTS ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . ' USING GIN (to_tsvector(\'english\', ' . implode(',', $columnNames) . '))');
 		}
 		else
 		{
-			return $this->query('CREATE INDEX ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . '(' . implode(',', $columnNames) . ')');
+			return $this->query('CREATE INDEX IF NOT EXISTS ' . $sqlHelper->quote($indexName) . ' ON ' . $sqlHelper->quote($tableName) . '(' . implode(',', $columnNames) . ')');
 		}
 	}
 

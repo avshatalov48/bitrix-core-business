@@ -17,7 +17,10 @@ final class AttributeManager extends Internals\TypeManager
 		{
 			foreach (self::getTypes() as $name => $type)
 			{
-				$groupedTypes[$type['GROUP']][$name] = $type;
+				if (isset($type['GROUP']))
+				{
+					$groupedTypes[$type['GROUP']][$name] = $type;
+				}
 			}
 		}
 

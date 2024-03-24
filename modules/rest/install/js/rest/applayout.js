@@ -974,6 +974,11 @@
 					}
 				}
 			}
+		},
+
+		showAppForm: function(params, cb)
+		{
+			(new BX.Rest.AppForm(params)).show();
 		}
 	};
 

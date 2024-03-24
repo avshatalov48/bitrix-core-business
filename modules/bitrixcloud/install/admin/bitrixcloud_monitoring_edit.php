@@ -1,3 +1,2 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/admin/bitrixcloud_monitoring_edit.php");
-?>
+<?php
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/admin/bitrixcloud_monitoring_edit.php';

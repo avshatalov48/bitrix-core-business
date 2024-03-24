@@ -5,6 +5,9 @@ namespace Bitrix\Socialnetwork\CommentAux;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Tasks\Slider\Path\PathMaker;
+use Bitrix\Tasks\Slider\Path\TaskPathMaker;
 
 Loc::loadMessages(__FILE__);
 
@@ -49,21 +52,32 @@ class CreateTask extends CreateEntity
 				) . 'user/#user_id#/';
 		}
 
+		$taskPath = '';
 		if ($task = $this->getTask($params['taskid'], false))
 		{
-			$taskPath = (
+			if (
 				(!isset($options['cache']) || !$options['cache'])
 				&& (!isset($options['im']) || !$options['im'])
 				&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
-					? str_replace(array("#user_id#", "#USER_ID#"), $task['RESPONSIBLE_ID'], $userPage).'tasks/task/view/'.$task['ID'].'/'
-					: ''
-			);
+			)
+			{
+				$taskPath = (new TaskPathMaker((int)$task['ID'], PathMaker::DEFAULT_ACTION, (int)$task['RESPONSIBLE_ID']))->makeEntityPath();
+			}
+
+			if (!empty($taskPath))
+			{
+				$taskUri = new Uri($taskPath);
+				$taskUri->addParams([
+					'ta_sec' => 'comment',
+					'ta_el' => 'title_click',
+				]);
+				$taskPath = $taskUri->getUri();
+			}
 
 			$taskTitle = $task['TITLE'];
 		}
 		else
 		{
-			$taskPath = '';
 			$taskTitle = Loc::getMessage('SONET_COMMENTAUX_CREATETASK_NOT_FOUND');
 		}
 

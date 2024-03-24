@@ -39,6 +39,7 @@ export const MentionPopup = {
 				bindElement: this.bindElement,
 				offsetTop: 14,
 				offsetLeft: -44,
+				fixed: true,
 				bindOptions: {
 					position: 'top',
 				},

@@ -156,7 +156,6 @@ $MESS["IBLIST_A_CATALOG_WIDTH"] = "Ширина (мм)";
 $MESS["IBLIST_A_CATALOG_LENGTH"] = "Длина (мм)";
 $MESS["IBLIST_A_CATALOG_HEIGHT"] = "Высота (мм)";
 $MESS["IBLIST_A_CATALOG_EXTRA_DESCRIPTION"] = "Наценка #VALUE# к базовой цене";
-$MESS["IBLIST_PRODUCTS_INSTAGRAM"] = "Товары Instagram";
 $MESS["IBLIST_A_CATALOG_SKU_PRICE"] = "от #PRICE#";
 $MESS["IBLIST_A_CATALOG_EMPTY_VALUE"] = "не выбрано";
 $MESS["IBLIST_A_CATALOG_DEFAULT"] = "(по умолчанию)";

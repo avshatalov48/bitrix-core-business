@@ -936,7 +936,7 @@ class Element extends Base
 		'bot-action-chat' => [
 			'CODE' => 'bot-action-chat',
 			'ELEMENT_CODE' => 'bot-action-chat',
-			'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_19_TITLE',
+			'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_19_TITLE_MSGVER_1',
 			'ACTIVE' => 'Y',
 			'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_19_DESCRIPTION',
 			'SECTION_CODE' => 'chat-bot',
@@ -949,7 +949,7 @@ class Element extends Base
 						'METHOD' => 'crm.lead.add',
 						'METHOD_DOWNLOAD_EXAMPLE_TYPE' => 'query',
 						'DESCRIPTION_METHOD' => [
-							'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_19_TITLE',
+							'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_19_TITLE_MSGVER_1',
 						],
 						'ITEMS' => [
 							[

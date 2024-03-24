@@ -1,8 +1,12 @@
 <?php
-define('ADMIN_MODULE_NAME', 'highloadblock');
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
 use Bitrix\Highloadblock as HL;
+
+const ADMIN_MODULE_NAME = 'highloadblock';
+require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
+
+/** @global \CUser $USER */
+/** @global \CMain $APPLICATION */
 
 IncludeModuleLangFile(__FILE__);
 IncludeModuleLangFile(__DIR__.'/highloadblock_rows_list.php');
@@ -44,10 +48,10 @@ $localization = array();
 $currentRights = array();
 $currentRightsName = array();
 $access = new \CAccess;
-$ID = intval($request->get('ID'));
-$save = trim($request->get('save'));
-$apply = trim($request->get('apply'));
-$action = trim($request->get('action'));
+$ID = (int)$request->get('ID');
+$save = trim((string)$request->get('save'));
+$apply = trim((string)$request->get('apply'));
+$action = trim((string)$request->get('action'));
 $requestMethod = $context->getServer()->getRequestMethod();
 
 // get highloadblock data

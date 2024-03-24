@@ -1,6 +1,4 @@
-import { ChatType } from 'im.v2.const';
-
-import { ParamsByChatType, CrmLinkTextByEntity } from './const/chat-type-params';
+import { ParamsByLinkType } from './const/chat-type-params';
 
 import './css/entity-link.css';
 
@@ -27,10 +25,6 @@ export const EntityLink = {
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
-		entityId(): string
-		{
-			return this.dialog.entityLink.id;
-		},
 		entityType(): string
 		{
 			return this.dialog.entityLink.type;
@@ -41,33 +35,15 @@ export const EntityLink = {
 		},
 		containerClassName(): string
 		{
-			return ParamsByChatType[this.dialog.type]?.className ?? '';
+			return ParamsByLinkType[this.entityType]?.className ?? '';
 		},
 		linkText(): string
 		{
-			if (this.dialog.type === ChatType.crm)
-			{
-				return this.getCrmLinkText();
-			}
-
-			return ParamsByChatType[this.dialog.type]?.loc ?? 'Open entity';
-		},
-	},
-	methods:
-	{
-		getCrmLinkText(): string
-		{
-			const [entityType] = this.entityId.split('|');
-			if (!entityType)
-			{
-				return '';
-			}
-
-			return CrmLinkTextByEntity[entityType];
+			return ParamsByLinkType[this.entityType]?.loc ?? 'Open entity';
 		},
 	},
 	template: `
-		<a :href="entityUrl" class="bx-im-chat-header-entity-link__container" :class="containerClassName">
+		<a :href="entityUrl" class="bx-im-chat-header-entity-link__container" :class="containerClassName" target="_blank">
 			<div class="bx-im-chat-header-entity-link__icon"></div>
 			<div class="bx-im-chat-header-entity-link__text">{{ linkText }}</div>
 			<div class="bx-im-chat-header-entity-link__arrow"></div>

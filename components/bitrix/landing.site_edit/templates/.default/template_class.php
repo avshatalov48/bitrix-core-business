@@ -82,6 +82,7 @@ class Template
 		$disabled = $params['disabled'] ?? false;
 		$readonly = $params['readonly'] ?? false;
 		$needWrapper = $params['needWrapper'] ?? false;
+		$buttons = $params['buttons'] ?? [];
 
 		$isTitle = (bool)($params['title'] ?? null);
 		$title = $field->getLabel();
@@ -143,6 +144,11 @@ class Template
 						<span class="ui-hint-icon"></span>
 					</span>
 				<?php endif; ?>
+			<?php endif; ?>
+			<?php if (in_array('copilot', $buttons, true)): ?>
+				<div class="landing-editable-field-buttons">
+					<div class="landing-editable-field-button --copilot"></div>
+				</div>
 			<?php endif; ?>
 		</<?= $fieldWrapperTag ?>>
 		<?php if ($help && $isHelpLink) : ?>
@@ -362,7 +368,7 @@ class Template
 			}
 			case 'text':
 			{
-				$css = 'ui-ctl ui-ctl-textbox ui-ctl-w100';
+				$css = 'ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row';
 				break;
 			}
 			case 'checkbox':
@@ -372,7 +378,7 @@ class Template
 			}
 			case 'textarea':
 			{
-				$css = 'ui-ctl ui-ctl-textarea ui-ctl-resize-x';
+				$css = 'ui-ctl ui-ctl-textarea ui-ctl-resize-x ui-ctl-row';
 				break;
 			}
 		}

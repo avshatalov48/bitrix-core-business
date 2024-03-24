@@ -488,6 +488,9 @@ if ($arParams['SUCCESS_SAVE'])
 					<?php if ($arResult['SHOW_RIGHTS']):?>
 						<span class="landing-additional-alt-promo-text" data-landing-additional-option="access"><?= Loc::getMessage('LANDING_TPL_HOOK_RIGHTS_LABEL') ?></span>
 					<?php endif;?>
+					<?php if ($arParams['TYPE'] === 'GROUP'):?>
+						<span class="landing-additional-alt-promo-text" data-landing-additional-option="knowledge_group_control"><?= Loc::getMessage('LANDING_TPL_GROUP_KB_CONTROL') ?></span>
+					<?php endif;?>
 				</span>
 			</div>
 
@@ -1344,6 +1347,50 @@ if ($arParams['SUCCESS_SAVE'])
 					});
 				</script>
 			<?php endif;?>
+
+			<?php if ($arParams['TYPE'] === 'GROUP'): ?>
+				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="knowledge_group_control">
+					<div class="ui-form-label">
+						<div class="ui-ctl-label-text">
+							<?= Loc::getMessage('LANDING_TPL_GROUP_KB_CONTROL') ?>
+						</div>
+					</div>
+					<div class="ui-form-content">
+						<div class="ui-form-content-item">
+							<label class="ui-ctl ui-ctl-checkbox">
+								<input
+									type="checkbox"
+									id="field-group-unbind"
+									class="ui-ctl-element"
+									name="fields[GROUP_UNBIND]"
+								>
+								<div class="ui-ctl-label-text">
+									<?= Loc::getMessage('LANDING_TPL_GROUP_KB_UNBIND') ?>
+								</div>
+							</label>
+							<span data-hint="<?= Loc::getMessage('LANDING_TPL_GROUP_KB_UNBIND_HELP') ?>" class="ui-hint">
+								<span class="ui-hint-icon"></span>
+							</span>
+						</div>
+						<div class="ui-form-content-item">
+							<label class="ui-ctl ui-ctl-checkbox">
+								<input
+									type="checkbox"
+									id="field-group-delete"
+									class="ui-ctl-element"
+									name="fields[GROUP_DELETE]"
+								>
+								<div class="ui-ctl-label-text">
+									<?= Loc::getMessage('LANDING_TPL_GROUP_KB_UNBIND_DELETE') ?>
+								</div>
+							</label>
+							<span data-hint="<?= Loc::getMessage('LANDING_TPL_GROUP_KB_UNBIND_DELETE_HELP') ?>" class="ui-hint">
+								<span class="ui-hint-icon"></span>
+							</span>
+						</div>
+					</div>
+				</div>
+			<?php endif;?>
 		</div>
 
 		<!--BUTTONS-->
@@ -1390,6 +1437,7 @@ if ($arParams['SUCCESS_SAVE'])
 		new BX.Landing.Copyright(BX('landing-site-set-form'), BX('<?= $template->getFieldId('COPYRIGHT_SHOW') ?>'));
 		new BX.Landing.ToggleAdditionalFields(BX('landing-site-set-form'));
 		new BX.UI.LayoutForm({container: BX('landing-site-set-form')});
+		BX.UI.Hint.init(BX('landing-site-set-form'));
 		<?php if (isset($hooks['COOKIES'])):?>
 		new BX.Landing.Cookies();
 		<?php endif;?>

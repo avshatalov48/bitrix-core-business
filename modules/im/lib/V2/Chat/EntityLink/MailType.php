@@ -16,6 +16,6 @@ class MailType extends EntityLink
 			return '';
 		}
 
-		return \Bitrix\Mail\Integration\Intranet\Secretary::getMessageUrlForChat((int)$this->id, $this->chatId) ?? '';
+		return \Bitrix\Mail\Integration\Intranet\Secretary::getMessageUrlForChat((int)$this->entityId, $this->chatId) ?? '';
 	}
 }

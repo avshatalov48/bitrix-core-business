@@ -412,7 +412,7 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 	BX.UI.EntityEditorFieldConfigurator.prototype.getIsTimeEnabledCheckBox = function()
 	{
 		var checkBox = null;
-		if(this._field === null && (this._typeId === "datetime" || this._typeId === "date"))
+		if(this._field === null && this._typeId === "datetime")
 		{
 			checkBox = this.createOption({ caption: BX.message("UI_ENTITY_EDITOR_UF_ENABLE_TIME") });
 		}

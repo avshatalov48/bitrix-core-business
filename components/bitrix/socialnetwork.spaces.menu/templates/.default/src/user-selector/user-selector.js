@@ -32,7 +32,7 @@ export class UserSelector extends EventEmitter
 		this.#createChat = options.createChat ?? false;
 	}
 
-	getDialog()
+	getDialog(): Dialog
 	{
 		if (!this.dialog)
 		{

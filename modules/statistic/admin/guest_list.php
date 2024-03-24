@@ -430,7 +430,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPage()?>?">
 <?$filter->Begin();?>
-<?if(COption::GetOptionString("statistic", "dbnode_id") <= 0):?>
+<?if(COption::GetOptionInt("statistic", "dbnode_id") <= 0):?>
 	<tr>
 		<td><?echo GetMessage("STAT_F_USER")?>:</td>
 		<td><input type="text" name="find_user" size="30" value="<?echo htmlspecialcharsbx($find_user)?>"><?=ShowExactMatchCheckbox("find_user")?>&nbsp;<?=ShowFilterLogicHelp()?></td>

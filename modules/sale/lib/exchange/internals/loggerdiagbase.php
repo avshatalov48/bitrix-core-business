@@ -44,7 +44,8 @@ class LoggerDiagBase extends Logger
 	 */
 	static public function getInterval()
 	{
-		$interval = Option::get('sale', static::getNameOptionIntervalDayOption(), 1);
-		return intval($interval)>0 ? $interval:1;
+		$interval = (int)Option::get('sale', static::getNameOptionIntervalDayOption(), 1);
+
+		return $interval > 0 ? $interval : 1;
 	}
 }

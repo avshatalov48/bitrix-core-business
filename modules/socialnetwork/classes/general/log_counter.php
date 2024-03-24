@@ -83,6 +83,8 @@ class CAllSocNetLogCounter
 	)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if (
 			is_array($counterEntityId)
@@ -475,7 +477,7 @@ class CAllSocNetLogCounter
 				WHERE
 					U.ACTIVE = 'Y'
 					AND U.LAST_ACTIVITY_DATE IS NOT NULL
-					AND U.LAST_ACTIVITY_DATE > " . CSocNetLogCounter::dbWeeksAgo(2) . "
+					AND U.LAST_ACTIVITY_DATE > " . $helper->addDaysToDateTime(-14) . "
 					AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", static::$userTableClass::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
 					" .
 					$userWhere . " " .
@@ -511,7 +513,7 @@ class CAllSocNetLogCounter
 				WHERE
 					U.ACTIVE = 'Y'
 					AND U.LAST_ACTIVITY_DATE IS NOT NULL
-					AND U.LAST_ACTIVITY_DATE > " . CSocNetLogCounter::dbWeeksAgo(2) . "
+					AND U.LAST_ACTIVITY_DATE > " . $helper->addDaysToDateTime(-14) . "
 					AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", static::$userTableClass::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
 					" .
 					$userWhere."

@@ -2,7 +2,7 @@
 
 IncludeModuleLangFile(__FILE__);
 
-define("SALE_TIME_LOCK_USER", 600);
+const SALE_TIME_LOCK_USER = 600;
 $GLOBALS["SALE_USER_ACCOUNT"] = array();
 
 /***********************************************************************/
@@ -99,8 +99,7 @@ class CAllSaleUserAccount
 		if ($ID <= 0)
 			return False;
 
-		$db_events = GetModuleEvents("sale", "OnBeforeUserAccountDelete");
-		while ($arEvent = $db_events->Fetch())
+		foreach (GetModuleEvents('sale', 'OnBeforeUserAccountDelete', true) as $arEvent)
 		{
 			if (ExecuteModuleEventEx($arEvent, array($ID))===false)
 			{
@@ -125,8 +124,7 @@ class CAllSaleUserAccount
 
 		$res = $DB->Query("DELETE FROM b_sale_user_account WHERE ID = ".$ID." ", true);
 
-		$dbEvents = GetModuleEvents("sale", "OnAfterUserAccountDelete");
-		while ($arEvent = $dbEvents->Fetch())
+		foreach (GetModuleEvents('sale', 'OnAfterUserAccountDelete', true) as $arEvent)
 		{
 			ExecuteModuleEventEx($arEvent, Array($ID));
 		}

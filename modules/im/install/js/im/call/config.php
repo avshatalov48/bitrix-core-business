@@ -18,6 +18,7 @@ return [
 	],
 	'rel' => [
 		'im.lib.utils',
+		'im.call',
 		'ui.switcher',
 		'ui.dialogs.messagebox',
 		'ui.buttons',
@@ -41,7 +42,7 @@ return [
 				'turn_server_password' => COption::GetOptionString('im', 'turn_server_password'),
 				'turn_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'turn_server_max_users'),
 				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
-				'bitrix_call_server_enabled' => \Bitrix\Im\Call\Call::isBitrixCallServerEnabled() ? 'Y' : 'N',
+				'bitrix_call_server_enabled' => \Bitrix\Im\Call\Call::isBitrixCallEnabled() ? 'Y' : 'N',
 				'voximplant_call_server_enabled' => \Bitrix\Im\Call\Call::isVoximplantCallServerEnabled() ? 'Y' : 'N',
 				'call_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'call_server_max_users'),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),

@@ -1,0 +1,32 @@
+<?
+$MESS ['BLOG_MENU_BLOGS_LIST'] = "Список блогов";
+$MESS ['BLOG_MENU_BLOGS_LIST_TITLE'] = "Главная страница блогов";
+$MESS ['BLOG_MENU_CURRENT_BLOG'] = "Текущий блог";
+$MESS ['BLOG_MENU_CURRENT_BLOG_TITLE'] = "Главная страница блога &quot;#NAME#&quot;";
+$MESS ['BLOG_MENU_MY_BLOG'] = "Мой блог";
+$MESS ['BLOG_MENU_MY_BLOG_TITLE'] = "Мой блог";
+$MESS ['BLOG_MENU_PROFILE'] = "Мой профиль";
+$MESS ['BLOG_MENU_PROFILE_TITLE'] = "Мой профиль";
+$MESS ['BLOG_MENU_FRIENDS'] = "Лента друзей";
+$MESS ['BLOG_MENU_FRIENDS_TITLE'] = "Лента друзей";
+$MESS ['BLOG_MENU_LOGOUT'] = "Выйти";
+$MESS ['BLOG_MENU_LOGOUT_TITLE'] = "Выйти";
+$MESS ['BLOG_MENU_LOGIN'] = "Войти";
+$MESS ['BLOG_MENU_LOGIN_TITLE'] = "Войти";
+$MESS ['BLOG_MENU_REGISTER'] = "Регистрация";
+$MESS ['BLOG_MENU_REGISTER_TITLE'] = "Регистрация";
+$MESS ['BLOG_MENU_ADD_MESSAGE'] = "Новое сообщение";
+$MESS ['BLOG_MENU_ADD_MESSAGE_TITLE'] = "Добавить новое сообщение";
+$MESS ['BLOG_MENU_DRAFT_MESSAGES'] = "Недописанные сообщения";
+$MESS ['BLOG_MENU_DRAFT_MESSAGES_TITLE'] = "Недописанные сообщения";
+$MESS ['BLOG_MENU_USER_SETTINGS'] = "Настройка пользователей";
+$MESS ['BLOG_MENU_USER_SETTINGS_TITLE'] = "Настройка пользователей моего блога";
+$MESS ['BLOG_MENU_GROUP_EDIT'] = "Настройка групп";
+$MESS ['BLOG_MENU_GROUP_EDIT_TITLE'] = "Настройка групп моего блога";
+$MESS ['BLOG_MENU_CATEGORY_EDIT'] = "Настройка тегов";
+$MESS ['BLOG_MENU_CATEGORY_EDIT_TITLE'] = "Настройка тегов моего блога";
+$MESS ['BLOG_MENU_BLOG_EDIT'] = "Настройка блога";
+$MESS ['BLOG_MENU_BLOG_EDIT_TITLE'] = "Настройка моего блога";
+$MESS ['BLOG_MENU_FR_B_F'] = "Стать другом";
+$MESS ['BLOG_MENU_FR_A_F'] = "Добавить в друзья";
+?>

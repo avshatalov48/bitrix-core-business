@@ -471,7 +471,7 @@
 			viewRangeDate = this.calendar.getViewRangeDate(),
 			time = viewRangeDate.getTime() / 1000;
 
-		View.prototype.setTitle.apply(this, [BX.date.format(BX.Calendar.Util.getLongDateFormat(), time)]);
+		View.prototype.setTitle.apply(this, [BX.date.format(BX.Calendar.Util.getLongDateFormat(), time)?.replaceAll('\\', '')]);
 	};
 
 	DayView.prototype.setDraggedEntry = function(entry)

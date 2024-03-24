@@ -11,10 +11,8 @@ class CBPHistoryService extends CBPRuntimeService
 
 	protected function parseFields(&$arFields, $id = 0)
 	{
-		global $DB;
-
-		$id = intval($id);
-		$updateMode = ($id > 0 ? true : false);
+		$id = (int)$id;
+		$updateMode = ($id > 0);
 		$addMode = !$updateMode;
 
 		if ($addMode && !is_set($arFields, "DOCUMENT_ID"))

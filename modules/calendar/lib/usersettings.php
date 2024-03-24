@@ -304,9 +304,9 @@ class UserSettings
 
 			if (is_array($res))
 			{
-				$res = array_values(array_filter(array_unique($res), function($k) {
+				$res = array_values(array_unique(array_filter($res, function($k) {
 					return $k === 'tasks' || is_numeric($k);
-				}));
+				})));
 			}
 		}
 

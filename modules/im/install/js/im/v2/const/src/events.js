@@ -8,6 +8,7 @@ export const EventType = Object.freeze({
 	dialog:
 	{
 		onDialogInited: 'IM.Dialog:onDialogInited',
+		onMessageDeleted: 'IM.Dialog:onMessageDeleted',
 
 		scrollToBottom: 'IM.Dialog:scrollToBottom',
 		goToMessageContext: 'IM.Dialog:goToMessageContext',

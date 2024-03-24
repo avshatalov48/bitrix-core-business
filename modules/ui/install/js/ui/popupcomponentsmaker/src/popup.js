@@ -1,6 +1,6 @@
 import {Type, Tag, Dom} from 'main.core';
 import {Popup} from 'main.popup';
-import {EventEmitter} from "main.core.events";
+import {EventEmitter} from 'main.core.events';
 
 import PopupComponentsMakerItem from './popup.item';
 
@@ -207,13 +207,22 @@ class PopupComponentsMaker
 		if (sectionNode)
 		{
 			sectionNode.appendChild(itemObj.getContainer());
-			item?.html?.then((node) => {
-				if (Type.isDomNode(node))
+			item?.html?.then((result) => {
+				if (Type.isDomNode(result))
 				{
 					itemObj.stopAwait();
-					itemObj.updateContent(node);
+					itemObj.updateContent(result);
 				}
-			})
+				else if (Type.isPlainObject(result) && Type.isDomNode(result.node))
+				{
+					if (Type.isPlainObject(result.options))
+					{
+						itemObj.setParams(result.options);
+					}
+					itemObj.stopAwait();
+					itemObj.updateContent(result.node);
+				}
+			});
 		}
 	}
 

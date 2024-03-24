@@ -20,6 +20,7 @@ class Transport
 	/** @deprecated use Transport()->getServiceUrl() */
 	const SERVICE_URL = REST_MARKETPLACE_URL;
 	protected const VERSION = 1;
+	private const API_VERSION = 1;
 
 	protected string $serviceDomain = '';
 	private const DEFAULT_SERVICE_REGION = 'en';
@@ -157,6 +158,8 @@ class Transport
 		}
 
 		$fields['action'] = $method;
+		$fields['apiVersion'] = self::API_VERSION;
+
 		if (Client::isSubscriptionAccess())
 		{
 			$fields['queryVersion'] = static::VERSION;

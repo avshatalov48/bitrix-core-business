@@ -1,9 +1,7 @@
 <?php
 namespace Bitrix\Im\Model;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
 
 /**
  * Class ExternalAvatarTable
@@ -55,18 +53,18 @@ class ExternalAvatarTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('EXTERNAL_AVATAR_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('EXTERNAL_AVATAR_ENTITY_ID_FIELD'),
 			),
 			'LINK_MD5' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateLinkMd5'),
-				'title' => Loc::getMessage('EXTERNAL_AVATAR_ENTITY_LINK_MD5_FIELD'),
+				//'title' => Loc::getMessage('EXTERNAL_AVATAR_ENTITY_LINK_MD5_FIELD'),
 			),
 			'AVATAR_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('EXTERNAL_AVATAR_ENTITY_AVATAR_ID_FIELD'),
+				//'title' => Loc::getMessage('EXTERNAL_AVATAR_ENTITY_AVATAR_ID_FIELD'),
 			),
 			'FILE' => array(
 				'data_type' => 'Bitrix\Main\FileTable',

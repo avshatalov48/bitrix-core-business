@@ -39,8 +39,8 @@ class CSearcher extends CAllSearcher
 		if (is_array($arFilter))
 		{
 			ResetFilterLogic();
-			$date1 = $arFilter["DATE1_PERIOD"];
-			$date2 = $arFilter["DATE2_PERIOD"];
+			$date1 = $arFilter["DATE1_PERIOD"] ?? '';
+			$date2 = $arFilter["DATE2_PERIOD"] ?? '';
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
 			if (CheckDateTime($date1) && $date1 <> '')

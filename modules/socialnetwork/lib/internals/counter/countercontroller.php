@@ -9,7 +9,6 @@
 namespace Bitrix\Socialnetwork\Internals\Counter;
 
 use Bitrix\Socialnetwork\Internals\Counter\Exception\UnknownCounterException;
-use Bitrix\Socialnetwork\Internals\Counter\Provider;
 
 class CounterController
 {
@@ -32,14 +31,10 @@ class CounterController
 		switch ($name)
 		{
 			case CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN:
-				$result = new Provider\WorkgroupRequestsIn([
-					'workgroupId' => $entityId,
-				]);
+				$result = Provider\WorkgroupRequestsIn::getInstance($entityId);
 				break;
 			case CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT:
-				$result = new Provider\WorkgroupRequestsOut([
-					'workgroupId' => $entityId,
-				]);
+				$result = Provider\WorkgroupRequestsOut::getInstance($entityId);
 				break;
 			case CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED:
 				$result = new Provider\WorkgroupListLivefeed([

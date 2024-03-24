@@ -9,8 +9,11 @@ return [
 	'js' => 'script.js',
 	'rel' => [
 		'ui.vue3',
+		'ui.notification',
+		'ui.dialogs.messagebox',
 		'main.popup',
 		'main.date',
+		'socialnetwork.controller',
 		'ui.avatar-editor',
 		'main.loader',
 		'ui.vue3.vuex',

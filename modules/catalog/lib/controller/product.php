@@ -622,6 +622,7 @@ class Product extends Controller implements EventBindInterface
 				'ASC',
 				[
 					'CHECK_PERMISSIONS' => 'N',
+					'EMPTY' => 'N',
 				]
 			);
 			while ($property = $r->Fetch())

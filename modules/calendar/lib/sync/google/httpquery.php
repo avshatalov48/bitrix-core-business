@@ -153,6 +153,7 @@ class HttpQuery
 				$result .= "{$key}:";
 				foreach ($value as $valueKey => $valueValue)
 				{
+					$valueValue = (is_array($valueValue)) ? json_encode($valueValue) : $valueValue;
 					$result .= "{$valueKey}:{$valueValue}, ";
 				}
 				$result .= "; ";

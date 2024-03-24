@@ -53,7 +53,7 @@ class LinearGraph extends Serial
 		$isAllReportModeIsDate = true;
 		foreach ($dataFromReport as $report)
 		{
-			if (!isset($report['config']['mode']) && $report['config']['mode'] !== 'date')
+			if (!isset($report['config']['mode']) || $report['config']['mode'] !== 'date')
 			{
 				$isAllReportModeIsDate = false;
 				break;

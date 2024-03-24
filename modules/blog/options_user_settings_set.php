@@ -8,7 +8,7 @@ if (CModule::IncludeModule("blog") && check_bitrix_sessid()):
 		"INTERESTS" => $blog_INTERESTS,
 		"AVATAR" => $_FILES["blog_AVATAR"]
 	);
-	$arblogFields["AVATAR"]["del"] = $blog_AVATAR_del;
+	$arblogFields["AVATAR"]["del"] = $blog_AVATAR_del ?? null;
 
 	if ($USER->IsAdmin())
 		$arblogFields["ALLOW_POST"] = (($blog_ALLOW_POST=="Y") ? "Y" : "N");

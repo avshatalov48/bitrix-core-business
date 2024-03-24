@@ -9,7 +9,7 @@ class BizprocDebuggerStartComponent extends CBitrixComponent
 {
 	public function onPrepareComponentParams($arParams)
 	{
-		if (isset($arParams['DOCUMENT_SIGNED']))
+		if (isset($arParams['DOCUMENT_SIGNED']) && \Bitrix\Main\Loader::includeModule('bizproc'))
 		{
 			$arParams['DOCUMENT_SIGNED'] = htmlspecialcharsback($arParams['DOCUMENT_SIGNED']);
 			$arParams['DOCUMENT_UNSIGNED'] = CBPDocument::unSignParameters($arParams['DOCUMENT_SIGNED']);
@@ -17,7 +17,7 @@ class BizprocDebuggerStartComponent extends CBitrixComponent
 			$arParams['DOCUMENT_CATEGORY_ID'] = $arParams['DOCUMENT_UNSIGNED'] ? $arParams['DOCUMENT_UNSIGNED'][1] : null;
 		}
 
-		$arParams['SET_TITLE'] = ($arParams['SET_TITLE'] === 'N' ? 'N' : 'Y');
+		$arParams['SET_TITLE'] = (($arParams['SET_TITLE'] ?? 'Y') === 'N' ? 'N' : 'Y');
 
 		return $arParams;
 	}
@@ -85,7 +85,7 @@ class BizprocDebuggerStartComponent extends CBitrixComponent
 
 	private function getParameterDocumentType()
 	{
-		return $this->arParams['PARAMETER_DOCUMENT_TYPE'];
+		return $this->arParams['PARAMETER_DOCUMENT_TYPE'] ?? null;
 	}
 
 	private function getModuleId()

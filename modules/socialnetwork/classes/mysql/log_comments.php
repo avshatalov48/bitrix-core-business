@@ -289,6 +289,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 					'SONET_LOG_COMMENT_ID' => $ID,
 					'SONET_LOG_ID' => $arFields['LOG_ID'],
 					'USER_ID' => $arFields['USER_ID'],
+					'EVENT_ID' => $arFields['EVENT_ID'] ?? null,
 				]
 			);
 

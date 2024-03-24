@@ -616,17 +616,17 @@ class CAllBlogUser
 
 	public static function GetUserIP()
 	{
-		if ($_SERVER["HTTP_X_FORWARDED_FOR"])
+		if ($_SERVER["HTTP_X_FORWARDED_FOR"] ?? null)
 		{
 			$clientIP = $_SERVER["HTTP_X_FORWARDED_FOR"];
 		}
 		else
 		{
-			$clientIP = $_SERVER["HTTP_CLIENT_IP"];
+			$clientIP = $_SERVER["HTTP_CLIENT_IP"] ?? null;
 		}
 
 		$clientProxy = $_SERVER["REMOTE_ADDR"];
-		if($clientIP == '')
+		if (!$clientIP)
 		{
 			$clientIP = $clientProxy;
 			$clientProxy = "";
@@ -643,10 +643,10 @@ class CAllBlogUser
 		}
 		else
 		{
-			if (intval($arParams["AVATAR_SIZE"]) <= 0)
+			if (intval($arParams["AVATAR_SIZE"] ?? null) <= 0)
 				$arParams["AVATAR_SIZE"] = 100;
 
-			if (intval($arParams["AVATAR_SIZE_COMMENT"]) <= 0)
+			if (intval($arParams["AVATAR_SIZE_COMMENT"] ?? null) <= 0)
 				$arParams["AVATAR_SIZE_COMMENT"] = 100;
 
 			$bResizeImmediate = (isset($arParams["RESIZE_IMMEDIATE"]) && $arParams["RESIZE_IMMEDIATE"] == "Y");
@@ -755,7 +755,7 @@ class CAllBlogUser
 				$arParams["AVATAR_SIZE"] = 100;
 			}
 
-			if (intval($arParams["AVATAR_SIZE_COMMENT"]) <= 0)
+			if (intval($arParams["AVATAR_SIZE_COMMENT"] ?? null) <= 0)
 			{
 				$arParams["AVATAR_SIZE_COMMENT"] = 100;
 			}

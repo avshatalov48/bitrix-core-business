@@ -36,8 +36,16 @@ class CBlogPostCommentEdit extends CBitrixComponent
 			$arParams["ID"] = intval($arParams["ID"]);
 
 		$arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
-		if(!is_array($arParams["GROUP_ID"]))
+
+		if (!isset($arParams["GROUP_ID"]))
+		{
+			$arParams["GROUP_ID"] = [];
+		}
+		elseif (!is_array($arParams["GROUP_ID"]))
+		{
 			$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
+		}
+
 		foreach($arParams["GROUP_ID"] as $k=>$v)
 			if(intval($v) <= 0)
 				unset($arParams["GROUP_ID"][$k]);
@@ -47,20 +55,20 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		else
 			$arParams["CACHE_TIME"] = 0;
 
-		if($arParams["BLOG_VAR"] == '')
+		if(empty($arParams["BLOG_VAR"]))
 			$arParams["BLOG_VAR"] = "blog";
-		if($arParams["PAGE_VAR"] == '')
+		if(empty($arParams["PAGE_VAR"]))
 			$arParams["PAGE_VAR"] = "page";
-		if($arParams["USER_VAR"] == '')
+		if(empty($arParams["USER_VAR"]))
 			$arParams["USER_VAR"] = "id";
-		if($arParams["POST_VAR"] == '')
+		if(empty($arParams["POST_VAR"]))
 			$arParams["POST_VAR"] = "id";
-		if($arParams["NAV_PAGE_VAR"] == '')
+		if(empty($arParams["NAV_PAGE_VAR"]))
 			$arParams["NAV_PAGE_VAR"] = "pagen";
-		if($arParams["COMMENT_ID_VAR"] == '')
+		if(empty($arParams["COMMENT_ID_VAR"]))
 			$arParams["COMMENT_ID_VAR"] = "commentId";
 //		pagination for old-style (tree) comments
-		if(intval($_GET[$arParams["NAV_PAGE_VAR"]])>0)
+		if(isset($_GET[$arParams["NAV_PAGE_VAR"]]) && intval($_GET[$arParams["NAV_PAGE_VAR"]])>0)
 			$arParams["PAGEN"] = intval($_REQUEST[$arParams["NAV_PAGE_VAR"]]);
 		else
 			$arParams["PAGEN"] = 1;
@@ -71,14 +79,14 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		$arParams["PAGE_SIZE"] = $arParams["COMMENTS_COUNT"];
 		$arParams["PAGE_SIZE_MIN"] = 3;
 
-		if($arParams["USE_ASC_PAGING"] != "Y")
+		if(!isset($arParams["USE_ASC_PAGING"]) || $arParams["USE_ASC_PAGING"] != "Y")
 			$arParams["USE_DESC_PAGING"] = "Y";
 
-		$arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
+		$arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"] ?? '');
 		if($arParams["PATH_TO_BLOG"] == '')
 			$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
-		$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
+		$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"] ?? '');
 		if($arParams["PATH_TO_USER"] == '')
 			$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
@@ -95,40 +103,43 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		if (!array_key_exists("PATH_TO_VIDEO_CALL", $arParams))
 			$arParams["PATH_TO_VIDEO_CALL"] = "/company/personal/video/#user_id#/";
 
-		if (trim($arParams["NAME_TEMPLATE"]) == '')
+		if (trim($arParams["NAME_TEMPLATE"] ?? '') == '')
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
-		$arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";
-		$arParams["IMAGE_MAX_WIDTH"] = intval($arParams["IMAGE_MAX_WIDTH"]);
-		$arParams["IMAGE_MAX_HEIGHT"] = intval($arParams["IMAGE_MAX_HEIGHT"]);
-		$arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
+		$arParams['SHOW_LOGIN'] = !isset($arParams['SHOW_LOGIN']) || $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";
+		$arParams["IMAGE_MAX_WIDTH"] = intval($arParams["IMAGE_MAX_WIDTH"] ?? 0);
+		$arParams["IMAGE_MAX_HEIGHT"] = intval($arParams["IMAGE_MAX_HEIGHT"] ?? 0);
+		$arParams["ALLOW_POST_CODE"] = !isset($arParams["ALLOW_POST_CODE"]) || $arParams["ALLOW_POST_CODE"] !== "N";
 
-		$arParams["SMILES_COUNT"] = intval($arParams["SMILES_COUNT"]);
-		if(intval($arParams["SMILES_COUNT"])<=0)
+		$arParams["SMILES_COUNT"] = intval($arParams["SMILES_COUNT"] ?? 0);
+		if($arParams["SMILES_COUNT"] <= 0)
 			$arParams["SMILES_COUNT"] = 4;
 
-		$arParams["SMILES_COLS"] = intval($arParams["SMILES_COLS"]);
-		if(intval($arParams["SMILES_COLS"]) <= 0)
+		$arParams["SMILES_COLS"] = intval($arParams["SMILES_COLS"] ?? 0);
+		if($arParams["SMILES_COLS"] < 0)
 			$arParams["SMILES_COLS"] = 0;
 
 		$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
-		$arParams["EDITOR_RESIZABLE"] = $arParams["EDITOR_RESIZABLE"] !== "N";
-		$arParams["EDITOR_CODE_DEFAULT"] = $arParams["EDITOR_CODE_DEFAULT"] === "Y";
-		$arParams["EDITOR_DEFAULT_HEIGHT"] = intval($arParams["EDITOR_DEFAULT_HEIGHT"]);
-		if(intval($arParams["EDITOR_DEFAULT_HEIGHT"]) <= 0)
+		$arParams["EDITOR_RESIZABLE"] = !isset($arParams["EDITOR_RESIZABLE"]) || $arParams["EDITOR_RESIZABLE"] !== "N";
+		$arParams["EDITOR_CODE_DEFAULT"] = isset($arParams["EDITOR_CODE_DEFAULT"]) && $arParams["EDITOR_CODE_DEFAULT"] === "Y";
+		$arParams["EDITOR_DEFAULT_HEIGHT"] = intval($arParams["EDITOR_DEFAULT_HEIGHT"] ?? 0);
+		if($arParams["EDITOR_DEFAULT_HEIGHT"] <= 0)
 			$arParams["EDITOR_DEFAULT_HEIGHT"] = 200;
-		$arParams["ALLOW_VIDEO"] = ($arParams["ALLOW_VIDEO"] == "Y" ? "Y" : "N");
+		$arParams["ALLOW_VIDEO"] = (isset($arParams["ALLOW_VIDEO"]) && $arParams["ALLOW_VIDEO"] == "Y" ? "Y" : "N");
 
 		if (!isset($arParams["COMMENT_PROPERTY"]) || !is_array($arParams["COMMENT_PROPERTY"]))
 		{
 			$arParams["COMMENT_PROPERTY"] = [];
 		}
-		if($arParams["ALLOW_IMAGE_UPLOAD"] == "A" || ($arParams["ALLOW_IMAGE_UPLOAD"] == "R" && $USER->IsAuthorized()))
+		if (isset($arParams["ALLOW_IMAGE_UPLOAD"]))
 		{
-			if(!is_array($arParams["COMMENT_PROPERTY"]))
-				$arParams["COMMENT_PROPERTY"] = Array(CBlogComment::UF_NAME);
-			else
-				$arParams["COMMENT_PROPERTY"][] = CBlogComment::UF_NAME;
+			if($arParams["ALLOW_IMAGE_UPLOAD"] == "A" || ($arParams["ALLOW_IMAGE_UPLOAD"] == "R" && $USER->IsAuthorized()))
+			{
+				if(!is_array($arParams["COMMENT_PROPERTY"]))
+					$arParams["COMMENT_PROPERTY"] = Array(CBlogComment::UF_NAME);
+				else
+					$arParams["COMMENT_PROPERTY"][] = CBlogComment::UF_NAME;
+			}
 		}
 
 //		get consent for registered users or not. Default = N
@@ -139,7 +150,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		$arParams["AJAX_POST"] = "Y";
 
 //		to use cool ajax pagintaion in old component without crash of arResult
-		$arParams["AJAX_PAGINATION"] = ($arParams["AJAX_PAGINATION"] == "Y");
+		$arParams["AJAX_PAGINATION"] = (isset($arParams["AJAX_PAGINATION"]) && $arParams["AJAX_PAGINATION"] == "Y");
 
 		$arParams["BLOG_MODULE_PERMS"] = $GLOBALS["APPLICATION"]->GetGroupRight("blog");
 		$arParams["SHOW_SPAM"] = ($arParams["SHOW_SPAM"] == "Y" && $arParams["BLOG_MODULE_PERMS"] >= "W" ? "Y" : "N");
@@ -160,7 +171,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		if($this->arParams["NOT_USE_COMMENT_TITLE"] == "Y")
 			$this->arResult["USE_COMMENT_TITLE"] = false;
 
-		$this->commentUrlID = intval($_REQUEST[$this->arParams["COMMENT_ID_VAR"]]);
+		$this->commentUrlID = intval($_REQUEST[$this->arParams["COMMENT_ID_VAR"]] ?? 0);
 
 // 		activation rating
 		CRatingsComponentsMain::GetShowRating($this->arParams);
@@ -168,8 +179,14 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		if(COption::GetOptionString("blog","allow_video", "Y") == "Y" && $this->arParams["ALLOW_VIDEO"] == "Y")
 			$this->arResult["allowVideo"] = true;
 
-		if($this->arParams["ALLOW_IMAGE_UPLOAD"] == "A" || ($this->arParams["ALLOW_IMAGE_UPLOAD"] == "R" && $USER->IsAuthorized()))
-			$this->arResult["allowImageUpload"] = true;
+		$this->arResult["allowImageUpload"] = false;
+		if (isset($this->arParams["ALLOW_IMAGE_UPLOAD"]))
+		{
+			if($this->arParams["ALLOW_IMAGE_UPLOAD"] == "A" || ($this->arParams["ALLOW_IMAGE_UPLOAD"] == "R" && $USER->IsAuthorized()))
+			{
+				$this->arResult["allowImageUpload"] = true;
+			}
+		}
 
 		$this->arResult["userID"] = $user_id = $USER->GetID();
 		$this->arResult["canModerate"] = false;
@@ -187,7 +204,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 			$this->arResult["NoCommentReason"] = GetMessage("B_B_PC_MES_NOCOMMENTREASON_A");
 		}
 
-		if(is_numeric($this->arParams["NO_URL_IN_COMMENTS_AUTHORITY"]))
+		if(isset($this->arParams["NO_URL_IN_COMMENTS_AUTHORITY"]) && is_numeric($this->arParams["NO_URL_IN_COMMENTS_AUTHORITY"]))
 		{
 			$this->arParams["NO_URL_IN_COMMENTS_AUTHORITY"] = floatVal($this->arParams["NO_URL_IN_COMMENTS_AUTHORITY"]);
 			$this->arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"] = "Y";
@@ -231,6 +248,10 @@ class CBlogPostCommentEdit extends CBitrixComponent
 			CBlogImage::AddImageCreateHandler(array('IS_COMMENT' => 'Y', 'USER_ID' => $user_id));
 		}
 
+		$this->arResult["Comments"] = [];
+		$this->arResult["CommentsResult"] = [];
+		$this->arResult["IDS"] = [];
+
 		if(((!empty($arPost) && $arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH && $arPost["ENABLE_COMMENTS"] == "Y") || $simpleComment) && (($arBlog["ACTIVE"] == "Y" && $arGroup["SITE_ID"] == SITE_ID) || $simpleComment) )
 		{
 			$arPost = CBlogTools::htmlspecialcharsExArray($arPost);
@@ -239,7 +260,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 			if($arPost["BLOG_ID"] == $arBlog["ID"] || $simpleComment)
 			{
 				//Comment delete
-				if(intval($_GET["delete_comment_id"])>0)
+				if(isset($_GET["delete_comment_id"]) && intval($_GET["delete_comment_id"])>0)
 				{
 					if($_GET["success"] == "Y")
 					{
@@ -267,7 +288,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 							$this->arResult["ERROR_MESSAGE"] = GetMessage("B_B_PC_MES_ERROR_DELETE");
 					}
 				}
-				elseif(intval($_GET["show_comment_id"])>0)
+				elseif(isset($_GET["show_comment_id"]) && intval($_GET["show_comment_id"])>0)
 				{
 					$arComment = CBlogComment::GetByID(intval($_GET["show_comment_id"]));
 					if($this->arResult["Perm"]>=BLOG_PERMS_MODERATE && !empty($arComment))
@@ -294,7 +315,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 					if(intval($this->arResult["ajax_comment"]) <= 0)
 						$this->arResult["ERROR_MESSAGE"] = GetMessage("B_B_PC_MES_ERROR_SHOW");
 				}
-				elseif(intval($_GET["hide_comment_id"])>0)
+				elseif(isset($_GET["hide_comment_id"]) && intval($_GET["hide_comment_id"])>0)
 				{
 					$arComment = CBlogComment::GetByID(intval($_GET["hide_comment_id"]));
 					if($this->arResult["Perm"]>=BLOG_PERMS_MODERATE && !empty($arComment))
@@ -321,7 +342,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 					if(intval($this->arResult["ajax_comment"]) <= 0)
 						$this->arResult["ERROR_MESSAGE"] = GetMessage("B_B_PC_MES_ERROR_HIDE");
 				}
-				elseif(intval($_GET["hidden_add_comment_id"])>0)
+				elseif(isset($_GET["hidden_add_comment_id"]) && intval($_GET["hidden_add_comment_id"])>0)
 				{
 					$this->arResult["MESSAGE"] = GetMessage("B_B_PC_MES_HIDDEN_ADDED");
 				}
@@ -362,7 +383,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 
 					/////////////////////////////////////////////////////////////////////////////////////
 
-					if($arPost["ID"] <> '' && $_SERVER["REQUEST_METHOD"]=="POST" && $_POST["post"] <> '' && $_POST["preview"] == '')
+					if(!empty($arPost["ID"]) && $_SERVER["REQUEST_METHOD"]=="POST" && !empty($_POST["post"]) && empty($_POST["preview"]))
 					{
 //						convert charset
 						if ($_POST["decode"] == "Y")
@@ -825,10 +846,11 @@ class CBlogPostCommentEdit extends CBitrixComponent
 					else
 						$this->arResult["ShowIP"] = COption::GetOptionString("blog", "show_ip", "Y");
 
-					$tmp = Array();
-					$tmp["MESSAGE"] = $this->arResult["MESSAGE"];
-					$tmp["ERROR_MESSAGE"] = $this->arResult["ERROR_MESSAGE"];
-					if($this->arResult["COMMENT_ERROR"] <> '' || $this->arResult["ERROR_MESSAGE"] <> '')
+					$tmp = [];
+					$tmp["MESSAGE"] = $this->arResult["MESSAGE"] ?? '';
+					$tmp["ERROR_MESSAGE"] = $this->arResult["ERROR_MESSAGE"] ?? '';
+
+					if(!empty($this->arResult["COMMENT_ERROR"]) || !empty($this->arResult["ERROR_MESSAGE"]))
 					{
 						$this->arResult["is_ajax_post"] = "Y";
 					}
@@ -839,10 +861,6 @@ class CBlogPostCommentEdit extends CBitrixComponent
 							$this->arResult["is_ajax_post"] = "Y";
 							$this->arParams["CACHE_TIME"] = 0;
 						}
-
-						$this->arResult["Comments"] = array();
-						$this->arResult["CommentsResult"] = Array();
-						$this->arResult["IDS"] = Array();
 
 						if(intval($this->arParams["ID"]) > 0)
 						{
@@ -923,7 +941,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 //			PROCESS
 			$arOrder = Array("DATE_CREATE" => "ASC", "ID" => "ASC");
 			$arFilter = Array("POST_ID" => $this->arParams["ID"], "BLOG_ID" => $this->arResult["Blog"]["ID"]);
-			if($this->arResult["is_ajax_post"] == "Y" && intval($this->arResult["ajax_comment"]) > 0)
+			if(isset($this->arResult["is_ajax_post"]) && $this->arResult["is_ajax_post"] == "Y" && intval($this->arResult["ajax_comment"]) > 0)
 				$arFilter["ID"] = $this->arResult["ajax_comment"];
 			$arSelectedFields = Array("ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL",
 				"AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "DATE_CREATE", "PUBLISH_STATUS");
@@ -931,7 +949,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 
 //			create params for every COMMENT
 			$this->arResult["firstLevel"] = "";
-			$resComments = Array();
+			$resComments = [];
 			while($comment = $dbComment->GetNext())
 			{
 //				clear useless tilda
@@ -947,7 +965,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 					if ($this->arResult["firstLevel"] === '')
 						$this->arResult["firstLevel"] = intval($comment["PARENT_ID"]);
 				}
-				$resComments[intval($comment["PARENT_ID"])][] = $comment;
+				$resComments[(int)$comment["PARENT_ID"]][] = $comment;
 
 //				save IDs in another array
 				$this->arResult["IDS"][] = $comment["ID"];
@@ -992,7 +1010,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 			$cache_id .= "_".$tzOffset;
 
-		if($this->arResult["is_ajax_post"] == "Y")
+		if(isset($this->arResult["is_ajax_post"]) && $this->arResult["is_ajax_post"] == "Y")
 			$cache_id .= 'ajax_comment'.$this->arResult["ajax_comment"];
 
 //		add unique key
@@ -1603,11 +1621,11 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		$this->hideHiddenComments();
 
 		$this->arResult["PAGE_COUNT"] = 0;
-		if(
-				!empty($this->arResult["CommentsResult"])
-				&& is_array($this->arResult["CommentsResult"])
-				&& isset($this->arResult["CommentsResult"][0])
-				&& count($this->arResult["CommentsResult"][0]) > $this->arParams["COMMENTS_COUNT"])
+		if (
+			!empty($this->arResult["CommentsResult"])
+			&& is_array($this->arResult["CommentsResult"])
+			&& isset($this->arResult["CommentsResult"][0])
+			&& count($this->arResult["CommentsResult"][0]) > $this->arParams["COMMENTS_COUNT"])
 		{
 			$this->arResult["PAGE"] = $this->arParams["PAGEN"];
 			if($this->arParams["USE_DESC_PAGING"] == "Y")

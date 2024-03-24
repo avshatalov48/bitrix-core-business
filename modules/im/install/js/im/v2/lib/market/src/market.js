@@ -1,4 +1,3 @@
-import 'marketplace';
 import { Store } from 'ui.vue3.vuex';
 import { Runtime } from 'main.core';
 

@@ -223,12 +223,12 @@ class CSocNetLogToolsPhoto
 			$logID = CSocNetLog::Add($arSonetFields, false);
 			if (intval($logID) > 0)
 			{
-				$uniqueId = round((microtime(true) - mktime(0,0,0,1,1,2017))*10);
+				$randomGenerator = new \Bitrix\Main\Type\RandomSequence('IBLOCK_SECTION' . $logID);
 
 				CSocNetLog::Update($logID, array(
 					"TMP_ID" => $logID,
 					"RATING_TYPE_ID" => "IBLOCK_SECTION",
-					"RATING_ENTITY_ID" => $uniqueId
+					"RATING_ENTITY_ID" => $randomGenerator->rand(1, 2147483647)
 				));
 
 				if ($bPassword)

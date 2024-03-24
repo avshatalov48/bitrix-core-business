@@ -1,5 +1,6 @@
 <?php
 use Bitrix\Main;
+use Bitrix\Main\DB\SqlQueryException;
 
 /*
 This class is used to parse and load an xml file into database table.
@@ -102,58 +103,88 @@ class CIBlockXMLFile
 	*/
 	public function DropTemporaryTables()
 	{
-		global $DB;
+		$connection = Main\Application::getConnection();
 
-		if ($DB->TableExists($this->_table_name))
+		if ($connection->isTableExists($this->_table_name))
 		{
-			return $DB->DDL("drop table ".$this->_table_name);
+			$connection->dropTable($this->_table_name);
 		}
+
 		return true;
 	}
 
 	public function CreateTemporaryTables($with_sess_id = false)
 	{
-		global $DB;
+		$connection = Main\Application::getConnection();
 
-		if ($DB->TableExists($this->_table_name))
+		if ($connection->isTableExists($this->_table_name))
+		{
 			return false;
+		}
 
-		if(defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
-			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
+		if (
+			$connection instanceof Main\DB\MysqlCommonConnection
+			&& defined('MYSQL_TABLE_TYPE')
+			&& MYSQL_TABLE_TYPE !== ''
+		)
+		{
+			// TODO: remove try-catch when mysql 8.0 will be minimal system requirement
+			try
+			{
+				$connection->query('SET default_storage_engine = \'' . MYSQL_TABLE_TYPE . '\'');
+			}
+			catch (SqlQueryException)
+			{
+				try
+				{
+					$connection->query('SET storage_engine = \''.MYSQL_TABLE_TYPE.'\'');
+				}
+				catch (SqlQueryException)
+				{
 
-		$res = $DB->DDL("create table ".$this->_table_name."
-			(
-				ID bigint not null auto_increment,
-				".($with_sess_id? "SESS_ID varchar(32),": "")."
-				PARENT_ID bigint,
-				LEFT_MARGIN int(11),
-				RIGHT_MARGIN int(11),
-				DEPTH_LEVEL int(11),
-				NAME varchar(255),
-				VALUE longtext,
-				ATTRIBUTES text,
-				PRIMARY KEY (ID)
-			)
-		");
+				}
+			}
+		}
 
-		if ($res && defined("BX_XML_CREATE_INDEXES_IMMEDIATELY"))
-			$res = $this->IndexTemporaryTables($with_sess_id);
+		$fields = [
+			'ID' => (new Main\ORM\Fields\IntegerField('ID'))->configureSize(8),
+			'SESS_ID' => (new Main\ORM\Fields\StringField('SESS_ID'))->configureSize(8),
+			'PARENT_ID' => (new Main\ORM\Fields\IntegerField('PARENT_ID'))->configureSize(8)->configureNullable(),
+			'LEFT_MARGIN' => (new Main\ORM\Fields\IntegerField('LEFT_MARGIN'))->configureNullable(),
+			'RIGHT_MARGIN' => (new Main\ORM\Fields\IntegerField('RIGHT_MARGIN'))->configureNullable(),
+			'DEPTH_LEVEL' => (new Main\ORM\Fields\IntegerField('DEPTH_LEVEL'))->configureNullable(),
+			'NAME' => (new Main\ORM\Fields\StringField('NAME'))->configureSize(255)->configureNullable(),
+			'VALUE' => (new Main\ORM\Fields\TextField('VALUE'))->configureLong()->configureNullable(),
+			'ATTRIBUTES' => (new Main\ORM\Fields\TextField('ATTRIBUTES'))->configureNullable(),
+		];
+		if (!$with_sess_id)
+		{
+			unset($fields['SESS_ID']);
+		}
 
-		return $res;
+		$connection->createTable($this->_table_name, $fields, ['ID'] ,['ID']);
+
+		if (defined('BX_XML_CREATE_INDEXES_IMMEDIATELY'))
+		{
+			$this->IndexTemporaryTables($with_sess_id);
+		}
+
+		return true;
 	}
 
 	function IsExistTemporaryTable()
 	{
-		global $DB;
-
 		if (!isset($this) || !is_object($this) || $this->_table_name == '')
 		{
 			$ob = new CIBlockXMLFile;
+
 			return $ob->IsExistTemporaryTable();
 		}
 		else
 		{
-			return $DB->TableExists($this->_table_name);
+			$connection = Main\Application::getConnection();
+
+			return $connection->isTableExists($this->_table_name);
 		}
 	}
 
@@ -187,25 +218,34 @@ class CIBlockXMLFile
 	*/
 	public function IndexTemporaryTables($with_sess_id = false)
 	{
-		global $DB;
-		$res = true;
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		if($with_sess_id)
 		{
-			if(!$DB->IndexExists($this->_table_name, array("SESS_ID", "PARENT_ID")))
-				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_parent on ".$this->_table_name."(SESS_ID, PARENT_ID)");
-			if($res && !$DB->IndexExists($this->_table_name, array("SESS_ID", "LEFT_MARGIN")))
-				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_left on ".$this->_table_name."(SESS_ID, LEFT_MARGIN)");
+			if (!$connection->isIndexExists($this->_table_name, ['SESS_ID', 'PARENT_ID']))
+			{
+				$connection->createIndex($this->_table_name, 'ix_' . $this->_table_name . '_parent', ['SESS_ID', 'PARENT_ID']);
+			}
+
+			if (!$connection->isIndexExists($this->_table_name, ['SESS_ID', 'LEFT_MARGIN']))
+			{
+				$connection->createIndex($this->_table_name, 'ix_' . $this->_table_name . '_left', ['SESS_ID', 'LEFT_MARGIN']);
+			}
 		}
 		else
 		{
-			if(!$DB->IndexExists($this->_table_name, array("PARENT_ID")))
-				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_parent on ".$this->_table_name."(PARENT_ID)");
-			if($res && !$DB->IndexExists($this->_table_name, array("LEFT_MARGIN")))
-				$res = $DB->DDL("CREATE INDEX ix_".$this->_table_name."_left on ".$this->_table_name."(LEFT_MARGIN)");
+			if (!$connection->isIndexExists($this->_table_name, ['PARENT_ID']))
+			{
+				$connection->createIndex($this->_table_name, 'ix_' . $this->_table_name . '_parent', ['PARENT_ID']);
+			}
+
+			if (!$connection->isIndexExists($this->_table_name, ['LEFT_MARGIN']))
+			{
+				$connection->createIndex($this->_table_name, 'ix_' . $this->_table_name . '_left', ['LEFT_MARGIN']);
+			}
 		}
 
-		return $res;
+		return true;
 	}
 
 	function Add($arFields)

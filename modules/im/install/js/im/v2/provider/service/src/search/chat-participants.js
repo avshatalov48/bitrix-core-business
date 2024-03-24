@@ -1,32 +1,40 @@
 import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
-import { UserManager } from 'im.v2.lib.user';
+
+import { StoreUpdater } from './store-updater';
 
 import type { RestClient } from 'rest.client';
 
 export class ChatParticipants
 {
 	#restClient: RestClient;
-	#userManager: UserManager;
+	#storeUpdater: StoreUpdater;
 
 	constructor()
 	{
 		this.#restClient = Core.getRestClient();
-		this.#userManager = new UserManager();
+		this.#storeUpdater = new StoreUpdater();
 	}
 
 	load(dialogId: string): Promise<string[]>
 	{
-		return this.#restClient.callMethod(RestMethod.imDialogUsersList, {
-			DIALOG_ID: dialogId,
-		}).then((response) => {
-			const users = response.data();
+		const queryParams = {
+			order: {
+				lastSendMessageId: 'desc',
+			},
+			dialogId,
+			limit: 50,
+		};
 
-			this.#userManager.setUsersToModel(users);
+		return this.#restClient.callMethod(RestMethod.imV2ChatUserList, queryParams)
+			.then((response) => {
+				const users = response.data();
 
-			return users.map((user) => user.id.toString());
-		}).catch((error) => {
-			console.error('MentionService: error', error);
-		});
+				void this.#storeUpdater.updateRecentWithChatParticipants(users);
+
+				return users.map((user) => user.id.toString());
+			}).catch((error) => {
+				console.error('MentionService: error', error);
+			});
 	}
 }

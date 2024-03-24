@@ -106,11 +106,14 @@ class RecentAddressesService extends BaseService
 
 	public static function cleanUp(): string
 	{
-		Application::getConnection()->query("
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$connection->query('
 			DELETE FROM b_location_recent_address
 			WHERE
-			    USED_AT < DATE_SUB(NOW(), INTERVAL 30 DAY)
-		");
+				USED_AT < ' . $helper->addDaysToDateTime(-30) . '
+		');
 
 		return '\\Bitrix\\Location\\Infrastructure\\Service\\RecentAddressesService::cleanUp();';
 	}

@@ -2,57 +2,52 @@
 
 namespace Bitrix\Socialnetwork\Space\List\Query;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlHelper;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserLatestActivityTable;
+use Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable;
 use Bitrix\Socialnetwork\Space\List\Dictionary;
 use Bitrix\Socialnetwork\Space\List\Query\Filter\FilterInterface;
 use Bitrix\Socialnetwork\Space\List\Query\Filter;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupPinTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
+use Bitrix\Socialnetwork\WorkgroupTagTable;
 
-final class Builder
+final class Builder extends AbstractBuilder
 {
 	private const SELECT = [
 		'ID',
 		'NAME',
 		'DATE_ACTIVITY',
+		'DATE_CREATE',
+		'RECENT_ACTIVITY_DATE',
 		'IMAGE_ID',
 		'AVATAR_TYPE',
 		'VISIBLE',
 		'OPENED',
 		'ROLE' => 'MEMBER.ROLE',
-//		'USER_ROLE_DATE_UPDATE' => 'MEMBER.DATE_UPDATE',
 		'ROLE_INIT_BY_TYPE' => 'MEMBER.INITIATED_BY_TYPE',
-//		'USER_ROLE_INIT_BY_USER_ID' => 'MEMBER.INITIATED_BY_USER_ID',
-		'PIN_ID' => 'PIN.ID'
+		'RECENT_ACTIVITY_ID' => 'RECENT_ACTIVITY.ID',
+		'RECENT_ACTIVITY_ENTITY_ID' => 'RECENT_ACTIVITY.ENTITY_ID',
+		'RECENT_ACTIVITY_TYPE_ID' => 'RECENT_ACTIVITY.TYPE_ID',
+		'RECENT_ACTIVITY_DATETIME' => 'RECENT_ACTIVITY.DATETIME',
+		'PIN_ID' => 'PIN.ID',
 	];
 
-	/** @var array<FilterInterface> $filters */
-	private array $filters = [];
+	private SqlHelper $sqlHelper;
 
-	public function __construct(private int $userId)
+	private bool $searchMode = false;
+
+	public function __construct(int $userId)
 	{
-	}
+		parent::__construct($userId);
 
-	private function addFilter(FilterInterface $filter): self
-	{
-		$this->filters[] = $filter;
-
-		return $this;
-	}
-
-	public function build(): Query
-	{
-		$query = $this->getBaseQuery();
-		foreach ($this->filters as $filler)
-		{
-			$filler->apply($query);
-		}
-
-		return $query;
+		$this->sqlHelper = Application::getConnection()->getSqlHelper();
 	}
 
 	public function addModeFilter(string $mode): self
@@ -88,39 +83,81 @@ final class Builder
 		return $this->addFilter(new Filter\Id\IdListFilter($spaceIds));
 	}
 
-	public function addNameSearchFilter(string $searchString): self
+	public function addSearchFilter(string $searchString): self
 	{
-		return $this->addFilter(new Filter\Search\NameSearchFilter($searchString));
+		$this->searchMode = true;
+
+		return $this->addFilter(new Filter\Search\SearchFilter($searchString));
 	}
 
-	private function getBaseQuery(): Query
+	protected function getBaseQuery(): Query
 	{
-		$join =
+		$groupJoin =
 			Join::on('this.ID', 'ref.GROUP_ID')
+				->where('ref.USER_ID', $this->userId)
+		;
+		$spaceJoin =
+			Join::on('this.ID', 'ref.SPACE_ID')
 				->where('ref.USER_ID', $this->userId)
 		;
 
 		$query = WorkgroupTable::query();
 		$query
 			->setSelect(self::SELECT)
-			->addOrder('DATE_ACTIVITY', 'DESC')
+			->addOrder('RECENT_ACTIVITY_DATE', 'DESC')
 			->registerRuntimeField(
 				(new Reference(
 					'PIN',
 					WorkgroupPinTable::class,
-					$join,
+					$groupJoin,
 				))
 					->configureJoinType(Join::TYPE_LEFT)
+			)
+			->registerRuntimeField(
+				(new Reference(
+					'LATEST_ACTIVITY',
+					SpaceUserLatestActivityTable::class,
+					$spaceJoin,
+				))
+					->configureJoinType(Join::TYPE_LEFT)
+			)
+			->registerRuntimeField(
+				(new Reference(
+					'RECENT_ACTIVITY',
+					SpaceUserRecentActivityTable::class,
+					Join::on('this.LATEST_ACTIVITY.ACTIVITY_ID','ref.ID'),
+				))
+					->configureJoinType(Join::TYPE_LEFT)
+			)
+			->registerRuntimeField(
+				'RECENT_ACTIVITY_DATE',
+				new ExpressionField(
+					'RECENT_ACTIVITY_DATE',
+					$this->sqlHelper->getIsNullFunction('%s', '%s'),
+					['RECENT_ACTIVITY.DATETIME', 'DATE_ACTIVITY'],
+				)
 			)
 			->registerRuntimeField(
 				(new Reference(
 					'MEMBER',
 					UserToGroupTable::class,
-					$join,
+					$groupJoin,
 				))
 					->configureJoinType(Join::TYPE_LEFT)
 			)
 		;
+
+		if ($this->searchMode)
+		{
+			$query->registerRuntimeField(
+				(new Reference(
+					'TAG',
+					WorkgroupTagTable::class,
+					Join::on('this.ID', 'ref.GROUP_ID'),
+				))
+					->configureJoinType(Join::TYPE_LEFT)
+			);
+		}
 
 		return $query;
 	}

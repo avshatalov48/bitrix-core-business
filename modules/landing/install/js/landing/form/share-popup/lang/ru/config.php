@@ -7,8 +7,8 @@ $MESS['LANDING_FORM_SHARE__COMMUNICATION_TITLE'] = 'Коммуникации с 
 $MESS['LANDING_FORM_SHARE__COMMUNICATION_LINK_LABEL'] = 'Как настроить виджет на сайт';
 $MESS['LANDING_FORM_SHARE__COMMUNICATION_ACTION_LABEL'] = 'Настроить';
 
-$MESS['LANDING_FORM_SHARE__HELP_TITLE'] = 'Нужна помощь?';
-$MESS['LANDING_FORM_SHARE__HELP_LINK_LABEL'] = 'Закажите внедрение у наших партнеров';
+$MESS['LANDING_FORM_SHARE__HELP_TITLE_MSGVER_1'] = 'Нужна помощь?';
+$MESS['LANDING_FORM_SHARE__HELP_LINK_LABEL_MSGVER_1'] = 'Закажите внедрение у наших партнеров';
 $MESS['LANDING_FORM_SHARE__HELP_ACTION_LABEL'] = 'Заказать';
 
 $MESS["LANDING_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE"] = "Публикация формы";

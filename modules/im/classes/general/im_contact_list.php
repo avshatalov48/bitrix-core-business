@@ -1195,20 +1195,28 @@ class CAllIMContactList
 			return false;
 		}
 
-		$sqlDateFunction = 'NULL';
-		if ($DB->type == "MYSQL")
-			$sqlDateFunction = "DATE_SUB(NOW(), INTERVAL 120 SECOND)";
-		elseif ($DB->type == "MSSQL")
-			$sqlDateFunction = "dateadd(SECOND, -120, getdate())";
-		elseif ($DB->type == "ORACLE")
-			$sqlDateFunction = "SYSDATE-(1/24/60/60*120)";
+		$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+		$helper = $connection->getSqlHelper();
 
-		$DB->Query("UPDATE b_user SET LAST_ACTIVITY_DATE = ".$sqlDateFunction." WHERE ID = ".$userId);
+		$sqlDateFunction = 'NULL';
+		if ($DB->type == "MSSQL")
+		{
+			$sqlDateFunction = "dateadd(SECOND, -120, getdate())";
+		}
+		elseif ($DB->type == "ORACLE")
+		{
+			$sqlDateFunction = "SYSDATE-(1/24/60/60*120)";
+		}
+		else
+		{
+			$sqlDateFunction = $helper->addSecondsToDateTime(-120);
+		}
+
+		$connection->queryExecute("UPDATE b_user SET LAST_ACTIVITY_DATE = ".$sqlDateFunction." WHERE ID = ".$userId);
 
 		if ($userId == $USER->GetId())
 		{
-			unset($_SESSION['IM_LAST_ONLINE']);
-			unset($_SESSION['USER_LAST_ONLINE_'.$userId]);
+			unset($_SESSION['IM_LAST_ONLINE'], $_SESSION['USER_LAST_ONLINE_'.$userId]);
 		}
 
 		$USER->Logout();
@@ -1547,7 +1555,7 @@ class CAllIMContactList
 
 	public static function GetRecentList($arParams = Array())
 	{
-		global $DB, $USER, $CACHE_MANAGER;
+		global $DB, $USER;
 
 		$bLoadUnreadMessage = isset($arParams['LOAD_UNREAD_MESSAGE']) && $arParams['LOAD_UNREAD_MESSAGE'] == 'Y'? true: false;
 		$bTimeZone = isset($arParams['USE_TIME_ZONE']) && $arParams['USE_TIME_ZONE'] == 'N'? false: true;
@@ -1570,21 +1578,56 @@ class CAllIMContactList
 
 		$strSql = "
 			SELECT
-				R.ITEM_TYPE, R.ITEM_ID, R.PINNED,
-				R.ITEM_MID M_ID, M.AUTHOR_ID M_AUTHOR_ID, M.ID M_ID, M.CHAT_ID M_CHAT_ID, M.MESSAGE M_MESSAGE, ".$DB->DatetimeToTimestampFunction('R.DATE_UPDATE')." M_DATE_CREATE,
-				C.TITLE C_TITLE, C.AUTHOR_ID C_OWNER_ID, C.ENTITY_TYPE CHAT_ENTITY_TYPE, C.ENTITY_ID CHAT_ENTITY_ID, C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1, C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2, C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3, C.AVATAR C_AVATAR, C.CALL_NUMBER C_CALL_NUMBER, C.EXTRANET CHAT_EXTRANET, C.COLOR CHAT_COLOR, C.TYPE CHAT_TYPE,
-				U.LOGIN, U.NAME, U.LAST_NAME, U.PERSONAL_PHOTO, U.SECOND_NAME, ".$DB->DatetimeToTimestampFunction('U.PERSONAL_BIRTHDAY')." PERSONAL_BIRTHDAY, ".$DB->DatetimeToTimestampFunction('U.LAST_ACTIVITY_DATE')." LAST_ACTIVITY_DATE, U.PERSONAL_GENDER, U.EXTERNAL_AUTH_ID, U.WORK_POSITION, U.TIME_ZONE_OFFSET, U.ACTIVE,
-				ST.COLOR, ST.STATUS, ".$DB->DatetimeToTimestampFunction('ST.IDLE')." IDLE, ".$DB->DatetimeToTimestampFunction('ST.MOBILE_LAST_DATE')." MOBILE_LAST_DATE, ".$DB->DatetimeToTimestampFunction('ST.DESKTOP_LAST_DATE')." DESKTOP_LAST_DATE,
-				C1.USER_ID RID, C1.NOTIFY_BLOCK RELATION_NOTIFY_BLOCK, C1.USER_ID RELATION_USER_ID
-				".($isOperator? ", S.ID LINES_ID, S.STATUS LINES_STATUS": "")."
+				R.ITEM_TYPE, 
+				R.ITEM_ID, 
+				R.PINNED,
+				R.ITEM_MID as M_ID, 
+				M.AUTHOR_ID as M_AUTHOR_ID, 
+				M.ID as M_ID, 
+				M.CHAT_ID as M_CHAT_ID, 
+				M.MESSAGE as M_MESSAGE, 
+				".$DB->DatetimeToTimestampFunction('R.DATE_UPDATE')." as M_DATE_CREATE,
+				C.TITLE as C_TITLE, 
+				C.AUTHOR_ID as C_OWNER_ID, 
+				C.ENTITY_TYPE as CHAT_ENTITY_TYPE, 
+				C.ENTITY_ID as CHAT_ENTITY_ID, 
+				C.ENTITY_DATA_1 as CHAT_ENTITY_DATA_1, 
+				C.ENTITY_DATA_2 as CHAT_ENTITY_DATA_2, 
+				C.ENTITY_DATA_3 as CHAT_ENTITY_DATA_3, 
+				C.AVATAR as C_AVATAR, 
+				C.CALL_NUMBER as C_CALL_NUMBER, 
+				C.EXTRANET as CHAT_EXTRANET, 
+				C.COLOR as CHAT_COLOR, 
+				C.TYPE as CHAT_TYPE,
+				U.LOGIN, 
+				U.NAME, 
+				U.LAST_NAME, 
+				U.PERSONAL_PHOTO, 
+				U.SECOND_NAME, 
+				".$DB->DatetimeToTimestampFunction('U.PERSONAL_BIRTHDAY')." as PERSONAL_BIRTHDAY, 
+				".$DB->DatetimeToTimestampFunction('U.LAST_ACTIVITY_DATE')." as LAST_ACTIVITY_DATE, 
+				U.PERSONAL_GENDER, 
+				U.EXTERNAL_AUTH_ID, 
+				U.WORK_POSITION, 
+				U.TIME_ZONE_OFFSET, 
+				U.ACTIVE,
+				ST.COLOR, 
+				ST.STATUS, 
+				".$DB->DatetimeToTimestampFunction('ST.IDLE')." as IDLE, 
+				".$DB->DatetimeToTimestampFunction('ST.MOBILE_LAST_DATE')." as MOBILE_LAST_DATE, 
+				".$DB->DatetimeToTimestampFunction('ST.DESKTOP_LAST_DATE')." as DESKTOP_LAST_DATE,
+				C1.USER_ID as RID, 
+				C1.NOTIFY_BLOCK as RELATION_NOTIFY_BLOCK, 
+				C1.USER_ID as RELATION_USER_ID
+				".($isOperator? ", S.ID as LINES_ID, S.STATUS as LINES_STATUS": "")."
 			FROM
-			b_im_recent R
-			LEFT JOIN b_user U ON R.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' AND R.ITEM_ID = U.ID
-			LEFT JOIN b_im_status ST ON R.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' AND R.ITEM_ID = ST.USER_ID
-			LEFT JOIN b_im_chat C ON R.ITEM_TYPE != '".IM_MESSAGE_PRIVATE."' AND R.ITEM_ID = C.ID
-			LEFT JOIN b_im_message M ON R.ITEM_MID = M.ID
-			LEFT JOIN b_im_relation C1 ON C1.CHAT_ID = C.ID AND C1.USER_ID = ".$userId."
-			".($isOperator? "LEFT JOIN b_imopenlines_session S ON R.ITEM_OLID > 0 AND S.ID = R.ITEM_OLID": "")."
+				b_im_recent R
+				LEFT JOIN b_user U ON R.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' AND R.ITEM_ID = U.ID
+				LEFT JOIN b_im_status ST ON R.ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' AND R.ITEM_ID = ST.USER_ID
+				LEFT JOIN b_im_chat C ON R.ITEM_TYPE != '".IM_MESSAGE_PRIVATE."' AND R.ITEM_ID = C.ID
+				LEFT JOIN b_im_message M ON R.ITEM_MID = M.ID
+				LEFT JOIN b_im_relation C1 ON C1.CHAT_ID = C.ID AND C1.USER_ID = ".$userId."
+				".($isOperator? "LEFT JOIN b_imopenlines_session S ON R.ITEM_OLID > 0 AND S.ID = R.ITEM_OLID": "")."
 			WHERE R.USER_ID = ".$userId;
 		if (!$bTimeZone)
 			CTimeZone::Enable();

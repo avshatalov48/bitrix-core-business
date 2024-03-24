@@ -114,7 +114,13 @@ class SectionConnection extends Complex
 		/** @var EO_SectionConnection $data */
 		$link = SectionConnectionTable::query()
 			->setFilter($filter)
-			->setSelect(['*', 'SECTION', 'CONNECTION'])
+			->setSelect([
+				'*',
+				'SECTION',
+				'CONNECTION',
+				'SERVER_PASSWORD' => 'CONNECTION.SERVER_PASSWORD',
+				'SERVER_USERNAME' => 'CONNECTION.SERVER_USERNAME'
+			])
 			->exec()->fetchObject();
 
 		if ($link !== null)
@@ -273,7 +279,13 @@ class SectionConnection extends Complex
 		Loader::includeModule('dav');
 		if ($params['select'] === self::DEFAULT_SELECT)
 		{
-			$params['select'] = ["*", 'SECTION', 'CONNECTION'];
+			$params['select'] = [
+				"*",
+				'SECTION',
+				'CONNECTION',
+				'SERVER_PASSWORD' => 'CONNECTION.SERVER_PASSWORD',
+				'SERVER_USERNAME' => 'CONNECTION.SERVER_USERNAME'
+			];
 		}
 
 		return SectionConnectionTable::getList($params);

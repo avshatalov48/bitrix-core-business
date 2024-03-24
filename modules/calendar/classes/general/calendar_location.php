@@ -22,7 +22,7 @@ class CCalendarLocation
 
 	public static function getRoomAccessibility($roomId, $from, $to)
 	{
-		return Rooms\AccessibilityManager::getRoomAccessibility($roomId, $from, $to);
+		return Rooms\AccessibilityManager::getRoomAccessibility([$roomId], $from, $to);
 	}
 
 	public static function clearCache()

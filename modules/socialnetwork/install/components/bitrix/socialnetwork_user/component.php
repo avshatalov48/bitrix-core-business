@@ -175,6 +175,10 @@ $arDefaultUrlTemplates404 = array(
 
 	"user_stresslevel" => "user/#user_id#/stresslevel/",
 	"user_social_services" => "user/#user_id#/social_services/",
+
+	"user_sign" => "user/#user_id#/sign",
+	"user_sign_list" => "user/#user_id#/sign/list",
+
 );
 
 $taskPageTitles = array(
@@ -382,6 +386,8 @@ $arDefaultUrlTemplatesN404 = array(
 
 	"user_stresslevel" => "page=user_stresslevel&user_id=#user_id#",
 	"user_social_services" => "page=user_social_services&user_id=#user_id#",
+
+	"user_sign" => "page=user_sign&user_id=#user_id#",
 );
 $arDefaultVariableAliases404 = array();
 $arDefaultVariableAliases = array();

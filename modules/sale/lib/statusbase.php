@@ -440,8 +440,10 @@ abstract class StatusBase
 		{
 			unset($data['LANG']);
 
-			if (! is_array($languages))
+			if (!is_array($languages))
+			{
 				throw new SystemException('invalid status LANG', 0, __FILE__, __LINE__);
+			}
 		}
 
 		$data['TYPE'] = static::TYPE;
@@ -457,12 +459,16 @@ abstract class StatusBase
 
 		if ($languages)
 		{
-			$installedLanguages = array();
+			$installedLanguages = [];
 
-			$result = StatusLangTable::getList(array(
-				'select' => array('LID'),
-				'filter' => array('=STATUS_ID' => $statusId),
-			));
+			$result = StatusLangTable::getList([
+				'select' => [
+					'LID',
+				],
+				'filter' => [
+					'=STATUS_ID' => $statusId,
+				],
+			]);
 
 			while ($row = $result->fetch())
 			{
@@ -471,10 +477,12 @@ abstract class StatusBase
 
 			foreach ($languages as $language)
 			{
-				if (! is_array($language))
+				if (!is_array($language))
+				{
 					throw new SystemException('invalid status language', 0, __FILE__, __LINE__);
+				}
 
-				if (! $installedLanguages[$language['LID']])
+				if (!isset($installedLanguages[$language['LID']]))
 				{
 					$language['STATUS_ID'] = $statusId;
 

@@ -34,7 +34,7 @@ class Counter
 		if (!array_key_exists($userId, self::$instance))
 		{
 			self::$instance[$userId] = new self($userId);
-			(new CounterController($userId))->updateInOptionCounter();
+			(new CounterController($userId))->updateLeftMenuCounter();
 		}
 
 		return self::$instance[$userId];

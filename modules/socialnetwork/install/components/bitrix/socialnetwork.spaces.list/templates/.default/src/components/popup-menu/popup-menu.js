@@ -46,7 +46,7 @@ export const PopupMenu = {
 				closeIcon: false,
 				closeByEsc: true,
 				overlay: true,
-				padding: 12,
+				padding: 0,
 				animation: 'fading-slide',
 				bindElement: this.bindElement,
 			};

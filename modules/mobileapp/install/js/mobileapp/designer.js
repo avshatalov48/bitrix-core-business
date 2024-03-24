@@ -3,9 +3,12 @@
  * @bxjs_lang_path mobile_designer.php
  */
 
-(function ()
+(function()
 {
-	if (window.BX.app) return;
+	if (window.BX.app)
+	{
+		return;
+	}
 	var BX = window.BX;
 
 	if (BX.browser.IsIE() && BX.browser.DetectIeVersion() < 9)
@@ -15,85 +18,83 @@
 
 	BX.Mobile = {
 		Events: {
-			CONFIG_CHANGED: "onEditorConfigChanged",
-			CONFIG_READY: "onEditorConfigReady",
-			CONFIG_LOADED: "onEditorConfigLoad",
-			CONFIG_LOADED_BEFORE: "onBeforeEditorConfigLoad",
-			CONFIG_SAVED: "onEditorConfigSaved",
-			APP_FILE_LIST_GOT: "onAppFileListGot",
-			VIEWER_ELEMENT_SET_SIZE: "onViewerElementSetSize",
-			VIEWER_ELEMENT_APPLY: "onApply",
-			VIEWER_ELEMENT_REDRAW: "onRedraw",
-			VIEWER_NEW_CONFIG_SET: "onViewerNewConfigSet",
-			PROJECT_REMOVED: "onProjectRemoved",
-			APP_SWITCHER_REMOVE: "delete",
-			APP_SWITCHER_CHANGE: "change"
+			CONFIG_CHANGED: 'onEditorConfigChanged',
+			CONFIG_READY: 'onEditorConfigReady',
+			CONFIG_LOADED: 'onEditorConfigLoad',
+			CONFIG_LOADED_BEFORE: 'onBeforeEditorConfigLoad',
+			CONFIG_SAVED: 'onEditorConfigSaved',
+			APP_FILE_LIST_GOT: 'onAppFileListGot',
+			VIEWER_ELEMENT_SET_SIZE: 'onViewerElementSetSize',
+			VIEWER_ELEMENT_APPLY: 'onApply',
+			VIEWER_ELEMENT_REDRAW: 'onRedraw',
+			VIEWER_NEW_CONFIG_SET: 'onViewerNewConfigSet',
+			PROJECT_REMOVED: 'onProjectRemoved',
+			APP_SWITCHER_REMOVE: 'delete',
+			APP_SWITCHER_CHANGE: 'change',
 		},
 		Tools: {
-			extendProto: function (child, proto)
+			extendProto(child, proto)
 			{
 				for (var element in proto)
 				{
 					child.prototype[element] = proto[element];
 				}
 			},
-			highlight: function (node, rbgColor, restore, duration)
+			highlight(node, rbgColor, restore, duration)
 			{
-				var d = (duration) ? duration : 0.2;
+				var d = duration || 0.2;
 
 				(new BX.fx({
-					start: 0.0,
-					finish: 30.0,
+					start: 0,
+					finish: 30,
 					step: 0.005,
-					type: "accelerated",
+					type: 'accelerated',
 					time: d,
-					callback: function (value)
+					callback(value)
 					{
-						node.style.backgroundColor = "rgba(" + rbgColor[0] + "," + rbgColor[1] + "," + rbgColor[2] + "," + value / 100 + ")"
+						node.style.backgroundColor = `rgba(${rbgColor[0]},${rbgColor[1]},${rbgColor[2]},${value / 100})`;
 					},
-					callback_start: function ()
+					callback_start()
+					{},
+					callback_complete()
 					{
-
-					},
-					callback_complete: function ()
-					{
-						if (typeof restore != "undefined" && restore === false)
+						if (typeof restore != 'undefined' && restore === false)
+						{
 							return;
+						}
 						(new BX.fx({
-							start: 30.0,
-							finish: 0.0,
+							start: 30,
+							finish: 0,
 							step: 0.005,
-							type: "deccelerated",
+							type: 'deccelerated',
 							time: 0.8,
-							callback: function (value)
+							callback(value)
 							{
-								node.style.backgroundColor = "rgba(" + rbgColor[0] + "," + rbgColor[1] + "," + rbgColor[2] + "," + value / 100 + ")"
+								node.style.backgroundColor = `rgba(${rbgColor[0]},${rbgColor[1]},${rbgColor[2]},${value / 100})`;
 							},
-							callback_start: function ()
+							callback_start()
+							{},
+							callback_complete()
 							{
-
+								node.style.backgroundColor = 'ffffff';
 							},
-							callback_complete: function ()
-							{
-								node.style.backgroundColor = "ffffff";
-							}
 						})).start();
-					}
+					},
 				})).start();
-			}
+			},
 		},
-		Designer: function (params)
+		Designer: function(params)
 		{
 			this.designerContainer = BX(params.containerId);
-			this.container = BX.create("DIV", {
+			this.container = BX.create('DIV', {
 				attrs: {
-					id: "app_params"
-				}
+					id: 'app_params',
+				},
 			});
-			this.previewContainer = BX.create("DIV", {
+			this.previewContainer = BX.create('DIV', {
 				attrs: {
-					id: "app_preview"
-				}
+					id: 'app_preview',
+				},
 			});
 			this.projects = {};
 			this.apps = [];
@@ -103,7 +104,7 @@
 			this.useAutoSave = true;
 			this.editor = null;
 			this.currentProject = {};
-			this.currentPlatform = "";
+			this.currentPlatform = '';
 			this.map = {};
 			this.createForm = false;
 			this.availablePlatforms = params.platforms;
@@ -112,11 +113,9 @@
 			if (params.data)
 			{
 				this.setData(params.data);
-
 			}
-
 		},
-		Project: function (params)
+		Project: function(params)
 		{
 			this.name = params.name;
 			this.desc = params.desc;
@@ -126,7 +125,7 @@
 			this.hasFiles = false;
 			this.code = params.code;
 		},
-		Editor: function (map, container, previewContainer, imager)
+		Editor: function(map, container, previewContainer, imager)
 		{
 			this.activeGroupId = false;
 			this.previewContainer = previewContainer;
@@ -136,36 +135,35 @@
 			this.controlList = {};
 			this.imager = imager;
 			this.map = map || {
-					groupedParams: {},
-					lang: {}
-				};
-			this.container = BX.create("DIV", {
+				groupedParams: {},
+				lang: {},
+			};
+			this.container = BX.create('DIV', {
 				props: {
-					className: "designer-editor-wrap"
-				}
+					className: 'designer-editor-wrap',
+				},
 			});
 
 
 			container.appendChild(this.container);
 			this.init();
-
 		},
-		Viewer: function (editor, container)
+		Viewer: function(editor, container)
 		{
 			this.editor = editor;
 			this.map = editor.map;
 			this.container = container;
 			this.config = {};
 		},
-		ViewerElement: function (viewer, options)
+		ViewerElement: function(viewer, options)
 		{
 			BX.addCustomEvent(BX.Mobile.Events.CONFIG_CHANGED, BX.proxy(this.onParameterValueChanged, this));
 			BX.addCustomEvent(viewer.editor, BX.Mobile.Events.CONFIG_READY, BX.proxy(this.redrawElement, this));
 			this.isEmpty = true;
 			this.params = options || {};
 			this.watched = [];
-			this.elementStrokeColor = "#999";
-			this.cageStrokeColor = "#C5CEF0";
+			this.elementStrokeColor = '#999';
+			this.cageStrokeColor = '#C5CEF0';
 			this.baseElement = null;
 			this.canvasElement = null;
 			this.valuesSet = {};
@@ -174,10 +172,10 @@
 			this.viewer = viewer;
 			this.defaultValues = this.params.defaultValues || {};
 			this.textShadowColor = false;
-			this.text = (this.params.text ? this.params.text : "");
+			this.text = (this.params.text ? this.params.text : '');
 			this.textSize = (this.params.textSize ? this.params.textSize : 10);
-			this.type = this.params.type ? this.params.type : "common";
-			this.textPosition = this.params.textPosition ? this.params.textPosition : {x: "center", y: "center"};
+			this.type = this.params.type ? this.params.type : 'common';
+			this.textPosition = this.params.textPosition ? this.params.textPosition : { x: 'center', y: 'center' };
 
 			if (this.params.element)
 			{
@@ -191,10 +189,9 @@
 					this.bindParameter(paramKey, this.params.bindedParams[paramKey])
 				}
 			}
-
 		},
 		Controls: {
-			Base: function (options)
+			Base: function(options)
 			{
 				this.langs = options.langs;
 				this.params = options.params;
@@ -203,19 +200,23 @@
 				this.imager = options.imageDialog;
 				this.displayElement = null;
 				this.value = null;
-				this.startChoose = BX.proxy(function ()
+				this.startChoose = BX.proxy(function()
 				{
-					if (typeof this["_startChoose"] == "function")
+					if (typeof this['_startChoose'] === 'function')
+					{
 						this._startChoose();
+					}
 				}, this);
-				if (typeof this["onCreate"] == "function")
+				if (typeof this['onCreate'] === 'function')
+				{
 					this.onCreate();
+				}
 			},
-			Select: function (options)
+			Select: function(options)
 			{
 				BX.Mobile.Controls.Select.superclass.constructor.apply(this, [options]);
 
-				this._setValue = function (value)
+				this._setValue = function(value)
 				{
 					var foundValue = false;
 
@@ -226,29 +227,29 @@
 							foundValue = true;
 							break;
 						}
-
 					}
 
 					if (foundValue)
 					{
 						this.input.value = value;
 					}
-					else {
+					else
+					{
 						this.input.options.selectedIndex = 0;
 					}
 				};
 
-				this.setList = function (list)
+				this.setList = function(list)
 				{
-					this.input.innerHTML = "";
-					var currentValueExists = (this.value == "");
+					this.input.innerHTML = '';
+					var currentValueExists = (this.value == '');
 					this.input.appendChild(
-						BX.create("OPTION", {
-							html: BX.message("MOBILEAPP_EMPTY_VALUE"),
+						BX.create('OPTION', {
+							html: BX.message('MOBILEAPP_EMPTY_VALUE'),
 							attrs: {
-								value: ""
-							}
-						})
+								value: '',
+							},
+						}),
 					);
 
 					for (var key in list)
@@ -259,13 +260,13 @@
 						}
 
 						this.input.appendChild(
-							BX.create("OPTION", {
+							BX.create('OPTION', {
 								html: key,
 								attrs: {
 									value: key,
-									id: key
-								}
-							})
+									id: key,
+								},
+							}),
 						);
 					}
 

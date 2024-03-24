@@ -1,4 +1,4 @@
-<?
+<?php
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 ?>
@@ -27,7 +27,7 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 //-->
 </script>
 <p>
-<?=($arResult["is_filtered"] ? "<span class='form-filteron'>".GetMessage("FORM_FILTER_ON") : "<span class='form-filteroff'>".GetMessage("FORM_FILTER_OFF"))?></span>&nbsp;&nbsp;&nbsp;
+<?=(!empty($arResult["is_filtered"]) ? "<span class='form-filteron'>".GetMessage("FORM_FILTER_ON") : "<span class='form-filteroff'>".GetMessage("FORM_FILTER_OFF"))?></span>&nbsp;&nbsp;&nbsp;
 [ <a href="javascript:void(0)" OnClick="Form_Filter_Click_<?=$arResult["filter_id"]?>()"><?=GetMessage("FORM_FILTER")?></a> ]
 </p>
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPageParam("", array("sessid", "delete", "del_id", "action"), false)?>?" id="form_filter_<?=$arResult["filter_id"]?>" class="form-filter-<?=$arResult["tf"]?>">
@@ -41,7 +41,7 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 	</thead>
 	<tbody>
 		<?
-		if ($arResult["str_error"] <> '')
+		if (!empty($arResult["str_error"]))
 		{
 		?>
 		<tr>
@@ -272,7 +272,7 @@ function OnSelectAll_<?=$arResult["filter_id"]?>(fl)
 } //endif($can_delete_some);
 
 if ($arResult["FORM_ERROR"] <> '') ShowError($arResult["FORM_ERROR"]);
-if ($arResult["FORM_NOTE"] <> '') ShowNote($arResult["FORM_NOTE"]);
+if (!empty($arResult["FORM_NOTE"])) ShowNote($arResult["FORM_NOTE"]);
 ?>
 <p>
 <b><a href="<?=$arParams["NEW_URL"]?><?=$arParams["SEF_MODE"] != "Y" ? (mb_strpos($arParams["NEW_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$arParams["WEB_FORM_ID"] : ""?>"><?=GetMessage("FORM_ADD")?>&nbsp;&nbsp;&gt;&gt;</a></b>
@@ -448,7 +448,7 @@ if ($arResult["FORM_NOTE"] <> '') ShowNote($arResult["FORM_NOTE"]);
 						{
 						?>
 								<?=GetMessage("FORM_CHANGE_TO")?>
-								<input type="hidden" name="STATUS_PREV_<?=intval($GLOBALS["f_ID"])?>" value="<?=$arRes["STATUS_ID"]?>" />
+								<input type="hidden" name="STATUS_PREV_<?=intval($GLOBALS["f_ID"] ?? 0)?>" value="<?=$arRes["STATUS_ID"]?>" />
 								<select name="STATUS_<?=$arRes["ID"]?>" id="STATUS_<?=$arRes["ID"]?>">
 									<option value="NOT_REF"> </option>
 							<?
@@ -571,7 +571,7 @@ if ($arResult["FORM_NOTE"] <> '') ShowNote($arResult["FORM_NOTE"]);
 				?>
 				<td>
 					<?
-					$arrAnswer = $arResult["arrAnswers"][$arRes["ID"]][$FIELD_ID];
+					$arrAnswer = $arResult["arrAnswers"][$arRes["ID"]][$FIELD_ID] ?? null;
 					if (is_array($arrAnswer))
 					{
 						foreach ($arrAnswer as $key => $arrA)
@@ -627,7 +627,7 @@ if ($arResult["FORM_NOTE"] <> '') ShowNote($arResult["FORM_NOTE"]);
 		}
 		?>
 		<?
-		if ($arParams["HIDE_TOTAL"]!="Y")
+		if (!isset ($arParams["HIDE_TOTAL"]) || $arParams["HIDE_TOTAL"] != "Y")
 		{
 		?>
 		<tfoot>

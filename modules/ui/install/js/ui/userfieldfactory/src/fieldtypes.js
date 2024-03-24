@@ -39,6 +39,11 @@ export class FieldTypes
 				description: Loc.getMessage("UI_USERFIELD_FACTORY_UF_ENUM_LEGEND"),
 				defaultTitle: Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENUMERATION_LABEL'),
 			},
+			date: {
+				title: Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATE_TITLE"),
+				description: Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATE_LEGEND"),
+				defaultTitle: Loc.getMessage('UI_USERFIELD_FACTORY_UF_DATE_LABEL'),
+			},
 			datetime: {
 				title: Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_TITLE"),
 				description: Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_LEGEND"),

@@ -56,7 +56,7 @@ class Sender
 					'\Bitrix\Im\Model\MessageParamTable',
 					[
 						"=ref.MESSAGE_ID" => "this.ID",
-						"ref.PARAM_NAME" => new \Bitrix\Main\DB\SqlExpression("?s", "FILE_ID")
+						"=ref.PARAM_NAME" => new \Bitrix\Main\DB\SqlExpression("?s", "FILE_ID")
 					],
 					["join_type" => "LEFT"]
 				),

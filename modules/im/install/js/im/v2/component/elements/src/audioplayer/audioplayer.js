@@ -95,7 +95,7 @@ export const AudioPlayer = BitrixVue.cloneComponent(UIAudioPlayer, {
 					'bx-im-audio-player__control-pause': !loading && state === State.play,
 				}]" @click="clickToButton"></button>
 				<div v-if="withAvatar" class="bx-im-audio-player__author-avatar-container">
-					<Avatar :dialogId="fileAuthorDialogId" :withStatus="false" :size="AvatarSize.XS"></Avatar>
+					<Avatar :dialogId="fileAuthorDialogId" :size="AvatarSize.XS"></Avatar>
 				</div>
 			</div>
 			<div class="bx-im-audio-player__timeline-container">

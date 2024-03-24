@@ -10,7 +10,6 @@ return [
 		'./dist/market.bundle.js',
 	],
 	'rel' => [
-		'marketplace',
 		'ui.vue3.vuex',
 		'main.core',
 		'im.v2.application.core',

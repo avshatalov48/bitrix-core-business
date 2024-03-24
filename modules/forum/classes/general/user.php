@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Forum\UserTable;
 
@@ -829,87 +829,86 @@ class CAllForumUser
 		return $iNumUserPoints;
 	}
 
-	public static function SetStat($USER_ID = 0, $arParams = array())
+	public static function SetStat($userId = 0, $params = [])
 	{
-		$USER_ID = intval($USER_ID);
-		if ($USER_ID <= 0)
-			return 0;
-
-		$bNeedCreateUser = false;
-		$arUser = array();
-		$arUserFields = Array();
-
-		$arParams = (is_array($arParams) ? $arParams : array());
-
-		$arMessage = (is_array($arParams["MESSAGE"]) ? $arParams["MESSAGE"] : array());
-		$arMessage = ($arMessage["AUTHOR_ID"] != $USER_ID ? array() : $arMessage);
-
-		if (!empty($arMessage))
+		if (empty($userId) || (!empty($params['MESSAGE']['APPROVED']) && $params['MESSAGE']['APPROVED'] !== 'Y'))
 		{
-			$arParams["ACTION"] = isset($arParams["ACTION"]) && ($arParams["ACTION"] == "DECREMENT" || $arParams["ACTION"] == "UPDATE") ? $arParams["ACTION"] : "INCREMENT";
-			if ($arParams["ACTION"] == "UPDATE"):
-				$arParams["ACTION"] = ($arMessage["APPROVED"] == "Y" ? "INCREMENT" : "DECREMENT");
-				$arMessage["APPROVED"] = "Y";
-			endif;
-
-			$arParams["POSTS"] = intval(isset($arParams["POSTS"]) && $arParams["POSTS"] > 0 ? $arParams["POSTS"] : 1);
-			$arUser = CForumUser::GetByUSER_ID($USER_ID);
+			return;
 		}
 
-		if (empty($arMessage)):
-			// full recount;
-		elseif ($arMessage["APPROVED"] != "Y"):
-			return true;
-		elseif (empty($arUser)):
-			$bNeedCreateUser = true;
-			// full recount;
-		elseif ($arParams["ACTION"] == "DECREMENT" && $arMessage["ID"] >= $arUser["LAST_POST"]):
-			// full recount;
-		elseif ($arParams["ACTION"] == "DECREMENT"):
-			$arUserFields = array(
-				"=NUM_POSTS" => "NUM_POSTS-".$arParams["POSTS"],
-				"POINTS" => intval(CForumUser::GetUserPoints($USER_ID, array("DECREMENT" => $arParams["POSTS"]))));
-		elseif ($arParams["ACTION"] == "INCREMENT" && $arMessage["ID"] < $arUser["LAST_POST"]):
-			$arUserFields = array(
-				"=NUM_POSTS" => "NUM_POSTS+".$arParams["POSTS"],
-				"POINTS" => intval(CForumUser::GetUserPoints($USER_ID, array("INCREMENT" => $arParams["POSTS"]))));
-		elseif ($arParams["ACTION"] == "INCREMENT"):
-			$arUserFields["IP_ADDRESS"] = $arMessage["AUTHOR_IP"];
-			$arUserFields["REAL_IP_ADDRESS"] = $arMessage["AUTHOR_REAL_IP"];
-			$arUserFields["LAST_POST"] = intval($arMessage["ID"]);
-			$arUserFields["=NUM_POSTS"] = "NUM_POSTS+".$arParams["POSTS"];
-			$arUserFields["POINTS"] = intval(CForumUser::GetUserPoints($USER_ID, array("INCREMENT" => $arParams["POSTS"])));
-		endif;
+		$userId = intval($userId);
+		$params = is_array($params) ? $params : [];
+		$bNeedCreateUser = false;
+		$arUser = [];
+		$arUserFields = [];
+
+		if (isset($params['MESSAGE']['AUTHOR_ID']) && $params['MESSAGE']['AUTHOR_ID'] === $userId)
+		{
+			$arMessage = $params['MESSAGE'];
+			$params['ACTION'] = $params['ACTION'] ?? 'INCREMENT';
+			if ($params['ACTION'] == 'UPDATE')
+			{
+				$params['ACTION'] = ($arMessage['APPROVED'] == 'Y' ? 'INCREMENT' : 'DECREMENT');
+				$arMessage['APPROVED'] = 'Y';
+			}
+
+			$params['POSTS'] = intval($params['POSTS'] ?? 1);
+			$bNeedCreateUser = !($arUser = CForumUser::GetByUSER_ID($userId));
+
+			if ($params['ACTION'] == 'DECREMENT' && $arMessage['ID'] < $arUser['LAST_POST'])
+			{
+				$arUserFields = [
+					'=NUM_POSTS' => 'NUM_POSTS-'.$params['POSTS'],
+					'POINTS' => intval(CForumUser::GetUserPoints($userId, ['DECREMENT' => $params['POSTS']]))
+				];
+			}
+			else if ($params['ACTION'] == 'INCREMENT' && $arMessage['ID'] < $arUser['LAST_POST'])
+			{
+				$arUserFields = [
+					'=NUM_POSTS' => 'NUM_POSTS+'.$params['POSTS'],
+					'POINTS' => intval(CForumUser::GetUserPoints($userId, ['INCREMENT' => $params['POSTS']]))
+				];
+			}
+			else if ($params['ACTION'] == 'INCREMENT')
+			{
+				$arUserFields['IP_ADDRESS'] = $arMessage['AUTHOR_IP'];
+				$arUserFields['REAL_IP_ADDRESS'] = $arMessage['AUTHOR_REAL_IP'];
+				$arUserFields['LAST_POST'] = intval($arMessage['ID']);
+				$arUserFields['=NUM_POSTS'] = 'NUM_POSTS+' . $params['POSTS'];
+				$arUserFields['POINTS'] = CForumUser::GetUserPoints($userId, ['INCREMENT' => $params['POSTS']]);
+			}
+		}
 
 		if (empty($arUserFields))
 		{
-			$arUserFields = Array(
-				"LAST_POST" => false);
-			if ($bNeedCreateUser == false)
-				$arUser = CForumUser::GetByUSER_IDEx($USER_ID);
+			$arUserFields = [
+				'LAST_POST' => false
+			];
+			if ($bNeedCreateUser === false)
+				$arUser = CForumUser::GetByUSER_IDEx($userId);
 			if (empty($arUser) || $bNeedCreateUser == true):
 				$bNeedCreateUser = true;
-				$arUser = CForumMessage::GetList(array(), array("AUTHOR_ID" => $USER_ID, "APPROVED" => "Y"), "cnt_and_last_mid");
+				$arUser = CForumMessage::GetList(array(), array('AUTHOR_ID' => $userId, 'APPROVED' => 'Y'), 'cnt_and_last_mid');
 				$arUser = (is_array($arUser) ? $arUser : array());
 			endif;
-			$arMessage = CForumMessage::GetByID($arUser["LAST_MESSAGE_ID"], array("FILTER" => "N"));
+			$arMessage = CForumMessage::GetByID($arUser['LAST_MESSAGE_ID'], array('FILTER' => 'N'));
 			if ($arMessage):
-				$arUserFields["IP_ADDRESS"] = $arMessage["AUTHOR_IP"];
-				$arUserFields["REAL_IP_ADDRESS"] = $arMessage["AUTHOR_REAL_IP"];
-				$arUserFields["LAST_POST"] = intval($arMessage["ID"]);
+				$arUserFields['IP_ADDRESS'] = $arMessage['AUTHOR_IP'];
+				$arUserFields['REAL_IP_ADDRESS'] = $arMessage['AUTHOR_REAL_IP'];
+				$arUserFields['LAST_POST'] = intval($arMessage['ID']);
 			endif;
-			$arUserFields["NUM_POSTS"] = intval($arUser["CNT"]);
-			$arUserFields["POINTS"] = intval(CForumUser::GetUserPoints($USER_ID, array("NUM_POSTS" => $arUserFields["NUM_POSTS"])));
+			$arUserFields['NUM_POSTS'] = intval($arUser['CNT']);
+			$arUserFields['POINTS'] = intval(CForumUser::GetUserPoints($userId, array('NUM_POSTS' => $arUserFields['NUM_POSTS'])));
 		}
 
 		if ($bNeedCreateUser):
-			$arUserFields["USER_ID"] = $USER_ID;
-			$arUser = CForumUser::Add($arUserFields);
+			$arUserFields['USER_ID'] = $userId;
+			CForumUser::Add($arUserFields);
 		else:
-			CForumUser::Update($USER_ID, $arUserFields, false, true);
+			CForumUser::Update($userId, $arUserFields, false, true);
 		endif;
 
-		return $USER_ID;
+		return $userId;
 	}
 	//---------------> User actions
 	public static function OnUserDelete($user_id)
@@ -2173,11 +2172,10 @@ class CALLForumStat
 
 	public static function CleanUp()
 	{
-		global $DB;
-		$DB->Query(
-			"DELETE FROM b_forum_stat WHERE LAST_VISIT < DATE_SUB(NOW(), INTERVAL 1 DAY)",
-			false,
-			"File: ".__FILE__."<br>Line: ".__LINE__
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$connection->query(
+			"DELETE FROM b_forum_stat WHERE LAST_VISIT < " . $helper->addDaysToDateTime(-1)
 		);
 		return "CForumStat::CleanUp();";
 	}

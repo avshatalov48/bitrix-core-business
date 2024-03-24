@@ -32,7 +32,8 @@ import type { ImModelRecentItem, ImModelCallItem } from 'im.v2.model';
 export const RecentList = {
 	name: 'RecentList',
 	components: { LoadingState: RecentLoadingState, RecentItem, ActiveCall, CreateChat, EmptyState },
-	directives: {
+	directives:
+	{
 		'recent-list-observer':
 		{
 			mounted(element, binding)
@@ -41,7 +42,8 @@ export const RecentList = {
 			},
 		},
 	},
-	props: {
+	props:
+	{
 		compactMode: {
 			type: Boolean,
 			default: false,
@@ -128,7 +130,7 @@ export const RecentList = {
 			return { '--compact': this.compactMode };
 		},
 	},
-	created()
+	async created()
 	{
 		this.service = this.recentService ?? RecentService.getInstance();
 		this.contextMenuManager = new RecentMenu();
@@ -136,30 +138,27 @@ export const RecentList = {
 		this.initBroadcastManager();
 		this.initLikeManager();
 		this.initObserver();
-		this.initBirthdayCheck();
 		this.initCreateChatManager();
 		this.managePreloadedList();
 
 		this.isLoading = true;
 		const ignorePreloadedItems = !this.compactMode;
-		// eslint-disable-next-line promise/catch-or-return
-		this.getRecentService().loadFirstPage({ ignorePreloadedItems })
-			.then(() => {
-				this.isLoading = false;
-				DraftManager.getInstance().initDraftHistory();
-			});
+
+		await this.getRecentService().loadFirstPage({ ignorePreloadedItems });
+		this.isLoading = false;
+
+		DraftManager.getInstance().initDraftHistory();
 	},
 	beforeUnmount()
 	{
 		this.contextMenuManager.destroy();
-		this.clearBirthdayCheck();
 		this.destroyBroadcastManager();
 		this.destroyLikeManager();
 		this.destroyCreateChatManager();
 	},
 	methods:
 	{
-		onScroll(event)
+		async onScroll(event)
 		{
 			this.listIsScrolled = event.target.scrollTop > 0;
 
@@ -170,10 +169,8 @@ export const RecentList = {
 			}
 
 			this.isLoading = true;
-			// eslint-disable-next-line promise/catch-or-return
-			this.getRecentService().loadNextPage().then(() => {
-				this.isLoading = false;
-			});
+			await this.getRecentService().loadNextPage();
+			this.isLoading = false;
 		},
 		onClick(item, event)
 		{
@@ -205,10 +202,6 @@ export const RecentList = {
 		onCallClick({ item, $event })
 		{
 			this.onClick(item, $event);
-		},
-		onCallRightClick({ item, $event })
-		{
-			this.onRightClick(item, $event);
 		},
 		oneScreenRemaining(event): boolean
 		{
@@ -254,22 +247,6 @@ export const RecentList = {
 		destroyLikeManager()
 		{
 			this.likeManager.destroy();
-		},
-		initBirthdayCheck()
-		{
-			const fourHours = 60000 * 60 * 4;
-			const day = 60000 * 60 * 24;
-			this.birthdayCheckTimeout = setTimeout(() => {
-				this.getRecentService().loadFirstPage();
-				this.birthdayCheckInterval = setInterval(() => {
-					this.getRecentService().loadFirstPage();
-				}, day);
-			}, Utils.date.getTimeToNextMidnight() + fourHours);
-		},
-		clearBirthdayCheck()
-		{
-			clearTimeout(this.birthdayCheckTimeout);
-			clearInterval(this.birthdayCheckInterval);
 		},
 		initCreateChatManager()
 		{

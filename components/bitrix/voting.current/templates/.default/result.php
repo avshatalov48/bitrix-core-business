@@ -4,7 +4,7 @@ if ($arParams["SHOW_RESULTS"] == "Y")
 {
 	$this->IncludeLangFile("result.php");
 }
-?><div id="<?=$id?>_result">
+?><div id="<?=$id ?? ''?>_result">
 	<?$APPLICATION->IncludeComponent(
 		"bitrix:voting.result",
 		".default",
@@ -14,7 +14,7 @@ if ($arParams["SHOW_RESULTS"] == "Y")
 			"PERMISSION" => $arParams["PERMISSION"],
 			"ADDITIONAL_CACHE_ID" => $arResult["ADDITIONAL_CACHE_ID"],
 			"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-			"VOTE_ALL_RESULTS" => $arParams["VOTE_ALL_RESULTS"],
+			"VOTE_ALL_RESULTS" => $arParams["VOTE_ALL_RESULTS"] ?? null,
 			"CAN_VOTE" => $arParams["CAN_VOTE"]),
 		($this->__component->__parent ? $this->__component->__parent : $component),
 		array("HIDE_ICONS" => "Y")

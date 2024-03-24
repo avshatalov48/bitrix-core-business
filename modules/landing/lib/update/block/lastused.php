@@ -17,7 +17,7 @@ class LastUsed extends Stepper
 	protected static $moduleId = 'landing';
 
 	/**
-	 * Mass insert used blocks per user.
+	 * Mass inserts last used blocks per user.
 	 * @param int $userId User id.
 	 * @return void
 	 */
@@ -36,7 +36,7 @@ class LastUsed extends Stepper
 						AND PUBLIC='N'
 						AND DELETED='N'
 					GROUP BY
-						CODE
+						CREATED_BY_ID, CODE
 					ORDER BY
 						DATE_CREATE DESC
 				;";

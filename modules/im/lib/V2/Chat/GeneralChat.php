@@ -195,13 +195,16 @@ class GeneralChat extends GroupChat
 			]);
 		}
 
+		$installUsers = $this->getUsersForInstall();
+
 		$params = [
 			'TYPE' => self::IM_TYPE_OPEN,
 			'ENTITY_TYPE' => self::ENTITY_TYPE_GENERAL,
 			'COLOR' => 'AZURE',
 			'TITLE' => Loc::getMessage('IM_CHAT_GENERAL_TITLE'),
 			'DESCRIPTION' => Loc::getMessage('IM_CHAT_GENERAL_DESCRIPTION'),
-			'AUTHOR_ID' => 0
+			'AUTHOR_ID' => 0,
+			'USER_COUNT' => count($installUsers),
 		];
 
 		$chat = new static($params);
@@ -221,7 +224,7 @@ class GeneralChat extends GroupChat
 			$adminIds = \CBitrix24::getAllAdminId();
 		}
 
-		foreach ($this->getUsersForInstall() as $user)
+		foreach ($installUsers as $user)
 		{
 			$relation = new Relation();
 			$relation->setChatId($chat->getChatId());

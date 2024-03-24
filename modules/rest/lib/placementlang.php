@@ -167,18 +167,21 @@ class PlacementLangTable extends DataManager
 	 *
 	 * @return Main\DB\Result
 	 */
-	public static function deleteByApp(int $appId) : Main\DB\Result
+	public static function deleteByApp(int $appId): void
 	{
-		$connection = Main\Application::getConnection();
-
-		$placementLangTableName = static::getTableName();
-		$placementTableName = static::getPlacementTableName();
-
-		return $connection->query(
-			'DELETE ' . $placementLangTableName . ' FROM ' . $placementLangTableName . '
-			INNER JOIN ' . $placementTableName . ' ON (' . $placementTableName . '.ID = ' . $placementLangTableName . '.PLACEMENT_ID)
-			WHERE b_rest_placement.APP_ID = \'' . $appId . '\''
+		$dbRes = PlacementTable::getList(
+			[
+				'select' => ['ID'],
+				'filter' => [
+					'=APP_ID' => $appId,
+				]
+			]
 		);
+		$placementIds = $dbRes->fetchAll();
+		foreach ($placementIds as $placementId)
+		{
+			static::deleteByPlacement((int)$placementId['ID']);
+		}
 	}
 
 	/**

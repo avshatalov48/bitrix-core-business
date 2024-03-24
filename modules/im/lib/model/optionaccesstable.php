@@ -3,14 +3,12 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main\ArgumentTypeException,
-	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\ORM\Data\DataManager,
 	Bitrix\Main\ORM\Fields\IntegerField,
 	Bitrix\Main\ORM\Fields\StringField,
 	Bitrix\Main\ORM\Fields\Validators\LengthValidator,
 	Bitrix\Main\SystemException;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class OptionAccessTable

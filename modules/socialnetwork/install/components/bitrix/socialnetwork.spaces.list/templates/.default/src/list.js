@@ -1,3 +1,4 @@
+import { LeftMenuAhaMoment } from './left-menu-aha-moment';
 import { Store } from './store/store';
 import { LinkManager } from './util/link-manager';
 import { BitrixVue, VueCreateAppResult } from 'ui.vue3';
@@ -27,6 +28,7 @@ type ListOptions = {
 	spacesListMode: string,
 	canCreateGroup: boolean,
 	currentUserId: number,
+	doShowCollapseMenuAhaMoment: boolean,
 };
 
 export class List
@@ -38,6 +40,11 @@ export class List
 	constructor(options: ListOptions)
 	{
 		this.#initialOptions = options;
+
+		if (options.doShowCollapseMenuAhaMoment)
+		{
+			new LeftMenuAhaMoment().showAhaMoment();
+		}
 	}
 
 	create(target: HTMLElement)
@@ -91,7 +98,7 @@ export class List
 					{
 						return array.map((value) => parseInt(value, 10));
 					},
-					subscribeToPull()
+					subscribeToPull(): void
 					{
 						const pullRequests = new PullRequests();
 						pullRequests.subscribe(EventTypes.pinChanged, this.pinChangedHandler);
@@ -99,32 +106,69 @@ export class List
 						pullRequests.subscribe(EventTypes.changeSpace, this.updateSpaceData);
 						pullRequests.subscribe(EventTypes.changeUserRole, this.updateSpaceUserData);
 						pullRequests.subscribe(EventTypes.changeSubscription, this.updateSpaceUserData);
+						pullRequests.subscribe(EventTypes.recentActivityUpdate, this.recentActivityUpdate);
+						pullRequests.subscribe(EventTypes.recentActivityDelete, this.recentActivityDelete);
 						Pull.subscribe(pullRequests);
 					},
-					pinChangedHandler(event)
+					pinChangedHandler(event): void
 					{
 						this.pinSpace(event.getData().spaceId, event.getData().isPinned);
 					},
-					pinSpace(spaceId, isPinned)
+					pinSpace(spaceId, isPinned): void
 					{
 						this.$store.dispatch('pinSpace', { spaceId, isPinned });
 					},
-					updateCountersHandler(event: BaseEvent)
+					updateCountersHandler(event: BaseEvent): void
 					{
 						if (event.data.userId && parseInt(event.data.userId, 10) === currentUserId)
 						{
 							this.$store.dispatch('updateCounters', event.data);
 						}
 					},
-					async updateSpaceData(event: BaseEvent)
+					async recentActivityUpdate(event: BaseEvent): void
 					{
-						if (event.data.spaceId)
+						const recentActivityData = event.data.recentActivityData;
+						const space: SpaceModel | undefined = this.$store.state.main.spaces.get(recentActivityData.spaceId);
+
+						if (space)
 						{
-							const requestData = await Client.loadSpaceData(event.data.spaceId);
-							this.$store.dispatch('updateSpaceData', requestData);
+							this.$store.dispatch('updateSpaceRecentActivityData', recentActivityData);
+						}
+						else
+						{
+							await this.loadSpace(recentActivityData.spaceId);
 						}
 					},
-					async updateSpaceUserData(event: BaseEvent)
+					async recentActivityDelete(event: BaseEvent): void
+					{
+						const deletedActivityTypeId = event.data.typeId;
+						const deletedActivityEntityId = event.data.entityId;
+
+						const spaceModels: Array<SpaceModel> = [...this.$store.getters.recentSpaces.values()];
+						spaceModels.forEach((space: SpaceModel) => {
+							const wasSpaceRecentActivityDeleted = space.recentActivity.typeId === deletedActivityTypeId
+								&& space.recentActivity.entityId === deletedActivityEntityId
+							;
+
+							if (wasSpaceRecentActivityDeleted)
+							{
+								this.loadSpace(space.id);
+							}
+						});
+					},
+					async loadSpace(spaceId: number): void
+					{
+						const requestData = await Client.loadSpaceData(spaceId);
+						this.$store.dispatch('updateSpaceData', requestData);
+					},
+					async updateSpaceData(event: BaseEvent): void
+					{
+						if (event.data.spaceId >= 0)
+						{
+							await this.loadSpace(event.data.spaceId);
+						}
+					},
+					async updateSpaceUserData(event: BaseEvent): void
 					{
 						if (event.data.userId && parseInt(event.data.userId, 10) === currentUserId)
 						{

@@ -112,37 +112,37 @@ initReportControls();
 
 		<div class="reports-title-label"><?=GetMessage('REPORT_DESCRIPTION')?></div>
 		<div class="reports-description-wrap">
-			<textarea class="reports-description" name="report_description"><?=htmlspecialcharsbx($arResult['report']['DESCRIPTION'])?></textarea>
+			<textarea class="reports-description" name="report_description"><?=htmlspecialcharsbx($arResult['report']['DESCRIPTION'] ?? '')?></textarea>
 		</div>
 
 		<div class="reports-title-label"><?=GetMessage('REPORT_PERIOD')?></div>
 		<select class="filter-dropdown" onchange="OnTaskIntervalChange(this)" id="task-interval-filter" name="F_DATE_TYPE">
 			<?php foreach($arResult['periodTypes'] as $key):?>
-				<option value="<?=$key?>"<?=($key == $arResult["preSettings"]["period"]['type']) ? ' selected' : ''?>><?=GetMessage('REPORT_CALEND_'.ToUpper($key))?></option>
+				<option value="<?=$key?>"<?=($key == ($arResult["preSettings"]["period"]['type'] ?? '')) ? ' selected' : ''?>><?=GetMessage('REPORT_CALEND_'.ToUpper($key))?></option>
 			<?php endforeach;?>
 		</select>
 		<?
 			$_date_from = '';
 			$_date_to = '';
-			if ($arResult["preSettings"]["period"]['type'] == 'interval')
+			if (($arResult["preSettings"]["period"]['type'] ?? '') === 'interval')
 			{
 				$_date_from = ConvertTimeStamp($arResult["preSettings"]["period"]['value'][0], 'SHORT');
 				$_date_to = ConvertTimeStamp($arResult["preSettings"]["period"]['value'][1], 'SHORT');
 			}
-			else if ($arResult["preSettings"]["period"]['type'] == 'before')
+			else if (($arResult["preSettings"]["period"]['type'] ?? '') === 'before')
 			{
 				$_date_from = ConvertTimeStamp($arResult["preSettings"]["period"]['value'], 'SHORT');
 			}
-			else if ($arResult["preSettings"]["period"]['type'] == 'after')
+			else if (($arResult["preSettings"]["period"]['type'] ?? '') === 'after')
 			{
 				$_date_to = ConvertTimeStamp($arResult["preSettings"]["period"]['value'], 'SHORT');
 			}
 		?>
 		<span class="filter-date-interval"><span class="filter-date-interval-from-wrap"><input type="text" class="filter-date-interval-from" name="F_DATE_FROM" id="REPORT_INTERVAL_F_DATE_FROM" value="<?=$_date_from?>" /><a class="filter-date-interval-calendar" href="" title="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>" id="filter-date-interval-calendar-from"><img border="0" src="/bitrix/js/main/core/images/calendar-icon.gif" alt="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>"/></a></span><span class="filter-date-interval-hellip">&hellip;</span><span class="filter-date-interval-to-wrap"><input type="text" class="filter-date-interval-to" name="F_DATE_TO" id="REPORT_INTERVAL_F_DATE_TO" value="<?=$_date_to?>" /><a href="" class="filter-date-interval-calendar" title="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>" id="filter-date-interval-calendar-to"><img border="0" src="/bitrix/js/main/core/images/calendar-icon.gif" alt="<?php echo GetMessage("REPORT_CALEND_PICK_DATE")?>"/></a></span></span>
-		<span class="filter-day-interval<?php if ($arResult["preSettings"]["period"]['type'] == "days"):?> filter-day-interval-selected<?php endif?>"><input type="text" size="5" class="filter-date-days" value="<?php echo $arResult["preSettings"]["period"]['type'] == "days" ? $arResult["preSettings"]["period"]['value'] : ""?>" name="F_DATE_DAYS" /> <?php echo GetMessage("REPORT_CALEND_REPORT_DAYS")?></span>
+		<span class="filter-day-interval<?php if (($arResult["preSettings"]["period"]['type'] ?? '') === "days"):?> filter-day-interval-selected<?php endif?>"><input type="text" size="5" class="filter-date-days" value="<?php echo ($arResult["preSettings"]["period"]['type'] ?? '') === "days" ? $arResult["preSettings"]["period"]['value'] : ""?>" name="F_DATE_DAYS" /> <?php echo GetMessage("REPORT_CALEND_REPORT_DAYS")?></span>
 		<div class="report-period-hidden">
 			<input type="hidden" name="period_hidden" value="N">
-			<input type="checkbox" <?=($arResult['preSettings']['period']['hidden'] === 'Y')?'checked="checked" ':''?>
+			<input type="checkbox" <?=(($arResult['preSettings']['period']['hidden'] ?? '') === 'Y')?'checked="checked" ':''?>
 				class="reports-checkbox" id="report-period-hidden-checkbox" name="period_hidden" value="Y" />
 			<span class="reports-limit-res-select-lable">
 				<label for="report-period-hidden-checkbox"><?=GetMessage('REPORT_PERIOD_HIDDEN')?></label>
@@ -195,15 +195,15 @@ initReportControls();
 				BX('reports-add_col-popup-cont'),
 				{tag:'input', attr:{type:'checkbox', name:'<?=CUtil::JSEscape($selElem['name'])?>'}}, true
 			),
-			'<?=$selElem['aggr'] <> ''? CUtil::JSEscape($selElem['aggr']) : ''?>',
-			'<?=$selElem['alias'] <> ''? CUtil::JSEscape($selElem['alias']) : ''?>',
+			'<?=($selElem['aggr'] ?? '') <> '' ? CUtil::JSEscape($selElem['aggr']) : ''?>',
+			'<?=($selElem['alias'] ?? '') <> '' ? CUtil::JSEscape($selElem['alias']) : ''?>',
 			<?=$num?>,
-			<?=($selElem['grouping']) ? 'true' : 'false'?>,
-			<?=($selElem['grouping_subtotal']) ? 'true' : 'false'?>);
+			<?=($selElem['grouping'] ?? false) ? 'true' : 'false'?>,
+			<?=($selElem['grouping_subtotal'] ?? false) ? 'true' : 'false'?>);
 		<? endforeach; ?>
 
 		<? foreach ($arResult['preSettings']['select'] as $num => $selElem): ?>
-			<? if ($selElem['prcnt'] <> ''): ?>
+			<? if (($selElem['prcnt'] ?? '') <> ''): ?>
 		setPrcntView(<?=$num?>, '<?=CUtil::JSEscape($selElem['prcnt'])?>');
 		<? endif; ?>
 		<? endforeach; ?>
@@ -272,7 +272,7 @@ initReportControls();
 				// add default limit
 				setReportLimit(true, '<?=$arResult["preSettings"]["limit"]?>');
 				<? endif; ?>
-				<? if ($arResult["preSettings"]["grouping_mode"] === true): ?>
+				<? if (($arResult["preSettings"]["grouping_mode"] ?? false) === true): ?>
 				enableReportLimit(false);
 				<? endif; ?>
 			});
@@ -408,7 +408,7 @@ initReportControls();
 			padding: 5px 5px 5px 0;
 		}
 	</style>
-<?php $fDisplayChart = $arResult['preSettings']['chart']['display']; ?>
+<?php $fDisplayChart = ($arResult['preSettings']['chart']['display'] ?? false); ?>
 	<div id="report-chart-config" class="webform-additional-fields">
 		<div class="reports-content-block">
 			<div id="report-chart-switch"
@@ -427,7 +427,7 @@ initReportControls();
 				<select id="report-chart-type" name="chart_type">
 					<?php
 					$bSelectFirst = true;
-					$chartTypeSetting = $arResult['preSettings']['chart']['type'];
+					$chartTypeSetting = ($arResult['preSettings']['chart']['type'] ?? null);
 					if ($chartTypeSetting !== null)
 					{
 						$chartTypeIds = array();
@@ -459,7 +459,7 @@ initReportControls();
 					</tr>
 					<?php
 					$yColumnsMaxNumber = 10;
-					$yColumns = $arResult['preSettings']['chart']['y_columns'];
+					$yColumns = ($arResult['preSettings']['chart']['y_columns'] ?? null);
 					$yColumnLastIndex = 0;
 					$yColumnsLabelText = GetMessage('REPORT_CHART_LABEL_TEXT_VALUES');
 					if (is_array($yColumns))
@@ -503,8 +503,8 @@ initReportControls();
 		var i, colId, match;
 		var xColumnIndex = null, yColumnsIndexes = [];
 		<?php
-			$xColumnIndex = $arResult['preSettings']['chart']['x_column'];
-			$yColumnsIndexes = $arResult['preSettings']['chart']['y_columns'];
+			$xColumnIndex = ($arResult['preSettings']['chart']['x_column'] ?? null);
+			$yColumnsIndexes = ($arResult['preSettings']['chart']['y_columns'] ?? []);
 			if ($xColumnIndex !== null && is_array($yColumnsIndexes) && count($yColumnsIndexes) > 0)
 			{
 				echo 'xColumnIndex = '.CUtil::JSEscape($xColumnIndex).';'.PHP_EOL;
@@ -813,7 +813,11 @@ initReportControls();
 		<span class="webform-button-right"></span>
 	</a>
 	<a class="webform-button-link webform-button-link-cancel"
-		href="<?=$arParams['ACTION']=='edit'?htmlspecialcharsbx($_SERVER['HTTP_REFERER']):CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>">
+		href="<?=
+			$arParams['ACTION'] === 'edit'
+				? htmlspecialcharsbx($_SERVER['HTTP_REFERER'] ?? '')
+				: CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"]);?>"
+		>
 		<?=GetMessage('REPORT_CANCEL')?>
 	</a>
 </div>
@@ -845,7 +849,10 @@ initReportControls();
 	<div class="reports-add_col-popup-title"><?=GetMessage('REPORT_POPUP_COLUMN_TITLE')?></div>
 	<div class="popup-window-hr popup-window-buttons-hr"><i></i></div>
 	<div class="reports-add_col-popup">
-		<?=call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'buildHTMLSelectTreePopup'), $arResult['fieldsTree'])?>
+			<?=call_user_func(
+				[($arParams['REPORT_HELPER_CLASS'] ?? ''), 'buildHTMLSelectTreePopup'],
+				$arResult['fieldsTree']
+			)?>
 	</div>
 </div>
 
@@ -1051,9 +1058,9 @@ $name = $APPLICATION->IncludeComponent(
 			"VALUE" => 1,
 			"POPUP" => "Y",
 			"ON_SELECT" => "RTFilter_chooseUserCatch",
-			"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER_PROFILE"],
+			"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER_PROFILE"] ?? '',
 			"SITE_ID" => SITE_ID,
-			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
+			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? ''
 		), null, array("HIDE_ICONS" => "Y")
 	);
 

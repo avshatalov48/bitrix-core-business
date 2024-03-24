@@ -1,15 +1,13 @@
 <?php
-
-use Bitrix\Main\Web\Uri;
-
 IncludeModuleLangFile(__FILE__);
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/update_client.php';
 
 class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 {
-	private $addParams = array();
-	private $addStr = "";
+	private $addParams = [];
+	private $addStr = '';
+
 	/**
 	 * Returns URL to backup webservice
 	 *
@@ -17,20 +15,23 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 	 * @return string
 	 *
 	 */
-	protected function getActionURL($arParams = /*.(array[string]string).*/ array())
+	protected function getActionURL($arParams = /*.(array[string]string).*/ [])
 	{
-		$arParams["license"] = md5(LICENSE_KEY);
-		$arParams["spd"] = CUpdateClient::getSpd();
-		$arParams["CHHB"] = $_SERVER["HTTP_HOST"];
-		$arParams["CSAB"] = $_SERVER["SERVER_ADDR"];
-		foreach($this->addParams as $key => $value)
+		$arParams['license'] = md5(LICENSE_KEY);
+		$arParams['spd'] = CUpdateClient::getSpd();
+		$arParams['CHHB'] = $_SERVER['HTTP_HOST'];
+		$arParams['CSAB'] = $_SERVER['SERVER_ADDR'];
+		foreach ($this->addParams as $key => $value)
+		{
 			$arParams[$key] = $value;
+		}
 
-		$url = COption::GetOptionString("bitrixcloud", "monitoring_policy_url");
-		$url = (new Uri($url))->addParams($arParams)->getUri() . $this->addStr;
+		$url = COption::GetOptionString('bitrixcloud', 'monitoring_policy_url');
+		$url = (new \Bitrix\Main\Web\Uri($url))->addParams($arParams)->getUri() . $this->addStr;
 
 		return $url;
 	}
+
 	/**
 	 * Returns action response XML and check CRC
 	 *
@@ -41,22 +42,26 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 	protected function monitoring_action($action)
 	{
 		$obXML = $this->action($action);
-		$node = $obXML->SelectNodes("/control");
+		/* @var CDataXMLNode $node */
+		$node = $obXML->SelectNodes('/control');
 		if (is_object($node))
 		{
-			$spd = $node->getAttribute("crc_code");
-			if($spd <> '')
+			$spd = $node->getAttribute('crc_code');
+			if ($spd <> '')
+			{
 				CUpdateClient::setSpd($spd);
+			}
 		}
 		else
 		{
-			throw new CBitrixCloudException(GetMessage("BCL_MON_WS_SERVER", array(
-				"#STATUS#" => "-1",
-			)), $this->getServerResult());
+			throw new CBitrixCloudException(GetMessage('BCL_MON_WS_SERVER', [
+				'#STATUS#' => '-1',
+			]), $this->getServerResult());
 		}
 
 		return $obXML;
 	}
+
 	/**
 	 *
 	 * @return CDataXML
@@ -64,13 +69,14 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 	 */
 	public function actionGetList()
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"lang" => LANGUAGE_ID,
-		);
+		$this->addStr = '';
+		$this->addParams = [
+			'lang' => LANGUAGE_ID,
+		];
 
-		return $this->monitoring_action("monitoring_get_list");
+		return $this->monitoring_action('monitoring_get_list');
 	}
+
 	/**
 	 *
 	 * @return CDataXML
@@ -78,46 +84,53 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 	 */
 	public function actionStart($domain, $is_https, $language_id, $emails, $tests)
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"domain" => $domain,
-			"domain_is_https" => $is_https? "Y": "N",
-			"lang" => $language_id,
-		);
+		$this->addStr = '';
+		$this->addParams = [
+			'domain' => $domain,
+			'domain_is_https' => $is_https ? 'Y' : 'N',
+			'lang' => $language_id,
+		];
 
 		if (is_array($emails))
 		{
-			foreach($emails as $email)
+			foreach ($emails as $email)
 			{
 				$email = trim($email);
-				if ($email <> '')
-					$this->addStr .= "&ar_emails[]=".urlencode($email);
+				if ($email !== '')
+				{
+					$this->addStr .= '&ar_emails[]=' . urlencode($email);
+				}
 			}
 		}
 
 		if (is_array($tests))
 		{
-			foreach($tests as $test)
+			foreach ($tests as $test)
 			{
 				$test = trim($test);
-				if ($test <> '')
-					$this->addStr .= "&ar_tests[]=".urlencode($test);
+				if ($test !== '')
+				{
+					$this->addStr .= '&ar_tests[]=' . urlencode($test);
+				}
 			}
 		}
 
 		$option = CBitrixCloudOption::getOption('monitoring_devices');
 		$devices = $option->getArrayValue();
-		foreach($devices as $domain_device)
+		foreach ($devices as $domain_device)
 		{
-			if (list ($myDomain, $myDevice) = explode("|", $domain_device, 2))
+			if (list ($myDomain, $myDevice) = explode('|', $domain_device, 2))
 			{
 				if ($myDomain === $domain)
-					$this->addStr .= "&ar_devices[]=".urlencode($myDevice);
+				{
+					$this->addStr .= '&ar_devices[]=' . urlencode($myDevice);
+				}
 			}
 		}
 
-		$this->monitoring_action("monitoring_start");
+		$this->monitoring_action('monitoring_start');
 	}
+
 	/**
 	 *
 	 * @return CDataXML
@@ -125,14 +138,15 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 	 */
 	public function actionStop($domain)
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"domain" => $domain,
-			"lang" => LANGUAGE_ID,
-		);
+		$this->addStr = '';
+		$this->addParams = [
+			'domain' => $domain,
+			'lang' => LANGUAGE_ID,
+		];
 
-		return $this->monitoring_action("monitoring_stop");
+		return $this->monitoring_action('monitoring_stop');
 	}
+
 	/**
 	 *
 	 * @return CDataXML
@@ -140,12 +154,12 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 	 */
 	public function actionGetInfo()
 	{
-		$this->addStr = "";
-		$this->addParams = array(
-			"lang" => LANGUAGE_ID,
-			"interval" => COption::GetOptionString("bitrixcloud", "monitoring_interval"),
-		);
+		$this->addStr = '';
+		$this->addParams = [
+			'lang' => LANGUAGE_ID,
+			'interval' => COption::GetOptionString('bitrixcloud', 'monitoring_interval'),
+		];
 
-		return $this->monitoring_action("monitoring_get_info");
+		return $this->monitoring_action('monitoring_get_info');
 	}
 }

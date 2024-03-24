@@ -197,6 +197,7 @@ export default class UserSelector
 							emailUsers: false,
 							inviteEmployeeLink: false,
 							inviteGuestLink: false,
+							analyticsSource: 'calendar',
 						},
 						filters: [
 							{

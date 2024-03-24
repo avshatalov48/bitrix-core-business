@@ -125,7 +125,10 @@ class SonetLogCollector
 			return new Date($recountFromOption, 'Y-m-d H:i:s');
 		}
 
-		return new Date('2023-10-03 00:00:00', 'Y-m-d H:i:s');
+		$format = 'Y-m-d H:i:s';
+		$twoWeeks = date($format, strtotime('-14 days'));
+
+		return new Date($twoWeeks, $format);
 	}
 
 	private function getAccessCodes(): array

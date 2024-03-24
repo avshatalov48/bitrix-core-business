@@ -474,6 +474,12 @@ class SenderContactListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 	public function executeComponent()
 	{
 		parent::executeComponent();
+
+		if ($this->getAccessController()->isAdmin() && $this->request->get('clearAll') === 'y')
+		{
+			ContactTable::deleteList(['>ID' => 0]);
+		}
+
 		parent::prepareResultAndTemplate();
 	}
 

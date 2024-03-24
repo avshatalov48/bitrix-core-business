@@ -1,5 +1,4 @@
 <?php
-
 $DB_test = CDatabase::GetModuleConnection('statistic', true);
 if(!is_object($DB_test))
 {
@@ -8,7 +7,6 @@ if(!is_object($DB_test))
 
 IncludeModuleLangFile(__FILE__);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/filter_tools.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/statistic/stat_tools.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/statistic/ip_tools.php';
 /*patchlimitationmutatormark1*/

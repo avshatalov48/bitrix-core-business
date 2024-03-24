@@ -2,66 +2,8 @@
 namespace Bitrix\UI\Avatar\Mask;
 
 use Bitrix\Main;
-use Bitrix\Main\FileTable;
-use Bitrix\Main\ORM\Fields\DatetimeField;
-use Bitrix\Main\ORM\Fields\IntegerField;
-use Bitrix\Main\ORM\Fields\Relations\Reference;
-use Bitrix\Main\ORM\Fields\StringField;
-use Bitrix\Main\ORM\Fields\TextField;
-use Bitrix\Main\ORM\Query\Join;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\UI\Avatar;
-
-class ItemTable extends OrmDataManager
-{
-	public static function getTableName(): string
-	{
-		return 'b_ui_avatar_mask_item';
-	}
-
-	public static function getMap(): array
-	{
-		return array(
-			(new IntegerField('ID'))
-				->configurePrimary()
-				->configureAutocomplete(),
-			(new IntegerField('FILE_ID'))->configureRequired(),
-
-			(new StringField('OWNER_TYPE'))->configureRequired()->configureSize(100),
-			(new StringField('OWNER_ID', []))->configureRequired()->configureSize(20),
-
-			new StringField('GROUP_ID'),
-
-			new StringField('TITLE'),
-			new TextField('DESCRIPTION'),
-			(new IntegerField('SORT'))->configureDefaultValue(100),
-
-			(new DatetimeField('TIMESTAMP_X'))
-				->configureRequired()
-				->configureDefaultValue(function() {
-					return new DateTime();
-				}),
-
-			(new Reference(
-				'FILE',
-				FileTable::class,
-				Join::on('this.FILE_ID', 'ref.ID')
-			))->configureJoinType(Join::TYPE_INNER),
-
-			(new Reference(
-				'SHARED_FOR',
-				Avatar\Mask\AccessTable::class,
-				Join::on('this.ID', 'ref.ITEM_ID')
-			))->configureJoinType(Join::TYPE_INNER),
-
-			(new Reference(
-				'RECENTLY_USED_BY',
-				Avatar\Mask\RecentlyUsedTable::class,
-				Join::on('this.ID', 'ref.ITEM_ID')
-			))->configureJoinType(Join::TYPE_INNER)
-		);
-	}
-}
+use SebastianBergmann\CodeCoverage\Report\PHP;
 
 class Item
 {
@@ -76,7 +18,7 @@ class Item
 
 	public function __construct(int $id)
 	{
-		if ($id > 0 && ($this->data = ItemTable::getById($id)->fetch()))
+		if ($id > 0 && ($this->data = Avatar\Model\ItemTable::getById($id)->fetch()))
 		{
 			$this->id = $id;
 			if (is_subclass_of($this->data['OWNER_TYPE'], Owner\DefaultOwner::class))
@@ -122,7 +64,7 @@ class Item
 		{
 			return true;
 		}
-		if (Avatar\Mask\AccessTable::getList([
+		if (Avatar\Model\AccessTable::getList([
 			'select' => ['ID'],
 			'filter' => [
 				'=ITEM_ID' => $this->getId(),
@@ -155,7 +97,7 @@ class Item
 		}
 		if (!empty($dataToSave))
 		{
-			ItemTable::update($this->getId(), $dataToSave);
+			Avatar\Model\ItemTable::update($this->getId(), $dataToSave);
 		}
 
 		if (array_key_exists('ACCESS_CODE', $data))
@@ -178,7 +120,7 @@ class Item
 
 	public function getAccessCode(): array
 	{
-		return array_column(AccessTable::getList([
+		return array_column(Avatar\Model\AccessTable::getList([
 			'select' => ['ACCESS_CODE'],
 			'filter' => ['ITEM_ID' => $this->getId()]
 		])->fetchAll(), 'ACCESS_CODE');
@@ -186,11 +128,11 @@ class Item
 
 	protected function setAccessCode(array $accessCodes)
 	{
-		AccessTable::deleteByFilter(['ITEM_ID' => $this->getId()]);
+		Avatar\Model\AccessTable::deleteByFilter(['ITEM_ID' => $this->getId()]);
 		if (!empty($accessCodes))
 		{
 			$itemId = $this->getId();
-			AccessTable::addMulti(array_map(function($accessCode) use ($itemId) {
+			Avatar\Model\AccessTable::addMulti(array_map(function($accessCode) use ($itemId) {
 				return ['ITEM_ID' => $itemId, 'ACCESS_CODE' => $accessCode];
 			}, $accessCodes), true);
 		}
@@ -199,7 +141,7 @@ class Item
 	public function applyToFileBy(int $originalFileId, int $fileId, Avatar\Mask\Consumer $consumer)
 	{
 
-		return ItemToFileTable::add([
+		return Avatar\Model\ItemToFileTable::add([
 			'ITEM_ID' => $this->id,
 			'ORIGINAL_FILE_ID' => $originalFileId,
 			'FILE_ID' => $fileId,
@@ -222,7 +164,7 @@ class Item
 
 			if ($fileId = \CFile::SaveFile($file, 'ui/mask'))
 			{
-				$result = ItemTable::add([
+				$result = Avatar\Model\ItemTable::add([
 					'OWNER_TYPE' => get_class($owner),
 					'OWNER_ID' => $owner->getId(),
 					'GROUP_ID' => $descriptionParams['GROUP_ID'] ?? null,
@@ -234,7 +176,7 @@ class Item
 
 				if ($result->isSuccess() && ($item = static::getInstance($result->getId())))
 				{
-					$item->setAccessCode($descriptionParams['ACCESS_CODE'] ?: $owner->getDefaultAccess());
+					$item->setAccessCode($descriptionParams['ACCESS_CODE'] ?? $owner->getDefaultAccess());
 					$result->setData([$item]);
 					return $result;
 				}
@@ -263,42 +205,74 @@ class Item
 
 		$connection = Main\Application::getConnection();
 		$sqlHelper = $connection->getSqlHelper();
-		$sqlItemTableName = ItemTable::getTableName();
-		$where = Main\ORM\Query\Query::buildFilterSql(ItemTable::getEntity(), $filter);
+		$sqlItemTableName = Avatar\Model\ItemTable::getTableName();
+		$where = Main\ORM\Query\Query::buildFilterSql(Avatar\Model\ItemTable::getEntity(), $filter);
 		if (empty($where))
 		{
 			return $result;
 		}
 
-		$sql = <<<SQL
-INSERT IGNORE INTO b_ui_avatar_mask_file_deleted (ENTITY, ORIGINAL_FILE_ID, FILE_ID, ITEM_ID)
-	SELECT 'ITEM_TEMP', FILE_ID, FILE_ID, ID
+		$connection = \Bitrix\Main\Application::getConnection();
+		$sql = [
+			$connection->getSqlHelper()->getInsertIgnore(
+				'b_ui_avatar_mask_file_deleted',
+				' (ENTITY, ORIGINAL_FILE_ID, FILE_ID, ITEM_ID) ',
+				<<<SQL
+SELECT 'ITEM_TEMP', FILE_ID, FILE_ID, ID
 	FROM {$sqlHelper->quote($sqlItemTableName)}
 	WHERE {$where}
-;
+SQL
+			),
+			$connection->getType() === 'mysql' ?
+			<<<MYSQL
 DELETE ACCESS1
-	FROM {$sqlHelper->quote(AccessTable::getTableName())} AS ACCESS1,
+	FROM {$sqlHelper->quote(Avatar\Model\AccessTable::getTableName())} AS ACCESS1,
 		b_ui_avatar_mask_file_deleted AS FDTABLE
 	WHERE ACCESS1.ITEM_ID = FDTABLE.ITEM_ID AND FDTABLE.ENTITY = 'ITEM_TEMP'
-;
+MYSQL : ($connection->getType() ==='pgsql' ?
+				<<<PGSQL
+DELETE FROM {$sqlHelper->quote(Avatar\Model\AccessTable::getTableName())} AS ACCESS1
+USING b_ui_avatar_mask_file_deleted AS FDTABLE 
+WHERE ACCESS1.ITEM_ID = FDTABLE.ITEM_ID AND FDTABLE.ENTITY = 'ITEM_TEMP'
+PGSQL : ''),
+			$connection->getType() === 'mysql' ?
+				<<<MYSQL
 DELETE RECENTLYUSED1
-	FROM {$sqlHelper->quote(RecentlyUsedTable::getTableName())} AS RECENTLYUSED1,
+	FROM {$sqlHelper->quote(Avatar\Model\RecentlyUsedTable::getTableName())} AS RECENTLYUSED1,
 		b_ui_avatar_mask_file_deleted AS FDTABLE
 	WHERE RECENTLYUSED1.ITEM_ID = FDTABLE.ITEM_ID AND FDTABLE.ENTITY = 'ITEM_TEMP'
-;
-INSERT IGNORE INTO b_ui_avatar_mask_file_deleted (ENTITY, ORIGINAL_FILE_ID, FILE_ID, ITEM_ID)
-	SELECT 'LINK', LINK1.ORIGINAL_FILE_ID, LINK1.FILE_ID, LINK1.ITEM_ID
-	FROM {$sqlHelper->quote(ItemToFileTable::getTableName())} AS LINK1,
+MYSQL : ($connection->getType() ==='pgsql' ?
+				<<<PGSQL
+DELETE FROM {$sqlHelper->quote(Avatar\Model\RecentlyUsedTable::getTableName())} AS RECENTLYUSED1
+USING b_ui_avatar_mask_file_deleted AS FDTABLE WHERE RECENTLYUSED1.ITEM_ID = FDTABLE.ITEM_ID AND FDTABLE.ENTITY = 'ITEM_TEMP'
+PGSQL : ''),
+			$connection->getSqlHelper()->getInsertIgnore(
+				'b_ui_avatar_mask_file_deleted',
+				' (ENTITY, ORIGINAL_FILE_ID, FILE_ID, ITEM_ID) ',
+				<<<SQL
+SELECT 'LINK', LINK1.ORIGINAL_FILE_ID, LINK1.FILE_ID, LINK1.ITEM_ID
+	FROM {$sqlHelper->quote(Avatar\Model\ItemToFileTable::getTableName())} AS LINK1,
 		b_ui_avatar_mask_file_deleted AS FDTABLE
 	WHERE LINK1.ITEM_ID = FDTABLE.ITEM_ID AND FDTABLE.ENTITY = 'ITEM_TEMP'
-;
+SQL
+			),
+			$connection->getType() === 'mysql' ?
+				<<<MYSQL
 DELETE LINK1
-	FROM {$sqlHelper->quote(ItemToFileTable::getTableName())} AS LINK1,
+	FROM {$sqlHelper->quote(Avatar\Model\ItemToFileTable::getTableName())} AS LINK1,
 		b_ui_avatar_mask_file_deleted AS FDTABLE
 	WHERE LINK1.ITEM_ID = FDTABLE.ITEM_ID AND FDTABLE.ENTITY = 'ITEM_TEMP'
-;
+MYSQL : ($connection->getType() ==='pgsql' ?
+				<<<PGSQL
+DELETE FROM {$sqlHelper->quote(Avatar\Model\ItemToFileTable::getTableName())} AS LINK1
+USING b_ui_avatar_mask_file_deleted AS FDTABLE WHERE LINK1.ITEM_ID = FDTABLE.ITEM_ID AND FDTABLE.ENTITY = 'ITEM_TEMP'
+PGSQL : ''),
+			<<<SQL
 UPDATE b_ui_avatar_mask_file_deleted SET ENTITY = 'ITEM' WHERE ENTITY = 'ITEM_TEMP';
-SQL;
+SQL,
+		];
+		$sql = implode(';' . PHP_EOL, $sql);
+
 		$connection->executeSqlBatch($sql);
 
 		$cleaningString = static::clearFileTable();
@@ -351,9 +325,9 @@ SQL;
 		}
 		if ($file['MODULE_ID'] === 'ui')
 		{
-			ItemToFileTable::deleteByFilter(['=FILE_ID' => $file['ID']]);
+			Avatar\Model\ItemToFileTable::deleteByFilter(['=FILE_ID' => $file['ID']]);
 		}
-		else if ($file['MODULE_ID'] === 'main' && ItemToFileTable::getList([
+		else if ($file['MODULE_ID'] === 'main' && Avatar\Model\ItemToFileTable::getList([
 				'select' => ['FILE_ID'],
 				'filter' => ['=ORIGINAL_FILE_ID' => $file['ID']],
 			])->fetch())
@@ -361,17 +335,23 @@ SQL;
 			$connection = Main\Application::getConnection();
 			$sqlHelper = $connection->getSqlHelper();
 			$fileId = (int) $file['ID'];
-			$sql = <<<SQL
-INSERT IGNORE INTO b_ui_avatar_mask_file_deleted (ENTITY, ORIGINAL_FILE_ID, FILE_ID, ITEM_ID)
-	SELECT 'LINK', LINK1.ORIGINAL_FILE_ID, LINK1.FILE_ID, LINK1.ITEM_ID
-	FROM {$sqlHelper->quote(ItemToFileTable::getTableName())} AS LINK1
-	WHERE LINK1.ORIGINAL_FILE_ID = {$fileId} 
-;
-DELETE LINK1
-	FROM {$sqlHelper->quote(ItemToFileTable::getTableName())} AS LINK1
-	WHERE LINK1.ORIGINAL_FILE_ID = {$fileId} 
-;
-SQL;
+
+			$sql = [
+				$sqlHelper->getInsertIgnore(
+					'b_ui_avatar_mask_file_deleted',
+					'(ENTITY, ORIGINAL_FILE_ID, FILE_ID, ITEM_ID)',
+					<<<SQL
+SELECT 'LINK', ORIGINAL_FILE_ID, FILE_ID, ITEM_ID
+	FROM {$sqlHelper->quote(Avatar\Model\ItemToFileTable::getTableName())}
+	WHERE ORIGINAL_FILE_ID = {$fileId} 
+SQL
+				),
+				<<<SQL
+DELETE FROM {$sqlHelper->quote(Avatar\Model\ItemToFileTable::getTableName())} WHERE ORIGINAL_FILE_ID = {$fileId} 
+SQL,
+			];
+			$sql = implode(';' . PHP_EOL, $sql);
+
 			$connection->executeSqlBatch($sql);
 
 			$cleaningString = static::clearFileTable();

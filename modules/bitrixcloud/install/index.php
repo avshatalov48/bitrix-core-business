@@ -1,130 +1,136 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
-/** @global CMain $APPLICATION */
-/** @global CDatabase $DB */
-if (class_exists("bitrixcloud"))
+/** @var CMain $APPLICATION */
+/** @var CDatabase $DB */
+if (class_exists('bitrixcloud'))
+{
 	return;
+}
 
 class bitrixcloud extends CModule
 {
-	var $MODULE_ID = "bitrixcloud";
-	var $MODULE_VERSION;
-	var $MODULE_VERSION_DATE;
-	var $MODULE_NAME;
-	var $MODULE_DESCRIPTION;
-	var $MODULE_CSS;
-	var $MODULE_GROUP_RIGHTS = "N";
-	var $errors = false;
+	public $MODULE_ID = 'bitrixcloud';
+	public $MODULE_VERSION;
+	public $MODULE_VERSION_DATE;
+	public $MODULE_NAME;
+	public $MODULE_DESCRIPTION;
+	public $MODULE_CSS;
+	public $MODULE_GROUP_RIGHTS = 'N';
+	public $errors = false;
 
 	public function __construct()
 	{
-		$arModuleVersion = array();
-		include(__DIR__.'/version.php');
-		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
-		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
-		$this->MODULE_NAME = GetMessage("BCL_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("BCL_MODULE_DESCRIPTION_2");
+		$arModuleVersion = [];
+		include __DIR__ . '/version.php';
+		$this->MODULE_VERSION = $arModuleVersion['VERSION'];
+		$this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
+		$this->MODULE_NAME = GetMessage('BCL_MODULE_NAME');
+		$this->MODULE_DESCRIPTION = GetMessage('BCL_MODULE_DESCRIPTION_2');
 	}
 
-	function GetModuleTasks()
+	public function GetModuleTasks()
 	{
-		return array(
-			'bitrixcloud_deny' => array(
+		return [
+			'bitrixcloud_deny' => [
 				'LETTER' => 'D',
 				'BINDING' => 'module',
-				'OPERATIONS' => array(
-				)
-			),
-			'bitrixcloud_control' => array(
+				'OPERATIONS' => [
+				]
+			],
+			'bitrixcloud_control' => [
 				'LETTER' => 'W',
 				'BINDING' => 'module',
-				'OPERATIONS' => array(
+				'OPERATIONS' => [
 					'bitrixcloud_monitoring',
 					'bitrixcloud_backup',
-				)
-			),
-		);
+				]
+			],
+		];
 	}
 
-	function InstallDB($arParams = array())
+	public function InstallDB($arParams = [])
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
-		// Database tables creation
-		if (!$DB->Query("SELECT 'x' FROM b_bitrixcloud_option WHERE 1=0", true))
+
+		if (!$DB->TableExists('b_bitrixcloud_option'))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/db/mysql/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/db/' . $connection->getType() . '/install.sql');
 		}
+
 		if ($this->errors !== false)
 		{
-			$APPLICATION->ThrowException(implode("<br>", $this->errors));
+			$APPLICATION->ThrowException(implode('<br>', $this->errors));
 			return false;
 		}
-		else
-		{
-			$this->InstallTasks();
-			RegisterModule("bitrixcloud");
-			RegisterModuleDependences("main", "OnAdminInformerInsertItems", "bitrixcloud", "CBitrixCloudBackup", "OnAdminInformerInsertItems");
-			RegisterModuleDependences("mobileapp", "OnBeforeAdminMobileMenuBuild", "bitrixcloud", "CBitrixCloudMobile", "OnBeforeAdminMobileMenuBuild");
 
-			CModule::IncludeModule("bitrixcloud");
-		}
+		$this->InstallTasks();
+		RegisterModule('bitrixcloud');
+		RegisterModuleDependences('main', 'OnAdminInformerInsertItems', 'bitrixcloud', 'CBitrixCloudBackup', 'OnAdminInformerInsertItems');
+		RegisterModuleDependences('mobileapp', 'OnBeforeAdminMobileMenuBuild', 'bitrixcloud', 'CBitrixCloudMobile', 'OnBeforeAdminMobileMenuBuild');
+
 		return true;
 	}
 
-	function UnInstallDB($arParams = array())
+	public function UnInstallDB($arParams = [])
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
-		UnRegisterModuleDependences("main", "OnAdminInformerInsertItems", "bitrixcloud", "CBitrixCloudBackup", "OnAdminInformerInsertItems");
-		UnRegisterModuleDependences("mobileapp", "OnBeforeAdminMobileMenuBuild", "bitrixcloud", "CBitrixCloudMobile", "OnBeforeAdminMobileMenuBuild");
-		if (!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
+		UnRegisterModuleDependences('main', 'OnAdminInformerInsertItems', 'bitrixcloud', 'CBitrixCloudBackup', 'OnAdminInformerInsertItems');
+		UnRegisterModuleDependences('mobileapp', 'OnBeforeAdminMobileMenuBuild', 'bitrixcloud', 'CBitrixCloudMobile', 'OnBeforeAdminMobileMenuBuild');
+
+		if (!array_key_exists('savedata', $arParams) || $arParams['savedata'] != 'Y')
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/db/mysql/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/db/' . $connection->getType() . '/uninstall.sql');
 		}
-		UnRegisterModule("bitrixcloud");
+
+		UnRegisterModule('bitrixcloud');
+
 		if ($this->errors !== false)
 		{
-			$APPLICATION->ThrowException(implode("<br>", $this->errors));
+			$APPLICATION->ThrowException(implode('<br>', $this->errors));
 			return false;
 		}
+
 		return true;
 	}
 
-	function InstallEvents()
+	public function InstallEvents()
 	{
 		return true;
 	}
 
-	function UnInstallEvents()
+	public function UnInstallEvents()
 	{
 		return true;
 	}
 
-	function InstallFiles($arParams = array())
+	public function InstallFiles($arParams = [])
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if ($_ENV['COMPUTERNAME'] != 'BX')
 		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/gadgets", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin', true, true);
+			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/gadgets', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/gadgets', true, true);
+			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/components', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/components', true, true);
+			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/js', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/js', true, true);
 		}
 		return true;
 	}
 
-	function UnInstallFiles()
+	public function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
+		if ($_ENV['COMPUTERNAME'] != 'BX')
 		{
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			DeleteDirFilesEx("/bitrix/js/bitrixcloud/");
+			DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/admin/', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+			DeleteDirFilesEx('/bitrix/js/bitrixcloud/');
 		}
 		return true;
 	}
 
-	function DoInstall()
+	public function DoInstall()
 	{
 		global $USER, $APPLICATION, $step;
 		if ($USER->IsAdmin())
@@ -132,7 +138,7 @@ class bitrixcloud extends CModule
 			$step = intval($step);
 			if ($step < 2)
 			{
-				$APPLICATION->IncludeAdminFile(GetMessage("BCL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/step1.php");
+				$APPLICATION->IncludeAdminFile(GetMessage('BCL_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/step1.php');
 			}
 			elseif ($step == 2)
 			{
@@ -141,13 +147,13 @@ class bitrixcloud extends CModule
 					$this->InstallEvents();
 					$this->InstallFiles();
 				}
-				$GLOBALS["errors"] = $this->errors;
-				$APPLICATION->IncludeAdminFile(GetMessage("BCL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/step2.php");
+				$GLOBALS['errors'] = $this->errors;
+				$APPLICATION->IncludeAdminFile(GetMessage('BCL_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/step2.php');
 			}
 		}
 	}
 
-	function DoUninstall()
+	public function DoUninstall()
 	{
 		global $USER, $APPLICATION, $step;
 		if ($USER->IsAdmin())
@@ -155,21 +161,21 @@ class bitrixcloud extends CModule
 			$step = intval($step);
 			if ($step < 2)
 			{
-				$APPLICATION->IncludeAdminFile(GetMessage("BCL_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/unstep1.php");
+				$APPLICATION->IncludeAdminFile(GetMessage('BCL_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/unstep1.php');
 			}
 			elseif ($step == 2)
 			{
-				$this->UnInstallDB(array(
-					"save_tables" => $_REQUEST["save_tables"],
-				));
+				$this->UnInstallDB([
+					'save_tables' => $_REQUEST['save_tables'],
+				]);
 				//message types and templates
-				if ($_REQUEST["save_templates"] != "Y")
+				if ($_REQUEST['save_templates'] != 'Y')
 				{
 					$this->UnInstallEvents();
 				}
 				$this->UnInstallFiles();
-				$GLOBALS["errors"] = $this->errors;
-				$APPLICATION->IncludeAdminFile(GetMessage("BCL_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/unstep2.php");
+				$GLOBALS['errors'] = $this->errors;
+				$APPLICATION->IncludeAdminFile(GetMessage('BCL_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/unstep2.php');
 			}
 		}
 	}

@@ -1,19 +1,18 @@
 import { ajax } from 'main.core';
-import { BaseEvent } from 'main.core.events';
 import { MenuItem } from 'main.popup';
 import { ContextItem } from './context-item';
-import {EventTypes} from "../../../const/event";
+import { EventTypes } from '../../../const/event';
 
 export class Pin extends ContextItem
 {
 	static ID = 'pinner';
 
-	create(): JSON
+	create(): Object
 	{
 		return {
 			text: this.message,
 			onclick: (event, menuItem: MenuItem) => {
-				this.#switch().then(result => {
+				this.#switch().then((result) => {
 					menuItem.getMenuWindow().close();
 					const resultMessage = result.data.message;
 					const resultMode = result.data.mode;
@@ -41,7 +40,7 @@ export class Pin extends ContextItem
 
 	#flush(resultMode: string): void
 	{
-		this.getEmitter().emit(EventTypes.pinChanged, {
+		this.emit(EventTypes.pinChanged, {
 			spaceId: this.spaceId,
 			isPinned: resultMode === 'Y',
 		});

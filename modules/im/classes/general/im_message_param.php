@@ -226,12 +226,17 @@ class CIMMessageParam
 
 		if ($chatId <= 0)
 		{
-			$message = \Bitrix\Im\Model\MessageTable::getById($messageId)->fetch();
-			if ($message)
+			$messageQuery = \Bitrix\Im\Model\MessageTable::query()
+				->setSelect(['CHAT_ID'])
+				->where('ID', $messageId)
+				->fetch();
+
+			if ($messageQuery)
 			{
-				$chatId = $message['CHAT_ID'];
+				$chatId = $messageQuery['CHAT_ID'];
 			}
 		}
+
 		if ($chatId <= 0)
 		{
 			return false;
@@ -266,7 +271,12 @@ class CIMMessageParam
 		$messageId = intval($messageId);
 
 		$sql = "
-			SELECT C.ID CHAT_ID, C.TYPE MESSAGE_TYPE, M.AUTHOR_ID, C.ENTITY_TYPE CHAT_ENTITY_TYPE, C.ENTITY_ID CHAT_ENTITY_ID
+			SELECT 
+				C.ID as CHAT_ID, 
+				C.TYPE as MESSAGE_TYPE, 
+				M.AUTHOR_ID, 
+				C.ENTITY_TYPE as CHAT_ENTITY_TYPE, 
+				C.ENTITY_ID as CHAT_ENTITY_ID
 			FROM b_im_message M INNER JOIN b_im_chat C ON M.CHAT_ID = C.ID
 			WHERE M.ID = ".$messageId."
 		";

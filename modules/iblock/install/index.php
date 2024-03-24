@@ -107,8 +107,8 @@ class iblock extends CModule
 			{
 				if($arIBlock["VERSION"] == 2)
 				{
-					$arSql[] = "DROP TABLE b_iblock_element_prop_s".$arIBlock["ID"];
-					$arSql[] = "DROP TABLE b_iblock_element_prop_m".$arIBlock["ID"];
+					$arSql[] = "DROP TABLE if exists b_iblock_element_prop_s" . $arIBlock["ID"];
+					$arSql[] = "DROP TABLE if exists b_iblock_element_prop_m" . $arIBlock["ID"];
 				}
 				$GLOBALS["USER_FIELD_MANAGER"]->OnEntityDelete("IBLOCK_".$arIBlock["ID"]."._SECTION");
 			}

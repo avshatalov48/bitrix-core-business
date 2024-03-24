@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Application;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log_smartfilter.php");
 
 class CSocNetLogSmartFilter extends CAllSocNetLogSmartFilter
@@ -8,19 +10,21 @@ class CSocNetLogSmartFilter extends CAllSocNetLogSmartFilter
 	{
 		global $DB;
 
+		$helper = Application::getConnection()->getSqlHelper();
 		$user_id = intval($user_id);
 
 		if ($user_id <= 0)
 			return false;
-			
+
 		if ($type != "Y")
 			$type = "N";
 
-		$strSQL = "
-			INSERT INTO b_sonet_log_smartfilter (USER_ID, TYPE)
-			VALUES (".$user_id.", '".$type."')
-			ON DUPLICATE KEY UPDATE TYPE = '".$type."'
-		";
+		$strSQL = $helper->prepareMerge(
+			'b_sonet_log_smartfilter',
+			[],
+			['USER_ID' => $user_id, 'TYPE' => $type,],
+			['TYPE' => $type,]
+		);
 		$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
 		if ($res)

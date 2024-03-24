@@ -1,4 +1,4 @@
-<?if(!Defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 if (!CModule::IncludeModule('mobileapp'))
 {
@@ -6,6 +6,9 @@ if (!CModule::IncludeModule('mobileapp'))
 	return;
 }
 
+/**
+ * @var $APPLICATION CMain
+ */
 $arResult = array(
 	"CURRENT_PAGE" => $APPLICATION->GetCurPage(),
 	"AJAX_URL" => $componentPath."/ajax.php"

@@ -6,12 +6,10 @@ use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Sync;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\MapBuilder;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class ChatTable
@@ -72,7 +70,7 @@ class ChatTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('CHAT_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_ID_FIELD'),
 			),
 			'PARENT_ID' => array(
 				'data_type' => 'integer',
@@ -85,74 +83,74 @@ class ChatTable extends Entity\DataManager
 			'TITLE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateTitle'),
-				'title' => Loc::getMessage('CHAT_ENTITY_TITLE_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_TITLE_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'DESCRIPTION' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('CHAT_ENTITY_DESCRIPTION_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_DESCRIPTION_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'COLOR' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateColor'),
-				'title' => Loc::getMessage('CHAT_ENTITY_COLOR_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_COLOR_FIELD'),
 			),
 			'TYPE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateType'),
-				'title' => Loc::getMessage('CHAT_ENTITY_TYPE_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_TYPE_FIELD'),
 				'default_value' => 'C',
 			),
 			'EXTRANET' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('CHAT_ENTITY_EXTRANET_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_EXTRANET_FIELD'),
 				'default_value' => 'N',
 			),
 			'AUTHOR_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('CHAT_ENTITY_AUTHOR_ID_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_AUTHOR_ID_FIELD'),
 			),
 			'AVATAR' => array(
 				'data_type' => 'integer'
 			),
 			'CALL_TYPE' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('CHAT_ENTITY_CALL_TYPE_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_CALL_TYPE_FIELD'),
 			),
 			'CALL_NUMBER' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateCallNumber'),
-				'title' => Loc::getMessage('CHAT_ENTITY_CALL_NUMBER_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_CALL_NUMBER_FIELD'),
 			),
 			'ENTITY_TYPE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateEntityType'),
-				'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_TYPE_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_TYPE_FIELD'),
 			),
 			'ENTITY_ID' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateEntityId'),
-				'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_ID_FIELD'),
 			),
 			'ENTITY_DATA_1' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateEntityData'),
-				'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_DATA_1_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_DATA_1_FIELD'),
 			),
 			'ENTITY_DATA_2' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateEntityData'),
-				'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_DATA_2_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_DATA_2_FIELD'),
 			),
 			'ENTITY_DATA_3' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateEntityData'),
-				'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_DATA_3_FIELD'),
+				//'title' => Loc::getMessage('CHAT_ENTITY_ENTITY_DATA_3_FIELD'),
 			),
 			'AUTHOR' => array(
 				'data_type' => 'Bitrix\Main\User',
@@ -223,7 +221,10 @@ class ChatTable extends Entity\DataManager
 			),
 			'ALIAS' => array(
 				'data_type' => 'Bitrix\Im\Model\AliasTable',
-				'reference' => array('=this.ID' => 'ref.ENTITY_ID', '=this.ENTITY_TYPE' => 'ref.ENTITY_TYPE'),
+				'reference' => array(
+					'=this.ID' => 'ref.ENTITY_ID',
+					'=this.ENTITY_TYPE' => 'ref.ENTITY_TYPE'
+				),
 				'join_type' => 'LEFT',
 			),
 			'DISAPPEARING_TIME' => array(

@@ -70,15 +70,6 @@ export const MentionItem = {
 		{
 			return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
 		},
-		formattedDate(): string
-		{
-			if (!this.recentItem.message.date)
-			{
-				return '';
-			}
-
-			return this.formatDate(this.recentItem.message.date);
-		},
 	},
 	methods:
 	{
@@ -100,16 +91,11 @@ export const MentionItem = {
 		>
 			<Avatar :dialogId="dialogId" :size="AvatarSize.M" class="bx-im-mention-item__avatar-container" />
 			<div class="bx-im-mention-item__content-container">
-				<div class="bx-im-mention-item__content-header">
-					<ChatTitleWithHighlighting 
-						:dialogId="dialogId" 
-						:textToHighlight="query" 
-						class="bx-im-mention-item__title"
-					/>
-					<span v-if="formattedDate.length > 0" class="bx-im-mention-item__date">
-						{{ formattedDate }}
-					</span>
-				</div>
+				<ChatTitleWithHighlighting 
+					:dialogId="dialogId" 
+					:textToHighlight="query" 
+					class="bx-im-mention-item__title"
+				/>
 				<div v-if="isUser" class="bx-im-mention-item__position" :title="position" v-html="userItemText"></div>
 				<div v-else class="bx-im-mention-item__position" :title="chatItemText">{{ chatItemText }}</div>
 			</div>

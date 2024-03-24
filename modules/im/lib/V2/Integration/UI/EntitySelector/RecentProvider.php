@@ -328,7 +328,7 @@ class RecentProvider extends BaseProvider
 
 		$result = $this
 			->getCommonChatQuery(Join::TYPE_INNER)
-			->setOrder(['LAST_MESSAGE_ID' => 'DESC', 'RECENT.ITEM_CID' => 'DESC'])
+			->setOrder(['LAST_MESSAGE_ID' => 'DESC', 'DATE_CREATE' => 'DESC'])
 			->registerRuntimeField(
 				'CHAT_SEARCH',
 				(new Reference(

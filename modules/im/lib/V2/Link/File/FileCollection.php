@@ -7,6 +7,7 @@ use Bitrix\Im\V2\Entity\File\FilePopupItem;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\ORM\Fields;
 use Bitrix\Im\Model\LinkFileTable;
 use Bitrix\Im\V2\Common\MigrationStatusCheckerTrait;
 use Bitrix\Im\V2\Common\SidebarFilterProcessorTrait;
@@ -130,6 +131,13 @@ class FileCollection extends BaseLinkCollection
 			->addRightsCheck($securityContext, $parameters, $specificColumns)
 		;
 
-		return $query->where($parameters['runtime'][0], 'expr', true);
+		/** @var Fields\ExpressionField $field */
+		$field = $parameters['runtime'][0];
+		$field->configureValueType(Fields\IntegerField::class);
+		$query
+			->registerRuntimeField($field)
+			->where('RIGHTS_CHECK', 1);
+
+		return $query;
 	}
 }

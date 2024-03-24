@@ -172,6 +172,11 @@ class CAllSocNetLog
 			return false;
 		}
 
+		if ((is_set($arFields, "TITLE") || $ACTION === "ADD") && is_string($arFields['TITLE'] ?? null))
+		{
+			$arFields['TITLE'] = \Bitrix\Main\Text\Emoji::encode($arFields['TITLE']);
+		}
+
 		if (
 			isset($arFields["CONTEXT_USER_ID"])
 			&& (int)$arFields["CONTEXT_USER_ID"] > 0
@@ -198,7 +203,7 @@ class CAllSocNetLog
 
 		if (
 			is_array($arSiteWorkgroupsPage)
-			&& is_set($arFields["URL"]))
+			&& isset($arFields["URL"]))
 		{
 			foreach($arSiteWorkgroupsPage as $groups_page)
 			{

@@ -194,7 +194,7 @@ class CKeepStatistics
 						WHERE
 							ACTIVE = 'Y'
 						and ".$DB->Length("USER_AGENT").">0
-						and upper('".$DB->ForSql($_SERVER["HTTP_USER_AGENT"],500)."') like ".$DB->Concat("'%'", "upper(USER_AGENT)", "'%'")."
+						and upper('".$DB->ForSql($_SERVER["HTTP_USER_AGENT"] ?? '', 500)."') like ".$DB->Concat("'%'", "upper(USER_AGENT)", "'%'")."
 						ORDER BY ".$DB->Length("USER_AGENT")." desc, ID
 						";
 
@@ -349,7 +349,7 @@ class CKeepStatistics
 						$arFields = Array(
 							"USER_ID"		=> intval($_SESSION["SESS_LAST_USER_ID"]),
 							"USER_AUTH"		=> "'".$IS_USER_AUTHORIZED."'",
-							"USER_AGENT"		=> "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"],500)."'",
+							"USER_AGENT"		=> "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"] ?? '', 500)."'",
 							"DATE_LAST"		=> $DB_now,
 							"IP_LAST"		=> "'".$DB->ForSql($_SERVER["REMOTE_ADDR"],15)."'",
 							"IP_LAST_NUMBER"	=> $REMOTE_ADDR_NUMBER,
@@ -382,12 +382,12 @@ class CKeepStatistics
 							"NEW_GUEST"		=> "'".$DB->ForSql($_SESSION["SESS_GUEST_NEW"])."'",
 							"USER_ID"		=> intval($_SESSION["SESS_LAST_USER_ID"]),
 							"USER_AUTH"		=> "'".$DB->ForSql($IS_USER_AUTHORIZED)."'",
-							"URL_FROM"		=> "'".$DB->ForSql($_SERVER["HTTP_REFERER"],2000)."'",
+							"URL_FROM"		=> "'".$DB->ForSql($_SERVER["HTTP_REFERER"] ?? '', 2000)."'",
 							"URL_TO"		=> "'".$DB->ForSql($CURRENT_URI,2000)."'",
 							"URL_TO_404"		=> "'".$DB->ForSql($ERROR_404)."'",
 							"URL_LAST"		=> "'".$DB->ForSql($CURRENT_URI,2000)."'",
 							"URL_LAST_404"		=> "'".$DB->ForSql($ERROR_404)."'",
-							"USER_AGENT"		=> "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"],500)."'",
+							"USER_AGENT"		=> "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"] ?? '', 500)."'",
 							"DATE_STAT"		=> $DB_now_date,
 							"DATE_FIRST"		=> $DB_now,
 							"DATE_LAST"		=> $DB_now,
@@ -461,7 +461,7 @@ class CKeepStatistics
 						else // guest was here
 						{
 							// first hit for today
-							if ($_SESSION["SESS_LAST"]!="Y")
+							if (!isset($_SESSION["SESS_LAST"]) || $_SESSION["SESS_LAST"] != "Y")
 							{
 								// update day statistic
 								$day_guest_counter = 1;
@@ -565,7 +565,7 @@ class CKeepStatistics
 						$arFields = Array(
 							"SESSIONS" => "SESSIONS + 1",
 							"LAST_SESSION_ID" => $_SESSION["SESS_SESSION_ID"],
-							"LAST_USER_AGENT" => "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"],500)."'",
+							"LAST_USER_AGENT" => "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"] ?? '', 500)."'",
 							"LAST_COUNTRY_ID" => "'".$DB->ForSql($_SESSION["SESS_COUNTRY_ID"],2)."'",
 							"LAST_CITY_ID" => $_SESSION["SESS_CITY_ID"] > 0? intval($_SESSION["SESS_CITY_ID"]): "null",
 						);
@@ -734,7 +734,7 @@ class CKeepStatistics
 								"IP" => "'".$DB->ForSql($_SERVER["REMOTE_ADDR"],15)."'",
 								"METHOD" => "'".$DB->ForSql($_SERVER["REQUEST_METHOD"],10)."'",
 								"COOKIES" => "'".$DB->ForSql(GetCookieString(),2000)."'",
-								"USER_AGENT" => "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"],500)."'",
+								"USER_AGENT" => "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"] ?? '', 500)."'",
 								"STOP_LIST_ID" => "'".$STOP_LIST_ID."'",
 								"COUNTRY_ID" => "'".$DB->ForSql($_SESSION["SESS_COUNTRY_ID"],2)."'",
 								"CITY_ID" => $_SESSION["SESS_CITY_ID"] > 0? intval($_SESSION["SESS_CITY_ID"]): "null",
@@ -869,10 +869,10 @@ class CKeepStatistics
 							"LAST_USER_AUTH"	=> "'".$IS_USER_AUTHORIZED."'",
 							"LAST_URL_LAST"		=> "'".$DB->ForSql($CURRENT_URI,2000)."'",
 							"LAST_URL_LAST_404"	=> "'".$ERROR_404."'",
-							"LAST_USER_AGENT"	=> "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"],500)."'",
+							"LAST_USER_AGENT"	=> "'".$DB->ForSql($_SERVER["HTTP_USER_AGENT"] ?? '', 500)."'",
 							"LAST_IP"		=> "'".$DB->ForSql($_SERVER["REMOTE_ADDR"],15)."'",
 							"LAST_COOKIE"		=> "'".$DB->ForSql(GetCookieString(),2000)."'",
-							"LAST_LANGUAGE"		=> "'".$DB->ForSql($_SERVER["HTTP_ACCEPT_LANGUAGE"],255)."'",
+							"LAST_LANGUAGE"		=> "'".$DB->ForSql($_SERVER["HTTP_ACCEPT_LANGUAGE"] ?? '', 255)."'",
 							"LAST_SITE_ID"		=> $sql_site
 							);
 						if ($FAVORITES=="Y") $arFields["FAVORITES"] = "'Y'";
@@ -1207,12 +1207,18 @@ echo '<html>
 		$COUNTER_ABNORMAL = 0; // счетчик показывающий сколько раз прошли по данному пути без поддержки HTTP_REFERER
 
 		// получим ссылающуюся страницу
-		if ($_SERVER["HTTP_REFERER"] == '')
+		if (empty($_SERVER["HTTP_REFERER"]))
 		{
-			if ($_SESSION["SESS_LAST_PAGE"] <> '') $COUNTER_ABNORMAL = 1;
-			$PATH_REFERER = __GetFullReferer($_SESSION["SESS_LAST_PAGE"]);
+			if (!empty($_SESSION["SESS_LAST_PAGE"]))
+			{
+				$COUNTER_ABNORMAL = 1;
+			}
+			$PATH_REFERER = __GetFullReferer($_SESSION["SESS_LAST_PAGE"] ?? '');
 		}
-		else $PATH_REFERER = __GetFullReferer();
+		else
+		{
+			$PATH_REFERER = __GetFullReferer();
+		}
 
 		if($PATH_REFERER==$CURRENT_PAGE)
 			return;

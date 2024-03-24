@@ -176,7 +176,7 @@ if (
 				<div class="socialnetwork-group-create-ex__project-instruments--item socialnetwork-group-create-ex__create--switch-nonscrum <?= ($isScrumProject ? '--scrum' : '') ?>">
 					<label class="<?= implode(' ', $labelClassList) ?>" <?= ($disabled ? 'style="pointer-events: none"' : '') ?>>
 						<input type="checkbox" id="GROUP_LANDING" name="GROUP_LANDING" class="ui-ctl-element" value="Y" <?= ($checked ? 'checked' : '') ?> <?= ($disabled ? 'disabled' : '') ?>>
-						<div class="ui-ctl-label-text"><?= Loc::getMessage('SONET_GCE_T_PARAMS_LANDING_MSGVER_1') ?></div>
+						<div class="ui-ctl-label-text"><?= Loc::getMessage('SONET_GCE_T_PARAMS_LANDING_MSGVER_2') ?></div>
 					</label>
 				</div>
 				<?php

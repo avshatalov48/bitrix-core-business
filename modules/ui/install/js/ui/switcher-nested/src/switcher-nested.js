@@ -156,6 +156,20 @@ export class SwitcherNested extends Section
 		return null;
 	}
 
+	#getDraggableIcon(): ?HTMLElement
+	{
+		if (this.#draggable)
+		{
+			return Tag.render`
+				<div onclick="event.stopPropagation()" class="ui-section__dragdrop-icon-wrapper">
+					<div onclick="event.stopPropagation()" class="ui-section__dragdrop-icon"/>
+				</div>
+			`;
+		}
+
+		return null;
+	}
+
 	#getLink(): ?HTMLElement
 	{
 		if (Type.isNil(this.linkTitle))

@@ -6,17 +6,20 @@ use Bitrix\Main\Result;
 use Bitrix\MessageService\Providers;
 use Bitrix\MessageService\Providers\Constants\InternalOption;
 use Bitrix\MessageService\Providers\Edna\Constants;
+use Bitrix\MessageService\Internal\Entity\ChannelTable;
 
 abstract class EdnaUtils implements EdnaRu
 {
+	protected string $providerId;
 	protected Providers\ExternalSender $externalSender;
 	protected Providers\OptionManager $optionManager;
 
 	abstract public function getMessageTemplates(string $subject = ''): Result;
 	abstract protected function initializeDefaultExternalSender(): Providers\ExternalSender;
 
-	public function __construct(Providers\OptionManager $optionManager)
+	public function __construct(string $providerId, Providers\OptionManager $optionManager)
 	{
+		$this->providerId = $providerId;
 		$this->optionManager = $optionManager;
 		$this->externalSender = $this->initializeDefaultExternalSender();
 	}
@@ -201,5 +204,54 @@ abstract class EdnaUtils implements EdnaRu
 		return $this->externalSender->callExternalMethod(Constants\Method::GET_CHANNELS);
 	}
 
+	/**
+	 * Loads channels from provider.
+	 *
+	 * @param string $channelType
+	 * @return array
+	 */
+	public function updateSavedChannelList(string $channelType): array
+	{
+		$fromList = [];
+		$activeChannelListResult = $this->getActiveChannelList($channelType);
+		if ($activeChannelListResult->isSuccess())
+		{
+			$registeredSubjectIdList = $this->optionManager->getOption(Providers\Constants\InternalOption::SENDER_ID, []);
+			$channels = [];
+			foreach ($activeChannelListResult->getData() as $channel)
+			{
+				if (in_array((int)$channel['subjectId'], $registeredSubjectIdList, true))
+				{
+					$fromList[] = [
+						'id' => $channel['subjectId'],
+						'name' => $channel['name'],
+						'channelPhone' => $channel['channelAttribute'] ?? '',
+					];
+					$channels[] = [
+						'SENDER_ID' => $this->providerId,
+						'EXTERNAL_ID' => $channel['subjectId'],
+						'TYPE' => $channelType,
+						'NAME' => $channel['name'],
+						'ADDITIONAL_PARAMS' => [
+							'channelAttribute' => $channel['channelAttribute'] ?? ''
+						],
+					];
+				}
+			}
 
+			if (count($channels) > 0)
+			{
+				ChannelTable::reloadChannels($this->providerId, $channelType, $channels);
+			}
+			else
+			{
+				ChannelTable::deleteByFilter([
+					'=SENDER_ID' => $this->providerId,
+					'=TYPE' => $channelType,
+				]);
+			}
+		}
+
+		return $fromList;
+	}
 }

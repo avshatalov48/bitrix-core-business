@@ -1287,7 +1287,7 @@ if (
 							$USER_FIELD_MANAGER->EditFormAddFields("BLOG_POST", $arFields);
 						}
 
-						$mentionList = Mention::getUserIds($_POST['POST_MESSAGE']);
+						$mentionList = Mention::getUserIds($_POST['POST_MESSAGE'] ?? '');
 
 						$APPLICATION->ResetException();
 						$bAdd = false;
@@ -1335,9 +1335,11 @@ if (
 							&& (string)$arFields['TITLE'] === ''
 						)
 						{
+							$question = $request->getPost('UF_BLOG_POST_VOTE_' . $voteCode . '_DATA');
+
 							if (
 								$voteCode !== ''
-								&& !empty($request->getPost('UF_BLOG_POST_VOTE_' . $voteCode . '_DATA'))
+								&& !empty($question['QUESTIONS']['0']['QUESTION'])
 							)
 							{
 								$arFields['TITLE'] = Loc::getMessage('BLOG_EMPTY_TITLE_VOTE_PLACEHOLDER');

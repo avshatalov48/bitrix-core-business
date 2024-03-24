@@ -240,13 +240,13 @@ function groupingReportResultHtml(&$arParams, &$arResult, $level = 0, $arRowSet 
 							foreach ($arSubTotal as $k => $subValue)
 							{
 								$cellStyle = '';
-								if ($arResult['settings']['red_neg_vals'] === true)
+								if (($arResult['settings']['red_neg_vals'] ?? false) === true)
 								{
 									if (is_numeric($subValue) && $subValue < 0) $cellStyle .= ' color: red;';
 								}
 
 								// cell align
-								$colAlign = $arViewColumns[$arColumns[$k]]['align'];
+								$colAlign = ($arViewColumns[$arColumns[$k]]['align'] ?? '');
 								if ($colAlign === null)
 								{
 									if (CReport::isColumnPercentable($arViewColumns[$arColumns[$k]], $arResult['helperClassName']))
@@ -316,8 +316,8 @@ function groupingReportResultHtml(&$arParams, &$arResult, $level = 0, $arRowSet 
 				{
 					foreach ($arColumns as $columnIndex => $viewColumnIndex)
 					{
-						if ($arViewColumns[$viewColumnIndex]['aggr'] === 'AVG'
-							|| $arViewColumns[$viewColumnIndex]['grouping_aggr'] === 'AVG'
+						if (($arViewColumns[$viewColumnIndex]['aggr'] ?? '') === 'AVG'
+							|| ($arViewColumns[$viewColumnIndex]['grouping_aggr'] ?? '') === 'AVG'
 						)
 						{
 							$total[$columnIndex] = $total[$columnIndex] / $nSubRows;
@@ -371,8 +371,8 @@ function groupingReportResultHtml(&$arParams, &$arResult, $level = 0, $arRowSet 
 					{
 						foreach ($arColumns as $columnIndex => $viewColumnIndex)
 						{
-							if ($arViewColumns[$viewColumnIndex]['aggr'] === 'AVG'
-								|| $arViewColumns[$viewColumnIndex]['grouping_aggr'] === 'AVG'
+							if (($arViewColumns[$viewColumnIndex]['aggr'] ?? '') === 'AVG'
+								|| ($arViewColumns[$viewColumnIndex]['grouping_aggr'] ?? '') === 'AVG'
 							)
 							{
 								$total[$columnIndex] = $total[$columnIndex] / $nRows;
@@ -415,7 +415,7 @@ function groupingReportResultHtml(&$arParams, &$arResult, $level = 0, $arRowSet 
 						}
 
 						// cell align
-						$colAlign = $arViewColumns[$arColumns[$k]]['align'];
+						$colAlign = ($arViewColumns[$arColumns[$k]]['align'] ?? '');
 						if ($colAlign === null)
 						{
 							if (CReport::isColumnPercentable($arViewColumns[$arColumns[$k]], $arResult['helperClassName']))

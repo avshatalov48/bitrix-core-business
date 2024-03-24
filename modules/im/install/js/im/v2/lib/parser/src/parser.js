@@ -1,5 +1,7 @@
 import { Type, Text, Loc } from 'main.core';
 
+import { DesktopApi } from 'im.v2.lib.desktop-api';
+
 import { ParserSlashCommand } from './functions/slash-command';
 import { ParserQuote } from './functions/quote';
 import { ParserImage } from './functions/image';
@@ -50,7 +52,7 @@ export const Parser = {
 			replaces: notification.replaces,
 			showIconIfEmptyText: false,
 			showImageFromLink: false,
-			urlTarget: '_self',
+			urlTarget: DesktopApi.isDesktop() ? '_blank' : '_self',
 		});
 	},
 
@@ -297,6 +299,7 @@ export const Parser = {
 		let { text } = message;
 
 		text = ParserUrl.removeSimpleUrlTag(text);
+		text = ParserMention.purify(text);
 
 		return text.trim();
 	},

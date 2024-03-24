@@ -20,6 +20,8 @@ class ActionDictionary
 		ACTION_EVENT_VIEW_COMMENTS = 'event_view_comments',
 		ACTION_EVENT_VIEW_TIME = 'event_view_time',
 		ACTION_EVENT_VIEW_TITLE = 'event_view_title',
+		ACTION_EVENT_EDIT_ATTENDEES = 'event_edit_attendees',
+		ACTION_EVENT_EDIT_LOCATION = 'event_edit_location',
 
 		ACTION_TYPE_ACCESS = 'type_access',
 		ACTION_TYPE_EDIT = 'type_edit',

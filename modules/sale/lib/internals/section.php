@@ -40,16 +40,15 @@ class SectionTable extends Entity\DataManager
 
 	public static function getMap()
 	{
-		$fieldsMap = array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
-				'primary' => true
-			),
-			'NAME' => array(
-				'data_type' => 'string'
-			)
-		);
-
-		return $fieldsMap;
+				'primary' => true,
+				'autocomplete' => true,
+			],
+			'NAME' => [
+				'data_type' => 'string',
+			]
+		];
 	}
 }

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 (function (exports,main_loader,main_qrcode,ui_designTokens,main_date,calendar_sharing_analytics,ui_entitySelector,main_core,calendar_util,ui_iconSet_api_core,main_popup,ui_dialogs_messagebox,ui_buttons,main_core_events,ui_iconSet_actions,ui_switcher,spotlight,ui_tour,ui_cnt) {
@@ -548,7 +549,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  getWeekdaysTitle() {
 	    if ([...this.rule.weekdays].sort().toString() === this.workDays.sort().toString()) {
-	      return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_WORKDAYS');
+	      return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1');
 	    }
 	    return this.formatWeekdays();
 	  }
@@ -1156,7 +1157,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            intranetUsersOnly: true,
 	            emailUsers: false,
 	            inviteEmployeeLink: false,
-	            inviteGuestLink: false
+	            inviteGuestLink: false,
+	            analyticsSource: 'calendar'
 	          },
 	          filters: [{
 	            id: 'calendar.jointSharingFilter'

@@ -227,13 +227,21 @@ class MentionService
 			. $pushMessage;
 	}
 
-	private function prepareNotifyMail(string $chatTitle, string $userGender): string
+	private function prepareNotifyMail(string $chatTitle, string $userGender): callable
 	{
-		return Loc::getMessage('IM_MESSAGE_MENTION_'.$userGender, ['#TITLE#' => $chatTitle]);
+		return fn (?string $languageId = null) => Loc::getMessage(
+			'IM_MESSAGE_MENTION_'.$userGender,
+			['#TITLE#' => $chatTitle],
+			$languageId
+		);
 	}
 
-	private function prepareNotifyMessage(string $chatTitle, int $chatId, string $userGender): string
+	private function prepareNotifyMessage(string $chatTitle, int $chatId, string $userGender): callable
 	{
-		return Loc::getMessage('IM_MESSAGE_MENTION_'.$userGender, ['#TITLE#' => '[CHAT='.$chatId.']'.$chatTitle.'[/CHAT]']);
+		return fn (?string $languageId = null) => Loc::getMessage(
+			'IM_MESSAGE_MENTION_'.$userGender,
+			['#TITLE#' => '[CHAT='.$chatId.']'.$chatTitle.'[/CHAT]'],
+			$languageId
+		);
 	}
 }

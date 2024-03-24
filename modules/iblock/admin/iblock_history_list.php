@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("iblock");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
@@ -20,7 +21,7 @@ if($arIBlock=$iblock->Fetch())
 	{
 		$APPLICATION->SetTitle(GetMessage("IBLOCK_ADM_HISTORY_TITLE", array("#ID#" => $ELEMENT_ID)));
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-		echo ShowError(GetMessage("IBLOCK_ADM_HISTORY_BAD_IBLOCK"));
+		ShowError(GetMessage("IBLOCK_ADM_HISTORY_BAD_IBLOCK"));
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 		die();
 	}
@@ -32,8 +33,8 @@ if(!$zr=$z->Fetch())
 {
 	$APPLICATION->SetTitle(GetMessage("IBLOCK_ADM_HISTORY_TITLE", array("#ID#" => $ELEMENT_ID)));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-	?><a href="/bitrix/admin/iblock_admin.php?type=<?echo htmlspecialcharsbx($type)?>&amp;lang=<?echo LANG?>"><?echo htmlspecialcharsex($arIBTYPE["NAME"])?></a> - <a href="<?echo htmlspecialcharsbx(CIBlock::GetAdminElementListLink($IBLOCK_ID, array()))?>"><?echo htmlspecialcharsbx($arIBlock["NAME"])?></a><?
-	echo ShowError(GetMessage("IBLOCK_ADM_HISTORY_BAD_ELEMENT"));
+	?><a href="/bitrix/admin/iblock_admin.php?type=<?= htmlspecialcharsbx($type)?>&amp;lang=<?= LANGUAGE_ID; ?>"><?= htmlspecialcharsex($arIBTYPE["NAME"])?></a> - <a href="<?= htmlspecialcharsbx(CIBlock::GetAdminElementListLink($IBLOCK_ID, array()))?>"><?= htmlspecialcharsbx($arIBlock["NAME"])?></a><?php
+	ShowError(GetMessage("IBLOCK_ADM_HISTORY_BAD_ELEMENT"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
@@ -300,8 +301,7 @@ $APPLICATION->SetTitle(GetMessage("IBLOCK_ADM_HISTORY_TITLE", array("#ID#" => $E
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
 
-<script language="JavaScript">
-<!--
+<script>
 function Diff()
 {
 	var selection = new Array();
@@ -319,18 +319,17 @@ function Diff()
 	}
 	if(j < 2 || j > 2)
 	{
-		alert('<?echo GetMessage("IBLOCK_ADM_HISTORY_COMPARE_ALERT")?>');
+		alert('<?= GetMessageJS("IBLOCK_ADM_HISTORY_COMPARE_ALERT")?>');
 	}
 	else
 	{
-		window.location='iblock_element_edit.php?type=<?echo urlencode($type)?>&lang=<?echo urlencode(LANG)?>&IBLOCK_ID=<?echo urlencode($IBLOCK_ID)?>&view=Y&find_section_section=<?echo $find_section_section?>&ID='+selection[0]+'&PREV_ID='+selection[1];
+		window.location='iblock_element_edit.php?type=<?= urlencode($type)?>&lang=<?= urlencode(LANG)?>&IBLOCK_ID=<?= urlencode($IBLOCK_ID)?>&view=Y&find_section_section=<?= $find_section_section?>&ID='+selection[0]+'&PREV_ID='+selection[1];
 	}
 }
-//-->
 </script>
 
-<form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
-<?
+<form name="find_form" method="GET" action="<?= $APPLICATION->GetCurPage()?>?">
+<?php
 $oFilter = new CAdminFilter(
 	$sTableID."_filter",
 	array(
@@ -345,20 +344,20 @@ $oFilter->Begin();
 ?>
 <tr>
 	<td><font class="tableheadtext"><b><?=GetMessage("IBLOCK_FIELD_NAME")?>:</b></td>
-	<td><input type="text" name="find_name" value="<?echo ($find_name <> '') ? htmlspecialcharsbx($find_name) : ""?>" size="38"></td>
+	<td><input type="text" name="find_name" value="<?= ($find_name <> '') ? htmlspecialcharsbx($find_name) : ""?>" size="38"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("IBLOCK_FIELD_ID")?>:</td>
-	<td><input type="text" name="find_id" size="38" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
+	<td><input type="text" name="find_id" size="38" value="<?= htmlspecialcharsbx($find_id)?>"></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("IBLOCK_FIELD_TIMESTAMP_X").":"?></td>
-	<td><?echo CalendarPeriod("find_timestamp_from", htmlspecialcharsbx($find_timestamp_from), "find_timestamp_to", htmlspecialcharsbx($find_timestamp_to), "find_form")?></font></td>
+	<td><?= GetMessage("IBLOCK_FIELD_TIMESTAMP_X").":"?></td>
+	<td><?= CalendarPeriod("find_timestamp_from", htmlspecialcharsbx($find_timestamp_from), "find_timestamp_to", htmlspecialcharsbx($find_timestamp_to), "find_form")?></font></td>
 </tr>
 <tr>
-	<td><?=GetMessage("IBLOCK_FIELD_MODIFIED_BY")?>:</td>
+	<td><?= GetMessage("IBLOCK_FIELD_MODIFIED_BY")?>:</td>
 	<td>
-		<?echo FindUserID(
+		<?= FindUserID(
 			/*$tag_name=*/"find_modified_user_id",
 			/*$tag_value=*/$find_modified_user_id,
 			/*$user_name=*/"",
@@ -373,16 +372,24 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?=GetMessage("IBLOCK_FIELD_STATUS")?>:</td>
-	<td><input type="text" name="find_status_id" value="<?echo htmlspecialcharsbx($find_status_id)?>" size="3">&nbsp;<?
+	<td><input type="text" name="find_status_id" value="<?= htmlspecialcharsbx($find_status_id)?>" size="3">&nbsp;<?php
 	echo SelectBox("find_status", CWorkflowStatus::GetDropDownList("Y"), GetMessage("IBLOCK_ALL"), htmlspecialcharsbx($find_status));
 	?></td>
 </tr>
-<?
-$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage()."?type=".htmlspecialcharsbx($type)."&IBLOCK_ID=".intval($IBLOCK_ID)."&ELEMENT_ID=".$ELEMENT_ID, "form"=>"find_form"));
+<?php
+$oFilter->Buttons([
+	'table_id' => $sTableID,
+	'url' => $APPLICATION->GetCurPage()
+		. '?type=' . htmlspecialcharsbx($type)
+		. '&IBLOCK_ID=' . $IBLOCK_ID
+		. '&ELEMENT_ID=' . $ELEMENT_ID
+	,
+	'form' => 'find_form',
+]);
 $oFilter->End();
 ?>
 </form>
-<?
+<?php
 $lAdmin->DisplayList();
-?>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

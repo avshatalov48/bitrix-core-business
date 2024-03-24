@@ -32,6 +32,7 @@ class CashboxZReportTable extends DataManager
 		return array(
 			'ID' => array(
 				'primary' => true,
+				'autocomplete' => true,
 				'data_type' => 'integer',
 			),
 			'LINK_PARAMS' => array(

@@ -407,6 +407,14 @@ BX.UserContentView.liveUpdate = function(params)
 
 	if (cntNode && cntWrapNode)
 	{
+		const currentViews = parseInt(cntNode.innerHTML);
+		const totalViews = parseInt(params.TOTAL_VIEWS ?? 0);
+
+		if (currentViews === totalViews)
+		{
+			return;
+		}
+
 		var plusOneNode = BX.create('SPAN', {
 			props : {
 				className: 'feed-content-view-plus-one',
@@ -424,7 +432,7 @@ BX.UserContentView.liveUpdate = function(params)
 		);
 
 		setTimeout(function() {
-			cntNode.innerHTML = parseInt(cntNode.innerHTML) + 1;
+			cntNode.innerHTML = totalViews;
 		}, 500);
 
 		setTimeout(function() {

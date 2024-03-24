@@ -635,7 +635,7 @@ class DeleteService
 			->setSelect(['ID'])
 			->where('CHAT_ID', $this->chat->getChatId())
 			->where('ID', '<', $this->message->getMessageId())
-			->setOrder(['ID' => 'DESC'])
+			->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
 			->setLimit(1)
 			->fetch()
 		;
@@ -667,7 +667,7 @@ class DeleteService
 		$lastMessages = MessageTable::query()
 			->setSelect(['ID', 'DATE_CREATE', 'MESSAGE'])
 			->addFilter('CHAT_ID', $this->chat->getChatId())
-			->setOrder(['ID' => 'DESC'])
+			->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
 			->setLimit(3)
 			->fetchAll();
 

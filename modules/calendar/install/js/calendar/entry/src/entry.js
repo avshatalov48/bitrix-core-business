@@ -616,7 +616,7 @@ export class Entry
 
 			const action = 'deleteCalendarEntry';
 			const data = {
-				entryId: this.id,
+				entryId: this.parentId,
 				recursionMode: params.recursionMode || false,
 				requestUid: Util.registerRequestId(),
 			};
@@ -648,7 +648,7 @@ export class Entry
 
 			const action = 'excludeRecursionDate';
 			const data = {
-				entryId: this.id,
+				entryId: this.parentId,
 				recursionMode: recursionMode,
 				excludeDate: this.data.DATE_FROM,
 			};
@@ -686,15 +686,9 @@ export class Entry
 			EntryManager.showDeleteEntryNotification(this);
 			this.deleteParts(recursionMode);
 
-			const calendarContext = Util.getCalendarContext();
-			if (calendarContext)
-			{
-
-			}
-
 			const action = 'changeRecurciveEntryUntil';
 			const data = {
-				entryId: this.id,
+				entryId: this.parentId,
 				recursionMode: recursionMode,
 				untilDate: Util.formatDate(this.from.getTime() - Util.getDayLength()),
 			};

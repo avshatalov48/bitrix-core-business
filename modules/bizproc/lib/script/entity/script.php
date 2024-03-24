@@ -40,6 +40,7 @@ class ScriptTable extends Main\Entity\DataManager
 			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
+				'autocomplete' => true,
 			],
 			'MODULE_ID' => [
 				'data_type' => 'string'

@@ -43,9 +43,9 @@ use Bitrix\Vote\Vote\Option;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_File_Query query()
- * @method static EO_File_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_File_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_File_Result getById($id)
- * @method static EO_File_Result getList(array $parameters = array())
+ * @method static EO_File_Result getList(array $parameters = [])
  * @method static EO_File_Entity getEntity()
  * @method static \Bitrix\Forum\EO_File createObject($setDefaultValues = true)
  * @method static \Bitrix\Forum\EO_File_Collection createCollection()

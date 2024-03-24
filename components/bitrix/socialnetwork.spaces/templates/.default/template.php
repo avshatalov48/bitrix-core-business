@@ -14,31 +14,31 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $toolbarComponentParams */
 /** @var array $contentComponentParams */
 /** @var bool $includeToolbar */
+/** @var int $groupId */
+/** @var int $userId */
+/** @var bool $spaceNotFoundOrCantSee */
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 \Bitrix\Main\UI\Extension::load([
+	'ui.common',
+	'ui.fonts.opensans',
 	'ui.design-tokens',
 	'ui.buttons',
+	'ui.buttons.icons',
 	'ui.icon-set.actions',
 	'ui.icon-set.crm',
+	'socialnetwork.common',
+	'socialnetwork.logo',
 	'socialnetwork.membership-request-panel',
 ]);
 
-\Bitrix\Main\Loader::includeModule('socialnetwork');
-
-if (!Context::getCurrent()->getRequest()->get('IFRAME'))
-{
-	$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-	$APPLICATION->SetPageProperty(
-		'BodyClass', ($bodyClass ? $bodyClass . ' ' : '')
-		. 'no-all-paddings no-background sn-spaces__body'
-	);
-}
+$messages = Loc::loadLanguageFile(__FILE__);
 
 $canInvite = false;
-$spaceNotFoundOrCantSee = false;
+$spaceNotFoundOrCantSee = $arResult['spaceNotFoundOrCantSee'] ?? false;
 if ($componentParams['PAGE_TYPE'] === 'group')
 {
 	$permissions = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions(
@@ -77,120 +77,77 @@ if ($componentParams['PAGE_TYPE'] === 'group')
 	}
 }
 
+$request = Context::getCurrent()->getRequest();
+
+$isFrame = $request->get('IFRAME') === 'Y';
+$isFilesNavigation = (
+	$request->isAjaxRequest()
+	&& $componentParams['PAGE_ID'] === 'files'
+);
+$isFrame = $isFilesNavigation || $isFrame;
+
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$uri = new \Bitrix\Main\Web\Uri($request->getRequestUri());
 ?>
 
-<div
-	class="sn-spaces sn-spaces__scope <?= $arResult['IS_LIST_DEPLOYED'] === 'collapsed' ? '--list-collapsed-mode' : ''?>"
-	id="sn-spaces__content"
->
-	<div class="sn-spaces__list" id="sn-spaces-list">
-		<?php
-			if (!Context::getCurrent()->getRequest()->get('IFRAME')):
-				$APPLICATION->includeComponent(
-					'bitrix:socialnetwork.spaces.list',
-					'',
-					$listComponentParams,
-				);
-			endif;
-		?>
-	</div>
+<?php if ($isFrame): ?>
 
-	<?php if ($spaceNotFoundOrCantSee): ?>
-		<div class="sn-spaces-not-found-error">
-			<div class="sn-spaces-not-found-error-image"></div>
-			<div class="sn-spaces-not-found-error-title"><?= Loc::getMessage('SN_SPACES_NOT_FOUND_ERROR_TITLE') ?></div>
-			<div class="sn-spaces-not-found-error-text"><?= Loc::getMessage('SN_SPACES_NOT_FOUND_ERROR_TEXT') ?></div>
-		</div>
-	<?php return; endif; ?>
+	<?php require_once __DIR__ . '/content.php'; ?>
 
-	<div class="sn-spaces__navigation">
-		<?php
-			if (!Context::getCurrent()->getRequest()->get('IFRAME')):
-				$APPLICATION->includeComponent(
-					'bitrix:socialnetwork.spaces.menu',
-					'',
-					$menuComponentParams,
-				);
-			endif;
-		?>
-	</div>
-	<div class="sn-spaces__wrapper">
-		<script>
-			BX.Event.EventEmitter.subscribe('BX.Main.Popup:onInit', (event) => {
-				const data = event.getCompatData();
-				let bindElement = data[1];
-				const params = data[2];
+<?php else: ?>
 
-				if (
-					!BX.type.isElementNode(params.targetContainer)
-					&& BX.type.isElementNode(bindElement)
-				)
-				{
-					const contentContainer = document
-						.getElementById('sn-spaces__content')
-						.querySelector('.sn-spaces__wrapper')
-					;
-					if (contentContainer.contains(bindElement))
-					{
-						params.targetContainer = contentContainer;
-					}
-				}
-			});
-		</script>
+	<?php
 
-		<?php if ($canInvite): ?>
-			<div id="sn-spaces-membership-request-panel"></div>
-		<?php endif; ?>
+	$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 
-		<?php
-			if (
-				!Context::getCurrent()->getRequest()->get('IFRAME')
-				&& $includeToolbar === true
-			):
-		?>
-			<div class="sn-spaces__toolbar-space">
-				<?php
-					$APPLICATION->includeComponent(
-						'bitrix:socialnetwork.spaces.toolbar',
-						'',
-						$toolbarComponentParams,
-					);
-				?>
-			</div>
-		<?php endif; ?>
+	$APPLICATION->SetPageProperty(
+		'BodyClass', ($bodyClass ? $bodyClass . ' ' : '')
+		. 'no-all-paddings no-background sn-spaces__body'
+	);
+	?>
 
-		<div class="sn-spaces__content">
+	<div
+		class="sn-spaces sn-spaces__scope <?=
+			$arResult['IS_LIST_DEPLOYED'] === 'collapsed'
+				? '--list-collapsed-mode'
+				: ''
+		?>"
+		id="sn-spaces__content"
+	>
+		<div class="sn-spaces__list" id="sn-spaces-list">
 			<?php
-				$APPLICATION->includeComponent(
-					'bitrix:socialnetwork.spaces.content',
-					'',
-					$contentComponentParams,
-				);
+			$APPLICATION->includeComponent(
+				'bitrix:socialnetwork.spaces.list',
+				'',
+				$listComponentParams,
+			);
 			?>
 		</div>
-	</div>
-</div>
 
-<script>
-	BX.ready(function()
-	{
-		<?php if ($canInvite): ?>
-			const membershipRequestPanel = new BX.Socialnetwork.MembershipRequestPanel({
-				groupId: '<?= (int) $componentParams['GROUP_ID'] ?>',
-				pathToUser: '<?=CUtil::JSescape($arResult['PATH_TO_USER'])?>',
-				pathToUsers: '<?=
-					CUtil::JSescape(
-						CComponentEngine::makePathFromTemplate(
-							$arResult['PATH_TO_GROUP_USERS'],
-							['group_id' => $componentParams['GROUP_ID']]
-						)
-					)
-				?>',
+		<div id="sn-spaces-content" class="sn-spaces-content"></div>
+
+	</div>
+
+	<script>
+		let space = null;
+		Object.defineProperty(BX.Socialnetwork.Spaces, 'space', {
+			enumerable: false,
+			get: () => space
+		});
+
+		BX.ready(function() {
+			BX.message(<?= Json::encode($messages) ?>);
+
+			space = new BX.Socialnetwork.Spaces.Space({
+				pageId: '<?= $componentParams['PAGE_ID'] ?>',
+				pageView: '<?= $arResult['pageView'] ?>',
+				contentUrl: '<?= CUtil::JSescape($uri->getUri()) ?>',
+				userId: '<?= (int) $userId ?>',
+				groupId: '<?= (int) $groupId ?>',
 			});
 
-			membershipRequestPanel.renderTo(
-				document.getElementById('sn-spaces-membership-request-panel')
-			);
-		<?php endif; ?>
-	});
-</script>
+			space.renderContentTo(document.getElementById('sn-spaces-content'));
+		});
+	</script>
+
+<?php endif; ?>

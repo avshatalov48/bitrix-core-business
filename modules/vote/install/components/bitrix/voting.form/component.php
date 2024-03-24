@@ -60,7 +60,7 @@ if (!function_exists("_GetAnswerArray1"))
 /********************************************************************
 				/Input params
 ********************************************************************/
-if ($GLOBALS["VOTING_OK"] == "Y"  && ($GLOBALS["VOTING_ID"] == $arParams["VOTE_ID"]))
+if (isset($GLOBALS["VOTING_OK"]) && $GLOBALS["VOTING_OK"] == "Y"  && ($GLOBALS["VOTING_ID"] == $arParams["VOTE_ID"]))
 {
 	$strNavQueryString = DeleteParam(array("VOTE_ID", "VOTING_OK", "VOTE_SUCCESSFULL", "view_result", "view_form"));
 	$strNavQueryString = ($strNavQueryString <> "" ? "&" : "").$strNavQueryString;
@@ -104,13 +104,13 @@ $arResult["CURRENT_PAGE"] = htmlspecialcharsbx($arResult["~CURRENT_PAGE"]);
 
 $arError = array(); $arNote = array();
 
-if ($_REQUEST["VOTE_ID"] == $arParams["VOTE_ID"])
+if (isset($_REQUEST["VOTE_ID"]) && $_REQUEST["VOTE_ID"] == $arParams["VOTE_ID"])
 {
-	if ($GLOBALS["VOTING_OK"]=="Y" || $_REQUEST["VOTE_SUCCESSFULL"] == "Y")
+	if (isset($GLOBALS["VOTING_OK"]) && $GLOBALS["VOTING_OK"]=="Y" || isset($_REQUEST["VOTE_SUCCESSFULL"]) && $_REQUEST["VOTE_SUCCESSFULL"] == "Y")
 	{
 		$arNote[] = array("id" => "ok", "text" => GetMessage("VOTE_OK"));
 	}
-	elseif ($GLOBALS["VOTING_OK"] == "N")
+	elseif (isset($GLOBALS["VOTING_OK"]) && $GLOBALS["VOTING_OK"] == "N")
 	{
 		$eO = $APPLICATION->ERROR_STACK + array($APPLICATION->LAST_ERROR);
 		$e = reset($eO);
@@ -134,7 +134,7 @@ $cache_id = "vote_form_".serialize(array($arParams["VOTE_ID"], $arParams["ADDITI
 	((($tzOffset = CTimeZone::GetOffset()) <> 0) ? "_".$tzOffset : "");
 $cache_path = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName);
 
-if ($obCache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path) && !$_SESSION["VOTE"]["VOTES"][$arParams["VOTE_ID"]])
+if ($obCache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path) && !(isset($_SESSION["VOTE"]["VOTES"][$arParams["VOTE_ID"]]) && $_SESSION["VOTE"]["VOTES"][$arParams["VOTE_ID"]]))
 {
 	$arVars = $obCache->GetVars();
 	$arResult["VOTE"] = $arVars["arResult"]["VOTE"];
@@ -261,5 +261,5 @@ if ($this->__parent)
 $this->IncludeComponentTemplate();
 
 //if (!empty($arParams["RETURN"]))
-	return $arParams["RETURN"];
+	return $arParams["RETURN"] ?? null;
 ?>

@@ -20,6 +20,16 @@ class Option implements OptionManager
 	protected int $socketTimeout = 10;
 	protected int $streamTimeout = 30;
 
+	public function __construct(string $providerType, string $providerId)
+	{
+		$this->options = null;
+
+		$this->providerType = mb_strtolower($providerType);
+		$this->providerId = $providerId;
+
+		$this->dbOptionName = 'sender.' . $this->providerType . '.' . $this->providerId;
+	}
+
 	/**
 	 * @return int
 	 */
@@ -54,16 +64,6 @@ class Option implements OptionManager
 	{
 		$this->streamTimeout = $streamTimeout;
 		return $this;
-	}
-
-	public function __construct(string $providerType, string $providerId)
-	{
-		$this->options = null;
-
-		$this->providerType = mb_strtolower($providerType);
-		$this->providerId = $providerId;
-
-		$this->dbOptionName = 'sender.' . $this->providerType . '.' . $this->providerId;
 	}
 
 	public function setOptions(array $options): OptionManager

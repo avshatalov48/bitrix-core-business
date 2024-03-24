@@ -28,7 +28,7 @@ abstract class Base extends View
 			$resultWidget['content']['params']['data'] = $this->handlerFinallyBeforePassToView($calculatedPerformedData);
 			$resultWidget['content']['params']['data']['isFilled'] = !empty($resultWidget['content']['params']['data']);
 			$resultWidget['content']['params']['color'] = $resultWidget['config']['color'];
-			$resultWidget['content']['params']['errors'] = $calculatedPerformedData['errors'];
+			$resultWidget['content']['params']['errors'] = ($calculatedPerformedData['errors'] ?? []);
 		}
 		catch (\Throwable $exception)
 		{

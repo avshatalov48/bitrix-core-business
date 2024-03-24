@@ -75,6 +75,7 @@ abstract class Field
 	/** @var Entity */
 	protected $entity;
 
+	protected $connection = null;
 	/**
 	 * @deprecated
 	 * @var array
@@ -133,6 +134,11 @@ abstract class Field
 		if (!empty($parameters['serialized']))
 		{
 			$this->setSerialized();
+		}
+
+		if (isset($parameters['connection']))
+		{
+			$this->connection = $parameters['connection'];
 		}
 	}
 
@@ -619,6 +625,11 @@ abstract class Field
 		return null;
 	}
 
+	public function setConnection($connection)
+	{
+		$this->connection = $connection;
+	}
+
 	/**
 	 * @return \Bitrix\Main\DB\Connection
 	 * @throws SystemException
@@ -628,6 +639,10 @@ abstract class Field
 		if ($this->entity)
 		{
 			return $this->entity->getConnection();
+		}
+		elseif ($this->connection)
+		{
+			return $this->connection;
 		}
 
 		return Application::getConnection();

@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main\DB\SqlExpression;
@@ -179,41 +179,47 @@ class CDatabaseMysql extends CAllDatabase
 			$type = $arColumnInfo["TYPE"];
 			if (isset($arFields[$strColumnName]))
 			{
+				if ($strInsert1 != '')
+				{
+					$strInsert1 .= ', ';
+					$strInsert2 .= ', ';
+				}
+
 				$value = $arFields[$strColumnName];
+
+				$strInsert1 .= "`" . $strColumnName . "`";
 
 				if ($value === false)
 				{
-					$strInsert1 .= ", `" . $strColumnName . "`";
-					$strInsert2 .= ",  NULL ";
+					$strInsert2 .= "NULL";
 				}
 				else
 				{
-					$strInsert1 .= ", `" . $strColumnName . "`";
 					switch ($type)
 					{
 						case "datetime":
 						case "timestamp":
 							if ($value == '')
 							{
-								$strInsert2 .= ", NULL ";
+								$strInsert2 .= "NULL";
 							}
 							else
 							{
-								$strInsert2 .= ", " . CDatabase::CharToDateFunction($value);
+								$strInsert2 .= CDatabase::CharToDateFunction($value);
 							}
 							break;
 						case "date":
 							if ($value == '')
 							{
-								$strInsert2 .= ", NULL ";
+								$strInsert2 .= "NULL";
 							}
 							else
 							{
-								$strInsert2 .= ", " . CDatabase::CharToDateFunction($value, "SHORT");
+								$strInsert2 .= CDatabase::CharToDateFunction($value, "SHORT");
 							}
 							break;
 						case "int":
-							$strInsert2 .= ", '" . intval($value) . "'";
+							$strInsert2 .= "'" . intval($value) . "'";
 							break;
 						case "real":
 							$value = doubleval($value);
@@ -221,25 +227,25 @@ class CDatabaseMysql extends CAllDatabase
 							{
 								$value = 0;
 							}
-							$strInsert2 .= ", '" . $value . "'";
+							$strInsert2 .= "'" . $value . "'";
 							break;
 						default:
-							$strInsert2 .= ", '" . $this->ForSql($value) . "'";
+							$strInsert2 .= "'" . $this->ForSql($value) . "'";
 					}
 				}
 			}
 			elseif (array_key_exists("~" . $strColumnName, $arFields))
 			{
-				$strInsert1 .= ", `" . $strColumnName . "`";
-				$strInsert2 .= ", " . $arFields["~" . $strColumnName];
+				if ($strInsert1 != '')
+				{
+					$strInsert1 .= ', ';
+					$strInsert2 .= ', ';
+				}
+				$strInsert1 .= "`" . $strColumnName . "`";
+				$strInsert2 .= $arFields["~" . $strColumnName];
 			}
 		}
 
-		if ($strInsert1 != "")
-		{
-			$strInsert1 = mb_substr($strInsert1, 2);
-			$strInsert2 = mb_substr($strInsert2, 2);
-		}
 		return [$strInsert1, $strInsert2];
 	}
 
@@ -263,14 +269,20 @@ class CDatabaseMysql extends CAllDatabase
 			$type = $arColumnInfo["TYPE"];
 			if (isset($arFields[$strColumnName]))
 			{
+				if ($strUpdate != '')
+				{
+					$strUpdate .= ', ';
+				}
+
 				$value = $arFields[$strColumnName];
+
 				if ($value === false)
 				{
-					$strUpdate .= ", $strTableAlias`" . $strColumnName . "` = NULL";
+					$strUpdate .= $strTableAlias . "`" . $strColumnName . "` = NULL";
 				}
 				elseif ($value instanceof SqlExpression)
 				{
-					$strUpdate .= ", $strTableAlias`" . $strColumnName . "` = " . $value->compile();
+					$strUpdate .= $strTableAlias . "`" . $strColumnName . "` = " . $value->compile();
 				}
 				else
 				{
@@ -310,18 +322,17 @@ class CDatabaseMysql extends CAllDatabase
 						default:
 							$value = "'" . $this->ForSql($value) . "'";
 					}
-					$strUpdate .= ", $strTableAlias`" . $strColumnName . "` = " . $value;
+					$strUpdate .= $strTableAlias . "`" . $strColumnName . "` = " . $value;
 				}
 			}
 			elseif (is_set($arFields, "~" . $strColumnName))
 			{
-				$strUpdate .= ", $strTableAlias`" . $strColumnName . "` = " . $arFields["~" . $strColumnName];
+				if ($strUpdate != '')
+				{
+					$strUpdate .= ', ';
+				}
+				$strUpdate .= $strTableAlias . "`" . $strColumnName . "` = " . $arFields["~" . $strColumnName];
 			}
-		}
-
-		if ($strUpdate != "")
-		{
-			$strUpdate = mb_substr($strUpdate, 2);
 		}
 
 		return $strUpdate;

@@ -467,6 +467,11 @@ class User implements RestEntity
 		return $this->userData['TIME_ZONE_OFFSET'] ?? '';
 	}
 
+	public function getLanguageId(): ?string
+	{
+		return $this->userData['LANGUAGE_ID'] ?? null;
+	}
+
 	public function isExtranet(): bool
 	{
 		return $this->userData['IS_EXTRANET'] ?? false;

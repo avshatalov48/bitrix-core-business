@@ -42,6 +42,7 @@ class CashboxTable extends DataManager
 		return array(
 			'ID' => array(
 				'primary' => true,
+				'autocomplete' => true,
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('SALE_CASHBOX_ENTITY_ID_FIELD'),
 			),

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
@@ -395,16 +396,19 @@ class ProjectProvider extends BaseProvider
 		if (
 			$projectFilter === 'projectId'
 			&& empty($options['order'])
-			&& count($projectIds) > 1
+			&& ($projectsCount = count($projectIds)) > 1
 		)
 		{
-			$query->registerRuntimeField(
-				new ExpressionField(
-					'ID_SEQUENCE', 'FIELD(%s, ' . implode(',', $projectIds) . ')', 'ID'
-				)
+			$helper = Application::getConnection()->getSqlHelper();
+			$field = new ExpressionField(
+				'ID_SEQUENCE',
+				$helper->getOrderByIntField('%s', $projectIds, false),
+				array_fill(0, $projectsCount, 'ID')
 			);
 
-			$query->setOrder('ID_SEQUENCE');
+			$query
+				->registerRuntimeField($field)
+				->setOrder($field->getName());
 		}
 		elseif (!empty($options['order']) && is_array($options['order']))
 		{

@@ -92,7 +92,7 @@ class CBlogComment extends CAllBlogComment
 				{
 					$arGroup = CBlogGroup::GetByID(isset($arFields["SEARCH_GROUP_ID"]) && intval($arFields["SEARCH_GROUP_ID"]) > 0 ? $arFields["SEARCH_GROUP_ID"] : $arBlog["GROUP_ID"]);
 
-					if($arFields["PATH"] <> '')
+					if (($arFields["PATH"] ?? '') <> '')
 					{
 						$arFields["PATH"] = str_replace("#comment_id#", $ID, $arFields["PATH"]);
 						$arCommentSite = array($arGroup["SITE_ID"] => $arFields["PATH"]);
@@ -180,8 +180,10 @@ class CBlogComment extends CAllBlogComment
 
 		$ID = intval($ID);
 		
-		if($arFields["PATH"] <> '')
+		if (($arFields["PATH"] ?? null) <> '')
+		{
 			$arFields["PATH"] = str_replace("#comment_id#", $ID, $arFields["PATH"]);
+		}
 
 		$arFields1 = array();
 		foreach ($arFields as $key => $value)
@@ -258,12 +260,12 @@ class CBlogComment extends CAllBlogComment
 				{
 					$arGroup = CBlogGroup::GetByID(isset($arFields["SEARCH_GROUP_ID"]) && intval($arFields["SEARCH_GROUP_ID"]) > 0 ? $arFields["SEARCH_GROUP_ID"] : $arBlog["GROUP_ID"]);
 
-					if($arFields["PATH"] <> '')
+					if (($arFields["PATH"] ?? '') <> '')
 					{
 						$arFields["PATH"] = str_replace("#comment_id#", $ID, $arFields["PATH"]);
 						$arPostSite = array($arGroup["SITE_ID"] => $arFields["PATH"]);
 					}
-					elseif($arComment["PATH"] <> '')
+					elseif(($arComment["PATH"] ?? '') <> '')
 					{
 						$arComment["PATH"] = str_replace("#comment_id#", $ID, $arComment["PATH"]);
 						$arPostSite = array($arGroup["SITE_ID"] => $arComment["PATH"]);
@@ -453,6 +455,7 @@ class CBlogComment extends CAllBlogComment
 			$arFields["RATING_TOTAL_NEGATIVE_VOTES"] = array("FIELD" => $DB->IsNull('RV.TOTAL_NEGATIVE_VOTES', '0'), "TYPE" => "int", "FROM" => "LEFT JOIN b_rating_voting RV ON ( RV.ENTITY_TYPE_ID = 'BLOG_COMMENT' AND RV.ENTITY_ID = C.ID )");
 		}
 
+		$strSqlUFFilter = '';
 		$bNeedDistinct = false;
 		$blogModulePermissions = $APPLICATION->GetGroupRight("blog");
 		if ($blogModulePermissions < "W")

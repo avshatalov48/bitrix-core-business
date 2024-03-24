@@ -22,7 +22,7 @@ class EcrmPropertyUpdate extends Stepper
 		$result["steps"] = $option;
 
 		$limit = 20;
-		$result["steps"] = isset($result["steps"]) ? $result["steps"] : 0;
+		$result["steps"] = (int)($result["steps"] ?? 0);
 
 		$queryObject = PropertyTable::getList(array(
 			"select" => array("ID", "IBLOCK_ID", "USER_TYPE_SETTINGS"),
@@ -34,7 +34,7 @@ class EcrmPropertyUpdate extends Stepper
 		{
 			if(is_string($property["USER_TYPE_SETTINGS"]) && CheckSerializedData($property["USER_TYPE_SETTINGS"]))
 			{
-				$property["USER_TYPE_SETTINGS"] = unserialize($property["USER_TYPE_SETTINGS"]);
+				$property["USER_TYPE_SETTINGS"] = unserialize($property["USER_TYPE_SETTINGS"], ['allowed_classes' => false]);
 			}
 			if(is_array($property["USER_TYPE_SETTINGS"]))
 			{

@@ -226,6 +226,30 @@ rules.push(
 	},
 );
 
+rules.push(
+	{
+		condition: [
+			'(?<url>/spaces/group/(\\d+)/tasks/task/view/(?<taskId>\\d+)/)',
+			'(?<url>/spaces/group/(\\d+)/tasks/task/edit/(?<taskId>\\d+)/)',
+		],
+		minimizeOptions: (link) => {
+			return {
+				entityType: 'tasks:task',
+				entityId: link.matches.groups.taskId,
+				entityName: BX.message('INTRANET_BINDINGS_TASK'),
+				url: link.matches.groups.url,
+			};
+		},
+		loader: 'intranet:task-detail',
+		options: {
+			label: {
+				text: BX.message('INTRANET_BINDINGS_TASK'),
+				bgColor: '#2FC6F6',
+			},
+		},
+	},
+);
+
 BX.SidePanel.Instance.bindAnchors({
 	rules: rules,
 });

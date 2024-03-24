@@ -52,7 +52,6 @@ export const ChatTextarea = {
 	{
 		return {
 			text: '',
-			mentions: {},
 			textareaHeight: ResizeManager.minHeight,
 
 			showMention: false,
@@ -114,20 +113,13 @@ export const ChatTextarea = {
 
 			return settings.get('maxLength');
 		},
-		hasMentions(): boolean
-		{
-			return Object.keys(this.mentions).length > 0;
-		},
 	},
 	watch:
 	{
 		text(newValue)
 		{
 			this.adjustTextareaHeight();
-			if (!this.editMode)
-			{
-				this.getDraftManager().setDraft(this.dialogId, newValue);
-			}
+			this.getDraftManager().setDraftText(this.dialogId, newValue);
 
 			if (Type.isStringFilled(newValue))
 			{
@@ -139,7 +131,7 @@ export const ChatTextarea = {
 	{
 		this.initResizeManager();
 		this.restoreTextareaHeight();
-		this.restoreDraftText();
+		this.restoreDraft();
 		this.initSendingService();
 
 		EventEmitter.subscribe(EventType.textarea.insertMention, this.onInsertMention);
@@ -148,6 +140,8 @@ export const ChatTextarea = {
 		EventEmitter.subscribe(EventType.textarea.replyMessage, this.onReplyMessage);
 		EventEmitter.subscribe(EventType.textarea.sendMessage, this.onSendMessage);
 		EventEmitter.subscribe(EventType.textarea.insertForward, this.onInsertForward);
+
+		EventEmitter.subscribe(EventType.dialog.onMessageDeleted, this.onMessageDeleted);
 	},
 	mounted()
 	{
@@ -163,21 +157,46 @@ export const ChatTextarea = {
 		EventEmitter.unsubscribe(EventType.textarea.replyMessage, this.onReplyMessage);
 		EventEmitter.unsubscribe(EventType.textarea.sendMessage, this.onSendMessage);
 		EventEmitter.unsubscribe(EventType.textarea.insertForward, this.onInsertForward);
+
+		EventEmitter.unsubscribe(EventType.dialog.onMessageDeleted, this.onMessageDeleted);
 	},
 	methods:
 	{
+		sendMessage()
+		{
+			this.text = this.text.trim();
+			if (this.isDisabled || !this.dialogInited)
+			{
+				return;
+			}
+
+			const text = this.mentionManager.replaceMentions(this.text);
+
+			if (this.hasActiveMessageAction())
+			{
+				this.handlePanelAction(text);
+				this.closePanel();
+			}
+			else
+			{
+				this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
+			}
+
+			this.getTypingService().stopTyping();
+			this.clear();
+			this.getDraftManager().clearDraft(this.dialogId);
+			SoundNotificationManager.getInstance().playOnce(SoundType.send);
+			this.focus();
+		},
 		handlePanelAction(text: string)
 		{
-			if (this.editMode)
+			if (this.editMode && text === '')
 			{
-				if (this.text === '')
-				{
-					this.getMessageService().deleteMessage(this.panelMessageId);
-				}
-				else
-				{
-					this.getMessageService().editMessageText(this.panelMessageId, text);
-				}
+				void this.getMessageService().deleteMessage(this.panelMessageId);
+			}
+			else if (this.editMode && text !== '')
+			{
+				this.getMessageService().editMessageText(this.panelMessageId, text);
 			}
 			else if (this.forwardMode)
 			{
@@ -196,52 +215,10 @@ export const ChatTextarea = {
 				});
 			}
 		},
-		sendMessage()
-		{
-			this.text = this.text.trim();
-			if (this.isDisabled || !this.dialogInited)
-			{
-				return;
-			}
-
-			const text = this.replaceMentions(this.text);
-
-			if (this.hasActiveMessageAction())
-			{
-				this.handlePanelAction(text);
-				this.closePanel();
-				this.clear();
-
-				return;
-			}
-
-			this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
-
-			this.getTypingService().stopTyping();
-			this.clear();
-			this.getDraftManager().clearDraftInRecentList(this.dialogId);
-			SoundNotificationManager.getInstance().playOnce(SoundType.send);
-			this.focus();
-		},
-		replaceMentions(text: string): string
-		{
-			if (!this.hasMentions)
-			{
-				return text;
-			}
-
-			let textWithMentions = text;
-			Object.entries(this.mentions).forEach((mention) => {
-				const [mentionText, mentionReplacement] = mention;
-				textWithMentions = textWithMentions.replace(mentionText, mentionReplacement);
-			});
-
-			return textWithMentions;
-		},
 		clear()
 		{
 			this.text = '';
-			this.mentions = {};
+			this.mentionManager.clearMentionReplacements();
 		},
 		hasActiveMessageAction(): boolean
 		{
@@ -255,6 +232,8 @@ export const ChatTextarea = {
 			}
 			this.panelType = PanelType.none;
 			this.panelMessageId = 0;
+
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
 		},
 		openEditPanel(messageId: number)
 		{
@@ -266,8 +245,17 @@ export const ChatTextarea = {
 
 			this.panelType = PanelType.edit;
 			this.panelMessageId = messageId;
+
+			const mentions = this.mentionManager.extractMentions(message.text);
+			console.warn('openEditPanel', mentions);
+			this.mentionManager.setMentionReplacements(mentions);
+
 			this.text = Parser.prepareEdit(message);
 			this.focus();
+
+			this.draftManager.setDraftText(this.dialogId, this.text);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftMentions(this.dialogId, mentions);
 		},
 		openReplyPanel(messageId: number)
 		{
@@ -278,6 +266,8 @@ export const ChatTextarea = {
 			this.panelType = PanelType.reply;
 			this.panelMessageId = messageId;
 			this.focus();
+
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
 		},
 		openForwardPanel(messageId: number)
 		{
@@ -285,6 +275,8 @@ export const ChatTextarea = {
 			this.panelMessageId = messageId;
 			this.clear();
 			this.focus();
+
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
 		},
 		toggleMarketPanel()
 		{
@@ -332,12 +324,27 @@ export const ChatTextarea = {
 			this.resizedTextareaHeight = savedHeight;
 			this.adjustTextareaHeight();
 		},
-		restoreDraftText()
+		async restoreDraft()
 		{
-			this.text = this.getDraftManager().getDraft(this.dialogId);
+			const {
+				text = '',
+				panelType = PanelType.none,
+				panelMessageId = 0,
+			} = await this.getDraftManager().getDraft(this.dialogId);
+
+			this.text = text;
+			this.panelType = panelType;
+			this.panelMessageId = panelMessageId;
 		},
 		async onKeyDown(event: KeyboardEvent)
 		{
+			if (this.showMention)
+			{
+				this.mentionManager.onActiveMentionKeyDown(event);
+
+				return;
+			}
+
 			const exitActionCombination = Utils.key.isCombination(event, 'Escape');
 			if (this.hasActiveMessageAction() && exitActionCombination)
 			{
@@ -348,7 +355,7 @@ export const ChatTextarea = {
 
 			const sendMessageCombination = isSendMessageCombination(event);
 			const newLineCombination = isNewLineCombination(event);
-			if (sendMessageCombination && !newLineCombination && !this.showMention)
+			if (sendMessageCombination && !newLineCombination)
 			{
 				event.preventDefault();
 				this.sendMessage();
@@ -356,7 +363,7 @@ export const ChatTextarea = {
 				return;
 			}
 
-			if (newLineCombination && !this.showMention)
+			if (newLineCombination)
 			{
 				this.handleNewLine();
 
@@ -437,42 +444,19 @@ export const ChatTextarea = {
 		{
 			const { mentionText, mentionReplacement, textToReplace = '' } = event.getData();
 
-			this.mentions[mentionText] = mentionReplacement;
-			const queryWithMentionSymbol = `${this.mentionManager.getMentionSymbol()}${textToReplace}`;
-			if (queryWithMentionSymbol.length > 0)
-			{
-				this.text = this.text.replace(queryWithMentionSymbol, `${mentionText} `);
-			}
-			else
-			{
-				this.text += `${mentionText} `;
-			}
+			const mentions = this.mentionManager.addMentionReplacement(mentionText, mentionReplacement);
+			this.draftManager.setDraftMentions(this.dialogId, mentions);
 
+			this.text = this.mentionManager.prepareMentionText({
+				currentText: this.text,
+				textToInsert: mentionText,
+				textToReplace,
+			});
 			this.focus();
 		},
 		onInsertText(event: BaseEvent<InsertTextEvent>)
 		{
-			// TODO sync with im/install/js/im/component/textarea/src/textarea.js:164
-			const textarea = this.$refs.textarea;
-			const { text = '', withNewLine = false, replace = false } = event.getData();
-
-			if (replace)
-			{
-				this.text = '';
-				textarea.value = '';
-				textarea.selectionStart = 0;
-				textarea.selectionEnd = 0;
-			}
-
-			if (this.text.length === 0)
-			{
-				this.text = text;
-			}
-			else
-			{
-				this.text = withNewLine ? `${this.text}\n${text}` : `${this.text} ${text}`;
-			}
-
+			this.text = Textarea.insertText(this.$refs.textarea, event.getData());
 			this.focus();
 		},
 		onEditMessage(event: BaseEvent<{ messageId: number }>)
@@ -517,6 +501,14 @@ export const ChatTextarea = {
 		{
 			this.toggleMarketPanel();
 		},
+		onMessageDeleted(event: BaseEvent<{ messageId: number }>)
+		{
+			const { messageId } = event.getData();
+			if (this.panelMessageId === messageId)
+			{
+				this.closePanel();
+			}
+		},
 		initResizeManager()
 		{
 			this.resizeManager = new ResizeManager();
@@ -539,9 +531,15 @@ export const ChatTextarea = {
 
 			this.sendingService = SendingService.getInstance();
 		},
-		initMentionManager()
+		async initMentionManager()
 		{
+			const {
+				mentions = {},
+			} = await this.getDraftManager().getDraft(this.dialogId);
+
 			this.mentionManager = new MentionManager(this.$refs.textarea);
+			this.mentionManager.setMentionReplacements(mentions);
+
 			this.mentionManager.subscribe(MentionManagerEvents.showMentionPopup, (event) => {
 				const { mentionQuery } = event.getData();
 				this.showMentionPopup(mentionQuery);
@@ -600,7 +598,7 @@ export const ChatTextarea = {
 				return;
 			}
 
-			const textWithMentions = this.replaceMentions(text);
+			const textWithMentions = this.mentionManager.replaceMentions(text);
 			this.getUploadingService().sendSeparateMessagesWithFiles({ uploaderId, text: textWithMentions });
 			this.focus();
 		},

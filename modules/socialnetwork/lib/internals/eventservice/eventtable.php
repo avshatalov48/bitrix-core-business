@@ -17,10 +17,10 @@ use Bitrix\Main\Type\DateTime;
  * @method static EO_Event_Result getById($id)
  * @method static EO_Event_Result getList(array $parameters = [])
  * @method static EO_Event_Entity getEntity()
- * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Event\EO_Event createObject($setDefaultValues = true)
- * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Event\EO_Event_Collection createCollection()
- * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Event\EO_Event wakeUpObject($row)
- * @method static \Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Event\EO_Event_Collection wakeUpCollection($rows)
+ * @method static \Bitrix\Socialnetwork\Internals\EventService\EO_Event createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\Internals\EventService\EO_Event_Collection createCollection()
+ * @method static \Bitrix\Socialnetwork\Internals\EventService\EO_Event wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\Internals\EventService\EO_Event_Collection wakeUpCollection($rows)
  */
 class EventTable extends DataManager
 {
@@ -102,17 +102,12 @@ class EventTable extends DataManager
 	{
 		$res = self::getList([
 			'filter' => [
-				'<PROCESSED' => DateTime::createFromTimestamp(0),
+				'<=PROCESSED' => DateTime::createFromTimestamp(0),
 			],
 			'limit' => 1
 		]);
 
-		if ($res->getSelectedRowsCount() > 0)
-		{
-			return true;
-		}
-
-		return false;
+		return $res->getSelectedRowsCount() > 0;
 	}
 
 	/**
@@ -133,7 +128,7 @@ class EventTable extends DataManager
 		\CTimeZone::disable();
 		$res = self::getList([
 			'filter' => [
-				'<PROCESSED' => DateTime::createFromTimestamp(0),
+				'<=PROCESSED' => DateTime::createFromTimestamp(0),
 				'<CREATED' => DateTime::createFromTimestamp(time() - self::LOST_TTL)
 			],
 			'limit' => $limit

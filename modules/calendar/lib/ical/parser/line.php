@@ -8,6 +8,7 @@ class Line
 {
 	private const COMPONENT_PROPERTY_NAME_BEGIN = 'begin';
 	private const COMPONENT_PROPERTY_NAME_END = 'end';
+	private const FIELDS_LIST_PARSE_WITH_END = ['attendee', 'dtstart', 'dtend'];
 	private $name;
 	private $value;
 	private $params = [];
@@ -41,7 +42,7 @@ class Line
 		$valuePos = (int) mb_strpos($line, ':');
 		$parts = explode(';', mb_substr($line, 0, $valuePos));
 		$name = mb_strtolower(array_shift($parts));
-		if ($name === 'attendee')
+		if (in_array($name, self::FIELDS_LIST_PARSE_WITH_END, true))
 		{
 			$valuePos = (int) mb_strrpos($this->line, ':');
 		}
@@ -50,6 +51,11 @@ class Line
 		$params = [];
 		foreach($parts as $v)
 		{
+			if (!str_contains($v, '='))
+			{
+				continue;
+			}
+
 			[$k, $v] = explode('=', $v);
 			$params[mb_strtolower($k)] = trim($v, '"');
 		}

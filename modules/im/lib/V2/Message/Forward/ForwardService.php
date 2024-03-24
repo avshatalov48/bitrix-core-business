@@ -4,7 +4,6 @@ namespace Bitrix\Im\V2\Message\Forward;
 
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
-use Bitrix\Im\V2\Entity\File\FileError;
 use Bitrix\Im\V2\Entity\File\FileItem;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
@@ -23,6 +22,7 @@ class ForwardService
 		Message\Params::FORWARD_CONTEXT_ID => Message\Params::FORWARD_CONTEXT_ID,
 		Message\Params::FORWARD_ID => Message\Params::FORWARD_ID,
 		Message\Params::FORWARD_USER_ID => Message\Params::FORWARD_USER_ID,
+		Message\Params::REPLY_ID => Message\Params::REPLY_ID,
 	];
 
 	private Chat $toChat;
@@ -164,28 +164,5 @@ class ForwardService
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param int $fileId
-	 * @return Result<FileItem>
-	 */
-	private function getFileCopy(int $fileId): Result
-	{
-		$result = new Result();
-
-		$fileItem = FileItem::initByDiskFileId($fileId, $this->toChat->getChatId());
-		if (!$fileItem)
-		{
-			return $result->addError(new FileError(FileError::NOT_FOUND));
-		}
-
-		$copyFile = $fileItem->getCopyToChat($this->toChat);
-		if (!$copyFile)
-		{
-			return $result->addError(new FileError(FileError::CREATE_SYMLINK));
-		}
-
-		return $result->setResult($copyFile);
 	}
 }

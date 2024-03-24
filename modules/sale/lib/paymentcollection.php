@@ -451,7 +451,7 @@ class PaymentCollection extends Internals\EntityCollection
 							$logFields,
 							$orderHistory::SALE_ORDER_HISTORY_LOG_LEVEL_1
 						);
-						
+
 						$orderHistory::addAction(
 							'PAYMENT',
 							$order->getId(),
@@ -509,11 +509,11 @@ class PaymentCollection extends Internals\EntityCollection
 
 				/** @var EntityMarker $entityMarker */
 				$entityMarker = $registry->getEntityMarkerClassName();
-				$entityMarker::deleteByFilter(array(
-					 '=ORDER_ID' => $order->getId(),
-					 '=ENTITY_TYPE' => $entityMarker::ENTITY_TYPE_PAYMENT,
-					 '=ENTITY_ID' => $k,
-				));
+				$entityMarker::deleteByFilter([
+					'=ORDER_ID' => $order->getId(),
+					'=ENTITY_TYPE' => $entityMarker::ENTITY_TYPE_PAYMENT,
+					'=ENTITY_ID' => $k,
+				]);
 			}
 
 		}
@@ -614,7 +614,7 @@ class PaymentCollection extends Internals\EntityCollection
 			if (!$r->isSuccess())
 			{
 				$result->addErrors($r->getErrors());
-				
+
 				/** @var Order $order */
 				if (!$order = $this->getOrder())
 				{

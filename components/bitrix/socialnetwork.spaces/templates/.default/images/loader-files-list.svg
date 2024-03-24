@@ -1,0 +1,119 @@
+<svg width="100%" height="100%" viewBox="0 0 100% 100%" fill="none" xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+
+	<svg y="0" height="100%" width="100%">
+		<defs>
+			<g id="block-1">
+				<rect width="100%" height="1" y="225" fill="#e5e5e5" />
+				<rect width="100%" height="1" y="283" fill="#e5e5e5" />
+				<rect width="100%" height="1" y="342" fill="#e5e5e5" />
+				<rect width="100%" height="1" y="401" fill="#e5e5e5" />
+			</g>
+		</defs>
+		<rect opacity="0.8" width="100%" height="60" rx="10" fill="white" />
+		<rect width="100%" height="100%" rx="10" y="180" fill="white" />
+
+		<use xlink:href="#block-1"></use>
+		<use y="235" xlink:href="#block-1"></use>
+		<rect width="100%" height="1" y="696" fill="#e5e5e5" />
+
+	</svg>
+
+	<svg width="100%" height="100%" id="animated-elements">
+		<defs>
+			<g id="block-animated-1">
+				<rect x="6" y="6" width="48" height="48" rx="8" fill="#bdc1c6" />
+				<rect x="85" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="257" y="28" width="76" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="167" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="373" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+				<rect x="463" y="28" width="50" height="6" rx="2" fill="#bdc1c6" />
+			</g>
+
+			<g id="block-animated-2">
+				<rect x="10" y="76" width="193" height="39" rx="19.5" fill="#bdc1c6" />
+				<rect x="214" y="76" width="212" height="39" rx="19.5" fill="#edeef0" />
+				<rect x="100%" y="79" width="38" height="33" rx="16.5" fill="#edeef0" transform="translate(-50, 0)" />
+			</g>
+			<g id="block-animated-3">
+				<rect x="67%" y="200" width="76" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="200" width="76" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="256" width="120" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="315" width="120" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="374" width="120" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="433" width="120" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="492" width="120" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="551" width="120" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="610" width="120" height="6" rx="2" fill="#e5e5e5"/>
+				<rect x="45%" y="669" width="120" height="6" rx="2" fill="#e5e5e5"/>
+			</g>
+		</defs>
+		<use xlink:href="#block-animated-1"></use>
+		<use xlink:href="#block-animated-2"></use>
+
+		<rect x="22" y="145" width="76" height="6" rx="2" fill="#edeef0" />
+		<rect x="100%" y="145" width="138" height="6" rx="2" fill="#edeef0" transform="translate(-292, 0)" />
+		<rect x="100%" y="131" width="127" height="32" rx="16" fill="#edeef0" transform="translate(-139, 0)"  />
+
+		<rect x="71" y="200" width="76" height="6" rx="2" fill="#e5e5e5"/>
+
+		<circle cx="49" cy="203" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="196.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="256" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 242H91.5L94.5 245H109V271H73V242Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="257" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="246.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="315" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 301H91.5L94.5 304H109V330H73V301Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="316" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="305.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="374" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 360H91.5L94.5 363H109V389H73V360Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="375" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="364.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="433" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 419H91.5L94.5 422H109V448H73V419Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="434" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="423.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="492" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 478H91.5L94.5 481H109V507H73V478Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="493" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="482.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="551" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 537H91.5L94.5 540H109V566H73V537Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="552" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="541.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="610" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 596H91.5L94.5 599H109V625H73V596Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="611" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="600.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<rect x="122" y="669" width="120" height="6" rx="2" fill="#e5e5e5"/>
+		<path d="M73 655H91.5L94.5 658H109V684H73V655Z" fill="#e5e5e5"/>
+		<circle cx="49" cy="670" r="10" fill="#e5e5e5"/>
+		<rect x="15.5" y="659.5" width="13" height="13" rx="1.5" fill="#e5e5e5" />
+
+		<use xlink:href="#block-animated-3"></use>
+	</svg>
+
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="100%"/>
+
+	<mask id="headerMsk" fill="white">
+		<use xlink:href="#animated-elements"/>
+	</mask>
+
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+		<stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+		<stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+	</linearGradient>
+
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

@@ -36,7 +36,11 @@ class EventConnection extends Complex
 
 		$link = EventConnectionTable::query()
 			->setFilter($filter)
-			->setSelect(['*', 'EVENT', 'CONNECTION'])
+			->setSelect([
+				'*',
+				'EVENT',
+				'CONNECTION',
+			])
 			->exec()->fetchObject();
 
 		if ($link === null)
@@ -217,7 +221,11 @@ class EventConnection extends Complex
 		Loader::includeModule('dav');
 		if ($params['select'] === self::DEFAULT_SELECT)
 		{
-			$params['select'] = ["*", 'EVENT', 'CONNECTION'];
+			$params['select'] = [
+				"*",
+				'EVENT',
+				'CONNECTION',
+			];
 		}
 
 		return EventConnectionTable::getList($params);

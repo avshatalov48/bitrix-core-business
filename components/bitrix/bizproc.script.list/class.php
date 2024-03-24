@@ -13,11 +13,16 @@ class BizprocScriptListComponent extends \CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
-		if (isset($params['DOCUMENT_TYPE_SIGNED']))
+		if (isset($params['DOCUMENT_TYPE_SIGNED']) && Main\Loader::includeModule('bizproc'))
 		{
 			$params['DOCUMENT_TYPE_SIGNED'] = htmlspecialcharsback($params['DOCUMENT_TYPE_SIGNED']);
 			$params['DOCUMENT_TYPE'] = CBPDocument::unSignDocumentType($params['DOCUMENT_TYPE_SIGNED']);
 		}
+		else
+		{
+			$params['DOCUMENT_TYPE'] = null;
+		}
+
 		return $params;
 	}
 

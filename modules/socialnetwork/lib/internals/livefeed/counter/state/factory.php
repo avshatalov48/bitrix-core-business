@@ -52,6 +52,8 @@ class Factory
 
 	private static function useInMemoryState(): bool
 	{
+		return true;
+
 		if (Option::get('socialnetwork', 'sonet_use_in_memory_counter_state', 'null', '-') !== 'null')
 		{
 			return true;

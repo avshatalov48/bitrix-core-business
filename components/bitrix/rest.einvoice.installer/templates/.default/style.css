@@ -1,0 +1,223 @@
+.bitrix-einvoice-installer-wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	min-height: 100vh;
+}
+
+.bitrix-einvoice-installer-title__secondary-text {
+	font: 24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 400;
+	color: var(--ui-color-palette-gray-70, #828b95);
+	text-align: center;
+}
+
+.bitrix-einvoice-installer-title__main-text {
+	font: 42px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 600;
+	color: var(--ui-color-palette-gray-90, #525C69);
+	text-align: center;
+}
+
+.bitrix-einvoice-installer-description {
+	font: 17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 400;
+	color: var(--ui-color-palette-gray-80, #6A737F);
+	text-align: center;
+	width: 339px;
+}
+
+.bitrix-einvoice-installer-button-select {
+	margin: 22px auto 0;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 600;
+	min-width: 230px;
+	padding-right: 41px;
+}
+
+.bitrix-einvoice-installer-button-try-again {
+	margin-top: 24px;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 600;
+}
+
+.bitrix-einvoice-installer-button-select .ui-btn-dropdown {
+	padding-right: 41px;
+}
+
+/*.bitrix-einvoice-installer-button-select.--active {*/
+/*	background-color: var(--ui-color-palette-green-55, #95C500);*/
+/*}*/
+
+/*.bitrix-einvoice-installer-button-select.--active:hover {*/
+/*	transition: .25s;*/
+/*	background-color: #A1D400;*/
+/*}*/
+
+/*.bitrix-einvoice-installer-button-select:hover {*/
+/*	transition: .25s;*/
+/*	background-color: #A1D400;*/
+/*}*/
+
+/*.bitrix-einvoice-installer-button-select__icon {*/
+/*	background-color: var(--ui-color-palette-white-base, #ffffff);*/
+/*	width: 20px;*/
+/*	height: 20px;*/
+/*}*/
+
+/*.bitrix-einvoice-installer-app-icon {*/
+/*	display: block;*/
+/*	margin: 0 auto;*/
+/*}*/
+
+.bitrix-einvoice-installer-more-information-wrapper {
+	margin-top: 22px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+}
+
+.bitrix-einvoice-installer-more-information-link {
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	color: var(--ui-color-palette-gray-70, #828B95);
+	text-align: center;
+	font-weight: 400;
+	border-bottom: 1px dashed var(--ui-color-palette-gray-70, #828B95);
+	cursor: pointer;
+}
+
+.bitrix-einvoice-installer-main-icon {
+	background: url("images/main-icon.svg") no-repeat center;
+	width: 320px;
+	height: 262px;
+}
+
+.bitrix-einvoice-installer-error-icon {
+	background: url("images/error-icon.svg") no-repeat center;
+	width: 93px;
+	height: 93px;
+	margin-bottom: 16px;
+}
+
+.bitrix-einvoice-installer-app-wrapper {
+	min-height: 58px;
+	padding: 0 20px;
+	cursor: pointer;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+}
+
+.bitrix-einvoice-installer-app-name {
+	font: 16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 500;
+	color: var(--ui-color-palette-gray-90, #525C69);
+	overflow: hidden;
+	white-space: nowrap;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+}
+
+.bitrix-einvoice-installer-app-wrapper.--form {
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 400;
+}
+
+.bitrix-einvoice-installer-loader-wrapper-install {
+	text-align: center;
+}
+
+.bitrix-einvoice-installer-title-install {
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: 400;
+	text-align: center;
+	color: var(--ui-color-palette-black-base, #333333);
+	margin-bottom: 24px;
+}
+
+.bitrix-einvoice-installer-description-install {
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	text-align: center;
+	font-weight: 400;
+	color: var(--ui-color-palette-gray-50, #A8ADB4);
+	margin-top: 22px;
+}
+
+.bitrix-einvoice-installer-content {
+	-webkit-box-flex: 1;
+	    -ms-flex: 1 0 50vh;
+	        flex: 1 0 50vh;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+}
+
+.bitrix-einvoice-installer-content.--error-content {
+	-webkit-box-flex: 0;
+	    -ms-flex: 0 0 80vh;
+	        flex: 0 0 80vh;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.bitrix-einvoice-installer-notification-wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	color: var(--ui-color-palette-white-base, #ffffff);
+}
+
+.bitrix-einvoice-installer-notification-wrapper .ui-icon-set {
+	margin-right: 5px;
+	background: var(--ui-color-palette-white-base, #ffffff);
+}
+
+.bitrix-einvoice-installer-notification-link {
+	margin-left: 6px;
+	color: var(--ui-color-palette-blue-50, #2FC6F6);
+	cursor: pointer;
+	border-bottom: 1px solid rgba(47, 198, 246, 0.25);
+}
+
+.bitrix-einvoice-installer-main-icon-wrapper {
+	-webkit-box-flex: 1;
+	    -ms-flex: 1 1;
+	        flex: 1 1;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.bitrix-einvoice-installer-title__wrapper {
+	margin-bottom: 32px;
+}

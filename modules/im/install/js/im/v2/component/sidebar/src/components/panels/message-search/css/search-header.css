@@ -1,0 +1,40 @@
+.bx-im-sidebar-search-header__scope {
+	--im-sidebar-search-header__border-color_separator: #ecedef;
+}
+
+.bx-im-sidebar-search-header__container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 65px;
+	padding-left: 16px;
+	border-bottom: 1px solid var(--im-sidebar-search-header__border-color_separator);
+}
+
+.bx-im-sidebar-search-header__title-container {
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-search-header__calendar-icon {
+	margin: 0 20px 0 10px;
+	width: 24px;
+	height: 24px;
+	background: url("./images/calendar-icon.svg") no-repeat center;
+	cursor: pointer;
+}
+
+.bx-im-sidebar-search-header__title-text {
+	font: var(--im-font-size-xl)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	margin-left: 10px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-search-header__input {
+	margin-left: 11px;
+	width: 246px;
+}

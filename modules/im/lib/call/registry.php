@@ -8,23 +8,27 @@ use Bitrix\Im\V2\Call\CallFactory;
 class Registry
 {
 	/** @var Call[] */
-	protected static $calls = array();
+	protected static array $calls = [];
 
 	/**
-	 *
 	 * @param int $id Id of the call
 	 * @return Call|null
 	 */
 	public static function getCallWithId(int $id): ?Call
 	{
-		if(static::$calls[$id])
+		if (static::$calls[$id] instanceof Call)
+		{
 			return static::$calls[$id];
+		}
 
 		$row = CallTable::getRowById($id);
-		if(!$row)
+		if (!$row)
+		{
 			return null;
+		}
 
 		static::$calls[$id] = CallFactory::createWithArray($row['PROVIDER'], $row);
+
 		return static::$calls[$id];
 	}
 

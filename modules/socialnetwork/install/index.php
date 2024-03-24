@@ -201,6 +201,9 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('im', 'onDiskRecordShare', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Im\Chat\CallRecord', 'onDiskRecordShare');
 		$eventManager->registerEventHandler('ai', 'onContextGetMessages', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Controller', 'onContextGetMessages');
 		$eventManager->registerEventHandler('ai', 'onTuningLoad', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Settings', 'onTuningLoad');
+		$eventManager->registerEventHandler('socialnetwork', 'OnSocNetUserToGroupAdd', 'socialnetwork', '\Bitrix\Socialnetwork\Internals\Space\Counter\Cache', 'invalidateCache');
+		$eventManager->registerEventHandler('socialnetwork', 'OnSocNetUserToGroupUpdate', 'socialnetwork', '\Bitrix\Socialnetwork\Internals\Space\Counter\Cache', 'invalidateCache');
+		$eventManager->registerEventHandler('socialnetwork', 'OnSocNetUserToGroupDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Internals\Space\Counter\Cache', 'invalidateCache');
 
 		CAgent::AddAgent("CSocNetMessages::SendEventAgent();", "socialnetwork", "N", 600);
 

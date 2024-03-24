@@ -324,7 +324,7 @@ class CTraffic extends CAllTraffic
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
-		$site_id = $arFilter["SITE_ID"];
+		$site_id = ($arFilter["SITE_ID"] ?? '');
 		if($site_id <> '' && $site_id!="NOT_REF")
 		{
 			$site_filter = true;
@@ -336,8 +336,8 @@ class CTraffic extends CAllTraffic
 			$strSqlSearch = "";
 		}
 
-		$date1 = $arFilter["DATE1"];
-		$date2 = $arFilter["DATE2"];
+		$date1 = ($arFilter["DATE1"] ?? '');
+		$date2 = ($arFilter["DATE2"] ?? '');
 		if($date1 <> '' && CheckDateTime($date1))
 		{
 			$is_filtered = true;
@@ -439,7 +439,7 @@ class CTraffic extends CAllTraffic
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
-		$site_id = $arFilter["SITE_ID"];
+		$site_id = $arFilter["SITE_ID"] ?? '';
 		if ($site_id <> '' && $site_id!="NOT_REF")
 		{
 			$is_filtered = true;
@@ -451,8 +451,8 @@ class CTraffic extends CAllTraffic
 			$strSqlSearch = "";
 		}
 
-		$date1 = $arFilter["DATE1"];
-		$date2 = $arFilter["DATE2"];
+		$date1 = $arFilter["DATE1"] ?? '';
+		$date2 = $arFilter["DATE2"] ?? '';
 		$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 		$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
 		if ($date1 <> '')
@@ -528,15 +528,15 @@ class CTraffic extends CAllTraffic
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$strSqlSearch = "";
 
-		$site_id = $arFilter["SITE_ID"];
+		$site_id = $arFilter["SITE_ID"] ?? '';
 		if ($site_id <> '' && $site_id!="NOT_REF")
 		{
 			$is_filtered = true;
 			$strSqlSearch = " and SITE_ID = '".$DB->ForSql($site_id, 2)."' ";
 		}
 
-		$date1 = $arFilter["DATE1"];
-		$date2 = $arFilter["DATE2"];
+		$date1 = $arFilter["DATE1"] ?? '';
+		$date2 = $arFilter["DATE2"] ?? '';
 		$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 		$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
 		if ($date1 <> '')

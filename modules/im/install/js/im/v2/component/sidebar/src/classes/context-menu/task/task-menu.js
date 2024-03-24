@@ -1,9 +1,11 @@
 import 'ui.notification';
-import type {MenuItem} from 'im.v2.lib.menu';
-import {SidebarMenu} from '../sidebar-base-menu';
-import {TaskManager} from './task-manager';
-import type {ImModelSidebarTaskItem} from 'im.v2.model';
-import {Loc} from 'main.core';
+import { Loc } from 'main.core';
+
+import { SidebarMenu } from '../sidebar-base-menu';
+import { TaskManager } from './task-manager';
+
+import type { ImModelSidebarTaskItem } from 'im.v2.model';
+import type { MenuItem } from 'im.v2.lib.menu';
 
 type TaskMenuContext = {
 	task: ImModelSidebarTaskItem,
@@ -40,7 +42,7 @@ export class TaskMenu extends SidebarMenu
 			onclick: function() {
 				this.taskManager.delete(this.context.task);
 				this.menuInstance.close();
-			}.bind(this)
+			}.bind(this),
 		};
 	}
 }

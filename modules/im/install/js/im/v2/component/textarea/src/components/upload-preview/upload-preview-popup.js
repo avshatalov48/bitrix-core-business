@@ -1,7 +1,4 @@
-import { EventEmitter } from 'main.core.events';
-
 import { MessengerPopup } from 'im.v2.component.elements';
-import { EventType } from 'im.v2.const';
 
 import { UploadPreviewContent } from './upload-preview-content';
 
@@ -51,32 +48,12 @@ export const UploadPreviewPopup = {
 			};
 		},
 	},
-	created()
-	{
-		this.initialText = this.textareaValue;
-		EventEmitter.emit(EventType.textarea.insertText, {
-			text: '',
-			replace: true,
-		});
-	},
 	methods:
 	{
-		onContentClose()
-		{
-			this.insertText(this.initialText);
-			this.$emit('close');
-		},
 		onSendFiles(event)
 		{
 			this.$emit('sendFiles', event);
 			this.$emit('close');
-		},
-		insertText(text: string)
-		{
-			EventEmitter.emit(EventType.textarea.insertText, {
-				text,
-				replace: true,
-			});
 		},
 	},
 	template: `
@@ -89,7 +66,7 @@ export const UploadPreviewPopup = {
 				:dialogId="dialogId" 
 				:uploaderId="uploaderId"
 				:textareaValue="textareaValue"
-				@close="onContentClose"
+				@close="$emit('close')"
 				@sendFiles="onSendFiles"
 			/>
 		</MessengerPopup>

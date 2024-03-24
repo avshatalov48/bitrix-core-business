@@ -138,6 +138,7 @@ class CSocNetLog extends CAllSocNetLog
 			\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_POST_ADD,
 			[
 				'SONET_LOG_ID' => (int)$ID,
+				'EVENT_ID' => $arFields['EVENT_ID'] ?? '',
 			]
 		);
 
@@ -147,6 +148,8 @@ class CSocNetLog extends CAllSocNetLog
 	public static function Update($ID, $arFields)
 	{
 		global $DB, $CACHE_MANAGER, $APPLICATION, $USER_FIELD_MANAGER;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$ID = (int)$ID;
 		if ($ID <= 0)
@@ -209,12 +212,11 @@ class CSocNetLog extends CAllSocNetLog
 				$strSql = "DELETE FROM b_sonet_log_site WHERE LOG_ID=".$ID;
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-				$strSql =
-					"INSERT INTO b_sonet_log_site(LOG_ID, SITE_ID) " .
+				$strSql = $helper->getInsertIgnore("b_sonet_log_site", "(LOG_ID, SITE_ID)",
 					"SELECT " . $ID . ", LID " .
 					"FROM b_lang " .
-					"WHERE LID IN (" . $str_SiteID . ") " .
-					"ON DUPLICATE KEY UPDATE LOG_ID = " . $ID;
+					"WHERE LID IN (" . $str_SiteID . ") "
+				);
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 			}
 
@@ -290,10 +292,16 @@ class CSocNetLog extends CAllSocNetLog
 			}
 		}
 
+		$log = LogTable::query()
+			->setSelect(['EVENT_ID'])
+			->where('ID', (int)$ID)
+			->fetch()
+		;
 		\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
 			\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_POST_UPD,
 			[
 				'SONET_LOG_ID' => (int)$ID,
+				'EVENT_ID' => $log['EVENT_ID'] ?? null,
 			]
 		);
 
@@ -303,6 +311,8 @@ class CSocNetLog extends CAllSocNetLog
 	public static function ClearOld($days = 90)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$days = (int)$days;
 		if ($days <= 0)
@@ -310,11 +320,11 @@ class CSocNetLog extends CAllSocNetLog
 			return true;
 		}
 
-		$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L LEFT JOIN b_sonet_log_favorites LF ON L.ID = LF.LOG_ID WHERE LF.USER_ID IS NULL AND L.LOG_UPDATE < DATE_SUB(NOW(), INTERVAL ".$days." DAY)) L1 ON LC.LOG_ID = L1.TMP_ID", true);
-		$DB->Query("DELETE LS FROM b_sonet_log_site LS INNER JOIN (SELECT L.ID FROM b_sonet_log L LEFT JOIN b_sonet_log_favorites LF ON L.ID = LF.LOG_ID WHERE LF.USER_ID IS NULL AND L.LOG_UPDATE < DATE_SUB(NOW(), INTERVAL ".$days." DAY)) L1 ON LS.LOG_ID = L1.ID", true);
-		$DB->Query("DELETE LR FROM b_sonet_log_right LR INNER JOIN (SELECT L.ID FROM b_sonet_log L LEFT JOIN b_sonet_log_favorites LF ON L.ID = LF.LOG_ID WHERE LF.USER_ID IS NULL AND L.LOG_UPDATE < DATE_SUB(NOW(), INTERVAL ".$days." DAY)) L1 ON LR.LOG_ID = L1.ID", true);
+		$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L LEFT JOIN b_sonet_log_favorites LF ON L.ID = LF.LOG_ID WHERE LF.USER_ID IS NULL AND L.LOG_UPDATE < " . $helper->addDaysToDateTime(-$days) . ") L1 ON LC.LOG_ID = L1.TMP_ID", true);
+		$DB->Query("DELETE LS FROM b_sonet_log_site LS INNER JOIN (SELECT L.ID FROM b_sonet_log L LEFT JOIN b_sonet_log_favorites LF ON L.ID = LF.LOG_ID WHERE LF.USER_ID IS NULL AND L.LOG_UPDATE < " . $helper->addDaysToDateTime(-$days) . ") L1 ON LS.LOG_ID = L1.ID", true);
+		$DB->Query("DELETE LR FROM b_sonet_log_right LR INNER JOIN (SELECT L.ID FROM b_sonet_log L LEFT JOIN b_sonet_log_favorites LF ON L.ID = LF.LOG_ID WHERE LF.USER_ID IS NULL AND L.LOG_UPDATE < " . $helper->addDaysToDateTime(-$days) . ") L1 ON LR.LOG_ID = L1.ID", true);
 
-		return $DB->Query("DELETE FROM b_sonet_log WHERE LOG_UPDATE < DATE_SUB(NOW(), INTERVAL ".$days." DAY)", true);
+		return $DB->Query("DELETE FROM b_sonet_log WHERE LOG_UPDATE < " . $helper->addDaysToDateTime(-$days) . ";", true);
 	}
 
 	/***************************************/
@@ -855,6 +865,7 @@ class CSocNetLog extends CAllSocNetLog
 
 		if (
 			!empty($arParams)
+			&& !isset($arParams['SKIP_EXPERT_MODE']) // skip expert mode for spaces
 			&& isset($arParams["CHECK_VIEW"], $arParams["USER_ID"])
 			&& $arParams["CHECK_VIEW"] == "Y"
 			&& (int)$arParams["USER_ID"] > 0
@@ -1208,16 +1219,69 @@ class CSocNetLog extends CAllSocNetLog
 	{
 		global $DB;
 
-		$group_id = (int)$group_id;
+		$group_id = (int) $group_id;
 		if ($group_id <= 0)
 		{
 			return false;
 		}
 
-		$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LC.LOG_ID = L1.TMP_ID", true);
-		$DB->Query("DELETE LS FROM b_sonet_log_site LS INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LS.LOG_ID = L1.ID", true);
-		$DB->Query("DELETE LR FROM b_sonet_log_right LR INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LR.LOG_ID = L1.ID", true);
-		$DB->Query("DELETE LF FROM b_sonet_log_favorites LF INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LF.LOG_ID = L1.ID", true);
+		if ($DB->type === 'MYSQL')
+		{
+			$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LC.LOG_ID = L1.TMP_ID", true);
+			$DB->Query("DELETE LS FROM b_sonet_log_site LS INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LS.LOG_ID = L1.ID", true);
+			$DB->Query("DELETE LR FROM b_sonet_log_right LR INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LR.LOG_ID = L1.ID", true);
+			$DB->Query("DELETE LF FROM b_sonet_log_favorites LF INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."') L1 ON LF.LOG_ID = L1.ID", true);
+		}
+		else
+		{
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_comment LC 
+						USING b_sonet_log L
+					WHERE LC.LOG_ID = L.TMP_ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.EVENT_ID = 'system_groups'
+						AND L.MESSAGE = '".$group_id."'
+				",
+				true
+			);
+
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_site LS 
+						USING b_sonet_log L
+					WHERE LS.LOG_ID = L.ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.EVENT_ID = 'system_groups'
+						AND L.MESSAGE = '".$group_id."'
+				",
+				true
+			);
+
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_right LR 
+						USING b_sonet_log L
+					WHERE LR.LOG_ID = L.ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.EVENT_ID = 'system_groups'
+						AND L.MESSAGE = '".$group_id."'
+				",
+				true
+			);
+
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_favorites LF 
+						USING b_sonet_log L
+					WHERE LF.LOG_ID = L.ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.EVENT_ID = 'system_groups'
+						AND L.MESSAGE = '".$group_id."'
+				",
+				true
+			);
+		}
 
 		return $DB->Query("DELETE FROM b_sonet_log WHERE ENTITY_TYPE = '".SONET_ENTITY_USER."' AND EVENT_ID = 'system_groups' AND MESSAGE = '".$group_id."'", true);
 	}
@@ -1256,19 +1320,35 @@ class CSocNetLog extends CAllSocNetLog
 			]);
 		}
 
-		$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L WHERE L.ID = ".$ID.") L1 ON LC.LOG_ID = L1.TMP_ID", true);
+		$logRights = \Bitrix\Socialnetwork\Item\LogRight::get($ID);
+
+		if ($DB->type === 'MYSQL')
+		{
+			$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L WHERE L.ID = ".$ID.") L1 ON LC.LOG_ID = L1.TMP_ID", true);
+		}
+		else
+		{
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_comment LC 
+						USING b_sonet_log L
+					WHERE LC.LOG_ID = L.TMP_ID 
+						AND L.ID = '".$ID."'
+				",
+				true
+			);
+		}
+
 		$DB->Query("DELETE FROM b_sonet_log_right WHERE LOG_ID = ".$ID, true);
 		$DB->Query("DELETE FROM b_sonet_log_site WHERE LOG_ID = ".$ID, true);
 		$DB->Query("DELETE FROM b_sonet_log_favorites WHERE LOG_ID = ".$ID, true);
 		$DB->Query("DELETE FROM b_sonet_log_tag WHERE LOG_ID = ".$ID, true);
 
-		$logFields = array();
-		$res = LogTable::getList(array(
-			'filter' => array(
-				'ID' => $ID
-			),
-			'select' => array('EVENT_ID', 'SOURCE_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID')
-		));
+		$logFields = [];
+		$res = LogTable::getList([
+			'select' => ['ID', 'EVENT_ID', 'SOURCE_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID'],
+			'filter' => ['ID' => $ID]
+		]);
 		if ($fields = $res->fetch())
 		{
 			$logFields = $fields;
@@ -1314,6 +1394,8 @@ class CSocNetLog extends CAllSocNetLog
 			\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_POST_DEL,
 			[
 				'SONET_LOG_ID' => (int)$ID,
+				'EVENT_ID' => $logFields['EVENT_ID'] ?? null,
+				'LOG_RIGHTS' => $logRights,
 			]
 		);
 
@@ -1330,10 +1412,61 @@ class CSocNetLog extends CAllSocNetLog
 			return false;
 		}
 
-		$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LC.LOG_ID = L1.TMP_ID", true);
-		$DB->Query("DELETE LS FROM b_sonet_log_site LS INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LS.LOG_ID = L1.ID", true);
-		$DB->Query("DELETE LR FROM b_sonet_log_right LR INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LR.LOG_ID = L1.ID", true);
-		$DB->Query("DELETE LF FROM b_sonet_log_favorites LF INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LF.LOG_ID = L1.ID", true);
+		if ($DB->type === 'MYSQL')
+		{
+			$DB->Query("DELETE LC FROM b_sonet_log_comment LC INNER JOIN (SELECT L.TMP_ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LC.LOG_ID = L1.TMP_ID", true);
+			$DB->Query("DELETE LS FROM b_sonet_log_site LS INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LS.LOG_ID = L1.ID", true);
+			$DB->Query("DELETE LR FROM b_sonet_log_right LR INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LR.LOG_ID = L1.ID", true);
+			$DB->Query("DELETE LF FROM b_sonet_log_favorites LF INNER JOIN (SELECT L.ID FROM b_sonet_log L WHERE L.ENTITY_TYPE = '".SONET_ENTITY_USER."' AND L.ENTITY_ID = ".$userID.") L1 ON LF.LOG_ID = L1.ID", true);
+		}
+		else
+		{
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_comment LC 
+						USING b_sonet_log L
+					WHERE LC.LOG_ID = L.TMP_ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.ENTITY_ID = ".$userID."
+				",
+				true
+			);
+
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_site LS 
+						USING b_sonet_log L
+					WHERE LS.LOG_ID = L.ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.ENTITY_ID = ".$userID."
+				",
+				true
+			);
+
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_right LR 
+						USING b_sonet_log L
+					WHERE LR.LOG_ID = L.ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.ENTITY_ID = ".$userID."
+				",
+				true
+			);
+
+			$DB->Query(
+				"
+					DELETE FROM b_sonet_log_favorites LF 
+						USING b_sonet_log L
+					WHERE LF.LOG_ID = L.ID 
+						AND L.ENTITY_TYPE = '".SONET_ENTITY_USER."'
+						AND L.ENTITY_ID = ".$userID."
+				",
+				true
+			);
+		}
+
+
 		$DB->Query("DELETE FROM b_sonet_log_favorites WHERE USER_ID = ".$userID, true);
 		$DB->Query("DELETE FROM b_sonet_log_follow WHERE USER_ID = ".$userID, true);
 		$DB->Query("DELETE FROM b_sonet_log_view WHERE USER_ID = ".$userID, true);

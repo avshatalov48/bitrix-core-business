@@ -1,0 +1,29 @@
+<?
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Bitrix24 ermöglicht es Ihnen, SMS-Nachrichten schnell und einfach zu versenden.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE_ADMIN"] = "Richten Sie Ihren twilio.com Account ein, um die SMS-Benachrichtigungen zu nutzen.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "Einfache und wirkungsvolle SMS-Benachrichtigung";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "Powered by TWILIO.COM";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Profitieren Sie von allen Möglichkeiten des SMS-Marketing";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION"] = "Bitrix24 bietet eine einfache und problemlose SMS-Übermittlung an";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_1"] = "Senden Sie Nachrichten direkt aus einem Lead, Auftrag, Kunden oder Angebot.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_2"] = "Konfigurieren Sie Regeln, um SMS-Nachrichten an einen Kunden oder Mitarbeiter zu senden, und zwar zu einem bestimmten Zeitpunkt oder eben dann, wenn eine bestimmte Aufgabe erledigt ist.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_3"] = "Senden Sie massenhafte SMS-Nachrichten aus einer Liste der Kunden, Aufträge, Leads oder anderer CRM-Elemente.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE"] = "Konfigurieren Sie die Parameter von twilio.com und nutzen Sie die SMS-Benachrichtigungen in Bitrix24";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_1"] = "Loggen Sie sich ein oder erstellen Sie einen neuen Account auf #A1#twilio.com#A2#";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_2"] = "Registrieren und stellen Sie eine Telefonnummer zum SMS-Versand ein";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_3"] = "Kopieren Sie den Token und die SID in Ihrem Profil auf #A1#twilio.com#A2#";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_4"] = "Fügen Sie den Token und die SID im Feld unterhalb ein";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_SID"] = "SID";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_TOKEN"] = "Token";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_REGISTRATION"] = "Verbinden";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_INFO"] = "Ihre Registrierungsdaten auf twilio.com";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_FRIENDLY_NAME"] = "Account-Name";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTIONS"] = "Einstellungen zurücksetzen";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_CONFIRMATION"] = "Möchten Sie die Einstellungen wirklich zurücksetzen?";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_CABINET_TITLE"] = "Twilio.com service is now ready!";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_IS_DISABLED"] = "Öffnen Sie Ihr Profil auf #A1#twilio.com#A2#.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_ERROR"] = "Erforderliche Felder sind nicht korrekt";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_1"] = "Einfache Verbindung";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_2"] = "Sofortige Zustellung";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_3"] = "Sie zahlen nur für zugestellte Nachrichten";
+?>

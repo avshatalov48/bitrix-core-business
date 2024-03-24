@@ -68,23 +68,27 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && check_bitrix_sessid())
 	{
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
-		$DB->StartTransaction();
 		$ID = intval($ID);
 		$F_RIGHT = CForm::GetPermission($ID);
 		if ($F_RIGHT>=30)
 		{
 			$arFieldsStore = Array(
 				"TIMESTAMP_X"	=> $DB->GetNowFunction(),
-				"C_SORT"		=> "'".intval($arFields[C_SORT])."'"
-				);
+				"C_SORT"		=> "'".intval($arFields['C_SORT'])."'"
+			);
+
+			$DB->StartTransaction();
 
 			if (!$DB->Update("b_form",$arFieldsStore,"WHERE ID='".$ID."'",$err_mess.__LINE__))
 			{
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".GetMessage("FORM_SAVE_ERROR"), $ID);
 				$DB->Rollback();
 			}
+			else
+			{
+				$DB->Commit();
+			}
 		}
-		$DB->Commit();
 	}
 }
 
@@ -114,7 +118,10 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && check_bitrix_sessid()
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		}
 	}

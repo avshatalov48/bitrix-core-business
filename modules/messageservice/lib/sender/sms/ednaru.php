@@ -3,17 +3,19 @@
 namespace Bitrix\MessageService\Sender\Sms;
 
 use Bitrix\Main\Result;
+use Bitrix\MessageService\Providers;
 use Bitrix\MessageService\Providers\Base;
+use Bitrix\MessageService\Providers\CacheManager;
+use Bitrix\MessageService\Providers\Edna\RegionHelper;
 use Bitrix\MessageService\Providers\Edna\WhatsApp;
 use Bitrix\MessageService\Sender;
 
 class Ednaru extends Sender\BaseConfigurable
 {
 	public const ID = 'ednaru';
+	public const DISABLE_INTERNATIONAL = 'disable_international';
 
-	use Sender\Traits\RussianProvider;
-
-	protected \Bitrix\MessageService\Providers\Edna\EdnaRu $utils;
+	protected Providers\Edna\EdnaRu $utils;
 	protected WhatsApp\EmojiConverter $emoji;
 
 	public function __construct()
@@ -31,6 +33,19 @@ class Ednaru extends Sender\BaseConfigurable
 	public function isAvailable(): bool
 	{
 		return self::isSupported();
+	}
+
+	public static function isSupported()
+	{
+		if (
+			RegionHelper::isInternational()
+			&& \COption::GetOptionString('messageservice', self::DISABLE_INTERNATIONAL) === 'Y'
+		)
+		{
+			return false;
+		}
+
+		return parent::isSupported();
 	}
 
 	public function getId(): string
@@ -55,7 +70,13 @@ class Ednaru extends Sender\BaseConfigurable
 
 	public function register(array $fields): Result
 	{
-		return $this->registrar->register($fields);
+		$result = $this->registrar->register($fields);
+		if ($result->isSuccess())
+		{
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob([$this, 'refreshFromList']);
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob([$this, 'addRefreshFromListAgent']);
+		}
+		return $result;
 	}
 
 	public function getOwnerInfo(): array
@@ -83,9 +104,21 @@ class Ednaru extends Sender\BaseConfigurable
 		return (new WhatsApp\ConnectorLine($this->utils))->testConnection();
 	}
 
+	/**
+	 * @return array<array{id: int, name: string, channelPhone: string}>
+	 */
 	public function getFromList(): array
 	{
 		return $this->initiator->getFromList();
+	}
+
+	/**
+	 * The agent's goal is regular refreshing FromList.
+	 * @return void
+	 */
+	public function refreshFromList(): void
+	{
+		$this->utils->updateSavedChannelList($this->initiator->getChannelType());
 	}
 
 	public static function resolveStatus($serviceStatus): ?int
@@ -164,4 +197,33 @@ class Ednaru extends Sender\BaseConfigurable
 		return $this;
 	}
 
+	/**
+	 * Adds agent for execution.
+	 * @return void
+	 * @see refreshFromListAgent
+	 */
+	public function addRefreshFromListAgent(): void
+	{
+		$cacheManager = new CacheManager($this->getId());
+		$period = (int)ceil( $cacheManager->getTtl(CacheManager::CHANNEL_CACHE_ENTITY_ID) * .9);// async with cache expiration
+
+		\CAgent::AddAgent(static::class . "::refreshFromListAgent();", 'messageservice', 'Y', $period);
+	}
+
+	/**
+	 * The agent's goal is regular refreshing FromList cache.
+	 * @return string
+	 */
+	public static function refreshFromListAgent(): string
+	{
+		$sender = new static();
+		if (!$sender::isSupported() || !$sender->isRegistered())
+		{
+			return '';
+		}
+
+		$sender->refreshFromList();
+
+		return __METHOD__ . '();';
+	}
 }

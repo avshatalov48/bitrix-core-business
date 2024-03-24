@@ -7,12 +7,6 @@ import { DesktopApi } from 'im.v2.lib.desktop-api';
 export const ButtonPanel = {
 	name: 'ButtonPanel',
 	components: { ChatButton },
-	props: {
-		isDesktopAccountManagementAvailable: {
-			type: Boolean,
-			default: false,
-		},
-	},
 	emits: ['openProfile', 'logout'],
 	computed:
 	{
@@ -25,6 +19,10 @@ export const ButtonPanel = {
 		profileUri(): string
 		{
 			return Utils.user.getProfileLink(this.currentUserId);
+		},
+		isDesktop(): boolean
+		{
+			return DesktopApi.isDesktop();
 		},
 	},
 	methods:
@@ -51,7 +49,7 @@ export const ButtonPanel = {
 				/>
 			</a>
 			<ChatButton
-				v-if="isDesktopAccountManagementAvailable" 
+				v-if="isDesktop" 
 				:color="ButtonColor.DangerBorder"
 				:size="ButtonSize.M"
 				:isUppercase="false"

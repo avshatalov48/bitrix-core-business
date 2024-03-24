@@ -258,19 +258,19 @@ class CAllCatalogVat
 		return $success;
 	}
 
-	private static function normalizeFields(array &$fields)
+	private static function normalizeFields(array &$fields): void
 	{
 		if (!isset($fields['SORT']))
 		{
 			if (isset($fields['C_SORT']))
 			{
 				$fields['SORT'] = $fields['C_SORT'];
-				unset($fields['C_SORT']);
 			}
 		}
+		unset($fields['C_SORT']);
 	}
 
-	private static function convertErrors(ORM\Data\Result $result)
+	private static function convertErrors(ORM\Data\Result $result): void
 	{
 		global $APPLICATION;
 

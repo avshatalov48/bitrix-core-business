@@ -43,20 +43,29 @@ class SyncService
 		return $this->formatData($logCollection, $limit);
 	}
 
-	public function getChangesFromId(int $id, int $limit): array
+	public function getChangesFromId(?int $id, int $limit): array
 	{
 		if (!self::isEnable())
 		{
 			return [];
 		}
 
-		$logCollection = LogTable::query()
+		$query = LogTable::query()
 			->setSelect(['ID'])
 			->where('USER_ID', $this->getContext()->getUserId())
-			->where('ID', '>', $id)
 			->setLimit($limit)
-			->fetchCollection()
 		;
+
+		if ($id !== null)
+		{
+			$query->where('ID', '>', $id)->setOrder(['ID' => 'ASC']);
+		}
+		else
+		{
+			$query->setOrder(['ID' => 'DESC']);
+		}
+
+		$logCollection = $query->fetchCollection();
 		$logCollection->fill();
 		Logger::getInstance()->updateDateDelete($logCollection);
 

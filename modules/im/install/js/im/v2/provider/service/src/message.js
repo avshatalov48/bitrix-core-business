@@ -130,7 +130,7 @@ export class MessageService
 	// endregion 'edit'
 
 	// region 'delete'
-	deleteMessage(messageId: number | string)
+	deleteMessage(messageId: number | string): Promise
 	{
 		this.#deleteService.deleteMessage(messageId);
 	}

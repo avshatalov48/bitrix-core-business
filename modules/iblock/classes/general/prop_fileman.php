@@ -150,18 +150,18 @@ class CIBlockPropertyFileMan
 			$result["VALUE"] = $value["VALUE"];
 			$result["DESCRIPTION"] = $value["DESCRIPTION"] ?? '';
 		}
-		$return["VALUE"] = trim($result["VALUE"]);
-		$return["DESCRIPTION"] = trim($result["DESCRIPTION"]);
+		$return["VALUE"] = trim((string)$result["VALUE"]);
+		$return["DESCRIPTION"] = trim((string)$result["DESCRIPTION"]);
 		return $return;
 	}
 
 	public static function ConvertFromDB($arProperty, $value)
 	{
 		$return = [];
-		$value = trim((string)($value['VALUE'] ?? ''));
-		if ($value !== '')
+		$propertyValue = trim((string)($value['VALUE'] ?? ''));
+		if ($propertyValue !== '')
 		{
-			$return['VALUE'] = $value;
+			$return['VALUE'] = $propertyValue;
 		}
 		$description = trim((string)($value['DESCRIPTION'] ?? ''));
 		if ($description !== '')

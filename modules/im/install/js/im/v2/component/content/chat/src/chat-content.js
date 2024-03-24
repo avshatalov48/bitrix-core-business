@@ -1,4 +1,4 @@
-import { BaseEvent, EventEmitter } from 'main.core.events';
+import { BaseEvent } from 'main.core.events';
 import { getFilesFromDataTransfer, hasDataTransferOnlyFiles } from 'ui.uploader.core';
 
 import { Messenger } from 'im.public';
@@ -6,26 +6,16 @@ import { ChatDialog } from 'im.v2.component.dialog.chat';
 import { ChatTextarea } from 'im.v2.component.textarea';
 import { ChatService, UploadingService } from 'im.v2.provider.service';
 import { Logger } from 'im.v2.lib.logger';
-import { LocalStorageManager } from 'im.v2.lib.local-storage';
 import { ThemeManager } from 'im.v2.lib.theme';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { ResizeManager } from 'im.v2.lib.textarea';
+import { ChatSidebar } from 'im.v2.component.sidebar';
 import { LayoutManager } from 'im.v2.lib.layout';
-import {
-	EventType,
-	Layout,
-	LocalStorageKey,
-	SidebarDetailBlock,
-	ChatActionType,
-	Settings,
-	UserRole,
-	ChatType,
-} from 'im.v2.const';
-import { UserService } from './classes/user-service';
+import { Layout, ChatActionType, Settings, UserRole, ChatType, SidebarDetailBlock } from 'im.v2.const';
 
+import { UserService } from './classes/user-service';
 import { ChatHeader } from './components/chat-header/chat-header';
-import { SidebarWrapper } from './components/chat-sidebar-wrapper';
 import { DropArea } from './components/drop-area';
 import { EmptyState } from './components/empty-state';
 import { MutePanel } from './components/mute-panel';
@@ -35,6 +25,7 @@ import './css/chat-content.css';
 
 import 'ui.notification';
 
+import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelLayout } from 'im.v2.model';
 import type { BackgroundStyle } from 'im.v2.lib.theme';
 
@@ -48,13 +39,14 @@ export const ChatContent = {
 		ChatHeader,
 		ChatDialog,
 		ChatTextarea,
-		SidebarWrapper,
+		ChatSidebar,
 		DropArea,
 		EmptyState,
 		MutePanel,
 		JoinPanel,
 	},
-	directives: {
+	directives:
+	{
 		'textarea-observer': {
 			mounted(element, binding)
 			{
@@ -66,7 +58,8 @@ export const ChatContent = {
 			},
 		},
 	},
-	props: {
+	props:
+	{
 		entityId: {
 			type: String,
 			default: '',
@@ -76,15 +69,12 @@ export const ChatContent = {
 			default: 0,
 		},
 	},
-	data(): Object
+	data(): JsonObject
 	{
 		return {
-			needSidebarTransition: false,
-			sidebarOpened: true,
-			searchSidebarOpened: false,
-			sidebarDetailBlock: null,
-			textareaHeight: 0,
+			currentSidebarPanel: '',
 
+			textareaHeight: 0,
 			showDropArea: false,
 			lastDropAreaEnterTarget: null,
 		};
@@ -114,10 +104,6 @@ export const ChatContent = {
 		isUser(): boolean
 		{
 			return this.dialog.type === ChatType.user;
-		},
-		sidebarTransitionName(): string
-		{
-			return this.needSidebarTransition ? 'sidebar-transition' : '';
 		},
 		containerClasses(): string[]
 		{
@@ -157,49 +143,23 @@ export const ChatContent = {
 				top: `${dropAreaTopOffset}px`,
 			};
 		},
-		isSearchSidebarOpened(): boolean
-		{
-			return this.sidebarDetailBlock === SidebarDetailBlock.messageSearch;
-		},
 	},
 	watch:
 	{
 		entityId(newValue, oldValue)
 		{
 			Logger.warn(`ChatContent: switching from ${oldValue || 'empty'} to ${newValue}`);
-			if (newValue === '')
-			{
-				Logger.warn('ChatContent: closing sidebar, because entityId is empty');
-				this.sidebarOpened = false;
-			}
 			this.onChatChange();
-			this.resetSidebarDetailState();
-		},
-		sidebarOpened(newValue: boolean)
-		{
-			this.saveSidebarOpenedState(newValue);
 		},
 	},
 	created()
 	{
-		this.restoreSidebarOpenState();
-
 		if (this.entityId)
 		{
 			this.onChatChange();
 		}
 
 		this.initTextareaResizeManager();
-	},
-	mounted()
-	{
-		EventEmitter.subscribe(EventType.sidebar.open, this.onSidebarOpen);
-		EventEmitter.subscribe(EventType.sidebar.close, this.onSidebarClose);
-	},
-	beforeUnmount()
-	{
-		EventEmitter.unsubscribe(EventType.sidebar.open, this.onSidebarOpen);
-		EventEmitter.unsubscribe(EventType.sidebar.close, this.onSidebarClose);
 	},
 	methods:
 	{
@@ -250,7 +210,6 @@ export const ChatContent = {
 			}
 
 			await this.loadChat();
-			this.needSidebarTransition = true;
 		},
 		loadChatWithContext(): Promise
 		{
@@ -287,89 +246,6 @@ export const ChatContent = {
 			{
 				this.showNotification(this.loc('IM_CONTENT_CHAT_CONTEXT_MESSAGE_NOT_FOUND'));
 			}
-		},
-		toggleSidebar()
-		{
-			this.needSidebarTransition = true;
-			this.sidebarOpened = !this.sidebarOpened;
-			if (!this.sidebarOpened)
-			{
-				Logger.warn('ChatContent: closing sidebar, because if was closed by toggle');
-			}
-			this.resetSidebarDetailState();
-		},
-		toggleSearchPanel()
-		{
-			this.needSidebarTransition = true;
-			if (this.sidebarDetailBlock === SidebarDetailBlock.messageSearch)
-			{
-				this.sidebarDetailBlock = null;
-				this.sidebarOpened = false;
-				Logger.warn('ChatContent: closing sidebar, because message search was closed');
-			}
-			else
-			{
-				this.sidebarOpened = true;
-				EventEmitter.emit(EventType.sidebar.open, { detailBlock: SidebarDetailBlock.messageSearch });
-			}
-		},
-		toggleMembersPanel()
-		{
-			this.needSidebarTransition = true;
-			if (this.sidebarDetailBlock === SidebarDetailBlock.main)
-			{
-				this.sidebarDetailBlock = null;
-				this.sidebarOpened = false;
-				Logger.warn('ChatContent: closing sidebar, because chat members panel was closed');
-			}
-			else
-			{
-				this.sidebarOpened = true;
-				EventEmitter.emit(EventType.sidebar.open, { detailBlock: SidebarDetailBlock.main });
-			}
-		},
-		onClickBack()
-		{
-			this.resetSidebarDetailState();
-		},
-		onSidebarOpen({ data: eventData }: BaseEvent)
-		{
-			this.sidebarOpened = true;
-			if (eventData.detailBlock && SidebarDetailBlock[eventData.detailBlock])
-			{
-				this.sidebarDetailBlock = eventData.detailBlock;
-			}
-		},
-		onSidebarClose()
-		{
-			Logger.warn('ChatContent: closing sidebar, because of sidebar close event');
-			this.sidebarOpened = false;
-		},
-		resetSidebarDetailState()
-		{
-			this.sidebarDetailBlock = null;
-		},
-		restoreSidebarOpenState()
-		{
-			const sidebarOpenState = LocalStorageManager.getInstance().get(LocalStorageKey.sidebarOpened);
-			if (sidebarOpenState === null)
-			{
-				return;
-			}
-
-			if (this.sidebarOpened && Boolean(sidebarOpenState))
-			{
-				Logger.warn('ChatContent: closing sidebar after restoring state from LS');
-			}
-			this.sidebarOpened = Boolean(sidebarOpenState);
-		},
-		saveSidebarOpenedState(sidebarOpened: boolean)
-		{
-			const WRITE_TO_STORAGE_TIMEOUT = 200;
-			clearTimeout(this.saveSidebarStateTimeout);
-			this.saveSidebarStateTimeout = setTimeout(() => {
-				LocalStorageManager.getInstance().set(LocalStorageKey.sidebarOpened, sidebarOpened);
-			}, WRITE_TO_STORAGE_TIMEOUT);
 		},
 		initTextareaResizeManager()
 		{
@@ -442,6 +318,10 @@ export const ChatContent = {
 
 			return this.uploadingService;
 		},
+		onChangeSidebarPanel({ panel }: {panel: $Keys<typeof SidebarDetailBlock>})
+		{
+			this.currentSidebarPanel = panel;
+		},
 	},
 	template: `
 		<div class="bx-im-content-chat__scope bx-im-content-chat__container" :class="containerClasses" :style="backgroundStyle">
@@ -453,15 +333,7 @@ export const ChatContent = {
 				@dragover.prevent
 			>
 				<template v-if="entityId">
-					<ChatHeader 
-						:dialogId="entityId" 
-						:key="entityId" 
-						:sidebarOpened="sidebarOpened"
-						:sidebarSearchOpened="isSearchSidebarOpened"
-						@toggleRightPanel="toggleSidebar" 
-						@toggleSearchPanel="toggleSearchPanel" 
-						@toggleMembersPanel="toggleMembersPanel" 
-					/>
+					<ChatHeader :dialogId="entityId" :key="entityId" :currentSidebarPanel="currentSidebarPanel" />
 					<div :style="dialogContainerStyle" class="bx-im-content-chat__dialog_container">
 						<div class="bx-im-content-chat__dialog_content">
 							<ChatDialog :dialogId="entityId" :key="entityId" :textareaHeight="textareaHeight" />
@@ -478,14 +350,11 @@ export const ChatContent = {
 				</template>
 				<EmptyState v-else />
 			</div>
-			<transition :name="sidebarTransitionName">
-				<SidebarWrapper 
-					v-if="entityId && sidebarOpened"
-					:dialogId="entityId" 
-					:sidebarDetailBlock="sidebarDetailBlock"
-					@back="onClickBack"
-				/>
-			</transition>
+			<ChatSidebar 
+				v-if="entityId.length > 0" 
+				:originDialogId="entityId" 
+				@changePanel="onChangeSidebarPanel" 
+			/>
 		</div>
 	`,
 };

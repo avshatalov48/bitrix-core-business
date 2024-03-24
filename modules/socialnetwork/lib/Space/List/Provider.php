@@ -6,6 +6,7 @@ use Bitrix\Main\Result;
 use Bitrix\Socialnetwork\Space\List\Item\Builder;
 use Bitrix\Socialnetwork\Space\List\Item\Space;
 use Bitrix\Socialnetwork\Space\List\Query\Builder as QueryBuilder;
+use Bitrix\Socialnetwork\Space\List\Query\LightweightBuilder;
 
 final class Provider
 {
@@ -56,7 +57,7 @@ final class Provider
 		return $result;
 	}
 
-	public function searchSpacesByName(string $searchString): Result
+	public function searchSpaces(string $searchString): Result
 	{
 		$result = new Result();
 		$limit = self::DEFAULT_LOAD_LIMIT;
@@ -64,7 +65,7 @@ final class Provider
 			(new QueryBuilder($this->userId))
 				->addModeFilter($this->mode)
 				->addPaginationFilter($this->offset, $limit)
-				->addNameSearchFilter($searchString)
+				->addSearchFilter($searchString)
 		;
 
 		$query = $queryBuilder->build();
@@ -82,6 +83,11 @@ final class Provider
 
 	public function getSpaceById(int $spaceId): ?Space
 	{
+		if ($spaceId === 0)
+		{
+			return $this->getCommonSpace();
+		}
+
 		$query =
 			(new QueryBuilder($this->userId))
 				->addModeFilter($this->mode)
@@ -115,5 +121,25 @@ final class Provider
 	public function getCommonSpace(): Space
 	{
 		return $this->builder->buildCommonSpace();
+	}
+
+	/** @return array<int> */
+	public function getMySpaceIds(): array
+	{
+		$query =
+			(new LightweightBuilder($this->userId))
+				->addModeFilter(Dictionary::FILTER_MODES['my'])
+				->build()
+		;
+
+		$queryResult = $query->exec()->fetchAll();
+
+		$result = [];
+		foreach ($queryResult as $value)
+		{
+			$result[] = (int)($value['ID'] ?? null);
+		}
+
+		return $result;
 	}
 }

@@ -13,9 +13,9 @@ Main\Loader::includeModule("bizproc");
  *
  *
  * 	$APPLICATION->RestartBuffer();
- *	if (есть права)
+ *	if (has perms)
  *	{
- *      $id = iblock ID
+ *		$id = iblock ID
  *		$datum = \Bitrix\Lists\Importer::export($id);
  *
  *		header("HTTP/1.1 200 OK");
@@ -153,7 +153,7 @@ class Importer
 		$len = intval(Main\Text\BinaryString::getSubstring($datum, 0, 10));
 		$dataSerialized = Main\Text\BinaryString::getSubstring($datum, 10, $len);
 
-		$data = CheckSerializedData($dataSerialized) ? unserialize($dataSerialized) : array();
+		$data = CheckSerializedData($dataSerialized) ? unserialize($dataSerialized, ["allowed_classes" => false]) : [];
 		$data = Main\Text\Encoding::convertEncodingArray($data, "UTF-8", LANG_CHARSET);
 
 		return $data;
@@ -193,7 +193,7 @@ class Importer
 			$marker = Main\Text\BinaryString::getSubstring($datum, 0, 1);
 		}
 
-		$iblock = CheckSerializedData($iblockSerialized) ? unserialize($iblockSerialized) : array();
+		$iblock = CheckSerializedData($iblockSerialized) ? unserialize($iblockSerialized, ['allowed_classes' => false]) : [];
 		$iblock = Main\Text\Encoding::convertEncodingArray($iblock, "UTF-8", LANG_CHARSET);
 		$iblockId = static::createIBlock($iblockType, $iblock, $pictureType, $picture, $siteId);
 
@@ -209,7 +209,7 @@ class Importer
 					$bpDescr = Main\Text\BinaryString::getSubstring($datum, 11, $len);
 					$datum = Main\Text\BinaryString::getSubstring($datum, $len + 11);
 
-					$bpDescr = CheckSerializedData($bpDescr) ? unserialize($bpDescr) : array();
+					$bpDescr = CheckSerializedData($bpDescr) ? unserialize($bpDescr, ["allowed_classes" => false]) : [];
 					$bpDescr = Main\Text\Encoding::convertEncodingArray($bpDescr, "UTF-8", LANG_CHARSET);
 
 					$len = intval(Main\Text\BinaryString::getSubstring($datum, 0, 10));
@@ -289,21 +289,23 @@ class Importer
 			"WORKFLOW" => "N",
 			"ELEMENTS_NAME" => $iblock["ELEMENTS_NAME"],
 			"ELEMENT_NAME" => $iblock["ELEMENT_NAME"],
-			"ELEMENT_ADD" => $iblock["ELEMENT_ADD"],
-			"ELEMENT_EDIT" => $iblock["ELEMENT_EDIT"],
-			"ELEMENT_DELETE" => $iblock["ELEMENT_DELETE"],
-			"SECTIONS_NAME" => $iblock["SECTIONS_NAME"],
-			"SECTION_NAME" => $iblock["SECTION_NAME"],
-			"SECTION_ADD" => $iblock["SECTION_ADD"],
-			"SECTION_EDIT" => $iblock["SECTION_EDIT"],
-			"SECTION_DELETE" => $iblock["SECTION_DELETE"],
+			"ELEMENT_ADD" => $iblock["ELEMENT_ADD"] ?? null,
+			"ELEMENT_EDIT" => $iblock["ELEMENT_EDIT"] ?? null,
+			"ELEMENT_DELETE" => $iblock["ELEMENT_DELETE"] ?? null,
+			"SECTIONS_NAME" => $iblock["SECTIONS_NAME"] ?? null,
+			"SECTION_NAME" => $iblock["SECTION_NAME"] ?? null,
+			"SECTION_ADD" => $iblock["SECTION_ADD"] ?? null,
+			"SECTION_EDIT" => $iblock["SECTION_EDIT"] ?? null,
+			"SECTION_DELETE" => $iblock["SECTION_DELETE"] ?? null,
 			"BIZPROC" => "Y",
 			"SITE_ID" => array($siteId),
 			"RIGHTS_MODE" => "E",
 		);
 
 		if ($iblock["SOCNET_GROUP_ID"])
+		{
 			$fields["SOCNET_GROUP_ID"] = $iblock["SOCNET_GROUP_ID"];
+		}
 
 		static $exts = array(
 			"image/jpeg" => "jpg",

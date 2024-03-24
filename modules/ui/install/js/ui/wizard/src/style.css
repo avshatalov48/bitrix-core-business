@@ -1,0 +1,78 @@
+.sign-wizard__scope {
+	--border-radius-md: 12px;
+}
+
+.sign-wizard {
+	border-radius: var(--border-radius-md);
+	background: var(--ui-color-palette-white-base);
+}
+
+.sign-wizard__stages {
+	border-top-left-radius: var(--border-radius-md);
+	border-top-right-radius: var(--border-radius-md);
+	background-color: var(--ui-color-palette-gray-02);
+	padding: 15px 26px;
+}
+
+.sign-wizard__stages_item {
+	display: inline-block;
+	color: rgba(82, 92, 105, .5);
+	padding-right: 20px;
+	position: relative;
+	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 25px;
+}
+
+.sign-wizard__stages_item.--active {
+	color: var(--ui-color-palette-gray-90);
+}
+
+.sign-wizard__stages_item:not(:last-of-type):after {
+	content: '';
+	border: 2px solid var(--ui-color-palette-gray-90);
+	border-left: none;
+	border-bottom: none;
+	opacity: .2;
+	position: absolute;
+	width: 5px;
+	height: 5px;
+	right: 8px;
+	top: 10px;
+	transform: rotate(45deg);
+}
+
+.sign-wizard__stages_item:last-of-type {
+	padding-right: 0;
+}
+
+.sign-wizard__step {
+	background: var(--ui-color-palette-white-base);
+	padding: 15px 24px 0 24px;
+}
+
+.sign-wizard__footer {
+	padding: 10px 25px 25px 25px;
+	white-space: nowrap;
+}
+
+.sign-wizard__footer:before {
+	border-top: 1px solid rgba(82, 92, 105, .1);
+	content: '';
+	display: block;
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+.sign-wizard__footer_button.ui-btn-disabled,
+.sign-wizard__footer_button.ui-btn-wait {
+	pointer-events: none;
+}
+
+.sign-wizard__footer_button.--hide {
+	display: none;
+}
+
+.ui-btn.sign-wizard__footer_button {
+	margin: 0 12px 0 0;
+}

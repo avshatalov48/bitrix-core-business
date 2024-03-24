@@ -152,7 +152,7 @@ export default class Manager extends EventEmitter
 			this.connectionsProviders.yandex = this.getYandexProvider(yandexConnections);
 		}
 
-		if (!BX.browser.IsMac())
+		if (!BX.browser.IsMac() && syncInfo.hasOwnProperty('outlook'))
 		{
 			this.connectionsProviders.outlook = this.getOutlookProvider();
 		}

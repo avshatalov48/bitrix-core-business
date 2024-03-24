@@ -300,7 +300,7 @@ class Mapper
 		sort($workdays);
 		if (implode(',', $weekdays) === implode(',', $workdays))
 		{
-			return Loc::getMessage('CALENDAR_SHARING_WORKDAYS');
+			return Loc::getMessage('CALENDAR_SHARING_WORKDAYS_MSGVER_1');
 		}
 
 		return $this->formatWeekdays($weekdays);

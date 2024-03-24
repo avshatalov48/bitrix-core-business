@@ -1,35 +1,33 @@
-import {PopupOptions} from 'main.popup';
-import {MessengerPopup} from 'im.v2.component.elements';
-import {AddToChatContent} from './add-to-chat-content';
+import { PopupOptions } from 'main.popup';
+
+import { MessengerPopup } from 'im.v2.component.elements';
+
+import { AddToChatContent } from './add-to-chat-content';
 
 const POPUP_ID = 'im-add-to-chat-popup';
 
 // @vue/component
 export const AddToChat = {
 	name: 'AddToChat',
-	components: {MessengerPopup, AddToChatContent},
+	components: { MessengerPopup, AddToChatContent },
 	props:
 	{
 		showPopup: {
 			type: Boolean,
-			required: true
+			required: true,
 		},
 		bindElement: {
 			type: Object,
-			required: true
-		},
-		chatId: {
-			type: Number,
-			required: true
+			required: true,
 		},
 		dialogId: {
 			type: String,
-			required: true
+			required: true,
 		},
 		popupConfig: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	emits: ['close'],
 	computed:
@@ -48,7 +46,7 @@ export const AddToChat = {
 				contentBackground: '#fff',
 				className: 'bx-im-entity-selector-add-to-chat__scope',
 			};
-		}
+		},
 	},
 	template: `
 		<MessengerPopup
@@ -58,7 +56,7 @@ export const AddToChat = {
 			@close="$emit('close')"
 			:id="POPUP_ID"
 		>
-			<AddToChatContent :chatId="chatId" :dialogId="dialogId" @close="$emit('close')"/>
+			<AddToChatContent :dialogId="dialogId" @close="$emit('close')"/>
 		</MessengerPopup>
-	`
+	`,
 };

@@ -50,8 +50,8 @@ class CSecurityHtmlEntity
 	 */
 	protected static function decode($string)
 	{
-		$string = preg_replace_callback("/\&\#(\d+)([^\d])/is", array(__CLASS__, "decodeCb"), $string);
-		$string = preg_replace_callback("/\&\#x([\da-f]+)([^\da-f])/is", array(__CLASS__, "decodeCbHex"), $string);
+		$string = preg_replace_callback("/\&\#(\d+)([^\d]|$)/is", array(__CLASS__, "decodeCb"), $string);
+		$string = preg_replace_callback("/\&\#x([\da-f]+)([^\da-f]|$)/is", array(__CLASS__, "decodeCbHex"), $string);
 		$string = preg_replace(self::$htmlMnemonics["html"], self::$htmlMnemonics["text"],$string);
 		return $string;
 	}

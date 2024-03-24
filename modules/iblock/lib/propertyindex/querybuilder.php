@@ -6,6 +6,8 @@
  */
 namespace Bitrix\Iblock\PropertyIndex;
 
+use Bitrix\Iblock\PropertyTable;
+
 class QueryBuilder
 {
 	/** @var \Bitrix\Iblock\PropertyIndex\Facet */
@@ -19,6 +21,7 @@ class QueryBuilder
 	protected $priceFilter = null;
 	protected $distinct = false;
 	protected $options = array();
+	private array $propertyFilter;
 
 	/**
 	 * @param integer $iblockId Information block identifier.
@@ -568,26 +571,42 @@ class QueryBuilder
 		//TODO: remove this code to \Bitrix\Iblock\Model\Property
 		if (!isset($this->propertyFilter))
 		{
-			$this->propertyFilter = array();
-			$propertyList = \Bitrix\Iblock\SectionPropertyTable::getList(array(
-				"select" => array("PROPERTY_ID", "PROPERTY.PROPERTY_TYPE", "PROPERTY.USER_TYPE"),
-				"filter" => array(
-					"=IBLOCK_ID" => array($this->facet->getIblockId(), $this->facet->getSkuIblockId()),
-					"=SMART_FILTER" => "Y",
-				),
-			));
+			$this->propertyFilter = [];
+			$propertyList = \Bitrix\Iblock\SectionPropertyTable::getList([
+				'select' => [
+					'PROPERTY_ID',
+					'PROPERTY_TYPE' => 'PROPERTY.PROPERTY_TYPE',
+					'USER_TYPE' => 'PROPERTY.USER_TYPE',
+				],
+				'filter' => [
+					'=IBLOCK_ID' => [
+						$this->facet->getIblockId(),
+						$this->facet->getSkuIblockId(),
+					],
+					'=SMART_FILTER' => 'Y',
+				],
+			]);
 			while ($link = $propertyList->fetch())
 			{
-				if ($link["IBLOCK_SECTION_PROPERTY_PROPERTY_PROPERTY_TYPE"] === "N")
-					$this->propertyFilter[$link["PROPERTY_ID"]] = Storage::NUMERIC;
-				elseif ($link["IBLOCK_SECTION_PROPERTY_PROPERTY_USER_TYPE"] === "DateTime")
-					$this->propertyFilter[$link["PROPERTY_ID"]] = Storage::DATETIME;
-				elseif ($link["IBLOCK_SECTION_PROPERTY_PROPERTY_PROPERTY_TYPE"] === "S")
-					$this->propertyFilter[$link["PROPERTY_ID"]] = Storage::STRING;
+				if ($link['PROPERTY_TYPE'] === PropertyTable::TYPE_NUMBER)
+				{
+					$this->propertyFilter[$link['PROPERTY_ID']] = Storage::NUMERIC;
+				}
+				elseif ($link['USER_TYPE'] === PropertyTable::USER_TYPE_DATETIME)
+				{
+					$this->propertyFilter[$link['PROPERTY_ID']] = Storage::DATETIME;
+				}
+				elseif ($link['PROPERTY_TYPE'] === PropertyTable::TYPE_STRING)
+				{
+					$this->propertyFilter[$link['PROPERTY_ID']] = Storage::STRING;
+				}
 				else
-					$this->propertyFilter[$link["PROPERTY_ID"]] = Storage::DICTIONARY;
+				{
+					$this->propertyFilter[$link['PROPERTY_ID']] = Storage::DICTIONARY;
+				}
 			}
 		}
+
 		return $this->propertyFilter;
 	}
 

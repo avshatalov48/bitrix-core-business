@@ -418,12 +418,12 @@ class CFormOutput_old
 
 		$editor = "/bitrix/admin/fileman_file_edit.php?full_src=Y&site=".SITE_ID."&";
 		$rel_path = "form/".(empty($this->RESULT_ID) ? "result_new" : "result_edit")."/form.php";
-		$path = BX_PRESONAL_ROOT."/templates/".SITE_TEMPLATE_ID."/".$rel_path;
+		$path = BX_PERSONAL_ROOT."/templates/".SITE_TEMPLATE_ID."/".$rel_path;
 		$href = "javascript:window.location='".$editor."path=".urlencode($path)."&lang=".LANGUAGE_ID."&back_url=".urlencode($back_url)."'";
 
 		if(!file_exists($_SERVER["DOCUMENT_ROOT"].$path))
 		{
-			$path = BX_PRESONAL_ROOT."/templates/.default/".$rel_path;
+			$path = BX_PERSONAL_ROOT."/templates/.default/".$rel_path;
 			$href = "javascript:window.location='".$editor."path=".urlencode($path)."&lang=".LANGUAGE_ID."&back_url=".urlencode($back_url)."'";
 			if(!file_exists($_SERVER["DOCUMENT_ROOT"].$path))
 			{

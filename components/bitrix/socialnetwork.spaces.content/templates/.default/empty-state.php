@@ -21,7 +21,3 @@ $spaceName = $arResult['spaceName'];
 	</div>
 	<div class="sn-spaces__empty-state-text"><?= Loc::getMessage('SN_SPACES_NEW_SPACE_EMPTY_STATE_TEXT')?></div>
 </div>
-
-<script>
-	window.history.replaceState(null, null, window.location.pathname);
-</script>

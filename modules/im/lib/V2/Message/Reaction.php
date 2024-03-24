@@ -44,7 +44,8 @@ class Reaction
 			'REACTION' => $this->reaction
 		];
 
-		MessageViewedTable::merge($insertFields, $updateFields);
+		MessageViewedTable::merge($insertFields, $updateFields, ['USER_ID', 'CHAT_ID', 'MESSAGE_ID']);
+
 		//todo send push
 	}
 

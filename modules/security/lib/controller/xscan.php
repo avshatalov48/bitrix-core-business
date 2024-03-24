@@ -9,6 +9,83 @@ use Bitrix\Security\XScanResultTable;
 
 class Xscan extends Controller
 {
+	public static function getFilter()
+	{
+		$filterOptions = new \Bitrix\Main\UI\Filter\Options('report_filter');
+		$filters = $filterOptions->getFilter();
+
+		$filter = [];
+		foreach ($filters as $k => $v)
+		{
+			if (!$v)
+			{
+				continue;
+			}
+
+			switch ($k)
+			{
+				case 'mtime_from':
+					$filter['>=mtime'] = $v;
+					break;
+				case 'mtime_to':
+					$filter['<=mtime'] = $v;
+					break;
+				case 'ctime_from':
+					$filter['>=ctime'] = $v;
+					break;
+				case 'ctime_to':
+					$filter['<=ctime'] = $v;
+					break;
+				case 'tags':
+					foreach ($v as $t)
+					{
+						$filter[] = ['%tags' => $t];
+					}
+					break;
+
+				case 'preset':
+					switch ($v){
+						case 'a':
+							$filter[] = ['%src' => '/bitrix/admin'];
+							break;
+						case 'm':
+							$filter[] = ['%src' => '/bitrix/modules'];
+							break;
+						case 'c':
+							$filter[] = ['%src' => '/bitrix/components'];
+							break;
+						case '!m':
+							$filter[] = ['!%src' => '/bitrix/modules'];
+							break;
+						case 'pop':
+							$filter[] = ['LOGIC' => 'OR',
+								['%src' => '/prolog_after.php'], ['%src' => '/index.php'],
+								['%src' => '/content.php'], ['%src' => '/main.php'], ['%src' => '/spread.php'],
+								['%src' => '/bx_root.php'], ['%src' => '/.access.php'], ['%src' => '/radio.php']
+							];
+							break;
+					}
+					break;
+
+				case 'FIND':
+					if (strpos($v, '!') === 0)
+					{
+						$v = ltrim($v, '!');
+						$filter[] = ['LOGIC' => 'AND', ['!%src' => $v], ['!%message' => $v]];
+					}
+					else
+					{
+						$filter[] = ['LOGIC' => 'OR', ['%src' => $v], ['%message' => $v]];
+					}
+					break;
+			}
+
+		}
+
+		return $filter;
+	}
+
+
 	protected function processBeforeAction(Action $action): bool
 	{
 		ini_set('display_errors', '0');
@@ -28,8 +105,7 @@ class Xscan extends Controller
 
 		if (!$file || !file_exists($file))
 		{
-			$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_FILE_NOT_FOUND") . htmlspecialcharsbx($file),
-				'red');
+			$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_FILE_NOT_FOUND") . htmlspecialcharsbx($file), 'red');
 		}
 		else
 		{
@@ -40,8 +116,7 @@ class Xscan extends Controller
 			}
 			else
 			{
-				$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_ERR_RENAME") . htmlspecialcharsbx($file),
-					'red');
+				$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_ERR_RENAME") . htmlspecialcharsbx($file), 'red');
 			}
 		}
 
@@ -54,8 +129,7 @@ class Xscan extends Controller
 
 		if (!$file || !file_exists($file))
 		{
-			$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_FILE_NOT_FOUND") . htmlspecialcharsbx($file),
-				'red');
+			$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_FILE_NOT_FOUND") . htmlspecialcharsbx($file), 'red');
 		}
 		else
 		{
@@ -66,8 +140,7 @@ class Xscan extends Controller
 			}
 			else
 			{
-				$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_ERR_RENAME") . htmlspecialcharsbx($file),
-					'red');
+				$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_ERR_RENAME") . htmlspecialcharsbx($file), 'red');
 			}
 		}
 
@@ -92,15 +165,9 @@ class Xscan extends Controller
 
 	public function hideFilesAction(array $files, string $all='false')
 	{
-		$all = $all === 'true';
-
 		\Bitrix\Main\Type\Collection::normalizeArrayValuesByInt($files);
 
-		$filter = [];
-		if (!$all)
-		{
-			$filter = ['@id' => $files];
-		}
+		$filter = $all === 'true' ? self::getFilter(): ['@id' => $files];
 
 		XScanResultTable::deleteList($filter);
 
@@ -119,8 +186,7 @@ class Xscan extends Controller
 		return '';
 	}
 
-	public function scanAction(string $start_path, string $break_point = '', string $clean = 'N', int $progress = 0,
-		int $total = 0)
+	public function scanAction(string $start_path, string $break_point = '', string $clean = 'N', int $progress = 0, int $total = 0)
 	{
 		$start_path = $start_path ? $start_path : $_SERVER['DOCUMENT_ROOT'];
 		$start_path = rtrim($start_path, '/');

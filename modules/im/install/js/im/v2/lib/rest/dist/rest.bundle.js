@@ -55,6 +55,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	            error_description: description
 	          } = methodResult.error().ex;
 	          reject({
+	            method,
 	            code,
 	            description
 	          });

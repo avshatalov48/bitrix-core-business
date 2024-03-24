@@ -1074,11 +1074,11 @@
 																children: [
 																	BX.create('div', {
 																		props: { className: 'landing-ui-panel-top-menu-link-help' },
-																		text: BX.message('LANDING_TPL_FEATURES_HELP_TITLE')
+																		text: BX.message('LANDING_TPL_FEATURES_HELP_TITLE_MSGVER_1')
 																	}),
 																	BX.create('a', {
 																		props: { className: 'landing-popup-features-content-block-link' },
-																		text: BX.message('LANDING_TPL_FEATURES_HELP_PROMO_LINK'),
+																		text: BX.message('LANDING_TPL_FEATURES_HELP_PROMO_LINK_MSGVER_1'),
 																		attrs: {
 																			href: '#'
 																		}

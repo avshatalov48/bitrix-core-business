@@ -21,7 +21,7 @@ create table if not exists b_iblock_type_lang
 create table if not exists b_iblock
 (
 	ID int(11) not null auto_increment,
-	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
+	TIMESTAMP_X datetime not null default current_timestamp,
 	IBLOCK_TYPE_ID varchar(50) not null,
 	LID char(2) not null,
 	CODE varchar(50) null,
@@ -95,7 +95,7 @@ create table if not exists b_iblock_fields
 create table if not exists b_iblock_property
 (
 	ID int(11) not null auto_increment,
-	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
+	TIMESTAMP_X datetime not null default current_timestamp,
 	IBLOCK_ID int(11) not null,
 	NAME varchar(255) not null,
 	ACTIVE char(1) not null default 'Y',
@@ -140,7 +140,7 @@ create table if not exists b_iblock_property_feature
 create table if not exists b_iblock_section
 (
 	ID int(11) not null auto_increment,
-	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
+	TIMESTAMP_X datetime not null default current_timestamp,
 	MODIFIED_BY int(18),
 	DATE_CREATE datetime,
 	CREATED_BY int(18),
@@ -356,7 +356,7 @@ create table if not exists b_iblock_offers_tmp
 	ID int(11) unsigned not null auto_increment,
 	PRODUCT_IBLOCK_ID int(11) unsigned not null,
 	OFFERS_IBLOCK_ID int(11) unsigned not null,
-	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
+	TIMESTAMP_X datetime not null default current_timestamp,
 	PRIMARY KEY (ID)
 );
 

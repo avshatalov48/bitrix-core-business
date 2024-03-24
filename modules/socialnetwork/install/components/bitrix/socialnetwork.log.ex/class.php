@@ -85,6 +85,14 @@ final class SocialnetworkLogList extends \Bitrix\Socialnetwork\Component\LogList
 			);
 		}
 
+		\Bitrix\Socialnetwork\Internals\EventService\Service::addEvent(
+			\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_READ_ALL, [
+				'USER_ID' => $this->getCurrentUserId(),
+				'GROUP_ID' => $this->arParams['GROUP_ID'],
+				'FEATURE_ID' => \Bitrix\Socialnetwork\Space\List\Dictionary::FEATURE_DISCUSSIONS,
+			]
+		);
+
 		return $this->arResult;
 	}
 
@@ -176,5 +184,12 @@ final class SocialnetworkLogList extends \Bitrix\Socialnetwork\Component\LogList
 			'CRM_ENABLE_ACTIVITY_EDITOR',
 			'HIDE_EDIT_FORM',
 		];
+	}
+
+	private function getCurrentUserId(): int
+	{
+		global $USER;
+
+		return (int)$USER->getId();
 	}
 }

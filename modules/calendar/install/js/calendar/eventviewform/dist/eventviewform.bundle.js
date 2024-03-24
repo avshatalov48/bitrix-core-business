@@ -973,7 +973,7 @@ this.BX = this.BX || {};
 					</div>
 				`;
 	        if (user.AVATAR && user.AVATAR !== '/bitrix/images/1.gif') {
-	          userAvatar = `<img src="${user.AVATAR}" width="34" height="34">`;
+	          userAvatar = `<img src="${encodeURI(user.AVATAR)}" width="34" height="34">`;
 	        }
 	        if (user.EMAIL_USER) {
 	          userAvatar = `

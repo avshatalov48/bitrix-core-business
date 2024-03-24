@@ -10,6 +10,7 @@ import { RecentSearchService } from '../api/load/recent-search-service';
 import { SearchService } from '../api/load/search-service';
 import { CollapsedModeToggleBlock } from './collapsed-mode-toggle-block/collapsed-mode-toggle-block';
 import { Dom } from 'main.core';
+import { BaseEvent } from 'main.core.events';
 
 // @vue/component
 export const BaseComponent = {
@@ -74,15 +75,22 @@ export const BaseComponent = {
 	created()
 	{
 		this.$bitrix.eventEmitter.subscribe(EventTypes.changeSpaceListState, this.changeSpaceListStateHandler);
+		this.$bitrix.eventEmitter.subscribe(EventTypes.changeMode, this.changeModeHandler);
 	},
 	beforeUnmount()
 	{
 		this.$bitrix.eventEmitter.unsubscribe(EventTypes.changeSpaceListState, this.changeSpaceListStateHandler);
+		this.$bitrix.eventEmitter.unsubscribe(EventTypes.changeMode, this.changeModeHandler);
 	},
 	methods: {
 		loc(message: string): string
 		{
 			return this.$bitrix.Loc.getMessage(message);
+		},
+		changeModeHandler(event: BaseEvent)
+		{
+			const newMode = event.data;
+			this.setMode(newMode);
 		},
 		setMode(mode)
 		{

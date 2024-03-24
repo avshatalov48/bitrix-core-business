@@ -6,6 +6,7 @@ import { Calendar } from '../calendar/calendar';
 type Params = {
 	bindElement: HTMLElement,
 	calendar: Calendar,
+	isDiskStorageWasObtained: boolean,
 }
 
 export class DiscussionsAddButtonMenu extends EventEmitter
@@ -23,7 +24,7 @@ export class DiscussionsAddButtonMenu extends EventEmitter
 			throw new TypeError('BX.Socialnetwork.Spaces.DiscussionsAddButtonMenu: calendar is not allowed');
 		}
 
-		this.#menu = this.#createMenu(params.bindElement, params.calendar);
+		this.#menu = this.#createMenu(params.bindElement, params.calendar, params.isDiskStorageWasObtained);
 	}
 
 	show(): void
@@ -31,7 +32,7 @@ export class DiscussionsAddButtonMenu extends EventEmitter
 		this.#menu.show();
 	}
 
-	#createMenu(bindElement: HTMLElement, calendar: Calendar): Menu
+	#createMenu(bindElement: HTMLElement, calendar: Calendar, isDiskStorageWasObtained: boolean): Menu
 	{
 		const fileUploadItemId = 'spaces-discussions-add-button-menu-file-item';
 
@@ -41,14 +42,20 @@ export class DiscussionsAddButtonMenu extends EventEmitter
 			closeByEsc: true,
 			events: {
 				onShow: (event) => {
-					this.emit('showMenu', {
-						fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer(),
-					});
+					if (isDiskStorageWasObtained)
+					{
+						this.emit('showMenu', {
+							fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer(),
+						});
+					}
 				},
 				onClose: () => {
-					this.emit('closeMenu', {
-						fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer(),
-					});
+					if (isDiskStorageWasObtained)
+					{
+						this.emit('closeMenu', {
+							fileUploadContainer: menu.getMenuItem(fileUploadItemId).getContainer(),
+						});
+					}
 				},
 			},
 		});
@@ -71,11 +78,14 @@ export class DiscussionsAddButtonMenu extends EventEmitter
 			},
 		});
 
-		menu.addMenuItem({
-			text: Loc.getMessage('SN_SPACES_DISCUSSIONS_UPLOAD_FILE'),
-			dataset: { id: 'spaces-discussions-add-button-menu-file' },
-			id: fileUploadItemId,
-		});
+		if (isDiskStorageWasObtained)
+		{
+			menu.addMenuItem({
+				text: Loc.getMessage('SN_SPACES_DISCUSSIONS_UPLOAD_FILE'),
+				dataset: { id: 'spaces-discussions-add-button-menu-file' },
+				id: fileUploadItemId,
+			});
+		}
 
 		return menu;
 	}

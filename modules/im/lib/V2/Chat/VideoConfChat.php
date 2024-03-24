@@ -28,6 +28,11 @@ class VideoConfChat extends GroupChat
 		return self::ENTITY_TYPE_VIDEOCONF;
 	}
 
+	protected function needToSendGreetingMessages(): bool
+	{
+		return true;
+	}
+
 	public function add(array $params, ?Context $context = null): Result
 	{
 		$addResult = parent::add($params, $context);
@@ -132,6 +137,11 @@ class VideoConfChat extends GroupChat
 		]);
 
 		return $addResult;
+	}
+
+	protected function getCodeGreetingMessage(\Bitrix\Im\V2\Entity\User\User $author): string
+	{
+		return 'IM_VIDEOCONF_CREATE_' . $author->getGender();
 	}
 
 	protected function prepareParams(array $params = []): Result

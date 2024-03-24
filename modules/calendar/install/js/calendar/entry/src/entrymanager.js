@@ -516,6 +516,13 @@ export class EntryManager {
 
 	handlePullChanges(params)
 	{
+		if (['edit_event_location', 'delete_event_location'].includes(params.command))
+		{
+			top.BX.Calendar?.Controls?.Location?.handlePull(params);
+
+			return;
+		}
+
 		if (!BX.Calendar.Util.checkRequestId(params.requestUid))
 		{
 			return;
@@ -553,7 +560,8 @@ export class EntryManager {
 		{
 			top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 		}
-		else if (params.command === 'delete_event' || params.command === 'edit_event')
+
+		if (params.command === 'delete_event' || params.command === 'edit_event')
 		{
 			if (
 				!params.fields
@@ -562,11 +570,6 @@ export class EntryManager {
 			)
 			{
 				top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
-			}
-
-			if (params?.fields?.CAL_TYPE === 'location' && top.BX.Calendar?.Controls?.Location)
-			{
-				top.BX.Calendar.Controls.Location.handlePull(params);
 			}
 		}
 

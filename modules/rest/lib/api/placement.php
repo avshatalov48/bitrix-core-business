@@ -14,6 +14,7 @@ use Bitrix\Rest\OAuth\Auth;
 use Bitrix\Rest\PlacementLangTable;
 use Bitrix\Rest\PlacementTable;
 use Bitrix\Rest\RestException;
+use Bitrix\Rest\Exceptions;
 use Bitrix\Rest\Lang;
 use Bitrix\Main\ArgumentTypeException;
 
@@ -97,22 +98,22 @@ class Placement extends \IRestService
 
 		$params = array_change_key_case($params, CASE_UPPER);
 
-		$placement = toUpper($params['PLACEMENT']);
+		$placement = mb_strtoupper($params['PLACEMENT']);
 		$placementHandler = $params['HANDLER'];
 
 		if($placement == '')
 		{
-			throw new ArgumentNullException("PLACEMENT");
+			throw new Exceptions\ArgumentNullException("PLACEMENT");
 		}
 
 		if($placement == PlacementTable::PLACEMENT_DEFAULT)
 		{
-			throw new ArgumentException("Wrong value", "PLACEMENT");
+			throw new Exceptions\ArgumentNullException("Wrong value", "PLACEMENT");
 		}
 
 		if($placementHandler == '')
 		{
-			throw new ArgumentNullException("HANDLER");
+			throw new Exceptions\ArgumentNullException("HANDLER");
 		}
 
 		$appInfo = static::getApplicationInfo($server);

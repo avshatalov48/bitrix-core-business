@@ -11,7 +11,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
-Extension::load('loader');
+
+//disable loader for autotests
+$skipLoader = (int)Context::getCurrent()->getRequest()->get('sl') === 1;
+if (!$skipLoader)
+{
+	Extension::load('loader');
 ?>
 	<script>
 		const target = document.querySelector('.workarea-content');
@@ -21,6 +26,7 @@ Extension::load('loader');
 		loader.show();
 	</script>
 <?php
+}
 
 /** @global CMain $APPLICATION */
 /** @var bool $backgroundForTask */

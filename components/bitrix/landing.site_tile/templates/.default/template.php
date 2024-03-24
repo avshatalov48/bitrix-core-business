@@ -156,7 +156,7 @@ $isAjax = $component->isAjax();
 		if ($arParams['TYPE'] === 'PAGE')
 		{
 			$title = Loc::getMessage('LANDING_SITE_TILE_DEV_HELP');
-			$text = Loc::getMessage('LANDING_SITE_TILE_DEV_ORDER');
+			$text = Loc::getMessage('LANDING_SITE_TILE_DEV_ORDER_MSGVER_1');
 			$buttonText = Loc::getMessage('LANDING_SITE_TILE_DEV_BTN');
 		}
 		else

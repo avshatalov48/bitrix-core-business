@@ -10,6 +10,10 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllIBlock
 {
+	protected const TABLE_PREFIX_SINGLE_PROPERTY_VALUES = 'b_iblock_element_prop_s';
+	protected const TABLE_PREFIX_MULTIPLE_PROPERTY_VALUES = 'b_iblock_element_prop_m';
+	protected const TABLE_COMMON_PROPERTY_VALUES = 'b_iblock_element_property';
+
 	public string $LAST_ERROR = '';
 	protected static $disabledCacheTag = array();
 	protected static $enableClearTagCache = 0;
@@ -1605,6 +1609,12 @@ class CAllIBlock
 				}
 			}
 		}
+
+		unset($arFields['TIMESTAMP_X']);
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$arFields['~TIMESTAMP_X'] = $helper->getCurrentDateTimeFunction();
+		unset($helper, $connection);
 
 		$APPLICATION->ResetException();
 		if($ID===false)
@@ -4290,7 +4300,7 @@ REQ
 	{
 		$result = false;
 
-		if (is_set($options["allow_file_id"]) && $options["allow_file_id"] === true)
+		if (isset($options["allow_file_id"]) && $options["allow_file_id"] === true)
 		{
 			$result = CFile::MakeFileArray($file_id);
 		}
@@ -4374,7 +4384,7 @@ REQ
 			{
 				$result = $file_array;
 				$result["tmp_name"] = $absPath;
-				$result["error"] = intval($result["error"]);
+				$result['error'] = (int)($result['error'] ?? 0);
 				if (!is_null($description))
 					$result["description"] = $description;
 			}
@@ -4390,7 +4400,7 @@ REQ
 			{
 				$result = $file_array;
 				$result["tmp_name"] = $absPath;
-				$result["error"] = intval($result["error"]);
+				$result['error'] = (int)($result['error'] ?? 0);
 				if (!is_null($description))
 					$result["description"] = $description;
 			}
@@ -4775,6 +4785,21 @@ REQ
 			'TRANS_EAT' => $settings['TRANS_EAT'] === 'N'? 'N': 'Y',
 			'USE_GOOGLE' => $settings['USE_GOOGLE'] === 'Y'? 'Y': 'N',
 		];
+	}
+
+	public static function getSinglePropertyValuesTableName(int $iblockId): string
+	{
+		return self::TABLE_PREFIX_SINGLE_PROPERTY_VALUES . $iblockId;
+	}
+
+	public static function getMultiplePropertyValuesTableName(int $iblockId): string
+	{
+		return self::TABLE_PREFIX_MULTIPLE_PROPERTY_VALUES . $iblockId;
+	}
+
+	public static function getCommonPropertyValuesTableName(): string
+	{
+		return self::TABLE_COMMON_PROPERTY_VALUES;
 	}
 
 	public function getLastError(): string

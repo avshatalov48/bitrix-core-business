@@ -20,6 +20,8 @@ Loc::loadMessages(__FILE__);
  */
 class SqlBatch
 {
+	private const KEY_FIELDS_SEPARATOR = '#kvA3[56U?OWz16l#';
+
 	/**
 	 * Return true if batch fulled.
 	 *
@@ -169,6 +171,7 @@ class SqlBatch
 					);
 				}
 			}
+			$fields = self::getUniqueRowsByPrimaryFields($fields, $primaryFields);
 
 			$sql = self::prepareMergeValues($tableName, $primaryFields, $fields, $sqlUpdateFields);
 		}
@@ -186,6 +189,20 @@ class SqlBatch
 		}
 
 		Application::getConnection()->query($sql);
+	}
+
+	private static function getUniqueRowsByPrimaryFields(array $rows, array $primaryFields): array
+	{
+		$unique = [];
+
+		foreach($rows as $row)
+		{
+			$primaryValues = array_intersect_key($row, array_flip($primaryFields));
+			$key = implode(self::KEY_FIELDS_SEPARATOR, $primaryValues);
+			$unique[$key] = $row;
+		}
+
+		return array_values($unique);
 	}
 
 	private static function getFieldNames(array &$fields)

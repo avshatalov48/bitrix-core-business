@@ -220,7 +220,15 @@ class CForumTopic extends CAllForumTopic
 		$limit = $iNum > 0 ? (int)$iNum : $selectTopCount;
 		if ($limit > 0)
 		{
-			$strSql .= "\nLIMIT 0,".$limit;
+			$connection = \Bitrix\Main\Application::getConnection();
+			if ($connection->getType() === 'pgsql')
+			{
+				$strSql .= "\nLIMIT ".$limit;
+			}
+			else
+			{
+				$strSql .= "\nLIMIT 0,".$limit;
+			}
 		}
 		
 		if (!$iNum && $descPageNumbering)
@@ -616,7 +624,15 @@ class CForumTopic extends CAllForumTopic
 		$limit = $iNum ?? $selectTopCount;
 		if ($limit > 0)
 		{
-			$strSql .= "\nLIMIT 0,".$limit;
+			$connection = \Bitrix\Main\Application::getConnection();
+			if ($connection->getType() === 'pgsql')
+			{
+				$strSql .= "\nLIMIT ".$limit;
+			}
+			else
+			{
+				$strSql .= "\nLIMIT 0,".$limit;
+			}
 		}
 		if (!$iNum && $descPageNumbering)
 		{

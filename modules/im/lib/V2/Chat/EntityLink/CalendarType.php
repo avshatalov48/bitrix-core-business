@@ -18,7 +18,7 @@ class CalendarType extends EntityLink
 		}
 
 		$uri = new Uri(\CCalendar::GetPathForCalendarEx($this->getContext()->getUserId()));
-		$uri->addParams(['EVENT_ID' => $this->id]);
+		$uri->addParams(['EVENT_ID' => $this->entityId]);
 		$url = $uri->getUri();
 
 		return $url;

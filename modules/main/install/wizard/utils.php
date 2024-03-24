@@ -295,17 +295,14 @@ class BXInstallServices
 		global $arWizardConfig;
 		$dbTypes = [];
 
-		if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/mysql/database.php'))
-		{
-			$dbTypes['mysql'] = function_exists('mysqli_connect');
-		}
 
 		if (isset($arWizardConfig['pgsql']) && $arWizardConfig['pgsql'] === 'yes')
 		{
-			if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/pgsql/database.php'))
-			{
-				$dbTypes['pgsql'] = function_exists('pg_pconnect');
-			}
+			$dbTypes['pgsql'] = function_exists('pg_pconnect');
+		}
+		else
+		{
+			$dbTypes['mysql'] = function_exists('mysqli_connect');
 		}
 
 		return $dbTypes;

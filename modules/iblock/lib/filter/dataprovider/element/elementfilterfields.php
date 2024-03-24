@@ -93,11 +93,11 @@ class ElementFilterFields
 			'type' => 'entity_selector',
 			'partial' => true,
 		];
-		$fields['ACTIVE_FROM'] = [
+		$fields['DATE_ACTIVE_FROM'] = [
 			'type' => 'date',
 			'default' => false,
 		];
-		$fields['ACTIVE_TO'] = [
+		$fields['DATE_ACTIVE_TO'] = [
 			'type' => 'date',
 			'default' => false,
 		];
@@ -193,6 +193,7 @@ class ElementFilterFields
 					{
 						continue;
 					}
+					$field['partial'] = true;
 				}
 			}
 

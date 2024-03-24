@@ -12,14 +12,7 @@ use Bitrix\Main\Loader;
 IncludeModuleLangFile(__FILE__);
 class CHTMLEditor
 {
-	private const LIVEFEED_CATEGORY = 'livefeed';
-	private const LIVEFEED_COMMENTS_CATEGORY = 'livefeed_comments';
 	private const TASKS_CATEGORY = 'tasks';
-	private const TASKS_COMMENTS_CATEGORY = 'tasks_comments';
-	private const CALENDAR_CATEGORY = 'calendar';
-	private const CRM_CATEGORY = 'crm';
-	private const CRM_COMMENT_CATEGORY = 'crm_comment';
-	private const MAIL_CATEGORY = 'mail';
 
 	private static
 		$thirdLevelId,
@@ -383,23 +376,31 @@ class CHTMLEditor
 		}
 
 		$arParams["lazyLoad"] = isset($arParams["lazyLoad"]) ? $arParams["lazyLoad"] : false;
-		$arParams["copilotParams"] = is_array($arParams["copilotParams"] ?? null)
-			? $arParams["copilotParams"]
-			:
-			[
+
+		$arParams['copilotParams'] ??= null;
+		if (empty($arParams['copilotParams']) && $this->GetAiCategory($this->id, $this->name) !== null)
+		{
+			$arParams['copilotParams'] = [
 				'moduleId' => 'main',
 				'contextId' => 'bxhtmled_copilot',
 				'category' => $this->GetAiCategory($this->id, $this->name),
-			]
-		;
+			];
+		}
 
-		$arParams["copilotParams"]['invitationLineMode'] ??= 'lastLine';
+		if (is_array($arParams['copilotParams']))
+		{
+			$arParams['copilotParams']['invitationLineMode'] ??= 'lastLine';
+		}
 
-		$isCopilotEnabled = ($arParams['isCopilotEnabled'] ?? true)
+		$arParams['isCopilotEnabled'] ??= null;
+		$isCopilotEnabled = ($arParams['isCopilotEnabled'] !== false)
+			&& is_array($arParams['copilotParams'])
 			&& ($arParams['isCopilotTextEnabledBySettings'] ?? true)
 			&& $this->isCopilotEnabled()
+			&& !$this->bAllowPhp
 		;
-		if (!$this->bAllowPhp && $isCopilotEnabled)
+
+		if ($isCopilotEnabled)
 		{
 			\Bitrix\Main\UI\Extension::load(['ai.copilot']);
 		}
@@ -580,35 +581,16 @@ class CHTMLEditor
 		return !is_null($engine);
 	}
 
-	function GetAiCategory(string $id, string $name): string
+	function GetAiCategory(string $id, string $name): ?string
 	{
-		$isLiveFeed = str_contains($id, 'blogPostForm');
-		$isLiveFeedComments = str_contains($id, 'blogComment');
 		$isTasks = str_contains($id, 'tasks');
-		$isTasksComments = $name === 'REVIEW_TEXT';
-		$isCalendar = str_contains($id, 'calendar');
-		$isCrm = preg_match('(lead|deal|contact|company)', $id) === 1;
-		$isCrmComment = str_contains($id, 'CrmTimeLineComment');
-		$isMail = str_contains($id, 'mail');
 
-		if ($isLiveFeed)
-		{
-			return self::LIVEFEED_CATEGORY;
-		}
-		if ($isLiveFeedComments)
-		{
-			return self::LIVEFEED_COMMENTS_CATEGORY;
-		}
 		if ($isTasks)
 		{
 			return self::TASKS_CATEGORY;
 		}
-		if ($isTasksComments)
-		{
-			return self::TASKS_COMMENTS_CATEGORY;
-		}
 
-		return self::LIVEFEED_CATEGORY;
+		return null;
 	}
 
 	function GetActualPath($path)

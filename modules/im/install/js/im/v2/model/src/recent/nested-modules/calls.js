@@ -37,6 +37,10 @@ export class CallsModel extends BuilderModel
 				return Object.values(state.collection);
 			},
 
+			getCallByDialog: (state: CallsState) => (dialogId): ?ImModelCallItem => {
+				return state.collection[dialogId];
+			},
+
 			hasActiveCall: (state: CallsState) => (dialogId): boolean => {
 				if (Type.isUndefined(dialogId))
 				{

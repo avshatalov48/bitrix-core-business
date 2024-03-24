@@ -116,7 +116,7 @@ if ($allowEdit)
 	}
 	// endregion
 
-	$barcodeMultiply = $_POST["SUBCAT_BARCODE_MULTIPLY"];
+	$barcodeMultiply = $_POST["SUBCAT_BARCODE_MULTIPLY"] ?? '';
 	if(!$barcodeMultiply || $barcodeMultiply == '')
 		$barcodeMultiply = 'N';
 

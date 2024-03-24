@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core,im_v2_component_message_elements,im_v2_component_message_base,im_v2_lib_parser) {
+(function (exports,im_v2_component_message_elements,im_v2_component_message_base,im_v2_lib_parser) {
 	'use strict';
 
 	// @vue/component
@@ -17,6 +17,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    replyId: {
 	      type: Number,
 	      required: true
+	    },
+	    isForward: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  computed: {
@@ -35,16 +39,29 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return text;
 	    },
 	    replyContext() {
-	      return `${this.dialogId}/${this.replyId}`;
+	      if (!this.isForward) {
+	        return `${this.dialogId}/${this.replyId}`;
+	      }
+	      const replyMessageChat = this.getChatByChatId(this.replyMessage.chatId);
+	      if (!replyMessageChat) {
+	        return '';
+	      }
+	      return `${replyMessageChat.dialogId}/${this.replyId}`;
+	    },
+	    hasReplyContext() {
+	      return this.replyContext.length > 0;
 	    }
 	  },
 	  methods: {
+	    getChatByChatId(chatId) {
+	      return this.$store.getters['chats/getByChatId'](chatId, true);
+	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
 	  },
 	  template: `
-		<div class="bx-im-message-quote --with-context" :data-context="replyContext">
+		<div class="bx-im-message-quote" :class="{'--with-context': hasReplyContext}" :data-context="replyContext">
 			<div class="bx-im-message-quote__wrap">
 				<div class="bx-im-message-quote__name">
 					<div class="bx-im-message-quote__name-text">
@@ -89,6 +106,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    isReply() {
 	      return this.message.replyId !== 0;
 	    },
+	    isForward() {
+	      return this.$store.getters['messages/isForward'](this.message.id);
+	    },
 	    hasKeyboard() {
 	      return this.message.keyboard.length > 0;
 	    }
@@ -100,7 +120,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			</template>
 			<div class="bx-im-message-default__container">
 				<MessageHeader :withTitle="withTitle" :item="item" />
-				<Reply v-if="isReply" :dialogId="dialogId" :replyId="message.replyId" />
+				<Reply v-if="isReply" :dialogId="dialogId" :replyId="message.replyId" :isForward="isForward" />
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
 				<ReactionSelector :messageId="message.id" />
 			</div>
@@ -113,5 +133,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.DefaultMessage = DefaultMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib));
 //# sourceMappingURL=default.bundle.js.map

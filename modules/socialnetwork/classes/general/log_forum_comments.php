@@ -209,7 +209,7 @@ class CSocNetForumComments
 					"USER_ID" => $arMessage["AUTHOR_ID"],
 					"MESSAGE_ID" => $messageId,
 					"MESSAGE" => $sText,
-					"URL" => $strURL
+					"URL" => $strURL ?? ''
 				)
 			));
 		}

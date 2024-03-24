@@ -7,6 +7,14 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
+$currentUserId = \Bitrix\Main\Engine\CurrentUser::get()?->getId();
+$isSignAvailable = \Bitrix\Main\Loader::includeModule('sign')
+	&& method_exists(\Bitrix\Sign\Config\Storage::class, 'isB2eAvailable')
+	&& \Bitrix\Sign\Config\Storage::instance()->isB2eAvailable()
+	&& $arParams['PAGE_ID'] === 'user'
+	&& (int)$arParams['ID'] === (int)$currentUserId;
+;
+
 if (!array_key_exists("MAX_ITEMS", $arParams) || intval($arParams["MAX_ITEMS"]) <= 0)
 	$arParams["MAX_ITEMS"] = 6;
 	
@@ -213,6 +221,10 @@ else
 		$arResult["Urls"]["Calendar"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_CALENDAR"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["Tasks"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_TASKS"], array("user_id" => $arResult["User"]["ID"]));
 		$arResult["Urls"]["Files"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_FILES"], array("user_id" => $arResult["User"]["ID"], "path" => ""));
+		if ($isSignAvailable)
+		{
+			$arResult["Urls"]["Sign"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SIGN"], ["user_id" => $arResult["User"]["ID"]]);
+		}
 
 		$arResult["Urls"]["content_search"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_CONTENT_SEARCH"], array("user_id" => $arResult["User"]["ID"]));
 
@@ -255,6 +267,10 @@ else
 		$arResult["CanView"]["photo"] = (array_key_exists("photo", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "photo", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		$arResult["CanView"]["forum"] = (array_key_exists("forum", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
+		if ($isSignAvailable)
+		{
+			$arResult["CanView"]["sign"] = (array_key_exists("sign", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "sign", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
+		}
 
 		$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '') ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_STREAM_NEWS"));
 		$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["microblog"] <> '') ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
@@ -264,6 +280,13 @@ else
 		$arResult["Title"]["tasks"] = ((array_key_exists("tasks", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["tasks"] <> '') ? $arResult["ActiveFeatures"]["tasks"] : GetMessage("SONET_UM_TASKS"));
 		$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["files"] <> '') ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_DISK"));
 		$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["search"] <> '') ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
+
+		if ($isSignAvailable)
+		{
+			$arResult["Title"]["sign"] = ((array_key_exists("sign", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["sign"] <> '')
+				? $arResult["ActiveFeatures"]["sign"]
+				: GetMessage("SONET_UM_SIGN"));
+		}
 
 		$a = array_keys($arResult["Urls"]);
 		foreach ($a as $v)

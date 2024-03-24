@@ -1,4 +1,8 @@
-<?
+<?php
+
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+
 if($USER->IsAdmin() && CModule::IncludeModule('iblock') && CModule::IncludeModule('lists')):
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/options.php");
@@ -46,7 +50,11 @@ while($arIBType = $rsIBTypes->GetNext())
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
+$Update ??= '';
+$Apply ??= '';
+$RestoreDefaults ??= '';
+
+if($_SERVER['REQUEST_METHOD'] === "POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
 {
 	if($RestoreDefaults <> '')
 	{
@@ -90,9 +98,13 @@ if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bit
 	}
 
 	if($Update <> '' && $_REQUEST["back_url_settings"] <> '')
+	{
 		LocalRedirect($_REQUEST["back_url_settings"]);
+	}
 	else
-		LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($mid)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
+	{
+		LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($mid ?? 'lists')."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
+	}
 }
 
 $tabControl->Begin();
@@ -118,8 +130,9 @@ function addNewTableRow(tableID, regexp, rindex)
 	}
 }
 </script>
-<form method="post" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=urlencode($mid)?>&amp;lang=<?=LANGUAGE_ID?>">
-<?
+<form method="post" action="<?= $APPLICATION->GetCurPage() ?>?mid=<?=urlencode($mid ?? 'lists')?>&amp;lang=<?=LANGUAGE_ID?>">
+<?php
+
 $tabControl->BeginNextTab();
 	?>
 	<tr>

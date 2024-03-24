@@ -79,21 +79,18 @@ if (($arID = $lAdmin->GroupAction()) && $blogModulePermissions >= "W")
 					);
 				$arBlogOld = $dbBlog->Fetch();
 
-				$DB->StartTransaction();
-
 				if (!CBlog::Delete($ID))
 				{
-					$DB->Rollback();
-
 					if ($ex = $APPLICATION->GetException())
+					{
 						$lAdmin->AddGroupError($ex->GetString(), $ID);
+					}
 					else
+					{
 						$lAdmin->AddGroupError(GetMessage("BLB_DELETE_ERROR"), $ID);
+					}
 				}
-
-				$DB->Commit();
-
-				if (!empty($arBlogOld))
+				else if (!empty($arBlogOld))
 				{
 					BXClearCache(True, "/".$arBlogOld["GROUP_SITE_ID"]."/blog/");
 					BXClearCache(True, "/".SITE_ID."/blog/last_messages/");
@@ -144,7 +141,7 @@ $dbResultList->NavStart();
 $lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("BLB_GROUP_NAV")));
 
 while ($arBlog = $dbResultList->NavNext(true, "f_"))
-{      
+{
 	$row =& $lAdmin->AddRow($f_ID, $arBlog, "/bitrix/admin/blog_blog_edit.php?ID=".$f_ID."&lang=".LANGUAGE_ID, GetMessage("BLB_UPDATE_ALT"));
 
 	$row->AddField("ID", '<a href="/bitrix/admin/blog_blog_edit.php?ID='.$f_ID.'&lang='.LANGUAGE_ID.'" title="'.GetMessage("BLB_UPDATE_ALT").'">'.$f_ID.'</a>');
@@ -156,7 +153,7 @@ while ($arBlog = $dbResultList->NavNext(true, "f_"))
 		$row->AddField("OWNER_INFO", "<a href=\"/bitrix/admin/user_edit.php?ID=".$f_OWNER_ID."&lang=".LANG."\">[".$f_OWNER_ID."] ".$f_OWNER_NAME." ".$f_OWNER_LAST_NAME." (".$f_OWNER_LOGIN.")</a>");
 	if(intval($f_SOCNET_GROUP_ID) > 0)
 	{
-		$row->AddField("SOCNET_GROUP_ID", $f_SOCNET_GROUP_ID);	
+		$row->AddField("SOCNET_GROUP_ID", $f_SOCNET_GROUP_ID);
 		if(CModule::IncludeModule("socialnetwork"))
 		{
 			$arGroupSo = CSocNetGroup::GetByID($f_SOCNET_GROUP_ID);
@@ -165,12 +162,12 @@ while ($arBlog = $dbResultList->NavNext(true, "f_"))
 				$row->AddField("SOCNET_GROUP_ID", "[".$f_SOCNET_GROUP_ID."] ".$arGroupSo["NAME"]);
 			}
 		}
-		
+
 	}
 	$row->AddField("URL", $f_URL);
 	$row->AddField("GROUP_ID", "<a href=\"/bitrix/admin/blog_group_edit.php?ID=".$f_GROUP_ID."&lang=".LANG."\">[".$f_GROUP_SITE_ID."] ".$f_GROUP_NAME."</a>");
 	$row->AddField("USE_SOCNET", (($f_USE_SOCNET == "Y") ? GetMessage("BLB_YES") : GetMessage("BLB_NO")));
-	
+
 	$USER_FIELD_MANAGER->AddUserFields("BLOG_BLOG", $arBlog, $row);
 
 	$arActions = Array();
@@ -264,7 +261,7 @@ $oFilter->Begin();
 		<td>
 			<select name="filter_group_id[]" multiple size="5">
 				<?
-				
+
 				$dbGroup = CBlogGroup::GetList(array("NAME" => "ASC"), array());
 				while ($arGroup = $dbGroup->GetNext())
 				{
@@ -302,4 +299,3 @@ $lAdmin->DisplayList();
 
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

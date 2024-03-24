@@ -162,7 +162,10 @@ class WorkflowStateToGet
 	{
 		$filterPresetId = $this->filterPresetId ?? WorkflowStateFilter::PRESET_DEFAULT;
 
-		if ($filterPresetId === WorkflowStateFilter::PRESET_ALL_COMPLETED)
+		if (
+			$filterPresetId === WorkflowStateFilter::PRESET_ALL_COMPLETED
+			|| $filterPresetId === WorkflowStateFilter::PRESET_STARTED
+		)
 		{
 			return ['MODIFIED' => 'DESC'];
 		}

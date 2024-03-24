@@ -913,9 +913,10 @@ else
 						if ($arParams['CONTEXT'] === 'spaces')
 						{
 							$editHref = '#';
-							$onClick = "return BX.Livefeed.Post.editSpacesPost(
-								'".$arResult['Post']['ID']."' , '".($arParams['SONET_GROUP_ID'] ?? 0)."'
-							);";
+							$onClick = "BX.Livefeed.Post.editSpacesPost('" .
+								$arResult['Post']['ID']."' , '".($arParams['SONET_GROUP_ID'] ?? 0) .
+								"'); return event.preventDefault();"
+							;
 						}
 
 						?><a href="<?=$editHref?>" onclick="<?=$onClick?>" title="<?=Loc::getMessage("BLOG_BLOG_BLOG_EDIT")?>" target="_top"><?php
@@ -1059,6 +1060,12 @@ else
 								{
 									return;
 								}
+
+								BX.Livefeed.FeedInstance.init();
+
+								setTimeout(function() {
+									BX.Livefeed.MoreButton.recalcPostsList();
+								}, 1000);
 
 								BX.Livefeed.FeedInstance.addMoreButton(
 									'blog_post_<?= $arResult['Post']['ID'] ?>',

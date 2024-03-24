@@ -22,7 +22,11 @@ use Bitrix\Main\Web\Json;
 Extension::load([
 	'ui.buttons',
 	'ui.notification',
+	'ui.switcher',
+	'ui.t',
+	'ui.popupcomponentsmaker',
 	'socialnetwork.post-form',
+	'calendar.entry',
 ]);
 
 $messages = Loc::loadLanguageFile(__DIR__ . '/discussions.php');
@@ -95,6 +99,7 @@ Asset::getInstance()->addJS('/bitrix/components/bitrix/socialnetwork.log.filter/
 			pathToFilesPage: '<?= CUtil::JSescape($arResult['pathToFilesPage']) ?>',
 			appliedFields: '<?= Json::encode($arResult['appliedFields']) ?>',
 			isSmartTrackingMode: '<?= $arResult['isSmartTrackingMode'] ?>',
+			isDiskStorageWasObtained: '<?= $arResult['storage'] === null ? 'N' : 'Y' ?>',
 		});
 
 		discussionsToolbar.renderAddBtnTo(document.getElementById('sn-spaces-toolbar-discussions-add-btn'));

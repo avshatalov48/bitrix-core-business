@@ -1,3 +1,4 @@
+import { Text } from 'main.core';
 import { BitrixVue } from 'ui.vue3';
 
 import { highlightText } from 'im.v2.lib.text-highlighter';

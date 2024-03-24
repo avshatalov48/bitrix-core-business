@@ -319,7 +319,6 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 			COption::SetOptionString('sale','recalc_product_list','Y');
 			COption::SetOptionString('sale','recalc_product_list_period','4');
 			COption::SetOptionString('sale', 'order_email', $shopEmail);
-			COption::SetOptionString('sale', 'encode_fuser_id', 'Y');
 		}
 
 			if(!$bRus)

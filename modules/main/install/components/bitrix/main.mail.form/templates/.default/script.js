@@ -487,8 +487,11 @@
 				BX.onCustomEvent(field.form, 'MailForm:field:setMenuExt', [field.form, field]);
 
 				const result = [];
-				field.__menuExt.forEach(function(item) {
-					if ((item.text === undefined) || (item.value === null))
+				field.__menuExt.forEach((item) => {
+					if (item.value === null
+						|| !BX.type.isString(item.text)
+						|| item.text.length === 0
+					)
 					{
 						return;
 					}

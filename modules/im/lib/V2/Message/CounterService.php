@@ -31,7 +31,7 @@ class CounterService
 
 	protected const CACHE_TTL = 86400; // 1 month
 	protected const CACHE_NAME = 'counter_v5';
-	protected const CACHE_CHATS_COUNTERS_NAME = 'chats_counter_v5';
+	protected const CACHE_CHATS_COUNTERS_NAME = 'chats_counter_v6';
 	protected const CACHE_PATH = '/bx/im/v2/counter/';
 
 	protected const DEFAULT_COUNTERS = [
@@ -346,7 +346,9 @@ class CounterService
 		{
 			$query->whereNot('AUTHOR_ID', $this->getContext()->getUserId());
 		}
-		MessageUnreadTable::insertSelect($query);
+
+		MessageUnreadTable::insertSelect($query, ['ID', 'USER_ID', 'CHAT_ID', 'MESSAGE_ID', 'IS_MUTED', 'CHAT_TYPE', 'DATE_CREATE']);
+
 		static::clearCache($this->getContext()->getUserId());
 	}
 

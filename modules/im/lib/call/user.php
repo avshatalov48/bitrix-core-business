@@ -199,9 +199,9 @@ class User
 		return $recordFile;
 	}
 
-	public static function getUserCode()
+	public static function getUserCode(): string
 	{
-		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			$licence = BX24_HOST_NAME;
 		}

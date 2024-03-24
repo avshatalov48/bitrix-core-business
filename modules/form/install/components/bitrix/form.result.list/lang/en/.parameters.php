@@ -16,4 +16,3 @@ $MESS["COMP_FORM_PARAMS_NOT_SHOW_TABLE_LIST"] = "Codes of fields that are not al
 $MESS["COMP_FORM_PARAMS_CHAIN_ITEM_TEXT"] = "Name of additional navigation chain item";
 $MESS["COMP_FORM_PARAMS_CHAIN_ITEM_LINK"] = "Link for additional navigation chain item";
 $MESS["COMP_FORM_NAME_TEMPLATE"] = "Name format";
-?>

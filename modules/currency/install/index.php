@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -71,7 +72,7 @@ class currency extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
-		$connection = \Bitrix\Main\Application::getConnection();
+		$connection = Main\Application::getConnection();
 		$this->errors = false;
 
 		if (!$DB->TableExists('b_catalog_currency'))
@@ -89,7 +90,7 @@ class currency extends CModule
 
 		self::installCurrencies();
 
-		$eventManager = \Bitrix\Main\EventManager::getInstance();
+		$eventManager = Main\EventManager::getInstance();
 		$eventManager->registerEventHandlerCompatible('iblock', 'OnIBlockPropertyBuildList', 'currency',
 			'\Bitrix\Currency\Integration\IblockMoneyProperty', 'getUserTypeDescription');
 		$eventManager->registerEventHandlerCompatible('main', 'OnUserTypeBuildList', 'currency',
@@ -101,7 +102,7 @@ class currency extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
-		$connection = \Bitrix\Main\Application::getConnection();
+		$connection = Main\Application::getConnection();
 		$this->errors = false;
 		if (Loader::includeModule('currency'))
 			\Bitrix\Currency\CurrencyManager::clearCurrencyCache();
@@ -115,7 +116,7 @@ class currency extends CModule
 			}
 		}
 
-		$eventManager = \Bitrix\Main\EventManager::getInstance();
+		$eventManager = Main\EventManager::getInstance();
 		$eventManager->unRegisterEventHandler('iblock', 'OnIBlockPropertyBuildList', 'currency',
 			'\Bitrix\Currency\Integration\IblockMoneyProperty', 'getUserTypeDescription');
 		$eventManager->unRegisterEventHandler('main', 'OnUserTypeBuildList', 'currency',
@@ -331,188 +332,146 @@ class currency extends CModule
 	 * @param string $baseCurrency
 	 * @return array
 	 */
-	private static function getCurrencyListForInstall($baseCurrency)
+	private static function getCurrencyListForInstall(string $baseCurrency): array
 	{
-		switch ($baseCurrency)
+		return match ($baseCurrency)
 		{
-			case 'BYN':
-				$result = [
-					['CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 0.31, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.31],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 2.14, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.14],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 2.44, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.44]
-				];
-				break;
-			case 'KZT':
-				$result = [
-					['CURRENCY' => 'KZT', 'NUMCODE' => '398', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 5.40, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5.40],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 371.27, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 371.27],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 423.29, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 423.29]
-				];
-				break;
-			case 'UAH':
-				$result = [
-					['CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 3.98, 'AMOUNT_CNT' => 10, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.398],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 27.39, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 27.39],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 31.22, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 31.22]
-				];
-				break;
-			case 'RUB':
-				$result = [
-					['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 68.79, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 68.79],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 78.32, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 78.32],
-					['CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 25.11, 'AMOUNT_CNT' => 10, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.511],
-					['CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 32.20, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 32.20]
-				];
-				break;
-			case 'EUR':
-				$result = [
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 0.88, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.88],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 12.71, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.1271],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 22.47, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2247],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 12.49, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01249]
-				];
-				break;
-			case 'CNY':
-				$result = [
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'TWD', 'NUMCODE' => '901', 'AMOUNT' => 22.39, 'AMOUNT_CNT' => 100, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2239],
-					['CURRENCY' => 'HKD', 'NUMCODE' => '344', 'AMOUNT' => 88.06, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.8806],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 6.89, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.89],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 7.86, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 7.86],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1.77, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.77],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 9.85, 'AMOUNT_CNT' => 100, 'SORT' => 700, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.0985]
-				];
-				break;
-			case 'TWD':
-				$result = [
-					['CURRENCY' => 'TWD', 'NUMCODE' => '901', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 4.47, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.47],
-					['CURRENCY' => 'HKD', 'NUMCODE' => '344', 'AMOUNT' => 3.93, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.93],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 30.81, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 30.81],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 35.17, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 35.17],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 7.89, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 7.89],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 43.94, 'AMOUNT_CNT' => 100, 'SORT' => 700, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.4394]
-				];
-				break;
-			case 'INR':
-				$result = [
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 70.05, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 70.05],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 79.92, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 79.92],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 10.17, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 10.17],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 17.94, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 17.94]
-				];
-				break;
-			case 'BRL':
-				$result = [
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.90, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.90],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.45, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.45],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 56.69, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.5669],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 5.57, 'AMOUNT_CNT' => 100, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.0557]
-				];
-				break;
-			case 'PLN':
-				$result = [
-					['CURRENCY' => 'PLN', 'NUMCODE' => '985', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.76, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.76],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.29, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.29],
-				];
-				break;
-			case 'TRY':
-				$result = [
-					['CURRENCY' => 'TRY', 'NUMCODE' => '949', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 5.30, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5.30],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 6.05, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.05]
-				];
-				break;
-			case 'JPY':
-				$result = [
-					['CURRENCY' => 'JPY', 'NUMCODE' => '392', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 110.25, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 110.25],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 125.56, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 125.56],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 15.98, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 15.98],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 28.24, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 28.24],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 1.57, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.57]
-				];
-				break;
-			case 'VND':
-				$result = [
-					['CURRENCY' => 'VND', 'NUMCODE' => '704', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 23279.63, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 23279.63],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 26523.81, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 26523.81],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 3371.85, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3371.85],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 5958.40, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5958.40],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 331.10, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 331.10]
-				];
-				break;
-			case 'IDR':
-				$result = [
-					['CURRENCY' => 'IDR', 'NUMCODE' => '360', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 6.88, 'AMOUNT_CNT' => 100000, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 688000],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 6.03, 'AMOUNT_CNT' => 100000, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 603000],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 47.48, 'AMOUNT_CNT' => 100000, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 47480],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 26.87, 'AMOUNT_CNT' => 100000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 26870],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 4.83, 'AMOUNT_CNT' => 1000, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4830]
-				];
-				break;
-			case 'MYR':
-				$result = [
-					['CURRENCY' => 'MYR', 'NUMCODE' => '458', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 4.18, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.18],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.77, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.77],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 6.05, 'AMOUNT_CNT' => 10, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.605],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1.07, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.07],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 0.06, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.06]
-				];
-				break;
-			case 'THB':
-				$result = [
-					['CURRENCY' => 'THB', 'NUMCODE' => '764', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 32.55, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 32.55],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 37.16, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 37.16],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 4.72, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.72],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 8.34, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 8.34],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 0.46, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.46]
-				];
-				break;
-			case 'GBP':
-				$result = [
-					['CURRENCY' => 'GBP', 'NUMCODE' => '826', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 0.91, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.91],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 0.77, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.77],
-				];
-				break;
-			case 'MXN':
-				$result = [
-					['CURRENCY' => 'MXN', 'NUMCODE' => '484', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 21.57, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 21.57],
-					['CURRENCY' => 'COP', 'NUMCODE' => '170', 'AMOUNT' => 5.68, 'AMOUNT_CNT' => 1000, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.00568],
-				];
-				break;
-			case 'COP':
-				$result = [
-					['CURRENCY' => 'COP', 'NUMCODE' => '170', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3797.1, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3797.1],
-					['CURRENCY' => 'MXN', 'NUMCODE' => '484', 'AMOUNT' => 176.21, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 176.21],
-				];
-				break;
-			case 'USD':
-			default:
-				$result = [
-					['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
-					['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1.14, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.14],
-					['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 15.00, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.15],
-					['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 25.61, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2561],
-					['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 14.28, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01428]
-				];
-				break;
-		}
-		return $result;
+			'BYN' => [
+				['CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 0.31, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.31],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 2.14, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.14],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 2.44, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.44]
+			],
+			'KZT' => [
+				['CURRENCY' => 'KZT', 'NUMCODE' => '398', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 5.40, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5.40],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 371.27, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 371.27],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 423.29, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 423.29]
+			],
+			'UAH' => [
+				['CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 3.98, 'AMOUNT_CNT' => 10, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.398],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 27.39, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 27.39],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 31.22, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 31.22]
+			],
+			'RUB' => [
+				['CURRENCY' => 'RUB', 'NUMCODE' => '643', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 68.79, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 68.79],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 78.32, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 78.32],
+				['CURRENCY' => 'UAH', 'NUMCODE' => '980', 'AMOUNT' => 25.11, 'AMOUNT_CNT' => 10, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 2.511],
+				['CURRENCY' => 'BYN', 'NUMCODE' => '933', 'AMOUNT' => 32.20, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 32.20]
+			],
+			'EUR' => [
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 0.88, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.88],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 12.71, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.1271],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 22.47, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2247],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 12.49, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01249]
+			],
+			'CNY' => [
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'TWD', 'NUMCODE' => '901', 'AMOUNT' => 22.39, 'AMOUNT_CNT' => 100, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2239],
+				['CURRENCY' => 'HKD', 'NUMCODE' => '344', 'AMOUNT' => 88.06, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.8806],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 6.89, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.89],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 7.86, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 7.86],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1.77, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.77],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 9.85, 'AMOUNT_CNT' => 100, 'SORT' => 700, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.0985]
+			],
+			'TWD' => [
+				['CURRENCY' => 'TWD', 'NUMCODE' => '901', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 4.47, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.47],
+				['CURRENCY' => 'HKD', 'NUMCODE' => '344', 'AMOUNT' => 3.93, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.93],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 30.81, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 30.81],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 35.17, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 35.17],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 7.89, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 7.89],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 43.94, 'AMOUNT_CNT' => 100, 'SORT' => 700, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.4394]
+			],
+			'INR' => [
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 70.05, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 70.05],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 79.92, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 79.92],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 10.17, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 10.17],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 17.94, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 17.94]
+			],
+			'BRL' => [
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.90, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.90],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.45, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.45],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 56.69, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.5669],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 5.57, 'AMOUNT_CNT' => 100, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.0557]
+			],
+			'PLN' => [
+				['CURRENCY' => 'PLN', 'NUMCODE' => '985', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3.76, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3.76],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.29, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.29],
+			],
+			'TRY' => [
+				['CURRENCY' => 'TRY', 'NUMCODE' => '949', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 5.30, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5.30],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 6.05, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 6.05]
+			],
+			'JPY' => [
+				['CURRENCY' => 'JPY', 'NUMCODE' => '392', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 110.25, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 110.25],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 125.56, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 125.56],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 15.98, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 15.98],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 28.24, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 28.24],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 1.57, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.57]
+			],
+			'VND' => [
+				['CURRENCY' => 'VND', 'NUMCODE' => '704', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 23279.63, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 23279.63],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 26523.81, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 26523.81],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 3371.85, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3371.85],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 5958.40, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 5958.40],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 331.10, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 331.10]
+			],
+			'IDR' => [
+				['CURRENCY' => 'IDR', 'NUMCODE' => '360', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 6.88, 'AMOUNT_CNT' => 100000, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 688000],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 6.03, 'AMOUNT_CNT' => 100000, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 603000],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 47.48, 'AMOUNT_CNT' => 100000, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 47480],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 26.87, 'AMOUNT_CNT' => 100000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 26870],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 4.83, 'AMOUNT_CNT' => 1000, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4830]
+			],
+			'MYR' => [
+				['CURRENCY' => 'MYR', 'NUMCODE' => '458', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 4.18, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.18],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 4.77, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.77],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 6.05, 'AMOUNT_CNT' => 10, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.605],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 1.07, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.07],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 0.06, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.06]
+			],
+			'THB' => [
+				['CURRENCY' => 'THB', 'NUMCODE' => '764', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 32.55, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 32.55],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 37.16, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 37.16],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 4.72, 'AMOUNT_CNT' => 1, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 4.72],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 8.34, 'AMOUNT_CNT' => 1, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 8.34],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 0.46, 'AMOUNT_CNT' => 1, 'SORT' => 600, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.46]
+			],
+			'GBP' => [
+				['CURRENCY' => 'GBP', 'NUMCODE' => '826', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 0.91, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.91],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 0.77, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.77],
+			],
+			'MXN' => [
+				['CURRENCY' => 'MXN', 'NUMCODE' => '484', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 21.57, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 21.57],
+				['CURRENCY' => 'COP', 'NUMCODE' => '170', 'AMOUNT' => 5.68, 'AMOUNT_CNT' => 1000, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.00568],
+			],
+			'COP' => [
+				['CURRENCY' => 'COP', 'NUMCODE' => '170', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 3797.1, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 3797.1],
+				['CURRENCY' => 'MXN', 'NUMCODE' => '484', 'AMOUNT' => 176.21, 'AMOUNT_CNT' => 1, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 176.21],
+			],
+			default => [
+				['CURRENCY' => 'USD', 'NUMCODE' => '840', 'AMOUNT' => 1, 'AMOUNT_CNT' => 1, 'SORT' => 100, 'BASE' => 'Y', 'CURRENT_BASE_RATE' => 1],
+				['CURRENCY' => 'EUR', 'NUMCODE' => '978', 'AMOUNT' => 1.14, 'AMOUNT_CNT' => 1, 'SORT' => 200, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 1.14],
+				['CURRENCY' => 'CNY', 'NUMCODE' => '156', 'AMOUNT' => 15.00, 'AMOUNT_CNT' => 100, 'SORT' => 300, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.15],
+				['CURRENCY' => 'BRL', 'NUMCODE' => '986', 'AMOUNT' => 25.61, 'AMOUNT_CNT' => 100, 'SORT' => 400, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.2561],
+				['CURRENCY' => 'INR', 'NUMCODE' => '356', 'AMOUNT' => 14.28, 'AMOUNT_CNT' => 1000, 'SORT' => 500, 'BASE' => 'N', 'CURRENT_BASE_RATE' => 0.01428]
+			],
+		};
 	}
 }

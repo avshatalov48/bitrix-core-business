@@ -122,7 +122,7 @@ class CBlog extends CAllBlog
 		if($ID <= 0)
 			return false;
 			
-		if($arFields["PATH"] <> '')
+		if (($arFields["PATH"] ?? '') <> '')
 		{
 			$path = $arFields["PATH"];
 			unset($arFields["PATH"]);
@@ -348,8 +348,8 @@ class CBlog extends CAllBlog
 		$arSqls["SELECT"] = str_replace("%%_DISTINCT_%%", "", $arSqls["SELECT"]);
 
 		$r = $obUserFieldsSql->GetFilter();
-		if($r <> '')
-			$strSqlUFFilter = " (".$r.") ";
+
+		$strSqlUFFilter = ($r <> '') ? " (".$r.") " : '';
 
 		if (is_array($arGroupBy) && count($arGroupBy)==0)
 		{

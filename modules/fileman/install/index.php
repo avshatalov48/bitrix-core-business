@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Localization\Loc;
+
 Loc::loadMessages(__FILE__);
 
 Class fileman extends CModule
@@ -32,6 +33,7 @@ Class fileman extends CModule
 	function InstallDB()
 	{
 		global $DB, $APPLICATION;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = null;
 
@@ -60,18 +62,21 @@ Class fileman extends CModule
 		RegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "fileman", "CEventFileman", "MakeFilemanObject");
 		RegisterModuleDependences("main", "OnUserTypeBuildList", "fileman", "\\Bitrix\\Fileman\\UserField\\Address", "getUserTypeDescription", 154);
 
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/tasks/install.php");
+		$this->InstallTasks();
+
+		// probably deprecated
+		$DB->Query("
+			INSERT INTO b_group_task (GROUP_ID,TASK_ID)
+			SELECT MG.GROUP_ID, T.ID
+			FROM b_task T 
+				INNER JOIN b_module_group MG ON MG.G_ACCESS = T.LETTER
+			WHERE T.SYS = 'Y'
+				AND T.BINDING = 'module'
+				AND MG.MODULE_ID = 'fileman'
+				AND T.MODULE_ID = MG.MODULE_ID
+		");
 
 		COption::SetOptionString('fileman', "use_editor_3", "Y");
-		// // Add hotkeys
-		// $hkc = new CHotKeysCode;
-		// $id = $hkc->Add(array(
-			// CLASS_NAME => "admin_file_edit_apply",
-			// CODE => "if(top.AjaxApply && typeof top.AjaxApply == 'function'){top.AjaxApply();}",
-			// NAME => Loc::getMessage("FILEMAN_HOTKEY_TITLE"),
-			// IS_CUSTOM => "0"
-		// ));
-		// CHotKeys::getInstance()->Add(array("KEYS_STRING"=>"Ctrl+83", "CODE_ID"=>$id, "USER_ID" => 0)); //S
 
 		return true;
 	}
@@ -88,7 +93,6 @@ Class fileman extends CModule
 			return false;
 		}
 
-
 		UnRegisterModuleDependences("main", "OnGroupDelete", "fileman", "CFileman", "OnGroupDelete");
 		UnRegisterModuleDependences("main", "OnPanelCreate", "fileman", "CFileman", "OnPanelCreate");
 		UnRegisterModuleDependences("main", "OnModuleUpdate", "fileman", "CFileman", "OnModuleUpdate");
@@ -103,11 +107,10 @@ Class fileman extends CModule
 		UnRegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "fileman", "CEventFileman", "MakeFilemanObject");
 		UnRegisterModuleDependences("main", "OnUserTypeBuildList", "fileman", "\\Bitrix\\Fileman\\UserField\\Address", "getUserTypeDescription");
 
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/tasks/uninstall.php");
+		$this->UnInstallTasks();
 
 		return true;
 	}
-
 
 	function InstallEvents()
 	{
@@ -134,7 +137,7 @@ Class fileman extends CModule
 
 		if(\Bitrix\Main\Loader::includeModule('fileman'))
 		{
-			\CFileMan::decodePdfViewerLangFiles();
+			CFileMan::decodePdfViewerLangFiles();
 		}
 
 		return true;
@@ -148,12 +151,15 @@ Class fileman extends CModule
 		DeleteDirFilesEx("/bitrix/images/fileman/");//images
 		DeleteDirFilesEx("/bitrix/js/fileman"); // JS
 		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools"); // tools
+
 		return true;
 	}
 
 	function DoInstall()
 	{
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		global $DOCUMENT_ROOT, $APPLICATION, $step;
+
 		$FM_RIGHT = $APPLICATION->GetGroupRight("fileman");
 
 		if ($FM_RIGHT!="D")
@@ -166,7 +172,9 @@ Class fileman extends CModule
 	}
 	function DoUninstall()
 	{
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		global $DOCUMENT_ROOT, $APPLICATION, $step;
+
 		$FM_RIGHT = $APPLICATION->GetGroupRight("fileman");
 		if ($FM_RIGHT!="D")
 		{
@@ -177,16 +185,133 @@ Class fileman extends CModule
 		}
 	}
 
-	function GetModuleRightList()
+	public function GetModuleTasks()
 	{
-		$arr = array(
-			"reference_id" => array("D","F","R"),
-			"reference" => array(
-				"[D] ".Loc::getMessage("FILEMAN_DENIED"),
-				"[F] ".Loc::getMessage("FILEMAN_ACCESSABLE_FOLDERS"),
-				"[R] ".Loc::getMessage("FILEMAN_VIEW"))
-			);
-		return $arr;
+		return [
+			//FILEMAN: module
+			'fileman_denied' => [
+				'LETTER' => 'D',
+				'BINDING' => 'module',
+				'OPERATIONS' => [],
+			],
+			'fileman_allowed_folders' => [
+				'LETTER' => 'F',
+				'BINDING' => 'module',
+				'OPERATIONS' => [
+					'fileman_view_file_structure',
+					'fileman_add_element_to_menu',
+					'fileman_edit_menu_elements',
+					'fileman_edit_existent_files',
+					'fileman_edit_existent_folders',
+					'fileman_admin_files',
+					'fileman_admin_folders',
+					'fileman_view_permissions',
+					'fileman_upload_files',
+				],
+			],
+			'fileman_full_access' => [
+				'LETTER' => 'W',
+				'BINDING' => 'module',
+				'OPERATIONS' => [
+					'fileman_view_file_structure',
+					'fileman_view_all_settings',
+					'fileman_edit_menu_types',
+					'fileman_add_element_to_menu',
+					'fileman_edit_menu_elements',
+					'fileman_edit_existent_files',
+					'fileman_edit_existent_folders',
+					'fileman_admin_files',
+					'fileman_admin_folders',
+					'fileman_view_permissions',
+					'fileman_edit_all_settings',
+					'fileman_upload_files',
+					'fileman_install_control',
+				],
+			],
+
+			// MEDIALIBRARY OPERATIONS IN TASKS
+			'medialib_denied' => [
+				'LETTER' => 'D',
+				'BINDING' => 'medialib',
+				'OPERATIONS' => [],
+			],
+			'medialib_view' => [
+				'LETTER' => 'F',
+				'BINDING' => 'medialib',
+				'OPERATIONS' => [
+					'medialib_view_collection',
+				],
+			],
+			'medialib_only_new' => [
+				'LETTER' => 'R',
+				'BINDING' => 'medialib',
+				'OPERATIONS' => [
+					'medialib_view_collection',
+					'medialib_new_collection',
+					'medialib_new_item',
+				]
+			],
+			'medialib_edit_items' => [
+				'LETTER' => 'V',
+				'BINDING' => 'medialib',
+				'OPERATIONS' => [
+					'medialib_view_collection',
+					'medialib_new_item',
+					'medialib_edit_item',
+					'medialib_del_item',
+				],
+			],
+			'medialib_editor' => [
+				'LETTER' => 'W',
+				'BINDING' => 'medialib',
+				'OPERATIONS' => [
+					'medialib_view_collection',
+					'medialib_new_collection',
+					'medialib_edit_collection',
+					'medialib_del_collection',
+					'medialib_new_item',
+					'medialib_edit_item',
+					'medialib_del_item',
+				],
+			],
+			'medialib_full' => [
+				'LETTER' => 'X',
+				'BINDING' => 'medialib',
+				'OPERATIONS' => [
+					'medialib_view_collection',
+					'medialib_new_collection',
+					'medialib_edit_collection',
+					'medialib_del_collection',
+					'medialib_access',
+					'medialib_new_item',
+					'medialib_edit_item',
+					'medialib_del_item',
+				],
+			],
+
+			// STICKERS OPERATIONS IN TASKS
+			'stickers_denied' => [
+				'LETTER' => 'D',
+				'BINDING' => 'stickers',
+				'OPERATIONS' => [],
+			],
+			'stickers_read' => [
+				'LETTER' => 'R',
+				'BINDING' => 'stickers',
+				'OPERATIONS' => [
+					'sticker_view',
+				],
+			],
+			'stickers_edit' => [
+				'LETTER' => 'W',
+				'BINDING' => 'stickers',
+				'OPERATIONS' => [
+					'sticker_view',
+					'sticker_edit',
+					'sticker_new',
+					'sticker_del',
+				],
+			],
+		];
 	}
 }
-?>

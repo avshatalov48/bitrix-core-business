@@ -82,7 +82,7 @@ class Network
 		if (!$this->isOptionEnabled() && !$enable)
 			return true;
 
-		$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED'), self::ERROR_NETWORK_IN_NOT_ENABLED);
+		$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED_MSGVER_1'), self::ERROR_NETWORK_IN_NOT_ENABLED);
 
 		return false;
 	}
@@ -98,90 +98,8 @@ class Network
 	 */
 	public function searchUser($search)
 	{
-		$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED'), self::ERROR_NETWORK_IN_NOT_ENABLED);
+		$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED_MSGVER_1'), self::ERROR_NETWORK_IN_NOT_ENABLED);
 		return null;
-	}
-
-	public static function sendMobileApplicationLink($phone, $language_id)
-	{
-		$query = \CBitrix24NetPortalTransport::init();
-		if ($query)
-		{
-			$query->call('profile.send', array(
-				'TYPE' => 'mobile_application_link',
-				'PHONE' => $phone,
-				'LANGUAGE_ID' => $language_id,
-			));
-		}
-	}
-
-	/**
-	 * @return false|array
-	 * @see \Bitrix\B24network\Rest::portalVerifySend()
-	 * @see \Bitrix\B24network\PhoneVerify::sendVerificationCode()
-	 */
-	public static function sendPhoneVerificationCode(string $phone, string $language_id)
-	{
-		if (! self::isPhoneNumberValid($phone))
-		{
-			return ['error' => 'ERROR_CODE_INVALID_NUMBER'];
-		}
-
-		$phone = self::normalizePhoneNumber($phone);
-		$query = \CBitrix24NetPortalTransport::init();
-		if ($query)
-		{
-			global $USER;
-			$userId = $USER instanceof \CUser ? $USER->getId() : 0;
-			return $query->call('portal.verify.send', array(
-				'PHONE' => $phone,
-				'LANGUAGE_ID' => $language_id,
-				'USER_ID' => $userId,
-			));
-		}
-
-		return false;
-	}
-
-	/**
-	 * Check portal verification code via b24network
-	 *
-	 * @see \Bitrix\B24network\PhoneVerify::checkVerificationCode()
-	 * @see \Bitrix\B24network\Rest::portalVerifyCheck()
-	 */
-	public static function checkPhoneVerificationCode(string $phone, int $code)
-	{
-		$phone = self::normalizePhoneNumber($phone);
-		$query = \CBitrix24NetPortalTransport::init();
-		if ($query)
-		{
-			global $USER;
-			$userId = $USER instanceof \CUser ? $USER->getId() : 0;
-			return $query->call('portal.verify.check', array(
-				'PHONE' => $phone,
-				'CODE' => $code,
-				'USER_ID' => $userId,
-			));
-		}
-
-		return false;
-	}
-
-	/**
-	 * Is portal verified at least once by any user
-	 *
-	 * @see \Bitrix\B24network\PhoneVerify::isPortalVerified()
-	 * @see \Bitrix\B24network\Rest::portalVerifyStatus()
-	 */
-	public static function getPortalVerificationStatus(): bool
-	{
-		$query = \CBitrix24NetPortalTransport::init();
-		if ($query)
-		{
-			$result = $query->call('portal.verify.status');
-			return (bool)$result['result'];
-		}
-		return false;
 	}
 
 	/**
@@ -207,14 +125,14 @@ class Network
 	{
 		if (!$this->isEnabled())
 		{
-			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED'), self::ERROR_NETWORK_IN_NOT_ENABLED);
+			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_NETWORK_IN_NOT_ENABLED_MSGVER_1'), self::ERROR_NETWORK_IN_NOT_ENABLED);
 			return null;
 		}
 
 		$query = \CBitrix24NetPortalTransport::init();
 		if (!$query)
 		{
-			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_SOCSERV_TRANSPORT_ERROR'), self::ERROR_SOCSERV_TRANSPORT);
+			$this->errorCollection[] = new Error(Loc::getMessage('B24NET_SOCSERV_TRANSPORT_ERROR_MSGVER_1'), self::ERROR_SOCSERV_TRANSPORT);
 			return null;
 		}
 
@@ -635,42 +553,6 @@ class Network
 		}
 	}
 
-	public static function getLastBroadcastCheck()
-	{
-		return Option::get("socialservices", "network_last_update_check", 0);
-	}
-
-	public static function setLastBroadcastCheck()
-	{
-		Option::set("socialservices", "network_last_update_check", time());
-	}
-
-	public static function checkBroadcastData()
-	{
-		$query = \CBitrix24NetPortalTransport::init();
-		if ($query)
-		{
-			$query->call(
-				"broadcast.check",
-				array(
-					"broadcast_last_check" => static::getLastBroadcastCheck()
-				)
-			);
-		}
-	}
-
-	public static function processBroadcastData($data)
-	{
-		ContactTable::onNetworkBroadcast($data);
-
-		foreach(GetModuleEvents("socialservices", "OnNetworkBroadcast", true) as $eventHandler)
-		{
-			ExecuteModuleEventEx($eventHandler, array($data));
-		}
-
-		static::setLastBroadcastCheck();
-	}
-
 	public static function setLastUserStatus($status)
 	{
 		static::$lastUserStatus = $status;
@@ -679,22 +561,5 @@ class Network
 	public static function getLastUserStatus()
 	{
 		return static::$lastUserStatus;
-	}
-
-
-	private static function normalizePhoneNumber(string $number, $defaultCountry = '')
-	{
-		$phoneNumber = \Bitrix\Main\PhoneNumber\Parser::getInstance()->parse($number, $defaultCountry);
-		return $phoneNumber->format(\Bitrix\Main\PhoneNumber\Format::E164);
-	}
-
-	/**
-	 * @param string $value
-	 * @return bool
-	 */
-	private static function isPhoneNumberValid(string $number): bool
-	{
-		$phoneNumber = \Bitrix\Main\PhoneNumber\Parser::getInstance()->parse($number);
-		return $phoneNumber->isValid();
 	}
 }

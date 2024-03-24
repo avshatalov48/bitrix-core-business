@@ -8,6 +8,7 @@
 */
 namespace Bitrix\Socialnetwork\Integration\Tasks;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UserCounterTable;
@@ -86,7 +87,12 @@ class Task
 			)
 		);
 
-		$query->whereExpr("%s = CONCAT('**LC', %s)", [ 'CODE', 'comment.ID' ]);
+		$helper = Application::getConnection()->getSqlHelper();
+		$expression = $helper->getConcatFunction(
+			$helper->convertToDbString('**LC'),
+			$helper->convertToDbString('%s')
+		);
+		$query->whereExpr("%s = {$expression}", [ 'CODE', 'comment.ID' ]);
 		$res = $query->exec();
 
 		while ($counterFields = $res->fetch())
@@ -165,4 +171,3 @@ class Task
 		);
 	}
 }
-

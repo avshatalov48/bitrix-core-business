@@ -32,5 +32,11 @@ $MESS['SOCIALNETWORK_SPACES_LIST_SPACE_PIN'] = 'Закрепить';
 $MESS['SOCIALNETWORK_SPACES_LIST_SPACE_UNPIN'] = 'Открепить';
 $MESS['SOCIALNETWORK_SPACES_LIST_SPACE_FOLLOW'] = 'Следить';
 $MESS['SOCIALNETWORK_SPACES_LIST_SPACE_UNFOLLOW'] = 'Не следить';
+$MESS['SN_SPACES_LIST_SPACE_COPY_LINK'] = 'Скопировать ссылку на пространство';
+$MESS['SN_SPACES_LIST_SPACE_COPY_LINK_NOTIFY'] = 'Ссылка скопирована';
+$MESS['SN_SPACES_LIST_SPACE_LOGOUT'] = 'Выйти из пространства';
+$MESS['SN_SPACES_LIST_SPACE_COPY_LOGOUT_POPUP_TEXT'] = 'Выйти из пространства?';
+$MESS['SN_SPACES_LIST_SPACE_COPY_LOGOUT_POPUP_CONFIRM_BTN'] = 'Да, выйти';
 $MESS['SOCIALNETWORK_SPACES_LIST_NAME_ALREADY_EXISTS_ERROR'] = 'Пространство с таким именем уже существует';
-?>
+$MESS['SOCIALNETWORK_SPACES_COLLAPSE_MENU_AHA_MOMENT_TITLE'] = 'Рекомендуем сворачивать меню в пространствах';
+$MESS['SOCIALNETWORK_SPACES_COLLAPSE_MENU_AHA_MOMENT_TEXT'] = 'Так вы увеличите рабочую область и легко сконцентрируетесь на своих задачах';

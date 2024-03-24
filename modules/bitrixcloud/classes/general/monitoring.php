@@ -5,6 +5,7 @@ class CBitrixCloudMonitoring
 	private static $instance = /*.(CBitrixCloudMonitoring).*/ null;
 	private $result = /*.(CBitrixCloudMonitoringResult).*/null;
 	private $interval = 0;
+
 	/**
 	 * Returns proxy class instance (singleton pattern)
 	 *
@@ -14,30 +15,37 @@ class CBitrixCloudMonitoring
 	public static function getInstance()
 	{
 		if (!isset(self::$instance))
+		{
 			self::$instance = new CBitrixCloudMonitoring;
+		}
 
 		return self::$instance;
 	}
+
 	public function getConfiguredDomains()
 	{
-		$result = array();
+		$result = [];
 		$converter = CBXPunycode::GetConverter();
 
-		$domainName = COption::GetOptionString("main", "server_name", "");
-		if ($domainName != "")
-			$result[$domainName] = $domainName;
-
-		$siteList = CSite::GetList('', '', array("ACTIVE"=>"Y"));
-		while($site = $siteList->Fetch())
+		$domainName = COption::GetOptionString('main', 'server_name', '');
+		if ($domainName != '')
 		{
-			$domains = explode("\r\n", $site["DOMAINS"]);
-			foreach($domains as $domainName)
+			$result[$domainName] = $domainName;
+		}
+
+		$siteList = CSite::GetList('', '', ['ACTIVE' => 'Y']);
+		while ($site = $siteList->Fetch())
+		{
+			$domains = explode("\r\n", $site['DOMAINS']);
+			foreach ($domains as $domainName)
 			{
-				if ($domainName != "")
+				if ($domainName != '')
 				{
 					$punyName = $converter->Encode($domainName);
 					if ($punyName !== false)
+					{
 						$result[$punyName] = $domainName;
+					}
 				}
 			}
 		}
@@ -45,51 +53,56 @@ class CBitrixCloudMonitoring
 		ksort($result);
 		return $result;
 	}
+
 	public function getList()
 	{
 		$web_service = new CBitrixCloudMonitoringWebService();
 		$xml = $web_service->actionGetList();
-		$xml = $xml->SelectNodes("/control/domains");
-		if (is_object($xml))
+		/* @var CDataXMLNode $node */
+		$node = $xml->SelectNodes('/control/domains');
+		if (is_object($node))
 		{
-			$result = array();
-			$children = $xml->children();
+			$result = [];
+			$children = $node->children();
 			if (is_array($children))
 			{
-				foreach($children as $domainXml)
+				/* @var CDataXMLNode $domainXml */
+				foreach ($children as $domainXml)
 				{
-					$name = $domainXml->getAttribute("name");
-					$emails = $domainXml->elementsByName("emails");
-					$tests = $domainXml->elementsByName("tests");
-					$result[] = array(
-						"DOMAIN" => $name,
-						"IS_HTTPS" => ($domainXml->getAttribute("https") === "true"? "Y": "N"),
-						"LANG" => $domainXml->getAttribute("lang"),
-						"EMAILS" => (is_array($emails)? explode(",", $emails[0]->textContent()): array()),
-						"TESTS" => (is_array($tests)? explode(",", $tests[0]->textContent()): array()),
-					);
+					$name = $domainXml->getAttribute('name');
+					$emails = $domainXml->elementsByName('emails');
+					$tests = $domainXml->elementsByName('tests');
+					$result[] = [
+						'DOMAIN' => $name,
+						'IS_HTTPS' => ($domainXml->getAttribute('https') === 'true' ? 'Y' : 'N'),
+						'LANG' => $domainXml->getAttribute('lang'),
+						'EMAILS' => (is_array($emails) ? explode(',', $emails[0]->textContent()) : []),
+						'TESTS' => (is_array($tests) ? explode(',', $tests[0]->textContent()) : []),
+					];
 				}
 			}
 			return $result;
 		}
 	}
+
 	public function addDevice($domain, $deviceId)
 	{
-		if ($deviceId != "")
+		if ($deviceId != '')
 		{
 			$option = CBitrixCloudOption::getOption('monitoring_devices');
 			$devices = $option->getArrayValue();
-			$devices[] = $domain."|".$deviceId;
+			$devices[] = $domain . '|' . $deviceId;
 			$option->setArrayValue($devices);
 		}
 	}
+
 	public function deleteDevice($domain, $deviceId)
 	{
-		if ($deviceId != "")
+		if ($deviceId != '')
 		{
 			$option = CBitrixCloudOption::getOption('monitoring_devices');
 			$devices = $option->getArrayValue();
-			$index = array_search($domain."|".$deviceId, $devices);
+			$index = array_search($domain . '|' . $deviceId, $devices, true);
 			if ($index !== false)
 			{
 				unset($devices[$index]);
@@ -97,22 +110,26 @@ class CBitrixCloudMonitoring
 			}
 		}
 	}
+
 	public function getDevices($domain)
 	{
-		$result = array();
+		$result = [];
 		$option = CBitrixCloudOption::getOption('monitoring_devices');
 		$devices = $option->getArrayValue();
-		foreach($devices as $domain_device)
+		foreach ($devices as $domain_device)
 		{
-			if (list ($myDomain, $myDevice) = explode("|", $domain_device, 2))
+			if (list ($myDomain, $myDevice) = explode('|', $domain_device, 2))
 			{
 				if ($myDomain === $domain)
+				{
 					$result[] = $myDevice;
+				}
 			}
 		}
 		return $result;
 	}
-	/*
+
+	/**
 	 * Registers new monitoring job with the remote service.
 	 * Returns empty string on success.
 	 *
@@ -126,14 +143,15 @@ class CBitrixCloudMonitoring
 			$web_service = new CBitrixCloudMonitoringWebService();
 			$web_service->actionStart($domain, $is_https, $language_id, $emails, $tests);
 			CBitrixCloudMonitoringResult::setExpirationTime(0);
-			return "";
+			return '';
 		}
 		catch (CBitrixCloudException $e)
 		{
 			return $e->getMessage();//."[".htmlspecialcharsEx($e->getErrorCode())."]";
 		}
 	}
-	/*
+
+	/**
 	 * Unregisters monitoring job with the remote service.
 	 * Returns empty string on success.
 	 *
@@ -147,13 +165,14 @@ class CBitrixCloudMonitoring
 			$web_service = new CBitrixCloudMonitoringWebService();
 			$web_service->actionStop($domain);
 			CBitrixCloudMonitoringResult::setExpirationTime(0);
-			return "";
+			return '';
 		}
 		catch (CBitrixCloudException $e)
 		{
 			return $e->getMessage();//."[".htmlspecialcharsEx($e->getErrorCode())."]";
 		}
 	}
+
 	public function setInterval($interval)
 	{
 		$interval = intval($interval);
@@ -163,31 +182,41 @@ class CBitrixCloudMonitoring
 			&& $interval != 90
 			&& $interval != 365
 		)
+		{
 			$interval = 7;
+		}
 		$this->interval = $interval;
 		return $interval;
 	}
+
 	public function getInterval()
 	{
 		if ($this->interval <= 0)
 		{
-			$this->interval = intval(COption::GetOptionInt("bitrixcloud", "monitoring_interval"));
+			$this->interval = intval(COption::GetOptionInt('bitrixcloud', 'monitoring_interval'));
 			if (
 				$this->interval != 7
 				&& $this->interval != 30
 				&& $this->interval != 90
 				&& $this->interval != 365
 			)
+			{
 				$this->interval = 7;
+			}
 		}
 		return $this->interval;
 	}
+
 	public function getMonitoringResults($interval = false)
 	{
 		if ($interval === false)
+		{
 			$interval = $this->getInterval();
+		}
 		else
+		{
 			$interval = $this->setInterval($interval);
+		}
 
 		if ($this->result === null)
 		{
@@ -197,15 +226,16 @@ class CBitrixCloudMonitoring
 				{
 					$web_service = new CBitrixCloudMonitoringWebService();
 					$xml = $web_service->actionGetInfo($interval);
-					$domains = $xml->SelectNodes("/control/domains");
+					$domains = $xml->SelectNodes('/control/domains');
 					if (is_object($domains))
 					{
 						$this->result = CBitrixCloudMonitoringResult::fromXMLNode($domains);
-						$control = $xml->SelectNodes("/control");
+						/* @var CDataXMLNode $control */
+						$control = $xml->SelectNodes('/control');
 						if (is_object($control))
 						{
 							$this->result->saveToOptions();
-							CBitrixCloudMonitoringResult::setExpirationTime(strtotime($control->getAttribute("expires")));
+							CBitrixCloudMonitoringResult::setExpirationTime(strtotime($control->getAttribute('expires')));
 						}
 					}
 				}
@@ -222,63 +252,69 @@ class CBitrixCloudMonitoring
 		}
 		return $this->result;
 	}
+
 	public function getAlertsCurrentResult()
 	{
 		$alerts = false;
 		if ($this->result)
 		{
-			$alerts = array();
+			$alerts = [];
 			foreach ($this->result as $domainName => $domainResult)
 			{
 				foreach ($domainResult as $testId => $testResult)
 				{
 					if ($testResult->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP)
+					{
 						$alerts[$domainName][$testId] = $testId;
+					}
 				}
 
 				if (isset($alerts[$domainName]))
 				{
 					ksort($alerts[$domainName]);
-					$alerts[$domainName] = implode(",", $alerts[$domainName]);
+					$alerts[$domainName] = implode(',', $alerts[$domainName]);
 				}
 			}
 			ksort($alerts);
 		}
 		return $alerts;
 	}
+
 	public function getAlertsStored()
 	{
-		return CBitrixCloudOption::getOption("monitoring_alert")->getArrayValue();
+		return CBitrixCloudOption::getOption('monitoring_alert')->getArrayValue();
 	}
+
 	public function storeAlertsCurrentResult()
 	{
 		$alerts = $this->getAlertsCurrentResult();
 		if (is_array($alerts))
 		{
-			CBitrixCloudOption::getOption("monitoring_alert")->setArrayValue($alerts);
+			CBitrixCloudOption::getOption('monitoring_alert')->setArrayValue($alerts);
 		}
 	}
-	public function getWorstUptime($testId = "", $domainName = "")
+
+	public function getWorstUptime($testId = '', $domainName = '')
 	{
-		$result = "";
+		$result = '';
 		$maxDiff = 0;
 
 		if ($this->result)
 		{
-			if ($domainName === "")
+			if ($domainName === '')
 			{
-				foreach ($this->result as $domainName => $domainResult)
+				foreach ($this->result as $domainResult)
 				{
-					foreach ($domainResult as $testId => $testResult)
+					foreach ($domainResult as $testResult)
 					{
 						if (
-							($testId === "" || $testId === $testResult->getName())
+							($testId === '' || $testId === $testResult->getName())
 							&& $testResult->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP
 						)
 						{
 							if ($testResult->getUptime())
 							{
-								$uptime = explode("/", $testResult->getUptime());
+								$uptime = explode('/', $testResult->getUptime());
 								$diff = $uptime[1] - $uptime[0];
 								if ($diff > $maxDiff)
 								{
@@ -292,16 +328,16 @@ class CBitrixCloudMonitoring
 			}
 			elseif (is_array($this->result[$domainName]))
 			{
-				foreach ($this->result[$domainName] as $testId => $testResult)
+				foreach ($this->result[$domainName] as $testResult)
 				{
 					if (
-						($testId === "" || $testId === $testResult->getName())
+						($testId === '' || $testId === $testResult->getName())
 						&& $testResult->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP
 					)
 					{
 						if ($testResult->getUptime())
 						{
-							$uptime = explode("/", $testResult->getUptime());
+							$uptime = explode('/', $testResult->getUptime());
 							$diff = $uptime[1] - $uptime[0];
 							if ($diff > $maxDiff)
 							{
@@ -320,31 +356,37 @@ class CBitrixCloudMonitoring
 	public static function startMonitoringAgent()
 	{
 		$monitoring = CBitrixCloudMonitoring::getInstance();
-		$rsR = CLanguage::GetById("ru");
+		$rsR = CLanguage::GetById('ru');
 		if ($rsR->Fetch())
-			$language_id = "ru";
+		{
+			$language_id = 'ru';
+		}
 		else
 		{
-			$rsD = CLanguage::GetById("de");
+			$rsD = CLanguage::GetById('de');
 			if ($rsD->Fetch())
-				$language_id = "de";
+			{
+				$language_id = 'de';
+			}
 			else
-				$language_id = "en";
+			{
+				$language_id = 'en';
+			}
 		}
 
 		$monitoring->startMonitoring(
-			COption::GetOptionString("main", "server_name", ""),
+			COption::GetOptionString('main', 'server_name', ''),
 			false,
 			$language_id,
-			array(
-				COption::GetOptionString("main", "email_from", ""),
-			),
-			array(
-				"test_lic",
-				"test_domain_registration",
-				"test_http_response_time",
-			)
+			[
+				COption::GetOptionString('main', 'email_from', ''),
+			],
+			[
+				'test_lic',
+				'test_domain_registration',
+				'test_http_response_time',
+			]
 		);
-		return "";
+		return '';
 	}
 }

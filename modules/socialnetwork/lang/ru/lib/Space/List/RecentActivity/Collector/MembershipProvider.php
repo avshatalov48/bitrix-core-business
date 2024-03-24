@@ -1,0 +1,2 @@
+<?php
+$MESS["SONET_MEMBERSHIP_RECENT_ACTIVITY_DESCRIPTION"] = "Ждет подтверждения: #CONTENT#";

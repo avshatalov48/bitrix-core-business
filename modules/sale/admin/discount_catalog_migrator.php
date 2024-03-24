@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
@@ -13,19 +14,23 @@ global $USER, $APPLICATION;
 
 Loc::loadMessages(__FILE__);
 
-if (!$USER->IsAdmin() || !\Bitrix\Main\Loader::includeModule('catalog') || !\Bitrix\Main\Loader::includeModule('sale'))
+if (
+	!$USER->IsAdmin()
+	|| !Main\Loader::includeModule('catalog')
+	|| !Main\Loader::includeModule('sale')
+)
 {
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 }
 
-final class DiscountCatalogMigratorLogger extends \Bitrix\Main\Diag\FileExceptionHandlerLog
+final class DiscountCatalogMigratorLogger extends Main\Diag\FileExceptionHandlerLog
 {
 	const MAX_LOG_SIZE = 10000000;
 	const DEFAULT_LOG_FILE = "bitrix/modules/sale_migrator.log";
 
-	public function writeToLog($text)
+	public function writeToLog($text): void
 	{
-		return parent::writeToLog($text);
+		parent::writeToLog($text);
 	}
 }
 
@@ -67,11 +72,11 @@ final class DiscountCatalogMigrator
 		$this->connection = \Bitrix\Main\Application::getInstance()->getConnection();
 		$this->sqlHelper = $this->connection->getSqlHelper();
 
-		$this->isOracle = $this->connection instanceof \Bitrix\Main\DB\OracleConnection;
-		$this->isMysql = $this->connection instanceof \Bitrix\Main\DB\MysqlCommonConnection;
-		$this->isMssql = $this->connection instanceof \Bitrix\Main\DB\MssqlConnection;
+		$this->isOracle = $this->connection instanceof Main\DB\OracleConnection;
+		$this->isMysql = $this->connection instanceof Main\DB\MysqlCommonConnection;
+		$this->isMssql = $this->connection instanceof Main\DB\MssqlConnection;
 
-		\Bitrix\Sale\Discount\Preset\Manager::getInstance()->registerAutoLoader();
+		Sale\Discount\Preset\Manager::getInstance()->registerAutoLoader();
 	}
 
 	public function log($data)
@@ -193,14 +198,18 @@ final class DiscountCatalogMigrator
 
 	protected function checkRequired()
 	{
-		if(!\Bitrix\Main\Loader::includeModule('catalog'))
+		if (!$this->isMysql)
 		{
-			throw new Exception('Bad include catalog');
+			throw new Main\NotSupportedException('Only for mysql');
+		}
+		if(!Main\Loader::includeModule('catalog'))
+		{
+			throw new Main\SystemException('Bad include catalog');
 		}
 
-		if(!\Bitrix\Main\Loader::includeModule('sale'))
+		if(!Main\Loader::includeModule('sale'))
 		{
-			throw new Exception('Bad include sale');
+			throw new Main\SystemException('Bad include sale');
 		}
 	}
 
@@ -211,7 +220,7 @@ final class DiscountCatalogMigrator
 
 		if(!$this->isMysql)
 		{
-			throw new Exception('Revert command is available only on MySql');
+			throw new Main\NotSupportedException('Revert command is available only on MySql');
 		}
 
 		$this->connection->queryExecute(
@@ -1061,7 +1070,7 @@ final class DiscountCatalogMigrator
 	}
 }
 
-class TimeExecutionException extends \Bitrix\Main\SystemException
+class TimeExecutionException extends Main\SystemException
 {}
 
 IncludeModuleLangFile(__FILE__);
@@ -1098,7 +1107,7 @@ if (isset($_REQUEST['migrator_process']) && ($_REQUEST['migrator_process'] === '
 		$status = DiscountCatalogMigrator::STATUS_TIME_EXPIRED;
 		$processedSummary += $migrator->countSuccessfulSteps;
 	}
-	catch (Exception $e)
+	catch (Main\SystemException $e)
 	{
 		throw $e;
 		$status = DiscountCatalogMigrator::STATUS_ERROR;
@@ -1194,7 +1203,7 @@ else
 
 	//check currency <> SITE_ID sale currency
 	$connection = Application::getConnection();
-	$isMysql = $connection instanceof \Bitrix\Main\DB\MysqlCommonConnection;
+	$isMysql = $connection instanceof Main\DB\MysqlCommonConnection;
 	$discountWithOtherCurrency = $connection->query('
 		SELECT ID FROM b_catalog_discount d 
 					INNER JOIN b_sale_lang l ON d.SITE_ID = l.LID 
@@ -1434,8 +1443,8 @@ else
 		?>
 
 		<input type='button' id='start_button'
-			value='<?php echo GetMessage('DISCOUNT_CATALOG_MIGRATOR_CONVERT_START_BUTTON')?>'
-			onclick='ShowConvert();');>
+			value='<?php echo GetMessage('DISCOUNT_CATALOG_MIGRATOR_CONVERT_START_BUTTON'); ?>'
+			onclick='ShowConvert();'>
 		<?php
 		$tabControl->End();
 		?>

@@ -340,8 +340,14 @@ class Access
 
 		$hasPaidApplication = false;
 		if (
-			$entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_PAID] > 0
-			|| $entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_SUBSCRIPTION] > 0
+			(
+				isset($entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_PAID])
+				&& $entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_PAID] > 0
+			)
+			|| (
+				isset($entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_SUBSCRIPTION])
+				&& $entity[static::ENTITY_TYPE_APP_STATUS][AppTable::STATUS_SUBSCRIPTION] > 0
+			)
 		)
 		{
 			$hasPaidApplication = true;

@@ -39,6 +39,7 @@ type CallUserElements = {
 	buttonUnPin?: HTMLElement,
 	connectionProblem?: HTMLElement,
 	statsOverlay?: HTMLElement,
+	connectionQualityIcon?: HTMLElement,
 }
 
 type CallUserParams = {
@@ -200,6 +201,13 @@ export class CallUser
 
 	set videoRenderer(videoRenderer)
 	{
+		// we should to reset old video track after switching from a plain call
+		// in order to properly check the camera video in hasCameraVideo
+		if (this._videoTrack)
+		{
+			this._videoTrack = null;
+		}
+
 		if (this._badNetworkIndicator)
 		{
 			// Voximplant calls logic with support of streams disabling
@@ -325,6 +333,45 @@ export class CallUser
 		}
 	}
 
+	set connectionQuality(connectionQuality)
+	{
+		this._connectionQuality = connectionQuality;
+
+		const connectionQualityIcons = {
+			excellent: '--excellent-quality-icon',
+			good: '--good-quality-icon',
+			poor: '--poor-quality-icon',
+			bad: '--bad-quality-icon',
+		}
+
+		if (this._connectionQuality !== undefined && this.elements.connectionQualityIcon)
+		{
+			let resultIcon = connectionQualityIcons.bad;
+
+			if (this._connectionQuality >= 4)
+			{
+				resultIcon = connectionQualityIcons.excellent;
+			}
+
+			if (this._connectionQuality >= 3 && this._connectionQuality < 4)
+			{
+				resultIcon = connectionQualityIcons.good;
+			}
+
+			if (this._connectionQuality >= 2 && this._connectionQuality < 3)
+			{
+				resultIcon = connectionQualityIcons.poor;
+			}
+
+			if (this._connectionQuality < 2)
+			{
+				resultIcon = connectionQualityIcons.bad;
+			}
+
+			this.elements.connectionQualityIcon.style.setProperty('--connection-quality-icon', `var(${resultIcon})`);
+		}
+	}
+
 	showStats(stats)
 	{
 		this.connectionStats = stats;
@@ -394,17 +441,17 @@ export class CallUser
 									props: {className: "bx-messenger-videocall-user-name-container" + ((this.userModel.allowRename && !this.userModel.wasRenamed) ? " hidden" : "")},
 									children: [
 										this.elements.micState = Dom.create("div", {
-											props: {className: "bx-messenger-videocall-user-device-state mic" + (this.userModel.microphoneState ? " hidden" : "")},
+											props: {className: "bx-messenger-videocall-user-name-icon bx-messenger-videocall-user-device-state mic" + (this.userModel.microphoneState ? " hidden" : "")},
 										}),
 										this.elements.cameraState = Dom.create("div", {
-											props: {className: "bx-messenger-videocall-user-device-state camera" + (this.userModel.cameraState ? " hidden" : "")},
+											props: {className: "bx-messenger-videocall-user-name-icon bx-messenger-videocall-user-device-state camera" + (this.userModel.cameraState ? " hidden" : "")},
 										}),
 										this.elements.name = Dom.create("span", {
-											props: {className: "bx-messenger-videocall-user-name"},
-											text: (this.screenSharingUser ? BX.message('IM_CALL_USERS_SCREEN').replace("#NAME#", this.userModel.name) : this.userModel.name)
+											props: {className: "bx-messenger-videocall-user-name", title: (this.screenSharingUser ? BX.message('IM_CALL_USERS_SCREEN').replace("#NAME#", this.userModel.name) : this.userModel.name)},
+											text: (this.screenSharingUser ? BX.message('IM_CALL_USERS_SCREEN').replace("#NAME#", this.userModel.name) : this.userModel.name),
 										}),
 										this.elements.changeNameIcon = Dom.create("div", {
-											props: {className: "bx-messenger-videocall-user-change-name-icon hidden"},
+											props: {className: "bx-messenger-videocall-user-name-icon bx-messenger-videocall-user-change-name-icon hidden"},
 										})],
 									events: {
 										click: this.toggleNameInput.bind(this)
@@ -427,7 +474,10 @@ export class CallUser
 											}, events: {
 												keydown: this.onNameInputKeyDown.bind(this),
 												focus: this.callBacks.onUserRenameInputFocus,
-												blur: this.callBacks.onUserRenameInputBlur
+												blur: this.callBacks.onUserRenameInputBlur,
+												click: function(event) {
+													event.stopPropagation();
+												},
 											}
 										}),
 										this.elements.changeNameConfirm = Dom.create("div", {
@@ -495,10 +545,11 @@ export class CallUser
 						className: "bx-messenger-videocall-user-debug-panel-button connection-stats"
 					},
 					children: [
-						Dom.create("div", {
+						this.elements.connectionQualityIcon = Dom.create("div", {
 							props: {
-								className: "bx-messenger-videocall-user-debug-panel-button-icon connection-stats-icon"
-							}
+								className: "bx-messenger-videocall-user-debug-panel-button-icon connection-quality-icon",
+								title: BX.message("IM_M_CALL_CONNECTION_QUALITY_HINT"),
+							},
 						}),
 					],
 					events: {
@@ -729,29 +780,36 @@ export class CallUser
 
 		const cameraStats = this.connectionStats?.[MediaStreamsKinds.Camera];
 		const screenStats = this.connectionStats?.[MediaStreamsKinds.Screen];
+		const audioStats = this.connectionStats?.[MediaStreamsKinds.Microphone];
 
 		if (cameraStats || !screenStats)
 		{
-			statsString += `Video track #1 (Camera):\n`;
-			statsString += `Bitrate: ${cameraStats?.bitrate || 0}\n`;
-			statsString += `PacketsLost: ${cameraStats?.packetsLost || 0}\n`;
-			statsString += `Codec: ${cameraStats?.codecName || '-'}\n`;
-			statsString += `Resolution: ${cameraStats?.frameWidth || 0}x${cameraStats?.frameHeight || 0} `;
-			statsString += `(${cameraStats?.framesPerSecond || 0} FPS)`;
+			statsString += `Video stats:\n`;
+			statsString += this._formatVideoStats(cameraStats);
 		}
 
 		if (screenStats)
 		{
-			if (cameraStats)
+			if (screenStats)
 			{
 				statsString += `\n\n`;
 			}
-			statsString += `Video track #${cameraStats ? 2 : 1} (Screen):\n`;
-			statsString += `Bitrate: ${screenStats?.bitrate || 0}\n`;
-			statsString += `PacketsLost: ${screenStats?.packetsLost || 0}\n`;
-			statsString += `Codec: ${screenStats?.codecName || '-'}\n`;
-			statsString += `Resolution: ${screenStats?.frameWidth || 0}x${screenStats?.frameHeight || 0} `;
-			statsString += `(${screenStats?.framesPerSecond || 0} FPS)`;
+
+			statsString += `Screen share stats:\n`;
+			statsString += this._formatVideoStats(screenStats);
+		}
+
+		if (audioStats)
+		{
+			if (cameraStats || screenStats)
+			{
+				statsString += `\n\n`;
+			}
+
+			statsString += `Audio stats:\n`;
+			statsString += `Bitrate: ${audioStats?.bitrate || 0}\n`;
+			statsString += `PacketsLost: ${audioStats?.packetsLostExtended || 0}\n`;
+			statsString += `Codec: ${audioStats?.codecName || '-'}`;
 		}
 
 		this.elements.statsOverlay.innerText = statsString;
@@ -1181,10 +1239,12 @@ export class CallUser
 			this.elements.video.srcObject = null;
 			this.elements.preview.srcObject = null;
 		}
-		if (Util.isBitrixCallServerAllowed()
+		if (
+			Util.isBitrixCallServerAllowed()
 			&& this.userModel.state === UserState.Connected
-			&& !this.userModel.localUser
-			&& !this.elements.debugPanel.parentElement)
+			&& !this.elements.debugPanel.parentElement
+			&& !this.screenSharingUser
+		)
 		{
 			this.elements.container.appendChild(this.elements.debugPanel);
 		}
@@ -1509,6 +1569,60 @@ export class CallUser
 			}
 			this.videoTrack = null;
 		}
+	};
+
+	_formatVideoStats(videoStats)
+	{
+		let result = '';
+		let stats = '';
+		let limitations = '';
+		if (Type.isArray(videoStats))
+		{
+			videoStats.forEach((stats, trackIndex) =>
+			{
+				if (trackIndex)
+				{
+					result += `\n\n`;
+				}
+
+				if (videoStats.length > 1)
+				{
+					result += `Track ${trackIndex+1}\n`;
+				}
+				result += `Bitrate: ${stats?.bitrate || 0}\n`;
+				result += `PacketsLost: ${stats?.packetsLostExtended || 0}\n`;
+				result += `Codec: ${stats?.codecName || '-'}\n`;
+				result += `Resolution: ${stats?.frameWidth || 0}x${stats?.frameHeight || 0} `;
+				result += `(changes:${stats.qualityLimitationResolutionChanges}, FPS: ${stats?.framesPerSecond || 0})`;
+				limitations = `Limitation: ${stats.qualityLimitationReason}`;
+				limitations += ` (duration: ${Object.entries(stats.qualityLimitationDurations).reduce(
+					(accumulator, currentValue, index) => accumulator + `${index ? ', ' : ''}` + `${currentValue[0]}: ${currentValue[1]}`,
+					'',
+				)})`;
+			});
+		}
+		else
+		{
+			result += `Bitrate: ${videoStats?.bitrate || 0}\n`;
+			result += `PacketsLost: ${videoStats?.packetsLostExtended || 0}\n`;
+			result += `Codec: ${videoStats?.codecName || '-'}\n`;
+			result += `Resolution: ${videoStats?.frameWidth || 0}x${videoStats?.frameHeight || 0} `;
+			if (videoStats?.qualityLimitationReason)
+			{
+				result += `(changes:${videoStats.qualityLimitationResolutionChanges}, FPS: ${videoStats?.framesPerSecond || 0})`;
+				limitations = `Limitation: ${videoStats.qualityLimitationReason}`;
+				limitations += ` (duration: ${Object.entries(videoStats.qualityLimitationDurations).reduce(
+					(accumulator, value, index) => accumulator + `${index ? ', ' : ''}` + `${value[0]}: ${value[1]}`,
+					'',
+				)})`;
+			}
+			else
+			{
+				result += `(${videoStats?.framesPerSecond || 0} FPS)`;
+			}
+		}
+
+		return limitations ? `${limitations}\n\n${result}` : result;
 	};
 
 	destroy()

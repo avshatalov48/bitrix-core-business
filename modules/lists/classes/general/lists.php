@@ -134,7 +134,7 @@ class CLists
 	public static function GetSocnetPermission($iblock_id)
 	{
 		global $DB, $CACHE_MANAGER;
-		$iblock_id = intval($iblock_id);
+		$iblock_id = (int)$iblock_id;
 
 		$arCache = array();
 		if(!array_key_exists($iblock_id, $arCache))
@@ -338,7 +338,7 @@ class CLists
 	public static function OnSharepointCreateProperty($arInputFields)
 	{
 		global $DB;
-		$iblock_id = intval($arInputFields["IBLOCK_ID"]);
+		$iblock_id = (int)$arInputFields["IBLOCK_ID"];
 		if($iblock_id > 0)
 		{
 			//Check if there is at list one field defined for given iblock
@@ -349,7 +349,6 @@ class CLists
 			", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if($rsFields->Fetch())
 			{
-
 				$arNewFields = array(
 					"SORT" => 500,
 					"NAME" => $arInputFields["SP_FIELD"],
@@ -406,7 +405,9 @@ class CLists
 		if($resultData)
 		{
 			if($resultData["LIVE_FEED"] != $checked)
+			{
 				$DB->Query("UPDATE b_lists_url SET LIVE_FEED = '".$checked."' WHERE IBLOCK_ID = ".$iblockId);
+			}
 		}
 		else
 		{
@@ -1023,8 +1024,11 @@ class CLists
 	{
 		global $DB;
 		$iblockId = intval($iblockId);
-		$DB->Query("delete from b_lists_url where IBLOCK_ID="
-			.$iblockId, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query(
+			"delete from b_lists_url where IBLOCK_ID=" . $iblockId,
+			false,
+			"FILE: ".__FILE__."<br> LINE: ".__LINE__
+		);
 	}
 
 	/**

@@ -28,7 +28,6 @@ if(toUpper(LANG_CHARSET) != "UTF-8")
 
 if($DATA <> '')
 {
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
 	$objXML = new CDataXML();
 	$objXML->LoadString($DATA);
 	$arResult = $objXML->GetArray();

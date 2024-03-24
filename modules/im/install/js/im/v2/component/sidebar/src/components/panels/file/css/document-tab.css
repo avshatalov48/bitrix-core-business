@@ -1,0 +1,13 @@
+.bx-im-sidebar-file-document-detail__scope {
+	padding: 0 15px;
+	height: calc(100% - var(--im-sidebar-detail__height_header) - var(--im-sidebar-detail__height_tabs));
+}
+
+.bx-im-sidebar-file-document-detail__scope .bx-im-sidebar-detail-empty-state__container {
+	margin-top: 54px;
+}
+
+.bx-im-sidebar-file-document-detail__date-group_container {
+	display: flex;
+	flex-direction: column;
+}

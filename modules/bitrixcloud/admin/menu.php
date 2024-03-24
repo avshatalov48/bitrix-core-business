@@ -1,6 +1,6 @@
 <?php
 IncludeModuleLangFile(__FILE__);
-/** @global CUser $USER */
+/** @var CUser $USER */
 
 $menu = [
 	'parent_menu' => 'global_menu_settings',
@@ -13,7 +13,9 @@ $menu = [
 	'items' => [],
 ];
 
-if ($USER->CanDoOperation('bitrixcloud_backup'))
+$connection = \Bitrix\Main\Application::getConnection();
+
+if ($connection->getType() === 'mysql' && $USER->CanDoOperation('bitrixcloud_backup'))
 {
 	$menu['items'][] = [
 		'text' => GetMessage('BCL_MENU_BACKUP_ITEM'),

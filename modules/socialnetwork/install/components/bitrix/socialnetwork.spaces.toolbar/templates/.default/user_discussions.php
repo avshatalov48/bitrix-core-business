@@ -22,7 +22,10 @@ use Bitrix\Calendar\Rooms\Util;
 Extension::load([
 	'ui.buttons',
 	'ui.notification',
+	'ui.switcher',
+	'ui.popupcomponentsmaker',
 	'socialnetwork.post-form',
+	'calendar.entry',
 ]);
 
 $messages = Loc::loadLanguageFile(__DIR__ . '/discussions.php');
@@ -95,6 +98,7 @@ Asset::getInstance()->addJS('/bitrix/components/bitrix/socialnetwork.log.filter/
 			appliedFields: '<?= Json::encode($arResult['appliedFields']) ?>',
 			filterId: '<?= $arResult['FILTER_ID'] ?>',
 			filterContainer: document.getElementById('sn-spaces__toolbar_filter-container'),
+			isDiskStorageWasObtained: '<?= $arResult['storage'] === null ? 'N' : 'Y' ?>',
 		});
 
 		discussionsToolbar.renderAddBtnTo(document.getElementById('sn-spaces-toolbar-discussions-add-btn'));

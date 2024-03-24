@@ -965,7 +965,7 @@ function ForumShowTopicPages($nMessages, $strUrl, $pagen_var = "PAGEN_1", $PAGE_
 	return $res_str;
 }
 
-function ForumMoveMessage($FID, $TID, $Message, $NewTID = 0, $arFields, &$strErrorMessage, &$strOKMessage, $iFileSize = false)
+function ForumMoveMessage($FID, $TID, $Message, $NewTID, $arFields, &$strErrorMessage, &$strOKMessage, $iFileSize = false)
 {
 	global $USER, $DB;
 	$arError = array();

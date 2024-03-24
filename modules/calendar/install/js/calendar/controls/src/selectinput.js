@@ -1,4 +1,5 @@
-import { Dom, Loc, Event, Type } from 'main.core';
+import { Dom, Loc, Event, Tag, Type } from 'main.core';
+import { Loader } from 'main.loader';
 import { MenuManager } from 'main.popup';
 
 export class SelectInput
@@ -66,6 +67,35 @@ export class SelectInput
 	setValueList(valueList)
 	{
 		this.values = valueList;
+
+		if (!this.popupMenu)
+		{
+			return;
+		}
+
+		const menuItemsLength = this.popupMenu.getMenuItems().length;
+		for (let i = 0; i < menuItemsLength; i++)
+		{
+			const popupMenuItem = this.popupMenu.getMenuItems()[0];
+			this.popupMenu.removeMenuItem(popupMenuItem.getId(), {
+				destroyEmptyPopup: false,
+			});
+		}
+		for (const menuItem of this.getMenuItems())
+		{
+			this.popupMenu.addMenuItem(menuItem);
+		}
+		this.updateIconColors();
+	}
+
+	setDisabled(disabled: boolean): void
+	{
+		this.disabled = disabled;
+
+		if (disabled)
+		{
+			this.closePopup();
+		}
 	}
 
 	getInputValue()
@@ -80,13 +110,58 @@ export class SelectInput
 			return;
 		}
 
-		let
-			ind = 0,
-			j = 0,
-			menuItems = [],
-			i;
+		const menuItems = this.getMenuItems();
 
-		for (i = 0; i < this.values.length; i++)
+		this.popupMenu = MenuManager.create(
+			this.id,
+			this.input,
+			menuItems,
+			{
+				closeByEsc : true,
+				autoHide : true,
+				zIndex: this.zIndex,
+				offsetTop: 0,
+				offsetLeft: -1,
+			},
+		);
+		this.updateLoader();
+
+		if (!BX.browser.IsFirefox())
+		{
+			this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth + 2);
+		}
+
+		this.popupMenu.popupWindow.setMaxWidth(300);
+
+		let menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
+		Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
+		this.popupMenu.show();
+
+		const currentItem = this.getCurrentItem();
+		if (currentItem?.layout)
+		{
+			menuContainer.scrollTop = currentItem.layout.item.offsetTop - currentItem.layout.item.offsetHeight - 36 * 3;
+		}
+
+		this.updateIconColors();
+
+		BX.addCustomEvent(this.popupMenu.popupWindow, 'onPopupClose', () => {
+			MenuManager.destroy(this.id);
+			this.shown = false;
+			this.popupMenu = null;
+		});
+
+		this.input.select();
+
+		this.shown = true;
+		this.onPopupShowCallback();
+	}
+
+	getMenuItems()
+	{
+		const menuItems = [];
+
+		for (let i = 0; i < this.values.length; i++)
 		{
 			if (this.values[i].delimiter)
 			{
@@ -94,14 +169,6 @@ export class SelectInput
 			}
 			else
 			{
-				if (this.currentValue && this.values[i]
-					&& i > 0
-					&& this.currentValue.value >= this.values[i-1].value
-					&& this.currentValue.value <= this.values[i].value)
-				{
-					ind = j;
-				}
-
 				let htmlTemp;
 				if (this.values[i].reserved)
 				{
@@ -115,7 +182,7 @@ export class SelectInput
 				}
 				else if (this.values[i].capacity)
 				{
-					 htmlTemp = `
+					htmlTemp = `
 						<span class="calendar-menu-item-title-with-status">
 					    	${BX.util.htmlspecialchars(this.values[i].label)}
 				     	</span>
@@ -131,12 +198,13 @@ export class SelectInput
 						</span>`
 				}
 
+				const classSelected = this.values[i].selected ? 'calendar-menu-popup-time-selected' : '';
 				if (this.values[i].color)
 				{
 					menuItems.push({
 						id: this.values[i].value,
 						title: this.values[i].label,
-						className: "menu-popup-display-flex calendar-location-popup-menu-item",
+						className: "menu-popup-display-flex calendar-location-popup-menu-item " + classSelected,
 						html: htmlTemp,
 						color: this.values[i].color,
 						onclick: this.values[i].callback || ((value, label) => {
@@ -155,7 +223,7 @@ export class SelectInput
 						id: this.values[i].value,
 						html: this.values[i].label + hint,
 						title: this.values[i].label,
-						className: "menu-popup-no-icon" + (this.values[i].selected ? ' calendar-menu-popup-time-selected' : ''),
+						className: "menu-popup-no-icon " + classSelected,
 						onclick: this.values[i].callback || ((value, label) => {
 							return () => {
 								this.input.value = label;
@@ -165,44 +233,16 @@ export class SelectInput
 						})(this.values[i].value, this.values[i].labelRaw || this.values[i].label)
 					});
 				}
-				j++;
 			}
 		}
 
-		this.popupMenu = MenuManager.create(
-			this.id,
-			this.input,
-			menuItems,
-			{
-				closeByEsc : true,
-				autoHide : true,
-				zIndex: this.zIndex,
-				offsetTop: 0,
-				offsetLeft: -1
-			}
-		);
+		return menuItems;
+	}
 
-		if (!BX.browser.IsFirefox())
-		{
-			this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth + 2);
-		}
-
-		this.popupMenu.popupWindow.setMaxWidth(300);
-
-		let menuContainer = this.popupMenu.getPopupWindow().getContentContainer();
-		Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
-		this.popupMenu.show();
-
-		let menuItem = this.popupMenu.menuItems[ind];
-
-		if (menuItem && menuItem.layout)
-		{
-			menuContainer.scrollTop = menuItem.layout.item.offsetTop - menuItem.layout.item.offsetHeight - 36 * 3;
-		}
-
+	updateIconColors()
+	{
 		let popupMenuItems = this.popupMenu.menuItems;
-
-		for (i = 0; i < popupMenuItems.length; i++)
+		for (let i = 0; i < popupMenuItems.length; i++)
 		{
 			if (popupMenuItems[i].layout.item)
 			{
@@ -213,17 +253,35 @@ export class SelectInput
 				}
 			}
 		}
+	}
 
-		BX.addCustomEvent(this.popupMenu.popupWindow, 'onPopupClose', () => {
-			MenuManager.destroy(this.id);
-			this.shown = false;
-			this.popupMenu = null;
-		});
+	getCurrentItem()
+	{
+		return this.popupMenu.menuItems[this.getCurrentIndex()];
+	}
 
-		this.input.select();
+	getCurrentIndex()
+	{
+		for (let i = 0; i < this.values.length; i++)
+		{
+			if (this.values[i].selected)
+			{
+				return i;
+			}
 
-		this.shown = true;
-		this.onPopupShowCallback();
+			if (
+				this.currentValue
+				&& this.values[i]
+				&& i > 0
+				&& this.currentValue.value >= this.values[i - 1].value
+				&& this.currentValue.value <= this.values[i].value
+			)
+			{
+				return i;
+			}
+		}
+
+		return 0;
 	}
 
 	closePopup()
@@ -273,6 +331,43 @@ export class SelectInput
 		const inputValue = this.input.value;
 		BX.onCustomEvent(this, 'onSelectInputChanged', [this, inputValue]);
 		this.onChangeCallback({value: inputValue, dataValue: value});
+	}
+
+	setLoading(isLoading: boolean): void
+	{
+		this.isLoading = isLoading;
+		this.updateLoader();
+	}
+
+	updateLoader(): void
+	{
+		if (!this.popupMenu)
+		{
+			return;
+		}
+
+		if (this.isLoading)
+		{
+			this.popupMenu.getPopupWindow().getPopupContainer().append(this.#renderLoader());
+		}
+		else
+		{
+			this.loaderContainer?.remove();
+		}
+	}
+
+	#renderLoader(): HTMLElement
+	{
+		if (this.loaderContainer)
+		{
+			return this.loaderContainer;
+		}
+
+		this.loaderContainer = Tag.render`<div style="position: absolute; inset: 0;"></div>`;
+
+		void new Loader().show(this.loaderContainer);
+
+		return this.loaderContainer;
 	}
 
 	destroy()

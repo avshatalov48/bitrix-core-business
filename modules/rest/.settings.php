@@ -7,6 +7,7 @@ return [
 				'enabled' => true,
 				'hideModuleScope' => true,
 				'scopes' => [
+					'appform',
 					'configuration.import',
 				],
 			],

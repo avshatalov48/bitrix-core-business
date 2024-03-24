@@ -5,12 +5,15 @@ use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\EventAccessController;
 use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Core\Managers\Accessibility;
+use Bitrix\Calendar\Infrastructure\Persistence\OrmSectionRepository;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals;
+use Bitrix\Calendar\Service;
 use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
+use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Intranet;
@@ -238,6 +241,8 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			]);
 			$entries[$key]['permissions'] = [
 				'edit' => $canEditEventInParentSection && $canEditEventInCurrentSection,
+				'edit_attendees' => false, //$accessController->check(ActionDictionary::ACTION_EVENT_EDIT_ATTENDEES, $eventModel),
+				'edit_location' => false, //$accessController->check(ActionDictionary::ACTION_EVENT_EDIT_LOCATION, $eventModel),
 			];
 		}
 
@@ -765,13 +770,13 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			'MEETING_CREATOR' => $entryFields['MEETING_HOST'],
 			'HIDE_GUESTS' => $request['hide_guests'] === 'Y'
 		];
-		
+
 		$recurrenceEventMode = !empty($request['rec_edit_mode']) ? $request['rec_edit_mode'] : null;
 		$currentEventDate = !empty($request['current_date_from'])
 			? \CCalendar::Date(\CCalendar::Timestamp($request['current_date_from']), false)
 			: null
 		;
-		
+
 
 		if ($chatId)
 		{
@@ -795,10 +800,12 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$attendees = array_diff($request['newAttendeesList'], $excludeUsers);
 			}
 
-			$timezoneName = \CCalendar::GetUserTimezoneName(\CCalendar::GetUserId());
-			$timezoneOffset = Util::getTimezoneOffsetUTC($timezoneName);
-			$timestampFrom = \CCalendar::TimestampUTC($dateFrom) - $timezoneOffset;
-			$timestampTo = \CCalendar::TimestampUTC($dateTo) - $timezoneOffset;
+			$timezoneFrom = !empty($tzFrom) ? $tzFrom : \CCalendar::GetUserTimezoneName(\CCalendar::GetUserId());
+			$timezoneTo = !empty($tzTo) ? $tzTo : $timezoneFrom;
+			$timezoneOffsetFrom = Util::getTimezoneOffsetUTC($timezoneFrom);
+			$timezoneOffsetTo = Util::getTimezoneOffsetUTC($timezoneTo);
+			$timestampFrom = \CCalendar::TimestampUTC($dateFrom) - $timezoneOffsetFrom;
+			$timestampTo = \CCalendar::TimestampUTC($dateTo) - $timezoneOffsetTo;
 			if ($skipTime)
 			{
 				$timestampTo += \CCalendar::GetDayLen();

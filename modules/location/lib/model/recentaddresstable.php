@@ -20,7 +20,9 @@ class RecentAddressTable extends Main\ORM\Data\DataManager
 				->configureAutocomplete(),
 			new Fields\IntegerField('USER_ID'),
 			new Fields\TextField('ADDRESS'),
-			new Fields\DatetimeField('USED_AT'),
+			new Fields\DatetimeField('USED_AT', [
+				'default_value' => static fn() => new Main\Type\DateTime(),
+			]),
 		);
 	}
 }

@@ -1,5 +1,8 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 $bAlertColored = false;
 if (CModule::IncludeModule('bitrixcloud'))
@@ -18,14 +21,15 @@ if (CModule::IncludeModule('bitrixcloud'))
 	}
 }
 
-$arDescription = Array(
-		"NAME" => GetMessage("GD_BITRIXCLOUD_MONITOR_NAME"),
-		"DESCRIPTION" => GetMessage("GD_BITRIXCLOUD_MONITOR_DESC"),
-		"ICON" => "",
-		"TITLE_ICON_CLASS" => $bAlertColored? "bx-gadgets-inspector bx-gadgets-inspector-alert": "bx-gadgets-inspector",
-		"GROUP" => array("ID"=>"admin_settings"),
-		"NOPARAMS" => "Y",
-		"AI_ONLY" => true,
-		"COLOURFUL" => true
-	);
-?>
+$arDescription =[
+	'NAME' => GetMessage('GD_BITRIXCLOUD_MONITOR_NAME'),
+	'DESCRIPTION' => GetMessage('GD_BITRIXCLOUD_MONITOR_DESC'),
+	'ICON' => '',
+	'TITLE_ICON_CLASS' => $bAlertColored ? 'bx-gadgets-inspector bx-gadgets-inspector-alert' : 'bx-gadgets-inspector',
+	'GROUP' => [
+		'ID' => 'admin_settings',
+	],
+	'NOPARAMS' => 'Y',
+	'AI_ONLY' => true,
+	'COLOURFUL' => true
+];

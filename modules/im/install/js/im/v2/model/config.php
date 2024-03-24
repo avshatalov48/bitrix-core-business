@@ -11,6 +11,7 @@ return [
 	'rel' => [
 		'main.core.events',
 		'im.v2.lib.user',
+		'im.v2.lib.user-status',
 		'im.v2.lib.logger',
 		'im.v2.lib.utils',
 		'im.v2.const',

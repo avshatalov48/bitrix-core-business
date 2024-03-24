@@ -1,41 +1,54 @@
-<?if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
-
-if (!$USER->CanDoOperation("bitrixcloud_monitoring"))
+<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
-	ShowError(GetMessage("BCLMMD_ACCESS_DENIED"));
+	die();
+}
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var string $componentPath */
+/** @var string $componentName */
+/** @var string $componentTemplate */
+/** @var CDatabase $DB */
+/** @var CUser $USER */
+/** @var CMain $APPLICATION */
+
+
+if (!$USER->CanDoOperation('bitrixcloud_monitoring'))
+{
+	ShowError(GetMessage('BCLMMD_ACCESS_DENIED'));
 	return;
 }
-$arResult = array();
-$arResult["DOMAIN"] = isset($_REQUEST["domain"]) ? $_REQUEST["domain"] : '';
-$arResult["AJAX_PATH"] = $componentPath."/ajax.php";
+$arResult = [];
+$arResult['DOMAIN'] = $_REQUEST['domain'] ?? '';
+$arResult['AJAX_PATH'] = $componentPath . '/ajax.php';
 
-if($arResult["DOMAIN"] === '')
+if ($arResult['DOMAIN'] === '')
 {
-	if(isset($arParams["LIST_URL"]))
+	if (isset($arParams['LIST_URL']))
 	{
-		LocalRedirect($arParams["LIST_URL"]);
+		LocalRedirect($arParams['LIST_URL']);
 	}
 	else
 	{
-		echo GetMessage("BCLMMD_NO_DATA");
+		echo GetMessage('BCLMMD_NO_DATA');
 		return;
 	}
 }
 
 if (!CModule::IncludeModule('bitrixcloud'))
 {
-	ShowError(GetMessage("BCLMMD_BC_NOT_INSTALLED"));
+	ShowError(GetMessage('BCLMMD_BC_NOT_INSTALLED'));
 	return;
 }
 
 if (!CModule::IncludeModule('mobileapp'))
 {
-	ShowError(GetMessage("BCLMMD_MA_NOT_INSTALLED"));
+	ShowError(GetMessage('BCLMMD_MA_NOT_INSTALLED'));
 	return;
 }
 
-CJSCore::Init("ajax");
-CUtil::InitJSCore(array("mobile_monitoring"));
+CJSCore::Init('ajax');
+CJSCore::Init(['mobile_monitoring']);
 
 $monitoring = CBitrixCloudMonitoring::getInstance();
 $monitoringResults = $monitoring->getMonitoringResults();
@@ -43,7 +56,9 @@ $monitoringResults = $monitoring->getMonitoringResults();
 try
 {
 	if (is_string($monitoringResults))
+	{
 		throw new CBitrixCloudException($monitoringResults);
+	}
 }
 catch (Exception $e)
 {
@@ -51,29 +66,35 @@ catch (Exception $e)
 	return;
 }
 
-$arResult["CURRENT_PAGE"] = $APPLICATION->GetCurPage();
+$arResult['CURRENT_PAGE'] = $APPLICATION->GetCurPage();
 
-$arData = array();
+$arData = [];
 $bProblem = false;
 
 $converter = CBXPunycode::GetConverter();
-$arResult["DOMAIN_DECODED"] = $converter->Decode($arResult["DOMAIN"]);
-$domainResults = $monitoringResults[$arResult["DOMAIN_DECODED"]];
+$arResult['DOMAIN_DECODED'] = $converter->Decode($arResult['DOMAIN']);
+$domainResults = $monitoringResults[$arResult['DOMAIN_DECODED']];
 
-$test_http_response_time = $domainResults["test_http_response_time"];
+$test_http_response_time = $domainResults['test_http_response_time'];
 if ($test_http_response_time)
 {
 	if ($test_http_response_time->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP)
-		$arData["HTTP_RESPONSE_TIME"]["PROBLEM"] = $bProblem = true;
+	{
+		$arData['HTTP_RESPONSE_TIME']['PROBLEM'] = $bProblem = true;
+	}
 
-	$result = explode("/", $test_http_response_time->getUptime());
+	$result = explode('/', $test_http_response_time->getUptime());
 
 	if ($result[0] > 0 && $result[1] > 0)
-		$resultText = round($result[0]/$result[1]*100, 2)."%";
+	{
+		$resultText = round($result[0] / $result[1] * 100, 2) . '%';
+	}
 	else
-		$resultText = GetMessage("BCLMMD_MONITORING_NO_DATA");
+	{
+		$resultText = GetMessage('BCLMMD_MONITORING_NO_DATA');
+	}
 
-	$arData["HTTP_RESPONSE_TIME"]["DATA"] = $resultText;
+	$arData['HTTP_RESPONSE_TIME']['DATA'] = $resultText;
 
 	if ($result[1] > 0)
 	{
@@ -81,86 +102,109 @@ if ($test_http_response_time)
 
 		if ($failTime > 0)
 		{
-			$resultText = FormatDate(array(
-				"s" => "sdiff",
-				"i" => "idiff",
-				"H" => "Hdiff",
-			), time() - $failTime);
+			$resultText = FormatDate([
+				's' => 'sdiff',
+				'i' => 'idiff',
+				'H' => 'Hdiff',
+			], time() - $failTime);
 
-			$arData["FAILED_PERIOD"]["PROBLEM"] = true;
+			$arData['FAILED_PERIOD']['PROBLEM'] = true;
 		}
 		else
-			$resultText = GetMessage("MAIN_NO");
+		{
+			$resultText = GetMessage('MAIN_NO');
+		}
 
-		$arData["FAILED_PERIOD"]["DATA"] = $resultText;
+		$arData['FAILED_PERIOD']['DATA'] = $resultText;
 
 
-		$resultText = FormatDate(array(
-			"s" => "sdiff",
-			"i" => "idiff",
-			"H" => "Hdiff",
-			"-" => "ddiff",
-		), time() - $result[1]);
+		$resultText = FormatDate([
+			's' => 'sdiff',
+			'i' => 'idiff',
+			'H' => 'Hdiff',
+			'-' => 'ddiff',
+		], time() - $result[1]);
 
-		$arData["MONITORING_PERIOD"]["DATA"] = $resultText;
+		$arData['MONITORING_PERIOD']['DATA'] = $resultText;
 	}
 }
 
-$test_domain_registration = $domainResults["test_domain_registration"];
+$test_domain_registration = $domainResults['test_domain_registration'];
 
 if ($test_domain_registration)
 {
 	if ($test_domain_registration->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP)
-		$arData["DOMAIN_REGISTRATION"]["PROBLEM"] = $bProblem = true;
+	{
+		$arData['DOMAIN_REGISTRATION']['PROBLEM'] = $bProblem = true;
+	}
 
 	$result = $test_domain_registration->getResult();
 
-	if ($result === "n/a")
-		$resultText = GetMessage("BCLMMD_MONITORING_NO_DATA_AVAILABLE");
-	elseif ($result === "-" || $result < 1)
-		$resultText = GetMessage("BCLMMD_MONITORING_NO_DATA");
+	if ($result === 'n/a')
+	{
+		$resultText = GetMessage('BCLMMD_MONITORING_NO_DATA_AVAILABLE');
+	}
+	elseif ($result === '-' || $result < 1)
+	{
+		$resultText = GetMessage('BCLMMD_MONITORING_NO_DATA');
+	}
 	else
-		$resultText = FormatDate("ddiff", time(), $result)." (".FormatDate("SHORT", $result).")";
+	{
+		$resultText = FormatDate('ddiff', time(), $result) . ' (' . FormatDate('SHORT', $result) . ')';
+	}
 
-	$arData["DOMAIN_REGISTRATION"]["DATA"] = $resultText;
+	$arData['DOMAIN_REGISTRATION']['DATA'] = $resultText;
 }
 
-$test_lic = $domainResults["test_lic"];
+$test_lic = $domainResults['test_lic'];
 if ($test_lic)
 {
 	if ($test_lic->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP)
-		$arData["LICENSE"]["PROBLEM"] = $bProblem = true;
+	{
+		$arData['LICENSE']['PROBLEM'] = $bProblem = true;
+	}
 
 	$result = $test_lic->getResult();
-	if ($result === "-" || $result < 1)
-		$resultText = GetMessage("BCLMMD_MONITORING_NO_DATA");
+	if ($result === '-' || $result < 1)
+	{
+		$resultText = GetMessage('BCLMMD_MONITORING_NO_DATA');
+	}
 	else
-		$resultText = FormatDate("ddiff", time(), $result)." (".FormatDate("SHORT", $result).")";
+	{
+		$resultText = FormatDate('ddiff', time(), $result) . ' (' . FormatDate('SHORT', $result) . ')';
+	}
 
-	$arData["LICENSE"]["DATA"] = $resultText;
+	$arData['LICENSE']['DATA'] = $resultText;
 }
 
-$test_ssl_cert_validity = $domainResults["test_ssl_cert_validity"];
+$test_ssl_cert_validity = $domainResults['test_ssl_cert_validity'];
 
 if ($test_ssl_cert_validity)
 {
 	if ($test_ssl_cert_validity->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP)
-		$arData["MONITORING_SSL"]["PROBLEM"] = $bProblem = true;
+	{
+		$arData['MONITORING_SSL']['PROBLEM'] = $bProblem = true;
+	}
 
 	$result = $test_ssl_cert_validity->getResult();
 
-	if ($result === "-" || $result < 1)
-		$resultText = GetMessage("BCLMMD_MONITORING_NO_DATA");
+	if ($result === '-' || $result < 1)
+	{
+		$resultText = GetMessage('BCLMMD_MONITORING_NO_DATA');
+	}
 	else
-		$resultText = FormatDate("ddiff", time(), $result)." (".FormatDate("SHORT", $result).")";
+	{
+		$resultText = FormatDate('ddiff', time(), $result) . ' (' . FormatDate('SHORT', $result) . ')';
+	}
 
-	$arData["MONITORING_SSL"]["DATA"] = $resultText;
+	$arData['MONITORING_SSL']['DATA'] = $resultText;
 }
 
-if($bProblem)
-	$arData["PROBLEM"] = true;
+if ($bProblem)
+{
+	$arData['PROBLEM'] = true;
+}
 
-$arResult["DATA"] = $arData;
+$arResult['DATA'] = $arData;
 
-$this->IncludeComponentTemplate();
-?>
+$this->includeComponentTemplate();

@@ -464,7 +464,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				}
 			}
 
-			$responseParams['dayOfWeekMonthFormat'] = stripslashes(
+			$responseParams['dayOfWeekMonthFormat'] = (
 				\Bitrix\Main\Context::getCurrent()
 					->getCulture()
 					->getDayOfWeekMonthFormat()
@@ -578,7 +578,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					'EVENT_ID' => (int)$entry['ID'],
 					'EVENT_DATE' => urlencode($entry['DATE_FROM'])
 				]);
-			$responseParams['dayOfWeekMonthFormat'] = stripslashes(
+			$responseParams['dayOfWeekMonthFormat'] = (
 				\Bitrix\Main\Context::getCurrent()
 					->getCulture()
 					->getDayOfWeekMonthFormat()

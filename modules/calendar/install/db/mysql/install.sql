@@ -68,9 +68,9 @@ create table b_calendar_event
   DESCRIPTION text null,
   DT_FROM datetime null, /* deprecated */
   DT_TO datetime null, /* deprecated */
-  PRIVATE_EVENT char(10) null,
-  ACCESSIBILITY char(10) null,
-  IMPORTANCE char(10) null,
+  PRIVATE_EVENT varchar(10) null,
+  ACCESSIBILITY varchar(10) null,
+  IMPORTANCE varchar(10) null,
   IS_MEETING char(1) null,
   MEETING_STATUS char(1) null, /* H - host, Y-yes, N-no, Q-not answered, M-maybe */
   MEETING_HOST int null,
@@ -118,25 +118,6 @@ create table b_calendar_event_sect
 	REL  char(10) null,
 	primary key (EVENT_ID, SECT_ID),
 	INDEX ix_cal_event_sect (SECT_ID, EVENT_ID)
-);
-
-/* b_calendar_attendees - deprecated */
-create table b_calendar_attendees
-(
-	EVENT_ID int not null,
-	USER_KEY varchar(255) not null,
-	USER_ID int null,
-	USER_EMAIL varchar(255) null,
-	USER_NAME varchar(255) null,
-	STATUS char(10) not null default 'Q',
-	DESCRIPTION varchar(255) null,
-	ACCESSIBILITY char(10) null,
-	REMIND varchar(255) null,
-	SECT_ID int null,
-	COLOR varchar(10) null,
-	TEXT_COLOR varchar(10) null,
-	primary key (EVENT_ID, USER_KEY),
-	INDEX ix_cal_attendees_0 (USER_KEY)
 );
 
 CREATE TABLE b_calendar_push (
@@ -283,7 +264,7 @@ CREATE TABLE b_calendar_sharing_link (
 	DATE_EXPIRE datetime DEFAULT NULL,
 	HOST_ID int DEFAULT NULL,
 	OWNER_ID int DEFAULT NULL,
-	CONFERENCE_ID char(64) DEFAULT NULL,
+	CONFERENCE_ID varchar(8) DEFAULT NULL,
 	PARENT_LINK_HASH char(64) DEFAULT NULL,
 	CONTACT_ID int DEFAULT NULL,
 	CONTACT_TYPE int DEFAULT NULL,

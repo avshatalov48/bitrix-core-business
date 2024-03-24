@@ -2,9 +2,10 @@
 namespace Bitrix\UI\Avatar\Mask;
 
 use \Bitrix\Main;
+use Bitrix\Main\Access\User\AccessibleUser;
 use \Bitrix\UI\Avatar;
 
-class Consumer extends Main\Access\User\UserModel
+class Consumer extends Main\Access\User\UserModel implements AccessibleUser
 {
 	public const ACCESS_USER = 'U';
 
@@ -32,6 +33,6 @@ class Consumer extends Main\Access\User\UserModel
 
 	public function useRecentlyMaskId($id)
 	{
-		Avatar\Mask\RecentlyUsedTable::addFromUser($id, $this->getId());
+		Avatar\Model\RecentlyUsedTable::addFromUser($id, $this->getId());
 	}
 }

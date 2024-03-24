@@ -515,7 +515,7 @@ class CAllVote
 		/** @var $r \Bitrix\Main\HttpRequest */
 		$r = \Bitrix\Main\Context::getCurrent()->getRequest();
 		$request = array_merge($r->getQueryList()->toArray(), $r->getPostList()->toArray());
-		if ($request["AJAX_POST"] == "Y")
+		if (isset($request["AJAX_POST"]) && $request["AJAX_POST"] == "Y")
 			CUtil::decodeURIComponent($request);
 
 		$PUBLIC_VOTE_ID = intval($request["PUBLIC_VOTE_ID"]);

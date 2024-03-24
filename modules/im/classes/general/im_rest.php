@@ -4,6 +4,7 @@ use Bitrix\Disk\File;
 use Bitrix\Im\Chat;
 use Bitrix\Im\V2\Chat\ChatFactory;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Type\DateTime;
 
@@ -654,14 +655,11 @@ class CIMRestService extends IRestService
 			return \Bitrix\Im\Chat::getUsers($chatId, $options);
 		}
 
-		$counter = \Bitrix\Im\Model\RelationTable::getList([
-			'select' => ['CNT' => new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)')],
-			'filter' => $countFilter
-		])->fetch();
+		$counter = \Bitrix\Im\Model\RelationTable::getCount($countFilter);
 		$options['OFFSET'] = self::getOffset($offset, $params);
 
 		$result = Array();
-		if ($counter && $counter["CNT"] > 0)
+		if ($counter > 0)
 		{
 			$result = \Bitrix\Im\Chat::getUsers($chatId, $options);
 		}
@@ -669,7 +667,7 @@ class CIMRestService extends IRestService
 		return self::setNavData(
 			$result,
 			array(
-				"count" => $counter['CNT'],
+				"count" => $counter,
 				"offset" => $options['OFFSET']
 			)
 		);
@@ -981,9 +979,13 @@ class CIMRestService extends IRestService
 		$unreadOnly = $arParams['UNREAD_ONLY'] ?? null;
 
 		$config = Array('JSON' => 'Y');
-		if ($arParams['SKIP_OPENLINES'] === 'Y')
+		if (isset($arParams['SKIP_OPENLINES']) && $arParams['SKIP_OPENLINES'] === 'Y')
 		{
 			$config['SKIP_OPENLINES'] = 'Y';
+		}
+		if (isset($arParams['SKIP_UNDISTRIBUTED_OPENLINES']) && $arParams['SKIP_UNDISTRIBUTED_OPENLINES'] === 'Y')
+		{
+			$config['SKIP_UNDISTRIBUTED_OPENLINES'] = 'Y';
 		}
 		if (isset($arParams['ONLY_COPILOT']) && $arParams['ONLY_COPILOT'] === 'Y')
 		{
@@ -6858,24 +6860,30 @@ class CIMRestService extends IRestService
 		$params = array_change_key_case($params, CASE_UPPER);
 
 		//1. check session info $_SESSION['LIVECHAT']['REGISTER'] - already registered?
-		if ($_SESSION['CALL']['REGISTER'] &&
-			!(isset($params['USER_HASH']) &&
-			  trim($params['USER_HASH']) &&
-			  preg_match("/^[a-fA-F0-9]{32}$/i", $params['USER_HASH'])))
+		if (
+			isset($_SESSION['CALL']['REGISTER'])
+			&& $_SESSION['CALL']['REGISTER']
+			&&
+			!(
+				isset($params['USER_HASH'])
+				&& trim($params['USER_HASH'])
+				&& preg_match("/^[a-fA-F0-9]{32}$/i", $params['USER_HASH'])
+			)
+		)
 		{
 			$params['USER_HASH'] = $_SESSION['CALL']['REGISTER']['hash'];
 		}
 
 		//2. register user
 		$userData = \Bitrix\Im\Call\User::register([
-			'NAME' => $params['NAME'],
-			'LAST_NAME' => $params['LAST_NAME'],
-			'AVATAR' => $params['AVATAR'],
-			'EMAIL' => $params['EMAIL'],
-			'PERSONAL_WWW' => $params['WWW'],
-			'PERSONAL_GENDER' => $params['GENDER'],
-			'WORK_POSITION' => $params['POSITION'],
-			'USER_HASH' => $params['USER_HASH'],
+			'NAME' => $params['NAME'] ?? '',
+			'LAST_NAME' => $params['LAST_NAME'] ?? '',
+			'AVATAR' => $params['AVATAR'] ?? '',
+			'EMAIL' => $params['EMAIL'] ?? '',
+			'PERSONAL_WWW' => $params['WWW'] ?? '',
+			'PERSONAL_GENDER' => $params['GENDER'] ?? '',
+			'WORK_POSITION' => $params['POSITION'] ?? '',
+			'USER_HASH' => $params['USER_HASH'] ?? '',
 		]);
 		if (!$userData)
 		{
@@ -6923,15 +6931,16 @@ class CIMRestService extends IRestService
 		$chatData = CIMChat::GetChatData(['ID' => $aliasData['ENTITY_ID']]);
 		$chatTitle = $chatData['chat'][$aliasData['ENTITY_ID']]['name'];
 		$chatOwnerId = $chatData['chat'][$aliasData['ENTITY_ID']]['owner'];
-		$notificationText = GetMessage("IM_VIDEOCONF_NEW_GUEST", ['#CHAT_TITLE#' => $chatTitle]);
 
 		$publicLink = $aliasData['LINK'];
-		$conferenceLinkText = GetMessage("IM_VIDEOCONF_JOIN_LINK");
-		$conferenceLink = "<a href='{$publicLink}'>{$conferenceLinkText}</a>";
 		CIMNotify::Add(
 			[
 				'TO_USER_ID' => $chatOwnerId,
-				'MESSAGE' => $notificationText . "[br]" . $conferenceLink
+				'MESSAGE' => fn (?string $languageId = null) => Loc::getMessage(
+						"IM_VIDEOCONF_NEW_GUEST",
+						['#CHAT_TITLE#' => $chatTitle],
+						$languageId
+					) . "[br]" . "<a href='{$publicLink}'>" . Loc::getMessage("IM_VIDEOCONF_JOIN_LINK", null, $languageId) . "</a>",
 			]
 		);
 

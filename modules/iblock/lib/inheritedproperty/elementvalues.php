@@ -162,7 +162,6 @@ class ElementValues extends BaseValues
 				$result = parent::queryValues();
 				if (!empty($result))
 				{
-					$sqlHelper = $connection->getSqlHelper();
 					$elementList = \Bitrix\Iblock\ElementTable::getList(array(
 						"select" => array("IBLOCK_SECTION_ID"),
 						"filter" => array("=ID" => $this->elementId),
@@ -171,21 +170,18 @@ class ElementValues extends BaseValues
 					$element['IBLOCK_SECTION_ID'] = (int)$element['IBLOCK_SECTION_ID'];
 
 					$fields = array(
-						"IBLOCK_ID",
-						"SECTION_ID",
 						"ELEMENT_ID",
 						"IPROP_ID",
-						"VALUE",
 					);
 					$rows = array();
 					foreach ($result as $CODE => $row)
 					{
 						$rows[] = array(
-							$this->iblockId,
-							$element["IBLOCK_SECTION_ID"],
-							$this->elementId,
-							$row["ID"],
-							$sqlHelper->forSql($row["VALUE"]),
+							'IBLOCK_ID' => $this->iblockId,
+							'SECTION_ID' => $element["IBLOCK_SECTION_ID"],
+							'ELEMENT_ID' => $this->elementId,
+							'IPROP_ID' => $row["ID"],
+							'VALUE' => $row["VALUE"],
 						);
 					}
 					$this->insertValues("b_iblock_element_iprop", $fields, $rows);

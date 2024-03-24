@@ -24,6 +24,8 @@ class PushEventDictionary
 	public const EVENT_WORKGROUP_PIN_CHANGED = 'workgroup_pin_changed';
 	public const EVENT_WORKGROUP_SUBSCRIBE_CHANGED = 'workgroup_subscribe_changed';
 	public const EVENT_SPACE_USER_ROLE_CHANGE = 'space_user_role_change';
+	public const EVENT_SPACE_RECENT_ACTIVITY_UPDATE = 'recent_activity_update';
+	public const EVENT_SPACE_RECENT_ACTIVITY_DELETE = 'recent_activity_delete';
 
 	public static function getPushEventType(string $eventType): ?string
 	{

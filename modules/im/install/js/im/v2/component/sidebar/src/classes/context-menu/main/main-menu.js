@@ -1,6 +1,7 @@
 import { Loc } from 'main.core';
-import { RecentMenu } from 'im.v2.lib.menu';
+
 import { Utils } from 'im.v2.lib.utils';
+import { RecentMenu } from 'im.v2.lib.menu';
 import { ChatType, ChatActionType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 

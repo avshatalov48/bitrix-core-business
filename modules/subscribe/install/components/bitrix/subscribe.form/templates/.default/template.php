@@ -1,9 +1,12 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
-/** @global CMain $APPLICATION */
-/** @global CUser $USER */
-/** @global CDatabase $DB */
+/** @var CMain $APPLICATION */
+/** @var CUser $USER */
+/** @var CDatabase $DB */
 /** @var CBitrixComponentTemplate $this */
 /** @var string $templateName */
 /** @var string $templateFile */
@@ -12,47 +15,47 @@
 /** @var CBitrixComponent $component */
 ?>
 <div class="subscribe-form"  id="subscribe-form">
-<?
-$frame = $this->createFrame("subscribe-form", false)->begin();
+<?php
+$frame = $this->createFrame('subscribe-form', false)->begin();
 ?>
-	<form action="<?=$arResult["FORM_ACTION"]?>">
+	<form action="<?=$arResult['FORM_ACTION']?>">
 
-	<?foreach($arResult["RUBRICS"] as $itemID => $itemValue):?>
-		<label for="sf_RUB_ID_<?=$itemValue["ID"]?>">
-			<input type="checkbox" name="sf_RUB_ID[]" id="sf_RUB_ID_<?=$itemValue["ID"]?>" value="<?=$itemValue["ID"]?>"<?if($itemValue["CHECKED"]) echo " checked"?> /> <?=$itemValue["NAME"]?>
+	<?php foreach ($arResult['RUBRICS'] as $itemValue):?>
+		<label for="sf_RUB_ID_<?=$itemValue['ID']?>">
+			<input type="checkbox" name="sf_RUB_ID[]" id="sf_RUB_ID_<?=$itemValue['ID']?>" value="<?=$itemValue['ID']?>" <?php echo ($itemValue['CHECKED']) ? 'checked' : '';?> /> <?=$itemValue['NAME']?>
 		</label><br />
-	<?endforeach;?>
+	<?php endforeach;?>
 
 		<table border="0" cellspacing="0" cellpadding="2" align="center">
 			<tr>
-				<td><input type="text" name="sf_EMAIL" size="20" value="<?=$arResult["EMAIL"]?>" title="<?=GetMessage("subscr_form_email_title")?>" /></td>
+				<td><input type="text" name="sf_EMAIL" size="20" value="<?=$arResult['EMAIL']?>" title="<?=GetMessage('subscr_form_email_title')?>" /></td>
 			</tr>
 			<tr>
-				<td align="right"><input type="submit" name="OK" value="<?=GetMessage("subscr_form_button")?>" /></td>
+				<td align="right"><input type="submit" name="OK" value="<?=GetMessage('subscr_form_button')?>" /></td>
 			</tr>
 		</table>
 	</form>
-<?
+<?php
 $frame->beginStub();
 ?>
-	<form action="<?=$arResult["FORM_ACTION"]?>">
+	<form action="<?=$arResult['FORM_ACTION']?>">
 
-		<?foreach($arResult["RUBRICS"] as $itemID => $itemValue):?>
-			<label for="sf_RUB_ID_<?=$itemValue["ID"]?>">
-				<input type="checkbox" name="sf_RUB_ID[]" id="sf_RUB_ID_<?=$itemValue["ID"]?>" value="<?=$itemValue["ID"]?>" /> <?=$itemValue["NAME"]?>
+		<?php foreach ($arResult['RUBRICS'] as $itemValue):?>
+			<label for="sf_RUB_ID_<?=$itemValue['ID']?>">
+				<input type="checkbox" name="sf_RUB_ID[]" id="sf_RUB_ID_<?=$itemValue['ID']?>" value="<?=$itemValue['ID']?>" /> <?=$itemValue['NAME']?>
 			</label><br />
-		<?endforeach;?>
+		<?php endforeach;?>
 
 		<table border="0" cellspacing="0" cellpadding="2" align="center">
 			<tr>
-				<td><input type="text" name="sf_EMAIL" size="20" value="" title="<?=GetMessage("subscr_form_email_title")?>" /></td>
+				<td><input type="text" name="sf_EMAIL" size="20" value="" title="<?=GetMessage('subscr_form_email_title')?>" /></td>
 			</tr>
 			<tr>
-				<td align="right"><input type="submit" name="OK" value="<?=GetMessage("subscr_form_button")?>" /></td>
+				<td align="right"><input type="submit" name="OK" value="<?=GetMessage('subscr_form_button')?>" /></td>
 			</tr>
 		</table>
 	</form>
-<?
+<?php
 $frame->end();
 ?>
 </div>

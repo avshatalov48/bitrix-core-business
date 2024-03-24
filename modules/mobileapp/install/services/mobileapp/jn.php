@@ -8,7 +8,7 @@ use Bitrix\MobileApp\Janative\Manager;
 define('NOT_CHECK_PERMISSIONS', true);
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
 
-/** @var CAllMain $APPLICATION */
+/** @var CMain $APPLICATION */
 
 $types = ["component", "extension"];
 $componentName = $_GET['componentName'] ?? null;

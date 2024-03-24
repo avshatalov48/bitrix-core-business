@@ -7,25 +7,15 @@ use Bitrix\Main\Result;
 use Bitrix\MessageService\Internal\Entity\MessageTable;
 use Bitrix\MessageService\Providers;
 use Bitrix\MessageService\Providers\Edna\EdnaUtils;
-use Bitrix\MessageService\Providers\OptionManager;
+
 
 class Utils extends EdnaUtils
 {
-	protected string $providerId;
-	protected OptionManager $optionManager;
-
-	public function __construct(string $providerId, OptionManager $optionManager)
-	{
-		$this->providerId = $providerId;
-
-		parent::__construct($optionManager);
-	}
-
 	protected function initializeDefaultExternalSender(): Providers\ExternalSender
 	{
 		return new ExternalSender(
 			$this->optionManager->getOption(Providers\Constants\InternalOption::API_KEY),
-			Constants::API_ENDPOINT,
+			RegionHelper::getApiEndPoint(),
 			$this->optionManager->getSocketTimeout(),
 			$this->optionManager->getStreamTimeout()
 		);

@@ -1,5 +1,8 @@
 <?php
 
+use Bitrix\Bizproc\Workflow\Entity\WorkflowDurationStatTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
+use Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Localization\Loc;
@@ -266,10 +269,7 @@ class CBPWorkflowTemplateLoader
 
 	private function getSerializedForm($arTemplate)
 	{
-		$buffer = serialize($arTemplate);
-		if ($this->useGZipCompression)
-			$buffer = gzcompress($buffer, 9);
-		return $buffer;
+		return WorkflowTemplateTable::toSerializedForm($arTemplate);
 	}
 
 	public static function delete($id)
@@ -290,48 +290,31 @@ class CBPWorkflowTemplateLoader
 
 	public function deleteTemplate($id)
 	{
-		global $DB;
-
-		$id = intval($id);
+		$id = (int)$id;
 		if ($id <= 0)
-			throw new Exception("id");
-
-		$dbResult = $DB->Query(
-			"SELECT COUNT('x') as CNT ".
-			"FROM b_bp_workflow_instance WI ".
-			"WHERE WI.WORKFLOW_TEMPLATE_ID = ".intval($id)." "
-		);
-
-		if ($arResult = $dbResult->Fetch())
 		{
-			$cnt = intval($arResult["CNT"]);
+			throw new Exception("id");
+		}
 
-			if ($cnt <= 0)
-			{
-				$DB->Query(
-					"DELETE FROM b_bp_workflow_template ".
-					"WHERE ID = ".intval($id)." "
-				);
+		$instanceCnt = WorkflowInstanceTable::getCount(['=WORKFLOW_TEMPLATE_ID' => $id]);
+		if ($instanceCnt <= 0)
+		{
+			WorkflowTemplateTable::delete($id);
 
-				$event = new Event(
-					'bizproc',
-					'onAfterWorkflowTemplateDelete',
-					[
-						'ID' => $id,
-					]
-				);
-				EventManager::getInstance()->send($event);
+			$event = new Event(
+				'bizproc',
+				'onAfterWorkflowTemplateDelete',
+				[
+					'ID' => $id,
+				]
+			);
+			EventManager::getInstance()->send($event);
 
-				\Bitrix\Bizproc\Workflow\Entity\WorkflowDurationStatTable::deleteAllByTemplateId((int)$id);
-			}
-			else
-			{
-				throw new CBPInvalidOperationException(GetMessage("BPCGWTL_CANT_DELETE"));
-			}
+			WorkflowDurationStatTable::deleteAllByTemplateId($id);
 		}
 		else
 		{
-			throw new Exception(GetMessage("BPCGWTL_UNKNOWN_ERROR"));
+			throw new CBPInvalidOperationException(GetMessage("BPCGWTL_CANT_DELETE"));
 		}
 	}
 
@@ -859,7 +842,7 @@ class CBPWorkflowTemplateLoader
 
 	public static function exportTemplate($id, $bCompress = true)
 	{
-		$tpl = \Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable::getById($id)->fetchObject();
+		$tpl = WorkflowTemplateTable::getById($id)->fetchObject();
 		if (!$tpl)
 		{
 			return false;
@@ -1129,8 +1112,6 @@ class CBPWorkflowTemplateLoader
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
-
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
@@ -1160,8 +1141,6 @@ class CBPWorkflowTemplateLoader
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
-
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
@@ -1182,8 +1161,6 @@ class CBPWorkflowTemplateLoader
 			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
-			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
-
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
 
@@ -1197,6 +1174,7 @@ class CBPWorkflowTemplateLoader
 
 		self::ParseFields($arFields, 0, $systemImport);
 
+		unset($arFields['ID']);
 		$arInsert = $DB->PrepareInsert("b_bp_workflow_template", $arFields);
 
 		$strSql =
@@ -1285,24 +1263,7 @@ class CBPWorkflowTemplateResult extends CDBResult
 
 	private function getFromSerializedForm($value)
 	{
-		if ($value <> '')
-		{
-			if ($this->useGZipCompression)
-			{
-				$value1 = @gzuncompress($value);
-				if ($value1 !== false)
-					$value = $value1;
-			}
-
-			$value = unserialize($value, ['allowed_classes' => false]);
-			if (!is_array($value))
-				$value = array();
-		}
-		else
-		{
-			$value = array();
-		}
-		return $value;
+		return WorkflowTemplateTable::getFromSerializedForm($value);
 	}
 
 	function fetch()

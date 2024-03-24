@@ -1,0 +1,26 @@
+.bx-im-sidebar-panel__container {
+	--im-sidebar-panel__width_container: 320px;
+	--im-sidebar-panel__background-color_panel_container: var(--im-color-palette-white-base, #fff);
+
+	background-color: var(--im-sidebar-panel__background-color_panel_container);
+	height: 100%;
+	border-left: 1px solid rgb(0 0 0 / 6%);
+	position: relative;
+	left: -1px;
+}
+
+.bx-im-sidebar-panel__container.--second-level {
+	position: absolute;
+	top: 0;
+	width: var(--im-sidebar-panel__width_container);
+	min-width: var(--im-sidebar-panel__width_container);
+	height: 100%;
+	z-index: 10;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-panel__component {
+	width: var(--im-sidebar-panel__width_container);
+	min-width: var(--im-sidebar-panel__width_container);
+	height: 100%;
+}

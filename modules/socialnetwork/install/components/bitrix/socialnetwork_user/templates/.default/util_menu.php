@@ -45,6 +45,7 @@ if (
 			"PATH_TO_USER_FILES" => $arResult["PATH_TO_USER_FILES"],
 			"PATH_TO_USER_DISK" => $arResult["PATH_TO_USER_DISK"] ?? null,
 			"PATH_TO_USER_TASKS" => $arResult["PATH_TO_USER_TASKS"],
+			"PATH_TO_USER_SIGN" => $arResult["PATH_TO_USER_SIGN"],
 			"PATH_TO_USER_CONTENT_SEARCH" => $arResult["PATH_TO_USER_CONTENT_SEARCH"],
 			"PATH_TO_LOG" => $arResult["PATH_TO_LOG"],
 			"FILES_USER_IBLOCK_ID" => $arParams["FILES_USER_IBLOCK_ID"] ?? null,

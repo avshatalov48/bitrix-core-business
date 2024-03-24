@@ -438,11 +438,11 @@ window.__logEditComment = function(entityXmlId, key, postId)
 				&& BX.type.isNotEmptyString(responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID)
 			)
 			{
-				if (responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID == 'webdav_element')
+				if (responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID === 'webdav_element')
 				{
 					eventData.messageFields.arDocs = responseData.UF.UF_SONET_COM_DOC.VALUE;
 				}
-				else if (responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID == 'disk_file')
+				else if (responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID === 'disk_file')
 				{
 					eventData.messageFields.arDFiles = responseData.UF.UF_SONET_COM_DOC.VALUE;
 				}
@@ -452,6 +452,20 @@ window.__logEditComment = function(entityXmlId, key, postId)
 			BX.onCustomEvent(window, 'OnUCAfterRecordEdit', [ entityXmlId, responseData.sourceId, eventData, 'EDIT' ]);
 	}, function() {});
 };
+
+function __logTaskAnalytics(event, element)
+{
+	const analyticsData = {
+		tool: 'tasks',
+		category: 'task_operations',
+		event: event,
+		type: 'task',
+		c_section: 'feed',
+		c_element: element,
+	};
+
+	BX.UI.Analytics.sendData(analyticsData);
+}
 
 (function(){
 	BX.SocialnetworkLogEntry = {

@@ -55,8 +55,8 @@ class AccessAuthProvider extends \CAuthProvider
 					'b_user_access',
 					'(USER_ID, PROVIDER_ID, ACCESS_CODE)',
 					'VALUES
-						('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.'0"),
-						('.$userId.',"'.$this->id.'","'.AccessCode::ACCESS_DIRECTOR.$id.'")'
+						('.$userId.',\''.$this->id.'\',\''.AccessCode::ACCESS_DIRECTOR.'0\'),
+						('.$userId.',\''.$this->id.'\',\''.AccessCode::ACCESS_DIRECTOR.$id.'\')'
 				);
 				$DB->query($sql);
 			}

@@ -112,7 +112,9 @@ class CSocNetMessages extends CAllSocNetMessages
 		global $DB;
 
 		if (count($arSelectFields) <= 0)
+		{
 			$arSelectFields = array("ID", "FROM_USER_ID", "TO_USER_ID", "TITLE", "MESSAGE", "DATE_CREATE", "DATE_VIEW", "MESSAGE_TYPE", "FROM_DELETED", "TO_DELETED");
+		}
 
 		if (
 			count($arFilter) <= 0
@@ -123,7 +125,9 @@ class CSocNetMessages extends CAllSocNetMessages
 				&& !array_key_exists("!IS_LOG", $arFilter)				
 			)
 		)
+		{
 			$arFilter["!IS_LOG"] = "Y";
+		}
 		
 		if (array_key_exists("IS_LOG_ALL", $arFilter))
 		{
@@ -132,7 +136,7 @@ class CSocNetMessages extends CAllSocNetMessages
 			unset($arFilter["IS_LOG_ALL"]);
 		}
 
-		$online_interval = (array_key_exists("ONLINE_INTERVAL", $arFilter) && intval($arFilter["ONLINE_INTERVAL"]) > 0 ? $arFilter["ONLINE_INTERVAL"] : 120);
+		$online_interval = (array_key_exists("ONLINE_INTERVAL", $arFilter) && (int)$arFilter["ONLINE_INTERVAL"] > 0 ? $arFilter["ONLINE_INTERVAL"] : 120);
 
 		static $arFields = array(
 			"ID" => Array("FIELD" => "M.ID", "TYPE" => "int"),
@@ -164,9 +168,14 @@ class CSocNetMessages extends CAllSocNetMessages
 			"TO_USER_PERSONAL_GENDER" => Array("FIELD" => "U1.PERSONAL_GENDER", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (M.TO_USER_ID = U1.ID)"),
 			"TO_USER_LID" => Array("FIELD" => "U1.LID", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (M.TO_USER_ID = U1.ID)"),
 		);
-		$arFields["FROM_USER_IS_ONLINE"] = Array("FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N')", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (M.FROM_USER_ID = U.ID)");
-		$arFields["TO_USER_IS_ONLINE"] = Array("FIELD" => "IF(U1.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N')", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (M.TO_USER_ID = U1.ID)");
+		
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		
+		$arFields["FROM_USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (M.FROM_USER_ID = U.ID)");
+		$arFields["TO_USER_IS_ONLINE"] = Array("FIELD" => "CASE WHEN U1.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-$online_interval) . " THEN 'Y' ELSE 'N' END", "TYPE" => "string", "FROM" => "INNER JOIN b_user U1 ON (M.TO_USER_ID = U1.ID)");
 
+		
 		$arSqls = CSocNetGroup::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields);
 
 		$arSqls["SELECT"] = str_replace("%%_DISTINCT_%%", "", $arSqls["SELECT"]);
@@ -251,18 +260,24 @@ class CSocNetMessages extends CAllSocNetMessages
 	public static function GetChatLastDate($currentUserID, $userID)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-		$currentUserID = intval($currentUserID);
+		$currentUserID = (int)$currentUserID;
 		if ($currentUserID <= 0)
+		{
 			return false;
-		$userID = intval($userID);
+		}
+		$userID = (int)$userID;
 		if ($userID <= 0)
+		{
 			return false;
+		}
 
 		$date = "";
-
+		
 		$strSql =
-			"SELECT DATE_FORMAT(MAX(DATE_CREATE), '%Y-%m-%d 00:00:00') as DDD ".
+			"SELECT " . $helper->formatDate('YYYY-MM-DD 00:00:00', 'MAX(DATE_CREATE)') . " as DDD ".
 			"FROM b_sonet_messages ".
 			"WHERE ".
 			"	(TO_USER_ID = ".$currentUserID." ".
@@ -276,11 +291,15 @@ class CSocNetMessages extends CAllSocNetMessages
 		$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		if ($arResult = $dbResult->Fetch())
+		{
 			$date = $arResult["DDD"];
+		}
 
 		$date = Trim($date);
 		if ($date == '')
+		{
 			$date = date("Y-m-d 00:00:00");
+		}
 		
 		return $date;
 	}
@@ -288,34 +307,48 @@ class CSocNetMessages extends CAllSocNetMessages
 	public static function GetMessagesForChat($currentUserID, $userID, $date = false, $arNavStartParams = false, $replyMessId=false)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-		$currentUserID = intval($currentUserID);
+		$currentUserID = (int)$currentUserID;
 		if ($currentUserID <= 0)
+		{
 			return false;
+		}
 
-		$userID = intval($userID);
+		$userID = (int)$userID;
 
 		if ($date !== false)
 		{
 			$date = Trim($date);
 			if ($date == '')
+			{
 				return false;
+			}
 
 			if (!preg_match("#\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d#i", $date))
+			{
 				return false;
+			}
 		}
 
-		$replyMessId = intval($replyMessId);
+		$replyMessId = (int)$replyMessId;
 
 		//time zone
 		$diff = false;
 		if(CTimeZone::Enabled())
+		{
 			$diff = CTimeZone::GetOffset();
+		}
 
 		if($diff !== false && $diff <> 0)
-			$sDateFmt = "DATE_FORMAT(DATE_ADD(DATE_CREATE, INTERVAL ".$diff." SECOND), '%Y-%m-%d %H:%i:%s') as DATE_CREATE_FMT, ";			
+		{
+			$sDateFmt = $helper->formatDate('YYYY-MM-DD HH:MI:SS', $helper->addSecondsToDateTime($diff, 'DATE_CREATE')) . " as DATE_CREATE_FMT, ";
+		}
 		else
-			$sDateFmt = "DATE_FORMAT(DATE_CREATE, '%Y-%m-%d %H:%i:%s') as DATE_CREATE_FMT, ";
+		{
+			$sDateFmt = $helper->formatDate('YYYY-MM-DD HH:MI:SS', 'DATE_CREATE') . " as DATE_CREATE_FMT, ";
+		}
 
 		$strSql =
 			"SELECT 'IN' as WHO, ID, FROM_USER_ID as USER_ID, TITLE, MESSAGE, DATE_VIEW as DATE_VIEW, DATE_CREATE, ".
@@ -341,7 +374,7 @@ class CSocNetMessages extends CAllSocNetMessages
 			(($replyMessId > 0) ? " AND MESSAGE_TYPE = 'P' AND ID >= '".$replyMessId."' " : "").
 			"ORDER BY DATE_CREATE ".(($date !== false) ? "ASC" : "DESC")." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && (int)$arNavStartParams["nTopCount"] <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT(M.ID) as CNT ".
@@ -359,7 +392,9 @@ class CSocNetMessages extends CAllSocNetMessages
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
 			if ($arRes = $dbRes->Fetch())
+			{
 				$cnt = $arRes["CNT"];
+			}
 
 			$dbRes = new CDBResult();
 
@@ -367,8 +402,10 @@ class CSocNetMessages extends CAllSocNetMessages
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
+			if (is_array($arNavStartParams) && (int)$arNavStartParams["nTopCount"] > 0)
+			{
+				$strSql .= "LIMIT " . (int)$arNavStartParams["nTopCount"];
+			}
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
@@ -379,14 +416,18 @@ class CSocNetMessages extends CAllSocNetMessages
 	public static function GetMessagesUsers($userID, $arNavStartParams = false, $online_interval = 120)
 	{
 		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-		$userID = intval($userID);
+		$userID = (int)$userID;
 		if ($userID <= 0)
+		{
 			return false;
+		}
 
 		$strSql =
 			"SELECT U.ID, U.ACTIVE, U.LOGIN, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.PERSONAL_PHOTO, U.PERSONAL_GENDER, COUNT(M.ID) as TOTAL, MAX(M.DATE_CREATE) as MAX_DATE, ".
-			"	IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".intval($online_interval)." SECOND), 'Y', 'N') IS_ONLINE, ".
+			"	CASE WHEN U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-(int)$online_interval) ." THEN 'Y' ELSE 'N' END IS_ONLINE, ".
 			"	".$DB->DateToCharFunction("MAX(M.DATE_CREATE)", "FULL")." as MAX_DATE_FORMAT, ".
 			"	SUM(CASE WHEN M.DATE_VIEW IS NULL AND M.TO_USER_ID = ".$userID." THEN 1 ELSE 0 END) as UNREAD ".
 			"FROM b_user U, b_sonet_messages M ".
@@ -404,7 +445,7 @@ class CSocNetMessages extends CAllSocNetMessages
 			"GROUP BY U.ID, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.PERSONAL_PHOTO, U.PERSONAL_GENDER ".
 			"ORDER BY UNREAD DESC, MAX_DATE DESC ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && (int)$arNavStartParams["nTopCount"] <= 0)
 		{
 			$strSql_tmp =
 				"SELECT DISTINCT FROM_USER_ID ".
@@ -444,13 +485,6 @@ class CSocNetMessages extends CAllSocNetMessages
 
 	public static function Now()
 	{
-		global $DB;
-
-		$strSql = "SELECT DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s') as T ";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		if ($arRes = $dbRes->Fetch())
-			return $arRes["T"];
-		else
-			return date("Y-m-d H:i:s");
+		return date("Y-m-d H:i:s");
 	}
 }

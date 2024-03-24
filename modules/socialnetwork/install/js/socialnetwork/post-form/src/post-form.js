@@ -18,6 +18,7 @@ import { UploaderFile } from 'ui.uploader.core';
 import { PostData } from './post-data';
 import { PostFormManager } from './post-form-manager';
 import { PostFormRouter } from './post-form-router';
+import { PostFormTags } from './post-form-tags';
 
 const UserOptions = Reflection.namespace('BX.userOptions');
 const NotificationCenter = Reflection.namespace('BX.UI.Notification.Center');
@@ -61,6 +62,8 @@ export class PostForm extends EventEmitter
 
 	#isShownPostTitle: boolean;
 
+	#initData: InitData;
+
 	#formId: string;
 	#jsObjName: string;
 	#LHEId: string;
@@ -71,6 +74,7 @@ export class PostForm extends EventEmitter
 	#postData: PostData;
 	#postFormManager: PostFormManager;
 	#postFormRouter: PostFormRouter;
+	#postFormTags: PostFormTags;
 	#node: HTMLElement;
 	#titleNode: HTMLElement;
 	#recipientSelector: HTMLElement;
@@ -114,13 +118,21 @@ export class PostForm extends EventEmitter
 
 	show(): Promise
 	{
+		if (this.#popup)
+		{
+			return new Promise((resolve, reject) => {
+				this.#popup.subscribeOnce('onShow', () => {
+					resolve();
+				});
+
+				this.#popup.show();
+			});
+		}
+
 		return new Promise((resolve, reject) => {
 			this.#init()
 				.then(() => {
-					if (!this.#popup)
-					{
-						this.#createPopup();
-					}
+					this.#createPopup();
 
 					this.#popup.subscribeOnce('onShow', () => {
 						resolve();
@@ -142,11 +154,11 @@ export class PostForm extends EventEmitter
 			},
 		})
 			.then((response: AjaxResponse) => {
-				const initData: InitData = response.data;
+				this.#initData = response.data;
 
-				this.#postData = new PostData(initData);
+				this.#postData = new PostData(this.#initData);
 
-				this.#isShownPostTitle = initData.isShownPostTitle === 'Y';
+				this.#isShownPostTitle = this.#initData.isShownPostTitle === 'Y';
 
 				this.#postFormManager = new PostFormManager({
 					formId: this.#formId,
@@ -168,6 +180,10 @@ export class PostForm extends EventEmitter
 				this.#postFormManager.subscribe(
 					'addMention',
 					this.#addMention.bind(this),
+				);
+				this.#postFormManager.subscribe(
+					'showControllers',
+					this.#showControllers.bind(this),
 				);
 
 				return this;
@@ -210,6 +226,7 @@ export class PostForm extends EventEmitter
 				],
 				events: {
 					onFirstShow: this.#firstShow.bind(this),
+					onAfterShow: this.#onAfterShow.bind(this),
 					onAfterClose: this.#afterClose.bind(this),
 				},
 			},
@@ -233,11 +250,20 @@ export class PostForm extends EventEmitter
 		;
 	}
 
+	#onAfterShow(): void
+	{
+		this.#initTagsSelector();
+
+		this.#postFormManager.focusToEditor();
+	}
+
 	#afterClose()
 	{
 		if (this.#sended)
 		{
-			this.#postFormRouter.redirectTo(this.#groupId);
+			this.#clearForm();
+
+			BX.Livefeed.PageInstance.refresh();
 		}
 	}
 
@@ -293,6 +319,21 @@ export class PostForm extends EventEmitter
 		;
 	}
 
+	#clearForm(): void
+	{
+		this.#postData.setData(this.#initData);
+
+		this.#clearSelector();
+
+		this.#postFormManager.clearEditorText();
+		this.#clearFiles();
+		this.#postFormTags.clear();
+
+		this.#sended = false;
+
+		this.#sendBtn.setWaiting(false);
+	}
+
 	#collectFormData(): PostFormData
 	{
 		const postFormData = {
@@ -312,13 +353,20 @@ export class PostForm extends EventEmitter
 		});
 		postFormData.fileIds = fileIds;
 
-		const tagsHiddenInput = this.#node.querySelector('input[name="TAGS"]');
-		if (Type.isDomNode(tagsHiddenInput))
+		if (this.#postFormTags.isFilled())
 		{
-			postFormData.tags = tagsHiddenInput.value;
+			postFormData.tags = this.#postFormTags.getValue();
 		}
 
 		return postFormData;
+	}
+
+	#clearFiles()
+	{
+		const userFieldControl = BX.Disk.Uploader.UserFieldControl.getById(this.#formId);
+
+		userFieldControl.clear();
+		userFieldControl.hide();
 	}
 
 	#showError(message: string): void
@@ -470,6 +518,21 @@ export class PostForm extends EventEmitter
 		return this.#selector;
 	}
 
+	#clearSelector()
+	{
+		Dom.clean(this.#recipientSelector);
+
+		this.#initRecipientSelector();
+	}
+
+	#initTagsSelector()
+	{
+		if (!this.#postFormTags)
+		{
+			this.#postFormTags = new PostFormTags(this.#formId, this.#node);
+		}
+	}
+
 	#changeSelectedRecipients(selectedItems: Array): void
 	{
 		const recipients = [];
@@ -544,6 +607,16 @@ export class PostForm extends EventEmitter
 			})
 			.select()
 		;
+	}
+
+	#showControllers(baseEvent: BaseEvent)
+	{
+		const contentContainer = this.#popup.getContentContainer();
+
+		contentContainer.scrollTo({
+			top: contentContainer.scrollHeight - contentContainer.clientHeight,
+			behavior: 'smooth',
+		});
 	}
 
 	#consoleError(action: string, error: AjaxError)

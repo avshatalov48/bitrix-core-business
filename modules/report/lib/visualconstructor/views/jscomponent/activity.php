@@ -87,7 +87,7 @@ class Activity extends Base
 	 */
 	public function handlerFinallyBeforePassToView($dataFromReport)
 	{
-		if ($dataFromReport['items'])
+		if ($dataFromReport['items'] ?? false)
 		{
 			$items = array();
 			foreach ($dataFromReport['items'] as $item)

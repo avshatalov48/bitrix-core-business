@@ -1,19 +1,15 @@
-import { DesktopApi } from 'im.v2.lib.desktop-api';
 import { Event, ZIndexManager, Runtime, Extension } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
-import { EventType, Layout, GetParameter } from 'im.v2.const';
+import { EventType, Layout } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { Launch } from 'im.v2.application.launch';
-import { CallManager } from 'im.v2.lib.call';
-import { PhoneManager } from 'im.v2.lib.phone';
-import { Utils } from 'im.v2.lib.utils';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { LayoutManager } from 'im.v2.lib.layout';
-import { LinesService } from 'im.v2.provider.service';
 
 import 'ui.notification';
+import 'im.v2.lib.opener';
 
 import type { Store } from 'ui.vue3.vuex';
 
@@ -54,175 +50,6 @@ export class MessengerSlider
 		this.initSettings();
 		this.bindEvents();
 		this.store = Core.getStore();
-	}
-
-	async openChat(dialogId: string | number = ''): Promise
-	{
-		const preparedDialogId = dialogId.toString();
-		if (Utils.dialog.isLinesExternalId(preparedDialogId))
-		{
-			return this.openLines(preparedDialogId);
-		}
-
-		await this.openSlider();
-
-		await LayoutManager.getInstance().setLayout({
-			name: Layout.chat.name,
-			entityId: preparedDialogId,
-		});
-		EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
-
-		return Promise.resolve();
-	}
-
-	async openLines(dialogId: string = ''): Promise
-	{
-		let preparedDialogId = dialogId.toString();
-		if (Utils.dialog.isLinesExternalId(preparedDialogId))
-		{
-			const linesService = new LinesService();
-			preparedDialogId = await linesService.getDialogIdByUserCode(preparedDialogId);
-		}
-
-		await this.openSlider();
-
-		return LayoutManager.getInstance().setLayout({
-			name: Layout.openlines.name,
-			entityId: preparedDialogId,
-		});
-	}
-
-	async openCopilot(dialogId: string = ''): Promise
-	{
-		const preparedDialogId = dialogId.toString();
-		await this.openSlider();
-
-		return LayoutManager.getInstance().setLayout({
-			name: Layout.copilot.name,
-			entityId: preparedDialogId,
-		});
-	}
-
-	openHistory(dialogId: string | number = ''): Promise
-	{
-		if (Utils.dialog.isDialogId(dialogId))
-		{
-			return this.openChat(dialogId);
-		}
-
-		if (!this.#checkHistoryDialogId(dialogId))
-		{
-			return Promise.reject();
-		}
-
-		const sliderLink = this.#prepareHistorySliderLink(dialogId);
-		BX.SidePanel.Instance.open(sliderLink, {
-			width: Utils.dialog.isLinesExternalId(dialogId) ? 700 : 1000,
-			allowChangeHistory: false,
-			allowChangeTitle: false,
-			cacheable: false,
-		});
-
-		return Promise.resolve();
-	}
-
-	async openNotifications(): Promise
-	{
-		await this.openSlider();
-		await LayoutManager.getInstance().setLayout({
-			name: Layout.notification.name,
-		});
-
-		EventEmitter.emit(EventType.layout.onOpenNotifications);
-
-		return Promise.resolve();
-	}
-
-	async openRecentSearch(): Promise
-	{
-		await this.openSlider();
-		await LayoutManager.getInstance().setLayout({
-			name: Layout.chat.name,
-		});
-
-		EventEmitter.emit(EventType.recent.openSearch);
-
-		return Promise.resolve();
-	}
-
-	async openSettings(sectionName: string): Promise
-	{
-		Logger.warn('Slider: openSettings', sectionName);
-		await this.openSlider();
-
-		await LayoutManager.getInstance().setLayout({
-			name: Layout.settings.name,
-			entityId: sectionName,
-		});
-
-		return Promise.resolve();
-	}
-
-	openConference(code: string = ''): Promise
-	{
-		Logger.warn('Slider: openConference', code);
-
-		if (!Utils.conference.isValidCode(code))
-		{
-			return new Promise((resolve, reject) => {
-				reject();
-			});
-		}
-
-		const url = Utils.conference.getUrlByCode(code);
-		Utils.browser.openLink(url, Utils.conference.getWindowNameByCode(code));
-
-		return new Promise((resolve) => {
-			resolve();
-		});
-	}
-
-	startVideoCall(dialogId: string = '', withVideo: boolean = true): Promise
-	{
-		Logger.warn('Slider: onStartVideoCall', dialogId, withVideo);
-		if (!Utils.dialog.isDialogId(dialogId))
-		{
-			Logger.error('Slider: onStartVideoCall - dialogId is not correct', dialogId);
-
-			return false;
-		}
-
-		CallManager.getInstance().startCall(dialogId, withVideo);
-
-		return Promise.resolve();
-	}
-
-	startPhoneCall(number: string, params: Object<any, string>): Promise
-	{
-		Logger.warn('Slider: startPhoneCall', number, params);
-		void PhoneManager.getInstance().startCall(number, params);
-
-		return Promise.resolve();
-	}
-
-	startCallList(callListId: number, params: Object<string, any>): Promise
-	{
-		Logger.warn('Slider: startCallList', callListId, params);
-		PhoneManager.getInstance().startCallList(callListId, params);
-
-		return Promise.resolve();
-	}
-
-	openNewTab(path)
-	{
-		if (DesktopApi.getApiVersion() >= 75 && DesktopApi.isChatTab())
-		{
-			DesktopApi.createImTab(`${path}&${GetParameter.desktopChatTabMode}=Y`);
-		}
-		else
-		{
-			Utils.browser.openLink(path);
-		}
 	}
 
 	bindEvents(): boolean
@@ -457,23 +284,5 @@ export class MessengerSlider
 	getIdFromSliderId(sliderId: string): number
 	{
 		return Number.parseInt(sliderId.slice(SLIDER_PREFIX.length + 1), 10);
-	}
-
-	#checkHistoryDialogId(dialogId: string): boolean
-	{
-		return (
-			Utils.dialog.isLinesHistoryId(dialogId)
-			|| Utils.dialog.isLinesExternalId(dialogId)
-		);
-	}
-
-	#prepareHistorySliderLink(dialogId: string): string
-	{
-		const getParams = new URLSearchParams({
-			[GetParameter.openHistory]: dialogId,
-			[GetParameter.backgroundType]: 'light',
-		});
-
-		return `/desktop_app/history.php?${getParams.toString()}`;
 	}
 }

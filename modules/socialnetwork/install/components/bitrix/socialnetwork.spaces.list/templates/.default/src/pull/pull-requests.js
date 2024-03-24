@@ -23,6 +23,8 @@ export class PullRequests extends EventEmitter
 			workgroup_update: this.#onChangeSpace.bind(this),
 			space_user_role_change: this.#onChangeUserRole.bind(this),
 			workgroup_subscribe_changed: this.#onChangeSubscription.bind(this),
+			recent_activity_update: this.#onRecentActivityUpdate.bind(this),
+			recent_activity_delete: this.#onRecentActivityDelete.bind(this),
 		};
 	}
 
@@ -60,6 +62,21 @@ export class PullRequests extends EventEmitter
 		this.emit(EventTypes.changeSubscription, {
 			spaceId: data.GROUP_ID,
 			userId: data.USER_ID,
+		});
+	}
+
+	#onRecentActivityUpdate(data): void
+	{
+		this.emit(EventTypes.recentActivityUpdate, {
+			recentActivityData: data.recentActivityData,
+		});
+	}
+
+	#onRecentActivityDelete(data): void
+	{
+		this.emit(EventTypes.recentActivityDelete, {
+			typeId: data.typeId,
+			entityId: data.entityId,
 		});
 	}
 }

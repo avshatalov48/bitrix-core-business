@@ -527,7 +527,7 @@ class CListsLiveFeed
 		return $users;
 	}
 
-	protected static function setSocnetFollow($users = array(), $logId, $type, $manualMode = false, $addingComment = false)
+	protected static function setSocnetFollow($users, $logId, $type, $manualMode = false, $addingComment = false)
 	{
 		if($manualMode)
 		{

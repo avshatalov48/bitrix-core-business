@@ -178,8 +178,7 @@ class SyncEventFactory
 			->where('CAL_TYPE', Dictionary::EVENT_TYPE['user'])
 			->where('DELETED', 'N')
 			->where('DATE_TO_TS_UTC', '>', $timestamp)
-			// ->whereNot('MEETING_STATUS', 'N')
-			->where(Query::filter() // TODO: it's better to optimize it and don't use 'OR' logic here
+			->where(Query::filter()
 					 ->logic('or')
 					 ->whereNot('MEETING_STATUS', 'N')
 					 ->whereNull('MEETING_STATUS')

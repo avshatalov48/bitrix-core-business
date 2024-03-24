@@ -699,6 +699,7 @@ class BXEditorIframeCopilot
 
 		this.copilot.show({
 			bindElement,
+			showFromSpace,
 			width: this.getCopilotWidth(),
 		});
 
@@ -824,6 +825,7 @@ class BXEditorIframeCopilot
 		this.copilot.setSelectedText(this.getSelection().toString());
 		this.copilot.show({
 			bindElement: adjustOptions.position,
+			showFromPopup: true,
 			width: this.getCopilotWidth(),
 		});
 		this.hideCopilotButton();
@@ -1002,6 +1004,11 @@ class BXEditorIframeCopilot
 
 	shouldShowInvitationLine()
 	{
+		if (!this.iframeContainer.contains(document.activeElement))
+		{
+			return false;
+		}
+
 		if (this.invitationLineMode === this.invitationLineModes.NONE)
 		{
 			return false;
@@ -1025,12 +1032,18 @@ class BXEditorIframeCopilot
 		this.removeZwnbspSequence();
 
 		const range = selection.getRangeAt(0);
+		const contentEditableOffset = parseInt(getComputedStyle(this.contentEditable).paddingLeft);
+		if (range.getBoundingClientRect().x > contentEditableOffset)
+		{
+			return false;
+		}
+
 		const tmpNode = BX.Tag.render`<span style="width: 10px; height: 10px;"></span>`;
 		range.insertNode(tmpNode);
 
 		const previousNode = tmpNode.previousSibling;
 		const nextNode = tmpNode.nextSibling;
-		const offset = tmpNode.getBoundingClientRect().x - parseInt(getComputedStyle(this.contentEditable).paddingLeft);
+		const offset = tmpNode.getBoundingClientRect().x - contentEditableOffset;
 
 		if (
 			selection.focusNode === this.contentEditable
@@ -1058,7 +1071,7 @@ class BXEditorIframeCopilot
 
 		const afterBr = !previousNode || this.doesNodeMakeLine(previousNode) || tmpNode.nodeName !== '#text' && tmpNode.textContent === '';
 		const beforeBr = !nextNode || this.doesNodeMakeLine(nextNode) && nextNode.tagName !== 'TABLE';
-		const atStart = offset === 0;
+		const atStart = offset <= 0;
 		tmpNode.remove();
 
 		return ((afterBr && beforeBr) || (this.isZwnbspNode(previousNode) && nextNode?.nodeName === '#text')) && atStart;

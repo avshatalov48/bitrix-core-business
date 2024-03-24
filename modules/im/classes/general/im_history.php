@@ -219,10 +219,10 @@ class CIMHistory
 					M.ID,
 					M.CHAT_ID,
 					M.MESSAGE,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.AUTHOR_ID,
-					".$fromUserId." R1_USER_ID,
-					".$toUserId." R2_USER_ID,
+					".$fromUserId." as R1_USER_ID,
+					".$toUserId." as R2_USER_ID,
 					M.NOTIFY_EVENT
 				FROM b_im_message M
 				WHERE
@@ -443,12 +443,12 @@ class CIMHistory
 
 		$strSql ="
 			SELECT
-				MAX(M.ID)+1 MAX_ID,
+				MAX(M.ID)+1 as MAX_ID,
 				M.CHAT_ID,
-				R1.ID R1_ID,
-				R1.START_ID R1_START_ID,
-				R2.ID R2_ID,
-				R2.START_ID R2_START_ID
+				R1.ID as R1_ID,
+				R1.START_ID as R1_START_ID,
+				R2.ID as R2_ID,
+				R2.START_ID as R2_START_ID
 			FROM b_im_relation R1
 			INNER JOIN b_im_relation R2 on R2.CHAT_ID = R1.CHAT_ID
 			INNER JOIN b_im_message M ON M.ID >= R1.START_ID AND M.CHAT_ID = R1.CHAT_ID
@@ -505,8 +505,8 @@ class CIMHistory
 
 		$strSql ="
 			SELECT
-				MAX(M.ID)+1 MAX_ID,
-				R1.ID R1_ID
+				MAX(M.ID)+1 as MAX_ID,
+				R1.ID as R1_ID
 			FROM b_im_relation R1
 			INNER JOIN b_im_message M ON M.CHAT_ID = R1.CHAT_ID
 			WHERE
@@ -658,15 +658,15 @@ class CIMHistory
 				M.ID,
 				M.CHAT_ID,
 				M.MESSAGE,
-				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 				M.AUTHOR_ID
 			FROM b_im_relation R1
 			INNER JOIN b_im_message M ON M.CHAT_ID = R1.CHAT_ID
 			WHERE
 				R1.CHAT_ID = ".$chatId."
-			AND	R1.USER_ID = ".$this->user_id."
-			AND M.DATE_CREATE >= ".$sqlDateStart." 
-			AND M.DATE_CREATE <=  ".$sqlDateEnd."
+				AND	R1.USER_ID = ".$this->user_id."
+				AND M.DATE_CREATE >= ".$sqlDateStart." 
+				AND M.DATE_CREATE <=  ".$sqlDateEnd."
 				".$limitById."
 			ORDER BY M.DATE_CREATE DESC, M.ID DESC
 		";
@@ -827,9 +827,9 @@ class CIMHistory
 					M.ID,
 					M.CHAT_ID,
 					M.MESSAGE,
-					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+					".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 					M.AUTHOR_ID,
-					C.ENTITY_TYPE CHAT_ENTITY_TYPE
+					C.ENTITY_TYPE as CHAT_ENTITY_TYPE
 				FROM b_im_message M
 				LEFT JOIN b_im_chat C ON M.CHAT_ID = C.ID
 				WHERE 
@@ -970,13 +970,13 @@ class CIMHistory
 
 		$sql = "
 			SELECT 
-				IF (M.ID > 0, 'Y', 'N') MESSAGE_EXISTS, 
-				IF (M.ID > R.LAST_ID, 'N', 'Y') MESSAGE_READ,
-				C.TYPE CHAT_TYPE,
-				MS.MESSAGE_ID ID,
+				CASE WHEN M.ID > 0 THEN 'Y' ELSE 'N' END AS MESSAGE_EXISTS, 
+				CASE WHEN M.ID > R.LAST_ID THEN 'N' ELSE 'Y' END AS MESSAGE_READ,
+				C.TYPE as CHAT_TYPE,
+				MS.MESSAGE_ID as ID,
 				M.CHAT_ID,
 				M.MESSAGE,
-				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('M.DATE_CREATE')." as DATE_CREATE,
 				M.AUTHOR_ID
 			FROM b_im_message_param MS
 			LEFT JOIN b_im_message M ON M.ID = MS.MESSAGE_ID
@@ -1265,7 +1265,7 @@ class CIMHistory
 				ID,
 				CHAT_ID,
 				MESSAGE,
-				".$DB->DatetimeToTimestampFunction('DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('DATE_CREATE')." as DATE_CREATE,
 				AUTHOR_ID
 			FROM b_im_message
 			WHERE
@@ -1317,7 +1317,7 @@ class CIMHistory
 				ID,
 				CHAT_ID,
 				MESSAGE,
-				".$DB->DatetimeToTimestampFunction('DATE_CREATE')." DATE_CREATE,
+				".$DB->DatetimeToTimestampFunction('DATE_CREATE')." as DATE_CREATE,
 				AUTHOR_ID
 			FROM b_im_message
 			WHERE
@@ -1340,15 +1340,13 @@ class CIMHistory
 		return $messages;
 	}
 
-	private function checkFullText($searchText)
+	private function checkFullText($searchText): bool
 	{
 		$indexEnabled = \Bitrix\Main\Config\Option::get('im', 'message_history_index');
 
 		if (
-			$indexEnabled &&
-			\CIMMessenger::IsMysqlDb() &&
-			\Bitrix\Main\Search\Content::canUseFulltextSearch($searchText) &&
-			\Bitrix\Im\Model\MessageIndexTable::getEntity()->fullTextIndexEnabled("SEARCH_CONTENT")
+			$indexEnabled
+			&& \Bitrix\Main\Search\Content::canUseFulltextSearch($searchText)
 		)
 		{
 			return true;
@@ -1357,4 +1355,3 @@ class CIMHistory
 		return false;
 	}
 }
-?>

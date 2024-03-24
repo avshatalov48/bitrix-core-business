@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,ui_entitySelector,main_core_events,helper,main_popup,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
 	'use strict';
@@ -626,7 +627,8 @@ this.BX = this.BX || {};
 	          id: 'user',
 	          options: {
 	            inviteGuestLink: false,
-	            emailUsers: false
+	            emailUsers: false,
+	            analyticsSource: 'calendar'
 	          }
 	        }]
 	      });

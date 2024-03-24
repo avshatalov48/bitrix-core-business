@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Authentication\Internal;
@@ -73,7 +73,7 @@ class UserDeviceLoginTable extends Data\DataManager
 
 	public static function deleteByDeviceFilter($where)
 	{
-		if($where == '')
+		if ($where == '')
 		{
 			throw new Main\ArgumentException("Deleting by empty filter is not allowed, use truncate (b_user_device_login).", "where");
 		}
@@ -81,8 +81,10 @@ class UserDeviceLoginTable extends Data\DataManager
 		$entity = static::getEntity();
 		$conn = $entity->getConnection();
 
+		$alias = ($conn instanceof Main\DB\MysqlCommonConnection ? 'DL' : '');
+
 		$conn->query("
-			DELETE DL FROM b_user_device_login DL 
+			DELETE {$alias} FROM b_user_device_login DL 
 			WHERE DL.DEVICE_ID IN(
 				SELECT ID FROM b_user_device 
 				{$where} 

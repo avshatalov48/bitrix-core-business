@@ -485,6 +485,9 @@ export class EditForm extends EventEmitter
 				entities: [
 					{
 						id: 'user',
+						options: {
+							analyticsSource: 'calendar',
+						}
 					},
 					{
 						id: 'project',
@@ -521,6 +524,9 @@ export class EditForm extends EventEmitter
 				entities: [
 					{
 						id: 'user',
+						options: {
+							analyticsSource: 'calendar',
+						}
 					},
 					{
 						id: 'department',

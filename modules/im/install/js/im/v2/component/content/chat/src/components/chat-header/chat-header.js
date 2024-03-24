@@ -1,8 +1,9 @@
+import { EventEmitter } from 'main.core.events';
 import 'ui.notification';
 
 import { Avatar, AvatarSize } from 'im.v2.component.elements';
 import { ChatService } from 'im.v2.provider.service';
-import { ChatType, ChatActionType, UserRole } from 'im.v2.const';
+import { ChatType, ChatActionType, UserRole, EventType, SidebarDetailBlock } from 'im.v2.const';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { Utils } from 'im.v2.lib.utils';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -26,13 +27,9 @@ export const ChatHeader = {
 			type: String,
 			default: '',
 		},
-		sidebarOpened: {
-			type: Boolean,
-			required: true,
-		},
-		sidebarSearchOpened: {
-			type: Boolean,
-			default: false,
+		currentSidebarPanel: {
+			type: String,
+			default: '',
 		},
 	},
 	emits: ['toggleRightPanel', 'toggleSearchPanel', 'toggleMembersPanel'],
@@ -103,16 +100,44 @@ export const ChatHeader = {
 		{
 			return PermissionManager.getInstance().canPerformAction(ChatActionType.avatar, this.dialogId);
 		},
+		isSidebarOpened(): boolean
+		{
+			return this.currentSidebarPanel.length > 0;
+		},
+		isMessageSearchActive(): boolean
+		{
+			return this.currentSidebarPanel === SidebarDetailBlock.messageSearch;
+		},
 	},
 	methods:
 	{
 		toggleRightPanel()
 		{
-			this.$emit('toggleRightPanel');
+			if (this.currentSidebarPanel)
+			{
+				EventEmitter.emit(EventType.sidebar.close, { panel: '' });
+
+				return;
+			}
+
+			EventEmitter.emit(EventType.sidebar.open, {
+				panel: SidebarDetailBlock.main,
+				dialogId: this.dialogId,
+			});
 		},
 		toggleSearchPanel()
 		{
-			this.$emit('toggleSearchPanel');
+			if (this.isMessageSearchActive)
+			{
+				EventEmitter.emit(EventType.sidebar.close, { panel: SidebarDetailBlock.messageSearch });
+
+				return;
+			}
+
+			EventEmitter.emit(EventType.sidebar.open, {
+				panel: SidebarDetailBlock.messageSearch,
+				dialogId: this.dialogId,
+			});
 		},
 		onMembersClick()
 		{
@@ -121,7 +146,17 @@ export const ChatHeader = {
 				return;
 			}
 
-			this.$emit('toggleMembersPanel');
+			if (this.currentSidebarPanel === SidebarDetailBlock.members)
+			{
+				EventEmitter.emit(EventType.sidebar.close, { panel: SidebarDetailBlock.members });
+
+				return;
+			}
+
+			EventEmitter.emit(EventType.sidebar.open, {
+				panel: SidebarDetailBlock.members,
+				dialogId: this.dialogId,
+			});
 		},
 		onNewTitleSubmit(newTitle: string)
 		{
@@ -184,9 +219,9 @@ export const ChatHeader = {
 		<div @click.capture="onContainerClick" class="bx-im-chat-header__scope bx-im-chat-header__container">
 			<div class="bx-im-chat-header__left">
 				<div class="bx-im-chat-header__avatar" :class="{'--can-change': canChangeAvatar}" @click="onAvatarClick">
-					<Avatar v-if="isChat" :dialogId="dialogId" :size="AvatarSize.L" :withStatus="true" />
+					<Avatar v-if="isChat" :dialogId="dialogId" :size="AvatarSize.L" />
 					<a v-else :href="userLink" target="_blank">
-						<Avatar :dialogId="dialogId" :size="AvatarSize.L" :withStatus="true" />
+						<Avatar :dialogId="dialogId" :size="AvatarSize.L" />
 					</a>
 				</div>
 				<input 
@@ -208,20 +243,23 @@ export const ChatHeader = {
 				<CallButton v-if="showCallButton" :dialogId="dialogId" />
 				<div
 					v-if="showInviteButton"
-					class="bx-im-chat-header__icon --add-people"
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_INVITE_POPUP')"
 					:class="{'--active': showAddToChatPopup}"
+					class="bx-im-chat-header__icon --add-people"
 					@click="openInvitePopup" 
 					ref="add-members"
 				></div>
 				<div 
-					@click="toggleSearchPanel" 
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SEARCH')"
+					:class="{'--active': isMessageSearchActive}"
 					class="bx-im-chat-header__icon --search" 
-					:class="{'--active': sidebarSearchOpened}"
+					@click="toggleSearchPanel"
 				></div>
 				<div 
+					class="bx-im-chat-header__icon --panel"
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_SIDEBAR')"
+					:class="{'--active': isSidebarOpened}"
 					@click="toggleRightPanel" 
-					class="bx-im-chat-header__icon --panel" 
-					:class="{'--active': sidebarOpened}"
 				></div>
 			</div>
 			<AddToChat

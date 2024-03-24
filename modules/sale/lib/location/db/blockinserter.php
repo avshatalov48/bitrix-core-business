@@ -248,6 +248,11 @@ class BlockInserter
 
 		$this->buffer .= ' '.$this->insertTail;
 
+		if ($this->dbType === 'pgsql' && $this->autoIncFld)
+		{
+			$this->buffer .= '; ALTER SEQUENCE ' . $this->tableName . '_' . $this->autoIncFld . '_seq RESTART WITH ' . $this->index + 1 . ';';
+		}
+
 		$restrDropped = $this->dropAutoIncrementRestrictions();
 
 		Main\HttpApplication::getConnection()->query($this->buffer);

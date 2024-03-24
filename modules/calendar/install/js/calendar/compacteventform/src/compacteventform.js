@@ -357,7 +357,14 @@ export class CompactEventForm extends EventEmitter
 
 	getEditModeButtons()
 	{
-		return [this.getSaveButton(), this.getCloseButton(), this.getFullFormButton()];
+		const buttons = [this.getSaveButton(), this.getCloseButton()];
+
+		if (this.canDo('edit'))
+		{
+			buttons.push(this.getFullFormButton());
+		}
+
+		return buttons;
 	}
 
 	getViewModeButtons()
@@ -1519,6 +1526,20 @@ export class CompactEventForm extends EventEmitter
 			return section.canDo('access');
 		}
 
+		if (action === 'editLocation')
+		{
+			return (this.isNewEntry())
+				? true
+				: this.entry.permissions?.['edit_location'] || false;
+		}
+
+		if (action === 'editAttendees')
+		{
+			return (this.isNewEntry())
+				? true
+				: this.entry.permissions?.['edit_attendees'] || false;
+		}
+
 		return true;
 	}
 
@@ -1580,18 +1601,19 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		// Location
+		const readOnlyLocation = !(this.canDo('editLocation') || this.canDo('edit'));
 		let location = entry.getLocation();
 		if (this.shouldShowFakeLocationControl())
 		{
 			this.DOM.locationWrap.style.display = 'none';
 		}
-		else if (readOnly && !location)
+		else if (readOnlyLocation && !location)
 		{
 			this.DOM.locationOuterWrap.style.display = 'none';
 		}
 		else
 		{
-			this.locationSelector.setViewMode(readOnly);
+			this.locationSelector.setViewMode(readOnlyLocation);
 			if (this.isLocationCalendar)
 			{
 				this.locationSelector.setValue(this.locationSelector.default);
@@ -1631,9 +1653,10 @@ export class CompactEventForm extends EventEmitter
 				hideGuests: entry.getHideGuests()
 			});
 			this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
-			if (readOnly)
+			const readOnlyUserPlanner = !(this.canDo('editAttendees') || this.canDo('edit'));
+			if (readOnlyUserPlanner)
 			{
-				this.userPlannerSelector.setViewMode(readOnly);
+				this.userPlannerSelector.setViewMode(readOnlyUserPlanner);
 			}
 			if (this.entry.isSharingEvent() && (this.entry.permissions?.['edit'] || this.canDo('edit')))
 			{
@@ -2435,6 +2458,7 @@ export class CompactEventForm extends EventEmitter
 			maxWidth: 350,
 			buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
 			onOk: () => {
+				this.DOM.confirmPopup.close();
 				this.close(true, true);
 			},
 			onCancel: () => {

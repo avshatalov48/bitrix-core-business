@@ -195,33 +195,18 @@ abstract class BaseValues
 	 * Helper method to save batch values.
 	 *
 	 * @param string $tableName Where to insert data.
-	 * @param array  $fields Fields list.
+	 * @param array  $primaryFields Primary fields list.
 	 * @param array  $rows Data to insert.
 	 *
 	 * @return void
 	 */
-	protected function insertValues($tableName, $fields, $rows)
+	protected function insertValues($tableName, $primaryFields, $rows)
 	{
 		$connection = \Bitrix\Main\Application::getConnection();
-		$head = "REPLACE INTO $tableName (".implode(", ", $fields).") VALUES ";
-		$maxBodySize = 1024*1024; //1 Mb
-		$body = array();
-		$bodySize = 0;
-		foreach ($rows as $row)
+		$sqlHelper = $connection->getSqlHelper();
+		foreach ($sqlHelper->prepareMergeMultiple($tableName, $primaryFields, $rows) as $dml)
 		{
-			$values = "('".implode("', '", $row)."')";
-			$bodySize += mb_strlen($values);
-			$body[] = $values;
-			if ($bodySize > $maxBodySize)
-			{
-				$connection->query($head.implode(", ", $body));
-				$body = array();
-				$bodySize = 0;
-			}
-		}
-		if ($body)
-		{
-			$connection->query($head.implode(", ", $body));
+			$connection->query($dml);
 		}
 	}
 

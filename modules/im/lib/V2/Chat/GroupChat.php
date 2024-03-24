@@ -50,6 +50,11 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		return true;
 	}
 
+	protected function needToSendGreetingMessages(): bool
+	{
+		return !$this->getEntityType();
+	}
+
 	protected function checkAccessWithoutCaching(int $userId): bool
 	{
 		$options = [
@@ -64,7 +69,8 @@ class GroupChat extends Chat implements PopupDataAggregatable
 	public function add(array $params, ?Context $context = null): Result
 	{
 		$result = new Result;
-
+		$skipAddMessage = ($params['SKIP_ADD_MESSAGE'] ?? 'N') === 'Y';
+		$skipMessageUsersAdd = ($params['SKIP_MESSAGE_USERS_ADD'] ?? 'N') === 'Y';
 		$paramsResult = $this->prepareParams($params);
 		if ($paramsResult->isSuccess())
 		{
@@ -85,17 +91,23 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 
 		$chat->addUsersToRelation([$chat->getAuthorId()], $params['MANAGERS'] ?? [], false);
-		$chat->sendGreetingMessage($this->getContext()->getUserId());
-		$chat->sendBanner($this->getContext()->getUserId());
+		if (!$skipAddMessage && $chat->needToSendGreetingMessages())
+		{
+			$chat->sendGreetingMessage($this->getContext()->getUserId());
+			$chat->sendBanner($this->getContext()->getUserId());
+		}
 
 		$usersToInvite = $chat->filterUsersToAdd($chat->getUserIds());
 		$addedUsers = $usersToInvite;
 		$addedUsers[$chat->getAuthorId()] = $chat->getAuthorId();
 
 		$chat->addUsersToRelation($usersToInvite, $params['MANAGERS'] ?? [], false);
-		$chat->sendMessageUsersAdd($usersToInvite);
+		if (!$skipAddMessage && !$skipMessageUsersAdd)
+		{
+			$chat->sendMessageUsersAdd($usersToInvite);
+		}
 		$chat->sendEventUsersAdd($addedUsers);
-		$chat->sendDescriptionMessage();
+		$chat->sendDescriptionMessage($this->getContext()->getUserId());
 		$chat->addIndex();
 
 		$result->setResult([
@@ -298,17 +310,39 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 		$author = \Bitrix\Im\V2\Entity\User\User::getInstance($authorId);
 
-		$messageVariant = 'CHAT';
-		if ($this->getEntityType())
-		{
-			$messageVariant = $this->getEntityType();
-		}
-		$messageCode = 'IM_' . $messageVariant . '_CREATE_' . $author->getGender();
+		$replace = ['#USER_NAME#' => htmlspecialcharsback($author->getName())];
+		$messageText =  Loc::getMessage($this->getCodeGreetingMessage($author), $replace);
 
+		if ($messageText)
+		{
+			\CIMMessage::Add([
+				'MESSAGE_TYPE' => $this->getType(),
+				'TO_CHAT_ID' => $this->getChatId(),
+				'FROM_USER_ID' => $author->getId(),
+				'MESSAGE' => $messageText,
+				'SYSTEM' => 'Y',
+				'PUSH' => 'N'
+			]);
+		}
+
+		if ($authorId !== $this->getAuthorId())
+		{
+			$this->sendMessageAuthorChange($author);
+		}
+	}
+
+	protected function getCodeGreetingMessage(\Bitrix\Im\V2\Entity\User\User $author): string
+	{
+		return 'IM_CHAT_CREATE_' . $author->getGender();
+	}
+
+	protected function sendMessageAuthorChange(\Bitrix\Im\V2\Entity\User\User $author): void
+	{
 		$messageText = Loc::getMessage(
-			$messageCode,
+			'IM_CHAT_APPOINT_OWNER_' . $author->getGender(),
 			[
-				'#USER_NAME#' => htmlspecialcharsback($author->getName())
+				'#USER_1_NAME#' => htmlspecialcharsback($author->getName()),
+				'#USER_2_NAME#' => htmlspecialcharsback($this->getAuthor()->getName())
 			]
 		);
 
@@ -320,26 +354,6 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			'SYSTEM' => 'Y',
 			'PUSH' => 'N'
 		]);
-
-		if ($authorId !== $this->getAuthorId())
-		{
-			$messageText = Loc::getMessage(
-				'IM_CHAT_APPOINT_OWNER_' . $author->getGender(),
-				[
-					'#USER_1_NAME#' => htmlspecialcharsback($author->getName()),
-					'#USER_2_NAME#' => htmlspecialcharsback($this->getAuthor()->getName())
-				]
-			);
-
-			\CIMMessage::Add([
-				'MESSAGE_TYPE' => $this->getType(),
-				'TO_CHAT_ID' => $this->getChatId(),
-				'FROM_USER_ID' => $author->getId(),
-				'MESSAGE' => $messageText,
-				'SYSTEM' => 'Y',
-				'PUSH' => 'N'
-			]);
-		}
 	}
 
 	protected function sendBanner(?int $authorId = null): void
@@ -666,12 +680,11 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		{
 			$authorId = $this->getAuthorId();
 		}
-		$author = \Bitrix\Im\V2\Entity\User\User::getInstance($authorId);
 
 		\CIMMessage::Add([
 			'MESSAGE_TYPE' => $this->getType(),
 			'TO_CHAT_ID' => $this->getChatId(),
-			'FROM_USER_ID' => $author->getId(),
+			'FROM_USER_ID' => $authorId,
 			'MESSAGE' => htmlspecialcharsback($this->getDescription()),
 		]);
 	}

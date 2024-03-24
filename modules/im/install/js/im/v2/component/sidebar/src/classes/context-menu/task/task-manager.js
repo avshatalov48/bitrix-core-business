@@ -1,8 +1,8 @@
-import {RestClient} from 'rest.client';
-import {Store} from 'ui.vue3.vuex';
+import { Store } from 'ui.vue3.vuex';
+import { RestClient } from 'rest.client';
 
-import {Core} from 'im.v2.application.core';
-import {RestMethod} from 'im.v2.const';
+import { RestMethod } from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
 
 export class TaskManager
 {
@@ -15,15 +15,12 @@ export class TaskManager
 		this.restClient = Core.getRestClient();
 	}
 
-	delete({id, chatId})
+	delete({ id, chatId })
 	{
-		this.store.dispatch('sidebar/tasks/delete', {
-			chatId: chatId,
-			id: id
-		});
+		this.store.dispatch('sidebar/tasks/delete', { chatId, id });
 
-		const queryParams = {'LINK_ID': id};
-		this.restClient.callMethod(RestMethod.imChatTaskDelete, queryParams).catch(error => {
+		const queryParams = { LINK_ID: id };
+		this.restClient.callMethod(RestMethod.imChatTaskDelete, queryParams).catch((error) => {
 			console.error('Im.Sidebar: error deleting task', error);
 		});
 	}

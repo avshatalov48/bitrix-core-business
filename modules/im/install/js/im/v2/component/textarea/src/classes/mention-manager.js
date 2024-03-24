@@ -1,5 +1,13 @@
-import { EventType } from 'im.v2.const';
 import { EventEmitter } from 'main.core.events';
+
+import { Core } from 'im.v2.application.core';
+import { EventType } from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
+
+import type { ImModelUser } from 'im.v2.model';
+
+type MentionTextToInsert = string;
+type MentionReplacementMap = {[textToReplace: string]: MentionTextToInsert};
 
 const MentionSymbols: Set<string> = new Set(['@', '+']);
 const WAIT_FOR_NEXT_SYMBOL_TIME = 10;
@@ -17,6 +25,8 @@ export class MentionManager extends EventEmitter
 	#mentionSymbol: string = '';
 	#textarea: HTMLTextAreaElement;
 
+	#mentionReplacementMap: MentionReplacementMap = {};
+
 	static eventNamespace = 'BX.Messenger.v2.Textarea.MentionManager';
 
 	constructor(textarea: HTMLTextAreaElement)
@@ -26,24 +36,25 @@ export class MentionManager extends EventEmitter
 		this.#textarea = textarea;
 	}
 
-	onKeyDown(event)
+	// region 'popup'
+	onActiveMentionKeyDown(event): void
 	{
-		if (this.#mentionPopupOpened)
+		if (!this.#mentionPopupOpened)
 		{
-			this.#onOpenedMentionKeyDown(event);
+			return;
 		}
 
+		this.#onOpenedMentionKeyDown(event);
+	}
+
+	onKeyDown(event): void
+	{
 		this.#onClosedMentionKeyDown(event);
 	}
 
 	onMentionPopupClose()
 	{
 		this.#mentionPopupOpened = false;
-	}
-
-	getMentionSymbol(): string
-	{
-		return this.#mentionSymbol;
 	}
 
 	#onClosedMentionKeyDown(event: KeyboardEvent)
@@ -227,4 +238,72 @@ export class MentionManager extends EventEmitter
 
 		return regex.test(text);
 	}
+	// endregion 'popup'
+
+	// region 'replace'
+	setMentionReplacements(mentionsMap: MentionReplacementMap): void
+	{
+		this.#mentionReplacementMap = mentionsMap;
+	}
+
+	addMentionReplacement(textToReplace: string, textToInsert: string): MentionReplacementMap
+	{
+		this.#mentionReplacementMap[textToReplace] = textToInsert;
+
+		return this.#mentionReplacementMap;
+	}
+
+	prepareMentionText(config: { currentText: string, textToInsert: string, textToReplace: string }): string
+	{
+		const { currentText, textToInsert, textToReplace = '' } = config;
+		let resultText = '';
+
+		const queryWithMentionSymbol = `${this.#mentionSymbol}${textToReplace}`;
+		if (queryWithMentionSymbol.length > 0)
+		{
+			resultText = currentText.replace(queryWithMentionSymbol, `${textToInsert} `);
+		}
+		else
+		{
+			resultText = `${currentText}${textToInsert} `;
+		}
+
+		return resultText;
+	}
+
+	replaceMentions(text: string): string
+	{
+		let resultText = text;
+		Object.entries(this.#mentionReplacementMap).forEach(([textToReplace, textToInsert]) => {
+			resultText = resultText.replaceAll(textToReplace, textToInsert);
+		});
+
+		return resultText;
+	}
+
+	extractMentions(text: string): MentionReplacementMap
+	{
+		const mentions = {};
+		const mentionRegExp = /\[user=(?<userId>\d+)](?<mentionText>.*?)\[\/user]/gi;
+
+		const matches = text.matchAll(mentionRegExp);
+		for (const match of matches)
+		{
+			const { userId, mentionText } = match.groups;
+			const user: ImModelUser = Core.getStore().getters['users/get'](userId);
+			if (!user)
+			{
+				continue;
+			}
+			mentions[mentionText] = Utils.text.getMentionBbCode(user.id, mentionText);
+		}
+
+		return mentions;
+	}
+
+	clearMentionReplacements(): void
+	{
+		this.#mentionReplacementMap = {};
+	}
+	// endregion 'replace'
 }

@@ -5,7 +5,7 @@ if (CModule::IncludeModule("form"))
 	$GLOBALS['strError'] = '';
 
 	$arDefaultComponentParameters = array(
-		"WEB_FORM_ID" => $_REQUEST["WEB_FORM_ID"],
+		"WEB_FORM_ID" => $_REQUEST["WEB_FORM_ID"] ?? '',
 		"SEF_MODE" => "N",
 		"IGNORE_CUSTOM_TEMPLATE" => "N",
 		"USE_EXTENDED_ERRORS" => "N",
@@ -47,7 +47,7 @@ if (CModule::IncludeModule("form"))
 			!empty($_REQUEST["web_form_apply"])
 		)
 		||
-		$_REQUEST['formresult'] == 'ADDOK'
+		isset($_REQUEST['formresult']) && $_REQUEST['formresult'] == 'ADDOK'
 	)
 	&&
 	!(
@@ -172,7 +172,7 @@ if (CModule::IncludeModule("form"))
 		}
 	}
 
-	if ($arResult["ERROR"] == '')
+	if (empty($arResult["ERROR"]))
 	{
 		// ************************************************************* //
 		// ****************** get/post processing ********************** //
@@ -180,7 +180,7 @@ if (CModule::IncludeModule("form"))
 
 		$arResult["arrVALUES"] = array();
 
-		if (($_POST['WEB_FORM_ID'] == $arParams['WEB_FORM_ID'] || $_POST['WEB_FORM_ID'] == $arResult['arForm']['SID']) && ($_REQUEST["web_form_submit"] <> '' || $_REQUEST["web_form_apply"] <> ''))
+		if (isset($_POST['WEB_FORM_ID']) && ($_POST['WEB_FORM_ID'] == $arParams['WEB_FORM_ID'] || $_POST['WEB_FORM_ID'] == $arResult['arForm']['SID']) && ($_REQUEST["web_form_submit"] <> '' || $_REQUEST["web_form_apply"] <> ''))
 		{
 			$arResult["arrVALUES"] = $_REQUEST;
 
@@ -355,7 +355,7 @@ if (CModule::IncludeModule("form"))
 			(
 				$arParams['USE_EXTENDED_ERRORS'] == 'Y' && is_array($arResult["FORM_ERRORS"]) && count($arResult["FORM_ERRORS"]) > 0
 				||
-				$arParams['USE_EXTENDED_ERRORS'] != 'Y' && $arResult["FORM_ERRORS"] <> ''
+				$arParams['USE_EXTENDED_ERRORS'] != 'Y' && !empty($arResult["FORM_ERRORS"])
 			)
 			? "Y" : "N";
 
@@ -437,7 +437,7 @@ if (CModule::IncludeModule("form"))
 				"FORM_HEADER" => sprintf( // form header (<form> tag and hidden inputs)
 					"<form name=\"%s\" action=\"%s\" method=\"%s\" enctype=\"multipart/form-data\">",
 					$arResult["arForm"]["SID"], POST_FORM_ACTION_URI, "POST"
-				).$res .= bitrix_sessid_post().'<input type="hidden" name="WEB_FORM_ID" value="'.$arParams['WEB_FORM_ID'].'" />',
+				) . bitrix_sessid_post().'<input type="hidden" name="WEB_FORM_ID" value="'.$arParams['WEB_FORM_ID'].'" />',
 
 				"FORM_TITLE"			=> trim(htmlspecialcharsbx($arResult["arForm"]["NAME"])), // form title
 
@@ -503,7 +503,7 @@ if (CModule::IncludeModule("form"))
 		reset($arResult["arQuestions"]);
 
 		// assign questions data
-		foreach ($arResult["arQuestions"] as $key => $arQuestion)
+		foreach ($arResult["arQuestions"] as $arQuestion)
 		{
 			$FIELD_SID = $arQuestion["SID"];
 			$arResult["QUESTIONS"][$FIELD_SID] = array(
@@ -525,14 +525,10 @@ if (CModule::IncludeModule("form"))
 			{
 				$res = "";
 
-				reset($arResult["arAnswers"][$FIELD_SID]);
-				if (is_array($arResult["arDropDown"][$FIELD_SID])) reset($arResult["arDropDown"][$FIELD_SID]);
-				if (is_array($arResult["arMutiselect"][$FIELD_SID])) reset($arResult["arMutiselect"][$FIELD_SID]);
-
 				$show_dropdown = "N";
 				$show_multiselect = "N";
 
-				foreach ($arResult["arAnswers"][$FIELD_SID] as $key => $arAnswer)
+				foreach ($arResult["arAnswers"][$FIELD_SID] as $arAnswer)
 				{
 					if ($arAnswer["FIELD_TYPE"]=="dropdown" && $show_dropdown=="Y") continue;
 					if ($arAnswer["FIELD_TYPE"]=="multiselect" && $show_multiselect=="Y") continue;
@@ -933,7 +929,7 @@ if (CModule::IncludeModule("form"))
 		$arResult["APPLY_BUTTON"] = "<input type=\"hidden\" name=\"web_form_apply\" value=\"Y\" /><input type=\"submit\" name=\"web_form_apply\" value=\"".GetMessage("FORM_APPLY")."\" />";
 		$arResult["RESET_BUTTON"] = "<input type=\"reset\" value=\"".GetMessage("FORM_RESET")."\" />";
 		$arResult["REQUIRED_STAR"] = $arResult["REQUIRED_SIGN"];
-		$arResult["CAPTCHA_IMAGE"] = "<input type=\"hidden\" name=\"captcha_sid\" value=\"".htmlspecialcharsbx($arResult["CAPTCHACode"])."\" /><img src=\"/bitrix/tools/captcha.php?captcha_sid=".htmlspecialcharsbx($arResult["CAPTCHACode"])."\" width=\"180\" height=\"40\" />";
+		$arResult["CAPTCHA_IMAGE"] = "<input type=\"hidden\" name=\"captcha_sid\" value=\"".htmlspecialcharsbx($arResult["CAPTCHACode"] ?? '')."\" /><img src=\"/bitrix/tools/captcha.php?captcha_sid=".htmlspecialcharsbx($arResult["CAPTCHACode"] ?? '')."\" width=\"180\" height=\"40\" />";
 		$arResult["CAPTCHA_FIELD"] = "<input type=\"text\" name=\"captcha_word\" size=\"30\" maxlength=\"50\" value=\"\" class=\"inputtext\" />";
 		$arResult["CAPTCHA"] = $arResult["CAPTCHA_IMAGE"]."<br />".$arResult["CAPTCHA_FIELD"];
 

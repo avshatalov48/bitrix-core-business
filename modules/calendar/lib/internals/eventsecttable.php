@@ -16,7 +16,20 @@ use Bitrix\Main\ORM\Fields\StringField;
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EventSect_Query query()
+ * @method static EO_EventSect_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_EventSect_Result getById($id)
+ * @method static EO_EventSect_Result getList(array $parameters = [])
+ * @method static EO_EventSect_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_EventSect createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_EventSect_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_EventSect wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_EventSect_Collection wakeUpCollection($rows)
+ */
 
 class EventSectTable extends DataManager
 {

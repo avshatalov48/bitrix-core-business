@@ -37,7 +37,7 @@ trait EShopTools
 		return true;
 	}
 
-	protected function isAllowedInstallDemoData(string $site): bool
+	protected function isAllowedInstallDemoData(?string $site): bool
 	{
 		if (
 			(

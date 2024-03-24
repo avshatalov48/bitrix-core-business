@@ -59,7 +59,7 @@ class UserRelationsTable extends Entity\DataManager
 				'required'  => true
 			),
 			'ENTITY_ID' => array(
-				'data_type' => 'integer',
+				'data_type' => 'string',
 				'title'     => Localization\Loc::getMessage('mail_ur_entity_entity_id_field'),
 			),
 			'ENTITY_LINK' => array(

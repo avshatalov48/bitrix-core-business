@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Core\Queue\Processor;
 use Bitrix\Calendar\Core\Queue\Interfaces;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Watcher\Membership\Handler\Handler;
+use Bitrix\Main\Application;
 
 class EventsWithEntityAttendeesFind implements Interfaces\Processor
 {
@@ -29,11 +30,13 @@ class EventsWithEntityAttendeesFind implements Interfaces\Processor
 
 		$attendeeCode = $this->convertEntityToAttendeeCode($data['entityType'], $data['entityId'] ?? null);
 
+		$helper = Application::getConnection()->getSqlHelper();
+
 		$events = EventTable::getList([
 			'select' => ['ID'],
 			'filter' => \Bitrix\Main\ORM\Query\Query::filter()
 				->where('DELETED', 'N')
-				->whereExpr("%s REGEXP '" . $attendeeCode."(_|$|,)'", ['ATTENDEES_CODES'])
+				->whereExpr($helper->getRegexpOperator('%s', "'{$attendeeCode}" . "(_|$|,)'"), ['ATTENDEES_CODES'])
 				->whereColumn('ID', 'PARENT_ID')
 				//do subtract to make sampling more accurate
 				->where('DATE_TO_TS_UTC', '>=', time() - \CCalendar::GetDayLen())

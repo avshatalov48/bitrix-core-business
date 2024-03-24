@@ -189,6 +189,7 @@ export const TextUtil = {
 			.replaceAll('>', ' ')
 			.replaceAll('-', ' ')
 			.replaceAll('#', ' ')
+			.replaceAll('№', ' ')
 			.replaceAll('"', ' ')
 			.replaceAll('\'', ' ')
 			.replaceAll(/\s\s+/g, ' ')

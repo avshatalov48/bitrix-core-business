@@ -97,18 +97,29 @@ if(empty($arParams["GROUP_ID"]) || (!empty($arParams["GROUP_ID"]) && in_array($a
 		{
 			if ($arParams["CACHE_TIME"] > 0)
 				$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-				
-			$SORT = Array($arParams["SORT_BY1"]=>$arParams["SORT_ORDER1"], $arParams["SORT_BY2"]=>$arParams["SORT_ORDER2"]);
-			
-			$arFilter = Array("GROUP_SITE_ID"=>SITE_ID, "ACTIVE"=>"Y");
-			if(!$bShowAll)
+
+			$SORT = [
+				$arParams["SORT_BY1"] => $arParams["SORT_ORDER1"],
+				$arParams["SORT_BY2"] => $arParams["SORT_ORDER2"]
+			];
+
+			$arFilter = ["GROUP_SITE_ID" => SITE_ID, "=ACTIVE" => "Y"];
+			if (!$bShowAll)
+			{
 				$arFilter["GROUP_ID"] = $arParams["ID"];
-			elseif(!empty($arParams["GROUP_ID"]))
+			}
+			elseif (!empty($arParams["GROUP_ID"]))
+			{
 				$arFilter["GROUP_ID"] = $arParams["GROUP_ID"];
-				
-			$arSelectFields = Array("ID", "NAME", "DESCRIPTION", "URL", "SITE_ID", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "OWNER_ID", "OWNER_LOGIN", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_SECOND_NAME", "LAST_POST_DATE", "LAST_POST_ID", "BLOG_USER_AVATAR", "BLOG_USER_ALIAS", "SOCNET_GROUP_ID");
-			
-			if(CModule::IncludeModule("socialnetwork") && $arParams["USE_SOCNET"] == "Y")
+			}
+
+			$arSelectFields = [
+				"ID", "NAME", "DESCRIPTION", "URL", "SITE_ID", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "OWNER_ID",
+				"OWNER_LOGIN", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_SECOND_NAME", "LAST_POST_DATE",
+				"LAST_POST_ID", "BLOG_USER_AVATAR", "BLOG_USER_ALIAS", "SOCNET_GROUP_ID",
+			];
+
+			if (CModule::IncludeModule("socialnetwork") && $arParams["USE_SOCNET"] == "Y")
 			{
 				unset($arFilter[">PERMS"]);
 				$arSelectFields[] = "SOCNET_BLOG_READ";

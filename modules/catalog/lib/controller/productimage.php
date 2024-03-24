@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\Image\BaseImage;
 use Bitrix\Catalog\v2\Image\DetailImage;
@@ -312,7 +313,13 @@ final class ProductImage extends Controller
 
 	private function getProduct(int $productId): ?BaseEntity
 	{
-		return ServiceContainer::getRepositoryFacade()->loadProduct($productId);
+		$product = ServiceContainer::getRepositoryFacade()->loadProduct($productId);
+		if ($product)
+		{
+			return $product;
+		}
+
+		return ServiceContainer::getRepositoryFacade()->loadVariation($productId);
 	}
 
 	private function hasImage(int $id, BaseEntity $product): Result

@@ -1,9 +1,11 @@
-import {Utils} from 'im.v2.lib.utils';
-
+import { Type } from 'main.core';
 import 'ui.icons.disk';
+
+import { Utils } from 'im.v2.lib.utils';
+
 import './file.css';
 
-import type {AttachFileItemConfig} from 'im.v2.const';
+import type { AttachFileItemConfig } from 'im.v2.const';
 
 export const AttachFileItem = {
 	name: 'AttachFileItem',
@@ -11,8 +13,8 @@ export const AttachFileItem = {
 	{
 		config: {
 			type: Object,
-			default: () => {}
-		}
+			default: () => {},
+		},
 	},
 	computed:
 	{
@@ -20,15 +22,15 @@ export const AttachFileItem = {
 		{
 			return this.config;
 		},
-		fileName(): string
+		fileName(): ?string
 		{
 			return this.internalConfig.name;
 		},
-		fileSize(): number
+		fileSize(): ?number
 		{
 			return this.internalConfig.size;
 		},
-		link()
+		link(): string
 		{
 			return this.internalConfig.link;
 		},
@@ -36,10 +38,20 @@ export const AttachFileItem = {
 		{
 			const NAME_MAX_LENGTH = 70;
 
-			return Utils.file.getShortFileName(this.fileName, NAME_MAX_LENGTH);
+			const fileName: string = Type.isStringFilled(this.fileName)
+				? this.fileName
+				: this.$Bitrix.Loc.getMessage('IM_ELEMENTS_ATTACH_RICH_FILE_NO_NAME')
+			;
+
+			return Utils.file.getShortFileName(fileName, NAME_MAX_LENGTH);
 		},
 		formattedFileSize(): string
 		{
+			if (!this.fileSize)
+			{
+				return '';
+			}
+
 			return Utils.file.formatFileSize(this.fileSize);
 		},
 		iconClasses()
@@ -49,7 +61,7 @@ export const AttachFileItem = {
 		fileIcon(): string
 		{
 			return Utils.file.getIconTypeByFilename(this.fileName);
-		}
+		},
 	},
 	methods:
 	{
@@ -57,11 +69,11 @@ export const AttachFileItem = {
 		{
 			if (!this.link)
 			{
-				return false;
+				return;
 			}
 
 			window.open(this.link, '_blank');
-		}
+		},
 	},
 	template: `
 		<div @click="openLink" class="bx-im-attach-file__container">
@@ -79,5 +91,5 @@ export const AttachFileItem = {
 				</div>
 			</div>
 		</div>
-	`
+	`,
 };

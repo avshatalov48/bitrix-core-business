@@ -525,6 +525,10 @@ this.BX = this.BX || {};
 	      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
 	      return scrollTop / scrollHeight * 100;
 	    }
+	    /**
+	     * Landing ID
+	     * @type {number}
+	     */
 	  }]);
 	  function Main(id) {
 	    var _this;

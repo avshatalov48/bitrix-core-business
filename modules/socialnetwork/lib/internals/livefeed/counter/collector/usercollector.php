@@ -3,9 +3,11 @@
 namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Collector;
 
 use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserAccessTable;
 use Bitrix\Socialnetwork\Item\Log;
 use Bitrix\Socialnetwork\Item\LogRight;
+use Bitrix\Socialnetwork\Livefeed\Provider;
 use Bitrix\Socialnetwork\LogCommentTable;
 use Bitrix\Socialnetwork\UserContentViewTable;
 use Bitrix\Socialnetwork\Internals\LiveFeed\Counter\CounterDictionary;
@@ -67,6 +69,38 @@ class UserCollector
 		return $counters;
 	}
 
+	public function add(string $counter, array $sonetLogIds = []): array
+	{
+		if (!$this->userId)
+		{
+			return [];
+		}
+
+		if (empty($sonetLogIds))
+		{
+			return [];
+		}
+
+		$sonetLogIds = array_unique($sonetLogIds);
+		sort($sonetLogIds);
+
+		$counters = [];
+
+		switch ($counter)
+		{
+			case CounterDictionary::COUNTER_NEW_POSTS:
+				$counters = $this->addPost($sonetLogIds);
+				break;
+			case CounterDictionary::COUNTER_NEW_COMMENTS:
+				$counters = $this->addComment($sonetLogIds);
+				break;
+			default:
+				break;
+		}
+
+		return $counters;
+	}
+
 	private function recountPosts(array $sonetLogIds): array
 	{
 		$counters = [];
@@ -81,12 +115,12 @@ class UserCollector
 
 			$logItemFields = $logItem->getFields();
 			// skip if the current user is an author of the post
-			if ((int)$logItemFields['USER_ID'] === $this->userId)
+			if ((int)($logItemFields['USER_ID'] ?? 0) === $this->userId)
 			{
 				continue;
 			}
 
-			if (!in_array($logItemFields['ENTITY_TYPE'], \CSocNetAllowed::GetAllowedEntityTypes(), true))
+			if (!in_array($logItemFields['ENTITY_TYPE'] ?? null, \CSocNetAllowed::GetAllowedEntityTypes(), true))
 			{
 				continue;
 			}
@@ -96,11 +130,7 @@ class UserCollector
 				continue;
 			}
 
-			$params = [
-				'RATING_ENTITY_ID' => $logItemFields['RATING_ENTITY_ID'],
-				'RATING_TYPE_ID' => $logItemFields['RATING_TYPE_ID'],
-			];
-			if (!$this->isItemSeenByUser($params))
+			if (!$this->isItemSeenByUser($logItemFields))
 			{
 				foreach ($this->findGroupsByLogIdAndUser($logId) as $groupId)
 				{
@@ -131,7 +161,7 @@ class UserCollector
 			}
 
 			$logItemFields = $logItem->getFields();
-			if (!in_array($logItemFields['ENTITY_TYPE'], \CSocNetAllowed::GetAllowedEntityTypes(), true))
+			if (!in_array($logItemFields['ENTITY_TYPE'] ?? null, \CSocNetAllowed::GetAllowedEntityTypes(), true))
 			{
 				continue;
 			}
@@ -141,12 +171,8 @@ class UserCollector
 				continue;
 			}
 
-			$params = [
-				'RATING_ENTITY_ID' => $logItemFields['RATING_ENTITY_ID'],
-				'RATING_TYPE_ID' => $logItemFields['RATING_TYPE_ID'],
-			];
-			$commentsCount = $this->isItemSeenByUser($params)
-				? $this->getCountCommentsByLogItemAndLastDateSeen($logId, $params)
+			$commentsCount = $this->isItemSeenByUser($logItemFields)
+				? $this->getCountCommentsByLogItemAndLastDateSeen($logId, $logItemFields)
 				: $this->getCountCommentsByLogItem($logId);
 
 			if ($commentsCount > 0)
@@ -167,9 +193,78 @@ class UserCollector
 		return $counters;
 	}
 
-	private function getCountCommentsByLogItemAndLastDateSeen(int $logId, array $params): int
+	private function addPost(array $sonetLogIds): array
 	{
-		$lastTimeSeen = $this->getContentViewByItem($params);
+		$counters = [];
+
+		foreach ($sonetLogIds as $logId)
+		{
+			$logItem = Log::getById($logId);
+			if (!$logItem)
+			{
+				continue;
+			}
+
+			$logItemFields = $logItem->getFields();
+			// skip if the current user is an author of the post
+			if ((int)($logItemFields['USER_ID'] ?? 0) === $this->userId)
+			{
+				continue;
+			}
+
+			foreach ($this->findGroupsByLogIdAndUser($logId) as $groupId)
+			{
+				if ($this->isFeedSeenByUser($groupId, new DateTime($logItemFields['LOG_DATE'])))
+				{
+					return [];
+				}
+
+				$counters[] = [
+					'USER_ID' => $this->userId,
+					'SONET_LOG_ID' => $logId,
+					'GROUP_ID' => $groupId,
+					'TYPE' => CounterDictionary::COUNTER_NEW_POSTS,
+					'VALUE' => 1
+				];
+			}
+		}
+
+		return $counters;
+	}
+
+	private function addComment(array $sonetLogIds): array
+	{
+		$counters = [];
+
+		foreach ($sonetLogIds as $logId)
+		{
+			foreach ($this->findGroupsByLogIdAndUser($logId) as $groupId)
+			{
+				$lastTimeFeedSeen = $this->getLastTimeFeedSeen($groupId);
+				$filter = $lastTimeFeedSeen
+					? ['=LOG_ID' => $logId, '!USER_ID' => $this->userId, '>LOG_DATE' => $lastTimeFeedSeen]
+					: ['=LOG_ID' => $logId, '!USER_ID' => $this->userId, ]
+				;
+				$commentsCount = LogCommentTable::getCount([
+					$filter
+				]);
+
+				$counters[] = [
+					'USER_ID' => $this->userId,
+					'SONET_LOG_ID' => $logId,
+					'GROUP_ID' => $groupId,
+					'TYPE' => CounterDictionary::COUNTER_NEW_COMMENTS,
+					'VALUE' => $commentsCount
+				];
+			}
+		}
+
+		return $counters;
+	}
+
+	private function getCountCommentsByLogItemAndLastDateSeen(int $logId, array $logItemFields): int
+	{
+		$lastTimeSeen = $this->getContentViewByItem($logItemFields);
 		if (!isset($lastTimeSeen['DATE_VIEW']))
 		{
 			return 0;
@@ -206,19 +301,35 @@ class UserCollector
 		return $res['CNT'] ?? 0;
 	}
 
-	private function isItemSeenByUser(array $params): bool
+	private function isItemSeenByUser(array $logItemFields): bool
 	{
-		return (bool)$this->getContentViewByItem($params);
+		return (bool)$this->getContentViewByItem($logItemFields);
 	}
 
-	private function getContentViewByItem(array $params): array|false
+	private function getContentViewByItem(array $logItemFields): array|false
 	{
+		$ratingTypeId = null;
+		$ratingEntityId = null;
+
+		if (!empty($logItemFields['RATING_ENTITY_ID']) && !empty($logItemFields['RATING_TYPE_ID']))
+		{
+			$ratingTypeId = $logItemFields['RATING_TYPE_ID'];
+			$ratingEntityId = $logItemFields['RATING_ENTITY_ID'];
+		}
+		else
+		{
+			$logItemFields['LOG_ID'] = $logItemFields['ID'];
+			$content = Provider::getContentId($logItemFields);
+			$ratingTypeId = $content['ENTITY_TYPE'] ?? null;
+			$ratingEntityId = $content['ENTITY_ID'] ?? null;
+		}
+
 		return UserContentViewTable::getList([
 			'select' => ['DATE_VIEW'],
 			'filter' => [
 				'=USER_ID' => $this->userId,
-				'=RATING_ENTITY_ID' => $params['RATING_ENTITY_ID'],
-				'=RATING_TYPE_ID' => $params['RATING_TYPE_ID']
+				'=RATING_ENTITY_ID' => $ratingEntityId,
+				'=RATING_TYPE_ID' => $ratingTypeId
 			]
 		])->fetch();
 	}
@@ -314,5 +425,32 @@ class UserCollector
 		}
 
 		return $this->sonetLogGroups[$sonetLogId];
+	}
+
+	private function isFeedSeenByUser(int $groupId, DateTime $logDate): bool
+	{
+		$lastTimeSeen = $this->getLastTimeFeedSeen($groupId);
+		if ($lastTimeSeen && $lastTimeSeen > $logDate)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private function getLastTimeFeedSeen(int $groupId): DateTime|null
+	{
+		$contentSeen = UserContentViewTable::getList([
+			'select' => ['DATE_VIEW', 'USER_ID', 'RATING_ENTITY_ID', 'RATING_TYPE_ID'],
+			'filter' => [
+				'=USER_ID' => $this->userId,
+				'=RATING_ENTITY_ID' => $groupId,
+				'=RATING_TYPE_ID' => Provider::DATA_ENTITY_TYPE_LIVE_FEED_VIEW,
+			]
+		])->fetch();
+
+		return $contentSeen['DATE_VIEW']
+			? new DateTime($contentSeen['DATE_VIEW'])
+			: null;
 	}
 }

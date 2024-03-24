@@ -1,11 +1,4 @@
 <?php
-/**
- * Bitrix Framework
- * @package bitrix
- * @subpackage sender
- * @copyright 2001-2012 Bitrix
- */
-
 namespace Bitrix\Subscribe;
 
 use Bitrix\Main\Loader;
@@ -49,7 +42,7 @@ if (Loader::includeModule('sender'))
 		 */
 		public function getCode()
 		{
-			return "subscriber";
+			return 'subscriber';
 		}
 
 		/**
@@ -59,31 +52,78 @@ if (Loader::includeModule('sender'))
 		 */
 		public function getData()
 		{
-			$filter = array();
+			$filter = [];
 
 			$rubric = $this->getFieldValue('RUBRIC', null);
 			if ($rubric)
-				$filter['RUBRIC'] = $rubric;
+			{
+				$filter['=RUBRICS.ID'] = $rubric;
+			}
 
 			$active = $this->getFieldValue('ACTIVE', null);
 			if ($active)
-				$filter['ACTIVE'] = $active;
+			{
+				$filter['=ACTIVE'] = $active;
+			}
 
 			$confirmed = $this->getFieldValue('CONFIRMED', null);
 			if ($confirmed)
-				$filter['CONFIRMED'] = $confirmed;
+			{
+				$filter['=CONFIRMED'] = $confirmed;
+			}
 
 			$dateInsertFrom = $this->getFieldValue('DATE_INSERT_FROM', null);
 			if ($dateInsertFrom)
-				$filter['INSERT_1'] = $dateInsertFrom;
+			{
+				$dateInsertFrom = \Bitrix\Main\Type\DateTime::tryParse($dateInsertFrom);
+				if ($dateInsertFrom)
+				{
+					$dateInsertFrom->setTime(0, 0, 0);
+					$filter['>=DATE_INSERT'] = $dateInsertFrom;
+				}
+			}
 
 			$dateInsertTo = $this->getFieldValue('DATE_INSERT_TO', null);
 			if ($dateInsertTo)
-				$filter['INSERT_2'] = $dateInsertTo;
+			{
+				$dateInsertTo = \Bitrix\Main\Type\DateTime::tryParse($dateInsertTo);
+				if ($dateInsertTo)
+				{
+					$dateInsertTo->setTime(23, 59, 59);
+					$filter['<=DATE_INSERT'] = $dateInsertTo;
+				}
+			}
 
-			$subscriberList = \CSubscription::GetList(array('ID' => 'ASC'), $filter);
+			$subscriberList = SubscriptionTable::getList([
+				'select' => ['*', 'USER_NAME' => 'USER.NAME', 'USER_LAST_NAME' => 'USER.LAST_NAME'],
+				'filter' => $filter,
+				'order' => ['ID' => 'ASC'],
+			]);
+			$subscriberList->addFetchDataModifier([$this, 'onDataFetch']);
 
-			return new CDBResultSenderConnectorIBlock($subscriberList);
+			return $subscriberList;
+		}
+
+		/**
+		 * Modifies $fields with adding calculated NAME field.
+		 *
+		 * @param array &$fields Fetched data.
+		 *
+		 * @return array
+		 */
+		public function onDataFetch(&$fields)
+		{
+			if (isset($fields['USER_NAME']))
+			{
+				$fields['NAME'] = $fields['USER_NAME'];
+			}
+
+			if (!$fields['NAME'] && isset($fields['USER_LAST_NAME']))
+			{
+				$fields['NAME'] = $fields['USER_LAST_NAME'];
+			}
+
+			return $fields;
 		}
 
 		/**
@@ -93,38 +133,41 @@ if (Loader::includeModule('sender'))
 		 */
 		public function getForm()
 		{
-			$dropdownValues = array(
+			$dropdownValues = [
 				'' => Loc::getMessage('sender_connector_subscriber_all'),
 				'Y' => Loc::getMessage('sender_connector_subscriber_y'),
 				'N' => Loc::getMessage('sender_connector_subscriber_n'),
-			);
+			];
 
-			$rubricInput = '<select name="'.$this->getFieldName('RUBRIC').'">';
-			$rubricList = \CRubric::GetList(array("SORT" => "ASC", "NAME" => "ASC"), array());
-			while ($rubric = $rubricList->Fetch())
+			$rubricInput = '<select name="' . $this->getFieldName('RUBRIC') . '">';
+			$rubricList = RubricTable::getList([
+				'select' => ['ID', 'NAME'],
+				'order' => ['SORT' => 'ASC', 'NAME' => 'ASC'],
+			]);
+			while ($rubric = $rubricList->fetch())
 			{
-				$inputSelected = ($rubric['ID'] == $this->getFieldValue('RUBRIC')? 'selected': '');
-				$rubricInput .= '<option value="'.$rubric['ID'].'" '.$inputSelected.'>';
+				$inputSelected = ($rubric['ID'] == $this->getFieldValue('RUBRIC') ? 'selected' : '');
+				$rubricInput .= '<option value="' . $rubric['ID'] . '" ' . $inputSelected . '>';
 				$rubricInput .= htmlspecialcharsEx('[' . $rubric['ID'] . '] ' . $rubric['NAME']);
 				$rubricInput .= '</option>';
 			}
 			$rubricInput .= '</select>';
 
-			$activeInput = '<select name="'.$this->getFieldName('ACTIVE').'">';
+			$activeInput = '<select name="' . $this->getFieldName('ACTIVE') . '">';
 			foreach ($dropdownValues as $k => $v)
 			{
-				$inputSelected = ($k == $this->getFieldValue('ACTIVE')? 'selected': '');
-				$activeInput .= '<option value="'.$k.'" '.$inputSelected.'>';
+				$inputSelected = ($k == $this->getFieldValue('ACTIVE') ? 'selected' : '');
+				$activeInput .= '<option value="' . $k . '" ' . $inputSelected . '>';
 				$activeInput .= htmlspecialcharsEx($v);
 				$activeInput .= '</option>';
 			}
 			$activeInput .= '</select>';
 
-			$confirmedInput = '<select name="'.$this->getFieldName('CONFIRMED').'">';
+			$confirmedInput = '<select name="' . $this->getFieldName('CONFIRMED') . '">';
 			foreach ($dropdownValues as $k => $v)
 			{
-				$inputSelected = ($k == $this->getFieldValue('CONFIRMED')? 'selected': '');
-				$confirmedInput .= '<option value="'.$k.'" '.$inputSelected.'>';
+				$inputSelected = ($k == $this->getFieldValue('CONFIRMED') ? 'selected' : '');
+				$confirmedInput .= '<option value="' . $k . '" ' . $inputSelected . '>';
 				$confirmedInput .= htmlspecialcharsEx($v);
 				$confirmedInput .= '</option>';
 			}
@@ -141,20 +184,20 @@ if (Loader::includeModule('sender'))
 			return '
 				<table>
 					<tr>
-						<td>'.Loc::getMessage('sender_connector_subscriber_rubric').'</td>
-						<td>'.$rubricInput.'</td>
+						<td>' . Loc::getMessage('sender_connector_subscriber_rubric') . '</td>
+						<td>' . $rubricInput . '</td>
 					</tr>
 					<tr>
-						<td>'.Loc::getMessage('sender_connector_subscriber_active').'</td>
-						<td>'.$activeInput.'</td>
+						<td>' . Loc::getMessage('sender_connector_subscriber_active') . '</td>
+						<td>' . $activeInput . '</td>
 					</tr>
 					<tr>
-						<td>'.Loc::getMessage('sender_connector_subscriber_confirmed').'</td>
-						<td>'.$confirmedInput.'</td>
+						<td>' . Loc::getMessage('sender_connector_subscriber_confirmed') . '</td>
+						<td>' . $confirmedInput . '</td>
 					</tr>
 					<tr>
-						<td>'.Loc::getMessage('sender_connector_subscriber_dateinsert').'</td>
-						<td>'.$dateInsertInput.'</td>
+						<td>' . Loc::getMessage('sender_connector_subscriber_dateinsert') . '</td>
+						<td>' . $dateInsertInput . '</td>
 					</tr>
 				</table>
 			';
@@ -162,28 +205,3 @@ if (Loader::includeModule('sender'))
 	}
 }
 
-class CDBResultSenderConnectorIBlock extends \CDBResult
-{
-	/**
-	 * Fetch fields from database resource
-	 * @return array|null
-	 */
-	public function Fetch()
-	{
-		$fields = parent::Fetch();
-		if($fields && !$fields['NAME'])
-		{
-			if(isset($fields['USER_NAME']))
-			{
-				$fields['NAME'] = $fields['USER_NAME'];
-			}
-
-			if(!$fields['NAME'] && isset($fields['USER_LAST_NAME']))
-			{
-				$fields['NAME'] = $fields['USER_LAST_NAME'];
-			}
-		}
-
-		return $fields;
-	}
-}

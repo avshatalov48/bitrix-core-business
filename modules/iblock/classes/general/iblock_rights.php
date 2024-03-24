@@ -2027,18 +2027,38 @@ class CIBlockRightsStorage
 			return;
 		}
 		$conn = Main\Application::getConnection();
+		if ($conn instanceof Main\DB\MysqlCommonConnection)
+		{
+			$conn->queryExecute("
+				delete r2 from b_iblock_right r
+				inner join b_iblock_element_right r2 on r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
+				where r.GROUP_CODE = '" . $ownerId . "'
+			");
+			$conn->queryExecute("
+				delete r2 from b_iblock_right r
+				inner join b_iblock_section_right r2 on r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
+				where r.GROUP_CODE = '" . $ownerId . "'
+			");
+		}
+		elseif ($conn instanceof Main\DB\PgsqlConnection)
+		{
+			$conn->queryExecute("
+				delete from b_iblock_element_right r2
+				using b_iblock_right r
+				where r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
+				and r.GROUP_CODE = '" . $ownerId . "'
+			");
+			$conn->queryExecute("
+				delete from b_iblock_section_right r2
+				using b_iblock_right r
+				where r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
+				and r.GROUP_CODE = '" . $ownerId . "'
+			");
+		}
+
 		$conn->queryExecute("
-			delete r2 from b_iblock_right r
-			inner join b_iblock_element_right r2 on r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
-			where r.GROUP_CODE = '".$ownerId."'
+			delete from b_iblock_right where GROUP_CODE = '" . $ownerId . "'
 		");
-		$conn->queryExecute("
-			delete r2 from b_iblock_right r
-			inner join b_iblock_section_right r2 on r2.RIGHT_ID = r.ID and r2.IBLOCK_ID = r.IBLOCK_ID
-			where r.GROUP_CODE = '".$ownerId."'
-		");
-		$conn->queryExecute("
-			delete from b_iblock_right where GROUP_CODE = '".$ownerId."'
-		");
+		unset($conn);
 	}
 }

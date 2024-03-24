@@ -37,6 +37,9 @@ $bReadOnly = false;
 
 IncludeModuleLangFile(__FILE__);
 
+/** @var $DB CDatabase */
+global $DB;
+
 //Check permissions
 if (!$io->FileExists($absoluteFilePath))
 {
@@ -616,14 +619,17 @@ foreach ($arDirProperties as $propertyCode => $propertyValue)
 $counters = COption::GetOptionString('seo', 'counters', SEO_COUNTERS_DEFAULT);
 
 //HTML output
-$aTabs = array(
-	array("DIV" => "seo_edit1", "TAB" => GetMessage('SEO_TOOLS_TAB_PAGE'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_PAGE_TITLE').' '.HtmlFilter::encode($back_url, ENT_QUOTES)),
-	array("DIV" => "seo_edit2", "TAB" => GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS_TITLE')),
-	array("DIV" => "seo_edit3", "TAB" => GetMessage('SEO_TOOLS_TAB_EDIT'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_EDIT_TITLE')),
-	array("DIV" => "seo_edit4", "TAB" => GetMessage('SEO_TOOLS_TAB_INDEX'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_INDEX_TITLE'), 'ONSELECT' => ($bStatsIncluded && $bStatsRights ? 'window.BXLoadTab(\'indexing\')' : '')),
-	array("DIV" => "seo_edit5", "TAB" => GetMessage('SEO_TOOLS_TAB_WORDS'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_WORDS_TITLE'), 'ONSELECT' => ($bStatsIncluded && $bStatsRights ? 'window.BXLoadTab(\'words\')' : '')),
-	array("DIV" => "seo_edit6", "TAB" => GetMessage('SEO_TOOLS_TAB_REFERERS'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_REFERERS_TITLE'), 'ONSELECT' => ($bStatsIncluded && $bStatsRights ? 'window.BXLoadTab(\'referers\')' : '')),
-);
+$aTabs = [
+	["DIV" => "seo_edit1", "TAB" => GetMessage('SEO_TOOLS_TAB_PAGE'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_PAGE_TITLE').' '.HtmlFilter::encode($back_url, ENT_QUOTES)],
+	["DIV" => "seo_edit2", "TAB" => GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_INTERNAL_KEYWORDS_TITLE')],
+	["DIV" => "seo_edit3", "TAB" => GetMessage('SEO_TOOLS_TAB_EDIT'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_EDIT_TITLE')],
+];
+if ($DB->type !== "PGSQL")
+{
+	$aTabs[] = ["DIV" => "seo_edit4", "TAB" => GetMessage('SEO_TOOLS_TAB_INDEX'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_INDEX_TITLE'), 'ONSELECT' => ($bStatsIncluded && $bStatsRights ? 'window.BXLoadTab(\'indexing\')' : '')];
+	$aTabs[] = ["DIV" => "seo_edit5", "TAB" => GetMessage('SEO_TOOLS_TAB_WORDS'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_WORDS_TITLE'), 'ONSELECT' => ($bStatsIncluded && $bStatsRights ? 'window.BXLoadTab(\'words\')' : '')];
+	$aTabs[] = ["DIV" => "seo_edit6", "TAB" => GetMessage('SEO_TOOLS_TAB_REFERERS'), "ICON" => "main_settings", "TITLE" => GetMessage('SEO_TOOLS_TAB_REFERERS_TITLE'), 'ONSELECT' => ($bStatsIncluded && $bStatsRights ? 'window.BXLoadTab(\'referers\')' : '')];
+}
 $tabControl = new CAdminTabControl("seoTabControl", $aTabs, true, true);
 
 $APPLICATION->SetTitle(GetMessage('SEO_TOOLS_TITLE'));
@@ -901,78 +907,84 @@ $tabControl->BeginNextTab();
 	endforeach;
 	?>
 <?endif;?>
-<?
-/********************************/
-/* searchers indexing stats tab */
-/********************************/
-$tabControl->BeginNextTab();
-if (!$bStatsIncluded):
-?>
-	<tr>
-		<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS'));?></td>
-	</tr>
-<?
-elseif (!$bStatsRights):
-?>
-	<tr>
-		<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS_RIGHTS'));?></td>
-	</tr>
-<?
-else:
-?>
-	<tr>
-		<td align="center"><div id="bx_seo_tab_indexing"><?echo BeginNote(),GetMessage('SEO_TOOLS_LOADING'),EndNote()?></div></td>
-	</tr>
-<?
-endif;
+<?php
+if ($DB->type !== "PGSQL")
+{
+	/********************************/
+	/* searchers indexing stats tab */
+	/********************************/
+	$tabControl->BeginNextTab();
+	if (!$bStatsIncluded):
+		?>
+		<tr>
+			<td><? ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS')); ?></td>
+		</tr>
+	<?php
+	elseif (!$bStatsRights):
+		?>
+		<tr>
+			<td><?php ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS_RIGHTS')); ?></td>
+		</tr>
+	<?php
+	else:
+		?>
+		<tr>
+			<td align="center">
+				<div id="bx_seo_tab_indexing"><? echo BeginNote(), GetMessage('SEO_TOOLS_LOADING'), EndNote() ?></div>
+			</td>
+		</tr>
+	<?
+	endif;
 
-/********************/
-/* search words tab */
-/********************/
-$tabControl->BeginNextTab();
-if (!$bStatsIncluded):
-?>
-	<tr>
-		<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS'));?></td>
-	</tr>
-<?
-elseif (!$bStatsRights):
-?>
-	<tr>
-		<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS_RIGHTS'));?></td>
-	</tr>
-<?
-else:
-?>
-	<tr>
-		<td align="center"><div id="bx_seo_tab_words"><?echo BeginNote(),GetMessage('SEO_TOOLS_LOADING'),EndNote()?></div></td>
-	</tr>
-<?
-endif;
-/****************/
-/* referers tab */
-/****************/
-$tabControl->BeginNextTab();
+	/********************/
+	/* search words tab */
+	/********************/
+	$tabControl->BeginNextTab();
+	if (!$bStatsIncluded):
+	?>
+		<tr>
+			<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS'));?></td>
+		</tr>
+	<?
+	elseif (!$bStatsRights):
+	?>
+		<tr>
+			<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS_RIGHTS'));?></td>
+		</tr>
+	<?
+	else:
+	?>
+		<tr>
+			<td align="center"><div id="bx_seo_tab_words"><?echo BeginNote(),GetMessage('SEO_TOOLS_LOADING'),EndNote()?></div></td>
+		</tr>
+	<?
+	endif;
 
-if (!$bStatsIncluded):
-?>
-	<tr>
-		<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS'));?></td>
-	</tr>
-<?
-elseif (!$bStatsRights):
-?>
-	<tr>
-		<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS_RIGHTS'));?></td>
-	</tr>
-<?
-else:
-?>
-	<tr>
-		<td align="center"><div id="bx_seo_tab_referers" align="center"><?echo BeginNote(),GetMessage('SEO_TOOLS_LOADING'),EndNote()?></td>
-	</tr>
-<?
-endif;
+	/****************/
+	/* referers tab */
+	/****************/
+	$tabControl->BeginNextTab();
+
+	if (!$bStatsIncluded):
+	?>
+		<tr>
+			<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS'));?></td>
+		</tr>
+	<?
+	elseif (!$bStatsRights):
+	?>
+		<tr>
+			<td><?ShowError(GetMessage('SEO_PAGE_ERROR_NO_STATS_RIGHTS'));?></td>
+		</tr>
+	<?
+	else:
+	?>
+		<tr>
+			<td align="center"><div id="bx_seo_tab_referers" align="center"><?echo BeginNote(),GetMessage('SEO_TOOLS_LOADING'),EndNote()?></td>
+		</tr>
+	<?
+	endif;
+}
 
 $tabControl->Buttons(array("disabled"=>$bReadOnly));
 $tabControl->End();

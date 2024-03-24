@@ -26,6 +26,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\Web\Json;
 use Bitrix\Photogallery\Copy\Integration\Group as PhotoFeature;
 use Bitrix\Socialnetwork\Component\WorkgroupForm;
 use Bitrix\Socialnetwork\Copy\GroupManager;
@@ -108,6 +109,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 		$request = Context::getCurrent()->getRequest();
 		$post = $request->getPostList()->toArray();
+		$postImage = $request->getFile('image_id');
 
 		$this->checkRequiredCreationParams($post);
 		if ($this->hasErrors())
@@ -124,9 +126,42 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 		$features = $this->getFeaturesFromRequest($post["features"]);
 
+		$post['project_term'] = $post['project_term'] ?? null;
+		if (is_string($post['project_term']))
+		{
+			$post['project_term'] = Json::decode($post['project_term']);
+		}
+		$post['moderators'] = $post['moderators'] ?? null;
+		if (is_string($post['moderators']))
+		{
+			$post['moderators'] = Json::decode($post['moderators']);
+		}
+
 		$copyManager = new GroupManager($executiveUserId, $groupIdsToCopy);
 		$this->setFeatures($copyManager, $executiveUserId, $features, $post);
 		$copyManager->setProjectTerm($this->getProjectTerm($post));
+
+		$inputImage = $postImage ?: ($post['image_id'] ?? null);
+		if (is_numeric($inputImage))
+		{
+			$group = CSocNetGroup::getByID($groupId);
+			if ((int) $group['IMAGE_ID'] === (int) $inputImage)
+			{
+				$inputImage = CFile::makeFileArray($inputImage);
+			}
+		}
+
+		$image = null;
+		if (is_array($inputImage))
+		{
+			$image = $this->loadImage($inputImage);
+		}
+		if ($image)
+		{
+			$image = CFile::makeFileArray($image);
+			$inputImage['del'] = 'N';
+		}
+		$post['image_id'] = $image;
 
 		$changedFields = $this->getChangedFields($post);
 		$copyManager->setChangedFields($changedFields);
@@ -591,8 +626,8 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			"PROJECT" => ($post["project"] == "Y" ? "Y" : "N"),
 			"LANDING" => ($post["landing"] == "Y" ? "Y" : "N"),
 			"OWNER_ID" => $post["owner_id"],
-			"MODERATORS" => $post["moderators"] ?? null,
-			"IMAGE_ID" => null,
+			"MODERATORS" => $post["moderators"],
+			"IMAGE_ID" => $post["image_id"],
 		];
 
 		if(Configuration::getValue("utf_mode") === true)
@@ -615,15 +650,6 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 					$changedFields["DESCRIPTION"] = Emoji::encode($changedFields["DESCRIPTION"]);
 				}
 			}
-		}
-
-		if ($post["image_id"])
-		{
-			$imageId = CFile::makeFileArray($post["image_id"]);
-			//$arImageID["old_file"] = $arResult["POST"]["IMAGE_ID"]; todo
-			$imageId["del"] = "N";
-			CFile::ResizeImage($imageId, array("width" => 300, "height" => 300), BX_RESIZE_IMAGE_PROPORTIONAL);
-			$changedFields["IMAGE_ID"] = $imageId;
 		}
 
 		if ($this->isExtranet())
@@ -702,5 +728,34 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 	{
 		$phpDateFormat = Bitrix\Main\Type\DateTime::convertFormatToPhp(FORMAT_DATE);
 		return Bitrix\Main\Type\DateTime::isCorrect($date, $phpDateFormat);
+	}
+
+	private function loadImage(array $imageFile): int
+	{
+		if (!(\CFile::checkImageFile($imageFile, 0, 0, 0, ['IMAGE']) === null))
+		{
+			return 0;
+		}
+
+		$imageFile['MODULE_ID'] = 'socialnetwork';
+		$fileId = \CFile::saveFile($imageFile, 'socialnetwork');
+		if (!$fileId)
+		{
+			return 0;
+		}
+
+		\CFile::resizeImageGet(
+			$fileId,
+			[
+				'width' => 300,
+				'height' => 300,
+			],
+			BX_RESIZE_IMAGE_PROPORTIONAL,
+			false,
+			false,
+			true,
+		);
+
+		return $fileId;
 	}
 }

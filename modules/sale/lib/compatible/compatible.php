@@ -53,7 +53,7 @@ class AliasedQuery extends Query
 	{
 		if (($this->aliases[$alias] ?? false))
 		{
-			throw new SystemException("`$alias` already added", 0, __FILE__, __LINE__);
+			throw new SystemException("'$alias' already added", 0, __FILE__, __LINE__);
 		}
 		elseif (! $field)
 		{
@@ -65,7 +65,7 @@ class AliasedQuery extends Query
 		}
 		else
 		{
-			throw new SystemException("invalid `$alias` type", 0, __FILE__, __LINE__);
+			throw new SystemException("invalid '$alias' type", 0, __FILE__, __LINE__);
 		}
 
 		return $this;

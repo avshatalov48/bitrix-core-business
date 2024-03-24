@@ -1,12 +1,16 @@
-import {BuilderModel} from 'ui.vue3.vuex';
-import {Type} from 'main.core';
-import {LinksModel} from './nested-modules/links';
-import {FavoritesModel} from './nested-modules/favorites';
-import {MembersModel} from './nested-modules/members';
-import {TasksModel} from './nested-modules/tasks';
-import {MeetingsModel} from './nested-modules/meeting';
-import {FilesModel} from './nested-modules/files';
+import { Type } from 'main.core';
+import { BuilderModel } from 'ui.vue3.vuex';
 
+import { LinksModel } from './nested-modules/links/links';
+import { FavoritesModel } from './nested-modules/favorites/favorites';
+import { MembersModel } from './nested-modules/members';
+import { TasksModel } from './nested-modules/tasks/tasks';
+import { MeetingsModel } from './nested-modules/meeting/meeting';
+import { FilesModel } from './nested-modules/files/files';
+
+import type { GetterTree, ActionTree, MutationTree, NestedModuleTree } from 'ui.vue3.vuex';
+
+/* eslint-disable no-param-reassign */
 export class SidebarModel extends BuilderModel
 {
 	getName(): string
@@ -14,7 +18,7 @@ export class SidebarModel extends BuilderModel
 		return 'sidebar';
 	}
 
-	getNestedModules(): { [moduleName: string]: BuilderModel }
+	getNestedModules(): NestedModuleTree
 	{
 		return {
 			members: MembersModel,
@@ -31,25 +35,23 @@ export class SidebarModel extends BuilderModel
 		return {
 			initedList: new Set(),
 			isFilesMigrated: false,
-			isLinksMigrated: false
+			isLinksMigrated: false,
 		};
 	}
 
-	getGetters()
+	getGetters(): GetterTree
 	{
 		return {
-			isInited: (state) => (chatId: number): boolean =>
-			{
+			isInited: (state) => (chatId: number): boolean => {
 				return state.initedList.has(chatId);
 			},
 		};
 	}
 
-	getActions()
+	getActions(): ActionTree
 	{
 		return {
-			setInited: (store, chatId) =>
-			{
+			setInited: (store, chatId: number) => {
 				if (!Type.isNumber(chatId))
 				{
 					return;
@@ -57,8 +59,7 @@ export class SidebarModel extends BuilderModel
 
 				store.commit('setInited', chatId);
 			},
-			setFilesMigrated: (store, value: boolean) =>
-			{
+			setFilesMigrated: (store, value: boolean) => {
 				if (!Type.isBoolean(value))
 				{
 					return;
@@ -66,8 +67,7 @@ export class SidebarModel extends BuilderModel
 
 				store.commit('setFilesMigrated', value);
 			},
-			setLinksMigrated: (store, value: boolean) =>
-			{
+			setLinksMigrated: (store, value: boolean) => {
 				if (!Type.isBoolean(value))
 				{
 					return;
@@ -78,19 +78,16 @@ export class SidebarModel extends BuilderModel
 		};
 	}
 
-	getMutations()
+	getMutations(): MutationTree
 	{
 		return {
-			setInited: (state, payload) =>
-			{
-				state.initedList.add(payload);
+			setInited: (state, chatId: number) => {
+				state.initedList.add(chatId);
 			},
-			setFilesMigrated: (state, payload: boolean) =>
-			{
+			setFilesMigrated: (state, payload: boolean) => {
 				state.isFilesMigrated = payload;
 			},
-			setLinksMigrated: (state, payload: boolean) =>
-			{
+			setLinksMigrated: (state, payload: boolean) => {
 				state.isLinksMigrated = payload;
 			},
 		};

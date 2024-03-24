@@ -163,23 +163,24 @@ class SubscribeTable extends Entity\DataManager
 	/**
 	 * Handler onUserDelete for change subscription data when removing a user.
 	 *
-	 * @param integer $userId Id user.
-	 * @return bool
+	 * @param int $userId Id user.
+	 * @return void
 	 */
-	public static function onUserDelete($userId)
+	public static function onUserDelete($userId): void
 	{
 		$userId = (int)$userId;
 		if ($userId <= 0)
-			return false;
+		{
+			return;
+		}
 
 		$connection = Application::getConnection();
 		$helper = $connection->getSqlHelper();
-		$connection->queryExecute('update '.$helper->quote(static::getTableName()).' set '
-			.$helper->quote('DATE_TO').' = '.$helper->getCurrentDateTimeFunction().', '
-			.$helper->quote('USER_ID').' = \'NULL\' where '.$helper->quote('USER_ID').' = '.$userId
+		$connection->queryExecute(
+			'delete from ' . $helper->quote(static::getTableName())
+			. ' where ' . $helper->quote('USER_ID') . ' = ' . $userId
 		);
-
-		return true;
+		unset($helper, $connection);
 	}
 
 	/**

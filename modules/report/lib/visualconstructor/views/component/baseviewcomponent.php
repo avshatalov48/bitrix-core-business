@@ -19,10 +19,10 @@ abstract class BaseViewComponent extends \CBitrixComponent
 		/**
 		 * @see IReportSingleData::getSingleData()
 		 */
-		$this->arResult['CALCULATION_RESULT'] = $this->arParams['RESULT'];
-		$this->arResult['WIDGET'] = $this->arParams['WIDGET'];
-		$this->arResult['HEIGHT'] = $this->arParams['HEIGHT'];
-		$this->arResult['WIDGET_COLOR'] = $this->arParams['WIDGET_COLOR'];
+		$this->arResult['CALCULATION_RESULT'] = $this->arParams['RESULT'] ?? null;
+		$this->arResult['WIDGET'] = $this->arParams['WIDGET'] ?? null;
+		$this->arResult['HEIGHT'] = $this->arParams['HEIGHT'] ?? null;
+		$this->arResult['WIDGET_COLOR'] = $this->arParams['WIDGET_COLOR'] ?? null;
 		$this->includeComponentTemplate();
 	}
 }

@@ -337,9 +337,13 @@ class OrderCompatibility extends Internals\EntityCompatibility
 
 		$shipment = null;
 		$deliveryId = null;
-		$deliveryCode = isset($fields['DELIVERY_ID']) && strval(trim($fields['DELIVERY_ID'])) != '' ? trim($fields['DELIVERY_ID']) : null;
+		$deliveryCode = trim((string)($fields['DELIVERY_ID'] ?? ''));
+		if ($deliveryCode === '')
+		{
+			$deliveryCode = null;
+		}
 
-		if (strval(trim($deliveryCode)) != '')
+		if ($deliveryCode !== null)
 		{
 			$deliveryId = \CSaleDelivery::getIdByCode($deliveryCode);
 		}
@@ -398,9 +402,12 @@ class OrderCompatibility extends Internals\EntityCompatibility
 					unset($shipmentFields['ALLOW_DELIVERY']);
 					unset($shipmentFields['DEDUCTED']);
 
-					if ($fields['CURRENCY'] != $shipmentFields['CURRENCY'])
+					if (isset($fields['CURRENCY']))
 					{
-						$shipmentFields['CURRENCY'] = $fields['CURRENCY'];
+						if ($fields['CURRENCY'] != $shipmentFields['CURRENCY'])
+						{
+							$shipmentFields['CURRENCY'] = $fields['CURRENCY'];
+						}
 					}
 
 					/** @var Sale\Result $r */
@@ -729,7 +736,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 		}
 
 		$result = new Sale\Result();
-		$sum = floatval($fields['PRICE']);
+		$sum = (float)($fields['PRICE'] ?? null);
 
 		if (isset($fields['SUM_PAID'])
 			&& floatval($fields['SUM_PAID']) >= floatval($fields['PRICE']))
@@ -809,8 +816,9 @@ class OrderCompatibility extends Internals\EntityCompatibility
 						$paymentOuter = $payment;
 					}
 
-					if ($paymentOuter !== null
-						&& ($paymentOuter->getPaymentSystemId() != intval($fields["PAY_SYSTEM_ID"]))
+					if (isset($fields["PAY_SYSTEM_ID"])
+						&& $paymentOuter !== null
+						&& ($paymentOuter->getPaymentSystemId() != (int)$fields["PAY_SYSTEM_ID"])
 					)
 					{
 						/** @var Sale\PaySystem\Service $service */
@@ -822,10 +830,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 							$order->setFieldNoDemand('PAY_SYSTEM_ID', intval($fields["PAY_SYSTEM_ID"]));
 						}
 					}
-
 				}
-
-
 			}
 
 			if (isset($fields['PAYED']))

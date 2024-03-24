@@ -10,7 +10,7 @@ use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\Item\LogIndex;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Socialnetwork\LogViewTable;
-use Bitrix\Socialnetwork\Space\Toolbar\Composition;
+use Bitrix\Socialnetwork\Space;
 
 class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 {
@@ -215,6 +215,21 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 						unset($accessCodesList[$i]);
 					}
 				}
+				$this->setFilterKey('LOG_RIGHTS', $accessCodesList);
+			}
+			elseif ($params['DISPLAY'] === 'commonSpace')
+			{
+				$this->addFilter('!ENTITY_TYPE', [SONET_ENTITY_GROUP]);
+
+				$accessCodesList = $USER->getAccessCodes();
+				foreach ($accessCodesList as $i => $code)
+				{
+					if (!preg_match('/^(U|AU|D|DR|G2)/', $code))
+					{
+						unset($accessCodesList[$i]);
+					}
+				}
+
 				$this->setFilterKey('LOG_RIGHTS', $accessCodesList);
 			}
 
@@ -1404,8 +1419,8 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 		{
 			return;
 		}
-		$composition = new Composition($this->userId, $this->groupId);
+		$composition = new Space\Toolbar\Composition($this->userId, $this->groupId);
 		$deselectedItems = $composition->getDeselectedSettings();
-		$this->addFilter('!' . Composition::FILTER, $deselectedItems);
+		$this->addFilter('!' . Space\Toolbar\Composition::FILTER, $deselectedItems);
 	}
 }

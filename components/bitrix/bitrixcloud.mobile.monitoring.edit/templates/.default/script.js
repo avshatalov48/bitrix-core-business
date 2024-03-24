@@ -1,45 +1,55 @@
-__BitrixCloudMobMonEdt = function(params)
+BX.namespace('BX.BitrixCloud');
+BX.BitrixCloud.MobileMonitorEdit = function()
 {
-	for(var key in params)
-		this[key] = params[key];
-};
-
-__BitrixCloudMobMonEdt.prototype.getFields = function(form)
-{
-	if(!form || !form.elements || !form.elements.length)
-		return false;
-
-	aResult = [];
-
-	for(var i=form.elements.length-1; i>=0; i--)
+	this.getFields = function(form)
 	{
-		if(form.elements[i].type == 'checkbox' || form.elements[i].type == 'radio')
-			if(!form.elements[i].checked)
+		if (!form || !form.elements || form.elements.length === 0)
+		{
+			return false;
+		}
+
+		const result = [];
+
+		for (let i = form.elements.length - 1; i >= 0; i--)
+		{
+			if (
+				(form.elements[i].type === 'checkbox' || form.elements[i].type === 'radio')
+				&& (!form.elements[i].checked)
+			)
+			{
 				continue;
+			}
 
-		if(!aResult[form.elements[i].name])
-			aResult[form.elements[i].name] = [];
+			if (!result[form.elements[i].name])
+			{
+				result[form.elements[i].name] = [];
+			}
 
-		aResult[form.elements[i].name].push(form.elements[i].value);
-	}
+			result[form.elements[i].name].push(form.elements[i].value);
+		}
 
-	if(aResult["TESTS[]"])
-	{
-		aResult["TESTS"] = aResult["TESTS[]"];
-		delete(aResult["TESTS[]"]);
-	}
+		if (result['TESTS[]'])
+		{
+			result.TESTS = result['TESTS[]'];
+			delete result['TESTS[]'];
+		}
 
-	if(aResult["EMAILS[]"])
-	{
-		aResult["EMAILS"] = aResult["EMAILS[]"];
-		delete(aResult["EMAILS[]"]);
-	}
+		if (result['EMAILS[]'])
+		{
+			result.EMAILS = result['EMAILS[]'];
+			delete result['EMAILS[]'];
+		}
 
-	if(aResult["LANG"])
-		aResult["LANG"] = aResult["LANG"].pop();
+		if (result.LANG)
+		{
+			result.LANG = result.LANG.pop();
+		}
 
-	if(aResult["IS_HTTPS"])
-		aResult["IS_HTTPS"] = aResult["IS_HTTPS"].pop();
+		if (result.IS_HTTPS)
+		{
+			result.IS_HTTPS = result.IS_HTTPS.pop();
+		}
 
-	return aResult;
+		return result;
+	};
 };

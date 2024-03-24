@@ -72,7 +72,7 @@ abstract class CounterState implements \Iterator
 	{
 		$counters = $this->counters[CounterDictionary::META_PROP_ALL];
 
-		if ($groupId > 0)
+		if ($groupId >= 0)
 		{
 			if (
 				!array_key_exists($name, $counters)
@@ -85,12 +85,14 @@ abstract class CounterState implements \Iterator
 			return $counters[$name][$groupId];
 		}
 
-		if (!array_key_exists($name, $counters))
-		{
-			return 0;
-		}
+		return 0;
 
-		return array_sum($counters[$name]);
+//		if (!array_key_exists($name, $counters))
+//		{
+//			return 0;
+//		}
+//
+//		return array_sum($counters[$name]);
 	}
 
 	/**

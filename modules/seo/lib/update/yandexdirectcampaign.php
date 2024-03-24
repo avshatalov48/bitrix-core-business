@@ -45,8 +45,8 @@ class YandexDirectCampaign
 	protected static function clearData()
 	{
 		global $DB;
-		$DB->Query("TRUNCATE TABLE `b_seo_adv_campaign`");
-		$DB->Query("TRUNCATE TABLE `b_seo_adv_banner`");
-		$DB->Query("TRUNCATE TABLE `b_seo_adv_group`");
+		$DB->Query("TRUNCATE TABLE b_seo_adv_campaign");
+		$DB->Query("TRUNCATE TABLE b_seo_adv_banner");
+		$DB->Query("TRUNCATE TABLE b_seo_adv_group");
 	}
 }

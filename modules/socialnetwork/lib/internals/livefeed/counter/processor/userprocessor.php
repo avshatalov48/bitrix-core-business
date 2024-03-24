@@ -2,8 +2,6 @@
 
 namespace Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Processor;
 
-use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
-use Bitrix\Socialnetwork\Internals\EventService\Service;
 use Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Exception\UnknownCounterException;
 use Bitrix\Socialnetwork\Internals\LiveFeed\Counter;
 use Bitrix\Socialnetwork\Internals\LiveFeed\Counter\Queue\Queue;
@@ -48,50 +46,10 @@ class UserProcessor
 			CounterDictionary::COUNTER_NEW_COMMENTS,
 		];
 
-		$groupsToReset = $groupId === 0
-			? []
-			: [$groupId];
+		$itemsToReset = $this->getSonetLogItemsByGroup($groupId);
 
-		$state = Counter\State\Factory::getState($this->userId);
-		// mark everything as 'viewed'
-		foreach ($state  as $row)
-		{
-			$stateGroupId = (int)$row['GROUP_ID'];
-			$stateLogId = (int)$row['SONET_LOG_ID'];
-
-			if ($stateGroupId !== $groupId || $stateLogId === 0)
-			{
-				continue;
-			}
-
-			$logItem = Log::getById($row['SONET_LOG_ID']);
-			if ($logItem === false)
-			{
-				continue;
-			}
-
-			$typeId = $logItem->getFields()['RATING_TYPE_ID'] ?? null;
-			$entityId = $logItem->getFields()['RATING_ENTITY_ID'] ?? null;
-
-			if (!$typeId || !$entityId)
-			{
-				continue;
-			}
-
-			UserContentViewTable::set([
-				'userId' => $this->userId,
-				'typeId' => $typeId,
-				'entityId' => $entityId,
-				'logId' => $row['SONET_LOG_ID'],
-				'save' => true
-			]);
-		}
-
-		self::reset($this->userId, $types, [], $groupsToReset);
+		self::reset($this->userId, $types, $itemsToReset);
 		Counter\State\Factory::reloadState($this->userId);
-		Service::addEvent(EventDictionary::EVENT_SPACE_LIVEFEED_COUNTER_UPD,[
-			'USER_ID' => $this->userId,
-		]);
 	}
 
 	public function recountAll(string $counter): void
@@ -113,6 +71,22 @@ class UserProcessor
 		(new Agent())->addAgent();
 	}
 
+	public function add(string $counter, array $logIds = []): void
+	{
+		if (!in_array($counter, [CounterDictionary::COUNTER_NEW_POSTS, CounterDictionary::COUNTER_NEW_COMMENTS]))
+		{
+			throw new UnknownCounterException();
+		}
+
+		$counters = $this->getUserCollector()->add($counter, $logIds);
+
+		$counterTypes = [$counter];
+		self::reset($this->userId, $counterTypes, $logIds);
+		$this->batchInsert($counters);
+
+		Counter\State\Factory::getState($this->userId)->updateState($counters, $counterTypes, $logIds);
+	}
+
 	public function recount(string $counter, array $logIds = []): void
 	{
 		if (!in_array($counter, [CounterDictionary::COUNTER_NEW_POSTS, CounterDictionary::COUNTER_NEW_COMMENTS]))
@@ -127,9 +101,21 @@ class UserProcessor
 		$this->batchInsert($counters);
 
 		Counter\State\Factory::getState($this->userId)->updateState($counters, $counterTypes, $logIds);
-		Service::addEvent(EventDictionary::EVENT_SPACE_LIVEFEED_COUNTER_UPD,[
-			'USER_ID' => $this->userId,
-		]);
+	}
+
+	public function seen(string $counter, array $logIds = []): void
+	{
+		if (!in_array($counter, [CounterDictionary::COUNTER_NEW_POSTS, CounterDictionary::COUNTER_NEW_COMMENTS]))
+		{
+			throw new UnknownCounterException();
+		}
+
+		$counters = [];
+		$counterTypes = [$counter];
+		self::reset($this->userId, $counterTypes, $logIds);
+		$this->batchInsert($counters);
+
+		Counter\State\Factory::getState($this->userId)->updateState($counters, $counterTypes, $logIds);
 	}
 
 	private function addToQueue(string $counter, array $logIds): void
@@ -153,5 +139,20 @@ class UserProcessor
 			$this->sonetLogCollector = Collector\SonetLogCollector::getInstance($this->userId);
 		}
 		return $this->sonetLogCollector;
+	}
+
+	private function getSonetLogItemsByGroup(int $groupId): array
+	{
+		$items = [];
+
+		foreach (Counter\State\Factory::getState($this->userId) as $item)
+		{
+			if ($item['GROUP_ID'] == $groupId)
+			{
+				$items[] = $item['SONET_LOG_ID'];
+			}
+		}
+
+		return $items;
 	}
 }

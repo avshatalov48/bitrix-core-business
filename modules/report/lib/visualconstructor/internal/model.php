@@ -37,7 +37,7 @@ abstract class Model implements IErrorable
 	/**
 	 * Gets the fully qualified name of table class which belongs to current model.
 	 * @throws \Bitrix\Main\NotImplementedException
-	 * @return string
+	 * @return string|\Bitrix\Main\Entity\DataManager
 	 */
 	public static function getTableClassName()
 	{
@@ -122,6 +122,7 @@ abstract class Model implements IErrorable
 		$ormFields = $this->getConvertedMapAttributesToOrmFields();
 		if (!$ormFields['ID'])
 		{
+			unset($ormFields['ID']);
 			$addResult = $this->add($ormFields);
 			$ownerId = $addResult->getId();
 			$this->setId($ownerId);
@@ -250,7 +251,18 @@ abstract class Model implements IErrorable
 	 */
 	private function add(array $data)
 	{
+		/** @var \Bitrix\Main\Entity\DataManager $tableClassName */
 		$tableClassName = static::getTableClassName();
+		$entity = $tableClassName::getEntity();
+		$primaryFields = $entity->getPrimaryArray();
+		foreach ($primaryFields as $field)
+		{
+			if (array_key_exists($field, $data) && empty($data[$field]))
+			{
+				unset($data[$field]);
+			}
+		}
+
 		$resultData = $tableClassName::add($data);
 		$this->currentDbState = $resultData->getData();
 		return $resultData;
@@ -341,7 +353,7 @@ abstract class Model implements IErrorable
 		$query = static::getList($parameters);
 		while ($row = $query->fetch())
 		{
-			if (!$modelList[$row['ID']])
+			if (!($modelList[$row['ID']] ?? false))
 			{
 				$model = static::buildFromArray($row);
 			}

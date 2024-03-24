@@ -80,8 +80,13 @@ export class AvatarMenu extends BaseMenu
 		};
 	}
 
-	getProfileItem(): MenuItem
+	getProfileItem(): ?MenuItem
 	{
+		if (this.isBot())
+		{
+			return null;
+		}
+
 		return {
 			text: Loc.getMessage('IM_DIALOG_AVATAR_MENU_OPEN_PROFILE'),
 			href: Utils.user.getProfileLink(this.context.user.id),
@@ -111,5 +116,22 @@ export class AvatarMenu extends BaseMenu
 				}
 			},
 		};
+	}
+
+	isUser(): boolean
+	{
+		return this.store.getters['chats/isUser'](this.context.user.id);
+	}
+
+	isBot(): boolean
+	{
+		if (!this.isUser())
+		{
+			return false;
+		}
+
+		const user: ImModelUser = this.store.getters['users/get'](this.context.user.id);
+
+		return user.bot === true;
 	}
 }

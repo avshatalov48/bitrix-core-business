@@ -57,11 +57,6 @@ class Restriction
 			return false;
 		}
 
-		if (Option::get('im', 'ai_copilot_chat_m1_available', 'N') === 'N')
-		{
-			return false;
-		}
-
 		$copilotSetting = (new \Bitrix\AI\Tuning\Manager())->getItem(self::SETTINGS_BY_TYPE[$this->type]);
 		if (!isset($copilotSetting))
 		{
@@ -76,11 +71,6 @@ class Restriction
 		$result = new \Bitrix\Main\Entity\EventResult;
 		$items = [];
 		$groups = [];
-
-		if (Option::get('im', 'ai_copilot_chat_m1_available', 'N') === 'N')
-		{
-			return $result;
-		}
 
 		if (\Bitrix\AI\Engine::getByCategory(self::CATEGORIES_BY_TYPE[self::AI_COPILOT_CHAT], \Bitrix\AI\Context::getFake()))
 		{

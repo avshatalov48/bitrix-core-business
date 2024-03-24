@@ -48,7 +48,7 @@ CJSCore::registerExt('applayout', array(
 		'REST_APPLICATION_VIEW_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationPlacementViewUrl(),
 		'REST_PLACEMENT_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationPlacementUrl()
 	),
-	'rel' => array('ui.design-tokens', 'ajax', 'popup', 'sidepanel'),
+	'rel' => array('ui.design-tokens', 'ajax', 'popup', 'sidepanel', 'rest.app-form'),
 ));
 
 CJSCore::registerExt('appplacement', array(

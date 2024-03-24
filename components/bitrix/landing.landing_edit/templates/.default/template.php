@@ -128,7 +128,7 @@ else
 
 // assets
 
-Extension::load(['ui.buttons', 'ui.layout-form', 'ui.icon-set.actions', 'ai-picker']);
+Extension::load(['ui.buttons', 'ui.layout-form', 'ui.icon-set.actions', 'ai-copilot']);
 CJSCore::init(['color_picker', 'landing_master']);
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/style.css');
@@ -439,7 +439,7 @@ if ($arParams['SUCCESS_SAVE'])
 												<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
 													<div class="ui-icon-set --pencil-60"></div>
 												</div>
-												<div class="landing-editable-field-button --ai"></div>
+												<div class="landing-editable-field-button --copilot"></div>
 											</div>
 										</span>
 									</div>
@@ -484,9 +484,7 @@ if ($arParams['SUCCESS_SAVE'])
 												<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
 													<div class="ui-icon-set --pencil-60"></div>
 												</div>
-												<div class="landing-editable-field-button --ai">
-
-												</div>
+												<div class="landing-editable-field-button --copilot"></div>
 											</div>
 										</span>
 									</div>
@@ -646,23 +644,6 @@ if ($arParams['SUCCESS_SAVE'])
 											$pageFields['METAMAIN_DESCRIPTION']->setValue($meta['description']);
 										}
 										?>
-										<script type="text/javascript">
-											BX.ready(function ()
-											{
-												BX.Landing.FieldLengthLimited([
-													{
-														field: BX('<?= $template->getFieldId('METAMAIN_TITLE') ?>'),
-														node: BX('<?= $template->getFieldId('METAMAIN_TITLE_NODE') ?>'),
-														length: 75,
-													},
-													{
-														field: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION') ?>'),
-														node: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION_NODE') ?>'),
-														length: 200,
-													},
-												]);
-											});
-										</script>
 										<div class="landing-form-meta">
 											<div
 												class="landing-form-meta-title"
@@ -678,11 +659,48 @@ if ($arParams['SUCCESS_SAVE'])
 												<?=htmlspecialcharsbx($pageFields['METAMAIN_DESCRIPTION']->getValue())?>
 											</div>
 										</div>
-										<?php $template->showField($pageFields['METAMAIN_TITLE'], ['title' => true]);?>
-										<?php $template->showField($pageFields['METAMAIN_DESCRIPTION'], ['title' => true]);?>
+										<?php $template->showField($pageFields['METAMAIN_TITLE'], ['title' => true, 'buttons' => ['copilot']]);?>
+										<?php $template->showField($pageFields['METAMAIN_DESCRIPTION'], ['title' => true, 'buttons' => ['copilot']]);?>
+
+										<script type="text/javascript">
+											BX.ready(function ()
+											{
+												new BX.Landing.FieldLengthLimited(
+													{
+														field: BX('<?= $template->getFieldId('METAMAIN_TITLE') ?>'),
+														node: BX('<?= $template->getFieldId('METAMAIN_TITLE_NODE') ?>'),
+														length: 75,
+														isAiAvailable: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_AVAILABLE']) ?>,
+														isAiActive: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_ACTIVE']) ?>,
+													},
+												);
+												new BX.Landing.FieldLengthLimited(
+													{
+														field: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION') ?>'),
+														node: BX('<?= $template->getFieldId('METAMAIN_DESCRIPTION_NODE') ?>'),
+														length: 200,
+														isAiAvailable: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_AVAILABLE']) ?>,
+														isAiActive: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_ACTIVE']) ?>,
+													},
+												);
+											});
+										</script>
 
 										<?php if (isset($pageFields['METAMAIN_KEYWORDS'])): ?>
-											<?php $template->showField($pageFields['METAMAIN_KEYWORDS'], ['title' => true]);?>
+											<?php $template->showField($pageFields['METAMAIN_KEYWORDS'], ['title' => true, 'buttons' => ['copilot']]);?>
+										<script type="text/javascript">
+											BX.ready(function ()
+											{
+												new BX.Landing.FieldLengthLimited(
+													{
+														field: BX('<?= $template->getFieldId('METAMAIN_KEYWORDS') ?>'),
+														length: null,
+														isAiAvailable: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_AVAILABLE']) ?>,
+														isAiActive: <?= \CUtil::PhpToJSObject($arResult['AI_TEXT_ACTIVE']) ?>,
+													},
+												);
+											});
+										</script>
 										<?php endif; ?>
 									<?php endif; ?>
 								</div>

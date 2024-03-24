@@ -2,15 +2,17 @@ import { EventEmitter } from 'main.core.events';
 
 export class PullRequests extends EventEmitter
 {
-	#groupId: number;
+	#entityId: number;
+	#currentUserId: number;
 
-	constructor(groupId: number)
+	constructor(entityId: number, currentUserId: number)
 	{
 		super();
 
 		this.setEventNamespace('BX.Socialnetwork.Spaces.Menu.PullRequests');
 
-		this.#groupId = parseInt(groupId, 10);
+		this.#entityId = parseInt(entityId, 10);
+		this.#currentUserId = parseInt(currentUserId, 10);
 	}
 
 	getModuleId(): string
@@ -24,14 +26,41 @@ export class PullRequests extends EventEmitter
 			workgroup_user_add: this.#update.bind(this),
 			workgroup_user_delete: this.#update.bind(this),
 			workgroup_user_update: this.#update.bind(this),
+			workgroup_update: this.#update.bind(this),
+			user_spaces_counter: this.#updateCounters.bind(this),
 		};
 	}
 
 	#update(data): void
 	{
-		if (parseInt(data.params.GROUP_ID, 10) === this.#groupId)
+		if (parseInt(data.params.GROUP_ID, 10) === this.#entityId)
 		{
 			this.emit('update');
+		}
+	}
+
+	#updateCounters(data): void
+	{
+		if (data.userId && parseInt(data.userId, 10) === this.#currentUserId)
+		{
+			// eslint-disable-next-line no-param-reassign
+			data.space = data.spaces.find((space) => space.id === this.#entityId);
+
+			if (!data.space)
+			{
+				// no counters for this space
+				// eslint-disable-next-line no-param-reassign
+				data.space = {
+					id: this.#entityId,
+					metrics: {
+						countersTasksTotal: 0,
+						countersCalendarTotal: 0,
+						countersLiveFeedTotal: 0,
+					},
+				};
+			}
+
+			this.emit('updateCounters', data);
 		}
 	}
 }

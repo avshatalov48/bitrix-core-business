@@ -2,11 +2,9 @@
 namespace Bitrix\Im\Model;
 
 use \Bitrix\Main\Type\DateTime,
-	\Bitrix\Main\Localization\Loc,
 	\Bitrix\Main\Entity\DataManager,
 	\Bitrix\Main\Entity\IntegerField,
 	\Bitrix\Main\Entity\DatetimeField;
-Loc::loadMessages(__FILE__);
 
 /**
  * Class NoRelationPermissionDiskTable
@@ -57,20 +55,20 @@ class NoRelationPermissionDiskTable extends DataManager
 			new IntegerField('ID', array(
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_ID_FIELD'),
 			)),
 			new IntegerField('CHAT_ID', array(
 				'required' => true,
-				'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_CHAT_ID_FIELD'),
+				//'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_CHAT_ID_FIELD'),
 			)),
 			new IntegerField('USER_ID', array(
 				'required' => true,
-				'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_USER_ID_FIELD'),
+				//'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_USER_ID_FIELD'),
 			)),
 			new DatetimeField('ACTIVE_TO', array(
 				'required' => true,
 				'default_value' => new DateTime,
-				'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_ACTIVE_TO_FIELD'),
+				//'title' => Loc::getMessage('NO_RELATION_PERMISSION_DISK_ENTITY_ACTIVE_TO_FIELD'),
 			)),
 		);
 	}

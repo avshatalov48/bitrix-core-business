@@ -828,23 +828,20 @@ this.BX = this.BX || {};
 	        this.DOM.form.allow_invite.checked = this.entry.allowInvite;
 	      }
 	    }
-	    let dateTime = this.dateTimeControl.getValue();
-	    const needToLoadAdditional = this.planner.isNeedToExpandTimeline(dateTime.from, dateTime.to);
+	    const dateTime = this.dateTimeControl.getValue();
 	    this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay, {
 	      focus: true
 	    });
 	    if (entry.isSharingEvent()) {
 	      this.planner.setReadonly();
 	    }
-	    if (!needToLoadAdditional) {
-	      this.loadPlannerData({
-	        entityList: this.getUserSelectorEntityList(),
-	        from: calendar_util.Util.formatDate(entry.from.getTime() - calendar_util.Util.getDayLength() * 3),
-	        to: calendar_util.Util.formatDate(entry.to.getTime() + calendar_util.Util.getDayLength() * 10),
-	        timezone: entry.getTimezoneFrom(),
-	        location: this.locationSelector.getTextValue()
-	      });
-	    }
+	    this.loadPlannerData({
+	      entityList: this.getUserSelectorEntityList(),
+	      from: calendar_util.Util.formatDate(entry.from.getTime() - calendar_util.Util.getDayLength() * 3),
+	      to: calendar_util.Util.formatDate(entry.to.getTime() + calendar_util.Util.getDayLength() * 10),
+	      timezone: entry.getTimezoneFrom(),
+	      location: this.locationSelector.getTextValue()
+	    });
 	  }
 	  updateEventNameInputTitle() {
 	    if (this.isTitleOverflowing()) {
@@ -1878,7 +1875,8 @@ this.BX = this.BX || {};
 	      id: 'user',
 	      options: {
 	        inviteGuestLink: true,
-	        emailUsers: true
+	        emailUsers: true,
+	        analyticsSource: 'calendar'
 	      },
 	      filters: [{
 	        id: 'calendar.attendeeFilter',

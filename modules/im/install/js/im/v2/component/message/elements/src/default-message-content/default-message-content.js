@@ -36,6 +36,10 @@ export const DefaultMessageContent = {
 			type: Boolean,
 			default: true,
 		},
+		withAttach: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	computed:
 	{
@@ -55,7 +59,7 @@ export const DefaultMessageContent = {
 	template: `
 		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope">
 			<div v-if="withText" class="bx-im-message-default-content__text" v-html="formattedText"></div>
-			<div v-if="message.attach.length > 0" class="bx-im-message-default-content__attach">
+			<div v-if="withAttach && message.attach.length > 0" class="bx-im-message-default-content__attach">
 				<MessageAttach :item="message" :dialogId="dialogId" />
 			</div>
 			<div class="bx-im-message-default-content__bottom-panel">

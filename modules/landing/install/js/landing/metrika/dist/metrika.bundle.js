@@ -181,9 +181,7 @@ this.BX = this.BX || {};
 	    key: "sendData",
 	    value: function sendData(data) {
 	      main_core.Runtime.loadExtension('ui.analytics').then(function (exports) {
-	        var sendData = exports.sendData;
-	        var preparedData = data;
-	        preparedData.tool = Metrika.TOOL_NAME;
+	        data.tool = Metrika.TOOL_NAME;
 	        if (data.params && main_core.Type.isObject(data.params)) {
 	          var i = 1;
 	          var maxParams = 5;
@@ -196,7 +194,8 @@ this.BX = this.BX || {};
 	          }
 	          delete data.params;
 	        }
-	        sendData(preparedData);
+	        var sendData = exports.sendData;
+	        sendData(data);
 	      });
 	    }
 	  }]);

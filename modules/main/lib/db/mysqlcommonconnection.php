@@ -100,7 +100,7 @@ abstract class MysqlCommonConnection extends Connection
 	 */
 	public function createTable($tableName, $fields, $primary = array(), $autoincrement = array())
 	{
-		$sql = 'CREATE TABLE '.$this->getSqlHelper()->quote($tableName).' (';
+		$sql = 'CREATE TABLE IF NOT EXISTS '.$this->getSqlHelper()->quote($tableName).' (';
 		$sqlFields = array();
 
 		foreach ($fields as $columnName => $field)
@@ -187,7 +187,20 @@ abstract class MysqlCommonConnection extends Connection
 		$sql = 'CREATE '.$indexTypeSql.' INDEX '.$sqlHelper->quote($indexName).' ON '.$sqlHelper->quote($tableName)
 			.' ('.join(', ', $columnNames).')';
 
-		return $this->query($sql);
+		try
+		{
+			$result = $this->query($sql);
+		}
+		catch (\Bitrix\Main\DB\SqlQueryException $e)
+		{
+			//Duplicate key name
+			if (strpos($e->getMessage(), '(1061)') === false)
+			{
+				throw $e;
+			}
+		}
+
+		return $result;
 	}
 
 	/**

@@ -13,7 +13,7 @@ class CSocServVKontakte extends CSocServAuth
 		return array(
 			array("vkontakte_appid", GetMessage("socserv_vk_id"), "", Array("text", 40)),
 			array("vkontakte_appsecret", GetMessage("socserv_vk_key"), "", Array("text", 40)),
-			array("note" => GetMessage("socserv_vk_sett_note1", array('#URL#'=>$this->getEntityOAuth()->GetRedirectURI()))),
+			array("note" => GetMessage("socserv_vk_sett_note2", array('#URL#'=>$this->getEntityOAuth()->GetRedirectURI()))),
 		);
 	}
 

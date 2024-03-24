@@ -1001,12 +1001,11 @@
 					}.bind(this));
 				}
 
-				var addButtonWrap = BX(this.id + '-add-button-container');
+				const addButtonWrap = BX(this.id + '-add-button-container');
 				if (!this.util.readOnlyMode() && BX.Type.isDomNode(addButtonWrap))
 				{
 					addButtonWrap.appendChild(new BX.Calendar.Controls.AddButton({
-						addEntry: function()
-						{
+						addEntry: () => {
 							BX.Calendar.EntryManager.openEditSlider({
 								calendarContext: this,
 								type: this.util.type,
@@ -1015,12 +1014,16 @@
 								ownerId: this.util.ownerId,
 								userId: parseInt(this.currentUser.id),
 							});
-						}.bind(this),
+						},
 						addTask: this.showTasks ?
-							function()
-							{
-								BX.SidePanel.Instance.open(this.util.getEditTaskPath(), { loader: 'task-new-loader' });
-							}.bind(this)
+							() => {
+								const editTaskPath = BX.Uri.addParam(this.util.getEditTaskPath(), {
+									ta_sec: 'calendar',
+									ta_el: 'create_button',
+								});
+
+								BX.SidePanel.Instance.open(editTaskPath, { loader: 'task-new-loader' });
+							}
 							: null,
 					}).getWrap());
 				}
@@ -1089,12 +1092,11 @@
 					}.bind(this));
 				}
 
-				var addButtonWrap = BX(this.id + '-add-button-container');
+				const addButtonWrap = BX(this.id + '-add-button-container');
 				if (this.util.type === 'location' && BX.Type.isDomNode(addButtonWrap))
 				{
 					addButtonWrap.appendChild(new BX.Calendar.Rooms.ReserveButton({
-						addEntry: function()
-						{
+						addEntry: () => {
 							BX.Calendar.EntryManager.openEditSlider({
 								calendarContext: this,
 								roomsManager: this.roomsManager,
@@ -1105,13 +1107,7 @@
 								ownerId: this.util.ownerId,
 								userId: parseInt(this.currentUser.id),
 							});
-						}.bind(this),
-						addTask: this.showTasks ?
-							function()
-							{
-								BX.SidePanel.Instance.open(this.util.getEditTaskPath(), { loader: 'task-new-loader' });
-							}.bind(this)
-							: null,
+						},
 					}).getWrap());
 				}
 			}
@@ -1282,7 +1278,9 @@
 			switch (data.command)
 			{
 				case 'edit_event':
+				case 'edit_event_location':
 				case 'delete_event':
+				case 'delete_event_location':
 				case 'set_meeting_status':
 					this.entryManager.handlePullChanges(data);
 					break;

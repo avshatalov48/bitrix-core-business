@@ -35,6 +35,7 @@ export const MentionPopupContent = {
 		return {
 			isLoading: false,
 			searchResult: [],
+			chatParticipants: [],
 			currentServerQueries: 0,
 			needTopShadow: false,
 			needBottomShadow: true,
@@ -46,7 +47,12 @@ export const MentionPopupContent = {
 	{
 		itemsToShow(): string[]
 		{
-			return this.preparedQuery.length > 0 ? this.searchResult : this.recentChats;
+			if (this.preparedQuery.length === 0)
+			{
+				return this.chatParticipants;
+			}
+
+			return this.searchResult;
 		},
 		preparedQuery(): string
 		{
@@ -61,20 +67,10 @@ export const MentionPopupContent = {
 
 			return this.searchResult.length === 0 && this.preparedQuery.length > 0;
 		},
-		recentChats(): string[]
-		{
-			return this.$store.getters['recent/getSortedCollection'].map((recentItem) => {
-				return recentItem.dialogId;
-			});
-		},
 	},
 	watch:
 	{
 		async isLoading()
-		{
-			await this.adjustPosition();
-		},
-		async recentChats()
 		{
 			await this.adjustPosition();
 		},
@@ -98,6 +94,7 @@ export const MentionPopupContent = {
 		this.initSettings();
 		this.searchService = new SearchService({ findByParticipants: false });
 		this.searchOnServerDelayed = Runtime.debounce(this.searchOnServer, 400, this);
+		void this.loadChatParticipants();
 
 		Event.bind(window, 'keydown', this.onKeyDown);
 		EventEmitter.subscribe(EventType.mention.selectItem, this.onInsertItem);
@@ -115,6 +112,13 @@ export const MentionPopupContent = {
 			const defaultMinTokenSize = 3;
 			this.minTokenSize = settings.get('minSearchTokenSize', defaultMinTokenSize);
 		},
+		async loadChatParticipants()
+		{
+			this.isLoading = true;
+			this.chatParticipants = await this.searchService.loadChatParticipants(this.dialogId);
+			this.searchResult = this.chatParticipants;
+			this.isLoading = false;
+		},
 		searchOnServer(query: string)
 		{
 			this.currentServerQueries++;
@@ -127,7 +131,7 @@ export const MentionPopupContent = {
 					return;
 				}
 
-				this.searchResult = this.searchService.sortByDate(dialogIds);
+				this.searchResult = [...new Set([...this.searchResult, ...dialogIds])];
 			}).catch((error) => {
 				console.error(error);
 			}).finally(() => {
@@ -145,7 +149,7 @@ export const MentionPopupContent = {
 						return;
 					}
 
-					this.searchResult = this.searchService.sortByDate(dialogIds);
+					this.searchResult = this.appendResult(dialogIds);
 				}).catch((error) => {
 					Logger.error('Mention: searchLocalOnlyUsers', error);
 				});
@@ -173,7 +177,7 @@ export const MentionPopupContent = {
 		},
 		cleanSearchResult()
 		{
-			this.searchResult = [];
+			this.searchResult = this.chatParticipants;
 		},
 		async adjustPosition()
 		{
@@ -260,6 +264,12 @@ export const MentionPopupContent = {
 		getDomElementById(id: number | string): ?HTMLElement
 		{
 			return this.$refs['mention-content'].querySelector(`[data-index="${id}"]`);
+		},
+		appendResult(newItems: string[]): string[]
+		{
+			const filtered = this.searchResult.filter((dialogId) => newItems.includes(dialogId));
+
+			return [...new Set([...filtered, ...newItems])];
 		},
 	},
 	template: `

@@ -25,6 +25,7 @@ this.BX = this.BX || {};
 	    this.getTimelineWidth = params.getTimelineWidth;
 	    this.getScaleInfo = params.getScaleInfo;
 	    this.solidStatus = params.solidStatus;
+	    this.vacationOffset = 0;
 	    this.eventDragAndDrop = new calendar_ui_tools_draganddrop.EventDragAndDrop(params.getDateByPos, params.getPosByDate, params.getEvents);
 	    this.useAnimation = params.useAnimation !== false;
 	    this.render();
@@ -32,7 +33,7 @@ this.BX = this.BX || {};
 	  render() {
 	    this.DOM.timeNodes = {};
 	    this.DOM.timeWrap = main_core.Tag.render(_t || (_t = _`
-			<div></div>
+			<div class="calendar-planner-selector-notices-container"></div>
 		`));
 	    this.DOM.wrap = main_core.Tag.render(_t2 || (_t2 = _`
 			<div class="calendar-planner-timeline-selector" data-bx-planner-meta="selector">
@@ -67,13 +68,28 @@ this.BX = this.BX || {};
 	      this.destroyTimeNode(offset);
 	    }
 	  }
-	  showTimeNode(offsetTop, time, timezone, isWarning = false) {
+	  setVacationOffset(offset) {
+	    this.vacationOffset = offset;
+	  }
+	  showTimeNode(offsetTop, time, timezone, entryId, isWarning = false) {
 	    this.destroyTimeNode(offsetTop);
 	    const warningClass = isWarning ? '--warning' : '';
 	    this.DOM.timeNodes[offsetTop] = main_core.Tag.render(_t5 || (_t5 = _`
-			<div class="calendar-planner-timeline-side-notice --left ${0}" style="top: ${0}px" title="${0}">${0}</div>
-		`), warningClass, offsetTop, timezone, time);
+			<div 
+			class="calendar-planner-timeline-side-notice --left ${0}" 
+			id="timeline-side-notice-${0}" 
+			style="top: ${0}px" 
+			title="${0}"
+			>${0}</div>
+		`), warningClass, entryId, offsetTop, timezone, time);
 	    this.DOM.timeWrap.append(this.DOM.timeNodes[offsetTop]);
+	    this.updateTimeWrapWidth();
+	  }
+	  updateTimeWrapWidth() {
+	    const width = Object.values(this.DOM.timeNodes).reduce((acc, el) => Math.max(acc, el == null ? void 0 : el.offsetWidth), 0) + 5;
+	    this.DOM.timeWrap.style.width = `${width}px`;
+	    this.DOM.timeWrap.style.marginLeft = `${-width}px`;
+	    this.DOM.timeWrap.style.left = `${this.vacationOffset}px`;
 	  }
 	  destroyTimeNode(offset) {
 	    if (main_core.Type.isElementNode(this.DOM.timeNodes[offset])) {
@@ -1307,12 +1323,14 @@ this.BX = this.BX || {};
 	      '#COUNT#': count
 	    });
 	  }
-	  renderVacationNode() {
+	  renderVacationNode(entryId) {
 	    const vacationNode = main_core.Tag.render(_t15 || (_t15 = _$1`
-			<div class="calendar-planner-timeline-side-notice --vacation" style="display: none;">
-				${0}
-			</div>
-		`), main_core.Loc.getMessage('EC_PLANNER_IN_VACATION'));
+			<div 
+			class="calendar-planner-timeline-side-notice --vacation"
+			id="timeline-side-notice-${0}"
+			style="display: none;"
+			>${0}</div>
+		`), entryId, main_core.Loc.getMessage('EC_PLANNER_IN_VACATION'));
 	    main_core.Event.bind(vacationNode, 'mouseenter', this.showHintPopup.bind(this, vacationNode));
 	    main_core.Event.bind(vacationNode, 'mouseleave', this.hideHintPopup.bind(this, vacationNode));
 	    return vacationNode;
@@ -1820,7 +1838,7 @@ this.BX = this.BX || {};
 	          className: 'calendar-planner-user' + (entry.emailUser ? ' calendar-planner-email-user' : '')
 	        }
 	      }));
-	      entry.vacationNode = this.renderVacationNode();
+	      entry.vacationNode = this.renderVacationNode(entry.id);
 	      if (entry.timezoneName) {
 	        entry.statusNode = this.getStatusNode(entry.status, entry.timezoneName);
 	        rowWrap.append(entry.statusNode);
@@ -2759,6 +2777,7 @@ this.BX = this.BX || {};
 	    this.hideTimezoneNotice();
 	  }
 	  updateVacationNotice(selectorTime) {
+	    this.selector.setVacationOffset(0);
 	    for (const entry of this.entries.filter(entry => main_core.Type.isDomNode(entry.vacationNode))) {
 	      const currentVacations = this.accessibility[entry.id].filter(acc => {
 	        const from = acc.from.getTime();
@@ -2771,6 +2790,7 @@ this.BX = this.BX || {};
 	          '#UNTIL#': calendar_util.Util.formatDate(to)
 	        });
 	        entry.vacationNode.style.display = '';
+	        this.selector.setVacationOffset(entry.vacationNode.offsetWidth - 13);
 	      } else {
 	        entry.vacationNode.style.display = 'none';
 	      }
@@ -2782,7 +2802,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  updateTimezoneNotice(selectorTime) {
-	    if (!this.isSelectorVisible()) {
+	    if (this.fullDayMode) {
 	      this.hideTimezoneNotice();
 	      return;
 	    }
@@ -2803,7 +2823,7 @@ this.BX = this.BX || {};
 	      const isWarning = entryHours < this.warningHoursFrom || entryHours >= this.warningHoursTo;
 	      if (main_core.Type.isDomNode(entryNode)) {
 	        const top = parseInt(entryNode.style.top);
-	        this.selector.showTimeNode(top, calendar_util.Util.formatTime(entryTime), entry.timezoneNameFormatted, isWarning);
+	        this.selector.showTimeNode(top, calendar_util.Util.formatTime(entryTime), entry.timezoneNameFormatted, entry.id, isWarning);
 	      }
 	      this.showEntryStatusTimezone(entry, isWarning);
 	    }
@@ -2825,14 +2845,6 @@ this.BX = this.BX || {};
 	  getDateHours(date) {
 	    return date.getHours() + date.getMinutes() / 60;
 	  }
-	  isSelectorVisible() {
-	    const timelineLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
-	    const timelineRight = timelineLeft + this.DOM.timelineFixedWrap.offsetWidth;
-	    const selectorWrap = this.selector.getWrap();
-	    const selectorLeft = selectorWrap.offsetLeft;
-	    const selectorRight = selectorWrap.offsetLeft + selectorWrap.offsetWidth;
-	    return this.doSegmentsIntersect(selectorLeft, selectorRight, timelineLeft, timelineRight);
-	  }
 	  showTimezoneNotice(count, isWarning) {
 	    this.showTimezoneNoticeCount(count, isWarning);
 	    if (isWarning) {
@@ -2852,6 +2864,9 @@ this.BX = this.BX || {};
 	    this.DOM.timezoneNoticeCount.style.left = `${left}px`;
 	    this.DOM.timezoneNoticeCount.style.display = 'block';
 	    this.DOM.wrap.style.marginBottom = `${20}px`;
+	    if (!this.isElementInsideConstraintWrap(this.DOM.timezoneNoticeCount)) {
+	      this.hideTimezoneNoticeCount();
+	    }
 	  }
 	  hideTimezoneNoticeCount() {
 	    this.DOM.timezoneNoticeCount.style.display = 'none';
@@ -2861,6 +2876,14 @@ this.BX = this.BX || {};
 	      return;
 	    }
 	    this.showSelectorPopup(main_core.Loc.getMessage('EC_PLANNER_TIMEZONE_NOTICE'));
+	    if (!this.isElementInsideConstraintWrap(this.DOM.selectorPopup)) {
+	      this.hideTimezoneNoticePopup();
+	    }
+	  }
+	  isElementInsideConstraintWrap(element) {
+	    const containerRect = this.DOM.timelineVerticalConstraint.getBoundingClientRect();
+	    const elementRect = element.getBoundingClientRect();
+	    return elementRect.left >= containerRect.left && elementRect.right <= containerRect.right;
 	  }
 	  hideTimezoneNoticePopup() {
 	    if (this.DOM.selectorPopup.style.display !== 'none') {

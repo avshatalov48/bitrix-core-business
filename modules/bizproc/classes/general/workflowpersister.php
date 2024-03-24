@@ -7,7 +7,6 @@ use Bitrix\Main;
 */
 class CBPWorkflowPersister
 {
-	const LOCK_BY_TIME = false;
 	protected $serviceInstanceId = "";
 	protected $ownershipDelta = 300;
 	protected $useGZipCompression = false;
@@ -51,7 +50,7 @@ class CBPWorkflowPersister
 		}
 
 		$dbResult = $DB->Query(
-			"SELECT WORKFLOW, WORKFLOW_RO, IF (".$queryCondition.", 'Y', 'N') as UPDATEABLE ".
+			"SELECT WORKFLOW, WORKFLOW_RO, case when ". $queryCondition . " then 'Y' else 'N' end as UPDATEABLE ".
 			"FROM b_bp_workflow_instance ".
 			"WHERE ID = '".$DB->ForSql($instanceId)."' "
 		);
@@ -59,11 +58,16 @@ class CBPWorkflowPersister
 		{
 			if ($arResult["UPDATEABLE"] == "Y" && !$silent)
 			{
+				$sqlUpdate = $DB->PrepareUpdate(
+					'b_bp_workflow_instance',
+					[
+						'OWNER_ID' => $this->serviceInstanceId,
+						'OWNED_UNTIL' => Main\Type\DateTime::createFromTimestamp($this->GetOwnershipTimeout()),
+					]
+				);
+
 				$DB->Query(
-					"UPDATE b_bp_workflow_instance SET ".
-					"	OWNER_ID = '".$DB->ForSql($this->serviceInstanceId)."', ".
-					"	OWNED_UNTIL = ".$DB->CharToDateFunction(date($GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME), $this->GetOwnershipTimeout()))." ".
-					"WHERE ID = '".$DB->ForSql($instanceId)."'"
+					'UPDATE b_bp_workflow_instance SET ' . $sqlUpdate . ' WHERE ID = \''.$DB->ForSql($instanceId).'\' '
 				);
 			}
 			elseif (!$silent)
@@ -104,7 +108,7 @@ class CBPWorkflowPersister
 		else
 		{
 			$dbResult = $DB->Query(
-				"SELECT ID, IF (".$queryCondition.", 'Y', 'N') as UPDATEABLE ".
+				"SELECT ID, case when " . $queryCondition . " then 'Y' else 'N' end as UPDATEABLE ".
 				"FROM b_bp_workflow_instance ".
 				"WHERE ID = '".$DB->ForSql($id)."' "
 			);
@@ -112,14 +116,19 @@ class CBPWorkflowPersister
 			{
 				if ($arResult["UPDATEABLE"] == "Y")
 				{
+					$sqlUpdate = $DB->PrepareUpdate(
+						'b_bp_workflow_instance',
+						[
+							'WORKFLOW' => $buffer,
+							'STATUS' => (int)$status,
+							'MODIFIED' => new Main\Type\DateTime(),
+							'OWNER_ID' => $bUnlocked ? false : $this->serviceInstanceId,
+							'OWNED_UNTIL' => $bUnlocked ? false : Main\Type\DateTime::createFromTimestamp($this->GetOwnershipTimeout()),
+						]
+					);
+
 					$DB->Query(
-						"UPDATE b_bp_workflow_instance SET ".
-						"	WORKFLOW = '".$DB->ForSql($buffer)."', ".
-						"	STATUS = ".intval($status).", ".
-						"	MODIFIED = ".$DB->CurrentTimeFunction().", ".
-						"	OWNER_ID = ".($bUnlocked ? "NULL" : "'".$DB->ForSql($this->serviceInstanceId)."'").", ".
-						"	OWNED_UNTIL = ".($bUnlocked ? "NULL" : $DB->CharToDateFunction(date($GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME), $this->GetOwnershipTimeout())))." ".
-						"WHERE ID = '".$DB->ForSql($id)."' "
+						'UPDATE b_bp_workflow_instance SET ' . $sqlUpdate . ' WHERE ID = \''.$DB->ForSql($id).'\' '
 					);
 				}
 				else
@@ -130,8 +139,8 @@ class CBPWorkflowPersister
 			else
 			{
 				$status = (int) $status;
-				$ownerId = ($bUnlocked ? "NULL" : "'".$DB->ForSql($this->serviceInstanceId)."'");
-				$ownedUntil = ($bUnlocked ? "NULL" : $DB->CharToDateFunction(date($GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME), $this->GetOwnershipTimeout())));
+				$ownerId = ($bUnlocked ? false : $this->serviceInstanceId);
+				$ownedUntil = ($bUnlocked ? false : Main\Type\DateTime::createFromTimestamp($this->GetOwnershipTimeout()));
 
 				$moduleId = isset($creationData['MODULE_ID']) ? $creationData['MODULE_ID'] : '';
 				$entity = isset($creationData['ENTITY']) ? $creationData['ENTITY'] : '';
@@ -139,30 +148,31 @@ class CBPWorkflowPersister
 				$tplId = isset($creationData['WORKFLOW_TEMPLATE_ID']) ? (int) $creationData['WORKFLOW_TEMPLATE_ID'] : 0;
 				$startedBy = isset($creationData['STARTED_BY']) ? (int) $creationData['STARTED_BY'] : 0;
 				$startedEventType = isset($creationData['STARTED_EVENT_TYPE']) ? (int) $creationData['STARTED_EVENT_TYPE'] : 0;
+				$ro = isset($creationData['RO']) ? $creationData['RO'] : false;
+				$nowTime = new Main\Type\DateTime();
 
-				$ro = isset($creationData['RO']) ? "'".$DB->ForSql($creationData['RO'])."'" : 'NULL';
+				$sqlInsert = $DB->PrepareInsert(
+					'b_bp_workflow_instance',
+					[
+						'ID' => $id,
+						'WORKFLOW' => $buffer,
+						'WORKFLOW_RO' => $ro,
+						'STATUS' => $status,
+						'MODIFIED' => $nowTime,
+						'OWNER_ID' => $ownerId,
+						'OWNED_UNTIL' => $ownedUntil,
+						'MODULE_ID' => $moduleId,
+						'ENTITY' => $entity,
+						'DOCUMENT_ID' => $documentId,
+						'WORKFLOW_TEMPLATE_ID' => $tplId,
+						'STARTED' => $nowTime,
+						'STARTED_BY' => $startedBy,
+						'STARTED_EVENT_TYPE' => $startedEventType,
+					]
+				);
 
 				$DB->Query(
-					sprintf(
-						'INSERT INTO b_bp_workflow_instance (
-						ID, WORKFLOW, WORKFLOW_RO, STATUS, MODIFIED, OWNER_ID, OWNED_UNTIL,
-						MODULE_ID, ENTITY, DOCUMENT_ID, WORKFLOW_TEMPLATE_ID, STARTED, STARTED_BY, STARTED_EVENT_TYPE
-						) VALUES (\'%s\', \'%s\', %s, %d, %s, %s, %s, \'%s\', \'%s\', \'%s\', %d, %s, %d, %d)',
-						$DB->ForSql($id),
-						$DB->ForSql($buffer),
-						$ro,
-						$status,
-						$DB->CurrentTimeFunction(),
-						$ownerId,
-						$ownedUntil,
-						$DB->ForSql($moduleId),
-						$DB->ForSql($entity),
-						$DB->ForSql($documentId),
-						$tplId,
-						$DB->CurrentTimeFunction(),
-						$startedBy,
-						$startedEventType
-					)
+					'INSERT INTO b_bp_workflow_instance (' . $sqlInsert[0] . ') VALUES (' . $sqlInsert[1] .')'
 				);
 			}
 		}
@@ -303,21 +313,7 @@ class CBPWorkflowPersister
 	{
 		global $DB;
 
-		if (!static::LOCK_BY_TIME)
-		{
-			return "(OWNER_ID IS NULL OR OWNER_ID = '".$DB->ForSql($this->serviceInstanceId)."')";
-		}
-
-		return
-			"( ".
-			"	(OWNER_ID = '".$DB->ForSql($this->serviceInstanceId)."' ".
-			"		AND OWNED_UNTIL >= ".$DB->CurrentTimeFunction().") ".
-			"	OR ".
-			"	(OWNER_ID IS NULL) ".
-			"	OR ".
-			"	(OWNER_ID IS NOT NULL ".
-			"		AND OWNED_UNTIL < ".$DB->CurrentTimeFunction().") ".
-			") ";
+		return "(OWNER_ID IS NULL OR OWNER_ID = '".$DB->ForSql($this->serviceInstanceId)."')";
 	}
 
 	private function lock(string $workflowId): bool

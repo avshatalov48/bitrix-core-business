@@ -3,6 +3,7 @@
 namespace Bitrix\MessageService\Providers\Edna;
 
 use Bitrix\MessageService\Providers;
+use Bitrix\MessageService\Internal\Entity\ChannelTable;
 
 class Initiator extends Providers\Base\Initiator
 {
@@ -10,6 +11,7 @@ class Initiator extends Providers\Base\Initiator
 	protected Providers\SupportChecker $supportChecker;
 	protected EdnaRu $utils;
 	protected Providers\CacheManager $cacheManager;
+	protected string $providerId;
 
 	protected string $channelType = '';
 
@@ -23,9 +25,21 @@ class Initiator extends Providers\Base\Initiator
 		$this->optionManager = $optionManager;
 		$this->supportChecker = $supportChecker;
 		$this->utils = $utils;
-		$this->cacheManager = new Providers\CacheManager($providerId);
+		$this->providerId = $providerId;
+		$this->cacheManager = new Providers\CacheManager($this->providerId);
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getChannelType(): string
+	{
+		return $this->channelType;
+	}
+
+	/**
+	 * @return array<array{id: int, name: string, channelPhone: string}>
+	 */
 	public function getFromList(): array
 	{
 		if (!$this->supportChecker->canUse())
@@ -33,31 +47,34 @@ class Initiator extends Providers\Base\Initiator
 			return [];
 		}
 
+		// load from cache
 		$cachedChannels = $this->cacheManager->getValue(Providers\CacheManager::CHANNEL_CACHE_ENTITY_ID);
 		if (!empty($cachedChannels))
 		{
 			return $cachedChannels;
 		}
 
-		$activeChannelListResult = $this->utils->getActiveChannelList($this->channelType);
-		if (!$activeChannelListResult->isSuccess())
+		$fromList = [];
+
+		// load from db
+		$res = ChannelTable::getChannelsByType($this->providerId, $this->getChannelType());
+		while ($channel = $res->fetch())
 		{
-			return [];
+			$fromList[] = [
+				'id' => (int)$channel['EXTERNAL_ID'],
+				'name' => $channel['NAME'],
+				'channelPhone' => $channel['ADDITIONAL_PARAMS']['channelAttribute'] ?? '',
+			];
 		}
 
-		$registeredSubjectIdList = $this->optionManager->getOption(Providers\Constants\InternalOption::SENDER_ID, []);
-		$fromList = [];
-		foreach ($activeChannelListResult->getData() as $channel)
+		if (empty($fromList))
 		{
-			if (in_array((int)$channel['subjectId'], $registeredSubjectIdList,true))
-			{
-				$fromList[] = [
-					'id' => $channel['subjectId'],
-					'name' => $channel['name'],
-					'channelPhone' => $channel['channelAttribute'] ?? '',
-				];
-			}
+			// get channels from provider
+			//$fromList = $this->utils->updateSavedChannelList($this->getChannelType());
+			\Bitrix\Main\Application::getInstance()->addBackgroundJob([$this->utils, 'updateSavedChannelList'], [$this->getChannelType()]);
 		}
+
+		// update cache
 		$this->cacheManager->setValue(Providers\CacheManager::CHANNEL_CACHE_ENTITY_ID, $fromList);
 
 		return $fromList;

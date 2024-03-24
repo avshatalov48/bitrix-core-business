@@ -551,8 +551,7 @@ else
 if(intval($userGroupID) > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
-	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
-	
+
 	$new_task_id = CTask::Add(array(
 			"NAME" => GetMessage("SALE_WIZARD_ADMIN_SALE"),
 			"DESCRIPTION" => GetMessage("SALE_WIZARD_ADMIN_SALE_DESCR"),
@@ -616,12 +615,27 @@ if(intval($userGroupID) > 0)
 	}
 }
 
+$stickerTaskId = 0;
+$stickerPerm = [];
+if (CModule::IncludeModule('fileman'))
+{
+	$rsDB = \Bitrix\Main\TaskTable::getList([
+		'select' => ['ID'],
+		'filter' => ['=MODULE_ID' => 'fileman', '=NAME' => 'stickers_edit'],
+	]);
+	if ($arTask = $rsDB->fetch())
+	{
+		$stickerTaskId = (int)$arTask['ID'];
+		$stickerPerm = CSticker::GetAccessPermissions();
+	}
+}
+
 $userGroupID = "";
 $dbGroup = CGroup::GetList('', '', Array("STRING_ID" => "content_editor"));
 
 if($arGroup = $dbGroup -> Fetch())
 {
-	$userGroupID = $arGroup["ID"];
+	$userGroupID = (int)$arGroup["ID"];
 }
 else
 {
@@ -633,11 +647,15 @@ else
 		"DESCRIPTION"  => GetMessage("SALE_WIZARD_CONTENT_EDITOR_DESCR"),
 		"USER_ID"      => array(),
 		"STRING_ID"      => "content_editor",
-		);
-	$userGroupID = $group->Add($arFields);
-	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intval($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+	);
+	$userGroupID = (int)$group->Add($arFields);
+
+	if ($stickerTaskId > 0)
+	{
+		$stickerPerm[$userGroupID] = $stickerTaskId;
+	}
 }
-if(intval($userGroupID) > 0)
+if ($userGroupID > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
 	
@@ -664,5 +682,10 @@ if(intval($userGroupID) > 0)
 	WizardServices::SetFilePermission(Array($siteID, $SiteDir . "/catalog/"), Array($userGroupID => "W"));
 	WizardServices::SetFilePermission(Array($siteID, $SiteDir . "/personal/"), Array($userGroupID => "W"));
 }
+
+if ($stickerTaskId > 0 && !empty($stickerPerm))
+{
+	CSticker::SaveAccessPermissions($stickerPerm);
+}
+
 COption::SetOptionString("eshop", "wizard_installed", "Y", false, WIZARD_SITE_ID);
-?>

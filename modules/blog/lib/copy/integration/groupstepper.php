@@ -40,10 +40,10 @@ class GroupStepper extends Stepper
 				return !$this->isQueueEmpty();
 			}
 
-			$executiveUserId = ($queueOption["executiveUserId"] ?: 0);
-			$groupId = ($queueOption["groupId"] ?: 0);
-			$copiedGroupId = ($queueOption["copiedGroupId"] ?: 0);
-			$errorOffset = ($queueOption["errorOffset"] ?: 0);
+			$executiveUserId = ($queueOption["executiveUserId"] ?? 0);
+			$groupId = ($queueOption["groupId"] ?? 0);
+			$copiedGroupId = ($queueOption["copiedGroupId"] ?? 0);
+			$errorOffset = ($queueOption["errorOffset"] ?? 0);
 
 			$limit = 10;
 			$offset = $this->getOffset($copiedGroupId) + $errorOffset;

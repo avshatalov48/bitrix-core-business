@@ -4,10 +4,8 @@ namespace Bitrix\Im\Model;
 use Bitrix\Im\Internals\Query;
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class RelationTable
@@ -75,58 +73,58 @@ class RelationTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('RELATION_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_ID_FIELD'),
 			),
 			'CHAT_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('RELATION_ENTITY_CHAT_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_CHAT_ID_FIELD'),
 			),
 			'MESSAGE_TYPE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateMessageType'),
-				'title' => Loc::getMessage('RELATION_ENTITY_MESSAGE_TYPE_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_MESSAGE_TYPE_FIELD'),
 			),
 			'USER_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('RELATION_ENTITY_USER_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_USER_ID_FIELD'),
 			),
 			'START_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('RELATION_ENTITY_START_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_START_ID_FIELD'),
 			),
 			'LAST_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('RELATION_ENTITY_LAST_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_LAST_ID_FIELD'),
 			),
 			'UNREAD_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('RELATION_ENTITY_UNREAD_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_UNREAD_ID_FIELD'),
 				'default' => 0
 			),
 			'LAST_SEND_ID' => array( /** @deprecated */
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('RELATION_ENTITY_LAST_SEND_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_LAST_SEND_ID_FIELD'),
 			),
 			'LAST_SEND_MESSAGE_ID' => array(
 				'data_type' => 'integer',
 			),
 			'LAST_FILE_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('RELATION_ENTITY_LAST_FILE_ID_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_LAST_FILE_ID_FIELD'),
 			),
 			'LAST_READ' => array(
 				'data_type' => 'datetime',
-				'title' => Loc::getMessage('RELATION_ENTITY_LAST_READ_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_LAST_READ_FIELD'),
 			),
 			'STATUS' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('RELATION_ENTITY_STATUS_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_STATUS_FIELD'),
 			),
 			'CALL_STATUS' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('RELATION_ENTITY_CALL_STATUS_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_CALL_STATUS_FIELD'),
 			),
 			'MESSAGE_STATUS' => array(
 				'data_type' => 'string',
@@ -136,7 +134,7 @@ class RelationTable extends Entity\DataManager
 			'NOTIFY_BLOCK' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('RELATION_ENTITY_NOTIFY_BLOCK_FIELD'),
+				//'title' => Loc::getMessage('RELATION_ENTITY_NOTIFY_BLOCK_FIELD'),
 			),
 			'MANAGER' => array(
 				'data_type' => 'boolean',
@@ -211,8 +209,12 @@ class RelationTable extends Entity\DataManager
 		return $result;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function deleteBatch(array $filter, $limit = 0): int
 	{
+		/*
 		$tableName = static::getTableName();
 		$connection = Application::getConnection();
 		$sqlHelper = $connection->getSqlHelper();
@@ -231,6 +233,12 @@ class RelationTable extends Entity\DataManager
 		}
 
 		$connection->queryExecute($sql);
+		*/
+
+		$connection = Application::getConnection();
+
+		static::deleteByFilter($filter);
+
 		return $connection->getAffectedRowsCount();
 	}
 }

@@ -3,7 +3,6 @@
 use Bitrix\Im\Model\ConferenceTable;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Im\Call\Conference;
@@ -65,13 +64,7 @@ class ImConferenceListController extends Controller
 			return null;
 		}
 
-		$queryResult = ConferenceTable::getList(
-			[
-				'select' => ['COUNT'],
-				'runtime' => [new ExpressionField('COUNT', 'COUNT(*)')]
-			]
-		)->fetchAll();
-		$conferenceCount = (int)$queryResult[0]['COUNT'];
+		$conferenceCount = ConferenceTable::getCount();
 
 		return [
 			'LAST_ROW' => $conferenceCount === 0

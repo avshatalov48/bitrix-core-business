@@ -24,11 +24,6 @@ Class report extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = REPORT_VERSION;
-			$this->MODULE_VERSION_DATE = REPORT_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("REPORT_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("REPORT_MODULE_DESC");

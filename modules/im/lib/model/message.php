@@ -3,11 +3,9 @@ namespace Bitrix\Im\Model;
 
 use Bitrix\Im\Text;
 use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\MapBuilder;
 
-Loc::loadMessages(__FILE__);
 
 /**
  * Class MessageTable
@@ -72,84 +70,84 @@ class MessageTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-				'title' => Loc::getMessage('MESSAGE_ENTITY_ID_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_ID_FIELD'),
 			),
 			'CHAT_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('MESSAGE_ENTITY_CHAT_ID_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_CHAT_ID_FIELD'),
 			),
 			'AUTHOR_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,
-				'title' => Loc::getMessage('MESSAGE_ENTITY_AUTHOR_ID_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_AUTHOR_ID_FIELD'),
 			),
 			'MESSAGE' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('MESSAGE_ENTITY_MESSAGE_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_MESSAGE_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'MESSAGE_OUT' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('MESSAGE_ENTITY_MESSAGE_OUT_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_MESSAGE_OUT_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'DATE_CREATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,
-				'title' => Loc::getMessage('MESSAGE_ENTITY_DATE_CREATE_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_DATE_CREATE_FIELD'),
 				'default_value' => array(__CLASS__, 'getCurrentDate'),
 			),
 			'EMAIL_TEMPLATE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateEmailTemplate'),
-				'title' => Loc::getMessage('MESSAGE_ENTITY_EMAIL_TEMPLATE_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_EMAIL_TEMPLATE_FIELD'),
 			),
 			'NOTIFY_TYPE' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_TYPE_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_TYPE_FIELD'),
 			),
 			'NOTIFY_MODULE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateNotifyModule'),
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_MODULE_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_MODULE_FIELD'),
 			),
 			'NOTIFY_EVENT' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateNotifyEvent'),
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_EVENT_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_EVENT_FIELD'),
 			),
 			'NOTIFY_TAG' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateNotifyTag'),
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_TAG_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_TAG_FIELD'),
 			),
 			'NOTIFY_SUB_TAG' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateNotifySubTag'),
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_SUB_TAG_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_SUB_TAG_FIELD'),
 			),
 			'NOTIFY_TITLE' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateNotifyTitle'),
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_TITLE_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_TITLE_FIELD'),
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'NOTIFY_BUTTONS' => array(
 				'data_type' => 'text',
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_BUTTONS_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_BUTTONS_FIELD'),
 			),
 			'NOTIFY_READ' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_READ_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_NOTIFY_READ_FIELD'),
 			),
 			'IMPORT_ID' => array(
 				'data_type' => 'integer',
-				'title' => Loc::getMessage('MESSAGE_ENTITY_IMPORT_ID_FIELD'),
+				//'title' => Loc::getMessage('MESSAGE_ENTITY_IMPORT_ID_FIELD'),
 			),
 			'CHAT' => array(
 				'data_type' => 'Bitrix\Im\Model\ChatTable',

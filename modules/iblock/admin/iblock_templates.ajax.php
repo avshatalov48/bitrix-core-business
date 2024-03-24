@@ -106,7 +106,9 @@ if ($iblockId > 0 && check_bitrix_sessid())
 			$result[] = array(
 				"id" => $TEMPLATE_NAME,
 				"value" => \Bitrix\Main\Text\HtmlFilter::encode(
-					\Bitrix\Iblock\Template\Engine::process($entity, $templateInfo["TEMPLATE"])
+					\Bitrix\Iblock\Template\Engine::process($entity, $templateInfo["TEMPLATE"]),
+					ENT_COMPAT,
+					false
 				),
 			);
 		}
@@ -156,7 +158,7 @@ if ($iblockId > 0 && check_bitrix_sessid())
 				"ID" => $id,
 				"IBLOCK_ID" => $iblockId,
 				"CODE" => $_POST["CODE"],
-				"EXTERNAL_ID" => $_POST["XML_ID"],
+				"EXTERNAL_ID" => $_POST["XML_ID"] ?? null,
 				"IBLOCK_TYPE_ID" => $arIBlock['IBLOCK_TYPE_ID'],
 				"IBLOCK_CODE" => $arIBlock['CODE'],
 				"IBLOCK_EXTERNAL_ID" => $arIBlock['XML_ID'],

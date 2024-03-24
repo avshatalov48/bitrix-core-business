@@ -98,7 +98,7 @@ final class Controller
 		return $messages;
 	}
 
-	private static function getTaskContext(string $xmlId): array
+	public static function getTaskContext(string $xmlId): array
 	{
 		$taskId = (int) mb_substr($xmlId, 5);
 
@@ -107,7 +107,7 @@ final class Controller
 		$messages = [];
 
 		$task = \Bitrix\Tasks\Internals\Registry\TaskRegistry::getInstance()->getObject($taskId);
-		self::setBlogAuthorId($task->getCreatedBy());
+		self::setBlogAuthorId((int)$task->getCreatedBy());
 		$messages[] = $textParser->clearAllTags($task->getDescription());
 
 		$liveFeedEntity = \Bitrix\Socialnetwork\Livefeed\Provider::init([

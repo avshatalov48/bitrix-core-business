@@ -217,7 +217,7 @@ export class Form
 	getRequestData()
 	{
 		const fieldsValues = {
-			id: this.groupData["ID"]
+			id: this.groupData.ID,
 		};
 
 		this.fields.forEach((field) => {
@@ -226,10 +226,24 @@ export class Form
 
 		let blocksValues = {};
 		this.blocks.forEach((block) => {
-			blocksValues = {...blocksValues, ...block.getValues()};
+			blocksValues = { ...blocksValues, ...block.getValues() };
 		});
 
-		return Object.assign(fieldsValues , blocksValues);
+		const formData = new FormData();
+
+		for (const [name, value] of Object.entries(Object.assign(fieldsValues, blocksValues)))
+		{
+			if (value instanceof Blob)
+			{
+				formData.append(name, value, value.name);
+			}
+			else
+			{
+				formData.append(name, Type.isObjectLike(value) ? JSON.stringify(value) : value);
+			}
+		}
+
+		return formData;
 	}
 
 	handleResponse(response)

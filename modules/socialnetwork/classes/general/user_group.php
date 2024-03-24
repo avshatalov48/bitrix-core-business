@@ -216,6 +216,13 @@ class CAllSocNetUserToGroup
 		EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_USER_DELETE, [
 			'GROUP_ID' => $relationFields['GROUP_ID'],
 			'USER_ID' => $relationFields['USER_ID'],
+			'ROLE' => $relationFields['ROLE'] ?? null,
+			'INITIATED_BY_TYPE' => $relationFields['INITIATED_BY_TYPE'] ?? null,
+		]);
+
+		EventService\Service::addEvent(EventService\EventDictionary::EVENT_SPACE_USER_ROLE_CHANGE, [
+			'GROUP_ID' => $relationFields['GROUP_ID'],
+			'USER_ID' => $relationFields['USER_ID'],
 		]);
 
 		if (Loader::includeModule('im'))

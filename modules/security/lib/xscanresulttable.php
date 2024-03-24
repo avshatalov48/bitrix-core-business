@@ -30,17 +30,17 @@ class XScanResultTable extends \Bitrix\Main\Entity\DataManager
 	public static function getMap()
 	{
 		return array(
-			new \Bitrix\Main\Entity\IntegerField('id', array('primary' => true, 'autocomplete' => true)),
-			new \Bitrix\Main\Entity\EnumField('type', array(
+			new \Bitrix\Main\Entity\IntegerField('ID', array('primary' => true, 'autocomplete' => true)),
+			new \Bitrix\Main\Entity\EnumField('TYPE', array(
 				'values' => array('file', 'agent', 'event'),
 				'default_value' => 'file'
 			)),
-			new \Bitrix\Main\Entity\StringField('src'),
-			new \Bitrix\Main\Entity\StringField('message'),
-			new \Bitrix\Main\Entity\FloatField('score'),
-			new \Bitrix\Main\Entity\DatetimeField('ctime'),
-			new \Bitrix\Main\Entity\DatetimeField('mtime'),
-			new \Bitrix\Main\Entity\StringField('tags')
+			new \Bitrix\Main\Entity\StringField('SRC'),
+			new \Bitrix\Main\Entity\StringField('MESSAGE'),
+			new \Bitrix\Main\Entity\FloatField('SCORE'),
+			new \Bitrix\Main\Entity\DatetimeField('CTIME'),
+			new \Bitrix\Main\Entity\DatetimeField('MTIME'),
+			new \Bitrix\Main\Entity\StringField('TAGS')
 		);
 	}
 

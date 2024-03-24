@@ -1,10 +1,8 @@
 <?php
 namespace Bitrix\Currency;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 
 /**
  * Class CurrencyRateTable
@@ -47,7 +45,7 @@ class CurrencyRateTable extends Main\Entity\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_currency_rate';
 	}
@@ -57,7 +55,7 @@ class CurrencyRateTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => new Main\Entity\IntegerField('ID', array(
@@ -66,16 +64,13 @@ class CurrencyRateTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_ID_FIELD')
 			)),
 			'CURRENCY' => new Main\Entity\StringField('CURRENCY', array(
-				'primary' => true,
 				'validation' => array(__CLASS__, 'validateCurrency'),
 				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_CURRENCY_FIELD')
 			)),
 			'BASE_CURRENCY' => new Main\Entity\StringField('BASE_CURRENCY', array(
-				'primary' => true,
 				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_BASE_CURRENCY_FIELD')
 			)),
 			'DATE_RATE' => new Main\Entity\DateField('DATE_RATE', array(
-				'primary' => true,
 				'title' => Loc::getMessage('CURRENCY_RATE_ENTITY_DATE_RATE_FIELD')
 			)),
 			'RATE_CNT' => new Main\Entity\IntegerField('RATE_CNT', array(
@@ -125,5 +120,23 @@ class CurrencyRateTable extends Main\Entity\DataManager
 		return array(
 			new Main\Entity\Validator\Length(null, 3),
 		);
+	}
+
+	public static function deleteByCurrency(string $currency): void
+	{
+		$currency = trim($currency);
+		if ($currency === '')
+		{
+			return;
+		}
+		$conn = Main\Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute(
+			'delete from ' . $helper->quote(self::getTableName())
+			. ' where '.$helper->quote('CURRENCY').' = \''. $helper->forSql($currency) . '\''
+		);
+		unset($helper, $conn);
+
+		static::cleanCache();
 	}
 }

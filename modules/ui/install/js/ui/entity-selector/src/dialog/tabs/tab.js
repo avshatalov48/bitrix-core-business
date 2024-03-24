@@ -396,8 +396,8 @@ export default class Tab
 		return this.cache.remember('label', () => {
 			const className = this.isVisible() ? '' : ' ui-selector-tab-label-hidden';
 			return Tag.render`
-				<div 
-					class="ui-selector-tab-label${className}" 
+				<div
+					class="ui-selector-tab-label${className}"
 					onclick="${this.handleLabelClick.bind(this)}"
 					onmouseenter="${this.handleLabelMouseEnter.bind(this)}"
 					onmouseleave="${this.handleLabelMouseLeave.bind(this)}"

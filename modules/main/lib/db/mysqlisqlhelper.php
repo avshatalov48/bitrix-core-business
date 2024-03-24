@@ -417,24 +417,32 @@ class MysqliSqlHelper extends SqlHelper
 		{
 			case MYSQLI_TYPE_TINY:
 			case MYSQLI_TYPE_SHORT:
-				return (new ORM\Fields\IntegerField($name))->configureSize(2);
+				$field = (new ORM\Fields\IntegerField($name))->configureSize(2);
+				break;
 			case MYSQLI_TYPE_LONG:
 			case MYSQLI_TYPE_INT24:
 			case MYSQLI_TYPE_CHAR:
-				return (new ORM\Fields\IntegerField($name))->configureSize(4);
+				$field = (new ORM\Fields\IntegerField($name))->configureSize(4);
+				break;
 			case MYSQLI_TYPE_LONGLONG:
-				return ((new ORM\Fields\IntegerField($name)))->configureSize(8);
+				$field = ((new ORM\Fields\IntegerField($name)))->configureSize(8);
+				break;
 			case MYSQLI_TYPE_DECIMAL:
 			case MYSQLI_TYPE_NEWDECIMAL:
 			case MYSQLI_TYPE_FLOAT:
 			case MYSQLI_TYPE_DOUBLE:
-				return new ORM\Fields\FloatField($name);
+				$field = new ORM\Fields\FloatField($name);
+				break;
 			case MYSQLI_TYPE_DATETIME:
 			case MYSQLI_TYPE_TIMESTAMP:
-				return new ORM\Fields\DatetimeField($name);
+				$field = new ORM\Fields\DatetimeField($name);
+				break;
 			case MYSQLI_TYPE_DATE:
 			case MYSQLI_TYPE_NEWDATE:
-				return new ORM\Fields\DateField($name);
+				$field = new ORM\Fields\DateField($name);
+				break;
+			default:
+				$field = new ORM\Fields\StringField($name);
 		}
 		//MYSQLI_TYPE_BIT
 		//MYSQLI_TYPE_TIME
@@ -449,7 +457,10 @@ class MysqliSqlHelper extends SqlHelper
 		//MYSQLI_TYPE_VAR_STRING
 		//MYSQLI_TYPE_STRING
 		//MYSQLI_TYPE_GEOMETRY
-		return new ORM\Fields\StringField($name);
+
+		$field->setConnection($this->connection);
+
+		return $field;
 	}
 
 	/**

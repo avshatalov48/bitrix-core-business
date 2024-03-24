@@ -36,15 +36,10 @@
 	position: relative;
 }
 
-.landing-ui-field-link-wrapper .landing-ui-field-input {
+.landing-ui-field-link-url .landing-ui-field-input {
 	overflow: hidden;
 	white-space: nowrap;
 }
-
-/*.landing-ui-field-link-wrapper .landing-ui-field-input::after {*/
-/*	left: -500px;*/
-/*	right: -500px;*/
-/*}*/
 
 .landing-ui-field-dropdown-inline .landing-ui-field-input {
 	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;

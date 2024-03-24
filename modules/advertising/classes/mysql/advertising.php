@@ -2,7 +2,7 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/classes/general/advertising.php");
 
 /*****************************************************************
-				Класс "Рекламный контракт"
+				РљР»Р°СЃСЃ "Р РµРєР»Р°РјРЅС‹Р№ РєРѕРЅС‚СЂР°РєС‚"
 *****************************************************************/
 
 class CAdvContract extends CAdvContract_all
@@ -13,7 +13,7 @@ class CAdvContract extends CAdvContract_all
 		return "<br>Module: ".$module_id."<br>Class: CAdvContract<br>File: ".__FILE__;
 	}
 
-	// получаем список контрактов
+	// РїРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє РєРѕРЅС‚СЂР°РєС‚РѕРІ
 	public static function GetList($by = "s_sort", $order = "desc", $arFilter = [], $is_filtered = null, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvContract::err_mess())."<br>Function: GetList<br>Line: ";
@@ -32,7 +32,11 @@ class CAdvContract extends CAdvContract_all
 			$isDemo = true;
 			$isManager = true;
 		}
+
 		$arSqlSearch = Array();
+		$admin_from_1 = '';
+		$admin_from_2 = '';
+		$arSqlSearch_h = [];
 
 		$lamp = "
 			if ((
@@ -67,7 +71,7 @@ class CAdvContract extends CAdvContract_all
 							break;
 						case "SITE":
 							if (is_array($val)) $val = implode(" | ", $val);
-							$match = ($arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
+							$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
 							$arSqlSearch[] = GetFilterQuery("CS.SITE_ID", $val, $match);
 							$left_join = "LEFT JOIN b_adv_contract_2_site CS ON (C.ID = CS.CONTRACT_ID)";
 							break;
@@ -235,7 +239,7 @@ class CAdvContract extends CAdvContract_all
 }
 
 /*****************************************************************
-				Класс "Рекламный баннер"
+				РљР»Р°СЃСЃ "Р РµРєР»Р°РјРЅС‹Р№ Р±Р°РЅРЅРµСЂ"
 *****************************************************************/
 
 class CAdvBanner extends CAdvBanner_all
@@ -504,7 +508,7 @@ class CAdvBanner extends CAdvBanner_all
 						$arSqlSearch[] = GetFilterQuery("B.".$key, $val, $match);
 						break;
 
-					// совместимость со старой версией
+					// СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚СЊ СЃРѕ СЃС‚Р°СЂРѕР№ РІРµСЂСЃРёРµР№
 					case "LANG":
 					case "FIRST_SITE_ID":
 						$arSqlSearch[] = GetFilterQuery("B.FIRST_SITE_ID",$val,"N");
@@ -610,7 +614,7 @@ class CAdvBanner extends CAdvBanner_all
 		return $res;
 	}
 
-	// фиксируем клик по изображению баннера
+	// С„РёРєСЃРёСЂСѓРµРј РєР»РёРє РїРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЋ Р±Р°РЅРЅРµСЂР°
 	public static function Click($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner::err_mess())."<br>Function: Click<br>Line: ";
@@ -630,10 +634,10 @@ class CAdvBanner extends CAdvBanner_all
 		if ($arBanner = $rsBanner->Fetch())
 		{
 			/********************
-				обновим баннер
+				РѕР±РЅРѕРІРёРј Р±Р°РЅРЅРµСЂ
 			********************/
 
-			// параметры баннера
+			// РїР°СЂР°РјРµС‚СЂС‹ Р±Р°РЅРЅРµСЂР°
 			$arFields = Array(
 					"CLICK_COUNT"		=> "CLICK_COUNT + 1",
 					"DATE_LAST_CLICK"	=> $DB->GetNowFunction(),
@@ -644,7 +648,7 @@ class CAdvBanner extends CAdvBanner_all
 				foreach (getModuleEvents('advertising', 'onBannerClick', true) as $arEvent)
 					executeModuleEventEx($arEvent, array($BANNER_ID, $arFields));
 
-				// счетчик по дням
+				// СЃС‡РµС‚С‡РёРє РїРѕ РґРЅСЏРј
 				$strSql = "
 					UPDATE b_adv_banner_2_day SET
 						CLICK_COUNT = CLICK_COUNT + 1
@@ -680,7 +684,7 @@ class CAdvBanner extends CAdvBanner_all
 			}
 
 			/*************************
-				обновим контракт
+				РѕР±РЅРѕРІРёРј РєРѕРЅС‚СЂР°РєС‚
 			*************************/
 
 			$DONT_USE_CONTRACT = COption::GetOptionString("advertising", "DONT_USE_CONTRACT", "N");
@@ -694,7 +698,7 @@ class CAdvBanner extends CAdvBanner_all
 		}
 	}
 
-	// формирует массив весов всех возможных баннеров для текущей страницы
+	// С„РѕСЂРјРёСЂСѓРµС‚ РјР°СЃСЃРёРІ РІРµСЃРѕРІ РІСЃРµС… РІРѕР·РјРѕР¶РЅС‹С… Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†С‹
 	public static function GetPageWeights_RS()
 	{
 		$err_mess = (CAdvBanner::err_mess())."<br>Function: GetPageWeights_RS<br>Line: ";
@@ -932,7 +936,7 @@ class CAdvBanner extends CAdvBanner_all
 		return $rs;
 	}
 
-	// периодически вызываемая функция очищающая устаревшие данные по динамике баннера по дням
+	// РїРµСЂРёРѕРґРёС‡РµСЃРєРё РІС‹Р·С‹РІР°РµРјР°СЏ С„СѓРЅРєС†РёСЏ РѕС‡РёС‰Р°СЋС‰Р°СЏ СѓСЃС‚Р°СЂРµРІС€РёРµ РґР°РЅРЅС‹Рµ РїРѕ РґРёРЅР°РјРёРєРµ Р±Р°РЅРЅРµСЂР° РїРѕ РґРЅСЏРј
 	public static function CleanUpDynamics()
 	{
 		set_time_limit(0);
@@ -993,7 +997,7 @@ class CAdvBanner extends CAdvBanner_all
 }
 
 /*****************************************************************
-					Класс "Тип баннера"
+					РљР»Р°СЃСЃ "РўРёРї Р±Р°РЅРЅРµСЂР°"
 *****************************************************************/
 
 class CAdvType extends CAdvType_all

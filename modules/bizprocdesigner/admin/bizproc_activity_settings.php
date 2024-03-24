@@ -471,6 +471,10 @@ setTimeout("document.getElementById('bpastitle').focus();", 100);
 		align-items: center;
 		padding: 5px 12px;
 	}
+
+	.bizprocdesigner-properties-dialog-table select {
+		max-width: 300px !important;
+	}
 </style>
 <script>
 	BX.Event.ready(() => {

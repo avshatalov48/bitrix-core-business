@@ -16,3 +16,5 @@ $MESS['LANDING_TPL_PRS_ACTIVE'] = 'Активные';
 $MESS['LANDING_TPL_FLT_Y'] = 'Да';
 $MESS['LANDING_TPL_FLT_N'] = 'Нет';
 $MESS['LANDING_TPL_RECYCLE_BIN'] = 'Корзина';
+$MESS['LANDING_TPL_CREATE_BUTTON_HINT'] = "Включён режим работы Складского учёта в 1С, поэтому создать Магазин не получится";
+$MESS['LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT'] = "Подробнее";

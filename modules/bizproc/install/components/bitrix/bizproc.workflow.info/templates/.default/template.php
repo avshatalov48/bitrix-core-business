@@ -95,7 +95,11 @@ else
 						"URL_TEMPLATES_PROFILE_VIEW" => "/company/personal/user/#user_id#/",
 						"SHOW_RATING" => "Y",
 						"SHOW_LINK_TO_MESSAGE" => "N",
-						"BIND_VIEWER" => "Y"
+						"BIND_VIEWER" => "Y",
+						'LHE' => [
+							'copilotParams' => [],
+							'isCopilotEnabled' => false,
+						],
 					),
 						false,
 						array('HIDE_ICONS' => 'Y')

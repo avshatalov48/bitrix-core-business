@@ -318,6 +318,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    const buttonClasses = 'fa fa-chevron-right';
 	    switch (type) {
 	      case LinkUrl.TYPE_HREF_PAGE:
+	      case LinkUrl.TYPE_PAGE:
 	        data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_PAGE");
 	        data.items = {
 	          "_self": BX.Landing.Loc.getMessage("FIELD_LINK_TARGET_SELF"),
@@ -1235,7 +1236,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.validateValue(valueText);
 	    this.prepareInputField(this.hrefTypeSwithcer.getValue(), valueText);
 	    if (valueText === '') {
-	      if (selectedHrefType === 'catalog') {
+	      if (selectedHrefType === 'catalog' || selectedHrefType === 'landing') {
 	        return '';
 	      }
 	      return LinkUrl.TYPE_HREF_START;

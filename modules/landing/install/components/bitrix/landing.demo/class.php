@@ -1247,7 +1247,13 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 											]
 										);
 									}
-									if ($data['type'] !== 'KNOWLEDGE')
+									if (
+										(is_string($data['type']) && $data['type'] !== 'KNOWLEDGE')
+										|| (
+											is_array($data['type'])
+											&& !in_array('KNOWLEDGE', $data['type'], true)
+										)
+									)
 									{
 										$content = str_replace(
 											'@landing[' . $landCode . ']',

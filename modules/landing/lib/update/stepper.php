@@ -24,6 +24,7 @@ class Stepper
 			'Bitrix\Landing\Update\Assets\FontFix',
 			'Bitrix\Landing\Update\Assets\FixFontWeight',
 			'Bitrix\Landing\Update\Block\DomainUa',
+			'Bitrix\Landing\Update\Site\Publish',
 		);
 	}
 

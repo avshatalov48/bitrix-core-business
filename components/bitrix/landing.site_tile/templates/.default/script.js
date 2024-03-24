@@ -4,7 +4,6 @@ this.BX.Landing = this.BX.Landing || {};
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
-
 	var EditableTitle = /*#__PURE__*/function () {
 	  function EditableTitle(options) {
 	    babelHelpers.classCallCheck(this, EditableTitle);
@@ -22,12 +21,12 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.adjustCloseEditByClick = this.adjustCloseEditByClick.bind(this);
 	    this.adjustCloseEditByKeyDown = this.adjustCloseEditByKeyDown.bind(this);
 	  }
-
 	  babelHelpers.createClass(EditableTitle, [{
 	    key: "getContainerEdit",
 	    value: function getContainerEdit() {
 	      if (!this.$containerEditIcon) {
-	        this.$containerEditIcon = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__title-edit\"></div>"]))); // Event.bind(this.$containerEditIcon, 'click', this.adjustEditMode.bind(this));
+	        this.$containerEditIcon = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__title-edit\"></div>"])));
+	        // Event.bind(this.$containerEditIcon, 'click', this.adjustEditMode.bind(this));
 	      }
 
 	      return this.$containerEditIcon;
@@ -54,7 +53,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (ev.type !== 'click') {
 	        return;
 	      }
-
 	      if (ev.target !== this.getContainerInput() && ev.target !== this.getContainerEdit()) {
 	        this.closeEdit();
 	      }
@@ -65,14 +63,14 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (ev.type !== 'keydown') {
 	        return;
 	      }
-
-	      if (ev.keyCode === 27) // close by Escape
+	      if (ev.keyCode === 27)
+	        // close by Escape
 	        {
 	          this.closeEdit();
 	          return;
 	        }
-
-	      if (ev.keyCode === 13) // close by Enter
+	      if (ev.keyCode === 13)
+	        // close by Enter
 	        {
 	          this.closeEdit();
 	          this.updateTitle(this.getContainerInput().value);
@@ -105,7 +103,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$containerInput) {
 	        this.$containerInput = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<input\n\t\t\t\tvalue=\"", "\"\n\t\t\t\ttype=\"text\"\n\t\t\t\tclass=\"landing-sites__title-input\">\n\t\t\t"])), main_core.Text.encode(this.title));
 	      }
-
 	      return this.$containerInput;
 	    }
 	  }, {
@@ -113,18 +110,14 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerTitle() {
 	      if (!this.$containerTitle) {
 	        var value;
-
 	        if (this.phone) {
 	          value = this.phone;
 	        }
-
 	        if (this.title) {
 	          value = this.title;
 	        }
-
 	        this.$containerTitle = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__title-text --sub\">\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), main_core.Text.encode(value));
 	      }
-
 	      return this.$containerTitle;
 	    }
 	  }, {
@@ -137,7 +130,6 @@ this.BX.Landing = this.BX.Landing || {};
 	          this.$container = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), this.url, this.getContainerInput(), this.getContainerTitle(), this.getContainerEdit());
 	        }
 	      }
-
 	      return this.$container;
 	    }
 	  }], [{
@@ -150,7 +142,6 @@ this.BX.Landing = this.BX.Landing || {};
 	}();
 
 	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1;
-
 	var LeaderShip = /*#__PURE__*/function () {
 	  function LeaderShip(options) {
 	    babelHelpers.classCallCheck(this, LeaderShip);
@@ -162,7 +153,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.adjustCloseEditByClick = this.adjustCloseEditByClick.bind(this);
 	    this.adjustCloseEditByKeyDown = this.adjustCloseEditByKeyDown.bind(this);
 	  }
-
 	  babelHelpers.createClass(LeaderShip, [{
 	    key: "show",
 	    value: function show() {
@@ -185,7 +175,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (ev.type !== 'click') {
 	        return;
 	      }
-
 	      if (!ev.target.closest('.landing-sites__helper-' + this.id) && ev.target.className !== 'landing-sites__preview-leadership-text') {
 	        this.hide();
 	      }
@@ -196,8 +185,8 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (ev.type !== 'keydown') {
 	        return;
 	      }
-
-	      if (ev.keyCode === 27) // close by Escape
+	      if (ev.keyCode === 27)
+	        // close by Escape
 	        {
 	          this.hide();
 	        }
@@ -209,7 +198,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.$containerClose = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__helper-close-toggler\">", "</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_HIDE'));
 	        main_core.Event.bind(this.$containerClose, 'click', this.hide.bind(this));
 	      }
-
 	      return this.$containerClose;
 	    }
 	  }, {
@@ -217,23 +205,19 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainer() {
 	      if (!this.$container) {
 	        var articlesNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__helper-list\"></div>"])));
-
 	        for (var i = 0; i < this.articles.length; i++) {
 	          var item = this.articles[i];
 	          articlesNode.appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-sites__helper-item ", "\">\n\t\t\t\t\t\t<div class=\"landing-sites__helper-item-title\">", "</div>\n\t\t\t\t\t\t<div class=\"landing-sites__helper-item-container\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__helper-item-text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__helper-item-button ", "\"\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), item.read ? '--read' : '', item.title, item.text, item.read ? '--read' : '', item.read ? main_core.Loc.getMessage('LANDING_SITE_TILE_READ') : main_core.Loc.getMessage('LANDING_SITE_TILE_TO_READ')));
 	        }
-
 	        this.$container = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__helper landing-sites__helper-", "\">\n\t\t\t\t\t<div class=\"landing-sites__helper-title\">\n\t\t\t\t\t\t<div class=\"landing-sites__helper-title-text\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__helper-container\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.id, main_core.Loc.getMessage('LANDING_SITE_TILE_LEADERSHIP_TITLE'), this.getContainerClose(), articlesNode);
 	      }
-
 	      return this.$container;
 	    }
 	  }]);
 	  return LeaderShip;
 	}();
 
-	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16;
-
+	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17;
 	var PopupHelper = /*#__PURE__*/function () {
 	  function PopupHelper(options) {
 	    babelHelpers.classCallCheck(this, PopupHelper);
@@ -257,7 +241,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.adjustCloseEditByClick = this.adjustCloseEditByClick.bind(this);
 	    this.adjustCloseEditByKeyDown = this.adjustCloseEditByKeyDown.bind(this);
 	  }
-
 	  babelHelpers.createClass(PopupHelper, [{
 	    key: "hide",
 	    value: function hide() {
@@ -270,7 +253,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "show",
 	    value: function show(param) {
 	      this.getContainer().classList.add('--show');
-
 	      if (param === 'link') {
 	        this.getContainerFirstStep().style.display = 'none';
 	        this.getContainerSecondStep().style.display = 'none';
@@ -287,7 +269,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.getContainerFirstStep().style.display = null;
 	        this.getContainerSecondStep().style.display = null;
 	      }
-
 	      main_core.Event.bind(document.body, 'click', this.adjustCloseEditByClick);
 	      main_core.Event.bind(document.body, 'keydown', this.adjustCloseEditByKeyDown);
 	      main_core_events.EventEmitter.emit(this, 'BX.Landing.SiteTile.Popup:onShow', this);
@@ -298,11 +279,9 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (ev.type !== 'click') {
 	        return;
 	      }
-
 	      if (ev.target.closest('.landing-sites__popup') || ev.target.closest('.landing-sites__container-link-' + this.id) || ev.target.closest('.landing-sites__status-' + this.id)) {
 	        return;
 	      }
-
 	      this.hide();
 	    }
 	  }, {
@@ -311,8 +290,8 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (ev.type !== 'keydown') {
 	        return;
 	      }
-
-	      if (ev.keyCode === 27) // close by Escape
+	      if (ev.keyCode === 27)
+	        // close by Escape
 	        {
 	          this.hide();
 	        }
@@ -335,19 +314,16 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$containerInputUrl) {
 	        this.$containerInputUrl = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tstyle=\"position: absolute; opacity: 0; pointer-events: none\"\n\t\t\t\t\tvalue=\"", "\">\n\t\t\t"])), this.fullUrl);
 	      }
-
 	      return this.$containerInputUrl;
 	    }
 	  }, {
 	    key: "getContainerCopyLink",
 	    value: function getContainerCopyLink() {
 	      var _this = this;
-
 	      if (!this.$containerCopyLink) {
 	        this.$containerCopyLink = main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-copy\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPY_LINK'));
 	        main_core.Event.bind(this.$containerCopyLink, 'click', function () {
 	          _this.getContainerInputUrl().select();
-
 	          document.execCommand('copy');
 	          BX.UI.Notification.Center.notify({
 	            content: main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE'),
@@ -355,7 +331,6 @@ this.BX.Landing = this.BX.Landing || {};
 	          });
 	        });
 	      }
-
 	      return this.$containerCopyLink;
 	    }
 	  }, {
@@ -380,7 +355,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        var popupButtonText = isShop ? main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_SHOP') : main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_SITE');
 	        this.$containerQr = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --qr\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-bottom\">\n\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"landing-sites__popup-url\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, popupText, this.getContainerQrImage(), this.fullUrl, popupButtonText, this.fullUrl, this.url, this.getContainerInputUrl(), this.getContainerCopyLink());
 	      }
-
 	      return this.$containerQr;
 	    }
 	  }, {
@@ -390,7 +364,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.$containerTestOrder = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-btn ui-btn-success ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\t\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'));
 	        main_core.Event.bind(this.$containerTestOrder, 'click', this.showSecondStep.bind(this));
 	      }
-
 	      return this.$containerTestOrder;
 	    }
 	  }, {
@@ -401,7 +374,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
 	        this.$containerFirstStep = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-image --first-order\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_TEXT'), this.getContainerTestOrder(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
 	      }
-
 	      return this.$containerFirstStep;
 	    }
 	  }, {
@@ -414,50 +386,53 @@ this.BX.Landing = this.BX.Landing || {};
 	        main_core.Event.bind(prevIcon, 'click', this.showFirstStep.bind(this));
 	        this.$containerSecondStep = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --hide-left\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>1</span> ", "</div>\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>2</span> ", "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-success ui-btn-round\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, prevIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_1'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_2'), this.getContainerQrImage(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
 	      }
-
 	      return this.$containerSecondStep;
 	    }
 	  }, {
 	    key: "getContainerNotPublished",
 	    value: function getContainerNotPublished() {
 	      var _this2 = this;
-
 	      if (!this.$containerNotPublished) {
 	        var closeIcon = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"])));
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
 	        var buttPublish = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span href=\"", "\" class=\"ui-btn ui-btn-success ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_PUBLISH'));
+	        if (this.itemObj.access.publication === false && this.itemObj.error.publication) {
+	          var code = this.itemObj.error.publication.code || '';
+	          var hint = this.itemObj.error.publication.hint || '';
+	          var url = this.itemObj.error.publication.url || '';
+	          var link = this.itemObj.error.publication.link || '';
+	          if (code === 'shop1c') {
+	            buttPublish = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-btn ui-btn-success ui-btn-round ui-btn-disabled ui-btn-icon-lock\"\n\t\t\t\t\t\tdata-hint=\"", "<br><a href='", "'>", "</a>\"\n\t\t\t\t\t\tdata-hint-no-icon\n\t\t\t\t\t\tdata-hint-html\n\t\t\t\t\t\tdata-hint-interactivity\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), hint, url, link, main_core.Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_PUBLISH'));
+	          }
+	        }
 	        main_core.Event.bind(buttPublish, 'click', function () {
 	          main_core_events.EventEmitter.emit('BX.Landing.SiteTile:publish', _this2.itemObj);
-
 	          _this2.hide();
 	        });
-	        var buttOpen = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_OPEN'));
+	        var buttOpen = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_OPEN'));
 	        main_core.Event.bind(buttOpen, 'click', function () {
 	          // todo: loader?
 	          if (_this2.indexEditUrl) {
 	            window.location.href = _this2.indexEditUrl;
 	          }
 	        });
-	        this.$containerNotPublished = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --not-published\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, this.notPublishedText ? this.notPublishedText.title : 'title', this.notPublishedText ? this.notPublishedText.message : 'message', buttPublish, buttOpen);
+	        this.$containerNotPublished = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --not-published\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, this.notPublishedText ? this.notPublishedText.title : 'title', this.notPublishedText ? this.notPublishedText.message : 'message', buttPublish, buttOpen);
 	      }
-
 	      return this.$containerNotPublished;
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerFirstStep(), this.getContainerSecondStep(), this.getContainerQr(), this.getContainerNotPublished());
+	        this.$container = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerFirstStep(), this.getContainerSecondStep(), this.getContainerQr(), this.getContainerNotPublished());
 	      }
-
 	      return this.$container;
 	    }
 	  }]);
 	  return PopupHelper;
 	}();
 
-	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13$1, _templateObject14$1, _templateObject15$1, _templateObject16$1, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21;
-
+	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13$1, _templateObject14$1, _templateObject15$1, _templateObject16$1, _templateObject17$1, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22;
 	var Item = /*#__PURE__*/function () {
 	  function Item(options) {
 	    babelHelpers.classCallCheck(this, Item);
@@ -484,6 +459,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.menuBottomItems = options.menuBottomItems || [];
 	    this.notPublishedText = options.notPublishedText || null;
 	    this.access = options.access || {};
+	    this.error = options.error || {};
 	    this.articles = options.articles || [];
 	    this.editableTitle = null;
 	    this.editableUrl = null;
@@ -515,19 +491,15 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.bindEvents();
 	    this.lazyLoadCloudPreview = this.lazyLoadCloudPreview.bind(this);
 	  }
-
 	  babelHelpers.createClass(Item, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
 	      var _this = this;
-
 	      main_core_events.EventEmitter.subscribe('BX.Landing.SiteTile:showLeadership', function (options) {
 	        if (_this === options.data) {
 	          _this.active();
-
 	          _this.setContainerPosition();
 	        }
-
 	        if (_this !== options.data) {
 	          _this.fade();
 	        }
@@ -535,10 +507,8 @@ this.BX.Landing = this.BX.Landing || {};
 	      main_core_events.EventEmitter.subscribe('BX.Landing.SiteTile:hideLeadership', function (options) {
 	        if (_this === options.data) {
 	          _this.unActive();
-
 	          _this.unSetContainerPosition();
 	        }
-
 	        _this.unFade();
 	      });
 	      main_core_events.EventEmitter.subscribe(this.getPopupHelper(), 'BX.Landing.SiteTile.Popup:onShow', function () {
@@ -554,13 +524,10 @@ this.BX.Landing = this.BX.Landing || {};
 	      var offsetRight = window.innerWidth - this.getContainer().getBoundingClientRect().right;
 	      var leaderShipWidth = this.getLeadership().getContainer().offsetWidth;
 	      var previousItem = this.getContainer().previousSibling;
-
 	      if (offsetRight > leaderShipWidth) {
 	        return;
 	      }
-
 	      this.getContainer().style.transform = 'translateX(-' + (leaderShipWidth + 40 - offsetRight) + 'px)';
-
 	      if (previousItem && previousItem.offsetTop === this.getContainer().offsetTop) {
 	        previousItem.style.transform = 'translateX(-10px)';
 	      }
@@ -570,7 +537,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function unSetContainerPosition() {
 	      this.getContainer().style.transform = null;
 	      var previousItem = this.getContainer().previousSibling;
-
 	      if (previousItem && previousItem.offsetTop === this.getContainer().offsetTop) {
 	        previousItem.style.transform = null;
 	      }
@@ -581,13 +547,10 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (this.published === status) {
 	        return;
 	      }
-
 	      if (this.popupStatus) {
 	        this.popupStatus.destroy();
 	      }
-
 	      this.popupStatus = null;
-
 	      if (status) {
 	        this.published = true;
 	        this.getContainerSiteStatusRound().className = 'landing-sites__status-round --success';
@@ -596,7 +559,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        this.getContainerPreviewStatus().classList.add('--hide');
 	        return;
 	      }
-
 	      this.published = false;
 	      this.getContainerSiteStatusRound().className = 'landing-sites__status-round --alert';
 	      this.getContainerSiteStatusTitle().innerText = main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED');
@@ -623,14 +585,12 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$containerTitle) {
 	        this.$containerTitle = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__title\">\n\t\t\t\t\t<div class=\"landing-sites__title-text\">", "</div>\n\t\t\t\t\t<div class=\"landing-sites__title-edit\"></div>\n\t\t\t\t</div>\n\t\t\t"])), this.title);
 	      }
-
 	      return this.$containerTitle;
 	    }
 	  }, {
 	    key: "mergeMenuItems",
 	    value: function mergeMenuItems(items) {
 	      var _this2 = this;
-
 	      var addMenu = [{
 	        text: this.deleted ? main_core.Loc.getMessage('LANDING_SITE_TILE_RESTORE') : main_core.Loc.getMessage('LANDING_SITE_TILE_REMOVE'),
 	        access: 'delete',
@@ -657,14 +617,12 @@ this.BX.Landing = this.BX.Landing || {};
 	            messageBox.show();
 	          } else {
 	            main_core_events.EventEmitter.emit('BX.Landing.SiteTile:restore', _this2);
-
 	            _this2.getPopupConfig().close();
 	          }
 	        }
 	      }];
 	      items.map(function (item, i) {
 	        if (item.delimiter === true) ;
-
 	        if (_this2.deleted) {
 	          item.disabled = true;
 	        }
@@ -678,12 +636,10 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "disableMenuItems",
 	    value: function disableMenuItems(items) {
 	      var _this3 = this;
-
 	      items = items.map(function (item) {
 	        if (item.access && _this3.access[item.access] !== true) {
 	          item.disabled = true;
 	        }
-
 	        return item;
 	      });
 	      return items;
@@ -692,7 +648,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getPopupConfig",
 	    value: function getPopupConfig() {
 	      var _this4 = this;
-
 	      if (!this.popupConfig) {
 	        this.popupConfig = new main_popup.Menu({
 	          className: 'landing-sites__status-popup',
@@ -716,14 +671,12 @@ this.BX.Landing = this.BX.Landing || {};
 	          animation: 'fading-slide'
 	        });
 	      }
-
 	      return this.popupConfig;
 	    }
 	  }, {
 	    key: "getPopupStatus",
 	    value: function getPopupStatus() {
 	      var _this5 = this;
-
 	      if (!this.popupStatus) {
 	        this.popupStatus = new main_popup.Menu({
 	          className: 'landing-sites__status-popup',
@@ -738,7 +691,6 @@ this.BX.Landing = this.BX.Landing || {};
 	            text: this.published ? main_core.Loc.getMessage('LANDING_SITE_TILE_UNPUBLISH') : main_core.Loc.getMessage('LANDING_SITE_TILE_PUBLISH'),
 	            onclick: function onclick() {
 	              _this5.popupStatus.close();
-
 	              _this5.published ? main_core_events.EventEmitter.emit('BX.Landing.SiteTile:unPublish', _this5) : main_core_events.EventEmitter.emit('BX.Landing.SiteTile:publish', _this5);
 	            }
 	          }],
@@ -753,44 +705,46 @@ this.BX.Landing = this.BX.Landing || {};
 	          animation: 'fading-slide'
 	        });
 	      }
-
 	      return this.popupStatus;
 	    }
 	  }, {
 	    key: "getContainerSiteStatus",
 	    value: function getContainerSiteStatus() {
 	      var _this6 = this;
-
 	      if (!this.$containerSiteStatus) {
-	        this.$containerSiteStatus = main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.access.publication ? 'landing-sites__status' : 'landing-sites__status_disabled', this.getContainerSiteStatusRound(), this.getContainerSiteStatusTitle(), this.access.publication ? main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-arrow\"></div>"]))) : '');
-
 	        if (this.access.publication) {
+	          this.$containerSiteStatus = main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-sites__status\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<div class=\"landing-sites__status-arrow\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getContainerSiteStatusRound(), this.getContainerSiteStatusTitle());
 	          main_core.Event.bind(this.$containerSiteStatus, 'click', function (ev) {
 	            _this6.getPopupStatus().layout.menuContainer.style.left = _this6.$containerSiteStatus.getBoundingClientRect().left + 'px';
-
 	            _this6.getPopupStatus().show();
-
 	            ev.stopPropagation();
 	          });
+	        } else {
+	          this.$containerSiteStatus = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-sites__status_disabled\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getContainerSiteStatusRound(), this.getContainerSiteStatusTitle());
+	          if (this.error.publication) {
+	            var code = this.error.publication.code || '';
+	            var hint = this.error.publication.hint || '';
+	            var url = this.error.publication.url || '';
+	            var link = this.error.publication.link || '';
+	            if (code === 'shop1c') {
+	              this.$containerSiteStatus = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div \n\t\t\t\t\t\t\t\tclass=\"landing-sites__status_disabled\"\n\t\t\t\t\t\t\t\tdata-hint=\"", "<br><a href='", "'>", "</a>\"\n\t\t\t\t\t\t\t\tdata-hint-no-icon\n\t\t\t\t\t\t\t\tdata-hint-html\n\t\t\t\t\t\t\t\tdata-hint-interactivity\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t"])), hint, url, link, this.getContainerSiteStatusRound(), this.getContainerSiteStatusTitle());
+	            }
+	          }
 	        }
 	      }
-
 	      return this.$containerSiteStatus;
 	    }
 	  }, {
 	    key: "getContainerSiteMore",
 	    value: function getContainerSiteMore() {
 	      var _this7 = this;
-
 	      if (!this.$containerSiteMore) {
-	        this.$containerSiteMore = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__more\"></div>"])));
+	        this.$containerSiteMore = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__more\"></div>"])));
 	        main_core.Event.bind(this.$containerSiteMore, 'click', function (ev) {
 	          _this7.getPopupConfig().show();
-
 	          ev.stopPropagation();
 	        });
 	      }
-
 	      return this.$containerSiteMore;
 	    }
 	  }, {
@@ -798,9 +752,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerSiteStatusRound() {
 	      if (!this.$containerSiteStatusRound) {
 	        var status = this.published ? '--success' : '--alert';
-	        this.$containerSiteStatusRound = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-round ", "\"></div>"])), status);
+	        this.$containerSiteStatusRound = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-round ", "\"></div>"])), status);
 	      }
-
 	      return this.$containerSiteStatusRound;
 	    }
 	  }, {
@@ -808,9 +761,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerSiteStatusTitle() {
 	      if (!this.$containerSiteStatusTitle) {
 	        var title = this.published ? main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_PUBLISHED') : main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED');
-	        this.$containerSiteStatusTitle = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-title\">", "</div>"])), title);
+	        this.$containerSiteStatusTitle = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-title\">", "</div>"])), title);
 	      }
-
 	      return this.$containerSiteStatusTitle;
 	    }
 	  }, {
@@ -841,16 +793,14 @@ this.BX.Landing = this.BX.Landing || {};
 	          disabled: !this.access.settings
 	        });
 	      }
-
 	      return this.editableTitle;
 	    }
 	  }, {
 	    key: "getContainerInfo",
 	    value: function getContainerInfo() {
 	      if (!this.$containerInfo) {
-	        this.$containerInfo = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg\">\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t<div class=\"landing-sites__title\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__title-text\" title=\"", "\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Text.encode(this.title), main_core.Text.encode(this.title), this.phone ? this.getEditableTitle().getContainer() : '', this.getContainerSiteStatus(), this.getContainerSiteMore());
+	        this.$containerInfo = main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg\">\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t<div class=\"landing-sites__title\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__title-text\" title=\"", "\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Text.encode(this.title), main_core.Text.encode(this.title), this.phone ? this.getEditableTitle().getContainer() : '', this.getContainerSiteStatus(), this.getContainerSiteMore());
 	      }
-
 	      return this.$containerInfo;
 	    }
 	  }, {
@@ -869,9 +819,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerDomainStatus",
 	    value: function getContainerDomainStatus() {
 	      if (!this.$containerDomainStatus) {
-	        this.$containerDomainStatus = main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container-status --", "\"></div>\n\t\t\t"])), this.domainStatus);
+	        this.$containerDomainStatus = main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container-status --", "\"></div>\n\t\t\t"])), this.domainStatus);
 	      }
-
 	      return this.$containerDomainStatus;
 	    }
 	  }, {
@@ -886,16 +835,14 @@ this.BX.Landing = this.BX.Landing || {};
 	          disabled: !this.access.settings
 	        });
 	      }
-
 	      return this.editableUrl;
 	    }
 	  }, {
 	    key: "getContainerDomainStatusIcon",
 	    value: function getContainerDomainStatusIcon() {
 	      if (!this.$containerDomainStatusIcon) {
-	        this.$containerDomainStatusIcon = main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-icon --", "\"></div>\n\t\t\t"])), this.domainStatus);
+	        this.$containerDomainStatusIcon = main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-icon --", "\"></div>\n\t\t\t"])), this.domainStatus);
 	      }
-
 	      return this.$containerDomainStatusIcon;
 	    }
 	  }, {
@@ -903,9 +850,8 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerDomainStatusTitle() {
 	      if (!this.$containerDomainStatusTitle) {
 	        var title = main_core.Loc.getMessage('LANDING_SITE_TILE_OPEN');
-	        this.$containerDomainStatusTitle = main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), title);
+	        this.$containerDomainStatusTitle = main_core.Tag.render(_templateObject11$1 || (_templateObject11$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), title);
 	      }
-
 	      return this.$containerDomainStatusTitle;
 	    }
 	  }, {
@@ -920,79 +866,68 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerDomainStatusMessage() {
 	      if (!this.$containerDomainStatusMessage) {
 	        !this.domainStatusMessage ? this.domainStatusMessage = '' : null;
-	        this.$containerDomainStatusMessage = main_core.Tag.render(_templateObject11$1 || (_templateObject11$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__sub-title\">", "</div>\n\t\t\t"])), this.domainStatusMessage);
+	        this.$containerDomainStatusMessage = main_core.Tag.render(_templateObject12$1 || (_templateObject12$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__sub-title\">", "</div>\n\t\t\t"])), this.domainStatusMessage);
 	      }
-
 	      return this.$containerDomainStatusMessage;
 	    }
 	  }, {
 	    key: "getContainerDomainLink",
 	    value: function getContainerDomainLink() {
 	      var _this8 = this;
-
 	      if (!this.$containerDomainLink) {
-	        this.$containerDomainLink = main_core.Tag.render(_templateObject12$1 || (_templateObject12$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status landing-sites__status-", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.id, this.getContainerDomainStatusIcon(), this.getContainerDomainStatusTitle());
+	        this.$containerDomainLink = main_core.Tag.render(_templateObject13$1 || (_templateObject13$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status landing-sites__status-", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.id, this.getContainerDomainStatusIcon(), this.getContainerDomainStatusTitle());
 	        main_core.Event.bind(this.$containerDomainLink, 'click', function () {
 	          _this8.getPopupHelper().show(_this8.published ? 'link' : 'notPublished');
 	        });
 	      }
-
 	      return this.$containerDomainLink;
 	    }
 	  }, {
 	    key: "getContainerDomain",
 	    value: function getContainerDomain() {
 	      if (!this.$containerDomain) {
-	        this.$containerDomain = main_core.Tag.render(_templateObject13$1 || (_templateObject13$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg --white-bg--alpha --domain\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerDomainStatus(), this.getEditableUrl().getContainer(), this.getContainerDomainStatusMessage(), this.getContainerDomainLink());
+	        this.$containerDomain = main_core.Tag.render(_templateObject14$1 || (_templateObject14$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg --white-bg--alpha --domain\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerDomainStatus(), this.getEditableUrl().getContainer(), this.getContainerDomainStatusMessage(), this.getContainerDomainLink());
 	      }
-
 	      return this.$containerDomain;
 	    }
 	  }, {
 	    key: "getContainerPreviewImage",
 	    value: function getContainerPreviewImage() {
 	      if (!this.$containerPreviewImage) {
-	        this.$containerPreviewImage = main_core.Tag.render(_templateObject14$1 || (_templateObject14$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__preview-image ", "\"></div>"])), this.published ? '' : '--not-published');
+	        this.$containerPreviewImage = main_core.Tag.render(_templateObject15$1 || (_templateObject15$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__preview-image ", "\"></div>"])), this.published ? '' : '--not-published');
 	        this.$containerPreviewImage.style.backgroundImage = 'url(' + this.preview + ')';
 	        this.$containerPreviewImage.style.backgroundSize = 'cover';
-
 	        if (this.published && this.cloudPreview && this.cloudPreview !== this.preview) {
 	          this.lazyLoadCloudPreview();
 	        }
 	      }
-
 	      return this.$containerPreviewImage;
 	    }
 	  }, {
 	    key: "lazyLoadCloudPreview",
 	    value: function lazyLoadCloudPreview() {
 	      var _this9 = this;
-
 	      try {
-		      var previewUrl = this.cloudPreview + (this.cloudPreview.indexOf('?') > 0 ? '&' : '?') + 'refreshed' + (Date.now() / 86400000 | 0);
-		      var xhr = new XMLHttpRequest();
-		      xhr.open("HEAD", previewUrl);
-
-		      xhr.onload = function () {
-		        var expires = xhr.getResponseHeader("expires");
-
-		        if (expires && new Date(expires) <= new Date()) {
-		          setTimeout(_this9.lazyLoadCloudPreview, 3000);
-		        } else {
-		          _this9.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
-		        }
-		      };
-
-		      xhr.send();
-		  } catch (error) {}
+	        var previewUrl = this.cloudPreview + (this.cloudPreview.indexOf('?') > 0 ? '&' : '?') + 'refreshed' + (Date.now() / 86400000 | 0);
+	        var xhr = new XMLHttpRequest();
+	        xhr.open("HEAD", previewUrl);
+	        xhr.onload = function () {
+	          var expires = xhr.getResponseHeader("expires");
+	          if (expires && new Date(expires) <= new Date()) {
+	            setTimeout(_this9.lazyLoadCloudPreview, 3000);
+	          } else {
+	            _this9.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
+	          }
+	        };
+	        xhr.send();
+	      } catch (error) {}
 	    }
 	  }, {
 	    key: "getContainerPreviewStatus",
 	    value: function getContainerPreviewStatus() {
 	      var _this10 = this;
-
 	      if (!this.$containerPreviewStatus) {
-	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject15$1 || (_templateObject15$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
+	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject16$1 || (_templateObject16$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
 	        main_core.Event.bind(this.$containerPreviewStatus, 'mouseenter', function () {
 	          _this10.$containerPreviewStatus.style.width = _this10.$containerPreviewStatus.firstElementChild.offsetWidth + 'px';
 	        });
@@ -1000,52 +935,45 @@ this.BX.Landing = this.BX.Landing || {};
 	          _this10.$containerPreviewStatus.style.width = null;
 	        });
 	      }
-
 	      return this.$containerPreviewStatus;
 	    }
 	  }, {
 	    key: "getContainerPreviewShowPages",
 	    value: function getContainerPreviewShowPages() {
 	      if (!this.$containerPreviewShowPages) {
-	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject16$1 || (_templateObject16$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
+	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject17$1 || (_templateObject17$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
 	      }
-
 	      return this.$containerPreviewShowPages;
 	    }
 	  }, {
 	    key: "getContainerPreviewInstruction",
 	    value: function getContainerPreviewInstruction() {
 	      var _this11 = this;
-
 	      if (!this.$containerPreviewInstruction) {
-	        this.$containerPreviewInstruction = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-leadership\">\n\t\t\t\t\t<div class=\"landing-sites__preview-leadership-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_INSTRUCTION'));
+	        this.$containerPreviewInstruction = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-leadership\">\n\t\t\t\t\t<div class=\"landing-sites__preview-leadership-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_INSTRUCTION'));
 	        main_core.Event.bind(this.$containerPreviewInstruction, 'click', function () {
 	          _this11.getLeadership().show();
 	        });
 	      }
-
 	      return this.$containerPreviewInstruction;
 	    }
 	  }, {
 	    key: "getContainerLinks",
 	    value: function getContainerLinks() {
 	      var _this12 = this;
-
 	      if (!this.$containerLinks) {
-	        this.$containerLinks = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__container --without-bg --auto-height --flex\"></div>"])));
+	        this.$containerLinks = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__container --without-bg --auto-height --flex\"></div>"])));
 	        this.menuBottomItems.map(function (menuItem) {
 	          _this12.$containerLinks.appendChild(_this12.getContainerLinksItem(menuItem.code, menuItem.href, menuItem.text));
 	        });
 	      }
-
 	      return this.$containerLinks;
 	    }
 	  }, {
 	    key: "getContainerLinksItem",
 	    value: function getContainerLinksItem(type, link, title) {
 	      var _this13 = this;
-
-	      var container = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"landing-sites__container-link landing-sites__container-link-", " --white-bg--alpha\">\n\t\t\t\t<div class=\"landing-sites__container-link-icon --", "\"></div>\n\t\t\t\t<div class=\"landing-sites__container-link-text\">", "</div>\n\t\t\t</a>\n\t\t"])), link, this.id, type, title);
+	      var container = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"landing-sites__container-link landing-sites__container-link-", " --white-bg--alpha\">\n\t\t\t\t<div class=\"landing-sites__container-link-icon --", "\"></div>\n\t\t\t\t<div class=\"landing-sites__container-link-text\">", "</div>\n\t\t\t</a>\n\t\t"])), link, this.id, type, title);
 	      main_core.Event.bind(container, 'click', function (event) {
 	        main_core_events.EventEmitter.emit('BX.Landing.SiteTile:onBottomMenuClick', [type, event, _this13]);
 	      });
@@ -1061,18 +989,15 @@ this.BX.Landing = this.BX.Landing || {};
 	          articles: this.articles
 	        });
 	      }
-
 	      return this.leadership;
 	    }
 	  }, {
 	    key: "remove",
 	    value: function remove() {
 	      var _this14 = this;
-
 	      this.getContainer().classList.add('--remove');
 	      main_core.Event.bind(this.getContainer(), 'transitionend', function () {
 	        var items = _this14.grid.getItems();
-
 	        items.splice(items.indexOf(items), 1);
 	        main_core.Dom.remove(_this14.getContainer());
 	      });
@@ -1081,21 +1006,18 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "lock",
 	    value: function lock() {
 	      this.getContainer().classList.add('--lock');
-
 	      if (!this.loader) {
 	        this.loader = new BX.Loader({
 	          target: this.getContainer(),
 	          size: 100
 	        });
 	      }
-
 	      this.loader.show();
 	    }
 	  }, {
 	    key: "unLock",
 	    value: function unLock() {
 	      this.getContainer().classList.remove('--lock');
-
 	      if (this.loader) {
 	        this.loader.hide();
 	      }
@@ -1134,25 +1056,22 @@ this.BX.Landing = this.BX.Landing || {};
 	          notPublishedText: this.notPublishedText
 	        });
 	      }
-
 	      return this.popupHelper;
 	    }
 	  }, {
 	    key: "getContainerWrapper",
 	    value: function getContainerWrapper() {
 	      if (!this.$containerWrapper) {
-	        this.$containerWrapper = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__item-container\">\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__preview\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.pagesUrl, this.getContainerPreviewImage(), this.getContainerPreviewStatus(), this.getContainerPreviewShowPages(), this.articles.length > 0 ? this.getContainerPreviewInstruction() : '', this.getContainerInfo(), this.getContainerDomain(), this.getContainerLinks());
+	        this.$containerWrapper = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__item-container\">\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__preview\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.pagesUrl, this.getContainerPreviewImage(), this.getContainerPreviewStatus(), this.getContainerPreviewShowPages(), this.articles.length > 0 ? this.getContainerPreviewInstruction() : '', this.getContainerInfo(), this.getContainerDomain(), this.getContainerLinks());
 	      }
-
 	      return this.$containerWrapper;
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item ", "\">\n\t\t\t\t\t<div class=\"landing-sites__item\" id=\"landing-sites__grid-item--", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.deleted ? '--deleted' : '', this.id, this.getLeadership().getContainer(), this.getContainerWrapper(), this.getPopupHelper().getContainer());
+	        this.$container = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item ", "\">\n\t\t\t\t\t<div class=\"landing-sites__item\" id=\"landing-sites__grid-item--", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.deleted ? '--deleted' : '', this.id, this.getLeadership().getContainer(), this.getContainerWrapper(), this.getPopupHelper().getContainer());
 	      }
-
 	      return this.$container;
 	    }
 	  }]);
@@ -1160,7 +1079,6 @@ this.BX.Landing = this.BX.Landing || {};
 	}();
 
 	var _templateObject$4, _templateObject2$4;
-
 	var ItemMarketing = /*#__PURE__*/function () {
 	  function ItemMarketing(options) {
 	    babelHelpers.classCallCheck(this, ItemMarketing);
@@ -1173,16 +1091,13 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.onClick = options.onClick;
 	    this.$container = null;
 	  }
-
 	  babelHelpers.createClass(ItemMarketing, [{
 	    key: "getButton",
 	    value: function getButton() {
 	      var button = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-btn ui-btn-light-border ui-btn-round\" href=\"#\">", "</span>\n\t\t"])), this.buttonText);
-
 	      if (this.onClick) {
 	        main_core.Event.bind(button, 'click', this.onClick);
 	      }
-
 	      return button;
 	    }
 	  }, {
@@ -1191,7 +1106,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$container) {
 	        this.$container = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item\">\n\t\t\t\t\t<div class=\"landing-sites__item --marketing\">\n\t\t\t\t\t\t<div class=\"landing-sites__item-container --flex\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--title\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--icon\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.title, this.text, this.getButton());
 	      }
-
 	      return this.$container;
 	    }
 	  }]);
@@ -1199,7 +1113,6 @@ this.BX.Landing = this.BX.Landing || {};
 	}();
 
 	var _templateObject$5;
-
 	var Scroller = /*#__PURE__*/function () {
 	  function Scroller(options) {
 	    babelHelpers.classCallCheck(this, Scroller);
@@ -1210,7 +1123,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.bindEvents();
 	    this.init();
 	  }
-
 	  babelHelpers.createClass(Scroller, [{
 	    key: "bindEvents",
 	    value: function bindEvents() {
@@ -1238,14 +1150,12 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (!this.$lastItem) {
 	        this.$lastItem = this.grid.getItems()[this.grid.getItems().length - 1].getContainer();
 	      }
-
 	      this.$lastItem.getBoundingClientRect().top > document.documentElement.clientHeight ? this.show() : this.hide();
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this = this;
-
 	      if (!this.$container) {
 	        this.$container = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__scroller landing-sites__scope\">\n\t\t\t\t\t<div class=\"landing-sites__scroller-button\">\n\t\t\t\t\t\t<div class=\"landing-sites__scroller-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__scroller-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.scrollerText ? this.scrollerText : main_core.Loc.getMessage('LANDING_SITE_TILE_SCROLLER_SITES'));
 	        main_core.Event.bind(this.$container, 'click', function () {
@@ -1254,13 +1164,11 @@ this.BX.Landing = this.BX.Landing || {};
 	            if (window.pageYOffset + 30 >= _this.$lastItem.getBoundingClientRect().top + window.pageYOffset - document.body.clientTop || window.pageYOffset + window.innerHeight >= document.body.scrollHeight) {
 	              clearInterval(timer);
 	            }
-
 	            offsetY = offsetY + 10;
 	            window.scrollTo(0, offsetY);
 	          }, 10);
 	        });
 	      }
-
 	      return this.$container;
 	    }
 	  }, {
@@ -1287,7 +1195,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.setData(this.items);
 	    this.init();
 	  }
-
 	  babelHelpers.createClass(SiteTile, [{
 	    key: "getItems",
 	    value: function getItems() {
@@ -1297,7 +1204,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "setData",
 	    value: function setData(data) {
 	      var _this = this;
-
 	      this.siteTileItems = data.map(function (item) {
 	        if (item.type === 'itemMarketing') {
 	          return new ItemMarketing({
@@ -1308,7 +1214,6 @@ this.BX.Landing = this.BX.Landing || {};
 	            onClick: item.onClick || null
 	          });
 	        }
-
 	        return new Item({
 	          id: item.id || null,
 	          title: item.title || null,
@@ -1332,6 +1237,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          menuBottomItems: item.menuBottomItems || null,
 	          notPublishedText: _this.notPublishedText || null,
 	          access: item.access || {},
+	          error: item.error || {},
 	          articles: item.articles || null,
 	          grid: _this
 	        });
@@ -1343,12 +1249,10 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainer() {
 	      if (!this.$container) {
 	        this.$container = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__grid landing-sites__scope\"></div>"])));
-
 	        for (var i = 0; i < this.siteTileItems.length; i++) {
 	          this.$container.appendChild(this.siteTileItems[i].getContainer());
 	        }
 	      }
-
 	      return this.$container;
 	    }
 	  }, {
@@ -1357,7 +1261,6 @@ this.BX.Landing = this.BX.Landing || {};
 	      if (this.renderTo) {
 	        this.renderTo.appendChild(this.getContainer());
 	      }
-
 	      this.afterDraw();
 	    }
 	  }, {

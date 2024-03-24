@@ -1366,8 +1366,11 @@ class Manager
 	 */
 	public static function onBitrix24LicenseChange(string $licenseType): void
 	{
+		self::clearCache();
 		self::setOption('reset_to_free_time', 0);
 		Restriction\Site::manageFreeDomains(true, 5);
+		Restriction\Site::checkLimitsByLicenseChange();
+		Restriction\Site::publishByLicenseChange();
 	}
 
 	/**

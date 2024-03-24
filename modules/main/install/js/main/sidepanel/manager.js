@@ -10,6 +10,7 @@
  * @property {boolean} [cacheable=true]
  * @property {boolean} [autoFocus=true]
  * @property {boolean} [printable=true]
+ * @property {boolean} [allowCrossOrigin=false]
  * @property {boolean} [allowChangeHistory=true]
  * @property {boolean} [allowChangeTitle]
  * @property {boolean} [hideControls=false]
@@ -1293,7 +1294,7 @@ BX.SidePanel.Manager.prototype = {
 		BX.removeCustomEvent(slider, "SidePanel.Slider:onEscapePress", this.handleEscapePress);
 
 		var frameWindow = event.getSlider().getFrameWindow();
-		if (frameWindow)
+		if (frameWindow && !event.getSlider().allowCrossOrigin)
 		{
 			this.unregisterAnchorListener(frameWindow.document);
 		}

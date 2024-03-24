@@ -26,19 +26,19 @@ $DONT_USE_CONTRACT = COption::GetOptionString("advertising", "DONT_USE_CONTRACT"
 IncludeModuleLangFile(__FILE__);
 
 /***************************************************************************
-						Обработка GET | POST
+						РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ****************************************************************************/
 $sTableID = "tbl_adv_contract_list";
 
-// инициализация сортировки
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
 $oSort = new CAdminSorting($sTableID, "s_sort", "asc");
-// инициализация списка
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР°
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-// массив доступов по всем контрактам для текущего пользователя
+// РјР°СЃСЃРёРІ РґРѕСЃС‚СѓРїРѕРІ РїРѕ РІСЃРµРј РєРѕРЅС‚СЂР°РєС‚Р°Рј РґР»СЏ С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 $arrPERM = CAdvContract::GetUserPermissions();
 
-// фильтр
+// С„РёР»СЊС‚СЂ
 $FilterArr = Array(
 	"find",
 	"find_type",
@@ -126,7 +126,7 @@ if($lAdmin->EditAction() && $isAdmin)
 	}
 }
 
-// обработка действий групповых и одиночных
+// РѕР±СЂР°Р±РѕС‚РєР° РґРµР№СЃС‚РІРёР№ РіСЂСѓРїРїРѕРІС‹С… Рё РѕРґРёРЅРѕС‡РЅС‹С…
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
 	if($_REQUEST['action_target']=='selected')
@@ -272,7 +272,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 
 endwhile;
 
-// "подвал" списка
+// "РїРѕРґРІР°Р»" СЃРїРёСЃРєР°
 $lAdmin->AddFooter(
 	array(
 		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
@@ -280,7 +280,7 @@ $lAdmin->AddFooter(
 	)
 );
 
-// показ формы с кнопками добавления, ...
+// РїРѕРєР°Р· С„РѕСЂРјС‹ СЃ РєРЅРѕРїРєР°РјРё РґРѕР±Р°РІР»РµРЅРёСЏ, ...
 if((is_array($arrUserPerm) && in_array("EDIT", $arrUserPerm)) || $isDemo)
 	$lAdmin->AddGroupActionTable(Array(
 		"delete"=>GetMessage("MAIN_ADMIN_LIST_DELETE"),
@@ -301,13 +301,13 @@ if($isAdmin || $isDemo)
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
-// проверка на вывод только списка (в случае списка, скрипт дальше выполняться не будет)
+// РїСЂРѕРІРµСЂРєР° РЅР° РІС‹РІРѕРґ С‚РѕР»СЊРєРѕ СЃРїРёСЃРєР° (РІ СЃР»СѓС‡Р°Рµ СЃРїРёСЃРєР°, СЃРєСЂРёРїС‚ РґР°Р»СЊС€Рµ РІС‹РїРѕР»РЅСЏС‚СЊСЃСЏ РЅРµ Р±СѓРґРµС‚)
 $lAdmin->CheckListMode();
 
 $APPLICATION->SetTitle(GetMessage("AD_PAGE_TITLE"));
 
 /***************************************************************************
-								HTML форма
+								HTML С„РѕСЂРјР°
 ****************************************************************************/
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");

@@ -5,17 +5,82 @@ namespace Bitrix\Landing\PublicAction;
 use Bitrix\Landing;
 use Bitrix\Landing\PublicActionResult;
 
+/**
+ * Work with history
+ */
 class History
 {
 	public static function getForLanding(int $lid): PublicActionResult
 	{
 		$result = new PublicActionResult();
-		$history = new Landing\History($lid, Landing\History::ENTITY_TYPE_LANDING);
-		$result->setResult([
-			'stack' => $history->getJsStack(),
-			'stackCount' => $history->getStackCount(),
-			'step' => $history->getStep(),
-		]);
+		$histories = [];
+
+		$historyMain = new Landing\History($lid, Landing\History::ENTITY_TYPE_LANDING);
+		$histories[$lid] = [
+			'stack' => $historyMain->getJsStack(),
+			'step' => $historyMain->getStep(),
+		];
+
+		$landing = Landing\Landing::createInstance($lid);
+		$isMultiArea = false;
+		foreach ($landing->getAreas() as $areaLid)
+		{
+			$isMultiArea = true;
+			$historyArea = new Landing\History($areaLid, Landing\History::ENTITY_TYPE_LANDING);
+
+			$histories[$areaLid] = [
+				'stack' => $historyArea->getJsStack(),
+				'step' => $historyArea->getStep(),
+			];
+		}
+
+		if ($isMultiArea)
+		{
+			// Find max step of all areas
+			$maxStepId = 0;
+			foreach ($histories as $history)
+			{
+				foreach ($history['stack'] as $item)
+				{
+					if ($item['current'])
+					{
+						if ($item['id'] > $maxStepId)
+						{
+							$maxStepId = $item['id'];
+						}
+					}
+				}
+			}
+
+			// Make and sort complex multi area stack.
+			$multiAreaStack = [];
+			$multiAreaStep = 0;
+			foreach ($histories as $history)
+			{
+				foreach ($history['stack'] as $item)
+				{
+					$multiAreaStack[$item['id']] = $item;
+
+					// math new step
+					if ($item['id'] <= $maxStepId)
+					{
+						$multiAreaStep++;
+					}
+				}
+			}
+			ksort($multiAreaStack);
+
+			$result->setResult([
+				'stack' => array_values($multiAreaStack),
+				'step' => $multiAreaStep,
+			]);
+		}
+
+		// Just single landing history
+		else
+		{
+			$result->setResult($histories[$lid]);
+		}
 
 		return $result;
 	}
@@ -27,7 +92,6 @@ class History
 
 		$result->setResult([
 			'stack' => $history->getJsStack(),
-			'stackCount' => $history->getStackCount(),
 			'step' => $history->getStep(),
 		]);
 
@@ -62,6 +126,11 @@ class History
 	public static function clearDesignerBlock(int $blockId): PublicActionResult
 	{
 		return self::clearForEntity(Landing\History::ENTITY_TYPE_DESIGNER_BLOCK, $blockId);
+	}
+
+	public static function clearFutureForLanding(int $landingId): PublicActionResult
+	{
+		return self::clearFutureForEntity(Landing\History::ENTITY_TYPE_LANDING, $landingId);
 	}
 
 	protected static function undoForEntity(string $entityType, int $entityId): PublicActionResult
@@ -195,6 +264,41 @@ class History
 				$error->addError(
 					'HISTORY_CLEAR_ERROR',
 					"History operation Clear fail for entity {$entityType}_{$entityId}"
+				);
+				$result->setError($error);
+			}
+		}
+		else
+		{
+			$error->addError(
+				'HISTORY_WRONG_TYPE',
+				'Wrong history entity type'
+			);
+			$result->setError($error);
+		}
+
+		return $result;
+	}
+
+	protected static function clearFutureForEntity(string $entityType, int $entityId): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$error = new \Bitrix\Landing\Error;
+
+		Landing\Landing::setEditMode(true);
+
+		if (in_array($entityType, Landing\History::AVAILABLE_TYPES))
+		{
+			$history = new Landing\History($entityId, $entityType);
+			if ($history->clearFuture())
+			{
+				$result->setResult(true);
+			}
+			else
+			{
+				$error->addError(
+					'HISTORY_CLEAR_FUTURE_ERROR',
+					"History operation Clear future fail for entity {$entityType}_{$entityId}"
 				);
 				$result->setError($error);
 			}

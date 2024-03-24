@@ -1,7 +1,7 @@
-import {Tag, Text, Event, Loc, Dom} from 'main.core';
-import {Menu} from 'main.popup';
-import {EventEmitter} from 'main.core.events';
-import {MessageBox} from 'ui.dialogs.messagebox';
+import { Tag, Text, Event, Loc, Dom } from 'main.core';
+import { Menu } from 'main.popup';
+import { EventEmitter } from 'main.core.events';
+import { MessageBox } from 'ui.dialogs.messagebox';
 
 import EditableTitle from './editableTitle';
 import LeaderShip from './leadership';
@@ -34,6 +34,7 @@ export default class Item
 		this.menuBottomItems = options.menuBottomItems || [];
 		this.notPublishedText = options.notPublishedText || null;
 		this.access = options.access || {};
+		this.error = options.error || {};
 		this.articles = options.articles || [];
 		this.editableTitle = null;
 		this.editableUrl = null;
@@ -338,22 +339,54 @@ export default class Item
 	{
 		if (!this.$containerSiteStatus)
 		{
-			this.$containerSiteStatus = Tag.render`
-				<div class="${this.access.publication ? 'landing-sites__status' : 'landing-sites__status_disabled'}">
-					${this.getContainerSiteStatusRound()}
-					${this.getContainerSiteStatusTitle()}
-					${this.access.publication ? Tag.render`<div class="landing-sites__status-arrow"></div>` : ''}
-				</div>
-			`;
-
 			if (this.access.publication)
 			{
+				this.$containerSiteStatus = Tag.render`
+					<div class="landing-sites__status">
+						${this.getContainerSiteStatusRound()}
+						${this.getContainerSiteStatusTitle()}
+						<div class="landing-sites__status-arrow"></div>
+					</div>
+				`;
+
 				Event.bind(this.$containerSiteStatus, 'click', ev => {
 					this.getPopupStatus().layout.menuContainer.style.left =
 						this.$containerSiteStatus.getBoundingClientRect().left + 'px';
 					this.getPopupStatus().show();
 					ev.stopPropagation();
 				});
+			}
+			else
+			{
+				this.$containerSiteStatus = Tag.render`
+					<div class="landing-sites__status_disabled">
+						${this.getContainerSiteStatusRound()}
+						${this.getContainerSiteStatusTitle()}
+					</div>
+				`;
+
+				if (this.error.publication)
+				{
+					const code = this.error.publication.code || '';
+					const hint = this.error.publication.hint || '';
+					const url = this.error.publication.url || '';
+					const link = this.error.publication.link || '';
+					if (code === 'shop1c')
+					{
+						this.$containerSiteStatus = Tag.render`
+							<div 
+								class="landing-sites__status_disabled"
+								data-hint="${hint}<br><a href='${url}'>${link}</a>"
+								data-hint-no-icon
+								data-hint-html
+								data-hint-interactivity
+							>
+								${this.getContainerSiteStatusRound()}
+								${this.getContainerSiteStatusTitle()}
+							</div>
+						`;
+					}
+				}
 			}
 		}
 

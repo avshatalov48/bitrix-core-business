@@ -8,6 +8,7 @@ use Bitrix\Landing\Domain;
 use Bitrix\Landing\Connector;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Restriction;
+use Bitrix\Landing\Help;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Date;
 use \Bitrix\Landing\Rights;
@@ -256,6 +257,20 @@ class LandingSiteTileComponent extends LandingBaseComponent
 				}
 			}
 
+			$accessPublication = $item['ACCESS_PUBLICATION'] === 'Y';
+			$publicationError = [];
+			if ($accessPublication && \Bitrix\Main\Config\Option::get('catalog', 'is_external_catalog', 'N') === 'Y')
+			{
+				if ($item['TYPE'] === 'STORE' && !str_starts_with($item['TPL_CODE'], 'store-chats'))
+				{
+					$accessPublication = false;
+					$publicationError['code'] = 'shop1c';
+					$helpUrl = Help::getHelpUrl('SHOP1C');
+					$publicationError['hint'] = Loc::getMessage('LANDING_CMP_PUBLICATION_ERROR_HINT');
+					$publicationError['url'] = $helpUrl;
+					$publicationError['link'] = Loc::getMessage('LANDING_CMP_PUBLICATION_ERROR_HINT_LINK_TEXT');
+				}
+			}
 			$newItems[] = [
 				'id' => $item['ID'],
 				'title' => $item['TITLE'],
@@ -280,11 +295,14 @@ class LandingSiteTileComponent extends LandingBaseComponent
 				'access' => [
 					'edit' => $item['ACCESS_EDIT'] === 'Y',
 					'settings' => $item['ACCESS_SETTINGS'] === 'Y',
-					'publication' => $item['ACCESS_PUBLICATION'] === 'Y',
+					'publication' => $accessPublication,
 					'delete' => $item['ACCESS_DELETE'] === 'Y',
 					'site_new' => $item['ACCESS_SITE_NEW'] === 'Y',
 					'export' => $item['ACCESS_EXPORT'] === 'Y',
-				]
+				],
+				'error' => [
+					'publication' => $publicationError,
+				],
 			];
 		}
 

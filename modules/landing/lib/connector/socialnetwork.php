@@ -8,6 +8,7 @@ use Bitrix\Landing\Restriction;
 use Bitrix\Landing\Rights;
 use Bitrix\Landing\Site;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -171,7 +172,7 @@ class SocialNetwork
 	}
 
 	/**
-	 * Invokes when changing §permissions of socialnetwork group is occurred.
+	 * Invokes when changing Â§permissions of socialnetwork group is occurred.
 	 *
 	 * @param int $id Feature id.
 	 * @param array $fields Feature fields.
@@ -212,17 +213,29 @@ class SocialNetwork
 			return;
 		}
 
-		// is enabled in features or not
-		if (!empty($result['ActiveFeatures']))
+		$enable = false;
+		if (
+			!Loader::includeModule('intranet')
+			|| Restriction\ToolAvailabilityManager::getInstance()->check('knowledge_base')
+		)
 		{
-			$enable = array_key_exists(
-				self::SETTINGS_CODE,
-				$result['ActiveFeatures']
-			);
+			$enable = true;
 		}
-		else
+
+		if ($enable)
 		{
-			$enable = false;
+			// is enabled in features or not
+			if (!empty($result['ActiveFeatures']))
+			{
+				$enable = array_key_exists(
+					self::SETTINGS_CODE,
+					$result['ActiveFeatures']
+				);
+			}
+			else
+			{
+				$enable = false;
+			}
 		}
 
 		if ($enable)

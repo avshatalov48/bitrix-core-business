@@ -1,3 +1,3 @@
 <?
-$MESS["LANDING_BLOCK_STORE.CART_NAME"] = "Recycle Bin";
+$MESS["LANDING_BLOCK_STORE.SHOP_CART_NAME"] = "Shopping Cart";
 ?>

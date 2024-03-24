@@ -31,7 +31,7 @@ $APPLICATION->ShowProperty('FooterJS');
 
 	if (typeof BXMPage !== 'undefined')
 	{
-		BXMPage.TopBar.title.setText('<?= $APPLICATION->getTitle();?>');
+		BXMPage.TopBar.title.setText('<?= htmlspecialcharsback($APPLICATION->getTitle());?>');
 		BXMPage.TopBar.title.show();
 	}
 

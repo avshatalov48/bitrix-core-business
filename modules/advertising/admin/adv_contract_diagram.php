@@ -27,7 +27,7 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 /***************************************************************************
-						Îáðàáîòêà GET | POST
+						ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° GET | POST
 ****************************************************************************/
 $strError = '';
 $rsContracts = CAdvContract::GetList("s_sort", "desc");
@@ -89,7 +89,7 @@ if (is_array($find_contract_id) && count($find_contract_id)>0) $filter_selected+
 if ($filter_selected>0) $is_filtered = true;
 
 /***************************************************************************
-								HTML ôîðìà
+								HTML Ñ„Ð¾Ñ€Ð¼Ð°
 ****************************************************************************/
 $APPLICATION->SetTitle(GetMessage("AD_CONTRACT_DIAGRAM_PAGE_TITLE"));
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -160,7 +160,7 @@ elseif (count($arrLegend)>0) :
 			echo "&nbsp;&nbsp;[<a href='/bitrix/admin/settings.php?lang=".LANGUAGE_ID."&mid=advertising' title='".GetMessage("AD_SET_EDIT")."'>".GetMessage("AD_EDIT")."</a>]";
 	echo EndNote();
 
-	// Äèàãðàììû ïî êîíòðàêòàì
+	// Ð”Ð¸Ð°Ð³Ñ€Ð°Ð¼Ð¼Ñ‹ Ð¿Ð¾ ÐºÐ¾Ð½Ñ‚Ñ€Ð°ÐºÑ‚Ð°Ð¼
 	if ($find_contract_summa!="Y" && count($find_contract_id)>1) :
 
 		$diagram_type = "CONTRACT";

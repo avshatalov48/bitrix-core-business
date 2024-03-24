@@ -1,15 +1,15 @@
-import {Event} from 'main.core';
 import {Main} from 'landing.main';
 import {PageObject} from 'landing.pageobject';
-import {RESOLVED, PENDING} from './internal/constants';
+import {Backend} from 'landing.backend';
+import {RESOLVED, PENDING, HISTORY_TYPES} from './internal/constants';
 import registerBaseCommands from './internal/register-base-commands';
 import removePageHistory from './internal/remove-page-history';
-import loadStack from './internal/load-stack';
 import clear from './internal/clear';
 import onUpdate from './internal/on-update';
 import onInit from './internal/on-init';
 import Command from './history-command';
 import Entry from './history-entry';
+import Stack from './stack';
 import Highlight from './history-highlight';    // not delete - just for export
 
 import './css/style.css';
@@ -21,56 +21,50 @@ import './css/style.css';
  */
 export class History
 {
-	static TYPE_LANDING = 'L';
-	static TYPE_DESIGNER_BLOCK = 'D';
-
 	/**
-	 * Stack of action commands. Key - is step, value - is a command name
+	 * Stack of action commands
 	 */
-	stack: {[number]: string};
+	stack: ?Stack = null;
 
 	/**
-	 * Lenght of stack
+	 * Key - command name, value - a Command object
 	 */
-	stackCount: number;
+	commands: {[string]: Command} = {};
 
 	/**
-	 * Key - is step, value - is a Command object
+	 * If command now running - set to PENDING
+	 * @type {string}
 	 */
-	commands: {[number]: Command};
+	commandState: string = RESOLVED;
 
 	/**
-	 * From 1 to X. 0 - is state without any history
+	 * Type of current entity
+	 * @type {string}
+	 */
+	entityType: string = HISTORY_TYPES.landing;
+
+	/**
+	 * Landing or Block ID in relation to type
 	 * @type {number}
 	 */
-	step: number;
-	commandState: string;
-	landingId: number;
-	designerBlockId: ?number = null;
+	entityId: number;
 
 	constructor()
 	{
-		this.type = History.TYPE_LANDING;
-		this.stack = {};
-		this.stackCount = 0;
-		this.step = 0;
-		this.commands = {};
-		this.commandState = RESOLVED;
-		this.onStorage = this.onStorage.bind(this);
-
 		try
 		{
-			this.landingId = Main.getInstance().id;
+			this.entityId = Main.getInstance().id;
 		}
 		catch (err)
 		{
-			this.landingId = -1;
+			this.entityId = -1;
 		}
 
-		Event.bind(window, 'storage', this.onStorage);
-
-		registerBaseCommands(this)
-			.then(loadStack)
+		this.stack = new Stack(this.entityId);
+		this.stack.init()
+			.then(() => {
+				return registerBaseCommands(this)
+			})
 			.then(onInit);
 	}
 
@@ -90,105 +84,50 @@ export class History
 	}
 
 	/**
-	 * Set special type for designer block
+	 * Set special type for designer block history
 	 * @param blockId
 	 * @return {Promise<BX.Landing.History>|*}
 	 */
 	setTypeDesignerBlock(blockId: number): Promise<History>
 	{
-		this.type = History.TYPE_DESIGNER_BLOCK;
-		this.designerBlockId = blockId;
+		this.entityType = HISTORY_TYPES.designerBlock;
+		this.entityId = blockId;
 
-		return loadStack(this);
+		return this.stack.setTypeDesignerBlock(blockId)
+			.then(() => {
+				return this;
+			})
 	}
 
-	getLoadBackendActionName(): string
+	getEntityId(): number
 	{
-		if (this.type === History.TYPE_DESIGNER_BLOCK)
-		{
-			return "History::getForDesignerBlock";
-		}
-
-		return "History::getForLanding";
-	}
-
-	getLoadBackendParams(): string
-	{
-		if (this.type === History.TYPE_DESIGNER_BLOCK)
-		{
-			return {blockId: this.designerBlockId};
-		}
-
-		return {lid: this.landingId};
-	}
-
-	getUndoBackendActionName(): string
-	{
-		if (this.type === History.TYPE_DESIGNER_BLOCK)
-		{
-			return "History::undoDesignerBlock";
-		}
-
-		return "History::undoLanding";
+		return this.entityId;
 	}
 
 	beforeUndo(): Promise
 	{
-		const step = this.step;
-		if (
-			this.stack[step]
-			&& this.commands[this.stack[step]]
-		)
+		const commandName = this.stack.getCommandName();
+		if (commandName && this.commands[commandName])
 		{
-			const command = this.commands[this.stack[step]];
+			const command = this.commands[commandName];
 
 			return command.onBeforeCommand();
 		}
 
 		return Promise.resolve();
-	}
-
-	getRedoBackendActionName(): string
-	{
-		if (this.type === History.TYPE_DESIGNER_BLOCK)
-		{
-			return "History::redoDesignerBlock";
-		}
-
-		return "History::redoLanding";
 	}
 
 	beforeRedo(): Promise
 	{
-		const step = this.step + 1;
-		if (
-			this.stack[step]
-			&& this.commands[this.stack[step]]
-		)
+		const commandName = this.stack.getCommandName(false);
+		if (commandName && this.commands[commandName])
 		{
-			const command = this.commands[this.stack[step]];
+			const command = this.commands[commandName];
 
 			return command.onBeforeCommand();
 		}
 
 		return Promise.resolve();
-	}
-
-	getBackendActionParams(): string
-	{
-		if (
-			this.type === History.TYPE_DESIGNER_BLOCK
-			&& this.designerBlockId
-		)
-		{
-			return {
-				blockId: this.designerBlockId,
-			};
-		}
-
-		return {
-			lid: this.landingId,
-		};
 	}
 
 	/**
@@ -202,10 +141,10 @@ export class History
 			this.commandState = PENDING;
 			return this.beforeUndo()
 				.then(() => {
-					return BX.Landing.Backend.getInstance()
+					return Backend.getInstance()
 						.action(
-							this.getUndoBackendActionName(),
-							this.getBackendActionParams(),
+							this.getBackendActionName(true),
+							this.getBackendActionParams(true),
 						)
 				})
 				.then(command => {
@@ -219,14 +158,15 @@ export class History
 							params: params,
 						});
 
-						return this.runCommand(entry, -1);
+						return this.runCommand(entry);
 					}
 
 					return Promise.reject();
 				})
-				.then(res => {
-					return this.offset(-1).then(onUpdate);
+				.then(() => {
+					return this.offset();
 				})
+				.then(onUpdate)
 			;
 		}
 
@@ -245,10 +185,10 @@ export class History
 			this.commandState = PENDING;
 			return this.beforeRedo()
 				.then(() => {
-					return BX.Landing.Backend.getInstance()
+					return Backend.getInstance()
 						.action(
-							this.getRedoBackendActionName(),
-							this.getBackendActionParams(),
+							this.getBackendActionName(false),
+							this.getBackendActionParams(false),
 						)
 				})
 				.then(command => {
@@ -262,21 +202,56 @@ export class History
 							params: params,
 						});
 
-						return this.runCommand(entry, 1);
+						return this.runCommand(entry);
 					}
 
 					return Promise.reject();
 				})
-				.then(res => {
-					return this.offset(1).then(onUpdate);
+				.then(() => {
+					return this.offset(false);
 				})
+				.then(onUpdate)
 			;
 		}
 
 		return Promise.resolve(this);
 	}
 
-	runCommand(entry: Entry, offsetValue: number)
+	/**
+	 * Get name for backend action
+	 * @param {boolean} undo - true, if need undo, false for redo
+	 * @return {string}
+	 */
+	getBackendActionName(undo: boolean = true): string
+	{
+		if (this.entityType === HISTORY_TYPES.designerBlock)
+		{
+			return undo ? 'History::undoDesignerBlock' : 'History::redoDesignerBlock';
+		}
+
+		return undo ? 'History::undoLanding' : 'History::redoLanding';
+	}
+
+	/**
+	 * Get id for entity for backend action
+	 * @param {boolean} undo - true, if need undo, false for redo
+	 * @return {string}
+	 */
+	getBackendActionParams(undo: boolean = true): string
+	{
+		if (this.entityType === HISTORY_TYPES.designerBlock)
+		{
+			return {
+				blockId: this.entityId,
+			};
+		}
+
+		return {
+			lid: this.stack.getCommandEntityId(undo),
+		};
+	}
+
+	runCommand(entry: Entry)
 	{
 		if (entry)
 		{
@@ -300,21 +275,17 @@ export class History
 		}
 	}
 
-	offset(offsetValue: number): Promise<History>
+	offset(undo: boolean = true): Promise<History>
 	{
 		if (this.commandState === PENDING)
 		{
 			return Promise.resolve(this);
 		}
 
-		let step = this.step + offsetValue;
-
-		if (step >= 0 && step <= this.stackCount)
-		{
-			this.step = step;
-		}
-
-		return Promise.resolve(this);
+		return this.stack.offset(undo)
+			.then(() => {
+				return this;
+			});
 	}
 
 	/**
@@ -325,7 +296,7 @@ export class History
 	{
 		return (
 			this.commandState !== PENDING
-			&& (this.step > 0 && this.stackCount > 0 && this.step <= this.stackCount)
+			&& this.stack.canUndo()
 		);
 	}
 
@@ -338,30 +309,20 @@ export class History
 	{
 		return (
 			this.commandState !== PENDING
-			&& (this.step < this.stackCount && this.step >= 0)
+			&& this.stack.canRedo()
 		);
 	}
 
 
 	/**
 	 * Adds entry to history stack
-	 * @param {BX.Landing.History.Entry} entry
 	 */
 	push(): Promise<History>
 	{
-		if (this.step < this.stackCount)
-		{
-			this.stackCount = this.step;
-		}
-
-		this.step++;
-		this.stackCount++;
-
-		return new Promise(resolve => {
-			setTimeout(resolve, 400);
-		})
-			.then(() => {return loadStack(this)})
-			.then(onUpdate)
+		return this.stack.push()
+			.then(() => {
+				return onUpdate(this);
+			})
 		;
 	}
 
@@ -370,14 +331,13 @@ export class History
 	 * Registers unique history command
 	 * @param {Command} command
 	 */
-	registerCommand(command)
+	registerCommand(command: Command)
 	{
 		if (command instanceof Command)
 		{
 			this.commands[command.id] = command;
 		}
 	}
-
 
 	/**
 	 * Removes page history from storage
@@ -386,7 +346,6 @@ export class History
 	 */
 	removePageHistory(pageId)
 	{
-		// todo: publication clear method
 		return removePageHistory(pageId, this)
 			.then((history) => {
 				let currentPageId;
@@ -409,21 +368,5 @@ export class History
 			})
 			.then(onUpdate)
 			.catch(() => {});
-	}
-
-
-	/**
-	 * Handles storage event
-	 * @param {StorageEvent} event
-	 */
-	onStorage(event)
-	{
-		if (event.key === null)
-		{
-			if (!window.localStorage.history)
-			{
-				clear(this).then(onUpdate);
-			}
-		}
 	}
 }

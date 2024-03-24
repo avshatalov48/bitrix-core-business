@@ -22,10 +22,6 @@
 	background-image: url("images/type310.svg");
 }
 
-.landing-ui-field[data-selector="duplicatesEnabled"] {
-	margin-top: -25px!important;
-}
-
 .landing-ui-field-radio-button-layout[data-selector="scheme"] {
 	display: flex;
 }

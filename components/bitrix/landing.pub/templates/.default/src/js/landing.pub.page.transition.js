@@ -35,10 +35,19 @@ export class PageTransition
 			BX.removeClass(document.body, 'landing-page-transition');
 		}
 
-		document.addEventListener('DOMContentLoaded', function() {
+		if (document.readyState === 'loading')
+		{
+			document.addEventListener('DOMContentLoaded', function() {
+				setTimeout(() => {
+					BX.removeClass(document.body, 'landing-page-transition');
+				}, 300);
+			});
+		}
+		else
+		{
 			setTimeout(() => {
-				BX.removeClass(document.body, "landing-page-transition");
+				BX.removeClass(document.body, 'landing-page-transition');
 			}, 300);
-		});
+		}
 	}
 }

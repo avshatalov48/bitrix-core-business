@@ -31,6 +31,9 @@ class Landing extends \CModule
 			'onTuningLoad' => ['\Bitrix\Landing\Connector\Ai', 'onTuningLoad'],
 			'onBeforeCompletions' => ['\Bitrix\Landing\Connector\Ai', 'onBeforeCompletions'],
 		],
+		'bitrix24' => [
+			'onAfterPortalBlockedByLicenseScanner' => ['\Bitrix\Landing\Connector\Bitrix24', 'onAfterPortalBlockedByLicenseScanner']
+		],
 		'crm' => [
 			'onAfterCrmCompanyAdd' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange'],
 			'onAfterCrmCompanyUpdate' => ['\Bitrix\Landing\Connector\Crm', 'onAfterCompanyChange']

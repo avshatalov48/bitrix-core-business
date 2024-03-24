@@ -1256,6 +1256,12 @@
 					}
 				}
 			}
+			else if (errorCode === 'SHOP_1C')
+			{
+				return function() {
+					window.open(BX.message('LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON_LINK'), '_blank');
+				};
+			}
 
 			return null;
 		},
@@ -1282,6 +1288,10 @@
 			)
 			{
 				return BX.message('LANDING_PUBLICATION_BUY_RENEW');
+			}
+			else if (errorCode === 'SHOP_1C')
+			{
+				return BX.message('LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON');
 			}
 		},
 

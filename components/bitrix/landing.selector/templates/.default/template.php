@@ -34,6 +34,31 @@ $currentLanding = $arResult['LANDINGS'][$arParams['LANDING_ID']] ?? null;
 	{
 		BX.UI.Hint.init(BX('landing-selector'));
 
+		if (typeof BX.SidePanel !== 'undefined' && typeof BX.SidePanel.Instance !== 'undefined')
+		{
+			BX.SidePanel.Instance.bindAnchors({
+				rules: [
+					{
+						condition: [<?= \CUtil::PhpToJSObject(str_replace(['?', '&'], ['\?', '\&'], $arParams['PAGE_URL_FOLDER_ADD']))?>],
+						validate: function(link)
+						{
+							if (
+								link
+								&& link.url !== 'undefined'
+								&& link.url.includes('/pub/site/')
+							)
+							{
+								return false;
+							}
+
+							return true;
+						},
+						options: {allowChangeHistory: false}
+					}
+				]
+			});
+		}
+
 		new BX.Landing.Component.Selector({
 			node: BX('landing-selector'),
 			input: BX('landing-selector-input'),

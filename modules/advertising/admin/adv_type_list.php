@@ -24,13 +24,13 @@ if(!$isAdmin && !$isDemo && !$isManager && !$isAdvertiser) $APPLICATION->AuthFor
 IncludeModuleLangFile(__FILE__);
 
 /***************************************************************************
-						Îáðàáîòêà GET | POST
+						ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° GET | POST
 ****************************************************************************/
 $sTableID = "tbl_adv_type_list";
 
-// èíèöèàëèçàöèÿ ñîðòèðîâêè
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸
 $oSort = new CAdminSorting($sTableID, "s_sort", "asc");
-// èíèöèàëèçàöèÿ ñïèñêà
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $FilterArr = Array(
@@ -89,7 +89,7 @@ if($lAdmin->EditAction() && $isAdmin)
 	}
 }
 
-// îáðàáîòêà äåéñòâèé ãðóïïîâûõ è îäèíî÷íûõ
+// Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ð¹ Ð³Ñ€ÑƒÐ¿Ð¿Ð¾Ð²Ñ‹Ñ… Ð¸ Ð¾Ð´Ð¸Ð½Ð¾Ñ‡Ð½Ñ‹Ñ…
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
 	if($_REQUEST['action_target']=='selected')
@@ -179,7 +179,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	}
 	$row->AddActions($arActions);
 endwhile;
-// "ïîäâàë" ñïèñêà
+// "Ð¿Ð¾Ð´Ð²Ð°Ð»" ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->AddFooter(
 	array(
 		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
@@ -187,7 +187,7 @@ $lAdmin->AddFooter(
 	)
 );
 
-// ïîêàç ôîðìû ñ êíîïêàìè äîáàâëåíèÿ, ...
+// Ð¿Ð¾ÐºÐ°Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹ Ñ ÐºÐ½Ð¾Ð¿ÐºÐ°Ð¼Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ñ, ...
 if ($isAdmin || $isDemo)
 	$lAdmin->AddGroupActionTable(Array(
 		"delete"=>GetMessage("MAIN_ADMIN_LIST_DELETE"),
@@ -208,12 +208,12 @@ if($isAdmin || $isDemo)
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
-// ïðîâåðêà íà âûâîä òîëüêî ñïèñêà (â ñëó÷àå ñïèñêà, ñêðèïò äàëüøå âûïîëíÿòüñÿ íå áóäåò)
+// Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ð²Ñ‹Ð²Ð¾Ð´ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÑÐ¿Ð¸ÑÐºÐ° (Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÐ¿Ð¸ÑÐºÐ°, ÑÐºÑ€Ð¸Ð¿Ñ‚ Ð´Ð°Ð»ÑŒÑˆÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÑ‚ÑŒÑÑ Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚)
 $lAdmin->CheckListMode();
 
 $APPLICATION->SetTitle(GetMessage("AD_PAGE_TITLE"));
 /***************************************************************************
-								HTML ôîðìà
+								HTML Ñ„Ð¾Ñ€Ð¼Ð°
 ****************************************************************************/
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>

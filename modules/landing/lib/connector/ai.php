@@ -85,12 +85,7 @@ class Ai
 			return false;
 		}
 
-		if (\Bitrix\Main\Config\Option::get('landing', 'enable_copilot', 'N') === 'Y')
-		{
-			return true;
-		}
-
-		return false;
+		return true;
 	}
 
 	/**

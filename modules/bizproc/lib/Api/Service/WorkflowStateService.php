@@ -14,7 +14,10 @@ use Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowDurationStatTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
+use Bitrix\Bizproc\Workflow\Task\EO_Task_Collection;
+use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Bizproc\Workflow\Timeline;
+use Bitrix\Bizproc\Workflow\WorkflowState;
 use Bitrix\Main\SystemException;
 
 class WorkflowStateService
@@ -64,11 +67,38 @@ class WorkflowStateService
 				if ($workflowState)
 				{
 					$responseCollection->add($workflowState);
+					$workflowTasks = $this->getWorkflowTasks($workflowState, $toGet);
+					if (isset($workflowTasks))
+					{
+						$response->setWorkflowTasks($id, $workflowTasks);
+					}
 				}
 			}
 		}
 
 		return $response->setWorkflowStatesCollection($responseCollection);
+	}
+
+	private function getWorkflowTasks(WorkflowState $workflowState, WorkflowStateToGet $toGet): ?EO_Task_Collection
+	{
+		$taskFields = $toGet->getSelectTaskFields();
+		if ($taskFields)
+		{
+			$taskQuery = TaskTable::query()
+				->setSelect($taskFields)
+				->setFilter(['=WORKFLOW_ID' => $workflowState->getId()])
+				->setOrder(['ID' => 'ASC'])
+			;
+
+			if (is_int($toGet->getSelectTaskLimit()))
+			{
+				$taskQuery->setLimit($toGet->getSelectTaskLimit());
+			}
+
+			return $taskQuery->exec()->fetchCollection();
+		}
+
+		return null;
 	}
 
 	public function getFullFilledList(WorkflowStateToGet $toGet): GetFullFilledListResponse

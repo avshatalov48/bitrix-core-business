@@ -94,19 +94,20 @@
 			BX.bind(copilotButton, 'click', () => {
 				if (this.isAiActive)
 				{
-					this.copilot.setSelectedText(this.context);
-					this.copilot.show({
-						width: BX.Dom.getPosition(document.body).width * 0.4,
-					});
-					const copilotPosition = getCopilotPosition(this.copilot);
-					this.copilot.adjust(
-						{
-							position: {
-								top: copilotPosition.top,
-								left: copilotPosition.left,
-							},
-						},
-					);
+					if (this.finishInit)
+					{
+						this.showCopilot();
+					}
+					else
+					{
+						const checkFinishInit = setInterval(() => {
+							if (this.finishInit)
+							{
+								clearInterval(checkFinishInit);
+								this.showCopilot();
+							}
+						}, 500);
+					}
 				}
 				else if (this.aiUnactiveInfoCode && this.aiUnactiveInfoCode.length > 0)
 				{
@@ -186,6 +187,23 @@
 		copilotFinishInitHandler()
 		{
 			this.copilot.setSelectedText(this.context);
+			this.finishInit = true;
+		},
+		showCopilot()
+		{
+			this.copilot.setSelectedText(this.context);
+			this.copilot.show({
+				width: BX.Dom.getPosition(document.body).width * 0.4,
+			});
+			const copilotPosition = getCopilotPosition(this.copilot);
+			this.copilot.adjust(
+				{
+					position: {
+						top: copilotPosition.top,
+						left: copilotPosition.left,
+					},
+				},
+			);
 		},
 	};
 
@@ -222,6 +240,11 @@
 	BX.Landing.FieldLengthLimited.prototype = {
 		initCopilotBtn()
 		{
+			this.context = this.field.value;
+			if (this.context === '')
+			{
+				this.context = ' ';
+			}
 			const copilotButton = BX.Tag.render`
 				<div class="ui-title-input-btn">
 					<div class="ui-icon-set --copilot-ai"></div>
@@ -233,6 +256,7 @@
 				contextId: 'settings',
 				category: 'landing_setting',
 			});
+			this.copilot.subscribe('finish-init', this.copilotFinishInitHandler.bind(this));
 			this.copilot.subscribe('save', this.copilotSaveHandler.bind(this));
 			this.copilot.subscribe('add_below', this.copilotAddBelowHandler.bind(this));
 			BX.Event.bind(document, 'click', this.onClickHandler.bind(this));
@@ -241,24 +265,20 @@
 			BX.bind(copilotButton, 'click', () => {
 				if (this.isAiActive)
 				{
-					this.context = this.field.value;
-					if (this.context === '')
+					if (this.finishInit)
 					{
-						this.context = ' ';
+						this.showCopilot();
 					}
-					this.copilot.setSelectedText(this.context);
-					this.copilot.show({
-						width: BX.Dom.getPosition(document.body).width * 0.4,
-					});
-					const copilotPosition = getCopilotPosition(this.copilot);
-					this.copilot.adjust(
-						{
-							position: {
-								top: copilotPosition.top,
-								left: copilotPosition.left,
-							},
-						},
-					);
+					else
+					{
+						const checkFinishInit = setInterval(() => {
+							if (this.finishInit)
+							{
+								clearInterval(checkFinishInit);
+								this.showCopilot();
+							}
+						}, 500);
+					}
 				}
 				else if (this.aiUnactiveInfoCode && this.aiUnactiveInfoCode.length > 0)
 				{
@@ -267,6 +287,11 @@
 			});
 
 			BX.Dom.append(copilotButton, this.aiCopilotContainer);
+		},
+		copilotFinishInitHandler()
+		{
+			this.copilot.setSelectedText(this.context);
+			this.finishInit = true;
 		},
 		copilotSaveHandler(event)
 		{
@@ -306,6 +331,27 @@
 			}
 
 			return value;
+		},
+		showCopilot()
+		{
+			this.context = this.field.value;
+			if (this.context === '')
+			{
+				this.context = ' ';
+			}
+			this.copilot.setSelectedText(this.context);
+			this.copilot.show({
+				width: BX.Dom.getPosition(document.body).width * 0.4,
+			});
+			const copilotPosition = getCopilotPosition(this.copilot);
+			this.copilot.adjust(
+				{
+					position: {
+						top: copilotPosition.top,
+						left: copilotPosition.left,
+					},
+				},
+			);
 		},
 	};
 

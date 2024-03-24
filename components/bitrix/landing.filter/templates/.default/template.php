@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use \Bitrix\Landing\Help;
 use \Bitrix\Main\Localization\Loc;
 
 /** @var array $arParams */
@@ -15,6 +16,7 @@ Loc::loadMessages(__FILE__);
 \CJSCore::init(array('sidepanel', 'action_dialog', 'loader'));
 \Bitrix\Main\UI\Extension::load('ui.buttons');
 \Bitrix\Main\UI\Extension::load('ui.buttons.icons');
+\Bitrix\Main\UI\Extension::load('ui.hint');
 
 if ($arResult['FATAL'])
 {
@@ -46,6 +48,7 @@ if ($isBitrix24Template)
 	$this->SetViewTarget('inside_pagetitle');
 }
 ?>
+<script src="/bitrix/components/bitrix/landing.filter/templates/.default/script.min.js?v1"></script>
 
 <?if (!$isBitrix24Template):?>
 <div class="tasks-interface-filter-container">
@@ -57,18 +60,48 @@ if ($isBitrix24Template)
 		if (count($arParams['BUTTONS']) === 1)
 		{
 			$button = array_shift($arParams['BUTTONS']);
-			if (isset($button['LINK']) && isset($button['TITLE']))
+			if (isset($button['LINK'], $button['TITLE']))
 			{
+				$linkClassList = 'ui-btn ui-btn-md ui-btn-success landing-filter-action-link';
+				$linkEnabled = true;
+				$isButtonDisabled = isset($button['DISABLED']) && $button['DISABLED'] === true;
+				if ($isButtonDisabled)
+				{
+					$linkClassList .= ' ui-btn-disabled ui-btn-icon-lock';
+					$linkEnabled = false;
+				}
 				?>
-				<div class="pagetitle-container pagetitle-align-right-container">
+				<div id="landing-create-element-container" class="pagetitle-container pagetitle-align-right-container">
 					<a
-						href="<?= \htmlspecialcharsbx($button['LINK']) ?>"
+						<?php if ($isButtonDisabled):?>
+							data-hint="
+								<?= Loc::getMessage('LANDING_TPL_CREATE_BUTTON_HINT') ?>
+								<?php if ($helpUrl = Help::getHelpUrl('SHOP1C')):?>
+									<br>
+									<a href='<?= $helpUrl ?>'>
+										<?= Loc::getMessage('LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT') ?>
+									</a>
+								<?php endif;?>
+							"
+							data-hint-no-icon
+							data-hint-html
+							data-hint-interactivity
+						<?php endif;?>
+						<?php if ($linkEnabled):?>
+							href="<?= \htmlspecialcharsbx($button['LINK']) ?>"
+						<?php endif;?>
 						id="landing-create-element"
-						class="ui-btn ui-btn-md ui-btn-success landing-filter-action-link"
+						class="<?= \htmlspecialcharsbx($linkClassList) ?>"
 					>
 						<?= \htmlspecialcharsbx($button['TITLE']);?>
 					</a>
 				</div>
+				<script type="text/javascript">
+					BX.ready(function ()
+					{
+						BX.UI.Hint.init(BX('landing-create-element-container'));
+					});
+				</script>
 			<?
 			}
 		}

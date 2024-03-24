@@ -62,6 +62,7 @@ export class SiteTile
 				menuBottomItems: item.menuBottomItems || null,
 				notPublishedText: this.notPublishedText || null,
 				access: item.access || {},
+				error: item.error || {},
 				articles: item.articles || null,
 				grid: this,
 			});

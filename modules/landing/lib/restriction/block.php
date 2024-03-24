@@ -77,6 +77,7 @@ class Block
 						S.TYPE NOT IN (\'KNOWLEDGE\', \'GROUP\')
 					GROUP BY B.ID, S.ID, FB.BLOCK_ID, L.DELETED
 					ORDER BY B.DATE_MODIFY ASC;';
+
 			$res = Application::getConnection()->query($sql);
 			while ($row = $res->fetch())
 			{

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.Ui = this.BX.Landing.Ui || {};
@@ -84,15 +85,19 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _schemeManager = /*#__PURE__*/new WeakMap();
+	var _setDuplicatesEnabledFieldDependency = /*#__PURE__*/new WeakSet();
 	var CrmContent = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(CrmContent, _ContentWrapper);
 	  function CrmContent(options) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, CrmContent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(CrmContent).call(this, options));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _setDuplicatesEnabledFieldDependency);
 	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _schemeManager, {
 	      writable: true,
 	      value: void 0
@@ -460,8 +465,9 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      if (String(item.id) === '3' || String(item.id) === '6') {
 	        expertSettingsForm.addField(this.getType3Header());
 	        expertSettingsForm.addField(this.getDealCategoryField());
-	        expertSettingsForm.addField(this.getDuplicatesEnabledField());
 	        expertSettingsForm.addField(this.getDuplicatesField());
+	        expertSettingsForm.addField(this.getDuplicatesEnabledField());
+	        _classPrivateMethodGet(this, _setDuplicatesEnabledFieldDependency, _setDuplicatesEnabledFieldDependency2).call(this);
 	      }
 	      if (String(item.id) === '4' || String(item.id) === '7') {
 	        expertSettingsForm.addField(this.getType4Header());
@@ -734,6 +740,25 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	  }]);
 	  return CrmContent;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
+	function _setDuplicatesEnabledFieldDependency2() {
+	  var _this13 = this;
+	  var allowType = 'ALLOW';
+	  var duplicatesField = this.getDuplicatesField();
+	  var duplicatesEnabledField = this.getDuplicatesEnabledField();
+	  var isDuplicatesFieldAllowed = function isDuplicatesFieldAllowed() {
+	    return _this13.getDuplicatesField().getValue()[0] === allowType;
+	  };
+	  if (isDuplicatesFieldAllowed()) {
+	    main_core.Dom.hide(duplicatesEnabledField.layout);
+	  }
+	  duplicatesField.subscribe('onchange', function () {
+	    if (isDuplicatesFieldAllowed()) {
+	      main_core.Dom.hide(duplicatesEnabledField.layout);
+	      return;
+	    }
+	    main_core.Dom.show(duplicatesEnabledField.layout);
+	  });
+	}
 
 	exports.default = CrmContent;
 

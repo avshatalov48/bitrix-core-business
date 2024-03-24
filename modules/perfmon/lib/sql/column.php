@@ -379,6 +379,7 @@ class Column extends BaseObject
 	 */
 	public function getModifyDdl(BaseObject $target, $dbType = '')
 	{
+		/** @var $target Column */
 		switch ($dbType)
 		{
 		case 'MYSQL':

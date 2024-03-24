@@ -74,19 +74,19 @@ $MESS["prolog_main_support_menu4"] = "<span style=\"color:red;\">месяц</spa
 $MESS["DEVSERVER_ADMIN_MESSAGE"] = "Эта установка предназначена для разработки на базе продукта \"1С-Битрикс: Управление сайтом\". Она не должна использоваться в качестве рабочего (боевого) сайта.";
 $MESS["prolog_main_timelimit_almost_expire"] = "<span class=\"required\">Внимание!</span> Срок действия текущей  лицензии <b>заканчивается</b> #FINISH_DATE#. Если не продлить лицензию, доступ к продукту будет закрыт. «<a href=\"#LINK#\" target=\"_blank\">Подробнее</a>».";
 $MESS["prolog_main_timelimit_expired"] =  "<span class=\"required\">Внимание!</span> Срок действия текущей лицензии<b> закончился</b> #FINISH_DATE#. Если не продлить лицензию до #BLOCK_DATE#, доступ к продукту будет закрыт. «<a href=\"#LINK#\" target=\"_blank\">Подробнее</a>».";
-$MESS["prolog_main_support_almost_expire"] = "<span class=\"required\">Внимание!</span> Срок действия текущей лицензии <b>заканчивается</b> #FINISH_DATE#. (<span onclick=\"BX.toggle(BX('supdescr'))\" style='border-bottom: 1px dashed #1c91e7; color: #1c91e7; cursor: pointer;'>Что это значит?</span>)<br />Если не продлить лицензию, доступ к обновлениям, технической поддержке и некоторым возможностям продукта будет закрыт.";
-$MESS["prolog_main_support_expired"] = "<span class=\"required\">Внимание!</span> Срок действия текущей лицензии <b>закончился</b> #FINISH_DATE#. (<span onclick=\"BX.toggle(BX('supdescr'))\" style='border-bottom: 1px dashed #1c91e7; color: #1c91e7; cursor: pointer;'>Что это значит?</span>)<br />Доступ к обновлениям, технической поддержке и некоторым возможностям продукта закрыт.";
-$MESS["prolog_main_support_wit_description_bus_MSGVER_1"] = "Окончание срока действия лицензии накладывает ограничения на систему обновлений, некоторые возможности продукта и оказание технической поддержки.<br /><br />
+$MESS["prolog_main_support_almost_expire"] = "<span class=\"required\">Внимание!</span> Срок действия текущей лицензии <b>заканчивается</b> #FINISH_DATE#. (<span onclick=\"BX.toggle(BX('supdescr'))\" style='border-bottom: 1px dashed #1c91e7; color: #1c91e7; cursor: pointer;'>Что это значит?</span>)<br />Если не продлить лицензию, то доступ к обновлениям, исправлениям уязвимостей, технической поддержке и некоторым возможностям продукта будет закрыт.";
+$MESS["prolog_main_support_expired"] = "<span class=\"required\">Внимание!</span> Срок действия текущей лицензии <b>закончился</b> #FINISH_DATE#. (<span onclick=\"BX.toggle(BX('supdescr'))\" style='border-bottom: 1px dashed #1c91e7; color: #1c91e7; cursor: pointer;'>Что это значит?</span>)<br />Доступ к обновлениям, исправлениям уязвимостей, технической поддержке и некоторым возможностям продукта закрыт.";
+$MESS["prolog_main_support_wit_description_bus"] = "Окончание срока действия лицензии накладывает ограничения на систему обновлений, некоторые возможности продукта и оказание технической поддержки.<br /><br />
 Вам не будут доступны такие возможности, как:<br /><br />
 - Обновление системы безопасности;<br />
 - Конструктор Сайты24;<br />
 - Доступ к решениям в каталоге «Marketplace».<br /><br />
-Полный перечень ограничений доступен по «<a href=\"https://www.1c-bitrix.ru/legal/limited_license.php\" target=\"_blank\">ссылке</a>».<br /><br />
+Полный  перечень ограничений доступен по «<a href=\"https://www.1c-bitrix.ru/legal/limited_license.php\" target=\"_blank\">ссылке</a>».<br /><br />
 С подробностями можно ознакомиться в «<a href=\"#LINK#\" target=\"_blank\">Лицензионном соглашении</a>».";
-$MESS["prolog_main_support_wit_description_cp_MSGVER_1"] = "Окончание срока действия лицензии накладывает ограничения на систему обновлений, некоторые возможности продукта и оказание технической поддержки.<br /><br />
+$MESS["prolog_main_support_wit_description_cp"] = "Окончание срока действия лицензии накладывает ограничения на систему обновлений, некоторые возможности продукта и оказание технической поддержки.<br /><br />
 Вам не будут доступны такие возможности, как:<br /><br />
 - Телефония;<br />
 - Открытые линии;<br />
 - Доступ к решениям в каталоге «Marketplace» и «Битрикс24.Маркет».<br /><br />
-Полный перечень ограничений доступен по «<a href=\"https://www.1c-bitrix.ru/legal/limited_license_bitrix24.php\" target=\"_blank\">ссылке</a>».<br /><br />
+Полный  перечень ограничений доступен по «<a href=\"https://www.1c-bitrix.ru/legal/limited_license_bitrix24.php\" target=\"_blank\">ссылке</a>».<br /><br />
 С подробностями можно ознакомиться в «<a href=\"#LINK#\" target=\"_blank\">Лицензионном соглашении</a>».";

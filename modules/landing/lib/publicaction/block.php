@@ -795,9 +795,10 @@ class Block
 	 * @param int $block Block id.
 	 * @return PublicActionResult
 	 */
-	public static function publication(int $block): PublicActionResult
+	public static function publication($block): PublicActionResult
 	{
 		$result = new PublicActionResult();
+		$block = intval($block);
 
 		$lid = BlockCore::getLandingIdByBlockId($block);
 		if ($lid)

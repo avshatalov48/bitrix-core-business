@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'landing.main',
 		'main.core',
+		'landing.backend',
 		'landing.pageobject',
 		'landing.ui.highlight',
 	],

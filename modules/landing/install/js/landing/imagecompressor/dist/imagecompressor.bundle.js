@@ -412,7 +412,7 @@ this.BX = this.BX || {};
 	    case 2:
 	      scaleX = -1;
 	      break;
-	    // Rotate left 180°
+	    // Rotate left 180Â°
 
 	    case 3:
 	      rotate = -180;
@@ -422,24 +422,24 @@ this.BX = this.BX || {};
 	    case 4:
 	      scaleY = -1;
 	      break;
-	    // Flip vertical and rotate right 90°
+	    // Flip vertical and rotate right 90Â°
 
 	    case 5:
 	      rotate = 90;
 	      scaleY = -1;
 	      break;
-	    // Rotate right 90°
+	    // Rotate right 90Â°
 
 	    case 6:
 	      rotate = 90;
 	      break;
-	    // Flip horizontal and rotate right 90°
+	    // Flip horizontal and rotate right 90Â°
 
 	    case 7:
 	      rotate = 90;
 	      scaleX = -1;
 	      break;
-	    // Rotate left 90°
+	    // Rotate left 90Â°
 
 	    case 8:
 	      rotate = -90;

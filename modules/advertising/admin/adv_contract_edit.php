@@ -37,7 +37,7 @@ if ($isAdmin || ($isDemo && !$isOwner))
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 /***************************************************************************
-						Обработка GET | POST
+						РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ***************************************************************************/
 
 $strError = '';
@@ -191,7 +191,7 @@ $sDocTitle = ($ID>0) ? GetMessage("AD_EDIT_RECORD", array("#ID#" => $ID)) : GetM
 $APPLICATION->SetTitle($sDocTitle);
 
 /***************************************************************************
-								HTML форма
+								HTML С„РѕСЂРјР°
 ****************************************************************************/
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 

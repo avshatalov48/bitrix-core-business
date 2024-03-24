@@ -360,6 +360,11 @@ if (!$request->offsetExists('landing_mode')):
 					$errTitle = $arResult['ERRORS'][$errorCode];
 					$errDesc = null;
 				}
+				if (!$errorCode && $arResult['PUBLICATION_ERROR_CODE'] === 'shop1c')
+				{
+					$errorCode = 'SHOP_1C';
+					$errTitle = Loc::getMessage('LANDING_PUBLICATION_SHOP_ERROR_1C');
+				}
 				?>
 				<div id="landing-popup-publication-error-area"
 					style="display: none;"
@@ -396,14 +401,14 @@ if (!$request->offsetExists('landing_mode')):
 		<div class="landing-ui-panel-top-menu" id="landing-panel-settings">
 			<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
 				<?if ($arResult['IS_AREA'] === false):?>
-					<a href="<?= $urls['preview']->getUri();?>" <?
+					<div <?
 					?>id="landing-popup-preview-btn" <?
 					   ?>data-domain="<?= $site['DOMAIN_NAME']?>" <?
 					   ?>data-form-verification-required="<?=(($formEditor && $arResult['FORM_VERIFICATION_REQUIRED']) ? '1' : '0')?>" <?
 					   ?>data-form-verification-entity="<?=(int)$arResult['VERIFY_FORM_ID']?>" <?
 					   ?>class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu">
 						<?= $formEditor ? Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN_FORM') : Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
-					</a>
+					</div>
 				<?endif;?>
 
 				<?if (!$formEditor):?>
@@ -424,6 +429,17 @@ if (!$request->offsetExists('landing_mode')):
 	</div>
 	<div class="landing-ui-view-container">
 <?endif;?>
+
+<?php
+if ($arParams['TYPE'] === 'STORE')
+{
+	$submitText = Loc::getMessage('LANDING_PUBLICATION_STORE_SUBMIT');
+}
+else
+{
+	$submitText = Loc::getMessage('LANDING_PUBLICATION_SUBMIT');
+}
+?>
 
 <script type="text/javascript">
 	var landingParams = <?= \CUtil::phpToJSObject($arParams);?>;
@@ -447,7 +463,7 @@ if (!$request->offsetExists('landing_mode')):
 			LANDING_PREVIEW_MOBILE_TEXT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_TEXT'));?>',
 			LANDING_PREVIEW_MOBILE_NEW_TAB: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_NEW_TAB_MSGVER_1'));?>',
 			LANDING_PREVIEW_MOBILE_COPY_LINK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_COPY_LINK'));?>',
-			LANDING_PUBLICATION_SUBMIT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_SUBMIT'));?>',
+			LANDING_PUBLICATION_SUBMIT: '<?= \CUtil::jsEscape($submitText);?>',
 			LANDING_PUBLICATION_AUTO: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO'));?>',
 			LANDING_PUBLICATION_AUTO_OFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO_OFF'));?>',
 			LANDING_PUBLICATION_AUTO_TOGGLE_ON: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO_TOGGLE_ON'));?>',
@@ -474,6 +490,8 @@ if (!$request->offsetExists('landing_mode')):
 			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_SLIDER_TITLE'));?>',
 			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_TITLE'));?>',
 			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION'));?>',
+			LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON'));?>',
+			LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON_LINK: '<?= \CUtil::jsEscape($arResult['PUBLICATION_ERROR_LINK']);?>',
 		});
 	});
 </script>

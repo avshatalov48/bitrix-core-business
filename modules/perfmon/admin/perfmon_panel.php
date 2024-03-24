@@ -676,8 +676,6 @@ $arConstants = [
 	'CACHED_b_event',
 	'CACHED_b_agent',
 	'CACHED_b_user_field',
-	'CACHED_b_task',
-	'CACHED_b_task_operation',
 	'CACHED_b_search_tags',
 	'CACHED_b_search_tags_len',
 	'CACHED_b_sec_iprule',
@@ -1395,14 +1393,16 @@ else
 				<td>&nbsp;</td>
 			<?php else:?>
 				<td class="bx-digit-cell"><a href="javascript:void()" OnClick="BX('managed_cache_details').style.display='block';return false;"><?php echo GetMessage('PERFMON_PANEL_MANAGED_CACHE_OFF')?></a><div id="managed_cache_details" style="display:none"><?php echo implode('<br>', $arConstants)?></div></td>
-				<td><?php echo GetMessage('PERFMON_PANEL_MANAGED_CACHE_REC', [
+				<td><?php echo GetMessage('PERFMON_PANEL_MANAGED_CACHE_REC',
+					[
 						'#file#' => (
 							IsModuleInstalled('fileman') && ($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_edit_existent_files')) ?
 							'<a href="' . '/bitrix/admin/fileman_file_edit.php?lang=' . LANGUAGE_ID . '&amp;full_src=Y&amp;path=' . urlencode(BX_PERSONAL_ROOT . '/php_interface/dbconn.php') . '&amp;back_url=' . urlencode('/bitrix/admin/security_panel.php?lang=' . LANGUAGE_ID) . '">dbconn.php</a>' :
 							'dbconn.php'
 						),
-					]);
-					?>
+					]
+				);
+				?>
 				</td>
 			<?php endif?>
 		</tr>

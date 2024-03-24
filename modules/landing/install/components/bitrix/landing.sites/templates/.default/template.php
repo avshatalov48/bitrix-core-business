@@ -211,6 +211,24 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 		}
 	);
 </script>
+
+	<?php if (isset($arResult['FORCE_VERIFY_SITE_ID']) && $arResult['FORCE_VERIFY_SITE_ID'] > 0): ?>
+		<script>
+			if (
+				top.BX.Bitrix24
+				&& BX.Type.isObject(BX.Bitrix24.PhoneVerify)
+			)
+			{
+				BX.Bitrix24.PhoneVerify
+					.getInstance()
+					.setEntityType('landing_site')
+					.setEntityId(<?= $arResult['FORCE_VERIFY_SITE_ID'] ?>)
+					.startVerify({mandatory: false})
+				;
+			}
+		</script>
+	<?php endif; ?>
+
 <?endif?>
 
 <?
@@ -428,7 +446,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 		<?php elseif ($arResult['ACCESS_SITE_NEW'] === 'Y' && !$arResult['IS_DELETED']): ?>
 		<div class="landing-item landing-item-add-new">
 			<?php $urlEdit = str_replace('#site_edit#', 0, $arParams['PAGE_URL_SITE_EDIT']);?>
-			<span class="landing-item-inner" data-href="<?= $urlEdit ?>">
+			<span class="landing-item-inner" data-href="<?= \htmlspecialcharsbx($urlEdit) ?>">
 				<span class="landing-item-add-new-inner">
 					<span class="landing-item-add-icon"></span>
 					<span class="landing-item-text">

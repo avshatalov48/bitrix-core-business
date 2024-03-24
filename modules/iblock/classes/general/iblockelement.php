@@ -67,13 +67,13 @@ class CAllIBlockElement
 
 	private static array $propertyIdentifierMasks = [
 		'/^[0-9]+([A-Z_]*)$/',
-		'/^[A-Z][A-Z0-9_]*$/',
+		'/^[A-Z_][A-Z0-9_]*$/',
 	];
 
 	private static array $propertyLinkFieldIdentifierMasks = [
 		'/^[A-Z][A-Z_]*$/',
 		'/^PROPERTY_[0-9]+$/',
-		'/^PROPERTY_[A-Z][A-Z0-9_]*$/',
+		'/^PROPERTY_[A-Z_][A-Z0-9_]*$/',
 	];
 
 	public function __construct()

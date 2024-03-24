@@ -9,8 +9,8 @@
 use \Bitrix\Main\Application;
 
 global
-	$arrViewedBanners,		// баннеры показанные на данной странице
-	$arrADV_KEYWORDS,		// массив ключевых слов для страницы
+	$arrViewedBanners,		// Р±Р°РЅРЅРµСЂС‹ РїРѕРєР°Р·Р°РЅРЅС‹Рµ РЅР° РґР°РЅРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ
+	$arrADV_KEYWORDS,		// РјР°СЃСЃРёРІ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ РґР»СЏ СЃС‚СЂР°РЅРёС†С‹
 	$strAdvCurUri,
 	$nRandom1,
 	$nRandom2,
@@ -38,12 +38,12 @@ $nRandom3 = 4689*mt_rand(999, 31999);
 $nRandom4 = 4689*mt_rand(999, 31999);
 $nRandom5 = 4689*mt_rand(999, 31999);
 
-// Параметр указывающий допустимое процентное отклонение (превышение) от равномерности
-// прогресса ротации банера
+// РџР°СЂР°РјРµС‚СЂ СѓРєР°Р·С‹РІР°СЋС‰РёР№ РґРѕРїСѓСЃС‚РёРјРѕРµ РїСЂРѕС†РµРЅС‚РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ (РїСЂРµРІС‹С€РµРЅРёРµ) РѕС‚ СЂР°РІРЅРѕРјРµСЂРЅРѕСЃС‚Рё
+// РїСЂРѕРіСЂРµСЃСЃР° СЂРѕС‚Р°С†РёРё Р±Р°РЅРµСЂР°
 define("BANNER_UNIFORMITY_DIVERGENCE_COEF", 0.05);
 
 /*****************************************************************
-				Класс "Рекламный контракт"
+				РљР»Р°СЃСЃ "Р РµРєР»Р°РјРЅС‹Р№ РєРѕРЅС‚СЂР°РєС‚"
 *****************************************************************/
 
 class CAdvContract_all
@@ -62,15 +62,15 @@ class CAdvContract_all
 	}
 
 	/*****************************************************************
-				Группа функций по работе с ролями на модуль
+				Р“СЂСѓРїРїР° С„СѓРЅРєС†РёР№ РїРѕ СЂР°Р±РѕС‚Рµ СЃ СЂРѕР»СЏРјРё РЅР° РјРѕРґСѓР»СЊ
 
-	Идентификаторы ролей:
+	РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ СЂРѕР»РµР№:
 
-	D - доступ закрыт
-	R - рекламодатель
-	T - менеджер баннеров
-	V - демо-доступ
-	W - администратор рекламы
+	D - РґРѕСЃС‚СѓРї Р·Р°РєСЂС‹С‚
+	R - СЂРµРєР»Р°РјРѕРґР°С‚РµР»СЊ
+	T - РјРµРЅРµРґР¶РµСЂ Р±Р°РЅРЅРµСЂРѕРІ
+	V - РґРµРјРѕ-РґРѕСЃС‚СѓРї
+	W - Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ СЂРµРєР»Р°РјС‹
 
 	*****************************************************************/
 
@@ -99,7 +99,7 @@ class CAdvContract_all
 		return "W";
 	}
 
-	// возвращает true если заданный пользователь имеет заданную роль на модуль
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ true РµСЃР»Рё Р·Р°РґР°РЅРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёРјРµРµС‚ Р·Р°РґР°РЅРЅСѓСЋ СЂРѕР»СЊ РЅР° РјРѕРґСѓР»СЊ
 	public static function HaveRole($role, $USER_ID=false)
 	{
 		global $USER, $APPLICATION;
@@ -122,15 +122,15 @@ class CAdvContract_all
 		return false;
 	}
 
-	// true - если пользователь имеет роль "рекламодатель"
-	// false - в противном случае
+	// true - РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёРјРµРµС‚ СЂРѕР»СЊ "СЂРµРєР»Р°РјРѕРґР°С‚РµР»СЊ"
+	// false - РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
 	public static function IsAdvertiser($USER_ID=false)
 	{
 		return CAdvContract::HaveRole(CAdvContract::GetAdvertiserRoleID(), $USER_ID);
 	}
 
-	// true - если пользователь имеет роль "администратор рекламы"
-	// false - в противном случае
+	// true - РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёРјРµРµС‚ СЂРѕР»СЊ "Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ СЂРµРєР»Р°РјС‹"
+	// false - РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
 	public static function IsAdmin($USER_ID=false)
 	{
 		global $USER;
@@ -141,22 +141,22 @@ class CAdvContract_all
 		return CAdvContract::HaveRole(CAdvContract::GetAdminRoleID(), $USER_ID);
 	}
 
-	// true - если пользователь имеет роль "демо-доступ"
-	// false - в противном случае
+	// true - РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёРјРµРµС‚ СЂРѕР»СЊ "РґРµРјРѕ-РґРѕСЃС‚СѓРї"
+	// false - РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
 	public static function IsDemo($USER_ID=false)
 	{
 		return CAdvContract::HaveRole(CAdvContract::GetDemoRoleID(), $USER_ID);
 	}
 
-	// true - если пользователь имеет право на модуль "менеджер баннеров" и выше
-	// false - в противном случае
+	// true - РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёРјРµРµС‚ РїСЂР°РІРѕ РЅР° РјРѕРґСѓР»СЊ "РјРµРЅРµРґР¶РµСЂ Р±Р°РЅРЅРµСЂРѕРІ" Рё РІС‹С€Рµ
+	// false - РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
 	public static function IsManager($USER_ID=false)
 	{
 		return CAdvContract::HaveRole(CAdvContract::GetManagerRoleID(), $USER_ID);
 	}
 
-	// возвращает массив ID групп для которых задана роль
-	// $role - идентификатор роли
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ ID РіСЂСѓРїРї РґР»СЏ РєРѕС‚РѕСЂС‹С… Р·Р°РґР°РЅР° СЂРѕР»СЊ
+	// $role - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЂРѕР»Рё
 	public static function GetGroupsByRole($role)
 	{
 		global $APPLICATION, $USER;
@@ -171,7 +171,7 @@ class CAdvContract_all
 		return array_unique($arGroups);
 	}
 
-	// возвращает массив пользователей имеющих право на модуль "рекламодатель"
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёРјРµСЋС‰РёС… РїСЂР°РІРѕ РЅР° РјРѕРґСѓР»СЊ "СЂРµРєР»Р°РјРѕРґР°С‚РµР»СЊ"
 	public static function GetAdvertisersArray()
 	{
 		$arrRes = array();
@@ -184,7 +184,7 @@ class CAdvContract_all
 		return $arrRes;
 	}
 
-	// возвращает массив EMail адресов всех пользователей имеющих заданную роль
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ EMail Р°РґСЂРµСЃРѕРІ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёРјРµСЋС‰РёС… Р·Р°РґР°РЅРЅСѓСЋ СЂРѕР»СЊ
 	public static function GetEmailArrayByRole($role)
 	{
 		global $USER;
@@ -202,13 +202,13 @@ class CAdvContract_all
 		return array_unique($arrEMail);
 	}
 
-	// возвращает массив EMail'ов всех пользователей имеющих роль "администратор"
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ EMail'РѕРІ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёРјРµСЋС‰РёС… СЂРѕР»СЊ "Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ"
 	public static function GetAdminEmails()
 	{
 		return CAdvContract::GetEmailArrayByRole(CAdvContract::GetAdminRoleID());
 	}
 
-	// возвращает массив EMail'ов всех пользователей имеющих роль "менеджер баннеров"
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ EMail'РѕРІ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёРјРµСЋС‰РёС… СЂРѕР»СЊ "РјРµРЅРµРґР¶РµСЂ Р±Р°РЅРЅРµСЂРѕРІ"
 	public static function GetManagerEmails()
 	{
 		return CAdvContract::GetEmailArrayByRole(CAdvContract::GetManagerRoleID());
@@ -216,23 +216,23 @@ class CAdvContract_all
 
 
 	/*****************************************************************
-			Группа функций по работе с правами на контракт
+			Р“СЂСѓРїРїР° С„СѓРЅРєС†РёР№ РїРѕ СЂР°Р±РѕС‚Рµ СЃ РїСЂР°РІР°РјРё РЅР° РєРѕРЅС‚СЂР°РєС‚
 
-	Идентификаторы прав:
+	РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РїСЂР°РІ:
 
-	VIEW - просмотр настроек контракта, просмотр всех баннеров контракта и их графиков
-	ADD - просмотр настроек контракта, управление баннерами контракта, просмотр графиков баннеров
-	EDIT - управление частью полей контракта, просмотр всех баннеров контракта и их графиков
+	VIEW - РїСЂРѕСЃРјРѕС‚СЂ РЅР°СЃС‚СЂРѕРµРє РєРѕРЅС‚СЂР°РєС‚Р°, РїСЂРѕСЃРјРѕС‚СЂ РІСЃРµС… Р±Р°РЅРЅРµСЂРѕРІ РєРѕРЅС‚СЂР°РєС‚Р° Рё РёС… РіСЂР°С„РёРєРѕРІ
+	ADD - РїСЂРѕСЃРјРѕС‚СЂ РЅР°СЃС‚СЂРѕРµРє РєРѕРЅС‚СЂР°РєС‚Р°, СѓРїСЂР°РІР»РµРЅРёРµ Р±Р°РЅРЅРµСЂР°РјРё РєРѕРЅС‚СЂР°РєС‚Р°, РїСЂРѕСЃРјРѕС‚СЂ РіСЂР°С„РёРєРѕРІ Р±Р°РЅРЅРµСЂРѕРІ
+	EDIT - СѓРїСЂР°РІР»РµРЅРёРµ С‡Р°СЃС‚СЊСЋ РїРѕР»РµР№ РєРѕРЅС‚СЂР°РєС‚Р°, РїСЂРѕСЃРјРѕС‚СЂ РІСЃРµС… Р±Р°РЅРЅРµСЂРѕРІ РєРѕРЅС‚СЂР°РєС‚Р° Рё РёС… РіСЂР°С„РёРєРѕРІ
 
 	*****************************************************************/
 
-	// получение массива максимальных прав доступа на контракт
+	// РїРѕР»СѓС‡РµРЅРёРµ РјР°СЃСЃРёРІР° РјР°РєСЃРёРјР°Р»СЊРЅС‹С… РїСЂР°РІ РґРѕСЃС‚СѓРїР° РЅР° РєРѕРЅС‚СЂР°РєС‚
 	public static function GetMaxPermissionsArray()
 	{
 		return array("VIEW", "ADD", "EDIT");
 	}
 
-	// возвращает массивы EMail'ов всех пользователей имеющих доступ к заданному контракту (владельцы контракта)
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІС‹ EMail'РѕРІ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёРјРµСЋС‰РёС… РґРѕСЃС‚СѓРї Рє Р·Р°РґР°РЅРЅРѕРјСѓ РєРѕРЅС‚СЂР°РєС‚Сѓ (РІР»Р°РґРµР»СЊС†С‹ РєРѕРЅС‚СЂР°РєС‚Р°)
 	public static function GetOwnerEmails($CONTRACT_ID, &$OWNER_EMAIL, &$ADD_EMAIL, &$VIEW_EMAIL, &$EDIT_EMAIL)
 	{
 		$OWNER_EMAIL = array();
@@ -259,7 +259,7 @@ class CAdvContract_all
 		$EDIT_EMAIL		= array_unique($EDIT_EMAIL);
 	}
 
-	// получение массива прав текущего пользователя по всем контрактам
+	// РїРѕР»СѓС‡РµРЅРёРµ РјР°СЃСЃРёРІР° РїСЂР°РІ С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РІСЃРµРј РєРѕРЅС‚СЂР°РєС‚Р°Рј
 	public static function GetUserPermissions($CONTRACT_ID=0, $USER_ID=false)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: GetUserPermissions<br>Line: ";
@@ -325,8 +325,8 @@ class CAdvContract_all
 		return $arrRes;
 	}
 
-	// true - если пользователь имеет доступ к контракту
-	// false - в противном случае
+	// true - РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёРјРµРµС‚ РґРѕСЃС‚СѓРї Рє РєРѕРЅС‚СЂР°РєС‚Сѓ
+	// false - РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
 	public static function IsOwner($CONTRACT_ID, $USER_ID=false)
 	{
 		$CONTRACT_ID = intval($CONTRACT_ID);
@@ -337,7 +337,7 @@ class CAdvContract_all
 		else return false;
 	}
 
-	// получение массива всех прав доступа по заданному контракту
+	// РїРѕР»СѓС‡РµРЅРёРµ РјР°СЃСЃРёРІР° РІСЃРµС… РїСЂР°РІ РґРѕСЃС‚СѓРїР° РїРѕ Р·Р°РґР°РЅРЅРѕРјСѓ РєРѕРЅС‚СЂР°РєС‚Сѓ
 	public static function GetContractPermissions($CONTRACT_ID)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: GetContractPermissions<br>Line: ";
@@ -377,7 +377,7 @@ class CAdvContract_all
 	}
 
 	/*****************************************************************
-					Группа функций по отправке почты
+					Р“СЂСѓРїРїР° С„СѓРЅРєС†РёР№ РїРѕ РѕС‚РїСЂР°РІРєРµ РїРѕС‡С‚С‹
 	*****************************************************************/
 
 	public static function SendEMail($arContract, $mess="")
@@ -473,15 +473,15 @@ class CAdvContract_all
 	}
 
 	/*****************************************************************
-				Группа функций по управлению контрактом
+				Р“СЂСѓРїРїР° С„СѓРЅРєС†РёР№ РїРѕ СѓРїСЂР°РІР»РµРЅРёСЋ РєРѕРЅС‚СЂР°РєС‚РѕРј
 	*****************************************************************/
 
 	public static function CheckFilter($arFilter)
 	{
 		global $strError;
 		$str = "";
-		$find_date_modify_1 = $arFilter["DATE_MODIFY_1"];
-		$find_date_modify_2 = $arFilter["DATE_MODIFY_2"];
+		$find_date_modify_1 = $arFilter["DATE_MODIFY_1"] ?? '';
+		$find_date_modify_2 = $arFilter["DATE_MODIFY_2"] ?? '';
 		if (trim($find_date_modify_1) <> '' || trim($find_date_modify_2) <> '')
 		{
 			$date_1_ok = false;
@@ -502,7 +502,7 @@ class CAdvContract_all
 			return true;
 	}
 
-	// получаем массив времени и дней недели связанных с контрактом
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ РІСЂРµРјРµРЅРё Рё РґРЅРµР№ РЅРµРґРµР»Рё СЃРІСЏР·Р°РЅРЅС‹С… СЃ РєРѕРЅС‚СЂР°РєС‚РѕРј
 	public static function GetWeekdayArray($CONTRACT_ID)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: GetWeekdayArray<br>Line: ";
@@ -527,7 +527,7 @@ class CAdvContract_all
 		return $arrRes;
 	}
 
-	// получаем массив типов связанных с контрактом
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ С‚РёРїРѕРІ СЃРІСЏР·Р°РЅРЅС‹С… СЃ РєРѕРЅС‚СЂР°РєС‚РѕРј
 	public static function GetTypeArray($CONTRACT_ID)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: GetTypeArray<br>Line: ";
@@ -561,7 +561,7 @@ class CAdvContract_all
 		return $arrRes;
 	}
 
-	// получаем массив языков связанных с контрактом
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ СЏР·С‹РєРѕРІ СЃРІСЏР·Р°РЅРЅС‹С… СЃ РєРѕРЅС‚СЂР°РєС‚РѕРј
 	public static function GetSiteArray($CONTRACT_ID)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: GetSiteArray<br>Line: ";
@@ -583,7 +583,7 @@ class CAdvContract_all
 		return $arrRes;
 	}
 
-	// получаем массив страниц связанных с контрактом
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ СЃС‚СЂР°РЅРёС† СЃРІСЏР·Р°РЅРЅС‹С… СЃ РєРѕРЅС‚СЂР°РєС‚РѕРј
 	public static function GetPageArray($CONTRACT_ID, $SHOW="SHOW")
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: GetPageArray<br>Line: ";
@@ -606,7 +606,7 @@ class CAdvContract_all
 		return $arrRes;
 	}
 
-	// получаем контракт по ID
+	// РїРѕР»СѓС‡Р°РµРј РєРѕРЅС‚СЂР°РєС‚ РїРѕ ID
 	public static function GetByID($CONTRACT_ID, $CHECK_RIGHTS="Y")
 	{
 		$CONTRACT_ID = intval($CONTRACT_ID);
@@ -619,7 +619,7 @@ class CAdvContract_all
 		return $rs;
 	}
 
-	// проверка полей при модификации контракта
+	// РїСЂРѕРІРµСЂРєР° РїРѕР»РµР№ РїСЂРё РјРѕРґРёС„РёРєР°С†РёРё РєРѕРЅС‚СЂР°РєС‚Р°
 	public static function CheckFields($arFields, $CONTRACT_ID, $CHECK_RIGHTS="Y")
 	{
 		global $strError;
@@ -658,7 +658,7 @@ class CAdvContract_all
 			return true;
 	}
 
-	// добавляем новый контракт или модифицируем существующий
+	// РґРѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ РєРѕРЅС‚СЂР°РєС‚ РёР»Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№
 	public static function Set($arFields, $CONTRACT_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: Set<br>Line: ";
@@ -1048,7 +1048,7 @@ class CAdvContract_all
 		return $CONTRACT_ID;
 	}
 
-	// удаление контракта
+	// СѓРґР°Р»РµРЅРёРµ РєРѕРЅС‚СЂР°РєС‚Р°
 	public static function Delete($CONTRACT_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: Delete<br>Line: ";
@@ -1080,7 +1080,7 @@ class CAdvContract_all
 		}
 	}
 
-	// удаление связи контракта со страницами
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё РєРѕРЅС‚СЂР°РєС‚Р° СЃРѕ СЃС‚СЂР°РЅРёС†Р°РјРё
 	public static function DeletePageLink($CONTRACT_ID, $where="")
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: DeletePageLink<br>Line: ";
@@ -1093,7 +1093,7 @@ class CAdvContract_all
 		return true;
 	}
 
-	// удаление связи контракта с сайтами
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё РєРѕРЅС‚СЂР°РєС‚Р° СЃ СЃР°Р№С‚Р°РјРё
 	public static function DeleteSiteLink($CONTRACT_ID)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: DeleteSiteLink<br>Line: ";
@@ -1106,7 +1106,7 @@ class CAdvContract_all
 		return true;
 	}
 
-	// удаление связи контракта с типами баннеров
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё РєРѕРЅС‚СЂР°РєС‚Р° СЃ С‚РёРїР°РјРё Р±Р°РЅРЅРµСЂРѕРІ
 	public static function DeleteTypeLink($CONTRACT_ID)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: DeleteTypeLink<br>Line: ";
@@ -1119,7 +1119,7 @@ class CAdvContract_all
 		return true;
 	}
 
-	// удаление связи контракта с пользователями
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё РєРѕРЅС‚СЂР°РєС‚Р° СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё
 	public static function DeleteUserLink($CONTRACT_ID, $where="")
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: DeleteUserLink<br>Line: ";
@@ -1132,7 +1132,7 @@ class CAdvContract_all
 		return true;
 	}
 
-	// удаление связи контракта со временем и днями недели
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё РєРѕРЅС‚СЂР°РєС‚Р° СЃРѕ РІСЂРµРјРµРЅРµРј Рё РґРЅСЏРјРё РЅРµРґРµР»Рё
 	public static function DeleteWeekdayLink($CONTRACT_ID)
 	{
 		$err_mess = (CAdvContract_all::err_mess())."<br>Function: DeleteWeekdayLink<br>Line: ";
@@ -1145,7 +1145,7 @@ class CAdvContract_all
 		return true;
 	}
 
-	//Получение статистики по контрактам
+	//РџРѕР»СѓС‡РµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РїРѕ РєРѕРЅС‚СЂР°РєС‚Р°Рј
 	public static function GetStatList($by, $order, $arFilter)
 	{
 		$err_mess = (CAdvBanner::err_mess())."<br>Function: GetDynamicList<br>Line: ";
@@ -1279,7 +1279,7 @@ class CAdvContract_all
 }
 
 /*****************************************************************
-					Класс "Рекламный баннер"
+					РљР»Р°СЃСЃ "Р РµРєР»Р°РјРЅС‹Р№ Р±Р°РЅРЅРµСЂ"
 *****************************************************************/
 
 class CAdvBanner_all
@@ -1306,7 +1306,7 @@ class CAdvBanner_all
 			$strAdvCurUri = $uri;
 	}
 
-	// получим баннер по ID
+	// РїРѕР»СѓС‡РёРј Р±Р°РЅРЅРµСЂ РїРѕ ID
 	public static function GetByID($BANNER_ID, $CHECK_RIGHTS="Y")
 	{
 		$BANNER_ID = intval($BANNER_ID);
@@ -1320,7 +1320,7 @@ class CAdvBanner_all
 		return $rs;
 	}
 
-	// копирование баннера
+	// РєРѕРїРёСЂРѕРІР°РЅРёРµ Р±Р°РЅРЅРµСЂР°
 	public static function Copy($BANNER_ID, $CHECK_RIGHTS="Y")
 	{
 		$ID = 0;
@@ -1400,7 +1400,7 @@ class CAdvBanner_all
 		return $ID;
 	}
 
-	// удаление баннера
+	// СѓРґР°Р»РµРЅРёРµ Р±Р°РЅРЅРµСЂР°
 	public static function Delete($BANNER_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: Delete<br>Line: ";
@@ -1457,7 +1457,7 @@ class CAdvBanner_all
 		return false;
 	}
 
-	// удаление связи баннера со временем и днями недели
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё Р±Р°РЅРЅРµСЂР° СЃРѕ РІСЂРµРјРµРЅРµРј Рё РґРЅСЏРјРё РЅРµРґРµР»Рё
 	public static function DeleteWeekdayLink($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: DeleteWeekdayLink<br>Line: ";
@@ -1470,7 +1470,7 @@ class CAdvBanner_all
 		return true;
 	}
 
-	// удаление связи баннера с языками
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё Р±Р°РЅРЅРµСЂР° СЃ СЏР·С‹РєР°РјРё
 	public static function DeleteSiteLink($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: DeleteSiteLink<br>Line: ";
@@ -1483,7 +1483,7 @@ class CAdvBanner_all
 		return true;
 	}
 
-	// удаление связи баннера со страной
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё Р±Р°РЅРЅРµСЂР° СЃРѕ СЃС‚СЂР°РЅРѕР№
 	public static function DeleteCountryLink($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: DeleteCountryLink<br>Line: ";
@@ -1496,7 +1496,7 @@ class CAdvBanner_all
 		return true;
 	}
 
-	// удаление связи баннера со рекламными кампаниями статистики
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё Р±Р°РЅРЅРµСЂР° СЃРѕ СЂРµРєР»Р°РјРЅС‹РјРё РєР°РјРїР°РЅРёСЏРјРё СЃС‚Р°С‚РёСЃС‚РёРєРё
 	public static function DeleteStatAdvLink($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: DeleteStatAdvLink<br>Line: ";
@@ -1509,7 +1509,7 @@ class CAdvBanner_all
 		return true;
 	}
 
-	// удаление связи баннера со страницами
+	// СѓРґР°Р»РµРЅРёРµ СЃРІСЏР·Рё Р±Р°РЅРЅРµСЂР° СЃРѕ СЃС‚СЂР°РЅРёС†Р°РјРё
 	public static function DeletePageLink($BANNER_ID, $where="")
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: DeletePageLink<br>Line: ";
@@ -1550,7 +1550,7 @@ class CAdvBanner_all
 		return $arr;
 	}
 
-	// получаем массив страниц связанных с баннером
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ СЃС‚СЂР°РЅРёС† СЃРІСЏР·Р°РЅРЅС‹С… СЃ Р±Р°РЅРЅРµСЂРѕРј
 	public static function GetPageArray($BANNER_ID, $SHOW="SHOW")
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetPageArray<br>Line: ";
@@ -1575,7 +1575,7 @@ class CAdvBanner_all
 		return $arrRes;
 	}
 
-	// получаем массив групп пользователей связанных с баннером
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ РіСЂСѓРїРї РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ СЃРІСЏР·Р°РЅРЅС‹С… СЃ Р±Р°РЅРЅРµСЂРѕРј
 	public static function GetGroupArray($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetGroupArray<br>Line: ";
@@ -1599,7 +1599,7 @@ class CAdvBanner_all
 		return $arrRes;
 	}
 
-	// получаем массив языков связанных с баннером
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ СЏР·С‹РєРѕРІ СЃРІСЏР·Р°РЅРЅС‹С… СЃ Р±Р°РЅРЅРµСЂРѕРј
 	public static function GetSiteArray($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetSiteArray<br>Line: ";
@@ -1622,7 +1622,7 @@ class CAdvBanner_all
 		return $arrRes;
 	}
 
-	// получаем массив стран связанных с баннером
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ СЃС‚СЂР°РЅ СЃРІСЏР·Р°РЅРЅС‹С… СЃ Р±Р°РЅРЅРµСЂРѕРј
 	public static function GetCountryArray($BANNER_ID, $WHAT = "COUNTRY")
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetCountryArray<br>Line: ";
@@ -1677,7 +1677,7 @@ class CAdvBanner_all
 		return $arrRes;
 	}
 
-	// получаем массив времени и дней недели связанных с баннером
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ РІСЂРµРјРµРЅРё Рё РґРЅРµР№ РЅРµРґРµР»Рё СЃРІСЏР·Р°РЅРЅС‹С… СЃ Р±Р°РЅРЅРµСЂРѕРј
 	public static function GetWeekdayArray($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetWeekdayArray<br>Line: ";
@@ -1701,7 +1701,7 @@ class CAdvBanner_all
 		return $arrRes;
 	}
 
-	// получаем массив рекламных кампаний связанных с баннером
+	// РїРѕР»СѓС‡Р°РµРј РјР°СЃСЃРёРІ СЂРµРєР»Р°РјРЅС‹С… РєР°РјРїР°РЅРёР№ СЃРІСЏР·Р°РЅРЅС‹С… СЃ Р±Р°РЅРЅРµСЂРѕРј
 	public static function GetStatAdvArray($BANNER_ID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetStatAdvArray<br>Line: ";
@@ -1724,7 +1724,7 @@ class CAdvBanner_all
 		return $arrRes;
 	}
 
-	// проверяем поля при модификации баннера
+	// РїСЂРѕРІРµСЂСЏРµРј РїРѕР»СЏ РїСЂРё РјРѕРґРёС„РёРєР°С†РёРё Р±Р°РЅРЅРµСЂР°
 	public static function CheckFields($arFields, $BANNER_ID, $CHECK_RIGHTS="Y")
 	{
 		global $strError;
@@ -2081,7 +2081,7 @@ class CAdvBanner_all
 		return $result;
 	}
 
-	// добавляем новый баннер или модифицируем существующий
+	// РґРѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ Р±Р°РЅРЅРµСЂ РёР»Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№
 	public static function Set($arFields, $BANNER_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: Set<br>Line: ";
@@ -2154,10 +2154,10 @@ class CAdvBanner_all
 				if (($isAdmin || $isManager) && in_array("RESET_VISITOR_COUNT", $arrKeys) && $arFields["RESET_VISITOR_COUNT"])
 				{
 					$arFields_i["VISITOR_COUNT"] = 0;
-					// если баннер уже показывался то
+					// РµСЃР»Рё Р±Р°РЅРЅРµСЂ СѓР¶Рµ РїРѕРєР°Р·С‹РІР°Р»СЃСЏ С‚Рѕ
 					if (intval($arBanner["VISITOR_COUNT"])>0)
 					{
-						// уменьшим счетчик у контракта
+						// СѓРјРµРЅСЊС€РёРј СЃС‡РµС‚С‡РёРє Сѓ РєРѕРЅС‚СЂР°РєС‚Р°
 						$value = intval($arContract["VISITOR_COUNT"]) - intval($arBanner["VISITOR_COUNT"]);
 						$value = ($value<0) ? 0 : $value;
 						CAdvContract::Set(array("VISITOR_COUNT" => $value), $arContract["ID"], $CHECK_CONTRACT_RIGHTS);
@@ -2167,10 +2167,10 @@ class CAdvBanner_all
 				if (($isAdmin || $isManager) && in_array("RESET_SHOW_COUNT", $arrKeys) && $arFields["RESET_SHOW_COUNT"])
 				{
 					$arFields_i["SHOW_COUNT"] = 0;
-					// если баннер уже показывался то
+					// РµСЃР»Рё Р±Р°РЅРЅРµСЂ СѓР¶Рµ РїРѕРєР°Р·С‹РІР°Р»СЃСЏ С‚Рѕ
 					if (intval($arBanner["SHOW_COUNT"])>0)
 					{
-						// уменьшим счетчик у контракта
+						// СѓРјРµРЅСЊС€РёРј СЃС‡РµС‚С‡РёРє Сѓ РєРѕРЅС‚СЂР°РєС‚Р°
 						$value = intval($arContract["SHOW_COUNT"]) - intval($arBanner["SHOW_COUNT"]);
 						$value = ($value<0) ? 0 : $value;
 						CAdvContract::Set(array("SHOW_COUNT" => $value), $arContract["ID"], $CHECK_CONTRACT_RIGHTS);
@@ -2186,10 +2186,10 @@ class CAdvBanner_all
 				if (($isAdmin || $isManager) && in_array("RESET_CLICK_COUNT", $arrKeys) && $arFields["RESET_CLICK_COUNT"])
 				{
 					$arFields_i["CLICK_COUNT"] = 0;
-					// если на баннер уже кликали то
+					// РµСЃР»Рё РЅР° Р±Р°РЅРЅРµСЂ СѓР¶Рµ РєР»РёРєР°Р»Рё С‚Рѕ
 					if (intval($arBanner["CLICK_COUNT"])>0)
 					{
-						// уменьшим счетчик у контракта
+						// СѓРјРµРЅСЊС€РёРј СЃС‡РµС‚С‡РёРє Сѓ РєРѕРЅС‚СЂР°РєС‚Р°
 						$value = intval($arContract["CLICK_COUNT"]) - intval($arBanner["CLICK_COUNT"]);
 						$value = ($value<0) ? 0 : $value;
 						CAdvContract::Set(array("CLICK_COUNT" => $value), $arContract["ID"], $CHECK_CONTRACT_RIGHTS);
@@ -2516,7 +2516,7 @@ class CAdvBanner_all
 					$new_status = ($isAdmin || $isManager) ? $arFields["STATUS_SID"] : $arContract["DEFAULT_STATUS_SID"];
 					$arFields_i["STATUS_SID"] = "'".$DB->ForSql($new_status,255)."'";
 
-					// если статус изменился то
+					// РµСЃР»Рё СЃС‚Р°С‚СѓСЃ РёР·РјРµРЅРёР»СЃСЏ С‚Рѕ
 					if ("'".$DB->ForSql($arBanner["STATUS_SID"],255)."'"!=$arFields_i["STATUS_SID"])
 					{
 						$email_notify = "Y";
@@ -2769,11 +2769,11 @@ class CAdvBanner_all
 						}
 					}
 
-					// если необходимо оповестить
+					// РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ РѕРїРѕРІРµСЃС‚РёС‚СЊ
 					$SEND_EMAIL = $arFields["SEND_EMAIL"] == "N" ? "N" : "Y";
 					if ($email_notify == "Y" && (!$isAdmin || !$isManager || $SEND_EMAIL == "Y"))
 					{
-						// получаем данные по баннеру
+						// РїРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РїРѕ Р±Р°РЅРЅРµСЂСѓ
 						CTimeZone::Disable();
 						$rsBanner = CAdvBanner::GetByID($BANNER_ID, $CHECK_RIGHTS);
 						CTimeZone::Enable();
@@ -3038,7 +3038,7 @@ class CAdvBanner_all
 			return 0;
 	}
 
-	// возвращает массив описывающий произвольный баннер
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ РѕРїРёСЃС‹РІР°СЋС‰РёР№ РїСЂРѕРёР·РІРѕР»СЊРЅС‹Р№ Р±Р°РЅРЅРµСЂ
 	public static function GetRandom($TYPE_SID)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetRandom<br>Line: ";
@@ -3056,11 +3056,11 @@ class CAdvBanner_all
 
 		if ($arrWeightSum === false)
 		{
-			// получим массив весов для текущей страницы
+			// РїРѕР»СѓС‡РёРј РјР°СЃСЃРёРІ РІРµСЃРѕРІ РґР»СЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†С‹
 			$arrWeightSum = array();
 
 			$arrCookie_counter = array();
-			// если мы уже получили на странице значение cookie то
+			// РµСЃР»Рё РјС‹ СѓР¶Рµ РїРѕР»СѓС‡РёР»Рё РЅР° СЃС‚СЂР°РЅРёС†Рµ Р·РЅР°С‡РµРЅРёРµ cookie С‚Рѕ
 			if (is_array($arrADV_VIEWED_BANNERS))
 			{
 				foreach ($arrADV_VIEWED_BANNERS as $banner_id => $arr)
@@ -3068,7 +3068,7 @@ class CAdvBanner_all
 					$arrCookie_counter[$banner_id] = $arr["COUNTER"];
 				}
 			}
-			else // если мы первый раз обращаемся к значению хранимому в cookie
+			else // РµСЃР»Рё РјС‹ РїРµСЂРІС‹Р№ СЂР°Р· РѕР±СЂР°С‰Р°РµРјСЃСЏ Рє Р·РЅР°С‡РµРЅРёСЋ С…СЂР°РЅРёРјРѕРјСѓ РІ cookie
 			{
 				$cookie_name = "BANNERS";
 				$arr = explode(",", $APPLICATION->get_cookie($cookie_name));
@@ -3088,12 +3088,12 @@ class CAdvBanner_all
 			$arrWeightSum_DesiredKeywords = array();
 			$arrWeightSum_EmptyKeywords = array();
 			$arrWeightSum_all = array();
-			$arKeywordsSet = array(); // заданы ли ключевые слова для того или иного типа
+			$arKeywordsSet = array(); // Р·Р°РґР°РЅС‹ Р»Рё РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° РґР»СЏ С‚РѕРіРѕ РёР»Рё РёРЅРѕРіРѕ С‚РёРїР°
 
-			$arrRequiredKeywordsBanners = array(); // массив баннеров для которых были найдены все ключевые слова
-			$arrDesiredKeywordsBanners = array(); // массив баннеров для которых было найдено хотя бы одно желательное слово
-			$arrEmptyKeywordsBanners = array(); // массив баннеров у которых поле "ключевые слова" не заполнено
-			$arrPAGE_KEYWORDS = CAdvBanner::GetKeywords(); // массив ключевых слов заданных для данной страницы
+			$arrRequiredKeywordsBanners = array(); // РјР°СЃСЃРёРІ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
+			$arrDesiredKeywordsBanners = array(); // РјР°СЃСЃРёРІ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рѕ РЅР°Р№РґРµРЅРѕ С…РѕС‚СЏ Р±С‹ РѕРґРЅРѕ Р¶РµР»Р°С‚РµР»СЊРЅРѕРµ СЃР»РѕРІРѕ
+			$arrEmptyKeywordsBanners = array(); // РјР°СЃСЃРёРІ Р±Р°РЅРЅРµСЂРѕРІ Сѓ РєРѕС‚РѕСЂС‹С… РїРѕР»Рµ "РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°" РЅРµ Р·Р°РїРѕР»РЅРµРЅРѕ
+			$arrPAGE_KEYWORDS = CAdvBanner::GetKeywords(); // РјР°СЃСЃРёРІ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ Р·Р°РґР°РЅРЅС‹С… РґР»СЏ РґР°РЅРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹
 
 			$arrDesiredPageKeywords_all = is_array($arrPAGE_KEYWORDS[""]["DESIRED"]) ? $arrPAGE_KEYWORDS[""]["DESIRED"] : array();
 			$arrRequiredPageKeywords_all = is_array($arrPAGE_KEYWORDS[""]["REQUIRED"]) ? $arrPAGE_KEYWORDS[""]["REQUIRED"] : array();
@@ -3152,7 +3152,7 @@ class CAdvBanner_all
 						$found_required = true;
 						if (count($arrRequiredPageKeywords)>0 || count($arrRequiredPageKeywords_all)>0)
 						{
-							$arr = array("Y","N"); // совпадение | вхождение
+							$arr = array("Y","N"); // СЃРѕРІРїР°РґРµРЅРёРµ | РІС…РѕР¶РґРµРЅРёРµ
 							foreach($arr as $exact_match)
 							{
 								$arr1 = is_array($arrRequiredPageKeywords[$exact_match]) ? $arrRequiredPageKeywords[$exact_match] : array();
@@ -3169,7 +3169,7 @@ class CAdvBanner_all
 										foreach($arrBannerKeywords as $banner_word)
 										{
 											$banner_word = mb_strtoupper($banner_word);
-											// совпадение
+											// СЃРѕРІРїР°РґРµРЅРёРµ
 											if ($exact_match=="Y")
 											{
 												if ($banner_word==$page_word)
@@ -3195,19 +3195,19 @@ class CAdvBanner_all
 									}
 								}
 							}
-							// если все ключевые слова были найдены то
+							// РµСЃР»Рё РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ С‚Рѕ
 							if ($found_required)
 							{
-								// запоминаем баннер в массиве баннеров для которых были найдены все ключевые слова
+								// Р·Р°РїРѕРјРёРЅР°РµРј Р±Р°РЅРЅРµСЂ РІ РјР°СЃСЃРёРІРµ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
 								$arrRequiredKeywordsBanners[] = $ar["BANNER_ID"];
 							}
 						}
 
-						// если по обязательным словам баннер подходит то проверим по желательным словам
+						// РµСЃР»Рё РїРѕ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј СЃР»РѕРІР°Рј Р±Р°РЅРЅРµСЂ РїРѕРґС…РѕРґРёС‚ С‚Рѕ РїСЂРѕРІРµСЂРёРј РїРѕ Р¶РµР»Р°С‚РµР»СЊРЅС‹Рј СЃР»РѕРІР°Рј
 						if ($found_required && (count($arrDesiredPageKeywords)>0 || count($arrDesiredPageKeywords_all)>0))
 						{
 							$found_desired = false;
-							$arr = array("Y","N"); // совпадение | вхождение
+							$arr = array("Y","N"); // СЃРѕРІРїР°РґРµРЅРёРµ | РІС…РѕР¶РґРµРЅРёРµ
 							foreach($arr as $exact_match)
 							{
 								$arr1 = is_array($arrDesiredPageKeywords) ? $arrDesiredPageKeywords[$exact_match] : array();
@@ -3225,7 +3225,7 @@ class CAdvBanner_all
 										foreach($arrBannerKeywords as $banner_word)
 										{
 											$banner_word = mb_strtoupper($banner_word);
-											// совпадение
+											// СЃРѕРІРїР°РґРµРЅРёРµ
 											if ($exact_match=="Y")
 											{
 												if ($banner_word==$page_word)
@@ -3246,17 +3246,17 @@ class CAdvBanner_all
 									}
 								}
 							}
-							// если все ключевые слова были найдены то
+							// РµСЃР»Рё РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ С‚Рѕ
 							if ($found_desired)
 							{
-								// запоминаем баннер в массиве баннеров для которых были найдены все ключевые слова
+								// Р·Р°РїРѕРјРёРЅР°РµРј Р±Р°РЅРЅРµСЂ РІ РјР°СЃСЃРёРІРµ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
 								$arrDesiredKeywordsBanners[] = $ar["BANNER_ID"];
 							}
 						}
 					}
 					else
 					{
-						// запомнить баннеры у которых вообще не задано ключевых слов
+						// Р·Р°РїРѕРјРЅРёС‚СЊ Р±Р°РЅРЅРµСЂС‹ Сѓ РєРѕС‚РѕСЂС‹С… РІРѕРѕР±С‰Рµ РЅРµ Р·Р°РґР°РЅРѕ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ
 						$arrEmptyKeywordsBanners[] = $ar["BANNER_ID"];
 					}
 
@@ -3285,20 +3285,20 @@ class CAdvBanner_all
 			{
 				foreach($arrAllTypies as $tsid)
 				{
-					// если для данного типа ключевые слова заданы то
+					// РµСЃР»Рё РґР»СЏ РґР°РЅРЅРѕРіРѕ С‚РёРїР° РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° Р·Р°РґР°РЅС‹ С‚Рѕ
 					if ($arKeywordsSet[$tsid]=="Y")
 					{
-						// желательные слова
+						// Р¶РµР»Р°С‚РµР»СЊРЅС‹Рµ СЃР»РѕРІР°
 						if (is_array($arrWeightSum_DesiredKeywords[$tsid]) && count($arrWeightSum_DesiredKeywords[$tsid])>0)
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_DesiredKeywords[$tsid];
 						}
-						// обязательные слова
+						// РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ СЃР»РѕРІР°
 						elseif (is_array($arrWeightSum_RequiredKeywords[$tsid]) && count($arrWeightSum_RequiredKeywords[$tsid])>0)
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_RequiredKeywords[$tsid];
 						}
-						// с пустыми словами
+						// СЃ РїСѓСЃС‚С‹РјРё СЃР»РѕРІР°РјРё
 						elseif ($arKeywordsSet[$tsid]=="Y" && is_array($arrWeightSum_EmptyKeywords[$tsid]))
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_EmptyKeywords[$tsid];
@@ -3314,14 +3314,14 @@ class CAdvBanner_all
 
 		$arrWSum = $arrWeightSum[$TYPE_SID];
 
-		// если массив весов подготовлен то
+		// РµСЃР»Рё РјР°СЃСЃРёРІ РІРµСЃРѕРІ РїРѕРґРіРѕС‚РѕРІР»РµРЅ С‚Рѕ
 		if (is_array($arrWSum) && count($arrWSum)>0)
 		{
 			$CONTRACT_ID = 0;
 
 			if ($DONT_USE_CONTRACT == "N" || !array_key_exists("0", $arrWSum))
 			{
-				// получим сумму весов контрактов
+				// РїРѕР»СѓС‡РёРј СЃСѓРјРјСѓ РІРµСЃРѕРІ РєРѕРЅС‚СЂР°РєС‚РѕРІ
 				$intSum = 0;
 
 				foreach ($arrWSum as $cid => $arr)
@@ -3330,7 +3330,7 @@ class CAdvBanner_all
 					$intSum += intval($arr["WEIGHT"]);
 				}
 
-				// выберем контракт по весу
+				// РІС‹Р±РµСЂРµРј РєРѕРЅС‚СЂР°РєС‚ РїРѕ РІРµСЃСѓ
 				$intStep = 0;
 				$rndWeight = $intSum * (mt_rand()/mt_getrandmax());
 
@@ -3348,10 +3348,10 @@ class CAdvBanner_all
 
 			$arrWeightBanners = $arrWSum[$CONTRACT_ID]["BANNERS"];
 
-			// если ID контракта определен то
+			// РµСЃР»Рё ID РєРѕРЅС‚СЂР°РєС‚Р° РѕРїСЂРµРґРµР»РµРЅ С‚Рѕ
 			if (is_array($arrWeightBanners) && count($arrWeightBanners)>0)
 			{
-				// получим сумму весов баннеров контракта
+				// РїРѕР»СѓС‡РёРј СЃСѓРјРјСѓ РІРµСЃРѕРІ Р±Р°РЅРЅРµСЂРѕРІ РєРѕРЅС‚СЂР°РєС‚Р°
 				$intSum = 0;
 				$strBanners = "0";
 
@@ -3470,7 +3470,7 @@ class CAdvBanner_all
 		return null;
 	}
 
-	// возвращает массив, описывающий $quantity произвольных баннеров
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ, РѕРїРёСЃС‹РІР°СЋС‰РёР№ $quantity РїСЂРѕРёР·РІРѕР»СЊРЅС‹С… Р±Р°РЅРЅРµСЂРѕРІ
 	public static function GetRandomArray($TYPE_SID, $quantity = 1)
 	{
 		$err_mess = (CAdvBanner_all::err_mess())."<br>Function: GetRandom<br>Line: ";
@@ -3488,11 +3488,11 @@ class CAdvBanner_all
 
 		if ($arrWeightSum === false)
 		{
-			// получим массив весов для текущей страницы
+			// РїРѕР»СѓС‡РёРј РјР°СЃСЃРёРІ РІРµСЃРѕРІ РґР»СЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†С‹
 			$arrWeightSum = array();
 
 			$arrCookie_counter = array();
-			// если мы уже получили на странице значение cookie то
+			// РµСЃР»Рё РјС‹ СѓР¶Рµ РїРѕР»СѓС‡РёР»Рё РЅР° СЃС‚СЂР°РЅРёС†Рµ Р·РЅР°С‡РµРЅРёРµ cookie С‚Рѕ
 			if (is_array($arrADV_VIEWED_BANNERS))
 			{
 				foreach ($arrADV_VIEWED_BANNERS as $banner_id => $arr)
@@ -3500,7 +3500,7 @@ class CAdvBanner_all
 					$arrCookie_counter[$banner_id] = $arr["COUNTER"];
 				}
 			}
-			else // если мы первый раз обращаемся к значению хранимому в cookie
+			else // РµСЃР»Рё РјС‹ РїРµСЂРІС‹Р№ СЂР°Р· РѕР±СЂР°С‰Р°РµРјСЃСЏ Рє Р·РЅР°С‡РµРЅРёСЋ С…СЂР°РЅРёРјРѕРјСѓ РІ cookie
 			{
 				$cookie_name = "BANNERS";
 				$arr = explode(",", $APPLICATION->get_cookie($cookie_name));
@@ -3523,12 +3523,12 @@ class CAdvBanner_all
 			$arrWeightSum_DesiredKeywords = array();
 			$arrWeightSum_EmptyKeywords = array();
 			$arrWeightSum_all = array();
-			$arKeywordsSet = array(); // заданы ли ключевые слова для того или иного типа
+			$arKeywordsSet = array(); // Р·Р°РґР°РЅС‹ Р»Рё РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° РґР»СЏ С‚РѕРіРѕ РёР»Рё РёРЅРѕРіРѕ С‚РёРїР°
 
-			$arrRequiredKeywordsBanners = array(); // массив баннеров для которых были найдены все ключевые слова
-			$arrDesiredKeywordsBanners = array(); // массив баннеров для которых было найдено хотя бы одно желательное слово
-			$arrEmptyKeywordsBanners = array(); // массив баннеров у которых поле "ключевые слова" не заполнено
-			$arrPAGE_KEYWORDS = CAdvBanner::GetKeywords(); // массив ключевых слов заданных для данной страницы
+			$arrRequiredKeywordsBanners = array(); // РјР°СЃСЃРёРІ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
+			$arrDesiredKeywordsBanners = array(); // РјР°СЃСЃРёРІ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рѕ РЅР°Р№РґРµРЅРѕ С…РѕС‚СЏ Р±С‹ РѕРґРЅРѕ Р¶РµР»Р°С‚РµР»СЊРЅРѕРµ СЃР»РѕРІРѕ
+			$arrEmptyKeywordsBanners = array(); // РјР°СЃСЃРёРІ Р±Р°РЅРЅРµСЂРѕРІ Сѓ РєРѕС‚РѕСЂС‹С… РїРѕР»Рµ "РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°" РЅРµ Р·Р°РїРѕР»РЅРµРЅРѕ
+			$arrPAGE_KEYWORDS = CAdvBanner::GetKeywords(); // РјР°СЃСЃРёРІ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ Р·Р°РґР°РЅРЅС‹С… РґР»СЏ РґР°РЅРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹
 
 			$arrDesiredPageKeywords_all = $arrPAGE_KEYWORDS[""]["DESIRED"] ?? [];
 			$arrRequiredPageKeywords_all = $arrPAGE_KEYWORDS[""]["REQUIRED"] ?? [];
@@ -3584,7 +3584,7 @@ class CAdvBanner_all
 						$found_required = true;
 						if (count($arrRequiredPageKeywords)>0 || count($arrRequiredPageKeywords_all)>0)
 						{
-							$arr = array("Y","N"); // совпадение | вхождение
+							$arr = array("Y","N"); // СЃРѕРІРїР°РґРµРЅРёРµ | РІС…РѕР¶РґРµРЅРёРµ
 							foreach($arr as $exact_match)
 							{
 								$arr1 = is_array($arrRequiredPageKeywords[$exact_match]) ? $arrRequiredPageKeywords[$exact_match] : array();
@@ -3601,7 +3601,7 @@ class CAdvBanner_all
 										foreach($arrBannerKeywords as $banner_word)
 										{
 											$banner_word = mb_strtoupper($banner_word);
-											// совпадение
+											// СЃРѕРІРїР°РґРµРЅРёРµ
 											if ($exact_match=="Y")
 											{
 												if ($banner_word==$page_word)
@@ -3627,19 +3627,19 @@ class CAdvBanner_all
 									}
 								}
 							}
-							// если все ключевые слова были найдены то
+							// РµСЃР»Рё РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ С‚Рѕ
 							if ($found_required)
 							{
-								// запоминаем баннер в массиве баннеров для которых были найдены все ключевые слова
+								// Р·Р°РїРѕРјРёРЅР°РµРј Р±Р°РЅРЅРµСЂ РІ РјР°СЃСЃРёРІРµ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
 								$arrRequiredKeywordsBanners[] = $ar["BANNER_ID"];
 							}
 						}
 
-						// если по обязательным словам баннер подходит то проверим по желательным словам
+						// РµСЃР»Рё РїРѕ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рј СЃР»РѕРІР°Рј Р±Р°РЅРЅРµСЂ РїРѕРґС…РѕРґРёС‚ С‚Рѕ РїСЂРѕРІРµСЂРёРј РїРѕ Р¶РµР»Р°С‚РµР»СЊРЅС‹Рј СЃР»РѕРІР°Рј
 						if ($found_required && (count($arrDesiredPageKeywords)>0 || count($arrDesiredPageKeywords_all)>0))
 						{
 							$found_desired = false;
-							$arr = array("Y","N"); // совпадение | вхождение
+							$arr = array("Y","N"); // СЃРѕРІРїР°РґРµРЅРёРµ | РІС…РѕР¶РґРµРЅРёРµ
 							foreach($arr as $exact_match)
 							{
 								$arr1 = is_array($arrDesiredPageKeywords) ? $arrDesiredPageKeywords[$exact_match] : array();
@@ -3657,7 +3657,7 @@ class CAdvBanner_all
 										foreach($arrBannerKeywords as $banner_word)
 										{
 											$banner_word = mb_strtoupper($banner_word);
-											// совпадение
+											// СЃРѕРІРїР°РґРµРЅРёРµ
 											if ($exact_match=="Y")
 											{
 												if ($banner_word==$page_word)
@@ -3678,17 +3678,17 @@ class CAdvBanner_all
 									}
 								}
 							}
-							// если все ключевые слова были найдены то
+							// РµСЃР»Рё РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ С‚Рѕ
 							if ($found_desired)
 							{
-								// запоминаем баннер в массиве баннеров для которых были найдены все ключевые слова
+								// Р·Р°РїРѕРјРёРЅР°РµРј Р±Р°РЅРЅРµСЂ РІ РјР°СЃСЃРёРІРµ Р±Р°РЅРЅРµСЂРѕРІ РґР»СЏ РєРѕС‚РѕСЂС‹С… Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
 								$arrDesiredKeywordsBanners[] = $ar["BANNER_ID"];
 							}
 						}
 					}
 					else
 					{
-						// запомнить баннеры у которых вообще не задано ключевых слов
+						// Р·Р°РїРѕРјРЅРёС‚СЊ Р±Р°РЅРЅРµСЂС‹ Сѓ РєРѕС‚РѕСЂС‹С… РІРѕРѕР±С‰Рµ РЅРµ Р·Р°РґР°РЅРѕ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ
 						$arrEmptyKeywordsBanners[] = $ar["BANNER_ID"];
 					}
 
@@ -3717,20 +3717,20 @@ class CAdvBanner_all
 			{
 				foreach($arrAllTypies as $tsid)
 				{
-					// если для данного типа ключевые слова заданы то
+					// РµСЃР»Рё РґР»СЏ РґР°РЅРЅРѕРіРѕ С‚РёРїР° РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° Р·Р°РґР°РЅС‹ С‚Рѕ
 					if ($arKeywordsSet[$tsid]=="Y")
 					{
-						// желательные слова
+						// Р¶РµР»Р°С‚РµР»СЊРЅС‹Рµ СЃР»РѕРІР°
 						if (isset($arrWeightSum_DesiredKeywords[$tsid]) && is_array($arrWeightSum_DesiredKeywords[$tsid]) && !empty($arrWeightSum_DesiredKeywords[$tsid]))
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_DesiredKeywords[$tsid];
 						}
-						// обязательные слова
+						// РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ СЃР»РѕРІР°
 						elseif (isset($arrWeightSum_RequiredKeywords[$tsid]) && is_array($arrWeightSum_RequiredKeywords[$tsid]) && !empty($arrWeightSum_RequiredKeywords[$tsid]))
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_RequiredKeywords[$tsid];
 						}
-						// с пустыми словами
+						// СЃ РїСѓСЃС‚С‹РјРё СЃР»РѕРІР°РјРё
 						elseif ($arKeywordsSet[$tsid]=="Y" && is_array($arrWeightSum_EmptyKeywords[$tsid]))
 						{
 							$arrWeightSum[$tsid] = $arrWeightSum_EmptyKeywords[$tsid];
@@ -3746,14 +3746,14 @@ class CAdvBanner_all
 
 		$arrWSum = $arrWeightSum[$TYPE_SID];
 
-		// если массив весов подготовлен то
+		// РµСЃР»Рё РјР°СЃСЃРёРІ РІРµСЃРѕРІ РїРѕРґРіРѕС‚РѕРІР»РµРЅ С‚Рѕ
 		if (is_array($arrWSum) && count($arrWSum)>0)
 		{
 			$CONTRACT_ID = 0;
 
 			if ($DONT_USE_CONTRACT == "N" || !array_key_exists("0", $arrWSum))
 			{
-				// получим сумму весов контрактов
+				// РїРѕР»СѓС‡РёРј СЃСѓРјРјСѓ РІРµСЃРѕРІ РєРѕРЅС‚СЂР°РєС‚РѕРІ
 				$intSum = 0;
 
 				foreach ($arrWSum as $cid => $arr)
@@ -3762,7 +3762,7 @@ class CAdvBanner_all
 					$intSum += intval($arr["WEIGHT"]);
 				}
 
-				// выберем контракт по весу
+				// РІС‹Р±РµСЂРµРј РєРѕРЅС‚СЂР°РєС‚ РїРѕ РІРµСЃСѓ
 				$intStep = 0;
 				$rndWeight = $intSum * (mt_rand()/mt_getrandmax());
 
@@ -3780,10 +3780,10 @@ class CAdvBanner_all
 
 			$arrWeightBanners = $arrWSum[$CONTRACT_ID]["BANNERS"];
 
-			// если ID контракта определен то
+			// РµСЃР»Рё ID РєРѕРЅС‚СЂР°РєС‚Р° РѕРїСЂРµРґРµР»РµРЅ С‚Рѕ
 			if (is_array($arrWeightBanners) && count($arrWeightBanners)>0)
 			{
-				// получим сумму весов баннеров контракта
+				// РїРѕР»СѓС‡РёРј СЃСѓРјРјСѓ РІРµСЃРѕРІ Р±Р°РЅРЅРµСЂРѕРІ РєРѕРЅС‚СЂР°РєС‚Р°
 				$intSum = 0;
 				$strBanners = "0";
 
@@ -4012,12 +4012,12 @@ class CAdvBanner_all
 		return $text;
 	}
 
-	// возвращает HTML баннера по массиву
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ HTML Р±Р°РЅРЅРµСЂР° РїРѕ РјР°СЃСЃРёРІСѓ
 	public static function GetHTML($arBanner, $bNoIndex=false)
 	{
 		$strReturn = "";
 
-		// обрабатываем изображение
+		// РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 		if(intval($arBanner["IMAGE_ID"]) > 0 && $arBanner["AD_TYPE"] <> "html" && $arBanner["AD_TYPE"] <> "template")
 		{
 			$arImage = CFile::GetFileArray($arBanner["IMAGE_ID"]);
@@ -4185,7 +4185,7 @@ class CAdvBanner_all
 
 			$bEqualBanID = ($CACHE_ADVERTISING["BANNERS_ALL"] == $CACHE_ADVERTISING["BANNERS_CNT"]);
 
-			//Update баннеров
+			//Update Р±Р°РЅРЅРµСЂРѕРІ
 			$arFields = Array(
 				"SHOW_COUNT"		=> "SHOW_COUNT + 1",
 				"DATE_LAST_SHOW"	=> $DB->GetNowFunction(),
@@ -4208,7 +4208,7 @@ class CAdvBanner_all
 				$DB->Update("b_adv_banner",$arFields,"WHERE ID IN(".$group_inc.")",$err_mess.__LINE__);
 			}
 
-			//Баннеры по дням
+			//Р‘Р°РЅРЅРµСЂС‹ РїРѕ РґРЅСЏРј
 			$strSql = "SELECT BANNER_ID FROM b_adv_banner_2_day WHERE BANNER_ID IN (".$group_all.") and DATE_STAT = ".$DB->GetNowDate();
 			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 			$arExist = $arInsert = Array();
@@ -4249,7 +4249,7 @@ class CAdvBanner_all
 				}
 			}
 
-			//Контракты
+			//РљРѕРЅС‚СЂР°РєС‚С‹
 			$DONT_USE_CONTRACT = COption::GetOptionString("advertising", "DONT_USE_CONTRACT", "N");
 			if ($DONT_USE_CONTRACT == "N" &&
 				array_key_exists("CONTRACTS_ALL", $CACHE_ADVERTISING) &&
@@ -4290,7 +4290,7 @@ class CAdvBanner_all
 					$DB->Update("b_adv_banner",$arFields,"WHERE ID IN(".$sContrCnt.")",$err_mess.__LINE__);
 				}
 			}
-			// сформируем значение cookie
+			// СЃС„РѕСЂРјРёСЂСѓРµРј Р·РЅР°С‡РµРЅРёРµ cookie
 			if(is_array($arrADV_VIEWED_BANNERS) && count($arrADV_VIEWED_BANNERS) > 0)
 			{
 				$cookie_value = "";
@@ -4299,7 +4299,7 @@ class CAdvBanner_all
 					if (intval($key)>0)
 						$cookie_value .= intval($arr["CONTRACT_ID"])."_".$key."_".intval($arr["COUNTER"]). "_".trim($arr["EXPIRATION_DATE"]).",";
 
-				// длина cookie не может превышать 4Кб
+				// РґР»РёРЅР° cookie РЅРµ РјРѕР¶РµС‚ РїСЂРµРІС‹С€Р°С‚СЊ 4РљР±
 				$max_length = 4*1024;
 				$j = 0;
 				while (mb_strlen($cookie_value) > $max_length && $j<200)
@@ -4329,7 +4329,7 @@ class CAdvBanner_all
 		}
 	}
 
-	// фиксируем показ баннера
+	// С„РёРєСЃРёСЂСѓРµРј РїРѕРєР°Р· Р±Р°РЅРЅРµСЂР°
 	public static function FixShow($arBanner)
 	{
 		global $DB, $CACHE_ADVERTISING;
@@ -4396,7 +4396,7 @@ class CAdvBanner_all
 		//return true;
 	}
 
-	// устанавливаем cookie посетителю о просмотре баннера
+	// СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј cookie РїРѕСЃРµС‚РёС‚РµР»СЋ Рѕ РїСЂРѕСЃРјРѕС‚СЂРµ Р±Р°РЅРЅРµСЂР°
 	public static function SetCookie($arBanner, &$inc_banner_counter, &$inc_contract_counter)
 	{
 		global $arrADV_VIEWED_BANNERS, $APPLICATION;
@@ -4410,13 +4410,13 @@ class CAdvBanner_all
 			$arrCookie = array();
 			$arrContracts = array();
 
-			// если мы уже получили на странице значение cookie то
+			// РµСЃР»Рё РјС‹ СѓР¶Рµ РїРѕР»СѓС‡РёР»Рё РЅР° СЃС‚СЂР°РЅРёС†Рµ Р·РЅР°С‡РµРЅРёРµ cookie С‚Рѕ
 			if (is_array($arrADV_VIEWED_BANNERS))
 			{
-				// берем массив arrCookie который уже определен на странице
+				// Р±РµСЂРµРј РјР°СЃСЃРёРІ arrCookie РєРѕС‚РѕСЂС‹Р№ СѓР¶Рµ РѕРїСЂРµРґРµР»РµРЅ РЅР° СЃС‚СЂР°РЅРёС†Рµ
 				$arrCookie = $arrADV_VIEWED_BANNERS;
 
-				// соберем массив контрактов
+				// СЃРѕР±РµСЂРµРј РјР°СЃСЃРёРІ РєРѕРЅС‚СЂР°РєС‚РѕРІ
 				foreach ($arrCookie as $arr)
 				{
 					$arrContracts[] = $arr["CONTRACT_ID"];
@@ -4428,9 +4428,9 @@ class CAdvBanner_all
 					$arrCookie[$arBanner["ID"]]["EXPIRATION_DATE"] = date("dmY",time()+(intval($days)*86400));
 				}
 			}
-			else // если мы первый раз обращаемся к значению хранимому в cookie
+			else // РµСЃР»Рё РјС‹ РїРµСЂРІС‹Р№ СЂР°Р· РѕР±СЂР°С‰Р°РµРјСЃСЏ Рє Р·РЅР°С‡РµРЅРёСЋ С…СЂР°РЅРёРјРѕРјСѓ РІ cookie
 			{
-				// то инициализируем массив arrCookie
+				// С‚Рѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РјР°СЃСЃРёРІ arrCookie
 				$arr = explode(",", $APPLICATION->get_cookie($cookie_name));
 				if (is_array($arr) && count($arr)>0)
 				{
@@ -4481,17 +4481,17 @@ class CAdvBanner_all
 				}
 			}
 
-			// если данный посетитель по контракту еще не фиксировался то
+			// РµСЃР»Рё РґР°РЅРЅС‹Р№ РїРѕСЃРµС‚РёС‚РµР»СЊ РїРѕ РєРѕРЅС‚СЂР°РєС‚Сѓ РµС‰Рµ РЅРµ С„РёРєСЃРёСЂРѕРІР°Р»СЃСЏ С‚Рѕ
 			if (!in_array($arBanner["CONTRACT_ID"], $arrContracts))
 				$inc_contract_counter = "Y";
 
-			// если посетитель еще не фиксировался по текущему баннеру то
+			// РµСЃР»Рё РїРѕСЃРµС‚РёС‚РµР»СЊ РµС‰Рµ РЅРµ С„РёРєСЃРёСЂРѕРІР°Р»СЃСЏ РїРѕ С‚РµРєСѓС‰РµРјСѓ Р±Р°РЅРЅРµСЂСѓ С‚Рѕ
 			if (!in_array($arBanner["ID"], array_keys($arrCookie)))
 			{
-				// взводим флаг о необходимости увеличить счетчик посетителей
+				// РІР·РІРѕРґРёРј С„Р»Р°Рі Рѕ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё СѓРІРµР»РёС‡РёС‚СЊ СЃС‡РµС‚С‡РёРє РїРѕСЃРµС‚РёС‚РµР»РµР№
 				$inc_banner_counter="Y";
 
-				// добавляем текущий баннер в массив arrCookie
+				// РґРѕР±Р°РІР»СЏРµРј С‚РµРєСѓС‰РёР№ Р±Р°РЅРЅРµСЂ РІ РјР°СЃСЃРёРІ arrCookie
 				$arrCookie[$arBanner["ID"]] = array(
 					"CONTRACT_ID"		=> $arBanner["CONTRACT_ID"],
 					"COUNTER"			=> 1,
@@ -4502,7 +4502,7 @@ class CAdvBanner_all
 		}
 	}
 
-	// возвращает HTML произвольного баннера по типу
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ HTML РїСЂРѕРёР·РІРѕР»СЊРЅРѕРіРѕ Р±Р°РЅРЅРµСЂР° РїРѕ С‚РёРїСѓ
 	public static function Show($TYPE_SID, $HTML_BEFORE="", $HTML_AFTER="")
 	{
 		global $APPLICATION, $USER;
@@ -4694,7 +4694,7 @@ class CAdvBanner_all
 		if ($str <> '') return false; else return true;
 	}
 
-	// возвращает массив описывающий динамику баннеров
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ РѕРїРёСЃС‹РІР°СЋС‰РёР№ РґРёРЅР°РјРёРєСѓ Р±Р°РЅРЅРµСЂРѕРІ
 	public static function GetDynamicList($arFilter, &$arrLegend, &$is_filtered)
 	{
 		$err_mess = (CAdvBanner::err_mess())."<br>Function: GetDynamicList<br>Line: ";
@@ -4827,7 +4827,7 @@ class CAdvBanner_all
 
 		if (in_array("ctr", $arShow))
 		{
-			// рассчитаем CTR
+			// СЂР°СЃСЃС‡РёС‚Р°РµРј CTR
 			foreach ($arrDays as $keyD => $arD)
 			{
 				foreach ($arrLegend as $arrS)
@@ -4854,7 +4854,7 @@ class CAdvBanner_all
 			}
 		}
 
-		// Определим цвета и суммарный CTR
+		// РћРїСЂРµРґРµР»РёРј С†РІРµС‚Р° Рё СЃСѓРјРјР°СЂРЅС‹Р№ CTR
 		$s = 0;
 		if (in_array("ctr", $arShow)) $s++;
 		if ($arFilter["WHAT_SHOW"]!=array("ctr") && in_array("show", $arShow)) $s++;
@@ -5033,7 +5033,7 @@ class CAdvBanner_all
 }
 
 /*****************************************************************
-					Класс "Тип баннера"
+					РљР»Р°СЃСЃ "РўРёРї Р±Р°РЅРЅРµСЂР°"
 *****************************************************************/
 
 class CAdvType_all
@@ -5067,7 +5067,7 @@ class CAdvType_all
 		if ($str <> '') return false; else return true;
 	}
 
-	// получаем следующий порядок сортировки
+	// РїРѕР»СѓС‡Р°РµРј СЃР»РµРґСѓСЋС‰РёР№ РїРѕСЂСЏРґРѕРє СЃРѕСЂС‚РёСЂРѕРІРєРё
 	public static function GetNextSort()
 	{
 		global $DB;
@@ -5138,7 +5138,7 @@ class CAdvType_all
 		if ($str <> '') return false; else return true;
 	}
 
-	// добавляем новый тип или модифицируем существующий
+	// РґРѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ С‚РёРї РёР»Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№
 	public static function Set($arFields, $OLD_SID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvType_all::err_mess())."<br>Function: Set<br>Line: ";
@@ -5185,14 +5185,14 @@ class CAdvType_all
 					if (in_array("SID", $arrKeys))
 					{
 						$SID = $arFields["SID"];
-						// если SID изменился то
+						// РµСЃР»Рё SID РёР·РјРµРЅРёР»СЃСЏ С‚Рѕ
 						if ($arFields["SID"]!=$OLD_SID)
 						{
-							// обновим тип у баннеров
+							// РѕР±РЅРѕРІРёРј С‚РёРї Сѓ Р±Р°РЅРЅРµСЂРѕРІ
 							$arF = array("TYPE_SID" => "'".$DB->ForSql($arFields["SID"],255)."'");
 							$DB->Update("b_adv_banner",$arF,"WHERE TYPE_SID='".$DB->ForSql($OLD_SID, 255)."'",$err_mess.__LINE__);
 
-							// обновим тип у баннеров
+							// РѕР±РЅРѕРІРёРј С‚РёРї Сѓ Р±Р°РЅРЅРµСЂРѕРІ
 							$arF = array("TYPE_SID" => "'".$DB->ForSql($arFields["SID"],255)."'");
 							$DB->Update("b_adv_contract_2_type",$arF,"WHERE TYPE_SID='".$DB->ForSql($OLD_SID, 255)."'",$err_mess.__LINE__);
 						}
@@ -5243,7 +5243,7 @@ class CAdvType_all
 		return $SID;
 	}
 
-	// получаем тип баннера по ID
+	// РїРѕР»СѓС‡Р°РµРј С‚РёРї Р±Р°РЅРЅРµСЂР° РїРѕ ID
 	public static function GetByID($TYPE_SID)
 	{
 		if (trim($TYPE_SID) == '') return false;
@@ -5255,7 +5255,7 @@ class CAdvType_all
 		return $rs;
 	}
 
-	// удаляем тип баннера
+	// СѓРґР°Р»СЏРµРј С‚РёРї Р±Р°РЅРЅРµСЂР°
 	public static function Delete($TYPE_SID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAdvType_all::err_mess())."<br>Function: Delete<br>Line: ";
@@ -5287,7 +5287,7 @@ class CAdvType_all
 
 	}
 
-	// удаляем связь типа с контрактом
+	// СѓРґР°Р»СЏРµРј СЃРІСЏР·СЊ С‚РёРїР° СЃ РєРѕРЅС‚СЂР°РєС‚РѕРј
 	public static function DeleteContractLink($TYPE_SID)
 	{
 		$err_mess = (CAdvType_all::err_mess())."<br>Function: DeleteContractLink<br>Line: ";
@@ -5302,7 +5302,7 @@ class CAdvType_all
 		return true;
 	}
 
-	// получаем список типов баннеров
+	// РїРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє С‚РёРїРѕРІ Р±Р°РЅРЅРµСЂРѕРІ
 	public static function GetList($by = "s_sort", $order = "asc", $arFilter = [], $is_filtered = null, $CHECK_RIGHTS = "Y")
 	{
 		$err_mess = (CAdvType_all::err_mess())."<br>Function: GetList<br>Line: ";
@@ -5441,7 +5441,7 @@ class CAdvType_all
 }
 
 /********************************************
-	совместимость со старой версией модуля
+	СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚СЊ СЃРѕ СЃС‚Р°СЂРѕР№ РІРµСЂСЃРёРµР№ РјРѕРґСѓР»СЏ
 *********************************************/
 
 class CAdvertising

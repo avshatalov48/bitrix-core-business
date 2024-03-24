@@ -200,7 +200,7 @@ class CPerfomanceTable extends CAllPerfomanceTable
 					$ar['DATA_TYPE'] = 'string';
 					$ar['ORM_DATA_TYPE'] = 'string';
 				}
-				elseif (preg_match('/^(text|longtext|mediumtext|longblob)/', $ar['Type']))
+				elseif (preg_match('/^(text|longtext|mediumtext|longblob|mediumblob|blob)/', $ar['Type']))
 				{
 					$canSort = false;
 					$ar['DATA_TYPE'] = 'string';
@@ -241,7 +241,7 @@ class CPerfomanceTable extends CAllPerfomanceTable
 					'sortable' => $canSort,
 					'orm_type' => $ar['ORM_DATA_TYPE'],
 					'increment' => ($ar['Extra'] === 'auto_increment'),
-					//"info" => $ar,
+					'type~' => $ar['Type'],
 				];
 			}
 			$cache[$TABLE_NAME] = [$arResult, $arResultExt];

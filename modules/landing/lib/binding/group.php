@@ -70,7 +70,7 @@ class Group extends Entity
 			$res = BindingTable::getList([
 				'select' => [
 					'ENTITY_ID',
-					'GROUP_TITLE' => 'GROUP.NAME'
+					'GROUP_TITLE' => 'GROUP.NAME',
 				],
 				'filter' => [
 					'=BINDING_TYPE' => self::$bindingType,
@@ -82,11 +82,12 @@ class Group extends Entity
 						'GROUP',
 						'Bitrix\Socialnetwork\WorkgroupTable',
 						[
-							'=this.BINDING_ID' => 'ref.ID'
+							'=this.BINDING_ID' => new \Bitrix\Main\DB\SqlExpression('?s', 'ref.ID'),
 						]
 					)
 				]
 			]);
+
 			while ($row = $res->fetch())
 			{
 				$sitesTitle[$row['ENTITY_ID']] = $row['GROUP_TITLE'];

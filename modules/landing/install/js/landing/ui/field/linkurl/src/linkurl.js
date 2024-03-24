@@ -414,6 +414,7 @@ export class LinkUrl extends Text
 		switch (type)
 		{
 			case LinkUrl.TYPE_HREF_PAGE:
+			case LinkUrl.TYPE_PAGE:
 				data.title = BX.Landing.Loc.getMessage("LANDING_LINK_URL_TITLE_PAGE");
 				data.items =  {
 					"_self": BX.Landing.Loc.getMessage("FIELD_LINK_TARGET_SELF"),
@@ -1593,7 +1594,10 @@ export class LinkUrl extends Text
 
 		if (valueText === '')
 		{
-			if (selectedHrefType === 'catalog')
+			if (
+				selectedHrefType === 'catalog'
+				|| selectedHrefType === 'landing'
+			)
 			{
 				return '';
 			}

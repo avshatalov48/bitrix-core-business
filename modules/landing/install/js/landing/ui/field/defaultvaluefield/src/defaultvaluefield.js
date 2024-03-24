@@ -138,7 +138,7 @@ export class DefaultValueField extends BaseField
 
 			const displayedLabel = (() => {
 				const fieldCategory = this.getCrmFieldCategoryById(crmField.entity_name);
-				return `${crmField.caption} · ${fieldCategory.CAPTION}`;
+				return `${crmField.caption} Â· ${fieldCategory.CAPTION}`;
 			})();
 
 			return {

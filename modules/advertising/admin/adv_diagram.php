@@ -51,12 +51,12 @@ foreach ($arrLegend as $keyL => $arrS)
 	}
 }
 
-// ñîçäàåì èçîáðàæåíèå
+// ÑÐ¾Ð·Ð´Ð°ÐµÐ¼ Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ
 $ImageHandle = CreateImageHandle($diameter, $diameter);
 
-// ðèñóåì êðóãîâóþ äèàãðàììó
+// Ñ€Ð¸ÑÑƒÐµÐ¼ ÐºÑ€ÑƒÐ³Ð¾Ð²ÑƒÑŽ Ð´Ð¸Ð°Ð³Ñ€Ð°Ð¼Ð¼Ñƒ
 Circular_Diagram($ImageHandle, $arr, "FFFFFF", $diameter, $diameter/2, $diameter/2);
 
-// îòîáðàæàåì
+// Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶Ð°ÐµÐ¼
 ShowImageHeader($ImageHandle);
 ?>

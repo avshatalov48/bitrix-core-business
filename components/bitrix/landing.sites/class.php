@@ -5,6 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use \Bitrix\Landing\Domain;
+use Bitrix\Landing\Error;
+use Bitrix\Landing\Mutator;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Rights;
@@ -424,8 +426,20 @@ class LandingSitesComponent extends LandingBaseComponent
 						$this->arParams['~PAGE_URL_LANDING_VIEW']
 					);
 				}
-				unset($siteUrls, $item, $ids);
+				unset($siteUrls, $item);
 			}
+		}
+
+		// check is need force verify site
+		$forceVerifySiteId = (int)$this->request('force_verify_site_id');
+		$verificationError = new Error();
+		if (
+			$forceVerifySiteId
+			&& in_array($forceVerifySiteId, $ids ?? [])
+			&& !Mutator::checkSiteVerification($forceVerifySiteId, $verificationError)
+		)
+		{
+			$this->arResult['FORCE_VERIFY_SITE_ID'] = $forceVerifySiteId;
 		}
 
 		if (\Bitrix\Main\Loader::includeModule('bitrix24'))

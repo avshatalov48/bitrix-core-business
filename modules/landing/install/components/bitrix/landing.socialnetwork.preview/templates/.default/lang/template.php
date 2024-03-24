@@ -1,2 +1,2 @@
 <?php
-$MESS['LANDING_TPL_MORE'] = 'Подробности';
+$MESS['LANDING_TPL_MORE'] = 'РџРѕРґСЂРѕР±РЅРѕСЃС‚Рё';

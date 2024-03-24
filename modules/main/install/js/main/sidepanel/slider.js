@@ -33,6 +33,7 @@ BX.SidePanel.Slider = function(url, options)
 	this.printable = options.printable === true;
 	this.allowChangeHistory = options.allowChangeHistory !== false;
 	this.allowChangeTitle = BX.type.isBoolean(options.allowChangeTitle) ? options.allowChangeTitle : null;
+	this.allowCrossOrigin = options.allowCrossOrigin === true;
 	this.data = new BX.SidePanel.Dictionary(BX.type.isPlainObject(options.data) ? options.data : {});
 
 	this.customLeftBoundary = null;
@@ -69,6 +70,7 @@ BX.SidePanel.Slider = function(url, options)
 	this.handleFrameFocus = this.handleFrameFocus.bind(this);
 	this.handleFrameUnload = this.handleFrameUnload.bind(this);
 	this.handlePopupInit = this.handlePopupInit.bind(this);
+	this.handleCrossOriginWindowMessage = this.handleCrossOriginWindowMessage.bind(this);
 
 	/**
 	 *
@@ -993,11 +995,15 @@ BX.SidePanel.Slider.prototype =
 		this.fireFrameEvent("onDestroy");
 
 		var frameWindow = this.getFrameWindow();
-		if (frameWindow)
+		if (frameWindow && !this.allowCrossOrigin)
 		{
 			frameWindow.removeEventListener("keydown", this.handleFrameKeyDown);
 			frameWindow.removeEventListener("focus", this.handleFrameFocus);
 			frameWindow.removeEventListener("unload", this.handleFrameUnload);
+		}
+		else if (this.allowCrossOrigin)
+		{
+			window.removeEventListener("message", this.handleCrossOriginWindowMessage);
 		}
 
 		BX.Event.EventEmitter.unsubscribe('BX.Main.Popup:onInit', this.handlePopupInit);
@@ -1140,6 +1146,7 @@ BX.SidePanel.Slider.prototype =
 
 		this.iframe = BX.create("iframe", {
 			attrs: {
+				"referrerpolicy": this.allowCrossOrigin ? "strict-origin" : false,
 				"src": "about:blank",
 				"frameborder": "0"
 			},
@@ -1916,6 +1923,11 @@ BX.SidePanel.Slider.prototype =
 			throw new Error("'eventName' is invalid.");
 		}
 
+		if (this.allowCrossOrigin)
+		{
+			return null;
+		}
+
 		var frameWindow = this.getFrameWindow();
 		if (frameWindow && frameWindow.BX && frameWindow.BX.onCustomEvent)
 		{
@@ -2004,7 +2016,48 @@ BX.SidePanel.Slider.prototype =
 		var pageEvent = this.firePageEvent(eventName);
 		var frameEvent = this.fireFrameEvent(eventName);
 
-		return pageEvent.isActionAllowed() && frameEvent.isActionAllowed();
+		return pageEvent.isActionAllowed() && (!frameEvent || frameEvent.isActionAllowed());
+	},
+
+	/**
+	 * @private
+	 * @param {Event} event
+	 */
+	handleCrossOriginWindowMessage: function(event)
+	{
+		if (this.url.indexOf(event.origin) !== 0)
+		{
+			return;
+		}
+
+		let message = {type: '', data: undefined};
+		if (BX.Type.isString(event.data))
+		{
+			message.type = event.data;
+		}
+		else if (BX.Type.isPlainObject(event.data))
+		{
+			message.type = event.data.type;
+			message.data = event.data.data;
+		}
+
+		if (message.type === 'BX:SidePanel:close')
+		{
+			this.close();
+		}
+		else if (message.type === 'BX:SidePanel:load:force')
+		{
+			if (!this.isLoaded() && !this.isDestroyed())
+			{
+				this.handleFrameLoad();
+			}
+		}
+		else if (message.type === 'BX:SidePanel:data:send')
+		{
+			let pageEvent = new BX.SidePanel.MessageEvent({sender: this, data: message.data});
+			pageEvent.setName('onXDomainMessage')
+			this.firePageEvent(pageEvent);
+		}
 	},
 
 	/**
@@ -2021,9 +2074,32 @@ BX.SidePanel.Slider.prototype =
 		var frameWindow = this.iframe.contentWindow;
 		var iframeLocation = frameWindow.location;
 
-		if (iframeLocation.toString() === "about:blank")
+		if (this.allowCrossOrigin)
 		{
-			return;
+			window.addEventListener("message", this.handleCrossOriginWindowMessage);
+		}
+
+		try
+		{
+			if (iframeLocation.toString() === "about:blank")
+			{
+				return;
+			}
+		}
+		catch(e)
+		{
+			if (this.allowCrossOrigin)
+			{
+				this.loaded = true;
+				this.closeLoader();
+
+				return;
+			}
+			else
+			{
+				console.warn('SidePanel: Try to use "allowCrossOrigin: true" option.');
+				throw e;
+			}
 		}
 
 		frameWindow.addEventListener("keydown", this.handleFrameKeyDown);
@@ -2074,6 +2150,11 @@ BX.SidePanel.Slider.prototype =
 	 */
 	listenIframeLoading: function()
 	{
+		if (this.allowCrossOrigin)
+		{
+			return;
+		}
+
 		const isLoaded = setInterval(() => {
 			if (this.isLoaded() || this.isDestroyed())
 			{

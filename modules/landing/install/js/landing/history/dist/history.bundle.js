@@ -1,9 +1,13 @@
 this.BX = this.BX || {};
-(function (exports,landing_main,main_core,landing_pageobject,landing_ui_highlight) {
+(function (exports,landing_main,main_core,landing_backend,landing_pageobject,landing_ui_highlight) {
 	'use strict';
 
 	var RESOLVED = 'resolved';
 	var PENDING = 'pending';
+	var HISTORY_TYPES = {
+	  landing: 'L',
+	  designerBlock: 'D'
+	};
 
 	var _BX$Landing$Utils = BX.Landing.Utils,
 	  scrollTo = _BX$Landing$Utils.scrollTo,
@@ -604,30 +608,12 @@ this.BX = this.BX || {};
 	}
 
 	/**
-	 * Loads history from storage
-	 * @param {History} history
-	 * @return {Promise<History>}
-	 */
-	function loadStack(history) {
-	  return BX.Landing.Backend.getInstance().action(history.getLoadBackendActionName(), history.getLoadBackendParams()).then(function (data) {
-	    history.stack = main_core.Type.isObject(data.stack) ? data.stack : {};
-	    history.stackCount = main_core.Text.toNumber(data.stackCount);
-	    history.step = Math.min(main_core.Text.toNumber(data.step), history.stackCount);
-	    return history;
-	  })["catch"](function (e) {
-	    return history;
-	  });
-	}
-
-	/**
 	 * Clears history stack
 	 * @param {History} history
 	 * @return {Promise<History>}
 	 */
 	function clear(history) {
-	  history.stack = {};
-	  history.stackCount = 0;
-	  history.step = 0;
+	  history.stack = null;
 	  history.commandState = RESOLVED;
 	  return Promise.resolve(history);
 	}
@@ -661,6 +647,198 @@ this.BX = this.BX || {};
 	  this.command = main_core.Type.isStringFilled(options.command) ? options.command : '#invalidCommand';
 	  this.params = options.params;
 	};
+
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _loadFromBackend = /*#__PURE__*/new WeakSet();
+	var _getLoadBackendActionName = /*#__PURE__*/new WeakSet();
+	var _getLoadBackendParams = /*#__PURE__*/new WeakSet();
+	var _adjustMultiPage = /*#__PURE__*/new WeakSet();
+	var _isMultiPage = /*#__PURE__*/new WeakSet();
+	var Stack = /*#__PURE__*/function () {
+	  /**
+	   * ID and type of main entity (landing or design block)
+	   */
+
+	  /**
+	   * All entities in stack and them current steps
+	   */
+
+	  function Stack(_entityId) {
+	    var entityType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : HISTORY_TYPES.landing;
+	    babelHelpers.classCallCheck(this, Stack);
+	    _classPrivateMethodInitSpec(this, _isMultiPage);
+	    _classPrivateMethodInitSpec(this, _adjustMultiPage);
+	    _classPrivateMethodInitSpec(this, _getLoadBackendParams);
+	    _classPrivateMethodInitSpec(this, _getLoadBackendActionName);
+	    _classPrivateMethodInitSpec(this, _loadFromBackend);
+	    babelHelpers.defineProperty(this, "items", []);
+	    babelHelpers.defineProperty(this, "entitySteps", {});
+	    this.mainEntityId = _entityId;
+	    this.entityType = entityType;
+	  }
+	  babelHelpers.createClass(Stack, [{
+	    key: "init",
+	    value: function init() {
+	      return _classPrivateMethodGet(this, _loadFromBackend, _loadFromBackend2).call(this).then(_classPrivateMethodGet(this, _adjustMultiPage, _adjustMultiPage2).bind(this));
+	    }
+	  }, {
+	    key: "reload",
+	    value: function reload() {
+	      this.items = [];
+	      this.step = 0;
+	      return _classPrivateMethodGet(this, _loadFromBackend, _loadFromBackend2).call(this);
+	    }
+	  }, {
+	    key: "setTypeDesignerBlock",
+	    value: function setTypeDesignerBlock(blockId) {
+	      this.mainEntityId = blockId;
+	      this.entityType = HISTORY_TYPES.designerBlock;
+	      return this.reload();
+	    }
+	  }, {
+	    key: "getCommandName",
+	    value: function getCommandName() {
+	      var undo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      var step = undo ? this.step : this.step + 1;
+	      step--; // array index correction
+
+	      return this.items[step] ? this.items[step].command : null;
+	    }
+	  }, {
+	    key: "getCommandEntityId",
+	    value: function getCommandEntityId() {
+	      var undo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      var step = undo ? this.step : this.step + 1;
+	      step--; // array index correction
+
+	      return this.items[step] ? this.items[step].entityId : null;
+	    }
+	    /**
+	     * Check is stack undoable
+	     * @return {boolean}
+	     */
+	  }, {
+	    key: "canUndo",
+	    value: function canUndo() {
+	      return this.step > 0 && this.step <= this.items.length;
+	    }
+	    /**
+	     * Check is stack reduable
+	     * @return {boolean}
+	     */
+	  }, {
+	    key: "canRedo",
+	    value: function canRedo() {
+	      return this.step >= 0 && this.step < this.items.length;
+	    }
+	    /**
+	     * Change stack when undo or redo
+	     * @param undo - if false - redo
+	     * @return {Promise}
+	     */
+	  }, {
+	    key: "offset",
+	    value: function offset() {
+	      var undo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      var newStep = undo ? this.step - 1 : this.step + 1;
+	      if (newStep >= 0 && newStep <= this.items.length) {
+	        this.step = newStep;
+	      }
+	      return Promise.resolve();
+	    }
+	  }, {
+	    key: "push",
+	    value: function push() {
+	      var _this = this;
+	      // For some types actions history.push called before backend changes. Need add input timeout
+	      return new Promise(function (resolve) {
+	        setTimeout(function () {
+	          // change values before load
+	          if (_this.step < _this.items.length) {
+	            _this.items = _this.items.slice(0, _this.step - 1);
+	          }
+	          _this.step++;
+	          _this.items.push(_this.items[_this.step - 1]);
+	          return _this.reload().then(resolve);
+	        }, 500);
+	      });
+	    }
+	  }]);
+	  return Stack;
+	}();
+	function _loadFromBackend2() {
+	  var _this2 = this;
+	  return BX.Landing.Backend.getInstance().action(_classPrivateMethodGet(this, _getLoadBackendActionName, _getLoadBackendActionName2).call(this), _classPrivateMethodGet(this, _getLoadBackendParams, _getLoadBackendParams2).call(this)).then(function (data) {
+	    var items = main_core.Type.isArray(data.stack) ? data.stack : [];
+	    items.forEach(function (item) {
+	      if (item.entityId && main_core.Type.isNumber(item.entityId) && item.command && main_core.Type.isString(item.command)) {
+	        _this2.items.push({
+	          entityId: item.entityId,
+	          command: item.command
+	        });
+	        if (item.current && item.current === true) {
+	          _this2.entitySteps[item.entityId] = _this2.items.length;
+	        }
+	      }
+	    });
+	    var step = main_core.Text.toNumber(data.step);
+	    _this2.step = Math.min(_this2.items.length, step);
+	    _this2.step = Math.max(0, _this2.step);
+	  })["catch"](function (e) {
+	    console.error('History load error', e);
+	    return history;
+	  });
+	}
+	function _getLoadBackendActionName2() {
+	  if (this.entityType === HISTORY_TYPES.designerBlock) {
+	    return "History::getForDesignerBlock";
+	  }
+	  return "History::getForLanding";
+	}
+	function _getLoadBackendParams2() {
+	  if (this.entityType === HISTORY_TYPES.designerBlock) {
+	    return {
+	      blockId: this.mainEntityId
+	    };
+	  }
+	  return {
+	    lid: this.mainEntityId
+	  };
+	}
+	function _adjustMultiPage2() {
+	  var _this3 = this;
+	  var currentItem = this.items[this.step - 1];
+	  if (currentItem && this.entityType === HISTORY_TYPES.landing && _classPrivateMethodGet(this, _isMultiPage, _isMultiPage2).call(this)) {
+	    var entitiesToClearFuture = [];
+	    this.items.forEach(function (item, index) {
+	      var step = index + 1;
+	      if (step >= _this3.step) {
+	        return;
+	      }
+
+	      // Clear future for all entities, except current, that have future (have steps after own current)
+	      if (item.entityId !== currentItem.entityId && _this3.entitySteps[item.entityId] < step) {
+	        entitiesToClearFuture.push(item.entityId);
+	      }
+	    });
+	    if (entitiesToClearFuture.length > 0) {
+	      var backend = landing_backend.Backend.getInstance();
+	      var promises = [];
+	      entitiesToClearFuture.forEach(function (entityId) {
+	        promises.push(backend.action('History::clearFutureForLanding', {
+	          landingId: entityId
+	        }));
+	      });
+	      return Promise.all(promises).then(this.reload.bind(this));
+	    }
+	  }
+	  return Promise.resolve();
+	}
+	function _isMultiPage2() {
+	  return Object.keys(this.entitySteps).length > 1;
+	}
 
 	var Highlight = /*#__PURE__*/function (_HighlightNode) {
 	  babelHelpers.inherits(Highlight, _HighlightNode);
@@ -701,103 +879,80 @@ this.BX = this.BX || {};
 	 * @memberOf BX.Landing
 	 */
 	var History = /*#__PURE__*/function () {
+	  /**
+	   * Stack of action commands
+	   */
+
+	  /**
+	   * Key - command name, value - a Command object
+	   */
+
+	  /**
+	   * If command now running - set to PENDING
+	   * @type {string}
+	   */
+
+	  /**
+	   * Type of current entity
+	   * @type {string}
+	   */
+
 	  function History() {
+	    var _this = this;
 	    babelHelpers.classCallCheck(this, History);
-	    babelHelpers.defineProperty(this, "designerBlockId", null);
-	    this.type = History.TYPE_LANDING;
-	    this.stack = {};
-	    this.stackCount = 0;
-	    this.step = 0;
-	    this.commands = {};
-	    this.commandState = RESOLVED;
-	    this.onStorage = this.onStorage.bind(this);
+	    babelHelpers.defineProperty(this, "stack", null);
+	    babelHelpers.defineProperty(this, "commands", {});
+	    babelHelpers.defineProperty(this, "commandState", RESOLVED);
+	    babelHelpers.defineProperty(this, "entityType", HISTORY_TYPES.landing);
 	    try {
-	      this.landingId = landing_main.Main.getInstance().id;
+	      this.entityId = landing_main.Main.getInstance().id;
 	    } catch (err) {
-	      this.landingId = -1;
+	      this.entityId = -1;
 	    }
-	    main_core.Event.bind(window, 'storage', this.onStorage);
-	    registerBaseCommands(this).then(loadStack).then(onInit);
+	    this.stack = new Stack(this.entityId);
+	    this.stack.init().then(function () {
+	      return registerBaseCommands(_this);
+	    }).then(onInit);
 	  }
 	  babelHelpers.createClass(History, [{
 	    key: "setTypeDesignerBlock",
 	    /**
-	     * Set special type for designer block
+	     * Set special type for designer block history
 	     * @param blockId
 	     * @return {Promise<BX.Landing.History>|*}
 	     */
 	    value: function setTypeDesignerBlock(blockId) {
-	      this.type = History.TYPE_DESIGNER_BLOCK;
-	      this.designerBlockId = blockId;
-	      return loadStack(this);
+	      var _this2 = this;
+	      this.entityType = HISTORY_TYPES.designerBlock;
+	      this.entityId = blockId;
+	      return this.stack.setTypeDesignerBlock(blockId).then(function () {
+	        return _this2;
+	      });
 	    }
 	  }, {
-	    key: "getLoadBackendActionName",
-	    value: function getLoadBackendActionName() {
-	      if (this.type === History.TYPE_DESIGNER_BLOCK) {
-	        return "History::getForDesignerBlock";
-	      }
-	      return "History::getForLanding";
-	    }
-	  }, {
-	    key: "getLoadBackendParams",
-	    value: function getLoadBackendParams() {
-	      if (this.type === History.TYPE_DESIGNER_BLOCK) {
-	        return {
-	          blockId: this.designerBlockId
-	        };
-	      }
-	      return {
-	        lid: this.landingId
-	      };
-	    }
-	  }, {
-	    key: "getUndoBackendActionName",
-	    value: function getUndoBackendActionName() {
-	      if (this.type === History.TYPE_DESIGNER_BLOCK) {
-	        return "History::undoDesignerBlock";
-	      }
-	      return "History::undoLanding";
+	    key: "getEntityId",
+	    value: function getEntityId() {
+	      return this.entityId;
 	    }
 	  }, {
 	    key: "beforeUndo",
 	    value: function beforeUndo() {
-	      var step = this.step;
-	      if (this.stack[step] && this.commands[this.stack[step]]) {
-	        var command = this.commands[this.stack[step]];
+	      var commandName = this.stack.getCommandName();
+	      if (commandName && this.commands[commandName]) {
+	        var command = this.commands[commandName];
 	        return command.onBeforeCommand();
 	      }
 	      return Promise.resolve();
-	    }
-	  }, {
-	    key: "getRedoBackendActionName",
-	    value: function getRedoBackendActionName() {
-	      if (this.type === History.TYPE_DESIGNER_BLOCK) {
-	        return "History::redoDesignerBlock";
-	      }
-	      return "History::redoLanding";
 	    }
 	  }, {
 	    key: "beforeRedo",
 	    value: function beforeRedo() {
-	      var step = this.step + 1;
-	      if (this.stack[step] && this.commands[this.stack[step]]) {
-	        var command = this.commands[this.stack[step]];
+	      var commandName = this.stack.getCommandName(false);
+	      if (commandName && this.commands[commandName]) {
+	        var command = this.commands[commandName];
 	        return command.onBeforeCommand();
 	      }
 	      return Promise.resolve();
-	    }
-	  }, {
-	    key: "getBackendActionParams",
-	    value: function getBackendActionParams() {
-	      if (this.type === History.TYPE_DESIGNER_BLOCK && this.designerBlockId) {
-	        return {
-	          blockId: this.designerBlockId
-	        };
-	      }
-	      return {
-	        lid: this.landingId
-	      };
 	    }
 	    /**
 	     * Applies preview history entry
@@ -806,11 +961,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "undo",
 	    value: function undo() {
-	      var _this = this;
+	      var _this3 = this;
 	      if (this.canUndo()) {
 	        this.commandState = PENDING;
 	        return this.beforeUndo().then(function () {
-	          return BX.Landing.Backend.getInstance().action(_this.getUndoBackendActionName(), _this.getBackendActionParams());
+	          return landing_backend.Backend.getInstance().action(_this3.getBackendActionName(true), _this3.getBackendActionParams(true));
 	        }).then(function (command) {
 	          if (command) {
 	            var params = command.params;
@@ -820,12 +975,12 @@ this.BX = this.BX || {};
 	              command: command.command,
 	              params: params
 	            });
-	            return _this.runCommand(entry, -1);
+	            return _this3.runCommand(entry);
 	          }
 	          return Promise.reject();
-	        }).then(function (res) {
-	          return _this.offset(-1).then(onUpdate);
-	        });
+	        }).then(function () {
+	          return _this3.offset();
+	        }).then(onUpdate);
 	      }
 	      return Promise.resolve(this);
 	    }
@@ -836,11 +991,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "redo",
 	    value: function redo() {
-	      var _this2 = this;
+	      var _this4 = this;
 	      if (this.canRedo()) {
 	        this.commandState = PENDING;
 	        return this.beforeRedo().then(function () {
-	          return BX.Landing.Backend.getInstance().action(_this2.getRedoBackendActionName(), _this2.getBackendActionParams());
+	          return landing_backend.Backend.getInstance().action(_this4.getBackendActionName(false), _this4.getBackendActionParams(false));
 	        }).then(function (command) {
 	          if (command) {
 	            var params = command.params;
@@ -850,44 +1005,76 @@ this.BX = this.BX || {};
 	              command: command.command,
 	              params: params
 	            });
-	            return _this2.runCommand(entry, 1);
+	            return _this4.runCommand(entry);
 	          }
 	          return Promise.reject();
-	        }).then(function (res) {
-	          return _this2.offset(1).then(onUpdate);
-	        });
+	        }).then(function () {
+	          return _this4.offset(false);
+	        }).then(onUpdate);
 	      }
 	      return Promise.resolve(this);
 	    }
+	    /**
+	     * Get name for backend action
+	     * @param {boolean} undo - true, if need undo, false for redo
+	     * @return {string}
+	     */
+	  }, {
+	    key: "getBackendActionName",
+	    value: function getBackendActionName() {
+	      var undo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      if (this.entityType === HISTORY_TYPES.designerBlock) {
+	        return undo ? 'History::undoDesignerBlock' : 'History::redoDesignerBlock';
+	      }
+	      return undo ? 'History::undoLanding' : 'History::redoLanding';
+	    }
+	    /**
+	     * Get id for entity for backend action
+	     * @param {boolean} undo - true, if need undo, false for redo
+	     * @return {string}
+	     */
+	  }, {
+	    key: "getBackendActionParams",
+	    value: function getBackendActionParams() {
+	      var undo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      if (this.entityType === HISTORY_TYPES.designerBlock) {
+	        return {
+	          blockId: this.entityId
+	        };
+	      }
+	      return {
+	        lid: this.stack.getCommandEntityId(undo)
+	      };
+	    }
 	  }, {
 	    key: "runCommand",
-	    value: function runCommand(entry, offsetValue) {
-	      var _this3 = this;
+	    value: function runCommand(entry) {
+	      var _this5 = this;
 	      if (entry) {
 	        var command = this.commands[entry.command];
 	        if (command) {
 	          this.commandState = PENDING;
 	          return command.command(entry).then(function () {
-	            _this3.commandState = RESOLVED;
-	            return _this3;
+	            _this5.commandState = RESOLVED;
+	            return _this5;
 	          })["catch"](function () {
-	            _this3.commandState = RESOLVED;
-	            return _this3;
+	            _this5.commandState = RESOLVED;
+	            return _this5;
 	          });
 	        }
 	      }
 	    }
 	  }, {
 	    key: "offset",
-	    value: function offset(offsetValue) {
+	    value: function offset() {
+	      var _this6 = this;
+	      var undo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      if (this.commandState === PENDING) {
 	        return Promise.resolve(this);
 	      }
-	      var step = this.step + offsetValue;
-	      if (step >= 0 && step <= this.stackCount) {
-	        this.step = step;
-	      }
-	      return Promise.resolve(this);
+	      return this.stack.offset(undo).then(function () {
+	        return _this6;
+	      });
 	    }
 	    /**
 	     * Check that there are actions to undo
@@ -896,7 +1083,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "canUndo",
 	    value: function canUndo() {
-	      return this.commandState !== PENDING && this.step > 0 && this.stackCount > 0 && this.step <= this.stackCount;
+	      return this.commandState !== PENDING && this.stack.canUndo();
 	    }
 	    /**
 	     * Check that there are actions to redo
@@ -905,26 +1092,18 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "canRedo",
 	    value: function canRedo() {
-	      return this.commandState !== PENDING && this.step < this.stackCount && this.step >= 0;
+	      return this.commandState !== PENDING && this.stack.canRedo();
 	    }
 	    /**
 	     * Adds entry to history stack
-	     * @param {BX.Landing.History.Entry} entry
 	     */
 	  }, {
 	    key: "push",
 	    value: function push() {
-	      var _this4 = this;
-	      if (this.step < this.stackCount) {
-	        this.stackCount = this.step;
-	      }
-	      this.step++;
-	      this.stackCount++;
-	      return new Promise(function (resolve) {
-	        setTimeout(resolve, 400);
-	      }).then(function () {
-	        return loadStack(_this4);
-	      }).then(onUpdate);
+	      var _this7 = this;
+	      return this.stack.push().then(function () {
+	        return onUpdate(_this7);
+	      });
 	    }
 	    /**
 	     * Registers unique history command
@@ -945,7 +1124,6 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "removePageHistory",
 	    value: function removePageHistory$$1(pageId) {
-	      // todo: publication clear method
 	      return removePageHistory(pageId, this).then(function (history) {
 	        var currentPageId;
 	        try {
@@ -958,19 +1136,6 @@ this.BX = this.BX || {};
 	        }
 	        return Promise.reject();
 	      }).then(onUpdate)["catch"](function () {});
-	    }
-	    /**
-	     * Handles storage event
-	     * @param {StorageEvent} event
-	     */
-	  }, {
-	    key: "onStorage",
-	    value: function onStorage(event) {
-	      if (event.key === null) {
-	        if (!window.localStorage.history) {
-	          clear(this).then(onUpdate);
-	        }
-	      }
 	    }
 	  }], [{
 	    key: "getInstance",
@@ -985,13 +1150,11 @@ this.BX = this.BX || {};
 	  }]);
 	  return History;
 	}();
-	babelHelpers.defineProperty(History, "TYPE_LANDING", 'L');
-	babelHelpers.defineProperty(History, "TYPE_DESIGNER_BLOCK", 'D');
 	babelHelpers.defineProperty(History, "Command", Command);
 	babelHelpers.defineProperty(History, "Entry", Entry);
 	babelHelpers.defineProperty(History, "Highlight", Highlight);
 
 	exports.History = History;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX,BX.Landing,BX.Landing.UI));
+}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX,BX.Landing,BX.Landing,BX.Landing.UI));
 //# sourceMappingURL=history.bundle.js.map

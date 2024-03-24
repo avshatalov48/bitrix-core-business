@@ -200,7 +200,7 @@ if (!is_array($arSelectedFields) || (count($arSelectedFields) < 1))
 	];
 }
 
-if ($bCluster && !in_array('NODE_ID', $arSelectedFields))
+if ($bCluster && !in_array('NODE_ID', $arSelectedFields, true))
 {
 	$arSelectedFields[] = 'NODE_ID';
 }

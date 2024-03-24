@@ -199,7 +199,7 @@ export class FieldsListField extends BaseField
 			const crmField = this.getCrmFieldById(fieldId);
 			const crmFieldCategory = this.getCrmFieldCategoryById(crmField.entity_name);
 
-			return `${crmField.caption} · ${crmFieldCategory.CAPTION}`;
+			return `${crmField.caption} Â· ${crmFieldCategory.CAPTION}`;
 		}
 
 		return '';

@@ -2,8 +2,10 @@
 namespace Bitrix\Landing\Connector;
 
 use \Bitrix\Landing\Rights;
+use \Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Binding;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Intranet\Binding\Menu;
 
 Loc::loadMessages(__FILE__);
@@ -23,7 +25,13 @@ class Intranet
 	protected static function getMenuItemBind(string $bindCode): array
 	{
 		$setItems = [];
-		if (Rights::hasAdditionalRight('extension', null, false, true))
+		if (
+			Rights::hasAdditionalRight('extension', null, false, true)
+			&& (
+				!Loader::includeModule('intranet')
+				|| Restriction\ToolAvailabilityManager::getInstance()->check('knowledge_base')
+			)
+		)
 		{
 			$setItems[] = [
 				'id' => 'landing_bind',

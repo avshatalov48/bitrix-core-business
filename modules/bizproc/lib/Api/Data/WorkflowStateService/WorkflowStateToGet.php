@@ -3,6 +3,7 @@
 namespace Bitrix\Bizproc\Api\Data\WorkflowStateService;
 
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB\SqlExpression;
 
 class WorkflowStateToGet
@@ -14,6 +15,9 @@ class WorkflowStateToGet
 	private int $limit = 0;
 	private int $offset = 0;
 	private bool $isSelectAllFields = false;
+
+	private array $selectTaskFields = [];
+	private ?int $selectTaskLimit = 50;
 
 	private bool $countTotal = false;
 
@@ -30,6 +34,58 @@ class WorkflowStateToGet
 		}
 
 		return $this;
+	}
+
+	public function setTaskSelectFields(array $taskSelect): static
+	{
+		$allowedTaskFields = $this->getAllowedTaskFields();
+
+		foreach ($taskSelect as $fieldId)
+		{
+			if (in_array($fieldId, $allowedTaskFields, true))
+			{
+				$this->selectTaskFields[] = $fieldId;
+			}
+		}
+
+		$this->selectTaskFields = array_unique($this->selectTaskFields);
+
+		return $this;
+	}
+
+	public function getSelectTaskFields(): array
+	{
+		return $this->selectTaskFields;
+	}
+
+	/**
+	 * Sets tasks limit to get for each workflow. Throws argument exception when $taskLimit is non-positive integer.
+	 *
+	 * @param int|null $taskLimit
+	 * @return $this
+	 * @throws ArgumentException
+	 */
+	public function setSelectTaskLimit(?int $taskLimit): static
+	{
+		if (is_int($taskLimit))
+		{
+			if ($taskLimit <= 0)
+			{
+				throw new ArgumentException('Task limit must be positive integer or null');
+			}
+			$this->selectTaskLimit = $taskLimit;
+		}
+		else
+		{
+			$this->selectTaskLimit = null;
+		}
+
+		return $this;
+	}
+
+	public function getSelectTaskLimit(): ?int
+	{
+		return $this->selectTaskLimit;
 	}
 
 	public function setSelectAllFields(bool $flag = true): static
@@ -185,32 +241,39 @@ class WorkflowStateToGet
 
 	private function getAllowedAdditionalFields(): array
 	{
+		return array_merge(
+			[
+				'STARTED_BY',
+				'STARTED',
+				'MODIFIED',
+				'WORKFLOW_TEMPLATE_ID',
+				'TEMPLATE.NAME',
+				// 'DOCUMENT_ID_INT',
+				//'STATE',
+				'STATE_TITLE',
+				// 'STATE_PARAMETERS',
+			],
+		);
+	}
+
+	private function getAllowedTaskFields(): array
+	{
 		return [
-			'STARTED_BY',
-			'STARTED',
+			'ID',
+			'ACTIVITY',
 			'MODIFIED',
-			'WORKFLOW_TEMPLATE_ID',
-			'TEMPLATE.NAME',
-			// 'DOCUMENT_ID_INT',
-			//'STATE',
-			'STATE_TITLE',
-			// 'STATE_PARAMETERS',
+			'OVERDUE_DATE',
+			'NAME',
+			'DESCRIPTION',
+			'STATUS',
+			'IS_INLINE',
+			'DELEGATION_TYPE',
+			'PARAMETERS',
 
-			'TASKS.ID',
-			'TASKS.ACTIVITY',
-			'TASKS.MODIFIED',
-			'TASKS.OVERDUE_DATE',
-			'TASKS.NAME',
-			'TASKS.DESCRIPTION',
-			'TASKS.STATUS',
-			'TASKS.IS_INLINE',
-			'TASKS.DELEGATION_TYPE',
-			'TASKS.PARAMETERS',
-
-			'TASKS.TASK_USERS.USER_ID',
-			'TASKS.TASK_USERS.STATUS',
-			'TASKS.TASK_USERS.DATE_UPDATE',
-			'TASKS.TASK_USERS.ORIGINAL_USER_ID',
+			'TASK_USERS.USER_ID',
+			'TASK_USERS.STATUS',
+			'TASK_USERS.DATE_UPDATE',
+			'TASK_USERS.ORIGINAL_USER_ID',
 		];
 	}
 }

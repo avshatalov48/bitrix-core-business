@@ -1,15 +1,16 @@
 <?php
 namespace Bitrix\Landing\Restriction;
 
-use \Bitrix\Bitrix24\Feature;
-use \Bitrix\Bitrix24\PhoneVerify;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Main\Entity;
-use \Bitrix\Landing\Domain;
-use \Bitrix\Landing\Rights;
-use \Bitrix\Landing\Site as SiteCore;
+use Bitrix\Bitrix24\Feature;
+use Bitrix\Bitrix24\PhoneVerify;
+use Bitrix\Landing\Manager;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Entity;
+use Bitrix\Landing\Domain;
+use Bitrix\Landing\Rights;
+use Bitrix\Landing\Site as SiteCore;
 use Bitrix\Main\Loader;
-use \Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Type\DateTime;
 
 class Site
 {
@@ -55,7 +56,7 @@ class Site
 		}
 
 		// get all sites (active) and group by templates
-		$res = \Bitrix\Landing\Site::getList([
+		$res = SiteCore::getList([
 			'select' => [
 				'ID', 'XML_ID', 'TPL_CODE'
 			],
@@ -69,7 +70,7 @@ class Site
 		// current site
 		if ($currentSiteId)
 		{
-			$res = \Bitrix\Landing\Site::getList([
+			$res = SiteCore::getList([
 				'select' => [
 					'ID', 'XML_ID', 'TPL_CODE'
 				],
@@ -462,4 +463,72 @@ class Site
 
 	    return $checkedSites[$siteId];
     }
+
+	public static function unpublishByScannerLockPortal(): bool
+	{
+		Rights::setGlobalOff();
+		$sites = SiteCore::getList([
+			'select' => [
+				'ID', 'DATE_CREATE'
+			],
+			'filter' => [
+				'ACTIVE' => 'Y',
+				'DELETED' => 'N'
+			],
+			 'order' => [
+				'DATE_CREATE' => 'ASC'
+			]
+		]);
+		$ids = [];
+		while ($site = $sites->fetch())
+		{
+			$res = SiteCore::unpublic($site['ID']);
+			if ($res->isSuccess())
+			{
+				$ids[] = $site['ID'];
+			}
+		}
+		$stringIds = implode(',', $ids);
+		Option::set('landing', 'unpublished_ids',  $stringIds);
+		Rights::setGlobalOn();
+
+		return true;
+	}
+
+	public static function publishByLicenseChange(): void
+	{
+		\Bitrix\Main\Update\Stepper::bindClass('Bitrix\Landing\Update\Site\Publish', 'landing', 10);
+	}
+
+	public static function checkLimitsByLicenseChange(): void
+	{
+		Rights::setGlobalOff();
+		$sites = SiteCore::getList([
+			'select' => [
+				'ID', 'DATE_CREATE'
+			],
+			'filter' => [
+				'ACTIVE' => 'Y',
+				'DELETED' => 'N'
+			],
+			'order' => [
+				'DATE_CREATE' => 'DESC'
+			]
+		]);
+		while ($site = $sites->fetch())
+		{
+			$params = [
+				'filter' => [
+					'!ID' => $site['ID'],
+				],
+				'type' => 'PAGE',
+				'action_type' => 'publication',
+			];
+			if (!self::isCreatingAllowed('limit_sites_number', $params))
+			{
+				SiteCore::unpublic($site['ID']);
+			}
+		}
+		Rights::setGlobalOn();
+	}
 }

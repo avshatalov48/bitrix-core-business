@@ -1219,6 +1219,19 @@ class LandingViewComponent extends LandingBaseComponent
 			$this->arResult['FAKE_PUBLICATION'] = !$this->arResult['AUTO_PUBLICATION_ENABLED']
 			                                      || ($this->arParams['DRAFT_MODE'] === 'Y')
 			                                      || $landing->fakePublication();
+			if (
+				$this->arParams['TYPE'] === 'STORE'
+				&& \Bitrix\Main\Config\Option::get('catalog', 'is_external_catalog') === 'Y'
+			)
+			{
+				$landingMeta = $landing->getMeta();
+				if (!str_starts_with($landingMeta['TPL_CODE'], 'store-chats'))
+				{
+					$this->arResult['FAKE_PUBLICATION'] = false;
+					$this->arResult['PUBLICATION_ERROR_CODE'] = 'shop1c';
+					$this->arResult['PUBLICATION_ERROR_LINK'] = \Bitrix\Landing\Help::getHelpUrl('SHOP1C');
+				}
+			}
 			$this->arResult['~LANDING_FULL_URL'] = $landing->getPublicUrl(
 				false,
 				true,

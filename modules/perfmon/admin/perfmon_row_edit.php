@@ -30,7 +30,7 @@ if ($RIGHT <= 'D')
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 }
 
-$connection = \Bitrix\Main\Application::getInstance()->getConnection();
+$connection = \Bitrix\Main\Application::getConnection();
 $sqlHelper = $connection->getSqlHelper();
 
 function var_import_r($tokens, &$pos, &$result)
@@ -558,7 +558,6 @@ if (
 				$pk = [
 					$autoIncrement => $connection->add($table_name, $arToInsert, $autoIncrement)
 				];
-
 			}
 			catch (\Bitrix\Main\DB\SqlQueryException $e)
 			{
@@ -957,7 +956,7 @@ if ($strError)
 				'REFERENCE' => [],
 				'REFERENCE_ID' => [],
 			];
-			while ($ar = $rs->Fetch())
+			while ($ar = $rs->fetch())
 			{
 				$selectValues['REFERENCE'][] = $ar[$arParents[$Field]['PARENT_COLUMN']];
 				$selectValues['REFERENCE_ID'][] = $ar[$arParents[$Field]['PARENT_COLUMN']];

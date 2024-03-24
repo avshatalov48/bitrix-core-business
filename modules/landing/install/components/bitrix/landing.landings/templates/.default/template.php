@@ -133,7 +133,7 @@ if (!$component->isToolAvailable())
 
 	<?if ($arResult['ACCESS_SITE']['EDIT'] == 'Y'):?>
 	<div class="landing-item landing-item-add-new" style="display: <?=$arResult['IS_DELETED'] ? 'none' : 'block';?>;">
-		<span class="landing-item-inner" data-href="<?= $arParams['PAGE_URL_LANDING_ADD']?>">
+		<span class="landing-item-inner" data-href="<?= \htmlspecialcharsbx($arParams['PAGE_URL_LANDING_ADD']) ?>">
 			<span class="landing-item-add-new-inner">
 				<span class="landing-item-add-icon"></span>
 				<span class="landing-item-text"><?= Loc::getMessage('LANDING_TPL_ACTION_ADD')?></span>
@@ -261,6 +261,19 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 		if (in_array($item['ID'], $arResult['DELETE_LOCKED']))
 		{
 			$accessSite['DELETE'] = 'N';
+		}
+	}
+
+	if (\Bitrix\Main\Config\Option::get('catalog', 'is_external_catalog') === 'Y')
+	{
+		if (
+			$accessSite['PUBLICATION'] === 'Y'
+			&& $arParams['TYPE'] === 'STORE'
+			&& isset($arResult['SITES'][$arParams['SITE_ID']])
+			&& !str_starts_with($arResult['SITES'][$arParams['SITE_ID']]['TPL_CODE'], 'store-chats')
+		)
+		{
+			$accessSite['PUBLICATION'] = 'N';
 		}
 	}
 	?>

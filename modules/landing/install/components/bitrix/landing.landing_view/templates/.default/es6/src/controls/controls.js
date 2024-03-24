@@ -190,11 +190,11 @@ export class ExternalControls
 					this.#action.onCopyBlockClick(blockId);
 					this.#hideAndShowControls(blockId);
 				},
-				pasteClick: block.permissions.allowPaste ? () => {
+				pasteClick: () => {
 					UI.closeBlockAdditionalMenu(blockId);
 					this.#action.onPasteBlockClick(blockId);
 					this.#hideAndShowControls(blockId);
-				}: null,
+				},
 				feedbackClick: () => {
 					UI.closeBlockAdditionalMenu(blockId);
 					this.#action.onFeedbackClick(blockId);

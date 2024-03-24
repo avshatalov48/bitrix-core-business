@@ -38,7 +38,7 @@ return [
 	],
 	'style' => [
 		'block' => [
-			'type' => ['display', 'header-on-scroll', 'header-position', 'margin-top', 'margin-bottom'],
+			'type' => ['display', 'margin-top', 'margin-bottom'],
 		],
 		'nodes' => [
 			'.landing-block-node-menu-link-custom' => [

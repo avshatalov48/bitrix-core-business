@@ -280,20 +280,22 @@ class BizprocUserProcesses
 			->setAdditionalSelectFields([
 				'STARTED_BY',
 				'STATE_TITLE',
-				'TASKS.NAME',
 				'STARTED',
 				'STARTED_BY',
-				'TASKS.ACTIVITY',
-				'TASKS.DESCRIPTION',
-				'TASKS.MODIFIED',
-				'TASKS.STATUS',
-				'TASKS.IS_INLINE',
-				'TASKS.DELEGATION_TYPE',
-				'TASKS.OVERDUE_DATE',
-				'TASKS.PARAMETERS',
-				'TASKS.TASK_USERS.USER_ID',
-				'TASKS.TASK_USERS.STATUS',
 				'TEMPLATE.NAME',
+			])
+			->setTaskSelectFields([
+				'NAME',
+				'ACTIVITY',
+				'DESCRIPTION',
+				'MODIFIED',
+				'STATUS',
+				'IS_INLINE',
+				'DELEGATION_TYPE',
+				'OVERDUE_DATE',
+				'PARAMETERS',
+				'TASK_USERS.USER_ID',
+				'TASK_USERS.STATUS',
 			])
 			->setLimit($pageNav->getLimit())
 			->setOffset($pageNav->getOffset())
@@ -311,7 +313,8 @@ class BizprocUserProcesses
 			$pageNav->setRecordCount($workflowsResponse->getTotalCount());
 			foreach ($workflows as $workflowState)
 			{
-				$tasks = $this->prepareTasksForView($workflowState->getTasks()->getAll());
+				$tasks = $workflowsResponse->getWorkflowTasks($workflowState->getId());
+				$preparedTasks = $this->prepareTasksForView($tasks?->getAll() ?? []);
 				$complexDocumentId = $workflowState->getComplexDocumentId();
 
 				$workflowViews[$workflowState->getId()] = [
@@ -324,7 +327,7 @@ class BizprocUserProcesses
 						'url' => $this->getDocumentUrl($complexDocumentId),
 						'name' => $this->getDocumentName($complexDocumentId),
 					],
-					'tasks' => $this->getTasksViewData($workflowState, $tasks),
+					'tasks' => $this->getTasksViewData($workflowState, $preparedTasks),
 				];
 			}
 		}

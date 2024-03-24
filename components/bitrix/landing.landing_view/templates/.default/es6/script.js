@@ -694,11 +694,11 @@ this.BX.Landing = this.BX.Landing || {};
 	        babelHelpers.classPrivateFieldGet(_this2, _action).onCopyBlockClick(blockId);
 	        _classPrivateMethodGet$1(_this2, _hideAndShowControls, _hideAndShowControls2).call(_this2, blockId);
 	      },
-	      pasteClick: block.permissions.allowPaste ? function () {
+	      pasteClick: function pasteClick() {
 	        UI.closeBlockAdditionalMenu(blockId);
 	        babelHelpers.classPrivateFieldGet(_this2, _action).onPasteBlockClick(blockId);
 	        _classPrivateMethodGet$1(_this2, _hideAndShowControls, _hideAndShowControls2).call(_this2, blockId);
-	      } : null,
+	      },
 	      feedbackClick: function feedbackClick() {
 	        UI.closeBlockAdditionalMenu(blockId);
 	        babelHelpers.classPrivateFieldGet(_this2, _action).onFeedbackClick(blockId);

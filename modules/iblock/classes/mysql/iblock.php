@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\MysqlCommonConnection;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\ORM\Fields;
 
 class CIBlock extends CAllIBlock
@@ -281,8 +282,22 @@ class CIBlock extends CAllIBlock
 			&& MYSQL_TABLE_TYPE !== ''
 		)
 		{
-			//$DB->Query("SET storage_engine = '" . MYSQL_TABLE_TYPE . "'", true);
-			$connection->query('SET storage_engine = \'' . MYSQL_TABLE_TYPE . '\'');
+			// TODO: remove try-catch when mysql 8.0 will be minimal system requirement
+			try
+			{
+				$connection->query('SET default_storage_engine = \'' . MYSQL_TABLE_TYPE . '\'');
+			}
+			catch (SqlQueryException)
+			{
+				try
+				{
+					$connection->query('SET storage_engine = \''.MYSQL_TABLE_TYPE.'\'');
+				}
+				catch (SqlQueryException)
+				{
+
+				}
+			}
 		}
 
 		$singleTableName = static::getSinglePropertyValuesTableName($ID);

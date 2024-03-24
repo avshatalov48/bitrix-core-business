@@ -1,4 +1,6 @@
 <?php
+$MESS["LANDING_TPL_CREATE_BUTTON_HINT"] = "Cannot create a store because inventory management is enabled in 1C";
+$MESS["LANDING_TPL_CREATE_BUTTON_HINT_LINK_TEXT"] = "Learn more";
 $MESS["LANDING_TPL_CREATE_FOLDER"] = "Create folder";
 $MESS["LANDING_TPL_CREATE_FOLDER_ACTION"] = "Create";
 $MESS["LANDING_TPL_FLT_CREATED_BY_ID"] = "Created by";

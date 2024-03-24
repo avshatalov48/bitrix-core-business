@@ -199,6 +199,11 @@
 						&& urlObj.hostname === document.location.hostname;
 				}
 
+				if (url !== null && url.startsWith('#') && isValidAnchor(url))
+				{
+					return true;
+				}
+
 				return false;
 			}
 

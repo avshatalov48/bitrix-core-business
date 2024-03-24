@@ -304,11 +304,35 @@ export default class PopupHelper
 			const closeIcon = Tag.render`<div class="landing-sites__popup-close"></div>`;
 			Event.bind(closeIcon, 'click', this.hide.bind(this));
 
-			const buttPublish = Tag.render`
+			let buttPublish = Tag.render`
 				<span href="${this.ordersUrl}" class="ui-btn ui-btn-success ui-btn-round">
 					${Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_PUBLISH')}
 				</span>
 			`;
+			if (
+				this.itemObj.access.publication === false
+				&& this.itemObj.error.publication
+			)
+			{
+				const code = this.itemObj.error.publication.code || '';
+				const hint = this.itemObj.error.publication.hint || '';
+				const url = this.itemObj.error.publication.url || '';
+				const link = this.itemObj.error.publication.link || '';
+				if (code === 'shop1c')
+				{
+					buttPublish = Tag.render`
+					<span 
+						class="ui-btn ui-btn-success ui-btn-round ui-btn-disabled ui-btn-icon-lock"
+						data-hint="${hint}<br><a href='${url}'>${link}</a>"
+						data-hint-no-icon
+						data-hint-html
+						data-hint-interactivity
+					>
+						${Loc.getMessage('LANDING_SITE_TILE_NOT_PUBLISHED_BUTTON_PUBLISH')}
+					</span>
+				`;
+				}
+			}
 			Event.bind(buttPublish, 'click', () =>
 			{
 				EventEmitter.emit('BX.Landing.SiteTile:publish', this.itemObj);

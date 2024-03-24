@@ -98,7 +98,7 @@ export class ExternalControls
 			}
 		});
 
-		// checking inline editor — enabled or disabled
+		// checking inline editor â€” enabled or disabled
 		BX.addCustomEvent('BX.Landing.Editor:enable', () =>
 		{
 			this.#disableControls = true;

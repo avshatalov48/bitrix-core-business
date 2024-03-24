@@ -18,6 +18,7 @@ Extension::load([
 	'sidepanel',
 	'main.qrcode',
 	'ui.dialogs.messagebox',
+	'ui.hint',
 ]);
 
 //todo: when no site has been created yet, we display a banner but simply without a button
@@ -352,5 +353,7 @@ $isAjax = $component->isAjax();
 			}
 		});
 		<?endif;?>
+
+		BX.UI.Hint.init(BX('landing-sites'));
 	});
 </script>

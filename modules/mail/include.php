@@ -6,8 +6,6 @@
 # mailto:sources@bitrixsoft.com              #
 ##############################################
 
-include("module_updater.php");
-
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/constants.php");
 
 \Bitrix\Main\Loader::registerAutoloadClasses(

@@ -28,7 +28,7 @@ class Group implements Feature
 	}
 
 	/**
-	 * Initializes the start of copying the group’s knowledge base.
+	 * Initializes the start of copying the groupâ€™s knowledge base.
 	 * @param int $groupId Group id.
 	 * @param int $copiedGroupId Copied group id.
 	 * @throws ArgumentOutOfRangeException

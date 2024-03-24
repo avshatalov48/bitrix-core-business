@@ -534,9 +534,9 @@ function stat_session_register($var_name)
 function get_guest_md5()
 {
 	$md5 = md5(
-		$_SERVER["HTTP_USER_AGENT"] ?? '' .
+		($_SERVER["HTTP_USER_AGENT"] ?? '') .
 		$_SERVER["REMOTE_ADDR"] .
-		$_SERVER["HTTP_X_FORWARDED_FOR"] ?? ''
+		($_SERVER["HTTP_X_FORWARDED_FOR"] ?? '')
 	);
 	return $md5;
 }

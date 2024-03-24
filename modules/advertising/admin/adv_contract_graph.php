@@ -27,7 +27,7 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 /***************************************************************************
-						Îáðàáîòêà GET | POST
+						ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° GET | POST
 ****************************************************************************/
 $strError = '';
 $rsContracts = CAdvContract::GetList("s_sort", "desc");
@@ -184,7 +184,7 @@ $arFooter[] = array(
 $lAdmin->AddFooter($arFooter);
 
 /***************************************************************************
-								HTML ôîðìà
+								HTML Ñ„Ð¾Ñ€Ð¼Ð°
 ****************************************************************************/
 $lAdmin->BeginPrologContent();
 
@@ -272,7 +272,7 @@ $lAdmin->EndPrologContent();
 $lAdmin->AddAdminContextMenu(array());
 $lAdmin->CheckListMode();
 /***************************************************************************
-								HTML ôîðìà
+								HTML Ñ„Ð¾Ñ€Ð¼Ð°
 ****************************************************************************/
 $APPLICATION->SetTitle(GetMessage("AD_CONTRACT_GRAPH_PAGE_TITLE"));
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");

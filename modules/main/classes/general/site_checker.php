@@ -1024,12 +1024,25 @@ class CSiteCheckerTest
 			unlink($this->cafile);
 		}
 		CheckDirPath($this->cafile);
+
+		$region = Application::getInstance()->getLicense()->getRegion();
+
+		if (in_array($region, ['ru', 'by', 'kz']))
+		{
+			$url = 'https://www.1c-bitrix.ru/upload/lib/cafile.pem';
+		}
+		else
+		{
+			$url = 'https://www.bitrixsoft.com/upload/lib/cafile.pem';
+		}
+
 		$ob = new CHTTP();
 		$ob->http_timeout = 5;
-		if ($ob->Download('http://www.bitrixsoft.com/upload/lib/cafile.pem', $this->cafile) && is_file($this->cafile) && filesize($this->cafile) > 0)
+		if ($ob->Download($url, $this->cafile) && is_file($this->cafile) && filesize($this->cafile) > 0)
 		{
 			return true;
 		}
+
 		return $this->Result(null, GetMessage("MAIN_SC_NO_ACCESS") . '&quot;');
 	}
 

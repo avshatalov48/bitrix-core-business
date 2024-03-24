@@ -26,7 +26,7 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 /***************************************************************************
-							Îáðàáîòêà GET | POST
+							ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° GET | POST
 ****************************************************************************/
 $strError = '';
 $banner_ref = array();
@@ -215,7 +215,7 @@ $arFooter[] = array(
 $lAdmin->AddFooter($arFooter);
 
 /***************************************************************************
-								HTML ôîðìà
+								HTML Ñ„Ð¾Ñ€Ð¼Ð°
 ****************************************************************************/
 
 $lAdmin->BeginPrologContent();
@@ -312,7 +312,7 @@ else :
 	<? endif;?>
 	<? $lAdmin->EndPrologContent();
 /***************************************************************************
-								HTML ôîðìà
+								HTML Ñ„Ð¾Ñ€Ð¼Ð°
 ****************************************************************************/
 $lAdmin->AddAdminContextMenu(array());
 $lAdmin->CheckListMode();

@@ -224,7 +224,7 @@ class History
 	}
 
 	/**
-	 * Delete chosen step and all before them.
+	 * Delete all steps before chosen.
 	 * @param int $step number of step in stack
 	 * @return bool
 	 */
@@ -265,9 +265,9 @@ class History
 	 */
 	protected function clearAfter(int $step): bool
 	{
-		if (!isset($this->stack[$step]))
+		if ($step >= $this->getStackCount())
 		{
-			return false;
+			return true;
 		}
 
 		// if last step - can't delete nothing
@@ -293,6 +293,15 @@ class History
 		}
 
 		return true;
+	}
+
+	/**
+	 * Clear steps after current. Can't redo now
+	 * @return bool
+	 */
+	public function clearFuture(): bool
+	{
+		return $this->clearAfter($this->step + 1);
 	}
 
 	/**
@@ -549,10 +558,16 @@ class History
 		foreach ($this->stack as $step => $stackItem)
 		{
 			$actionClass = ActionFactory::getActionClass($stackItem['ACTION']);
-			$result[$step] =
-				(is_callable([$actionClass, 'getJsCommandName']))
+			$result[] = [
+				'id' => $stackItem['ID'],
+				'current' => $step === $this->step,
+				'command' => (is_callable([$actionClass, 'getJsCommandName']))
 					? call_user_func([$actionClass, 'getJsCommandName'])
-					: [];
+					: ''
+				,
+				'entityId' => $this->entityId,
+				'entityType' => $this->entityType,
+			];
 		}
 
 		return $result;
@@ -605,7 +620,7 @@ class History
 		$stackCount = $this->getStackCount();
 		if ($this->step < $stackCount)
 		{
-			if (!$this->clearAfter($this->step + 1))
+			if (!$this->clearFuture())
 			{
 				return false;
 			}

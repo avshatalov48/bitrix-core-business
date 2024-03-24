@@ -404,11 +404,17 @@ this.BX.Landing = this.BX.Landing || {};
 	      } else {
 	        BX.removeClass(document.body, 'landing-page-transition');
 	      }
-	      document.addEventListener('DOMContentLoaded', function () {
+	      if (document.readyState === 'loading') {
+	        document.addEventListener('DOMContentLoaded', function () {
+	          setTimeout(function () {
+	            BX.removeClass(document.body, 'landing-page-transition');
+	          }, 300);
+	        });
+	      } else {
 	        setTimeout(function () {
-	          BX.removeClass(document.body, "landing-page-transition");
+	          BX.removeClass(document.body, 'landing-page-transition');
 	        }, 300);
-	      });
+	      }
 	    }
 	  }]);
 	  return PageTransition;

@@ -25,7 +25,7 @@
 	$frame = $this->createFrame()->begin("");
 ?>
 
-<?if ($arParams['PREVIEW'] == 'Y'):?>
+<?if (isset($arParams['PREVIEW']) && $arParams['PREVIEW'] == 'Y'):?>
 	<div id='tPreview' style="display:none;margin:auto;">
 <?endif;?>
 
@@ -149,7 +149,7 @@
 		}
 	</script>
 </div>
-<?if ($arParams['PREVIEW'] == 'Y'):?>
+<?if (isset($arParams['PREVIEW']) && $arParams['PREVIEW'] == 'Y'):?>
 	</div>
 	<script>
 		(function(){

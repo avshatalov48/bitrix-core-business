@@ -35,7 +35,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 if($REQUEST_METHOD=="POST" && $Update.$Apply <> '' && $ADV_RIGHT>="W" && check_bitrix_sessid())
 {
-	// смена подкаталога для хранения баннеров
+	// СЃРјРµРЅР° РїРѕРґРєР°С‚Р°Р»РѕРіР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р±Р°РЅРЅРµСЂРѕРІ
 	$old_subdir = COption::GetOptionString($module_id, "UPLOAD_SUBDIR");
 	$new_subdir = $_POST["UPLOAD_SUBDIR"];
 	

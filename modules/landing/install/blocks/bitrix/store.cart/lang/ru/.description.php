@@ -1,2 +1,2 @@
 <?php
-$MESS['LANDING_BLOCK_STORE.CART_NAME'] = 'Корзина';
+$MESS['LANDING_BLOCK_STORE.SHOP_CART_NAME'] = 'Корзина';

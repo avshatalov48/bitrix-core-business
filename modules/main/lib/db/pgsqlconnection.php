@@ -140,7 +140,7 @@ class PgsqlConnection extends Connection
 		{
 			$sql = "INSERT INTO ".$tableName."(".$insert[0].") VALUES (".$insert[1].") RETURNING ".$identity;
 			$row = $this->query($sql)->fetch();
-			return array_shift($row);
+			return intval(array_shift($row));
 		}
 		else
 		{

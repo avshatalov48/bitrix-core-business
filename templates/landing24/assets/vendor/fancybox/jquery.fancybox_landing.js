@@ -3005,6 +3005,12 @@
             return;
         }
 
+		// For click in text links into "fancyboxed" links
+		var $targetElement = $(e.target);
+		if ($targetElement.prop('tagName') === 'A') {
+			return;
+		}
+
         e.preventDefault();
 
         // Get all related items and find index for clicked one

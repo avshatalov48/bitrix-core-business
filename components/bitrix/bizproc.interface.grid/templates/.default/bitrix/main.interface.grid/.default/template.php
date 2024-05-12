@@ -665,7 +665,7 @@ if (is_array($colsEditMeta) && !empty($colsEditMeta))
 }
 ?>
 
-<script type="text/javascript">
+<script>
 var settingsDialog<?=$arParams["GRID_ID"]?>;
 var viewsDialog<?=$arParams["GRID_ID"]?>;
 var filtersDialog<?=$arParams["GRID_ID"]?>;
@@ -760,7 +760,7 @@ BX.ready(function(){bxGrid_<?=$arParams["GRID_ID"]?>.InitFilter()});
 
 phpVars.messLoading = '<?=GetMessageJS("interface_grid_loading")?>';
 </script>
-<script type="text/javascript">
+<script>
 	bxGrid_<?=$arParams["GRID_ID"]?>.pageSizeControl = new BX.Bizproc.GridPageSizeControl(
 		{
 			gridId: "<?=$arParams["GRID_ID"]?>",

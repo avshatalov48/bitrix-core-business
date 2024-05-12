@@ -76,8 +76,6 @@ class Controller extends \Bitrix\Vote\Base\Controller
 				throw new AccessDeniedException();
 
 			$request = $this->request->getPostList()->toArray();
-			if ($this->isAjaxRequest())
-				\CUtil::decodeURIComponent($request);
 
 			//TODO decide what should we do with captcha in attaches
 			if ($this->attach->voteFor($request))

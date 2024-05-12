@@ -1079,7 +1079,7 @@ class BXEditorIframeCopilot
 
 	isCursorAtNewLine(selection)
 	{
-		if (selection.type !== this.selectionTypeCaret)
+		if (selection.toString() !== '')
 		{
 			return false;
 		}
@@ -1900,6 +1900,18 @@ var focusWithoutScrolling = function(element)
 		)
 		{
 			range.startContainer.parentNode.className = '';
+		}
+
+		if (
+			!BX.browser.IsSafari()
+			&& (keyCode === KEY_CODES['backspace'] || keyCode === KEY_CODES['delete'])
+			&& range.startContainer.nodeName === '#text'
+			&& range.startContainer.previousSibling?.nodeName === 'BLOCKQUOTE'
+			&& range.startContainer.nextSibling?.nodeName !== 'BR'
+			&& range.startContainer.textContent.length === 1
+		)
+		{
+			range.startContainer.before(BX.Tag.render`<span>&#XFEFF;</span>`.innerHTML);
 		}
 
 		if (

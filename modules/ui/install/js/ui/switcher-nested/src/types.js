@@ -1,3 +1,4 @@
+import { Draggable } from 'ui.draganddrop.draggable';
 import { SwitcherNestedItem } from './switcher-nested-item';
 
 export type SwitcherNestedOptions = {
@@ -8,7 +9,9 @@ export type SwitcherNestedOptions = {
 	items?: Array<SwitcherNestedItem>,
 	infoHelperCode?: string,
 	isDefault?: boolean,
+	isDisabled?: boolean,
 	helpMessage?: string,
+	draggable: Draggable,
 }
 
 export type SwitcherNestedItemOptions = {
@@ -20,6 +23,7 @@ export type SwitcherNestedItemOptions = {
 	settingsTitle?: string,
 	infoHelperCode?: string,
 	isDefault?: boolean,
+	isDisabled?: boolean,
 	helpMessage?: string,
 }
 

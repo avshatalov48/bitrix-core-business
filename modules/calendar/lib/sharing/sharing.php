@@ -16,6 +16,9 @@ class Sharing
 
 	protected int $userId;
 
+	protected const OPTION_SORT_JOINT_LINKS_BY_FREQUENT_USE = 'sortJointLinksByFrequentUse';
+	protected const OPTION_SHARING_SETTINGS_COLLAPSED = 'sharingSettingsCollapsed';
+
 	/**
 	 * @param int $userId
 	 */
@@ -156,11 +159,14 @@ class Sharing
 
 		if ($result->isSuccess())
 		{
+			/** @var UserLink $userJointLink */
 			$userJointLink = Factory::getInstance()->createUserJointLink($this->userId, $memberIds);
-			$url = Helper::getShortUrl($userJointLink->getUrl());
+
+			$linkArray = (new UserLinkMapper())->convertToArray($userJointLink);
 
 			$result->setData([
-				'url' => $url,
+				'url' => $linkArray['shortUrl'],
+				'link' => $linkArray,
 			]);
 
 //			\CCalendarNotify::Send([
@@ -211,6 +217,15 @@ class Sharing
 			'url' => $url,
 			'hash' => $sharingHash,
 			'rule' => $linkRuleMapper->convertToArray($sharingRule),
+		];
+	}
+
+	public function getUserInfo(): array
+	{
+		return [
+			'id' => $this->userId,
+			'name' => \CCalendar::GetUserName($this->userId),
+			'avatar' => \CCalendar::GetUserAvatarSrc($this->userId),
 		];
 	}
 
@@ -298,6 +313,46 @@ class Sharing
 		}
 		
 		return $settings;
+	}
+
+	public function getOptions(): array
+	{
+		return [
+			self::OPTION_SORT_JOINT_LINKS_BY_FREQUENT_USE => \CUserOptions::GetOption(
+				'calendar',
+				self::OPTION_SORT_JOINT_LINKS_BY_FREQUENT_USE,
+				'Y',
+				$this->userId,
+			) === 'Y',
+			self::OPTION_SHARING_SETTINGS_COLLAPSED => \CUserOptions::getOption(
+				'calendar',
+				self::OPTION_SHARING_SETTINGS_COLLAPSED,
+				'N',
+				$this->userId,
+			) === 'Y',
+		];
+	}
+
+	public function setSortJointLinksByFrequentUse(bool $sortByFrequentUse): void
+	{
+		\CUserOptions::SetOption(
+			'calendar',
+			self::OPTION_SORT_JOINT_LINKS_BY_FREQUENT_USE,
+			$sortByFrequentUse ? 'Y' : 'N',
+			false,
+			$this->userId,
+		);
+	}
+
+	public function setSharingSettingsCollapsed(bool $isCollapsed): void
+	{
+		\CUserOptions::SetOption(
+			'calendar',
+			self::OPTION_SHARING_SETTINGS_COLLAPSED,
+			$isCollapsed ? 'Y' : 'N',
+			false,
+			$this->userId,
+		);
 	}
 
 	/**

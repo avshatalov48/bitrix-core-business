@@ -1,6 +1,6 @@
 /**
  * Do not edit directly
- * Generated on Tue, 12 Sep 2023 15:08:41 GMT
+ * Generated on Wed, 18 Oct 2023 09:52:35 GMT
  */
 
 :root {
@@ -30,7 +30,9 @@
   --ui-space-inset-4xl: 36px;
   --ui-space-inset-3xl: 32px;
   --ui-space-inset-2xl: 28px;
+  --ui-space-inset-xl2: 26px;
   --ui-space-inset-xl: 24px;
+  --ui-space-inset-lg2: 22px;
   --ui-space-inset-lg: 20px;
   --ui-space-inset-md2: 18px;
   --ui-space-inset-md: 16px;
@@ -49,7 +51,9 @@
   --ui-space-inline-4xl-neg: -36px;
   --ui-space-inline-3xl-neg: -32px;
   --ui-space-inline-2xl-neg: -28px;
+  --ui-space-inline-xl2-neg: -26px;
   --ui-space-inline-xl-neg: -24px;
+  --ui-space-inline-lg2-neg: -22px;
   --ui-space-inline-lg-neg: -20px;
   --ui-space-inline-md2-neg: -18px;
   --ui-space-inline-md-neg: -16px;
@@ -67,7 +71,9 @@
   --ui-space-inline-4xl: 36px;
   --ui-space-inline-3xl: 32px;
   --ui-space-inline-2xl: 28px;
+  --ui-space-inline-xl2: 26px;
   --ui-space-inline-xl: 24px;
+  --ui-space-inline-lg2: 22px;
   --ui-space-inline-lg: 20px;
   --ui-space-inline-md2: 18px;
   --ui-space-inline-md: 16px;
@@ -86,7 +92,9 @@
   --ui-space-stack-4xl-neg: -36px;
   --ui-space-stack-3xl-neg: -32px;
   --ui-space-stack-2xl-neg: -28px;
+  --ui-space-stack-xl2-neg: -26px;
   --ui-space-stack-xl-neg: -24px;
+  --ui-space-stack-lg2-neg: -22px;
   --ui-space-stack-lg-neg: -20px;
   --ui-space-stack-md2-neg: -18px;
   --ui-space-stack-md-neg: -16px;
@@ -104,7 +112,9 @@
   --ui-space-stack-4xl: 36px;
   --ui-space-stack-3xl: 32px;
   --ui-space-stack-2xl: 28px;
+  --ui-space-stack-xl2: 26px;
   --ui-space-stack-xl: 24px;
+  --ui-space-stack-lg2: 22px;
   --ui-space-stack-lg: 20px;
   --ui-space-stack-md2: 18px;
   --ui-space-stack-md: 16px;
@@ -123,7 +133,9 @@
   --ui-size-4xl: 36px;
   --ui-size-3xl: 32px;
   --ui-size-2xl: 28px;
+  --ui-size-xl2: 26px;
   --ui-size-xl: 24px;
+  --ui-size-lg2: 22px;
   --ui-size-lg: 20px;
   --ui-size-md2: 18px;
   --ui-size-md: 16px;

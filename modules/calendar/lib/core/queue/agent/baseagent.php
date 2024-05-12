@@ -4,14 +4,17 @@ namespace Bitrix\Calendar\Core\Queue\Agent;
 
 use Bitrix\Calendar\Core\Queue\Interfaces;
 use Bitrix\Calendar\Core\Queue\Interfaces\Processor;
+use Bitrix\Calendar\Internals\Log\Logger;
 use CAgent;
 use Exception;
 
 abstract class BaseAgent
 {
 	private const TIME_LIMIT = 10;
+	private static ?Logger $logger = null;
 
 	protected bool $isEscalated = false;
+
 	/**
 	 * @return string
 	 */
@@ -22,11 +25,15 @@ abstract class BaseAgent
 			$runner = new static();
 			$runner->run();
 			self::modifyAgent($runner);
-
 		}
-		catch(Exception $e)
+		catch(Exception $exception)
 		{
-			// TODO: log it
+			if (is_null(self::$logger))
+			{
+				self::$logger = new Logger();
+			}
+
+			self::$logger->log($exception);
 		}
 
 		return static::getAgentName();

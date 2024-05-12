@@ -801,8 +801,14 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 
 	public function updateSharingSettingsCollapsedAction(string $collapsed): void
 	{
-		$value = $collapsed === 'Y' ? 'Y' : 'N';
-		\CUserOptions::SetOption('calendar', 'sharingSettingsCollapsed', $value);
+		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
+		$sharing->setSharingSettingsCollapsed($collapsed === 'Y');
+	}
+
+	public function setSortJointLinksByFrequentUseAction(string $sortByFrequentUse): void
+	{
+		$sharing = new \Bitrix\Calendar\Sharing\Sharing(\CCalendar::GetUserId());
+		$sharing->setSortJointLinksByFrequentUse($sortByFrequentUse === 'Y');
 	}
 
 	private function getUserTimezoneName(): string

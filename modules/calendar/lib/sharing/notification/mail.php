@@ -1,11 +1,11 @@
 <?php
+
 namespace Bitrix\Calendar\Sharing\Notification;
 
 use Bitrix\Calendar\ICal\IcsManager;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Sharing;
-use Bitrix\Calendar\Core\Base\Date;
 
 class Mail extends Service
 {
@@ -31,6 +31,7 @@ class Mail extends Service
 	protected function doSendMeetingCancelled(): bool
 	{
 		$ownerStatus = $this->getOwner()['STATUS'];
+
 		return $ownerStatus === 'N';
 	}
 
@@ -145,12 +146,11 @@ class Mail extends Service
 	{
 		$arParams = [
 			'EVENT_NAME' => Sharing\SharingEventManager::getSharingEventNameByUserName($ownerName),
-			'EVENT_DATE' => $this->getFormattedEventDateFirstLine(),
-			'EVENT_TIME' => $this->getFormattedEventDateSecondLine(),
-			'TIMEZONE' => $this->getEventTimezone(),
-			'CALENDAR_MONTH_NAME' => $this->getCalendarMonthName(),
-			'CALENDAR_DAY' => $this->getCalendarDay(),
-			'CALENDAR_TIME' => $this->getCalendarTime(),
+			'IS_FULL_DAY' => $this->event->isFullDayEvent(),
+			'DATE_FROM' => $this->event->getStart()->format(),
+			'DATE_TO' => $this->event->getEnd()->format(),
+			'TZ_FROM' => $this->event->getStartTimeZone()?->getTimeZone()->getName(),
+			'TZ_TO' => $this->event->getEndTimeZone()?->getTimeZone()->getName(),
 			'ABUSE_LINK' => $this->getAbuseLink(),
 			'BITRIX24_LINK' => $this->getBitrix24Link(),
 		];
@@ -179,117 +179,6 @@ class Mail extends Service
 		return null;
 	}
 
-	protected function getFormattedEventDateFirstLine(): string
-	{
-		$timestampUTCWithServerOffset = Sharing\Helper::getUserDateTimestamp($this->event->getStart());
-		$culture = Main\Application::getInstance()->getContext()->getCulture();
-		$dayMonthFormat = Main\Type\Date::convertFormatToPhp($culture->get('DAY_MONTH_FORMAT'));
-		$dayMonth = FormatDate($dayMonthFormat, $timestampUTCWithServerOffset);
-		if ($this->isStartAndEndInDifferentDays())
-		{
-			$timeStart = $this->formatTime($this->event->getStart());
-			$result = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_EVENT_START', [
-				'#DATE#' => "$dayMonth $timeStart"
-			]);
-		}
-		else
-		{
-			$weekDayFormat = 'l';
-			$weekDay = mb_strtolower(FormatDate($weekDayFormat, $timestampUTCWithServerOffset));
-			$result = "$dayMonth, $weekDay";
-		}
-
-		return $result;
-	}
-
-	protected function isStartAndEndInDifferentDays(): bool
-	{
-		$culture = Main\Application::getInstance()->getContext()->getCulture();
-		$shortDateFormat = Main\Type\Date::convertFormatToPhp($culture->get('SHORT_DATE_FORMAT'));
-
-		$startTimestampUTCWithServerOffset = Sharing\Helper::getUserDateTimestamp($this->event->getStart());
-		$endTimestampUTCWithServerOffset = Sharing\Helper::getUserDateTimestamp($this->event->getEnd());
-
-		$start = FormatDate($shortDateFormat, $startTimestampUTCWithServerOffset);
-		$end = FormatDate($shortDateFormat, $endTimestampUTCWithServerOffset);
-
-		return $start !== $end;
-	}
-
-	protected function getFormattedEventDateSecondLine(): string
-	{
-		if ($this->event->isFullDayEvent())
-		{
-			$result = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_EVENT_FULL_DAY');
-		}
-		elseif ($this->isStartAndEndInDifferentDays())
-		{
-			$timestampUTCWithServerOffset = Sharing\Helper::getUserDateTimestamp($this->event->getEnd());
-			$culture = Main\Application::getInstance()->getContext()->getCulture();
-			$dayMonthFormat = Main\Type\Date::convertFormatToPhp($culture->get('DAY_MONTH_FORMAT'));
-			$dayMonth = FormatDate($dayMonthFormat, $timestampUTCWithServerOffset);
-			$timeEnd = $this->formatTime($this->event->getEnd());
-			$result = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_EVENT_END', [
-				'#DATE#' => "$dayMonth $timeEnd"
-			]);
-		}
-		else
-		{
-			$result = $this->getFormattedEventTimeInterval();
-		}
-
-		return $result;
-	}
-
-	protected function getFormattedEventTimeInterval(): string
-	{
-		$timeStart = $this->formatTime($this->event->getStart());
-		$timeEnd = $this->formatTime($this->event->getEnd());
-		return "$timeStart - $timeEnd";
-	}
-
-	protected function getEventTimezone(): string
-	{
-		$result = '';
-		if (!$this->event->isFullDayEvent())
-		{
-			$result = Sharing\Helper::formatTimezone($this->event->getStartTimeZone());
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCalendarMonthName(): string
-	{
-		$timestampUTCWithServerOffset = Sharing\Helper::getUserDateTimestamp($this->event->getStart());
-		return FormatDate('f', $timestampUTCWithServerOffset);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCalendarDay(): string
-	{
-		return $this->event->getStart()->format('j');
-	}
-
-	protected function getCalendarTime(): string
-	{
-		if ($this->event->isFullDayEvent())
-		{
-			$result = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_EVENT_FULL_DAY');
-		}
-		else
-		{
-			$result = $this->formatTime($this->event->getStart());
-		}
-
-		return $result;
-	}
-
 	protected function getWhenCancelled(): string
 	{
 		$timestamp = $this->eventLink->getCanceledTimestamp();
@@ -300,13 +189,6 @@ class Mail extends Service
 		$formatLong = "$dayMonthFormat $timeFormat";
 
 		return FormatDate($formatLong, $timestamp);
-	}
-
-	protected function formatTime(Date $date): string
-	{
-		$culture = Main\Application::getInstance()->getContext()->getCulture();
-		$timeFormat = $culture->get('SHORT_TIME_FORMAT');
-		return $date->format($timeFormat);
 	}
 
 	/**
@@ -327,7 +209,7 @@ class Mail extends Service
 				],
 			]);
 		}
-		catch (\Exception $e)
+		catch (\Exception)
 		{
 			return null;
 		}
@@ -358,5 +240,4 @@ class Mail extends Service
 	{
 		return Sharing\Helper::getBitrix24Link();
 	}
-
 }

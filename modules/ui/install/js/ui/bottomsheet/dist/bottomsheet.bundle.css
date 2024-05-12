@@ -1,15 +1,3 @@
-.ui-bottomsheet__scope {
-	--color--overlay-background: rgba(0,0,0,.5);
-	--color--panel-background: rgba(255,255,255,1);
-	--color--text-controls: rgba(255,255,255,.6);
-
-	--panel-radius: 12px;
-
-	--font_roboto: 'Roboto', "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--transition: .3s;
-	--translateY: 0px;
-}
-
 .ui-bottomsheet {
 	display: none;
 	position: fixed;
@@ -31,10 +19,10 @@
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: var(--color--overlay-background);
+	background: var(--ui-color-overlay-base);
 	opacity: 0;
 	pointer-events: none;
-	transition: var(--transition);
+	transition: .3s;
 }
 
 .ui-bottomsheet__overlay.--show {
@@ -51,7 +39,7 @@
 	flex-direction: column;
 	max-height: calc(100vh - 50px);
 	transform: translateY(100%);
-	transition: var(--transition);
+	transition: .3s;
 }
 
 .ui-bottomsheet__panel.--show {
@@ -59,7 +47,7 @@
 }
 
 .ui-bottomsheet__panel.--ondrag {
-	transform: var(--translateY);
+	transform: 0px;
 }
 
 .ui-bottomsheet__panel-control {
@@ -86,7 +74,7 @@
 	width: 52px;
 	height: 5px;
 	border-radius: 2.5px;
-	background: var(--color--text-controls);
+	background: rgba(var(--ui-color-palette-white-base-rgb), .6);
 }
 
 .ui-bottomsheet__panel-control--item {
@@ -104,16 +92,16 @@
 }
 
 .ui-bottomsheet__panel-control--item-text {
-	font: 16px/21px var(--font_roboto);
-	color: var(--color--text-controls);
+	font: var(--ui-font-size-xl)/21px var(--ui-font-family-system);
+	color: rgba(var(--ui-color-palette-white-base-rgb), .6);
 }
 
 .ui-bottomsheet__panel-wrapper {
 	flex: 1;
 	display: block;
 	padding: 13px 15px;
-	background: var(--color--panel-background);
-	border-radius: var(--panel-radius) var(--panel-radius) 0 0;
+	background: var(--ui-color-background-primary);
+	border-radius: var(--ui-border-radius-lg) var(--ui-border-radius-lg) 0 0;
 }
 
 .ui-bottomsheet__panel-content {

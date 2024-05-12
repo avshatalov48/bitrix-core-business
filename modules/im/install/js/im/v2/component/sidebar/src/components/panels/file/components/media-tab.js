@@ -2,9 +2,9 @@ import { SidebarDetailBlock, SidebarFileTypes } from 'im.v2.const';
 import { Loader } from 'im.v2.component.elements';
 
 import { File } from '../../../../classes/panels/file';
-import { DateGroup } from '../../../elements/date-group';
+import { DateGroup } from '../../../elements/date-group/date-group';
 import { MediaDetailItem } from './media-detail-item';
-import { DetailEmptyState } from '../../../elements/detail-empty-state';
+import { DetailEmptyState } from '../../../elements/detail-empty-state/detail-empty-state';
 import { FileMenu } from '../../../../classes/context-menu/file/file-menu';
 import { SidebarCollectionFormatter } from '../../../../classes/sidebar-collection-formatter';
 

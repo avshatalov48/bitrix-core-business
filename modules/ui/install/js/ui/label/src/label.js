@@ -1,8 +1,13 @@
 // @flow
 
-import {Tag, Type} from 'main.core';
+import {Tag, Type, Dom} from 'main.core';
 import LabelColor from './label-color';
 import LabelSize from './label-size';
+import { Loader } from 'main.loader';
+import { Icon, Main } from 'ui.icon-set.api.core';
+import 'ui.icon-set.main';
+import 'ui.design-tokens';
+import './style.css';
 
 type LabelOptions = {
 	text: string;
@@ -12,6 +17,8 @@ type LabelOptions = {
 	fill: boolean;
 	customClass: string;
 	icon: Object;
+	status: string;
+	loader: Loader;
 };
 
 export default class Label {
@@ -26,6 +33,9 @@ export default class Label {
 	fill: boolean;
 	customClass: string;
 	icon: Object;
+	status: string;
+	loader: Loader;
+	node: Object
 
 	constructor(options: LabelOptions)
 	{
@@ -37,6 +47,11 @@ export default class Label {
 		this.fill = !!options.fill ? true : options.fill;
 		this.customClass = options.customClass;
 		this.classList = "ui-label";
+		this.status = options.status;
+		this.node = {
+			container: null,
+			status: null
+		};
 
 
 		this.setText(this.text);
@@ -178,12 +193,12 @@ export default class Label {
 
 	updateClassList()
 	{
-		if (!this.container)
+		if (!this.node.container)
 		{
 			this.getContainer()
 		}
 
-		this.container.setAttribute("class", this.classList);
+		this.node.container.setAttribute("class", this.classList);
 	}
 
 	getIconAction()
@@ -198,32 +213,95 @@ export default class Label {
 		return this.iconNode;
 	}
 
+	getLoader() : Loader
+	{
+		if (!this.loader)
+		{
+			this.loader = new Loader({
+				size: 12,
+			});
+		}
+
+		return this.loader;
+	}
+
+	setStatus(status: string) : void
+	{
+		if (status)
+		{
+			this.status = status;
+		}
+
+		Dom.clean(this.getContainerStatus());
+		this.getContainerStatus().classList.remove('--icon');
+
+		if (this.status.toLocaleUpperCase() === 'LOADING')
+		{
+			this.getLoader().show(this.getContainerStatus());
+		}
+		
+		if (this.status.toLocaleUpperCase() === 'CHECK')
+		{
+			let icon = new Icon({
+				icon: Main.CHECK,
+				size: 10
+			});
+
+			this.getContainerStatus().classList.add('--icon');
+			this.getContainerStatus().appendChild(icon.render());
+		}
+	}
+
+	getContainerStatus() : HTMLElement
+	{
+		if (!this.node.status)
+		{
+			this.node.status = Tag.render`
+				<div class="ui-label-status"></div>
+			`;
+		}
+
+		return this.node.status;
+	}
+
 	// endregion
 
-	getContainer()
+	getContainer() : HTMLElement
 	{
-		if(!this.container)
+		if (!this.node.container)
 		{
+
 			if (this.getLink())
 			{
-				this.container = Tag.render`<a href="${this.link}" class="${this.getClassList()}">${this.getTextContainer()}</a>`;
+				this.node.container = Tag.render`<a href="${this.link}" class="${this.getClassList()}">
+					${this.getContainerStatus()}
+					${this.getTextContainer()}
+				</a>`;
 			}
 			else
 			{
-				this.container = Tag.render`<div class="${this.getClassList()}">${this.getTextContainer()}</div>`;
+				this.node.container = Tag.render`<div class="${this.getClassList()}">
+					${this.getContainerStatus()}
+					${this.getTextContainer()}
+				</div>`;
 			}
 
 			if (typeof this.icon === 'object')
 			{
-				this.container.appendChild(this.getIconAction());
+				this.node.container.appendChild(this.getIconAction());
 			}
 		}
 
-		return this.container;
+		return this.node.container;
 	}
 
 	render(): HTMLElement
 	{
+		if (this.status)
+		{
+			this.setStatus(this.status);
+		}
+
 		return this.getContainer();
 	}
 

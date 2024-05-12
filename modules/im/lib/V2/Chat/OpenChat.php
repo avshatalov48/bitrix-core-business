@@ -66,7 +66,7 @@ class OpenChat extends GroupChat
 		\CPullWatch::AddToStack('IM_PUBLIC_' . $message->getChatId(), $push);
 	}
 
-	public function getLoadContextMessage(): Message
+	public function getLoadContextMessage(bool $ignoreMark = false): Message
 	{
 		$startMessageId = 0;
 
@@ -76,7 +76,14 @@ class OpenChat extends GroupChat
 		}
 		else
 		{
-			$startMessageId = $this->getMarkedId() ?: $this->getLastId();
+			if (!$ignoreMark)
+			{
+				$startMessageId = $this->getMarkedId() ?: $this->getLastId();
+			}
+			else
+			{
+				$startMessageId = $this->getLastId();
+			}
 		}
 
 		return (new \Bitrix\Im\V2\Message($startMessageId))->setChatId($this->getId())->setMessageId($startMessageId);

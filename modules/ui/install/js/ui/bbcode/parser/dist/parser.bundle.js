@@ -4,20 +4,100 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core,ui_bbcode_model) {
 	'use strict';
 
-	const TAG_REGEX = /\[(\/)?(\w+|\*)([\s\w./:=]+)?]/gs;
-	class Parser {
+	function getByIndex(array, index) {
+	  if (!main_core.Type.isArray(array)) {
+	    throw new TypeError('array is not a array');
+	  }
+	  if (!main_core.Type.isInteger(index)) {
+	    throw new TypeError('index is not a integer');
+	  }
+	  const preparedIndex = index < 0 ? array.length + index : index;
+	  return array[preparedIndex];
+	}
+
+	class ParserScheme extends ui_bbcode_model.BBCodeScheme {
+	  getTagScheme(tagName) {
+	    if (tagName === 'code') {
+	      return new ui_bbcode_model.BBCodeTagScheme({
+	        name: 'code',
+	        convertChild: (child, scheme) => {
+	          if (['#linebreak', '#tab', '#text'].includes(child.getName())) {
+	            return child;
+	          }
+	          return scheme.createText(child.toString());
+	        }
+	      });
+	    }
+	    return new ui_bbcode_model.BBCodeTagScheme({
+	      name: 'any'
+	    });
+	  }
+	  isAllowedTag(tagName) {
+	    return true;
+	  }
+	  isChildAllowed(parent, child) {
+	    return true;
+	  }
+	}
+
+	const TAG_REGEX = /\[(\/)?(\w+|\*)(.*?)]/gs;
+	const isSpecialChar = symbol => {
+	  return ['\n', '\t'].includes(symbol);
+	};
+	const isList = tagName => {
+	  return ['list', 'ul', 'ol'].includes(String(tagName).toLowerCase());
+	};
+	const isListItem = tagName => {
+	  return ['*', 'li'].includes(String(tagName).toLowerCase());
+	};
+	const parserScheme = new ParserScheme();
+	class BBCodeParser {
 	  constructor(options = {}) {
-	    if (options.factory) {
-	      this.setFactory(options.factory);
+	    if (options.scheme) {
+	      this.setScheme(options.scheme);
 	    } else {
-	      this.setFactory(new ui_bbcode_model.ModelFactory());
+	      this.setScheme(new ui_bbcode_model.DefaultBBCodeScheme());
+	    }
+	    if (main_core.Type.isFunction(options.onUnknown)) {
+	      this.setOnUnknown(options.onUnknown);
+	    } else {
+	      this.setOnUnknown(BBCodeParser.defaultOnUnknownHandler);
 	    }
 	  }
-	  setFactory(factory) {
-	    this.factory = factory;
+	  setScheme(scheme) {
+	    this.scheme = scheme;
 	  }
-	  getFactory() {
-	    return this.factory;
+	  getScheme() {
+	    return this.scheme;
+	  }
+	  setOnUnknown(handler) {
+	    if (!main_core.Type.isFunction(handler)) {
+	      throw new TypeError('handler is not a function');
+	    }
+	    this.onUnknownHandler = handler;
+	  }
+	  getOnUnknownHandler() {
+	    return this.onUnknownHandler;
+	  }
+	  static defaultOnUnknownHandler(node, scheme) {
+	    if (node.getType() === ui_bbcode_model.BBCodeNode.ELEMENT_NODE) {
+	      const nodeName = node.getName();
+	      if (['left', 'center', 'right', 'justify'].includes(nodeName)) {
+	        node.replace(scheme.createElement({
+	          name: 'p',
+	          children: node.getChildren()
+	        }));
+	      } else if (['background', 'color', 'size'].includes(nodeName)) {
+	        node.replace(scheme.createElement({
+	          name: 'b',
+	          children: node.getChildren()
+	        }));
+	      } else {
+	        const openingTag = node.getOpeningTag();
+	        const closingTag = node.getClosingTag();
+	        node.replace(scheme.createText(openingTag), ...node.getChildren(), scheme.createText(closingTag));
+	      }
+	    }
 	  }
 	  static toLowerCase(value) {
 	    if (main_core.Type.isStringFilled(value)) {
@@ -26,14 +106,13 @@ this.BX.UI = this.BX.UI || {};
 	    return value;
 	  }
 	  parseText(text) {
-	    const factory = this.getFactory();
 	    if (main_core.Type.isStringFilled(text)) {
 	      return [...text].reduce((acc, symbol) => {
-	        if (ui_bbcode_model.Text.isSpecialCharContent(symbol)) {
+	        if (isSpecialChar(symbol)) {
 	          acc.push(symbol);
 	        } else {
-	          const lastItem = acc.at(-1);
-	          if (ui_bbcode_model.Text.isSpecialCharContent(lastItem) || main_core.Type.isNil(lastItem)) {
+	          const lastItem = getByIndex(acc, -1);
+	          if (isSpecialChar(lastItem) || main_core.Type.isNil(lastItem)) {
 	            acc.push(symbol);
 	          } else {
 	            acc[acc.length - 1] += symbol;
@@ -41,13 +120,13 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	        return acc;
 	      }, []).map(fragment => {
-	        if (ui_bbcode_model.Text.isNewLineContent(fragment)) {
-	          return factory.createNewLineNode();
+	        if (fragment === '\n') {
+	          return parserScheme.createNewLine();
 	        }
-	        if (ui_bbcode_model.Text.isTabContent(fragment)) {
-	          return factory.createTabNode();
+	        if (fragment === '\t') {
+	          return parserScheme.createTab();
 	        }
-	        return factory.createTextNode({
+	        return parserScheme.createText({
 	          content: fragment
 	        });
 	      });
@@ -62,110 +141,139 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	    return -1;
 	  }
+	  static trimQuotes(value) {
+	    const source = String(value);
+	    if (/^["'].*["']$/g.test(source)) {
+	      return source.slice(1, -1);
+	    }
+	    return value;
+	  }
 	  parseAttributes(sourceAttributes) {
 	    const result = {
 	      value: '',
 	      attributes: []
 	    };
 	    if (main_core.Type.isStringFilled(sourceAttributes)) {
+	      if (sourceAttributes.startsWith('=')) {
+	        result.value = BBCodeParser.trimQuotes(sourceAttributes.slice(1));
+	        return result;
+	      }
 	      return sourceAttributes.trim().split(' ').filter(Boolean).reduce((acc, item) => {
-	        if (item.startsWith('=')) {
-	          acc.value = item.slice(1);
-	          return acc;
-	        }
 	        const [key, value = ''] = item.split('=');
-	        acc.attributes.push([Parser.toLowerCase(key), value]);
+	        acc.attributes.push([BBCodeParser.toLowerCase(key), BBCodeParser.trimQuotes(value)]);
 	        return acc;
 	      }, result);
 	    }
 	    return result;
 	  }
 	  parse(bbcode) {
-	    const factory = this.getFactory();
-	    const result = factory.createRootNode();
-	    const stack = [];
-	    let current = null;
-	    let level = -1;
-	    const firstTagIndex = Parser.findNextTagIndex(bbcode);
+	    const result = parserScheme.createRoot();
+	    const firstTagIndex = BBCodeParser.findNextTagIndex(bbcode);
 	    if (firstTagIndex !== 0) {
 	      const textBeforeFirstTag = firstTagIndex === -1 ? bbcode : bbcode.slice(0, firstTagIndex);
 	      result.appendChild(...this.parseText(textBeforeFirstTag));
 	    }
+	    const stack = [result];
+	    const wasOpened = [];
+	    let current = null;
+	    let level = 0;
 	    bbcode.replace(TAG_REGEX, (fullTag, slash, tagName, attrs, index) => {
-	      const isOpenTag = Boolean(slash) === false;
+	      const isOpeningTag = Boolean(slash) === false;
 	      const startIndex = fullTag.length + index;
 	      const nextContent = bbcode.slice(startIndex);
 	      const attributes = this.parseAttributes(attrs);
-	      const lowerCaseTagName = Parser.toLowerCase(tagName);
-	      let parent = null;
-	      if (isOpenTag) {
-	        level++;
-	        if (nextContent.includes(`[/${tagName}]`) || ui_bbcode_model.Tag.isListItem(lowerCaseTagName)) {
-	          current = factory.createElementNode({
+	      const lowerCaseTagName = BBCodeParser.toLowerCase(tagName);
+	      let parent = stack[level];
+	      if (isOpeningTag) {
+	        const isPotentiallyVoid = !nextContent.includes(`[/${tagName}]`);
+	        if (isPotentiallyVoid && !isListItem(lowerCaseTagName)) {
+	          const tagScheme = this.getScheme().getTagScheme(lowerCaseTagName);
+	          const isAllowedVoidTag = tagScheme && tagScheme.isVoid();
+	          if (isAllowedVoidTag) {
+	            current = parserScheme.createElement({
+	              name: lowerCaseTagName,
+	              value: attributes.value,
+	              attributes: Object.fromEntries(attributes.attributes)
+	            });
+	            current.setScheme(this.getScheme());
+	            parent.appendChild(current);
+	          } else {
+	            parent.appendChild(parserScheme.createText(fullTag));
+	          }
+	          const nextTagIndex = BBCodeParser.findNextTagIndex(bbcode, startIndex);
+	          if (nextTagIndex !== 0) {
+	            const content = nextTagIndex === -1 ? nextContent : bbcode.slice(startIndex, nextTagIndex);
+	            parent.appendChild(...this.parseText(content));
+	          }
+	        } else {
+	          if (isListItem(lowerCaseTagName) && current && isListItem(current.getName())) {
+	            level--;
+	            parent = stack[level];
+	          }
+	          current = parserScheme.createElement({
 	            name: lowerCaseTagName,
 	            value: attributes.value,
 	            attributes: Object.fromEntries(attributes.attributes)
 	          });
-	          const nextTagIndex = Parser.findNextTagIndex(bbcode, startIndex);
+	          const nextTagIndex = BBCodeParser.findNextTagIndex(bbcode, startIndex);
 	          if (nextTagIndex !== 0) {
 	            const content = nextTagIndex === -1 ? nextContent : bbcode.slice(startIndex, nextTagIndex);
 	            current.appendChild(...this.parseText(content));
 	          }
-	        } else {
-	          current = factory.createElementNode({
-	            name: lowerCaseTagName,
-	            value: attributes.value,
-	            attributes: Object.fromEntries(attributes.attributes),
-	            void: true
-	          });
-	        }
-	        if (level === 0) {
-	          result.appendChild(current);
-	        }
-	        parent = stack[level - 1];
-	        if (ui_bbcode_model.Tag.isList(current.getName())) {
-	          if (parent && ui_bbcode_model.Tag.isList(parent.getName())) {
-	            stack[level].appendChild(current);
-	          }
-	        } else if (parent && ui_bbcode_model.Tag.isList(parent.getName()) && !ui_bbcode_model.Tag.isListItem(current.getName())) {
-	          const lastItem = parent.getChildren().at(-1);
-	          if (lastItem) {
-	            lastItem.appendChild(current);
-	          }
-	        } else if (parent) {
 	          parent.appendChild(current);
+	          level++;
+	          stack[level] = current;
+	          wasOpened.push(lowerCaseTagName);
 	        }
-	        stack[level] = current;
-	        if (ui_bbcode_model.Tag.isListItem(lowerCaseTagName) && level > -1) {
+	      } else {
+	        if (wasOpened.includes(lowerCaseTagName)) {
 	          level--;
-	          current = level === -1 ? result : stack[level];
+	          const openedTagIndex = wasOpened.indexOf(lowerCaseTagName);
+	          wasOpened.splice(openedTagIndex, 1);
+	        } else {
+	          stack[level].appendChild(parserScheme.createText(fullTag));
 	        }
-	      }
-	      if (!isOpenTag || current.isVoid()) {
-	        if (level > -1 && current.getName() === lowerCaseTagName) {
+	        if (isList(lowerCaseTagName) && level > 0) {
 	          level--;
-	          current = level === -1 ? result : stack[level];
 	        }
-	        const nextTagIndex = Parser.findNextTagIndex(bbcode, startIndex);
-	        if (nextTagIndex !== startIndex) {
-	          parent = level === -1 ? result : stack[level];
-	          const content = bbcode.slice(startIndex, nextTagIndex === -1 ? undefined : nextTagIndex);
-	          if (ui_bbcode_model.Tag.isList(parent.getName())) {
-	            const lastItem = parent.getChildren().at(-1);
-	            if (lastItem) {
-	              lastItem.appendChild(...this.parseText(content));
-	            }
-	          } else {
-	            parent.appendChild(...this.parseText(content));
-	          }
+	        const nextTagIndex = BBCodeParser.findNextTagIndex(bbcode, startIndex);
+	        if (nextTagIndex !== 0 && stack[level]) {
+	          const content = nextTagIndex === -1 ? nextContent : bbcode.slice(startIndex, nextTagIndex);
+	          stack[level].appendChild(...this.parseText(content));
+	        }
+	        if (isListItem(stack[level].getName()) && level > 0) {
+	          level--;
 	        }
 	      }
 	    });
+	    const getFinalLineBreaksIndexes = node => {
+	      let skip = false;
+	      return node.getChildren().reduceRight((acc, child, index) => {
+	        if (!skip && child.getName() === '#linebreak') {
+	          acc.push(index);
+	        } else if (!skip && child.getName() !== '#tab') {
+	          skip = true;
+	        }
+	        return acc;
+	      }, []);
+	    };
+	    ui_bbcode_model.BBCodeNode.flattenAst(result).forEach(node => {
+	      if (node.getName() === '*') {
+	        const finalLinebreaksIndexes = getFinalLineBreaksIndexes(node);
+	        if (finalLinebreaksIndexes.length === 1) {
+	          node.setChildren(node.getChildren().slice(0, getByIndex(finalLinebreaksIndexes, 0)));
+	        }
+	        if (finalLinebreaksIndexes.length > 1 && (finalLinebreaksIndexes & 2) === 0) {
+	          node.setChildren(node.getChildren().slice(0, getByIndex(finalLinebreaksIndexes, 0)));
+	        }
+	      }
+	    });
+	    result.setScheme(this.getScheme(), this.getOnUnknownHandler());
 	    return result;
 	  }
 	}
 
-	exports.Parser = Parser;
+	exports.BBCodeParser = BBCodeParser;
 
 }((this.BX.UI.Bbcode = this.BX.UI.Bbcode || {}),BX,BX.UI.Bbcode));
 //# sourceMappingURL=parser.bundle.js.map

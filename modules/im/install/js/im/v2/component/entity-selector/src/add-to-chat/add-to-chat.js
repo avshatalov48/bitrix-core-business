@@ -36,7 +36,7 @@ export const AddToChat = {
 		config(): PopupOptions
 		{
 			return {
-				titleBar: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_INVITE_MEMBERS_TITLE'),
+				titleBar: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MEMBERS_TITLE'),
 				closeIcon: true,
 				bindElement: this.bindElement,
 				offsetTop: this.popupConfig.offsetTop,

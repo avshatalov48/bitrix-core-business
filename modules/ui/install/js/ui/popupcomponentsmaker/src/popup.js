@@ -1,14 +1,13 @@
-import {Type, Tag, Dom} from 'main.core';
+import { Type, Tag, Dom, Reflection } from 'main.core';
 import {Popup} from 'main.popup';
-import {EventEmitter} from 'main.core.events';
-
+import {EventEmitter} from "main.core.events";
 import PopupComponentsMakerItem from './popup.item';
 
 import 'ui.fonts.opensans';
 import 'ui.design-tokens';
 import './style.css';
 
-class PopupComponentsMaker
+export default class PopupComponentsMaker
 {
 	constructor({
 		id,
@@ -86,7 +85,7 @@ class PopupComponentsMaker
 				padding: this.padding,
 				animation: 'fading-slide',
 				content: this.getContentWrapper(),
-				cacheable: this.cacheable
+				cacheable: this.cacheable,
 			});
 
 			if (this.blurBlackground)
@@ -114,9 +113,6 @@ class PopupComponentsMaker
 		return this.getPopup().isShown();
 	}
 
-	/**
-	 * @private
-	 */
 	getContentWrapper(): HTMLElement
 	{
 		if (!this.contentWrapper)
@@ -297,8 +293,3 @@ class PopupComponentsMaker
 		this.getPopup().close();
 	}
 }
-
-export {
-	PopupComponentsMakerItem,
-	PopupComponentsMaker
-};

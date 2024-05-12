@@ -519,8 +519,14 @@ class Manager
 		];
 
 		$script->fillWorkflowTemplate();
+		$tpl = $script->getWorkflowTemplate();
+		if (!$tpl)
+		{
+			return null;
+		}
+
 		$roboPackage = new RoboPackage();
-		$packageData = $roboPackage->makePackageData($script->getWorkflowTemplate());
+		$packageData = $roboPackage->makePackageData($tpl);
 		$exportData['WORKFLOW_TEMPLATE'] = [
 			'PARAMETERS' => $packageData['PARAMETERS'],
 			'CONSTANTS' => $packageData['CONSTANTS'],

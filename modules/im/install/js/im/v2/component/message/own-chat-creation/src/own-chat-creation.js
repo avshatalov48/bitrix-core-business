@@ -48,7 +48,7 @@ export const OwnChatCreationMessage = {
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withContextMenu="false"
+			:withDefaultContextMenu="false"
 			:withBackground="false"
 			class="bx-im-message-own-chat-creation__scope"
 		>

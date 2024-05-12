@@ -52,7 +52,7 @@ class CBPSetPermissionsActivity
 				foreach ($arAllowableOperations as $operationKey => $operationValue)
 				{
 					$arCurrentValues["permission_".$operationKey] = CBPHelper::UsersArrayToString(
-						$current[$operationKey],
+						$current[$operationKey] ?? null,
 						$arWorkflowTemplate,
 						$documentType
 					);

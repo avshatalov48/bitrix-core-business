@@ -58,7 +58,7 @@ endif;
 </head>
 <body class="forum-popup-body">
 <?if ($arResult["SELF_CLOSE"] == "Y"):
-?><script type="text/javascript"><?
+?><script><?
 	if (!empty($arResult["TOPIC"])):
 	?>
 		opener.document.MESSAGES['newTID'].value = '<?=$arResult["TID"]?>';

@@ -196,7 +196,7 @@ HTML;
 		if (!$this->arParams['DOCUMENT_TYPE'])
 		{
 			static::showError(
-				\Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_LIST_ERR_DOCUMENT_TYPE')
+				\Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_LIST_ERR_DOCUMENT_TYPE_MSGVER_1')
 			);
 
 			return null;

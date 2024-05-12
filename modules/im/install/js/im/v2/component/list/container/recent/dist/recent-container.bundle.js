@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_core_events,main_core,im_v2_component_list_elementList_recent,im_v2_component_search_chatSearchInput,im_v2_component_search_searchExperimental,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_promo,im_v2_lib_createChat,im_v2_lib_layout,im_v2_const,ui_lottie,im_v2_component_elements) {
+(function (exports,main_core_events,main_core,im_public,im_v2_lib_utils,im_v2_component_list_items_recent,im_v2_component_search_chatSearchInput,im_v2_component_search_chatSearch,im_v2_lib_logger,im_v2_provider_service,im_v2_lib_promo,im_v2_lib_createChat,im_v2_lib_layout,im_v2_const,ui_lottie,im_v2_component_elements) {
 	'use strict';
 
 	// @vue/component
@@ -27376,6 +27376,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const searchConfig = Object.freeze({
+	  chats: true,
+	  users: true
+	});
+
 	// @vue/component
 	const RecentListContainer = {
 	  name: 'RecentListContainer',
@@ -27383,8 +27388,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    HeaderMenu,
 	    CreateChatMenu,
 	    ChatSearchInput: im_v2_component_search_chatSearchInput.ChatSearchInput,
-	    RecentList: im_v2_component_list_elementList_recent.RecentList,
-	    SearchExperimental: im_v2_component_search_searchExperimental.SearchExperimental
+	    RecentList: im_v2_component_list_items_recent.RecentList,
+	    ChatSearch: im_v2_component_search_chatSearch.ChatSearch
 	  },
 	  emits: ['selectEntity'],
 	  data() {
@@ -27396,7 +27401,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  },
 	  computed: {
-	    UnreadRecentService: () => im_v2_provider_service.UnreadRecentService
+	    searchConfig: () => searchConfig
 	  },
 	  created() {
 	    im_v2_lib_logger.Logger.warn('List: Recent container created');
@@ -27433,47 +27438,52 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onLoading(value) {
 	      this.isSearchLoading = value;
+	    },
+	    async onItemClick(event) {
+	      const {
+	        dialogId,
+	        nativeEvent
+	      } = event;
+	      void im_public.Messenger.openChat(dialogId);
+	      if (!im_v2_lib_utils.Utils.key.isAltOrOption(nativeEvent)) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.search.close);
+	      }
 	    }
 	  },
 	  template: `
-				<div class="bx-im-list-container-recent__scope bx-im-list-container-recent__container" ref="recent-container">
-					<div class="bx-im-list-container-recent__header_container">
-						<HeaderMenu @showUnread="unreadOnlyMode = true" />
-						<div class="bx-im-list-container-recent__search-input_container">
-							<ChatSearchInput 
-								:searchMode="searchMode" 
-								:isLoading="isSearchLoading"
-								@openSearch="onOpenSearch"
-								@closeSearch="onCloseSearch"
-								@updateSearch="onUpdateSearch"
-							/>
-						</div>
-						<CreateChatMenu />
-					</div>
-					<div class="bx-im-list-container-recent__elements_container">
-						<div class="bx-im-list-container-recent__elements">
-							<SearchExperimental 
-								v-show="searchMode" 
-								:searchMode="searchMode"
-								:withMyNotes="true"
-								:searchQuery="searchQuery" 
-								:searchConfig="{}"
-								@loading="onLoading"
-							/>
-							<RecentList v-show="!searchMode && !unreadOnlyMode" @chatClick="onChatClick" key="recent" />
-		<!--					<RecentList-->
-		<!--						v-if="!searchMode && unreadOnlyMode"-->
-		<!--						:recentService="UnreadRecentService.getInstance()"-->
-		<!--						@chatClick="onChatClick"-->
-		<!--						key="unread"-->
-		<!--					/>-->
-						</div>
-					</div>
+		<div class="bx-im-list-container-recent__scope bx-im-list-container-recent__container" ref="recent-container">
+			<div class="bx-im-list-container-recent__header_container">
+				<HeaderMenu @showUnread="unreadOnlyMode = true" />
+				<div class="bx-im-list-container-recent__search-input_container">
+					<ChatSearchInput 
+						:searchMode="searchMode" 
+						:isLoading="searchMode && isSearchLoading"
+						@openSearch="onOpenSearch"
+						@closeSearch="onCloseSearch"
+						@updateSearch="onUpdateSearch"
+					/>
 				</div>
+				<CreateChatMenu />
+			</div>
+			<div class="bx-im-list-container-recent__elements_container">
+				<div class="bx-im-list-container-recent__elements">
+					<ChatSearch 
+						v-show="searchMode" 
+						:searchMode="searchMode"
+						:searchQuery="searchQuery"
+						:searchConfig="searchConfig"
+						:saveSearchHistory="true"
+						@loading="onLoading"
+						@clickItem="onItemClick"
+					/>
+					<RecentList v-show="!searchMode && !unreadOnlyMode" @chatClick="onChatClick" />
+				</div>
+			</div>
+		</div>
 	`
 	};
 
 	exports.RecentListContainer = RecentListContainer;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Event,BX,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.UI,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=recent-container.bundle.js.map

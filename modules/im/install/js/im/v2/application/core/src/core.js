@@ -22,7 +22,6 @@ import {
 import {
 	BasePullHandler,
 	RecentPullHandler,
-	CopilotRecentHandler,
 	NotificationPullHandler,
 	NotifierPullHandler,
 	LinesPullHandler,
@@ -122,7 +121,6 @@ class CoreApplication
 
 		this.pullClient.subscribe(new BasePullHandler());
 		this.pullClient.subscribe(new RecentPullHandler());
-		this.pullClient.subscribe(new CopilotRecentHandler());
 		this.pullClient.subscribe(new NotificationPullHandler());
 		this.pullClient.subscribe(new NotifierPullHandler());
 		this.pullClient.subscribe(new LinesPullHandler());

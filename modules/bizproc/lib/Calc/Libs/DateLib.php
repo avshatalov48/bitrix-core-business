@@ -15,6 +15,9 @@ class DateLib extends BaseLib
 	private static $endWorkDay;
 	private static $yearWorkdays;
 
+	private const ONE_HOUR = 3600;
+	private const TWELVE_HOURS = 12 * self::ONE_HOUR;
+
 	function getFunctions(): array
 	{
 		return [
@@ -465,10 +468,21 @@ class DateLib extends BaseLib
 	public function callSetTime(Arguments $args)
 	{
 		$date = $args->getFirstSingle();
-		$offset = $this->getDateTimeOffset($date);
+		$currentOffset = $this->getDateTimeOffset($date);
 
 		$hour = max(0, (int)$args->getSecondSingle());
 		$minute = max(0, (int)$args->getThirdSingle());
+
+		$timeOffset = $hour * self::ONE_HOUR + $minute * 60;
+		$baseOffset = max(
+			-1 * self::TWELVE_HOURS,
+			min(self::TWELVE_HOURS, (int)$args->getArgSingle(3))
+		);
+
+		if ($baseOffset !== 0)
+		{
+			$timeOffset -= $baseOffset;
+		}
 
 		if (($date = $this->makeTimestamp($date, true)) === false)
 		{
@@ -476,11 +490,11 @@ class DateLib extends BaseLib
 		}
 
 		$dateTime = Main\Type\DateTime::createFromTimestamp($date);
-		$dateTime->setTime($hour, $minute, 0, 0);
+		$dateTime->setTime(0, 0, 0, 0);
 
-		$date = $dateTime->getTimestamp() - $offset;
+		$date = $dateTime->getTimestamp() + $timeOffset;
 
-		return new Bizproc\BaseType\Value\DateTime($date, $offset);
+		return new Bizproc\BaseType\Value\DateTime($date, $currentOffset);
 	}
 
 	private function makeTimestamp($date, $appendOffset = false)

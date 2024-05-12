@@ -100,11 +100,24 @@ export class Section
 		return this.content;
 	}
 
-	toggle(open: ?boolean): void
+	getId(): string
+	{
+		return this.id;
+	}
+
+	toggle(open: ?boolean, withAnimation: boolean = true): void
 	{
 		const container = this.content;
 		let iconNode = this.render().querySelector('.ui-section__collapse-icon');
 		this.isOpen = (open === true || open === false) ? open : !this.isOpen;
+
+		const innerContainer = this.content.querySelector('.ui-section__section-body_inner');
+
+		Dom.removeClass(innerContainer, 'ui-section__section-toggle-animation');
+		if (withAnimation !== false)
+		{
+			Dom.addClass(innerContainer, 'ui-section__section-toggle-animation');
+		}
 
 		if (this.isOpen)
 		{

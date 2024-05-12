@@ -47,10 +47,9 @@ Asset::getInstance()->addJs(
 // vars
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $colors = $arResult['COLORS'];
-$themeCurr = $arResult['THEME_CURRENT'] ?: null;
-$themeSite = $arResult['THEME_SITE'] ?: null;
-$colorSite = $arResult['THEME_COLOR'] ?: $colors[$themeSite]['color'];
-$template = $arResult['TEMPLATE'] ?: null;;
+$themeCurr = $arResult['THEME_CURRENT'] ?? null;
+$themeSite = $arResult['THEME_SITE'] ?? null;
+$template = $arResult['TEMPLATE'] ?? null;
 $siteGroup = $arResult['SITE_GROUP'];
 $hasAccessCreate = $arResult['RIGHTS_CREATE'] ?: null;
 $marketSubscriptionNeeded = false;
@@ -61,18 +60,6 @@ if ($arResult['NEEDED_SUBSCRIPTION'] === true && !Client::isSubscriptionAvailabl
 
 $sliderCode = Restriction\Hook::getRestrictionCodeByHookCode('THEME');
 $allowed = Restriction\Manager::isAllowed($sliderCode);
-
-if ($colorSite)
-{
-	if ($colorSite[0] !== '#')
-	{
-		$colorSite = '#'.$colorSite;
-	}
-}
-else
-{
-	$colorSite = LandingSiteDemoPreviewComponent::BASE_COLOR;
-}
 
 
 if (!$template)
@@ -332,7 +319,7 @@ else
 						// add USE SITE COLOR setting only for adding page in exist site
 						if ($arParams['SITE_ID']): ?>
 							<div class="landing-template-preview-site-color" data-name="theme_use_site">
-								<div data-value="<?=(!$allowed && !(in_array($colorSite, $allColors, true))) ? substr(LandingSiteDemoPreviewComponent::BASE_COLOR,1) : substr($colorSite, 1)?>"></div>
+								<div data-value="<?= substr(LandingSiteDemoPreviewComponent::BASE_COLOR,1) ?>"></div>
 							</div>
 						<?php endif; ?>
 				<?php endif; ?>
@@ -418,7 +405,8 @@ else
 		siteId: <?= ($arParams['SITE_ID'] > 0) ? $arParams['SITE_ID'] : 0 ?>,
 		replaceLid: <?= $arParams['REPLACE_LID'] ?? 0 ?>,
 		isCrmForm: '<?= $arParams['IS_CRM_FORM'] ?? 'N' ?>',
-		context: '<?= $arParams['CONTEXT'] ? CUtil::JSEscape($arParams['CONTEXT']) : null ?>',
+		context_section: '<?= isset($arParams['CONTEXT_SECTION']) ? CUtil::JSEscape($arParams['CONTEXT_SECTION']) : null ?>',
+		context_element: '<?= isset($arParams['CONTEXT_ELEMENT']) ? CUtil::JSEscape($arParams['CONTEXT_ELEMENT']) : null ?>',
 		langId: "<?= is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
 		folderId: <?= ($arResult['FOLDER_ID'] ?? 0 && $arResult['FOLDER_ID'] > 0) ? $arResult['FOLDER_ID'] : 0 ?>,
 		adminSection: <?= $arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,

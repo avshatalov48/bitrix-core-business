@@ -1,6 +1,7 @@
 @import "../icon-base.css";
 
-.ui-icon-set {
+.ui-icon-set,
+.ui-icon-set__scope {
 	--ui-icon-set__path_dial-5: url('/bitrix/js/ui/icon-set/contact-center/images/dial-5.svg');
 	--ui-icon-set__path_dial-10: url('/bitrix/js/ui/icon-set/contact-center/images/dial-10.svg');
 	--ui-icon-set__path_call-forwarding: url('/bitrix/js/ui/icon-set/contact-center/images/call-forwarding.svg');

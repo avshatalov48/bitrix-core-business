@@ -28,11 +28,6 @@ $MESS["IM_DIALOG_AVATAR_MENU_KICK"] = "Исключить из чата";
 
 $MESS["IM_DIALOG_CHAT_PINNED_TITLE"] = "Закреплённое сообщение";
 $MESS["IM_DIALOG_CHAT_PINNED_TITLE_NUMBER"] = "Закреплённое сообщение №#NUMBER#";
-$MESS["IM_DIALOG_CHAT_STATUS_READ_USER"] = "Просмотрено: #DATE#";
-$MESS["IM_DIALOG_CHAT_STATUS_READ_CHAT"] = "Просмотрено: #USER#";
-$MESS["IM_DIALOG_CHAT_STATUS_READ_CHAT_PLURAL"] = "Просмотрено: #USERS# и #LINK_START#еще #COUNT##LINK_END#";
-$MESS["IM_DIALOG_CHAT_STATUS_TYPING"] = "#USER# пишет сообщение...";
-$MESS["IM_DIALOG_CHAT_STATUS_TYPING_PLURAL"] = "#USER# пишет сообщение и еще #COUNT#";
 $MESS["IM_DIALOG_CHAT_QUOTE_DEFAULT_TITLE"] = "Системное сообщение";
 $MESS["IM_DIALOG_CHAT_BLOCK_NEW_MESSAGES_2"] = "Новые сообщения";
 $MESS["IM_DIALOG_CHAT_BLOCK_MARKED_MESSAGES"] = "Посмотреть позже";

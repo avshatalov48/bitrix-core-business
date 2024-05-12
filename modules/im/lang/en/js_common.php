@@ -496,3 +496,5 @@ $MESS["IM_VIDEOCONF_MENU_CONFIRM_CHANGE_TEXT"] = "All the guest users will be re
 $MESS["IM_VIDEOCONF_MENU_COPY"] = "Copy link";
 $MESS["IM_VIDEOCONF_MENU_COPY_DONE"] = "Video conference link has been copied to the Clipboard.";
 $MESS["IM_YOU"] = "it's you";
+$MESS["IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE"] = "Improve my appearance";
+$MESS["IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE_HINT"] = "Bitrix24 will detect your face, smooth and even out skin texture, remove fine wrinkles and blemishes.";

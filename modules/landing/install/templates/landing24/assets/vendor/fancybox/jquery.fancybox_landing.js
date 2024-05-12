@@ -3007,7 +3007,10 @@
 
 		// For click in text links into "fancyboxed" links
 		var $targetElement = $(e.target);
-		if ($targetElement.prop('tagName') === 'A') {
+		if (
+			$targetElement.prop('tagName') === 'A'
+			&& $targetElement.prop('target') !== '_popup'
+		) {
 			return;
 		}
 

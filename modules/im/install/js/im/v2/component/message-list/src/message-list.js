@@ -3,7 +3,8 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 import { Core } from 'im.v2.application.core';
 import { ChatType, EventType, MessageComponent } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
-import { DialogStatus } from './components/dialog-status';
+import { DialogStatus } from 'im.v2.component.elements';
+
 import { DialogLoader } from './components/dialog-loader';
 import { MessageComponentManager } from './classes/message-component-manager';
 import { AvatarMenu } from './classes/avatar-menu';

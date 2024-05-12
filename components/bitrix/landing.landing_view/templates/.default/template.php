@@ -491,7 +491,7 @@ else
 			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_TITLE'));?>',
 			LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_OPEN_FORM_PHONE_VERIFY_CUSTOM_DESCRIPTION'));?>',
 			LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON'));?>',
-			LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON_LINK: '<?= \CUtil::jsEscape($arResult['PUBLICATION_ERROR_LINK']);?>',
+			LANDING_PUBLICATION_SHOP_ERROR_1C_BUTTON_LINK: '<?= isset($arResult['PUBLICATION_ERROR_LINK']) ? \CUtil::jsEscape($arResult['PUBLICATION_ERROR_LINK']) : '';?>',
 		});
 	});
 </script>
@@ -601,45 +601,6 @@ if ($request->offsetExists('landing_mode'))
 								landingPath = landingPath.replace(replace[0], replace[1]);
 							});
 
-							if (
-								event.data.from !== undefined
-								&& typeof BX.Landing.Metrika !== 'undefined'
-							)
-							{
-								// new analytic run by inserting script
-								if (
-									event.data.finishResponse
-									&& event.data.finishResponse.isNewAnalytic
-									&& event.data.finishResponse.isNewAnalytic !== 'Y'
-								)
-								{
-									const dataFrom = event.data.from.split('|');
-									const appCode = dataFrom[1];
-									const title = dataFrom[2];
-									const previewId = dataFrom[3];
-									if (
-										appCode !== null
-										&& title !== null
-										&& previewId !== null
-									)
-									{
-										let metrikaValue =
-											landingPath
-											+ '?action=templateCreated&app_code='
-											+ appCode
-											+ '&title='
-											+ title
-											+ '&preview_id='
-											+ previewId;
-										const metrika = new BX.Landing.Metrika(true);
-										metrika.sendLabel(
-											null,
-											'templateCreated',
-											metrikaValue
-										);
-									}
-								}
-							}
 							if (replaceLid)
 							{
 								landingPath += '?replacedLanding=Y';

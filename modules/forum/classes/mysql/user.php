@@ -264,7 +264,7 @@ class CForumUser extends CAllForumUser
 		$arSqlFrom = array();
 		$arSqlGroup = array();
 		$arSqlOrder = array();
-		$arSql = array(); 
+		$arSql = array();
 		$strSqlSearch = "";
 		$strSqlSelect = "";
 		$strSqlFrom = "";
@@ -283,44 +283,44 @@ class CForumUser extends CAllForumUser
 			"WORK_PAGER"=>"S", "WORK_STREET"=>"S", "WORK_MAILBOX"=>"S", "WORK_CITY"=>"S", "WORK_STATE"=>"S",
 			"WORK_ZIP"=>"S", "WORK_COUNTRY"=>"I", "WORK_PROFILE"=>"S", "WORK_NOTES"=>"S");
 		$arSqlSelectConst = array(
-			"FU.ID" => "FU.ID", 
-			"USER_ID" => "U.ID", 
-			"FU.SHOW_NAME" => "FU.SHOW_NAME", 
-			"FU.DESCRIPTION" => "FU.DESCRIPTION", 
-			"FU.IP_ADDRESS" => "FU.IP_ADDRESS", 
-			"FU.REAL_IP_ADDRESS" => "FU.REAL_IP_ADDRESS", 
-			"FU.AVATAR" => "FU.AVATAR", 
-			"FU.NUM_POSTS" => "FU.NUM_POSTS", 
-			"NUM_POINTS" => "FU.POINTS", 
-			"FU.INTERESTS" => "FU.INTERESTS", 
-			"FU.SUBSC_GROUP_MESSAGE" => "FU.SUBSC_GROUP_MESSAGE", 
-			"FU.SUBSC_GET_MY_MESSAGE" => "FU.SUBSC_GET_MY_MESSAGE", 
-			"FU.LAST_POST" => "FU.LAST_POST", 
-			"FU.ALLOW_POST" => "FU.ALLOW_POST", 
-			"FU.SIGNATURE" => "FU.SIGNATURE", 
-			"FU.RANK_ID" => "FU.RANK_ID", 
-			"FU.POINTS" => "FU.POINTS", 
-			"FU.HIDE_FROM_ONLINE" => "FU.HIDE_FROM_ONLINE", 
-			"U.DATE_REGISTER" => "U.DATE_REGISTER", 
-			"U.EMAIL" => "U.EMAIL", 
+			"FU.ID" => "FU.ID",
+			"USER_ID" => "U.ID",
+			"FU.SHOW_NAME" => "FU.SHOW_NAME",
+			"FU.DESCRIPTION" => "FU.DESCRIPTION",
+			"FU.IP_ADDRESS" => "FU.IP_ADDRESS",
+			"FU.REAL_IP_ADDRESS" => "FU.REAL_IP_ADDRESS",
+			"FU.AVATAR" => "FU.AVATAR",
+			"FU.NUM_POSTS" => "FU.NUM_POSTS",
+			"NUM_POINTS" => "FU.POINTS",
+			"FU.INTERESTS" => "FU.INTERESTS",
+			"FU.SUBSC_GROUP_MESSAGE" => "FU.SUBSC_GROUP_MESSAGE",
+			"FU.SUBSC_GET_MY_MESSAGE" => "FU.SUBSC_GET_MY_MESSAGE",
+			"FU.LAST_POST" => "FU.LAST_POST",
+			"FU.ALLOW_POST" => "FU.ALLOW_POST",
+			"FU.SIGNATURE" => "FU.SIGNATURE",
+			"FU.RANK_ID" => "FU.RANK_ID",
+			"FU.POINTS" => "FU.POINTS",
+			"FU.HIDE_FROM_ONLINE" => "FU.HIDE_FROM_ONLINE",
+			"U.DATE_REGISTER" => "U.DATE_REGISTER",
+			"U.EMAIL" => "U.EMAIL",
 			"U.NAME" => "U.NAME",
 			"U.SECOND_NAME" => "U.SECOND_NAME",
 			"U.LAST_NAME" => "U.LAST_NAME",
 			"U.LOGIN" => "U.LOGIN",
-			"U.PERSONAL_BIRTHDATE" => "U.PERSONAL_BIRTHDATE", 
-			"U.PERSONAL_ICQ" => "U.PERSONAL_ICQ", 
-			"U.PERSONAL_WWW" => "U.PERSONAL_WWW", 
-			"U.PERSONAL_PROFESSION" => "U.PERSONAL_PROFESSION", 
-			"U.PERSONAL_CITY" => "U.PERSONAL_CITY", 
-			"U.PERSONAL_COUNTRY" => "U.PERSONAL_COUNTRY", 
+			"U.PERSONAL_BIRTHDATE" => "U.PERSONAL_BIRTHDATE",
+			"U.PERSONAL_ICQ" => "U.PERSONAL_ICQ",
+			"U.PERSONAL_WWW" => "U.PERSONAL_WWW",
+			"U.PERSONAL_PROFESSION" => "U.PERSONAL_PROFESSION",
+			"U.PERSONAL_CITY" => "U.PERSONAL_CITY",
+			"U.PERSONAL_COUNTRY" => "U.PERSONAL_COUNTRY",
 			"U.EXTERNAL_AUTH_ID" => "U.EXTERNAL_AUTH_ID",
 			"U.PERSONAL_PHOTO" => "U.PERSONAL_PHOTO",
 			"U.PERSONAL_GENDER" => "U.PERSONAL_GENDER",
 			"DATE_REG" => $DB->DateToCharFunction("FU.DATE_REG", "SHORT"),
 			"LAST_VISIT" => $DB->DateToCharFunction("FU.LAST_VISIT", "FULL"),
 			"PERSONAL_BIRTHDAY" => $DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT"),
-			"U.WORK_POSITION" => "U.WORK_POSITION", 
-			"U.WORK_COMPANY" => "U.WORK_COMPANY" 
+			"U.WORK_POSITION" => "U.WORK_POSITION",
+			"U.WORK_COMPANY" => "U.WORK_COMPANY"
 			);
 
 		foreach ($arFilter as $key => $val)
@@ -448,7 +448,7 @@ class CForumUser extends CAllForumUser
 		{
 			if ($val != $key)
 				$tmp[] = $val." AS ".$key;
-			else 
+			else
 				$tmp[] = $val;
 		}
 		$strSqlSelect = implode(", ", $tmp);
@@ -496,7 +496,7 @@ class CForumUser extends CAllForumUser
 			}
 		}
 
-		DelDuplicateSort($arSqlOrder); 
+		DelDuplicateSort($arSqlOrder);
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 
@@ -570,12 +570,12 @@ class CForumUser extends CAllForumUser
 			)";
 
 		$iCnt = 0;
-		if ($arAddParams["bCount"] || is_set($arAddParams, "bDescPageNumbering"))
+		if ((isset($arAddParams["bCount"]) && $arAddParams["bCount"]) || is_set($arAddParams, "bDescPageNumbering"))
 		{
 			$strSql = "SELECT COUNT(U.ID) AS CNT FROM b_user U LEFT JOIN b_forum_user F ON (F.USER_ID = U.ID) WHERE ".$strSqlSearch;
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$iCnt = ($db_res && ($res = $db_res->Fetch()) ? intval($res["CNT"]) : 0);
-			if ($arAddParams["bCount"])
+			if (isset($arAddParams["bCount"]) && $arAddParams["bCount"])
 				return $iCnt;
 		}
 
@@ -612,12 +612,12 @@ class CForumUser extends CAllForumUser
 		global $DB;
 		$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 		$sNameTemplate = (empty($sNameTemplate) ? CSite::GetDefaultNameFormat() : $sNameTemplate);
-		if (!preg_match("/(#NAME#)|(#LAST_NAME#\,)|(#LAST_NAME#)|(#SECOND_NAME#)|(#NAME_SHORT#)|(#SECOND_NAME_SHORT#)/".BX_UTF_PCRE_MODIFIER, $sNameTemplate, $matches))
+		if (!preg_match("/(#NAME#)|(#LAST_NAME#\,)|(#LAST_NAME#)|(#SECOND_NAME#)|(#NAME_SHORT#)|(#SECOND_NAME_SHORT#)/u", $sNameTemplate, $matches))
 			$sNameTemplate = CSite::GetDefaultNameFormat();
 		if (mb_strpos($sNameTemplate, "#NOBR#") !== false)
-			$sNameTemplate = preg_replace("/\#NOBR\#(.+?)\#\/NOBR\#/".BX_UTF_PCRE_MODIFIER, "\\1", $sNameTemplate);
+			$sNameTemplate = preg_replace("/\#NOBR\#(.+?)\#\/NOBR\#/u", "\\1", $sNameTemplate);
 
-		preg_match_all("/(#NAME#)|(#LAST_NAME#\,)|(#LAST_NAME#)|(#SECOND_NAME#)|(#NAME_SHORT#)|(#SECOND_NAME_SHORT#)/".BX_UTF_PCRE_MODIFIER, $sNameTemplate, $matches);
+		preg_match_all("/(#NAME#)|(#LAST_NAME#\,)|(#LAST_NAME#)|(#SECOND_NAME#)|(#NAME_SHORT#)|(#SECOND_NAME_SHORT#)/u", $sNameTemplate, $matches);
 
 		$tmp = array();
 		foreach($matches[0] as $val) {
@@ -719,7 +719,7 @@ class CForumRank extends CAllForumRank
 	}
 }
 
-class CForumStat extends CALLForumStat 
+class CForumStat extends CALLForumStat
 {
 	public static function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array(), $arAddParams = array())
 	{

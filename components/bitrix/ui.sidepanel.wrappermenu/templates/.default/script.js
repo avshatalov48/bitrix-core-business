@@ -302,17 +302,14 @@
 
 		setActiveHandler: function(e)
 		{
-			this.menu.resetItems();
-			this.activate();
-
 			if (this.link.getAttribute('bx-operative') !== 'Y')
 			{
-				this.link.classList.add('ui-sidepanel-menu-disable-active-state');
+				return;
 			}
-			else
-			{
-				this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
-			}
+
+			this.menu.resetItems();
+			this.activate();
+			this.link.classList.remove('ui-sidepanel-menu-disable-active-state');
 		},
 
 		isSubmenuExist: function()

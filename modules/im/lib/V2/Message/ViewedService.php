@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Message;
 
+use Bitrix\Im\Model\EO_Message_Collection;
 use Bitrix\Im\Model\MessageTable;
 use Bitrix\Im\Model\MessageViewedTable;
 use Bitrix\Im\V2\Chat;
@@ -29,8 +30,11 @@ class ViewedService
 
 	public function add(MessageCollection $messages): void
 	{
-		$insertFields = $this->prepareInsertFields($messages);
+		$messagesToView = $this->filterMessageToInsert($messages);
+
+		$insertFields = $this->prepareInsertFields($messagesToView);
 		MessageViewedTable::multiplyInsertWithoutDuplicate($insertFields, ['DEADLOCK_SAFE' => true]);
+		$messagesToView->setViewedByOthers()->save(true);
 	}
 
 	public function addTo(Message $message): Result
@@ -43,25 +47,35 @@ class ViewedService
 			$includeBound = true;
 		}
 
-		$messageIds = $this->getLastMessageIdsBetween($message, $lowerBound, $includeBound);
+		$messages = $this->getLastMessageIdsBetween($message, $lowerBound, $includeBound);
+		$messagesToViewByOthers = new EO_Message_Collection();
 		$dateViewed = new DateTime();
 		$userId = $this->getContext()->getUserId();
 		$chatId = $message->getChatId();
 		$insertFields = [];
 
-		foreach ($messageIds as $messageId)
+		foreach ($messages as $messageEntity)
 		{
 			$insertFields[] = [
 				'USER_ID' => $userId,
 				'CHAT_ID' => $chatId,
-				'MESSAGE_ID' => $messageId,
+				'MESSAGE_ID' => $messageEntity->getId(),
 				'DATE_CREATE' => $dateViewed,
 			];
+			if (!$messageEntity->getNotifyRead())
+			{
+				$messageEntity->setNotifyRead(true);
+				$messagesToViewByOthers->add($messageEntity);
+			}
 		}
 
 		MessageViewedTable::multiplyInsertWithoutDuplicate($insertFields, ['DEADLOCK_SAFE' => true]);
+		if ($messagesToViewByOthers->count() !== 0)
+		{
+			$messagesToViewByOthers->save(true);
+		}
 
-		return (new Result())->setResult(['VIEWED_MESSAGES' => $messageIds]);
+		return (new Result())->setResult(['VIEWED_MESSAGES' => $messages->getIdList()]);
 	}
 
 	public function getLastViewedMessageId(int $chatId): ?int
@@ -114,11 +128,11 @@ class ViewedService
 
 	public function getMessageStatus(int $messageId): string
 	{
-		$isMessageRead = MessageViewedTable::query()
-			->setSelect(['MESSAGE_ID'])
-			->where('MESSAGE_ID', $messageId) //todo add index
-			->setLimit(1)
-			->fetch()
+		$isMessageRead = MessageTable::query()
+			->setSelect(['ID', 'NOTIFY_READ'])
+			->where('ID', $messageId)
+			->fetchObject()
+			?->getNotifyRead()
 		;
 
 		return $isMessageRead ? \IM_MESSAGE_STATUS_DELIVERED : \IM_MESSAGE_STATUS_RECEIVED;
@@ -153,61 +167,16 @@ class ViewedService
 		return $viewersIds;
 	}
 
-	public function getMessageStatuses(array $messageIds): array
-	{
-		if (empty($messageIds))
-		{
-			return [];
-		}
-
-		$viewedMessageResult = MessageViewedTable::query()
-			->setSelect(['MESSAGE_ID'])
-			->setDistinct()
-			->whereIn('MESSAGE_ID', $messageIds) //todo index
-			->exec()
-		;
-
-		$deliveredMessages = [];
-
-		while ($row = $viewedMessageResult->fetch())
-		{
-			$deliveredMessages[(int)$row['MESSAGE_ID']] = \IM_MESSAGE_STATUS_DELIVERED;
-		}
-
-		$messageStatuses = [];
-
-		foreach ($messageIds as $messageId)
-		{
-			$messageStatuses[$messageId] = $deliveredMessages[$messageId] ?? \IM_MESSAGE_STATUS_RECEIVED;
-		}
-
-		return $messageStatuses;
-	}
-
 	public function deleteStartingFrom(Message $message): void
 	{
+		return;
 		$userId = $this->getContext()->getUserId();
 		MessageViewedTable::deleteByFilter(['>=MESSAGE_ID' => $message->getMessageId(), '=CHAT_ID' => $message->getChatId(), '=USER_ID' => $userId]);
-	}
-
-	public function deleteByMessageIds(array $messageIds, int $chatId): void
-	{
-		if (empty($messageIds))
-		{
-			return;
-		}
-
-		MessageViewedTable::deleteByFilter(['=MESSAGE_ID' => $messageIds, '=CHAT_ID' => $chatId, '=USER_ID' => $this->getContext()->getUserId()]);
 	}
 
 	public function deleteByMessageIdForAll(int $messageId): void
 	{
 		MessageViewedTable::deleteByFilter(['=MESSAGE_ID' => $messageId]); //todo add index
-	}
-
-	public function deleteByMessageIdsForAll(array $messageIds): void
-	{
-		MessageViewedTable::deleteByFilter(['=MESSAGE_ID' => $messageIds]); //todo add index
 	}
 
 	public function deleteByChatId(int $chatId): void
@@ -223,10 +192,6 @@ class ViewedService
 
 		foreach ($messages as $message)
 		{
-			if ($message->getAuthorId() === $userId && $message->getChat()->getType() !== \IM_MESSAGE_SYSTEM)
-			{
-				continue;
-			}
 			$insertFields[] = [
 				'USER_ID' => $userId,
 				'CHAT_ID' => $message->getChatId(),
@@ -238,12 +203,12 @@ class ViewedService
 		return $insertFields;
 	}
 
-	private function getLastMessageIdsBetween(Message $message, int $lowerBound, bool $includeBound): array
+	private function getLastMessageIdsBetween(Message $message, int $lowerBound, bool $includeBound): EO_Message_Collection
 	{
 		$operator = $includeBound ? '>=' : '>';
 
 		$query = MessageTable::query()
-			->setSelect(['ID'])
+			->setSelect(['ID', 'NOTIFY_READ'])
 			->where('CHAT_ID', $message->getChatId())
 			->where('ID', '<=', $message->getMessageId())
 			->where('ID', $operator, $lowerBound)
@@ -255,6 +220,15 @@ class ViewedService
 			$query->whereNot('AUTHOR_ID', $this->getContext()->getUserId());
 		}
 
-		return $query->fetchCollection()->getIdList();
+		return $query->fetchCollection();
+	}
+
+	private function filterMessageToInsert(MessageCollection $messages): MessageCollection
+	{
+		$userId = $this->getContext()->getUserId();
+
+		return $messages->filter(
+			fn (Message $message) => $message->getAuthorId() !== $userId || $message->getChat()->getType() === \IM_MESSAGE_SYSTEM
+		);
 	}
 }

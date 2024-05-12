@@ -9,6 +9,10 @@ return [
 	'js' => 'dist/messenger.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
+		'im.v2.css.tokens',
+		'im.v2.css.icons',
 		'im.v2.component.navigation',
 		'im.v2.component.list.container.recent',
 		'im.v2.component.list.container.openline',
@@ -27,7 +31,6 @@ return [
 		'im.v2.lib.theme',
 		'im.v2.lib.desktop',
 		'im.v2.lib.layout',
-		'ui.fonts.opensans',
 	],
 	'skip_core' => true,
 	'settings' => [

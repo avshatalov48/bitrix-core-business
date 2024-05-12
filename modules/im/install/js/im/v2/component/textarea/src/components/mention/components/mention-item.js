@@ -2,7 +2,6 @@ import { Text } from 'main.core';
 
 import { ChatType } from 'im.v2.const';
 import { highlightText } from 'im.v2.lib.text-highlighter';
-import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 import { Avatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
 
 import '../css/mention-item.css';
@@ -61,14 +60,14 @@ export const MentionItem = {
 		{
 			if (!this.position)
 			{
-				return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_USER_TYPE_GROUP_V2');
+				return this.$Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_USER_TYPE');
 			}
 
 			return highlightText(Text.encode(this.position), this.query);
 		},
 		chatItemText(): string
 		{
-			return this.$Bitrix.Loc.getMessage('IM_SEARCH_EXPERIMENTAL_ITEM_CHAT_TYPE_GROUP_V2');
+			return this.$Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_CHAT_TYPE');
 		},
 	},
 	methods:
@@ -76,10 +75,6 @@ export const MentionItem = {
 		onClick()
 		{
 			this.$emit('itemClick', { dialogId: this.dialogId });
-		},
-		formatDate(date: Date): string
-		{
-			return DateFormatter.formatByTemplate(date, DateTemplate.recent);
 		},
 	},
 	template: `

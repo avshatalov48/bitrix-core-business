@@ -876,10 +876,6 @@ class Call
 		{
 			return true;
 		}
-		if (!ModuleManager::isModuleInstalled("voximplant"))
-		{
-			return false;
-		}
 
 		return (bool)Option::get("im", "call_server_enabled");
 	}
@@ -889,12 +885,17 @@ class Call
 	 */
 	public static function isBitrixCallServerEnabled(): bool
 	{
-		return self::isBitrixCallEnabled();
+		return self::isCallServerEnabled();
 	}
 
 	public static function isBitrixCallEnabled(): bool
 	{
-		$isEnabled = Option::get('im', 'bitrix_call_enabled', 'N');
+		return self::isCallServerEnabled();
+	}
+
+	public static function isIosBetaEnabled(): bool
+	{
+		$isEnabled = Option::get('im', 'call_beta_ios', 'N');
 
 		return $isEnabled === 'Y';
 	}

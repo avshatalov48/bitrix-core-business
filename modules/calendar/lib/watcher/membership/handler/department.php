@@ -73,7 +73,11 @@ class Department extends Handler
 			$oldDepartments = [$user['UF_DEPARTMENT']];
 		}
 
-		if (is_array($arFields['UF_DEPARTMENT']))
+		if (!isset($arFields['UF_DEPARTMENT']))
+		{
+			$newDepartments = [];
+		}
+		elseif (is_array($arFields['UF_DEPARTMENT']))
 		{
 			$newDepartments = $arFields['UF_DEPARTMENT'];
 		}

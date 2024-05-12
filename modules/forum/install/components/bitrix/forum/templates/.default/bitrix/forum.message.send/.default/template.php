@@ -8,7 +8,7 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$arParams["form_index"] = $_REQUEST["INDEX"];
+$arParams["form_index"] = isset($_REQUEST["INDEX"]) ? $_REQUEST["INDEX"] : null;
 if (!empty($arParams["form_index"]))
 	$arParams["form_index"] = preg_replace("/[^a-z0-9]/is", "_", $arParams["form_index"]);
 $tabIndex = 10;
@@ -31,14 +31,14 @@ endif;
 
 ?>
 <div class="forum-header-box">
-	<div class="forum-header-title"><span><?=($arParams["TYPE"] == "ICQ" ? GetMessage("F_TITLE_ICQ") : GetMessage("F_TITLE_MAIL"))?> 
+	<div class="forum-header-title"><span><?=($arParams["TYPE"] == "ICQ" ? GetMessage("F_TITLE_ICQ") : GetMessage("F_TITLE_MAIL"))?>
 	<?=str_replace(array("#URL#", "#NAME#"), array($arResult["URL"]["RECIPIENT"], $arResult["ShowName"]), $arParams["USER_TMPL"])?>
 	</span></div>
 </div>
 
 <div class="forum-reply-form">
 <?
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
@@ -52,11 +52,11 @@ endif;
 	<input type="hidden" name="TYPE" value="<?=$arParams["TYPE"]?>" />
 	<input type="hidden" name="UID" value="<?=$arParams["UID"]?>" />
 	<?=bitrix_sessid_post()?>
-	
+
 	<div class="forum-reply-fields">
 		<div class="forum-reply-field forum-reply-field-title">
 			<label for="SUBJECT<?=$arParams["form_index"]?>"><?=GetMessage("F_TOPIC")?><span class="forum-required-field">*</span></label>
-			<input name="SUBJECT" id="SUBJECT<?=$arParams["form_index"]?>" type="text" value="<?=$arResult["MailSubject"]?>" <?
+			<input name="SUBJECT" id="SUBJECT<?=$arParams["form_index"]?>" type="text" value="<?=$arResult["MailSubject"] ?? null?>" <?
 				?>tabindex="<?=$tabIndex++;?>" size="70" maxlength="50" />
 		</div>
 <?
@@ -72,7 +72,7 @@ if ($arResult["IsAuthorized"] != "Y" || empty($arResult["AuthorContacts"])):
 					<input type="text" name="NAME" id="NAME<?=$arParams["form_index"]?>" value="<?=$arResult["AuthorName"]?>" size="30" tabindex="<?=$tabIndex++;?>" />
 				</span>
 			</div>
-<?		
+<?
 	endif;
 	if (empty($arResult["AuthorContacts"])):
 ?>
@@ -96,7 +96,7 @@ endif;
 	<div class="forum-reply-header"><?=GetMessage("F_TEXT")?><span class="forum-required-field">*</span></div>
 	<div class="forum-reply-fields">
 		<div class="forum-reply-field forum-reply-field-text">
-			<textarea name="MESSAGE" cols="55" rows="14" tabindex="<?=$tabIndex++;?>"><?=$arResult["MailMessage"]?></textarea>
+			<textarea name="MESSAGE" cols="55" rows="14" tabindex="<?=$tabIndex++;?>"><?=$arResult["MailMessage"] ?? null?></textarea>
 		</div>
 <?
 if (!empty($arResult["CAPTCHA_CODE"])):
@@ -115,7 +115,7 @@ if (!empty($arResult["CAPTCHA_CODE"])):
 endif;
 ?>
 		<div class="forum-reply-buttons">
-			<input type="submit" value="<?=GetMessage("F_SEND")?> <?=$arResult["strTextType"]?>"  tabindex="<?=$tabIndex++;?>" />
+			<input type="submit" value="<?=GetMessage("F_SEND")?> <?=$arResult["strTextType"] ?? null?>"  tabindex="<?=$tabIndex++;?>" />
 		</div>
 	</div>
 </div>

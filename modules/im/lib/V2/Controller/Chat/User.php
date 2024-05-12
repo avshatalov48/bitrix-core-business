@@ -13,8 +13,10 @@ class User extends BaseController
 	{
 		$relationOrder = $this->prepareRelationOrder($order);
 		$limit = $this->getLimit($limit);
+		$relationFilter = ['ACTIVE' => true];
+		$relations = $chat->getRelations(['FILTER' => $relationFilter, 'ORDER' => $relationOrder, 'LIMIT' => $limit]);
 
-		return $this->toRestFormat($chat->getRelations(['ORDER' => $relationOrder, 'LIMIT' => $limit])->getUsers());
+		return $this->toRestFormat($relations->getUsers());
 	}
 
 	private function prepareRelationOrder(array $order): array
@@ -29,7 +31,7 @@ class User extends BaseController
 		}
 		if (isset($order['userId']))
 		{
-			return ['USER_ID' => strtoupper($order['USER_ID'])];
+			return ['USER_ID' => strtoupper($order['userId'])];
 		}
 
 		return [];

@@ -8,7 +8,6 @@ use Bitrix\Lists\Internals\Error\IErrorable;
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\PostDecodeFilter;
 use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
@@ -58,13 +57,7 @@ abstract class Controller implements IErrorable
 	{
 		try
 		{
-			if($this->request->isPost())
-			{
-				\CUtil::jSPostUnescape();
-				$this->request->addFilter(new PostDecodeFilter);
-			}
-
-			$this->resolveAction();			
+			$this->resolveAction();
 			$this->checkAction();
 
 			$this->checkRequiredModules();

@@ -56,7 +56,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    this.pullClient.subscribe(new im_v2_provider_pull.BasePullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.RecentPullHandler());
-	    this.pullClient.subscribe(new im_v2_provider_pull.CopilotRecentHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.NotificationPullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.NotifierPullHandler());
 	    this.pullClient.subscribe(new im_v2_provider_pull.LinesPullHandler());

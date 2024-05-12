@@ -4,6 +4,7 @@ export const GetParameter = {
 	openChat: 'IM_DIALOG',
 	openLines: 'IM_LINES',
 	openSettings: 'IM_SETTINGS',
+	openCopilotChat: 'IM_COPILOT',
 
 	desktopChatTabMode: 'IM_TAB',
 

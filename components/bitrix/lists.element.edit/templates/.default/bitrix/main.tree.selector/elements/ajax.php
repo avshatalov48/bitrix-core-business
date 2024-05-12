@@ -11,8 +11,6 @@ if(!CModule::IncludeModule('lists'))
 	die();
 }
 
-CUtil::JSPostUnescape();
-
 $iblock_id = intval($_REQUEST["IBLOCK_ID"]);
 
 $lists_perm = CListPermissions::CheckAccess(

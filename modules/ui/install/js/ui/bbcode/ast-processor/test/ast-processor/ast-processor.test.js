@@ -1,5 +1,5 @@
 import { AstProcessor } from '../../src/ast-processor';
-import { Parser } from 'ui.bbcode.parser';
+import { BBCodeParser } from 'ui.bbcode.parser';
 
 const stripIndent = (source) => {
 	const lines = source.split('\n').slice(1, -1);
@@ -35,7 +35,7 @@ describe('ui.bbcode.ast-processor', () => {
 			[/table]
 		`);
 
-		const parser = new Parser();
+		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 		const flattenedAst = AstProcessor.flattenAst(ast);
 
@@ -78,7 +78,7 @@ describe('ui.bbcode.ast-processor', () => {
 			[/table]
 		`);
 
-		const parser = new Parser();
+		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
 		const allTextNodes = AstProcessor.findElements(ast, 'TextNode');
@@ -105,7 +105,7 @@ describe('ui.bbcode.ast-processor', () => {
 			[code=2]
 		`);
 
-		const parser = new Parser();
+		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
 		const allCodeNodes = AstProcessor.findElements(ast, 'ElementNode[name="code"]');
@@ -120,20 +120,5 @@ describe('ui.bbcode.ast-processor', () => {
 
 		const ordinaryCodeNodes = AstProcessor.findElements(ast, 'ElementNode[name="code" void="false"]');
 		assert.ok(ordinaryCodeNodes.length === 1);
-	});
-
-	it.only('should works', () => {
-		const bbcode = stripIndent(`
-			[p]
-				Hello
-				[b]bold[/b]
-				test
-			[/p]
-		`);
-
-		const parser = new Parser();
-		const ast = parser.parse(bbcode);
-
-		AstProcessor.splitByIndex(ast, 7);
 	});
 });

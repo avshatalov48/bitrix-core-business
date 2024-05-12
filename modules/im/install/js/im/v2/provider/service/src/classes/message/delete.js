@@ -57,42 +57,17 @@ export class DeleteService
 			},
 		});
 
-		const dialog: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
-		if (message.id === dialog.lastMessageId)
-		{
-			this.#store.dispatch('recent/update', {
-				id: dialog.dialogId,
-				fields: {
-					message: { text: '' },
-				},
-			});
-		}
-
 		return this.#deleteMessageOnServer(message.id);
 	}
 
 	#completeMessageDelete(message: ImModelMessage): Promise
 	{
 		const dialog: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
-		const previousMessage: ImModelMessage = this.#store.getters['messages/getPreviousMessage']({
-			messageId: message.id,
-			chatId: dialog.chatId,
-		});
 		if (message.id === dialog.lastMessageId)
 		{
-			this.#updateLastMessageInRecent(message.id, dialog.dialogId);
-
-			const newLastId = previousMessage ? previousMessage.id : 0;
-			this.#store.dispatch('chats/update', {
-				dialogId: dialog.dialogId,
-				fields: {
-					lastMessageId: newLastId,
-					lastId: newLastId,
-				},
-			});
-			this.#store.dispatch('chats/clearLastMessageViews', {
-				dialogId: dialog.dialogId,
-			});
+			const newLastId = this.#getPreviousMessageId(message.id);
+			this.#updateRecentForCompleteDelete(newLastId);
+			this.#updateChatForCompleteDelete(newLastId);
 		}
 
 		this.#store.dispatch('messages/delete', {
@@ -100,6 +75,38 @@ export class DeleteService
 		});
 
 		return this.#deleteMessageOnServer(message.id);
+	}
+
+	#updateRecentForCompleteDelete(newLastId: number)
+	{
+		const dialog: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
+		if (!newLastId)
+		{
+			this.#store.dispatch('recent/delete', { id: dialog.dialogId });
+
+			return;
+		}
+
+		this.#store.dispatch('recent/update', {
+			id: dialog.dialogId,
+			fields: { messageId: newLastId },
+		});
+	}
+
+	#updateChatForCompleteDelete(newLastId)
+	{
+		const dialog: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
+
+		this.#store.dispatch('chats/update', {
+			dialogId: dialog.dialogId,
+			fields: {
+				lastMessageId: newLastId,
+				lastId: newLastId,
+			},
+		});
+		this.#store.dispatch('chats/clearLastMessageViews', {
+			dialogId: dialog.dialogId,
+		});
 	}
 
 	#deleteMessageOnServer(messageId: number): Promise
@@ -116,9 +123,13 @@ export class DeleteService
 	{
 		const chat: ImModelChat = this.#store.getters['chats/getByChatId'](this.#chatId);
 		const recentItem: ImModelRecentItem = this.#store.getters['recent/get'](chat.dialogId);
-		if (recentItem.message.id === messageId)
+		if (recentItem.messageId === messageId)
 		{
-			this.#updateLastMessageInRecent(messageId, chat.dialogId);
+			const newLastId = this.#getPreviousMessageId(messageId);
+			this.#store.dispatch('recent/update', {
+				id: chat.dialogId,
+				fields: { messageId: newLastId },
+			});
 		}
 
 		this.#store.dispatch('messages/delete', {
@@ -126,25 +137,14 @@ export class DeleteService
 		});
 	}
 
-	#updateLastMessageInRecent(messageId: number | string, dialogId: string)
+	#getPreviousMessageId(messageId: number): number
 	{
 		const previousMessage: ImModelMessage = this.#store.getters['messages/getPreviousMessage']({
 			messageId,
 			chatId: this.#chatId,
 		});
-		let updatedMessage = { text: '' };
-		if (previousMessage)
-		{
-			updatedMessage = previousMessage;
-		}
 
-		this.#store.dispatch('recent/update', {
-			id: dialogId,
-			fields: {
-				message: updatedMessage,
-				dateUpdate: new Date(),
-			},
-		});
+		return previousMessage?.id ?? 0;
 	}
 
 	#sendDeleteEvent(messageId: number)

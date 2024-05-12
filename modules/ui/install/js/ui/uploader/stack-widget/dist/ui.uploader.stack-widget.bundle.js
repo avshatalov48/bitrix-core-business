@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_popup,ui_buttons,ui_uploader_vue,ui_uploader_core,ui_uploader_tileWidget,main_core,ui_uploader_stackWidget) {
@@ -266,16 +265,14 @@ this.BX.UI = this.BX.UI || {};
 		>
 			<div class="ui-uploader-stack-drop-area-content">
 				<div class="ui-uploader-stack-drop-area-icon"></div>
-			  	<div class="ui-uploader-stack-drop-area-inner">
-                  <div
-                      v-if="[StackWidgetSize.LARGE, StackWidgetSize.MEDIUM].includes(widgetOptions.size)"
-                      class="ui-uploader-stack-drop-area-title"
-                  >{{ uploadFileTitle }}</div>
-                  <div
-                      v-if="widgetOptions.size === StackWidgetSize.LARGE"
-                      class="ui-uploader-stack-drop-area-hint"
-                  >{{ dragFileHint }}</div>
-				</div>
+				<div
+					v-if="[StackWidgetSize.LARGE, StackWidgetSize.MEDIUM].includes(widgetOptions.size)"
+					class="ui-uploader-stack-drop-area-title"
+				>{{ uploadFileTitle }}</div>
+				<div
+					v-if="widgetOptions.size === StackWidgetSize.LARGE"
+					class="ui-uploader-stack-drop-area-hint"
+				>{{ dragFileHint }}</div>
 			</div>
 		</div>
 	`

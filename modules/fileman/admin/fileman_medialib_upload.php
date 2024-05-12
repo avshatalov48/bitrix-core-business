@@ -43,7 +43,7 @@ class filemanMedialibUpload
 		$name = $file["name"];
 		$pattern = defined('BX_UTF')
 			? "/[^\p{L}L0-9!\p{Z}\$&\(\)\[\]\{\}\-\.;=@\^_\~]/uis"
-			: "/[^A-Za-z¿-ﬂ®‡-ˇ∏0-9!\s\$&\(\)\[\]\{\}\-\.;=@\^_\~]/is";
+			: "/[^A-Za-z–ê-–Ø–Å–∞-—è—ë0-9!\s\$&\(\)\[\]\{\}\-\.;=@\^_\~]/is";
 		$name = trim(preg_replace($pattern, "", $name));
 		if (trim(mb_substr($name, 0, mb_strpos($name, '.'))) == '')
 			$name = mb_substr(md5(uniqid(rand(), true)), 0, 8).trim($name);

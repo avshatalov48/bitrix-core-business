@@ -28,11 +28,11 @@ final class AccessService extends \Bitrix\Lists\Api\Service\AccessService
 		return $response;
 	}
 
-	public function canUserReadElement(int $elementId, int $sectionId = 0): CheckPermissionsResponse
+	public function canUserReadElement(int $elementId, int $sectionId = 0, int $iBlockId = null): CheckPermissionsResponse
 	{
 		$response = new CheckPermissionsResponse();
 
-		$checkPermissionsResponse = $this->checkElementPermission($elementId, $sectionId);
+		$checkPermissionsResponse = $this->checkElementPermission($elementId, $sectionId, null, $iBlockId);
 		$response->fillFromResponse($checkPermissionsResponse);
 
 		if ($response->isSuccess())
@@ -59,6 +59,11 @@ final class AccessService extends \Bitrix\Lists\Api\Service\AccessService
 		$response->fillFromResponse($checkPermissionResponse);
 
 		return $response;
+	}
+
+	public function canUserEditElement(int $elementId, int $sectionId, int $iBlockId): CheckPermissionsResponse
+	{
+		return $this->checkElementPermission($elementId, $sectionId, ElementRight::EDIT, $iBlockId);
 	}
 
 	private function hasUserMinIBlockTypePermission(): CheckPermissionsResponse

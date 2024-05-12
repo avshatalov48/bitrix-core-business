@@ -9,10 +9,10 @@ class DateTimeZone extends BaseProperty
 	protected $timeZone;
 
 	/**
-	 * @param string $timezone
+	 * @param ?string $timezone
 	 * @return DateTimeZone
 	 */
-	public static function createByString(string $timezone): DateTimeZone
+	public static function createByString(?string $timezone): DateTimeZone
 	{
 		return new self(Util::prepareTimezone($timezone));
 	}

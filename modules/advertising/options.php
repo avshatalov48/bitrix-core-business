@@ -145,7 +145,7 @@ $tabControl->BeginNextTab();
 <?$tabControl->BeginNextTab();?>
 <?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");?>
 <?$tabControl->Buttons();?>
-<script type="text/javascript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))

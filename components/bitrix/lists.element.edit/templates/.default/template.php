@@ -416,7 +416,7 @@ $APPLICATION->IncludeComponent(
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Lists['<?=$jsClass?>'] = new BX.Lists.ListsElementEditClass({
 			formId: '<?= CUtil::JSEscape(htmlspecialcharsbx($arResult['FORM_ID'])) ?>',

@@ -8,7 +8,7 @@ if ($arResult["SHOW_SELF_CLOSE"] == "Y")
 {
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><body>
-<script type="text/javascript">
+<script>
 <?=($_REQUEST["search_insert"] == "Y" ? "opener" : "top")?>.document.getElementById("div_USER_ID").innerHTML = '<?=(
 	$arResult["SHOW_MODE"] == "none" ?
 		"<i>".GetMessageJS("PM_NOT_FINED")."</i>" : (

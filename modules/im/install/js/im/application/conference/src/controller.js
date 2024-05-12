@@ -1281,7 +1281,9 @@ class ConferenceApplication
 				click: () =>
 				{
 					this.onCallViewToggleMuteButtonClick({
-						muted: false
+						data: {
+							muted: false
+						}
 					});
 					this.mutePopup.destroy();
 					this.mutePopup = null;
@@ -1591,6 +1593,7 @@ class ConferenceApplication
 			share: this.onCallViewShareButtonClick.bind(this),
 			fullscreen: this.onCallViewFullScreenButtonClick.bind(this),
 			floorRequest: this.onCallViewFloorRequestButtonClick.bind(this),
+			feedback: this.onCallViewFeedbackButtonClick.bind(this)
 		};
 
 		if(handlers[buttonName])
@@ -1904,6 +1907,30 @@ class ConferenceApplication
 	onCallViewToggleUsersButtonClick()
 	{
 		this.toggleUserList();
+	}
+
+	onCallViewFeedbackButtonClick()
+	{
+		BX.loadExt('ui.feedback.form').then(() => {
+			BX.UI.Feedback.Form.open({
+				id: `call_feedback_${this.currentCall.id}-${this.currentCall.instanceId}-${Math.random()}`,
+				forms: [
+					{ zones: ['ru', 'by', 'kz'], id: 406, sec: '9lhjhn', lang: 'ru' },
+					{ zones: ['de'], id: 754, sec: '6upe49', lang: 'de' },
+					{ zones: ['es'], id: 750, sec: 'whk4la', lang: 'es' },
+					{ zones: ['com.br'], id: 752, sec: 'is01cs', lang: 'com.br' },
+					{ zones: ['en'], id: 748, sec: 'pds0h6', lang: 'en' },
+				],
+				presets: {
+					sender_page: 'call',
+					call_type: this.currentCall.provider,
+					call_amount: this.currentCall.users.length + 1,
+					call_id: `id: ${this.currentCall.id}, instanceId: ${this.currentCall.instanceId}`,
+					id_of_user: this.currentCall.userId,
+					from_domain: location.origin
+				},
+			});
+		})
 	}
 
 	onCallViewFloorRequestButtonClick()

@@ -89,18 +89,18 @@ class UrlItem implements RestEntity
 		$textParser = static::getTextParser();
 		$text = $textParser->convertText($text);
 
-		$text = preg_replace('/-{54}.+?-{54}/s'.BX_UTF_PCRE_MODIFIER, "", $text);
-		$text = preg_replace('/\[CODE](.*?)\[\/CODE]/si'.BX_UTF_PCRE_MODIFIER, "", $text);
+		$text = preg_replace('/-{54}.+?-{54}/su', "", $text);
+		$text = preg_replace('/\[CODE](.*?)\[\/CODE]/siu', "", $text);
 
 		preg_replace_callback(
-			'/^(>>(.*)(\n)?)/mi'.BX_UTF_PCRE_MODIFIER,
+			'/^(>>(.*)(\n)?)/miu',
 			static fn() => " XXX",
 			$text
 		);
 
 		$result = [];
 		preg_replace_callback(
-			'/\[url(=(?P<URL>[^\]]+))?](?P<TEXT>.*?)\[\/url]/i'.BX_UTF_PCRE_MODIFIER,
+			'/\[url(=(?P<URL>[^\]]+))?](?P<TEXT>.*?)\[\/url]/iu',
 			static function (array $matches) use (&$result) {
 				$link = !empty($matches['URL'])? $matches['URL']: $matches['TEXT'];
 				if (!empty($link))

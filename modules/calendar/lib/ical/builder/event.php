@@ -32,7 +32,7 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 	private $classification = null;
 	private $transparent = null;
 	private $attendees = [];
-	private $organizer = null;
+	private ?AttendeesProperty $organizer = null;
 	private $status = null;
 	private $rrule;
 	private $withTime;
@@ -365,13 +365,17 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 			->textProperty('STATUS', $this->status)
 			->textProperty('LOCATION', $this->location)
 			->textProperty('SEQUENCE', $this->sequence)
-			->property(AttendeesPropertyType::createInstance('ORGANIZER', $this->organizer))
 			->dateTimeProperty('DTSTART', $this->starts, $this->withTime, $this->withTimezone)
 			->dateTimeProperty('DTEND', $this->ends, $this->withTime, $this->withTimezone)
 			->dateTimeProperty('DTSTAMP', $this->dtStamp, true, false, true)
 			->dateTimeProperty('CREATED', $this->created, true, false, true)
 			->dateTimeProperty('LAST-MODIFIED', $this->modified, true, false, true)
 			->subComponent(...$this->alerts);
+
+		if ($this->organizer !== null)
+		{
+			$content->property(AttendeesPropertyType::createInstance('ORGANIZER', $this->organizer));
+		}
 
 		foreach ($this->attendees as $attendee)
 		{
@@ -443,9 +447,9 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 				Util::getDateObject($event['DATE_FROM'], $event['SKIP_TIME'], $event['TZ_FROM'])
 			)
 			->setEndsAt($instance->getEndDateByEvent($event))
-			->setDtStamp(Helper::getIcalDateTime('20230828T200641Z'))
-			->setCreatedAt(Helper::getIcalDateTime('20230828T200631Z'))
-			->setModified(Helper::getIcalDateTime('20230828T200639Z'))
+			->setDtStamp(Helper::getIcalDateTime())
+			->setCreatedAt(Util::getDateObject($event['DATE_CREATE'], false, $event['TZ_FROM']))
+			->setModified(Util::getDateObject($event['TIMESTAMP_X'], false, $event['TZ_FROM']))
 			->setWithTimezone(!$event['SKIP_TIME'])
 			->setWithTime(!$event['SKIP_TIME'])
 			->setOrganizer(
@@ -455,7 +459,7 @@ class Event extends BasicComponent implements BuilderComponent, EventFactoryInte
 			->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']] ?? Dictionary::TRANSPARENT['busy'])
 			->setSequence(((int)$event['VERSION']))
 			->setStatus(Dictionary::INVITATION_STATUS['confirmed'])
-			->setUrl($event['URL'])
+			->setUrl($event['URL'] ?? null)
 		;
 	}
 

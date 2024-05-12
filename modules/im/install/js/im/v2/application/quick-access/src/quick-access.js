@@ -54,7 +54,7 @@ export class QuickAccessApplication
 			name: this.#applicationName,
 			el: this.rootNode,
 			components: { QuickAccess },
-			template: '<QuickAccess :compactMode="true"/>',
+			template: '<QuickAccess />',
 		});
 
 		return true;
@@ -94,6 +94,11 @@ export class QuickAccessApplication
 		{
 			const settingsSection = urlParams.get(GetParameter.openSettings);
 			Messenger.openSettings({ onlyPanel: settingsSection?.toLowerCase() });
+		}
+		else if (urlParams.has(GetParameter.openCopilotChat))
+		{
+			const dialogId = urlParams.get(GetParameter.openCopilotChat);
+			Messenger.openCopilot(dialogId);
 		}
 	}
 

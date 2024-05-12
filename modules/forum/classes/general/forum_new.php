@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 use \Bitrix\Main;
@@ -415,7 +415,7 @@ class CAllForumNew
 		$cache_id = "b_forum2site_".$ID;
 		if ($ID <= 0):
 			return false;
-		elseif (!is_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
+		elseif (!isset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]) || !is_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
 			$GLOBALS["FORUM_CACHE"]["FORUM"][$ID] = array();
 		endif;
 
@@ -1687,7 +1687,8 @@ SQL;
 			// full recount
 		}
 		elseif ($arParams["ACTION"] == "DECREMENT" &&
-			($arMessage["ID"] == $arForum["ABS_LAST_MESSAGE_ID"] || $arMessage["ID"] == $arForum["LAST_MESSAGE_ID"]))
+			($arMessage["ID"] == $arForum["ABS_LAST_MESSAGE_ID"] || $arMessage["ID"] == $arForum["LAST_MESSAGE_ID"]) &&
+			!IsModuleInstalled('bitrix24'))
 		{
 			// full recount
 		}
@@ -1800,17 +1801,17 @@ SQL;
 		}
 
 		$pattern = array(
-			'#MESSAGE_ID#' => $arVals['MESSAGE_ID'],
-			'#MID#' => $arVals['MESSAGE_ID'],
-			'#TOPIC_ID#' => $arVals['TOPIC_ID'],
-			'#TID#' => $arVals['TOPIC_ID'],
-			'#TITLE_SEO#' => $arVals['TITLE_SEO'],
-			'#FORUM_ID#' => $arVals['FORUM_ID'],
-			'#FID#' => $arVals['FORUM_ID'],
-			'#PARAM1#' => $arVals['PARAM1'],
-			'#PARAM2#' => $arVals['PARAM2'],
-			'#SOCNET_GROUP_ID#' => $arVals['SOCNET_GROUP_ID'],
-			'#OWNER_ID#' => $arVals['OWNER_ID']
+			'#MESSAGE_ID#' => $arVals['MESSAGE_ID'] ?? null,
+			'#MID#' => $arVals['MESSAGE_ID'] ?? null,
+			'#TOPIC_ID#' => $arVals['TOPIC_ID'] ?? null,
+			'#TID#' => $arVals['TOPIC_ID'] ?? null,
+			'#TITLE_SEO#' => $arVals['TITLE_SEO'] ?? null,
+			'#FORUM_ID#' => $arVals['FORUM_ID'] ?? null,
+			'#FID#' => $arVals['FORUM_ID'] ?? null,
+			'#PARAM1#' => $arVals['PARAM1'] ?? null,
+			'#PARAM2#' => $arVals['PARAM2'] ?? null,
+			'#SOCNET_GROUP_ID#' => $arVals['SOCNET_GROUP_ID'] ?? null,
+			'#OWNER_ID#' => $arVals['OWNER_ID'] ?? null
 		);
 		if ($strPath === NULL)
 		{
@@ -2189,7 +2190,7 @@ class CAllForumGroup
 		$cache_id = "b_forum_group".$key;
 		if ($ID <= 0):
 			return false;
-		elseif (!is_array($GLOBALS["FORUM_CACHE"]["GROUP"])):
+		elseif (!isset($GLOBALS["FORUM_CACHE"]["GROUP"]) || !is_array($GLOBALS["FORUM_CACHE"]["GROUP"])):
 			$GLOBALS["FORUM_CACHE"]["GROUP"] = array();
 		endif;
 

@@ -72,3 +72,4 @@ $MESS['CALENDAR_SHARING_LIST_EMPTY_TITLE'] = 'Здесь будут ссылки
 $MESS['CALENDAR_SHARING_LINK_LIST_DELETE_MESSAGE_TITLE_MSGVER_1'] = 'Удалить ссылку на слоты?';
 $MESS['CALENDAR_SHARING_LINK_LIST_DELETE_MESSAGE_DESC_MSGVER_1'] = 'Больше никто не сможет назначить встречу по этой ссылке';
 $MESS['SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1'] = 'Закрыть доступ';
+$MESS['SHARING_WARNING_POPUP_DELETE'] = 'Да, удалить';

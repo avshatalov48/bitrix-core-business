@@ -26,7 +26,7 @@ if(isset($arParams['INPUT_VALUE_STRING']) && mb_strlen($arParams['INPUT_VALUE_ST
 	<input autocomplete="off" type="text" name="<?=$textarea_id?>" id="<?=$textarea_id?>" value="<?if (isset($arParams['INPUT_VALUE_STRING'])) echo htmlspecialcharsbx($arParams['INPUT_VALUE_STRING']);?>">
 	<?endif?>
 </div>
-<script type="text/javascript">
+<script>
 var jsMLI_<?=$control_id?> = new JCMainLookupSelector({
 	'AJAX_PAGE' : '<?echo CUtil::JSEscape($this->GetFolder()."/ajax.php")?>',
 	'AJAX_PARAMS' : <?echo CUtil::PhpToJsObject(array(

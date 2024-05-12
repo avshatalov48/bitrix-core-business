@@ -6,10 +6,10 @@ import { Loader } from 'im.v2.component.elements';
 import { FavoriteMenu } from '../../../classes/context-menu/favorite/favorite-menu';
 import { Favorite } from '../../../classes/panels/favorite';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';
-import { DetailHeader } from '../../elements/detail-header';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
 import { FavoriteItem } from './favorite-item';
-import { DateGroup } from '../../elements/date-group';
-import { DetailEmptyState } from '../../elements/detail-empty-state';
+import { DateGroup } from '../../elements/date-group/date-group';
+import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
 
 import './css/favorite-panel.css';
 

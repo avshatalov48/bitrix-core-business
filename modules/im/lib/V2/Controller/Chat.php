@@ -213,12 +213,12 @@ class Chat extends BaseController
 	 */
 	public function loadAction(
 		\Bitrix\Im\V2\Chat $chat,
-		CurrentUser $user,
 		int $messageLimit = Chat\Message::DEFAULT_LIMIT,
-		int $pinLimit = Pin::DEFAULT_LIMIT
+		int $pinLimit = Pin::DEFAULT_LIMIT,
+		string $ignoreMark = 'N'
 	): ?array
 	{
-		$result = $this->load($chat, $user, $messageLimit, $pinLimit);
+		$result = $this->load($chat, $messageLimit, $pinLimit, $this->convertCharToBool($ignoreMark));
 
 		if (!empty($this->getErrors()))
 		{
@@ -233,12 +233,11 @@ class Chat extends BaseController
 	 */
 	public function loadInContextAction(
 		Message $message,
-		CurrentUser $user,
 		int $messageLimit = Chat\Message::DEFAULT_LIMIT,
 		int $pinLimit = Pin::DEFAULT_LIMIT
 	): ?array
 	{
-		$result = $this->load($message->getChat(), $user, $messageLimit, $pinLimit, $message);
+		$result = $this->load($message->getChat(), $messageLimit, $pinLimit, false, $message);
 
 		if (!empty($this->getErrors()))
 		{
@@ -795,11 +794,11 @@ class Chat extends BaseController
 		return ['result' => true];
 	}
 
-	private function load(\Bitrix\Im\V2\Chat $chat, CurrentUser $user, int $messageLimit, int $pinLimit, ?Message $targetMessage = null): array
+	private function load(\Bitrix\Im\V2\Chat $chat, int $messageLimit, int $pinLimit, bool $ignoreMark = false, ?Message $targetMessage = null): array
 	{
 		$messageLimit = $this->getLimit($messageLimit);
 		$pinLimit = $this->getLimit($pinLimit);
-		$messageService = new MessageService($targetMessage ?? $chat->getLoadContextMessage());
+		$messageService = new MessageService($targetMessage ?? $chat->getLoadContextMessage($ignoreMark));
 		$messages = $messageService->getMessageContext($messageLimit, Message::REST_FIELDS)->getResult();
 		$pins = PinCollection::find(
 			['CHAT_ID' => $chat->getChatId(), 'START_ID' => $chat->getStartId() ?: null],

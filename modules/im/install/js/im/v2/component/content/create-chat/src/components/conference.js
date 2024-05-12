@@ -148,7 +148,7 @@ export const ConferenceCreation = {
 
 			this.isCreating = true;
 
-			const newDialogId = await this.getChatService().createChat({
+			const { newDialogId } = await this.getChatService().createChat({
 				entityType: ChatType.videoconf,
 				title: this.chatTitle,
 				avatar: this.avatarFile,

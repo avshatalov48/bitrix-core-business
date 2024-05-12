@@ -1,5 +1,6 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,main_core,main_loader,ui_iconSet_api_core) {
 	'use strict';
 
 	/**
@@ -36,7 +37,8 @@ this.BX = this.BX || {};
 	  _t,
 	  _t2,
 	  _t3,
-	  _t4;
+	  _t4,
+	  _t5;
 	class Label {
 	  constructor(options) {
 	    this.text = options.text;
@@ -47,6 +49,11 @@ this.BX = this.BX || {};
 	    this.fill = !!options.fill ? true : options.fill;
 	    this.customClass = options.customClass;
 	    this.classList = "ui-label";
+	    this.status = options.status;
+	    this.node = {
+	      container: null,
+	      status: null
+	    };
 	    this.setText(this.text);
 	    this.setLink(this.link);
 	    this.setColor(this.color);
@@ -148,10 +155,10 @@ this.BX = this.BX || {};
 	    return this.classList;
 	  }
 	  updateClassList() {
-	    if (!this.container) {
+	    if (!this.node.container) {
 	      this.getContainer();
 	    }
-	    this.container.setAttribute("class", this.classList);
+	    this.node.container.setAttribute("class", this.classList);
 	  }
 	  getIconAction() {
 	    this.iconNode = main_core.Tag.render(_t2 || (_t2 = _`<div class="ui-label-icon"></div>`));
@@ -160,23 +167,66 @@ this.BX = this.BX || {};
 	    }
 	    return this.iconNode;
 	  }
+	  getLoader() {
+	    if (!this.loader) {
+	      this.loader = new main_loader.Loader({
+	        size: 12
+	      });
+	    }
+	    return this.loader;
+	  }
+	  setStatus(status) {
+	    if (status) {
+	      this.status = status;
+	    }
+	    main_core.Dom.clean(this.getContainerStatus());
+	    this.getContainerStatus().classList.remove('--icon');
+	    if (this.status.toLocaleUpperCase() === 'LOADING') {
+	      this.getLoader().show(this.getContainerStatus());
+	    }
+	    if (this.status.toLocaleUpperCase() === 'CHECK') {
+	      let icon = new ui_iconSet_api_core.Icon({
+	        icon: ui_iconSet_api_core.Main.CHECK,
+	        size: 10
+	      });
+	      this.getContainerStatus().classList.add('--icon');
+	      this.getContainerStatus().appendChild(icon.render());
+	    }
+	  }
+	  getContainerStatus() {
+	    if (!this.node.status) {
+	      this.node.status = main_core.Tag.render(_t3 || (_t3 = _`
+				<div class="ui-label-status"></div>
+			`));
+	    }
+	    return this.node.status;
+	  }
 
 	  // endregion
 
 	  getContainer() {
-	    if (!this.container) {
+	    if (!this.node.container) {
 	      if (this.getLink()) {
-	        this.container = main_core.Tag.render(_t3 || (_t3 = _`<a href="${0}" class="${0}">${0}</a>`), this.link, this.getClassList(), this.getTextContainer());
+	        this.node.container = main_core.Tag.render(_t4 || (_t4 = _`<a href="${0}" class="${0}">
+					${0}
+					${0}
+				</a>`), this.link, this.getClassList(), this.getContainerStatus(), this.getTextContainer());
 	      } else {
-	        this.container = main_core.Tag.render(_t4 || (_t4 = _`<div class="${0}">${0}</div>`), this.getClassList(), this.getTextContainer());
+	        this.node.container = main_core.Tag.render(_t5 || (_t5 = _`<div class="${0}">
+					${0}
+					${0}
+				</div>`), this.getClassList(), this.getContainerStatus(), this.getTextContainer());
 	      }
 	      if (typeof this.icon === 'object') {
-	        this.container.appendChild(this.getIconAction());
+	        this.node.container.appendChild(this.getIconAction());
 	      }
 	    }
-	    return this.container;
+	    return this.node.container;
 	  }
 	  render() {
+	    if (this.status) {
+	      this.setStatus(this.status);
+	    }
 	    return this.getContainer();
 	  }
 	}
@@ -187,5 +237,5 @@ this.BX = this.BX || {};
 	exports.LabelColor = LabelColor;
 	exports.LabelSize = LabelSize;
 
-}((this.BX.UI = this.BX.UI || {}),BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX,BX.UI.IconSet));
 //# sourceMappingURL=label.bundle.js.map

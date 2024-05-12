@@ -25,8 +25,6 @@ if (!check_bitrix_sessid() || !is_object($user) || !$user->IsAuthorized() || !CM
 	die();
 }
 
-CUtil::JSPostUnescape();
-
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 
 $action = $request->getPost('ajax_action');

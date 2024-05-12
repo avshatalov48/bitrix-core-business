@@ -39,21 +39,12 @@ class TemplateManager extends \Bitrix\MessageService\Providers\Base\TemplateMana
 			return [];
 		}
 
-		//todo: Compatibility only with previous version without placeholders. Remove it!
-		$placeholderEnabled = \Bitrix\Main\Config\Option::get('messageservice', 'template_placeholders_enabled', 'N') === 'Y';
-
 		$result = [];
 		foreach ($templates as $template)
 		{
-
-			//todo: Compatibility only with previous version without placeholders. Remove it!
-			if (!empty($template['placeholders']) && !$placeholderEnabled)
-			{
-				continue;
-			}
-
 			$tmp = [
-				'ID' => Json::encode($template['content']), //todo: Refactor it!
+				'ID' => Json::encode($template['content']),
+				'ORIGINAL_ID' => (int)$template['id'],
 				'TITLE' => $template['name'],
 				'PREVIEW' => $template['content']['text'] ?? '',
 			];

@@ -311,7 +311,7 @@ export class Scenario extends Event.EventEmitter {
 					</div>
 				`;
 
-			if (Manager.getInstance().feedbackFormId) {
+			if (Manager.getInstance() && Manager.getInstance().feedbackFormId) {
 				Dom.append(this.getSupportLink(), this.layout.footer);
 			}
 
@@ -727,7 +727,6 @@ export class Scenario extends Event.EventEmitter {
 	supportLinkHandler()
 	{
 		this.emit('supportLinkClick');
-		Manager.getInstance().showFeedbackForm();
 	}
 
 	/**

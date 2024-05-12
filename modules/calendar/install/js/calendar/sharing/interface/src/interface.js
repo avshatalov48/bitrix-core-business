@@ -9,6 +9,7 @@ export default class Interface
 		this.payAttentionToNewFeature = options.payAttentionToNewFeature ?? false;
 		this.sharingFeatureLimit = options.sharingFeatureLimit ?? false;
 		this.sharingSettingsCollapsed = options.sharingSettingsCollapsed ?? false;
+		this.sortJointLinksByFrequentUse = options.sortJointLinksByFrequentUse ?? false;
 	}
 
 	showSharingButton()
@@ -19,6 +20,7 @@ export default class Interface
 			payAttentionToNewFeature: this.payAttentionToNewFeature,
 			sharingFeatureLimit: this.sharingFeatureLimit,
 			sharingSettingsCollapsed: this.sharingSettingsCollapsed,
+			sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
 		});
 		this.sharingButton.show();
 	}

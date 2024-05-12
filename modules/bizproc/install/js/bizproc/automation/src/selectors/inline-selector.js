@@ -1,10 +1,18 @@
-import { SelectorContext, DelayIntervalSelector, Helper, DelayInterval } from 'bizproc.automation';
-import { Dom, Event, Type, Loc, Tag, Runtime } from 'main.core';
+import {
+	DelayInterval,
+	DelayIntervalSelector,
+	Helper,
+	SelectorContext,
+} from 'bizproc.automation';
+import { Dom, Event, Loc, Runtime, Tag, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
+import { Menu, MenuManager } from 'main.popup';
+import { Dialog } from 'ui.entity-selector';
+import enrichFieldsWithModifiers from './enrich-fields-with-modifiers';
+import { DocumentGroup } from './group/document-group';
+import { FileGroup } from './group/file-group';
 
 import { Field, MenuGroupItem } from './types';
-import { MenuManager, Menu } from 'main.popup';
-import { Dialog } from 'ui.entity-selector';
 
 export class InlineSelector extends EventEmitter
 {
@@ -34,7 +42,30 @@ export class InlineSelector extends EventEmitter
 
 	addGroup(groupId: string, group: MenuGroupItem)
 	{
-		this.#menuGroups[groupId] = this.#normalizeGroup(group);
+		const normalizedGroup = this.#normalizeGroup(group);
+
+		if (this.hasGroup(groupId))
+		{
+			this.#menuGroups[groupId] = (
+				this.#normalizeGroup(this.#mergeGroups(this.#menuGroups[groupId], normalizedGroup))
+			);
+
+			return;
+		}
+
+		this.#menuGroups[groupId] = normalizedGroup;
+	}
+
+	#mergeGroups(originalGroup: MenuGroupItem, newGroup: MenuGroupItem): MenuGroupItem
+	{
+		return {
+			...originalGroup,
+			...newGroup,
+			children: [
+				...originalGroup.children,
+				...newGroup.children,
+			],
+		};
 	}
 
 	addGroupItem(groupId: string, item: MenuGroupItem)
@@ -249,50 +280,14 @@ export class InlineSelector extends EventEmitter
 
 	fillFieldsGroups(): void
 	{
-		this.addGroup('ROOT', {
-			id: 'ROOT',
+		const documentGroup = new DocumentGroup({
+			fields: this.getFields(),
 			title: this.context.rootGroupTitle,
-			searchable: false,
+			setSuperTitle: false,
 		});
 
-		this.getFields().forEach((field) => {
-			let groupKey = field.Id.indexOf('.') < 0 ? 'ROOT' : field.Id.split('.')[0];
-			let groupName = '';
-			let fieldName = field.Name;
-
-			if (field.Name && groupKey !== 'ROOT' && field.Name.indexOf(': ') >= 0)
-			{
-				const names = field.Name.split(': ');
-				groupName = names.shift();
-				fieldName = names.join(': ');
-			}
-
-			if (
-				field['Id'].indexOf('ASSIGNED_BY_') === 0
-				&& field['Id'] !== 'ASSIGNED_BY_ID'
-				&& field['Id'] !== 'ASSIGNED_BY_PRINTABLE'
-			)
-			{
-				groupKey = 'ASSIGNED_BY';
-				const names = field.Name.split(' ');
-				groupName = names.shift();
-				fieldName = names.join(' ').replace('(', '').replace(')', '');
-			}
-
-			if (!this.hasGroup(groupKey))
-			{
-				this.addGroup(groupKey, {
-					id: groupKey,
-					title: groupName,
-					searchable: false,
-				});
-			}
-
-			this.addGroupItem(groupKey, {
-				id: field.SystemExpression,
-				title: fieldName || field.Id,
-				customData: {field},
-			});
+		documentGroup.groupsWithChildren.forEach((group) => {
+			this.addGroup(group.id, group);
 		});
 	}
 
@@ -300,47 +295,23 @@ export class InlineSelector extends EventEmitter
 	{
 		const fileFields = this.getFields().filter((field) => field.Type === 'file');
 
-		if (fileFields.length > 0)
-		{
-			this.addGroup('__FILES', {
-				id: '__FILES',
-				title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_FILES_LINKS'),
-				children: this.#prepareFilesMenu(fileFields),
-				searchable: false,
-			});
-		}
-	}
-
-	#prepareFilesMenu(fileFields: Array<Field>): Array<MenuGroupItem>
-	{
-		return fileFields.map((field) => {
-			const exp = (
-				field['ObjectId'] === 'Document'
-					? '{{'+field['Name']+' > shortlink}}'
-					: '{{~'+field['ObjectId']+':'+field['Id']+' > shortlink}}'
-			);
-
-			let title = field.Name || field.Id;
-
-			if (field.ObjectName)
-			{
-				title = field.ObjectName + ': ' + title;
-			}
-
-			return {
-				title: title,
-				customData: {
-					field: {
-						Id: field['Id'] + '_shortlink',
-						ObjectId: field['ObjectId'],
-						Name: field['Name'],
-						Type: 'string',
-						Expression: exp,
-						SystemExpression: '{='+field['ObjectId']+':'+field['Id']+' > shortlink}'
-					}
+		const fileGroup = new FileGroup({
+			fields: enrichFieldsWithModifiers(
+				fileFields,
+				'Document',
+				{
+					friendly: false,
+					printable: false,
+					server: false,
+					responsible: false,
+					shortLink: true,
 				},
-				id: exp,
-			};
+			).filter((field) => field.Type === 'string'),
+			setSuperTitle: false,
+		});
+
+		fileGroup.groupsWithChildren.forEach((group) => {
+			this.addGroup(group.id, group);
 		});
 	}
 
@@ -501,66 +472,6 @@ export class InlineSelector extends EventEmitter
 
 	getFields(): Array<Field>
 	{
-		const printablePrefix = Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX');
-		const names = this.context.fields.map(field => field.Name).join('\n');
-
-		const fields = [];
-		this.basisFields.forEach((field) => {
-			field.ObjectId = 'Document';
-
-			const custom = (field['BaseType'] === 'string' && field['Type'] !== 'string');
-
-			if (!custom)
-			{
-				fields.push(field);
-			}
-
-			//generate printable version
-			if (
-				field['Type'] === 'user'
-				||
-				field['Type'] === 'bool'
-				||
-				field['Type'] === 'file'
-				||
-				custom
-			)
-			{
-				const printableName = field['Name'] + ' ' + printablePrefix;
-
-				if (names.indexOf(printableName) < 0)
-				{
-					const printableField = BX.clone(field);
-					const printableTag = (field['Type'] === 'user') ? 'friendly' : 'printable';
-
-					printableField['Name'] = printableName;
-					printableField['Type'] = 'string';
-					printableField['SystemExpression'] = '{=Document:'+printableField['Id']+' > '+printableTag+'}';
-					printableField['Expression'] = '{{'+field['Name']+' > '+printableTag+'}}';
-
-					fields.push(printableField);
-				}
-			}
-			if (field['BaseType'] === 'date' || field['BaseType'] === 'datetime' || field['BaseType'] === 'time')
-			{
-				const serverField = BX.clone(field);
-				serverField['Name'] += ' ' + Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_SERVER');
-				serverField['Type'] = 'string';
-				serverField['SystemExpression'] = `{=Document:${serverField['Id']} > server}`;
-				serverField['Expression'] = `{{${field['Name']} > server}}`;
-
-				fields.push(serverField);
-
-				const responsibleField = BX.clone(field);
-				responsibleField['Name'] += ' ' + Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_RESPONSIBLE');
-				responsibleField['Type'] = 'string';
-				responsibleField['SystemExpression'] = `{=Document:${serverField['Id']} > responsible}`;
-				responsibleField['Expression'] = `{{${field['Name']} > responsible}}`;
-
-				fields.push(responsibleField);
-			}
-		});
-
-		return fields;
+		return enrichFieldsWithModifiers(this.basisFields, 'Document', { shortLink: false });
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 $MESS["BPATL_DESCR"] = "Description";
 $MESS["BPATL_DESCR_FULL"] = "Full Description";
 $MESS["BPATL_DOCUMENT_NAME"] = "Element";
@@ -24,7 +25,7 @@ $MESS["BPATL_TITLE_1"] = "Assignments";
 $MESS["BPATL_USER"] = "User";
 $MESS["BPATL_USER_ID"] = "User ID";
 $MESS["BPATL_USER_NOT_FOUND"] = "The user ##USER_ID# was not found.";
-$MESS["BPATL_VIEW"] = "View Task";
+$MESS["BPATL_VIEW_MSGVER_1"] = "View assignment";
 $MESS["BPATL_WORKFLOW_NAME"] = "Business Process";
 $MESS["BPATL_WORKFLOW_STATE"] = "Status";
 $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";

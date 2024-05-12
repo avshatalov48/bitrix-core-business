@@ -276,12 +276,7 @@ export default class Uploader extends EventEmitter
 			if (file.getOrigin() === FileOrigin.SERVER)
 			{
 				const preloaded: boolean = Type.isStringFilled(file.getName());
-				const shouldPreload: boolean = (
-					(Type.isPlainObject(options) && options.preload === true)
-					|| (Type.isPlainObject(source) && source.preload === true)
-				);
-
-				if (!preloaded || shouldPreload)
+				if (!preloaded || file.shouldForceServerLoad())
 				{
 					file.setLoadController(this.getServer().createServerLoadController());
 				}

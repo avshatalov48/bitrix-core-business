@@ -441,9 +441,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    onDoubleClick() {
-	      if (this.searchMode) {
-	        return;
-	      }
 	      this.$emit('dblclick', this.notificationItem.id);
 	    },
 	    onConfirmButtonsClick(event) {
@@ -1181,9 +1178,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    onDoubleClick(notificationId) {
-	      if (this.showSearchResult) {
-	        return;
-	      }
 	      this.notificationReadService.changeReadStatus(notificationId);
 	    },
 	    onConfirmButtonsClick(button) {

@@ -1,0 +1,58 @@
+.bx-im-sidebar-chat-favourites__container {
+	--im-sidebar-chat-favourites__background_favorite-icon: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2215%22%20viewBox%3D%220%200%2016%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.0088%2012.3428L3.90615%2014.4997C3.68606%2014.6154%203.42883%2014.4285%203.47087%2014.1835L4.2544%209.6151L0.935284%206.37976C0.757229%206.2062%200.855483%205.90381%201.10155%205.86805L5.68846%205.20154L7.73978%201.0451C7.84983%200.822121%208.16778%200.822122%208.27783%201.0451L10.3292%205.20154L14.9161%205.86806C15.1621%205.90381%2015.2604%206.2062%2015.0823%206.37976L11.7632%209.6151L12.5467%2014.1835C12.5888%2014.4285%2012.3315%2014.6154%2012.1115%2014.4997L8.0088%2012.3428Z%22%20fill%3D%22%23008DBA%22%2F%3E%0A%3C%2Fsvg%3E%0A') no-repeat center;
+	--im-sidebar-chat-favourites__background_hover-favorite-icon: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2215%22%20viewBox%3D%220%200%2016%2015%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.0088%2012.3428L3.90615%2014.4997C3.68606%2014.6154%203.42883%2014.4285%203.47087%2014.1835L4.2544%209.6151L0.935284%206.37976C0.757229%206.2062%200.855483%205.90381%201.10155%205.86805L5.68846%205.20154L7.73978%201.0451C7.84983%200.822121%208.16778%200.822122%208.27783%201.0451L10.3292%205.20154L14.9161%205.86806C15.1621%205.90381%2015.2604%206.2062%2015.0823%206.37976L11.7632%209.6151L12.5467%2014.1835C12.5888%2014.4285%2012.3315%2014.6154%2012.1115%2014.4997L8.0088%2012.3428Z%22%20fill%3D%22%2300789E%22%2F%3E%0A%3C%2Fsvg%3E%0A') no-repeat center;
+	--im-sidebar-chat-favourites__color_title: #008dba;
+	--im-sidebar-chat-favourites__color_title-hover: #00789e;
+	--im-sidebar-chat-favourites__color_counter: #fff;
+	--im-sidebar-chat-favourites__background-color_counter: #c9ccd0;
+
+	display: flex;
+	justify-content: space-between;
+	cursor: pointer;
+	height: 20px;
+	position: relative;
+}
+
+.bx-im-sidebar-chat-favourites__container:not(:last-child) {
+	margin-bottom: 8px;
+}
+
+.bx-im-sidebar-chat-favourites__title,
+.bx-im-sidebar-chat-favourites__counter-container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-sidebar-chat-favourites__icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	background: var(--im-sidebar-chat-favourites__background_favorite-icon);
+}
+
+.bx-im-sidebar-chat-favourites__title:hover .bx-im-sidebar-chat-favourites__icon {
+	background: var(--im-sidebar-chat-favourites__background_hover-favorite-icon);
+}
+
+.bx-im-sidebar-chat-favourites__title-text {
+	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-chat-favourites__color_title);
+	margin-left: 10px;
+}
+
+.bx-im-sidebar-chat-favourites__title-text:hover {
+	color: var(--im-sidebar-chat-favourites__color_title-hover)
+}
+
+.bx-im-sidebar-chat-favourites__counter {
+	display: flex;
+	justify-content: center;
+	font: var(--im-font-size-3xs)/16px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-bold);
+	color: var(--im-sidebar-chat-favourites__color_counter);
+	background-color: var(--im-sidebar-chat-favourites__background-color_counter);
+	padding: 0 7px;
+	border-radius: 8px;
+	min-width: 21px;
+}

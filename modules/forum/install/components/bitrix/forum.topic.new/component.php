@@ -45,7 +45,7 @@ endif;
 		$arParams["AJAX_TYPE"] = "Y";
 	else
 		$arParams["AJAX_TYPE"] = "N";
-	$arParams["AJAX_CALL"] = ($_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
+	$arParams["AJAX_CALL"] = (isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
 	$arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $arParams["AJAX_CALL"] == "Y") ? "Y" : "N");
 	$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
 	$arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
@@ -185,15 +185,13 @@ $arResult["URL"] = array(
 	"~READ" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
 	array("FID" => $arParams["FID"], "TID" => intval($arParams["TID"]),
 		"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"], "MID"=>(intval($arParams["MID"]) > 0 ? intval($arParams["MID"]) : "s"))));
-$arResult["VIEW"] = ((mb_strtoupper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
-$_REQUEST["FILES"] = (is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array());
-$_REQUEST["FILES_TO_UPLOAD"] = (is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());
+$arResult["VIEW"] = ((isset($_REQUEST["MESSAGE_MODE"]) && mb_strtoupper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
+$_REQUEST["FILES"] = (isset($_REQUEST["FILES"]) && is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array());
+$_REQUEST["FILES_TO_UPLOAD"] = (isset($_REQUEST["FILES_TO_UPLOAD"]) && is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());
 $post = $this->request->getPostList()->toArray();
-if ($post["AJAX_POST"] == "Y")
-	CUtil::decodeURIComponent($post);
 $arResult["MESSAGE_VIEW"] = array();
 $arAllow = forumTextParser::GetFeatures($arResult["FORUM"]);
-$arAllow['SMILES'] = (($post["USE_SMILES"] == "Y") ? $arAllow['SMILES'] : 'N');
+$arAllow['SMILES'] = ((isset($post["USE_SMILES"]) && $post["USE_SMILES"] == "Y") ? $arAllow['SMILES'] : 'N');
 $arResult["GROUP_NAVIGATION"] = array();
 $arResult["GROUPS"] = CForumGroup::GetByLang(LANGUAGE_ID);
 $parser = new forumTextParser(LANGUAGE_ID, "");
@@ -243,17 +241,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 	else if ($arResult["VIEW"] == "N")
 	{
 		$arFieldsG = array(
-			"POST_MESSAGE" => $_REQUEST["POST_MESSAGE"],
-			"USE_SMILES" => $_REQUEST["USE_SMILES"],
-			"ICON" => $_REQUEST["ICON"],
+			"POST_MESSAGE" => $_REQUEST["POST_MESSAGE"] ?? null,
+			"USE_SMILES" => $_REQUEST["USE_SMILES"] ?? null,
+			"ICON" => $_REQUEST["ICON"] ?? null,
 			"FILES" => array());
 		if ($arParams["SHOW_VOTE"] == "Y" && !empty($_REQUEST["QUESTION"]))
 		{
 			$VOTE_ID = ($arResult["MESSAGE"]["PARAM1"] == 'VT' ? intval($arResult["MESSAGE"]["PARAM2"]) : 0);
 			$arVote = array(
-				"CHANNEL_ID" => $arParams["VOTE_CHANNEL_ID"],
-				"TITLE" => $_REQUEST["TITLE"],
-				"DATE_END" => $_REQUEST["DATE_END"],
+				"CHANNEL_ID" => $arParams["VOTE_CHANNEL_ID"] ?? null,
+				"TITLE" => $_REQUEST["TITLE"] ?? null,
+				"DATE_END" => $_REQUEST["DATE_END"] ?? null,
 				"QUESTIONS" => array()
 			);
 			if ($VOTE_ID <= 0):
@@ -385,10 +383,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 			if ($arParams["MESSAGE_TYPE"] == "EDIT")
 			{
 				$arFieldsG += array(
-					"EDIT_ADD_REASON" => $_REQUEST["EDIT_ADD_REASON"],
-					"EDITOR_NAME" => $_REQUEST["EDITOR_NAME"],
-					"EDITOR_EMAIL" => $_REQUEST["EDITOR_EMAIL"],
-					"EDIT_REASON" => $_REQUEST["EDIT_REASON"]);
+					"EDIT_ADD_REASON" => $_REQUEST["EDIT_ADD_REASON"] ?? null,
+					"EDITOR_NAME" => $_REQUEST["EDITOR_NAME"] ?? null,
+					"EDITOR_EMAIL" => $_REQUEST["EDITOR_EMAIL"] ?? null,
+					"EDIT_REASON" => $_REQUEST["EDIT_REASON"] ?? null);
 			}
 			$TID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intval($arParams["TID"]);
 			$MID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intval($arParams["MID"]);
@@ -397,7 +395,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 				$arParams["FID"], $TID1, $MID1, $arFieldsG,
 				$strErrorMessage, $strOKMessage,
 				false,
-				$post["captcha_word"], 0, $post["captcha_code"]));
+				$post["captcha_word"] ?? null, 0, $post["captcha_code"] ?? null));
 			if ($MID1 > 0 && empty($strErrorMessage))
 			{
 				$arParams["MID"] = $MID1;
@@ -405,7 +403,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 				if ($arParams['AUTOSAVE'])
 					$arParams['AUTOSAVE']->Reset();
 				$addParams = array();
-				if ($_REQUEST["TOPIC_SUBSCRIBE"]=="Y"||$_REQUEST["FORUM_SUBSCRIBE"]=="Y")
+				if ((isset($_REQUEST["TOPIC_SUBSCRIBE"]) && $_REQUEST["TOPIC_SUBSCRIBE"]=="Y") || (isset($_REQUEST["FORUM_SUBSCRIBE"]) && $_REQUEST["FORUM_SUBSCRIBE"]=="Y"))
 				{
 					$addParams["sessid"] = bitrix_sessid();
 					if ($_REQUEST["TOPIC_SUBSCRIBE"]=="Y")
@@ -559,35 +557,35 @@ endif;
 // *****************************************************************************************
 	/* For custom template only */
 	$arFormParams = array(
-		"SEF_MODE" => $arParams["SEF_MODE"],
-		"MESSAGE_TYPE" => $arParams["MESSAGE_TYPE"],
-		"FID" => $arParams["FID"],
-		"TID" => $arParams["TID"],
-		"MID" => $arParams["MID"],
-		"arForum" => $arResult["FORUM"],
-		"bVarsFromForm" => $bVarsFromForm,
-		"strErrorMessage" => $strErrorMessage,
-		"strOKMessage" => $strOKMessage,
+		"SEF_MODE" => $arParams["SEF_MODE"] ?? null,
+		"MESSAGE_TYPE" => $arParams["MESSAGE_TYPE"] ?? null,
+		"FID" => $arParams["FID"] ?? null,
+		"TID" => $arParams["TID"] ?? null,
+		"MID" => $arParams["MID"] ?? null,
+		"arForum" => $arResult["FORUM"] ?? null,
+		"bVarsFromForm" => $bVarsFromForm ?? null,
+		"strErrorMessage" => $strErrorMessage ?? null,
+		"strOKMessage" => $strOKMessage ?? null,
 		"View" => ($arResult["VIEW"] == "Y"),
 		"PAGE_NAME" => "topic_new");
 	if ($bVarsFromForm)
 	{
-		$arFormParams["AUTHOR_NAME"] = $post["AUTHOR_NAME"];
-		$arFormParams["AUTHOR_EMAIL"] = $post["AUTHOR_EMAIL"];
-		$arFormParams["POST_MESSAGE"] = $post["POST_MESSAGE"];
-		$arFormParams["USE_SMILES"] = $post["USE_SMILES"];
-		$arFormParams["TITLE"] = $post["TITLE"];
-		$arFormParams["TITLE_SEO"] = $post["TITLE_SEO"];
-		$arFormParams["TAGS"] = $post["TAGS"];
-		$arFormParams["DESCRIPTION"] = $post["DESCRIPTION"];
-		$arFormParams["ICON"] = $post["ICON"];
+		$arFormParams["AUTHOR_NAME"] = $post["AUTHOR_NAME"] ?? null;
+		$arFormParams["AUTHOR_EMAIL"] = $post["AUTHOR_EMAIL"] ?? null;
+		$arFormParams["POST_MESSAGE"] = $post["POST_MESSAGE"] ?? null;
+		$arFormParams["USE_SMILES"] = $post["USE_SMILES"] ?? null;
+		$arFormParams["TITLE"] = $post["TITLE"] ?? null;
+		$arFormParams["TITLE_SEO"] = $post["TITLE_SEO"] ?? null;
+		$arFormParams["TAGS"] = $post["TAGS"] ?? null;
+		$arFormParams["DESCRIPTION"] = $post["DESCRIPTION"] ?? null;
+		$arFormParams["ICON"] = $post["ICON"] ?? null;
 	}
 	$arFormParams["PATH_TO_SMILE"] = "";
 	$arFormParams["PATH_TO_ICON"] = "";
-	$arFormParams["CACHE_TIME"] = $arParams["CACHE_TIME"];
-	$arFormParams["URL_TEMPLATES_LIST"] = $arParams["~URL_TEMPLATES_LIST"];
-	$arFormParams["URL_TEMPLATES_READ"] = $arParams["~URL_TEMPLATES_MESSAGE"];
-	$arResult["arFormParams"] = $arFormParams;
+	$arFormParams["CACHE_TIME"] = $arParams["CACHE_TIME"] ?? null;
+	$arFormParams["URL_TEMPLATES_LIST"] = $arParams["~URL_TEMPLATES_LIST"] ?? null;
+	$arFormParams["URL_TEMPLATES_READ"] = $arParams["~URL_TEMPLATES_MESSAGE"] ?? null;
+	$arResult["arFormParams"] = $arFormParams ?? null;
 	/* For custom template only */
 
 /*******************************************************************/
@@ -608,10 +606,10 @@ if ($arParams["SET_TITLE"] != "N")
 $this->IncludeComponentTemplate();
 /*******************************************************************/
 return array(
-	"MESSAGE_TYPE" => $arParams["MESSAGE_TYPE"],
-	"FORUM" => $arResult["FORUM"],
-	"MESSAGE" => $arResult["MESSAGE"],
+	"MESSAGE_TYPE" => $arParams["MESSAGE_TYPE"] ?? null,
+	"FORUM" => $arResult["FORUM"] ?? null,
+	"MESSAGE" => $arResult["MESSAGE"] ?? null,
 	"bVarsFromForm" => ($bVarsFromForm ? "Y" : "N"),
-	"ERROR_MESSAGE" => $strErrorMessage,
-	"OK_MESSAGE" => $strOKMessage);
+	"ERROR_MESSAGE" => $strErrorMessage ?? null,
+	"OK_MESSAGE" => $strOKMessage ?? null);
 ?>

@@ -1,28 +1,22 @@
-import { Node, nameSymbol, privateMap } from './node';
-import { ElementNode } from './element-node';
+import { BBCodeNode, nameSymbol, privateMap } from './node';
+import { BBCodeElementNode } from './element-node';
 
 export type FragmentNodeOptions = {
-	children: Array<Node>,
+	children: Array<BBCodeNode>,
 };
 
-export class FragmentNode extends ElementNode
+export class BBCodeFragmentNode extends BBCodeElementNode
 {
-	[nameSymbol]: string = '#fragment';
-
 	constructor(options: FragmentNodeOptions)
 	{
-		super(options);
-		privateMap.get(this).type = Node.FRAGMENT_NODE;
-		FragmentNode.makeNonEnumerableProperty(this, 'value');
-		FragmentNode.makeNonEnumerableProperty(this, 'void');
-		FragmentNode.makeNonEnumerableProperty(this, 'inline');
-		FragmentNode.makeNonEnumerableProperty(this, 'attributes');
+		super({ ...options, name: '#fragment' });
+		privateMap.get(this).type = BBCodeNode.FRAGMENT_NODE;
+		BBCodeFragmentNode.makeNonEnumerableProperty(this, 'value');
+		BBCodeFragmentNode.makeNonEnumerableProperty(this, 'attributes');
+		BBCodeFragmentNode.freezeProperty(this, nameSymbol, '#fragment');
 	}
 
-	setName()
-	{}
-
-	clone(options: { deep: boolean } = {}): FragmentNode
+	clone(options: { deep: boolean } = {}): BBCodeFragmentNode
 	{
 		const children = (() => {
 			if (options.deep)
@@ -35,9 +29,8 @@ export class FragmentNode extends ElementNode
 			return [];
 		})();
 
-		return new FragmentNode({
+		return this.getScheme().createFragment({
 			children,
-			scheme: this.getScheme(),
 		});
 	}
 }

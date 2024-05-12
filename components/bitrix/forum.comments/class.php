@@ -517,9 +517,6 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 		}
 		else
 		{
-			if ($post["AJAX_POST"] == "Y" && $this->arParams["COMPONENT_AJAX"] !== "Y")
-				CUtil::decodeURIComponent($post);
-
 			if ($action == "add" || $action == "edit")
 			{
 				$arPost = array(

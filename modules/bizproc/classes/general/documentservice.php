@@ -525,7 +525,7 @@ class CBPDocumentService extends CBPRuntimeService
 		$bitrixSessId = bitrix_sessid();
 
 $result = <<<EOS
-<script type="text/javascript">
+<script>
 var $objectName = {};
 
 $objectName.arDocumentFields = { $documentFieldsString };
@@ -1282,11 +1282,13 @@ EOS;
 			{
 				return call_user_func_array(
 					[$entity, 'getDocumentDetailUrl'],
-					[
-						[$moduleId, $entity, $documentId],
-						$options
-					]
+					[[$moduleId, $entity, $documentId], $options]
 				);
+			}
+
+			if (method_exists($entity, 'GetDocumentAdminPage'))
+			{
+				return call_user_func_array([$entity, 'GetDocumentAdminPage'], [$documentId]);
 			}
 		}
 

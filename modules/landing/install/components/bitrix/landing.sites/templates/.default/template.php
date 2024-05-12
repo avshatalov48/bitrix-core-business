@@ -42,15 +42,6 @@ else
 	$lastPage = true;
 }
 
-$urlAdd = '';
-if ($arResult['ACCESS_SITE_NEW'] === 'Y' && !$arResult['IS_DELETED'])
-{
-	$urlAdd = ($arParams['TYPE'] === 'STORE')
-		? $component->getUrlAdd(true, ['super' => 'Y'])
-		: $component->getUrlAdd()
-	;
-}
-
 $urlAddCondition = '';
 if ($arResult['ACCESS_SITE_NEW'] === 'Y' && !$arResult['IS_DELETED'])
 {
@@ -169,37 +160,6 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 								sitePath = sitePath.replace(replace[0], replace[1]);
 							});
 
-							if (
-								event.data.from !== undefined
-								&& typeof BX.Landing.Metrika !== 'undefined'
-							)
-							{
-								var dataFrom = event.data.from.split('|');
-								var appCode = dataFrom[1];
-								var title = dataFrom[2];
-								var previewId = dataFrom[3];
-								if (
-									appCode !== null
-									&& title !== null
-									&& previewId !== null
-								)
-								{
-									var metrikaValue =
-										sitePath
-										+ '?action=templateCreated&app_code='
-										+ appCode
-										+ '&title='
-										+ title
-										+ '&preview_id='
-										+ previewId;
-									var metrika = new BX.Landing.Metrika(true);
-									metrika.sendLabel(
-										null,
-										'templateCreated',
-										metrikaValue
-									);
-								}
-							}
 							gotoSiteButton.setAttribute('href', sitePath);
 							setTimeout(() => {window.location.href = sitePath}, 3000);
 						}
@@ -317,7 +277,10 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 	}
 	else
 	{
-		$urlCreatePage = $component->getUrlAdd(false);
+		$urlCreatePage = $component->getUrlAdd(false, [
+			'context_section' => 'site_list',
+			'context_element' => 'tile_menu_link',
+		]);
 		$urlCreatePage = str_replace('%23', '#', $urlCreatePage);
 		$menuItems = [
 			[
@@ -381,6 +344,20 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm
 				'sidepanel' => true
 			],
 		];
+	}
+
+	$urlAdd = '';
+	if ($arResult['ACCESS_SITE_NEW'] === 'Y' && !$arResult['IS_DELETED'])
+	{
+		$urlAddParams = [
+			'context_section' => 'site_list',
+			'context_element' => 'banner',
+		];
+		if ($arParams['TYPE'] === 'STORE')
+		{
+			$urlAddParams['super'] = 'Y';
+		}
+		$urlAdd = $component->getUrlAdd(true, $urlAddParams);
 	}
 
 	$APPLICATION->includeComponent(

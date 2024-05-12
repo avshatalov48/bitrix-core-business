@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["BPATL_DESCR"] = "Описание";
 $MESS["BPATL_DESCR_FULL"] = "Полное описание";
 $MESS["BPATL_F_MODIFIED"] = "Изменен";
@@ -7,7 +8,7 @@ $MESS["BPATL_F_NAME"] = "Название";
 $MESS["BPATL_NAME"] = "Название";
 $MESS["BPATL_NAV"] = "Задания";
 $MESS["BPATL_TITLE_1"] = "Задания";
-$MESS["BPATL_VIEW"] = "Посмотреть задание";
+$MESS["BPATL_VIEW_MSGVER_1"] = "Посмотреть задание";
 $MESS["BPATL_WORKFLOW_NAME"] = "Бизнес-процесс";
 $MESS["BPATL_WORKFLOW_STATE"] = "Статус";
 $MESS["BPATL_USER"] = "Пользователь";
@@ -29,4 +30,3 @@ $MESS ['BPATL_GROUP_ACTION_YES'] = "Утвердить";
 $MESS ['BPATL_GROUP_ACTION_NO'] = "Отклонить";
 $MESS ['BPATL_GROUP_ACTION_OK'] = "Выполнить";
 $MESS ['BPATL_GROUP_ACTION_DELEGATE'] = "Делегировать";
-?>

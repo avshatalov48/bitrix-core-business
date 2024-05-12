@@ -1,13 +1,14 @@
 <?php
 
-
 namespace Bitrix\Calendar\ICal;
 
-
+use Bitrix\Calendar\Core;
 use Bitrix\Calendar\ICal\Builder\Attendee;
 use Bitrix\Calendar\ICal\Builder\AttendeesCollection;
 use Bitrix\Calendar\ICal\MailInvitation\Helper;
 use Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationRequestHandler;
+use Bitrix\Calendar\Public;
+use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -68,9 +69,9 @@ class OutcomingEventManager
 		$this->attendees = $params['userIndex'];
 		$this->receiver = $params['receiver'];
 		$this->sender = $params['sender'];
-		$this->changeFields = $params['changeFields'];
+		$this->changeFields = $params['changeFields'] ?? null;
 		$this->counterInvitations = 0;
-		$this->answer = $params['answer'];
+		$this->answer = $params['answer'] ?? null;
 	}
 
 	public function __serialize(): array
@@ -108,6 +109,8 @@ class OutcomingEventManager
 
 	public function replyInvitation(): OutcomingEventManager
 	{
+		$this->prepareEventFields();
+
 		$filesContent = $this->getReplyContent();
 		$mailEventFields = $this->getReplyMailEventFields();
 		$files = $this->getFiles();
@@ -195,31 +198,28 @@ class OutcomingEventManager
 			$result = "[".$siteName."]";
 		}
 
-		switch ($this->method)
-		{
-			case 'request':
-				$result .= ' ' . Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_REQUEST");
-				break;
-			case 'edit':
-				$result .= ' ' .  Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_EDIT");
-				break;
-			case 'cancel':
-				$result .= ' ' .  Loc::getMessage("EC_CALENDAR_ICAL_MAIL_METHOD_CANCEL");
-				break;
-			case 'reply':
-				$answer = match ($this->answer)
-				{
-					IncomingInvitationRequestHandler::MEETING_STATUS_ACCEPTED_CODE => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_ACCEPTED'),
-					IncomingInvitationRequestHandler::MEETING_STATUS_DECLINED_CODE => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_DECLINED'),
-					default => throw new LogicException('Calendar. Ical. With the reply method, none of the statuses matched')
-				};
-				$result .= ' ' . $answer;
-				break;
-		}
+		$result .= ' ' . $this->getLocMeetingStatus();
 
 		$result .= ": ".$this->eventFields['NAME'];
 
 		return $result;
+	}
+
+	protected function getLocMeetingStatus(): string
+	{
+		return match ($this->method)
+		{
+			'request' => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REQUEST'),
+			'edit' => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_EDIT'),
+			'cancel' => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_CANCEL'),
+			'reply' => match ($this->answer)
+			{
+				IncomingInvitationRequestHandler::MEETING_STATUS_ACCEPTED_CODE => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_ACCEPTED'),
+				IncomingInvitationRequestHandler::MEETING_STATUS_DECLINED_CODE => Loc::getMessage('EC_CALENDAR_ICAL_MAIL_METHOD_REPLY_DECLINED'),
+				default => '',
+			},
+			default => '',
+		};
 	}
 
 	private function getFiles(): array
@@ -248,27 +248,43 @@ class OutcomingEventManager
 		return [];
 	}
 
-	private function getReplyMailEventFields()
+	private function getReplyMailEventFields(): array
 	{
 		return [
 			'EMAIL_FROM' => $this->getSenderAddress(),
 			'EMAIL_TO' => $this->getReceiverAddress(),
-//			'EMAIL_TO' => $this->getMailtoAddress(),
 			'MESSAGE_SUBJECT' => $this->getSubjectMessage(),
 			'MESSAGE_PHP' => $this->getReplyBodyMessage(),
-			'NAME' => $this->eventFields['NAME'],
-			'ANSWER' => $this->answer,
+
+			'LOC_MEETING_STATUS' => $this->getLocMeetingStatus(),
+			'STATUS' => 'event',
+			'EVENT_NAME' => $this->eventFields['NAME'],
 			'DATE_FROM' => $this->eventFields['DATE_FROM'],
 			'DATE_TO' => $this->eventFields['DATE_TO'],
-			'FULL_DAY' => $this->eventFields['SKIP_TIME'] ? 'Y' : 'N',
-			'DESCRIPTION' => str_replace("\r\n", "#$&#$&#$&", $this->eventFields['DESCRIPTION']),
-			'ATTENDEES' => $this->getAttendeesList(),
-			'ATTENDEES_LIST' => $this->getAttendeesList(),
-			'ORGANIZER' => $this->getOrganizerName(),
-			'LOCATION' => $this->eventFields['LOCATION'],
-			'FILES_LINK' =>$this->getFilesLink(),
-			'METHOD' => $this->method,
+			'IS_FULL_DAY' => $this->eventFields['DT_SKIP_TIME'] === 'Y',
+			'TZ_FROM' => $this->eventFields['TZ_FROM'],
+			'TZ_TO' => $this->eventFields['TZ_TO'],
+			'AVATARS' => $this->eventFields['AVATARS'],
+			'OWNER_STATUS' => $this->eventFields['OWNER_STATUS'],
+			'RRULE' => $this->getRRuleString(),
+			'BITRIX24_LINK' => Sharing\Helper::getBitrix24Link(),
 		];
+	}
+
+	protected function getRRuleString(): string
+	{
+		$rrule = \CCalendarEvent::ParseRRULE($this->eventFields['RRULE']);
+		if (is_array($rrule))
+		{
+			return Helper::getIcalTemplateRRule(
+				$rrule,
+				[
+					'DATE_FROM' => $this->eventFields['DATE_FROM'],
+				],
+			);
+		}
+
+		return '';
 	}
 
 	private function getCancelMailEventFields()
@@ -296,7 +312,7 @@ class OutcomingEventManager
 
 	private function getAttendeesList(): string
 	{
-		if ($this->eventFields['MEETING']['HIDE_GUESTS'])
+		if ($this->eventFields['MEETING']['HIDE_GUESTS'] ?? false)
 		{
 			return (string)Loc::getMessage('EC_CALENDAR_ICAL_MAIL_HIDE_GUESTS_INFORMATION');
 		}
@@ -324,6 +340,11 @@ class OutcomingEventManager
 
 	private function getFilesLink()
 	{
+		if (empty($this->eventFields['ATTACHES']))
+		{
+			return '';
+		}
+
 		$attaches = [];
 
 		foreach ($this->eventFields['ATTACHES'] as $attach)
@@ -464,4 +485,15 @@ class OutcomingEventManager
 		}
 	}
 
+	protected function prepareEventFields(): void
+	{
+		$event = (new Core\Mappers\Event())->getByArray($this->eventFields);
+		$this->eventFields['DESCRIPTION'] = Public\PublicEvent::prepareEventDescriptionForIcs($event);
+		$this->eventFields['OWNER_STATUS'] = $this->answer === 'accepted' ? 'Y' : 'N';
+		$this->eventFields['AVATARS'] = [];
+
+		/** @var $parentEvent Core\Event\Event */
+		$parentEvent = (new Core\Mappers\Event())->getById($this->eventFields['PARENT_ID']);
+		$this->eventFields['DAV_XML_ID'] = $parentEvent->getUid();
+	}
 }

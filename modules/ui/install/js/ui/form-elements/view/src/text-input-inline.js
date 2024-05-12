@@ -57,7 +57,7 @@ export class TextInputInline extends TextInput
 		return Tag.render`
 		<div class="ui-section__hint">
 			<div class="ui-section__title">${this.hintTitle}</div>
-			<div class="ui-section__value ${this.valueColor}">${this.getInputNode().value}</div>
+			<div class="ui-section__value ${this.valueColor}">${Text.encode(this.getInputNode().value)}</div>
 			<div class="ui-section__description">${this.#hintDesc}</div>
 		</div>
 		`;

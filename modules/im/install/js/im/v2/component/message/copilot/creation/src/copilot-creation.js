@@ -3,15 +3,14 @@ import { SendingService } from 'im.v2.provider.service';
 
 import './css/copilot-creation-message.css';
 
-import type { JsonObject } from 'main.core';
 import type { ImModelMessage } from 'im.v2.model';
 
-const SAMPLE_MESSAGES = [
-	'IM_MESSAGE_COPILOT_CREATION_ACTION_1',
-	'IM_MESSAGE_COPILOT_CREATION_ACTION_2',
-	'IM_MESSAGE_COPILOT_CREATION_ACTION_3',
-	'IM_MESSAGE_COPILOT_CREATION_ACTION_4',
-];
+const SAMPLE_MESSAGES = {
+	IM_MESSAGE_COPILOT_CREATION_ACTION_1: 'plan',
+	IM_MESSAGE_COPILOT_CREATION_ACTION_2: 'vacancy',
+	IM_MESSAGE_COPILOT_CREATION_ACTION_3: 'ideas',
+	IM_MESSAGE_COPILOT_CREATION_ACTION_4: 'letter',
+};
 
 // @vue/component
 export const ChatCopilotCreationMessage = {
@@ -27,13 +26,12 @@ export const ChatCopilotCreationMessage = {
 			required: true,
 		},
 	},
-	data(): JsonObject
-	{
-		return {};
-	},
 	computed:
 	{
-		sampleMessages: () => SAMPLE_MESSAGES,
+		sampleMessages(): string[]
+		{
+			return Object.keys(SAMPLE_MESSAGES);
+		},
 		message(): ImModelMessage
 		{
 			return this.item;
@@ -51,9 +49,15 @@ export const ChatCopilotCreationMessage = {
 	},
 	methods:
 	{
-		onMessageClick(text: string)
+		onMessageClick(promptLangCode: string)
 		{
-			this.getSendingService().sendMessage({ text: this.loc(text), dialogId: this.dialogId });
+			void this.getSendingService().sendCopilotPrompt({
+				text: this.loc(promptLangCode),
+				dialogId: this.dialogId,
+				copilot: {
+					promptCode: SAMPLE_MESSAGES[promptLangCode],
+				},
+			});
 		},
 		getSendingService(): SendingService
 		{
@@ -73,7 +77,7 @@ export const ChatCopilotCreationMessage = {
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withContextMenu="false"
+			:withDefaultContextMenu="false"
 			:withBackground="false"
 		>
 			<div class="bx-im-message-copilot-creation__container">

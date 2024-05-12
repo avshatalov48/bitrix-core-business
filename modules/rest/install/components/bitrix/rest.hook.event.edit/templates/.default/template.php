@@ -100,7 +100,7 @@ if(is_array($arResult["EVENTS"])):
 		$scopeHtml = '';
 		foreach($eventList as $event)
 		{
-			$event = ToUpper($event);
+			$event = mb_strtoupper($event);
 
 			if(array_key_exists($event, $arResult['EVENTS_DESC']))
 			{

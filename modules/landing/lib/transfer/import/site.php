@@ -483,16 +483,16 @@ class Site
 		{
 			Rights::setGlobalOff();
 			$siteType = $ratio['LANDING']['TYPE'];
-			$siteId = $ratio['LANDING']['SITE_ID'];
-			$blocks = $ratio['LANDING']['BLOCKS'];
-			$landings = $ratio['LANDING']['LANDINGS'];
-			$blocksPending = $ratio['LANDING']['BLOCKS_PENDING'];
-			$foldersRef = $ratio['LANDING']['FOLDERS_REF'];
-			$templatesOld = $ratio['LANDING']['TEMPLATES'];
-			$templateLinking = $ratio['LANDING']['TEMPLATE_LINKING'];
-			$specialPages = $ratio['LANDING']['SPECIAL_PAGES'];
-			$sysPages = $ratio['LANDING']['SYS_PAGES'];
-			$foldersNew = $ratio['LANDING']['FOLDERS_NEW'];
+			$siteId = $ratio['LANDING']['SITE_ID'] ?? null;
+			$blocks = $ratio['LANDING']['BLOCKS'] ?? null;
+			$landings = $ratio['LANDING']['LANDINGS'] ?? [];
+			$blocksPending = $ratio['LANDING']['BLOCKS_PENDING'] ?? null;
+			$foldersRef = $ratio['LANDING']['FOLDERS_REF'] ?? null;
+			$templatesOld = $ratio['LANDING']['TEMPLATES'] ?? [];
+			$templateLinking = $ratio['LANDING']['TEMPLATE_LINKING'] ?? [];
+			$specialPages = $ratio['LANDING']['SPECIAL_PAGES'] ?? null;
+			$sysPages = $ratio['LANDING']['SYS_PAGES'] ?? null;
+			$foldersNew = $ratio['LANDING']['FOLDERS_NEW'] ?? [];
 			$additional = $event->getParameter('ADDITIONAL_OPTION') ?? [];
 
 			// if import just page in existing site
@@ -751,18 +751,16 @@ class Site
 				];
 			}
 
-			$isNewAnalytic = false;
 			if (
 				!empty($additional)
 				&& array_key_exists('st_category', $additional)
 				&& array_key_exists('st_event', $additional)
 			)
 			{
-				$isNewAnalytic = true;
-
 				$analyticData = [
 					'category' => $additional['st_category'],
 					'event' => $additional['st_event'],
+					'status' => 'success',
 				];
 				if (array_key_exists('st_section', $additional))
 				{
@@ -797,8 +795,6 @@ class Site
 					'id' => $siteId,
 					'publicUrl' => \Bitrix\Landing\Site::getPublicUrl($siteId),
 					'imageUrl' => Manager::getUrlFromFile(\Bitrix\Landing\Site::getPreview($siteId)),
-					// tmp param - del when all analytic will be new
-					'isNewAnalytic' => $isNewAnalytic ? 'Y' : 'N',
 				]
 			];
 		}

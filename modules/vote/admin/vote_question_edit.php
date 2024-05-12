@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager						#
 # Copyright (c) 2004 - 2009 Bitrix			#
-# http://www.bitrix.ru						#
+# https://www.bitrixsoft.com				#
 # mailto:admin@bitrix.ru					#
 ##############################################
 *//**
@@ -279,7 +279,7 @@ $t_COL = array("00", "33", "66", "99", "CC", "FF");
 			<td width=50%><input id="t_COL" size=10 style="width:100%;border:1px solid black"></td>
 		</tr>
 	</table></div>
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT>
 	<!--
 	jsUtils.addEvent(document, "mousedown", function(e){hidePicker();});
 	jsUtils.addEvent(document, "keypress", function(e){hidePicker();});
@@ -321,7 +321,7 @@ $t_COL = array("00", "33", "66", "99", "CC", "FF");
 /************** Table of colors/************************************/
 ?>
 <form name="form1" method="POST" action="" enctype="multipart/form-data">
-	<script type="text/javascript">
+	<script>
 		<!--
 		function FIELD_TYPE_CHANGE(i)
 		{
@@ -391,7 +391,7 @@ $t_COL = array("00", "33", "66", "99", "CC", "FF");
 	<tr>
 		<td><?=GetMessage("VOTE_DIAGRAM_TYPE")?>:</td>
 		<td><?echo SelectBoxFromArray("DIAGRAM_TYPE", GetVoteDiagramList(), $arQuestion["DIAGRAM_TYPE"]);?>
-			<script type="text/javascript">OnDiagramFlagChange();</script>
+			<script>OnDiagramFlagChange();</script>
 		</td>
 	</tr>
 	<?if (COption::GetOptionString("vote", "VOTE_COMPATIBLE_OLD_TEMPLATE", "N") == "Y"):?>
@@ -448,7 +448,7 @@ $t_COL = array("00", "33", "66", "99", "CC", "FF");
 	?>
 	<tr class="adm-detail-required-field">
 		<td colspan="2">
-			<script type='text/javascript'>
+			<script>
 
 				function addQuestionRow(tthis)
 				{

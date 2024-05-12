@@ -8,9 +8,13 @@ import { SystemMessage } from 'im.v2.component.message.system';
 import { ChatCreationMessage } from 'im.v2.component.message.chat-creation';
 import { ChatCopilotCreationMessage } from 'im.v2.component.message.copilot.creation';
 import { CopilotMessage } from 'im.v2.component.message.copilot.answer';
+import { ChatCopilotAddedUsersMessage } from 'im.v2.component.message.copilot.added-users';
 import { SupportVoteMessage } from 'im.v2.component.message.support.vote';
 import { SupportSessionNumberMessage } from 'im.v2.component.message.support.session-number';
 import { ConferenceCreationMessage } from 'im.v2.component.message.conference-creation';
+import { SupervisorUpdateFeatureMessage } from 'im.v2.component.message.supervisor.update-feature';
+import { SupervisorEnableFeatureMessage } from 'im.v2.component.message.supervisor.enable-feature';
+import { SignMessage } from 'im.v2.component.message.sign';
 import { OwnChatCreationMessage } from 'im.v2.component.message.own-chat-creation';
 import { ZoomInviteMessage } from 'im.v2.component.message.zoom-invite';
 
@@ -30,4 +34,8 @@ export const messageComponents = {
 	SupportSessionNumberMessage,
 	ConferenceCreationMessage,
 	ZoomInviteMessage,
+	SupervisorUpdateFeatureMessage,
+	SupervisorEnableFeatureMessage,
+	ChatCopilotAddedUsersMessage,
+	SignMessage,
 };

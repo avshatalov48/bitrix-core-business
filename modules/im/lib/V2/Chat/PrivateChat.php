@@ -262,27 +262,6 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		return $pushMessage;
 	}
 
-	protected function sendPushUnreadSelf(int $unreadToId, int $lastId, int $counter, ?array $lastMessageStatuses = null): void
-	{
-		\Bitrix\Pull\Event::add($this->getContext()->getUserId(), [
-			'module_id' => 'im',
-			'command' => 'unreadMessage',
-			'expiry' => 3600,
-			'params' => [
-				'dialogId' => $this->getDialogId(),
-				'chatId' => $this->chatId,
-				'userId' => (int)$this->getDialogId(),
-				'date' => new \Bitrix\Main\Type\DateTime(),
-				'counter' => $counter,
-				'muted' => false,
-				'unread' => Recent::isUnread($this->getContext()->getUserId(), $this->getType(), $this->getDialogId()),
-				'unreadToId' => $unreadToId,
-			],
-			'push' => ['badge' => 'Y'],
-			'extra' => \Bitrix\Im\Common::getPullExtra()
-		]);
-	}
-
 	protected function sendEventRead(int $startId, int $endId, int $counter, bool $byEvent): void
 	{
 		foreach(GetModuleEvents("im", "OnAfterUserRead", true) as $arEvent)

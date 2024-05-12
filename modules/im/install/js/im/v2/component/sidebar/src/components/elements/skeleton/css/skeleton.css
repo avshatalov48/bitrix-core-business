@@ -1,0 +1,50 @@
+.bx-im-sidebar-skeleton__container {
+	--im-sidebar-skeleton__background-color_block: var(--im-color-palette-white-base, #fff);
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 6px 0 6px 6px;
+	height: calc(100% - 64px);
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+.bx-im-sidebar-skeleton__block {
+	width: 100%;
+	background-color: var(--im-sidebar-skeleton__background-color_block);
+	margin-bottom: 6px;
+	border-radius: 8px;
+	box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
+}
+
+.bx-im-sidebar-skeleton__avatar {
+	height: 172px;
+	background: url('./images/avatar.svg');
+}
+
+.bx-im-sidebar-skeleton__invite-button {
+	height: 36px;
+	background: url('./images/invite-button.svg');
+}
+
+.bx-im-sidebar-skeleton__settings {
+	height: 54px;
+	background: url('./images/settings.svg');
+}
+
+.bx-im-sidebar-skeleton__files {
+	height: 130px;
+	background: url('./images/files.svg');
+}
+
+.bx-im-sidebar-skeleton__info {
+	height: 118px;
+	background: url('./images/info.svg');
+}
+
+.bx-im-sidebar-skeleton__tasks {
+	height: 118px;
+	background: url('./images/tasks.svg');
+}
+

@@ -192,9 +192,15 @@ export class BaseField extends EventEmitter
 	renderMoreElement(helpdeskCode): HTMLElement
 	{
 		return Tag.render`
+			${this.getMoreElement(helpdeskCode)}
+		`;
+	}
+
+	getMoreElement(helpdeskCode): string
+	{
+		return `
 			<a class="more" href="javascript:top.BX.Helper.show('${helpdeskCode}');">
 				${Loc.getMessage("INTRANET_SETTINGS_CANCEL_MORE")}
-			</a>
-		`;
+			</a>`;
 	}
 }

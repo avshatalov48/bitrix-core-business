@@ -836,36 +836,6 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		]);
 	}
 
-	public function unreadToMessage(Message $message): Result
-	{
-		$result = new Result();
-
-		if ($message->getChatId() !== $this->chatId)
-		{
-			return $result->addError(new MessageError(MessageError::MESSAGE_NOT_FOUND));
-		}
-
-		$readService = $this->getReadService();
-		$lastId = $readService->getLastMessageIdInChat($this->chatId);
-		$counter = $readService->unreadTo($message)->getResult()['COUNTER'];
-		$lastMessageIds = $this->getLastMessages($lastId, $message->getMessageId());
-		$lastMessageStatuses = $this->getReadService()->getViewedService()->getMessageStatuses($lastMessageIds);
-
-		/*if (Main\Loader::includeModule('pull'))
-		{
-			$this->sendPushUnreadSelf($message->getMessageId(), $lastId, $counter, $lastMessageStatuses);
-			$this->sendPushUnreadOpponent($lastMessageStatuses[$lastId] ?? \IM_MESSAGE_STATUS_RECEIVED, $lastId, $lastMessageStatuses);
-		}*/
-
-		return $result->setResult([
-			'CHAT_ID' => $this->chatId,
-			'LAST_ID' => $lastId,
-			'COUNTER' => $counter,
-			'UNREAD_TO' => $message->getId(),
-			'LAST_MESSAGE_STATUSES' => $lastMessageStatuses,
-		]);
-	}
-
 	public function sendPushUpdateMessage(Message $message): void
 	{
 		return;
@@ -951,31 +921,6 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 				'BY_EVENT' => $byEvent
 			)));
 		}
-	}
-
-	protected function sendPushUnreadSelf(int $unreadToId, int $lastId, int $counter, ?array $lastMessageStatuses): void
-	{
-		$selfRelation = $this->getSelfRelation();
-		$muted = isset($selfRelation) ? $selfRelation->getNotifyBlock() : false;
-		\Bitrix\Pull\Event::add($this->getContext()->getUserId(), [
-			'module_id' => 'im',
-			'command' => 'unreadMessageChat',
-			'params' => [
-				'dialogId' => $this->getDialogId(),
-				'chatId' => $this->chatId,
-				'lastId' => $lastId,
-				'date' => new DateTime(),
-				'counter' => $counter,
-				'muted' => $muted ?? false,
-				'unread' => Im\Recent::isUnread($this->getContext()->getUserId(), $this->getType(), $this->getDialogId()),
-				'lines' => $this->getType() === IM_MESSAGE_OPEN_LINE,
-				'unreadToId' => $unreadToId,
-				'lastMessageStatuses' => $lastMessageStatuses ?? [],
-				'lastMessageViews' => Im\Common::toJson($this->getLastMessageViews()),
-			],
-			'push' => ['badge' => 'Y'],
-			'extra' => \Bitrix\Im\Common::getPullExtra()
-		]);
 	}
 
 	public function getLastMessages(int $upperBound, int $lowerBound): array
@@ -2573,6 +2518,8 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 
 	protected function addUsersToRelation(array $usersToAdd, array $managerIds = [], ?bool $hideHistory = null)
 	{
+		$usersToAdd = array_filter($usersToAdd);
+
 		if (empty($usersToAdd))
 		{
 			return;
@@ -3081,9 +3028,16 @@ abstract class Chat implements RegistryEntry, ActiveRecord, Im\V2\Rest\RestEntit
 		return $this;
 	}
 
-	public function getLoadContextMessage(): Message
+	public function getLoadContextMessage(bool $ignoreMark = false): Message
 	{
-		$startMessageId = $this->getMarkedId() ?: $this->getLastId();
+		if (!$ignoreMark)
+		{
+			$startMessageId = $this->getMarkedId() ?: $this->getLastId();
+		}
+		else
+		{
+			$startMessageId = $this->getLastId();
+		}
 
 		return (new \Bitrix\Im\V2\Message($startMessageId))->setChatId($this->getId())->setMessageId($startMessageId);
 	}

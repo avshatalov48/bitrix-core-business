@@ -1120,7 +1120,7 @@ class CBitrixRestEntity extends IRestService
 
 			if(isset($params['TYPE']))
 			{
-				$params['TYPE'] = ToUpper($params['TYPE']);
+				$params['TYPE'] = mb_strtoupper($params['TYPE']);
 				if(!in_array($params['TYPE'], array('S', 'N', 'F'/*, 'L'*/)))
 				{
 					throw new \Bitrix\Main\ArgumentException('Wrong entity item property type', "TYPE");

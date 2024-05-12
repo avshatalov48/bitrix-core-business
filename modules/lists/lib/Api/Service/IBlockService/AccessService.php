@@ -75,4 +75,9 @@ final class AccessService extends \Bitrix\Lists\Api\Service\AccessService
 	{
 		return $this->checkElementPermission(0, $sectionId, ElementRight::ADD, $iBlockId);
 	}
+
+	public function canUserEditElement(int $elementId, int $sectionId, int $iBlockId): CheckPermissionsResponse
+	{
+		return $this->checkElementPermission($elementId, $sectionId, ElementRight::EDIT, $iBlockId);
+	}
 }

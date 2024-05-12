@@ -7,7 +7,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 ?>
 
 <?= $javascriptFunctions ?>
-<script language="JavaScript">
+<script>
 var BPRIAParams = <?=(is_array($requestedInformation)?CUtil::PhpToJSObject($requestedInformation):'{}')?>;
 
 function BPRIAEditForm(b)

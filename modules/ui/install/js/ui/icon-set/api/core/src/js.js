@@ -58,7 +58,7 @@ export class Icon {
 
 	render(): Node
 	{
-		let className = 'ui-icon-set' +  ` --${this.icon}`;
+		let className = 'ui-icon-set' + ` --${this.icon}`;
 
 		this.iconElement = Tag.render`<div class="${className}"></div>`;
 

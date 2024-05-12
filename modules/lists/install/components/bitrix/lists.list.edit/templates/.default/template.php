@@ -221,7 +221,7 @@ $APPLICATION->IncludeComponent(
 $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0;
 ?>
 
-<script type="text/javascript">
+<script>
 	BX(function()
 	{
 		BX.Lists['<?=$jsClass?>'] = new BX.Lists.ListsEditClass({

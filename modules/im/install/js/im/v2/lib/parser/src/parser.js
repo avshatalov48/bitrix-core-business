@@ -1,4 +1,4 @@
-import { Type, Text, Loc } from 'main.core';
+import { Type, Text, Loc, Extension } from 'main.core';
 
 import { DesktopApi } from 'im.v2.lib.desktop-api';
 
@@ -27,7 +27,8 @@ import type { ParserConfig } from './types/parser-config';
 
 type ResultRecentConfig = {
 	files: boolean | Object[],
-	attach: boolean | string | Object[]
+	attach: boolean | string | Object[],
+	text: string,
 };
 
 export const Parser = {
@@ -190,13 +191,27 @@ export const Parser = {
 
 	purifyRecent(recentMessage: ImModelRecentItem): string
 	{
-		const { files, attach } = this.prepareConfigForRecent(recentMessage);
+		const settings = Extension.getSettings('im.v2.lib.parser');
+		const v2 = settings.get('v2');
+		if (!v2)
+		{
+			const { files, attach, text } = this.prepareLegacyConfigForRecent(recentMessage);
+
+			return this.purify({
+				text,
+				attach,
+				files,
+				showPhraseMessageWasDeleted: recentMessage.message.id !== 0,
+			});
+		}
+
+		const { files, attach, text } = this.prepareConfigForRecent(recentMessage);
 
 		return this.purify({
-			text: recentMessage.message.text,
+			text,
 			attach,
 			files,
-			showPhraseMessageWasDeleted: recentMessage.message.id !== 0,
+			showPhraseMessageWasDeleted: recentMessage.messageId !== 0,
 		});
 	},
 
@@ -326,6 +341,33 @@ export const Parser = {
 
 	prepareConfigForRecent(recentMessage: ImModelRecentItem): ResultRecentConfig
 	{
+		let files = getCore().store.getters['messages/getMessageFiles'](recentMessage.messageId);
+		if (files.length === 0)
+		{
+			files = false;
+		}
+
+		const message = getCore().store.getters['recent/getMessage'](recentMessage.dialogId);
+
+		let attach = false;
+		if (
+			Type.isBoolean(message?.attach)
+			|| Type.isStringFilled(message?.attach)
+			|| Type.isArray(message?.attach)
+		)
+		{
+			attach = message.attach;
+		}
+		else if (Type.isPlainObject(message?.attach))
+		{
+			attach = [message.attach];
+		}
+
+		return { files, attach, text: message.text };
+	},
+
+	prepareLegacyConfigForRecent(recentMessage): ResultRecentConfig
+	{
 		let files = false;
 		const fileField = recentMessage.message.params.withFile;
 		if (Type.isBoolean(fileField))
@@ -352,7 +394,7 @@ export const Parser = {
 			attach = [attachField];
 		}
 
-		return { files, attach };
+		return { files, attach, text: recentMessage.message.text };
 	},
 
 	executeClickEvent(event: PointerEvent)

@@ -19,23 +19,7 @@ class CCalendarNotify
 			return false;
 		}
 
-//		if ($params['mode'] === self::NOTIFY_USERS_ADDED_TO_MULTI_LINK)
-//		{
-//			foreach ($params['guestIds'] as $guestId)
-//			{
-//				$notifyFields = self::UsersAddedToMultiLink([
-//					...$params,
-//					'guestId' => $guestId,
-//				]);
-//				CIMNotify::Add($notifyFields);
-//			}
-//
-//			return true;
-//		}
-
-		$culture = \Bitrix\Main\Context::getCurrent()->getCulture();
-
-		$params['rrule'] = CCalendarEvent::GetRRULEDescription($params['fields'] ?? null, false, false);
+//		$params['rrule'] = CCalendarEvent::GetRRULEDescription($params['fields'] ?? null, false, false);
 		$params["eventId"] = (int)($params["eventId"] ?? null);
 		$mode = $params['mode'];
 		$fromUser = (int)$params["userId"];
@@ -45,19 +29,14 @@ class CCalendarNotify
 			return false;
 		}
 
-		$fromTimestamp = CCalendar::Timestamp($params["from"] ?? null);
+		$params['from_timestamp'] = CCalendar::Timestamp($params["from"] ?? null);
 		if (($params['fields']['DT_SKIP_TIME'] ?? null) === 'Y')
 		{
-			$params["from"] = CCalendar::Date($fromTimestamp, false);
-			$params["from_formatted"] = FormatDate($culture->getFullDateFormat(), $fromTimestamp);
-
+			$params["from"] = CCalendar::Date($params['from_timestamp'], false);
 		}
 		else
 		{
-			$params["from"] = CCalendar::Date($fromTimestamp, true, true, true);
-			$params["from_formatted"] = FormatDate($culture->getFullDateFormat(), $fromTimestamp)
-				. ' '
-				. FormatDate($culture->getShortTimeFormat(), $fromTimestamp);
+			$params["from"] = CCalendar::Date($params['from_timestamp'], true, true, true);
 		}
 
 		$notifyFields = [
@@ -186,7 +165,7 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID'];
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|" . $params['eventId'] ?? null;
 
-		if (!empty($params['rrule']))
+		if (!empty($params['fields']['RRULE']))
 		{
 			$fromTs = CCalendar::Timestamp($params['fields']['DATE_FROM'] ?? null);
 			$toTs = CCalendar::Timestamp($params['fields']['DATE_TO'] ?? null);
@@ -205,65 +184,126 @@ class CCalendarNotify
 					+ CCalendar::GetCurrentOffsetUTC($fields['TO_USER_ID'] ?? null);
 			}
 
-			$params['from_to_html'] = CCalendar::GetFromToHtml(
+			$params['from_to_html'] = fn (?string $languageId = null) => CCalendar::GetFromToHtml(
 				$fromTs,
 				$toTs,
 				($params['fields']['DT_SKIP_TIME'] ?? null) === 'Y',
 				$params['fields']['DT_LENGTH'] ?? null,
-				true
+				true,
+				$languageId
 			);
-
-			$fields['MESSAGE'] = Loc::getMessage('EC_MESS_REC_INVITE_SITE', [
-				'#TITLE#' => $params["name"] ?? null,
-				'#ACTIVE_FROM#' => $params['from_to_html'],
-				'#RRULE#' => $params["rrule"] ?? null
-			]);
-			$fields['MESSAGE_OUT'] = Loc::getMessage('EC_MESS_REC_INVITE', [
-				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params['from_to_html'],
-				'#RRULE#' => $params["rrule"]
-			]);
 		}
-		else
+
+		$inviteMessage = static function (?string $languageId = null) use ($params)
 		{
-			$fields['MESSAGE'] = Loc::getMessage('EC_MESS_INVITE_SITE', [
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]);
+			if (!empty($params['fields']['RRULE']))
+			{
+				$result = Loc::getMessage(
+					'EC_MESS_REC_INVITE_SITE',
+					[
+						'#TITLE#' => $params["name"] ?? null,
+						'#ACTIVE_FROM#' => $params['from_to_html']($languageId),
+						'#RRULE#' => CCalendarEvent::GetRRULEDescription($params['fields'], false, false, $languageId)
+					],
+					$languageId
+				);
+			}
+			else
+			{
+				$result = Loc::getMessage(
+					'EC_MESS_INVITE_SITE',
+					[
+						'#TITLE#' => $params["name"],
+						'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+					],
+					$languageId
+				);
+			}
 
-			$fields['MESSAGE_OUT'] = Loc::getMessage('EC_MESS_INVITE', [
-				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]);
-		}
+			if ($params['location'])
+			{
+				$result .= "\n\n" . Loc::getMessage(
+					'EC_EVENT_REMINDER_LOCATION',
+					[
+						'#LOCATION#' => $params['location']
+					],
+					$languageId
+				);
+			}
 
-		if ($params['location'])
+			if ($params['isSharing'] ?? false)
+			{
+				$result = Loc::getMessage(
+					'EC_MESS_INVITE_SITE_SHARING',
+					[
+						'#TITLE#' => $params["name"],
+						'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId),
+					],
+					$languageId
+				);
+			}
+
+			$result .= "\n\n" . Loc::getMessage('EC_MESS_INVITE_DETAILS_SITE', ['#LINK#' => $params["pathToEvent"]], $languageId);
+
+			return $result;
+		};
+
+		$inviteMessageOut = static function (?string $languageId, ?string $ownerName) use ($params)
 		{
-			$fields['MESSAGE'] .= "\n\n" . Loc::getMessage('EC_EVENT_REMINDER_LOCATION', [
-				'#LOCATION#' => $params['location']
-			]);
-			$fields['MESSAGE_OUT'] .= "\n\n" . Loc::getMessage('EC_EVENT_REMINDER_LOCATION', [
-				'#LOCATION#' => $params['location']
-			]);
-		}
+			if (!empty($params['fields']['RRULE']))
+			{
+				$result = Loc::getMessage(
+					'EC_MESS_REC_INVITE',
+					[
+						'#OWNER_NAME#' => $ownerName,
+						'#TITLE#' => $params["name"],
+						'#ACTIVE_FROM#' => $params['from_to_html']($languageId),
+						'#RRULE#' => CCalendarEvent::GetRRULEDescription($params['fields'], false, false, $languageId)
+					],
+					$languageId
+				);
+			}
+			else
+			{
+				$result = Loc::getMessage(
+					'EC_MESS_INVITE',
+					[
+						'#OWNER_NAME#' => $ownerName,
+						'#TITLE#' => $params["name"],
+						'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+					],
+					$languageId
+				);
+			}
 
-		if ($params['isSharing'] ?? false)
-		{
-			$fields['MESSAGE'] = Loc::getMessage('EC_MESS_INVITE_SITE_SHARING', [
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"],
-			]);
-		}
+			if ($params['location'])
+			{
+				$result .= "\n\n" . Loc::getMessage(
+					'EC_EVENT_REMINDER_LOCATION',
+					['#LOCATION#' => $params['location']],
+					$languageId
+				);
+			}
 
-		$fields['PUSH_MESSAGE'] = str_replace(
+			$result .= "\n\n" . Loc::getMessage('EC_MESS_INVITE_CONF_Y', ['#LINK#' => $params["pathToEvent"] . '&CONFIRM=Y'], $languageId)
+				. "\n" . Loc::getMessage('EC_MESS_INVITE_CONF_N', ['#LINK#' => $params["pathToEvent"] . '&CONFIRM=N'], $languageId)
+				. "\n\n" . Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]], $languageId)
+			;
+
+			return $result;
+		};
+
+		$fields['MESSAGE'] = fn (?string $languageId = null) => $inviteMessage($languageId);
+
+		$ownerName = CCalendar::GetUserName($params['userId']);
+		$fields['MESSAGE_OUT'] = fn (?string $languageId = null) => $inviteMessageOut($languageId, $ownerName);
+
+		$fields['PUSH_MESSAGE'] = fn (?string $languageId = null) => str_replace(
 			['[B]', '[/B]'],
 			['', ''],
-			$fields['MESSAGE']
+			$inviteMessage($languageId)
 		);
 
-		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS_SITE', ['#LINK#' => $params["pathToEvent"]]);
 		$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 
 		$fields['NOTIFY_BUTTONS'] = [
@@ -271,15 +311,13 @@ class CCalendarNotify
 			['TITLE' => Loc::getMessage('EC_MESS_INVITE_CONF_N_SITE'), 'VALUE' => 'N', 'TYPE' => 'cancel']
 		];
 
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_CONF_Y', ['#LINK#' => $params["pathToEvent"].'&CONFIRM=Y']);
-		$fields['MESSAGE_OUT'] .= "\n".Loc::getMessage('EC_MESS_INVITE_CONF_N', ['#LINK#' => $params["pathToEvent"].'&CONFIRM=N']);
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]]);
-
-		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_TITLE',
+		$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+			'EC_MESS_INVITE_TITLE',
 			[
 				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
 				'#TITLE#' => $params["name"]
-			]
+			],
+			$languageId
 		);
 
 		return $fields;
@@ -291,197 +329,182 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID'];
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
 
-		// Was changed only one field in this case we could be more specific
-		if (count($params['entryChanges']) === 1)
+		$getValueWithViewEventUrl = static function ($value) use ($params)
 		{
-			$change = $params['entryChanges'][0];
-			switch($change['fieldKey'])
-			{
-				case 'NAME':
-					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_TITLE_CHANGED',
-						[
-							'#OLD_TITLE#' => $change['oldValue'],
-							'#NEW_TITLE#' => "[url=".$params["pathToEvent"]."]".$change['newValue']."[/url]",
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
+			return '[url=' . $params["pathToEvent"] . ']' . $value . '[/url]';
+		};
 
-					$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_TITLE_CHANGED',
-						[
-							'#OLD_TITLE#' => $change['oldValue'],
-							'#NEW_TITLE#' => $change['newValue'],
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
-					break;
-
-				case 'DATE_FROM':
-					if ($params['fields']['DT_SKIP_TIME'] === 'N')
-					{
-						$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_FROM'])
-							- \CCalendar::GetCurrentOffsetUTC($params['guestId']);
-
-						$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
-							- $userOffset, true, true, true);
-						$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
-							- $userOffset, true, true, true);
-					}
-
-					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DATE_FROM_CHANGED',
-						[
-							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-							'#OLD_DATE_FROM#' => $change['oldValue'],
-							'#NEW_DATE_FROM#' => $change['newValue']
-						]
-					);
-
-					$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_DATE_FROM_CHANGED',
-						[
-							'#TITLE#' => $params["name"],
-							'#OLD_DATE_FROM#' => $change['oldValue'],
-							'#NEW_DATE_FROM#' => $change['newValue']
-						]
-					);
-					break;
-
-				case 'DATE_TO':
-					if ($params['fields']['DT_SKIP_TIME'] === 'N')
-					{
-						$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_TO'])
-							- \CCalendar::GetCurrentOffsetUTC($params['guestId']);
-
-						$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
-							- $userOffset, true, true, true);
-						$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
-							- $userOffset, true, true, true);
-					}
-
-					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DATE_TO_CHANGED',
-						[
-							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-							'#OLD_DATE_TO#' => $change['oldValue'],
-							'#NEW_DATE_TO#' => $change['newValue']
-						]
-					);
-
-					$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_DATE_TO_CHANGED',
-						[
-							'#TITLE#' => $params["name"],
-							'#OLD_DATE_TO#' => $change['oldValue'],
-							'#NEW_DATE_TO#' => $change['newValue']
-						]
-					);
-					break;
-				case 'LOCATION':
-					$locationMessageCode = empty($change['newValue']) ? 'EC_NOTIFY_LOCATION_CHANGED_NONE' : 'EC_NOTIFY_LOCATION_CHANGED';
-					$fields['MESSAGE'] = Loc::getMessage($locationMessageCode,
-						[
-							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-							'#ACTIVE_FROM#' => $params["from"],
-							'#NEW_VALUE#' => \CCalendar::GetTextLocation($change['newValue'])
-						]
-					);
-
-					$fields['MESSAGE_OUT'] = Loc::getMessage($locationMessageCode,
-						[
-							'#TITLE#' => $params["name"],
-							'#ACTIVE_FROM#' => $params["from"],
-							'#NEW_VALUE#' => \CCalendar::GetTextLocation($change['newValue'])
-						]
-					);
-					break;
-				case 'ATTENDEES':
-					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_ATTENDEES_CHANGED',
-						[
-							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
-
-					$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_ATTENDEES_CHANGED',
-						[
-							'#TITLE#' => $params["name"],
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
-					break;
-				case 'DESCRIPTION':
-					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DESCRIPTION_CHANGED',
-						[
-							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
-
-					$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_DESCRIPTION_CHANGED',
-						[
-							'#TITLE#' => $params["name"],
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
-					break;
-				case 'RRULE':
-				case 'EXDATE':
-					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_RRULE_CHANGED',
-						[
-							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]"
-						]
-					);
-
-					$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_RRULE_CHANGED',
-						[
-							'#TITLE#' => $params["name"]
-						]
-					);
-					break;
-				case 'IMPORTANCE':
-					$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_IMPORTANCE_CHANGED',
-						[
-							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
-					$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_IMPORTANCE_CHANGED',
-						[
-							'#TITLE#' => $params["name"],
-							'#ACTIVE_FROM#' => $params["from_formatted"]
-						]
-					);
-					break;
-			}
-		}
-		else // Two or more changes
+		$changeMessage = static function (?string $languageId, $isOutMessage, $changedLocation) use ($params, $getValueWithViewEventUrl)
 		{
-			$changedFieldsList = [];
-			foreach ($params['entryChanges'] as $change)
+			$result = '';
+
+			if (count($params['entryChanges']) === 1)
 			{
-				$key = $change['fieldKey'];
-				$changedFieldsList[] = Loc::getMessage('EC_NOTIFY_FIELD_'.$key);
+				$change = $params['entryChanges'][0];
+				switch($change['fieldKey'])
+				{
+					case 'NAME':
+						$result = Loc::getMessage(
+							'EC_NOTIFY_TITLE_CHANGED',
+							[
+								'#OLD_TITLE#' => $change['oldValue'],
+								'#NEW_TITLE#' => $isOutMessage ? $change['newValue'] : $getValueWithViewEventUrl($change['newValue']),
+								'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+							],
+							$languageId
+						);
+
+						break;
+
+					case 'DATE_FROM':
+						if ($params['fields']['DT_SKIP_TIME'] === 'N')
+						{
+							$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_FROM'])
+								- \CCalendar::GetCurrentOffsetUTC($params['guestId']);
+
+							$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
+								- $userOffset, true, true, true);
+							$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
+								- $userOffset, true, true, true);
+						}
+
+						$result = Loc::getMessage(
+							'EC_NOTIFY_DATE_FROM_CHANGED',
+							[
+								'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"]),
+								'#OLD_DATE_FROM#' => $change['oldValue'],
+								'#NEW_DATE_FROM#' => $change['newValue']
+							],
+							$languageId
+						);
+						break;
+
+					case 'DATE_TO':
+						if ($params['fields']['DT_SKIP_TIME'] === 'N')
+						{
+							$userOffset = \CCalendar::GetTimezoneOffset($params['fields']['TZ_TO'])
+								- \CCalendar::GetCurrentOffsetUTC($params['guestId']);
+
+							$change['oldValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['oldValue'])
+								- $userOffset, true, true, true);
+							$change['newValue'] = \CCalendar::Date(\CCalendar::Timestamp($change['newValue'])
+								- $userOffset, true, true, true);
+						}
+
+						$result = Loc::getMessage(
+							'EC_NOTIFY_DATE_TO_CHANGED',
+							[
+								'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"]),
+								'#OLD_DATE_TO#' => $change['oldValue'],
+								'#NEW_DATE_TO#' => $change['newValue']
+							],
+							$languageId
+						);
+
+						break;
+					case 'LOCATION':
+						$locationMessageCode = empty($change['newValue'])
+							? 'EC_NOTIFY_LOCATION_CHANGED_NONE'
+							: 'EC_NOTIFY_LOCATION_CHANGED'
+						;
+						$result = Loc::getMessage(
+							$locationMessageCode,
+							[
+								'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"]),
+								'#ACTIVE_FROM#' => $params["from"],
+								'#NEW_VALUE#' => $changedLocation
+							],
+							$languageId
+						);
+						break;
+					case 'ATTENDEES':
+						$result = Loc::getMessage(
+							'EC_NOTIFY_ATTENDEES_CHANGED',
+							[
+								'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"]),
+								'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+							],
+							$languageId
+						);
+
+						break;
+					case 'DESCRIPTION':
+						$result = Loc::getMessage(
+							'EC_NOTIFY_DESCRIPTION_CHANGED',
+							[
+								'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"]),
+								'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+							],
+							$languageId
+						);
+						break;
+					case 'RRULE':
+					case 'EXDATE':
+						$result = Loc::getMessage(
+							'EC_NOTIFY_RRULE_CHANGED',
+							[
+								'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"])
+							],
+							$languageId
+						);
+						break;
+					case 'IMPORTANCE':
+						$result = Loc::getMessage(
+							'EC_NOTIFY_IMPORTANCE_CHANGED',
+							[
+								'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"]),
+								'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+							],
+							$languageId
+						);
+						break;
+				}
 			}
-			$changedFieldsListMessage = implode(', ', array_unique($changedFieldsList));
+			else // Two or more changes
+			{
+				$changedFieldsList = [];
+				foreach ($params['entryChanges'] as $change)
+				{
+					$key = $change['fieldKey'];
+					$changedFieldsList[] = Loc::getMessage('EC_NOTIFY_FIELD_' . $key, null, $languageId);
+				}
+				$changedFieldsListMessage = implode(', ', array_unique($changedFieldsList));
 
-			$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_ENTRY_CHANGED',
-				[
-					'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-					'#ACTIVE_FROM#' => $params["from_formatted"],
-					'#CHANGED_FIELDS_LIST#' => $changedFieldsListMessage
-				]
-			);
+				$result = Loc::getMessage(
+					'EC_NOTIFY_ENTRY_CHANGED',
+					[
+						'#TITLE#' => $isOutMessage ? $params["name"] : $getValueWithViewEventUrl($params["name"]),
+						'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId),
+						'#CHANGED_FIELDS_LIST#' => $changedFieldsListMessage
+					],
+					$languageId
+				);
+			}
 
-			$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_ENTRY_CHANGED',
-				[
-					'#TITLE#' => $params["name"],
-					'#ACTIVE_FROM#' => $params["from_formatted"],
-					'#CHANGED_FIELDS_LIST#' => $changedFieldsListMessage
-				]
-			);
-		}
+			return $result;
+		};
 
-		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS_SITE', ['#LINK#' => $params["pathToEvent"]]);
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]]);
+		$changedLocation = (
+			($entryChange = current($params['entryChanges']))
+			&& $entryChange['fieldKey'] === 'LOCATION'
+			&& !empty($entryChange['newValue'])
+		)
+			? CCalendar::GetTextLocation($entryChange['newValue'])
+			: ''
+		;
+		$fields['MESSAGE'] = fn (?string $languageId = null) => $changeMessage($languageId, false, $changedLocation)
+			. "\n\n" . Loc::getMessage('EC_MESS_INVITE_DETAILS_SITE', ['#LINK#' => $params["pathToEvent"]], $languageId)
+		;
+		$fields['MESSAGE_OUT'] = fn (?string $languageId = null) => $changeMessage($languageId, true, $changedLocation)
+			. "\n\n" . Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]], $languageId)
+		;
 		$fields['NOTIFY_LINK'] = $params["pathToEvent"];
+		$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+			'EC_MESS_INVITE_CHANGED_TITLE',
+			['#TITLE#' => $params["name"]],
+			$languageId
+		);
 
-		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_CHANGED_TITLE',['#TITLE#' => $params["name"]]);
 		return $fields;
 	}
 
@@ -491,21 +514,47 @@ class CCalendarNotify
 		$fields['NOTIFY_EVENT'] = "change";
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID']."|cancel";
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
+		$fields['MESSAGE'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_INVITE_CANCEL_SITE',
+				[
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage(
+				'EC_MESS_VIEW_OWN_CALENDAR',
+				['#LINK#' => $params["pathToCalendar"]],
+				$languageId
+			)
+		;
 
-		$fields['MESSAGE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_SITE', [
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
+		$ownerName = CCalendar::GetUserName($params['userId']);
+		$fields['MESSAGE_OUT'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_INVITE_CANCEL',
+				[
+					'#OWNER_NAME#' => $ownerName,
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage(
+				'EC_MESS_VIEW_OWN_CALENDAR_OUT',
+				['#LINK#' => $params["pathToCalendar"]],
+				$languageId
+			)
+		;
+
+		$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+			'EC_MESS_INVITE_CANCEL_TITLE',
+			['#TITLE#' => $params["name"]],
+			$languageId
 		);
-		$fields['MESSAGE_OUT'] = Loc::getMessage('EC_MESS_INVITE_CANCEL', [
-				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
-		);
-		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_VIEW_OWN_CALENDAR', ['#LINK#' => $params["pathToCalendar"]]);
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_VIEW_OWN_CALENDAR_OUT', ['#LINK#' => $params["pathToCalendar"]]);
-		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_TITLE', ['#TITLE#' => $params["name"]]);
 		return $fields;
 	}
 
@@ -515,20 +564,43 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$params["from"]."|".$fields['TO_USER_ID']."|cancel";
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
 
-		$fields['MESSAGE'] = Loc::getMessage('EC_MESS_REC_THIS_CANCEL_SITE', [
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
+		$fields['MESSAGE'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_REC_THIS_CANCEL_SITE',
+				[
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage(
+				'EC_MESS_VIEW_OWN_CALENDAR',
+				['#LINK#' => $params["pathToCalendar"]],
+				$languageId
+			)
+		;
+
+		$ownerName = CCalendar::GetUserName($params['userId']);
+		$fields['MESSAGE_OUT'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_REC_THIS_CANCEL',
+				[
+					'#OWNER_NAME#' => $ownerName,
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage('EC_MESS_VIEW_OWN_CALENDAR_OUT', ['#LINK#' => $params["pathToCalendar"]])
+		;
+
+		$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+			'EC_MESS_INVITE_CANCEL_TITLE',
+			['#TITLE#' => $params["name"]],
+			$languageId
 		);
-		$fields['MESSAGE_OUT'] = Loc::getMessage('EC_MESS_REC_THIS_CANCEL', [
-				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
-		);
-		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_VIEW_OWN_CALENDAR', ['#LINK#' => $params["pathToCalendar"]]);
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_VIEW_OWN_CALENDAR_OUT', ['#LINK#' => $params["pathToCalendar"]]);
-		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_TITLE', ['#TITLE#' => $params["name"]]);
 		return $fields;
 	}
 
@@ -538,20 +610,46 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID']."|cancel";
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
 
-		$fields['MESSAGE'] = Loc::getMessage('EC_MESS_REC_ALL_CANCEL_SITE', [
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
+		$fields['MESSAGE'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_REC_ALL_CANCEL_SITE',
+				[
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage(
+				'EC_MESS_VIEW_OWN_CALENDAR',
+				['#LINK#' => $params["pathToCalendar"]],
+				$languageId
+			);
+
+		$ownerName = CCalendar::GetUserName($params['userId']);
+		$fields['MESSAGE_OUT'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_REC_ALL_CANCEL',
+				[
+					'#OWNER_NAME#' => $ownerName,
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage(
+				'EC_MESS_VIEW_OWN_CALENDAR_OUT',
+				['#LINK#' => $params["pathToCalendar"]],
+				$languageId
+			)
+		;
+
+		$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+			'EC_MESS_INVITE_CANCEL_TITLE',
+			['#TITLE#' => $params["name"]],
+			$languageId
 		);
-		$fields['MESSAGE_OUT'] = Loc::getMessage('EC_MESS_REC_ALL_CANCEL', [
-				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
-		);
-		$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_MESS_VIEW_OWN_CALENDAR', ['#LINK#' => $params["pathToCalendar"]]);
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_VIEW_OWN_CALENDAR_OUT', ['#LINK#' => $params["pathToCalendar"]]);
-		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_TITLE', ['#TITLE#' => $params["name"]]);
 
 		return $fields;
 	}
@@ -562,32 +660,32 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID']."|sharing|cancel";
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
 
-		$fields['MESSAGE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_SHARING', [
-			'#TITLE#' => $params["name"],
-			'#ACTIVE_FROM#' => $params['from_formatted'],
-		]);
-
-		$fields['MESSAGE'] .= "\n\n" . Loc::getMessage('EC_MESS_INVITE_CANCEL_SHARING_SITE', [
-			'#LINK#' =>  $params["pathToEvent"],
-		]);
+		$fields['MESSAGE'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_INVITE_CANCEL_SHARING',
+				[
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId),
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage(
+				'EC_MESS_INVITE_CANCEL_SHARING_SITE',
+				['#LINK#' =>  $params["pathToEvent"]],
+				$languageId
+			)
+		;
 
 		$fields['MESSAGE_OUT'] = $fields['MESSAGE'];
-		$fields['TITLE'] = Loc::getMessage('EC_MESS_INVITE_CANCEL_TITLE', ['#TITLE#' => $params["name"]]);
+		$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+			'EC_MESS_INVITE_CANCEL_TITLE',
+			['#TITLE#' => $params["name"]],
+			$languageId
+		);
 
 		return $fields;
 	}
-
-//	public static function UsersAddedToMultiLink($params)
-//	{
-//		return [
-//			'NOTIFY_MODULE' => 'calendar',
-//			'FROM_USER_ID' => $params['userId'],
-//			'TO_USER_ID' => $params['guestId'],
-//			'TITLE' => 'You were added to sharing link',
-//			'MESSAGE' => "Hey! You were added to multi sharing link {$params['params']['url']} as member",
-//			'NOTIFY_SUB_TAG' => "CALENDAR|SHARING|MULTI_LINK|".$params['params']['linkId'],
-//		];
-//	}
 
 	public static function MeetingStatus($fields = [], $params = [])
 	{
@@ -597,29 +695,35 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$params['mode'];
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
 
-		$fields['MESSAGE'] = Loc::getMessage(
+		$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
 			$params['mode'] === 'accept'
 				? 'EC_MESS_INVITE_ACCEPTED_SITE_1'
 				: 'EC_MESS_INVITE_DECLINED_SITE_1',
 			[
 				'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
+				'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+			],
+			$languageId
 		);
 		$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 
-		$fields['MESSAGE_OUT'] = Loc::getMessage(
-			$params['mode'] ==='accept'
-				? 'EC_MESS_INVITE_ACCEPTED_1'
-				: 'EC_MESS_INVITE_DECLINED_1',
-			[
-				'#GUEST_NAME#' => CCalendar::GetUserName($params['guestId']),
-				'#TITLE#' => $params["name"],
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
-		);
+		$ownerName = CCalendar::GetUserName($params['guestId']);
+		$fields['MESSAGE_OUT'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				$params['mode'] ==='accept'
+					? 'EC_MESS_INVITE_ACCEPTED_1'
+					: 'EC_MESS_INVITE_DECLINED_1',
+				[
+					'#GUEST_NAME#' => $ownerName,
+					'#TITLE#' => $params["name"],
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]], $languageId)
+		;
 
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]]);
 
 		return $fields;
 	}
@@ -633,41 +737,49 @@ class CCalendarNotify
 
 		if (($params['isSharing'] ?? false) && $params['mode'] === 'status_accept')
 		{
-			$fields['MESSAGE'] = Loc::getMessage(
-				'EC_MESS_AUTO_INVITE_ACCEPT',
-				[
-					'#TITLE#' => $params["name"],
-					'#ACTIVE_FROM#' => $params["from_formatted"]
-				]
-			);
-
-			$fields['MESSAGE'] .=  "\n\n" . Loc::getMessage('EC_MESS_AUTO_INVITE_ACCEPT_DETAILS', ['#LINK#' => $params["pathToEvent"]]);
+			$fields['MESSAGE'] = fn (?string $languageId = null) =>
+				Loc::getMessage(
+					'EC_MESS_AUTO_INVITE_ACCEPT',
+					[
+						'#TITLE#' => $params["name"],
+						'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+					],
+					$languageId
+				)
+				. "\n\n"
+				. Loc::getMessage('EC_MESS_AUTO_INVITE_ACCEPT_DETAILS', ['#LINK#' => $params["pathToEvent"]], $languageId);
 		}
 		else
 		{
-			$fields['MESSAGE'] = Loc::getMessage(
+			$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
 				$params['mode'] === 'status_accept'
 					? 'EC_MESS_STATUS_NOTIFY_Y_SITE'
 					: 'EC_MESS_STATUS_NOTIFY_N_SITE',
 				[
 					'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-					'#ACTIVE_FROM#' => $params["from_formatted"]
-				]
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
 			);
+
 			$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 		}
 
-		$fields['MESSAGE_OUT'] = Loc::getMessage(
-			$params['mode'] === 'status_accept'
-				? 'EC_MESS_STATUS_NOTIFY_Y'
-				: 'EC_MESS_STATUS_NOTIFY_N',
-			[
-				'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-				'#ACTIVE_FROM#' => $params["from_formatted"]
-			]
-		);
+		$fields['MESSAGE_OUT'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				$params['mode'] === 'status_accept'
+					? 'EC_MESS_STATUS_NOTIFY_Y'
+					: 'EC_MESS_STATUS_NOTIFY_N',
+				[
+					'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+				],
+				$languageId
+			)
+			. "\n\n"
+			. Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]], $languageId)
+		;
 
-		$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_MESS_INVITE_DETAILS', ['#LINK#' => $params["pathToEvent"]]);
 
 		return $fields;
 	}
@@ -726,8 +838,7 @@ class CCalendarNotify
 				}
 			}
 
-			$strMsgAddComment = Loc::getMessage('EC_COMMENT_MESSAGE_ADD');
-
+			$gender = null;
 			$res = \Bitrix\Main\UserTable::getList([
 				'filter' => ['=ID' => $userId],
 				'select' => ['ID', 'PERSONAL_GENDER']
@@ -735,7 +846,7 @@ class CCalendarNotify
 
 			if (($user = $res->fetch()) && in_array($user['PERSONAL_GENDER'], ['F', 'M']))
 			{
-				$strMsgAddComment = Loc::getMessage('EC_COMMENT_MESSAGE_ADD_'.$user['PERSONAL_GENDER']);
+				$gender = $user['PERSONAL_GENDER'];
 			}
 
 			$imMessageFields = [
@@ -795,28 +906,19 @@ class CCalendarNotify
 					{
 						$imMessageFields['TO_USER_ID'] = $attendeeId;
 
-						$imMessageFields["NOTIFY_MESSAGE"] = str_replace(
-							[
-								"#EVENT_TITLE#",
-								"#COMMENT#"
-							],
-							[
-								$url ? "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".$event["NAME"]."</a>" : $event["NAME"],
-								$commentCropped
-							],
-							$strMsgAddComment
+						$imMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => self::getCommentAddNotifyMessage(
+							$url ? "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".$event["NAME"]."</a>" : $event["NAME"],
+							$commentCropped,
+							$gender,
+							$languageId
 						);
-						$imMessageFields["NOTIFY_MESSAGE_OUT"] = str_replace(
-								[
-									"#EVENT_TITLE#",
-									"#COMMENT#"
-								],
-								[
-									$event["NAME"],
-									$commentCropped
-								],
-								$strMsgAddComment
-							).($url ? " (".$url.")" : "");
+
+						$imMessageFields['NOTIFY_MESSAGE_OUT'] = fn (?string $languageId = null) => self::getCommentAddNotifyMessage(
+							$event["NAME"],
+							$commentCropped,
+							$gender,
+							$languageId
+						) . ($url ? ' (' . $url . ')' : '');
 
 						$imMessageFields["NOTIFY_TAG"] = "CALENDAR|COMMENT|".$aId."|".$instanceDate;
 
@@ -825,6 +927,20 @@ class CCalendarNotify
 				}
 			}
 		}
+	}
+
+	private static function getCommentAddNotifyMessage($eventTitle, $comment, $gender = null, $languageId = null): ?string
+	{
+		$phrase = $gender ? 'EC_COMMENT_MESSAGE_ADD_' . $gender : 'EC_COMMENT_MESSAGE_ADD';
+
+		return Loc::getMessage(
+			$phrase,
+			[
+				'#EVENT_TITLE#' => $eventTitle,
+				'#COMMENT#' => $comment,
+			],
+			$languageId
+		);
 	}
 
 	/**
@@ -869,50 +985,81 @@ class CCalendarNotify
 
 		if ($params['icalMethod'] === 'cancel')
 		{
-			$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_FAIL_ICAL_CANCEL', [
-				'#USERS_LIST#' => $userString,
-				'#NAME#' => $params['name'],
-			]);
+			$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_NOTIFY_FAIL_ICAL_CANCEL',
+				[
+					'#USERS_LIST#' => $userString,
+					'#NAME#' => $params['name'],
+				],
+				$languageId
+			);
 
-			$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_FAIL_ICAL_CANCEL_OUT', [
-				'#USERS_LIST#' => $userString,
-				'#NAME#' => $params['name'],
-			]);
+			$fields['MESSAGE_OUT'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_NOTIFY_FAIL_ICAL_CANCEL_OUT',
+				[
+					'#USERS_LIST#' => $userString,
+					'#NAME#' => $params['name'],
+				],
+				$languageId
+			);
 
-			$fields['TITLE'] = Loc::getMessage('EC_MESS_FAIL_ICAL_INVITE_TITLE_CANCEL', ['#TITLE#' => $params['name']]);
+			$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_MESS_FAIL_ICAL_INVITE_TITLE_CANCEL',
+				['#TITLE#' => $params['name']],
+				$languageId
+			);
 		}
 		elseif ($params['icalMethod'] === 'edit')
 		{
-			$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_FAIL_ICAL_EDIT', [
-				'#USERS_LIST#' => $userString,
-				'#NAME#' => $params['name'],
-			]);
+			$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_NOTIFY_FAIL_ICAL_EDIT',
+				[
+					'#USERS_LIST#' => $userString,
+					'#NAME#' => $params['name'],
+				],
+				$languageId
+			);
 
-			$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_FAIL_ICAL_EDIT_OUT', [
-				'#USERS_LIST#' => $userString,
-				'#NAME#' => $params['name'],
-			]);
+			$fields['MESSAGE_OUT'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_NOTIFY_FAIL_ICAL_EDIT_OUT',
+				[
+					'#USERS_LIST#' => $userString,
+					'#NAME#' => $params['name'],
+				],
+				$languageId);
 
-			$fields['TITLE'] = Loc::getMessage('EC_MESS_FAIL_ICAL_INVITE_TITLE_EDIT', ['#TITLE#' => $params['name']]);
+			$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_MESS_FAIL_ICAL_INVITE_TITLE_EDIT',
+				['#TITLE#' => $params['name']],
+				$languageId
+			);
 		}
 		elseif ($params['icalMethod'] === 'request')
 		{
-			$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_FAIL_ICAL_REQUEST', [
-				'#USERS_LIST#' => $userString,
-				'#NAME#' => $params['name'],
-			]);
+			$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_NOTIFY_FAIL_ICAL_REQUEST',
+				[
+					'#USERS_LIST#' => $userString,
+					'#NAME#' => $params['name'],
+				],
+				$languageId
+			);
 
-			$fields['MESSAGE_OUT'] = Loc::getMessage('EC_NOTIFY_FAIL_ICAL_REQUEST_OUT', [
-				'#USERS_LIST#' => $userString,
-				'#NAME#' => $params['name'],
-			]);
+			$fields['MESSAGE_OUT'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_NOTIFY_FAIL_ICAL_REQUEST_OUT',
+				[
+					'#USERS_LIST#' => $userString,
+					'#NAME#' => $params['name'],
+				],
+				$languageId
+			);
 
-			$fields['TITLE'] = Loc::getMessage('EC_MESS_FAIL_ICAL_INVITE_TITLE_REQUEST', [
-				'#TITLE#' => $params['name']
-			]);
+			$fields['TITLE'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_MESS_FAIL_ICAL_INVITE_TITLE_REQUEST',
+				['#TITLE#' => $params['name']],
+				$languageId
+			);
 		}
-
-
 
 		return $fields;
 	}
@@ -925,9 +1072,11 @@ class CCalendarNotify
 		$fields['NOTIFY_TAG'] = "CALENDAR|LOCATION|".$params['locationId']."|". (int)$params["userId"];
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|LOCATION|".$params['locationId'];
 
-		$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DELETE_LOCATION', [
-			'#LOCATION#' => $params["location"]
-		]);
+		$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
+			'EC_NOTIFY_DELETE_LOCATION',
+			['#LOCATION#' => $params["location"]],
+			$languageId
+		);
 
 		return $fields;
 	}
@@ -943,41 +1092,54 @@ class CCalendarNotify
 		;
 		$fields['NOTIFY_SUB_TAG'] = 'CALENDAR|LOCATION|' . $params['locationId'];
 
-		switch ($params['recursionMode'])
+		$notificationCode = match ($params['recursionMode'])
 		{
-			case 'all':
-				$notificationCode = 'EC_NOTIFY_CANCEL_BOOKING_ALL';
-				break;
-			case 'next':
-				$notificationCode = 'EC_NOTIFY_CANCEL_BOOKING_NEXT';
-				break;
-			default:
-				$notificationCode = 'EC_NOTIFY_CANCEL_BOOKING_THIS';
-				break;
-		}
-		$fromTime = '';
-		$fromDate = '';
-		if($params['fields']['DT_SKIP_TIME'] === 'N')
-		{
-			$fromTime = Loc::getMessage('EC_NOTIFY_CANCEL_BOOKING_TIME', [
-				'#FROM_TIME#'=> mb_substr($params['from'], -5, 5)
-			]);
-			$fromDate = mb_substr($params['from'], 0, -6);
-		}
-		$fields['MESSAGE'] =
-			Loc::getMessage($notificationCode, [
-				'#FROM#' => $params['from_formatted'],
-				'#LINK#' => $params['pathToEvent'],
-				'#EVENT#' => $params['eventName'],
-				'#FREQUENCY#' => $params['rrule'],
-				'#FROM_TIME#' => $fromTime,
-				'#FROM_DATE#' => $fromDate,
-			])
-			.
-			Loc::getMessage('EC_NOTIFY_CANCEL_BOOKING_ENDING')
+			'all' => 'EC_NOTIFY_CANCEL_BOOKING_ALL',
+			'next' => 'EC_NOTIFY_CANCEL_BOOKING_NEXT',
+			default => 'EC_NOTIFY_CANCEL_BOOKING_THIS',
+		};
+
+		$fields['MESSAGE'] = fn (?string $languageId = null) =>
+			Loc::getMessage(
+				$notificationCode,
+				[
+					'#FROM#' => self::getFromFormatted($params, $languageId),
+					'#LINK#' => $params['pathToEvent'],
+					'#EVENT#' => $params['eventName'],
+					'#FREQUENCY#' => !empty($params['fields']['RRULE'])
+						? CCalendarEvent::GetRRULEDescription($params['fields'], false, false, $languageId)
+						: ''
+					,
+					'#FROM_TIME#' => $params['fields']['DT_SKIP_TIME'] === 'N'
+						? Loc::getMessage(
+							'EC_NOTIFY_CANCEL_BOOKING_TIME',
+							[
+								'#FROM_TIME#'=> mb_substr($params['from'], -5, 5)
+							],
+							$languageId
+						)
+						: ''
+					,
+				],
+				$languageId
+			)
+			. Loc::getMessage('EC_NOTIFY_CANCEL_BOOKING_ENDING', null, $languageId)
 		;
 
 		return $fields;
+	}
+
+	private static function getFromFormatted($params, ?string $languageId = null): string
+	{
+		$culture = \Bitrix\Main\Context::getCurrent()?->getCulture();
+		$result = FormatDate($culture?->getFullDateFormat(), $params['from_timestamp'], false);
+
+		if (($params['fields']['DT_SKIP_TIME'] ?? null) !== 'Y')
+		{
+			$result .= ' ' . FormatDate($culture?->getShortTimeFormat(), $params['from_timestamp'], false);
+		}
+
+		return $result;
 	}
 }
 ?>

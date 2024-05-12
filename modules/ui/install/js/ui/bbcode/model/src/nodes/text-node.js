@@ -1,32 +1,31 @@
 import { Type } from 'main.core';
-import { Node, privateMap, nameSymbol, type NodeOptions } from './node';
-import { Text } from '../reference/text';
+import { BBCodeNode, privateMap, nameSymbol, type BBCodeNodeOptions } from './node';
 
 export const contentSymbol = Symbol('content');
 
-export type TextNodeContent = string | number;
+export type BBCodeTextNodeContent = string | number;
 
-export type TextNodeOptions = TextNodeContent | NodeOptions & {
+export type BBCodeTextNodeOptions = BBCodeTextNodeContent | BBCodeNodeOptions & {
 	content?: string,
 };
 
-export type SerializedTextNode = {
+export type BBCodeSerializedTextNode = {
 	name: string,
-	content: TextNodeContent,
+	content: BBCodeTextNodeContent,
 };
 
-export class TextNode extends Node
+export class BBCodeTextNode extends BBCodeNode
 {
-	[nameSymbol]: string = Text.TEXT_NAME;
+	[nameSymbol]: string = '#text';
 	[contentSymbol]: string = '';
 
-	constructor(options: TextNodeOptions = {})
+	constructor(options: BBCodeTextNodeOptions = {})
 	{
-		const nodeOptions: TextNodeOptions = Type.isString(options) ? { content: options } : options;
+		const nodeOptions: BBCodeTextNodeOptions = Type.isString(options) ? { content: options } : options;
 		super(nodeOptions);
-		privateMap.get(this).type = Node.TEXT_NODE;
+		privateMap.get(this).type = BBCodeNode.TEXT_NODE;
 		this.setContent(nodeOptions.content);
-		Node.makeNonEnumerableProperty(this, 'children');
+		BBCodeNode.makeNonEnumerableProperty(this, 'children');
 	}
 
 	static isTextNodeContent(value: any): boolean
@@ -34,64 +33,85 @@ export class TextNode extends Node
 		return Type.isString(value) || Type.isNumber(value);
 	}
 
-	static decodeSpecialChars(content: TextNodeContent): TextNodeContent
+	static decodeSpecialChars(content: BBCodeTextNodeContent): string
 	{
-		if (TextNode.isTextNodeContent(content))
-		{
-			return content
-				.replaceAll('&#91;', '[')
-				.replaceAll('&#93;', ']');
-		}
-
-		return content;
+		return String(content)
+			.replaceAll('&#91;', '[')
+			.replaceAll('&#93;', ']');
 	}
 
 	setName(name: string)
 	{}
 
-	setContent(content: TextNodeContent)
+	setContent(content: BBCodeTextNodeContent)
 	{
-		if (TextNode.isTextNodeContent(content))
+		if (BBCodeTextNode.isTextNodeContent(content))
 		{
-			this[contentSymbol] = TextNode.decodeSpecialChars(content);
+			this[contentSymbol] = BBCodeTextNode.decodeSpecialChars(content);
 		}
 	}
 
-	getContent(): TextNodeContent
+	getContent(): BBCodeTextNodeContent
 	{
-		return TextNode.decodeSpecialChars(this[contentSymbol]);
+		return BBCodeTextNode.decodeSpecialChars(this[contentSymbol]);
 	}
 
-	getLength():number
+	adjustChildren()
+	{}
+
+	getLength(): number
 	{
 		return String(this[contentSymbol]).length;
 	}
 
-	clone(options): TextNode
+	isEmpty(): boolean
 	{
-		const Constructor = this.constructor;
+		return this.getLength() === 0;
+	}
 
-		return new Constructor({
+	clone(options): BBCodeTextNode
+	{
+		return this.getScheme().createText({
 			content: this.getContent(),
-			scheme: this.getScheme(),
 		});
 	}
 
-	splitText(offset: number): Array<TextNode | null>
+	split(options: { offset: number, byWord?: boolean}): Array<BBCodeTextNode | null>
 	{
-		if (!Type.isNumber(offset))
+		const { offset: sourceOffset, byWord = false } = options;
+
+		if (!Type.isNumber(sourceOffset))
 		{
 			throw new TypeError('offset is not a number');
 		}
 
 		const contentLength = this.getLength();
-		if (offset < 0 || offset > contentLength)
+		if (sourceOffset < 0 || sourceOffset > contentLength)
 		{
-			throw new TypeError(`offset '${offset}' is out of range ${0}-${contentLength}`);
+			throw new TypeError(`offset '${sourceOffset}' is out of range ${0}-${contentLength}`);
 		}
 
 		const content = this.getContent();
-		const rightContent = content.slice(offset, contentLength);
+
+		const offset = (() => {
+			if (byWord && sourceOffset !== contentLength)
+			{
+				const lastIndex = content.lastIndexOf(' ', sourceOffset);
+				if (lastIndex !== -1)
+				{
+					if (sourceOffset > lastIndex)
+					{
+						return lastIndex + 1;
+					}
+
+					return lastIndex;
+				}
+
+				return 0;
+			}
+
+			return sourceOffset;
+		})();
 
 		const leftNode = (() => {
 			if (offset === contentLength)
@@ -104,10 +124,10 @@ export class TextNode extends Node
 				return null;
 			}
 
-			return new TextNode({
-				content: content.slice(0, offset),
-				scheme: this.getScheme(),
-			});
+			const node = this.clone();
+			node.setContent(content.slice(0, offset));
+
+			return node;
 		})();
 
 		const rightNode = (() => {
@@ -121,16 +141,11 @@ export class TextNode extends Node
 				return null;
 			}
 
-			return new TextNode({
-				content: rightContent,
-				scheme: this.getScheme(),
-			});
-		})();
+			const node = this.clone();
+			node.setContent(content.slice(offset, contentLength));
 
-		if (leftNode && rightNode)
-		{
-			this.replace(leftNode, rightNode);
-		}
+			return node;
+		})();
 
 		return [leftNode, rightNode];
 	}
@@ -140,7 +155,12 @@ export class TextNode extends Node
 		return this.getContent();
 	}
 
-	toJSON(): SerializedTextNode
+	toPlainText(): string
+	{
+		return this.toString();
+	}
+
+	toJSON(): BBCodeSerializedTextNode
 	{
 		return {
 			name: this.getName(),

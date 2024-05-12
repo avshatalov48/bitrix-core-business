@@ -415,6 +415,7 @@ BizProcActivity = function()
 
 	ob.OnSettingsClick = function ()
 	{
+		document.location.hash = ob.Name;
 		ob.Settings();
 	};
 
@@ -538,6 +539,17 @@ BizProcActivity = function()
 		{
 			BX.scrollToNode(ob.div);
 		}
+	};
+
+	ob.focusAndBlink = function()
+	{
+		if (!ob.div)
+		{
+			return false;
+		}
+		BX.scrollToNode(ob.div);
+		BX.Dom.addClass(ob.div, 'activity-modern-blink');
+		setTimeout(() => BX.Dom.removeClass(ob.div, 'activity-modern-blink'), 1500);
 	};
 
 	ob.Draw = function (wrapper)

@@ -152,6 +152,11 @@ class MeetingDescription extends BaseProperty implements Serializable
 		return $this;
 	}
 
+	public function getHideGuests(): bool
+	{
+		return $this->hideGuests;
+	}
+
 	/**
 	 * @param mixed $hideGuests
 	 * @return MeetingDescription

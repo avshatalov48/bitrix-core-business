@@ -14,9 +14,9 @@ endif;
 	$arParams["FID"] = intval(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
 	$arParams["TID"] = intval(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
 	$arParams["MID"] = empty($arParams["MID"]) ? $_REQUEST["MID"] : $arParams["MID"];
-	$arParams["newTID"] = intval($_REQUEST["newTID"]);
-$arParams["action"] = mb_strtoupper($_REQUEST["ACTION"]);
-	$arParams["newFID"] = intval($_REQUEST["newFID"]);
+	$arParams["newTID"] = isset($_REQUEST["newTID"]) ? intval($_REQUEST["newTID"]) : null;
+	$arParams["action"] = isset($_REQUEST["ACTION"]) ? mb_strtoupper($_REQUEST["ACTION"]) : null;
+	$arParams["newFID"] = isset($_REQUEST["newFID"]) ? intval($_REQUEST["newFID"]) : null;
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"index" => "",
@@ -30,8 +30,10 @@ $arParams["action"] = mb_strtoupper($_REQUEST["ACTION"]);
 		"topic_search" => "PAGE_NAME=topic_search");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
-			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		if (!isset($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) || trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+		{
+			$arParams["URL_TEMPLATES_" . mb_strtoupper($URL)] = $APPLICATION->GetCurPage() . "?" . $URL_VALUE;
+		}
 		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
 		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
@@ -128,7 +130,7 @@ $arResult["topic_search"] = CComponentEngine::MakePathFromTemplate($arParams["UR
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["OK_MESSAGE"] = "";
 $arResult["sessid"] = bitrix_sessid_post();
-$arResult["ForumPrintIconsList"] = ForumPrintIconsList(7, $_POST["ICON"]);
+$arResult["ForumPrintIconsList"] = ForumPrintIconsList(7, $_POST["ICON"] ?? null);
 
 $parser = new forumTextParser(LANGUAGE_ID);
 $parser->MaxStringLen = $arParams["WORD_LENGTH"];
@@ -147,7 +149,7 @@ $arResult["PARSER"] = $parser;
 /********************************************************************
 				Action
 ********************************************************************/
-if (intval($_REQUEST["step"]) == 1)
+if (isset($_REQUEST["step"]) && intval($_REQUEST["step"]) == 1)
 {
 	$message = array_keys($arResult["MESSAGE_LIST"]);
 	$arError = array();
@@ -166,11 +168,11 @@ if (intval($_REQUEST["step"]) == 1)
 		$arError[] = array("id" => "bad_move", "text" => GetMessage('FM_ERR_NO_DATA'));
 	elseif ($arParams["action"] == "MOVE_TO_NEW"):
 		$arFields = array(
-			"TITLE"=>trim($_REQUEST["TITLE"]),
-			"TITLE_SEO"=>trim($_REQUEST["TITLE_SEO"]),
-			"DESCRIPTION"=>trim($_REQUEST["DESCRIPTION"]),
-			"ICON"=>intval($_REQUEST["ICON"]),
-			"TAGS" => $_REQUEST["TAGS"]);
+			"TITLE"=> isset($_REQUEST["TITLE"]) ? trim($_REQUEST["TITLE"]) : null,
+			"TITLE_SEO"=> isset($_REQUEST["TITLE_SEO"]) ? trim($_REQUEST["TITLE_SEO"]) : null,
+			"DESCRIPTION"=> isset($_REQUEST["DESCRIPTION"]) ? trim($_REQUEST["DESCRIPTION"]) : null,
+			"ICON"=> isset($_REQUEST["ICON"]) ? intval($_REQUEST["ICON"]) : null,
+			"TAGS" => isset($_REQUEST["TAGS"]) ? $_REQUEST["TAGS"] : null);
 		if (ForumMoveMessage($arParams["FID"], $arParams["TID"], $message, 0, $arFields, $strErrorMessage, $strOKMessage)):
 			$res = CForumMessage::GetByIDEx($message[0], array("GET_TOPIC_INFO" => "Y"));
 			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"],
@@ -192,9 +194,9 @@ if (intval($_REQUEST["step"]) == 1)
 				"TOPIC" => $res["TOPIC_INFO"],
 				"FORUM" => $res["FORUM_INFO"]);
 		}
-		$arResult["VALUES"]["TITLE"] = htmlspecialcharsEx($_REQUEST["TITLE"]);
-		$arResult["VALUES"]["DESCRIPTION"] = htmlspecialcharsEx($_REQUEST["DESCRIPTION"]);
-		$arResult["VALUES"]["ICON"] = intval($_REQUEST["ICON"]);
+		$arResult["VALUES"]["TITLE"] = isset($_REQUEST["TITLE"]) ? htmlspecialcharsEx($_REQUEST["TITLE"]) : null;
+		$arResult["VALUES"]["DESCRIPTION"] = isset($_REQUEST["DESCRIPTION"]) ? htmlspecialcharsEx($_REQUEST["DESCRIPTION"]) : null;
+		$arResult["VALUES"]["ICON"] = isset($_REQUEST["ICON"]) ? intval($_REQUEST["ICON"]) : null;
 	endif;
 	$arResult["OK_MESSAGE"] .= $strOKMessage;
 }
@@ -339,7 +341,7 @@ if (!empty($arResult["MESSAGE_LIST"]))
 		}
 	}
 /************** Message info ***************************************/
-	$parser->arFiles = $arResult["FILES"];
+	$parser->arFiles = $arResult["FILES"] ?? null;
 	foreach ($arResult["MESSAGE_LIST"] as $iID => $res):
 		$arResult["MESSAGE_LIST"][$iID]["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $res["ALLOW"]);
 		$arResult["MESSAGE_LIST"][$iID]["FILES_PARSED"] = $parser->arFilesIDParsed;

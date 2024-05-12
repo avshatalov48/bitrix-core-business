@@ -50,7 +50,7 @@ $GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote
 $uid = $this->params["uid"];
 $lastVote = intval($this->params["lastVote"]);
 ?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	BX.Vote.init({
 		id : <?=$arResult["VOTE_ID"]?>,

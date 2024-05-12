@@ -88,8 +88,6 @@ class CVoteAdminQuestions extends \CBitrixComponent
 			\Bitrix\Main\Grid\Context::isInternalRequest() &&
 			$request->get("grid_id") == $this->gridId)
 		{
-			$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
-
 			if ($request->getPost("action") == \Bitrix\Main\Grid\Actions::GRID_DELETE_ROW)
 			{
 				$this->deleteQuestion($request->getPost("id"));

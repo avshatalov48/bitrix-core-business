@@ -142,7 +142,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 		);
 		?>
 </form>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	BX.addCustomEvent(BX('<?=$arParams["FORM_ID"]?>'), 'OnUCFormAfterShow', __fcOnUCFormAfterShow);
 });

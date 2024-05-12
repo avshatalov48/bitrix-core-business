@@ -1,6 +1,7 @@
 import { Type, Tag, Dom, Loc } from 'main.core';
 import TouchDragListener from './touchdraglistener';
-import 'ui.fonts.roboto';
+
+import 'ui.design-tokens';
 import './style.css';
 
 export default class BottomSheet
@@ -208,7 +209,7 @@ export default class BottomSheet
 		if (!this.layout.wrapper)
 		{
 			this.layout.wrapper = Tag.render`
-				<div class="ui-bottomsheet ui-bottomsheet__scope ${this.className}"></div>
+				<div class="ui-bottomsheet ${this.className}"></div>
 			`;
 		}
 

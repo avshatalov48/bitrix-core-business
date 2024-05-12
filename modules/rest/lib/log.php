@@ -166,15 +166,11 @@ class LogTable extends Main\Entity\DataManager
 	}
 
 	/**
-	 * Adds Request log entry.
-	 *
-	 * @param \CRestServer $server REST call context.
-	 *
-	 * @return int
+	 * @throws \Exception
 	 */
 	public static function addEntry(\CRestServer $server, Request $request): int
 	{
-		static::add([
+		$addResult = static::add([
 			'CLIENT_ID' => $server->getClientId(),
 			'PASSWORD_ID' => $server->getPasswordId(),
 			'SCOPE' => $server->getScope(),
@@ -183,12 +179,8 @@ class LogTable extends Main\Entity\DataManager
 			'REQUEST_URI' => $request->getRequestUri(),
 			'REQUEST_AUTH' => $server->getAuth(),
 			'REQUEST_DATA' => $server->getQuery(),
-			]
-		);
+		]);
 
-		$entity = static::getEntity();
-		$connection = $entity->getConnection();
-
-		return $connection->getInsertedId();
+		return $addResult->isSuccess() ? (int)$addResult->getId() : 0;
 	}
 }

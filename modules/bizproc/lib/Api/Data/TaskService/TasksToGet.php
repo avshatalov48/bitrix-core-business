@@ -2,7 +2,7 @@
 
 namespace Bitrix\Bizproc\Api\Data\TaskService;
 
-use Bitrix\Bizproc\Api\Request\TaskService\GetUserTasksRequest;
+use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskListRequest;
 use Bitrix\Main\ArgumentOutOfRangeException;
 
 final class TasksToGet
@@ -21,7 +21,7 @@ final class TasksToGet
 	/**
 	 * @throws ArgumentOutOfRangeException
 	 */
-	public static function createFromRequest(GetUserTasksRequest $request): self
+	public static function createFromRequest(GetUserTaskListRequest $request): self
 	{
 		$targetUserId = self::validateUserId($request->filter['USER_ID'] ?? 0);
 		if (!$targetUserId)

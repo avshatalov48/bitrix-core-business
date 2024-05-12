@@ -237,7 +237,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 		</div>
 	</div>
 </form>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		BX.Forum.Reviews.Form.create({
 			formId: '<?=$arParams["FORM_ID"]?>',

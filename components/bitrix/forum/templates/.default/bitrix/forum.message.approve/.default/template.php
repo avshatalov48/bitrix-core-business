@@ -112,6 +112,6 @@ foreach ($arResult["MESSAGE_LIST"] as $res)
 	<div class="forum-clear-float"></div>
 </div>
 <?endif;?>
-<script type="text/javascript">
+<script>
 BX.message({no_data: '<?=GetMessageJS("JS_NO_MESSAGES")?>', no_action: '<?=GetMessageJS("JS_NO_ACTION")?>', cdms: '<?=GetMessageJS("F_DELETE_MESSAGES_CONFIRM")?>'});
 </script>

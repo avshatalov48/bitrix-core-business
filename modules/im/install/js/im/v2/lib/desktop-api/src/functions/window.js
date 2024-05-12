@@ -126,7 +126,7 @@ export const windowFunctions = {
 		if (Type.isStringFilled(js))
 		{
 			js = `
-				<script type="text/javascript">
+				<script>
 					BX.ready(() => {
 						${js}
 					});

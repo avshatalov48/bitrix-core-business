@@ -3,7 +3,7 @@
 				Input params
 ********************************************************************/
 /***************** URL *********************************************/
-	$arParams["SHOW_AUTH_FORM"] = ($arParams["SHOW_AUTH_FORM"] == "N" ? "N" : "Y");
+	$arParams["SHOW_AUTH_FORM"] = (isset($arParams["SHOW_AUTH_FORM"]) && $arParams["SHOW_AUTH_FORM"] == "N" ? "N" : "Y");
 /***************** ADDITIONAL **************************************/
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
@@ -24,7 +24,7 @@ if ($GLOBALS["USER"]->IsAuthorized())
 		?><a href="<?=$arResult["URL_TEMPLATES"]["ACTIVE"]?>" title="<?=GetMessage("F_NEW_TOPIC_TITLE")?>"><span><?=GetMessage("F_NEW_TOPIC")?></span></a>&nbsp;</span>
 	<span class="forum-menu-item forum-menu-profile"><a href="<?=$arResult["URL_TEMPLATES"]["PROFILE"]?>"><span><?=GetMessage("F_PROFILE")?></span></a>&nbsp;</span>
 <?
-if ($arParams["SHOW_SUBSCRIBE_LINK"] == "Y"):
+if (isset($arParams["SHOW_SUBSCRIBE_LINK"]) && $arParams["SHOW_SUBSCRIBE_LINK"] == "Y"):
 ?>
 		<span class="forum-menu-item forum-menu-subscribes"><a href="<?=$arResult["URL_TEMPLATES"]["SUBSCRIBES"]?>"><span><?=GetMessage("F_SUBSCRIBES")?></span></a>&nbsp;</span>
 <?
@@ -66,7 +66,7 @@ if (IsModuleInstalled("search")):
 		<span class="forum-menu-item <?
 			?><?=($GLOBALS["USER"]->IsAuthorized() ? "" : "forum-menu-item-first")?><?
 			?> forum-menu-search"><noindex><a href="<?=$arResult["URL_TEMPLATES"]["SEARCH"]?>" rel="nofollow"><span><?=GetMessage("F_SEARCH")?></span></a></noindex>&nbsp;</span>
-<?	
+<?
 endif;
 ?>
 <? if ($arParams['SHOW_FORUM_USERS'] === 'Y')
@@ -107,7 +107,7 @@ endif;
 	</div>
 </div>
 <?
-if ($arParams["SHOW_NAVIGATION"] != "N" && $arParams["SET_NAVIGATION"] != "N" && ($arResult["PAGE_NAME"] != "index" || $arResult["GID"] > 0)):
+if ((!isset($arParams["SHOW_NAVIGATION"]) || $arParams["SHOW_NAVIGATION"] != "N") && $arParams["SET_NAVIGATION"] != "N" && ($arResult["PAGE_NAME"] != "index" || $arResult["GID"] > 0)):
 // text from main
 	if($GLOBALS["APPLICATION"]->GetProperty("NOT_SHOW_NAV_CHAIN")=="Y")
 		return false;
@@ -116,7 +116,7 @@ if ($arParams["SHOW_NAVIGATION"] != "N" && $arParams["SET_NAVIGATION"] != "N" &&
 
 	$path = $GLOBALS["APPLICATION"]->GetCurDir();
 	$arChain = Array();
-	
+
 	while(true)
 	{
 		$path = rtrim($path, "/");
@@ -147,10 +147,10 @@ if ($arParams["SHOW_NAVIGATION"] != "N" && $arParams["SET_NAVIGATION"] != "N" &&
 	$GLOBALS["APPLICATION"]->IncludeComponent(
 	"bitrix:breadcrumb", ".default",
 	Array(
-		"START_FROM" => count($arChain) - 1, 
-		"PATH" => "", 
-		"SITE_ID" => "",  
-	), $component, 
+		"START_FROM" => count($arChain) - 1,
+		"PATH" => "",
+		"SITE_ID" => "",
+	), $component,
 	array("HIDE_ICONS" => "Y")
 );
 endif;

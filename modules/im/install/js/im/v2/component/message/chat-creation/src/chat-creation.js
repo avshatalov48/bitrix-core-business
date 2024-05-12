@@ -52,6 +52,18 @@ export const ChatCreationMessage = {
 		{
 			return this.message.chatId;
 		},
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		userCountInChat(): number
+		{
+			return this.dialog?.userCounter ?? 0
+		},
+		isDisabledStartCallButton(): boolean
+		{
+			return !this.userCountInChat || this.userCountInChat <= 1
+		}
 	},
 	methods:
 	{
@@ -72,7 +84,7 @@ export const ChatCreationMessage = {
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withContextMenu="false"
+			:withDefaultContextMenu="false"
 			:withBackground="false"
 			class="bx-im-message-chat-creation__scope"
 		>
@@ -94,6 +106,7 @@ export const ChatCreationMessage = {
 								:isRounded="true"
 								:text="loc('IM_MESSAGE_CHAT_CREATION_BUTTON_VIDEOCALL')"
 								@click="onCallButtonClick"
+								:isDisabled="isDisabledStartCallButton"
 							/>
 						</div>
 						<div class="bx-im-message-chat-creation__buttons_item">

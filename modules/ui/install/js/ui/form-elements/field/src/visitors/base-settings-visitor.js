@@ -2,7 +2,7 @@ import {EventEmitter} from 'main.core.events';
 
 export class BaseSettingsVisitor extends EventEmitter
 {
-	static #instances = {};
+	static instances = [];
 
 	constructor(params)
 	{
@@ -13,17 +13,5 @@ export class BaseSettingsVisitor extends EventEmitter
 	visitSettingsElement(settingsElement)
 	{
 
-	}
-
-	static getInstance()
-	{
-		const id = this.name;
-
-		if (!BaseSettingsVisitor.#instances[id])
-		{
-			BaseSettingsVisitor.#instances[id] = new this();
-		}
-
-		return BaseSettingsVisitor.#instances[id]
 	}
 }

@@ -14,6 +14,7 @@ export class Tabs extends EventEmitter
 	#id: string;
 	#items: OrderedArray<string, Tab>;
 	#activeItem: ?Tab = null;
+	#body: ?HTMLElement;
 
 	title: string;
 	titleIconClasses: string;
@@ -63,9 +64,12 @@ export class Tabs extends EventEmitter
 		{
 			this.activateItem(tab);
 		}
+		tab.subscribe('changeTab', () => {
+			this.activateItem(tab);
+		});
 	}
 
-	activateItem(tab: Tab)
+	activateItem(tab: Tab, withAnimation: boolean = true)
 	{
 		if (this.#items.has(tab) && this.#activeItem !== tab)
 		{
@@ -75,17 +79,30 @@ export class Tabs extends EventEmitter
 				inactiveTab = this.#activeItem;
 			}
 			this.#activeItem = tab;
-			this.activateItemDebounced(tab, inactiveTab);
+			this.activateItemDebounced(tab, inactiveTab, withAnimation);
 		}
 	}
 
-	activateItemDebounced(activeTab: Tab, inactiveTab: ?Tab = null)
+	activateItemDebounced(activeTab: Tab, inactiveTab: ?Tab = null, withAnimation: boolean = true)
 	{
 		if (inactiveTab)
 		{
-			inactiveTab.inactivate();
+			inactiveTab.inactivate(withAnimation);
 		}
-		activeTab.activate();
+
+		activeTab.activate(withAnimation);
+	}
+
+	getBodyContainer(): HTMLElement
+	{
+		if (!this.#body)
+		{
+			this.#body = Tag.render`
+				<div class="ui-tabs__tabs-body-container" data-bx-role="bodies"></div>
+			`;
+		}
+
+		return this.#body;
 	}
 
 	getContainer(): HTMLElement
@@ -98,23 +115,15 @@ export class Tabs extends EventEmitter
 		this.content = Tag.render`
 			<div class="ui-tabs__tabs-container">
 				<div class="ui-tabs__tabs-header-container" data-bx-role="headers"></div>
-				<div class="ui-tabs__tabs-body-container" data-bx-role="bodies"></div>
+				${this.getBodyContainer()}
 			</div>`;
 
 		const headers = this.content.querySelector('[data-bx-role="headers"]');
-		const bodies = this.content.querySelector('[data-bx-role="bodies"]');
 
 		this.#items.forEach(
 				(tab: Tab) => {
-					Event.bind(
-						tab.getHeader(),
-						'click',
-						() => {
-							this.activateItem(tab);
-						}
-					);
 					Dom.append(tab.getHeader(), headers);
-					Dom.append(tab.getBody(), bodies);
+					Dom.append(tab.getBody(), this.getBodyContainer());
 				}
 			)
 		;

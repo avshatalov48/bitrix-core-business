@@ -20,6 +20,7 @@ export default class Launcher
 	#state: LauncherState = LauncherState.IDLE;
 	#documentReady: boolean = false;
 	#launchCount: number = 0;
+	#launchTimeoutId: ?number = null;
 	#startDebounced: Function = null;
 
 	constructor()
@@ -176,6 +177,7 @@ export default class Launcher
 
 	#tryDequeue(): void
 	{
+		clearTimeout(this.#launchTimeoutId);
 		this.#currentItem = this.#queue.getFirst();
 		if (this.#currentItem === null)
 		{
@@ -190,7 +192,7 @@ export default class Launcher
 		}
 		else if (this.constructor.canShowOnTop() || this.#currentItem.canShowOnTop())
 		{
-			setTimeout(() => {
+			this.#launchTimeoutId = setTimeout(() => {
 				if (this.constructor.canShowOnTop() || this.#currentItem.canShowOnTop())
 				{
 					this.#launchCount++;

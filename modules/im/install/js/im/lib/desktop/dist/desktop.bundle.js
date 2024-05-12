@@ -139,7 +139,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        jsContent = jsContent.outerHTML;
 	      }
 	      if (jsContent !== '') {
-	        jsContent = '<script type="text/javascript">BX.ready(function(){' + jsContent + '});</script>';
+	        jsContent = '<script>BX.ready(function(){' + jsContent + '});</script>';
 	      }
 	      if (this.isPopupPageLoaded()) {
 	        return '<div class="im-desktop im-desktop-popup ' + bodyClass + '">' + content + jsContent + '</div>';

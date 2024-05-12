@@ -11,6 +11,7 @@ class PinMessages implements Entity
 {
 	private array $pinIds = [];
 	private array $deletedPinIds = [];
+	private PinCollection $pins;
 
 	public function add(Event $event): void
 	{
@@ -26,9 +27,16 @@ class PinMessages implements Entity
 		}
 	}
 
+	public function getPins(): PinCollection
+	{
+		$this->pins ??= new PinCollection($this->pinIds);
+
+		return $this->pins;
+	}
+
 	public function getData(): array
 	{
-		$fullPin = new PinCollection($this->pinIds);
+		$fullPin = $this->getPins();
 
 		return [
 			'addedPins' => (new RestAdapter($fullPin))->toRestFormat(),

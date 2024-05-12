@@ -1,10 +1,8 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
 	'use strict';
 
-	const settings = main_core.Extension.getSettings('ui.analytics');
 	function isValidAnalyticsData(analytics) {
 	  if (!main_core.Type.isPlainObject(analytics)) {
 	    console.error('BX.UI.Analytics: {analytics} must be an object.');
@@ -43,6 +41,7 @@ this.BX.UI = this.BX.UI || {};
 	  if (!isValidAnalyticsData(analytics)) {
 	    return;
 	  }
+	  const settings = main_core.Extension.getSettings('ui.analytics');
 	  const collectData = settings.get('collectData', false);
 	  if (!collectData) {
 	    return;

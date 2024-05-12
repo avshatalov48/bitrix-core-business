@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS ['BPT1_TTITLE'] = "Отпуск";
 $MESS ['BPT1_BT_PARAM_OP_READ'] = "Сотрудники, имеющие право на просмотр всех процессов";
 $MESS ['BPT1_BT_PARAM_OP_CREATE'] = "Сотрудники, имеющие право создавать новые процессы";
@@ -32,7 +33,7 @@ $MESS ['BPT1_BT_RIA11_TITLE'] = "Дополнительное согласова
 $MESS ['BPT1_BT_IF11_N'] = "Условие";
 $MESS ['BPT1_BT_IEBA1_V1'] = "Требуется доп. согласование";
 $MESS ['BPT1_BT_IEBA2_V2'] = "Не требуется доп. согласование";
-$MESS ['BPT1_BT_SFA12_TITLE'] = "Изменение документа";
+$MESS ['BPT1_BT_SFA12_TITLE_MSGVER_1'] = "Изменение документа";
 $MESS ['BPT1_BT_SFTA12_ST'] = "Отпуск согласован с руководством";
 $MESS ['BPT1_BT_SFTA12_T'] = "Установить текст статуса";
 $MESS ['BPT1_BT_SSTA14_ST'] = "Отказано";
@@ -63,4 +64,3 @@ $MESS ['BPT_BT_AA7_NAME'] = "Отпуск";
 $MESS ['BPT_BT_AA7_DESCR'] = "Отпуск ежегодный";
 $MESS ['BPT_BT_AA7_STATE'] = "Отпуск";
 $MESS ['BPT_BT_AA7_FSTATE'] = "Работает";
-?>

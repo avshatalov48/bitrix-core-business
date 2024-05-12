@@ -1,4 +1,4 @@
-import { BotType, RawBotType } from 'im.v2.const';
+import { BotCode, BotType, RawBotType } from 'im.v2.const';
 import { BuilderModel, type GetterTree, type ActionTree, type MutationTree } from 'ui.vue3.vuex';
 
 import { convertObjectKeysToCamelCase } from '../../utils/format';
@@ -50,6 +50,18 @@ export class BotsModel extends BuilderModel
 			/** @function users/bots/isSupport */
 			isSupport: (state: BotsState) => (userId: string | number): boolean => {
 				return state.collection[userId]?.type === BotType.support24;
+			},
+			/** @function users/bots/getCopilotUserId */
+			getCopilotUserId: (state: BotsState): ?number => {
+				for (const [userId, bot] of Object.entries(state.collection))
+				{
+					if (bot.code === BotCode.copilot)
+					{
+						return Number.parseInt(userId, 10);
+					}
+				}
+
+				return null;
 			},
 		};
 	}

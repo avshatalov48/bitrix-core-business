@@ -500,8 +500,10 @@ $messages = \Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
 		});
 		BX.addCustomEvent('Grid::updated', () => BX.Bizproc.Component.UserProcesses.Instance.init());
 
-		BX.Bizproc.Component.UserProcesses.Instance.initStartWorkflowButton(
-			'<?= CUtil::JSEscape($viewData['startWorkflowButtonId']) ?>'
-		);
+		<?php if (isset($viewData['startWorkflowButtonId'])): ?>
+			BX.Bizproc.Component.UserProcesses.Instance.initStartWorkflowButton(
+				'<?= CUtil::JSEscape($viewData['startWorkflowButtonId']) ?>'
+			);
+		<?php endif; ?>
 	})
 </script>

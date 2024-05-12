@@ -177,7 +177,10 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 					$icalEvent->getStart()->getValue(),
 					$icalEvent->getStart()->getParameterValueByName('tzid')
 				)->format(Date::convertFormatToPhp(FORMAT_DATETIME));
-				$event['TZ_FROM'] = $icalEvent->getStart()->getParameterValueByName('tzid');
+				$event['TZ_FROM'] =
+					Util::prepareTimezone(
+						$icalEvent->getStart()->getParameterValueByName('tzid')
+					)->getName();
 			}
 			else
 			{
@@ -197,7 +200,9 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 					$icalEvent->getEnd()->getValue(),
 					$icalEvent->getEnd()->getParameterValueByName('tzid')
 				)->format(Date::convertFormatToPhp(FORMAT_DATETIME));
-				$event['TZ_TO'] = $icalEvent->getEnd()->getParameterValueByName('tzid');
+				$event['TZ_TO'] = Util::prepareTimezone(
+					$icalEvent->getEnd()->getParameterValueByName('tzid')
+				)->getName();
 			}
 			else
 			{
@@ -435,7 +440,12 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 
 		$result = [];
 		$result['EMAIL'] = $this->getMailTo($organizer->getValue());
-		$parts = explode(" ", $organizer->getParameterValueByName('cn'), 2);
+		$parts = [];
+		if (!empty($organizer->getParameterValueByName('cn')))
+		{
+			$parts = explode(" ", $organizer->getParameterValueByName('cn'), 2);
+		}
+
 		if (isset($parts[0]))
 		{
 			$result['NAME'] = $parts[0];
@@ -468,7 +478,9 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 					$icalEvent->getStart()->getValue(),
 					$icalEvent->getStart()->getParameterValueByName('tzid')
 				)->format(Date::convertFormatToPhp(FORMAT_DATETIME));
-				$event['TZ_FROM'] = $icalEvent->getStart()->getParameterValueByName('tzid');
+				$event['TZ_FROM'] = Util::prepareTimezone(
+					$icalEvent->getStart()->getParameterValueByName('tzid')
+				)->getName();
 				$event['DT_SKIP_TIME'] = 'N';
 				$event['SKIP_TIME'] = false;
 			}
@@ -495,7 +507,9 @@ class IncomingInvitationRequestHandler extends IncomingInvitationHandler
 					$icalEvent->getEnd()->getValue(),
 					$icalEvent->getEnd()->getParameterValueByName('tzid')
 				)->format(Date::convertFormatToPhp(FORMAT_DATETIME));
-				$event['TZ_TO'] = $icalEvent->getEnd()->getParameterValueByName('tzid');
+				$event['TZ_TO'] = Util::prepareTimezone(
+					$icalEvent->getEnd()->getParameterValueByName('tzid')
+				)->getName();
 			}
 			else
 			{

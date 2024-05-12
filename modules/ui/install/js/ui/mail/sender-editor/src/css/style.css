@@ -1,0 +1,127 @@
+.mailbox-setting-btn-row {
+	align-items: flex-end;
+}
+
+.mailbox-settings-container {
+	width: 100%;
+}
+
+.sender-list-header {
+	margin-bottom: 0 !important;
+}
+
+.sender-list-item {
+	height: 48px;
+	border-bottom: 1px solid rgba(82,92,105,.1);
+	display: flex;
+	align-items: center;
+}
+
+.sender-item-name-container {
+	max-width: 350px;
+	width: 100%;
+}
+
+.sender-item-name-text-container {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-right: 3px;
+	font-family: var(--ui-font-family-primary);
+	font-size: var(--ui-font-size-lg);
+	font-weight: var(--ui-font-weight-normal);
+	color: var(--ui-color-palette-gray-90-rgb);
+}
+
+.edit-sender-container-content[hidden] {
+	display: none;
+}
+
+.edit-sender-container-content {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+
+.sender-item-type-container {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	max-width: 130px;
+	font-family: var(--ui-font-family-primary);
+	font-size: var(--ui-font-size-sm);
+	font-weight: var(--ui-font-weight-normal);
+	color: var(--ui-color-palette-gray-35);
+	text-align: center;
+}
+
+.sender-item-edit-container {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	max-width: 110px;
+	justify-content: flex-end;
+	gap: 20px;
+}
+
+.sender-item-btn {
+	margin: 0;
+	opacity: var(--ui-opacity-50);
+}
+
+.add-sender-container {
+	margin-top: 10px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	position: relative;
+}
+
+.add-sender-input-container[hidden] {
+	display: none;
+}
+
+.add-sender-input-container {
+	position: absolute;
+	width: 100%;
+	display: flex;
+	gap: 5px;
+	align-items: center;
+}
+
+.add-sender-button {
+	border-bottom: 1px dashed rgba(11,102,195,.5);
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #0B66C3;
+	transition: border-bottom .3s;
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+.add-sender-button:hover {
+	cursor: pointer;
+	border-bottom: 1px dashed transparent;
+}
+
+.sender-item-owner-info {
+	display: flex;
+	align-content: center;
+	align-items: center;
+	gap: 5px;
+}
+
+.sender-item-owner-avatar {
+	background-color: var(--ui-color-palette-green-90);
+	border-radius: 50%;
+	width: 25px;
+	height: 25px;
+}
+
+.sender-item-owner-avatar-icon {
+	--ui-icon-set__icon-color: var(--ui-color-palette-gray-02);
+}
+
+.smtp-editor-limit-checkbox {
+	width: 100%;
+}

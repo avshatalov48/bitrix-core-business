@@ -2,7 +2,7 @@ import { Text } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { callBatch } from 'im.v2.lib.rest';
-import { SidebarDetailBlock, MainPanelBlock } from 'im.v2.const';
+import { SidebarDetailBlock } from 'im.v2.const';
 
 import { Favorite } from './favorite';
 import { getAvailableBlocks } from './helpers/get-available-blocks';
@@ -12,6 +12,7 @@ import { File } from './file';
 import { Task } from './task';
 import { Meeting } from './meeting';
 import { MembersService as Members } from './members';
+import { MainPanelBlock } from '../panel-config';
 
 import { FileUnsorted } from './file-unsorted';
 

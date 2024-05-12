@@ -46,7 +46,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 		<?= CAdminCalendar::ShowScript() ?>
 
-		<script language="text/javascript">
+		<script>
 		var bwfvc_arFieldTypes = {<?
 		$fl = false;
 		foreach ($arVariables as $key => $value)

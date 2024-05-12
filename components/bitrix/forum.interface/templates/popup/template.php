@@ -2,7 +2,7 @@
 $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
 $arParams["RETURN"] = ($arParams["RETURN"] == "Y" ? "Y" : "N");
 if (!empty($arResult["data"])):
-?><script type="text/javascript">
+?><script>
 //<![CDATA[
 	var oForum = (oForum||{});
 	oForum['_<?=$arResult["id"]?>'] = <?=CUtil::PhpToJSObject($arResult["data"])?>;

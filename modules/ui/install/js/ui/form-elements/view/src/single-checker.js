@@ -22,7 +22,12 @@ export class SingleChecker extends BaseField
 					{
 						this.getHelpMessage().show();
 					}
+
+					return;
 				}
+
+				this.switcher.inputNode.form.dispatchEvent(new window.Event('change'));
+				this.emit('change',this.switcher.isChecked());
 			},
 		);
 	}

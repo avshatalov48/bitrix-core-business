@@ -132,7 +132,7 @@ class CIMConvert
 			return false;
 
 		$step = intval($step)>0? intval($step): 100;
-		$startConvertTime = getmicrotime();
+		$startConvertTime = microtime(true);
 
 		$step = intval($step);
 		$dbMessage = CSocNetMessages::GetList(
@@ -163,10 +163,10 @@ class CIMConvert
 			self::$converted++;
 			self::$convertPerStep++;
 
-			if($maxExecutionTime > 0 && (getmicrotime() - $startConvertTime > $maxExecutionTime))
+			if($maxExecutionTime > 0 && (microtime(true) - $startConvertTime > $maxExecutionTime))
 				break;
 		}
-		if ($maxExecutionTime > (2*(getmicrotime() - $startConvertTime)))
+		if ($maxExecutionTime > (2*(microtime(true) - $startConvertTime)))
 			self::$nextConvertPerStep = $step*2;
 		else
 			self::$nextConvertPerStep = $step;

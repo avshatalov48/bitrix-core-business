@@ -80,6 +80,7 @@
 		var offsetCalculates;
 		var offsetLeft;
 		var offsetTop;
+		var topValue;
 
 		function onDrag(x, y)
 		{
@@ -88,17 +89,20 @@
 				var pos = BX.pos(jsDD.current_node);
 				offsetLeft = Math.max(Math.abs(x - pos.left), 0);
 				offsetTop = Math.max(Math.abs(y - pos.top), 0);
-				if (editor.currentElement.closest('.landing-ui-panel'))
-				{
-					offsetTop += BX.Landing.PageObject.getEditorWindow().scrollY;
-				}
-
 				offsetCalculates = true;
 			}
 
 			BX.DOM.write(function() {
 				editor.layout.classList.remove("landing-ui-transition");
-				editor.layout.style.top = (y - offsetTop) + "px";
+				if (BX.Landing.PageObject.getEditorWindow().scrollY > 0)
+				{
+					topValue = y - offsetTop;
+				}
+				else
+				{
+					topValue = y + offsetTop;
+				}
+				editor.layout.style.top = topValue + "px";
 				editor.layout.style.left = (x - offsetLeft) + "px";
 			}.bind(this));
 		}

@@ -569,7 +569,11 @@ class MessageTable extends Main\Entity\DataManager
 				}
 				if (array_key_exists("TOPIC_ID", $data))
 				{
-					if (!($topic = TopicTable::getById($data["TOPIC_ID"])->fetch()))
+					$topic = \Bitrix\Forum\TopicTable::query()->setSelect(['STATE'])
+						->where('ID', $data["TOPIC_ID"])
+						->fetch();
+
+					if (!$topic)
 					{
 						throw new Main\ObjectNotFoundException(Loc::getMessage("F_ERR_TOPIC_IS_NOT_EXISTS"));
 					}

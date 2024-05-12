@@ -1260,7 +1260,7 @@ BXBannerTemplate.prototype =
                 }
             }
         }
-        var patt2 = new RegExp ("<"+"script type=\"text/javascript\""+">[^\000]*?<"+"\/"+"script"+">", "ig"), s;
+        var patt2 = new RegExp ("<"+"script"+">[^\000]*?<"+"\/"+"script"+">", "ig"), s;
         var code2 = html.match(patt2);
         if (code2)
         {

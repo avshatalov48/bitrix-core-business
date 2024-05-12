@@ -403,7 +403,7 @@ class CIMMail
 		$userOffset = 0;
 		$localOffset = 0;
 
-		if (!CTimeZone::Enabled())
+		if (!CTimeZone::OptionEnabled())
 			return 0;
 
 		try //possible DateTimeZone incorrect timezone
@@ -415,30 +415,28 @@ class CIMMail
 			$userZone = $params["TIME_ZONE"];
 			$factOffset = $params["TIME_ZONE_OFFSET"];
 
-			if($autoTimeZone == "N")
+			if($autoTimeZone === "N")
 			{
-				$userTime = ($userZone <> ""? new DateTime(null, new DateTimeZone($userZone)) : $localTime);
+				$userTime = ($userZone !== ""? new DateTime(null, new DateTimeZone($userZone)) : $localTime);
 				$userOffset = $userTime->getOffset();
 			}
 			else
 			{
 				if(CTimeZone::IsAutoTimeZone($autoTimeZone))
 				{
-					return intval($factOffset);
+					return (int)$factOffset;
 				}
-				else
-				{
-					$serverZone = COption::GetOptionString("main", "default_time_zone", "");
-					$serverTime = ($serverZone <> ""? new DateTime(null, new DateTimeZone($serverZone)) : $localTime);
-					$userOffset = $serverTime->getOffset();
-				}
+
+				$serverZone = COption::GetOptionString("main", "default_time_zone", "");
+				$serverTime = ($serverZone !== ""? new DateTime(null, new DateTimeZone($serverZone)) : $localTime);
+				$userOffset = $serverTime->getOffset();
 			}
 		}
 		catch(Exception $e)
 		{
 			return 0;
 		}
-		return intval($userOffset) - intval($localOffset);
+		return $userOffset - $localOffset;
 	}
 }
 

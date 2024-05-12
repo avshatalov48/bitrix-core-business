@@ -2,11 +2,58 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events,im_v2_application_core,im_v2_lib_localStorage,im_v2_lib_logger,im_v2_const) {
+(function (exports,main_core,main_core_events,im_v2_lib_logger,im_v2_application_core,ui_dexie,im_v2_lib_localStorage,im_v2_const) {
 	'use strict';
+
+	const DB_NAME = 'bx-im-drafts';
+	const recentDraftLocalStorageKey = 'recentDraft';
+	const copilotDraftLocalStorageKey = 'copilotDraft';
+	class IndexedDbManager {
+	  static getInstance() {
+	    if (!this.instance) {
+	      this.instance = new this();
+	    }
+	    return this.instance;
+	  }
+	  constructor() {
+	    this.db = new ui_dexie.Dexie(DB_NAME);
+	    this.db.version(1).stores({
+	      drafts: ''
+	    });
+	  }
+	  async migrateFromLocalStorage() {
+	    const migrationStatus = await this.db.drafts.get('migration_status');
+	    if (migrationStatus) {
+	      return;
+	    }
+	    const recentDrafts = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(recentDraftLocalStorageKey, {});
+	    this.set(recentDraftLocalStorageKey, recentDrafts);
+	    im_v2_lib_localStorage.LocalStorageManager.getInstance().remove(recentDraftLocalStorageKey);
+	    const copilotDrafts = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(copilotDraftLocalStorageKey, {});
+	    this.set(copilotDraftLocalStorageKey, copilotDrafts);
+	    im_v2_lib_localStorage.LocalStorageManager.getInstance().remove(copilotDraftLocalStorageKey);
+	    this.setMigrationFinished();
+	  }
+	  set(key, value) {
+	    this.db.drafts.put(value, key);
+	  }
+	  setMigrationFinished() {
+	    const result = {
+	      [recentDraftLocalStorageKey]: true,
+	      [copilotDraftLocalStorageKey]: true
+	    };
+	    this.db.drafts.put(result, 'migration_status');
+	  }
+	  async get(key, defaultValue = null) {
+	    await this.migrateFromLocalStorage();
+	    const value = await this.db.drafts.get(key);
+	    return value || defaultValue;
+	  }
+	}
 
 	const WRITE_TO_STORAGE_TIMEOUT = 1000;
 	const SHOW_DRAFT_IN_RECENT_TIMEOUT = 1500;
+	const STORAGE_KEY = 'recentDraft';
 	class DraftManager {
 	  static getInstance() {
 	    if (!DraftManager.instance) {
@@ -22,12 +69,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.layout.onLayoutChange, this.onLayoutChange.bind(this));
 	  }
-	  initDraftHistory() {
+	  async initDraftHistory() {
 	    if (this.inited) {
 	      return;
 	    }
 	    this.inited = true;
-	    const draftHistory = im_v2_lib_localStorage.LocalStorageManager.getInstance().get(this.getLocalStorageKey(), {});
+	    const draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
 	    this.fillDraftsFromStorage(draftHistory);
 	    im_v2_lib_logger.Logger.warn('DraftManager: initDrafts:', this.drafts);
 	    this.initPromiseResolver();
@@ -109,11 +156,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  refreshSaveTimeout() {
 	    clearTimeout(this.writeToStorageTimeout);
 	    this.writeToStorageTimeout = setTimeout(() => {
-	      this.saveToLocalStorage();
+	      this.saveToIndexedDb();
 	    }, WRITE_TO_STORAGE_TIMEOUT);
 	  }
-	  saveToLocalStorage() {
-	    im_v2_lib_localStorage.LocalStorageManager.getInstance().set(this.getLocalStorageKey(), this.prepareDrafts());
+	  saveToIndexedDb() {
+	    IndexedDbManager.getInstance().set(this.getStorageKey(), this.prepareDrafts());
 	  }
 	  prepareDrafts() {
 	    const result = {};
@@ -134,8 +181,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getLayoutName() {
 	    return im_v2_const.Layout.chat.name;
 	  }
-	  getLocalStorageKey() {
-	    return im_v2_const.LocalStorageKey.recentDraft;
+	  getStorageKey() {
+	    return STORAGE_KEY;
 	  }
 	  getDraftMethodName() {
 	    return 'recent/setRecentDraft';
@@ -143,6 +190,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	DraftManager.instance = null;
 
+	const STORAGE_KEY$1 = 'copilotDraft';
 	class CopilotDraftManager extends DraftManager {
 	  static getInstance() {
 	    if (!CopilotDraftManager.instance) {
@@ -153,8 +201,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getLayoutName() {
 	    return im_v2_const.Layout.copilot.name;
 	  }
-	  getLocalStorageKey() {
-	    return im_v2_const.LocalStorageKey.copilotDraft;
+	  getStorageKey() {
+	    return STORAGE_KEY$1;
 	  }
 	  getDraftMethodName() {
 	    return 'recent/setCopilotDraft';
@@ -165,5 +213,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.DraftManager = DraftManager;
 	exports.CopilotDraftManager = CopilotDraftManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Dexie3,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=draft.bundle.js.map

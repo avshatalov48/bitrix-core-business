@@ -2323,7 +2323,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.eventHandlers = {
 	      click: this.onClick.bind(this),
 	      focus: this.onFocus.bind(this),
-	      blur: this.onBlur.bind(this),
 	      keydown: this.onKeydown.bind(this),
 	      change: this.onChangeCallback
 	    };
@@ -2384,7 +2383,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      autoHide: true,
 	      zIndex: this.zIndex,
 	      offsetTop: 0,
-	      offsetLeft: -1
+	      offsetLeft: -1,
+	      events: {
+	        onPopupShow: this.onPopupShowCallback,
+	        onPopupClose: this.onPopupCloseCallback,
+	        onPopupDestroy: this.onPopupCloseCallback
+	      }
 	    });
 	    this.updateLoader();
 	    if (!BX.browser.IsFirefox()) {
@@ -2406,7 +2410,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    this.input.select();
 	    this.shown = true;
-	    this.onPopupShowCallback();
 	  }
 	  getMenuItems() {
 	    const menuItems = [];
@@ -2502,7 +2505,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    main_popup.MenuManager.destroy(this.id);
 	    this.popupMenu = null;
 	    this.shown = false;
-	    this.onPopupCloseCallback();
 	  }
 	  onFocus() {
 	    setTimeout(function () {
@@ -2518,12 +2520,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.showPopup();
 	    }
 	  }
-	  onBlur() {
-	    this.onPopupCloseCallback();
-	    setTimeout(BX.delegate(this.closePopup, this), 200);
-	  }
 	  onKeydown() {
-	    this.onPopupCloseCallback();
 	    setTimeout(BX.delegate(this.closePopup, this), 50);
 	  }
 	  onChange(value) {
@@ -4373,16 +4370,26 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	  }
 	  setDateTime(dateTime, updatePlaner = false) {
-	    this.dateTime = dateTime;
-	    this.planner.currentFromDate = dateTime.from;
-	    this.planner.currentToDate = dateTime.to;
+	    // 0183864
+	    const dateTimeCloned = {
+	      ...dateTime
+	    };
+	    if (dateTimeCloned.fullDay) {
+	      dateTimeCloned.from.setHours(0, 0, 0, 0);
+	      const dayCount = Math.ceil((dateTimeCloned.to.getTime() - dateTimeCloned.from.getTime() + 1) / (1000 * 3600 * 24));
+	      dateTimeCloned.to = new Date(dateTimeCloned.from.getTime() + (dayCount - 1) * 24 * 3600 * 1000);
+	      dateTimeCloned.to.setHours(23, 55, 0, 0);
+	    }
+	    this.dateTime = dateTimeCloned;
+	    this.planner.currentFromDate = dateTimeCloned.from;
+	    this.planner.currentToDate = dateTimeCloned.to;
 	    if (this.planner && updatePlaner) {
-	      this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+	      this.planner.updateSelector(dateTimeCloned.from, dateTimeCloned.to, dateTimeCloned.fullDay);
 	    } else if (this.planner) {
-	      let fromHours = parseInt(dateTime.from.getHours()) + Math.floor(dateTime.from.getMinutes() / 60);
-	      let toHours = parseInt(dateTime.to.getHours()) + Math.floor(dateTime.to.getMinutes() / 60);
+	      let fromHours = parseInt(dateTimeCloned.from.getHours()) + Math.floor(dateTimeCloned.from.getMinutes() / 60);
+	      let toHours = parseInt(dateTimeCloned.to.getHours()) + Math.floor(dateTimeCloned.to.getMinutes() / 60);
 	      if (fromHours !== 0 && fromHours <= this.planner.shownScaleTimeFrom || toHours !== 0 && toHours !== 23 && toHours + 1 >= this.planner.shownScaleTimeTo) {
-	        this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+	        this.planner.updateSelector(dateTimeCloned.from, dateTimeCloned.to, dateTimeCloned.fullDay);
 	      }
 	    }
 	  }

@@ -1,17 +1,21 @@
 import { nameSymbol } from './node';
-import { TextNode, contentSymbol, type TextNodeContent, type TextNodeOptions } from './text-node';
-import { Text } from '../reference/text';
+import { BBCodeTextNode, contentSymbol, type BBCodeTextNodeContent, type BBCodeTextNodeOptions } from './text-node';
 
-export class TabNode extends TextNode
+export class BBCodeTabNode extends BBCodeTextNode
 {
-	[nameSymbol]: string = Text.TAB_NAME;
-	[contentSymbol]: string = Text.TAB_CONTENT;
+	[nameSymbol]: string = '#tab';
+	[contentSymbol]: string = '\t';
 
-	constructor(options: TextNodeOptions = {})
+	constructor(options: BBCodeTextNodeOptions = {})
 	{
 		super(options);
 	}
 
-	setContent(options: TextNodeContent)
+	setContent(options: BBCodeTextNodeContent)
 	{}
+
+	clone(options): BBCodeTabNode
+	{
+		return this.getScheme().createTab();
+	}
 }

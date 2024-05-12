@@ -117,7 +117,7 @@ export class Menu extends Event.EventEmitter
 	getForm(): MenuForm
 	{
 		return new MenuForm({
-			title: 'Menu',
+			title: Loc.getMessage('LANDING_MENU_TITLE'),
 			type: 'menu',
 			code: this.code,
 			forms: this.getFlatTree().map((item) => {

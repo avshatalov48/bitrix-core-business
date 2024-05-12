@@ -6,7 +6,6 @@ this.BX = this.BX || {};
 	let _ = t => t,
 	  _t;
 	class PopupComponentsMakerItem extends main_core_events.EventEmitter {
-	  // eslint-disable-next-line @bitrix24/bitrix24-rules/no-eventemitter-without-namespace
 	  constructor(options = {}) {
 	    super();
 	    this.html = null;
@@ -15,6 +14,7 @@ this.BX = this.BX || {};
 	    this.withoutBackground = null;
 	    this.backgroundColor = null;
 	    this.backgroundImage = null;
+	    this.background = null;
 	    this.marginBottom = null;
 	    this.disabled = null;
 	    this.secondary = null;
@@ -24,6 +24,7 @@ this.BX = this.BX || {};
 	    this.minHeight = null;
 	    this.sizeLoader = 45;
 	    this.asyncSecondary = null;
+	    this.margin = null;
 	    this.setParams(options);
 	    this.layout = {
 	      container: null
@@ -37,6 +38,7 @@ this.BX = this.BX || {};
 	    this.awaitContent = main_core.Type.isBoolean(options == null ? void 0 : options.awaitContent) ? options == null ? void 0 : options.awaitContent : this.awaitContent;
 	    this.flex = main_core.Type.isNumber(options == null ? void 0 : options.flex) ? options.flex : this.flex;
 	    this.withoutBackground = main_core.Type.isBoolean(options == null ? void 0 : options.withoutBackground) ? options.withoutBackground : this.withoutBackground;
+	    this.background = main_core.Type.isString(options == null ? void 0 : options.background) ? options.background : this.background;
 	    this.backgroundColor = main_core.Type.isString(options == null ? void 0 : options.backgroundColor) ? options.backgroundColor : this.backgroundColor;
 	    this.backgroundImage = main_core.Type.isString(options == null ? void 0 : options.backgroundImage) ? options.backgroundImage : this.backgroundImage;
 	    this.marginBottom = main_core.Type.isNumber(options == null ? void 0 : options.marginBottom) ? options.marginBottom : this.marginBottom;
@@ -46,6 +48,7 @@ this.BX = this.BX || {};
 	    this.displayBlock = main_core.Type.isBoolean(options == null ? void 0 : options.displayBlock) ? options.displayBlock : this.displayBlock;
 	    this.attrs = main_core.Type.isPlainObject(options == null ? void 0 : options.attrs) ? options.attrs : this.attrs;
 	    this.minHeight = main_core.Type.isString(options == null ? void 0 : options.minHeight) ? options.minHeight : this.minHeight;
+	    this.margin = main_core.Type.isString(options.margin) ? options.margin : this.margin;
 	    this.sizeLoader = main_core.Type.isNumber(options == null ? void 0 : options.sizeLoader) ? options.sizeLoader : this.sizeLoader;
 	    this.asyncSecondary = (options == null ? void 0 : options.asyncSecondary) instanceof Promise ? options.asyncSecondary : this.asyncSecondary;
 	  }
@@ -98,13 +101,16 @@ this.BX = this.BX || {};
 				<div class="ui-popupcomponentmaker__content--section-item">${0}</div>
 			`), this.getContent());
 	    }
+	    if (this.background) {
+	      this.layout.container.style.background = this.background;
+	    }
 	    if (this.backgroundColor) {
 	      this.layout.container.style.backgroundColor = this.backgroundColor;
 	    }
 	    if (this.backgroundImage) {
 	      this.layout.container.style.backgroundImage = this.backgroundImage;
 	    }
-	    if (this.withoutBackground && !this.backgroundColor) {
+	    if (this.withoutBackground && !this.backgroundColor && !this.background) {
 	      this.layout.container.classList.add('--transparent');
 	    }
 	    if (this.flex) {
@@ -129,6 +135,9 @@ this.BX = this.BX || {};
 	    }
 	    if (this.minHeight) {
 	      main_core.Dom.style(this.layout.container, 'min-height', this.minHeight);
+	    }
+	    if (this.margin) {
+	      main_core.Dom.style(this.layout.container, 'margin', this.margin);
 	    }
 	    if (this.asyncSecondary) {
 	      this.asyncSecondary.then(secondary => {
@@ -225,10 +234,6 @@ this.BX = this.BX || {};
 	  isShown() {
 	    return this.getPopup().isShown();
 	  }
-
-	  /**
-	   * @private
-	   */
 	  getContentWrapper() {
 	    if (!this.contentWrapper) {
 	      this.contentWrapper = main_core.Tag.render(_t$1 || (_t$1 = _$1`

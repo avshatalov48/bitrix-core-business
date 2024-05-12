@@ -96,7 +96,7 @@ export const AuthorTitle = {
 				:dialogId="authorDialogId"
 				:showItsYou="false"
 				:withColor="true"
-				:withLeftIcon="false"
+				:withLeftIcon="true"
 			/>
 		</div>
 	`,

@@ -102,6 +102,7 @@ CREATE TABLE b_mail_message (
   RIGHT_MARGIN int8,
   READ_CONFIRMED timestamp,
   OPTIONS text,
+  SANITIZE_ON_VIEW smallint null default null,
   PRIMARY KEY (ID)
 );
 CREATE INDEX ix_b_mail_message_mailbox_id_in_reply_to_msg_id ON b_mail_message (mailbox_id, in_reply_to, msg_id);

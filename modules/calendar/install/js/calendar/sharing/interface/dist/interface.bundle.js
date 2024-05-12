@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 (function (exports,main_loader,main_qrcode,ui_designTokens,main_date,calendar_sharing_analytics,ui_entitySelector,main_core,calendar_util,ui_iconSet_api_core,main_popup,ui_dialogs_messagebox,ui_buttons,main_core_events,ui_iconSet_actions,ui_switcher,spotlight,ui_tour,ui_cnt) {
@@ -558,7 +557,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return calendar_util.Util.getWeekdaysLoc(true)[this.rule.weekdays[0]];
 	    }
 	    const weekdaysLoc = calendar_util.Util.getWeekdaysLoc();
-	    return this.rule.weekdays.map(w => weekdaysLoc[w]).reduce((a, b) => `${a}, ${b}`);
+	    return this.rule.weekdays.map(w => weekdaysLoc[w]).reduce((a, b) => `${a}, ${b}`, '');
 	  }
 	  getSortedWeekdays(weekdays) {
 	    return weekdays.map(w => w < this.weekStart ? w + 10 : w).sort((a, b) => a - b).map(w => w % 10);
@@ -1464,7 +1463,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return [new ui_buttons.Button({
 	      size: ui_buttons.ButtonSize.MEDIUM,
 	      color: ui_buttons.ButtonColor.DANGER,
-	      text: main_core.Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1'),
+	      text: main_core.Loc.getMessage('SHARING_WARNING_POPUP_DELETE'),
 	      events: {
 	        click: () => {
 	          this.deleteLink();
@@ -1523,8 +1522,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var _popupOpenState = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popupOpenState");
 	var _sortByFrequentUse = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sortByFrequentUse");
 	var _pathToUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToUser");
+	var _getSortingName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSortingName");
 	class List {
 	  constructor(props) {
+	    Object.defineProperty(this, _getSortingName, {
+	      value: _getSortingName2
+	    });
 	    Object.defineProperty(this, _props$1, {
 	      writable: true,
 	      value: void 0
@@ -1543,7 +1546,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    Object.defineProperty(this, _sortByFrequentUse, {
 	      writable: true,
-	      value: true
+	      value: void 0
 	    });
 	    Object.defineProperty(this, _pathToUser, {
 	      writable: true,
@@ -1553,6 +1556,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _pathToUser)[_pathToUser] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] = props.sortJointLinksByFrequentUse;
 	    this.getLinkListInfo();
 	    this.setListItemPopupState = this.setListItemPopupState.bind(this);
 	    this.eventSubscribe();
@@ -1646,7 +1650,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 				<div class="calendar-sharing__dialog-link-list-sorting-button-text">
 					${0}
 				</div>
-			`), main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT'));
+			`), babelHelpers.classPrivateFieldLooseBase(this, _getSortingName)[_getSortingName]());
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText;
 	  }
@@ -1748,7 +1752,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  changeListSort() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] = !babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse];
-	    const sortName = babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] ? main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT') : main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_DATE');
+	    BX.ajax.runAction('calendar.api.sharingajax.setSortJointLinksByFrequentUse', {
+	      data: {
+	        sortByFrequentUse: babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] ? 'Y' : 'N'
+	      }
+	    });
+	    const sortName = babelHelpers.classPrivateFieldLooseBase(this, _getSortingName)[_getSortingName]();
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText) {
 	      main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText, {
 	        text: sortName
@@ -1801,6 +1810,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	  }
 	}
+	function _getSortingName2() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] ? main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT') : main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_DATE');
+	}
 
 	let _$8 = t => t,
 	  _t$8,
@@ -1810,6 +1822,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  _t5$5,
 	  _t6$5,
 	  _t7$4;
+	var _options = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
 	var _popup$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
 	var _layout$5 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _dialogQr = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogQr");
@@ -1829,6 +1842,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    var _options$readOnly, _options$sharingRule$, _options$sharingRule$2;
 	    this.HELP_DESK_CODE_CALENDAR = 17198666;
 	    this.HELP_DESK_CODE_CRM = 17502612;
+	    Object.defineProperty(this, _options, {
+	      writable: true,
+	      value: void 0
+	    });
 	    Object.defineProperty(this, _popup$2, {
 	      writable: true,
 	      value: void 0
@@ -1869,6 +1886,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options] = options;
 	    babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _dialogQr)[_dialogQr] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5] = {
@@ -2030,7 +2048,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1] = new List({
 	        userInfo: this.userInfo,
-	        onLinkListClose: this.onLinkListClose.bind(this)
+	        onLinkListClose: this.onLinkListClose.bind(this),
+	        sortJointLinksByFrequentUse: babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].sortJointLinksByFrequentUse
 	      });
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1].render();
@@ -2343,6 +2362,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.payAttentionToNewFeatureMode = options.payAttentionToNewFeature;
 	    this.sharingFeatureLimit = options.sharingFeatureLimit;
 	    this.sharingSettingsCollapsed = options.sharingSettingsCollapsed;
+	    this.sortJointLinksByFrequentUse = options.sortJointLinksByFrequentUse;
 	  }
 	  show() {
 	    main_core.Dom.addClass(this.wrap, 'calendar-sharing__btn-wrap');
@@ -2470,7 +2490,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          workTimeEnd: calendar_util.Util.config.work_time_end
 	        },
 	        userInfo: this.userInfo,
-	        settingsCollapsed: this.sharingSettingsCollapsed
+	        settingsCollapsed: this.sharingSettingsCollapsed,
+	        sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse
 	      });
 	    }
 	    if (!this.newDialog.isShown()) {
@@ -2616,12 +2637,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	class Interface {
 	  constructor(options) {
-	    var _options$payAttention, _options$sharingFeatu, _options$sharingSetti;
+	    var _options$payAttention, _options$sharingFeatu, _options$sharingSetti, _options$sortJointLin;
 	    this.buttonWrap = options.buttonWrap;
 	    this.userInfo = options.userInfo || null;
 	    this.payAttentionToNewFeature = (_options$payAttention = options.payAttentionToNewFeature) != null ? _options$payAttention : false;
 	    this.sharingFeatureLimit = (_options$sharingFeatu = options.sharingFeatureLimit) != null ? _options$sharingFeatu : false;
 	    this.sharingSettingsCollapsed = (_options$sharingSetti = options.sharingSettingsCollapsed) != null ? _options$sharingSetti : false;
+	    this.sortJointLinksByFrequentUse = (_options$sortJointLin = options.sortJointLinksByFrequentUse) != null ? _options$sortJointLin : false;
 	  }
 	  showSharingButton() {
 	    this.sharingButton = new SharingButton({
@@ -2629,7 +2651,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      userInfo: this.userInfo,
 	      payAttentionToNewFeature: this.payAttentionToNewFeature,
 	      sharingFeatureLimit: this.sharingFeatureLimit,
-	      sharingSettingsCollapsed: this.sharingSettingsCollapsed
+	      sharingSettingsCollapsed: this.sharingSettingsCollapsed,
+	      sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse
 	    });
 	    this.sharingButton.show();
 	  }

@@ -1,17 +1,6 @@
 export type RecentItem = {
 	dialogId: string,
-	message: {
-		id: number,
-		senderId: number,
-		date: Date,
-		status: string,
-		sending: boolean,
-		text: string,
-		params: {
-			withFile: boolean | Object,
-			withAttach: boolean | Object
-		}
-	},
+	messageId: number | string,
 	draft: {
 		text: string,
 		date: ?Date
@@ -19,14 +8,11 @@ export type RecentItem = {
 	unread: boolean,
 	pinned: boolean,
 	liked: boolean,
-	dateUpdate: ?Date,
 	invitation: {
 		isActive: boolean,
 		originator: number,
 		canResend: boolean
 	},
-	options: {
-		birthdayPlaceholder: boolean,
-		defaultUserRecord: boolean
-	}
+	isFakeElement: boolean, // invitation or fake element for new users
+	isBirthdayPlaceholder: boolean,
 };

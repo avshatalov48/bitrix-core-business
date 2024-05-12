@@ -62,8 +62,6 @@ foreach ($jsonDataMap as $k => $v)
 	}
 }
 
-CUtil::JSPostUnescape();
-
 foreach ($jsonValues as $k => $v)
 {
 	$_REQUEST[$k] = $v;
@@ -240,6 +238,10 @@ switch ($action)
 		{
 			$data = $saveResult->getData();
 			CBitrixComponent::includeComponentClass('bitrix:bizproc.automation');
+			if (!array_key_exists('robot', $data))
+			{
+				$data['robot'] = [];
+			}
 			$data['robot']['viewData'] = \BizprocAutomationComponent::getRobotViewData($data['robot'], $documentType);
 
 			$sendResponse(array('robot' => $data['robot']));

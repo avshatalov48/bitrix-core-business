@@ -3,17 +3,10 @@ import { RestMethod } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { runAction } from 'im.v2.lib.rest';
 
-import type { ImModelChat, ImModelMessage } from 'im.v2.model';
+import type { ImModelMessage } from 'im.v2.model';
 
 export class EditService
 {
-	#chatId: number;
-
-	constructor(chatId: number)
-	{
-		this.#chatId = chatId;
-	}
-
 	editMessageText(messageId: number, text: string)
 	{
 		Logger.warn('MessageService: editMessageText', messageId, text);
@@ -24,14 +17,15 @@ export class EditService
 		}
 
 		this.#updateMessageModel(messageId, text);
-		this.#updateRecentModel(messageId, text);
 
-		runAction(RestMethod.imV2ChatMessageUpdate, {
+		const payload = {
 			data: {
 				id: messageId,
 				fields: { message: text },
 			},
-		})
+		};
+
+		runAction(RestMethod.imV2ChatMessageUpdate, payload)
 			.catch((error) => {
 				Logger.error('MessageService: editMessageText error:', error);
 			});
@@ -49,30 +43,6 @@ export class EditService
 				isEdited,
 			},
 		});
-	}
-
-	#updateRecentModel(messageId: number, text: string): void
-	{
-		const dialog = this.#getChat();
-		if (messageId !== dialog.lastMessageId)
-		{
-			return;
-		}
-
-		Core.getStore().dispatch('recent/update', {
-			id: dialog.dialogId,
-			fields: {
-				message: {
-					text,
-				},
-				dateUpdate: new Date(),
-			},
-		});
-	}
-
-	#getChat(): ImModelChat | null
-	{
-		return Core.getStore().getters['chats/getByChatId'](this.#chatId);
 	}
 
 	#getMessage(messageId: number): ImModelMessage | null

@@ -423,13 +423,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	const messageFieldsConfig = [{
-	  fieldName: 'temporaryId',
+	  fieldName: ['id', 'temporaryId'],
 	  targetFieldName: 'id',
-	  checkFunction: im_v2_lib_utils.Utils.text.isUuidV4
-	}, {
-	  fieldName: 'id',
-	  targetFieldName: 'id',
-	  checkFunction: main_core.Type.isNumber
+	  checkFunction: [main_core.Type.isNumber, im_v2_lib_utils.Utils.text.isTempMessage]
 	}, {
 	  fieldName: 'chatId',
 	  targetFieldName: 'chatId',
@@ -438,7 +434,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}, {
 	  fieldName: 'date',
 	  targetFieldName: 'date',
-	  checkFunction: main_core.Type.isString,
+	  checkFunction: [main_core.Type.isString, main_core.Type.isDate],
 	  formatFunction: im_v2_lib_utils.Utils.date.cast
 	}, {
 	  fieldName: 'text',
@@ -480,8 +476,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}, {
 	  fieldName: 'componentParams',
 	  targetFieldName: 'componentParams',
-	  checkFunction: main_core.Type.isPlainObject,
-	  formatFunction: convertObjectKeysToCamelCase
+	  checkFunction: main_core.Type.isPlainObject
 	}, {
 	  fieldName: ['files', 'fileId'],
 	  targetFieldName: 'files',
@@ -526,8 +521,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}, {
 	  fieldName: 'forward',
 	  targetFieldName: 'forward',
-	  checkFunction: main_core.Type.isPlainObject,
-	  formatFunction: convertObjectKeysToCamelCase
+	  checkFunction: main_core.Type.isPlainObject
 	}];
 
 	class PinModel extends ui_vue3_vuex.BuilderModel {
@@ -1034,6 +1028,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          preparedMessages = [payload];
 	        }
 	        preparedMessages = preparedMessages.map(message => {
+	          const currentMessage = store.state.collection[message.id];
+	          if (currentMessage) {
+	            return {
+	              ...currentMessage,
+	              ...babelHelpers.classPrivateFieldLooseBase(this, _formatFields)[_formatFields](message)
+	            };
+	          }
 	          return {
 	            ...this.getElementState(),
 	            ...babelHelpers.classPrivateFieldLooseBase(this, _formatFields)[_formatFields](message)
@@ -1669,7 +1670,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      writingList: [],
 	      muteList: [],
 	      quoteId: 0,
-	      owner: 0,
+	      ownerId: 0,
 	      entityLink: {},
 	      dateCreate: null,
 	      public: {
@@ -1991,6 +1992,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      isSupport: state => userId => {
 	        var _state$collection$use2;
 	        return ((_state$collection$use2 = state.collection[userId]) == null ? void 0 : _state$collection$use2.type) === im_v2_const.BotType.support24;
+	      },
+	      /** @function users/bots/getCopilotUserId */
+	      getCopilotUserId: state => {
+	        for (const [userId, bot] of Object.entries(state.collection)) {
+	          if (bot.code === im_v2_const.BotCode.copilot) {
+	            return Number.parseInt(userId, 10);
+	          }
+	        }
+	        return null;
 	      }
 	    };
 	  }
@@ -2750,6 +2760,74 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 
+	const prepareDraft = draft => {
+	  if (!draft.text || draft.text === '') {
+	    return {
+	      text: '',
+	      date: null
+	    };
+	  }
+	  return {
+	    text: draft.text,
+	    date: new Date()
+	  };
+	};
+	const prepareInvitation = invited => {
+	  if (main_core.Type.isPlainObject(invited)) {
+	    return {
+	      isActive: true,
+	      originator: invited.originatorId,
+	      canResend: invited.canResend
+	    };
+	  }
+	  return {
+	    isActive: false,
+	    originator: 0,
+	    canResend: false
+	  };
+	};
+
+	const recentFieldsConfig = [{
+	  fieldName: ['id', 'dialogId'],
+	  targetFieldName: 'dialogId',
+	  checkFunction: isNumberOrString,
+	  formatFunction: convertToString
+	}, {
+	  fieldName: 'messageId',
+	  targetFieldName: 'messageId',
+	  checkFunction: isNumberOrString
+	}, {
+	  fieldName: 'draft',
+	  targetFieldName: 'draft',
+	  checkFunction: main_core.Type.isPlainObject,
+	  formatFunction: prepareDraft
+	}, {
+	  fieldName: 'invited',
+	  targetFieldName: 'invitation',
+	  checkFunction: [main_core.Type.isPlainObject, main_core.Type.isBoolean],
+	  formatFunction: prepareInvitation
+	}, {
+	  fieldName: 'unread',
+	  targetFieldName: 'unread',
+	  checkFunction: main_core.Type.isBoolean
+	}, {
+	  fieldName: 'pinned',
+	  targetFieldName: 'pinned',
+	  checkFunction: main_core.Type.isBoolean
+	}, {
+	  fieldName: 'liked',
+	  targetFieldName: 'liked',
+	  checkFunction: main_core.Type.isBoolean
+	}, {
+	  fieldName: ['defaultUserRecord', 'isFakeElement'],
+	  targetFieldName: 'isFakeElement',
+	  checkFunction: main_core.Type.isBoolean
+	}, {
+	  fieldName: 'isBirthdayPlaceholder',
+	  targetFieldName: 'isBirthdayPlaceholder',
+	  checkFunction: main_core.Type.isBoolean
+	}];
+
 	class CallsModel extends ui_vue3_vuex.BuilderModel {
 	  getState() {
 	    return {
@@ -2869,86 +2947,40 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 
-	/* eslint-disable no-param-reassign */
-	class RecentSearchModel extends ui_vue3_vuex.BuilderModel {
-	  getState() {
-	    return {
-	      collection: {}
-	    };
-	  }
-	  getElementState() {
-	    return {
-	      dialogId: '0',
-	      foundByUser: false
-	    };
-	  }
-	  getGetters() {
-	    return {
-	      /** @function recent/search/getDialogIds */
-	      getDialogIds: state => {
-	        return Object.values(state.collection).map(item => item.dialogId);
-	      },
-	      /** @function recent/search/get */
-	      get: state => rawDialogId => {
-	        let dialogId = rawDialogId;
-	        if (main_core.Type.isNumber(dialogId)) {
-	          dialogId = dialogId.toString();
-	        }
-	        if (state.collection[dialogId]) {
-	          return state.collection[dialogId];
-	        }
-	        return null;
-	      }
-	    };
-	  }
-	  getActions() {
-	    return {
-	      /** @function recent/search/set */
-	      set: (store, payload) => {
-	        payload.forEach(item => {
-	          const recentElement = this.validate(item);
-	          store.commit('set', {
-	            dialogId: recentElement.dialogId,
-	            foundByUser: recentElement.foundByUser
-	          });
-	        });
-	      },
-	      /** @function recent/search/clear */
-	      clear: (store, payload) => {
-	        store.commit('clear');
-	      }
-	    };
-	  }
-	  getMutations() {
-	    return {
-	      set: (state, payload) => {
-	        state.collection[payload.dialogId] = payload;
-	      },
-	      clear: state => {
-	        state.collection = {};
-	      }
-	    };
-	  }
-	  validate(fields, options) {
-	    const element = this.getElementState();
-	    if (main_core.Type.isStringFilled(fields.dialogId)) {
-	      element.dialogId = fields.dialogId;
-	    }
-	    if (main_core.Type.isBoolean(fields.byUser)) {
-	      element.foundByUser = fields.byUser;
-	    }
-	    return element;
-	  }
-	}
-
+	var _formatFields$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("formatFields");
+	var _updateUnloadedRecentCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedRecentCounters");
+	var _updateUnloadedCopilotCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedCopilotCounters");
+	var _updateUnloadedCounters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateUnloadedCounters");
+	var _getMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessage");
+	var _hasTodayMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasTodayMessage");
 	class RecentModel extends ui_vue3_vuex.BuilderModel {
+	  constructor(...args) {
+	    super(...args);
+	    Object.defineProperty(this, _hasTodayMessage, {
+	      value: _hasTodayMessage2
+	    });
+	    Object.defineProperty(this, _getMessage, {
+	      value: _getMessage2
+	    });
+	    Object.defineProperty(this, _updateUnloadedCounters, {
+	      value: _updateUnloadedCounters2
+	    });
+	    Object.defineProperty(this, _updateUnloadedCopilotCounters, {
+	      value: _updateUnloadedCopilotCounters2
+	    });
+	    Object.defineProperty(this, _updateUnloadedRecentCounters, {
+	      value: _updateUnloadedRecentCounters2
+	    });
+	    Object.defineProperty(this, _formatFields$1, {
+	      value: _formatFields2$1
+	    });
+	  }
 	  getName() {
 	    return 'recent';
 	  }
 	  getNestedModules() {
 	    return {
-	      calls: CallsModel,
-	      search: RecentSearchModel
+	      calls: CallsModel
 	    };
 	  }
 	  getState() {
@@ -2962,18 +2994,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  getElementState() {
 	    return {
 	      dialogId: '0',
-	      message: {
-	        id: 0,
-	        senderId: 0,
-	        date: null,
-	        status: im_v2_const.MessageStatus.received,
-	        sending: false,
-	        text: '',
-	        params: {
-	          withFile: false,
-	          withAttach: false
-	        }
-	      },
+	      messageId: 0,
 	      draft: {
 	        text: '',
 	        date: null
@@ -2981,13 +3002,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      unread: false,
 	      pinned: false,
 	      liked: false,
-	      dateUpdate: null,
 	      invitation: {
 	        isActive: false,
 	        originator: 0,
 	        canResend: false
 	      },
-	      options: {}
+	      isFakeElement: false,
+	      isBirthdayPlaceholder: false
 	    };
 	  }
 
@@ -3024,24 +3045,28 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          return state.collection[dialogId];
 	        });
 	        const filteredCollection = recentCollectionAsArray.filter(item => {
-	          const isBirthdayPlaceholder = item.options.birthdayPlaceholder;
-	          const isInvitedUser = item.options.defaultUserRecord;
-	          return !isBirthdayPlaceholder && !isInvitedUser && item.message.id;
+	          return !item.isBirthdayPlaceholder && !item.isFakeElement && item.messageId;
 	        });
 	        return [...filteredCollection].sort((a, b) => {
-	          return b.message.date - a.message.date;
+	          const messageA = babelHelpers.classPrivateFieldLooseBase(this, _getMessage)[_getMessage](a.messageId);
+	          const messageB = babelHelpers.classPrivateFieldLooseBase(this, _getMessage)[_getMessage](b.messageId);
+	          return messageB.date - messageA.date;
 	        });
 	      },
 	      /** @function recent/get */
-	      get: state => rawDialogId => {
-	        let dialogId = rawDialogId;
-	        if (main_core.Type.isNumber(dialogId)) {
-	          dialogId = dialogId.toString();
+	      get: state => dialogId => {
+	        if (!state.collection[dialogId]) {
+	          return null;
 	        }
-	        if (state.collection[dialogId]) {
-	          return state.collection[dialogId];
+	        return state.collection[dialogId];
+	      },
+	      /** @function recent/getMessage */
+	      getMessage: state => dialogId => {
+	        const element = state.collection[dialogId];
+	        if (!element) {
+	          return null;
 	        }
-	        return null;
+	        return babelHelpers.classPrivateFieldLooseBase(this, _getMessage)[_getMessage](element.messageId);
 	      },
 	      /** @function recent/needsBirthdayPlaceholder */
 	      needsBirthdayPlaceholder: state => dialogId => {
@@ -3057,9 +3082,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!hasBirthday) {
 	          return false;
 	        }
-	        const hasMessage = im_v2_lib_utils.Utils.text.isTempMessage(currentItem.message.id) || currentItem.message.id > 0;
-	        const hasTodayMessage = hasMessage && im_v2_lib_utils.Utils.date.isToday(currentItem.message.date);
 	        const showBirthday = this.store.getters['application/settings/get'](im_v2_const.Settings.recent.showBirthday);
+	        const hasTodayMessage = babelHelpers.classPrivateFieldLooseBase(this, _hasTodayMessage)[_hasTodayMessage](currentItem.messageId);
 	        return showBirthday && !hasTodayMessage && dialog.counter === 0;
 	      },
 	      /** @function recent/needsVacationPlaceholder */
@@ -3076,8 +3100,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!hasVacation) {
 	          return false;
 	        }
-	        const hasMessage = im_v2_lib_utils.Utils.text.isTempMessage(currentItem.message.id) || currentItem.message.id > 0;
-	        const hasTodayMessage = hasMessage && im_v2_lib_utils.Utils.date.isToday(currentItem.message.date);
+	        const hasTodayMessage = babelHelpers.classPrivateFieldLooseBase(this, _hasTodayMessage)[_hasTodayMessage](currentItem.messageId);
 	        return !hasTodayMessage && dialog.counter === 0;
 	      },
 	      /** @function recent/getMessageDate */
@@ -3086,14 +3109,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!currentItem) {
 	          return null;
 	        }
-	        if (main_core.Type.isDate(currentItem.draft.date) && currentItem.draft.date > currentItem.message.date) {
+	        const message = babelHelpers.classPrivateFieldLooseBase(this, _getMessage)[_getMessage](currentItem.messageId);
+	        if (main_core.Type.isDate(currentItem.draft.date) && currentItem.draft.date > message.date) {
 	          return currentItem.draft.date;
 	        }
 	        const needsBirthdayPlaceholder = this.store.getters['recent/needsBirthdayPlaceholder'](currentItem.dialogId);
 	        if (needsBirthdayPlaceholder) {
 	          return im_v2_lib_utils.Utils.date.getStartOfTheDay();
 	        }
-	        return currentItem.message.date;
+	        return message.date;
 	      }
 	    };
 	  }
@@ -3106,7 +3130,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      setRecent: async (store, payload) => {
 	        const itemIds = await im_v2_application_core.Core.getStore().dispatch('recent/store', payload);
 	        store.commit('setRecentCollection', itemIds);
-	        this.updateUnloadedRecentCounters(payload);
+	        babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedRecentCounters)[_updateUnloadedRecentCounters](payload);
 	      },
 	      /** @function recent/setUnread */
 	      setUnread: async (store, payload) => {
@@ -3117,7 +3141,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      setCopilot: async (store, payload) => {
 	        const itemIds = await this.store.dispatch('recent/store', payload);
 	        store.commit('setCopilotCollection', itemIds);
-	        this.updateUnloadedCopilotCounters(payload);
+	        babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedCopilotCounters)[_updateUnloadedCopilotCounters](payload);
 	      },
 	      /** @function recent/store */
 	      store: (store, payload) => {
@@ -3127,7 +3151,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        const itemsToUpdate = [];
 	        const itemsToAdd = [];
 	        payload.map(element => {
-	          return this.validate(element);
+	          return babelHelpers.classPrivateFieldLooseBase(this, _formatFields$1)[_formatFields$1](element);
 	        }).forEach(element => {
 	          const preparedElement = {
 	            ...element
@@ -3139,13 +3163,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	              fields: preparedElement
 	            });
 	          } else {
-	            const {
-	              message: defaultMessage
-	            } = this.getElementState();
-	            preparedElement.message = {
-	              ...defaultMessage,
-	              ...preparedElement.message
-	            };
 	            itemsToAdd.push({
 	              ...this.getElementState(),
 	              ...preparedElement
@@ -3172,7 +3189,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        }
 	        store.commit('update', {
 	          dialogId: existingItem.dialogId,
-	          fields: this.validate(fields)
+	          fields: babelHelpers.classPrivateFieldLooseBase(this, _formatFields$1)[_formatFields$1](fields)
 	        });
 	      },
 	      /** @function recent/unread */
@@ -3184,8 +3201,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        store.commit('update', {
 	          dialogId: existingItem.dialogId,
 	          fields: {
-	            unread: payload.action,
-	            dateUpdate: payload.dateUpdate
+	            unread: payload.action
 	          }
 	        });
 	      },
@@ -3198,8 +3214,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        store.commit('update', {
 	          dialogId: existingItem.dialogId,
 	          fields: {
-	            pinned: payload.action,
-	            dateUpdate: payload.dateUpdate
+	            pinned: payload.action
 	          }
 	        });
 	      },
@@ -3209,7 +3224,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (!existingItem) {
 	          return;
 	        }
-	        const isLastMessage = existingItem.message.id === Number.parseInt(payload.messageId, 10);
+	        const isLastMessage = existingItem.messageId === Number.parseInt(payload.messageId, 10);
 	        const isExactMessageLiked = !main_core.Type.isUndefined(payload.messageId) && payload.liked === true;
 	        if (isExactMessageLiked && !isLastMessage) {
 	          return;
@@ -3246,12 +3261,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          if (payload.text === '') {
 	            return;
 	          }
+	          const messageId = `${im_v2_const.FakeMessagePrefix}-${payload.id}`;
 	          const newItem = {
-	            dialogId: payload.id.toString()
+	            dialogId: payload.id.toString(),
+	            messageId
 	          };
 	          store.commit('add', {
 	            ...this.getElementState(),
 	            ...newItem
+	          });
+	          im_v2_application_core.Core.getStore().dispatch('messages/store', {
+	            id: messageId,
+	            date: new Date()
 	          });
 	          existingItem = store.state.collection[payload.id];
 	        }
@@ -3262,7 +3283,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          }
 	          store.commit(payload.addMethodName, [payload.id.toString()]);
 	        }
-	        const fields = this.validate({
+	        const fields = babelHelpers.classPrivateFieldLooseBase(this, _formatFields$1)[_formatFields$1]({
 	          draft: {
 	            text: payload.text.toString()
 	          }
@@ -3332,23 +3353,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          dialogId,
 	          fields
 	        }) => {
-	          var _fields$options;
-	          // if we already got chat - we should not update it with default user chat
-	          // (unless it's an accepted invitation)
+	          // if we already got chat - we should not update it with fake user chat
+	          // (unless it's an accepted invitation or fake user with real message)
 	          const elementIsInRecent = state.recentCollection.has(dialogId);
-	          const defaultUserElement = ((_fields$options = fields.options) == null ? void 0 : _fields$options.defaultUserRecord) && !fields.invitation;
-	          if (defaultUserElement && elementIsInRecent) {
+	          const isFakeElement = fields.isFakeElement && im_v2_lib_utils.Utils.text.isTempMessage(fields.messageId);
+	          if (elementIsInRecent && isFakeElement && !fields.invitation) {
 	            return;
 	          }
 	          const currentElement = state.collection[dialogId];
-	          fields.message = {
-	            ...currentElement.message,
-	            ...fields.message
-	          };
-	          fields.options = {
-	            ...currentElement.options,
-	            ...fields.options
-	          };
 	          state.collection[dialogId] = {
 	            ...currentElement,
 	            ...fields
@@ -3365,145 +3377,38 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    };
 	  }
-	  validate(fields) {
-	    const result = {
-	      options: {}
-	    };
-	    if (main_core.Type.isNumber(fields.id)) {
-	      result.dialogId = fields.id.toString();
-	    }
-	    if (main_core.Type.isStringFilled(fields.id)) {
-	      result.dialogId = fields.id;
-	    }
-	    if (main_core.Type.isNumber(fields.dialogId)) {
-	      result.dialogId = fields.dialogId.toString();
-	    }
-	    if (main_core.Type.isStringFilled(fields.dialogId)) {
-	      result.dialogId = fields.dialogId;
-	    }
-	    if (main_core.Type.isPlainObject(fields.message)) {
-	      result.message = this.prepareMessage(fields);
-	    }
-	    if (main_core.Type.isPlainObject(fields.draft)) {
-	      result.draft = this.prepareDraft(fields);
-	    }
-	    if (main_core.Type.isBoolean(fields.unread)) {
-	      result.unread = fields.unread;
-	    }
-	    if (main_core.Type.isBoolean(fields.pinned)) {
-	      result.pinned = fields.pinned;
-	    }
-	    if (main_core.Type.isBoolean(fields.liked)) {
-	      result.liked = fields.liked;
-	    }
-	    if (main_core.Type.isStringFilled(fields.date_update) || main_core.Type.isStringFilled(fields.dateUpdate)) {
-	      const date = fields.date_update || fields.dateUpdate;
-	      result.dateUpdate = im_v2_lib_utils.Utils.date.cast(date);
-	    } else if (main_core.Type.isDate(fields.dateUpdate)) {
-	      result.dateUpdate = fields.dateUpdate;
-	    }
-	    if (main_core.Type.isPlainObject(fields.invited)) {
-	      result.invitation = {
-	        isActive: true,
-	        originator: fields.invited.originator_id,
-	        canResend: fields.invited.can_resend
-	      };
-	      result.options.defaultUserRecord = true;
-	    } else if (fields.invited === false) {
-	      result.invitation = {
-	        isActive: false,
-	        originator: 0,
-	        canResend: false
-	      };
-	      result.options.defaultUserRecord = true;
-	    }
-	    if (main_core.Type.isPlainObject(fields.options)) {
-	      if (!result.options) {
-	        result.options = {};
-	      }
-	      if (main_core.Type.isBoolean(fields.options.default_user_record)) {
-	        fields.options.defaultUserRecord = fields.options.default_user_record;
-	      }
-	      if (main_core.Type.isBoolean(fields.options.defaultUserRecord)) {
-	        result.options.defaultUserRecord = fields.options.defaultUserRecord;
-	      }
-	      if (main_core.Type.isBoolean(fields.options.birthdayPlaceholder)) {
-	        result.options.birthdayPlaceholder = fields.options.birthdayPlaceholder;
-	      }
-	    }
-	    return result;
+	}
+	function _formatFields2$1(rawFields) {
+	  const options = main_core.Type.isPlainObject(rawFields.options) ? rawFields.options : {};
+	  const fields = {
+	    ...rawFields,
+	    ...options
+	  };
+	  return formatFieldsWithConfig(fields, recentFieldsConfig);
+	}
+	function _updateUnloadedRecentCounters2(payload) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedCounters)[_updateUnloadedCounters](payload, 'counters/setUnloadedChatCounters');
+	}
+	function _updateUnloadedCopilotCounters2(payload) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateUnloadedCounters)[_updateUnloadedCounters](payload, 'counters/setUnloadedCopilotCounters');
+	}
+	function _updateUnloadedCounters2(payload, updateMethod) {
+	  if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
+	    payload = [payload];
 	  }
-	  prepareMessage(fields) {
-	    var _fields$message$param, _fields$message$param2, _fields$message$param3, _fields$message$param4, _fields$message$param5;
-	    const message = {};
-	    const params = {};
-	    if (main_core.Type.isNumber(fields.message.id) || main_core.Type.isStringFilled(fields.message.id) || im_v2_lib_utils.Utils.text.isUuidV4(fields.message.id)) {
-	      message.id = fields.message.id;
-	    }
-	    if (main_core.Type.isString(fields.message.text)) {
-	      message.text = fields.message.text;
-	    }
-	    if (main_core.Type.isStringFilled(fields.message.attach) || main_core.Type.isBoolean(fields.message.attach) || main_core.Type.isArray(fields.message.attach)) {
-	      params.withAttach = fields.message.attach;
-	    } else if (main_core.Type.isStringFilled((_fields$message$param = fields.message.params) == null ? void 0 : _fields$message$param.withAttach) || main_core.Type.isBoolean((_fields$message$param2 = fields.message.params) == null ? void 0 : _fields$message$param2.withAttach) || main_core.Type.isArray((_fields$message$param3 = fields.message.params) == null ? void 0 : _fields$message$param3.withAttach)) {
-	      params.withAttach = fields.message.params.withAttach;
-	    }
-	    if (main_core.Type.isBoolean(fields.message.file) || main_core.Type.isPlainObject(fields.message.file)) {
-	      params.withFile = fields.message.file;
-	    } else if (main_core.Type.isBoolean((_fields$message$param4 = fields.message.params) == null ? void 0 : _fields$message$param4.withFile) || main_core.Type.isPlainObject((_fields$message$param5 = fields.message.params) == null ? void 0 : _fields$message$param5.withFile)) {
-	      params.withFile = fields.message.params.withFile;
-	    }
-	    if (main_core.Type.isDate(fields.message.date) || main_core.Type.isString(fields.message.date)) {
-	      message.date = im_v2_lib_utils.Utils.date.cast(fields.message.date);
-	    }
-	    if (main_core.Type.isNumber(fields.message.author_id)) {
-	      message.senderId = fields.message.author_id;
-	    } else if (main_core.Type.isNumber(fields.message.authorId)) {
-	      message.senderId = fields.message.authorId;
-	    } else if (main_core.Type.isNumber(fields.message.senderId)) {
-	      message.senderId = fields.message.senderId;
-	    }
-	    if (main_core.Type.isStringFilled(fields.message.status)) {
-	      message.status = fields.message.status;
-	    }
-	    if (main_core.Type.isBoolean(fields.message.sending)) {
-	      message.sending = fields.message.sending;
-	    }
-	    if (Object.keys(params).length > 0) {
-	      message.params = params;
-	    }
-	    return message;
-	  }
-	  prepareDraft(fields) {
-	    const {
-	      draft
-	    } = this.getElementState();
-	    if (main_core.Type.isString(fields.draft.text)) {
-	      draft.text = fields.draft.text;
-	    }
-	    if (main_core.Type.isStringFilled(draft.text)) {
-	      draft.date = new Date();
-	    } else {
-	      draft.date = null;
-	    }
-	    return draft;
-	  }
-	  updateUnloadedRecentCounters(payload) {
-	    this.updateUnloadedCounters(payload, 'counters/setUnloadedChatCounters');
-	  }
-	  updateUnloadedCopilotCounters(payload) {
-	    this.updateUnloadedCounters(payload, 'counters/setUnloadedCopilotCounters');
-	  }
-	  updateUnloadedCounters(payload, updateMethod) {
-	    if (!Array.isArray(payload) && main_core.Type.isPlainObject(payload)) {
-	      payload = [payload];
-	    }
-	    const zeroedCountersForNewItems = {};
-	    payload.forEach(item => {
-	      zeroedCountersForNewItems[item.chat_id] = 0;
-	    });
-	    void im_v2_application_core.Core.getStore().dispatch(updateMethod, zeroedCountersForNewItems);
-	  }
+	  const zeroedCountersForNewItems = {};
+	  payload.forEach(item => {
+	    zeroedCountersForNewItems[item.chat_id] = 0;
+	  });
+	  void im_v2_application_core.Core.getStore().dispatch(updateMethod, zeroedCountersForNewItems);
+	}
+	function _getMessage2(messageId) {
+	  return im_v2_application_core.Core.getStore().getters['messages/getById'](messageId);
+	}
+	function _hasTodayMessage2(messageId) {
+	  const message = babelHelpers.classPrivateFieldLooseBase(this, _getMessage)[_getMessage](messageId);
+	  const hasMessage = im_v2_lib_utils.Utils.text.isUuidV4(message.id) || message.id > 0;
+	  return hasMessage && im_v2_lib_utils.Utils.date.isToday(message.date);
 	}
 
 	class NotificationsModel extends ui_vue3_vuex.BuilderModel {
@@ -3752,6 +3657,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      },
 	      read: (state, payload) => {
 	        state.collection.set(payload.id, {
+	          ...state.collection.get(payload.id),
+	          read: payload.read
+	        });
+	        state.searchCollection.set(payload.id, {
 	          ...state.collection.get(payload.id),
 	          read: payload.read
 	        });

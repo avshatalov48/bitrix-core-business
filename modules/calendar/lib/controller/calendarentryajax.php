@@ -5,15 +5,13 @@ use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\EventAccessController;
 use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Core\Managers\Accessibility;
-use Bitrix\Calendar\Infrastructure\Persistence\OrmSectionRepository;
+use Bitrix\Calendar\Integration\Tasks\TaskQueryParameter;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals;
-use Bitrix\Calendar\Service;
 use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
-use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Intranet;
@@ -250,10 +248,9 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		if ($fetchTasks)
 		{
 			$tasksEntries = \CCalendar::getTaskList(
-				[
-					'type' => $calendarType,
-					'ownerId' => $ownerId,
-				]
+				(new TaskQueryParameter($this->getCurrentUser()->getId()))
+					->setType($calendarType)
+					->setOwnerId($ownerId)
 			);
 
 			if (!empty($tasksEntries))

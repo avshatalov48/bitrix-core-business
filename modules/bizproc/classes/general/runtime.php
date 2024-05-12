@@ -26,6 +26,8 @@ class CBPRuntime
 
 	const REST_ACTIVITY_PREFIX = 'rest_';
 
+	public const ACTIVITY_API_VERSION = 1;
+
 	private $isStarted = false;
 	/** @var CBPRuntime $instance*/
 	private static $instance;
@@ -116,20 +118,10 @@ class CBPRuntime
 
 		if (!isset(static::$featuresCache[$featureName]))
 		{
-			$enabled = true;
-			if (
-				Main\Loader::includeModule('bitrix24')
-				&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled($featureName)
-			)
-			{
-				$enabled = false;
-			}
-			elseif ($featureName === 'bizproc')
-			{
-				$enabled = Bizproc\Integration\Intranet\ToolsManager::getInstance()->isBizprocAvailable();
-			}
-
-			static::$featuresCache[$featureName] = $enabled;
+			static::$featuresCache[$featureName] = (
+				!Main\Loader::includeModule('bitrix24')
+				|| \Bitrix\Bitrix24\Feature::isFeatureEnabled($featureName)
+			);
 		}
 
 		return static::$featuresCache[$featureName];
@@ -678,34 +670,46 @@ class CBPRuntime
 	public function searchActivitiesByType($type, array $documentType = null)
 	{
 		$type = mb_strtolower(trim($type));
-		if ($type == '')
+		if ($type === '')
+		{
 			return false;
+		}
 
-		$arProcessedDirs = array();
+		$arProcessedDirs = [];
 		foreach ($this->activityFolders as $folder)
 		{
 			if (is_dir($folder) && $handle = opendir($folder))
 			{
 				while (false !== ($dir = readdir($handle)))
 				{
-					if ($dir == "." || $dir == "..")
+					if ($dir === "." || $dir === "..")
+					{
 						continue;
+					}
 					if (!is_dir($folder."/".$dir))
+					{
 						continue;
+					}
 					$dirKey = mb_strtolower($dir);
 					if (array_key_exists($dirKey, $arProcessedDirs))
+					{
 						continue;
+					}
 					if (!file_exists($folder."/".$dir."/.description.php"))
+					{
 						continue;
+					}
 
-					$arActivityDescription = array();
+					$arActivityDescription = [];
 					$this->LoadActivityLocalization($folder."/".$dir, ".description.php");
 					include($folder."/".$dir."/.description.php");
 
 					//Support multiple types
 					$activityType = (array)$arActivityDescription['TYPE'];
 					foreach ($activityType as $i => $aType)
+					{
 						$activityType[$i] = mb_strtolower(trim($aType));
+					}
 
 					if (in_array($type, $activityType, true))
 					{
@@ -715,8 +719,9 @@ class CBPRuntime
 							isset($arActivityDescription['FILTER']) && is_array($arActivityDescription['FILTER'])
 							&& !$this->checkActivityFilter($arActivityDescription['FILTER'], $documentType)
 						)
+						{
 							$arProcessedDirs[$dirKey]['EXCLUDED'] = true;
-
+						}
 					}
 
 				}
@@ -930,17 +935,29 @@ class CBPRuntime
 		$distrName = CBPHelper::getDistrName();
 		foreach ($filter as $type => $rules)
 		{
+			if ($type === 'MIN_API_VERSION')
+			{
+				$activityMinApiVersion = is_numeric($rules) ? (int)$rules : (self::ACTIVITY_API_VERSION + 1);
+
+				return $activityMinApiVersion <= self::ACTIVITY_API_VERSION;
+			}
+
 			$found = $this->checkActivityFilterRules($rules, $documentType, $distrName);
-			if ($type == 'INCLUDE' && !$found || $type == 'EXCLUDE' && $found)
+			if (($type === 'INCLUDE' && !$found) || ($type === 'EXCLUDE' && $found))
+			{
 				return false;
+			}
 		}
+
 		return true;
 	}
 
 	private function checkActivityFilterRules($rules, $documentType, $distrName)
 	{
 		if (!is_array($rules) || CBPHelper::IsAssociativeArray($rules))
-			$rules = array($rules);
+		{
+			$rules = [$rules];
+		}
 
 		foreach ($rules as $rule)
 		{
@@ -948,16 +965,22 @@ class CBPRuntime
 			if (is_array($rule))
 			{
 				if (!$documentType)
+				{
 					$result = true;
+				}
 				else
 				{
 					foreach ($documentType as $key => $value)
 					{
 						if (!isset($rule[$key]))
+						{
 							break;
+						}
 						$result = $rule[$key] == $value;
 						if (!$result)
+						{
 							break;
+						}
 					}
 				}
 			}
@@ -966,8 +989,11 @@ class CBPRuntime
 				$result = (string)$rule == $distrName;
 			}
 			if ($result)
+			{
 				return true;
+			}
 		}
+
 		return false;
 	}
 

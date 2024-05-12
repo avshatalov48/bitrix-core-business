@@ -344,7 +344,11 @@ class Service
 	public static function getAuthorizeData($engine, $clientType = false): array
 	{
 		$checkKey = "";
-		if(Loader::includeModule("socialservices"))
+		$session = Application::getInstance()
+			->getSession()
+		;
+
+		if (Loader::includeModule("socialservices") && $session->isAccessible())
 		{
 			$checkKey = \CSocServAuthManager::GetUniqueKey();
 		}

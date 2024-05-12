@@ -363,7 +363,7 @@ $tabControl->Begin();
 	<? endif ?>
 	<? $tabControl->End(); ?>
 </form>
-<script type="text/javascript">
+<script>
 	function RestoreDefaults()
 	{
 		if(confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))

@@ -2,7 +2,7 @@
 #############################################
 # Bitrix Site Manager Forum					#
 # Copyright (c) 2002-2013 Bitrix			#
-# http://www.bitrixsoft.com					#
+# https://www.bitrixsoft.com					#
 # mailto:admin@bitrixsoft.com				#
 #############################################
 IncludeModuleLangFile(__FILE__);

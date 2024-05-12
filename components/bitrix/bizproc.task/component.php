@@ -1,13 +1,25 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
 
-if (!CModule::IncludeModule("bizproc") || !CModule::IncludeModule("iblock"))
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Bizproc\Workflow\Task\TaskTable;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+
+if (!Loader::includeModule('bizproc') || !Loader::includeModule('iblock'))
+{
 	return false;
+}
 
 global $USER, $APPLICATION;
 
 if (!$USER->IsAuthorized())
 {
 	$APPLICATION->AuthForm('');
+
 	return false;
 }
 
@@ -22,9 +34,13 @@ if ($arParams["TASK_ID"] <> '' && !is_numeric($arParams["TASK_ID"]))
 
 $arParams["TASK_ID"] = intval($arParams["TASK_ID"]);
 if ($arParams["TASK_ID"] <= 0)
+{
 	$arParams["TASK_ID"] = intval($_REQUEST["TASK_ID"]);
+}
 if ($arParams["TASK_ID"] <= 0)
+{
 	$arParams["TASK_ID"] = intval($_REQUEST["task_id"]);
+}
 
 if (empty($arParams["USER_ID"]) && !empty($_REQUEST['USER_ID']))
 {
@@ -42,7 +58,8 @@ if ($arParams["USER_ID"] != $currentUserId)
 {
 	if (!$isAdmin && !CBPHelper::checkUserSubordination($currentUserId, $arParams["USER_ID"]))
 	{
-		ShowError(GetMessage("BPAT_NO_ACCESS"));
+		ShowError(GetMessage("BPAT_NO_ACCESS_MSGVER_1"));
+
 		return false;
 	}
 	$arResult['ReadOnly'] = true;
@@ -74,44 +91,93 @@ $arResult["TaskForm"] = "";
 
 $arResult["TASK"] = false;
 
-if ($arParams["TASK_ID"] > 0)
+if ($arParams['TASK_ID'] > 0)
 {
 	$dbTask = CBPTaskService::GetList(
-		array(),
-		array("ID" => $arParams["TASK_ID"], "USER_ID" => $arParams["USER_ID"]),
+		[],
+		['ID' => $arParams['TASK_ID'], 'USER_ID' => $arParams['USER_ID']],
 		false,
 		false,
-		array("ID", "WORKFLOW_ID", "ACTIVITY", "ACTIVITY_NAME", "MODIFIED", "OVERDUE_DATE", "NAME", "DESCRIPTION", "PARAMETERS", 'IS_INLINE', 'STATUS', 'USER_STATUS', 'DOCUMENT_NAME', 'DELEGATION_TYPE')
+		[
+			'ID',
+			'WORKFLOW_ID',
+			'ACTIVITY',
+			'ACTIVITY_NAME',
+			'MODIFIED',
+			'OVERDUE_DATE',
+			'NAME',
+			'DESCRIPTION',
+			'PARAMETERS',
+			'IS_INLINE',
+			'STATUS',
+			'USER_STATUS',
+			'DOCUMENT_NAME',
+			'DELEGATION_TYPE'
+		]
 	);
-	$arResult["TASK"] = $dbTask->GetNext();
+	$arResult['TASK'] = $dbTask->GetNext();
 }
 
-if (empty($arResult["TASK"]) && empty($arParams["WORKFLOW_ID"]) && !empty($arParams["DOCUMENT_ID"]))
+if (empty($arResult['TASK']) && empty($arParams['WORKFLOW_ID']) && !empty($arParams['DOCUMENT_ID']))
 {
-	$arParams["WORKFLOW_ID"] = \Bitrix\Bizproc\WorkflowInstanceTable::getIdsByDocument($arParams["DOCUMENT_ID"]);
+	$arParams['WORKFLOW_ID'] = \Bitrix\Bizproc\WorkflowInstanceTable::getIdsByDocument($arParams['DOCUMENT_ID']);
 }
 
-if (!$arResult["TASK"] && !empty($arParams["WORKFLOW_ID"]))
+if (!$arResult['TASK'] && !empty($arParams['WORKFLOW_ID']))
 {
 	$workflowTasksFilter = [
-		"WORKFLOW_ID" => $arParams["WORKFLOW_ID"],
-		"USER_ID" => $arParams["USER_ID"],
+		'WORKFLOW_ID' => $arParams["WORKFLOW_ID"],
+		'USER_ID' => $arParams["USER_ID"],
 		'USER_STATUS' => CBPTaskUserStatus::Waiting
 	];
 
 	$dbTask = CBPTaskService::GetList(
-		array(),
+		[],
 		$workflowTasksFilter,
 		false,
 		false,
-		array("ID", "WORKFLOW_ID", "ACTIVITY", "ACTIVITY_NAME", "MODIFIED", "OVERDUE_DATE", "NAME", "DESCRIPTION", "PARAMETERS", 'IS_INLINE', 'STATUS', 'USER_STATUS', 'DOCUMENT_NAME', 'DELEGATION_TYPE')
+		[
+			'ID',
+			'WORKFLOW_ID',
+			'ACTIVITY',
+			'ACTIVITY_NAME',
+			'MODIFIED',
+			'OVERDUE_DATE',
+			'NAME',
+			'DESCRIPTION',
+			'PARAMETERS',
+			'IS_INLINE',
+			'STATUS',
+			'USER_STATUS',
+			'DOCUMENT_NAME',
+			'DELEGATION_TYPE',
+		]
 	);
-	$arResult["TASK"] = $dbTask->GetNext();
+	$arResult['TASK'] = $dbTask->GetNext();
 }
 
-if (!$arResult["TASK"])
+if (!$arResult['TASK'])
 {
-	ShowError(GetMessage("BPAT_NO_TASK"));
+	if ($arParams['TASK_ID'] > 0 && $dbTask = TaskTable::getByPrimary($arParams['TASK_ID'])->fetch())
+	{
+		if ((int)$dbTask['STATUS'] !== \CBPTaskStatus::Running)
+		{
+			ShowError(Loc::getMessage('BPAT_ERROR_TASK_ALREADY_DONE'));
+		}
+		elseif ((int)$currentUserId === $arParams['USER_ID'])
+		{
+			ShowError(Loc::getMessage('BPAT_ERROR_CURRENT_USER_NOT_TASK_MEMBER'));
+		}
+		else
+		{
+			ShowError(Loc::getMessage('BPAT_ERROR_TARGET_USER_NOT_TASK_MEMBER'));
+		}
+	}
+	else
+	{
+		ShowError(Loc::getMessage('BPAT_NO_TASK_MSGVER_1'));
+	}
+
 	return false;
 }
 
@@ -253,7 +319,7 @@ if ($arResult["ShowMode"] != "Success" && !$arResult['ReadOnly'])
 	}
 	catch (Exception $e)
 	{
-		ShowError(GetMessage("BPAT_NO_ACCESS"));
+		ShowError(GetMessage("BPAT_NO_ACCESS_MSGVER_1"));
 		return false;
 	}
 }

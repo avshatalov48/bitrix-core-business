@@ -118,6 +118,7 @@ class IncomingInvitationReplyHandler extends IncomingInvitationHandler
 			'eventId' => $event['ID'],
 			'status' => $attendeeStatus,
 			'personalNotification' => $event['MEETING_HOST'],
+			'doSendMail' => false,
 		]);
 	}
 

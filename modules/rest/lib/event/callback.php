@@ -53,7 +53,7 @@ class Callback
 			{
 				foreach($scopeMethods[\CRestUtil::EVENTS] as $key => $restEvent)
 				{
-					if($restEvent[0] == $event['MODULE_ID'] && toUpper($restEvent[1]) == $event['EVENT'])
+					if($restEvent[0] == $event['MODULE_ID'] && mb_strtoupper($restEvent[1]) == $event['EVENT'])
 					{
 						$event['EVENT_REST'] = array(
 							'EVENT' => $key,
@@ -114,6 +114,8 @@ class Callback
 			$call = array();
 			while ($handler = $dbRes->fetch())
 			{
+				$handlerFound = true;
+
 				if (!empty($handler['APP_CODE']))
 				{
 					if (
@@ -160,7 +162,6 @@ class Callback
 				}
 
 				$handlerArguments = $arguments;
-				$handlerFound = true;
 
 				if(!$dataProcessed)
 				{

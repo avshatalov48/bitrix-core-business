@@ -2,26 +2,20 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_component_list_elementList_recent,im_v2_lib_logger,im_v2_lib_init) {
+(function (exports,im_v2_component_list_items_recentCompact,im_v2_lib_logger,im_v2_lib_init) {
 	'use strict';
 
 	const QuickAccess = {
 	  name: 'QuickAccess',
-	  props: {
-	    compactMode: {
-	      type: Boolean,
-	      default: false
-	    }
-	  },
 	  components: {
-	    RecentList: im_v2_component_list_elementList_recent.RecentList
+	    RecentList: im_v2_component_list_items_recentCompact.RecentList
 	  },
 	  created() {
 	    im_v2_lib_init.InitManager.start();
 	    im_v2_lib_logger.Logger.warn('Quick access created');
 	  },
 	  template: `
-		<RecentList :compactMode="compactMode" />
+		<RecentList />
 	`
 	};
 

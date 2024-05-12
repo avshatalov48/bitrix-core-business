@@ -63,7 +63,7 @@ return array(
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_33.32.FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_LANDINGBLOCKNODE_BGIMG'),
-				'type' => ['background', 'background-attachment'],
+				'type' => ['background'],
 			),
 			'.landing-block-node-row' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_33_32_FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_BLOCK'),

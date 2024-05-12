@@ -767,23 +767,13 @@
 						return;
 					}
 
-					const triggersReturnProperties = this.triggerManager.getReturnProperties(template.getStatusId());
+					const selectorManager = new SelectorItemsManager({
+						triggerResultFields: this.triggerManager.getReturnProperties(template.getStatusId()),
+					});
 
-					const triggerMenuItems = triggersReturnProperties.map((property) => ({
-						id: property.SystemExpression,
-						title: property.Name || property.Id,
-						subtitle: property.ObjectName || property.ObjectId,
-						customData: { field: property },
-					}));
-
-					if (triggerMenuItems.length > 0)
-					{
-						selector.addGroup('__TRESULT', {
-							id: '__TRESULT',
-							title: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TRIGGER_LIST'),
-							children: triggerMenuItems,
-						});
-					}
+					selectorManager.groupsWithChildren.forEach((group) => {
+						selector.addGroup(group.id, group);
+					});
 				},
 			);
 		},
@@ -2475,6 +2465,7 @@
 	const TriggerManager = BX.Bizproc.Automation.TriggerManager;
 	const Robot = BX.Bizproc.Automation.Robot;
 	const Template = BX.Bizproc.Automation.Template;
+	const SelectorItemsManager = BX.Bizproc.Automation.SelectorItemsManager;
 
 	BX.Bizproc.Automation.Component = Component;
 	BX.Bizproc.Automation.API = API;

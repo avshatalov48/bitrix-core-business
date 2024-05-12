@@ -1,0 +1,6 @@
+<?php
+$MESS["BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_CREATE"] = "Konstante erstellen";
+$MESS["BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_EDIT"] = "Konstante bearbeiten";
+$MESS["BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_CREATE"] = "Variable erstellen";
+$MESS["BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_EDIT"] = "Variable bearbeiten";
+$MESS["BIZPROC_MODULE_NOT_INSTALLED"] = "Das Modul Geschäftsprozesse ist nicht installiert.";

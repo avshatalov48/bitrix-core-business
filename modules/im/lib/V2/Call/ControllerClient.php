@@ -2,41 +2,53 @@
 
 namespace Bitrix\Im\V2\Call;
 
+use Bitrix\Main\Result;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Service\MicroService\BaseSender;
+
 class ControllerClient extends BaseSender
 {
-	protected $endpoint;
-	protected $customEndpoint;
+	private const SERVICE_MAP = [
+		'ru' => 'https://videocalls.bitrix.info',
+		'eu' => 'https://videocalls-de.bitrix.info',
+		'us' => 'https://videocalls-us.bitrix.info',
+	];
+	private const REGION_RU = ['ru', 'by', 'kz'];
+	private const REGION_EU = ['de', 'eu', 'fr', 'it', 'pl', 'tr', 'uk'];
 
-	public function __construct(string $endpoint = null)
+	/**
+	 * Returns controller service endpoint url.
+	 *
+	 * @return string
+	 * @param string $region Portal region.
+	 */
+	public function getEndpoint(string $region): string
 	{
-		parent::__construct();
+		$endpoint = Option::get('im', 'call_server_url');
 
-		if ($endpoint)
+		if (empty($endpoint))
 		{
-			$this->customEndpoint = $endpoint;
-		}
-	}
-
-	protected function getEndpoint()
-	{
-		if (is_null($this->endpoint))
-		{
-			$endpoint = Option::get('im', 'call_server_url');
-
-			if (!empty($endpoint))
+			if (in_array($region, self::REGION_RU, true))
 			{
-				if (!(mb_strpos($endpoint, 'https://') === 0 || mb_strpos($endpoint, 'http://') === 0))
-				{
-					$endpoint = 'https://' . $endpoint;
-				}
-				$this->endpoint = $endpoint;
+				$endpoint = self::SERVICE_MAP['ru'];
+			}
+			elseif (in_array($region, self::REGION_EU, true))
+			{
+				$endpoint = self::SERVICE_MAP['eu'];
+			}
+			else
+			{
+				$endpoint = self::SERVICE_MAP['us'];
 			}
 		}
+		elseif (!(mb_strpos($endpoint, 'https://') === 0 || mb_strpos($endpoint, 'http://') === 0))
+		{
+			$endpoint = 'https://' . $endpoint;
+		}
 
-		return $this->endpoint;
+		return $endpoint;
 	}
+
 
 	/**
 	 * Returns API endpoint for the service.
@@ -45,10 +57,20 @@ class ControllerClient extends BaseSender
 	 */
 	protected function getServiceUrl(): string
 	{
-		return $this->getEndpoint();
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion() ?: 'ru';
+
+		return $this->getEndpoint($region);
 	}
 
-	public function createCall($callUuid, $secretKey, $initiatorId)
+	/**
+	 * @see \Bitrix\CallController\Controller\InternalApi::createCallAction
+	 * @param string $callUuid
+	 * @param string $secretKey
+	 * @param int $initiatorId
+	 * @param int $callId
+	 * @return Result
+	 */
+	public function createCall(string $callUuid, string $secretKey, int $initiatorId, int $callId): Result
 	{
 		return $this->performRequest(
 			'callcontroller.Controller.InternalApi.createCall',
@@ -56,6 +78,7 @@ class ControllerClient extends BaseSender
 				'uuid' => $callUuid,
 				'secretKey' => $secretKey,
 				'initiatorUserId' => $initiatorId,
+				'callId' => $callId,
 			]
 		);
 	}

@@ -26,6 +26,14 @@ export const MentionPopup = {
 			type: String,
 			default: '',
 		},
+		searchChats: {
+			type: Boolean,
+			default: true,
+		},
+		exclude: {
+			type: Array,
+			default: () => [],
+		},
 	},
 	emits: ['close'],
 	computed:
@@ -37,8 +45,8 @@ export const MentionPopup = {
 				width: 426,
 				padding: 0,
 				bindElement: this.bindElement,
-				offsetTop: 14,
-				offsetLeft: -44,
+				offsetTop: 2,
+				offsetLeft: 0,
 				fixed: true,
 				bindOptions: {
 					position: 'top',
@@ -57,6 +65,8 @@ export const MentionPopup = {
 			<MentionPopupContent 
 				:dialogId="dialogId"
 				:query="query"
+				:exclude="exclude"
+				:searchChats="searchChats"
 				@close="$emit('close');"
 				@adjustPosition="adjustPosition()"
 			/>

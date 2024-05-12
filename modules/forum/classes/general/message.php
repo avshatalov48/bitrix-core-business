@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 IncludeModuleLangFile(__FILE__);
@@ -70,7 +70,7 @@ class CAllForumMessage
 	{
 		$MID = intval($MID);
 		$arMessage = CForumMessage::GetByIDEx($MID, array("GET_FORUM_INFO" => "Y", "GET_TOPIC_INFO" => "N", "FILTER" => "N"));
-		$arForum = $arMessage["FORUM_INFO"];
+		$arForum = $arMessage["FORUM_INFO"] ?? null;
 		if ($arMessage)
 		{
 			$FID = intval($arMessage["FORUM_ID"]);
@@ -207,7 +207,7 @@ class CAllForumMessage
 			unset($arFields["FILES"]);
 		}
 
-		if (intval($arFields["TOPIC_ID"]) > 0)
+		if (isset($arFields["TOPIC_ID"]) && intval($arFields["TOPIC_ID"]) > 0)
 		{
 			$res = CForumTopic::GetById($arFields["TOPIC_ID"]);
 			if (!$res)
@@ -307,10 +307,10 @@ class CAllForumMessage
 /***************** /Event ******************************************/
 /***************** Attach ******************************************/
 		$arFiles = array();
-		if (is_array($arFields["ATTACH_IMG"]))
+		if (isset($arFields["ATTACH_IMG"]) && is_array($arFields["ATTACH_IMG"]))
 			$arFields["FILES"] = array($arFields["ATTACH_IMG"]);
 		unset($arFields["ATTACH_IMG"]);
-		if (is_array($arFields["FILES"]) && !empty($arFields["FILES"]))
+		if (isset($arFields["FILES"]) && is_array($arFields["FILES"]) && !empty($arFields["FILES"]))
 		{
 			$res = array("FORUM_ID" => $arMessage_prev["FORUM_ID"],
 				"TOPIC_ID" => $arMessage_prev["TOPIC_ID"],
@@ -344,11 +344,11 @@ class CAllForumMessage
 		$strSql = "UPDATE b_forum_message SET ".$strUpdate.$strSql." WHERE ID = ".$ID;
 
 		$DB->QueryBind($strSql,
-			array("POST_MESSAGE" => $arFields["POST_MESSAGE"],
-				"POST_MESSAGE_HTML" => $arFields["POST_MESSAGE_HTML"],
-				"POST_MESSAGE_FILTER" => $arFields["POST_MESSAGE_FILTER"],
-				"EDIT_REASON" => $arFields["EDIT_REASON"],
-				"HTML" => $arFields["HTML"]));
+			array("POST_MESSAGE" => $arFields["POST_MESSAGE"] ?? null,
+				"POST_MESSAGE_HTML" => $arFields["POST_MESSAGE_HTML"] ?? null,
+				"POST_MESSAGE_FILTER" => $arFields["POST_MESSAGE_FILTER"] ?? null,
+				"EDIT_REASON" => $arFields["EDIT_REASON"] ?? null,
+				"HTML" => $arFields["HTML"] ?? null));
 /***************** Attach ******************************************/
 		if (!empty($arFiles))
 		{
@@ -407,7 +407,7 @@ class CAllForumMessage
 			if (CModule::IncludeModule("search") && $arForum["INDEXATION"] == "Y")
 			{
 				// if message was removed from indexing forum to no-indexing forum we must delete index
-				if ($arMessage_prev["FORUM_INFO"]["INDEXATION"] == "Y" &&
+				if (isset($arMessage_prev["FORUM_INFO"]) && $arMessage_prev["FORUM_INFO"]["INDEXATION"] == "Y" &&
 					$arMessage["FORUM_INFO"]["INDEXATION"] != "Y")
 				{
 					\CSearch::DeleteIndex("forum", $ID);
@@ -564,7 +564,7 @@ class CAllForumMessage
 			// if deleted message was first
 			if ($arMessage["NEW_TOPIC"] == "Y")
 				$DB->Update('b_forum_message', array('NEW_TOPIC' => '"Y"'), "WHERE ID=".$res["ID"]);
-			CForumTopic::SetStat($TOPIC_ID);
+			CForumTopic::SetStat($TOPIC_ID, array("DELETED_MESSAGE" => $arMessage));
 		endif;
 		$DB->Commit();
 
@@ -573,7 +573,7 @@ class CAllForumMessage
 		if ($AUTHOR_ID > 0):
 			CForumUser::SetStat($AUTHOR_ID);
 		endif;
-		CForumNew::SetStat($FORUM_ID);
+		CForumNew::SetStat($FORUM_ID, array("ACTION" => "DECREMENT", "MESSAGE" => $arMessage));
 /***************** Event onBeforeMessageAdd ************************/
 		foreach (GetModuleEvents("forum", "onAfterMessageDelete", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID, $arMessage));
@@ -775,7 +775,7 @@ class CAllForumMessage
 			$permission = CForumNew::GetUserPermission($topic["FORUM_ID"], $arUserGroups);
 		}
 
-		$filter = (is_array($addParams["FILTER"]) ? $addParams["FILTER"] : []);
+		$filter = (isset($addParams["FILTER"]) && is_array($addParams["FILTER"]) ? $addParams["FILTER"] : []);
 		if ($permission < "Q")
 		{
 			$filter["APPROVED"] = "Y";
@@ -785,7 +785,7 @@ class CAllForumMessage
 			$filter["TOPIC_ID"] = $TID;
 		}
 
-		$order = ($addParams["ORDER_DIRECTION"] == "DESC" ? "DESC" : "ASC");
+		$order = (isset($addParams["ORDER_DIRECTION"]) && $addParams["ORDER_DIRECTION"] == "DESC" ? "DESC" : "ASC");
 		if ($order == "DESC")
 		{
 			$filter[">ID"] = $ID;
@@ -993,7 +993,7 @@ class CAllForumMessage
 					if ($db_site && $arSite = $db_site->Fetch())
 					{
 						$arSiteFields[$res["SITE_ID"]] = array_merge($arSiteFields[$res["SITE_ID"]], $arSite,
-							array("LANG_MESS" => IncludeModuleLangFile(__FILE__, $arSiteFields[$res["SITE_ID"]]["LANGUAGE_ID"], true)));
+							array("LANG_MESS" => IncludeModuleLangFile(__FILE__, $arSiteFields[$res["SITE_ID"]]["LANGUAGE_ID"] ?? null, true)));
 						$arSiteFields[$res["SITE_ID"]]["ATTACHED_FILES"] = $arSiteFields[$res["SITE_ID"]]["LANG_MESS"]["F_ATTACHED_FILES"];
 					}
 				}
@@ -1179,7 +1179,7 @@ class CAllForumMessage
 
 		if ($strMessage <> '')
 		{
-			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $strMessage, $arMention);
+			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/isu", $strMessage, $arMention);
 			if (!empty($arMention))
 			{
 				$arMentionedUserID = array_merge($arMentionedUserID, $arMention[1]);

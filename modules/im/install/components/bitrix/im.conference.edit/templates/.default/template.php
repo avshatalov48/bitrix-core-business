@@ -38,7 +38,7 @@ $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . 
 
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		new BX.Messenger.PhpComponent.ConferenceEdit(<?=Json::encode(
 			[

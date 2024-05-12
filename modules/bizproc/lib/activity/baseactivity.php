@@ -71,6 +71,19 @@ abstract class BaseActivity extends \CBPActivity
 		switch ($type)
 		{
 			case FieldType::INT:
+				if (is_array($value))
+				{
+					if (count($value) === 1)
+					{
+						$value = array_shift($value);
+					}
+					else
+					{
+						$value = 0;
+						// to avoid situation when casting array to int returns 1 (element with such ID can exist)
+						// and other situations when value can be ambiguous so it's impossible to cast it to int
+					}
+				}
 				return (int)$value;
 
 			case FieldType::BOOL:

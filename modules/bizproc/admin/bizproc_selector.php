@@ -74,6 +74,10 @@ $runtime->StartRuntime();
 $documentService = $runtime->GetService("DocumentService");
 $documentFields = $documentService->GetDocumentFields($documentType);
 $documentFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
+if (!isset($documentFieldTypes['date']) && isset($documentFieldTypes['UF:date']))
+{
+	$documentFieldTypes['date'] = $documentFieldTypes['UF:date'];
+}
 
 $arUsers = [];
 $arAllowableUserGroups = $documentService->GetAllowableUserGroups($documentType, true);

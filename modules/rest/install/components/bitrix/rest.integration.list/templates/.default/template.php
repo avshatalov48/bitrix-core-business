@@ -47,7 +47,7 @@ $sectionsTileManagerId = 'rest-integrators-sections-'.$arParams['CODE'];
 ?>
 <div class="rest-integration-list-wrapper">
 	<div id="<?=$sectionsTileManagerId?>" class="rest-integration-tile-grid"></div>
-	<script type="text/javascript">
+	<script>
 
 		BX.ready(function () {
 			var RestIntegrationTileGrid = new BX.TileGrid.Grid(

@@ -39,7 +39,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      components: {
 	        QuickAccess: im_v2_component_quickAccess.QuickAccess
 	      },
-	      template: '<QuickAccess :compactMode="true"/>'
+	      template: '<QuickAccess />'
 	    });
 	    return true;
 	  }
@@ -66,6 +66,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      im_public.Messenger.openSettings({
 	        onlyPanel: settingsSection == null ? void 0 : settingsSection.toLowerCase()
 	      });
+	    } else if (urlParams.has(im_v2_const.GetParameter.openCopilotChat)) {
+	      const dialogId = urlParams.get(im_v2_const.GetParameter.openCopilotChat);
+	      im_public.Messenger.openCopilot(dialogId);
 	    }
 	  }
 	  ready() {

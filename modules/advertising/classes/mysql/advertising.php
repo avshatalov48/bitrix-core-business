@@ -37,6 +37,7 @@ class CAdvContract extends CAdvContract_all
 		$admin_from_1 = '';
 		$admin_from_2 = '';
 		$arSqlSearch_h = [];
+		$left_join = '';
 
 		$lamp = "
 			if ((

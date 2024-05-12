@@ -50,7 +50,7 @@ $containerId = $prefix . $id;
 		)
 	);
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			BX.rest.integration.selectorManager.create(<?=Json::encode(array(
 				'id' => $containerId,

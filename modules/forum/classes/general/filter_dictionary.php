@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
@@ -162,7 +162,7 @@ class CAllFilterLetter
 		$arFields["DICTIONARY_ID"] = intval($arFields["DICTIONARY_ID"]);
 		$db_res = CFilterLetter::GetList(array(), array("DICTIONARY_ID"=>$arFields["DICTIONARY_ID"], "LETTER"=>trim($arFields["LETTER"])));
 		$db_res = $db_res->Fetch();
-		if ($db_res["ID"]<=0)
+		if (!$db_res || $db_res["ID"]<=0)
 		{
 			if(CFilterLetter::CheckFields($arFields))
 				return $DB->Add("b_forum_letter", $arFields);
@@ -202,7 +202,7 @@ class CAllFilterLetter
 				$request = array("DICTIONARY_ID"=>$arFields["DICTIONARY_ID"], "LETTER"=>$arFields["LETTER"]);
 			$db_res = CFilterLetter::GetList(array(), $request);
 			$db_res = $db_res->Fetch();
-			if ((intval($db_res["ID"])<=0) || (intval($db_res["ID"]) == $ID))
+			if ($db_res === false || isset($db_res["ID"]) && ((intval($db_res["ID"])<=0) || (intval($db_res["ID"]) == $ID)))
 				$update = true;
 		}
 		if (!$update)
@@ -548,12 +548,12 @@ class CAllFilterUnquotableWords
 			}
 			else
 			{
-				$lettersPatt["/".preg_quote($lett["LETTER"])."/is".BX_UTF_PCRE_MODIFIER] = "(".implode("|", $arrRes).")";
+				$lettersPatt["/".preg_quote($lett["LETTER"])."/isu"] = "(".implode("|", $arrRes).")";
 			}
 		}
 		// letters
 		foreach ($lettersPatt as $key => $val)
-			$pattern = preg_replace($key.BX_UTF_PCRE_MODIFIER, $val, $pattern);
+			$pattern = preg_replace($key, $val, $pattern);
 		for ($ii = 0; $ii < mb_strlen($pattern); $ii++)
 		{
 			$sPattern = mb_substr($pattern, $ii, 1);
@@ -578,7 +578,7 @@ class CAllFilterUnquotableWords
 			}
 			$res .= $separator;
 		}
-		$res = "/(?<=".$word_separator.")(".$res.")(?=".$word_separator.")/is".BX_UTF_PCRE_MODIFIER;
+		$res = "/(?<=".$word_separator.")(".$res.")(?=".$word_separator.")/isu";
 		return $res;
 	}
 

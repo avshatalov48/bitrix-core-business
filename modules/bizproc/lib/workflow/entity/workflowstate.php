@@ -5,7 +5,8 @@ namespace Bitrix\Bizproc\Workflow\Entity;
 use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Bizproc\Workflow\WorkflowState;
 use Bitrix\Main;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class WorkflowStateTable
@@ -23,7 +24,7 @@ use Bitrix\Main\Entity;
  * @method static \Bitrix\Bizproc\Workflow\WorkflowState wakeUpObject($row)
  * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection wakeUpCollection($rows)
  */
-class WorkflowStateTable extends Entity\DataManager
+class WorkflowStateTable extends ORM\Data\DataManager
 {
 	/**
 	 * @return string
@@ -77,22 +78,30 @@ class WorkflowStateTable extends Entity\DataManager
 			],
 			'MODIFIED' => [
 				'data_type' => 'datetime',
+				'default_value' => function()
+				{
+					return new Main\Type\DateTime();
+				},
 			],
 			'STARTED' => [
 				'data_type' => 'datetime',
+				'default_value' => function()
+				{
+					return new Main\Type\DateTime();
+				},
 			],
 			'STARTED_BY' => [
 				'data_type' => 'integer',
 			],
 			'STARTED_USER' => [
-				'data_type' => '\Bitrix\Main\UserTable',
+				'data_type' => Main\UserTable::class,
 				'reference' => [
 					'=this.STARTED_BY' => 'ref.ID',
 				],
 				'join_type' => 'LEFT',
 			],
 			'INSTANCE' => [
-				'data_type' => '\Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable',
+				'data_type' => WorkflowInstanceTable::class,
 				'reference' => [
 					'=this.ID' => 'ref.ID',
 				],
@@ -110,10 +119,20 @@ class WorkflowStateTable extends Entity\DataManager
 				TaskTable::class,
 				'WORKFLOW_STATE'
 			),
+			new Main\ORM\Fields\Relations\Reference(
+				'META',
+				WorkflowMetadataTable::class,
+				\Bitrix\Main\ORM\Query\Join::on('this.ID', 'ref.WORKFLOW_ID'),
+			),
 		];
 	}
 
-	public static function getIdsByDocument(array $documentId)
+	public static function exists(string $workflowId): bool
+	{
+		return static::getCount(['=ID' => $workflowId]) > 0;
+	}
+
+	public static function getIdsByDocument(array $documentId, ?int $limit = null)
 	{
 		$documentId = \CBPHelper::ParseDocumentId($documentId);
 		$rows = static::getList([
@@ -121,41 +140,65 @@ class WorkflowStateTable extends Entity\DataManager
 			'filter' => [
 				'=MODULE_ID' => $documentId[0],
 				'=ENTITY' => $documentId[1],
-				'=DOCUMENT_ID' => $documentId[2]
-			]
+				'=DOCUMENT_ID' => $documentId[2],
+			],
+			'limit' => $limit,
 		])->fetchAll();
 
 		return array_column($rows, 'ID');
 	}
 
-	/**
-	 * @param array $data Entity data.
-	 * @throws Main\NotImplementedException
-	 * @return void
-	 */
-	public static function add(array $data)
+	public static function onBeforeUpdate(ORM\Event $event): ORM\EventResult
 	{
-		throw new Main\NotImplementedException("Use CBPStateService class.");
+		$result = new ORM\EventResult;
+		$data = $event->getParameter('fields');
+
+		if (empty($data['MODIFIED']))
+		{
+			$result->modifyFields([
+				'MODIFIED' => new DateTime(),
+			]);
+		}
+
+		return $result;
 	}
 
-	/**
-	 * @param mixed $primary Primary key.
-	 * @param array $data Entity data.
-	 * @throws Main\NotImplementedException
-	 * @return void
-	 */
-	public static function update($primary, array $data)
+	public static function onBeforeAdd(ORM\Event $event): ORM\EventResult
 	{
-		throw new Main\NotImplementedException("Use CBPStateService class.");
+		$result = new ORM\EventResult;
+		$fields = $event->getParameter('fields');
+
+		if (empty($fields['MODIFIED']))
+		{
+			$result->modifyFields([
+				'MODIFIED' => new DateTime(),
+			]);
+		}
+
+		return $result;
 	}
 
-	/**
-	 * @param mixed $primary Primary key.
-	 * @throws Main\NotImplementedException
-	 * @return void
-	 */
-	public static function delete($primary)
+	public static function onAfterAdd(ORM\Event $event)
 	{
-		throw new Main\NotImplementedException("Use CBPStateService class.");
+		$fields = $event->getParameter('fields');
+
+		// users sync automatically in WorkflowUserTable::syncOnWorkflowUpdated
+
+		WorkflowFilterTable::add([
+			'WORKFLOW_ID' => $fields['ID'] ?? '',
+			'MODULE_ID' => $fields['MODULE_ID'] ?? '',
+			'ENTITY' => $fields['ENTITY'] ?? '',
+			'DOCUMENT_ID' => $fields['DOCUMENT_ID'] ?? '',
+			'TEMPLATE_ID' => $fields['WORKFLOW_TEMPLATE_ID'] ?? 0,
+			'STARTED' => $fields['STARTED'] ?? 0,
+		]);
+	}
+
+	public static function onAfterDelete(ORM\Event $event)
+	{
+		$id = $event->getParameter('primary')['ID'];
+
+		WorkflowUserTable::deleteByWorkflow($id);
+		WorkflowFilterTable::delete($id);
 	}
 }

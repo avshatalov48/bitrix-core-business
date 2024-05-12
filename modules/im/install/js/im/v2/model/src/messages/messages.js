@@ -281,6 +281,12 @@ export class MessagesModel extends BuilderModel
 				}
 
 				preparedMessages = preparedMessages.map((message: RawMessage) => {
+					const currentMessage: ImModelMessage = store.state.collection[message.id];
+					if (currentMessage)
+					{
+						return { ...currentMessage, ...this.#formatFields(message) };
+					}
+
 					return { ...this.getElementState(), ...this.#formatFields(message) };
 				});
 

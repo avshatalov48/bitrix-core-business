@@ -46,6 +46,7 @@ $MESS["IM_OPTIONS_NAME_TEMPLATE"] = "Формат отображения име�
 $MESS["IM_OPTIONS_NAME_IN_SITE_FORMAT"] = "Формат сайта";
 $MESS["IM_OPTIONS_NAME_IN_IM_FORMAT"] = "Формат по умолчанию";
 $MESS["IM_OPTIONS_CALL_SERVER_ENABLED"] = "Использовать для видеозвонков SFU сервер Voximplant (требуется активная лицензия)";
+$MESS["IM_OPTIONS_CALL_SERVER_ENABLED_MSGVER_1"] = "Использовать для видеозвонков облачные SFU сервера Битрикс24 (требуется активная лицензия)";
 $MESS["IM_OPTIONS_TURN_SERVER_SELF_2"] = "Использовать свой TURN сервер для видеозвонков";
 $MESS["IM_OPTIONS_TURN_SERVER"] = "Адрес сервера";
 $MESS["IM_OPTIONS_TURN_SERVER_FIREFOX"] = "Адрес сервера для Firefox";
@@ -53,4 +54,3 @@ $MESS["IM_OPTIONS_TURN_SERVER_LOGIN"] = "Логин";
 $MESS["IM_OPTIONS_TURN_SERVER_PASSWORD"] = "Пароль";
 $MESS["IM_OPTIONS_TURN_SERVER_PASSWORD_HINT"] = "публикуется в открытом доступе";
 $MESS["IM_OPTIONS_PATH_TO_USER_PROFILE"] = "Шаблон пути к странице пользователя";
-?>

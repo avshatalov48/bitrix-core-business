@@ -156,7 +156,7 @@ class CCalendarConvert
 			$fileName = $io->ExtractNameFromPath($file);
 
 			// Skip files stating from dot '.' or any non .php files
-			if (GetFileExtension($fileName) != 'php' || preg_match('/^\..*/i'.BX_UTF_PCRE_MODIFIER, $fileName))
+			if (GetFileExtension($fileName) != 'php' || preg_match('/^\..*/iu', $fileName))
 				return;
 
 			// 1. Get file content
@@ -174,7 +174,7 @@ class CCalendarConvert
 			);
 			foreach($pattern as $p)
 			{
-				if (preg_match('/includecomponent\([\n\t\r\s]*("|\')bitrix:'.$p.'/i'.BX_UTF_PCRE_MODIFIER, $fileContent))
+				if (preg_match('/includecomponent\([\n\t\r\s]*("|\')bitrix:'.$p.'/iu', $fileContent))
 				{
 					$this->FetchParams($fileContent);
 					break;

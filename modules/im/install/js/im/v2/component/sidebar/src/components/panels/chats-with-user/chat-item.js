@@ -1,9 +1,8 @@
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { Utils } from 'im.v2.lib.utils';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
+import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 
 import './css/chat-item.css';
-
-import type { ImModelRecentItem } from 'im.v2.model';
 
 // @vue/component
 export const ChatItem = {
@@ -14,27 +13,29 @@ export const ChatItem = {
 			type: String,
 			required: true,
 		},
+		dateMessage: {
+			type: String,
+			default: '',
+		},
 	},
-	emits: ['clickItem', 'rightClickItem'],
+	emits: ['clickItem'],
 	computed:
 	{
 		AvatarSize: () => AvatarSize,
-		recentItem(): ImModelRecentItem
-		{
-			return this.$store.getters['recent/get'](this.dialogId);
-		},
 		chatItemText(): string
 		{
 			return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_GROUP_V2');
 		},
 		formattedDate(): string
 		{
-			if (!this.recentItem.message.date)
+			if (!this.dateMessage)
 			{
 				return '';
 			}
 
-			return this.formatDate(this.recentItem.message.date);
+			const date = Utils.date.cast(this.dateMessage);
+
+			return this.formatDate(date);
 		},
 	},
 	methods:

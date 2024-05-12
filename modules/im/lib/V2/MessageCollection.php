@@ -41,7 +41,6 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	protected bool $isUrlsFilled = false;
 	protected bool $isUnreadFilled = false;
 	protected bool $isViewedFilled = false;
-	protected bool $isViewedByOthersFilled = false;
 	protected bool $isReactionsFilled = false;
 
 	//region Collection
@@ -349,26 +348,6 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 		return $this;
 	}
 
-	public function fillViewedByOthers(): self
-	{
-		if ($this->isViewedByOthersFilled)
-		{
-			return $this;
-		}
-
-		$statuses = (new ViewedService())->getMessageStatuses($this->getIds());
-
-		foreach ($this as $message)
-		{
-			$status = $statuses[$message->getId()] ?? \IM_MESSAGE_STATUS_RECEIVED;
-			$message->setViewedByOthers($status === \IM_MESSAGE_STATUS_DELIVERED);
-		}
-
-		$this->isViewedByOthersFilled = true;
-
-		return $this;
-	}
-
 	public function fillReactions(): self
 	{
 		if ($this->isReactionsFilled)
@@ -406,12 +385,24 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 			->fillUuid()
 			->fillUnread()
 			->fillViewed()
-			->fillViewedByOthers()
 			->fillReactions()
 		;
 	}
 
 	//endregion
+
+	public function setViewedByOthers(): self
+	{
+		foreach ($this as $message)
+		{
+			if (!$message->isNotifyRead())
+			{
+				$message->markNotifyRead(true);
+			}
+		}
+
+		return $this;
+	}
 
 	//region Getters
 

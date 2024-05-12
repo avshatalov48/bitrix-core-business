@@ -27,8 +27,6 @@ class Dictionary
 	];
 
 	public const EVENT_TYPE = [
-		'user' => 'user',
-		'chat' => 'chat',
 		'shared' => '#shared#',
 		'shared_crm' => '#shared_crm#',
 		'resource_booking' => '#resourcebooking#'

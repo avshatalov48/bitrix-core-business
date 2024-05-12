@@ -32,14 +32,14 @@ elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
 /********************************************************************
 				/Input params
 ********************************************************************/
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 endif;
-if (!empty($arResult["OK_MESSAGE"])): 
+if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-success">
 	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
@@ -136,14 +136,14 @@ endif;
 			<input type="hidden" name="PAGE_NAME" value="pm_read" />
 			<?=bitrix_sessid_post()?>
 			<select name="action">
-				<option value="reply" <?=($_REQUEST["action"] == "reply" ? " selected='selected'" : "")?>><?=GetMessage("PM_ACT_REPLY")?></option>
+				<option value="reply" <?=(isset($_REQUEST["action"]) && $_REQUEST["action"] == "reply" ? " selected='selected'" : "")?>><?=GetMessage("PM_ACT_REPLY")?></option>
 <? if ($arParams['FID'] == 3): // sent ?>
-				<option value="edit" <?=($_REQUEST["action"] == "edit" ? " selected='selected'" : "")?>><?=GetMessage("PM_ACT_EDIT")?></option>
+				<option value="edit" <?=(isset($_REQUEST["action"]) && $_REQUEST["action"] == "edit" ? " selected='selected'" : "")?>><?=GetMessage("PM_ACT_EDIT")?></option>
 <? endif;?>
-				<option value="delete" <?=($_REQUEST["action"] == "delete" ? " selected='selected'" : "")?>><?=GetMessage("PM_ACT_DELETE")?></option>
+				<option value="delete" <?=(isset($_REQUEST["action"]) && $_REQUEST["action"] == "delete" ? " selected='selected'" : "")?>><?=GetMessage("PM_ACT_DELETE")?></option>
 			</select>
 			<input type="submit" value="OK" />
-		</form>							
+		</form>
 							</span>
 <?/*?>
 							<span class="forum-footer-option forum-pmessage-copy">
@@ -158,7 +158,7 @@ endif;
 			<?
 			foreach ($arResult["FOLDERS"] as $res)
 			{
-				?><option value="<?=$res["ID"]?>" <?=(($_REQUEST["action"] == "copy" && $res["ID"] == $_REQUEST["folder_id"]) 
+				?><option value="<?=$res["ID"]?>" <?=(($_REQUEST["action"] == "copy" && $res["ID"] == $_REQUEST["folder_id"])
 					? " selected='selected'" : "")?>><?=$res["TITLE"]?></option><?
 			}
 			?>
@@ -179,7 +179,7 @@ endif;
 			<?
 			foreach ($arResult["FOLDERS"] as $res)
 			{
-				?><option value="<?=$res["ID"]?>" <?=(($_REQUEST["action"] == "move" && $res["ID"] == $_REQUEST["folder_id"]) 
+				?><option value="<?=$res["ID"]?>" <?=((isset($_REQUEST["action"]) && $_REQUEST["action"] == "move" && isset($_REQUEST["folder_id"]) && $res["ID"] == $_REQUEST["folder_id"])
 					? " selected='selected'" : "")?>><?=$res["TITLE"]?></option><?
 			}
 			?></select>

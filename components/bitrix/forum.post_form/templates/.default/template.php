@@ -3,7 +3,7 @@ CUtil::InitJSCore(array('translit', 'autosave'));
 $postMessageTabIndex = $tabIndex = $arParams["tabIndex"];
 $fileControlId = 'forumfiles'.$arParams["FORUM"]["ID"];
 ?>
-<script type="text/javascript">
+<script>
 BX.message({
 	no_topic_name : '<?=GetMessageJS("JERROR_NO_TOPIC_NAME")?>',
 	no_message : '<?=GetMessageJS("JERROR_NO_MESSAGE")?>',
@@ -31,8 +31,8 @@ if ($arResult["MESSAGE_TYPE"] == "NEW")
 {
 	?><?=GetMessage("F_CREATE_IN_FORUM")?>: <a href="<?=$arResult["URL"]["LIST"]?>"><?=$arResult["FORUM"]["NAME"]?></a><?
 }
-elseif ($arResult["MESSAGE_TYPE"] == "REPLY") 
-{ 
+elseif ($arResult["MESSAGE_TYPE"] == "REPLY")
+{
 	?><?=GetMessage("F_REPLY_FORM")?><?
 }
 else
@@ -40,13 +40,13 @@ else
 	?><?=GetMessage("F_EDIT_FORM")?> <?=GetMessage("F_IN_TOPIC")?>:
 		<a href="<?=$arResult["URL"]["READ"]?>"><?=htmlspecialcharsbx($arResult["TOPIC_FILTER"]["TITLE"])?></a>, <?=GetMessage("F_IN_FORUM")?>:
 		<a href="<?=$arResult["URL"]["LIST"]?>"><?=$arResult["FORUM"]["NAME"]?></a><?
-};	
+};
 	?></span></div>
 </div>
 
 <div class="forum-reply-form">
 <?
-if (!empty($arResult["ERROR_MESSAGE"])) 
+if (!empty($arResult["ERROR_MESSAGE"]))
 {
 ?>
 <div class="forum-note-box forum-note-error">
@@ -62,7 +62,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 	<input type="hidden" name="TID" value="<?=$arParams["TID"]?>" />
 	<input type="hidden" name="MID" value="<?=$arResult["MID"];?>" />
 	<input type="hidden" name="MESSAGE_TYPE" value="<?=$arParams["MESSAGE_TYPE"];?>" />
-	<input type="hidden" name="AUTHOR_ID" value="<?=$arResult["TOPIC"]["AUTHOR_ID"];?>" />
+	<input type="hidden" name="AUTHOR_ID" value="<?=$arResult["TOPIC"]["AUTHOR_ID"] ?? null;?>" />
 	<input type="hidden" name="forum_post_action" value="save" />
 	<input type="hidden" name="MESSAGE_MODE" value="NORMAL" />
 	<input type="hidden" name="AJAX_POST" value="<?=$arParams["AJAX_POST"]?>" />
@@ -108,7 +108,7 @@ if (($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" || $arResult["SHOW_PANEL_GUEST"] =
 			<div class="forum-reply-field forum-reply-field-author"><label for="AUTHOR_NAME<?=$arParams["form_index"]?>"><?=GetMessage("F_TYPE_NAME")?><?
 				?><span class="forum-required-field">*</span></label>
 				<span><input name="AUTHOR_NAME" id="AUTHOR_NAME<?=$arParams["form_index"]?>" size="30" type="text" value="<?=$arResult["MESSAGE"]["AUTHOR_NAME"];?>" tabindex="<?=$tabIndex++;?>" /></span></div>
-<?		
+<?
 		if ($arResult["FORUM"]["ASK_GUEST_EMAIL"]=="Y")
 		{
 ?>
@@ -198,7 +198,7 @@ if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arParams["SHOW_TAGS"] == "Y")
 	?></div><?
 	$sQuestion = ob_get_clean();
 ?>
-<script type="text/javascript">
+<script>
 	var arVoteParams = {
 		'template_answer' : '<?=CUtil::JSEscape(str_replace("#A_VALUE#", "", $sAnswer))?>',
 		'template_question' : '<?=CUtil::JSEscape(str_replace(
@@ -319,7 +319,7 @@ if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arParams["SHOW_TAGS"] == "Y")
 					),
 					"UPLOAD_FILE_PARAMS" => array("width" => $arParams["IMAGE_SIZE"], "height" => $arParams["IMAGE_SIZE"]),
 					"PROPERTIES" => array(
-						$arResult["USER_FIELDS"]["UF_FORUM_MESSAGE_DOC"]
+						$arResult["USER_FIELDS"]["UF_FORUM_MESSAGE_DOC"] ?? null
 					),
 
 //					"DESTINATION" => array(),
@@ -327,7 +327,7 @@ if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arParams["SHOW_TAGS"] == "Y")
 //					"TAGS" => Array(),
 
 					"SMILES" => COption::GetOptionInt("forum", "smile_gallery_id", 0),
-					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null,
 				),
 				$component,
 				array("HIDE_ICONS" => "Y")
@@ -369,31 +369,31 @@ if ($arResult["SHOW_PANEL_EDIT"] == "Y")
 	$checked = true;
 	if ($arResult["SHOW_PANEL_EDIT_ASK"] == "Y")
 	{
-		$checked = ($_REQUEST["EDIT_ADD_REASON"] == "N" ? false : true);
+		$checked = (isset($_REQUEST["EDIT_ADD_REASON"]) && $_REQUEST["EDIT_ADD_REASON"] == "N" ? false : true);
 		?><div class="forum-reply-field-lastedit-view"><?
 			?><input type="hidden" name="EDIT_ADD_REASON<?=$arParams["form_index"]?>" value="N" /><?
 			?><input type="checkbox" id="EDIT_ADD_REASON" name="EDIT_ADD_REASON<?=$arParams["form_index"]?>" <?=($checked ? "checked=\"checked\"" : "")?> value="Y" <?
 				?>onclick="BX.Forum.ShowLastEditReason(this.checked, this.parentNode.nextSibling)" />&nbsp;<?
 			?><label for="EDIT_ADD_REASON<?=$arParams["form_index"]?>"><?=GetMessage("F_EDIT_ADD_REASON")?></label></div><?
 	};
-	
+
 		?><div class="forum-reply-field-lastedit-reason" <?
 		if (!$checked)
 		{
 			?> style="display:none;" <?
 		};
 		?>  id=""><?
-			if ($arResult["SHOW_EDIT_PANEL_GUEST"] == "Y")
+			if (isset($arResult["SHOW_EDIT_PANEL_GUEST"]) && $arResult["SHOW_EDIT_PANEL_GUEST"] == "Y")
 			{
-			?><input name="EDITOR_NAME" type="hidden" value="<?=$arResult["EDITOR_NAME"];?>" /><?
+			?><input name="EDITOR_NAME" type="hidden" value="<?=$arResult["EDITOR_NAME"] ?? null;?>" /><?
 				if ($arResult["FORUM"]["ASK_GUEST_EMAIL"] == "Y")
 				{
-			?><input type="hidden" name="EDITOR_EMAIL" value="<?=$arResult["EDITOR_EMAIL"];?>" /></br><?
+			?><input type="hidden" name="EDITOR_EMAIL" value="<?=$arResult["EDITOR_EMAIL"] ?? null;?>" /></br><?
 				};
 			};
 		?>
 			<label for="EDIT_REASON"><?=GetMessage("F_EDIT_REASON")?></label>
-			<input type="text" name="EDIT_REASON" id="EDIT_REASON" size="70" value="<?=$arResult["EDIT_REASON"]?>" /></div>
+			<input type="text" name="EDIT_REASON" id="EDIT_REASON" size="70" value="<?=$arResult["EDIT_REASON"] ?? null?>" /></div>
 		</div>
 <?
 };

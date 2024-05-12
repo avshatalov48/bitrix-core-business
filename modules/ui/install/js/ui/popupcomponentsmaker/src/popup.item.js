@@ -4,7 +4,6 @@ import { Loader } from 'main.loader';
 
 export default class PopupComponentsMakerItem extends EventEmitter
 {
-	// eslint-disable-next-line @bitrix24/bitrix24-rules/no-eventemitter-without-namespace
 	constructor(options = {})
 	{
 		super();
@@ -15,6 +14,7 @@ export default class PopupComponentsMakerItem extends EventEmitter
 		this.withoutBackground = null;
 		this.backgroundColor = null;
 		this.backgroundImage = null;
+		this.background = null;
 		this.marginBottom = null;
 		this.disabled = null;
 		this.secondary = null;
@@ -24,6 +24,7 @@ export default class PopupComponentsMakerItem extends EventEmitter
 		this.minHeight = null;
 		this.sizeLoader = 45;
 		this.asyncSecondary = null;
+		this.margin = null;
 
 		this.setParams(options);
 
@@ -46,6 +47,10 @@ export default class PopupComponentsMakerItem extends EventEmitter
 			? options.withoutBackground
 			: this.withoutBackground
 		;
+		this.background = Type.isString(options?.background)
+			? options.background
+			: this.background
+		;
 		this.backgroundColor = Type.isString(options?.backgroundColor)
 			? options.backgroundColor
 			: this.backgroundColor
@@ -61,6 +66,7 @@ export default class PopupComponentsMakerItem extends EventEmitter
 		this.displayBlock = Type.isBoolean(options?.displayBlock) ? options.displayBlock : this.displayBlock;
 		this.attrs = Type.isPlainObject(options?.attrs) ? options.attrs : this.attrs;
 		this.minHeight = Type.isString(options?.minHeight) ? options.minHeight : this.minHeight;
+		this.margin = Type.isString(options.margin) ? options.margin : this.margin;
 		this.sizeLoader = Type.isNumber(options?.sizeLoader) ? options.sizeLoader : this.sizeLoader;
 		this.asyncSecondary = (options?.asyncSecondary instanceof Promise)
 			? options.asyncSecondary
@@ -144,16 +150,22 @@ export default class PopupComponentsMakerItem extends EventEmitter
 			`;
 		}
 
+		if (this.background)
+		{
+			this.layout.container.style.background = this.background;
+		}
+
 		if (this.backgroundColor)
 		{
 			this.layout.container.style.backgroundColor = this.backgroundColor;
 		}
+
 		if (this.backgroundImage)
 		{
 			this.layout.container.style.backgroundImage = this.backgroundImage;
 		}
 
-		if (this.withoutBackground && !this.backgroundColor)
+		if (this.withoutBackground && !this.backgroundColor && !this.background)
 		{
 			this.layout.container.classList.add('--transparent');
 		}
@@ -191,6 +203,11 @@ export default class PopupComponentsMakerItem extends EventEmitter
 		if (this.minHeight)
 		{
 			Dom.style(this.layout.container, 'min-height', this.minHeight);
+		}
+
+		if (this.margin)
+		{
+			Dom.style(this.layout.container, 'margin', this.margin);
 		}
 
 		if (this.asyncSecondary)

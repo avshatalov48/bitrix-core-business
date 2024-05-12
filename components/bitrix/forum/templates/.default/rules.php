@@ -3,13 +3,13 @@
 	"bitrix:forum.rules",
 	"",
 	array(
-		"CONTENT" => $arResult["RULES_CONTENT"],
-		
-		"URL_TEMPLATES_INDEX" => $arResult["URL_TEMPLATES_INDEX"],
-		
-		"SET_NAVIGATION" => $arParams["SET_NAVIGATION"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
-		"SET_TITLE" => $arParams["SET_TITLE"],
+		"CONTENT" => $arResult["RULES_CONTENT"] ?? null,
+
+		"URL_TEMPLATES_INDEX" => $arResult["URL_TEMPLATES_INDEX"] ?? null,
+
+		"SET_NAVIGATION" => $arParams["SET_NAVIGATION"] ?? null,
+		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"] ?? null,
+		"SET_TITLE" => $arParams["SET_TITLE"] ?? null,
 	),
 	$component
 );

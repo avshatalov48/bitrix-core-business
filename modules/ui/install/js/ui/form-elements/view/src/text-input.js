@@ -19,7 +19,7 @@ export class TextInput extends BaseField
 			value="${Text.encode(this.defaultValue)}" 
 			name="${Text.encode(this.getName())}" 
 			type="text" 
-			class="ui-ctl-element" 
+			class="ui-ctl-element ${this.isEnable() ? '' : '--readonly'}" 
 			placeholder="${Text.encode(this.placeholder)}"
 			${this.isEnable() ? '' : 'readonly'}
 		>`;
@@ -35,9 +35,12 @@ export class TextInput extends BaseField
 			});
 		}
 
-		this.getInputNode().addEventListener('keydown', () => {
-			this.getInputNode().form.dispatchEvent(new window.Event('change'));
-		});
+		if (this.isEnable())
+		{
+			this.getInputNode().addEventListener('keydown', () => {
+				this.getInputNode().form.dispatchEvent(new window.Event('change'));
+			});
+		}
 	}
 
 	prefixId(): string

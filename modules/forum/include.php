@@ -1034,7 +1034,7 @@ function ForumMoveMessage($FID, $TID, $Message, $NewTID, $arFields, &$strErrorMe
 		// Create topic
 		if ($NewTID <= 0)
 		{
-			$arFields["APPROVED"] = ($arNewForum["MODERATION"]=="Y") ? "N" : "Y";
+			$arFields["APPROVED"] = (isset($arNewForum["MODERATION"]) && $arNewForum["MODERATION"]=="Y") ? "N" : "Y";
 			if ($arCurrUser["Perms"]["NewFID"] >= "Q")
 				$arFields["APPROVED"] = "Y";
 
@@ -1190,17 +1190,18 @@ function ForumPrintIconsList($num_cols, $value = "")
 
 	foreach ($arSmile as $res)
 	{
-		$width = ($res["IMAGE_WIDTH"] > 0 ? 'width="{$res["IMAGE_WIDTH"]}"' : '');
-		$height = ($res["IMAGE_HEIGHT"] > 0 ? 'width="{$res["IMAGE_HEIGHT"]}"' : '');
+		$width = (isset($res["IMAGE_WIDTH"]) && $res["IMAGE_WIDTH"] > 0 ? 'width="{$res["IMAGE_WIDTH"]}"' : '');
+		$height = (isset($res["IMAGE_HEIGHT"]) && $res["IMAGE_HEIGHT"] > 0 ? 'width="{$res["IMAGE_HEIGHT"]}"' : '');
 		$checked = '';
 		if (trim($res['TYPING']) == trim($value))
 		{
 			$checked = 'checked="checked"';
 		}
 
+		$classImg = $res["CLASS"] ?? '';
 		$res_str .= <<<HTML
 		<td>
-			<img src="{$strPath2Icons}{$res["IMAGE"]}" alt="{$res["NAME"]}" border="0" class="icons {$res["CLASS"]}" $width $height />
+			<img src="{$strPath2Icons}{$res["IMAGE"]}" alt="{$res["NAME"]}" border="0" class="icons {$classImg}" $width $height />
 			<input type="radio" name="ICON" value="{$res["TYPING"]}" $checked />
 		</td>
 HTML;
@@ -1653,7 +1654,7 @@ function ForumActions($action, $arFields, &$strErrorMessage, &$strOKMessage)
 				{
 					$topic = \Bitrix\Forum\Topic::getById($topicId);
 					$forum = \Bitrix\Forum\Forum::getById($topic->getForumId());
-					if (is_string($arFields["PERMISSION"]))
+					if (isset($arFields["PERMISSION"]) && is_string($arFields["PERMISSION"]))
 					{
 						$usr->setPermissionOnForum($forum, $arFields["PERMISSION"]);
 					}

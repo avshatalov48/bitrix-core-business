@@ -52,33 +52,32 @@ class CCalendarReminder
 					$calendarType = $event['CAL_TYPE'];
 				}
 
-				$viewPath = CHTTP::urlDeleteParams($viewPath, ["EVENT_DATE"]);
-				$viewPath = CHTTP::urlAddParams($viewPath, ['EVENT_DATE' => CCalendar::Date($fromTs, false)]);
+				$viewPathUri = (new \Bitrix\Main\Web\Uri($viewPath))
+					->deleteParams(['EVENT_DATE'])
+					->addParams(['EVENT_DATE' => CCalendar::Date($fromTs, false)])
+				;
 
-				CIMNotify::Add(CCalendarReminder::getNotifyFields([
+				$notificationFields = self::getNotifyFields([
 					'userId' => $userId,
 					'entryId' => $eventId,
 					'entryName' => $event['NAME'],
 					'location' => Bitrix\Calendar\Rooms\Util::getTextLocation($event['LOCATION']),
 					'calendarType' => $calendarType,
+					'event' => $event,
 					'fromTs' => $fromTs,
 					'dateFrom' => CCalendar::Date($fromTs, $event['DT_SKIP_TIME'] !== 'Y', true, true),
-					'viewPath' => $viewPath,
-					'dateFromFormatted' => CCalendar::GetFromToHtml(
-						$fromTs,
-						$fromTs + $event['DT_LENGTH'],
-						$event['DT_SKIP_TIME'] == 'Y',
-						$event['DT_LENGTH']
-					),
+					'viewPath' => $viewPathUri->getUri(),
 					'index' => $index
-				]));
+				]);
+
+				CIMNotify::Add($notificationFields);
 
 				foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("calendar", "OnRemindEvent") as $event)
 				{
 					ExecuteModuleEventEx($event, [[
 						'eventId' => $eventId,
 						'userId' => $userId,
-						'viewPath' => $viewPath,
+						'viewPath' => $viewPathUri->getUri(),
 						'calType' => $calendarType,
 						'ownerId' => $ownerId
 					]]);
@@ -90,7 +89,7 @@ class CCalendarReminder
 						'id' => $eventId,
 						'arFields' => $event,
 						'userId' => $userId,
-						'path' => $viewPath,
+						'path' => $viewPathUri->getUri(),
 						'updateRecursive' => true
 					]);
 				}
@@ -113,12 +112,12 @@ class CCalendarReminder
 		}
 	}
 
-	public static function getNotifyFields($params = [])
+	public static function getNotifyFields($params = []): array
 	{
 		$userId = $params['userId'];
 		$entryId = $params['entryId'];
 
-		$notifyFields = array(
+		$notifyFields = [
 			'FROM_USER_ID' => $userId,
 			'TO_USER_ID' => $userId,
 			'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
@@ -126,36 +125,70 @@ class CCalendarReminder
 			'NOTIFY_EVENT' => "reminder",
 			'NOTIFY_TAG' => "CALENDAR|INVITE|".$entryId."|".$userId."|REMINDER|".$params['fromTs']."|".$params['index'],
 			'NOTIFY_SUB_TAG' => "CALENDAR|INVITE|".$entryId
-		);
-		$notifyFields['MESSAGE'] = GetMessage('EC_EVENT_REMINDER_1', [
-			'#EVENT_NAME#' => $params['entryName'],
-			'#DATE_FROM#' => $params['dateFrom'],
-			'#URL_VIEW#' => $params['viewPath']
-		]);
+		];
 
 		if ($params['location'])
 		{
-			$notifyFields['MESSAGE'] .= "\n\n" .GetMessage('EC_EVENT_REMINDER_LOCATION', [
-				'#LOCATION#' => $params['location'],
-			]);
+			$notifyFields['MESSAGE'] = fn (?string $languageId = null) =>
+				Loc::getMessage(
+					'EC_EVENT_REMINDER_1',
+					[
+						'#EVENT_NAME#' => $params['entryName'],
+						'#DATE_FROM#' => $params['dateFrom'],
+						'#URL_VIEW#' => $params['viewPath']
+					],
+					$languageId
+				)
+				. "\n\n"
+				. Loc::getMessage(
+					'EC_EVENT_REMINDER_LOCATION',
+					['#LOCATION#' => $params['location']],
+					$languageId
+				);
+		}
+		else
+		{
+			$notifyFields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
+				'EC_EVENT_REMINDER_1',
+				[
+					'#EVENT_NAME#' => $params['entryName'],
+					'#DATE_FROM#' => $params['dateFrom'],
+					'#URL_VIEW#' => $params['viewPath']
+				],
+				$languageId
+			);
 		}
 
-		$notifyFields["PUSH_MESSAGE"] = GetMessage('EC_EVENT_REMINDER_PUSH', [
-			'#EVENT_NAME#' => $params['entryName'],
-			'#DATE_FROM#' => $params['dateFromFormatted']
-		]);
+		$dateFromFormatted = fn (?string $languageId = null) => CCalendar::GetFromToHtml(
+			$params['fromTs'],
+			$params['fromTs'] + $params['event']['DT_LENGTH'],
+			$params['event']['DT_SKIP_TIME'] === 'Y',
+			$params['event']['DT_LENGTH'],
+			$languageId
+		);
 
-		// if ($params['location'])
-		// {
-		// 	$notifyFields["PUSH_MESSAGE"] .= "\n\n" . GetMessage('EC_EVENT_REMINDER_LOCATION', [
-		// 		'#LOCATION#' => $params['location'],
-		// 	]);
-		// }
-
-		$notifyFields["PUSH_MESSAGE"] = str_replace('&ndash;', '-', $notifyFields["PUSH_MESSAGE"]);
-		$notifyFields["PUSH_MESSAGE"] = mb_substr($notifyFields["PUSH_MESSAGE"], 0, \CCalendarNotify::PUSH_MESSAGE_MAX_LENGTH);
+		$notifyFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => self::getPushMessage(
+			$params['entryName'],
+			$dateFromFormatted($languageId),
+			$languageId
+		);
 
 		return $notifyFields;
+	}
+
+	private static function getPushMessage($entryName, $dateFromFormatted, $languageId = null): string
+	{
+		$result = Loc::getMessage(
+			'EC_EVENT_REMINDER_PUSH',
+			[
+				'#EVENT_NAME#' => $entryName,
+				'#DATE_FROM#' => $dateFromFormatted
+			],
+			$languageId
+		);
+		$result = str_replace('&ndash;', '-', $result);
+
+		return mb_substr($result, 0, \CCalendarNotify::PUSH_MESSAGE_MAX_LENGTH);
 	}
 
 	public static function AddAgent($remindTime, $params)

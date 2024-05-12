@@ -80,7 +80,7 @@ class CommentParser
 	{
 		$mentionedUserIds = [];
 
-		if(preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is" . BX_UTF_PCRE_MODIFIER, $text, $matches) && is_array($matches[1]))
+		if(preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/isu", $text, $matches) && is_array($matches[1]))
 		{
 			$mentionedUserIds = $matches[1];
 			$mentionedUserIds = array_unique($mentionedUserIds);

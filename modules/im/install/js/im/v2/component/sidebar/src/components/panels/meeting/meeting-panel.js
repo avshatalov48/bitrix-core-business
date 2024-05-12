@@ -4,9 +4,9 @@ import { EntityCreator } from 'im.v2.lib.entity-creator';
 import { EventEmitter } from 'main.core.events';
 
 import { MeetingItem } from './meeting-item';
-import { DateGroup } from '../../elements/date-group';
-import { DetailHeader } from '../../elements/detail-header';
-import { DetailEmptyState } from '../../elements/detail-empty-state';
+import { DateGroup } from '../../elements/date-group/date-group';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
+import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
 import { MeetingMenu } from '../../../classes/context-menu/meeting/meeting-menu';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';
 

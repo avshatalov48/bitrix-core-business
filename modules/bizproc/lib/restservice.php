@@ -1719,7 +1719,7 @@ class RestService extends \IRestService
 
 			return $documentService->getDocumentType($documentId);
 		}
-		catch (\CBPArgumentNullException $e) {}
+		catch (\Exception $e) {}
 
 		return null;
 	}

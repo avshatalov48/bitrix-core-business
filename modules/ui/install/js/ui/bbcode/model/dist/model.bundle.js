@@ -4,18 +4,29 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
 	'use strict';
 
+	function getByIndex(array, index) {
+	  if (!main_core.Type.isArray(array)) {
+	    throw new TypeError('array is not a array');
+	  }
+	  if (!main_core.Type.isInteger(index)) {
+	    throw new TypeError('index is not a integer');
+	  }
+	  const preparedIndex = index < 0 ? array.length + index : index;
+	  return array[preparedIndex];
+	}
+
 	const privateMap = new WeakMap();
 	const nameSymbol = Symbol('name');
-	class Node {
+	class BBCodeNode {
 	  constructor(options = {}) {
-	    this[nameSymbol] = 'unknown';
+	    this[nameSymbol] = '#unknown';
 	    this.children = [];
 	    privateMap.set(this, {
 	      delayedChildren: []
 	    });
-	    this.setScheme(options.scheme);
-	    this.setParent(options.parent);
 	    this.setName(options.name);
+	    privateMap.get(this).scheme = options.scheme;
+	    this.setParent(options.parent);
 	    this.setChildren(options.children);
 	  }
 	  static get ELEMENT_NODE() {
@@ -48,7 +59,7 @@ this.BX.UI = this.BX.UI || {};
 	  static flattenChildren(children) {
 	    if (main_core.Type.isArrayFilled(children)) {
 	      return children.flatMap(node => {
-	        if (node.getType() === Node.FRAGMENT_NODE) {
+	        if (node.getType() === BBCodeNode.FRAGMENT_NODE) {
 	          return node.getChildren();
 	        }
 	        return node;
@@ -56,16 +67,19 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	    return [];
 	  }
-	  setScheme(scheme) {
+	  setScheme(scheme, onUnknown) {
 	    privateMap.get(this).scheme = scheme;
 	  }
 	  getScheme() {
 	    return privateMap.get(this).scheme;
 	  }
+	  getTagScheme() {
+	    return this.getScheme().getTagScheme(this.getName());
+	  }
 	  prepareCase(value) {
 	    const scheme = this.getScheme();
-	    const currentCase = scheme.getTagCase();
-	    if (currentCase === 'upperCase') {
+	    const currentCase = scheme.getOutputTagCase();
+	    if (currentCase === 'upper') {
 	      return value.toUpperCase();
 	    }
 	    return value.toLowerCase();
@@ -112,7 +126,7 @@ this.BX.UI = this.BX.UI || {};
 	    return [...this.children];
 	  }
 	  getLastChild() {
-	    return this.getChildren().at(-1);
+	    return getByIndex(this.getChildren(), -1);
 	  }
 	  getLastChildOfType(type) {
 	    return this.getChildren().reverse().find(node => {
@@ -121,11 +135,11 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getLastChildOfName(name) {
 	    return this.getChildren().reverse().find(node => {
-	      return node.getType() === Node.ELEMENT_NODE && node.getName() === name;
+	      return node.getType() === BBCodeNode.ELEMENT_NODE && node.getName() === name;
 	    });
 	  }
 	  getFirstChild() {
-	    return this.getChildren().at(0);
+	    return getByIndex(this.getChildren(), 0);
 	  }
 	  getFirstChildOfType(type) {
 	    return this.getChildren().find(node => {
@@ -134,7 +148,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getFirstChildOfName(name) {
 	    return this.getChildren().find(node => {
-	      return node.getType() === Node.ELEMENT_NODE && node.getName() === name;
+	      return node.getType() === BBCodeNode.ELEMENT_NODE && node.getName() === name;
 	    });
 	  }
 	  getPreviewsSibling() {
@@ -142,8 +156,18 @@ this.BX.UI = this.BX.UI || {};
 	      const parentChildren = this.getParent().getChildren();
 	      const currentIndex = parentChildren.indexOf(this);
 	      if (currentIndex > 0) {
-	        return parentChildren.at(currentIndex - 1);
+	        return getByIndex(parentChildren, currentIndex - 1);
 	      }
+	    }
+	    return null;
+	  }
+	  getPreviewsSiblings() {
+	    if (this.hasParent()) {
+	      const parentChildren = this.getParent().getChildren();
+	      const currentIndex = parentChildren.indexOf(this);
+	      return parentChildren.filter((child, index) => {
+	        return index < currentIndex;
+	      });
 	    }
 	    return null;
 	  }
@@ -152,8 +176,18 @@ this.BX.UI = this.BX.UI || {};
 	      const parentChildren = this.getParent().getChildren();
 	      const currentIndex = parentChildren.indexOf(this);
 	      if (currentIndex !== -1 && currentIndex !== parentChildren.length) {
-	        return parentChildren.at(currentIndex + 1);
+	        return getByIndex(parentChildren, currentIndex + 1);
 	      }
+	    }
+	    return null;
+	  }
+	  getNextSiblings() {
+	    if (this.hasParent()) {
+	      const parentChildren = this.getParent().getChildren();
+	      const currentIndex = parentChildren.indexOf(this);
+	      return parentChildren.filter((child, index) => {
+	        return index > currentIndex;
+	      });
 	    }
 	    return null;
 	  }
@@ -162,6 +196,12 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  hasChildren() {
 	    return this.getChildrenCount() > 0;
+	  }
+	  isEmpty() {
+	    return this.getChildrenCount() === 0;
+	  }
+	  adjustChildren() {
+	    this.setChildren(this.getChildren());
 	  }
 	  setDelayedChildren(children) {
 	    if (main_core.Type.isArray(children)) {
@@ -180,7 +220,7 @@ this.BX.UI = this.BX.UI || {};
 	    return [...privateMap.get(this).delayedChildren];
 	  }
 	  appendChild(...children) {
-	    const flattenedChildren = Node.flattenChildren(children);
+	    const flattenedChildren = BBCodeNode.flattenChildren(children);
 	    flattenedChildren.forEach(node => {
 	      node.remove();
 	      node.setParent(this);
@@ -188,17 +228,38 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 	  prependChild(...children) {
-	    const flattenedChildren = Node.flattenChildren(children);
+	    const flattenedChildren = BBCodeNode.flattenChildren(children);
 	    flattenedChildren.forEach(node => {
 	      node.remove();
 	      node.setParent(this);
 	      this.children.unshift(node);
 	    });
 	  }
+	  insertBefore(...nodes) {
+	    if (this.hasParent() && main_core.Type.isArrayFilled(nodes)) {
+	      const parent = this.getParent();
+	      const parentChildren = parent.getChildren();
+	      const currentNodeIndex = parentChildren.indexOf(this);
+	      const deleteCount = 0;
+	      parentChildren.splice(currentNodeIndex, deleteCount, ...nodes);
+	      parent.setChildren(parentChildren);
+	    }
+	  }
+	  insertAfter(...nodes) {
+	    if (this.hasParent() && main_core.Type.isArrayFilled(nodes)) {
+	      const parent = this.getParent();
+	      const parentChildren = parent.getChildren();
+	      const currentNodeIndex = parentChildren.indexOf(this);
+	      const startIndex = currentNodeIndex + 1;
+	      const deleteCount = 0;
+	      parentChildren.splice(startIndex, deleteCount, ...nodes);
+	      parent.setChildren(parentChildren);
+	    }
+	  }
 	  propagateChild(...children) {
 	    if (this.hasParent()) {
-	      this.getParent().prependChild(...children.filter(node => {
-	        return node.getType() === Node.ELEMENT_NODE || node.getName() === '#text';
+	      this.insertBefore(...children.filter(child => {
+	        return !['#linebreak', '#tab'].includes(child.getName());
 	      }));
 	    } else {
 	      this.addDelayedChildren(children);
@@ -224,7 +285,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.children = this.children.flatMap(node => {
 	      if (node === targetNode) {
 	        node.setParent(null);
-	        const flattenedChildren = Node.flattenChildren(children);
+	        const flattenedChildren = BBCodeNode.flattenChildren(children);
 	        return flattenedChildren.map(child => {
 	          child.remove();
 	          child.setParent(this);
@@ -249,12 +310,163 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      return [];
 	    })();
-	    return new Node({
+	    return this.getScheme().createNode({
 	      name: this.getName(),
-	      scheme: this.getScheme(),
 	      parent: this.getParent(),
 	      children
 	    });
+	  }
+	  toPlainText() {
+	    return this.getChildren().map(child => {
+	      return child.toPlainText();
+	    }).join('');
+	  }
+	  getTextContent() {
+	    return this.toPlainText();
+	  }
+	  getPlainTextLength() {
+	    return this.toPlainText().length;
+	  }
+	  removePreviewsSiblings() {
+	    const removePreviewsSiblings = node => {
+	      const previewsSiblings = node.getPreviewsSiblings();
+	      if (main_core.Type.isArray(previewsSiblings)) {
+	        previewsSiblings.forEach(sibling => {
+	          sibling.remove();
+	        });
+	      }
+	      const parent = node.getParent();
+	      if (parent) {
+	        removePreviewsSiblings(parent);
+	      }
+	    };
+	    removePreviewsSiblings(this);
+	  }
+	  removeNextSiblings() {
+	    const removeNextSiblings = node => {
+	      const nextSiblings = node.getNextSiblings();
+	      if (main_core.Type.isArray(nextSiblings)) {
+	        nextSiblings.forEach(sibling => {
+	          sibling.remove();
+	        });
+	      }
+	      const parent = node.getParent();
+	      if (parent) {
+	        removeNextSiblings(parent);
+	      }
+	    };
+	    removeNextSiblings(this);
+	  }
+	  findByTextIndex(index) {
+	    let currentIndex = 0;
+	    let startIndex = 0;
+	    let endIndex = 0;
+	    const node = BBCodeNode.flattenAst(this).find(child => {
+	      if (child.getName() === '#text' || child.getName() === '#linebreak' || child.getName() === '#tab') {
+	        startIndex = currentIndex;
+	        endIndex = startIndex + child.getLength();
+	        currentIndex = endIndex;
+	        return index >= startIndex && endIndex >= index;
+	      }
+	      return false;
+	    });
+	    if (node) {
+	      return {
+	        node,
+	        startIndex,
+	        endIndex
+	      };
+	    }
+	    return null;
+	  }
+	  split(options) {
+	    const {
+	      offset,
+	      byWord = false
+	    } = options;
+	    const plainTextLength = this.getPlainTextLength();
+	    const leftTree = (() => {
+	      if (plainTextLength === offset) {
+	        return this.clone({
+	          deep: true
+	        });
+	      }
+	      if (offset <= 0 || offset > plainTextLength) {
+	        return null;
+	      }
+	      const tree = this.clone({
+	        deep: true
+	      });
+	      const {
+	        node,
+	        startIndex
+	      } = tree.findByTextIndex(offset);
+	      const [leftNode, rightNode] = node.split({
+	        offset: offset - startIndex,
+	        byWord
+	      });
+	      if (leftNode) {
+	        node.replace(leftNode);
+	        leftNode.removeNextSiblings();
+	      } else if (rightNode) {
+	        rightNode.removeNextSiblings();
+	        rightNode.remove();
+	      }
+	      return tree;
+	    })();
+	    const rightTree = (() => {
+	      if (plainTextLength === offset) {
+	        return null;
+	      }
+	      if (offset === 0) {
+	        return this.clone({
+	          deep: true
+	        });
+	      }
+	      const tree = this.clone({
+	        deep: true
+	      });
+	      const {
+	        node,
+	        startIndex
+	      } = tree.findByTextIndex(offset);
+	      const [leftNode, rightNode] = node.split({
+	        offset: offset - startIndex,
+	        byWord
+	      });
+	      if (rightNode) {
+	        node.replace(rightNode);
+	        rightNode.removePreviewsSiblings();
+	      } else if (leftNode) {
+	        leftNode.removePreviewsSiblings();
+	        if (leftNode.hasParent()) {
+	          const parent = leftNode.getParent();
+	          leftNode.remove();
+	          if (parent.getChildrenCount() === 0) {
+	            parent.remove();
+	          }
+	        }
+	      }
+	      return tree;
+	    })();
+	    return [leftTree, rightTree];
+	  }
+	  static flattenAst(ast) {
+	    const flat = [];
+	    const traverse = node => {
+	      flat.push(node);
+	      if (node.hasChildren()) {
+	        node.getChildren().forEach(child => {
+	          traverse(child);
+	        });
+	      }
+	    };
+	    if (ast.hasChildren()) {
+	      ast.getChildren().forEach(child => {
+	        traverse(child);
+	      });
+	    }
+	    return flat;
 	  }
 	  toJSON() {
 	    return {
@@ -266,430 +478,54 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
-	const toLowerCase = value => {
-	  if (main_core.Type.isString(value)) {
-	    return value.toLowerCase();
-	  }
-	  return value;
-	};
-	class Tag {
-	  static isInline(tagName) {
-	    return Tag.INLINE_TAGS.has(toLowerCase(tagName));
-	  }
-	  static isBlock(tagName) {
-	    return Tag.BLOCK_TAGS.has(toLowerCase(tagName));
-	  }
-	  static isList(tagName) {
-	    return Tag.LIST_TAGS.has(toLowerCase(tagName));
-	  }
-	  static isListItem(tagName) {
-	    return Tag.LIST_ITEM_TAGS.has(toLowerCase(tagName));
-	  }
-	}
-	Tag.BOLD = 'b';
-	Tag.ITALIC = 'i';
-	Tag.STRIKE = 's';
-	Tag.UNDERLINE = 'u';
-	Tag.SIZE = 'size';
-	Tag.COLOR = 'color';
-	Tag.CENTER = 'center';
-	Tag.LEFT = 'left';
-	Tag.RIGHT = 'right';
-	Tag.URL = 'url';
-	Tag.IMG = 'img';
-	Tag.PARAGRAPH = 'p';
-	Tag.LIST = 'list';
-	Tag.LIST_UL = 'ul';
-	Tag.LIST_OL = 'ol';
-	Tag.LIST_ITEM = '*';
-	Tag.LIST_ITEM_LI = 'li';
-	Tag.TABLE = 'table';
-	Tag.TABLE_ROW = 'tr';
-	Tag.TABLE_CELL = 'td';
-	Tag.TABLE_HEAD_CELL = 'th';
-	Tag.QUOTE = 'quote';
-	Tag.CODE = 'code';
-	Tag.SPOILER = 'spoiler';
-	Tag.INLINE_TAGS = new Set([Tag.BOLD, Tag.ITALIC, Tag.STRIKE, Tag.UNDERLINE, Tag.SIZE, Tag.COLOR, Tag.CENTER, Tag.LEFT, Tag.RIGHT, Tag.URL, Tag.IMG, Tag.LIST_ITEM, Tag.LIST_ITEM_LI]);
-	Tag.BLOCK_TAGS = new Set([Tag.PARAGRAPH, Tag.LIST, Tag.LIST_UL, Tag.LIST_OL, Tag.TABLE, Tag.TABLE_ROW, Tag.TABLE_HEAD_CELL, Tag.TABLE_CELL, Tag.QUOTE, Tag.CODE, Tag.SPOILER]);
-	Tag.LIST_TAGS = new Set([Tag.LIST, Tag.LIST_UL, Tag.LIST_OL]);
-	Tag.LIST_ITEM_TAGS = new Set([Tag.LIST_ITEM, Tag.LIST_ITEM_LI]);
-
-	class Text {
-	  static isAnyTextNode(node) {
-	    return node && Text.TEXT_NAMES.has(node.getName());
-	  }
-	  static isPlainTextNode(node) {
-	    return node && node.getName() === Text.TEXT_NAME;
-	  }
-	  static isNewLineNode(node) {
-	    return node && node.getName() === Text.NEW_LINE_NAME;
-	  }
-	  static isTabNode(node) {
-	    return node && node.getName() === Text.TAB_NAME;
-	  }
-	  static isNewLineContent(content) {
-	    return content === Text.NEW_LINE_CONTENT;
-	  }
-	  static isTabContent(content) {
-	    return content === Text.TAB_CONTENT;
-	  }
-	  static isSpecialCharContent(content) {
-	    return Text.SPECIAL_CHARS_CONTENT.has(content);
-	  }
-	}
-	Text.TAB_CONTENT = '\t';
-	Text.NEW_LINE_CONTENT = '\n';
-	Text.SPECIAL_CHARS_CONTENT = new Set([Text.TAB_CONTENT, Text.NEW_LINE_CONTENT]);
-	Text.TEXT_NAME = '#text';
-	Text.NEW_LINE_NAME = '#linebreak';
-	Text.TAB_NAME = '#tab';
-	Text.TEXT_NAMES = new Set([Text.TEXT_NAME, Text.NEW_LINE_NAME, Text.TAB_NAME]);
-
-	const childFilters = {
-	  [Tag.LIST]: node => {
-	    return node.getName() === Tag.LIST_ITEM;
-	  },
-	  [Tag.LIST_OL]: node => {
-	    return node.getName() === Tag.LIST_ITEM_LI;
-	  },
-	  [Tag.LIST_UL]: node => {
-	    return node.getName() === Tag.LIST_ITEM_LI;
-	  },
-	  [Tag.LIST_ITEM]: node => {
-	    return node && (Tag.isList(node.getName()) || Text.isPlainTextNode(node) || Text.isNewLineNode(node) || Tag.isInline(node.getName()) && !Tag.isListItem(node.getName()));
-	  },
-	  [Tag.LIST_ITEM_LI]: node => {
-	    return Tag.isListItem(node.getName()) || Text.isPlainTextNode(node) || Text.isNewLineNode(node) || node.isInline() && !Tag.isListItem(node.getName());
-	  },
-	  [Tag.TABLE]: node => {
-	    return node.getName() === Tag.TABLE_ROW;
-	  },
-	  [Tag.TABLE_ROW]: node => {
-	    return node.getName() === Tag.TABLE_CELL || node.getName() === Tag.TABLE_HEAD_CELL;
-	  },
-	  [Tag.TABLE_CELL]: node => {
-	    return Tag.isInline(node.getName()) || Text.isPlainTextNode(node) || Text.isNewLineNode(node);
-	  },
-	  [Tag.TABLE_HEAD_CELL]: node => {
-	    return Tag.isInline(node.getName()) || Text.isPlainTextNode(node) || Text.isNewLineNode(node);
-	  },
-	  [Tag.PARAGRAPH]: node => {
-	    return Tag.isInline(node.getName()) || Text.isPlainTextNode(node) || Text.isNewLineNode(node);
-	  },
-	  '#inline': node => {
-	    return Tag.isInline(node.getName()) || Text.isPlainTextNode(node) || Text.isNewLineNode(node);
-	  }
-	};
-
-	const contentSymbol = Symbol('content');
-	class TextNode extends Node {
-	  constructor(options = {}) {
-	    const nodeOptions = main_core.Type.isString(options) ? {
-	      content: options
-	    } : options;
-	    super(nodeOptions);
-	    this[nameSymbol] = Text.TEXT_NAME;
-	    this[contentSymbol] = '';
-	    privateMap.get(this).type = Node.TEXT_NODE;
-	    this.setContent(nodeOptions.content);
-	    Node.makeNonEnumerableProperty(this, 'children');
-	  }
-	  static isTextNodeContent(value) {
-	    return main_core.Type.isString(value) || main_core.Type.isNumber(value);
-	  }
-	  static decodeSpecialChars(content) {
-	    if (TextNode.isTextNodeContent(content)) {
-	      return content.replaceAll('&#91;', '[').replaceAll('&#93;', ']');
-	    }
-	    return content;
-	  }
-	  setName(name) {}
-	  setContent(content) {
-	    if (TextNode.isTextNodeContent(content)) {
-	      this[contentSymbol] = TextNode.decodeSpecialChars(content);
-	    }
-	  }
-	  getContent() {
-	    return TextNode.decodeSpecialChars(this[contentSymbol]);
-	  }
-	  getLength() {
-	    return String(this[contentSymbol]).length;
-	  }
-	  clone(options) {
-	    const Constructor = this.constructor;
-	    return new Constructor({
-	      content: this.getContent(),
-	      scheme: this.getScheme()
-	    });
-	  }
-	  splitText(offset) {
-	    if (!main_core.Type.isNumber(offset)) {
-	      throw new TypeError('offset is not a number');
-	    }
-	    const contentLength = this.getLength();
-	    if (offset < 0 || offset > contentLength) {
-	      throw new TypeError(`offset '${offset}' is out of range ${0}-${contentLength}`);
-	    }
-	    const content = this.getContent();
-	    const rightContent = content.slice(offset, contentLength);
-	    const leftNode = (() => {
-	      if (offset === contentLength) {
-	        return this;
-	      }
-	      if (offset === 0) {
-	        return null;
-	      }
-	      return new TextNode({
-	        content: content.slice(0, offset),
-	        scheme: this.getScheme()
-	      });
-	    })();
-	    const rightNode = (() => {
-	      if (offset === 0) {
-	        return this;
-	      }
-	      if (offset === contentLength) {
-	        return null;
-	      }
-	      return new TextNode({
-	        content: rightContent,
-	        scheme: this.getScheme()
-	      });
-	    })();
-	    if (leftNode && rightNode) {
-	      this.replace(leftNode, rightNode);
-	    }
-	    return [leftNode, rightNode];
-	  }
-	  toString() {
-	    return this.getContent();
-	  }
-	  toJSON() {
-	    return {
-	      name: this.getName(),
-	      content: this.toString()
-	    };
-	  }
-	}
-
-	const childConverters = {
-	  [Tag.CODE]: node => {
-	    if (node.getName() === '#text') {
-	      return node;
-	    }
-	    return new TextNode({
-	      content: node.toString()
-	    });
-	  }
-	};
-
-	class BBCodeScheme {
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  /** @private */
-
-	  constructor(options = {}) {
-	    this.childFilters = new Map();
-	    this.childConverters = new Map();
-	    this.allowedTags = new Set();
-	    this.propagateUnresolvedNodes = true;
-	    this.tagCase = BBCodeScheme.LOWER_CASE;
-	    this.allowNewLineBeforeBlockOpeningTag = true;
-	    this.allowNewLineAfterBlockOpeningTag = true;
-	    this.allowNewLineBeforeBlockClosingTag = true;
-	    this.allowNewLineAfterBlockClosingTag = true;
-	    this.allowNewLineAfterListItem = true;
-	    this.setChildFilters(childFilters);
-	    this.setChildConverters(childConverters);
-	    if (main_core.Type.isPlainObject(options)) {
-	      this.setAllowedTags(options.allowedTags);
-	      this.setChildFilters(options.childFilters);
-	      this.setChildConverters(options.childConverters);
-	      this.setPropagateUnresolvedNodes(options.propagateUnresolvedNodes);
-	      this.setTagCase(options.tagCase);
-	      this.setAllowNewLineBeforeBlockOpeningTag(options.newLineBeforeBlockOpeningTag);
-	      this.setAllowNewLineAfterBlockOpeningTag(options.newLineAfterBlockOpeningTag);
-	      this.setAllowNewLineBeforeBlockClosingTag(options.newLineBeforeBlockClosingTag);
-	      this.setAllowNewLineAfterBlockClosingTag(options.newLineAfterBlockClosingTag);
-	      this.setAllowNewLineAfterListItem(options.newLineAfterListItem);
-	    }
-	  }
-	  setAllowedTags(allowedTags) {
-	    if (main_core.Type.isArray(allowedTags)) {
-	      this.allowedTags = new Set(allowedTags);
-	    }
-	  }
-	  addAllowedTag(tag) {
-	    if (main_core.Type.isStringFilled(tag)) {
-	      this.getAllowedTags().add(tag);
-	    }
-	  }
-	  getAllowedTags() {
-	    return this.allowedTags;
-	  }
-	  getChildFilters() {
-	    return this.childFilters;
-	  }
-	  getChildFilter(tagName) {
-	    return this.getChildFilters().get(tagName);
-	  }
-	  setChildFilters(filters) {
-	    if (main_core.Type.isPlainObject(filters)) {
-	      const childFiltersMap = this.getChildFilters();
-	      Object.entries(filters).forEach(([tagName, filter]) => {
-	        childFiltersMap.set(tagName, filter);
-	      });
-	    }
-	  }
-	  getChildConverters() {
-	    return this.childConverters;
-	  }
-	  getChildConverter(tagName) {
-	    return this.getChildConverters().get(tagName);
-	  }
-	  setChildConverters(converters) {
-	    if (main_core.Type.isPlainObject(converters)) {
-	      const convertersMap = this.getChildConverters();
-	      Object.entries(converters).forEach(([tagName, converter]) => {
-	        convertersMap.set(tagName, converter);
-	      });
-	    }
-	  }
-	  setPropagateUnresolvedNodes(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.propagateUnresolvedNodes = value;
-	    }
-	  }
-	  isPropagateUnresolvedNodes() {
-	    return this.propagateUnresolvedNodes;
-	  }
-	  setTagCase(tagCase) {
-	    if (BBCodeScheme.allowedCases.has(tagCase)) {
-	      this.tagCase = tagCase;
-	    }
-	  }
-	  getTagCase() {
-	    return this.tagCase;
-	  }
-	  setAllowNewLineBeforeBlockOpeningTag(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.allowNewLineBeforeBlockOpeningTag = value;
-	    }
-	  }
-	  isAllowNewLineBeforeBlockOpeningTag() {
-	    return this.allowNewLineBeforeBlockOpeningTag;
-	  }
-	  setAllowNewLineAfterBlockOpeningTag(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.allowNewLineAfterBlockOpeningTag = value;
-	    }
-	  }
-	  isAllowNewLineAfterBlockOpeningTag() {
-	    return this.allowNewLineAfterBlockOpeningTag;
-	  }
-	  setAllowNewLineBeforeBlockClosingTag(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.allowNewLineBeforeBlockClosingTag = value;
-	    }
-	  }
-	  isAllowNewLineBeforeBlockClosingTag() {
-	    return this.allowNewLineBeforeBlockClosingTag;
-	  }
-	  setAllowNewLineAfterBlockClosingTag(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.allowNewLineAfterBlockClosingTag = value;
-	    }
-	  }
-	  isAllowNewLineAfterBlockClosingTag() {
-	    return this.allowNewLineAfterBlockClosingTag;
-	  }
-	  setAllowNewLineAfterListItem(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.allowNewLineAfterListItem = value;
-	    }
-	  }
-	  isAllowNewLineAfterListItem() {
-	    return this.allowNewLineAfterListItem;
-	  }
-	}
-	BBCodeScheme.LOWER_CASE = 'lowerCase';
-	BBCodeScheme.UPPER_CASE = 'upperCase';
-	BBCodeScheme.allowedCases = new Set([BBCodeScheme.LOWER_CASE, BBCodeScheme.UPPER_CASE]);
-
-	class ElementNode extends Node {
+	const voidSymbol = Symbol('void');
+	class BBCodeElementNode extends BBCodeNode {
 	  constructor(options = {}) {
 	    super(options);
 	    this.attributes = {};
 	    this.value = '';
-	    this.void = false;
-	    this.inline = false;
-	    privateMap.get(this).type = Node.ELEMENT_NODE;
-	    const preparedOptions = {
-	      inline: Tag.isInline(this.getName()),
-	      ...options
-	    };
-	    this.setInline(preparedOptions.inline);
-	    this.setValue(preparedOptions.value);
-	    this.setVoid(preparedOptions.void);
-	    this.setAttributes(preparedOptions.attributes);
+	    this[voidSymbol] = false;
+	    privateMap.get(this).type = BBCodeNode.ELEMENT_NODE;
+	    const tagScheme = this.getTagScheme();
+	    this[voidSymbol] = tagScheme.isVoid();
+	    this.setValue(options.value);
+	    this.setAttributes(options.attributes);
+	  }
+	  setScheme(scheme, onUnknown) {
+	    this.getChildren().forEach(node => {
+	      node.setScheme(scheme, onUnknown);
+	    });
+	    if (scheme.isAllowedTag(this.getName())) {
+	      super.setScheme(scheme);
+	      const tagScheme = this.getTagScheme();
+	      this[voidSymbol] = tagScheme.isVoid();
+	    } else {
+	      super.setScheme(scheme);
+	      onUnknown(this, scheme);
+	    }
 	  }
 	  filterChildren(children) {
 	    const filteredChildren = {
 	      resolved: [],
 	      unresolved: []
 	    };
-	    const byTagFilter = this.getScheme().getChildFilter(this.getName());
-	    if (byTagFilter) {
-	      return children.reduce((acc, child) => {
-	        const isAllowed = byTagFilter(child);
-	        if (isAllowed) {
-	          acc.resolved.push(child);
-	        } else {
-	          acc.unresolved.push(child);
-	        }
-	        return acc;
-	      }, filteredChildren);
-	    }
-	    if (this.isInline()) {
-	      const inlineChildFilter = this.getScheme().getChildFilter('#inline');
-	      return children.reduce((acc, child) => {
-	        const isAllowed = inlineChildFilter(child);
-	        if (isAllowed) {
-	          acc.resolved.push(child);
-	        } else {
-	          acc.unresolved.push(child);
-	        }
-	        return acc;
-	      }, {
-	        resolved: [],
-	        unresolved: []
-	      });
-	    }
-	    filteredChildren.resolved = children;
+	    const scheme = this.getScheme();
+	    children.forEach(child => {
+	      if (scheme.isChildAllowed(this, child)) {
+	        filteredChildren.resolved.push(child);
+	      } else {
+	        filteredChildren.unresolved.push(child);
+	      }
+	    });
 	    return filteredChildren;
 	  }
 	  convertChildren(children) {
-	    const childConverter = this.getScheme().getChildConverter(this.getName());
+	    const tagScheme = this.getTagScheme();
+	    const childConverter = tagScheme.getChildConverter();
 	    if (childConverter) {
+	      const scheme = this.getScheme();
 	      return children.map(child => {
-	        return childConverter(child);
+	        return childConverter(child, scheme);
 	      });
 	    }
 	    return children;
@@ -702,21 +538,14 @@ this.BX.UI = this.BX.UI || {};
 	  getValue() {
 	    return this.value;
 	  }
-	  setVoid(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.void = value;
-	    }
-	  }
 	  isVoid() {
-	    return this.void;
+	    return this[voidSymbol];
 	  }
-	  setInline(value) {
-	    if (main_core.Type.isBoolean(value)) {
-	      this.inline = value;
-	    }
+	  canBeEmpty() {
+	    return this.getTagScheme().canBeEmpty();
 	  }
-	  isInline() {
-	    return this.inline;
+	  hasGroup(groupName) {
+	    return this.getTagScheme().hasGroup(groupName);
 	  }
 	  setAttributes(attributes) {
 	    if (main_core.Type.isPlainObject(attributes)) {
@@ -748,7 +577,7 @@ this.BX.UI = this.BX.UI || {};
 	    };
 	  }
 	  appendChild(...children) {
-	    const flattenedChildren = Node.flattenChildren(children);
+	    const flattenedChildren = BBCodeNode.flattenChildren(children);
 	    const filteredChildren = this.filterChildren(flattenedChildren);
 	    const convertedChildren = this.convertChildren(filteredChildren.resolved);
 	    convertedChildren.forEach(node => {
@@ -757,11 +586,17 @@ this.BX.UI = this.BX.UI || {};
 	      this.children.push(node);
 	    });
 	    if (main_core.Type.isArrayFilled(filteredChildren.unresolved)) {
-	      this.propagateChild(...filteredChildren.unresolved);
+	      if (this.getScheme().isAllowedUnresolvedNodesHoisting()) {
+	        this.propagateChild(...filteredChildren.unresolved);
+	      } else {
+	        filteredChildren.unresolved.forEach(node => {
+	          node.remove();
+	        });
+	      }
 	    }
 	  }
 	  prependChild(...children) {
-	    const flattenedChildren = Node.flattenChildren(children);
+	    const flattenedChildren = BBCodeNode.flattenChildren(children);
 	    const filteredChildren = this.filterChildren(flattenedChildren);
 	    const convertedChildren = this.convertChildren(filteredChildren.resolved);
 	    convertedChildren.forEach(node => {
@@ -770,14 +605,20 @@ this.BX.UI = this.BX.UI || {};
 	      this.children.unshift(node);
 	    });
 	    if (main_core.Type.isArrayFilled(filteredChildren.unresolved)) {
-	      this.propagateChild(...filteredChildren.unresolved);
+	      if (this.getScheme().isAllowedUnresolvedNodesHoisting()) {
+	        this.propagateChild(...filteredChildren.unresolved);
+	      } else {
+	        filteredChildren.unresolved.forEach(node => {
+	          node.remove();
+	        });
+	      }
 	    }
 	  }
 	  replaceChild(targetNode, ...children) {
 	    this.children = this.children.flatMap(node => {
 	      if (node === targetNode) {
 	        node.setParent(null);
-	        const flattenedChildren = Node.flattenChildren(children);
+	        const flattenedChildren = BBCodeNode.flattenChildren(children);
 	        const filteredChildren = this.filterChildren(flattenedChildren);
 	        const convertedChildren = this.convertChildren(filteredChildren.resolved);
 	        return convertedChildren.map(child => {
@@ -799,60 +640,7 @@ this.BX.UI = this.BX.UI || {};
 	      return attrValue ? `${preparedKey}=${attrValue}` : preparedKey;
 	    }).join(' ');
 	  }
-	  getNewLineAfterOpeningTag() {
-	    if (!this.isInline() && this.getScheme().isAllowNewLineAfterBlockOpeningTag()) {
-	      const firstChild = this.getFirstChild();
-	      if (firstChild && firstChild.getName() !== '#linebreak') {
-	        return '\n';
-	      }
-	    }
-	    return '';
-	  }
-	  getNewLineBeforeClosingTag() {
-	    const scheme = this.getScheme();
-	    if (scheme.isAllowNewLineBeforeBlockClosingTag()) {
-	      if (!this.isInline()) {
-	        const lastChild = this.getLastChild();
-	        if (lastChild && lastChild.getName() !== '#linebreak') {
-	          return '\n';
-	        }
-	      }
-	      if (Tag.isListItem(this.getName()) && scheme.isAllowNewLineAfterListItem()) {
-	        const lastChild = this.getParent().getLastChild();
-	        if (lastChild !== this) {
-	          return '\n';
-	        }
-	      }
-	    }
-	    return '';
-	  }
-	  getNewLineBeforeOpeningTag() {
-	    if (!this.isInline() && this.hasParent() && this.getScheme().isAllowNewLineBeforeBlockOpeningTag()) {
-	      const previewsSibling = this.getPreviewsSibling();
-	      if (previewsSibling && (Text.isPlainTextNode(previewsSibling) || Tag.isInline(previewsSibling.getName()))) {
-	        return '\n';
-	      }
-	    }
-	    return '';
-	  }
-	  getNewLineAfterClosingTag() {
-	    if (!this.isInline() && this.hasParent() && this.getScheme().isAllowNewLineAfterBlockClosingTag()) {
-	      const nextSibling = this.getNextSibling();
-	      if (nextSibling && nextSibling.getName() !== '#linebreak') {
-	        return '\n';
-	      }
-	    }
-	    return '';
-	  }
 	  getContent() {
-	    if (Tag.isListItem(this.getName())) {
-	      return this.getChildren().reduceRight((acc, node) => {
-	        if (!main_core.Type.isArrayFilled(acc) && (node.getName() === '#linebreak' || node.getName() === '#tab')) {
-	          return acc;
-	        }
-	        return [node.toString(), ...acc];
-	      }, []);
-	    }
 	    return this.getChildren().map(child => {
 	      return child.toString();
 	    }).join('');
@@ -876,56 +664,106 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      return [];
 	    })();
-	    return new ElementNode({
+	    return this.getScheme().createElement({
 	      name: this.getName(),
 	      void: this.isVoid(),
-	      inline: this.isInline(),
 	      value: this.getValue(),
 	      attributes: {
 	        ...this.getAttributes()
 	      },
-	      scheme: this.getScheme(),
 	      children
 	    });
 	  }
+	  splitByChildIndex(index) {
+	    if (!main_core.Type.isNumber(index)) {
+	      throw new TypeError('index is not a number');
+	    }
+	    const childrenCount = this.getChildrenCount();
+	    if (index < 0 || index > childrenCount) {
+	      throw new TypeError(`index '${index}' is out of range ${0}-${childrenCount}`);
+	    }
+	    const leftNode = (() => {
+	      if (index === childrenCount) {
+	        return this;
+	      }
+	      if (index === 0) {
+	        return null;
+	      }
+	      const leftChildren = this.getChildren().filter((child, childIndex) => {
+	        return childIndex < index;
+	      });
+	      const node = this.clone();
+	      node.setChildren(leftChildren);
+	      return node;
+	    })();
+	    const rightNode = (() => {
+	      if (index === 0) {
+	        return this;
+	      }
+	      if (index === childrenCount) {
+	        return null;
+	      }
+	      const rightChildren = this.getChildren();
+	      const node = this.clone();
+	      node.setChildren(rightChildren);
+	      return node;
+	    })();
+	    if (leftNode && rightNode) {
+	      this.replace(leftNode, rightNode);
+	    }
+	    return [leftNode, rightNode];
+	  }
+	  getTagScheme() {
+	    return super.getTagScheme();
+	  }
 	  toString() {
+	    const tagScheme = this.getTagScheme();
+	    const stringifier = tagScheme.getStringifier();
+	    if (main_core.Type.isFunction(stringifier)) {
+	      const scheme = this.getScheme();
+	      return stringifier(this, scheme);
+	    }
 	    const openingTag = this.getOpeningTag();
+	    const content = this.getContent();
 	    if (this.isVoid()) {
-	      return openingTag;
+	      return `${openingTag}${content}`;
 	    }
-	    if (Tag.isListItem(this.getName())) {
-	      return `${openingTag}${this.getContent()}${this.getNewLineBeforeClosingTag()}`;
-	    }
-	    if (this.isInline()) {
-	      return `${openingTag}${this.getContent()}${this.getClosingTag()}`;
-	    }
-	    return [this.getNewLineBeforeOpeningTag(), openingTag, this.getNewLineAfterOpeningTag(), this.getContent(), this.getNewLineBeforeClosingTag(), this.getClosingTag(), this.getNewLineAfterClosingTag()].join('');
+	    const closingTag = this.getClosingTag();
+	    return `${openingTag}${content}${closingTag}`;
 	  }
 	  toJSON() {
 	    return {
 	      ...super.toJSON(),
 	      value: this.getValue(),
 	      attributes: this.getAttributes(),
-	      void: this.isVoid(),
-	      inline: this.isInline()
+	      void: this.isVoid()
 	    };
 	  }
 	}
 
-	class RootNode extends ElementNode {
+	class BBCodeRootNode extends BBCodeElementNode {
 	  constructor(options) {
-	    super(options);
-	    this[nameSymbol] = '#root';
-	    privateMap.get(this).type = Node.ROOT_NODE;
-	    RootNode.makeNonEnumerableProperty(this, 'value');
-	    RootNode.makeNonEnumerableProperty(this, 'void');
-	    RootNode.makeNonEnumerableProperty(this, 'inline');
-	    RootNode.makeNonEnumerableProperty(this, 'attributes');
+	    super({
+	      ...options,
+	      name: '#root'
+	    });
+	    privateMap.get(this).type = BBCodeNode.ROOT_NODE;
+	    BBCodeRootNode.makeNonEnumerableProperty(this, 'value');
+	    BBCodeRootNode.makeNonEnumerableProperty(this, 'attributes');
+	    BBCodeRootNode.freezeProperty(this, nameSymbol, '#root');
+	  }
+	  setScheme(scheme, onUnknown) {
+	    BBCodeNode.flattenAst(this).forEach(node => {
+	      node.setScheme(scheme, onUnknown);
+	    });
+	    super.setScheme(scheme);
+	    BBCodeNode.flattenAst(this).forEach(node => {
+	      node.adjustChildren();
+	    });
 	  }
 	  getParent() {
 	    return null;
 	  }
-	  setName(name) {}
 	  clone(options = {}) {
 	    const children = (() => {
 	      if (options.deep) {
@@ -935,7 +773,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      return [];
 	    })();
-	    return new RootNode({
+	    return this.getScheme().createRoot({
 	      children
 	    });
 	  }
@@ -951,17 +789,17 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 
-	class FragmentNode extends ElementNode {
+	class BBCodeFragmentNode extends BBCodeElementNode {
 	  constructor(options) {
-	    super(options);
-	    this[nameSymbol] = '#fragment';
-	    privateMap.get(this).type = Node.FRAGMENT_NODE;
-	    FragmentNode.makeNonEnumerableProperty(this, 'value');
-	    FragmentNode.makeNonEnumerableProperty(this, 'void');
-	    FragmentNode.makeNonEnumerableProperty(this, 'inline');
-	    FragmentNode.makeNonEnumerableProperty(this, 'attributes');
+	    super({
+	      ...options,
+	      name: '#fragment'
+	    });
+	    privateMap.get(this).type = BBCodeNode.FRAGMENT_NODE;
+	    BBCodeFragmentNode.makeNonEnumerableProperty(this, 'value');
+	    BBCodeFragmentNode.makeNonEnumerableProperty(this, 'attributes');
+	    BBCodeFragmentNode.freezeProperty(this, nameSymbol, '#fragment');
 	  }
-	  setName() {}
 	  clone(options = {}) {
 	    const children = (() => {
 	      if (options.deep) {
@@ -971,111 +809,710 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      return [];
 	    })();
-	    return new FragmentNode({
-	      children,
-	      scheme: this.getScheme()
+	    return this.getScheme().createFragment({
+	      children
 	    });
 	  }
 	}
 
-	class NewLineNode extends TextNode {
+	const contentSymbol = Symbol('content');
+	class BBCodeTextNode extends BBCodeNode {
 	  constructor(options = {}) {
-	    super(options);
-	    this[nameSymbol] = Text.NEW_LINE_NAME;
-	    this[contentSymbol] = Text.NEW_LINE_CONTENT;
+	    const nodeOptions = main_core.Type.isString(options) ? {
+	      content: options
+	    } : options;
+	    super(nodeOptions);
+	    this[nameSymbol] = '#text';
+	    this[contentSymbol] = '';
+	    privateMap.get(this).type = BBCodeNode.TEXT_NODE;
+	    this.setContent(nodeOptions.content);
+	    BBCodeNode.makeNonEnumerableProperty(this, 'children');
 	  }
-	  setContent(options) {}
-	}
-
-	class TabNode extends TextNode {
-	  constructor(options = {}) {
-	    super(options);
-	    this[nameSymbol] = Text.TAB_NAME;
-	    this[contentSymbol] = Text.TAB_CONTENT;
+	  static isTextNodeContent(value) {
+	    return main_core.Type.isString(value) || main_core.Type.isNumber(value);
 	  }
-	  setContent(options) {}
-	}
-
-	class ModelFactory {
-	  /** @private */
-
-	  constructor(options = {}) {
-	    if (main_core.Type.isObject(options.scheme)) {
-	      this.setScheme(options.scheme);
-	    } else {
-	      this.setScheme(new BBCodeScheme());
+	  static decodeSpecialChars(content) {
+	    return String(content).replaceAll('&#91;', '[').replaceAll('&#93;', ']');
+	  }
+	  setName(name) {}
+	  setContent(content) {
+	    if (BBCodeTextNode.isTextNodeContent(content)) {
+	      this[contentSymbol] = BBCodeTextNode.decodeSpecialChars(content);
 	    }
 	  }
-	  setScheme(scheme) {
-	    this.scheme = scheme;
+	  getContent() {
+	    return BBCodeTextNode.decodeSpecialChars(this[contentSymbol]);
 	  }
-	  getScheme() {
-	    return this.scheme;
+	  adjustChildren() {}
+	  getLength() {
+	    return String(this[contentSymbol]).length;
 	  }
-	  createRootNode(options = {}) {
-	    return new RootNode({
-	      ...options,
-	      scheme: this.getScheme()
+	  isEmpty() {
+	    return this.getLength() === 0;
+	  }
+	  clone(options) {
+	    return this.getScheme().createText({
+	      content: this.getContent()
 	    });
 	  }
-	  createElementNode(options = {}) {
-	    return new ElementNode({
-	      ...options,
-	      scheme: this.getScheme()
+	  split(options) {
+	    const {
+	      offset: sourceOffset,
+	      byWord = false
+	    } = options;
+	    if (!main_core.Type.isNumber(sourceOffset)) {
+	      throw new TypeError('offset is not a number');
+	    }
+	    const contentLength = this.getLength();
+	    if (sourceOffset < 0 || sourceOffset > contentLength) {
+	      throw new TypeError(`offset '${sourceOffset}' is out of range ${0}-${contentLength}`);
+	    }
+	    const content = this.getContent();
+	    const offset = (() => {
+	      if (byWord && sourceOffset !== contentLength) {
+	        const lastIndex = content.lastIndexOf(' ', sourceOffset);
+	        if (lastIndex !== -1) {
+	          if (sourceOffset > lastIndex) {
+	            return lastIndex + 1;
+	          }
+	          return lastIndex;
+	        }
+	        return 0;
+	      }
+	      return sourceOffset;
+	    })();
+	    const leftNode = (() => {
+	      if (offset === contentLength) {
+	        return this;
+	      }
+	      if (offset === 0) {
+	        return null;
+	      }
+	      const node = this.clone();
+	      node.setContent(content.slice(0, offset));
+	      return node;
+	    })();
+	    const rightNode = (() => {
+	      if (offset === 0) {
+	        return this;
+	      }
+	      if (offset === contentLength) {
+	        return null;
+	      }
+	      const node = this.clone();
+	      node.setContent(content.slice(offset, contentLength));
+	      return node;
+	    })();
+	    return [leftNode, rightNode];
+	  }
+	  toString() {
+	    return this.getContent();
+	  }
+	  toPlainText() {
+	    return this.toString();
+	  }
+	  toJSON() {
+	    return {
+	      name: this.getName(),
+	      content: this.toString()
+	    };
+	  }
+	}
+
+	class BBCodeNewLineNode extends BBCodeTextNode {
+	  constructor(options = {}) {
+	    super(options);
+	    this[nameSymbol] = '#linebreak';
+	    this[contentSymbol] = '\n';
+	  }
+	  setContent(options) {}
+	  clone(options) {
+	    return this.getScheme().createNewLine();
+	  }
+	}
+
+	class BBCodeTabNode extends BBCodeTextNode {
+	  constructor(options = {}) {
+	    super(options);
+	    this[nameSymbol] = '#tab';
+	    this[contentSymbol] = '\t';
+	  }
+	  setContent(options) {}
+	  clone(options) {
+	    return this.getScheme().createTab();
+	  }
+	}
+
+	class BBCodeNodeScheme {
+	  constructor(options) {
+	    this.name = [];
+	    this.group = [];
+	    this.stringifier = null;
+	    this.serializer = null;
+	    this.allowedIn = [];
+	    if (!main_core.Type.isPlainObject(options)) {
+	      throw new TypeError('options is not a object');
+	    }
+	    if (!main_core.Type.isArrayFilled(this.name) && !main_core.Type.isArrayFilled(options.name) && !main_core.Type.isStringFilled(options.name)) {
+	      throw new TypeError('options.name is not specified');
+	    }
+	    this.setGroup(options.group);
+	    this.setName(options.name);
+	    this.setAllowedIn(options.allowedIn);
+	    this.setStringifier(options.stringify);
+	    this.setSerializer(options.serialize);
+	  }
+	  setName(name) {
+	    if (main_core.Type.isStringFilled(name)) {
+	      this.name = [name];
+	    }
+	    if (main_core.Type.isArrayFilled(name)) {
+	      this.name = name;
+	    }
+	  }
+	  getName() {
+	    return [...this.name];
+	  }
+	  removeName(...names) {
+	    this.setName(this.getName().filter(name => {
+	      return !names.includes(name);
+	    }));
+	  }
+	  setGroup(name) {
+	    if (main_core.Type.isStringFilled(name)) {
+	      this.group = [name];
+	    }
+	    if (main_core.Type.isArrayFilled(name)) {
+	      this.group = name;
+	    }
+	  }
+	  removeGroup(...groups) {
+	    this.setGroup(this.getGroup().filter(group => {
+	      return !groups.includes(group);
+	    }));
+	  }
+	  getGroup() {
+	    return [...this.group];
+	  }
+	  hasGroup(groupName) {
+	    return this.getGroup().includes(groupName);
+	  }
+	  setStringifier(stringifier) {
+	    if (main_core.Type.isFunction(stringifier) || main_core.Type.isNull(stringifier)) {
+	      this.stringifier = stringifier;
+	    }
+	  }
+	  getStringifier() {
+	    return this.stringifier;
+	  }
+	  setSerializer(serializer) {
+	    if (main_core.Type.isFunction(serializer) || main_core.Type.isNull(serializer)) {
+	      this.serializer = serializer;
+	    }
+	  }
+	  getSerializer() {
+	    return this.serializer;
+	  }
+	  setAllowedIn(allowedParents) {
+	    if (main_core.Type.isArray(allowedParents)) {
+	      this.allowedIn = [...allowedParents];
+	    }
+	  }
+	  getAllowedIn() {
+	    return [...this.allowedIn];
+	  }
+	  isAllowedIn(tagName) {
+	    const allowedIn = this.getAllowedIn();
+	    return !main_core.Type.isArrayFilled(allowedIn) || main_core.Type.isArrayFilled(allowedIn) && allowedIn.includes(tagName);
+	  }
+	}
+
+	const canBeEmptySymbol = Symbol('@canBeEmpty');
+	const voidSymbol$1 = Symbol('@void');
+	class BBCodeTagScheme extends BBCodeNodeScheme {
+	  constructor(options) {
+	    super(options);
+	    this[voidSymbol$1] = false;
+	    this[canBeEmptySymbol] = true;
+	    this.childConverter = null;
+	    this.allowedChildren = [];
+	    this.setVoid(options.void);
+	    this.setCanBeEmpty(options.canBeEmpty);
+	    this.setChildConverter(options.convertChild);
+	    this.setAllowedChildren(options.allowedChildren);
+	  }
+	  static defaultBlockStringifier(node) {
+	    const isAllowNewlineBeforeOpeningTag = (() => {
+	      const previewsSibling = node.getPreviewsSibling();
+	      return previewsSibling && previewsSibling.getName() !== '#linebreak';
+	    })();
+	    const isAllowNewlineAfterOpeningTag = (() => {
+	      const firstChild = node.getFirstChild();
+	      return firstChild && firstChild.getName() !== '#linebreak';
+	    })();
+	    const isAllowNewlineBeforeClosingTag = (() => {
+	      const lastChild = node.getLastChild();
+	      return lastChild && lastChild.getName() !== '#linebreak';
+	    })();
+	    const isAllowNewlineAfterClosingTag = (() => {
+	      const nextSibling = node.getNextSibling();
+	      return nextSibling && nextSibling.getName() !== '#linebreak' && !(nextSibling.getType() === BBCodeNode.ELEMENT_NODE && !nextSibling.getTagScheme().getGroup().includes('#inline'));
+	    })();
+	    const openingTag = node.getOpeningTag();
+	    const content = node.getContent();
+	    const closingTag = node.getClosingTag();
+	    return [isAllowNewlineBeforeOpeningTag ? '\n' : '', openingTag, isAllowNewlineAfterOpeningTag ? '\n' : '', content, isAllowNewlineBeforeClosingTag ? '\n' : '', closingTag, isAllowNewlineAfterClosingTag ? '\n' : ''].join('');
+	  }
+	  setName(name) {
+	    super.setName(name);
+	  }
+	  setVoid(value) {
+	    if (main_core.Type.isBoolean(value)) {
+	      this[voidSymbol$1] = value;
+	    }
+	  }
+	  isVoid() {
+	    return this[voidSymbol$1];
+	  }
+	  setCanBeEmpty(value) {
+	    if (main_core.Type.isBoolean(value)) {
+	      this[canBeEmptySymbol] = value;
+	    }
+	  }
+	  canBeEmpty() {
+	    return this[canBeEmptySymbol];
+	  }
+	  setChildConverter(converter) {
+	    if (main_core.Type.isFunction(converter) || main_core.Type.isNull(converter)) {
+	      this.childConverter = converter;
+	    }
+	  }
+	  getChildConverter() {
+	    return this.childConverter;
+	  }
+	  setAllowedChildren(allowedChildren) {
+	    if (main_core.Type.isArray(allowedChildren)) {
+	      this.allowedChildren = allowedChildren;
+	    }
+	  }
+	  getAllowedChildren() {
+	    return this.allowedChildren;
+	  }
+	  isChildAllowed(tagName) {
+	    const allowedChildren = this.getAllowedChildren();
+	    return !main_core.Type.isArrayFilled(allowedChildren) || main_core.Type.isArrayFilled(allowedChildren) && allowedChildren.includes(tagName);
+	  }
+	}
+
+	class BBCodeScheme {
+	  static isNodeScheme(value) {
+	    return value instanceof BBCodeNodeScheme;
+	  }
+	  static getTagName(node) {
+	    if (main_core.Type.isString(node)) {
+	      return node;
+	    }
+	    if (main_core.Type.isObject(node) && node instanceof BBCodeNode) {
+	      return node.getName();
+	    }
+	    return null;
+	  }
+	  constructor(options = {}) {
+	    this.tagSchemes = [];
+	    this.outputTagCase = BBCodeScheme.Case.LOWER;
+	    this.unresolvedNodesHoisting = true;
+	    if (!main_core.Type.isPlainObject(options)) {
+	      throw new TypeError('options is not a object');
+	    }
+	    this.setTagSchemes(options.tagSchemes);
+	    this.setOutputTagCase(options.outputTagCase);
+	    this.setUnresolvedNodesHoisting(options.unresolvedNodesHoisting);
+	  }
+	  setTagSchemes(tagSchemes) {
+	    if (main_core.Type.isArray(tagSchemes)) {
+	      const invalidSchemeIndex = tagSchemes.findIndex(scheme => {
+	        return !BBCodeScheme.isNodeScheme(scheme);
+	      });
+	      if (invalidSchemeIndex > -1) {
+	        throw new TypeError(`tagScheme #${invalidSchemeIndex} is not TagScheme instance`);
+	      }
+	      this.tagSchemes = [...tagSchemes];
+	    }
+	  }
+	  setTagScheme(...tagSchemes) {
+	    const invalidSchemeIndex = tagSchemes.findIndex(scheme => {
+	      return !BBCodeScheme.isNodeScheme(scheme);
+	    });
+	    if (invalidSchemeIndex > -1) {
+	      throw new TypeError(`tagScheme #${invalidSchemeIndex} is not TagScheme instance`);
+	    }
+	    const newTagSchemesNames = tagSchemes.flatMap(scheme => {
+	      return scheme.getName();
+	    });
+	    const currentTagSchemes = this.getTagSchemes();
+	    currentTagSchemes.forEach(scheme => {
+	      scheme.removeName(...newTagSchemesNames);
+	    });
+	    const filteredCurrentTagSchemes = currentTagSchemes.filter(scheme => {
+	      return main_core.Type.isArrayFilled(scheme.getName());
+	    });
+	    this.setTagSchemes([...filteredCurrentTagSchemes, ...tagSchemes]);
+	  }
+	  getTagSchemes() {
+	    return [...this.tagSchemes];
+	  }
+	  getTagScheme(node) {
+	    const tagName = BBCodeScheme.getTagName(node);
+	    if (main_core.Type.isString(tagName)) {
+	      return this.getTagSchemes().find(scheme => {
+	        return scheme.getName().includes(tagName.toLowerCase());
+	      });
+	    }
+	    return null;
+	  }
+	  setOutputTagCase(tagCase) {
+	    if (!main_core.Type.isNil(tagCase)) {
+	      const allowedCases = Object.values(BBCodeScheme.Case);
+	      if (allowedCases.includes(tagCase)) {
+	        this.outputTagCase = tagCase;
+	      } else {
+	        throw new TypeError(`'${tagCase}' is not allowed`);
+	      }
+	    }
+	  }
+	  getOutputTagCase() {
+	    return this.outputTagCase;
+	  }
+	  setUnresolvedNodesHoisting(value) {
+	    if (!main_core.Type.isNil(value)) {
+	      if (main_core.Type.isBoolean(value)) {
+	        this.unresolvedNodesHoisting = value;
+	      } else {
+	        throw new TypeError(`'${value}' is not allowed value`);
+	      }
+	    }
+	  }
+	  isAllowedUnresolvedNodesHoisting() {
+	    return this.unresolvedNodesHoisting;
+	  }
+	  getAllowedTags() {
+	    return this.getTagSchemes().flatMap(tagScheme => {
+	      return tagScheme.getName();
 	    });
 	  }
-	  createTextNode(options = {}) {
-	    const preparedOptions = main_core.Type.isString(options) ? {
+	  isAllowedTag(node) {
+	    const allowedTags = this.getAllowedTags();
+	    const tagName = BBCodeScheme.getTagName(node);
+	    return allowedTags.includes(String(tagName).toLowerCase());
+	  }
+	  isVoid(node) {
+	    const tagScheme = this.getTagScheme(node);
+	    if (tagScheme) {
+	      return tagScheme.isVoid();
+	    }
+	    return false;
+	  }
+	  isElement(node) {
+	    return node && node.getType() === BBCodeNode.ELEMENT_NODE;
+	  }
+	  isRoot(node) {
+	    return node && node.getName() === '#root';
+	  }
+	  isFragment(node) {
+	    return node && node.getName() === '#fragment';
+	  }
+	  isAnyText(node) {
+	    return node && node.getType() === BBCodeNode.TEXT_NODE;
+	  }
+	  isText(node) {
+	    return node && node.getName() === '#text';
+	  }
+	  isNewLine(node) {
+	    return node && node.getName() === '#linebreak';
+	  }
+	  isTab(node) {
+	    return node && node.getName() === '#tab';
+	  }
+	  getParentChildMap() {
+	    const tagSchemes = this.getTagSchemes();
+	    const map = new Map();
+	    tagSchemes.forEach(tagScheme => {
+	      const groups = tagScheme.getGroup();
+	      const schemeNames = [...tagScheme.getName(), ...groups, ...(tagScheme.isVoid() ? ['#void'] : [])];
+	      const allowedChildren = tagScheme.getAllowedChildren();
+	      const allowedIn = tagScheme.getAllowedIn();
+	      schemeNames.forEach(name => {
+	        if (!map.has(name)) {
+	          map.set(name, {
+	            allowedChildren: new Set(),
+	            allowedIn: new Set(),
+	            aliases: new Set()
+	          });
+	        }
+	        const entry = map.get(name);
+	        const newEntry = {
+	          allowedChildren: new Set([...entry.allowedChildren, ...allowedChildren]),
+	          allowedIn: new Set([...entry.allowedIn, ...allowedIn]),
+	          aliases: new Set([name, ...groups, ...(tagScheme.isVoid() ? ['#void'] : [])])
+	        };
+	        map.set(name, newEntry);
+	      });
+	    });
+	    return map;
+	  }
+	  isChildAllowed(parent, child) {
+	    const parentName = BBCodeScheme.getTagName(parent);
+	    const childName = BBCodeScheme.getTagName(child);
+	    if (main_core.Type.isStringFilled(parentName) && main_core.Type.isStringFilled(childName)) {
+	      if (parentName === '#fragment') {
+	        return true;
+	      }
+	      const parentChildMap = this.getParentChildMap();
+	      const parentMap = parentChildMap.get(parentName);
+	      const childMap = parentChildMap.get(childName);
+	      if (main_core.Type.isPlainObject(parentMap) && main_core.Type.isPlainObject(childMap)) {
+	        return (parentMap.allowedChildren.size === 0 || [...childMap.aliases].some(name => {
+	          return parentMap.allowedChildren.has(name);
+	        })) && (childMap.allowedIn.size === 0 || [...parentMap.aliases].some(name => {
+	          return childMap.allowedIn.has(name);
+	        }));
+	      }
+	    }
+	    return false;
+	  }
+	  createRoot(options = {}) {
+	    return new BBCodeRootNode({
+	      ...options,
+	      scheme: this
+	    });
+	  }
+	  createNode(options) {
+	    if (!main_core.Type.isPlainObject(options)) {
+	      throw new TypeError('options is not a object');
+	    }
+	    if (!main_core.Type.isStringFilled(options.name)) {
+	      throw new TypeError('options.name is required');
+	    }
+	    if (!this.isAllowedTag(options.name)) {
+	      throw new TypeError(`Scheme for "${options.name}" tag is not specified.`);
+	    }
+	    return new BBCodeNode({
+	      ...options,
+	      scheme: this
+	    });
+	  }
+	  createElement(options = {}) {
+	    if (!main_core.Type.isPlainObject(options)) {
+	      throw new TypeError('options is not a object');
+	    }
+	    if (!main_core.Type.isStringFilled(options.name)) {
+	      throw new TypeError('options.name is required');
+	    }
+	    if (!this.isAllowedTag(options.name)) {
+	      throw new TypeError(`Scheme for "${options.name}" tag is not specified.`);
+	    }
+	    return new BBCodeElementNode({
+	      ...options,
+	      scheme: this
+	    });
+	  }
+	  createText(options = {}) {
+	    const preparedOptions = main_core.Type.isPlainObject(options) ? options : {
 	      content: options
-	    } : options;
-	    return new TextNode({
+	    };
+	    return new BBCodeTextNode({
 	      ...preparedOptions,
-	      scheme: this.getScheme()
+	      scheme: this
 	    });
 	  }
-	  createNewLineNode(options = {}) {
-	    const preparedOptions = main_core.Type.isString(options) ? {
+	  createNewLine(options = {}) {
+	    const preparedOptions = main_core.Type.isPlainObject(options) ? options : {
 	      content: options
-	    } : options;
-	    return new NewLineNode({
+	    };
+	    return new BBCodeNewLineNode({
 	      ...preparedOptions,
-	      scheme: this.getScheme()
+	      scheme: this
 	    });
 	  }
-	  createTabNode(options = {}) {
-	    const preparedOptions = main_core.Type.isString(options) ? {
+	  createTab(options = {}) {
+	    const preparedOptions = main_core.Type.isPlainObject(options) ? options : {
 	      content: options
-	    } : options;
-	    return new TabNode({
+	    };
+	    return new BBCodeTabNode({
 	      ...preparedOptions,
-	      scheme: this.getScheme()
+	      scheme: this
 	    });
 	  }
-	  createFragmentNode(options = {}) {
-	    return new FragmentNode({
+	  createFragment(options = {}) {
+	    return new BBCodeFragmentNode({
 	      ...options,
-	      scheme: this.getScheme()
+	      scheme: this
 	    });
 	  }
-	  createNode(options = {}) {
-	    return new Node({
+	}
+	BBCodeScheme.Case = {
+	  LOWER: 'lower',
+	  UPPER: 'upper'
+	};
+
+	class BBCodeTextScheme extends BBCodeNodeScheme {
+	  constructor(options) {
+	    super({
 	      ...options,
-	      scheme: this.getScheme()
+	      name: ['#text']
 	    });
 	  }
 	}
 
-	exports.Node = Node;
-	exports.RootNode = RootNode;
-	exports.ElementNode = ElementNode;
-	exports.FragmentNode = FragmentNode;
-	exports.NewLineNode = NewLineNode;
-	exports.TabNode = TabNode;
-	exports.TextNode = TextNode;
-	exports.ModelFactory = ModelFactory;
-	exports.Tag = Tag;
-	exports.Text = Text;
+	class BBCodeNewLineScheme extends BBCodeNodeScheme {
+	  constructor(options = {}) {
+	    super({
+	      ...options,
+	      name: ['#linebreak']
+	    });
+	  }
+	}
+
+	class BBCodeTabScheme extends BBCodeNodeScheme {
+	  constructor(options) {
+	    super({
+	      ...options,
+	      name: ['#tab']
+	    });
+	  }
+	}
+
+	class DefaultBBCodeScheme extends BBCodeScheme {
+	  constructor(options = {}) {
+	    super({
+	      tagSchemes: [new BBCodeTagScheme({
+	        name: ['b', 'u', 'i', 's'],
+	        group: ['#inline', '#format'],
+	        allowedChildren: ['#text', '#linebreak', '#inline'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: ['span'],
+	        group: ['#inline'],
+	        allowedChildren: ['#text', '#linebreak', '#inline'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: ['img'],
+	        group: ['#inlineBlock'],
+	        allowedChildren: ['#text'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: ['url'],
+	        group: ['#inline'],
+	        allowedChildren: ['#text', '#format', 'img'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: 'p',
+	        group: ['#block'],
+	        allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock'],
+	        stringify: BBCodeTagScheme.defaultBlockStringifier,
+	        allowedIn: ['#root', '#shadowRoot']
+	      }), new BBCodeTagScheme({
+	        name: 'list',
+	        group: ['#block'],
+	        allowedChildren: ['*'],
+	        stringify: BBCodeTagScheme.defaultBlockStringifier,
+	        allowedIn: ['#root', '#shadowRoot'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: ['*'],
+	        allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock'],
+	        stringify: node => {
+	          const openingTag = node.getOpeningTag();
+	          const content = node.getContent().trim();
+	          return `${openingTag}${content}`;
+	        },
+	        allowedIn: ['list']
+	      }), new BBCodeTagScheme({
+	        name: 'table',
+	        group: ['#block'],
+	        allowedChildren: ['tr'],
+	        stringify: BBCodeTagScheme.defaultBlockStringifier,
+	        allowedIn: ['#root', 'quote', 'spoiler'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: 'tr',
+	        allowedChildren: ['th', 'td'],
+	        allowedIn: ['table'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: ['th', 'td'],
+	        group: ['#shadowRoot'],
+	        allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock', '#block'],
+	        allowedIn: ['tr']
+	      }), new BBCodeTagScheme({
+	        name: 'quote',
+	        group: ['#block', '#shadowRoot'],
+	        allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock', '#block'],
+	        allowedIn: ['#root', '#shadowRoot']
+	      }), new BBCodeTagScheme({
+	        name: 'code',
+	        group: ['#block'],
+	        stringify: BBCodeTagScheme.defaultBlockStringifier,
+	        allowedChildren: ['#text', '#linebreak', '#tab'],
+	        allowedIn: ['#root', '#shadowRoot']
+	      }), new BBCodeTagScheme({
+	        name: 'video',
+	        group: ['#inlineBlock'],
+	        allowedChildren: ['#text'],
+	        allowedIn: ['#root', '#shadowRoot', 'p'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: 'spoiler',
+	        group: ['#block', '#shadowRoot'],
+	        allowedChildren: ['#text', '#linebreak', '#inline', '#inlineBlock', '#block'],
+	        allowedIn: ['#root', '#shadowRoot']
+	      }), new BBCodeTagScheme({
+	        name: ['user', 'project', 'department'],
+	        group: ['#inline', '#mention'],
+	        allowedChildren: ['#text', '#format'],
+	        canBeEmpty: false
+	      }), new BBCodeTagScheme({
+	        name: 'disk',
+	        group: ['#inline'],
+	        void: true
+	      }), new BBCodeTagScheme({
+	        name: ['#root']
+	      }), new BBCodeTagScheme({
+	        name: ['#fragment']
+	      }), new BBCodeTagScheme({
+	        name: ['#text']
+	      }), new BBCodeTagScheme({
+	        name: ['#linebreak']
+	      }), new BBCodeTagScheme({
+	        name: ['#tab'],
+	        stringify: () => {
+	          return '';
+	        }
+	      })],
+	      outputTagCase: BBCodeScheme.Case.LOWER,
+	      unresolvedNodesHoisting: true
+	    });
+	    if (main_core.Type.isPlainObject(options)) {
+	      this.setTagSchemes(options.tagSchemes);
+	      this.setOutputTagCase(options.outputTagCase);
+	      this.setUnresolvedNodesHoisting(options.unresolvedNodesHoisting);
+	    }
+	  }
+	}
+
+	exports.BBCodeNode = BBCodeNode;
+	exports.BBCodeRootNode = BBCodeRootNode;
+	exports.BBCodeElementNode = BBCodeElementNode;
+	exports.BBCodeFragmentNode = BBCodeFragmentNode;
+	exports.BBCodeNewLineNode = BBCodeNewLineNode;
+	exports.BBCodeTabNode = BBCodeTabNode;
+	exports.BBCodeTextNode = BBCodeTextNode;
 	exports.BBCodeScheme = BBCodeScheme;
+	exports.BBCodeTagScheme = BBCodeTagScheme;
+	exports.BBCodeTextScheme = BBCodeTextScheme;
+	exports.BBCodeNewLineScheme = BBCodeNewLineScheme;
+	exports.BBCodeTabScheme = BBCodeTabScheme;
+	exports.DefaultBBCodeScheme = DefaultBBCodeScheme;
 
 }((this.BX.UI.Bbcode = this.BX.UI.Bbcode || {}),BX));
 //# sourceMappingURL=model.bundle.js.map

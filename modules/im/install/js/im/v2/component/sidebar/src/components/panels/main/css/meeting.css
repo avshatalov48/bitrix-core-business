@@ -1,5 +1,4 @@
 .bx-im-sidebar-meeting-preview__scope {
-	--im-sidebar-meeting-preview__background_skeleton: url('./images/meeting-skeleton.svg');
 	--im-sidebar-meeting-preview__color_not-active-title: #959ca4;
 }
 
@@ -8,11 +7,6 @@
 	flex-direction: column;
 	height: 117px;
 	padding: 10px 13px 22px 12px;
-}
-
-.bx-im-sidebar-meeting-preview__skeleton {
-	height: 117px;
-	background: var(--im-sidebar-meeting-preview__background_skeleton)
 }
 
 .bx-im-sidebar-meeting-preview__header_container {

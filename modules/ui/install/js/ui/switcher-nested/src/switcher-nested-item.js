@@ -18,6 +18,7 @@ export class SwitcherNestedItem
 	#warning: WarningMessage;
 	#warningMessage: HTMLElement;
 	#isDefault: boolean;
+	#isDisabled: boolean;
 
 	constructor(options: SwitcherNestedItemOptions)
 	{
@@ -29,16 +30,21 @@ export class SwitcherNestedItem
 		this.#settingsTitle = Type.isString(options.settingsTitle) ? options.settingsTitle : null;
 		this.#infoHelperCode = Type.isString(options.infoHelperCode) ? options.infoHelperCode : null;
 		this.#isDefault = Type.isBoolean(options.isDefault) ? options.isDefault : false;
+		this.#isDisabled = Type.isBoolean(options.isDisabled) ? options.isDisabled : false;
 		this.#warningMessage = options.helpMessage;
 
 		Event.bind(
 			this.getSwitcher().getNode(),
 			'click',
 			() => {
-				if (this.#isDefault && !this.getSwitcher().isChecked())
+				if (this.#isDisabled)
+				{
+					this.getWarningMessage().show();
+					this.getSwitcher().check(this.#isChecked, false);
+				}
+				else if (this.#isDefault && !this.getSwitcher().isChecked())
 				{
 					this.getSwitcher().check(true, false);
-					Dom.addClass(this.render(), '--active --checked');
 					this.getWarningMessage().show();
 				}
 			},
@@ -97,12 +103,18 @@ export class SwitcherNestedItem
 			size: SwitcherSize.extraSmall,
 			handlers: {
 				checked: () => { // There is in error in Switcher UI, so we have inversion in event names.
-					Dom.removeClass(this.render(), '--active --checked');
-					EventEmitter.emit(this.getSwitcher(), 'inactive');
+					if (!this.#isDisabled && !this.#isDefault)
+					{
+						Dom.removeClass(this.render(), '--active --checked');
+						EventEmitter.emit(this.getSwitcher(), 'inactive');
+					}
 				},
 				unchecked: () => {
-					Dom.addClass(this.render(), '--active --checked');
-					EventEmitter.emit(this.getSwitcher(), 'active');
+					if (!this.#isDisabled)
+					{
+						Dom.addClass(this.render(), '--active --checked');
+						EventEmitter.emit(this.getSwitcher(), 'active');
+					}
 				},
 			},
 		});

@@ -186,6 +186,7 @@ class IncomingEventManager
 		$status = Dictionary::OUT_ATTENDEES_STATUS[$answer];
 		$attendee?->setStatus($status);
 		$attendee?->setEmail($mailbox['EMAIL'])->setMailto($mailbox['EMAIL']);
+		$attendee?->setName($mailbox['EMAIL'])->setLastName($mailbox['EMAIL']);
 		$attendeesCollection = new AttendeesCollection([$attendee]);
 
 		$replyStatus = OutcomingEventManager::createInstance([

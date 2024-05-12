@@ -7,7 +7,6 @@
 	flex-direction: column;
 	overflow-y: scroll;
 	height: calc(100% - var(--im-sidebar-message-search-detail__height_header));
-	scrollbar-width: thin;
 }
 
 .bx-im-message-search-detail__date-group_container {

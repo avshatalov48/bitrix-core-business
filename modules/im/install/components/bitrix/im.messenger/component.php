@@ -42,6 +42,7 @@ CModule::IncludeModule('voximplant');
 CModule::IncludeModule('disk');
 
 $arParams['DESKTOP'] = isset($arParams['DESKTOP']) && $arParams['DESKTOP'] == 'Y'? 'Y': 'N';
+$arParams['CONTEXT'] = isset($arParams['CONTEXT']) ? $arParams['CONTEXT'] : '';
 
 $arResult = Array();
 
@@ -198,7 +199,7 @@ $arResult['TURN_SERVER_PASSWORD'] = COption::GetOptionString('im', 'turn_server_
 
 $initJs = 'im_web';
 $promoType = \Bitrix\Im\Promotion::DEVICE_TYPE_BROWSER;
-if ($arResult["CONTEXT"] == 'DESKTOP' || $arParams['WITH_DESKTOP'])
+if ($arResult["CONTEXT"] == 'DESKTOP' || (isset($arParams['WITH_DESKTOP']) && $arParams['WITH_DESKTOP']))
 {
 	$initJs = 'im_desktop';
 	$promoType = \Bitrix\Im\Promotion::DEVICE_TYPE_DESKTOP;

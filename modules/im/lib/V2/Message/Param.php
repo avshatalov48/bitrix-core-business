@@ -378,8 +378,8 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 			'ID' => [
 				'primary' => true,
 				'field' => 'paramId',
-				'get' => 'getParamId', /** @see Param::getChatId */
-				'set' => 'setParamId', /** @see Param::setChatId */
+				'get' => 'getParamId', /** @see Param::getParamId */
+				'set' => 'setParamId', /** @see Param::setParamId */
 			],
 			'MESSAGE_ID' => [
 				'field' => 'messageId',

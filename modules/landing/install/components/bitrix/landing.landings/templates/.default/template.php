@@ -55,7 +55,14 @@ Asset::getInstance()->addCSS(
 );
 
 // prepare urls
-$arParams['PAGE_URL_LANDING_ADD'] = $component->getUrlAdd(false);
+$arParams['PAGE_URL_LANDING_ADD_PLUS_BUTTON'] = $component->getUrlAdd(false, [
+	'context_section' => 'pages_list',
+	'context_element' => 'plus_button',
+]);
+$arParams['PAGE_URL_LANDING_ADD_FOLDER_MENU'] = $component->getUrlAdd(false, [
+	'context_section' => 'pages_list',
+	'context_element' => 'folder_menu_link',
+]);
 $arParams['PAGE_URL_LANDING_ADD_SIDEPANEL_CONDITION'] = $component->getUrlAddSidepanelCondition(false);
 
 $sliderConditions = [
@@ -133,7 +140,7 @@ if (!$component->isToolAvailable())
 
 	<?if ($arResult['ACCESS_SITE']['EDIT'] == 'Y'):?>
 	<div class="landing-item landing-item-add-new" style="display: <?=$arResult['IS_DELETED'] ? 'none' : 'block';?>;">
-		<span class="landing-item-inner" data-href="<?= \htmlspecialcharsbx($arParams['PAGE_URL_LANDING_ADD']) ?>">
+		<span class="landing-item-inner" data-href="<?= \htmlspecialcharsbx($arParams['PAGE_URL_LANDING_ADD_PLUS_BUTTON']) ?>">
 			<span class="landing-item-add-new-inner">
 				<span class="landing-item-add-icon"></span>
 				<span class="landing-item-text"><?= Loc::getMessage('LANDING_TPL_ACTION_ADD')?></span>
@@ -300,7 +307,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 									viewSite: '',
 									ID: '<?= $item['ID']?>',
 									title: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($item['TITLE']));?>',
-									createPageUrl: '<?= htmlspecialcharsbx(CUtil::jsEscape($arParams['PAGE_URL_LANDING_ADD'])) ?>',
+									createPageUrl: '<?= htmlspecialcharsbx(CUtil::jsEscape($arParams['PAGE_URL_LANDING_ADD_FOLDER_MENU'])) ?>',
 									publicUrl: '',
 									copyPage: '',
 									deletePage: '',
@@ -643,7 +650,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 						? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC_CHANGED')) ?>'
 						: (
 							params.isFolder
-							? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC_FOLDER')) ?>'
+							? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC_FOLDER_MSGVER_1')) ?>'
 							: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC')) ?>'
 						),
 					disabled: params.isDeleted || params.isPublicationDisabled || (!params.wasModified && params.isActive),
@@ -691,7 +698,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 				},
 				{
 					text: params.isFolder
-						? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC_FOLDER')) ?>'
+						? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC_FOLDER_MSGVER_1')) ?>'
 						: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC')) ?>'
 					,
 					disabled: params.isDeleted || params.isPublicationDisabled || !params.isActive,
@@ -952,37 +959,6 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 								sitePath = sitePath.replace(replace[0], replace[1]);
 							});
 
-							if (
-								event.data.from !== undefined
-								&& typeof BX.Landing.Metrika !== 'undefined'
-							)
-							{
-								var dataFrom = event.data.from.split('|');
-								var appCode = dataFrom[1];
-								var title = dataFrom[2];
-								var previewId = dataFrom[3];
-								if (
-									appCode !== null
-									&& title !== null
-									&& previewId !== null
-								)
-								{
-									var metrikaValue =
-										sitePath
-										+ '?action=templateCreated&app_code='
-										+ appCode
-										+ '&title='
-										+ title
-										+ '&preview_id='
-										+ previewId;
-									var metrika = new BX.Landing.Metrika(true);
-									metrika.sendLabel(
-										null,
-										'templateCreated',
-										metrikaValue
-									);
-								}
-							}
 							gotoSiteButton.setAttribute('href', sitePath);
 							setTimeout(() => {window.location.href = sitePath}, 3000);
 						}

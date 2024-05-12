@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im;
 
+use Bitrix\Imbot\Bot\CopilotChatBot;
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc;
 
@@ -779,7 +780,8 @@ class Bot
 		if (
 			$joinFields['CHAT_TYPE'] != IM_MESSAGE_PRIVATE
 			&& $bot['TYPE'] == self::TYPE_SUPERVISOR
-			&& (empty($joinFields['SILENT_JOIN']) || $joinFields['SILENT_JOIN'] != 'Y') // suppress any system message
+			&& (empty($joinFields['SILENT_JOIN']) || $joinFields['SILENT_JOIN'] !== 'Y') // suppress any system message
+			&& $bot['CODE'] !== CopilotChatBot::BOT_CODE
 		)
 		{
 			\CIMMessenger::Add(Array(

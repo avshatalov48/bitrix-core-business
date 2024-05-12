@@ -23,8 +23,8 @@ endif;
 	$arParams["PERIOD"] = (intval($arParams["PERIOD"]) <= 0 ? 10 : intval($arParams["PERIOD"])); // input params in minuts
 	$arParams["PERIOD"] *= 60;
 	$arParams["SHOW"] = (is_array($arParams["SHOW"]) ? $arParams["SHOW"] : array("BIRTHDAY", "USERS_ONLINE", "STATISTIC"));
-	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
-	$arParams["FORUM_ID"] = (is_array($arParams["FORUM_ID"]) ? $arParams["FORUM_ID"] : array());
+	$arParams["SHOW_FORUM_ANOTHER_SITE"] = (isset($arParams["SHOW_FORUM_ANOTHER_SITE"]) && $arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
+	$arParams["FORUM_ID"] = (isset($arParams["FORUM_ID"]) && is_array($arParams["FORUM_ID"]) ? $arParams["FORUM_ID"] : array());
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
@@ -41,9 +41,9 @@ endif;
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	{
-		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
-		$arParams["CACHE_TIME_USER_STAT"] = intval($arParams["CACHE_TIME_USER_STAT"]);
-		$arParams["CACHE_TIME_FOR_FORUM_STAT"] = intval($arParams["CACHE_TIME_FOR_FORUM_STAT"]);
+		$arParams["CACHE_TIME"] = isset($arParams["CACHE_TIME"]) ? intval($arParams["CACHE_TIME"]) : null;
+		$arParams["CACHE_TIME_USER_STAT"] = isset($arParams["CACHE_TIME_USER_STAT"]) ? intval($arParams["CACHE_TIME_USER_STAT"]) : null;
+		$arParams["CACHE_TIME_FOR_FORUM_STAT"] = isset($arParams["CACHE_TIME_FOR_FORUM_STAT"]) ? intval($arParams["CACHE_TIME_FOR_FORUM_STAT"]) : null;
 	}
 	else
 	{
@@ -78,7 +78,7 @@ $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$component
 /********************************************************************
 				/Default values
 ********************************************************************/
-	
+
 /********************************************************************
 				Data
 ********************************************************************/
@@ -88,9 +88,9 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 	$UserHideOnLine = 0;
 	$Guest = 0;
 	$arFields = array();
-	if ($arParams["FID"] && !$arParams["TID"]) 
+	if ($arParams["FID"] && !$arParams["TID"])
 		$arFields["FORUM_ID"] = $arParams["FID"];
-	elseif ($arParams["TID"]) 
+	elseif ($arParams["TID"])
 		$arFields["TOPIC_ID"] = $arParams["TID"];
 	else
 		$arFields["SITE_ID"] = SITE_ID;
@@ -117,7 +117,7 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 			array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 		if ($db_res && ($res = $db_res->GetNext()))
 		{
-			do 
+			do
 			{
 				if ($res["USER_ID"] > 0)
 				{
@@ -133,7 +133,7 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 				else
 					$Guest = intval($res["COUNT_USER"]);
 			}while ($res = $db_res->GetNext());
-			
+
 			$arUser["GUEST"] = $Guest;
 			$arUser["REGISTER"] = count($arUser["USERS"]) + count($arUser["USERS_HIDDEN"]);
 			$arUser["ALL"] = $arUser["REGISTER"] + $Guest;
@@ -144,7 +144,7 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 			$cache->EndDataCache(array("arUser" => $arUser));
 		}
 	}
-	
+
 	$arResult["USERS"] = $arUser["USERS"];
 	$arResult["USERS_HIDDEN"] = $arUser["USERS_HIDDEN"];
 	$arResult["GUEST"] = $arUser["GUEST"];
@@ -221,22 +221,22 @@ if (in_array("STATISTIC", $arParams["SHOW"]))
 		if (!CForumUser::IsAdmin())
 		{
 			$arFilter = array(
-				"LID" => SITE_ID, 
-				"PERMS" => array($USER->GetGroups(), 'A'), 
+				"LID" => SITE_ID,
+				"PERMS" => array($USER->GetGroups(), 'A'),
 				"ACTIVE" => "Y");
 		}
-		elseif ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y") 
+		elseif ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y")
 		{
 			$arFilter["LID"] = SITE_ID;
 		}
-		
+
 		if (is_array($arParams["FORUM_ID"]) && !empty($arParams["FORUM_ID"]))
 		{
 			$arFilter["@ID"] = $arParams["FORUM_ID"];
 		}
 		if (!empty($arParams["FID"]))
 			$arFilter["ID"] = $arParams["FID"];
-		else 
+		else
 		{
 			$arResult["STATISTIC"]["USERS"] = CUser::GetCount();
 			$arResult["STATISTIC"]["USERS_ON_FORUM"] = CForumUser::CountUsers(false, array("ACTIVE" => "Y"));
@@ -245,14 +245,18 @@ if (in_array("STATISTIC", $arParams["SHOW"]))
 		$db_res = CForumNew::GetListEx(array(), $arFilter);
 		if ($db_res && $res = $db_res->GetNext())
 		{
-			do 
+			if (!isset($arResult["STATISTIC"]["POSTS"]))
+			{
+				$arResult["STATISTIC"]["POSTS"] = 0;
+			}
+			do
 			{
 				$arResult["STATISTIC"]["FORUMS"]++;
-				$arResult["STATISTIC"]["TOPICS"] += intval($res["TOPICS"] ?? 0);
-				$arResult["STATISTIC"]["POSTS"] += intval($res["POSTS"] ?? 0);
+				$arResult["STATISTIC"]["TOPICS"] += intval(isset($res["TOPICS"]) ? $res["TOPICS"] : 0);
+				$arResult["STATISTIC"]["POSTS"] += intval(isset($res["POSTS"]) ? $res["POSTS"] : 0);
 			} while ($res = $db_res->GetNext());
 		}
-		
+
 		if ($arParams["CACHE_TIME_FOR_FORUM_STAT"] > 0)
 		{
 			$cache->StartDataCache($arParams["CACHE_TIME_FOR_FORUM_STAT"], $cache_id, $cache_path);

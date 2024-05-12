@@ -69,13 +69,19 @@ class CBPTaskService extends CBPRuntimeService
 			$where .= ' TASK_ID = '.$id;
 		}
 
+		$dateUpdateSelect = $DB->DateToCharFunction('TU.DATE_UPDATE', 'FULL') . ' as DATE_UPDATE';
+
 		$users = array();
-		$iterator = $DB->Query('SELECT TU.*, U.PERSONAL_PHOTO, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.LOGIN, U.TITLE'
+		$iterator = $DB->Query(
+			'SELECT'
+			.' TU.ID, TU.USER_ID, TU.TASK_ID, TU.STATUS, TU.ORIGINAL_USER_ID, ' . $dateUpdateSelect . ','
+			.' U.PERSONAL_PHOTO, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.LOGIN, U.TITLE'
 			.' FROM b_bp_task_user TU'
 			.' INNER JOIN b_user U ON (U.ID = TU.USER_ID)'
 			.' WHERE '.$where
 			.' ORDER BY TU.DATE_UPDATE DESC'
 		);
+
 		while ($user = $iterator->fetch())
 		{
 			$users[$user['TASK_ID']][] = $user;
@@ -253,7 +259,9 @@ class CBPTaskService extends CBPRuntimeService
 			CBPTaskChangedStatus::Delete
 		);
 		foreach (GetModuleEvents("bizproc", "OnTaskDelete", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($id));
+		{
+			ExecuteModuleEventEx($arEvent, [$id]);
+		}
 	}
 
 	public static function deleteByWorkflow($workflowId, $taskStatus = null)
@@ -297,7 +305,9 @@ class CBPTaskService extends CBPRuntimeService
 				CBPTaskChangedStatus::Delete
 			);
 			foreach (GetModuleEvents("bizproc", "OnTaskDelete", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($taskId));
+			{
+				ExecuteModuleEventEx($arEvent, [$taskId]);
+			}
 		}
 
 		$DB->Query(
@@ -369,6 +379,31 @@ class CBPTaskService extends CBPRuntimeService
 		if (!empty($taskData['USERS_STATUSES']))
 			$users = array_merge($users, array_keys($taskData['USERS_STATUSES']));
 		self::cleanCountersCache($users);
+
+		switch ($status)
+		{
+			case CBPTaskChangedStatus::Add:
+				Bizproc\Workflow\Task\TaskSearchContentTable::add([
+					'TASK_ID' => $taskId,
+					'WORKFLOW_ID' => $taskData['WORKFLOW_ID'],
+					'SEARCH_CONTENT' => $taskData['NAME'] . ' ' . ($taskData['DESCRIPTION'] ?? ''),
+				]);
+				break;
+			case CBPTaskChangedStatus::Update:
+				if (!empty($taskData['NAME']) && !empty($taskData['DESCRIPTION']))
+				{
+					Bizproc\Workflow\Task\TaskSearchContentTable::update(
+						$taskId,
+						[
+							'SEARCH_CONTENT' => $taskData['NAME'] . ' ' . $taskData['DESCRIPTION'],
+						]
+					);
+				}
+				break;
+			case CBPTaskChangedStatus::Delete:
+				Bizproc\Workflow\Task\TaskSearchContentTable::delete($taskId);
+				break;
+		}
 
 		//ping document
 		$runtime = CBPRuntime::GetRuntime();
@@ -606,7 +641,9 @@ class CBPTaskService extends CBPRuntimeService
 			self::onTaskChange($taskId, $arFields, CBPTaskChangedStatus::Add);
 
 			foreach (GetModuleEvents("bizproc", "OnTaskAdd", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($taskId, $arFields));
+			{
+				ExecuteModuleEventEx($arEvent, [$taskId, $arFields]);
+			}
 		}
 
 		return $taskId;
@@ -714,6 +751,7 @@ class CBPTaskService extends CBPRuntimeService
 		$arFields['COUNTERS_DECREMENTED'] = $decremented;
 
 		self::onTaskChange($id, $arFields, CBPTaskChangedStatus::Update);
+
 		return $id;
 	}
 
@@ -730,6 +768,7 @@ class CBPTaskService extends CBPRuntimeService
 			"ACTIVITY" => array("FIELD" => "T.ACTIVITY", "TYPE" => "string"),
 			"ACTIVITY_NAME" => array("FIELD" => "T.ACTIVITY_NAME", "TYPE" => "string"),
 			"MODIFIED" => array("FIELD" => "T.MODIFIED", "TYPE" => "datetime"),
+			'CREATED_DATE' => ['FIELD' => 'T.CREATED_DATE', 'TYPE' => 'datetime'],
 			"OVERDUE_DATE" => array("FIELD" => "T.OVERDUE_DATE", "TYPE" => "datetime"),
 			"NAME" => array("FIELD" => "T.NAME", "TYPE" => "string"),
 			"DESCRIPTION" => array("FIELD" => "T.DESCRIPTION", "TYPE" => "string"),
@@ -883,22 +922,22 @@ class CBPTaskResult extends CDBResult
 		$text = preg_replace_callback("#\[img\](.+?)\[/img\]#i", array($this, "ConvertBCodeImageTag"), $text);
 
 		$text = preg_replace_callback(
-			"/\[url\]([^\]]+?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER,
+			"/\[url\]([^\]]+?)\[\/url\]/iu",
 			array($this, "ConvertBCodeAnchorTag"),
 			$text
 		);
 		$text = preg_replace_callback(
-			"/\[url\s*=\s*([^\]]+?)\s*\](.*?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER,
+			"/\[url\s*=\s*([^\]]+?)\s*\](.*?)\[\/url\]/iu",
 			array($this, "ConvertBCodeAnchorTag"),
 			$text
 		);
 
 		$text = preg_replace(
 			array(
-				"/\[b\](.+?)\[\/b\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\[i\](.+?)\[\/i\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\[s\](.+?)\[\/s\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\[u\](.+?)\[\/u\]/is".BX_UTF_PCRE_MODIFIER
+				"/\[b\](.+?)\[\/b\]/isu",
+				"/\[i\](.+?)\[\/i\]/isu",
+				"/\[s\](.+?)\[\/s\]/isu",
+				"/\[u\](.+?)\[\/u\]/isu"
 			),
 			array(
 				"<b>\\1</b>",
@@ -925,17 +964,17 @@ class CBPTaskResult extends CDBResult
 		if ($url == '')
 			return "";
 
-		$extension = preg_replace("/^.*\.(\S+)$/".BX_UTF_PCRE_MODIFIER, "\\1", $url);
+		$extension = preg_replace("/^.*\.(\S+)$/u", "\\1", $url);
 		$extension = mb_strtolower($extension);
 		$extension = preg_quote($extension, "/");
 
 		$bErrorIMG = False;
 
-		if (preg_match("/[?&;]/".BX_UTF_PCRE_MODIFIER, $url))
+		if (preg_match("/[?&;]/u", $url))
 			$bErrorIMG = True;
-		if (!$bErrorIMG && !preg_match("/$extension(\||\$)/".BX_UTF_PCRE_MODIFIER, "gif|jpg|jpeg|png"))
+		if (!$bErrorIMG && !preg_match("/$extension(\||\$)/u", "gif|jpg|jpeg|png"))
 			$bErrorIMG = True;
-		if (!$bErrorIMG && !preg_match("/^((http|https|ftp)\:\/\/[-_:.a-z0-9@]+)*(\/[-_+\/=:.a-z0-9@%]+)$/i".BX_UTF_PCRE_MODIFIER, $url))
+		if (!$bErrorIMG && !preg_match("/^((http|https|ftp)\:\/\/[-_:.a-z0-9@]+)*(\/[-_+\/=:.a-z0-9@%]+)$/iu", $url))
 			$bErrorIMG = True;
 
 		if ($bErrorIMG)
@@ -979,25 +1018,25 @@ class CBPTaskResult extends CDBResult
 			$text = str_replace("\\\"", "\"", $text);
 			$end = "";
 
-			if (preg_match("/([\.,\?]|&#33;)$/".BX_UTF_PCRE_MODIFIER, $url, $match))
+			if (preg_match("/([\.,\?]|&#33;)$/u", $url, $match))
 			{
 				$end = $match[1];
-				$url = preg_replace("/([\.,\?]|&#33;)$/".BX_UTF_PCRE_MODIFIER, "", $url);
-				$text = preg_replace("/([\.,\?]|&#33;)$/".BX_UTF_PCRE_MODIFIER, "", $text);
+				$url = preg_replace("/([\.,\?]|&#33;)$/u", "", $url);
+				$text = preg_replace("/([\.,\?]|&#33;)$/u", "", $text);
 			}
 
 			$url = preg_replace(
-				array("/&amp;/".BX_UTF_PCRE_MODIFIER, "/javascript:/i".BX_UTF_PCRE_MODIFIER),
+				array("/&amp;/u", "/javascript:/iu"),
 				array("&", "java script&#58; "),
 				$url
 			);
-			if (mb_substr($url, 0, 1) != "/" && !preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//i".BX_UTF_PCRE_MODIFIER, $url))
+			if (mb_substr($url, 0, 1) != "/" && !preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//iu", $url))
 				$url = 'http://'.$url;
-			if (!preg_match("/^((http|https|news|ftp|aim):\/\/[-_:.a-z0-9@]+)*([^\"\'])+$/i".BX_UTF_PCRE_MODIFIER, $url))
+			if (!preg_match("/^((http|https|news|ftp|aim):\/\/[-_:.a-z0-9@]+)*([^\"\'])+$/iu", $url))
 				return $text." (".$url.")".$end;
 
 			$text = preg_replace(
-				array("/&amp;/i".BX_UTF_PCRE_MODIFIER, "/javascript:/i".BX_UTF_PCRE_MODIFIER),
+				array("/&amp;/iu", "/javascript:/iu"),
 				array("&", "javascript&#58; "),
 				$text
 			);

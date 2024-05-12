@@ -29,20 +29,25 @@ if ($arResult['shouldShowDebugger'] === true): ?>
 					}
 				);
 			};
-			if (window.BX.frameCache)
+
+			if (BX.Type.isUndefined(window.frameCacheVars))
 			{
-				if (window.BX.frameCache.frameDataInserted === true)
+				BX.Event.ready(initializeDebugger);
+			}
+			else
+			{
+				const isCompositeReady = (
+					BX.frameCache?.frameDataInserted === true || !BX.Type.isUndefined(window.frameRequestFail)
+				);
+				if (isCompositeReady)
 				{
 					initializeDebugger();
 				}
 				else
 				{
 					BX.Event.EventEmitter.subscribe('onFrameDataProcessed', initializeDebugger);
+					BX.Event.EventEmitter.subscribe('onFrameDataRequestFail', initializeDebugger);
 				}
-			}
-			else
-			{
-				BX.Event.ready(initializeDebugger);
 			}
 		});
 	</script>

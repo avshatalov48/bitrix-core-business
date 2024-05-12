@@ -48,7 +48,7 @@ if (
 			]
 		);
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(
 			function ()
 			{
@@ -71,7 +71,7 @@ if (
 <?php
 else:
 ?>
-	<style>#workarea-content {background: transparent !important;}</style>
+	<style>#workarea-content {background: transparent !important;} .landing-import-start .landing-popup-import {height: auto}</style>
 	<div class="rest-market-app-install-wrapper">
 		<form id="restMarketAppInstallForm" method="POST">
 			<?=bitrix_sessid_post()?>
@@ -198,7 +198,7 @@ else:
 			</div>
 		</form>
 	</div>
-	<script type="text/javascript">
+	<script>
 		BX.message({
 			"REST_MARKETPLACE_INSTALL_LICENSE_ERROR" : "<?=Loc::getMessage("REST_MARKETPLACE_INSTALL_LICENSE_ERROR")?>",
 			"REST_MARKETPLACE_INSTALL_TOS_ERROR" : "<?=Loc::getMessage("REST_MARKETPLACE_INSTALL_TOS_ERROR")?>",

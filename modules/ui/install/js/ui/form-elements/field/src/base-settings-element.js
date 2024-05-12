@@ -1,7 +1,7 @@
 import {ErrorCollection} from "./error-collection";
 import {BaseSettingsVisitor} from './visitors/base-settings-visitor';
 import {EventEmitter} from 'main.core.events';
-import {Type} from 'main.core';
+import {Dom, Type} from 'main.core';
 
 export class BaseSettingsElement extends EventEmitter
 {
@@ -78,7 +78,10 @@ export class BaseSettingsElement extends EventEmitter
 	{
 		if (child instanceof BaseSettingsElement)
 		{
-			this.#childrenElements.push(child);
+			if (!this.#childrenElements.includes(child))
+			{
+				this.#childrenElements.push(child);
+			}
 			if (Type.isNil(child.getParentElement()))
 			{
 				child.setParentElement(this);
@@ -112,6 +115,23 @@ export class BaseSettingsElement extends EventEmitter
 	accept(visitor: BaseSettingsVisitor)
 	{
 		visitor.visitSettingsElement(this);
+	}
+
+	highlight(): boolean
+	{
+		return false;
+	}
+
+	highlightElement(element: HTMLElement): void
+	{
+		Dom.addClass(element, '--founded-item');
+		setTimeout(() => {
+			Dom.removeClass(element, '--founded-item');
+			Dom.addClass(element, '--after-founded-item');
+			setTimeout(() => {
+				Dom.removeClass(element, '--after-founded-item');
+			}, 5000);
+		}, 0);
 	}
 
 	//#endregion "Renderable" Interface

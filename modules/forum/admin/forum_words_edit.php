@@ -161,13 +161,13 @@ if (!$errorCollection->isEmpty())
 	?></td>
 </tr>
 <tr><td><?=GetMessage("FLTR_REPLACEMENT")?>:</td>
-	<td><input type="text" name="REPLACEMENT" maxlength="255"  value="<?=htmlspecialcharsbx($arFields["REPLACEMENT"])?>"></td></tr>
+	<td><input type="text" name="REPLACEMENT" maxlength="255"  value="<?=isset($arFields["REPLACEMENT"]) ? htmlspecialcharsbx($arFields["REPLACEMENT"]) : null?>"></td></tr>
 <tr class="heading">
 	<td colspan="2"><?=GetMessage("FLTR_DESCRIPTION")?>:</td>
 </tr>
 <tr valign="top">
 	<td colspan="2" align="center">
-		<textarea style="width:60%; height:150px;" name="DESCRIPTION" wrap="VIRTUAL"><?=htmlspecialcharsbx($arFields["DESCRIPTION"])?></textarea>
+		<textarea style="width:60%; height:150px;" name="DESCRIPTION" wrap="VIRTUAL"><?=isset($arFields["DESCRIPTION"]) ? htmlspecialcharsbx($arFields["DESCRIPTION"]) : null?></textarea>
 	</td>
 </tr>
 <?$tabControl->EndTab();?>

@@ -168,7 +168,7 @@ class Dictionary {
 				}
 				else
 				{
-					$letters["multiLetter"]["/".preg_quote($lett["LETTER"])."/is".BX_UTF_PCRE_MODIFIER] = "(".implode("|", $arrRes).")";
+					$letters["multiLetter"]["/".preg_quote($lett["LETTER"])."/isu"] = "(".implode("|", $arrRes).")";
 				}
 			}
 			$letters["singleLetter"]["*"] = "[^".self::NOT_WORD."]*";
@@ -197,14 +197,14 @@ class Dictionary {
 		$word = preg_quote($word);
 		$word = str_replace(array_values($replace1), array_values($letters), $word);
 
-		$word = "/(?<=[".self::NOT_WORD."])(".$word.")(?=[".self::NOT_WORD."])/is".BX_UTF_PCRE_MODIFIER;
+		$word = "/(?<=[".self::NOT_WORD."])(".$word.")(?=[".self::NOT_WORD."])/isu";
 
 		return $word;
 	}
 
 	public function createPattern(string $word) : string
 	{
-		$res = "/(?<=[".self::NOT_WORD."])(".preg_quote($word).")(?=[".self::NOT_WORD."])/is".BX_UTF_PCRE_MODIFIER;
+		$res = "/(?<=[".self::NOT_WORD."])(".preg_quote($word).")(?=[".self::NOT_WORD."])/isu";
 		return $res;
 	}
 }

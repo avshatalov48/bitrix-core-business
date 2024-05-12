@@ -372,3 +372,28 @@ CREATE TABLE b_bp_workflow_meta
 	PRIMARY KEY (ID),
 	index ix_bp_wf_meta_wf_id(WORKFLOW_ID)
 );
+
+CREATE TABLE b_bp_workflow_filter
+(
+	WORKFLOW_ID varchar(32) NOT NULL,
+	MODULE_ID varchar(32) NOT NULL,
+	ENTITY varchar(64) NOT NULL,
+	DOCUMENT_ID varchar(128) NOT NULL,
+	TEMPLATE_ID int NOT NULL,
+	STARTED datetime NOT NULL,
+	primary key (WORKFLOW_ID),
+	index ix_bp_wf_flt_1(DOCUMENT_ID, ENTITY, MODULE_ID),
+	index ix_bp_wf_flt_2(MODULE_ID),
+	index ix_bp_wf_flt_3(TEMPLATE_ID),
+	index ix_bp_wf_flt_4(STARTED)
+);
+
+CREATE TABLE b_bp_task_search_content
+(
+	TASK_ID int NOT NULL,
+	WORKFLOW_ID varchar(32) NOT NULL,
+	SEARCH_CONTENT text NOT NULL,
+	primary key (TASK_ID),
+	index ix_bp_task_search_1(WORKFLOW_ID),
+	fulltext index ix_bp_task_search_2 (SEARCH_CONTENT)
+);

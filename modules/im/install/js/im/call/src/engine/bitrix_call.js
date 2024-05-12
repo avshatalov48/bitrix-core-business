@@ -127,6 +127,7 @@ export class BitrixCall extends AbstractCall
 		this._screenShared = false;
 		this.videoAllowedFrom = UserMnemonic.all;
 		this.direction = EndpointDirection.SendRecv;
+		this.floorRequestActive = false;
 
 		this.userData = config.userData;
 
@@ -661,6 +662,7 @@ export class BitrixCall extends AbstractCall
 
 	requestFloor(requestActive)
 	{
+		this.floorRequestActive = requestActive;
 		this.BitrixCall.raiseHand(requestActive);
 	};
 
@@ -1031,18 +1033,21 @@ export class BitrixCall extends AbstractCall
 		{
 			this._outgoingAnswer.then(() => this.signaling.sendHangup(data));
 		}
-		else
+		else if (reason !== 'SIGNALING_DUPLICATE_PARTICIPANT')
 		{
 			this.signaling.sendHangup(data)
 		}
 
-		// for future reconnections
-		this.reinitPeers();
+		if (reason !== 'SIGNALING_DUPLICATE_PARTICIPANT') {
+			// for future reconnections
+			this.reinitPeers();
+		}
 
 		if (this.BitrixCall)
 		{
 			this.BitrixCall._replaceVideoSharing = false;
 			this.BitrixCall.hangup();
+			this.BitrixCall = null;
 		}
 		else
 		{
@@ -1157,7 +1162,7 @@ export class BitrixCall extends AbstractCall
 
 				this.BitrixCall.connect({
 					roomId: this.id,
-					userData: this.userData[this.userId],
+					userId: this.userId,
 					endpoint: this.connectionData.endpoint,
 					jwt: this.connectionData.jwt,
 					videoBitrate: 1000000,
@@ -1171,6 +1176,7 @@ export class BitrixCall extends AbstractCall
 
 	#onCallConnected()
 	{
+		this.reconnectionEventCount = 0;
 		this.log("Call connected");
 		this.sendTelemetryEvent("connect");
 		this.localUserState = UserState.Connected;
@@ -1368,6 +1374,12 @@ export class BitrixCall extends AbstractCall
 			}
 		}
 	};
+
+	toggleRemoteParticipantVideo(participantIds, showVideo, isPaginateToggle = false) {
+		if (this.BitrixCall) {
+			this.BitrixCall.toggleRemoteParticipantVideo(participantIds, showVideo, isPaginateToggle)
+		}
+	}
 
 	isAnyoneParticipating()
 	{
@@ -1588,7 +1600,7 @@ export class BitrixCall extends AbstractCall
 	#onPullEventHangup = (params) =>
 	{
 		const senderId = params.senderId;
-		if (this.userId == senderId && this.instanceId != params.callInstanceId)
+		if (this.userId === senderId && params.callInstanceId && this.instanceId !== params.callInstanceId)
 		{
 			// Call declined by the same user elsewhere
 			this.runCallback(CallEvent.onLeave, {local: false});
@@ -1911,6 +1923,8 @@ export class BitrixCall extends AbstractCall
 				});
 				break;
 		}
+
+		console.log(`[RemoteMediaAdded]: UserId: ${p.userId}, source: ${t.source === MediaStreamsKinds.Camera ? 'video' : 'audio'}`)
 	};
 
 	#onRemoteMediaRemoved = (p, t) =>
@@ -1934,6 +1948,8 @@ export class BitrixCall extends AbstractCall
 		{
 			peer.removeMediaRenderer(e.mediaRenderer);
 		}
+
+		console.log(`[RemoteMediaRemoved]: UserId: ${p.userId}, source: ${t.source === MediaStreamsKinds.Camera ? 'video' : 'audio'}`)
 	};
 
 	#onRemoteMediaMuteToggled = (p, t) =>
@@ -2101,6 +2117,8 @@ export class BitrixCall extends AbstractCall
 		{
 			this.signaling.sendShowUsers(this.videoAllowedFrom);
 		}
+
+		this.BitrixCall.raiseHand(this.floorRequestActive);
 	}
 
 	#onClientReconnecting = () =>
@@ -2115,8 +2133,33 @@ export class BitrixCall extends AbstractCall
 
 	#onCallDisconnected = (e) =>
 	{
-		this.log("__onCallDisconnected", (e && e.headers ? {headers: e.headers} : null));
+		let logData = {};
+
+		const evt = e && typeof e === 'object' ? e : {}
+		const {headers, leaveInformation} = evt;
+
+		if (headers) {
+			logData = {
+				...logData,
+				headers,
+			}
+		}
+
+		if (leaveInformation) {
+			logData = {
+				...logData,
+				leaveInformation,
+			}
+		}
+
+		this.log("__onCallDisconnected", (Object.keys(logData).length ? logData : null));
+
+		if (this.ready && leaveInformation) {
+			this.hangup(leaveInformation.code, leaveInformation.reason)
+		}
+
 		this.sendTelemetryEvent("disconnect");
+
 		this.localUserState = UserState.Idle;
 
 		this.ready = false;
@@ -2126,7 +2169,6 @@ export class BitrixCall extends AbstractCall
 		this.#hideLocalVideo();
 		this.removeCallEvents();
 		this.unsubscribeHardwareChanges();
-		this.BitrixCall = null;
 
 		// const client = VoxImplant.getInstance();
 		// client.enableSilentLogging(false);
@@ -3072,7 +3114,7 @@ class Peer
 
 	isParticipating()
 	{
-		return ((this.calling || this.ready || this.endpoint) && !this.declined);
+		return ((this.calling || this.ready || this.endpoint || this.participant) && !this.declined);
 	}
 
 	waitForConnectionRestore()
@@ -3144,6 +3186,7 @@ class Peer
 			e.mediaRenderer.element.volume = 0;
 			e.mediaRenderer.element.srcObject = null;
 		}
+
 		this.addMediaRenderer(e.mediaRenderer);
 	}
 

@@ -1,42 +1,55 @@
 import {
-	Node,
-	type NodeOptions,
-	type ContentNode,
-	type ParentNode,
-	type SerializedNode,
-	type SpecialCharNode,
+	BBCodeNode,
+	type BBCodeNodeOptions,
+	type BBCodeContentNode,
+	type BBCodeParentNode,
+	type SerializedBBCodeNode,
+	type BBCodeSpecialCharNode,
 } from './nodes/node';
-import { RootNode, type RootNodeOptions } from './nodes/root-node';
-import { ElementNode } from './nodes/element-node';
-import { FragmentNode } from './nodes/fragment-node';
-import { NewLineNode } from './nodes/new-line-node';
-import { TabNode } from './nodes/tab-node';
-import { TextNode } from './nodes/text-node';
-import { ModelFactory } from './factory/factory';
-import { Tag } from './reference/tag';
-import { Text } from './reference/text';
-import { BBCodeScheme, type BBCodeSchemeOptions } from './scheme/scheme';
+import { BBCodeRootNode, type RootNodeOptions } from './nodes/root-node';
+import { BBCodeElementNode } from './nodes/element-node';
+import { BBCodeFragmentNode } from './nodes/fragment-node';
+import { BBCodeNewLineNode } from './nodes/new-line-node';
+import { BBCodeTabNode } from './nodes/tab-node';
+import { BBCodeTextNode } from './nodes/text-node';
+import { BBCodeScheme, type BBCodeSchemeOptions } from './scheme/bbcode-scheme';
+import { BBCodeTagScheme, type BBCodeTagSchemeOptions } from './scheme/node-schemes/tag-scheme';
+import { BBCodeTextScheme } from './scheme/node-schemes/text-scheme';
+import { BBCodeNewLineScheme } from './scheme/node-schemes/new-line-scheme';
+import { BBCodeTabScheme } from './scheme/node-schemes/tab-scheme';
+import { DefaultBBCodeScheme } from './scheme/default-bbcode-scheme';
+import {
+	type BBCodeNodeConverter,
+	type BBCodeNodeStringifier,
+	type BBCodeNodeSerializer,
+} from './scheme/node-schemes/node-scheme';
 
 export type {
-	NodeOptions,
-	ContentNode,
-	ParentNode,
-	SerializedNode,
+	BBCodeNodeOptions,
+	BBCodeContentNode,
+	BBCodeParentNode,
+	SerializedBBCodeNode,
 	RootNodeOptions,
-	SpecialCharNode,
+	BBCodeSpecialCharNode,
 	BBCodeSchemeOptions,
+	BBCodeTagSchemeOptions,
+	BBCodeNodeConverter,
+	BBCodeNodeStringifier,
+	BBCodeNodeSerializer,
 };
 
 export {
-	Node,
-	RootNode,
-	ElementNode,
-	FragmentNode,
-	NewLineNode,
-	TabNode,
-	TextNode,
-	ModelFactory,
-	Tag,
-	Text,
+	BBCodeNode,
+	BBCodeRootNode,
+	BBCodeElementNode,
+	BBCodeFragmentNode,
+	BBCodeNewLineNode,
+	BBCodeTabNode,
+	BBCodeTextNode,
 	BBCodeScheme,
+	BBCodeTagScheme,
+	BBCodeTextScheme,
+	BBCodeNewLineScheme,
+	BBCodeTabScheme,
+	DefaultBBCodeScheme,
 };

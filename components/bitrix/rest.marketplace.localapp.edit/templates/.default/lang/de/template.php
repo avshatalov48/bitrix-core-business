@@ -5,7 +5,7 @@ $MESS["MP_ADD_APP_TITLE"] = "Neue Anwendung";
 $MESS["MP_APP_ADD_SUCCESS"] = "Anwendung wurde erfolgreich hinzugefügt";
 $MESS["MP_APP_API"] = "Verfügbar nur als Script";
 $MESS["MP_APP_API_DESC"] = "(Service-App ohne Benutzeroberfläche)";
-$MESS["MP_APP_DOC"] = "<a target=_blank href=\"http://www.bitrixsoft.com/rest_help/\">Richtlinien zur Gestaltung von Bitrix24 Anwendungen</a>";
+$MESS["MP_APP_DOC"] = "<a target=_blank href=\"https://www.bitrixsoft.com/rest_help/\">Richtlinien zur Gestaltung von Bitrix24 Anwendungen</a>";
 $MESS["MP_APP_EDIT_SUCCESS"] = "Die Anwendung wurde erfolgreich aktualisiert.";
 $MESS["MP_APP_INFO"] = "Ist das gespeichert, haben Sie den Zugriff auf die Anwendungs-ID und auf Schlüssel der OAuth 2.0, welche die Anwendung nutzen kann<br/>";
 $MESS["MP_APP_MENU_NAME"] = "Name des Menüpunktes";

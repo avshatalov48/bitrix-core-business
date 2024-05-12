@@ -52,7 +52,6 @@ $arFiles = Array();
 $files ??= [];
 if (count($files) > 0)
 {
-	CUtil::decodeURIComponent($files);
 	for($i=0; $i<count($files); $i++)
 	{
 		if(!$USER->CanDoFileOperation('fm_edit_permission',Array($site, $path."/".$files[$i])))
@@ -269,7 +268,7 @@ $tabControl->Begin();
 </tr>
 	<?
 	$bDiff = $bDiff ?? null;
-	//âîçüìåì ìàññèâ ïðàâ äîñòóïà äëÿ âñåé ïàïêè
+	//Ð²Ð¾Ð·ÑŒÐ¼ÐµÐ¼ Ð¼Ð°ÑÑÐ¸Ð² Ð¿Ñ€Ð°Ð² Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ð´Ð»Ñ Ð²ÑÐµÐ¹ Ð¿Ð°Ð¿ÐºÐ¸
 	$CUR_PERM = GetAccessArrTmp($path);
 
 	$arTaskGroupInh = Array();

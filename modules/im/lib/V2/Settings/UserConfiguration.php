@@ -36,7 +36,10 @@ class UserConfiguration
 		$result = new Result();
 		$cache = CacheManager::getUserCache($userId);
 		$bindings = $cache->getValue();
-		if (!empty($bindings))
+		if (
+			!empty($bindings[CacheManager::GENERAL_PRESET])
+			&& !empty($bindings[CacheManager::NOTIFY_PRESET])
+		)
 		{
 			$this->generalPreset = Preset::getInstance($bindings[CacheManager::GENERAL_PRESET]);
 			$this->notifyPreset = Preset::getInstance($bindings[CacheManager::NOTIFY_PRESET]);
@@ -44,16 +47,23 @@ class UserConfiguration
 			return $result->setResult(true);
 		}
 
-		$query =
+		$bindingsUser =
 			OptionUserTable::query()
-				->addSelect('NOTIFY_GROUP_ID', CacheManager::NOTIFY_PRESET)
-				->addSelect('GENERAL_GROUP_ID', CacheManager::GENERAL_PRESET)
+				->addSelect('NOTIFY_GROUP_ID')
+				->addSelect('GENERAL_GROUP_ID')
 				->where('USER_ID', $userId)
 				->setLimit(1)
+		 		->fetchObject()
 		;
+		if ($bindingsUser)
+		{
+			$bindings = [
+				CacheManager::GENERAL_PRESET => $bindingsUser->getGeneralGroupId(),
+				CacheManager::NOTIFY_PRESET => $bindingsUser->getNotifyGroupId(),
+			];
+		}
 
-		$bindings = $query->fetch();
-		if ($bindings === false)
+		if (!$bindings)
 		{
 			$presetId = Configuration::restoreBindings($userId);
 

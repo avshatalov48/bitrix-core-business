@@ -7,10 +7,13 @@ use Bitrix\Bizproc\Api\Data\TaskService\TasksToBeDelegated;
 use Bitrix\Bizproc\Api\Request\TaskService\DelegateTasksRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\DoInlineTasksRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\DoTaskRequest;
-use Bitrix\Bizproc\Api\Request\TaskService\GetUserTasksRequest;
+use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskRequest;
+use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskListRequest;
 use Bitrix\Bizproc\Api\Response;
 use Bitrix\Bizproc\Api\Response\TaskService\DelegateTasksResponse;
-use Bitrix\Bizproc\Api\Response\TaskService\GetUserTasksResponse;
+use Bitrix\Bizproc\Api\Response\TaskService\GetUserTaskListResponse;
+use Bitrix\Bizproc\Result;
+use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Error;
@@ -20,10 +23,8 @@ class TaskService
 {
 	public function __construct(
 		private TaskAccessService $accessService
-		// private UserService $userService,
 	)
-	{
-	}
+	{}
 
 	public function delegateTasks(DelegateTasksRequest $request): DelegateTasksResponse
 	{
@@ -96,15 +97,9 @@ class TaskService
 		return $delegateResponse;
 	}
 
-	public function getTasks(GetUserTasksRequest $request): GetUserTasksResponse
+	public function getTasks(GetUserTaskListRequest $request): GetUserTaskListResponse
 	{
-		// $getCurrentUserResult = $this->userService->getCurrentUser();
-		//		if (!$getCurrentUserResult->isSuccess())
-		//		{
-		//			return GetUserTasksResult::createError($getCurrentUserResult->getErrors()[0]);
-		//		}
-
-		$getTasksResponse = new GetUserTasksResponse();
+		$getTasksResponse = new GetUserTaskListResponse();
 
 		$tasksToGet = null;
 		try
@@ -141,36 +136,7 @@ class TaskService
 		$taskList = [];
 		while ($task = $tasksIterator->fetch())
 		{
-			// todo: create DTO Task
-			$task['STATUS'] = (int)$task['STATUS'];
-			$task['MODIFIED'] = FormatDateFromDB($task['MODIFIED']);
-			$documentId =
-				is_array($task['PARAMETERS']['DOCUMENT_ID'] ?? null)
-					? $task['PARAMETERS']['DOCUMENT_ID']
-					: null
-			;
-			$task['DOCUMENT_URL'] = $documentId ? \CBPDocument::getDocumentAdminPage($documentId) : '';
-
-			$task['MODULE_ID'] = $documentId ? $documentId[0] : '';
-			$task['ENTITY'] = $documentId ? $documentId[1] : '';
-			$task['DOCUMENT_ID'] = $documentId ? $documentId[2] : '';
-			$task['COMPLEX_DOCUMENT_ID'] = $documentId;
-
-			if (isset($arRecord['WORKFLOW_TEMPLATE_NAME']))
-			{
-				$task['WORKFLOW_NAME'] = $task['WORKFLOW_TEMPLATE_NAME']; // compatibility
-			}
-			if (isset($arRecord['WORKFLOW_STARTED']))
-			{
-				$task['WORKFLOW_STARTED'] = FormatDateFromDB($task['WORKFLOW_STARTED']);
-			}
-
-			$controls = \CBPDocument::getTaskControls($task);
-
-			$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
-			$task['FIELDS'] = $controls['FIELDS'] ?? null;
-
-			$taskList[] = $task;
+			$taskList[] = $this->prepareTaskInfo($task);
 		}
 
 		return $getTasksResponse->setData(['tasks' => $taskList]);
@@ -192,29 +158,31 @@ class TaskService
 			$task = \CBPTaskService::GetList(
 				[],
 				[
-					"ID" => $request->taskId,
-					"USER_ID" => $request->userId
+					'ID' => $request->taskId,
+					'USER_ID' => $request->userId
 				],
 				false,
 				false,
 				[
-					"ID",
-					"WORKFLOW_ID",
-					"ACTIVITY",
-					"ACTIVITY_NAME",
-					"MODIFIED",
-					"OVERDUE_DATE",
-					"NAME",
-					"DESCRIPTION",
-					"PARAMETERS",
-					"USER_STATUS",
+					'ID',
+					'WORKFLOW_ID',
+					'ACTIVITY',
+					'ACTIVITY_NAME',
+					'MODIFIED',
+					'OVERDUE_DATE',
+					'NAME',
+					'DESCRIPTION',
+					'PARAMETERS',
+					'USER_STATUS',
 				]
 			)->fetch();
 		}
 
 		if (!$task)
 		{
-			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_NO_TASK')));
+			$this->addUserTaskNotFoundError($result, $request->taskId, $request->userId);
+
+			return $result;
 		}
 
 		if ((int)$task['USER_STATUS'] !== \CBPTaskUserStatus::Waiting)
@@ -222,10 +190,10 @@ class TaskService
 			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_ALREADY_DONE')));
 		}
 
-		$task["PARAMETERS"]["DOCUMENT_ID"] = \CBPStateService::GetStateDocumentId($task['WORKFLOW_ID']);
-		$task["MODULE_ID"] = $task["PARAMETERS"]["DOCUMENT_ID"][0];
-		$task["ENTITY"] = $task["PARAMETERS"]["DOCUMENT_ID"][1];
-		$task["DOCUMENT_ID"] = $task["PARAMETERS"]["DOCUMENT_ID"][2];
+		$task['PARAMETERS']['DOCUMENT_ID'] = \CBPStateService::GetStateDocumentId($task['WORKFLOW_ID']);
+		$task['MODULE_ID'] = $task['PARAMETERS']['DOCUMENT_ID'][0];
+		$task['ENTITY'] = $task['PARAMETERS']['DOCUMENT_ID'][1];
+		$task['DOCUMENT_ID'] = $task['PARAMETERS']['DOCUMENT_ID'][2];
 
 		if (!\CBPDocument::PostTaskForm($task, $request->userId, $request->taskRequest, $errors))
 		{
@@ -269,5 +237,133 @@ class TaskService
 		}
 
 		return $result;
+	}
+
+	public function getUserTask(GetUserTaskRequest $request): Response\TaskService\GetUserTaskResponse
+	{
+		$response = new Response\TaskService\GetUserTaskResponse();
+
+		if ($request->taskId <= 0 || $request->userId <= 0)
+		{
+			$this->addUserTaskNotFoundError($response, 0, $request->userId);
+
+			return $response;
+		}
+
+		$checkAccessResult = $this->accessService->checkViewTasks($request->userId);
+		if (!$checkAccessResult->isSuccess())
+		{
+			return $response->addErrors($checkAccessResult->getErrors());
+		}
+
+		$task = \CBPTaskService::getList(
+			[],
+			['ID' => $request->taskId, 'USER_ID' => $request->userId],
+			false,
+			false,
+			[
+				'ID',
+				'USER_ID',
+				'NAME',
+				'DESCRIPTION',
+				'WORKFLOW_ID',
+				'ACTIVITY',
+				'STATUS',
+				'USER_STATUS',
+				'IS_INLINE',
+				'PARAMETERS',
+				'DELEGATION_TYPE',
+			],
+		)->fetch();
+
+		if (!$task)
+		{
+			$this->addUserTaskNotFoundError($response, $request->taskId, $request->userId);
+
+			return $response;
+		}
+
+		$task = $this->prepareTaskInfo($task);
+
+		return $response->setTask($task);
+	}
+
+	private function addUserTaskNotFoundError(Result $response, int $taskId, int $userId): void
+	{
+		if ($taskId > 0)
+		{
+			$task = TaskTable::getByPrimary($taskId)->fetch();
+			if ($task)
+			{
+				if ((int)$task['STATUS'] !== \CBPTaskStatus::Running)
+				{
+					$response->addError(
+						new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_TASK_ALREADY_DONE'))
+					);
+				}
+				elseif ($this->accessService->isCurrentUser($userId))
+				{
+					$response->addError(
+						new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_CURRENT_USER_NOT_MEMBER'))
+					);
+				}
+				else
+				{
+					$response->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_TARGET_USER_NOT_MEMBER')));
+				}
+
+				return;
+			}
+		}
+
+		$response->addError(
+			new Error(
+				Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_NO_TASK'),
+				'TASK_NOT_FOUND_ERROR'
+			)
+		);
+	}
+
+	private function prepareTaskInfo(array $task): array
+	{
+		$task['STATUS'] = (int)$task['STATUS'];
+
+		if (isset($task['MODIFIED']))
+		{
+			$task['MODIFIED'] = FormatDateFromDB($task['MODIFIED']);
+		}
+
+		$documentId =
+			is_array($task['PARAMETERS']['DOCUMENT_ID'] ?? null)
+				? $task['PARAMETERS']['DOCUMENT_ID']
+				: null
+		;
+		$task['DOCUMENT_URL'] = $documentId ? \CBPDocument::getDocumentAdminPage($documentId) : '';
+
+		$task['MODULE_ID'] = $documentId ? $documentId[0] : '';
+		$task['ENTITY'] = $documentId ? $documentId[1] : '';
+		$task['DOCUMENT_ID'] = $documentId ? $documentId[2] : '';
+		$task['COMPLEX_DOCUMENT_ID'] = $documentId;
+
+		if (isset($arRecord['WORKFLOW_TEMPLATE_NAME']))
+		{
+			$task['WORKFLOW_NAME'] = $task['WORKFLOW_TEMPLATE_NAME']; // compatibility
+		}
+		if (isset($arRecord['WORKFLOW_STARTED']))
+		{
+			$task['WORKFLOW_STARTED'] = FormatDateFromDB($task['WORKFLOW_STARTED']);
+		}
+
+		$controls = \CBPDocument::getTaskControls($task);
+
+		$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
+		$task['FIELDS'] = $controls['FIELDS'] ?? null;
+
+		if (isset($task['DELEGATION_TYPE']))
+		{
+			$task['DELEGATION_TYPE'] = (int)$task['DELEGATION_TYPE'];
+		}
+
+		return $task;
 	}
 }

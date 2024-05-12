@@ -16,7 +16,7 @@ use Bitrix\Main\Localization\Loc;
 CJSCore::init(['lists', 'bp_starter']);
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		BX.Lists['<?=$arResult['JS_OBJECT']?>'] = new BX.Lists.ListsElementAttachedCrm({
 			randomString: '<?=$arResult['RAND_STRING']?>',

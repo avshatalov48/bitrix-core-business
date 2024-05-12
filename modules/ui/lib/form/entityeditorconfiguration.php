@@ -91,11 +91,12 @@ class EntityEditorConfiguration
 			$scope = EntityEditorConfigScope::PERSONAL;
 		}
 
-		$userScopeId = $params['userScopeId'] ?? 0;
+		$userScopeId = (int)($params['userScopeId'] ?? 0);
 
-		$forAllUsers = self::canEditOtherSettings()
-			&& isset($params['forAllUsers'])
-			&& $params['forAllUsers'] === 'Y';
+		$forAllUsers = isset($params['forAllUsers'])
+			&& $params['forAllUsers'] === 'Y'
+			&& self::canEditOtherSettings()
+		;
 
 		if($forAllUsers)
 		{
@@ -127,8 +128,8 @@ class EntityEditorConfiguration
 			);
 		}
 
-		$options = isset($params['options']) && is_array($params['options']) ? $params['options'] : array();
-		if(!empty($options))
+		$options = $params['options'] ?? null;
+		if(is_array($options))
 		{
 			$optionName = static::prepareOptionsName($configID, $scope, $userScopeId);
 			if($scope === EntityEditorConfigScope::COMMON)

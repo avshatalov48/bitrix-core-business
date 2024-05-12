@@ -5,6 +5,7 @@ namespace Bitrix\Bizproc\Debugger\Services;
 use Bitrix\Bizproc\Debugger\Listener;
 use Bitrix\Bizproc\Debugger\Mixins\WriterDebugTrack;
 use Bitrix\Bizproc\Debugger\Session\Manager;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\DateTime;
 
 class TrackingService extends \CBPTrackingService
@@ -39,6 +40,13 @@ class TrackingService extends \CBPTrackingService
 			{
 				$actionNote = $this->preparePropertyForWritingToTrack($actionNote);
 			}
+
+			array_walk_recursive($actionNote, static function (&$value) {
+				if (is_string($value))
+				{
+					$value = Emoji::encode($value);
+				}
+			});
 
 			$actionNote = \Bitrix\Main\Web\Json::encode($actionNote);
 		}

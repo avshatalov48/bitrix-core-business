@@ -139,7 +139,7 @@ while ($arResultItem = $dbResultList->NavNext(true, "f_"))
 	$s = $allowAdminAccess ? "&uid=".intval($arResultItem["USER_ID"]) : "";
 	$row->AddField(
 		"ID",
-		'<a href="bizproc_task.php?id='.$f_ID.$s.'&back_url='.urlencode($APPLICATION->GetCurPageParam("lang=".LANGUAGE_ID, array("lang"))).'" title="'.GetMessage("BPATL_VIEW").'">'.$f_ID.'</a>'
+		'<a href="bizproc_task.php?id='.$f_ID.$s.'&back_url='.urlencode($APPLICATION->GetCurPageParam("lang=".LANGUAGE_ID, array("lang"))).'" title="'.GetMessage("BPATL_VIEW_MSGVER_1").'">'.$f_ID.'</a>'
 	);
 	$row->AddField("NAME", $f_NAME);
 
@@ -180,7 +180,7 @@ while ($arResultItem = $dbResultList->NavNext(true, "f_"))
 	$arActions = Array();
 	$arActions[] = array(
 		"ICON" => "edit",
-		"TEXT" => GetMessage("BPATL_VIEW"),
+		"TEXT" => GetMessage("BPATL_VIEW_MSGVER_1"),
 		"ACTION" => $lAdmin->ActionRedirect('bizproc_task.php?id='.$f_ID.$s.'&back_url='.urlencode($APPLICATION->GetCurPageParam("lang=".LANGUAGE_ID, array("lang"))).''),
 		"DEFAULT" => true
 	);

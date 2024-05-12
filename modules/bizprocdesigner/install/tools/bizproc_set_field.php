@@ -11,9 +11,6 @@ $runtime = CBPRuntime::GetRuntime();
 $runtime->StartRuntime();
 $documentService = $runtime->GetService("DocumentService");
 
-CUtil::DecodeUriComponent($_REQUEST);
-CUtil::DecodeUriComponent($_POST);
-
 if (LANG_CHARSET != "UTF-8" && isset($_REQUEST['Type']['Options']) && is_array($_REQUEST['Type']['Options']))
 {
 	$newarr = array();

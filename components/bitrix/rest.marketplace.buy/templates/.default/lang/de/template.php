@@ -10,7 +10,7 @@ $MESS["MARKETPLACE_APP_DELETE_CONFIRM"] = "Möchten Sie diese Anwendung wirklich
 $MESS["MARKETPLACE_APP_INSTALL"] = "Installieren";
 $MESS["MARKETPLACE_APP_INSTALL_CANCEL"] = "Abbrechen";
 $MESS["MARKETPLACE_APP_POPUP_LOAD"] = "Wird geladen";
-$MESS["MARKETPLACE_APP_INSTALL_PARTNER"] = "Die Anwendung ist nicht mehr verfügbar. Nutzen Sie bitte <a href=\"http://www.bitrix.de/personal/b24marketplace/\">Partner-Account</a>, um ausgeblendete Anwendungen installieren zu können.";
+$MESS["MARKETPLACE_APP_INSTALL_PARTNER"] = "Die Anwendung ist nicht mehr verfügbar. Nutzen Sie bitte <a href=\"https://www.bitrix.de/personal/b24marketplace/\">Partner-Account</a>, um ausgeblendete Anwendungen installieren zu können.";
 $MESS["MARKETPLACE_APP_CLEAN"] = "Einstellungen und Daten der Anwendung löschen";
 $MESS["MARKETPLACE_APP_BUY"] = "Kaufen";
 $MESS["MARKETPLACE_APP_PROLONG"] = "Verlängern";

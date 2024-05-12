@@ -68,7 +68,7 @@ class CForumHTMLPresrnation
 	if (!empty($res_other))
 	{
 		$outPut["body"] .= '
-		<script type="text/javascript">
+		<script>
 			window.'.$prefix.'_popup_window = new ForumPopupMenu("'.$prefix.'_popup_window");
 			'.$JSFile.'
 		</script>

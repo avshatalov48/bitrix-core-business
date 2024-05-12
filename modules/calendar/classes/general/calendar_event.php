@@ -697,6 +697,11 @@ class CCalendarEvent
 
 			CCalendar::ClearCache('event_list');
 
+			if (($entryFields['ACCESSIBILITY'] ?? '') === 'absent')
+			{
+				(new \Bitrix\Calendar\Integration\Intranet\Absence())->cleanCache();
+			}
+
 			$result = $eventId;
 
 			if (!empty($entryFields['LOCATION']))
@@ -734,6 +739,26 @@ class CCalendarEvent
 							$entryFields,
 							$currentEvent['ATTENDEE_LIST'] ?? null
 						]
+					);
+				}
+
+				if (($entryFields['PARENT_ID'] ?? null) === $eventId)
+				{
+					$attendeeListBeforeUpdate =
+						!empty($currentEvent['ATTENDEE_LIST'])
+							? array_map(fn($attendee) => $attendee['id'] ?? 0, $currentEvent['ATTENDEE_LIST'])
+							: []
+					;
+					$attendeesAfterUpdate = !empty($attendees) ? $attendees : [(int)($entryFields['MEETING_HOST'] ?? null)];
+					(new \Bitrix\Calendar\Integration\SocialNetwork\SpaceService())->addEvent(
+						'onAfterCalendarEventUpdate',
+						[
+							'ATTENDEES_CODES_BEFORE_UPDATE' => $currentEvent['ATTENDEES_CODES'] ?? [],
+							'ATTENDEES_CODES_AFTER_UPDATE' => $attendeesCodes,
+							'ATTENDEES_BEFORE_UPDATE' => $attendeeListBeforeUpdate,
+							'ATTENDEES_AFTER_UPDATE' => $attendeesAfterUpdate ?? [],
+							'ID' => $eventId,
+						],
 					);
 				}
 			}
@@ -1197,7 +1222,7 @@ class CCalendarEvent
 
 		while ($event = $queryResult->fetch())
 		{
-			$isFullDay = $event['DT_SKIP_TIME'] === 'Y';
+			$isFullDay = ($event['DT_SKIP_TIME'] ?? null) === 'Y';
 
 			if (!empty($event['DATE_FROM']))
 			{
@@ -1934,7 +1959,7 @@ class CCalendarEvent
 		return $users;
 	}
 
-	public static function GetAttendees($eventIdList = [])
+	public static function GetAttendees($eventIdList = [], $checkDeleted = true)
 	{
 		global $DB;
 		$attendees = [];
@@ -1945,6 +1970,7 @@ class CCalendarEvent
 
 			if (!empty($eventIdList))
 			{
+				$deletedCondition = $checkDeleted ? "CE.DELETED = 'N' AND" : '';
 				$strSql = "
 				SELECT
 					CE.OWNER_ID AS USER_ID,
@@ -1958,7 +1984,7 @@ class CCalendarEvent
 				WHERE
 					CE.ACTIVE = 'Y' AND
 					CE.CAL_TYPE = 'user' AND
-					CE.DELETED = 'N' AND
+					{$deletedCondition}
 					CE.PARENT_ID in (".implode(',', $eventIdList).")";
 
 				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -3518,18 +3544,21 @@ class CCalendarEvent
 
 					if (!empty($currentAttendeesIndex[$attendeeId]))
 					{
-						if (
-							count($changeFields) !== 1
-							|| $changeFields[0]['fieldKey'] !== 'ATTENDEES'
-							|| !$meetingInfo['HIDE_GUESTS']
-						)
+						$mailChangeFields = array_filter($changeFields,
+							static fn (array $field) => !in_array(
+								$field['fieldKey'],
+								['ATTENDEES', 'IMPORTANCE'],
+								true,
+							),
+						);
+						if (!empty($mailChangeFields))
 						{
 							$invitationInfo = (new InvitationInfo(
 								(int)$arFields['ID'],
 								(int)$sender['ID'],
 								(int)$attendeeId,
 								InvitationInfo::TYPE_EDIT,
-								$changeFields
+								$mailChangeFields,
 							))->toArray();
 						}
 					}
@@ -3917,10 +3946,11 @@ class CCalendarEvent
 								], true))
 							{
 								self::SetMeetingStatus([
-			                        'userId' => $userId,
-			                        'eventId' => $entry['ID'],
-			                        'status' => 'N'
-		                        ]);
+									'userId' => $userId,
+									'eventId' => $entry['ID'],
+									'status' => 'N',
+									'doSendMail' => false,
+								]);
 							}
 
 							return true;
@@ -4207,6 +4237,11 @@ class CCalendarEvent
 
 				CCalendar::ClearCache('event_list');
 
+				if (($entry['ACCESSIBILITY'] ?? '') === 'absent')
+				{
+					(new \Bitrix\Calendar\Integration\Intranet\Absence())->cleanCache();
+				}
+
 				(new \Bitrix\Calendar\Integration\SocialNetwork\SpaceService())->addEvent(
 					'onAfterCalendarEventDelete',
 					[
@@ -4240,6 +4275,7 @@ class CCalendarEvent
 
 	public static function SetMeetingStatusEx($params)
 	{
+		$doSendMail = $params['doSendMail'] ?? true;
 		$reccurentMode = isset($params['reccurentMode'])
 			&& in_array($params['reccurentMode'], ['this', 'next', 'all'])
 				? $params['reccurentMode']
@@ -4273,11 +4309,12 @@ class CCalendarEvent
 				)
 				{
 					self::SetMeetingStatus([
-					   'userId' => $params['attendeeId'],
+						'userId' => $params['attendeeId'],
 						'eventId' => $res['recEventId'],
 						'status' => $params['status'],
-						'personalNotification' => true
-				   ]);
+						'personalNotification' => true,
+						'doSendMail' => $doSendMail,
+					]);
 				}
 			}
 
@@ -4296,7 +4333,8 @@ class CCalendarEvent
 						'userId' => $params['attendeeId'],
 						'eventId' => $params['eventId'],
 						'status' => $params['status'],
-						'personalNotification' => true
+						'personalNotification' => true,
+						'doSendMail' => $doSendMail,
 					]);
 				}
 
@@ -4317,7 +4355,8 @@ class CCalendarEvent
 						self::SetMeetingStatus([
 							'userId' => $params['attendeeId'],
 							'eventId' => $ev['ID'],
-							'status' => $params['status']
+							'status' => $params['status'],
+							'doSendMail' => $doSendMail,
 						]);
 					}
 				}
@@ -4329,6 +4368,7 @@ class CCalendarEvent
 				'userId' => $params['attendeeId'] ?? null,
 				'eventId' => $params['eventId'] ?? null,
 				'status' => $params['status'] ?? null,
+				'doSendMail' => $doSendMail,
 			]);
 		}
 	}
@@ -4345,6 +4385,7 @@ class CCalendarEvent
 		global $DB, $CACHE_MANAGER;
 		$userId = $params['userId'] = (int)$params['userId'];
 		$status = mb_strtoupper($params['status']);
+		$doSendMail = $params['doSendMail'] ?? true;
 		$prevStatus = null;
 		if (!in_array($status, ["Q", "Y", "N", "H", "M"], true))
 		{
@@ -4392,11 +4433,20 @@ class CCalendarEvent
 
 			if (ICalUtil::isMailUser($event['MEETING_HOST']))
 			{
-				IncomingEventManager::rehandleRequest([
-					'event' => $event,
-					'userId' => $userId,
-					'answer' => $status === 'Y',
-				]);
+				if (\Bitrix\Main\Config\Option::get('calendar', 'log_mail_send_meeting_status', 'N') === 'Y')
+				{
+					(new Internals\Log\Logger('DEBUG_CALENDAR_MAIL_SEND_MEETING_STATUS'))
+						->log(['eventId' => $event['ID'], 'userId' => $userId, 'status' => $status], 10)
+					;
+				}
+				if ($doSendMail && $prevStatus !== $status)
+				{
+					IncomingEventManager::rehandleRequest([
+						'event' => $event,
+						'userId' => $userId,
+						'answer' => $status === 'Y',
+					]);
+				}
 			}
 
 			$strSql = "UPDATE b_calendar_event SET ".
@@ -4667,6 +4717,11 @@ class CCalendarEvent
 
 			$CACHE_MANAGER->ClearByTag('calendar_user_'.$userId);
 			$CACHE_MANAGER->ClearByTag('calendar_user_'.$event['CREATED_BY']);
+
+			if (($event['ACCESSIBILITY'] ?? '') === 'absent')
+			{
+				(new \Bitrix\Calendar\Integration\Intranet\Absence())->cleanCache();
+			}
 		}
 		else
 		{
@@ -5458,7 +5513,7 @@ class CCalendarEvent
 		return $date;
 	}
 
-	public static function GetRRULEDescription($event, $html = false, $showUntil = true)
+	public static function GetRRULEDescription($event, $html = false, $showUntil = true, $languageId = null)
 	{
 		$res = '';
 		if (!empty($event['RRULE']))
@@ -5475,45 +5530,59 @@ class CCalendarEvent
 				case 'DAILY':
 					if ((int)$event['RRULE']['INTERVAL'] === 1)
 					{
-						$res = GetMessage('EC_RRULE_EVERY_DAY');
+						$res = Loc::getMessage('EC_RRULE_EVERY_DAY', null, $languageId);
 					}
 					else
 					{
-						$res = GetMessage('EC_RRULE_EVERY_DAY_1', array('#DAY#' => $event['RRULE']['INTERVAL']));
+						$res = Loc::getMessage(
+							'EC_RRULE_EVERY_DAY_1',
+							['#DAY#' => $event['RRULE']['INTERVAL']],
+							$languageId
+						);
 					}
 					break;
 				case 'WEEKLY':
 					$daysList = [];
 					foreach ($event['RRULE']['BYDAY'] as $day)
 					{
-						$daysList[] = GetMessage('EC_'.$day);
+						$daysList[] = Loc::getMessage('EC_'.$day, null, $languageId);
 					}
 
 					$daysList = implode(', ', $daysList);
 					if ((int)$event['RRULE']['INTERVAL'] === 1)
 					{
-						$res = GetMessage('EC_RRULE_EVERY_WEEK', [
-							'#DAYS_LIST#' => $daysList
-						]);
+						$res = Loc::getMessage(
+							'EC_RRULE_EVERY_WEEK',
+							['#DAYS_LIST#' => $daysList],
+							$languageId
+						);
 					}
 					else
 					{
-						$res = GetMessage('EC_RRULE_EVERY_WEEK_1', [
-							'#WEEK#' => $event['RRULE']['INTERVAL'],
-							'#DAYS_LIST#' => $daysList
-						]);
+						$res = Loc::getMessage(
+							'EC_RRULE_EVERY_WEEK_1',
+							[
+								'#WEEK#' => $event['RRULE']['INTERVAL'],
+								'#DAYS_LIST#' => $daysList
+							],
+							$languageId
+						);
 					}
 					break;
 				case 'MONTHLY':
 					if ((int)$event['RRULE']['INTERVAL'] === 1)
 					{
-						$res = GetMessage('EC_RRULE_EVERY_MONTH');
+						$res = Loc::getMessage('EC_RRULE_EVERY_MONTH', null, $languageId);
 					}
 					else
 					{
-						$res = GetMessage('EC_RRULE_EVERY_MONTH_1', [
-							'#MONTH#' => $event['RRULE']['INTERVAL']
-						]);
+						$res = Loc::getMessage(
+							'EC_RRULE_EVERY_MONTH_1',
+							[
+								'#MONTH#' => $event['RRULE']['INTERVAL']
+							],
+							$languageId
+						);
 					}
 					break;
 				case 'YEARLY':
@@ -5525,18 +5594,26 @@ class CCalendarEvent
 
 					if ((int)$event['RRULE']['INTERVAL'] === 1)
 					{
-						$res = GetMessage('EC_RRULE_EVERY_YEAR', [
-							'#DAY#' => FormatDate('j', $fromTs), // day
-							'#MONTH#' => FormatDate('n', $fromTs) // month
-						]);
+						$res = Loc::getMessage(
+							'EC_RRULE_EVERY_YEAR',
+							[
+								'#DAY#' => FormatDate('j', $fromTs, false), // day
+								'#MONTH#' => FormatDate('n', $fromTs, false) // month
+							],
+							$languageId
+						);
 					}
 					else
 					{
-						$res = GetMessage('EC_RRULE_EVERY_YEAR_1', [
-							'#YEAR#' => $event['RRULE']['INTERVAL'],
-							'#DAY#' => FormatDate('j', $fromTs), // day
-							'#MONTH#' => FormatDate('n', $fromTs) // month
-						]);
+						$res = Loc::getMessage(
+							'EC_RRULE_EVERY_YEAR_1',
+							[
+								'#YEAR#' => $event['RRULE']['INTERVAL'],
+								'#DAY#' => FormatDate('j', $fromTs, false), // day
+								'#MONTH#' => FormatDate('n', $fromTs, false) // month
+							],
+							$languageId
+						);
 					}
 					break;
 			}
@@ -5552,20 +5629,36 @@ class CCalendarEvent
 
 			if (isset($event['~DATE_FROM']))
 			{
-				$res .= GetMessage('EC_RRULE_FROM', array('#FROM_DATE#' => CCalendar::Date(CCalendar::Timestamp($event['~DATE_FROM']), false)));
+				$res .= Loc::getMessage(
+					'EC_RRULE_FROM',
+					['#FROM_DATE#' => CCalendar::Date(CCalendar::Timestamp($event['~DATE_FROM']), false)],
+					$languageId
+				);
 			}
 			else
 			{
-				$res .= GetMessage('EC_RRULE_FROM', array('#FROM_DATE#' => CCalendar::Date(CCalendar::Timestamp($event['DATE_FROM']), false)));
+				$res .= Loc::getMessage(
+					'EC_RRULE_FROM',
+					['#FROM_DATE#' => CCalendar::Date(CCalendar::Timestamp($event['DATE_FROM']), false)],
+					$languageId
+				);
 			}
 
 			if ($showUntil && ($event['RRULE']['UNTIL'] ?? null) != CCalendar::GetMaxDate())
 			{
-				$res .= ' '.GetMessage('EC_RRULE_UNTIL', array('#UNTIL_DATE#' => CCalendar::Date(CCalendar::Timestamp($event['RRULE']['UNTIL']), false)));
+				$res .= ' ' . Loc::getMessage(
+					'EC_RRULE_UNTIL',
+					['#UNTIL_DATE#' => CCalendar::Date(CCalendar::Timestamp($event['RRULE']['UNTIL']), false)],
+					$languageId
+				);
 			}
 			elseif ($showUntil && (($event['RRULE']['COUNT'] ?? null) > 0))
 			{
-				$res .= ', '.GetMessage('EC_RRULE_COUNT', array('#COUNT#' => $event['RRULE']['COUNT']));
+				$res .= ', ' . Loc::getMessage(
+					'EC_RRULE_COUNT',
+					['#COUNT#' => $event['RRULE']['COUNT']],
+					$languageId
+				);
 			}
 		}
 

@@ -1061,7 +1061,7 @@ class CAllIMContactList
 				'desktop_last_date' => $arUser['DESKTOP_LAST_DATE']?: false,*/
 				'mobile_last_date' => false,
 				'desktop_last_date' => false,
-				'departments' => $getDepartment && is_array($arUser["UF_DEPARTMENT"]) && !empty($arUser["UF_DEPARTMENT"])? array_values($arUser["UF_DEPARTMENT"]): Array(),
+				'departments' => $getDepartment && !empty($arUser["UF_DEPARTMENT"]) && is_array($arUser["UF_DEPARTMENT"])? array_values($arUser["UF_DEPARTMENT"]): Array(),
 				'absent' => self::formatAbsentResult($arUser["ID"]),
 			);
 

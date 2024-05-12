@@ -43,11 +43,6 @@ export const NotificationItem = {
 	{
 		onDoubleClick()
 		{
-			if (this.searchMode)
-			{
-				return;
-			}
-
 			this.$emit('dblclick', this.notificationItem.id);
 		},
 		onConfirmButtonsClick(event)

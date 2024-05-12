@@ -42,7 +42,7 @@ else
 			<td valign="top"><a href="<?= $arResult["PATH_TO_LOG"] ?>"><?= $arResult["BP"]["DOCUMENT_STATE"]["STATE_TITLE"] ?></a></td>
 		</tr>
 		<?
-		if (count($arResult["BP"]["DOCUMENT_STATE_TASKS"]) > 0)
+		if (count($arResult["BP"]["DOCUMENT_STATE_TASKS"] ?? []) > 0)
 		{
 			?>
 			<tr>
@@ -56,7 +56,7 @@ else
 		}
 		?>
 		<?
-		if (count($arResult["BP"]["DOCUMENT_STATE_EVENTS"]) > 0)
+		if (count($arResult["BP"]["DOCUMENT_STATE_EVENTS"] ?? []) > 0)
 		{
 			?>
 			<tr>
@@ -70,7 +70,7 @@ else
 		}
 		?>
 		<?
-		if (count($arResult["Block"]["VISIBLE_FIELDS"]) <= 0 || in_array("NAME", $arResult["Block"]["VISIBLE_FIELDS"]))
+		if (count($arResult["Block"]["VISIBLE_FIELDS"] ?? []) <= 0 || in_array("NAME", $arResult["Block"]["VISIBLE_FIELDS"]))
 		{
 			?>
 			<tr>
@@ -83,7 +83,7 @@ else
 		<?
 		foreach ($arResult["DocumentFields"] as $key => $value)
 		{
-			if (count($arResult["Block"]["VISIBLE_FIELDS"]) > 0 && !in_array($key, $arResult["Block"]["VISIBLE_FIELDS"]))
+			if (count($arResult["Block"]["VISIBLE_FIELDS"] ?? []) > 0 && !in_array($key, $arResult["Block"]["VISIBLE_FIELDS"]))
 				continue;
 			if ($key == "NAME")
 				continue;

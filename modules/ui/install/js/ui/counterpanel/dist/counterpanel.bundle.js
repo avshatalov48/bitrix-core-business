@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_popup,main_core,ui_cnt,main_core_events) {
 	'use strict';
@@ -47,7 +48,6 @@ this.BX = this.BX || {};
 	    this.type = main_core.Type.isString(args.type) ? args.type.toLowerCase() : null;
 	    this.eventsForActive = main_core.Type.isObject(args.eventsForActive) ? args.eventsForActive : {};
 	    this.eventsForUnActive = main_core.Type.isObject(args.eventsForUnActive) ? args.eventsForUnActive : {};
-	    this.hideValue = main_core.Type.isBoolean(args.hideValue) ? args.hideValue : false;
 	    if (main_core.Type.isObject(args.title)) {
 	      this.title = args.title.value ? args.title.value : null;
 	      this.titleOrder = main_core.Type.isNumber(args.title.order) ? args.title.order : null;
@@ -237,7 +237,7 @@ this.BX = this.BX || {};
 					${0}
 					${0}
 				</div>
-			`), type, isValue && !this.hideValue ? _classPrivateMethodGet(this, _getValue, _getValue2).call(this) : '', this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', isValue ? _classPrivateMethodGet(this, _getCross, _getCross2).call(this) : '');
+			`), type, isValue ? _classPrivateMethodGet(this, _getValue, _getValue2).call(this) : '', this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', isValue ? _classPrivateMethodGet(this, _getCross, _getCross2).call(this) : '');
 	        if (this.parent) {
 	          this.layout.container = main_core.Tag.render(_t4 || (_t4 = _`
 					<div class="ui-counter-panel__item">

@@ -44,6 +44,7 @@ class Signaling
 			$config['connectionData'] = $connectionData;
 		}
 
+		$push = null;
 		if (!isset($skipPush[$toUserId]) && $sendPush && !$isBroadcast)
 		{
 			$push = $this->getInvitePush($senderId, $toUserId, $isLegacyMobile, $video);
@@ -65,6 +66,7 @@ class Signaling
 
 		foreach ($toUserIds as $toUserId)
 		{
+			$push = null;
 			$config = [
 				'call' => $this->call->toArray((count($toUserIds) == 1 ? $toUserId : 0)),
 				'users' => $users,
@@ -76,6 +78,11 @@ class Signaling
 				'video' => $video,
 				'logToken' => $this->call->getLogToken($toUserId),
 			];
+			$connectionData = $this->call->getConnectionData($toUserId);
+			if ($connectionData !== null)
+			{
+				$config['connectionData'] = $connectionData;
+			}
 			if (!isset($skipPush[$toUserId]) && $sendPush && !$isBroadcast)
 			{
 				$push = $this->getInvitePush($senderId, $toUserId, $isLegacyMobile, $video);
@@ -85,7 +92,7 @@ class Signaling
 		}
 	}
 
-	protected function getInvitePush(int $senderId, int $toUserId, $isLegacyMobile, $video)
+	protected function getInvitePush(int $senderId, int $toUserId, $isLegacyMobile, $video): array
 	{
 		$users = $this->call->getUsers();
 		$associatedEntity = $this->call->getAssociatedEntity();
@@ -136,45 +143,50 @@ class Signaling
 				'callkit' => true,
 			],
 			'sound' => 'call.aif',
-			'send_immediately' => 'Y'
+			'send_immediately' => 'Y',
 		];
+
+		$connectionData = $this->call->getConnectionData($toUserId);
+		if ($connectionData !== null)
+		{
+			$push['params']['PARAMS']['connectionData'] = $connectionData;
+		}
 
 		return $push;
 	}
 
 	public function sendUsersJoined(int $senderId, array $joinedUsers)
 	{
-		$config = array(
+		$config = [
 			'call' => $this->call->toArray(),
 			'users' => $joinedUsers,
 			'userData' => Util::getUsers($joinedUsers),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds($joinedUsers),
-		);
+		];
 
 		return $this->send('Call::usersJoined', $this->call->getUsers(), $config);
-
 	}
 
 	public function sendUsersInvited(int $senderId, array $toUserIds, array $users)
 	{
-		$config = array(
+		$config = [
 			'call' => $this->call->toArray(),
 			'users' => $users,
 			'userData' => Util::getUsers($users),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds($users),
-		);
+		];
 
 		return $this->send('Call::usersInvited', $toUserIds, $config);
 	}
 
 	public function sendAssociatedEntityReplaced(int $senderId)
 	{
-		$config = array(
+		$config = [
 			'call' => $this->call->toArray(),
 			'senderId' => $senderId,
-		);
+		];
 
 		$toUserIds = $this->call->getUsers();
 
@@ -183,12 +195,12 @@ class Signaling
 
 	public function sendAnswer(int $senderId, $callInstanceId, $isLegacyMobile)
 	{
-		$config = array(
+		$config = [
 			'call' => $this->call->toArray(),
 			'senderId' => $senderId,
 			'callInstanceId' => $callInstanceId,
 			'isLegacyMobile' => $isLegacyMobile,
-		);
+		];
 
 		$toUserIds = array_diff($this->call->getUsers(), [$senderId]);
 		$this->send('Call::answer', $toUserIds, $config, null, 3600);
@@ -211,11 +223,11 @@ class Signaling
 
 	public function sendPing(int $senderId, $requestId)
 	{
-		$config = array(
+		$config = [
 			'requestId' => $requestId,
 			'callId' => $this->call->getId(),
 			'senderId' => $senderId
-		);
+		];
 
 		$toUserIds = $this->call->getUsers();
 		$toUserIds = array_filter($toUserIds, function ($value) use ($senderId) {
@@ -226,39 +238,39 @@ class Signaling
 
 	public function sendNegotiationNeeded(int $senderId, int $toUserId, $restart)
 	{
-		return $this->send('Call::negotiationNeeded', $toUserId, array(
+		return $this->send('Call::negotiationNeeded', $toUserId, [
 			'senderId' => $senderId,
 			'restart' => $restart
-		));
+		]);
 	}
 
 	public function sendConnectionOffer(int $senderId, int $toUserId, string $connectionId, string $offerSdp, string $userAgent)
 	{
-		return $this->send('Call::connectionOffer', $toUserId, array(
+		return $this->send('Call::connectionOffer', $toUserId, [
 			'senderId' => $senderId,
 			'connectionId' => $connectionId,
 			'sdp' => $offerSdp,
 			'userAgent' => $userAgent
-		));
+		]);
 	}
 
 	public function sendConnectionAnswer(int $senderId, int $toUserId, string $connectionId, string $answerSdp, string $userAgent)
 	{
-		return $this->send('Call::connectionAnswer', $toUserId, array(
+		return $this->send('Call::connectionAnswer', $toUserId, [
 			'senderId' => $senderId,
 			'connectionId' => $connectionId,
 			'sdp' => $answerSdp,
 			'userAgent' => $userAgent
-		));
+		]);
 	}
 
 	public function sendIceCandidates(int $senderId, int $toUserId, string $connectionId, array $iceCandidates)
 	{
-		return $this->send('Call::iceCandidate', $toUserId, array(
+		return $this->send('Call::iceCandidate', $toUserId, [
 			'senderId' => $senderId,
 			'connectionId' => $connectionId,
 			'candidates' => $iceCandidates
-		));
+		]);
 	}
 
 	public function sendHangup(int $senderId, array $toUserIds, ?string $callInstanceId, $code = 200)
@@ -334,21 +346,27 @@ class Signaling
 	protected function send(string $command, $users, array $params = [], $push = null, $ttl = 5)
 	{
 		if (!Loader::includeModule('pull'))
+		{
 			return false;
+		}
 
 		if (!isset($params['call']))
+		{
 			$params['call'] = ['ID' => $this->call->getId()];
+		}
 
 		if (!isset($params['callId']))
+		{
 			$params['callId'] = $this->call->getId();
+		}
 
-		\Bitrix\Pull\Event::add($users, array(
+		\Bitrix\Pull\Event::add($users, [
 			'module_id' => 'im',
 			'command' => $command,
 			'params' => $params,
 			'push' => $push,
 			'expiry' => $ttl
-		));
+		]);
 
 		return true;
 	}

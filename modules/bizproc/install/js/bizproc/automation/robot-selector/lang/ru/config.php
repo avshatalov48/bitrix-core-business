@@ -19,7 +19,7 @@ $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_INFORMING_EMPLOYEE'] 
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_EMPLOYEE_CONTROL'] = 'Контроль сотрудников';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_EMPLOYEE_CONTROL_1'] = 'Дадим сигнал руководителю о том, что элемент не двигается, менеджер не перезванивает клиенту и не отвечает на его сообщения. Поставим задачу менеджеру от имени руководителя';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_PAPERWORK'] = 'Оформление документов';
-$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAPERWORK'] = 'Сформируем печатную форму по шаблону для быстрой отправки клиенту';
+$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAPERWORK_MSGVER_1'] = 'Сформируем печатную форму по шаблону для быстрой отправки клиенту';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_PAYMENT'] = 'Оплата товаров и услуг';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAYMENT'] = 'Сформируем и отправим клиенту счет или ссылку на оплату, проконтролируем оплату';
 $MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DELIVERY'] = 'Управление доставкой';

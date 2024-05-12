@@ -651,7 +651,7 @@ export default class TagSelector extends EventEmitter
 
 	getMinHeight(): number
 	{
-		return 33;
+		return 34;
 	}
 
 	setMaxHeight(height: ?number): void

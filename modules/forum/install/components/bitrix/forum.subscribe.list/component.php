@@ -14,9 +14,9 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["UID"] = intval($_REQUEST["UID"]);
+	$arParams["UID"] = isset($_REQUEST["UID"]) ? intval($_REQUEST["UID"]) : null;
 	$arParams["UID"] = intval((!CForumUser::IsAdmin() || $arParams["UID"] <= 0) ? $USER->GetID() : $arParams["UID"]);
-$arParams["ACTION"] = mb_strtoupper($_REQUEST["ACTION"]);
+$arParams["ACTION"] = isset($_REQUEST["ACTION"]) ?  mb_strtoupper($_REQUEST["ACTION"]) : null;
 /***************** URL *********************************************/
 	if (empty($arParams["URL_TEMPLATES_MESSAGE"]) && !empty($arParams["URL_TEMPLATES_READ"]))
 		$arParams["URL_TEMPLATES_MESSAGE"] = $arParams["URL_TEMPLATES_READ"];
@@ -43,7 +43,7 @@ $arParams["ACTION"] = mb_strtoupper($_REQUEST["ACTION"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal(isset($arParams["PAGE_NAVIGATION_WINDOW"]) && $arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 /***************** STANDART ****************************************/
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
@@ -131,22 +131,22 @@ if ($db_res && $res = $db_res->GetNext())
 		$res["START_DATE"] = trim($res["START_DATE"]);
 		if ($res["START_DATE"] <> '')
 			$res["START_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["START_DATE"], CSite::GetDateFormat()));;
-			
+
 		$res["SUBSCRIBE_TYPE"] = (intval($res["TOPIC_ID"]) > 0 ? "TOPIC" : ($res["NEW_TOPIC_ONLY"] == "Y" ? "NEW_TOPIC_ONLY" : "ALL_MESSAGES"));
 		$res["LAST_SEND"] = intval($res["LAST_SEND"]);
-		
-		$res["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"], 
+
+		$res["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"],
 			array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "s"));
 		$res["list"] =  CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], array("FID" => $res["FORUM_ID"]));
-		$res["read_last_send"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
+		$res["read_last_send"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
 			array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "TITLE_SEO" => $res["TITLE_SEO"],  "MID" => intval($res["LAST_SEND"]))).
 				"#message".intval($res["LAST_SEND"]);
-		$res["subscr_delete"] = ForumAddPageParams($arResult["CURRENT_PAGE"], 
+		$res["subscr_delete"] = ForumAddPageParams($arResult["CURRENT_PAGE"],
 						array("SID" => $res["ID"], "ACTION" => "DEL"))."&amp;".bitrix_sessid_get();
 		$res["URL"] = array(
-			"TOPIC" => $res["read"], 
-			"FORUM" => $res["list"], 
-			"LAST_MESSAGE" => $res["read_last_send"], 
+			"TOPIC" => $res["read"],
+			"FORUM" => $res["list"],
+			"LAST_MESSAGE" => $res["read_last_send"],
 			"DELETE" => $res["subscr_delete"]);
 		$arResult["SUBSCRIBE_LIST"][] = $res;
 	}while ($res = $db_res->GetNext());
@@ -177,7 +177,7 @@ if (!empty($arResult["~TOPICS"]))
 foreach($arResult["SUBSCRIBE_LIST"] as $key => $res)
 {
 	$arResult["SUBSCRIBE_LIST"][$key]["FORUM_INFO"] = $arResult["FORUMS"][$res["FORUM_ID"]];
-	$arResult["SUBSCRIBE_LIST"][$key]["TOPIC_INFO"] = $arResult["TOPICS"][$res["TOPIC_ID"]];
+	$arResult["SUBSCRIBE_LIST"][$key]["TOPIC_INFO"] = isset($res["TOPIC_ID"]) ? $arResult["TOPICS"][$res["TOPIC_ID"]] : null;
 }
 /********************************************************************
 				/Data

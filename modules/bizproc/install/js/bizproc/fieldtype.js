@@ -137,7 +137,7 @@
 								},
 							},
 						).then((response) => {
-							const rendered = response.data?.additionalParams;
+							const rendered = response.data?.html;
 
 							if (BX.Type.isArray(rendered))
 							{
@@ -455,13 +455,25 @@
 					break;
 				case 'UF:address':
 					let address = value;
-					const addressMatches = address.match(/(.*)\|[\d.]*;[\d.]*\|?\d*/); // address|0;0|1
-					if (addressMatches)
+					if (BX.Type.isArrayFilled(address))
 					{
-						address = String(addressMatches[1]).trim();
+						address = address[0] ?? '';
 					}
 
-					result = address;
+					if (BX.Type.isStringFilled(address))
+					{
+						const addressMatches = address.match(/(.*)\|[\d.]*;[\d.]*\|?\d*/); // address|0;0|1
+						if (addressMatches)
+						{
+							address = String(addressMatches[1]).trim();
+						}
+
+						result = address;
+					}
+					else
+					{
+						result = '';
+					}
 
 					break;
 				case 'time':

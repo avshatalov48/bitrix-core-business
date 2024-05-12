@@ -92,7 +92,7 @@ class Accessibility
 
 		foreach ($userIds as $userId)
 		{
-			$accessibility[$userId] = array_merge($events[$userId], $absences[$userId]);
+			$accessibility[$userId] = array_merge($events[$userId] ?? [], $absences[$userId] ?? []);
 		}
 
 		return $accessibility;

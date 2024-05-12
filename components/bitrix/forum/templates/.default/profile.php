@@ -3,19 +3,19 @@
 	"bitrix:forum.user.profile.edit",
 	"",
 	array(
-		"UID" => $arResult["UID"],
-		
-		"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"],
-		
-		"USER_PROPERTY" =>  $arParams["USER_PROPERTY"],
-		"SET_NAVIGATION" => $arParams["SET_NAVIGATION"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
+		"UID" => $arResult["UID"] ?? null,
 
-		"CACHE_TIME" => $arParams["CACHE_TIME"],
-		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-		
-		"SET_TITLE" => $arParams["SET_TITLE"],
-		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
+		"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"] ?? null,
+
+		"USER_PROPERTY" =>  $arParams["USER_PROPERTY"] ?? null,
+		"SET_NAVIGATION" => $arParams["SET_NAVIGATION"] ?? null,
+		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"] ?? null,
+
+		"CACHE_TIME" => $arParams["CACHE_TIME"] ?? null,
+		"CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? null,
+
+		"SET_TITLE" => $arParams["SET_TITLE"] ?? null,
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null
 	),
 	$component
 );?><?

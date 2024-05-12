@@ -33,9 +33,9 @@ if (!function_exists("__array_merge"))
 	$arParams["FID"] = intval(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
 	if ($_SERVER['REQUEST_METHOD'] == "POST")
 		$arParams["TID"] = $_POST["TID"];
-	else 
+	else
 		$arParams["TID"] = (empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
-	$arParams["newFID"] = intval($_REQUEST["newFID"]);
+	$arParams["newFID"] = isset($_REQUEST["newFID"]) ? intval($_REQUEST["newFID"]) : null;
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"index" => "",
@@ -94,12 +94,12 @@ $arResult["OK_MESSAGE"] = "";
 $arResult["sessid"] = bitrix_sessid_post();
 $arResult["arForum"] = array("data" => array(), "active" => $arParams["newFID"]);
 $bVarsFromForm = false;
-$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC_MOVE"], 
+$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC_MOVE"],
 	array("FID" => $arParams["FID"], "TID" => $arParams["TID"]));
 $arResult["URL"] = array(
-	"LIST" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], 
-	array("FID" => $arParams["FID"])), 
-	"~LIST" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_LIST"], 
+	"LIST" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"],
+	array("FID" => $arParams["FID"])),
+	"~LIST" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_LIST"],
 	array("FID" => $arParams["FID"])));
 $cache = new CPHPCache();
 $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/");
@@ -110,22 +110,22 @@ $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$component
 /********************************************************************
 				Action
 ********************************************************************/
-if (mb_strtoupper($_REQUEST["action"]) == "MOVE" && check_bitrix_sessid())
+if (isset($_REQUEST["action"]) && mb_strtoupper($_REQUEST["action"]) == "MOVE" && check_bitrix_sessid())
 {
 	$strErrorMessage = "";
 	$strOKMessage = "";
 	$result = false;
 	if (intval($arParams["newFID"])<=0)
 		$strErrorMessage = GetMessage("FM_EMPTY_DEST_FORUM").". \n";
-	else 
+	else
 	{
 		$arResult["FORUM_NEW"] = CForumNew::GetByID($arParams["newFID"]);
 		if (ForumCurrUserPermissions($arParams["newFID"]) < "Q" && ($arResult["FORUM_NEW"]["ALLOW_MOVE_TOPIC"]!="Y"))
 			$strErrorMessage = GetMessage("FM_NO_DEST_FPERMS").". \n";
-		else 
-			$result = CForumTopic::MoveTopic2Forum($topics, $arParams["newFID"], $_REQUEST["leaveLink"]);
+		else
+			$result = CForumTopic::MoveTopic2Forum($topics, $arParams["newFID"], $_REQUEST["leaveLink"] ?? null);
 	}
-	
+
 	if (!$result)
 	{
 		if ($GLOBALS['APPLICATION']->GetException())
@@ -164,25 +164,25 @@ if ($db_res && ($res = $db_res->GetNext()))
 {
 	do
 	{
-		$res["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"], 
+		$res["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"],
 			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "s"));
-		$res["read_last_message"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
+		$res["read_last_message"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
 			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"])))."#message".$res["LAST_MESSAGE_ID"];
 		$res["USER_START_HREF"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => intval($res["USER_START_ID"])));
 		$res["LAST_POSTER_HREF"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => intval($res["LAST_POSTER_ID"])));
-		
+
 		$arResult["TOPICS"][$res["ID"]] = $res;
 	}while ($res = $db_res->GetNext());
 }
 $arParams["TID"] = implode(",", array_keys($arResult["TOPICS"]));
 /************** Forums *********************************************/
 $arFilter = array();
-if ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || !CForumUser::IsAdmin())
+if (isset($arParams["SHOW_FORUM_ANOTHER_SITE"]) && $arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || !CForumUser::IsAdmin())
 	$arFilter["LID"] = SITE_ID;
 if (!empty($arParams["FID_RANGE"]))
 	$arFilter["@ID"] = $arParams["FID_RANGE"];
 if (!CForumUser::IsAdmin()):
-	$arFilter["PERMS"] = array($USER->GetGroups(), 'A'); 
+	$arFilter["PERMS"] = array($USER->GetGroups(), 'A');
 	$arFilter["ACTIVE"] = "Y";
 endif;
 
@@ -200,7 +200,7 @@ if (empty($arForums))
 	$db_res = CForumNew::GetListEx(array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), $arFilter);
 	if ($db_res && ($res = $db_res->GetNext()))
 	{
-		do 
+		do
 		{
 			$arForums[$res["ID"]] = $res;
 		} while ($res = $db_res->GetNext());
@@ -224,7 +224,7 @@ foreach ($arGroupForum as $PARENT_ID => $res)
 {
 	$bResult = true;
 	$res = array("FORUMS" => $res["FORUMS"]);
-	while ($PARENT_ID > 0) 
+	while ($PARENT_ID > 0)
 	{
 		if (!array_key_exists($PARENT_ID, $arResult["GROUPS"]))
 		{
@@ -241,7 +241,7 @@ foreach ($arGroupForum as $PARENT_ID => $res)
 	if ($bResult == true)
 		$arGroups = __array_merge($arGroups, $res);
 }
-$arResult["GROUPS_FORUMS"] = $arGroups;	
+$arResult["GROUPS_FORUMS"] = $arGroups;
 /************** Group Navigation ***********************************/
 if ($arResult["FORUM"]["FORUM_GROUP_ID"] > 0):
 	$PARENT_ID = intval($arResult["FORUM"]["FORUM_GROUP_ID"]);
@@ -262,7 +262,7 @@ endif;
 /************** Custom components **********************************/
 $arResult["arForum"]["data"] = $arResult["FORUMS"];
 $arResult["list"] = $arResult["URL"]["LIST"];
-$arResult["TOPIC"] = $arResult["TOPICS"]; 
+$arResult["TOPIC"] = $arResult["TOPICS"];
 /********************************************************************
 				/Data
 ********************************************************************/

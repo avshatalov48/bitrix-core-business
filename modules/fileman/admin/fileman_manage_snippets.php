@@ -19,10 +19,12 @@ if (isset($_GET['target']) && check_bitrix_sessid())
 			break;
 		case "add":
 		case "edit":
-			CUtil::JSPostUnEscape();
 			$code = isset($_REQUEST['code']) ? $_REQUEST['code'] : '';
 			if (CFileman::IsPHP($code) && !$USER->CanDoOperation('edit_php'))
-				return $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+			{
+				$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+				return;
+			}
 
 			CSnippets::Edit(array(
 				'bNew' => $_REQUEST['target'] == 'add',

@@ -1,0 +1,98 @@
+.ui-popupcomponentsmaker__round-player-box {
+	position: relative;
+}
+
+.ui-popupcomponentmaker__round-player {
+	overflow: hidden;
+	border-radius: var(--ui-border-radius-circle);
+	position: relative;
+	transition: transform 0.2s ease-out;
+	background-size: cover;
+	clip-path: none;
+	border: 1px solid rgba(var(--ui-color-background-primary-rgb), .32);
+	box-sizing: border-box;
+}
+
+.ui-popupcomponentmaker__round-player .ui-progressround {
+	position: absolute;
+	top: 2px;
+}
+
+.ui-popupcomponentmaker__round-player::before {
+	content: "";
+	padding-top: 100%;
+	display: block;
+}
+
+.ui-popupcomponentmaker__round-player video {
+	position: absolute;
+	left: 50%;
+	top: 0;
+	height: 100%;
+	transform: translateX(-50%);
+}
+
+.ui-popupcomponentmaker__round-player-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	display: block;
+	width: 68px;
+	height: 68px;
+	background: url(./images/circle-subtract.svg) no-repeat;
+	background-size: 68px auto;
+	z-index: 5;
+}
+
+.ui-popupcomponentmaker__round-player-btn {
+	display: none;
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	width: 17px;
+	height: 17px;
+	border-radius: var(--ui-border-radius-circle);
+	background: var(--ui-color-palette-blue-50) url(./images/play-button.svg) 1px 3px no-repeat;
+	cursor: pointer;
+	z-index: 2;
+}
+
+.ui-popupcomponentmaker__round-player-btn.--stop-btn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 50%;
+	left: 50%;
+	width: 26px;
+	height: 26px;
+	background: rgba(255, 255, 255, .2);
+	transition: opacity .3s;
+	transform: translate(-50%,-50%);
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .12);
+	opacity: 0;
+	cursor: auto;
+}
+
+.ui-popupcomponentsmaker__round-player-box:not(.--stop):hover .ui-popupcomponentmaker__round-player-btn.--stop-btn {
+	opacity: 1;
+	cursor: pointer;
+}
+
+.ui-popupcomponentmaker__round-player-btn.--stop-btn:before {
+	content: '';
+	display: block;
+	width: 10px;
+	height: 10px;
+	border-radius: 1px;
+	background: rgba(255, 255, 255, .94);
+}
+
+.ui-popupcomponentsmaker__round-player-box.--stop .ui-popupcomponentmaker__round-player {
+	clip-path: polygon( 93.028% 24.517%,93.028% 24.517%,92.541% 24.713%,92.044% 24.891%,91.539% 25.049%,91.025% 25.188%,90.503% 25.306%,89.974% 25.404%,89.438% 25.481%,88.895% 25.536%,88.346% 25.57%,87.791% 25.581%,87.791% 25.581%,85.622% 25.406%,83.564% 24.9%,81.645% 24.089%,79.893% 23.001%,78.335% 21.665%,76.999% 20.107%,75.911% 18.355%,75.1% 16.436%,74.594% 14.378%,74.419% 12.209%,74.419% 12.209%,74.43% 11.654%,74.464% 11.105%,74.519% 10.562%,74.596% 10.026%,74.694% 9.497%,74.812% 8.975%,74.951% 8.461%,75.109% 7.956%,75.287% 7.459%,75.483% 6.972%,75.483% 6.972%,73.207% 5.701%,70.861% 4.546%,68.447% 3.513%,65.97% 2.605%,63.433% 1.825%,60.842% 1.179%,58.198% 0.669%,55.508% 0.3%,52.774% 0.076%,50% 0%,50% 0%,41.89% 0.654%,34.196% 2.549%,27.022% 5.581%,20.471% 9.647%,14.645% 14.645%,9.647% 20.471%,5.581% 27.022%,2.549% 34.196%,0.654% 41.89%,0% 50%,0% 50%,0.654% 58.11%,2.549% 65.804%,5.581% 72.978%,9.647% 79.529%,14.645% 85.355%,20.471% 90.353%,27.022% 94.419%,34.196% 97.451%,41.89% 99.346%,50% 100%,50% 100%,58.11% 99.346%,65.804% 97.451%,72.978% 94.419%,79.529% 90.353%,85.355% 85.355%,90.353% 79.529%,94.419% 72.978%,97.451% 65.804%,99.346% 58.11%,100% 50%,100% 50%,99.924% 47.226%,99.7% 44.492%,99.331% 41.802%,98.821% 39.158%,98.175% 36.567%,97.395% 34.03%,96.487% 31.553%,95.454% 29.139%,94.299% 26.793%,93.028% 24.517% );
+}
+
+.ui-popupcomponentsmaker__round-player-box.--stop .ui-popupcomponentmaker__round-player-btn:not(.--stop-btn) {
+	display: block;
+}

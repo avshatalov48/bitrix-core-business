@@ -19,7 +19,7 @@ if (!CModule::IncludeModule('im'))
 if (intval($USER->GetID()) <= 0 || \Bitrix\Im\User::getInstance()->isConnector())
 {
 	?>
-<script type="text/javascript">
+<script>
 	if (typeof(BXDesktopSystem) != 'undefined')
 		BXDesktopSystem.Login({});
 	else

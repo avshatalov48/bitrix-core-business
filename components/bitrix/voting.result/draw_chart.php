@@ -22,7 +22,7 @@ $sum = 0;
 while ($arAnswer = $res->Fetch())
 {
 	$arChart[] = [
-		"COLOR" => ($arAnswer["COLOR"] <> '' ? TrimEx($arAnswer["COLOR"],"#") : ($color = GetNextRGB($color, $totalRecords))),
+		"COLOR" => ($arAnswer["COLOR"] <> '' ? trim($arAnswer["COLOR"], "#") : ($color = GetNextRGB($color, $totalRecords))),
 		"COUNTER" => $arAnswer["COUNTER"]
 	];
 	$sum += $arAnswer["COUNTER"];

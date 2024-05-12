@@ -408,7 +408,6 @@ export class DelayIntervalSelector
 			<div 
 				class="ui-icon-set --chevron-down bizproc-automation-popup-select__chevron"
 				data-role="chevron_${type}"
-				style="display: none; /* TODO: fix this */"
 			></div>
 		`;
 

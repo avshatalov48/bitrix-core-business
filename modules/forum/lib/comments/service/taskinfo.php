@@ -12,7 +12,7 @@ final class TaskInfo extends Base
 		return static::TYPE;
 	}
 
-	public function getText(string $text = '', array $params = [])
+	public function getText(string $text = '', array $params = []): string
 	{
 		$result = '';
 

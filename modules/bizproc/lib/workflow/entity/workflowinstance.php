@@ -126,6 +126,18 @@ class WorkflowInstanceTable extends Entity\DataManager
 		return array_column($rows, 'ID');
 	}
 
+	public static function countByDocument(array $documentId): int
+	{
+		$documentId = \CBPHelper::ParseDocumentId($documentId);
+		$cnt = static::getCount([
+			'=MODULE_ID' => $documentId[0],
+			'=ENTITY' => $documentId[1],
+			'=DOCUMENT_ID' => $documentId[2]
+		]);
+
+		return $cnt;
+	}
+
 	public static function getIdsByTemplateId(int ...$tplIds)
 	{
 		$filterKeyPrefix = count($tplIds) < 2 ? '=' : '@';

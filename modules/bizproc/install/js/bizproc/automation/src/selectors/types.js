@@ -5,6 +5,7 @@ export type Field = {
 	Type: string,
 	Name: string,
 	ObjectName: string,
+	ObjectId?: string,
 	SystemExpression: string,
 	Expression: string,
 }

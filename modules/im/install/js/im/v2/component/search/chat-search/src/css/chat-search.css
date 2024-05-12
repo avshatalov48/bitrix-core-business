@@ -1,0 +1,9 @@
+.bx-im-chat-search__scope {
+	--im-chat-search__background-color_container: var(--im-recent-background-color, #fff);
+}
+
+.bx-im-chat-search__container {
+	overflow: hidden;
+	background-color: var(--im-chat-search__background-color_container);
+	padding: 16px 0 16px 6px;
+}

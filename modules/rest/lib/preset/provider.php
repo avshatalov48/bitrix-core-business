@@ -608,7 +608,7 @@ class Provider
 									$res = EventTable::add(
 										[
 											'APP_ID' => '',
-											'EVENT_NAME' => toUpper($event),
+											'EVENT_NAME' => mb_strtoupper($event),
 											'EVENT_HANDLER' => $eventHandler,
 											'APPLICATION_TOKEN' => $clientId,
 											'USER_ID' => 0,

@@ -262,6 +262,15 @@ class calendar extends CModule
 			];
 
 			\Bitrix\Main\SiteTemplateTable::add($sharingTemplate);
+
+			$publicEventTemplate = [
+				'SORT' => 0,
+				'SITE_ID' => $siteId,
+				'CONDITION' => "CSite::InDir('/pub/calendar-event/')",
+				'TEMPLATE' => 'calendar_sharing',
+			];
+
+			\Bitrix\Main\SiteTemplateTable::add($publicEventTemplate);
 		}
 
 		return true;
@@ -321,6 +330,8 @@ class calendar extends CModule
 		$eventManager->registerEventHandler('iblock', 'OnAfterIBlockSectionAdd', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'OnAfterIBlockSectionAdd');
 
 		$eventManager->registerEventHandler('ai', 'onTuningLoad', 'calendar', '\Bitrix\Calendar\Integration\AI\Settings', 'onTuningLoad');
+
+		$eventManager->registerEventHandler('forum', 'OnCommentDelete', 'calendar', '\Bitrix\Calendar\Core\Managers\Comment', 'onCommentDeleteHandler');
 	}
 
 	function InstallAgents()
@@ -444,6 +455,8 @@ class calendar extends CModule
 		$eventManager->unregisterEventHandler('iblock', 'OnAfterIBlockSectionAdd', 'calendar', '\Bitrix\Calendar\Watcher\Membership\Handler\Department', 'OnAfterIBlockSectionAdd');
 
 		$eventManager->unregisterEventHandler('ai', 'onTuningLoad', 'calendar', '\Bitrix\Calendar\Integration\AI\Settings', 'onTuningLoad');
+
+		$eventManager->unregisterEventHandler('forum', 'OnCommentDelete', 'calendar', '\Bitrix\Calendar\Core\Managers\Comment', 'onCommentDeleteHandler');
 	}
 
 	function UnInstallAgents()

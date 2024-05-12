@@ -5,21 +5,30 @@ namespace Bitrix\Lists\Workflow;
 use Bitrix\Bizproc\Api\Response\Error;
 use Bitrix\Lists\Api\Request\WorkflowService\StartWorkflowsRequest;
 use Bitrix\Lists\Api\Service\WorkflowService;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 
 final class Starter
 {
 	private WorkflowService $workflowService;
 	private int $currentUserId;
+	private bool $isEnabled;
 	private int $elementId = 0;
 	private array $parameters = [];
 	private array $changedFields = [];
 	private ?int $timeToStart = null;
 
-	private bool $hasTemplatesOnStartup = false;
+	private ?bool $hasTemplatesOnStartup = null;
 
 	public function __construct(array $iBlockInfo, int $currentUserId)
 	{
+		$this->isEnabled = (
+			Loader::includeModule('bizproc')
+			&& \CLists::isBpFeatureEnabled($iBlockInfo['IBLOCK_TYPE_ID'])
+			&& (isset($iBlockInfo['BIZPROC']) && $iBlockInfo['BIZPROC'] === 'Y') // $iBlockInfo['BIZPROC'] != 'N'
+		);
+
 		$this->workflowService = new WorkflowService($iBlockInfo);
 		$this->currentUserId = max($currentUserId, 0);
 	}
@@ -29,6 +38,7 @@ final class Starter
 		if ($elementId > 0)
 		{
 			$this->elementId = $elementId;
+			$this->hasTemplatesOnStartup = null;
 		}
 	}
 
@@ -57,6 +67,18 @@ final class Starter
 		);
 	}
 
+	public function hasTemplatesOnStartup(): bool
+	{
+		if ($this->hasTemplatesOnStartup === null)
+		{
+			$this->hasTemplatesOnStartup = $this->workflowService->hasTemplatesOnStartup(
+				$this->workflowService->getComplexDocumentId($this->elementId)
+			);
+		}
+
+		return $this->hasTemplatesOnStartup;
+	}
+
 	public function setChangedFields(array $changedFields): void
 	{
 		$this->changedFields = $changedFields;
@@ -64,7 +86,7 @@ final class Starter
 
 	public function isEnabled(): bool
 	{
-		return $this->workflowService->isBpEnabled();
+		return $this->isEnabled;
 	}
 
 	public function isRunnable(int $createdBy): Result
@@ -73,18 +95,24 @@ final class Starter
 
 		if (!$this->isEnabled())
 		{
-			return $result->addError(new Error('not available'));
+			return $result->addError(
+				new Error(Loc::getMessage('LISTS_LIB_WORKFLOW_STARTER_BP_NOT_AVAILABLE') ?? '')
+			);
 		}
 
 		$currentUserGroups = $this->getCurrentUserGroups($this->currentUserId > 0 && $this->currentUserId === $createdBy);
 		if (!$this->workflowService->canUserWriteDocument($this->elementId, $this->currentUserId, $currentUserGroups))
 		{
-			return $result->addError(new Error('cant write document'));
+			return $result->addError(
+				new Error(Loc::getMessage('LISTS_LIB_WORKFLOW_STARTER_USER_CANT_WRITE_DOCUMENT') ?? '')
+			);
 		}
 
 		if (!$this->workflowService->isConstantsTuned())
 		{
-			return $result->addError(new Error('constants are not configured'));
+			return $result->addError(
+				new Error(Loc::getMessage('LISTS_LIB_WORKFLOW_STARTER_CONSTANTS_NOT_CONFIGURED') ?? '')
+			);
 		}
 
 		return $result;
@@ -110,7 +138,7 @@ final class Starter
 				$this->elementId,
 				$this->currentUserId,
 				$this->parameters,
-				$this->hasTemplatesOnStartup && !$isNewElement ? $this->changedFields : [],
+				!$isNewElement && $this->hasTemplatesOnStartup() ? $this->changedFields : [],
 				$isNewElement,
 				$this->timeToStart,
 			)

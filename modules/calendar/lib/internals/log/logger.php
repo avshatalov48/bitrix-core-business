@@ -13,7 +13,7 @@ class Logger
 	{
 	}
 
-	public function log(mixed $data): void
+	public function log(mixed $data, int $traceDepth = 6): void
 	{
 		if ($data instanceof Throwable)
 		{
@@ -28,6 +28,6 @@ class Logger
 		$message[] = $data;
 		$message = implode("\n", $message);
 
-		AddMessage2Log($message, static::MODULE_ID);
+		AddMessage2Log($message, static::MODULE_ID, $traceDepth);
 	}
 }

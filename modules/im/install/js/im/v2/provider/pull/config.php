@@ -16,6 +16,8 @@ return [
 		'im.v2.lib.writing',
 		'ui.vue3.vuex',
 		'im.v2.lib.counter',
+		'im.v2.lib.utils',
+		'im.v2.model',
 		'im.v2.lib.user',
 		'im.v2.lib.desktop-api',
 		'im.v2.const',

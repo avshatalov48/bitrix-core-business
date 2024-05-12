@@ -2,7 +2,7 @@
 
 $MESS['BIZPROC_MODULE_NOT_INSTALLED'] = 'Модуль Бизнес-процессы не установлен.';
 $MESS['BIZPROC_GLOBALFIELDS_LIST_ERR_MODE_NOT_DEFINED'] = 'Не задан режим работы компонента.';
-$MESS['BIZPROC_GLOBALFIELDS_LIST_ERR_DOCUMENT_TYPE'] = 'Некорректный тип документа.';
+$MESS['BIZPROC_GLOBALFIELDS_LIST_ERR_DOCUMENT_TYPE_MSGVER_1'] = 'Этот элемент недоступен';
 $MESS['BIZPROC_GLOBALFIELDS_LIST_ERR_CANT_READ_VARIABLE'] = 'Доступ к просмотру списка переменных запрещён.';
 $MESS['BIZPROC_GLOBALFIELDS_LIST_ERR_CANT_READ_CONSTANT'] = 'Доступ к просмотру списка констант запрещён.';
 

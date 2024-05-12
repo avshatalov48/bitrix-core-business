@@ -6,6 +6,7 @@ use Bitrix\Bizproc;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\Runtime\Starter\Context;
@@ -117,10 +118,11 @@ class Runtime
 			$documentType = $this->getTarget()->getDocumentType();
 			$documentId = $this->getTarget()->getDocumentId();
 			$documentComplexId = [$documentType[0], $documentType[1], $documentId];
+			$useForcedTracking = $this->canUseForcedTracking() && !$template->isExternalModified();
 
 			$startParameters = [
 				\CBPDocument::PARAM_TAGRET_USER => null, //Started by System
-				\CBPDocument::PARAM_USE_FORCED_TRACKING => $isDebug || !$template->isExternalModified(),
+				\CBPDocument::PARAM_USE_FORCED_TRACKING => $isDebug || $useForcedTracking,
 				\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT => true,
 				\CBPDocument::PARAM_DOCUMENT_TYPE => $documentType,
 				\CBPDocument::PARAM_DOCUMENT_EVENT_TYPE =>
@@ -402,5 +404,17 @@ class Runtime
 		$categoryName = $categories[$this->target->getDocumentCategory()]['name'];
 
 		return $this->writeDocumentCategoryTrack($workflowId, $categoryName);
+	}
+
+	private function canUseForcedTracking(): bool
+	{
+		static $use;
+
+		if (!isset($use))
+		{
+			$use = Option::get('bizproc', 'automation_no_forced_tracking', 'N') === 'N';
+		}
+
+		return $use;
 	}
 }

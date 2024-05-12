@@ -135,7 +135,7 @@ class CIMEvent
 			$arMentionedUserID = [];
 			if (!empty($description))
 			{
-				preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $description, $mention);
+				preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/isu", $description, $mention);
 				if (!empty($mention))
 				{
 					$arMentionedUserID = array_merge($arMentionedUserID, $mention[1]);
@@ -168,7 +168,7 @@ class CIMEvent
 
 				$arParams["ENTITY_TITLE"] = trim(strip_tags(str_replace(["\r\n","\n","\r"], ' ', $title)));
 				$arParams["ENTITY_MESSAGE"] = trim(strip_tags(str_replace(["\r\n","\n","\r"], ' ', $description)));
-				$arParams["ENTITY_BODY"] = preg_replace('/(.+?)(\r|\n)+.*/is'.BX_UTF_PCRE_MODIFIER,'\\1', $description);
+				$arParams["ENTITY_BODY"] = preg_replace('/(.+?)(\r|\n)+.*/isu','\\1', $description);
 
 				if (
 					(

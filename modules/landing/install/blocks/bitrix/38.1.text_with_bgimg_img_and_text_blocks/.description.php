@@ -87,8 +87,6 @@ return array(
 			'type' => [
 				'display',
 				'background',
-				'background-attachment',
-				'background-size',
 				'padding-top',
 				'padding-bottom',
 				'padding-left',

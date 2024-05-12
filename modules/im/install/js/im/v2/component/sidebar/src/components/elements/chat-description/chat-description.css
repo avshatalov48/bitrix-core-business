@@ -1,0 +1,50 @@
+.bx-im-sidebar-chat-description__container {
+	--im-sidebar-info-preview__background_description-icon: url('data:image/svg+xml,%3Csvg%20width%3D%2218%22%20height%3D%2218%22%20viewBox%3D%220%200%2018%2018%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M17.4621%209.00021C17.4621%204.32663%2013.6738%200.538574%209.00074%200.538574C4.32746%200.538574%200.539062%204.32663%200.539062%209.00021C0.539062%2013.6731%204.32746%2017.4614%209.00074%2017.4614C13.6738%2017.4614%2017.4621%2013.6731%2017.4621%209.00021ZM6.24802%206.90788H9.40127V6.91013H10.2717V12.8428H11.6171V14.026L10.2717%2014.026H7.82464L6.24802%2014.026V12.8428H7.82464V8.10985H6.24802V6.90788ZM8.92792%205.66401C9.67308%205.66401%2010.2771%205.06574%2010.2771%204.32773C10.2771%203.58973%209.67308%202.99146%208.92792%202.99146C8.18276%202.99146%207.57869%203.58973%207.57869%204.32773C7.57869%205.06574%208.18276%205.66401%208.92792%205.66401Z%22%20fill%3D%22%23BDC1C6%22%2F%3E%0A%3C%2Fsvg%3E%0A') no-repeat center;
+	--im-sidebar-info-preview__color_description: #525c69;
+	--im-sidebar-info-preview__color_show-full-description: #2066b0;
+
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	min-height: 34px;
+}
+
+.bx-im-sidebar-chat-description__text-container {
+	display: inline-grid;
+	grid-template-rows: 0fr;
+	grid-template-columns: auto auto;
+	overflow: hidden;
+	transition: 300ms;
+}
+
+.bx-im-sidebar-chat-description__text-container.--expanded {
+	grid-template-rows: 1fr;
+	margin-bottom: 11px;
+}
+
+.bx-im-sidebar-chat-description__icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	background: var(--im-sidebar-info-preview__background_description-icon);
+}
+
+.bx-im-sidebar-chat-description__text {
+	font: var(--im-font-size-md)/16px var(--im-font-family-system);
+	color: var(--im-sidebar-info-preview__color_description);
+	min-height: 18px;
+	margin: 2px 4px 0 10px;
+	padding-bottom: 2px;
+	word-break: break-word;
+}
+
+.bx-im-sidebar-chat-description__show-more-button {
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-sidebar-info-preview__color_show-full-description);
+	outline: none;
+	border: none;
+	background: none;
+	padding: 0;
+	cursor: pointer;
+	margin: 2px 0 6px 30px;
+}

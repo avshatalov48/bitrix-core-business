@@ -3,14 +3,14 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_public,im_v2_component_list_elementList_copilot,im_v2_const,im_v2_lib_logger,im_v2_provider_service) {
+(function (exports,im_public,im_v2_component_list_items_copilot,im_v2_const,im_v2_lib_logger,im_v2_provider_service) {
 	'use strict';
 
 	// @vue/component
 	const CopilotListContainer = {
 	  name: 'CopilotListContainer',
 	  components: {
-	    CopilotList: im_v2_component_list_elementList_copilot.CopilotList
+	    CopilotList: im_v2_component_list_items_copilot.CopilotList
 	  },
 	  emits: ['selectEntity'],
 	  data() {

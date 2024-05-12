@@ -6,7 +6,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 (function (exports,im_v2_component_message_base,im_v2_provider_service) {
 	'use strict';
 
-	const SAMPLE_MESSAGES = ['IM_MESSAGE_COPILOT_CREATION_ACTION_1', 'IM_MESSAGE_COPILOT_CREATION_ACTION_2', 'IM_MESSAGE_COPILOT_CREATION_ACTION_3', 'IM_MESSAGE_COPILOT_CREATION_ACTION_4'];
+	const SAMPLE_MESSAGES = {
+	  IM_MESSAGE_COPILOT_CREATION_ACTION_1: 'plan',
+	  IM_MESSAGE_COPILOT_CREATION_ACTION_2: 'vacancy',
+	  IM_MESSAGE_COPILOT_CREATION_ACTION_3: 'ideas',
+	  IM_MESSAGE_COPILOT_CREATION_ACTION_4: 'letter'
+	};
 
 	// @vue/component
 	const ChatCopilotCreationMessage = {
@@ -24,11 +29,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      required: true
 	    }
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
-	    sampleMessages: () => SAMPLE_MESSAGES,
+	    sampleMessages() {
+	      return Object.keys(SAMPLE_MESSAGES);
+	    },
 	    message() {
 	      return this.item;
 	    },
@@ -42,10 +46,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  methods: {
-	    onMessageClick(text) {
-	      this.getSendingService().sendMessage({
-	        text: this.loc(text),
-	        dialogId: this.dialogId
+	    onMessageClick(promptLangCode) {
+	      void this.getSendingService().sendCopilotPrompt({
+	        text: this.loc(promptLangCode),
+	        dialogId: this.dialogId,
+	        copilot: {
+	          promptCode: SAMPLE_MESSAGES[promptLangCode]
+	        }
 	      });
 	    },
 	    getSendingService() {
@@ -62,7 +69,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withContextMenu="false"
+			:withDefaultContextMenu="false"
 			:withBackground="false"
 		>
 			<div class="bx-im-message-copilot-creation__container">

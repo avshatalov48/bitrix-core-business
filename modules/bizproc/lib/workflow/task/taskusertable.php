@@ -63,6 +63,13 @@ class TaskUserTable extends DataManager
 				TaskTable::class,
 				Join::on('this.TASK_ID', 'ref.ID')
 			),
+			(new \Bitrix\Main\ORM\Fields\Relations\Reference(
+				'USER_TASKS_SEARCH_CONTENT',
+				TaskSearchContentTable::class,
+				Join::on('this.TASK_ID', 'ref.TASK_ID')
+			))
+				->configureJoinType(Join::TYPE_INNER)
+			,
 		];
 	}
 

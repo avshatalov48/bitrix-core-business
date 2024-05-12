@@ -1013,4 +1013,12 @@
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-settings.svg);
 }
 
+.ui-icon.ui-icon-service-yandex {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-yandex.svg);
+}
+
+.ui-icon.ui-icon-service-yahoo {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-yahoo.svg);
+}
+
 /*endregion*/

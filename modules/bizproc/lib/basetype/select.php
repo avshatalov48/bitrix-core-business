@@ -331,7 +331,7 @@ class Select extends Base
 		$renderResult = '<textarea id="WFSFormOptionsX'.$rnd.'" rows="5" cols="30">'.htmlspecialcharsbx($str).'</textarea><br />';
 		$renderResult .= Loc::getMessage('BPDT_SELECT_OPTIONS1').'<br />';
 		$renderResult .= Loc::getMessage('BPDT_SELECT_OPTIONS2').'<br />';
-		$renderResult .= '<script type="text/javascript">
+		$renderResult .= '<script>
 				function WFSFormOptionsXFunction'.$rnd.'()
 				{
 					var result = {};

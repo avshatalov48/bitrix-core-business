@@ -51,7 +51,7 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	use ContextCustomer;
 
 	public const MESSAGE_MAX_LENGTH = 20000;
-	public const REST_FIELDS = ['ID', 'CHAT_ID', 'AUTHOR_ID', 'DATE_CREATE', 'MESSAGE', 'NOTIFY_EVENT'];
+	public const REST_FIELDS = ['ID', 'CHAT_ID', 'AUTHOR_ID', 'DATE_CREATE', 'MESSAGE', 'NOTIFY_EVENT', 'NOTIFY_READ'];
 
 	protected ?int $messageId = null;
 
@@ -129,8 +129,6 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 	protected ?bool $isUnread = null;
 
 	protected ?bool $isViewed = null;
-
-	protected ?bool $isViewedByOthers = null;
 
 	/** Message additional parameters. */
 	protected Params $params;
@@ -414,23 +412,9 @@ class Message implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity, P
 		return $this->isViewed;
 	}
 
-	public function setViewedByOthers(bool $isViewedByOthers): self
-	{
-		$this->isViewedByOthers = $isViewedByOthers;
-
-		return $this;
-	}
-
 	public function isViewedByOthers(): bool
 	{
-		if (isset($this->isViewedByOthers))
-		{
-			return $this->isViewedByOthers;
-		}
-
-		$this->isViewedByOthers = (new ViewedService())->getMessageStatus($this->getMessageId()) === \IM_MESSAGE_STATUS_DELIVERED;
-
-		return $this->isViewedByOthers;
+		return $this->isNotifyRead() ?? false;
 	}
 
 	public function setBotId(int $botId): self

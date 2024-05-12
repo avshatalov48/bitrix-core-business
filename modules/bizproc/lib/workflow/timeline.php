@@ -132,14 +132,19 @@ class Timeline implements \JsonSerializable
 				: null
 		;
 
+		$documentUrl = $documentService->getDocumentDetailUrl($complexDocumentId);
+
 		return [
+			'documentId' => $complexDocumentId,
 			'documentType' => $complexDocumentType,
 			'moduleName' => $this->getModuleName($complexDocumentId[0] ?? ''),
 			'entityName' => $entityName ?? '',
+			'documentUrl' => empty($documentUrl) ? null : $documentUrl,
 			'documentName' => $documentService->getDocumentName($complexDocumentId) ?? '',
 			'isWorkflowRunning' => $this->isWorkflowRunning(),
 			'timeToStart' => $this->getTimeToStart(),
 			'executionTime' => $this->getExecutionTime(),
+			'workflowModifiedDate' => $this->workflow->getModified()->getTimestamp(),
 			'started' => $this->workflow->getStarted()->getTimestamp(),
 			'startedBy' => $this->workflow->getStartedBy(),
 			'tasks' => $this->getTasks(),

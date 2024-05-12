@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 	'use strict';
 
 	/*!
-	 * portal-vue © Thorsten L?nborg, 2019
+	 * portal-vue Â© Thorsten L?nborg, 2019
 	 *
 	 * Version: 2.1.7
 	 *

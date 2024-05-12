@@ -50,7 +50,7 @@ return [
 			],
 			'.landing-block-node-card-img' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_50.1.NEW_YEAR_NODES_LANDINGBLOCKNODECARD_IMG'),
-				'type' => ['background', 'height-vh', 'background-attachment', 'paddings'],
+				'type' => ['background', 'height-vh', 'paddings'],
 			],
 			'.landing-block-node-card-button' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_50.1.NEW_YEAR_STYLE_LANDINGBLOCKNODECARDBUTTON'),

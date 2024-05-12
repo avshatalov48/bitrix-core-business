@@ -31,7 +31,6 @@ export class SelectInput
 		this.eventHandlers = {
 			click: this.onClick.bind(this),
 			focus: this.onFocus.bind(this),
-			blur: this.onBlur.bind(this),
 			keydown: this.onKeydown.bind(this),
 			change: this.onChangeCallback,
 		};
@@ -122,6 +121,11 @@ export class SelectInput
 				zIndex: this.zIndex,
 				offsetTop: 0,
 				offsetLeft: -1,
+				events: {
+					onPopupShow: this.onPopupShowCallback,
+					onPopupClose: this.onPopupCloseCallback,
+					onPopupDestroy: this.onPopupCloseCallback,
+				},
 			},
 		);
 		this.updateLoader();
@@ -154,7 +158,6 @@ export class SelectInput
 		this.input.select();
 
 		this.shown = true;
-		this.onPopupShowCallback();
 	}
 
 	getMenuItems()
@@ -289,7 +292,6 @@ export class SelectInput
 		MenuManager.destroy(this.id);
 		this.popupMenu = null;
 		this.shown = false;
-		this.onPopupCloseCallback();
 	}
 
 	onFocus()
@@ -314,15 +316,8 @@ export class SelectInput
 		}
 	}
 
-	onBlur()
-	{
-		this.onPopupCloseCallback();
-		setTimeout(BX.delegate(this.closePopup, this), 200);
-	}
-
 	onKeydown()
 	{
-		this.onPopupCloseCallback();
 		setTimeout(BX.delegate(this.closePopup, this), 50);
 	}
 

@@ -1541,7 +1541,6 @@ class CIMChat
 
 			if (CModule::IncludeModule("pull"))
 			{
-				$lastMessageStatuses = $readService->getViewedService()->getMessageStatuses($chat->getLastMessages($endId, $lastId));
 				\Bitrix\Pull\Event::add($this->user_id, Array(
 					'module_id' => 'im',
 					'command' => 'unreadMessageChat',
@@ -1555,7 +1554,6 @@ class CIMChat
 						'lines' => $relation['MESSAGE_TYPE'] === IM_MESSAGE_OPEN_LINE,
 						'unreadTo' => $lastId,
 						'unread' => Im\Recent::isUnread($this->user_id, $relation['MESSAGE_TYPE'], 'chat'.$chatId),
-						'lastMessageStatuses' => $lastMessageStatuses,
 						'lastMessageViews' => Im\Common::toJson($chat->getLastMessageViews()),
 					),
 					'push' => Array('badge' => 'Y'),
@@ -2115,7 +2113,7 @@ class CIMChat
 	{
 		global $DB;
 		$chatId = intval($chatId);
-		$color = ToUpper($color);
+		$color = mb_strtoupper($color);
 
 		if ($chatId <= 0 || !IM\Color::isSafeColor($color))
 		{
@@ -3298,6 +3296,17 @@ class CIMChat
 		));
 		$arUsers = $arUsers['users'];
 
+		if ($arRes['CHAT_TYPE'] === Chat::IM_TYPE_COPILOT)
+		{
+			foreach ($arUsers as $id => $userData)
+			{
+				if ($userData['bot'])
+				{
+					unset($arUserId[$id]);
+				}
+			}
+		}
+
 		if ($extranetFlag !== true)
 		{
 			$isExtranet = false;
@@ -3510,7 +3519,14 @@ class CIMChat
 				$messageParams['FAKE_RELATION'] = (int)array_shift($arUserId);
 			}
 
-			$lastId = self::AddMessage($messageParams);
+			if ($chatType === 'A' && count($arRelation) === 2)
+			{
+				$lastId = 0;
+			}
+			else
+			{
+				$lastId = self::AddMessage($messageParams);
+			}
 		}
 		else
 		{
@@ -3558,6 +3574,16 @@ class CIMChat
 					'CHAT_ID' => $chatId,
 					'NEW_USERS' => $arUserId,
 				]));
+			}
+		}
+
+		if ($chatType === 'A' && count($arRelation) === 2)
+		{
+			$chat = IM\V2\Chat::getInstance($chatId);
+
+			if ($chat instanceof IM\V2\Chat\CopilotChat)
+			{
+				$chat->sendAddedUsersBanner();
 			}
 		}
 

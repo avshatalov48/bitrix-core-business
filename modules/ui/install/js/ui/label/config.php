@@ -9,6 +9,9 @@ return [
 	'js' => 'dist/label.bundle.js',
 	'rel' => [
 		'main.core',
+		'main.loader',
+		'ui.icon-set.api.core',
+		'ui.icon-set.main',
 		'ui.fonts.opensans',
 		'ui.design-tokens',
 	],

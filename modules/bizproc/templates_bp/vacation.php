@@ -1,4 +1,6 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 IncludeModuleLangFile(__FILE__);
 
 class CBPTemplates_Vacation
@@ -210,7 +212,7 @@ class CBPTemplates_Vacation
 																			'FieldValue' => array(
 																				'PROPERTY_approving' => 'y'
 																			),
-																			'Title' => GetMessage("BPT1_BT_SFA12_TITLE")
+																			'Title' => GetMessage("BPT1_BT_SFA12_TITLE_MSGVER_1")
 																		)
 																	),
 																	array(
@@ -239,7 +241,7 @@ class CBPTemplates_Vacation
 															'FieldValue' => array(
 																'PROPERTY_approving' => 'n'
 															),
-															'Title' => GetMessage("BPT1_BT_SFA12_TITLE")
+															'Title' => GetMessage("BPT1_BT_SFA12_TITLE_MSGVER_1")
 														)
 													), 
 													array(
@@ -367,4 +369,3 @@ class CBPTemplates_Vacation
 }
 
 $bpTemplateObject = new CBPTemplates_Vacation();
-?>

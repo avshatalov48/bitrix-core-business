@@ -14,8 +14,6 @@ if($POST_RIGHT=="D")
 $res=false;
 if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Convert"]=="Y")
 {
-	CUtil::JSPostUnescape();
-
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
 	$max_execution_time = intval($max_execution_time);
@@ -78,7 +76,7 @@ else
 
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	?>
-	<script language="JavaScript">
+	<script>
 	var savedNS;
 	var stop;
 	var interval = 0;

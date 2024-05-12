@@ -1,29 +1,29 @@
 <?php
 
 /*
-При добавлении сообщения в форум мы должны отправить всем подписанным пользователям рабочей группы сообщение следующего шаблона:
-Reply-To: email@рабочей.группы
-From: "Автор сообщения" <его@адрес> или "Автор сообщения" <адрес@форума> - в зависимости от настроек
-To: "Участник группы" <его@адрес>
-In-Reply-To: <ИдСообщенияТопика>
-?References: <ИдСообщенияТопика>
-Subject: [RE:] Топик сообщения
+РџСЂРё РґРѕР±Р°РІР»РµРЅРёРё СЃРѕРѕР±С‰РµРЅРёСЏ РІ С„РѕСЂСѓРј РјС‹ РґРѕР»Р¶РЅС‹ РѕС‚РїСЂР°РІРёС‚СЊ РІСЃРµРј РїРѕРґРїРёСЃР°РЅРЅС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј СЂР°Р±РѕС‡РµР№ РіСЂСѓРїРїС‹ СЃРѕРѕР±С‰РµРЅРёРµ СЃР»РµРґСѓСЋС‰РµРіРѕ С€Р°Р±Р»РѕРЅР°:
+Reply-To: email@СЂР°Р±РѕС‡РµР№.РіСЂСѓРїРїС‹
+From: "РђРІС‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ" <РµРіРѕ@Р°РґСЂРµСЃ> РёР»Рё "РђРІС‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ" <Р°РґСЂРµСЃ@С„РѕСЂСѓРјР°> - РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РЅР°СЃС‚СЂРѕРµРє
+To: "РЈС‡Р°СЃС‚РЅРёРє РіСЂСѓРїРїС‹" <РµРіРѕ@Р°РґСЂРµСЃ>
+In-Reply-To: <РРґРЎРѕРѕР±С‰РµРЅРёСЏРўРѕРїРёРєР°>
+?References: <РРґРЎРѕРѕР±С‰РµРЅРёСЏРўРѕРїРёРєР°>
+Subject: [RE:] РўРѕРїРёРє СЃРѕРѕР±С‰РµРЅРёСЏ
 
-Текст сообщения
+РўРµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ
 
 --
-Ссылка на сообщение на КП
+РЎСЃС‹Р»РєР° РЅР° СЃРѕРѕР±С‰РµРЅРёРµ РЅР° РљРџ
 
-При получении сообщения в SMTP или забрали по POP3 запускаем правило, которое ищет по рабочим группам в какую пришло сообщение по адресу:
-Проверяем и находим от кого
-(?)Смотрим на авторизацию?
-Находим тему по In-Reply-To, по Subject
-Тема новая:
-	- Добавляем топик с названием из темы, автором из from, текстом из тела
-	- Храним: идентификатор сообщения в XML_ID, ?ссылку на оригинал сообщение,
-Тема найдена:
-	- Добавляем сообщение в тему, автори из from, дата пропарсенный текст из тела
-	- Храним: идентификатор в XML_ID, (?)ссылку на оригинал сообщения, (?)на какие сообщения ответ
+РџСЂРё РїРѕР»СѓС‡РµРЅРёРё СЃРѕРѕР±С‰РµРЅРёСЏ РІ SMTP РёР»Рё Р·Р°Р±СЂР°Р»Рё РїРѕ POP3 Р·Р°РїСѓСЃРєР°РµРј РїСЂР°РІРёР»Рѕ, РєРѕС‚РѕСЂРѕРµ РёС‰РµС‚ РїРѕ СЂР°Р±РѕС‡РёРј РіСЂСѓРїРїР°Рј РІ РєР°РєСѓСЋ РїСЂРёС€Р»Рѕ СЃРѕРѕР±С‰РµРЅРёРµ РїРѕ Р°РґСЂРµСЃСѓ:
+РџСЂРѕРІРµСЂСЏРµРј Рё РЅР°С…РѕРґРёРј РѕС‚ РєРѕРіРѕ
+(?)РЎРјРѕС‚СЂРёРј РЅР° Р°РІС‚РѕСЂРёР·Р°С†РёСЋ?
+РќР°С…РѕРґРёРј С‚РµРјСѓ РїРѕ In-Reply-To, РїРѕ Subject
+РўРµРјР° РЅРѕРІР°СЏ:
+	- Р”РѕР±Р°РІР»СЏРµРј С‚РѕРїРёРє СЃ РЅР°Р·РІР°РЅРёРµРј РёР· С‚РµРјС‹, Р°РІС‚РѕСЂРѕРј РёР· from, С‚РµРєСЃС‚РѕРј РёР· С‚РµР»Р°
+	- РҐСЂР°РЅРёРј: РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕР±С‰РµРЅРёСЏ РІ XML_ID, ?СЃСЃС‹Р»РєСѓ РЅР° РѕСЂРёРіРёРЅР°Р» СЃРѕРѕР±С‰РµРЅРёРµ,
+РўРµРјР° РЅР°Р№РґРµРЅР°:
+	- Р”РѕР±Р°РІР»СЏРµРј СЃРѕРѕР±С‰РµРЅРёРµ РІ С‚РµРјСѓ, Р°РІС‚РѕСЂРё РёР· from, РґР°С‚Р° РїСЂРѕРїР°СЂСЃРµРЅРЅС‹Р№ С‚РµРєСЃС‚ РёР· С‚РµР»Р°
+	- РҐСЂР°РЅРёРј: РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РІ XML_ID, (?)СЃСЃС‹Р»РєСѓ РЅР° РѕСЂРёРіРёРЅР°Р» СЃРѕРѕР±С‰РµРЅРёСЏ, (?)РЅР° РєР°РєРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ РѕС‚РІРµС‚
 */
 
 IncludeModuleLangFile(__FILE__);
@@ -276,7 +276,7 @@ class CForumEMail
 		if(!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum"))
 			return false;
 
-		// Найдем кто отправитель
+		// РќР°Р№РґРµРј РєС‚Рѕ РѕС‚РїСЂР°РІРёС‚РµР»СЊ
 		$message_email = ($arMessageFields["FIELD_REPLY_TO"] <> '') ? $arMessageFields["FIELD_REPLY_TO"] : $arMessageFields["FIELD_FROM"];
 		$message_email_addr = mb_strtolower(CMailUtil::ExtractMailAddress($message_email));
 
@@ -304,7 +304,7 @@ class CForumEMail
 
 		if($arParams["NOT_MEMBER_POST"]!="Y")
 		{
-			// Проверим права доступа
+			// РџСЂРѕРІРµСЂРёРј РїСЂР°РІР° РґРѕСЃС‚СѓРїР°
 			if(CSocNetFeaturesPerms::CanPerformOperation($AUTHOR_USER_ID, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "full"))
 				$PERMISSION = "Y";
 			elseif(CSocNetFeaturesPerms::CanPerformOperation($AUTHOR_USER_ID, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "newtopic"))
@@ -337,12 +337,16 @@ class CForumEMail
 
 
 		$subject = $arMessageFields["SUBJECT"];
-		// обрежем все RE и FW
+		if (!isset($subject))
+		{
+			$subject = '';
+		}
+		// РѕР±СЂРµР¶РµРј РІСЃРµ RE Рё FW
 		$subject = trim(preg_replace('#^\s*((RE[0-9\[\]]*:\s*)|(FW:\s*))+(.*)$#i', '\4', $subject));
 		if($subject=='')
 			$subject = GetMessage("FORUM_MAIL_EMPTY_TOPIC_TITLE")." ".rand();
 
-		// Найдем какая тема
+		// РќР°Р№РґРµРј РєР°РєР°СЏ С‚РµРјР°
 		$arFields = Array();
 		$FORUM_ID = intval($arParams["FORUM_ID"]);
 		$SOCNET_GROUP_ID = intval($arParams["SOCNET_GROUP_ID"]);
@@ -357,7 +361,7 @@ class CForumEMail
 
 		if($arParams["USE_SUBJECT"] == "Y" && $TOPIC_ID<=0)
 		{
-			$dbTopic = $DB->Query("SELECT ID FROM b_forum_topic WHERE TITLE='".$DB->ForSQL($subject, 255)."' AND FORUM_ID=".$FORUM_ID." AND SOCNET_GROUP_ID=".$SOCNET_GROUP_ID);// ограничить по старости?
+			$dbTopic = $DB->Query("SELECT ID FROM b_forum_topic WHERE TITLE='".$DB->ForSQL($subject, 255)."' AND FORUM_ID=".$FORUM_ID." AND SOCNET_GROUP_ID=".$SOCNET_GROUP_ID);// РѕРіСЂР°РЅРёС‡РёС‚СЊ РїРѕ СЃС‚Р°СЂРѕСЃС‚Рё?
 			if($arTopic = $dbTopic->Fetch())
 				$TOPIC_ID = $arTopic["ID"];
 		}
@@ -402,7 +406,7 @@ class CForumEMail
 		else
 			$arFields["APPROVED"] = ($arParams["MODERATION"]=="Y") ? "N" : "Y";
 
-		// Добавим новую тему
+		// Р”РѕР±Р°РІРёРј РЅРѕРІСѓСЋ С‚РµРјСѓ
 		if($TOPIC_ID<=0)
 		{
 			$arTopicFields = Array(
@@ -437,10 +441,10 @@ class CForumEMail
 			$arFields["NEW_TOPIC"] = "Y";
 		}
 
-		// Добавим сообщение
+		// Р”РѕР±Р°РІРёРј СЃРѕРѕР±С‰РµРЅРёРµ
 		$arFields["POST_MESSAGE"] = $body;
 
-		// Аттаченные файлы
+		// РђС‚С‚Р°С‡РµРЅРЅС‹Рµ С„Р°Р№Р»С‹
 		$arFILES = array();
 		$rsAttach = CMailAttachment::GetList(Array(), Array("MESSAGE_ID"=>$arMessageFields["ID"]));
 		while ($arAttach = $rsAttach->Fetch())

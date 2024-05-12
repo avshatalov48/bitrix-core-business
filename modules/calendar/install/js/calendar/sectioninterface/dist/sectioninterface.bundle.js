@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,calendar_sync_interface,main_popup,main_core_events,ui_entitySelector,main_core,calendar_util,calendar_sectionmanager,ui_dialogs_messagebox) {
 	'use strict';
@@ -1438,14 +1437,14 @@ this.BX = this.BX || {};
 	  }
 	  getSectionListWrap(title) {
 	    return main_core.Tag.render(_t16 || (_t16 = _$4`
-				<div class="calendar-list-slider-card-widget">
-					<div class="calendar-list-slider-card-widget-title">
-						<span class="calendar-list-slider-card-widget-title-text">
-							${0}
-						</span>
-					</div>
+			<div class="calendar-list-slider-card-widget">
+				<div class="calendar-list-slider-card-widget-title">
+					<span class="calendar-list-slider-card-widget-title-text">
+						${0}
+					</span>
 				</div>
-			`), title);
+			</div>
+		`), main_core.Text.encode(title));
 	  }
 	  getLocalSectionListTitle() {
 	    if (this.sectionManager.calendarType === 'user') {

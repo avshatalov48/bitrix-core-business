@@ -134,6 +134,7 @@ class UIFormComponent extends \CBitrixComponent
 			'SCOPE' => null,
 			'SCOPE_PREFIX' => '',
 			'DISABLED_HTML_CONTROLS' => [],
+			'ANALYTICS_CONFIG' => [],
 		];
 	}
 
@@ -723,6 +724,8 @@ class UIFormComponent extends \CBitrixComponent
 				&& $this->arParams['~ENABLE_COMMON_CONFIGURATION_UPDATE'];
 		}
 
+		$this->arResult['ENTITY_CONFIG_SIGNED_PARAMS'] = $this->getSignedConfigParameters();
+
 		$this->arResult['CONTEXT']['EDITOR_CONFIG_ID'] = $this->configID;
 
 		$this->arResult['LANGUAGES'] = $this->loadLanguages();
@@ -804,5 +807,13 @@ class UIFormComponent extends \CBitrixComponent
 		}
 
 		return $columns;
+	}
+
+	protected function getSignedConfigParameters(): string
+	{
+		return  (new \Bitrix\UI\Form\EntityEditorConfigSigner($this->configID))->sign([
+			'CAN_UPDATE_COMMON_CONFIGURATION' => $this->arResult['CAN_UPDATE_COMMON_CONFIGURATION'],
+			'CAN_UPDATE_PERSONAL_CONFIGURATION' => $this->arResult['CAN_UPDATE_PERSONAL_CONFIGURATION'],
+		]);
 	}
 }

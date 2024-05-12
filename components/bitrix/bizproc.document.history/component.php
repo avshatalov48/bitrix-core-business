@@ -4,7 +4,7 @@ if (!CModule::IncludeModule('bizproc')):
 endif;
 
 if (!CModule::IncludeModule("webdav")):
-	ShowError(GetMessage("W_WEBDAV_IS_NOT_INSTALLED"));
+	ShowError(GetMessage("W_WEBDAV_IS_NOT_INSTALLED_MSGVER_1"));
 	return 0;
 endif;
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/components/bitrix/webdav/functions.php");

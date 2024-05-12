@@ -19,5 +19,5 @@ $MESS["MARKETPLACE_APP_INSTALL"] = "Install";
 $MESS["MARKETPLACE_APP_INSTALL_CANCEL"] = "Cancel";
 $MESS["MARKETPLACE_APP_POPUP_LOAD"] = "Loading";
 $MESS["MARKETPLACE_APP_CLEAN"] = "delete application settings and data";
-$MESS["MARKETPLACE_APP_INSTALL_PARTNER"] = "Application is no longer available. Please use the <a href=\"http://www.bitrixsoft.com/personal/b24marketplace/\">partner account</a> to install hidden applications.";
+$MESS["MARKETPLACE_APP_INSTALL_PARTNER"] = "Application is no longer available. Please use the <a href=\"https://www.bitrixsoft.com/personal/b24marketplace/\">partner account</a> to install hidden applications.";
 ?>

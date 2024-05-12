@@ -70,7 +70,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 	{
 		$result = new Result;
 		$skipAddMessage = ($params['SKIP_ADD_MESSAGE'] ?? 'N') === 'Y';
-		$skipMessageUsersAdd = ($params['SKIP_MESSAGE_USERS_ADD'] ?? 'N') === 'Y';
+		$forceSendGreetingMessages = ($params['SEND_GREETING_MESSAGES'] ?? 'N') === 'Y';
 		$paramsResult = $this->prepareParams($params);
 		if ($paramsResult->isSuccess())
 		{
@@ -91,7 +91,8 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 
 		$chat->addUsersToRelation([$chat->getAuthorId()], $params['MANAGERS'] ?? [], false);
-		if (!$skipAddMessage && $chat->needToSendGreetingMessages())
+		$needToSendGreetingMessages = !$skipAddMessage && ($chat->needToSendGreetingMessages() || $forceSendGreetingMessages);
+		if ($needToSendGreetingMessages)
 		{
 			$chat->sendGreetingMessage($this->getContext()->getUserId());
 			$chat->sendBanner($this->getContext()->getUserId());
@@ -102,7 +103,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		$addedUsers[$chat->getAuthorId()] = $chat->getAuthorId();
 
 		$chat->addUsersToRelation($usersToInvite, $params['MANAGERS'] ?? [], false);
-		if (!$skipAddMessage && !$skipMessageUsersAdd)
+		if (!$skipAddMessage)
 		{
 			$chat->sendMessageUsersAdd($usersToInvite);
 		}

@@ -1,5 +1,4 @@
 .bx-im-sidebar-file-preview__scope {
-	--im-sidebar-file-preview__background_skeleton: url('./images/file-skeleton.svg');
 	--im-sidebar-file-preview__color_not-active-title: #959ca4;
 }
 
@@ -12,11 +11,6 @@
 
 .bx-im-sidebar-file-preview__files-container {
 	display: flex;
-}
-
-.bx-im-sidebar-file-preview__skeleton {
-	height: 130px;
-	background: var(--im-sidebar-file-preview__background_skeleton)
 }
 
 .bx-im-sidebar-file-preview__header_container {

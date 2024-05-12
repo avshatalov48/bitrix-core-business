@@ -60,7 +60,8 @@
 		BX.Calendar.Util.setSharingConfig(config.sharing);
 		this.payAttentionToNewSharingFeature = config.payAttentionToNewSharingFeature;
 		this.sharingFeatureLimitEnable = config.sharingFeatureLimitEnable;
-		this.sharingSettingsCollapsed = config.sharingSettingsCollapsed;
+		this.sharingSettingsCollapsed = config.sharingOptions?.sharingSettingsCollapsed;
+		this.sortJointLinksByFrequentUse = config.sharingOptions?.sortJointLinksByFrequentUse;
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -214,6 +215,7 @@
 						payAttentionToNewFeature: this.payAttentionToNewSharingFeature,
 						sharingFeatureLimit: !this.sharingFeatureLimitEnable,
 						sharingSettingsCollapsed: this.sharingSettingsCollapsed,
+						sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
 					});
 
 					if (BX.Calendar.Util.checkSharingFeatureEnabled())

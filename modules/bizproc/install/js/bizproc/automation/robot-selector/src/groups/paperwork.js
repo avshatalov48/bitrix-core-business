@@ -21,6 +21,6 @@ export class Paperwork extends Group
 
 	getAdviceTitle(): string
 	{
-		return Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAPERWORK');
+		return Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAPERWORK_MSGVER_1');
 	}
 }

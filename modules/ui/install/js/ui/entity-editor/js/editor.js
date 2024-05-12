@@ -2041,6 +2041,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			var m = BX.UI.EntityEditor.messages;
 			return m.hasOwnProperty(name) ? m[name] : name;
 		},
+		getGlobalEventName: function(eventName)
+		{
+			return eventName;
+		},
 		getFormElement: function()
 		{
 			return this._formElement;
@@ -2192,6 +2196,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				this._toolPanel.setLocked(true);
 			}
 
+			this.registerSaveAnalyticsEvent('attempt');
+
 			var result = BX.UI.EntityValidationResult.create();
 			this.validate(result).then(
 				BX.delegate(
@@ -2221,9 +2227,14 @@ if(typeof BX.UI.EntityEditor === "undefined")
 									this._bizprocManager.onAfterSave();
 								}
 							}
-							else if(this._toolPanel)
+							else
 							{
-								this._toolPanel.setLocked(false);
+								if(this._toolPanel)
+								{
+									this._toolPanel.setLocked(false);
+								}
+
+								this.registerSaveAnalyticsEvent('error');
 							}
 						}
 						else
@@ -2244,6 +2255,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 								this._toolPanel.setLocked(false);
 							}
 
+							this.registerSaveAnalyticsEvent('error');
 							BX.onCustomEvent(window, this.eventsNamespace + ":onFailedValidation", [ this, result ]);
 						}
 					},
@@ -2475,20 +2487,6 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			if(ajaxFormToSubmit)
 			{
-				var detailManager = this.getDetailManager();
-				if(detailManager)
-				{
-					var params =  detailManager.prepareAnalyticParams(
-						(this._entityId <= 0 && this._model.isIdentifiable()) ? "create" : "update",
-						{ embedded: this.isEmbedded() ? "Y" : "N" }
-					);
-
-					if(params)
-					{
-						ajaxFormToSubmit.addUrlParams(params);
-					}
-				}
-
 				const eventId = BX.Text.getRandom();
 
 				this.eventIds.add(eventId);
@@ -2704,6 +2702,30 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			return this._config.isCanChangeCommonConfiguration();
 		},
+		registerSaveAnalyticsEvent: function(status)
+		{
+			const analyticsConfig = BX.prop.getObject(this._settings, 'analyticsConfig', {});
+
+			let analyticsData = BX.prop.getObject(analyticsConfig, 'data', null);
+			if (!BX.Type.isPlainObject(analyticsData))
+			{
+				return;
+			}
+
+			analyticsData.status = status;
+
+			if (BX.prop.getBoolean(analyticsConfig, 'appendParamsFromCurrentUrl', false))
+			{
+				const currentUrl = new BX.Uri(decodeURI(window.location.href));
+
+				analyticsData = Object.assign(
+					currentUrl.getQueryParam('st') || {},
+					analyticsData,
+				);
+			}
+
+			BX.UI.Analytics.sendData(analyticsData);
+		},
 		onSaveSuccess: function(result, params)
 		{
 			this._isRequestRunning = false;
@@ -2719,24 +2741,15 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				this.additionalFieldsData = BX.prop.getObject(result, 'ADDITIONAL_FIELDS_DATA', {});
 			}
 
-			//region Event Params
-			var eventParams = BX.prop.getObject(result, "EVENT_PARAMS", {});
-			eventParams["entityTypeName"] = this._entityTypeName;
-
-			if(typeof(window.top.BX.Bitrix24) !== "undefined")
-			{
-				var slider = window.top.BX.Bitrix24.Slider.getTopSlider();
-				if(slider)
-				{
-					eventParams["sliderUrl"] = slider.getUrl();
-				}
-			}
-			//endregion
+			const eventParams = this.prepareEventParams(result);
 
 			var checkErrors = BX.prop.getObject(result, "CHECK_ERRORS", null);
 			var error = BX.prop.getString(result, "ERROR", "");
-			if(checkErrors || error !== "")
+			var hasRestriction = BX.prop.getBoolean(result, 'RESTRICTION', false);
+			if(checkErrors || error !== "" || hasRestriction)
 			{
+				this.registerSaveAnalyticsEvent('error');
+
 				if(checkErrors)
 				{
 					var firstField = null;
@@ -2771,22 +2784,31 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					error = errorMessages.join("<br/>");
 				}
 
-				if(error !== "" && this._toolPanel)
+				var restrictionAction = BX.prop.getString(result, "RESTRICTION_ACTION", "");
+				if (hasRestriction && restrictionAction.length)
 				{
-					this._toolPanel.addError(error);
-				}
-
-				eventParams["checkErrors"] = checkErrors;
-				eventParams["error"] = error;
-
-				if(this._isNew)
-				{
-					BX.onCustomEvent(window, "onEntityCreateError", [eventParams]);
+					eval(restrictionAction);
+					BX.onCustomEvent(window, this.eventsNamespace + ":onRestrictionAction", []);
 				}
 				else
 				{
-					eventParams["entityId"] = this._entityId;
-					BX.onCustomEvent(window, "onEntityUpdateError", [eventParams]);
+					if (error !== "" && this._toolPanel)
+					{
+						this._toolPanel.addError(error);
+					}
+
+					eventParams["checkErrors"] = checkErrors;
+					eventParams["error"] = error;
+
+					if (this._isNew)
+					{
+						BX.onCustomEvent(window, this.getGlobalEventName("onEntityCreateError"), [eventParams]);
+					}
+					else
+					{
+						eventParams["entityId"] = this._entityId;
+						BX.onCustomEvent(window, this.getGlobalEventName("onEntityUpdateError"), [eventParams]);
+					}
 				}
 
 				this.releaseAjaxForm();
@@ -2802,7 +2824,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			{
 				//fire onEntityUpdate
 				eventParams["sender"] = this;
-				BX.onCustomEvent(window, "onEntityUpdate", [eventParams]);
+				BX.onCustomEvent(window, this.getGlobalEventName("onEntityUpdate"), [eventParams]);
 			}
 			else
 			{
@@ -2813,15 +2835,38 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					{
 						if(this._toolPanel)
 						{
-							this._toolPanel.addError(BX.message("UI_ENTITY_EDITOR_COULD_NOT_FIND_ENTITY_ID"));
+							let message = this.getMessage('couldNotFindEntityIdError');
+							if (message === 'couldNotFindEntityIdError')
+							{
+								message = BX.message("UI_ENTITY_EDITOR_COULD_NOT_FIND_ENTITY_ID");
+							}
+
+							this._toolPanel.addError(message);
 						}
+
+						this.registerSaveAnalyticsEvent('error');
+
 						return;
 					}
 
 					//fire onEntityCreate
 					eventParams["sender"] = this;
 					eventParams["entityId"] = this._entityId;
-					BX.onCustomEvent(window, "onEntityCreate", [eventParams]);
+					BX.onCustomEvent(window, this.getGlobalEventName("onEntityCreate"), [eventParams]);
+
+					if(BX.prop.getBoolean(eventParams, "isCancelled", true))
+					{
+						this.registerSaveAnalyticsEvent('success');
+
+						this._entityId = 0;
+
+						this.rollback();
+
+						this.releaseAjaxForm();
+						this.initializeAjaxForm();
+
+						return;
+					}
 
 					this._isNew = false;
 				}
@@ -2830,7 +2875,19 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					//fire onEntityUpdate
 					eventParams["sender"] = this;
 					eventParams["entityId"] = this._entityId;
-					BX.onCustomEvent(window, "onEntityUpdate", [eventParams]);
+					BX.onCustomEvent(window, this.getGlobalEventName("onEntityUpdate"), [eventParams]);
+
+					if(BX.prop.getBoolean(eventParams, "isCancelled", true))
+					{
+						this.registerSaveAnalyticsEvent('success');
+
+						this.rollback();
+
+						this.releaseAjaxForm();
+						this.initializeAjaxForm();
+
+						return;
+					}
 				}
 			}
 
@@ -2853,6 +2910,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				}
 			}
 
+			this.registerSaveAnalyticsEvent('success');
+
 			if (this._isReleased)
 			{
 				return;
@@ -2860,26 +2919,29 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			if (BX.Type.isStringFilled(redirectUrl))
 			{
-				eventParams.redirectUrl = redirectUrl;
-				BX.onCustomEvent(window, 'beforeEntityRedirect', [eventParams]);
+				// postpone redirect to next event loop cycle, so that analytics request is sent before this page closes
+				setTimeout(() => {
+					eventParams.redirectUrl = redirectUrl;
+					BX.onCustomEvent(window, this.getGlobalEventName('beforeEntityRedirect'), [eventParams]);
 
-				const url = BX.util.add_url_param(
-					redirectUrl,
+					const url = BX.util.add_url_param(
+						redirectUrl,
+						{
+							IFRAME: 'Y',
+							IFRAME_TYPE: 'SIDE_SLIDER',
+						},
+					);
+
+					const sidePanel = window.top.BX.SidePanel ? window.top.BX.SidePanel.Instance : null;
+					if (isOpenInNewSlide && sidePanel && sidePanel.isOpen())
 					{
-						IFRAME: 'Y',
-						IFRAME_TYPE: 'SIDE_SLIDER',
-					},
-				);
-
-				const sidePanel = window.top.BX.SidePanel ? window.top.BX.SidePanel.Instance : null;
-				if (isOpenInNewSlide && sidePanel && sidePanel.isOpen())
-				{
-					sidePanel.close(false, () => sidePanel.open(url));
-				}
-				else
-				{
-					window.location.replace(url);
-				}
+						sidePanel.close(false, () => sidePanel.open(url));
+					}
+					else
+					{
+						window.location.replace(url);
+					}
+				});
 			}
 			else
 			{
@@ -2945,9 +3007,28 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				}
 			}
 		},
+		prepareEventParams: function(result)
+		{
+			var eventParams = BX.prop.getObject(result, "EVENT_PARAMS", {});
+			eventParams["entityTypeName"] = this._entityTypeName;
+			eventParams["isCancelled"] = false;
+
+			if(typeof(window.top.BX.Bitrix24) !== "undefined")
+			{
+				var slider = window.top.BX.Bitrix24.Slider.getTopSlider();
+				if(slider)
+				{
+					eventParams["sliderUrl"] = slider.getUrl();
+				}
+			}
+
+			return eventParams;
+		},
 		onSaveFailure: function(response)
 		{
 			this._isRequestRunning = false;
+
+			this.registerSaveAnalyticsEvent('error');
 
 			if(this._toolPanel)
 			{
@@ -3067,7 +3148,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				items.push(
 					{
 						id: "switchToPersonalConfig",
-						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_PERSONAL_CONFIG"),
+						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_PERSONAL_CONFIG_MSGVER_1"),
 						onclick: callback,
 						className: configScope === BX.UI.EntityConfigScope.personal
 							? "menu-popup-item-accept" : "menu-popup-item-none"
@@ -3077,7 +3158,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				items.push(
 					{
 						id: "switchToCommonConfig",
-						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_COMMON_CONFIG"),
+						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_COMMON_CONFIG_MSGVER_1"),
 						onclick: callback,
 						className: configScope === BX.UI.EntityConfigScope.common
 							? "menu-popup-item-accept" : "menu-popup-item-none"
@@ -3118,7 +3199,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				items.push(
 					{
 						id: "resetConfig",
-						text: BX.message("UI_ENTITY_EDITOR_RESET_CONFIG"),
+						text: BX.message("UI_ENTITY_EDITOR_RESET_CONFIG_MSGVER_1"),
 						onclick: callback,
 						className: "menu-popup-item-none"
 					}
@@ -3129,7 +3210,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					items.push(
 						{
 							id: "forceCommonConfigForAllUsers",
-							text: BX.message("UI_ENTITY_EDITOR_FORCE_COMMON_CONFIG_FOR_ALL"),
+							text: BX.message("UI_ENTITY_EDITOR_FORCE_COMMON_CONFIG_FOR_ALL_MSGVER_1"),
 							onclick: callback,
 							className: "menu-popup-item-none"
 						}

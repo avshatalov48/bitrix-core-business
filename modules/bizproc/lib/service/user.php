@@ -10,8 +10,15 @@ class User extends \CBPRuntimeService
 	protected const DEPARTMENT_MODULE_ID = 'intranet';
 	protected const DEPARTMENT_OPTION_NAME = 'iblock_structure';
 
+	protected array $users = [];
+
 	public function getUserDepartments(int $userId): array
 	{
+		if (isset($this->users[$userId]['UF_DEPARTMENT']))
+		{
+			return is_array($this->users[$userId]['UF_DEPARTMENT']) ? $this->users[$userId]['UF_DEPARTMENT'] : [];
+		}
+
 		$departments = [];
 		$result = \CUser::getList(
 			'id', 'asc',
@@ -41,22 +48,14 @@ class User extends \CBPRuntimeService
 			return null;
 		}
 
-		$userFields = $this->getUserUserFields();
-		$user = $this->loadUser($userId, $userFields);
-
-		if (!$user)
+		if (isset($this->users[$userId]))
 		{
-			return null;
+			return $this->users[$userId];
 		}
 
-		$this->convertValues($user, $userFields);
+		$userFields = $this->getUserUserFields();
 
-		$schedule = $this->getUserSchedule($userId);
-		$user['IS_ABSENT'] = $schedule->isAbsent();
-		$user['TIMEMAN_STATUS'] = $schedule->getWorkDayStatus();
-		$user['UF_HEAD'] = $this->convertUserValue($this->getUserHeads($userId));
-
-		return $user;
+		return $this->loadUser($userId, $userFields);
 	}
 
 	public function getUserExtendedFields(): array
@@ -445,7 +444,20 @@ class User extends \CBPRuntimeService
 
 		$user = $dbUsers->fetch();
 
-		return is_array($user) ? $user : null;
+		if (is_array($user))
+		{
+			$this->convertValues($user, $fields);
+			$this->users[$userId] = $user;
+
+			$schedule = $this->getUserSchedule($userId);
+			$this->users[$userId]['IS_ABSENT'] = $schedule->isAbsent();
+			$this->users[$userId]['TIMEMAN_STATUS'] = $schedule->getWorkDayStatus();
+			$this->users[$userId]['UF_HEAD'] = $this->convertUserValue($this->getUserHeads($userId));
+
+			return $this->users[$userId];
+		}
+
+		return null;
 	}
 
 	private function loadDepartmentNames(array $ids): array
@@ -463,7 +475,8 @@ class User extends \CBPRuntimeService
 			['ID' => 'ASC'],
 			[
 				'=IBLOCK_ID' => $iblockId,
-				'ID' => $ids
+				'ID' => $ids,
+				'CHECK_PERMISSIONS' => 'N',
 			],
 			false,
 			['ID', 'NAME']

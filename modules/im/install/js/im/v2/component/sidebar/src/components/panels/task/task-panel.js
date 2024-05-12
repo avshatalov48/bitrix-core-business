@@ -6,9 +6,9 @@ import { EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import { TaskItem } from './task-item';
 import { Task } from '../../../classes/panels/task';
-import { DateGroup } from '../../elements/date-group';
-import { DetailHeader } from '../../elements/detail-header';
-import { DetailEmptyState } from '../../elements/detail-empty-state';
+import { DateGroup } from '../../elements/date-group/date-group';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
+import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
 import { TaskMenu } from '../../../classes/context-menu/task/task-menu';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';
 

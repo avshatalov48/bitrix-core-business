@@ -8,7 +8,7 @@
 	--im-avatar__size_xxl: 60px;
 	--im-avatar__size_xxxl: 94px;
 	/* font size for avatar letters */
-	--im-avatar__font-size_m: var(--im-font-size-md);
+	--im-avatar__font-size_m: var(--im-font-size-sm);
 	--im-avatar__font-size_l: var(--im-font-size-2xl);
 	--im-avatar__font-size_xl: var(--im-font-size-2xl);
 	--im-avatar__font-size_xxl: var(--im-font-size-5xl);

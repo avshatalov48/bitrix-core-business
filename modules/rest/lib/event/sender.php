@@ -410,11 +410,11 @@ class Sender
 		// \Bitrix\Rest\EventTable::on
 		if(mb_strpos($eventName, '::') >= 0)
 		{
-			$handlerName = $moduleId.'__'.ToUpper(str_replace(array("\\", '::'), array('_0_', '_1_'), $eventName));
+			$handlerName = $moduleId.'__'.mb_strtoupper(str_replace(array("\\", '::'), array('_0_', '_1_'), $eventName));
 		}
 		else
 		{
-			$handlerName = $moduleId.'__'.ToUpper($eventName);
+			$handlerName = $moduleId.'__'.mb_strtoupper($eventName);
 		}
 
 		return $handlerName;

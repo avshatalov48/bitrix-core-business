@@ -1,9 +1,0 @@
-.bx-im-search-experimental__scope {
-	--im-search-experimental__background-color_container: var(--im-recent-background-color, #fff);
-}
-
-.bx-im-search-experimental__container {
-	overflow: hidden;
-	background-color: var(--im-search-experimental__background-color_container);
-	padding: 16px 0 16px 6px;
-}

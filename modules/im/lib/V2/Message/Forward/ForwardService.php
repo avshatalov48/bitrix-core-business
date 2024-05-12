@@ -78,6 +78,7 @@ class ForwardService
 			'TO_CHAT_ID' =>  $this->toChat->getChatId(),
 			'FROM_USER_ID' => $this->getContext()->getUserId(),
 			'URL_PREVIEW' => 'N',
+			'TEMPLATE_ID' => $forwardingMessage->getForwardUuid() ?? ''
 		];
 
 		$result = new Result();

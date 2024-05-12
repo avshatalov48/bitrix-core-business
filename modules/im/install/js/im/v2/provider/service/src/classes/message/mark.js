@@ -25,7 +25,6 @@ export class MarkService
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
 			action: true,
-			dateUpdate: new Date(),
 		});
 		this.#store.dispatch('chats/update', {
 			dialogId,

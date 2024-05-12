@@ -496,3 +496,5 @@ $MESS["IM_TRANSFER_SCOPE_LINES"] = "Открытые линии";
 $MESS["IM_TRANSFER_SCOPE_DEPARTMENTS"] = "Подразделения";
 $MESS['IM_FUNCTION_FOR_BROWSER'] = "К сожалению, функция временно доступна только в версии для браузера.";
 $MESS['IM_SPACE_HOTKEY'] = "Пробел (удержание)";
+$MESS["IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE"] = "Улучшить мой внешний вид";
+$MESS["IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE_HINT"] = "Битрикс24 определяет на видео ваше лицо, сглаживает и выравнивает тон кожи, убирает мелкие морщинки и пятна.";

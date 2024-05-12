@@ -2992,8 +2992,6 @@ return [
 		'block-default-background' => [
 			'display',
 			'background',
-			'background-attachment',
-			'background-size',
 			'padding-top',
 			'padding-bottom',
 			'padding-left',
@@ -3003,8 +3001,6 @@ return [
 		'block-default-background-height-vh' => [
 			'display',
 			'background',
-			'background-attachment',
-			'background-size',
 			'height-vh',
 			'padding-top',
 			'padding-bottom',

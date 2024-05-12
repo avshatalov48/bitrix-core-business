@@ -390,7 +390,7 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 		if ($filterOptions->getSearchString() !== '')
 		{
 			$sessionLoc = Loc::getMessage('BIZPROC_DEBUGGER_SESSION_LIST_DEBUGGER_SESSION');
-			$sessionNamePattern = '/(\D*)((?<day>\d{1,2})(\.(?<month>\d{1,2}))?)?\s*$/i' . BX_UTF_PCRE_MODIFIER;
+			$sessionNamePattern = '/(\D*)((?<day>\d{1,2})(\.(?<month>\d{1,2}))?)?\s*$/iu';
 
 			if (preg_match($sessionNamePattern, $filterOptions->getSearchString(), $matches, PREG_UNMATCHED_AS_NULL))
 			{

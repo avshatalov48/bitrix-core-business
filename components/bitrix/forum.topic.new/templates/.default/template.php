@@ -4,7 +4,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
@@ -26,9 +26,9 @@ if ($arResult["VIEW"] == "Y"):
 	"bitrix:forum.message.template",
 	".preview",
 	Array(
-		"MESSAGE" => $arResult["MESSAGE_VIEW"],
-		"ATTACH_MODE" => $arParams["ATTACH_MODE"],
-		"ATTACH_SIZE" => $arParams["ATTACH_SIZE"],
+		"MESSAGE" => $arResult["MESSAGE_VIEW"] ?? null,
+		"ATTACH_MODE" => $arParams["ATTACH_MODE"] ?? null,
+		"ATTACH_SIZE" => $arParams["ATTACH_SIZE"] ?? null,
 		"arResult" => $arResult,
 		"arParams" => $arParams
 	),
@@ -43,9 +43,9 @@ elseif ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y"):
 		"bitrix:forum.message.template",
 		".preview",
 		Array(
-			"MESSAGE" => $arResult["MESSAGE"],
-			"ATTACH_MODE" => $arParams["ATTACH_MODE"],
-			"ATTACH_SIZE" => $arParams["ATTACH_SIZE"],
+			"MESSAGE" => $arResult["MESSAGE"] ?? null,
+			"ATTACH_MODE" => $arParams["ATTACH_MODE"] ?? null,
+			"ATTACH_SIZE" => $arParams["ATTACH_SIZE"] ?? null,
 			"arResult" => $arResult,
 			"arParams" => $arParams
 		),
@@ -67,7 +67,7 @@ elseif ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y"):
 			}
 		}
 	}
-	
+
 	$post =
 	$res = array("id" => $arParams["MID"], "post" => ob_get_clean());
 	if ($_REQUEST["CONVERT_DATA"] == "Y")

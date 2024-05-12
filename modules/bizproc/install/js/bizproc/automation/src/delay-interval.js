@@ -1,5 +1,10 @@
 import { Type, Loc } from 'main.core';
 
+type Hours = number;
+type Minutes = number;
+type TimeOffset = number;
+type InTimeValue = Array<[Hours, Minutes, TimeOffset]>;
+
 export class DelayInterval
 {
 	static BASIS_TYPE = {
@@ -20,7 +25,7 @@ export class DelayInterval
 	#valueType: string = 'i';
 	#workTime: boolean = false;
 	#waitWorkDay: boolean = false;
-	#inTime: ?Array<[number, number]>;
+	#inTime: ?InTimeValue;
 
 	constructor(params: ?Object)
 	{
@@ -93,9 +98,14 @@ export class DelayInterval
 		return this.#waitWorkDay;
 	}
 
-	get inTime()
+	get inTime(): ?InTimeValue
 	{
-		return this.#inTime;
+		if (!this.#inTime)
+		{
+			return null;
+		}
+
+		return this.#toUserInTime(this.#inTime);
 	}
 
 	get inTimeString(): string
@@ -105,7 +115,11 @@ export class DelayInterval
 			return '';
 		}
 
-		return `${('0' + this.#inTime[0]).slice(-2)}:${('0' + this.#inTime[1]).slice(-2)}`;
+		const userInTime = this.#toUserInTime(this.#inTime);
+		const hourString = String(userInTime[0]).padStart(2, '0');
+		const minString = String(userInTime[1]).padStart(2, '0');
+
+		return `${hourString}:${minString}`;
 	}
 
 	clone()
@@ -117,7 +131,7 @@ export class DelayInterval
 			basis: this.#basis,
 			workTime: this.#workTime,
 			waitWorkDay: this.#waitWorkDay,
-			inTime: this.#inTime,
+			inTime: this.#inTime ? [...this.#inTime] : null,
 		});
 	}
 
@@ -153,13 +167,20 @@ export class DelayInterval
 		if (intervalString.indexOf('settime(') === 0)
 		{
 			intervalString = intervalString.substring(8, intervalString.length - 1);
+			const intervalParts = intervalString.split(')');
+			const setTimeArgs = intervalParts.pop()?.split(',') || [];
 
-			const setTimeArgs = intervalString.split(',');
+			const userOffset = setTimeArgs.length > 3 ? parseInt(setTimeArgs.pop().trim(), 10) : 0;
 			const minute = parseInt(setTimeArgs.pop().trim(), 10);
 			const hour = parseInt(setTimeArgs.pop().trim(), 10);
 
+			intervalString = intervalParts.join(')') + setTimeArgs.join(',');
 			params.inTime = [hour || 0, minute || 0];
-			intervalString = setTimeArgs.join(',');
+
+			if (userOffset > 0)
+			{
+				params.inTime.push(userOffset);
+			}
 		}
 
 		if (intervalString.indexOf('dateadd(') === 0 || intervalString.indexOf('workdateadd(') === 0)
@@ -357,9 +378,14 @@ export class DelayInterval
 		return this;
 	}
 
-	setInTime(value: ?Array<[number, number]>): this
+	setInTime(value: ?InTimeValue): this
 	{
 		this.#inTime = value;
+
+		if (value && !Type.isNumber(value[2]))
+		{
+			this.#inTime[2] = this.#getUserOffset();
+		}
 
 		return this;
 	}
@@ -393,7 +419,7 @@ export class DelayInterval
 			basis: this.#basis,
 			workTime: this.#workTime ? 1 : 0,
 			waitWorkDay: this.#waitWorkDay ? 1 : 0,
-			inTime: this.#inTime || null,
+			inTime: this.#inTime ? [...this.#inTime] : null,
 		};
 	}
 
@@ -480,7 +506,7 @@ export class DelayInterval
 
 		if (this.#inTime)
 		{
-			result = `settime(${result}, ${this.#inTime[0] || 0}, ${this.#inTime[1] || 0})`;
+			result = `settime(${result}, ${this.#inTime[0] || 0}, ${this.#inTime[1] || 0}, ${this.#inTime[2] || 0})`;
 			isFunctionInResult = true;
 		}
 
@@ -610,5 +636,39 @@ export class DelayInterval
 		}
 
 		return labels;
+	}
+
+	#getUserOffset(): number
+	{
+		const userOffset = Number(Loc.getMessage('USER_TZ_OFFSET'));
+		if (Type.isNumber(userOffset))
+		{
+			return userOffset;
+		}
+
+		return 0;
+	}
+
+	#toUserInTime(inTime: ?InTimeValue): ?InTimeValue
+	{
+		const userOffset = this.#getUserOffset();
+
+		if (!Type.isNumber(inTime[2]) || inTime[2] === userOffset)
+		{
+			return [...inTime];
+		}
+
+		const diffOffsetMin = Math.floor((inTime[2] - userOffset) / 60);
+		let allMinutes = inTime[0] * 60 + inTime[1] - diffOffsetMin;
+
+		if (allMinutes < 0)
+		{
+			allMinutes += 24 * 60;
+		}
+
+		const userHour = Math.floor(allMinutes / 60);
+		const userMin = allMinutes % 60;
+
+		return [userHour, userMin, userOffset];
 	}
 }

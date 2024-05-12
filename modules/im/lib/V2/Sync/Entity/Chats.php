@@ -12,6 +12,8 @@ class Chats implements Entity
 	private array $chatIds = [];
 	private array $shortInfoChatIds = [];
 	private bool $readAll = false;
+	private array $recent;
+	private array $chats;
 
 	public function add(Event $event): void
 	{
@@ -30,16 +32,38 @@ class Chats implements Entity
 		}
 	}
 
+	public function getChats(): array
+	{
+		if (!isset($this->chats))
+		{
+			$this->chats =
+				empty($this->chatIds)
+					? []
+					: Chat::getList(['FILTER' => ['ID' => $this->chatIds], 'JSON' => true, 'SKIP_ACCESS_CHECK' => 'Y'])
+			;
+		}
+
+		return $this->chats;
+	}
+
+	public function getRecent(): array
+	{
+		if (!isset($this->recent))
+		{
+			$this->recent =
+				empty($this->chatIds)
+					? []
+					: Recent::get(null, ['JSON' => 'Y', 'CHAT_IDS' => $this->chatIds, 'SKIP_OPENLINES' => 'Y'])
+			;
+		}
+
+		return $this->recent;
+	}
+
 	public function getData(): array
 	{
-		$addedRecent = [];
-		$addedChats = [];
-
-		if (!empty($this->chatIds))
-		{
-			$addedRecent = Recent::get(null, ['JSON' => 'Y', 'CHAT_IDS' => $this->chatIds, 'SKIP_OPENLINES' => 'Y']);
-			$addedChats = Chat::getList(['FILTER' => ['ID' => $this->chatIds], 'JSON' => true, 'SKIP_ACCESS_CHECK' => 'Y']);
-		}
+		$addedRecent = $this->getRecent();
+		$addedChats = $this->getChats();
 
 		$result = [
 			'addedRecent' => $addedRecent,

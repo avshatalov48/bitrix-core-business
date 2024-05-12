@@ -157,7 +157,7 @@ $sAnswer = preg_replace(array("/\<\!\-\-A\_ID\-\-\>/", "/\<\!\-\-\/A\_ID\-\-\>/"
 		</label>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 BX.message({
 	VVE_ANS_DELETE:'<?=GetMessageJS("VVE_ANS_DELETE")?>',
 	VVE_QUESTION_DELETE:'<?=GetMessageJS("VVE_QUESTION_DELETE")?>',

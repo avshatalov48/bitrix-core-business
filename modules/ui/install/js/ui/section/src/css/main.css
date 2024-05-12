@@ -5,12 +5,21 @@
 
 .ui-section__wrapper {
 	background-color: var(--ui-color-background-primary);
-	padding: 0 20px;
+	padding: 0;
 	margin-bottom: 12px;
 }
 
+.ui-section__wrapper.--founded-item {
+	background-color: var(--ui-color-palette-green-10);
+}
+
+.ui-section__wrapper.--after-founded-item {
+	background-color: var(--ui-color-background-primary);
+	transition: background-color 5s ease-in-out;
+}
+
 .ui-section__wrapper.--body-active {
-	padding-bottom: 20px;
+	padding-bottom: 0;
 }
 
 .ui-section__wrapper.--tool-selector {
@@ -28,7 +37,7 @@
 
 .ui-section__header {
 	padding: 20px;
-	margin-inline: -20px;
+	margin-inline: 0;
 	font-size: var(--ui-font-size-2xl);
 	font-weight: var(--ui-font-weight-regular);
 	color: var(--ui-color-base-solid);
@@ -85,7 +94,7 @@
 }
 
 .ui-section__wrapper.--body-active .ui-section__separator {
-	margin-bottom: 18px;
+	margin-left: 20px;
 	height: 1px;
 	opacity: .08;
 	visibility: unset;
@@ -183,6 +192,10 @@
 .ui-section__section-body_inner {
 	display: grid;
 	grid-template-rows: 0fr;
+}
+
+.ui-section__section-body_inner.ui-section__section-toggle-animation
+{
 	transition: grid-template-rows 0.4s ease-out;
 }
 
@@ -223,7 +236,7 @@
 }
 
 .ui-section__field-switcher {
-	margin-top: 16px;
+	margin-top: 0;
 }
 
 .ui-section__switcher .ui-switcher.ui-switcher-size-xs {
@@ -249,4 +262,14 @@
 
 .ui-section__dragdrop-icon-wrapper {
 	padding: 0 14px;
+}
+
+.ui-section__row.--founded-item {
+	background-color: var(--ui-color-palette-green-10);
+	border-radius: var(--ui-border-radius-md);
+}
+
+.ui-section__row.--after-founded-item {
+	transition: 5s ease-in-out;
+	border-radius: var(--ui-border-radius-md);
 }

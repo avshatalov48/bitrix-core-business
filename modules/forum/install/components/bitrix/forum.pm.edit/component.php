@@ -131,7 +131,7 @@ $arResult["OK_MESSAGE"] = "";
 /********************************************************************
 				Action
 ********************************************************************/
-$action = mb_strtolower($_REQUEST["action"]);
+$action = isset($_REQUEST["action"]) ? mb_strtolower($_REQUEST["action"]) : null;
 $arError = array();
 if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 {
@@ -144,15 +144,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 		$arError[] = array("id" => "bad_permission","text" => GetMessage("PM_NOT_RIGHT"));
 	elseif ($action == "save"):
 		$arrVars = array(
-			"POST_SUBJ" => $_REQUEST["POST_SUBJ"],
-			"POST_MESSAGE" => $_REQUEST["POST_MESSAGE"],
-			"USE_SMILES" => $_REQUEST["USE_SMILES"]);
+			"POST_SUBJ" => $_REQUEST["POST_SUBJ"] ?? null,
+			"POST_MESSAGE" => $_REQUEST["POST_MESSAGE"] ?? null,
+			"USE_SMILES" => $_REQUEST["USE_SMILES"] ?? null);
 		if(!CForumPrivateMessage::Update($arParams["MID"], $arrVars))
 		{
 			$str = $APPLICATION->GetException();
 			if ($str && $str->GetString())
 				$arError[] = array("id" => "bad_update","text" => $str->GetString());
-			else 
+			else
 				$arError[] = array("id" => "bad_update","text" => "Error!");
 		}
 		else
@@ -184,13 +184,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 		else:
 			$arrVars = array(
 				"AUTHOR_ID" => $USER->GetID(),
-				"POST_SUBJ" => $_REQUEST["POST_SUBJ"],
-				"POST_MESSAGE" => $_REQUEST["POST_MESSAGE"],
-				"USE_SMILES" => $_REQUEST["USE_SMILES"],
-				"USER_ID" => $USER_INFO["USER_ID"],
-				"COPY_TO_OUTBOX" => $_REQUEST["COPY_TO_OUTBOX"],
-				"REQUEST_IS_READ" => $_REQUEST["REQUEST_IS_READ"]);
-				
+				"POST_SUBJ" => $_REQUEST["POST_SUBJ"] ?? null,
+				"POST_MESSAGE" => $_REQUEST["POST_MESSAGE"] ?? null,
+				"USE_SMILES" => $_REQUEST["USE_SMILES"] ?? null,
+				"USER_ID" => $USER_INFO["USER_ID"] ?? null,
+				"COPY_TO_OUTBOX" => $_REQUEST["COPY_TO_OUTBOX"] ?? null,
+				"REQUEST_IS_READ" => $_REQUEST["REQUEST_IS_READ"] ?? null);
+
 			$arParams["MID"] = CForumPrivateMessage::Send($arrVars);
 			if (intval($arParams["MID"]) <= 0)
 			{
@@ -207,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 					$arSiteInfo = $event->GetSiteFieldsArray(SITE_ID);
 					if (!isset(${"parser_".LANGUAGE_ID}))
 						${"parser_".LANGUAGE_ID} = new forumTextParser(LANGUAGE_ID);
-						
+
 					$POST_MESSAGE = ${"parser_".LANGUAGE_ID}->convert4mail(str_replace("#SERVER_NAME#", SITE_SERVER_NAME, $_REQUEST["POST_MESSAGE"]));
 					$arFields = Array(
 						"FROM_NAME" => $res["AUTHOR_NAME"],
@@ -219,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 						"SUBJECT" => $_REQUEST["POST_SUBJ"],
 						"MESSAGE" => $POST_MESSAGE,
 						"MESSAGE_DATE" => date("d.m.Y H:i:s"),
-						"MESSAGE_LINK" => "http://".SITE_SERVER_NAME.CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"], 
+						"MESSAGE_LINK" => "http://".SITE_SERVER_NAME.CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"],
 							array("FID" => "1", "MID" => $arParams["MID"]))." \n"
 					);
 					$event->Send("NEW_FORUM_PRIVATE_MESSAGE", SITE_ID, $arFields, "N");
@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 		{
 			LocalRedirect(
 				CComponentEngine::MakePathFromTemplate(
-					$arParams["~URL_TEMPLATES_PM_READ"], 
+					$arParams["~URL_TEMPLATES_PM_READ"],
 					array("FID" => $arParams["FID"], "MID" => $arParams["MID"])));
 		}
 		elseif ($action == "send")
@@ -264,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 				array("result" => "sent")));
 		}
 	}
-	else 
+	else
 	{
 		$e = new CAdminException(array_reverse($arError));
 		$GLOBALS["APPLICATION"]->ThrowException($e);
@@ -328,18 +328,18 @@ if (!$bVarsFromForm && ($mode == "edit" || $mode=="reply"))
 }
 elseif ($bVarsFromForm)
 {
-	$arResult["POST_VALUES"]["POST_SUBJ"] = htmlspecialcharsbx($_REQUEST["POST_SUBJ"]);
-	$arResult["POST_VALUES"]["~POST_MESSAGE"] = $_REQUEST["POST_MESSAGE"];
-	$arResult["POST_VALUES"]["POST_MESSAGE"] = htmlspecialcharsbx($_REQUEST["POST_MESSAGE"]);
-	$arResult["POST_VALUES"]["USER_ID"] = htmlspecialcharsbx($_REQUEST["USER_ID"]);
-	$arResult["POST_VALUES"]["USE_SMILES"] = ($_POST["USE_SMILES"] != "Y" ? "N" : "Y");
+	$arResult["POST_VALUES"]["POST_SUBJ"] = isset($_REQUEST["POST_SUBJ"]) ? htmlspecialcharsbx($_REQUEST["POST_SUBJ"]) : null;
+	$arResult["POST_VALUES"]["~POST_MESSAGE"] = $_REQUEST["POST_MESSAGE"] ?? null;
+	$arResult["POST_VALUES"]["POST_MESSAGE"] = isset($_REQUEST["POST_MESSAGE"]) ? htmlspecialcharsbx($_REQUEST["POST_MESSAGE"]) : null;
+	$arResult["POST_VALUES"]["USER_ID"] = isset($_REQUEST["USER_ID"]) ? htmlspecialcharsbx($_REQUEST["USER_ID"]) : null;
+	$arResult["POST_VALUES"]["USE_SMILES"] = (!isset($_REQUEST["USE_SMILES"]) || $_POST["USE_SMILES"] != "Y" ? "N" : "Y");
 }
-elseif ($arParams["UID"] > 0) 
+elseif ($arParams["UID"] > 0)
 {
 	$arResult["POST_VALUES"]["USER_ID"] = intval($arParams["UID"]);
 }
 
-if (intval($arResult["POST_VALUES"]["USER_ID"]) > 0)
+if (isset($arResult["POST_VALUES"]["USER_ID"]) && intval($arResult["POST_VALUES"]["USER_ID"]) > 0)
 {
 	$db_res = CForumUser::GetList(
 		array(),
@@ -359,12 +359,12 @@ if ($arParams["SET_NAVIGATION"] != "N")
 {
 	$APPLICATION->AddChainItem(GetMessage("PM_TITLE_NAV"), CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_FOLDER"], array()));
 	if ($mode != "new")
-		$APPLICATION->AddChainItem($arResult["FolderName"], CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_LIST"], 
+		$APPLICATION->AddChainItem($arResult["FolderName"], CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_LIST"],
 			array("FID" => $arParams["FID"])));
 	if ($mode != "edit")
 		$APPLICATION->AddChainItem(GetMessage("PM_TITLE_NEW"));
-	else 
-		$APPLICATION->AddChainItem($arResult["MESSAGE"]["POST_SUBJ"], CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"], 
+	else
+		$APPLICATION->AddChainItem($arResult["MESSAGE"]["POST_SUBJ"], CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"],
 			array("FID" => $arParams["FID"], "MID" => $arParams["MID"])));
 }
 /*******************************************************************/
@@ -372,7 +372,7 @@ if ($arParams["SET_TITLE"] != "N")
 {
 	if ($mode != "edit")
 		$APPLICATION->SetTitle(GetMessage("PM_TITLE_NEW"));
-	else 
+	else
 		$APPLICATION->SetTitle(str_replace("#TITLE#", $arResult["MESSAGE"]["POST_SUBJ"], GetMessage("PM_TITLE_EDIT")));
 }
 // GetMessage("PM_FOLDER_ID_0");

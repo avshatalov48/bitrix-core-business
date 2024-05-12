@@ -1,0 +1,31 @@
+.bx-im-search-empty-state__scope {
+	--im-search-empty-state__color_title: var(--im-color-palette-gray-70, #828b95);
+	--im-search-empty-state__color_subtitle: var(--ui-color-palette-gray-50, #a8adb4);
+	--im-search-empty-state__background-image_icon: url('../css/images/empty-state.svg');
+}
+
+.bx-im-search-empty-state__container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 15px 10px 0 0;
+}
+
+.bx-im-search-empty-state__icon {
+	background: var(--im-search-empty-state__background-image_icon) no-repeat center;
+	width: 236px;
+	height: 172px;
+	margin-bottom: 15px;
+}
+
+.bx-im-search-empty-state__title {
+	font: var(--im-font-size-xl)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-search-empty-state__color_title);
+	margin-bottom: 8px;
+}
+
+.bx-im-search-empty-state__subtitle {
+	font: var(--im-font-size-xs)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-search-empty-state__color_subtitle);
+	margin-bottom: 12px;
+}

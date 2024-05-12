@@ -1,3 +1,8 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+import 'im.v2.css.tokens';
+import 'im.v2.css.icons';
+
 import { MessengerNavigation } from 'im.v2.component.navigation';
 import { RecentListContainer } from 'im.v2.component.list.container.recent';
 import { OpenlineListContainer } from 'im.v2.component.list.container.openline';
@@ -18,10 +23,7 @@ import { ThemeManager } from 'im.v2.lib.theme';
 import { DesktopManager } from 'im.v2.lib.desktop';
 import { LayoutManager } from 'im.v2.lib.layout';
 
-import 'ui.fonts.opensans';
 import './css/messenger.css';
-import './css/tokens.css';
-import './css/icons.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelLayout } from 'im.v2.model';

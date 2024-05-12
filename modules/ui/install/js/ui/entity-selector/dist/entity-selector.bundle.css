@@ -254,8 +254,13 @@
 	margin-top: 4px;
 	margin-bottom: 4px;
 	margin-right: 5px;
-	scrollbar-color: rgba(0, 0, 0, 0.21) transparent;
-	scrollbar-width: thin;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+	.ui-selector-tab-content {
+		scrollbar-color: rgba(0, 0, 0, 0.21) transparent;
+		scrollbar-width: thin;
+	}
 }
 
 .ui-selector-tab-content::-webkit-scrollbar {
@@ -502,6 +507,7 @@
 	font-size: 9px;
 	color: rgba(0, 0, 0, 0.3);
 }
+
 .ui-selector-items {
 	padding: 6px 5px 6px 10px;
 }
@@ -788,7 +794,7 @@
 	position: relative;
 	display: flex;
 	justify-content: space-between;
-	min-height: 33px;
+	min-height: 34px;
 
 	overflow-x: hidden;
 	overflow-y: scroll;
@@ -796,8 +802,13 @@
 
 	/*transition: max-height 150ms ease, min-height 150ms ease;*/
 	transition: height 150ms ease, min-height 150ms ease;
-	scrollbar-color: rgba(0, 0, 0, 0.21) transparent;
-	scrollbar-width: thin;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+	.ui-tag-selector-container {
+		scrollbar-color: rgba(0, 0, 0, 0.21) transparent;
+		scrollbar-width: thin;
+	}
 }
 
 .ui-tag-selector-container::-webkit-scrollbar {
@@ -849,7 +860,7 @@
 	vertical-align: top;
 	position: relative;
 	margin: 2px;
-	height: 29px;
+	height: 30px;
 }
 
 .ui-tag-selector-item-hidden {
@@ -929,7 +940,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font: var(--ui-font-weight-bold) 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 13px/30px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-left: 13px;
 }
 

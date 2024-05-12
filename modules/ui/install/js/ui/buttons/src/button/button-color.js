@@ -12,8 +12,11 @@ export default class ButtonColor
 	static PRIMARY_DARK = 'ui-btn-primary-dark';
 	static PRIMARY = 'ui-btn-primary';
 	static SECONDARY = 'ui-btn-secondary';
+	static SECONDARY_LIGHT = 'ui-btn-secondary-light';
+	static WARNING_LIGHT = 'ui-btn-warning-light';
 	static LINK = 'ui-btn-link';
 	static LIGHT = 'ui-btn-light';
 	static LIGHT_BORDER = 'ui-btn-light-border';
 	static AI = 'ui-btn-color-ai';
+	static BASE_LIGHT = 'ui-btn-base-light';
 }

@@ -10,6 +10,7 @@ const LIST_PADDING_SUM = 45;
 type ListProps = {
 	userInfo: any,
 	onLinkListClose: func,
+	sortJointLinksByFrequentUse: boolean,
 };
 
 export default class List
@@ -26,7 +27,7 @@ export default class List
 	};
 	#linkList: any;
 	#popupOpenState = false;
-	#sortByFrequentUse = true;
+	#sortByFrequentUse: boolean;
 	#pathToUser: string;
 
 	constructor(props: ListProps)
@@ -35,6 +36,7 @@ export default class List
 		this.#layout = {};
 		this.#linkList = null;
 		this.#pathToUser = null;
+		this.#sortByFrequentUse = props.sortJointLinksByFrequentUse;
 		this.getLinkListInfo();
 
 		this.setListItemPopupState = this.setListItemPopupState.bind(this);
@@ -162,7 +164,7 @@ export default class List
 		{
 			this.#layout.sortingButtonText = Tag.render`
 				<div class="calendar-sharing__dialog-link-list-sorting-button-text">
-					${Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT')}
+					${this.#getSortingName()}
 				</div>
 			`;
 		}
@@ -311,11 +313,13 @@ export default class List
 	changeListSort(): void
 	{
 		this.#sortByFrequentUse = !this.#sortByFrequentUse;
+		BX.ajax.runAction('calendar.api.sharingajax.setSortJointLinksByFrequentUse', {
+			data: {
+				sortByFrequentUse: this.#sortByFrequentUse ? 'Y' : 'N',
+			},
+		});
 
-		const sortName = this.#sortByFrequentUse
-			? Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT')
-			: Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_DATE')
-		;
+		const sortName = this.#getSortingName();
 
 		if (this.#layout.sortingButtonText)
 		{
@@ -325,6 +329,13 @@ export default class List
 		}
 
 		this.updateLinkList();
+	}
+
+	#getSortingName(): string
+	{
+		return this.#sortByFrequentUse
+			? Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT')
+			: Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_DATE');
 	}
 
 	setListItemPopupState(state): void

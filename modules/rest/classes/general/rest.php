@@ -18,9 +18,9 @@ use Bitrix\Rest\AccessException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Text\Encoding;
+use Bitrix\Rest\Tools\Diagnostics\RestServerProcessLogger;
 use Bitrix\Socialservices\Bitrix24Signer;
 use Bitrix\Rest\NonLoggedExceptionDecorator;
-use Bitrix\Rest\Tools\Diagnostics\RequestResponseLogger;
 
 class CRestServer
 {
@@ -69,7 +69,7 @@ class CRestServer
 	public function __construct($params, $toLowerMethod = true)
 	{
 		$this->class = $params['CLASS'];
-		$this->method = $toLowerMethod ? ToLower($params['METHOD']) : $params['METHOD'];
+		$this->method = $toLowerMethod ? mb_strtolower($params['METHOD']) : $params['METHOD'];
 		$this->query = $params['QUERY'];
 
 		$this->transport = $params['TRANSPORT'] ?? null;
@@ -113,10 +113,6 @@ class CRestServer
 
 		try
 		{
-			RequestResponseLogger::getInstance()
-			->setServer($this)
-			->logRequest();
-
 			if($this->init())
 			{
 				$handler = new $this->class();
@@ -132,15 +128,21 @@ class CRestServer
 					if($this->checkAuth())
 					{
 						\Bitrix\Rest\UsageStatTable::log($this);
+						$logger = new RestServerProcessLogger($this);
+						$logger->logRequest();
 
 						if($this->tokenCheck)
 						{
-							return $this->processTokenCheckCall();
+							$result = $this->processTokenCheckCall();
 						}
 						else
 						{
-							return $this->processCall();
+							$result = $this->processCall();
 						}
+
+						$logger->logResponse($result);
+
+						return $result;
 					}
 					else
 					{
@@ -415,7 +417,7 @@ class CRestServer
 
 		$key = \Bitrix\Rest\OAuthService::getEngine()->getClientSecret();
 
-		$signatureState = ToLower($method)
+		$signatureState = mb_strtolower($method)
 			.\CRestUtil::TOKEN_DELIMITER.($this->scope === \CRestUtil::GLOBAL_SCOPE ? '' : $this->scope)
 			.\CRestUtil::TOKEN_DELIMITER.$queryString
 			.\CRestUtil::TOKEN_DELIMITER.implode(\CRestUtil::TOKEN_DELIMITER, $this->auth);
@@ -705,6 +707,10 @@ class CRestServer
 		{
 			\CHTTP::setStatus($this->resultStatus);
 		}
+		else
+		{
+			\CHTTP::setStatus(self::STATUS_OK);
+		}
 
 		switch($this->transport)
 		{
@@ -742,7 +748,6 @@ class CRestServer
 
 	public function output($data)
 	{
-		RequestResponseLogger::getInstance()->logResponse($data);
 		\Bitrix\Rest\UsageStatTable::finalize();
 
 		if (
@@ -1037,7 +1042,7 @@ class IRestService
 					throw new RestException('Order field not allowed: '.$key, RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
 				}
 
-				if(!in_array(ToUpper($value), array('ASC', 'DESC')))
+				if(!in_array(mb_strtoupper($value), array('ASC', 'DESC')))
 				{
 					throw new RestException('Order direction should be one of {ASC|DESC}', RestException::ERROR_ARGUMENT, \CRestServer::STATUS_WRONG_REQUEST);
 				}

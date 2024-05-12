@@ -95,6 +95,17 @@ a.ui-icon-set.activitydel:hover, a.ui-icon-set.activityset:hover, a.ui-icon-set.
 	border: none;
 }
 
+.activity-modern-blink
+{
+	animation: activity-blinker 750ms linear infinite;
+}
+
+@keyframes activity-blinker {
+	50% {
+		box-shadow: 0 0 10px 10px #99ffb9;
+	}
+}
+
 .bizproc-wf-settings-tab-content {
 	position: relative;
 }

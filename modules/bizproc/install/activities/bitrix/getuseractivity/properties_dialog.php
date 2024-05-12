@@ -8,7 +8,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("BPCRU_PD_TYPE") ?>:</span></td>
 	<td width="60%">
-		<script type="text/javascript">
+		<script>
 		function __BPCRUUserTypeChange(v)
 		{
 			if (v == 'boss')
@@ -84,6 +84,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 		</label>
 	</td>
 </tr>
-<script type="text/javascript">
+<script>
 __BPCRUUserTypeChange('<?= $arCurrentValues['user_type'] ?>');
 </script>

@@ -19880,13 +19880,13 @@ BX.IM.Desktop.prototype.getHtmlPage = function(content, jsContent, initImJs, bod
 
 	if (jsContent != '')
 	{
-		jsContent = '<script type="text/javascript">BX.ready(function(){'+jsContent+'});</script>';
+		jsContent = '<script>BX.ready(function(){'+jsContent+'});</script>';
 	}
 
 	var initJs = '';
 	if (initImJs == true)
 	{
-		initJs = "<script type=\"text/javascript\">"+
+		initJs = "<script>"+
 			"BX.ready(function() {"+
 				"BXIM = new BX.IM(null, {"+
 					"'init': false,"+

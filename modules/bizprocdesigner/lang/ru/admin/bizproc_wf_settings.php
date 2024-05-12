@@ -47,7 +47,6 @@ $MESS["BP_WF_TAB_VARS"] = "Переменные";
 $MESS["BP_WF_TAB_VARS_TITLE"] = "Переменные бизнес-процесса";
 $MESS["BP_WF_TAB_PERM"] = "Доступ";
 $MESS["BP_WF_TAB_PERM_TITLE"] = "Права доступа к бизнес-процессу";
-$MESS["BP_WF_TAB_PERM_NOSETTINGS"] = "Для данного типа документа настройки доступа не поддерживаются!";
 $MESS["BP_WF_VAR_ADD"] = "Добавить переменную";
 $MESS["BP_WF_UP"] = "Выше";
 $MESS["BP_WF_DOWN"] = "Ниже";

@@ -150,7 +150,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getForm",
 	    value: function getForm() {
 	      return new landing_ui_form_menuform.MenuForm({
-	        title: 'Menu',
+	        title: landing_loc.Loc.getMessage('LANDING_MENU_TITLE'),
 	        type: 'menu',
 	        code: this.code,
 	        forms: this.getFlatTree().map(function (item) {

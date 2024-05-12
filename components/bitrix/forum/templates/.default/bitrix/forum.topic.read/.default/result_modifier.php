@@ -31,7 +31,7 @@ $arParams["SHOW_FIRST_POST"] = ($arParams["SHOW_FIRST_POST"] == "Y" ? "Y" : "N")
 if ($arParams["SHOW_RSS"] == "Y"):
 	$arParams["SHOW_RSS"] = (!$USER->IsAuthorized() || CForumNew::GetUserPermission($arParams["FID"], array(2)) > "A") ? "Y" : "N";
 endif;
-$arParams["SHOW_NAME_LINK"] = ($arParams["SHOW_NAME_LINK"] == "N" ? "N" : "Y");
+$arParams["SHOW_NAME_LINK"] = (isset($arParams["SHOW_NAME_LINK"]) && $arParams["SHOW_NAME_LINK"] == "N" ? "N" : "Y");
 
 $arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" ? "Y" : "N");
 $arParams["VOTE_TEMPLATE"] = (trim($arParams["VOTE_TEMPLATE"]) <> '' ? trim($arParams["VOTE_TEMPLATE"]) : "light");

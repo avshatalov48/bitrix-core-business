@@ -22,6 +22,7 @@ type DialogOptions = {
 	context: 'calendar' | 'crm',
 	readOnly: boolean,
 	settingsCollapsed: boolean,
+	sortJointLinksByFrequentUse: boolean,
 }
 
 export default class DialogNew
@@ -30,6 +31,7 @@ export default class DialogNew
 	HELP_DESK_CODE_CALENDAR = 17198666;
 	// eslint-disable-next-line unicorn/numeric-separators-style
 	HELP_DESK_CODE_CRM = 17502612;
+	#options: DialogOptions;
 	#popup;
 	#layout;
 	#dialogQr;
@@ -43,6 +45,7 @@ export default class DialogNew
 
 	constructor(options: DialogOptions)
 	{
+		this.#options = options;
 		this.#popup = null;
 		this.#dialogQr = null;
 		this.#layout = {
@@ -249,6 +252,7 @@ export default class DialogNew
 			this.#linkList = new List({
 				userInfo: this.userInfo,
 				onLinkListClose: this.onLinkListClose.bind(this),
+				sortJointLinksByFrequentUse: this.#options.sortJointLinksByFrequentUse,
 			});
 		}
 

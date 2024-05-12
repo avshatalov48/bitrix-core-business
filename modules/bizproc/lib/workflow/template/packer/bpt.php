@@ -125,7 +125,7 @@ class Bpt extends BasePacker
 		foreach ($template as &$activity)
 		{
 			self::replaceActivityDocumentFieldsAliases($activity, $aliases);
-			if (is_array($activity["Children"]))
+			if (is_array($activity["Children"] ?? null))
 			{
 				self::replaceTemplateDocumentFieldsAliases($activity['Children'], $aliases);
 			}

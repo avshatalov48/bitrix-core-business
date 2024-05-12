@@ -8,12 +8,20 @@ use Bitrix\Bitrix24\License\Market;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\HttpClient;
+use Bitrix\UI\FeaturePromoter;
 
 class InfoHelper extends Engine\Controller
 {
-	public function getInitParamsAction(?string $currentUrl = null)
+	private const POPUP_PROVIDER_TEST_CODE_LIST = [];
+
+	public function getInitParamsAction(string $type = FeaturePromoter\ProviderType::SLIDER, string $code = '', string $currentUrl = ''): array
 	{
-		return \Bitrix\UI\InfoHelper::getInitParams($currentUrl);
+		if (FeaturePromoter\ProviderType::POPUP === $type)
+		{
+			return (new FeaturePromoter\Popup($code, $currentUrl))->getRendererParameters();
+		}
+
+		return (new FeaturePromoter\Slider($currentUrl))->getRendererParameters();
 	}
 
 	public function activateDemoLicenseAction()
@@ -49,7 +57,7 @@ class InfoHelper extends Engine\Controller
 		$action = 'blank';
 		if (Loader::includeModule('bitrix24'))
 		{
-			$url = Market::PATH_MARKET_BUY;
+			$url = Market::getDefaultBuyPath();
 		}
 		else
 		{

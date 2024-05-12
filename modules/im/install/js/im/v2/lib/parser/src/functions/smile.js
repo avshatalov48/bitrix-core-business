@@ -64,6 +64,11 @@ export const ParserSmile = {
 
 	loadSmilePatterns()
 	{
+		if (!getSmileManager())
+		{
+			return;
+		}
+
 		const smileManager = getSmileManager().getInstance();
 		const smiles = smileManager.smileList?.smiles ?? [];
 		if (smiles.length === 0)

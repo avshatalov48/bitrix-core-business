@@ -320,7 +320,7 @@ class Application
 								'success' => 1,
 								'id' => $appId,
 								'open' => $open,
-								'installed' => $appFields['INSTALLED'] === 'Y',
+								'installed' => AppTable::isInstalled($appId),
 								'redirect' => $redirect,
 								'openSlider' => $sliderUrl,
 							];

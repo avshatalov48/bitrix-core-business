@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix Site Manager Forum                  #
 # Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
@@ -39,7 +39,7 @@ class CAllForumPoints
 
 		if (is_set($arFields, "LANG") || $ACTION=="ADD")
 		{
-			if (!is_array($arFields["LANG"]))
+			if (!isset($arFields["LANG"]) || !is_array($arFields["LANG"]))
 				$arFields["LANG"] = array();
 
 			$db_lang = CLangAdmin::GetList();
@@ -51,7 +51,7 @@ class CAllForumPoints
 					if (is_array($res) && $res["LID"] == $arLang["LID"])
 					{
 						$arFields["LANG"][$key]["NAME"] = trim($res["NAME"]);
-						if ($arFields["LANG"][$key]["NAME"] <> '')
+						if (isset($arFields["LANG"][$key]) && $arFields["LANG"][$key]["NAME"] <> '')
 						{
 							$bFound = True;
 							break;
@@ -97,7 +97,7 @@ class CAllForumPoints
 				}
 			}
 		}
-		$arFields["VOTES"] = intval($arFields["VOTES"]);
+		$arFields["VOTES"] = isset($arFields["VOTES"]) ? intval($arFields["VOTES"]) : null;
 
 		if(!empty($aMsg))
 		{

@@ -86,7 +86,7 @@ if($arParams['CAN_EDIT']): ?>
 	</div>
 <? endforeach; ?>
 
-<script type="text/javascript">
+<script>
 	BX(function () {
 		BX.Lists['<?=$jsClass?>'] = new BX.Lists.ListsIblockClass({
 			randomString: '<?= $randString ?>'

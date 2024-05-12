@@ -33,19 +33,16 @@ export class RecursiveFilteringVisitor extends BaseSettingsVisitor
 	{
 		if (this.#do(element))
 		{
-			if (element.getChildrenElements().length > 0)
-			{
-				element
-					.getChildrenElements()
-					.forEach((childElement: BaseSettingsElement) => {
-						this.visitSettingsElement(childElement);
-					})
-				;
-			}
-			else
-			{
-				this.#result.push(element);
-			}
+			this.#result.push(element);
+		}
+		if (element.getChildrenElements().length > 0)
+		{
+			element
+				.getChildrenElements()
+				.forEach((childElement: BaseSettingsElement) => {
+					this.visitSettingsElement(childElement);
+				})
+			;
 		}
 	}
 
@@ -55,5 +52,15 @@ export class RecursiveFilteringVisitor extends BaseSettingsVisitor
 			.setFilter(filterStrategy)
 			.restart(startElement)
 		;
+	}
+
+	static getInstance(): RecursiveFilteringVisitor
+	{
+		if (!this.instance)
+		{
+			this.instance = new this();
+		}
+
+		return this.instance;
 	}
 }

@@ -1,5 +1,7 @@
 import {Type, Loc, Text, Dom} from 'main.core';
 
+import { FakeMessagePrefix } from 'im.v2.const';
+
 import { emojiRegex } from './emoji-regex';
 
 export const TextUtil = {
@@ -121,7 +123,7 @@ export const TextUtil = {
 
 	isTempMessage(messageId): boolean
 	{
-		return this.isUuidV4(messageId) || messageId.toString().startsWith('temp');
+		return TextUtil.isUuidV4(messageId) || messageId.toString().startsWith(FakeMessagePrefix);
 	},
 
 	checkUrl(url): boolean

@@ -136,7 +136,7 @@ else
 			$aMenuLinksTmp_ = Array();
 		}
 
-		//соберем $aMenuLinksTmp из того что пришло с формы
+		//СЃРѕР±РµСЂРµРј $aMenuLinksTmp РёР· С‚РѕРіРѕ С‡С‚Рѕ РїСЂРёС€Р»Рѕ СЃ С„РѕСЂРјС‹
 		$aMenuSort = Array();
 		for($i = 0, $l = count($ids); $i < $l; $i++)
 		{
@@ -208,7 +208,7 @@ else
 					$aMenuSort[$i] = $aMenuSort[$j];
 					$aMenuSort[$j] = $tmpSort;
 				}
-		//теперь $aMenuLinksTmp прямо в таком готовом виде, что хоть меню рисуй :-)
+		//С‚РµРїРµСЂСЊ $aMenuLinksTmp РїСЂСЏРјРѕ РІ С‚Р°РєРѕРј РіРѕС‚РѕРІРѕРј РІРёРґРµ, С‡С‚Рѕ С…РѕС‚СЊ РјРµРЅСЋ СЂРёСЃСѓР№ :-)
 	}
 
 	if($REQUEST_METHOD=="POST" && $save <> '' && $name == '' && check_bitrix_sessid())

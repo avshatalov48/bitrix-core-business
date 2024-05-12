@@ -13,6 +13,7 @@ export const ButtonSize = {
 export const ButtonColor = {
 	Primary: 'primary',
 	PrimaryLight: 'primary-light',
+	Copilot: 'copilot',
 	Success: 'success',
 	Danger: 'danger',
 	LightBorder: 'light-border',

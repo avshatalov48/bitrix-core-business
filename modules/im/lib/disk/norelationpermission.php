@@ -10,21 +10,19 @@ use \Bitrix\Im\Model\RelationTable;
 class NoRelationPermission
 {
 	const ACCESS_TIME = 86400;
-	const CACHE_TIME = 864000;
 
 	public static function add($chatId, $userId)
 	{
 		$result =  false;
 
-		$rowRelation = RelationTable::getRow(array(
-			'select' => array('ID'),
-			'filter' => array(
+		$rowRelation = RelationTable::getRow([
+			'select' => ['ID'],
+			'filter' => [
 				'=CHAT_ID' => $chatId,
 				'=USER_ID' => $userId
-			),
-			'cache'=>array('ttl'=>self::CACHE_TIME)
-		));
-		if(empty($rowRelation))
+			],
+		]);
+		if (empty($rowRelation))
 		{
 			$provider = new ChatAuthProvider();
 			if ($provider->isCodeAlreadyExists($chatId, $userId))
@@ -34,42 +32,48 @@ class NoRelationPermission
 
 			if(\CIMDisk::ChangeFolderMembers($chatId, $userId))
 			{
-				$raw = NoRelationPermissionDiskTable::getList(array(
-					'select' => array('ID'),
-					'filter' => array('=CHAT_ID' => $chatId, '=USER_ID' => $userId),
-					'cache'=>array('ttl'=>self::CACHE_TIME)
-				));
+				$raw = NoRelationPermissionDiskTable::getList([
+					'select' => ['ID'],
+					'filter' => [
+						'=CHAT_ID' => $chatId,
+						'=USER_ID' => $userId
+					],
+				]);
 
 				$count = 0;
 				while ($row = $raw->fetch())
 				{
 					$count++;
 
-					if($count>1)
+					if ($count > 1)
 					{
 						NoRelationPermissionDiskTable::delete($row['ID']);
 					}
 					else
 					{
-						$updateRaw = NoRelationPermissionDiskTable::update($row['ID'], array(
+						$updateRaw = NoRelationPermissionDiskTable::update($row['ID'], [
 							'ACTIVE_TO' => DateTime::createFromTimestamp(time() + self::ACCESS_TIME)
-						));
+						]);
 
-						if($updateRaw->isSuccess())
+						if ($updateRaw->isSuccess())
+						{
 							$result = true;
+						}
 					}
 				}
 
-				if($count === 0)
+				if ($count === 0)
 				{
-					$addRaw = NoRelationPermissionDiskTable::add(array(
+					$addRaw = NoRelationPermissionDiskTable::add([
 						'CHAT_ID' => $chatId,
 						'USER_ID' => $userId,
 						'ACTIVE_TO' => DateTime::createFromTimestamp(time() + self::ACCESS_TIME)
-					));
+					]);
 
-					if($addRaw->isSuccess())
+					if ($addRaw->isSuccess())
+					{
 						$result = true;
+					}
 				}
 			}
 		}
@@ -81,33 +85,35 @@ class NoRelationPermission
 	{
 		$result =  false;
 
-		if($permissionDisk)
+		if ($permissionDisk)
 		{
-			$rowRelation = RelationTable::getRow(array(
-				'select' => array('ID'),
-				'filter' => array(
+			$rowRelation = RelationTable::getRow([
+				'select' => ['ID'],
+				'filter' => [
 					'=CHAT_ID' => $chatId,
 					'=USER_ID' => $userId
-				),
-				'cache'=>array('ttl'=>self::CACHE_TIME)
-			));
-			if(empty($rowRelation))
+				],
+			]);
+			if (empty($rowRelation))
 			{
-				if(\CIMDisk::ChangeFolderMembers($chatId, $userId, false))
+				if (\CIMDisk::ChangeFolderMembers($chatId, $userId, false))
+				{
 					$result = true;
+				}
 			}
 		}
 
-		$raw = NoRelationPermissionDiskTable::getList(array(
-			'select' => array('ID'),
-			'filter' => array('=CHAT_ID' => $chatId, '=USER_ID' => $userId),
-			'cache'=>array('ttl'=>self::CACHE_TIME)
-		));
+		$raw = NoRelationPermissionDiskTable::getList([
+			'select' => ['ID'],
+			'filter' => ['=CHAT_ID' => $chatId, '=USER_ID' => $userId],
+		]);
 
 		while ($row = $raw->fetch())
 		{
-			if(NoRelationPermissionDiskTable::delete($row['ID'])->isSuccess())
+			if (NoRelationPermissionDiskTable::delete($row['ID'])->isSuccess())
+			{
 				$result = true;
+			}
 		}
 
 		return $result;
@@ -141,7 +147,7 @@ class NoRelationPermission
 			]
 		]);
 		$pseudoRelation = [];
-		while($row = $result->fetch())
+		while ($row = $result->fetch())
 		{
 			$pseudoRelation[$row['CHAT_ID']][$row['USER_ID']] = $row['USER_ID'];
 		}

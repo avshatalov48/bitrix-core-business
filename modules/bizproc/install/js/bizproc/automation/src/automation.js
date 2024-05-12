@@ -29,6 +29,9 @@ export { HelpHint } from './help-hint';
 export { SelectorContext } from './context/selector-context';
 export { AutomationGlobals } from './automation-globals';
 export { Statuses } from './statuses';
+export { SelectorItemsManager } from './selectors/group/manager';
+
+import enrichFieldsWithModifiers from './selectors/enrich-fields-with-modifiers';
 
 export { Helper } from './helper';
 
@@ -39,6 +42,7 @@ import './css/style.css';
 export {
 	TemplatesScheme,
 	Context,
+	enrichFieldsWithModifiers,
 };
 
 export { BeginningGuide } from './tourguide/beginning-guide';

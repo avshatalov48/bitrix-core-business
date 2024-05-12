@@ -438,11 +438,30 @@ $aMenu[] = [
 			}
 			BizProcRender(arWorkflowTemplate, document.getElementById('wf1'));
 
-			var workArea = document.getElementById('workarea-content');
-			if (workArea)
+			if (history.scrollRestoration)
 			{
-				BX.scrollToNode(workArea);
+				history.scrollRestoration = "manual";
 			}
+
+			const hash = window.location.hash;
+			if (hash)
+			{
+				const activity = window.rootActivity.findChildById(hash.slice(1));
+				/** @var BizProcActivity activity */
+				if (activity)
+				{
+					activity.focusAndBlink();
+				}
+			}
+			else
+			{
+				var workArea = document.getElementById('workarea-content');
+				if (workArea)
+				{
+					BX.scrollToNode(workArea);
+				}
+			}
+
 			<?if($ID <= 0):?>
 			BCPShowParams();
 			<?endif;?>

@@ -3,22 +3,21 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_entitySelector,im_v2_application_core,im_v2_provider_service,im_v2_component_search_searchResult,main_popup,im_v2_component_elements,main_core_events,im_public,im_v2_const,im_v2_component_search_chatSearchInput,im_v2_component_search_searchExperimental) {
+(function (exports,ui_entitySelector,im_v2_application_core,im_v2_provider_service,main_popup,im_v2_component_elements,main_core_events,im_public,im_v2_const,im_v2_component_search_chatSearchInput,im_v2_component_search_chatSearch) {
 	'use strict';
 
-	const searchConfig = {
-	  currentUser: false,
+	const searchConfig = Object.freeze({
 	  chats: false,
-	  network: false
-	};
+	  users: true
+	});
+	const SEARCH_ENTITY_ID = 'user';
 
 	// @vue/component
 	const AddToChatContent = {
 	  name: 'AddToChatContent',
 	  components: {
-	    SearchResult: im_v2_component_search_searchResult.SearchResult,
-	    MessengerButton: im_v2_component_elements.Button,
-	    ScrollWithGradient: im_v2_component_elements.ScrollWithGradient
+	    ChatSearch: im_v2_component_search_chatSearch.ChatSearch,
+	    MessengerButton: im_v2_component_elements.Button
 	  },
 	  props: {
 	    dialogId: {
@@ -31,9 +30,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      searchQuery: '',
 	      showHistory: true,
 	      isLoading: false,
-	      selectedItems: new Set(),
-	      needTopShadow: false,
-	      needBottomShadow: true
+	      selectedItems: new Set()
 	    };
 	  },
 	  computed: {
@@ -65,8 +62,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        maxHeight: 111,
 	        showAddButton: false,
 	        showTextBox: true,
-	        addButtonCaption: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD'),
-	        addButtonCaptionMore: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MORE'),
+	        addButtonCaption: this.loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MSGVER_1'),
+	        addButtonCaptionMore: this.loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MORE'),
 	        showCreateButton: false,
 	        events: {
 	          onBeforeTagAdd: () => {
@@ -76,8 +73,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	            const {
 	              tag
 	            } = event.getData();
-	            const itemUniqId = `${tag.entityId}|${tag.id}`;
-	            this.selectedItems.add(itemUniqId);
+	            this.selectedItems.add(tag.id);
 	            this.focusSelector();
 	          },
 	          onBeforeTagRemove: () => {
@@ -87,14 +83,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	            const {
 	              tag
 	            } = event.getData();
-	            const itemUniqId = `${tag.entityId}|${tag.id}`;
-	            this.selectedItems.delete(itemUniqId);
+	            this.selectedItems.delete(tag.id);
 	            this.focusSelector();
 	          },
 	          onInput: () => {
 	            this.searchQuery = this.membersSelector.getTextBoxValue();
 	          },
-	          onBlur: event => {
+	          onBlur: () => {
 	            const inputText = this.membersSelector.getTextBoxValue();
 	            if (inputText.length > 0) {
 	              return;
@@ -129,31 +124,37 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    onSelectItem(event) {
 	      const {
-	        selectedItem,
-	        selectedStatus,
+	        dialogId,
 	        nativeEvent
 	      } = event;
-	      if (selectedStatus) {
-	        this.membersSelector.addTag({
-	          id: selectedItem.getId(),
-	          entityId: selectedItem.getEntityId(),
-	          entityType: selectedItem.getEntityType(),
-	          title: selectedItem.getTitle(),
-	          avatar: selectedItem.getAvatar()
-	        });
+	      if (this.selectedItems.has(dialogId)) {
+	        const tag = {
+	          id: dialogId,
+	          entityId: SEARCH_ENTITY_ID
+	        };
+	        this.membersSelector.removeTag(tag);
 	      } else {
-	        this.membersSelector.removeTag({
-	          id: selectedItem.getId(),
-	          entityId: selectedItem.getEntityId()
-	        });
+	        const tag = this.getTagByDialogId(dialogId);
+	        this.membersSelector.addTag(tag);
 	      }
 	      this.membersSelector.clearTextBox();
 	      if (!nativeEvent.altKey) {
 	        this.searchQuery = '';
 	      }
 	    },
+	    getTagByDialogId(dialogId) {
+	      const user = this.$store.getters['users/get'](dialogId, true);
+	      const entityType = user.extranet ? 'extranet' : 'employee';
+	      return {
+	        id: dialogId,
+	        entityId: SEARCH_ENTITY_ID,
+	        entityType,
+	        title: user.name,
+	        avatar: user.avatar.length > 0 ? user.avatar : null
+	      };
+	    },
 	    onInviteClick() {
-	      const members = this.prepareMembers(this.selectedItems);
+	      const members = [...this.selectedItems];
 	      if (this.isChat) {
 	        this.extendChat(members);
 	      } else {
@@ -176,29 +177,25 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.$emit('close');
 	      });
 	    },
-	    createChat(members) {
+	    async createChat(members) {
 	      this.isLoading = true;
-	      this.chatService.createChat({
+	      const {
+	        newDialogId
+	      } = await this.chatService.createChat({
 	        title: null,
 	        description: null,
 	        members,
 	        ownerId: im_v2_application_core.Core.getUserId(),
 	        isPrivate: true
-	      }).then(newDialogId => {
-	        this.isLoading = false;
-	        im_public.Messenger.openChat(newDialogId);
 	      }).catch(error => {
 	        console.error(error);
 	        this.isLoading = false;
 	      });
+	      this.isLoading = false;
+	      void im_public.Messenger.openChat(newDialogId);
 	    },
-	    onListScroll(event) {
-	      this.needBottomShadow = event.target.scrollTop + event.target.clientHeight !== event.target.scrollHeight;
-	      if (event.target.scrollTop === 0) {
-	        this.needTopShadow = false;
-	        return;
-	      }
-	      this.needTopShadow = true;
+	    loc(key) {
+	      return this.$Bitrix.Loc.getMessage(key);
 	    }
 	  },
 	  template: `
@@ -207,21 +204,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div v-if="isChat" class="bx-im-entity-selector-add-to-chat__show-history">
 				<input type="checkbox" id="bx-im-entity-selector-add-to-chat-show-history" v-model="showHistory">
 				<label for="bx-im-entity-selector-add-to-chat-show-history">
-					{{ $Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_SHOW_HISTORY')}}
+					{{ loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_SHOW_HISTORY')}}
 				</label>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__search-result-container">
-				<ScrollWithGradient :gradientHeight="28">
-					<SearchResult
-						:searchMode="true"
-						:searchQuery="searchQuery"
-						:searchConfig="searchConfig"
-						:selectMode="true"
-						:selectedItems="[...selectedItems]"
-						@selectItem="onSelectItem"
-						@scroll="onListScroll"
-					/>
-				</ScrollWithGradient>
+				<ChatSearch
+					:searchMode="true"
+					:searchQuery="searchQuery"
+					:selectMode="true"
+					:searchConfig="searchConfig"
+					:selectedItems="[...selectedItems]"
+					:showMyNotes="false"
+					@clickItem="onSelectItem"
+				/>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__buttons">
 				<MessengerButton
@@ -229,7 +224,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:color="ButtonColor.Primary"
 					:isRounded="true"
 					:isLoading="isLoading"
-					:text="$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_INVITE_BUTTON')"
+					:text="loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_INVITE_BUTTON')"
 					:isDisabled="selectedItems.size === 0"
 					@click="onInviteClick"
 				/>
@@ -237,7 +232,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:size="ButtonSize.L"
 					:color="ButtonColor.LightBorder"
 					:isRounded="true"
-					:text="$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_CANCEL_BUTTON')"
+					:text="loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_CANCEL_BUTTON')"
 					@click="$emit('close')"
 				/>
 			</div>
@@ -277,7 +272,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    POPUP_ID: () => POPUP_ID,
 	    config() {
 	      return {
-	        titleBar: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_INVITE_MEMBERS_TITLE'),
+	        titleBar: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MEMBERS_TITLE'),
 	        closeIcon: true,
 	        bindElement: this.bindElement,
 	        offsetTop: this.popupConfig.offsetTop,
@@ -302,11 +297,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	const searchConfig$1 = Object.freeze({
+	  chats: true,
+	  users: true
+	});
+
 	// @vue/component
 	const ForwardContent = {
 	  name: 'ForwardContent',
 	  components: {
-	    SearchExperimental: im_v2_component_search_searchExperimental.SearchExperimental,
+	    ChatSearch: im_v2_component_search_chatSearch.ChatSearch,
 	    ChatSearchInput: im_v2_component_search_chatSearchInput.ChatSearchInput
 	  },
 	  props: {
@@ -321,6 +321,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      searchQuery: '',
 	      isLoading: false
 	    };
+	  },
+	  computed: {
+	    searchConfig: () => searchConfig$1
 	  },
 	  methods: {
 	    onLoading(value) {
@@ -352,12 +355,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				/>
 			</div>
 			<div class="bx-im-entity-selector-forward__search-result-container">
-				<SearchExperimental
+				<ChatSearch
 					:searchMode="true"
 					:searchQuery="searchQuery"
-					:selectMode="true"
-					:withMyNotes="true"
-					:handleClickItem="false"
+					:searchConfig="searchConfig"
 					@clickItem="onSelectItem"
 					@loading="onLoading"
 				/>
@@ -418,5 +419,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.AddToChat = AddToChat;
 	exports.ForwardPopup = ForwardPopup;
 
-}((this.BX.Messenger.v2.Component.EntitySelector = this.BX.Messenger.v2.Component.EntitySelector || {}),BX.UI.EntitySelector,BX.Messenger.v2.Application,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Component,BX.Main,BX.Messenger.v2.Component.Elements,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Component,BX.Messenger.v2.Component));
+}((this.BX.Messenger.v2.Component.EntitySelector = this.BX.Messenger.v2.Component.EntitySelector || {}),BX.UI.EntitySelector,BX.Messenger.v2.Application,BX.Messenger.v2.Provider.Service,BX.Main,BX.Messenger.v2.Component.Elements,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Component,BX.Messenger.v2.Component));
 //# sourceMappingURL=registry.bundle.js.map

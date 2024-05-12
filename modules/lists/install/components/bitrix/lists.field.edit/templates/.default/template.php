@@ -722,7 +722,7 @@ $APPLICATION->IncludeComponent(
 );
 ?>
 
-<script type="text/javascript">
+<script>
 	BX(function () {
 		BX.Lists['<?=$jsClass?>'] = new BX.Lists.ListsFieldEditClass({
 			randomString: '<?=$arResult['RAND_STRING']?>',

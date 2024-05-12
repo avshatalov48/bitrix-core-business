@@ -1,22 +1,33 @@
-import { Node, privateMap, nameSymbol, type ContentNode } from './node';
-import { ElementNode } from './element-node';
+import { BBCodeNode, privateMap, nameSymbol, type BBCodeContentNode } from './node';
+import { BBCodeElementNode } from './element-node';
+import { typeof BBCodeScheme } from '../scheme/bbcode-scheme';
 
 export type RootNodeOptions = {
-	children: Array<Node>,
+	children: Array<BBCodeNode>,
 };
 
-export class RootNode extends ElementNode
+export class BBCodeRootNode extends BBCodeElementNode
 {
-	[nameSymbol] = '#root';
-
 	constructor(options: RootNodeOptions)
 	{
-		super(options);
-		privateMap.get(this).type = Node.ROOT_NODE;
-		RootNode.makeNonEnumerableProperty(this, 'value');
-		RootNode.makeNonEnumerableProperty(this, 'void');
-		RootNode.makeNonEnumerableProperty(this, 'inline');
-		RootNode.makeNonEnumerableProperty(this, 'attributes');
+		super({ ...options, name: '#root' });
+		privateMap.get(this).type = BBCodeNode.ROOT_NODE;
+		BBCodeRootNode.makeNonEnumerableProperty(this, 'value');
+		BBCodeRootNode.makeNonEnumerableProperty(this, 'attributes');
+		BBCodeRootNode.freezeProperty(this, nameSymbol, '#root');
+	}
+
+	setScheme(scheme: BBCodeScheme, onUnknown: (node: BBCodeContentNode) => any)
+	{
+		BBCodeNode.flattenAst(this).forEach((node: BBCodeContentNode) => {
+			node.setScheme(scheme, onUnknown);
+		});
+
+		super.setScheme(scheme);
+
+		BBCodeNode.flattenAst(this).forEach((node: BBCodeContentNode) => {
+			node.adjustChildren();
+		});
 	}
 
 	getParent(): null
@@ -24,10 +35,7 @@ export class RootNode extends ElementNode
 		return null;
 	}
 
-	setName(name: string)
-	{}
-
-	clone(options: { deep: boolean } = {}): RootNode
+	clone(options: { deep: boolean } = {}): BBCodeRootNode
 	{
 		const children = (() => {
 			if (options.deep)
@@ -40,7 +48,7 @@ export class RootNode extends ElementNode
 			return [];
 		})();
 
-		return new RootNode({
+		return this.getScheme().createRoot({
 			children,
 		});
 	}
@@ -48,7 +56,7 @@ export class RootNode extends ElementNode
 	toString(): string
 	{
 		return this.getChildren()
-			.map((child: ContentNode) => {
+			.map((child: BBCodeContentNode) => {
 				return child.toString();
 			})
 			.join('');
@@ -56,7 +64,7 @@ export class RootNode extends ElementNode
 
 	toJSON(): any
 	{
-		return this.getChildren().map((node: Node) => {
+		return this.getChildren().map((node: BBCodeNode) => {
 			return node.toJSON();
 		});
 	}

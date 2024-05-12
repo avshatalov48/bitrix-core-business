@@ -291,7 +291,7 @@ class User implements \ArrayAccess {
 		{
 			$user = UserTable::getList([
 				'select' => [
-					'*',
+					'ID', 'USER_ID', 'POINTS', 'NUM_POSTS', 'LAST_POST', 'ALLOW_POST', 'SHOW_NAME',
 					'ACTIVE' => 'USER.ACTIVE',
 					'NAME' => 'USER.NAME',
 					'SECOND_NAME' => 'USER.SECOND_NAME',
@@ -308,7 +308,7 @@ class User implements \ArrayAccess {
 				$this->locked = ($user['ACTIVE'] !== 'Y' || $user['ALLOW_POST'] !== 'Y');
 			}
 			elseif ($user = Main\UserTable::getList([
-				'select' => ['*'],
+				'select' => ['ID', 'ACTIVE', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'LOGIN'],
 				'filter' => ['ID' => (int)$id],
 				'limit' => 1,
 			])->fetch())
@@ -324,10 +324,6 @@ class User implements \ArrayAccess {
 				throw new Main\ObjectNotFoundException('User was not found.');
 			}
 			$this->data = $user;
-			$this->data['NAME'] = $user['NAME'];
-			$this->data['SECOND_NAME'] = $user['SECOND_NAME'];
-			$this->data['LAST_NAME'] = $user['LAST_NAME'];
-			$this->data['LOGIN'] = $user['LOGIN'];
 			$this->data['ALLOW_POST'] = (($this->data['ALLOW_POST'] ?? 'Y') === 'N' ? 'N' : 'Y');
 			if (empty($this->data['SHOW_NAME']))
 				$this->data['SHOW_NAME'] = \COption::GetOptionString('forum', 'USER_SHOW_NAME', 'Y');

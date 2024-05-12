@@ -1,4 +1,4 @@
-<section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-attachment-fixed g-bg-black-opacity-0_6--after g-pt-100"
+<section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-black-opacity-0_6--after g-pt-100"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x645/img2.jpg);" data-slider-animation="1">
 	<div class="js-carousel container u-bg-overlay__inner g-pb-120"
 		 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-60 text-center">

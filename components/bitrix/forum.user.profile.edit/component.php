@@ -114,41 +114,41 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT")
 	{
 		$APPLICATION->ResetException();
 		// Update Main info about user
-		$arPERSONAL_PHOTO = $_FILES["PERSONAL_PHOTO"];
-		$arPERSONAL_PHOTO["old_file"] = $ar_user["PERSONAL_PHOTO"];
-		$arPERSONAL_PHOTO["del"] = $_POST["PERSONAL_PHOTO_del"];
+		$arPERSONAL_PHOTO = $_FILES["PERSONAL_PHOTO"] ?? null;
+		$arPERSONAL_PHOTO["old_file"] = $ar_user["PERSONAL_PHOTO"] ?? null;
+		$arPERSONAL_PHOTO["del"] = $_POST["PERSONAL_PHOTO_del"] ?? null;
 
 		$arFields = Array(
-			"NAME"					=> $_POST["NAME"],
-			"LAST_NAME"				=> $_POST["LAST_NAME"],
-			"EMAIL"					=> $_POST["EMAIL"],
-			"LOGIN"					=> $_POST["LOGIN"],
-			"PERSONAL_PROFESSION"=> $_POST["PERSONAL_PROFESSION"],
-			"PERSONAL_WWW"			=> $_POST["PERSONAL_WWW"],
-			"PERSONAL_ICQ"			=> $_POST["PERSONAL_ICQ"],
-			"PERSONAL_GENDER"		=> $_POST["PERSONAL_GENDER"],
-			"PERSONAL_BIRTHDAY"	=> $_POST["PERSONAL_BIRTHDAY"],
-			"PERSONAL_PHOTO"		=> $arPERSONAL_PHOTO,
-			"PERSONAL_CITY"		=> $_POST["PERSONAL_CITY"],
-			"PERSONAL_STATE"		=> $_POST["PERSONAL_STATE"],
-			"PERSONAL_COUNTRY"	=> $_POST["PERSONAL_COUNTRY"],
-			"WORK_COMPANY"			=> $_POST["WORK_COMPANY"],
-			"WORK_DEPARTMENT"		=> $_POST["WORK_DEPARTMENT"],
-			"WORK_POSITION"		=> $_POST["WORK_POSITION"],
-			"WORK_WWW"				=> $_POST["WORK_WWW"],
-			"WORK_CITY"				=> $_POST["WORK_CITY"],
-			"WORK_STATE"			=> $_POST["WORK_STATE"],
-			"WORK_COUNTRY"			=> $_POST["WORK_COUNTRY"],
-			"WORK_PROFILE"			=> $_POST["WORK_PROFILE"],
-			"AUTO_TIME_ZONE"		=> ($_POST["AUTO_TIME_ZONE"] == "Y" || $_POST["AUTO_TIME_ZONE"] == "N"? $_POST["AUTO_TIME_ZONE"] : ""),
+			"NAME"					=> $_POST["NAME"] ?? null,
+			"LAST_NAME"				=> $_POST["LAST_NAME"] ?? null,
+			"EMAIL"					=> $_POST["EMAIL"] ?? null,
+			"LOGIN"					=> $_POST["LOGIN"] ?? null,
+			"PERSONAL_PROFESSION"=> $_POST["PERSONAL_PROFESSION"] ?? null,
+			"PERSONAL_WWW"			=> $_POST["PERSONAL_WWW"] ?? null,
+			"PERSONAL_ICQ"			=> $_POST["PERSONAL_ICQ"] ?? null,
+			"PERSONAL_GENDER"		=> $_POST["PERSONAL_GENDER"] ?? null,
+			"PERSONAL_BIRTHDAY"	=> $_POST["PERSONAL_BIRTHDAY"] ?? null,
+			"PERSONAL_PHOTO"		=> $arPERSONAL_PHOTO ?? null,
+			"PERSONAL_CITY"		=> $_POST["PERSONAL_CITY"] ?? null,
+			"PERSONAL_STATE"		=> $_POST["PERSONAL_STATE"] ?? null,
+			"PERSONAL_COUNTRY"	=> $_POST["PERSONAL_COUNTRY"] ?? null,
+			"WORK_COMPANY"			=> $_POST["WORK_COMPANY"] ?? null,
+			"WORK_DEPARTMENT"		=> $_POST["WORK_DEPARTMENT"] ?? null,
+			"WORK_POSITION"		=> $_POST["WORK_POSITION"] ?? null,
+			"WORK_WWW"				=> $_POST["WORK_WWW"] ?? null,
+			"WORK_CITY"				=> $_POST["WORK_CITY"] ?? null,
+			"WORK_STATE"			=> $_POST["WORK_STATE"] ?? null,
+			"WORK_COUNTRY"			=> $_POST["WORK_COUNTRY"] ?? null,
+			"WORK_PROFILE"			=> $_POST["WORK_PROFILE"] ?? null,
+			"AUTO_TIME_ZONE"		=> isset($_POST["AUTO_TIME_ZONE"]) ? ($_POST["AUTO_TIME_ZONE"] == "Y" || $_POST["AUTO_TIME_ZONE"] == "N"? $_POST["AUTO_TIME_ZONE"] : "") : "",
 		);
 		if(isset($_POST["TIME_ZONE"]))
-			$arFields["TIME_ZONE"] = $_POST["TIME_ZONE"];
+			$arFields["TIME_ZONE"] = $_POST["TIME_ZONE"] ?? null;
 
 		if ($_POST["NEW_PASSWORD"] <> '')
 		{
-			$arFields["PASSWORD"] = $_POST["NEW_PASSWORD"];
-			$arFields["CONFIRM_PASSWORD"] = $_POST["NEW_PASSWORD_CONFIRM"];
+			$arFields["PASSWORD"] = $_POST["NEW_PASSWORD"] ?? null;
+			$arFields["CONFIRM_PASSWORD"] = $_POST["NEW_PASSWORD_CONFIRM"] ?? null;
 		}
 
 		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("USER", $arFields);
@@ -158,30 +158,30 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT")
 		else if (!$APPLICATION->GetException())
 		{
 			$arFields = array(
-				"SHOW_NAME" => ($_POST["FORUM_SHOW_NAME"]=="Y") ? "Y" : "N",
-				"HIDE_FROM_ONLINE" => ($_POST["FORUM_HIDE_FROM_ONLINE"]=="Y") ? "Y" : "N",
-				"SUBSC_GROUP_MESSAGE" => ($_POST["FORUM_SUBSC_GROUP_MESSAGE"]=="Y") ? "Y" : "N",
-				"SUBSC_GET_MY_MESSAGE" => ($_POST["FORUM_SUBSC_GET_MY_MESSAGE"]=="Y") ? "Y" : "N",
-				"DESCRIPTION" => $_POST["FORUM_DESCRIPTION"],
-				"INTERESTS" => $_POST["FORUM_INTERESTS"],
-				"SIGNATURE" => $_POST["FORUM_SIGNATURE"],
-				"AVATAR" => $_FILES["FORUM_AVATAR"]);
-			$arFields["AVATAR"]["del"] = $_POST["FORUM_AVATAR_del"];
+				"SHOW_NAME" => (isset($_POST["FORUM_SHOW_NAME"]) && $_POST["FORUM_SHOW_NAME"]=="Y") ? "Y" : "N",
+				"HIDE_FROM_ONLINE" => (isset($_POST["FORUM_HIDE_FROM_ONLINE"]) && $_POST["FORUM_HIDE_FROM_ONLINE"]=="Y") ? "Y" : "N",
+				"SUBSC_GROUP_MESSAGE" => (isset($_POST["FORUM_SUBSC_GROUP_MESSAGE"]) && $_POST["FORUM_SUBSC_GROUP_MESSAGE"]=="Y") ? "Y" : "N",
+				"SUBSC_GET_MY_MESSAGE" => (isset($_POST["FORUM_SUBSC_GET_MY_MESSAGE"]) && $_POST["FORUM_SUBSC_GET_MY_MESSAGE"]=="Y") ? "Y" : "N",
+				"DESCRIPTION" => $_POST["FORUM_DESCRIPTION"] ?? null,
+				"INTERESTS" => $_POST["FORUM_INTERESTS"] ?? null,
+				"SIGNATURE" => $_POST["FORUM_SIGNATURE"] ?? null,
+				"AVATAR" => $_FILES["FORUM_AVATAR"]) ?? null;
+			$arFields["AVATAR"]["del"] = $_POST["FORUM_AVATAR_del"] ?? null;
 
 			if (CForumUser::IsAdmin())
 			{
-				$arFields["ALLOW_POST"] = ($_POST["FORUM_ALLOW_POST"]!="Y") ? "N" : "Y";
+				$arFields["ALLOW_POST"] = (isset($_POST["FORUM_ALLOW_POST"]) && $_POST["FORUM_ALLOW_POST"]!="Y") ? "N" : "Y";
 			}
 
-			$ar_res = CForumUser::GetByUSER_ID($arParams["UID"]);
+			$ar_res = CForumUser::GetByUSER_ID($arParams["UID"] ?? null);
 			if ($ar_res)
 			{
-				$arFields["AVATAR"]["old_file"] = $ar_res["AVATAR"];
+				$arFields["AVATAR"]["old_file"] = $ar_res["AVATAR"] ?? null;
 				$FID = CForumUser::Update($ar_res["ID"], $arFields);
 			}
 			else
 			{
-				$arFields["USER_ID"] = $arParams["UID"];
+				$arFields["USER_ID"] = $arParams["UID"] ?? null;
 				$FID = CForumUser::Add($arFields);
 			}
 
@@ -247,9 +247,9 @@ $arResult["BX_ROOT"] = BX_ROOT;
 
 $arResult["arr_PERSONAL_GENDER"] = array();
 $arResult["arr_PERSONAL_GENDER"]["data"] = array("M" => GetMessage("FP_SEX_MALE"), "F" => GetMessage("FP_SEX_FEMALE"));
-$arResult["arr_PERSONAL_GENDER"]["active"] = $str_PERSONAL_GENDER;
-$arResult["~str_PERSONAL_BIRTHDAY"] = $str_PERSONAL_BIRTHDAY;
-$arResult["str_PERSONAL_BIRTHDAY"] = CalendarDate("PERSONAL_BIRTHDAY", $str_PERSONAL_BIRTHDAY, "form1", "15");
+$arResult["arr_PERSONAL_GENDER"]["active"] = $str_PERSONAL_GENDER ?? null;
+$arResult["~str_PERSONAL_BIRTHDAY"] = $str_PERSONAL_BIRTHDAY ?? null;
+$arResult["str_PERSONAL_BIRTHDAY"] = CalendarDate("PERSONAL_BIRTHDAY", $str_PERSONAL_BIRTHDAY ?? null, "form1", "15");
 
 $arResult["SHOW_DELETE_PERSONAL_PHOTO"] = "N";
 $arResult["str_PERSONAL_PHOTO"] = "";

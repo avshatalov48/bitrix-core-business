@@ -42,7 +42,7 @@ class BuilderSyncSectionFromExternalData implements Builder
 			->setOwner($this->connection->getOwner())
 			->setCreator($this->connection->getOwner())
 			->setExternalType(Google\Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE[$this->item['accessRole']])
-			->setType(Core\Event\Tools\Dictionary::EVENT_TYPE[Core\Role\User::TYPE])
+			->setType(Core\Event\Tools\Dictionary::CALENDAR_TYPE[Core\Role\User::TYPE])
 			->setIsActive(true)
 			->setDescription($this->item['description'] ?? null)
 		;

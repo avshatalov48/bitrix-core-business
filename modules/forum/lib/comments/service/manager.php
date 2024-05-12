@@ -7,7 +7,7 @@ class Manager
 	public const TYPE_TASK_INFO = 1;
 	public const TYPE_TASK_CREATED = 2;
 	public const TYPE_ENTITY_CREATED = 3;
-	public const TYPE_FORUM_DEFAULT = 1000;
+	public const TYPE_FORUM_DEFAULT = 127;
 
 	public static function getTypesList(): array
 	{
@@ -15,6 +15,7 @@ class Manager
 			static::TYPE_TASK_INFO,
 			static::TYPE_TASK_CREATED,
 			static::TYPE_ENTITY_CREATED,
+			static::TYPE_FORUM_DEFAULT,
 		];
 	}
 
@@ -39,7 +40,7 @@ class Manager
 				$result = new EntityCreated();
 				break;
 			default:
-				$result = false;
+				$result = new ServiceDefault();
 		}
 
 		return $result;

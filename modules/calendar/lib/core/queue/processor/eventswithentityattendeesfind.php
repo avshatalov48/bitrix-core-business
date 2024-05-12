@@ -28,7 +28,7 @@ class EventsWithEntityAttendeesFind implements Interfaces\Processor
 			return self::REJECT;
 		}
 
-		$attendeeCode = $this->convertEntityToAttendeeCode($data['entityType'], $data['entityId'] ?? null);
+		$attendeeCode = $this->convertEntityToAttendeeCode($data['entityType'], (int)($data['entityId'] ?? null));
 
 		$helper = Application::getConnection()->getSqlHelper();
 

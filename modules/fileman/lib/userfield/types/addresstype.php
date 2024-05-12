@@ -158,8 +158,11 @@ class AddressType extends BaseType
 
 	public static function prepareSettings(array $userField): array
 	{
+		$settings = ($userField['SETTINGS'] ?? []);
+		$showMap = ($settings['SHOW_MAP'] ?? null);
+
 		return [
-			'SHOW_MAP' => ($userField['SETTINGS']['SHOW_MAP'] === 'N' ? 'N' : 'Y'),
+			'SHOW_MAP' => ($showMap === 'N' ? 'N' : 'Y'),
 		];
 	}
 

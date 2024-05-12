@@ -302,7 +302,12 @@ class CCalendarLiveFeed
 
 					if (is_array($calendarEvent))
 					{
-						(new \Bitrix\Calendar\Core\Managers\Comment())->onEventCommentAdd($calendarEvent);
+						(new \Bitrix\Calendar\Core\Managers\Comment())->onEventCommentAdd([
+							'ID' => $calendarEvent['ID'] ?? null,
+							'COMMENT_ID' => $messageID,
+							'ATTENDEE_LIST' => $calendarEvent['ATTENDEE_LIST'] ?? null,
+							'ATTENDEES_CODES' => $calendarEvent['ATTENDEES_CODES'] ?? null,
+						]);
 					}
 				}
 			}
@@ -508,7 +513,12 @@ class CCalendarLiveFeed
 		$event = CCalendarEvent::GetById($eventID);
 		if (is_array($event))
 		{
-			(new \Bitrix\Calendar\Core\Managers\Comment())->onEventCommentAdd($event);
+			(new \Bitrix\Calendar\Core\Managers\Comment())->onEventCommentAdd([
+				'ID' => $event['ID'] ?? null,
+				'COMMENT_ID' => $arData['MESSAGE_ID'] ?? null,
+				'ATTENDEE_LIST' => $event['ATTENDEE_LIST'] ?? null,
+				'ATTENDEES_CODES' => $event['ATTENDEES_CODES'] ?? null,
+			]);
 		}
 	}
 

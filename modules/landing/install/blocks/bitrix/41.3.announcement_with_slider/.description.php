@@ -123,7 +123,7 @@ return array(
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_41.2.ANNOUNCEMENT_WITH_SLIDER_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => ['background', 'background-attachment']
+				'type' => ['background']
 			),
 			'.landing-block-node-date-icon-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_41.2.ANNOUNCEMENT_WITH_SLIDER_NODES_LANDINGBLOCKNODEDATEICON2'),

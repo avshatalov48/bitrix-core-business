@@ -275,6 +275,11 @@ export class CallUser
 		this.updateRendererState();
 	}
 
+	get previewRenderer()
+	{
+		return this._previewRenderer;
+	}
+
 	get videoTrack()
 	{
 		return this._videoTrack;
@@ -287,8 +292,17 @@ export class CallUser
 			return;
 		}
 		this._videoTrack = videoTrack;
-		this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
-		this.update()
+		if (this._videoTrack && this._stream)
+		{
+			this._stream.removeTrack(this._stream.getVideoTracks()[0]);
+			this._stream.addTrack(this._videoTrack);
+		}
+		else
+		{
+			this._stream = this._videoTrack ? new MediaStream([this._videoTrack]) : null;
+		}
+
+		this.update();
 	}
 
 	set badNetworkIndicator(badNetworkIndicator)
@@ -1203,6 +1217,10 @@ export class CallUser
 				if (this.videoRenderer)
 				{
 					this.videoRenderer.render(this.elements.video);
+					if (this.elements.video.paused)
+					{
+						this.elements.video.play().catch(logPlaybackError);
+					}
 					if (this._previewRenderer)
 					{
 						this._previewRenderer.render(this.elements.preview);
@@ -1214,6 +1232,7 @@ export class CallUser
 				}
 				else if (this.elements.video.srcObject != this.stream)
 				{
+
 					this.elements.video.srcObject = this.stream;
 				}
 			}
@@ -1352,6 +1371,7 @@ export class CallUser
 		}
 
 		this.elements.video.srcObject = null;
+		this.elements.preview.srcObject = null;
 		Dom.remove(this.elements.root);
 	};
 

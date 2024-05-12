@@ -24,6 +24,7 @@ class EntityFactory
 					$chats->add($event);
 					break;
 				case Event::MESSAGE_ENTITY:
+				case Event::UPDATED_MESSAGE_ENTITY:
 					$messages->add($event);
 					break;
 				case Event::PIN_MESSAGE_ENTITY:
@@ -32,6 +33,8 @@ class EntityFactory
 			}
 		}
 
-		return [$chats, $messages, $pins];
+		$dialogIds = new DialogIds($messages, $pins, $chats);
+
+		return [$chats, $messages, $pins, $dialogIds];
 	}
 }

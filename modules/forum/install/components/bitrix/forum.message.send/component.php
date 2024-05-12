@@ -7,11 +7,11 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$arParams["TYPE"] = mb_strtoupper(empty($arParams["TYPE"])? $_REQUEST["TYPE"] : $arParams["TYPE"]);
+$arParams["TYPE"] = mb_strtoupper(isset($arParams["TYPE"]) && empty($arParams["TYPE"])? (isset($_REQUEST["TYPE"]) ? $_REQUEST["TYPE"] : null) : (isset($arParams["TYPE"]) ? $arParams["TYPE"] : null));
 	$arParams["TYPE"] = ($arParams["TYPE"]!="ICQ") ? "MAIL" : "ICQ";
-	$arParams["SEND_MAIL"] = empty($arParams["SEND_MAIL"]) ? "E" : $arParams["SEND_MAIL"];
-	$arParams["SEND_ICQ"] = empty($arParams["SEND_ICQ"]) ? "A" : $arParams["SEND_ICQ"];
-	$arParams["UID"] = intval(empty($arParams["UID"]) ? $_REQUEST["UID"] : $arParams["UID"]);
+	$arParams["SEND_MAIL"] = !isset($arParams["SEND_MAIL"]) || empty($arParams["SEND_MAIL"]) ? "E" : $arParams["SEND_MAIL"];
+	$arParams["SEND_ICQ"] = !isset($arParams["SEND_ICQ"]) || empty($arParams["SEND_ICQ"]) ? "A" : $arParams["SEND_ICQ"];
+	$arParams["UID"] = intval(isset($arParams["UID"]) && empty($arParams["UID"]) ? (isset($_REQUEST["UID"]) ? $_REQUEST["UID"] : null) : (isset($arParams["UID"]) ? $arParams["UID"] : null));
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"message_send" => "PAGE_NAME=message_send&UID=#UID#&TYPE=#TYPE#",
@@ -19,10 +19,14 @@ $arParams["TYPE"] = mb_strtoupper(empty($arParams["TYPE"])? $_REQUEST["TYPE"] : 
 		);
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (!isset($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]))
-			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
-		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]);
+		$keyUrlTemplate = 'URL_TEMPLATES_'.mb_strtoupper($URL);
+		$keyUrlTemplateUmb = '~' . $keyUrlTemplate;
+		if (!isset($arParams[$keyUrlTemplate]))
+		{
+			$arParams[$keyUrlTemplate] = $APPLICATION->GetCurPage() . "?" . $URL_VALUE;
+		}
+		$arParams[$keyUrlTemplateUmb] = $arParams[$keyUrlTemplate];
+		$arParams[$keyUrlTemplate] = htmlspecialcharsbx($arParams[$keyUrlTemplate]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
@@ -32,7 +36,7 @@ $arParams["TYPE"] = mb_strtoupper(empty($arParams["TYPE"])? $_REQUEST["TYPE"] : 
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 	else
 		$arParams["CACHE_TIME"] = 0;
-		
+
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 /********************************************************************
@@ -64,7 +68,7 @@ $arResult["ERROR_MESSAGE"] = "";
 $arResult["SHOW_USER"] = "Y";
 $arResult["CURRENT_USER"] = array();
 $arResult["URL"] = array(
-	"RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])), 
+	"RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])),
 	"~RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])),
 	"MESSAGE_SEND" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE_SEND"],
 		array("UID" => $arParams["UID"], "TYPE" => mb_strtolower($arParams["TYPE"]))),
@@ -112,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 {
 	$userSend["FULL_NAME"] = trim(empty($userSend["FULL_NAME"]) ? $_POST["NAME"] : $userSend["FULL_NAME"]);
 	$userSend["E-MAIL"] = trim(empty($userSend["E-MAIL"]) ? $_POST["EMAIL"] : $userSend["E-MAIL"]);
-	
+
 	// Use captcha
 	if (($arParams["SEND_".mb_strtoupper($arParams["TYPE"])] < "Y") && !$USER->IsAuthorized())
 	{
@@ -130,11 +134,11 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 				$arError[] = array("id" => "NO_CAPTCHA", "text" => GetMessage("F_BAD_CAPTCHA"));
 		}
 	}
-	
+
 	if (empty($userSend["FULL_NAME"]))
 		$arError[] = array("id" => "NO_NAME", "text" => GetMessage("F_NO_NAME"));
 	if (empty($userSend["E-MAIL"]))
-		$arError[] = array("id" => ($arParams["TYPE"]=="ICQ" ? "NO_ICQ" : "NO_MAIL"), 
+		$arError[] = array("id" => ($arParams["TYPE"]=="ICQ" ? "NO_ICQ" : "NO_MAIL"),
 			"text" => GetMessage("F_NO_EMAIL1")." ".(($arParams["TYPE"]=="ICQ") ? GetMessage("F_NO_EMAIL2") : GetMessage("F_NO_EMAIL3")));
 	elseif ($arParams["TYPE"]!="ICQ" && !check_email($userSend["E-MAIL"]))
 		$arError[] = array("id" => "BAD_MAIL", "text" => GetMessage("F_BAD_EMAIL"));
@@ -178,7 +182,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 		}
 		LocalRedirect(ForumAddPageParams($arResult["URL"]["MESSAGE_SEND"], array("result" => "message_send")));
 	}
-	else 
+	else
 	{
 		$bVarsFromForm = true;
 	}
@@ -224,7 +228,7 @@ if ($bVarsFromForm)
 		$arResult["ERROR_MESSAGE"] = $err->GetString();
 	}
 }
-$arResult["OK_MESSAGE"] = ($_REQUEST["result"] == "message_send" ? GetMessage("F_OK_MESSAGE_SEND") : "");
+$arResult["OK_MESSAGE"] = (isset($_REQUEST["result"]) && $_REQUEST["result"] == "message_send" ? GetMessage("F_OK_MESSAGE_SEND") : "");
 /********************************************************************
 				/Data
 ********************************************************************/

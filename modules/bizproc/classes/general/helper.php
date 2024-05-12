@@ -115,9 +115,22 @@ class CBPHelper
 			return "";
 		}
 
+		$uniqueUsers = is_array($users) ? [] : $users;
 		if (is_array($users))
 		{
-			$users = array_unique($users);
+			foreach ($users as $user)
+			{
+				if (is_string($user))
+				{
+					$uniqueUsers[$user] = $user;
+				}
+				else
+				{
+					$uniqueUsers[] = $user;
+				}
+			}
+
+			$uniqueUsers = array_values($uniqueUsers);
 		}
 
 		$arAllowableUserGroups = [];
@@ -127,7 +140,7 @@ class CBPHelper
 			$arAllowableUserGroups[mb_strtolower($k1)] = str_replace(",", " ", $v1);
 		}
 
-		return self::UsersArrayToStringInternal($users, $arWorkflowTemplate, $arAllowableUserGroups, $appendId);
+		return self::UsersArrayToStringInternal($uniqueUsers, $arWorkflowTemplate, $arAllowableUserGroups, $appendId);
 	}
 
 	public static function usersStringToArray($strUsers, $documentType, &$arErrors, $callbackFunction = null)
@@ -1048,7 +1061,7 @@ class CBPHelper
 
 		echo CAdminCalendar::ShowScript();
 		?>
-		<script type="text/javascript">
+		<script>
 		<?= $objectName ?>.GetGUIFieldEdit = function(field, value, showAddButton, inputName)
 		{
 			alert("Deprecated method GetGUIFieldEdit used");
@@ -1290,7 +1303,7 @@ class CBPHelper
 			{
 				$GLOBALS["CBPVirtualDocumentCloneRowPrinted"] = 1;
 				?>
-				<script language="JavaScript">
+				<script>
 				<!--
 				function CBPVirtualDocumentCloneRow(tableID)
 				{
@@ -1730,46 +1743,46 @@ class CBPHelper
 
 		$arPattern = $arReplace = [];
 
-		$arPattern[] = "/\[(code|quote)(.*?)\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[(code|quote)(.*?)\]/isu";
 		$arReplace[] = "\n>================== \\1 ===================\n";
 
-		$arPattern[] = "/\[\/(code|quote)(.*?)\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[\/(code|quote)(.*?)\]/isu";
 		$arReplace[] = "\n>===========================================\n";
 
-		$arPattern[] = "/\<WBR[\s\/]?\>/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\<WBR[\s\/]?\>/isu";
 		$arReplace[] = "";
 
 		$arPattern[] = "/^(\r|\n)+?(.*)$/";
 		$arReplace[] = "\\2";
 
-		$arPattern[] = "/\[b\](.+?)\[\/b\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[b\](.+?)\[\/b\]/isu";
 		$arReplace[] = "\\1";
 
-		$arPattern[] = "/\[i\](.+?)\[\/i\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[i\](.+?)\[\/i\]/isu";
 		$arReplace[] = "\\1";
 
-		$arPattern[] = "/\[u\](.+?)\[\/u\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[u\](.+?)\[\/u\]/isu";
 		$arReplace[] = "_\\1_";
 
-		$arPattern[] = "/\[s\](.+?)\[\/s\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[s\](.+?)\[\/s\]/isu";
 		$arReplace[] = "_\\1_";
 
-		$arPattern[] = "/\[(\/?)(color|font|size)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[(\/?)(color|font|size)([^\]]*)\]/isu";
 		$arReplace[] = "";
 
-		//$arPattern[] = "/\[url\](\S+?)\[\/url\]/is".BX_UTF_PCRE_MODIFIER;
+		//$arPattern[] = "/\[url\](\S+?)\[\/url\]/isu";
 		//$arReplace[] = "(URL: \\1)";
 
-		//$arPattern[] = "/\[url\s*=\s*(\S+?)\s*\](.*?)\[\/url\]/is".BX_UTF_PCRE_MODIFIER;
+		//$arPattern[] = "/\[url\s*=\s*(\S+?)\s*\](.*?)\[\/url\]/isu";
 		//$arReplace[] = "\\2 (URL: \\1)";
 
-		$arPattern[] = "/\[img\](.+?)\[\/img\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[img\](.+?)\[\/img\]/isu";
 		$arReplace[] = "(IMAGE: \\1)";
 
-		$arPattern[] = "/\[video([^\]]*)\](.+?)\[\/video[\s]*\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[video([^\]]*)\](.+?)\[\/video[\s]*\]/isu";
 		$arReplace[] = "(VIDEO: \\2)";
 
-		$arPattern[] = "/\[(\/?)list\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[(\/?)list\]/isu";
 		$arReplace[] = "\n";
 
 		$text = preg_replace($arPattern, $arReplace, $text);
@@ -1791,12 +1804,12 @@ class CBPHelper
 		}
 
 		$text = preg_replace_callback(
-			"/\[url\]([^\]]+?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER,
+			"/\[url\]([^\]]+?)\[\/url\]/iu",
 			array("CBPHelper", "__ConvertAnchorTag"),
 			$text
 		);
 		$text = preg_replace_callback(
-			"/\[url\s*=\s*([^\]]+?)\s*\](.*?)\[\/url\]/is".BX_UTF_PCRE_MODIFIER,
+			"/\[url\s*=\s*([^\]]+?)\s*\](.*?)\[\/url\]/isu",
 			array("CBPHelper", "__ConvertAnchorTag"),
 			$text
 		);
@@ -1839,11 +1852,11 @@ class CBPHelper
 
 		$scheme = \CMain::IsHTTPS() ? 'https' : 'http';
 
-		if (mb_substr($url, 0, 1) != "/" && !preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//i".BX_UTF_PCRE_MODIFIER, $url))
+		if (mb_substr($url, 0, 1) != "/" && !preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//iu", $url))
 			$url = $scheme.'://'.$url;
-		if (!preg_match("/^(http|https|news|ftp|aim):\/\/[-_:.a-z0-9@]+/i".BX_UTF_PCRE_MODIFIER, $url))
+		if (!preg_match("/^(http|https|news|ftp|aim):\/\/[-_:.a-z0-9@]+/iu", $url))
 			$url = $serverName.$url;
-		if (!preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//i".BX_UTF_PCRE_MODIFIER, $url))
+		if (!preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//iu", $url))
 			$url = $scheme.'://'.$url;
 
 		$url = str_replace(' ', '%20', $url);
@@ -2491,8 +2504,6 @@ class CBPHelper
 
 	public static function decodeTemplatePostData(&$data)
 	{
-		CUtil::DecodeUriComponent($data);
-
 		$jsonParams = ['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowGlobalVariables', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'];
 
 		foreach ($jsonParams as $k)

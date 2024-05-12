@@ -1,4 +1,4 @@
-import { Dom } from 'main.core';
+import { Dom } from "main.core";
 import 'ui.fonts.opensans';
 import './css/style.css';
 

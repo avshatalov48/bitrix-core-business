@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2006 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
@@ -20,8 +20,6 @@ $action = isset($_REQUEST['sticker_action']) ? $_REQUEST['sticker_action'] : fal
 
 if (!check_bitrix_sessid())
 	die('<!--BX_STICKER_DUBLICATE_ACTION_REQUEST'.bitrix_sessid().'-->');
-
-CUtil::JSPostUnEscape();
 
 if($action == 'show_stickers' || $action == 'hide_stickers')
 {

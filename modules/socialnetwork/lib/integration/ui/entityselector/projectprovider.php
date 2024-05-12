@@ -10,6 +10,7 @@ use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Search\Content;
+use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\EO_Workgroup_Collection;
 use Bitrix\Socialnetwork\FeaturePermTable;
@@ -25,6 +26,7 @@ use Bitrix\UI\EntitySelector\Item;
 use Bitrix\UI\EntitySelector\RecentItem;
 use Bitrix\UI\EntitySelector\SearchQuery;
 use Bitrix\UI\EntitySelector\Tab;
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
 
 class ProjectProvider extends BaseProvider
 {
@@ -204,6 +206,19 @@ class ProjectProvider extends BaseProvider
 
 	public static function getProjects(array $options = []): EO_Workgroup_Collection
 	{
+		$isProjectsEnabled = true;
+		$isScrumEnabled = true;
+		if (Loader::includeModule('intranet'))
+		{
+			$toolsManager = ToolsManager::getInstance();
+			$isProjectsEnabled = $toolsManager->checkAvailabilityByToolId('projects');
+			$isScrumEnabled = $toolsManager->checkAvailabilityByToolId('scrum');
+			if (!$isProjectsEnabled && !$isScrumEnabled)
+			{
+				return new EO_Workgroup_Collection();
+			}
+		}
+
 		$query = WorkgroupTable::query();
 		$query->setSelect(
 			[
@@ -460,6 +475,17 @@ class ProjectProvider extends BaseProvider
 				}
 			}
 		}
+
+		if (!$isProjectsEnabled)
+		{
+			$query->whereNotNull('SCRUM_MASTER_ID');
+		}
+
+		if (!$isScrumEnabled)
+		{
+			$query->whereNull('SCRUM_MASTER_ID');
+		}
+
 
 		if (isset($options['limit']) && is_int($options['limit']))
 		{

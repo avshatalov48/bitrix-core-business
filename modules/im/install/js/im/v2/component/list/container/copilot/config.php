@@ -10,7 +10,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'im.public',
-		'im.v2.component.list.element-list.copilot',
+		'im.v2.component.list.items.copilot',
 		'im.v2.const',
 		'im.v2.lib.logger',
 		'im.v2.provider.service',

@@ -1,6 +1,6 @@
 <section class="landing-block">
 	<div class="g-pb-70">
-		<div class="landing-block-node-bgimg g-pt-150 g-bg-img-hero g-pos-rel u-bg-overlay g-bg-darkblue-opacity-0_7--after"
+		<div class="landing-block-node-bgimg g-pt-150 g-pos-rel u-bg-overlay g-bg-darkblue-opacity-0_7--after"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1281/img1.jpg);">
 			<div class="landing-block-node-container js-animation fadeInUp container g-max-width-750 u-bg-overlay__inner g-mb-60">
 

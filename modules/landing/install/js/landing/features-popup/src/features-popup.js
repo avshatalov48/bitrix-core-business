@@ -1,7 +1,7 @@
-import {EventEmitter, BaseEvent} from 'main.core.events';
-import {Cache, Dom, Event, Tag, Text, Type} from 'main.core';
-import {Popup} from 'main.popup';
-import {PageObject} from 'landing.pageobject';
+import { EventEmitter, BaseEvent } from 'main.core.events';
+import { Cache, Dom, Event, Tag, Text, Type } from 'main.core';
+import { Popup } from 'main.popup';
+import { PageObject } from 'landing.pageobject';
 
 import 'ui.fonts.opensans';
 import './css/style.css';
@@ -56,7 +56,7 @@ export class FeaturesPopup extends EventEmitter
 
 	setOptions(options: FeaturesPopupOptions)
 	{
-		this.#cache.set('options', {...options});
+		this.#cache.set('options', { ...options });
 	}
 
 	getOptions(): FeaturesPopupOptions
@@ -75,10 +75,10 @@ export class FeaturesPopup extends EventEmitter
 				width: 410,
 				autoHide: true,
 				closeByEsc: true,
-				noAllPaddings : true,
+				noAllPaddings: true,
 				angle: {
 					position: 'top',
-					offset: 115
+					offset: 115,
 				},
 				minWidth: 410,
 				contentBackground: 'transparent',
@@ -110,7 +110,7 @@ export class FeaturesPopup extends EventEmitter
 			return Tag.render`
 				<div class="landing-features-popup-content">
 					${this.getOptions().items.map((options) => {
-						return FeaturesPopup.createRow(options);	
+						return FeaturesPopup.createRow(options);
 					})}
 				</div>
 			`;

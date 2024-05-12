@@ -647,13 +647,20 @@ class Helper
 		if (mb_strpos($interval, 'settime(') === 0)
 		{
 			$interval = mb_substr($interval, 8, -1); // cut settime(...)
-			$arguments = explode(',', $interval);
+			$intervalParts = explode(')', $interval);
+			$arguments = explode(',', array_pop($intervalParts));
 
+			$userOffset = count($arguments) > 3 ? array_pop($arguments) : 0;
 			$minute = array_pop($arguments);
 			$hour = array_pop($arguments);
 
-			$interval = implode(',', $arguments);
+			$interval = implode(')', $intervalParts) . implode(',', $arguments);
 			$result['inTime'] = [(int)$hour, (int)$minute];
+
+			if ($userOffset > 0)
+			{
+				$result['inTime'][] = (int)$userOffset;
+			}
 		}
 
 		if (mb_strpos($interval, 'dateadd(') === 0 || mb_strpos($interval, 'workdateadd(') === 0)
@@ -792,10 +799,11 @@ class Helper
 		if (isset($interval['inTime']))
 		{
 			$result = sprintf(
-				'settime(%s, %d, %d)',
+				'settime(%s, %d, %d%s)',
 				$result,
 				$interval['inTime'][0] ?? 0,
-				$interval['inTime'][1] ?? 0
+				$interval['inTime'][1] ?? 0,
+				isset($interval['inTime'][2]) ? ", {$interval['inTime'][2]}" : '',
 			);
 			$isFunctionInResult = true;
 		}

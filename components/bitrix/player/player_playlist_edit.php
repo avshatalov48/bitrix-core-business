@@ -6,7 +6,6 @@ $bFileMan = CModule::IncludeModule('fileman');
 if(!$bFileMan)
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-CUtil::JSPostUnescape();
 CComponentUtil::__IncludeLang(BX_PERSONAL_ROOT."/components/bitrix/player", "player_playlist_edit.php");
 
 $strWarning = "";

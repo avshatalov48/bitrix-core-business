@@ -2,7 +2,7 @@
 	--ui-label-height: var(--ui-size-lg);
 	--ui-label-background-color: #c2c5ca;
 	--ui-label-background-color-hover: var(--ui-label-background-color);
-	--ui-label-color: #fff;
+	--ui-label-color: var(--ui-color-palette-white-base-rgb);
 	--ui-label-link-dashed-color: rgba(255, 255, 255, 0.51);
 	--ui-label-font-weight: var(--ui-font-weight-bold);
 	--ui-label-font: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
@@ -26,7 +26,7 @@
 	/*font: 12px/calc(var(--ui-label-height) - 2px) var(--ui-label-font);*/
 	font: var(--ui-font-size-5xs)/var(--ui-font-size-5xs) var(--ui-label-font);
 	font-weight: var(--ui-label-font-weight);
-	color: var(--ui-label-color);
+	color: rgba(var(--ui-label-color), 1);
 	transition: 250ms linear all;
 	max-width: 100%;
 	/*overflow: hidden;*/
@@ -77,65 +77,65 @@ a.ui-label:not(.ui-label-fill):hover,
 .ui-label-default {
 	--ui-label-background-color-hover: var(--ui-color-base-20);
 	--ui-label-background-color: var(--ui-color-base-15);
-	--ui-label-color: var(--ui-color-base-80);
+	--ui-label-color: var(--ui-color-base-80-rgb);
 }
 
 .ui-label-danger {
 	--ui-label-background-color: var(--ui-color-palette-red-25);
 	--ui-label-background-color-hover: var(--ui-color-palette-red-40);
-	--ui-label-color: var(--ui-color-palette-red-80);
+	--ui-label-color: var(--ui-color-palette-red-80-rgb);
 }
 
 .ui-label-success {
 	--ui-label-background-color: var(--ui-color-palette-green-30);
 	--ui-label-background-color-hover: var(--ui-color-palette-green-40);
-	--ui-label-color: var(--ui-color-palette-green-80);
+	--ui-label-color: var(--ui-color-palette-green-80-rgb);
 }
 
 .ui-label-warning {
-	--ui-label-background-color: var(--ui-color-text-warning, #ffa900);
-	--ui-label-background-color-hover: #f7a700;
+	--ui-label-background-color: var(--ui-color-palette-orange-50);
+	--ui-label-background-color-hover: var(--ui-color-palette-orange-60);
 }
 
 .ui-label-primary {
 	--ui-label-background-color-hover: var(--ui-color-palette-blue-40);
 	--ui-label-background-color: var(--ui-color-palette-blue-25);
-	--ui-label-color: var(--ui-color-palette-blue-70);
+	--ui-label-color: var(--ui-color-palette-blue-70-rgb);
 }
 
 .ui-label-secondary {
-	--ui-label-background-color: var(--ui-color-accent-aqua, #55d0e0);
-	--ui-label-background-color-hover: #19d2c8;
+	--ui-label-background-color: var(--ui-color-accent-aqua);
+	--ui-label-background-color-hover: var(--ui-color-accent-aqua);
 }
 
 .ui-label-lightgreen {
-	--ui-label-background-color: #E4F5C8;
-	--ui-label-background-color-hover: #E4F5C8;
-	--ui-label-color: #589308;
+	--ui-label-background-color: var(--ui-color-palette-green-30);
+	--ui-label-background-color-hover: var(--ui-color-palette-green-40);
+	--ui-label-color: var(--ui-color-palette-green-80-rgb);
 }
 
 .ui-label-lightblue {
-	--ui-label-background-color: rgba(47, 198, 246, 0.15);
-	--ui-label-background-color-hover: rgba(47, 198, 246, 0.15);
-	--ui-label-color: #1097C2;
+	--ui-label-background-color-hover: var(--ui-color-palette-blue-40);
+	--ui-label-background-color: var(--ui-color-palette-blue-25);
+	--ui-label-color: var(--ui-color-palette-blue-70-rgb);
 }
 
 .ui-label-orange {
 	--ui-label-background-color: var(--ui-color-palette-orange-25);
 	--ui-label-background-color-hover: var(--ui-color-palette-orange-40);
-	--ui-label-color: var(--ui-color-palette-orange-80);
+	--ui-label-color: var(--ui-color-palette-orange-80-rgb);
 }
 
 .ui-label-lightorange {
 	--ui-label-background-color: rgba(255, 169, 0, 0.37);
 	--ui-label-background-color-hover: rgba(255, 169, 0, 0.37);
-	--ui-label-color: #B47A00;
+	--ui-label-color: var(--ui-color-palette-orange-80-rgb);
 }
 
 .ui-label-lightred {
 	--ui-label-background-color: rgba(255, 87, 82, 0.17);
 	--ui-label-background-color-hover: rgba(255, 87, 82, 0.17);
-	--ui-label-color: rgba(207, 21, 21, 1);
+	--ui-label-color: var(--ui-color-palette-red-80-rgb);
 }
 
 .ui-label-yellow {
@@ -146,7 +146,7 @@ a.ui-label:not(.ui-label-fill):hover,
 .ui-label-lightyellow {
 	--ui-label-background-color: rgba(242, 228, 28, 0.42);
 	--ui-label-background-color-hover: rgba(242, 228, 28, 0.42);
-	--ui-label-color: rgba(157, 126, 43, 1);
+	--ui-label-color: var(--ui-color-palette-orange-90-rgb);
 }
 
 .ui-label-lavender {
@@ -158,21 +158,21 @@ a.ui-label:not(.ui-label-fill):hover,
 .ui-label-light {
 	--ui-label-background-color: var(--ui-color-base-15, #E6E7E9);
 	--ui-label-background-color-hover: rgba(168, 173, 180, 0.91);
-	--ui-label-color: var(--ui-color-base-80, #6a737f);
+	--ui-label-color: var(--ui-color-base-80-rgb);
 	--ui-label-link-dashed-color: var(--ui-color-base-80, #6a737f);
 }
 
 .ui-label-tag-light {
 	--ui-label-background-color: #EAEBED;
 	--ui-label-background-color-hover: #DCDEE1;
-	--ui-label-color: #525C69;
+	--ui-label-color: var(--ui-color-palette-gray-90-rgb);
 	--ui-label-font-weight: var(--ui-label-font-weight, 400);
 }
 
 .ui-label-tag-secondary {
 	--ui-label-background-color: #bcedfc;
 	--ui-label-background-color-hover: #bcedfc;
-	--ui-label-color: #333;
+	--ui-label-color: var(--ui-color-palette-black-base-rgb);
 	--ui-label-font-weight: var(--ui-label-font-weight, 400);
 }
 
@@ -202,6 +202,42 @@ a.ui-label:not(.ui-label-fill):hover,
 }
 
 /*endregion*/
+
+.ui-label-status {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	width: 12px;
+	height: 12px;
+	margin: 0 5px 0 -2px;
+}
+
+.ui-label-status .main-ui-loader {
+	margin-top: -1px;
+}
+
+.bx-win .ui-label-status .main-ui-loader {
+	margin-top: -3px;
+}
+
+.ui-label-status.--icon {
+	border-radius: 100%;
+	background: rgba(var(--ui-label-color), .1);
+}
+
+.ui-label-status:empty {
+	display: none;
+}
+
+.ui-label-status .main-ui-loader-svg-circle {
+	stroke-width: 4;
+	stroke: rgba(var(--ui-label-color), 1);
+}
+
+.ui-label-status .ui-icon-set {
+	--ui-icon-set__icon-color: rgba(var(--ui-label-color), 1);
+}
 
 .ui-label-icon {
 	display: block;

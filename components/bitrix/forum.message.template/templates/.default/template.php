@@ -437,13 +437,13 @@ endif;
 <?
 if ($iNumber < $iCount || ($iCount == 0)):
 ?>
-</table><!--MSG_END_<?=$res["ID"]?>-->
+</table><!--123 MSG_END_<?=$res["ID"]?>-->
 <?
 endif;
 
-?><script type="text/javascript">
+?><script>
 <?
-if ($arRes["USER"]["PERMISSION"] >= "Q" && ForumGetEntity($templateFolder) === false)
+if (isset($arRes["USER"]["PERMISSION"]) && $arRes["USER"]["PERMISSION"] >= "Q" && ForumGetEntity($templateFolder) === false)
 {
 ?>
 ;(function(window){

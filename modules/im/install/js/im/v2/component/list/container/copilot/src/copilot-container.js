@@ -1,5 +1,5 @@
 import { Messenger } from 'im.public';
-import { CopilotList } from 'im.v2.component.list.element-list.copilot';
+import { CopilotList } from 'im.v2.component.list.items.copilot';
 import { Layout } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { CopilotService } from 'im.v2.provider.service';

@@ -1205,7 +1205,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        events: {
 	          click: function click() {
 	            _this18.onCallViewToggleMuteButtonClick({
-	              muted: false
+	              data: {
+	                muted: false
+	              }
 	            });
 	            _this18.mutePopup.destroy();
 	            _this18.mutePopup = null;
@@ -1469,7 +1471,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        toggleUsers: this.onCallViewToggleUsersButtonClick.bind(this),
 	        share: this.onCallViewShareButtonClick.bind(this),
 	        fullscreen: this.onCallViewFullScreenButtonClick.bind(this),
-	        floorRequest: this.onCallViewFloorRequestButtonClick.bind(this)
+	        floorRequest: this.onCallViewFloorRequestButtonClick.bind(this),
+	        feedback: this.onCallViewFeedbackButtonClick.bind(this)
 	      };
 	      if (handlers[buttonName]) {
 	        handlers[buttonName](event);
@@ -1713,9 +1716,53 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.toggleUserList();
 	    }
 	  }, {
+	    key: "onCallViewFeedbackButtonClick",
+	    value: function onCallViewFeedbackButtonClick() {
+	      var _this22 = this;
+	      BX.loadExt('ui.feedback.form').then(function () {
+	        BX.UI.Feedback.Form.open({
+	          id: "call_feedback_".concat(_this22.currentCall.id, "-").concat(_this22.currentCall.instanceId, "-").concat(Math.random()),
+	          forms: [{
+	            zones: ['ru', 'by', 'kz'],
+	            id: 406,
+	            sec: '9lhjhn',
+	            lang: 'ru'
+	          }, {
+	            zones: ['de'],
+	            id: 754,
+	            sec: '6upe49',
+	            lang: 'de'
+	          }, {
+	            zones: ['es'],
+	            id: 750,
+	            sec: 'whk4la',
+	            lang: 'es'
+	          }, {
+	            zones: ['com.br'],
+	            id: 752,
+	            sec: 'is01cs',
+	            lang: 'com.br'
+	          }, {
+	            zones: ['en'],
+	            id: 748,
+	            sec: 'pds0h6',
+	            lang: 'en'
+	          }],
+	          presets: {
+	            sender_page: 'call',
+	            call_type: _this22.currentCall.provider,
+	            call_amount: _this22.currentCall.users.length + 1,
+	            call_id: "id: ".concat(_this22.currentCall.id, ", instanceId: ").concat(_this22.currentCall.instanceId),
+	            id_of_user: _this22.currentCall.userId,
+	            from_domain: location.origin
+	          }
+	        });
+	      });
+	    }
+	  }, {
 	    key: "onCallViewFloorRequestButtonClick",
 	    value: function onCallViewFloorRequestButtonClick() {
-	      var _this22 = this;
+	      var _this23 = this;
 	      var floorState = this.callView.getUserFloorRequestState(Call.Engine.getCurrentUserId());
 	      var talkingState = this.callView.getUserTalking(Call.Engine.getCurrentUserId());
 	      this.callView.setUserFloorRequestState(Call.Engine.getCurrentUserId(), !floorState);
@@ -1725,8 +1772,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      clearTimeout(this.callViewFloorRequestTimeout);
 	      if (talkingState && !floorState) {
 	        this.callViewFloorRequestTimeout = setTimeout(function () {
-	          if (_this22.currentCall) {
-	            _this22.currentCall.requestFloor(false);
+	          if (_this23.currentCall) {
+	            _this23.currentCall.requestFloor(false);
 	          }
 	        }, 1500);
 	      }
@@ -1791,14 +1838,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "onCallUserInvited",
 	    value: function onCallUserInvited(e) {
-	      var _this23 = this;
+	      var _this24 = this;
 	      this.callView.addUser(e.userId);
 	      Call.Util.getUsers(this.currentCall.id, [e.userId]).then(function (userData) {
-	        _this23.controller.getStore().dispatch('users/set', Object.values(userData));
-	        _this23.controller.getStore().dispatch('conference/setUsers', {
+	        _this24.controller.getStore().dispatch('users/set', Object.values(userData));
+	        _this24.controller.getStore().dispatch('conference/setUsers', {
 	          users: Object.keys(userData)
 	        });
-	        _this23.callView.updateUserData(userData);
+	        _this24.callView.updateUserData(userData);
 	      });
 	    }
 	  }, {
@@ -1915,13 +1962,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "loopConnectionQuality",
 	    value: function loopConnectionQuality(userId, quality) {
-	      var _this24 = this;
+	      var _this25 = this;
 	      var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 200;
 	      if (this.callView) {
 	        this.loopTimers[userId] = setTimeout(function () {
-	          _this24.callView.setUserConnectionQuality(userId, quality);
+	          _this25.callView.setUserConnectionQuality(userId, quality);
 	          var newQuality = quality >= 4 ? 1 : quality + 1;
-	          _this24.loopConnectionQuality(userId, newQuality, timeout);
+	          _this25.loopConnectionQuality(userId, newQuality, timeout);
 	        }, timeout);
 	      }
 	    }
@@ -2399,11 +2446,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "setUserName",
 	    value: function setUserName(name) {
-	      var _this25 = this;
+	      var _this26 = this;
 	      return new Promise(function (resolve, reject) {
-	        _this25.restClient.callMethod('im.call.user.update', {
+	        _this26.restClient.callMethod('im.call.user.update', {
 	          name: name,
-	          chat_id: _this25.getChatId()
+	          chat_id: _this26.getChatId()
 	        }).then(function () {
 	          resolve();
 	        })["catch"](function (error) {
@@ -2414,18 +2461,18 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "checkPassword",
 	    value: function checkPassword(password) {
-	      var _this26 = this;
+	      var _this27 = this;
 	      return new Promise(function (resolve, reject) {
-	        _this26.restClient.callMethod('im.videoconf.password.check', {
+	        _this27.restClient.callMethod('im.videoconf.password.check', {
 	          password: password,
-	          alias: _this26.params.alias
+	          alias: _this27.params.alias
 	        }).then(function (result) {
 	          if (result.data() === true) {
-	            _this26.restClient.setPassword(password);
-	            _this26.controller.getStore().commit('conference/common', {
+	            _this27.restClient.setPassword(password);
+	            _this27.controller.getStore().commit('conference/common', {
 	              passChecked: true
 	            });
-	            _this26.initUserComplete();
+	            _this27.initUserComplete();
 	            resolve();
 	          } else {
 	            reject();
@@ -2438,10 +2485,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "changeLink",
 	    value: function changeLink() {
-	      var _this27 = this;
+	      var _this28 = this;
 	      return new Promise(function (resolve, reject) {
-	        _this27.restClient.callMethod('im.videoconf.share.change', {
-	          dialog_id: _this27.getDialogId()
+	        _this28.restClient.callMethod('im.videoconf.share.change', {
+	          dialog_id: _this28.getDialogId()
 	        }).then(function () {
 	          resolve();
 	        })["catch"](function (error) {

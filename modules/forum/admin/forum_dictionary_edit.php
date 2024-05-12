@@ -9,23 +9,23 @@
 		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 	IncludeModuleLangFile(__FILE__);
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
-	
+
 	$bVarsFromForm = false;
 	$sError = false;
-	$TYPE = ($TYPE == "T" ? "T" : "W");
+	$TYPE = (isset($TYPE) && $TYPE == "T" ? "T" : "W");
 /*******************************************************************/
 	if ($REQUEST_METHOD=="POST" && $Update <> '' && (CFilterUnquotableWords::FilterPerm()) && check_bitrix_sessid())
 	{
 		$erMsg = array(); $arFields = array();
 		$APPLICATION->ResetException();
-		
+
 		$arFields = array("TITLE" => $_REQUEST["TITLE"]);
-		
+
 		if ($_REQUEST["DICTIONARY_ID"] > 0)
 		{
 			if (!CFilterDictionary::Update($_REQUEST["DICTIONARY_ID"], $arFields))
 				$erMsg[] = GetMessage("FLTR_IS_NOT_UPDATE");
-			else 
+			else
 			{
 				$db_res = CFilterDictionary::GetList(array(), array("ID" => $_REQUEST["DICTIONARY_ID"]));
 				if ($db_res && $res = $db_res->Fetch())
@@ -34,13 +34,13 @@
 				}
 			}
 		}
-		else 
+		else
 		{
 			$arFields["TYPE"] = ($_REQUEST["TYPE"] == "T" ? "T" : "W");
 			if (!CFilterDictionary::Add($arFields))
 				$erMsg[] = GetMessage("FLTR_IS_NOT_ADD");
 		}
-		
+
 		$err = $APPLICATION->GetException();
 		if (!$err && !empty($_REQUEST['save']))
 			LocalRedirect("forum_dictionary.php?TYPE=".$arFields["TYPE"]."&lang=".LANG);
@@ -53,7 +53,7 @@
 	}
 	$arFields = array();
 	$bAdd = true;
-	if ($_REQUEST["DICTIONARY_ID"] > 0)
+	if (isset($_REQUEST["DICTIONARY_ID"]) && $_REQUEST["DICTIONARY_ID"] > 0)
 	{
 		$db_res = CFilterDictionary::GetList(array(), array("ID" => $_REQUEST["DICTIONARY_ID"]));
 		if ($db_res && $res = $db_res->Fetch())
@@ -81,7 +81,7 @@
 	}
 	if ($bAdd)
 		$APPLICATION->SetTitle(GetMessage("FLTR_NEW"));
-	else 
+	else
 		$APPLICATION->SetTitle(GetMessage("FLTR_UPDATE"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 /*******************************************************************/
@@ -94,7 +94,7 @@
 	$context->Show();
 	if ($sError)
 		CAdminMessage::ShowMessage($sError);
-	
+
 /*******************************************************************/
 ?><form method="POST" action="<?=$APPLICATION->GetCurPage()?>?" name="forum_edit">
 	<input type="hidden" name="Update" value="Y" />

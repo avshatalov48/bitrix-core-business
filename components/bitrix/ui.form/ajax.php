@@ -3,6 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main;
 use Bitrix\UI;
+use Bitrix\UI\Form\EntityEditorConfigScope;
 
 Main\Loader::includeModule('ui');
 
@@ -21,9 +22,12 @@ class CUIFormComponentAjaxController extends Main\Engine\Controller
 		return self::$configuration;
 	}
 
-	public function saveConfigurationAction($guid, array $config, array $params, string $categoryName = '')
+	public function saveConfigurationAction(string $guid, array $config, array $params, string $categoryName = '', string $signedConfigParams = '')
 	{
-		$this->getConfiguration($categoryName)->set($guid, $config, $params);
+		if ($this->areSignedParamsValid($guid, $params, $signedConfigParams))
+		{
+			$this->getConfiguration($categoryName)->set($guid, $config, $params);
+		}
 	}
 
 	protected function emitOnUIFormResetScope(string $guid, array $params, string $categoryName = '')
@@ -54,11 +58,13 @@ class CUIFormComponentAjaxController extends Main\Engine\Controller
 		$event->send();
 	}
 
-	public function resetConfigurationAction($guid, array $params, string $categoryName = '')
+	public function resetConfigurationAction(string $guid, array $params, string $categoryName = '', string $signedConfigParams = '')
 	{
-		$this->getConfiguration($categoryName)->reset($guid, $params);
-
-		$this->emitOnUIFormResetScope($guid, $params, $categoryName);
+		if ($this->areSignedParamsValid($guid, $params, $signedConfigParams))
+		{
+			$this->getConfiguration($categoryName)->reset($guid, $params);
+			$this->emitOnUIFormResetScope($guid, $params, $categoryName);
+		}
 	}
 
 	public function setScopeAction($guid, $scope, string $categoryName = '')
@@ -93,5 +99,31 @@ class CUIFormComponentAjaxController extends Main\Engine\Controller
 		$component->setFunctionParameters(array('HIDE_ICONS' => 'Y'));
 		return new UI\Controller\Response\Engine\Content($component);
 		*/
+	}
+
+	private function areSignedParamsValid(string $guid, array $params, string $signedConfigParams): bool
+	{
+		$configParams = (new \Bitrix\UI\Form\EntityEditorConfigSigner($guid))->unsign($signedConfigParams);
+		if (!is_array($configParams))
+		{
+			return true; // temporary, to avoid cross-module dependencies
+		}
+		$scope = isset($params['scope']) ? mb_strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
+
+		if ($scope === EntityEditorConfigScope::COMMON && !($configParams['CAN_UPDATE_COMMON_CONFIGURATION'] ?? false))
+		{
+			return false;
+		}
+		if ($scope === EntityEditorConfigScope::PERSONAL && !($configParams['CAN_UPDATE_PERSONAL_CONFIGURATION'] ?? false))
+		{
+			return false;
+		}
+		$userScopeId = $params['userScopeId'] ?? 0;
+		if($userScopeId > 0 && !($configParams['CAN_UPDATE_COMMON_CONFIGURATION'] ?? false))
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

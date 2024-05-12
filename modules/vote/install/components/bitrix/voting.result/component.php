@@ -164,7 +164,7 @@ elseif (CModule::IncludeModule("vote"))
 			}
 			$arAnswer["BAR_PERCENT"] = round($arAnswer["PERCENT"]);
 			$arAnswer["COLOR"] = (empty($arAnswer["COLOR"]) && ($color = GetNextRGB($color, count($arQuestion["ANSWERS"]))) ?
-				$color : TrimEx($arAnswer["COLOR"], "#"));
+				$color : trim($arAnswer["COLOR"], "#"));
 			$arQuestion["ANSWERS"][$aID] = $arAnswer;
 		}
 

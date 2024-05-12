@@ -220,12 +220,16 @@ export class DeletedViewForm
 
 		if (this.#eventData.canceledTimestamp && this.#eventData.canceledUserName && date)
 		{
+			const dayMonthFormat = DateTimeFormat.getFormat('DAY_MONTH_FORMAT');
+			const shortTimeFormat = DateTimeFormat.getFormat('SHORT_TIME_FORMAT');
+			const format = `${dayMonthFormat} ${shortTimeFormat}`;
+
 			result = Tag.render`
 				<div class="calendar-pub__form-status">
 					<div class="calendar-pub__form-status_text">
 						${Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED')}: <a href="/company/personal/user/${this.#eventData.canceledUserId}/" target="_blank" class="calendar-sharing-deletedviewform_open-profile">${Text.encode(this.#eventData.canceledUserName)}</a>
 						<br>
-						${DateTimeFormat.format(`j F ${Util.getTimeFormatShort()}`, date.getTime() / 1000)}
+						${DateTimeFormat.format(format, date.getTime() / 1000)}
 					</div>
 				</div>
 			`;

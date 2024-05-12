@@ -1,5 +1,5 @@
 <section class="landing-block js-animation fadeIn">
-	<div class="landing-block-node-bgimg g-bg-size-cover g-bg-img-hero u-bg-overlay g-bg-black-opacity-0_1--after g-mb-minus-140 d-flex align-items-center justify-content-center g-min-height-50vh g-pt-90 g-pb-120"
+	<div class="landing-block-node-bgimg u-bg-overlay g-bg-black-opacity-0_1--after g-mb-minus-140 d-flex align-items-center justify-content-center g-min-height-50vh g-pt-90 g-pb-120"
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x800/img1.jpg);">
 		<div class="landing-block-node-text-container container text-center u-bg-overlay__inner">
 			<a class="landing-block-node-button m-auto g-mb-14 u-icon-v3 u-icon-size--xl u-block-hover--scale g-overflow-inherit g-bg-white g-color-gray-dark-v1 g-color-primary--hover g-font-size-20 rounded-circle g-text-underline--none--hover g-cursor-pointer"

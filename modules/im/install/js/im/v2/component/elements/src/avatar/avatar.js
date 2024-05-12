@@ -116,7 +116,7 @@ export const Avatar = {
 		},
 		isEnoughSizeForText(): boolean
 		{
-			const avatarSizesWithText = [AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
+			const avatarSizesWithText = [AvatarSize.M, AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
 
 			return avatarSizesWithText.includes(this.size.toUpperCase());
 		},

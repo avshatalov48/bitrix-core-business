@@ -39,9 +39,10 @@ class CSocServGoogleOAuth extends CSocServAuth
 		return [
 			["google_appid", GetMessage("socserv_google_client_id"), "", ["text", 40]],
 			["google_appsecret", GetMessage("socserv_google_client_secret"), "", ["text", 40]],
+			['google_app_api_key', GetMessage('socserv_google_api_key'), '', ['text', 40]],
 			[
 				'note' => getMessage(
-					'socserv_google_note_2',
+					'socserv_google_note_2_MSGVER_1',
 					[
 						'#URL#' => $this->getEntityOAuth()->getRedirectUri(),
 						'#MAIL_URL#' => \CHttp::urn2uri('/bitrix/tools/mail_oauth.php'),
@@ -53,7 +54,8 @@ class CSocServGoogleOAuth extends CSocServAuth
 
 	public function CheckSettings()
 	{
-		return self::GetOption('google_appid') !== '' && self::GetOption('google_appsecret') !== '';
+		return self::GetOption('google_appid') !== ''
+			&& self::GetOption('google_appsecret') !== '';
 	}
 
 

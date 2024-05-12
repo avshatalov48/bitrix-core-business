@@ -9,7 +9,7 @@ import {
 	ConditionGroupSelector,
 	ConditionGroup,
 	DelayIntervalSelector,
-	SelectorManager,
+	SelectorManager, SelectorItemsManager, enrichFieldsWithModifiers,
 } from 'bizproc.automation';
 import { SaveButton, BaseButton, CancelButton } from 'ui.buttons';
 import { Robot } from './robot';
@@ -688,14 +688,7 @@ export class Template extends EventEmitter
 
 		if (Designer.getInstance().getRobotSettingsDialog())
 		{
-			if (context.changeRobot)
-			{
-				Designer.getInstance().getRobotSettingsDialog().popup.close();
-			}
-			else
-			{
-				return;
-			}
+			return;
 		}
 
 		const robotBrokenLinks = robot.getBrokenLinks();
@@ -970,7 +963,7 @@ export class Template extends EventEmitter
 	{
 		const additionalFields = (
 			this
-				.#getRobotsWithReturnFields()
+				.getRobotsWithReturnFields()
 				.flatMap((robot) => (
 					robot
 						.getReturnFieldsDescription()
@@ -1006,115 +999,7 @@ export class Template extends EventEmitter
 		return additionalFields;
 	}
 
-	#addRobotReturnFieldsToSelector(event: BaseEvent, skipRobot: ?Robot)
-	{
-		const selector = event.getData().selector;
-		const isMixedCondition = event.getData().isMixedCondition;
-
-		if (Type.isBoolean(isMixedCondition) && !isMixedCondition)
-		{
-			return;
-		}
-
-		const robotMenuItems = (
-			this
-				.#getRobotsWithReturnFields(skipRobot)
-				.map((robot) => ({
-					id: robot.getId(),
-					title: robot.getTitle(),
-					children: robot.getReturnFieldsDescription().map((field) => ({
-						id: field.Expression,
-						title: field.Name,
-						customData: { field },
-					})),
-				}))
-		);
-
-		if (robotMenuItems.length > 0)
-		{
-			selector.addGroup('__RESULT', {
-				id: '__RESULT',
-				title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
-				children: robotMenuItems,
-			});
-		}
-	}
-
-	#addConstantsToSelector(event: BaseEvent)
-	{
-		const selector = event.getData().selector;
-		const isMixedCondition = event.getData().isMixedCondition;
-
-		if (Type.isBoolean(isMixedCondition) && !isMixedCondition)
-		{
-			return;
-		}
-
-		// TODO - test !this.showTemplatePropertiesMenuOnSelecting
-		const constants = this.getConstants().map((constant) => {
-			return {
-				id: constant.SystemExpression,
-				title: constant.Name,
-				supertitle: Loc.getMessage('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST'),
-				customData: { field: constant },
-			};
-		});
-
-		this.globalConstants.forEach((constant) => {
-			constants.push({
-				id: constant.SystemExpression,
-				title: constant.Name,
-				supertitle: constant.SuperTitle,
-				customData: { field: constant },
-			});
-		});
-
-		if (Type.isArrayFilled(constants))
-		{
-			selector.addGroup(
-				'__CONSTANTS',
-				{
-					id: '__CONSTANTS',
-					title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
-					children: constants,
-				},
-			);
-		}
-	}
-
-	#addVariablesToSelector(event: BaseEvent)
-	{
-		const selector = event.getData().selector;
-		const isMixedCondition = event.getData().isMixedCondition;
-
-		if (Type.isBoolean(isMixedCondition) && !isMixedCondition)
-		{
-			return;
-		}
-
-		const gVariables = this.globalVariables.map((variable) => {
-			return {
-				id: variable.SystemExpression,
-				title: variable.Name,
-				supertitle: variable.SuperTitle,
-				customData: { field: variable },
-			};
-		});
-
-		if (Type.isArrayFilled(gVariables))
-		{
-			selector.addGroup(
-				'__GLOB_VARIABLES',
-				{
-					id: '__GLOB_VARIABLES',
-					title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1'),
-					children: gVariables,
-				},
-			);
-		}
-	}
-
-	#getRobotsWithReturnFields(skipRobot: ?Robot): Array<Robot>
+	getRobotsWithReturnFields(skipRobot: ?Robot): Array<Robot>
 	{
 		const skipId = skipRobot?.getId() || '';
 
@@ -1378,9 +1263,24 @@ export class Template extends EventEmitter
 
 	onOpenMenu(event: BaseEvent, robot: Robot): void
 	{
-		this.#addRobotReturnFieldsToSelector(event, robot);
-		this.#addConstantsToSelector(event);
-		this.#addVariablesToSelector(event);
+		const selector = event.getData().selector;
+		const isMixedCondition = event.getData().isMixedCondition;
+
+		const needAddGroups = !(Type.isBoolean(isMixedCondition) && !isMixedCondition);
+		if (needAddGroups)
+		{
+			const selectorManager = new SelectorItemsManager({
+				activityResultFields: this.#getRobotResultFieldForSelector(robot),
+				constants: this.getConstants(),
+				// variables: this.getVariables(),
+				globalConstants: this.globalConstants,
+				globalVariables: this.globalVariables,
+			});
+
+			selectorManager.groupsWithChildren.forEach((group) => {
+				selector.addGroup(group.id, group);
+			});
+		}
 
 		this.emit(
 			'Template:onSelectorMenuOpen',
@@ -1389,6 +1289,30 @@ export class Template extends EventEmitter
 				robot,
 				...event.getData(),
 			},
+		);
+	}
+
+	#getRobotResultFieldForSelector(skipRobot): Array<{id: string, title: string, fields: Array<Field>}>
+	{
+		return (
+			this.getRobotsWithReturnFields(skipRobot)
+				.map((robotWithReturnFields) => {
+					return {
+						id: robotWithReturnFields.getId(),
+						title: robotWithReturnFields.getTitle(),
+						fields: enrichFieldsWithModifiers(
+							robotWithReturnFields.getReturnFieldsDescription(),
+							robotWithReturnFields.getId(),
+							{
+								friendly: false,
+								printable: false,
+								server: false,
+								responsible: false,
+								shortLink: true,
+							},
+						),
+					};
+				})
 		);
 	}
 
@@ -1451,6 +1375,7 @@ export class Template extends EventEmitter
 
 		this.onBeforeSaveRobotSettings();
 		const formData = BX.ajax.prepareForm(form);
+		const robotData = robot.onBeforeSaveRobotSettings(formData);
 
 		const ajaxUrl = this.#context.ajaxUrl;
 		const documentSigned = this.#context.signedDocument;
@@ -1467,7 +1392,7 @@ export class Template extends EventEmitter
 				ajax_action: 'save_robot_settings',
 				document_signed: documentSigned,
 				robot_json: Helper.toJsonString(robot.serialize()),
-				form_data_json: Helper.toJsonString(formData.data),
+				form_data_json: Helper.toJsonString({ ...formData.data, ...robotData }),
 				form_data: formData.data, /** @bug 0135641 */
 			},
 			onsuccess: (response) => {
@@ -1554,6 +1479,7 @@ export class Template extends EventEmitter
 			constant.ObjectId = 'Constant';
 			constant.SystemExpression = `{=Constant:${id}}`;
 			constant.Expression = `{{~&:${id}}}`;
+			constant.SuperTitle = Loc.getMessage('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST');
 
 			constants.push(constant);
 		});

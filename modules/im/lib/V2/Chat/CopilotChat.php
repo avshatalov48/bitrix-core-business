@@ -10,12 +10,20 @@ use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Message\Params;
 use Bitrix\ImBot\Bot;
+use Bitrix\Imbot\Bot\CopilotChatBot;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 class CopilotChat extends GroupChat
 {
 	private const COUNTER_CHAT_CODE = 'copilot_chat_counter';
+
+	public function __construct($source = null)
+	{
+		Loader::includeModule('imbot');
+
+		parent::__construct($source);
+	}
 
 	protected function getDefaultType(): string
 	{
@@ -24,12 +32,12 @@ class CopilotChat extends GroupChat
 
 	public function getDefaultManageUsersAdd(): string
 	{
-		return self::MANAGE_RIGHTS_NONE;
+		return self::MANAGE_RIGHTS_MEMBER;
 	}
 
 	public function getDefaultManageUsersDelete(): string
 	{
-		return self::MANAGE_RIGHTS_NONE;
+		return self::MANAGE_RIGHTS_MEMBER;
 	}
 
 	public function getDefaultManageSettings(): string
@@ -37,7 +45,17 @@ class CopilotChat extends GroupChat
 		return self::MANAGE_RIGHTS_NONE;
 	}
 
-	public function setCanPost(string $canPost): Chat
+	public function getManageUsersAdd(): ?string
+	{
+		return $this::MANAGE_RIGHTS_MEMBER;
+	}
+
+	public function getManageUsersDelete(): ?string
+	{
+		return $this::MANAGE_RIGHTS_MEMBER;
+	}
+
+	public function setManageMessages(string $manageMessages): Chat
 	{
 		return $this;
 	}
@@ -89,12 +107,64 @@ class CopilotChat extends GroupChat
 		return parent::add($params, $context);
 	}
 
-	protected function sendGreetingMessage(?int $authorId = null)
+	public function addUsers(array $userIds, array $managerIds = [], ?bool $hideHistory = null, bool $withMessage = true, bool $skipRecent = false): Chat
 	{
-		return;
+		if (empty($userIds) || !$this->getChatId())
+		{
+			return $this;
+		}
+
+		$usersToAdd = $this->filterUsersToAdd($userIds);
+
+		if (empty($usersToAdd))
+		{
+			return $this;
+		}
+
+		$usersToAdd = $this->getUsersWithoutBots($usersToAdd);
+
+		return parent::addUsers($usersToAdd, $managerIds, $hideHistory, $withMessage, $skipRecent);
+	}
+
+	protected function getUsersWithoutBots(array $userIds): array
+	{
+		$usersToAdd = [];
+
+		foreach ($userIds as $userId)
+		{
+			$user = Im\V2\Entity\User\User::getInstance($userId);
+			if (!$user->isBot())
+			{
+				$usersToAdd[$userId] = $userId;
+			}
+		}
+
+		return $usersToAdd;
 	}
 
 	protected function sendMessageUsersAdd(array $usersToAdd, bool $skipRecent = false): void
+	{
+		if (empty($usersToAdd))
+		{
+			return;
+		}
+
+		$oldUsers = array_diff($this->getRelations()->getUserIds(), $usersToAdd);
+		if (count($oldUsers) === 2)
+		{
+			$this->sendAddedUsersBanner();
+			return;
+		}
+
+		if (in_array(Bot\CopilotChatBot::getBotId(), $usersToAdd, true))
+		{
+			unset($usersToAdd[Bot\CopilotChatBot::getBotId()]);
+		}
+
+		parent::sendMessageUsersAdd($usersToAdd, $skipRecent);
+	}
+
+	protected function sendGreetingMessage(?int $authorId = null)
 	{
 		return;
 	}
@@ -114,6 +184,52 @@ class CopilotChat extends GroupChat
 				Params::NOTIFY => 'N',
 			]
 		]);
+	}
+
+	public function sendAddedUsersBanner(): void
+	{
+		$author = $this->getAuthor();
+		$addedUsers = $this->getRelations()->getUserIds();
+		unset($addedUsers[$author->getId()], $addedUsers[Bot\CopilotChatBot::getBotId()]);
+
+		if (empty($addedUsers))
+		{
+			return;
+		}
+
+		\CIMMessage::Add([
+			'MESSAGE_TYPE' => $this->getType(),
+			'TO_CHAT_ID' => $this->getChatId(),
+			'FROM_USER_ID' => Bot\CopilotChatBot::getBotId(),
+			"SYSTEM" => 'Y',
+			'MESSAGE' => Loc::getMessage(
+				"IM_CHAT_CREATE_COPILOT_COLLECTIVE_{$author->getGender()}",
+				[
+					'#USER_1_NAME#' => htmlspecialcharsback($author->getName()),
+					'#USER_2_NAME#' => $this->getUsersForBanner($addedUsers)
+				],
+			),
+			'PUSH' => 'N',
+			'PARAMS' => [
+				Params::COMPONENT_ID => Bot\CopilotChatBot::MESSAGE_COMPONENT_COLLECTIVE,
+				Params::NOTIFY => 'N',
+				Params::COMPONENT_PARAMS => [
+					'AUTHOR_ID' => $author->getId(),
+					'ADDED_USERS' => array_values($addedUsers),
+				],
+			],
+		]);
+	}
+
+	private function getUsersForBanner(array $addedUsers): string
+	{
+		$userCodes = [];
+		foreach ($addedUsers as $userId)
+		{
+			$userCodes[] = "[USER={$userId}][/USER]";
+		}
+
+		return implode(', ', $userCodes);
 	}
 
 	protected function sendDescriptionMessage(?int $authorId = null): void
@@ -201,6 +317,16 @@ class CopilotChat extends GroupChat
 		return Loader::includeModule('imbot')
 			&& (new Restriction(Restriction::AI_COPILOT_CHAT))->isAvailable()
 			&& static::getBotIdOrRegister();
+	}
+
+	public function deleteUser(int $userId, bool $withMessage = true, bool $skipRecent = false, bool $withNotification = true): Result
+	{
+		if (CopilotChatBot::getBotId() === $userId && $this->getContext()->getUserId() !== $userId)
+		{
+			return (new Result())->addError(new ChatError(ChatError::COPILOT_DELETE_ERROR));
+		}
+
+		return parent::deleteUser($userId, $withMessage, $skipRecent);
 	}
 
 	public function toRestFormat(array $option = []): array

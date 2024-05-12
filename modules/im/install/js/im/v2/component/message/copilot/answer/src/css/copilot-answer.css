@@ -1,9 +1,16 @@
 .bx-im-message-copilot-answer__container {
 	--im-message-copilot-answer__background-color_error: var(--im-color-palette-red-20);
-	--im-message-copilot-answer__background-color_action-text: #8e52ec;
-	--im-message-copilot-answer__background-color_action-text-hover: #6e35d0;
 
 	border-radius: inherit;
+}
+
+.bx-im-message-copilot-base-message__container .bx-im-message-base__body {
+	min-width: 250px;
+}
+
+.bx-im-message-copilot-base-message__container {
+	--im-message-copilot-answer__color_warning: #b6aac8;
+	--im-message-copilot-answer__background-color_bottom-panel: #f6ecff;
 }
 
 .bx-im-message-copilot-answer__container.--error {
@@ -14,50 +21,62 @@
 	background: url('./images/arrow-opponent.svg?v2');
 }
 
-.bx-im-message-copilot-answer__actions {
+.bx-im-message-copilot-answer__bottom-panel {
 	display: flex;
-	align-items: center;
-	margin-top: 12px;
-	padding-bottom: 6px;
+	flex-direction: column;
+	min-height: 44px;
+	padding: 8px 12px 6px;
+	border-bottom-left-radius: inherit;
+	border-bottom-right-radius: inherit;
+	background-color: var(--im-message-copilot-answer__background-color_bottom-panel);
+	user-select: none;
 }
 
-.bx-im-message-copilot-answer__action {
+.bx-im-message-copilot-answer__panel-content {
 	display: flex;
 	align-items: center;
+	gap: 8px;
+}
+
+.bx-im-message-copilot-answer__copy_icon {
+	width: 20px;
+	height: 20px;
+	border: none;
 	cursor: pointer;
-}
-
-.bx-im-message-copilot-answer__action + .bx-im-message-copilot-answer__action {
-	margin-left: 16px;
-}
-
-.bx-im-message-copilot-answer__action_icon {
-	width: 24px;
-	height: 24px;
-	margin-right: 4px;
-}
-
-.bx-im-message-copilot-answer__action_icon.--copy {
+	flex-shrink: 0;
 	background-image: url('./images/copy.svg');
+	background-color: transparent;
 }
 
-.bx-im-message-copilot-answer__action_icon.--continue {
-	background-image: url('./images/continue.svg');
-}
-
-.bx-im-message-copilot-answer__action_text {
-	font: var(--im-font-size-lg) var(--im-font-family-system);
-	color: var(--im-message-copilot-answer__background-color_action-text);
-}
-
-.bx-im-message-copilot-answer__action:hover .bx-im-message-copilot-answer__action_icon.--copy {
+.bx-im-message-copilot-answer__copy_icon:hover {
 	background-image: url('./images/copy-hover.svg');
 }
 
-.bx-im-message-copilot-answer__action:hover .bx-im-message-copilot-answer__action_icon.--continue {
-	background-image: url('./images/continue-hover.svg');
+.bx-im-message-copilot-answer__warning {
+	font: var(--im-font-size-xs) var(--im-font-family-system);
+	color: var(--im-message-copilot-answer__color_warning);
+	position: relative;
+	text-indent: 18px;
 }
 
-.bx-im-message-copilot-answer__action:hover .bx-im-message-copilot-answer__action_text {
-	color: var(--im-message-copilot-answer__background-color_action-text-hover);
+.bx-im-message-copilot-answer__warning::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 14px;
+	height: 14px;
+	background: url('./images/warning.svg') no-repeat center;
 }
+
+.bx-im-message-copilot-answer__warning_more {
+	text-decoration: underline;
+	color: #b6aac8;
+	cursor: pointer;
+}
+
+.bx-im-message-copilot-answer__warning_more:hover {
+	color: #b095dc;
+	text-decoration: underline;
+}
+

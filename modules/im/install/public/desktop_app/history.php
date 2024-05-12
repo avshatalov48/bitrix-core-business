@@ -11,7 +11,7 @@ if (!CModule::IncludeModule('im'))
 if (intval($USER->GetID()) <= 0 || !isset($_GET['IM_HISTORY']))
 {
 	?>
-<script type="text/javascript">
+<script>
 	location.href = '/';
 </script><?php
 	return true;

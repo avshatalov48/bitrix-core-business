@@ -45,3 +45,27 @@ BEGIN
     END IF;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION substring_index(
+  str text,
+  delim text,
+  count integer = 1,
+  out substring_index text
+)
+RETURNS text AS $$
+BEGIN
+  IF count > 0 THEN
+    substring_index = array_to_string((string_to_array(str, delim))[:count], delim);
+  ELSE
+    DECLARE
+      _array TEXT[];
+    BEGIN
+      _array = string_to_array(str, delim);
+      substring_index = array_to_string(_array[array_length(_array, 1) + count + 1:], delim);
+    END;
+  END IF;
+END;
+$$
+LANGUAGE 'plpgsql'
+IMMUTABLE
+CALLED ON NULL INPUT;

@@ -16,6 +16,7 @@ export const BotType = Object.freeze({
 export const BotCode = Object.freeze({
 	marta: 'marta',
 	giphy: 'giphy',
+	copilot: 'copilot',
 });
 
 export const BotCommand = Object.freeze({

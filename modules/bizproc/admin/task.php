@@ -48,8 +48,8 @@ if (!$arTask)
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-	$APPLICATION->SetTitle(GetMessage("BPAT_NO_TASK"));
-	CAdminMessage::ShowMessage(GetMessage("BPAT_NO_TASK").". ");
+	$APPLICATION->SetTitle(GetMessage("BPAT_NO_TASK_MSGVER_1"));
+	CAdminMessage::ShowMessage(GetMessage("BPAT_NO_TASK_MSGVER_1").". ");
 }
 else
 {
@@ -176,7 +176,7 @@ else
 		?>
 		<input type="hidden" name="delegate_to" onchange="submit()">
 	</form>
-	<script type="text/javascript">
+	<script>
 		function bizprocShowDelegateDialog()
 		{
 			window.open('/bitrix/admin/user_search.php?lang=<?=LANGUAGE_ID?>&FN=task_delegate&FC=delegate_to',

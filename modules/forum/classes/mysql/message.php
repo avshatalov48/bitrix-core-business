@@ -727,6 +727,10 @@ class CForumMessage extends CAllForumMessage
 			endif;
 		}
 
+		if (!isset($arAddParams["nTopCount"]))
+		{
+			$arAddParams["nTopCount"] = 0;
+		}
 		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"]) <= 0))
 		{
 			$strSql =

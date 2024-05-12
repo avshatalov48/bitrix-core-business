@@ -45,7 +45,7 @@ CJSCore::Init(array('lists'));
 				<?= GetMessage("LISTS_LCP_TEMPLATE_BUTTON_INSTALL") ?></button>
 		<? endif; ?>
 		<a class="ui-btn ui-btn-md ui-btn-light-border ui-btn-themes" title="<?= GetMessage("LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES") ?>" id="bx-lists-lcp-transition-processes"
-		   href="<?= $arResult['LISTS_URL'] ?>">
+			href="<?= $arResult['LISTS_URL'] ?>">
 			<?= GetMessage("LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES") ?>
 		</a>
 	</div>
@@ -128,7 +128,7 @@ CJSCore::Init(array('lists'));
 <input type="hidden" id="bx-lists-lcp-site-id" value="<?= SITE_ID ?>">
 <input type="hidden" id="bx-lists-lcp-lists-url" value="<?= $arResult['LISTS_URL'] ?>">
 
-<script type="text/javascript">
+<script>
 	BX(function () {
 		BX.Lists['CatalogProcessesClass_<?= $arResult['RAND_STRING']?>'] = new BX.Lists.CatalogProcessesClass({
 			randomString: '<?= $arResult['RAND_STRING'] ?>'

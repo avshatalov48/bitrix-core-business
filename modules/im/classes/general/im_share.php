@@ -116,7 +116,7 @@ class CIMShare
 		$fields = [];
 
 		$taskTitle = mb_substr(trim(preg_replace(
-			["/\n+/is" . BX_UTF_PCRE_MODIFIER, '/\s+/is' . BX_UTF_PCRE_MODIFIER],
+			["/\n+/isu", '/\s+/isu'],
 			" ",
 			CTextParser::clearAllTags($message['MESSAGE'])
 		)), 0, 255);
@@ -304,7 +304,7 @@ class CIMShare
 			$blog = $this->SonetPostCreateBlog($this->user_id, $blogGroupID, SITE_ID);
 
 		$title = trim(preg_replace(
-			array("/\n+/is".BX_UTF_PCRE_MODIFIER, '/\s+/is'.BX_UTF_PCRE_MODIFIER),
+			array("/\n+/isu", '/\s+/isu'),
 			" ",
 			CTextParser::clearAllTags($message['MESSAGE'])
 		));

@@ -50,7 +50,7 @@ $containerId = 'rest-configuration-export';
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Rest.Configuration.Export.init(<?=Json::encode(
 			[

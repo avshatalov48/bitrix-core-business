@@ -1,5 +1,7 @@
-<?
+<?php
+
 $MESS["BIZPROC_LOG_CLEANUP_DAYS"] = "Время хранения лога выполнения бизнес-процесса (дней)";
+$MESS["BIZPROC_SEARCH_CLEANUP_DAYS"] = "Время хранения поискового индекса бизнес-процесса (дней)";
 $MESS["BIZPROC_EMPLOYEE_COMPATIBLE_MODE"] = "Включить режим совместимости для типа \"Привязка к сотруднику\"";
 $MESS["BIZPROC_TAB_SET"] = "Настройки";
 $MESS["BIZPROC_TAB_SET_ALT"] = "Настройки модуля";
@@ -19,4 +21,4 @@ $MESS["BIZPROC_OPT_TIME_LIMIT_S"] = "секунд";
 $MESS["BIZPROC_OPT_TIME_LIMIT_M"] = "минут";
 $MESS["BIZPROC_OPT_TIME_LIMIT_H"] = "часов";
 $MESS["BIZPROC_OPT_TIME_LIMIT_D"] = "дней";
-?>
+$MESS["BIZPROC_AUTOMATION_NO_FORCED_TRACKING"] = "Не сохранять в лог статусы роботов";

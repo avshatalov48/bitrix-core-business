@@ -149,6 +149,8 @@ class Engine
 		this.restClient = null;
 		this.pullClient = null;
 
+		this.finishedCalls = new Set();
+
 		this.init();
 	};
 
@@ -494,6 +496,11 @@ class Engine
 			{
 				this.calls[callId].__onPullEvent(command, params, extra);
 			}
+			else if (command === 'Call::finish')
+			{
+				this.log(callId, 'Got "Call::finish" before "Call::incoming"');
+				this.finishedCalls.add(callId);
+			}
 			else if (command === 'Call::ping')
 			{
 				this.#onUnknownCallPing(params, extra).then((result) =>
@@ -541,6 +548,12 @@ class Engine
 		const callFields = params.call;
 		const callId = parseInt(callFields.ID);
 		let call;
+
+		if (this.finishedCalls.has(callId))
+		{
+			this.log(callId, 'Got "Call::incoming" after "Call::finish"');
+			return;
+		}
 
 		if (params.publicIds)
 		{

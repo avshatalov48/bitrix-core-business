@@ -24,14 +24,14 @@ class AdvertisingBanner extends \CBitrixComponent
 	{
 		$params['TYPE'] = (isset($params['TYPE']) ? trim($params['TYPE']) : '');
 
-		if($params['NOINDEX'] <> 'Y')
+		if(!isset($params['NOINDEX']) || $params['NOINDEX'] <> 'Y')
 		{
 			$params['NOINDEX'] = 'N';
 		}
 
 		if ($params['CACHE_TYPE'] == 'Y' || ($params['CACHE_TYPE'] == 'A' && Bitrix\Main\Config\Option::get('main', 'component_cache_on', 'Y') == 'Y'))
 		{
-			$params['CACHE_TIME'] = intval($params['CACHE_TIME']);
+			$params['CACHE_TIME'] = intval($params['CACHE_TIME'] ?? 0);
 		}
 		else
 		{
@@ -147,7 +147,7 @@ class AdvertisingBanner extends \CBitrixComponent
 				else
 				{
 					$templateExists = false;
-					if ($this->arParams['DEFAULT_TEMPLATE'] <> '')
+					if (!empty($this->arParams['DEFAULT_TEMPLATE']))
 					{
 						$arTemplates = CComponentUtil::GetTemplatesList('bitrix:advertising.banner.view');
 						if (is_array($arTemplates) && !empty($arTemplates))

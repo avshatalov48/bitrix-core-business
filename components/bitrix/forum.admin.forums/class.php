@@ -79,7 +79,7 @@ class CForumAdminMessages extends \CBitrixComponent
 				{
 					while ($res = $dbRes->fetch())
 					{
-						$this->arResult["DATA"][$res["FORUM_ID"]]["SITES"][$res["SITE_ID"]] = $res["PATH2FORUM_MESSAGES"];
+						$this->arResult["DATA"][$res["FORUM_ID"]]["SITES"][$res["SITE_ID"]] = $res["PATH2FORUM_MESSAGES"] ?? null;
 					}
 				}
 				if ($dbRes = \Bitrix\Forum\PermissionTable::getList([
@@ -166,7 +166,6 @@ class CForumAdminMessages extends \CBitrixComponent
 		}
 
 		$this->errorCollection->clear();
-		$this->request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
 
 		global $DB, $APPLICATION;
 

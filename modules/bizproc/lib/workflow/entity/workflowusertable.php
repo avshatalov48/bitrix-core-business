@@ -7,6 +7,8 @@ use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Bizproc\Integration\Push\WorkflowPush;
 
@@ -62,6 +64,13 @@ class WorkflowUserTable extends DataManager
 			,
 			(new DatetimeField('MODIFIED'))
 				->configureNullable(false)
+			,
+			(new Reference(
+				'FILTER',
+				WorkflowFilterTable::class,
+				Join::on('this.WORKFLOW_ID', 'ref.WORKFLOW_ID')
+			))
+				->configureJoinType(Join::TYPE_INNER)
 			,
 		];
 	}

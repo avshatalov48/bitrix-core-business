@@ -370,3 +370,26 @@ CREATE TABLE b_bp_workflow_meta (
   PRIMARY KEY (ID)
 );
 CREATE INDEX ix_b_bp_workflow_meta_workflow_id ON b_bp_workflow_meta (workflow_id);
+
+CREATE TABLE b_bp_workflow_filter (
+  WORKFLOW_ID varchar(32) NOT NULL,
+  MODULE_ID varchar(32) NOT NULL,
+  ENTITY varchar(64) NOT NULL,
+  DOCUMENT_ID varchar(128) NOT NULL,
+  TEMPLATE_ID int NOT NULL,
+  STARTED timestamp NOT NULL,
+  PRIMARY KEY (WORKFLOW_ID)
+);
+CREATE INDEX ix_b_bp_workflow_filter_document_id_entity_module_id ON b_bp_workflow_filter (document_id, entity, module_id);
+CREATE INDEX ix_b_bp_workflow_filter_module_id ON b_bp_workflow_filter (module_id);
+CREATE INDEX ix_b_bp_workflow_filter_template_id ON b_bp_workflow_filter (template_id);
+CREATE INDEX ix_b_bp_workflow_filter_started ON b_bp_workflow_filter (started);
+
+CREATE TABLE b_bp_task_search_content (
+  TASK_ID int NOT NULL,
+  WORKFLOW_ID varchar(32) NOT NULL,
+  SEARCH_CONTENT text NOT NULL,
+  PRIMARY KEY (TASK_ID)
+);
+CREATE INDEX ix_b_bp_task_search_content_workflow_id ON b_bp_task_search_content (workflow_id);
+CREATE INDEX tx_b_bp_task_search_content_search_content ON b_bp_task_search_content USING GIN (to_tsvector('english', search_content));

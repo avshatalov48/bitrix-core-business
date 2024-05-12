@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Bitrix\UI;
 
 use Bitrix\ImBot\Bot\Network;
@@ -8,6 +8,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Event;
 use Bitrix\Main\ModuleManager;
 use Bitrix\ImBot\Bot\Partner24;
 use Bitrix\Bitrix24;
@@ -15,6 +16,7 @@ use Bitrix\Bitrix24;
 /**
  * Class InfoHelper
  * @package Bitrix\UI
+ * @deprecated use Bitrix\UI\InfoHelper\Provider\Slider
  */
 class InfoHelper
 {
@@ -49,6 +51,7 @@ class InfoHelper
 			'url' => $currentUrl ?? 'https://' . $_SERVER['HTTP_HOST'] . $APPLICATION->GetCurPageParam(),
 			'is_admin' => ($isBitrix24Cloud && \CBitrix24::isPortalAdmin($userId))
 			|| (!$isBitrix24Cloud && $currentUser->isAdmin()) ? 1 : 0,
+			'is_integrator' => (int)($isBitrix24Cloud && \CBitrix24::isIntegrator($userId)),
 			'tariff' => Option::get('main', '~controller_group_name', ''),
 			'is_cloud' => $isBitrix24Cloud ? '1' : '0',
 			'portal_date_register' => $isBitrix24Cloud ? Option::get('main', '~controller_date_create', '') : '',
@@ -99,6 +102,18 @@ class InfoHelper
 		else
 		{
 			$parameters['key'] = \CBitrix24::requestSign($host . $userId);
+		}
+
+		$method = "\\" . __METHOD__;
+
+		$event =  (new Event('ui', $method, $parameters));
+		$event->send();
+		foreach ($event->getResults() as $eventResult)
+		{
+			if (($eventParameters = $eventResult->getParameters()) && is_array($eventParameters))
+			{
+				$parameters = array_merge($parameters, $eventParameters);
+			}
 		}
 
 		return $parameters;

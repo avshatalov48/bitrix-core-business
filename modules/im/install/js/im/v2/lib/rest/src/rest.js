@@ -15,7 +15,7 @@ type RunActionResult = {
 	errors: RunActionError[]
 };
 
-type RunActionError = {
+export type RunActionError = {
 	code: number | string,
 	customData: any,
 	message: string

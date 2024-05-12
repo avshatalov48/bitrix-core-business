@@ -9,7 +9,7 @@ return [
 	'js' => 'dist/quick-access.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
-		'im.v2.component.list.element-list.recent',
+		'im.v2.component.list.items.recent-compact',
 		'im.v2.lib.logger',
 		'im.v2.lib.init',
 	],

@@ -435,7 +435,7 @@ if ($arResult["VIEW"] == "Y"):
 );?><?
 endif;
 
-?><script type="text/javascript">
+?><script>
 <?if (intval($arParams["MID"]) > 0):?>
 location.hash = 'message<?=$arParams["MID"]?>';
 <?endif;?>

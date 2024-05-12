@@ -68,7 +68,7 @@ class BizprocAutomationSchemeComponent
 		if (is_null($target))
 		{
 			$this->errorCollection->setError(
-				new Error(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_UNKNOWN_DOCUMENT'))
+				new Error(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_UNKNOWN_DOCUMENT_MSGVER_1'))
 			);
 		}
 		else
@@ -77,7 +77,7 @@ class BizprocAutomationSchemeComponent
 			if (is_null($this->scheme))
 			{
 				$this->errorCollection->setError(
-					new Error(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_SCHEME_ERROR_1'))
+					new Error(Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_SCHEME_ERROR_MSGVER_1'))
 				);
 			}
 		}

@@ -37,14 +37,24 @@ class CalendarPubSharingComponent extends CBitrixComponent
 
 	protected function getBrowserLanguage(): string
 	{
-		$browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 		$langMap = [
 			'pt' => 'br', // Portuguese (Brazil)
 			'es' => 'la', // Spanish
 			'zh'=> 'sc' , // Chinese (Simplified)
+			'zh-CN'=> 'sc' , // Chinese (Simplified)
+			'zh-HK'=> 'tc' , // Chinese (Traditional)
+			'zh-TW'=> 'tc' , // Chinese (Traditional)
 			'vi' => 'vn', // Vietnamese
 			'uk' => 'ua', // Ukrainian
 		];
+
+		$isKindOfChinese = str_starts_with($_SERVER['HTTP_ACCEPT_LANGUAGE'], 'zh-');
+		$browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 5);
+
+		if (!$isKindOfChinese || !array_key_exists($browserLang, $langMap))
+		{
+			$browserLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+		}
 
 		return $langMap[$browserLang] ?? $browserLang;
 	}

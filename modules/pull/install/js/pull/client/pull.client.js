@@ -1036,6 +1036,10 @@
 			{
 				disconnectCode = CloseReasons.NORMAL_CLOSURE;
 			}
+			if (!disconnectReason)
+			{
+				disconnectReason = 'manual restart'
+			}
 			clearTimeout(this.restartTimeout);
 			console.warn(Utils.getDateForLog() + ': Pull: restarting with code ' + disconnectCode)
 			this.disconnect(disconnectCode, disconnectReason);

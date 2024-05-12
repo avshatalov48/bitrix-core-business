@@ -18,7 +18,6 @@ $obJSPopup = new CJSPopup('',
 $arData = array();
 if ($_REQUEST['MAP_DATA'])
 {
-	CUtil::JSPostUnescape();
 	if (CheckSerializedData($_REQUEST['MAP_DATA']))
 	{
 		$arData = unserialize($_REQUEST['MAP_DATA'], ['allowed_classes' => false]);

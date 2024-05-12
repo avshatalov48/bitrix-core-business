@@ -20,17 +20,17 @@ class ResourceCollection
 	 * Collection of added resources. Key of array - path, values - array of parameters
 	 * @var array
 	 */
-	protected $resources;
+	protected array $resources;
 	/**
 	 * Order variable for save added asset position
 	 * @var int
 	 */
-	protected $order;
+	protected int $order;
 	/**
 	 * Save assets string, like a <script> and <link>. May be external links, or local inline scripts e.g.
 	 * @var array
 	 */
-	protected $strings = [];
+	protected array $strings = [];
 
 	/**
 	 * ResourceCollection constructor.
@@ -97,9 +97,10 @@ class ResourceCollection
 	}
 
 	/**
-	 * @param mixed $pathes
+	 * @param array|string $pathes - string or array of strings pathes to asset to delete from collection
+	 * @return void
 	 */
-	public function remove($pathes): void
+	public function remove(array|string $pathes): void
 	{
 		if (!is_array($pathes))
 		{

@@ -42,9 +42,9 @@
 	$date1_stm = "";
 	$date2_stm = "";
 
-	$CREATE_DATE_FROM = trim($CREATE_DATE_FROM);
-	$CREATE_DATE_TO = trim($CREATE_DATE_TO);
-	$CREATE_DATE_FROM_DAYS_TO_BACK = intval($CREATE_DATE_FROM_DAYS_TO_BACK);
+	$CREATE_DATE_FROM = isset($CREATE_DATE_FROM) ? trim($CREATE_DATE_FROM) : null;
+	$CREATE_DATE_TO = isset($CREATE_DATE_TO) ? trim($CREATE_DATE_TO) : null;
+	$CREATE_DATE_FROM_DAYS_TO_BACK = isset($CREATE_DATE_FROM_DAYS_TO_BACK) ? intval($CREATE_DATE_FROM_DAYS_TO_BACK) : null;
 	if (!empty($CREATE_DATE_FROM) || !empty($CREATE_DATE_TO) || $CREATE_DATE_FROM_DAYS_TO_BACK > 0)
 	{
 		$date1_create_stm = MkDateTime(ConvertDateTime($CREATE_DATE_FROM, "D.M.Y"), "d.m.Y");
@@ -54,7 +54,7 @@
 			if (!empty($CREATE_DATE_TO)) {
 				$date2_create_stm = MkDateTime(ConvertDateTime($CREATE_DATE_TO, "D.M.Y")." 23:59:59", "d.m.Y H:i:s");
 				$CREATE_DATE_TO .= " 23:59:59";
-			} else if ($CREATE_DATE_FROM_FILTER_PERIOD == "after") {
+			} else if (isset($CREATE_DATE_FROM_FILTER_PERIOD) && $CREATE_DATE_FROM_FILTER_PERIOD == "after") {
 				$date1_create_stm = MkDateTime(ConvertDateTime($CREATE_DATE_FROM, "D.M.Y")." 23:59:59", "d.m.Y H:i:s");
 				$CREATE_DATE_FROM .= " 23:59:59";
 			}
@@ -73,9 +73,9 @@
 	}
 
 	// LAST TOPIC
-	$DATE_FROM = trim($DATE_FROM);
-	$DATE_TO = trim($DATE_TO);
-	$DATE_FROM_DAYS_TO_BACK = intval($DATE_FROM_DAYS_TO_BACK);
+	$DATE_FROM = isset($DATE_FROM) ? trim($DATE_FROM) : null;
+	$DATE_TO = isset($DATE_TO) ? trim($DATE_TO) : null;
+	$DATE_FROM_DAYS_TO_BACK = isset($DATE_FROM_DAYS_TO_BACK) ? intval($DATE_FROM_DAYS_TO_BACK) : null;
 	if (!empty($DATE_FROM) || !empty($DATE_TO) || $DATE_FROM_DAYS_TO_BACK > 0)
 	{
 		$date1_stm = MkDateTime(ConvertDateTime($DATE_FROM, "D.M.Y"), "d.m.Y");
@@ -85,7 +85,7 @@
 			if (!empty($DATE_TO)) {
 				$date2_stm = MkDateTime(ConvertDateTime($DATE_TO, "D.M.Y")." 23:59:59", "d.m.Y H:i:s");
 				$DATE_TO .= " 23:59:59";
-			} else if ($DATE_FROM_FILTER_PERIOD == "after") {
+			} else if (isset($DATE_FROM_FILTER_PERIOD) && $DATE_FROM_FILTER_PERIOD == "after") {
 				$date1_stm = MkDateTime(ConvertDateTime($DATE_FROM, "D.M.Y")." 23:59:59", "d.m.Y H:i:s");
 				$DATE_FROM .= " 23:59:59";
 			}
@@ -105,37 +105,37 @@
 	}
 
 	$arFilter = array();
-	$FORUM_ID = intval($FORUM_ID);
+	$FORUM_ID = isset($FORUM_ID) ? intval($FORUM_ID) : null;
 	if ($FORUM_ID > 0):
 		$arFilter["FORUM_ID"] = $FORUM_ID;
 	endif;
-	$TITLE = trim($TITLE);
+	$TITLE = isset($TITLE) ? trim($TITLE) : null;
 	if ($TITLE <> ''):
 		$arFilter["TITLE"] = $TITLE;
 	endif;
-	$DESCRIPTION = trim($DESCRIPTION);
+	$DESCRIPTION = isset($DESCRIPTION) ? trim($DESCRIPTION) : null;
 	if ($DESCRIPTION <> ''):
 		$arFilter["DESCRIPTION"] = $DESCRIPTION;
 	endif;
-	$USER_START_ID = intval($USER_START_ID);
+	$USER_START_ID = isset($USER_START_ID) ? intval($USER_START_ID) : null;
 	if ($USER_START_ID > 0):
 		$arFilter["USER_START_ID"] = $USER_START_ID;
-	elseif (trim($_REQUEST["USER_START_ID"]) == "0"):
+	elseif (isset($_REQUEST["USER_START_ID"]) && trim($_REQUEST["USER_START_ID"]) == "0"):
 		$arFilter["USER_START_ID"] = 0;
 	else:
 		$USER_START_ID = "";
 	endif;
-	if ($APPROVED == "Y" || $APPROVED == "N"):
+	if (isset($APPROVED) && ($APPROVED == "Y" || $APPROVED == "N")):
 		$arFilter["APPROVED"] = $APPROVED;
 	else:
 		$APPROVED = "";
 	endif;
-	if ($PINNED == "Y" || $PINNED == "N"):
+	if (isset($PINNED) && ($PINNED == "Y" || $PINNED == "N")):
 		$arFilter["SORT"] = ($PINNED == "Y" ? 100 : 150);
 	else:
 		$PINNED = "";
 	endif;
-	if ($STATE == "Y" || $STATE == "N" || $STATE == "L"):
+	if (isset($STATE) && ($STATE == "Y" || $STATE == "N" || $STATE == "L")):
 		$arFilter["STATE"] = $STATE;
 	else:
 		$STATE = "";
@@ -226,7 +226,7 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 						$res_log["before".$key] =  $res[$key];
 					endif;
 				endforeach;
-				if (!empty($res_log)):
+				if (isset($TID) && !empty($res_log)):
 					$arTopic = CForumTopic::GetByID($TID);
 					$res_log['FORUM_ID'] = $arTopic['FORUM_ID'];
 					CForumEventLog::Log("topic", "edit", $TID, serialize($res_log));
@@ -253,7 +253,7 @@ if($arID = $lAdmin->GroupAction())
 		if ($_REQUEST['action'] == "move"):
 			$arFilterAction["!FORUM_ID"] = $_REQUEST['move_to'];
 		endif;
-		if ($_REQUEST['action_target'] != 'selected'):
+		if (!isset($_REQUEST['action_target']) || $_REQUEST['action_target'] != 'selected'):
 			$arFilterAction["@ID"] = $arID;
 		endif;
 		if ($APPLICATION->GetGroupRight("forum") < "W"):
@@ -484,7 +484,7 @@ while ($res = $rsData->NavNext(true, "t_"))
 	$oFilter->End();
 	?>
 	</form>
-	<script language="JavaScript">
+	<script>
 		function Select_Move()
 		{
 			var form = document.getElementById('form_tbl_topic');

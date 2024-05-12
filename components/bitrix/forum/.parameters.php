@@ -56,7 +56,7 @@ $arComponentParameters = array(
 				"DEFAULT" => "UID",
 			),
 		),
-		
+
 		"SEF_MODE" => array_merge(
 			array(
 				"index" => array(
@@ -197,7 +197,7 @@ $arComponentParameters = array(
 			"PARENT" => "SEF_MODE",
 			"NAME" => GetMessage("F_CHECK_CORRECT_PATH_TEMPLATES"),
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y", 
+			"DEFAULT" => "Y",
 			"HIDDEN" => $hidden),
 		"FID" => CForumParameters::GetForumsMultiSelect(GetMessage("F_FID"), "BASE"),
 		"USER_PROPERTY"=>array(
@@ -206,7 +206,7 @@ $arComponentParameters = array(
 			"TYPE" => "LIST",
 			"VALUES" => $userProp,
 			"MULTIPLE" => "Y",
-			"DEFAULT" => array(), 
+			"DEFAULT" => array(),
 			"HIDDEN" => $hidden),
 		"USER_FIELDS" => array(
 			"PARENT" => "BASE",
@@ -232,7 +232,7 @@ $arComponentParameters = array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("F_USE_DESC_PAGE_TOPIC"),
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y", 
+			"DEFAULT" => "Y",
 			"HIDDEN" => $hidden),
 */
 		"FORUMS_PER_PAGE" => Array(
@@ -395,7 +395,7 @@ $arComponentParameters["PARAMETERS"]["DATE_TIME_FORMAT"]["HIDDEN"] = $hidden;
 $arComponentParameters["PARAMETERS"]["SEND_MAIL"]["HIDDEN"] = $hidden;
 $arComponentParameters["PARAMETERS"]["SET_NAVIGATION"]["HIDDEN"] = $hidden;
 
-if($arCurrentValues["USE_RSS"]=="Y")
+if(isset($arCurrentValues["USE_RSS"]) && $arCurrentValues["USE_RSS"]=="Y")
 {
 	$arComponentParameters["PARAMETERS"]["RSS_TYPE_RANGE"] = array(
 		"PARENT" => "RSS_SETTINGS",
@@ -406,14 +406,14 @@ if($arCurrentValues["USE_RSS"]=="Y")
 			"RSS2" => "RSS 2.0",
 			"ATOM" => "Atom 0.3"),
 		"MULTIPLE" => "Y",
-		"DEFAULT" => array("RSS1", "RSS2", "ATOM"), 
+		"DEFAULT" => array("RSS1", "RSS2", "ATOM"),
 		"HIDDEN" => $hidden);
 //	$arComponentParameters["PARAMETERS"]["RSS_FID_RANGE"] = CForumParameters::GetForumsMultiSelect(GetMessage("F_RSS_FORUM_RANGE"), "RSS_SETTINGS");
 	$arComponentParameters["PARAMETERS"]["RSS_CACHE"] = array(
 		"PARENT" => "CACHE_SETTINGS",
 		"NAME" => GetMessage("F_RSS_CACHE"),
 		"TYPE" => "STRING",
-		"DEFAULT"=> "1800", 
+		"DEFAULT"=> "1800",
 		"HIDDEN" => $hidden);
 	$arComponentParameters["PARAMETERS"]["RSS_COUNT"] = array(
 		"PARENT" => "RSS_SETTINGS",
@@ -424,7 +424,7 @@ if($arCurrentValues["USE_RSS"]=="Y")
 		"PARENT" => "RSS_SETTINGS",
 		"NAME" => GetMessage("RSS_TITLE"),
 		"TYPE" => "STRING",
-		"DEFAULT"=> "", 
+		"DEFAULT"=> "",
 		"HIDDEN" => $hidden);
 	$arComponentParameters["PARAMETERS"]["RSS_TN_DESCRIPTION"] = array(
 		"PARENT" => "RSS_SETTINGS",
@@ -432,7 +432,7 @@ if($arCurrentValues["USE_RSS"]=="Y")
 		"TYPE" => "STRING",
 		"COLS" => "25",
 		"ROWS" => "10",
-		"DEFAULT"=> "", 
+		"DEFAULT"=> "",
 		"HIDDEN" => $hidden);
 }
 if (IsModuleInstalled("vote"))
@@ -445,7 +445,7 @@ if (IsModuleInstalled("vote"))
 				"PARENT" => "VOTE_SETTINGS",
 				"NAME" => GetMessage("F_SHOW_VOTE"),
 				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "N", 
+				"DEFAULT" => "N",
 				"REFRESH" => "Y");
 		if ($arCurrentValues["SHOW_VOTE"] == "Y")
 		{
@@ -454,7 +454,7 @@ if (IsModuleInstalled("vote"))
 			$db_res = CVoteChannel::GetList("", "", array("ACTIVE" => "Y"));
 			if ($db_res && $res = $db_res->Fetch())
 			{
-				do 
+				do
 				{
 					$arVoteChannels[$res["ID"].""] = "[ ".$res["ID"]." ]".$res["TITLE"];
 				} while ($res = $db_res->Fetch());
@@ -464,7 +464,7 @@ if (IsModuleInstalled("vote"))
 					"NAME" => GetMessage("F_VOTE_CHANNEL_ID"),
 					"TYPE" => "LIST",
 					"VALUES" => $arVoteChannels,
-					"DEFAULT" => "", 
+					"DEFAULT" => "",
 					"REFRESH" => "Y");
 			reset($arVoteChannels);
 			if (intval($arCurrentValues["VOTE_CHANNEL_ID"]) > 0)
@@ -562,7 +562,7 @@ if ($arCurrentValues["SHOW_RATING"] != "N")
 	$db_res = CRatings::GetList($aSort = array("ID" => "ASC"), array("ACTIVE" => "Y", "ENTITY_ID" => "USER"));
 	while ($res = $db_res->Fetch())
 		$arRatingsList[$res["ID"]] = "[ ".$res["ID"]." ] ".$res["NAME"];
-	
+
 	$arComponentParameters["PARAMETERS"]["RATING_ID"] = array(
 		"PARENT" => "RATING_SETTINGS",
 		"NAME" => GetMessage("F_RATING_ID"),
@@ -585,9 +585,9 @@ if ($arCurrentValues["SHOW_RATING"] != "N")
 		"MULTIPLE" => "N",
 		"DEFAULT" => "",
 		"PARENT" => "RATING_SETTINGS",
-	);	
+	);
 }
-if (!isset($arCurrentValues["ATTACH_MODE"]) && (intval($arCurrentValues["IMAGE_SIZE"]) > 0))
+if (!isset($arCurrentValues["ATTACH_MODE"]) && (isset($arCurrentValues["IMAGE_SIZE"]) && intval($arCurrentValues["IMAGE_SIZE"]) > 0))
 {
 	$arComponentParameters["PARAMETERS"]["ATTACH_MODE"]["DEFAULT"] = array("THUMB", "NAME");
 	$arComponentParameters["PARAMETERS"]["ATTACH_SIZE"]["DEFAULT"] = $arCurrentValues["IMAGE_SIZE"];
@@ -595,7 +595,7 @@ if (!isset($arCurrentValues["ATTACH_MODE"]) && (intval($arCurrentValues["IMAGE_S
 }
 else
 {
-	if (!is_array($arCurrentValues["ATTACH_MODE"]) || empty($arCurrentValues["ATTACH_MODE"]))
+	if (!isset($arCurrentValues["ATTACH_MODE"]) || !is_array($arCurrentValues["ATTACH_MODE"]) || empty($arCurrentValues["ATTACH_MODE"]))
 		$arComponentParameters["PARAMETERS"]["ATTACH_MODE"]["DEFAULT"] = $arCurrentValues["ATTACH_MODE"] = array("NAME");
 	$arComponentParameters["PARAMETERS"]["ATTACH_SIZE"]["HIDDEN"] = (in_array("THUMB", $arCurrentValues["ATTACH_MODE"]) ? "N" : "Y");
 }

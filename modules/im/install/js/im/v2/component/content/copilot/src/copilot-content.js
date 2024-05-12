@@ -1,12 +1,14 @@
 import 'ui.notification';
-import { BaseEvent } from 'main.core.events';
+import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { Messenger } from 'im.public';
 import { ChatService } from 'im.v2.provider.service';
 import { Logger } from 'im.v2.lib.logger';
 import { ThemeManager } from 'im.v2.lib.theme';
 import { ResizeManager } from 'im.v2.lib.textarea';
-import { Settings } from 'im.v2.const';
+import { EventType, Settings, SidebarDetailBlock } from 'im.v2.const';
+import { ChatSidebar } from 'im.v2.component.sidebar';
+import { Analytics } from 'im.v2.lib.analytics';
 
 import { ChatHeader } from './components/chat-header';
 import { EmptyState } from './components/empty-state';
@@ -21,7 +23,7 @@ import type { BackgroundStyle } from 'im.v2.lib.theme';
 // @vue/component
 export const CopilotContent = {
 	name: 'CopilotContent',
-	components: { EmptyState, ChatHeader, CopilotDialog, CopilotTextarea },
+	components: { EmptyState, ChatHeader, CopilotDialog, CopilotTextarea, ChatSidebar },
 	directives:
 	{
 		'textarea-observer': {
@@ -50,6 +52,7 @@ export const CopilotContent = {
 	{
 		return {
 			textareaHeight: 0,
+			currentSidebarPanel: '',
 		};
 	},
 	computed:
@@ -89,6 +92,7 @@ export const CopilotContent = {
 		{
 			Logger.warn(`CopilotContent: switching from ${oldValue || 'empty'} to ${newValue}`);
 			this.onChatChange();
+			EventEmitter.emit(EventType.sidebar.close, { panel: SidebarDetailBlock.members });
 		},
 	},
 	created()
@@ -112,6 +116,8 @@ export const CopilotContent = {
 			if (this.dialog.inited)
 			{
 				Logger.warn(`CopilotContent: chat ${this.entityId} is already loaded`);
+
+				Analytics.getInstance().openCopilotChat(this.entityId);
 
 				return;
 			}
@@ -153,7 +159,13 @@ export const CopilotContent = {
 
 			return this.getChatService().loadChatWithMessages(this.entityId).then(() => {
 				Logger.warn(`CopilotContent: chat ${this.entityId} is loaded`);
-			}).catch(() => {
+				Analytics.getInstance().openCopilotChat(this.entityId);
+			}).catch((error) => {
+				const [firstError] = error;
+				if (firstError.code === 'ACCESS_DENIED')
+				{
+					this.showNotification(this.loc('IM_CONTENT_CHAT_ACCESS_ERROR'));
+				}
 				Messenger.openCopilot();
 			});
 		},
@@ -181,6 +193,10 @@ export const CopilotContent = {
 
 			return this.chatService;
 		},
+		onChangeSidebarPanel({ panel }: {panel: $Keys<typeof SidebarDetailBlock>})
+		{
+			this.currentSidebarPanel = panel;
+		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -189,7 +205,7 @@ export const CopilotContent = {
 	template: `
 		<div class="bx-im-content-chat__container bx-im-content-copilot__container" :class="containerClasses" :style="backgroundStyle">
 			<div v-if="entityId" class="bx-im-content-copilot__content">
-				<ChatHeader :dialogId="entityId" :key="entityId"/>
+				<ChatHeader :dialogId="entityId" :key="entityId" :currentSidebarPanel="currentSidebarPanel" />
 				<div :style="dialogContainerStyle" class="bx-im-content-copilot__dialog_container">
 					<div class="bx-im-content-copilot__dialog_content">
 						<CopilotDialog :dialogId="entityId" :key="entityId" :textareaHeight="textareaHeight" />
@@ -200,6 +216,11 @@ export const CopilotContent = {
 				</div>
 			</div>
 			<EmptyState v-else />
+			<ChatSidebar
+				v-if="entityId.length > 0"
+				:originDialogId="entityId"
+				@changePanel="onChangeSidebarPanel"
+			/>
 		</div>
 	`,
 };

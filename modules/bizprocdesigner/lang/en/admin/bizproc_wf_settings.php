@@ -56,7 +56,6 @@ $MESS["BP_WF_TAB_G_CONST_TITLE"] = "Workflow global constants";
 $MESS["BP_WF_TAB_G_VAR"] = "Global variables";
 $MESS["BP_WF_TAB_G_VAR_TITLE"] = "Workflow global variables";
 $MESS["BP_WF_TAB_PERM"] = "Access";
-$MESS["BP_WF_TAB_PERM_NOSETTINGS"] = "Cannot set access permissions for this type of document.";
 $MESS["BP_WF_TAB_PERM_TITLE"] = "Business Process Access Permission";
 $MESS["BP_WF_TAB_VARS"] = "Variables";
 $MESS["BP_WF_TAB_VARS_TITLE"] = "Business Process Variables";

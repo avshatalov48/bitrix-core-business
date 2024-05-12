@@ -85,7 +85,7 @@ if (!$arResult["Task"] && !empty($_REQUEST["workflow_id"]))
 }
 
 if (!$arResult["Task"])
-	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WTC_WRONG_TASK").". ";
+	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WTC_WRONG_TASK_MSGVER_1").". ";
 
 if ($arResult["FatalErrorMessage"] == '')
 {
@@ -176,13 +176,13 @@ $this->IncludeComponentTemplate();
 if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
-		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["Task"]["NAME"], GetMessage("BPWC_WTC_PAGE_TITLE")));
+		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["Task"]["NAME"], GetMessage("BPWC_WTC_PAGE_TITLE_MSGVER_1")));
 
 	if ($arParams["SET_NAV_CHAIN"] == "Y")
 	{
 		$APPLICATION->AddChainItem($arResult["BlockType"]["NAME"], $arResult["PATH_TO_INDEX"]);
 		$APPLICATION->AddChainItem($arResult["Block"]["NAME"], $arResult["PATH_TO_LIST"]);
-		$APPLICATION->AddChainItem(str_replace("#NAME#", $arResult["Task"]["NAME"], GetMessage("BPWC_WTC_PAGE_NAV_CHAIN")));
+		$APPLICATION->AddChainItem(str_replace("#NAME#", $arResult["Task"]["NAME"], GetMessage("BPWC_WTC_PAGE_NAV_CHAIN_MSGVER_1")));
 	}
 }
 else

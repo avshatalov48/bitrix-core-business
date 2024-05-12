@@ -858,8 +858,8 @@ class PushService
 		$messageText = preg_replace("/\[CODE\](.*?)\[\/CODE\]/si", ' '.$codeIcon.' ', $messageText);
 		$messageText = preg_replace("/\[s\].*?\[\/s\]/i", '-', $messageText);
 		$messageText = preg_replace("/\[[bui]\](.*?)\[\/[bui]\]/i", "$1", $messageText);
-		$messageText = preg_replace("/\\[url\\](.*?)\\[\\/url\\]/i".\BX_UTF_PCRE_MODIFIER, "$1", $messageText);
-		$messageText = preg_replace("/\\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixs".\BX_UTF_PCRE_MODIFIER, "$2", $messageText);
+		$messageText = preg_replace("/\\[url\\](.*?)\\[\\/url\\]/iu", "$1", $messageText);
+		$messageText = preg_replace("/\\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixsu", "$2", $messageText);
 		$messageText = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", ['\Bitrix\Im\Text', 'modifyShortUserTag'], $messageText);
 		$messageText = preg_replace("/\[USER=([0-9]+)( REPLACE)?](.+?)\[\/USER]/i", "$3", $messageText);
 		$messageText = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $messageText);
@@ -870,8 +870,8 @@ class PushService
 		$messageText = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", ['\Bitrix\Im\Text', 'modifyIcon'], $messageText);
 		$messageText = preg_replace('#\-{54}.+?\-{54}#s', ' '.$quoteIcon.' ', str_replace('#BR#', ' ', $messageText));
 		$messageText = preg_replace('/^(>>(.*)(\n)?)/mi', ' '.$quoteIcon.' ', str_replace('#BR#', ' ', $messageText));
-		$messageText = preg_replace("/\\[color\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/color\\]/is".\BX_UTF_PCRE_MODIFIER, "$2", $messageText);
-		$messageText = preg_replace("/\\[size\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/size\\]/is".\BX_UTF_PCRE_MODIFIER, "$2", $messageText);
+		$messageText = preg_replace("/\\[color\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/color\\]/isu", "$2", $messageText);
+		$messageText = preg_replace("/\\[size\\s*=\\s*([^\\]]+)\\](.*?)\\[\\/size\\]/isu", "$2", $messageText);
 
 		return trim($messageText);
 	}

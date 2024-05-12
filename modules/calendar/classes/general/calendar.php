@@ -11,6 +11,7 @@ use Bitrix\Calendar\Access\SectionAccessController;
 use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Tasks\TaskQueryParameter;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Sharing\SharingEventManager;
 use Bitrix\Calendar\Sync;
@@ -35,6 +36,8 @@ use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals\SectionConnectionTable;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Tasks\Internals\Task\Status;
+use Bitrix\Tasks\Provider\TaskList;
+use Bitrix\Tasks\Provider\TaskQuery;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -432,7 +435,6 @@ class CCalendar
 			'plannerFeatureEnabled' => Bitrix24Manager::isPlannerFeatureEnabled(),
 			'isSharingFeatureEnabled' => \Bitrix\Calendar\Sharing\SharingFeature::isEnabled(),
 			'payAttentionToNewSharingFeature' => \Bitrix\Calendar\Sharing\Helper::payAttentionToNewSharingFeature(),
-			'sharingSettingsCollapsed' => CUserOptions::getOption('calendar', 'sharingSettingsCollapsed', 'N') === 'Y',
 			'eventWithEmailGuestLimit'=> Bitrix24Manager::getEventWithEmailGuestLimit(),
 			'countEventWithEmailGuestAmount'=> Bitrix24Manager::getCountEventWithEmailGuestAmount(),
 			'showAfterSyncAccent' => isset($_GET['googleAuthSuccess']) && $_GET['googleAuthSuccess'] === 'y',
@@ -823,6 +825,7 @@ class CCalendar
 
 		$sharing = new Sharing\Sharing(self::$userId);
 		$JSConfig['sharing'] = $sharing->getLinkInfo();
+		$JSConfig['sharingOptions'] = $sharing->getOptions();
 
 		$userSettings = UserSettings::get(self::$ownerId);
 		$meetSectionId = $userSettings['meetSection'];
@@ -1927,8 +1930,8 @@ class CCalendar
 	{
 		// Echange in chrome puts chr(13) instead of \n
 		$html = str_replace(chr(13), "\n", trim($html, chr(13)));
-		$html = preg_replace("/(\s|\S)*<a\s*name=\"bm_begin\"><\/a>/is".BX_UTF_PCRE_MODIFIER,"", $html);
-		$html = preg_replace("/<br>(\n|\r)+/is".BX_UTF_PCRE_MODIFIER,"<br>", $html);
+		$html = preg_replace("/(\s|\S)*<a\s*name=\"bm_begin\"><\/a>/isu","", $html);
+		$html = preg_replace("/<br>(\n|\r)+/isu","<br>", $html);
 		return self::ParseHTMLToBB($html);
 	}
 
@@ -1942,19 +1945,18 @@ class CCalendar
 
 		$html = htmlspecialcharsback($html);
 		// Replace BR
-		$html = preg_replace("/\<br\s*\/*\>/is".BX_UTF_PCRE_MODIFIER,"\n", $html);
+		$html = preg_replace("/\<br\s*\/*\>/isu","\n", $html);
 		//replace /p && /div to \n
-		$html = preg_replace("/\<\/(p|div)\>/is".BX_UTF_PCRE_MODIFIER,"\n", $html);
+		$html = preg_replace("/\<\/(p|div)\>/isu","\n", $html);
 		// Kill &nbsp;
-		$html = preg_replace("/&nbsp;/is".BX_UTF_PCRE_MODIFIER,"", $html);
+		$html = preg_replace("/&nbsp;/isu","", $html);
 		// For images in Office 365
 		$html = preg_replace(
-			"#<img[^>]+src\\s*=[\\s'\"]*((cid):[.\\-_:a-z0-9@]+)*[\\s'\"]*[^>]*>#is"
-			.BX_UTF_PCRE_MODIFIER,
+			"#<img[^>]+src\\s*=[\\s'\"]*((cid):[.\\-_:a-z0-9@]+)*[\\s'\"]*[^>]*>#isu",
 			"[img]\\1[/img]", $html
 		);
 		// Kill tags
-		$html = preg_replace("/\<([^>]*?)>/is".BX_UTF_PCRE_MODIFIER,"", $html);
+		$html = preg_replace("/\<([^>]*?)>/isu","", $html);
 		// Clean multiple \n symbols
 		$html = preg_replace("/\n[\s\n]+\n/", "\n" , $html);
 
@@ -2028,6 +2030,10 @@ class CCalendar
 		if (!isset($arFields['SKIP_TIME']) && isset($arFields['DT_SKIP_TIME']))
 		{
 			$arFields['SKIP_TIME'] = $arFields['DT_SKIP_TIME'] === 'Y';
+		}
+		else if(!isset($arFields['SKIP_TIME']))
+		{
+			$arFields['SKIP_TIME'] = false;
 		}
 
 		//flags for synchronize the instance of a recurring event
@@ -2419,6 +2425,27 @@ class CCalendar
 		if (isset($arFields["RRULE"]))
 		{
 			$arFields["RRULE"] = CCalendarEvent::CheckRRULE($arFields["RRULE"]);
+		}
+
+		if (!empty($arFields['TZ_FROM']) && is_string($arFields['TZ_FROM']))
+		{
+			$tzFrom = Util::prepareTimezone($arFields['TZ_FROM']);
+
+			if (
+				!empty($arFields['TZ_TO'])
+				&& is_string($arFields['TZ_TO'])
+				&& $arFields['TZ_TO'] !== $arFields['TZ_FROM']
+			)
+			{
+				$tzTo = Util::prepareTimezone($arFields['TZ_TO']);
+				$arFields['TZ_TO'] = $tzTo->getName();
+			}
+			else
+			{
+				$arFields['TZ_TO'] = $tzFrom->getName();
+			}
+
+			$arFields['TZ_FROM'] = $tzFrom->getName();
 		}
 
 		if ($bNew && !$params['editInstance'] && !($arFields['DAV_XML_ID'] ?? null))
@@ -3956,11 +3983,11 @@ class CCalendar
 
 	public static function _ParseHack(&$text, &$TextParser)
 	{
-		$text = preg_replace(array("/\&lt;/is".BX_UTF_PCRE_MODIFIER, "/\&gt;/is".BX_UTF_PCRE_MODIFIER),array('<', '>'),$text);
+		$text = preg_replace(array("/\&lt;/isu", "/\&gt;/isu"),array('<', '>'),$text);
 
-		$text = preg_replace("/\<br\s*\/*\>/is".BX_UTF_PCRE_MODIFIER,"", $text);
-		$text = preg_replace("/\<(\w+)[^>]*\>(.+?)\<\/\\1[^>]*\>/is".BX_UTF_PCRE_MODIFIER,"\\2",$text);
-		$text = preg_replace("/\<*\/li\>/is".BX_UTF_PCRE_MODIFIER,"", $text);
+		$text = preg_replace("/\<br\s*\/*\>/isu","", $text);
+		$text = preg_replace("/\<(\w+)[^>]*\>(.+?)\<\/\\1[^>]*\>/isu","\\2",$text);
+		$text = preg_replace("/\<*\/li\>/isu","", $text);
 
 		$text = str_replace(array("<", ">"),array("&lt;", "&gt;"),$text);
 
@@ -4067,7 +4094,14 @@ class CCalendar
 		return $ac;
 	}
 
-	public static function GetFromToHtml($fromTs = false, $toTs = false, $skipTime = false, $dtLength = 0, $forRrule = false)
+	public static function GetFromToHtml(
+		$fromTs = false,
+		$toTs = false,
+		$skipTime = false,
+		$dtLength = 0,
+		$forRrule = false,
+		$languageId = null
+	)
 	{
 		if ((int)$fromTs != $fromTs)
 		{
@@ -4093,41 +4127,45 @@ class CCalendar
 
 		if ($skipTime)
 		{
-			if ($dtLength == self::DAY_LENGTH || !$dtLength) // One full day event
+			if ((int)$dtLength === self::DAY_LENGTH || !$dtLength) // One full day event
 			{
 				if (!$forRrule)
 				{
-					$html = FormatDate(array(
-						"tommorow" => "tommorow",
+					$html = FormatDate([
+						"tomorrow" => "tomorrow",
 						"today" => "today",
 						"yesterday" => "yesterday",
 						"-" => $formatShort,
 						"" => $formatShort,
-					), $fromTs, time() + CTimeZone::GetOffset());
+					], $fromTs, time() + CTimeZone::GetOffset());
 					$html .= ', ';
 				}
 
-				$html .= Loc::getMessage('EC_VIEW_FULL_DAY');
+				$html .= Loc::getMessage('EC_VIEW_FULL_DAY', null, $languageId);
 			}
 			else // Event for several days
 			{
-				$from = FormatDate(array(
-					"tommorow" => "tommorow",
+				$from = FormatDate([
+					"tomorrow" => "tomorrow",
 					"today" => "today",
 					"yesterday" => "yesterday",
 					"-" => $formatShort,
 					"" => $formatShort,
-				), $fromTs, time() + CTimeZone::GetOffset());
+				], $fromTs, time() + CTimeZone::GetOffset());
 
-				$to = FormatDate(array(
-					"tommorow" => "tommorow",
+				$to = FormatDate([
+					"tomorrow" => "tomorrow",
 					"today" => "today",
 					"yesterday" => "yesterday",
 					"-" => $formatShort,
 					"" => $formatShort,
-				), $toTs - self::DAY_LENGTH, time() + CTimeZone::GetOffset());
+				], $toTs - self::DAY_LENGTH, time() + CTimeZone::GetOffset());
 
-				$html = Loc::getMessage('EC_VIEW_DATE_FROM_TO', array('#DATE_FROM#' => $from, '#DATE_TO#' => $to));
+				$html = Loc::getMessage(
+					'EC_VIEW_DATE_FROM_TO',
+					['#DATE_FROM#' => $from, '#DATE_TO#' => $to],
+					$languageId
+				);
 			}
 		}
 		else
@@ -4137,21 +4175,35 @@ class CCalendar
 			{
 				if (!$forRrule)
 				{
-					$html = FormatDate(array(
-						"tommorow" => "tommorow",
+					$html = FormatDate([
+						"tomorrow" => "tomorrow",
 						"today" => "today",
 						"yesterday" => "yesterday",
 						"-" => $formatShort,
 						"" => $formatShort,
-					), $fromTs, time() + CTimeZone::GetOffset());
+					], $fromTs, time() + CTimeZone::GetOffset());
 					$html .= ', ';
 				}
 
-				$html .= Loc::getMessage('EC_VIEW_TIME_FROM_TO_TIME', array('#TIME_FROM#' => FormatDate($formatTime, $fromTs), '#TIME_TO#' => FormatDate($formatTime, $toTs)));
+				$html .= Loc::getMessage(
+					'EC_VIEW_TIME_FROM_TO_TIME',
+					[
+						'#TIME_FROM#' => FormatDate($formatTime, $fromTs, false),
+						'#TIME_TO#' => FormatDate($formatTime, $toTs, false)
+					],
+					$languageId
+				);
 			}
 			else
 			{
-				$html = Loc::getMessage('EC_VIEW_DATE_FROM_TO', array('#DATE_FROM#' => FormatDate($formatFull, $fromTs, time() + CTimeZone::GetOffset()), '#DATE_TO#' => FormatDate($formatFull, $toTs, time() + CTimeZone::GetOffset())));
+				$html = Loc::getMessage(
+					'EC_VIEW_DATE_FROM_TO',
+					[
+						'#DATE_FROM#' => FormatDate($formatFull, $fromTs, time() + CTimeZone::GetOffset()),
+						'#DATE_TO#' => FormatDate($formatFull, $toTs, time() + CTimeZone::GetOffset())
+					],
+					$languageId
+				);
 			}
 		}
 
@@ -5456,12 +5508,12 @@ class CCalendar
 		if (empty(self::$timezones))
 		{
 			self::$timezones = [];
-			$aExcept = ["Etc/", "GMT", "UTC", "UCT", "HST", "PST", "MST", "CST", "EST", "CET", "MET", "WET", "EET", "PRC", "ROC", "ROK", "W-SU"];
+			$aExcept = ["Etc/", "GMT", "UCT", "HST", "PST", "MST", "CST", "EST", "CET", "MET", "WET", "EET", "PRC", "ROC", "ROK", "W-SU"];
 			foreach(DateTimeZone::listIdentifiers() as $tz)
 			{
 				foreach($aExcept as $ex)
 				{
-					if(mb_strpos($tz, $ex) === 0)
+					if(str_starts_with($tz, $ex))
 					{
 						continue 2;
 					}
@@ -5469,21 +5521,43 @@ class CCalendar
 				try
 				{
 					$oTz = new DateTimeZone($tz);
-					self::$timezones[$tz] = array('timezone_id' => $tz, 'offset' => $oTz->getOffset(new DateTime("now", $oTz)));
+					self::$timezones[$tz] = [
+						'timezone_id' => $tz,
+						'offset' => $oTz->getOffset(new DateTime("now", $oTz))
+					];
 				}
-				catch(Exception $e){}
+				catch(Exception $e)
+				{
+				}
 			}
-			uasort(self::$timezones, function($a, $b){
+			uasort(self::$timezones, static function($a, $b){
 				if($a['offset'] === $b['offset'])
 				{
 					return strcmp($a['timezone_id'], $b['timezone_id']);
 				}
-				return $a['offset'] < $b['offset']? -1 : 1;
+				return $a['offset'] < $b['offset'] ? -1 : 1;
 			});
 
 			foreach(self::$timezones as $k => $z)
 			{
-				self::$timezones[$k]['title'] = '(UTC'.($z['offset'] <> 0? ' '.($z['offset'] < 0? '-':'+').sprintf("%02d", ($h = floor(abs($z['offset'])/3600))).':'.sprintf("%02d", abs($z['offset'])/60 - $h*60) : '').') '.$z['timezone_id'];
+				$offset = $z['offset'];
+				$hours = floor(abs($offset) / 3600);
+
+				if ($z['timezone_id'] === 'UTC')
+				{
+					self::$timezones[$k]['title'] = $z['timezone_id'];
+				}
+				else
+				{
+					self::$timezones[$k]['title'] =
+						'(UTC'
+						. ($offset !== 0
+							? ' ' . ($offset < 0 ? '-' : '+')
+							.sprintf("%02d", $hours)
+							. ':' . sprintf("%02d", abs($offset)/60 - $hours * 60)
+							: ''
+						) . ') ' . $z['timezone_id'];
+				}
 			}
 		}
 		return self::$timezones;
@@ -5978,174 +6052,178 @@ class CCalendar
 		return $res;
 	}
 
-	public static function getTaskList($params = [])
+	public static function getTaskList(TaskQueryParameter $parameter)
 	{
-		$res = [];
-		if (Loader::includeModule('tasks'))
+		if (!Loader::includeModule('tasks'))
 		{
-			$userSettings = Bitrix\Calendar\UserSettings::get();
+			return [];
+		}
 
-			$arFilter = [
-				'!STATUS' => [
-					Status::DEFERRED,
-				],
-				'CHECK_PERMISSIONS' => 'Y',
-			];
+		$res = [];
+		$userSettings = Bitrix\Calendar\UserSettings::get();
 
-			if ($userSettings['showCompletedTasks'] === 'N')
+		$filter = [
+			'!STATUS' => [
+				Status::DEFERRED,
+			],
+			'CHECK_PERMISSIONS' => 'Y',
+		];
+
+		if ($userSettings['showCompletedTasks'] === 'N')
+		{
+			$filter['!STATUS'][] = Status::COMPLETED;
+		}
+		if ($parameter->isUserType())
+		{
+			$filter['DOER'] = $parameter->getOwnerId();
+		}
+		elseif ($parameter->isGroupType())
+		{
+			$filter['GROUP_ID'] = $parameter->getOwnerId();
+		}
+
+		$tzEnabled = CTimeZone::Enabled();
+		if ($tzEnabled)
+		{
+			CTimeZone::Disable();
+		}
+
+		$query = (new TaskQuery($parameter->getUserId()))
+			->setSelect([
+				'ID',
+				'TITLE',
+				'DESCRIPTION',
+				'CREATED_DATE',
+				'DEADLINE',
+				'START_DATE_PLAN',
+				'END_DATE_PLAN',
+				'DATE_START',
+				'CLOSED_DATE',
+				'STATUS_CHANGED_DATE',
+				'STATUS',
+				'REAL_STATUS',
+				'CREATED_BY',
+				'GROUP_ID',
+			])
+			->setOrder(['START_DATE_PLAN' => 'ASC'])
+			->setWhere($filter);
+
+		$tasks = (new TaskList())->getList($query);
+
+		$offset = self::GetOffset();
+		foreach ($tasks as $task)
+		{
+			$dtFrom = null;
+			$dtTo = null;
+
+			$skipFromOffset = false;
+			$skipToOffset = false;
+
+			if (isset($task["START_DATE_PLAN"]) && $task["START_DATE_PLAN"])
 			{
-				$arFilter['!STATUS'][] = Status::COMPLETED;
+				$dtFrom = self::CutZeroTime($task["START_DATE_PLAN"]);
 			}
 
-			if ($params['type'] === 'user')
+			if (isset($task["END_DATE_PLAN"]) && $task["END_DATE_PLAN"])
 			{
-				$arFilter['DOER'] = $params['ownerId'];
-			}
-			elseif ($params['type'] === 'group')
-			{
-				$arFilter['GROUP_ID'] = $params['ownerId'];
+				$dtTo = self::CutZeroTime($task["END_DATE_PLAN"]);
 			}
 
-			$tzEnabled = CTimeZone::Enabled();
-			if ($tzEnabled)
+			if (!isset($dtFrom) && isset($task["DATE_START"]))
 			{
-				CTimeZone::Disable();
+				$dtFrom = self::CutZeroTime($task["DATE_START"]);
 			}
 
-			$mgrResult = \Bitrix\Tasks\Manager\Task::getList(
-				\Bitrix\Tasks\Util\User::getId(),
-				[
-					'order' => ["START_DATE_PLAN" => "ASC"],
-					'select' => [
-						"ID",
-						"TITLE",
-						"DESCRIPTION",
-						"CREATED_DATE",
-						"DEADLINE",
-						"START_DATE_PLAN",
-						"END_DATE_PLAN",
-						"DATE_START",
-						"CLOSED_DATE",
-						"STATUS_CHANGED_DATE",
-						"STATUS",
-						"REAL_STATUS",
-					],
-					'legacyFilter' => $arFilter,
-				],
-				[]
-			);
-
-			$offset = self::GetOffset();
-			foreach ($mgrResult['DATA'] as $task)
+			if (!isset($dtTo) && isset($task["CLOSED_DATE"]))
 			{
-				$dtFrom = null;
-				$dtTo = null;
+				$dtTo = self::CutZeroTime($task["CLOSED_DATE"]);
+			}
 
-				$skipFromOffset = false;
-				$skipToOffset = false;
+			if (
+				!isset($dtTo) && isset($task["STATUS_CHANGED_DATE"])
+				&& in_array(
+					(int)$task["REAL_STATUS"],
+					[Status::SUPPOSEDLY_COMPLETED, Status::COMPLETED, Status::DEFERRED, Status::DECLINED],
+					true
+				)
+			)
+			{
+				$dtTo = self::CutZeroTime($task["STATUS_CHANGED_DATE"]);
+			}
 
-				if (isset($task["START_DATE_PLAN"]) && $task["START_DATE_PLAN"])
+			if (isset($dtTo))
+			{
+				$ts = self::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
+				if (date("H:i", $ts) == '00:00')
 				{
-					$dtFrom = self::CutZeroTime($task["START_DATE_PLAN"]);
+					$dtTo = self::Date($ts - 24 * 60 * 60);
 				}
-
-				if (isset($task["END_DATE_PLAN"]) && $task["END_DATE_PLAN"])
+			}
+			elseif (isset($task["DEADLINE"]))
+			{
+				$dtTo = self::CutZeroTime($task["DEADLINE"]);
+				$ts = self::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
+				if (date("H:i", $ts) == '00:00')
 				{
-					$dtTo = self::CutZeroTime($task["END_DATE_PLAN"]);
-				}
-
-				if (!isset($dtFrom) && isset($task["DATE_START"]))
-				{
-					$dtFrom = self::CutZeroTime($task["DATE_START"]);
-				}
-
-				if (!isset($dtTo) && isset($task["CLOSED_DATE"]))
-				{
-					$dtTo = self::CutZeroTime($task["CLOSED_DATE"]);
-				}
-
-				//Task statuses: 1 - New, 2 - Pending, 3 - In Progress, 4 - Supposedly completed, 5 - Completed, 6 - Deferred, 7 - Declined
-				if (!isset($dtTo) &&
-					isset($task["STATUS_CHANGED_DATE"]) &&
-					in_array($task["REAL_STATUS"], ['4', '5', '6', '7']))
-				{
-					$dtTo = self::CutZeroTime($task["STATUS_CHANGED_DATE"]);
-				}
-
-				if (isset($dtTo))
-				{
-					$ts = self::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
-					if (date("H:i", $ts) == '00:00')
-					{
-						$dtTo = self::Date($ts - 24 * 60 * 60);
-					}
-				}
-				elseif (isset($task["DEADLINE"]))
-				{
-					$dtTo = self::CutZeroTime($task["DEADLINE"]);
-					$ts = self::Timestamp($dtTo); // Correction display logic for harmony with Tasks interfaces
-					if (date("H:i", $ts) == '00:00')
-					{
-						$dtTo = self::Date($ts - 24 * 60 * 60);
-					}
-
-					if (!isset($dtFrom))
-					{
-						$skipFromOffset = true;
-						$dtFrom = self::Date(time(), false);
-					}
-				}
-
-				if (!isset($dtTo))
-				{
-					$dtTo = self::Date(time(), false);
+					$dtTo = self::Date($ts - 24 * 60 * 60);
 				}
 
 				if (!isset($dtFrom))
 				{
-					$dtFrom = $dtTo;
+					$skipFromOffset = true;
+					$dtFrom = self::Date(time(), false);
+				}
+			}
+
+			if (!isset($dtTo))
+			{
+				$dtTo = self::Date(time(), false);
+			}
+
+			if (!isset($dtFrom))
+			{
+				$dtFrom = $dtTo;
+			}
+
+			$dtFromTS = self::Timestamp($dtFrom);
+			$dtToTS = self::Timestamp($dtTo);
+
+			if ($dtToTS < $dtFromTS)
+			{
+				$dtToTS = $dtFromTS;
+				$dtTo = self::Date($dtToTS, true);
+			}
+
+			$skipTime = date("H:i", $dtFromTS) == '00:00' && date("H:i", $dtToTS) == '00:00';
+			if (!$skipTime && $offset != 0)
+			{
+				if (!$skipFromOffset)
+				{
+					$dtFromTS += $offset;
+					$dtFrom = self::Date($dtFromTS, true);
 				}
 
-				$dtFromTS = self::Timestamp($dtFrom);
-				$dtToTS = self::Timestamp($dtTo);
-
-				if ($dtToTS < $dtFromTS)
+				if (!$skipToOffset)
 				{
-					$dtToTS = $dtFromTS;
+					$dtToTS += $offset;
 					$dtTo = self::Date($dtToTS, true);
 				}
-
-				$skipTime = date("H:i", $dtFromTS) == '00:00' && date("H:i", $dtToTS) == '00:00';
-				if (!$skipTime && $offset != 0)
-				{
-					if (!$skipFromOffset)
-					{
-						$dtFromTS += $offset;
-						$dtFrom = self::Date($dtFromTS, true);
-					}
-
-					if (!$skipToOffset)
-					{
-						$dtToTS += $offset;
-						$dtTo = self::Date($dtToTS, true);
-					}
-				}
-
-				$res[] = [
-					"ID" => $task["ID"],
-					"~TYPE" => "tasks",
-					"NAME" => $task["TITLE"],
-					"DATE_FROM" => $dtFrom,
-					"DATE_TO" => $dtTo,
-					"DT_SKIP_TIME" => $skipTime ? 'Y' : 'N',
-					"CAN_EDIT" => CTasks::CanCurrentUserEdit($task),
-				];
 			}
 
-			if ($tzEnabled)
-			{
-				CTimeZone::Enable();
-			}
+			$res[] = [
+				"ID" => $task["ID"],
+				"~TYPE" => "tasks",
+				"NAME" => $task["TITLE"],
+				"DATE_FROM" => $dtFrom,
+				"DATE_TO" => $dtTo,
+				"DT_SKIP_TIME" => $skipTime ? 'Y' : 'N',
+				"CAN_EDIT" => CTasks::CanCurrentUserEdit($task),
+			];
+		}
+
+		if ($tzEnabled)
+		{
+			CTimeZone::Enable();
 		}
 
 		return $res;

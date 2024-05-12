@@ -126,7 +126,7 @@ export const GroupChatCreation = {
 		{
 			this.isCreating = true;
 
-			const newDialogId = await this.getChatService().createChat({
+			const { newDialogId } = await this.getChatService().createChat({
 				title: this.chatTitle,
 				avatar: this.avatarFile,
 				members: this.chatMembers,

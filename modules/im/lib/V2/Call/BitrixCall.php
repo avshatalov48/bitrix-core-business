@@ -20,7 +20,8 @@ class BitrixCall extends Call
 			$createResult = $callControllerClient->createCall(
 				$this->getUuid(),
 				$this->getSecretKey(),
-				$this->getInitiatorId()
+				$this->getInitiatorId(),
+				$this->getId()
 			);
 
 			if (!$createResult->isSuccess())

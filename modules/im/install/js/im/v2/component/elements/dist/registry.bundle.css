@@ -8,7 +8,7 @@
 	--im-avatar__size_xxl: 60px;
 	--im-avatar__size_xxxl: 94px;
 	/* font size for avatar letters */
-	--im-avatar__font-size_m: var(--im-font-size-md);
+	--im-avatar__font-size_m: var(--im-font-size-sm);
 	--im-avatar__font-size_l: var(--im-font-size-2xl);
 	--im-avatar__font-size_xl: var(--im-font-size-2xl);
 	--im-avatar__font-size_xxl: var(--im-font-size-5xl);
@@ -348,95 +348,6 @@
 	left: 55px;
 }
 /* End status icons */
-:root {
-	--im-recent-placeholder-color: #E9EAEC;
-	--im-recent-placeholder-opacity: 1.0;
-}
-
-.bx-messenger-dark {
-	--im-recent-placeholder-color: #949595;
-	--im-recent-placeholder-opacity: 0.4;
-}
-
-.bx-im-component-recent-loading-state {
-	opacity: var(--im-recent-placeholder-opacity);
-}
-
-.bx-im-component-recent-loading-state-item {
-	display: flex;
-	height: 69px;
-	box-sizing: border-box;
-	margin-bottom: -1px;
-}
-
-.bx-im-component-recent-loading-state-avatar-wrap {
-	display: flex;
-	align-items: center;
-	position: relative;
-	height: 100%;
-	width: 65px;
-	justify-content: center;
-}
-
-.bx-im-component-recent-loading-state-avatar-placeholder {
-	width: 45px;
-	height: 45px;
-	border-radius: 50%;
-	background-color: var(--im-recent-placeholder-color);
-}
-
-.bx-im-component-recent-loading-state-content {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	min-width: 0;
-	flex: 1;
-	border-top: 1px solid var(--im-recent-separator-line);
-	margin-right: 10px;
-}
-
-.bx-im-component-recent-loading-state-line {
-	height: 7px;
-	margin-bottom: 8px;
-	background-color: var(--im-recent-placeholder-color);
-}
-
-.bx-im-component-recent-loading-state-line:last-child {
-	margin-bottom: 0;
-}
-
-.bx-im-component-recent-loading-state-line-long {
-	width: 133px;
-}
-
-.bx-im-component-recent-loading-state-line-short {
-	width: 92px;
-}
-
-/* Compact mode */
-.bx-im-component-recent-loading-state-compact .bx-im-component-recent-loading-state-item {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 46px;
-	width: 100%;
-	margin: 0;
-	padding: 0;
-}
-
-.bx-im-component-recent-loading-state-compact .bx-im-component-recent-loading-state-avatar-wrap {
-	width: 34px;
-	height: 34px;
-	padding-top: 0;
-	margin-right: 0;
-}
-
-.bx-im-component-recent-loading-state-compact .bx-im-component-recent-loading-state-avatar-placeholder {
-	width: 34px;
-	height: 34px;
-	background-color: rgba(255, 255, 255, .3);
-}
-/* End compact mode */
 .bx-im-chat-title__scope {
 	--im-chat-title__font: var(--im-font-size-lg)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	--im-chat-title__font-color: var(--im-color-palette-black-base);
@@ -609,6 +520,11 @@
 	--im-button__background-color_primary-border-hover: transparent;
 	--im-button__border-color_primary-border: rgba(17, 169, 217, 0.3);
 	--im-button__border-color_primary-border-hover: rgba(17, 169, 217, 0.5);
+
+	--im-button__color_copilot: rgba(142, 82, 236, 1);
+	--im-button__color_copilot-hover: rgba(142, 82, 236, 1);
+	--im-button__background-color_copilot: rgba(142, 82, 236, 0.1);
+	--im-button__background-color_copilot-hover: rgba(142, 82, 236, 0.2);
 }
 
 .bx-im-button__container {
@@ -726,6 +642,15 @@
 	--im-button__border-color_hover: var(--im-button__background-color_danger-hover);
 	--im-button__color: var(--im-button__color_danger);
 	--im-button__color_hover: var(--im-button__color_danger-hover);
+}
+
+.bx-im-button__container.--color-copilot {
+	--im-button__background-color: var(--im-button__background-color_copilot);
+	--im-button__background-color_hover: var(--im-button__background-color_copilot-hover);
+	--im-button__border-color: transparent;
+	--im-button__border-color_hover: transparent;
+	--im-button__color: var(--im-button__color_copilot);
+	--im-button__color_hover: var(--im-button__color_copilot-hover);
 }
 
 .bx-im-button__container.--color-link {
@@ -943,6 +868,12 @@
 .bx-im-button__container.--color-link .bx-im-button__icon.--plus
 {
 	--im-button_icon: url("data:image/svg+xml;charset=utf-8,%3Csvg width='14' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.57 2.917H5.834v3.5h-3.5v1.72h3.5v3.524h1.738V8.136h3.537V6.417H7.57v-3.5z' fill='%23525c69'/%3E%3C/svg%3E");
+	background-image: var(--im-button_icon);
+}
+
+.bx-im-button__container.--color-copilot .bx-im-button__icon.--plus
+{
+	--im-button_icon: url("data:image/svg+xml;charset=utf-8,%3Csvg width='15' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.07 2.917H6.334v3.5h-3.5v1.72h3.5v3.524h1.738V8.136h3.537V6.417H8.07v-3.5z' fill='%238E52EC'/%3E%3C/svg%3E");
 	background-image: var(--im-button_icon);
 }
 
@@ -1755,6 +1686,93 @@
 .gradient-fade-leave-to {
 	opacity: 0;
 }
+.bx-im-dialog-chat-status__container {
+	--im-dialog-chat__scroll_width: 6px;
+	--im-dialog-chat-status__background-color: rgb(82 92 105 / 12%);
+	--im-dialog-chat-status__background-color_more-users: rgb(255 255 255 / 50%);
+	--im-dialog-chat-status__font-color: var(--im-color-palette-white-base);
+
+	align-self: center;
+	display: flex;
+	width: 100%;
+	max-width: 100%;
+	height: 28px;
+	max-height: 28px;
+	margin-top: 16px;
+	-webkit-user-select: none;
+	        user-select: none;
+}
+
+.bx-im-messenger__container.--light-theme .bx-im-dialog-chat-status__container {
+	--im-dialog-chat-status__background-color: rgb(0 0 0 / 20%);
+}
+
+.bx-im-dialog-chat-status__content {
+	display: flex;
+	align-items: center;
+	max-width: 100%;
+	padding: 2px 16px 2px 10px;
+	background-color: var(--im-dialog-chat-status__background-color);
+	border-radius: 10px 10px 10px 2px;
+}
+
+.bx-im-dialog-chat-status__icon {
+	width: 18px;
+	height: 18px;
+	margin-right: 4px;
+	flex-shrink: 0;
+}
+
+.bx-im-dialog-chat-status__icon.--read {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='18' height='18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.02 13.512a.3.3 0 01-.415.003L8.264 12.25a.4.4 0 01-.004-.577l.734-.716a.4.4 0 01.542-.015l.278.243 6.25-6.116a.4.4 0 01.559 0l.724.705a.4.4 0 010 .572l-7.327 7.167zM4.75 13.508a.3.3 0 01-.42 0l-3.203-3.12a.4.4 0 010-.574l.725-.706a.4.4 0 01.558 0l2.13 2.076 6.25-6.116a.4.4 0 01.559 0l.724.705a.4.4 0 010 .572L4.75 13.508z' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+.bx-im-dialog-chat-status__icon.--typing::before {
+	width: 19px;
+	height: 16px;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10.312 0L8.617 1.595v.1l3.688 3.688h.1L14 3.788v-.1L10.312 0zm-3.09 2.99L.044 10.169c-.1.1 0 3.788 0 3.788s3.689.1 3.788 0l7.177-7.178v-.1L7.222 2.992c.1 0 .1 0 0 0zm-3.689 9.37H1.84v-1.694h1.694v1.695z' fill='%23fff' fill-rule='evenodd'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: 10px;
+	background-position: 0 3px;
+	content: '';
+	position: absolute;
+	margin-top: -1px;
+	margin-left: 1px;
+	animation: im-avatar-typing 1.6s linear infinite;
+}
+
+@keyframes im-avatar-typing {
+	0% { background-position-x: 0; }
+	20% { background-position-x: 3px; transform:rotate(-20deg); }
+	35% { background-position-x: 3px; transform:rotate(0deg); }
+	50% { background-position-x: 1px; transform:rotate(-30deg); }
+	65% { background-position-x: 3px; transform:rotate(0deg); }
+	80% { background-position-x: 3px; }
+	100% { background-position-x: 0; }
+}
+
+.bx-im-dialog-chat-status__text {
+	font: var(--im-font-size-sm)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	color: var(--im-dialog-chat-status__font-color);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bx-im-dialog-chat-status__user-count {
+	cursor: pointer;
+	position: relative;
+}
+
+.bx-im-dialog-chat-status__user-count::after {
+	position: absolute;
+	content: '';
+	top: 15px;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background-color: var(--im-dialog-chat-status__background-color_more-users);
+}
 .bx-im-menu-item__container {
 	--im-menu-item__background-color_hover: var(--im-color-palette-gray-04);
 	--im-menu-item__background-color_separator: rgba(var(--im-color-palette-gray-90-rgb), 0.05);
@@ -2202,8 +2220,8 @@
 }
 
 .bx-im-attach-user__source {
-	width: inherit;
-	height: inherit;
+	width: 100%;
+	height: 100%;
 	border: 0;
 }
 

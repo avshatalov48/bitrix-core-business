@@ -10,7 +10,7 @@ ClearVars();
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 
-$ID = intval($ID);
+$ID = isset($ID) ? intval($ID) : null;
 $message = false;
 $arSysLangs = array();
 $arSysLangNames = array();
@@ -30,10 +30,10 @@ if ($REQUEST_METHOD=="POST" && $forumPermissions=="W" && (!empty($save) || !empt
 	$arFields = array(
 		"MIN_POINTS" => $MIN_POINTS,
 		"CODE" => $CODE);
-		
+
 	if (isset($VOTES))
 		$arFields["VOTES"] = intval($VOTES);
-		
+
 	for ($i = 0; $i<count($arSysLangs); $i++)
 	{
 		if (!empty(${"NAME_".$arSysLangs[$i]}))
@@ -54,9 +54,9 @@ if ($REQUEST_METHOD=="POST" && $forumPermissions=="W" && (!empty($save) || !empt
 		$message = new CAdminMessage(($ID > 0 ? GetMessage("FORUM_PE_ERROR_UPDATE") : GetMessage("FORUM_PE_ERROR_ADD")), $e);
 		$bInitVars = True;
 	}
-	elseif ($save <> '')
+	elseif (isset($save) && $save <> '')
 		LocalRedirect("forum_points.php?lang=".LANG."&".GetFilterParams("filter_", false));
-	else 
+	else
 		$ID = $res;
 }
 
@@ -146,14 +146,14 @@ $tabControl->BeginNextTab();
 					GetMessage("FORUM_PE_RATING_VOTES"): GetMessage("FORUM_PE_RATING_VALUE")))?>:
 		</td>
 		<td width="60%">
-			<input type="text" name="MIN_POINTS" value="<?=htmlspecialcharsbx($str_MIN_POINTS)?>" size="10" />
+			<input type="text" name="MIN_POINTS" value="<?= isset($str_MIN_POINTS) ? htmlspecialcharsbx($str_MIN_POINTS) : null?>" size="10" />
 		</td>
 	</tr>
 
 	<tr>
 		<td><?= GetMessage("FORUM_PE_MNEMOCODE") ?>:</td>
 		<td>
-			<input type="text" name="CODE" value="<?=htmlspecialcharsbx($str_CODE)?>" size="30" />
+			<input type="text" name="CODE" value="<?=isset($str_CODE) ? htmlspecialcharsbx($str_CODE) : null?>" size="30" />
 		</td>
 	</tr>
 	<?
@@ -170,7 +170,7 @@ $tabControl->BeginNextTab();
 	endif;
 	for ($i = 0; $i < count($arSysLangs); $i++):
 		$arPointsLang = CForumPoints::GetLangByID($ID, $arSysLangs[$i]);
-		$str_NAME = ($bInitVars ? ${"NAME_".$arSysLangs[$i]} : $arPointsLang["NAME"]);
+		$str_NAME = ($bInitVars ? ${"NAME_".$arSysLangs[$i]} : (is_array($arPointsLang) ? $arPointsLang["NAME"] : null));
 		?>
 		<tr class="heading">
 			<td colspan="2">
@@ -182,7 +182,7 @@ $tabControl->BeginNextTab();
 				<?= GetMessage("FORUM_PE_NAME") ?>:
 			</td>
 			<td>
-				<input type="text" name="NAME_<?echo $arSysLangs[$i] ?>" value="<?=htmlspecialcharsbx($str_NAME)?>" size="40" />
+				<input type="text" name="NAME_<?echo $arSysLangs[$i] ?>" value="<?=isset($str_NAME) ? htmlspecialcharsbx($str_NAME) : null?>" size="40" />
 			</td>
 		</tr>
 	<?endfor;?>

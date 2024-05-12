@@ -1,12 +1,11 @@
 import { Dom, Type, Event, Text, Loc, Runtime, Tag } from 'main.core';
 import { EventEmitter } from 'main.core.events';
-import { Document } from './document/document';
 import { Template } from './template';
 import { DelayInterval } from './delay-interval';
 import { ViewMode } from './view-mode';
 import { HelpHint } from './help-hint';
-import { ConditionGroup, Helper } from 'bizproc.automation';
-import { Tracker } from './tracker/tracker'
+import { ConditionGroup, Helper, Document } from 'bizproc.automation';
+import { Tracker } from './tracker/tracker';
 import { TrackingStatus } from './tracker/types';
 import { Menu, MenuItem } from 'main.popup';
 
@@ -25,6 +24,8 @@ export class Robot extends EventEmitter
 
 	#isFrameMode: boolean;
 	#viewMode: ViewMode;
+
+	#customOnBeforeSaveRobotSettings: Function = () => {};
 
 	constructor(params: {
 		document: Document,
@@ -96,10 +97,10 @@ export class Robot extends EventEmitter
 	static generateName(): string
 	{
 		return (
-			'A' + parseInt(Math.random() * 100000)
-			+ '_' + parseInt(Math.random() * 100000)
-			+ '_' + parseInt(Math.random() * 100000)
-			+ '_' + parseInt(Math.random() * 100000)
+			`A${parseInt(Math.random() * 100_000, 10)
+			}_${parseInt(Math.random() * 100_000, 10)
+			}_${parseInt(Math.random() * 100_000, 10)
+			}_${parseInt(Math.random() * 100_000, 10)}`
 		);
 	}
 
@@ -113,7 +114,7 @@ export class Robot extends EventEmitter
 		});
 
 		const robotData = {
-			...BX.clone(this.#data),
+			...Runtime.clone(this.#data),
 			Name: Robot.generateName(),
 			Delay: this.getDelayInterval().serialize(),
 			Condition: this.getCondition().serialize(),
@@ -132,13 +133,14 @@ export class Robot extends EventEmitter
 	{
 		if (Type.isPlainObject(data))
 		{
-			this.#data = Object.assign({}, data);
+			this.#data = { ...data };
 		}
+
 		if (!this.#data.Name)
 		{
 			this.#data.Name = Robot.generateName();
 		}
-		this.#data.Activated = !Type.isNil(this.#data.Activated) ? Text.toBoolean(this.#data.Activated) : true;
+		this.#data.Activated = Type.isNil(this.#data.Activated) ? true : Text.toBoolean(this.#data.Activated);
 
 		this.#delay = new DelayInterval(this.#data.Delay);
 		this.#condition = new ConditionGroup(this.#data.Condition);
@@ -168,7 +170,7 @@ export class Robot extends EventEmitter
 		this.#node = this.createNode();
 		if (node.parentNode)
 		{
-			node.parentNode.replaceChild(this.#node, node);
+			Dom.replace(node, this.#node);
 		}
 	}
 
@@ -200,7 +202,7 @@ export class Robot extends EventEmitter
 
 	hasProperty(name: string): boolean
 	{
-		return this.getProperties().hasOwnProperty(name);
+		return Object.hasOwn(this.getProperties(), name);
 	}
 
 	setProperty(name: string, value: any): Robot
@@ -405,36 +407,36 @@ export class Robot extends EventEmitter
 					.replace(/\{\{~&:\:Parameter[0-9]+\}\}/, Loc.getMessage('BIZPROC_AUTOMATION_ASK_PARAMETER'))
 			);
 
-			if (labelText.indexOf('{=Document') >= 0)
+			if (labelText.includes('{=Document'))
 			{
 				this.#document.getFields().forEach((field) => {
-					labelText = labelText.replace(field['SystemExpression'], field['Name']);
+					labelText = labelText.replace(field.SystemExpression, field.Name);
 				});
 			}
 
-			if (labelText.indexOf('{=A') >= 0)
+			if (labelText.includes('{=A'))
 			{
 				this.#template.robots.forEach((robot) => {
 					robot.getReturnFieldsDescription().forEach((field) => {
-						if (field['Type'] === 'user')
+						if (field.Type === 'user')
 						{
 							labelText = labelText.replace(
-								field['SystemExpression'],
-								robot.getTitle() + ': ' + field['Name'],
+								field.SystemExpression,
+								`${robot.getTitle()}: ${field.Name}`,
 							);
 						}
 					});
 				});
 			}
 
-			if (labelText.indexOf('{=GlobalVar:') >= 0 && Type.isArrayFilled(this.#template.globalVariables))
+			if (labelText.includes('{=GlobalVar:') && Type.isArrayFilled(this.#template.globalVariables))
 			{
 				this.#template.globalVariables.forEach((variable) => {
 					labelText = labelText.replace(variable.SystemExpression, variable.Name);
 				});
 			}
 
-			if (labelText.indexOf('{=GlobalConst:') >= 0 && Type.isArrayFilled(this.#template.globalConstants))
+			if (labelText.includes('{=GlobalConst:') && Type.isArrayFilled(this.#template.globalConstants))
 			{
 				this.#template.globalConstants.forEach((constant) => {
 					labelText = labelText.replace(constant.SystemExpression, constant.Name);
@@ -453,7 +455,7 @@ export class Robot extends EventEmitter
 				}
 			}
 
-			if (this.#viewMode.isEdit() && parseInt(this.#data.viewData.responsibleId) > 0)
+			if (this.#viewMode.isEdit() && parseInt(this.#data.viewData.responsibleId, 10) > 0)
 			{
 				targetNode.setAttribute('bx-tooltip-user-id', this.#data.viewData.responsibleId);
 			}
@@ -519,7 +521,7 @@ export class Robot extends EventEmitter
 		const errors = this.getLogErrors();
 		if (errors.length > 0)
 		{
-			statusNode.classList.add('--errors');
+			Dom.addClass(statusNode, '--errors');
 			statusNode.setAttribute('data-text', errors.join('\n'));
 			HelpHint.bindToNode(statusNode);
 		}
@@ -617,7 +619,7 @@ export class Robot extends EventEmitter
 			<div class="ui-ctl ui-ctl-inline bizproc-automation-robot-container-checkbox">
 				<input class="ui-ctl-checkbox" type="checkbox" name="name"/>
 			</div>
-		`
+		`;
 	}
 
 	#canEditRobot(): boolean
@@ -1177,6 +1179,7 @@ export class Robot extends EventEmitter
 						fields.push({
 							Id: fieldId + '_printable',
 							ObjectId: this.getId(),
+							ObjectName: this.getTitle(),
 							Name: field['NAME'] + ' ' + Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX'),
 							Type: 'string',
 							Expression: `{{~${this.getId()}:${fieldId} > ${printableTag} # ${this.getTitle()}: ${field['NAME']}}}`,
@@ -1202,6 +1205,7 @@ export class Robot extends EventEmitter
 							fields.push({
 								Id: fieldId,
 								ObjectId: this.getId(),
+								ObjectName: this.getTitle(),
 								Name: field['Name'],
 								Type: field['Type'],
 								Options: field['Options'] || null,
@@ -1223,6 +1227,7 @@ export class Robot extends EventEmitter
 								fields.push({
 									Id: fieldId + '_printable',
 									ObjectId: this.getId(),
+									ObjectName: this.getTitle(),
 									Name: field['Name'] + ' ' + Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX'),
 									Type: 'string',
 									Expression: expression,
@@ -1429,5 +1434,20 @@ export class Robot extends EventEmitter
 		}
 
 		return brokenLinks;
+	}
+
+	onBeforeSaveRobotSettings(): Object
+	{
+		const data = this.#customOnBeforeSaveRobotSettings();
+
+		return Type.isPlainObject(data) ? data : {};
+	}
+
+	setOnBeforeSaveRobotSettings(callback: Function): void
+	{
+		if (Type.isFunction(callback))
+		{
+			this.#customOnBeforeSaveRobotSettings = callback;
+		}
 	}
 }

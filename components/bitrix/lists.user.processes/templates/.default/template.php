@@ -127,7 +127,7 @@ $APPLICATION->IncludeComponent(
 );
 ?>
 
-<script type="text/javascript">
+<script>
 	BX(function () {
 		BX.Lists['<?= CUtil::JSEscape($arResult['JS_OBJECT']) ?>'] = new BX.Lists.ListsProcessesClass({});
 

@@ -1,10 +1,11 @@
 import { Type } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
-import { Core } from 'im.v2.application.core';
-import { LocalStorageManager } from 'im.v2.lib.local-storage';
 import { Logger } from 'im.v2.lib.logger';
-import { LocalStorageKey, EventType, Layout, TextareaPanelType } from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { EventType, Layout, TextareaPanelType } from 'im.v2.const';
+
+import { IndexedDbManager } from './indexed-db-manager';
 
 import type { JsonObject } from 'main.core';
 import type { OnLayoutChangeEvent } from 'im.v2.const';
@@ -18,6 +19,8 @@ type Draft = {
 
 const WRITE_TO_STORAGE_TIMEOUT = 1000;
 const SHOW_DRAFT_IN_RECENT_TIMEOUT = 1500;
+
+const STORAGE_KEY = 'recentDraft';
 
 export class DraftManager
 {
@@ -46,7 +49,7 @@ export class DraftManager
 		EventEmitter.subscribe(EventType.layout.onLayoutChange, this.onLayoutChange.bind(this));
 	}
 
-	initDraftHistory()
+	async initDraftHistory()
 	{
 		if (this.inited)
 		{
@@ -54,7 +57,7 @@ export class DraftManager
 		}
 
 		this.inited = true;
-		const draftHistory = LocalStorageManager.getInstance().get(this.getLocalStorageKey(), {});
+		const draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
 		this.fillDraftsFromStorage(draftHistory);
 
 		Logger.warn('DraftManager: initDrafts:', this.drafts);
@@ -166,13 +169,13 @@ export class DraftManager
 	{
 		clearTimeout(this.writeToStorageTimeout);
 		this.writeToStorageTimeout = setTimeout(() => {
-			this.saveToLocalStorage();
+			this.saveToIndexedDb();
 		}, WRITE_TO_STORAGE_TIMEOUT);
 	}
 
-	saveToLocalStorage()
+	saveToIndexedDb()
 	{
-		LocalStorageManager.getInstance().set(this.getLocalStorageKey(), this.prepareDrafts());
+		IndexedDbManager.getInstance().set(this.getStorageKey(), this.prepareDrafts());
 	}
 
 	prepareDrafts(): { [dialogId: string]: Draft }
@@ -203,9 +206,9 @@ export class DraftManager
 		return Layout.chat.name;
 	}
 
-	getLocalStorageKey(): string
+	getStorageKey(): string
 	{
-		return LocalStorageKey.recentDraft;
+		return STORAGE_KEY;
 	}
 
 	getDraftMethodName(): string

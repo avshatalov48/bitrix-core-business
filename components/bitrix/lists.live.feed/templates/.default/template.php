@@ -54,7 +54,7 @@ Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 <input type="hidden" id="bx-lists-random-string" value="<?= $arResult['RAND_STRING'] ?>" />
 
 <? $frame = $this->createFrame("bp-livefeed")->begin(""); ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Lists['LiveFeedClass_<?= $arResult['RAND_STRING']?>'] = new BX.Lists.LiveFeedClass({
 			socnetGroupId: '<?= $arResult['SOCNET_GROUP_ID'] ?>',
@@ -68,7 +68,7 @@ Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 </script>
 <? $frame->end(); ?>
 
-<script type="text/javascript">
+<script>
 	BX.message({
 		LISTS_JS_STATUS_ACTION_SUCCESS: '<?= GetMessageJS('LISTS_JS_STATUS_ACTION_SUCCESS') ?>',
 		LISTS_JS_STATUS_ACTION_ERROR: '<?= GetMessageJS('LISTS_JS_STATUS_ACTION_ERROR') ?>',
@@ -101,7 +101,7 @@ Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 				<input type="text" value="" class="feed-add-lists-inp" id="feed-add-post-lists-input">
 			</span>
 			<a href="#" class="feed-add-lists-link" id="bx-lists-tag"><?= Loc::getMessage("LISTS_ADD_STAFF")?></a>
-			<script type="text/javascript">
+			<script>
 				var	BXSocNetLogListsFormName = '<?=$this->randString(6)?>';
 				BX.SocNetLogDestination.init({
 					'name' : BXSocNetLogListsFormName,

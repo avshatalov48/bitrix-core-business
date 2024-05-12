@@ -62,7 +62,7 @@ class SyncService
 		}
 		else
 		{
-			$query->setOrder(['ID' => 'DESC']);
+			$query->setOrder(['DATE_CREATE' => 'DESC']);
 		}
 
 		$logCollection = $query->fetchCollection();
@@ -100,11 +100,28 @@ class SyncService
 
 		$data['hasMore'] = $logCollection->count() >= $limit;
 		$ids = $logCollection->getIdList();
+		$data['lastServerDate'] = $this->getLastServerDate($logCollection);
 		if (!empty($ids))
 		{
 			$data['lastId'] = max($ids);
 		}
 
 		return $data;
+	}
+
+	protected function getLastServerDate(EO_Log_Collection $logCollection): ?DateTime
+	{
+		$maxDateTime = null;
+		$maxTimestamp = 0;
+		foreach ($logCollection as $logItem)
+		{
+			if ($logItem->getDateCreate()->getTimestamp() > $maxTimestamp)
+			{
+				$maxTimestamp = $logItem->getDateCreate()->getTimestamp();
+				$maxDateTime = $logItem->getDateCreate();
+			}
+		}
+
+		return $maxDateTime;
 	}
 }

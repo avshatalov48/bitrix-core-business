@@ -182,13 +182,14 @@ class TopicTable extends Main\Entity\DataManager
 		$data = $event->getParameter("fields");
 		$id = $event->getParameter("id");
 		$id = $id["ID"];
-		$topic = TopicTable::getById($id)->fetch();
+		$topic = null;
 
 		if (Main\Config\Option::get("forum", "FILTER", "Y") == "Y")
 		{
 			$filteredFields = self::getFilteredFields();
 			if (!empty(array_intersect($filteredFields, array_keys($data))))
 			{
+				$topic = TopicTable::getById($id)->fetch();
 				$res = [];
 				foreach ($filteredFields as $key)
 				{
@@ -210,7 +211,24 @@ class TopicTable extends Main\Entity\DataManager
 			$data["TITLE_SEO"] = trim($data["TITLE_SEO"], " -");
 			if ($data["TITLE_SEO"] == '')
 			{
-				$title = array_key_exists("TITLE", $data) ? $data["TITLE"] : $topic["TITLE"];
+				if (array_key_exists("TITLE", $data))
+				{
+					$title = $data["TITLE"];
+				}
+				else
+				{
+					if (is_null($topic))
+					{
+						$res = \Bitrix\Forum\TopicTable::query()->setSelect(['TITLE'])
+							->where('ID', $id)
+							->fetch();
+						$title = $res["TITLE"];
+					}
+					else
+					{
+						$title = $topic["TITLE"];
+					}
+				}
 				$data["TITLE_SEO"] = \CUtil::translit($title, LANGUAGE_ID, array("max_len"=>255, "safe_chars"=>".", "replace_space" => '-'));
 			}
 		}
@@ -683,13 +701,12 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 	{
 		unset($data["FORUM_ID"]);
 
-		$topic = Forum\TopicTable::getById($id)->fetch();
-
 		$result = new Main\ORM\Data\UpdateResult();
 		$result->setPrimary(["ID" => $id]);
 
 		if (($events = GetModuleEvents("forum", "onBeforeTopicUpdate", true)) && !empty($events))
 		{
+			$topic = Forum\TopicTable::getById($id)->fetch();
 			global $APPLICATION;
 			foreach ($events as $ev)
 			{

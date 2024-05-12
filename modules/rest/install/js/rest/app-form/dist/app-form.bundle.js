@@ -12,7 +12,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, AppForm);
 	    _classPrivateFieldInitSpec(this, _url, {
 	      writable: true,
-	      value: '/app/settings/'
+	      value: '/marketplace/app/settings/'
 	    });
 	    _classPrivateFieldInitSpec(this, _width, {
 	      writable: true,
@@ -30,7 +30,8 @@ this.BX = this.BX || {};
 	      top.BX.SidePanel.Instance.open(babelHelpers.classPrivateFieldGet(this, _url), {
 	        width: babelHelpers.classPrivateFieldGet(this, _width),
 	        requestMethod: 'post',
-	        requestParams: babelHelpers.classPrivateFieldGet(this, _options)
+	        requestParams: babelHelpers.classPrivateFieldGet(this, _options),
+	        allowChangeHistory: false
 	      });
 	    }
 	  }]);

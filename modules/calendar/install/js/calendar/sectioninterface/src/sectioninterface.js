@@ -556,14 +556,14 @@ export class SectionInterface extends EventEmitter
 	getSectionListWrap(title)
 	{
 		return Tag.render`
-				<div class="calendar-list-slider-card-widget">
-					<div class="calendar-list-slider-card-widget-title">
-						<span class="calendar-list-slider-card-widget-title-text">
-							${title}
-						</span>
-					</div>
+			<div class="calendar-list-slider-card-widget">
+				<div class="calendar-list-slider-card-widget-title">
+					<span class="calendar-list-slider-card-widget-title-text">
+						${Text.encode(title)}
+					</span>
 				</div>
-			`;
+			</div>
+		`;
 	}
 
 	getLocalSectionListTitle()

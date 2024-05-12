@@ -95,7 +95,7 @@ SCRIPT;
 	</div>
 	<?foreach ($arResult['TASKS']['RUNNING'] as $task):?>
 		<div id="<?=$cmpId?>_task_block_<?=$task['ID']?>" class="bp-task-block bp-opacity-animation bp-hidden" style="display: none">
-			<span class="bp-task-block-title"><?=GetMessage("BPATL_TASK_TITLE")?>: </span>
+			<span class="bp-task-block-title"><?=GetMessage("BPATL_TASK_TITLE_MSGVER_1")?>: </span>
 			<?=$task['NAME']?>
 			<? if ($task['DESCRIPTION']):?>
 			<p>

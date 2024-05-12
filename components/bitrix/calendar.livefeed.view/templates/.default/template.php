@@ -43,7 +43,7 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 						$timezoneHint = GetMessage('EC_VIEW_DATE_FROM_TO', array('#DATE_FROM#' => $event['DATE_FROM'].' ('.$event['TZ_FROM'].')', '#DATE_TO#' => $event['DATE_TO'].' ('.$event['TZ_TO'].')'));
 					}
 					?>
-					<span id="feed-event-tz-hint-<?= $id?>" data-bx-hint="<?= $timezoneHint?>" class="bx-cal-view-timezon-icon feed-event-view-timezon-icon"></span>
+					<div id="feed-event-tz-hint-<?= $id?>" data-hint-no-icon="Y" data-hint="<?= $timezoneHint?>" class="bx-cal-view-timezon-icon feed-event-view-timezon-icon"><i></i></div>
 				<?
 				}
 				?>

@@ -296,11 +296,14 @@ export class NotificationsModel extends BuilderModel
 				state.collection.delete(payload.id);
 				state.searchCollection.delete(payload.id);
 			},
-			read: (state, payload) =>
-			{
+			read: (state, payload) => {
 				state.collection.set(payload.id, {
 					...state.collection.get(payload.id),
-					read: payload.read
+					read: payload.read,
+				});
+				state.searchCollection.set(payload.id, {
+					...state.collection.get(payload.id),
+					read: payload.read,
 				});
 			},
 			readAll: (state) =>

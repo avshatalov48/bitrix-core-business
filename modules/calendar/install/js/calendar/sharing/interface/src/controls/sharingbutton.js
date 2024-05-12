@@ -41,6 +41,7 @@ export default class SharingButton
 		this.payAttentionToNewFeatureMode = options.payAttentionToNewFeature;
 		this.sharingFeatureLimit = options.sharingFeatureLimit;
 		this.sharingSettingsCollapsed = options.sharingSettingsCollapsed;
+		this.sortJointLinksByFrequentUse = options.sortJointLinksByFrequentUse;
 	}
 
 	show()
@@ -220,6 +221,7 @@ export default class SharingButton
 				},
 				userInfo: this.userInfo,
 				settingsCollapsed: this.sharingSettingsCollapsed,
+				sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
 			});
 		}
 

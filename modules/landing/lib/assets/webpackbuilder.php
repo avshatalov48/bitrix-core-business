@@ -5,6 +5,9 @@ namespace Bitrix\Landing\Assets;
 use Bitrix\Landing\Landing;
 use Bitrix\Main;
 
+/**
+ * Create a webpack file of assets
+ */
 class WebpackBuilder extends Builder
 {
 	protected const PACKAGE_CRITICAL_NAME = 'landing_grid';
@@ -12,16 +15,17 @@ class WebpackBuilder extends Builder
 	/**
 	 * @var ResourceCollection
 	 */
-	protected $criticalResources;
+	protected ResourceCollection $criticalResources;
+
 	/**
 	 * @var array
 	 */
-	protected $normalizedCriticalResources = [];
+	protected array $normalizedCriticalResources = [];
 
 	/**
 	 * @var WebpackFile
 	 */
-	protected $webpackFile;
+	protected WebpackFile $webpackFile;
 
 	/**
 	 * WebpackBuilder constructor.
@@ -43,7 +47,6 @@ class WebpackBuilder extends Builder
 		$this->normalizeBaseResources();
 	}
 
-	// todo: normalize lang in critical (like standartbuilder)
 	protected function normalizeCriticalResources(): void
 	{
 		$this->criticalResources = $this->resources->getSliceByLocation(Location::LOCATION_BEFORE_ALL);
@@ -134,7 +137,7 @@ class WebpackBuilder extends Builder
 	{
 		// List can be different with equal assets, because is depends on the order of adding assets. Unique and sort them!
 		$list = [];
-		foreach ($this->normalizedResources as $type => $resources)
+		foreach ($this->normalizedResources as $resources)
 		{
 			foreach ($resources as $resource)
 			{

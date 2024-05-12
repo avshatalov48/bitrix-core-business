@@ -791,6 +791,7 @@
 .bizproc-debugger-automation__status.--log-status {
 	--height: 24px;
 	--border-radius: 2px;
+	width: auto;
 	padding-right: 15px;
 	min-width: 66px;
 	flex-shrink: 1;
@@ -811,10 +812,6 @@
 
 .bizproc-debugger-automation__log-info--more:hover {
 	color: var(--bizproc-debugger__blue_light_alpha_80);
-}
-
-.bizproc-debugger-automation__main-fields .bizproc-debugger-automation__status.--log-status {
-	max-width: 156px;
 }
 
 .bizproc-debugger-automation__status.--log-status .bizproc-debugger-automation__status--title{

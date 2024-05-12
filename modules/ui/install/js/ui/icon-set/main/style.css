@@ -8,6 +8,7 @@
 	--ui-icon-set__path_person: url('/bitrix/js/ui/icon-set/main/images/person.svg');
 	--ui-icon-set__path_person-camera: url('/bitrix/js/ui/icon-set/main/images/person-camera.svg');
 	--ui-icon-set__path_person-plus: url('/bitrix/js/ui/icon-set/main/images/person-plus.svg');
+	--ui-icon-set__path_persons-deny: url('/bitrix/js/ui/icon-set/main/images/persons-deny.svg');
 	--ui-icon-set__path_person-clock: url('/bitrix/js/ui/icon-set/main/images/person-clock.svg');
 	--ui-icon-set__path_person-clock-2: url('/bitrix/js/ui/icon-set/main/images/person-clock-2.svg');
 	--ui-icon-set__path_persons-2: url('/bitrix/js/ui/icon-set/main/images/persons-2.svg');
@@ -72,6 +73,7 @@
 	--ui-icon-set__path_sms: url('/bitrix/js/ui/icon-set/main/images/sms.svg');
 	--ui-icon-set__path_file: url('/bitrix/js/ui/icon-set/main/images/file.svg');
 	--ui-icon-set__path_list: url('/bitrix/js/ui/icon-set/main/images/list.svg');
+	--ui-icon-set__path_black-list: url('/bitrix/js/ui/icon-set/main/images/black-list.svg');
 	--ui-icon-set__path_file-upload: url('/bitrix/js/ui/icon-set/main/images/file-upload.svg');
 	--ui-icon-set__path_file-sync: url('/bitrix/js/ui/icon-set/main/images/file-sync.svg');
 	--ui-icon-set__path_file-arrow-top: url('/bitrix/js/ui/icon-set/main/images/file-arrow-top.svg');
@@ -90,6 +92,7 @@
 	--ui-icon-set__path_black-clock: url('/bitrix/js/ui/icon-set/main/images/black-clock.svg');
 	--ui-icon-set__path_search-1: url('/bitrix/js/ui/icon-set/main/images/search-1.svg');
 	--ui-icon-set__path_search-2: url('/bitrix/js/ui/icon-set/main/images/search-2.svg');
+	--ui-icon-set__path_restore-password: url('/bitrix/js/ui/icon-set/main/images/restore-password.svg');
 	--ui-icon-set__path_tasks: url('/bitrix/js/ui/icon-set/main/images/tasks.svg');
 	--ui-icon-set__path_window-arrow: url('/bitrix/js/ui/icon-set/main/images/window-arrow.svg');
 	--ui-icon-set__path_window-double-check-1: url('/bitrix/js/ui/icon-set/main/images/window-double-check-1.svg');
@@ -226,7 +229,8 @@
 	--ui-icon-set__path_brightness-bold-emoji: url('/bitrix/js/ui/icon-set/main/images/brightness-bold-emoji.svg');
 	--ui-icon-set__path_sun: url('/bitrix/js/ui/icon-set/main/images/sun.svg');
 	--ui-icon-set__path_filial-network: url('/bitrix/js/ui/icon-set/main/images/filial-network.svg');
-	--ui-icon-set__path_arrow-line: url('/bitrix/js/ui/icon-set/main/images/arrow-line.svg');
+	--ui-icon-set__path_arrow-line: url('/bitrix/js/ui/icon-set/main/images/arrow-line.svg?2');
+	--ui-icon-set__path_ip: url('/bitrix/js/ui/icon-set/main/images/ip.svg');
 	--ui-icon-set__path_filter-1: url('/bitrix/js/ui/icon-set/main/images/filter-1.svg');
 	--ui-icon-set__path_filter-2: url('/bitrix/js/ui/icon-set/main/images/filter-2.svg');
 	--ui-icon-set__path_filter-2: url('/bitrix/js/ui/icon-set/main/images/filter-2.svg');
@@ -236,6 +240,7 @@
 	--ui-icon-set__path_print-2: url('/bitrix/js/ui/icon-set/main/images/print-2.svg');
 	--ui-icon-set__path_disk: url('/bitrix/js/ui/icon-set/main/images/disk.svg');
 	--ui-icon-set__path_shining: url('/bitrix/js/ui/icon-set/main/images/shining.svg');
+	--ui-icon-set__path_shining-2: url('/bitrix/js/ui/icon-set/main/images/shining-2.svg');
 	--ui-icon-set__path_plug: url('/bitrix/js/ui/icon-set/main/images/plug.svg');
 	--ui-icon-set__path_paste: url('/bitrix/js/ui/icon-set/main/images/paste.svg');
 	--ui-icon-set__path_crossed-eye-2: url('/bitrix/js/ui/icon-set/main/images/crossed-eye-2.svg');
@@ -291,11 +296,23 @@
 	--ui-icon-set__path_calendar-1: url('/bitrix/js/ui/icon-set/main/images/calendar-1.svg');
 	--ui-icon-set__path_calendar-24: url('/bitrix/js/ui/icon-set/main/images/calendar-24.svg');
 	--ui-icon-set__path_window: url('/bitrix/js/ui/icon-set/main/images/window.svg');
+	--ui-icon-set__path_planning: url('/bitrix/js/ui/icon-set/main/images/planning.svg');
+	--ui-icon-set__path_planning-2: url('/bitrix/js/ui/icon-set/main/images/planning-2.svg');
+	--ui-icon-set__path_sort-calendar: url('/bitrix/js/ui/icon-set/main/images/sort-calendar.svg');
+	--ui-icon-set__path_calendar-deadline: url('/bitrix/js/ui/icon-set/main/images/calendar-deadline.svg');
+	--ui-icon-set__path_sort-activity: url('/bitrix/js/ui/icon-set/main/images/sort-activity.svg');
+	--ui-icon-set__path_my-plan: url('/bitrix/js/ui/icon-set/main/images/my-plan.svg');
+	--ui-icon-set__path_calendar-off: url('/bitrix/js/ui/icon-set/main/images/calendar-off.svg');
+	--ui-icon-set__path_signal-wifi: url('/bitrix/js/ui/icon-set/main/images/signal-wifi.svg');
+	--ui-icon-set__path_signal-wifi-off: url('/bitrix/js/ui/icon-set/main/images/signal-wifi-off.svg');
+	--ui-icon-set__path_img-format: url('/bitrix/js/ui/icon-set/main/images/img-format.svg');
 	--ui-icon-set__path_mail-in: url('/bitrix/js/ui/icon-set/main/images/mail-in.svg');
 	--ui-icon-set__path_quote: url('/bitrix/js/ui/icon-set/main/images/quote.svg');
 	--ui-icon-set__path_new-message-mail: url('/bitrix/js/ui/icon-set/main/images/new-message-mail.svg');
 	--ui-icon-set__path_outdent: url('/bitrix/js/ui/icon-set/main/images/outdent.svg');
 	--ui-icon-set__path_distribution: url('/bitrix/js/ui/icon-set/main/images/distribution.svg');
+	--ui-icon-set__path_menu-point: url('/bitrix/js/ui/icon-set/main/images/menu-point.svg');
+	--ui-icon-set__path_lines-text: url('/bitrix/js/ui/icon-set/main/images/lines-text.svg');
 	--ui-icon-set__path_target-1: url('/bitrix/js/ui/icon-set/main/images/target-1.svg');
 	--ui-icon-set__path_menu: url('/bitrix/js/ui/icon-set/main/images/menu.svg');
 	--ui-icon-set__path_waves: url('/bitrix/js/ui/icon-set/main/images/waves.svg');
@@ -346,12 +363,61 @@
 	--ui-icon-set__path_speed-meter: url('/bitrix/js/ui/icon-set/main/images/speed-meter.svg');
 	--ui-icon-set__path_add-chat: url('/bitrix/js/ui/icon-set/main/images/add-chat.svg');
 	--ui-icon-set__path_watch: url('/bitrix/js/ui/icon-set/main/images/watch.svg');
+	--ui-icon-set__path_copilot-ai-1: url('/bitrix/js/ui/icon-set/main/images/copilot-ai-1.svg');
+	--ui-icon-set__path_copilot-ai-2: url('/bitrix/js/ui/icon-set/main/images/copilot-ai-2.svg');
 	--ui-icon-set__path_copilot-ai: url('/bitrix/js/ui/icon-set/main/images/copilot-ai.svg');
+	--ui-icon-set__path_list-ai: url('/bitrix/js/ui/icon-set/main/images/list-ai.svg');
 	--ui-icon-set__path_info-circle-plus: url('/bitrix/js/ui/icon-set/main/images/info-circle-plus.svg');
 	--ui-icon-set__path_location-plus: url('/bitrix/js/ui/icon-set/main/images/location-plus.svg');
+	--ui-icon-set__path_time-picker: url('/bitrix/js/ui/icon-set/main/images/time-picker.svg');
 	--ui-icon-set__path_person-plus-3: url('/bitrix/js/ui/icon-set/main/images/person-plus-3.svg');
 	--ui-icon-set__path_calendar-slots: url('/bitrix/js/ui/icon-set/main/images/calendar-slots.svg');
 	--ui-icon-set__path_elements: url('/bitrix/js/ui/icon-set/main/images/elements.svg');
+	--ui-icon-set__path_shield-2-plain: url('/bitrix/js/ui/icon-set/main/images/shield-2-plain.svg');
+	--ui-icon-set__path_shield-2-contour: url('/bitrix/js/ui/icon-set/main/images/shield-2-contour.svg');
+	--ui-icon-set__path_shield-2-checked: url('/bitrix/js/ui/icon-set/main/images/shield-2-checked.svg');
+	--ui-icon-set__path_shield-2-attention: url('/bitrix/js/ui/icon-set/main/images/shield-2-attention.svg');
+	--ui-icon-set__path_shield-2-menu: url('/bitrix/js/ui/icon-set/main/images/shield-2-menu.svg');
+	--ui-icon-set__path_shield-2-time: url('/bitrix/js/ui/icon-set/main/images/shield-2-time.svg');
+	--ui-icon-set__path_shield-2-defended: url('/bitrix/js/ui/icon-set/main/images/shield-2-defended.svg');
+	--ui-icon-set__path_shield-2-update: url('/bitrix/js/ui/icon-set/main/images/shield-2-update.svg');
+	--ui-icon-set__path_shield-2-core-problem: url('/bitrix/js/ui/icon-set/main/images/shield-2-core-problem.svg');
+}
+
+.ui-icon-set.--shield-2-core-problem {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-core-problem);
+}
+
+.ui-icon-set.--shield-2-update {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-update);
+}
+
+.ui-icon-set.--shield-2-defended {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-defended);
+}
+
+.ui-icon-set.--shield-2-time {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-time);
+}
+
+.ui-icon-set.--shield-2-menu {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-menu);
+}
+
+.ui-icon-set.--shield-2-attention {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-attention);
+}
+
+.ui-icon-set.--shield-2-checked {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-checked);
+}
+
+.ui-icon-set.--shield-2-contour {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-contour);
+}
+
+.ui-icon-set.--shield-2-plain {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shield-2-plain);
 }
 
 .ui-icon-set.--watch {
@@ -366,6 +432,10 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_location-plus);
 }
 
+.ui-icon-set.--time-picker {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_time-picker);
+}
+
 .ui-icon-set.--person-plus-3 {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_person-plus-3);
 }
@@ -378,8 +448,20 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_info-circle-plus);
 }
 
+.ui-icon-set.--copilot-ai-1 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_copilot-ai-1);
+}
+
+.ui-icon-set.--copilot-ai-2 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_copilot-ai-2);
+}
+
 .ui-icon-set.--copilot-ai {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_copilot-ai);
+}
+
+.ui-icon-set.--list-ai {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_list-ai);
 }
 
 .ui-icon-set.--add-chat {
@@ -408,6 +490,10 @@
 
 .ui-icon-set.--person-plus {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_person-plus);
+}
+
+.ui-icon-set.--persons-deny {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_persons-deny);
 }
 
 .ui-icon-set.--person-clock {
@@ -666,6 +752,10 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_list);
 }
 
+.ui-icon-set.--black-list {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_black-list);
+}
+
 .ui-icon-set.--file-upload {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_file-upload);
 }
@@ -736,6 +826,10 @@
 
 .ui-icon-set.--search-2 {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_search-2);
+}
+
+.ui-icon-set.--restore-password {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_restore-password);
 }
 
 .ui-icon-set.--tasks {
@@ -1286,6 +1380,10 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_arrow-line);
 }
 
+.ui-icon-set.--ip {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_ip);
+}
+
 .ui-icon-set.--filter-1 {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_filter-1);
 }
@@ -1320,6 +1418,10 @@
 
 .ui-icon-set.--shining {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_shining);
+}
+
+.ui-icon-set.--shining-2 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_shining-2);
 }
 
 .ui-icon-set.--plug {
@@ -1538,6 +1640,46 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_window);
 }
 
+.ui-icon-set.--planning {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_planning);
+}
+
+.ui-icon-set.--planning-2 {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_planning-2);
+}
+
+.ui-icon-set.--sort-calendar {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_sort-calendar);
+}
+
+.ui-icon-set.--calendar-deadline {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_calendar-deadline);
+}
+
+.ui-icon-set.--sort-activity {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_sort-activity);
+}
+
+.ui-icon-set.--my-plan {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_my-plan);
+}
+
+.ui-icon-set.--calendar-off {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_calendar-off);
+}
+
+.ui-icon-set.--signal-wifi {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_signal-wifi);
+}
+
+.ui-icon-set.--signal-wifi-off {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_signal-wifi-off);
+}
+
+.ui-icon-set.--img-format {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_img-format);
+}
+
 .ui-icon-set.--mail-in {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_mail-in);
 }
@@ -1556,6 +1698,14 @@
 
 .ui-icon-set.--distribution {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_distribution);
+}
+
+.ui-icon-set.--menu-point {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_menu-point);
+}
+
+.ui-icon-set.--lines-text {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_lines-text);
 }
 
 .ui-icon-set.--target-1 {

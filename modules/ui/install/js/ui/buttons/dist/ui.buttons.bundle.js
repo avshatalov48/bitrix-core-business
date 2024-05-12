@@ -508,10 +508,13 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonColor, "PRIMARY_DARK", 'ui-btn-primary-dark');
 	babelHelpers.defineProperty(ButtonColor, "PRIMARY", 'ui-btn-primary');
 	babelHelpers.defineProperty(ButtonColor, "SECONDARY", 'ui-btn-secondary');
+	babelHelpers.defineProperty(ButtonColor, "SECONDARY_LIGHT", 'ui-btn-secondary-light');
+	babelHelpers.defineProperty(ButtonColor, "WARNING_LIGHT", 'ui-btn-warning-light');
 	babelHelpers.defineProperty(ButtonColor, "LINK", 'ui-btn-link');
 	babelHelpers.defineProperty(ButtonColor, "LIGHT", 'ui-btn-light');
 	babelHelpers.defineProperty(ButtonColor, "LIGHT_BORDER", 'ui-btn-light-border');
 	babelHelpers.defineProperty(ButtonColor, "AI", 'ui-btn-color-ai');
+	babelHelpers.defineProperty(ButtonColor, "BASE_LIGHT", 'ui-btn-base-light');
 
 	/**
 	 * @namespace {BX.UI}

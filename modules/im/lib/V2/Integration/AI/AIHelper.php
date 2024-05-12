@@ -2,6 +2,8 @@
 
 namespace Bitrix\Im\V2\Integration\AI;
 
+use Bitrix\AI\Engine;
+use Bitrix\AI\Tuning\Manager;
 use Bitrix\Main\Loader;
 
 class AIHelper
@@ -21,7 +23,15 @@ class AIHelper
 			return null;
 		}
 
-		$engine = \Bitrix\AI\Engine::getByCategory(\Bitrix\AI\Engine::CATEGORIES['text'], \Bitrix\AI\Context::getFake());
+		$manager = new Manager();
+		$item = $manager->getItem(Restriction::SETTING_COPILOT_CHAT_PROVIDER);
+		if (!isset($item))
+		{
+			return null;
+		}
+
+		$engine = Engine::getByCode($item->getValue(), \Bitrix\AI\Context::getFake(), Engine::CATEGORIES['text']);
+
 		if (isset($engine))
 		{
 			return $engine->getIEngine()->getName();

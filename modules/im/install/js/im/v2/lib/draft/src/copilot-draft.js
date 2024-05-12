@@ -1,5 +1,8 @@
-import { Layout, LocalStorageKey } from 'im.v2.const';
+import { Layout } from 'im.v2.const';
+
 import { DraftManager } from './draft';
+
+const STORAGE_KEY = 'copilotDraft';
 
 export class CopilotDraftManager extends DraftManager
 {
@@ -20,9 +23,9 @@ export class CopilotDraftManager extends DraftManager
 		return Layout.copilot.name;
 	}
 
-	getLocalStorageKey(): string
+	getStorageKey(): string
 	{
-		return LocalStorageKey.copilotDraft;
+		return STORAGE_KEY;
 	}
 
 	getDraftMethodName(): string

@@ -513,7 +513,7 @@ class Placement extends \IRestService
 			throw new ArgumentTypeException('PLACEMENT', 'string');
 		}
 
-		$placement = toUpper($params['PLACEMENT']);
+		$placement = mb_strtoupper($params['PLACEMENT']);
 		$placementHandler = $params['HANDLER'];
 
 		if ($placement == '')

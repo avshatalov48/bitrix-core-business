@@ -1429,7 +1429,7 @@ class CLists
 			$searchableContent .= self::createSeachableContentForProperty($fields);
 		}
 
-		$searchableContent = ToUpper($searchableContent);
+		$searchableContent = mb_strtoupper($searchableContent);
 
 		return $searchableContent;
 	}

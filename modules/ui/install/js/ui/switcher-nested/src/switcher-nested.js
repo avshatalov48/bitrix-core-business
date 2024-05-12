@@ -1,5 +1,6 @@
 import { Dom, Tag, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
+import { Draggable } from 'ui.draganddrop.draggable';
 import { SwitcherNestedItem } from './switcher-nested-item';
 import { Section } from 'ui.section';
 import { Switcher } from 'ui.switcher';
@@ -15,8 +16,10 @@ export class SwitcherNested extends Section
 	infoHelperCode: ?string;
 	#sectionWrapper: ?HTMLElement;
 	#isDefault: boolean;
+	#isDisabled: boolean;
 	#warningMessage: ?WarningMessage;
 	#helpMessage: ?string;
+	#draggable: ?Draggable = null;
 
 	constructor(options: SwitcherNestedOptions)
 	{
@@ -28,7 +31,13 @@ export class SwitcherNested extends Section
 		this.isNestedMenu = this.items.length > 0;
 		this.infoHelperCode = Type.isString(options.infoHelperCode) ? options.infoHelperCode : null;
 		this.#isDefault = Type.isBoolean(options.isDefault) ? options.isDefault : false;
+		this.#isDisabled = Type.isBoolean(options.isDisabled) ? options.isDisabled : false;
 		this.#helpMessage = Type.isString(options.helpMessage) ? options.helpMessage : null;
+
+		if (options.draggable instanceof Draggable)
+		{
+			this.#draggable = options.draggable;
+		}
 
 		if (!Type.isString(options.mainInputName))
 		{
@@ -50,9 +59,10 @@ export class SwitcherNested extends Section
 		}
 
 		this.#sectionWrapper = Tag.render`
-			<div id="${this.id}" class="ui-section__wrapper --tool-selector${this.isChecked ? ' --checked' : ''} ${this.isNestedMenu ? ' clickable' : ''}" >
+			<div class="ui-section__wrapper --tool-selector${this.isChecked ? ' --checked' : ''} ${this.isNestedMenu ? ' clickable' : ''}" >
 				<div class="ui-section__header">
 					<div class="ui-section__header-left-wrapper">
+						${this.#getDraggableIcon() ?? ''}
 						<span class="ui-section__switcher-wrapper" onclick="event.stopPropagation()"/>
 						<span class="ui-section__title">${this.title}</span>
 						${this.#getMenuIcon()}
@@ -75,7 +85,15 @@ export class SwitcherNested extends Section
 			this.#mainTool,
 			'toggled',
 			() => {
-				if (this.#isDefault)
+				if (this.#isDisabled)
+				{
+					this.#mainTool.check(!this.#mainTool.isChecked(), false);
+					if (this.#warningMessage)
+					{
+						this.#warningMessage.show();
+					}
+				}
+				else if (this.#isDefault)
 				{
 					this.#mainTool.check(true, false);
 					if (this.#warningMessage)

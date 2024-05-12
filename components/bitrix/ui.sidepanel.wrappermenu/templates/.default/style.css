@@ -71,6 +71,17 @@
 	text-decoration: none;
 }
 
+.ui-sidepanel-menu-disabled .ui-sidepanel-menu-link:hover,
+.ui-sidepanel-menu-disabled .ui-sidepanel-submenu-link:hover {
+	background: none;
+	text-decoration: none;
+}
+
+.ui-sidepanel-menu-disabled .ui-sidepanel-menu-link,
+.ui-sidepanel-menu-disabled .ui-sidepanel-submenu-link {
+	color: var(--ui-color-palette-gray-40);
+}
+
 .ui-sidepanel-menu-link-text {
 	display: inline-block;
 	margin: 0 12px 0 0;

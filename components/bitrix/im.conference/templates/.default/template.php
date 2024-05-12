@@ -12,7 +12,7 @@ $GLOBALS["APPLICATION"]->SetPageProperty("BodyClass", "im-desktop $darkClass");
 $APPLICATION->IncludeComponent("bitrix:ui.info.helper", "", array());
 ?>
 <div id="placeholder"></div>
-<script type="text/javascript">
+<script>
 	BX.Messenger.Application.Launch('conference', {
 		node: '#placeholder',
 		chatId: '<?=$arResult['CHAT_ID']?>',

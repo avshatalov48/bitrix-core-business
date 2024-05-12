@@ -1470,6 +1470,12 @@ export default class ItemNode
 					Highlighter.mark(this.getItem().getSupertitleNode(), matchField.getMatches())
 				;
 			}
+			else if (field.getName() === 'caption')
+			{
+				this.getCaptionContainer().innerHTML = (
+					Highlighter.mark(this.getItem().getCaptionNode(), matchField.getMatches())
+				);
+			}
 		});
 	}
 

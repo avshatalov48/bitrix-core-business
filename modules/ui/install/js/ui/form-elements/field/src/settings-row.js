@@ -1,6 +1,6 @@
-import { Type } from 'main.core';
+import {Dom, Type} from 'main.core';
 import { BaseSettingsElement } from './base-settings-element';
-import { Row } from 'ui.section';
+import {Row, SeparatorRow} from 'ui.section';
 
 export class SettingsRow extends BaseSettingsElement
 {
@@ -9,7 +9,7 @@ export class SettingsRow extends BaseSettingsElement
 	constructor(params)
 	{
 		super(params);
-		this.#rowView = params.row instanceof Row
+		this.#rowView = params.row instanceof Row || params.row instanceof SeparatorRow
 			? params.row : new Row(Type.isPlainObject(params.row) ? params.row : {})
 		;
 	}
@@ -27,5 +27,12 @@ export class SettingsRow extends BaseSettingsElement
 		}
 
 		return this.getRowView().render();
+	}
+
+	highlight(): boolean
+	{
+		this.highlightElement(this.getRowView().render());
+
+		return true;
 	}
 }

@@ -1,6 +1,6 @@
 export const CheckboxListSections = {
 	props: [
-		'sections'
+		'sections',
 	],
 
 	methods: {
@@ -12,7 +12,7 @@ export const CheckboxListSections = {
 		{
 			return [
 				'ui-checkbox-list__sections-item',
-				{'--checked': sectionValue}
+				{ '--checked': sectionValue },
 			];
 		},
 	},
@@ -27,8 +27,8 @@ export const CheckboxListSections = {
 				@click="handleClick(section.key)"
 			>
 				<div class="ui-checkbox-list__check-box"></div>
-				{{ section.title }}
+				<div class="ui-checkbox-list__section_title">{{ section.title }}</div>
 			</div>
 		</div>
-	`
-	}
+	`,
+}

@@ -10,7 +10,7 @@
 
 /*************** Default data **************************************/
 $arParams["iIndex"] = $iIndex = rand();
-$message = ($_SERVER['REQUEST_METHOD'] == "POST" ? $_POST["message_id"] : $_GET["message_id"]);
+$message = ($_SERVER['REQUEST_METHOD'] == "POST" ? ($_POST["message_id"] ?? null) : ($_GET["message_id"] ?? null));
 $message = (is_array($message) ? $message : array($message));
 
 $arUserSettings = array("first_post" => "show");
@@ -63,7 +63,7 @@ if (!empty($arResult["ERROR_MESSAGE"])):
 </div>
 <?
 endif;
-if (!empty($arResult["OK_MESSAGE"])): 
+if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-success">
 	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
@@ -410,7 +410,7 @@ if (!empty($arResult["ERROR_MESSAGE"])):
 </div>
 <?
 endif;
-if (!empty($arResult["OK_MESSAGE"])): 
+if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-success">
 	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
@@ -435,7 +435,7 @@ if ($arResult["VIEW"] == "Y"):
 );?><?
 endif;
 
-?><script type="text/javascript">
+?><script>
 <?if (intval($arParams["MID"]) > 0):?>
 location.hash = 'message<?=$arParams["MID"]?>';
 <?endif;?>

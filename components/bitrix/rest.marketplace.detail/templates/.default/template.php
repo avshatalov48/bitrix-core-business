@@ -541,7 +541,7 @@ $arJSParams = array(
 );
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.message({
 		"MARKETPLACE_APP_INSTALL_REQUEST" : "<?=GetMessageJS('MARKETPLACE_APP_INSTALL_REQUEST')?>",
 		"MARKETPLACE_LICENSE_ERROR" : "<?=GetMessageJS('MARKETPLACE_LICENSE_ERROR')?>",

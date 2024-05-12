@@ -14,19 +14,19 @@ global $find_forum, $find_date1, $find_date2;
 ********************************************************************/
 // For filter only
 $filter_value_fid = array(
-	"0" => GetMessage("F_ALL_FORUMS"), 
+	"0" => GetMessage("F_ALL_FORUMS"),
 	"separator" => array("NAME" => " ", "TYPE" => "OPTGROUP"));
 if (is_array($arResult["GROUPS_FORUMS"])):
 	foreach ($arResult["GROUPS_FORUMS"] as $key => $res):
 		if ($res["TYPE"] == "GROUP"):
 			$filter_value_fid["GROUP_".$res["ID"]] = array(
-				"NAME" => str_pad("", ($res["DEPTH"] - 1)*6, "&nbsp;").$res["~NAME"], 
-				"CLASS" => "forums-selector-optgroup level".$res["DEPTH"], 
+				"NAME" => str_pad("", ($res["DEPTH"] - 1)*6, "&nbsp;").$res["~NAME"],
+				"CLASS" => "forums-selector-optgroup level".$res["DEPTH"],
 				"TYPE" => "OPTGROUP");
 		else:
 			$filter_value_fid[$res["ID"]] = array(
-				"NAME" => ($res["DEPTH"] > 0 ? str_pad("", $res["DEPTH"]*6, "&nbsp;")."&nbsp;" : "").$res["~NAME"], 
-				"CLASS" => "forums-selector-option level".$res["DEPTH"], 
+				"NAME" => ($res["DEPTH"] > 0 ? str_pad("", $res["DEPTH"]*6, "&nbsp;")."&nbsp;" : "").$res["~NAME"],
+				"CLASS" => "forums-selector-option level".$res["DEPTH"],
 				"TYPE" => "OPTION");
 		endif;
 	endforeach;
@@ -69,7 +69,7 @@ $APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
 
 <br/>
 <?
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
@@ -139,7 +139,7 @@ if ($arResult["SHOW_RESULT"] == "Y"):
 								$title .= (empty($title) ? GetMessage("F_HAVE_NEW_MESS") : " (".GetMessage("F_HAVE_NEW_MESS").")");
 								?> forum-icon-newposts <?
 							endif;
-							
+
 							?>" title="<?=$title?>"><!-- ie --></div>
 						</div>
 					</td>
@@ -169,7 +169,7 @@ if ($arResult["SHOW_RESULT"] == "Y"):
 									?><?=$ii?></a></noindex><?=($ii < $iCount ? ",&nbsp;" : "")?><?
 							endfor;
 							if ($iCount < $res["PAGES_COUNT"]):
-								?>&nbsp;...&nbsp;<noindex><a rel="nofollow" href="<?=ForumAddPageParams($res["URL"]["~TOPIC"], 
+								?>&nbsp;...&nbsp;<noindex><a rel="nofollow" href="<?=ForumAddPageParams($res["URL"]["~TOPIC"],
 									array("PAGEN_".$arParams["PAGEN"] => $res["PAGES_COUNT"]))?>"><?=$res["PAGES_COUNT"]?></a></noindex><?
 							endif;
 								?>)</span><?
@@ -227,17 +227,17 @@ endif;
 				</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="<?=($arParams["SHOW_AUTHOR_COLUMN"] == "Y" ? "6" : "5")?>" class="forum-column-footer">
+					<td colspan="<?=(isset($arParams["SHOW_AUTHOR_COLUMN"]) && $arParams["SHOW_AUTHOR_COLUMN"] == "Y" ? "6" : "5")?>" class="forum-column-footer">
 						<div class="forum-footer-inner">
 <?
 						if ($USER->IsAuthorized() && $arResult["SHOW_RESULT"] == "Y"):
-							$arParamKill = array("ACTION", "sessid", "TID", "FID", "find_forum", "find_date1", "find_date1_DAYS_TO_BACK", "find_date2", 
+							$arParamKill = array("ACTION", "sessid", "TID", "FID", "find_forum", "find_date1", "find_date1_DAYS_TO_BACK", "find_date2",
 									"set_filter", "del_filter");
 ?>
 							<span class="forum-footer-option  forum-footer-markread  forum-footer-markread-topics forum-footer-option-first">
 								<noindex><a rel="nofollow" href="<?=$APPLICATION->GetCurPageParam("ACTION=SET_BE_READ&".bitrix_sessid_get()."&TID=".implode(",", $arTopics), $arParamKill)
 								?>" title="<?=GetMessage("F_SET_READ_ON_THIS_PAGE_TITLE")?>"><?=GetMessage("F_SET_READ_ON_THIS_PAGE")?></a></noindex></span>
-									
+
 <?
 							if ($GLOBALS["find_forum"] > 0):
 ?>
@@ -257,7 +257,7 @@ endif;
 							&nbsp;
 <?
 						endif;
-						
+
 ?>
 						</div>
 					</td>

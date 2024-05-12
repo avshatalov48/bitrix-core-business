@@ -308,8 +308,8 @@ class Text
 
 		$text = preg_replace("/\[s\](.*?)\[\/s\]/i", "", $text);
 		$text = preg_replace("/\[[buis]\](.*?)\[\/[buis]\]/i", "$1", $text);
-		$text = preg_replace("/\[url\](.*?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER, "$1", $text);
-		$text = preg_replace("/\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixs".BX_UTF_PCRE_MODIFIER, "$2", $text);
+		$text = preg_replace("/\[url\](.*?)\[\/url\]/iu", "$1", $text);
+		$text = preg_replace("/\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixsu", "$2", $text);
 		$text = preg_replace("/\[RATING=([1-5]{1})\]/i", " [".Loc::getMessage('IM_MESSAGE_RATING')."] ", $text);
 		$text = preg_replace("/\[ATTACH=([0-9]{1,})\]/i", " [".Loc::getMessage('IM_MESSAGE_ATTACH')."] ", $text);
 		$text = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
@@ -401,33 +401,33 @@ class Text
 		do
 		{
 			$html = preg_replace(
-				"/<([busi])[^>a-z]*>(.+?)<\\/(\\1)[^>a-z]*>/is".BX_UTF_PCRE_MODIFIER,
+				"/<([busi])[^>a-z]*>(.+?)<\\/(\\1)[^>a-z]*>/isu",
 				"[\\1]\\2[/\\1]",
 				$html, -1, $replaced
 			);
 		}
 		while($replaced > 0);
 
-		$html = preg_replace("/\\<br\s*\\/*\\>/is".BX_UTF_PCRE_MODIFIER,"[br]", $html);
+		$html = preg_replace("/\\<br\s*\\/*\\>/isu","[br]", $html);
 		$html = preg_replace(
 			[
-				"#<a[^>]+href\\s*=\\s*('|\")(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER,
-				"#<a[^>]+href(\\s*=\\s*)([^'\">]+)>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER
+				"#<a[^>]+href\\s*=\\s*('|\")(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#isu",
+				"#<a[^>]+href(\\s*=\\s*)([^'\">]+)>(.*?)</a[^>]*>#isu"
 			],
 			"[url=\\2]\\3[/url]", $html
 		);
 		$html = preg_replace(
-			["/<font[^>]+color\s*=[\s'\"]*#([0-9a-f]{3}|[0-9a-f]{6})[\s'\"]*>(.+?)<\/font[^>]*>/i".BX_UTF_PCRE_MODIFIER],
+			["/<font[^>]+color\s*=[\s'\"]*#([0-9a-f]{3}|[0-9a-f]{6})[\s'\"]*>(.+?)<\/font[^>]*>/iu"],
 			["[color=#\\1]\\2[/color]"],
 			$html
 		);
 		$html = preg_replace(
-			["/<span[^>]+color\s*=[\s'\"]*#([0-9a-f]{3}|[0-9a-f]{6})[\s'\"]*>(.+?)<\/span[^>]*>/i".BX_UTF_PCRE_MODIFIER],
+			["/<span[^>]+color\s*=[\s'\"]*#([0-9a-f]{3}|[0-9a-f]{6})[\s'\"]*>(.+?)<\/span[^>]*>/iu"],
 			["[color=#\\1]\\2[/color]"],
 			$html
 		);
 		$html = preg_replace(
-			["/<font[^>]+size\s*=[\s'\"]*(\d+)[\s'\"]*>(.+?)<\/font[^>]*>/i".BX_UTF_PCRE_MODIFIER],
+			["/<font[^>]+size\s*=[\s'\"]*(\d+)[\s'\"]*>(.+?)<\/font[^>]*>/iu"],
 			["[size=\\1]\\2[/size]"],
 			$html
 		);
@@ -436,7 +436,7 @@ class Text
 		do
 		{
 			$html = preg_replace(
-				"/<div(?:.*?)>(.*?)<\/div>/i".BX_UTF_PCRE_MODIFIER,
+				"/<div(?:.*?)>(.*?)<\/div>/iu",
 				"\\1",
 				$html, -1, $replaced
 			);
@@ -447,7 +447,7 @@ class Text
 		do
 		{
 			$html = preg_replace(
-				"/<span(?:.*?)>(.*?)<\/span>/i".BX_UTF_PCRE_MODIFIER,
+				"/<span(?:.*?)>(.*?)<\/span>/iu",
 				"\\1",
 				$html, -1, $replaced
 			);
@@ -455,7 +455,7 @@ class Text
 		while($replaced > 0);
 
 		$html = preg_replace(
-			"/<font(?:.*?)>(.*?)<\/font>/i".BX_UTF_PCRE_MODIFIER,
+			"/<font(?:.*?)>(.*?)<\/font>/iu",
 			"\\1",
 			$html
 		);

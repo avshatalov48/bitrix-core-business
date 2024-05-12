@@ -1,0 +1,34 @@
+<?
+$MESS["FID_TIP"] = "Forum-ID";
+$MESS["TID_TIP"] = "Thema-ID";
+$MESS["MID_TIP"] = "Beitrag-ID";
+$MESS["URL_TEMPLATES_READ_TIP"] = "Seite der Themaansicht";
+$MESS["URL_TEMPLATES_MESSAGE_TIP"] = "Seite der Nachrichtenansicht (mit der Nachricht-ID)";
+$MESS["URL_TEMPLATES_LIST_TIP"] = "Seite der Themen";
+$MESS["URL_TEMPLATES_MESSAGE_MOVE_TIP"] = "Seite zum Verschieben der Nachrichten";
+$MESS["URL_TEMPLATES_PROFILE_VIEW_TIP"] = "URL-Vorlage des Nutzerprofils";
+$MESS["URL_TEMPLATES_TOPIC_NEW_TIP"] = "Seite zur Erstellung eines neuen Themas";
+$MESS["URL_TEMPLATES_SUBSCR_LIST_TIP"] = "Abonnementsseite";
+$MESS["URL_TEMPLATES_TOPIC_MOVE_TIP"] = "Seite zum Verschieben der Themen";
+$MESS["URL_TEMPLATES_INDEX_TIP"] = "Seite der Foren";
+$MESS["URL_TEMPLATES_PM_EDIT_TIP"] = "Seite der persönlichen Nachrichten";
+$MESS["URL_TEMPLATES_MESSAGE_SEND_TIP"] = "Seite zur Nachtrichterstellung";
+$MESS["URL_TEMPLATES_RSS_TIP"] = "RSS-Seite";
+$MESS["URL_TEMPLATES_USER_POST_TIP"] = "Seite der Nachrichten des Nutzers";
+$MESS["MESSAGES_PER_PAGE_TIP"] = "Anzahl der Nachrichten pro Seite";
+$MESS["DATE_FORMAT_TIP"] = "Datumformat";
+$MESS["DATE_TIME_FORMAT_TIP"] = "Datum- und Uhrzeitformat";
+$MESS["PAGE_NAVIGATION_TEMPLATE_TIP"] = "Vorlage der Breadcrumb-Navigation";
+$MESS["PAGE_NAVIGATION_WINDOW_TIP"] = "Seiten in den Breadcrumbs";
+$MESS["PAGE_NAVIGATION_SHOW_ALL_TIP"] = "Die Option Alle Seiten anzeigen aktivieren";
+$MESS["WORD_LENGTH_TIP"] = "Wortlänge";
+$MESS["IMAGE_SIZE_TIP"] = "Größe des angehängten Bilds (px)";
+$MESS["SHOW_FIRST_POST_TIP"] = "Den Anfangsbeitrag auf jeder Seite anzeigen";
+$MESS["SET_NAVIGATION_TIP"] = "Breadcrumbs anzeigen";
+$MESS["AJAX_TYPE_TIP"] = "AJAX benutzen";
+$MESS["SET_PAGE_PROPERTY_TIP"] = "Keywords und Themenbeschreibung zu den Seiteneigenschaften hinzufügen";
+$MESS["SET_TITLE_TIP"] = "Seitenüberschrift einstellen";
+$MESS["CACHE_TYPE_TIP"] = "Cache-Typ";
+$MESS["CACHE_TIME_TIP"] = "Cache-Dauer (Sek.)";
+$MESS["SHOW_RATING_TIP"] = "Ranking anzeigen";
+?>

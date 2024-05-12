@@ -40,7 +40,18 @@ class RecentProvider extends BaseProvider
 	private const ENTITY_TYPE_USER = 'im-user';
 	private const ENTITY_TYPE_CHAT = 'im-chat';
 	private const WITH_CHAT_BY_USERS_OPTION = 'withChatByUsers';
+	private const INCLUDE_ONLY_OPTION = 'includeOnly';
+	private const EXCLUDE_OPTION = 'exclude';
+	private const SEARCH_FLAGS_OPTION = 'searchFlags';
+	private const FLAG_USERS = 'users';
+	private const FLAG_CHATS = 'chats';
+	private const FLAG_BOTS = 'bots';
+	private const ALLOWED_SEARCH_FLAGS = [self::FLAG_USERS, self::FLAG_CHATS, self::FLAG_BOTS];
 	private const WITH_CHAT_BY_USERS_DEFAULT = false;
+	private const SEARCH_FLAGS_DEFAULT = [
+		self::FLAG_USERS => true,
+		self::FLAG_CHATS => true,
+	];
 
 	private string $preparedSearchString;
 	private string $originalSearchString;
@@ -55,6 +66,7 @@ class RecentProvider extends BaseProvider
 		{
 			$this->options[self::WITH_CHAT_BY_USERS_OPTION] = $options[self::WITH_CHAT_BY_USERS_OPTION];
 		}
+		$this->prepareSearchFlags($options);
 		parent::__construct();
 	}
 
@@ -274,6 +286,11 @@ class RecentProvider extends BaseProvider
 
 	private function getChatItemsWithDate(): array
 	{
+		if (!$this->needSearch(self::FLAG_CHATS))
+		{
+			return [];
+		}
+
 		if (isset($this->preparedSearchString))
 		{
 			return $this->mergeByKey(
@@ -438,6 +455,10 @@ class RecentProvider extends BaseProvider
 	private function getUserItemsWithDate(): array
 	{
 		$result = [];
+		if (!$this->needSearch(self::FLAG_USERS))
+		{
+			return $result;
+		}
 		$query = UserTable::query()
 			->setSelect(['ID', 'DATE_MESSAGE' => 'RECENT.DATE_MESSAGE', 'IS_INTRANET_USER', 'DATE_CREATE' => 'DATE_REGISTER'])
 			->where('ACTIVE', true)
@@ -565,6 +586,11 @@ class RecentProvider extends BaseProvider
 
 		if ($user instanceof UserBot && $user->isBot())
 		{
+			if (!$this->needSearch(self::FLAG_BOTS))
+			{
+				return true;
+			}
+
 			$botData = $user->getBotData()->toRestFormat();
 			if ($botData['isHidden'])
 			{
@@ -667,6 +693,47 @@ class RecentProvider extends BaseProvider
 		);
 
 		return $query;
+	}
+
+	private function prepareSearchFlags(array $options): void
+	{
+		$this->options[self::SEARCH_FLAGS_OPTION] = self::SEARCH_FLAGS_DEFAULT;
+
+		if (isset($options[self::INCLUDE_ONLY_OPTION]) && is_array($options[self::INCLUDE_ONLY_OPTION]))
+		{
+			foreach (self::ALLOWED_SEARCH_FLAGS as $searchFlag)
+			{
+				$this->options[self::SEARCH_FLAGS_OPTION][$searchFlag] = false;
+			}
+
+			foreach ($options[self::INCLUDE_ONLY_OPTION] as $searchFlag)
+			{
+				if ($this->isValidSearchFlag($searchFlag))
+				{
+					$this->options[self::SEARCH_FLAGS_OPTION][$searchFlag] = true;
+				}
+			}
+		}
+		elseif (isset($options[self::EXCLUDE_OPTION]) && is_array($options[self::EXCLUDE_OPTION]))
+		{
+			foreach ($options[self::EXCLUDE_OPTION] as $searchFlag)
+			{
+				if ($this->isValidSearchFlag($searchFlag))
+				{
+					$this->options[self::SEARCH_FLAGS_OPTION][$searchFlag] = false;
+				}
+			}
+		}
+	}
+
+	private function isValidSearchFlag(string $searchFlag): bool
+	{
+		return in_array($searchFlag, self::ALLOWED_SEARCH_FLAGS, true);
+	}
+
+	private function needSearch(string $flag): bool
+	{
+		return $this->options[self::SEARCH_FLAGS_OPTION][$flag] ?? true;
 	}
 
 	private function mergeByKey(array ...$arrays): array

@@ -18,7 +18,7 @@ class CallController extends BaseReceiver
 
 		if (!isset($call))
  		{
-			$this->addError(new CallError(CallError::CALL_NOT_FOUNT));
+			$this->addError(new CallError(CallError::CALL_NOT_FOUND));
 
 			return null;
 		}
@@ -44,7 +44,7 @@ class CallController extends BaseReceiver
 
 		if (!isset($call))
 		{
-			$this->addError(new CallError(CallError::CALL_NOT_FOUNT));
+			$this->addError(new CallError(CallError::CALL_NOT_FOUND));
 
 			return null;
 		}

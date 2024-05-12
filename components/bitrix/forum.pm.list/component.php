@@ -31,7 +31,7 @@ if(!function_exists("GetUserName"))
 ********************************************************************/
 /***************** BASE ********************************************/
 	$arParams["pm_version"] = intval(COption::GetOptionString("forum", "UsePMVersion", "2"));
-	
+
 	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
 	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? 1 : $arParams["FID"]);
 	if ($arParams["pm_version"] == 2 && ($arParams["FID"] > 1 && $arParams["FID"] < 4))
@@ -66,7 +66,7 @@ if(!function_exists("GetUserName"))
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(isset($arParams["PAGE_NAVIGATION_WINDOW"]) && intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["PM_PER_PAGE"] = intval($arParams["PM_PER_PAGE"] > 0 ? $arParams["PM_PER_PAGE"] : 20);
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
@@ -118,7 +118,7 @@ $arResult["MESSAGE"] = array();
 $arResult["SystemFolder"] = FORUM_SystemFolder;
 $arResult["UserFolder"] = array();
 
-$message = (is_array($_REQUEST["message"]) && !empty($_REQUEST["message"]) ? $_REQUEST["message"] : array());
+$message = (isset($_REQUEST["message"]) && is_array($_REQUEST["message"]) && !empty($_REQUEST["message"]) ? $_REQUEST["message"] : array());
 /********************************************************************
 				/Default values
 ********************************************************************/
@@ -126,7 +126,7 @@ $message = (is_array($_REQUEST["message"]) && !empty($_REQUEST["message"]) ? $_R
 /********************************************************************
 				Action
 ********************************************************************/
-$arResult["action"] = mb_strtolower($_REQUEST["action"]);
+$arResult["action"] = isset($_REQUEST["action"]) ? mb_strtolower($_REQUEST["action"]) : null;
 if (!empty($arResult["action"]))
 {
 	$arError = array();
@@ -145,14 +145,14 @@ if (!empty($arResult["action"]))
 				$arError[] = array("id" => "BAD_PERMISSION_".$MID, "text" => str_replace("#MID#", $MID, GetMessage("PM_ERR_DELETE_NO_PERM")));
 			elseif(!CForumPrivateMessage::Delete($MID, array("FOLDER_ID"=>4)))
 				$arError[] = array("id" => "BAD_DELETE_".$MID, "text" => str_replace("#MID#", $MID, GetMessage("PM_ERR_DELETE")));
-			else 
+			else
 				$strOK .= str_replace("#MID#", $MID, GetMessage("PM_OK_DELETE"));
 		endforeach;
 	elseif (($arResult["action"] == "copy" || $arResult["action"] == "move") && intval($_REQUEST["folder_id"]) <= 0):
 		$arError[] = array("id" => "BAD_DATA", "text" => GetMessage("PM_ERR_MOVE_NO_FOLDER"));
 	elseif ($arResult["action"] == "copy" || $arResult["action"] == "move"):
 		$folder_id = intval($_REQUEST["folder_id"]);
-		foreach ($message as $MID) 
+		foreach ($message as $MID)
 		{
 			$arrVars = array(
 				"FOLDER_ID" => intval($folder_id),
@@ -197,10 +197,10 @@ if (!empty($arResult["action"]))
 	}
 	if (empty($arError))
 	{
-		LocalRedirect(ForumAddPageParams(CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], 
+		LocalRedirect(ForumAddPageParams(CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"],
 			array("FID" => $arParams["FID"])), array("result" => $arResult["action"])));
 	}
-	else 
+	else
 	{
 		$e = new CAdminException(array_reverse($arError));
 		$GLOBALS["APPLICATION"]->ThrowException($e);
@@ -257,18 +257,18 @@ if($dbrMessages && $arMsg = $dbrMessages->GetNext())
 		$arMsg["~SHOW_NAME"] = $arMsg["~".$SortingField];
 		$arMsg["SHOW_NAME"] = $arMsg[$SortingField];
 		$arMsg["URL"] = array(
-			"MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_READ"], 
-				array("FID" => $arParams["FID"], "MID" => $arMsg["ID"])), 
-			"MESSAGE_EDIT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], 
-				array("FID" => $arParams["FID"], "mode" => "new", "MID" => 0, "UID" => $arMsg[$arResult["InputOutput"]])), 
-			"RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
-				array("UID" => $arMsg["RECIPIENT_ID"])), 
-			"SENDER" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+			"MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_READ"],
+				array("FID" => $arParams["FID"], "MID" => $arMsg["ID"])),
+			"MESSAGE_EDIT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"],
+				array("FID" => $arParams["FID"], "mode" => "new", "MID" => 0, "UID" => $arMsg[$arResult["InputOutput"]])),
+			"RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
+				array("UID" => $arMsg["RECIPIENT_ID"])),
+			"SENDER" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
 				array("UID" => $arMsg["AUTHOR_ID"])));
-				
+
 		$arMsg["pm_read"] = $arMsg["URL"]["MESSAGE"];
 		$arMsg["pm_edit"] = $arMsg["URL"]["MESSAGE_EDIT"];
-		$arMsg["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+		$arMsg["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
 			array("UID" => $arMsg[$arResult["InputOutput"]]));
 		$arMsg["POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arMsg["POST_DATE"], CSite::GetDateFormat()));
 		$arMsg["checked"] = "";
@@ -299,7 +299,7 @@ if ($arParams["FID"] > 4)
 {
 	$title = $arResult["UserFolder"][$arParams["FID"]]["TITLE"];
 }
-else 
+else
 {
 	$title = GetMessage("PM_FOLDER_ID_".$arParams["FID"]);
 }

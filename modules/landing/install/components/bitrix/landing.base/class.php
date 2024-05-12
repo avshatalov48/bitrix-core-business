@@ -360,10 +360,6 @@ class LandingBaseComponent extends \CBitrixComponent
 		}
 		$context = \Bitrix\Main\Application::getInstance()->getContext();
 		$this->currentRequest = $context->getRequest();
-		if ($this->currentRequest->isAjaxRequest())
-		{
-			$this->currentRequest->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
-		}
 		unset($context);
 	}
 
@@ -1394,7 +1390,9 @@ class LandingBaseComponent extends \CBitrixComponent
 		// additional url params
 		if (!empty($urlParams))
 		{
+			$createViaLandingUrl = str_replace('#site_show#', '__site_show__', $createViaLandingUrl);
 			$createViaLandingUrl = $this->getPageParam($createViaLandingUrl, $urlParams);
+			$createViaLandingUrl = str_replace('__site_show__', '#site_show#', $createViaLandingUrl);
 		}
 
 		// OLD style showcase

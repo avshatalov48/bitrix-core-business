@@ -34,7 +34,7 @@ class CBPViewHelper
 		echo '<input type="text" id="', htmlspecialcharsbx($searchInputID) ,'" style="width:200px;"   >',
 		'<input type="hidden" id="', htmlspecialcharsbx($dataInputID),'" name="', htmlspecialcharsbx($dataInputID),'" value="">';
 
-		echo '<script type="text/javascript">',
+		echo '<script>',
 		'BX.ready(function(){',
 		'BX.CrmUserSearchPopup.deletePopup("', $ID, '");',
 		'BX.CrmUserSearchPopup.create("', $ID, '", { searchInput: BX("', CUtil::JSEscape($searchInputID), '"), dataInput: BX("', CUtil::JSEscape($dataInputID),'"), componentName: "', CUtil::JSEscape($componentName),'", user: {} }, ', $delay,');',
@@ -72,11 +72,11 @@ class CBPViewHelper
 			$tasks = array('COMPLETED' => array(), 'RUNNING' => array());
 			$ids = array();
 			$taskIterator = CBPTaskService::GetList(
-				['ID' => 'ASC'],
+				['ID' => 'DESC'],
 				['WORKFLOW_ID' => $workflowId],
 				false,
 				['nTopCount' => 50],
-				['ID', 'MODIFIED', 'NAME', 'DESCRIPTION', 'PARAMETERS', 'STATUS', 'IS_INLINE', 'ACTIVITY']
+				['ID', 'MODIFIED', 'NAME', 'DESCRIPTION', 'PARAMETERS', 'STATUS', 'IS_INLINE', 'ACTIVITY', 'CREATED_DATE']
 			);
 			while ($task = $taskIterator->getNext())
 			{

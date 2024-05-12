@@ -23,7 +23,6 @@ class Params extends Registry
 	public const EVENT_MESSAGE_PARAM_TYPE_INIT = 'OnMessageParamTypesInit';
 
 	public const
-		TS = 'TS',
 		FILE_ID = 'FILE_ID',
 		ATTACH = 'ATTACH',
 		MENU = 'MENU',
@@ -66,7 +65,8 @@ class Params extends Registry
 		FORWARD_CONTEXT_ID = 'FORWARD_CONTEXT_ID',
 		FORWARD_USER_ID = 'FORWARD_USER_ID',
 		REPLY_ID = 'REPLY_ID',
-		BETA = 'BETA'
+		BETA = 'BETA',
+		COPILOT_PROMPT_CODE = 'COPILOT_PROMPT_CODE'
 	;
 
 	//todo: Move it into CRM module
@@ -81,9 +81,6 @@ class Params extends Registry
 	protected bool $isLoaded = false;
 
 	protected static array $typeMap = [
-		self::TS => [
-			'type' => Param::TYPE_STRING,
-		],
 		self::FILE_ID => [
 			'type' => Param::TYPE_INT_ARRAY,
 		],
@@ -244,6 +241,10 @@ class Params extends Registry
 		self::BETA => [
 			'type' => Param::TYPE_BOOL,
 			'default' => false,
+		],
+		self::COPILOT_PROMPT_CODE => [
+			'type' => Param::TYPE_STRING,
+			'isHidden' => true,
 		],
 
 		//todo: Move it into CRM module
@@ -697,10 +698,9 @@ class Params extends Registry
 	/**
 	 * Drops all message params.
 	 *
-	 * @param bool $deleteWithTs
 	 * @return Result
 	 */
-	public function delete(bool $deleteWithTs = false): Result
+	public function delete(): Result
 	{
 		$result = new Result;
 
@@ -716,10 +716,7 @@ class Params extends Registry
 			$filter = [
 				'=MESSAGE_ID' => $this->getMessageId(),
 			];
-			if (!$deleteWithTs)
-			{
-				$filter['!=PARAM_NAME'] = self::TS;
-			}
+
 			MessageParamTable::deleteBatch($filter);
 		}
 

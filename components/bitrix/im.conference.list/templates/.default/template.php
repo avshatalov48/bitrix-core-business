@@ -99,7 +99,7 @@ else
 <?php
 }
 ?>
-<script type="text/javascript">
+<script>
 	BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
 		new BX.Messenger.PhpComponent.ConferenceList(<?=Json::encode(
 			[

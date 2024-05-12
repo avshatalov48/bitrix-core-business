@@ -19,6 +19,11 @@ class TaskAccessService
 		$this->isUserAdmin = in_array(1, \CUser::GetUserGroup($userId), false);
 	}
 
+	public function isCurrentUser(int $userId): bool
+	{
+		return $this->userId === $userId;
+	}
+
 	public function checkDelegateTask(int $toUserId, int $fromUserId): CheckDelegateTasksResponse
 	{
 		$response = new CheckDelegateTasksResponse();
@@ -34,6 +39,11 @@ class TaskAccessService
 					new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_ACCESS_SERVICE_DELEGATE_ERROR_ONLY_INTRANET_USER'))
 				);
 			}
+		}
+
+		if (!$this->canUserViewTasks($fromUserId))
+		{
+			return $response->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_ACCESS_SERVICE_DELEGATE_ERROR_SUBORDINATION')));
 		}
 
 		$isHead = \CBPHelper::checkUserSubordination($this->userId, $toUserId);
@@ -56,16 +66,29 @@ class TaskAccessService
 
 		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser($this->userId))
 		{
-			// todo: message
-			return $result->addError(new Error('only intranet'));
+			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_ACCESS_SERVICE_VIEW_TASKS_ERROR_ONLY_INTRANET_USER')));
 		}
 
-		$isHead = \CBPHelper::checkUserSubordination($this->userId, $targetUserId);
-		if ($this->userId !== $targetUserId && !$this->isUserAdmin && !$isHead)
+		if (!$this->canUserViewTasks($targetUserId))
 		{
-			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_ACCESS_SERVICE_ERROR_SUBORDINATION')));
+			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_ACCESS_SERVICE_ERROR_SUBORDINATION_MSGVER_1')));
 		}
 
 		return $result;
+	}
+
+	private function canUserViewTasks(int $targetUserId): bool
+	{
+		if ($this->isCurrentUser($targetUserId))
+		{
+			return true;
+		}
+
+		if ($this->isUserAdmin)
+		{
+			return true;
+		}
+
+		return \CBPHelper::checkUserSubordination($this->userId, $targetUserId);
 	}
 }

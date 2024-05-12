@@ -2,18 +2,19 @@
 
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
-use Bitrix\Calendar\ICal\Builder\Attach;
+use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Public;
+use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\SerializeObject;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\LoaderException;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Event;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
+use CEvent;
 use \Serializable;
 
 /**
@@ -26,8 +27,6 @@ abstract class SenderInvitation implements Serializable
 
 	public const CHARSET = 'utf-8';
 	public const CONTENT_TYPE = 'text/calendar';
-	public const DECISION_YES = 'Y';
-	public const DECISION_NO = 'N';
 	protected const ATTACHMENT_NAME = 'invite.ics';
 	protected const MAIL_TEMPLATE = 'SEND_ICAL_INVENT';
 
@@ -50,7 +49,7 @@ abstract class SenderInvitation implements Serializable
 
 	abstract public function executeAfterSuccessfulInvitation();
 	abstract protected function getContent();
-	abstract protected function getMailEventField();
+	abstract protected function getTemplateParams();
 	abstract protected function getSubjectTitle();
 
 	public static function createInstance(array $event, Context $context): SenderInvitation
@@ -67,12 +66,14 @@ abstract class SenderInvitation implements Serializable
 	public function setCounterInvitations(?int $counterInvitations): static
 	{
 		$this->counterInvitations = $counterInvitations ?? 0;
+
 		return $this;
 	}
 
 	public function setEvent(?array $event): static
 	{
 		$this->event = $event;
+
 		return $this;
 	}
 
@@ -99,18 +100,86 @@ abstract class SenderInvitation implements Serializable
 			return false;
 		}
 
-		$status = \CEvent::sendImmediate(
+		$fields = $this->getMailEventFields();
+		$params = array_merge($this->getBaseTemplateParams(), $this->getTemplateParams());
+
+		$status = CEvent::sendImmediate(
 			self::MAIL_TEMPLATE,
 			SITE_ID,
-			$this->getMailEventField(),
-			"Y",
-			"",
+			array_merge($fields, $params),
+			'Y',
+			'',
 			[],
 			'',
-			$content
+			$content,
 		);
 
 		return $status === Event::SEND_RESULT_SUCCESS;
+	}
+
+	protected function getMailEventFields(): array
+	{
+		return [
+			"=Reply-To" => "{$this->getAddresser()->getFullName()} <{$this->getAddresser()->getEmail()}>",
+			"=From" => "{$this->getAddresser()->getFullName()} <{$this->getAddresser()->getEmail()}>",
+			"=Message-Id" => $this->getMessageId(),
+			"=In-Reply-To" => $this->getMessageReplyTo(),
+			'EMAIL_FROM' => $this->getAddresser()->getEmail(),
+			'EMAIL_TO' => $this->getReceiver()->getEmail(),
+			'MESSAGE_SUBJECT' => $this->getSubjectMessage(),
+			'MESSAGE_PHP' => $this->getBodyMessage(),
+		];
+	}
+
+	private function getBaseTemplateParams(): array
+	{
+		$detailLink = Public\PublicEvent::getDetailLink(
+			$this->getEventId(),
+			$this->getEventOwnerId(),
+			$this->getEventDateCreateTimestamp(),
+		);
+
+		return [
+			'EVENT_NAME' => $this->event['NAME'],
+			'DATE_FROM' => $this->event['DATE_FROM'],
+			'DATE_TO' => $this->event['DATE_TO'],
+			'IS_FULL_DAY' => $this->event['DT_SKIP_TIME'] === 'Y',
+			'TZ_FROM' =>  $this->event['TZ_FROM'],
+			'TZ_TO' =>  $this->event['TZ_TO'],
+			'AVATARS' => $this->event['AVATARS'],
+			'OWNER_STATUS' => $this->event['OWNER_STATUS'],
+			'RRULE' => $this->getRRuleString(),
+
+			'DETAIL_LINK' => $detailLink,
+			'ICS_LINK' => $detailLink . Public\PublicEvent::ACTION_ICS,
+			'DECISION_YES_LINK' => $detailLink . Public\PublicEvent::ACTION_ACCEPT,
+			'DECISION_NO_LINK' => $detailLink . Public\PublicEvent::ACTION_DECLINE,
+			'BITRIX24_LINK' => Sharing\Helper::getBitrix24Link(),
+		];
+	}
+
+	protected function getMessageReplyTo(): string
+	{
+		return $this->getMessageId();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getRRuleString(): string
+	{
+		$rrule = \CCalendarEvent::ParseRRULE($this->event['RRULE']);
+		if (is_array($rrule))
+		{
+			return Helper::getIcalTemplateRRule(
+				$rrule,
+				[
+					'DATE_FROM' => $this->event['DATE_FROM'],
+				],
+			);
+		}
+
+		return '';
 	}
 
 	/**
@@ -196,60 +265,6 @@ abstract class SenderInvitation implements Serializable
 
 	/**
 	 * @return string
-	 * @throws \Bitrix\Main\ObjectException
-	 */
-	protected function getDateForTemplate(): string
-	{
-		$res = Helper::getIcalTemplateDate([
-			'DATE_FROM' => $this->event['DATE_FROM'],
-			'DATE_TO' => $this->event['DATE_TO'],
-			'TZ_FROM' => $this->event['TZ_FROM'],
-			'TZ_TO' => $this->event['TZ_TO'],
-			'FULL_DAY' => $this->event['SKIP_TIME'],
-		]);
-		$offset = (Helper::getDateObject(null, false, $this->event['TZ_FROM']))->format('P');
-		$res .= ' (' . $this->event['TZ_FROM'] . ', ' . 'UTC' . $offset . ')';
-
-		if (isset($this->event['RRULE']['FREQ']) && $this->event['RRULE']['FREQ'] !== 'NONE')
-		{
-			$rruleString = Helper::getIcalTemplateRRule($this->event['RRULE'],
-				[
-					'DATE_FROM' => $this->event['DATE_FROM'],
-					'DATE_TO' => $this->event['DATE_TO'],
-					'TZ_FROM' => $this->event['TZ_FROM'],
-					'TZ_TO' => $this->event['TZ_TO'],
-					'FULL_DAY' => $this->event['SKIP_TIME'],
-				]
-			);
-			$res .= ', (' . $rruleString . ')';
-		}
-
-		return $res;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getFilesLink(): string
-	{
-		$result = "";
-
-		if (is_iterable($this->event['ICAL_ATTACHES']))
-		{
-			foreach ($this->event['ICAL_ATTACHES'] as $attach)
-			{
-				if ($attach instanceof Attach)
-				{
-					$result .= "<a href=\"{$attach->getLink()}\"> {$attach->getName() }</a> <br />";
-				}
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @return string
 	 */
 	protected function getSiteName(): string
 	{
@@ -275,20 +290,8 @@ abstract class SenderInvitation implements Serializable
 	protected function getMessageId(): string
 	{
 		$serverName = \COption::GetOptionString("main", "server_name", $GLOBALS["SERVER_NAME"]);
+
 		return "<CALENDAR_EVENT_{$this->getEventParentId()}@{$serverName}>";
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getAttendeesListForTemplate(): string
-	{
-		if ($this->event['MEETING']['HIDE_GUESTS'])
-		{
-			return Loc::getMessage('EC_CALENDAR_ICAL_MAIL_HIDE_GUESTS_INFORMATION');
-		}
-
-		return $this->event['ICAL_ATTENDEES'];
 	}
 
 	/**
@@ -296,7 +299,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected function getEventDateCreateTimestamp(): int
 	{
-		return (int) Util::getTimestamp($this->event['CREATED']);
+		return (int) Util::getTimestamp($this->event['DATE_CREATE']);
 	}
 
 	/**
@@ -327,10 +330,9 @@ abstract class SenderInvitation implements Serializable
 		$dtSkipTime = $this->event['DT_SKIP_TIME'];
 		$this->event['DATE_FROM'] = $this->getFormattedDate($this->event['DATE_FROM'], $dtSkipTime);
 		$this->event['DATE_TO'] = $this->getFormattedDate($this->event['DATE_TO'], $dtSkipTime);
-		$this->event['CREATED'] = $this->getFormattedDate($this->event['DATE_CREATE'], false);
-		$this->event['MODIFIED'] = $this->getFormattedDate($this->event['TIMESTAMP_X'], false);
+		$this->event['DATE_CREATE'] = $this->event['DATE_CREATE']->toString();
+		$this->event['TIMESTAMP_X'] = $this->event['TIMESTAMP_X']->toString();
 
-		$this->event['SKIP_TIME'] = $dtSkipTime === 'Y';
 		$this->event['MEETING'] = unserialize($this->event['MEETING'], ['allowed_classes' => false]);
 		$this->event['REMIND'] = unserialize($this->event['REMIND'], ['allowed_classes' => false]);
 		$this->event['RRULE'] = \CCalendarEvent::ParseRRULE($this->event['RRULE']);
@@ -338,15 +340,35 @@ abstract class SenderInvitation implements Serializable
 			? explode(',', $this->event['ATTENDEES_CODES'])
 			: []
 		;
-		$this->event['ICAL_ATTENDEES'] = Helper::getAttendeesByEventParentId($this->event['PARENT_ID']);
 		$this->event['ICAL_ORGANIZER'] = Helper::getAttendee($this->event['MEETING_HOST'], $this->event['PARENT_ID'], false);
-		$this->event['TEXT_LOCATION'] = \CCalendar::GetTextLocation($this->event['LOCATION'] ?? null);
 		$this->event['ICAL_ATTACHES'] = Helper::getMailAttaches(
 			null,
 			$this->event['MEETING_HOST'],
 			$this->event['PARENT_ID']
 		);
 
-		unset($this->event['DT_SKIP_TIME'], $this->event['DATE_CREATE'], $this->event['TIMESTAMP_X']);
+		$event = (new Core\Mappers\Event())->getByArray($this->event);
+		$this->event['DESCRIPTION'] = Public\PublicEvent::prepareEventDescriptionForIcs($event);
+
+		$attendees = \CCalendarEvent::GetAttendees([$this->event['PARENT_ID']], false)[$this->event['PARENT_ID']] ?? [];
+
+		$ownerId = (int)$this->event['OWNER_ID'];
+		$owner = current(array_filter(
+			$attendees,
+			static fn($attendee) => (int)$attendee['USER_ID'] === $ownerId,
+		));
+
+		$this->event['OWNER_STATUS'] = $owner['STATUS'];
+
+		$this->event['AVATARS'] = [];
+		if (!$this->event['MEETING']['HIDE_GUESTS'])
+		{
+			usort($attendees, static fn($a, $b) => ((int)$b['USER_ID'] === $ownerId) - ((int)$a['USER_ID'] === $ownerId));
+			foreach ($attendees as $attendee)
+			{
+				$this->event['AVATARS'][] = $attendee['AVATAR'];
+			}
+			$this->event['ICAL_ATTENDEES'] = Helper::getAttendeesByEventParentId($this->event['PARENT_ID']);
+		}
 	}
 }

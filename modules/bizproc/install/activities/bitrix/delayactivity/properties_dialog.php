@@ -6,7 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 	<td width="60%">
 		<input type="radio" name="time_type_selector" value="delay" id="time_type_selector_delay" onclick="SetDelayMode(true)"><label for="time_type_selector_delay"><?= GetMessage("CPAD_DP_TIME_SELECT_DELAY") ?></label><br />
 		<input type="radio" name="time_type_selector" value="time" id="time_type_selector_time" onclick="SetDelayMode(false)"><label for="time_type_selector_time"><?= GetMessage("CPAD_DP_TIME_SELECT_TIME") ?></label>
-		<script type="text/javascript">
+		<script>
 			function SetDelayMode(val)
 			{
 				var f1 = document.getElementById('tr_time_type_selector_delay');
@@ -83,6 +83,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 		><?= GetMessage('CPAD_DP_WRITE_TO_LOG') ?></label>
 	</td>
 </tr>
-<script type="text/javascript">
+<script>
 	SetDelayMode(<?= (empty($arCurrentValues['delay_date'])) ? 'true' : 'false' ?>);
 </script>

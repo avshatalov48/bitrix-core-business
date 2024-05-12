@@ -95,7 +95,7 @@ class Util
 	/**
 	 * @param string|null $date
 	 * @param bool $fullDay
-	 * @param string $tz
+	 * @param string|null $tz
 	 * @return Date
 	 * @throws Main\ObjectException
 	 */

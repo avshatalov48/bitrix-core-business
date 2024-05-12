@@ -245,13 +245,13 @@ $arSubMenu = Array();
 
 $arSubMenu[] = array(
 	"TEXT"	=> GetMessage("BPATT_SUBMENU1_TEXT_1"),
-	"TITLE"	=> GetMessage("BPATT_SUBMENU1_TEXT_TITLE_1"),
+	"TITLE"	=> GetMessage("BPATT_SUBMENU1_TEXT_TITLE_MSGVER_1"),
 	"ACTION"	=> "window.location='/bitrix/admin/".MODULE_ID."_bizproc_workflow_edit.php?lang=".LANGUAGE_ID."&init=statemachine&entity=".urlencode(ENTITY)."&document_type=".urlencode($documentType[2]).'&back_url_list='.urlencode($backUrl)."';"
 );
 
 $arSubMenu[] = array(
 	"TEXT"	=> GetMessage("BPATT_SUBMENU2_TEXT"),
-	"TITLE"	=> GetMessage("BPATT_SUBMENU2_TEXT_TITLE"),
+	"TITLE"	=> GetMessage("BPATT_SUBMENU2_TEXT_TITLE_MSGVER_1"),
 	"ACTION"	=> "window.location='/bitrix/admin/".MODULE_ID."_bizproc_workflow_edit.php?lang=".LANGUAGE_ID."&entity=".urlencode(ENTITY)."&document_type=".urlencode($documentType[2]).'&back_url_list='.urlencode($backUrl)."';"
 );
 

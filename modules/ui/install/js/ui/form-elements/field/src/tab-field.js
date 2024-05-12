@@ -1,6 +1,8 @@
 import { BaseSettingsElement } from './base-settings-element';
 import { Tab, Tabs } from 'ui.tabs';
 import type { TabOptionsType } from 'ui.tabs';
+import {Dom} from "main.core";
+import {TabsField} from "ui.form-elements.field";
 
 export type TabFieldType = {
 	parent: BaseSettingsElement,
@@ -35,6 +37,13 @@ export class TabField extends BaseSettingsElement
 		{
 			params.parent.getFieldView().addItem(this.#fieldView);
 		}
+
+		if (this.getParentElement() instanceof TabsField)
+		{
+			this.#fieldView.subscribe('changeTab', () => {
+				this.getParentElement().activateTab(this);
+			});
+		}
 	}
 
 	getFieldView(): Tab
@@ -44,6 +53,19 @@ export class TabField extends BaseSettingsElement
 
 	render(): HTMLElement
 	{
+		for (const element of this.getChildrenElements())
+		{
+			Dom.append(element.render(), this.getFieldView().getBodyDataContainer());
+		}
+
 		return this.getFieldView().getBody();
+	}
+
+	highlight(): boolean
+	{
+		this.highlightElement(this.getFieldView().getBody());
+		this.highlightElement(this.getFieldView().getHeader());
+
+		return true;
 	}
 }

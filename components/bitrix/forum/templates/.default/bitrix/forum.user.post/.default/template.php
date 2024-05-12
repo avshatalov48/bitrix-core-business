@@ -42,24 +42,24 @@ $APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
 				"TYPE" => "SELECT",
 				"CLASS" => "forums-selector-single",
 				"VALUE" => $filter_value_fid,
-				"ACTIVE" => $_REQUEST["fid"]),
+				"ACTIVE" => isset($_REQUEST["fid"]) ? $_REQUEST["fid"] : null),
 			array(
 				"TITLE" => GetMessage("LU_DATE_CREATE"),
 				"NAME" => "date_create",
 				"NAME_TO" => "date_create1",
 				"TYPE" => "PERIOD",
-				"VALUE" => $_REQUEST["date_create"],
-				"VALUE_TO" => $_REQUEST["date_create1"]),
+				"VALUE" => isset($_REQUEST["date_create"]) ? $_REQUEST["date_create"] : null,
+				"VALUE_TO" => isset($_REQUEST["date_create1"]) ? $_REQUEST["date_create1"] : null),
 			array(
 				"TITLE" => GetMessage("LU_TOPIC"),
 				"NAME" => "topic",
 				"TYPE" => "TEXT",
-				"VALUE" => $_REQUEST["topic"]),
+				"VALUE" => isset($_REQUEST["topic"]) ? $_REQUEST["topic"] : null),
 			array(
 				"TITLE" => GetMessage("LU_MESSAGE"),
 				"NAME" => "message",
 				"TYPE" => "TEXT",
-				"VALUE" => $_REQUEST["message"])),
+				"VALUE" => isset($_REQUEST["message"]) ? $_REQUEST["message"] : null)),
 			($arParams["mode"] == "all" ? array(
 			array(
 				"TITLE" => GetMessage("LU_SORT"),
@@ -68,7 +68,7 @@ $APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
 				"VALUE" => array(
 					"topic" => array("NAME" => GetMessage("LU_BY_TOPIC")),
 					"message" => array("NAME" => GetMessage("LU_BY_MESSAGE"))),
-				"ACTIVE" => $_REQUEST["sort"])) : array())
+				"ACTIVE" => isset($_REQUEST["sort"]) ? $_REQUEST["sort"] : null)) : array())
 			)),
 
 		array(
@@ -79,14 +79,14 @@ $APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
 
 <br/>
 <?
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 endif;
-if (!empty($arResult["OK_MESSAGE"])): 
+if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-success">
 	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
@@ -116,7 +116,7 @@ if (empty($arResult["FORUMS"])):
 endif;
 
 $arMessages = $arResult["MESSAGE_LIST"];
-if ($_REQUEST["sort"] == "topic")
+if (isset($_REQUEST["sort"]) && $_REQUEST["sort"] == "topic")
 {
 	$arTopic = reset($arResult["TOPICS"]);
 	$arMessages = $arTopic["MESSAGES"];
@@ -130,7 +130,7 @@ while (!empty($arMessages))
 		$arTopic = $arResult["TOPICS"][$res["TOPIC_ID"]];
 		$arForum = $arResult["FORUMS"][$arTopic["FORUM_ID"]];
 		$cntrMessages++;
-		if ($_REQUEST["sort"] == "topic")
+		if (isset($_REQUEST["sort"]) && $_REQUEST["sort"] == "topic")
 		{
 			if ($cntrMessages == 1)
 			{
@@ -176,17 +176,17 @@ while (!empty($arMessages))
 				Array(
 					"MESSAGE" => array_merge($res,
 						array(
-						"AUTHOR_STATUS" => $arForum["AUTHOR_STATUS"],
-						"AUTHOR_STATUS_CODE" => $arForum["AUTHOR_STATUS_CODE"],
-						"AVATAR" => $arResult["USER"]["~AVATAR"],
+						"AUTHOR_STATUS" => $arForum["AUTHOR_STATUS"] ?? null,
+						"AUTHOR_STATUS_CODE" => $arForum["AUTHOR_STATUS_CODE"] ?? null,
+						"AVATAR" => $arResult["USER"]["~AVATAR"] ?? null,
 						"NEW_TOPIC" => "N",
 						"SHOW_CONTROL" => "N",
 						"PANELS" => array("GOTO" => "Y"))),
-					"ATTACH_MODE" => $arParams["ATTACH_MODE"],
-					"ATTACH_SIZE" => $arParams["ATTACH_SIZE"],
+					"ATTACH_MODE" => $arParams["ATTACH_MODE"] ?? null,
+					"ATTACH_SIZE" => $arParams["ATTACH_SIZE"] ?? null,
 					"COUNT" => 0,
 					"NUMBER" => 1,
-					"SEO_USER" => $arParams["SEO_USER"],
+					"SEO_USER" => $arParams["SEO_USER"] ?? null,
 					"SHOW_RATING" => "N",
 					"RATING_ID" => "",
 					"RATING_TYPE" => "",
@@ -198,7 +198,7 @@ while (!empty($arMessages))
 				$component->__parent,
 				array("HIDE_ICONS" => "Y")
 				);?><?
-		if ($_REQUEST["sort"] == "topic")
+		if (isset($_REQUEST["sort"]) && $_REQUEST["sort"] == "topic")
 		{
 			if ($cntMessages == $cntrMessages)
 			{
@@ -219,7 +219,7 @@ while (!empty($arMessages))
 		}
 	}
 
-	$arMessages = (($_REQUEST["sort"] == "topic" && ($arTopic = next($arResult["TOPICS"])) && !!$arTopic) ? $arTopic["MESSAGES"] : null);
+	$arMessages = ((isset($_REQUEST["sort"]) && $_REQUEST["sort"] == "topic" && ($arTopic = next($arResult["TOPICS"])) && !!$arTopic) ? $arTopic["MESSAGES"] : null);
 }
 
 if ($arResult["NAV_RESULT"] && $arResult["NAV_RESULT"]->NavPageCount > 0):

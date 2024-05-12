@@ -216,7 +216,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderMoreElement",
 	    value: function renderMoreElement(helpdeskCode) {
-	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"more\" href=\"javascript:top.BX.Helper.show('", "');\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"])), helpdeskCode, main_core.Loc.getMessage("INTRANET_SETTINGS_CANCEL_MORE"));
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t", "\n\t\t"])), this.getMoreElement(helpdeskCode));
+	    }
+	  }, {
+	    key: "getMoreElement",
+	    value: function getMoreElement(helpdeskCode) {
+	      return "\n\t\t\t<a class=\"more\" href=\"javascript:top.BX.Helper.show('".concat(helpdeskCode, "');\">\n\t\t\t\t").concat(main_core.Loc.getMessage("INTRANET_SETTINGS_CANCEL_MORE"), "\n\t\t\t</a>");
 	    }
 	  }]);
 	  return BaseField;
@@ -228,6 +233,8 @@ this.BX.UI = this.BX.UI || {};
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _renderMore = /*#__PURE__*/new WeakMap();
+	var _moreElement = /*#__PURE__*/new WeakMap();
+	var _getMore = /*#__PURE__*/new WeakSet();
 	var _renderHint = /*#__PURE__*/new WeakSet();
 	var Checker = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(Checker, _BaseField);
@@ -237,7 +244,12 @@ this.BX.UI = this.BX.UI || {};
 	    params.label = params.title;
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Checker).call(this, params));
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _renderHint);
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getMore);
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _renderMore, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _moreElement, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -323,8 +335,22 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Checker;
 	}(BaseField);
+	function _getMore2() {
+	  if (!babelHelpers.classPrivateFieldGet(this, _moreElement)) {
+	    babelHelpers.classPrivateFieldSet(this, _moreElement, !main_core.Type.isNil(this.getHelpdeskCode()) ? this.getMoreElement(this.getHelpdeskCode()) : '');
+	  }
+	  return babelHelpers.classPrivateFieldGet(this, _moreElement);
+	}
 	function _renderHint2(isChecked) {
-	  return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__hint\">\n\t\t\t\t", " ", "\n\t\t\t</div>\n\t\t"])), this.getHint(isChecked), main_core.Type.isDomNode(this.renderMore()) ? this.renderMore() : '');
+	  var result = '';
+	  var moreText = _classPrivateMethodGet(this, _getMore, _getMore2).call(this);
+	  var hintText = this.getHint(isChecked);
+	  if (hintText.indexOf('#MORE_DETAILS#') === -1) {
+	    result = hintText + ' ' + moreText;
+	  } else {
+	    result = hintText.replace('#MORE_DETAILS#', moreText);
+	  }
+	  return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__hint\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), result);
 	}
 
 	var _templateObject$2, _templateObject2$2;
@@ -758,7 +784,10 @@ this.BX.UI = this.BX.UI || {};
 	        if (!main_core.Type.isNil(_this.getHelpMessage())) {
 	          _this.getHelpMessage().show();
 	        }
+	        return;
 	      }
+	      _this.switcher.inputNode.form.dispatchEvent(new window.Event('change'));
+	      _this.emit('change', _this.switcher.isChecked());
 	    });
 	    return _this;
 	  }
@@ -783,7 +812,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.hintTitle = main_core.Type.isStringFilled(params.hintTitle) ? params.hintTitle : '';
 	    _this.placeholder = main_core.Type.isStringFilled(params.placeholder) ? params.placeholder : '';
 	    _this.inputDefaultWidth = main_core.Type.isBoolean(params.inputDefaultWidth) ? params.inputDefaultWidth : '';
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _inputNode$1, main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<input \n\t\t\tvalue=\"", "\" \n\t\t\tname=\"", "\" \n\t\t\ttype=\"text\" \n\t\t\tclass=\"ui-ctl-element\" \n\t\t\tplaceholder=\"", "\"\n\t\t\t", "\n\t\t>"])), main_core.Text.encode(_this.defaultValue), main_core.Text.encode(_this.getName()), main_core.Text.encode(_this.placeholder), _this.isEnable() ? '' : 'readonly'));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _inputNode$1, main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<input \n\t\t\tvalue=\"", "\" \n\t\t\tname=\"", "\" \n\t\t\ttype=\"text\" \n\t\t\tclass=\"ui-ctl-element ", "\" \n\t\t\tplaceholder=\"", "\"\n\t\t\t", "\n\t\t>"])), main_core.Text.encode(_this.defaultValue), main_core.Text.encode(_this.getName()), _this.isEnable() ? '' : '--readonly', main_core.Text.encode(_this.placeholder), _this.isEnable() ? '' : 'readonly'));
 	    if (!_this.isEnable()) {
 	      main_core.Event.bind(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _inputNode$1), 'click', function (event) {
 	        event.preventDefault();
@@ -792,9 +821,11 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      });
 	    }
-	    _this.getInputNode().addEventListener('keydown', function () {
-	      _this.getInputNode().form.dispatchEvent(new window.Event('change'));
-	    });
+	    if (_this.isEnable()) {
+	      _this.getInputNode().addEventListener('keydown', function () {
+	        _this.getInputNode().form.dispatchEvent(new window.Event('change'));
+	      });
+	    }
 	    return _this;
 	  }
 	  babelHelpers.createClass(TextInput, [{
@@ -861,7 +892,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderHint",
 	    value: function renderHint() {
-	      return main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"ui-section__hint\">\n\t\t\t<div class=\"ui-section__title\">", "</div>\n\t\t\t<div class=\"ui-section__value ", "\">", "</div>\n\t\t\t<div class=\"ui-section__description\">", "</div>\n\t\t</div>\n\t\t"])), this.hintTitle, this.valueColor, this.getInputNode().value, babelHelpers.classPrivateFieldGet(this, _hintDesc));
+	      return main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"ui-section__hint\">\n\t\t\t<div class=\"ui-section__title\">", "</div>\n\t\t\t<div class=\"ui-section__value ", "\">", "</div>\n\t\t\t<div class=\"ui-section__description\">", "</div>\n\t\t</div>\n\t\t"])), this.hintTitle, this.valueColor, main_core.Text.encode(this.getInputNode().value), babelHelpers.classPrivateFieldGet(this, _hintDesc));
 	    }
 	  }]);
 	  return TextInputInline;
@@ -1152,5 +1183,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.UserSelector = UserSelector;
 	exports.BaseField = BaseField;
 
-}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX,BX.Event,BX.UI,BX.UI,BX,BX.UI.EntitySelector));
+}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX.UI,BX.Event,BX.UI,BX.UI,BX,BX.UI.EntitySelector));
 //# sourceMappingURL=view.bundle.js.map

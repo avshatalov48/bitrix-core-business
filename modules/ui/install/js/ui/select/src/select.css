@@ -1,3 +1,7 @@
+.ui-select input {
+	user-select: none;
+}
+
 .ui-select .ui-ctl-icon-angle
 {
 	transition: transform 0.150s ease-in-out;

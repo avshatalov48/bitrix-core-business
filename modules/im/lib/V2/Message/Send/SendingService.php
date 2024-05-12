@@ -402,9 +402,30 @@ class SendingService
 			$fieldsToSend = $result->getResult();
 		}
 
-		$result = $this->checkParams($fieldsToSend, $server);
+		$fieldsToSend = $this->checkParams($fieldsToSend, $server);
+		$fieldsToSend = isset($fieldsToSend['COPILOT']) ?$this->checkCopilotParams($fieldsToSend) : $fieldsToSend;
 
 		return $result->setResult($fieldsToSend);
+	}
+
+	private function checkCopilotParams(array $fieldsToSend): array
+	{
+		$copilotData = [];
+
+		if (isset($fieldsToSend['COPILOT']) && is_array($fieldsToSend['COPILOT']))
+		{
+			foreach ($fieldsToSend['COPILOT'] as $key => $item)
+			{
+				if ($key === 'promptCode' && is_string($item))
+				{
+					$copilotData[Message\Params::COPILOT_PROMPT_CODE] = $item;
+				}
+			}
+		}
+
+		$fieldsToSend['COPILOT'] = $copilotData;
+
+		return $fieldsToSend;
 	}
 
 	private function checkMessage(array $fieldsToSend): Result
@@ -607,9 +628,8 @@ class SendingService
 		return $result->setResult($fieldsToSend);
 	}
 
-	private function checkParams(array $fieldsToSend, ?\CRestServer $server): Result
+	private function checkParams(array $fieldsToSend, ?\CRestServer $server): array
 	{
-		$result = new Result();
 		$checkAuth = isset($server) ? $server->getAuthType() !== \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE : true;
 
 		if (
@@ -637,6 +657,6 @@ class SendingService
 			$fieldsToSend['TEMPLATE_ID'] = mb_substr((string)$fieldsToSend['TEMPLATE_ID'], 0, 255);
 		}
 
-		return $result->setResult($fieldsToSend);
+		return $fieldsToSend;
 	}
 }

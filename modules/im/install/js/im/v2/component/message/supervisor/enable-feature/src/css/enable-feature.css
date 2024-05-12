@@ -1,0 +1,77 @@
+.bx-im-message-enable-feature__image {
+	position: relative;
+	width: 166px;
+	background-image: url("./images/blue-background.svg");
+	background-repeat: no-repeat;
+	border-radius: 16px 0 0 16px;
+}
+
+.bx-im-message-enable-feature__image::after {
+	content: '';
+	position: absolute;
+	background-repeat: no-repeat;
+	top: 45px;
+	right: 52px;
+	width: 32px;
+	height: 33px;
+}
+
+.bx-im-message-enable-feature__image.--copilot {
+	background-image: url("./images/copilot.svg");
+}
+
+.bx-im-message-enable-feature__image.--rights::after {
+	background-image: url("./images/rights.svg");
+}
+
+.bx-im-message-enable-feature__image.--newsLine::after {
+	background-image: url("./images/news-line.svg");
+}
+
+.bx-im-message-enable-feature__image.--chatCalls::after {
+	background-image: url("./images/chat-calls.svg");
+}
+
+.bx-im-message-enable-feature__image.--calendar::after {
+	background-image: url("./images/calendar.svg");
+}
+
+.bx-im-message-enable-feature__image.--documents::after {
+	background-image: url("./images/documents.svg");
+}
+
+.bx-im-message-enable-feature__image.--mail::after {
+	background-image: url("./images/mail.svg");
+}
+
+.bx-im-message-enable-feature__image.--groups::after {
+	background-image: url("./images/groups.svg");
+}
+
+.bx-im-message-enable-feature__image.--tasks::after {
+	background-image: url("./images/tasks.svg");
+}
+
+.bx-im-message-enable-feature__image.--crm::after {
+	background-image: url("./images/crm.svg");
+}
+
+.bx-im-message-enable-feature__image.--marketing::after {
+	background-image: url("./images/marketing.svg");
+}
+
+.bx-im-message-enable-feature__image.--automation::after {
+	background-image: url("./images/automation.svg");
+}
+
+.bx-im-message-enable-feature__image.--warehouseAccounting::after {
+	background-image: url("./images/warehouse-accounting.svg");
+}
+
+.bx-im-message-enable-feature__image.--sign::after {
+	background-image: url("./images/sign.svg");
+}
+
+.bx-im-message-enable-feature__image.--websitesStores::after {
+	background-image: url("./images/websites-stores.svg");
+}

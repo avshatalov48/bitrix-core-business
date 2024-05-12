@@ -502,7 +502,7 @@ class CBPDocument
 			{
 				$d = $workflow->GetDocumentId();
 				if ($d[0] != $documentId[0] || $d[1] != $documentId[1] || mb_strtolower($d[2]) !== mb_strtolower($documentId[2]))
-					throw new Exception(GetMessage("BPCGDOC_INVALID_WF"));
+					throw new Exception(GetMessage("BPCGDOC_INVALID_WF_MSGVER_1"));
 			}
 			$workflow->Terminate(null, $stateTitle);
 		}
@@ -634,10 +634,10 @@ class CBPDocument
 				self::PostTaskForm($task, $userId, array('INLINE_USER_STATUS' => $status), $taskErrors);
 				if (!empty($taskErrors))
 					foreach ($taskErrors as $error)
-						$errors[] = GetMessage('BPCGDOC_ERROR_ACTION', array('#NAME#' => $task['NAME'], '#ERROR#' => $error['message']));
+						$errors[] = GetMessage('BPCGDOC_ERROR_ACTION_MSGVER_1', array('#NAME#' => $task['NAME'], '#ERROR#' => $error['message']));
 			}
 			else
-				$errors[] = GetMessage('BPCGDOC_ERROR_TASK_IS_NOT_INLINE', array('#NAME#' => $task['NAME']));
+				$errors[] = GetMessage('BPCGDOC_ERROR_TASK_IS_NOT_INLINE_MSGVER_1', array('#NAME#' => $task['NAME']));
 
 		}
 		return true;
@@ -666,7 +666,7 @@ class CBPDocument
 				$filter['ID'] = $ids;
 		}
 
-		$isSinglePostfix = count($ids) === 1 ? '_SINGLE' : '';
+		$isSinglePostfix = count($ids) === 1 ? '_SINGLE_MSGVER_1' : '_MSGVER_1';
 
 		$iterator = CBPTaskService::GetList(
 				array('ID'=>'ASC'),
@@ -711,7 +711,7 @@ class CBPDocument
 					CBPActivityExecutionStatus::Executing,
 					CBPActivityExecutionResult::None,
 					GetMessage('BPCGDOC_DELEGATE_LOG_TITLE'),
-					GetMessage('BPCGDOC_DELEGATE_LOG', array(
+					GetMessage('BPCGDOC_DELEGATE_LOG_MSGVER_1', array(
 						'#NAME#' => $task['NAME'],
 						'#FROM#' => '{=user:user_'.$fromUserId.'}',
 						'#TO#' => '{=user:user_'.$toUserId.'}'
@@ -729,7 +729,7 @@ class CBPDocument
 						"NOTIFY_MODULE" => "bizproc",
 						"NOTIFY_EVENT" => "delegate_task",
 						"NOTIFY_TAG" => "BIZPROC|TASK|".$task['ID'],
-						'MESSAGE' => GetMessage('BPCGDOC_DELEGATE_NOTIFY_TEXT', array(
+						'MESSAGE' => GetMessage('BPCGDOC_DELEGATE_NOTIFY_TEXT_MSGVER_1', array(
 							'#TASK_URL#' => '/company/personal/bizproc/'.(int)$task['ID'].'/',
 							'#TASK_NAME#' => $task['NAME']
 						))
@@ -778,7 +778,7 @@ class CBPDocument
 		{
 			$arErrors[] = array(
 				"code" => "",
-				"message" => GetMessage("BPCGDOC_EMPTY_WD_ID"),
+				"message" => GetMessage("BPCGDOC_EMPTY_WD_ID_MSGVER_1"),
 			);
 			return array();
 		}
@@ -1265,7 +1265,7 @@ class CBPDocument
 		{
 			$arErrors[] = array(
 				"code" => 0,
-				"message" => str_replace("#ID#", $id, GetMessage("BPCGDOC_INVALID_WF_ID")),
+				"message" => str_replace("#ID#", $id, GetMessage("BPCGDOC_INVALID_WF_ID_MSGVER_1")),
 				"file" => ""
 			);
 			return;
@@ -1309,7 +1309,7 @@ class CBPDocument
 		{
 			$arErrors[] = array(
 				"code" => 0,
-				"message" => str_replace("#ID#", $id, GetMessage("BPCGDOC_INVALID_WF_ID")),
+				"message" => str_replace("#ID#", $id, GetMessage("BPCGDOC_INVALID_WF_ID_MSGVER_1")),
 				"file" => ""
 			);
 			return;

@@ -2124,6 +2124,7 @@ a.calendar-event-block-members-user {
 
 .calendar-event-block-wrap.calendar-bordered-block .calendar-event-block-inner {
 	padding: 5px 2px 2px 7px;
+	border-radius: 2px;
 }
 
 .calendar-event-full-block-draggable-btn {
@@ -6291,7 +6292,7 @@ select:not(:-internal-list-box) {
 
 .calendar-section-slider-access-title {
 	display: block;
-	max-width: 200px;
+	max-width: 170px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;

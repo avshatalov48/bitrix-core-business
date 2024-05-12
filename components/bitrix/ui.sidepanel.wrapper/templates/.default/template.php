@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main;
 use Bitrix\Main\Web\Json;
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 
@@ -17,7 +18,7 @@ CJSCore::Init();
 $this->addExternalCss($this->GetFolder() . '/template.css');
 $this->addExternalJs($this->GetFolder() . '/template.js');
 
-\Bitrix\Main\UI\Extension::load([
+Main\UI\Extension::load([
 	'sidepanel',
 	'ui.common',
 	'ui.fonts.opensans',
@@ -45,8 +46,8 @@ $this->addExternalJs($this->GetFolder() . '/template.js');
 	if ($arParams['USE_FAST_WAY_CLOSE_LOADER'])
 	{
 		//The fastest way to close Slider Loader.
-		\Bitrix\Main\Page\Asset::getInstance()->setJsToBody(true);
-		\Bitrix\Main\Page\Asset::getInstance()->addString("
+		Main\Page\Asset::getInstance()->setJsToBody(true);
+		Main\Page\Asset::getInstance()->addString("
 				<script>
 				(function() {
 					const slider = (
@@ -64,7 +65,7 @@ $this->addExternalJs($this->GetFolder() . '/template.js');
 					}
 				})();
 				</script>
-			", false, \Bitrix\Main\Page\AssetLocation::AFTER_CSS);
+			", false, Main\Page\AssetLocation::AFTER_CSS);
 	}
 
 	$APPLICATION->ShowHead();
@@ -172,14 +173,6 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 				);
 			}
 		?></div>
-
-		<?php
-		if ($arParams['HIDE_TOOLBAR']):
-			?>
-			<div></div>
-			<?php
-		else:
-		?>
 		<div class="ui-side-panel-toolbar<?if (!$arParams['USE_UI_TOOLBAR_MARGIN']):?> --no-margin<?endif?>">
 		<?php
 		if (!isset($arParams['USE_UI_TOOLBAR']) || $arParams['USE_UI_TOOLBAR'] !== 'Y')
@@ -218,8 +211,6 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 		}
 		?>
 		</div>
-		<?php endif;?>
-
 		<div class="ui-side-panel-wrap-below"><?php $APPLICATION->ShowViewContent("below_pagetitle")?></div>
 
 		<div class="ui-page-slider-workarea">
@@ -254,7 +245,10 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 			</div>
 		</div>
 	</div>
-	<div><?php $APPLICATION->ShowViewContent("below_page")?></div>
+	<div><?php
+		(new Main\Event('ui', 'OnSidepanelBelowPage'))->send();
+		$APPLICATION->ShowViewContent("below_page");
+	?></div>
 	<script>
 		BX.ready(function () {
 			BX.UI.SidePanel.Wrapper.init(<?= Json::encode([

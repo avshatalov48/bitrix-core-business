@@ -56,7 +56,7 @@ export class ChatsModel extends BuilderModel
 			writingList: [],
 			muteList: [],
 			quoteId: 0,
-			owner: 0,
+			ownerId: 0,
 			entityLink: {},
 			dateCreate: null,
 			public: {

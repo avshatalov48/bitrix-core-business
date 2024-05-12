@@ -63,7 +63,8 @@
 		this.folderId = params.folderId || 0;
 		this.replaceLid = params.replaceLid || 0;
 		this.isCrmForm = (params.isCrmForm || 'N') === 'Y';
-		this.context = params.context || null;
+		this.context_section = params.context_section || null;
+		this.context_element = params.context_element || null;
 		this.urlPreview = params.urlPreview || '';
 
 		this.onCreateButtonClick = proxy(this.onCreateButtonClick, this);
@@ -91,7 +92,7 @@
 		/**
 		 * Initializes template preview elements
 		 */
-		init: function()
+		init: function ()
 		{
 			bind(this.previewFrame, "load", this.onFrameLoad);
 			bind(this.closeButton, "click", this.onCancelButtonClick);
@@ -112,7 +113,8 @@
 			}
 		},
 
-		setBaseUrl: function(url) {
+		setBaseUrl: function (url)
+		{
 			if (url === undefined)
 			{
 				this.baseUrl = data(this.baseUrlNode, "data-base-url");
@@ -123,14 +125,15 @@
 			}
 		},
 
-		setColor: function(theme) {
+		setColor: function (theme)
+		{
 			if (theme !== undefined)
 			{
 				this.color = theme;
 			}
 		},
 
-		setDefaultColor: function()
+		setDefaultColor: function ()
 		{
 			if (this.getActiveColorNode())
 			{
@@ -138,12 +141,13 @@
 			}
 		},
 
-		getColor: function()
+		getColor: function ()
 		{
 			return this.color;
 		},
 
-		createPreviewUrl: function() {
+		createPreviewUrl: function ()
+		{
 			var queryParams = {};
 			if (!this.baseUrl)
 			{
@@ -158,7 +162,8 @@
 			return addQueryParams(this.baseUrl, queryParams);
 		},
 
-		onFrameLoad: function() {
+		onFrameLoad: function ()
+		{
 			if (this.createStore)
 			{
 				new BX.Landing.SaveBtn(this.createButton);
@@ -170,7 +175,7 @@
 		 *
 		 * @returns {HTMLElement|null}
 		 */
-		getActiveColorNode: function()
+		getActiveColorNode: function ()
 		{
 			var active = this.themesPalette.querySelector(".active");
 			if (!active && this.themesSiteColorNode)
@@ -185,7 +190,7 @@
 		 *
 		 * @returns {HTMLElement}
 		 */
-		getActiveSiteGroupItem: function()
+		getActiveSiteGroupItem: function ()
 		{
 			return this.siteGroupPalette.querySelector(".active");
 		},
@@ -195,9 +200,9 @@
 		 * @param {?string} src
 		 * @return {Promise<T>}
 		 */
-		showPreview: function(src)
+		showPreview: function (src)
 		{
-			if(src === undefined)
+			if (src === undefined)
 			{
 				src = this.createPreviewUrl();
 			}
@@ -208,7 +213,8 @@
 				.then(this.hideLoader());
 		},
 
-		buildHeader: function() {
+		buildHeader: function ()
+		{
 			var qrContainer = BX.create('div');
 			new QRCode(qrContainer, {
 				text: this.urlPreview,
@@ -224,43 +230,43 @@
 					'landing-popup-preview',
 					this.showPopupButton,
 					{
-					content: BX.create('div', {
-						props: { className: 'landing-popup-preview-content' },
-						children: [
-							BX.create('div', {
-								props: { className: 'landing-popup-preview-title' },
-								text: this.messages.LANDING_TPL_POPUP_TITLE
-							}),
-							BX.create('div', {
-								props: { className: 'landing-popup-preview-qr' },
-								children: [
-									qrContainer
-								],
-							}),
-							BX.create('div', {
-								props: { className: 'landing-popup-preview-text' },
-								text: this.messages.LANDING_TPL_POPUP_TEXT
-							}),
-						]
-					}),
-					closeIcon : true,
-					closeByEsc : true,
-					noAllPaddings : true,
-					autoHide: true,
-					animation: 'fading-slide',
-					angle: {
-						position: "top",
-						offset: 75
-					},
-					minWidth: 375,
-					maxWidth: 375,
-					contentBackground: "transparent",
-				}
+						content: BX.create('div', {
+							props: {className: 'landing-popup-preview-content'},
+							children: [
+								BX.create('div', {
+									props: {className: 'landing-popup-preview-title'},
+									text: this.messages.LANDING_TPL_POPUP_TITLE
+								}),
+								BX.create('div', {
+									props: {className: 'landing-popup-preview-qr'},
+									children: [
+										qrContainer
+									],
+								}),
+								BX.create('div', {
+									props: {className: 'landing-popup-preview-text'},
+									text: this.messages.LANDING_TPL_POPUP_TEXT
+								}),
+							]
+						}),
+						closeIcon: true,
+						closeByEsc: true,
+						noAllPaddings: true,
+						autoHide: true,
+						animation: 'fading-slide',
+						angle: {
+							position: "top",
+							offset: 75
+						},
+						minWidth: 375,
+						maxWidth: 375,
+						contentBackground: "transparent",
+					}
 				);
 
 				this.showPopupButton.addEventListener(
 					'click',
-					function()
+					function ()
 					{
 						popupPreview.toggle();
 					});
@@ -271,12 +277,14 @@
 		 * Creates frame if needed
 		 * @return {Function}
 		 */
-		createFrameIfNeeded: function()
+		createFrameIfNeeded: function ()
 		{
-			return function()
+			return function ()
 			{
-				return new Promise(function(resolve) {
-					var createFrame = function() {
+				return new Promise(function (resolve)
+				{
+					var createFrame = function ()
+					{
 						if (!this.previewFrame)
 						{
 							this.previewFrame = BX.create('iframe', {
@@ -318,15 +326,17 @@
 		 * @param {string} src
 		 * @return {Function}
 		 */
-		loadPreview: function(src)
+		loadPreview: function (src)
 		{
-			return function()
+			return function ()
 			{
-				return new Promise(function(resolve) {
+				return new Promise(function (resolve)
+				{
 					if (this.previewFrame.src !== src)
 					{
 						this.previewFrame.src = src;
-						this.previewFrame.onload = function() {
+						this.previewFrame.onload = function ()
+						{
 							resolve(this.previewFrame);
 						}.bind(this);
 						return;
@@ -341,9 +351,10 @@
 		 * Shows preview loader
 		 * @return {Promise}
 		 */
-		showLoader: function()
+		showLoader: function ()
 		{
-			return new Promise(function(resolve) {
+			return new Promise(function (resolve)
+			{
 				void this.loader.show(this.loaderContainer);
 				addClass(this.imageContainer, "landing-template-preview-overlay");
 				resolve();
@@ -354,11 +365,12 @@
 		 * Hides loader
 		 * @return {Function}
 		 */
-		hideLoader: function()
+		hideLoader: function ()
 		{
-			return function(iframe)
+			return function (iframe)
 			{
-				return new Promise(function(resolve) {
+				return new Promise(function (resolve)
+				{
 					void this.loader.hide();
 					removeClass(this.imageContainer, "landing-template-preview-overlay");
 					resolve(iframe);
@@ -371,13 +383,14 @@
 		 * @param delay
 		 * @return {Function}
 		 */
-		delay: function(delay)
+		delay: function (delay)
 		{
 			delay = isNumber(delay) ? delay : 0;
 
-			return function(image)
+			return function (image)
 			{
-				return new Promise(function(resolve) {
+				return new Promise(function (resolve)
+				{
 					setTimeout(resolve.bind(null, image), delay);
 				});
 			}
@@ -387,7 +400,7 @@
 		 * Gets value
 		 * @return {Object}
 		 */
-		getValue: function()
+		getValue: function ()
 		{
 			var result = {};
 
@@ -414,7 +427,7 @@
 		 * Makes create url
 		 * @return {string}
 		 */
-		getCreateUrl: function()
+		getCreateUrl: function ()
 		{
 			return addQueryParams(this.createButton.getAttribute("href"), this.getValue());
 		},
@@ -423,7 +436,7 @@
 		 * Handles click event on close button
 		 * @param {MouseEvent} event
 		 */
-		onCancelButtonClick: function(event)
+		onCancelButtonClick: function (event)
 		{
 			event.preventDefault();
 			top.BX.SidePanel.Instance.close();
@@ -433,15 +446,17 @@
 		 * Handles click event on create button
 		 * @param {MouseEvent} event
 		 */
-		onCreateButtonClick: function(event)
+		onCreateButtonClick: function (event)
 		{
 			event.preventDefault();
 
 			if (BX.Dom.hasClass(this.createButton.parentNode, 'needed-market-subscription'))
 			{
 				top.BX.UI.InfoHelper.show('limit_subscription_market_templates');
-				new Promise(resolve => {
-					const timerId = setInterval(() => {
+				new Promise(resolve =>
+				{
+					const timerId = setInterval(() =>
+					{
 						if (BX.Dom.hasClass(this.createButton, 'ui-btn-clock'))
 						{
 							clearInterval(timerId);
@@ -449,44 +464,25 @@
 						}
 					}, 500);
 				})
-				.then(() => {
-					BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
-					BX.Dom.attr(this.createButton, 'style', '');
-				});
+					.then(() =>
+					{
+						BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
+						BX.Dom.attr(this.createButton, 'style', '');
+					});
 
 				return;
 			}
 
 			// Analytic
 			const metrika = new BX.Landing.Metrika(true);
-			if (this.isCrmForm && this.replaceLid > 0)
-			{
-				const metrikaParams = {
-					category: 'crm_forms',
-					event: this.replaceLid > 0 ? 'replace_template' : 'create_template',
-					c_element: 'create_template_button',
-					params: {
-						appCode: this.appCode,
-					},
-				};
-				if (this.context)
-				{
-					metrikaParams.c_section = this.context;
-				}
-				metrika.sendData(metrikaParams);
-			}
-			else {
-				metrika.sendLabel(
-					null,
-					'createTemplate',
-					event.target.href
-				);
-			}
+			metrika.sendData(this.getMetrikaParams('attempt'));
 
 			if (this.isStore() && this.IsLoadedFrame)
 			{
-				this.loaderText = BX.create("div", { props: { className: "landing-template-preview-loader-text"},
-					text: this.messages.LANDING_LOADER_WAIT});
+				this.loaderText = BX.create("div", {
+					props: {className: "landing-template-preview-loader-text"},
+					text: this.messages.LANDING_LOADER_WAIT
+				});
 
 				this.progressBar = new BX.UI.ProgressBar({
 					column: true
@@ -502,7 +498,8 @@
 			{
 				if (this.IsLoadedFrame)
 				{
-					this.showLoader().then(() => {
+					this.showLoader().then(() =>
+					{
 						this.initCatalogParams();
 						this.createCatalog();
 					});
@@ -518,12 +515,56 @@
 			{
 				this.showLoader()
 					.then(this.delay(200))
-					.then(function() {
+					.then(function ()
+					{
 						this.finalRedirectAjax(
 							this.getCreateUrl()
 						);
 					}.bind(this));
 			}
+		},
+
+		/**
+		 * @param {'success'|'attempt'} status
+		 * @return {{
+		 *  [category]: string,
+		 * 	[event]: string,
+		 * 	[c_section]: string|null,
+		 * 	[c_sub_section]: string|null,
+		 *  [c_element]: string|null,
+		 *  [params]: {object},
+		 * }}
+		 */
+		getMetrikaParams: function (status)
+		{
+			const metrikaParams = {
+				category: this.isStore() ? 'stores' : (this.isCrmForm ? 'crm_forms' : 'landings'),
+				event: 'create_page_template',
+				params: {
+					appCode: this.appCode,
+				},
+				status: status,
+			};
+
+			if (this.replaceLid > 0)
+			{
+				metrikaParams.event = 'replace_template';
+			}
+			else if (this.siteId !== 0)
+			{
+				metrikaParams.event = 'create_site_template';
+			}
+
+			if (this.context_section)
+			{
+				metrikaParams.c_section = this.context_section;
+			}
+			if (this.context_element)
+			{
+				metrikaParams.c_element = this.context_element;
+			}
+
+			return metrikaParams;
 		},
 
 		/**
@@ -600,19 +641,19 @@
 					add['additional[replaceLid]'] = this.replaceLid;
 				}
 
-				// new analytic - now just for minisites for crm forms
-				if (this.isCrmForm && this.replaceLid > 0)
+				const metrikaParams = this.getMetrikaParams('success');
+
+				add['additional[st_category]'] = metrikaParams.category;
+				add['additional[st_event]'] = metrikaParams.event;
+				if (metrikaParams.c_section)
 				{
-					add['additional[st_category]'] = 'crm_forms';
-					add['additional[st_event]'] = this.replaceLid > 0 ? 'replace_template' : 'create_template';
-					add['additional[st_event]'] += '_success';
-					add['additional[st_element]'] = 'create_template_button';
-					if (this.context)
-					{
-						add['additional[st_section]'] = this.context;
-					}
-					add['additional[app_code]'] = this.appCode;
+					add['additional[st_section]'] = metrikaParams.c_section;
 				}
+				if (metrikaParams.c_element)
+				{
+					add['additional[st_element]'] = metrikaParams.c_element;
+				}
+				add['additional[app_code]'] = this.appCode;
 
 				// 'form' is for analytic
 				add['from'] = this.createParamsStrFromUrl(url);

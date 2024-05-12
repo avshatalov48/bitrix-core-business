@@ -71,6 +71,12 @@ export default class SearchIndex
 					const stripTags = textNode !== null && textNode.getType() === 'html';
 					index.addIndex(this.createIndex(field, item.getSupertitle(), stripTags));
 				}
+				else if (field.getName() === 'caption')
+				{
+					const textNode = item.getCaptionNode();
+					const stripTags = textNode !== null && textNode.getType() === 'html';
+					index.addIndex(this.createIndex(field, item.getCaption(), stripTags));
+				}
 			}
 			else
 			{

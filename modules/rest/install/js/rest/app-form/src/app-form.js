@@ -4,7 +4,7 @@ export type FormConfig = {
 
 export class AppForm
 {
-	#url = '/app/settings/';
+	#url = '/marketplace/app/settings/';
 	#width = 575;
 	#options: FormConfig;
 

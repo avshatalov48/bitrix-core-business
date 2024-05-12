@@ -4,7 +4,7 @@
 // \Bitrix\Main\UI\Extension::load("im.v2.application.sidebar");
 // ?>
 <!---->
-<!--<script type="text/javascript">-->
+<!--<script>-->
 <!--	BX.Messenger.v2.Application.Launch('sidebar', {node: '#bx-im-external-recent-list'})-->
 <!--		.then(application => console.log('Application Sidebar v2 launched', application))-->
 <!--	;-->

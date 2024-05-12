@@ -11,7 +11,7 @@ if ($forumPermissions == "D")
 /********************************************************************
 				Simple text
 ********************************************************************/
-	
+
 CModule::IncludeModule("forum");
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
@@ -26,7 +26,7 @@ $arError = array();
 $bVarsFromForm = false;
 $arFields = array();
 $message = false;
-$ID = intval($_REQUEST["ID"]);
+$ID = isset($_REQUEST["ID"]) ? intval($_REQUEST["ID"]) : null;
 $arSites = array();
 $db_res = CSite::GetList();
 while ($res = $db_res->GetNext())
@@ -71,59 +71,59 @@ if ($forumPermissions >= "W" && check_bitrix_sessid())
 		else
 		{
 			$arFields = Array(
-				"NAME" => $_REQUEST["NAME"],
-				"DESCRIPTION" => $_REQUEST["DESCRIPTION"],
-				"FORUM_GROUP_ID" => $_REQUEST["FORUM_GROUP_ID"],
-				"GROUP_ID" => $_REQUEST["GROUP"],
+				"NAME" => $_REQUEST["NAME"] ?? null,
+				"DESCRIPTION" => $_REQUEST["DESCRIPTION"] ?? null,
+				"FORUM_GROUP_ID" => $_REQUEST["FORUM_GROUP_ID"] ?? null,
+				"GROUP_ID" => $_REQUEST["GROUP"] ?? null,
 
 				"SITES" => array(),
-				"PATH2FORUM_MESSAGE" => $_REQUEST["PATH2FORUM_MESSAGE"],
+				"PATH2FORUM_MESSAGE" => $_REQUEST["PATH2FORUM_MESSAGE"] ?? null,
 
-				"ACTIVE" => ($_REQUEST["ACTIVE"] == "Y" ? "Y" : "N"),
-				"MODERATION" => ($_REQUEST["MODERATION"] == "Y" ? "Y" : "N"),
-				"INDEXATION" => ($_REQUEST["INDEXATION"] == "Y" ? "Y" : "N"),
-				"DEDUPLICATION" => ($_REQUEST["DEDUPLICATION"] == "Y" ? "Y" : "N"),
+				"ACTIVE" => (isset($_REQUEST["ACTIVE"]) && $_REQUEST["ACTIVE"] == "Y" ? "Y" : "N"),
+				"MODERATION" => (isset($_REQUEST["MODERATION"]) && $_REQUEST["MODERATION"] == "Y" ? "Y" : "N"),
+				"INDEXATION" => (isset($_REQUEST["INDEXATION"]) && $_REQUEST["INDEXATION"] == "Y" ? "Y" : "N"),
+				"DEDUPLICATION" => (isset($_REQUEST["DEDUPLICATION"]) && $_REQUEST["DEDUPLICATION"] == "Y" ? "Y" : "N"),
 
-				"SORT" => (intval($_REQUEST["SORT"]) <= 0 ? 150 : $_REQUEST["SORT"]),
-				"ORDER_BY" => $_REQUEST["ORDER_BY"],
-				"ORDER_DIRECTION" => $_REQUEST["ORDER_DIRECTION"],
+				"SORT" => (!isset($_REQUEST["SORT"]) || intval($_REQUEST["SORT"]) <= 0 ? 150 : $_REQUEST["SORT"]),
+				"ORDER_BY" => $_REQUEST["ORDER_BY"] ?? null,
+				"ORDER_DIRECTION" => $_REQUEST["ORDER_DIRECTION"] ?? null,
 
-				"ASK_GUEST_EMAIL" => ($_REQUEST["ASK_GUEST_EMAIL"] == "Y" ? "Y" : "N"),
-				"USE_CAPTCHA" => ($_REQUEST["USE_CAPTCHA"] == "Y" ? "Y" : "N"),
+				"ASK_GUEST_EMAIL" => (isset($_REQUEST["ASK_GUEST_EMAIL"]) && $_REQUEST["ASK_GUEST_EMAIL"] == "Y" ? "Y" : "N"),
+				"USE_CAPTCHA" => (isset($_REQUEST["USE_CAPTCHA"]) && $_REQUEST["USE_CAPTCHA"] == "Y" ? "Y" : "N"),
 
-				"ALLOW_HTML" => ($_REQUEST["ALLOW_HTML"] == "Y" ? "Y" : "N"),
-				"ALLOW_ANCHOR" => ($_REQUEST["ALLOW_ANCHOR"] == "Y" ? "Y" : "N"),
-				"ALLOW_BIU" => ($_REQUEST["ALLOW_BIU"] == "Y" ? "Y" : "N"),
-				"ALLOW_IMG" => ($_REQUEST["ALLOW_IMG"] == "Y" ? "Y" : "N"),
-				"ALLOW_VIDEO" => ($_REQUEST["ALLOW_VIDEO"] == "Y" ? "Y" : "N"),
-				"ALLOW_LIST" => ($_REQUEST["ALLOW_LIST"] == "Y" ? "Y" : "N"),
-				"ALLOW_QUOTE" => ($_REQUEST["ALLOW_QUOTE"] == "Y" ? "Y" : "N"),
-				"ALLOW_CODE" => ($_REQUEST["ALLOW_CODE"] == "Y" ? "Y" : "N"),
-				"ALLOW_TABLE" => ($_REQUEST["ALLOW_TABLE"] == "Y" ? "Y" : "N"),
-				"ALLOW_ALIGN" => ($_REQUEST["ALLOW_ALIGN"] == "Y" ? "Y" : "N"),
-				"ALLOW_FONT" => ($_REQUEST["ALLOW_FONT"] == "Y" ? "Y" : "N"),
-				"ALLOW_SMILES" => ($_REQUEST["ALLOW_SMILES"] == "Y" ? "Y" : "N"),
-				"ALLOW_UPLOAD" => (in_array($_REQUEST["ALLOW_UPLOAD"], array("Y", "A", "F")) ? $_REQUEST["ALLOW_UPLOAD"] : "N"),
-				"ALLOW_UPLOAD_EXT" => $_REQUEST["ALLOW_UPLOAD_EXT"],
-				"ALLOW_TOPIC_TITLED" => ($_REQUEST["ALLOW_TOPIC_TITLED"] == "Y" ? "Y" : "N"),
-				"ALLOW_NL2BR" => ($_REQUEST["ALLOW_NL2BR"] == "Y" ? "Y" : "N"),
-				"ALLOW_MOVE_TOPIC" => ($_REQUEST["ALLOW_MOVE_TOPIC"] == "Y" ? "Y" : "N"),
-				"ALLOW_SIGNATURE" => ($_REQUEST["ALLOW_SIGNATURE"] == "Y" ? "Y" : "N")
+				"ALLOW_HTML" => (isset($_REQUEST["ALLOW_HTML"]) && $_REQUEST["ALLOW_HTML"] == "Y" ? "Y" : "N"),
+				"ALLOW_ANCHOR" => (isset($_REQUEST["ALLOW_ANCHOR"]) && $_REQUEST["ALLOW_ANCHOR"] == "Y" ? "Y" : "N"),
+				"ALLOW_BIU" => (isset($_REQUEST["ALLOW_BIU"]) && $_REQUEST["ALLOW_BIU"] == "Y" ? "Y" : "N"),
+				"ALLOW_IMG" => (isset($_REQUEST["ALLOW_IMG"]) && $_REQUEST["ALLOW_IMG"] == "Y" ? "Y" : "N"),
+				"ALLOW_VIDEO" => (isset($_REQUEST["ALLOW_VIDEO"]) && $_REQUEST["ALLOW_VIDEO"] == "Y" ? "Y" : "N"),
+				"ALLOW_LIST" => (isset($_REQUEST["ALLOW_LIST"]) && $_REQUEST["ALLOW_LIST"] == "Y" ? "Y" : "N"),
+				"ALLOW_QUOTE" => (isset($_REQUEST["ALLOW_QUOTE"]) && $_REQUEST["ALLOW_QUOTE"] == "Y" ? "Y" : "N"),
+				"ALLOW_CODE" => (isset($_REQUEST["ALLOW_CODE"]) && $_REQUEST["ALLOW_CODE"] == "Y" ? "Y" : "N"),
+				"ALLOW_TABLE" => (isset($_REQUEST["ALLOW_TABLE"]) && $_REQUEST["ALLOW_TABLE"] == "Y" ? "Y" : "N"),
+				"ALLOW_ALIGN" => (isset($_REQUEST["ALLOW_ALIGN"]) && $_REQUEST["ALLOW_ALIGN"] == "Y" ? "Y" : "N"),
+				"ALLOW_FONT" => (isset($_REQUEST["ALLOW_FONT"]) && $_REQUEST["ALLOW_FONT"] == "Y" ? "Y" : "N"),
+				"ALLOW_SMILES" => (isset($_REQUEST["ALLOW_SMILES"]) && $_REQUEST["ALLOW_SMILES"] == "Y" ? "Y" : "N"),
+				"ALLOW_UPLOAD" => (isset($_REQUEST["ALLOW_UPLOAD"]) && in_array($_REQUEST["ALLOW_UPLOAD"], array("Y", "A", "F")) ? $_REQUEST["ALLOW_UPLOAD"] : "N"),
+				"ALLOW_UPLOAD_EXT" => $_REQUEST["ALLOW_UPLOAD_EXT"] ?? null,
+				"ALLOW_TOPIC_TITLED" => (isset($_REQUEST["ALLOW_TOPIC_TITLED"]) && $_REQUEST["ALLOW_TOPIC_TITLED"] == "Y" ? "Y" : "N"),
+				"ALLOW_NL2BR" => (isset($_REQUEST["ALLOW_NL2BR"]) && $_REQUEST["ALLOW_NL2BR"] == "Y" ? "Y" : "N"),
+				"ALLOW_MOVE_TOPIC" => (isset($_REQUEST["ALLOW_MOVE_TOPIC"]) && $_REQUEST["ALLOW_MOVE_TOPIC"] == "Y" ? "Y" : "N"),
+				"ALLOW_SIGNATURE" => (isset($_REQUEST["ALLOW_SIGNATURE"]) && $_REQUEST["ALLOW_SIGNATURE"] == "Y" ? "Y" : "N")
 			);
 
 			$db_res = CSite::GetList();
 			while ($res = $db_res->Fetch())
 			{
-				if ($_REQUEST["SITE"][$res["LID"]] == "Y")
+				if (isset($_REQUEST["SITE"]) && isset($_REQUEST["SITE"][$res["LID"]]) && $_REQUEST["SITE"][$res["LID"]] == "Y")
 				{
 					$arFields["SITES"][$res["LID"]] = $_REQUEST["SITE_PATH"][$res["LID"]];
 				}
 			}
 			if (CModule::IncludeModule("statistic"))
 			{
-				$arFields["EVENT1"] = $_REQUEST["EVENT1"];
-				$arFields["EVENT2"] = $_REQUEST["EVENT2"];
-				$arFields["EVENT3"] = $_REQUEST["EVENT3"];
+				$arFields["EVENT1"] = $_REQUEST["EVENT1"] ?? null;
+				$arFields["EVENT2"] = $_REQUEST["EVENT2"] ?? null;
+				$arFields["EVENT3"] = $_REQUEST["EVENT3"] ?? null;
 			}
 			if (!IsModuleInstalled("search"))
 				unset($arFields["INDEXATION"]);
@@ -179,7 +179,7 @@ if ($forumPermissions >= "W" && check_bitrix_sessid())
 			}
 		}
 
-		if ($_REQUEST["apply"] == '')
+		if (!isset($_REQUEST["apply"]) || $_REQUEST["apply"] == '')
 			LocalRedirect("forum_admin.php?lang=".LANG."&".GetFilterParams("filter_", false));
 		else
 			LocalRedirect("forum_edit.php?lang=".LANG."&ID=".$ID);
@@ -200,25 +200,25 @@ $arForum = array(
 	"NAME" => "",
 	"DESCRIPTION" => "",
 	"FORUM_GROUP_ID" => "",
-	"GROUP_ID" => "", 
+	"GROUP_ID" => "",
 
 	"SITES" => array(),
 	"PATH2FORUM_MESSAGE" => "/".SITE_DIR."/forum/message.php?FID=#FORUM_ID#&TID=#TOPIC_ID#&MID=#MESSAGE_ID#",
-	
-	"MODERATION" => "N",
-	"ACTIVE" => "Y", 
-	"INDEXATION" => "Y", 
-	"DEDUPLICATION" => "Y", 
 
-	"SORT" => 150, 
+	"MODERATION" => "N",
+	"ACTIVE" => "Y",
+	"INDEXATION" => "Y",
+	"DEDUPLICATION" => "Y",
+
+	"SORT" => 150,
 	"ORDER_BY" => "P",
 	"ORDER_DIRECTION" => "DESC",
-	
+
 	"ASK_GUEST_EMAIL" => "N",
 	"USE_CAPTCHA" => "Y",
-	
-	"ALLOW_HTML" => "N", 
-	"ALLOW_ANCHOR" => "Y", 
+
+	"ALLOW_HTML" => "N",
+	"ALLOW_ANCHOR" => "Y",
 	"ALLOW_BIU" => "Y",
 	"ALLOW_IMG" => "Y",
 	"ALLOW_VIDEO" => "Y",
@@ -234,10 +234,10 @@ $arForum = array(
 	"ALLOW_NL2BR" => "N",
 	"ALLOW_MOVE_TOPIC" => "N",
 	"ALLOW_SIGNATURE" => "Y",
-	
+
 	"EVENT1" => "forum",
 	"EVENT2" => "message",
-	"EVENT3" => ""); 
+	"EVENT3" => "");
 
 if ($ID > 0)
 {
@@ -299,7 +299,7 @@ if ($ID > 0 && $forumPermissions >= "W")
 	);
 
 	$aMenu[] = array(
-		"TEXT" => GetMessage("FEN_DELETE_FORUM"), 
+		"TEXT" => GetMessage("FEN_DELETE_FORUM"),
 		"LINK" => "javascript:if(confirm('".GetMessage("FEN_DELETE_FORUM_CONFIRM")."')) window.location='/bitrix/admin/forum_edit.php?action=delete&ID=".$ID."&lang=".LANG."&".bitrix_sessid_get()."';",
 		"ICON" => "btn_delete",
 	);
@@ -336,7 +336,7 @@ $tabControl->BeginNextTab();
 			}
 			?>:</td>
 		<td width="60%">
-			<input type="checkbox" name="ACTIVE" id="ACTIVE" value="Y" <?=($arForum["ACTIVE"]=="Y" ? "checked='checked'" : "")?> />
+			<input type="checkbox" name="ACTIVE" id="ACTIVE" value="Y" <?=(isset($arForum["ACTIVE"]) && $arForum["ACTIVE"]=="Y" ? "checked='checked'" : "")?> />
 			<label for="ACTIVE"><?=GetMessage("ACTIVE_TITLE")?></label>
 		</td>
 	</tr>
@@ -348,8 +348,8 @@ $tabControl->BeginNextTab();
 				<?
 				foreach ($arGroups as $res)
 				{
-					?><option value="<?=$res["ID"]?>" <?=($arForum["FORUM_GROUP_ID"] == $res["ID"] ? "selected='selected'" : "")?>><?
-						?><?=str_pad("", ($res["DEPTH_LEVEL"] - 1), ".")?><?=$res["NAME"]?></option><?
+					?><option value="<?=$res["ID"]?>" <?=(isset($arForum["FORUM_GROUP_ID"]) && $arForum["FORUM_GROUP_ID"] == $res["ID"] ? "selected='selected'" : "")?>><?
+						?><?=str_pad("", (isset($res["DEPTH_LEVEL"]) ? $res["DEPTH_LEVEL"] - 1 : 0), ".")?><?=$res["NAME"]?></option><?
 				}
 				?>
 			</select>
@@ -479,10 +479,10 @@ if (IsModuleInstalled("search"))
 	<tr>
 		<td><?=GetMessage("FE_ALLOWED_EXTS")?>:</td>
 		<td>
-			<input type="text" name="ALLOW_UPLOAD_EXT" size="40" maxlength="255" value="<?=$arForum["ALLOW_UPLOAD_EXT"] ?>">
+			<input type="text" name="ALLOW_UPLOAD_EXT" size="40" maxlength="255" value="<?=$arForum["ALLOW_UPLOAD_EXT"] ?? null?>">
 		</td>
 	</tr>
-	
+
 	<tr class="heading">
 		<td colspan="2"><?=GetMessage("USER_SETTINGS")?></td>
 	</tr>
@@ -634,8 +634,8 @@ $tabControl->BeginNextTab();
 	$db_res = CGroup::GetList("sort", "asc", Array("ADMIN"=>"N"));
 	while ($res = $db_res->GetNext())
 	{
-		$strSelected = $arForum["GROUP_ID"][$res["ID"]];
-		$strSelected = (!in_array(mb_strtoupper($strSelected), $aForumPermissions["reference_id"]) ? "A" : $strSelected);
+		$strSelected = isset($arForum["GROUP_ID"][$res["ID"]])  ? $arForum["GROUP_ID"][$res["ID"]] : null;
+		$strSelected = (is_null($strSelected) || !in_array(mb_strtoupper($strSelected), $aForumPermissions["reference_id"]) ? "A" : $strSelected);
 		?>
 		<tr>
 			<td width="40%"><?=$res["NAME"]?>&nbsp;[<a  href="/bitrix/admin/group_edit.php?ID=<?=$res["ID"]?>&lang=<?=LANGUAGE_ID?>"><?=$res["ID"]?></a>]:</td>
@@ -684,7 +684,7 @@ $tabControl->ShowWarnings("forum_edit", $message);
 ?>
 
 </form>
-<script language="JavaScript">
+<script>
 <!--
 function on_site_checkbox_click(lid, dir)
 {

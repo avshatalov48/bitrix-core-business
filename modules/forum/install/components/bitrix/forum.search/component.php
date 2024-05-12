@@ -31,10 +31,10 @@ if (!function_exists("__array_merge"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$q = trim($_REQUEST["q"]);
+	$q = isset($_REQUEST["q"]) ? trim($_REQUEST["q"]) : null;
 	$arResult["q"] = htmlspecialcharsbx($q);
-	$arParams["FID"] = (!empty($_REQUEST["FID"]) ? $_REQUEST["FID"] : $_REQUEST["FORUM_ID"]);
-	$arParams["FID"] = (!empty($arParams["FID"]) ? $arParams["FID"] : $_REQUEST["find_forum"]);
+	$arParams["FID"] = (isset($_REQUEST["FID"]) && !empty($_REQUEST["FID"]) ? $_REQUEST["FID"] : (isset($_REQUEST["FORUM_ID"]) ? $_REQUEST["FORUM_ID"] : null));
+	$arParams["FID"] = (!empty($arParams["FID"]) ? $arParams["FID"] : ($_REQUEST["find_forum"] ?? null));
 	$arParams["FID"] = is_array($arParams["FID"]) ? $arParams["FID"] : array($arParams["FID"]);
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
@@ -49,7 +49,7 @@ if (!function_exists("__array_merge"))
 		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
-	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
+	$arParams["SHOW_FORUM_ANOTHER_SITE"] = (isset($arParams["SHOW_FORUM_ANOTHER_SITE"]) && $arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
@@ -81,7 +81,7 @@ $aSort = array("RANK"=>"DESC", "DATE_CHANGE"=>"DESC");
 $cache = new CPHPCache();
 $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/");
 $arResult["URL"] = array(
-	"INDEX" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_INDEX"], array()), 
+	"INDEX" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_INDEX"], array()),
 	"~INDEX" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_INDEX"], array()));
 /********************************************************************
 				/Default values
@@ -99,7 +99,7 @@ if ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || !CForumUser::IsAdmin())
 if (!empty($arParams["FID_RANGE"]))
 	$arFilter["@ID"] = $arParams["FID_RANGE"];
 if (!CForumUser::IsAdmin()):
-	$arFilter["PERMS"] = array($USER->GetGroups(), 'A'); 
+	$arFilter["PERMS"] = array($USER->GetGroups(), 'A');
 	$arFilter["ACTIVE"] = "Y";
 endif;
 
@@ -141,7 +141,7 @@ foreach ($arForums as $PARENT_ID => $res)
 {
 	$bResult = true;
 	$res = array("FORUMS" => $res);
-	while ($PARENT_ID > 0) 
+	while ($PARENT_ID > 0)
 	{
 		if (!array_key_exists($PARENT_ID, $arResult["GROUPS"]))
 		{
@@ -161,7 +161,7 @@ foreach ($arForums as $PARENT_ID => $res)
 $arResult["GROUPS_FORUMS"] = $arGroups;
 $arParams["FID"] = array_intersect($arParams["FID"], array_keys($arResult["FORUMS"]));
 /************** Search data ****************************************/
-if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
+if (isset($_REQUEST["q"]) && $_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 	if ($_REQUEST["order"] == "date"):
 		$arResult["order"]["active"] = "date";
 		$aSort = array("DATE_CHANGE"=>"DESC");
@@ -172,11 +172,11 @@ if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 	$arFilter1 = array(
 		"MODULE_ID" => "forum",
 		"SITE_ID" => SITE_ID,
-		"QUERY" => $q, 
+		"QUERY" => $q,
 		"TAGS" => $_REQUEST["tags"] ? $_REQUEST["tags"] : "");
 	if (intval($_REQUEST["DATE_CHANGE"]) > 0)
 	{
-		$arFilter1["DATE_CHANGE"] = Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANGUAGE_ID)), 
+		$arFilter1["DATE_CHANGE"] = Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANGUAGE_ID)),
 			time()-(intval($_REQUEST["DATE_CHANGE"])*24*3600)+CTimeZone::GetOffset());
 	}
 	$arFilter2 = array();
@@ -192,7 +192,7 @@ if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 		"NO_WORD_LOGIC" => $arParams["NO_WORD_LOGIC"] == "Y",
 	));
 	$obSearch->Search($arFilter1, $aSort, array($arFilter2));
-	
+
 	if ($obSearch->errorno != 0):
 		$arResult["ERROR_MESSAGE"] = $obSearch->error;
 	else:
@@ -205,7 +205,7 @@ if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 		if ($res = $obSearch->GetNext())
 		{
 			$arResult["order"]["~relevance"] = $APPLICATION->GetCurPageParam(
-				"q=".urlencode($q).(!empty($arParams["FID"]) ? "&FORUM_ID=".$arParams["FID"] : ""), 
+				"q=".urlencode($q).(!empty($arParams["FID"]) ? "&FORUM_ID=".$arParams["FID"] : ""),
 				array("FORUM_ID", "q", "order", "s", BX_AJAX_PARAM_ID));
 			$arResult["order"]["~topic"] = $APPLICATION->GetCurPageParam(
 				"q=".urlencode($q).
@@ -224,16 +224,16 @@ if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 			{
 				if (intval($res["ITEM_ID"]) > 0)
 				{
-					$res["URL"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
+					$res["URL"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
 						array("FID" => $res["PARAM1"], "TID"=>$res["PARAM2"], "TITLE_SEO"=>$res["PARAM2"], "MID" => $res["ITEM_ID"]));
-					$res["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"], 
+					$res["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
 						array("FID" => $res["PARAM1"], "TID"=>$res["PARAM2"], "TITLE_SEO"=>$res["PARAM2"], "MID" => $res["ITEM_ID"]));
 				}
 				else
-				{ 
-					$res["URL"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"], 
+				{
+					$res["URL"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"],
 						array("FID" => $res["PARAM1"], "TID"=>$res["PARAM2"], "TITLE_SEO"=>$res["PARAM2"], "MID" => "s"));
-					$res["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"], 
+					$res["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"],
 						array("FID" => $res["PARAM1"], "TID"=>$res["PARAM2"], "TITLE_SEO"=>$res["PARAM2"], "MID" => "s"));
 				}
 
@@ -241,7 +241,7 @@ if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 				$res["DATE_CHANGE"] = CForumFormat::DateFormat($arParams["DATE_FORMAT"], MakeTimeStamp($res["DATE_CHANGE"], CSite::GetDateFormat()));
 				if (mb_strpos($res["SITE_URL"], "#message") !== false)
 					$res["SITE_URL"] = mb_substr($res["SITE_URL"], 0, mb_strpos($res["SITE_URL"], "#message"));
-					
+
 				$res["TAGS"] = array();
 				if (!empty($res["~TAGS_FORMATED"]))
 				{
@@ -254,7 +254,7 @@ if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 						);
 					}
 				}
-				$topics[$res["PARAM2"]] = (!!$topics[$res["PARAM2"]] ? $topics[$res["PARAM2"]] : array());
+				$topics[$res["PARAM2"]] = (isset($topics[$res["PARAM2"]]) && !!$topics[$res["PARAM2"]] ? $topics[$res["PARAM2"]] : array());
 				$topics[$res["PARAM2"]][] = count($arResult["TOPICS"]);
 				$arResult["TOPICS"][] = $res;
 			}

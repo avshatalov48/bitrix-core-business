@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,main_date,main_popup,pull_client,ui_dialogs_messagebox) {
 	'use strict';
@@ -508,11 +509,16 @@ this.BX = this.BX || {};
 	  static getTimezoneDateFromTimestampUTC(timestampUTC, timeZone) {
 	    return new Date(timestampUTC + this.getTimeZoneOffset() * 60 * 1000 - this.getTimeZoneOffset(timeZone) * 60 * 1000);
 	  }
-	  static getTimeZoneOffset(timeZone = undefined) {
-	    const timeInTimezone = new Date(new Date().toLocaleString("en-US", {
-	      timeZone
-	    })).getTime();
-	    const timeInUTC = new Date(new Date().toLocaleString("en-US", {
+	  static getTimeZoneOffset(timeZone = undefined, date = new Date()) {
+	    let timeInTimezone;
+	    try {
+	      timeInTimezone = new Date(date.toLocaleString('en-US', {
+	        timeZone
+	      })).getTime();
+	    } catch (e) {
+	      return 0;
+	    }
+	    const timeInUTC = new Date(date.toLocaleString('en-US', {
 	      timeZone: 'UTC'
 	    })).getTime();
 	    return parseInt((timeInUTC - timeInTimezone) / 60000);

@@ -702,7 +702,6 @@ CAdminFileDialog::ShowScript(Array
 
 		$io = CBXVirtualIo::GetInstance();
 
-		CUtil::JSPostUnescape();
 		switch($action)
 		{
 			case "count":
@@ -1284,7 +1283,7 @@ class CFilemanSearch
 				if ($isPHP && !$USER->CanDoOperation('edit_php'))
 					return; // User can't write PHP files
 
-				$pattern = '/'.preg_quote($this->Params['phrase'], '/').'/'.$I_PCRE_MODIFIER.BX_UTF_PCRE_MODIFIER;
+				$pattern = '/'.preg_quote($this->Params['phrase'], '/').'/u'.$I_PCRE_MODIFIER;
 
 				$res = array();
 				preg_match_all($pattern, $origFileContent, $res);
@@ -1298,7 +1297,7 @@ class CFilemanSearch
 				if ($isPHP && !($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath)))
 					return; // User can't read PHP files
 
-				$pattern = '/'.preg_quote($this->Params['phrase'], '/').'/'.$I_PCRE_MODIFIER.BX_UTF_PCRE_MODIFIER;
+				$pattern = '/'.preg_quote($this->Params['phrase'], '/').'/u'.$I_PCRE_MODIFIER;
 
 				// Only for LPA. All php fragments will be cutted off
 				if ($USER->CanDoFileOperation('fm_lpa', $arPath) && !$USER->CanDoOperation('edit_php'))

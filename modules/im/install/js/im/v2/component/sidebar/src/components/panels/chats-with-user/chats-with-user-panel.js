@@ -1,12 +1,12 @@
 import { EventEmitter } from 'main.core.events';
 
 import { Messenger } from 'im.public';
-import { EventType, SidebarDetailBlock } from 'im.v2.const';
 import { Loader } from 'im.v2.component.elements';
+import { EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import { ChatItem } from './chat-item';
-import { DetailHeader } from '../../elements/detail-header';
-import { DetailEmptyState } from '../../elements/detail-empty-state';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
+import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
 import { ChatsWithUser } from '../../../classes/panels/chats-with-user';
 
 import './css/chats-with-user-panel.css';
@@ -58,13 +58,13 @@ export const ChatsWithUserPanel = {
 		{
 			this.chats = [];
 			this.service = new ChatsWithUser({ dialogId: this.dialogId });
-			this.loadFirstPage();
+			void this.loadFirstPage();
 		},
 	},
 	created()
 	{
 		this.service = new ChatsWithUser({ dialogId: this.dialogId });
-		this.loadFirstPage();
+		void this.loadFirstPage();
 	},
 	methods:
 	{
@@ -107,11 +107,15 @@ export const ChatsWithUserPanel = {
 		{
 			EventEmitter.emit(EventType.sidebar.close, { panel: SidebarDetailBlock.chatsWithUser });
 		},
+		loc(phrase: string): string
+		{
+			return this.$Bitrix.Loc.getMessage(phrase);
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-chats-with-user-detail__scope">
 			<DetailHeader
-				:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_CHATSWITHUSER_DETAIL_TITLE')"
+				:title="loc('IM_SIDEBAR_CHATSWITHUSER_DETAIL_TITLE')"
 				:dialogId="dialogId"
 				:secondLevel="secondLevel"
 				@back="onBackClick"
@@ -122,12 +126,13 @@ export const ChatsWithUserPanel = {
 			>
 				<ChatItem
 					v-for="chat in chats"
-					:dialog-id="chat"
+					:dialogId="chat.dialogId"
+					:dateMessage="chat.dateMessage"
 					@clickItem="onClick"
 				/>
 				<DetailEmptyState
 					v-if="!isLoading && isEmptyState"
-					:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_CHATS_WITH_USER_EMPTY')"
+					:title="loc('IM_SIDEBAR_CHATS_WITH_USER_EMPTY')"
 					:iconType="SidebarDetailBlock.messageSearch"
 				/>
 				<Loader v-if="isLoading" class="bx-im-sidebar-chats-with-user-detail__loader-container" />

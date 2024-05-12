@@ -732,7 +732,7 @@
 			if (entry.isInvited())
 			{
 				partWrap.className += ' calendar-event-animate-counter-highlight';
-				if (this.isFirstVisibleRecursiveEntry(entry))
+				if (this.isFirstVisibleRecursiveEntry(entry) && params.part.partIndex === 0)
 				{
 					innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-invite-counter'}, text: '1'}))
 				}

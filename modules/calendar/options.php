@@ -135,11 +135,6 @@ if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bit
 			}
 		}
 
-		if (CModule::IncludeModule("video"))
-		{
-			$SET['vr_iblock_id'] = $_REQUEST['vr_iblock_id'];
-		}
-
 		foreach($arTypes as $type)
 		{
 			if (
@@ -485,23 +480,6 @@ BX.ready(function(){
 		</td>
 	</tr>
 
-	<?if (CModule::IncludeModule("video")):?>
-	<tr>
-		<td><label for="cal_vr_iblock_id"><?= GetMessage("CAL_VR_IBLOCK_ID")?>:</label></td>
-		<td>
-			<select id="cal_vr_iblock_id" name="vr_iblock_id"">
-<?if ($SET['rm_iblock_type']):?>
-	<option value=""><?= GetMessage('CAL_NOT_SET')?></option>
-	<?foreach ($arIB[$SET['rm_iblock_type']] as $iblock_id => $iblock):?>
-		<option value="<?= $iblock_id?>"<? if($iblock_id == $SET['vr_iblock_id']){echo ' selected="selected"';}?>><?= htmlspecialcharsbx($iblock)?></option>
-	<?endforeach;?>
-<?else:?>
-	<option value=""><?= GetMessage('CAL_NOT_SET')?></option>
-<?endif;?>
-			</select>
-		</td>
-	</tr>
-	<?endif?>
 	<?endif?>
 
 

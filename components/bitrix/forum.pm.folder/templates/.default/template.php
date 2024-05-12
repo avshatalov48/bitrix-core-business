@@ -13,14 +13,14 @@ $arResult["FID"] = (is_array($arResult["FID"]) ? $arResult["FID"] : array($arRes
 /********************************************************************
 				/Input params
 ********************************************************************/
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 endif;
-if (!empty($arResult["OK_MESSAGE"])): 
+if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-success">
 	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
@@ -47,8 +47,8 @@ if (($arParams["mode"] == "new") || ($arParams["mode"] == "edit"))
 	<input type="hidden" name="FID" value="<?=$arParams["FID"]?>" />
 <div class="forum-info-box forum-create-folder">
 	<div class="forum-info-box-inner">
-		<span class="forum-messages-folder"><?=GetMessage("PM_FOLDER_TITLE")?> 
-			<span><input type="text" name="FOLDER_TITLE" size="40" maxlength="64" value="<?=$arResult["POST_VALUES"]["FOLDER_TITLE"]?>" tabindex="1"/></span>
+		<span class="forum-messages-folder"><?=GetMessage("PM_FOLDER_TITLE")?>
+			<span><input type="text" name="FOLDER_TITLE" size="40" maxlength="64" value="<?=$arResult["POST_VALUES"]["FOLDER_TITLE"] ?? null?>" tabindex="1"/></span>
 			<span><input type="submit" name="SAVE" value="OK" tabindex="2"/></span>
 		</span>
 	</div>
@@ -121,7 +121,7 @@ foreach ($arResult["USER_FOLDER"] as $res):
 				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
 				$iCount == count($arResult["USER_FOLDER"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
 					<td class="forum-first-column forum-column-foldername">
-						<a href="<?=$res["pm_list"]?>"><?=$res["TITLE"]?></a> 
+						<a href="<?=$res["pm_list"]?>"><?=$res["TITLE"]?></a>
 						<span class="folder-edit"> ( <a href="<?=$res["URL"]["EDIT"]?>"><?=GetMessage("F_EDIT")?></a> ) </span>
 					</td>
 					<td class="forum-column-message">

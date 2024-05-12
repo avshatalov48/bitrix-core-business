@@ -113,12 +113,12 @@ this.BX.Landing = this.BX.Landing || {};
 	        }
 	      }, [{
 	        id: 'help',
-	        title: landing_loc.Loc.getMessage('LANDING_FORM_SHARE__HELP_TITLE'),
+	        title: landing_loc.Loc.getMessage('LANDING_FORM_SHARE__HELP_TITLE_MSGVER_1'),
 	        icon: {
 	          className: 'landing-form-features-help-icon'
 	        },
 	        link: {
-	          label: landing_loc.Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL'),
+	          label: landing_loc.Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL_MSGVER_1'),
 	          onClick: () => {
 	            const Feedback = main_core.Reflection.getClass('BX.UI.Feedback');
 	            if (!main_core.Type.isNil(Feedback)) {

@@ -1,8 +1,8 @@
-import {Type, Dom, Tag, Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {Menu, Popup, MenuItemOptions, PopupOptions} from 'main.popup';
+import { Type, Dom, Tag, Loc, bind } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Menu, Popup, MenuItemOptions, PopupOptions } from 'main.popup';
 import './select.css';
-import 'ui.'
+import 'ui.';
 
 export type SelectOption = {
 	label: string;
@@ -22,7 +22,7 @@ const ScrollDirection = Object.freeze({
 	TOP: -1,
 	BOTTOM: 1,
 	NONE: 0,
-})
+});
 
 export class Select extends EventEmitter
 {
@@ -44,7 +44,7 @@ export class Select extends EventEmitter
 		super();
 		this.setEventNamespace('BX.UI.Select');
 		this.#placeholder = Type.isString(options.placeholder) ? options.placeholder : '';
-		this.#isSearchable =  options.isSearchable === true || false;
+		this.#isSearchable = options.isSearchable === true || false;
 		this.#options = Array.isArray(options.options) ? options.options : [];
 		this.#popupParams = Type.isPlainObject(options.popupParams) ? options.popupParams : {};
 		this.#selectedOption = this.#findOptionByValue(options.value) || null;
@@ -73,19 +73,23 @@ export class Select extends EventEmitter
 			<div class="${this.#getContainerClassname()}">
 				<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 				<input
+					ref="input"
 					class="ui-ctl-element"
 					type="text"
 					placeholder="${this.#placeholder}"
 					${this.#isInputReadonly() ? 'readonly' : ''}
 					value="${this.#selectedOption?.label || ''}"
-					oninput="${(e) => { this.#handleInput(e)}}"
-					onfocus="${(e) => { this.#handleFocus(e) }}"
-					onblur="${(e) => {this.#handleBlur(e) }}"
-					onmouseup="${(e) => {this.#handleInputClick(e) }}"
-					onkeydown="${(e) => {this.#handleKeyDown(e) }}"
 				>
 			</div>
 		`;
+
+		bind(this.#container.input, 'input', this.#handleInput.bind(this));
+		bind(this.#container.input, 'focus', this.#handleFocus.bind(this));
+		bind(this.#container.input, 'blur', this.#handleBlur.bind(this));
+		bind(this.#container.input, 'mouseup', this.#handleInputClick.bind(this));
+		bind(this.#container.input, 'keydown', this.#handleKeyDown.bind(this));
+
+		this.#container = this.#container.root;
 
 		return this.#container;
 	}
@@ -118,13 +122,14 @@ export class Select extends EventEmitter
 
 	#createMenu(): Menu
 	{
-		const {width} = Dom.getPosition(this.#container);
-		const events = this.#popupParams?.events ? this.#popupParams?.events : {};
+		const { width } = Dom.getPosition(this.#container);
+		const events = this.#popupParams?.events ?? {};
 		this.#menu = new Menu({
 			width,
 			bindElement: this.#container,
 			items: this.#getMenuItems(),
 			closeByEsc: true,
+			autoHide: false,
 			className: 'select-menu-popup',
 			...this.#popupParams,
 			events: {
@@ -161,18 +166,13 @@ export class Select extends EventEmitter
 		{
 			return this.#getFilteredOptions()
 				.map((option, index) => {
-						return this.#getMenuItemFromOption(option, index === this.#highlightedOptionIndex)
-					}
-				);
+					return this.#getMenuItemFromOption(option, index === this.#highlightedOptionIndex);
+				});
 		}
-		else
-		{
-			return this.#options
-				.map((option, index) => {
-						return this.#getMenuItemFromOption(option, index === this.#highlightedOptionIndex)
-					}
-				);
-		}
+
+		return this.#options.map((option, index) => {
+			return this.#getMenuItemFromOption(option, index === this.#highlightedOptionIndex);
+		});
 	}
 
 	#handleInput(e): void
@@ -186,12 +186,13 @@ export class Select extends EventEmitter
 
 	#handleKeyDown(e): void
 	{
-		const {keyCode} = e;
+		const { keyCode } = e;
 		const arrowUpKeyCode = 38;
 		const arrowDownKeyCode = 40;
 		const enterKeyCode = 13;
 		const spaceKeyCode = 32;
 
+		// eslint-disable-next-line default-case
 		switch (keyCode)
 		{
 			case enterKeyCode: this.#handleEnterKey(e); break;
@@ -253,14 +254,15 @@ export class Select extends EventEmitter
 			return;
 		}
 
-		this.#options.forEach(({value}) => {
+		this.#options.forEach(({ value }) => {
 			this.#menu.removeMenuItem(value, {
 				destroyEmptyPopup: false,
 			});
 		});
 
 		const filteredOptions = this.#getFilteredOptions(this.#searchValue);
-		if (filteredOptions.length)
+
+		if (filteredOptions.length > 0)
 		{
 			if (!this.isMenuShown())
 			{
@@ -285,6 +287,7 @@ export class Select extends EventEmitter
 	{
 		const isHover = isHoverOption === true;
 		const className = `ui-select__menu-item menu-popup-no-icon ${isHover ? 'menu-popup-item-open' : ''}`;
+
 		return ({
 			id: option.value,
 			text: option.label,
@@ -303,8 +306,10 @@ export class Select extends EventEmitter
 	#getOptionFilter(searchStr): (option: SelectOption) => boolean
 	{
 		const lowerCaseSearchStr = Type.isString(searchStr) ? searchStr.toLowerCase() : '';
+
 		return (option) => {
 			const lowerCaseOptionLabel = option.label.toLowerCase();
+
 			return lowerCaseOptionLabel.indexOf(lowerCaseSearchStr) === 0;
 		};
 	}
@@ -313,8 +318,8 @@ export class Select extends EventEmitter
 	{
 		if (!this.#emptySearchPopup || !this.#emptySearchPopup?.isShown())
 		{
-			const {width} = Dom.getPosition(this.#container);
-			const events = this.#popupParams?.events ? this.#popupParams.events : {};
+			const { width } = Dom.getPosition(this.#container);
+			const events = this.#popupParams?.events ?? {};
 
 			this.#emptySearchPopup = new Popup({
 				width,
@@ -336,8 +341,8 @@ export class Select extends EventEmitter
 								events.onAfterClose();
 							}
 						}
-					}
-				}
+					},
+				},
 			});
 
 			this.#emptySearchPopup.show();
@@ -358,6 +363,7 @@ export class Select extends EventEmitter
 		if (!option)
 		{
 			this.#selectedOption = null;
+
 			return;
 		}
 
@@ -433,7 +439,7 @@ export class Select extends EventEmitter
 			popupContent.scroll({
 				left: 0,
 				top: (highlightedItemHeight * (this.#highlightedOptionIndex) + direction * popupContentHeight),
-				behavior: "smooth",
+				behavior: 'smooth',
 			});
 		}
 	}
@@ -442,25 +448,25 @@ export class Select extends EventEmitter
 	{
 		const {
 			bottom: popupContentBottom,
-			top: popupContentTop
+			top: popupContentTop,
 		} = Dom.getPosition(popupContent);
 
 		const {
 			bottom: highlightedItemBottom,
-			top: highlightedItemTop
+			top: highlightedItemTop,
 		} = Dom.getPosition(highlightedItem);
 
 		if (popupContentTop > highlightedItemTop)
 		{
 			return ScrollDirection.TOP;
 		}
-		else if (popupContentBottom < highlightedItemBottom)
+
+		if (popupContentBottom < highlightedItemBottom)
 		{
 			return ScrollDirection.BOTTOM;
 		}
-		else {
-			return ScrollDirection.NONE;
-		}
+
+		return ScrollDirection.NONE;
 	}
 
 	#getOptionIndex(optionValue: string): number
@@ -518,6 +524,7 @@ export class Select extends EventEmitter
 	#getContainerClassname(): string
 	{
 		const openMenuClassnameModifier = this.isMenuShown() || this.#emptySearchPopup ? '--open' : '';
+
 		return `ui-select ui-ctl ui-ctl-after-icon ui-ctl-dropdown ${this.#containerClassname} ${openMenuClassnameModifier}`;
 	}
 }

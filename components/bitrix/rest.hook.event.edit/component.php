@@ -30,7 +30,7 @@ $arResult['EVENTS_DESC'] = array();
 
 foreach($eventDictionary as $event)
 {
-	$arResult['EVENTS_DESC'][ToUpper($event['code'])] = $event;
+	$arResult['EVENTS_DESC'][mb_strtoupper($event['code'])] = $event;
 }
 
 if($arParams['ID'] > 0)

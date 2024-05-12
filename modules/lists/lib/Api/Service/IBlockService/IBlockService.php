@@ -5,16 +5,19 @@ namespace Bitrix\Lists\Api\Service\IBlockService;
 use Bitrix\Iblock\SectionTable;
 use Bitrix\Lists\Api\Data\IBlockService\IBlockElementsToGet;
 use Bitrix\Lists\Api\Data\IBlockService\IBlockElementToAdd;
+use Bitrix\Lists\Api\Data\IBlockService\IBlockElementToUpdate;
 use Bitrix\Lists\Api\Data\IBlockService\IBlockToGet;
 use Bitrix\Lists\Api\Data\IBlockService\IBlockToGetById;
 use Bitrix\Lists\Api\Request\IBlockService\AddIBlockElementRequest;
 use Bitrix\Lists\Api\Request\IBlockService\GetIBlockDefaultFieldsRequest;
+use Bitrix\Lists\Api\Request\IBlockService\UpdateIBlockElementRequest;
 use Bitrix\Lists\Api\Response\IBlockService\AddIBlockElementResponse;
 use Bitrix\Lists\Api\Response\IBlockService\GetIBlockByIdResponse;
 use Bitrix\Lists\Api\Response\IBlockService\GetIBlockDefaultFieldsResponse;
 use Bitrix\Lists\Api\Response\IBlockService\GetIBlockElementFieldsResponse;
 use Bitrix\Lists\Api\Response\IBlockService\GetIBlockElementListResponse;
 use Bitrix\Lists\Api\Response\IBlockService\GetIBlockListResponse;
+use Bitrix\Lists\Api\Response\IBlockService\UpdateIBlockElementResponse;
 use Bitrix\Lists\Api\Response\Response;
 use Bitrix\Lists\Service\Param;
 use Bitrix\Lists\Workflow\Starter;
@@ -385,10 +388,14 @@ final class IBlockService
 		$response = new AddIBlockElementResponse();
 
 		$elementToAdd = $this->dataService->getIBlockElementToAddObject($request, $response);
-		$iBlockId = $elementToAdd->getIBlockId();
-		$createdBy = $elementToAdd->getCreatedBy();
+		if (!$elementToAdd)
+		{
+			return $response;
+		}
 
-		if ($response->isSuccess() && $request->needCheckPermissions)
+		$iBlockId = $elementToAdd->getIBlockId();
+
+		if ($request->needCheckPermissions && $response->isSuccess())
 		{
 			$response->fillFromResponse(
 				$this->accessService->canUserAddElement($elementToAdd->getSectionId(), $iBlockId)
@@ -397,10 +404,10 @@ final class IBlockService
 
 		if ($response->isSuccess() && Loader::includeModule('iblock'))
 		{
-			$element = $this->prepareElementValuesToAdd($elementToAdd, $response);
+			$element = $this->prepareElementValuesToUpsert($elementToAdd, $response);
 			$wfStarter =
 				$response->isSuccess() && $request->needStartWorkflows
-					? $this->getWfStarter($response, $iBlockId, 0, $createdBy, $request->wfParameterValues)
+					? $this->getWfStarter($response, $elementToAdd, $request->wfParameterValues)
 					: null
 			;
 
@@ -428,39 +435,27 @@ final class IBlockService
 		return $response;
 	}
 
-	private function prepareElementValuesToAdd(
-		IBlockElementToAdd $elementToAdd,
-		AddIBlockElementResponse $response
-	): array
-	{
-		$iBlockFields = $this->getIBlockFields($elementToAdd->getIBlockId(), false, false);
-		$response->addErrors($iBlockFields->getErrors());
-
-		$element = [];
-		if ($response->isSuccess())
-		{
-			$result = $elementToAdd->getElementValues($iBlockFields->getFields(), $iBlockFields->getProps());
-			$element = $result->getData()['element'];
-			$response->addErrors($result->getErrors());
-		}
-
-		return $element;
-	}
-
 	private function getWfStarter(
 		Response $response,
-		int $iBlockId,
-		int $elementId,
-		int $createdBy,
-		array $parameters
-	): Starter
+		IBlockElementToAdd|IBlockElementToUpdate $elementToUpsert,
+		array $parameters,
+	): ?Starter
 	{
+		$iBlockId = $elementToUpsert->getIBlockId();
+		$elementId = $elementToUpsert->getElementId();
+		$modifiedBy = $elementToUpsert->getModifiedBy();
+
 		$iBlockInfo = $this->getIBlockById((new IBlockToGetById($iBlockId))->disableCheckPermissions())->getIBlock();
 
 		$wfStarter = new Starter($iBlockInfo, $this->accessService->getUserId());
 		$wfStarter->setElementId($elementId);
 
-		$isRunnableWfResult = $wfStarter->isRunnable($createdBy);
+		if (!$wfStarter->isEnabled())
+		{
+			return null;
+		}
+
+		$isRunnableWfResult = $wfStarter->isRunnable($modifiedBy);
 		$response->addErrors($isRunnableWfResult->getErrors());
 
 		if ($isRunnableWfResult->isSuccess())
@@ -472,5 +467,97 @@ final class IBlockService
 		return $wfStarter;
 	}
 
-	// public function updateIBlockElement(){}
+	public function updateIBlockElement(UpdateIBlockElementRequest $request): UpdateIBlockElementResponse
+	{
+		$response = new UpdateIBlockElementResponse();
+
+		$elementToUpdate = $this->dataService->getIBlockElementToUpdateObject($request, $response);
+		if (!$elementToUpdate)
+		{
+			return $response;
+		}
+
+		if ($request->needCheckPermissions && $response->isSuccess())
+		{
+			$response->fillFromResponse(
+				$this->accessService->canUserEditElement(
+					$elementToUpdate->getElementId(),
+					$elementToUpdate->getSectionId(),
+					$elementToUpdate->getIBlockId()
+				)
+			);
+		}
+
+		if ($response->isSuccess())
+		{
+			$element = $this->prepareElementValuesToUpsert($elementToUpdate, $response);
+			$wfStarter =
+				$response->isSuccess() && $request->needStartWorkflows
+					? $this->getWfStarter($response, $elementToUpdate, $request->wfParameterValues)
+					: null
+			;
+
+			if ($response->isSuccess())
+			{
+				if ($element)
+				{
+					$iBlockElement = new \CIBlockElement();
+					$result = $iBlockElement->Update($elementToUpdate->getElementId(), $element, false, true, true);
+
+					if ($result)
+					{
+						$response->setIsSuccessUpdate(true);
+					}
+					else
+					{
+						$response
+							->addError(new Error($iBlockElement->LAST_ERROR))
+							->setIsSuccessUpdate(false)
+						;
+					}
+				}
+
+				if ($wfStarter && (empty($element) || $response->getIsSuccessUpdate()))
+				{
+					$wfStarter->setTimeToStart($request->timeToStart);
+
+					if ($wfStarter->hasTemplatesOnStartup())
+					{
+						$wfStarter->setChangedFields(
+							empty($element) ? [] : $elementToUpdate->getChangedFieldsAfterUpdate()
+						);
+					}
+
+					$startWorkflowResult = $wfStarter->run();
+					$response->addErrors($startWorkflowResult->getErrors());
+				}
+			}
+		}
+
+		return $response;
+	}
+
+	private function prepareElementValuesToUpsert(
+		IBlockElementToAdd|IBlockElementToUpdate $elementToUpsert,
+		Response $response
+	): array
+	{
+		$iBlockFields = $this->getIBlockFields($elementToUpsert->getIBlockId(), false, true);
+		$response->addErrors($iBlockFields->getErrors());
+
+		$element = [];
+		if ($response->isSuccess())
+		{
+			$result = $elementToUpsert->getElementValues($iBlockFields->getFields(), $iBlockFields->getProps());
+			$element = $result->getElementData() ?? [];
+			$response->addErrors($result->getErrors());
+
+			if (!$result->getHasChangedFields() && !$result->getHasChangedProps())
+			{
+				return [];
+			}
+		}
+
+		return $element;
+	}
 }

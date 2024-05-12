@@ -304,11 +304,6 @@ export const NotificationContent = {
 		},
 		onDoubleClick(notificationId: number)
 		{
-			if (this.showSearchResult)
-			{
-				return;
-			}
-
 			this.notificationReadService.changeReadStatus(notificationId);
 		},
 		onConfirmButtonsClick(button: { id: string, value: string})

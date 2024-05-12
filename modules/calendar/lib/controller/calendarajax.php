@@ -486,7 +486,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				? $entry['attendeesEntityList']
 				: Util::getDefaultEntityList($userId, $type, $ownerId);
 			$responseParams['meetSection'] = null;
-			if ($type === Dictionary::EVENT_TYPE['user'])
+			if ($type === Dictionary::CALENDAR_TYPE['user'])
 			{
 				$responseParams['meetSection'] = UserSettings::get($ownerId)['meetSection'] ?? null;
 			}

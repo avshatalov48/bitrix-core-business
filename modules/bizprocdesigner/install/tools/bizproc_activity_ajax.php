@@ -13,8 +13,6 @@ if (!check_bitrix_sessid())
 if (!CBPDocument::CanUserOperateDocumentType(CBPCanUserOperateOperation::CreateWorkflow, $GLOBALS["USER"]->GetID(), $_REQUEST['document_type']))
 	die();
 
-CUtil::DecodeUriComponent($_REQUEST);
-
 $activityType = $_REQUEST['activity'];
 
 $runtime = CBPRuntime::GetRuntime();

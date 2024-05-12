@@ -1,0 +1,1 @@
+import './css/icons.css';

@@ -4,14 +4,15 @@ namespace Bitrix\Landing\Assets;
 
 use Bitrix\Landing\Agent;
 use Bitrix\Landing\File;
-use Bitrix\Landing\Site;
 use Bitrix\Landing\Manager;
 use Bitrix\Main;
 use Bitrix\Main\FileTable;
 use Bitrix\Main\Security\Random;
-use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\WebPacker;
 
+/**
+ * Manage webpack files
+ */
 class WebpackFile
 {
 	protected const MODULE_ID = 'landing';
@@ -23,37 +24,39 @@ class WebpackFile
 	/**
 	 * @var WebPacker\FileController
 	 */
-	protected $fileController;
+	protected WebPacker\FileController $fileController;
+
 	/**
 	 * @var int relation with file and landing in table
 	 */
-	protected $landingId;
+	protected int $landingId;
+
 	/**
-	 * @var int - ID of file from b_file
+	 * @var int|null - ID of file from b_file
 	 */
-	protected $fileId;
+	protected ?int $fileId = null;
 
 	/**
 	 * @var WebPacker\Resource\Package
 	 */
-	protected $package;
+	protected WebPacker\Resource\Package $package;
 
 	/**
 	 * @var WebPacker\Resource\Profile
 	 */
-	protected $profile;
+	protected WebPacker\Resource\Profile $profile;
 
 	/**
 	 * Name of file. If not set - will be using default
 	 * @var string
 	 */
-	protected $filename;
+	protected string $filename;
 
 	/**
 	 * Unique string of current assets package
 	 * @var string
 	 */
-	protected $packageHash;
+	protected string $packageHash;
 
 	/**
 	 * For browser cache

@@ -1,5 +1,5 @@
 import { reactionType as Reaction } from 'ui.reactions-select';
-import { MessageStatus, DialogType } from 'im.v2.const';
+import { MessageStatus, ChatType } from 'im.v2.const';
 
 export type ChatLoadRestResult = {
 	additionalMessages: RawMessage[],
@@ -179,11 +179,12 @@ export type RawRecentItem = {
 		date: string,
 		file: boolean,
 		id: number,
+		temporaryId?: string,
 		status: $Keys<typeof MessageStatus>,
 		text: string,
 		uuid: string,
 	},
-	type: $Keys<typeof DialogType>,
+	type: $Keys<typeof ChatType>,
 	title: string,
 	counter: number,
 	date_update: string,

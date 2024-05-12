@@ -44,6 +44,7 @@ class Message extends BaseController
 		'TEMPLATE_ID',
 		'REPLY_ID',
 		'BOT_ID',
+		'COPILOT',
 	];
 
 	public function getPrimaryAutoWiredParameter()
@@ -210,9 +211,9 @@ class Message extends BaseController
 	/**
 	 * @restMethod im.v2.Chat.Message.list
 	 */
-	public function listAction(Chat $chat, int $limit = self::MESSAGE_ON_PAGE_COUNT): ?array
+	public function listAction(Chat $chat, int $limit = self::MESSAGE_ON_PAGE_COUNT, string $ignoreMark = 'N'): ?array
 	{
-		$messageService = new MessageService($chat->getLoadContextMessage());
+		$messageService = new MessageService($chat->getLoadContextMessage($this->convertCharToBool($ignoreMark)));
 		$messages = $messageService->getMessageContext($limit, \Bitrix\Im\V2\Message::REST_FIELDS)->getResult();
 
 		return $messageService->fillContextPaginationData($this->toRestFormat($messages), $messages, $limit);

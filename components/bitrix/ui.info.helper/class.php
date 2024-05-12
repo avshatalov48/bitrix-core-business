@@ -1,5 +1,9 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 class CUiInfoHelperComponent extends \CBitrixComponent
 {
@@ -8,4 +12,3 @@ class CUiInfoHelperComponent extends \CBitrixComponent
 		\Bitrix\Main\UI\Extension::load('ui.info-helper');
 	}
 }
-?>

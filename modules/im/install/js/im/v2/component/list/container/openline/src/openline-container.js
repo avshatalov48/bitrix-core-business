@@ -1,4 +1,4 @@
-import {OpenlineList} from 'im.v2.component.list.element-list.openline';
+import {OpenlineList} from 'im.v2.component.list.items.openline';
 import {SearchInput} from 'im.v2.component.search2.search-input';
 import {SearchResult} from 'im.v2.component.search2.search-result';
 import {Logger} from 'im.v2.lib.logger';

@@ -1,0 +1,323 @@
+.ui-popupcomponentmaker {
+	font-family: var(--ui-font-family-system);
+}
+
+.ui-popupcomponentsmaker-header-tariff__wrapper {
+	padding: 12px;
+	color: var(--ui-color-on-primary);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+}
+
+.ui-popupcomponentsmaker-header-tariff__title-section {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 4px 0 0 5px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__icon {
+	color: var(--ui-color-on-primary);
+	border-radius: var(--ui-border-radius-circle);
+	width: 36px;
+	height: 36px;
+	background-color: rgba(var(--ui-color-on-primary-rgb), 0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+}
+
+.ui-popupcomponentsmaker-header-tariff__icon .ui-icon-set {
+	background-color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-90));
+}
+
+.ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__icon {
+	min-width: 57px;
+	min-height: 57px;
+	border: 1px solid rgba(var(--ui-color-on-primary-rgb), 0.2);
+}
+
+.ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-icon-set {
+	width: 37px;
+	height: 37px;
+	background-color: var(--ui-color-background-primary);
+}
+
+.ui-popupcomponentsmaker-header-tariff__title {
+	margin-top: -1px;
+	font-family: var(--ui-font-family-system);
+	font-weight: var( --ui-font-weight-medium);
+	font-size: var(--ui-font-size-lg);
+	line-height: 19px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__subtitle {
+	font-family: var(--ui-font-family-system);
+	font-weight: var(--ui-font-weight-regular);
+	font-size: var(--ui-font-size-md);
+	line-height: 17px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__message-wrapper {
+	display: flex;
+	align-items: center;
+	padding: 10px 12px;
+	gap: 9px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__title {
+	font-weight:  var(--ui-font-weight-regular);
+	font-size: var(--ui-font-size-sm);
+	line-height: 16px;
+	color: rgba(var(--ui-color-on-primary-rgb), 0.94);
+	letter-spacing: -.18px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__subtitle {
+	margin-top: 4px;
+	font-weight: var(--ui-font-weight-regular);
+	font-size: var(--ui-font-size-3xs);
+	line-height: 14px;
+	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-70));
+	letter-spacing: -.18px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__text {
+	font-family: var(--ui-font-family-system);
+	font-weight: var(--ui-font-weight-regular);
+	font-size: var(--ui-font-size-3xs);
+	line-height: 14px;
+	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-70));
+	letter-spacing: -.18px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__more {
+	display: inline-flex;
+	font-family: var(--ui-font-family-system);
+	line-height: 13px;
+	font-size: var(--ui-font-size-3xs);
+	font-weight: var(--ui-font-weight-regular);
+	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-70));
+	transition: color .3s;
+	cursor: pointer;
+}
+
+.ui-popupcomponentsmaker-header-tariff__more:hover {
+	color: rgba(var(--ui-color-on-primary-rgb), 1);
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__more,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__more {
+	color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-50));
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__more:hover,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__more:hover {
+	color: rgba(var(--ui-color-base-solid-rgb), 1);
+}
+
+.ui-popupcomponentsmaker-header-tariff__more-icon.ui-icon-set {
+	display: none;
+	align-self: end;
+	margin: 0 0 .5px 3px;
+	width: 10px;
+	height: 10px;
+	background-color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-50));
+}
+
+.ui-popupcomponentsmaker-header-tariff__more:hover .ui-popupcomponentsmaker-header-tariff__more-icon {
+	background-color: rgba(var(--ui-color-on-primary-rgb), 1);
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__more-icon,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__more-icon {
+	background-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-50));
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__more:hover .ui-popupcomponentsmaker-header-tariff__more-icon,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__more:hover .ui-popupcomponentsmaker-header-tariff__more-icon {
+	background-color: rgba(var(--ui-color-base-solid-rgb), 1);
+}
+
+.ui-popupcomponentsmaker-header-tariff__button-bar {
+	display: flex;
+	justify-content: center;
+}
+
+.ui-popupcomponentsmaker-header-tariff__button {
+	margin-top: 14px;
+	color: rgba(var(--ui-color-on-primary-rgb), 1);
+	background-color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-10));
+}
+
+.ui-popupcomponentsmaker-header-tariff__button:hover {
+	color: rgba(var(--ui-color-on-primary-rgb), 1);
+	background-color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-10));
+}
+
+.ui-popupcomponentsmaker-header-tariff__wrapper .ui-popupcomponentmaker__content--section-item {
+	margin-right: 0;
+}
+
+/* header style */
+
+.ui-popupcomponentsmaker__header {
+	position: relative;
+	border-radius: var(--ui-border-radius-3xl) var(--ui-border-radius-3xl) 0 0;
+	background-position: center top;
+	background-size: 250% auto;
+	flex: 1;
+	overflow: hidden;
+}
+
+.ui-popupcomponentmaker__header-content.--empty-content .ui-popupcomponentsmaker__header {
+	border-radius: var(--ui-border-radius-3xl);
+}
+
+.ui-popupcomponentmaker__header-content.--empty-content .ui-popupcomponentsmaker-header-tariff__title-section {
+	margin-left: 10px;
+}
+
+.ui-popupcomponentmaker__header-content.--empty-content .ui-popupcomponentsmaker-header-tariff__message-wrapper,
+.ui-popupcomponentmaker__header-content.--without-video .ui-popupcomponentsmaker-header-tariff__message-wrapper {
+	padding: 10px 14px;
+	gap: 14px;
+}
+
+.ui-popupcomponentmaker__header-content.--empty-content .ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__title {
+	margin: 0 0 6px 0;
+}
+
+.ui-popupcomponentmaker__header-content.--empty-content .ui-popupcomponentsmaker-header-tariff__more-icon {
+	display: block;
+}
+
+.ui-popupcomponentmaker__header-content.--empty-content .ui-popupcomponentsmaker-header-tariff__button-bar {
+	margin-bottom: 5px;
+}
+
+.ui-popupcomponentsmaker-header-tariff__button.ui-btn,
+.ui-popupcomponentsmaker-header-tariff__button.ui-btn {
+	height: 30px;
+	border-color: rgba(var(--ui-color-on-primary-rgb), .44);
+}
+
+.ui-popupcomponentsmaker-header-tariff__button.ui-btn:hover,
+.ui-popupcomponentsmaker-header-tariff__button.ui-btn:hover {
+	background: rgba(var(--ui-color-on-primary-rgb), .37);
+	border-color: rgba(var(--ui-color-on-primary-rgb), .44);
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__button.ui-btn,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__button.ui-btn {
+	background: rgba(var(--ui-color-palette-black-solid-rgb), .07);
+	border-color: rgba(var(--ui-color-palette-black-solid-rgb), .065);
+	color: #151515;
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__button.ui-btn:hover,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__button.ui-btn:hover {
+	background: rgba(var(--ui-color-palette-black-solid-rgb), .1);
+	border-color: rgba(var(--ui-color-palette-black-solid-rgb), .06);
+}
+
+.popup-with-header-skeleton__header:before,
+.ui-popupcomponentsmaker__header:before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background-color: rgba(var(--ui-color-palette-black-solid-rgb), .18);
+	border-radius: var(--ui-border-radius-3xl) var(--ui-border-radius-3xl) 0 0;
+	/*backdrop-filter: blur(32px);*/
+	overflow: hidden;
+}
+
+.popup-with-header-skeleton__header:before {
+	backdrop-filter: blur(32px);
+}
+
+.popup-with-header-skeleton__header:before {
+	height: 184px;
+}
+
+.ui-popupcomponentmaker.--with-header .popup-window-angly--arrow:before {
+	content: '';
+	background-color: rgba(var(--ui-color-palette-black-solid-rgb), .18);
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.ui-popupcomponentsmaker__header-background {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: var(--ui-border-radius-3xl) var(--ui-border-radius-3xl) 0 0;
+	background-position: center top;
+	background-size: 250% auto;
+	filter: blur(16px);
+	transform-origin: 50%;
+	transform: scale(1.2);
+	overflow: hidden;
+	z-index: -1;
+}
+
+.bitrix24-theme-default.popup-with-header-skeleton__header:before,
+.bitrix24-theme-default.ui-popupcomponentsmaker__header:before,
+.bitrix24-theme-default.popup-with-header-skeleton__header:before,
+.bitrix24-theme-default.ui-popupcomponentsmaker__header:before,
+.ui-popupcomponentmaker.--with-header .bitrix24-theme-default.popup-window-angly--arrow:before,
+.bitrix24-theme-dark.popup-with-header-skeleton__header:before,
+.bitrix24-theme-dark.ui-popupcomponentsmaker__header:before,
+.bitrix24-theme-dark.popup-with-header-skeleton__header:before,
+.bitrix24-theme-dark.ui-popupcomponentsmaker__header:before,
+.ui-popupcomponentmaker.--with-header .bitrix24-theme-dark.popup-window-angly--arrow:before {
+	background-color: rgba(var(--ui-color-background-primary-rgb), .18);
+}
+
+.bitrix24-light-theme .ui-popupcomponentsmaker-header-tariff__section-message-wrapper {
+	background-color: rgba(var(--ui-color-background-primary-rgb), var(--ui-opacity-10));
+}
+
+.ui-popupcomponentmaker.--with-header .ui-popupcomponentsmaker__header:before {
+	border: none;
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__title,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__title,
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__subtitle,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__subtitle,
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__text,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__text {
+	color: #151515;
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__icon,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__icon,
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__section-message-wrapper,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__section-message-wrapper {
+	background-color: rgba(var(--ui-color-palette-black-solid-rgb), var(--ui-opacity-10));
+	border-color: rgba(var(--ui-color-palette-black-solid-rgb), var(--ui-opacity-20));
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__icon .ui-icon-set,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__icon .ui-icon-set {
+	background-color: var(--ui-color-base-default);
+}
+
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__subtitle,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__subtitle,
+.bitrix24-theme-dark .ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__text,
+.bitrix24-theme-default .ui-popupcomponentsmaker-header-tariff__message-wrapper .ui-popupcomponentsmaker-header-tariff__text {
+	opacity: var(--ui-opacity-50);
+}
+
+/* end header style*/

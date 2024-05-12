@@ -2,6 +2,7 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data\Internal\MergeTrait;
 
 /**
  * Class StatusTable
@@ -36,6 +37,8 @@ use Bitrix\Main\Entity;
 
 class StatusTable extends Entity\DataManager
 {
+	use MergeTrait;
+
 	/**
 	 * Returns path to the file which contains definition of the class.
 	 *

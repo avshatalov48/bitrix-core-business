@@ -33,7 +33,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	$(window).load(function() {
 		$('#slider-<?=$arResult['ID']?>').nivoSlider({
 			effect: '<?=$arParams['EFFECT']?>',

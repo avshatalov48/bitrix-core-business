@@ -7,14 +7,14 @@ endif;
 $path = str_replace(array("\\", "//"), "/", __DIR__."/interface.php");
 include_once($path);
 // *****************************************************************************************
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 endif;
-if (!empty($arResult["OK_MESSAGE"])): 
+if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-success">
 	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
@@ -41,7 +41,7 @@ endif;
 <?
 
 $aTabs = array(
-	array("DIV" => "forum_1", "TAB" => GetMessage("F_REG_INFO"), "TITLE" => GetMessage("F_REG_INFO")), 
+	array("DIV" => "forum_1", "TAB" => GetMessage("F_REG_INFO"), "TITLE" => GetMessage("F_REG_INFO")),
 	array("DIV" => "forum_2", "TAB" => GetMessage("F_PRIVATE_INFO"), "TITLE" => GetMessage("F_PRIVATE_INFO")),
 	array("DIV" => "forum_3", "TAB" => GetMessage("F_WORK_INFO"), "TITLE" => GetMessage("F_WORK_INFO")),
 	array("DIV" => "forum_4", "TAB" => GetMessage("F_FORUM_PROFILE"), "TITLE" => GetMessage("F_FORUM_PROFILE")),
@@ -75,11 +75,11 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 	</tr>
 	<tr>
 		<th><?=GetMessage("F_NEW_PASSWORD")?></th>
-		<td><input type="password" name="NEW_PASSWORD" size="20" maxlength="50" value="<?=$arResult["NEW_PASSWORD"]?>" autocomplete="off" /></td>
+		<td><input type="password" name="NEW_PASSWORD" size="20" maxlength="50" value="<?=$arResult["NEW_PASSWORD"] ?? ""?>" autocomplete="off" /></td>
 	</tr>
 	<tr>
 		<th><?=GetMessage("F_PASSWORD_CONFIRM")?></th>
-		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="20" maxlength="50" value="<?=$arResult["NEW_PASSWORD_CONFIRM"]?>" autocomplete="off" /></td>
+		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="20" maxlength="50" value="<?=$arResult["NEW_PASSWORD_CONFIRM"] ?? ""?>" autocomplete="off" /></td>
 	</tr>
 <?if($arResult["TIME_ZONE_ENABLED"] == true):?>
 	<tr class="header">
@@ -137,10 +137,10 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 		<th><?=GetMessage("F_BIRTHDATE")?> (<?=CLang::GetDateFormat("SHORT")?>):</th>
 		<td><?
 			$APPLICATION->IncludeComponent(
-				"bitrix:main.calendar", 
-				"", 
+				"bitrix:main.calendar",
+				"",
 				array(
-					"SHOW_INPUT" => "Y", 
+					"SHOW_INPUT" => "Y",
 					"FORM_NAME" => "form1",
 					"INPUT_NAME" => "PERSONAL_BIRTHDAY",
 					"INPUT_VALUE" => $arResult["~str_PERSONAL_BIRTHDAY"]),
@@ -187,7 +187,7 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 	<tr>
 		<th><?=GetMessage("F_COMPANY_NAME")?></th>
 		<td><input type="text" name="WORK_COMPANY" size="45" maxlength="255" value="<?=$arResult["str_WORK_COMPANY"]?>"/></td>
-	</tr>		
+	</tr>
 	<tr>
 		<th><?=GetMessage("F_WWW_PAGE")?></th>
 		<td><input type="text" name="WORK_WWW" size="45" maxlength="255" value="<?=$arResult["str_WORK_WWW"]?>"/></td>
@@ -252,7 +252,7 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 		if ($arResult["str_FORUM_SUBSC_GET_MY_MESSAGE"] == "Y")
 		{
 			?> checked="checked" <?
-		} 
+		}
 		?> /> <label for="FORUM_SUBSC_GET_MY_MESSAGE"><?=GetMessage("F_SUBSC_GET_MY_MESSAGE")?></label>
 		</td>
 	</tr>
@@ -275,7 +275,7 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 			<?=GetMessage("F_SIZE_AVATAR", array("#SIZE#" => CFile::FormatSize(COption::GetOptionString("forum", "file_max_size", 5242880))))?><br/>
 			<input name="FORUM_AVATAR" size="30" type="file" />
 			<?if ($arResult["SHOW_DELETE_FORUM_AVATAR"] == "Y"):?>
-			<br/><input type="checkbox" name="FORUM_AVATAR_del" value="Y" id="FORUM_AVATAR_del" /> 
+			<br/><input type="checkbox" name="FORUM_AVATAR_del" value="Y" id="FORUM_AVATAR_del" />
 				<label for="FORUM_AVATAR_del"><?=GetMessage("FILE_DELETE")?></label>
 			<br/>
 				<?=$arResult["str_FORUM_AVATAR_IMG"]?>
@@ -295,8 +295,8 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 		<?=$arUserField["EDIT_FORM_LABEL"]?>:</th>
 		<td>
 			<?$APPLICATION->IncludeComponent(
-				"bitrix:system.field.edit", 
-				$arUserField["USER_TYPE"]["USER_TYPE_ID"], 
+				"bitrix:system.field.edit",
+				$arUserField["USER_TYPE"]["USER_TYPE_ID"],
 				array("bVarsFromForm" => $arResult["bVarsFromForm"], "arUserField" => $arUserField), null, array("HIDE_ICONS"=>"Y"));?>
 		</td>
 	</tr>

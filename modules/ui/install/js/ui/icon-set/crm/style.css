@@ -1,6 +1,7 @@
 @import "../icon-base.css";
 
-.ui-icon-set {
+.ui-icon-set,
+.ui-icon-set__scope {
 	--ui-icon-set__path_send-contact: url('/bitrix/js/ui/icon-set/crm/images/send-contact.svg');
 	--ui-icon-set__path_book-open: url('/bitrix/js/ui/icon-set/crm/images/book-open.svg');
 	--ui-icon-set__path_funnel-1: url('/bitrix/js/ui/icon-set/crm/images/funnel-1.svg');

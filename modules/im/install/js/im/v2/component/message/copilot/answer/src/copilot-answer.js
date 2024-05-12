@@ -1,11 +1,11 @@
 import 'ui.notification';
+import { Dom, Loc, Type } from 'main.core';
 
 import { Parser } from 'im.v2.lib.parser';
-import { SendingService } from 'im.v2.provider.service';
-import { Loc, Type } from 'main.core';
-
-import { DefaultMessageContent, AuthorTitle, MessageStatus } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
+import { DefaultMessageContent, MessageStatus } from 'im.v2.component.message.elements';
+
+import { CopilotAuthorTitle } from './components/copilot-author-title';
 
 import './css/copilot-answer.css';
 
@@ -14,13 +14,7 @@ import type { ImModelMessage } from 'im.v2.model';
 // @vue/component
 export const CopilotMessage = {
 	name: 'CopilotMessage',
-	components:
-	{
-		AuthorTitle,
-		BaseMessage,
-		DefaultMessageContent,
-		MessageStatus,
-	},
+	components: { CopilotAuthorTitle, BaseMessage, DefaultMessageContent, MessageStatus },
 	props:
 	{
 		item: {
@@ -58,9 +52,15 @@ export const CopilotMessage = {
 		{
 			return this.message.componentParams?.copilotError === true;
 		},
-		hasMore(): boolean
+		warningText(): string
 		{
-			return this.message.componentParams?.copilotHasMore === true;
+			return this.loc(
+				'IM_MESSAGE_COPILOT_ANSWER_WARNING',
+				{
+					'#LINK_START#': '<a class="bx-im-message-copilot-answer__warning_more">',
+					'#LINK_END#': '</a>',
+				},
+			);
 		},
 	},
 	methods:
@@ -74,52 +74,49 @@ export const CopilotMessage = {
 				});
 			}
 		},
-		onContinueClick()
+		onWarningDetailsClick(event: PointerEvent)
 		{
-			this.getSendingService().sendMessage({
-				text: this.loc('IM_MESSAGE_COPILOT_ANSWER_CONTINUE_TEXT'),
-				dialogId: this.dialogId,
-			});
-		},
-		getSendingService(): SendingService
-		{
-			if (!this.sendingService)
+			if (!Dom.hasClass(event.target, 'bx-im-message-copilot-answer__warning_more'))
 			{
-				this.sendingService = SendingService.getInstance();
+				return;
 			}
 
-			return this.sendingService;
+			const ARTICLE_CODE = '20412666';
+			BX.Helper?.show(`redirect=detail&code=${ARTICLE_CODE}`);
 		},
-		loc(phraseCode: string): string
+		loc(phraseCode: string, replacements: {[p: string]: string} = {}): string
 		{
-			return this.$Bitrix.Loc.getMessage(phraseCode);
+			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 		},
 	},
 	template: `
 		<BaseMessage :item="item" :dialogId="dialogId" class="bx-im-message-copilot-base-message__container">
 			<div class="bx-im-message-default__container bx-im-message-copilot-answer__container" :class="{'--error': isError}">
-				<AuthorTitle v-if="withTitle" :item="item" />
+				<CopilotAuthorTitle v-if="withTitle" :item="item" />
 				<div class="bx-im-message-default-content__container bx-im-message-default-content__scope">
 					<div class="bx-im-message-default-content__text" v-html="formattedText"></div>
-					<div class="bx-im-message-default-content__bottom-panel">
-						<div v-if="!isError" class="bx-im-message-copilot-answer__actions">
-							<div class="bx-im-message-copilot-answer__action" @click="onCopyClick">
-								<div class="bx-im-message-copilot-answer__action_icon --copy"></div>
-								<div class="bx-im-message-copilot-answer__action_text">
-									{{ loc('IM_MESSAGE_COPILOT_ANSWER_ACTION_COPY') }}
-								</div>
-							</div>
-							<div v-if="hasMore" class="bx-im-message-copilot-answer__action" @click="onContinueClick">
-								<div class="bx-im-message-copilot-answer__action_icon --continue"></div>
-								<div class="bx-im-message-copilot-answer__action_text">
-									{{ loc('IM_MESSAGE_COPILOT_ANSWER_ACTION_CONTINUE') }}
-								</div>
-							</div>
-						</div>
+					<div v-if="isError" class="bx-im-message-default-content__bottom-panel">
 						<div class="bx-im-message-default-content__status-container">
 							<MessageStatus :item="message" />
 						</div>
 					</div>
+				</div>
+			</div>
+			<div v-if="!isError" class="bx-im-message-copilot-answer__bottom-panel">
+				<div class="bx-im-message-copilot-answer__panel-content">
+					<button
+						:title="loc('IM_MESSAGE_COPILOT_ANSWER_ACTION_COPY')"
+						@click="onCopyClick"
+						class="bx-im-message-copilot-answer__copy_icon"
+					></button>
+					<span 
+						v-html="warningText"
+						@click="onWarningDetailsClick"
+						class="bx-im-message-copilot-answer__warning"
+					></span>
+				</div>
+				<div class="bx-im-message-default-content__status-container">
+					<MessageStatus :item="message" />
 				</div>
 			</div>
 		</BaseMessage>

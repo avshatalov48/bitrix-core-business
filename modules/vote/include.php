@@ -63,7 +63,6 @@ CModule::AddAutoloadClasses("vote", array(
 
 $voteCache = new CVoteCacheManager();
 
-
 function VoteVoteEditFromArray($CHANNEL_ID, $VOTE_ID = false, $arFields = array(), $params = array())
 {
 	$CHANNEL_ID = intval($CHANNEL_ID);
@@ -83,7 +82,7 @@ function VoteVoteEditFromArray($CHANNEL_ID, $VOTE_ID = false, $arFields = array(
 	$arFieldsVote = array(
 		"CHANNEL_ID" => $CHANNEL_ID,
 		"AUTHOR_ID" => $GLOBALS["USER"]->GetID(),
-		"UNIQUE_TYPE" => $params["UNIQUE_TYPE"], 
+		"UNIQUE_TYPE" => $params["UNIQUE_TYPE"],
 		"DELAY" => $params["DELAY"] ?: 10,
 		"DELAY_TYPE" => $params['DELAY_TYPE'] ?: "D");
 	if (!empty($arFields["DATE_START"]))
@@ -102,17 +101,17 @@ function VoteVoteEditFromArray($CHANNEL_ID, $VOTE_ID = false, $arFields = array(
 	if (!CVote::CheckFields("UPDATE", $arFieldsVote)):
 		$e = $GLOBALS['APPLICATION']->GetException();
 		$aMsg[] = array(
-			"id" => "VOTE_ID", 
+			"id" => "VOTE_ID",
 			"text" => $e->GetString());
 	elseif (intval($VOTE_ID) > 0):
 		$db_res = CVote::GetByID($VOTE_ID);
 		if (!($db_res && $res = $db_res->Fetch())):
 			$aMsg[] = array(
-				"id" => "VOTE_ID", 
+				"id" => "VOTE_ID",
 				"text" => GetMessage("VOTE_VOTE_NOT_FOUND", array("#ID#", $VOTE_ID)));
 		elseif ($res["CHANNEL_ID"] != $CHANNEL_ID):
 			$aMsg[] = array(
-				"id" => "CHANNEL_ID", 
+				"id" => "CHANNEL_ID",
 				"text" => GetMessage("VOTE_CHANNEL_ID_ERR"));
 		else:
 			$arVote = $res;
@@ -296,53 +295,53 @@ function VoteVoteEditFromArray($CHANNEL_ID, $VOTE_ID = false, $arFields = array(
 	return $arVote["ID"];
 /************** Actions/********************************************/
 /*	$arFields = array(
-		"ID" => 345, 
-		"TITLE" => "test", 
-		"...", 
+		"ID" => 345,
+		"TITLE" => "test",
+		"...",
 		"QUESTIONS" => array(
 			array(
-				"ID" => 348, 
-				"QUESTION" => "test", 
+				"ID" => 348,
+				"QUESTION" => "test",
 				"ANSWERS" => array(
 					array(
-						"ID" => 340, 
-						"MESSAGE" => "test"), 
+						"ID" => 340,
+						"MESSAGE" => "test"),
 					array(
-						"ID" => 0, 
-						"MESSAGE" => "test"), 
+						"ID" => 0,
+						"MESSAGE" => "test"),
 					array(
 						"ID" => 350,
-						"DEL" => "Y",  
+						"DEL" => "Y",
 						"MESSAGE" => "test")
 					)
-				), 
+				),
 			array(
-				"ID" => 351, 
-				"DEL" => "Y", 
-				"QUESTION" => "test", 
+				"ID" => 351,
+				"DEL" => "Y",
+				"QUESTION" => "test",
 				"ANSWERS" => array(
 					array(
-						"ID" => 0, 
-						"MESSAGE" => "test"), 
+						"ID" => 0,
+						"MESSAGE" => "test"),
 					array(
 						"ID" => 478,
-						"DEL" => "Y",  
+						"DEL" => "Y",
 						"MESSAGE" => "test")
 					)
-				), 
+				),
 			array(
-				"ID" => 0, 
-				"QUESTION" => "test", 
+				"ID" => 0,
+				"QUESTION" => "test",
 				"ANSWERS" => array(
 					array(
-						"ID" => 0, 
-						"MESSAGE" => "test"), 
+						"ID" => 0,
+						"MESSAGE" => "test"),
 					)
-				), 
+				),
 			)
 		);
 */
-	
-	
+
+
 }
 ?>

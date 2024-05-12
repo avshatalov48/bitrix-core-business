@@ -3,16 +3,21 @@ import { EventEmitter } from 'main.core.events';
 import { Messenger } from 'im.public';
 import { EventType } from 'im.v2.const';
 import { ChatSearchInput } from 'im.v2.component.search.chat-search-input';
-import { SearchExperimental } from 'im.v2.component.search.search-experimental';
+import { ChatSearch } from 'im.v2.component.search.chat-search';
 
 import type { JsonObject } from 'main.core';
 
 import './forward-content.css';
 
+const searchConfig = Object.freeze({
+	chats: true,
+	users: true,
+});
+
 // @vue/component
 export const ForwardContent = {
 	name: 'ForwardContent',
-	components: { SearchExperimental, ChatSearchInput },
+	components: { ChatSearch, ChatSearchInput },
 	props:
 	{
 		messageId: {
@@ -27,6 +32,10 @@ export const ForwardContent = {
 			searchQuery: '',
 			isLoading: false,
 		};
+	},
+	computed:
+	{
+		searchConfig: () => searchConfig,
 	},
 	methods:
 	{
@@ -59,12 +68,10 @@ export const ForwardContent = {
 				/>
 			</div>
 			<div class="bx-im-entity-selector-forward__search-result-container">
-				<SearchExperimental
+				<ChatSearch
 					:searchMode="true"
 					:searchQuery="searchQuery"
-					:selectMode="true"
-					:withMyNotes="true"
-					:handleClickItem="false"
+					:searchConfig="searchConfig"
 					@clickItem="onSelectItem"
 					@loading="onLoading"
 				/>

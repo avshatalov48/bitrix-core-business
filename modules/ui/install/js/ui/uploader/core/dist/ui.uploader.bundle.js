@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core_events,main_core) {
@@ -449,6 +450,7 @@ this.BX.UI = this.BX.UI || {};
 	var _uploadController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadController");
 	var _loadController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadController");
 	var _removeController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeController");
+	var _forceServerLoad = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("forceServerLoad");
 	var _uploadCallbacks = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadCallbacks");
 	var _setStatus = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setStatus");
 	class UploaderFile extends main_core_events.EventEmitter {
@@ -557,6 +559,10 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: null
 	    });
+	    Object.defineProperty(this, _forceServerLoad, {
+	      writable: true,
+	      value: false
+	    });
 	    Object.defineProperty(this, _uploadCallbacks, {
 	      writable: true,
 	      value: new CallbackCollection(this)
@@ -582,6 +588,9 @@ this.BX.UI = this.BX.UI || {};
 	      this.update(source);
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = main_core.Type.isStringFilled(options.id) ? options.id : createUniqueId();
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _origin)[_origin] === FileOrigin.SERVER) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _forceServerLoad)[_forceServerLoad] = options.preload === true || main_core.Type.isPlainObject(source) && source.preload === true;
+	    }
 	    this.subscribeFromOptions({
 	      [FileEvent.ADD]: () => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.ADDED);
@@ -596,6 +605,9 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.LOADING);
 	    this.emit(FileEvent.LOAD_START);
 	    babelHelpers.classPrivateFieldLooseBase(this, _loadController)[_loadController].load(this);
+	  }
+	  shouldForceServerLoad() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _forceServerLoad)[_forceServerLoad];
 	  }
 	  upload(callbacks = {}) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploadCallbacks)[_uploadCallbacks].subscribe(callbacks);
@@ -4270,8 +4282,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (!file.isLoadable()) {
 	      if (file.getOrigin() === FileOrigin.SERVER) {
 	        const preloaded = main_core.Type.isStringFilled(file.getName());
-	        const shouldPreload = main_core.Type.isPlainObject(options) && options.preload === true || main_core.Type.isPlainObject(source) && source.preload === true;
-	        if (!preloaded || shouldPreload) {
+	        if (!preloaded || file.shouldForceServerLoad()) {
 	          file.setLoadController(this.getServer().createServerLoadController());
 	        } else {
 	          file.setLoadController(this.getServer().createServerlessLoadController());

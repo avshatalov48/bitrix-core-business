@@ -23,7 +23,7 @@ export class CreateService
 		this.#store = Core.getStore();
 	}
 
-	async createChat(chatConfig: ChatConfig): Promise<string>
+	async createChat(chatConfig: ChatConfig): Promise<{ newDialogId: string, newChatId: number }>
 	{
 		Logger.warn('ChatService: createChat', chatConfig);
 
@@ -43,7 +43,7 @@ export class CreateService
 		const newDialogId = `chat${newChatId}`;
 		this.#addChatToModel(newDialogId, preparedFields);
 
-		return newDialogId;
+		return { newDialogId, newChatId };
 	}
 
 	async #prepareFields(chatConfig: ChatConfig): RestChatConfig

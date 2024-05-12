@@ -489,10 +489,6 @@ class CBPMailActivity extends CBPActivity
 				$rawData = (array)$request->getPostList()->getRaw('form_data');
 				$rawData = $rawData['mail_text'];
 			}
-			if ($request->isAjaxRequest())
-			{
-				\CUtil::decodeURIComponent($rawData);
-			}
 			//TODO: fix for WAF, needs refactoring.
 			$rawData = \Bitrix\Bizproc\Automation\Helper::unConvertExpressions($rawData, $documentType);
 

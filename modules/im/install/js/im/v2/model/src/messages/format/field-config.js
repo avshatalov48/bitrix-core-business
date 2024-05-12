@@ -2,21 +2,16 @@ import { Type } from 'main.core';
 
 import { Utils } from 'im.v2.lib.utils';
 
-import { convertToNumber, convertToString, isNumberOrString, convertObjectKeysToCamelCase } from '../../utils/format';
+import { convertToNumber, convertToString, isNumberOrString } from '../../utils/format';
 import { prepareComponentId, prepareAuthorId, prepareKeyboard } from './format-functions';
 
 import type { FieldsConfig } from '../../utils/validate';
 
 export const messageFieldsConfig: FieldsConfig = [
 	{
-		fieldName: 'temporaryId',
+		fieldName: ['id', 'temporaryId'],
 		targetFieldName: 'id',
-		checkFunction: Utils.text.isUuidV4,
-	},
-	{
-		fieldName: 'id',
-		targetFieldName: 'id',
-		checkFunction: Type.isNumber,
+		checkFunction: [Type.isNumber, Utils.text.isTempMessage],
 	},
 	{
 		fieldName: 'chatId',
@@ -27,7 +22,7 @@ export const messageFieldsConfig: FieldsConfig = [
 	{
 		fieldName: 'date',
 		targetFieldName: 'date',
-		checkFunction: Type.isString,
+		checkFunction: [Type.isString, Type.isDate],
 		formatFunction: Utils.date.cast,
 	},
 	{
@@ -79,7 +74,6 @@ export const messageFieldsConfig: FieldsConfig = [
 		fieldName: 'componentParams',
 		targetFieldName: 'componentParams',
 		checkFunction: Type.isPlainObject,
-		formatFunction: convertObjectKeysToCamelCase,
 	},
 	{
 		fieldName: ['files', 'fileId'],
@@ -135,6 +129,5 @@ export const messageFieldsConfig: FieldsConfig = [
 		fieldName: 'forward',
 		targetFieldName: 'forward',
 		checkFunction: Type.isPlainObject,
-		formatFunction: convertObjectKeysToCamelCase,
 	},
 ];

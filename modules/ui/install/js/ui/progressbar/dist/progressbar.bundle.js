@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -53,6 +52,7 @@ this.BX = this.BX || {};
 	    this.textBefore = main_core.Type.isString(this.options.textBefore) ? this.options.textBefore : null;
 	    this.textBeforeContainer = null;
 	    this.textAfter = main_core.Type.isString(this.options.textAfter) ? this.options.textAfter : null;
+	    this.clickAfterCallback = main_core.Type.isFunction(this.options.clickAfterCallback) ? this.options.clickAfterCallback : null;
 	    this.textAfterContainer = null;
 	    this.statusType = main_core.Type.isString(this.options.statusType) ? this.options.statusType : BX.UI.ProgressBar.Status.NONE;
 	    this.size = main_core.Type.isStringFilled(this.options.size) || main_core.Type.isNumber(this.options.size) ? this.options.size : BX.UI.ProgressBar.Size.MEDIUM;
@@ -161,14 +161,15 @@ this.BX = this.BX || {};
 	  setTextBefore(text) {
 	    if (main_core.Type.isStringFilled(text)) {
 	      this.textBefore = text;
-	      if (!this.textBeforeContainer) {
-	        this.createTextBefore(text);
-	      } else {
+	      if (this.textBeforeContainer) {
 	        main_core.Dom.adjust(this.textBeforeContainer, {
 	          html: text
 	        });
+	      } else {
+	        this.createTextBefore(text);
 	      }
 	    }
+	    return this;
 	  }
 	  createTextBefore(text) {
 	    if (!this.textBeforeContainer && main_core.Type.isStringFilled(text)) {
@@ -183,24 +184,41 @@ this.BX = this.BX || {};
 	    }
 	    return this.textBeforeContainer;
 	  }
+	  setClickAfterCallback(callback) {
+	    if (main_core.Type.isFunction(this.clickAfterCallback)) {
+	      main_core.Event.unbind(this.textAfterContainer, 'click', this.clickAfterCallback);
+	    }
+	    this.clickAfterCallback = callback;
+	    return this;
+	  }
 	  setTextAfter(text) {
 	    if (main_core.Type.isStringFilled(text)) {
 	      this.textAfter = text;
-	      if (!this.textAfterContainer) {
-	        this.createTextAfter(text);
-	      } else {
+	      if (this.textAfterContainer) {
 	        main_core.Dom.adjust(this.textAfterContainer, {
-	          html: text
+	          text
 	        });
+	      } else {
+	        this.createTextAfter(text);
+	      }
+	      if (this.clickAfterCallback) {
+	        main_core.Event.unbind(this.textAfterContainer, 'click', this.clickAfterCallback);
+	        main_core.Event.bind(this.textAfterContainer, 'click', this.clickAfterCallback);
 	      }
 	    }
 	  }
+	  clearTextAfter() {
+	    main_core.Dom.remove(this.textAfterContainer);
+	    this.textAfterContainer = null;
+	    return this;
+	  }
 	  createTextAfter(text) {
-	    if (!this.textAfterContainer && main_core.Type.isStringFilled(text)) {
-	      this.textAfterContainer = main_core.Tag.render(_t2 || (_t2 = _`
-				<div class="ui-progressbar-text-after">${0}</div>
-			`), text);
+	    if (this.textAfterContainer || !main_core.Type.isStringFilled(text)) {
+	      return;
 	    }
+	    this.textAfterContainer = main_core.Tag.render(_t2 || (_t2 = _`
+			<div class="ui-progressbar-text-after">${0}</div>
+		`), text);
 	  }
 	  getTextAfter() {
 	    if (!this.textAfterContainer) {
@@ -291,6 +309,7 @@ this.BX = this.BX || {};
 	      this.setFill(this.fill);
 	      this.setColorTrack(this.colorTrack);
 	      this.setColorBar(this.colorBar);
+	      this.setTextAfter(this.textAfter);
 	    }
 	  }
 	  getBar() {

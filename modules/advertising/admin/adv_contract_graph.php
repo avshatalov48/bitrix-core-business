@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */

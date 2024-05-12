@@ -150,12 +150,6 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 						$this->arResult['THEME_SITE'] = array_shift(array_keys($this->arResult['COLORS']));
 					}
 
-					$this->arResult['THEME_COLOR'] = '#34bcf2';
-					if (isset($hooks['THEME'], $hooks['THEME']->getPageFields()['THEME_COLOR']))
-					{
-						$this->arResult['THEME_COLOR'] = $hooks['THEME']->getPageFields()['THEME_COLOR']->getValue();
-					}
-
 					if ($this->isNeedAddColorToPalette($this->arResult['THEME_SITE']))
 					{
 						$this->addColorToPallete($this->arResult['THEME_SITE']);
@@ -211,9 +205,13 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					$this->arParams['IS_CRM_FORM'] = 'Y';
 				}
 
-				if ($this->request('context') !== '')
+				if ($this->request('context_section') !== '')
 				{
-					$this->arParams['CONTEXT'] = $this->request('context');
+					$this->arParams['CONTEXT_SECTION'] = $this->request('context_section');
+				}
+				if ($this->request('context_element') !== '')
+				{
+					$this->arParams['CONTEXT_ELEMENT'] = $this->request('context_element');
 				}
 			}
 			else

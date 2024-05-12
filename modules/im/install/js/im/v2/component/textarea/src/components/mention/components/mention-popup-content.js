@@ -3,16 +3,18 @@ import { EventEmitter } from 'main.core.events';
 
 import { Utils } from 'im.v2.lib.utils';
 import { EventType } from 'im.v2.const';
-import { Logger } from 'im.v2.lib.logger';
-import { SearchService } from 'im.v2.provider.service';
+import { Core } from 'im.v2.application.core';
 import { ScrollWithGradient } from 'im.v2.component.elements';
 
 import { MentionItem } from './mention-item';
 import { MentionEmptyState } from './mention-empty-state';
 import { MentionLoadingState } from './mention-loading-state';
 import { MentionContentFooter } from './mention-content-footer';
+import { MentionSearchService } from '../classes/mention-search-service';
 
 import '../css/mention-popup-content.css';
+
+import type { ImModelRecentItem, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const MentionPopupContent = {
@@ -28,6 +30,14 @@ export const MentionPopupContent = {
 			type: String,
 			default: '',
 		},
+		searchChats: {
+			type: Boolean,
+			default: true,
+		},
+		exclude: {
+			type: Array,
+			default: () => [],
+		},
 	},
 	emits: ['close', 'adjustPosition'],
 	data(): JsonObject
@@ -36,6 +46,7 @@ export const MentionPopupContent = {
 			isLoading: false,
 			searchResult: [],
 			chatParticipants: [],
+			chatParticipantsLoaded: false,
 			currentServerQueries: 0,
 			needTopShadow: false,
 			needBottomShadow: true,
@@ -47,12 +58,45 @@ export const MentionPopupContent = {
 	{
 		itemsToShow(): string[]
 		{
+			return this.items.filter((dialogId) => !this.exclude.includes(dialogId));
+		},
+		items(): string[]
+		{
 			if (this.preparedQuery.length === 0)
 			{
+				if (this.needToShowRecentUsersOnStartScreen)
+				{
+					return this.usersFromRecent;
+				}
+
 				return this.chatParticipants;
 			}
 
 			return this.searchResult;
+		},
+		needToShowRecentUsersOnStartScreen(): boolean
+		{
+			return this.chatParticipantsLoaded && this.chatParticipants.length <= 1;
+		},
+		usersFromRecent(): string[]
+		{
+			const recentUsers = [];
+
+			this.$store.getters['recent/getSortedCollection'].forEach((recentItem: ImModelRecentItem) => {
+				if (this.isChat(recentItem.dialogId))
+				{
+					return;
+				}
+				const user: ImModelUser = this.$store.getters['users/get'](recentItem.dialogId, true);
+				if (user.bot || user.id === Core.getUserId())
+				{
+					return;
+				}
+
+				recentUsers.push(user);
+			});
+
+			return recentUsers.map((user: ImModelUser) => user.id.toString());
 		},
 		preparedQuery(): string
 		{
@@ -66,6 +110,13 @@ export const MentionPopupContent = {
 			}
 
 			return this.searchResult.length === 0 && this.preparedQuery.length > 0;
+		},
+		searchConfig(): JsonObject
+		{
+			return {
+				chats: this.searchChats,
+				users: true,
+			};
 		},
 	},
 	watch:
@@ -86,13 +137,13 @@ export const MentionPopupContent = {
 			}
 
 			this.selectedIndex = 0;
-			this.startSearch(newQuery);
+			void this.startSearch(newQuery);
 		},
 	},
 	created()
 	{
 		this.initSettings();
-		this.searchService = new SearchService({ findByParticipants: false });
+		this.searchService = new MentionSearchService(this.searchConfig);
 		this.searchOnServerDelayed = Runtime.debounce(this.searchOnServer, 400, this);
 		void this.loadChatParticipants();
 
@@ -118,47 +169,42 @@ export const MentionPopupContent = {
 			this.chatParticipants = await this.searchService.loadChatParticipants(this.dialogId);
 			this.searchResult = this.chatParticipants;
 			this.isLoading = false;
+			this.chatParticipantsLoaded = true;
 		},
-		searchOnServer(query: string)
+		async searchOnServer(query: string)
 		{
 			this.currentServerQueries++;
 
-			this.searchService.searchOnServer(query).then((dialogIds: string[]) => {
-				if (query !== this.preparedQuery)
-				{
-					this.isLoading = false;
+			const dialogIds = await this.searchService.search(query);
+			if (query !== this.preparedQuery)
+			{
+				this.isLoading = false;
 
-					return;
-				}
+				return;
+			}
 
-				this.searchResult = [...new Set([...this.searchResult, ...dialogIds])];
-			}).catch((error) => {
-				console.error(error);
-			}).finally(() => {
-				this.currentServerQueries--;
-				this.stopLoader();
-			});
+			this.searchResult = [...new Set([...this.searchResult, ...dialogIds])];
+			this.currentServerQueries--;
+			this.stopLoader();
 		},
-		startSearch(query: string)
+		async startSearch(query: string)
 		{
 			if (query.length > 0)
 			{
-				this.searchService.searchLocal(query).then((dialogIds: string[]) => {
-					if (query !== this.preparedQuery)
-					{
-						return;
-					}
+				const dialogIds = this.searchService.searchLocal(query);
+				if (query !== this.preparedQuery)
+				{
+					return;
+				}
 
-					this.searchResult = this.appendResult(dialogIds);
-				}).catch((error) => {
-					Logger.error('Mention: searchLocalOnlyUsers', error);
-				});
+				const sortedLocalResult = this.searchService.sortByDate(dialogIds);
+				this.searchResult = this.appendResult(sortedLocalResult);
 			}
 
 			if (query.length >= this.minTokenSize)
 			{
 				this.isLoading = true;
-				this.searchOnServerDelayed(query);
+				await this.searchOnServerDelayed(query);
 			}
 
 			if (query.length === 0)
@@ -270,6 +316,10 @@ export const MentionPopupContent = {
 			const filtered = this.searchResult.filter((dialogId) => newItems.includes(dialogId));
 
 			return [...new Set([...filtered, ...newItems])];
+		},
+		isChat(dialogId: string): boolean
+		{
+			return dialogId.startsWith('chat');
 		},
 	},
 	template: `

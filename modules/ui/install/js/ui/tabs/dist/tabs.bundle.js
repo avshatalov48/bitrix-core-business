@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core_collections,main_core,main_core_events,main_loader) {
 	'use strict';
@@ -27,7 +28,6 @@ this.BX = this.BX || {};
 	var _loadBody = /*#__PURE__*/new WeakSet();
 	var _showLoader = /*#__PURE__*/new WeakSet();
 	var _removeLoader = /*#__PURE__*/new WeakSet();
-	var _getBodyDataContainer = /*#__PURE__*/new WeakSet();
 	var Tab = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Tab, _EventEmitter);
 	  function Tab(_options) {
@@ -35,7 +35,6 @@ this.BX = this.BX || {};
 	    var parentElement = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	    babelHelpers.classCallCheck(this, Tab);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Tab).call(this, {}));
-	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getBodyDataContainer);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _removeLoader);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _showLoader);
 	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _loadBody);
@@ -98,6 +97,11 @@ this.BX = this.BX || {};
 	    return _this;
 	  }
 	  babelHelpers.createClass(Tab, [{
+	    key: "getId",
+	    value: function getId() {
+	      return babelHelpers.classPrivateFieldGet(this, _id);
+	    }
+	  }, {
 	    key: "getSort",
 	    value: function getSort() {
 	      return babelHelpers.classPrivateFieldGet(this, _sort);
@@ -141,8 +145,18 @@ this.BX = this.BX || {};
 	      return babelHelpers.classPrivateFieldGet(this, _body);
 	    } // Here just in case
 	  }, {
+	    key: "getBodyDataContainer",
+	    value: function getBodyDataContainer() {
+	      return babelHelpers.classPrivateFieldGet(this, _dataContainer);
+	    }
+	  }, {
 	    key: "inactivate",
 	    value: function inactivate() {
+	      var withAnimation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(this, _body), 'ui-tabs__tab-active-animation');
+	      if (withAnimation !== false) {
+	        main_core.Dom.addClass(babelHelpers.classPrivateFieldGet(this, _body), 'ui-tabs__tab-active-animation');
+	      }
 	      if (babelHelpers.classPrivateFieldGet(this, _active) === true) {
 	        main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(this, _head), '--header-active');
 	        main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(this, _body), '--body-active');
@@ -154,6 +168,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "activate",
 	    value: function activate() {
+	      var withAnimation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldGet(this, _body), 'ui-tabs__tab-active-animation');
+	      if (withAnimation !== false) {
+	        main_core.Dom.addClass(babelHelpers.classPrivateFieldGet(this, _body), 'ui-tabs__tab-active-animation');
+	      }
 	      if (babelHelpers.classPrivateFieldGet(this, _active) !== true) {
 	        main_core.Dom.addClass(babelHelpers.classPrivateFieldGet(this, _head), '--header-active');
 	        main_core.Dom.addClass(babelHelpers.classPrivateFieldGet(this, _body), '--body-active');
@@ -182,7 +201,8 @@ this.BX = this.BX || {};
 	  return Tab;
 	}(main_core_events.EventEmitter);
 	function _initHead2(headOptions) {
-	  var _options$className;
+	  var _options$className,
+	    _this2 = this;
 	  var options = main_core.Type.isPlainObject(headOptions) ? headOptions : main_core.Type.isStringFilled(headOptions) ? {
 	    title: headOptions
 	  } : {};
@@ -195,28 +215,28 @@ this.BX = this.BX || {};
 	  } else {
 	    var _options$description2;
 	    innerHeader = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-tabs__tab-header-container-inner\" title=\"", "\">\n\t\t\t\t<div class=\"ui-tabs__tab-header-container-inner-title\">", "</div>\n\t\t\t\t<div class=\"ui-tabs__tab-header-container-inner-lockbox\"><span class=\"ui-icon-set --lock field-has-lock\"></span></div>\n\t\t\t</div>"])), main_core.Text.encode((_options$description2 = options.description) !== null && _options$description2 !== void 0 ? _options$description2 : ''), main_core.Text.encode(options.title));
-	    main_core.Event.bind(innerHeader.querySelector('.field-has-lock'), 'click', this.showBanner.bind(this));
+	    main_core.Event.bind(innerHeader, 'click', this.showBanner.bind(this));
 	  }
 	  babelHelpers.classPrivateFieldSet(this, _head, main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-tabs__tab-header-container ", "\" data-bx-role=\"tab-header\" data-bx-name=\"", "\">", "</span>"])), main_core.Text.encode((_options$className = options.className) !== null && _options$className !== void 0 ? _options$className : ''), main_core.Text.encode(babelHelpers.classPrivateFieldGet(this, _id)), innerHeader));
-	}
-	function _initBody2(body) {
-	  var _this2 = this;
-	  if (!babelHelpers.classPrivateFieldGet(this, _dataContainer)) {
-	    babelHelpers.classPrivateFieldSet(this, _dataContainer, main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-tabs__tab-body_data\"></div>"]))));
-	  }
-	  main_core.Dom.clean(babelHelpers.classPrivateFieldGet(this, _dataContainer));
-	  if (!babelHelpers.classPrivateFieldGet(this, _body)) {
-	    babelHelpers.classPrivateFieldSet(this, _body, main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-tabs__tab-body_inner\"></div>"]))));
-	    babelHelpers.classPrivateFieldGet(this, _body).dataset.id = babelHelpers.classPrivateFieldGet(this, _id);
-	    babelHelpers.classPrivateFieldGet(this, _body).dataset.role = 'body';
-	    babelHelpers.classPrivateFieldGet(this, _body).appendChild(babelHelpers.classPrivateFieldGet(this, _dataContainer));
-	  }
-	  this.subscribeOnce('onActive', function () {
-	    _classPrivateMethodGet(_this2, _loadBody, _loadBody2).call(_this2, body);
+	  main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _head), 'click', function () {
+	    _this2.emit('changeTab');
 	  });
 	}
-	function _loadBody2(body) {
+	function _initBody2(body) {
 	  var _this3 = this;
+	  babelHelpers.classPrivateFieldSet(this, _dataContainer, main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-tabs__tab-body_data\"></div>"]))));
+	  babelHelpers.classPrivateFieldSet(this, _body, main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-tabs__tab-body_inner\"></div>"]))));
+	  babelHelpers.classPrivateFieldGet(this, _body).dataset.id = babelHelpers.classPrivateFieldGet(this, _id);
+	  babelHelpers.classPrivateFieldGet(this, _body).dataset.role = 'body';
+	  babelHelpers.classPrivateFieldGet(this, _body).appendChild(babelHelpers.classPrivateFieldGet(this, _dataContainer));
+	  if (body) {
+	    this.subscribe('onActive', function () {
+	      _classPrivateMethodGet(_this3, _loadBody, _loadBody2).call(_this3, body);
+	    });
+	  }
+	}
+	function _loadBody2(body) {
+	  var _this4 = this;
 	  var resultBody = body;
 	  if (main_core.Type.isFunction(body)) {
 	    resultBody = body(this);
@@ -229,20 +249,20 @@ this.BX = this.BX || {};
 	    promiseBody = Promise.resolve(resultBody);
 	  }
 	  promiseBody.then(function (result) {
-	    _classPrivateMethodGet(_this3, _removeLoader, _removeLoader2).call(_this3);
+	    _classPrivateMethodGet(_this4, _removeLoader, _removeLoader2).call(_this4);
 	    if (main_core.Type.isDomNode(result)) {
-	      babelHelpers.classPrivateFieldGet(_this3, _dataContainer).appendChild(result);
+	      babelHelpers.classPrivateFieldGet(_this4, _dataContainer).appendChild(result);
 	    } else if (main_core.Type.isString(result)) {
-	      babelHelpers.classPrivateFieldGet(_this3, _dataContainer).innerHTML = result; //HTML! Not Text.encoded
+	      babelHelpers.classPrivateFieldGet(_this4, _dataContainer).innerHTML = result; //HTML! Not Text.encoded
 	    } else {
 	      throw new Error('Tab body has to be a text or a dom-element.');
 	    }
-	    _this3.emit('onLoad');
+	    _this4.emit('onLoad');
 	  }, function (reason) {
 	    console.log('reason: ', reason);
-	    _classPrivateMethodGet(_this3, _removeLoader, _removeLoader2).call(_this3);
-	    babelHelpers.classPrivateFieldGet(_this3, _dataContainer).innerHTML = reason;
-	    _this3.emit('onLoadErrored');
+	    _classPrivateMethodGet(_this4, _removeLoader, _removeLoader2).call(_this4);
+	    babelHelpers.classPrivateFieldGet(_this4, _dataContainer).innerHTML = reason;
+	    _this4.emit('onLoadErrored');
 	  });
 	}
 	function _showLoader2() {
@@ -262,7 +282,7 @@ this.BX = this.BX || {};
 	  }
 	}
 
-	var _templateObject$1;
+	var _templateObject$1, _templateObject2$1;
 	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var justCounter$1 = {
@@ -272,6 +292,7 @@ this.BX = this.BX || {};
 	var _id$1 = /*#__PURE__*/new WeakMap();
 	var _items = /*#__PURE__*/new WeakMap();
 	var _activeItem = /*#__PURE__*/new WeakMap();
+	var _body$1 = /*#__PURE__*/new WeakMap();
 	var Tabs = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Tabs, _EventEmitter);
 	  function Tabs(options) {
@@ -294,6 +315,10 @@ this.BX = this.BX || {};
 	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _activeItem, {
 	      writable: true,
 	      value: null
+	    });
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _body$1, {
+	      writable: true,
+	      value: void 0
 	    });
 	    options = main_core.Type.isObjectLike(options) ? options : {};
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _index, ++justCounter$1.localId);
@@ -324,49 +349,59 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "addItem",
 	    value: function addItem(tab) {
+	      var _this2 = this;
 	      babelHelpers.classPrivateFieldGet(this, _items).add(tab);
 	      tab.setParent(this);
 	      if (tab.isActive()) {
 	        this.activateItem(tab);
 	      }
+	      tab.subscribe('changeTab', function () {
+	        _this2.activateItem(tab);
+	      });
 	    }
 	  }, {
 	    key: "activateItem",
 	    value: function activateItem(tab) {
+	      var withAnimation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 	      if (babelHelpers.classPrivateFieldGet(this, _items).has(tab) && babelHelpers.classPrivateFieldGet(this, _activeItem) !== tab) {
 	        var inactiveTab = null;
 	        if (babelHelpers.classPrivateFieldGet(this, _activeItem) instanceof Tab) {
 	          inactiveTab = babelHelpers.classPrivateFieldGet(this, _activeItem);
 	        }
 	        babelHelpers.classPrivateFieldSet(this, _activeItem, tab);
-	        this.activateItemDebounced(tab, inactiveTab);
+	        this.activateItemDebounced(tab, inactiveTab, withAnimation);
 	      }
 	    }
 	  }, {
 	    key: "activateItemDebounced",
 	    value: function activateItemDebounced(activeTab) {
 	      var inactiveTab = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      var withAnimation = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 	      if (inactiveTab) {
-	        inactiveTab.inactivate();
+	        inactiveTab.inactivate(withAnimation);
 	      }
-	      activeTab.activate();
+	      activeTab.activate(withAnimation);
+	    }
+	  }, {
+	    key: "getBodyContainer",
+	    value: function getBodyContainer() {
+	      if (!babelHelpers.classPrivateFieldGet(this, _body$1)) {
+	        babelHelpers.classPrivateFieldSet(this, _body$1, main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tabs__tabs-body-container\" data-bx-role=\"bodies\"></div>\n\t\t\t"]))));
+	      }
+	      return babelHelpers.classPrivateFieldGet(this, _body$1);
 	    }
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this2 = this;
+	      var _this3 = this;
 	      if (this.content) {
 	        return this.content;
 	      }
-	      this.content = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-tabs__tabs-container\">\n\t\t\t\t<div class=\"ui-tabs__tabs-header-container\" data-bx-role=\"headers\"></div>\n\t\t\t\t<div class=\"ui-tabs__tabs-body-container\" data-bx-role=\"bodies\"></div>\n\t\t\t</div>"])));
+	      this.content = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-tabs__tabs-container\">\n\t\t\t\t<div class=\"ui-tabs__tabs-header-container\" data-bx-role=\"headers\"></div>\n\t\t\t\t", "\n\t\t\t</div>"])), this.getBodyContainer());
 	      var headers = this.content.querySelector('[data-bx-role="headers"]');
-	      var bodies = this.content.querySelector('[data-bx-role="bodies"]');
 	      babelHelpers.classPrivateFieldGet(this, _items).forEach(function (tab) {
-	        main_core.Event.bind(tab.getHeader(), 'click', function () {
-	          _this2.activateItem(tab);
-	        });
 	        main_core.Dom.append(tab.getHeader(), headers);
-	        main_core.Dom.append(tab.getBody(), bodies);
+	        main_core.Dom.append(tab.getBody(), _this3.getBodyContainer());
 	      });
 	      return this.content;
 	    }

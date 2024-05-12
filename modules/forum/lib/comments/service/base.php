@@ -11,10 +11,7 @@ abstract class Base
 		return static::TYPE;
 	}
 
-	public function getText()
-	{
-		return '';
-	}
+	abstract public function getText(): string;
 
 	public function canDelete()
 	{

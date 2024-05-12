@@ -211,12 +211,18 @@ class Component extends Base
 			}
 		}
 
-
+		$userId = $USER->GetId();
+		$isAdmin = $USER->isAdmin();
+		if (!$isAdmin && Loader::includeModule("bitrix24"))
+		{
+			$isAdmin = \CBitrix24::IsPortalAdmin($userId);
+		}
 		$env = Utils::jsonEncode([
 			'siteId' => $siteId,
+			'isAdmin' => $isAdmin,
 			'languageId' => LANGUAGE_ID,
 			'siteDir' => $siteDir,
-			'userId' => $USER->GetId(),
+			'userId' => $userId,
 			'extranet' => $isExtranetUser
 		]);
 		$file = new File(Application::getDocumentRoot()."/bitrix/js/mobileapp/platform.js");

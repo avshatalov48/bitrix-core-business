@@ -5,7 +5,7 @@ import { Controller, State as CallState } from 'im.call';
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { MessengerSlider } from 'im.v2.lib.slider';
-import { RecentCallStatus, Layout, EventType } from 'im.v2.const';
+import { ChatType, RecentCallStatus, Layout, EventType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { PromoManager } from 'im.v2.lib.promo';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
@@ -15,7 +15,7 @@ import { openCallUserSelector } from './functions/open-call-user-selector';
 
 import 'im_call_compatible';
 
-import type { ImModelChat } from 'im.v2.model';
+import type { ImModelChat, ImModelUser } from 'im.v2.model';
 
 export class CallManager
 {
@@ -56,6 +56,10 @@ export class CallManager
 	startCall(dialogId: string, withVideo: boolean = true)
 	{
 		Logger.warn('CallManager: startCall', dialogId, withVideo);
+		if (this.#isUser(dialogId))
+		{
+			this.#prepareUserCall(dialogId);
+		}
 		this.#controller.startCall(dialogId, withVideo);
 	}
 
@@ -336,6 +340,28 @@ export class CallManager
 		}
 
 		return layout.entityId;
+	}
+
+	#isUser(dialogId: string): boolean
+	{
+		const dialog: ImModelChat = this.#store.getters['chats/get'](dialogId);
+		return dialog?.type === ChatType.user;
+	}
+
+	#prepareUserCall(dialogId: string)
+	{
+		const currentUserId = Core.getUserId();
+		const currentUser: ImModelUser = Core.getStore().getters['users/get'](currentUserId);
+		const currentCompanion: ImModelUser = Core.getStore().getters['users/get'](dialogId);
+
+		this.#controller.prepareUserCall({
+			dialogId,
+			user: currentCompanion.id,
+			userData: {
+				[currentUserId]: currentUser,
+				[currentCompanion.id]: currentCompanion,
+			}
+		});
 	}
 	// endregion call events
 }

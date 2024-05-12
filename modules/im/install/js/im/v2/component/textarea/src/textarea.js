@@ -247,7 +247,7 @@ export const ChatTextarea = {
 			this.panelMessageId = messageId;
 
 			const mentions = this.mentionManager.extractMentions(message.text);
-			console.warn('openEditPanel', mentions);
+
 			this.mentionManager.setMentionReplacements(mentions);
 
 			this.text = Parser.prepareEdit(message);
@@ -632,7 +632,7 @@ export const ChatTextarea = {
 					:dialogId="dialogId"
 					@close="closePanel"
 				/>
-				<div class="bx-im-textarea__content">
+				<div class="bx-im-textarea__content" ref="textarea-content">
 					<div class="bx-im-textarea__left">
 						<div class="bx-im-textarea__upload_container">
 							<UploadMenu @fileSelect="onFileSelect" @diskFileSelect="onDiskFileSelect" />
@@ -674,7 +674,7 @@ export const ChatTextarea = {
 			/>
 			<MentionPopup 
 				v-if="showMention" 
-				:bindElement="$refs.textarea"
+				:bindElement="$refs['textarea-content']"
 				:dialogId="dialogId"
 				:query="mentionQuery"
 				@close="closeMentionPopup"

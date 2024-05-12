@@ -13,7 +13,6 @@
 	height: calc(100% - 64px);
 	overflow-y: scroll;
 	overflow-x: hidden;
-	scrollbar-width: thin;
 }
 
 .bx-im-sidebar-main-panel__block {

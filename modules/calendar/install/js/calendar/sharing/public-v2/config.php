@@ -9,12 +9,12 @@ return [
 	'js' => 'dist/public-v2.bundle.js',
 	'rel' => [
 		'ui.icons.b24',
-		'ui.icon-set.actions',
 		'calendar.util',
 		'main.core',
 		'main.popup',
 		'main.date',
 		'ui.bottomsheet',
+		'ui.icon-set.actions',
 		'main.core.events',
 		'ui.design-tokens',
 	],

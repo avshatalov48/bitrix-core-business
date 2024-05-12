@@ -1,22 +1,23 @@
 import { Logger } from 'im.v2.lib.logger';
-import { ImModelChat } from 'im.v2.model';
 
 import { Main } from '../../../classes/panels/main';
 import { getAvailableBlocks } from '../../../classes/panels/helpers/get-available-blocks';
 
-import { InfoPreview } from './info';
-import { FilePreview } from './file';
-import { TaskPreview } from './task';
-import { MainHeader } from './header';
-import { MarketPreview } from './market';
-import { MeetingPreview } from './meeting';
-import { ChatPreview } from './chat-preview';
-import { UserPreview } from './user-preview';
-import { FileUnsortedPreview } from './file-unsorted';
+import { InfoPreview } from './blocks/info';
+import { FilePreview } from './blocks/file';
+import { TaskPreview } from './blocks/task';
+import { MainHeader } from './blocks/header';
+import { MarketPreview } from './blocks/market';
+import { MeetingPreview } from './blocks/meeting';
+import { ChatPreview } from './blocks/chat-preview';
+import { UserPreview } from './blocks/user-preview';
+import { FileUnsortedPreview } from './blocks/file-unsorted';
+import { SidebarSkeleton } from '../../elements/skeleton/skeleton';
 
 import './css/main-panel.css';
 
 import type { JsonObject } from 'main.core';
+import type { ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const MainPanel = {
@@ -31,6 +32,7 @@ export const MainPanel = {
 		MeetingPreview,
 		FileUnsortedPreview,
 		MarketPreview,
+		SidebarSkeleton,
 	},
 	props:
 	{
@@ -109,13 +111,13 @@ export const MainPanel = {
 	template: `
 		<div class="bx-im-sidebar-main-panel__container">
 			<MainHeader :dialogId="dialogId" />
-			<div class="bx-im-sidebar-main-panel__blocks">
+			<SidebarSkeleton v-if="isLoading" />
+			<div v-else class="bx-im-sidebar-main-panel__blocks">
 				<component
 					v-for="block in blocks"
 					:key="block"
 					class="bx-im-sidebar-main-panel__block"
 					:is="getPreviewComponentName(block)"
-					:isLoading="isLoading"
 					:dialogId="dialogId"
 				/>
 			</div>

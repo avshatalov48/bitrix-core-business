@@ -533,7 +533,7 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 			var parent = this.getParent();
 			if(parent && parent.isSchemeChanged())
 			{
-				return parent.saveScheme();
+				parent.saveScheme();
 			}
 
 			this.commitSchemeChanges();
@@ -4220,13 +4220,15 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 	};
 	BX.UI.EntityEditorSection.prototype.openTransferDialog = function()
 	{
-		if(!this._fieldSelector)
+		const excludedElementNames = this.getExcludedElementNames();
+
+		if (!this._fieldSelector)
 		{
 			this._fieldSelector = BX.UI.EntityEditorFieldSelector.create(
 				this._id,
 				{
 					scheme: this._editor.getScheme(),
-					excludedNames: [this.getSchemeElement().getName()],
+					excludedNames: excludedElementNames,
 					title: BX.message("UI_ENTITY_EDITOR_FIELD_TRANSFER_DIALOG_TITLE"),
 					buttonTitle: this._settings.editor._entityTypeTitle,
 					useFieldsSearch: this._settings.editor._useFieldsSearch,
@@ -4236,9 +4238,33 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			this._fieldSelector.addClosingListener(BX.delegate(this.onTransferFieldSelect, this));
 		}
 
+		this._fieldSelector.setExcludedNames(excludedElementNames);
 		this._fieldSelector.setCurrentSchemeElementName(this.getSchemeElement().getName());
 		this._fieldSelector.open();
 	};
+
+	BX.UI.EntityEditorSection.prototype.getExcludedElementNames = function()
+	{
+		const result = {};
+
+		result[`${this.getSchemeElement().getName()}`] = this._fields
+			.filter((field) => {
+				if (typeof field.isNeedToDisplay === 'function' && field.isNeedToDisplay())
+				{
+					return true;
+				}
+
+				return typeof field.hasValue === 'function'
+					? field.hasValue()
+					: false
+				;
+			})
+			.map((field) => field.getName())
+		;
+
+		return result;
+	}
+
 	BX.UI.EntityEditorSection.prototype.onTransferFieldSelect = function(event)
 	{
 		if (event.data['isCanceled'])
@@ -9783,7 +9809,11 @@ if(typeof BX.UI.EntityEditorLink === "undefined")
 			this._innerWrapper = BX.create("div",
 				{
 					props: { className: "ui-entity-editor-content-block" },
-					children: [ this._inputContainer ]
+					children: [ this._inputContainer,  BX.create("div",
+						{
+							attrs: { className: "ui-entity-editor-block-help" },
+							html: '<span>' + BX.prop.get(this._schemeElement.getData(), "help", "") + '</span>'
+						})]
 				}
 			);
 		}

@@ -2,17 +2,17 @@
 $forumWarningTmp = "";
 if (CModule::IncludeModule("forum") && check_bitrix_sessid()):
 	$arforumFields = Array(
-		"SHOW_NAME" => ($forum_SHOW_NAME=="Y") ? "Y" : "N",
-		"HIDE_FROM_ONLINE" => ($forum_HIDE_FROM_ONLINE=="Y") ? "Y" : "N",
-		"SUBSC_GROUP_MESSAGE" => ($forum_SUBSC_GROUP_MESSAGE=="Y") ? "Y" : "N",
-		"SUBSC_GET_MY_MESSAGE" => ($forum_SUBSC_GET_MY_MESSAGE=="Y") ? "Y" : "N",
-		"DESCRIPTION" => $forum_DESCRIPTION,
-		"INTERESTS" => $forum_INTERESTS,
-		"SIGNATURE" => $forum_SIGNATURE,
+		"SHOW_NAME" => (isset($forum_SHOW_NAME) && $forum_SHOW_NAME=="Y") ? "Y" : "N",
+		"HIDE_FROM_ONLINE" => (isset($forum_HIDE_FROM_ONLINE) && $forum_HIDE_FROM_ONLINE=="Y") ? "Y" : "N",
+		"SUBSC_GROUP_MESSAGE" => (isset($forum_SUBSC_GROUP_MESSAGE) && $forum_SUBSC_GROUP_MESSAGE=="Y") ? "Y" : "N",
+		"SUBSC_GET_MY_MESSAGE" => (isset($forum_SUBSC_GET_MY_MESSAGE) && $forum_SUBSC_GET_MY_MESSAGE=="Y") ? "Y" : "N",
+		"DESCRIPTION" => $forum_DESCRIPTION ?? null,
+		"INTERESTS" => $forum_INTERESTS ?? null,
+		"SIGNATURE" => $forum_SIGNATURE ?? null,
 		"AVATAR" => $_FILES["forum_AVATAR"]
 	);
-	
-	$arforumFields["AVATAR"]["del"] = $forum_AVATAR_del;
+
+	$arforumFields["AVATAR"]["del"] = $forum_AVATAR_del ?? null;
 
 	if ($USER->IsAdmin() || $GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W")
 	{

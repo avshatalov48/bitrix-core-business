@@ -1,10 +1,24 @@
 import {Type} from 'main.core';
 import {Globals} from "bizproc.globals";
 
+export type GlobalsProperty = {
+	ObjectId: string,
+	SuperTitle: string,
+	Id: string,
+	Name: string,
+	Type: string,
+	BaseType: string,
+	Expression: string,
+	SystemExpression: string,
+	Options: any,
+	Multiple: boolean,
+	Visibility: string,
+};
+
 export class AutomationGlobals
 {
-	#globalVariables: [] = [];
-	#globalConstants: [] = [];
+	#globalVariables: Array<GlobalsProperty> = [];
+	#globalConstants: Array<GlobalsProperty> = [];
 
 	constructor(parameters: {
 		variables: ?[],
@@ -16,7 +30,7 @@ export class AutomationGlobals
 			const variables = [];
 			parameters.variables.forEach((property) => {
 				variables.push(
-					this.#getAutomationGlobalsProperty(property.Id, property, Globals.Manager.Instance.mode.variable)
+					this.#getAutomationGlobalsProperty(property.Id, property, Globals.Manager.Instance.mode.variable),
 				);
 			});
 
@@ -28,7 +42,7 @@ export class AutomationGlobals
 			const constants = [];
 			parameters.constants.forEach((property) => {
 				constants.push(
-					this.#getAutomationGlobalsProperty(property.Id, property, Globals.Manager.Instance.mode.constant)
+					this.#getAutomationGlobalsProperty(property.Id, property, Globals.Manager.Instance.mode.constant),
 				);
 			});
 
@@ -36,7 +50,7 @@ export class AutomationGlobals
 		}
 	}
 
-	get globalVariables(): []
+	get globalVariables(): Array<GlobalsProperty>
 	{
 		return this.#globalVariables;
 	}
@@ -51,7 +65,7 @@ export class AutomationGlobals
 		this.#globalVariables = variables;
 	}
 
-	get globalConstants(): []
+	get globalConstants(): Array<GlobalsProperty>
 	{
 		return this.#globalConstants;
 	}
@@ -71,19 +85,7 @@ export class AutomationGlobals
 		return Type.isStringFilled(mode) && Object.values(Globals.Manager.Instance.mode).includes(mode);
 	}
 
-	#getAutomationGlobalsProperty(id: string, property: {}, mode: string): {
-		ObjectId: string,
-		SuperTitle: string,
-		Id: string,
-		Name: string,
-		Type: string,
-		BaseType: string,
-		Expression: string,
-		SystemExpression: string,
-		Options: any,
-		Multiple: boolean,
-		Visibility: string,
-	}
+	#getAutomationGlobalsProperty(id: string, property: {}, mode: string): GlobalsProperty
 	{
 		return {
 			ObjectId: this.#getObjectId(mode),

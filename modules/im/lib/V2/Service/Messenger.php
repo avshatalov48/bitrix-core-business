@@ -137,6 +137,11 @@ class Messenger
 		return new Message($source);
 	}
 
+	public function createChat(array $fields): \Bitrix\Im\V2\Result
+	{
+		return \Bitrix\Im\V2\Chat\ChatFactory::getInstance()->addChat($fields);
+	}
+
 	/**
 	 * Delete message
 	 *

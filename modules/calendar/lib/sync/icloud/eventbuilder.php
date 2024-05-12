@@ -5,8 +5,8 @@ namespace Bitrix\Calendar\Sync\Icloud;
 use Bitrix\Calendar\Core\Base\DateTimeZone;
 use Bitrix\Calendar\Core\Base\SingletonTrait;
 use Bitrix\Calendar\Core\Event\Event;
-use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Remind;
+use Bitrix\Calendar\ICal\IcsBuilder;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Sync\Util\EventDescription;
 use Bitrix\Calendar\Util;
@@ -16,8 +16,6 @@ use Bitrix\Main\SystemException;
 class EventBuilder
 {
 	use SingletonTrait;
-
-	const DAY_LENGTH = 86400;
 
 	/**
 	 * @throws \Bitrix\Main\LoaderException
@@ -123,7 +121,7 @@ class EventBuilder
 
 		if ($event->isRecurrence())
 		{
-			$content['RRULE'] = $this->prepareRecurrenceRule($event->getRecurringRule(), $event->getStartTimeZone());
+			$content['RRULE'] = IcsBuilder::prepareRecurrenceRule($event->getRecurringRule(), $event->getStartTimeZone());
 		}
 
 		$content['SEQUENCE'] = $event->getVersion();
@@ -285,47 +283,6 @@ class EventBuilder
 					'VALUE' => $value,
 				],
 			];
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param RecurringEventRules $rrule
-	 * @param DateTimeZone|null $timeZone
-	 *
-	 * @return string
-	 * @throws \Exception
-	 */
-	private function prepareRecurrenceRule(RecurringEventRules $rrule, ?DateTimeZone $timeZone): string
-	{
-		$result = 'FREQ=' . $rrule->getFrequency();
-		if ($rrule->getInterval())
-		{
-			$result .= ';INTERVAL=' . $rrule->getInterval();
-		}
-		if ($rrule->getByday())
-		{
-			$result .= ';BYDAY=' . implode(',', $rrule->getByday());
-		}
-		if ($rrule->getCount())
-		{
-			$result .= ';COUNT=' . $rrule->getCount();
-		}
-		else if (
-			$rrule->getUntil()
-			&& $rrule->getUntil()->getDate()->getTimestamp()
-			&& $rrule->getUntil()->getDate()->getTimestamp() < 2145830400
-		)
-		{
-			$offset = 0;
-			if ($timeZone)
-			{
-				$offset = $timeZone->getTimeZone()->getOffset(new \DateTime('now', $timeZone->getTimeZone()));
-			}
-
-			$untilTimestamp = $rrule->getUntil()->getDate()->getTimestamp() + (self::DAY_LENGTH - 1) - $offset;
-			$result .= ';UNTIL=' . date('Ymd\\THis\\Z', $untilTimestamp);
 		}
 
 		return $result;

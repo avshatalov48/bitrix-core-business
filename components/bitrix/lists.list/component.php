@@ -21,8 +21,6 @@ if(!CModule::IncludeModule('lists'))
 	return;
 }
 
-CUtil::JSPostUnescape();
-
 $IBLOCK_ID = intval($arParams["~IBLOCK_ID"]);
 if(isset($_REQUEST["list_section_id"]))
 	$section_id = intval($_REQUEST["list_section_id"]);
@@ -921,7 +919,7 @@ while ($obElement = $rsElements->GetNextElement())
 		$field["ELEMENT_ID"] = $data["ID"];
 		$field["FIELD_ID"] = $fieldId;
 		$valueKey = (mb_substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
-		$field["VALUE"] = $listValues[$data["ID"]][$valueKey];
+		$field["VALUE"] = $listValues[$data["ID"]][$valueKey] ?? null;
 		$columns[$fieldId] = \Bitrix\Lists\Field::renderField($field);
 	}
 

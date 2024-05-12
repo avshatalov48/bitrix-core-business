@@ -32,8 +32,8 @@ if (!function_exists("__array_merge"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$_REQUEST["search_template"] = trim($_REQUEST["search_template"]);
-	$_REQUEST["search_field"] = trim(mb_strtolower($_REQUEST["search_field"]));
+	$_REQUEST["search_template"] = isset($_REQUEST["search_template"]) ? trim($_REQUEST["search_template"]) : null;
+	$_REQUEST["search_field"] = isset($_REQUEST["search_field"]) ? trim(mb_strtolower($_REQUEST["search_field"])) : null;
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"list" => "PAGE_NAME=list&FID=#FID#",
@@ -48,9 +48,9 @@ if (!function_exists("__array_merge"))
 /***************** ADDITIONAL **************************************/
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
-	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
-	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
-	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
+	$arParams["SHOW_FORUM_ANOTHER_SITE"] = (isset($arParams["SHOW_FORUM_ANOTHER_SITE"]) && $arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
+	$arParams["FID_RANGE"] = (isset($arParams["FID_RANGE"]) && is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
+	$arParams["NAME_TEMPLATE"] = (isset($arParams["NAME_TEMPLATE"]) && !empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["TOPICS_PER_PAGE"] = intval(intVal($arParams["TOPICS_PER_PAGE"]) > 0 ? $arParams["TOPICS_PER_PAGE"] :
 		COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
 /********************************************************************
@@ -60,9 +60,9 @@ if (!function_exists("__array_merge"))
 /********************************************************************
 				Default params
 ********************************************************************/
-$arResult["TID"] = intval($_REQUEST["TID"]);
-$arResult["FID"] = intval($_REQUEST["FID"]);
-$arResult["SELF_CLOSE"] = ($arResult["TID"] > 0 ? "Y" : "N");
+$arResult["TID"] = isset($_REQUEST["TID"]) ? intval($_REQUEST["TID"]) : null;
+$arResult["FID"] = isset($_REQUEST["FID"]) ? intval($_REQUEST["FID"]) : null;
+$arResult["SELF_CLOSE"] = (isset($arResult["TID"]) && $arResult["TID"] > 0 ? "Y" : "N");
 $arResult["TOPIC"] = array();
 $arResult["TOPICS"] = array();
 $arResult["FORUMS"] = array();
@@ -96,7 +96,7 @@ if ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || !CForumUser::IsAdmin())
 if (!empty($arParams["FID_RANGE"]))
 	$arFilter["@ID"] = $arParams["FID_RANGE"];
 if (!CForumUser::IsAdmin()):
-	$arFilter["PERMS"] = array($USER->GetGroups(), 'A'); 
+	$arFilter["PERMS"] = array($USER->GetGroups(), 'A');
 	$arFilter["ACTIVE"] = "Y";
 endif;
 $cache_id = "forum_forums_".serialize($arFilter);
@@ -112,7 +112,7 @@ if (empty($arForums))
 	$db_res = CForumNew::GetListEx(array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), $arFilter);
 	if ($db_res && ($res = $db_res->GetNext()))
 	{
-		do 
+		do
 		{
 			$arForums[$res["ID"]] = $res;
 		} while ($res = $db_res->GetNext());
@@ -137,7 +137,7 @@ foreach ($arGroupsForums as $PARENT_ID => $res)
 {
 	$bResult = true;
 	$res = array("FORUMS" => $res);
-	while ($PARENT_ID > 0) 
+	while ($PARENT_ID > 0)
 	{
 		if (!array_key_exists($PARENT_ID, $arResult["GROUPS"]))
 		{
@@ -163,16 +163,16 @@ if ($arResult["TID"] > 0)
 	{
 		$arResult["TOPIC"] = $res;
 		$arResult["FORUM"] = $arResult["FORUMS"][$res["FORUM_ID"]];
-		
+
 		$arResult["TOPIC"]["~TITLE"] = $arResult["TOPIC"]["TITLE"];
 		$arResult["TOPIC"]["TITLE"] = Cutil::JSEscape($arResult["TOPIC"]["TITLE"]);
-		$arResult["TOPIC"]["LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"], 
+		$arResult["TOPIC"]["LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"],
 			array("FID" => $arResult["FORUM"]["ID"], "TID" => $arResult["TOPIC"]["ID"], "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"], "MID" => "s"));
-		$arResult["FORUM"]["LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], 
+		$arResult["FORUM"]["LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"],
 			array("FID" => $arResult["FORUM"]["ID"]));
 	}
 }
-elseif ($_REQUEST["search_template"] <> '') 
+elseif ($_REQUEST["search_template"] <> '')
 {
 	$arFilter = array("@FORUM_ID" => array_keys($arResult["FORUMS"]));
 	if (intval($_REQUEST["FID"]) > 0)
@@ -206,10 +206,10 @@ elseif ($_REQUEST["search_template"] <> '')
 }
 /************** For custom templates *******************************/
 $arResult["FORUMS_LIST"] = array(
-	"data" => $arResult["FORUMS"], 
+	"data" => $arResult["FORUMS"],
 	"active" => $arResult["FID"]);
 if (!empty($arResult["TOPICS"])):
-	$arResult["TOPIC"] = $arResult["TOPICS"]; 
+	$arResult["TOPIC"] = $arResult["TOPICS"];
 	$arResult["SHOW_RESULT"] = "Y";
 endif;
 /********************************************************************

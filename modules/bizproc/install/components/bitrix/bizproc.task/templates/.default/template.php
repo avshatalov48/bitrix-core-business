@@ -34,7 +34,7 @@ if (empty($arResult['DOCUMENT_ICON']))
 	$arResult['DOCUMENT_ICON'] = $templateFolder.'/images/bp-'.$moduleIcon.'-icon.png';
 }
 ?>
-<script type="text/javascript">
+<script>
 	BX.message({
 		BPAT_DELEGATE_SELECT : '<?=GetMessageJS('BPAT_DELEGATE_SELECT')?>',
 		BPAT_DELEGATE_CANCEL : '<?=GetMessageJS('BPAT_DELEGATE_CANCEL')?>'

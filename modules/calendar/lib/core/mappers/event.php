@@ -231,7 +231,7 @@ class Event extends Mapper
 	 *
 	 * @throws Core\Event\Tools\PropertyException
 	 */
-	private function convertToArray(Core\Event\Event $event): array
+	public function convertToArray(Core\Event\Event $event): array
 	{
 		return [
 			'ID'                 => $event->getId(),
@@ -274,6 +274,9 @@ class Event extends Mapper
 			'SECTIONS' 			 => $event->getSection() ? [$event->getSection()->getId()] : null,
 			'SECTION_ID'         => $event->getSection() ? $event->getSection()->getId() : null,
 			'RELATIONS' 		 => $event->getRelations() ? $event->getRelations()->getFields() : null,
+			'DATE_CREATE' => $event->getDateCreate()?->toString(),
+			'TIMESTAMP_X' => $event->getDateModified()?->toString(),
+			'VERSION' => $event->getVersion(),
 		];
 	}
 

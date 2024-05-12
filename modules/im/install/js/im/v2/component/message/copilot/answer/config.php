@@ -9,11 +9,15 @@ return [
 	'js' => 'dist/copilot-answer.bundle.js',
 	'rel' => [
 		'ui.notification',
-		'im.v2.lib.parser',
-		'im.v2.provider.service',
 		'main.core',
-		'im.v2.component.message.elements',
+		'im.v2.lib.parser',
 		'im.v2.component.message.base',
+		'ui.vue3',
+		'main.core.events',
+		'im.v2.const',
+		'im.v2.lib.utils',
+		'im.v2.application.core',
+		'im.v2.component.message.elements',
 	],
 	'skip_core' => false,
 ];

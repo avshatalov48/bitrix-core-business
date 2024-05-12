@@ -1,11 +1,12 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $arFields = Array(
 'AUTO_EXECUTE' => '0',
 'ACTIVE' => 'Y',
 'NAME' => GetMessage("BP_DBLA_NAME"),
-'DESCRIPTION' => GetMessage("BP_DBLA_DESC"),
+'DESCRIPTION' => GetMessage("BP_DBLA_DESC_MSGVER_1"),
 'TEMPLATE' => Array(
 Array(
 'Type' => 'SequentialWorkflowActivity',
@@ -27,8 +28,8 @@ Array(
 'Name' => 'A28652_8343_148_31493',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_DBLA_TASK"),
-'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_DBLA_TASK_DESC"), $documentType),
+'MailSubject' => GetMessage("BP_DBLA_TASK_MSGVER_1"),
+'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_DBLA_TASK_DESC_MSGVER_1"), $documentType),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -47,11 +48,11 @@ Array(
 'OverdueDate' => '',
 'ApproveMinPercent' => '50',
 'ApproveWaitForAll' => 'N',
-'Name' => GetMessage("BP_DBLA_APPROVE"),
-'Description' => GetMessage("BP_DBLA_APPROVE_TEXT"),
+'Name' => GetMessage("BP_DBLA_APPROVE_MSGVER_1"),
+'Description' => GetMessage("BP_DBLA_APPROVE_TEXT_MSGVER_1"),
 'Parameters' => '',
 'Users' => Array('Template', 'Voters1'),
-'Title' => GetMessage("BP_DBLA_APPROVE_TITLR")
+'Title' => GetMessage("BP_DBLA_APPROVE_TITLR_MSGVER_1")
 ),
 'Children' => Array(
 Array(
@@ -67,8 +68,8 @@ Array(
 'Name' => 'A27867_13545_12971_17663',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_DBLA_MAIL_SUBJ"),
-'MailText' => GetMessage("BP_DBLA_MAIL_TEXT"),
+'MailSubject' => GetMessage("BP_DBLA_MAIL_SUBJ_MSGVER_1"),
+'MailText' => GetMessage("BP_DBLA_MAIL_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -83,8 +84,8 @@ Array(
 'Name' => 'A18214_65247_45761_70900',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_DBLA_MAIL2_SUBJ"),
-'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_DBLA_MAIL2_TEXT"), $documentType),
+'MailSubject' => GetMessage("BP_DBLA_MAIL2_SUBJ_MSGVER_1"),
+'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_DBLA_MAIL2_TEXT_MSGVER_1"), $documentType),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -103,11 +104,11 @@ Array(
 'OverdueDate' => '',
 'ApproveMinPercent' => '50',
 'ApproveWaitForAll' => 'N',
-'Name' => GetMessage("BP_DBLA_APPROVE2"),
-'Description' => GetMessage("BP_DBLA_APPROVE2_TEXT"),
+'Name' => GetMessage("BP_DBLA_APPROVE2_MSGVER_1"),
+'Description' => GetMessage("BP_DBLA_APPROVE2_TEXT_MSGVER_1"),
 'Parameters' => '',
 'Users' => Array('Template', 'Voters2'),
-'Title' => GetMessage("BP_DBLA_APPROVE2_TITLE")
+'Title' => GetMessage("BP_DBLA_APPROVE2_TITLE_MSGVER_1")
 ),
 'Children' => Array(
 Array(
@@ -123,8 +124,8 @@ Array(
 'Name' => 'A53284_91445_14224_61949',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_DBLA_MAIL3_SUBJ"),
-'MailText' => GetMessage("BP_DBLA_MAIL3_TEXT"),
+'MailSubject' => GetMessage("BP_DBLA_MAIL3_SUBJ_MSGVER_1"),
+'MailText' => GetMessage("BP_DBLA_MAIL3_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -148,7 +149,7 @@ Array(
 'Name' => 'A67943_28837_6285_74924',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_DBLA_PUB_TITLE")
+'Title' => GetMessage("BP_DBLA_PUB_TITLE_MSGVER_1")
 )
 ))
 ),
@@ -165,8 +166,8 @@ Array(
 'Name' => 'A91433_23054_53017_48385',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_DBLA_NAPP"),
-'MailText' => GetMessage("BP_DBLA_NAPP_TEXT"),
+'MailSubject' => GetMessage("BP_DBLA_NAPP_MSGVER_1"),
+'MailText' => GetMessage("BP_DBLA_NAPP_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -201,8 +202,8 @@ Array(
 'Name' => 'A48868_5097_265_85128',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_DBLA_MAIL4_SUBJ"),
-'MailText' => GetMessage("BP_DBLA_MAIL4_TEXT"),
+'MailSubject' => GetMessage("BP_DBLA_MAIL4_SUBJ_MSGVER_1"),
+'MailText' => GetMessage("BP_DBLA_MAIL4_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -247,4 +248,3 @@ Array(
 ),
 'VARIABLES' => Array(),
 );
-?>

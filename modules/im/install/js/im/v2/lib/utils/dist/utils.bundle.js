@@ -325,7 +325,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return uuid.search(uuidV4pattern) === 0;
 	  },
 	  isTempMessage(messageId) {
-	    return this.isUuidV4(messageId) || messageId.toString().startsWith('temp');
+	    return TextUtil.isUuidV4(messageId) || messageId.toString().startsWith(im_v2_const.FakeMessagePrefix);
 	  },
 	  checkUrl(url) {
 	    const allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];

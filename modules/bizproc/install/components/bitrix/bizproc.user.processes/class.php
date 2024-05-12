@@ -174,7 +174,7 @@ class BizprocUserProcesses
 				'id' => 'DOCUMENT_NAME',
 				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_GRID_COLUMN_DOCUMENT_NAME'),
 				'default' => false,
-				'sort' => ''
+				'sort' => '',
 			],
 			[
 				'id' => 'TASK_DESCRIPTION',
@@ -344,13 +344,43 @@ class BizprocUserProcesses
 	private function setFilterToRequest(WorkflowStateToGet $workflowsRequest): void
 	{
 		$workflowsRequest->setFilterUserId($this->getTargetUserId());
-
 		$userFilter = $this->filterOptions->getFilter();
 
 		if (isset($userFilter['SYSTEM_PRESET']))
 		{
 			$workflowsRequest->setFilterPresetId($userFilter['SYSTEM_PRESET']);
 		}
+
+		$additionalFilter = [];
+		foreach ($this->getFilterMap() as $userKey => $filterKey)
+		{
+			if (isset($userFilter[$userKey]))
+			{
+				$additionalFilter[$filterKey] = $userFilter[$userKey];
+			}
+		}
+
+		if ($additionalFilter)
+		{
+			$workflowsRequest->setFilter($additionalFilter);
+		}
+
+		if (isset($userFilter['FIND']) && is_string($userFilter['FIND']))
+		{
+			$workflowsRequest->setFilterSearchQuery($userFilter['FIND']);
+		}
+	}
+
+	private function getFilterMap(): array
+	{
+		return [
+			'MODIFIED_from' => '>=MODIFIED',
+			'MODIFIED_to' => '<=MODIFIED',
+			'STARTED_from' => '>=FILTER.STARTED',
+			'STARTED_to' => '<=FILTER.STARTED',
+			'MODULE_ID' => '=FILTER.MODULE_ID',
+			'WORKFLOW_TEMPLATE_ID' => '=FILTER.TEMPLATE_ID',
+		];
 	}
 
 	/**
@@ -664,7 +694,6 @@ class BizprocUserProcesses
 			'FILTER' => $this->getFilterFields(),
 			'FILTER_PRESETS' => $this->getFilterPresets(),
 			'ENABLE_LABEL' => true,
-			'DISABLE_SEARCH' => true,
 			'RESET_TO_DEFAULT_MODE' => true,
 			'THEME' => \Bitrix\Main\UI\Filter\Theme::MUTED,
 		];
@@ -714,12 +743,12 @@ class BizprocUserProcesses
 		$lists = CIBlock::getList(
 			[
 				'SORT' => 'ASC',
-				'NAME' => 'ASC'
+				'NAME' => 'ASC',
 			],
 			[
 				'ACTIVE' => 'Y',
 				'TYPE' => $iblockTypeId,
-				'SITE_ID' => $siteId
+				'SITE_ID' => $siteId,
 			],
 		);
 		while($list = $lists->fetch())
@@ -813,6 +842,48 @@ class BizprocUserProcesses
 								],
 							],
 						],
+					],
+				],
+			],
+			[
+				'id' => 'MODIFIED',
+				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_FILTER_FIELD_MODIFIED'),
+				'type' => 'date',
+			],
+			[
+				'id' => 'STARTED',
+				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_FILTER_FIELD_STARTED'),
+				'type' => 'date',
+			],
+			[
+				'id' => 'MODULE_ID',
+				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_FILTER_FIELD_MODULE_ID'),
+				'type' => 'list',
+				'items' => [
+					'lists' => Loc::getMessage('BIZPROC_USER_PROCESSES_MODULE_ID_LISTS'),
+					'crm' => Loc::getMessage('BIZPROC_USER_PROCESSES_MODULE_ID_CRM'),
+					'disk' => Loc::getMessage('BIZPROC_USER_PROCESSES_MODULE_ID_DISK'),
+					'rpa' => Loc::getMessage('BIZPROC_USER_PROCESSES_MODULE_ID_RPA'),
+				],
+			],
+			[
+				'id' => 'WORKFLOW_TEMPLATE_ID',
+				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_FILTER_FIELD_TEMPLATE_ID'),
+				'type' => 'entity_selector',
+				'params' => [
+					'multiple' => 'N',
+					'dialogOptions' => [
+						'context' => 'bp-filter',
+						'entities' => [
+							['id' => 'bizproc-template'],
+						],
+						'multiple' => 'N',
+						'dropdownMode' => true,
+						'hideOnSelect' => true,
+						'hideOnDeselect' => false,
+						'clearSearchOnSelect' => true,
+						'showAvatars' => false,
+						'compactView' => true,
 					],
 				],
 			],

@@ -1,7 +1,7 @@
 import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 import { Utils } from 'im.v2.lib.utils';
 
-import type { ImModelUser } from 'im.v2.model';
+import type { ImModelBot, ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const DetailUser = {
@@ -12,7 +12,7 @@ export const DetailUser = {
 			type: String,
 			required: true,
 		},
-		isModerator: {
+		isOwner: {
 			type: Boolean,
 			default: false,
 		},
@@ -38,6 +38,27 @@ export const DetailUser = {
 		{
 			return Utils.user.getProfileLink(this.dialogId);
 		},
+		needContextMenu(): boolean
+		{
+			const bot: ImModelBot = this.$store.getters['users/bots/getByUserId'](this.dialogId);
+			if (!bot)
+			{
+				return true;
+			}
+
+			return bot.code !== 'copilot';
+		},
+		isCopilot(): boolean
+		{
+			const authorId = Number.parseInt(this.dialogId, 10);
+			const copilotUserId = this.$store.getters['users/bots/getCopilotUserId'];
+
+			return copilotUserId === authorId;
+		},
+		hasLink(): boolean
+		{
+			return !this.isCopilot;
+		},
 	},
 	methods:
 	{
@@ -57,15 +78,18 @@ export const DetailUser = {
 		>
 			<div class="bx-im-sidebar-main-detail__avatar-container">
 				<Avatar :size="AvatarSize.L" :dialogId="dialogId" />
-				<span v-if="isModerator" class="bx-im-sidebar-main-detail__avatar-moderator-icon"></span>
+				<span v-if="isOwner" class="bx-im-sidebar-main-detail__avatar-owner-icon"></span>
 			</div>
 			<div class="bx-im-sidebar-main-detail__user-info-container">
 				<div class="bx-im-sidebar-main-detail__user-title-container">
-					<a :href="userLink" target="_blank" class="bx-im-sidebar-main-detail__user-title-link">
+					<a v-if="hasLink" :href="userLink" target="_blank" class="bx-im-sidebar-main-detail__user-title-link">
 						<ChatTitle :dialogId="dialogId" />
 					</a>
+					<div v-else class="bx-im-sidebar-main-detail__user-title-link">
+						<ChatTitle :dialogId="dialogId" />
+					</div>
 					<div
-						v-if="showContextButton"
+						v-if="needContextMenu && showContextButton"
 						class="bx-im-sidebar-main-detail__context-menu-icon bx-im-messenger__context-menu-icon"
 						@click="onClickContextMenu"
 					></div>

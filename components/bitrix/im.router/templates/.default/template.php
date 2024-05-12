@@ -12,7 +12,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	<div class="bx-im-online-page__description"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE_DESCRIPTION')?></div>
 	<button class="bx-im-online-page__button"><?=GetMessage('IM_MESSENGER_EMPTY_PAGE_BUTTON_TITLE')?></button>
 </div>
-<script type="text/javascript">
+<script>
 BX.Messenger.Public.disableDesktopRedirect();
 
 <?if (
@@ -21,6 +21,7 @@ BX.Messenger.Public.disableDesktopRedirect();
 	&& !isset($_GET['IM_NOTIFY'])
 	&& !isset($_GET['IM_DIALOG'])
 	&& !isset($_GET['IM_LINES'])
+	&& !isset($_GET['IM_COPILOT'])
 ):?>
 	BX.addCustomEvent('onImInitBefore', function(im){
 		im.fullScreen = true;

@@ -111,7 +111,7 @@ function ForumInitParams()
 		$LastVisit = $_SESSION["FORUM"]["USER"]["LAST_VISIT_TIMESTAMP"];
 
 		// if info for this user is not exist that info gets from DB
-		if (!is_array($_SESSION["FORUM"][$UserLogin]) || intVal($_SESSION["FORUM"][$UserLogin][0]) <= 0)
+		if (!isset($_SESSION["FORUM"][$UserLogin]) || !is_array($_SESSION["FORUM"][$UserLogin]) || !isset($_SESSION["FORUM"][$UserLogin][0]) || intVal($_SESSION["FORUM"][$UserLogin][0]) <= 0)
 		{
 			$_SESSION["FORUM"][$UserLogin] = array();
 			$db_res = CForumUser::GetListUserForumLastVisit(array(), array("USER_ID" => $GLOBALS["USER"]->GetID()));
@@ -122,7 +122,7 @@ function ForumInitParams()
 				}while ($res = $db_res->Fetch());
 			endif;
 
-			if (intVal($_SESSION["FORUM"][$UserLogin][0]) <= 0):
+			if (!isset($_SESSION["FORUM"][$UserLogin][0]) || intVal($_SESSION["FORUM"][$UserLogin][0]) <= 0):
 				$_SESSION["FORUM"][$UserLogin] = array();
 				CForumUser::SetUserForumLastVisit($GLOBALS["USER"]->GetID(), 0, false);
 				$db_res = CForumUser::GetListUserForumLastVisit(array(), array("USER_ID" => $GLOBALS["USER"]->GetID(), "FORUM_ID" => 0));
@@ -274,8 +274,8 @@ function NewMessageTopic($FID, $TID, $LAST_POST_DATE, $LAST_VISIT)
 		ForumInitParams();
 	$TID = intVal($TID);
 	$LAST_POST_DATE = intVal(MakeTimeStamp($LAST_POST_DATE));
-	$LAST_VISIT = intVal($GLOBALS["USER"]->IsAuthorized() ? MakeTimeStamp($LAST_VISIT) : $_SESSION["FORUM"]["GUEST_TID"][$TID]);
-	$LAST_VISIT = max($LAST_VISIT, $_SESSION["FORUM"]["LAST_VISIT_FORUM_0"], intVal($_SESSION["FORUM"]["LAST_VISIT_FORUM_".$FID]));
+	$LAST_VISIT = intVal($GLOBALS["USER"]->IsAuthorized() ? MakeTimeStamp($LAST_VISIT) : ($_SESSION["FORUM"]["GUEST_TID"][$TID] ?? null));
+	$LAST_VISIT = max($LAST_VISIT, $_SESSION["FORUM"]["LAST_VISIT_FORUM_0"], intVal($_SESSION["FORUM"]["LAST_VISIT_FORUM_".$FID] ?? 0));
 	return ($LAST_POST_DATE > $LAST_VISIT);
 }
 /**
@@ -344,7 +344,14 @@ function ForumSetLastVisit($forumId = false, $TID = false, $arAddParams = array(
 		$forumUser = \Bitrix\Forum\User::getById($USER->getID());
 		$forumUser->setLastVisit();
 
-		if (!is_array($_SESSION["FORUM"]["USER"]) || $_SESSION["FORUM"]["USER"]["USER_ID"] != $USER->getID())
+		if (!isset($_SESSION['FORUM']))
+		{
+			$_SESSION['FORUM'] = [
+				'USER' => null
+			];
+		}
+
+		if (!isset($_SESSION["FORUM"]["USER"]) || !is_array($_SESSION["FORUM"]["USER"]) || $_SESSION["FORUM"]["USER"]["USER_ID"] != $USER->getID())
 		{
 			$_SESSION["FORUM"]["USER"] = $forumUser->getData();
 			$_SESSION["FORUM"]["SHOW_NAME"] = $_SESSION["FORUM"]["USER"]["SHOW_NAME"];

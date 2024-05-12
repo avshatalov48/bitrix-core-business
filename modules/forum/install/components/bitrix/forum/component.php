@@ -125,7 +125,7 @@ if (($request->get('auth') === 'yes' || $request->get('register') === 'yes' || $
 {
 	LocalRedirect($APPLICATION->GetCurPageParam("", $arAuthPageParams));
 }
-elseif ($arParams["SHOW_AUTH_FORM"] != "N")
+elseif (!isset($arParams["SHOW_AUTH_FORM"]) || $arParams["SHOW_AUTH_FORM"] != "N")
 {
 	foreach ($arAuthPageParams as $key):
 		if (is_set($_REQUEST, $key)):
@@ -138,7 +138,7 @@ elseif ($arParams["SHOW_AUTH_FORM"] != "N")
 /********************************************************************
 				Data
 ********************************************************************/
-if ($arParams["SEF_MODE"] == "Y")
+if (isset($arParams["SEF_MODE"]) && $arParams["SEF_MODE"] == "Y")
 {
 	if (!function_exists("CheckPathParams")):
 		function CheckPathParams($url, $params, $Aliases)
@@ -165,12 +165,12 @@ if ($arParams["SEF_MODE"] == "Y")
 			return true;
 		}
 	endif;
-	$arUrlTemplates = CComponentEngine::MakeComponentUrlTemplates($arDefaultUrlTemplates404, $arParams["SEF_URL_TEMPLATES"]);
-	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"]);
-	if ($arParams["CHECK_CORRECT_TEMPLATES"] != "N"):
+	$arUrlTemplates = CComponentEngine::MakeComponentUrlTemplates($arDefaultUrlTemplates404, $arParams["SEF_URL_TEMPLATES"] ?? null);
+	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"] ?? null);
+	if (!isset($arParams["CHECK_CORRECT_TEMPLATES"]) || $arParams["CHECK_CORRECT_TEMPLATES"] != "N"):
 		foreach ($arUrlTemplates as $url => $value)
 		{
-			if (!CheckPathParams($arUrlTemplates[$url], $arDefaultVariableAliasesForPages[$url], $arVariableAliases[$url]))
+			if (!CheckPathParams($arUrlTemplates[$url], $arDefaultVariableAliasesForPages[$url], $arVariableAliases[$url] ?? null))
 				$arUrlTemplates[$url] = $arDefaultUrlTemplates404[$url];
 		}
 	endif;
@@ -188,7 +188,7 @@ if ($arParams["SEF_MODE"] == "Y")
 			$arResult["URL_TEMPLATES_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$arUrlTemplates[$url];
 	}
 
-	if ($arParams["SEF_MODE_NSEF"] == "Y" && (empty($componentPage) || $componentPage == "index") && !empty($_REQUEST["PAGE_NAME"]))
+	if (isset($arParams["SEF_MODE_NSEF"]) && $arParams["SEF_MODE_NSEF"] == "Y" && (empty($componentPage) || $componentPage == "index") && !empty($_REQUEST["PAGE_NAME"]))
 	{
 		$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases, array());
 		CComponentEngine::InitComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
@@ -196,6 +196,11 @@ if ($arParams["SEF_MODE"] == "Y")
 }
 else
 {
+	if (!isset($arParams["VARIABLE_ALIASES"]))
+	{
+		$arParams["VARIABLE_ALIASES"] = [];
+	}
+
 	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases, $arParams["VARIABLE_ALIASES"]);
 	CComponentEngine::InitComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
 	foreach ($arDefaultVariableAliasesForPages as $url => $value)
@@ -209,6 +214,10 @@ else
 			array_merge($arVariableAliases, array("sessid", "result", "MESSAGE_TYPE", "PAGEN_".($GLOBALS["NavNum"] + 1))));
 	}
 }
+/*else
+{
+	$arVariableAliases = array();
+}*/
 
 if (!empty($arVariables["PAGE_NAME"]))
 {
@@ -255,6 +264,10 @@ $arVariables['ACTION'] = $arVariables['ACTION'] ?? null;
 $arVariables['TYPE'] = $arVariables['TYPE'] ?? null;
 $arVariables['mode'] = $arVariables['mode'] ?? null;
 $arVariables['MODE'] = $arVariables['MODE'] ?? null;
+if (empty($arVariables["TID"]) && !empty($arVariables["TITLE_SEO"]))
+{
+	$arVariables["TID"] = intval(strtok($arVariables["TITLE_SEO"], "-"));
+}
 
 // BASE
 $arParams["SEF_MODE"] = $arParams["SEF_MODE"] ?? 'N';
@@ -275,16 +288,16 @@ $arParams["SHOW_FORUM_ANOTHER_SITE"] = $arParams["SHOW_FORUM_ANOTHER_SITE"] ?? '
 $arParams["SHOW_FORUMS_LIST"] = $arParams["SHOW_FORUMS_LIST"] ?? 'Y';
 $arParams["HELP_CONTENT"] = $arParams["HELP_CONTENT"] ?? '';
 $arParams["RULES_CONTENT"] = $arParams["RULES_CONTENT"] ?? '';
-$arParams["TIME_INTERVAL_FOR_USER_STAT"] = ($arParams["TIME_INTERVAL_FOR_USER_STAT"] ?? 60) / 60;
+$arParams["TIME_INTERVAL_FOR_USER_STAT"] = (isset($arParams["TIME_INTERVAL_FOR_USER_STAT"]) && ctype_digit(strval($arParams["TIME_INTERVAL_FOR_USER_STAT"])) ? intval($arParams["TIME_INTERVAL_FOR_USER_STAT"]) : 60) / 60;
 $arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] ?? "Y");
 $arParams["USE_DESC_PAGE_TOPIC"] = ($arParams["USE_DESC_PAGE_TOPIC"] ?? "Y");
-$arParams["FID"] = (is_array($arParams["FID"]) ? $arParams["FID"] : array());
+$arParams["FID"] = (isset($arParams["FID"]) && is_array($arParams["FID"]) ? $arParams["FID"] : array());
 $arParams["RSS_FID_RANGE"] = (!empty($arParams["RSS_FID_RANGE"]) ? $arParams["RSS_FID_RANGE"] : (!empty($arParams["FID"]) ? $arParams["FID"] : []));
 $arParams['RSS_TYPE_RANGE'] = !empty($arParams['RSS_TYPE_RANGE']) ? $arParams['RSS_TYPE_RANGE'] : [];
-$arParams["RSS_YANDEX"] = ($arParams["RSS_YANDEX"] ?? ''); 
-$arParams["RSS_TN_TITLE"] = ($arParams["RSS_TN_TITLE"] ?? ''); 
-$arParams["RSS_TN_DESCRIPTION"] = ($arParams["RSS_TN_DESCRIPTION"] ?? ''); 
-$arParams["RSS_TN_TEMPLATE"] = ($arParams["RSS_TN_TEMPLATE"] ?? ''); 
+$arParams["RSS_YANDEX"] = ($arParams["RSS_YANDEX"] ?? '');
+$arParams["RSS_TN_TITLE"] = ($arParams["RSS_TN_TITLE"] ?? '');
+$arParams["RSS_TN_DESCRIPTION"] = ($arParams["RSS_TN_DESCRIPTION"] ?? '');
+$arParams["RSS_TN_TEMPLATE"] = ($arParams["RSS_TN_TEMPLATE"] ?? '');
 if (empty($arResult["TID"]) && !empty($arResult["TITLE_SEO"]))
 	$arResult["TID"] = intval(strtok($arResult["TITLE_SEO"], "-"));
 $arParams['AJAX_POST'] = ($arParams["AJAX_POST"] ?? 'N') === 'Y' ? 'Y' : 'N';
@@ -360,7 +373,7 @@ $arResult = array_merge(
 
 if (!isset($arParams["ATTACH_MODE"]))
 {
-	if (intval($arParams["IMAGE_SIZE"]) > 0)
+	if (isset($arParams["IMAGE_SIZE"]) && intval($arParams["IMAGE_SIZE"]) > 0)
 	{
 		$arParams["ATTACH_MODE"] = array("THUMB", "NAME");
 		$arParams["ATTACH_SIZE"] = $arParams["IMAGE_SIZE"];
@@ -371,7 +384,7 @@ if (!isset($arParams["ATTACH_MODE"]))
 		$arParams["ATTACH_SIZE"] = 0;
 	}
 }
-$arParams["IMAGE_SIZE"] = intval($arParams["IMAGE_SIZE"] ?: 500);
+$arParams["IMAGE_SIZE"] = isset($arParams["IMAGE_SIZE"]) ? intval($arParams["IMAGE_SIZE"]) : 500;
 $arParams["ATTACH_MODE"] = (is_array($arParams["ATTACH_MODE"]) ? $arParams["ATTACH_MODE"] : array("NAME"));
 $arParams["ATTACH_MODE"] = (!in_array("NAME", $arParams["ATTACH_MODE"]) && !in_array("THUMB", $arParams["ATTACH_MODE"]) ? array("NAME") : $arParams["ATTACH_MODE"]);
 $arParams["ATTACH_SIZE"] = intval($arParams["ATTACH_SIZE"] ?: 90);
@@ -388,7 +401,7 @@ $arParams["MINIMIZE_SQL"] = "N";
 //$arParams["SHOW_FORUM_ANOTHER_SITE"]
 //$arParams["SHOW_FORUMS_LIST"]
 $arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] ?? "Y");
-$arParams["SEND_MAIL"] = (in_array(($arParams["SEND_MAIL"] ?? 'E'), array("A", "E", "U", "Y")) ? $arParams["SEND_MAIL"] : "E");
+$arParams["SEND_MAIL"] = (isset($arParams["SEND_MAIL"]) && in_array(($arParams["SEND_MAIL"] ?? 'E'), array("A", "E", "U", "Y")) ? $arParams["SEND_MAIL"] : "E");
 $arParams["SEND_ICQ"] = "A";
 
 //$arParams["SHOW_FORUM_ANOTHER_SITE"]

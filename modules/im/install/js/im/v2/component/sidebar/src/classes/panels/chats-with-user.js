@@ -1,6 +1,7 @@
-import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
 import { UserManager } from 'im.v2.lib.user';
+import { Core } from 'im.v2.application.core';
+
 import type { RestClient } from 'rest.client';
 import type { Store } from 'ui.vue3.vuex';
 
@@ -39,6 +40,11 @@ type RawChatItem = {
 	dateMessage: string,
 }
 
+type ChatItem = {
+	dialogId: string,
+	dateMessage: string,
+}
+
 export class ChatsWithUser
 {
 	hasMoreItemsToLoad: boolean = true;
@@ -57,12 +63,12 @@ export class ChatsWithUser
 		this.userManager = new UserManager();
 	}
 
-	loadFirstPage(): Promise<string[]>
+	loadFirstPage(): Promise<ChatItem[]>
 	{
 		return this.#requestPage();
 	}
 
-	loadNextPage(): Promise<string[]>
+	loadNextPage(): Promise<ChatItem[]>
 	{
 		return this.#requestPage();
 	}
@@ -84,7 +90,7 @@ export class ChatsWithUser
 		return requestParams;
 	}
 
-	async #requestPage(): Promise<string[]>
+	async #requestPage(): Promise<ChatItem[]>
 	{
 		const requestParams = this.#getRequestParams();
 		const response = await this.restClient.callMethod(RestMethod.imV2ChatListShared, requestParams);
@@ -92,7 +98,7 @@ export class ChatsWithUser
 		return this.#handleResponse(response.data());
 	}
 
-	async #handleResponse(response): Promise<string[]>
+	async #handleResponse(response): Promise<ChatItem[]>
 	{
 		const { chats }: { chats: RawChatItem[] } = response;
 		this.#chatsCount += chats.length;
@@ -103,40 +109,21 @@ export class ChatsWithUser
 
 		await this.#updateModels(chats);
 
-		return chats.map((chat: RawChatItem) => chat.dialogId);
+		return chats.map((chat: RawChatItem) => {
+			return {
+				dialogId: chat.dialogId,
+				dateMessage: chat.dateMessage,
+			};
+		});
 	}
 
 	#updateModels(chats: RawChatItem[]): Promise
 	{
-		return Promise.all([
-			this.#setDialoguesPromise(chats),
-			this.#setRecentItems(chats),
-		]);
-	}
-
-	getResponseHandler(): Function
-	{
-		return () => {};
+		return this.#setDialoguesPromise(chats);
 	}
 
 	#setDialoguesPromise(chats: RawChatItem[]): Promise
 	{
 		return this.store.dispatch('chats/set', chats);
-	}
-
-	#setRecentItems(chats: RawChatItem[]): Promise
-	{
-		const recentItems = [];
-
-		chats.forEach((chat) => {
-			recentItems.push({
-				dialogId: chat.dialogId,
-				message: {
-					date: chat.dateMessage,
-				},
-			});
-		});
-
-		return this.store.dispatch('recent/store', recentItems);
 	}
 }

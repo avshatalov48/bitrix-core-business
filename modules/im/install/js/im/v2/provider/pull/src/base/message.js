@@ -143,6 +143,8 @@ export class MessagePullHandler
 		{
 			dialogUpdateFields.lastMessageId = params.newLastMessage.id;
 			dialogUpdateFields.lastMessageViews = params.lastMessageViews;
+
+			this.#store.dispatch('messages/store', params.newLastMessage);
 		}
 
 		this.#store.dispatch('chats/update', {
@@ -337,6 +339,7 @@ export class MessagePullHandler
 		const unreadMessages: ImModelMessage[] = this.#store.getters['messages/getChatUnreadMessages'](params.chatId);
 		if (!chatIsOpened && unreadMessages.length > MessageService.getMessageRequestLimit())
 		{
+			this.#store.dispatch('messages/store', params.message);
 			const messageService = new MessageService({ chatId: params.chatId });
 			messageService.reloadMessageList();
 

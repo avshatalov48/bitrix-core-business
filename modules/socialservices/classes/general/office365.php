@@ -8,7 +8,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 	 * @deprecated Use \CSocServOffice365OAuth::getControllerUrl() instead.
 	 * @var string
 	 */
-	public const CONTROLLER_URL = "https://www.bitrix24.ru/controller";
+	public const CONTROLLER_URL = 'https://www.bitrix24.com/controller';
 
 	/** @var COffice365OAuthInterface null  */
 	protected $entityOAuth = null;
@@ -26,13 +26,6 @@ class CSocServOffice365OAuth extends CSocServAuth
 
 	public static function getControllerUrl(): string
 	{
-		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
-
-		if (\in_array($region, ['ru', 'by', 'kz'], true))
-		{
-			return 'https://www.bitrix24.ru/controller';
-		}
-
 		return 'https://www.bitrix24.com/controller';
 	}
 

@@ -1,6 +1,8 @@
 <?php
 
 use Bitrix\Main;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Text\Emoji;
 
 class CBPTrackingService extends CBPRuntimeService
 {
@@ -620,16 +622,33 @@ class CBPTrackingServiceResult extends CDBResult
 
 			if (isset($result['TYPE']) && in_array((int)$result['TYPE'], CBPTrackingService::DEBUG_TRACK_TYPES, true))
 			{
-				$actionNote = \Bitrix\Main\Web\Json::decode($actionNote);
-				if (isset($actionNote['propertyValue']) && is_string($actionNote['propertyValue']))
+				$decodedActionNote = [];
+				try
 				{
-					$propertyValue = $actionNote['propertyValue'];
-					$propertyValue = \CBPTrackingService::parseStringParameter($propertyValue, null, false);
-					$propertyValue = self::convertTimestampTag($propertyValue);
-					$actionNote['propertyValue'] = $propertyValue;
+					$decodedActionNote = \Bitrix\Main\Web\Json::decode($actionNote);
+				}
+				catch (ArgumentException)
+				{}
+
+				if (is_array($decodedActionNote))
+				{
+					array_walk_recursive($decodedActionNote, static function (&$value) {
+						if (is_string($value))
+						{
+							$value = Emoji::decode($value);
+						}
+					});
 				}
 
-				$result['ACTION_NOTE'] = \Bitrix\Main\Web\Json::encode($actionNote);
+				if (isset($decodedActionNote['propertyValue']) && is_string($decodedActionNote['propertyValue']))
+				{
+					$propertyValue = $decodedActionNote['propertyValue'];
+					$propertyValue = \CBPTrackingService::parseStringParameter($propertyValue, null, false);
+					$propertyValue = self::convertTimestampTag($propertyValue);
+					$decodedActionNote['propertyValue'] = $propertyValue;
+				}
+
+				$result['ACTION_NOTE'] = \Bitrix\Main\Web\Json::encode($decodedActionNote);
 			}
 			else
 			{

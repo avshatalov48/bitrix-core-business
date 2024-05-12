@@ -9,8 +9,8 @@ import { MessageSearch } from '../../../classes/panels/message-search';
 import { EmptyState } from './empty-state';
 import { SearchItem } from './search-item';
 import { SearchHeader } from './search-header';
-import { DateGroup } from '../../elements/date-group';
-import { DetailEmptyState as StartState } from '../../elements/detail-empty-state';
+import { DateGroup } from '../../elements/date-group/date-group';
+import { DetailEmptyState as StartState } from '../../elements/detail-empty-state/detail-empty-state';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';
 
 import './css/message-search-panel.css';
@@ -145,7 +145,7 @@ export const MessageSearchPanel = {
 		},
 		onScroll(event)
 		{
-			if (this.isLoading)
+			if (this.isLoading || this.preparedQuery.length === 0)
 			{
 				return;
 			}

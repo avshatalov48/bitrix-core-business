@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $arFields = Array(
@@ -30,8 +31,8 @@ $arFields = Array(
 					"Name"       => "A55107_6725_78774_36295",
 					"Properties" => Array
 					(
-						"MailSubject"       => GetMessage("BPT_SM_TASK1_TITLE"),
-						"MailText"          => CBPDocument::_ReplaceTaskURL(GetMessage("BPT_SM_TASK1_TEXT"), $documentType),
+						"MailSubject"       => GetMessage("BPT_SM_TASK1_TITLE_MSGVER_1"),
+						"MailText"          => CBPDocument::_ReplaceTaskURL(GetMessage("BPT_SM_TASK1_TEXT_MSGVER_1"), $documentType),
 						"MailMessageType"   => 'plain',
 						"MailCharset"       => LANG_CHARSET,
 						"MailUserFrom"      => '',
@@ -61,8 +62,8 @@ $arFields = Array(
 						"OverdueDate"       => '',
 						"ApproveMinPercent" => '50',
 						"ApproveWaitForAll" => 'N',
-						"Name"              => GetMessage("BPT_SM_APPROVE_NAME"),
-						"Description"       => GetMessage("BPT_SM_APPROVE_DESC"),
+						"Name"              => GetMessage("BPT_SM_APPROVE_NAME_MSGVER_1"),
+						"Description"       => GetMessage("BPT_SM_APPROVE_DESC_MSGVER_1"),
 						"Parameters"        => '',
 						"Users"             => Array
 						(
@@ -70,7 +71,7 @@ $arFields = Array(
 							'Voters',
 						),
 
-						"Title" => GetMessage("BPT_SM_APPROVE_TITLE"),
+						"Title" => GetMessage("BPT_SM_APPROVE_TITLE_MSGVER_1"),
 					),
 
 					"Children" => Array
@@ -92,8 +93,8 @@ $arFields = Array(
 									"Name"       => 'A52783_8897_80513_17412',
 									"Properties" => Array
 									(
-										"MailSubject"       => GetMessage("BPT_SM_MAIL1_SUBJ"),
-										"MailText"          => GetMessage("BPT_SM_MAIL1_TEXT"),
+										"MailSubject"       => GetMessage("BPT_SM_MAIL1_SUBJ_MSGVER_1"),
+										"MailText"          => GetMessage("BPT_SM_MAIL1_TEXT_MSGVER_1"),
 										"MailMessageType"   => 'plain',
 										"MailCharset"       => LANG_CHARSET,
 										"MailUserFrom"      => '',
@@ -114,7 +115,7 @@ $arFields = Array(
 											'author',
 										),
 
-										"Title" => GetMessage("BPT_SM_MAIL1_TITLE"),
+										"Title" => GetMessage("BPT_SM_MAIL1_TITLE_MSGVER_1"),
 									)
 								),
 
@@ -136,7 +137,7 @@ $arFields = Array(
 									"Name"       => 'A48746_87842_51629_82911',
 									"Properties" => Array
 									(
-										"Title" => GetMessage("BPT_SM_PUB"),
+										"Title" => GetMessage("BPT_SM_PUB_MSGVER_1"),
 									),
 
 								),
@@ -162,8 +163,8 @@ $arFields = Array(
 									"Name"       => 'A81331_27726_32679_75654',
 									"Properties" => Array
 									(
-										"MailSubject"       => GetMessage("BPT_SM_MAIL2_SUBJ"),
-										"MailText"          => GetMessage("BPT_SM_MAIL2_TEXT"),
+										"MailSubject"       => GetMessage("BPT_SM_MAIL2_SUBJ_MSGVER_1"),
+										"MailText"          => GetMessage("BPT_SM_MAIL2_TEXT_MSGVER_1"),
 										"MailMessageType"   => 'plain',
 										"MailCharset"       => LANG_CHARSET,
 										"MailUserFrom"      => '',
@@ -184,7 +185,7 @@ $arFields = Array(
 											'author',
 										),
 
-										"Title" => GetMessage("BPT_SM_MAIL2_TITLE"),
+										"Title" => GetMessage("BPT_SM_MAIL2_TITLE_MSGVER_1"),
 									)
 								),
 
@@ -230,4 +231,3 @@ $arFields = Array(
 	"VARIABLES" => Array
 	()
 );
-?>

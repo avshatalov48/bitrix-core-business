@@ -50,7 +50,6 @@ export class ReadService
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
 			action: false,
-			dateUpdate: new Date(),
 		});
 		this.#store.dispatch('chats/update', {
 			dialogId,
@@ -69,7 +68,6 @@ export class ReadService
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
 			action: true,
-			dateUpdate: new Date(),
 		});
 		this.#restClient.callMethod(RestMethod.imV2ChatUnread, { dialogId })
 			.catch((error) => {
@@ -133,7 +131,6 @@ export class ReadService
 		this.#store.dispatch('recent/unread', {
 			id: dialogId,
 			action: false,
-			dateUpdate: new Date(),
 		});
 		this.#store.dispatch('chats/update', {
 			dialogId,

@@ -47,6 +47,18 @@ class CIMNotify
 			}
 		}
 
+		if (isset($arFields['NOTIFY_BUTTONS']) && is_array($arFields['NOTIFY_BUTTONS']))
+		{
+			foreach ($arFields['NOTIFY_BUTTONS'] as $key => $button)
+			{
+				if (isset($button['TITLE']) && is_callable($button['TITLE']))
+				{
+					$localizeText = self::getTextMessageByLang((int)$arFields['TO_USER_ID'], $button['TITLE']);
+					$arFields['NOTIFY_BUTTONS'][$key]['TITLE'] = $localizeText;
+				}
+			}
+		}
+
 		$arFields['MESSAGE_TYPE'] = IM_MESSAGE_SYSTEM;
 
 		return CIMMessenger::Add($arFields);
@@ -392,7 +404,6 @@ class CIMNotify
 		CTimeZone::Enable();
 
 		$arNotify = Array();
-
 		while ($arRes = $dbRes->Fetch())
 		{
 			$arRes["DATE_CREATE"] = $arRes["DATE_CREATE"] + CIMMail::GetUserOffset($arRes);
@@ -1349,7 +1360,7 @@ class CIMNotify
 
 	private static function deleteInternal(int $id, int $userId): void
 	{
-		CIMMessageParam::DeleteAll($id, true);
+		CIMMessageParam::DeleteAll($id);
 		\Bitrix\Im\Model\MessageTable::delete($id);
 		(new IM\V2\Message\ReadService())->deleteByMessageId($id, [$userId]);
 	}

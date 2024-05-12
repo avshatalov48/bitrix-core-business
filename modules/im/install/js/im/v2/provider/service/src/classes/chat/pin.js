@@ -22,7 +22,6 @@ export class PinService
 		this.#store.dispatch('recent/pin', {
 			id: dialogId,
 			action: true,
-			dateUpdate: new Date(),
 		});
 		const queryParams = {'DIALOG_ID': dialogId, 'ACTION': 'Y'};
 		this.#restClient.callMethod(RestMethod.imRecentPin, queryParams).catch(error => {
@@ -37,7 +36,6 @@ export class PinService
 		this.#store.dispatch('recent/pin', {
 			id: dialogId,
 			action: false,
-			dateUpdate: new Date(),
 		});
 		const queryParams = {'DIALOG_ID': dialogId, 'ACTION': 'N'};
 		this.#restClient.callMethod(RestMethod.imRecentPin, queryParams).catch(error => {

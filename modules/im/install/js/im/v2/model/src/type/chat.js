@@ -36,7 +36,7 @@ export type Chat = {
 	writingList: WritingListItem[],
 	muteList: number[],
 	quoteId: number,
-	owner: number,
+	ownerId: number,
 	entityLink: {
 		type: string,
 		url: string,

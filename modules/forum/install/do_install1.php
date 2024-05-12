@@ -78,7 +78,7 @@ if ($db_res && ($res = $db_res->Fetch()))
 	<tr><td colspan="2"><input type="submit" name="inst" value="<?=GetMessage("MOD_INSTALL")?>" /></td></tr>
 	</table>
 </form>
-<script language="JavaScript">
+<script>
 <!--
 function ChangeInstallPublic(oObj)
 {

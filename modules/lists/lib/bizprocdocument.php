@@ -2233,7 +2233,7 @@ class BizprocDocument extends CIBlockDocument
 			{
 				$GLOBALS["CBPVirtualDocumentCloneRowPrinted"] = 1;
 				?>
-				<script language="JavaScript">
+				<script>
 					function CBPVirtualDocumentCloneRow(tableID)
 					{
 						var tbl = document.getElementById(tableID);

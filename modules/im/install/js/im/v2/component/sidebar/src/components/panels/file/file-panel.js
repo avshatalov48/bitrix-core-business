@@ -9,7 +9,7 @@ import { AudioTab } from './components/audio-tab';
 import { BriefTab } from './components/brief-tab';
 import { OtherTab } from './components/other-tab';
 import { DocumentTab } from './components/document-tab';
-import { DetailHeader } from '../../elements/detail-header';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
 
 import type { JsonObject } from 'main.core';
 

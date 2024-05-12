@@ -12,6 +12,7 @@ $MESS["IM_LOAD_LAST_MESSAGE"] = "Download recent messages";
 $MESS["IM_LOAD_LAST_NOTIFY"] = "Download notification history";
 $MESS["IM_OPEN_CHAT_ENABLE"] = "Enable public chats";
 $MESS["IM_OPTIONS_CALL_SERVER_ENABLED"] = "Use Voximplant SFU server for video calls (requires valid license)";
+$MESS["IM_OPTIONS_CALL_SERVER_ENABLED_MSGVER_1"] = "Use Bitrix24 SFU cloud servers for video calls (requires valid license)";
 $MESS["IM_OPTIONS_CONVERT"] = "Convert message history";
 $MESS["IM_OPTIONS_CONVERT_TITLE"] = "Click to open history conversion form";
 $MESS["IM_OPTIONS_NAME_IN_IM_FORMAT"] = "Default format";

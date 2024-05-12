@@ -143,12 +143,18 @@ elseif (in_array($this->getPageName(), ['template', 'site_show']))
 		&& $arResult['ACCESS_PAGE_NEW'] == 'Y'
 	)
 	{
-		$link = $getComponent()->getUrlAdd(false);
+		$link = $getComponent()->getUrlAdd(false, [
+			'context_section' => 'pages_list',
+			'context_element' => 'top_button',
+		]);
 		$title = Loc::getMessage('LANDING_TPL_ADD_PAGE');
 	}
 	else if ($arResult['ACCESS_SITE_NEW'] == 'Y')
 	{
-		$link = $getComponent()->getUrlAdd(true);
+		$link = $getComponent()->getUrlAdd(true, [
+			'context_section' => 'site_list',
+			'context_element' => 'top_button',
+		]);
 		$title = Loc::getMessage('LANDING_TPL_ADD_SITE_2');
 	}
 

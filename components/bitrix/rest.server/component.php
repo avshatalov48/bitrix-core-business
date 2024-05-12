@@ -59,7 +59,7 @@ else
 }
 
 $transport = 'json';
-$methods = [ToLower($arVariables['method']), $arVariables['method']];
+$methods = [mb_strtolower($arVariables['method']), $arVariables['method']];
 
 // try lowercase first, then original
 foreach ($methods as $method)

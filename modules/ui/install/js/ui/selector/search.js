@@ -1242,37 +1242,6 @@ BX.UI.Selector.Search.prototype.searchRequestCallbackSuccess = function(response
 				textAjax: searchStringAjax
 			});
 		}
-
-		/*
-				if (BX.SocNetLogDestination.obAllowSearchNetworkUsers[name])
-				{
-					var contentArea = BX.findChildren(BX.SocNetLogDestination.popupSearchWindowContent,
-						{
-							'className': 'bx-finder-groupbox-content'
-						},
-						true
-					);
-
-					BX.SocNetLogDestination.searchButton = BX.create('span', {
-						props : {
-							'className' : "bx-finder-box-button"
-						},
-						text: BX.message('LM_POPUP_SEARCH_NETWORK')
-					});
-
-					var foundUsers = BX.findChildren(contentArea[0], {tagName: 'a'}, true);
-					if (!foundUsers || foundUsers.length <= 0)
-					{
-						contentArea[0].innerHTML = '';
-					}
-					contentArea[0].appendChild(BX.SocNetLogDestination.searchButton);
-					BX.bind(BX.SocNetLogDestination.searchButton, 'click', function()
-					{
-						this.showSearchWaiter();
-						BX.SocNetLogDestination.searchNetwork(searchString, name, nameTemplate, finderData, searchStringAjax, ajaxData);
-					});
-				}
-		*/
 	}
 };
 

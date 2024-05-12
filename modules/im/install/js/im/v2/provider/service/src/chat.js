@@ -48,7 +48,7 @@ export class ChatService
 	// endregion 'load'
 
 	// region 'create'
-	createChat(chatConfig): Promise<string>
+	createChat(chatConfig): Promise<{ newDialogId: string, newChatId: number }>
 	{
 		return this.#createService.createChat(chatConfig);
 	}

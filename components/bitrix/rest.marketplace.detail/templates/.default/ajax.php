@@ -6,8 +6,6 @@ IncludeModuleLangFile(__FILE__);
 
 if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"] <> '' && check_bitrix_sessid())
 {
-	\CUtil::JSPostUnescape();
-
 	if (isset($_POST["site_id"]) && trim($_POST["site_id"]))
 	{
 		$siteID = trim($_POST["site_id"]);

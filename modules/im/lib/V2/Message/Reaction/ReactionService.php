@@ -164,7 +164,7 @@ class ReactionService
 		}
 
 		return fn (?string $languageId = null) => Loc::getMessage(
-			"{$code}_PRIVATE",
+			$code,
 			[
 				'#DIALOG_ID#' => $chat->getDialogContextId(),
 				'#MESSAGE_ID#' => $this->message->getMessageId(),

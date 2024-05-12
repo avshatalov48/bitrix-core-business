@@ -9,10 +9,13 @@ use Bitrix\Socialnetwork\Internals\EventService\Service;
 
 class SpaceService
 {
+	// TODO uncomment when needed
 	public const SUPPORTED_EVENTS = [
 		'invite',
 		'onAfterCalendarEventDelete',
+//		'onAfterCalendarEventUpdate',
 		'onCalendarEventCommentAdd',
+//		'onCalendarEventCommentDelete',
 	];
 
 	/**
@@ -21,8 +24,8 @@ class SpaceService
 	public static function isAvailable(): bool
 	{
 		if (
-			!class_exists(\Bitrix\Socialnetwork\Space\Service::class)
-			|| !Loader::includeModule('socialnetwork')
+			!Loader::includeModule('socialnetwork')
+			|| !class_exists(\Bitrix\Socialnetwork\Space\Service::class)
 		)
 		{
 			return false;
@@ -50,10 +53,13 @@ class SpaceService
 
 	private function mapTaskToSpaceEvent(string $type): string
 	{
+		// TODO uncomment when needed
 		$map = [
 			'invite' => EventDictionary::EVENT_SPACE_CALENDAR_INVITE,
+//			'onAfterCalendarEventUpdate' => EventDictionary::EVENT_SPACE_CALENDAR_EVENT_UPD,
 			'onAfterCalendarEventDelete' => EventDictionary::EVENT_SPACE_CALENDAR_EVENT_DEL,
 			'onCalendarEventCommentAdd' => EventDictionary::EVENT_SPACE_CALENDAR_EVENT_COMMENT_ADD,
+//			'onCalendarEventCommentDelete' => EventDictionary::EVENT_SPACE_CALENDAR_EVENT_COMMENT_DEL,
 		];
 
 		return $map[$type] ?? EventDictionary::EVENT_SPACE_CALENDAR_COMMON;

@@ -31,6 +31,7 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 		$convertedItem['ACTIVE'] = isset($item['ACTIVE']) ? (bool)$item['ACTIVE'] : false;
 		$convertedItem['NOTICE'] = isset($item['NOTICE']) ? (bool)$item['NOTICE'] : false;
 		$convertedItem['LABEL'] = isset($item['LABEL']) ? $item['LABEL'] : '';
+		$convertedItem['DISABLED'] = isset($item['DISABLED']) ? (bool)$item['DISABLED'] : false;
 
 		if (!empty($item['ATTRIBUTES']) && is_array($item['ATTRIBUTES']))
 		{

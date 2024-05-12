@@ -1,0 +1,35 @@
+<?
+$MESS ['F_REAL_IP'] = "/ real";
+$MESS ['F_HEAD_TO_NEW_TOPIC'] = "ein neues Thema";
+$MESS ['F_ATTACH_FILES'] = "Dateianhänge";
+$MESS ['F_DELETE'] = "Löschen";
+$MESS ['F_EDIT_HEAD'] = "Geändert:";
+$MESS ['F_TOPIC_SEARCH_TITLE'] = "Genen Sie die Themen ID ein oder drucken Sie &laquo;...&laquo;, um nach einem Thema zu suchen.";
+$MESS ['F_HEAD_TO_EXIST_TOPIC'] = "existierendes Thema";
+$MESS ['F_HIDE'] = "Verbergen";
+$MESS ['F_USER_ID'] = "Gast ID";
+$MESS ['F_USER_ID_USER'] = "User ID";
+$MESS ['F_TITLE_ON_FORUM'] = "im Forum";
+$MESS ['F_ANCHOR'] = "Link";
+$MESS ['F_PRIVATE_MESSAGE'] = "Nachricht";
+$MESS ['F_AUTHOR_PROFILE'] = "Profil des Beitrag-Autors";
+$MESS ['F_EDIT'] = "Ändern";
+$MESS ['F_BUTTON_MOVE'] = "Verschieben";
+$MESS ['F_TITLE'] = "Beitrag verschieben";
+$MESS ['F_MOVE_TO'] = "Verschieben in";
+$MESS ['F_BAD_NEW_TOPIC'] = "Das Thema wurde nicht gefunden.";
+$MESS ['FORUM_MAIN_WAIT'] = "Bitte warten...";
+$MESS ['F_POINTS'] = "Punkte:";
+$MESS ['F_DATE_REGISTER'] = "Registrierungsdatum:";
+$MESS ['F_EMAIL_TITLE'] = "Eine Nachricht an die E-Mail-Adresse des Autors senden";
+$MESS ['F_PRIVATE_MESSAGE_TITLE'] = "Private Nachricht an den Autor senden";
+$MESS ['F_SHOW'] = "Anzeigen";
+$MESS ['F_TOPIC_TAGS'] = "Tags";
+$MESS ['F_BAD_TOPIC'] = "Das Thema wurde nicht gefunden.";
+$MESS ['F_DELETE_MESSAGES_CONFIRM'] = "Diese Nachrichten werden unwiderruflich gelöscht. Wollen Sie fortfahren?";
+$MESS ['F_TOPIC_DESCR'] = "Beschreibung:";
+$MESS ['F_TOPIC_ID'] = "Themen ID";
+$MESS ['F_TOPIC_NAME'] = "Überschrift";
+$MESS ['F_TOPIC_NOT_FOUND'] = "Das Thema wurde nicht gefunden";
+$MESS ['F_NUM_MESS'] = "Gesamt Nachrichten:";
+?>

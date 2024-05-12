@@ -258,12 +258,10 @@ $arReference = Array(
 	'birthday' => Array(Loc::getMessage('IM_CONTACT_LIST_BIRTHDAY_ALL'), Loc::getMessage('IM_CONTACT_LIST_BIRTHDAY_DEPARTMENT'), Loc::getMessage('IM_CONTACT_LIST_BIRTHDAY_NONE')),
 );
 ?>
-	<?if(IsModuleInstalled('voximplant')):?>
 	<tr>
-		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_OPTIONS_CALL_SERVER_ENABLED")?>:</td>
+		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_OPTIONS_CALL_SERVER_ENABLED_MSGVER_1")?>:</td>
 		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="CALL_SERVER_ENABLED" <?=(COption::GetOptionString("im", 'call_server_enabled')?'checked="checked"' :'')?>></td>
 	</tr>
-	<?endif;?>
 	<tr>
 		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_OPTIONS_TURN_SERVER_SELF_2")?>:</td>
 		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" onclick="toogleVideoOptions(this)" name="TURN_SERVER_SELF" <?=($selfVideoServer?'checked="checked"' :'')?>></td>
@@ -425,7 +423,7 @@ $subTabControl->End();
 		</td>
 	</tr>
 <?$tabControl->Buttons();?>
-<script language="JavaScript">
+<script>
 function toogleVideoOptions(el)
 {
 	BX.style(BX('video_group_2'), 'display', el.checked? 'table-row': 'none');

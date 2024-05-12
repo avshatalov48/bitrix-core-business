@@ -1050,8 +1050,14 @@
 			"lg": {
 				"value": "20px"
 			},
+			"lg2": {
+				"value": "22px"
+			},
 			"xl": {
 				"value": "24px"
+			},
+			"xl2": {
+				"value": "26px"
 			},
 			"2xl": {
 				"value": "28px"
@@ -1111,8 +1117,14 @@
 				"lg": {
 					"value": "20px"
 				},
+				"lg2": {
+					"value": "22px"
+				},
 				"xl": {
 					"value": "24px"
+				},
+				"xl2": {
+					"value": "26px"
 				},
 				"2xl": {
 					"value": "28px"
@@ -1165,8 +1177,14 @@
 				"lg-neg": {
 					"value": "-20px"
 				},
+				"lg2-neg": {
+					"value": "-22px"
+				},
 				"xl-neg": {
 					"value": "-24px"
+				},
+				"xl2-neg": {
+					"value": "-26px"
 				},
 				"2xl-neg": {
 					"value": "-28px"
@@ -1224,8 +1242,14 @@
 				"lg": {
 					"value": "20px"
 				},
+				"lg2": {
+					"value": "22px"
+				},
 				"xl": {
 					"value": "24px"
+				},
+				"xl2": {
+					"value": "26px"
 				},
 				"2xl": {
 					"value": "28px"
@@ -1278,8 +1302,14 @@
 				"lg-neg": {
 					"value": "-20px"
 				},
+				"lg2-neg": {
+					"value": "-22px"
+				},
 				"xl-neg": {
 					"value": "-24px"
+				},
+				"xl2-neg": {
+					"value": "-26px"
 				},
 				"2xl-neg": {
 					"value": "-28px"
@@ -1337,8 +1367,14 @@
 				"lg": {
 					"value": "20px"
 				},
+				"lg2": {
+					"value": "22px"
+				},
 				"xl": {
 					"value": "24px"
+				},
+				"xl2": {
+					"value": "26px"
 				},
 				"2xl": {
 					"value": "28px"

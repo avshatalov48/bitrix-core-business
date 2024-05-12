@@ -22,6 +22,7 @@ export class BaseSettingsPage extends BaseSettingsElement
 	#analytic: ?Object;
 	#subPage: Map = new Map;
 	#subPageExtensions: Array = [];
+	#permission: ?Object;
 
 	constructor()
 	{
@@ -40,6 +41,16 @@ export class BaseSettingsPage extends BaseSettingsElement
 	setAnalytic(analytic: ?Object): void
 	{
 		this.#analytic = analytic;
+	}
+
+	setPermission(permission: ?Object): void
+	{
+		this.#permission = permission;
+	}
+
+	getPermission(): ?Object
+	{
+		return this.#permission;
 	}
 
 	hasValue(key: string): boolean
@@ -74,6 +85,11 @@ export class BaseSettingsPage extends BaseSettingsElement
 
 	getPage(): HTMLElement
 	{
+		if (!this.getPermission()?.canRead())
+		{
+			return Tag.render`<div id="${this.getType()}-page-wrapper"></div>`;
+		}
+
 		if (this.#page)
 		{
 			return this.#page;
@@ -139,12 +155,27 @@ export class BaseSettingsPage extends BaseSettingsElement
 		const contentNode = formNode.querySelector('.intranet-settings__content-box');
 
 		formNode.addEventListener('change', () => {
-			this.emit('change', { source: this });
+			if (this.getPermission()?.canEdit())
+			{
+				this.emit('change', { source: this });
+			}
 		});
 
 		this.appendSections(contentNode);
 
+		EventEmitter.emit(
+			EventEmitter.GLOBAL_TARGET,
+			'BX.Intranet.Settings:onContentFetched', {
+				page: this,
+			},
+		);
+
 		return this.#content;
+	}
+
+	hasContent(): boolean
+	{
+		return !Type.isNil(this.#content);
 	}
 
 	headerWidgetRender(): HTMLElement
@@ -223,6 +254,13 @@ export class BaseSettingsPage extends BaseSettingsElement
 			this.#content = null;
 			Dom.append(this.render(), this.#page);
 		}
+
+		EventEmitter.emit(
+			EventEmitter.GLOBAL_TARGET,
+			'BX.Intranet.Settings:onPageComplete', {
+				page: this,
+			},
+		);
 	}
 
 	onFailDataFetched(response): void

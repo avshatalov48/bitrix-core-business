@@ -144,7 +144,7 @@ class OccupancyChecker
 	 */
 	private function isEnabled(): bool
 	{
-		return Option::get('calendar', self::OPTION_NAME, self::OPTION_DISABLED, '-') === self::OPTION_ENABLED;
+		return Option::get('calendar', self::OPTION_NAME, self::OPTION_ENABLED, '-') !== self::OPTION_DISABLED;
 	}
 
 	/**

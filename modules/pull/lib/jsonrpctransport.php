@@ -185,7 +185,7 @@ class JsonRpcTransport
 	protected static function performHttpRequest(string $queueServerUrl, string $body): Main\Result
 	{
 		$result = new Main\Result();
-		$httpClient = new Main\Web\HttpClient();
+		$httpClient = new Main\Web\HttpClient(["streamTimeout" => 1]);
 
 		$signature = \CPullChannel::GetSignature($body);
 		$hostId = (string)Config::getHostId();

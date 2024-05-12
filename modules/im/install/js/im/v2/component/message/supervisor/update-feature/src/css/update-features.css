@@ -1,0 +1,9 @@
+.bx-im-message-update-features__image-wrapper {
+	width: 166px;
+	background-repeat: no-repeat;
+	border-radius: 16px 0 0 16px;
+}
+
+.bx-im-message-update-features__image-wrapper.--tariff {
+	background-image: url("./images/supervisor-tariff-expansion.svg");
+}

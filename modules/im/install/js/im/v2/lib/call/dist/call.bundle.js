@@ -94,6 +94,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _checkChatCallSupport = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkChatCallSupport");
 	var _pushServerIsActive = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pushServerIsActive");
 	var _getCurrentDialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCurrentDialogId");
+	var _isUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUser");
+	var _prepareUserCall = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareUserCall");
 	class CallManager {
 	  static getInstance() {
 	    if (!this.instance) {
@@ -105,6 +107,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    CallManager.getInstance();
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _prepareUserCall, {
+	      value: _prepareUserCall2
+	    });
+	    Object.defineProperty(this, _isUser, {
+	      value: _isUser2
+	    });
 	    Object.defineProperty(this, _getCurrentDialogId, {
 	      value: _getCurrentDialogId2
 	    });
@@ -158,6 +166,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  startCall(dialogId, withVideo = true) {
 	    im_v2_lib_logger.Logger.warn('CallManager: startCall', dialogId, withVideo);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser](dialogId)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _prepareUserCall)[_prepareUserCall](dialogId);
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].startCall(dialogId, withVideo);
 	  }
 	  joinCall(callId, withVideo = true) {
@@ -361,6 +372,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return '';
 	  }
 	  return layout.entityId;
+	}
+	function _isUser2(dialogId) {
+	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['chats/get'](dialogId);
+	  return (dialog == null ? void 0 : dialog.type) === im_v2_const.ChatType.user;
+	}
+	function _prepareUserCall2(dialogId) {
+	  const currentUserId = im_v2_application_core.Core.getUserId();
+	  const currentUser = im_v2_application_core.Core.getStore().getters['users/get'](currentUserId);
+	  const currentCompanion = im_v2_application_core.Core.getStore().getters['users/get'](dialogId);
+	  babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].prepareUserCall({
+	    dialogId,
+	    user: currentCompanion.id,
+	    userData: {
+	      [currentUserId]: currentUser,
+	      [currentCompanion.id]: currentCompanion
+	    }
+	  });
 	}
 	CallManager.viewContainerClass = 'bx-im-messenger__call_container';
 

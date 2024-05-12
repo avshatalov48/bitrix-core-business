@@ -26,7 +26,7 @@ class WorkflowStateFilter
 			],
 			[
 				'id' => static::PRESET_HAS_TASK,
-				'name' => Loc::getMessage('BIZPROC_API_DATA_WORKFLOW_STATE_FILTER_PRESET_HAS_TASK'),
+				'name' => Loc::getMessage('BIZPROC_API_DATA_WORKFLOW_STATE_FILTER_PRESET_HAS_TASK_MSGVER_1'),
 			],
 			[
 				'id' => static::PRESET_ALL_COMPLETED,

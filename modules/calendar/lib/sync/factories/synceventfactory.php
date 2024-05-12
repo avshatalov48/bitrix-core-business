@@ -175,7 +175,7 @@ class SyncEventFactory
 	            'EVENT_CONNECTION.EVENT',
             ])
 			->where('OWNER_ID', $userId)
-			->where('CAL_TYPE', Dictionary::EVENT_TYPE['user'])
+			->where('CAL_TYPE', Dictionary::CALENDAR_TYPE['user'])
 			->where('DELETED', 'N')
 			->where('DATE_TO_TS_UTC', '>', $timestamp)
 			->where(Query::filter()

@@ -1,11 +1,12 @@
 <?php
+
 namespace Bitrix\Calendar\ICal;
+
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Encoding;
-use Bitrix\Main\UserTable;
 
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/ical/incomingeventmanager.php');
 Loc::loadMessages(__FILE__);
@@ -101,10 +102,15 @@ class IcsManager
 			);
 		}
 
+		if ($event->isRecurrence() && $event->getRecurringRule() !== null)
+		{
+			$icsBuilder->setRrule($event->getRecurringRule());
+		}
+
 		return $icsBuilder->render();
 	}
 
-	private function prepareEventDescription(Event $event, array $params): string
+	public function prepareEventDescription(Event $event, array $params): string
 	{
 		$languageId = \CCalendar::getUserLanguageId($event->getOwner()->getId());
 		$eventDescription = '';
@@ -117,23 +123,38 @@ class IcsManager
 		{
 			$eventDescription =
 				$this->formatAttendeesDescription($attendeesCodes, $event->getParentId(), $languageId)
-				. '; \\n'
+				. ';'
 			;
 		}
 
-		if ($params['eventUrl'])
+		if (!empty($params['eventUrl']))
 		{
-			$eventDescription .= Loc::getMessage('EC_EVENT_LINK') . $params['eventUrl'] . '\\n';
+			if (!empty($eventDescription))
+			{
+				$eventDescription .= '\\n\\n';
+			}
+
+			$eventDescription .= Loc::getMessage('EC_EVENT_LINK') . $params['eventUrl'];
 		}
 
-		if ($params['conferenceUrl'])
+		if (!empty($params['conferenceUrl']))
 		{
-			$eventDescription .= Loc::getMessage('EC_CONFERENCE_LINK') . $params['conferenceUrl']. '\\n';
+			if (!empty($eventDescription))
+			{
+				$eventDescription .= '\\n\\n';
+			}
+
+			$eventDescription .= Loc::getMessage('EC_CONFERENCE_LINK') . $params['conferenceUrl'];
 		}
 
-		if ($description = $event->getDescription())
+		if (!empty($event->getDescription()))
 		{
-			$eventDescription .= Loc::getMessage('EC_CALENDAR_ICS_COMMENT') . ': '. $description;
+			if (!empty($eventDescription))
+			{
+				$eventDescription .= '\\n\\n';
+			}
+
+			$eventDescription .= Loc::getMessage('EC_CALENDAR_ICS_COMMENT') . ': '. $event->getDescription();
 		}
 
 		return $eventDescription;

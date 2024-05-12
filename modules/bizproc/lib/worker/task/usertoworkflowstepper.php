@@ -14,7 +14,7 @@ class UserToWorkflowStepper extends Main\Update\Stepper
 	public function execute(array &$option)
 	{
 		$userId = (int)$this->getOuterParams()[0];
-		$lastId = (int)($option['lastId'] ?? 0);
+		$lastId = (int)($this->getOuterParams()[1] ?? 0);
 		$limit = self::STEP_ROWS_LIMIT;
 
 		$connection = Application::getConnection();
@@ -34,7 +34,8 @@ class UserToWorkflowStepper extends Main\Update\Stepper
 			return self::FINISH_EXECUTION;
 		}
 
-		$option['lastId'] = end($ids);
+		$this->setOuterParams([$userId, end($ids)]);
+
 		$idsSql = implode(',', $ids);
 
 		$connection->query(

@@ -338,7 +338,8 @@ class CAllForumUser
 					$data[$k] = new \Bitrix\Main\Type\DateTime(\Bitrix\Main\Type\DateTime::isCorrect($v) ? $v : null);
 				}
 				else if (
-					!is_array($v)
+					isset($v)
+					&& !is_array($v)
 					&& preg_match("/{$k}\s*(\+|\-)\s*(\d+)/", $v, $matches)
 				)
 				{
@@ -1145,9 +1146,9 @@ class CAllForumUser
 		}
 		else
 		{
-			if ($arNavigation["SIZEN"])
+			if (isset($arNavigation["SIZEN"]) && $arNavigation["SIZEN"])
 				$arNavigation["nPageSize"] = $arNavigation["SIZEN"];
-			if ($arNavigation["PAGEN"])
+			if (isset($arNavigation["PAGEN"]) && $arNavigation["PAGEN"])
 				$arNavigation["iNumPage"] = $arNavigation["PAGEN"];
 			$db_res = new CDBResult();
 			$db_res->NavQuery($strSql, $cnt, $arNavigation);
@@ -1237,7 +1238,7 @@ class CAllForumSubscribe
 		if ($ACTION=="ADD")
 		{
 			$arFilter = array("USER_ID"=>intval($arFields["USER_ID"]), "FORUM_ID"=>intval($arFields["FORUM_ID"]), "TOPIC_ID"=>intval($arFields["TOPIC_ID"]));
-			if($arFields["SOCNET_GROUP_ID"])
+			if(isset($arFields["SOCNET_GROUP_ID"]) && $arFields["SOCNET_GROUP_ID"])
 				$arFilter["SOCNET_GROUP_ID"] = $arFields["SOCNET_GROUP_ID"];
 			$db_res = CForumSubscribe::GetList(array(), $arFilter);
 			if ($res = $db_res->Fetch())
@@ -1264,7 +1265,7 @@ class CAllForumSubscribe
 			"SITE_ID" => "'".$DB->ForSQL($arFields["SITE_ID"], 2)."'",
 			);
 
-		if(intval($arFields["SOCNET_GROUP_ID"])>0)
+		if(isset($arFields["SOCNET_GROUP_ID"]) && intval($arFields["SOCNET_GROUP_ID"])>0)
 			$Fields["SOCNET_GROUP_ID"] = intval($arFields["SOCNET_GROUP_ID"]);
 
 		if (intval($arFields["TOPIC_ID"]) > 0)
@@ -1411,9 +1412,9 @@ class CAllForumSubscribe
 		DelDuplicateSort($arSqlOrder);
 		$strSqlOrder = (empty($arSqlOrder) ? "" : " ORDER BY ".implode(", ", $arSqlOrder));
 
-		$strSql .= $strSqlOrder.($arAddParams["nTopCount"] > 0 ? "\nLIMIT 0,".intval($arAddParams["nTopCount"]) : "");
+		$strSql .= $strSqlOrder.(isset($arAddParams["nTopCount"]) ? ($arAddParams["nTopCount"] > 0 ? "\nLIMIT 0,".intval($arAddParams["nTopCount"]) : "") : '');
 
-		if ($arAddParams["nTopCount"] <= 0 && is_set($arAddParams, "bDescPageNumbering"))
+		if (isset($arAddParams["nTopCount"]) && $arAddParams["nTopCount"] <= 0 && is_set($arAddParams, "bDescPageNumbering"))
 		{
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);

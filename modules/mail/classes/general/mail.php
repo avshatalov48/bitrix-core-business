@@ -2861,18 +2861,19 @@ class CAllMailUtil
 
 	public static function uue_decode($str)
 	{
-		preg_match("/begin [0-7]{3} .+?\r?\n(.+)?\r?\nend/i", $str, $reg);
+		preg_match("/begin [0-7]{3} .+?\r?\n(.+)?\r?\nend/is", $str, $reg);
 
 		$str = $reg[1];
 		$res = '';
 		$str = preg_split("/\r?\n/", trim($str));
 		$strlen = count($str);
+		$spaceCharOrd = 0;
 
 		for ($i = 0; $i < $strlen; $i++)
 		{
 			$pos = 1;
 			$d = 0;
-			$len= (int)(((ord(mb_substr($str[$i], 0, 1)) -32) - ' ') & 077);
+			$len= (((ord(mb_substr($str[$i], 0, 1)) -32) - $spaceCharOrd) & 077);
 
 			while (($d + 3 <= $len) AND ($pos + 4 <= mb_strlen($str[$i])))
 			{
@@ -2880,9 +2881,9 @@ class CAllMailUtil
 				$c1 = (ord(mb_substr($str[$i], $pos + 1, 1)) ^ 0x20);
 				$c2 = (ord(mb_substr($str[$i], $pos + 2, 1)) ^ 0x20);
 				$c3 = (ord(mb_substr($str[$i], $pos + 3, 1)) ^ 0x20);
-				$res .= chr(((($c0 - ' ') & 077) << 2) | ((($c1 - ' ') & 077) >> 4)).
-						chr(((($c1 - ' ') & 077) << 4) | ((($c2 - ' ') & 077) >> 2)).
-						chr(((($c2 - ' ') & 077) << 6) |  (($c3 - ' ') & 077));
+				$res .= chr(((($c0 - $spaceCharOrd) & 077) << 2) | ((($c1 - $spaceCharOrd) & 077) >> 4)).
+						chr(((($c1 - $spaceCharOrd) & 077) << 4) | ((($c2 - $spaceCharOrd) & 077) >> 2)).
+						chr(((($c2 - $spaceCharOrd) & 077) << 6) |  (($c3 - $spaceCharOrd) & 077));
 
 				$pos += 4;
 				$d += 3;
@@ -2893,8 +2894,8 @@ class CAllMailUtil
 				$c0 = (ord(mb_substr($str[$i], $pos, 1)) ^ 0x20);
 				$c1 = (ord(mb_substr($str[$i], $pos + 1, 1)) ^ 0x20);
 				$c2 = (ord(mb_substr($str[$i], $pos + 2, 1)) ^ 0x20);
-				$res .= chr(((($c0 - ' ') & 077) << 2) | ((($c1 - ' ') & 077) >> 4)).
-						chr(((($c1 - ' ') & 077) << 4) | ((($c2 - ' ') & 077) >> 2));
+				$res .= chr(((($c0 - $spaceCharOrd) & 077) << 2) | ((($c1 - $spaceCharOrd) & 077) >> 4)).
+						chr(((($c1 - $spaceCharOrd) & 077) << 4) | ((($c2 - $spaceCharOrd) & 077) >> 2));
 
 				$pos += 3;
 				$d += 2;
@@ -2904,7 +2905,7 @@ class CAllMailUtil
 			{
 				$c0 = (ord(mb_substr($str[$i], $pos, 1)) ^ 0x20);
 				$c1 = (ord(mb_substr($str[$i], $pos + 1, 1)) ^ 0x20);
-				$res .= chr(((($c0 - ' ') & 077) << 2) | ((($c1 - ' ') & 077) >> 4));
+				$res .= chr(((($c0 - $spaceCharOrd) & 077) << 2) | ((($c1 - $spaceCharOrd) & 077) >> 4));
 			}
 		}
 

@@ -69,7 +69,7 @@ if (!function_exists("CreatePattern"))
 			}
 			else 
 			{
-				$lettersPatt["/".preg_quote($lett["LETTER"])."/is".BX_UTF_PCRE_MODIFIER] = "(".implode("|", $arrRes).")";
+				$lettersPatt["/".preg_quote($lett["LETTER"])."/isu"] = "(".implode("|", $arrRes).")";
 			}
 		}
 		foreach ($lettersPatt as $key => $val)
@@ -98,7 +98,7 @@ if (!function_exists("CreatePattern"))
 			}
 			$res .= $separator;
 		}
-		$res = "/(?<=".$word_separator.")(".$res.")(?=".$word_separator.")/is".BX_UTF_PCRE_MODIFIER;
+		$res = "/(?<=".$word_separator.")(".$res.")(?=".$word_separator.")/isu";
 		return $res;
 	}
 }

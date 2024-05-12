@@ -11,8 +11,6 @@
 */
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 $post = $this->request->getPostList()->toArray();
-if ($post["AJAX_POST"] == "Y")
-	CUtil::decodeURIComponent($post);
 
 $this->includeComponentLang("action.php");
 

@@ -19,16 +19,16 @@ $options = $arDisplayOptions = [
 	"VOTE_DIR" => [ //
 		"message" => GetMessage("VOTE_PUBLIC_DIR"),
 		"field_type" => "text"],
-	"VOTE_TEMPLATE_PATH" => [ //Ïóòü ê øàáëîíàì ïîêàçà ôîðì îïðîñîâ (SV)
+	"VOTE_TEMPLATE_PATH" => [ //ÐŸÑƒÑ‚ÑŒ Ðº ÑˆÐ°Ð±Ð»Ð¾Ð½Ð°Ð¼ Ð¿Ð¾ÐºÐ°Ð·Ð° Ñ„Ð¾Ñ€Ð¼ Ð¾Ð¿Ñ€Ð¾ÑÐ¾Ð² (SV)
 		"message" => GetMessage("VOTE_TEMPLATE_VOTES"),
 		"field_type" => "text"],
-	"VOTE_TEMPLATE_PATH_VOTE" => [ // Âûáîð øàáëîíà ïîêàçà ðåçóëüòàòîâ îïðîñà (RV)
+	"VOTE_TEMPLATE_PATH_VOTE" => [ // Ð’Ñ‹Ð±Ð¾Ñ€ ÑˆÐ°Ð±Ð»Ð¾Ð½Ð° Ð¿Ð¾ÐºÐ°Ð·Ð° Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ð¾Ð² Ð¾Ð¿Ñ€Ð¾ÑÐ° (RV)
 		"message" => GetMessage("VOTE_TEMPLATE_RESULTS_VOTE"),
 		"field_type" => "text"],
-	"VOTE_TEMPLATE_PATH_QUESTION" => [ //Ïóòü ê øàáëîíàì ïîêàçà ðåçóëüòàòîâ âîïðîñà: (RQ)
+	"VOTE_TEMPLATE_PATH_QUESTION" => [ //ÐŸÑƒÑ‚ÑŒ Ðº ÑˆÐ°Ð±Ð»Ð¾Ð½Ð°Ð¼ Ð¿Ð¾ÐºÐ°Ð·Ð° Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ð¾Ð² Ð²Ð¾Ð¿Ñ€Ð¾ÑÐ°: (RQ)
 		"message" => GetMessage("VOTE_TEMPLATE_RESULTS_QUESTION"),
 		"field_type" => "text"],
-	"VOTE_TEMPLATE_PATH_QUESTION_NEW" => [// Îòíîñèòåëüíûé ïóòü ê øàáëîíàì ïîêàçà ðåçóëüòàòîâ âîïðîñà: C 4 ÂÅÐÑÈÈ
+	"VOTE_TEMPLATE_PATH_QUESTION_NEW" => [// ÐžÑ‚Ð½Ð¾ÑÐ¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¹ Ð¿ÑƒÑ‚ÑŒ Ðº ÑˆÐ°Ð±Ð»Ð¾Ð½Ð°Ð¼ Ð¿Ð¾ÐºÐ°Ð·Ð° Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ð¾Ð² Ð²Ð¾Ð¿Ñ€Ð¾ÑÐ°: C 4 Ð’Ð•Ð Ð¡Ð˜Ð˜
 		"message" => GetMessage("VOTE_TEMPLATE_RESULTS_QUESTION_NEW"),
 		"field_type" => "text"]
 	];

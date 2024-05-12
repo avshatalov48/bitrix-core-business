@@ -52,7 +52,7 @@ endif;
 <input type="hidden" name="id" value="vote" />
 <input type="hidden" name="install" value="Y" />
 <input type="hidden" name="step" value="2" />
-<script language="JavaScript">
+<script>
 <!--
 function ChangeInstallPublic(val)
 {
@@ -87,7 +87,7 @@ function ChangeInstallPublic(val)
 <style>
 	p.vote-install-fields table, p.vote-install-fields td,  p.vote-install-fields label{font-size:100%;}
 </style>
-<script language="JavaScript">
+<script>
 <!--
 ChangeInstallPublic(false);
 //-->

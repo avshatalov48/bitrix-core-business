@@ -6,3 +6,6 @@ $MESS["BIZPROC_LIB_API_TASK_SERVICE_DELEGATE_TASK_SUCCESS_MESSAGE"] = "Assignmen
 $MESS["BIZPROC_LIB_API_TASK_SERVICE_DO_INLINE_TASK_COMPLETE_ERROR"] = "Assignment \"#NAME#\" cannot be completed this way.";
 $MESS["BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_ALREADY_DONE"] = "Assignment has already been completed.";
 $MESS["BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_NO_TASK"] = "Assignment was not found.";
+$MESS["BIZPROC_LIB_API_TASK_SERVICE_ERROR_CURRENT_USER_NOT_MEMBER"] = "You don't participate in this assignment.";
+$MESS["BIZPROC_LIB_API_TASK_SERVICE_ERROR_TARGET_USER_NOT_MEMBER"] = "Employee doesn't participate in this assignment.";
+$MESS["BIZPROC_LIB_API_TASK_SERVICE_ERROR_TASK_ALREADY_DONE"] = "Assignment already completed.";

@@ -11,9 +11,9 @@
 	$forumPermWrite = CFilterUnquotableWords::FilterPerm();
 	IncludeModuleLangFile(__FILE__);
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
-	
+
 	$bVarsFromForm = false;
-	$ID = intval($ID);
+	$ID = isset($ID) ? intval($ID) : 0;
 	$ID = ($ID < 0) ? 0 : $ID;
 	$DICTIONARY_ID = intval($_REQUEST["DICTIONARY_ID"]);
 	$DICTIONARY_ID = ($DICTIONARY_ID < 0) ? 0 : $DICTIONARY_ID;
@@ -28,7 +28,7 @@
 		$arFields["DICTIONARY_ID"] = $DICTIONARY_ID;
 		if ((($ID>0) && (CFilterLetter::Update($ID, $arFields))) || (CFilterLetter::Add($arFields)))
 			LocalRedirect("forum_letter.php?DICTIONARY_ID=".$DICTIONARY_ID."&lang=".LANG);
-		
+
 		if ($ex = $APPLICATION->GetException())
 			$APPLICATION->ThrowException($ex->GetString());
 		else
@@ -47,10 +47,10 @@
 		$db_res = CFilterLetter::GetList(array(), array("ID" => $ID));
 		$db_res->ExtractFields("str_", False);
 	}
-	
+
 	if ($bVarsFromForm)
 		$DB->InitTableVarsForEdit("b_forum_letter", "", "str_");
-	
+
 	$aMenu = array(
 		array(
 			"TEXT" => GetMessage("FLTR_LIST"),
@@ -58,7 +58,7 @@
 			"ICON" => "btn_list",
 		)
 	);
-	
+
 	if ($ID > 0 && $forumPermWrite)
 	{
 		$aMenu[] = array("SEPARATOR" => "Y");
@@ -68,7 +68,7 @@
 			"ICON" => "btn_new",
 		);
 		$aMenu[] = array(
-			"TEXT" => GetMessage("FLTR_DEL"), 
+			"TEXT" => GetMessage("FLTR_DEL"),
 			"LINK" => "javascript:if(confirm('".GetMessage("FLTR_DEL_CONFIRM")."')) window.location='/bitrix/admin/forum_letter.php?DICTIONARY_ID=".$DICTIONARY_ID."&lang=".LANG."&action=delete&ID[]=".$ID."&".bitrix_sessid_get()."';",
 			"ICON" => "btn_delete",
 		);

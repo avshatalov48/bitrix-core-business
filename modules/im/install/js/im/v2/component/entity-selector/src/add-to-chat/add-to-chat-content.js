@@ -4,29 +4,25 @@ import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { ChatService } from 'im.v2.provider.service';
 import { ChatType, SearchEntityIdTypes } from 'im.v2.const';
-import { SearchResult } from 'im.v2.component.search.search-result';
-import {
-	Button as MessengerButton,
-	ButtonSize,
-	ButtonColor,
-	ScrollWithGradient,
-} from 'im.v2.component.elements';
+import { ChatSearch } from 'im.v2.component.search.chat-search';
+import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
 
 import './add-to-chat-content.css';
 
 import type { JsonObject } from 'main.core';
-import type { ImModelChat } from 'im.v2.model';
+import type { ImModelChat, ImModelUser } from 'im.v2.model';
 
-const searchConfig = {
-	currentUser: false,
+const searchConfig = Object.freeze({
 	chats: false,
-	network: false,
-};
+	users: true,
+});
+
+const SEARCH_ENTITY_ID = 'user';
 
 // @vue/component
 export const AddToChatContent = {
 	name: 'AddToChatContent',
-	components: { SearchResult, MessengerButton, ScrollWithGradient },
+	components: { ChatSearch, MessengerButton },
 	props: {
 		dialogId: {
 			type: String,
@@ -40,8 +36,6 @@ export const AddToChatContent = {
 			showHistory: true,
 			isLoading: false,
 			selectedItems: new Set(),
-			needTopShadow: false,
-			needBottomShadow: true,
 		};
 	},
 	computed:
@@ -82,8 +76,8 @@ export const AddToChatContent = {
 				maxHeight: 111,
 				showAddButton: false,
 				showTextBox: true,
-				addButtonCaption: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD'),
-				addButtonCaptionMore: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MORE'),
+				addButtonCaption: this.loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MSGVER_1'),
+				addButtonCaptionMore: this.loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_ADD_MORE'),
 				showCreateButton: false,
 				events: {
 					onBeforeTagAdd: () => {
@@ -91,8 +85,7 @@ export const AddToChatContent = {
 					},
 					onAfterTagAdd: (event) => {
 						const { tag } = event.getData();
-						const itemUniqId = `${tag.entityId}|${tag.id}`;
-						this.selectedItems.add(itemUniqId);
+						this.selectedItems.add(tag.id);
 						this.focusSelector();
 					},
 					onBeforeTagRemove: () => {
@@ -100,14 +93,13 @@ export const AddToChatContent = {
 					},
 					onAfterTagRemove: (event) => {
 						const { tag } = event.getData();
-						const itemUniqId = `${tag.entityId}|${tag.id}`;
-						this.selectedItems.delete(itemUniqId);
+						this.selectedItems.delete(tag.id);
 						this.focusSelector();
 					},
 					onInput: () => {
 						this.searchQuery = this.membersSelector.getTextBoxValue();
 					},
-					onBlur: (event) => {
+					onBlur: () => {
 						const inputText = this.membersSelector.getTextBoxValue();
 						if (inputText.length > 0)
 						{
@@ -148,25 +140,22 @@ export const AddToChatContent = {
 
 			return preparedMembers;
 		},
-		onSelectItem(event: {selectedItem: Object, selectedStatus: boolean})
+		onSelectItem(event: {dialogId: string, service: Object, selectedStatus: boolean})
 		{
-			const { selectedItem, selectedStatus, nativeEvent } = event;
-			if (selectedStatus)
+			const { dialogId, nativeEvent } = event;
+			if (this.selectedItems.has(dialogId))
 			{
-				this.membersSelector.addTag({
-					id: selectedItem.getId(),
-					entityId: selectedItem.getEntityId(),
-					entityType: selectedItem.getEntityType(),
-					title: selectedItem.getTitle(),
-					avatar: selectedItem.getAvatar(),
-				});
+				const tag = {
+					id: dialogId,
+					entityId: SEARCH_ENTITY_ID,
+				};
+
+				this.membersSelector.removeTag(tag);
 			}
 			else
 			{
-				this.membersSelector.removeTag({
-					id: selectedItem.getId(),
-					entityId: selectedItem.getEntityId(),
-				});
+				const tag = this.getTagByDialogId(dialogId);
+				this.membersSelector.addTag(tag);
 			}
 
 			this.membersSelector.clearTextBox();
@@ -175,9 +164,23 @@ export const AddToChatContent = {
 				this.searchQuery = '';
 			}
 		},
+		getTagByDialogId(dialogId: string): Object
+		{
+			const user: ImModelUser = this.$store.getters['users/get'](dialogId, true);
+			const entityType = user.extranet ? 'extranet' : 'employee';
+
+			return {
+				id: dialogId,
+				entityId: SEARCH_ENTITY_ID,
+				entityType,
+				title: user.name,
+				avatar: user.avatar.length > 0 ? user.avatar : null,
+			};
+		},
 		onInviteClick()
 		{
-			const members = this.prepareMembers(this.selectedItems);
+			const members = [...this.selectedItems];
+
 			if (this.isChat)
 			{
 				this.extendChat(members);
@@ -205,35 +208,25 @@ export const AddToChatContent = {
 				this.$emit('close');
 			});
 		},
-		createChat(members: number[])
+		async createChat(members: number[])
 		{
 			this.isLoading = true;
-			this.chatService.createChat({
+			const { newDialogId } = await this.chatService.createChat({
 				title: null,
 				description: null,
 				members,
 				ownerId: Core.getUserId(),
 				isPrivate: true,
-			}).then((newDialogId: string) => {
-				this.isLoading = false;
-				Messenger.openChat(newDialogId);
 			}).catch((error) => {
 				console.error(error);
 				this.isLoading = false;
 			});
+			this.isLoading = false;
+			void Messenger.openChat(newDialogId);
 		},
-		onListScroll(event: Event)
+		loc(key: string): string
 		{
-			this.needBottomShadow = event.target.scrollTop + event.target.clientHeight !== event.target.scrollHeight;
-
-			if (event.target.scrollTop === 0)
-			{
-				this.needTopShadow = false;
-
-				return;
-			}
-
-			this.needTopShadow = true;
+			return this.$Bitrix.Loc.getMessage(key);
 		},
 	},
 	template: `
@@ -242,21 +235,19 @@ export const AddToChatContent = {
 			<div v-if="isChat" class="bx-im-entity-selector-add-to-chat__show-history">
 				<input type="checkbox" id="bx-im-entity-selector-add-to-chat-show-history" v-model="showHistory">
 				<label for="bx-im-entity-selector-add-to-chat-show-history">
-					{{ $Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_SHOW_HISTORY')}}
+					{{ loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_SHOW_HISTORY')}}
 				</label>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__search-result-container">
-				<ScrollWithGradient :gradientHeight="28">
-					<SearchResult
-						:searchMode="true"
-						:searchQuery="searchQuery"
-						:searchConfig="searchConfig"
-						:selectMode="true"
-						:selectedItems="[...selectedItems]"
-						@selectItem="onSelectItem"
-						@scroll="onListScroll"
-					/>
-				</ScrollWithGradient>
+				<ChatSearch
+					:searchMode="true"
+					:searchQuery="searchQuery"
+					:selectMode="true"
+					:searchConfig="searchConfig"
+					:selectedItems="[...selectedItems]"
+					:showMyNotes="false"
+					@clickItem="onSelectItem"
+				/>
 			</div>
 			<div class="bx-im-entity-selector-add-to-chat__buttons">
 				<MessengerButton
@@ -264,7 +255,7 @@ export const AddToChatContent = {
 					:color="ButtonColor.Primary"
 					:isRounded="true"
 					:isLoading="isLoading"
-					:text="$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_INVITE_BUTTON')"
+					:text="loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_INVITE_BUTTON')"
 					:isDisabled="selectedItems.size === 0"
 					@click="onInviteClick"
 				/>
@@ -272,7 +263,7 @@ export const AddToChatContent = {
 					:size="ButtonSize.L"
 					:color="ButtonColor.LightBorder"
 					:isRounded="true"
-					:text="$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_CANCEL_BUTTON')"
+					:text="loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_CANCEL_BUTTON')"
 					@click="$emit('close')"
 				/>
 			</div>

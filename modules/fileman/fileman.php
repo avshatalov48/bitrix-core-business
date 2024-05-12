@@ -4,7 +4,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2005 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
@@ -1808,9 +1808,9 @@ class CFileMan
 					}
 				}
 
-				$arResult["STYLES"] = $ar_templ["STYLES"];
-				$arResult["STYLES_TITLE"] = $ar_templ["STYLES_TITLE"];
-				$arResult["EDITOR_STYLES"] = $ar_templ["EDITOR_STYLES"];
+				$arResult["STYLES"] = $ar_templ["STYLES"] ?? '';
+				$arResult["STYLES_TITLE"] = $ar_templ["STYLES_TITLE"] ?? '';
+				$arResult["EDITOR_STYLES"] = $ar_templ["EDITOR_STYLES"] ?? '';
 			}
 		}
 		else

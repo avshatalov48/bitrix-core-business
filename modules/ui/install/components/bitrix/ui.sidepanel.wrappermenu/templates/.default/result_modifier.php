@@ -29,7 +29,10 @@ if (!function_exists('getWrapperMenu'))
 			{
 				if ($level == 0)
 				{
-					$result .= '<li class="ui-sidepanel-menu-item'.($item['ACTIVE'] ? ' ui-sidepanel-menu-active' : '').'">';
+					$result .= '<li class="ui-sidepanel-menu-item' .
+						($item['ACTIVE'] ? ' ui-sidepanel-menu-active' : '') .
+						($item['DISABLED'] ? ' ui-sidepanel-menu-disabled' : '') .
+						'">';
 					$result .= '<a ';
 					$result .= getLinkItemAttributes($item['ATTRIBUTES'], 'ui-sidepanel-menu-link');
 					$result .= '><div class="ui-sidepanel-menu-link-text">'.$item['NAME'];

@@ -347,7 +347,7 @@ this.BX = this.BX || {};
 	function _getWrapper2() {
 	  if (!this.layout.wrapper) {
 	    this.layout.wrapper = main_core.Tag.render(_t8 || (_t8 = _`
-				<div class="ui-bottomsheet ui-bottomsheet__scope ${0}"></div>
+				<div class="ui-bottomsheet ${0}"></div>
 			`), this.className);
 	  }
 	  return this.layout.wrapper;

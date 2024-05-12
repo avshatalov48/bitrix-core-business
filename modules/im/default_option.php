@@ -13,7 +13,7 @@ $im_default_option = array(
 	'turn_server_login' => 'bitrix',
 	'turn_server_password' => 'bitrix',
 	'turn_server_max_users' => 4,
-	'call_server_enabled' => IsModuleInstalled('bitrix24') ? true : false,
+	'call_server_enabled' => true,
 	'call_server_max_users' => 48,
 	'open_chat_enable' => IsModuleInstalled('intranet')? true: false,
 	'color_enable' => true,
@@ -41,7 +41,7 @@ $im_default_option = array(
 	'message_history_index' => false,
 	'call_log_service' => '',
 	'call_log_secret' => '',
-	'call_server_url' => 'https://videocalls.bitrix.info',
+	'call_server_url' => '',
 );
 
 if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/im_options.php"))

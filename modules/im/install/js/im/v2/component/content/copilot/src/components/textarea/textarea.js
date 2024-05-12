@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedReference
-
 import { BitrixVue } from 'ui.vue3';
-import { CopilotDraftManager } from 'im.v2.lib.draft';
 
+import { Analytics } from 'im.v2.lib.analytics';
+import { CopilotDraftManager } from 'im.v2.lib.draft';
 import { ChatTextarea } from 'im.v2.component.textarea';
 
 import { AudioInput } from './audio-input';
@@ -20,6 +20,7 @@ export const CopilotTextarea = BitrixVue.cloneComponent(ChatTextarea, {
 		return {
 			...this.parentData(),
 			audioMode: false,
+			audioUsed: false,
 		};
 	},
 	computed:
@@ -27,6 +28,10 @@ export const CopilotTextarea = BitrixVue.cloneComponent(ChatTextarea, {
 		isEmptyText(): boolean
 		{
 			return this.text === '';
+		},
+		showMentionForCopilotChat(): boolean
+		{
+			return this.showMention && this.dialog.userCounter > 2;
 		},
 	},
 	methods:
@@ -47,6 +52,11 @@ export const CopilotTextarea = BitrixVue.cloneComponent(ChatTextarea, {
 				return;
 			}
 			this.text += inputText;
+			this.audioUsed = true;
+		},
+		onAudioError()
+		{
+			this.audioMode = false;
 		},
 		openEditPanel()
 		{},
@@ -62,6 +72,13 @@ export const CopilotTextarea = BitrixVue.cloneComponent(ChatTextarea, {
 		sendMessage(): void
 		{
 			this.parentSendMessage();
+
+			if (this.audioUsed)
+			{
+				Analytics.getInstance().useAudioInput();
+				this.audioUsed = false;
+			}
+
 			this.audioMode = false;
 		},
 	},
@@ -69,7 +86,7 @@ export const CopilotTextarea = BitrixVue.cloneComponent(ChatTextarea, {
 		<div class="bx-im-send-panel__scope bx-im-send-panel__container bx-im-copilot-send-panel__container">
 			<div class="bx-im-textarea__container">
 				<div @mousedown="onResizeStart" class="bx-im-textarea__drag-handle"></div>
-				<div class="bx-im-textarea__content">
+				<div class="bx-im-textarea__content" ref="textarea-content">
 					<div class="bx-im-textarea__left">
 						<textarea
 							v-model="text"
@@ -88,11 +105,20 @@ export const CopilotTextarea = BitrixVue.cloneComponent(ChatTextarea, {
 							@stop="audioMode = false"
 							@inputStart="onAudioInputStart"
 							@inputResult="onAudioInputResult"
+							@error="onAudioError"
 						/>
 					</div>
 				</div>
 			</div>
 			<SendButton :editMode="editMode" :isDisabled="isDisabled" @click="sendMessage" />
+			<MentionPopup
+				v-if="showMentionForCopilotChat"
+				:bindElement="$refs['textarea-content']"
+				:dialogId="dialogId"
+				:query="mentionQuery"
+				:searchChats="false"
+				@close="closeMentionPopup"
+			/>
 		</div>
 	`,
 });

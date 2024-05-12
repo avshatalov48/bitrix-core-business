@@ -57,6 +57,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		this._data = {};
 		this._items = [];
 		this._options = {};
+		this._signedParams = null;
 
 		this._isChanged = false;
 
@@ -77,6 +78,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 
 			this._canUpdatePersonalConfiguration = BX.prop.getBoolean(this._settings, "canUpdatePersonalConfiguration", true);
 			this._canUpdateCommonConfiguration = BX.prop.getBoolean(this._settings, "canUpdateCommonConfiguration", false);
+			this._signedParams = BX.prop.getString(this._settings, "signedParams", '');
 
 			this._data = BX.prop.getArray(this._settings, "data", []);
 
@@ -364,6 +366,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			{
 				data['params']['userScopeId'] = this._userScopeId;
 			}
+			data['signedConfigParams'] = this._signedParams;
 
 			BX.ajax.runComponentAction(
 				"bitrix:ui.form",
@@ -382,6 +385,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			{
 				data["params"]["forAllUsers"] = "Y";
 			}
+			data['signedConfigParams'] = this._signedParams;
 
 			var promise = new BX.Promise();
 
@@ -400,7 +404,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			BX.ajax.runComponentAction(
 				"bitrix:ui.form",
 				"forceCommonScopeForAll",
-				{ mode: "ajax", data: { guid: this._id, categoryName: this.categoryName } }
+				{ mode: "ajax", data: { guid: this._id, categoryName: this.categoryName, signedConfigParams: this._signedParams } }
 			).then(function(){ promise.fulfill(); });
 
 			return promise;

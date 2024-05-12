@@ -26,7 +26,7 @@ if($isBitrix24Template)
 }
 ?>
 <div class="pagetitle-container pagetitle-align-right-container">
-	<a href="<?=$listElementUrl?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
+	<a href="<?= htmlspecialcharsbx($listElementUrl) ?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
 		<?=GetMessage("CT_BL_TOOLBAR_RETURN_LIST_ELEMENT")?>
 	</a>
 </div>

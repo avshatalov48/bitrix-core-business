@@ -3,7 +3,7 @@ if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("PM_NO_MODULE"));
 	return 0;
 elseif (!$USER->IsAuthorized()):
-	$APPLICATION->AuthForm(GetMessage("PM_AUTH"));	
+	$APPLICATION->AuthForm(GetMessage("PM_AUTH"));
 	return 0;
 elseif (intval(COption::GetOptionString("forum", "UsePMVersion", "2")) <= 0):
 	ShowError(GetMessage("F_NO_PM"));
@@ -18,9 +18,9 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
-	$arParams["mode"] = $_REQUEST["mode"];
-$action = mb_strtolower($_REQUEST["action"]);
+	$arParams["FID"] = intval(isset($arParams["FID"]) && intVal($arParams["FID"]) <= 0 ? (isset($_REQUEST["FID"]) ? $_REQUEST["FID"] : null) : (isset($arParams["FID"]) ? $arParams["FID"] : null));
+	$arParams["mode"] = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
+$action = isset($_REQUEST["action"]) ? mb_strtolower($_REQUEST["action"]) : null;
 	$version = COption::GetOptionString("forum", "UsePMVersion", "2");
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
@@ -53,7 +53,7 @@ $action = mb_strtolower($_REQUEST["action"]);
 ********************************************************************/
 $arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_FOLDER"], array());
 $arResult["URL"] = array(
-	"FOLDER_NEW" => ForumAddPageParams($arResult["CURRENT_PAGE"], array("mode" => "new")), 
+	"FOLDER_NEW" => ForumAddPageParams($arResult["CURRENT_PAGE"], array("mode" => "new")),
 	"MESSAGE_NEW" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], array("FID" => "1", "MID" => 0, "UID" => 0, "mode" => "new")));
 $arResult["POST_VALUES"] = array();
 
@@ -109,7 +109,7 @@ if (!empty($action))
 						"text" => GetMessage("PM_NOT_FOLDER_TITLE"));
 				elseif (!($db_res && $res = $db_res->GetNext())):
 					$arError[] = array(
-						"id" => "bad_fid", 
+						"id" => "bad_fid",
 						"text" => GetMessage("PM_NOT_FOLDER"));
 				elseif (!CForumPMFolder::CheckPermissions($arParams["FID"])):
 					$arError[] = array(
@@ -162,7 +162,7 @@ if (!empty($action))
 							$arFilter = array("OWNER_ID"=>$USER->GetId());
 						elseif ($version != "2" && $iFid == 2)
 							$arFilter = array("FOLDER_ID"=>2, "USER_ID"=>$USER->GetId(), "OWNER_ID"=>$USER->GetId());
-						
+
 						$arMessage = CForumPrivateMessage::GetListEx(array(), $arFilter);
 						while ($res = $arMessage->GetNext())
 						{
@@ -205,14 +205,14 @@ if (!empty($action))
 				break;
 		}
 	endif;
-	
-	
-	
+
+
+
 	if (empty($arError))
 	{
 		LocalRedirect(ForumAddPageParams($arResult["CURRENT_PAGE"], array("res" => $action), false, false));
 	}
-	else 
+	else
 	{
 		$e = new CAdminException(array_reverse($arError));
 		$GLOBALS["APPLICATION"]->ThrowException($e);
@@ -235,7 +235,7 @@ $arResult["FORUM_SystemFolder"] = FORUM_SystemFolder;
 $arResult["SYSTEM_FOLDER"] = array();
 $arResult["USER_FOLDER"] = array();
 $arResult["sessid"] = bitrix_sessid_post();
-$arResult["FID"] = (is_array($_REQUEST["FID"]) && !empty($_REQUEST["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
+$arResult["FID"] = (isset($_REQUEST["FID"]) && is_array($_REQUEST["FID"]) && !empty($_REQUEST["FID"]) ? $_REQUEST["FID"] : (isset($arParams["FID"]) ? $arParams["FID"] : null));
 $arResult["action"] = $arParams["mode"]=="new" ? "save" : "update";
 $arResult["FOLDER"] = array();
 /*******************************************************************/
@@ -255,7 +255,7 @@ if ($arParams["mode"] == "edit" || $arParams["mode"] == "new")
 		$arResult["POST_VALUES"]["FOLDER_TITLE"] = htmlspecialcharsbx($_REQUEST["FOLDER_TITLE"]);
 	}
 }
-else 
+else
 {
 	for ($ii = 1; $ii <= FORUM_SystemFolder; $ii++)
 	{
@@ -269,12 +269,12 @@ else
 			$arResult["SYSTEM_FOLDER"][$ii]["CNT_NEW"] = intval($res["CNT_NEW"]);
 		}
 		$arResult["SYSTEM_FOLDER"][$ii]["URL"] = array(
-			"FOLDER" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $ii)), 
+			"FOLDER" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $ii)),
 			"REMOVE" => ForumAddPageParams($arResult["CURRENT_PAGE"], array("action" => "remove", "FID" => $ii)));
 		$arResult["SYSTEM_FOLDER"][$ii]["pm_list"] = $arResult["SYSTEM_FOLDER"][$ii]["URL"]["FOLDER"];
 		$arResult["SYSTEM_FOLDER"][$ii]["remove"] = $arResult["SYSTEM_FOLDER"][$ii]["URL"]["REMOVE"];
 	}
-	
+
 	$arResult["SHOW_USER_FOLDER"] = "N";
 	$db_res = CForumPMFolder::GetList(array($by=>$order), array("USER_ID"=>$USER->GetId()));
 	if ($db_res && ($res = $db_res->GetNext()))
@@ -283,9 +283,9 @@ else
 		do
 		{
 			$res["URL"] = array(
-				"FOLDER" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $res["ID"])), 
-				"DELETE" => ForumAddPageParams($arResult["CURRENT_PAGE"] , array("action" => "delete", "FID" => $res["ID"])), 
-				"REMOVE" => ForumAddPageParams($arResult["CURRENT_PAGE"] , array("action" => "remove", "FID" => $res["ID"])), 
+				"FOLDER" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $res["ID"])),
+				"DELETE" => ForumAddPageParams($arResult["CURRENT_PAGE"] , array("action" => "delete", "FID" => $res["ID"])),
+				"REMOVE" => ForumAddPageParams($arResult["CURRENT_PAGE"] , array("action" => "remove", "FID" => $res["ID"])),
 				"EDIT" => ForumAddPageParams($arResult["CURRENT_PAGE"] , array("mode" => "edit", "FID" => $res["ID"])));
 			$res["pm_list"] = $res["URL"]["FOLDER"];
 			$res["CNT"] = intval($res["CNT"]);

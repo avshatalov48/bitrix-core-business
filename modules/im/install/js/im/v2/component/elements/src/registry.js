@@ -1,5 +1,4 @@
 export { Avatar, AvatarSize } from './avatar/avatar';
-export { RecentLoadingState } from './recent-loading-state/recent-loading-state';
 export { ChatTitle } from './chat-title/chat-title';
 export { Button, ButtonColor, ButtonSize, ButtonIcon } from './button/button';
 export { MessengerPopup } from './popup/popup';
@@ -19,5 +18,6 @@ export { ChatTitleWithHighlighting } from './chat-title-with-highlighting/chat-t
 export { SearchInput } from './search-input/search-input';
 export { EditableChatTitle } from './editable-chat-title/editable-chat-title.js';
 export { ScrollWithGradient } from './scroll-with-gradient/scroll-with-gradient';
+export { DialogStatus } from './dialog-status/dialog-status';
 export type { CustomColorScheme } from './button/button';
 export type { DropdownItem } from './dropdown/dropdown';

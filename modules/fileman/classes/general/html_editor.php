@@ -919,7 +919,6 @@ class CHTMLEditor
 			case "edit_snippet":
 				if (!$USER->CanDoOperation('fileman_view_file_structure'))
 					break;
-				CUtil::JSPostUnEscape();
 				$template = $_REQUEST['site_template'];
 
 				// Update
@@ -955,7 +954,6 @@ class CHTMLEditor
 			case "remove_snippet":
 				if (!$USER->CanDoOperation('fileman_view_file_structure'))
 					break;
-				CUtil::JSPostUnEscape();
 				$template = $_REQUEST['site_template'];
 
 				$res = CSnippets::Remove(array(
@@ -979,7 +977,6 @@ class CHTMLEditor
 			case "snippet_add_category":
 				if (!$USER->CanDoOperation('fileman_view_file_structure'))
 					break;
-				CUtil::JSPostUnEscape();
 				$template = $_REQUEST['site_template'];
 				$res = CSnippets::CreateCategory(array(
 					'template' => $template,
@@ -1002,7 +999,6 @@ class CHTMLEditor
 			case "snippet_remove_category":
 				if (!$USER->CanDoOperation('fileman_view_file_structure'))
 					break;
-				CUtil::JSPostUnEscape();
 				$template = $_REQUEST['site_template'];
 				$res = CSnippets::RemoveCategory(array(
 					'template' => $template,
@@ -1024,7 +1020,6 @@ class CHTMLEditor
 			case "snippet_rename_category":
 				if (!$USER->CanDoOperation('fileman_view_file_structure'))
 					break;
-				CUtil::JSPostUnEscape();
 				$template = $_REQUEST['site_template'];
 				$res = CSnippets::RenameCategory(array(
 					'template' => $template,
@@ -1049,7 +1044,6 @@ class CHTMLEditor
 			// spellcheck
 			case "spellcheck_words":
 			case "spellcheck_add_word":
-				CUtil::JSPostUnEscape();
 				$spellChecker = new CSpellchecker(array(
 					"lang" => $_REQUEST['lang'],
 					"skip_length" => 2,

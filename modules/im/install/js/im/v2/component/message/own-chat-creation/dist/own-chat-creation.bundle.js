@@ -44,7 +44,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withContextMenu="false"
+			:withDefaultContextMenu="false"
 			:withBackground="false"
 			class="bx-im-message-own-chat-creation__scope"
 		>

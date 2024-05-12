@@ -2979,7 +2979,7 @@ class CIBlockPropertyVideo extends CVideoProperty
 
 	public static function ConvertFromDB($arProperty, $value)
 	{
-		$value['VALUE'] = CIBlockPropertyVideo::BaseConvertFromDB($value['VALUE'] ?? null);
+		$value['VALUE'] = CIBlockPropertyVideo::BaseConvertFromDB($value['VALUE'] ?? null) ?: '';
 		return $value;
 	}
 
@@ -3205,5 +3205,10 @@ class CUserTypeVideo extends CVideoProperty
 	{
 		$val = CUserTypeVideo::BaseConvertFromDB(htmlspecialcharsback($arHtmlControl["VALUE"])); // Unserialize array
 		return CUserTypeVideo::BaseGetPublicHTML($arUserField["SETTINGS"], $val);
+	}
+
+	public static function canUseArrayValueForSingleField(): bool
+	{
+		return true;
 	}
 }

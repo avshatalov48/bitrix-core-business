@@ -6,15 +6,15 @@ if ($forumPermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 \Bitrix\Main\Loader::includeModule("forum");
-IncludeModuleLangFile(__FILE__); 
+IncludeModuleLangFile(__FILE__);
 ClearVars();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 
-$ID = intval($ID);
+$ID = isset($ID) ? intval($ID) : null;
 
 $message = false;
 $bInitVars = false;
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
+if (isset($save) && ($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
 {
 	$POINTS_PER_POST = str_replace(",", ".", $POINTS_PER_POST);
 
@@ -26,7 +26,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $forumPermission
 		$res = CForumPoints2Post::Update($ID, $arFields);
 	else
 		$res = CForumPoints2Post::Add($arFields);
-		
+
 	if (intval($res) <= 0 && $e = $GLOBALS["APPLICATION"]->GetException())
 	{
 		$message = new CAdminMessage(($ID > 0 ? GetMessage("FORUM_PPE_EDDOR_UPDATE") : GetMessage("FORUM_PPE_ERROR_ADD")), $e);
@@ -34,7 +34,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $forumPermission
 	}
 	elseif ($save <> '')
 		LocalRedirect("forum_points2post.php?lang=".LANG."&".GetFilterParams("filter_", false));
-	else 
+	else
 		$ID = $res;
 }
 
@@ -79,7 +79,7 @@ if ($ID > 0 && $forumPermissions == "W")
 	);
 
 	$aMenu[] = array(
-		"TEXT" => GetMessage("FPPN_DELETE_POINT"), 
+		"TEXT" => GetMessage("FPPN_DELETE_POINT"),
 		"LINK" => "javascript:if(confirm('".GetMessage("FPPN_DELETE_POINT_CONFIRM")."')) window.location='/bitrix/admin/forum_points2post.php?action=delete&ID[]=".$ID."&lang=".LANG."&".bitrix_sessid_get()."#tb';",
 		"ICON" => "btn_delete",
 	);
@@ -120,14 +120,14 @@ $tabControl->BeginNextTab();
 			<?= GetMessage("FORUM_PPE_MIN_MES") ?>:
 		</td>
 		<td width="60%">
-			<input type="text" name="MIN_NUM_POSTS" value="<?=htmlspecialcharsbx($str_MIN_NUM_POSTS)?>" size="20" maxlength="18">
+			<input type="text" name="MIN_NUM_POSTS" value="<?=isset($str_MIN_NUM_POSTS) ? htmlspecialcharsbx($str_MIN_NUM_POSTS) : null?>" size="20" maxlength="18">
 		</td>
 	</tr>
 
 	<tr>
 		<td><?= GetMessage("FORUM_PPE_PPM") ?>:</td>
 		<td>
-			<input type="text" name="POINTS_PER_POST" value="<?=htmlspecialcharsbx($str_POINTS_PER_POST)?>" size="20" maxlength="19">
+			<input type="text" name="POINTS_PER_POST" value="<?=isset($str_POINTS_PER_POST) ? htmlspecialcharsbx($str_POINTS_PER_POST) : null?>" size="20" maxlength="19">
 		</td>
 	</tr>
 <?

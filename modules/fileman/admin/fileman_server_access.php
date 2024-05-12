@@ -95,7 +95,6 @@ for($i = 0; $i < $filesCount; $i++)
 
 if ($REQUEST_METHOD == "POST" && $USER->CanDoOperation('fileman_admin_folders') && $_GET["fu_action"] == 'change_perms' && check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	$APPLICATION->RestartBuffer();
 
 	if (CFileMan::IsWindows())

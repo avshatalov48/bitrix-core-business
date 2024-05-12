@@ -5,7 +5,7 @@ import { Spinner, SpinnerSize } from 'im.v2.component.elements';
 import { EventType, SidebarDetailBlock } from 'im.v2.const';
 import { EventEmitter } from 'main.core.events';
 
-import { DetailHeader } from '../../elements/detail-header';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
 
 import './detail.css';
 

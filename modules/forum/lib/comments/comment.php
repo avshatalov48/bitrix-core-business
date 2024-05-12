@@ -3,17 +3,15 @@
 namespace Bitrix\Forum\Comments;
 
 use Bitrix\Forum\Internals\Error\ErrorCollection;
-use Bitrix\Forum\MessageTable;
+use Bitrix\Forum;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\Json;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Forum\Internals\Error\Error;
 use \Bitrix\Main\Event;
 use \Bitrix\Main\EventResult;
 use \Bitrix\Main\ArgumentException;
-use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
 
@@ -132,20 +130,26 @@ class Comment extends BaseObject
 		}
 
 		global $USER_FIELD_MANAGER;
-		if (!empty($result["SERVICE_TYPE"]))
+		$ufData = array_intersect_key(
+			$params,
+			$USER_FIELD_MANAGER->getUserFields(Forum\MessageTable::getUfId()),
+		);
+		if (!empty($ufData))
 		{
-			$fields = $USER_FIELD_MANAGER->getUserFields("FORUM_MESSAGE");
-			if (($ufData = array_intersect_key($params, $fields)) && !empty($ufData))
-			{
-				$USER_FIELD_MANAGER->editFormAddFields("FORUM_MESSAGE", $result, ["FORM" => $ufData]);
-			}
+			$USER_FIELD_MANAGER->editFormAddFields(Forum\MessageTable::getUfId(), $result, ["FORM" => $ufData]);
 		}
-		else
-		{
-			$USER_FIELD_MANAGER->editFormAddFields("FORUM_MESSAGE", $result);
-		}
+
 		$params = $result;
 		return true;
+	}
+
+	public function appendUserFields(array &$params): static
+	{
+		global $USER_FIELD_MANAGER;
+
+		$USER_FIELD_MANAGER->editFormAddFields(Forum\MessageTable::getUfId(), $params);
+
+		return $this;
 	}
 
 	private function updateStatisticModule($messageId)
@@ -201,10 +205,7 @@ class Comment extends BaseObject
 			"AUX_DATA" => $auxData,
 			"SERVICE_TYPE" => ($params["SERVICE_TYPE"] ?? null),
 			"SERVICE_DATA" => ($params["SERVICE_DATA"] ?? null),
-
-			"UF_TASK_COMMENT_TYPE" => ($params["UF_TASK_COMMENT_TYPE"] ?? null),
-			"UF_FORUM_MES_URL_PRV" => ($params["UF_FORUM_MES_URL_PRV"] ?? null),
-		);
+		) + array_filter($params, fn($key) => strpos($key, 'UF_') === 0, ARRAY_FILTER_USE_KEY);
 
 		if ($this->prepareFields($params, $this->errorCollection))
 		{
@@ -325,7 +326,9 @@ class Comment extends BaseObject
 				"FILES" => $params["FILES"] ?? [],
 				"AUX" => $params["AUX"] ?? null,
 				"AUX_DATA" => $params["AUX_DATA"] ?? null,
-			)) && $this->prepareFields($params, $this->errorCollection))
+				) + array_filter($params, fn($key) => strpos($key, 'UF_') === 0, ARRAY_FILTER_USE_KEY))
+				&& $this->prepareFields($params, $this->errorCollection)
+			)
 			{
 				if (array_key_exists("POST_DATE", $paramsRaw))
 				{

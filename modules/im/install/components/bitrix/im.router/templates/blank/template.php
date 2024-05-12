@@ -16,7 +16,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 	?>
 </head>
 <body style="height: 100%;margin: 0;padding: 0; background: #fff" id="workarea-content">
-	<script type="text/javascript">
+	<script>
 	BX.ready(function(){
 		BX.BlankBackend = new BlankBackend();
 	});

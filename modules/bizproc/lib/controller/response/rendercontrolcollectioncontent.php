@@ -36,10 +36,8 @@ class RenderControlCollectionContent implements ContentAreaInterface
 		return $this->rendered;
 	}
 
-	public function getHtml(): string
+	public function getHtml(): array
 	{
-		// Rendered controls should be stored separately for now
-		// e.g. in addition params of Bitrix\Main\Engine\Response\HtmlContent
-		return '';
+		return $this->getRenderedProperties();
 	}
 }

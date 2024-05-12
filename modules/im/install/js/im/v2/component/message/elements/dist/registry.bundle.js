@@ -808,7 +808,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				:dialogId="authorDialogId"
 				:showItsYou="false"
 				:withColor="true"
-				:withLeftIcon="false"
+				:withLeftIcon="true"
 			/>
 		</div>
 	`

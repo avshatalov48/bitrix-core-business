@@ -24,3 +24,5 @@ DROP TABLE IF EXISTS b_bp_debugger_session_template_shards;
 DROP TABLE IF EXISTS b_bp_workflow_duration_stat;
 DROP TABLE IF EXISTS b_bp_workflow_user;
 DROP TABLE IF EXISTS b_bp_workflow_meta;
+DROP TABLE IF EXISTS b_bp_workflow_filter;
+DROP TABLE IF EXISTS b_bp_task_search_content;

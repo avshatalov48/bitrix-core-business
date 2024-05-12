@@ -66,7 +66,7 @@ class CSpellchecker
 
 	function codeLetter($letter)
 	{
-		return (in_array($letter, $this->letters) && $letter != 'û' && $letter != 'ü' && $letter != 'ú') ? ord($letter) : 'def';
+		return (in_array($letter, $this->letters) && $letter != 'Ñ‹' && $letter != 'ÑŒ' && $letter != 'ÑŠ') ? ord($letter) : 'def';
 	}
 
 	function loadDic($letter)

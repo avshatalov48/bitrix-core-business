@@ -135,7 +135,7 @@ class App
 			'MODULE_ID' => $moduleId,
 			'CODE' => $code,
 			'ICON_FILE_ID' => $iconFileId,
-			'CONTEXT' => ToLower($context),
+			'CONTEXT' => mb_strtolower($context),
 			'HIDDEN' => $hidden,
 			'REGISTERED' => $registered,
 			'IFRAME' => $iframe,
@@ -293,7 +293,7 @@ class App
 		$update = Array();
 		if (isset($updateFields['CONTEXT']) && !empty($updateFields['CONTEXT']))
 		{
-			$update['CONTEXT'] = ToLower($updateFields['CONTEXT']);
+			$update['CONTEXT'] = mb_strtolower($updateFields['CONTEXT']);
 		}
 		if (isset($updateFields['HASH']) && !empty($updateFields['HASH']))
 		{
@@ -727,7 +727,7 @@ class App
 				'iframeHeight' => $app['IFRAME_HEIGHT'],
 				'iframePopup' => $app['IFRAME_POPUP'] == 'Y',
 				'js' => $app['JS'],
-				'context' => ToLower($app['CONTEXT']),
+				'context' => mb_strtolower($app['CONTEXT']),
 				'hidden' => $app['HIDDEN'] == 'Y',
 				'title' => $app['TITLE'],
 				'description' => $app['DESCRIPTION'],

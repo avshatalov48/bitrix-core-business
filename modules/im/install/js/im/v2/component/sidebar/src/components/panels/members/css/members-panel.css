@@ -43,14 +43,14 @@
 	padding-top: 12px;
 }
 
-.bx-im-sidebar-main-detail__avatar-moderator-icon {
+.bx-im-sidebar-main-detail__avatar-owner-icon {
 	width: 14px;
 	height: 14px;
 	position: absolute;
 	top: 10px;
 	left: 29px;
 	border-radius: 50%;
-	background: #fff url('./images/moderator-crown.svg') no-repeat center;
+	background: #fff url('./images/owner-crown.svg') no-repeat center;
 }
 
 .bx-im-sidebar-main-detail__user-info-container {

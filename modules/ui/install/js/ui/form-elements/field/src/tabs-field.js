@@ -28,9 +28,10 @@ export class TabsField extends BaseSettingsElement
 		);
 	}
 
-	activateTab(tabField: TabField)
+	activateTab(tabField: TabField, withAnimation: boolean = true)
 	{
-		this.getFieldView().activateItem(tabField.getFieldView());
+		this.getFieldView().activateItem(tabField.getFieldView(), withAnimation);
+		tabField.render();
 	}
 
 	getFieldView(): Tabs

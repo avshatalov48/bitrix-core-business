@@ -97,7 +97,7 @@ elseif(isset($arParams['MOBILE']) && $arParams['MOBILE'] == 'Y')
 }
 elseif($arParams['POPUP'])
 {
-	$frameStyle[] = 'height: calc(100% - 3px)';
+	$frameStyle[] = 'height: calc(100% - 4px)';
 }
 
 if($arParams['PLACEMENT'] !== \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT)
@@ -137,7 +137,7 @@ if($arParams['PLACEMENT'] !== \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT)
 		<?=GetMessage('REST_LOADING', array('#APP_NAME#' =>  htmlspecialcharsbx($arResult['APP_NAME'])))?>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 BX.rest.AppLayout.set(
 	'<?=\CUtil::JSEscape($arParams['PLACEMENT'])?>',
 	'<?=$arResult['APP_SID']?>',

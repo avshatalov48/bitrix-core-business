@@ -9,14 +9,42 @@
 
 class CDBResult extends CAllDBResult
 {
+	protected $byteaFields = false;
+
 	protected function FetchRow()
 	{
-		$result = pg_fetch_assoc($this->result);
-		if ($result)
+		if ($this->result)
 		{
-			return array_change_key_case($result, CASE_UPPER);
+			$result = pg_fetch_assoc($this->result);
+			if ($result)
+			{
+				if ($this->byteaFields === false)
+				{
+					$this->byteaFields = [];
+					$fieldNum = 0;
+					foreach ($result as $fieldName => $_)
+					{
+						$fieldType = pg_field_type($this->result, $fieldNum);
+						if ($fieldType === 'bytea')
+						{
+							$this->byteaFields[$fieldName] = $fieldType;
+						}
+						$fieldNum++;
+					}
+				}
+
+				if ($this->byteaFields)
+				{
+					foreach ($this->byteaFields as $fieldName => $fieldType)
+					{
+						$result[$fieldName] = pg_unescape_bytea($result[$fieldName]);
+					}
+				}
+
+				return array_change_key_case($result, CASE_UPPER);
+			}
 		}
-		return $result;
+		return false;
 	}
 
 	public function SelectedRowsCount()
@@ -41,7 +69,7 @@ class CDBResult extends CAllDBResult
 
 	protected function GetRowsCount(): ?int
 	{
-		if (is_resource($this->result))
+		if ($this->result)
 		{
 			return pg_num_rows($this->result);
 		}

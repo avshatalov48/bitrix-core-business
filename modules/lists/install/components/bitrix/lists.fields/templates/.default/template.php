@@ -140,7 +140,7 @@ $APPLICATION->IncludeComponent(
 );
 ?>
 
-<script type="text/javascript">
+<script>
 	BX(function () {
 		BX.Lists['<?= $arResult['JS_OBJECT'] ?>'] = new BX.Lists.FieldsClass({
 			randomString: '<?= $arResult["RAND_STRING"] ?>',

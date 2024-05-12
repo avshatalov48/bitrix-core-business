@@ -195,6 +195,7 @@ export class StyleForm extends BaseForm
 				return;
 			}
 
+			// todo: migrate to new analytics?
 			const metrika = new BX.Landing.Metrika(true);
 			metrika.sendLabel(
 				null,

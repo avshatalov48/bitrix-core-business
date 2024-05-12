@@ -246,6 +246,9 @@
 	color: var(--im-message-default-content__font-color_message);
 	word-break: break-word;
 	padding-right: 20px;
+
+	/* firefox width hack */
+	min-width: calc(100% + 1px);
 }
 
 .bx-im-message-default-content__text a {

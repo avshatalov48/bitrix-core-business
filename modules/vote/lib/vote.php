@@ -526,7 +526,11 @@ class Vote extends BaseObject implements \ArrayAccess
 						"QUESTIONS" => array());
 				if ($vote["IMAGE_ID"] > 0)
 					$images[$vote["IMAGE_ID"]] = &$vote["IMAGE"];
-				$question = array("ID" => null);
+				$question = [
+					'ID' => null,
+					'FIELD_TYPE' => \Bitrix\Vote\QuestionTypes::RADIO,
+					'COUNTER' => 0,
+				];
 				do
 				{
 					$answer = array();
@@ -833,30 +837,54 @@ class Vote extends BaseObject implements \ArrayAccess
 			if (!empty($vote["URL"]))
 			{
 				if (defined("SITE_SERVER_NAME"))
+				{
 					$url = SITE_SERVER_NAME;
+				}
 				$url = (!empty($url) ? $url : \COption::GetOptionString("main", "server_name"));
 				if (!empty($url))
+				{
 					$url = (\CMain::IsHTTPS() ? "https" : "http") . "://" . $url . $vote["URL"];
+				}
 			}
 
 			// send notification
 			$gender = "";
-			if ($event["VISIBLE"] == "Y" && $this->getUser()->getParam("PERSONAL_GENDER") == "F")
+			if ($event["VISIBLE"] === "Y" && $this->getUser()->getParam("PERSONAL_GENDER") === "F")
+			{
 				$gender = "_F";
+			}
 			$res = array(
 				"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 				"TO_USER_ID" => $vote["AUTHOR_ID"],
-				"FROM_USER_ID" => ( $event["VISIBLE"] == "Y" ? $this->getUser()->getId() : 0),
+				"FROM_USER_ID" => ( $event["VISIBLE"] === "Y" ? $this->getUser()->getId() : 0),
 				"NOTIFY_TYPE" => IM_NOTIFY_FROM,
 				"NOTIFY_MODULE" => "vote",
 				"NOTIFY_EVENT" => "voting",
 				"NOTIFY_TAG" => "VOTING|" . $vote["ID"],
-				"NOTIFY_MESSAGE" => (!empty($vote["URL"]) ?
-					Loc::getMessage("V_NOTIFY_MESSAGE_HREF" . $gender, array("#VOTE_TITLE#" => $vote["TITLE"], "#VOTE_URL#" => $vote["URL"])) :
-					Loc::getMessage("V_NOTIFY_MESSAGE" . $gender, array("#VOTE_TITLE#" => $vote["TITLE"]))),
-				"NOTIFY_MESSAGE_OUT" => (!empty($url) ?
-					Loc::getMessage("V_NOTIFY_MESSAGE_OUT_HREF" . $gender, array("#VOTE_TITLE#" => $vote["TITLE"], "#VOTE_URL#" => $url)) :
-					Loc::getMessage("V_NOTIFY_MESSAGE" . $gender, array("#VOTE_TITLE#" => $vote["TITLE"])))
+				"NOTIFY_MESSAGE" => (!empty($vote["URL"])
+					? fn (?string $languageId = null) => Loc::getMessage(
+						"V_NOTIFY_MESSAGE_HREF" . $gender,
+						array("#VOTE_TITLE#" => $vote["TITLE"], "#VOTE_URL#" => $vote["URL"]),
+						$languageId
+					)
+					: fn (?string $languageId = null) => Loc::getMessage(
+						"V_NOTIFY_MESSAGE" . $gender,
+						array("#VOTE_TITLE#" => $vote["TITLE"]),
+						$languageId
+					)
+				),
+				"NOTIFY_MESSAGE_OUT" => (!empty($url)
+					? fn (?string $languageId = null) => Loc::getMessage(
+						"V_NOTIFY_MESSAGE_OUT_HREF" . $gender,
+						array("#VOTE_TITLE#" => $vote["TITLE"], "#VOTE_URL#" => $url),
+						$languageId
+					)
+					: fn (?string $languageId = null) => Loc::getMessage(
+						"V_NOTIFY_MESSAGE" . $gender,
+						array("#VOTE_TITLE#" => $vote["TITLE"]),
+						$languageId
+					)
+				)
 			);
 			\CIMNotify::Add($res);
 		}

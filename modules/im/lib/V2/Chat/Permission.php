@@ -119,9 +119,7 @@ class Permission
 		];
 
 		self::$permissionsByChatTypes[self::TYPE_COPILOT] = [
-			self::ACTION_EXTEND => Chat::ROLE_NONE,
 			self::ACTION_CALL => Chat::ROLE_NONE,
-			self::ACTION_USER_LIST => Chat::ROLE_NONE,
 		];
 
 		self::$permissionsByChatTypes[self::TYPE_ANNOUNCEMENT] = [

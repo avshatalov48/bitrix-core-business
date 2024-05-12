@@ -527,6 +527,14 @@
 	width: 12px;
 	margin-right: 3px;
 }
+
+.bx-messenger-videocall-top-button-icon.feedback {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M0 4.95315C0 6.73168 1.13907 8.28619 2.84374 9.16033C2.81874 9.50241 2.36016 10.2458 1.85264 11C3.12144 11 4.34306 9.7106 4.34306 9.7106C4.34306 9.7106 5.42466 9.90639 5.99999 9.90639C9.3136 9.90639 12 7.68881 12 4.95319C12 2.21811 9.3136 0 5.99999 0C2.6864 -3.96256e-05 0 2.21807 0 4.95315Z' fill='white'/%3E%3C/svg%3E");
+	height: 12px;
+	width: 12px;
+	margin-right: 3px;
+}
+
 .bx-messenger-videocall-top-button-icon.fullscreen-enter {
 	background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2213%22%20height%3D%2211%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20transform%3D%22translate(-12.802%20-7.5)%22%3E%3Cpath%20d%3D%22M14.94%2014.449v2.03h2.416v2.019H14a1%201%200%2001-1-1v-3.05h1.94zm10.712%200v3.05a1%201%200%2001-1%201l-3.358-.001V16.48h2.418v-2.031h1.94zm-8.296-6.947V9.52H14.94v2.03H13V8.502a1%201%200%20011-1h3.356zm7.296%200a1%201%200%20011%201v3.048h-1.94V9.52h-2.418V7.502h3.358z%22%20fill%3D%22%23FFF%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
 	width: 13px;

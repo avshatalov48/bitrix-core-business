@@ -14,6 +14,7 @@ class Event
 	public const CHAT_ENTITY = 'chat';
 	public const PIN_MESSAGE_ENTITY = 'pin';
 	public const MESSAGE_ENTITY = 'message';
+	public const UPDATED_MESSAGE_ENTITY = 'updatedMessage';
 
 	private ?int $id;
 	private DateTime $dateCreate;

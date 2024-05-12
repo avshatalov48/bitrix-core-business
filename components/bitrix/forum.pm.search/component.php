@@ -43,8 +43,8 @@ if(!function_exists("__UnEscape"))
 array_walk($_REQUEST, '__UnEscape');
 // ************************* Input params***************************************************************
 // ************************* BASE **********************************************************************
-	$UID = $arParams["UID"] = intval($_REQUEST["UID"]);
-	$mode = $_REQUEST["mode"];
+	$UID = $arParams["UID"] = isset($_REQUEST["UID"]) ? intval($_REQUEST["UID"]) : null;
+	$mode = $_REQUEST["mode"] ?? null;
 // ************************* URL ***********************************************************************
 	$URL_NAME_DEFAULT = array(
 		"profile_view" => "PAGE_NAME=profile_view&UID=#UID#",
@@ -72,10 +72,10 @@ array_walk($_REQUEST, '__UnEscape');
 	$arResult["sessid"] = bitrix_sessid_post();
 	$arResult["SITE_CHARSET"] = SITE_CHARSET;
 // *****************************************************************************************
-	$arResult["~search_template"] = trim($_REQUEST["search_template"]);
+	$arResult["~search_template"] = isset($_REQUEST["search_template"]) ? trim($_REQUEST["search_template"]) : null;
 	if (!empty($arResult["~search_template"]))
 		$arResult["~search_template"] = preg_replace("/[%]+/", "%", "%".str_replace("*", "%", $arResult["~search_template"])."%");
-	$arResult["search_template"] = htmlspecialcharsbx($_REQUEST["search_template"]);
+	$arResult["search_template"] = isset($_REQUEST["search_template"]) ? htmlspecialcharsbx($_REQUEST["search_template"]) : null;
 // *****************************************************************************************
 	$arResult["SHOW_SEARCH_RESULT"] = "N";
 	$arResult["SEARCH_RESULT"] = array();
@@ -93,15 +93,15 @@ array_walk($_REQUEST, '__UnEscape');
 		$reqSearch->NavStart($arParams["PM_USER_PAGE"], false);
 		$arResult["NAV_RESULT"] = $reqSearch;
 		$arResult["NAV_STRING"] = $reqSearch->GetPageNavStringEx($navComponentObject, GetMessage("PM_SEARCH_RESULT"), $arParams["PAGE_NAVIGATION_TEMPLATE"]);
-		
+
 		if ($reqSearch && ($res = $reqSearch->GetNext()))
 		{
-			do 
+			do
 			{
 				$arResult["SEARCH_RESULT"][] = array_merge(
 					array(
 						"link" => ForumAddPageParams(
-							$arResult["CURRENT_PAGE"], 
+							$arResult["CURRENT_PAGE"],
 							array("search_insert" => "Y", "UID" => intval($res["ID"]), "sessid" => bitrix_sessid()))),
 					$res);
 			}
@@ -110,7 +110,7 @@ array_walk($_REQUEST, '__UnEscape');
 	}
 	$arResult["SHOW_SELF_CLOSE"] = "N";
 
-	if (($_REQUEST["search_insert"] == "Y" && intval($UID) > 0) || !empty($_REQUEST["search_by_login"]))
+	if ((isset($_REQUEST["search_insert"]) && $_REQUEST["search_insert"] == "Y" && intval($UID) > 0) || !empty($_REQUEST["search_by_login"]))
 	{
 
 		if (empty($_REQUEST["search_by_login"]))

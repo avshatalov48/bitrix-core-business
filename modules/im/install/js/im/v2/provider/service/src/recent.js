@@ -1,5 +1,3 @@
-import { RestClient } from 'rest.client';
-
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { RestMethod } from 'im.v2.const';
@@ -14,10 +12,8 @@ export class RecentService
 {
 	static instance = null;
 
-	store: Object = null;
-	restClient: RestClient = null;
-
 	dataIsPreloaded: boolean = false;
+	firstPageIsLoaded: boolean = false;
 	itemsPerPage: number = 50;
 	isLoading: boolean = false;
 	pagesLoaded: number = 0;
@@ -34,19 +30,13 @@ export class RecentService
 		return this.instance;
 	}
 
-	constructor()
-	{
-		this.store = Core.getStore();
-		this.restClient = Core.getRestClient();
-	}
-
 	// region public
 	getCollection(): ImModelRecentItem[]
 	{
-		return this.store.getters['recent/getRecentCollection'];
+		return Core.getStore().getters['recent/getRecentCollection'];
 	}
 
-	loadFirstPage({ ignorePreloadedItems = false } = {}): Promise
+	async loadFirstPage({ ignorePreloadedItems = false } = {}): Promise
 	{
 		if (this.dataIsPreloaded && !ignorePreloadedItems)
 		{
@@ -56,7 +46,10 @@ export class RecentService
 		}
 		this.isLoading = true;
 
-		return this.requestItems({ firstPage: true });
+		const result = await this.requestItems({ firstPage: true });
+		this.firstPageIsLoaded = true;
+
+		return result;
 	}
 
 	loadNextPage(): Promise
@@ -88,60 +81,55 @@ export class RecentService
 		this.updateModels(params);
 	}
 
-	hideChat(dialogId)
+	hideChat(dialogId): void
 	{
 		Logger.warn('Im.RecentList: hide chat', dialogId);
-		const recentItem = this.store.getters['recent/get'](dialogId);
+		const recentItem = Core.getStore().getters['recent/get'](dialogId);
 		if (!recentItem)
 		{
 			return;
 		}
 
-		this.store.dispatch('recent/delete', {
+		Core.getStore().dispatch('recent/delete', {
 			id: dialogId,
 		});
 
-		const chatIsOpened = this.store.getters['application/isChatOpen'](dialogId);
+		const chatIsOpened = Core.getStore().getters['application/isChatOpen'](dialogId);
 		if (chatIsOpened)
 		{
 			Messenger.openChat();
 		}
 
-		this.restClient.callMethod(RestMethod.imRecentHide, { DIALOG_ID: dialogId }).catch((error) => {
-			// eslint-disable-next-line no-console
-			console.error('Im.RecentList: hide chat error', error);
-		});
+		Core.getRestClient().callMethod(RestMethod.imRecentHide, { DIALOG_ID: dialogId })
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				console.error('Im.RecentList: hide chat error', error);
+			});
 	}
 	// endregion public
 
-	requestItems({ firstPage = false } = {}): Promise
+	async requestItems({ firstPage = false } = {}): Promise
 	{
 		const queryParams = this.getQueryParams(firstPage);
 
-		return this.restClient.callMethod(this.getQueryMethod(), queryParams)
-			.then((result) => {
-				this.pagesLoaded++;
-				Logger.warn(`Im.RecentList: ${firstPage ? 'First' : this.pagesLoaded} page request result`, result.data());
-				const { items, hasMore } = result.data();
-
-				this.lastMessageDate = this.getLastMessageDate(items);
-
-				if (!hasMore)
-				{
-					this.hasMoreItemsToLoad = false;
-				}
-
-				return this.updateModels(result.data());
-			})
-			.then(() => {
-				this.isLoading = false;
-
-				return true;
-			})
+		const result = await Core.getRestClient().callMethod(this.getQueryMethod(), queryParams)
 			.catch((error) => {
 				// eslint-disable-next-line no-console
 				console.error('Im.RecentList: page request error', error);
 			});
+
+		this.pagesLoaded++;
+		Logger.warn(`Im.RecentList: ${firstPage ? 'First' : this.pagesLoaded} page request result`, result.data());
+		const { items, hasMore } = result.data();
+		this.lastMessageDate = this.getLastMessageDate(items);
+		if (!hasMore)
+		{
+			this.hasMoreItemsToLoad = false;
+		}
+
+		this.isLoading = false;
+
+		return this.updateModels(result.data());
 	}
 
 	getQueryMethod(): string
@@ -156,6 +144,7 @@ export class RecentService
 			LIMIT: this.itemsPerPage,
 			LAST_MESSAGE_DATE: firstPage ? null : this.lastMessageDate,
 			GET_ORIGINAL_TEXT: 'Y',
+			PARSE_TEXT: 'Y',
 		};
 	}
 
@@ -168,14 +157,22 @@ export class RecentService
 	{
 		const extractor = new RecentDataExtractor({ rawData, ...this.getExtractorOptions() });
 		const extractedItems = extractor.getItems();
-		const { users, chats, recentItems } = extractedItems;
+		const {
+			users,
+			chats,
+			messages,
+			files,
+			recentItems,
+		} = extractedItems;
 		Logger.warn('RecentService: prepared data for models', extractedItems);
 
-		const usersPromise = this.store.dispatch('users/set', users);
-		const dialoguesPromise = this.store.dispatch('chats/set', chats);
-		const recentPromise = this.store.dispatch(this.getModelSaveMethod(), recentItems);
+		const usersPromise = Core.getStore().dispatch('users/set', users);
+		const dialoguesPromise = Core.getStore().dispatch('chats/set', chats);
+		const messagesPromise = Core.getStore().dispatch('messages/store', messages);
+		const filesPromise = Core.getStore().dispatch('files/set', files);
+		const recentPromise = Core.getStore().dispatch(this.getModelSaveMethod(), recentItems);
 
-		return Promise.all([usersPromise, dialoguesPromise, recentPromise]);
+		return Promise.all([usersPromise, dialoguesPromise, messagesPromise, filesPromise, recentPromise]);
 	}
 
 	getLastMessageDate(items: Array): string

@@ -822,7 +822,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<CallButton v-if="showCallButton" :dialogId="dialogId" />
 				<div
 					v-if="showInviteButton"
-					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_INVITE_POPUP')"
+					:title="loc('IM_CONTENT_CHAT_HEADER_OPEN_INVITE_POPUP_TITLE')"
 					:class="{'--active': showAddToChatPopup}"
 					class="bx-im-chat-header__icon --add-people"
 					@click="openInvitePopup" 
@@ -843,7 +843,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			</div>
 			<AddToChat
 				:bindElement="$refs['add-members'] || {}"
-				:chatId="chatId"
 				:dialogId="dialogId"
 				:showPopup="showAddToChatPopup"
 				:popupConfig="{offsetTop: 15, offsetLeft: -300}"

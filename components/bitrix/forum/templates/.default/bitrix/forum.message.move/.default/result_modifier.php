@@ -26,15 +26,15 @@ $arParams["ATTACH_MODE"] = (is_array($arParams["ATTACH_MODE"]) ? $arParams["ATTA
 $arParams["ATTACH_MODE"] = (!in_array("NAME", $arParams["ATTACH_MODE"]) && !in_array("THUMB", $arParams["ATTACH_MODE"]) ? array("NAME") : $arParams["ATTACH_MODE"]);
 $arParams["ATTACH_SIZE"] = intval(intVal($arParams["ATTACH_SIZE"]) > 0 ? $arParams["ATTACH_SIZE"] : 90);
 
-$arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");
-$arParams["SHOW_ICQ"] = ($arParams["SHOW_ICQ"] == "Y" ? "Y" : "N");
-$arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
+$arParams["SHOW_MAIL"] = (isset($arParams["SEND_MAIL"]) && ($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");
+$arParams["SHOW_ICQ"] = (isset($arParams["SHOW_ICQ"]) && $arParams["SHOW_ICQ"] == "Y" ? "Y" : "N");
+$arParams["SHOW_TAGS"] = (isset($arParams["SHOW_TAGS"]) && $arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
 
 $arParams["AJAX_TYPE"] = "N";
 
 $arParams["SHOW_VOTE"] = "N";
 $arParams["VOTE_TEMPLATE"] = "";
-$arParams["SEO_USER"] = $arParams["SEO_USER"];
+$arParams["SEO_USER"] = $arParams["SEO_USER"] ?? null;
 /********************************************************************
 				/Input params
  ********************************************************************/

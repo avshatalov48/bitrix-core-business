@@ -1018,6 +1018,7 @@ export class TriggerManager extends EventEmitter
 							Type: property.Type,
 							Expression: `{{~*:${property.Id}}}`,
 							SystemExpression: `{=Template:${property.Id}}`,
+							ObjectRealId: trigger.getId(),
 						});
 						exists[property.Id] = true;
 					}

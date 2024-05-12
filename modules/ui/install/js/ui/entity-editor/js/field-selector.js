@@ -1,24 +1,21 @@
-/**
- * @version 1.0
- * @copyright Bitrix Inc. 2019
- */
+/* eslint-disable */
 
-BX.namespace("BX.UI");
+BX.namespace('BX.UI');
 
 //region FIELD SELECTOR
-if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
+if (BX.Type.isUndefined(BX.UI.EntityEditorFieldSelector))
 {
 	BX.UI.EntityEditorFieldSelector = function()
 	{
-		this._id = "";
+		this._id = '';
 		this._settings = {};
 		this._scheme = null;
 		this._excludedNames = null;
-		this._contentWrapper = null;
-		this._popup = null;
-		this.fieldVisibleClass = 'ui-entity-editor-popup-field-search-list-item-visible';
-		this.fieldHiddenClass = 'ui-entity-editor-popup-field-search-list-item-hidden';
 		this._currentSchemeElementName = '';
+		this.checkboxList = null;
+		this.defaultSectionKey = 'default-section';
+		this.categories = [];
+		this.options = [];
 	};
 
 	BX.UI.EntityEditorFieldSelector.prototype =
@@ -28,44 +25,57 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 			this._id = id;
 			this._settings = settings ? settings : {};
 			this._scheme = BX.prop.get(this._settings, "scheme", null);
-			if(!this._scheme)
+			if (!this._scheme)
 			{
 				throw "BX.UI.EntityEditorFieldSelector. Parameter 'scheme' is not found.";
 			}
-			this._excludedNames = BX.prop.getArray(this._settings, "excludedNames", []);
+			this._excludedNames = BX.prop.getObject(this._settings, 'excludedNames', {});
 		},
+
 		getMessage: function(name)
 		{
 			return BX.prop.getString(BX.UI.EntityEditorFieldSelector.messages, name, name);
 		},
-		isSchemeElementEnabled: function(schemeElement)
+
+		isSchemeElementEnabled: function(sectionElement, schemeElement)
 		{
-			var name = schemeElement.getName();
-			for(var i = 0, length = this._excludedNames.length; i < length; i++)
+			const sectionName = sectionElement.getName();
+			const elementName = schemeElement.getName();
+			const elementList = this._excludedNames[sectionName];
+
+			if (BX.Type.isArrayFilled(elementList))
 			{
-				if(this._excludedNames[i] === name)
-				{
-					return false;
-				}
+				return !elementList.includes(elementName);
 			}
+
 			return true;
 		},
+
 		addClosingListener: function(listener)
 		{
 			BX.Event.EventEmitter.subscribe("BX.UI.EntityEditorFieldSelector:close", listener);
 		},
+
 		removeClosingListener: function(listener)
 		{
 			BX.Event.EventEmitter.unsubscribe("BX.UI.EntityEditorFieldSelector:close", listener);
 		},
+
 		isOpened: function()
 		{
-			return this._popup && this._popup.isShown();
+			return this.checkboxList && this.checkboxList.isShown();
 		},
+
+		setExcludedNames: function(excludedNames)
+		{
+			this._excludedNames = excludedNames;
+		},
+
 		setCurrentSchemeElementName: function(currentSchemeElementName)
 		{
 			this._currentSchemeElementName = currentSchemeElementName;
 		},
+
 		open: function()
 		{
 			if(this.isOpened())
@@ -73,386 +83,213 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 				return;
 			}
 
-			this._popup = new BX.PopupWindow(
-				this._id,
-				null,
-				{
-					autoHide: false,
-					draggable: true,
-					bindOptions: { forceBindPosition: false },
-					closeByEsc: true,
-					closeIcon: {},
-					zIndex: 1,
-					titleBar: BX.prop.getString(this._settings, "title", ""),
-					content: this.prepareContent(),
-					lightShadow : true,
-					contentNoPaddings: true,
-					buttons: [
-						new BX.PopupWindowButton(
-							{
-								text : BX.message("UI_ENTITY_EDITOR_SELECT"),
-								className : "ui-btn ui-btn-success",
-								events:
-									{
-										click: BX.delegate(this.onAcceptButtonClick, this)
-									}
-							}
-						),
-						new BX.UI.Button({
-							text: BX.message("UI_ENTITY_EDITOR_CANCEL"),
-							color: BX.UI.Button.Color.LIGHT,
-							events: {
-								click: BX.delegate(this.onCancelButtonClick, this)
-							}
-						})
-					],
-					events: {
-						onPopupClose: this.onPopupClose.bind(this),
-					}
-				}
-			);
-
-			// reset fieldsPopupItems cache to update items DOM elements
-			this.fieldsPopupItems = null;
-
-			this._popup.show();
-		},
-		close: function()
-		{
-			if(!(this._popup && this._popup.isShown()))
-			{
-				return;
-			}
-
-			this._popup.close();
-		},
-		prepareContent: function()
-		{
-			this._contentWrapper = BX.create('div', {
-				props: { className: 'ui-entity-editor-popup-field-selector' }
+			BX.Runtime.loadExtension('ui.dialogs.checkbox-list').then(() => {
+				this.checkboxList = this.createFieldsSelector();
+				this.checkboxList.show();
 			});
+		},
 
-			const useFieldsSearch =  BX.prop.getString(this._settings, 'useFieldsSearch', false);
-			if (useFieldsSearch)
-			{
-				let headerWrapper = BX.create('div', {
-					attrs: {
-						className: 'ui-entity-editor-popup-field-search-header-wrapper',
-					},
-					children: [
-						BX.create('div', {
-							attrs: {
-								className: 'ui-form-row-inline'
-							},
-						}),
-					],
-				});
+		createFieldsSelector: function()
+		{
+			this.initCheckboxListParams();
+			this.prepareElements();
+			this.prepareHiddenElements();
 
-				this._contentWrapper.prepend(headerWrapper);
+			const {
+				'_settings': settings,
+				categories,
+				options
+			} = this;
 
-				this.prepareContentHeaderSections(headerWrapper);
-				this.prepareContentHeaderSearch(headerWrapper);
-			}
+			const sections = this.getDefaultSections();
 
-			let container = BX.create('div', {
-				props: {
-					className: 'ui-entity-editor-popup-field-selector-list'
-				}
+			return new BX.UI.CheckboxList({
+				columnCount: 3,
+				lang: {
+					title: BX.prop.getString(settings, 'title', ''),
+					acceptBtn: BX.Loc.getMessage('UI_ENTITY_EDITOR_SELECT'),
+					placeholder: BX.Loc.getMessage('UI_ENTITY_EDITOR_FIELD_SEARCH_PLACEHOLDER'),
+					emptyStateTitle: BX.Loc.getMessage('UI_ENTITY_EDITOR_FIELD_EMPTY_STATE_TITLE'),
+					emptyStateDescription: BX.Loc.getMessage('UI_ENTITY_EDITOR_FIELD_EMPTY_STATE_DESCRIPTION'),
+					allSectionsDisabledTitle: BX.Loc.getMessage('UI_ENTITY_EDITOR_FIELD_ALL_SECTIONS_DISABLED'),
+				},
+				sections,
+				categories,
+				options,
+				params: {
+					destroyPopupAfterClose: true,
+					useSearch: BX.prop.getBoolean(settings, 'useFieldsSearch', true),
+					showBackToDefaultSettings: BX.prop.getBoolean(settings, 'showBackToDefaultSettings', false),
+					useSectioning: BX.Type.isStringFilled(sections[0].title),
+				},
+				events: {
+					onApply: (event) => this.onApplyCheckboxList(event.data.fields),
+					onCancel: (event) => this.onCancelCheckboxList(),
+				},
 			});
+		},
 
-			let columns = this._scheme.getElements();
-			for (let i = 0, columnCount = columns.length; i < columnCount; i++)
-			{
-				const column = columns[i];
+		initCheckboxListParams: function()
+		{
+			this.categories = [];
+			this.options = [];
+		},
+
+		prepareElements: function()
+		{
+			const columns = this._scheme.getElements();
+			columns.forEach((column) => {
 				const sections = column.getElements();
-				for (let k = 0, sectionCount = sections.length; k < sectionCount; k++)
-				{
-					const section = sections[k];
-					if (!this.isSchemeElementEnabled(section))
-					{
-						continue;
-					}
-
+				sections.forEach((section) => {
 					const effectiveElements = [];
-					const elementChildren = section.getElements();
-					for (let j = 0; j < elementChildren.length; j++)
-					{
-						const childElement = elementChildren[j];
+					const childElements = section.getElements();
+					childElements.forEach((childElement) => {
+						if (!this.isSchemeElementEnabled(section, childElement))
+						{
+							return;
+						}
+
 						if (childElement.isTransferable() && childElement.getName() !== '')
 						{
 							effectiveElements.push(childElement);
 						}
-					}
+					});
 
-					if (effectiveElements.length === 0)
+					if (!BX.Type.isArrayFilled(effectiveElements))
 					{
-						continue;
+						return;
 					}
 
-					const sectionContainer = this.createSectionWrapper(container, section.getTitle());
+					this.categories.push({
+						title: section.getTitle(),
+						sectionKey: this.defaultSectionKey,
+						key:  section.getName(),
+					});
 
-					this.fillSectionElements(section.getName(), sectionContainer, effectiveElements);
-				}
-			}
+					effectiveElements.forEach((element) => this.addOption(element, section));
+				});
+			});
+		},
 
+		prepareHiddenElements: function()
+		{
 			const hiddenElements = BX.prop.getArray(this._settings, 'hiddenElements', []);
-			if (hiddenElements.length > 0)
-			{
-				const hiddenSectionContainer = this.createSectionWrapper(
-					container,
-					BX.Loc.getMessage('UI_ENTITY_EDITOR_SECTION_WITH_HIDDEN_FIELDS')
-				);
-
-				this.fillSectionElements(this._currentSchemeElementName, hiddenSectionContainer, hiddenElements);
-			}
-
-			this._contentWrapper.appendChild(container);
-
-			return this._contentWrapper;
-		},
-		prepareContentHeaderSections: function(headerWrapper)
-		{
-			var headerSectionsWrapper = BX.create("div", {
-				attrs: {
-					className: 'ui-form-row',
-				},
-				children: [
-					BX.create('div', {
-						attrs: {
-							className: 'ui-form-content ui-entity-editor-popup-field-search-section-wrapper',
-						},
-					}),
-				],
-			});
-
-			headerWrapper.firstElementChild.appendChild(headerSectionsWrapper);
-
-			var buttonTitle = BX.prop.getString(this._settings, 'buttonTitle', '');
-			var itemClass = 'ui-entity-editor-popup-field-search-section-item-icon ui-entity-editor-popup-field-search-section-item-icon-active';
-			var headerSectionItem = BX.create('div', {
-				attrs: {
-					className: 'ui-entity-editor-popup-field-search-section-item',
-				},
-				children: [
-					BX.create('div', {
-						attrs: {
-							className: itemClass
-						},
-						html: buttonTitle
-					}),
-				],
-			});
-
-			headerSectionsWrapper.firstElementChild.appendChild(headerSectionItem);
-		},
-		prepareContentHeaderSearch: function(headerWrapper)
-		{
-			var input = BX.create('input', {
-				attrs: {
-					className: 'ui-ctl-element ui-entity-editor-popup-field-search-section-input',
-				},
-				events: {
-					input: this.onFilterSectionSearchInput.bind(this),
-				}
-			});
-			var searchForm = BX.create('div', {
-				attrs: {
-					className: 'ui-form-row',
-				},
-				children: [
-					BX.create('div', {
-						attrs: {
-							className: 'ui-form-content ui-entity-editor-popup-field-search-input-wrapper',
-						},
-						children: [
-							BX.create('div', {
-								attrs: {
-									className: 'ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon'
-								},
-								children: [
-									BX.create('div', {
-										attrs: {
-											className: 'ui-ctl-before ui-ctl-icon-search',
-										},
-									}),
-									BX.create('button', {
-										attrs: {
-											className: 'ui-ctl-after ui-ctl-icon-clear',
-										},
-										events: {
-											click: this.onFilterSectionSearchInputClear.bind(this, input),
-										}
-									}),
-									input,
-								],
-							}),
-						],
-					}),
-				],
-			});
-
-			headerWrapper.firstElementChild.appendChild(searchForm);
-		},
-		onFilterSectionSearchInput: function(input)
-		{
-			var search = (input.target ? input.target.value : input.value);
-			if (search.length)
-			{
-				search = search.toLowerCase();
-			}
-
-			this.getFieldsPopupItems().map(function(item){
-				var title = item.innerText.toLowerCase();
-				if (search.length && title.indexOf(search) === -1)
-				{
-					BX.removeClass(item, this.fieldVisibleClass);
-					BX.addClass(item, this.fieldHiddenClass);
-				}
-				else
-				{
-					BX.removeClass(item, this.fieldHiddenClass);
-					BX.addClass(item, this.fieldVisibleClass);
-					item.style.display = 'block';
-				}
-			}.bind(this));
-		},
-		getFieldsPopupItems: function()
-		{
-			if (!BX.type.isArray(this.fieldsPopupItems))
-			{
-				this.fieldsPopupItems = Array.from(
-					this._contentWrapper.querySelectorAll('.ui-entity-editor-popup-field-selector-list-item')
-				);
-				this.prepareAnimation();
-			}
-
-			return this.fieldsPopupItems;
-		},
-		prepareAnimation: function()
-		{
-			this.fieldsPopupItems.map(function(item){
-				BX.bind(item, 'animationend', this.onAnimationEnd.bind(this, item));
-			}.bind(this));
-		},
-		onAnimationEnd: function(item)
-		{
-			item.style.display = (
-				BX.hasClass(item, this.fieldHiddenClass)
-					? 'none'
-					: 'block'
-			);
-		},
-		onFilterSectionSearchInputClear: function(input)
-		{
-			if (input.value.length)
-			{
-				input.value = '';
-				this.onFilterSectionSearchInput(input);
-			}
-		},
-		getSelectedItems: function()
-		{
-			if(!this._contentWrapper)
-			{
-				return [];
-			}
-
-			var results = [];
-			var checkBoxes = this._contentWrapper.querySelectorAll("input.ui-entity-editor-popup-field-selector-list-checkbox");
-			for(var i = 0, length = checkBoxes.length; i < length; i++)
-			{
-				var checkBox = checkBoxes[i];
-				if(checkBox.checked)
-				{
-					var parts = checkBox.id.split("\\");
-					if(parts.length >= 2)
-					{
-						results.push({ sectionName: parts[0], fieldName: parts[1] });
-					}
-				}
-			}
-
-			return results;
-		},
-		onAcceptButtonClick: function()
-		{
-			BX.Event.EventEmitter.emit(
-				"BX.UI.EntityEditorFieldSelector:close",
-				{ sender: this, isCanceled: false, items: this.getSelectedItems() }
-			);
-			this.close();
-		},
-		onCancelButtonClick: function()
-		{
-			BX.Event.EventEmitter.emit(
-				"BX.UI.EntityEditorFieldSelector:close",
-				{ sender: this, isCanceled: true }
-			);
-			this.close();
-		},
-		onPopupClose: function()
-		{
-			if(this._popup)
-			{
-				this._contentWrapper = null;
-				this._popup.destroy();
-			}
-		},
-		onPopupDestroy: function()
-		{
-			if(!this._popup)
+			if (!BX.Type.isArrayFilled(hiddenElements))
 			{
 				return;
 			}
 
-			this._contentWrapper = null;
-			this._popup = null;
+			const hiddenCategory = {
+				title: BX.Loc.getMessage('UI_ENTITY_EDITOR_SECTION_WITH_HIDDEN_FIELDS'),
+				sectionKey: this.defaultSectionKey,
+				key: 'hidden',
+			}
+			this.categories.push(hiddenCategory);
+
+			hiddenElements.forEach((element) => this.addOption(element, null, hiddenCategory));
 		},
-		createSectionWrapper: function(container, title)
+
+		addOption: function(element, section = null, category = null)
 		{
-			container.appendChild(
-				BX.Tag.render`<div class="ui-entity-editor-popup-field-selector-list-caption">${BX.Text.encode(title)}</div>`
-			);
-
-			const sectionContainer = BX.Tag.render`<div class="ui-entity-editor-popup-field-selector-list-section"></div>`
-
-			container.appendChild(sectionContainer);
-
-			return sectionContainer;
-		},
-		fillSectionElements: function(parentName, container, elements)
-		{
-			elements.forEach(function(childElement)
-			{
-				const itemId = parentName + '\\' + childElement.getName();
-				const itemWrapper = BX.Tag.render`<div class="ui-entity-editor-popup-field-selector-list-item"></div>`
-
-				container.appendChild(itemWrapper);
-				itemWrapper.appendChild(
-					BX.Tag.render`
-						<input type="checkbox" id="${itemId}" class="ui-entity-editor-popup-field-selector-list-checkbox">
-					`
-				);
-				itemWrapper.appendChild(
-					BX.Tag.render`
-						<label for="${itemId}" class="ui-entity-editor-popup-field-selector-list-label">
-							${BX.Text.encode(childElement.getTitle())}
-						</label>
-					`
-				);
+			this.options.push({
+				title: element.getTitle(),
+				value: false,
+				categoryKey: this.getSectionName(section, category),
+				defaultValue: false,
+				id: this.getElementId(element, section),
 			});
-		}
+		},
+
+		getElementId: function(element, section = null)
+		{
+			return this.getSectionName(section) + '\\' + element.getName();
+		},
+
+		getSectionName: function(section = null, category = null)
+		{
+			if (category)
+			{
+				return category.key;
+			}
+
+			return section ? section.getName() : this._currentSchemeElementName;
+		},
+
+		getDefaultSections: function()
+		{
+			return [
+				{
+					key: this.defaultSectionKey,
+					title: BX.prop.getString(this._settings, 'buttonTitle', null),
+					value: true,
+				},
+			];
+		},
+
+		onApplyCheckboxList: function(fields)
+		{
+			BX.Event.EventEmitter.emit(
+				'BX.UI.EntityEditorFieldSelector:close',
+				{
+					sender: this,
+					isCanceled: false,
+					items: this.getSelectedItems(fields),
+				}
+			);
+		},
+
+		onCancelCheckboxList: function()
+		{
+			BX.Event.EventEmitter.emit(
+				'BX.UI.EntityEditorFieldSelector:close',
+				{
+					sender: this,
+					isCanceled: true,
+				}
+			);
+		},
+
+		/**
+		 * @param {string[]} fields
+		 * @returns {[{
+		 *     sectionName: string,
+		 *     fieldName: string,
+		 * }]}
+		 */
+		getSelectedItems: function(fields)
+		{
+			const results = [];
+
+			fields.forEach((field) => {
+				if (!BX.Type.isStringFilled(field))
+				{
+					return;
+				}
+
+				const parts = field.split('\\');
+				if (parts.length >= 2)
+				{
+					results.push({
+						sectionName: parts[0],
+						fieldName: parts[1],
+					});
+				}
+			});
+
+			return results;
+		},
 	};
 
-	if(typeof(BX.UI.EntityEditorFieldSelector.messages) === "undefined")
+	if (BX.Type.isUndefined(BX.UI.EntityEditorFieldSelector.messages))
 	{
 		BX.UI.EntityEditorFieldSelector.messages = {};
 	}
 
 	BX.UI.EntityEditorFieldSelector.create = function(id, settings)
 	{
-		var self = new BX.UI.EntityEditorFieldSelector(id, settings);
+		const self = new BX.UI.EntityEditorFieldSelector(id, settings);
 		self.initialize(id, settings);
+
 		return self;
 	}
 }

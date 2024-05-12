@@ -167,7 +167,7 @@ if(!\Bitrix\Main\Loader::includeModule("rest"))
 $arParams['INITIALIZE'] = (isset($arParams['INITIALIZE']) && $arParams['INITIALIZE'] === 'N')  ? 'N' : 'Y';
 
 $arParams['DETAIL_URL'] = isset($arParams['DETAIL_URL']) ? trim($arParams['DETAIL_URL']) : '/marketplace/detail/#code#/?from=app_layout';
-$arParams['PLACEMENT'] = isset($arParams['PLACEMENT']) ? ToUpper($arParams['PLACEMENT']) : PlacementTable::PLACEMENT_DEFAULT;
+$arParams['PLACEMENT'] = isset($arParams['PLACEMENT']) ? mb_strtoupper($arParams['PLACEMENT']) : PlacementTable::PLACEMENT_DEFAULT;
 $arParams['PLACEMENT_OPTIONS'] = isset($arParams['PLACEMENT_OPTIONS']) ? $arParams['PLACEMENT_OPTIONS'] : '';
 $arResult['SUBSCRIPTION_FINISH'] = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
 if ($arParams['PLACEMENT'] === PlacementTable::PLACEMENT_DEFAULT && empty($arParams['PLACEMENT_OPTIONS']))

@@ -9,8 +9,8 @@ endif;
 	********************************************************************/
 if (!empty($arParams["~MESSAGE"]))
 {
-	$arParams["~MESSAGE"]["CHECKED"] = ($arParams["~MESSAGE"]["CHECKED"] === true || $arParams["~MESSAGE"]["CHECKED"] == "Y" ? "Y" : "N");
-	$arParams["~MESSAGE"]["FILES_PARSED"] = (is_array($arParams["~MESSAGE"]["FILES_PARSED"]) ? $arParams["~MESSAGE"]["FILES_PARSED"] : array($arParams["~MESSAGE"]["FILES_PARSED"]));
+	$arParams["~MESSAGE"]["CHECKED"] = (isset($arParams["~MESSAGE"]["CHECKED"]) && ($arParams["~MESSAGE"]["CHECKED"] === true || $arParams["~MESSAGE"]["CHECKED"] == "Y") ? "Y" : "N");
+	$arParams["~MESSAGE"]["FILES_PARSED"] = isset($arParams["~MESSAGE"]["FILES_PARSED"]) ? (is_array($arParams["~MESSAGE"]["FILES_PARSED"]) ? $arParams["~MESSAGE"]["FILES_PARSED"] : array($arParams["~MESSAGE"]["FILES_PARSED"])) : null;
 }
 
 //$arParams["~MESSAGE"]["NUMBER"] = (empty($arParams["~MESSAGE"]["NUMBER"]) ? $arParams["~MESSAGE"]["ID"] : $arParams["~MESSAGE"]["NUMBER"]);
@@ -40,7 +40,7 @@ if (is_array($arParams["~arParams"]))
 * $arParams["SHOW_NAME_LINK"]
 */
 
-$arParams["SHOW_NAME_LINK"] = ($arParams["SHOW_NAME_LINK"] == "N" ? "N" : "Y");
+$arParams["SHOW_NAME_LINK"] = (isset($arParams["SHOW_NAME_LINK"]) && $arParams["SHOW_NAME_LINK"] == "N" ? "N" : "Y");
 $arParams["SHOW_PM"] = (intval(COption::GetOptionString("forum", "UsePMVersion", "2")) > 0 && $GLOBALS["USER"]->IsAuthorized() ? "Y" : "N");
 $arParams["SHOW_MAIL"] = ($arParams["SHOW_MAIL"] == "Y" ? "Y" : "N");
 $arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");

@@ -977,6 +977,7 @@ class CIMRestService extends IRestService
 		$skipChatParam = $arParams['SKIP_CHAT'] ?? null;
 		$skipDialogParam = $arParams['SKIP_DIALOG'] ?? null;
 		$unreadOnly = $arParams['UNREAD_ONLY'] ?? null;
+		$parseText = $arParams['PARSE_TEXT'] ?? null;
 
 		$config = Array('JSON' => 'Y');
 		if (isset($arParams['SKIP_OPENLINES']) && $arParams['SKIP_OPENLINES'] === 'Y')
@@ -1010,6 +1011,10 @@ class CIMRestService extends IRestService
 		else
 		{
 			$config['GET_ORIGINAL_TEXT'] = 'N';
+		}
+		if ($parseText === 'Y')
+		{
+			$config['PARSE_TEXT'] = 'Y';
 		}
 
 		if (isset($arParams['LAST_MESSAGE_DATE']) && $arParams['LAST_MESSAGE_DATE'])
@@ -6753,7 +6758,7 @@ class CIMRestService extends IRestService
 	{
 		$res = \Bitrix\Rest\EventTable::getList(array(
 													'filter' => array(
-														'=EVENT_NAME' => toUpper($restEventName),
+														'=EVENT_NAME' => mb_strtoupper($restEventName),
 														"=APPLICATION_TOKEN" => $appCode,
 														'=APP_ID' => $appId,
 													),
@@ -6766,7 +6771,7 @@ class CIMRestService extends IRestService
 
 		$result = \Bitrix\Rest\EventTable::add(array(
 												   "APP_ID" => $appId,
-												   "EVENT_NAME" => toUpper($restEventName),
+												   "EVENT_NAME" => mb_strtoupper($restEventName),
 												   "EVENT_HANDLER" => $restEventHandler,
 												   "APPLICATION_TOKEN" => $appCode,
 												   "USER_ID" => 0,
@@ -6797,7 +6802,7 @@ class CIMRestService extends IRestService
 
 		$res = \Bitrix\Rest\EventTable::getList(array(
 													'filter' => array(
-														'=EVENT_NAME' => toUpper($restEventName),
+														'=EVENT_NAME' => mb_strtoupper($restEventName),
 														'=APP_ID' => $appId,
 														'=APPLICATION_TOKEN' => $appCode,
 													),

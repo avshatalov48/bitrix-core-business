@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<script type="text/javascript">
+<script>
 	window.fAddSId = function(n)
 	{
 		if (typeof n == "string") n += (n.indexOf("?") < 0 ? "?" : "&") + "sessid=" + BX.bitrix_sessid();

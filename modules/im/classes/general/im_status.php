@@ -77,7 +77,8 @@ class CIMStatus
 		else
 		{
 			$params['USER_ID'] = $userId;
-			IM\Model\StatusTable::add($params);
+			$update = $params;
+			IM\Model\StatusTable::merge($params, $update);
 
 			$needToUpdate = true;
 			$status = $params;

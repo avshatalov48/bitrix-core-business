@@ -1,17 +1,21 @@
 import { nameSymbol } from './node';
-import { TextNode, contentSymbol, type TextNodeContent, type TextNodeOptions } from './text-node';
-import { Text } from '../reference/text';
+import { BBCodeTextNode, contentSymbol, type BBCodeTextNodeContent, type BBCodeTextNodeOptions } from './text-node';
 
-export class NewLineNode extends TextNode
+export class BBCodeNewLineNode extends BBCodeTextNode
 {
-	[nameSymbol]: string = Text.NEW_LINE_NAME;
-	[contentSymbol]: string = Text.NEW_LINE_CONTENT;
+	[nameSymbol]: string = '#linebreak';
+	[contentSymbol]: string = '\n';
 
-	constructor(options: TextNodeOptions = {})
+	constructor(options: BBCodeTextNodeOptions = {})
 	{
 		super(options);
 	}
 
-	setContent(options: TextNodeContent)
+	setContent(options: BBCodeTextNodeContent)
 	{}
+
+	clone(options): BBCodeNewLineNode
+	{
+		return this.getScheme().createNewLine();
+	}
 }

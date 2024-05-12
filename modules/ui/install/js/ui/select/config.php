@@ -11,8 +11,6 @@ return [
 		'main.core',
 		'main.core.events',
 		'main.popup',
-		'ui.forms',
-		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

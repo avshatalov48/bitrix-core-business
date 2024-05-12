@@ -306,7 +306,7 @@ export default class ListItem
 			new Button({
 				size: ButtonSize.MEDIUM,
 				color: ButtonColor.DANGER,
-				text: Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1'),
+				text: Loc.getMessage('SHARING_WARNING_POPUP_DELETE'),
 				events: {
 					click: () => {
 						this.deleteLink();

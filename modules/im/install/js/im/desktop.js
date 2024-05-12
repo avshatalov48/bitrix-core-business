@@ -959,7 +959,7 @@
 
 		if (jsContent != '')
 		{
-			jsContent = '<script type="text/javascript">BX.ready(function(){'+jsContent+'});</script>';
+			jsContent = '<script>BX.ready(function(){'+jsContent+'});</script>';
 		}
 
 		if (this.isPopupPageLoaded())

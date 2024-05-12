@@ -18,9 +18,6 @@ $DOC_ROOT = CSite::GetSiteDocRoot($site);
 
 $io = CBXVirtualIo::GetInstance();
 
-if (CUtil::DetectUTF8($path))
-	CUtil::decodeURIComponent($path);
-
 $path = $io->CombinePath("/", $path);
 $arParsedPath = CFileMan::ParsePath(Array($site, $path), false, false, "", $logical == "Y");
 $abs_path = $DOC_ROOT.$path;

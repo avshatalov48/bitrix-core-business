@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $arFields = Array(
@@ -26,8 +27,8 @@ Array(
 'Name' => 'A71936_98620_60725_95722',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_V1ST_TASK_NAME"),
-'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_V1ST_TASK_TEXT"), $documentType),
+'MailSubject' => GetMessage("BP_V1ST_TASK_NAME_MSGVER_1"),
+'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_V1ST_TASK_TEXT_MSGVER_1"), $documentType),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -46,11 +47,11 @@ Array(
 'OverdueDate' => '',
 'ApproveMinPercent' => '50',
 'ApproveWaitForAll' => 'N',
-'Name' => GetMessage("BP_V1ST_TASK_T"),
-'Description' => GetMessage("BP_V1ST_TASK_DESC"),
+'Name' => GetMessage("BP_V1ST_TASK_T_MSGVER_1"),
+'Description' => GetMessage("BP_V1ST_TASK_DESC_MSGVER_1"),
 'Parameters' => '',
 'Users' => Array('Template', 'Voters'),
-'Title' => GetMessage("BP_V1ST_VNAME")
+'Title' => GetMessage("BP_V1ST_VNAME_MSGVER_1")
 ),
 'Children' => Array(
 Array(
@@ -66,8 +67,8 @@ Array(
 'Name' => 'A29301_24557_63118_91259',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_V1ST_MAIL_SUBJ"),
-'MailText' => GetMessage("BP_V1ST_MAIL_TEXT"),
+'MailSubject' => GetMessage("BP_V1ST_MAIL_SUBJ_MSGVER_1"),
+'MailText' => GetMessage("BP_V1ST_MAIL_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -91,7 +92,7 @@ Array(
 'Name' => 'A50491_99266_37083_78593',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_V1ST_T3")
+'Title' => GetMessage("BP_V1ST_T3_MSGVER_1")
 )
 ))
 ),
@@ -108,15 +109,15 @@ Array(
 'Name' => 'A7429_66097_71801_19761',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_V1ST_MAIL2_NA"),
-'MailText' => GetMessage("BP_V1ST_MAIL2_NA_TEXT"),
+'MailSubject' => GetMessage("BP_V1ST_MAIL2_NA_MSGVER_1"),
+'MailText' => GetMessage("BP_V1ST_MAIL2_NA_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
 'MailUserFromArray' => Array('user_1'),
 'MailUserTo' => '',
 'MailUserToArray' => Array(Array('Template', 'Voters'), 'author'),
-'Title' => GetMessage("BP_V1ST_TNA")
+'Title' => GetMessage("BP_V1ST_TNA_MSGVER_1")
 )
 ),
 Array(
@@ -145,4 +146,3 @@ Array(
 ),
 'VARIABLES' => Array(),
 );
-?>

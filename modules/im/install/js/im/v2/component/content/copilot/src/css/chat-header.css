@@ -73,3 +73,30 @@
 	white-space: nowrap;
 	overflow: hidden;
 }
+
+.bx-im-copilot-header__subtitle.--click {
+	cursor: pointer;
+}
+
+.bx-im-copilot-header__icon {
+	width: 22px;
+	height: 22px;
+	background-position: center;
+	background-repeat: no-repeat;
+	margin-right: var(--im-space-inline-sm);
+	cursor: pointer;
+	opacity: 0.35;
+}
+
+.bx-im-copilot-header__icon:hover {
+	opacity: 0.7;
+}
+
+.bx-im-copilot-header__icon.--add-users {
+	background-image: url('./images/add-users.svg');
+}
+
+.bx-im-copilot-header__icon.--add-users.--active {
+	background-image: url('./images/add-users-active.svg');
+	opacity: 1;
+}

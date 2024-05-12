@@ -9,20 +9,20 @@ if (CModule::IncludeModule("forum")):
 		$str_forum_ALLOW_POST = "Y";
 	if (!isset($str_forum_SHOW_NAME) || ($str_forum_SHOW_NAME!="Y" && $str_forum_SHOW_NAME!="N"))
 		$str_forum_SHOW_NAME = "Y";
-	$str_forum_SUBSC_GET_MY_MESSAGE = ($str_forum_SUBSC_GET_MY_MESSAGE == "Y" ? "Y" : "N");
+	$str_forum_SUBSC_GET_MY_MESSAGE = (isset($str_forum_SUBSC_GET_MY_MESSAGE) && $str_forum_SUBSC_GET_MY_MESSAGE == "Y" ? "Y" : "N");
 
 	if($COPY_ID > 0)
 		$str_forum_AVATAR = "";
 
 	if ($strError <> '')
 	{
-		$str_forum_ALLOW_POST = htmlspecialcharsbx($_POST["forum_ALLOW_POST"]);
-		$str_forum_HIDE_FROM_ONLINE = htmlspecialcharsbx($_POST["forum_HIDE_FROM_ONLINE"]);
-		$str_forum_SUBSC_GET_MY_MESSAGE = htmlspecialcharsbx($_POST["forum_SUBSC_GET_MY_MESSAGE"]);
-		$str_forum_SHOW_NAME = htmlspecialcharsbx($_POST["forum_SHOW_NAME"]);
-		$str_forum_DESCRIPTION = htmlspecialcharsbx($_POST["forum_DESCRIPTION"]);
-		$str_forum_INTERESTS = htmlspecialcharsbx($_POST["forum_INTERESTS"]);
-		$str_forum_SIGNATURE = htmlspecialcharsbx($_POST["forum_SIGNATURE"]);
+		$str_forum_ALLOW_POST = htmlspecialcharsbx($_POST["forum_ALLOW_POST"] ?? null);
+		$str_forum_HIDE_FROM_ONLINE = htmlspecialcharsbx($_POST["forum_HIDE_FROM_ONLINE"] ?? null);
+		$str_forum_SUBSC_GET_MY_MESSAGE = htmlspecialcharsbx($_POST["forum_SUBSC_GET_MY_MESSAGE"] ?? null);
+		$str_forum_SHOW_NAME = htmlspecialcharsbx($_POST["forum_SHOW_NAME"] ?? null);
+		$str_forum_DESCRIPTION = htmlspecialcharsbx($_POST["forum_DESCRIPTION"] ?? null);
+		$str_forum_INTERESTS = htmlspecialcharsbx($_POST["forum_INTERESTS"] ?? null);
+		$str_forum_SIGNATURE = htmlspecialcharsbx($_POST["forum_SIGNATURE"] ?? null);
 	}
 	?>
 	<input type="hidden" name="profile_module_id[]" value="forum">
@@ -34,11 +34,11 @@ if (CModule::IncludeModule("forum")):
 	<?endif;?>
 	<tr>
 		<td><?=GetMessage("forum_HIDE_FROM_ONLINE")?></td>
-		<td><input type="checkbox" name="forum_HIDE_FROM_ONLINE" value="Y" <?if ($str_forum_HIDE_FROM_ONLINE=="Y") echo "checked";?>></td>
+		<td><input type="checkbox" name="forum_HIDE_FROM_ONLINE" value="Y" <?if (isset($str_forum_HIDE_FROM_ONLINE) && $str_forum_HIDE_FROM_ONLINE=="Y") echo "checked";?>></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("forum_SUBSC_GET_MY_MESSAGE")?></td>
-		<td><input type="checkbox" name="forum_SUBSC_GET_MY_MESSAGE" value="Y" <?if ($str_forum_SUBSC_GET_MY_MESSAGE=="Y") echo "checked";?>></td>
+		<td><input type="checkbox" name="forum_SUBSC_GET_MY_MESSAGE" value="Y" <?if (isset($str_forum_SUBSC_GET_MY_MESSAGE) && $str_forum_SUBSC_GET_MY_MESSAGE=="Y") echo "checked";?>></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("forum_SHOW_NAME")?></td>
@@ -46,21 +46,21 @@ if (CModule::IncludeModule("forum")):
 	</tr>
 	<tr>
 		<td><?=GetMessage('forum_DESCRIPTION')?></td>
-		<td><input class="typeinput" type="text" name="forum_DESCRIPTION" size="30" maxlength="255" value="<?=$str_forum_DESCRIPTION?>"></td>
+		<td><input class="typeinput" type="text" name="forum_DESCRIPTION" size="30" maxlength="255" value="<?=$str_forum_DESCRIPTION ?? null?>"></td>
 	</tr>
 	<tr>
 		<td class="adm-detail-valign-top"><?=GetMessage('forum_INTERESTS')?></td>
-		<td><textarea class="typearea" name="forum_INTERESTS" rows="3" cols="35"><?echo $str_forum_INTERESTS; ?></textarea></td>
+		<td><textarea class="typearea" name="forum_INTERESTS" rows="3" cols="35"><?echo $str_forum_INTERESTS  ?? null; ?></textarea></td>
 	</tr>
 	<tr>
 		<td class="adm-detail-valign-top"><?=GetMessage("forum_SIGNATURE")?></td>
-		<td><textarea class="typearea" name="forum_SIGNATURE" rows="3" cols="35"><?echo $str_forum_SIGNATURE; ?></textarea></td>
+		<td><textarea class="typearea" name="forum_SIGNATURE" rows="3" cols="35"><?echo $str_forum_SIGNATURE  ?? null; ?></textarea></td>
 	</tr>
 	<tr class="adm-detail-file-row">
 		<td><?=GetMessage("forum_AVATAR")?></td>
 		<td><?
-			echo CFile::InputFile("forum_AVATAR", 20, $str_forum_AVATAR);
-			if ((is_array($str_forum_AVATAR) && sizeof($str_forum_AVATAR)>0) || (!is_array($str_forum_AVATAR) && $str_forum_AVATAR <> '')):
+			echo CFile::InputFile("forum_AVATAR", 20, $str_forum_AVATAR ?? null);
+			if (isset($str_forum_AVATAR) && ((is_array($str_forum_AVATAR) && sizeof($str_forum_AVATAR)>0) || (!is_array($str_forum_AVATAR) && $str_forum_AVATAR <> ''))):
 				?><div class="adm-detail-file-image"><?
 				echo CFile::ShowImage($str_forum_AVATAR, 150, 150, "border=0", "", true);?></div><?
 			endif;

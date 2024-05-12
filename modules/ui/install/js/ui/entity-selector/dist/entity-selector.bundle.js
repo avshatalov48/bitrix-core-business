@@ -1644,6 +1644,8 @@ this.BX.UI = this.BX.UI || {};
 	          this.getSubtitleContainer().innerHTML = Highlighter.mark(this.getItem().getSubtitleNode(), matchField.getMatches());
 	        } else if (field.getName() === 'supertitle') {
 	          this.getSupertitleContainer().innerHTML = Highlighter.mark(this.getItem().getSupertitleNode(), matchField.getMatches());
+	        } else if (field.getName() === 'caption') {
+	          this.getCaptionContainer().innerHTML = Highlighter.mark(this.getItem().getCaptionNode(), matchField.getMatches());
 	        }
 	      });
 	    }
@@ -1978,6 +1980,10 @@ this.BX.UI = this.BX.UI || {};
 	            const textNode = item.getSupertitleNode();
 	            const stripTags = textNode !== null && textNode.getType() === 'html';
 	            index.addIndex(this.createIndex(field, item.getSupertitle(), stripTags));
+	          } else if (field.getName() === 'caption') {
+	            const textNode = item.getCaptionNode();
+	            const stripTags = textNode !== null && textNode.getType() === 'html';
+	            index.addIndex(this.createIndex(field, item.getCaption(), stripTags));
 	          }
 	        } else {
 	          const customData = item.getCustomData().get(field.getName());
@@ -3899,8 +3905,8 @@ this.BX.UI = this.BX.UI || {};
 	      return this.cache.remember('label', () => {
 	        const className = this.isVisible() ? '' : ' ui-selector-tab-label-hidden';
 	        return main_core.Tag.render(_t2$1 || (_t2$1 = _$4`
-				<div 
-					class="ui-selector-tab-label${0}" 
+				<div
+					class="ui-selector-tab-label${0}"
 					onclick="${0}"
 					onmouseenter="${0}"
 					onmouseleave="${0}"
@@ -5103,7 +5109,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getMinHeight",
 	    value: function getMinHeight() {
-	      return 33;
+	      return 34;
 	    }
 	  }, {
 	    key: "setMaxHeight",
@@ -6336,7 +6342,7 @@ this.BX.UI = this.BX.UI || {};
 	      stubOptions: {
 	        autoShow: false,
 	        title: main_core.Loc.getMessage('UI_SELECTOR_SEARCH_STUB_TITLE'),
-	        subtitle: main_core.Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE')
+	        subtitle: main_core.Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1')
 	      }
 	    };
 	    const options = Object.assign({}, defaults, tabOptions);
@@ -6708,7 +6714,8 @@ this.BX.UI = this.BX.UI || {};
 	    } else if (options.enableSearch === true) {
 	      const defaultOptions = {
 	        placeholder: main_core.Loc.getMessage('UI_TAG_SELECTOR_SEARCH_PLACEHOLDER'),
-	        maxHeight: 99,
+	        maxHeight: 102,
+	        // three lines
 	        textBoxWidth: 105
 	      };
 	      const customOptions = main_core.Type.isPlainObject(options.tagSelectorOptions) ? options.tagSelectorOptions : {};
@@ -6751,10 +6758,10 @@ this.BX.UI = this.BX.UI || {};
 	      _this.load();
 	    }
 	    if (main_core.Type.isPlainObject(options.popupOptions)) {
-	      const allowedOptions = ['overlay', 'bindOptions', 'targetContainer', 'zIndexOptions'];
+	      const allowedOptions = new Set(['overlay', 'bindOptions', 'targetContainer', 'zIndexOptions', 'events']);
 	      const popupOptions = {};
 	      Object.keys(options.popupOptions).forEach(option => {
-	        if (allowedOptions.includes(option)) {
+	        if (allowedOptions.has(option)) {
 	          popupOptions[option] = options.popupOptions[option];
 	        }
 	      });
@@ -7823,7 +7830,12 @@ this.BX.UI = this.BX.UI || {};
 	      this.getTabs().forEach(tab => {
 	        this.insertTab(tab);
 	      });
-	      this.popup = new main_popup.Popup(Object.assign({
+	      const popupOptions = {
+	        ...this.popupOptions
+	      };
+	      const userEvents = popupOptions.events;
+	      delete popupOptions.events;
+	      this.popup = new main_popup.Popup({
 	        contentPadding: 0,
 	        padding: 0,
 	        offsetTop: this.getOffsetTop(),
@@ -7847,8 +7859,10 @@ this.BX.UI = this.BX.UI || {};
 	          onAfterClose: this.handlePopupAfterClose.bind(this),
 	          onDestroy: this.handlePopupDestroy.bind(this)
 	        },
-	        content: this.getContainer()
-	      }, this.popupOptions));
+	        content: this.getContainer(),
+	        ...popupOptions
+	      });
+	      this.popup.subscribeFromOptions(userEvents);
 	      this.rendered = true;
 	      this.selectFirstTab();
 	      return this.popup;
@@ -7869,8 +7883,8 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	        const className = this.isCompactView() ? ' ui-selector-dialog--compact-view' : '';
 	        return main_core.Tag.render(_t2$6 || (_t2$6 = _$b`
-				<div 
-					class="ui-selector-dialog${0}" 
+				<div
+					class="ui-selector-dialog${0}"
 					style="width:${0}px; height:${0}px;"
 				>
 					${0}
@@ -7905,7 +7919,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getLabelsContainer() {
 	      return this.cache.remember('labels-container', () => {
 	        return main_core.Tag.render(_t5$4 || (_t5$4 = _$b`
-				<div 
+				<div
 					class="ui-selector-tab-labels"
 					onmouseenter="${0}"
 					onmouseleave="${0}"

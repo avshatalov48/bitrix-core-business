@@ -1,8 +1,6 @@
 import { ajax as Ajax, Extension, Type } from 'main.core';
 import type { AnalyticsOptions } from './types';
 
-const settings = Extension.getSettings('ui.analytics');
-
 function isValidAnalyticsData(analytics: AnalyticsOptions): boolean
 {
 	if (!Type.isPlainObject(analytics))
@@ -64,6 +62,7 @@ export function sendAnalyticsData(analytics: AnalyticsOptions): void
 		return;
 	}
 
+	const settings = Extension.getSettings('ui.analytics');
 	const collectData = settings.get('collectData', false);
 	if (!collectData)
 	{

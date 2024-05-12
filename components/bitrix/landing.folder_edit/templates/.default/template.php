@@ -124,7 +124,11 @@ $row = $arResult['FOLDER'];
 				<?endif;?>
 			</div>
 		</div>
-		<div id="landing-folder-index-metablock" class="landing-folder-edit__section --without-margin" style="display: <?= $arResult['INDEX_LANDING'] ? 'flex' : 'none'?>;">
+		<?php if ($arResult['INDEX_LANDING']): ?>
+		<div id="landing-folder-index-metablock"
+			class="landing-folder-edit__section --without-margin"
+			style="display: <?= $arResult['INDEX_LANDING'] ? 'flex' : 'none' ?>;"
+		>
 			<div class="landing-folder-edit__section--title">
 			<?/*
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-wa">
@@ -148,22 +152,42 @@ $row = $arResult['FOLDER'];
 							<div class="landing-folder-edit__section--wrapper --margin-bottom">
 								<div class="landing-folder-edit__section--text-link --margin-bottom"><?= Loc::getMessage('LANDING_TPL_FIELD_METAOG_TITLE')?></div>
 								<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
-									<input type="text" name="fields[METAOG_TITLE]" id="landing-folder-metaog-title" class="ui-ctl-element" value="<?= htmlspecialcharsbx($arResult['INDEX_META']['METAOG_TITLE'] ?: $arResult['INDEX_LANDING']['TITLE'])?>" placeholder="<?= Loc::getMessage('LANDING_TPL_FIELD_METAOG_TITLE')?>"/>
+									<input type="text"
+										name="fields[METAOG_TITLE]"
+										id="landing-folder-metaog-title"
+										class="ui-ctl-element"
+										value="<?=htmlspecialcharsbx($arResult['INDEX_META']['METAOG_TITLE'] ?: $arResult['INDEX_LANDING']['TITLE'])?>"
+										placeholder="<?=Loc::getMessage('LANDING_TPL_FIELD_METAOG_TITLE')?>"
+									/>
 								</div>
 							</div>
 							<div class="landing-folder-edit__section--wrapper">
 								<div class="landing-folder-edit__section--text-link --margin-bottom"><?= Loc::getMessage('LANDING_TPL_FIELD_METAOG_DESCRIPTION')?></div>
 								<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
-									<input type="text" name="fields[METAOG_DESCRIPTION]" id="landing-folder-metaog-description" class="ui-ctl-element" value="<?= htmlspecialcharsbx($arResult['INDEX_META']['METAOG_DESCRIPTION'] ?: $arResult['INDEX_LANDING']['DESCRIPTION'])?>" placeholder="<?= Loc::getMessage('LANDING_TPL_FIELD_METAOG_DESCRIPTION')?>" />
+									<input type="text"
+										name="fields[METAOG_DESCRIPTION]"
+										id="landing-folder-metaog-description"
+										class="ui-ctl-element"
+										value="<?=htmlspecialcharsbx($arResult['INDEX_META']['METAOG_DESCRIPTION'] ?: $arResult['INDEX_LANDING']['DESCRIPTION'])?>"
+										placeholder="<?=Loc::getMessage('LANDING_TPL_FIELD_METAOG_DESCRIPTION')?>"
+									/>
 								</div>
 							</div>
-							<input type="hidden" name="fields[METAOG_IMAGE]" id="landing-folder-metaog-image" value="<?= htmlspecialcharsbx($arResult['INDEX_META']['~METAOG_IMAGE'])?>" />
-							<input type="hidden" id="landing-folder-metaog-image-src" value="<?= htmlspecialcharsbx($arResult['INDEX_META']['METAOG_IMAGE'])?>" />
+							<input type="hidden"
+								name="fields[METAOG_IMAGE]"
+								id="landing-folder-metaog-image"
+								value="<?=htmlspecialcharsbx($arResult['INDEX_META']['~METAOG_IMAGE'])?>"
+							/>
+							<input type="hidden"
+								id="landing-folder-metaog-image-src"
+								value="<?=htmlspecialcharsbx($arResult['INDEX_META']['METAOG_IMAGE'])?>"
+							/>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<?php endif; ?>
 		<?$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
 			'BUTTONS' => [
 				[
@@ -296,7 +320,10 @@ $row = $arResult['FOLDER'];
 			selectorPreviewSrcPicture: BX('landing-folder-metaog-image-src'),
 			selectorPreviewPictureWrapper: BX('landing-folder-picture'),
 			pathToLandingEdit: '<?= \CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW']); ?>',
-			pathToLandingCreate: '<?= $component->getUrlAdd(false); ?>',
+			pathToLandingCreate: '<?= $component->getUrlAdd(false, [
+				'context_section' => 'folder_edit',
+				'context_element' => 'create_page_link',
+			]); ?>',
 			isUseNewMarket: '<?= $component->isUseNewMarket(); ?>',
 		});
 	});

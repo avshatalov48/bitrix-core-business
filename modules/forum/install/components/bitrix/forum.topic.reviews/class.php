@@ -409,10 +409,6 @@ final class ForumTopicReviewsComponent extends CBitrixComponent implements Main\
 
 		$this->isAjaxMode = $this->arParams["AJAX_POST"] === "Y" && $this->request->get("dataType");
 
-		if ($this->isAjaxMode)
-		{
-			$this->request->addFilter(new Main\Web\PostDecodeFilter());
-		}
 		$data = $this->request->toArray();
 		if ($this->arParams["ELEMENT_ID"] != $this->request->get("ELEMENT_ID"))
 		{

@@ -1,6 +1,6 @@
 <section class="landing-block g-bg-gray-light-v5">
 	<div class="container">
-		<div class="landing-block-node-bgimg g-bg-cover g-bg-pos-top-center g-bg-img-hero g-bg-black-opacity-0_1--after g-px-20 g-py-200"
+		<div class="landing-block-node-bgimg g-bg-cover g-bg-pos-top-center g-bg-black-opacity-0_1--after g-px-20 g-py-200"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1068/img1.jpg);">
 			<div class="landing-block-node-container js-animation zoomIn text-center g-pos-rel g-z-index-1">
 				<div class="landing-block-node-subtitle g-color-white g-font-size-20 text-uppercase g-letter-spacing-5 g-mb-50" data-auto-font-scale>

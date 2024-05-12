@@ -9,7 +9,7 @@ return [
 	'js' => 'dist/bottomsheet.bundle.js',
 	'rel' => [
 		'main.core',
-		'ui.fonts.roboto',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

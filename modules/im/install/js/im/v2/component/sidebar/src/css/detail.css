@@ -6,7 +6,6 @@
 	flex-direction: column;
 	overflow-y: scroll;
 	height: calc(100% - var(--im-sidebar-detail__height_header));
-	scrollbar-width: thin;
 	padding-bottom: 18px;
 }
 

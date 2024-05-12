@@ -48,6 +48,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    chatId() {
 	      return this.message.chatId;
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    userCountInChat() {
+	      var _this$dialog$userCoun, _this$dialog;
+	      return (_this$dialog$userCoun = (_this$dialog = this.dialog) == null ? void 0 : _this$dialog.userCounter) != null ? _this$dialog$userCoun : 0;
+	    },
+	    isDisabledStartCallButton() {
+	      return !this.userCountInChat || this.userCountInChat <= 1;
 	    }
 	  },
 	  methods: {
@@ -65,7 +75,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withContextMenu="false"
+			:withDefaultContextMenu="false"
 			:withBackground="false"
 			class="bx-im-message-chat-creation__scope"
 		>
@@ -87,6 +97,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 								:isRounded="true"
 								:text="loc('IM_MESSAGE_CHAT_CREATION_BUTTON_VIDEOCALL')"
 								@click="onCallButtonClick"
+								:isDisabled="isDisabledStartCallButton"
 							/>
 						</div>
 						<div class="bx-im-message-chat-creation__buttons_item">

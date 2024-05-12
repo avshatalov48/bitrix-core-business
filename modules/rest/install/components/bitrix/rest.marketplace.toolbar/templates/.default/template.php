@@ -64,7 +64,7 @@ $APPLICATION->IncludeComponent("bitrix:rest.marketplace.search", "",
 ?>
 </div>
 
-<script type="text/javascript">
+<script>
 	function ShowCategoriesPopup(bindElement)
 	{
 <?php

@@ -145,7 +145,7 @@ if (isset($arResult['MANIFEST']['INSTALL_STEP']) && $arResult['MANIFEST']['INSTA
 	</div>
 	<div class="rest-configuration-info"><?=htmlspecialcharsbx($description)?></div>
 	<div class="rest-configuration-errors"></div>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			BX.Rest.Configuration.Install.init(<?=Json::encode([
 				'id' => $containerId,

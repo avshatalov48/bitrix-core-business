@@ -215,6 +215,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  let result = '';
 	  const date = calendar_util.Util.getTimezoneDateFromTimestampUTC(parseInt(babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].canceledTimestamp, 10) * 1000, babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].timezone);
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].canceledTimestamp && babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].canceledUserName && date) {
+	    const dayMonthFormat = main_date.DateTimeFormat.getFormat('DAY_MONTH_FORMAT');
+	    const shortTimeFormat = main_date.DateTimeFormat.getFormat('SHORT_TIME_FORMAT');
+	    const format = `${dayMonthFormat} ${shortTimeFormat}`;
 	    result = main_core.Tag.render(_t7 || (_t7 = _`
 				<div class="calendar-pub__form-status">
 					<div class="calendar-pub__form-status_text">
@@ -223,7 +226,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 						${0}
 					</div>
 				</div>
-			`), main_core.Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED'), babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].canceledUserId, main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].canceledUserName), main_date.DateTimeFormat.format(`j F ${calendar_util.Util.getTimeFormatShort()}`, date.getTime() / 1000));
+			`), main_core.Loc.getMessage('CALENDAR_SHARING_WHO_CANCELED'), babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].canceledUserId, main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _eventData)[_eventData].canceledUserName), main_date.DateTimeFormat.format(format, date.getTime() / 1000));
 	  } else {
 	    result = main_core.Tag.render(_t8 || (_t8 = _`
 				<div></div>

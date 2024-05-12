@@ -461,6 +461,17 @@ class AppTable extends Main\Entity\DataManager
 		AppLangTable::deleteByApp($data['primary']['ID']);
 	}
 
+	public static function isInstalled(int $appId): bool
+	{
+		$row = self::getRowById($appId);
+		if (!$row)
+		{
+			return false;
+		}
+
+		return $row['INSTALLED'] === self::INSTALLED;
+	}
+
 	public static function install($appId)
 	{
 		$appInfo = static::getByClientId($appId);

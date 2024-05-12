@@ -246,7 +246,7 @@ class CAllForumTopic
 				{
 					$data[$k] = new \Bitrix\Main\Type\DateTime(\Bitrix\Main\Type\DateTime::isCorrect($v) ? $v : null);
 				}
-				else if (preg_match("/{$k}\s*(\+|\-)\s*(\d+)/", $v, $matches))
+				else if (isset($v) && preg_match("/{$k}\s*(\+|\-)\s*(\d+)/", $v, $matches))
 				{
 					$data[$k] = new \Bitrix\Main\DB\SqlExpression("?# $matches[1] $matches[2]", $k);
 				}
@@ -488,7 +488,7 @@ class CAllForumTopic
 		endif;
 
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
-		$arAddParams["GET_FORUM_INFO"] = ($arAddParams["GET_FORUM_INFO"] == "Y" ? "Y" : "N");
+		$arAddParams["GET_FORUM_INFO"] = (isset($arAddParams["GET_FORUM_INFO"]) && $arAddParams["GET_FORUM_INFO"] == "Y" ? "Y" : "N");
 		$arSQL = array("select" => array(), "join" => array());
 		if (!empty($arAddParams["sNameTemplate"]))
 		{
@@ -512,7 +512,7 @@ class CAllForumTopic
 					"sFieldName" => "ABS_LAST_POSTER_NAME_FRMT",
 					"sUserIDFieldName" => "FT.ABS_LAST_POSTER_ID"))));
 		}
-		if ($arAddParams["GET_FORUM_INFO"] == "Y")
+		if (isset($arAddParams["GET_FORUM_INFO"]) && $arAddParams["GET_FORUM_INFO"] == "Y")
 		{
 			$arSQL["select"][] = CForumNew::GetSelectFields(array("sPrefix" => "F_", "sReturnResult" => "string"));
 			$arSQL["join"][] =  "INNER JOIN b_forum F ON (FT.FORUM_ID = F.ID)";
@@ -716,7 +716,6 @@ class CAllForumTopic
 		return "CForumTopic::CleanUp();";
 	}
 
-
 	//---------------> Topic utils
 	public static function SetStat($ID = 0, $params = [])
 	{
@@ -754,6 +753,24 @@ class CAllForumTopic
 			else
 			{
 				$arFields["=POSTS_UNAPPROVED"] = "POSTS_UNAPPROVED+1";
+			}
+		}
+		else if (isset($params['DELETED_MESSAGE'])
+			&& ($arTopic = CForumTopic::GetByID($ID))
+			&& (
+				$params['DELETED_MESSAGE']['ID'] < $arTopic['LAST_MESSAGE_ID']
+				|| IsModuleInstalled('bitrix24')
+			)
+		)
+		{
+			$deleteMessage = $params['DELETED_MESSAGE'];
+			if ($deleteMessage['APPROVED'] === 'Y')
+			{
+				$arFields['=POSTS'] = 'POSTS-1';
+			}
+			else
+			{
+				$arFields['=POSTS_UNAPPROVED'] = 'POSTS_UNAPPROVED-1';
 			}
 		}
 		else

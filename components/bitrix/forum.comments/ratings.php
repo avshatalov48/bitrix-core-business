@@ -11,7 +11,10 @@ class CCommentRatings extends CCommentBase
 		if (empty($arResult["MESSAGES"]))
 		{
 			$GLOBALS["APPLICATION"]->SetAdditionalCSS("/bitrix/components/bitrix/rating.vote/templates/like/popup.css");
-			$GLOBALS["APPLICATION"]->SetAdditionalCSS("/bitrix/components/bitrix/rating.vote/templates/".$arParams["RATING_TYPE"]."/style.css");
+			if (isset($arParams["RATING_TYPE"]))
+			{
+				$GLOBALS["APPLICATION"]->SetAdditionalCSS("/bitrix/components/bitrix/rating.vote/templates/".$arParams["RATING_TYPE"]."/style.css");
+			}
 		}
 	}
 

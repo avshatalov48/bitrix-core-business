@@ -760,7 +760,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    async onCreateClick() {
 	      this.isCreating = true;
-	      const newDialogId = await this.getChatService().createChat({
+	      const {
+	        newDialogId
+	      } = await this.getChatService().createChat({
 	        title: this.chatTitle,
 	        avatar: this.avatarFile,
 	        members: this.chatMembers,
@@ -1057,7 +1059,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      this.isCreating = true;
-	      const newDialogId = await this.getChatService().createChat({
+	      const {
+	        newDialogId
+	      } = await this.getChatService().createChat({
 	        entityType: im_v2_const.ChatType.videoconf,
 	        title: this.chatTitle,
 	        avatar: this.avatarFile,

@@ -7,7 +7,6 @@
 	flex-direction: column;
 	overflow-y: scroll;
 	height: calc(100% - var(--im-sidebar-chats-with-user-detail__height_header));
-	scrollbar-width: thin;
 	padding: 4px 0 4px 6px;
 }
 

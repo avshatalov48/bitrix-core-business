@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 $res = $arParams["~MESSAGE"];
-if ($arParams["SHOW_HEADER"] != "N"):?>
+if (!isset($arParams["SHOW_HEADER"]) || $arParams["SHOW_HEADER"] != "N"):?>
 <a name="postform"></a>
 <!--MSG_PREVIEW-->
 <div class="forum-preview">
@@ -12,7 +12,7 @@ if ($arParams["SHOW_HEADER"] != "N"):?>
 		<div class="forum-info-box-inner">
 			<div class="forum-post-entry">
 <?endif;?>
-				<div class="forum-post-text"<?if($res["ID"] > 0): ?> id="message_text_<?=$res["ID"]?>"<? endif; ?>><?=(
+				<div class="forum-post-text"<?if(isset($res["ID"]) && $res["ID"] > 0): ?> id="message_text_<?=$res["ID"]?>"<? endif; ?>><?=(
 					is_set($res, "POST_MESSAGE_TEXT") ? $res["POST_MESSAGE_TEXT"] : $res["TEXT"])?></div>
 				<?
 				if (!empty($res["FILES"]))
@@ -86,7 +86,7 @@ if ($arParams["SHOW_HEADER"] != "N"):?>
 					</span>
 				</div><?
 				}
-if ($arParams["SHOW_HEADER"] != "N"):?>
+if (!isset($arParams["SHOW_HEADER"]) || $arParams["SHOW_HEADER"] != "N"):?>
 			</div>
 		</div>
 	</div>

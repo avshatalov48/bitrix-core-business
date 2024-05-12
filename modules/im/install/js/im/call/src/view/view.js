@@ -76,6 +76,7 @@ const EventName = {
 	onDeviceSelectorShow: 'onDeviceSelectorShow',
 	onOpenAdvancedSettings: 'onOpenAdvancedSettings',
 	onHasMainStream: 'onHasMainStream',
+	onToggleSubscribe: 'onToggleSubscribe'
 };
 
 const newUserPosition = 999;
@@ -144,6 +145,9 @@ export class View
 		this.showRecordButton = (config.showRecordButton !== false);
 		this.showDocumentButton = (config.showDocumentButton !== false);
 		this.showButtonPanel = (config.showButtonPanel !== false);
+
+		this.inactiveUsers = [];
+		this.activeUsers = [];
 
 		this.broadcastingMode = BX.prop.getBoolean(config, "broadcastingMode", false);
 		this.broadcastingPresenters = BX.prop.getArray(config, "broadcastingPresenters", []);
@@ -348,6 +352,8 @@ export class View
 		};
 		this.hotKeyTemporaryBlock = 0;
 
+		this._isPreparing = false;
+
 		this.init();
 		this.subscribeEvents(config);
 		if (Type.isPlainObject(config.userStates))
@@ -415,6 +421,16 @@ export class View
 		}
 
 		this.container.appendChild(this.elements.audioContainer);
+	};
+
+	get isPreparing()
+	{
+		return this._isPreparing;
+	};
+
+	set isPreparing(isPreparing)
+	{
+		this._isPreparing = !!isPreparing;
 	};
 
 	subscribeEvents(config)
@@ -611,7 +627,7 @@ export class View
 		for (let i = 0; i < this.userRegistry.users.length; i++)
 		{
 			const userModel = this.userRegistry.users[i];
-			if (userModel.id != this.userId && (userModel.state == UserState.Connected || userModel.state == UserState.Connecting))
+			if (userModel.id != this.userId && (userModel.state == UserState.Connected || userModel.state == UserState.Connecting || userModel.state == UserState.Idle || userModel.state == UserState.Calling))
 			{
 				result.push(userModel.id);
 			}
@@ -718,15 +734,6 @@ export class View
 			this.eventEmitter.emit(EventName.onHasMainStream, {
 				userId: this.centralUser.id
 			});
-		}
-
-		if (this.layout == Layouts.Grid)
-		{
-			const presentersPage = this.findUsersPage(this.presenterId);
-			if (presentersPage)
-			{
-				this.setCurrentPage(presentersPage);
-			}
 		}
 	};
 
@@ -1260,6 +1267,7 @@ export class View
 		{
 			this.switchPresenter();
 		}
+
 	};
 
 	setUserStats(userId, stats)
@@ -1322,6 +1330,17 @@ export class View
 
 		if (user.floorRequestState != userFloorRequestState)
 		{
+			const userState = user?.state;
+			const userActive = (userState !== UserState.Idle
+				&& userState !== UserState.Declined
+				&& userState !== UserState.Unavailable
+				&& userState !== UserState.Busy
+			);
+			if (userFloorRequestState && !userActive)
+			{
+				return
+			}
+
 			user.floorRequestState = userFloorRequestState;
 			if (userId != this.localUser.id && userFloorRequestState)
 			{
@@ -1553,6 +1572,8 @@ export class View
 		}
 
 		this.users[userId].videoRenderer = mediaRenderer;
+
+		this.toggleSubscribingVideoInRenderUserList([userId], this.activeUsers.includes(userId))
 	};
 
 	setUserMedia(userId, kind, track)
@@ -2490,9 +2511,16 @@ export class View
 			result.push('grid');
 			separatorNeeded = true;
 		}
+
 		if (this.uiState != UiState.Preparing && this.isFullScreenSupported() && this.layout != Layouts.Mobile)
 		{
 			result.push('fullscreen');
+			separatorNeeded = true;
+		}
+
+		if (this.uiState === UiState.Connected && this.layout != Layouts.Mobile)
+		{
+			result.push('feedback');
 			separatorNeeded = true;
 		}
 
@@ -2737,8 +2765,33 @@ export class View
 		return this.elements.root;
 	};
 
+	toggleSubscribingVideoInRenderUserList(participantIds, showVideo)
+	{
+		const filteredParticipants = participantIds.filter(p =>
+		{
+			if (this.users[p].videoRenderer?.kind === 'sharing')
+			{
+				return !!this.users[p].previewRenderer !== showVideo;
+			}
+			else
+			{
+				return !!this.users[p].videoRenderer !== showVideo;
+			}
+		});
+		if (filteredParticipants.length)
+		{
+			this.eventEmitter.emit(EventName.onToggleSubscribe, {
+				participantIds: filteredParticipants,
+				showVideo: showVideo
+			})
+		}
+	}
+
 	renderUserList()
 	{
+		this.activeUsers = [];
+		this.inactiveUsers = [];
+
 		const showLocalUser = this.shouldShowLocalUser();
 		let userCount = 0;
 		let skipUsers = 0;
@@ -2763,6 +2816,10 @@ export class View
 			const screenUser: CallUser = this.screenUsers[userId];
 			if (userId == this.centralUser.id && (this.layout == Layouts.Centered || this.layout == Layouts.Mobile))
 			{
+				if (this.layout == Layouts.Centered)
+				{
+					this.activeUsers.push(userId);
+				}
 				this.unobserveIntersections(user);
 				if (screenUser.hasVideo())
 				{
@@ -2800,6 +2857,15 @@ export class View
 				userActive = false;
 			}
 
+			if (userActive)
+			{
+				this.activeUsers.push(userId)
+			}
+			else
+			{
+				this.inactiveUsers.push(userId)
+			}
+
 			if (!userActive)
 			{
 				user.dismount();
@@ -2818,7 +2884,10 @@ export class View
 				screenUser.dismount();
 			}
 			user.mount(this.elements.userList.container);
-			this.observeIntersections(user);
+			if (!this.isPreparing)
+			{
+				this.observeIntersections(user);
+			}
 			renderedUsers++;
 			userCount++;
 		}
@@ -2876,6 +2945,9 @@ export class View
 
 		this.elements.root.classList.toggle("bx-messenger-videocall-user-list-empty", (this.elements.userList.container.childElementCount === 0));
 		this.localUser.updatePanelDeferred();
+
+		this.toggleSubscribingVideoInRenderUserList(this.activeUsers, true)
+		this.toggleSubscribingVideoInRenderUserList(this.inactiveUsers, false)
 	};
 
 	shouldShowLocalUser()
@@ -3312,6 +3384,14 @@ export class View
 						onClick: this._onFullScreenButtonClick.bind(this)
 					});
 					result.appendChild(this.buttons.fullscreen.render());
+					break;
+				case "feedback":
+					this.buttons.feedback = new Buttons.TopButton({
+						iconClass: 'feedback',
+						text: BX.message('IM_OL_COMMENT_HEAD_BUTTON_VOTE'),
+						onClick: this._onFeedbackButtonClick.bind(this)
+					})
+					result.appendChild(this.buttons.feedback.render());
 					break;
 				case "participants":
 					let foldButtonState;
@@ -4522,6 +4602,15 @@ export class View
 			node: e.target
 		});
 	};
+
+	_onFeedbackButtonClick(e)
+	{
+		e.stopPropagation();
+		this.eventEmitter.emit(EventName.onButtonClick, {
+			buttonName: 'feedback',
+			node: e.target
+		});
+	}
 
 	_onParticipantsButtonListClick(event)
 	{

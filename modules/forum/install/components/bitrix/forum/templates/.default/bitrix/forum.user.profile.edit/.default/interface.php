@@ -79,7 +79,7 @@ class CForumTabControl
 
 	function EndTab()
 	{
-		if($this->tabIndex < 1 || $this->tabIndex > count($this->tabs) || $this->tabs[$this->tabIndex-1]["_closed"] === true)
+		if($this->tabIndex < 1 || $this->tabIndex > count($this->tabs) || (isset($this->tabs[$this->tabIndex-1]["_closed"]) && $this->tabs[$this->tabIndex-1]["_closed"] === true))
 			return;
 
 		echo '
@@ -112,7 +112,7 @@ class CForumTabControl
 			$s .= ($s <> ""? ", ":"").
 			"{".
 			"'DIV': '".$tab["DIV"]."' ".
-			($tab["ONSELECT"] <> ""? ", 'ONSELECT': '".CUtil::JSEscape($tab["ONSELECT"])."'":"").
+			(isset($tab["ONSELECT"]) && $tab["ONSELECT"] <> ""? ", 'ONSELECT': '".CUtil::JSEscape($tab["ONSELECT"])."'":"").
 			"}";
 		}
 		echo '

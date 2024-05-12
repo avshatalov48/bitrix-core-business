@@ -320,7 +320,7 @@ class CRestProvider
 							}
 						}
 
-						$methods = [ToLower($method), $method];
+						$methods = [mb_strtolower($method), $method];
 
 						// try lowercase first, then original
 						foreach ($methods as $restMethod)

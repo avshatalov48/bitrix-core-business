@@ -1,8 +1,8 @@
 <?php
 namespace Bitrix\Calendar\ICal;
 
-use Bitrix\Main;
-use \Bitrix\Main\Type\DateTime;
+use Bitrix\Calendar\Core\Base\DateTimeZone;
+use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 
 class IcsBuilder {
 	//const DT_FORMAT = 'Ymd\THis\Z';
@@ -11,6 +11,8 @@ class IcsBuilder {
 		DATE_FORMAT = 'Ymd',
 		DATETIME_FORMAT = 'Ymd\THis';
 
+	protected const DAY_LENGTH = 86400;
+
 	protected
 		$fullDayMode = false,
 		$organizer,
@@ -18,6 +20,8 @@ class IcsBuilder {
 		$timezoneTo,
 		$attendees = [],
 		$properties = [];
+
+	protected ?RecurringEventRules $rrule = null;
 
 	private
 		$availableProperties = [
@@ -36,7 +40,9 @@ class IcsBuilder {
 		'created',
 		'last-modified',
 		'sequence',
-		'transp'
+		'transp',
+		'rrule',
+		'location',
 	];
 	private static
 		$METHOD = 'REQUEST';
@@ -101,6 +107,11 @@ class IcsBuilder {
 				$this->attendees[] = $attendeeData;
 			}
 		}
+	}
+
+	public function setRrule(RecurringEventRules $rrule): void
+	{
+		$this->rrule = $rrule;
 	}
 
 	public function render()
@@ -169,6 +180,11 @@ class IcsBuilder {
 			{
 				$props[mb_strtoupper($k)] = $v;
 			}
+		}
+
+		if ($this->rrule !== null)
+		{
+			$props['RRULE'] = self::prepareRecurrenceRule($this->rrule, $this->timezoneTo);
 		}
 
 		// Append properties
@@ -255,6 +271,40 @@ class IcsBuilder {
 			$key .= ';CN='.$organizer['name'];
 		}
 		return $key;
+	}
+
+	public static function prepareRecurrenceRule(RecurringEventRules $rrule, ?DateTimeZone $timeZone): string
+	{
+		$result = 'FREQ=' . $rrule->getFrequency();
+		if ($rrule->getInterval())
+		{
+			$result .= ';INTERVAL=' . $rrule->getInterval();
+		}
+		if ($rrule->getByday())
+		{
+			$result .= ';BYDAY=' . implode(',', $rrule->getByday());
+		}
+		if ($rrule->getCount())
+		{
+			$result .= ';COUNT=' . $rrule->getCount();
+		}
+		else if (
+			$rrule->getUntil()
+			&& $rrule->getUntil()->getDate()->getTimestamp()
+			&& $rrule->getUntil()->getDate()->getTimestamp() < 2145830400
+		)
+		{
+			$offset = 0;
+			if ($timeZone)
+			{
+				$offset = $timeZone->getTimeZone()->getOffset(new \DateTime('now', $timeZone->getTimeZone()));
+			}
+
+			$untilTimestamp = $rrule->getUntil()->getDate()->getTimestamp() + (self::DAY_LENGTH - 1) - $offset;
+			$result .= ';UNTIL=' . date('Ymd\\THis\\Z', $untilTimestamp);
+		}
+
+		return $result;
 	}
 
 	private static function escapeString($str)

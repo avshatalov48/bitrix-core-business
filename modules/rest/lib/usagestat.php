@@ -3,6 +3,7 @@ namespace Bitrix\Rest;
 
 use Bitrix\Main;
 use Bitrix\Main\DB\SqlQueryException;
+use Bitrix\Main\SystemException;
 
 /**
  * Class UsageStatTable
@@ -531,7 +532,7 @@ class UsageStatTable extends Main\Entity\DataManager
 		$usage = array();
 		while ($dayStat = $statList->fetch())
 		{
-			if ($dayStat["ENTITY_CODE"] && $dayStat["STAT_DATE"])
+			if ($dayStat["STAT_DATE"])
 			{
 				$dayStat["STAT_DATE"] = $dayStat["STAT_DATE"]->format("Y-m-d");
 				$dayStat['HOUR_TOTAL'] = 0;
@@ -546,8 +547,26 @@ class UsageStatTable extends Main\Entity\DataManager
 
 		if ($usage)
 		{
-			$response = \Bitrix\Rest\OAuthService::getEngine()->getClient()->sendApplicationUsage($usage);
-			$return = is_array($response) && $response['result'] === true;
+			if (!OAuthService::getEngine()?->isRegistered())
+			{
+				try
+				{
+					OAuthService::register();
+				}
+				catch (SystemException)
+				{
+				}
+			}
+
+			if (OAuthService::getEngine()?->isRegistered())
+			{
+				$response = OAuthService::getEngine()?->getClient()->sendApplicationUsage($usage);
+				$return = is_array($response) && $response['result'] === true;
+			}
+			else
+			{
+				$return = false;
+			}
 		}
 
 		return $return;

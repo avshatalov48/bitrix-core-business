@@ -239,7 +239,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    return GroupIcon.PAPERWORK;
 	  }
 	  getAdviceTitle() {
-	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAPERWORK');
+	    return main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SELECTOR_GROUP_DESCRIPTION_PAPERWORK_MSGVER_1');
 	  }
 	}
 

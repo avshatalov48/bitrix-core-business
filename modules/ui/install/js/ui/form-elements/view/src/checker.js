@@ -1,5 +1,5 @@
 import {Switcher} from 'ui.switcher'
-import { Dom, Tag, Type } from 'main.core';
+import { Dom, Tag, Text, Type } from 'main.core';
 import 'ui.info-helper';
 import {EventEmitter} from "main.core.events";
 import {BaseField} from "./base-field";
@@ -15,6 +15,7 @@ export class Checker extends BaseField
 	alignCenter: boolean;
 	noMarginBottom: boolean;
 	#renderMore: ?HTMLElement;
+	#moreElement: string;
 
 	constructor(params)
 	{
@@ -92,6 +93,18 @@ export class Checker extends BaseField
 		return this.#renderMore;
 	}
 
+	#getMore(): string
+	{
+		if (!this.#moreElement)
+		{
+			this.#moreElement = !Type.isNil(this.getHelpdeskCode())
+				? this.getMoreElement(this.getHelpdeskCode())
+				: '';
+		}
+
+		return this.#moreElement;
+	}
+
 	renderContentField(): HTMLElement
 	{
 		const lockElement = !this.isEnable() ? this.renderLockElement() : null;
@@ -134,9 +147,22 @@ export class Checker extends BaseField
 
 	#renderHint(isChecked: boolean)
 	{
+		let result = '';
+		let moreText = this.#getMore();
+		let hintText = this.getHint(isChecked);
+
+		if (hintText.indexOf('#MORE_DETAILS#') === -1)
+		{
+			result = hintText + ' ' + moreText;
+		}
+		else
+		{
+			result = hintText.replace('#MORE_DETAILS#', moreText);
+		}
+
 		return Tag.render`
 			<div class="ui-section__hint">
-				${this.getHint(isChecked)} ${Type.isDomNode(this.renderMore()) ? this.renderMore() : ''}
+				${result}
 			</div>
 		`;
 	}

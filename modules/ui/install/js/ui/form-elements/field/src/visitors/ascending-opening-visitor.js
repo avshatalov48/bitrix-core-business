@@ -1,12 +1,15 @@
+import { TabField, TabsField } from 'ui.form-elements.field';
 import { SettingsRow } from '../settings-row';
 import { SettingsSection } from '../settings-section';
 import {BaseSettingsVisitor} from './base-settings-visitor';
 import {BaseSettingsElement} from '../base-settings-element';
+import {Dom} from "main.core";
 
 export class AscendingOpeningVisitor extends BaseSettingsVisitor
 {
 	#filterCallback = null;
 	#result: BaseSettingsElement[] = [];
+	colored;
 
 	setFilter(filterStrategy): this
 	{
@@ -33,34 +36,31 @@ export class AscendingOpeningVisitor extends BaseSettingsVisitor
 
 	visitSettingsElement(element: BaseSettingsElement): void
 	{
-		console.log('element.constructor.name: ', element.constructor.name);
-
-		if (element instanceof SettingsRow)
+		if (this.#do(element))
 		{
-			element.getRowView().show();
+			this.#result.push(element);
 		}
-		else if (element instanceof SettingsSection)
-		{
-			element.getSectionView().toggle(true);
-			console.log('element.getSectionView(): ', element.getSectionView());
 
+		if (element.getParentElement())
+		{
+			this.visitSettingsElement(element.getParentElement());
 		}
 	}
 
-	static startFrom(startElement: BaseSettingsElement): BaseSettingsElement
+	static startFrom(startElement: BaseSettingsElement, filterStrategy): BaseSettingsElement[]
 	{
-		const instance = this.getInstance();
+		return this.getInstance()
+			.setFilter(filterStrategy)
+			.restart(startElement);
+	}
 
-		let currentElement = startElement;
-		let lastElement = startElement;
-
-		while (currentElement)
+	static getInstance(): AscendingOpeningVisitor
+	{
+		if (!this.instance)
 		{
-			lastElement = currentElement;
-			instance.visitSettingsElement(currentElement);
-			currentElement = currentElement.getParentElement();
+			this.instance = new this();
 		}
 
-		return lastElement;
+		return this.instance;
 	}
 }

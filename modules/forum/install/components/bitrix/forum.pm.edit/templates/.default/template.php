@@ -1,3 +1,4 @@
+1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
 if (!$this->__component->__parent || empty($this->__component->__parent->__name)):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/style.css');
@@ -204,7 +205,7 @@ $arParams["FORM_ID"] = "REPLIER";
 		<div class="forum-reply-field forum-reply-field-settings">
 			<div class="forum-reply-field-setting">
 				<input type="checkbox" name="USE_SMILES" id="USE_SMILES" <?
-				?>value="Y" <?=($arResult["POST_VALUES"]["USE_SMILES"]!="N") ? "checked=\"checked\"" : "";?> <?
+				?>value="Y" <?=(!isset($arResult["POST_VALUES"]["USE_SMILES"]) || $arResult["POST_VALUES"]["USE_SMILES"]!="N") ? "checked=\"checked\"" : "";?> <?
 				?>tabindex="<?=$tabIndex++;?>" />&nbsp;<label for="USE_SMILES"><?=GetMessage("F_WANT_ALLOW_SMILES")?></label></div>
 
 <?
@@ -229,7 +230,7 @@ $arParams["FORM_ID"] = "REPLIER";
 </div>
 </form>
 
-<script language="Javascript">
+<script>
 window.switcher = '<?=CUtil::JSEscape( !empty($arResult["POST_VALUES"]["SHOW_NAME"]["text"]) ?
 	$arResult["POST_VALUES"]["SHOW_NAME"]["text"] : (!empty($arResult["POST_VALUES"]["USER_ID"]) ?
 		$arResult["POST_VALUES"]["USER_ID"] : ''))?>';

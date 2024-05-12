@@ -210,7 +210,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    main_core.Event.ready();
 	    if (main_core.Type.isStringFilled(js)) {
 	      js = `
-				<script type="text/javascript">
+				<script>
 					BX.ready(() => {
 						${js}
 					});

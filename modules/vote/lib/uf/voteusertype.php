@@ -332,7 +332,7 @@ final class VoteUserType
 			$uniqType |= \Bitrix\Vote\Vote\EventLimits::BY_USER_ID;
 		}
 		?>
-		<script language="javascript">
+		<script>
 			function __utch(show)
 			{
 				if (BX("UNIQUE_TYPE_IP").checked)
@@ -411,7 +411,7 @@ final class VoteUserType
 							Loc::getMessage("V_HOURS"), Loc::getMessage("V_DAYS"))
 					),
 					$value["DELAY_TYPE"]);?>
-				<script type="text/javascript">
+				<script>
 					BX.ready(function(){
 						if (!!document.forms.post_form.MULTIPLE)
 							BX.hide(document.forms.post_form.MULTIPLE.parentNode.parentNode);

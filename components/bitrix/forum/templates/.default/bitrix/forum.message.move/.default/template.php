@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
 CUtil::InitJSCore(array('translit'));
-$_REQUEST["ACTION"] = ($_REQUEST["ACTION"] == "MOVE_TO_NEW" ? "MOVE_TO_NEW" : "MOVE_TO_TOPIC");
+$_REQUEST["ACTION"] = (isset($_REQUEST["ACTION"]) && $_REQUEST["ACTION"] == "MOVE_TO_NEW" ? "MOVE_TO_NEW" : "MOVE_TO_TOPIC");
 if (!empty($arResult["ERROR_MESSAGE"])):?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
@@ -28,18 +28,18 @@ if (!empty($arResult["OK_MESSAGE"])):?>
 				?>onclick="BX('MOVE_TO_TOPIC_DIV').style.display=(this.checked ? 'none' : ''); BX('MOVE_TO_NEW_DIV').style.display=(this.checked ? '' : 'none');" />
 			<label for="MOVE_TO_NEW"><?=GetMessage("F_HEAD_TO_NEW_TOPIC")?></label>
 		</div>
-		
+
 		<div id="MOVE_TO_TOPIC_DIV" <?=($_REQUEST["ACTION"] == "MOVE_TO_NEW" ? "style='display:none;'" : "")?> class="forum-post-move-to-topic">
 	<div class="forum-reply-fields">
-		<div class="forum-reply-field forum-reply-field-topic">	
+		<div class="forum-reply-field forum-reply-field-topic">
 			<label for="newTID"><?=GetMessage("F_TOPIC_ID")?><span class="forum-required-field">*</span></label>
-			<input type="text" name="newTID" id="newTID" value="<?=intval($_REQUEST["newTID"])?>" <?
+			<input type="text" name="newTID" id="newTID" value="<?=isset($_REQUEST["newTID"]) ? intval($_REQUEST["newTID"]) : null?>" <?
 				?> onfocus="ForumSearchTopic(this, 'Y');" onblur="ForumSearchTopic(this, 'N');" size="2" />
 			<input type="button" name="search" value="..." onClick="window.open('<?=CUtil::JSEscape($arResult["topic_search"])?>', '', 'scrollbars=yes,resizable=yes,width=760,height=500,top='+Math.floor((screen.height - 560)/2-14)+',left='+Math.floor((screen.width - 760)/2-5));" />
 			<span id="TOPIC_INFO"><?
 				if (!empty($arResult["NEW_TOPIC"]["TOPIC"])):
 					?>&laquo;<?=$arResult["NEW_TOPIC"]["TOPIC"]["TITLE"]?>&raquo; ( <?=GetMessage("F_TITLE_ON_FORUM")?>: <?=$arResult["NEW_TOPIC"]["FORUM"]["NAME"]?>)<?
-				elseif (intval($_REQUEST["newTID"]) > 0):
+				elseif ((isset($_REQUEST["newTID"]) ? intval($_REQUEST["newTID"]) : 0) > 0):
 					?><?=GetMessage("F_TOPIC_NOT_FOUND")?><?
 				else:
 				endif;
@@ -54,12 +54,12 @@ if (!empty($arResult["OK_MESSAGE"])):?>
 	<div class="forum-reply-fields">
 		<div class="forum-reply-field forum-reply-field-title">
 			<label for="TITLE"><?=GetMessage("F_TOPIC_NAME")?><span class="forum-required-field">*</span></label>
-			<input name="TITLE" id="TITLE" type="text" value="<?=htmlspecialcharsbx($_REQUEST["TITLE"])?>" size="70"<?if($arParams["SEO_USE_AN_EXTERNAL_SERVICE"] == "Y"){ ?>onfocus="BX.Forum.transliterate(this);"<? }?> /><?
-			if($arParams["SEO_USE_AN_EXTERNAL_SERVICE"] == "Y"){ ?><input name="TITLE_SEO" type="hidden" value="<?=htmlspecialcharsbx($_REQUEST["TITLE_SEO"])?>" /><? }
+			<input name="TITLE" id="TITLE" type="text" value="<?=(isset($_REQUEST["TITLE"]) ? htmlspecialcharsbx($_REQUEST["TITLE"]) : null)?>" size="70"<?if($arParams["SEO_USE_AN_EXTERNAL_SERVICE"] == "Y"){ ?>onfocus="BX.Forum.transliterate(this);"<? }?> /><?
+			if($arParams["SEO_USE_AN_EXTERNAL_SERVICE"] == "Y"){ ?><input name="TITLE_SEO" type="hidden" value="<?=(isset($_REQUEST["TITLE_SEO"]) ? htmlspecialcharsbx($_REQUEST["TITLE_SEO"]) : null)?>" /><? }
 		?></div>
 		<div class="forum-reply-field forum-reply-field-desc">
 			<label for="DESCRIPTION"><?=GetMessage("F_TOPIC_DESCR")?></label>
-			<input name="DESCRIPTION" id="DESCRIPTION" type="text" value="<?=htmlspecialcharsbx($_REQUEST["DESCRIPTION"])?>" size="70"/></div>
+			<input name="DESCRIPTION" id="DESCRIPTION" type="text" value="<?=(isset($_REQUEST["DESCRIPTION"]) ? htmlspecialcharsbx($_REQUEST["DESCRIPTION"]) : null)?>" size="70"/></div>
 <?
 if ($arParams["SHOW_TAGS"] == "Y"):
 ?>
@@ -68,16 +68,16 @@ if ($arParams["SHOW_TAGS"] == "Y"):
 <?
 		if (IsModuleInstalled("search")):
 		$APPLICATION->IncludeComponent(
-			"bitrix:search.tags.input", 
-			"", 
+			"bitrix:search.tags.input",
+			"",
 			array(
-				"VALUE" => htmlspecialcharsbx($_REQUEST["TAGS"]),
+				"VALUE" => isset($_REQUEST["TAGS"]) ? htmlspecialcharsbx($_REQUEST["TAGS"]) : null,
 				"NAME" => "TAGS",
 				"TEXT" => ' size="70" '),
 			$component,
 			array("HIDE_ICONS" => "Y"));
 		else:
-			?><input name="TAGS" type="text" value="<?=htmlspecialcharsbx($_REQUEST["TAGS"])?>"  size="70"/><?
+			?><input name="TAGS" type="text" value="<?=(isset($_REQUEST["TAGS"]) ? htmlspecialcharsbx($_REQUEST["TAGS"]) : null)?>"  size="70"/><?
 		endif;
 ?>
 		</div>
@@ -147,7 +147,7 @@ BX.Forum = (BX.Forum || {});
 BX.Forum['topic_search'] = {
 	url : '<?=CUtil::JSEscape($arResult["topic_search"])?>',
 	object : false,
-	value : '<?=intval($arResult["newTID"])?>',
+	value : '<?=isset($arResult["newTID"]) ? intval($arResult["newTID"]) : null?>',
 	action : 'search',
 	fined : {}};
 

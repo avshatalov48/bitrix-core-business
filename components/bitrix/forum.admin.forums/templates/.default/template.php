@@ -117,13 +117,13 @@ foreach ($arResult["DATA"] as $row)
 		}
 		else if ($fieldId == "PERMISSIONS")
 		{
-			$basePermission = $field[2] ?: \Bitrix\Forum\Permission::ACCESS_DENIED; // 2 is a guest
+			$basePermission = isset($field[2]) ? $field[2] : \Bitrix\Forum\Permission::ACCESS_DENIED; // 2 is a guest
 			$permissions = [2 => $arParams["USER_GROUPS"][2] .": ". $arParams["FORUM_PERMISSIONS"][$basePermission]];
 			foreach ($field as $groupId => $permission)
 			{
 				if ($permission > $basePermission)
 				{
-					$permissions[$groupId] = $arParams["USER_GROUPS"][$groupId]."[{$groupId}]: ".$arParams["FORUM_PERMISSIONS"][$permission];
+					$permissions[$groupId] = (isset($arParams["USER_GROUPS"][$groupId]) ? $arParams["USER_GROUPS"][$groupId] : "")."[{$groupId}]: ".$arParams["FORUM_PERMISSIONS"][$permission];
 				}
 			}
 			$gridRow["columns"][$fieldId] = implode("<br/>", $permissions);
@@ -344,7 +344,7 @@ foreach ($arResult["DATA"] as $row)
 		"NAV_PARAM_NAME" => "", //$navParamName,
 		"NAV_OBJECT" => $arResult["NAV_OBJECT"],
 		"CURRENT_PAGE" => $APPLICATION->GetCurPageParam(),
-		"MESSAGES" => $arParams["ERRORS"],
+		"MESSAGES" => $arParams["ERRORS"] ?? null,
 
 		"SORT" => array(
 			"sort" => array("SORT" => "ASC")

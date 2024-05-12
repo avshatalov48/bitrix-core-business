@@ -740,8 +740,9 @@ class CIMMessage
 			LEFT JOIN b_user U2 ON U2.ID = M.AUTHOR_ID
 			".($order == "DESC"? "ORDER BY M.DATE_CREATE DESC, M.ID DESC": "")."
 		";
-		CTimeZone::Enable();
+
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		CTimeZone::Enable();
 
 		$arMessages = Array();
 		while ($arRes = $dbRes->Fetch())

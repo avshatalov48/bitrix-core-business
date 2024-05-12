@@ -61,7 +61,7 @@ class Task extends Base
 			new Bizproc\Api\Service\TaskAccessService($currentUserId)
 		);
 
-		$tasksRequest = new Bizproc\Api\Request\TaskService\GetUserTasksRequest(
+		$tasksRequest = new Bizproc\Api\Request\TaskService\GetUserTaskListRequest(
 			additionalSelectFields: ['NAME', 'DESCRIPTION'],
 			filter: [
 				'USER_ID' => $targetUserId,
@@ -88,8 +88,13 @@ class Task extends Base
 			new Bizproc\Api\Service\TaskAccessService($currentUserId)
 		);
 
-		//todo: send DTO ?
-		$getTasksResult = $taskService->doTask($taskId, $currentUserId, $taskRequest);
+		$request = new Bizproc\Api\Request\TaskService\DoTaskRequest(
+			taskId: $taskId,
+			userId: $currentUserId,
+			taskRequest: $taskRequest,
+		);
+
+		$getTasksResult = $taskService->doTask($request);
 		if (!$getTasksResult->isSuccess())
 		{
 			$this->addErrors($getTasksResult->getErrors());

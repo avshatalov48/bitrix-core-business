@@ -1,10 +1,11 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $arFields = Array(
 	'AUTO_EXECUTE' => '0',
 	'ACTIVE' => 'Y',
-	'NAME' => GetMessage("BP_REVW_TITLE"),
+	'NAME' => GetMessage("BP_REVW_TITLE_MSGVER_1"),
 	'DESCRIPTION' => GetMessage("BP_REVW_DESC"),
 	'TEMPLATE' => Array(
 		Array(
@@ -26,8 +27,8 @@ $arFields = Array(
 					'Name' => 'A56338_78317_67588_59492',
 					'Properties' =>
 						Array(
-						'MailSubject' => GetMessage("BP_REVW_TASK"),
-						'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_REVW_TASK_DESC"), $documentType),
+						'MailSubject' => GetMessage("BP_REVW_TASK_MSGVER_1"),
+						'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_REVW_TASK_DESC_MSGVER_1"), $documentType),
 						'MailMessageType' => 'plain',
 						'MailCharset' => LANG_CHARSET,
 						'MailUserFrom' => '',
@@ -43,11 +44,11 @@ $arFields = Array(
 					'Properties' =>
 						Array(
 							'OverdueDate' => '',
-							'Name' => GetMessage("BP_REVW_REVIEW"),
-							'Description' => GetMessage("BP_REVW_REVIEW_DESC"),
+							'Name' => GetMessage("BP_REVW_REVIEW_MSGVER_1"),
+							'Description' => GetMessage("BP_REVW_REVIEW_DESC_MSGVER_1"),
 						'Parameters' => '',
 						'Users' => Array('Template', 'Voters'),
-						'Title' => GetMessage("BP_REVW_TITLE")
+						'Title' => GetMessage("BP_REVW_TITLE_MSGVER_1")
 				)
 			),
 			Array(
@@ -55,8 +56,8 @@ $arFields = Array(
 				'Name' => 'A19784_81717_13797_20029',
 				'Properties' =>
 					Array(
-					'MailSubject' => GetMessage("BP_REVW_MAIL_SUBJ"),
-					'MailText' => GetMessage("BP_REVW_MAIL_TEXT"),
+					'MailSubject' => GetMessage("BP_REVW_MAIL_SUBJ_MSGVER_1"),
+					'MailText' => GetMessage("BP_REVW_MAIL_TEXT_MSGVER_1"),
 					'MailMessageType' => 'plain',
 					'MailCharset' => LANG_CHARSET,
 					'MailUserFrom' => '',
@@ -83,4 +84,3 @@ $arFields = Array(
 	),
 	'VARIABLES' => Array(),
 );
-?>

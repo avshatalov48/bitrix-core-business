@@ -111,7 +111,7 @@ foreach ($arWorkflowParameterTypesTmp as $key => $value)
 
 CBPDocument::AddShowParameterInit(MODULE_ID, "only_users", $_POST['document_type'], ENTITY);
 ?>
-<script type="text/javascript">
+<script>
 BX.namespace('BX.Bizproc');
 BX.WindowManager.Get().SetTitle('<?= GetMessageJS("BIZPROC_WFS_TITLE") ?>');
 

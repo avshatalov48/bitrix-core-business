@@ -20,34 +20,34 @@ if ($arResult["TYPE"] === "default" && count($arParams["RSS_TYPE_RANGE"]) > 1)
 		"bitrix:forum.rss",
 		"",
 		array(
-			"TYPE" => $arResult["TYPE"],
-			"IID" => $arResult["IID"],
+			"TYPE" => $arResult["TYPE"] ?? null,
+			"IID" => $arResult["IID"] ?? null,
 			"MODE" => "link",
-			"MODE_DATA" => $arResult["MODE"],
+			"MODE_DATA" => $arResult["MODE"] ?? null,
 
-			"USE_RSS" => $arParams["USE_RSS"],
-			"RSS_CACHE" => $arParams["RSS_CACHE"],
-			"TYPE_RANGE" => $arParams["RSS_TYPE_RANGE"],
-			"FID_RANGE" => $arParams["RSS_FID_RANGE"],
-			"YANDEX" => $arParams["RSS_YANDEX"],
-			"TN_TITLE" => $arParams["RSS_TN_TITLE"],
-			"TN_DESCRIPTION" => $arParams["RSS_TN_DESCRIPTION"],
-			"TN_TEMPLATE" => $arParams["RSS_TN_TEMPLATE"],
-			"COUNT" => $arParams["RSS_COUNT"],
-			"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"],
-			"USER_FIELDS" => $arParams["USER_FIELDS"],
+			"USE_RSS" => $arParams["USE_RSS"] ?? null,
+			"RSS_CACHE" => $arParams["RSS_CACHE"] ?? null,
+			"TYPE_RANGE" => $arParams["RSS_TYPE_RANGE"] ?? null,
+			"FID_RANGE" => $arParams["RSS_FID_RANGE"] ?? null,
+			"YANDEX" => $arParams["RSS_YANDEX"] ?? null,
+			"TN_TITLE" => $arParams["RSS_TN_TITLE"] ?? null,
+			"TN_DESCRIPTION" => $arParams["RSS_TN_DESCRIPTION"] ?? null,
+			"TN_TEMPLATE" => $arParams["RSS_TN_TEMPLATE"] ?? null,
+			"COUNT" => $arParams["RSS_COUNT"] ?? null,
+			"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"] ?? null,
+			"USER_FIELDS" => $arParams["USER_FIELDS"] ?? null,
 
-			"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"],
-			"URL_TEMPLATES_INDEX" =>  $arResult["URL_TEMPLATES_INDEX"],
-			"URL_TEMPLATES_LIST" =>  $arResult["URL_TEMPLATES_LIST"],
-			"URL_TEMPLATES_READ" => $arResult["URL_TEMPLATES_READ"],
-			"URL_TEMPLATES_MESSAGE" =>  $arResult["URL_TEMPLATES_MESSAGE"],
-			"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"],
+			"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"] ?? null,
+			"URL_TEMPLATES_INDEX" =>  $arResult["URL_TEMPLATES_INDEX"] ?? null,
+			"URL_TEMPLATES_LIST" =>  $arResult["URL_TEMPLATES_LIST"] ?? null,
+			"URL_TEMPLATES_READ" => $arResult["URL_TEMPLATES_READ"] ?? null,
+			"URL_TEMPLATES_MESSAGE" =>  $arResult["URL_TEMPLATES_MESSAGE"] ?? null,
+			"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"] ?? null,
 
-			"CACHE_TYPE" => $arResult["CACHE_TYPE"],
-			"CACHE_TIME" => $arResult["CACHE_TIME"],
+			"CACHE_TYPE" => $arResult["CACHE_TYPE"] ?? null,
+			"CACHE_TIME" => $arResult["CACHE_TIME"] ?? null,
 
-			"SEO_USER" => $arParams["SEO_USER"]
+			"SEO_USER" => $arParams["SEO_USER"] ?? null
 		),
 		$component
 	);
@@ -73,32 +73,32 @@ if ($arResult["TYPE"] === "default" && count($arParams["RSS_TYPE_RANGE"]) > 1)
 	"bitrix:forum.rss",
 	"",
 	array(
-		"TYPE" => $arResult["TYPE"],
-		"IID" => $arResult["IID"],
-		"MODE" => $arResult["MODE"],
-		
-		"USE_RSS" => $arParams["USE_RSS"],
-		"TYPE_RANGE" => $arParams["RSS_TYPE_RANGE"],
-		"FID_RANGE" => $arParams["RSS_FID_RANGE"],
-		"YANDEX" => $arParams["RSS_YANDEX"],
-		"TN_TITLE" => $arParams["RSS_TN_TITLE"],
-		"TN_DESCRIPTION" => $arParams["RSS_TN_DESCRIPTION"],
-		"TN_TEMPLATE" => $arParams["RSS_TN_TEMPLATE"],
-		"COUNT" => $arParams["RSS_COUNT"],
-		"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"],
-		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-		
-		"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"],
-		"URL_TEMPLATES_INDEX" =>  $arResult["URL_TEMPLATES_INDEX"],
-		"URL_TEMPLATES_LIST" =>  $arResult["URL_TEMPLATES_LIST"],
-		"URL_TEMPLATES_READ" => $arResult["URL_TEMPLATES_READ"],
-		"URL_TEMPLATES_MESSAGE" =>  $arResult["URL_TEMPLATES_MESSAGE"],
-		"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"],
-		
-		"CACHE_TYPE" => $arResult["CACHE_TYPE"],
-		"CACHE_TIME" => $arParams["RSS_CACHE"],
+		"TYPE" => $arResult["TYPE"] ?? null,
+		"IID" => $arResult["IID"] ?? null,
+		"MODE" => $arResult["MODE"] ?? null,
 
-		"SEO_USER" => $arParams["SEO_USER"]
+		"USE_RSS" => $arParams["USE_RSS"] ?? null,
+		"TYPE_RANGE" => $arParams["RSS_TYPE_RANGE"] ?? null,
+		"FID_RANGE" => $arParams["RSS_FID_RANGE"] ?? null,
+		"YANDEX" => $arParams["RSS_YANDEX"] ?? null,
+		"TN_TITLE" => $arParams["RSS_TN_TITLE"] ?? null,
+		"TN_DESCRIPTION" => $arParams["RSS_TN_DESCRIPTION"] ?? null,
+		"TN_TEMPLATE" => $arParams["RSS_TN_TEMPLATE"] ?? null,
+		"COUNT" => $arParams["RSS_COUNT"] ?? null,
+		"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"] ?? null,
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null,
+
+		"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"] ?? null,
+		"URL_TEMPLATES_INDEX" =>  $arResult["URL_TEMPLATES_INDEX"] ?? null,
+		"URL_TEMPLATES_LIST" =>  $arResult["URL_TEMPLATES_LIST"] ?? null,
+		"URL_TEMPLATES_READ" => $arResult["URL_TEMPLATES_READ"] ?? null,
+		"URL_TEMPLATES_MESSAGE" =>  $arResult["URL_TEMPLATES_MESSAGE"] ?? null,
+		"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"] ?? null,
+
+		"CACHE_TYPE" => $arResult["CACHE_TYPE"] ?? null,
+		"CACHE_TIME" => $arParams["RSS_CACHE"] ?? null,
+
+		"SEO_USER" => $arParams["SEO_USER"] ?? null
 	),
 	$component
 );

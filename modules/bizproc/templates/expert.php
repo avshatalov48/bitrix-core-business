@@ -1,11 +1,12 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $arFields = Array(
 'AUTO_EXECUTE' => '0',
 'ACTIVE' => 'Y',
 'NAME' => GetMessage("BP_EXPR_NAME"),
-'DESCRIPTION' => GetMessage("BP_EXPR_DESC"),
+'DESCRIPTION' => GetMessage("BP_EXPR_DESC_MSGVER_1"),
 'TEMPLATE' => Array(
 Array(
 'Type' => 'SequentialWorkflowActivity',
@@ -27,8 +28,8 @@ Array(
 'Name' => 'A94662_69963_83390_76732',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_EXPR_TASK1"),
-'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_EXPR_TASK1_MAIL"), $documentType),
+'MailSubject' => GetMessage("BP_EXPR_TASK1_MSGVER_1"),
+'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_EXPR_TASK1_MAIL_MSGVER_1"), $documentType),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -47,8 +48,8 @@ Array(
 'OverdueDate' => '',
 'ApproveMinPercent' => '50',
 'ApproveWaitForAll' => 'Y',
-'Name' => GetMessage("BP_EXPR_APPR1"),
-'Description' => GetMessage("BP_EXPR_APPR1_DESC"),
+'Name' => GetMessage("BP_EXPR_APPR1_MSGVER_1"),
+'Description' => GetMessage("BP_EXPR_APPR1_DESC_MSGVER_1"),
 'Parameters' => '',
 'Users' => Array('Template', 'Reviewers'),
 'Title' => GetMessage("BP_EXPR_NAME")
@@ -76,8 +77,8 @@ Array(
 'Name' => 'A96367_17945_13820_95972',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_EXPR_MAIL2_SUBJ"),
-'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_EXPR_MAIL2_TEXT"), $documentType),
+'MailSubject' => GetMessage("BP_EXPR_MAIL2_SUBJ_MSGVER_1"),
+'MailText' => CBPDocument::_ReplaceTaskURL(GetMessage("BP_EXPR_MAIL2_TEXT_MSGVER_1"), $documentType),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -96,11 +97,11 @@ Array(
 'OverdueDate' => '',
 'ApproveMinPercent' => '50',
 'ApproveWaitForAll' => 'N',
-'Name' => GetMessage("BP_EXPR_APP2_TEXT"),
-'Description' => GetMessage("BP_EXPR_APP2_DESC"),
+'Name' => GetMessage("BP_EXPR_APP2_TEXT_MSGVER_1"),
+'Description' => GetMessage("BP_EXPR_APP2_DESC_MSGVER_1"),
 'Parameters' => '',
 'Users' => Array('Template', 'Approvers'),
-'Title' => GetMessage("BP_EXPR_TAPP")
+'Title' => GetMessage("BP_EXPR_TAPP_MSGVER_1")
 ),
 'Children' => Array(
 Array(
@@ -116,8 +117,8 @@ Array(
 'Name' => 'A83133_30611_25503_24252',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_EXPR_MAIL3_SUBJ"),
-'MailText' => GetMessage("BP_EXPR_MAIL3_TEXT"),
+'MailSubject' => GetMessage("BP_EXPR_MAIL3_SUBJ_MSGVER_1"),
+'MailText' => GetMessage("BP_EXPR_MAIL3_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -141,7 +142,7 @@ Array(
 'Name' => 'A18564_33518_5981_62692',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_EXPR_PUB")
+'Title' => GetMessage("BP_EXPR_PUB_MSGVER_1")
 )
 ))
 ),
@@ -158,8 +159,8 @@ Array(
 'Name' => 'A79990_95953_26064_13430',
 'Properties' =>
 Array(
-'MailSubject' => GetMessage("BP_EXPR_MAIL4_SUBJ"),
-'MailText' => GetMessage("BP_EXPR_MAIL4_TEXT"),
+'MailSubject' => GetMessage("BP_EXPR_MAIL4_SUBJ_MSGVER_1"),
+'MailText' => GetMessage("BP_EXPR_MAIL4_TEXT_MSGVER_1"),
 'MailMessageType' => 'plain',
 'MailCharset' => LANG_CHARSET,
 'MailUserFrom' => '',
@@ -186,7 +187,7 @@ Array(
 'Reviewers' =>
 Array(
 'Name' => GetMessage("BP_EXPR_PARAM2"),
-'Description' => GetMessage("BP_EXPR_PARAM2_DESC"),
+'Description' => GetMessage("BP_EXPR_PARAM2_DESC_MSGVER_1"),
 'Type' => 'user',
 'Required' => '1',
 'Multiple' => '1',
@@ -204,4 +205,3 @@ Array(
 ),
 'VARIABLES' => Array(),
 );
-?>

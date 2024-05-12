@@ -142,7 +142,7 @@ protected function listKeysSignedParameters()
 		{
 			if(!$documentType)
 			{
-				$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED")." ".Loc::getMessage("BIZPROC_WFEDIT_ERROR_TYPE"));
+				$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED")." ".Loc::getMessage("BIZPROC_WFEDIT_ERROR_TYPE_MSGVER_1"));
 			}
 
 			$canWrite = CBPDocument::CanUserOperateDocumentType(
@@ -249,7 +249,7 @@ protected function listKeysSignedParameters()
 				$maxParametersLength = 65535;
 				if (self::getCompressedFieldLength($arFields['PARAMETERS']) > $maxParametersLength)
 				{
-					self::showError(Loc::getMessage('BIZPROC_WFEDIT_PARAMETERS_SAVE_ERROR'));
+					self::showError(Loc::getMessage('BIZPROC_WFEDIT_PARAMETERS_SAVE_ERROR_MSGVER_1'));
 					die('<!--SUCCESS-->');
 				}
 			}
@@ -259,7 +259,7 @@ protected function listKeysSignedParameters()
 				$maxVariablesLength = 65535;
 				if (self::getCompressedFieldLength($arFields['VARIABLES']) > $maxVariablesLength)
 				{
-					self::showError(Loc::getMessage('BIZPROC_WFEDIT_VARIABLES_SAVE_ERROR'));
+					self::showError(Loc::getMessage('BIZPROC_WFEDIT_VARIABLES_SAVE_ERROR_MSGVER_1'));
 					die('<!--SUCCESS-->');
 				}
 			}
@@ -269,10 +269,34 @@ protected function listKeysSignedParameters()
 				$maxConstantsLength = 16777215;
 				if (self::getCompressedFieldLength($arFields['CONSTANTS']) > $maxConstantsLength)
 				{
-					self::showError(Loc::getMessage('BIZPROC_WFEDIT_CONSTANTS_SAVE_ERROR'));
+					self::showError(Loc::getMessage('BIZPROC_WFEDIT_CONSTANTS_SAVE_ERROR_MSGVER_1'));
 					die('<!--SUCCESS-->');
 				}
 			}
+
+			// Check if request filter cleared some of required fields and if so, show an alert and die
+			$postList = Main\Application::getInstance()->getContext()->getRequest()->getPostList();
+			$fieldsToCheck = [
+				'workflowTemplateName',
+				'workflowTemplateDescription',
+				'arWorkflowTemplate',
+				'arWorkflowParameters',
+				'arWorkflowVariables',
+				'arWorkflowConstants',
+			];
+			foreach ($fieldsToCheck as $fieldToCheck)
+			{
+				$initialFieldValue = $postList->getRaw($fieldToCheck);
+				if (
+					empty($_POST[$fieldToCheck])
+					&& !in_array($initialFieldValue, ['', '[]', '{}'])
+				)
+				{
+					$errorMsg = GetMessageJS('BIZPROC_WFEDIT_SAVE_ERROR_CAUSE_FILTER');
+					die("<!--SUCCESS--><script>\nalert('" . $errorMsg . "');\n</script>");
+				}
+			}
+			// Field values weren't changed by the filter, we're able to continue
 
 			try
 			{
@@ -502,7 +526,7 @@ protected function listKeysSignedParameters()
 
 	private static function showError($message): void
 	{
-		$message = htmlspecialcharsbx($message);
+		$message = CUtil::JSEscape($message);
 
 		echo <<<HTML
 			<script>alert('$message');</script>

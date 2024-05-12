@@ -14,17 +14,19 @@ $arUserGroups = $USER->GetUserGroupArray();
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["VERSION"] = intval($arParams["VERSION"]);
+	$arParams["VERSION"] = isset($arParams["VERSION"]) ? intval($arParams["VERSION"]) : null;
 	$arParams["FID"] = intval((intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]));
-	$GLOBALS["FID"] = $arParams["FID"]; // for top panel
+	$GLOBALS["FID"] = $arParams["FID"] ?? null; // for top panel
 	$arParams["TID"] = intval((intVal($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]));
-	$arParams["TITLE"] = trim($arParams["TITLE"]);
-	$arParams["TITLE"] = $arParams["TITLE"] <> '' ? $arParams["TITLE"] : trim($_REQUEST["TITLE"]);
+	$arParams["TITLE"] = isset($arParams["TITLE"]) ? trim($arParams["TITLE"]) : null;
+	$arParams["TITLE"] = isset($arParams["TITLE"]) ? ($arParams["TITLE"] <> '' ? $arParams["TITLE"] : trim($_REQUEST["TITLE"])) : null;
 	if ($arParams["TID"] <= 0 && $arParams["TITLE"] <> '')
+	{
 		$arParams["TID"] = intval(strtok($arParams["TITLE"], "-"));
-	$arParams["MID_UNREAD"] = (trim($arParams["MID"]) == '' ? $_REQUEST["MID"] : $arParams["MID"]);
+	}
+	$arParams["MID_UNREAD"] = (trim($arParams["MID"]) == '' ? ($_REQUEST["MID"] ?? null) : $arParams["MID"]);
 	$arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intval($arParams["MID"]));
-	$arParams["MID"] = intval((($arParams["MID"] <= 0) && ($_REQUEST["MID"] > 0) ? $_REQUEST["MID"] : $arParams["MID"]));
+	$arParams["MID"] = intval((isset($_REQUEST["MID"]) && ($arParams["MID"] <= 0) && ($_REQUEST["MID"] > 0) ? ($_REQUEST["MID"] ?? null) : $arParams["MID"]));
 	$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" || $arResult["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
@@ -67,7 +69,7 @@ $arUserGroups = $USER->GetUserGroupArray();
 
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
-	$arParams["PAGE_NAVIGATION_SHOW_ALL"] = ($arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y" ? "Y" : "N");
+	$arParams["PAGE_NAVIGATION_SHOW_ALL"] = (isset($arParams["PAGE_NAVIGATION_SHOW_ALL"]) && $arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y" ? "Y" : "N");
 
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 
@@ -130,11 +132,11 @@ $arUserGroups = $USER->GetUserGroupArray();
 	$s_action = false;
 	if (!empty($_REQUEST["ACTION"]))
 		$action = $_REQUEST["ACTION"];
-	elseif ($_POST["MESSAGE_TYPE"]=="REPLY")
+	elseif (isset($_POST["MESSAGE_TYPE"]) && $_POST["MESSAGE_TYPE"]=="REPLY")
 		$action = "REPLY";
-	if (($_REQUEST["TOPIC_SUBSCRIBE"] == "Y") || ($_REQUEST["FORUM_SUBSCRIBE"] == "Y"))
+	if ((isset($_REQUEST["TOPIC_SUBSCRIBE"]) && $_REQUEST["TOPIC_SUBSCRIBE"] == "Y") || (isset($_REQUEST["FORUM_SUBSCRIBE"]) && $_REQUEST["FORUM_SUBSCRIBE"] == "Y"))
 		$s_action = "SUBSCRIBE";
-	elseif (($_REQUEST["TOPIC_UNSUBSCRIBE"] == "Y") || ($_REQUEST["FORUM_UNSUBSCRIBE"] == "Y"))
+	elseif ((isset($_REQUEST["TOPIC_UNSUBSCRIBE"]) && $_REQUEST["TOPIC_UNSUBSCRIBE"] == "Y") || (isset($_REQUEST["FORUM_UNSUBSCRIBE"]) && $_REQUEST["FORUM_UNSUBSCRIBE"] == "Y"))
 		$s_action = "UNSUBSCRIBE";
 	$arParams['ACTION'] = $action;
 	$number = 1;
@@ -145,7 +147,7 @@ $arUserGroups = $USER->GetUserGroupArray();
 	$bVarsFromForm = false;
 	$arError = array();
 	$arNote = array();
-	$_REQUEST["result"] = ($_SERVER['REQUEST_METHOD'] == 'GET' ? $_REQUEST["result"] : '');
+	$_REQUEST["result"] = ($_SERVER['REQUEST_METHOD'] == 'GET' ? (isset($_REQUEST["result"]) ? $_REQUEST["result"] : '') : '');
 switch(mb_strtolower($_REQUEST["result"]))
 {
 	case "message_add":
@@ -225,8 +227,8 @@ switch(mb_strtolower($_REQUEST["result"]))
 	$arResult["GROUP_NAVIGATION"] = array();
 	$arResult["GROUPS"] = CForumGroup::GetByLang(LANGUAGE_ID);
 
-	$_REQUEST["FILES"] = is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array();
-	$_REQUEST["FILES_TO_UPLOAD"] = is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array();
+	$_REQUEST["FILES"] = isset($_REQUEST["FILES"]) && is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array();
+	$_REQUEST["FILES_TO_UPLOAD"] = isset($_REQUEST["FILES_TO_UPLOAD"]) && is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array();
 /********************************************************************
 				/Default params
 ********************************************************************/
@@ -291,7 +293,7 @@ switch(mb_strtolower($_REQUEST["result"]))
 /********************************************************************
 				/Main Data & Permissions
 ********************************************************************/
-if ($arError["code"] == "404"):
+if (isset($arError["code"]) && $arError["code"] == "404"):
 	CHTTP::SetStatus("404 Not Found");
 	ShowError($arError["title"]);
 	return false;
@@ -486,7 +488,7 @@ while ($bNeedLoop)
 			$arUser = array(
 				"Perms" => $perm,
 				"Rank" => ($perm <= "Q" ? CForumUser::GetUserRank($res["AUTHOR_ID"], LANGUAGE_ID) : ""),
-				"Points" => (intval($res["POINTS"]) > 0 ? array("POINTS" => $res["POINTS"], "DATE_UPDATE" => $res["DATE_UPDATE"]) : false));
+				"Points" => (isset($res["POINTS"]) && intval($res["POINTS"]) > 0 ? array("POINTS" => $res["POINTS"] , "DATE_UPDATE" => $res["DATE_UPDATE"]) : false));
 
 			$arUData = array();
 
@@ -534,7 +536,7 @@ while ($bNeedLoop)
 		"EDIT" => $arResult["PANELS"]["EDIT"],
 		"STATISTIC" => $arResult["PANELS"]["STATISTIC"] == "Y" && intval($res["GUEST_ID"]) > 0 ? "Y" : "N",
 		"MAIN" => $arResult["PANELS"]["MAIN"] == "Y" && $res["AUTHOR_ID"] > 0 ? "Y" : "N",
-		"VOTES" => $res["VOTING"] != "N" ? "Y" : "N");
+		"VOTES" => isset($res["VOTING"]) && $res["VOTING"] != "N" ? "Y" : "N");
 
 	if ($arResult["USER"]["RIGHTS"]["EDIT_MESSAGE"] == "Y" && $res["AUTHOR_ID"] == $USER->GetId() &&
 		($arResult["USER"]["RIGHTS"]["EDIT_OWN_POST"] == "Y" || $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] == intval($res["ID"])))
@@ -570,9 +572,16 @@ while ($bNeedLoop)
 			array("FID" => 0, "MID" => 0, "UID" => $res["AUTHOR_ID"], "mode" => "new")),
 		"AUTHOR_POSTS" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_USER_POST"],
 			array("UID" => $res["AUTHOR_ID"], "mode" => "all")));
-	$res["URL"]["~AUTHOR_VOTE"] = ForumAddPageParams($res["URL"]["MESSAGE"],
-			array("UID" => $res["AUTHOR_ID"], "MID" => $res["ID"], "VOTES" => intval($arResult["USER"]["RANK"]["VOTES"]),
-				"VOTES_TYPE" => ($res["VOTING"] == "VOTE" ? "V" : "U"), "ACTION" => "VOTE4USER"));
+	$res["URL"]["~AUTHOR_VOTE"] = ForumAddPageParams(
+		$res["URL"]["MESSAGE"],
+		array(
+			"UID" => $res["AUTHOR_ID"] ?? null,
+			"MID" => $res["ID"] ?? null,
+			"VOTES" => isset($arResult["USER"]["RANK"]) && $arResult["USER"]["RANK"] ? intval($arResult["USER"]["RANK"]["VOTES"]) : null,
+			"VOTES_TYPE" => (isset($res["VOTING"]) && $res["VOTING"] == "VOTE" ? "V" : "U"),
+			"ACTION" => "VOTE4USER"
+		)
+	);
 	$res["URL"]["AUTHOR_VOTE"] = $res["URL"]["~AUTHOR_VOTE"]."&amp;".bitrix_sessid_get();
 
 	if ($res["SHOW_PANEL"] == "Y")

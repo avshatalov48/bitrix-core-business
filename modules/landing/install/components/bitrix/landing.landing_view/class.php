@@ -1193,6 +1193,7 @@ class LandingViewComponent extends LandingBaseComponent
 			$this->checkParam('DONT_LEAVE_AFTER_PUBLICATION', 'N');
 			$this->checkParam('DRAFT_MODE', 'N');
 			$this->checkParam('LANDING_TPL_PREVIEW_EXIT', '');
+			$this->checkParam('PUBLICATION_ERROR_LINK', '');
 			$this->checkParam('PARAMS', array());
 
 			$this->forceUpdateNewFolders($this->arParams['SITE_ID']);
@@ -1345,15 +1346,19 @@ class LandingViewComponent extends LandingBaseComponent
 				{
 					$urlAddParams['specType'] = $this->arResult['SPECIAL_TYPE'];
 				}
+				$urlAddParams['context_section'] = 'page_view';
+				$urlAddParams['context_element'] = 'create_page_link';
 				$this->arParams['PAGE_URL_LANDING_ADD'] = $this->getUrlAdd(false, $urlAddParams);
 
 				$urlAddParams['replaceLid'] = $this->arParams['LANDING_ID'];
-				$urlAddParams['context'] = 'block_style';
+				$urlAddParams['context_section'] = 'block_style';
+				$urlAddParams['context_element'] = 'create_template_button';
 				$this->arParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'] = $this->getUrlAdd(
 					false,
 					$urlAddParams,
 					Manager::getMarketCollectionId('form_minisite')
 				);
+
 
 				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
 				{

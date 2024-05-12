@@ -22,4 +22,14 @@ class GetIBlockElementListResponse extends Response
 
 		return $this;
 	}
+
+	public function getFirstElement(): ?array
+	{
+		if ($this->hasElements())
+		{
+			return $this->getElements()[0];
+		}
+
+		return null;
+	}
 }

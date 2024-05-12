@@ -69,8 +69,6 @@ $arParams["CAN_EDIT"] =
 	)
 ;
 
-CUtil::JSPostUnescape();
-
 $arIBlock = CIBlock::GetArrayByID(intval($arParams["~IBLOCK_ID"]));
 $arResult["~IBLOCK"] = $arIBlock;
 $arResult["IBLOCK"] = htmlspecialcharsex($arIBlock);

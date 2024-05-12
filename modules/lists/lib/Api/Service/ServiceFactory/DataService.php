@@ -5,12 +5,15 @@ namespace Bitrix\Lists\Api\Service\ServiceFactory;
 use Bitrix\Lists\Api\Data\ServiceFactory\AverageTemplateDurationToGet;
 use Bitrix\Lists\Api\Data\ServiceFactory\ElementToAdd;
 use Bitrix\Lists\Api\Data\ServiceFactory\ElementToGetDetailInfo;
+use Bitrix\Lists\Api\Data\ServiceFactory\ElementToUpdate;
 use Bitrix\Lists\Api\Request\ServiceFactory\AddElementRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetAverageIBlockTemplateDurationRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetElementDetailInfoRequest;
+use Bitrix\Lists\Api\Request\ServiceFactory\UpdateElementRequest;
 use Bitrix\Lists\Api\Response\ServiceFactory\AddElementResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetAverageIBlockTemplateDurationResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetElementDetailInfoResponse;
+use Bitrix\Lists\Api\Response\ServiceFactory\UpdateElementResponse;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Error;
@@ -80,6 +83,43 @@ final class DataService
 		}
 
 		return $elementToAdd;
+	}
+
+	public function getElementToUpdateObject(
+		UpdateElementRequest $request,
+		UpdateElementResponse $response
+	): ?ElementToUpdate
+	{
+		$elementToUpdate = null;
+		try
+		{
+			$elementToUpdate = ElementToUpdate::createFromRequest($request);
+		}
+		catch (ArgumentOutOfRangeException $exception)
+		{
+			$parameter = $exception->getParameter();
+			if ($parameter === 'elementId')
+			{
+				$response->addError(self::getNegativeElementIdError());
+			}
+
+			if ($parameter === 'iBlockId')
+			{
+				$response->addError(self::getWrongIBlockError());
+			}
+
+			if ($parameter === 'sectionId')
+			{
+				$response->addError(self::getNegativeSectionIdError());
+			}
+
+			if ($parameter === 'modifiedBy')
+			{
+				$response->addError(self::getNegativeUserIdError());
+			}
+		}
+
+		return $elementToUpdate;
 	}
 
 	public function getAverageTemplateDurationToGetObject(

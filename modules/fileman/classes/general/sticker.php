@@ -692,18 +692,18 @@ class CSticker
 			if ($bForList)
 			{
 				$html = preg_replace(array(
-					"/\[st_title\](.+?)\[\/st_title\]/is".BX_UTF_PCRE_MODIFIER,
-					"/<br(.+?)>/is".BX_UTF_PCRE_MODIFIER,
-					"/<\/??ol(.+?)>/is".BX_UTF_PCRE_MODIFIER,
-					"/<\/??ul(.+?)>/is".BX_UTF_PCRE_MODIFIER,
-					"/<\/??li(.+?)>/is".BX_UTF_PCRE_MODIFIER,
-					"/<\/??w+(.+?)>/is".BX_UTF_PCRE_MODIFIER
+					"/\[st_title\](.+?)\[\/st_title\]/isu",
+					"/<br(.+?)>/isu",
+					"/<\/??ol(.+?)>/isu",
+					"/<\/??ul(.+?)>/isu",
+					"/<\/??li(.+?)>/isu",
+					"/<\/??w+(.+?)>/isu"
 				), " ", $html);
 
 				$html = preg_replace(
 					array(
-						"/\[st_title\]/is".BX_UTF_PCRE_MODIFIER,
-						"/\[\/st_title\]/is".BX_UTF_PCRE_MODIFIER,
+						"/\[st_title\]/isu",
+						"/\[\/st_title\]/isu",
 					),
 					"",
 					$html
@@ -715,7 +715,7 @@ class CSticker
 			else
 			{
 				$html = preg_replace(
-					"/\[st_title\](.*?)\[\/st_title\]/is".BX_UTF_PCRE_MODIFIER,
+					"/\[st_title\](.*?)\[\/st_title\]/isu",
 					"<span class=\"bxst-title\">\\1</span> ",
 					$html
 				);
@@ -723,8 +723,8 @@ class CSticker
 				// ?
 				$html = preg_replace(
 					array(
-						"/\[st_title\]/is".BX_UTF_PCRE_MODIFIER,
-						"/\[\/st_title\]/is".BX_UTF_PCRE_MODIFIER,
+						"/\[st_title\]/isu",
+						"/\[\/st_title\]/isu",
 					),
 					"",
 					$html

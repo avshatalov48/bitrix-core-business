@@ -1,8 +1,9 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
-
-use Bitrix\Main\Text\HtmlFilter;
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
@@ -15,12 +16,8 @@ if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['addi
 }
 elseif (isset($arResult['userField']) && is_array($arResult['userField']))
 {
-	$arResult['value'] = (
-		isset($arResult['userField']['SETTINGS']['SHOW_MAP'])
-		&& $arResult['userField']['SETTINGS']['SHOW_MAP'] === 'N'
-			? 'N'
-			: 'Y'
-	);
+	$showMap = ($arResult['userField']['SETTINGS']['SHOW_MAP'] ?? null);
+	$arResult['value'] = ($showMap === 'N' ? 'N' : 'Y');
 }
 else
 {

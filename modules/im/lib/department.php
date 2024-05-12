@@ -161,10 +161,10 @@ class Department
 			$count = 0;
 			$breakAfterDigit = $offset === 0? $offset: false;
 
-			$options['FILTER']['SEARCH'] = ToLower($options['FILTER']['SEARCH']);
+			$options['FILTER']['SEARCH'] = mb_strtolower($options['FILTER']['SEARCH']);
 			foreach ($list as $key => $department)
 			{
-				$checkField = ToLower($department['FULL_NAME']);
+				$checkField = mb_strtolower($department['FULL_NAME']);
 				if (
 					mb_strpos($checkField, $options['FILTER']['SEARCH']) !== 0
 					&& mb_strpos($checkField, ' '.$options['FILTER']['SEARCH']) === false

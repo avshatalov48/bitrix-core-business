@@ -2,6 +2,7 @@ import { Extension } from 'main.core';
 import { BaseEvent } from 'main.core.events';
 
 import { Messenger } from 'im.public';
+import { Core } from 'im.v2.application.core';
 import { ChatActionType, LocalStorageKey, ChatType } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { PermissionManager } from 'im.v2.lib.permission';

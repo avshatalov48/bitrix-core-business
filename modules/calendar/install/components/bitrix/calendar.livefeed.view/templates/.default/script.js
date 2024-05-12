@@ -45,10 +45,19 @@
 				this.pFrom.innerHTML = this.GetFromHtml(BX.date.getBrowserTimestamp(event.DT_FROM_TS), event.DT_SKIP_TIME).replaceAll(/\\/g, '');
 			}
 
-			var pViewTzHint = BX('feed-event-tz-hint-' + this.id);
+			const pViewTzHint = BX('feed-event-tz-hint-' + this.id);
 			if (pViewTzHint)
 			{
-				new BX.CHint({parent: pViewTzHint, hint: pViewTzHint.getAttribute('data-bx-hint')});
+				if (BX?.Calendar?.Util)
+				{
+					BX.Calendar.Util.initHintNode(pViewTzHint);
+				}
+				else
+				{
+					BX.Runtime.loadExtension('calendar.util').then(() => {
+						BX.Calendar.Util.initHintNode(pViewTzHint);
+					});
+				}
 			}
 
 			this.InitPopups();

@@ -51,7 +51,7 @@ class WorkflowMetadataTable extends DataManager
 
 	public static function deleteByWorkflowId(string $workflowId): void
 	{
-		$iterator = static::query()->setFilter(['WORKFLOW_ID' => $workflowId])->exec();
+		$iterator = static::query()->setFilter(['=WORKFLOW_ID' => $workflowId])->exec();
 
 		while ($metadata = $iterator->fetchObject())
 		{

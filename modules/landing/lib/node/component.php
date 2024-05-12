@@ -432,7 +432,7 @@ class Component extends \Bitrix\Landing\Node
 						array('name' => '', 'image' => '/bitrix/images/landing/catalog_images/preset-6-1.svg', 'value' => '8'),
 						array('name' => '', 'image' => '/bitrix/images/landing/catalog_images/preset-line.svg', 'value' => '9')
 					);
-					$jsArray = \Cutil::jsObjectToPhp($item['value']);
+					$jsArray = \Cutil::jsObjectToPhp($item['value'], true);
 					$item['value'] = array();
 					if (is_array($jsArray))
 					{

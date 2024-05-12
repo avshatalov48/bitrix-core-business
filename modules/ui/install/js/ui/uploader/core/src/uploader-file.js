@@ -55,6 +55,7 @@ export default class UploaderFile extends EventEmitter
 	#uploadController: AbstractUploadController = null;
 	#loadController: AbstractLoadController = null;
 	#removeController: AbstractRemoveController = null;
+	#forceServerLoad: boolean = false;
 
 	#uploadCallbacks: CallbackCollection = new CallbackCollection(this);
 
@@ -97,6 +98,10 @@ export default class UploaderFile extends EventEmitter
 		}
 
 		this.#id = Type.isStringFilled(options.id) ? options.id : createUniqueId();
+		if (this.#origin === FileOrigin.SERVER)
+		{
+			this.#forceServerLoad = options.preload === true || (Type.isPlainObject(source) && source.preload === true);
+		}
 
 		this.subscribeFromOptions({
 			[FileEvent.ADD]: (): void => {
@@ -118,6 +123,11 @@ export default class UploaderFile extends EventEmitter
 		this.emit(FileEvent.LOAD_START);
 
 		this.#loadController.load(this);
+	}
+
+	shouldForceServerLoad(): boolean
+	{
+		return this.#forceServerLoad;
 	}
 
 	upload(callbacks: { onComplete: Function, onError: Function } = {}): void

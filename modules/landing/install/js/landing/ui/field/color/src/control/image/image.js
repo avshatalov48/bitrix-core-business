@@ -60,9 +60,10 @@ export default class Image extends BaseControl
 			multiple: false,
 			compact: true,
 			items: [
-				{name: Loc.getMessage('LANDING_FIELD_COLOR-BG_FIXED'), value: true},
+				{ name: Loc.getMessage('LANDING_FIELD_COLOR-BG_FIXED'), value: 'fixed' },
 			],
 			onChange: this.onAttachmentChange.bind(this),
+			value: [this.getAttachmentValue()],
 		});
 	}
 
@@ -240,8 +241,8 @@ export default class Image extends BaseControl
 					imgFieldValue.id2x = value.getFileId2x();
 				}
 				this.imgField.setValue(imgFieldValue, true);
-				this.sizeField.setValue(value.getSize(), true);
-				this.attachmentField.setValue([value.getAttachment(true)]);
+				this.sizeField.setValue(this.getSizeValue(), true);
+				this.attachmentField.setValue([this.getAttachmentValue()]);
 			}
 		}
 	}
@@ -254,5 +255,41 @@ export default class Image extends BaseControl
 	unsetActive(): void
 	{
 		Dom.removeClass(this.imgField.getLayout(), Image.ACTIVE_CLASS);
+	}
+
+	getAttachmentValue(): string
+	{
+		if (
+			this.options
+			&& this.options.block
+			&& this.options.block.content
+			&& Dom.hasClass(this.options.block.content, 'g-bg-image')
+		)
+		{
+			const blockContentStyle = window.getComputedStyle(this.options.block.content);
+			const bgAttachmentValue = blockContentStyle.getPropertyValue('background-attachment');
+
+			return bgAttachmentValue.includes('fixed') ? 'fixed' : 'scroll';
+		}
+
+		return 'scroll';
+	}
+
+	getSizeValue(): string
+	{
+		if (
+			this.options
+			&& this.options.block
+			&& this.options.block.content
+			&& Dom.hasClass(this.options.block.content, 'g-bg-image')
+		)
+		{
+			const blockContentStyle = window.getComputedStyle(this.options.block.content);
+			const bgSizeValue = blockContentStyle.getPropertyValue('background-size');
+
+			return bgSizeValue.includes('cover') ? 'cover' : 'auto';
+		}
+
+		return 'cover';
 	}
 }

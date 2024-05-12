@@ -13,21 +13,19 @@ if (!CModule::IncludeModule("forum"))
 	return 0;
 $this->IncludeComponentLang("action.php");
 $post = $this->request->getPostList()->toArray();
-if ($post["AJAX_POST"] == "Y")
-	CUtil::decodeURIComponent($post);
 
-if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") && check_bitrix_sessid())
+if (($action <> '' || $s_action <> '') && (!isset($_REQUEST["MESSAGE_MODE"]) || $_REQUEST["MESSAGE_MODE"] != "VIEW") && check_bitrix_sessid())
 {
 	//*************************!Subscribe***************************************************
 	if ($s_action == 'SUBSCRIBE' || $s_action == 'UNSUBSCRIBE')
 	{
-		if ($_REQUEST["TOPIC_UNSUBSCRIBE"] == "Y")
+		if (isset($_REQUEST["TOPIC_UNSUBSCRIBE"]) && $_REQUEST["TOPIC_UNSUBSCRIBE"] == "Y")
 			ForumUnsubscribeNewMessagesEx($arParams["FID"], $arParams["TID"], "N", $strErrorMessage, $strOKMessage);
-		if ($_REQUEST["FORUM_UNSUBSCRIBE"] == "Y")
+		if (isset($_REQUEST["FORUM_UNSUBSCRIBE"]) && $_REQUEST["FORUM_UNSUBSCRIBE"] == "Y")
 			ForumUnsubscribeNewMessagesEx($arParams["FID"], 0, "N", $strErrorMessage, $strOKMessage);
-		if ($_REQUEST["TOPIC_SUBSCRIBE"] == "Y")
+		if (isset($_REQUEST["TOPIC_SUBSCRIBE"]) && $_REQUEST["TOPIC_SUBSCRIBE"] == "Y")
 			ForumSubscribeNewMessagesEx($arParams["FID"], $arParams["TID"], "N", $strErrorMessage, $strOKMessage);
-		if ($_REQUEST["FORUM_SUBSCRIBE"] == "Y")
+		if (isset($_REQUEST["FORUM_SUBSCRIBE"]) && $_REQUEST["FORUM_SUBSCRIBE"] == "Y")
 			ForumSubscribeNewMessagesEx($arParams["FID"], 0, "N", $strErrorMessage, $strOKMessage);
 
 		if (empty($strErrorMessage) && ($_SERVER['REQUEST_METHOD']=='GET'))
@@ -42,12 +40,12 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 		$code = false;
 		$message = array();
 		if ($_SERVER['REQUEST_METHOD'] == "POST"):
-			$message = (!empty($_POST["MID_ARRAY"]) ? $_POST["MID_ARRAY"] : $_POST["MID"]);
+			$message = (!empty($_POST["MID_ARRAY"]) ? $_POST["MID_ARRAY"] : ($_POST["MID"] ?? null));
 			if ((empty($message) || $message == "s") && !empty($_POST["message_id"])):
 				$message = $_POST["message_id"];
 			endif;
 		else:
-			$message = (!empty($_REQUEST["MID_ARRAY"]) ? $_REQUEST["MID_ARRAY"] : $_REQUEST["MID"]);
+			$message = (!empty($_REQUEST["MID_ARRAY"]) ? $_REQUEST["MID_ARRAY"] : ($_REQUEST["MID"] ?? null));
 			if ((empty($message) || $message == "s") && !empty($_REQUEST["message_id"])):
 				$message = $_REQUEST["message_id"];
 			endif;
@@ -63,26 +61,26 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 				if ($MID > 0)
 				{
 					$url = ForumAddPageParams(
-						CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC_NEW"], array("FID" => $arParams["FID"])), 
+						CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC_NEW"], array("FID" => $arParams["FID"])),
 						array("TID" => $arParams["TID"], "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"], "MID" => $MID, "MESSAGE_TYPE" => "EDIT"), false, false);
 					LocalRedirect($url);
 				}
 				break;
 			case "REPLY":
 				$arFields = array(
-						"FID" => $arParams["FID"],
-						"TID" => $arParams["TID"],
-						"POST_MESSAGE" => $post["POST_MESSAGE"],
-						"AUTHOR_NAME" => $post["AUTHOR_NAME"],
-						"AUTHOR_EMAIL" => $post["AUTHOR_EMAIL"],
-						"USE_SMILES" => $post["USE_SMILES"],
-						"captcha_word" =>  $post["captcha_word"],
-						"captcha_code" => $post["captcha_code"],
-						"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
+						"FID" => $arParams["FID"] ?? null,
+						"TID" => $arParams["TID"] ?? null,
+						"POST_MESSAGE" => $post["POST_MESSAGE"] ?? null,
+						"AUTHOR_NAME" => $post["AUTHOR_NAME"] ?? null,
+						"AUTHOR_EMAIL" => $post["AUTHOR_EMAIL"] ?? null,
+						"USE_SMILES" => $post["USE_SMILES"] ?? null,
+						"captcha_word" =>  $post["captcha_word"] ?? null,
+						"captcha_code" => $post["captcha_code"] ?? null,
+						"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null
 						);
 				if (!empty($_FILES["ATTACH_IMG"]))
 				{
-					$arFields["ATTACH_IMG"] = $_FILES["ATTACH_IMG"]; 
+					$arFields["ATTACH_IMG"] = $_FILES["ATTACH_IMG"];
 				}
 				else
 				{
@@ -108,23 +106,23 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 						$arFields["FILES"] = $arFiles;
 				}
 				$url = CComponentEngine::MakePathFromTemplate(
-						$arParams["~URL_TEMPLATES_MESSAGE"], 
+						$arParams["~URL_TEMPLATES_MESSAGE"] ?? null,
 							array(
-								"FID" => $arParams["FID"],
-								"TID" => $arParams["TID"],
-								"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
+								"FID" => $arParams["FID"] ?? null,
+								"TID" => $arParams["TID"] ?? null,
+								"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"] ?? null,
 								"MID"=>"#result#"));
 				break;
 			case "VOTE4USER":
 				$arFields = array(
-					"UID" => $_GET["UID"],
-					"VOTES" => $_GET["VOTES"],
+					"UID" => $_GET["UID"] ?? null,
+					"VOTES" => $_GET["VOTES"] ?? null,
 					"VOTE" => (($_GET["VOTES_TYPE"]=="U") ? True : False));
 				$url = CComponentEngine::MakePathFromTemplate(
-					$arParams["~URL_TEMPLATES_MESSAGE"], 
-					array("FID" => $arParams["FID"], 
-						"TID" => $arParams["TID"],
-						"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
+					$arParams["~URL_TEMPLATES_MESSAGE"],
+					array("FID" => $arParams["FID"] ?? null,
+						"TID" => $arParams["TID"] ?? null,
+						"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"] ?? null,
 						"MID" => (intval($_REQUEST["MID"]) > 0 ? $_REQUEST["MID"] : "s")
 					));
 				break;
@@ -134,10 +132,10 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 				$arFields = array("MID" => $message);
 				$mid = (is_array($message) ? $message[0] : $message);
 				$url = CComponentEngine::MakePathFromTemplate(
-						$arParams["~URL_TEMPLATES_MESSAGE"], 
+						$arParams["~URL_TEMPLATES_MESSAGE"],
 						array(
-							"FID" => $arParams["FID"], 
-							"TID" => $arParams["TID"],
+							"FID" => $arParams["FID"] ?? null,
+							"TID" => $arParams["TID"] ?? null,
 							"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
 							"MID" => (!empty($mid) ? $mid : "s")
 						));
@@ -148,7 +146,7 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 				break;
 			case "DEL":
 				$arFields = array("MID" => $message);
-				$url = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"], 
+				$url = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
 						array("FID" => $arParams["FID"], "TID" => $arParams["TID"], "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],  "MID" => "#MID#"));
 				break;
 			case "SET_ORDINARY":
@@ -161,32 +159,32 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 					$action = "CLOSE";
 				elseif ($action == "SET_ORDINARY")
 					$action = "ORDINARY";
-				else 
+				else
 					$action = "TOP";
-					
+
 				$arFields = array("TID" => $arParams["TID"]);
 				$url = CComponentEngine::MakePathFromTemplate(
-					$arParams["~URL_TEMPLATES_MESSAGE"], 
-					array("FID" => $arParams["FID"], 
-						"TID" => $arParams["TID"],
-						"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
+					$arParams["~URL_TEMPLATES_MESSAGE"] ?? null,
+					array("FID" => $arParams["FID"] ?? null,
+						"TID" => $arParams["TID"] ?? null,
+						"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"] ?? null,
 						"MID" => ($arParams["MID"] > 0 ? $arParams["MID"] : "s")));
 				break;
 			case "HIDE_TOPIC":
 			case "SHOW_TOPIC":
 				$arFields = array("TID" => $arParams["TID"]);
 				$url = CComponentEngine::MakePathFromTemplate(
-					$arParams["~URL_TEMPLATES_MESSAGE"], 
-					array("FID" => $arParams["FID"], 
-						"TID" => $arParams["TID"],
-						"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
+					$arParams["~URL_TEMPLATES_MESSAGE"] ?? null,
+					array("FID" => $arParams["FID"] ?? null,
+						"TID" => $arParams["TID"] ?? null,
+						"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"] ?? null,
 						"MID" => ($arParams["MID"] > 0 ? $arParams["MID"] : "s")));
 				break;
 			case "DEL_TOPIC":
-					$arFields = array("TID" => $arParams["TID"]);
+					$arFields = array("TID" => $arParams["TID"] ?? null);
 					$url = CComponentEngine::MakePathFromTemplate(
-						$arParams["~URL_TEMPLATES_LIST"], 
-						array("FID" => $arParams["FID"]));
+						$arParams["~URL_TEMPLATES_LIST"] ?? null,
+						array("FID" => $arParams["FID"] ?? null));
 				break;
 			case "FORUM_UNSUBSCRIBE":
 			case "TOPIC_UNSUBSCRIBE":
@@ -194,27 +192,27 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 			case "TOPIC_SUBSCRIBE":
 			case "FORUM_SUBSCRIBE_TOPICS":
 				$arFields = array(
-					"FID" => $arParams["FID"],
-					"TID" => (($action=="FORUM_SUBSCRIBE")?0:$arParams["TID"]),
-					"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
+					"FID" => $arParams["FID"] ?? null,
+					"TID" => (($action=="FORUM_SUBSCRIBE")?0:$arParams["TID"] ?? null),
+					"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"] ?? null,
 					"NEW_TOPIC_ONLY" => (($action=="FORUM_SUBSCRIBE_TOPICS")?"Y":"N"));
 				$url = ForumAddPageParams(
 						CComponentEngine::MakePathFromTemplate(
-							$arParams["~URL_TEMPLATES_SUBSCR_LIST"], 
+							$arParams["~URL_TEMPLATES_SUBSCR_LIST"] ?? null,
 							array()
-						), 
-						array("FID" => $arParams["FID"], "TID" => $arParams["TID"]));
+						),
+						array("FID" => $arParams["FID"] ?? null, "TID" => $arParams["TID"] ?? null));
 				break;
 			case "MOVE":
 				$tmp_message = ForumDataToArray($message);
 				$url = CComponentEngine::MakePathFromTemplate(
-						$arParams["~URL_TEMPLATES_MESSAGE_MOVE"], 
-						array("FID" => $arParams["FID"], "TID" => $arParams["TID"], "MID" => implode(",", $tmp_message)));
+						$arParams["~URL_TEMPLATES_MESSAGE_MOVE"] ?? null,
+						array("FID" => $arParams["FID"] ?? null, "TID" => $arParams["TID"] ?? null, "MID" => implode(",", $tmp_message)));
 				break;
 			case "MOVE_TOPIC":
 				$url = CComponentEngine::MakePathFromTemplate(
-							$arParams["~URL_TEMPLATES_TOPIC_MOVE"], 
-							array("FID" => $arParams["FID"], "TID" => $arParams["TID"]));
+							$arParams["~URL_TEMPLATES_TOPIC_MOVE"] ?? null,
+							array("FID" => $arParams["FID"] ?? null, "TID" => $arParams["TID"] ?? null));
 				break;
 		}
 
@@ -223,17 +221,17 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 			$result = ForumActions($action, $arFields, $strErrorMessage, $strOKMessage);
 			if (($action == "REPLY" || $action == "EDIT_TOPIC") && ($arParams["AUTOSAVE"]))
 				$arParams["AUTOSAVE"]->Reset();
-				
+
 			if ($action == "DEL")
 			{
 				$arFields = CForumTopic::GetByID($arParams["TID"]);
 				if (empty($arFields))
 				{
-					$url = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_LIST"], 
+					$url = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_LIST"],
 						array("FID" => $arParams["FID"]));
 					$action = "del_topic";
 				}
-				else 
+				else
 				{
 					$mid = intval($message);
 					if (is_array($message))
@@ -242,12 +240,12 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 						$mid = array_pop($message);
 					}
 					$arFilter = array("TOPIC_ID"=>$arParams["TID"], ">ID" => $mid);
-					if ($arResult["PERMISSION"] < "Q") 
+					if (isset($arResult["PERMISSION"]) && $arResult["PERMISSION"] < "Q")
 						$arFilter["APPROVED"] = "Y";
 					$db_res = CForumMessage::GetList(array("ID" => "ASC"), $arFilter, false, 1);
 					if ($db_res && $res = $db_res->Fetch()):
 						$mid = $res["ID"];
-					else: 
+					else:
 						unset($arFilter[">ID"]);
 						$arFilter["<ID"] = $mid;
 						$db_res = CForumMessage::GetList(array("ID" => "DESC"), $arFilter, false, 1);
@@ -266,23 +264,23 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 			{
 				$arParams["MID"] = intval($result);
 			}
-			
+
 			$url = str_replace("#result#", $result, $url);
 		}
 		else
 			$result = true;
 		$action = mb_strtolower($action);
 	}
-	
+
 	if (!$result)
 	{
 		$bVarsFromForm = true;
 	}
-	else 
+	else
 	{
 		$arNote = array(
 			"code" => $action,
-			"title" => $strOKMessage, 
+			"title" => $strOKMessage,
 			"link" => $url);
 	}
 	$arResult['RESULT'] = $result;
@@ -294,28 +292,28 @@ if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") 
 		die();
 	}
 }
-elseif (($action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") && !check_bitrix_sessid())
+elseif (($action <> '') && (isset($_REQUEST["MESSAGE_MODE"]) && $_REQUEST["MESSAGE_MODE"] != "VIEW") && !check_bitrix_sessid())
 {
 	$bVarsFromForm = true;
 	$strErrorMessage = GetMessage("F_ERR_SESS_FINISH");
 }
-elseif($post["MESSAGE_MODE"] == "VIEW")
+elseif(isset($post["MESSAGE_MODE"]) && $post["MESSAGE_MODE"] == "VIEW")
 {
 	$View = true;
 	$bVarsFromForm = true;
 	$arAllow = array(
-		"HTML" => $arResult["FORUM"]["ALLOW_HTML"],
-		"ANCHOR" => $arResult["FORUM"]["ALLOW_ANCHOR"],
-		"BIU" => $arResult["FORUM"]["ALLOW_BIU"],
-		"IMG" => $arResult["FORUM"]["ALLOW_IMG"],
-		"VIDEO" => $arResult["FORUM"]["ALLOW_VIDEO"],
-		"LIST" => $arResult["FORUM"]["ALLOW_LIST"],
-		"QUOTE" => $arResult["FORUM"]["ALLOW_QUOTE"],
-		"CODE" => $arResult["FORUM"]["ALLOW_CODE"],
-		"FONT" => $arResult["FORUM"]["ALLOW_FONT"],
-		"SMILES" => $arResult["FORUM"]["ALLOW_SMILES"],
-		"UPLOAD" => $arResult["FORUM"]["ALLOW_UPLOAD"],
-		"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"]);
+		"HTML" => $arResult["FORUM"]["ALLOW_HTML"] ?? null,
+		"ANCHOR" => $arResult["FORUM"]["ALLOW_ANCHOR"] ?? null,
+		"BIU" => $arResult["FORUM"]["ALLOW_BIU"] ?? null,
+		"IMG" => $arResult["FORUM"]["ALLOW_IMG"] ?? null,
+		"VIDEO" => $arResult["FORUM"]["ALLOW_VIDEO"] ?? null,
+		"LIST" => $arResult["FORUM"]["ALLOW_LIST"] ?? null,
+		"QUOTE" => $arResult["FORUM"]["ALLOW_QUOTE"] ?? null,
+		"CODE" => $arResult["FORUM"]["ALLOW_CODE"] ?? null,
+		"FONT" => $arResult["FORUM"]["ALLOW_FONT"] ?? null,
+		"SMILES" => $arResult["FORUM"]["ALLOW_SMILES"] ?? null,
+		"UPLOAD" => $arResult["FORUM"]["ALLOW_UPLOAD"] ?? null,
+		"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"] ?? null);
 	$arAllow["SMILES"] = ($_POST["USE_SMILES"]!="Y" ? "N" : $arResult["FORUM"]["ALLOW_SMILES"]);
 	$arFields = array(
 		"FORUM_ID" => intval($arParams["FID"]),

@@ -27,12 +27,12 @@ if (!CModule::IncludeModule("forum"))
 	}
 /***************** BASE ********************************************/
 	$arParams["MESSAGE_TYPE"] = (in_array(mb_strtoupper($arParams["MESSAGE_TYPE"]), array("REPLY", "EDIT", "NEW"))? mb_strtoupper($arParams["MESSAGE_TYPE"]) : "NEW");
-	$arParams["FID"] = intval(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
-	$arParams["TID"] = intval(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
-	$arParams["MID"] = intval(empty($arParams["MID"]) ? $_REQUEST["MID"] : $arParams["MID"]);
+	$arParams["FID"] = intval(empty($arParams["FID"]) ? ($_REQUEST["FID"] ?? null) : $arParams["FID"]);
+	$arParams["TID"] = intval(empty($arParams["TID"]) ? ($_REQUEST["TID"] ?? null) : $arParams["TID"]);
+	$arParams["MID"] = intval(empty($arParams["MID"]) ? ($_REQUEST["MID"] ?? null) : $arParams["MID"]);
 	$arParams["MID"] = ($arParams["MESSAGE_TYPE"] == "EDIT" ? $arParams["MID"] : 0);
 
-	$arParams["PAGE_NAME"] = htmlspecialcharsbx((empty($arParams["PAGE_NAME"]) ? $_REQUEST["PAGE_NAME"] : $arParams["PAGE_NAME"]));
+	$arParams["PAGE_NAME"] = htmlspecialcharsbx((empty($arParams["PAGE_NAME"]) ? ($_REQUEST["PAGE_NAME"] ?? null) : $arParams["PAGE_NAME"]));
 	$arParams["FORUM"] = (!empty($arParams["arForum"]) ? $arParams["arForum"] : (!empty($arParams["FORUM"]) ? $arParams["FORUM"] : array()));
 	$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] == "Y" || $arParams["bVarsFromForm"] === true ? "Y" : "N");
 /***************** URL *********************************************/
@@ -70,12 +70,12 @@ if (!CModule::IncludeModule("forum"))
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
 	$arParams["AJAX_TYPE"] = ($arParams["AJAX_TYPE"] == "Y" ? "Y" : "N");
-	$arParams["AJAX_CALL"] = (($_REQUEST["AJAX_CALL"] == "Y" && $arParams["AJAX_TYPE"] == "Y") ? "Y" : "N");
-	$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
-	$arParams["SMILE_TABLE_COLS"] = (intval($arParams["SMILE_TABLE_COLS"]) > 0 ? intval($arParams["SMILE_TABLE_COLS"]) : 3);
+	$arParams["AJAX_CALL"] = (((isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["AJAX_CALL"] == "Y") && (isset($_REQUEST["AJAX_TYPE"]) && $arParams["AJAX_TYPE"] == "Y")) ? "Y" : "N");
+	$arParams['AJAX_POST'] = (isset($_REQUEST["AJAX_POST"]) && $arParams["AJAX_POST"] == "Y" ? "Y" : "N");
+	$arParams["SMILE_TABLE_COLS"] = (isset($arParams["SMILE_TABLE_COLS"]) && intval($arParams["SMILE_TABLE_COLS"]) > 0 ? intval($arParams["SMILE_TABLE_COLS"]) : 3);
 	$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
 	$arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
-	$arParams["VOTE_GROUP_ID"] = (!is_array($arParams["VOTE_GROUP_ID"]) || empty($arParams["VOTE_GROUP_ID"]) ? array() : $arParams["VOTE_GROUP_ID"]);
+	$arParams["VOTE_GROUP_ID"] = isset($arParams["VOTE_GROUP_ID"]) ? (!is_array($arParams["VOTE_GROUP_ID"]) || empty($arParams["VOTE_GROUP_ID"]) ? array() : $arParams["VOTE_GROUP_ID"]) : [];
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -248,18 +248,18 @@ if ($arParams["MESSAGE_TYPE"] == "EDIT")
 
 if ($arParams["bVarsFromForm"] == "Y")
 {
-	$arResult["MESSAGE"]["AUTHOR_NAME"] = $_REQUEST["AUTHOR_NAME"];
-	$arResult["MESSAGE"]["AUTHOR_EMAIL"] = $_REQUEST["AUTHOR_EMAIL"];
-	$arResult["MESSAGE"]["POST_MESSAGE"] = $_REQUEST["POST_MESSAGE"];
-	$arResult["MESSAGE"]["USE_SMILES"] = ($_REQUEST["USE_SMILES"] == "Y" ? "Y" : "N");
-	$arResult["MESSAGE"]["EDITOR_NAME"] = $_REQUEST["EDITOR_NAME"];
-	$arResult["MESSAGE"]["EDITOR_EMAIL"] = $_REQUEST["EDITOR_EMAIL"];
-	$arResult["MESSAGE"]["EDIT_REASON"] = $_REQUEST["EDIT_REASON"];
-	$arResult["TOPIC"]["TITLE"] = $_REQUEST["TITLE"];
-	$arResult["TOPIC"]["TITLE_SEO"] = $_REQUEST["TITLE_SEO"];
-	$arResult["TOPIC"]["TAGS"] = $_REQUEST["TAGS"];
-	$arResult["TOPIC"]["DESCRIPTION"] = $_REQUEST["DESCRIPTION"];
-	$arResult["TOPIC"]["ICON"] = $_REQUEST["ICON"];
+	$arResult["MESSAGE"]["AUTHOR_NAME"] = $_REQUEST["AUTHOR_NAME"] ?? null;
+	$arResult["MESSAGE"]["AUTHOR_EMAIL"] = $_REQUEST["AUTHOR_EMAIL"] ?? null;
+	$arResult["MESSAGE"]["POST_MESSAGE"] = $_REQUEST["POST_MESSAGE"] ?? null;
+	$arResult["MESSAGE"]["USE_SMILES"] = (isset($_REQUEST["USE_SMILES"]) && $_REQUEST["USE_SMILES"] == "Y" ? "Y" : "N");
+	$arResult["MESSAGE"]["EDITOR_NAME"] = $_REQUEST["EDITOR_NAME"] ?? null;
+	$arResult["MESSAGE"]["EDITOR_EMAIL"] = $_REQUEST["EDITOR_EMAIL"] ?? null;
+	$arResult["MESSAGE"]["EDIT_REASON"] = $_REQUEST["EDIT_REASON"] ?? null;
+	$arResult["TOPIC"]["TITLE"] = $_REQUEST["TITLE"] ?? null;
+	$arResult["TOPIC"]["TITLE_SEO"] = $_REQUEST["TITLE_SEO"] ?? null;
+	$arResult["TOPIC"]["TAGS"] = $_REQUEST["TAGS"] ?? null;
+	$arResult["TOPIC"]["DESCRIPTION"] = $_REQUEST["DESCRIPTION"] ?? null;
+	$arResult["TOPIC"]["ICON"] = $_REQUEST["ICON"] ?? null;
 	foreach ($_REQUEST["FILES"] as $key => $val):
 		if (intval($val) <= 0)
 			return false;
@@ -368,7 +368,7 @@ if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y")
 	}
 /************** For custom component *******************************/
 	$arResult["MESSAGE"]["ATTACH_IMG_FILE"] = false;
-	if ($arResult["MESSAGE"]["ATTACH_IMG"] <> '')
+	if (isset($arResult["MESSAGE"]["ATTACH_IMG"]) && $arResult["MESSAGE"]["ATTACH_IMG"] <> '')
 	{
 		$arResult["MESSAGE"]["ATTACH_IMG_FILE"] = $arResult["MESSAGE"]["FILES"][$arResult["MESSAGE"]["ATTACH_IMG"]];
 		if ($arResult["MESSAGE"]["ATTACH_IMG_FILE"])
@@ -442,17 +442,17 @@ foreach ($arResult["QUESTIONS"] as $key => $arQuestion):
 		endif;
 	endforeach;
 endforeach;
-$arResult["list"] = $arResult["URL"]["LIST"];
-$arResult["read"] = $arResult["URL"]["READ"];
-$arResult["UserPermission"] = $arResult["PERMISSION"];
-$arResult["FID"] = $arParams["FID"];
-$arResult["TID"] = $arParams["TID"];
-$arResult["MID"] = $arParams["MID"];
-$arResult["FORUM"] = $arParams["FORUM"];
-$arResult["MESSAGE_TYPE"] = $arParams["MESSAGE_TYPE"];
-$arResult["PAGE_NAME"] = $arParams["PAGE_NAME"];
+$arResult["list"] = $arResult["URL"]["LIST"] ?? null;
+$arResult["read"] = $arResult["URL"]["READ"] ?? null;
+$arResult["UserPermission"] = $arResult["PERMISSION"] ?? null;
+$arResult["FID"] = $arParams["FID"] ?? null;
+$arResult["TID"] = $arParams["TID"] ?? null;
+$arResult["MID"] = $arParams["MID"] ?? null;
+$arResult["FORUM"] = $arParams["FORUM"] ?? null;
+$arResult["MESSAGE_TYPE"] = $arParams["MESSAGE_TYPE"] ?? null;
+$arResult["PAGE_NAME"] = $arParams["PAGE_NAME"] ?? null;
 $arResult["LANGUAGE_ID"] = LANGUAGE_ID;
-$arResult["VIEW"] = ($arParams["VIEW"] != "Y" ? "N" : "Y");
+$arResult["VIEW"] = (isset($arParams["VIEW"]) && $arParams["VIEW"] != "Y" ? "N" : "Y");
 $arResult["SHOW_CLOSE_ALL"] = "N";
 if ($arResult["FORUM"]["ALLOW_BIU"] == "Y" || $arResult["FORUM"]["ALLOW_FONT"] == "Y" || $arResult["FORUM"]["ALLOW_ANCHOR"] == "Y" || $arResult["FORUM"]["ALLOW_IMG"] == "Y" || $arResult["FORUM"]["ALLOW_QUOTE"] == "Y" || $arResult["FORUM"]["ALLOW_CODE"] == "Y" || $arResult["FORUM"]["ALLOW_LIST"] == "Y")
 	$arResult["SHOW_CLOSE_ALL"] = "Y";

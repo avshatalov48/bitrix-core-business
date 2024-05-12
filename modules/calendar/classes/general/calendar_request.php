@@ -18,12 +18,6 @@ class CCalendarRequest
 
 		self::$request = \Bitrix\Main\Context::getCurrent()->getRequest()->toArray();
 
-		if (($_REQUEST['skip_unescape'] ?? null) !== 'Y')
-		{
-			CUtil::decodeURIComponent(self::$request);
-			CUtil::JSPostUnEscape();
-		}
-
 		self::$calendar = $calendar;
 
 		// Export calendar

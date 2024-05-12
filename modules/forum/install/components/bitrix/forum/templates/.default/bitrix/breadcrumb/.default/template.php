@@ -4,7 +4,7 @@ if(empty($arResult))
 	return "";
 
 $strReturn = '<div class="forum-breadcrumb forum-breadcrumb-top">';
-$GLOBALS["FORUM_HIDE_LAST_BREADCRUMB"] = ($GLOBALS["FORUM_HIDE_LAST_BREADCRUMB"] === true ? true : false);
+$GLOBALS["FORUM_HIDE_LAST_BREADCRUMB"] = (isset($GLOBALS["FORUM_HIDE_LAST_BREADCRUMB"]) && $GLOBALS["FORUM_HIDE_LAST_BREADCRUMB"] === true ? true : false);
 $itemSize = count($arResult);
 if ($GLOBALS["FORUM_HIDE_LAST_BREADCRUMB"] == true)
 	$itemSize--;
@@ -25,6 +25,6 @@ for($index = 0; $index < $itemSize; $index++)
 }
 
 $strReturn .= '</span></div>';
-	
+
 return $strReturn;
 ?>

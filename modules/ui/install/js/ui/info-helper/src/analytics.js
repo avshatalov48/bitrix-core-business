@@ -1,0 +1,25 @@
+import { sendData } from 'ui.analytics';
+
+export class Analytics
+{
+	#code: string;
+	#category: string;
+
+	constructor(code: string, category: string)
+	{
+		this.#code = code;
+		this.#category = category;
+	}
+
+	sendByEventName(event: string, additionalParameter: ?string = null): void
+	{
+		sendData({
+			tool: 'InfoHelper',
+			category: this.#category,
+			type: this.#code,
+			event: event,
+			c_section: document.location.href,
+			p1: additionalParameter,
+		});
+	}
+}

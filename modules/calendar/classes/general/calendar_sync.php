@@ -255,6 +255,7 @@ class CCalendarSync
 						'hostNotification' => false,
 						'affectRecRelatedEvents' => false,
 						'updateDescription' => false,
+						'doSendMail' => false,
 					]);
 				}
 			}
@@ -988,7 +989,8 @@ class CCalendarSync
 							'userId' => (int)$originalEvent['OWNER_ID'],
 							'eventId' => (int)$originalEvent['ID'],
 							'status' => 'N',
-							'personalNotification' => true
+							'personalNotification' => true,
+							'doSendMail' => false,
 						]);
 					}
 					else // delete event
@@ -1021,7 +1023,8 @@ class CCalendarSync
 									'userId' => (int)$localEvent['OWNER_ID'],
 									'eventId' => (int)$localEvent['ID'],
 									'status' => 'N',
-									'personalNotification' => true
+									'personalNotification' => true,
+									'doSendMail' => false,
 								]);
 							}
 							else

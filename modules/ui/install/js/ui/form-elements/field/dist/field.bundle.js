@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core_collections,ui_formElements_view,main_core_events,ui_section,main_core,ui_tabs) {
+(function (exports,main_core_collections,ui_formElements_view,main_core_events,ui_section,main_core,ui_formElements_field,ui_tabs) {
 	'use strict';
 
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
@@ -54,10 +54,6 @@ this.BX.UI = this.BX.UI || {};
 	  return ErrorCollection;
 	}(main_core_collections.OrderedArray);
 
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
-	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
-	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 	var BaseSettingsVisitor = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(BaseSettingsVisitor, _EventEmitter);
 	  function BaseSettingsVisitor(params) {
@@ -70,22 +66,10 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(BaseSettingsVisitor, [{
 	    key: "visitSettingsElement",
 	    value: function visitSettingsElement(settingsElement) {}
-	  }], [{
-	    key: "getInstance",
-	    value: function getInstance() {
-	      var id = this.name;
-	      if (!_classStaticPrivateFieldSpecGet(BaseSettingsVisitor, BaseSettingsVisitor, _instances)[id]) {
-	        _classStaticPrivateFieldSpecGet(BaseSettingsVisitor, BaseSettingsVisitor, _instances)[id] = new this();
-	      }
-	      return _classStaticPrivateFieldSpecGet(BaseSettingsVisitor, BaseSettingsVisitor, _instances)[id];
-	    }
 	  }]);
 	  return BaseSettingsVisitor;
 	}(main_core_events.EventEmitter);
-	var _instances = {
-	  writable: true,
-	  value: {}
-	};
+	babelHelpers.defineProperty(BaseSettingsVisitor, "instances", []);
 
 	function _createForOfIteratorHelper$1(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 	function _unsupportedIterableToArray$1(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$1(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen); }
@@ -183,7 +167,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "addChild",
 	    value: function addChild(child) {
 	      if (child instanceof BaseSettingsElement) {
-	        babelHelpers.classPrivateFieldGet(this, _childrenElements).push(child);
+	        if (!babelHelpers.classPrivateFieldGet(this, _childrenElements).includes(child)) {
+	          babelHelpers.classPrivateFieldGet(this, _childrenElements).push(child);
+	        }
 	        if (main_core.Type.isNil(child.getParentElement())) {
 	          child.setParentElement(this);
 	        }
@@ -213,6 +199,23 @@ this.BX.UI = this.BX.UI || {};
 	    key: "accept",
 	    value: function accept(visitor) {
 	      visitor.visitSettingsElement(this);
+	    }
+	  }, {
+	    key: "highlight",
+	    value: function highlight() {
+	      return false;
+	    }
+	  }, {
+	    key: "highlightElement",
+	    value: function highlightElement(element) {
+	      main_core.Dom.addClass(element, '--founded-item');
+	      setTimeout(function () {
+	        main_core.Dom.removeClass(element, '--founded-item');
+	        main_core.Dom.addClass(element, '--after-founded-item');
+	        setTimeout(function () {
+	          main_core.Dom.removeClass(element, '--after-founded-item');
+	        }, 5000);
+	      }, 0);
 	    } //#endregion "Renderable" Interface
 	  }]);
 	  return BaseSettingsElement;
@@ -296,7 +299,7 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _rowView, params.row instanceof ui_section.Row ? params.row : new ui_section.Row(main_core.Type.isPlainObject(params.row) ? params.row : {}));
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _rowView, params.row instanceof ui_section.Row || params.row instanceof ui_section.SeparatorRow ? params.row : new ui_section.Row(main_core.Type.isPlainObject(params.row) ? params.row : {}));
 	    return _this;
 	  }
 	  babelHelpers.createClass(SettingsRow, [{
@@ -320,6 +323,12 @@ this.BX.UI = this.BX.UI || {};
 	        _iterator.f();
 	      }
 	      return this.getRowView().render();
+	    }
+	  }, {
+	    key: "highlight",
+	    value: function highlight() {
+	      this.highlightElement(this.getRowView().render());
+	      return true;
 	    }
 	  }]);
 	  return SettingsRow;
@@ -382,17 +391,23 @@ this.BX.UI = this.BX.UI || {};
 	    value: function renderTo(targetNode) {
 	      return main_core.Dom.append(this.render(), targetNode);
 	    }
+	  }, {
+	    key: "highlight",
+	    value: function highlight() {
+	      this.highlightElement(this.getSectionView().render());
+	      return true;
+	    }
 	  }]);
 	  return SettingsSection;
 	}(BaseSettingsElement);
 
-	var _templateObject, _templateObject2, _templateObject3;
-	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess$1(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor$1(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
+	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
 	function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
-	function _classStaticPrivateFieldSpecGet$1(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess$1(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor$1(descriptor, "get"); return _classApplyDescriptorGet$1(receiver, descriptor); }
-	function _classCheckPrivateStaticFieldDescriptor$1(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
-	function _classCheckPrivateStaticAccess$1(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-	function _classApplyDescriptorGet$1(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$4(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$4(obj, privateMap, value) { _checkPrivateRedeclaration$4(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -403,6 +418,7 @@ this.BX.UI = this.BX.UI || {};
 	var _analytic = /*#__PURE__*/new WeakMap();
 	var _subPage = /*#__PURE__*/new WeakMap();
 	var _subPageExtensions = /*#__PURE__*/new WeakMap();
+	var _permission = /*#__PURE__*/new WeakMap();
 	var _fetchData = /*#__PURE__*/new WeakSet();
 	var BaseSettingsPage = /*#__PURE__*/function (_BaseSettingsElement) {
 	  babelHelpers.inherits(BaseSettingsPage, _BaseSettingsElement);
@@ -442,6 +458,10 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: []
 	    });
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _permission, {
+	      writable: true,
+	      value: void 0
+	    });
 	    _this.setEventNamespace('BX.Intranet.Settings');
 	    return _this;
 	  }
@@ -457,6 +477,16 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setAnalytic",
 	    value: function setAnalytic(analytic) {
 	      babelHelpers.classPrivateFieldSet(this, _analytic, analytic);
+	    }
+	  }, {
+	    key: "setPermission",
+	    value: function setPermission(permission) {
+	      babelHelpers.classPrivateFieldSet(this, _permission, permission);
+	    }
+	  }, {
+	    key: "getPermission",
+	    value: function getPermission() {
+	      return babelHelpers.classPrivateFieldGet(this, _permission);
 	    }
 	  }, {
 	    key: "hasValue",
@@ -487,13 +517,17 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getPage",
 	    value: function getPage() {
+	      var _this$getPermission;
+	      if (!((_this$getPermission = this.getPermission()) !== null && _this$getPermission !== void 0 && _this$getPermission.canRead())) {
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div id=\"", "-page-wrapper\"></div>"])), this.getType());
+	      }
 	      if (babelHelpers.classPrivateFieldGet(this, _page)) {
 	        return babelHelpers.classPrivateFieldGet(this, _page);
 	      }
 	      if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _data))) {
 	        _classPrivateMethodGet$1(this, _fetchData, _fetchData2).call(this);
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _page, main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "-page-wrapper\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getType(), main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _data)) ? LoaderPage.getWrapper() : this.render()));
+	      babelHelpers.classPrivateFieldSet(this, _page, main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "-page-wrapper\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getType(), main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _data)) ? LoaderPage.getWrapper() : this.render()));
 	      return babelHelpers.classPrivateFieldGet(this, _page);
 	    }
 	  }, {
@@ -512,7 +546,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (babelHelpers.classPrivateFieldGet(this, _content)) {
 	        return babelHelpers.classPrivateFieldGet(this, _content);
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _content, main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<div class=\"intranet-settings__page-header_wrap\">\n\t\t\t\t\t<div class=\"intranet-settings__page-header_inner\">\n\t\t\t\t\t\t<h1 class=\"intranet-settings__page-header\">", "</h1>\n\t\t\t\t\t\t<p class=\"intranet-settings__page-header_desc\">", "</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"intranet-settings__header-widget\"></div>\n\t\t\t\t</div>\n\t\t\t\t<form id=\"form-", "-page\" onsubmit=\"return false;\">\n\t\t\t\t\t<div class=\"intranet-settings__content-box\"></div>\n\t\t\t\t</form>\n\t\t\t</div>\n\t\t"])), this.titlePage, this.descriptionPage, this.getType()));
+	      babelHelpers.classPrivateFieldSet(this, _content, main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t<div class=\"intranet-settings__page-header_wrap\">\n\t\t\t\t\t<div class=\"intranet-settings__page-header_inner\">\n\t\t\t\t\t\t<h1 class=\"intranet-settings__page-header\">", "</h1>\n\t\t\t\t\t\t<p class=\"intranet-settings__page-header_desc\">", "</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"intranet-settings__header-widget\"></div>\n\t\t\t\t</div>\n\t\t\t\t<form id=\"form-", "-page\" onsubmit=\"return false;\">\n\t\t\t\t\t<div class=\"intranet-settings__content-box\"></div>\n\t\t\t\t</form>\n\t\t\t</div>\n\t\t"])), this.titlePage, this.descriptionPage, this.getType()));
 	      var headerWidget = this.headerWidgetRender();
 	      var headerWidgetWrapper = babelHelpers.classPrivateFieldGet(this, _content).querySelector('.intranet-settings__header-widget');
 	      if (headerWidget) {
@@ -524,12 +558,23 @@ this.BX.UI = this.BX.UI || {};
 	      var formNode = babelHelpers.classPrivateFieldGet(this, _content).querySelector('form');
 	      var contentNode = formNode.querySelector('.intranet-settings__content-box');
 	      formNode.addEventListener('change', function () {
-	        _this2.emit('change', {
-	          source: _this2
-	        });
+	        var _this2$getPermission;
+	        if ((_this2$getPermission = _this2.getPermission()) !== null && _this2$getPermission !== void 0 && _this2$getPermission.canEdit()) {
+	          _this2.emit('change', {
+	            source: _this2
+	          });
+	        }
 	      });
 	      this.appendSections(contentNode);
+	      main_core_events.EventEmitter.emit(main_core_events.EventEmitter.GLOBAL_TARGET, 'BX.Intranet.Settings:onContentFetched', {
+	        page: this
+	      });
 	      return babelHelpers.classPrivateFieldGet(this, _content);
+	    }
+	  }, {
+	    key: "hasContent",
+	    value: function hasContent() {
+	      return !main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _content));
 	    }
 	  }, {
 	    key: "headerWidgetRender",
@@ -553,6 +598,9 @@ this.BX.UI = this.BX.UI || {};
 	        babelHelpers.classPrivateFieldSet(this, _content, null);
 	        main_core.Dom.append(this.render(), babelHelpers.classPrivateFieldGet(this, _page));
 	      }
+	      main_core_events.EventEmitter.emit(main_core_events.EventEmitter.GLOBAL_TARGET, 'BX.Intranet.Settings:onPageComplete', {
+	        page: this
+	      });
 	    }
 	  }, {
 	    key: "onFailDataFetched",
@@ -658,14 +706,14 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(LoaderPage, null, [{
 	    key: "getWrapper",
 	    value: function getWrapper() {
-	      if (_classStaticPrivateFieldSpecGet$1(LoaderPage, LoaderPage, _wrapper)) {
-	        return _classStaticPrivateFieldSpecGet$1(LoaderPage, LoaderPage, _wrapper);
+	      if (_classStaticPrivateFieldSpecGet(LoaderPage, LoaderPage, _wrapper)) {
+	        return _classStaticPrivateFieldSpecGet(LoaderPage, LoaderPage, _wrapper);
 	      }
-	      _classStaticPrivateFieldSpecSet(LoaderPage, LoaderPage, _wrapper, main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"intranet-settings__loader\"></div>\n\t\t"]))));
+	      _classStaticPrivateFieldSpecSet(LoaderPage, LoaderPage, _wrapper, main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"intranet-settings__loader\"></div>\n\t\t"]))));
 	      // const loader = new Loader({target: LoaderPage.#wrapper, size: 200});
 	      // loader.show();
 
-	      return _classStaticPrivateFieldSpecGet$1(LoaderPage, LoaderPage, _wrapper);
+	      return _classStaticPrivateFieldSpecGet(LoaderPage, LoaderPage, _wrapper);
 	    }
 	  }]);
 	  return LoaderPage;
@@ -721,19 +769,26 @@ this.BX.UI = this.BX.UI || {};
 	    value: function visitSettingsElement(element) {
 	      var _this2 = this;
 	      if (_classPrivateMethodGet$2(this, _do, _do2).call(this, element)) {
-	        if (element.getChildrenElements().length > 0) {
-	          element.getChildrenElements().forEach(function (childElement) {
-	            _this2.visitSettingsElement(childElement);
-	          });
-	        } else {
-	          babelHelpers.classPrivateFieldGet(this, _result).push(element);
-	        }
+	        babelHelpers.classPrivateFieldGet(this, _result).push(element);
+	      }
+	      if (element.getChildrenElements().length > 0) {
+	        element.getChildrenElements().forEach(function (childElement) {
+	          _this2.visitSettingsElement(childElement);
+	        });
 	      }
 	    }
 	  }], [{
 	    key: "startFrom",
 	    value: function startFrom(startElement, filterStrategy) {
 	      return this.getInstance().setFilter(filterStrategy).restart(startElement);
+	    }
+	  }, {
+	    key: "getInstance",
+	    value: function getInstance() {
+	      if (!this.instance) {
+	        this.instance = new this();
+	      }
+	      return this.instance;
 	    }
 	  }]);
 	  return RecursiveFilteringVisitor;
@@ -748,6 +803,7 @@ this.BX.UI = this.BX.UI || {};
 	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$6(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$6(obj, privateMap, value) { _checkPrivateRedeclaration$6(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$6(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _filterCallback$1 = /*#__PURE__*/new WeakMap();
 	var _result$1 = /*#__PURE__*/new WeakMap();
 	var _do$1 = /*#__PURE__*/new WeakSet();
@@ -788,31 +844,39 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "visitSettingsElement",
 	    value: function visitSettingsElement(element) {
-	      console.log('element.constructor.name: ', element.constructor.name);
-	      if (element instanceof SettingsRow) {
-	        element.getRowView().show();
-	      } else if (element instanceof SettingsSection) {
-	        element.getSectionView().toggle(true);
-	        console.log('element.getSectionView(): ', element.getSectionView());
+	      if (_classPrivateMethodGet$3(this, _do$1, _do2$1).call(this, element)) {
+	        babelHelpers.classPrivateFieldGet(this, _result$1).push(element);
+	      }
+	      if (element.getParentElement()) {
+	        this.visitSettingsElement(element.getParentElement());
 	      }
 	    }
 	  }], [{
 	    key: "startFrom",
-	    value: function startFrom(startElement) {
-	      var instance = this.getInstance();
-	      var currentElement = startElement;
-	      var lastElement = startElement;
-	      while (currentElement) {
-	        lastElement = currentElement;
-	        instance.visitSettingsElement(currentElement);
-	        currentElement = currentElement.getParentElement();
+	    value: function startFrom(startElement, filterStrategy) {
+	      return this.getInstance().setFilter(filterStrategy).restart(startElement);
+	    }
+	  }, {
+	    key: "getInstance",
+	    value: function getInstance() {
+	      if (!this.instance) {
+	        this.instance = new this();
 	      }
-	      return lastElement;
+	      return this.instance;
 	    }
 	  }]);
 	  return AscendingOpeningVisitor;
 	}(BaseSettingsVisitor);
+	function _do2$1(element) {
+	  if (typeof babelHelpers.classPrivateFieldGet(this, _filterCallback$1) === 'function') {
+	    return babelHelpers.classPrivateFieldGet(this, _filterCallback$1).call(this, element) === true;
+	  }
+	  return false;
+	}
 
+	function _createForOfIteratorHelper$4(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$4(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+	function _unsupportedIterableToArray$4(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$4(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$4(o, minLen); }
+	function _arrayLikeToArray$4(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 	function _classPrivateFieldInitSpec$7(obj, privateMap, value) { _checkPrivateRedeclaration$7(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$7(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var _fieldView$1 = /*#__PURE__*/new WeakMap();
@@ -837,6 +901,11 @@ this.BX.UI = this.BX.UI || {};
 	    if (params.parent.getFieldView() instanceof ui_tabs.Tabs) {
 	      params.parent.getFieldView().addItem(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _fieldView$1));
 	    }
+	    if (_this.getParentElement() instanceof ui_formElements_field.TabsField) {
+	      babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _fieldView$1).subscribe('changeTab', function () {
+	        _this.getParentElement().activateTab(babelHelpers.assertThisInitialized(_this));
+	      });
+	    }
 	    return _this;
 	  }
 	  babelHelpers.createClass(TabField, [{
@@ -847,7 +916,26 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "render",
 	    value: function render() {
+	      var _iterator = _createForOfIteratorHelper$4(this.getChildrenElements()),
+	        _step;
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var element = _step.value;
+	          main_core.Dom.append(element.render(), this.getFieldView().getBodyDataContainer());
+	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
+	      }
 	      return this.getFieldView().getBody();
+	    }
+	  }, {
+	    key: "highlight",
+	    value: function highlight() {
+	      this.highlightElement(this.getFieldView().getBody());
+	      this.highlightElement(this.getFieldView().getHeader());
+	      return true;
 	    }
 	  }]);
 	  return TabField;
@@ -879,7 +967,9 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(TabsField, [{
 	    key: "activateTab",
 	    value: function activateTab(tabField) {
-	      this.getFieldView().activateItem(tabField.getFieldView());
+	      var withAnimation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+	      this.getFieldView().activateItem(tabField.getFieldView(), withAnimation);
+	      tabField.render();
 	    }
 	  }, {
 	    key: "getFieldView",
@@ -907,5 +997,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.TabsField = TabsField;
 	exports.TabField = TabField;
 
-}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX.Collections,BX.UI.FormElements,BX.Event,BX.UI,BX,BX.UI));
+}((this.BX.UI.FormElements = this.BX.UI.FormElements || {}),BX.Collections,BX.UI.FormElements,BX.Event,BX.UI,BX,BX.UI.FormElements,BX.UI));
 //# sourceMappingURL=field.bundle.js.map

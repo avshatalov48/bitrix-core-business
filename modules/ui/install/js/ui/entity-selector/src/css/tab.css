@@ -122,8 +122,13 @@
 	margin-top: 4px;
 	margin-bottom: 4px;
 	margin-right: 5px;
-	scrollbar-color: rgba(0, 0, 0, 0.21) transparent;
-	scrollbar-width: thin;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+	.ui-selector-tab-content {
+		scrollbar-color: rgba(0, 0, 0, 0.21) transparent;
+		scrollbar-width: thin;
+	}
 }
 
 .ui-selector-tab-content::-webkit-scrollbar {

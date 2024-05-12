@@ -1,6 +1,7 @@
 @import "../icon-base.css";
 
-.ui-icon-set {
+.ui-icon-set,
+.ui-icon-set__scope {
 	--ui-icon-set__path_bold: url('/bitrix/js/ui/icon-set/editor/images/bold.svg');
 	--ui-icon-set__path_italic: url('/bitrix/js/ui/icon-set/editor/images/italic.svg');
 	--ui-icon-set__path_underline: url('/bitrix/js/ui/icon-set/editor/images/underline.svg');
@@ -27,7 +28,7 @@
 	--ui-icon-set__path_ruler-and-pencil: url('/bitrix/js/ui/icon-set/editor/images/ruler-and-pencil.svg');
 	--ui-icon-set__path_paint-bucket: url('/bitrix/js/ui/icon-set/editor/images/paint-bucket.svg');
 	--ui-icon-set__path_service: url('/bitrix/js/ui/icon-set/editor/images/service.svg');
-	--ui-icon-set__path_text-check: url('/bitrix/js/ui/icon-set/editor/images/text-check.svg');
+	--ui-icon-set__path_text-check: url('/bitrix/js/ui/icon-set/editor/images/text-check.svg?2');
 	--ui-icon-set__path_paint-bucket-formatting: url('/bitrix/js/ui/icon-set/editor/images/paint-bucket-formatting.svg');
 	--ui-icon-set__path_new-file: url('/bitrix/js/ui/icon-set/editor/images/new-file.svg');
 	--ui-icon-set__path_settings-5: url('/bitrix/js/ui/icon-set/editor/images/settings-5.svg');

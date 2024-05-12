@@ -341,6 +341,12 @@ export class PlainCall extends AbstractCall
 
 		this.getLocalMediaStream("main", true).then(() =>
 		{
+			if (!this.ready)
+			{
+				this.#beforeLeaveCall();
+				return;
+			}
+
 			this.subscribeHardwareChanges();
 
 			return this.signaling.inviteUsers({
@@ -460,8 +466,11 @@ export class PlainCall extends AbstractCall
 				video.deviceId = {exact: this.cameraId};
 			}
 
-			video.width = {ideal: 1280};
-			video.height = {ideal: 720};
+			if (hdVideo)
+			{
+				video.width = {ideal: 1280};
+				video.height = {ideal: 720};
+			}
 		}
 
 		return {audio: audio, video: video};
@@ -532,10 +541,7 @@ export class PlainCall extends AbstractCall
 			let constraintsArray = [];
 			if (Hardware.isCameraOn)
 			{
-				if (this.videoHd)
-				{
-					constraintsArray.push(this.getMediaConstraints({videoEnabled: true, hdVideo: true}));
-				}
+				constraintsArray.push(this.getMediaConstraints({videoEnabled: true, hdVideo: true}));
 				constraintsArray.push(this.getMediaConstraints({videoEnabled: true, hdVideo: false}));
 				if (fallbackToAudio)
 				{
@@ -565,6 +571,7 @@ export class PlainCall extends AbstractCall
 					tag: tag,
 					stream: stream
 				});
+				this.setPublishingState(MediaStreamsKinds.Camera, true);
 				if (tag === 'main')
 				{
 					this.attachVoiceDetection();
@@ -665,6 +672,22 @@ export class PlainCall extends AbstractCall
 			});
 		})
 	};
+
+	setPublishingState(deviceType, publishing)
+	{
+		if (deviceType === MediaStreamsKinds.Camera)
+		{
+			this.runCallback(CallEvent.onCameraPublishing, {
+				publishing
+			});
+		}
+		else if (deviceType === MediaStreamsKinds.Microphone)
+		{
+			this.runCallback(CallEvent.onMicrophonePublishing, {
+				publishing
+			});
+		}
+	}
 
 	startMediaCapture()
 	{
@@ -952,6 +975,11 @@ export class PlainCall extends AbstractCall
 			this.getLocalMediaStream("main", true)
 				.then(() =>
 					{
+						if (!this.ready)
+						{
+							this.#beforeLeaveCall();
+							return;
+						}
 						this.subscribeHardwareChanges();
 
 						this.state = CallState.Connected;
@@ -1000,11 +1028,9 @@ export class PlainCall extends AbstractCall
 		});
 	};
 
-	hangup()
+	hangup(force = false)
 	{
-		const peersValue = Object.values(this.peers);
-
-		if (!this.ready)
+		if (!this.ready && !force)
 		{
 			const error = new Error("Hangup in wrong state");
 			this.log(error);
@@ -1029,12 +1055,10 @@ export class PlainCall extends AbstractCall
 
 			this.runCallback(CallEvent.onLeave, {local: true});
 
-			if (peersValue.some(peer => !!peer.ready)) {
-                this.signaling.sendHangup({userId: this.users})
-                    .then(() => resolve())
-                    .catch(e => reject(e))
-                ;
-			}
+			this.signaling.sendHangup({userId: this.users})
+				.then(() => resolve())
+				.catch(e => reject(e))
+			;
 		});
 	};
 
@@ -1061,6 +1085,7 @@ export class PlainCall extends AbstractCall
 
 	replaceLocalMediaStream(tag: string = "main")
 	{
+		this.setPublishingState(MediaStreamsKinds.Camera, true);
 		if (this.localStreams[tag])
 		{
 			Util.stopMediaStream(this.localStreams[tag]);
@@ -1436,7 +1461,7 @@ export class PlainCall extends AbstractCall
 			this.peers[senderId].setDeclined(true);
 		}
 
-		if (!this.isAnyoneParticipating())
+		if (!this.isAnyoneParticipating() && this.ready)
 		{
 			this.hangup();
 		}
@@ -1743,6 +1768,7 @@ export class PlainCall extends AbstractCall
 
 	destroy()
 	{
+		this.ready = false;
 		const tempError = new Error();
 		tempError.name = "Call stack:";
 		this.log("Call destroy \n" + tempError.stack);
@@ -2114,7 +2140,7 @@ class Peer
 
 		// event handlers
 		this._onPeerConnectionIceCandidateHandler = this._onPeerConnectionIceCandidate.bind(this);
-		this._onPeerConnectionIceConnectionStateChangeHandler = this.#onPeerConnectionIceConnectionStateChange.bind(this);
+		this._onPeerConnectionConnectionStateChangeHandler = this.#onPeerConnectionConnectionStateChange.bind(this);
 		this._onPeerConnectionIceGatheringStateChangeHandler = this.#onPeerConnectionIceGatheringStateChange.bind(this);
 		this._onPeerConnectionSignalingStateChangeHandler = this.#onPeerConnectionSignalingStateChange.bind(this);
 		//this._onPeerConnectionNegotiationNeededHandler = this._onPeerConnectionNegotiationNeeded.bind(this);
@@ -2813,7 +2839,7 @@ class Peer
 		this.peerConnectionId = id;
 
 		this.peerConnection.addEventListener("icecandidate", this._onPeerConnectionIceCandidateHandler);
-		this.peerConnection.addEventListener("iceconnectionstatechange", this._onPeerConnectionIceConnectionStateChangeHandler);
+		this.peerConnection.addEventListener("connectionstatechange", this._onPeerConnectionConnectionStateChangeHandler);
 		this.peerConnection.addEventListener("icegatheringstatechange", this._onPeerConnectionIceGatheringStateChangeHandler);
 		this.peerConnection.addEventListener("signalingstatechange", this._onPeerConnectionSignalingStateChangeHandler);
 		// this.peerConnection.addEventListener("negotiationneeded", this._onPeerConnectionNegotiationNeededHandler);
@@ -2841,7 +2867,7 @@ class Peer
 		this.stopStatisticsGathering();
 
 		this.peerConnection.removeEventListener("icecandidate", this._onPeerConnectionIceCandidateHandler);
-		this.peerConnection.removeEventListener("iceconnectionstatechange", this._onPeerConnectionIceConnectionStateChangeHandler);
+		this.peerConnection.removeEventListener("connectionstatechange", this._onPeerConnectionConnectionStateChangeHandler);
 		this.peerConnection.removeEventListener("icegatheringstatechange", this._onPeerConnectionIceGatheringStateChangeHandler);
 		this.peerConnection.removeEventListener("signalingstatechange", this._onPeerConnectionSignalingStateChangeHandler);
 		// this.peerConnection.removeEventListener("negotiationneeded", this._onPeerConnectionNegotiationNeededHandler);
@@ -2902,28 +2928,30 @@ class Peer
 		}
 	};
 
-	#onPeerConnectionIceConnectionStateChange()
+	#onPeerConnectionConnectionStateChange()
 	{
-		this.log("User " + this.userId + ": ICE connection state changed. New state: " + this.peerConnection.iceConnectionState);
+		this.log("User " + this.userId + ": peer connection state changed. New state: " + this.peerConnection.connectionState);
 
-		if (this.peerConnection.iceConnectionState === "connected" || this.peerConnection.iceConnectionState === "completed")
+		if (this.peerConnection.connectionState === "connected" || this.peerConnection.connectionState === "completed")
 		{
 			this.connectionAttempt = 0;
 			this.callbacks.onReconnected();
 			clearTimeout(this.reconnectAfterDisconnectTimeout);
 			this._updateTracksDebounced();
 		}
-		else if (this.peerConnection.iceConnectionState === "failed")
+		else if (this.peerConnection.connectionState === "failed")
 		{
-			this.log("ICE connection failed. Trying to restore connection immediately");
+			this.log("peer connection failed. Trying to restore connection immediately");
 			this.reconnect();
 		}
-		else if (this.peerConnection.iceConnectionState === "disconnected")
-		{
-			this.log("ICE connection lost. Waiting 5 seconds before trying to restore it");
-			clearTimeout(this.reconnectAfterDisconnectTimeout);
-			this.reconnectAfterDisconnectTimeout = setTimeout(() => this.reconnect(), 5000);
-		}
+		// else if (this.peerConnection.connectionState === "disconnected")
+		// {
+		// 	// we can ignore a 'disconnected' state because it can provoke frequent reconnects,
+		// 	// besides that, iceConnectionState can can be changed back to 'connected' state by itself
+		// 	this.log("peer connection lost. Waiting 5 seconds before trying to restore it");
+		// 	clearTimeout(this.reconnectAfterDisconnectTimeout);
+		// 	this.reconnectAfterDisconnectTimeout = setTimeout(() => this.reconnect(), 5000);
+		// }
 
 		this.updateCalculatedState();
 	};
@@ -3115,6 +3143,7 @@ class Peer
 	_onConnectionOfferReplyTimeout(connectionId)
 	{
 		this.log("did not receive connection answer for connection " + connectionId);
+		this.call.setPublishingState(MediaStreamsKinds.Camera, false);
 
 		this.reconnect();
 	};
@@ -3318,6 +3347,10 @@ class Peer
 				this.failureReason = e.toString();
 				this.updateCalculatedState();
 				this.log(e);
+			})
+			.finally(() =>
+			{
+				this.call.setPublishingState(MediaStreamsKinds.Camera, false);
 			})
 		;
 	};

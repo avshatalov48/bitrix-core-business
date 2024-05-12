@@ -112,6 +112,7 @@ this.BX.UI = this.BX.UI || {};
 	var _state$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("state");
 	var _documentReady = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("documentReady");
 	var _launchCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("launchCount");
+	var _launchTimeoutId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("launchTimeoutId");
 	var _startDebounced = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("startDebounced");
 	var _start = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("start");
 	var _tryDequeue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tryDequeue");
@@ -146,6 +147,10 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _launchCount, {
 	      writable: true,
 	      value: 0
+	    });
+	    Object.defineProperty(this, _launchTimeoutId, {
+	      writable: true,
+	      value: null
 	    });
 	    Object.defineProperty(this, _startDebounced, {
 	      writable: true,
@@ -248,6 +253,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	}
 	function _tryDequeue2() {
+	  clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _launchTimeoutId)[_launchTimeoutId]);
 	  babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem] = babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].getFirst();
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem] === null) {
 	    return;
@@ -256,7 +262,7 @@ this.BX.UI = this.BX.UI || {};
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canLaunchAfterOthers() && babelHelpers.classPrivateFieldLooseBase(this, _launchCount)[_launchCount] > 0) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _tryDequeue)[_tryDequeue]();
 	  } else if (this.constructor.canShowOnTop() || babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canShowOnTop()) {
-	    setTimeout(() => {
+	    babelHelpers.classPrivateFieldLooseBase(this, _launchTimeoutId)[_launchTimeoutId] = setTimeout(() => {
 	      if (this.constructor.canShowOnTop() || babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canShowOnTop()) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _launchCount)[_launchCount]++;
 	        babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].launch(() => {

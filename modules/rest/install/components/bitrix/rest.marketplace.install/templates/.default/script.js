@@ -54,13 +54,13 @@ BX.Rest.Marketplace.Install =
 			BX.show(BX('rest_mp_install_error'));
 			return;
 		}
-
-		if (BX.hasClass(this.buttonInstallNode, "popup-window-button-wait"))
+		
+		if (BX.hasClass(this.buttonInstallNode, "ui-btn-wait"))
 		{
 			return;
 		}
 
-		BX.addClass(this.buttonInstallNode, "popup-window-button-wait");
+		this.buttonInstallNode.classList.add('ui-btn-wait')
 
 		var queryParam = {
 			code: this.code

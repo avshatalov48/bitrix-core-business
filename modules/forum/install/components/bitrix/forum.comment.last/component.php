@@ -149,7 +149,7 @@ $arTopics = array();
 				$res["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $res["ALLOW"]);
 
 				$res["POST_MESSAGE_TEXT"] = htmlspecialcharsback($res["POST_MESSAGE_TEXT"]);
-				$res["POST_MESSAGE_TEXT"] = preg_replace("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, "<b>\\2</b>", $res["POST_MESSAGE_TEXT"]);
+				$res["POST_MESSAGE_TEXT"] = preg_replace("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/isu", "<b>\\2</b>", $res["POST_MESSAGE_TEXT"]);
 
 				if ($arParams['TOPIC_POST_MESSAGE_LENGTH'] > 0)
 				{

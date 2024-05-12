@@ -5,9 +5,9 @@ import { EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import { LinkItem } from './link-item';
 import { Link } from '../../../classes/panels/link';
-import { DateGroup } from '../../elements/date-group';
-import { DetailHeader } from '../../elements/detail-header';
-import { DetailEmptyState } from '../../elements/detail-empty-state';
+import { DateGroup } from '../../elements/date-group/date-group';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
+import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
 import { LinkMenu } from '../../../classes/context-menu/link/link-menu';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';
 

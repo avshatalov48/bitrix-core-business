@@ -93,10 +93,14 @@ class CCalendarWebService extends IWebService
 	function __makeTS($datetime = null)
 	{
 		if (null === $datetime)
+		{
 			return time();
+		}
 
-		if (intval(mb_substr($datetime, 0, 4)) >= 2037)
-			$datetime = '2037'.mb_substr($datetime, 4);
+		if ((int)mb_substr($datetime, 0, 4) >= 2037)
+		{
+			$datetime = '2037' . mb_substr($datetime, 4);
+		}
 
 		return MakeTimeStamp(mb_substr($datetime, 0, 10).' '.mb_substr($datetime, 11, -1), 'YYYY-MM-DD HH:MI:SS');
 	}
@@ -326,9 +330,13 @@ class CCalendarWebService extends IWebService
 		$res = $this->GetListItemChangesSinceToken($listName, $viewFields, '', 0, $since ? $this->__makeTS($since) : '');
 
 		if (is_object($res))
+		{
 			return $res;
+		}
 		else
+		{
 			return array('GetListItemChangesResult' => $res['GetListItemChangesSinceTokenResult']);
+		}
 	}
 
 	function GetListItemChangesSinceToken($listName, $viewFields = '', $query = '', $rowLimit = 0, $changeToken = '')
@@ -340,7 +348,7 @@ class CCalendarWebService extends IWebService
 			return new CSoapFault('Data error', 'Wrong GUID - '.$listName);
 		}
 
-		$listName = ToUpper(CIntranetUtils::makeGUID($listName_original));
+		$listName = mb_strtoupper(CIntranetUtils::makeGUID($listName_original));
 
 		$arSections = CCalendarSect::GetList(array('arFilter' => array('XML_ID' => $listName_original)));
 		if (!$arSections || !is_array($arSections[0]))
@@ -352,7 +360,7 @@ class CCalendarWebService extends IWebService
 
 		$userId = (is_object($USER) && $USER->GetID()) ? $USER->GetID() : 1;
 
-		$fetchMeetings = $arSection['CAL_TYPE'] == 'user' && CCalendar::GetMeetingSection($arSection['OWNER_ID']) == $arSection['ID'];
+		$fetchMeetings = $arSection['CAL_TYPE'] === 'user' && CCalendar::GetMeetingSection($arSection['OWNER_ID']) == $arSection['ID'];
 		$arEvents = CCalendarEvent::GetList(
 			array(
 				'arFilter' => array(
@@ -388,7 +396,7 @@ class CCalendarWebService extends IWebService
 		$count = 0;
 		foreach ($arEvents as  $event)
 		{
-			if ($event['DELETED'] != 'N' || ($event['IS_MEETING'] && $event['MEETING_STATUS'] == 'N'))
+			if ($event['DELETED'] !== 'N' || ($event['IS_MEETING'] && $event['MEETING_STATUS'] === 'N'))
 			{
 				$obId = new CXMLCreator('Id');
 				$obId->setAttribute('ChangeType', 'Delete');
@@ -429,7 +437,7 @@ class CCalendarWebService extends IWebService
 
 		$obResponse = new CXMLCreator('Results');
 
-		$listName = ToUpper(CIntranetUtils::makeGUID($listName_original));
+		$listName = mb_strtoupper(CIntranetUtils::makeGUID($listName_original));
 		$arSections = CCalendarSect::GetList(array('arFilter' => array('XML_ID' => $listName_original)));
 		if (!$arSections || !is_array($arSections[0]))
 		{
@@ -449,15 +457,12 @@ class CCalendarWebService extends IWebService
 		{
 			\Bitrix\Main\Loader::includeModule('socialnetwork');
 			$arGroupTmp = CSocNetGroup::GetByID($arSection['SOCNET_GROUP_ID']);
-			if ($arGroupTmp["CLOSED"] === "Y")
+			if (($arGroupTmp["CLOSED"] === "Y") && COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !== "Y")
 			{
-				if (COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !== "Y")
-				{
-					return new CSoapFault(
-						'Cannot modify archive group calendar',
-						'Cannot modify archive group calendar'
-					);
-				}
+				return new CSoapFault(
+					'Cannot modify archive group calendar',
+					'Cannot modify archive group calendar'
+				);
 			}
 		}
 
@@ -472,7 +477,6 @@ class CCalendarWebService extends IWebService
 		//$dateStart = ConvertTimeStamp(strtotime('-1 hour'), 'FULL');
 		$responseRows = array();
 		$replicationId = array();
-		$userId = (is_object($USER) && $USER->GetID()) ? $USER->GetID() : 1;
 
 		foreach ($arChanges as $obMethod)
 		{
@@ -556,11 +560,6 @@ class CCalendarWebService extends IWebService
 					$skipTime = $arData['fAllDayEvent'] ? 'Y' : 'N';
 					$fromTs = $fromTsUTC;
 					$toTs = $toTsUTC;
-					if (!$arData['fAllDayEvent'])
-					{
-						$fromTs += CCalendar::GetCurrentOffsetUTC($userId);
-						$toTs += CCalendar::GetCurrentOffsetUTC($userId);
-					}
 				}
 				else
 				{
@@ -582,7 +581,7 @@ class CCalendarWebService extends IWebService
 					switch($obNode->name)
 					{
 						case 'daily':
-							// hack. we have no "work days" daily recurence
+							// hack. we have no "work days" daily recurrence
 							if ($obNode->getAttribute('weekday') === 'TRUE')
 							{
 								$arData['RRULE']['FREQ'] = 'WEEKLY';
@@ -649,7 +648,7 @@ class CCalendarWebService extends IWebService
 					$obWhile = $obRecurRule->children[2];
 					if ($obWhile->name === 'repeatForever')
 					{
-						$arData['RRULE']['UNTIL'] = MakeTimeStamp('');;
+						$arData['RRULE']['UNTIL'] = MakeTimeStamp('');
 					}
 					elseif ($obWhile->name === 'windowEnd')
 					{
@@ -658,7 +657,7 @@ class CCalendarWebService extends IWebService
 					}
 					elseif ($obWhile->name === 'repeatInstances')
 					{
-						$arData['RRULE']['COUNT'] = intval($obWhile->textContent());
+						$arData['RRULE']['COUNT'] = (int)$obWhile->textContent();
 					}
 				}
 				elseif(($arData['fRecurrence'] === -1) && ($id > 0))
@@ -667,10 +666,10 @@ class CCalendarWebService extends IWebService
 				}
 
 				$arFields = [
-					"ID" => $id,
+					'ID' => $id,
 					'CAL_TYPE' => $calType,
 					'OWNER_ID' => $ownerId,
-					'CREATED_BY' => $userId,
+					'CREATED_BY' => $ownerId,
 					'NAME' => $arData['Title'],
 					'DESCRIPTION' => self::ClearOutlookHtml($arData['Description']),
 					'SECTIONS' => [$arSection['ID']],
@@ -684,6 +683,8 @@ class CCalendarWebService extends IWebService
 				{
 					$arFields['DATE_FROM'] = CCalendar::Date($fromTs, $skipTime === 'N');
 					$arFields['DATE_TO'] = CCalendar::Date($toTs, $skipTime === 'N');
+					$arFields['TZ_FROM'] = 'UTC';
+					$arFields['TZ_TO'] = 'UTC';
 					$arFields['DT_SKIP_TIME'] = $skipTime;
 				}
 
@@ -692,12 +693,10 @@ class CCalendarWebService extends IWebService
 					$arFields['DT_LENGTH'] = $arData['DT_LENGTH'];
 				}
 
-				$eventId = CCalendar::SaveEvent(
-					[
-						'arFields' => $arFields,
-						'fromWebservice' => true
-					]
-				);
+				$eventId = CCalendar::SaveEvent([
+					'arFields' => $arFields,
+					'fromWebservice' => true
+				]);
 
 				if ($eventId && ((int)$eventId) > 0)
 				{
@@ -717,20 +716,18 @@ class CCalendarWebService extends IWebService
 
 		$userId = (is_object($USER) && $USER->GetID()) ? $USER->GetID() : 1;
 		$fetchMeetings = (int)CCalendar::GetMeetingSection($userId) === (int)$arSection['ID'];
-		$arEvents = CCalendarEvent::GetList(
-			[
-				'arFilter' => [
-					'CAL_TYPE' => $calType,
-					'OWNER_ID' => $ownerId,
-					'SECTION' => $arSection['ID']
-				],
-				'getUserfields' => false,
-				'parseRecursion' => false,
-				'fetchAttendees' => false,
-				'fetchMeetings' => $fetchMeetings,
-				'userId' => $userId
-			]
-		);
+		$arEvents = CCalendarEvent::GetList([
+			'arFilter' => [
+				'CAL_TYPE' => $calType,
+				'OWNER_ID' => $ownerId,
+				'SECTION' => $arSection['ID']
+			],
+			'getUserfields' => false,
+			'parseRecursion' => false,
+			'fetchAttendees' => false,
+			'fetchMeetings' => $fetchMeetings,
+			'userId' => $userId
+		]);
 
 		foreach ($arEvents as $event)
 		{
@@ -850,11 +847,11 @@ class CCalendarWebService extends IWebService
 		$html = preg_replace("/<![^>]*>/", '', $html);
 		$html = trim($html);
 
-		$html = preg_replace("/(\s|\S)*<a\s*name=\"bm_begin\"><\/a>/is".BX_UTF_PCRE_MODIFIER,"", $html);
-		$html = preg_replace("/<br>(\n|\r)+/is".BX_UTF_PCRE_MODIFIER,"<br>", $html);
+		$html = preg_replace("/(\s|\S)*<a\s*name=\"bm_begin\"><\/a>/isu","", $html);
+		$html = preg_replace("/<br>(\n|\r)+/isu","<br>", $html);
 
 		// mantis: 75493
-		$html = preg_replace("/.*\/\*\s*Style\s*Definitions\s*\*\/\s.+?;\}/is".BX_UTF_PCRE_MODIFIER,"", $html);
+		$html = preg_replace("/.*\/\*\s*Style\s*Definitions\s*\*\/\s.+?;\}/isu","", $html);
 
 		$html = CCalendar::ParseHTMLToBB($html);
 

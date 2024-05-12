@@ -3,7 +3,7 @@
 #############################################
 # Bitrix Site Manager Forum					#
 # Copyright (c) 2002-2009 Bitrix			#
-# http://www.bitrixsoft.com					#
+# https://www.bitrixsoft.com					#
 # mailto:admin@bitrixsoft.com				#
 #############################################
 
@@ -18,7 +18,7 @@ class CAllVoteAnswer
 		$module_id = "vote";
 		return "<br>Module: ".$module_id."<br>Class: CAllVoteAnswer<br>File: ".__FILE__;
 	}
-	
+
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
@@ -33,7 +33,7 @@ class CAllVoteAnswer
 			$arFields['QUESTION_ID'] = intval($arFields['QUESTION_ID'] ?? 0);
 			if ($arFields['QUESTION_ID'] <= 0):
 				$aMsg[] = [
-					'id' => 'QUESTION_ID', 
+					'id' => 'QUESTION_ID',
 					'text' => GetMessage('VOTE_FORGOT_QUESTION_ID')
 				];
 			endif;
@@ -90,7 +90,7 @@ class CAllVoteAnswer
 		}
 
 		if (isset($arFields['COLOR']) || $ACTION == 'ADD') $arFields['COLOR'] = mb_substr(trim($arFields['COLOR'] ?? ''), 0, 7);
-		
+
 		if (!empty($aMsg))
 		{
 			$e = new CAdminException(array_reverse($aMsg));
@@ -213,7 +213,7 @@ class CAllVoteAnswer
 		else:
 			return false;
 		endif;
-		
+
 		$DB->Query($strSqlEventAnswer, false, $err_mess.__LINE__);
 		$DB->Query($strSqlAnswer, false, $err_mess.__LINE__);
 /***************** Event onAfterVoteAnswerDelete *******************/
@@ -251,7 +251,7 @@ class CAllVoteAnswer
 					break;
 			}
 		}
-		
+
 		$order = ($order!="desc" ? "asc" : "desc");
 		$by = (($by == "s_id" || $by == "s_counter") ? $by : "s_c_sort");
 		if ($by == "s_id")				$strSqlOrder = " ORDER BY A.ID";
@@ -262,6 +262,7 @@ class CAllVoteAnswer
 		$strSqlFrom = "FROM b_vote_answer A WHERE ".$strSqlSearch." and A.QUESTION_ID=".$QUESTION_ID."";
 		$strSql = "SELECT A.* ".$strSqlFrom.$strSqlOrder;
 
+		$arAddParams["nTopCount"] = ($arAddParams["nTopCount"] ?? 0);
 		if ($arAddParams["nTopCount"] > 0)
 		{
 			$arAddParams["nTopCount"] = intval($arAddParams["nTopCount"]);
@@ -286,7 +287,7 @@ class CAllVoteAnswer
 	public static function GetListEx($arOrder = array("ID" => "ASC"), $arFilter=array())
 	{
 		global $DB;
-		
+
 		$arSqlSearch = Array();
 		$strSqlSearch = "";
 		$arSqlOrder = Array();
@@ -302,7 +303,7 @@ class CAllVoteAnswer
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 			$key = mb_strtoupper($key_res["FIELD"]);
-			
+
 			switch($key)
 			{
 				case "ID":
@@ -364,7 +365,7 @@ class CAllVoteAnswer
 		}
 		if (count($arSqlSearch) > 0)
 			$strSqlSearch = " AND (".implode(") AND (", $arSqlSearch).") ";
-		
+
 		foreach ($arOrder as $by => $order)
 		{
 			$by = mb_strtoupper($by);
@@ -377,7 +378,7 @@ class CAllVoteAnswer
 			elseif ($by == "COUNTER") $arSqlOrder[] = " VA.COUNTER ".$order." ";
 			else $arSqlOrder[] = " VA.ID ".$order." ";
 		}
-		DelDuplicateSort($arSqlOrder); 
+		DelDuplicateSort($arSqlOrder);
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 

@@ -4,6 +4,17 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
 	'use strict';
 
+	function getByIndex(array, index) {
+	  if (!main_core.Type.isArray(array)) {
+	    throw new TypeError('array is not a array');
+	  }
+	  if (!main_core.Type.isInteger(index)) {
+	    throw new TypeError('index is not a integer');
+	  }
+	  const preparedIndex = index < 0 ? array.length + index : index;
+	  return array[preparedIndex];
+	}
+
 	class AstProcessor {
 	  /**
 	   * Makes flat list from AST
@@ -94,7 +105,7 @@ this.BX.UI = this.BX.UI || {};
 	  static findElements(ast, selector) {
 	    const flattenedAst = AstProcessor.flattenAst(ast);
 	    const parsedSelector = AstProcessor.parseSelector(selector);
-	    const lastSelector = parsedSelector.at(-1);
+	    const lastSelector = getByIndex(parsedSelector, -1);
 	    let checkClosestParent = false;
 	    return parsedSelector.reduceRight((acc, currentSelector) => {
 	      if (main_core.Type.isPlainObject(currentSelector)) {

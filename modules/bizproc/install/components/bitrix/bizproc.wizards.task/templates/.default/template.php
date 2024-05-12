@@ -42,7 +42,7 @@ else
 		<?= bitrix_sessid_post() ?>
 		<table class="bpwiz1-view-form data-table" cellpadding="0" cellspacing="0">
 			<tr>
-				<th colspan="2"><?= GetMessage("BPWTC_WRCT_SUBTITLE") ?></th>
+				<th colspan="2"><?= GetMessage("BPWTC_WRCT_SUBTITLE_MSGVER_1") ?></th>
 			</tr>
 			<tr>
 				<td align="right" valign="top" width="40%"><?= GetMessage("BPWC_WTCT_NAME") ?>:</td>

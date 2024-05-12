@@ -451,23 +451,34 @@ export class UserPlannerSelector extends EventEmitter
 
 	setDateTime(dateTime, updatePlaner = false)
 	{
-		this.dateTime = dateTime;
-		this.planner.currentFromDate = dateTime.from;
-		this.planner.currentToDate = dateTime.to;
+		// 0183864
+		const dateTimeCloned = { ...dateTime };
+		if (dateTimeCloned.fullDay)
+		{
+			dateTimeCloned.from.setHours(0, 0, 0, 0);
+			const dayCount = Math.ceil((dateTimeCloned.to.getTime() - dateTimeCloned.from.getTime() + 1) / (1000 * 3600 * 24));
+			dateTimeCloned.to = new Date(dateTimeCloned.from.getTime() + (dayCount - 1) * 24 * 3600 * 1000);
+			dateTimeCloned.to.setHours(23, 55, 0, 0);
+		}
+
+		this.dateTime = dateTimeCloned;
+
+		this.planner.currentFromDate = dateTimeCloned.from;
+		this.planner.currentToDate = dateTimeCloned.to;
 		if (this.planner && updatePlaner)
 		{
-			this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+			this.planner.updateSelector(dateTimeCloned.from, dateTimeCloned.to, dateTimeCloned.fullDay);
 		}
 		else if (this.planner)
 		{
-			let fromHours = parseInt(dateTime.from.getHours()) + Math.floor(dateTime.from.getMinutes() / 60);
-			let toHours = parseInt(dateTime.to.getHours()) + Math.floor(dateTime.to.getMinutes() / 60);
+			const fromHours = parseInt(dateTimeCloned.from.getHours(), 10) + Math.floor(dateTimeCloned.from.getMinutes() / 60);
+			const toHours = parseInt(dateTimeCloned.to.getHours(), 10) + Math.floor(dateTimeCloned.to.getMinutes() / 60);
 			if (
 				(fromHours !== 0 && fromHours <= this.planner.shownScaleTimeFrom)
-				|| (toHours !== 0  && toHours !== 23 && toHours + 1 >= this.planner.shownScaleTimeTo)
+				|| (toHours !== 0 && toHours !== 23 && toHours + 1 >= this.planner.shownScaleTimeTo)
 			)
 			{
-				this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+				this.planner.updateSelector(dateTimeCloned.from, dateTimeCloned.to, dateTimeCloned.fullDay);
 			}
 		}
 	}

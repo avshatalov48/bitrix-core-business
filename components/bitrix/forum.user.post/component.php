@@ -63,13 +63,13 @@ $arParams["mode"] = mb_strtolower(($arParams["mode"] == '')? $_REQUEST["mode"] :
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(isset($arParams["PAGE_NAVIGATION_WINDOW"]) && intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["PATH_TO_SMILE"] = "";
 	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
-	$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
+	$arParams["IMAGE_SIZE"] = (isset($arParams["IMAGE_SIZE"]) && intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 /***************** STANDART ****************************************/
-	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
-	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
+	$arParams["SET_TITLE"] = (isset($arParams["SET_TITLE"]) && $arParams["SET_TITLE"] == "N" ? "N" : "Y");
+	$arParams["SET_NAVIGATION"] = (isset($arParams["SET_NAVIGATION"]) && $arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
 	// $arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N");
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -103,7 +103,7 @@ $cache = new CPHPCache();
 $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/");
 
 $arFilter = array(); $arForums = array();
-if ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || !CForumUser::IsAdmin())
+if (isset($arParams["SHOW_FORUM_ANOTHER_SITE"]) && $arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || !CForumUser::IsAdmin())
 	$arFilter["LID"] = SITE_ID;
 if (!empty($arParams["FID_RANGE"]))
 	$arFilter["@ID"] = $arParams["FID_RANGE"];
@@ -204,7 +204,7 @@ endif;
 if (!empty($_REQUEST["set_filter"]))
 {
 	InitFilterEx(array("date_create", "date_create1"), "USER_LIST", "set", false);
-	if (intval($_REQUEST["fid"]) > 0)
+	if (isset($_REQUEST["fid"]) && intval($_REQUEST["fid"]) > 0)
 	{
 		if (!empty($arResult["FORUMS_ALL"][$_REQUEST["fid"]]))
 			$arFilterFromForm["fid"] = $_REQUEST["fid"];
@@ -230,7 +230,7 @@ if (!empty($_REQUEST["set_filter"]))
 		$arFilterFromForm["topic"] = $_REQUEST["topic"];
 	if (!empty($_REQUEST["message"]))
 		$arFilterFromForm["message"] = $_REQUEST["message"];
-	$arFilterFromForm["sort"] = ($_REQUEST["sort"] == "topic" ? "topic" : "message");
+	$arFilterFromForm["sort"] = (isset($_REQUEST["sort"]) && $_REQUEST["sort"] == "topic" ? "topic" : "message");
 }
 elseif (!empty($_REQUEST["del_filter"]))
 {
@@ -338,6 +338,10 @@ if ($arParams["mode"] == "lta" || $arParams["mode"] == "lt")
 	{
 		do
 		{
+			if (!isset($arForum_posts[$res["FORUM_ID"]]))
+			{
+				$arForum_posts[$res["FORUM_ID"]] = 0;
+			}
 			$arForum_posts[$res["FORUM_ID"]] += intval($res["COUNT_MESSAGE"]);
 			$res = array_merge(
 				$res, array(
@@ -520,7 +524,7 @@ foreach ($topics as $topic_id => $res)
 		$forums[$forum_id] = array_merge(
 			$arResult["FORUMS_ALL"][$forum_id],
 			array(
-				"NUM_POSTS_ALL" => $arForum_posts[$forum_id],
+				"NUM_POSTS_ALL" => isset($arForum_posts[$forum_id]) ? $arForum_posts[$forum_id] : null,
 				"PERMISSION" => $UserPerm, "USER_PERM" => $UserPerm,
 				"AUTHOR_STATUS" => $UserPermStr, "USER_PERM_STR" => $UserPermStr,
 				"AUTHOR_STATUS_CODE" => $UserPermCode,
@@ -559,9 +563,15 @@ foreach ($topics as $topic_id => $res)
 			"AUTHOR_PM" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"],
 				array("FID" => 0, "MID" => 0, "UID" => $res["AUTHOR_ID"], "mode" => "new")),
 			);
-			$res["URL"]["~AUTHOR_VOTE"] = ForumAddPageParams($res["URL"]["MESSAGE"],
-				array("UID" => $res["AUTHOR_ID"], "MID" => $res["ID"], "VOTES" => intval($arResult["USER"]["RANK"]["VOTES"]),
-					"VOTES_TYPE" => ($res["VOTING"] == "VOTE" ? "V" : "U"), "ACTION" => "VOTE4USER"));
+			$res["URL"]["~AUTHOR_VOTE"] = ForumAddPageParams(
+				$res["URL"]["MESSAGE"],
+				array(
+					"UID" => $res["AUTHOR_ID"], "MID" => $res["ID"],
+					"VOTES" => $arResult["USER"]["RANK"] ? intval($arResult["USER"]["RANK"]["VOTES"]) : 0,
+					"VOTES_TYPE" => (isset($res["VOTING"]) && $res["VOTING"] == "VOTE" ? "V" : "U"),
+					"ACTION" => "VOTE4USER"
+				)
+			);
 			$res["URL"]["AUTHOR_VOTE"] = $res["URL"]["~AUTHOR_VOTE"]."&amp;".bitrix_sessid_get();
 	/************** For custom templates *******************************/
 		$topics[$res["TOPIC_ID"]]["MESSAGES"][$iID]["URL"] = $arResult["MESSAGE_LIST"][$iID]["URL"] = $res["URL"];

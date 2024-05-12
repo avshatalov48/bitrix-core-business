@@ -302,7 +302,7 @@ class EventConverter
 	private function parseImagesInDescription(string $description): string
 	{
 		return preg_replace(
-			"#\[img]((cid):[.\\-_:a-z0-9@]+)*\[/img]#is".BX_UTF_PCRE_MODIFIER,
+			"#\[img]((cid):[.\\-_:a-z0-9@]+)*\[/img]#isu",
 			"<img src='\\1'>",
 			$description
 		);

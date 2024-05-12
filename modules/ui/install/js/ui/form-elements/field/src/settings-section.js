@@ -41,4 +41,11 @@ export class SettingsSection extends BaseSettingsElement
 	{
 		return Dom.append(this.render(), targetNode);
 	}
+
+	highlight(): boolean
+	{
+		this.highlightElement(this.getSectionView().render());
+
+		return true;
+	}
 }

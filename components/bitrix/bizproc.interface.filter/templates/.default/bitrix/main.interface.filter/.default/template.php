@@ -381,7 +381,7 @@ if(!function_exists('__BizprocInterfaceFilterRenderField'))
 
 				$delay = 100;
 
-				echo '<script type="text/javascript">',
+				echo '<script>',
 				'BX.ready(function(){',
 				'BX.CrmUserSearchPopup.deletePopup("', $ID, '");',
 				'BX.CrmUserSearchPopup.create("', $ID, '", { searchInput: BX("', CUtil::JSEscape($searchInputID), '"), dataInput: BX("', CUtil::JSEscape($dataInputID),'"), componentName: "', CUtil::JSEscape($componentName),'", user: ', CUtil::PhpToJSObject(array_change_key_case($user, CASE_LOWER)) ,', zIndex: ', $zIndex,' }, ', $delay,');',
@@ -548,7 +548,7 @@ if(!(is_string($filterRows) && $filterRows !== ''))
 	$filterRows = implode(',', $fieldIDs);
 }
 
-?><script type="text/javascript">
+?><script>
 	BX.ready(
 			function()
 			{

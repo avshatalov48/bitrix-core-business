@@ -1,12 +1,13 @@
 import { EventEmitter } from 'main.core.events';
-import { Event } from 'main.core';
+import { Event as CoreEvent } from 'main.core';
 
-import { RecentList } from 'im.v2.component.list.element-list.recent';
+import { Messenger } from 'im.public';
+import { Utils } from 'im.v2.lib.utils';
+import { RecentList } from 'im.v2.component.list.items.recent';
 import { ChatSearchInput } from 'im.v2.component.search.chat-search-input';
-import { SearchExperimental } from 'im.v2.component.search.search-experimental';
+import { ChatSearch } from 'im.v2.component.search.chat-search';
 import { Layout, EventType } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
-import { UnreadRecentService } from 'im.v2.provider.service';
 
 import { HeaderMenu } from './components/header-menu';
 import { CreateChatMenu } from './components/create-chat-menu/create-chat-menu';
@@ -15,10 +16,15 @@ import './css/recent-container.css';
 
 import type { JsonObject } from 'main.core';
 
+const searchConfig = Object.freeze({
+	chats: true,
+	users: true,
+});
+
 // @vue/component
 export const RecentListContainer = {
 	name: 'RecentListContainer',
-	components: { HeaderMenu, CreateChatMenu, ChatSearchInput, RecentList, SearchExperimental },
+	components: { HeaderMenu, CreateChatMenu, ChatSearchInput, RecentList, ChatSearch },
 	emits: ['selectEntity'],
 	data(): JsonObject
 	{
@@ -31,19 +37,19 @@ export const RecentListContainer = {
 	},
 	computed:
 	{
-		UnreadRecentService: () => UnreadRecentService,
+		searchConfig: () => searchConfig,
 	},
 	created()
 	{
 		Logger.warn('List: Recent container created');
 
 		EventEmitter.subscribe(EventType.recent.openSearch, this.onOpenSearch);
-		Event.bind(document, 'mousedown', this.onDocumentClick);
+		CoreEvent.bind(document, 'mousedown', this.onDocumentClick);
 	},
 	beforeUnmount()
 	{
 		EventEmitter.unsubscribe(EventType.recent.openSearch, this.onOpenSearch);
-		Event.unbind(document, 'mousedown', this.onDocumentClick);
+		CoreEvent.unbind(document, 'mousedown', this.onDocumentClick);
 	},
 	methods:
 	{
@@ -77,41 +83,47 @@ export const RecentListContainer = {
 		{
 			this.isSearchLoading = value;
 		},
+		async onItemClick(event: {dialogId: string, nativeEvent: KeyboardEvent})
+		{
+			const { dialogId, nativeEvent } = event;
+
+			void Messenger.openChat(dialogId);
+
+			if (!Utils.key.isAltOrOption(nativeEvent))
+			{
+				EventEmitter.emit(EventType.search.close);
+			}
+		},
 	},
 	template: `
-				<div class="bx-im-list-container-recent__scope bx-im-list-container-recent__container" ref="recent-container">
-					<div class="bx-im-list-container-recent__header_container">
-						<HeaderMenu @showUnread="unreadOnlyMode = true" />
-						<div class="bx-im-list-container-recent__search-input_container">
-							<ChatSearchInput 
-								:searchMode="searchMode" 
-								:isLoading="isSearchLoading"
-								@openSearch="onOpenSearch"
-								@closeSearch="onCloseSearch"
-								@updateSearch="onUpdateSearch"
-							/>
-						</div>
-						<CreateChatMenu />
-					</div>
-					<div class="bx-im-list-container-recent__elements_container">
-						<div class="bx-im-list-container-recent__elements">
-							<SearchExperimental 
-								v-show="searchMode" 
-								:searchMode="searchMode"
-								:withMyNotes="true"
-								:searchQuery="searchQuery" 
-								:searchConfig="{}"
-								@loading="onLoading"
-							/>
-							<RecentList v-show="!searchMode && !unreadOnlyMode" @chatClick="onChatClick" key="recent" />
-		<!--					<RecentList-->
-		<!--						v-if="!searchMode && unreadOnlyMode"-->
-		<!--						:recentService="UnreadRecentService.getInstance()"-->
-		<!--						@chatClick="onChatClick"-->
-		<!--						key="unread"-->
-		<!--					/>-->
-						</div>
-					</div>
+		<div class="bx-im-list-container-recent__scope bx-im-list-container-recent__container" ref="recent-container">
+			<div class="bx-im-list-container-recent__header_container">
+				<HeaderMenu @showUnread="unreadOnlyMode = true" />
+				<div class="bx-im-list-container-recent__search-input_container">
+					<ChatSearchInput 
+						:searchMode="searchMode" 
+						:isLoading="searchMode && isSearchLoading"
+						@openSearch="onOpenSearch"
+						@closeSearch="onCloseSearch"
+						@updateSearch="onUpdateSearch"
+					/>
 				</div>
+				<CreateChatMenu />
+			</div>
+			<div class="bx-im-list-container-recent__elements_container">
+				<div class="bx-im-list-container-recent__elements">
+					<ChatSearch 
+						v-show="searchMode" 
+						:searchMode="searchMode"
+						:searchQuery="searchQuery"
+						:searchConfig="searchConfig"
+						:saveSearchHistory="true"
+						@loading="onLoading"
+						@clickItem="onItemClick"
+					/>
+					<RecentList v-show="!searchMode && !unreadOnlyMode" @chatClick="onChatClick" />
+				</div>
+			</div>
+		</div>
 	`,
 };

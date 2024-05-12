@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 return [
 	'js' => 'dist/switcher-nested.bundle.js',
 	'rel' => [
+		'ui.draganddrop.draggable',
 		'main.core',
 		'main.core.events',
 		'main.popup',

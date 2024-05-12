@@ -30,7 +30,7 @@ export default class SearchTab extends Tab
 			stubOptions: {
 				autoShow: false,
 				title: Loc.getMessage('UI_SELECTOR_SEARCH_STUB_TITLE'),
-				subtitle: Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE')
+				subtitle: Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1')
 			}
 		};
 

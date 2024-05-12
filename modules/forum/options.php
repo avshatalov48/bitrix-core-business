@@ -328,7 +328,7 @@ $tabControl->BeginNextTab();
 		<?$val = COption::GetOptionString("forum", "FILTER_RPL", "*");?>
 		<td><input type="text" value="<?=htmlspecialcharsbx($val)?>" name="FILTER_RPL" id="FILTER_RPL"></td>
 	</tr>
-	<script language="JavaScript">
+	<script>
 	function DisableAction(CheckB)
 	{
 		var Form = document.getElementById('FORMACTION');
@@ -387,7 +387,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 <?$tabControl->Buttons();?>
-<script language="JavaScript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?=CUtil::JSEscape(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))

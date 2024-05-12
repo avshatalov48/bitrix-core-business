@@ -19,16 +19,6 @@ class RecurrenceRulePropertyType extends PropertyType
 
 		$this->rrule = $rrule;
 
-		if ($this->rrule->count)
-		{
-			$this->addParameter(Parameter::getInstance('COUNT', $this->rrule->count));
-		}
-
-		if ($this->rrule->until)
-		{
-			$this->addParameter(Parameter::getInstance('UNTIL', $this->rrule->until));
-		}
-
 		if ($this->rrule->freq)
 		{
 			$this->addParameter(Parameter::getInstance('FREQ', $this->rrule->freq));
@@ -42,6 +32,16 @@ class RecurrenceRulePropertyType extends PropertyType
 		if ($this->rrule->day && is_array($this->rrule->day))
 		{
 			$this->addParameter(Parameter::getInstance('BYDAY', implode(',', $this->rrule->day), true));
+		}
+
+		if ($this->rrule->count)
+		{
+			$this->addParameter(Parameter::getInstance('COUNT', $this->rrule->count));
+		}
+
+		if ($this->rrule->until)
+		{
+			$this->addParameter(Parameter::getInstance('UNTIL', $this->rrule->until));
 		}
 	}
 

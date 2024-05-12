@@ -1,9 +1,8 @@
 <?php
 
-
 namespace Bitrix\Calendar\ICal\MailInvitation;
 
-
+use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\ICal\Builder\Attach;
 use Bitrix\Calendar\ICal\Builder\AttachCollection;
 use Bitrix\Calendar\ICal\Builder\Attendee;
@@ -272,83 +271,6 @@ class Helper
 		}
 
 		return $collection;
-	}
-
-	/**
-	 * @return string
-	 */
-	public static function getSaltForPubLink(): string
-	{
-		if($salt = \COption::GetOptionString('calendar', 'pub_event_salt'))
-		{
-			return $salt;
-		}
-
-		$salt = uniqid('', true);
-		\COption::SetOptionString('calendar', 'pub_event_salt', $salt);
-		return $salt;
-	}
-
-	/**
-	 * @param int $eventId
-	 * @param int $userId
-	 * @param int $dateCreateTimestamp
-	 * @return string
-	 */
-	public static function getHashForPubEvent(int $eventId, int $userId, int $dateCreateTimestamp): string
-	{
-		return md5($eventId.self::getSaltForPubLink().$dateCreateTimestamp.$userId);
-	}
-
-	/**
-	 * @param int $eventId
-	 * @param int $userId
-	 * @param int $dateCreateTimestamp
-	 * @return string
-	 */
-	public static function getPubEventLink(int $eventId, int $userId, int $dateCreateTimestamp): string
-	{
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
-		$scheme = $context->getRequest()->isHttps() ? 'https' : 'http';
-		$server = $context->getServer();
-		$domain = $server->getServerName() ?: \COption::getOptionString('main', 'server_name', '');
-
-		if (preg_match('/^(?<domain>.+):(?<port>\d+)$/', $domain, $matches))
-		{
-			$domain = $matches['domain'];
-			$port   = $matches['port'];
-		}
-		else
-		{
-			$port = $server->getServerPort();
-		}
-
-		$port = in_array((int)$port, [80, 443], true) ? '' : ":{$port}";
-
-		return "{$scheme}://{$domain}{$port}/pub/calendar-event/{$eventId}/".self::getHashForPubEvent($eventId, $userId, $dateCreateTimestamp)."/";
-	}
-
-	/**
-	 * @param int $eventId
-	 * @param int $userId
-	 * @param int $dateCreateTimestamp
-	 * @return string
-	 */
-	public static function getDetailLink(int $eventId, int $userId, int $dateCreateTimestamp): string
-	{
-		return self::getPubEventLink($eventId, $userId, $dateCreateTimestamp);
-	}
-
-	/**
-	 * @param int $eventId
-	 * @param int $userId
-	 * @param int $dateCreateTimestamp
-	 * @param string $decision
-	 * @return string
-	 */
-	public static function getPubEventLinkWithParameters(int $eventId, int $userId, int $dateCreateTimestamp, string $decision): string
-	{
-		return self::getDetailLink($eventId, $userId, $dateCreateTimestamp) . "?decision={$decision}";
 	}
 
 	/**

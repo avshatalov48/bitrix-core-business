@@ -1,13 +1,14 @@
 import { PermissionManager } from 'im.v2.lib.permission';
+import { Extension } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
-import { ChatActionType, EventType, SidebarDetailBlock } from 'im.v2.const';
+import { ChatActionType, ChatType, EventType, GetParameter, SidebarDetailBlock, Layout } from 'im.v2.const';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { Button as ChatButton, ButtonColor, ButtonSize, Loader } from 'im.v2.component.elements';
 
 import { DetailUser } from './detail-user';
-import { DetailHeader } from '../../elements/detail-header';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
 import { MembersService } from '../../../classes/panels/members';
 import { MembersMenu } from '../../../classes/context-menu/main/members-menu';
 
@@ -47,10 +48,6 @@ export const MembersPanel = {
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
-		dialogManagers(): number[]
-		{
-			return this.dialog.managerList;
-		},
 		dialogIds(): string[]
 		{
 			const users = this.$store.getters['sidebar/members/get'](this.chatId);
@@ -59,7 +56,10 @@ export const MembersPanel = {
 		},
 		chatLink(): string
 		{
-			return `${Core.getHost()}/online/?IM_DIALOG=${this.dialogId}`;
+			const isCopilot = this.dialog.type === ChatType.copilot;
+			const chatGetParameter = isCopilot ? GetParameter.openCopilotChat : GetParameter.openChat;
+
+			return `${Core.getHost()}/online/?${chatGetParameter}=${this.dialogId}`;
 		},
 		hasNextPage(): boolean
 		{
@@ -85,7 +85,24 @@ export const MembersPanel = {
 		},
 		needAddButton(): boolean
 		{
+			if (this.isCopilotLayout && !this.isAddToCopilotChatAvailable)
+			{
+				return false;
+			}
+
 			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
+		},
+		isCopilotLayout(): boolean
+		{
+			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
+
+			return currentLayoutName === Layout.copilot.name;
+		},
+		isAddToCopilotChatAvailable(): boolean
+		{
+			const settings = Extension.getSettings('im.v2.component.content.copilot');
+
+			return settings.isAddToChatAvailable === 'Y';
 		},
 	},
 	watch:
@@ -93,14 +110,14 @@ export const MembersPanel = {
 		dialogId(dialogId: string)
 		{
 			this.service = new MembersService({ dialogId });
-			this.loadFirstPage();
+			void this.loadFirstPage();
 		},
 	},
 	created()
 	{
 		this.contextMenu = new MembersMenu();
 		this.service = new MembersService({ dialogId: this.dialogId });
-		this.loadFirstPage();
+		void this.loadFirstPage();
 	},
 	beforeUnmount()
 	{
@@ -119,11 +136,11 @@ export const MembersPanel = {
 			this.chats = await this.service.loadFirstPage();
 			this.isLoading = false;
 		},
-		isModerator(userDialogId: string): boolean
+		isOwner(userDialogId: string): boolean
 		{
 			const userId = Number.parseInt(userDialogId, 10);
 
-			return this.dialogManagers.includes(userId);
+			return this.dialog.ownerId === userId;
 		},
 		onContextMenuClick(event)
 		{
@@ -172,6 +189,10 @@ export const MembersPanel = {
 			this.showAddToChatPopup = true;
 			this.showAddToChatTarget = event.target;
 		},
+		loc(key: string): string
+		{
+			return this.$Bitrix.Loc.getMessage(key);
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-main-detail__scope">
@@ -186,7 +207,7 @@ export const MembersPanel = {
 			<div class="bx-im-sidebar-detail__container" @scroll="onScroll">
 				<div class="bx-im-sidebar-main-detail__invitation-button-container">
 					<ChatButton
-						:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_COPY_INVITE_LINK')"
+						:text="loc('IM_SIDEBAR_COPY_INVITE_LINK')"
 						:size="ButtonSize.M"
 						:color="ButtonColor.PrimaryBorder"
 						:isRounded="true"
@@ -198,7 +219,7 @@ export const MembersPanel = {
 				<DetailUser
 					v-for="dialogId in dialogIds"
 					:dialogId="dialogId"
-					:isModerator="isModerator(dialogId)"
+					:isOwner="isOwner(dialogId)"
 					@contextMenuClick="onContextMenuClick"
 				/>
 				<Loader v-if="isLoading" class="bx-im-sidebar-detail__loader-container" />

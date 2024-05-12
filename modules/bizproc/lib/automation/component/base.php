@@ -49,7 +49,7 @@ abstract class Base extends \CBitrixComponent implements Errorable
 			'isInvalid' => false,
 		];
 
-		$type = mb_strtolower($robot['Type']);
+		$type = mb_strtolower($robot['Type'] ?? '');
 		if (isset($availableRobots[$type]['ROBOT_SETTINGS']))
 		{
 			$settings = $availableRobots[$type]['ROBOT_SETTINGS'];

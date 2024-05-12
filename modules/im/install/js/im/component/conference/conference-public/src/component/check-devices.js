@@ -42,8 +42,7 @@ const CheckDevices = {
 	},
 	destroyed()
 	{
-		// do not stop local media stream, because it is required in the controller
-		this.mediaStream = null;
+		this.stopLocalVideo();
 	},
 	computed:
 	{

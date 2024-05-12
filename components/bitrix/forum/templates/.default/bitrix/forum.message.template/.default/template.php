@@ -53,7 +53,7 @@ include_once(__DIR__."/script.php");
 <?
 		endif;
 
-if(trim($res["AUTHOR_STATUS"]) <> ''):
+if(isset($res["AUTHOR_STATUS"]) && trim($res["AUTHOR_STATUS"]) <> ''):
 	?>
 	<div
 		class="forum-user-status <?= (!empty($res["AUTHOR_STATUS_CODE"])? "forum-user-".$res["AUTHOR_STATUS_CODE"]."-status" : "") ?>"><?
@@ -66,7 +66,7 @@ endif;
 <?
 		if (intval($res["NUM_POSTS"]) > 0):
 ?>
-						<span><?=GetMessage("F_NUM_MESS")?> <span><noindex><a rel="nofollow" href="<?=$res["URL"]["AUTHOR_POSTS"]?>"><?
+						<span><?=GetMessage("F_NUM_MESS")?> <span><noindex><a rel="nofollow" href="<?=$res["URL"]["AUTHOR_POSTS"] ?? ""?>"><?
 							?><?=$res["NUM_POSTS"]?></a></noindex></span></span>
 <?
 		endif;
@@ -126,8 +126,8 @@ endif;
 			<td class="forum-cell-post">
 				<div class="forum-post-date">
 					<div class="forum-post-number"><noindex><a rel="nofollow" href="<?=$res["URL"]["MESSAGE"]?>#message<?=$res["ID"]?>" <?
-						?>onclick="prompt(this.title + ' [' + this.innerHTML + ']', (location.protocol + '//' + location.host + this.getAttribute('href'))); return false;" title="<?=GetMessage("F_ANCHOR")?>">#<?=$res["NUMBER"]?></a></noindex><?
-				if ($arRes["USER"]["PERMISSION"] >= "Q" && $res["SHOW_CONTROL"] != "N"):
+						?>onclick="prompt(this.title + ' [' + this.innerHTML + ']', (location.protocol + '//' + location.host + this.getAttribute('href'))); return false;" title="<?=GetMessage("F_ANCHOR")?>">#<?=$res["NUMBER"] ?? ""?></a></noindex><?
+				if (isset($arRes["USER"]["PERMISSION"]) && $arRes["USER"]["PERMISSION"] >= "Q" && (!isset($res["SHOW_CONTROL"]) || $res["SHOW_CONTROL"] != "N")):
 					?>&nbsp;<input type="checkbox" name="message_id[]" value="<?=$res["ID"]?>" id="message_id_<?=$res["ID"]?>_" <?
 					if ($res["CHECKED"] == "Y"):
 					?> checked="checked" <?
@@ -146,12 +146,12 @@ endif;
 							"ENTITY_TYPE_ID" => $voteEntityType,
 							"ENTITY_ID" => $voteEntityId,
 							"OWNER_ID" => $res['AUTHOR_ID'],
-							"USER_VOTE" => $arRatingVote[$voteEntityType][$voteEntityId]['USER_VOTE'],
-							"USER_HAS_VOTED" => $arRatingVote[$voteEntityType][$voteEntityId]['USER_HAS_VOTED'],
-							"TOTAL_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VOTES'],
-							"TOTAL_POSITIVE_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_POSITIVE_VOTES'],
-							"TOTAL_NEGATIVE_VOTES" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_NEGATIVE_VOTES'],
-							"TOTAL_VALUE" => $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VALUE'],
+							"USER_VOTE" => ($arRatingVote[$voteEntityType][$voteEntityId] ? $arRatingVote[$voteEntityType][$voteEntityId]['USER_VOTE'] : null),
+							"USER_HAS_VOTED" => ($arRatingVote[$voteEntityType][$voteEntityId] ? $arRatingVote[$voteEntityType][$voteEntityId]['USER_HAS_VOTED'] : null),
+							"TOTAL_VOTES" => ($arRatingVote[$voteEntityType][$voteEntityId] ? $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VOTES'] : null),
+							"TOTAL_POSITIVE_VOTES" =>($arRatingVote[$voteEntityType][$voteEntityId] ?  $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_POSITIVE_VOTES'] : null),
+							"TOTAL_NEGATIVE_VOTES" => ($arRatingVote[$voteEntityType][$voteEntityId] ? $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_NEGATIVE_VOTES'] : null),
+							"TOTAL_VALUE" => ($arRatingVote[$voteEntityType][$voteEntityId] ? $arRatingVote[$voteEntityType][$voteEntityId]['TOTAL_VALUE'] : null),
 							"PATH_TO_USER_PROFILE" => $arParams["~URL_TEMPLATES_PROFILE_VIEW"]
 						),
 						($component->__parent ? $component->__parent : $component),
@@ -262,7 +262,7 @@ if (!empty($res["FILES"]))
 ?>
 				</div>
 <?
-		if ($arRes["USER"]["PERMISSION"] >= "Q"):
+		if (isset($arRes["USER"]["PERMISSION"]) && $arRes["USER"]["PERMISSION"] >= "Q"):
 ?>
 				<div class="forum-post-entry forum-user-additional forum-user-moderate-info">
 <?
@@ -275,14 +275,14 @@ if (!empty($res["FILES"]))
 					<span>IP: <span><?=$res["AUTHOR_IP"];?></span></span>
 <?
 			endif;
-			if ($res["PANELS"]["STATISTIC"] == "Y"):
+			if (isset($res["PANELS"]["STATISTIC"]) && $res["PANELS"]["STATISTIC"] == "Y"):
 ?>
 					<span><?=GetMessage("F_USER_ID")?>: <span><a href="/bitrix/admin/guest_list.php?lang=<?=LANG_ADMIN_LID?><?
 						?>&amp;find_id=<?=$res["GUEST_ID"]?>&amp;set_filter=Y"><?=$res["GUEST_ID"];?></a></span></span>
 <?
 			endif;
 
-			if ($res["PANELS"]["MAIN"] == "Y"):
+			if (isset($res["PANELS"]["MAIN"]) && $res["PANELS"]["MAIN"] == "Y"):
 ?>
 					<span><?=GetMessage("F_USER_ID_USER")?>: <span><?
 						?><a href="/bitrix/admin/user_edit.php?lang=<?=LANG_ADMIN_LID?>&amp;ID=<?=$res["AUTHOR_ID"]?>"><?=$res["AUTHOR_ID"];?></a></span></span>
@@ -365,12 +365,12 @@ foreach(array("MODERATE", "EDIT", "DELETE") as $k)
 <?
 		endif;
 	else:
-		if ($res["PANELS"]["MODERATE"] == "Y"):
+		if (isset($res["PANELS"]["MODERATE"]) && $res["PANELS"]["MODERATE"] == "Y"):
 			if ($res["APPROVED"] == "Y"):
 ?>
 					<span class="forum-action-hide"><?
 						?><noindex><a rel="nofollow" <?
-							if ($arParams['AJAX_POST'] == 'Y'): ?>onclick="return forumActionComment(this, 'MODERATE');"<?
+							if (isset($arParams['AJAX_POST']) && $arParams['AJAX_POST'] == 'Y'): ?>onclick="return forumActionComment(this, 'MODERATE');"<?
 							else: ?>onclick="return fAddSId(this);"<? endif;
 							?> href="<?=$res["URL"]["MODERATE"]?>"><?=GetMessage("F_HIDE")?></a></noindex></span>&nbsp;&nbsp;
 <?
@@ -378,34 +378,34 @@ foreach(array("MODERATE", "EDIT", "DELETE") as $k)
 ?>
 					<span class="forum-action-show"><?
 						?><noindex><a rel="nofollow" <?
-							if ($arParams['AJAX_POST'] == 'Y'): ?>onclick="return forumActionComment(this, 'MODERATE');"<?
+							if (isset($arParams['AJAX_POST']) && $arParams['AJAX_POST'] == 'Y'): ?>onclick="return forumActionComment(this, 'MODERATE');"<?
 							else: ?>onclick="return fAddSId(this);"<? endif;
 							?> href="<?=$res["URL"]["MODERATE"]?>"><?=GetMessage("F_SHOW")?></a></noindex></span>&nbsp;&nbsp;
 <?
 			endif;
 		endif;
-		if ($res["PANELS"]["DELETE"] == "Y"):
+		if (isset($res["PANELS"]["DELETE"]) && $res["PANELS"]["DELETE"] == "Y"):
 ?>
 					<span class="forum-action-delete"><?
 						?><noindex><a rel="nofollow" <?
-							if ($arParams['AJAX_POST'] == 'Y'): ?>onclick="return forumActionComment(this, 'DEL');" <?
+							if (isset($arParams['AJAX_POST']) && $arParams['AJAX_POST'] == 'Y'): ?>onclick="return forumActionComment(this, 'DEL');" <?
 							else: ?>onclick="if(confirm(BX.message('cdm'))) return fAddSId(this); else return false;" <? endif;
 							?> href="<?=$res["URL"]["DELETE"]?>"><?=GetMessage("F_DELETE")?></a></noindex></span>&nbsp;&nbsp;
 <?
 		endif;
-		if ($res["PANELS"]["EDIT"] == "Y"):
+		if (isset($res["PANELS"]["EDIT"]) && $res["PANELS"]["EDIT"] == "Y"):
 ?>
 					<span class="forum-action-edit"><noindex><a rel="nofollow" href="<?=$res["URL"]["EDIT"]?>"><?=GetMessage("F_EDIT")?></a></noindex></span>&nbsp;&nbsp;
 <?
 		endif;
-		if ($res["PANELS"]["GOTO"] == "Y"):
+		if (isset($res["PANELS"]["GOTO"]) && $res["PANELS"]["GOTO"] == "Y"):
 	?>
 					<span class="forum-action-edit"><noindex><a rel="nofollow" href="<?=$res["URL"]["MESSAGE"]?>#message<?=$res["ID"]?>"><?=GetMessage("F_GOTO")?></a></noindex></span>&nbsp;&nbsp;
 <?
 		endif;
 endif;
 
-if ($arRes["USER"]["RIGHTS"]["ADD_MESSAGE"] == "Y"):
+if (isset($arRes["USER"]["RIGHTS"]) && isset($arRes["USER"]["RIGHTS"]["ADD_MESSAGE"]) && $arRes["USER"]["RIGHTS"]["ADD_MESSAGE"] == "Y"):
 	if ($res["NUMBER"] == 1):
 		?>&nbsp;&nbsp;<?
 	endif;
@@ -440,9 +440,9 @@ if ($iNumber < $iCount || ($iCount == 0)):
 <?
 endif;
 
-?><script type="text/javascript">
+?><script>
 <?
-if ($arRes["USER"]["PERMISSION"] >= "Q" && ForumGetEntity($templateFolder) === false)
+if (isset($arRes["USER"]["PERMISSION"]) && $arRes["USER"]["PERMISSION"] >= "Q" && ForumGetEntity($templateFolder) === false)
 {
 ?>
 ;(function(window){

@@ -44,6 +44,11 @@ export class Tab extends EventEmitter
 		this.#initBody(options.body);
 	}
 
+	getId(): string
+	{
+		return this.#id;
+	}
+
 	getSort()
 	{
 		return this.#sort;
@@ -77,31 +82,34 @@ export class Tab extends EventEmitter
 				<div class="ui-tabs__tab-header-container-inner-title">${Text.encode(options.title)}</div>
 				<div class="ui-tabs__tab-header-container-inner-lockbox"><span class="ui-icon-set --lock field-has-lock"></span></div>
 			</div>`;
-			Event.bind(innerHeader.querySelector('.field-has-lock'), 'click', this.showBanner.bind(this));
+			Event.bind(innerHeader, 'click', this.showBanner.bind(this));
 		}
 
 		this.#head = Tag.render`<span class="ui-tabs__tab-header-container ${Text.encode(options.className ?? '')}" data-bx-role="tab-header" data-bx-name="${Text.encode(this.#id)}">${innerHeader}</span>`;
+
+		Event.bind(
+			this.#head,
+			'click',
+			() => {
+				this.emit('changeTab');
+			},
+		);
 	}
 
 	#initBody(body: Function | Promise | string | HTMLElement)
 	{
-		if (!this.#dataContainer)
-		{
-			this.#dataContainer = Tag.render`<div class="ui-tabs__tab-body_data"></div>`;
-		}
-		Dom.clean(this.#dataContainer);
+		this.#dataContainer = Tag.render`<div class="ui-tabs__tab-body_data"></div>`;
+		this.#body = Tag.render`<div class="ui-tabs__tab-body_inner"></div>`;
+		this.#body.dataset.id = this.#id;
+		this.#body.dataset.role = 'body';
+		this.#body.appendChild(this.#dataContainer);
 
-		if (!this.#body)
+		if (body)
 		{
-			this.#body = Tag.render`<div class="ui-tabs__tab-body_inner"></div>`;
-			this.#body.dataset.id = this.#id;
-			this.#body.dataset.role = 'body';
-			this.#body.appendChild(this.#dataContainer);
+			this.subscribe('onActive', () => {
+				this.#loadBody(body);
+			});
 		}
-
-		this.subscribeOnce('onActive', () => {
-			this.#loadBody(body);
-		});
 	}
 
 	#loadBody(body)
@@ -213,13 +221,19 @@ export class Tab extends EventEmitter
 	}
 
 	// Here just in case
-	#getBodyDataContainer(): HTMLElement
+	getBodyDataContainer(): HTMLElement
 	{
 		return this.#dataContainer;
 	}
 
-	inactivate(): Tab
+	inactivate(withAnimation: boolean = true): Tab
 	{
+		Dom.removeClass(this.#body, 'ui-tabs__tab-active-animation');
+		if (withAnimation !== false)
+		{
+			Dom.addClass(this.#body, 'ui-tabs__tab-active-animation');
+		}
+
 		if (this.#active === true)
 		{
 			Dom.removeClass(this.#head, '--header-active');
@@ -231,8 +245,14 @@ export class Tab extends EventEmitter
 		return this;
 	}
 
-	activate(): Tab
+	activate(withAnimation: boolean = true): Tab
 	{
+		Dom.removeClass(this.#body, 'ui-tabs__tab-active-animation');
+		if (withAnimation !== false)
+		{
+			Dom.addClass(this.#body, 'ui-tabs__tab-active-animation');
+		}
+
 		if (this.#active !== true)
 		{
 			Dom.addClass(this.#head, '--header-active');

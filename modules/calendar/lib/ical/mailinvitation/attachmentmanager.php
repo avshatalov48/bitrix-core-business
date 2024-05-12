@@ -1,12 +1,16 @@
 <?php
 
-
 namespace Bitrix\Calendar\ICal\MailInvitation;
-
 
 use Bitrix\Calendar\ICal\Basic\RecurrenceRuleProperty;
 use Bitrix\Calendar\ICal\Builder\Attach;
 use Bitrix\Calendar\ICal\Builder\Attendee;
+use Bitrix\Calendar\ICal\Builder\Calendar;
+use Bitrix\Calendar\ICal\Builder\Dictionary;
+use Bitrix\Calendar\ICal\Builder\Event;
+use Bitrix\Calendar\ICal\Builder\StandardObservances;
+use Bitrix\Calendar\ICal\Builder\Timezone;
+use Bitrix\Calendar\Util;
 use Bitrix\Mail\User;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -23,8 +27,6 @@ abstract class AttachmentManager
 	 * @var string
 	 */
 	protected $uid;
-
-	abstract public function getContent(): string;
 
 	/**
 	 * @param array $event
@@ -60,9 +62,7 @@ abstract class AttachmentManager
 	{
 		if (
 			empty($description)
-			&& (empty($this->event['ICAL_ATTACHES'])
-				|| empty($this->event['ICAL_ATTACHES']->getCollection())
-			)
+			&& empty($this->event['ICAL_ATTACHES']?->getCollection())
 		)
 		{
 			return null;
@@ -70,12 +70,14 @@ abstract class AttachmentManager
 
 		$description = $this->parseText($description);
 
-		if (empty($this->event['ICAL_ATTACHES']->getCollection()))
+		if (!empty($this->event['ICAL_ATTACHES']?->getCollection()))
 		{
-			return str_replace("\r\n", " \n", $description);
+			$description .= "\n" . $this->getFilesDescription();
 		}
 
-		return str_replace("\r\n", " \n", $description . "\n" . $this->getFilesDescription());
+		$description = str_replace("\r\n", "\n", $description);
+
+		return preg_replace("/\n{3,}/", "\n\n", $description);
 	}
 
 	/**
@@ -199,5 +201,51 @@ abstract class AttachmentManager
 		}
 
 		return \CTextParser::clearAllTags($description);
+	}
+
+	public function getContent(): string
+	{
+		$event = $this->event;
+
+		$isFullDay = $this->event['DT_SKIP_TIME'] === 'Y';
+		$icalEvent = Event::createInstance($this->uid)
+			->setName($event['NAME'])
+			->setStartsAt(Util::getDateObject($event['DATE_FROM'], $isFullDay, $event['TZ_FROM']))
+			->setEndsAt(Util::getDateObject($event['DATE_TO'], $isFullDay, $event['TZ_TO']))
+			->setCreatedAt(Util::getDateObject($event['DATE_CREATE'] ?? null, false, $event['TZ_FROM']))
+			->setDtStamp(Util::getDateObject($event['DATE_CREATE'] ?? null, false, $event['TZ_FROM']))
+			->setModified(Util::getDateObject($event['TIMESTAMP_X'] ?? null, false, $event['TZ_FROM']))
+			->setWithTimezone(!$isFullDay)
+			->setWithTime(!$isFullDay)
+			->setDescription($this->prepareDescription($event['DESCRIPTION']))
+			->setTransparent(Dictionary::TRANSPARENT[$event['ACCESSIBILITY']] ?? Dictionary::TRANSPARENT['busy'])
+			->setRRule($this->prepareRecurrenceRule($event['RRULE'] ?? null))
+			->setLocation(\CCalendar::GetTextLocation($event['LOCATION'] ?? null))
+			->setSequence((int)$event['VERSION'])
+			->setStatus(Dictionary::EVENT_STATUS['confirmed'])
+		;
+
+		if (!empty($event['ICAL_ATTENDEES']) && !($event['MEETING']['HIDE_GUESTS'] ?? true))
+		{
+			$icalEvent->setAttendees($event['ICAL_ATTENDEES']);
+		}
+
+		if (!empty($event['ICAL_ORGANIZER']))
+		{
+			$icalEvent->setOrganizer($event['ICAL_ORGANIZER'], $this->getOrganizerMailTo());
+		}
+
+		return Calendar::createInstance()
+			->setMethod('REQUEST')
+			->setTimezones(Timezone::createInstance()
+				->setTimezoneId(Helper::getTimezoneObject($event['TZ_FROM']))
+				->setObservance(StandardObservances::createInstance()
+					->setOffsetFrom(Helper::getTimezoneObject($event['TZ_FROM']))
+					->setOffsetTo(Helper::getTimezoneObject($event['TZ_TO']))
+					->setDTStart()
+				)
+			)
+			->addEvent($icalEvent)
+			->get();
 	}
 }

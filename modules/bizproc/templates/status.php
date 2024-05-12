@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 $arFields = Array(
@@ -10,7 +11,7 @@ $arFields = Array(
 	(
 		'Creators' => Array
 		(
-			'Name'        => GetMessage("BPT_ST_CREATORS"),
+			'Name'        => GetMessage("BPT_ST_CREATORS_MSGVER_1"),
 			'Description' => '',
 			'Type'        => 'user',
 			'Required'    => 1,
@@ -20,7 +21,7 @@ $arFields = Array(
 
 		'Approvers' => Array
 		(
-			'Name'        => GetMessage("BPT_ST_APPROVERS"),
+			'Name'        => GetMessage("BPT_ST_APPROVERS_MSGVER_1"),
 			'Description' => '',
 			'Type'        => 'user',
 			'Required'    => 1,
@@ -216,8 +217,8 @@ $arFields = Array(
 									'Name'       => 'A43038_42133_40786_25817',
 									'Properties' => Array
 									(
-										'MailSubject'       => GetMessage("BPT_ST_SUBJECT"),
-										'MailText'          => CBPDocument::_ReplaceTaskURL(GetMessage("BPT_ST_TEXT"), $documentType),
+										'MailSubject'       => GetMessage("BPT_ST_SUBJECT_MSGVER_1"),
+										'MailText'          => CBPDocument::_ReplaceTaskURL(GetMessage("BPT_ST_TEXT_MSGVER_1"), $documentType),
 										'MailMessageType'   => 'plain',
 										'MailCharset'       => LANG_CHARSET,
 										'MailUserFrom'      => '',
@@ -246,8 +247,8 @@ $arFields = Array(
 									(
 										'ApproveType' => 'any',
 										'OverdueDate' => '',
-										'Name'        => GetMessage("BPT_ST_APPROVE_NAME"),
-										'Description' => GetMessage("BPT_ST_APPROVE_DESC"),
+										'Name'        => GetMessage("BPT_ST_APPROVE_NAME_MSGVER_1"),
+										'Description' => GetMessage("BPT_ST_APPROVE_DESC_MSGVER_1"),
 										'Parameters'  => '',
 										'Users'       => Array
 										(
@@ -255,7 +256,7 @@ $arFields = Array(
 											'Approvers'
 										),
 
-										'Title' => GetMessage("BPT_ST_APPROVE_TITLE")
+										'Title' => GetMessage("BPT_ST_APPROVE_TITLE_MSGVER_1")
 									),
 
 									'Children' => Array
@@ -387,7 +388,7 @@ $arFields = Array(
 									'Name'       => 'A95261_51340_58180_66962',
 									'Properties' => Array
 									(
-										'Title' => GetMessage('BPT_ST_PUBDC')
+										'Title' => GetMessage('BPT_ST_PUBDC_MSGVER_1')
 									)
 
 								)
@@ -406,4 +407,3 @@ $arFields = Array(
 
 	)
 );
-?>

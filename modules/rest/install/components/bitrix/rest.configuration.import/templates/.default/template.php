@@ -222,7 +222,7 @@ else
 			</div>
 			<p class="rest-configuration-info"><?=Loc::getMessage('REST_CONFIGURATION_IMPORT_APP_ERROR_TYPE')?></p>
 		<? endif;?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function () {
 				BX.message(<?=Json::encode(
 						[

@@ -153,8 +153,8 @@ export default class Dialog extends EventEmitter
 		{
 			const defaultOptions = {
 				placeholder: Loc.getMessage('UI_TAG_SELECTOR_SEARCH_PLACEHOLDER'),
-				maxHeight: 99,
-				textBoxWidth: 105
+				maxHeight: 102, // three lines
+				textBoxWidth: 105,
 			};
 			const customOptions = Type.isPlainObject(options.tagSelectorOptions) ? options.tagSelectorOptions : {};
 			const mandatoryOptions = {
@@ -206,11 +206,18 @@ export default class Dialog extends EventEmitter
 
 		if (Type.isPlainObject(options.popupOptions))
 		{
-			const allowedOptions = ['overlay', 'bindOptions', 'targetContainer', 'zIndexOptions'];
+			const allowedOptions = new Set([
+				'overlay',
+				'bindOptions',
+				'targetContainer',
+				'zIndexOptions',
+				'events',
+			]);
+
 			const popupOptions = {};
 
 			Object.keys(options.popupOptions).forEach((option: string) => {
-				if (allowedOptions.includes(option))
+				if (allowedOptions.has(option))
 				{
 					popupOptions[option] = options.popupOptions[option];
 				}
@@ -1591,7 +1598,11 @@ export default class Dialog extends EventEmitter
 			this.insertTab(tab);
 		});
 
-		this.popup = new Popup(Object.assign({
+		const popupOptions = { ...this.popupOptions };
+		const userEvents = popupOptions.events;
+		delete popupOptions.events;
+
+		this.popup = new Popup({
 			contentPadding: 0,
 			padding: 0,
 			offsetTop: this.getOffsetTop(),
@@ -1599,11 +1610,11 @@ export default class Dialog extends EventEmitter
 			animation: {
 				showClassName: 'ui-selector-popup-animation-show',
 				closeClassName: 'ui-selector-popup-animation-close',
-				closeAnimationType: 'animation'
+				closeAnimationType: 'animation',
 			},
 			bindElement: this.getTargetNode(),
 			bindOptions: {
-				forceBindPosition: true
+				forceBindPosition: true,
 			},
 			autoHide: this.isAutoHide(),
 			autoHideHandler: this.handleAutoHide.bind(this),
@@ -1613,10 +1624,13 @@ export default class Dialog extends EventEmitter
 				onFirstShow: this.handlePopupFirstShow.bind(this),
 				onAfterShow: this.handlePopupAfterShow.bind(this),
 				onAfterClose: this.handlePopupAfterClose.bind(this),
-				onDestroy: this.handlePopupDestroy.bind(this)
+				onDestroy: this.handlePopupDestroy.bind(this),
 			},
-			content: this.getContainer()
-		}, this.popupOptions));
+			content: this.getContainer(),
+			...popupOptions,
+		});
+
+		this.popup.subscribeFromOptions(userEvents);
 
 		this.rendered = true;
 

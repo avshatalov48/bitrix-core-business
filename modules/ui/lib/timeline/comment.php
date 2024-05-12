@@ -224,9 +224,11 @@ class Comment
 			],
 			'limit' => 1,
 		])->fetch();
-		if($userData && !empty($userData['PERSONAL_GENDER']))
+
+		$gender = trim($userData['PERSONAL_GENDER']);
+		if($userData && !empty($gender))
 		{
-			return '_'.$userData['PERSONAL_GENDER'];
+			return '_'. $gender;
 		}
 
 		return '';

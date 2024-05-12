@@ -10,7 +10,7 @@ use Bitrix\Main\Text\Encoding;
 /**
  * This class implements "Standards of financial transactions. Two-dimensional barcode symbols for payments by individuals"
  *
- * ГОСТ Р 56042-2014. Стандарты финансовых операций. Двумерные символы штрихового кода для осуществления платежей физических лиц
+ * Р“РћРЎРў Р  56042-2014. РЎС‚Р°РЅРґР°СЂС‚С‹ С„РёРЅР°РЅСЃРѕРІС‹С… РѕРїРµСЂР°С†РёР№. Р”РІСѓРјРµСЂРЅС‹Рµ СЃРёРјРІРѕР»С‹ С€С‚СЂРёС…РѕРІРѕРіРѕ РєРѕРґР° РґР»СЏ РѕСЃСѓС‰РµСЃС‚РІР»РµРЅРёСЏ РїР»Р°С‚РµР¶РµР№ С„РёР·РёС‡РµСЃРєРёС… Р»РёС†
  *
  * Maximum length of BankName is increased up to 120, standard states it should not be more than 45.
  */
@@ -39,7 +39,7 @@ final class FinancialTransactionsRu
 	public const FIELD_CBC = 'CBC';
 	public const FIELD_OKTMO = 'OKTMO';
 	public const FIELD_PAYMENT_REASON_CODE = 'PaytReason';
-	public const FIELD_TAX_PERIOD = 'ТaxPeriod';
+	public const FIELD_TAX_PERIOD = 'РўaxPeriod';
 	public const FIELD_DOCUMENT_NUMBER = 'DocNo';
 	public const FIELD_DOCUMENT_DATE = 'DocDate';
 	public const FIELD_TAX_PAYMENT_KIND_CODE = 'TaxPaytKind';

@@ -4,6 +4,9 @@ namespace Bitrix\Landing\Assets;
 
 use Bitrix\Main\Localization\Loc;
 
+/**
+ * Build a pack of assets by default way
+ */
 class StandartBuilder extends Builder
 {
 	/**
@@ -31,7 +34,7 @@ class StandartBuilder extends Builder
 	protected function normalizeLangResources(): void
 	{
 		$langResources = $this->normalizedResources[Types::TYPE_LANG] ?? null;
-		if (isset($langResources) && !empty($langResources))
+		if (!empty($langResources))
 		{
 			// convert array to string (get first element)
 			$this->normalizedResources[Types::TYPE_LANG] = $this->normalizedResources[Types::TYPE_LANG][0];

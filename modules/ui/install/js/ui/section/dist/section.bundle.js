@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core,main_popup) {
+(function (exports,main_popup,main_core) {
 	'use strict';
 
 	var _templateObject;
@@ -183,11 +183,22 @@ this.BX = this.BX || {};
 	      return this.content;
 	    }
 	  }, {
+	    key: "getId",
+	    value: function getId() {
+	      return this.id;
+	    }
+	  }, {
 	    key: "toggle",
 	    value: function toggle(open) {
+	      var withAnimation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 	      var container = this.content;
 	      var iconNode = this.render().querySelector('.ui-section__collapse-icon');
 	      this.isOpen = open === true || open === false ? open : !this.isOpen;
+	      var innerContainer = this.content.querySelector('.ui-section__section-body_inner');
+	      main_core.Dom.removeClass(innerContainer, 'ui-section__section-toggle-animation');
+	      if (withAnimation !== false) {
+	        main_core.Dom.addClass(innerContainer, 'ui-section__section-toggle-animation');
+	      }
 	      if (this.isOpen) {
 	        main_core.Dom.removeClass(iconNode, this.className.arrowDown);
 	        main_core.Dom.addClass(iconNode, this.className.arrowTop);
@@ -312,9 +323,76 @@ this.BX = this.BX || {};
 	  return HelpMessage;
 	}();
 
+	var _templateObject$2;
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _id$1 = /*#__PURE__*/new WeakMap();
+	var _isHidden$1 = /*#__PURE__*/new WeakMap();
+	var _node$1 = /*#__PURE__*/new WeakMap();
+	var SeparatorRow = /*#__PURE__*/function () {
+	  function SeparatorRow(params) {
+	    babelHelpers.classCallCheck(this, SeparatorRow);
+	    _classPrivateFieldInitSpec$2(this, _id$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$2(this, _isHidden$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    _classPrivateFieldInitSpec$2(this, _node$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    params = main_core.Type.isNil(params) ? {} : params;
+	    babelHelpers.classPrivateFieldSet(this, _isHidden$1, params.isHidden === true);
+	    babelHelpers.classPrivateFieldSet(this, _id$1, main_core.Type.isNil(params.id) ? 'row_' + main_core.Text.getRandom(8) : params.id);
+	  }
+	  babelHelpers.createClass(SeparatorRow, [{
+	    key: "render",
+	    value: function render() {
+	      if (babelHelpers.classPrivateFieldGet(this, _node$1)) {
+	        return babelHelpers.classPrivateFieldGet(this, _node$1);
+	      }
+	      babelHelpers.classPrivateFieldSet(this, _node$1, main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-section__separator-row\" ", "></div>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _isHidden$1) ? 'hidden' : ''));
+	      return babelHelpers.classPrivateFieldGet(this, _node$1);
+	    }
+	  }, {
+	    key: "append",
+	    value: function append(content) {
+	      main_core.Dom.append(content, this.render());
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(targetNode) {
+	      if (!main_core.Type.isDomNode(targetNode)) {
+	        throw new Error('Target node must be HTMLElement');
+	      }
+	      return main_core.Dom.append(this.render(), targetNode);
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      main_core.Dom.hide(this.render());
+	    }
+	  }, {
+	    key: "show",
+	    value: function show() {
+	      main_core.Dom.show(this.render());
+	    }
+	  }, {
+	    key: "toggle",
+	    value: function toggle() {
+	      main_core.Dom.toggle(this.render());
+	    }
+	  }]);
+	  return SeparatorRow;
+	}();
+
 	exports.Row = Row;
 	exports.Section = Section;
 	exports.HelpMessage = HelpMessage;
+	exports.SeparatorRow = SeparatorRow;
 
-}((this.BX.UI = this.BX.UI || {}),BX,BX.Main));
+}((this.BX.UI = this.BX.UI || {}),BX.Main,BX));
 //# sourceMappingURL=section.bundle.js.map

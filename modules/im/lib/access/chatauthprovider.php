@@ -219,7 +219,7 @@ class ChatAuthProvider extends \CAuthProvider
 		$result = UserAccessTable::query()
 			->setSelect(['USER_ID'])
 			->where('USER_ID', $userId)
-			->where('ACCESS_CODE', "CHAT{$chatId}")
+			->where('ACCESS_CODE', $this->generateAccessCode($chatId))
 			->where('PROVIDER_ID', $this->id)
 			->setLimit(1)
 			->fetch()

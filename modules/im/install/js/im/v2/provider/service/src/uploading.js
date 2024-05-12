@@ -55,8 +55,6 @@ type UploadFilesParams = {
 	sendAsFile: boolean
 }
 
-type UploaderId = string;
-
 export class UploadingService
 {
 	#store: Store;
@@ -190,7 +188,7 @@ export class UploadingService
 					dialogId: messageWithFile.dialogId,
 				};
 
-				return this.#sendingService.sendMessage(message);
+				return this.#sendingService.sendMessageWithFile(message);
 			}).then(() => {
 				this.commitFile({
 					chatId: messageWithFile.chatId,
@@ -568,9 +566,12 @@ export class UploadingService
 		this.#tryToSendMessages(uploaderId);
 	}
 
-	#createMessagesFromFiles(uploaderId): []
+	#createMessagesFromFiles(uploaderId): {comment: {text: string, dialogId: string}, files: []}
 	{
-		const messagesToSend = [];
+		const messagesToSend = {
+			comment: {},
+			files: [],
+		};
 
 		const files = this.getFiles(uploaderId);
 		const text = this.#uploaderFilesRegistry[uploaderId].text;
@@ -580,7 +581,7 @@ export class UploadingService
 		// if we have more than one file and text, we need to send text message first
 		if (files.length > 1 && hasText)
 		{
-			messagesToSend.push({ dialogId, text });
+			messagesToSend.comment = { dialogId, text };
 		}
 
 		files.forEach((file) => {
@@ -597,7 +598,7 @@ export class UploadingService
 				file.setCustomData('messageText', text);
 			}
 
-			messagesToSend.push({
+			messagesToSend.files.push({
 				fileId: file.getId(),
 				tempMessageId: file.getCustomData('tempMessageId'),
 				dialogId,
@@ -632,9 +633,14 @@ export class UploadingService
 		}
 
 		this.#uploaderFilesRegistry[uploaderId].wasSent = true;
-		const messagesToSend = this.#createMessagesFromFiles(uploaderId);
-		messagesToSend.forEach((message) => {
-			this.#sendingService.sendMessage(message);
+		const { comment, files } = this.#createMessagesFromFiles(uploaderId);
+		if (comment.text)
+		{
+			void this.#sendingService.sendMessage(comment);
+		}
+
+		files.forEach((message) => {
+			void this.#sendingService.sendMessageWithFile(message);
 		});
 		this.start(uploaderId);
 	}

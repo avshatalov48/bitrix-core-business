@@ -4095,7 +4095,7 @@ class CAdvBanner_all
 							if($bScript === null)
 							{
 								$bScript = true;
-								$strReturn .= '<script type="text/javascript" src="'.CUtil::GetAdditionalFileURL('/bitrix/js/advertising/flash.js').'"></script>';
+								$strReturn .= '<script src="'.CUtil::GetAdditionalFileURL('/bitrix/js/advertising/flash.js').'"></script>';
 							}
 
 							$altImgPath = '';
@@ -4116,7 +4116,7 @@ class CAdvBanner_all
 									$altHref = $url;
 							}
 							$strReturn .= '</div>';
-							$strReturn .= '<script type="text/javascript">bx_adv_includeFlash("'.$test_id.'", "'.
+							$strReturn .= '<script>bx_adv_includeFlash("'.$test_id.'", "'.
 								CUtil::JSEscape($path.$param).'", "'.
 								$arImage["WIDTH"].'", "'.$arImage["HEIGHT"].'", "'.
 								$arBanner["FLASH_TRANSPARENT"].'", "'.
@@ -4348,14 +4348,20 @@ class CAdvBanner_all
 					$CACHE_ADVERTISING["ALL_DATE_SHOW_FIRST"][$BANNER_ID] = $DB->CurrentTimeFunction();
 				}
 
-				if (is_array($_SESSION["SESS_VIEWED_BANNERS"]) &&
-					in_array($BANNER_ID, $_SESSION["SESS_VIEWED_BANNERS"]))
+				if (
+					isset($_SESSION["SESS_VIEWED_BANNERS"])
+					&& is_array($_SESSION["SESS_VIEWED_BANNERS"])
+					&& in_array($BANNER_ID, $_SESSION["SESS_VIEWED_BANNERS"])
+				)
 				{
 					$inc_banner_counter="N";
 				}
 
-				if (is_array($_SESSION["SESS_VIEWED_CONTRACTS"]) &&
-					in_array($CONTRACT_ID, $_SESSION["SESS_VIEWED_CONTRACTS"]))
+				if (
+					isset($_SESSION["SESS_VIEWED_CONTRACTS"])
+					&& is_array($_SESSION["SESS_VIEWED_CONTRACTS"])
+					&& in_array($CONTRACT_ID, $_SESSION["SESS_VIEWED_CONTRACTS"])
+				)
 				{
 					$inc_contract_counter="N";
 				}
@@ -5178,7 +5184,7 @@ class CAdvType_all
 					{
 						if ($value == '') $str .= "$field = '', "; else $str .= "$field = $value, ";
 					}
-					$str = TrimEx($str,",");
+					$str = trim($str, ", ");
 					$strSql = "UPDATE b_adv_type SET ".$str." WHERE SID='".$DB->ForSql($OLD_SID, 255)."'";
 					$DB->Query($strSql, false, $err_mess.__LINE__);
 
@@ -5227,8 +5233,8 @@ class CAdvType_all
 						$str1 .= $field.", ";
 						if ($value == '') $str2 .= "'', ";	else $str2 .= "$value, ";
 					}
-					$str1 = TrimEx($str1,",");
-					$str2 = TrimEx($str2,",");
+					$str1 = trim($str1, ", ");
+					$str2 = trim($str2, ", ");
 					$strSql = "INSERT INTO b_adv_type (".$str1.") VALUES (".$str2.")";
 					$DB->Query($strSql, false, $err_mess.__LINE__);
 					$SID = $arFields["SID"];

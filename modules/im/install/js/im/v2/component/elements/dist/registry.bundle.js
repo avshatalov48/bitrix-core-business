@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_fonts_opensans,ui_icons_disk,im_v2_lib_parser,rest_client,ui_vue3_directives_lazyload,im_v2_lib_user,ui_loader,im_v2_model,im_v2_lib_logger,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,im_v2_application_core,main_popup,ui_forms,ui_vue3_components_audioplayer,main_core,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_const,im_v2_lib_permission) {
+(function (exports,ui_fonts_opensans,ui_icons_disk,im_v2_lib_parser,rest_client,ui_vue3_directives_lazyload,ui_loader,im_v2_model,main_core_events,ui_notification,im_public,im_v2_provider_service,im_v2_lib_phone,main_popup,ui_forms,ui_vue3_components_audioplayer,ui_vue3,im_v2_lib_textHighlighter,im_v2_lib_utils,im_v2_lib_permission,main_core,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_const,im_v2_lib_user,im_v2_lib_logger) {
 	'use strict';
 
 	const AvatarSize = Object.freeze({
@@ -97,7 +97,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return im_v2_lib_utils.Utils.text.getFirstLetters(this.dialog.name);
 	    },
 	    isEnoughSizeForText() {
-	      const avatarSizesWithText = [AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
+	      const avatarSizesWithText = [AvatarSize.M, AvatarSize.L, AvatarSize.XL, AvatarSize.XXL, AvatarSize.XXXL];
 	      return avatarSizesWithText.includes(this.size.toUpperCase());
 	    },
 	    avatarUrl() {
@@ -128,46 +128,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				{{ avatarText }}
 			</div>
 			<div v-else :style="backgroundColorStyle" class="bx-im-avatar__content bx-im-avatar__icon"></div>
-		</div>
-	`
-	};
-
-	const RecentLoadingState = {
-	  name: 'RecentLoadingState',
-	  props: {
-	    compactMode: {
-	      type: Boolean,
-	      default: false
-	    },
-	    itemsToShow: {
-	      type: Number,
-	      default: 50
-	    }
-	  },
-	  methods: {
-	    isThreeLineVersion() {
-	      return Math.random() < 0.5;
-	    }
-	  },
-	  template: `
-		<div v-if="!compactMode" class="bx-im-component-recent-loading-state">
-			<div v-for="index in itemsToShow" class="bx-im-component-recent-loading-state-item">
-				<div class="bx-im-component-recent-loading-state-avatar-wrap">
-					<div class="bx-im-component-recent-loading-state-avatar-placeholder"></div>
-				</div>
-				<div class="bx-im-component-recent-loading-state-content">
-					<div class="bx-im-component-recent-loading-state-line bx-im-component-recent-loading-state-line-long"></div>
-					<div class="bx-im-component-recent-loading-state-line bx-im-component-recent-loading-state-line-short"></div>
-					<div v-if="isThreeLineVersion()" class="bx-im-component-recent-loading-state-line bx-im-component-recent-loading-state-line-short"></div>
-				</div>
-			</div>
-		</div>
-		<div v-if="compactMode" class="bx-im-component-recent-loading-state bx-im-component-recent-loading-state-compact">
-			<div v-for="index in itemsToShow" class="bx-im-component-recent-loading-state-item">
-				<div class="bx-im-component-recent-loading-state-avatar-wrap">
-					<div class="bx-im-component-recent-loading-state-avatar-placeholder"></div>
-				</div>
-			</div>
 		</div>
 	`
 	};
@@ -380,6 +340,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ButtonColor = {
 	  Primary: 'primary',
 	  PrimaryLight: 'primary-light',
+	  Copilot: 'copilot',
 	  Success: 'success',
 	  Danger: 'danger',
 	  LightBorder: 'light-border',
@@ -3182,9 +3143,233 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	class UserService {
+	  async loadReadUsers(messageId) {
+	    im_v2_lib_logger.Logger.warn('Dialog-status: UserService: loadReadUsers', messageId);
+	    const response = await im_v2_application_core.Core.getRestClient().callMethod(im_v2_const.RestMethod.imV2ChatMessageTailViewers, {
+	      id: messageId
+	    }).catch(error => {
+	      // eslint-disable-next-line no-console
+	      console.error('Dialog-status: UserService: loadReadUsers error', error);
+	      throw new Error(error);
+	    });
+	    const users = response.data().users;
+	    const userManager = new im_v2_lib_user.UserManager();
+	    await userManager.setUsersToModel(Object.values(users));
+	    return users.map(user => user.id);
+	  }
+	}
+
+	// @vue/component
+	const AdditionalUsers = {
+	  components: {
+	    UserListPopup
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    show: {
+	      type: Boolean,
+	      required: true
+	    },
+	    bindElement: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  emits: ['close'],
+	  data() {
+	    return {
+	      showPopup: false,
+	      loadingAdditionalUsers: false,
+	      additionalUsers: []
+	    };
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    }
+	  },
+	  watch: {
+	    show(newValue, oldValue) {
+	      if (!oldValue && newValue) {
+	        this.showPopup = true;
+	        void this.loadUsers();
+	      }
+	    }
+	  },
+	  methods: {
+	    async loadUsers() {
+	      this.loadingAdditionalUsers = true;
+	      const userIds = await this.getUserService().loadReadUsers(this.dialog.lastMessageId).catch(() => {
+	        this.loadingAdditionalUsers = false;
+	      });
+	      this.additionalUsers = this.prepareAdditionalUsers(userIds);
+	      this.loadingAdditionalUsers = false;
+	    },
+	    onPopupClose() {
+	      this.showPopup = false;
+	      this.$emit('close');
+	    },
+	    prepareAdditionalUsers(userIds) {
+	      const firstViewerId = this.dialog.lastMessageViews.firstViewer.userId;
+	      return userIds.filter(userId => {
+	        return userId !== im_v2_application_core.Core.getUserId() && userId !== firstViewerId;
+	      });
+	    },
+	    getUserService() {
+	      if (!this.userService) {
+	        this.userService = new UserService();
+	      }
+	      return this.userService;
+	    }
+	  },
+	  template: `
+		<UserListPopup
+			id="bx-im-dialog-read-users"
+			:showPopup="showPopup"
+			:loading="loadingAdditionalUsers"
+			:userIds="additionalUsers"
+			:bindElement="bindElement || {}"
+			:withAngle="false"
+			:forceTop="true"
+			@close="onPopupClose"
+		/>
+	`
+	};
+
+	const TYPING_USERS_COUNT = 3;
+	const MORE_USERS_CSS_CLASS = 'bx-im-dialog-chat-status__user-count';
+
+	// @vue/component
+	const DialogStatus = {
+	  components: {
+	    AdditionalUsers
+	  },
+	  props: {
+	    dialogId: {
+	      required: true,
+	      type: String
+	    }
+	  },
+	  data() {
+	    return {
+	      showAdditionalUsers: false,
+	      additionalUsersLinkElement: null
+	    };
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    isUser() {
+	      return this.dialog.type === im_v2_const.ChatType.user;
+	    },
+	    isChat() {
+	      return !this.isUser;
+	    },
+	    typingStatus() {
+	      if (!this.dialog.inited || this.dialog.writingList.length === 0) {
+	        return '';
+	      }
+	      const firstTypingUsers = this.dialog.writingList.slice(0, TYPING_USERS_COUNT);
+	      const text = firstTypingUsers.map(element => element.userName).join(', ');
+	      const remainingUsersCount = this.dialog.writingList.length - TYPING_USERS_COUNT;
+	      if (remainingUsersCount > 0) {
+	        return this.loc('IM_ELEMENTS_STATUS_TYPING_PLURAL_MORE', {
+	          '#USERS#': text,
+	          '#COUNT#': remainingUsersCount
+	        });
+	      }
+	      if (this.dialog.writingList.length > 1) {
+	        return this.loc('IM_ELEMENTS_STATUS_TYPING_PLURAL', {
+	          '#USERS#': text
+	        });
+	      }
+	      return this.loc('IM_ELEMENTS_STATUS_TYPING', {
+	        '#USER#': text
+	      });
+	    },
+	    readStatus() {
+	      if (!this.dialog.inited) {
+	        return '';
+	      }
+	      if (this.lastMessageViews.countOfViewers === 0) {
+	        return '';
+	      }
+	      if (this.isUser) {
+	        return this.formatUserViewStatus();
+	      }
+	      return this.formatChatViewStatus();
+	    },
+	    lastMessageViews() {
+	      return this.dialog.lastMessageViews;
+	    }
+	  },
+	  methods: {
+	    formatUserViewStatus() {
+	      const {
+	        date
+	      } = this.lastMessageViews.firstViewer;
+	      return this.loc('IM_ELEMENTS_STATUS_READ_USER', {
+	        '#DATE#': im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(date, im_v2_lib_dateFormatter.DateTemplate.messageReadStatus)
+	      });
+	    },
+	    formatChatViewStatus() {
+	      const {
+	        countOfViewers,
+	        firstViewer
+	      } = this.lastMessageViews;
+	      if (countOfViewers === 1) {
+	        return this.loc('IM_ELEMENTS_STATUS_READ_CHAT', {
+	          '#USER#': main_core.Text.encode(firstViewer.userName)
+	        });
+	      }
+	      return this.loc('IM_ELEMENTS_STATUS_READ_CHAT_PLURAL', {
+	        '#USERS#': main_core.Text.encode(firstViewer.userName),
+	        '#LINK_START#': `<span class="${MORE_USERS_CSS_CLASS}" ref="moreUsersLink">`,
+	        '#COUNT#': countOfViewers - 1,
+	        '#LINK_END#': '</span>'
+	      });
+	    },
+	    onClick(event) {
+	      if (!event.target.matches(`.${MORE_USERS_CSS_CLASS}`)) {
+	        return;
+	      }
+	      this.onMoreUsersClick();
+	    },
+	    onMoreUsersClick() {
+	      this.additionalUsersLinkElement = document.querySelector(`.${MORE_USERS_CSS_CLASS}`);
+	      this.showAdditionalUsers = true;
+	    },
+	    loc(phraseCode, replacements = {}) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+	    }
+	  },
+	  template: `
+		<div @click="onClick" class="bx-im-dialog-chat-status__container">
+			<div v-if="typingStatus" class="bx-im-dialog-chat-status__content">
+				<div class="bx-im-dialog-chat-status__icon --typing"></div>
+				<div class="bx-im-dialog-chat-status__text">{{ typingStatus }}</div>
+			</div>
+			<div v-else-if="readStatus" class="bx-im-dialog-chat-status__content">
+				<div class="bx-im-dialog-chat-status__icon --read"></div>
+				<div v-html="readStatus" class="bx-im-dialog-chat-status__text"></div>
+			</div>
+			<AdditionalUsers
+				:dialogId="dialogId"
+				:show="showAdditionalUsers"
+				:bindElement="additionalUsersLinkElement || {}"
+				@close="showAdditionalUsers = false"
+			/>
+		</div>
+	`
+	};
+
 	exports.Avatar = Avatar;
 	exports.AvatarSize = AvatarSize;
-	exports.RecentLoadingState = RecentLoadingState;
 	exports.ChatTitle = ChatTitle;
 	exports.Button = Button;
 	exports.ButtonColor = ButtonColor;
@@ -3214,6 +3399,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.SearchInput = SearchInput$$1;
 	exports.EditableChatTitle = EditableChatTitle;
 	exports.ScrollWithGradient = ScrollWithGradient;
+	exports.DialogStatus = DialogStatus;
 
-}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.Messenger.v2.Lib,BX.UI,BX.Messenger.v2.Model,BX.Messenger.v2.Lib,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Main,BX,BX.Vue3.Components,BX,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Elements = this.BX.Messenger.v2.Component.Elements || {}),BX,BX,BX.Messenger.v2.Lib,BX,BX.Vue3.Directives,BX.UI,BX.Messenger.v2.Model,BX.Event,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Main,BX,BX.Vue3.Components,BX.Vue3,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=registry.bundle.js.map

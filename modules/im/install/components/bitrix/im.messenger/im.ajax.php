@@ -149,7 +149,6 @@ if (isImPostRequest('IM_AVATAR_UPDATE'))
 }
 else if (isImPostRequest('IM_FILE_UPLOAD'))
 {
-	CUtil::decodeURIComponent($_POST);
 	$uploader = new \Bitrix\Main\UI\Uploader\Uploader(array(
 		"allowUpload" => "A",
 		"events" => array(
@@ -169,7 +168,6 @@ else if (isImPostRequest('IM_FILE_UPLOAD'))
 else if (isImPostRequest('IM_FILE_REGISTER'))
 {
 	$errorMessage = '';
-	CUtil::decodeURIComponent($_POST);
 	$_POST['FILES'] = CUtil::JsObjectToPhp($_POST['FILES']);
 
 	$result = CIMDisk::UploadFileRegister($_POST['CHAT_ID'], $_POST['FILES'], $_POST['TEXT'], $_POST['OL_SILENT'] == 'Y');
@@ -235,7 +233,6 @@ else if (isImPostRequest('IM_FILE_UPLOAD_FROM_DISK'))
 {
 	$errorMessage = '';
 
-	CUtil::decodeURIComponent($_POST);
 	$_POST['FILES'] = CUtil::JsObjectToPhp($_POST['FILES']);
 
 	$result = CIMDisk::UploadFileFromDisk($_POST['CHAT_ID'], $_POST['FILES'], $_POST['MESSAGE'], [
@@ -273,8 +270,6 @@ else if (isImPostRequest('IM_HISTORY_FILES_LOAD'))
 }
 else if (isImPostRequest('IM_HISTORY_FILES_SEARCH'))
 {
-	CUtil::decodeURIComponent($_POST);
-
 	$chatId = intval($_POST['CHAT_ID']);
 	$arFiles = CIMDisk::GetHistoryFilesByName($chatId, $_POST['SEARCH']);
 
@@ -444,8 +439,6 @@ else if (isImPostRequest('IM_SEND_MESSAGE'))
 		die();
 	}
 
-	CUtil::decodeURIComponent($_POST);
-
 	$insertID = 0;
 	$errorMessage = "";
 	if ($_POST['CHAT'] == 'Y' && mb_substr($_POST['RECIPIENT_ID'], 0, 4) == 'chat')
@@ -531,8 +524,6 @@ else if (isImPostRequest('IM_SEND_MESSAGE'))
 }
 else if (isImPostRequest('IM_BOT_COMMAND'))
 {
-	CUtil::decodeURIComponent($_POST);
-
 	$messageId = intval($_POST['MESSAGE_ID']);
 	$userId = $USER->GetId();
 
@@ -580,8 +571,6 @@ else if (isImPostRequest('IM_BOT_COMMAND'))
 }
 else if (isImPostRequest('IM_EDIT_MESSAGE'))
 {
-	CUtil::decodeURIComponent($_POST);
-
 	if(!CIMMessenger::Update($_POST['ID'], $_POST['MESSAGE']))
 	{
 		$arResult = Array(
@@ -1108,8 +1097,6 @@ else if (isImPostRequest('IM_HISTORY_REMOVE_MESSAGE'))
 }
 else if (isImPostRequest('IM_HISTORY_SEARCH'))
 {
-	CUtil::decodeURIComponent($_POST);
-
 	$CIMHistory = new CIMHistory();
 	if (mb_substr($_POST['USER_ID'], 0, 4) == 'chat')
 	{
@@ -1192,8 +1179,6 @@ else if (isImPostRequest('IM_CONTACT_LIST_SEARCH'))
 
 	if ($enabled)
 	{
-		CUtil::decodeURIComponent($_POST);
-
 		$CIMContactList = new CIMContactList();
 		$arContactList = $CIMContactList->SearchUsers($_POST['SEARCH']);
 
@@ -1315,8 +1300,6 @@ else if (isImPostRequest('IM_NOTIFY_CONFIRM'))
 }
 else if (isImPostRequest('IM_NOTIFY_ANSWER'))
 {
-	CUtil::decodeURIComponent($_POST);
-
 	$errorMessage = "";
 
 	$CIMNotify = new CIMNotify();
@@ -1389,8 +1372,6 @@ else if (isImPostRequest('IM_CHAT_ADD'))
 	}
 	else
 	{
-		CUtil::decodeURIComponent($_POST);
-
 		$entityType = '';
 
 		$type = IM_MESSAGE_CHAT;
@@ -1524,8 +1505,6 @@ else if (isImPostRequest('IM_CHAT_RENAME'))
 	}
 	else
 	{
-		CUtil::decodeURIComponent($_POST);
-
 		$CIMChat = new CIMChat();
 		$CIMChat->Rename($chatId, $_POST['CHAT_TITLE']);
 	}
@@ -1566,8 +1545,6 @@ else if (isImPostRequest('IM_CRM_SELECTOR'))
 }
 else if (isImPostRequest('IM_CHAT_DATA_LOAD'))
 {
-	CUtil::decodeURIComponent($_POST);
-
 	$chatId = $_POST['CHAT_ID'];
 
 	$arChat = CIMChat::GetChatData(array(

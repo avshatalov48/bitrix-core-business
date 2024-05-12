@@ -2,7 +2,7 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { Logger } from 'im.v2.lib.logger';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
-import { EventType, LocalStorageKey, SidebarDetailBlock } from 'im.v2.const';
+import { EventType, Layout, LocalStorageKey, SidebarDetailBlock } from 'im.v2.const';
 
 import { SidebarPanel } from './components/sidebar-panel';
 
@@ -52,11 +52,24 @@ export const ChatSidebar = {
 		{
 			return this.needSecondLevelTransition ? 'second-level-panel' : '';
 		},
-		canShowTopPanelForChat(): boolean
+		canShowTopPanel(): boolean
 		{
+			const membersPanel = this.topLevelPanelType === SidebarDetailBlock.members;
 			const personalChat = !this.originDialogId.startsWith('chat');
+			if (membersPanel && personalChat)
+			{
+				return false;
+			}
 
-			return !(personalChat && this.topLevelPanelType === SidebarDetailBlock.members);
+			const messageSearchPanel = this.topLevelPanelType === SidebarDetailBlock.messageSearch;
+
+			return !messageSearchPanel;
+		},
+		isCopilotLayout(): boolean
+		{
+			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
+
+			return currentLayoutName === Layout.copilot.name;
 		},
 	},
 	watch:
@@ -69,7 +82,7 @@ export const ChatSidebar = {
 				this.needTopLevelTransition = false;
 			}
 
-			if (!this.secondLevelPanelStandalone && !this.topLevelPanelStandalone)
+			if (!this.topLevelPanelStandalone)
 			{
 				this.updateTopPanelOriginDialogId(newValue);
 			}
@@ -80,7 +93,7 @@ export const ChatSidebar = {
 				this.closeSecondLevelPanel();
 			}
 
-			if (!this.canShowTopPanelForChat)
+			if (!this.canShowTopPanel)
 			{
 				this.closeTopPanel();
 			}
@@ -155,7 +168,7 @@ export const ChatSidebar = {
 		restoreOpenState()
 		{
 			const sidebarOpenState = LocalStorageManager.getInstance().get(LocalStorageKey.sidebarOpened);
-			if (!sidebarOpenState)
+			if (!sidebarOpenState || this.isCopilotLayout)
 			{
 				return;
 			}

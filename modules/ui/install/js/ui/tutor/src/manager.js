@@ -32,18 +32,6 @@ export class Manager extends Event.EventEmitter
 		}
 	}
 
-	showFeedbackForm()
-	{
-		if (this.feedbackFormId)
-		{
-			this.feedBackForm = BX.UI.Feedback.Form.getById(this.feedbackFormId);
-			if (this.feedBackForm)
-			{
-				this.feedBackForm.openPanel();
-			}
-		}
-	}
-
 	getDomain()
 	{
 		return this.domain;

@@ -3,13 +3,13 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_list_elementList_openline,im_v2_component_search2_searchInput,im_v2_component_search2_searchResult,im_v2_lib_logger) {
+(function (exports,im_v2_component_list_items_openline,im_v2_component_search2_searchInput,im_v2_component_search2_searchResult,im_v2_lib_logger) {
 	'use strict';
 
 	// @vue/component
 	const OpenlineListContainer = {
 	  components: {
-	    OpenlineList: im_v2_component_list_elementList_openline.OpenlineList,
+	    OpenlineList: im_v2_component_list_items_openline.OpenlineList,
 	    SearchInput: im_v2_component_search2_searchInput.SearchInput,
 	    SearchResult: im_v2_component_search2_searchResult.SearchResult
 	  },

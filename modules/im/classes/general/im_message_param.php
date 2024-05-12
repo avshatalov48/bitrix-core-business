@@ -214,50 +214,6 @@ class CIMMessageParam
 			}
 		}
 
-		self::UpdateTimestamp($messageId);
-
-		return true;
-	}
-
-	public static function UpdateTimestamp($messageId, $chatId = 0)
-	{
-		$messageId = intval($messageId);
-		$chatId = intval($chatId);
-
-		if ($chatId <= 0)
-		{
-			$messageQuery = \Bitrix\Im\Model\MessageTable::query()
-				->setSelect(['CHAT_ID'])
-				->where('ID', $messageId)
-				->fetch();
-
-			if ($messageQuery)
-			{
-				$chatId = $messageQuery['CHAT_ID'];
-			}
-		}
-
-		if ($chatId <= 0)
-		{
-			return false;
-		}
-
-		$dateNow = new \Bitrix\Main\Type\DateTime();
-		$timestamp = str_pad($chatId, 11, '0', STR_PAD_LEFT).' '.$dateNow->format('Y-m-d H:i:s');
-
-		$orm = IM\Model\MessageParamTable::getList(array(
-			'select' => array('ID'),
-			'filter' => array('=MESSAGE_ID' => $messageId, '=PARAM_NAME' => 'TS'),
-		));
-		if ($tsParam = $orm->fetch())
-		{
-			IM\Model\MessageParamTable::update($tsParam['ID'], array('PARAM_VALUE' => $timestamp));
-		}
-		else
-		{
-			IM\Model\MessageParamTable::add(array('MESSAGE_ID' => $messageId, 'PARAM_NAME' => 'TS', 'PARAM_VALUE' => $timestamp));
-		}
-
 		return true;
 	}
 
@@ -360,7 +316,7 @@ class CIMMessageParam
 		return true;
 	}
 
-	public static function DeleteAll($messageId, $deleteWithTs = false)
+	public static function DeleteAll($messageId)
 	{
 		$messageId = intval($messageId);
 		if ($messageId <= 0)
@@ -374,15 +330,7 @@ class CIMMessageParam
 		));
 		while ($parameterInfo = $messageParameters->fetch())
 		{
-			if (!$deleteWithTs && $parameterInfo['PARAM_NAME'] == 'TS')
-				continue;
-
 			IM\Model\MessageParamTable::delete($parameterInfo['ID']);
-		}
-
-		if (!$deleteWithTs)
-		{
-			self::UpdateTimestamp($messageId);
 		}
 
 		return true;
@@ -390,7 +338,7 @@ class CIMMessageParam
 
 	public static function DeleteByParam($paramName, $paramValue)
 	{
-		if ($paramName == '' || $paramValue == '' || $paramValue == 'TS')
+		if ($paramName == '' || $paramValue == '')
 		{
 			return false;
 		}
@@ -404,11 +352,7 @@ class CIMMessageParam
 		));
 		while ($parameterInfo = $messageParameters->fetch())
 		{
-			if ($parameterInfo['PARAM_NAME'] == 'TS')
-				continue;
-
 			IM\Model\MessageParamTable::delete($parameterInfo['ID']);
-			self::UpdateTimestamp($parameterInfo['MESSAGE_ID']);
 		}
 
 		return true;
@@ -784,7 +728,8 @@ class CIMMessageParam
 			'USERS' => [],
 			'CRM_FORM_ID' => '',
 			'CRM_FORM_SEC' => '',
-			'CRM_FORM_FILLED' => 'N'
+			'CRM_FORM_FILLED' => 'N',
+			'COPILOT_PROMPT_CODE' => null,
 		];
 
 		return $arDefault;
@@ -1216,7 +1161,7 @@ class CIMMessageParamAttach
 
 	private static function removeNewLine($text)
 	{
-		$text = preg_replace('/\R/'.BX_UTF_PCRE_MODIFIER, ' ', $text);
+		$text = preg_replace('/\R/u', ' ', $text);
 		return $text;
 	}
 

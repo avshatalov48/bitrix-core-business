@@ -14,7 +14,7 @@ class DocumentLib extends BaseLib
 			'getdocumenturl' => [
 				'args' => true,
 				'func' => 'callGetDocumentUrl',
-				'description' => Loc::getMessage('BIZPROC_CALC_FUNCTION_GETDOCUMENTURL_DESCRIPTION'),
+				'description' => Loc::getMessage('BIZPROC_CALC_FUNCTION_GETDOCUMENTURL_DESCRIPTION_MSGVER_1'),
 			],
 		];
 	}

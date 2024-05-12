@@ -16,7 +16,7 @@ import type { Store } from 'ui.vue3.vuex';
 const SLIDER_PREFIX = 'im:slider';
 const BASE_STACK_INDEX = 1200;
 const SLIDER_CONTAINER_CLASS = 'bx-im-messenger__slider';
-const LOADER_CHATS_PATH = '/bitrix/js/im/v2/lib/slider/src/images/loader-chats.svg?v2';
+const LOADER_CHATS_PATH = '/bitrix/js/im/v2/lib/slider/src/images/loader-chats.svg?v3';
 
 export class MessengerSlider
 {

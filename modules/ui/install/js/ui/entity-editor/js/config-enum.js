@@ -22,10 +22,10 @@ if(typeof BX.UI.EntityConfigScope === "undefined")
 		/*
 		* Messages are used:
 		* UI_ENTITY_EDITOR_CONFIG_SCOPE_COMMON
-		* UI_ENTITY_EDITOR_CONFIG_SCOPE_PERSONAL
+		*
 		*/
 		return BX.message(
-			"UI_ENTITY_EDITOR_CONFIG_SCOPE_" + (scope === BX.UI.EntityConfigScope.common ? "COMMON" : "PERSONAL")
+			"UI_ENTITY_EDITOR_CONFIG_SCOPE_" + (scope === BX.UI.EntityConfigScope.common ? "COMMON" : "PERSONAL") + "_MSGVER_1"
 		);
 	};
 }

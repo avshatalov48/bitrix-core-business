@@ -59,24 +59,24 @@ class AttachmentCancelManager extends AttachmentManager
 		$event['SKIP_TIME'] ??= null;
 		$event['CREATED'] ??= null;
 		$event['MODIFIED'] ??= null;
+
+		$icalEvent = Event::createInstance($this->uid)
+			->setName($event['NAME'])
+			->setStartsAt(Util::getDateObject($event['DATE_FROM'], $event['SKIP_TIME'], $event['TZ_FROM']))
+			->setEndsAt(Util::getDateObject($event['DATE_TO'], $event['SKIP_TIME'], $event['TZ_TO']))
+			->setCreatedAt(Util::getDateObject($event['DATE_CREATE'], false, $event['TZ_FROM']))
+			->setDtStamp(Util::getDateObject($event['DATE_CREATE'], false, $event['TZ_FROM']))
+			->setModified(Util::getDateObject($event['TIMESTAMP_X'], false, $event['TZ_FROM']))
+			->setWithTimezone(!$event['SKIP_TIME'])
+			->setWithTime(!$event['SKIP_TIME'])
+			->setRRule($this->prepareRecurrenceRule($event['RRULE']))
+			->setSequence((int)$event['VERSION'])
+			->setStatus(Dictionary::EVENT_STATUS['cancelled'])
+		;
+
 		return Calendar::createInstance()
-			->setMethod(mb_strtoupper(SenderCancelInvitation::METHOD))
-			->addEvent(Event::createInstance($this->uid)
-				->setName($event['NAME'])
-				->setAttendees($this->event['ICAL_ATTENDEES'])
-				->setStartsAt(Util::getDateObject($event['DATE_FROM'], $event['SKIP_TIME'], $event['TZ_FROM']))
-				->setEndsAt(Util::getDateObject($event['DATE_TO'], $event['SKIP_TIME'], $event['TZ_TO']))
-				->setCreatedAt(Util::getDateObject($event['CREATED'], false, $event['TZ_FROM']))
-				->setDtStamp(Util::getDateObject($event['CREATED'], false, $event['TZ_FROM']))
-				->setModified(Util::getDateObject($event['MODIFIED'], false, $event['TZ_FROM']))
-				->setWithTimezone(!$event['SKIP_TIME'])
-				->setWithTime(!$event['SKIP_TIME'])
-				->setOrganizer($event['ICAL_ORGANIZER'], $this->getOrganizerMailTo())
-				->setRRule($this->prepareRecurrenceRule($event['RRULE']))
-//				->setExdates($this->prepareExDate($event['EXDATE']))
-				->setSequence((int)$event['VERSION'])
-				->setStatus(Dictionary::EVENT_STATUS['cancelled'])
-			)
+			->setMethod('CANCEL')
+			->addEvent($icalEvent)
 			->get();
 	}
 }

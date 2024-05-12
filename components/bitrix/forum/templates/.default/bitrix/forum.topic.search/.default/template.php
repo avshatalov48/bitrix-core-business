@@ -5,21 +5,21 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
 // ************************* Input params***************************************************************
-$arParams["AJAX_CALL"] = ($_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
+$arParams["AJAX_CALL"] = (isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
 $filter_value_fid = array(
-	"0" => GetMessage("F_ALL_FORUMS"), 
+	"0" => GetMessage("F_ALL_FORUMS"),
 	"separator" => array("NAME" => " ", "TYPE" => "OPTGROUP"));
 if (is_array($arResult["GROUPS_FORUMS"])):
 	foreach ($arResult["GROUPS_FORUMS"] as $key => $res):
 		if ($res["TYPE"] == "GROUP"):
 			$filter_value_fid["GROUP_".$res["ID"]] = array(
-				"NAME" => str_pad("", ($res["DEPTH"] - 1)*6, "&nbsp;").$res["~NAME"], 
-				"CLASS" => "forums-selector-optgroup level".$res["DEPTH"], 
+				"NAME" => str_pad("", ($res["DEPTH"] - 1)*6, "&nbsp;").$res["~NAME"],
+				"CLASS" => "forums-selector-optgroup level".$res["DEPTH"],
 				"TYPE" => "OPTGROUP");
 		else:
 			$filter_value_fid[$res["ID"]] = array(
-				"NAME" => ($res["DEPTH"] > 0 ? str_pad("", $res["DEPTH"]*6, "&nbsp;")."&nbsp;" : "").$res["~NAME"], 
-				"CLASS" => "forums-selector-option level".$res["DEPTH"], 
+				"NAME" => ($res["DEPTH"] > 0 ? str_pad("", $res["DEPTH"]*6, "&nbsp;")."&nbsp;" : "").$res["~NAME"],
+				"CLASS" => "forums-selector-option level".$res["DEPTH"],
 				"TYPE" => "OPTION");
 		endif;
 	endforeach;
@@ -33,7 +33,7 @@ if ($arParams["AJAX_CALL"] == "Y"):
 			"TOPIC_TITLE" => '&laquo;<a href="'.$arResult["TOPIC"]["LINK"].'">'.htmlspecialcharsbx($arResult["TOPIC"]["~TITLE"]).
 				'</a>&raquo; ( '.GetMessage("FMM_ON_FORUM").': <a href="'.$arResult["FORUM"]["LINK"].'">'.$arResult["FORUM"]["NAME"].'</a>)'));
 		?><?
-		
+
 	}
 	elseif (!empty($arResult["TOPIC"]))
 	{
@@ -58,7 +58,7 @@ endif;
 </head>
 <body class="forum-popup-body">
 <?if ($arResult["SELF_CLOSE"] == "Y"):
-?><script type="text/javascript"><?
+?><script><?
 	if (!empty($arResult["TOPIC"])):
 	?>
 		opener.document.MESSAGES['newTID'].value = '<?=$arResult["TID"]?>';
@@ -92,21 +92,21 @@ endif;
 					"NAME" => "search_template",
 					"CLASS" => "search-input",
 					"TYPE" => "TEXT",
-					"VALUE" => $_REQUEST["search_template"]),
+					"VALUE" => $_REQUEST["search_template"] ?? null),
 				array(
 					"TITLE" => GetMessage("F_FORUM"),
 					"NAME" => "FID",
 					"TYPE" => "SELECT",
-					"MULTIPLE" => "N", 
-					"CLASS" => "forums-selector-single", 
+					"MULTIPLE" => "N",
+					"CLASS" => "forums-selector-single",
 					"VALUE" => $filter_value_fid,
-					"ACTIVE" => $_REQUEST["FID"]),
+					"ACTIVE" => $_REQUEST["FID"] ?? null),
 				array(
 					"TITLE" => GetMessage("F_SEARCH_OBJECT"),
 					"NAME" => "search_field",
 					"TYPE" => "SELECT",
-					"VALUE" => 	array("" => GetMessage("FMM_ALL"), "title" => GetMessage("FMM_TITLE"), "description" => GetMessage("FMM_DESCRIPTION")), 
-					"ACTIVE" => $_REQUEST["search_field"])),
+					"VALUE" => 	array("" => GetMessage("FMM_ALL"), "title" => GetMessage("FMM_TITLE"), "description" => GetMessage("FMM_DESCRIPTION")),
+					"ACTIVE" => $_REQUEST["search_field"] ?? null)),
 			"BUTTONS" => array(
 				array(
 					"NAME" => "s",

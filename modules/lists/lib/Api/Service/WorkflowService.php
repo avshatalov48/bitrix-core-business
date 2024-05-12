@@ -8,6 +8,7 @@ use Bitrix\Lists\Api\Response\WorkflowService\GetParameterValuesResponse;
 use Bitrix\Lists\Api\Response\WorkflowService\StartWorkflowsResponse;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 final class WorkflowService
 {
@@ -31,9 +32,14 @@ final class WorkflowService
 		);
 	}
 
-	public function isBpEnabled(): bool
+	public function getSignedDocument(int $elementId): ?string
 	{
-		return $this->isBpEnabled;
+		if ($this->isBpEnabled)
+		{
+			return \CBPDocument::signParameters([$this->complexDocumentType, (string)$elementId]);
+		}
+
+		return null;
 	}
 
 	public function canUserWriteDocument(int $elementId, int $userId, array $userGroups): bool
@@ -49,10 +55,7 @@ final class WorkflowService
 			$complexDocumentId = $this->getComplexDocumentId($elementId);
 
 			$operation = \CBPCanUserOperateOperation::WriteDocument;
-			$parameters = [
-				'AllUserGroups' => $userGroups,
-				'DocumentStates' => $this->getDocumentStates($complexDocumentId)
-			];
+			$parameters = ['AllUserGroups' => $userGroups];
 
 			$canWrite = (
 				$elementId > 0
@@ -120,7 +123,7 @@ final class WorkflowService
 		$hasParameters = false;
 		if ($this->isBpEnabled)
 		{
-			$states = $this->getDocumentStates($this->getComplexDocumentId($elementId));
+			$states = $this->getNotRunningDocumentStates($elementId);
 			foreach ($states as $state)
 			{
 				$parameters = $state['TEMPLATE_PARAMETERS'] ?? [];
@@ -158,7 +161,7 @@ final class WorkflowService
 
 					foreach ($errors as $error)
 					{
-						$response->addError(new Error($error['message']));
+						$response->addError(new Error(!empty($error['message']) ? $error['message'] : ''));
 					}
 				}
 			}
@@ -171,13 +174,16 @@ final class WorkflowService
 	{
 		$response = new StartWorkflowsResponse();
 
-		$workflowIds = [];
 		if ($request->elementId <= 0 || $request->currentUserId <= 0)
 		{
-			// todo: loc
-			$response->addError(new Error('incorrect input data'));
+			$response->addError(
+				new Error(
+					Loc::getMessage('LISTS_LIB_API_WORKFLOW_SERVICE_INCORRECT_START_WORKFLOW_INPUT_DATA') ?? ''
+				)
+			);
 		}
 
+		$workflowIds = [];
 		if ($this->isBpEnabled && $response->isSuccess())
 		{
 			$complexDocumentId = $this->getComplexDocumentId($request->elementId);
@@ -210,7 +216,7 @@ final class WorkflowService
 
 					foreach ($errors as $error)
 					{
-						$response->addError(new Error($error['message']));
+						$response->addError(new Error(!empty($error['message']) ? $error['message'] : ''));
 					}
 				}
 			}
@@ -232,5 +238,27 @@ final class WorkflowService
 		}
 
 		return [];
+	}
+
+	public function getNotRunningDocumentStates(int $elementId)
+	{
+		$autoExecuteType = $elementId > 0 ? \CBPDocumentEventType::Edit: \CBPDocumentEventType::Create;
+
+		return \CBPWorkflowTemplateLoader::getDocumentTypeStates($this->complexDocumentType, $autoExecuteType);
+	}
+
+	public function hasTemplatesOnStartup(?array $complexDocumentId = null): bool
+	{
+		$templates = (
+			$complexDocumentId
+				? \CBPWorkflowTemplateLoader::searchTemplatesByDocumentType(
+					$this->complexDocumentType, \CBPDocumentEventType::Edit
+				)
+				: \CBPWorkflowTemplateLoader::searchTemplatesByDocumentType(
+					$this->complexDocumentType, \CBPDocumentEventType::Create
+				)
+		);
+
+		return !empty($templates);
 	}
 }

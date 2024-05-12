@@ -103,11 +103,11 @@ $arResult["OK_MESSAGE"] = "";
 $parser = new forumTextParser(false, false, false, "light");
 $parser->MaxStringLen = $arParams["WORD_LENGTH"];
 if ($_SERVER['REQUEST_METHOD'] == "POST"):
-	$arResult["TID"] = (empty($_POST["TID_ARRAY"]) ? $_POST["TID"] : $_POST["TID_ARRAY"]);
+	$arResult["TID"] = (empty($_POST["TID_ARRAY"]) ? ($_POST["TID"] ?? null) : $_POST["TID_ARRAY"]);
 endif;
 if (empty($arResult["TID"]))
-	$arResult["TID"] = (empty($_REQUEST["TID_ARRAY"]) ? $_REQUEST["TID"] : $_REQUEST["TID_ARRAY"]);
-$ACTION = $_REQUEST["ACTION"];
+	$arResult["TID"] = (empty($_REQUEST["TID_ARRAY"]) ? ($_REQUEST["TID"] ?? null) : $_REQUEST["TID_ARRAY"]);
+$ACTION = $_REQUEST["ACTION"] ?? null;
 $arResult["NOTIFICATIONS"] = array(
 	"not_approve" => GetMessage("F_TOPIC_NOT_APPROVED"),
 	"tid_not_approved" => GetMessage("F_TOPIC_NOT_APPROVED"),
@@ -338,22 +338,22 @@ if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 		elseif ($res["STATE"] == "L")
 		{
 			$res["TopicStatus"] = "MOVED";
-			$topicLinks[count($arResult["Topics"])] = $res["TOPIC_ID"];
+			$topicLinks[count($arResult["Topics"])] = $res["TOPIC_ID"] ?? null;
 		}
 		/*******************************************************************/
 		if($arResult["PERMISSION"] >= "Q")
 		{
-			$res["LAST_POSTER_ID"] = $res["ABS_LAST_POSTER_ID"];
-			$res["LAST_POST_DATE"] = $res["ABS_LAST_POST_DATE"];
-			$res["LAST_POSTER_NAME"] = $res["ABS_LAST_POSTER_NAME"];
-			$res["LAST_MESSAGE_ID"] = $res["ABS_LAST_MESSAGE_ID"];
+			$res["LAST_POSTER_ID"] = $res["ABS_LAST_POSTER_ID"] ?? null;
+			$res["LAST_POST_DATE"] = $res["ABS_LAST_POST_DATE"] ?? null;
+			$res["LAST_POSTER_NAME"] = $res["ABS_LAST_POSTER_NAME"] ?? null;
+			$res["LAST_MESSAGE_ID"] = $res["ABS_LAST_MESSAGE_ID"] ?? null;
 			$res["mCnt"] = intval($res["POSTS_UNAPPROVED"]);
-			$res["numMessages"] = $res["POSTS"] + $res["mCnt"];
-			$res["mCntURL"] = $res["URL"]["MODERATE_MESSAGE"];
+			$res["numMessages"] = $res["POSTS"] + $res["mCnt"] ?? null;
+			$res["mCntURL"] = $res["URL"]["MODERATE_MESSAGE"] ?? null;
 		}
 		else
 		{
-			$res["numMessages"] = $res["POSTS"];
+			$res["numMessages"] = $res["POSTS"] ?? null;
 		}
 		/*******************************************************************/
 		$res["numMessages"] = $res["numMessages"] + 1;
@@ -370,12 +370,12 @@ if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 		$res["START_DATE"] = CForumFormat::DateFormat($arParams["DATE_FORMAT"], MakeTimeStamp($res["START_DATE"], CSite::GetDateFormat()));
 
 		/************** For custom template ********************************/
-		$res["read"] = $res["URL"]["TOPIC"];
-		$res["read_last_unread"] = $res["URL"]["MESSAGE_UNREAD"];
-		$res["read_last_message"] = $res["URL"]["LAST_MESSAGE"];
-		$res["USER_START_HREF"] = $res["URL"]["USER_START"];
-		$res["LAST_POSTER_HREF"] = $res["URL"]["LAST_POSTER_HREF"];
-		$res["author_profile"] = $res["URL"]["LAST_POSTER_HREF"];
+		$res["read"] = $res["URL"]["TOPIC"] ?? null;
+		$res["read_last_unread"] = $res["URL"]["MESSAGE_UNREAD"] ?? null;
+		$res["read_last_message"] = $res["URL"]["LAST_MESSAGE"] ?? null;
+		$res["USER_START_HREF"] = $res["URL"]["USER_START"] ?? null;
+		$res["LAST_POSTER_HREF"] = $res["URL"]["LAST_POSTER_HREF"] ?? null;
+		$res["author_profile"] = $res["URL"]["LAST_POSTER_HREF"] ?? null;
 		/************** For custom template/********************************/
 		$arResult["Topics"][] = $res;
 	}
@@ -431,10 +431,10 @@ for ($topicID = 0; $topicID < $topicCount; $topicID++)
 	if (
 			($tres["TopicStatus"] == "OLD") &&
 			NewMessageTopic(
-				$tres["FORUM_ID"],
-				$tres["ID"],
+				$tres["FORUM_ID"] ?? null,
+				$tres["ID"] ?? null,
 				($arResult["PERMISSION"] < "Q" ? $tres["LAST_POST_DATE"] : $tres["ABS_LAST_POST_DATE"]),
-				$tres["LAST_VISIT"]
+				$tres["LAST_VISIT"] ?? null
 			)
 		)
 	{

@@ -3,15 +3,21 @@
 namespace Bitrix\Bizproc\Api\Data\WorkflowStateService;
 
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
+use Bitrix\Bizproc\Workflow\Task\TaskSearchContentTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query;
 
 class WorkflowStateToGet
 {
+	private const SEARCH_REF_NAME = 'SEARCH_CONTENT';
 	private array $select = ['ID', 'MODULE_ID', 'DOCUMENT_ID', 'ENTITY'];
 	private int $filterUserId = 0;
 	private ?string $filterPresetId;
 	private ?array $filterWorkflowIds;
+	private ?string $filterSearchQuery;
+	private array $filter = [];
 	private int $limit = 0;
 	private int $offset = 0;
 	private bool $isSelectAllFields = false;
@@ -32,6 +38,13 @@ class WorkflowStateToGet
 				$this->select[] = $fieldId;
 			}
 		}
+
+		return $this;
+	}
+
+	public function setFilter(array $filter): static
+	{
+		$this->filter = $filter;
 
 		return $this;
 	}
@@ -134,6 +147,18 @@ class WorkflowStateToGet
 		return $this->filterWorkflowIds;
 	}
 
+	public function setFilterSearchQuery(string $query): static
+	{
+		$this->filterSearchQuery = TaskSearchContentTable::prepareSearchContent($query);
+
+		return $this;
+	}
+
+	public function getFilterSearchQuery(): ?string
+	{
+		return $this->filterSearchQuery;
+	}
+
 	public function setLimit(int $limit): static
 	{
 		if ($limit >= 0)
@@ -178,16 +203,15 @@ class WorkflowStateToGet
 
 	public function getOrmFilter(): array
 	{
-		$filter = [
-			'=USER_ID' => $this->filterUserId,
-		];
+		$filter = $this->filter;
+		$filter['=USER_ID'] = $this->filterUserId;
 
 		if (!empty($this->filterWorkflowIds))
 		{
 			$filter['@WORKFLOW_ID'] = $this->filterWorkflowIds;
 		}
 
-		$filterPresetId = $this->filterPresetId ?? WorkflowStateFilter::PRESET_DEFAULT;
+		$filterPresetId = $this->filterPresetId ?? null;
 
 		if ($filterPresetId === WorkflowStateFilter::PRESET_STARTED)
 		{
@@ -201,7 +225,7 @@ class WorkflowStateToGet
 		{
 			$filter['=WORKFLOW_STATUS'] = WorkflowUserTable::WORKFLOW_STATUS_COMPLETED;
 		}
-		else // ($filterPresetId === WorkflowStateFilter::PRESET_IN_WORK)
+		elseif ($filterPresetId === WorkflowStateFilter::PRESET_IN_WORK)
 		{
 			$filter['=WORKFLOW_STATUS'] = new SqlExpression('?i', WorkflowUserTable::WORKFLOW_STATUS_ACTIVE);
 			$filter[] = [
@@ -211,7 +235,37 @@ class WorkflowStateToGet
 			];
 		}
 
+		if (!empty($this->filterSearchQuery))
+		{
+			$find = Query\Filter\Helper::matchAgainstWildcard($this->filterSearchQuery);
+
+			$filter[] = [
+				'LOGIC' => 'AND',
+				'*' . static::SEARCH_REF_NAME . '.SEARCH_CONTENT' => $find,
+				'=' . static::SEARCH_REF_NAME . '.USERS.USER_ID' => $this->filterUserId,
+			];
+		}
+
 		return $filter;
+	}
+
+	public function getOrmRuntime(): ?Reference
+	{
+		if (empty($this->filterSearchQuery))
+		{
+			return null;
+		}
+
+		$ref = new Reference(
+			static::SEARCH_REF_NAME,
+			TaskSearchContentTable::getEntity(),
+			[
+				'=this.WORKFLOW_ID' => 'ref.WORKFLOW_ID',
+			],
+		);
+		$ref->configureJoinType(Query\Join::TYPE_INNER);
+
+		return $ref;
 	}
 
 	public function getOrder(): array
@@ -253,6 +307,7 @@ class WorkflowStateToGet
 				'STATE_TITLE',
 				// 'STATE_PARAMETERS',
 			],
+			array_map(static fn($metaFieldName) => 'META.' . $metaFieldName, $this->getAllowedMetaFields()),
 		);
 	}
 
@@ -275,5 +330,10 @@ class WorkflowStateToGet
 			'TASK_USERS.DATE_UPDATE',
 			'TASK_USERS.ORIGINAL_USER_ID',
 		];
+	}
+
+	private function getAllowedMetaFields(): array
+	{
+		return ['ID', 'WORKFLOW_ID', 'START_DURATION'];
 	}
 }

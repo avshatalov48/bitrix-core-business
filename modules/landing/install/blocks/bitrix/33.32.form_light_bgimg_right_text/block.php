@@ -1,5 +1,5 @@
 <section class="g-pos-rel landing-block">
-	<div class="landing-block-node-bgimg g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_3--after g-py-20 g-bg-attachment-fixed"
+	<div class="landing-block-node-bgimg g-bg-cover g-bg-black-opacity-0_3--after g-py-20"
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1732x1155/img1.jpg);">
 
 		<div class="container g-pos-rel g-z-index-1 g-py-100">

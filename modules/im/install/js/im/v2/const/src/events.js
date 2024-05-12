@@ -41,7 +41,6 @@ export const EventType = Object.freeze({
 	{
 		close: 'IM.Search:close',
 		keyPressed: 'IM.Search:keyPressed',
-		openContextMenu: 'IM.Search:openContextMenu',
 	},
 	recent:
 	{

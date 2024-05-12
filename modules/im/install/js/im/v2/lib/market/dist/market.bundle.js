@@ -181,10 +181,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      });
 	    }
 	  }
-	  static openSlider(placement, context) {
-	    main_core.Runtime.loadExtension('applayout').then(() => {
-	      BX.rest.AppLayout.openApplication(placement.loadConfiguration.ID, context, placement.loadConfiguration);
-	    });
+	  static async openSlider(placement, context) {
+	    await main_core.Runtime.loadExtension('applayout');
+	    BX.rest.AppLayout.openApplication(placement.loadConfiguration.ID, context, placement.loadConfiguration);
 	  }
 	  static openMarketplace() {
 	    const marketplaceImPlacementCode = 'IM_CHAT';
@@ -192,7 +191,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 	function _init2(marketApps) {
-	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('market/set', marketApps);
+	  if (!marketApps) {
+	    return;
+	  }
+	  void babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('market/set', marketApps);
 	  babelHelpers.classPrivateFieldLooseBase(this, _marketService)[_marketService].setLoadLink(marketApps.links.load);
 	}
 	Object.defineProperty(MarketManager, _instance, {

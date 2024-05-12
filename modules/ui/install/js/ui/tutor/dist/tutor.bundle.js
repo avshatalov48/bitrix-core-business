@@ -152,14 +152,6 @@ this.BX.UI = this.BX.UI || {};
 	      this.feedbackFormId = feedbackFormId;
 	    }
 	  }
-	  showFeedbackForm() {
-	    if (this.feedbackFormId) {
-	      this.feedBackForm = BX.UI.Feedback.Form.getById(this.feedbackFormId);
-	      if (this.feedBackForm) {
-	        this.feedBackForm.openPanel();
-	      }
-	    }
-	  }
 	  getDomain() {
 	    return this.domain;
 	  }
@@ -1023,7 +1015,7 @@ this.BX.UI = this.BX.UI || {};
 						${0}
 					</div>
 				`), this.getNavigation(), this.getBtnContainer());
-	      if (Manager.getInstance().feedbackFormId) {
+	      if (Manager.getInstance() && Manager.getInstance().feedbackFormId) {
 	        main_core.Dom.append(this.getSupportLink(), this.layout.footer);
 	      }
 	    }
@@ -1362,7 +1354,6 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  supportLinkHandler() {
 	    this.emit('supportLinkClick');
-	    Manager.getInstance().showFeedbackForm();
 	  }
 
 	  /**

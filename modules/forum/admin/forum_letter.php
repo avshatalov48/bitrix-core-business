@@ -9,7 +9,7 @@
 		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 	IncludeModuleLangFile(__FILE__);
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
-	
+
 	$sTableID = "tbl_filter_dictionary_letter";
 	$oSort = new CAdminSorting($sTableID, "ID", "asc");
 	$lAdmin = new CAdminList($sTableID, $oSort);
@@ -17,12 +17,12 @@
 
 /*******************************************************************/
 	$arFilter = array();
-	$find = trim($find);
+	$find = isset($find) ? trim($find) : '';
 	if ($find <> '')
 		$arFilter["%".htmlspecialcharsbx($find_type)] = "%".$find."%";
 	$DICTIONARY_ID = intval($_REQUEST["DICTIONARY_ID"]);
 	if ($DICTIONARY_ID <= 0)
-		$lAdmin->AddFilterError(GetMessage("FLT_NOT_DICT")); 
+		$lAdmin->AddFilterError(GetMessage("FLT_NOT_DICT"));
 	$arFilter["DICTIONARY_ID"] = $DICTIONARY_ID;
 /*******************************************************************/
 	if ($lAdmin->EditAction())
@@ -41,7 +41,7 @@
 				if ($ex = $APPLICATION->GetException())
 				{
 					$lAdmin->AddUpdateError($ex->GetString(), $ID);
-				}	
+				}
 				else
 				{
 					$lAdmin->AddUpdateError(GetMessage("FLT_NOT_UPDATE"), $ID);
@@ -57,7 +57,7 @@
 /*******************************************************************/
 	if($arID = $lAdmin->GroupAction())
 	{
-		if($_REQUEST['action_target']=='selected')
+		if(isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 		{
 			$rsData = CFilterLetter::GetList(array($by=>$order), $arFilter);
 			while($arRes = $rsData->Fetch())
@@ -72,7 +72,7 @@
 				$ID = intval($ID);
 				switch($_REQUEST['action'])
 				{
-					case "delete": 
+					case "delete":
 						CFilterLetter::Delete($ID);
 						break;
 				}
@@ -118,9 +118,9 @@
 			),
 		);
 		$lAdmin->AddAdminContextMenu($aContext);
-	}	
+	}
 /*******************************************************************/
-		$lAdmin->CheckListMode();
+	$lAdmin->CheckListMode();
 /*******************************************************************/
 	$APPLICATION->SetTitle(GetMessage("FORUM_MENU_FILTER_DT"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -144,7 +144,7 @@
 		);
 		echo SelectBoxFromArray("find_type", $arr, $find_type, "", "");
 		?>
-		</td>	
+		</td>
 	</tr><?
 	$oFilter->Buttons(
 		array(

@@ -73,7 +73,7 @@ if (!function_exists("ForumNumberRusEnding"))
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
-	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
+	$arParams["SHOW_FORUM_ANOTHER_SITE"] = (isset($arParams["SHOW_FORUM_ANOTHER_SITE"]) && $arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
 	$arParams["DATE_FORMAT"] = trim($arParams["DATE_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : '#NAME# #LAST_NAME#');
@@ -136,15 +136,15 @@ endforeach;
 $strErrorMessage = "";
 $strOKMessage = "";
 
-$arParams["UID"] = intval($arParams["UID"]);
-$arResult["FID"] = intval($_REQUEST["FID"]);
-$arResult["TID"] = intval($_REQUEST["TID"]);
-$arResult["TITLE_SEO"] = trim($_REQUEST["TITLE_SEO"]);
-$arResult["MID"] = intval($_REQUEST["MID"]);
+$arParams["UID"] = isset($arParams["UID"]) ? intval($arParams["UID"]) : null;
+$arResult["FID"] = isset($arParams["FID"]) ? intval($_REQUEST["FID"]) : null;
+$arResult["TID"] = isset($arParams["TID"]) ? intval($_REQUEST["TID"]) : null;
+$arResult["TITLE_SEO"] = isset($_REQUEST["TITLE_SEO"]) ? trim($_REQUEST["TITLE_SEO"]) : null;
+$arResult["MID"] = isset($_REQUEST["MID"]) ? intval($_REQUEST["MID"]) : null;
 $arResult["IsAuthorized"] = $USER->IsAuthorized() ? "Y" : "N";
 $arResult["IsAdmin"] = CForumUser::IsAdmin() ? "Y" : "N";
 $arResult["ERROR_MESSAGE"] = "";
-$arResult["OK_MESSAGE"] = ($_REQUEST["result"] == "message_send" ? GetMessage("F_OK_MESSAGE_SEND") : "");
+$arResult["OK_MESSAGE"] = (isset($_REQUEST["result"]) && $_REQUEST["result"] == "message_send" ? GetMessage("F_OK_MESSAGE_SEND") : "");
 $arResult["FORUMS"] = array();
 
 $arResult["SHOW_BACK_URL"] = (($arResult["FID"] > 0 || $arResult["TID"] > 0 || $arResult["MID"] > 0) ? "Y" : "N");

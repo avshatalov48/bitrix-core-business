@@ -12,11 +12,6 @@ if (!$GLOBALS["USER"]->IsAuthorized())
 $arParams["ID"] = intval($arParams["ID"]);
 $arParams['POPUP'] = isset($arParams["POPUP"]) && $arParams["POPUP"] == 'Y';
 $arParams['AJAX_RESPONSE'] = isset($arParams["AJAX_RESPONSE"]) && $arParams["AJAX_RESPONSE"] == 'Y';
-if (!empty($_SERVER['HTTP_BX_AJAX']) && SITE_CHARSET != "utf-8")
-{
-	CUtil::decodeURIComponent($_REQUEST);
-	CUtil::decodeURIComponent($_FILES);
-}
 
 if ($arParams['POPUP'])
 {

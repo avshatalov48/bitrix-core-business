@@ -10,6 +10,7 @@ use Bitrix\Calendar\Core\Queue\Message\Message;
 use Bitrix\Calendar\Core\Queue\Message\MessageMapper;
 use Bitrix\Calendar\Core\Queue\QueueListener;
 use Bitrix\Calendar\Core\Base\Mutex;
+use Bitrix\Calendar\Internals\Log\Logger;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
@@ -25,6 +26,8 @@ class RuleMaster
 
 	private const LAST_PROCESSED_OPTION_NAME = 'queue_last_processed_id';
 
+	private Logger $logger;
+
 	private MessageMapper $messageMapper;
 
 	private HandledMessageMapper $handledMessageMapper;
@@ -32,6 +35,11 @@ class RuleMaster
 	private Map $routedQueues;
 
 	private Mutex $mutex;
+
+	public function __construct(Logger $logger = null)
+	{
+		$this->logger = $logger ?? new Logger();
+	}
 
 	/**
 	 * @return void
@@ -46,9 +54,9 @@ class RuleMaster
 
 				$this->sendSystemEvents();
 			}
-			catch(Throwable $e)
+			catch(Throwable $exception)
 			{
-				// TODO: log it
+				$this->logger->log($exception);
 			}
 			finally
 			{
@@ -108,9 +116,9 @@ class RuleMaster
 					$isRouted = true;
 				}
 			}
-			catch(Throwable $e)
+			catch(Throwable $exception)
 			{
-				// TODO: log error
+				$this->logger->log($exception);
 			}
 		}
 

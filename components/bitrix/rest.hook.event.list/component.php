@@ -37,8 +37,6 @@ if ($request->isPost() &&
 	\Bitrix\Main\Grid\Context::isInternalRequest() &&
 	$request->get("grid_id") == $arResult["GRID_ID"])
 {
-	$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
-
 	if ($request->getPost("action") == \Bitrix\Main\Grid\Actions::GRID_DELETE_ROW)
 	{
 		$event = \Bitrix\Rest\EventTable::getByPrimary($request->getPost("id"))->fetch();
@@ -92,12 +90,12 @@ $eventDesc = array();
 
 foreach($eventDictionary as $event)
 {
-	$eventDesc[ToUpper($event['code'])] = $event;
+	$eventDesc[mb_strtoupper($event['code'])] = $event;
 }
 
 while($event = $dbRes->fetch())
 {
-	$eventName = $eventDesc[ToUpper($event['EVENT_NAME'])]['name'];
+	$eventName = $eventDesc[mb_strtoupper($event['EVENT_NAME'])]['name'];
 	if($eventName == '')
 	{
 		$eventName = $event['EVENT_NAME'];

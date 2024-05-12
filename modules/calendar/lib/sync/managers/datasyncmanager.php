@@ -255,7 +255,7 @@ class DataSyncManager
 			);
 		}
 
-		if ($eventId && !empty($event['calendar-data-ex'] && is_array($event['calendar-data-ex'])))
+		if ($eventId && !empty($event['calendar-data-ex']) && is_array($event['calendar-data-ex']))
 		{
 			$this->modifyRecurrenceEvent(
 				$connection,

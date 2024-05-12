@@ -5,7 +5,10 @@
 
 namespace Bitrix\Calendar\Integration\Dav;
 
+use Bitrix\Calendar\Integration\Tasks\TaskQueryParameter;
+use Bitrix\Calendar\Integration\Tasks\TaskUser;
 use Bitrix\Calendar\UserSettings;
+use Bitrix\Main\Loader;
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/classes/general/calendar.php");
 
@@ -214,12 +217,13 @@ class SyncAdapter
 	public static function getTaskList($userId, $params = [])
 	{
 		$tasksEntries = [];
-		if (\Bitrix\Main\Loader::includeModule('tasks'))
+		if (Loader::includeModule('tasks'))
 		{
-			$tasksEntries = \CCalendar::getTaskList([
-				'type' => 'user',
-				'ownerId' => $userId
-			]);
+			$tasksEntries = \CCalendar::getTaskList(
+				(new TaskQueryParameter(TaskUser::getId())) // <-- compatibility
+					->setType(TaskQueryParameter::TYPE_USER)
+					->setOwnerId($userId)
+			);
 
 			for ($i = 0, $l = count($tasksEntries); $i < $l; $i++)
 			{

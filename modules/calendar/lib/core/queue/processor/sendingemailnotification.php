@@ -121,12 +121,12 @@ class SendingEmailNotification implements Interfaces\Processor
 			return false;
 		}
 
-		return (
-			isset($notification['eventId'])
-			|| isset($notification['addresserId'])
-			|| isset($notification['receiverId'])
-			|| isset($notification['type'])
-			|| isset($notification['counterInvitation'])
+		return isset(
+			$notification['eventId'],
+			$notification['addresserId'],
+			$notification['receiverId'],
+			$notification['type'],
+			$notification['counterInvitation']
 		);
 	}
 
@@ -146,12 +146,13 @@ class SendingEmailNotification implements Interfaces\Processor
 			{
 				$item = $item[0];
 			}
+
 			\CCalendarNotify::Send([
 				'mode' => 'fail_ical_invite',
 				'eventId' => $parentId,
 				'userId' => $item['userId'],
 				'guestId' => $item['userId'],
-				'items' => $item,
+				'items' => [$item],
 				'name' => $item['name'],
 				'icalMethod' => $item['method'],
 			]);
@@ -161,6 +162,7 @@ class SendingEmailNotification implements Interfaces\Processor
 	private function getDataForNotify(SenderInvitation $sender): array
 	{
 		$event = $sender->getEvent();
+
 		return [
 			'email' => $sender->getReceiver()->getEmail(),
 			'eventId' => $event['PARENT_ID'],
@@ -192,6 +194,8 @@ class SendingEmailNotification implements Interfaces\Processor
 	public static function sendMessageToQueue(array $invitation): void
 	{
 		$serializedData = str_replace("'", "\'", serialize($invitation));
+		$serializedData = Emoji::encode($serializedData);
+
 		$message = (new Message())
 			->setBody(['requestInvitation' => $serializedData])
 			->setRoutingKey('calendar:sending_email_notification')
@@ -219,6 +223,8 @@ class SendingEmailNotification implements Interfaces\Processor
 		foreach ($invitations as $invitation)
 		{
 			$serializedData = str_replace("'", "\'", serialize($invitation));
+			$serializedData = Emoji::encode($serializedData);
+
 			$messages[] = (new Message())
 				->setBody(['requestInvitation' => $serializedData])
 				->setRoutingKey('calendar:sending_email_notification')

@@ -27,19 +27,27 @@ class WorkflowStateService
 	public function getList(WorkflowStateToGet $toGet): GetListResponse
 	{
 		$this->convertProcesses($toGet->getFilterUserId());
+		$this->createFilterIndex($toGet->getFilterUserId()); // remove after 6 month from release
 
 		$response = new GetListResponse();
 		$responseCollection = new EO_WorkflowState_Collection();
 
-		$queryResult = WorkflowUserTable::query()
+		$query = WorkflowUserTable::query()
 			->addSelect('WORKFLOW_ID')
 			->setFilter($toGet->getOrmFilter())
 			->setOrder($toGet->getOrder())
 			->setLimit($toGet->getLimit())
 			->setOffset($toGet->getOffset())
 			->countTotal($toGet->isCountingTotal())
-			->exec()
 		;
+		$runtimeField = $toGet->getOrmRuntime();
+
+		if ($runtimeField)
+		{
+			$query->registerRuntimeField($runtimeField);
+		}
+
+		$queryResult = $query->exec();
 
 		if ($toGet->isCountingTotal())
 		{
@@ -84,18 +92,54 @@ class WorkflowStateService
 		$taskFields = $toGet->getSelectTaskFields();
 		if ($taskFields)
 		{
-			$taskQuery = TaskTable::query()
+			$activeTasksQuery = TaskTable::query()
 				->setSelect($taskFields)
-				->setFilter(['=WORKFLOW_ID' => $workflowState->getId()])
-				->setOrder(['ID' => 'ASC'])
+				->setFilter([
+					'=WORKFLOW_ID' => $workflowState->getId(),
+					'=TASK_USERS.USER_ID' => $toGet->getFilterUserId(),
+					'=TASK_USERS.STATUS' => \CBPTaskUserStatus::Waiting,
+				])
+				->setOrder(['ID' => 'DESC'])
 			;
 
-			if (is_int($toGet->getSelectTaskLimit()))
+			$taskLimit = $toGet->getSelectTaskLimit();
+			if (isset($taskLimit))
 			{
-				$taskQuery->setLimit($toGet->getSelectTaskLimit());
+				$activeTasksQuery->setLimit($taskLimit);
 			}
 
-			return $taskQuery->exec()->fetchCollection();
+			$userActiveTasks = $activeTasksQuery->exec()->fetchCollection();
+
+			$remainingTasksCount = null;
+			if (isset($taskLimit))
+			{
+				$remainingTasksCount = $taskLimit - $userActiveTasks->count();
+			}
+
+			if (isset($remainingTasksCount) && $remainingTasksCount <= 0)
+			{
+				return $userActiveTasks;
+			}
+
+			$workflowTasksQuery = TaskTable::query()
+				->setSelect($taskFields)
+				->setFilter([
+					'=WORKFLOW_ID' => $workflowState->getId(),
+					[
+						'LOGIC' => 'OR',
+						'!=TASK_USERS.USER_ID' => $toGet->getFilterUserId(),
+						'!=TASK_USERS.STATUS' => \CBPTaskUserStatus::Waiting,
+					],
+				])
+				->setOrder(['ID' => 'DESC'])
+			;
+
+			if (isset($remainingTasksCount))
+			{
+				$workflowTasksQuery->setLimit($remainingTasksCount);
+			}
+
+			return $userActiveTasks->merge($workflowTasksQuery->exec()->fetchCollection());
 		}
 
 		return null;
@@ -129,8 +173,11 @@ class WorkflowStateService
 					}
 				}
 			}
+
 			$fullFilledList[] = [
 				'ID' => $stateElement->getId(),
+				'STARTED' => $stateElement->getStarted(),
+				'MODIFIED' => $stateElement->getModified(),
 				'STATE_INFO' => $stateElement->getStateInfo(),
 				'DOCUMENT_INFO' => $this->getDocumentInfo($stateElement->getComplexDocumentId()),
 				'STARTED_USER_INFO' => [
@@ -138,6 +185,7 @@ class WorkflowStateService
 				],
 				'TASKS_INFO' => $tasksInfo,
 				'TEMPLATE_NAME' => $stateElement->getTemplate()?->getName(),
+				'META' => $stateElement->getMeta()?->collectValues() ?? [],
 			];
 
 			$userIds[$stateElement->getStartedBy()] = true;
@@ -170,7 +218,10 @@ class WorkflowStateService
 		try
 		{
 			$complexDocumentType = $documentService->getDocumentType($complexDocumentId);
-			$key = $complexDocumentId[0] . '@' . $complexDocumentId[1] . '@' . $complexDocumentType[2];
+			if ($complexDocumentType)
+			{
+				$key = $complexDocumentId[0] . '@' . $complexDocumentId[1] . '@' . $complexDocumentType[2];
+			}
 		}
 		catch (SystemException | \Exception $exception)
 		{
@@ -249,6 +300,36 @@ class WorkflowStateService
 			'bizproc',
 			'processes_converted',
 			self::CONVERTER_VERSION,
+			false,
+			$userId
+		);
+	}
+
+	private function createFilterIndex(int $userId)
+	{
+		if (empty($userId))
+		{
+			return;
+		}
+
+		$converterVersion = \CUserOptions::getOption(
+			'bizproc',
+			'processes_filter',
+			0,
+			$userId
+		);
+
+		if ($converterVersion)
+		{
+			return;
+		}
+
+		\Bitrix\Bizproc\Worker\Workflow\CreateUserFilterStepper::bindUser($userId);
+
+		\CUserOptions::setOption(
+			'bizproc',
+			'processes_filter',
+			1,
 			false,
 			$userId
 		);

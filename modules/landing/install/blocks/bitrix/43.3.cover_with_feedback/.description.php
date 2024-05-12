@@ -73,7 +73,7 @@ return [
 			],
 			'.landing-block-node-bgimg' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => ['background', 'background-attachment'],
+				'type' => ['background'],
 			],
 			'.landing-block-node-header' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODEHEADER'),

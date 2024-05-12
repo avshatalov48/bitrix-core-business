@@ -61,7 +61,7 @@ if(!function_exists("GetUserName"))
 			$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".mb_strtoupper($URL)],
 				array("by" => $by, "order" => $order), false, false);
 		}
-		
+
 		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
@@ -78,8 +78,8 @@ if(!function_exists("GetUserName"))
 /********************************************************************
 				Default values
 ********************************************************************/
-$result = mb_strtolower($_REQUEST["result"]);
-	
+$result = isset($_REQUEST["result"]) ? mb_strtolower($_REQUEST["result"]) : null;
+
 	$arResult["ERROR_MESSAGE"] = "";
 	$arResult["OK_MESSAGE"] = "";
 	$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate(
@@ -118,7 +118,7 @@ if(!($db_res && ($res = $db_res->GetNext())))
 				array("FID" => $arParams["FID"])),
 			array("result" => "no_mid")));
 }
-elseif (!CForumPrivateMessage::CheckPermissions($arParams["MID"])) 
+elseif (!CForumPrivateMessage::CheckPermissions($arParams["MID"]))
 {
 	LocalRedirect(
 		ForumAddPageParams(
@@ -162,12 +162,12 @@ if (!empty($_REQUEST["action"]))
 	$APPLICATION->ResetException();
 	$arNotification = array();
 	$message = array($arParams["MID"]);
-	
+
 	$next = array("ID" => $arParams["MID"]);
 	if ($action != "send_notification")
 	{
 		$arFilter = array(
-			"USER_ID"=>$arParams["UID"], 
+			"USER_ID"=>$arParams["UID"],
 			"FOLDER_ID"=>$arParams["FID"]);
 		if ($arParams["FID"] == 2) //If this is outbox folder
 			$arFilter = array("OWNER_ID" => $arParams["UID"]);
@@ -180,7 +180,7 @@ if (!empty($_REQUEST["action"]))
 		if($db_res && ($res = $db_res->Fetch()))
 		{
 			$bFound = false;
-			do 
+			do
 			{
 				if ($bFound)
 				{
@@ -189,11 +189,11 @@ if (!empty($_REQUEST["action"]))
 				}
 				if ($res["ID"] == $arParams["MID"])
 					$bFound = true;
-				
+
 			}while ($res = $db_res->Fetch());
 		}
 	}
-	
+
 	if (!check_bitrix_sessid()):
 		$arError[] = array("id" => "bad_sessid", "text" => GetMessage("F_ERR_SESS_FINISH"));
 	elseif (!(is_array($message) && !empty($message))):
@@ -217,7 +217,7 @@ if (!empty($_REQUEST["action"]))
 				"UID" => $arResult["MESSAGE"]["AUTHOR_ID"]));
 		LocalRedirect($arResult["pm_reply"]);
 	elseif ($action == "delete"):
-		foreach ($message as $MID) 
+		foreach ($message as $MID)
 		{
 			if (!CForumPrivateMessage::CheckPermissions($MID)):
 				$arError[] = array("id" => "bad_permission_".$MID, "text" => str_replace("#MID#", $MID, GetMessage("PM_ERR_DELETE_NO_PERM")));
@@ -235,7 +235,7 @@ if (!empty($_REQUEST["action"]))
 			"FOLDER_ID" => intval($folder_id),
 			"USER_ID" => $USER->GetId(),
 			"IS_READ" => "Y");
-		foreach ($message as $MID) 
+		foreach ($message as $MID)
 		{
 			if (!CForumPrivateMessage::CheckPermissions($MID)):
 				$arError[] = array("id" => "bad_permission_".$MID, "text" => str_replace("#MID#", intval($MID), GetMessage("PM_ERR_MOVE_NO_PERM")));
@@ -245,7 +245,7 @@ if (!empty($_REQUEST["action"]))
 				if ($err):
 					$arError[] = array("id" => "bad_".$action."_".$MID, "text" => $err->GetString());
 				endif;
-			else: 
+			else:
 				$arOk[] = array("id" => $action."_".$MID, "text" => str_replace("#MID#", $MID, GetMessage("PM_OK_MOVE")));
 			endif;
 		}
@@ -253,19 +253,19 @@ if (!empty($_REQUEST["action"]))
 		$arNotification["POST_SUBJ"] = GetMessage("SYSTEM_POST_SUBJ");
 		$arNotification["POST_MESSAGE"] = GetMessage("SYSTEM_POST_MESSAGE");
 		$arNotification["FIELDS"] = array(
-				"USER_NAME" => $arResult["MESSAGE"]["~RECIPIENT_NAME"], 
-				"USER_ID" => $arResult["MESSAGE"]["RECIPIENT_ID"], 
-				"USER_LINK" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"], 
+				"USER_NAME" => $arResult["MESSAGE"]["~RECIPIENT_NAME"],
+				"USER_ID" => $arResult["MESSAGE"]["RECIPIENT_ID"],
+				"USER_LINK" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"],
 					array("UID" => $arResult["MESSAGE"]["RECIPIENT_ID"])),
-				"SUBJECT" => $arResult["MESSAGE"]["~POST_SUBJ"], 
-				"MESSAGE" => $arResult["MESSAGE"]["~POST_MESSAGE"], 
-				"MESSAGE_DATE" => $arResult["MESSAGE"]["POST_DATE"], 
-				"MESSAGE_LINK" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"], 
-					array("FID" => "1", "MID" => $arResult["MESSAGE"]["ID"])), 
+				"SUBJECT" => $arResult["MESSAGE"]["~POST_SUBJ"],
+				"MESSAGE" => $arResult["MESSAGE"]["~POST_MESSAGE"],
+				"MESSAGE_DATE" => $arResult["MESSAGE"]["POST_DATE"],
+				"MESSAGE_LINK" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"],
+					array("FID" => "1", "MID" => $arResult["MESSAGE"]["ID"])),
 				"SERVER_NAME" => SITE_SERVER_NAME);
 		foreach ($arNotification["FIELDS"] as $key => $val)
 			$arNotification["POST_MESSAGE"] = str_replace("#".$key."#", $val, $arNotification["POST_MESSAGE"]);
-			
+
 		$arFields = array(
 			"AUTHOR_ID" => $USER->GetID(),
 			"USER_ID" => $arResult["MESSAGE"]["AUTHOR_ID"],
@@ -311,26 +311,26 @@ if (!empty($_REQUEST["action"]))
 				{
 					$arOK[] = array("id" => "send", "text" => GetMessage("PM_NOTIFICATION_SEND"));
 					$arrVars = array("REQUEST_IS_READ" => "N");
-					CForumPrivateMessage::Update($arResult["MESSAGE"]["ID"], $arrVars); 
+					CForumPrivateMessage::Update($arResult["MESSAGE"]["ID"], $arrVars);
 				}
 			}
 		}
 	endif;
-	
+
 	if (empty($arError))
 	{
 		if (!empty($next))
 		{
-			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"], 
+			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_READ"],
 				array("FID" => $arParams["FID"], "MID" => $next["ID"])));
 		}
-		else 
+		else
 		{
-			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], 
+			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"],
 				array("FID" => $arParams["FID"])));
 		}
 	}
-	
+
 	if (!empty($arError))
 	{
 		$e = new CAdminException(array_reverse($arError));
@@ -354,7 +354,7 @@ if (!empty($_REQUEST["action"]))
 				Data
 ********************************************************************/
 $arResult["MESSAGE"]["POST_MESSAGE"] = $parser->convert(
-	$arResult["MESSAGE"]["~POST_MESSAGE"], 
+	$arResult["MESSAGE"]["~POST_MESSAGE"],
 	array(
 		"HTML" => "N",
 		"ANCHOR" => "Y",
@@ -371,15 +371,15 @@ $arResult["MESSAGE"]["POST_MESSAGE"] = $parser->convert(
 		"TABLE" => "Y",
 		"ALIGN" => "Y"
 	));
-$arResult["MESSAGE"]["RECIPIENT_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+$arResult["MESSAGE"]["RECIPIENT_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
 	array("UID" => $arResult["MESSAGE"]["RECIPIENT_ID"]));
-$arResult["MESSAGE"]["AUTHOR_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+$arResult["MESSAGE"]["AUTHOR_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
 	array("UID" => $arResult["MESSAGE"]["AUTHOR_ID"]));
-$arResult["MESSAGE"]["POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], 
+$arResult["MESSAGE"]["POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"],
 	MakeTimeStamp($arResult["MESSAGE"]["POST_DATE"], CSite::GetDateFormat()));
 // ************************* Pagen *********************************************************************
 $arFilter = array(
-	"USER_ID"=>$arParams["UID"], 
+	"USER_ID"=>$arParams["UID"],
 	"FOLDER_ID"=>$arParams["FID"]);
 if ($arParams["FID"] == 2) //If this is outbox folder
 	$arFilter = array("OWNER_ID" => $arParams["UID"]);
@@ -395,7 +395,7 @@ $next = array();
 $bFound = false;
 if($db_res && ($res = $db_res->Fetch()))
 {
-	do 
+	do
 	{
 		if ($bFound)
 		{
@@ -406,7 +406,7 @@ if($db_res && ($res = $db_res->Fetch()))
 			$bFound = true;
 		if (!$bFound)
 			$prev = $res;
-		
+
 	}while ($res = $db_res->Fetch());
 }
 
@@ -423,11 +423,11 @@ if (!empty($prev))
 		array("FID" => $arParams["FID"], "MID" => $prev["ID"])));
 }
 
-$arResult["pm_edit"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], 
+$arResult["pm_edit"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"],
 	array("FID"=>$arParams["FID"], "mode" => "edit", "MID" => $arParams["MID"], "UID" => $arResult["MESSAGE"]["RECIPIENT_ID"]));
-$arResult["pm_reply"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], 
+$arResult["pm_reply"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"],
 	array("FID"=>$arParams["FID"], "mode" => "reply", "MID" => $arParams["MID"], "UID" => $arResult["MESSAGE"]["AUTHOR_ID"]));
-$arResult["pm_list"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], 
+$arResult["pm_list"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"],
 	array("FID" => $arParams["FID"]));
 $arResult["SystemFolder"] = FORUM_SystemFolder;
 
@@ -445,7 +445,7 @@ if (($resFolder) && ($resF = $resFolder->GetNext()))
 $arResult["count"] = CForumPrivateMessage::PMSize($USER->GetID(), COption::GetOptionInt("forum", "MaxPrivateMessages", 100));
 $arResult["count"] = round($arResult["count"]*100);
 
-$arResult["FolderName"] = ($arParams["FID"] <= $arResult["SystemFolder"]) ? GetMessage("PM_FOLDER_ID_".$arParams["FID"]) : 
+$arResult["FolderName"] = ($arParams["FID"] <= $arResult["SystemFolder"]) ? GetMessage("PM_FOLDER_ID_".$arParams["FID"]) :
 	$arResult["UserFolder"][$arParams["FID"]]["TITLE"];
 // *************************/Page **********************************************************************
 
@@ -458,7 +458,7 @@ if ((intval($arResult["FID"]) > 1) && (intval($arResult["FID"]) <=3))
 	$arResult["StatusUser"] = "RECIPIENT";
 	$arResult["InputOutput"] = "RECIPIENT_ID";
 	$arResult["recipient"]["name"] = $arResult["MESSAGE"]["RECIPIENT_NAME"];
-	$arResult["recipient"]["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+	$arResult["recipient"]["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
 		array("UID" => $arResult["MESSAGE"]["RECIPIENT_ID"]));
 }
 else
@@ -466,7 +466,7 @@ else
 	$arResult["StatusUser"] = "SENDER";
 	$arResult["InputOutput"] = "AUTHOR_ID";
 	$arResult["recipient"]["name"] = $arResult["MESSAGE"]["AUTHOR_NAME"];
-	$arResult["recipient"]["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+	$arResult["recipient"]["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
 		array("UID" => $arResult["MESSAGE"]["AUTHOR_ID"]));
 }
 $arResult["NameUser"] = $arResult["recipient"]["name"];
@@ -474,9 +474,9 @@ $arResult["NameUser"] = $arResult["recipient"]["name"];
 
 if ($arParams["SET_NAVIGATION"] != "N")
 {
-	$APPLICATION->AddChainItem(GetMessage("PM_TITLE_NAV"), CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_FOLDER"], 
+	$APPLICATION->AddChainItem(GetMessage("PM_TITLE_NAV"), CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_FOLDER"],
 		array()));
-	$APPLICATION->AddChainItem($arResult["FolderName"], CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_LIST"], 
+	$APPLICATION->AddChainItem($arResult["FolderName"], CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_LIST"],
 		array("FID" => $arParams["FID"])));
 	$APPLICATION->AddChainItem($arResult["MESSAGE"]["POST_SUBJ"]);
 }

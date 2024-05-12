@@ -16,7 +16,7 @@ export const AudioInput = {
 			required: true,
 		},
 	},
-	emits: ['start', 'stop', 'inputStart', 'inputResult'],
+	emits: ['start', 'stop', 'inputStart', 'inputResult', 'error'],
 	data(): JsonObject
 	{
 		return {};
@@ -69,6 +69,7 @@ export const AudioInput = {
 				this.$emit('inputStart');
 			});
 			this.getAudioManager().subscribe(AudioManager.events.recognitionError, () => {
+				this.$emit('error');
 				BX.UI.Notification.Center.notify({ content: this.loc('IM_CONTENT_COPILOT_TEXTAREA_AUDIO_INPUT_ERROR') });
 			});
 		},
@@ -77,6 +78,7 @@ export const AudioInput = {
 			this.getAudioManager().unsubscribeAll(AudioManager.events.recognitionResult);
 			this.getAudioManager().unsubscribeAll(AudioManager.events.recognitionStart);
 			this.getAudioManager().unsubscribeAll(AudioManager.events.recognitionEnd);
+			this.getAudioManager().unsubscribeAll(AudioManager.events.recognitionError);
 		},
 		isAudioModeAvailable(): boolean
 		{

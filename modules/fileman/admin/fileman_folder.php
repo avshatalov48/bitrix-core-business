@@ -323,7 +323,7 @@ $oldind = $oldind ?? null;
 						<?
 					}
 				}
-				if(count($arPropTypes)>0 && is_array($arPropTypes))
+				if (is_array($arPropTypes) && count($arPropTypes) > 0)
 				{
 					foreach ($arPropTypes as $key => $value)
 					{

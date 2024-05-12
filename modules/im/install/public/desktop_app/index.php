@@ -13,7 +13,7 @@ $isDesktop = isset($_GET['BXD_API_VERSION']) || mb_strpos($_SERVER['HTTP_USER_AG
 if (intval($USER->GetID()) <= 0 || \Bitrix\Im\User::getInstance()->isConnector())
 {
 	?>
-<script type="text/javascript">
+<script>
 	if (typeof(BXDesktopSystem) != 'undefined')
 		BXDesktopSystem.Login({});
 	else
@@ -57,7 +57,7 @@ else
 {
 	define("BX_DESKTOP", true);
 	?>
-	<script type="text/javascript">
+	<script>
 		if (typeof(BXDesktopSystem) != 'undefined')
 			BX.desktop.init();
 		<?if (!isset($_GET['BXD_MODE'])):?>
@@ -100,7 +100,7 @@ else
 		{
 			\Bitrix\Main\UI\Extension::load('timeman.monitor');
 
-			?><script type="text/javascript">
+			?><script>
 			BX.Timeman.Monitor.init(<?=\Bitrix\Timeman\Monitor\Config::json()?>);
 			</script><?
 		}

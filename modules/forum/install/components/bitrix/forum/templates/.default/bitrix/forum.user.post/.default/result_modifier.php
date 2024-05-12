@@ -28,8 +28,8 @@ $arParams["ATTACH_MODE"] = (!in_array("NAME", $arParams["ATTACH_MODE"]) && !in_a
 $arParams["ATTACH_SIZE"] = intval(intVal($arParams["ATTACH_SIZE"]) > 0 ? $arParams["ATTACH_SIZE"] : 90);
 
 $arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");
-$arParams["SHOW_ICQ"] = ($arParams["SHOW_ICQ"] == "Y" ? "Y" : "N");
-$arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
+$arParams["SHOW_ICQ"] = (isset($arParams["SHOW_ICQ"]) && $arParams["SHOW_ICQ"] == "Y" ? "Y" : "N");
+$arParams["SHOW_TAGS"] = (isset($arParams["SHOW_TAGS"]) && $arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
 
 $arParams["AJAX_TYPE"] = "N";
 
@@ -45,25 +45,25 @@ if (!function_exists("__array_stretch"))
 	function __array_stretch($arGroup, $depth = 0)
 	{
 		$arResult = array();
-		
-		if (intval($arGroup["ID"]) > 0)
+
+		if (isset($arGroup["ID"]) && intval($arGroup["ID"]) > 0)
 		{
 			$arResult["GROUP_".$arGroup["ID"]] = $arGroup;
 			unset($arResult["GROUP_".$arGroup["ID"]]["GROUPS"]);
 			unset($arResult["GROUP_".$arGroup["ID"]]["FORUM"]);
-			$arResult["GROUP_".$arGroup["ID"]]["DEPTH"] = $depth; 
-			$arResult["GROUP_".$arGroup["ID"]]["TYPE"] = "GROUP"; 
+			$arResult["GROUP_".$arGroup["ID"]]["DEPTH"] = $depth;
+			$arResult["GROUP_".$arGroup["ID"]]["TYPE"] = "GROUP";
 		}
 		if (array_key_exists("FORUMS", $arGroup))
 		{
 			foreach ($arGroup["FORUMS"] as $res)
 			{
-				$arResult["FORUM_".$res["ID"]] = $res; 
-				$arResult["FORUM_".$res["ID"]]["DEPTH"] = $depth; 
-				$arResult["FORUM_".$res["ID"]]["TYPE"] = "FORUM"; 
+				$arResult["FORUM_".$res["ID"]] = $res;
+				$arResult["FORUM_".$res["ID"]]["DEPTH"] = $depth;
+				$arResult["FORUM_".$res["ID"]]["TYPE"] = "FORUM";
 			}
 		}
-				
+
 		if (array_key_exists("GROUPS", $arGroup))
 		{
 			$depth++;

@@ -51,7 +51,7 @@ return array(
 		),
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.1.COVER_WITH_BG_IMAGE_AND_BIG_TITLE_NODES_LANDINGBLOCKNODEBGIMG'),
-			'type' => ['background', 'background-attachment'],
+			'type' => ['background'],
 		),
 		'.landing-block-node-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.1.COVER_WITH_BG_IMAGE_AND_BIG_TITLE_NODES_LANDINGBLOCKNODE_CONTAINER'),

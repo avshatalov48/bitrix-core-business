@@ -11,12 +11,14 @@ use Bitrix\Lists\Api\Data\IBlockService\IBlockToGet;
 use Bitrix\Lists\Api\Data\IBlockService\IBlockToGetById;
 use Bitrix\Lists\Api\Request\IBlockService\AddIBlockElementRequest;
 use Bitrix\Lists\Api\Request\IBlockService\GetIBlockDefaultFieldsRequest;
+use Bitrix\Lists\Api\Request\IBlockService\UpdateIBlockElementRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\AddElementRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetAverageIBlockTemplateDurationRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetElementDetailInfoRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetIBlockFieldsRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetIBlockInfoRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetListRequest;
+use Bitrix\Lists\Api\Request\ServiceFactory\UpdateElementRequest;
 use Bitrix\Lists\Api\Response\IBlockService\GetIBlockElementFieldsResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\AddElementResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetAverageIBlockTemplateDurationResponse;
@@ -25,6 +27,7 @@ use Bitrix\Lists\Api\Response\ServiceFactory\GetElementDetailInfoResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetIBlockFieldsResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetIBlockInfoResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetListResponse;
+use Bitrix\Lists\Api\Response\ServiceFactory\UpdateElementResponse;
 use Bitrix\Lists\Api\Service\IBlockService\IBlockService;
 use Bitrix\Lists\Service\Param;
 use Bitrix\Main\Error;
@@ -229,11 +232,12 @@ abstract class ServiceFactory
 		if ($elementToGetDetailInfo)
 		{
 			$elementId = $elementToGetDetailInfo->getElementId();
+			$iBlockId = $elementToGetDetailInfo->getIBlockId();
 
 			if ($elementToGetDetailInfo->isNeedCheckPermissions())
 			{
 				$sectionId = $elementToGetDetailInfo->getSectionId();
-				$checkElementPermission = $this->accessService->canUserReadElement($elementId, $sectionId);
+				$checkElementPermission = $this->accessService->canUserReadElement($elementId, $sectionId, $iBlockId);
 				$response->fillFromResponse($checkElementPermission);
 			}
 
@@ -354,6 +358,47 @@ abstract class ServiceFactory
 				$response
 					->addErrors($addResponse->getErrors())
 					->setId((int)$addResponse->getId())
+				;
+			}
+		}
+
+		return $response;
+	}
+
+	public function updateElement(UpdateElementRequest $request): UpdateElementResponse
+	{
+		$response = new UpdateElementResponse();
+
+		$elementToUpdate = $this->dataService->getElementToUpdateObject($request, $response);
+		if ($elementToUpdate)
+		{
+			if ($request->needCheckPermission)
+			{
+				$checkPermissionsResponse = $this->accessService->canUserEditElement(
+					$elementToUpdate->getElementId(),
+					$elementToUpdate->getSectionId(),
+					$elementToUpdate->getIBlockId()
+				);
+				$response->fillFromResponse($checkPermissionsResponse);
+			}
+
+			if ($response->isSuccess())
+			{
+				$updateRequest = new UpdateIBlockElementRequest(
+					$elementToUpdate->getElementId(),
+					$elementToUpdate->getIBlockId(),
+					$elementToUpdate->getSectionId(),
+					$elementToUpdate->getValues(),
+					$elementToUpdate->getModifiedBy(),
+					$request->needStartWorkflows,
+					false,
+					$request->wfParameterValues,
+					$request->timeToStart,
+				);
+				$updateResponse = $this->iBlockService->updateIBlockElement($updateRequest);
+				$response
+					->addErrors($updateResponse->getErrors())
+					->setIsSuccessElementUpdate($updateResponse->getIsSuccessUpdate())
 				;
 			}
 		}

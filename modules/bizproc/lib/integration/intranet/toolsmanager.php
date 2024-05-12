@@ -68,6 +68,16 @@ final class ToolsManager
 		return ob_get_clean();
 	}
 
+	public function getBizprocUnavailableSliderCode()
+	{
+		return 'limit_automation_off';
+	}
+
+	public function getRobotsUnavailableSliderCode()
+	{
+		return 'limit_crm_rules_off';
+	}
+
 	private function check(string $toolId): bool
 	{
 		if ($this->canUseIntranetToolsManager)

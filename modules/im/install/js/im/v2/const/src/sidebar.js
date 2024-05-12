@@ -1,14 +1,3 @@
-export const MainPanelBlock = Object.freeze({
-	chat: 'chat',
-	user: 'user',
-	info: 'info',
-	file: 'file',
-	fileUnsorted: 'fileUnsorted',
-	task: 'task',
-	meeting: 'meeting',
-	market: 'market',
-});
-
 export const SidebarDetailBlock = Object.freeze({
 	main: 'main',
 	members: 'members',

@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*patchlimitationmutatormark1*/
 CModule::AddAutoloadClasses(

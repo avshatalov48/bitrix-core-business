@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix Site Manager Forum					 #
 # Copyright (c) 2002-2009 Bitrix			 #
-# http://www.bitrixsoft.com					 #
+# https://www.bitrixsoft.com					 #
 # mailto:admin@bitrixsoft.com				 #
 ##############################################
 use Bitrix\Main\Error;
@@ -515,8 +515,6 @@ class CAllVote
 		/** @var $r \Bitrix\Main\HttpRequest */
 		$r = \Bitrix\Main\Context::getCurrent()->getRequest();
 		$request = array_merge($r->getQueryList()->toArray(), $r->getPostList()->toArray());
-		if (isset($request["AJAX_POST"]) && $request["AJAX_POST"] == "Y")
-			CUtil::decodeURIComponent($request);
 
 		$PUBLIC_VOTE_ID = intval($request["PUBLIC_VOTE_ID"]);
 		$errorCollection = new \Bitrix\Main\ErrorCollection();

@@ -3,10 +3,10 @@ import { EventEmitter } from 'main.core.events';
 import { Loader } from 'im.v2.component.elements';
 import { EventType, SidebarDetailBlock, SidebarFileTypes } from 'im.v2.const';
 
-import { DateGroup } from '../../elements/date-group';
-import { DetailHeader } from '../../elements/detail-header';
+import { DateGroup } from '../../elements/date-group/date-group';
+import { DetailHeader } from '../../elements/detail-header/detail-header';
 import { FileUnsorted } from '../../../classes/panels/file-unsorted';
-import { DetailEmptyState } from '../../elements/detail-empty-state';
+import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
 import { FileMenu } from '../../../classes/context-menu/file/file-menu';
 import { DocumentDetailItem } from '../file/components/document-detail-item';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';

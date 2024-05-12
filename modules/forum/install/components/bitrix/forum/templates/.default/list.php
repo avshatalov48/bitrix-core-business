@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-if ($_SERVER['REQUEST_METHOD'] == "GET" && $_GET["ACTION"] == "FORUM_SUBSCRIBE"):
+if ($_SERVER['REQUEST_METHOD'] == "GET" && isset($_GET["ACTION"]) && $_GET["ACTION"] == "FORUM_SUBSCRIBE"):
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] == "GET" && $_GET["ACTION"] == "FORUM_SUBSCRIBE")
 				/Input params
 ********************************************************************/
 $res["URL"] = array(
-	"PROFILE" => CComponentEngine::MakePathFromTemplate($res["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $GLOBALS["USER"]->GetID())), 
-	"~PROFILE" => CComponentEngine::MakePathFromTemplate($res["~URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $GLOBALS["USER"]->GetID())), 
-	"SUBSCRIBES" => CComponentEngine::MakePathFromTemplate($res["URL_TEMPLATES_SUBSCR_LIST"], array()), 
+	"PROFILE" => CComponentEngine::MakePathFromTemplate($res["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $GLOBALS["USER"]->GetID())),
+	"~PROFILE" => CComponentEngine::MakePathFromTemplate($res["~URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $GLOBALS["USER"]->GetID())),
+	"SUBSCRIBES" => CComponentEngine::MakePathFromTemplate($res["URL_TEMPLATES_SUBSCR_LIST"], array()),
 	"~SUBSCRIBES" => CComponentEngine::MakePathFromTemplate($res["~URL_TEMPLATES_SUBSCR_LIST"], array()));
 ?>
 <div class="forum-header-box">
@@ -61,63 +61,63 @@ endif;
 	return false;
 endif;
 
-?><?$APPLICATION->IncludeComponent("bitrix:forum.topic.list", "", 
+?><?$APPLICATION->IncludeComponent("bitrix:forum.topic.list", "",
 	Array(
-		"FID"	=>	$arResult["FID"],
-		"USE_DESC_PAGE"	=>	$arParams["USE_DESC_PAGE_TOPIC"],
-		
-		"URL_TEMPLATES_INDEX"	=>	$arResult["URL_TEMPLATES_INDEX"],
-		"URL_TEMPLATES_FORUMS"	=>	$arResult["URL_TEMPLATES_FORUMS"],
-		"URL_TEMPLATES_LIST"	=>	$arResult["URL_TEMPLATES_LIST"],
-		"URL_TEMPLATES_READ"	=>	$arResult["URL_TEMPLATES_READ"],
-		"URL_TEMPLATES_MESSAGE" =>  $arResult["URL_TEMPLATES_MESSAGE"],
-		"URL_TEMPLATES_PROFILE_VIEW"	=>	$arResult["URL_TEMPLATES_PROFILE_VIEW"],
-		"URL_TEMPLATES_MESSAGE_APPR"	=>	$arResult["URL_TEMPLATES_MESSAGE_APPR"],
-		"URL_TEMPLATES_TOPIC_NEW"	=>	$arResult["URL_TEMPLATES_TOPIC_NEW"],
-		"URL_TEMPLATES_SUBSCR_LIST"	=>	$arResult["URL_TEMPLATES_SUBSCR_LIST"],
-		"URL_TEMPLATES_TOPIC_MOVE"	=>	$arResult["URL_TEMPLATES_TOPIC_MOVE"],
-		"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"],
-		
+		"FID"	=>	$arResult["FID"] ?? null,
+		"USE_DESC_PAGE"	=>	$arParams["USE_DESC_PAGE_TOPIC"] ?? null,
+
+		"URL_TEMPLATES_INDEX"	=>	$arResult["URL_TEMPLATES_INDEX"] ?? null,
+		"URL_TEMPLATES_FORUMS"	=>	$arResult["URL_TEMPLATES_FORUMS"] ?? null,
+		"URL_TEMPLATES_LIST"	=>	$arResult["URL_TEMPLATES_LIST"] ?? null,
+		"URL_TEMPLATES_READ"	=>	$arResult["URL_TEMPLATES_READ"] ?? null,
+		"URL_TEMPLATES_MESSAGE" =>  $arResult["URL_TEMPLATES_MESSAGE"] ?? null,
+		"URL_TEMPLATES_PROFILE_VIEW"	=>	$arResult["URL_TEMPLATES_PROFILE_VIEW"] ?? null,
+		"URL_TEMPLATES_MESSAGE_APPR"	=>	$arResult["URL_TEMPLATES_MESSAGE_APPR"] ?? null,
+		"URL_TEMPLATES_TOPIC_NEW"	=>	$arResult["URL_TEMPLATES_TOPIC_NEW"] ?? null,
+		"URL_TEMPLATES_SUBSCR_LIST"	=>	$arResult["URL_TEMPLATES_SUBSCR_LIST"] ?? null,
+		"URL_TEMPLATES_TOPIC_MOVE"	=>	$arResult["URL_TEMPLATES_TOPIC_MOVE"] ?? null,
+		"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"] ?? null,
+
 		"PAGEN" => intval($GLOBALS["NavNum"] + 1),
-		"TOPICS_PER_PAGE"	=>	$arParams["TOPICS_PER_PAGE"],
-		"MESSAGES_PER_PAGE"	=>	$arParams["MESSAGES_PER_PAGE"],
-		"DATE_FORMAT"	=>	$arParams["DATE_FORMAT"],
-		"DATE_TIME_FORMAT"	=>	$arParams["DATE_TIME_FORMAT"],
-		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-		"PAGE_NAVIGATION_TEMPLATE" =>  $arParams["PAGE_NAVIGATION_TEMPLATE"],
-		"PAGE_NAVIGATION_WINDOW" =>  $arParams["PAGE_NAVIGATION_WINDOW"],
-		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"],
-		"SHOW_FORUM_ANOTHER_SITE" => $arParams["SHOW_FORUM_ANOTHER_SITE"],
-		"SET_NAVIGATION"	=>	$arParams["SET_NAVIGATION"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
-		"SET_TITLE"	=>	$arParams["SET_TITLE"],
-		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-		"CACHE_TIME" => $arParams["CACHE_TIME"],
-		
-		"TMPLT_SHOW_ADDITIONAL_MARKER"	=>	$arParams["~TMPLT_SHOW_ADDITIONAL_MARKER"],
-		"SHOW_RSS" => $arParams["USE_RSS"],
-		"SHOW_AUTHOR_COLUMN" => $arParams["SHOW_AUTHOR_COLUMN"], 
-		"SEO_USER" => $arParams["SEO_USER"]
+		"TOPICS_PER_PAGE"	=>	$arParams["TOPICS_PER_PAGE"] ?? null,
+		"MESSAGES_PER_PAGE"	=>	$arParams["MESSAGES_PER_PAGE"] ?? null,
+		"DATE_FORMAT"	=>	$arParams["DATE_FORMAT"] ?? null,
+		"DATE_TIME_FORMAT"	=>	$arParams["DATE_TIME_FORMAT"] ?? null,
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null,
+		"PAGE_NAVIGATION_TEMPLATE" =>  $arParams["PAGE_NAVIGATION_TEMPLATE"] ?? null,
+		"PAGE_NAVIGATION_WINDOW" =>  $arParams["PAGE_NAVIGATION_WINDOW"] ?? null,
+		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"] ?? null,
+		"SHOW_FORUM_ANOTHER_SITE" => $arParams["SHOW_FORUM_ANOTHER_SITE"] ?? null,
+		"SET_NAVIGATION"	=>	$arParams["SET_NAVIGATION"] ?? null,
+		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"] ?? null,
+		"SET_TITLE"	=>	$arParams["SET_TITLE"] ?? null,
+		"CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? null,
+		"CACHE_TIME" => $arParams["CACHE_TIME"] ?? null,
+
+		"TMPLT_SHOW_ADDITIONAL_MARKER"	=>	$arParams["~TMPLT_SHOW_ADDITIONAL_MARKER"] ?? null,
+		"SHOW_RSS" => $arParams["USE_RSS"] ?? null,
+		"SHOW_AUTHOR_COLUMN" => $arParams["SHOW_AUTHOR_COLUMN"] ?? null,
+		"SEO_USER" => $arParams["SEO_USER"] ?? null
 	), $component
 );?>
 <?
 if (in_array("USERS_ONLINE", $arParams["SHOW_STATISTIC_BLOCK"])):
 ?>
-<?$APPLICATION->IncludeComponent("bitrix:forum.statistic", "", 
+<?$APPLICATION->IncludeComponent("bitrix:forum.statistic", "",
 	Array(
-		"FID"	=>	$arResult["FID"],
+		"FID"	=>	$arResult["FID"] ?? null,
 		"TID"	=>	0,
-		"PERIOD"	=>	$arParams["TIME_INTERVAL_FOR_USER_STAT"],
+		"PERIOD"	=>	$arParams["TIME_INTERVAL_FOR_USER_STAT"] ?? null,
 		"SHOW"	=>	array("USERS_ONLINE"),
-		"URL_TEMPLATES_PROFILE_VIEW"	=>	$arResult["URL_TEMPLATES_PROFILE_VIEW"],
-		
-		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-		"CACHE_TIME" => $arParams["CACHE_TIME"],
-		"CACHE_TIME_USER_STAT" => $arParams["CACHE_TIME_USER_STAT"], 
-		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"], 
-		"WORD_WRAP_CUT" => $arParams["WORD_WRAP_CUT"], 
-		"SEO_USER" => $arParams["SEO_USER"],
-		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
+		"URL_TEMPLATES_PROFILE_VIEW"	=>	$arResult["URL_TEMPLATES_PROFILE_VIEW"] ?? null,
+
+		"CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? null,
+		"CACHE_TIME" => $arParams["CACHE_TIME"] ?? null,
+		"CACHE_TIME_USER_STAT" => $arParams["CACHE_TIME_USER_STAT"] ?? null,
+		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"] ?? null,
+		"WORD_WRAP_CUT" => $arParams["WORD_WRAP_CUT"] ?? null,
+		"SEO_USER" => $arParams["SEO_USER"] ?? null,
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"] ?? null
 	), $component
 );?>
 <?
